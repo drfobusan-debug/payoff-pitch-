@@ -13,9 +13,11 @@ across qualified players only:
   lower hard-hit/barrel allowed = better -> suppresses the opposing offense).
 - Batters: xwOBA, hard-hit%, barrel% (higher = better -> boosts that offense).
 
-FanGraphs-only metrics fold into the same z-composite once a subscription feed
-supplies them: SIERA & Stuff+ (pitchers), wRC+ & xSLG (batters). They are left
-out here rather than fabricated.
+Batter xSLG folds into the same z-composite when supplied (from the public
+Savant expected-statistics leaderboard -- season-to-date, no FanGraphs needed).
+The remaining FanGraphs-only metrics (SIERA & Stuff+ for pitchers, wRC+ for
+batters) fold in the same way once a feed supplies them; left out rather than
+fabricated.
 """
 
 from __future__ import annotations
@@ -58,10 +60,16 @@ class TailAdjuster:
     pitcher_z: dict[int, dict[str, float]] = field(default_factory=dict)
 
     @classmethod
-    def build(cls, df: pd.DataFrame) -> TailAdjuster:
+    def build(
+        cls, df: pd.DataFrame, batter_xslg: dict[int, float] | None = None
+    ) -> TailAdjuster:
         if df is None or df.empty:
             return cls()
-        return cls(batter_z=_batter_z(df), pitcher_z=_pitcher_z(df))
+        batter_z = _batter_z(df)
+        if batter_xslg:
+            for pid, z in _zmap(pd.Series(batter_xslg)).items():
+                batter_z.setdefault(pid, {})["xslg"] = z
+        return cls(batter_z=batter_z, pitcher_z=_pitcher_z(df))
 
     def _net(self, z: dict[str, float]) -> float:
         elite = sum(1 for v in z.values() if v >= Z_THRESHOLD)

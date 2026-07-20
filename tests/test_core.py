@@ -542,6 +542,37 @@ def test_match_roto_game_by_nickname():
     assert _match_roto_game(game, [other]) is None
 
 
+def test_tail_xslg_fold_in():
+    import numpy as np
+    import pandas as pd
+
+    from mlb_engine.features.tails import TailAdjuster
+
+    rng = np.random.default_rng(0)
+    # Population of ordinary batted balls for many batters (xwOBA/hard-hit/barrel).
+    rows = []
+    for bid in range(1, 41):
+        for _ in range(20):
+            rows.append({
+                "batter": bid, "pitcher": 999,
+                "launch_speed": float(rng.normal(88, 4)),
+                "launch_speed_angle": 3,
+                "estimated_woba_using_speedangle": float(rng.normal(0.32, 0.02)),
+                "description": "hit_into_play", "events": "single",
+            })
+    df = pd.DataFrame(rows)
+
+    # xSLG: batter 1 is a massive outlier (>2 SD), the rest cluster tightly.
+    xslg = {bid: 0.40 for bid in range(1, 41)}
+    xslg[1] = 0.95
+    adj = TailAdjuster.build(df, xslg)
+    assert adj.batter_z[1]["xslg"] >= 2.0
+    # Outlier xSLG lifts batter 1's power multiplier above neutral.
+    assert adj.batter_multiplier(1).get("HR", 1.0) > 1.0
+    # Without xSLG the same batter is neutral (no other tail metric triggers).
+    assert TailAdjuster.build(df).batter_multiplier(1) == {}
+
+
 def test_vsin_parse_helpers():
     from mlb_engine.data.vsin import _american, _norm_name, _pct
 

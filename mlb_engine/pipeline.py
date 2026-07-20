@@ -15,6 +15,7 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_person
+from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.pitch_mix import (
@@ -153,7 +154,7 @@ class Pipeline:
         )
         sprint = load_sprint_speeds(slate_date.year)
         self._team_defense = load_team_defense(slate_date.year)
-        self._tails = TailAdjuster.build(statcast)
+        self._tails = TailAdjuster.build(statcast, load_batter_xslg(slate_date.year))
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}
