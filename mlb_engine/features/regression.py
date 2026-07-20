@@ -127,13 +127,11 @@ def build_batter_regression(
     whiffs = bdf["description"].isin(["swinging_strike", "swinging_strike_blocked", "foul_tip"])
 
     n_bbe = int(len(batted))
-    barrel = (
-        float((batted["launch_speed_angle"] == 6).mean())
-        if n_bbe and "launch_speed_angle" in batted
-        else 0.0
-    )
+    lsa = batted["launch_speed_angle"].dropna() if "launch_speed_angle" in batted else pd.Series([])
+    barrel = float((lsa == 6).mean()) if len(lsa) else 0.0
     hard_hit = float((batted["launch_speed"] >= 95).mean()) if n_bbe else 0.0
-    sweet = float(batted["launch_angle"].between(8, 32).mean()) if n_bbe else 0.0
+    la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
+    sweet = float(la.between(8, 32).mean()) if len(la) else 0.0
     bat_speed = (
         float(bdf["bat_speed"].dropna().mean()) if bdf["bat_speed"].notna().any() else BL_BAT_SPEED
     )

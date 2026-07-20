@@ -224,7 +224,15 @@ class Pipeline:
         vsin_csv: Path | None = None,
         fangraphs_csv: Path | None = None,
         seed: int | None = 7,
+        enrich_leaderboards: bool = True,
     ) -> list[Recommendation]:
+        """Price a slate.
+
+        ``enrich_leaderboards`` gates the season-to-date Savant/pybaseball
+        leaderboards (sprint speed, team defense, xSLG tails). It is left on for
+        live runs and turned off by the historical backtester, where those
+        full-season leaderboards would leak future information (look-ahead bias).
+        """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
         log.info("Slate %s: %d games", slate_date, len(slate.games))
@@ -235,12 +243,11 @@ class Pipeline:
             slate_date,
             [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
         )
-        sprint = load_sprint_speeds(slate_date.year)
-        self._team_defense = load_team_defense(slate_date.year)
+        sprint = load_sprint_speeds(slate_date.year) if enrich_leaderboards else {}
+        self._team_defense = load_team_defense(slate_date.year) if enrich_leaderboards else {}
+        batter_xslg = load_batter_xslg(slate_date.year) if enrich_leaderboards else {}
         fg_bz, fg_pz = self._fangraphs_tail_z(fangraphs_csv, slate)
-        self._tails = TailAdjuster.build(
-            statcast, load_batter_xslg(slate_date.year), fg_bz, fg_pz
-        )
+        self._tails = TailAdjuster.build(statcast, batter_xslg, fg_bz, fg_pz)
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}

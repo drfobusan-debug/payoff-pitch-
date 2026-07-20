@@ -1004,3 +1004,31 @@ def test_ledger_overall_and_dedup(tmp_path):
     strong = next(m for m in overall_metrics(all_entries) if m.tier == Tier.STRONG.value)
     assert strong.n == 3 and strong.wins == 2 and abs(strong.ppv - 2 / 3) < 1e-3
     assert abs(strong.units - 1.0) < 1e-9  # +1 -1 +1
+
+
+# ---- backtest analytics ----
+def test_backtest_summarize_and_confusion():
+    from mlb_engine.backtest import confidence_gap, confusion, sample_dates, summarize
+
+    # favored (0.7) over that won, and faded (0.3) over that lost -> perfect
+    graded = [
+        (_rec(market="batter_h", model_prob=0.7), WIN),
+        (_rec(market="batter_h", model_prob=0.3), LOSS),
+        (_rec(market="game_total", model_prob=0.6, line=8.5, side="over"), LOSS),
+        (_rec(market="game_ml", model_prob=0.55), PUSH),
+    ]
+    summ = {g.group: g for g in summarize(graded)}
+    assert summ["Batter Props"].n == 2 and summ["Batter Props"].wins == 1
+    assert summ["ALL"].pushes == 1  # the ML push counted, excluded from n
+    assert summ["ALL"].n == 3
+
+    conf = {c.group: c for c in confusion(graded)}
+    bp = conf["Batter Props"]
+    assert (bp.tp, bp.fp, bp.fn, bp.tn) == (1, 0, 0, 1)
+    assert bp.ppv == 1.0 and bp.npv == 1.0
+
+    gaps = confidence_gap(graded)
+    # favored batter pick predicted 0.70, won (1.0) -> under-confident (negative)
+    assert gaps["Batter Props"] < 0
+
+    assert len(sample_dates(date(2024, 6, 1), date(2024, 6, 9), 2)) == 5

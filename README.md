@@ -139,6 +139,27 @@ mypy mlb_engine
 pytest -q
 ```
 
+## Historical backtest (accuracy / calibration)
+
+`mlb_engine/backtest.py` replays past slates to measure whether the model is
+*predictive*, independent of odds. For each historical date it rebuilds every
+feature strictly as-of the day before (Statcast rolling windows sliced from a
+preloaded season frame; season-to-date Savant leaderboards disabled via
+`Pipeline.run(..., enrich_leaderboards=False)` to avoid look-ahead), emits the
+model's probability for each market at standard sportsbook lines, and grades it
+against the official box score.
+
+```bash
+python scripts/run_backtest.py       # downloads one season Statcast frame, replays, pickles picks
+python scripts/analyze_backtest.py   # -> calibration, PPV/NPV, FP/FN bias, output/backtest_2024.xlsx
+```
+
+Reported per market group: win%, Brier score, reliability/calibration curve,
+and a confusion matrix (PPV, NPV, sensitivity, specificity, false-positive vs
+false-negative rate) keyed on the model's own 0.5 probability boundary. This is
+an accuracy/calibration test only -- a profitability (ROI) backtest additionally
+requires paid historical odds.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);
