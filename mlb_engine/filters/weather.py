@@ -1,10 +1,12 @@
 """Weather filter using the free Open-Meteo forecast API.
 
 Pulls temperature, humidity, wind speed and direction for the ballpark at game
-time, then converts them into bounded multipliers on hit/HR outcomes. Wind is
-projected onto the home-plate -> center-field axis so a wind blowing out boosts
-power and a wind blowing in suppresses it. Domed / closed-roof parks neutralize
-weather.
+time, then converts them into bounded multipliers on hit/HR outcomes via a
+WAM-style park-configuration filter: wind is projected onto the home-plate ->
+center-field axis and gated by each park's structural wind-receptivity, while
+temperature/wind HR payoff is scaled by the park's fence/outfield profile.
+Humidity is down-weighted (humidor-neutralized). Domed / closed-roof parks
+neutralize weather.
 """
 
 from __future__ import annotations
@@ -75,12 +77,12 @@ class WeatherProvider:
 
         if park.roof == "retractable":
             # Unknown whether open; damp the effect by half.
-            hr, hit = _effect(cond)
+            hr, hit = _effect(cond, park)
             return WeatherEffect(
                 cond, 1.0 + (hr - 1.0) * 0.5, 1.0 + (hit - 1.0) * 0.5, note="retractable (damped)"
             )
 
-        hr, hit = _effect(cond)
+        hr, hit = _effect(cond, park)
         return WeatherEffect(cond, hr, hit, note="open")
 
     def _fetch_conditions(self, park: Park, game_dt_utc: str | None) -> WeatherConditions:
@@ -117,18 +119,28 @@ class WeatherProvider:
         return WeatherConditions(temp, hum, wspd, wdir, out)
 
 
-def _effect(c: WeatherConditions) -> tuple[float, float]:
-    """Return (hr_mult, hit_mult) from conditions. Bounded and modest."""
-    hr = 1.0
-    # temperature: ~+2.5% HR per +10F above 70
-    hr *= 1.0 + max(-0.15, min(0.15, (c.temp_f - 70.0) * 0.0025))
-    # humidity: humid air is less dense -> slight carry
-    hr *= 1.0 + max(-0.03, min(0.03, (c.humidity_pct - 50.0) * 0.0005))
-    # wind out to CF: ~+1% HR per mph out
-    hr *= 1.0 + max(-0.20, min(0.25, c.out_to_cf_mph * 0.010))
-    hr = max(0.75, min(1.35, hr))
+def _effect(c: WeatherConditions, park: Park) -> tuple[float, float]:
+    """Return (hr_mult, hit_mult) via a WAM-style park-configuration filter.
 
-    # hits track a damped version of the same drivers
+    Temperature (~3.3 ft / +10F) and wind (~19 ft / 5 mph out) drive carry, but
+    the HR payoff is scaled by the park's fence/outfield profile (``carry_factor``)
+    and the wind by its structural receptivity (``wind_factor``). Humidity is
+    down-weighted to near-noise since humidors neutralize it.
+    """
+    carry = park.carry_factor
+    wind_recv = park.wind_factor
+
+    # temperature: ~+2.8% carry per +10F above 70, amplified/damped by fence profile
+    temp_term = max(-0.15, min(0.15, (c.temp_f - 70.0) * 0.0028)) * carry
+    # humidity: humidor-neutralized -> treat as low-PPV noise
+    humid_term = max(-0.015, min(0.015, (c.humidity_pct - 50.0) * 0.0002))
+    # wind out/in to CF: ~+1.1% HR per mph, gated by park wind-receptivity and fences
+    wind_term = max(-0.30, min(0.35, c.out_to_cf_mph * 0.011 * wind_recv)) * carry
+
+    hr = (1.0 + temp_term) * (1.0 + humid_term) * (1.0 + wind_term)
+    hr = max(0.70, min(1.40, hr))
+
+    # doubles/singles track a damped version of the same drivers
     hit = 1.0 + (hr - 1.0) * 0.35
     hit = max(0.90, min(1.12, hit))
     return hr, hit
