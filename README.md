@@ -96,6 +96,21 @@ AZ @ CHC,game_total,Over 9.5,circa,-105,58,61
 
 Without market prices the engine still outputs model probabilities (all Pass).
 
+## FanGraphs tail metrics (SIERA / Stuff+ / wRC+ / xSLG)
+
+xSLG is pulled automatically from the public Baseball Savant leaderboard. The
+FanGraphs-owned metrics come from a **custom-report CSV drop-in** (no scraping):
+in FanGraphs → Leaders, build a date-ranged report matching the rolling windows
+and hit *Export Data* — one hitters report (wRC+, xSLG) and one pitchers report
+(SIERA, Stuff+). Drop both CSVs in a folder and pass it:
+
+```bash
+mlb-engine run --fangraphs-csv ~/.mlb_engine/fangraphs/
+```
+
+Rows are matched to the slate by player name; unmatched players (and any missing
+file/metric) simply stay neutral. These feed the ≥2 SD distribution-tail layer.
+
 ## Credentials
 
 Subscription logins are read from environment variables and never committed:

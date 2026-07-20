@@ -573,6 +573,38 @@ def test_tail_xslg_fold_in():
     assert TailAdjuster.build(df).batter_multiplier(1) == {}
 
 
+def test_fangraphs_tail_csv_and_siera_inversion(tmp_path):
+    import pandas as pd
+
+    from mlb_engine.data.fangraphs import load_fangraphs_tail_csv
+    from mlb_engine.pipeline import _name_zscores
+
+    # Custom-report style export: mixed column spellings, hitter + pitcher cols.
+    csv = tmp_path / "fg.csv"
+    pd.DataFrame(
+        {
+            "Name": ["José Ramírez", "Aaron Judge", "Joe Ryan"],
+            "wRC+": [180, 200, float("nan")],
+            "xSLG": [0.55, 0.62, float("nan")],
+            "SIERA": [float("nan"), float("nan"), 2.50],
+            "Stf+": [float("nan"), float("nan"), 120],
+        }
+    ).to_csv(csv, index=False)
+
+    fg = load_fangraphs_tail_csv(csv)
+    assert not fg.is_empty()
+    assert fg.wrc_plus["jose ramirez"] == 180.0
+    assert fg.xslg["aaron judge"] == 0.62
+    assert fg.siera["joe ryan"] == 2.50
+    assert fg.stuff_plus["joe ryan"] == 120.0
+    # NaN cells are skipped, not coerced to 0.
+    assert "joe ryan" not in fg.wrc_plus
+
+    # SIERA is inverted downstream: lower SIERA -> higher (better) directional z.
+    z = _name_zscores({"a": 2.5, "b": 3.5, "c": 4.5})
+    assert z["a"] < 0 < z["c"]  # raw: low SIERA has negative z, so it gets negated
+
+
 def test_vsin_parse_helpers():
     from mlb_engine.data.vsin import _american, _norm_name, _pct
 

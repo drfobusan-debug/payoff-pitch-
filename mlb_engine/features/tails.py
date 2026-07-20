@@ -13,11 +13,11 @@ across qualified players only:
   lower hard-hit/barrel allowed = better -> suppresses the opposing offense).
 - Batters: xwOBA, hard-hit%, barrel% (higher = better -> boosts that offense).
 
-Batter xSLG folds into the same z-composite when supplied (from the public
-Savant expected-statistics leaderboard -- season-to-date, no FanGraphs needed).
-The remaining FanGraphs-only metrics (SIERA & Stuff+ for pitchers, wRC+ for
-batters) fold in the same way once a feed supplies them; left out rather than
-fabricated.
+Extra metrics fold into the same z-composite via ``extra_batter_z`` /
+``extra_pitcher_z`` (id-keyed directional z's): batter xSLG from the public
+Savant leaderboard, and SIERA & Stuff+ (pitchers) + wRC+ & xSLG (batters) from a
+FanGraphs custom-report CSV drop-in (see ``data/fangraphs.py``). Anything not
+supplied is simply absent -- never fabricated.
 """
 
 from __future__ import annotations
@@ -61,7 +61,11 @@ class TailAdjuster:
 
     @classmethod
     def build(
-        cls, df: pd.DataFrame, batter_xslg: dict[int, float] | None = None
+        cls,
+        df: pd.DataFrame,
+        batter_xslg: dict[int, float] | None = None,
+        extra_batter_z: dict[int, dict[str, float]] | None = None,
+        extra_pitcher_z: dict[int, dict[str, float]] | None = None,
     ) -> TailAdjuster:
         if df is None or df.empty:
             return cls()
@@ -69,7 +73,10 @@ class TailAdjuster:
         if batter_xslg:
             for pid, z in _zmap(pd.Series(batter_xslg)).items():
                 batter_z.setdefault(pid, {})["xslg"] = z
-        return cls(batter_z=batter_z, pitcher_z=_pitcher_z(df))
+        pitcher_z = _pitcher_z(df)
+        _merge_z(batter_z, extra_batter_z)
+        _merge_z(pitcher_z, extra_pitcher_z)
+        return cls(batter_z=batter_z, pitcher_z=pitcher_z)
 
     def _net(self, z: dict[str, float]) -> float:
         elite = sum(1 for v in z.values() if v >= Z_THRESHOLD)
@@ -150,6 +157,16 @@ def _pitcher_z(df: pd.DataFrame) -> dict[int, dict[str, float]]:
             "barrel_allowed": {k: -v for k, v in _zmap(bg["barrel"]).items()},
         }
     )
+
+
+def _merge_z(
+    dest: dict[int, dict[str, float]], extra: dict[int, dict[str, float]] | None
+) -> None:
+    """Merge id-keyed metric->z contributions into ``dest`` in place."""
+    if not extra:
+        return
+    for pid, zmap in extra.items():
+        dest.setdefault(pid, {}).update(zmap)
 
 
 def _combine_z(metric_maps: dict[str, dict[int, float]]) -> dict[int, dict[str, float]]:

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from mlb_engine.config import Config
 from mlb_engine.data.divisions import same_division
-from mlb_engine.data.fangraphs import FanGraphsClient
+from mlb_engine.data.fangraphs import FanGraphsClient, FanGraphsTail, load_fangraphs_tail_csv
 from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
@@ -106,6 +106,50 @@ def _merge_quotes(
     return out
 
 
+def _load_fg_tail(path: Path) -> FanGraphsTail:
+    """Load a FanGraphs tail CSV, or merge every ``*.csv`` in a directory."""
+    files = sorted(path.glob("*.csv")) if path.is_dir() else [path]
+    merged = FanGraphsTail()
+    for f in files:
+        if not f.exists():
+            continue
+        t = load_fangraphs_tail_csv(f)
+        merged = FanGraphsTail(
+            siera={**merged.siera, **t.siera},
+            stuff_plus={**merged.stuff_plus, **t.stuff_plus},
+            wrc_plus={**merged.wrc_plus, **t.wrc_plus},
+            xslg={**merged.xslg, **t.xslg},
+        )
+    return merged
+
+
+def _slate_name_ids(slate: Slate) -> tuple[dict[str, int], dict[str, int]]:
+    """Return ``(batter_name->id, pitcher_name->id)`` for the slate's players."""
+    bat: dict[str, int] = {}
+    pit: dict[str, int] = {}
+    for g in slate.games:
+        for team in (g.home, g.away):
+            for slot in team.lineup:
+                if slot.player.mlbam_id:
+                    bat[norm_person(slot.player.name)] = slot.player.mlbam_id
+            if team.probable_pitcher and team.probable_pitcher.mlbam_id:
+                pit[norm_person(team.probable_pitcher.name)] = team.probable_pitcher.mlbam_id
+    return bat, pit
+
+
+def _name_zscores(values: dict[str, float]) -> dict[str, float]:
+    """Population z-score of name-keyed metric values (``{}`` if too few/flat)."""
+    if len(values) < 2:
+        return {}
+    vals = list(values.values())
+    mean = sum(vals) / len(vals)
+    var = sum((v - mean) ** 2 for v in vals) / len(vals)
+    if var <= 0:
+        return {}
+    std = var ** 0.5
+    return {name: (v - mean) / std for name, v in values.items()}
+
+
 def _match_roto_game(game: Game, roto_games: list[RotoGame]) -> RotoGame | None:
     """Match a slate game to a Rotowire game by team nickname (city-agnostic)."""
     hn, an = norm_person(game.home.name), norm_person(game.away.name)
@@ -140,6 +184,7 @@ class Pipeline:
         self,
         slate_date: Date,
         vsin_csv: Path | None = None,
+        fangraphs_csv: Path | None = None,
         seed: int | None = 7,
     ) -> list[Recommendation]:
         w = self.cfg.windows
@@ -154,7 +199,10 @@ class Pipeline:
         )
         sprint = load_sprint_speeds(slate_date.year)
         self._team_defense = load_team_defense(slate_date.year)
-        self._tails = TailAdjuster.build(statcast, load_batter_xslg(slate_date.year))
+        fg_bz, fg_pz = self._fangraphs_tail_z(fangraphs_csv, slate)
+        self._tails = TailAdjuster.build(
+            statcast, load_batter_xslg(slate_date.year), fg_bz, fg_pz
+        )
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}
@@ -218,6 +266,40 @@ class Pipeline:
                     filled += 1
         if filled:
             log.info("Filled %d expected lineups from Rotowire", filled)
+
+    def _fangraphs_tail_z(
+        self, fangraphs_csv: Path | None, slate: Slate
+    ) -> tuple[dict[int, dict[str, float]], dict[int, dict[str, float]]]:
+        """Build id-keyed tail z-contributions from a FanGraphs custom-report CSV.
+
+        Accepts a single CSV or a directory of CSVs (e.g. one hitter + one
+        pitcher export). Metrics are z-scored across the export population, then
+        mapped to this slate's players by name (unmatched rows stay neutral).
+        SIERA is inverted so a lower SIERA reads as "better" (positive z).
+        """
+        if fangraphs_csv is None:
+            return {}, {}
+        fg = _load_fg_tail(fangraphs_csv)
+        if fg.is_empty():
+            return {}, {}
+        bat_ids, pit_ids = _slate_name_ids(slate)
+        batter_z: dict[int, dict[str, float]] = {}
+        pitcher_z: dict[int, dict[str, float]] = {}
+        for metric, values in (("wrc_plus", fg.wrc_plus), ("xslg", fg.xslg)):
+            for name, z in _name_zscores(values).items():
+                pid = bat_ids.get(name)
+                if pid is not None:
+                    batter_z.setdefault(pid, {})[metric] = z
+        for metric, values, invert in (("siera", fg.siera, True), ("stuff_plus", fg.stuff_plus, False)):
+            for name, z in _name_zscores(values).items():
+                pid = pit_ids.get(name)
+                if pid is not None:
+                    pitcher_z.setdefault(pid, {})[metric] = -z if invert else z
+        if batter_z or pitcher_z:
+            log.info(
+                "FanGraphs tails: %d batters, %d pitchers matched", len(batter_z), len(pitcher_z)
+            )
+        return batter_z, pitcher_z
 
     def _apply_expected_lineup(self, team: TeamGameInfo, side: RotoLineup, season: int) -> bool:
         """Resolve a Rotowire lineup to MLBAM ids and set it on the team."""

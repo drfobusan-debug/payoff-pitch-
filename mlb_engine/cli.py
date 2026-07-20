@@ -65,7 +65,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     slate_date = _parse_date(args.date, Date.today())
     pipe = Pipeline(cfg, deps)
     vsin_csv = Path(args.vsin_csv) if args.vsin_csv else None
-    recs = pipe.run(slate_date, vsin_csv=vsin_csv)
+    fangraphs_csv = Path(args.fangraphs_csv) if args.fangraphs_csv else None
+    recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
@@ -130,6 +131,10 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("run", help="run daily predictions -> Excel")
     r.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
     r.add_argument("--vsin-csv", help="path to VSIN odds/handle CSV")
+    r.add_argument(
+        "--fangraphs-csv",
+        help="FanGraphs custom-report CSV (or directory of CSVs) for SIERA/Stuff+/wRC+/xSLG tails",
+    )
     r.add_argument("--sims", type=int, help="Monte Carlo sims per game")
     r.add_argument("--out", help="output .xlsx path")
     r.set_defaults(func=cmd_run)
