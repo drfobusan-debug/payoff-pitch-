@@ -297,6 +297,44 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- arsenal matching (pitch mix) ----
+def test_arsenal_matchup_high_whiff_vs_slider():
+    import pandas as pd
+
+    from mlb_engine.features.pitch_mix import (
+        arsenal_matchup_multiplier,
+        build_arsenal,
+        build_batter_pitch_profile,
+    )
+
+    # Slider-heavy pitcher with lots of swinging strikes.
+    prows = pd.DataFrame(
+        {
+            "pitch_type": ["SL"] * 60 + ["FF"] * 40,
+            "description": (["swinging_strike"] * 30 + ["foul"] * 30) + ["hit_into_play"] * 40,
+            "estimated_woba_using_speedangle": [None] * 100,
+        }
+    )
+    arsenal = build_arsenal(prows)
+    assert arsenal.usage["BRK"] > arsenal.usage["FB"]
+    assert arsenal.swstr["BRK"] > 0.0
+
+    # Batter who whiffs badly on breaking balls.
+    brows = pd.DataFrame(
+        {
+            "pitch_type": ["SL"] * 40,
+            "description": ["swinging_strike"] * 28 + ["hit_into_play"] * 12,
+            "estimated_woba_using_speedangle": [0.2] * 40,
+        }
+    )
+    bpp = build_batter_pitch_profile(brows)
+    mult = arsenal_matchup_multiplier(arsenal, bpp)
+    assert mult["K"] > 1.0  # high-whiff hitter vs. whiff-heavy slider -> more Ks
+
+    # Empty inputs -> neutral (no fabricated edge).
+    assert arsenal_matchup_multiplier(build_arsenal(pd.DataFrame()), bpp) == {}
+
+
 # ---- schedule pacing (DGANG) ----
 def test_dgang_tax_only_night_then_day():
     from mlb_engine.filters.schedule import dgang_multipliers, is_day, is_night

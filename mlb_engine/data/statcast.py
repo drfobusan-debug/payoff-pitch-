@@ -21,6 +21,8 @@ USE_COLS = [
     "game_date",
     "batter",
     "pitcher",
+    "pitch_type",
+    "release_speed",
     "events",
     "description",
     "type",

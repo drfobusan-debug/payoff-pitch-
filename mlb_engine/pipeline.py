@@ -16,6 +16,11 @@ from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
+from mlb_engine.features.pitch_mix import (
+    arsenal_matchup_multiplier,
+    build_arsenal,
+    build_batter_pitch_profile,
+)
 from mlb_engine.features.regression import (
     build_batter_regression,
     build_pitcher_regression,
@@ -138,11 +143,14 @@ class Pipeline:
         pit_prof = build_pitcher_profile(
             statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
         )
-        pit_reg = build_pitcher_regression(
-            statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
-        )
+        pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
+        pit_reg = build_pitcher_regression(pit_rows)
         pit_allowed_mult = pit_reg.allowed_multipliers()
         k_mult = pit_reg.k_multiplier()
+
+        # Arsenal matching: starter's pitch-mix usage/SwStr% vs. each batter's
+        # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).
+        arsenal = build_arsenal(pit_rows)
 
         # Opponent bullpen: relievers' late-inning (>=6th) rates over ~3 weeks,
         # plus PPV (K-BB%/CSW/barrel/IVB via pitcher regression on the relief set)
@@ -181,10 +189,14 @@ class Pipeline:
             regs.append(breg)
             bmult = breg.multipliers()
 
+            bpp = build_batter_pitch_profile(statcast[statcast["batter"] == pid])
+            arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
+
             vs_start = combine(ctx, pit_prof.allowed)
             vs_start = apply_multipliers(vs_start, bmult)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
+            vs_start = apply_multipliers(vs_start, arsenal_mult)
 
             # Bullpen matchup: batter's late-inning (>=6th) 3-week rates vs the
             # pen (FanGraphs split when available, else Statcast), then bullpen
