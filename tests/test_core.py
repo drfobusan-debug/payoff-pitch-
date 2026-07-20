@@ -297,6 +297,32 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- run-line PPV layer ----
+def test_runline_xwoba_confirms_and_contradicts():
+    from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+
+    # Home owns a strong xwOBA edge.
+    sig = RunLineSignal(xwoba_diff=0.040)
+    # Home -1.5 confirmed; away -1.5 (against the edge) flagged; home +1.5 outclass-safe.
+    assert runline_adjustment("home", -1.5, sig)[0] == 1
+    assert runline_adjustment("away", -1.5, sig)[0] == -1
+    # Away is the outclassed dog -> +1.5 risk (downgrade).
+    assert runline_adjustment("away", 1.5, sig)[0] == -1
+
+    # Near-even by xwOBA -> both +1.5 dogs gain value.
+    even = RunLineSignal(xwoba_diff=0.005)
+    assert runline_adjustment("home", 1.5, even)[0] == 1
+    assert runline_adjustment("away", 1.5, even)[0] == 1
+
+    # Hooks: cold-but-sound + depleted favorite bullpen stack onto opponent +1.5.
+    hook = RunLineSignal(xwoba_diff=None, cold_sound_side="away", fav_pen_depleted_side="home")
+    steps, reasons = runline_adjustment("away", 1.5, hook)
+    assert steps == 2 and len(reasons) == 2
+
+    # Non-run-line selection -> untouched.
+    assert runline_adjustment("home", None, sig) == (0, [])
+
+
 # ---- distribution tails ----
 def test_tail_bonus_and_penalty_symmetric():
     import numpy as np

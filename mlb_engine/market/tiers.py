@@ -30,10 +30,14 @@ def _base_tier(ev: float, thr: EVThresholds) -> Tier:
     return Tier.PASS
 
 
-def _bump(tier: Tier, steps: int) -> Tier:
+def bump_tier(tier: Tier, steps: int) -> Tier:
     order = [Tier.PASS, Tier.MODERATE, Tier.STRONG]
     i = max(0, min(len(order) - 1, order.index(tier) + steps))
     return order[i]
+
+
+def _bump(tier: Tier, steps: int) -> Tier:
+    return bump_tier(tier, steps)
 
 
 def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:

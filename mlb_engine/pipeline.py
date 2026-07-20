@@ -40,7 +40,8 @@ from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.ev import evaluate
-from mlb_engine.market.tiers import Tier, classify
+from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.markov_f5 import f5_from_lineups
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
@@ -250,6 +251,18 @@ class Pipeline:
             return {}
         return TeamDefense(frv=val).bip_multipliers()
 
+    def _team_xwoba(self, statcast, tinfo) -> float | None:
+        """Mean batted-ball xwOBA across a lineup (skips thin-sample hitters)."""
+        vals = []
+        for slot in tinfo.lineup:
+            rows = statcast[statcast["batter"] == slot.player.mlbam_id]
+            x = rows.loc[rows["launch_speed"].notna(), "estimated_woba_using_speedangle"].dropna()
+            if len(x) >= 15:
+                vals.append(float(x.mean()))
+        if not vals:
+            return None
+        return sum(vals) / len(vals)
+
     def _dgang_multiplier(self, prev, today_park, today_iso: str | None, slate_date: Date):
         """Day-game-after-night-game offense tax for a team, from schedule times."""
         if prev is None or today_park is None:
@@ -356,18 +369,27 @@ class Pipeline:
         h, a = res.home_runs_full.astype(float), res.away_runs_full.astype(float)
         total = h + a
         margin = h - a
+
+        # Run-line PPV confidence: team xwOBA differential (+ hooks for hot-hand
+        # fade and depleted-favorite bullpen when those feeds are live).
+        home_x = self._team_xwoba(statcast, game.home)
+        away_x = self._team_xwoba(statcast, game.away)
+        rl_signal = RunLineSignal(
+            xwoba_diff=(home_x - away_x) if home_x is not None and away_x is not None else None
+        )
+
         recs.append(self._mk(game, m, "game", "game_ml", f"{ha} ML", float((margin > 0).mean()),
                              team_side="home", side="win", quotes=quotes))
         recs.append(self._mk(game, m, "game", "game_ml", f"{aa} ML", float((margin < 0).mean()),
                              team_side="away", side="win", quotes=quotes))
         recs.append(self._mk(game, m, "game", "game_rl", f"{ha} -1.5", float((margin > 1.5).mean()),
-                             line=-1.5, team_side="home", side="cover", quotes=quotes))
+                             line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
         recs.append(self._mk(game, m, "game", "game_rl", f"{aa} +1.5", float((margin > -1.5).mean()),
-                             line=1.5, team_side="away", side="cover", quotes=quotes))
+                             line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
         recs.append(self._mk(game, m, "game", "game_rl", f"{aa} -1.5", float((-margin > 1.5).mean()),
-                             line=-1.5, team_side="away", side="cover", quotes=quotes))
+                             line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
         recs.append(self._mk(game, m, "game", "game_rl", f"{ha} +1.5", float((-margin > -1.5).mean()),
-                             line=1.5, team_side="home", side="cover", quotes=quotes))
+                             line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
         for line in (7.5, 8.5, 9.5, 10.5):
             recs.append(self._mk(game, m, "game", "game_total", f"Over {line}", p_over(total, line),
                                  line=line, side="over", quotes=quotes))
@@ -443,7 +465,8 @@ class Pipeline:
         return out
 
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
-            team_side=None, player_id=None, stat=None, side=None, quotes=None) -> Recommendation:
+            team_side=None, player_id=None, stat=None, side=None, quotes=None,
+            rl_signal: RunLineSignal | None = None) -> Recommendation:
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
@@ -469,6 +492,11 @@ class Pipeline:
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
             tier, reasons = classify(evres, self.cfg.ev)
+            if rl_signal is not None and tier != Tier.PASS:
+                steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
+                if steps:
+                    tier = bump_tier(tier, steps)
+                reasons.extend(rl_reasons)
             rec.tier = tier
             rec.reasons = reasons
         else:
