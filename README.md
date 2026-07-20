@@ -90,6 +90,21 @@ Run once, then make a desktop shortcut/alias to the launcher for your OS:
 The launcher runs the model, opens the newest workbook, and (if present) uses the
 VSIN CSV at `~/.mlb_engine/vsin_today.csv`.
 
+### Email the daily workbook
+
+`scripts/email_results.py` emails the newest workbook as an attachment (Gmail
+SMTP by default). Set these in your shell profile (`~/.zprofile` on macOS so the
+launcher's non-interactive shell sees them):
+
+```bash
+export GMAIL_USER=you@gmail.com
+export GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx   # a Gmail App Password, not your login
+export MLB_EMAIL_TO=you@gmail.com            # optional; defaults to GMAIL_USER
+```
+
+Then append `python scripts/email_results.py` to your `run_predictions` launcher
+(or run it standalone). Non-Gmail servers: override `SMTP_HOST`/`SMTP_PORT`.
+
 ## Market data (VSIN / DraftKings / Circa)
 
 `mlb-engine run` writes `output/vsin_template_<date>.csv` listing every priced
