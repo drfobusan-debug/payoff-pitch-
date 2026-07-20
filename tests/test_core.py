@@ -297,6 +297,51 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- bullpen fatigue feed (StatsAPI parsing) ----
+def test_bullpen_fatigue_from_boxscores():
+    import datetime
+
+    from mlb_engine.data.mlb_statsapi import MLBStatsClient
+
+    tid = 100
+    sched = {"dates": [
+        {"date": "2026-07-17", "games": [
+            {"gamePk": 1, "status": {"abstractGameState": "Final"}}]},
+        {"date": "2026-07-18", "games": [
+            {"gamePk": 2, "status": {"abstractGameState": "Final"}}]},
+    ]}
+
+    def _box(relievers):
+        players = {}
+        pitchers = []
+        for pid, gs, npitch in relievers:
+            pitchers.append(pid)
+            players[f"ID{pid}"] = {"stats": {"pitching": {
+                "gamesStarted": gs, "numberOfPitches": npitch}}}
+        return {"teams": {
+            "home": {"team": {"id": tid}, "pitchers": pitchers, "players": players},
+            "away": {"team": {"id": 999}, "pitchers": [], "players": {}}}}
+
+    # Day 1: relievers 10,11 throw; Day 2: reliever 10 again (back-to-back) + 12.
+    boxes = {
+        1: _box([(5, 1, 95), (10, 0, 20), (11, 0, 18)]),  # 5 is the starter
+        2: _box([(6, 1, 90), (10, 0, 15), (12, 0, 35)]),
+    }
+
+    client = MLBStatsClient()
+
+    def fake_get(path, **params):
+        if path == "schedule":
+            return sched
+        pk = int(path.split("/")[1])
+        return boxes[pk]
+
+    client._get = fake_get  # type: ignore[method-assign]
+    score = client.bullpen_fatigue(tid, datetime.date(2026, 7, 19))
+    # reliever 10 = back-to-back, reliever 12 = 35 pitches yesterday -> 2 gassed.
+    assert score == 40.0
+
+
 # ---- comeback resilience ----
 def test_comeback_flag_from_signals():
     from mlb_engine.models.comeback import ComebackSignal, evaluate

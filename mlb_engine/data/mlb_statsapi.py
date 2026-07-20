@@ -175,6 +175,70 @@ class MLBStatsClient:
         today = today or Date.today()
         return self.get_slate(today), self.get_slate(today + timedelta(days=1))
 
+    def bullpen_fatigue(self, team_id: int, before: Date, lookback_days: int = 3) -> float | None:
+        """Return a 0-100 bullpen-fatigue proxy from recent real pitch counts.
+
+        Transparent proxy for the proprietary fatigue trackers the run-line and
+        comeback layers reference: over the team's last ``lookback_days`` game
+        days it counts relievers who are "gassed" -- appeared on back-to-back
+        days, or threw a heavy recent workload -- and scales that to 0-100.
+        Higher = more depleted high-leverage depth. ``None`` if no data.
+        """
+        start = before - timedelta(days=lookback_days)
+        end = before - timedelta(days=1)
+        try:
+            data = self._get(
+                "schedule", sportId=SPORT_ID, teamId=team_id,
+                startDate=start.isoformat(), endDate=end.isoformat(),
+            )
+        except requests.RequestException as exc:
+            log.warning("bullpen fatigue schedule failed for %s: %s", team_id, exc)
+            return None
+
+        game_days: list[tuple[Date, int]] = []
+        for block in data.get("dates", []):
+            d = Date.fromisoformat(block["date"])
+            for g in block.get("games", []):
+                pk = g.get("gamePk")
+                if pk and (g.get("status", {}) or {}).get("abstractGameState") == "Final":
+                    game_days.append((d, int(pk)))
+        if not game_days:
+            return None
+        game_days.sort()
+
+        # pitches[reliever_id] = {day: pitches}
+        pitches: dict[int, dict[Date, int]] = {}
+        for d, pk in game_days:
+            try:
+                box = self._get(f"game/{pk}/boxscore")
+            except requests.RequestException:
+                continue
+            for side in ("home", "away"):
+                team_block = (box.get("teams", {}) or {}).get(side, {}) or {}
+                if (team_block.get("team", {}) or {}).get("id") != team_id:
+                    continue
+                players = team_block.get("players", {}) or {}
+                for pid in team_block.get("pitchers", []):
+                    pdata = players.get(f"ID{pid}", {}) or {}
+                    pstats = (pdata.get("stats", {}) or {}).get("pitching", {}) or {}
+                    if int(pstats.get("gamesStarted", 0) or 0) > 0:
+                        continue  # starter, not a reliever
+                    npitch = int(pstats.get("numberOfPitches", 0) or 0)
+                    if npitch > 0:
+                        pitches.setdefault(int(pid), {})[d] = npitch
+
+        if not pitches:
+            return None
+        recent_days = [d for d, _ in game_days][-2:]
+        gassed = 0
+        for _, by_day in pitches.items():
+            days_used = [d for d in recent_days if d in by_day]
+            two_day = sum(by_day.get(d, 0) for d in recent_days)
+            last_day = by_day.get(recent_days[-1], 0) if recent_days else 0
+            if len(days_used) >= 2 or two_day >= 40 or last_day >= 30:
+                gassed += 1
+        return float(min(100, gassed * 20))
+
     def last_game_venue(self, team_id: int, before: Date, lookback_days: int = 8):
         """Return (game_date, venue_id, start_hour_utc) of the team's most recent
         game before ``before`` (``start_hour_utc`` is None if unparseable).

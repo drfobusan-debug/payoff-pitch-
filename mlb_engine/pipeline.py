@@ -54,6 +54,8 @@ from mlb_engine.schemas import Game, TeamGameInfo
 
 log = logging.getLogger(__name__)
 
+FATIGUE_DEPLETED = 60.0  # bullpen-fatigue score at/above which a pen is "depleted"
+
 
 def league_pitcher_rates() -> OutcomeRates:
     r = LEAGUE_RATES
@@ -95,6 +97,7 @@ class Pipeline:
         self.cfg = cfg
         self.deps = deps
         self._team_defense: dict[str, TeamDefense] = {}
+        self._fatigue: dict[int, float | None] = {}
         self._tails = TailAdjuster()
 
     def run(
@@ -246,6 +249,12 @@ class Pipeline:
             rates_list = self._apply_env(rates_list, m)
         return rates_list
 
+    def _bullpen_fatigue(self, team_id: int, slate_date: Date) -> float | None:
+        """Cached 0-100 bullpen-fatigue score for a team on the slate date."""
+        if team_id not in self._fatigue:
+            self._fatigue[team_id] = self.deps.stats.bullpen_fatigue(team_id, slate_date)
+        return self._fatigue[team_id]
+
     def _defense_multiplier(self, fielding_abbrev: str) -> dict[str, float]:
         """BIP-hit suppression on the offense that faces this fielding team."""
         defense = self._team_defense.get(fielding_abbrev)
@@ -372,12 +381,19 @@ class Pipeline:
         total = h + a
         margin = h - a
 
-        # Run-line PPV confidence: team xwOBA differential (+ hooks for hot-hand
-        # fade and depleted-favorite bullpen when those feeds are live).
+        # Run-line PPV confidence: team xwOBA differential + depleted-favorite
+        # bullpen (live from the public StatsAPI workload proxy).
         home_x = self._team_xwoba(statcast, game.home)
         away_x = self._team_xwoba(statcast, game.away)
+        home_fat = self._bullpen_fatigue(game.home.team_id, slate_date)
+        away_fat = self._bullpen_fatigue(game.away.team_id, slate_date)
+        fav_side = "home" if float((margin > 0).mean()) >= 0.5 else "away"
+        fav_fat = home_fat if fav_side == "home" else away_fat
         rl_signal = RunLineSignal(
-            xwoba_diff=(home_x - away_x) if home_x is not None and away_x is not None else None
+            xwoba_diff=(home_x - away_x) if home_x is not None and away_x is not None else None,
+            fav_pen_depleted_side=(
+                fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
+            ),
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", f"{ha} ML", float((margin > 0).mean()),
@@ -395,7 +411,8 @@ class Pipeline:
 
         # ---- comeback-resilience flags ----
         recs.extend(self._comeback_recs(
-            game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr
+            game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr,
+            home_fat, away_fat,
         ))
 
         for line in (7.5, 8.5, 9.5, 10.5):
@@ -431,15 +448,16 @@ class Pipeline:
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
         return recs
 
-    def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr):
+    def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
+                       home_mgr, away_mgr, home_fat, away_fat):
         """Emit an informational comeback-resilience flag per team."""
         out = []
         diff = (home_x - away_x) if home_x is not None and away_x is not None else None
         specs = (
-            ("home", game.home.abbrev, diff, home_rbi, away_mgr),
-            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_mgr),
+            ("home", game.home.abbrev, diff, home_rbi, away_mgr, away_fat),
+            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_mgr, home_fat),
         )
-        for team_side, abbrev, xdiff, flags, opp_mgr in specs:
+        for team_side, abbrev, xdiff, flags, opp_mgr, opp_fat in specs:
             obp = None
             if flags:
                 obp = sum(f.preceding_obp for f in flags) / len(flags)
@@ -447,6 +465,7 @@ class Pipeline:
                 xwoba_diff=xdiff,
                 team_obp=obp,
                 opp_starter_bf_cap=opp_mgr.starter_bf_cap,
+                opp_bullpen_fatigue=opp_fat,
             )
             a = evaluate_comeback(sig)
             if a.score >= 0.60:
