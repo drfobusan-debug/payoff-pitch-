@@ -6,10 +6,16 @@ import logging
 from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
+from typing import TypeVar
 
 from mlb_engine.config import Config
 from mlb_engine.data.divisions import same_division
-from mlb_engine.data.fangraphs import FanGraphsClient, FanGraphsTail, load_fangraphs_tail_csv
+from mlb_engine.data.fangraphs import (
+    FanGraphsClient,
+    FanGraphsTail,
+    MetricValues,
+    load_fangraphs_tail_csv,
+)
 from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
@@ -106,19 +112,31 @@ def _merge_quotes(
     return out
 
 
+def _merge_metric(a: MetricValues, b: MetricValues) -> MetricValues:
+    return MetricValues(
+        by_id={**a.by_id, **b.by_id},
+        by_name={**a.by_name, **b.by_name},
+    )
+
+
 def _load_fg_tail(path: Path) -> FanGraphsTail:
-    """Load a FanGraphs tail CSV, or merge every ``*.csv`` in a directory."""
-    files = sorted(path.glob("*.csv")) if path.is_dir() else [path]
+    """Load a FanGraphs tail export, or merge every CSV/XLSX in a directory."""
+    if path.is_dir():
+        files = sorted(
+            f for f in path.iterdir() if f.suffix.lower() in (".csv", ".xlsx", ".xls")
+        )
+    else:
+        files = [path]
     merged = FanGraphsTail()
     for f in files:
         if not f.exists():
             continue
         t = load_fangraphs_tail_csv(f)
         merged = FanGraphsTail(
-            siera={**merged.siera, **t.siera},
-            stuff_plus={**merged.stuff_plus, **t.stuff_plus},
-            wrc_plus={**merged.wrc_plus, **t.wrc_plus},
-            xslg={**merged.xslg, **t.xslg},
+            siera=_merge_metric(merged.siera, t.siera),
+            stuff_plus=_merge_metric(merged.stuff_plus, t.stuff_plus),
+            wrc_plus=_merge_metric(merged.wrc_plus, t.wrc_plus),
+            xslg=_merge_metric(merged.xslg, t.xslg),
         )
     return merged
 
@@ -137,8 +155,11 @@ def _slate_name_ids(slate: Slate) -> tuple[dict[str, int], dict[str, int]]:
     return bat, pit
 
 
-def _name_zscores(values: dict[str, float]) -> dict[str, float]:
-    """Population z-score of name-keyed metric values (``{}`` if too few/flat)."""
+_ZKey = TypeVar("_ZKey")
+
+
+def _zscores(values: dict[_ZKey, float]) -> dict[_ZKey, float]:
+    """Population z-score of keyed metric values (``{}`` if too few/flat)."""
     if len(values) < 2:
         return {}
     vals = list(values.values())
@@ -147,7 +168,24 @@ def _name_zscores(values: dict[str, float]) -> dict[str, float]:
     if var <= 0:
         return {}
     std = var ** 0.5
-    return {name: (v - mean) / std for name, v in values.items()}
+    return {k: (v - mean) / std for k, v in values.items()}
+
+
+def _metric_to_id_z(
+    mv: MetricValues, name_to_id: dict[str, int], allowed_ids: set[int], invert: bool
+) -> dict[int, float]:
+    """Directional z per MLBAM id for slate players (id match preferred)."""
+    out: dict[int, float] = {}
+    if mv.by_id:
+        for pid, z in _zscores(mv.by_id).items():
+            if pid in allowed_ids:
+                out[pid] = -z if invert else z
+    elif mv.by_name:
+        for name, z in _zscores(mv.by_name).items():
+            mid = name_to_id.get(name)
+            if mid is not None:
+                out[mid] = -z if invert else z
+    return out
 
 
 def _match_roto_game(game: Game, roto_games: list[RotoGame]) -> RotoGame | None:
@@ -274,8 +312,9 @@ class Pipeline:
 
         Accepts a single CSV or a directory of CSVs (e.g. one hitter + one
         pitcher export). Metrics are z-scored across the export population, then
-        mapped to this slate's players by name (unmatched rows stay neutral).
-        SIERA is inverted so a lower SIERA reads as "better" (positive z).
+        mapped to this slate's players by MLBAM id when the export carries one,
+        else by name (unmatched rows stay neutral). SIERA is inverted so a lower
+        SIERA reads as "better" (positive z).
         """
         if fangraphs_csv is None:
             return {}, {}
@@ -283,18 +322,19 @@ class Pipeline:
         if fg.is_empty():
             return {}, {}
         bat_ids, pit_ids = _slate_name_ids(slate)
+        bat_id_set = set(bat_ids.values())
+        pit_id_set = set(pit_ids.values())
         batter_z: dict[int, dict[str, float]] = {}
         pitcher_z: dict[int, dict[str, float]] = {}
-        for metric, values in (("wrc_plus", fg.wrc_plus), ("xslg", fg.xslg)):
-            for name, z in _name_zscores(values).items():
-                pid = bat_ids.get(name)
-                if pid is not None:
-                    batter_z.setdefault(pid, {})[metric] = z
-        for metric, values, invert in (("siera", fg.siera, True), ("stuff_plus", fg.stuff_plus, False)):
-            for name, z in _name_zscores(values).items():
-                pid = pit_ids.get(name)
-                if pid is not None:
-                    pitcher_z.setdefault(pid, {})[metric] = -z if invert else z
+        for metric, mv in (("wrc_plus", fg.wrc_plus), ("xslg", fg.xslg)):
+            for pid, z in _metric_to_id_z(mv, bat_ids, bat_id_set, invert=False).items():
+                batter_z.setdefault(pid, {})[metric] = z
+        for metric, mv, invert in (
+            ("siera", fg.siera, True),
+            ("stuff_plus", fg.stuff_plus, False),
+        ):
+            for pid, z in _metric_to_id_z(mv, pit_ids, pit_id_set, invert=invert).items():
+                pitcher_z.setdefault(pid, {})[metric] = z
         if batter_z or pitcher_z:
             log.info(
                 "FanGraphs tails: %d batters, %d pitchers matched", len(batter_z), len(pitcher_z)

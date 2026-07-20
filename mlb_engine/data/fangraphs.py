@@ -37,13 +37,29 @@ _TAIL_COLUMNS = {
 
 
 @dataclass(frozen=True)
-class FanGraphsTail:
-    """Name-keyed FanGraphs tail metrics from a custom-report CSV export."""
+class MetricValues:
+    """One tail metric's values, keyed by MLBAM id when present, else by name."""
 
-    siera: dict[str, float] = field(default_factory=dict)
-    stuff_plus: dict[str, float] = field(default_factory=dict)
-    wrc_plus: dict[str, float] = field(default_factory=dict)
-    xslg: dict[str, float] = field(default_factory=dict)
+    by_id: dict[int, float] = field(default_factory=dict)
+    by_name: dict[str, float] = field(default_factory=dict)
+
+    def __bool__(self) -> bool:
+        return bool(self.by_id or self.by_name)
+
+
+@dataclass(frozen=True)
+class FanGraphsTail:
+    """FanGraphs tail metrics from a custom-report export (CSV or XLSX).
+
+    Each metric prefers exact MLBAM-id matching (FanGraphs exports include an
+    ``MLBAMID`` column) and falls back to name matching when that column is
+    absent.
+    """
+
+    siera: MetricValues = field(default_factory=MetricValues)
+    stuff_plus: MetricValues = field(default_factory=MetricValues)
+    wrc_plus: MetricValues = field(default_factory=MetricValues)
+    xslg: MetricValues = field(default_factory=MetricValues)
 
     def is_empty(self) -> bool:
         return not (self.siera or self.stuff_plus or self.wrc_plus or self.xslg)
@@ -58,43 +74,67 @@ def _find_column(df: pd.DataFrame, candidates: tuple[str, ...]) -> str | None:
     return None
 
 
-def load_fangraphs_tail_csv(path: Path) -> FanGraphsTail:
-    """Parse a FanGraphs custom-report CSV into name-keyed tail metrics.
-
-    Tolerant of column spelling/ordering; a "Name"/"Player" column plus any of
-    the SIERA/Stuff+/wRC+/xSLG columns are detected automatically. Returns an
-    empty ``FanGraphsTail`` (all neutral) on any failure.
-    """
+def _read_table(path: Path) -> pd.DataFrame | None:
     try:
-        df = pd.read_csv(path)
+        if path.suffix.lower() in (".xlsx", ".xls"):
+            return pd.read_excel(path)
+        return pd.read_csv(path)
     except Exception as exc:  # optional enrichment
-        log.warning("FanGraphs tail CSV unreadable (%s): %s", path, exc)
+        log.warning("FanGraphs tail export unreadable (%s): %s", path, exc)
+        return None
+
+
+def load_fangraphs_tail_csv(path: Path) -> FanGraphsTail:
+    """Parse a FanGraphs custom-report export (CSV/XLSX) into tail metrics.
+
+    Tolerant of column spelling/ordering; an ``MLBAMID`` column (preferred) or a
+    ``Name`` column plus any SIERA/Stuff+/wRC+/xSLG columns are auto-detected.
+    Returns an empty ``FanGraphsTail`` (all neutral) on any failure.
+    """
+    df = _read_table(path)
+    if df is None:
         return FanGraphsTail()
 
+    id_col = _find_column(df, ("mlbamid", "mlbam", "mlbid", "mlb_id"))
     name_col = _find_column(df, ("name", "player", "playername"))
-    if name_col is None:
-        log.warning("FanGraphs tail CSV has no Name column (have %s)", list(df.columns)[:8])
+    if id_col is None and name_col is None:
+        log.warning("FanGraphs tail export has no MLBAMID/Name column (have %s)",
+                    list(df.columns)[:8])
         return FanGraphsTail()
 
-    metrics: dict[str, dict[str, float]] = {m: {} for m in _TAIL_COLUMNS}
+    out: dict[str, MetricValues] = {}
     for metric, candidates in _TAIL_COLUMNS.items():
         col = _find_column(df, candidates)
         if col is None:
+            out[metric] = MetricValues()
             continue
+        by_id: dict[int, float] = {}
+        by_name: dict[str, float] = {}
         for _, row in df.iterrows():
-            key = norm_person(row[name_col])
             try:
                 val = float(row[col])
             except (TypeError, ValueError):
                 continue
-            if val == val:  # skip NaN
-                metrics[metric][key] = val
+            if val != val:  # NaN
+                continue
+            pid = _as_int(row[id_col]) if id_col is not None else None
+            if pid is not None:
+                by_id[pid] = val
+            elif name_col is not None:
+                by_name[norm_person(row[name_col])] = val
+        out[metric] = MetricValues(by_id=by_id, by_name=by_name)
     return FanGraphsTail(
-        siera=metrics["siera"],
-        stuff_plus=metrics["stuff_plus"],
-        wrc_plus=metrics["wrc_plus"],
-        xslg=metrics["xslg"],
+        siera=out["siera"], stuff_plus=out["stuff_plus"],
+        wrc_plus=out["wrc_plus"], xslg=out["xslg"],
     )
+
+
+def _as_int(v: object) -> int | None:
+    try:
+        f = float(str(v))
+    except (TypeError, ValueError):
+        return None
+    return int(f) if f == f else None
 
 
 class FanGraphsClient:

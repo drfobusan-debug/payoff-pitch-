@@ -573,13 +573,13 @@ def test_tail_xslg_fold_in():
     assert TailAdjuster.build(df).batter_multiplier(1) == {}
 
 
-def test_fangraphs_tail_csv_and_siera_inversion(tmp_path):
+def test_fangraphs_tail_csv_name_matching(tmp_path):
     import pandas as pd
 
     from mlb_engine.data.fangraphs import load_fangraphs_tail_csv
-    from mlb_engine.pipeline import _name_zscores
+    from mlb_engine.pipeline import _zscores
 
-    # Custom-report style export: mixed column spellings, hitter + pitcher cols.
+    # Custom-report style export with no MLBAMID -> name matching.
     csv = tmp_path / "fg.csv"
     pd.DataFrame(
         {
@@ -593,16 +593,45 @@ def test_fangraphs_tail_csv_and_siera_inversion(tmp_path):
 
     fg = load_fangraphs_tail_csv(csv)
     assert not fg.is_empty()
-    assert fg.wrc_plus["jose ramirez"] == 180.0
-    assert fg.xslg["aaron judge"] == 0.62
-    assert fg.siera["joe ryan"] == 2.50
-    assert fg.stuff_plus["joe ryan"] == 120.0
-    # NaN cells are skipped, not coerced to 0.
-    assert "joe ryan" not in fg.wrc_plus
+    assert fg.wrc_plus.by_name["jose ramirez"] == 180.0
+    assert fg.xslg.by_name["aaron judge"] == 0.62
+    assert fg.siera.by_name["joe ryan"] == 2.50
+    assert fg.stuff_plus.by_name["joe ryan"] == 120.0
+    # NaN cells are skipped, not coerced to 0; no MLBAMID column -> by_id empty.
+    assert "joe ryan" not in fg.wrc_plus.by_name
+    assert fg.wrc_plus.by_id == {}
 
     # SIERA is inverted downstream: lower SIERA -> higher (better) directional z.
-    z = _name_zscores({"a": 2.5, "b": 3.5, "c": 4.5})
+    z = _zscores({"a": 2.5, "b": 3.5, "c": 4.5})
     assert z["a"] < 0 < z["c"]  # raw: low SIERA has negative z, so it gets negated
+
+
+def test_fangraphs_tail_csv_prefers_mlbamid(tmp_path):
+    import pandas as pd
+
+    from mlb_engine.data.fangraphs import load_fangraphs_tail_csv
+    from mlb_engine.pipeline import _metric_to_id_z
+
+    # Real FanGraphs pitcher export shape: has an MLBAMID column.
+    csv = tmp_path / "fg_sp.csv"
+    pd.DataFrame(
+        {
+            "Name": ["Tarik Skubal", "Chris Sale", "Joe Ryan"],
+            "SIERA": [2.08, 3.03, 3.60],
+            "Stuff+": [118.7, 119.9, 105.0],
+            "MLBAMID": [669373, 519242, 657746],
+        }
+    ).to_csv(csv, index=False)
+
+    fg = load_fangraphs_tail_csv(csv)
+    assert fg.siera.by_id[669373] == 2.08
+    assert fg.stuff_plus.by_id[519242] == 119.9
+    assert fg.siera.by_name == {}  # id present -> name path unused
+
+    # SIERA inverted: Skubal (lowest SIERA) should get the highest (best) z.
+    allowed = {669373, 519242, 657746}
+    z = _metric_to_id_z(fg.siera, {}, allowed, invert=True)
+    assert z[669373] == max(z.values())
 
 
 def test_vsin_parse_helpers():
