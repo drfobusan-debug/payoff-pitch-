@@ -42,6 +42,18 @@ class RotowireClient:
         log.info("Rotowire bullpen availability pending live access for %s", team_abbrev)
         return None
 
+    def umpire_zone_runs(self, game_pk: int) -> float | None:
+        """Return the plate umpire's zone bias for a game as a zone-runs value.
+
+        Rotowire's umpire leaderboard (runs/game vs. the ~9.0 baseline) is the
+        primary source for the ``umpire_zone_runs`` human-element input. Returns
+        ``None`` until live access is validated so the umpire layer stays neutral.
+        """
+        if not self.available():
+            return None
+        log.info("Rotowire umpire assignment pending live access for game %s", game_pk)
+        return None
+
     def login(self) -> bool:
         if not self.available():
             log.info("Rotowire credentials not provided; skipping login")

@@ -8,6 +8,7 @@ from datetime import date as Date
 from pathlib import Path
 
 from mlb_engine.config import Config
+from mlb_engine.data.divisions import same_division
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import get_park
@@ -27,6 +28,8 @@ from mlb_engine.features.rolling import (
     build_pitcher_profile,
 )
 from mlb_engine.filters import travel_rest
+from mlb_engine.filters.defense import defense_hit_multiplier, load_team_fielding
+from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.ev import evaluate
 from mlb_engine.market.tiers import Tier, classify
@@ -80,6 +83,7 @@ class Pipeline:
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
         self.deps = deps
+        self._team_fielding: dict[str, float] = {}
 
     def run(
         self,
@@ -96,6 +100,7 @@ class Pipeline:
             [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
         )
         sprint = load_sprint_speeds(slate_date.year)
+        self._team_fielding = load_team_fielding(slate_date.year)
 
         quotes = {}
         if vsin_csv and vsin_csv.exists():
@@ -208,6 +213,26 @@ class Pipeline:
             return rates_list
         return [apply_multipliers(r, mult) for r in rates_list]
 
+    def _apply_all(self, rates_list, mults: list[dict[str, float]]):
+        for m in mults:
+            rates_list = self._apply_env(rates_list, m)
+        return rates_list
+
+    def _defense_multiplier(self, fielding_abbrev: str) -> dict[str, float]:
+        """BIP-hit suppression on the offense that faces this fielding team."""
+        val = self._team_fielding.get(fielding_abbrev)
+        if val is None:
+            return {}
+        m = defense_hit_multiplier(val)
+        return {"1B": m, "2B": m, "3B": m}
+
+    def _umpire_zone_runs(self, game: Game) -> float:
+        if self.deps.rotowire and self.deps.rotowire.available():
+            z = self.deps.rotowire.umpire_zone_runs(game.game_pk)
+            if z is not None:
+                return z
+        return 0.0
+
     def _price_game(self, game: Game, statcast, slate_date, sprint, mc, quotes):
         assert game.home.probable_pitcher is not None  # guarded in run()
         assert game.away.probable_pitcher is not None
@@ -238,18 +263,38 @@ class Pipeline:
         else:
             home_tr = away_tr = home_hr_boost = away_hr_boost = {}
 
-        # apply env filters (weather + own travel + opponent-staff HR boost)
-        home_start = self._apply_env(self._apply_env(self._apply_env(
-            home_start, weather_mult), home_tr), home_hr_boost)
-        home_pen = self._apply_env(self._apply_env(self._apply_env(
-            home_pen, weather_mult), home_tr), home_hr_boost)
-        away_start = self._apply_env(self._apply_env(self._apply_env(
-            away_start, weather_mult), away_tr), away_hr_boost)
-        away_pen = self._apply_env(self._apply_env(self._apply_env(
-            away_pen, weather_mult), away_tr), away_hr_boost)
+        # human element: division familiarity + plate-umpire zone (both offenses),
+        # plus opponent-specific hooks (framing/battery, neutral until fed).
+        divisional = same_division(game.home.team_id, game.away.team_id)
+        ump_zone = self._umpire_zone_runs(game)
+        home_hf = HumanFactors(divisional=divisional, umpire_zone_runs=ump_zone)
+        away_hf = HumanFactors(divisional=divisional, umpire_zone_runs=ump_zone)
+        home_human = home_hf.offense_multipliers()
+        away_human = away_hf.offense_multipliers()
 
-        home_cfg = TeamSimConfig(bat_vs_starter=home_start, bat_vs_pen=home_pen)
-        away_cfg = TeamSimConfig(bat_vs_starter=away_start, bat_vs_pen=away_pen)
+        # fielding defense: each offense's BIP hits suppressed by the OPP defense.
+        home_def = self._defense_multiplier(game.away.abbrev)
+        away_def = self._defense_multiplier(game.home.abbrev)
+
+        # apply env filters: weather + own travel + opponent-staff HR boost +
+        # human element + opponent fielding defense.
+        home_env = [weather_mult, home_tr, home_hr_boost, home_human, home_def]
+        away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def]
+        home_start = self._apply_all(home_start, home_env)
+        home_pen = self._apply_all(home_pen, home_env)
+        away_start = self._apply_all(away_start, away_env)
+        away_pen = self._apply_all(away_pen, away_env)
+
+        home_cfg = TeamSimConfig(
+            bat_vs_starter=home_start,
+            bat_vs_pen=home_pen,
+            starter_bf_cap=24 + home_hf.starter_bf_cap_delta(),
+        )
+        away_cfg = TeamSimConfig(
+            bat_vs_starter=away_start,
+            bat_vs_pen=away_pen,
+            starter_bf_cap=24 + away_hf.starter_bf_cap_delta(),
+        )
         res = mc.simulate(home_cfg, away_cfg)
 
         # F5: non-stationary per-lineup-slot Markov (TTO-aware).

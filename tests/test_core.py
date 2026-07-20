@@ -219,6 +219,43 @@ def test_bullpen_npv_walk_trap_and_fatigue():
     assert "HR" not in tired.npv_multipliers(availability=1.0)
 
 
+# ---- fielding defense ----
+def test_defense_hit_multiplier_bounds_and_direction():
+    from mlb_engine.filters.defense import defense_hit_multiplier
+
+    # Elite defense (+OAA) suppresses BIP hits (<1); poor defense inflates (>1).
+    assert defense_hit_multiplier(20.0) < 1.0
+    assert defense_hit_multiplier(-20.0) > 1.0
+    assert defense_hit_multiplier(0.0) == 1.0
+    # Bounded to +/-5%.
+    assert defense_hit_multiplier(999.0) >= 0.95
+    assert defense_hit_multiplier(-999.0) <= 1.05
+
+
+# ---- human element + umpire ----
+def test_human_divisional_and_umpire_zone():
+    from mlb_engine.filters.human import HumanFactors
+    from mlb_engine.filters.umpire import zone_runs_for_name
+
+    # Divisional familiarity -> fewer Ks, a touch more contact.
+    div = HumanFactors(divisional=True).offense_multipliers()
+    assert div["K"] < 1.0
+    assert div.get("1B", 1.0) > 1.0
+
+    # Tight-zone "Over" ump (Moscoso) -> fewer Ks, more walks.
+    over = HumanFactors(umpire_zone_runs=zone_runs_for_name("Edwin Moscoso")).offense_multipliers()
+    assert over["K"] < 1.0
+    assert over["BB"] > 1.0
+
+    # Wide-zone "Under" ump (Barrett) -> more Ks, fewer walks.
+    under = HumanFactors(umpire_zone_runs=zone_runs_for_name("Lance Barrett")).offense_multipliers()
+    assert under["K"] > 1.0
+    assert under["BB"] < 1.0
+
+    # Unknown umpire -> neutral.
+    assert zone_runs_for_name("Nobody McUnknown") is None
+
+
 # ---- travel / circadian ----
 def test_travel_eastward_worse_than_west_and_boosts_opponent_hr():
     from datetime import timedelta
