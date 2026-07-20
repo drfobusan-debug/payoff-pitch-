@@ -35,7 +35,7 @@ from mlb_engine.features.rolling import (
 )
 from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.filters import travel_rest
-from mlb_engine.filters.defense import TeamDefense, load_team_fielding
+from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
@@ -94,7 +94,7 @@ class Pipeline:
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
         self.deps = deps
-        self._team_fielding: dict[str, float] = {}
+        self._team_defense: dict[str, TeamDefense] = {}
         self._tails = TailAdjuster()
 
     def run(
@@ -112,7 +112,7 @@ class Pipeline:
             [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
         )
         sprint = load_sprint_speeds(slate_date.year)
-        self._team_fielding = load_team_fielding(slate_date.year)
+        self._team_defense = load_team_defense(slate_date.year)
         self._tails = TailAdjuster.build(statcast)
 
         quotes = {}
@@ -248,10 +248,10 @@ class Pipeline:
 
     def _defense_multiplier(self, fielding_abbrev: str) -> dict[str, float]:
         """BIP-hit suppression on the offense that faces this fielding team."""
-        val = self._team_fielding.get(fielding_abbrev)
-        if val is None:
+        defense = self._team_defense.get(fielding_abbrev)
+        if defense is None:
             return {}
-        return TeamDefense(frv=val).bip_multipliers()
+        return defense.bip_multipliers()
 
     def _team_xwoba(self, statcast, tinfo) -> float | None:
         """Mean batted-ball xwOBA across a lineup (skips thin-sample hitters)."""

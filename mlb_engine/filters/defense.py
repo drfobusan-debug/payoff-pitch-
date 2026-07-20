@@ -108,6 +108,30 @@ def defense_hit_multiplier(fielding_value: float) -> float:
     return _run_to_mult(fielding_value / GAMES)
 
 
+def load_team_defense(year: int) -> dict[str, TeamDefense]:
+    """Return ``{statsapi_abbrev: TeamDefense}`` for the season.
+
+    Prefers the public Baseball Savant OAA leaderboard (per-position OAA + FRV,
+    which activates the full fielding hierarchy). Falls back to the FanGraphs
+    team-fielding aggregate (scalar FRV) if Savant is unavailable, and to an
+    empty dict (neutral defense) if both fail.
+    """
+    from mlb_engine.data.savant_fielding import load_team_oaa
+
+    savant = load_team_oaa(year)
+    if savant:
+        return {
+            ab: TeamDefense(
+                frv=v["frv"],
+                infield_oaa=v["infield_oaa"],
+                outfield_oaa=v["outfield_oaa"],
+                middle_if_oaa=v["middle_if_oaa"],
+            )
+            for ab, v in savant.items()
+        }
+    return {ab: TeamDefense(frv=val) for ab, val in load_team_fielding(year).items()}
+
+
 def load_team_fielding(year: int) -> dict[str, float]:
     """Return {statsapi_abbrev: fielding_value} from FanGraphs team fielding.
 
