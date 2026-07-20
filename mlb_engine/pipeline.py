@@ -14,7 +14,7 @@ from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
 from mlb_engine.data.parks import get_park
-from mlb_engine.data.rotowire import RotowireClient
+from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_person
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.pitch_mix import (
@@ -52,7 +52,7 @@ from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup, rbi_multiplier
 from mlb_engine.recommendations import Recommendation
-from mlb_engine.schemas import Game, TeamGameInfo
+from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
 
@@ -105,6 +105,16 @@ def _merge_quotes(
     return out
 
 
+def _match_roto_game(game: Game, roto_games: list[RotoGame]) -> RotoGame | None:
+    """Match a slate game to a Rotowire game by team nickname (city-agnostic)."""
+    hn, an = norm_person(game.home.name), norm_person(game.away.name)
+    for rg in roto_games:
+        rh, ra = norm_person(rg.home.nickname), norm_person(rg.away.nickname)
+        if rh and ra and hn.endswith(rh) and an.endswith(ra):
+            return rg
+    return None
+
+
 def load_sprint_speeds(year: int) -> dict[int, float]:
     try:
         from pybaseball import statcast_sprint_speed
@@ -134,6 +144,8 @@ class Pipeline:
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
         log.info("Slate %s: %d games", slate_date, len(slate.games))
+        if self.deps.rotowire is not None:
+            self._enrich_expected_lineups(slate, slate_date)
 
         statcast = self.deps.statcast.max_window(
             slate_date,
@@ -170,6 +182,68 @@ class Pipeline:
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
         return recs
+
+    # ------------------------------------------------------------------
+    def _enrich_expected_lineups(self, slate: Slate, slate_date: Date) -> None:
+        """Fill unposted lineups/probables from Rotowire's public expected list.
+
+        MLB Stats API only carries lineups once posted; Rotowire publishes
+        expected lineups earlier. For any team without a confirmed lineup we
+        resolve Rotowire's names to MLBAM ids via the team roster and populate
+        the batting order (and probable pitcher if missing) so the game clears
+        the ``lineup_confirmed`` gate. Anything unresolved is left untouched.
+        """
+        rotowire = self.deps.rotowire
+        if rotowire is None:
+            return
+        need = [
+            g for g in slate.games
+            if not (g.home.lineup_confirmed() and g.away.lineup_confirmed())
+        ]
+        if not need:
+            return
+        roto_games = rotowire.fetch_expected_lineups(slate_date)
+        if not roto_games:
+            return
+        filled = 0
+        for game in need:
+            rg = _match_roto_game(game, roto_games)
+            if rg is None:
+                continue
+            for team, side in ((game.home, rg.home), (game.away, rg.away)):
+                if team.lineup_confirmed() or not side.batters:
+                    continue
+                if self._apply_expected_lineup(team, side, slate_date.year):
+                    filled += 1
+        if filled:
+            log.info("Filled %d expected lineups from Rotowire", filled)
+
+    def _apply_expected_lineup(self, team: TeamGameInfo, side: RotoLineup, season: int) -> bool:
+        """Resolve a Rotowire lineup to MLBAM ids and set it on the team."""
+        roster = self.deps.stats.team_roster(team.team_id, season)
+        if not roster:
+            return False
+        by_name: dict[str, tuple[int, Hand | None, Hand | None]] = {
+            norm_person(full): (pid, bats, throws) for pid, full, bats, throws in roster
+        }
+        lineup: list[BatterSlot] = []
+        for order, rb in enumerate(side.batters, start=1):
+            hit = by_name.get(norm_person(rb.name))
+            if hit is None:
+                return False  # incomplete resolution -> leave MLB data in place
+            pid, bats, _ = hit
+            lineup.append(
+                BatterSlot(order=order, player=Player(mlbam_id=pid, name=rb.name, bats=bats))
+            )
+        if len(lineup) < 9:
+            return False
+        team.lineup = lineup
+        if team.probable_pitcher is None and side.pitcher:
+            phit = by_name.get(norm_person(side.pitcher))
+            if phit is not None:
+                pid, _, throws = phit
+                team.probable_pitcher = Pitcher(mlbam_id=pid, name=side.pitcher, throws=throws)
+        return True
 
     # ------------------------------------------------------------------
     def _team_offense(

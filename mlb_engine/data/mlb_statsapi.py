@@ -171,6 +171,31 @@ class MLBStatsClient:
             lineup=lineup,
         )
 
+    def team_roster(
+        self, team_id: int, season: int
+    ) -> list[tuple[int, str, Hand | None, Hand | None]]:
+        """Return ``(mlbam_id, full_name, bats, throws)`` for a team's roster.
+
+        Used to resolve expected-lineup names (e.g. from Rotowire) to the MLBAM
+        ids the rest of the engine keys on. Returns ``[]`` on failure.
+        """
+        try:
+            data = self._get(f"teams/{team_id}/roster", rosterType="fullRoster", season=season)
+        except requests.RequestException as exc:
+            log.warning("roster fetch failed for team %s: %s", team_id, exc)
+            return []
+        people = [p.get("person", {}) for p in data.get("roster", [])]
+        ids = {p["id"] for p in people if p.get("id")}
+        hand = self._people_handedness(ids)
+        out: list[tuple[int, str, Hand | None, Hand | None]] = []
+        for p in people:
+            pid = p.get("id")
+            if not pid:
+                continue
+            bats, throws = hand.get(pid, (None, None))
+            out.append((pid, p.get("fullName", ""), bats, throws))
+        return out
+
     def get_today_and_tomorrow(self, today: Date | None = None) -> tuple[Slate, Slate]:
         today = today or Date.today()
         return self.get_slate(today), self.get_slate(today + timedelta(days=1))

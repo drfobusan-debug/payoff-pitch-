@@ -461,6 +461,87 @@ def test_merge_quotes_dedupes_by_book():
     assert dk.american == -130.0  # primary (Odds API) wins
 
 
+_ROTO_HTML = """
+<div class="lineup__box">
+  <div class="lineup__teams">
+    <div class="lineup__team is-visit"><div class="lineup__abbr">MIN</div></div>
+    <div class="lineup__team is-home"><div class="lineup__abbr">CLE</div></div>
+  </div>
+  <a class="lineup__matchup">
+    <div class="lineup__mteam is-visit">Twins <span class="lineup__wl">(1-2)</span></div>
+    <div class="lineup__mteam is-home">Guardians <span class="lineup__wl">(2-1)</span></div>
+  </a>
+  <ul class="lineup__list is-visit">
+    <li class="lineup__player-highlight">
+      <div class="lineup__player-highlight-name">
+        <a href="/baseball/player/joe-ryan-16036">Joe Ryan</a>
+        <span class="lineup__throws">R</span>
+      </div>
+    </li>
+    <li class="lineup__status is-expected">Expected Lineup</li>
+    <li class="lineup__player"><div class="lineup__pos">LF</div>
+      <a title="Trevor Larnach" href="/x">T. Larnach</a>
+      <span class="lineup__bats">L</span></li>
+    <li class="lineup__player"><div class="lineup__pos">DH</div>
+      <a title="Byron Buxton" href="/x">Byron Buxton</a>
+      <span class="lineup__bats">R</span></li>
+  </ul>
+  <ul class="lineup__list is-home">
+    <li class="lineup__player-highlight">
+      <div class="lineup__player-highlight-name">
+        <a href="/baseball/player/tanner-bibee-1">Tanner Bibee</a>
+        <span class="lineup__throws">R</span>
+      </div>
+    </li>
+    <li class="lineup__status is-confirmed">Confirmed Lineup</li>
+    <li class="lineup__player"><div class="lineup__pos">2B</div>
+      <a title="Andres Gimenez" href="/x">A. Gimenez</a>
+      <span class="lineup__bats">L</span></li>
+  </ul>
+</div>
+"""
+
+
+def test_rotowire_parse_daily_lineups():
+    from mlb_engine.data.rotowire import norm_person, parse_daily_lineups
+
+    games = parse_daily_lineups(_ROTO_HTML)
+    assert len(games) == 1
+    g = games[0]
+    assert g.away.abbrev == "MIN" and g.away.nickname == "Twins"
+    assert g.home.abbrev == "CLE" and g.home.nickname == "Guardians"
+    assert g.away.pitcher == "Joe Ryan" and g.away.pitcher_throws == "R"
+    assert g.away.confirmed is False and g.home.confirmed is True
+    assert g.away.batters[0].name == "Trevor Larnach"
+    assert g.away.batters[0].position == "LF" and g.away.batters[0].bats == "L"
+    assert norm_person("José Ramírez Jr.") == "jose ramirez"
+
+
+def test_match_roto_game_by_nickname():
+    import datetime
+
+    from mlb_engine.data.rotowire import RotoGame, RotoLineup
+    from mlb_engine.pipeline import _match_roto_game
+    from mlb_engine.schemas import Game, TeamGameInfo, Venue
+
+    game = Game(
+        game_pk=1, game_date=datetime.date(2026, 7, 20), status="Preview",
+        venue=Venue(venue_id=1, name="x"),
+        home=TeamGameInfo(team_id=114, name="Cleveland Guardians", abbrev="CLE", is_home=True),
+        away=TeamGameInfo(team_id=142, name="Minnesota Twins", abbrev="MIN", is_home=False),
+    )
+    rg = RotoGame(
+        away=RotoLineup("MIN", "Twins", False, "Joe Ryan", "R", []),
+        home=RotoLineup("CLE", "Guardians", True, "Tanner Bibee", "R", []),
+    )
+    other = RotoGame(
+        away=RotoLineup("NYY", "Yankees", False, None, None, []),
+        home=RotoLineup("BOS", "Red Sox", False, None, None, []),
+    )
+    assert _match_roto_game(game, [other, rg]) is rg
+    assert _match_roto_game(game, [other]) is None
+
+
 def test_vsin_parse_helpers():
     from mlb_engine.data.vsin import _american, _norm_name, _pct
 
