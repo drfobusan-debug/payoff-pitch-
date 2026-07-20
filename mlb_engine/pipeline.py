@@ -33,6 +33,7 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
 )
+from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_fielding
 from mlb_engine.filters.human import HumanFactors
@@ -91,6 +92,7 @@ class Pipeline:
         self.cfg = cfg
         self.deps = deps
         self._team_fielding: dict[str, float] = {}
+        self._tails = TailAdjuster()
 
     def run(
         self,
@@ -108,6 +110,7 @@ class Pipeline:
         )
         sprint = load_sprint_speeds(slate_date.year)
         self._team_fielding = load_team_fielding(slate_date.year)
+        self._tails = TailAdjuster.build(statcast)
 
         quotes = {}
         if vsin_csv and vsin_csv.exists():
@@ -152,6 +155,10 @@ class Pipeline:
         # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).
         arsenal = build_arsenal(pit_rows)
 
+        # Distribution-tail kicker for a >=2 SD elite/poor starter (suppresses or
+        # boosts every batter it faces); neutral for typical arms.
+        pit_tail = self._tails.pitcher_multiplier(opp.probable_pitcher.mlbam_id)
+
         # Opponent bullpen: relievers' late-inning (>=6th) rates over ~3 weeks,
         # plus PPV (K-BB%/CSW/barrel/IVB via pitcher regression on the relief set)
         # and NPV (zone% walk-trap + 3-in-4 fatigue) tripwires.
@@ -191,12 +198,15 @@ class Pipeline:
 
             bpp = build_batter_pitch_profile(statcast[statcast["batter"] == pid])
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
+            bat_tail = self._tails.batter_multiplier(pid)
 
             vs_start = combine(ctx, pit_prof.allowed)
             vs_start = apply_multipliers(vs_start, bmult)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
+            vs_start = apply_multipliers(vs_start, pit_tail)
+            vs_start = apply_multipliers(vs_start, bat_tail)
 
             # Bullpen matchup: batter's late-inning (>=6th) 3-week rates vs the
             # pen (FanGraphs split when available, else Statcast), then bullpen
@@ -215,6 +225,7 @@ class Pipeline:
             vs_pen = apply_multipliers(vs_pen, bpen_allowed)
             vs_pen = apply_multipliers(vs_pen, {"K": bpen_k})
             vs_pen = apply_multipliers(vs_pen, bpen_npv)
+            vs_pen = apply_multipliers(vs_pen, bat_tail)
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)

@@ -297,6 +297,47 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- distribution tails ----
+def test_tail_bonus_and_penalty_symmetric():
+    import numpy as np
+    import pandas as pd
+
+    from mlb_engine.features.tails import TailAdjuster
+
+    rng = np.random.default_rng(3)
+    rows = []
+    # A population of average batters (ids 1000..1039) with ~15 BBE each.
+    for pid in range(1000, 1040):
+        for _ in range(16):
+            rows.append(
+                {
+                    "batter": pid,
+                    "pitcher": 1,
+                    "launch_speed": float(rng.normal(88, 3)),
+                    "launch_speed_angle": 1,
+                    "estimated_woba_using_speedangle": float(rng.normal(0.32, 0.02)),
+                    "description": "hit_into_play",
+                    "events": "single",
+                }
+            )
+    # An elite outlier (id 9001) and a bottom-tail hitter (id 9002).
+    for _ in range(16):
+        rows.append({"batter": 9001, "pitcher": 1, "launch_speed": 106.0,
+                     "launch_speed_angle": 6, "estimated_woba_using_speedangle": 0.55,
+                     "description": "hit_into_play", "events": "home_run"})
+        rows.append({"batter": 9002, "pitcher": 1, "launch_speed": 72.0,
+                     "launch_speed_angle": 1, "estimated_woba_using_speedangle": 0.18,
+                     "description": "hit_into_play", "events": "field_out"})
+    df = pd.DataFrame(rows)
+
+    tails = TailAdjuster.build(df)
+    elite = tails.batter_multiplier(9001)
+    poor = tails.batter_multiplier(9002)
+    assert elite and elite["HR"] > 1.0  # >2 SD above -> bonus
+    assert poor and poor["HR"] < 1.0    # >2 SD below -> penalty
+    assert tails.batter_multiplier(1000) == {}  # average -> neutral
+
+
 # ---- arsenal matching (pitch mix) ----
 def test_arsenal_matchup_high_whiff_vs_slider():
     import pandas as pd
