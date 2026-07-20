@@ -9,6 +9,12 @@ from datetime import timedelta
 from pathlib import Path
 
 from mlb_engine.audit.grade import grade
+from mlb_engine.audit.ledger import (
+    daily_rollup,
+    entries_from_graded,
+    overall_metrics,
+    update_ledger,
+)
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.config import load_config
 from mlb_engine.data.fangraphs import FanGraphsClient
@@ -20,7 +26,7 @@ from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
-from mlb_engine.output.excel import write_workbook
+from mlb_engine.output.excel import write_ledger_workbook, write_workbook
 from mlb_engine.pipeline import Pipeline, PipelineDeps
 from mlb_engine.recommendations import load_json, save_json
 
@@ -122,12 +128,26 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     rows = build_scorecard(graded, audit_date)
     append_scorecard(rows, cfg.audit_dir / "scorecard.csv")
+
+    entries = entries_from_graded(graded, audit_date)
+    all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
+    overall = overall_metrics(all_entries)
+    ledger_xlsx = cfg.output_dir / "ledger.xlsx"
+    write_ledger_workbook(all_entries, overall, daily_rollup(all_entries), ledger_xlsx)
+
     print(f"Graded {len(graded)} markets for {audit_date}")
     for row in rows:
         print(
             f"  {row.tier:<12} n={row.n:<4} PPV={row.ppv:.3f} "
             f"sens={row.sensitivity:.3f} spec={row.specificity:.3f} "
             f"NPV={row.npv:.3f} ROI={row.roi:+.3f}"
+        )
+    print(f"\nLedger: {len(all_entries)} graded bets across all dates -> {ledger_xlsx}")
+    for m in overall:
+        print(
+            f"  OVERALL {m.tier:<12} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
+            f"PPV={m.ppv:.3f} sens={m.sensitivity:.3f} spec={m.specificity:.3f} "
+            f"NPV={m.npv:.3f} ROI={m.roi * 100:+.1f}% units={m.units:+.1f}"
         )
     return 0
 

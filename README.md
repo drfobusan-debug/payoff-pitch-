@@ -65,12 +65,19 @@ mlb-engine run
 # a specific date, with market prices, custom sim count
 mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 20000
 
-# grade yesterday and update the scorecard
+# grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 ```
 
 Outputs land under `~/.mlb_engine/` (`output/` workbooks, `audit/` predictions +
 `scorecard.csv`). Override with `MLBE_DATA_DIR`.
+
+Each audit also maintains a **running ledger** across every graded slate:
+`audit/ledger.csv` (one row per bet: date, market, selection, odds, tier, result,
+P/L) and `output/ledger.xlsx` with three sheets — **Overall** (cumulative
+sensitivity / specificity / PPV / NPV / win% / ROI / net units by tier), **Daily**
+(per-date Buy rollup), and **Bets** (every graded pick, win/loss/push shaded).
+Re-auditing a date replaces that date's rows rather than duplicating them.
 
 ### One-click desktop shortcut
 

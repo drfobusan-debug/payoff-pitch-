@@ -39,6 +39,26 @@ class Recommendation:
     def model_american(self) -> float:
         return prob_to_american(self.model_prob)
 
+    @property
+    def display_category(self) -> str:
+        """Human-facing market group used in outputs and the ledger."""
+        m = self.market
+        if m == "game_ml":
+            return "Moneyline"
+        if m == "game_total":
+            return "Totals"
+        if m == "game_rl":
+            return "Run Lines"
+        if m.startswith("f5"):
+            return "First-5 (F5)"
+        if m.startswith("batter_"):
+            return "Batter Props"
+        if m.startswith("pitcher_"):
+            return "Pitcher Props"
+        if m == "comeback":
+            return "Comeback (info)"
+        return m
+
     def as_row(self) -> dict[str, object]:
         return {
             "Date": self.game_date.isoformat(),

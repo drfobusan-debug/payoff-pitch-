@@ -22,6 +22,7 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -115,25 +116,6 @@ _SPECTRUM: dict[str, _Scheme] = {
 }
 
 
-def _display_category(rec: Recommendation) -> str:
-    m = rec.market
-    if m == "game_ml":
-        return "Moneyline"
-    if m == "game_total":
-        return "Totals"
-    if m == "game_rl":
-        return "Run Lines"
-    if m.startswith("f5"):
-        return "First-5 (F5)"
-    if m.startswith("batter_"):
-        return "Batter Props"
-    if m.startswith("pitcher_"):
-        return "Pitcher Props"
-    if m == "comeback":
-        return "Comeback (info)"
-    return m
-
-
 def _is_best(rec: Recommendation, category: str) -> bool:
     ev = rec.ev
     odds = rec.market_american
@@ -189,7 +171,7 @@ def _write_tier_sheet(ws: Worksheet, recs: list[Recommendation], tier: Tier) -> 
     border = Border(left=side, right=side, top=side, bottom=side)
     center = Alignment(horizontal="center")
 
-    tagged = [(r, _display_category(r)) for r in recs]
+    tagged = [(r, r.display_category) for r in recs]
     cat_rank = {c: i for i, c in enumerate(CATEGORY_ORDER)}
     tagged.sort(
         key=lambda t: (
@@ -269,6 +251,141 @@ def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date)
 
     ws_all = wb.create_sheet("All")
     _write_sheet(ws_all, sorted(recs, key=sort_key))
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    return out_path
+
+
+_METRIC_HEADER_FILL = PatternFill("solid", fgColor="1F3A5F")
+_RESULT_FILL = {
+    "win": PatternFill("solid", fgColor="C6EFCE"),
+    "loss": PatternFill("solid", fgColor="FFC7CE"),
+    "push": PatternFill("solid", fgColor="E7E6E6"),
+}
+_OVERALL_COLUMNS = [
+    "Tier",
+    "N",
+    "Wins",
+    "Losses",
+    "Pushes",
+    "Win %",
+    "PPV",
+    "NPV",
+    "Sensitivity",
+    "Specificity",
+    "ROI",
+    "Units",
+]
+_DAILY_COLUMNS = [
+    "Date",
+    "Buy N",
+    "Wins",
+    "Losses",
+    "Win %",
+    "ROI",
+    "Units",
+]
+_BET_COLUMNS = [
+    "Date",
+    "Category",
+    "Selection",
+    "Matchup",
+    "Book",
+    "Odds",
+    "Tier",
+    "Model %",
+    "EV",
+    "Result",
+    "P/L",
+]
+
+
+def _pct(v: float) -> str:
+    return f"{v * 100:.1f}%"
+
+
+def _metric_row(m: OverallMetrics) -> list[object]:
+    return [
+        m.tier,
+        m.n,
+        m.wins,
+        m.losses,
+        m.pushes,
+        _pct(m.win_pct),
+        m.ppv,
+        m.npv,
+        m.sensitivity,
+        m.specificity,
+        _pct(m.roi),
+        m.units,
+    ]
+
+
+def _write_metric_header(ws: Worksheet, columns: list[str]) -> None:
+    for c, name in enumerate(columns, start=1):
+        cell = ws.cell(row=1, column=c, value=name)
+        cell.fill = _METRIC_HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center")
+
+
+def write_ledger_workbook(
+    entries: list[LedgerEntry],
+    overall: list[OverallMetrics],
+    daily: list[OverallMetrics],
+    out_path: Path,
+) -> Path:
+    wb = Workbook()
+
+    ws_overall = wb.active
+    ws_overall.title = "Overall"
+    _write_metric_header(ws_overall, _OVERALL_COLUMNS)
+    for r, m in enumerate(overall, start=2):
+        for c, v in enumerate(_metric_row(m), start=1):
+            ws_overall.cell(row=r, column=c, value=v)
+    for i, w in enumerate([12, 6, 6, 7, 7, 8, 7, 7, 12, 12, 8, 8], start=1):
+        ws_overall.column_dimensions[get_column_letter(i)].width = w
+    ws_overall.freeze_panes = "A2"
+
+    ws_daily = wb.create_sheet("Daily")
+    _write_metric_header(ws_daily, _DAILY_COLUMNS)
+    for r, m in enumerate(daily, start=2):
+        vals = [m.tier, m.n, m.wins, m.losses, _pct(m.win_pct), _pct(m.roi), m.units]
+        for c, v in enumerate(vals, start=1):
+            ws_daily.cell(row=r, column=c, value=v)
+    for i, w in enumerate([12, 8, 7, 8, 8, 8, 8], start=1):
+        ws_daily.column_dimensions[get_column_letter(i)].width = w
+    if daily:
+        ws_daily.auto_filter.ref = f"A1:{get_column_letter(len(_DAILY_COLUMNS))}{len(daily) + 1}"
+    ws_daily.freeze_panes = "A2"
+
+    ws_bets = wb.create_sheet("Bets")
+    _write_metric_header(ws_bets, _BET_COLUMNS)
+    for r, e in enumerate(entries, start=2):
+        vals = [
+            e.date,
+            e.category,
+            e.selection,
+            e.matchup,
+            e.book,
+            _american(e.odds),
+            e.tier,
+            round(e.model_prob * 100, 1),
+            e.ev if e.ev is not None else "",
+            e.result,
+            round(e.pnl, 3),
+        ]
+        for c, v in enumerate(vals, start=1):
+            ws_bets.cell(row=r, column=c, value=v)
+        fill = _RESULT_FILL.get(e.result)
+        if fill:
+            ws_bets.cell(row=r, column=_BET_COLUMNS.index("Result") + 1).fill = fill
+    for i, w in enumerate([12, 15, 30, 13, 13, 8, 10, 8, 8, 8, 8], start=1):
+        ws_bets.column_dimensions[get_column_letter(i)].width = w
+    if entries:
+        ws_bets.auto_filter.ref = f"A1:{get_column_letter(len(_BET_COLUMNS))}{len(entries) + 1}"
+    ws_bets.freeze_panes = "A2"
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)

@@ -957,3 +957,50 @@ def test_rates_from_events_sums_to_one():
 
 def test_np_import_available():
     assert np.array([1, 2, 3]).sum() == 6
+
+
+# ---- ledger ----
+def test_ledger_entries_and_pnl():
+    from mlb_engine.audit.ledger import entries_from_graded
+
+    graded = [
+        (_rec(tier=Tier.STRONG, market="game_ml", market_american=100, ev=0.2), WIN),
+        (_rec(tier=Tier.STRONG, market="game_ml", market_american=-110), LOSS),
+        (_rec(tier=Tier.MODERATE, market="game_ml", market_american=100), PUSH),
+    ]
+    entries = entries_from_graded(graded, date(2024, 7, 19))
+    assert [e.pnl for e in entries] == [1.0, -1.0, 0.0]
+    assert entries[0].category == "Moneyline"
+
+
+def test_ledger_overall_and_dedup(tmp_path):
+    from mlb_engine.audit.ledger import (
+        entries_from_graded,
+        load_ledger,
+        overall_metrics,
+        update_ledger,
+    )
+
+    path = tmp_path / "ledger.csv"
+    day1 = entries_from_graded(
+        [
+            (_rec(tier=Tier.STRONG, market_american=100), WIN),
+            (_rec(tier=Tier.STRONG, market_american=-110), LOSS),
+        ],
+        date(2024, 7, 19),
+    )
+    update_ledger(path, day1, date(2024, 7, 19))
+    day2 = entries_from_graded(
+        [(_rec(tier=Tier.STRONG, market_american=100), WIN)], date(2024, 7, 20)
+    )
+    all_entries = update_ledger(path, day2, date(2024, 7, 20))
+    assert len(all_entries) == 3
+    assert len(load_ledger(path)) == 3
+
+    # re-auditing day 1 replaces (does not duplicate) that date's rows
+    all_entries = update_ledger(path, day1, date(2024, 7, 19))
+    assert len(all_entries) == 3
+
+    strong = next(m for m in overall_metrics(all_entries) if m.tier == Tier.STRONG.value)
+    assert strong.n == 3 and strong.wins == 2 and abs(strong.ppv - 2 / 3) < 1e-3
+    assert abs(strong.units - 1.0) < 1e-9  # +1 -1 +1
