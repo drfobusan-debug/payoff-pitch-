@@ -10,6 +10,7 @@ from pathlib import Path
 from mlb_engine.config import Config
 from mlb_engine.data.divisions import same_division
 from mlb_engine.data.fangraphs import FanGraphsClient
+from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotowireClient
@@ -276,24 +277,31 @@ class Pipeline:
         home_def = self._defense_multiplier(game.away.abbrev)
         away_def = self._defense_multiplier(game.home.abbrev)
 
+        # manager tendencies: TTO hook -> starter BF cap; speed engine -> full
+        # offense tilt; platoon aggression -> late-inning (pen) tilt only.
+        home_mgr = get_manager(game.home.team_id)
+        away_mgr = get_manager(game.away.team_id)
+
         # apply env filters: weather + own travel + opponent-staff HR boost +
-        # human element + opponent fielding defense.
-        home_env = [weather_mult, home_tr, home_hr_boost, home_human, home_def]
-        away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def]
+        # human element + opponent fielding defense + manager speed engine.
+        home_env = [weather_mult, home_tr, home_hr_boost, home_human, home_def,
+                    home_mgr.offense_multipliers()]
+        away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def,
+                    away_mgr.offense_multipliers()]
         home_start = self._apply_all(home_start, home_env)
-        home_pen = self._apply_all(home_pen, home_env)
+        home_pen = self._apply_all(home_pen, [*home_env, home_mgr.pen_multipliers()])
         away_start = self._apply_all(away_start, away_env)
-        away_pen = self._apply_all(away_pen, away_env)
+        away_pen = self._apply_all(away_pen, [*away_env, away_mgr.pen_multipliers()])
 
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
-            starter_bf_cap=24 + home_hf.starter_bf_cap_delta(),
+            starter_bf_cap=home_mgr.starter_bf_cap,
         )
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
-            starter_bf_cap=24 + away_hf.starter_bf_cap_delta(),
+            starter_bf_cap=away_mgr.starter_bf_cap,
         )
         res = mc.simulate(home_cfg, away_cfg)
 

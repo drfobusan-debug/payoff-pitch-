@@ -256,6 +256,26 @@ def test_human_divisional_and_umpire_zone():
     assert zone_runs_for_name("Nobody McUnknown") is None
 
 
+# ---- manager tendencies ----
+def test_manager_hook_platoon_and_speed():
+    from mlb_engine.data.managers import get_manager
+
+    # Quick-hook (Cash, TB=139) caps starter well below the long-leash default;
+    # long leash (Francona, CIN=113) extends it.
+    assert get_manager(139).starter_bf_cap < 24
+    assert get_manager(113).starter_bf_cap > 24
+    # Unknown team -> neutral default, no tilts.
+    neutral = get_manager(999999)
+    assert neutral.starter_bf_cap == 24
+    assert neutral.offense_multipliers() == {}
+    assert neutral.pen_multipliers() == {}
+    # Platoon maximizer (Baldelli, MIN=142) tilts only the bullpen matchup.
+    assert get_manager(142).pen_multipliers().get("K", 1.0) < 1.0
+    # Speed engine (Vogt, CLE=114) boosts advancement + lowers K.
+    speed = get_manager(114).offense_multipliers()
+    assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
+
+
 # ---- travel / circadian ----
 def test_travel_eastward_worse_than_west_and_boosts_opponent_hr():
     from datetime import timedelta
