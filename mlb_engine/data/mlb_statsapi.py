@@ -29,6 +29,18 @@ BASE = "https://statsapi.mlb.com/api/v1"
 SPORT_ID = 1  # MLB
 
 
+def _utc_hour(iso: str | None) -> float | None:
+    """Fractional UTC hour from an ISO game-start string (e.g. 2026-07-19T23:05:00Z)."""
+    if not iso:
+        return None
+    try:
+        t = iso.split("T", 1)[1]
+        hh, mm = t[:2], t[3:5]
+        return int(hh) + int(mm) / 60.0
+    except (IndexError, ValueError):
+        return None
+
+
 class MLBStatsClient:
     def __init__(self, session: requests.Session | None = None, timeout: int = 20) -> None:
         self.session = session or requests.Session()
@@ -164,7 +176,8 @@ class MLBStatsClient:
         return self.get_slate(today), self.get_slate(today + timedelta(days=1))
 
     def last_game_venue(self, team_id: int, before: Date, lookback_days: int = 8):
-        """Return (game_date, venue_id) of the team's most recent game before ``before``.
+        """Return (game_date, venue_id, start_hour_utc) of the team's most recent
+        game before ``before`` (``start_hour_utc`` is None if unparseable).
 
         Returns None if none found in the lookback window.
         """
@@ -178,11 +191,11 @@ class MLBStatsClient:
             endDate=end.isoformat(),
             hydrate="venue",
         )
-        best: tuple[Date, int] | None = None
+        best: tuple[Date, int, float | None] | None = None
         for date_block in data.get("dates", []):
             d = Date.fromisoformat(date_block["date"])
             for g in date_block.get("games", []):
                 venue_id = (g.get("venue", {}) or {}).get("id")
                 if venue_id and (best is None or d > best[0]):
-                    best = (d, venue_id)
+                    best = (d, venue_id, _utc_hour(g.get("gameDate")))
         return best

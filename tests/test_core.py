@@ -297,6 +297,23 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- schedule pacing (DGANG) ----
+def test_dgang_tax_only_night_then_day():
+    from mlb_engine.filters.schedule import dgang_multipliers, is_day, is_night
+
+    # A ~7pm local night game -> next-day ~1pm day game (rest=1) taxes offense.
+    prev_night = 19.0
+    today_day = 13.0
+    assert is_night(prev_night) and is_day(today_day)
+    tax = dgang_multipliers(prev_night, today_day, rest_days=1)
+    assert tax and tax["1B"] < 1.0 and tax["K"] > 1.0
+
+    # Day-after-day, or two days rest, or missing times -> no tax.
+    assert dgang_multipliers(13.0, 13.0, 1) == {}
+    assert dgang_multipliers(prev_night, today_day, 2) == {}
+    assert dgang_multipliers(None, today_day, 1) == {}
+
+
 # ---- travel / circadian ----
 def test_travel_eastward_worse_than_west_and_boosts_opponent_hr():
     from datetime import timedelta

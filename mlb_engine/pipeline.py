@@ -31,6 +31,7 @@ from mlb_engine.features.rolling import (
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_fielding
 from mlb_engine.filters.human import HumanFactors
+from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.ev import evaluate
 from mlb_engine.market.tiers import Tier, classify
@@ -226,6 +227,20 @@ class Pipeline:
             return {}
         return TeamDefense(frv=val).bip_multipliers()
 
+    def _dgang_multiplier(self, prev, today_park, today_iso: str | None, slate_date: Date):
+        """Day-game-after-night-game offense tax for a team, from schedule times."""
+        if prev is None or today_park is None:
+            return {}
+        d, venue_id, prev_hr = prev
+        prev_park = get_park(venue_id)
+        today_hr = parse_utc_hour(today_iso)
+        if prev_park is None or prev_hr is None or today_hr is None:
+            return {}
+        rest_days = (slate_date - d).days
+        prev_local = local_hour(prev_hr, prev_park.lon)
+        today_local = local_hour(today_hr, today_park.lon)
+        return dgang_multipliers(prev_local, today_local, rest_days)
+
     def _umpire_zone_runs(self, game: Game) -> float:
         if self.deps.rotowire and self.deps.rotowire.available():
             z = self.deps.rotowire.umpire_zone_runs(game.game_pk)
@@ -281,12 +296,16 @@ class Pipeline:
         home_mgr = get_manager(game.home.team_id)
         away_mgr = get_manager(game.away.team_id)
 
+        # schedule pacing: day-game-after-night-game offense tax (per team).
+        home_dgang = self._dgang_multiplier(home_prev, park, game.game_datetime_utc, slate_date)
+        away_dgang = self._dgang_multiplier(away_prev, park, game.game_datetime_utc, slate_date)
+
         # apply env filters: weather + own travel + opponent-staff HR boost +
-        # human element + opponent fielding defense + manager speed engine.
+        # human element + opponent fielding defense + manager speed engine + DGANG.
         home_env = [weather_mult, home_tr, home_hr_boost, home_human, home_def,
-                    home_mgr.offense_multipliers()]
+                    home_mgr.offense_multipliers(), home_dgang]
         away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def,
-                    away_mgr.offense_multipliers()]
+                    away_mgr.offense_multipliers(), away_dgang]
         home_start = self._apply_all(home_start, home_env)
         home_pen = self._apply_all(home_pen, [*home_env, home_mgr.pen_multipliers()])
         away_start = self._apply_all(away_start, away_env)
@@ -438,7 +457,7 @@ class Pipeline:
 def _prev_to_pg(prev):
     if prev is None:
         return None
-    d, venue_id = prev
+    d, venue_id, _ = prev
     p = get_park(venue_id)
     if not p:
         return None
