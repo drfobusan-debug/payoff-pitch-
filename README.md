@@ -1,3 +1,121 @@
-# payoff-pitch
+# MLB Prediction Engine
 
-Automated MLB game & prop prediction engine. See the open PR for the full implementation.
+Automated daily MLB game & prop prediction engine with EV-based buy tiers and a
+nightly self-audit. Pulls the daily slate, builds probabilistic projections from
+rolling Statcast/FanGraphs windows, layers weather + regression + travel/rest
+filters, prices every market against the book, and exports Strong / Moderate /
+Pass recommendations to Excel — with one click from a desktop shortcut.
+
+## What it produces
+
+Per game, for every slate today and tomorrow:
+
+- **Full game**: moneyline, totals, run line
+- **First 5 innings (F5)**: moneyline (incl. tie), totals, run line
+- **Batter props**: hits, singles, doubles, home runs, runs, RBIs, H+R+RBI
+- **Pitcher props**: strikeouts, outs, hits allowed, walks, earned runs
+
+Each is tagged **Strong buy / Moderate buy / Pass** from expected value vs. the
+book (and VSIN handle/bets divergence when provided).
+
+## Model pipeline
+
+1. **Slate ingestion** — MLB Stats API: matchups, venue, probable pitchers,
+   confirmed/expected lineups (today + tomorrow).
+2. **Rolling features** (Statcast via Baseball Savant / pybaseball):
+   - Pitcher form: last 4 weeks
+   - Batter home/away: 3 weeks · vs RHP: 3 weeks · vs LHP: 6 weeks
+3. **Regression layer** (highest sensitivity / PPV / NPV signals):
+   - Batters — HR: max EV, bat speed, barrel rate, hard-hit%; XBH: sweet-spot%,
+     xSLG; singles: whiff/zone-contact, xBA, sprint speed; plus **BABIP** and
+     **ΔxwOBA** luck regression.
+   - Pitchers — **CSW%**, **K-BB%**, 2-strike put-away whiff (K projection),
+     **barrel% allowed** (HR/9), **xwOBA/BABIP allowed** (regression). Optional
+     FanGraphs **Stuff+ / Location+** when a subscription feed is supplied.
+4. **Weather filter** — Open-Meteo temp/humidity/wind projected onto each park's
+   home-plate→CF orientation (roof-aware).
+5. **Travel/rest filter** — rest days, travel miles, time-zone shift penalties.
+6. **First-5 model** — non-stationary Markov base-out chain driven by per-lineup-slot
+   L/R-split rates, with a times-through-order (TTO) fatigue adjustment.
+7. **Full game + props** — Monte Carlo simulation (starter→bullpen, base running,
+   RBI attribution) for run distributions and every player prop.
+8. **RBI hard rule** — flags a batter when the preceding 3 slots average OBP > .345
+   (3-week window); boosts RBI props.
+9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers.
+10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
+    per tier from final box scores).
+
+## Install
+
+```bash
+git clone https://github.com/<you>/mlb-prediction-engine.git
+cd mlb-prediction-engine
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e .
+```
+
+One-time setup helpers are in `scripts/{windows,macos,linux}/setup.*`.
+
+## Usage
+
+```bash
+# today's slate -> Excel + a blank VSIN template to fill in
+mlb-engine run
+
+# a specific date, with market prices, custom sim count
+mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 20000
+
+# grade yesterday and update the scorecard
+mlb-engine audit
+```
+
+Outputs land under `~/.mlb_engine/` (`output/` workbooks, `audit/` predictions +
+`scorecard.csv`). Override with `MLBE_DATA_DIR`.
+
+### One-click desktop shortcut
+
+Run once, then make a desktop shortcut/alias to the launcher for your OS:
+
+- **Windows**: `scripts\windows\run_predictions.bat` (audit: `run_audit.bat`)
+- **macOS**: `scripts/macos/run_predictions.command`
+- **Linux**: `scripts/linux/run_predictions.sh`
+
+The launcher runs the model, opens the newest workbook, and (if present) uses the
+VSIN CSV at `~/.mlb_engine/vsin_today.csv`.
+
+## Market data (VSIN / DraftKings / Circa)
+
+`mlb-engine run` writes `output/vsin_template_<date>.csv` listing every priced
+selection. Fill in odds + handle/bets from VSIN and re-run with `--vsin-csv`:
+
+```csv
+matchup,market,selection,book,american,handle_pct,bets_pct
+AZ @ CHC,game_ml,CHC ML,draftkings,132,70,45
+AZ @ CHC,game_total,Over 9.5,circa,-105,58,61
+```
+
+Without market prices the engine still outputs model probabilities (all Pass).
+
+## Credentials
+
+Subscription logins are read from environment variables and never committed:
+`FANGRAPHS_USER/PASS`, `ROTOWIRE_USER/PASS`, `VSIN_USER/PASS`. FanGraphs/Rotowire
+projections and VSIN quotes can also be imported from CSV (see `data/`).
+
+## Development
+
+```bash
+pip install -e ".[dev]"
+ruff check mlb_engine tests
+mypy mlb_engine
+pytest -q
+```
+
+## Notes / limitations
+
+- xSLG is derived from launch-based expected stats (no clean per-pitch column);
+  sprint speed / Stuff+ / Location+ come from separate leaderboards or the
+  FanGraphs subscription feed.
+- Open-Meteo forecast covers today/near future; older dates (backtests) use the
+  historical archive API automatically.
+- Baseball is high-variance: an optimized F5 model tops out ~57–62% accuracy.

@@ -1,0 +1,105 @@
+"""Central configuration for the MLB prediction engine.
+
+Values are sourced from environment variables where relevant (credentials in
+particular) so that nothing sensitive is committed. Everything else has sensible
+defaults that can be overridden via environment variables prefixed ``MLBE_``.
+"""
+
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    return int(raw) if raw not in (None, "") else default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    return float(raw) if raw not in (None, "") else default
+
+
+@dataclass(frozen=True)
+class RollingWindows:
+    """Rolling look-back windows (in days) for stat aggregation."""
+
+    pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 28))
+    batter_home_away_days: int = field(
+        default_factory=lambda: _env_int("MLBE_BATTER_HOME_AWAY_DAYS", 21)
+    )
+    batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 21))
+    batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 42))
+    biomech_days: int = field(default_factory=lambda: _env_int("MLBE_BIOMECH_DAYS", 28))
+
+
+@dataclass(frozen=True)
+class EVThresholds:
+    """Expected-value cutoffs (in EV per $1 staked) for buy tiers."""
+
+    strong_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_STRONG", 0.08))
+    moderate_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_MODERATE", 0.03))
+    # Below moderate_buy -> "pass"
+
+
+@dataclass(frozen=True)
+class Credentials:
+    """Credentials for subscription data sources (never logged)."""
+
+    fangraphs_user: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_USER"))
+    fangraphs_pass: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_PASS"))
+    rotowire_user: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_USER"))
+    rotowire_pass: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_PASS"))
+    vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
+    vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
+
+    def has_fangraphs(self) -> bool:
+        return bool(self.fangraphs_user and self.fangraphs_pass)
+
+    def has_rotowire(self) -> bool:
+        return bool(self.rotowire_user and self.rotowire_pass)
+
+    def has_vsin(self) -> bool:
+        return bool(self.vsin_user and self.vsin_pass)
+
+
+@dataclass(frozen=True)
+class Config:
+    windows: RollingWindows = field(default_factory=RollingWindows)
+    ev: EVThresholds = field(default_factory=EVThresholds)
+    creds: Credentials = field(default_factory=Credentials)
+
+    # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
+    rbi_obp_threshold: float = field(default_factory=lambda: _env_float("MLBE_RBI_OBP", 0.345))
+
+    # Monte Carlo simulation count per game.
+    mc_sims: int = field(default_factory=lambda: _env_int("MLBE_MC_SIMS", 20000))
+
+    # Directories.
+    data_dir: Path = field(
+        default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
+    )
+
+    @property
+    def cache_dir(self) -> Path:
+        return self.data_dir / "cache"
+
+    @property
+    def output_dir(self) -> Path:
+        return self.data_dir / "output"
+
+    @property
+    def audit_dir(self) -> Path:
+        return self.data_dir / "audit"
+
+    def ensure_dirs(self) -> None:
+        for d in (self.data_dir, self.cache_dir, self.output_dir, self.audit_dir):
+            d.mkdir(parents=True, exist_ok=True)
+
+
+def load_config() -> Config:
+    cfg = Config()
+    cfg.ensure_dirs()
+    return cfg

@@ -1,0 +1,188 @@
+"""Client for the free official MLB Stats API (statsapi.mlb.com).
+
+Provides the daily slate: matchups, probable pitchers, confirmed/expected
+lineups, and venue metadata. No authentication required.
+"""
+
+from __future__ import annotations
+
+import logging
+from datetime import date as Date
+from datetime import timedelta
+
+import requests
+
+from mlb_engine.schemas import (
+    BatterSlot,
+    Game,
+    Hand,
+    Pitcher,
+    Player,
+    Slate,
+    TeamGameInfo,
+    Venue,
+)
+
+log = logging.getLogger(__name__)
+
+BASE = "https://statsapi.mlb.com/api/v1"
+SPORT_ID = 1  # MLB
+
+
+class MLBStatsClient:
+    def __init__(self, session: requests.Session | None = None, timeout: int = 20) -> None:
+        self.session = session or requests.Session()
+        self.session.headers.setdefault("User-Agent", "mlb-prediction-engine/0.1")
+        self.timeout = timeout
+
+    def _get(self, path: str, **params: str | int) -> dict:
+        resp = self.session.get(f"{BASE}/{path}", params=params, timeout=self.timeout)
+        resp.raise_for_status()
+        return resp.json()
+
+    def _people_handedness(self, ids: set[int]) -> dict[int, tuple[Hand | None, Hand | None]]:
+        """Return {mlbam_id: (bats, throws)} for the given player ids."""
+        out: dict[int, tuple[Hand | None, Hand | None]] = {}
+        ids = {i for i in ids if i}
+        if not ids:
+            return out
+        # people endpoint accepts a comma-separated list.
+        chunk = ",".join(str(i) for i in sorted(ids))
+        data = self._get("people", personIds=chunk)
+        for person in data.get("people", []):
+            pid = person.get("id")
+            bats = (person.get("batSide") or {}).get("code")
+            throws = (person.get("pitchHand") or {}).get("code")
+            out[pid] = (
+                Hand(bats) if bats in Hand._value2member_map_ else None,
+                Hand(throws) if throws in Hand._value2member_map_ else None,
+            )
+        return out
+
+    def get_slate(self, slate_date: Date) -> Slate:
+        """Fetch the full slate for a date with pitchers, lineups, and venues."""
+        data = self._get(
+            "schedule",
+            sportId=SPORT_ID,
+            date=slate_date.isoformat(),
+            hydrate="probablePitcher,lineups,team,venue",
+        )
+
+        games: list[Game] = []
+        pending_ids: set[int] = set()
+        raw_games: list[dict] = []
+        for date_block in data.get("dates", []):
+            raw_games.extend(date_block.get("games", []))
+
+        # First pass: collect all player ids needing handedness.
+        for g in raw_games:
+            teams = g.get("teams", {})
+            for side in ("home", "away"):
+                pp = teams.get(side, {}).get("probablePitcher") or {}
+                if pp.get("id"):
+                    pending_ids.add(pp["id"])
+            lineups = g.get("lineups", {})
+            for key in ("homePlayers", "awayPlayers"):
+                for pl in lineups.get(key, []) or []:
+                    if pl.get("id"):
+                        pending_ids.add(pl["id"])
+
+        hand = self._people_handedness(pending_ids)
+
+        for g in raw_games:
+            games.append(self._parse_game(g, slate_date, hand))
+
+        return Slate(slate_date=slate_date, games=games)
+
+    def _parse_game(
+        self,
+        g: dict,
+        slate_date: Date,
+        hand: dict[int, tuple[Hand | None, Hand | None]],
+    ) -> Game:
+        teams = g.get("teams", {})
+        venue_raw = g.get("venue", {})
+        venue = Venue(
+            venue_id=venue_raw.get("id", 0),
+            name=venue_raw.get("name", "Unknown"),
+        )
+        lineups = g.get("lineups", {})
+
+        home = self._parse_team(teams.get("home", {}), lineups.get("homePlayers"), True, hand)
+        away = self._parse_team(teams.get("away", {}), lineups.get("awayPlayers"), False, hand)
+
+        return Game(
+            game_pk=g.get("gamePk", 0),
+            game_date=slate_date,
+            game_datetime_utc=g.get("gameDate"),
+            status=(g.get("status", {}) or {}).get("detailedState", "Unknown"),
+            venue=venue,
+            home=home,
+            away=away,
+        )
+
+    def _parse_team(
+        self,
+        side: dict,
+        lineup_players: list[dict] | None,
+        is_home: bool,
+        hand: dict[int, tuple[Hand | None, Hand | None]],
+    ) -> TeamGameInfo:
+        team = side.get("team", {})
+        pp_raw = side.get("probablePitcher") or {}
+        probable = None
+        if pp_raw.get("id"):
+            _, throws = hand.get(pp_raw["id"], (None, None))
+            probable = Pitcher(
+                mlbam_id=pp_raw["id"],
+                name=pp_raw.get("fullName", "TBD"),
+                throws=throws,
+            )
+
+        lineup: list[BatterSlot] = []
+        for order, pl in enumerate(lineup_players or [], start=1):
+            pid = pl.get("id")
+            bats, _ = hand.get(pid, (None, None)) if pid else (None, None)
+            lineup.append(
+                BatterSlot(
+                    order=order,
+                    player=Player(mlbam_id=pid or 0, name=pl.get("fullName", "?"), bats=bats),
+                )
+            )
+
+        return TeamGameInfo(
+            team_id=team.get("id", 0),
+            name=team.get("name", "Unknown"),
+            abbrev=team.get("abbreviation") or team.get("teamCode", "").upper() or "UNK",
+            is_home=is_home,
+            probable_pitcher=probable,
+            lineup=lineup,
+        )
+
+    def get_today_and_tomorrow(self, today: Date | None = None) -> tuple[Slate, Slate]:
+        today = today or Date.today()
+        return self.get_slate(today), self.get_slate(today + timedelta(days=1))
+
+    def last_game_venue(self, team_id: int, before: Date, lookback_days: int = 8):
+        """Return (game_date, venue_id) of the team's most recent game before ``before``.
+
+        Returns None if none found in the lookback window.
+        """
+        start = before - timedelta(days=lookback_days)
+        end = before - timedelta(days=1)
+        data = self._get(
+            "schedule",
+            sportId=SPORT_ID,
+            teamId=team_id,
+            startDate=start.isoformat(),
+            endDate=end.isoformat(),
+            hydrate="venue",
+        )
+        best: tuple[Date, int] | None = None
+        for date_block in data.get("dates", []):
+            d = Date.fromisoformat(date_block["date"])
+            for g in date_block.get("games", []):
+                venue_id = (g.get("venue", {}) or {}).get("id")
+                if venue_id and (best is None or d > best[0]):
+                    best = (d, venue_id)
+        return best
