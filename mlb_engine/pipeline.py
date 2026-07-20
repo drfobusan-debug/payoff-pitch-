@@ -12,6 +12,7 @@ from mlb_engine.data.divisions import same_division
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.data.oddsapi import OddsAPIClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -39,6 +40,7 @@ from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
+from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.runline import RunLineSignal, runline_adjustment
 from mlb_engine.market.tiers import Tier, bump_tier, classify
@@ -78,8 +80,29 @@ class PipelineDeps:
     statcast: StatcastRepository
     weather: WeatherProvider
     vsin: VSINClient
+    oddsapi: OddsAPIClient | None = None
     rotowire: RotowireClient | None = None
     fangraphs: FanGraphsClient | None = None
+
+
+def _merge_quotes(
+    primary: dict[tuple[str, str, str], list[MarketQuote]],
+    secondary: dict[tuple[str, str, str], list[MarketQuote]],
+) -> dict[tuple[str, str, str], list[MarketQuote]]:
+    """Union two quote maps, de-duplicating by book per key (primary wins).
+
+    ``primary`` is the Odds API (multi-book prices); ``secondary`` is VSIN, which
+    contributes its Circa line plus handle/bets that the Odds API lacks. A book
+    present in both is kept once from the primary source.
+    """
+    out: dict[tuple[str, str, str], list[MarketQuote]] = {k: list(v) for k, v in primary.items()}
+    for key, qs in secondary.items():
+        seen = {q.book for q in out.get(key, [])}
+        for q in qs:
+            if q.book not in seen:
+                out.setdefault(key, []).append(q)
+                seen.add(q.book)
+    return out
 
 
 def load_sprint_speeds(year: int) -> dict[int, float]:
@@ -131,6 +154,10 @@ class Pipeline:
                 "Fetched VSIN public splits: %d moneyline prices, %d handle/bets entries",
                 len(quotes), len(self._splits),
             )
+        if self.deps.oddsapi is not None and self.deps.oddsapi.available():
+            odds = self.deps.oddsapi.fetch(slate)
+            quotes = _merge_quotes(odds, quotes)
+            log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
 
         recs: list[Recommendation] = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
@@ -424,17 +451,17 @@ class Pipeline:
             sharp_money_side=self._sharp_spread_side(m, ha, aa),
         )
 
-        recs.append(self._mk(game, m, "game", "game_ml", f"{ha} ML", float((margin > 0).mean()),
+        recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
                              team_side="home", side="win", quotes=quotes))
-        recs.append(self._mk(game, m, "game", "game_ml", f"{aa} ML", float((margin < 0).mean()),
+        recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(aa), float((margin < 0).mean()),
                              team_side="away", side="win", quotes=quotes))
-        recs.append(self._mk(game, m, "game", "game_rl", f"{ha} -1.5", float((margin > 1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
                              line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
-        recs.append(self._mk(game, m, "game", "game_rl", f"{aa} +1.5", float((margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin > -1.5).mean()),
                              line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
-        recs.append(self._mk(game, m, "game", "game_rl", f"{aa} -1.5", float((-margin > 1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, -1.5), float((-margin > 1.5).mean()),
                              line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
-        recs.append(self._mk(game, m, "game", "game_rl", f"{ha} +1.5", float((-margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((-margin > -1.5).mean()),
                              line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
 
         # ---- comeback-resilience flags ----
@@ -444,26 +471,26 @@ class Pipeline:
         ))
 
         for line in (7.5, 8.5, 9.5, 10.5):
-            recs.append(self._mk(game, m, "game", "game_total", f"Over {line}", p_over(total, line),
+            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(True, line), p_over(total, line),
                                  line=line, side="over", quotes=quotes))
-            recs.append(self._mk(game, m, "game", "game_total", f"Under {line}", 1 - p_over(total, line),
+            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), 1 - p_over(total, line),
                                  line=line, side="under", quotes=quotes))
 
         # ---- F5 markets ----
-        recs.append(self._mk(game, m, "f5", "f5_ml", f"{ha} F5 ML", f5.p_home_ml,
+        recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(ha), f5.p_home_ml,
                              team_side="home", side="win", quotes=quotes))
-        recs.append(self._mk(game, m, "f5", "f5_ml", f"{aa} F5 ML", f5.p_away_ml,
+        recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(aa), f5.p_away_ml,
                              team_side="away", side="win", quotes=quotes))
         recs.append(self._mk(game, m, "f5", "f5_ml", "F5 Tie", f5.p_tie, side="tie", quotes=quotes))
         for line in (4.5, 5.5):
             po = f5.p_total_over(line)
-            recs.append(self._mk(game, m, "f5", "f5_total", f"F5 Over {line}", po,
+            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(True, line), po,
                                  line=line, side="over", quotes=quotes))
-            recs.append(self._mk(game, m, "f5", "f5_total", f"F5 Under {line}", 1 - po,
+            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), 1 - po,
                                  line=line, side="under", quotes=quotes))
-        recs.append(self._mk(game, m, "f5", "f5_rl", f"{ha} F5 -0.5", f5.p_home_cover(0.5),
+        recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(ha, -0.5), f5.p_home_cover(0.5),
                              line=-0.5, team_side="home", side="cover", quotes=quotes))
-        recs.append(self._mk(game, m, "f5", "f5_rl", f"{aa} F5 +0.5", 1 - f5.p_home_cover(0.5),
+        recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(aa, 0.5), 1 - f5.p_home_cover(0.5),
                              line=0.5, team_side="away", side="cover", quotes=quotes))
 
         # ---- batter props ----
@@ -526,7 +553,7 @@ class Pipeline:
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",
-                        f"{name} {stat} o{line}", p_over(arr, line),
+                        keys.batter_prop(name, stat, line), p_over(arr, line),
                         line=line, player_id=pid, stat=stat, side="over", quotes=quotes,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
@@ -547,7 +574,7 @@ class Pipeline:
             for line in sl:
                 out.append(self._mk(
                     game, m, "pitcher", f"pitcher_{stat.lower()}",
-                    f"{pitcher.name} {label[stat]} o{line}", p_over(arr, line),
+                    keys.pitcher_prop(pitcher.name, label[stat], line), p_over(arr, line),
                     line=line, player_id=pitcher.mlbam_id, stat=stat, side="over", quotes=quotes,
                 ))
         return out
@@ -579,6 +606,11 @@ class Pipeline:
             rec.edge = evres.edge
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
+            if rec.handle_pct is None:
+                sp = self._splits.get(key)
+                if sp is not None:
+                    rec.handle_pct = sp.handle_pct
+                    rec.bets_pct = sp.bets_pct
             tier, reasons = classify(evres, self.cfg.ev)
             if rl_signal is not None and tier != Tier.PASS:
                 steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)

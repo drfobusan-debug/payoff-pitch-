@@ -377,6 +377,90 @@ def test_runline_sharp_money_bump():
     assert steps2 == 0
 
 
+def test_oddsapi_maps_game_f5_and_props():
+    import datetime
+
+    from mlb_engine.data.oddsapi import OddsAPIClient
+    from mlb_engine.schemas import Game, Slate, TeamGameInfo, Venue
+
+    def team(tid, name, ab, home):
+        return TeamGameInfo(team_id=tid, name=name, abbrev=ab, is_home=home)
+
+    game = Game(
+        game_pk=1, game_date=datetime.date(2026, 7, 20), status="Preview",
+        venue=Venue(venue_id=1, name="x"),
+        home=team(114, "Cleveland Guardians", "CLE", True),
+        away=team(142, "Minnesota Twins", "MIN", False),
+    )
+    slate = Slate(slate_date=datetime.date(2026, 7, 20), games=[game])
+
+    bulk = [{
+        "id": "evt1", "home_team": "Cleveland Guardians", "away_team": "Minnesota Twins",
+        "bookmakers": [{"key": "draftkings", "markets": [
+            {"key": "h2h", "outcomes": [
+                {"name": "Minnesota Twins", "price": -130},
+                {"name": "Cleveland Guardians", "price": 110}]},
+            {"key": "spreads", "outcomes": [
+                {"name": "Minnesota Twins", "price": 105, "point": -1.5},
+                {"name": "Cleveland Guardians", "price": -125, "point": 1.5}]},
+            {"key": "totals", "outcomes": [
+                {"name": "Over", "price": -110, "point": 8.5},
+                {"name": "Under", "price": -110, "point": 8.5}]},
+        ]}],
+    }]
+    event = {
+        "id": "evt1", "home_team": "Cleveland Guardians", "away_team": "Minnesota Twins",
+        "bookmakers": [{"key": "fanduel", "markets": [
+            {"key": "h2h_1st_5_innings", "outcomes": [
+                {"name": "Minnesota Twins", "price": -120}]},
+            {"key": "totals_1st_5_innings", "outcomes": [
+                {"name": "Over", "price": 100, "point": 4.5}]},
+            {"key": "batter_hits", "outcomes": [
+                {"name": "Over", "description": "Byron Buxton", "price": -150, "point": 0.5},
+                {"name": "Under", "description": "Byron Buxton", "price": 120, "point": 0.5}]},
+            {"key": "pitcher_strikeouts", "outcomes": [
+                {"name": "Over", "description": "Pablo Lopez", "price": -115, "point": 5.5}]},
+        ]}],
+    }
+
+    client = OddsAPIClient("k")
+
+    def fake_get(url, **params):
+        return event if "/events/" in url else bulk
+
+    client._get_json = fake_get  # type: ignore[method-assign]
+    q = client.fetch(slate)
+
+    assert ("MIN @ CLE", "game_ml", "MIN ML") in q
+    assert ("MIN @ CLE", "game_rl", "MIN -1.5") in q
+    assert ("MIN @ CLE", "game_total", "Over 8.5") in q
+    assert ("MIN @ CLE", "f5_ml", "MIN F5 ML") in q
+    assert ("MIN @ CLE", "f5_total", "F5 Over 4.5") in q
+    assert ("MIN @ CLE", "batter_h", "Byron Buxton H o0.5") in q
+    assert ("MIN @ CLE", "pitcher_k", "Pablo Lopez Ks o5.5") in q
+    assert q[("MIN @ CLE", "game_ml", "MIN ML")][0].american == -130.0
+    # Under-side props are ignored (the engine only prices the over).
+    assert all(not sel.endswith("u0.5") for _, _, sel in q)
+
+
+def test_merge_quotes_dedupes_by_book():
+    from mlb_engine.data.oddsapi import Quotes  # noqa: F401
+    from mlb_engine.market.ev import MarketQuote
+    from mlb_engine.pipeline import _merge_quotes
+
+    key = ("MIN @ CLE", "game_ml", "MIN ML")
+    odds = {key: [MarketQuote(book="draftkings", american=-130.0)]}
+    vsin = {key: [
+        MarketQuote(book="draftkings", american=-131.0, handle_pct=80.0, bets_pct=60.0),
+        MarketQuote(book="circa", american=-126.0, handle_pct=70.0, bets_pct=50.0),
+    ]}
+    merged = _merge_quotes(odds, vsin)
+    books = sorted(q.book for q in merged[key])
+    assert books == ["circa", "draftkings"]  # DK kept once (from Odds API)
+    dk = next(q for q in merged[key] if q.book == "draftkings")
+    assert dk.american == -130.0  # primary (Odds API) wins
+
+
 def test_vsin_parse_helpers():
     from mlb_engine.data.vsin import _american, _norm_name, _pct
 

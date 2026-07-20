@@ -57,6 +57,8 @@ class Credentials:
     rotowire_pass: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_PASS"))
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
+    # The Odds API (https://the-odds-api.com) key: multi-book ML/run-line/total prices.
+    odds_api_key: str | None = field(default_factory=lambda: os.getenv("ODDS_API_KEY"))
 
     def has_fangraphs(self) -> bool:
         return bool(self.fangraphs_user and self.fangraphs_pass)
@@ -66,6 +68,9 @@ class Credentials:
 
     def has_vsin(self) -> bool:
         return bool(self.vsin_user and self.vsin_pass)
+
+    def has_odds_api(self) -> bool:
+        return bool(self.odds_api_key)
 
 
 @dataclass(frozen=True)
