@@ -102,8 +102,19 @@ class Config:
     def audit_dir(self) -> Path:
         return self.data_dir / "audit"
 
+    @property
+    def fangraphs_dir(self) -> Path:
+        """Default drop-in folder for FanGraphs custom-report exports."""
+        return self.data_dir / "fangraphs"
+
     def ensure_dirs(self) -> None:
-        for d in (self.data_dir, self.cache_dir, self.output_dir, self.audit_dir):
+        for d in (
+            self.data_dir,
+            self.cache_dir,
+            self.output_dir,
+            self.audit_dir,
+            self.fangraphs_dir,
+        ):
             d.mkdir(parents=True, exist_ok=True)
 
 

@@ -101,15 +101,21 @@ Without market prices the engine still outputs model probabilities (all Pass).
 xSLG is pulled automatically from the public Baseball Savant leaderboard. The
 FanGraphs-owned metrics come from a **custom-report CSV drop-in** (no scraping):
 in FanGraphs → Leaders, build a date-ranged report matching the rolling windows
-and hit *Export Data* — one hitters report (wRC+, xSLG) and one pitchers report
-(SIERA, Stuff+). Drop both CSVs in a folder and pass it:
+and hit *Export Data* (CSV or XLSX) — one hitters report (wRC+, xSLG) and one
+pitchers report (SIERA, Stuff+).
+
+Drop both files in **`~/.mlb_engine/fangraphs/`** and they're picked up
+automatically (the one-click launcher needs no flags). Or point anywhere:
 
 ```bash
-mlb-engine run --fangraphs-csv ~/.mlb_engine/fangraphs/
+mlb-engine run --fangraphs-csv /path/to/folder
 ```
 
-Rows are matched to the slate by player name; unmatched players (and any missing
-file/metric) simply stay neutral. These feed the ≥2 SD distribution-tail layer.
+Rows are matched to the slate by MLBAM id (FanGraphs exports include an
+`MLBAMID` column) and fall back to player name; unmatched players (and any
+missing file/metric) simply stay neutral. These feed the ≥2 SD tail layer.
+Re-export daily — the engine reuses whatever files are in the folder, so stale
+files feed stale numbers.
 
 ## Credentials
 

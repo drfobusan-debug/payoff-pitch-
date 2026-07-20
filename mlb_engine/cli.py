@@ -65,7 +65,16 @@ def cmd_run(args: argparse.Namespace) -> int:
     slate_date = _parse_date(args.date, Date.today())
     pipe = Pipeline(cfg, deps)
     vsin_csv = Path(args.vsin_csv) if args.vsin_csv else None
-    fangraphs_csv = Path(args.fangraphs_csv) if args.fangraphs_csv else None
+    fg_dir = cfg.fangraphs_dir
+    has_drop_ins = fg_dir.is_dir() and any(
+        f.suffix.lower() in (".csv", ".xlsx", ".xls") for f in fg_dir.iterdir()
+    )
+    if args.fangraphs_csv:
+        fangraphs_csv: Path | None = Path(args.fangraphs_csv)
+    elif has_drop_ins:
+        fangraphs_csv = fg_dir
+    else:
+        fangraphs_csv = None
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
@@ -133,7 +142,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--vsin-csv", help="path to VSIN odds/handle CSV")
     r.add_argument(
         "--fangraphs-csv",
-        help="FanGraphs custom-report CSV (or directory of CSVs) for SIERA/Stuff+/wRC+/xSLG tails",
+        help="FanGraphs custom-report CSV/XLSX (or a folder of them) for "
+        "SIERA/Stuff+/wRC+/xSLG tails; defaults to ~/.mlb_engine/fangraphs/ if present",
     )
     r.add_argument("--sims", type=int, help="Monte Carlo sims per game")
     r.add_argument("--out", help="output .xlsx path")
