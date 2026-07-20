@@ -15,7 +15,7 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
-from mlb_engine.data.vsin import VSINClient
+from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -55,6 +55,7 @@ from mlb_engine.schemas import Game, TeamGameInfo
 log = logging.getLogger(__name__)
 
 FATIGUE_DEPLETED = 60.0  # bullpen-fatigue score at/above which a pen is "depleted"
+SHARP_SPREAD_DIV = 15.0  # VSIN run-line handle%-bets% gap treated as sharp money
 
 
 def league_pitcher_rates() -> OutcomeRates:
@@ -98,6 +99,7 @@ class Pipeline:
         self.deps = deps
         self._team_defense: dict[str, TeamDefense] = {}
         self._fatigue: dict[int, float | None] = {}
+        self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
 
     def run(
@@ -119,12 +121,16 @@ class Pipeline:
         self._tails = TailAdjuster.build(statcast)
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
+        self._splits = {}
         if vsin_csv and vsin_csv.exists():
             quotes = self.deps.vsin.load_csv(vsin_csv)
             log.info("Loaded %d VSIN market entries from CSV", len(quotes))
         else:
-            quotes = self.deps.vsin.fetch_quotes(slate)
-            log.info("Fetched %d VSIN moneyline market entries (public splits)", len(quotes))
+            quotes, self._splits = self.deps.vsin.fetch(slate)
+            log.info(
+                "Fetched VSIN public splits: %d moneyline prices, %d handle/bets entries",
+                len(quotes), len(self._splits),
+            )
 
         recs: list[Recommendation] = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
@@ -257,6 +263,24 @@ class Pipeline:
         if team_id not in self._fatigue:
             self._fatigue[team_id] = self.deps.stats.bullpen_fatigue(team_id, slate_date)
         return self._fatigue[team_id]
+
+    def _spread_divergence(self, matchup: str, abbrev: str) -> float | None:
+        """VSIN run-line handle% - bets% for a team (sharp side when positive)."""
+        for suffix in ("-1.5", "+1.5"):
+            sp = self._splits.get((matchup, "game_rl", f"{abbrev} {suffix}"))
+            if sp is not None:
+                return sp.divergence
+        return None
+
+    def _sharp_spread_side(self, matchup: str, home_ab: str, away_ab: str) -> str | None:
+        """Return 'home'/'away' when VSIN spread money notably outweighs tickets."""
+        hd = self._spread_divergence(matchup, home_ab)
+        if hd is not None and hd >= SHARP_SPREAD_DIV:
+            return "home"
+        ad = self._spread_divergence(matchup, away_ab)
+        if ad is not None and ad >= SHARP_SPREAD_DIV:
+            return "away"
+        return None
 
     def _defense_multiplier(self, fielding_abbrev: str) -> dict[str, float]:
         """BIP-hit suppression on the offense that faces this fielding team."""
@@ -397,6 +421,7 @@ class Pipeline:
             fav_pen_depleted_side=(
                 fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
             ),
+            sharp_money_side=self._sharp_spread_side(m, ha, aa),
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", f"{ha} ML", float((margin > 0).mean()),
@@ -565,6 +590,14 @@ class Pipeline:
         else:
             rec.tier = Tier.PASS
             rec.reasons = ["no market price"]
+            sp = self._splits.get(key)
+            if sp is not None:
+                rec.handle_pct = sp.handle_pct
+                rec.bets_pct = sp.bets_pct
+                if sp.handle_pct is not None and sp.bets_pct is not None:
+                    rec.reasons.append(
+                        f"VSIN handle {sp.handle_pct:.0f}% / bets {sp.bets_pct:.0f}%"
+                    )
         return rec
 
 

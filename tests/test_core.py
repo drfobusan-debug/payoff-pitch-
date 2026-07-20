@@ -318,25 +318,63 @@ def test_vsin_fetch_quotes_maps_to_slate():
 
     client = VSINClient(Credentials())
 
+    from mlb_engine.data.vsin import _RawRow
+
     def fake_fetch_book(src):
-        # name-normalization also covers punctuation differences like St. Louis.
+        # away row (Twins) carries the Over; home row (Guardians) the Under.
         return [
-            ("Minnesota Twins", -131.0, 84.0, 62.0),
-            ("Cleveland Guardians", 109.0, 16.0, 38.0),
-            ("Unlisted Team", -120.0, 50.0, 50.0),  # dropped: not on the slate
+            _RawRow("Minnesota Twins", -1.5, 96.0, 42.0, 7.5, 13.0, 61.0, -131.0, 84.0, 62.0),
+            _RawRow("Cleveland Guardians", 1.5, 4.0, 58.0, 7.5, 87.0, 39.0, 109.0, 16.0, 38.0),
+            _RawRow("Unlisted Team", -1.5, 50.0, 50.0, 8.5, 50.0, 50.0, -120.0, 50.0, 50.0),
         ]
 
     client._fetch_book = fake_fetch_book  # type: ignore[method-assign]
-    q = client.fetch_quotes(slate)
-    # two books -> two quotes per matched selection; unlisted team dropped.
-    assert set(q) == {
+    quotes, splits = client.fetch(slate)
+
+    # two books -> two priced ML quotes per matched selection; unlisted team dropped.
+    assert set(quotes) == {
         ("MIN @ CLE", "game_ml", "MIN ML"),
         ("MIN @ CLE", "game_ml", "CLE ML"),
     }
-    min_q = q[("MIN @ CLE", "game_ml", "MIN ML")]
+    min_q = quotes[("MIN @ CLE", "game_ml", "MIN ML")]
     assert len(min_q) == 2  # DK + circa
     assert min_q[0].american == -131.0
     assert min_q[0].handle_pct == 84.0 and min_q[0].bets_pct == 62.0
+
+    # run-line + total handle/bets surface as splits (no price).
+    assert splits[("MIN @ CLE", "game_rl", "MIN -1.5")].handle_pct == 96.0
+    assert splits[("MIN @ CLE", "game_rl", "CLE +1.5")].bets_pct == 58.0
+    assert splits[("MIN @ CLE", "game_total", "Over 7.5")].handle_pct == 13.0
+    assert splits[("MIN @ CLE", "game_total", "Under 7.5")].handle_pct == 87.0
+    assert client.fetch_quotes(slate).keys() == quotes.keys()
+
+
+def test_circa_weighted_consensus_and_divergence():
+    from mlb_engine.market.ev import MarketQuote, evaluate
+
+    # DK soft (+120), Circa sharp (-110); Circa's higher implied prob should
+    # dominate the weighted no-vig fair estimate.
+    dk = MarketQuote(book="draftkings", american=120.0, handle_pct=40.0, bets_pct=55.0)
+    circa = MarketQuote(book="circa", american=-110.0, handle_pct=70.0, bets_pct=48.0)
+    res = evaluate(0.5, [dk, circa])
+    # best price for EV payout is the +120 DK line.
+    assert res.best_quote.book == "draftkings"
+    # weighted fair sits closer to Circa's implied prob than a 50/50 blend.
+    from mlb_engine.market.odds import american_to_prob
+    even = (american_to_prob(120.0) + american_to_prob(-110.0)) / 2
+    assert res.fair_prob > even
+    # divergence weights Circa's +22 heavier than DK's -15 -> net positive.
+    assert res.sharp_divergence is not None and res.sharp_divergence > 0
+
+
+def test_runline_sharp_money_bump():
+    from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+
+    sig = RunLineSignal(sharp_money_side="home")
+    steps, reasons = runline_adjustment("home", -1.5, sig)
+    assert steps >= 1 and any("sharp money" in r for r in reasons)
+    steps2, _ = runline_adjustment("away", -1.5, sig)
+    assert steps2 == 0
 
 
 def test_vsin_parse_helpers():

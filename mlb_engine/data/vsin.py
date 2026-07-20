@@ -24,7 +24,9 @@ from __future__ import annotations
 import io
 import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple
 
 import pandas as pd
 import requests
@@ -39,6 +41,33 @@ SPLITS_URL = "https://data.vsin.com/betting-splits/?source={book}&sport=MLB"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 # VSIN "source" code -> engine book label.
 _BOOKS = {"DK": "draftkings", "circa": "circa"}
+
+
+@dataclass(frozen=True)
+class Split:
+    """VSIN handle/bets percentages for a selection (no price attached)."""
+
+    handle_pct: float | None = None
+    bets_pct: float | None = None
+
+    @property
+    def divergence(self) -> float | None:
+        if self.handle_pct is None or self.bets_pct is None:
+            return None
+        return self.handle_pct - self.bets_pct
+
+
+class _RawRow(NamedTuple):
+    name: str
+    spread_line: float | None
+    spread_handle: float | None
+    spread_bets: float | None
+    total_line: float | None
+    total_handle: float | None
+    total_bets: float | None
+    ml_american: float | None
+    ml_handle: float | None
+    ml_bets: float | None
 
 
 class VSINClient:
@@ -70,33 +99,58 @@ class VSINClient:
         return out
 
     # --- Live public splits path -----------------------------------------
-    def fetch_quotes(self, slate: Slate) -> dict[tuple[str, str, str], list[MarketQuote]]:
-        """Scrape the public VSIN splits pages -> moneyline quotes for the slate.
+    Quotes = dict[tuple[str, str, str], list[MarketQuote]]
+    Splits = dict[tuple[str, str, str], Split]
 
-        Matches each VSIN team row to a slate team by normalized full name and
-        emits a ``game_ml`` quote (american price + moneyline handle/bets) for
-        each book. Returns an empty dict if the pages are unavailable.
+    def fetch(self, slate: Slate) -> tuple[Quotes, Splits]:
+        """Scrape the public VSIN splits pages for the slate.
+
+        Returns ``(quotes, splits)``:
+        - ``quotes``: priced ``game_ml`` moneyline quotes (american + handle/bets)
+          for each book -- the only market VSIN exposes a price for.
+        - ``splits``: handle/bets-only entries for moneyline, run line, and total
+          selections (VSIN gives no run-line/total price, so these carry no EV;
+          they surface the public/sharp split and feed the run-line PPV layer).
+
+        Each VSIN row is matched to a slate team by normalized full name. On the
+        total, VSIN lists the visitor row as the Over and the home row as the
+        Under. Returns empty mappings if the pages are unavailable.
         """
-        name_to_team: dict[str, tuple[str, str]] = {}
+        name_to_team: dict[str, tuple[str, str, bool]] = {}
         for g in slate.games:
             for tm in (g.home, g.away):
-                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.abbrev)
+                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.abbrev, tm.is_home)
 
-        out: dict[tuple[str, str, str], list[MarketQuote]] = {}
+        quotes: VSINClient.Quotes = {}
+        splits: VSINClient.Splits = {}
         for src, book in _BOOKS.items():
-            for name, american, hnd, bet in self._fetch_book(src):
-                match = name_to_team.get(_norm_name(name))
-                if match is None or american is None:
+            for row in self._fetch_book(src):
+                match = name_to_team.get(_norm_name(row.name))
+                if match is None:
                     continue
-                matchup, abbrev = match
-                qkey = (matchup, "game_ml", f"{abbrev} ML")
-                out.setdefault(qkey, []).append(
-                    MarketQuote(book=book, american=american, handle_pct=hnd, bets_pct=bet)
-                )
-        return out
+                matchup, abbrev, is_home = match
+                if row.ml_american is not None:
+                    quotes.setdefault((matchup, "game_ml", f"{abbrev} ML"), []).append(
+                        MarketQuote(
+                            book=book, american=row.ml_american,
+                            handle_pct=row.ml_handle, bets_pct=row.ml_bets,
+                        )
+                    )
+                    splits[(matchup, "game_ml", f"{abbrev} ML")] = Split(row.ml_handle, row.ml_bets)
+                if row.spread_line is not None:
+                    sel = f"{abbrev} {row.spread_line:+.1f}"
+                    splits[(matchup, "game_rl", sel)] = Split(row.spread_handle, row.spread_bets)
+                if row.total_line is not None:
+                    side = "Under" if is_home else "Over"
+                    sel = f"{side} {row.total_line}"
+                    splits[(matchup, "game_total", sel)] = Split(row.total_handle, row.total_bets)
+        return quotes, splits
 
-    def _fetch_book(self, src: str) -> list[tuple[str, float | None, float | None, float | None]]:
-        """Return (team_name, ml_american, ml_handle_pct, ml_bets_pct) rows."""
+    def fetch_quotes(self, slate: Slate) -> Quotes:
+        """Backwards-compatible accessor for just the priced moneyline quotes."""
+        return self.fetch(slate)[0]
+
+    def _fetch_book(self, src: str) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
             resp = requests.get(url, headers=_HEADERS, timeout=self.timeout)
@@ -107,13 +161,17 @@ class VSINClient:
             return []
         if not tables:
             return []
-        df = tables[0]
-        rows: list[tuple[str, float | None, float | None, float | None]] = []
-        for _, r in df.iterrows():
+        rows: list[_RawRow] = []
+        for _, r in tables[0].iterrows():
             name = str(r.iloc[1]).strip()
             if not name or name.lower() == "nan":
                 continue
-            rows.append((name, _american(r.iloc[8]), _pct(r.iloc[9]), _pct(r.iloc[10])))
+            rows.append(_RawRow(
+                name=name,
+                spread_line=_num(r.iloc[2]), spread_handle=_pct(r.iloc[3]), spread_bets=_pct(r.iloc[4]),
+                total_line=_num(r.iloc[5]), total_handle=_pct(r.iloc[6]), total_bets=_pct(r.iloc[7]),
+                ml_american=_american(r.iloc[8]), ml_handle=_pct(r.iloc[9]), ml_bets=_pct(r.iloc[10]),
+            ))
         return rows
 
 
@@ -123,6 +181,11 @@ def _norm_name(s: str) -> str:
 
 def _pct(v: object) -> float | None:
     m = re.search(r"-?\d+(?:\.\d+)?", str(v))
+    return float(m.group()) if m else None
+
+
+def _num(v: object) -> float | None:
+    m = re.search(r"[+-]?\d+(?:\.\d+)?", str(v).replace(" ", ""))
     return float(m.group()) if m else None
 
 

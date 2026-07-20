@@ -31,6 +31,7 @@ class RunLineSignal:
     xwoba_diff: float | None = None  # home team mean xwOBA - away team mean xwOBA
     cold_sound_side: str | None = None  # 'home'/'away': cold by results, sound by xwOBA
     fav_pen_depleted_side: str | None = None  # 'home'/'away': favorite with a thin pen
+    sharp_money_side: str | None = None  # 'home'/'away': VSIN spread handle% >> bets%
 
 
 def runline_adjustment(
@@ -75,5 +76,9 @@ def runline_adjustment(
         if team_side == opp:
             steps += 1
             reasons.append("favorite bullpen depleted -> back opponent +1.5")
+
+    if signal.sharp_money_side == team_side:
+        steps += 1
+        reasons.append("VSIN sharp money (handle% > bets%) backs this side")
 
     return steps, reasons
