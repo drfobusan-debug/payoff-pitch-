@@ -149,6 +149,28 @@ def test_rbi_rule_flags_high_obp():
     assert rbi_multiplier(flags2[0]) == 1.0
 
 
+def _reg(xslg: float, zone_contact: float):
+    from mlb_engine.features.regression import BatterRegression
+
+    return BatterRegression(
+        bbe=40, barrel_rate=0.08, hard_hit=0.40, sweet_spot=0.33, bat_speed=72.0,
+        max_ev=108.0, whiff=0.24, zone_contact=zone_contact, xba=0.25, xslg=xslg,
+        babip=0.29, woba=0.32, xwoba=0.32,
+    )
+
+
+def test_rbi_ppv_npv_tiers():
+    hi = OutcomeRates(200, 0.18, 0.06, 0.005, 0.05, 0.12, 0.18, 0.40)
+    profs = [_profile(hi)] * 9
+    # PPV: elite xSLG with runners on boosts RBI above the volume-only boost.
+    elite = evaluate_lineup(profs, regressions=[_reg(0.520, 0.82)] * 9)
+    vol_only = evaluate_lineup(profs)
+    assert rbi_multiplier(elite[0]) > rbi_multiplier(vol_only[0])
+    # NPV: in-zone contact collapse caps RBI despite big opportunity.
+    collapse = evaluate_lineup(profs, regressions=[_reg(0.400, 0.60)] * 9)
+    assert rbi_multiplier(collapse[0]) < rbi_multiplier(vol_only[0])
+
+
 # ---- ev + tiers ----
 def test_ev_positive_when_underpriced():
     # model 60%, priced at +100 (fair 50%) -> positive EV

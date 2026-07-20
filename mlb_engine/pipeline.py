@@ -136,6 +136,7 @@ class Pipeline:
         prev = self.deps.stats.last_game_venue(team.team_id, slate_date)
 
         profiles = []
+        regs = []
         bat_vs_starter = []
         bat_vs_pen = []
         for slot in team.lineup:
@@ -149,6 +150,7 @@ class Pipeline:
             breg = build_batter_regression(
                 statcast[statcast["batter"] == pid], sprint.get(pid, 27.0)
             )
+            regs.append(breg)
             bmult = breg.multipliers()
 
             vs_start = combine(ctx, pit_prof.allowed)
@@ -162,7 +164,7 @@ class Pipeline:
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)
 
-        rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold)
+        rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold, regs)
         return bat_vs_starter, bat_vs_pen, rbi_flags, prev
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
