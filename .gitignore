@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.pkl
+*.xlsx
+.mlb_engine/
+data_cache/
+# never commit subscription credentials
+credentials.json
+secrets.*
+vsin_*.csv
