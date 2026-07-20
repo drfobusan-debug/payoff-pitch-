@@ -29,7 +29,7 @@ from mlb_engine.features.rolling import (
     build_pitcher_profile,
 )
 from mlb_engine.filters import travel_rest
-from mlb_engine.filters.defense import defense_hit_multiplier, load_team_fielding
+from mlb_engine.filters.defense import TeamDefense, load_team_fielding
 from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.ev import evaluate
@@ -224,8 +224,7 @@ class Pipeline:
         val = self._team_fielding.get(fielding_abbrev)
         if val is None:
             return {}
-        m = defense_hit_multiplier(val)
-        return {"1B": m, "2B": m, "3B": m}
+        return TeamDefense(frv=val).bip_multipliers()
 
     def _umpire_zone_runs(self, game: Game) -> float:
         if self.deps.rotowire and self.deps.rotowire.available():

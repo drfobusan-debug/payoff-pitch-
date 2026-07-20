@@ -223,13 +223,34 @@ def test_bullpen_npv_walk_trap_and_fatigue():
 def test_defense_hit_multiplier_bounds_and_direction():
     from mlb_engine.filters.defense import defense_hit_multiplier
 
-    # Elite defense (+OAA) suppresses BIP hits (<1); poor defense inflates (>1).
+    # Elite defense (+FRV) suppresses BIP hits (<1); poor defense inflates (>1).
     assert defense_hit_multiplier(20.0) < 1.0
     assert defense_hit_multiplier(-20.0) > 1.0
     assert defense_hit_multiplier(0.0) == 1.0
-    # Bounded to +/-5%.
-    assert defense_hit_multiplier(999.0) >= 0.95
-    assert defense_hit_multiplier(-999.0) <= 1.05
+    # Bounded to +/-6%.
+    assert defense_hit_multiplier(9999.0) >= 0.94
+    assert defense_hit_multiplier(-9999.0) <= 1.06
+
+
+def test_team_defense_positional_and_npv():
+    from mlb_engine.filters.defense import TeamDefense
+
+    # Team FRV fallback suppresses both singles and XBH.
+    good = TeamDefense(frv=40.0).bip_multipliers()
+    assert good["1B"] < 1.0 and good["2B"] < 1.0 and good["3B"] < 1.0
+    assert set(good) == {"1B", "2B", "3B"}  # never touches K/BB/HR
+
+    # Per-position OAA: elite OF range hits XBH harder than singles.
+    of = TeamDefense(outfield_oaa=15.0, infield_oaa=0.0).bip_multipliers()
+    assert of["2B"] < of["1B"]
+
+    # NPV: broken middle infield (SS+2B OAA < -8) leaks grounder singles.
+    broken = TeamDefense(middle_if_oaa=-15.0).bip_multipliers()
+    assert broken["1B"] > 1.0
+
+    # Neutral profile -> no-op multipliers.
+    neutral = TeamDefense().bip_multipliers()
+    assert neutral["1B"] == 1.0 and neutral["2B"] == 1.0
 
 
 # ---- human element + umpire ----
