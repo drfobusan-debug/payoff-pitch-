@@ -191,22 +191,26 @@ class Pipeline:
             game.away, game.home, statcast, slate_date, sprint
         )
 
-        # travel/rest per offense
+        # travel/rest (circadian) per team
         if park:
-            home_tr = travel_rest.compute(
-                _prev_to_pg(home_prev), park, slate_date
-            ).multipliers()
-            away_tr = travel_rest.compute(
-                _prev_to_pg(away_prev), park, slate_date
-            ).multipliers()
+            home_te = travel_rest.compute(_prev_to_pg(home_prev), park, slate_date)
+            away_te = travel_rest.compute(_prev_to_pg(away_prev), park, slate_date)
+            home_tr, away_tr = home_te.multipliers(), away_te.multipliers()
+            # jet-lagged staff allows more HR -> boost the OPPOSING offense
+            home_hr_boost = away_te.pitching_multipliers()
+            away_hr_boost = home_te.pitching_multipliers()
         else:
-            home_tr = away_tr = {}
+            home_tr = away_tr = home_hr_boost = away_hr_boost = {}
 
-        # apply env filters (weather + travel) to both offenses
-        home_start = self._apply_env(self._apply_env(home_start, weather_mult), home_tr)
-        home_pen = self._apply_env(self._apply_env(home_pen, weather_mult), home_tr)
-        away_start = self._apply_env(self._apply_env(away_start, weather_mult), away_tr)
-        away_pen = self._apply_env(self._apply_env(away_pen, weather_mult), away_tr)
+        # apply env filters (weather + own travel + opponent-staff HR boost)
+        home_start = self._apply_env(self._apply_env(self._apply_env(
+            home_start, weather_mult), home_tr), home_hr_boost)
+        home_pen = self._apply_env(self._apply_env(self._apply_env(
+            home_pen, weather_mult), home_tr), home_hr_boost)
+        away_start = self._apply_env(self._apply_env(self._apply_env(
+            away_start, weather_mult), away_tr), away_hr_boost)
+        away_pen = self._apply_env(self._apply_env(self._apply_env(
+            away_pen, weather_mult), away_tr), away_hr_boost)
 
         home_cfg = TeamSimConfig(bat_vs_starter=home_start, bat_vs_pen=home_pen)
         away_cfg = TeamSimConfig(bat_vs_starter=away_start, bat_vs_pen=away_pen)

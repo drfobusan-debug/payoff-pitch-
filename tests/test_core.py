@@ -171,6 +171,34 @@ def test_rbi_ppv_npv_tiers():
     assert rbi_multiplier(collapse[0]) < rbi_multiplier(vol_only[0])
 
 
+# ---- travel / circadian ----
+def test_travel_eastward_worse_than_west_and_boosts_opponent_hr():
+    from datetime import timedelta
+
+    from mlb_engine.data.parks import Park
+    from mlb_engine.filters.travel_rest import PrevGame, compute
+
+    east_park = Park(1, "East", 40.8, -73.9, 0.0, "open", 100.0)  # NYC-ish
+    west_lon = -122.4  # SF-ish
+    today = date(2024, 7, 19)
+    yday = today - timedelta(days=1)
+
+    # Team flew EAST (from west coast to NYC) with 1 day rest.
+    east_trip = compute(PrevGame(yday, 37.8, west_lon), east_park, today)
+    # Team flew WEST the same distance/rest.
+    west_park = Park(2, "West", 37.8, west_lon, 0.0, "open", 100.0)
+    west_trip = compute(PrevGame(yday, 40.8, -73.9), west_park, today)
+
+    assert east_trip.east and not west_trip.east
+    assert east_trip.offense_mult < west_trip.offense_mult  # eastward hurts more
+    assert east_trip.hr_allowed_mult > 1.0  # tired staff -> opponent HR spike
+
+    # Mid-trip (same city as prior game) -> fully adapted, no penalty.
+    mid = compute(PrevGame(yday, 40.8, -73.9), east_park, today)
+    assert mid.offense_mult == 1.0
+    assert mid.hr_allowed_mult == 1.0
+
+
 # ---- ev + tiers ----
 def test_ev_positive_when_underpriced():
     # model 60%, priced at +100 (fair 50%) -> positive EV
