@@ -8,6 +8,7 @@ from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
 
+from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config
 from mlb_engine.data.divisions import same_division
 from mlb_engine.data.fangraphs import (
@@ -209,6 +210,17 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
         return {}
 
 
+_CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
+
+
+def _load_calibrator() -> Calibrator:
+    """Load the packaged 2024 isotonic calibration map (identity if missing)."""
+    if _CALIBRATION_FILE.exists():
+        return Calibrator.from_json(_CALIBRATION_FILE)
+    log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
+    return Calibrator.identity()
+
+
 class Pipeline:
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
@@ -217,6 +229,7 @@ class Pipeline:
         self._fatigue: dict[int, float | None] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
+        self._calibrator = _load_calibrator() if cfg.calibrate else Calibrator.identity()
 
     def run(
         self,
@@ -786,6 +799,8 @@ class Pipeline:
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
             rl_signal: RunLineSignal | None = None) -> Recommendation:
+        raw = float(min(max(prob, 1e-6), 1 - 1e-6))
+        calibrated = self._calibrator.apply(market, raw)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
@@ -793,7 +808,8 @@ class Pipeline:
             category=category,
             market=market,
             selection=selection,
-            model_prob=float(min(max(prob, 1e-6), 1 - 1e-6)),
+            model_prob=calibrated,
+            raw_prob=raw,
             line=line,
             team_side=team_side,
             player_id=player_id,

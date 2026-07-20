@@ -320,6 +320,76 @@ def confidence_gap(graded: list[tuple[Recommendation, str]], threshold: float = 
     return gaps
 
 
+def _raw(rec: Recommendation) -> float:
+    return rec.raw_prob if rec.raw_prob is not None else rec.model_prob
+
+
+def false_positive_findings(
+    graded: list[tuple[Recommendation, str]], min_n: int = 150, breakeven: float = 0.476
+) -> list[str]:
+    """Markets whose *favored* picks (prob>=0.5) lose more than breakeven.
+
+    These are the commonalities driving the false-positive bias: the model likes
+    them but they under-perform, so their EV/edge is phantom.
+    """
+    by_market: dict[str, list[int]] = defaultdict(list)
+    over: list[int] = []
+    under: list[int] = []
+    for rec, result in graded:
+        if result == PUSH or _raw(rec) < 0.5:
+            continue
+        lost = 0 if result == WIN else 1
+        by_market[rec.market].append(lost)
+        if rec.side == "over":
+            over.append(lost)
+        elif rec.side == "under":
+            under.append(lost)
+    out: list[str] = []
+    for mk in sorted(by_market, key=lambda m: -sum(by_market[m]) / max(len(by_market[m]), 1)):
+        o = by_market[mk]
+        if len(o) < min_n:
+            continue
+        loss = sum(o) / len(o)
+        if loss > 1 - breakeven:  # win rate below breakeven
+            out.append(
+                f"FALSE-POSITIVE RISK: {mk} favored picks lose {loss * 100:.1f}% "
+                f"(win {100 - loss * 100:.1f}%, n={len(o)}) -- phantom edge, demoted by calibration"
+            )
+    if over and under:
+        lo = sum(over) / len(over)
+        lu = sum(under) / len(under)
+        if lo - lu > 0.03:
+            out.append(
+                f"FALSE-POSITIVE RISK: over-side leans lose {lo * 100:.1f}% vs "
+                f"under-side {lu * 100:.1f}% -- systematic OVER bias on props"
+            )
+    return out
+
+
+def false_negative_findings(
+    graded: list[tuple[Recommendation, str]], min_n: int = 150, breakeven: float = 0.524
+) -> list[str]:
+    """Faded bands (prob<0.5) that actually win above breakeven -- reclaimable."""
+    band: dict[tuple[str, int], list[int]] = defaultdict(list)
+    for rec, result in graded:
+        if result == PUSH or _raw(rec) >= 0.5:
+            continue
+        band[(rec.market, int(_raw(rec) * 20))].append(1 if result == WIN else 0)
+    out: list[str] = []
+    for (mk, b), o in sorted(band.items()):
+        if len(o) < min_n:
+            continue
+        wr = sum(o) / len(o)
+        if wr > breakeven:
+            out.append(
+                f"RECLAIMABLE: {mk} faded band {b * 5}-{(b + 1) * 5}% actually wins "
+                f"{wr * 100:.1f}% (n={len(o)}) -- calibration lifts it toward playable"
+            )
+    if not out:
+        out.append("No sizable reclaimable false-negative pocket found -- fades are mostly correct.")
+    return out
+
+
 def risk_factors(
     groups: list[GroupResult],
     conf: list[ConfusionResult],

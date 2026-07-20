@@ -9,6 +9,8 @@ from pathlib import Path
 from mlb_engine.backtest import (
     confidence_gap,
     confusion,
+    false_negative_findings,
+    false_positive_findings,
     risk_factors,
     summarize,
     write_backtest_workbook,
@@ -24,7 +26,13 @@ def main() -> int:
     groups = summarize(graded)
     conf = confusion(graded)
     gaps = confidence_gap(graded)
-    findings = risk_factors(groups, conf, gaps)
+    findings = (
+        risk_factors(groups, conf, gaps)
+        + [""]
+        + false_positive_findings(graded)
+        + [""]
+        + false_negative_findings(graded)
+    )
 
     print("\n== Accuracy / calibration by market group ==")
     for g in groups:

@@ -20,6 +20,7 @@ class Recommendation:
     market: str
     selection: str
     model_prob: float
+    raw_prob: float | None = None  # pre-calibration model probability (audit trail)
     line: float | None = None
     book: str | None = None
     market_american: float | None = None

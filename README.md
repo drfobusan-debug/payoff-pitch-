@@ -160,6 +160,21 @@ false-negative rate) keyed on the model's own 0.5 probability boundary. This is
 an accuracy/calibration test only -- a profitability (ROI) backtest additionally
 requires paid historical odds.
 
+### Probability calibration
+
+The backtest exposed systematic over-confidence (worst on pitcher props), which
+inflates EV and manufactures false positives. `mlb_engine/calibration.py` fits a
+per-market isotonic map from the backtest (`scripts/fit_calibration.py` ->
+`mlb_engine/data/calibration_2024.json`) that rescales each raw probability onto
+its historically realized win rate *before* EV/tier classification. Isotonic is
+monotone, so it never flips which side the model prefers -- it only shrinks
+over-confident edges (demoting phantom-edge false positives) and lifts
+systematically under-rated bands (reclaiming false negatives). Out-of-sample
+(train < Aug 1, test Aug-Sep 2024) it cut the mean over-confidence gap from ~7.0
+to ~1.2 pts and lifted favored-pick PPV from .554 to .580. The raw probability is
+kept on each recommendation (`raw_prob`) for audit. Disable with
+`MLBE_CALIBRATE=0`.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);

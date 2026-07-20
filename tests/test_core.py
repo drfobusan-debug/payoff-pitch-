@@ -1032,3 +1032,32 @@ def test_backtest_summarize_and_confusion():
     assert gaps["Batter Props"] < 0
 
     assert len(sample_dates(date(2024, 6, 1), date(2024, 6, 9), 2)) == 5
+
+
+def test_isotonic_calibration_pulls_overconfident_down():
+    from mlb_engine.calibration import Calibrator, IsotonicMap
+
+    # raw 0.9 only wins ~50% -> calibrated must drop below 0.9 (monotone)
+    pairs = [(0.9, i % 2) for i in range(200)] + [(0.1, 0) for _ in range(200)]
+    m = IsotonicMap.fit(pairs)
+    assert m.apply(0.9) < 0.9
+    assert m.apply(0.1) <= m.apply(0.9)  # monotone (ranking preserved)
+
+    cal = Calibrator.fit([("pitcher_k", 0.9, i % 2) for i in range(600)])
+    assert cal.apply("pitcher_k", 0.9) < 0.9
+    assert cal.apply("unknown_market", 0.9) < 0.9  # falls back to pooled default
+
+
+def test_false_positive_and_negative_findings():
+    from mlb_engine.backtest import false_negative_findings, false_positive_findings
+
+    # 200 favored pitcher_er picks that mostly lose -> flagged as FP risk
+    fp_graded = [
+        (_rec(market="pitcher_er", model_prob=0.6, side="over"), LOSS if i % 4 else WIN)
+        for i in range(200)
+    ]
+    fps = false_positive_findings(fp_graded, min_n=50)
+    assert any("pitcher_er" in f for f in fps)
+
+    fns = false_negative_findings(fp_graded, min_n=50)
+    assert any("mostly correct" in f for f in fns)  # no faded picks here

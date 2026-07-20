@@ -85,6 +85,11 @@ class Config:
     # Monte Carlo simulation count per game.
     mc_sims: int = field(default_factory=lambda: _env_int("MLBE_MC_SIMS", 20000))
 
+    # Apply the historical isotonic probability calibration before EV/tiers.
+    calibrate: bool = field(
+        default_factory=lambda: os.getenv("MLBE_CALIBRATE", "1") not in ("0", "false", "")
+    )
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
