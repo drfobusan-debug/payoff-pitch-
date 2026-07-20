@@ -29,6 +29,19 @@ class RotowireClient:
         """Load a Rotowire expected-lineups CSV (fallback for unposted lineups)."""
         return pd.read_csv(path)
 
+    def bullpen_availability(self, team_abbrev: str) -> float | None:
+        """Return a team's bullpen availability (0..1, higher = more rested).
+
+        Rotowire publishes reliever usage/availability (recent pitch counts, who
+        is unavailable). Wired as the primary source for the bullpen fatigue
+        (3-in-4) NPV; returns ``None`` until live access is validated, in which
+        case the Statcast workload proxy is used instead.
+        """
+        if not self.available():
+            return None
+        log.info("Rotowire bullpen availability pending live access for %s", team_abbrev)
+        return None
+
     def login(self) -> bool:
         if not self.available():
             log.info("Rotowire credentials not provided; skipping login")

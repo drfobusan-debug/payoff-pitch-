@@ -11,8 +11,10 @@ from pathlib import Path
 from mlb_engine.audit.grade import grade
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.config import load_config
+from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.results import fetch_result
+from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.filters.weather import WeatherProvider
@@ -49,6 +51,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         statcast=StatcastRepository(cfg.cache_dir),
         weather=WeatherProvider(),
         vsin=VSINClient(cfg.creds),
+        rotowire=RotowireClient(cfg.creds),
+        fangraphs=FanGraphsClient(cfg.creds),
     )
     if args.sims:
         import os

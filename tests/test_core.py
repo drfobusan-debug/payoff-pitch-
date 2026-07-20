@@ -171,6 +171,54 @@ def test_rbi_ppv_npv_tiers():
     assert rbi_multiplier(collapse[0]) < rbi_multiplier(vol_only[0])
 
 
+# ---- bullpen vs batter ----
+def test_bullpen_profile_excludes_starter_and_uses_late_innings():
+    import pandas as pd
+
+    from mlb_engine.features.rolling import build_bullpen_profile
+
+    gd = date(2024, 7, 10)
+    rows = [
+        # starter (NYY, pitching in Top as home team): 1st + carries into 6th
+        (gd, 100, 1, "Top", "single"),
+        (gd, 100, 6, "Top", "single"),
+        # relievers in late innings -> heavy strikeouts
+        (gd, 200, 7, "Top", "strikeout"),
+        (gd, 200, 8, "Top", "strikeout"),
+        (gd, 201, 9, "Top", "strikeout"),
+        # noise: another team's pitcher in NYY's batting half (Bot, home=NYY) - excluded
+        (gd, 300, 8, "Bot", "single"),
+    ]
+    df = pd.DataFrame(
+        rows, columns=["game_date", "pitcher", "inning", "inning_topbot", "events"]
+    )
+    df["batter"] = 1
+    df["home_team"] = "NYY"
+    df["away_team"] = "BOS"
+
+    pen = build_bullpen_profile(df, "NYY", date(2024, 7, 19), 21, min_inning=6)
+    # relievers were all strikeouts -> pen K rate well above league (0.225),
+    # and the starter's late single must not leak in.
+    assert pen.allowed.p_k > LEAGUE_RATES["K"]
+
+
+def test_bullpen_npv_walk_trap_and_fatigue():
+    import pandas as pd
+
+    from mlb_engine.features.rolling import BullpenProfile
+
+    lg = rates_from_events(pd.Series(dtype=object))
+    empty = pd.DataFrame()
+    # Walk trap: zone% below .40 -> BB boosted.
+    trap = BullpenProfile(lg, empty, zone_pct=0.34, recent_load=1.0)
+    assert trap.npv_multipliers().get("BB", 1.0) > 1.0
+    # Fatigue: heavy recent workload -> HR/hits boosted.
+    tired = BullpenProfile(lg, empty, zone_pct=0.50, recent_load=1.4)
+    assert tired.npv_multipliers().get("HR", 1.0) > 1.0
+    # Rotowire availability override (rested) suppresses the fatigue penalty.
+    assert "HR" not in tired.npv_multipliers(availability=1.0)
+
+
 # ---- travel / circadian ----
 def test_travel_eastward_worse_than_west_and_boosts_opponent_hr():
     from datetime import timedelta

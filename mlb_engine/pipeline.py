@@ -8,8 +8,10 @@ from datetime import date as Date
 from pathlib import Path
 
 from mlb_engine.config import Config
+from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import get_park
+from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.regression import (
@@ -19,7 +21,9 @@ from mlb_engine.features.regression import (
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OutcomeRates,
+    build_batter_late_rates,
     build_batter_profile,
+    build_bullpen_profile,
     build_pitcher_profile,
 )
 from mlb_engine.filters import travel_rest
@@ -57,6 +61,8 @@ class PipelineDeps:
     statcast: StatcastRepository
     weather: WeatherProvider
     vsin: VSINClient
+    rotowire: RotowireClient | None = None
+    fangraphs: FanGraphsClient | None = None
 
 
 def load_sprint_speeds(year: int) -> dict[int, float]:
@@ -130,7 +136,22 @@ class Pipeline:
         )
         pit_allowed_mult = pit_reg.allowed_multipliers()
         k_mult = pit_reg.k_multiplier()
-        league_pit = league_pitcher_rates()
+
+        # Opponent bullpen: relievers' late-inning (>=6th) rates over ~3 weeks,
+        # plus PPV (K-BB%/CSW/barrel/IVB via pitcher regression on the relief set)
+        # and NPV (zone% walk-trap + 3-in-4 fatigue) tripwires.
+        bpen = build_bullpen_profile(
+            statcast, opp.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
+        )
+        bpen_reg = build_pitcher_regression(bpen.relief)
+        bpen_allowed = bpen_reg.allowed_multipliers()
+        bpen_k = bpen_reg.k_multiplier()
+        avail = (
+            self.deps.rotowire.bullpen_availability(opp.abbrev)
+            if self.deps.rotowire and self.deps.rotowire.available()
+            else None
+        )
+        bpen_npv = bpen.npv_multipliers(avail)
 
         # travel/rest for this offense (applied at game level via prev game)
         prev = self.deps.stats.last_game_venue(team.team_id, slate_date)
@@ -158,8 +179,23 @@ class Pipeline:
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
 
-            vs_pen = combine(ctx, league_pit)
+            # Bullpen matchup: batter's late-inning (>=6th) 3-week rates vs the
+            # pen (FanGraphs split when available, else Statcast), then bullpen
+            # regression PPV + NPV tripwires.
+            late_ctx = None
+            if self.deps.fangraphs and self.deps.fangraphs.available():
+                late_ctx = self.deps.fangraphs.late_inning_batter_rates(
+                    pid, w.bullpen_days, w.bullpen_min_inning
+                )
+            if late_ctx is None:
+                late_ctx = build_batter_late_rates(
+                    statcast, pid, slate_date, w.bullpen_days, w.bullpen_min_inning
+                )
+            vs_pen = combine(late_ctx, bpen.allowed)
             vs_pen = apply_multipliers(vs_pen, bmult)
+            vs_pen = apply_multipliers(vs_pen, bpen_allowed)
+            vs_pen = apply_multipliers(vs_pen, {"K": bpen_k})
+            vs_pen = apply_multipliers(vs_pen, bpen_npv)
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)

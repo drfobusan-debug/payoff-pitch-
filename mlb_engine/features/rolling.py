@@ -181,6 +181,113 @@ def build_batter_profile(
     )
 
 
+def build_batter_late_rates(
+    df: pd.DataFrame,
+    batter_id: int,
+    as_of: Date,
+    days: int,
+    min_inning: int = 6,
+) -> OutcomeRates:
+    """Batter's PA-outcome rates in late innings (>= ``min_inning``) over ``days``.
+
+    Used for the bullpen matchup so hitters are evaluated on the same innings the
+    relievers actually work.
+    """
+    bdf = _pa_rows(df[df["batter"] == batter_id])
+    window = _slice_dates(bdf, as_of, days)
+    if "inning" in window:
+        window = window[window["inning"] >= min_inning]
+    return rates_from_events(window["events"])
+
+
+def bullpen_relief_frame(
+    df: pd.DataFrame,
+    team_abbrev: str,
+    as_of: Date,
+    days: int,
+    min_inning: int = 6,
+) -> pd.DataFrame:
+    """Return a team's relief-only pitch rows in late innings over ``days``.
+
+    The fielding team is inferred from ``inning_topbot`` + home/away team codes.
+    Each game's starter (any pitcher appearing in the 1st inning) is excluded so
+    only true relief appearances (>= ``min_inning``) contribute.
+    """
+    fielding = df[
+        ((df["inning_topbot"] == "Top") & (df["home_team"] == team_abbrev))
+        | ((df["inning_topbot"] == "Bot") & (df["away_team"] == team_abbrev))
+    ]
+    window = _slice_dates(fielding, as_of, days)
+    if window.empty or "inning" not in window:
+        return window
+    starter_pairs = set(
+        map(tuple, window.loc[window["inning"] <= 1, ["game_date", "pitcher"]].dropna().to_numpy())
+    )
+    relief = window[window["inning"] >= min_inning]
+    if starter_pairs:
+        keys = list(zip(relief["game_date"], relief["pitcher"], strict=False))
+        keep = pd.Series([k not in starter_pairs for k in keys], index=relief.index)
+        relief = relief[keep]
+    return relief
+
+
+@dataclass
+class BullpenProfile:
+    """A team's late-inning bullpen: aggregate rates + predictive tripwires."""
+
+    allowed: OutcomeRates
+    relief: pd.DataFrame
+    zone_pct: float  # NPV: below ~.40 -> walk trap
+    recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
+
+    def npv_multipliers(self, availability: float | None = None) -> dict[str, float]:
+        """Bounded penalty multipliers for the two bullpen NPV tripwires.
+
+        ``availability`` (0..1, higher = more rested) overrides the Statcast
+        workload proxy when a usage source such as Rotowire supplies it.
+        """
+        m: dict[str, float] = {}
+        # Walk trap: a low-zone bullpen walks the tying/winning run on in late,
+        # high-leverage spots where hitters stop chasing.
+        if self.zone_pct and self.zone_pct < 0.40:
+            m["BB"] = 1.0 + min(0.20, (0.40 - self.zone_pct) * 2.0)
+        # 3-in-4 fatigue: heavy recent workload degrades spin/command -> more damage.
+        load = (2.0 - availability) if availability is not None else self.recent_load
+        if load > 1.15:
+            f = min(0.10, (load - 1.0) * 0.25)
+            m["HR"] = 1.0 + f
+            m["1B"] = 1.0 + f * 0.5
+            m["2B"] = 1.0 + f * 0.5
+        return m
+
+
+def build_bullpen_profile(
+    df: pd.DataFrame,
+    team_abbrev: str,
+    as_of: Date,
+    days: int,
+    min_inning: int = 6,
+) -> BullpenProfile:
+    """Aggregate a team's relief corps into rates plus PPV/NPV tripwires."""
+    relief = bullpen_relief_frame(df, team_abbrev, as_of, days, min_inning)
+    allowed = rates_from_events(_pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object))
+
+    zone_pct = (
+        float(relief["zone"].between(1, 9).mean())
+        if len(relief) and "zone" in relief and relief["zone"].notna().any()
+        else 0.0
+    )
+
+    recent_load = 0.0
+    if len(relief):
+        recent_start = (as_of - timedelta(days=1)) - timedelta(days=2)  # last 3 days
+        recent = relief[relief["game_date"] >= recent_start]
+        expected_3d = len(relief) / days * 3.0
+        recent_load = len(recent) / expected_3d if expected_3d > 0 else 0.0
+
+    return BullpenProfile(allowed=allowed, relief=relief, zone_pct=zone_pct, recent_load=recent_load)
+
+
 @dataclass
 class PitcherProfile:
     mlbam_id: int
