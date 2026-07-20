@@ -42,6 +42,8 @@ from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.ev import evaluate
 from mlb_engine.market.runline import RunLineSignal, runline_adjustment
 from mlb_engine.market.tiers import Tier, bump_tier, classify
+from mlb_engine.models.comeback import ComebackSignal
+from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
@@ -390,6 +392,12 @@ class Pipeline:
                              line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
         recs.append(self._mk(game, m, "game", "game_rl", f"{ha} +1.5", float((-margin > -1.5).mean()),
                              line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
+
+        # ---- comeback-resilience flags ----
+        recs.extend(self._comeback_recs(
+            game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr
+        ))
+
         for line in (7.5, 8.5, 9.5, 10.5):
             recs.append(self._mk(game, m, "game", "game_total", f"Over {line}", p_over(total, line),
                                  line=line, side="over", quotes=quotes))
@@ -422,6 +430,39 @@ class Pipeline:
         recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes))
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
         return recs
+
+    def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr):
+        """Emit an informational comeback-resilience flag per team."""
+        out = []
+        diff = (home_x - away_x) if home_x is not None and away_x is not None else None
+        specs = (
+            ("home", game.home.abbrev, diff, home_rbi, away_mgr),
+            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_mgr),
+        )
+        for team_side, abbrev, xdiff, flags, opp_mgr in specs:
+            obp = None
+            if flags:
+                obp = sum(f.preceding_obp for f in flags) / len(flags)
+            sig = ComebackSignal(
+                xwoba_diff=xdiff,
+                team_obp=obp,
+                opp_starter_bf_cap=opp_mgr.starter_bf_cap,
+            )
+            a = evaluate_comeback(sig)
+            if a.score >= 0.60:
+                tier = Tier.STRONG
+            elif a.score >= 0.50:
+                tier = Tier.MODERATE
+            else:
+                tier = Tier.PASS
+            rec = self._mk(
+                game, m, "comeback", "comeback", f"{abbrev} comeback",
+                a.score, team_side=team_side, side="resilient",
+            )
+            rec.tier = tier
+            rec.reasons = a.reasons or ["baseline resilience"]
+            out.append(rec)
+        return out
 
     def _batter_props(self, game, m, res, team_key, tinfo, flags, quotes):
         out = []

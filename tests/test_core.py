@@ -297,6 +297,31 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- comeback resilience ----
+def test_comeback_flag_from_signals():
+    from mlb_engine.models.comeback import ComebackSignal, evaluate
+
+    # Strong contact edge + high OBP + long-leash opp starter -> resilient.
+    strong = evaluate(ComebackSignal(
+        xwoba_diff=0.045, team_obp=0.345, opp_starter_bf_cap=29,
+    ))
+    assert strong.resilient and strong.score >= 0.60 and strong.reasons
+
+    # Outclassed, low-OBP team facing a quick hook -> not resilient.
+    weak = evaluate(ComebackSignal(
+        xwoba_diff=-0.050, team_obp=0.290, opp_starter_bf_cap=19,
+    ))
+    assert not weak.resilient and weak.score < strong.score
+
+    # Bullpen-fatigue hook only fires when supplied.
+    base = evaluate(ComebackSignal(xwoba_diff=0.0, team_obp=0.320, opp_starter_bf_cap=24))
+    fatigued = evaluate(ComebackSignal(
+        xwoba_diff=0.0, team_obp=0.320, opp_starter_bf_cap=24, opp_bullpen_fatigue=90,
+    ))
+    assert fatigued.score > base.score
+    assert any("fatigued" in r for r in fatigued.reasons)
+
+
 # ---- run-line PPV layer ----
 def test_runline_xwoba_confirms_and_contradicts():
     from mlb_engine.market.runline import RunLineSignal, runline_adjustment
