@@ -297,6 +297,58 @@ def test_manager_hook_platoon_and_speed():
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
 
 
+# ---- VSIN public splits -> moneyline quotes ----
+def test_vsin_fetch_quotes_maps_to_slate():
+    import datetime
+
+    from mlb_engine.config import Credentials
+    from mlb_engine.data.vsin import VSINClient
+    from mlb_engine.schemas import Game, Slate, TeamGameInfo, Venue
+
+    def team(tid, name, ab, home):
+        return TeamGameInfo(team_id=tid, name=name, abbrev=ab, is_home=home)
+
+    game = Game(
+        game_pk=1, game_date=datetime.date(2026, 7, 20), status="Preview",
+        venue=Venue(venue_id=1, name="x"),
+        home=team(114, "Cleveland Guardians", "CLE", True),
+        away=team(142, "Minnesota Twins", "MIN", False),
+    )
+    slate = Slate(slate_date=datetime.date(2026, 7, 20), games=[game])
+
+    client = VSINClient(Credentials())
+
+    def fake_fetch_book(src):
+        # name-normalization also covers punctuation differences like St. Louis.
+        return [
+            ("Minnesota Twins", -131.0, 84.0, 62.0),
+            ("Cleveland Guardians", 109.0, 16.0, 38.0),
+            ("Unlisted Team", -120.0, 50.0, 50.0),  # dropped: not on the slate
+        ]
+
+    client._fetch_book = fake_fetch_book  # type: ignore[method-assign]
+    q = client.fetch_quotes(slate)
+    # two books -> two quotes per matched selection; unlisted team dropped.
+    assert set(q) == {
+        ("MIN @ CLE", "game_ml", "MIN ML"),
+        ("MIN @ CLE", "game_ml", "CLE ML"),
+    }
+    min_q = q[("MIN @ CLE", "game_ml", "MIN ML")]
+    assert len(min_q) == 2  # DK + circa
+    assert min_q[0].american == -131.0
+    assert min_q[0].handle_pct == 84.0 and min_q[0].bets_pct == 62.0
+
+
+def test_vsin_parse_helpers():
+    from mlb_engine.data.vsin import _american, _norm_name, _pct
+
+    assert _norm_name("St. Louis Cardinals") == _norm_name("ST Louis Cardinals")
+    assert _pct("84% \u25b2") == 84.0
+    assert _pct("nan") is None
+    assert _american("-131") == -131.0
+    assert _american("109") == 109.0
+
+
 # ---- bullpen fatigue feed (StatsAPI parsing) ----
 def test_bullpen_fatigue_from_boxscores():
     import datetime

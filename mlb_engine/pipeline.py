@@ -39,7 +39,7 @@ from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.market.ev import evaluate
+from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.runline import RunLineSignal, runline_adjustment
 from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
@@ -118,10 +118,13 @@ class Pipeline:
         self._team_defense = load_team_defense(slate_date.year)
         self._tails = TailAdjuster.build(statcast)
 
-        quotes = {}
+        quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         if vsin_csv and vsin_csv.exists():
             quotes = self.deps.vsin.load_csv(vsin_csv)
-            log.info("Loaded %d VSIN market entries", len(quotes))
+            log.info("Loaded %d VSIN market entries from CSV", len(quotes))
+        else:
+            quotes = self.deps.vsin.fetch_quotes(slate)
+            log.info("Fetched %d VSIN moneyline market entries (public splits)", len(quotes))
 
         recs: list[Recommendation] = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
