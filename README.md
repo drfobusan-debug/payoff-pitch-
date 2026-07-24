@@ -74,9 +74,25 @@ Outputs land under `~/.mlb_engine/` (`output/` workbooks, `audit/` predictions +
 
 Each audit also maintains a **running ledger** across every graded slate:
 `audit/ledger.csv` (one row per bet: date, market, selection, odds, tier, result,
-P/L) and `output/ledger.xlsx` with three sheets — **Overall** (cumulative
-sensitivity / specificity / PPV / NPV / win% / ROI / net units by tier), **Daily**
-(per-date Buy rollup), and **Bets** (every graded pick, win/loss/push shaded).
+P/L) and `output/ledger.xlsx` with these sheets:
+
+- **Overall** — cumulative sensitivity / specificity / PPV / NPV / win% / ROI /
+  net units. The first row is the **whole engine** (`ENGINE (p>=.5)`): PPV/NPV
+  keyed on the model's own probability boundary across *every* graded market and
+  tier, so it measures the engine's raw directional discrimination (how often the
+  side the model favors wins vs. how often the side it fades loses), independent
+  of EV/odds/tiering. The remaining rows are the per-tier and Buy (S+M) breakdown.
+- **Daily PPV-NPV** — the same whole-engine PPV/NPV computed per slate date.
+- **Prop PPV-NPV** — PPV/NPV for every batter/pitcher prop market
+  (`batter_hr`, `pitcher_k`, …) plus an aggregate **ALL PROPS** row.
+- **Prop Insights** — per-prop recommendations mined from the ledger:
+  **false positives** (favored props that lost -> tighten to raise PPV),
+  **false negatives** (faded props that won -> under-rated pockets to reclaim,
+  lifting NPV), and **true positives** (favored props that won -> the pockets the
+  model nails, to concentrate/size up).
+- **Daily** — per-date Buy (S+M) rollup.
+- **Bets** — every graded pick, win/loss/push shaded.
+
 Re-auditing a date replaces that date's rows rather than duplicating them.
 
 ### One-click desktop shortcut
@@ -89,6 +105,21 @@ Run once, then make a desktop shortcut/alias to the launcher for your OS:
 
 The launcher runs the model, opens the newest workbook, and (if present) uses the
 VSIN CSV at `~/.mlb_engine/vsin_today.csv`.
+
+### Ledger desktop shortcut
+
+A dedicated shortcut opens the running audit **ledger** workbook
+(`~/.mlb_engine/output/ledger.xlsx`) directly, and carries a ledger-book icon
+(green cover, ruled rows, red debit/credit column rules — `assets/ledger.png`).
+Run the installer for your OS once to drop the icon on your Desktop:
+
+- **Windows**: `scripts\windows\install_ledger_shortcut.bat` → `Ledger.lnk`
+- **macOS**: `scripts/macos/install_ledger_shortcut.command` → `Ledger.app`
+- **Linux**: `scripts/linux/install_ledger_shortcut.sh` → `ledger.desktop`
+
+Double-clicking it runs `open_ledger.*`, which opens `ledger.xlsx` (building it
+via an audit first if it doesn't exist yet). Regenerate the icon art anytime with
+`python scripts/make_ledger_icon.py`.
 
 ### Email the daily workbook
 

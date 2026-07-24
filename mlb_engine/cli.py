@@ -8,11 +8,15 @@ from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
+from mlb_engine.audit.analysis import prop_insights
 from mlb_engine.audit.grade import grade
 from mlb_engine.audit.ledger import (
+    daily_engine_metrics,
     daily_rollup,
+    engine_metrics,
     entries_from_graded,
     overall_metrics,
+    prop_metrics,
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
@@ -131,9 +135,21 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     entries = entries_from_graded(graded, audit_date)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
-    overall = overall_metrics(all_entries)
+    engine = engine_metrics(all_entries)
+    overall = [engine, *overall_metrics(all_entries)]
+    daily_engine = daily_engine_metrics(all_entries)
+    props = prop_metrics(all_entries)
+    insights = prop_insights(all_entries)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
-    write_ledger_workbook(all_entries, overall, daily_rollup(all_entries), ledger_xlsx)
+    write_ledger_workbook(
+        all_entries,
+        overall,
+        daily_rollup(all_entries),
+        ledger_xlsx,
+        daily_engine=daily_engine,
+        prop_rows=props,
+        insights=insights,
+    )
 
     print(f"Graded {len(graded)} markets for {audit_date}")
     for row in rows:
@@ -143,12 +159,29 @@ def cmd_audit(args: argparse.Namespace) -> int:
             f"NPV={row.npv:.3f} ROI={row.roi:+.3f}"
         )
     print(f"\nLedger: {len(all_entries)} graded bets across all dates -> {ledger_xlsx}")
+    print(
+        f"  WHOLE ENGINE   n={engine.n:<5} PPV={engine.ppv:.3f} NPV={engine.npv:.3f} "
+        f"sens={engine.sensitivity:.3f} spec={engine.specificity:.3f} "
+        f"(model-favored side wins {engine.ppv * 100:.1f}%)"
+    )
     for m in overall:
         print(
-            f"  OVERALL {m.tier:<12} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
+            f"  OVERALL {m.tier:<14} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
             f"PPV={m.ppv:.3f} sens={m.sensitivity:.3f} spec={m.specificity:.3f} "
             f"NPV={m.npv:.3f} ROI={m.roi * 100:+.1f}% units={m.units:+.1f}"
         )
+
+    if props:
+        print("\nProps PPV/NPV:")
+        for m in props:
+            print(
+                f"  {m.tier:<14} n={m.n:<5} PPV={m.ppv:.3f} NPV={m.npv:.3f} "
+                f"sens={m.sensitivity:.3f} spec={m.specificity:.3f}"
+            )
+    if insights:
+        print(f"\nProp insights ({len(insights)}):")
+        for ins in insights:
+            print(f"  [{ins.kind}] {ins.finding}")
     return 0
 
 

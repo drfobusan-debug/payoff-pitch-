@@ -2,7 +2,8 @@
 
 The ledger records every graded recommendation (one row per bet) across all
 audited slates, and rolls the whole history up into overall sensitivity,
-specificity, PPV, NPV, win rate, ROI and net units by tier.
+specificity, PPV, NPV, win rate, ROI and net units by tier — plus a single
+**whole-engine** row (see :func:`engine_metrics`).
 
 Confusion-matrix framing (same as the daily scorecard): for a tier T the
 positive *prediction* is "pick is in tier T" and the positive *outcome* is "the
@@ -12,11 +13,18 @@ bet won" (pushes excluded):
     NPV         = TN / (TN + FN)
     Sensitivity = TP / (TP + FN)
     Specificity = TN / (TN + FP)
+
+The whole-engine row uses the same math but a different positive *prediction*:
+"the model favors this selection" (``model_prob >= 0.5``), aggregated across
+every graded market and tier. It is keyed on the model's own probability
+boundary (the same 0.5 boundary the backtest uses), so it measures the engine's
+raw directional discrimination independent of EV/odds/tiering.
 """
 
 from __future__ import annotations
 
 import csv
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import date as Date
 from pathlib import Path
@@ -171,12 +179,16 @@ class OverallMetrics:
     units: float
 
 
-def _metrics_for(entries: list[LedgerEntry], positive: set[str], label: str) -> OverallMetrics:
+def _metrics(
+    entries: list[LedgerEntry],
+    is_positive: Callable[[LedgerEntry], bool],
+    label: str,
+) -> OverallMetrics:
     tp = fp = fn = tn = pushes = 0
     stake = 0.0
     units = 0.0
     for e in entries:
-        pred_pos = e.tier in positive
+        pred_pos = is_positive(e)
         if e.result == PUSH:
             if pred_pos:
                 pushes += 1
@@ -209,6 +221,10 @@ def _metrics_for(entries: list[LedgerEntry], positive: set[str], label: str) -> 
     )
 
 
+def _metrics_for(entries: list[LedgerEntry], positive: set[str], label: str) -> OverallMetrics:
+    return _metrics(entries, lambda e: e.tier in positive, label)
+
+
 def overall_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     return [
         _metrics_for(entries, {Tier.STRONG.value}, Tier.STRONG.value),
@@ -218,6 +234,24 @@ def overall_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     ]
 
 
+# Probability boundary at which the model is said to "favor" a selection. The
+# backtest confusion matrix uses the same 0.5 boundary on the model's own prob.
+ENGINE_PROB_THRESHOLD = 0.5
+ENGINE_LABEL = "ENGINE (p>=.5)"
+
+
+def engine_metrics(entries: list[LedgerEntry]) -> OverallMetrics:
+    """Whole-engine PPV/NPV across every graded market and tier.
+
+    Positive prediction = the model favors the selection
+    (``model_prob >= ENGINE_PROB_THRESHOLD``); positive outcome = it won.
+    Measures the engine's raw directional discrimination — how often the side
+    the model prefers actually wins (PPV) and how often the side it fades
+    actually loses (NPV) — independent of EV, odds or tiering.
+    """
+    return _metrics(entries, lambda e: e.model_prob >= ENGINE_PROB_THRESHOLD, ENGINE_LABEL)
+
+
 def daily_rollup(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     """One Buy (S+M) metrics row per audited date, oldest first."""
     buy = {Tier.STRONG.value, Tier.MODERATE.value}
@@ -225,3 +259,47 @@ def daily_rollup(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     for e in entries:
         by_date.setdefault(e.date, []).append(e)
     return [_metrics_for(by_date[d], buy, d) for d in sorted(by_date)]
+
+
+def _by(entries: list[LedgerEntry], key: Callable[[LedgerEntry], str]) -> dict[str, list[LedgerEntry]]:
+    out: dict[str, list[LedgerEntry]] = {}
+    for e in entries:
+        out.setdefault(key(e), []).append(e)
+    return out
+
+
+def _favors(e: LedgerEntry) -> bool:
+    return e.model_prob >= ENGINE_PROB_THRESHOLD
+
+
+def daily_engine_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """Whole-engine PPV/NPV for each audited date (oldest first).
+
+    Same directional framing as :func:`engine_metrics`, but computed per slate so
+    day-to-day discrimination can be tracked.
+    """
+    by_date = _by(entries, lambda e: e.date)
+    return [_metrics(by_date[d], _favors, d) for d in sorted(by_date)]
+
+
+# --- props: batter/pitcher prop markets only -------------------------------
+PROP_PREFIXES = ("batter_", "pitcher_")
+
+
+def is_prop(market: str) -> bool:
+    return market.startswith(PROP_PREFIXES)
+
+
+def prop_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """Whole-engine-style PPV/NPV for every prop market, plus an ALL PROPS row.
+
+    One row per distinct ``batter_*`` / ``pitcher_*`` market (e.g. ``batter_hr``,
+    ``pitcher_k``), keyed on the model-favored boundary, oldest-market-name first,
+    followed by an aggregate ``ALL PROPS`` row.
+    """
+    props = [e for e in entries if is_prop(e.market)]
+    by_market = _by(props, lambda e: e.market)
+    rows = [_metrics(by_market[m], _favors, m) for m in sorted(by_market)]
+    if props:
+        rows.append(_metrics(props, _favors, "ALL PROPS"))
+    return rows

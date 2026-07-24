@@ -22,6 +22,12 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from mlb_engine.audit.analysis import (
+    FALSE_NEGATIVE,
+    FALSE_POSITIVE,
+    TRUE_POSITIVE,
+    PropInsight,
+)
 from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
@@ -322,6 +328,19 @@ def _metric_row(m: OverallMetrics) -> list[object]:
     ]
 
 
+_INSIGHT_COLUMNS = ["Type", "Market", "N", "Rate", "Recommendation"]
+_INSIGHT_FILL = {
+    FALSE_POSITIVE: PatternFill("solid", fgColor="FFC7CE"),
+    FALSE_NEGATIVE: PatternFill("solid", fgColor="FFEB9C"),
+    TRUE_POSITIVE: PatternFill("solid", fgColor="C6EFCE"),
+}
+_INSIGHT_LABEL = {
+    FALSE_POSITIVE: "False positive",
+    FALSE_NEGATIVE: "False negative",
+    TRUE_POSITIVE: "True positive",
+}
+
+
 def _write_metric_header(ws: Worksheet, columns: list[str]) -> None:
     for c, name in enumerate(columns, start=1):
         cell = ws.cell(row=1, column=c, value=name)
@@ -330,23 +349,68 @@ def _write_metric_header(ws: Worksheet, columns: list[str]) -> None:
         cell.alignment = Alignment(horizontal="center")
 
 
+def _write_metric_sheet(
+    ws: Worksheet, rows: list[OverallMetrics], label_header: str = "Tier"
+) -> None:
+    cols = [label_header, *_OVERALL_COLUMNS[1:]]
+    _write_metric_header(ws, cols)
+    for r, m in enumerate(rows, start=2):
+        for c, v in enumerate(_metric_row(m), start=1):
+            ws.cell(row=r, column=c, value=v)
+    for i, w in enumerate([14, 6, 6, 7, 7, 8, 7, 7, 12, 12, 8, 8], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    if rows:
+        ws.auto_filter.ref = f"A1:{get_column_letter(len(cols))}{len(rows) + 1}"
+    ws.freeze_panes = "A2"
+
+
+def _write_insight_sheet(ws: Worksheet, insights: list[PropInsight]) -> None:
+    _write_metric_header(ws, _INSIGHT_COLUMNS)
+    order = {FALSE_POSITIVE: 0, FALSE_NEGATIVE: 1, TRUE_POSITIVE: 2}
+    ordered = sorted(insights, key=lambda i: (order.get(i.kind, 9), i.market))
+    for r, ins in enumerate(ordered, start=2):
+        vals = [
+            _INSIGHT_LABEL.get(ins.kind, ins.kind),
+            ins.market,
+            ins.n,
+            _pct(ins.rate),
+            ins.finding,
+        ]
+        for c, v in enumerate(vals, start=1):
+            ws.cell(row=r, column=c, value=v)
+        fill = _INSIGHT_FILL.get(ins.kind)
+        if fill:
+            ws.cell(row=r, column=1).fill = fill
+    for i, w in enumerate([15, 14, 6, 8, 100], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    if ordered:
+        ws.auto_filter.ref = f"A1:{get_column_letter(len(_INSIGHT_COLUMNS))}{len(ordered) + 1}"
+    ws.freeze_panes = "A2"
+
+
 def write_ledger_workbook(
     entries: list[LedgerEntry],
     overall: list[OverallMetrics],
     daily: list[OverallMetrics],
     out_path: Path,
+    daily_engine: list[OverallMetrics] | None = None,
+    prop_rows: list[OverallMetrics] | None = None,
+    insights: list[PropInsight] | None = None,
 ) -> Path:
     wb = Workbook()
 
     ws_overall = wb.active
     ws_overall.title = "Overall"
-    _write_metric_header(ws_overall, _OVERALL_COLUMNS)
-    for r, m in enumerate(overall, start=2):
-        for c, v in enumerate(_metric_row(m), start=1):
-            ws_overall.cell(row=r, column=c, value=v)
-    for i, w in enumerate([12, 6, 6, 7, 7, 8, 7, 7, 12, 12, 8, 8], start=1):
-        ws_overall.column_dimensions[get_column_letter(i)].width = w
-    ws_overall.freeze_panes = "A2"
+    _write_metric_sheet(ws_overall, overall)
+
+    if daily_engine:
+        _write_metric_sheet(wb.create_sheet("Daily PPV-NPV"), daily_engine, "Date")
+
+    if prop_rows:
+        _write_metric_sheet(wb.create_sheet("Prop PPV-NPV"), prop_rows, "Prop market")
+
+    if insights:
+        _write_insight_sheet(wb.create_sheet("Prop Insights"), insights)
 
     ws_daily = wb.create_sheet("Daily")
     _write_metric_header(ws_daily, _DAILY_COLUMNS)
