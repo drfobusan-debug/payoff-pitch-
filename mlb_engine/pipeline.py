@@ -229,6 +229,7 @@ class Pipeline:
         self.cfg = cfg
         self.deps = deps
         self._team_defense: dict[str, TeamDefense] = {}
+        self._framing: dict[int, float] = {}
         self._fatigue: dict[int, float | None] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
@@ -261,6 +262,7 @@ class Pipeline:
         )
         sprint = load_sprint_speeds(slate_date.year) if enrich_leaderboards else {}
         self._team_defense = load_team_defense(slate_date.year) if enrich_leaderboards else {}
+        self._framing = catcher_framing.load_framing(slate_date.year) if enrich_leaderboards else {}
         batter_xslg = load_batter_xslg(slate_date.year) if enrich_leaderboards else {}
         fg_bz, fg_pz = self._fangraphs_tail_z(fangraphs_csv, slate)
         self._tails = TailAdjuster.build(statcast, batter_xslg, fg_bz, fg_pz)
@@ -570,6 +572,23 @@ class Pipeline:
         today_local = local_hour(today_hr, today_park.lon)
         return dgang_multipliers(prev_local, today_local, rest_days)
 
+    def _catcher_framing_runs(self, team: TeamGameInfo) -> float:
+        """Framing runs of a team's starting catcher.
+
+        Prefers the live Savant feed (keyed by MLBAM id), then the curated
+        name table; 0.0 (neutral) when the catcher is unknown or no feed loaded.
+        """
+        for slot in team.lineup:
+            if slot.player.position != "C":
+                continue
+            live = self._framing.get(slot.player.mlbam_id)
+            if live is not None:
+                return live
+            curated = catcher_framing.framing_runs_for_name(slot.player.name)
+            if curated is not None:
+                return curated
+        return 0.0
+
     def _umpire_zone_runs(self, game: Game) -> float:
         if self.deps.rotowire and self.deps.rotowire.available():
             z = self.deps.rotowire.umpire_zone_runs(game.game_pk)
@@ -612,8 +631,8 @@ class Pipeline:
         divisional = same_division(game.home.team_id, game.away.team_id)
         ump_zone = self._umpire_zone_runs(game)
         # Each offense faces the OPPOSING starting catcher's framing.
-        home_frame = _catcher_framing_runs(game.away)
-        away_frame = _catcher_framing_runs(game.home)
+        home_frame = self._catcher_framing_runs(game.away)
+        away_frame = self._catcher_framing_runs(game.home)
         home_hf = HumanFactors(
             divisional=divisional, umpire_zone_runs=ump_zone, catcher_framing_runs=home_frame
         )
@@ -888,16 +907,6 @@ class Pipeline:
                         f"VSIN handle {sp.handle_pct:.0f}% / bets {sp.bets_pct:.0f}%"
                     )
         return rec
-
-
-def _catcher_framing_runs(team: TeamGameInfo) -> float:
-    """Framing runs of a team's starting catcher (0.0 when unknown/no feed)."""
-    for slot in team.lineup:
-        if slot.player.position == "C":
-            r = catcher_framing.framing_runs_for_name(slot.player.name)
-            if r is not None:
-                return r
-    return 0.0
 
 
 def _prev_to_pg(prev):

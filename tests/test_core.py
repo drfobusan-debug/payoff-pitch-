@@ -1110,6 +1110,30 @@ def test_framing_lookup_and_human_factor():
     assert m.get("BB", 1.0) < 1.0
 
 
+def test_load_framing_parses_savant_columns(monkeypatch):
+    import mlb_engine.data.catcher_framing as cf
+
+    class _Resp:
+        text = "id,name,pitches,rv_tot\n111,A B,5000,8.4\n222,C D,4800,-6.1\n"
+
+        def raise_for_status(self):
+            return None
+
+    monkeypatch.setattr(cf.requests, "get", lambda *a, **k: _Resp())
+    out = cf.load_framing(2024)
+    assert out == {111: 8.4, 222: -6.1}
+
+
+def test_load_framing_neutral_on_failure(monkeypatch):
+    import mlb_engine.data.catcher_framing as cf
+
+    def _boom(*a, **k):
+        raise RuntimeError("network down")
+
+    monkeypatch.setattr(cf.requests, "get", _boom)
+    assert cf.load_framing(2024) == {}
+
+
 def test_strong_only_and_min_edge_selection():
     from mlb_engine.config import EVThresholds
     from mlb_engine.market.ev import EVResult, MarketQuote
