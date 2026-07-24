@@ -1679,6 +1679,13 @@ def _card_recs() -> list[Recommendation]:
             ev=ev,
             edge=edge,
             tier=tier,
+            park_name="Comerica Park",
+            park_factor=98.0,
+            carry_factor=0.85,
+            roof="open",
+            wx_summary="78F 40% wind 6mph (2 in to CF)",
+            wx_hr_mult=0.97,
+            wx_note="",
         )
 
     return [
@@ -1709,7 +1716,13 @@ def test_card_build_picks_positive_ev_and_starters():
     # Starters recovered with Skubal owning the strikeout edge.
     names = [s.name for s in c.starters]
     assert "Tarik Skubal" in names and "Beck Way" in names
-    assert "Skubal" in c.narrative and "fade" not in c.narrative.lower() or True
+    # Narrative is a list of paragraphs covering starters, park, weather, market.
+    blob = " ".join(c.narrative)
+    assert "Tarik Skubal" in blob
+    assert "Comerica Park" in blob and "park factor" in blob
+    assert "wind" in blob.lower()
+    # DET ML is a negative-EV favorite -> flagged as too rich, not a play.
+    assert "too rich" in blob
 
 
 def test_card_renderers_emit_md_and_html():

@@ -611,6 +611,7 @@ class Pipeline:
 
         # weather effect (park-level)
         weather_mult = {}
+        eff = None
         if park:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
@@ -797,7 +798,29 @@ class Pipeline:
         # home team's starter faces away hitters -> stats tracked under pit["home"]
         recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes))
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
+
+        self._attach_context(recs, park, eff)
         return recs
+
+    @staticmethod
+    def _attach_context(recs, park, eff) -> None:
+        """Stamp shared park + live-weather context onto every rec in a game."""
+        wx_summary = wx_note = None
+        wx_hr = None
+        if eff is not None:
+            wx_hr = eff.hr_mult
+            wx_note = eff.note or None
+            if eff.conditions is not None:
+                wx_summary = eff.conditions.summary()
+        for r in recs:
+            if park is not None:
+                r.park_name = park.name
+                r.park_factor = park.park_factor
+                r.carry_factor = park.carry_factor
+                r.roof = park.roof
+            r.wx_summary = wx_summary
+            r.wx_hr_mult = wx_hr
+            r.wx_note = wx_note
 
     def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
                        home_mgr, away_mgr, home_fat, away_fat):
