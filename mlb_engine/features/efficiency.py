@@ -17,24 +17,37 @@ Monte Carlo needs to model a realistic exit point:
 * **Walk% (BB%)** -- free passes fail to record outs and bloat the pitch count.
 * **Ground-ball% (GB%)** -- ground-ball arms generate quick, low-pitch outs and
   the occasional double play (two outs on one ball in play).
+* **WHIP / BB9** -- baserunner traffic. Walks are the #1 out-killer, and a
+  starter labouring from the stretch gets a quicker managerial hook regardless
+  of his raw pitch economy; both tighten the effective pitch ceiling.
 * **Pitch-count cap** -- the effective pitch ceiling: the manager hook tightened
-  by the pitcher's own recent pitches-per-start.
+  by the pitcher's own recent pitches-per-start and control (WHIP/BB9).
+
+It also exposes :func:`opponent_discipline_factor`, a lineup-level pitch-economy
+multiplier: a patient, high-P/PA-seen offense burns a starter's pitch budget
+faster (fewer outs), while a chase-happy lineup lets him work deeper.
 """
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
 
 import pandas as pd
 
+from mlb_engine.features.rolling import HIT_EVENTS, WALK_EVENTS
+
 # League baselines (approximate, recalibratable).
 LEAGUE_PPA = 3.9  # pitches per plate appearance
 BL_F_STRIKE = 0.60
 BL_BB_PCT = 0.080
 BL_GB_PCT = 0.43
+BL_WHIP = 1.30
+BL_BB9 = 3.2
 DEFAULT_PITCH_CAP = 95
+MIN_PITCH_CAP = 55  # floor so control/discipline haircuts can't zero the outing
 
 MIN_STARTS = 2  # need at least this many recent starts before trusting the data
 MIN_PA = 40  # min plate appearances before trusting realised P/PA over the prior
@@ -44,9 +57,20 @@ PITCH_BUFFER = 8  # allow a few more pitches than the recent average (upside out
 # expected count. Anchored so a league-average F-Strike% maps to league P/PA.
 XPPA_FSTRIKE_COEF = 3.0
 
+# Control-based hook: WHIP/BB9 above baseline tighten the pitch ceiling (traffic
+# => quicker exit) on top of raw pitch economy.
+CTRL_WHIP_COEF = 0.05
+CTRL_BB9_COEF = 0.02
+
 
 def _clip(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
+
+
+def _control_factor(whip: float, bb9: float) -> float:
+    """Pitch-ceiling multiplier (<=1) from baserunner traffic (WHIP/BB9)."""
+    f = 1.0 - CTRL_WHIP_COEF * (whip - BL_WHIP) - CTRL_BB9_COEF * (bb9 - BL_BB9)
+    return _clip(f, 0.85, 1.0)
 
 
 @dataclass
@@ -59,6 +83,8 @@ class PitcherEfficiency:
     f_strike_pct: float
     bb_pct: float
     gb_pct: float
+    whip: float
+    bb9: float
     pitch_cap: int
 
     def expected_pitches_per_pa(self) -> float:
@@ -78,6 +104,10 @@ class PitcherEfficiency:
     def efficiency_scaler(self) -> float:
         """Per-PA pitch-cost multiplier vs a league-average count length."""
         return _clip(self.blended_pitches_per_pa() / LEAGUE_PPA, 0.80, 1.25)
+
+    def control_cap_factor(self) -> float:
+        """How much the pitch ceiling is trimmed by WHIP/BB9 traffic (<=1)."""
+        return _control_factor(self.whip, self.bb9)
 
     def gb_dp_rate(self) -> float:
         """Probability a ground-ball out becomes a double play (runner on first).
@@ -133,9 +163,19 @@ def build_pitcher_efficiency(
         f_strike = BL_F_STRIKE
 
     if pa:
-        bb_pct = float(ev.isin(["walk", "hit_by_pitch"]).sum() / pa)
+        walks = int(ev.isin(WALK_EVENTS).sum())
+        hits = int(ev.isin(HIT_EVENTS.keys()).sum())
+        bb_pct = walks / pa
+        # Outs proxy: each PA that doesn't reach base is ~one out (ignores DP/sac
+        # over-count); IP = outs/3 -> WHIP and BB9 without a box score.
+        outs_est = max(pa - hits - walks, 1)
+        ip_est = outs_est / 3.0
+        whip = (hits + walks) / ip_est
+        bb9 = walks / ip_est * 9.0
     else:
         bb_pct = BL_BB_PCT
+        whip = BL_WHIP
+        bb9 = BL_BB9
 
     batted = window[window["bb_type"].notna()] if "bb_type" in window else pd.DataFrame()
     gb_pct = float((batted["bb_type"] == "ground_ball").mean()) if len(batted) else BL_GB_PCT
@@ -146,6 +186,8 @@ def build_pitcher_efficiency(
         pitch_cap = int(min(manager_pitch_cap, round(avg) + PITCH_BUFFER))
     else:
         pitch_cap = manager_pitch_cap
+    # Control-based hook: walk-prone / high-traffic starters get pulled sooner.
+    pitch_cap = max(int(round(pitch_cap * _control_factor(whip, bb9))), MIN_PITCH_CAP)
 
     return PitcherEfficiency(
         pa=pa,
@@ -154,5 +196,37 @@ def build_pitcher_efficiency(
         f_strike_pct=f_strike,
         bb_pct=bb_pct,
         gb_pct=gb_pct,
+        whip=whip,
+        bb9=bb9,
         pitch_cap=pitch_cap,
     )
+
+
+def opponent_discipline_factor(
+    statcast: pd.DataFrame,
+    batter_ids: Iterable[int],
+    as_of: Date,
+    form_days: int,
+) -> float:
+    """Pitch-economy multiplier from the opposing lineup's plate discipline.
+
+    Returns the lineup's pitches-seen-per-PA relative to league P/PA: >1 for a
+    patient offense that runs deep counts (burns the starter's pitch budget
+    faster -> fewer outs), <1 for a chase-happy lineup that lets him work deep.
+    Fed to the sim as a per-PA pitch-cost multiplier on top of the pitcher's own
+    efficiency. K/BB effects are intentionally left to the batter rate model to
+    avoid double-counting -- this is purely the pitch-count channel.
+    """
+    ids = {int(b) for b in batter_ids if b}
+    if not ids or "batter" not in statcast.columns:
+        return 1.0
+    end = as_of - timedelta(days=1)
+    start = end - timedelta(days=form_days - 1)
+    rows = statcast[statcast["batter"].isin(ids)]
+    if "game_date" in rows.columns:
+        rows = rows[(rows["game_date"] >= start) & (rows["game_date"] <= end)]
+    pa = int(rows["events"].notna().sum()) if "events" in rows.columns else 0
+    if pa < MIN_PA:
+        return 1.0
+    team_ppa = len(rows) / pa
+    return _clip(team_ppa / LEAGUE_PPA, 0.90, 1.12)

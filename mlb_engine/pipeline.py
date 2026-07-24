@@ -26,7 +26,10 @@ from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_
 from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
-from mlb_engine.features.efficiency import build_pitcher_efficiency
+from mlb_engine.features.efficiency import (
+    build_pitcher_efficiency,
+    opponent_discipline_factor,
+)
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -689,12 +692,22 @@ class Pipeline:
         away_eff = build_pitcher_efficiency(
             away_pit_rows, slate_date, w.pitcher_form_days, away_mgr.starter_pitch_cap,
         )
+        # Opponent lineup discipline (pitches-seen-per-PA): each starter's pitch
+        # budget is burned faster by the patient lineup he actually faces.
+        home_ids = [s.player.mlbam_id for s in game.home.lineup]
+        away_ids = [s.player.mlbam_id for s in game.away.lineup]
+        home_disc = opponent_discipline_factor(
+            statcast, away_ids, slate_date, w.batter_home_away_days
+        )
+        away_disc = opponent_discipline_factor(
+            statcast, home_ids, slate_date, w.batter_home_away_days
+        )
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
             starter_bf_cap=home_cap,
             starter_pitch_cap=home_eff.pitch_cap,
-            pitch_eff=home_eff.efficiency_scaler(),
+            pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
             gb_dp_rate=home_eff.gb_dp_rate(),
         )
         away_cfg = TeamSimConfig(
@@ -702,7 +715,7 @@ class Pipeline:
             bat_vs_pen=away_pen,
             starter_bf_cap=away_cap,
             starter_pitch_cap=away_eff.pitch_cap,
-            pitch_eff=away_eff.efficiency_scaler(),
+            pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
             gb_dp_rate=away_eff.gb_dp_rate(),
         )
         res = mc.simulate(home_cfg, away_cfg)
