@@ -11,10 +11,12 @@ from pathlib import Path
 from mlb_engine.audit.analysis import prop_insights
 from mlb_engine.audit.grade import grade
 from mlb_engine.audit.ledger import (
+    LedgerEntry,
     daily_engine_metrics,
     daily_rollup,
     engine_metrics,
     entries_from_graded,
+    load_ledger,
     overall_metrics,
     prop_metrics,
     update_ledger,
@@ -33,6 +35,15 @@ from mlb_engine.market.tiers import Tier
 from mlb_engine.output.card import build_cards, render_html, render_markdown
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.report import (
+    PdfNotAvailable,
+    build_report_data,
+    daily_entries,
+    render_html_report,
+    render_markdown_report,
+    render_pdf,
+    weekly_entries,
+)
 from mlb_engine.pipeline import Pipeline, PipelineDeps
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
@@ -84,12 +95,65 @@ def _generate_card(
                 html_body=html_body,
                 text_body="Your PayoffPitch card is attached; HTML in the body.\n",
                 to=to,
-                attachments=[(md_path.name, md.encode(), "markdown")],
+                attachments=[(md_path.name, md.encode(), "text", "markdown")],
             )
             print(f"Emailed card to {recipient}")
         except EmailNotConfigured as exc:
             print(f"Email not sent: {exc}")
     return md_path, html_path
+
+
+def _generate_report(
+    entries: list[LedgerEntry],
+    cfg: Config,
+    *,
+    period_label: str,
+    subtitle: str,
+    slug: str,
+    email: bool,
+    to: str | None,
+) -> tuple[Path, Path, Path | None]:
+    """Build the audit report (md + html + pdf) and optionally email it."""
+    data = build_report_data(entries, period_label=period_label, subtitle=subtitle)
+    md = render_markdown_report(data)
+    html_body = render_html_report(data)
+    md_path = cfg.output_dir / f"audit_report_{slug}.md"
+    html_path = cfg.output_dir / f"audit_report_{slug}.html"
+    md_path.write_text(md)
+    html_path.write_text(html_body)
+
+    pdf_path: Path | None = cfg.output_dir / f"audit_report_{slug}.pdf"
+    pdf_bytes: bytes | None = None
+    try:
+        pdf_bytes = render_pdf(html_body)
+        assert pdf_path is not None
+        pdf_path.write_bytes(pdf_bytes)
+    except PdfNotAvailable as exc:
+        print(f"PDF not written: {exc}")
+        pdf_path = None
+
+    print(f"Audit report -> {md_path}" + (f" (+ {pdf_path})" if pdf_path else ""))
+
+    if email:
+        subject = f"PayoffPitch Audit — {period_label} ({subtitle})"
+        attachments: list[tuple[str, bytes, str, str]] = [
+            (md_path.name, md.encode(), "text", "markdown")
+        ]
+        if pdf_bytes is not None and pdf_path is not None:
+            attachments.insert(0, (pdf_path.name, pdf_bytes, "application", "pdf"))
+        try:
+            recipient = send_card_email(
+                cfg,
+                subject=subject,
+                html_body=html_body,
+                text_body="Your PayoffPitch audit report is attached; HTML in the body.\n",
+                to=to,
+                attachments=attachments,
+            )
+            print(f"Emailed audit report to {recipient}")
+        except EmailNotConfigured as exc:
+            print(f"Email not sent: {exc}")
+    return md_path, html_path, pdf_path
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -234,6 +298,55 @@ def cmd_audit(args: argparse.Namespace) -> int:
         print(f"\nProp insights ({len(insights)}):")
         for ins in insights:
             print(f"  [{ins.kind}] {ins.finding}")
+
+    if getattr(args, "report", False) or getattr(args, "email", False):
+        day_entries = daily_entries(all_entries, audit_date)
+        _generate_report(
+            day_entries,
+            cfg,
+            period_label="Daily",
+            subtitle=f"slate graded {audit_date.isoformat()}",
+            slug=audit_date.isoformat(),
+            email=getattr(args, "email", False),
+            to=getattr(args, "to", None),
+        )
+    return 0
+
+
+def cmd_report(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    ledger_path = cfg.audit_dir / "ledger.csv"
+    if not ledger_path.exists():
+        print(f"No ledger found at {ledger_path}; run `mlb-engine audit` first")
+        return 1
+    all_entries = load_ledger(ledger_path)
+    end = _parse_date(args.date, Date.today() - timedelta(days=1))
+
+    if args.period == "weekly":
+        entries = weekly_entries(all_entries, end)
+        start = end - timedelta(days=6)
+        period_label = "Weekly"
+        subtitle = f"{start.isoformat()} to {end.isoformat()}"
+        slug = f"week_{end.isoformat()}"
+    else:
+        entries = daily_entries(all_entries, end)
+        period_label = "Daily"
+        subtitle = f"slate graded {end.isoformat()}"
+        slug = end.isoformat()
+
+    if not entries:
+        print(f"No graded bets in the ledger for the {args.period} window ending {end}")
+        return 1
+
+    _generate_report(
+        entries,
+        cfg,
+        period_label=period_label,
+        subtitle=subtitle,
+        slug=slug,
+        email=args.email,
+        to=args.to,
+    )
     return 0
 
 
@@ -265,7 +378,23 @@ def main(argv: list[str] | None = None) -> int:
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
+    a.add_argument(
+        "--report", action="store_true", help="also write the daily audit report (md/html/pdf)"
+    )
+    a.add_argument(
+        "--email", action="store_true", help="email the daily audit report after grading"
+    )
+    a.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     a.set_defaults(func=cmd_audit)
+
+    rp = sub.add_parser("report", help="render a daily/weekly audit report from the ledger")
+    rp.add_argument(
+        "--period", choices=("daily", "weekly"), default="daily", help="report window"
+    )
+    rp.add_argument("--date", help="end date YYYY-MM-DD (default: yesterday)")
+    rp.add_argument("--email", action="store_true", help="email the report")
+    rp.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
+    rp.set_defaults(func=cmd_report)
 
     args = p.parse_args(argv)
     return args.func(args)
