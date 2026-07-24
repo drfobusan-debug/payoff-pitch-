@@ -227,9 +227,22 @@ BL_BARREL_ALLOWED = 0.080
 BL_TWO_STRIKE_WHIFF = 0.280
 BL_STUFF_PLUS = 100.0
 BL_LOCATION_PLUS = 100.0
+BL_SWSTR = 0.110  # swinging strikes / pitches
+BL_WHIFF_PITCHER = 0.240  # swinging strikes / swings induced
+
+# Stuff-based expected-K% fit: xK% is a linear function of the two fastest-
+# stabilizing whiff signals (CSW% and SwStr%), anchored so a league-average arm
+# (CSW .280, SwStr .110) maps to ~.220 K%. Used as the small-sample K prior so a
+# pitcher regresses toward his stuff, not the flat league mean.
+XK_CSW_COEF = 2.6
+XK_SWSTR_COEF = 1.4
+XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
+MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
 CALLED_OR_WHIFF = {"called_strike", "swinging_strike", "swinging_strike_blocked", "foul_tip"}
 WHIFF_DESC = {"swinging_strike", "swinging_strike_blocked", "foul_tip"}
+SWING_DESC = {"swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play"}
+K_EVENTS_P = ["strikeout", "strikeout_double_play"]
 
 
 @dataclass
@@ -245,6 +258,10 @@ class PitcherRegression:
     k_pct: float
     bb_pct: float
     two_strike_whiff: float
+    swstr: float = BL_SWSTR
+    whiff: float = BL_WHIFF_PITCHER
+    k_pct_vs_l: float = float("nan")
+    k_pct_vs_r: float = float("nan")
     ivb: float = float("nan")
     extension: float = float("nan")
     release_var: float = float("nan")
@@ -261,6 +278,28 @@ class PitcherRegression:
     @property
     def k_minus_bb(self) -> float:
         return self.k_pct - self.bb_pct
+
+    def expected_k_pct(self) -> float:
+        """Stuff-based expected K% (xK%) from CSW% and SwStr%.
+
+        These whiff signals stabilize in far fewer pitches than observed K%, so
+        xK% is the right small-sample prior: a hard-to-hit arm with a thin PA
+        sample should regress toward his stuff, not the flat league mean.
+        """
+        xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
+        return _clip(xk, 0.08, 0.42)
+
+    def platoon_k_multiplier(self, bats: str | None) -> float:
+        """K-rate multiplier for a batter of a given handedness (vs-L / vs-R split).
+
+        Returns 1.0 when handedness is unknown or the split sample is too thin.
+        """
+        if bats not in ("L", "R") or self.k_pct <= 0:
+            return 1.0
+        split = self.k_pct_vs_l if bats == "L" else self.k_pct_vs_r
+        if split != split:  # NaN -> insufficient split sample
+            return 1.0
+        return _clip(split / self.k_pct, 0.85, 1.18)
 
     def k_multiplier(self) -> float:
         """Multiplier on the pitcher's projected strikeout rate.
@@ -327,14 +366,36 @@ def build_pitcher_regression(
     else:
         csw = BL_CSW
 
+    # SwStr% (whiffs / pitches) and whiff-per-swing: fastest-stabilizing K signals.
+    if n_pitches and "description" in pdf:
+        n_whiff = int(pdf["description"].isin(WHIFF_DESC).sum())
+        n_swings = int(pdf["description"].isin(SWING_DESC).sum())
+        swstr = n_whiff / n_pitches
+        whiff = n_whiff / n_swings if n_swings else BL_WHIFF_PITCHER
+    else:
+        swstr, whiff = BL_SWSTR, BL_WHIFF_PITCHER
+
     # K% / BB% over plate appearances the pitcher ended.
     ev = pdf["events"].dropna()
     pa = len(ev)
     if pa:
-        k_pct = float(ev.isin(["strikeout", "strikeout_double_play"]).sum() / pa)
+        k_pct = float(ev.isin(K_EVENTS_P).sum() / pa)
         bb_pct = float(ev.isin(["walk", "hit_by_pitch"]).sum() / pa)
     else:
         k_pct, bb_pct = BL_K_PCT, BL_BB_PCT
+
+    # Platoon K% split (vs LHB / vs RHB) from the batter's stance on each PA.
+    k_pct_vs_l = k_pct_vs_r = float("nan")
+    if pa and "stand" in pdf:
+        pa_rows = pdf[pdf["events"].notna()]
+        for hand, target in (("L", "l"), ("R", "r")):
+            side = pa_rows[pa_rows["stand"] == hand]["events"]
+            if len(side) >= MIN_SPLIT_PA:
+                rate = float(side.isin(K_EVENTS_P).sum() / len(side))
+                if target == "l":
+                    k_pct_vs_l = rate
+                else:
+                    k_pct_vs_r = rate
 
     # 2-strike put-away whiff rate.
     if "strikes" in pdf and n_pitches:
@@ -375,6 +436,10 @@ def build_pitcher_regression(
         k_pct=k_pct,
         bb_pct=bb_pct,
         two_strike_whiff=two_strike_whiff,
+        swstr=swstr,
+        whiff=whiff,
+        k_pct_vs_l=k_pct_vs_l,
+        k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,
         extension=ext,
         release_var=rel_var,

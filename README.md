@@ -41,7 +41,12 @@ book (and VSIN handle/bets divergence when provided).
    RBI attribution) for run distributions and every player prop.
 8. **RBI hard rule** — flags a batter when the preceding 3 slots average OBP > .345
    (3-week window); boosts RBI props.
-9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers.
+8a. **Strikeout model** — stuff-based expected-K% (CSW%/SwStr%) prior so thin
+    samples regress to a pitcher's stuff, pitcher vs-LHB/RHB platoon K splits,
+    catcher-framing + umpire zone K/BB shifts, and a workload/early-hook cap
+    (recent BF-per-start + opener detection) that drives realistic K unders.
+9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers
+   (`MLBE_MIN_EDGE` thin-edge guard, `MLBE_STRONG_ONLY` for strict selection).
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
     per tier from final box scores).
 

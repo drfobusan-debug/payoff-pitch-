@@ -10,6 +10,7 @@ from typing import TypeVar
 
 from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config
+from mlb_engine.data import catcher_framing
 from mlb_engine.data.divisions import same_division
 from mlb_engine.data.fangraphs import (
     FanGraphsClient,
@@ -37,12 +38,14 @@ from mlb_engine.features.regression import (
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OutcomeRates,
+    blend_k_rate,
     build_batter_late_rates,
     build_batter_profile,
     build_bullpen_profile,
     build_pitcher_profile,
 )
 from mlb_engine.features.tails import TailAdjuster
+from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
@@ -410,6 +413,10 @@ class Pipeline:
         pit_allowed_mult = pit_reg.allowed_multipliers()
         k_mult = pit_reg.k_multiplier()
 
+        # Stuff-based K prior: pull the starter's allowed K rate toward xK%
+        # (CSW%/SwStr%) so thin PA samples regress to his stuff, not league mean.
+        pit_allowed = blend_k_rate(pit_prof.allowed, pit_reg.expected_k_pct())
+
         # Arsenal matching: starter's pitch-mix usage/SwStr% vs. each batter's
         # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).
         arsenal = build_arsenal(pit_rows)
@@ -459,10 +466,14 @@ class Pipeline:
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
             bat_tail = self._tails.batter_multiplier(pid)
 
-            vs_start = combine(ctx, pit_prof.allowed)
+            bats = slot.player.bats.value if slot.player.bats else None
+            platoon_k = pit_reg.platoon_k_multiplier(bats)
+
+            vs_start = combine(ctx, pit_allowed)
             vs_start = apply_multipliers(vs_start, bmult)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
+            vs_start = apply_multipliers(vs_start, {"K": platoon_k})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
             vs_start = apply_multipliers(vs_start, pit_tail)
             vs_start = apply_multipliers(vs_start, bat_tail)
@@ -600,8 +611,15 @@ class Pipeline:
         # plus opponent-specific hooks (framing/battery, neutral until fed).
         divisional = same_division(game.home.team_id, game.away.team_id)
         ump_zone = self._umpire_zone_runs(game)
-        home_hf = HumanFactors(divisional=divisional, umpire_zone_runs=ump_zone)
-        away_hf = HumanFactors(divisional=divisional, umpire_zone_runs=ump_zone)
+        # Each offense faces the OPPOSING starting catcher's framing.
+        home_frame = _catcher_framing_runs(game.away)
+        away_frame = _catcher_framing_runs(game.home)
+        home_hf = HumanFactors(
+            divisional=divisional, umpire_zone_runs=ump_zone, catcher_framing_runs=home_frame
+        )
+        away_hf = HumanFactors(
+            divisional=divisional, umpire_zone_runs=ump_zone, catcher_framing_runs=away_frame
+        )
         home_human = home_hf.offense_multipliers()
         away_human = away_hf.offense_multipliers()
 
@@ -629,15 +647,26 @@ class Pipeline:
         away_start = self._apply_all(away_start, away_env)
         away_pen = self._apply_all(away_pen, [*away_env, away_mgr.pen_multipliers()])
 
+        # Starter batters-faced cap: manager hook tightened by each starter's own
+        # recent workload / opener usage (drives realistic strikeout unders).
+        w = self.cfg.windows
+        home_cap = expected_bf_cap(
+            statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id],
+            slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
+        )
+        away_cap = expected_bf_cap(
+            statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id],
+            slate_date, w.pitcher_form_days, away_mgr.starter_bf_cap,
+        )
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
-            starter_bf_cap=home_mgr.starter_bf_cap,
+            starter_bf_cap=home_cap,
         )
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
-            starter_bf_cap=away_mgr.starter_bf_cap,
+            starter_bf_cap=away_cap,
         )
         res = mc.simulate(home_cfg, away_cfg)
 
@@ -859,6 +888,16 @@ class Pipeline:
                         f"VSIN handle {sp.handle_pct:.0f}% / bets {sp.bets_pct:.0f}%"
                     )
         return rec
+
+
+def _catcher_framing_runs(team: TeamGameInfo) -> float:
+    """Framing runs of a team's starting catcher (0.0 when unknown/no feed)."""
+    for slot in team.lineup:
+        if slot.player.position == "C":
+            r = catcher_framing.framing_runs_for_name(slot.player.name)
+            if r is not None:
+                return r
+    return 0.0
 
 
 def _prev_to_pg(prev):
