@@ -127,6 +127,34 @@ def blend_k_rate(rates: OutcomeRates, k_prior: float, prior_weight: float = 150.
     )
 
 
+def blend_bb_rate(rates: OutcomeRates, bb_prior: float, prior_weight: float = 150.0) -> OutcomeRates:
+    """Pull the BB rate toward a command-based prior (xBB%), weighted by sample size.
+
+    Mirrors :func:`blend_k_rate`: a thin sample leans on the command-based
+    expectation, a large sample keeps the observed rate, and the non-BB outcomes
+    are rescaled proportionally so the seven outcomes still sum to 1.
+    """
+    w_obs = max(rates.pa, 0.0)
+    total = w_obs + prior_weight
+    old_non_bb = 1.0 - rates.p_bb
+    if total <= 0 or old_non_bb <= 0:
+        return rates
+    new_bb = (rates.p_bb * w_obs + bb_prior * prior_weight) / total
+    new_bb = min(max(new_bb, 0.005), 0.30)
+    scale = (1.0 - new_bb) / old_non_bb
+    d = rates.as_dict()
+    return OutcomeRates(
+        pa=rates.pa,
+        p_1b=d["1B"] * scale,
+        p_2b=d["2B"] * scale,
+        p_3b=d["3B"] * scale,
+        p_hr=d["HR"] * scale,
+        p_bb=new_bb,
+        p_k=d["K"] * scale,
+        p_out=d["OUT"] * scale,
+    )
+
+
 def _slice_dates(df: pd.DataFrame, as_of: Date, days: int) -> pd.DataFrame:
     end = as_of - timedelta(days=1)
     start = end - timedelta(days=days - 1)

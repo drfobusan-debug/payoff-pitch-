@@ -45,6 +45,10 @@ book (and VSIN handle/bets divergence when provided).
     samples regress to a pitcher's stuff, pitcher vs-LHB/RHB platoon K splits,
     catcher-framing + umpire zone K/BB shifts, and a workload/early-hook cap
     (recent BF-per-start + opener detection) that drives realistic K unders.
+8b. **Walk model** — command-based expected-BB% prior from Zone%, chase
+    (O-Swing%), and first-pitch-strike% (fast-stabilizing discipline signals),
+    blended into the BB bucket so thin samples regress to command, not the flat
+    league mean.
 9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers
    (`MLBE_MIN_EDGE` thin-edge guard, `MLBE_STRONG_ONLY` for strict selection).
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV

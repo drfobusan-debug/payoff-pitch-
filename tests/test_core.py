@@ -1037,6 +1037,66 @@ def test_expected_k_pct_tracks_stuff():
     assert lo.expected_k_pct() < 0.20
 
 
+def _pitch_rows_disc(n_pitches, zone_frac, chase_frac, fstrike_frac):
+    """Pitch rows with controllable Zone%, chase (O-Swing%), and F-strike%."""
+    import pandas as pd
+
+    n_zone = int(n_pitches * zone_frac)
+    n_out = n_pitches - n_zone
+    n_chase = int(n_out * chase_frac)
+    # In-zone: called strikes; out-of-zone: swings (chase) then balls.
+    desc = (
+        ["called_strike"] * n_zone
+        + ["swinging_strike"] * n_chase
+        + ["ball"] * (n_out - n_chase)
+    )
+    zone = [1] * n_zone + [13] * n_out
+    n_first = int(n_pitches * 0.4)
+    n_fs = int(n_first * fstrike_frac)
+    balls = [0] * n_first + [1] * (n_pitches - n_first)
+    strikes = [0] * n_first + [0] * (n_pitches - n_first)
+    ptype = ["S"] * n_fs + ["B"] * (n_first - n_fs) + ["B"] * (n_pitches - n_first)
+    return pd.DataFrame(
+        {
+            "description": desc[:n_pitches],
+            "zone": zone[:n_pitches],
+            "balls": balls[:n_pitches],
+            "strikes": strikes[:n_pitches],
+            "type": ptype[:n_pitches],
+            "events": [None] * n_pitches,
+            "launch_speed": [None] * n_pitches,
+            "pfx_z": [None] * n_pitches,
+            "release_extension": [None] * n_pitches,
+            "release_pos_x": [None] * n_pitches,
+            "release_pos_z": [None] * n_pitches,
+            "release_spin_rate": [None] * n_pitches,
+        }
+    )
+
+
+def test_expected_bb_pct_tracks_command():
+    from mlb_engine.features.regression import build_pitcher_regression
+
+    # Wild arm: low zone / low chase / low F-strike -> high xBB.
+    wild = build_pitcher_regression(_pitch_rows_disc(1000, 0.40, 0.22, 0.50))
+    # Command arm: high zone / high chase / high F-strike -> low xBB (NPV screen).
+    sharp = build_pitcher_regression(_pitch_rows_disc(1000, 0.55, 0.38, 0.70))
+    assert wild.expected_bb_pct() > sharp.expected_bb_pct()
+    assert wild.expected_bb_pct() > 0.085
+    assert sharp.expected_bb_pct() < 0.085
+
+
+def test_blend_bb_rate_small_sample_leans_on_prior():
+    import pandas as pd
+
+    from mlb_engine.features.rolling import blend_bb_rate, rates_from_events
+
+    thin = rates_from_events(pd.Series(["walk"] * 1 + ["field_out"] * 9))
+    blended = blend_bb_rate(thin, bb_prior=0.16, prior_weight=150.0)
+    assert blended.p_bb > thin.p_bb
+    assert abs(sum(blended.as_dict().values()) - 1.0) < 1e-9
+
+
 def test_blend_k_rate_small_sample_leans_on_prior():
     import pandas as pd
 
