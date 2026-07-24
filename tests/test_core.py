@@ -1385,30 +1385,44 @@ def _pitcher_statcast(
     f_strike_frac,
     bb_frac,
     gb_frac,
+    hit_frac=0.0,
 ):
     """Build a minimal pitch-level Statcast slice for one pitcher.
 
     Each start gets ``pitches_per_start`` rows; ``pa_per_start`` of them end a PA
     (``events`` set). The first pitch of every PA is a 0-0 count, a fraction of
-    which are strikes; a fraction of PAs are walks and a fraction of batted balls
-    are ground balls.
+    which are strikes; a fraction of PAs are walks, a fraction are hits, and a
+    fraction of batted balls are ground balls.
     """
     import pandas as pd
 
     rows = []
     for d in dates:
         pa_end_idx = set(range(pa_per_start))  # first N rows are PA-ending pitches
+        n_walk = int(pa_per_start * bb_frac)
+        n_hit = int(pa_per_start * hit_frac)
         for i in range(pitches_per_start):
             is_pa = i in pa_end_idx
             first_pitch = is_pa  # treat each PA-ender as its own 0-0 first pitch
             is_strike = first_pitch and (i < int(pa_per_start * f_strike_frac))
-            is_walk = is_pa and (i < int(pa_per_start * bb_frac))
-            is_gb = is_pa and (not is_walk) and (i < int(pa_per_start * (bb_frac + gb_frac)))
+            is_walk = is_pa and (i < n_walk)
+            is_hit = is_pa and (n_walk <= i < n_walk + n_hit)
+            is_gb = is_pa and (not is_walk and not is_hit) and (
+                i < int(pa_per_start * (bb_frac + hit_frac + gb_frac))
+            )
+            if not is_pa:
+                event = None
+            elif is_walk:
+                event = "walk"
+            elif is_hit:
+                event = "single"
+            else:
+                event = "field_out"
             rows.append(
                 {
                     "game_date": d,
                     "pitcher": 100,
-                    "events": ("walk" if is_walk else "field_out") if is_pa else None,
+                    "events": event,
                     "type": "S" if is_strike else "B",
                     "balls": 0 if first_pitch else 1,
                     "strikes": 0 if first_pitch else 1,
@@ -1516,3 +1530,72 @@ def test_calibration_min_samples_env(monkeypatch):
     assert "pitcher_outs" not in Calibrator.fit(graded).maps
     monkeypatch.setenv("MLBE_CALIB_MIN_SAMPLES", "20")
     assert "pitcher_outs" in Calibrator.fit(graded).maps
+
+
+def test_control_cap_factor_from_whip_bb9():
+    from mlb_engine.features.efficiency import PitcherEfficiency
+
+    def _eff(whip, bb9):
+        return PitcherEfficiency(
+            pa=100, pitches=390, pitches_per_pa=3.9, f_strike_pct=0.60,
+            bb_pct=0.08, gb_pct=0.43, whip=whip, bb9=bb9, pitch_cap=95,
+        )
+
+    # Clean control -> no trim; high traffic -> ceiling trimmed below 1.0.
+    assert _eff(1.0, 2.0).control_cap_factor() == 1.0
+    assert _eff(1.7, 5.0).control_cap_factor() < 1.0
+
+
+def test_high_whip_shrinks_pitch_cap():
+    from mlb_engine.features.efficiency import build_pitcher_efficiency
+
+    common = dict(
+        dates=[date(2024, 4, 20), date(2024, 4, 25)],
+        pitches_per_start=110,  # manager cap (95) binds the base ceiling
+        pa_per_start=24,
+        f_strike_frac=0.62,
+        gb_frac=0.30,
+    )
+    clean = build_pitcher_efficiency(
+        _pitcher_statcast(bb_frac=0.05, hit_frac=0.18, **common),
+        date(2024, 5, 1), 28, 95,
+    )
+    wild = build_pitcher_efficiency(
+        _pitcher_statcast(bb_frac=0.15, hit_frac=0.30, **common),
+        date(2024, 5, 1), 28, 95,
+    )
+    assert clean.pitch_cap == 95
+    assert wild.pitch_cap < clean.pitch_cap
+    assert wild.whip > clean.whip and wild.bb9 > clean.bb9
+
+
+def _lineup_statcast(ids, *, pitches, pa, day=date(2024, 4, 20)):
+    import pandas as pd
+
+    rows = []
+    for bid in ids:
+        for i in range(pitches):
+            rows.append(
+                {
+                    "game_date": day,
+                    "batter": bid,
+                    "events": "field_out" if i < pa else None,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def test_opponent_discipline_factor():
+    from mlb_engine.features.efficiency import opponent_discipline_factor
+
+    ids = [1, 2, 3]
+    # Patient: 5.0 pitches/PA seen -> burns the budget faster (factor > 1).
+    patient = _lineup_statcast(ids, pitches=100, pa=20)  # 60 PA, 5.0 P/PA
+    f_patient = opponent_discipline_factor(patient, ids, date(2024, 5, 1), 28)
+    assert f_patient > 1.0
+    # Aggressive: 2.5 pitches/PA -> lets the starter work deep (factor < 1).
+    aggressive = _lineup_statcast(ids, pitches=50, pa=20)  # 60 PA, 2.5 P/PA
+    f_aggr = opponent_discipline_factor(aggressive, ids, date(2024, 5, 1), 28)
+    assert f_aggr < 1.0
+    # No batters / no data -> neutral.
+    assert opponent_discipline_factor(patient, [], date(2024, 5, 1), 28) == 1.0
