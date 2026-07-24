@@ -1061,3 +1061,119 @@ def test_false_positive_and_negative_findings():
 
     fns = false_negative_findings(fp_graded, min_n=50)
     assert any("mostly correct" in f for f in fns)  # no faded picks here
+
+
+# ---- whole-engine / daily / per-prop ledger metrics ----
+def test_engine_metrics_directional_confusion():
+    from mlb_engine.audit.ledger import engine_metrics, entries_from_graded
+
+    # favored (>=.5) win -> TP; favored lose -> FP; faded (<.5) lose -> TN; faded win -> FN
+    graded = [
+        (_rec(model_prob=0.60), WIN),   # TP
+        (_rec(model_prob=0.55), LOSS),  # FP
+        (_rec(model_prob=0.40), LOSS),  # TN
+        (_rec(model_prob=0.45), WIN),   # FN
+        (_rec(model_prob=0.70), PUSH),  # excluded (favored push)
+    ]
+    m = engine_metrics(entries_from_graded(graded, date(2024, 7, 19)))
+    assert m.tier == "ENGINE (p>=.5)"
+    assert m.n == 2  # favored decided picks (TP + FP)
+    assert abs(m.ppv - 0.5) < 1e-9  # 1 TP / (1 TP + 1 FP)
+    assert abs(m.npv - 0.5) < 1e-9  # 1 TN / (1 TN + 1 FN)
+    assert abs(m.sensitivity - 0.5) < 1e-9
+    assert abs(m.specificity - 0.5) < 1e-9
+    assert m.pushes == 1
+
+
+def test_daily_engine_and_prop_metrics():
+    from mlb_engine.audit.ledger import (
+        daily_engine_metrics,
+        entries_from_graded,
+        prop_metrics,
+    )
+
+    entries = entries_from_graded(
+        [(_rec(market="batter_hr", model_prob=0.6), WIN)], date(2024, 7, 19)
+    ) + entries_from_graded(
+        [
+            (_rec(market="pitcher_k", model_prob=0.6), LOSS),
+            (_rec(market="game_ml", model_prob=0.6), WIN),  # not a prop
+        ],
+        date(2024, 7, 20),
+    )
+
+    daily = daily_engine_metrics(entries)
+    assert [d.tier for d in daily] == ["2024-07-19", "2024-07-20"]
+    # day 1: the lone favored pick (batter_hr) won -> PPV 1.0.
+    # day 2 (whole engine): favored pitcher_k lost + favored game_ml won -> PPV 0.5.
+    assert daily[0].ppv == 1.0 and daily[1].ppv == 0.5
+
+    props = {p.tier: p for p in prop_metrics(entries)}
+    assert set(props) == {"batter_hr", "pitcher_k", "ALL PROPS"}  # game_ml excluded
+    assert props["batter_hr"].ppv == 1.0 and props["pitcher_k"].ppv == 0.0
+    assert props["ALL PROPS"].n == 2  # both favored prop picks
+
+
+# ---- per-prop FP / FN / TP insights ----
+def test_prop_insights_fp_fn_tp():
+    from mlb_engine.audit.analysis import (
+        FALSE_NEGATIVE,
+        FALSE_POSITIVE,
+        TRUE_POSITIVE,
+        false_negative_insights,
+        false_positive_insights,
+        true_positive_insights,
+    )
+    from mlb_engine.audit.ledger import entries_from_graded
+
+    # favored HR picks that mostly LOSE -> false-positive risk (raise PPV)
+    fp = [(_rec(market="batter_hr", model_prob=0.62), LOSS if i % 4 else WIN) for i in range(40)]
+    # favored K picks that mostly WIN -> true positive (reinforce)
+    tp = [(_rec(market="pitcher_k", model_prob=0.62), WIN if i % 4 else LOSS) for i in range(40)]
+    # faded 1B picks that mostly WIN -> false negative (reclaim, raise NPV)
+    fn = [(_rec(market="batter_1b", model_prob=0.40), WIN if i % 4 else LOSS) for i in range(40)]
+    entries = entries_from_graded(fp + tp + fn, date(2024, 7, 19))
+
+    fps = false_positive_insights(entries, min_n=20)
+    assert any(i.market == "batter_hr" and i.kind == FALSE_POSITIVE for i in fps)
+
+    tps = true_positive_insights(entries, min_n=20)
+    assert any(i.market == "pitcher_k" and i.kind == TRUE_POSITIVE for i in tps)
+
+    fns = false_negative_insights(entries, min_n=20)
+    assert any(i.market == "batter_1b" and i.kind == FALSE_NEGATIVE for i in fns)
+
+
+def test_ledger_workbook_with_analysis(tmp_path):
+    from mlb_engine.audit.analysis import prop_insights
+    from mlb_engine.audit.ledger import (
+        daily_engine_metrics,
+        daily_rollup,
+        engine_metrics,
+        entries_from_graded,
+        overall_metrics,
+        prop_metrics,
+    )
+    from mlb_engine.output.excel import write_ledger_workbook
+
+    entries = entries_from_graded(
+        [(_rec(market="batter_hr", model_prob=0.6, market_american=100), WIN)],
+        date(2024, 7, 19),
+    )
+    out = tmp_path / "ledger.xlsx"
+    write_ledger_workbook(
+        entries,
+        [engine_metrics(entries), *overall_metrics(entries)],
+        daily_rollup(entries),
+        out,
+        daily_engine=daily_engine_metrics(entries),
+        prop_rows=prop_metrics(entries),
+        insights=prop_insights(entries, min_n=1),
+    )
+    assert out.exists()
+
+    from openpyxl import load_workbook
+
+    wb = load_workbook(out)
+    for sheet in ("Overall", "Daily PPV-NPV", "Prop PPV-NPV", "Prop Insights", "Daily", "Bets"):
+        assert sheet in wb.sheetnames
