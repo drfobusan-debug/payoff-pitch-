@@ -4,6 +4,14 @@ Simulates a full game plate-appearance by plate-appearance using matchup-adjuste
 outcome probabilities, tracking team runs (full game and first-5) plus per-lineup
 batting lines and starter pitching lines so batter/pitcher props can be priced off
 the empirical distributions.
+
+The starter's exposure -- which sets his out (innings-pitched) ceiling -- is
+bounded by BOTH a batters-faced cap (the third-time-through hook) and a
+pitch-count cap. Each plate appearance burns a number of pitches that depends on
+the outcome (walks and strikeouts run deeper counts than balls in play) scaled by
+the pitcher's own efficiency (``pitch_eff``, from P/PA and F-Strike%). Whichever
+cap trips first hands the ball to the bullpen, at which point the starter stops
+accruing stats.
 """
 
 from __future__ import annotations
@@ -15,6 +23,19 @@ import numpy as np
 OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
+# League-average pitches thrown to resolve a plate appearance, by outcome. The
+# blend averages ~3.9 P/PA under a typical outcome mix; the per-pitcher
+# ``pitch_eff`` scaler recentres it for command/efficiency.
+PITCH_COST = {
+    "BB": 5.4,
+    "K": 4.8,
+    "HR": 3.4,
+    "1B": 3.5,
+    "2B": 3.5,
+    "3B": 3.5,
+    "OUT": 3.3,
+}
+
 
 @dataclass
 class TeamSimConfig:
@@ -24,8 +45,13 @@ class TeamSimConfig:
     # starter and vs a generic bullpen arm.
     bat_vs_starter: list[dict[str, float]]
     bat_vs_pen: list[dict[str, float]]
-    # Pitching: this team's starter batters-faced cap before bullpen takes over.
+    # Pitching: this team's starter caps before the bullpen takes over.
     starter_bf_cap: int = 24
+    starter_pitch_cap: int = 95
+    # Per-PA pitch-cost scaler (>1 = inefficient / deep counts, <1 = efficient).
+    pitch_eff: float = 1.0
+    # Probability a ground-ball out turns into a double play (runner on first).
+    gb_dp_rate: float = 0.0
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
@@ -76,6 +102,13 @@ class MonteCarlo:
         away_cdf_start = np.stack([_cdf(p) for p in away.bat_vs_starter])
         away_cdf_pen = np.stack([_cdf(p) for p in away.bat_vs_pen])
 
+        # Pitching caps/efficiency are keyed by the team doing the PITCHING. Away
+        # pitching faces the home hitters and vice versa.
+        pitch_caps = {"home": home.starter_bf_cap, "away": away.starter_bf_cap}
+        pitch_count_caps = {"home": home.starter_pitch_cap, "away": away.starter_pitch_cap}
+        pitch_eff = {"home": home.pitch_eff, "away": away.pitch_eff}
+        gb_dp = {"home": home.gb_dp_rate, "away": away.gb_dp_rate}
+
         for s in range(n):
             self._sim_one(
                 s,
@@ -83,8 +116,10 @@ class MonteCarlo:
                 home_cdf_pen,
                 away_cdf_start,
                 away_cdf_pen,
-                away.starter_bf_cap,  # away pitching faces home hitters
-                home.starter_bf_cap,  # home pitching faces away hitters
+                pitch_caps,
+                pitch_count_caps,
+                pitch_eff,
+                gb_dp,
                 home_full,
                 away_full,
                 home_f5,
@@ -110,8 +145,10 @@ class MonteCarlo:
         home_cdf_pen: np.ndarray,
         away_cdf_start: np.ndarray,
         away_cdf_pen: np.ndarray,
-        away_pitch_cap: int,
-        home_pitch_cap: int,
+        bf_caps: dict[str, int],
+        pitch_count_caps: dict[str, int],
+        pitch_eff: dict[str, float],
+        gb_dp: dict[str, float],
         home_full: np.ndarray,
         away_full: np.ndarray,
         home_f5: np.ndarray,
@@ -122,31 +159,38 @@ class MonteCarlo:
         rng = self.rng
         # lineup pointers
         ptr = {"home": 0, "away": 0}
-        # batters faced by each team's pitching (drives starter->pen switch)
+        # batters faced / pitches thrown by each team's starter (drives the hook)
         bf = {"home": 0, "away": 0}
+        pitches = {"home": 0.0, "away": 0.0}
 
         def half(team: str, inning: int) -> int:
             """Simulate one half-inning for ``team`` batting. Returns runs."""
             if team == "home":
                 cdf_start, cdf_pen = home_cdf_start, home_cdf_pen
-                pitch_team, cap = "away", away_pitch_cap
+                pitch_team = "away"
             else:
                 cdf_start, cdf_pen = away_cdf_start, away_cdf_pen
-                pitch_team, cap = "home", home_pitch_cap
+                pitch_team = "home"
+            bf_cap = bf_caps[pitch_team]
+            pitch_cap = pitch_count_caps[pitch_team]
+            eff = pitch_eff[pitch_team]
+            dp_rate = gb_dp[pitch_team]
 
             outs = 0
             bases: list[int] = [-1, -1, -1]  # slot index of runner or -1
             runs = 0
             while outs < 3:
                 slot = ptr[team]
-                starter_in = bf[pitch_team] < cap
+                # Starter stays in until EITHER the batters-faced or pitch-count
+                # hook trips; then the bullpen (generic arm) takes over.
+                starter_in = bf[pitch_team] < bf_cap and pitches[pitch_team] < pitch_cap
                 cdf = cdf_start[slot] if starter_in else cdf_pen[slot]
                 r = rng.random()
                 oc = OUTCOMES[int(np.searchsorted(cdf, r))]
                 bf[pitch_team] += 1
                 ptr[team] = (slot + 1) % 9
 
-                scored, rbi, outs, bases = _apply_pa(oc, slot, outs, bases)
+                scored, rbi, outs, bases, dp = _apply_pa(oc, slot, outs, bases, dp_rate)
                 runs += scored
 
                 # batting stats
@@ -165,6 +209,7 @@ class MonteCarlo:
 
                 # pitching stats (attributed to starter only while he's in)
                 if starter_in:
+                    pitches[pitch_team] += PITCH_COST[oc] * eff
                     p = pit[pitch_team]
                     if oc == "K":
                         p["K"][s] += 1
@@ -173,22 +218,28 @@ class MonteCarlo:
                     if oc == "BB":
                         p["BB"][s] += 1
                     if oc in ("K", "OUT"):
-                        p["outs"][s] += 1
+                        p["outs"][s] += 2 if dp else 1
                     p["ER"][s] += scored
             return runs
 
         scored_runners_holder: list[int] = []
 
-        def _apply_pa(oc: str, slot: int, outs: int, bases: list[int]):
-            """Advance runners. Returns (runs, rbi, outs, bases)."""
+        def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
+            """Advance runners. Returns (runs, rbi, outs, bases, dp)."""
             runs = 0
             rbi = 0
             if oc == "OUT":
+                # Ground-ball double play: runner on first erased, two outs on
+                # one ball in play (only with a runner on first and <2 outs).
+                if dp_rate > 0.0 and bases[0] >= 0 and outs < 2 and rng.random() < dp_rate:
+                    bases[0] = -1
+                    outs += 2
+                    return 0, 0, outs, bases, True
                 outs += 1
-                return 0, 0, outs, bases
+                return 0, 0, outs, bases, False
             if oc == "K":
                 outs += 1
-                return 0, 0, outs, bases
+                return 0, 0, outs, bases, False
 
             b2, b1, b0 = bases[2], bases[1], bases[0]  # 3rd, 2nd, 1st
 
@@ -240,7 +291,7 @@ class MonteCarlo:
                 b2 = b1 = b0 = -1
 
             bases[2], bases[1], bases[0] = b2, b1, b0
-            return runs, rbi, outs, bases
+            return runs, rbi, outs, bases, False
 
         # 9 innings (or more for tie in full game); F5 = first 5.
         away_runs = 0

@@ -32,6 +32,7 @@ USE_COLS = [
     "away_team",
     "inning",
     "inning_topbot",
+    "balls",
     "strikes",
     "pfx_z",
     "launch_speed",

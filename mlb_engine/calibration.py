@@ -18,11 +18,23 @@ Applying the map before EV/tier:
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
-# Markets with fewer graded outcomes than this fall back to the pooled map.
-_MIN_SAMPLES = 500
+
+def _min_samples() -> int:
+    """Per-market calibration threshold (env-overridable).
+
+    A market with fewer graded outcomes than this falls back to the pooled map.
+    Thin markets such as ``pitcher_outs`` stay on the (flatter) pooled curve
+    until they clear the bar; lower ``MLBE_CALIB_MIN_SAMPLES`` to let a market
+    earn its own steeper, over-confidence-correcting isotonic map sooner.
+    """
+    raw = os.getenv("MLBE_CALIB_MIN_SAMPLES")
+    return int(raw) if raw not in (None, "") else 500
+
+
 _N_BINS = 40
 
 
@@ -119,7 +131,7 @@ class Calibrator:
         maps = {
             mk: IsotonicMap.fit(pairs)
             for mk, pairs in by_market.items()
-            if len(pairs) >= _MIN_SAMPLES
+            if len(pairs) >= _min_samples()
         }
         return cls(maps=maps, default=IsotonicMap.fit(allp))
 
