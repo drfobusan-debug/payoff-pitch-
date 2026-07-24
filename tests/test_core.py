@@ -1374,3 +1374,145 @@ def test_ledger_workbook_with_analysis(tmp_path):
     wb = load_workbook(out)
     for sheet in ("Overall", "Daily PPV-NPV", "Prop PPV-NPV", "Prop Insights", "Daily", "Bets"):
         assert sheet in wb.sheetnames
+
+
+# ---- pitcher-outs: efficiency + pitch-count exit model ----
+def _pitcher_statcast(
+    *,
+    dates,
+    pitches_per_start,
+    pa_per_start,
+    f_strike_frac,
+    bb_frac,
+    gb_frac,
+):
+    """Build a minimal pitch-level Statcast slice for one pitcher.
+
+    Each start gets ``pitches_per_start`` rows; ``pa_per_start`` of them end a PA
+    (``events`` set). The first pitch of every PA is a 0-0 count, a fraction of
+    which are strikes; a fraction of PAs are walks and a fraction of batted balls
+    are ground balls.
+    """
+    import pandas as pd
+
+    rows = []
+    for d in dates:
+        pa_end_idx = set(range(pa_per_start))  # first N rows are PA-ending pitches
+        for i in range(pitches_per_start):
+            is_pa = i in pa_end_idx
+            first_pitch = is_pa  # treat each PA-ender as its own 0-0 first pitch
+            is_strike = first_pitch and (i < int(pa_per_start * f_strike_frac))
+            is_walk = is_pa and (i < int(pa_per_start * bb_frac))
+            is_gb = is_pa and (not is_walk) and (i < int(pa_per_start * (bb_frac + gb_frac)))
+            rows.append(
+                {
+                    "game_date": d,
+                    "pitcher": 100,
+                    "events": ("walk" if is_walk else "field_out") if is_pa else None,
+                    "type": "S" if is_strike else "B",
+                    "balls": 0 if first_pitch else 1,
+                    "strikes": 0 if first_pitch else 1,
+                    "bb_type": "ground_ball" if is_gb else None,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def test_pitcher_efficiency_metrics_and_cap():
+    from mlb_engine.features.efficiency import build_pitcher_efficiency
+
+    df = _pitcher_statcast(
+        dates=[date(2024, 4, 20), date(2024, 4, 25)],
+        pitches_per_start=80,
+        pa_per_start=20,
+        f_strike_frac=0.65,
+        bb_frac=0.10,
+        gb_frac=0.50,
+    )
+    eff = build_pitcher_efficiency(df, date(2024, 5, 1), 28, manager_pitch_cap=110)
+    assert eff.pa == 40  # 20 PA x 2 starts
+    assert eff.pitches == 160
+    assert abs(eff.pitches_per_pa - 4.0) < 1e-6
+    assert abs(eff.f_strike_pct - 0.65) < 0.02
+    assert abs(eff.bb_pct - 0.10) < 0.02
+    # recent avg 80 pitches/start + buffer, under the 110 manager cap
+    assert eff.pitch_cap == 88
+
+
+def test_efficiency_scaler_tracks_command():
+    from mlb_engine.features.efficiency import build_pitcher_efficiency
+
+    common = dict(
+        dates=[date(2024, 4, 20), date(2024, 4, 25)],
+        pitches_per_start=90,
+        pa_per_start=24,
+        bb_frac=0.08,
+        gb_frac=0.45,
+    )
+    efficient = build_pitcher_efficiency(
+        _pitcher_statcast(f_strike_frac=0.72, **common), date(2024, 5, 1), 28, 100
+    )
+    wild = build_pitcher_efficiency(
+        _pitcher_statcast(f_strike_frac=0.52, **common), date(2024, 5, 1), 28, 100
+    )
+    # High F-Strike% -> shorter counts -> lower expected P/PA prior.
+    assert efficient.expected_pitches_per_pa() < wild.expected_pitches_per_pa()
+
+
+def test_pitch_cap_and_efficiency_reduce_outs():
+    lg = LEAGUE_RATES
+    bat = [dict(lg) for _ in range(9)]
+    # Same batters-faced ceiling; only the pitch budget/efficiency differ.
+    deep = TeamSimConfig(
+        bat_vs_starter=bat, bat_vs_pen=bat,
+        starter_bf_cap=40, starter_pitch_cap=110, pitch_eff=0.9,
+    )
+    quick = TeamSimConfig(
+        bat_vs_starter=bat, bat_vs_pen=bat,
+        starter_bf_cap=40, starter_pitch_cap=80, pitch_eff=1.2,
+    )
+    res_deep = MonteCarlo(600, seed=3).simulate(deep, deep)
+    res_quick = MonteCarlo(600, seed=3).simulate(quick, quick)
+    # A tighter pitch cap + inefficiency pulls the starter earlier -> fewer outs.
+    assert res_quick.pit["home"]["outs"].mean() < res_deep.pit["home"]["outs"].mean()
+
+
+def test_gb_double_play_lifts_outs_per_start():
+    lg = LEAGUE_RATES
+    bat = [dict(lg) for _ in range(9)]
+    no_dp = TeamSimConfig(
+        bat_vs_starter=bat, bat_vs_pen=bat,
+        starter_bf_cap=30, starter_pitch_cap=200, gb_dp_rate=0.0,
+    )
+    dp = TeamSimConfig(
+        bat_vs_starter=bat, bat_vs_pen=bat,
+        starter_bf_cap=30, starter_pitch_cap=200, gb_dp_rate=0.20,
+    )
+    res_no = MonteCarlo(600, seed=5).simulate(no_dp, no_dp)
+    res_dp = MonteCarlo(600, seed=5).simulate(dp, dp)
+    # Double plays record two outs on one PA -> more outs over a fixed BF window.
+    assert res_dp.pit["home"]["outs"].mean() > res_no.pit["home"]["outs"].mean()
+
+
+def test_ev_thresholds_per_market_override(monkeypatch):
+    base = EVThresholds(strong_buy=0.08, moderate_buy=0.03, min_edge=0.02)
+    # No override -> unchanged.
+    assert base.for_market("batter_hr").strong_buy == 0.08
+    monkeypatch.setenv("MLBE_EV_STRONG_PITCHER_OUTS", "0.15")
+    monkeypatch.setenv("MLBE_MIN_EDGE_PITCHER_OUTS", "0.05")
+    tuned = base.for_market("pitcher_outs")
+    assert tuned.strong_buy == 0.15
+    assert tuned.min_edge == 0.05
+    # Other markets still use the global cutoff.
+    assert base.for_market("batter_hr").strong_buy == 0.08
+
+
+def test_calibration_min_samples_env(monkeypatch):
+    from mlb_engine.calibration import Calibrator
+
+    graded = [("pitcher_outs", 0.6, 1) for _ in range(30)]
+    graded += [("pitcher_outs", 0.4, 0) for _ in range(30)]
+    # Default 500 -> pitcher_outs too thin, no dedicated map.
+    assert "pitcher_outs" not in Calibrator.fit(graded).maps
+    monkeypatch.setenv("MLBE_CALIB_MIN_SAMPLES", "20")
+    assert "pitcher_outs" in Calibrator.fit(graded).maps

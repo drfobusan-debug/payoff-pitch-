@@ -26,6 +26,7 @@ from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_
 from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
+from mlb_engine.features.efficiency import build_pitcher_efficiency
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -666,26 +667,40 @@ class Pipeline:
         away_start = self._apply_all(away_start, away_env)
         away_pen = self._apply_all(away_pen, [*away_env, away_mgr.pen_multipliers()])
 
-        # Starter batters-faced cap: manager hook tightened by each starter's own
-        # recent workload / opener usage (drives realistic strikeout unders).
+        # Starter exit model: manager hooks (batters-faced + pitch-count caps)
+        # tightened by each starter's own recent workload, plus a pitch-efficiency
+        # profile (P/PA, F-Strike%, GB%) so out volume tracks pitch economy, not
+        # just batters faced. Drives realistic outs (innings) and strikeout unders.
         w = self.cfg.windows
+        home_pit_rows = statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id]
+        away_pit_rows = statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id]
         home_cap = expected_bf_cap(
-            statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id],
-            slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
+            home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
         )
         away_cap = expected_bf_cap(
-            statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id],
-            slate_date, w.pitcher_form_days, away_mgr.starter_bf_cap,
+            away_pit_rows, slate_date, w.pitcher_form_days, away_mgr.starter_bf_cap,
+        )
+        home_eff = build_pitcher_efficiency(
+            home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_pitch_cap,
+        )
+        away_eff = build_pitcher_efficiency(
+            away_pit_rows, slate_date, w.pitcher_form_days, away_mgr.starter_pitch_cap,
         )
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
             starter_bf_cap=home_cap,
+            starter_pitch_cap=home_eff.pitch_cap,
+            pitch_eff=home_eff.efficiency_scaler(),
+            gb_dp_rate=home_eff.gb_dp_rate(),
         )
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
             starter_bf_cap=away_cap,
+            starter_pitch_cap=away_eff.pitch_cap,
+            pitch_eff=away_eff.efficiency_scaler(),
+            gb_dp_rate=away_eff.gb_dp_rate(),
         )
         res = mc.simulate(home_cfg, away_cfg)
 
@@ -887,7 +902,7 @@ class Pipeline:
                 if sp is not None:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
-            tier, reasons = classify(evres, self.cfg.ev)
+            tier, reasons = classify(evres, self.cfg.ev.for_market(market))
             if rl_signal is not None and tier != Tier.PASS:
                 steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
                 if steps:

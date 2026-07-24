@@ -59,6 +59,22 @@ class EVThresholds:
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
 
+    def for_market(self, market: str) -> EVThresholds:
+        """Per-market thresholds, overridable via ``MLBE_EV_STRONG_<MARKET>`` etc.
+
+        Lets a market the audit flags as a false-positive pocket (e.g.
+        ``pitcher_outs``) be tightened independently -- raising its buy bar lifts
+        realized PPV -- without touching the rest of the sheet. Falls back to the
+        global cutoffs when no override is set.
+        """
+        suffix = market.upper()
+        return EVThresholds(
+            strong_buy=_env_float(f"MLBE_EV_STRONG_{suffix}", self.strong_buy),
+            moderate_buy=_env_float(f"MLBE_EV_MODERATE_{suffix}", self.moderate_buy),
+            min_edge=_env_float(f"MLBE_MIN_EDGE_{suffix}", self.min_edge),
+            strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
+        )
+
 
 @dataclass(frozen=True)
 class Credentials:
