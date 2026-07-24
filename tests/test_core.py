@@ -918,6 +918,41 @@ def test_grade_batter_prop():
     assert grade(r2, res) == LOSS
 
 
+def test_grade_batter_total_bases():
+    # 1B + 2*2B + 3*3B + 4*HR = 1 + 2*1 + 3*0 + 4*1 = 7 total bases
+    res = GameResult(
+        1, True, 5, 3, 3, 1,
+        players={99: PlayerLine(batting={"H": 3, "1B": 1, "2B": 1, "3B": 0, "HR": 1})},
+    )
+    win = _rec(category="batter", market="batter_tb", player_id=99, stat="TB", line=3.5, side="over")
+    assert grade(win, res) == WIN  # 7 > 3.5
+    loss = _rec(category="batter", market="batter_tb", player_id=99, stat="TB", line=8.5, side="over")
+    assert grade(loss, res) == LOSS  # 7 < 8.5
+    push = _rec(category="batter", market="batter_tb", player_id=99, stat="TB", line=7, side="over")
+    assert grade(push, res) == PUSH  # 7 == 7
+
+
+def test_props_total_bases_market():
+    import numpy as np
+
+    from mlb_engine.models.montecarlo import GameSimResult
+    from mlb_engine.models.props import batter_markets
+
+    z = np.zeros((4, 9), dtype=np.int16)
+    bat = {s: z.copy() for s in ("H", "1B", "2B", "3B", "HR", "R", "RBI")}
+    # slot 0 across 4 sims: TB = 1B + 2*2B + 3*3B + 4*HR
+    bat["1B"][:, 0] = [1, 0, 0, 2]
+    bat["2B"][:, 0] = [0, 1, 0, 0]
+    bat["HR"][:, 0] = [0, 0, 1, 0]  # TB per sim = [1, 2, 4, 2]
+    res = GameSimResult(4, np.zeros(4), np.zeros(4), np.zeros(4), np.zeros(4), {"home": bat}, {})
+
+    tb = [m for m in batter_markets(res, "home", 0, "Player X") if m.market == "batter_tb"]
+    assert {m.line for m in tb} == {1.5, 2.5, 3.5}
+    by_line = {m.line: m.prob for m in tb}
+    assert abs(by_line[1.5] - 0.75) < 1e-9  # 3 of 4 sims (2,4,2) exceed 1.5
+    assert abs(by_line[2.5] - 0.25) < 1e-9  # only the 4-TB sim exceeds 2.5
+
+
 def test_grade_push():
     res = GameResult(1, True, 4, 4, 2, 2)
     r = _rec(market="game_ml", team_side="home", side="win")

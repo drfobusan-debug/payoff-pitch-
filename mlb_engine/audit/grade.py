@@ -60,6 +60,9 @@ def grade(rec: Recommendation, res: GameResult) -> str | None:
         if rec.stat == "HRR":
             b = res.batter(rec.player_id)
             actual = b.get("H", 0) + b.get("R", 0) + b.get("RBI", 0)
+        elif rec.stat == "TB":
+            b = res.batter(rec.player_id)
+            actual = b.get("1B", 0) + 2 * b.get("2B", 0) + 3 * b.get("3B", 0) + 4 * b.get("HR", 0)
         else:
             actual = res.batter(rec.player_id).get(rec.stat, 0)
         return _ou(actual, rec.line, rec.side or "over")

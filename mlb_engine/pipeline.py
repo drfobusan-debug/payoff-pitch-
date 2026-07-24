@@ -779,6 +779,14 @@ class Pipeline:
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
                     line=line, player_id=pid, stat="HRR", side="over", quotes=quotes,
                 ))
+            tb = (
+                bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
+            ).astype(float)
+            for line in (1.5, 2.5, 3.5):
+                out.append(self._mk(
+                    game, m, "batter", "batter_tb", f"{name} TB o{line}", p_over(tb, line),
+                    line=line, player_id=pid, stat="TB", side="over", quotes=quotes,
+                ))
         return out
 
     def _pitcher_props(self, game, m, res, team_key, pitcher, quotes):
