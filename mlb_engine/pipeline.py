@@ -38,6 +38,7 @@ from mlb_engine.features.regression import (
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OutcomeRates,
+    blend_bb_rate,
     blend_k_rate,
     build_batter_late_rates,
     build_batter_profile,
@@ -415,9 +416,11 @@ class Pipeline:
         pit_allowed_mult = pit_reg.allowed_multipliers()
         k_mult = pit_reg.k_multiplier()
 
-        # Stuff-based K prior: pull the starter's allowed K rate toward xK%
-        # (CSW%/SwStr%) so thin PA samples regress to his stuff, not league mean.
+        # Stuff/command priors: pull the starter's allowed K and BB rates toward
+        # xK% (CSW%/SwStr%) and xBB% (Zone%/chase/F-strike) so thin PA samples
+        # regress to his skills, not the flat league mean.
         pit_allowed = blend_k_rate(pit_prof.allowed, pit_reg.expected_k_pct())
+        pit_allowed = blend_bb_rate(pit_allowed, pit_reg.expected_bb_pct())
 
         # Arsenal matching: starter's pitch-mix usage/SwStr% vs. each batter's
         # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).

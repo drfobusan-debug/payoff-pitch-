@@ -239,6 +239,20 @@ XK_SWSTR_COEF = 1.4
 XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
 MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
+# Walk (plate-discipline) baselines: Zone%, chase (O-Swing%), first-pitch strike%.
+BL_ZONE = 0.480
+BL_CHASE = 0.310
+BL_FSTRIKE = 0.605
+
+# Stuff-based expected-BB% fit: walks rise when a pitcher throws fewer strikes,
+# induces fewer chases, and falls behind more often — these command signals
+# stabilize far faster than observed BB%. Each term is (baseline - value), so a
+# league-average arm maps to ~.085 and a high-Zone/high-chase arm (NPV screen)
+# maps below it. Used as the small-sample BB prior.
+XBB_ZONE_COEF = 0.50
+XBB_CHASE_COEF = 0.40
+XBB_FSTRIKE_COEF = 0.30
+
 CALLED_OR_WHIFF = {"called_strike", "swinging_strike", "swinging_strike_blocked", "foul_tip"}
 WHIFF_DESC = {"swinging_strike", "swinging_strike_blocked", "foul_tip"}
 SWING_DESC = {"swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play"}
@@ -260,6 +274,9 @@ class PitcherRegression:
     two_strike_whiff: float
     swstr: float = BL_SWSTR
     whiff: float = BL_WHIFF_PITCHER
+    zone_pct: float = BL_ZONE
+    chase: float = BL_CHASE
+    fstrike: float = BL_FSTRIKE
     k_pct_vs_l: float = float("nan")
     k_pct_vs_r: float = float("nan")
     ivb: float = float("nan")
@@ -288,6 +305,22 @@ class PitcherRegression:
         """
         xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
         return _clip(xk, 0.08, 0.42)
+
+    def expected_bb_pct(self) -> float:
+        """Command-based expected BB% from Zone%, chase (O-Swing%), and F-strike%.
+
+        These discipline signals stabilize far faster than observed BB%, so they
+        are the right small-sample prior: fewer strikes / fewer chases / more
+        first-pitch balls all push walks up; the reverse (the NPV screen) pushes
+        them below the league mean.
+        """
+        xbb = (
+            BL_BB_PCT
+            + XBB_ZONE_COEF * (BL_ZONE - self.zone_pct)
+            + XBB_CHASE_COEF * (BL_CHASE - self.chase)
+            + XBB_FSTRIKE_COEF * (BL_FSTRIKE - self.fstrike)
+        )
+        return _clip(xbb, 0.02, 0.20)
 
     def platoon_k_multiplier(self, bats: str | None) -> float:
         """K-rate multiplier for a batter of a given handedness (vs-L / vs-R split).
@@ -375,6 +408,27 @@ def build_pitcher_regression(
     else:
         swstr, whiff = BL_SWSTR, BL_WHIFF_PITCHER
 
+    # Command signals for the expected-BB% prior: Zone%, chase (O-Swing%), F-strike%.
+    if n_pitches and "zone" in pdf and pdf["zone"].notna().any():
+        in_zone = pdf["zone"].between(1, 9)
+        zone_pct = float(in_zone.mean())
+        out_zone = pdf[~in_zone]
+        n_out = len(out_zone)
+        chase = (
+            float(out_zone["description"].isin(SWING_DESC).sum() / n_out)
+            if n_out
+            else BL_CHASE
+        )
+    else:
+        zone_pct, chase = BL_ZONE, BL_CHASE
+
+    # First-pitch strike% = share of 0-0 pitches that are not balls (type != "B").
+    if n_pitches and "balls" in pdf and "strikes" in pdf and "type" in pdf:
+        first = pdf[(pdf["balls"] == 0) & (pdf["strikes"] == 0)]
+        fstrike = float((first["type"] != "B").mean()) if len(first) else BL_FSTRIKE
+    else:
+        fstrike = BL_FSTRIKE
+
     # K% / BB% over plate appearances the pitcher ended.
     ev = pdf["events"].dropna()
     pa = len(ev)
@@ -438,6 +492,9 @@ def build_pitcher_regression(
         two_strike_whiff=two_strike_whiff,
         swstr=swstr,
         whiff=whiff,
+        zone_pct=zone_pct,
+        chase=chase,
+        fstrike=fstrike,
         k_pct_vs_l=k_pct_vs_l,
         k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,
