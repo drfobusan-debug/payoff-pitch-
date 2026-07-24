@@ -76,7 +76,25 @@ mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 
 
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
+
+# run the slate, build the reader-facing card, and email it in one shot
+mlb-engine run --email --to you@gmail.com
+
+# (re)build the card from a prior run's predictions without re-simulating
+mlb-engine card --date 2024-07-19 --email
 ```
+
+### Daily card (hybrid writeups)
+
+`mlb-engine card` turns a run's recommendations into a reader-facing **betting
+card** — one section per game with a short analytical read (which starter owns
+the strikeout edge, which side the model favors, whether the moneyline is a
+fade, the total lean) followed by the top positive-EV plays with model
+probability, market-implied probability, and EV. It writes both
+`output/card_<date>.md` and `output/card_<date>.html`. Add `--card` to
+`mlb-engine run` to emit it alongside the workbook, or `--email` to send it
+(see credentials below). It reads the persisted `audit/predictions_<date>.json`,
+so it can be regenerated any time without re-running the sims.
 
 Outputs land under `~/.mlb_engine/` (`output/` workbooks, `audit/` predictions +
 `scorecard.csv`). Override with `MLBE_DATA_DIR`.
