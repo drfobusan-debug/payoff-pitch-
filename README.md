@@ -12,7 +12,7 @@ Per game, for every slate today and tomorrow:
 
 - **Full game**: moneyline, totals, run line
 - **First 5 innings (F5)**: moneyline (incl. tie), totals, run line
-- **Batter props**: hits, singles, doubles, home runs, runs, RBIs, H+R+RBI
+- **Batter props**: hits, singles, doubles, home runs, runs, RBIs, H+R+RBI, total bases
 - **Pitcher props**: strikeouts, outs, hits allowed, walks, earned runs
 
 Each is tagged **Strong buy / Moderate buy / Pass** from expected value vs. the

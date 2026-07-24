@@ -106,6 +106,12 @@ def batter_markets(
     hrr = (bat["H"][:, slot] + bat["R"][:, slot] + bat["RBI"][:, slot]).astype(float)
     for line in (1.5, 2.5):
         out.append(MarketProb("batter_hrr", f"{player_name} H+R+RBI o{line}", p_over(hrr, line), line))
+    # total bases = 1B + 2*2B + 3*3B + 4*HR
+    tb = (
+        bat["1B"][:, slot] + 2 * bat["2B"][:, slot] + 3 * bat["3B"][:, slot] + 4 * bat["HR"][:, slot]
+    ).astype(float)
+    for line in (1.5, 2.5, 3.5):
+        out.append(MarketProb("batter_tb", f"{player_name} TB o{line}", p_over(tb, line), line))
     return out
 
 
