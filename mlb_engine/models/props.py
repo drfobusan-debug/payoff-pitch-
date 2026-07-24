@@ -13,7 +13,6 @@ import numpy as np
 
 from mlb_engine.models.markov_f5 import F5Result
 from mlb_engine.models.montecarlo import GameSimResult
-from mlb_engine.models.rbi_rule import RBIFlag, rbi_multiplier
 
 
 def p_over(arr: np.ndarray, line: float) -> float:
@@ -85,14 +84,15 @@ def batter_markets(
     team: str,
     slot: int,
     player_name: str,
-    rbi_flag: RBIFlag | None = None,
+    rbi_factor: float = 1.0,
+    tb_factor: float = 1.0,
 ) -> list[MarketProb]:
     out: list[MarketProb] = []
     bat = res.bat[team]
     for stat, lines in BATTER_PROP_LINES.items():
         arr = bat[stat][:, slot].astype(float)
-        if stat == "RBI" and rbi_flag is not None:
-            arr = arr * rbi_multiplier(rbi_flag)
+        if stat == "RBI":
+            arr = arr * rbi_factor
         for line in lines:
             out.append(
                 MarketProb(
@@ -110,6 +110,7 @@ def batter_markets(
     tb = (
         bat["1B"][:, slot] + 2 * bat["2B"][:, slot] + 3 * bat["3B"][:, slot] + 4 * bat["HR"][:, slot]
     ).astype(float)
+    tb = tb * tb_factor
     for line in (1.5, 2.5, 3.5):
         out.append(MarketProb("batter_tb", f"{player_name} TB o{line}", p_over(tb, line), line))
     return out

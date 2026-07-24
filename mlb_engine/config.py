@@ -78,7 +78,7 @@ class EVThresholds:
 
 @dataclass(frozen=True)
 class Credentials:
-    """Credentials for subscription data sources (never logged)."""
+    """Credentials for subscription data sources and SMTP (never logged)."""
 
     fangraphs_user: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_USER"))
     fangraphs_pass: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_PASS"))
@@ -88,6 +88,11 @@ class Credentials:
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
     # The Odds API (https://the-odds-api.com) key: multi-book ML/run-line/total prices.
     odds_api_key: str | None = field(default_factory=lambda: os.getenv("ODDS_API_KEY"))
+    # SMTP credentials for nightly audit emails.
+    smtp_server: str | None = field(default_factory=lambda: os.getenv("SMTP_SERVER"))
+    smtp_port: int = field(default_factory=lambda: _env_int("SMTP_PORT", 587))
+    smtp_user: str | None = field(default_factory=lambda: os.getenv("SMTP_USER"))
+    smtp_pass: str | None = field(default_factory=lambda: os.getenv("SMTP_PASS"))
 
     def has_fangraphs(self) -> bool:
         return bool(self.fangraphs_user and self.fangraphs_pass)
@@ -110,6 +115,11 @@ class Config:
 
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
     rbi_obp_threshold: float = field(default_factory=lambda: _env_float("MLBE_RBI_OBP", 0.345))
+
+    # Default recipient for the nightly audit email.
+    audit_email: str = field(
+        default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")
+    )
 
     # Monte Carlo simulation count per game.
     mc_sims: int = field(default_factory=lambda: _env_int("MLBE_MC_SIMS", 20000))

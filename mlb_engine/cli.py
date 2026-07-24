@@ -9,6 +9,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from mlb_engine.audit.analysis import prop_insights
+from mlb_engine.audit.email import send_audit_summary
 from mlb_engine.audit.grade import grade
 from mlb_engine.audit.ledger import (
     daily_engine_metrics,
@@ -117,7 +118,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     results = {}
     for pk in game_pks:
         try:
-            results[pk] = fetch_result(pk)
+            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
         except Exception as exc:  # noqa: BLE001
             logging.warning("could not fetch result for %s: %s", pk, exc)
 
@@ -182,6 +183,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
         print(f"\nProp insights ({len(insights)}):")
         for ins in insights:
             print(f"  [{ins.kind}] {ins.finding}")
+
+    if getattr(args, "email", True):
+        send_audit_summary(ledger_xlsx, audit_date.isoformat(), cfg)
     return 0
 
 
@@ -204,7 +208,9 @@ def main(argv: list[str] | None = None) -> int:
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
-    a.set_defaults(func=cmd_audit)
+    a.add_argument("--no-email", action="store_false", dest="email",
+                  help="skip sending the nightly audit email")
+    a.set_defaults(func=cmd_audit, email=True)
 
     args = p.parse_args(argv)
     return args.func(args)
