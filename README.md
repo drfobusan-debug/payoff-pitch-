@@ -106,6 +106,21 @@ Run once, then make a desktop shortcut/alias to the launcher for your OS:
 The launcher runs the model, opens the newest workbook, and (if present) uses the
 VSIN CSV at `~/.mlb_engine/vsin_today.csv`.
 
+### Ledger desktop shortcut
+
+A dedicated shortcut opens the running audit **ledger** workbook
+(`~/.mlb_engine/output/ledger.xlsx`) directly, and carries a ledger-book icon
+(green cover, ruled rows, red debit/credit column rules — `assets/ledger.png`).
+Run the installer for your OS once to drop the icon on your Desktop:
+
+- **Windows**: `scripts\windows\install_ledger_shortcut.bat` → `Ledger.lnk`
+- **macOS**: `scripts/macos/install_ledger_shortcut.command` → `Ledger.app`
+- **Linux**: `scripts/linux/install_ledger_shortcut.sh` → `ledger.desktop`
+
+Double-clicking it runs `open_ledger.*`, which opens `ledger.xlsx` (building it
+via an audit first if it doesn't exist yet). Regenerate the icon art anytime with
+`python scripts/make_ledger_icon.py`.
+
 ### Email the daily workbook
 
 `scripts/email_results.py` emails the newest workbook as an attachment (Gmail
