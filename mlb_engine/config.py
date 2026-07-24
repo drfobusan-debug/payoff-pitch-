@@ -87,7 +87,10 @@ class Credentials:
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
     # The Odds API (https://the-odds-api.com) key: multi-book ML/run-line/total prices.
-    odds_api_key: str | None = field(default_factory=lambda: os.getenv("ODDS_API_KEY"))
+    # Prefer the vendor-canonical THE_ODDS_API_KEY; fall back to the legacy ODDS_API_KEY.
+    odds_api_key: str | None = field(
+        default_factory=lambda: os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY")
+    )
 
     def has_fangraphs(self) -> bool:
         return bool(self.fangraphs_user and self.fangraphs_pass)
