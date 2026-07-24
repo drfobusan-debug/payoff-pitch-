@@ -19,6 +19,7 @@ class Player(BaseModel):
     name: str
     bats: Hand | None = None
     throws: Hand | None = None
+    position: str | None = None  # primary position abbreviation (e.g. "C")
 
 
 class Pitcher(Player):

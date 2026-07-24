@@ -994,6 +994,144 @@ def test_np_import_available():
     assert np.array([1, 2, 3]).sum() == 6
 
 
+# ---- strikeout-model upgrades ----
+def _pitch_rows(n_pitches, csw_frac, swstr_frac, k_frac, stand="R", pa_frac=0.25):
+    """Synthetic pitch-level rows with controllable CSW%/SwStr% and K%."""
+    import pandas as pd
+
+    n_whiff = int(n_pitches * swstr_frac)
+    n_called = int(n_pitches * (csw_frac - swstr_frac))
+    desc = (
+        ["swinging_strike"] * n_whiff
+        + ["called_strike"] * max(n_called, 0)
+        + ["hit_into_play"] * (n_pitches - n_whiff - max(n_called, 0))
+    )
+    n_pa = int(n_pitches * pa_frac)
+    n_k = int(n_pa * k_frac)
+    events = ["strikeout"] * n_k + ["field_out"] * (n_pa - n_k)
+    events = events + [None] * (n_pitches - n_pa)
+    return pd.DataFrame(
+        {
+            "description": desc[:n_pitches],
+            "events": events[:n_pitches],
+            "stand": [stand] * n_pitches,
+            "strikes": [0] * n_pitches,
+            "launch_speed": [None] * n_pitches,
+            "pfx_z": [None] * n_pitches,
+            "release_extension": [None] * n_pitches,
+            "release_pos_x": [None] * n_pitches,
+            "release_pos_z": [None] * n_pitches,
+            "release_spin_rate": [None] * n_pitches,
+        }
+    )
+
+
+def test_expected_k_pct_tracks_stuff():
+    from mlb_engine.features.regression import build_pitcher_regression
+
+    hi = build_pitcher_regression(_pitch_rows(1000, csw_frac=0.36, swstr_frac=0.16, k_frac=0.30))
+    lo = build_pitcher_regression(_pitch_rows(1000, csw_frac=0.24, swstr_frac=0.07, k_frac=0.15))
+    assert hi.expected_k_pct() > lo.expected_k_pct()
+    # A whiffy arm's xK% should clear the ~.22 league mean; a soft-tosser's shouldn't.
+    assert hi.expected_k_pct() > 0.24
+    assert lo.expected_k_pct() < 0.20
+
+
+def test_blend_k_rate_small_sample_leans_on_prior():
+    import pandas as pd
+
+    from mlb_engine.features.rolling import blend_k_rate, rates_from_events
+
+    # Thin sample (few PA) with a low observed K -> pulled up toward a high xK prior.
+    thin = rates_from_events(pd.Series(["strikeout"] * 2 + ["field_out"] * 8))
+    blended = blend_k_rate(thin, k_prior=0.32, prior_weight=150.0)
+    assert blended.p_k > thin.p_k
+    assert abs(sum(blended.as_dict().values()) - 1.0) < 1e-9
+
+
+def test_platoon_k_multiplier():
+    import pandas as pd
+
+    from mlb_engine.features.regression import build_pitcher_regression
+
+    # Big reverse split: dominates RHB (high K), struggles vs LHB (low K).
+    rows = pd.concat(
+        [
+            _pitch_rows(600, 0.32, 0.13, k_frac=0.34, stand="R", pa_frac=0.30),
+            _pitch_rows(600, 0.26, 0.09, k_frac=0.16, stand="L", pa_frac=0.30),
+        ],
+        ignore_index=True,
+    )
+    reg = build_pitcher_regression(rows)
+    assert reg.platoon_k_multiplier("R") > 1.0
+    assert reg.platoon_k_multiplier("L") < 1.0
+    assert reg.platoon_k_multiplier(None) == 1.0
+
+
+def test_expected_bf_cap_workload_and_opener():
+    from datetime import date as _date
+
+    import pandas as pd
+
+    from mlb_engine.features.workload import expected_bf_cap
+
+    as_of = _date(2024, 7, 20)
+    # Five ~22-BF starts -> cap tracks workload (avg+buffer), under the manager cap.
+    deep = pd.DataFrame(
+        {
+            "game_date": sum(([_date(2024, 7, d)] * 22 for d in (2, 5, 8, 11, 14)), []),
+            "events": ["field_out"] * 110,
+            "pitcher": [1] * 110,
+        }
+    )
+    cap = expected_bf_cap(deep, as_of, form_days=28, manager_cap=29)
+    assert 23 <= cap <= 26
+
+    # Opener: repeated ~6-BF outings collapses the cap.
+    opener = pd.DataFrame(
+        {
+            "game_date": sum(([_date(2024, 7, d)] * 6 for d in (4, 7, 10, 13)), []),
+            "events": ["field_out"] * 24,
+            "pitcher": [2] * 24,
+        }
+    )
+    assert expected_bf_cap(opener, as_of, form_days=28, manager_cap=24) <= 12
+
+
+def test_framing_lookup_and_human_factor():
+    from mlb_engine.data.catcher_framing import framing_runs_for_name
+    from mlb_engine.filters.human import HumanFactors
+
+    assert framing_runs_for_name("Patrick Bailey") and framing_runs_for_name("Patrick Bailey") > 0
+    assert framing_runs_for_name("Unknown Guy") is None
+    # Elite framer -> steals strikes -> K multiplier > 1 for the pitching side.
+    m = HumanFactors(catcher_framing_runs=15.0).offense_multipliers()
+    assert m.get("K", 1.0) > 1.0
+    assert m.get("BB", 1.0) < 1.0
+
+
+def test_strong_only_and_min_edge_selection():
+    from mlb_engine.config import EVThresholds
+    from mlb_engine.market.ev import EVResult, MarketQuote
+    from mlb_engine.market.tiers import Tier, classify
+
+    q = MarketQuote(book="bk", american=-110)
+
+    def _res(ev, edge):
+        return EVResult(
+            model_prob=0.5, best_quote=q, decimal=1.91, ev=ev,
+            fair_prob=0.5 - edge, edge=edge, sharp_divergence=None,
+        )
+
+    moderate = _res(ev=0.05, edge=0.05)
+    assert classify(moderate, EVThresholds(strong_buy=0.08, moderate_buy=0.03))[0] == Tier.MODERATE
+    # strong_only downgrades Moderate to Pass.
+    strict = EVThresholds(strong_buy=0.08, moderate_buy=0.03, strong_only=True)
+    assert classify(moderate, strict)[0] == Tier.PASS
+    # A raised min_edge also rejects a thin edge.
+    assert classify(_res(ev=0.05, edge=0.01), EVThresholds(min_edge=0.03))[0] == Tier.PASS
+
+
 # ---- ledger ----
 def test_ledger_entries_and_pnl():
     from mlb_engine.audit.ledger import entries_from_graded

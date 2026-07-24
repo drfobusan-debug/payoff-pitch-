@@ -38,6 +38,13 @@ class RollingWindows:
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return default
+    return raw not in ("0", "false", "False")
+
+
 @dataclass(frozen=True)
 class EVThresholds:
     """Expected-value cutoffs (in EV per $1 staked) for buy tiers."""
@@ -45,6 +52,12 @@ class EVThresholds:
     strong_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_STRONG", 0.08))
     moderate_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_MODERATE", 0.03))
     # Below moderate_buy -> "pass"
+    # Minimum model edge over the no-vig market price required to buy (thin-edge
+    # guard). Raise it to trade volume for realized PPV/NPV.
+    min_edge: float = field(default_factory=lambda: _env_float("MLBE_MIN_EDGE", 0.02))
+    # Strict selection: when set, downgrade every Moderate buy to Pass so only
+    # Strong buys fire.
+    strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
 
 
 @dataclass(frozen=True)

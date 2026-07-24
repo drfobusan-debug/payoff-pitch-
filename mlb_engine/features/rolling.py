@@ -99,6 +99,34 @@ def rates_from_events(pa_events: pd.Series) -> OutcomeRates:
     )
 
 
+def blend_k_rate(rates: OutcomeRates, k_prior: float, prior_weight: float = 150.0) -> OutcomeRates:
+    """Pull the K rate toward a stuff-based prior (xK%), weighted by sample size.
+
+    A thin PA sample leans on the stuff-based expectation; a large sample keeps
+    the observed K rate. The remaining (non-K) outcomes are rescaled
+    proportionally so the seven outcomes still sum to 1.
+    """
+    w_obs = max(rates.pa, 0.0)
+    total = w_obs + prior_weight
+    old_non_k = 1.0 - rates.p_k
+    if total <= 0 or old_non_k <= 0:
+        return rates
+    new_k = (rates.p_k * w_obs + k_prior * prior_weight) / total
+    new_k = min(max(new_k, 0.01), 0.60)
+    scale = (1.0 - new_k) / old_non_k
+    d = rates.as_dict()
+    return OutcomeRates(
+        pa=rates.pa,
+        p_1b=d["1B"] * scale,
+        p_2b=d["2B"] * scale,
+        p_3b=d["3B"] * scale,
+        p_hr=d["HR"] * scale,
+        p_bb=d["BB"] * scale,
+        p_k=new_k,
+        p_out=d["OUT"] * scale,
+    )
+
+
 def _slice_dates(df: pd.DataFrame, as_of: Date, days: int) -> pd.DataFrame:
     end = as_of - timedelta(days=1)
     start = end - timedelta(days=days - 1)

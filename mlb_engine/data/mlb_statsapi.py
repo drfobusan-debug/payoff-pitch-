@@ -155,10 +155,13 @@ class MLBStatsClient:
         for order, pl in enumerate(lineup_players or [], start=1):
             pid = pl.get("id")
             bats, _ = hand.get(pid, (None, None)) if pid else (None, None)
+            pos = (pl.get("primaryPosition") or {}).get("abbreviation")
             lineup.append(
                 BatterSlot(
                     order=order,
-                    player=Player(mlbam_id=pid or 0, name=pl.get("fullName", "?"), bats=bats),
+                    player=Player(
+                        mlbam_id=pid or 0, name=pl.get("fullName", "?"), bats=bats, position=pos
+                    ),
                 )
             )
 

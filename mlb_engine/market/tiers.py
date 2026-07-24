@@ -46,9 +46,10 @@ def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
     reasons.append(f"EV={result.ev:+.3f}")
 
     # Thin-edge guard: never buy without a real edge over the no-vig line.
-    if tier != Tier.PASS and result.edge < MIN_EDGE:
+    min_edge = getattr(thr, "min_edge", MIN_EDGE)
+    if tier != Tier.PASS and result.edge < min_edge:
         tier = Tier.PASS
-        reasons.append(f"edge {result.edge:+.3f} < {MIN_EDGE} -> pass")
+        reasons.append(f"edge {result.edge:+.3f} < {min_edge} -> pass")
         return tier, reasons
 
     div = result.sharp_divergence
@@ -60,5 +61,10 @@ def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
         elif div >= SHARP_DIVERGENCE_STRONG and tier == Tier.MODERATE:
             tier = _bump(tier, +1)
             reasons.append("sharp money with -> upgrade")
+
+    # Strict selection: keep only Strong buys.
+    if getattr(thr, "strong_only", False) and tier == Tier.MODERATE:
+        tier = Tier.PASS
+        reasons.append("strong-only mode -> pass")
 
     return tier, reasons
