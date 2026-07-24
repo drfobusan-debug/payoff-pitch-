@@ -34,7 +34,15 @@ class Recommendation:
     team_side: str | None = None  # "home" | "away"
     player_id: int | None = None
     stat: str | None = None  # e.g. "H", "HR", "K", "outs", "ER"
-    side: str | None = None  # "win" | "cover" | "over" | "under"
+    side: str | None = None  # "win" | "cover" | "under" | "over"
+    # --- game environment context (same for every rec in a game; for the card) ---
+    park_name: str | None = None
+    park_factor: float | None = None
+    carry_factor: float | None = None
+    roof: str | None = None
+    wx_summary: str | None = None  # live weather string, None if roofed/unavailable
+    wx_hr_mult: float | None = None  # weather HR multiplier (1.0 = neutral)
+    wx_note: str | None = None
 
     @property
     def model_american(self) -> float:
