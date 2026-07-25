@@ -66,7 +66,8 @@ from mlb_engine.models.markov_f5 import f5_from_lineups
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
-from mlb_engine.models.rbi_rule import evaluate_lineup, rbi_multiplier
+from mlb_engine.models.rbi_rule import evaluate_lineup
+from mlb_engine.models.selectors import RBISelector, Selection, TBSelector, XBHSelector
 from mlb_engine.recommendations import Recommendation
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
@@ -239,6 +240,9 @@ class Pipeline:
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
         self._calibrator = _load_calibrator() if cfg.calibrate else Calibrator.identity()
+        self._rbi_selector = RBISelector(cfg.rbi_obp_threshold)
+        self._xbh_selector = XBHSelector()
+        self._tb_selector = TBSelector()
 
     def run(
         self,
@@ -406,8 +410,10 @@ class Pipeline:
         statcast,
         slate_date: Date,
         sprint: dict[int, float],
+        park,
+        weather_mult: dict[str, float] | None,
     ):
-        """Return (bat_vs_starter, bat_vs_pen, rbi_flags) for a lineup."""
+        """Return (bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections) for a lineup."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -457,7 +463,8 @@ class Pipeline:
         regs = []
         bat_vs_starter = []
         bat_vs_pen = []
-        for slot in team.lineup:
+        selections: list[dict[str, Selection | None]] = []
+        for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
             bprof = build_batter_profile(
                 statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days
@@ -471,15 +478,24 @@ class Pipeline:
             regs.append(breg)
             bmult = breg.multipliers()
 
+            bats = slot.player.bats.value if slot.player.bats else None
+            xbh_sel = self._xbh_selector.select(
+                breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
+            )
+            tb_sel = self._tb_selector.select(
+                breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
+            )
+
             bpp = build_batter_pitch_profile(statcast[statcast["batter"] == pid])
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
             bat_tail = self._tails.batter_multiplier(pid)
 
-            bats = slot.player.bats.value if slot.player.bats else None
             platoon_k = pit_reg.platoon_k_multiplier(bats)
 
             vs_start = combine(ctx, pit_allowed)
             vs_start = apply_multipliers(vs_start, bmult)
+            # V1-style XBH selector feeds the existing 2B/3B multiplier block.
+            vs_start = apply_multipliers(vs_start, xbh_sel.outcome_multipliers)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
             vs_start = apply_multipliers(vs_start, {"K": platoon_k})
@@ -501,6 +517,8 @@ class Pipeline:
                 )
             vs_pen = combine(late_ctx, bpen.allowed)
             vs_pen = apply_multipliers(vs_pen, bmult)
+            # Apply XBH selection to bullpen matchup too.
+            vs_pen = apply_multipliers(vs_pen, xbh_sel.outcome_multipliers)
             vs_pen = apply_multipliers(vs_pen, bpen_allowed)
             vs_pen = apply_multipliers(vs_pen, {"K": bpen_k})
             vs_pen = apply_multipliers(vs_pen, bpen_npv)
@@ -508,9 +526,25 @@ class Pipeline:
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)
+            selections.append({"RBI": None, "XBH": xbh_sel, "TB": tb_sel})
 
         rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold, regs)
-        return bat_vs_starter, bat_vs_pen, rbi_flags, prev
+        # Bind RBI selections now that lineup flags are available.
+        for i, flag in enumerate(rbi_flags):
+            breg = regs[i]
+            slot = team.lineup[i]
+            bats = slot.player.bats.value if slot.player.bats else None
+            selections[i]["RBI"] = self._rbi_selector.select(
+                flag,
+                breg=breg,
+                park=park,
+                weather=weather_mult,
+                slot=i,
+                bats=bats,
+                opp_hand=opp_throws,
+            )
+
+        return bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
         if not mult:
@@ -616,11 +650,11 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        home_start, home_pen, home_rbi, home_prev = self._team_offense(
-            game.home, game.away, statcast, slate_date, sprint
+        home_start, home_pen, home_rbi, home_prev, home_sels = self._team_offense(
+            game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
-        away_start, away_pen, away_rbi, away_prev = self._team_offense(
-            game.away, game.home, statcast, slate_date, sprint
+        away_start, away_pen, away_rbi, away_prev, away_sels = self._team_offense(
+            game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
         # travel/rest (circadian) per team
@@ -791,8 +825,11 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes))
 
         # ---- batter props ----
-        for team_key, tinfo, flags in (("home", game.home, home_rbi), ("away", game.away, away_rbi)):
-            recs.extend(self._batter_props(game, m, res, team_key, tinfo, flags, quotes))
+        for team_key, tinfo, flags, sels in (
+            ("home", game.home, home_rbi, home_sels),
+            ("away", game.away, away_rbi, away_sels),
+        ):
+            recs.extend(self._batter_props(game, m, res, team_key, tinfo, flags, sels, quotes))
 
         # ---- pitcher props (starters) ----
         # home team's starter faces away hitters -> stats tracked under pit["home"]
@@ -857,23 +894,39 @@ class Pipeline:
             out.append(rec)
         return out
 
-    def _batter_props(self, game, m, res, team_key, tinfo, flags, quotes):
+    @staticmethod
+    def _selection_for_stat(stat: str, sels: dict[str, Selection | None]) -> Selection | None:
+        """Map a prop stat to the relevant V1-style selector."""
+        if stat == "RBI":
+            return sels.get("RBI")
+        if stat == "TB":
+            return sels.get("TB")
+        if stat in ("2B", "3B"):
+            return sels.get("XBH")
+        if stat in ("H", "1B", "HR"):
+            return sels.get("TB")
+        return None
+
+    def _batter_props(self, game, m, res, team_key, tinfo, flags, sels, quotes):
         out = []
         bat = res.bat[team_key]
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
             pid = slot.player.mlbam_id
-            flag = flags[i] if i < len(flags) else None
+            rbi_sel = sels[i].get("RBI") if i < len(sels) else None
+            tb_sel = sels[i].get("TB") if i < len(sels) else None
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
-                if stat == "RBI" and flag is not None:
-                    arr = arr * rbi_multiplier(flag)
+                if stat == "RBI" and rbi_sel is not None:
+                    arr = arr * rbi_sel.factor
+                sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",
                         keys.batter_prop(name, stat, line), p_over(arr, line),
                         line=line, player_id=pid, stat=stat, side="over", quotes=quotes,
+                        selector=sel,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             for line in (1.5, 2.5):
@@ -884,10 +937,14 @@ class Pipeline:
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
+            if tb_sel is not None:
+                tb = tb * tb_sel.factor
+            tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
             for line in (1.5, 2.5, 3.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_tb", f"{name} TB o{line}", p_over(tb, line),
                     line=line, player_id=pid, stat="TB", side="over", quotes=quotes,
+                    selector=tb_sel_out,
                 ))
         return out
 
@@ -908,7 +965,8 @@ class Pipeline:
 
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
-            rl_signal: RunLineSignal | None = None) -> Recommendation:
+            rl_signal: RunLineSignal | None = None,
+            selector: Selection | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         rec = Recommendation(
@@ -926,6 +984,11 @@ class Pipeline:
             stat=stat,
             side=side,
         )
+        if selector is not None:
+            rec.signal = selector.signal
+            rec.factor = selector.factor
+            rec.score = selector.score
+            rec.profile = selector.profile
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
         if q:

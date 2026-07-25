@@ -34,7 +34,12 @@ class Recommendation:
     team_side: str | None = None  # "home" | "away"
     player_id: int | None = None
     stat: str | None = None  # e.g. "H", "HR", "K", "outs", "ER"
-    side: str | None = None  # "win" | "cover" | "under" | "over"
+    side: str | None = None  # "win" | "cover" | "over" | "under"
+    # V1-style selector metadata surfaced for prop recommendations.
+    signal: str | None = None
+    factor: float | None = None
+    score: float | None = None
+    profile: str | None = None
     # --- game environment context (same for every rec in a game; for the card) ---
     park_name: str | None = None
     park_factor: float | None = None
@@ -85,6 +90,10 @@ class Recommendation:
             "Handle %": self.handle_pct if self.handle_pct is not None else "",
             "Bets %": self.bets_pct if self.bets_pct is not None else "",
             "Tier": self.tier.value,
+            "Signal": self.signal or "",
+            "Factor": round(self.factor, 3) if self.factor is not None else "",
+            "Score": round(self.score, 2) if self.score is not None else "",
+            "Profile": self.profile or "",
             "Notes": "; ".join(self.reasons),
         }
 

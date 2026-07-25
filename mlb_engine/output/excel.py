@@ -56,6 +56,10 @@ COLUMNS = [
     "Handle %",
     "Bets %",
     "Tier",
+    "Signal",
+    "Factor",
+    "Score",
+    "Profile",
     "Notes",
 ]
 
@@ -87,9 +91,13 @@ TIER_COLUMNS = [
     "Edge",
     "Handle %",
     "Bets %",
+    "Signal",
+    "Factor",
+    "Score",
+    "Profile",
     "Notes",
 ]
-TIER_COLUMN_WIDTHS = [8, 15, 8, 30, 13, 13, 8, 8, 8, 9, 8, 40]
+TIER_COLUMN_WIDTHS = [8, 15, 8, 30, 13, 13, 8, 8, 8, 9, 8, 8, 7, 7, 30, 40]
 
 # Green spectrum (strong) / yellow spectrum (moderate).
 @dataclass(frozen=True)
@@ -159,7 +167,7 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
         tier_fill = TIER_FILL.get(rec.tier.value)
         if tier_fill:
             ws.cell(row=r, column=COLUMNS.index("Tier") + 1).fill = tier_fill
-    widths = [11, 12, 9, 14, 26, 6, 8, 9, 11, 10, 8, 8, 9, 8, 12, 40]
+    widths = [11, 12, 9, 14, 26, 6, 8, 9, 11, 10, 8, 8, 9, 8, 12, 8, 7, 7, 30, 40]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
     if recs:
@@ -222,6 +230,10 @@ def _write_tier_sheet(ws: Worksheet, recs: list[Recommendation], tier: Tier) -> 
             "Edge": round(rec.edge, 3) if rec.edge is not None else "",
             "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
             "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
+            "Signal": rec.signal or "",
+            "Factor": round(rec.factor, 3) if rec.factor is not None else "",
+            "Score": round(rec.score, 2) if rec.score is not None else "",
+            "Profile": rec.profile or "",
             "Notes": "; ".join(rec.reasons),
         }
         for c, name in enumerate(TIER_COLUMNS, start=1):

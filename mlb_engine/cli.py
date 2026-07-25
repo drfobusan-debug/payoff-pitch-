@@ -233,7 +233,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     results = {}
     for pk in game_pks:
         try:
-            results[pk] = fetch_result(pk)
+            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
         except Exception as exc:  # noqa: BLE001
             logging.warning("could not fetch result for %s: %s", pk, exc)
 

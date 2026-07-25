@@ -78,7 +78,7 @@ class EVThresholds:
 
 @dataclass(frozen=True)
 class Credentials:
-    """Credentials for subscription data sources (never logged)."""
+    """Credentials for subscription data sources and SMTP (never logged)."""
 
     fangraphs_user: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_USER"))
     fangraphs_pass: str | None = field(default_factory=lambda: os.getenv("FANGRAPHS_PASS"))
@@ -91,8 +91,12 @@ class Credentials:
     odds_api_key: str | None = field(
         default_factory=lambda: os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY")
     )
-    # Gmail (or any SMTP) account used to email the daily card. The app password
-    # is a Gmail App Password, not the account password.
+    # Generic SMTP credentials used by nightly audit emails.
+    smtp_server: str | None = field(default_factory=lambda: os.getenv("SMTP_SERVER"))
+    smtp_port: int = field(default_factory=lambda: _env_int("SMTP_PORT", 587))
+    smtp_user: str | None = field(default_factory=lambda: os.getenv("SMTP_USER"))
+    smtp_pass: str | None = field(default_factory=lambda: os.getenv("SMTP_PASS"))
+    # Gmail credentials used by daily-card emails.
     gmail_user: str | None = field(
         default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
     )
@@ -125,6 +129,10 @@ class Config:
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
     rbi_obp_threshold: float = field(default_factory=lambda: _env_float("MLBE_RBI_OBP", 0.345))
 
+    # Default recipient for the nightly audit email.
+    audit_email: str = field(
+        default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")
+    )
     # Daily-card email delivery. Env names mirror scripts/email_results.py
     # (MLB_EMAIL_TO / SMTP_HOST / SMTP_PORT), with MLBE_-prefixed overrides.
     email_to: str | None = field(
