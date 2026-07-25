@@ -1659,3 +1659,89 @@ def test_opponent_discipline_factor():
     assert f_aggr < 1.0
     # No batters / no data -> neutral.
     assert opponent_discipline_factor(patient, [], date(2024, 5, 1), 28) == 1.0
+
+
+# ---- daily card ----
+def _card_recs() -> list[Recommendation]:
+    d = date(2026, 7, 24)
+
+    def rec(market, selection, mp, am, ev, edge, tier, line=None):
+        return Recommendation(
+            game_date=d,
+            game_pk=1,
+            matchup="KC @ DET",
+            category="game",
+            market=market,
+            selection=selection,
+            model_prob=mp,
+            line=line,
+            market_american=am,
+            ev=ev,
+            edge=edge,
+            tier=tier,
+            park_name="Comerica Park",
+            park_factor=98.0,
+            carry_factor=0.85,
+            roof="open",
+            wx_summary="78F 40% wind 6mph (2 in to CF)",
+            wx_hr_mult=0.97,
+            wx_note="",
+        )
+
+    return [
+        rec("pitcher_k", "Tarik Skubal Ks o4.5", 0.80, -150, 0.10, 0.10, Tier.MODERATE, 4.5),
+        rec("pitcher_k", "Beck Way Ks o4.5", 0.25, 200, -0.10, -0.05, Tier.PASS, 4.5),
+        rec("pitcher_er", "Tarik Skubal ER o2.5", 0.16, 120, 0.05, 0.04, Tier.PASS, 2.5),
+        rec("game_ml", "DET ML", 0.687, -285, -0.07, -0.02, Tier.PASS),
+        rec("game_ml", "KC ML", 0.354, 254, 0.25, 0.07, Tier.STRONG),
+        rec("game_total", "Under 7.5", 0.607, -108, 0.17, 0.077, Tier.STRONG, 7.5),
+        rec("game_rl", "KC +1.5", 0.605, 116, 0.31, 0.13, Tier.STRONG, 1.5),
+    ]
+
+
+def test_card_build_picks_positive_ev_and_starters():
+    from mlb_engine.output.card import build_cards
+
+    cards = build_cards(_card_recs())
+    assert len(cards) == 1
+    c = cards[0]
+    assert c.matchup == "KC @ DET"
+    # Only positive-EV buys become plays; the DET ML fade and PASS props drop out.
+    sels = {p.selection for p in c.plays}
+    assert "DET ML" not in sels
+    assert "KC +1.5" in sels and "Under 7.5" in sels
+    # Implied probability is derived from the book price.
+    kc_rl = next(p for p in c.plays if p.selection == "KC +1.5")
+    assert 0.45 < (kc_rl.implied_prob or 0) < 0.47
+    # Starters recovered with Skubal owning the strikeout edge.
+    names = [s.name for s in c.starters]
+    assert "Tarik Skubal" in names and "Beck Way" in names
+    # Narrative is a list of paragraphs covering starters, park, weather, market.
+    blob = " ".join(c.narrative)
+    assert "Tarik Skubal" in blob
+    assert "Comerica Park" in blob and "park factor" in blob
+    assert "wind" in blob.lower()
+    # DET ML is a negative-EV favorite -> flagged as too rich, not a play.
+    assert "too rich" in blob
+
+
+def test_card_renderers_emit_md_and_html():
+    from mlb_engine.output.card import build_cards, render_html, render_markdown
+
+    cards = build_cards(_card_recs())
+    md = render_markdown(cards, date(2026, 7, 24))
+    html_body = render_html(cards, date(2026, 7, 24))
+    assert "KC @ DET" in md and "KC +1.5" in md and "EV" in md
+    assert html_body.startswith("<!DOCTYPE html>")
+    assert "KC @ DET" in html_body and "<li>" in html_body
+
+
+def test_email_raises_without_credentials():
+    import pytest
+
+    from mlb_engine.config import Config, Credentials
+    from mlb_engine.output.email import EmailNotConfigured, send_card_email
+
+    cfg = Config(creds=Credentials(gmail_user="x@y.com", gmail_app_password=None))
+    with pytest.raises(EmailNotConfigured):
+        send_card_email(cfg, subject="s", html_body="<p>", text_body="t", to="a@b.com")

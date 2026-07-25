@@ -87,12 +87,22 @@ class Credentials:
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
     # The Odds API (https://the-odds-api.com) key: multi-book ML/run-line/total prices.
-    odds_api_key: str | None = field(default_factory=lambda: os.getenv("ODDS_API_KEY"))
-    # SMTP credentials for nightly audit emails.
+    # Prefer the vendor-canonical THE_ODDS_API_KEY; fall back to the legacy ODDS_API_KEY.
+    odds_api_key: str | None = field(
+        default_factory=lambda: os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY")
+    )
+    # Generic SMTP credentials used by nightly audit emails.
     smtp_server: str | None = field(default_factory=lambda: os.getenv("SMTP_SERVER"))
     smtp_port: int = field(default_factory=lambda: _env_int("SMTP_PORT", 587))
     smtp_user: str | None = field(default_factory=lambda: os.getenv("SMTP_USER"))
     smtp_pass: str | None = field(default_factory=lambda: os.getenv("SMTP_PASS"))
+    # Gmail credentials used by daily-card emails.
+    gmail_user: str | None = field(
+        default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
+    )
+    gmail_app_password: str | None = field(
+        default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD")
+    )
 
     def has_fangraphs(self) -> bool:
         return bool(self.fangraphs_user and self.fangraphs_pass)
@@ -105,6 +115,9 @@ class Credentials:
 
     def has_odds_api(self) -> bool:
         return bool(self.odds_api_key)
+
+    def has_email(self) -> bool:
+        return bool(self.gmail_app_password)
 
 
 @dataclass(frozen=True)
@@ -119,6 +132,19 @@ class Config:
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")
+    )
+    # Daily-card email delivery. Env names mirror scripts/email_results.py
+    # (MLB_EMAIL_TO / SMTP_HOST / SMTP_PORT), with MLBE_-prefixed overrides.
+    email_to: str | None = field(
+        default_factory=lambda: os.getenv("MLBE_EMAIL_TO") or os.getenv("MLB_EMAIL_TO")
+    )
+    smtp_host: str = field(
+        default_factory=lambda: os.getenv("MLBE_SMTP_HOST")
+        or os.getenv("SMTP_HOST")
+        or "smtp.gmail.com"
+    )
+    smtp_port: int = field(
+        default_factory=lambda: _env_int("MLBE_SMTP_PORT", _env_int("SMTP_PORT", 465))
     )
 
     # Monte Carlo simulation count per game.

@@ -21,7 +21,7 @@ from mlb_engine.audit.ledger import (
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
-from mlb_engine.config import load_config
+from mlb_engine.config import Config, load_config
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
@@ -31,9 +31,11 @@ from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
+from mlb_engine.output.card import build_cards, render_html, render_markdown
+from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
 from mlb_engine.pipeline import Pipeline, PipelineDeps
-from mlb_engine.recommendations import load_json, save_json
+from mlb_engine.recommendations import Recommendation, load_json, save_json
 
 
 def _parse_date(s: str | None, default: Date) -> Date:
@@ -54,6 +56,41 @@ def _write_quotes_template(recs, path: Path) -> None:
                 continue
             seen.add(key)
             w.writerow([r.matchup, r.market, r.selection, "draftkings", "", "", ""])
+
+
+def _generate_card(
+    recs: list[Recommendation],
+    slate_date: Date,
+    cfg: Config,
+    *,
+    email: bool,
+    to: str | None,
+) -> tuple[Path, Path]:
+    """Write the card's Markdown + HTML and optionally email it."""
+    cards = build_cards(recs)
+    md = render_markdown(cards, slate_date)
+    html_body = render_html(cards, slate_date)
+    md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
+    html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
+    md_path.write_text(md)
+    html_path.write_text(html_body)
+    print(f"Card: {len(cards)} games -> {md_path}")
+
+    if email:
+        subject = f"PayoffPitch Card — {slate_date.isoformat()} ({len(cards)} games)"
+        try:
+            recipient = send_card_email(
+                cfg,
+                subject=subject,
+                html_body=html_body,
+                text_body="Your PayoffPitch card is attached; HTML in the body.\n",
+                to=to,
+                attachments=[(md_path.name, md.encode(), "markdown")],
+            )
+            print(f"Emailed card to {recipient}")
+        except EmailNotConfigured as exc:
+            print(f"Email not sent: {exc}")
+    return md_path, html_path
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -102,6 +139,21 @@ def cmd_run(args: argparse.Namespace) -> int:
     mod = sum(1 for r in recs if r.tier == Tier.MODERATE)
     print(f"Priced {len(recs)} markets: {strong} strong buys, {mod} moderate buys")
     print(f"Excel: {xlsx}")
+
+    if getattr(args, "card", False) or getattr(args, "email", False):
+        _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
+    return 0
+
+
+def cmd_card(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    slate_date = _parse_date(args.date, Date.today())
+    pred_path = cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json"
+    if not pred_path.exists():
+        print(f"No predictions found for {slate_date} at {pred_path}; run `mlb-engine run` first")
+        return 1
+    recs = load_json(pred_path)
+    _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
     return 0
 
 
@@ -204,7 +256,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     r.add_argument("--sims", type=int, help="Monte Carlo sims per game")
     r.add_argument("--out", help="output .xlsx path")
+    r.add_argument("--card", action="store_true", help="also write the daily card (md + html)")
+    r.add_argument("--email", action="store_true", help="email the daily card after the run")
+    r.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     r.set_defaults(func=cmd_run)
+
+    c = sub.add_parser("card", help="build the daily card from a prior run's predictions")
+    c.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    c.add_argument("--email", action="store_true", help="email the card")
+    c.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
+    c.set_defaults(func=cmd_card)
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")

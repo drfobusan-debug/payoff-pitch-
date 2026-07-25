@@ -40,6 +40,14 @@ class Recommendation:
     factor: float | None = None
     score: float | None = None
     profile: str | None = None
+    # --- game environment context (same for every rec in a game; for the card) ---
+    park_name: str | None = None
+    park_factor: float | None = None
+    carry_factor: float | None = None
+    roof: str | None = None
+    wx_summary: str | None = None  # live weather string, None if roofed/unavailable
+    wx_hr_mult: float | None = None  # weather HR multiplier (1.0 = neutral)
+    wx_note: str | None = None
 
     @property
     def model_american(self) -> float:
