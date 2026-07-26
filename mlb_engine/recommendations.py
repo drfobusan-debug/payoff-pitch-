@@ -48,6 +48,10 @@ class Recommendation:
     wx_summary: str | None = None  # live weather string, None if roofed/unavailable
     wx_hr_mult: float | None = None  # weather HR multiplier (1.0 = neutral)
     wx_note: str | None = None
+    # Expected run differential (home perspective) = mean of the simulated run
+    # margin, and its spread -- the sequencing-luck-free per-game xRD/G.
+    xrd: float | None = None
+    xrd_sd: float | None = None
 
     @property
     def model_american(self) -> float:
