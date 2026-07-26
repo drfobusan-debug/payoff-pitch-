@@ -202,6 +202,64 @@ def test_bullpen_profile_excludes_starter_and_uses_late_innings():
     assert pen.allowed.p_k > LEAGUE_RATES["K"]
 
 
+def _relief_frame(rows):
+    import pandas as pd
+
+    df = pd.DataFrame(
+        rows, columns=["game_date", "pitcher", "inning", "inning_topbot", "events"]
+    )
+    df["batter"] = 1
+    df["home_team"] = "NYY"
+    df["away_team"] = "BOS"
+    return df
+
+
+def test_bullpen_leverage_split_isolates_late_arms():
+    from mlb_engine.features.rolling import build_bullpen_profile
+
+    gd = date(2024, 7, 10)
+    rows = (
+        # 7th-inning middle relief gives up singles (dilutes the aggregate)
+        [(gd, 201, 7, "Top", "single") for _ in range(30)]
+        # 8th/9th high-leverage arms strike everyone out
+        + [(gd, 200, 8, "Top", "strikeout") for _ in range(20)]
+        + [(gd, 202, 9, "Top", "strikeout") for _ in range(10)]
+    )
+    pen = build_bullpen_profile(_relief_frame(rows), "NYY", date(2024, 7, 19), 21, min_inning=6)
+    # 8th+ arms (all Ks) grade far better than the single-diluted 6th+ aggregate.
+    assert pen.allowed_leverage.p_k > pen.allowed.p_k
+
+
+def test_bullpen_leverage_falls_back_when_thin():
+    from mlb_engine.features.rolling import build_bullpen_profile
+
+    gd = date(2024, 7, 10)
+    rows = (
+        [(gd, 201, 7, "Top", "single") for _ in range(30)]
+        # only 5 8th-inning PAs: below MIN_LEVERAGE_PA -> no separate profile
+        + [(gd, 200, 8, "Top", "strikeout") for _ in range(5)]
+    )
+    pen = build_bullpen_profile(_relief_frame(rows), "NYY", date(2024, 7, 19), 21, min_inning=6)
+    assert pen.allowed_leverage.p_k == pen.allowed.p_k
+
+
+def test_leverage_pen_suppresses_close_game_scoring():
+    lg = LEAGUE_RATES
+    bat = [dict(lg) for _ in range(9)]
+    hot = {"1B": 0.5, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.0, "OUT": 0.5}
+    cold = {"1B": 0.0, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.5, "OUT": 0.5}
+    hot_pen = [dict(hot) for _ in range(9)]
+    cold_pen = [dict(cold) for _ in range(9)]
+    # Early hook so the pen pitches most of the game.
+    base = dict(bat_vs_starter=bat, starter_bf_cap=9, starter_pitch_cap=200)
+    no_split = TeamSimConfig(bat_vs_pen=hot_pen, **base)
+    with_split = TeamSimConfig(bat_vs_pen=hot_pen, bat_vs_pen_close=cold_pen, **base)
+    res_no = MonteCarlo(600, seed=7).simulate(no_split, no_split)
+    res_yes = MonteCarlo(600, seed=7).simulate(with_split, with_split)
+    # Shutdown leverage arms in the close innings pull scoring down sharply.
+    assert res_yes.home_runs_full.mean() < res_no.home_runs_full.mean()
+
+
 def test_bullpen_npv_walk_trap_and_fatigue():
     import pandas as pd
 
@@ -210,10 +268,10 @@ def test_bullpen_npv_walk_trap_and_fatigue():
     lg = rates_from_events(pd.Series(dtype=object))
     empty = pd.DataFrame()
     # Walk trap: zone% below .40 -> BB boosted.
-    trap = BullpenProfile(lg, empty, zone_pct=0.34, recent_load=1.0)
+    trap = BullpenProfile(lg, lg, empty, zone_pct=0.34, recent_load=1.0)
     assert trap.npv_multipliers().get("BB", 1.0) > 1.0
     # Fatigue: heavy recent workload -> HR/hits boosted.
-    tired = BullpenProfile(lg, empty, zone_pct=0.50, recent_load=1.4)
+    tired = BullpenProfile(lg, lg, empty, zone_pct=0.50, recent_load=1.4)
     assert tired.npv_multipliers().get("HR", 1.0) > 1.0
     # Rotowire availability override (rested) suppresses the fatigue penalty.
     assert "HR" not in tired.npv_multipliers(availability=1.0)
