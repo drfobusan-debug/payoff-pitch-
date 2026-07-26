@@ -50,6 +50,10 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
 )
+from mlb_engine.features.singles_under import (
+    SinglesUnderResult,
+    evaluate_singles_under,
+)
 from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
@@ -420,7 +424,7 @@ class Pipeline:
         park,
         weather_mult: dict[str, float] | None,
     ):
-        """Return (bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections, regs) for a lineup."""
+        """Return (bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections, regs, sunders)."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -468,6 +472,7 @@ class Pipeline:
 
         profiles = []
         regs = []
+        sunders: list[SinglesUnderResult] = []
         bat_vs_starter = []
         bat_vs_pen = []
         selections: list[dict[str, Selection | None]] = []
@@ -479,13 +484,15 @@ class Pipeline:
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)
 
-            breg = build_batter_regression(
-                statcast[statcast["batter"] == pid], sprint.get(pid, 27.0)
-            )
+            bslice = statcast[statcast["batter"] == pid]
+            breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
             regs.append(breg)
             bmult = breg.multipliers()
 
             bats = slot.player.bats.value if slot.player.bats else None
+            # Switch hitters bat from the side opposite the starter's hand.
+            stand = bats if bats in ("L", "R") else ("L" if opp_throws == "R" else "R")
+            sunders.append(evaluate_singles_under(bslice, stand))
             xbh_sel = self._xbh_selector.select(
                 breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
             )
@@ -493,7 +500,7 @@ class Pipeline:
                 breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
             )
 
-            bpp = build_batter_pitch_profile(statcast[statcast["batter"] == pid])
+            bpp = build_batter_pitch_profile(bslice)
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
             bat_tail = self._tails.batter_multiplier(pid)
 
@@ -551,7 +558,7 @@ class Pipeline:
                 opp_hand=opp_throws,
             )
 
-        return bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections, regs
+        return bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections, regs, sunders
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
         if not mult:
@@ -657,11 +664,15 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        home_start, home_pen, home_rbi, home_prev, home_sels, home_regs = self._team_offense(
-            game.home, game.away, statcast, slate_date, sprint, park, weather_mult
+        home_start, home_pen, home_rbi, home_prev, home_sels, home_regs, home_su = (
+            self._team_offense(
+                game.home, game.away, statcast, slate_date, sprint, park, weather_mult
+            )
         )
-        away_start, away_pen, away_rbi, away_prev, away_sels, away_regs = self._team_offense(
-            game.away, game.home, statcast, slate_date, sprint, park, weather_mult
+        away_start, away_pen, away_rbi, away_prev, away_sels, away_regs, away_su = (
+            self._team_offense(
+                game.away, game.home, statcast, slate_date, sprint, park, weather_mult
+            )
         )
 
         # travel/rest (circadian) per team
@@ -832,11 +843,15 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes))
 
         # ---- batter props ----
-        for team_key, tinfo, flags, sels, regs in (
-            ("home", game.home, home_rbi, home_sels, home_regs),
-            ("away", game.away, away_rbi, away_sels, away_regs),
+        for team_key, tinfo, flags, sels, regs, sunders in (
+            ("home", game.home, home_rbi, home_sels, home_regs, home_su),
+            ("away", game.away, away_rbi, away_sels, away_regs, away_su),
         ):
-            recs.extend(self._batter_props(game, m, res, team_key, tinfo, flags, sels, regs, quotes))
+            recs.extend(
+                self._batter_props(
+                    game, m, res, team_key, tinfo, flags, sels, regs, sunders, quotes
+                )
+            )
 
         # ---- pitcher props (starters) ----
         # home team's starter faces away hitters -> stats tracked under pit["home"]
@@ -925,7 +940,26 @@ class Pipeline:
             k_ceiling=self.cfg.contact_k_ceiling,
         )
 
-    def _batter_props(self, game, m, res, team_key, tinfo, flags, sels, regs, quotes):
+    def _singles_under_reason(self, su: SinglesUnderResult | None) -> str | None:
+        """Exclude the singles/H/H+R+RBI over for a strong singles-Under profile."""
+        if (
+            not self.cfg.singles_under
+            or su is None
+            or su.score < self.cfg.singles_under_min
+        ):
+            return None
+        return f"singles under (score {su.score:.1f}): {'; '.join(su.reasons)}"
+
+    def _batter_gate(self, breg, su: SinglesUnderResult | None, stat: str) -> str | None:
+        """Combined batter-prop floor: contact-quality first, then singles-Under."""
+        reason = self._power_floor_reason(breg, stat)
+        if reason is not None:
+            return reason
+        if stat in ("H", "1B", "HRR"):
+            return self._singles_under_reason(su)
+        return None
+
+    def _batter_props(self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, quotes):
         out = []
         bat = res.bat[team_key]
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
@@ -935,17 +969,20 @@ class Pipeline:
             rbi_sel = sels[i].get("RBI") if i < len(sels) else None
             tb_sel = sels[i].get("TB") if i < len(sels) else None
             breg = regs[i] if i < len(regs) else None
+            su = sunders[i] if i < len(sunders) else None
             feat = (
                 {"bat_xslg": breg.xslg, "bat_k_pct": breg.k_pct, "bat_bb_pct": breg.bb_pct}
                 if breg is not None and breg.bbe >= MIN_BBE
                 else {}
             )
+            if su is not None and su.profile.has_data:
+                feat["bat_singles_under"] = su.score
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
                 if stat == "RBI" and rbi_sel is not None:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
-                gate = self._power_floor_reason(breg, stat)
+                gate = self._batter_gate(breg, su, stat)
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",
@@ -954,7 +991,7 @@ class Pipeline:
                         selector=sel, gate_reason=gate, **feat,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
-            hrr_gate = self._power_floor_reason(breg, "HRR")
+            hrr_gate = self._batter_gate(breg, su, "HRR")
             for line in (1.5, 2.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
@@ -998,7 +1035,8 @@ class Pipeline:
             gate_reason: str | None = None,
             bat_xslg: float | None = None,
             bat_k_pct: float | None = None,
-            bat_bb_pct: float | None = None) -> Recommendation:
+            bat_bb_pct: float | None = None,
+            bat_singles_under: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         rec = Recommendation(
@@ -1024,6 +1062,7 @@ class Pipeline:
         rec.bat_xslg = bat_xslg
         rec.bat_k_pct = bat_k_pct
         rec.bat_bb_pct = bat_bb_pct
+        rec.bat_singles_under = bat_singles_under
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
         if q:

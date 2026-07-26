@@ -1804,3 +1804,80 @@ def test_batter_regression_k_bb_pct():
     breg = build_batter_regression(df)
     assert breg.k_pct == 0.3  # 3 / 10
     assert breg.bb_pct == 0.1  # 1 / 10
+
+
+# ---- singles "Under" NPV screen ----
+def test_singles_under_score_flags_tto_and_flyball():
+    from mlb_engine.features.singles_under import (
+        SINGLES_UNDER_STRONG,
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    # Textbook TTO fly-ball slugger: high K% & BB%, passive zone approach,
+    # steep launch angle, elite power contact -> strong Under, well over strong.
+    slugger = SinglesUnderProfile(
+        pa=95, bip=60, k_pct=0.31, bb_pct=0.14, z_swing=0.55, avg_la=22.0,
+        barrel=0.18, hard_hit=0.52, pull_rate=0.40,
+    )
+    score, reasons = singles_under_score(slugger)
+    assert score >= SINGLES_UNDER_STRONG
+    assert any("TTO" in r for r in reasons)
+    assert any("fly-ball" in r for r in reasons)
+
+    # A contact, line-drive hitter trips no flags.
+    contact = SinglesUnderProfile(
+        pa=95, bip=70, k_pct=0.14, bb_pct=0.07, z_swing=0.72, avg_la=10.0,
+        barrel=0.05, hard_hit=0.35, pull_rate=0.38,
+    )
+    cscore, creasons = singles_under_score(contact)
+    assert cscore == 0.0 and creasons == []
+
+
+def test_singles_under_thin_sample_is_neutral():
+    from mlb_engine.features.singles_under import (
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    thin = SinglesUnderProfile(
+        pa=10, bip=6, k_pct=0.40, bb_pct=0.20, z_swing=0.50, avg_la=25.0,
+        barrel=0.20, hard_hit=0.55, pull_rate=0.50,
+    )
+    assert not thin.has_data
+    assert singles_under_score(thin) == (0.0, [])
+
+
+def test_build_singles_under_from_statcast():
+    import numpy as np
+    import pandas as pd
+
+    from mlb_engine.features.singles_under import build_singles_under
+
+    # 30 K, 15 BB, 55 batted balls (all pulled fly balls) over 100 PA.
+    events = ["strikeout"] * 30 + ["walk"] * 15 + ["field_out"] * 55
+    n = len(events)
+    ls = [float("nan")] * 45 + [100.0] * 55  # only batted balls have exit velo
+    la = [float("nan")] * 45 + [25.0] * 55  # steep fly-ball angle
+    zone = [5] * 60 + [12] * 40  # 60 in-zone, 40 out
+    # Batted balls pulled to LF for a RHB (hc_x < origin, deep).
+    hc_x = [float("nan")] * 45 + [80.0] * 55
+    hc_y = [float("nan")] * 45 + [100.0] * 55
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "description": ["swinging_strike"] * 45 + ["hit_into_play"] * 55,
+            "launch_speed": ls,
+            "launch_angle": la,
+            "launch_speed_angle": [float("nan")] * n,
+            "zone": zone,
+            "hc_x": hc_x,
+            "hc_y": hc_y,
+        }
+    )
+    p = build_singles_under(df, "R")
+    assert p.pa == 100
+    assert np.isclose(p.k_pct, 0.30)
+    assert np.isclose(p.bb_pct, 0.15)
+    assert p.avg_la == 25.0
+    assert p.bip == 55

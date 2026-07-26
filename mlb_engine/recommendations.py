@@ -45,6 +45,8 @@ class Recommendation:
     bat_xslg: float | None = None
     bat_k_pct: float | None = None
     bat_bb_pct: float | None = None
+    # Singles-Under NPV score (structural anti-singles red flags); None off-batter.
+    bat_singles_under: float | None = None
     # --- game environment context (same for every rec in a game; for the card) ---
     park_name: str | None = None
     park_factor: float | None = None

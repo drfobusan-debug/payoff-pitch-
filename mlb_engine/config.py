@@ -141,6 +141,17 @@ class Config:
         default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
     )
 
+    # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
+    # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
+    # power contact, pull-heavy grounders). Live by default; set
+    # MLBE_SINGLES_UNDER=0 to disable, MLBE_SINGLES_UNDER_MIN to retune the score.
+    singles_under: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_UNDER", True)
+    )
+    singles_under_min: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_MIN", 3.0)
+    )
+
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")
