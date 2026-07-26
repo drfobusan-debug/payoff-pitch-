@@ -330,7 +330,23 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
 
 
 def render_pdf(html_body: str) -> bytes:
-    """Render the card HTML to a PDF byte string via WeasyPrint."""
-    from weasyprint import HTML
+    """Render the card HTML to a PDF byte string.
 
-    return HTML(string=html_body).write_pdf()
+    First tries WeasyPrint; if system libraries are missing it falls back to
+    xhtml2pdf so the card email can still carry a PDF attachment.
+    """
+    try:
+        from weasyprint import HTML
+
+        return HTML(string=html_body).write_pdf()
+    except Exception:
+        pass
+
+    import io
+
+    from xhtml2pdf import pisa
+
+    out = io.BytesIO()
+    pisa.CreatePDF(html_body, dest=out)
+    out.seek(0)
+    return out.getvalue()
