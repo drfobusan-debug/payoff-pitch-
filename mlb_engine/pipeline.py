@@ -261,6 +261,7 @@ class Pipeline:
         """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
+        self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
         if self.deps.rotowire is not None:
             self._enrich_expected_lineups(slate, slate_date)

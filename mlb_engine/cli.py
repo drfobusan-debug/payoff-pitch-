@@ -34,6 +34,7 @@ from mlb_engine.market.tiers import Tier
 from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.regression_radar import generate_radar_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
@@ -66,11 +67,13 @@ def _generate_card(
     email: bool,
     to: str | None,
     workbook: Path | None = None,
+    radar_pdf: bytes | None = None,
 ) -> tuple[Path, Path]:
     """Write the card's Markdown + HTML + PDF and optionally email it.
 
     When ``email`` is set the message carries the written card as a PDF plus,
-    when available, the master Excel bet sheet (``workbook``).
+    when available, the master Excel bet sheet (``workbook``) and the Regression
+    Radar PDF (``radar_pdf``).
     """
     cards = build_cards(recs)
     md = render_markdown(cards, slate_date)
@@ -97,6 +100,8 @@ def _generate_card(
             attachments = [(md_path.name, md.encode())]
         if workbook is not None and workbook.exists():
             attachments.append((workbook.name, workbook.read_bytes()))
+        if radar_pdf is not None:
+            attachments.append((f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf))
         try:
             recipient = send_card_email(
                 cfg,
@@ -163,8 +168,27 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
+        radar_pdf: bytes | None = None
+        if getattr(args, "email", False) and getattr(pipe, "slate", None) is not None:
+            pitcher_names: set[str] = set()
+            batter_names: set[str] = set()
+            for game in pipe.slate.games:
+                for side in (game.home, game.away):
+                    if side.probable_pitcher:
+                        pitcher_names.add(side.probable_pitcher.name)
+                    for slot in side.lineup:
+                        batter_names.add(slot.player.name)
+            radar_pdf, _ = generate_radar_pdf(
+                pitcher_names, batter_names, slate_date, year=slate_date.year
+            )
         _generate_card(
-            recs, slate_date, cfg, email=args.email, to=args.to, workbook=Path(xlsx)
+            recs,
+            slate_date,
+            cfg,
+            email=args.email,
+            to=args.to,
+            workbook=Path(xlsx),
+            radar_pdf=radar_pdf,
         )
     return 0
 

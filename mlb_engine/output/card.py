@@ -335,8 +335,11 @@ def render_pdf(html_body: str) -> bytes:
     First tries WeasyPrint; if system libraries are missing it falls back to
     xhtml2pdf so the card email can still carry a PDF attachment.
     """
+    import contextlib
+
     try:
-        from weasyprint import HTML
+        with contextlib.redirect_stdout(None), contextlib.redirect_stderr(None):
+            from weasyprint import HTML
 
         return HTML(string=html_body).write_pdf()
     except Exception:
