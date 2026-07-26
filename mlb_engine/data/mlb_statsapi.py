@@ -291,3 +291,28 @@ class MLBStatsClient:
                 if venue_id and (best is None or d > best[0]):
                     best = (d, venue_id, _utc_hour(g.get("gameDate")))
         return best
+
+    def team_run_differentials(self, season: int) -> dict[str, tuple[float, int]]:
+        """Season {team_abbrev: (actual_rd_per_game, games_played)} from standings.
+
+        Feeds the run-line luck-gap baseline: a team's *actual* run differential,
+        compared against its xwOBA-based expected differential, flags sequencing
+        luck. Keyed by the same team abbreviation the Statcast frame uses.
+        """
+        teams = self._get("teams", sportId=SPORT_ID, season=season).get("teams", [])
+        id_to_abbr = {
+            t["id"]: t["abbreviation"]
+            for t in teams
+            if t.get("id") and t.get("abbreviation")
+        }
+        data = self._get(
+            "standings", leagueId="103,104", season=season, standingsTypes="regularSeason"
+        )
+        out: dict[str, tuple[float, int]] = {}
+        for rec in data.get("records", []):
+            for tr in rec.get("teamRecords", []):
+                abbr = id_to_abbr.get((tr.get("team") or {}).get("id"))
+                games = int(tr.get("gamesPlayed") or 0)
+                if abbr and games:
+                    out[abbr] = (float(tr.get("runDifferential", 0)) / games, games)
+        return out

@@ -50,6 +50,7 @@ from mlb_engine.features.rolling import (
     build_pitcher_profile,
 )
 from mlb_engine.features.tails import TailAdjuster
+from mlb_engine.features.team_form import compute_luck_gaps, load_team_forms, luck_gap_for
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
@@ -243,6 +244,7 @@ class Pipeline:
         self._rbi_selector = RBISelector(cfg.rbi_obp_threshold)
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
+        self._luck_gaps: dict[str, float] = {}
 
     def run(
         self,
@@ -291,6 +293,12 @@ class Pipeline:
             odds = self.deps.oddsapi.fetch(slate)
             quotes = _merge_quotes(odds, quotes)
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
+
+        self._luck_gaps = (
+            compute_luck_gaps(load_team_forms(self.cfg.team_form_path))
+            if self.cfg.runline_luck_gap
+            else {}
+        )
 
         recs: list[Recommendation] = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
@@ -780,6 +788,8 @@ class Pipeline:
                 fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
             ),
             sharp_money_side=self._sharp_spread_side(m, ha, aa),
+            luck_gap_home=luck_gap_for(ha, self._luck_gaps),
+            luck_gap_away=luck_gap_for(aa, self._luck_gaps),
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),

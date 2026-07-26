@@ -740,6 +740,64 @@ def test_runline_xwoba_confirms_and_contradicts():
     assert runline_adjustment("home", None, sig) == (0, [])
 
 
+def test_runline_luck_gap_nudges():
+    from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+
+    # Home overperforms its contact quality (lucky), away lags (unlucky/buy-low).
+    sig = RunLineSignal(luck_gap_home=1.5, luck_gap_away=-1.5)
+    # Backing the lucky favorite at -1.5 -> fade (regression risk).
+    steps, reasons = runline_adjustment("home", -1.5, sig)
+    assert steps == -1 and any("regression" in r for r in reasons)
+    # Backing the dog +1.5 when the favorite (home) is overperforming -> support.
+    up, upr = runline_adjustment("away", 1.5, sig)
+    assert up == 1 and any("back dog" in r for r in upr)
+    # Backing the underrated team at -1.5 -> support.
+    assert runline_adjustment("away", -1.5, sig)[0] == 1
+    # Missing either side's gap -> neutral (backward compatible).
+    assert runline_adjustment("home", -1.5, RunLineSignal(luck_gap_home=1.5)) == (0, [])
+
+
+def test_team_form_build_and_luck_gaps():
+    import pandas as pd
+
+    from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps
+
+    # AAA bats poorly (proxy low) but has a high actual RD -> lucky/fade.
+    # BBB bats well (proxy high) but a low actual RD -> unlucky/buy-low.
+    rows = []
+    for _ in range(250):
+        rows.append({"home_team": "BBB", "away_team": "AAA", "inning_topbot": "Top",
+                     "estimated_woba_using_speedangle": 0.300})  # AAA batting (low)
+        rows.append({"home_team": "BBB", "away_team": "AAA", "inning_topbot": "Bot",
+                     "estimated_woba_using_speedangle": 0.400})  # BBB batting (high)
+    df = pd.DataFrame(rows)
+    run_diffs = {"AAA": (0.8, 100), "BBB": (-0.8, 100)}
+
+    forms = build_team_forms(df, run_diffs)
+    assert set(forms) == {"AAA", "BBB"}
+    assert abs(forms["AAA"].xwoba_for - 0.300) < 1e-9
+    assert abs(forms["AAA"].xwoba_against - 0.400) < 1e-9
+    assert forms["AAA"].xrd_proxy < 0 < forms["BBB"].xrd_proxy
+
+    gaps = compute_luck_gaps(forms)
+    assert gaps["AAA"] > 0 > gaps["BBB"]  # lucky vs unlucky
+
+    # Thin batted-ball sample is dropped.
+    thin = build_team_forms(df.head(10), run_diffs)
+    assert thin == {}
+
+
+def test_team_form_round_trip(tmp_path):
+    from mlb_engine.features.team_form import TeamForm, load_team_forms, save_team_forms
+
+    forms = {"AAA": TeamForm("AAA", 0.33, 0.31, 0.5, 100)}
+    path = tmp_path / "team_form.json"
+    save_team_forms(forms, path)
+    assert load_team_forms(path) == forms
+    # Missing cache -> empty (off/neutral).
+    assert load_team_forms(tmp_path / "nope.json") == {}
+
+
 # ---- distribution tails ----
 def test_tail_bonus_and_penalty_symmetric():
     import numpy as np
