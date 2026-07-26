@@ -56,6 +56,8 @@ class BatterRegression:
     woba: float
     xwoba: float
     sprint_speed: float = BL_SPRINT
+    k_pct: float = float("nan")  # season PA strikeout rate (NaN when no PAs)
+    bb_pct: float = float("nan")  # season PA walk rate (NaN when no PAs)
 
     @property
     def dxwoba(self) -> float:
@@ -165,6 +167,11 @@ def build_batter_regression(
     xslg = _estimate_xslg(batted)
     babip = _babip(bdf)
 
+    ev = bdf["events"].dropna()
+    n_pa = int(len(ev))
+    k_pct = float(ev.isin(["strikeout", "strikeout_double_play"]).sum() / n_pa) if n_pa else float("nan")
+    bb_pct = float(ev.eq("walk").sum() / n_pa) if n_pa else float("nan")
+
     if np.isnan(xwoba):
         xwoba = BL_XBA
     if np.isnan(woba):
@@ -185,6 +192,8 @@ def build_batter_regression(
         woba=woba,
         xwoba=xwoba,
         sprint_speed=sprint_speed,
+        k_pct=k_pct,
+        bb_pct=bb_pct,
     )
 
 

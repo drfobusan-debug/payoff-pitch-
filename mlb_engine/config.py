@@ -129,6 +129,18 @@ class Config:
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
     rbi_obp_threshold: float = field(default_factory=lambda: _env_float("MLBE_RBI_OBP", 0.345))
 
+    # Contact-quality floor on batter props: exclude low-power bats from the
+    # power markets (HR/XBH/TB) below MLBE_POWER_XSLG_FLOOR xSLG, and whiff-prone
+    # bats from the contact markets (H/1B/H+R+RBI) above MLBE_CONTACT_K_CEILING
+    # K%. Live by default; set MLBE_POWER_FLOOR=0 to disable.
+    power_floor: bool = field(default_factory=lambda: _env_bool("MLBE_POWER_FLOOR", True))
+    power_xslg_floor: float = field(
+        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.400)
+    )
+    contact_k_ceiling: float = field(
+        default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
+    )
+
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")

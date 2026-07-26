@@ -1745,3 +1745,62 @@ def test_email_raises_without_credentials():
     cfg = Config(creds=Credentials(gmail_user="x@y.com", gmail_app_password=None))
     with pytest.raises(EmailNotConfigured):
         send_card_email(cfg, subject="s", html_body="<p>", text_body="t", to="a@b.com")
+
+
+# ---- contact-quality floor on batter props ----
+def _floor_reg(xslg: float, k_pct: float, bbe: int = 40):
+    from mlb_engine.features.regression import BatterRegression
+
+    return BatterRegression(
+        bbe=bbe, barrel_rate=0.08, hard_hit=0.40, sweet_spot=0.33, bat_speed=72.0,
+        max_ev=108.0, whiff=0.24, zone_contact=0.82, xba=0.25, xslg=xslg,
+        babip=0.29, woba=0.32, xwoba=0.32, k_pct=k_pct, bb_pct=0.08,
+    )
+
+
+def test_power_floor_reason_gates():
+    from mlb_engine.models.selectors import power_floor_reason
+
+    kw = {"xslg_floor": 0.400, "k_ceiling": 0.25}
+    # Power markets: below the xSLG floor -> excluded; above -> kept.
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "HR", **kw)
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "TB", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.20), "HR", **kw) is None
+    # A high-K slugger is NOT gated out of the power markets.
+    assert power_floor_reason(_floor_reg(0.520, 0.32), "HR", **kw) is None
+    # Contact markets: above the K% ceiling -> excluded; below -> kept.
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "H", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "HRR", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.18), "1B", **kw) is None
+    # Never gate on a thin sample or a missing (NaN) feature.
+    assert power_floor_reason(_floor_reg(0.330, 0.20, bbe=5), "HR", **kw) is None
+    assert power_floor_reason(_floor_reg(0.480, float("nan")), "H", **kw) is None
+
+
+def test_batter_regression_k_bb_pct():
+    import pandas as pd
+
+    from mlb_engine.features.regression import build_batter_regression
+
+    events = ["strikeout"] * 3 + ["walk"] + ["single"] * 4 + ["field_out"] * 2
+    n = len(events)
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "batter": [1] * n,
+            "launch_speed": [float("nan")] * 4 + [95.0] * 4 + [80.0] * 2,
+            "launch_angle": [float("nan")] * n,
+            "launch_speed_angle": [float("nan")] * n,
+            "bat_speed": [float("nan")] * n,
+            "description": (
+                ["swinging_strike"] * 3 + ["ball"] + ["hit_into_play"] * 6
+            ),
+            "estimated_ba_using_speedangle": [float("nan")] * n,
+            "estimated_woba_using_speedangle": [float("nan")] * n,
+            "woba_value": [float("nan")] * n,
+            "zone": [5] * n,
+        }
+    )
+    breg = build_batter_regression(df)
+    assert breg.k_pct == 0.3  # 3 / 10
+    assert breg.bb_pct == 0.1  # 1 / 10

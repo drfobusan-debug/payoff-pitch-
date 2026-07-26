@@ -26,6 +26,37 @@ from mlb_engine.features.regression import (
 )
 from mlb_engine.models.rbi_rule import RBIFlag, rbi_multiplier
 
+# Contact-quality floor markets: power props keyed on xSLG, contact props on K%.
+POWER_FLOOR_MARKETS = ("HR", "2B", "3B", "TB")
+CONTACT_FLOOR_MARKETS = ("H", "1B", "HRR")
+
+
+def power_floor_reason(
+    breg: BatterRegression | None,
+    stat: str,
+    *,
+    xslg_floor: float,
+    k_ceiling: float,
+) -> str | None:
+    """Reason a batter prop should be excluded by the contact-quality floor.
+
+    Power markets (HR/2B/3B/TB) exclude bats below ``xslg_floor`` xSLG; contact
+    markets (H/1B/HRR) exclude bats above ``k_ceiling`` K%.  Returns ``None`` --
+    i.e. no exclusion -- when the sample is too thin (``bbe < MIN_BBE``) or the
+    feature is missing (NaN), so we never gate on unknown data.
+    """
+    if breg is None or breg.bbe < MIN_BBE:
+        return None
+    if stat in POWER_FLOOR_MARKETS and breg.xslg < xslg_floor:
+        return f"power floor: xSLG {breg.xslg:.3f} < {xslg_floor:.3f}"
+    if (
+        stat in CONTACT_FLOOR_MARKETS
+        and breg.k_pct == breg.k_pct  # not NaN
+        and breg.k_pct > k_ceiling
+    ):
+        return f"contact floor: K% {breg.k_pct:.3f} > {k_ceiling:.3f}"
+    return None
+
 
 @dataclass
 class Selection:
