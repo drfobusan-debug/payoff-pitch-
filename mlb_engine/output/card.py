@@ -327,3 +327,10 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{style}</style></head>"
         f"<body>{''.join(blocks)}</body></html>"
     )
+
+
+def render_pdf(html_body: str) -> bytes:
+    """Render the card HTML to a PDF byte string via WeasyPrint."""
+    from weasyprint import HTML
+
+    return HTML(string=html_body).write_pdf()
