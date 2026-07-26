@@ -18,6 +18,7 @@ from mlb_engine.audit.ledger import (
     entries_from_graded,
     overall_metrics,
     prop_metrics,
+    runline_metrics,
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
@@ -192,6 +193,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     overall = [engine, *overall_metrics(all_entries)]
     daily_engine = daily_engine_metrics(all_entries)
     props = prop_metrics(all_entries)
+    runlines = runline_metrics(all_entries)
     insights = prop_insights(all_entries)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
     write_ledger_workbook(
@@ -202,6 +204,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         daily_engine=daily_engine,
         prop_rows=props,
         insights=insights,
+        runline_rows=runlines,
     )
 
     print(f"Graded {len(graded)} markets for {audit_date}")
@@ -231,6 +234,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"  {m.tier:<14} n={m.n:<5} PPV={m.ppv:.3f} NPV={m.npv:.3f} "
                 f"sens={m.sensitivity:.3f} spec={m.specificity:.3f}"
             )
+    if runlines:
+        print("\nRun lines PPV/NPV (VETO rows = what each gate removed):")
+        for m in runlines:
+            print(
+                f"  {m.tier:<18} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
+                f"PPV={m.ppv:.3f} NPV={m.npv:.3f}"
+            )
+
     if insights:
         print(f"\nProp insights ({len(insights)}):")
         for ins in insights:

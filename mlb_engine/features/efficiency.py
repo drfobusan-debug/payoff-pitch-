@@ -46,6 +46,7 @@ BL_BB_PCT = 0.080
 BL_GB_PCT = 0.43
 BL_WHIP = 1.30
 BL_BB9 = 3.2
+BL_HARD_HIT = 0.400  # league hard-hit% (95+ mph) allowed
 DEFAULT_PITCH_CAP = 95
 MIN_PITCH_CAP = 55  # floor so control/discipline haircuts can't zero the outing
 
@@ -133,6 +134,50 @@ def _pitches_per_start(pit_rows: pd.DataFrame, as_of: Date, form_days: int) -> l
     if window.empty:
         return []
     return [int(n) for n in window.groupby("game_date").size().tolist()]
+
+
+@dataclass(frozen=True)
+class RecentStartForm:
+    """Blow-up risk over a pitcher's most recent starts.
+
+    WHIP is derived the same way as :class:`PitcherEfficiency` (outs are inferred
+    from PA outcomes, so it runs a touch high against true WHIP), and hard-hit%
+    is the share of batted balls leaving the bat at 95+ mph. Together they read
+    as "traffic plus hard contact", the multi-run-inning script.
+    """
+
+    starts: int
+    whip: float
+    hard_hit_pct: float
+
+
+def recent_start_form(
+    pit_rows: pd.DataFrame, as_of: Date, n_starts: int = 3
+) -> RecentStartForm | None:
+    """WHIP and hard-hit% allowed over the pitcher's last ``n_starts`` starts.
+
+    ``None`` when fewer than ``n_starts`` starts are on record, so a thin sample
+    leaves any gate keyed on this untouched rather than vetoing on noise.
+    """
+    if "game_date" not in pit_rows or pit_rows.empty:
+        return None
+    dates = sorted({d for d in pit_rows["game_date"] if d < as_of})
+    if len(dates) < n_starts:
+        return None
+    window = pit_rows[pit_rows["game_date"].isin(dates[-n_starts:])]
+
+    ev = window["events"].dropna() if "events" in window else pd.Series([], dtype=object)
+    if ev.empty:
+        return None
+    walks = int(ev.isin(WALK_EVENTS).sum())
+    hits = int(ev.isin(HIT_EVENTS.keys()).sum())
+    ip_est = max(len(ev) - hits - walks, 1) / 3.0
+    whip = (hits + walks) / ip_est
+
+    batted = window[window["launch_speed"].notna()] if "launch_speed" in window else pd.DataFrame()
+    hard_hit = float((batted["launch_speed"] >= 95).mean()) if len(batted) else BL_HARD_HIT
+
+    return RecentStartForm(starts=n_starts, whip=whip, hard_hit_pct=hard_hit)
 
 
 def build_pitcher_efficiency(

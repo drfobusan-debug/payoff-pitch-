@@ -408,6 +408,7 @@ def write_ledger_workbook(
     daily_engine: list[OverallMetrics] | None = None,
     prop_rows: list[OverallMetrics] | None = None,
     insights: list[PropInsight] | None = None,
+    runline_rows: list[OverallMetrics] | None = None,
 ) -> Path:
     wb = Workbook()
 
@@ -420,6 +421,9 @@ def write_ledger_workbook(
 
     if prop_rows:
         _write_metric_sheet(wb.create_sheet("Prop PPV-NPV"), prop_rows, "Prop market")
+
+    if runline_rows:
+        _write_metric_sheet(wb.create_sheet("Run Line NPV"), runline_rows, "Run line / gate")
 
     if insights:
         _write_insight_sheet(wb.create_sheet("Prop Insights"), insights)

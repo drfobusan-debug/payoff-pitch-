@@ -51,8 +51,28 @@ book (and VSIN handle/bets divergence when provided).
     league mean.
 9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers
    (`MLBE_MIN_EDGE` thin-edge guard, `MLBE_STRONG_ONLY` for strict selection).
+9a. **Run-line NPV gates** — veto (not nudge) selections whose failure to cover
+    is highly predictable. All off by default; see below.
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
     per tier from final box scores).
+
+## Run-line NPV gates
+
+Gates only ever *remove* a run line, trading bet volume for realized NPV. Each
+is independently switchable and tags the vetoed pick with its gate name, so
+`mlb-engine audit` can grade the counterfactual on the **Run Line NPV** sheet:
+a gate earns its keep only when the picks it removed lost at a materially higher
+rate than the ones it kept (`VETO <gate>` vs `KEPT (no veto)`). A gate never
+fires on missing data.
+
+| Env flag | Applies to | Fires when | Thresholds |
+| --- | --- | --- | --- |
+| `MLBE_RL_GATE_ISO_GB` | favorite -1.5 | low-power lineup vs a ground-ball starter (no multi-run-homer path) | `MLBE_RL_ISO_MAX` (.140), `MLBE_RL_GB_MIN` (.50) |
+| `MLBE_RL_GATE_DOG_SP` | underdog +1.5 | dog starter's last 3 starts show traffic **and** hard contact | `MLBE_RL_DOG_WHIP_MAX` (1.45), `MLBE_RL_DOG_HARD_HIT_MAX` (.45) |
+| `MLBE_RL_GATE_DOG_PEN` | underdog +1.5 | dog bullpen cannot strand inherited runners | `MLBE_RL_DOG_PEN_XWOBA_MAX` (.330), `MLBE_RL_DOG_PEN_K_MIN` (.18) |
+| `MLBE_RL_GATE_TOTAL` | favorite -1.5 | low-scoring game trending to a 1-run margin (redundant with the simulated margin distribution — validate before using) | `MLBE_RL_TOTAL_MAX` (7.0) |
+
+Turn on one gate at a time and re-run `mlb-engine audit` before adding the next.
 
 ## Install
 

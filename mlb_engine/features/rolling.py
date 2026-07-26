@@ -12,6 +12,7 @@ Carlo game simulator directly.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
@@ -22,6 +23,20 @@ import pandas as pd
 HIT_EVENTS = {"single": "1B", "double": "2B", "triple": "3B", "home_run": "HR"}
 WALK_EVENTS = {"walk", "hit_by_pitch"}
 K_EVENTS = {"strikeout", "strikeout_double_play"}
+
+# Total bases per hit event, and the PA-ending events that are not at-bats
+# (needed for ISO = SLG - AVG, which is per-AB rather than per-PA).
+TB_VALUE = {"single": 1, "double": 2, "triple": 3, "home_run": 4}
+NON_AB_EVENTS = {
+    "walk",
+    "hit_by_pitch",
+    "intent_walk",
+    "sac_fly",
+    "sac_bunt",
+    "sac_fly_double_play",
+    "sac_bunt_double_play",
+    "catcher_interf",
+}
 
 # League-average PA outcome rates, used as a Bayesian prior / fallback.
 LEAGUE_RATES = {
@@ -34,6 +49,8 @@ LEAGUE_RATES = {
     "OUT": 0.469,
 }
 PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
+MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
+MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
 
 @dataclass
@@ -166,6 +183,41 @@ def _pa_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df[df["events"].notna()]
 
 
+def batter_iso(events: pd.Series, min_ab: int = MIN_AB_FOR_ISO) -> float | None:
+    """Isolated power (SLG - AVG) from a batter's PA-ending events.
+
+    ``None`` below ``min_ab`` at-bats: a thin-sample ISO swings wildly and would
+    trip a power-based gate on noise alone.
+    """
+    ab = events.dropna()
+    ab = ab[~ab.isin(NON_AB_EVENTS)]
+    if len(ab) < min_ab:
+        return None
+    total_bases = float(ab.map(TB_VALUE).fillna(0).sum())
+    hits = float(ab.isin(TB_VALUE).sum())
+    return (total_bases - hits) / len(ab)
+
+
+def lineup_iso(
+    df: pd.DataFrame,
+    batter_ids: Iterable[int],
+    as_of: Date,
+    days: int,
+    min_ab: int = MIN_AB_FOR_ISO,
+) -> float | None:
+    """Mean ISO across a lineup, skipping hitters without enough at-bats."""
+    ids = {int(b) for b in batter_ids if b}
+    if not ids or "batter" not in df.columns:
+        return None
+    window = _slice_dates(_pa_rows(df[df["batter"].isin(ids)]), as_of, days)
+    vals = [
+        iso
+        for _, rows in window.groupby("batter")
+        if (iso := batter_iso(rows["events"], min_ab)) is not None
+    ]
+    return sum(vals) / len(vals) if vals else None
+
+
 @dataclass
 class BatterProfile:
     mlbam_id: int
@@ -295,6 +347,11 @@ class BullpenProfile:
     relief: pd.DataFrame
     zone_pct: float  # NPV: below ~.40 -> walk trap
     recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
+    xwoba_allowed: float | None = None  # contact quality allowed; None if thin
+
+    @property
+    def k_pct(self) -> float:
+        return self.allowed.p_k
 
     def npv_multipliers(self, availability: float | None = None) -> dict[str, float]:
         """Bounded penalty multipliers for the two bullpen NPV tripwires.
@@ -334,6 +391,12 @@ def build_bullpen_profile(
         else 0.0
     )
 
+    xwoba_allowed = None
+    if len(relief) and "estimated_woba_using_speedangle" in relief:
+        xw = relief["estimated_woba_using_speedangle"].dropna()
+        if len(xw) >= MIN_BBE_FOR_XWOBA:
+            xwoba_allowed = float(xw.mean())
+
     recent_load = 0.0
     if len(relief):
         recent_start = (as_of - timedelta(days=1)) - timedelta(days=2)  # last 3 days
@@ -341,7 +404,13 @@ def build_bullpen_profile(
         expected_3d = len(relief) / days * 3.0
         recent_load = len(recent) / expected_3d if expected_3d > 0 else 0.0
 
-    return BullpenProfile(allowed=allowed, relief=relief, zone_pct=zone_pct, recent_load=recent_load)
+    return BullpenProfile(
+        allowed=allowed,
+        relief=relief,
+        zone_pct=zone_pct,
+        recent_load=recent_load,
+        xwoba_allowed=xwoba_allowed,
+    )
 
 
 @dataclass

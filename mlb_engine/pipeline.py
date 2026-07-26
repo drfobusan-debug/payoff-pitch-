@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
@@ -27,8 +27,10 @@ from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.efficiency import (
+    PitcherEfficiency,
     build_pitcher_efficiency,
     opponent_discipline_factor,
+    recent_start_form,
 )
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
@@ -48,6 +50,7 @@ from mlb_engine.features.rolling import (
     build_batter_profile,
     build_bullpen_profile,
     build_pitcher_profile,
+    lineup_iso,
 )
 from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.features.workload import expected_bf_cap
@@ -58,7 +61,7 @@ from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
-from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+from mlb_engine.market.runline import RunLineSignal, runline_adjustment, runline_veto
 from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
@@ -599,6 +602,55 @@ class Pipeline:
             return None
         return sum(vals) / len(vals)
 
+    def _runline_gate_inputs(
+        self,
+        base: RunLineSignal,
+        statcast,
+        slate_date: Date,
+        *,
+        fav: TeamGameInfo,
+        dog: TeamGameInfo,
+        dog_pit_rows,
+        fav_opp_eff: PitcherEfficiency,
+    ) -> RunLineSignal:
+        """Inputs for the run-line NPV gates, computed only for enabled gates.
+
+        Each is ``None`` when its sample is too thin, which leaves the gate
+        keyed on it inert rather than vetoing on noise.
+        """
+        gates = self.cfg.runline_gates
+        w = self.cfg.windows
+
+        fav_iso = opp_gb = None
+        if gates.iso_gb:
+            fav_iso = lineup_iso(
+                statcast,
+                [s.player.mlbam_id for s in fav.lineup],
+                slate_date,
+                w.batter_home_away_days,
+            )
+            opp_gb = fav_opp_eff.gb_pct
+
+        form = recent_start_form(dog_pit_rows, slate_date) if gates.dog_sp else None
+
+        pen_xwoba = pen_k = None
+        if gates.dog_pen:
+            pen = build_bullpen_profile(
+                statcast, dog.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
+            )
+            pen_xwoba = pen.xwoba_allowed
+            pen_k = pen.k_pct if pen.xwoba_allowed is not None else None
+
+        return replace(
+            base,
+            fav_iso=fav_iso,
+            fav_opp_sp_gb_pct=opp_gb,
+            dog_sp_whip_l3=form.whip if form else None,
+            dog_sp_hard_hit_l3=form.hard_hit_pct if form else None,
+            dog_pen_xwoba=pen_xwoba,
+            dog_pen_k_pct=pen_k,
+        )
+
     def _dgang_multiplier(self, prev, today_park, today_iso: str | None, slate_date: Date):
         """Day-game-after-night-game offense tax for a team, from schedule times."""
         if prev is None or today_park is None:
@@ -774,12 +826,24 @@ class Pipeline:
         away_fat = self._bullpen_fatigue(game.away.team_id, slate_date)
         fav_side = "home" if float((margin > 0).mean()) >= 0.5 else "away"
         fav_fat = home_fat if fav_side == "home" else away_fat
-        rl_signal = RunLineSignal(
-            xwoba_diff=(home_x - away_x) if home_x is not None and away_x is not None else None,
-            fav_pen_depleted_side=(
-                fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
+        rl_signal = self._runline_gate_inputs(
+            RunLineSignal(
+                xwoba_diff=(
+                    (home_x - away_x) if home_x is not None and away_x is not None else None
+                ),
+                fav_pen_depleted_side=(
+                    fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
+                ),
+                sharp_money_side=self._sharp_spread_side(m, ha, aa),
+                fav_side=fav_side,
+                model_total=float(total.mean()),
             ),
-            sharp_money_side=self._sharp_spread_side(m, ha, aa),
+            statcast,
+            slate_date,
+            fav=game.home if fav_side == "home" else game.away,
+            dog=game.away if fav_side == "home" else game.home,
+            dog_pit_rows=away_pit_rows if fav_side == "home" else home_pit_rows,
+            fav_opp_eff=home_eff if fav_side == "away" else away_eff,
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
@@ -1005,11 +1069,20 @@ class Pipeline:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
             tier, reasons = classify(evres, self.cfg.ev.for_market(market))
-            if rl_signal is not None and tier != Tier.PASS:
-                steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
-                if steps:
-                    tier = bump_tier(tier, steps)
-                reasons.extend(rl_reasons)
+            if rl_signal is not None:
+                # NPV gates veto outright (and are recorded either way, so the
+                # audit can grade what each gate removed); the xwOBA/sharp-money
+                # signals only nudge the tier of a surviving selection.
+                veto = runline_veto(team_side, line, rl_signal, self.cfg.runline_gates)
+                if veto.triggered:
+                    tier = Tier.PASS
+                    reasons.append(veto.reason())
+                    rec.veto_gate = veto.gate
+                elif tier != Tier.PASS:
+                    steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
+                    if steps:
+                        tier = bump_tier(tier, steps)
+                    reasons.extend(rl_reasons)
             rec.tier = tier
             rec.reasons = reasons
         else:

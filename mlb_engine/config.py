@@ -77,6 +77,43 @@ class EVThresholds:
 
 
 @dataclass(frozen=True)
+class RunLineGates:
+    """NPV gates that veto a run-line selection outright.
+
+    Each gate removes selections whose *failure* to cover is highly predictable,
+    lifting realized NPV at the cost of bet volume. They ship disabled so each
+    can be A/B'd against the ledger one at a time (see ``runline_metrics``).
+    """
+
+    # Favorite -1.5: a low-power lineup facing a ground-ball starter has almost
+    # no blowout path (needs multi-run homers it cannot hit).
+    iso_gb: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_ISO_GB", False))
+    iso_max: float = field(default_factory=lambda: _env_float("MLBE_RL_ISO_MAX", 0.140))
+    gb_min: float = field(default_factory=lambda: _env_float("MLBE_RL_GB_MIN", 0.50))
+
+    # Underdog +1.5: a starter putting runners on and giving up hard contact is
+    # a blowout waiting to happen.
+    dog_sp: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_DOG_SP", False))
+    dog_sp_whip_max: float = field(default_factory=lambda: _env_float("MLBE_RL_DOG_WHIP_MAX", 1.45))
+    dog_sp_hard_hit_max: float = field(
+        default_factory=lambda: _env_float("MLBE_RL_DOG_HARD_HIT_MAX", 0.45)
+    )
+
+    # Underdog +1.5: a bullpen that cannot strand inherited runners hands the
+    # favorite the late-innings cushion that breaks the spread.
+    dog_pen: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_DOG_PEN", False))
+    dog_pen_xwoba_max: float = field(
+        default_factory=lambda: _env_float("MLBE_RL_DOG_PEN_XWOBA_MAX", 0.330)
+    )
+    dog_pen_k_min: float = field(default_factory=lambda: _env_float("MLBE_RL_DOG_PEN_K_MIN", 0.18))
+
+    # Favorite -1.5: low-total games trend to 1-run margins. Redundant with the
+    # simulated margin distribution, so it is off by default.
+    low_total: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_TOTAL", False))
+    low_total_max: float = field(default_factory=lambda: _env_float("MLBE_RL_TOTAL_MAX", 7.0))
+
+
+@dataclass(frozen=True)
 class Credentials:
     """Credentials for subscription data sources and SMTP (never logged)."""
 
@@ -124,6 +161,7 @@ class Credentials:
 class Config:
     windows: RollingWindows = field(default_factory=RollingWindows)
     ev: EVThresholds = field(default_factory=EVThresholds)
+    runline_gates: RunLineGates = field(default_factory=RunLineGates)
     creds: Credentials = field(default_factory=Credentials)
 
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.

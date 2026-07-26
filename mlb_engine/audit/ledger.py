@@ -52,6 +52,7 @@ class LedgerEntry:
     ev: float | None
     result: str  # win | loss | push
     pnl: float  # net units on a 1u stake (win: dec-1, loss: -1, push: 0)
+    veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
 
 
 LEDGER_FIELDS = [
@@ -68,6 +69,7 @@ LEDGER_FIELDS = [
     "ev",
     "result",
     "pnl",
+    "veto_gate",
 ]
 
 
@@ -100,6 +102,7 @@ def entries_from_graded(
                 ev=round(rec.ev, 4) if rec.ev is not None else None,
                 result=result,
                 pnl=_pnl(result, rec.market_american),
+                veto_gate=rec.veto_gate or "",
             )
         )
     return entries
@@ -135,6 +138,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     ev=_to_float(row["ev"]),
                     result=row["result"],
                     pnl=_to_float(row["pnl"]) or 0.0,
+                    veto_gate=row.get("veto_gate", ""),
                 )
             )
     return out
@@ -302,4 +306,35 @@ def prop_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     rows = [_metrics(by_market[m], _favors, m) for m in sorted(by_market)]
     if props:
         rows.append(_metrics(props, _favors, "ALL PROPS"))
+    return rows
+
+
+# --- run lines: per-line metrics + NPV gate attribution --------------------
+RUNLINE_MARKETS = ("game_rl", "f5_rl")
+
+
+def runline_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """PPV/NPV for run lines, split by side, plus one row per NPV gate.
+
+    The gate rows are the point of the exercise: each reports how the selections
+    a gate *removed* actually finished. A gate is earning its keep when its row
+    shows a low win rate (it deleted losers); a gate whose vetoed picks won near
+    50% is destroying bet volume for nothing. ``KEPT`` is the complement — every
+    run line that cleared the gates.
+    """
+    rls = [e for e in entries if e.market in RUNLINE_MARKETS]
+    if not rls:
+        return []
+
+    rows = [_metrics(rls, _favors, "ALL RUN LINES")]
+    for label, line in (("FAVORITE (-1.5)", -1.5), ("UNDERDOG (+1.5)", 1.5)):
+        side = [e for e in rls if e.line == line]
+        if side:
+            rows.append(_metrics(side, _favors, label))
+
+    vetoed = [e for e in rls if e.veto_gate]
+    for gate in sorted({e.veto_gate for e in vetoed}):
+        rows.append(_metrics([e for e in vetoed if e.veto_gate == gate], _favors, f"VETO {gate}"))
+    if vetoed:
+        rows.append(_metrics([e for e in rls if not e.veto_gate], _favors, "KEPT (no veto)"))
     return rows
