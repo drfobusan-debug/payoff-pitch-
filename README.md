@@ -74,6 +74,14 @@ fires on missing data.
 
 Turn on one gate at a time and re-run `mlb-engine audit` before adding the next.
 
+Calibrate the thresholds against this engine's own scales, not FanGraphs/Savant
+leaderboards: hard-hit% and GB% are computed off the tracked-batted-ball slice
+(same convention as `build_pitcher_regression`) and read a few points lower than
+the public versions, and WHIP is the PA-derived proxy. On a full 15-game slate
+the published defaults (.45 hard-hit, .50 GB) fired on 0 of 60 run lines, while
+.25 / .40 fired on 12 — start loose enough to get a sample, then tighten on what
+the `VETO` rows show.
+
 ## Install
 
 ```bash

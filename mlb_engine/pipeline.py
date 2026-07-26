@@ -61,7 +61,12 @@ from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
-from mlb_engine.market.runline import RunLineSignal, runline_adjustment, runline_veto
+from mlb_engine.market.runline import (
+    RunLineSignal,
+    RunLineVeto,
+    runline_adjustment,
+    runline_veto,
+)
 from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
@@ -1053,6 +1058,17 @@ class Pipeline:
             rec.factor = selector.factor
             rec.score = selector.score
             rec.profile = selector.profile
+        # NPV gates run whether or not the market is priced: an unpriced run
+        # line is already a Pass, but the audit still needs to know which gate
+        # removed it to grade the counterfactual.
+        veto = (
+            runline_veto(team_side, line, rl_signal, self.cfg.runline_gates)
+            if rl_signal is not None
+            else RunLineVeto()
+        )
+        if veto.triggered:
+            rec.veto_gate = veto.gate
+
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
         if q:
@@ -1069,25 +1085,21 @@ class Pipeline:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
             tier, reasons = classify(evres, self.cfg.ev.for_market(market))
-            if rl_signal is not None:
-                # NPV gates veto outright (and are recorded either way, so the
-                # audit can grade what each gate removed); the xwOBA/sharp-money
-                # signals only nudge the tier of a surviving selection.
-                veto = runline_veto(team_side, line, rl_signal, self.cfg.runline_gates)
-                if veto.triggered:
-                    tier = Tier.PASS
-                    reasons.append(veto.reason())
-                    rec.veto_gate = veto.gate
-                elif tier != Tier.PASS:
-                    steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
-                    if steps:
-                        tier = bump_tier(tier, steps)
-                    reasons.extend(rl_reasons)
+            if veto.triggered:
+                # A gate vetoes outright; the xwOBA/sharp-money signals only
+                # nudge the tier of a selection that survived the gates.
+                tier = Tier.PASS
+                reasons.append(veto.reason())
+            elif rl_signal is not None and tier != Tier.PASS:
+                steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
+                if steps:
+                    tier = bump_tier(tier, steps)
+                reasons.extend(rl_reasons)
             rec.tier = tier
             rec.reasons = reasons
         else:
             rec.tier = Tier.PASS
-            rec.reasons = ["no market price"]
+            rec.reasons = [veto.reason()] if veto.triggered else ["no market price"]
             sp = self._splits.get(key)
             if sp is not None:
                 rec.handle_pct = sp.handle_pct
