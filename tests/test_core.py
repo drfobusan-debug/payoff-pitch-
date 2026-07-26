@@ -1881,3 +1881,58 @@ def test_build_singles_under_from_statcast():
     assert np.isclose(p.bb_pct, 0.15)
     assert p.avg_la == 25.0
     assert p.bip == 55
+
+
+# ---- SIERA from Statcast ----
+def test_pitcher_siera_ace_vs_scrub_and_empty():
+    import pandas as pd
+
+    from mlb_engine.features.siera import pitcher_siera
+
+    def _mk(n_pa, k, bb, gb, fb, pu):
+        # n_pa PA: k strikeouts, bb walks, rest batted balls split gb/fb/pu.
+        events = (
+            ["strikeout"] * k
+            + ["walk"] * bb
+            + ["field_out"] * (n_pa - k - bb)
+        )
+        bip = n_pa - k - bb
+        bt = (
+            [None] * (k + bb)
+            + ["ground_ball"] * gb
+            + ["fly_ball"] * fb
+            + ["popup"] * pu
+            + [None] * (bip - gb - fb - pu)
+        )
+        return pd.DataFrame({"events": events, "bb_type": bt})
+
+    # High-K, low-BB, grounder-leaning -> low (elite) SIERA.
+    ace = pitcher_siera(_mk(200, 76, 10, 60, 30, 5))
+    # Low-K, high-BB, fly-ball-leaning -> high SIERA.
+    scrub = pitcher_siera(_mk(200, 24, 22, 30, 55, 12))
+    assert ace.has_data and scrub.has_data
+    assert ace.siera < 3.4 < scrub.siera
+    assert 1.0 < ace.siera < 3.4
+    assert 4.0 < scrub.siera < 6.5
+
+    # No plate appearances -> neutral, not trusted.
+    empty = pitcher_siera(pd.DataFrame({"events": [None, None], "bb_type": [None, None]}))
+    assert empty.pa == 0 and not empty.has_data
+    assert empty.siera != empty.siera  # nan
+
+
+def test_siera_matchup_gate_helpers():
+    from mlb_engine.features.siera import Siera, faces_ace, faces_scrub
+
+    ace = Siera(pa=180, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.1)
+    mid = Siera(pa=150, so_rate=0.22, bb_rate=0.08, net_gb_rate=0.05, siera=3.9)
+    scrub = Siera(pa=140, so_rate=0.13, bb_rate=0.10, net_gb_rate=0.06, siera=4.9)
+    thin = Siera(pa=20, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.0)
+
+    # Ace triggers the over-exclude; mid/scrub do not.
+    assert faces_ace(ace, 3.4) and not faces_ace(mid, 3.4) and not faces_ace(scrub, 3.4)
+    # Scrub triggers the under-veto; ace/mid do not.
+    assert faces_scrub(scrub, 4.4) and not faces_scrub(mid, 4.4) and not faces_scrub(ace, 4.4)
+    # Thin sample and missing data stay neutral on both sides.
+    assert not faces_ace(thin, 3.4) and not faces_scrub(thin, 4.4)
+    assert not faces_ace(None, 3.4) and not faces_scrub(None, 4.4)

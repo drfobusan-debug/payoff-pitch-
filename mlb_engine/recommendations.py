@@ -47,6 +47,8 @@ class Recommendation:
     bat_bb_pct: float | None = None
     # Singles-Under NPV score (structural anti-singles red flags); None off-batter.
     bat_singles_under: float | None = None
+    # Opposing starter's SIERA (Statcast) for the singles matchup gate.
+    opp_starter_siera: float | None = None
     # --- game environment context (same for every rec in a game; for the card) ---
     park_name: str | None = None
     park_factor: float | None = None

@@ -152,6 +152,23 @@ class Config:
         default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_MIN", 3.0)
     )
 
+    # Opposing-starter SIERA gate on the batter singles/hit market. Since singles
+    # PPV is weak, lean on matchup quality: skip the singles/H/H+R+RBI OVER when
+    # the batter faces an ace (SIERA < ace floor, e.g. Arraez vs Skubal), and do
+    # NOT apply the singles-Under exclusion when he faces a scrub (SIERA > bad
+    # ceiling, e.g. a power bat vs Gallen -- a weak arm inflates cheap singles).
+    # SIERA is computed from Statcast; the gate stays neutral when the opposing
+    # starter has too few PA. Set MLBE_SINGLES_SIERA=0 to disable.
+    singles_siera: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_SIERA", True)
+    )
+    singles_siera_ace: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_SIERA_ACE", 3.4)
+    )
+    singles_siera_bad: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_SIERA_BAD", 4.4)
+    )
+
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")

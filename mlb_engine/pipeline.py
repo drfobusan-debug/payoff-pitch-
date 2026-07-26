@@ -50,6 +50,12 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
 )
+from mlb_engine.features.siera import (
+    Siera,
+    faces_ace,
+    faces_scrub,
+    pitcher_siera,
+)
 from mlb_engine.features.singles_under import (
     SinglesUnderResult,
     evaluate_singles_under,
@@ -733,6 +739,12 @@ class Pipeline:
         w = self.cfg.windows
         home_pit_rows = statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id]
         away_pit_rows = statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id]
+        # SIERA of each starter (from Statcast); away batters face the home
+        # starter and vice-versa -> map by the batter's own team_key.
+        opp_siera = {
+            "away": pitcher_siera(home_pit_rows),
+            "home": pitcher_siera(away_pit_rows),
+        }
         home_cap = expected_bf_cap(
             home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
         )
@@ -849,7 +861,8 @@ class Pipeline:
         ):
             recs.extend(
                 self._batter_props(
-                    game, m, res, team_key, tinfo, flags, sels, regs, sunders, quotes
+                    game, m, res, team_key, tinfo, flags, sels, regs, sunders,
+                    opp_siera[team_key], quotes,
                 )
             )
 
@@ -940,26 +953,49 @@ class Pipeline:
             k_ceiling=self.cfg.contact_k_ceiling,
         )
 
-    def _singles_under_reason(self, su: SinglesUnderResult | None) -> str | None:
-        """Exclude the singles/H/H+R+RBI over for a strong singles-Under profile."""
+    def _singles_under_reason(
+        self, su: SinglesUnderResult | None, opp: Siera | None
+    ) -> str | None:
+        """Exclude the singles/H/H+R+RBI over for a strong singles-Under profile.
+
+        Vetoed when the batter faces a weak arm (SIERA above the ceiling): a
+        scrub inflates cheap singles even for a power bat, so don't fade it.
+        """
         if (
             not self.cfg.singles_under
             or su is None
             or su.score < self.cfg.singles_under_min
         ):
             return None
+        if self.cfg.singles_siera and faces_scrub(opp, self.cfg.singles_siera_bad):
+            return None
         return f"singles under (score {su.score:.1f}): {'; '.join(su.reasons)}"
 
-    def _batter_gate(self, breg, su: SinglesUnderResult | None, stat: str) -> str | None:
-        """Combined batter-prop floor: contact-quality first, then singles-Under."""
+    def _singles_ace_reason(self, opp: Siera | None) -> str | None:
+        """Exclude the singles/hit over when the batter faces an ace starter."""
+        if opp is None or not self.cfg.singles_siera:
+            return None
+        if not faces_ace(opp, self.cfg.singles_siera_ace):
+            return None
+        return f"vs ace: opp SIERA {opp.siera:.2f} < {self.cfg.singles_siera_ace:.2f}"
+
+    def _batter_gate(
+        self, breg, su: SinglesUnderResult | None, opp: Siera | None, stat: str
+    ) -> str | None:
+        """Combined batter-prop floor: contact-quality, then SIERA/singles-Under."""
         reason = self._power_floor_reason(breg, stat)
         if reason is not None:
             return reason
         if stat in ("H", "1B", "HRR"):
-            return self._singles_under_reason(su)
+            ace = self._singles_ace_reason(opp)
+            if ace is not None:
+                return ace
+            return self._singles_under_reason(su, opp)
         return None
 
-    def _batter_props(self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, quotes):
+    def _batter_props(
+        self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera, quotes
+    ):
         out = []
         bat = res.bat[team_key]
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
@@ -977,12 +1013,14 @@ class Pipeline:
             )
             if su is not None and su.profile.has_data:
                 feat["bat_singles_under"] = su.score
+            if opp_siera is not None and opp_siera.has_data:
+                feat["opp_starter_siera"] = opp_siera.siera
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
                 if stat == "RBI" and rbi_sel is not None:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
-                gate = self._batter_gate(breg, su, stat)
+                gate = self._batter_gate(breg, su, opp_siera, stat)
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",
@@ -991,7 +1029,7 @@ class Pipeline:
                         selector=sel, gate_reason=gate, **feat,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
-            hrr_gate = self._batter_gate(breg, su, "HRR")
+            hrr_gate = self._batter_gate(breg, su, opp_siera, "HRR")
             for line in (1.5, 2.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
@@ -1036,7 +1074,8 @@ class Pipeline:
             bat_xslg: float | None = None,
             bat_k_pct: float | None = None,
             bat_bb_pct: float | None = None,
-            bat_singles_under: float | None = None) -> Recommendation:
+            bat_singles_under: float | None = None,
+            opp_starter_siera: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         rec = Recommendation(
@@ -1063,6 +1102,7 @@ class Pipeline:
         rec.bat_k_pct = bat_k_pct
         rec.bat_bb_pct = bat_bb_pct
         rec.bat_singles_under = bat_singles_under
+        rec.opp_starter_siera = opp_starter_siera
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
         if q:
