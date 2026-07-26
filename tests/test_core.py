@@ -1401,6 +1401,81 @@ def test_prop_insights_fp_fn_tp():
     assert any(i.market == "batter_1b" and i.kind == FALSE_NEGATIVE for i in fns)
 
 
+def test_picked_margin_run_line():
+    from mlb_engine.audit.grade import picked_margin
+
+    res = GameResult(1, True, 5, 3, 3, 1)  # home wins 5-3 (full), 3-1 (F5)
+    assert picked_margin(_rec(market="game_rl", team_side="home", line=-1.5), res) == 2.0
+    assert picked_margin(_rec(market="game_rl", team_side="away", line=1.5), res) == -2.0
+    assert picked_margin(_rec(market="f5_rl", team_side="home", line=-1.5), res) == 2.0
+    # non run-line markets carry no margin
+    assert picked_margin(_rec(market="game_ml", team_side="home"), res) is None
+    # missing team_side -> None
+    assert picked_margin(_rec(market="game_rl", line=-1.5), res) is None
+
+
+def test_run_line_miss_matrix_and_findings():
+    from mlb_engine.audit.analysis import run_line_miss_findings, run_line_miss_matrix
+    from mlb_engine.audit.ledger import entries_from_graded
+
+    results = {
+        1: GameResult(1, True, 4, 3, 0, 0),  # home +1  -> -1.5 fav loses by 1
+        2: GameResult(2, True, 6, 3, 0, 0),  # home +3  -> -1.5 fav covers
+        3: GameResult(3, True, 2, 5, 0, 0),  # home -3  -> -1.5 fav loses outright
+        4: GameResult(4, True, 7, 1, 0, 0),  # home +6  -> away +1.5 dog blown out
+        5: GameResult(5, True, 5, 3, 0, 0),  # home +2  -> away +1.5 dog loses close
+    }
+    graded = [
+        (_rec(game_pk=1, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=2, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), WIN),
+        (_rec(game_pk=3, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=4, market="game_rl", team_side="away", line=1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=5, market="game_rl", team_side="away", line=1.5, model_prob=0.6), LOSS),
+    ]
+    entries = entries_from_graded(graded, date(2024, 7, 19), results)
+    assert entries[0].margin == 1.0  # one-run win recorded
+
+    m = run_line_miss_matrix(entries)
+    assert (m.fav_n, m.fav_cover, m.fav_one_run, m.fav_outright) == (3, 1, 1, 1)
+    assert (m.dog_n, m.dog_cover, m.dog_moderate, m.dog_blowout) == (2, 0, 1, 1)
+
+    finds = run_line_miss_findings(entries)
+    assert any("one-run" in f for f in finds)
+    assert any("blowout" in f for f in finds)
+
+
+def test_run_line_miss_matrix_persists_across_ledger_io(tmp_path):
+    from mlb_engine.audit.analysis import run_line_miss_matrix
+    from mlb_engine.audit.ledger import entries_from_graded, load_ledger, update_ledger
+
+    results = {1: GameResult(1, True, 4, 3, 0, 0)}
+    graded = [
+        (_rec(game_pk=1, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
+    ]
+    entries = entries_from_graded(graded, date(2024, 7, 19), results)
+    path = tmp_path / "ledger.csv"
+    update_ledger(path, entries, date(2024, 7, 19))
+    reloaded = load_ledger(path)
+    assert reloaded[0].margin == 1.0  # margin survives the CSV round-trip
+    assert run_line_miss_matrix(reloaded).fav_one_run == 1
+
+
+def test_report_renders_run_line_miss_matrix():
+    from mlb_engine.audit.ledger import entries_from_graded
+    from mlb_engine.output.report import build_report_data, render_markdown_report
+
+    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, 6)}
+    graded = [
+        (_rec(game_pk=i, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
+        for i in range(1, 6)
+    ]
+    entries = entries_from_graded(graded, date(2026, 7, 23), results)
+    data = build_report_data(entries, period_label="Daily", subtitle="x")
+    assert data.rl_matrix.has_data
+    md = render_markdown_report(data)
+    assert "Run-line miss matrix" in md
+
+
 def test_ledger_workbook_with_analysis(tmp_path):
     from mlb_engine.audit.analysis import prop_insights
     from mlb_engine.audit.ledger import (

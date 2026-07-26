@@ -249,7 +249,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     rows = build_scorecard(graded, audit_date)
     append_scorecard(rows, cfg.audit_dir / "scorecard.csv")
 
-    entries = entries_from_graded(graded, audit_date)
+    entries = entries_from_graded(graded, audit_date, results)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
     engine = engine_metrics(all_entries)
     overall = [engine, *overall_metrics(all_entries)]

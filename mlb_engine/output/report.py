@@ -22,7 +22,13 @@ from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
 
-from mlb_engine.audit.analysis import BREAKEVEN, false_negative_insights
+from mlb_engine.audit.analysis import (
+    BREAKEVEN,
+    RunLineMissMatrix,
+    false_negative_insights,
+    run_line_miss_findings,
+    run_line_miss_matrix,
+)
 from mlb_engine.audit.ledger import (
     LedgerEntry,
     OverallMetrics,
@@ -128,6 +134,8 @@ class ReportData:
     play: list[str]
     neutral: list[str]
     fade: list[str]
+    rl_matrix: RunLineMissMatrix
+    rl_findings: list[str]
 
 
 def _pct(x: float) -> str:
@@ -272,6 +280,11 @@ def build_report_data(
             "||protects existing PPV"
         )
 
+    # run-line miss matrix: where backed run-line picks lose (one-run-win vs
+    # blowout). Rendered in its own report section.
+    rl_matrix = run_line_miss_matrix(entries)
+    rl_findings = run_line_miss_findings(entries)
+
     return ReportData(
         period_label=period_label,
         subtitle=subtitle,
@@ -284,6 +297,8 @@ def build_report_data(
         play=play,
         neutral=neutral,
         fade=fade,
+        rl_matrix=rl_matrix,
+        rl_findings=rl_findings,
     )
 
 
@@ -357,6 +372,34 @@ def render_markdown_report(d: ReportData) -> str:
         "*(Diagnostic accuracy terms — NPV here is **not** the financial 'Net "
         "Present Value'.)*\n"
     )
+
+    if d.rl_matrix.has_data:
+        m = d.rl_matrix
+        L.append("---\n")
+        L.append("## Run-line miss matrix\n")
+        L.append(
+            "Where the backed run line actually lands. A **-1.5 favorite** miss is "
+            "either a *one-run win* (right team, not enough margin) or an *outright "
+            "loss* (wrong team). A **+1.5 dog** miss is either a *2-4 run loss* "
+            "(close) or a *5+ blowout* (variance blew it open).\n"
+        )
+        L.append("| Backed side | n | Covered | One-run win | Outright loss |")
+        L.append("|---|---|---|---|---|")
+        L.append(
+            f"| Favorite -1.5 | {m.fav_n} | {m.fav_cover} | {m.fav_one_run} | "
+            f"{m.fav_outright} |"
+        )
+        L.append("")
+        L.append("| Backed side | n | Covered | 2-4 run loss | 5+ blowout |")
+        L.append("|---|---|---|---|---|")
+        L.append(
+            f"| Underdog +1.5 | {m.dog_n} | {m.dog_cover} | {m.dog_moderate} | "
+            f"{m.dog_blowout} |"
+        )
+        L.append("")
+        for f in d.rl_findings:
+            L.append(f"- {f}")
+        L.append("")
 
     L.append("---\n")
     L.append("## Most common errors\n")
@@ -480,6 +523,38 @@ def render_html_report(d: ReportData) -> str:
         "(Negative Predictive Value):</strong> of the sides the model fades, the "
         "share that lose. <em>(NPV here is not the financial 'Net Present Value'.)</em></p>"
     )
+
+    if d.rl_matrix.has_data:
+        m = d.rl_matrix
+        b.append("<h2>Run-line miss matrix</h2>")
+        b.append(
+            "<p>Where the backed run line actually lands. A <strong>-1.5 favorite</strong> "
+            "miss is either a <em>one-run win</em> (right team, not enough margin) or an "
+            "<em>outright loss</em> (wrong team). A <strong>+1.5 dog</strong> miss is "
+            "either a <em>2-4 run loss</em> (close) or a <em>5+ blowout</em> "
+            "(variance blew it open).</p>"
+        )
+        b.append(
+            "<table>"
+            "<tr><th>Backed side</th><th>n</th><th>Covered</th>"
+            "<th>One-run win</th><th>Outright loss</th></tr>"
+            f"<tr><td>Favorite -1.5</td><td>{m.fav_n}</td><td>{m.fav_cover}</td>"
+            f"<td>{m.fav_one_run}</td><td>{m.fav_outright}</td></tr>"
+            "</table>"
+        )
+        b.append(
+            "<table>"
+            "<tr><th>Backed side</th><th>n</th><th>Covered</th>"
+            "<th>2-4 run loss</th><th>5+ blowout</th></tr>"
+            f"<tr><td>Underdog +1.5</td><td>{m.dog_n}</td><td>{m.dog_cover}</td>"
+            f"<td>{m.dog_moderate}</td><td>{m.dog_blowout}</td></tr>"
+            "</table>"
+        )
+        if d.rl_findings:
+            b.append("<ul>")
+            for f in d.rl_findings:
+                b.append(f"<li>{_md_inline_to_html(f)}</li>")
+            b.append("</ul>")
 
     b.append("<h2>Most common errors</h2><ul>")
     if d.errors:

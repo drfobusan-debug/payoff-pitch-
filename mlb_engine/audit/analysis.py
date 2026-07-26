@@ -291,3 +291,122 @@ def prop_insights(entries: list[LedgerEntry], min_n: int = DEFAULT_MIN_N) -> lis
         + false_negative_insights(entries, min_n)
         + true_positive_insights(entries, min_n)
     )
+
+
+# --- run-line miss matrix --------------------------------------------------
+# A backed -1.5 favorite that loses does so in one of two ways: the team won but
+# only by 1 (a *one-run-win error* -> the model was right on the winner but the
+# offense lacked the power to cover), or the team lost outright (wrong winner).
+# A backed +1.5 dog that loses did so by 2+, split into a *blowout error*
+# (lost by 5+ -> starter/bullpen variance blew the game open) and a moderate
+# 2-4 run loss. Tracking which bucket dominates tells us which knob to turn.
+BLOWOUT_MARGIN = 5  # dog lost by this many or more -> blowout error
+
+
+@dataclass
+class RunLineMissMatrix:
+    """Where backed run-line picks miss (from ledger rows with a stored margin)."""
+
+    fav_n: int  # decided, favored -1.5 picks with a margin
+    fav_cover: int  # covered -1.5 (win)
+    fav_one_run: int  # lost: backed team won by exactly 1
+    fav_outright: int  # lost: backed team lost the game
+    dog_n: int  # decided, favored +1.5 picks with a margin
+    dog_cover: int  # covered +1.5 (win)
+    dog_moderate: int  # lost by 2-4
+    dog_blowout: int  # lost by 5+
+
+    @property
+    def fav_losses(self) -> int:
+        return self.fav_one_run + self.fav_outright
+
+    @property
+    def dog_losses(self) -> int:
+        return self.dog_moderate + self.dog_blowout
+
+    @property
+    def has_data(self) -> bool:
+        return self.fav_n > 0 or self.dog_n > 0
+
+
+def _is_fav_rl(e: LedgerEntry) -> bool:
+    return e.line is not None and e.line < 0
+
+
+def _is_dog_rl(e: LedgerEntry) -> bool:
+    return e.line is not None and e.line > 0
+
+
+def run_line_miss_matrix(entries: list[LedgerEntry]) -> RunLineMissMatrix:
+    """Break backed run-line losses into one-run-win vs blowout errors.
+
+    Only ``game_rl`` rows the model favored (``model_prob >= 0.5``), that were
+    decided (not a push) and carry a stored margin, are counted.
+    """
+    rl = [
+        e
+        for e in _decided(entries)
+        if e.market == "game_rl"
+        and e.model_prob >= ENGINE_PROB_THRESHOLD
+        and e.margin is not None
+    ]
+    m = RunLineMissMatrix(0, 0, 0, 0, 0, 0, 0, 0)
+    for e in rl:
+        margin = e.margin
+        assert margin is not None  # narrowed by the filter above
+        if _is_fav_rl(e):
+            m.fav_n += 1
+            if _won(e):
+                m.fav_cover += 1
+            elif margin == 1:
+                m.fav_one_run += 1
+            else:
+                m.fav_outright += 1
+        elif _is_dog_rl(e):
+            m.dog_n += 1
+            if _won(e):
+                m.dog_cover += 1
+            elif margin <= -BLOWOUT_MARGIN:
+                m.dog_blowout += 1
+            else:
+                m.dog_moderate += 1
+    return m
+
+
+def run_line_miss_findings(entries: list[LedgerEntry]) -> list[str]:
+    """Plain-language findings from the run-line miss matrix (empty if no data)."""
+    m = run_line_miss_matrix(entries)
+    out: list[str] = []
+    if m.fav_losses > 0:
+        share = m.fav_one_run / m.fav_losses
+        if m.fav_one_run >= m.fav_outright:
+            out.append(
+                f"**-1.5 favorites die on the margin, not the pick.** {m.fav_one_run} of "
+                f"{m.fav_losses} favorite run-line losses were one-run wins (the backed "
+                f"team won but by 1). The model reads the winner but the offense lacks the "
+                f"power to cover — lean -1.5 toward high-ISO/barrel lineups vs barrel-prone "
+                f"starters, or take the ML instead. ({share * 100:.0f}% of the misses)"
+            )
+        else:
+            out.append(
+                f"**-1.5 favorites are the wrong team.** {m.fav_outright} of {m.fav_losses} "
+                f"favorite run-line losses were outright losses (backed team didn't win) — "
+                f"a side-selection problem, not a power problem. Tighten who we call the "
+                f"favorite before stretching to -1.5."
+            )
+    if m.dog_losses > 0:
+        share = m.dog_blowout / m.dog_losses
+        if m.dog_blowout >= m.dog_moderate:
+            out.append(
+                f"**+1.5 dogs get blown out.** {m.dog_blowout} of {m.dog_losses} underdog "
+                f"run-line losses were 5+ run blowouts — starter/bullpen variance is opening "
+                f"games up. Gate +1.5 toward groundball underdog pitchers in low-total, "
+                f"pitcher-friendly parks. ({share * 100:.0f}% of the misses)"
+            )
+        else:
+            out.append(
+                f"**+1.5 dogs lose close.** {m.dog_moderate} of {m.dog_losses} underdog "
+                f"run-line losses were 2-4 run games, not blowouts — the +1.5 is landing "
+                f"near the number; a small push toward tighter game scripts recovers them."
+            )
+    return out
