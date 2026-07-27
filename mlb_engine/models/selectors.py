@@ -39,6 +39,10 @@ class Selection:
     outcome_multipliers: dict[str, float] = field(default_factory=dict)
     # Post-simulation stat multipliers (e.g. RBI/TB derived arrays)
     post_multipliers: dict[str, float] = field(default_factory=dict)
+    # Batter power inputs for the home-run power gate (None when unavailable).
+    hr_max_ev: float | None = None
+    hr_barrel: float | None = None
+    hr_bbe: int | None = None
 
     def __bool__(self) -> bool:
         return self.signal not in ("none", "hold") or self.factor != 1.0
@@ -269,6 +273,12 @@ class TBSelector:
         score += sprint_delta * 0.05
         reasons.append(f"sprint={breg.sprint_speed:.1f}({sprint_delta:+.1f})")
 
+        # Stamped for HR/PPV auditing (not scored here).
+        if breg.gb_pct == breg.gb_pct:  # not NaN
+            reasons.append(f"gb={breg.gb_pct:.3f}")
+        if breg.pull_air_pct == breg.pull_air_pct:  # not NaN
+            reasons.append(f"pull_air={breg.pull_air_pct:.3f}")
+
         if slot is not None and 2 <= slot <= 5:
             score += 0.5
             reasons.append("cleanup_spot")
@@ -296,4 +306,7 @@ class TBSelector:
             score=round(score, 2),
             profile=" | ".join(reasons),
             post_multipliers={"TB": factor},
+            hr_max_ev=breg.max_ev,
+            hr_barrel=breg.barrel_rate,
+            hr_bbe=breg.bbe,
         )
