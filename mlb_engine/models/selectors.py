@@ -10,6 +10,7 @@ and simulated RBI markets rather than creating new ones.
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import dataclass, field
 
 from mlb_engine.data.parks import Park
@@ -25,6 +26,25 @@ from mlb_engine.features.regression import (
     BatterRegression,
 )
 from mlb_engine.models.rbi_rule import RBIFlag, rbi_multiplier
+
+
+def _env_float(name: str, default: float) -> float:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    try:
+        return float(val)
+    except ValueError:
+        return default
+
+
+# Total-bases selector weights. Backtesting the graded total-bases props showed
+# max exit velocity is the one metric that separates over-winners from losers at
+# every line (strongest on the power-driven 2.5/3.5 lines), while xSLG/xBA carry
+# little signal -- yet max_ev was historically weighted ~5x smaller than xSLG.
+# These up-weight raw power and are env-tunable.
+TB_MAX_EV_W = _env_float("MLBE_TB_MAX_EV_W", 0.20)
+TB_BARREL_W = _env_float("MLBE_TB_BARREL_W", 5.0)
 
 
 @dataclass
@@ -258,11 +278,11 @@ class TBSelector:
         reasons.append(f"bat_speed={breg.bat_speed:.1f}({bat_speed_delta:+.1f})")
 
         max_ev_delta = breg.max_ev - BL_MAX_EV
-        score += max_ev_delta * 0.04
+        score += max_ev_delta * TB_MAX_EV_W
         reasons.append(f"max_ev={breg.max_ev:.1f}({max_ev_delta:+.1f})")
 
         barrel_delta = breg.barrel_rate - BL_BARREL
-        score += barrel_delta * 3.0
+        score += barrel_delta * TB_BARREL_W
         reasons.append(f"barrel={breg.barrel_rate:.3f}({barrel_delta:+.3f})")
 
         hard_delta = breg.hard_hit - BL_HARD_HIT

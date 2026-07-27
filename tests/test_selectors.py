@@ -83,6 +83,31 @@ def test_tb_selector_sell(weak_batter: BatterRegression) -> None:
     assert sel.signal == "sell"
 
 
+def test_tb_selector_max_ev_drives_factor() -> None:
+    """Two batters identical but for max EV -> the higher-max-EV bat gets the
+    higher TB factor (max EV is the significant separator, now up-weighted)."""
+    base = dict(
+        bbe=50,
+        barrel_rate=0.08,
+        hard_hit=0.30,
+        sweet_spot=0.31,
+        bat_speed=70.0,
+        whiff=0.30,
+        zone_contact=0.78,
+        xba=0.250,
+        xslg=0.400,
+        babip=0.290,
+        woba=0.320,
+        xwoba=0.320,
+        sprint_speed=27.0,
+    )
+    low = TBSelector().select(BatterRegression(max_ev=105.0, **base))
+    high = TBSelector().select(BatterRegression(max_ev=114.0, **base))
+    assert high.factor > low.factor
+    # The 9 mph gap should move the factor by a meaningful, not negligible, amount.
+    assert high.factor - low.factor > 0.03
+
+
 def test_rbi_selector_flagged_buy() -> None:
     flag = RBIFlag(
         slot=3,
