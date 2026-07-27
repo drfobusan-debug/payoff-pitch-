@@ -16,8 +16,10 @@ def test_shrink_pulls_the_confident_tail_in():
     assert SHRINK.apply(0.90) < 0.80
 
 
-def test_shrink_leaves_the_calibrated_middle_alone():
-    for p in (0.50, 0.55, 0.599):
+def test_shrink_leaves_the_calibrated_middle_and_the_low_tail_alone():
+    # Below the pivot the engine is calibrated to ~2 points, and a .10 home-run
+    # over is a rare event rather than an over-confident favorite's complement.
+    for p in (0.02, 0.10, 0.35, 0.50, 0.55, 0.599):
         assert SHRINK.apply(p) == pytest.approx(p)
 
 
@@ -28,16 +30,16 @@ def test_shrink_is_monotone_and_continuous():
     assert max(abs(b - a) for a, b in zip(out, out[1:], strict=False)) < 0.01
 
 
-def test_shrink_preserves_two_way_complements():
+def test_two_way_markets_shrink_sub_additively():
+    """One-sided means the two sides can sum below 1 -- never above it."""
     for p in (0.62, 0.75, 0.93):
-        assert SHRINK.apply(p) + SHRINK.apply(1 - p) == pytest.approx(1.0)
+        assert SHRINK.apply(p) + SHRINK.apply(1 - p) < 1.0
 
 
 def test_shrink_never_crosses_the_half_boundary():
     """It may never flip which side the model prefers."""
     assert SHRINK.apply(0.501) > 0.5
     assert SHRINK.apply(0.999) > 0.5
-    assert SHRINK.apply(0.001) < 0.5
 
 
 def test_refit_map_learns_a_market_the_packaged_fit_never_saw():

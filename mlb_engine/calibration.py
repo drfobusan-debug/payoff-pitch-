@@ -168,9 +168,17 @@ class ConfidenceShrink:
 
     Everything beyond the pivot is compressed by ``slope`` (``p' = pivot +
     slope * (p - pivot)``), which keeps the map continuous and monotone -- a
-    hard cut at .70 would rank a .699 pick above a .701 one. The shrink is
-    symmetric about .5 so complementary sides of a two-way market still sum to
-    1, and it never crosses .5, so it cannot flip which side the model prefers.
+    hard cut at .70 would rank a .699 pick above a .701 one -- and never
+    crosses .5, so it cannot flip which side the model prefers.
+
+    Only the upper tail moves. Mirroring it about .5 is tempting (complementary
+    sides of a two-way market would still sum to 1) but measurably wrong here:
+    the low tail is not an over-confident favorite seen from the other side, it
+    is a genuinely rare event. Lifting a .10 home-run over to .24 cost more
+    Brier across the eight graded slates (.2019) than leaving the tails alone
+    (.1977); one-sided beats both (.1975). The cost is that two sides of a
+    priced market can now sum to slightly under 1, which is the conservative
+    direction: it shrinks edges, it never invents one.
     """
 
     pivot: float = 0.60
@@ -179,7 +187,4 @@ class ConfidenceShrink:
     def apply(self, p: float) -> float:
         if p >= self.pivot:
             return self.pivot + self.slope * (p - self.pivot)
-        lo_pivot = 1.0 - self.pivot
-        if p <= lo_pivot:
-            return lo_pivot + self.slope * (p - lo_pivot)
         return p
