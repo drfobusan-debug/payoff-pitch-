@@ -308,9 +308,30 @@ Isotonic only corrects a tail once that tail has graded history. As a standing
 guard, everything past `MLBE_SHRINK_PIVOT` (.60) is compressed by
 `MLBE_SHRINK_SLOPE` (.55) after calibration: on the eight-slate ledger the .70+
 bucket predicted 75.7% and won 59.3%, and that bucket is exactly what trips a
-Strong Buy. The shrink is continuous, monotone, symmetric about .5 (so two-way
-markets still sum to 1) and never crosses .5, so it cannot flip a side. Disable
-with `MLBE_SHRINK_TAILS=0`.
+Strong Buy. The shrink is continuous, monotone and never crosses .5, so it
+cannot flip a side. It is one-sided: mirroring it about .5 lifts genuinely rare
+events (a .10 home-run over becomes .24) and cost Brier on the graded slates.
+Disable with `MLBE_SHRINK_TAILS=0`.
+
+### Barrel rate on the singles line
+
+A singles over needs a *single* -- an extra-base hit loses it. Across 323
+qualified batters (95k PA) singles per PA falls from .175 under 2% barrel to
+.124 at 10-12%, while total hits per PA barely move (.224 vs .219): power
+hitters convert hits to extra bases and strike out more. The engine used to
+miss this entirely, and the distribution-tail bonus actively made it worse by
+lifting 1B, 2B, 3B and HR with the same multiplier.
+
+Two changes, both on by default:
+
+- The singles multiplier carries a barrel term centred on the .080 league
+  baseline, `MLBE_SINGLES_BARREL_SLOPE` (1.5, clipped to +-6%). The raw league
+  slope is roughly 3.5; half of the effect is strikeouts the simulator already
+  carries in each batter's own K rate, so pricing the full slope would
+  double-count. Disable with `MLBE_SINGLES_BARREL=0`.
+- `TailAdjuster` holds barrel, hard-hit% and xSLG out of the 1B multiplier, so
+  an elite-power tail no longer lifts the singles line. Disable with
+  `MLBE_TAIL_POWER_SPLIT=0`.
 
 ## Notes / limitations
 

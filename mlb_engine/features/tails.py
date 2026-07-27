@@ -12,6 +12,8 @@ across qualified players only:
 - Pitchers: K-BB%, CSW%, hard-hit% allowed, barrel% allowed (higher K-BB/CSW and
   lower hard-hit/barrel allowed = better -> suppresses the opposing offense).
 - Batters: xwOBA, hard-hit%, barrel% (higher = better -> boosts that offense).
+  The power metrics are held out of the singles multiplier -- see
+  ``_POWER_METRICS``.
 
 Extra metrics fold into the same z-composite via ``extra_batter_z`` /
 ``extra_pitcher_z`` (id-keyed directional z's): batter xSLG from the public
@@ -31,6 +33,14 @@ MIN_PITCHES = 100
 Z_THRESHOLD = 2.0
 _PER_METRIC = 0.02
 _MAX_EFFECT = 0.05
+
+# Batter z-metrics that measure power rather than production. An elite-power
+# tail says nothing good about a batter's singles rate -- across 323 qualified
+# batters the top barrel bucket takes the same number of hits as the bottom one
+# (.219 vs .224 per PA) but only .124 singles/PA against .175, because the hits
+# arrive as extra bases. Lifting 1B by the same factor as HR therefore pushes
+# the singles line in the wrong direction for exactly the hitters it fires on.
+_POWER_METRICS = frozenset({"barrel", "hard_hit", "xslg"})
 
 _CALLED_OR_WHIFF = {"called_strike", "swinging_strike", "swinging_strike_blocked", "foul_tip"}
 _K_EVENTS = ["strikeout", "strikeout_double_play"]
@@ -58,6 +68,7 @@ class TailAdjuster:
     # player_id -> metric -> directional z (positive z always = "better")
     batter_z: dict[int, dict[str, float]] = field(default_factory=dict)
     pitcher_z: dict[int, dict[str, float]] = field(default_factory=dict)
+    power_split: bool = True
 
     @classmethod
     def build(
@@ -66,9 +77,10 @@ class TailAdjuster:
         batter_xslg: dict[int, float] | None = None,
         extra_batter_z: dict[int, dict[str, float]] | None = None,
         extra_pitcher_z: dict[int, dict[str, float]] | None = None,
+        power_split: bool = True,
     ) -> TailAdjuster:
         if df is None or df.empty:
-            return cls()
+            return cls(power_split=power_split)
         batter_z = _batter_z(df)
         if batter_xslg:
             for pid, z in _zmap(pd.Series(batter_xslg)).items():
@@ -76,7 +88,7 @@ class TailAdjuster:
         pitcher_z = _pitcher_z(df)
         _merge_z(batter_z, extra_batter_z)
         _merge_z(pitcher_z, extra_pitcher_z)
-        return cls(batter_z=batter_z, pitcher_z=pitcher_z)
+        return cls(batter_z=batter_z, pitcher_z=pitcher_z, power_split=power_split)
 
     def _net(self, z: dict[str, float]) -> float:
         elite = sum(1 for v in z.values() if v >= Z_THRESHOLD)
@@ -88,10 +100,15 @@ class TailAdjuster:
         if not z:
             return {}
         b = self._net(z)
-        if b == 0.0:
+        one = (
+            self._net({k: v for k, v in z.items() if k not in _POWER_METRICS})
+            if self.power_split
+            else b
+        )
+        if b == 0.0 and one == 0.0:
             return {}
         m = 1.0 + b
-        return {"1B": m, "2B": m, "3B": m, "HR": m}
+        return {"1B": 1.0 + one, "2B": m, "3B": m, "HR": m}
 
     def pitcher_multiplier(self, pitcher_id: int) -> dict[str, float]:
         """Applied to the OPPOSING offense: elite arm suppresses hits, adds Ks."""

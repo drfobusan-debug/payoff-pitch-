@@ -5,7 +5,7 @@ Implements the sensitivity / PPV / NPV framework the user specified:
   HR   : bat speed & max EV (sensitive), barrel rate (PPV), hard-hit% / LA (NPV)
   XBH  : sweet-spot% (sensitive), xSLG (PPV), blast/bat-speed (NPV)
   1B   : whiff% / zone-contact% (sensitive), xBA + sprint speed (PPV),
-         pull% grounders (NPV)
+         barrel rate (NPV -- power turns singles into extra-base hits)
   All  : BABIP and dxwOBA (xwOBA - wOBA) luck-regression signals.
 
 Each raw metric is compared to a league baseline and squashed into a bounded
@@ -35,6 +35,18 @@ BL_SPRINT = 27.0
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
+# Singles fall as barrel rate rises: across 323 qualified batters (95k PA) the
+# league goes from .175 singles/PA under 2% barrel to .124 at 10-12%, a slope of
+# roughly -0.5 singles/PA per unit barrel -- about -3.5 in relative terms.
+#
+# Only the residual half of that belongs here. Regressing out K/PA drops the
+# correlation from -.464 to -.207, i.e. half the effect is strikeouts, which the
+# simulator already carries in each batter's own empirical K rate. The other half
+# is hit conversion: a barrel-heavy hitter's share of hits that are singles falls
+# from .756 to .568 while his total hits barely move. This slope prices that half
+# only; the full -3.5 would charge for the strikeouts twice.
+SINGLES_BARREL_SLOPE = 1.5
+
 
 def _clip(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
@@ -61,8 +73,13 @@ class BatterRegression:
     def dxwoba(self) -> float:
         return self.xwoba - self.woba
 
-    def multipliers(self) -> dict[str, float]:
-        """Return bounded outcome multipliers for {1B,2B,3B,HR}."""
+    def multipliers(
+        self, singles_barrel_slope: float = SINGLES_BARREL_SLOPE
+    ) -> dict[str, float]:
+        """Return bounded outcome multipliers for {1B,2B,3B,HR}.
+
+        ``singles_barrel_slope`` of 0 restores the pre-barrel singles behaviour.
+        """
         if self.bbe < MIN_BBE:
             return {}
 
@@ -88,6 +105,9 @@ class BatterRegression:
         one *= 1.0 + _clip((BL_WHIFF - self.whiff) * 0.30, -0.06, 0.06)  # sensitive
         one *= 1.0 + _clip((self.zone_contact - BL_ZONE_CONTACT) * 0.30, -0.05, 0.05)  # sensitive
         one *= 1.0 + _clip((self.sprint_speed - BL_SPRINT) * 0.010, -0.04, 0.05)  # PPV speed
+        one *= 1.0 + _clip(
+            (BL_BARREL - self.barrel_rate) * singles_barrel_slope, -0.06, 0.06
+        )  # NPV power
         one = _clip(one, 0.85, 1.18)
 
         # --- BABIP / dxwOBA luck regression (nudges contact outcomes) ---

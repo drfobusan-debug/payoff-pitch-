@@ -298,7 +298,9 @@ class Pipeline:
         self._framing = catcher_framing.load_framing(slate_date.year) if enrich_leaderboards else {}
         batter_xslg = load_batter_xslg(slate_date.year) if enrich_leaderboards else {}
         fg_bz, fg_pz = self._fangraphs_tail_z(fangraphs_csv, slate)
-        self._tails = TailAdjuster.build(statcast, batter_xslg, fg_bz, fg_pz)
+        self._tails = TailAdjuster.build(
+            statcast, batter_xslg, fg_bz, fg_pz, power_split=self.cfg.tail_power_split
+        )
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}
@@ -500,7 +502,9 @@ class Pipeline:
                 statcast[statcast["batter"] == pid], sprint.get(pid, 27.0)
             )
             regs.append(breg)
-            bmult = breg.multipliers()
+            bmult = breg.multipliers(
+                self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0
+            )
 
             bats = slot.player.bats.value if slot.player.bats else None
             xbh_sel = self._xbh_selector.select(

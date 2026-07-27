@@ -11,6 +11,8 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from mlb_engine.features.regression import SINGLES_BARREL_SLOPE
+
 
 def _env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
@@ -210,6 +212,18 @@ class Config:
     # escape hatch for reproducing pre-fix runs.
     legacy_prop_post_mult: bool = field(
         default_factory=lambda: _env_bool("MLBE_LEGACY_PROP_POST_MULT", False)
+    )
+
+    # Barrel rate is a negative for singles: power hitters take the same number
+    # of hits but convert them to extra bases. The slope prices the half of that
+    # effect the simulated K rate does not already carry; ``power_split`` stops
+    # the distribution-tail bonus lifting 1B by the same factor it lifts HR.
+    singles_barrel: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_BARREL", True))
+    singles_barrel_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_BARREL_SLOPE", SINGLES_BARREL_SLOPE)
+    )
+    tail_power_split: bool = field(
+        default_factory=lambda: _env_bool("MLBE_TAIL_POWER_SPLIT", True)
     )
 
     # Directories.
