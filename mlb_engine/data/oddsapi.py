@@ -199,8 +199,21 @@ class OddsAPIClient:
             resp.raise_for_status()
             return resp.json()
         except (requests.RequestException, ValueError) as exc:
-            log.warning("Odds API request failed (%s): %s", url.rsplit("/", 1)[-1], exc)
+            # requests puts the full request URL -- query string and API key
+            # included -- into the exception message, so never log it verbatim.
+            log.warning(
+                "Odds API request failed (%s): %s",
+                url.rsplit("/", 1)[-1],
+                _redact(str(exc), self.api_key),
+            )
             return None
+
+
+def _redact(message: str, api_key: str | None) -> str:
+    """Strip the API key (and any other query string) out of a message."""
+    if api_key:
+        message = message.replace(api_key, "***")
+    return re.sub(r"\?[^\s]*", "?<redacted>", message)
 
 
 def _norm(s: str) -> str:

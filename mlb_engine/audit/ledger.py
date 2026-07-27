@@ -53,6 +53,11 @@ class LedgerEntry:
     result: str  # win | loss | push
     pnl: float  # net units on a 1u stake (win: dec-1, loss: -1, push: 0)
     veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
+    # Pre-calibration probability. `mlb-engine calibrate` refits the isotonic
+    # map from this column, not from `model_prob`: the map is applied to raw
+    # simulation output, so fitting it on already-calibrated probabilities
+    # would learn a correction that is then applied to the wrong input.
+    raw_prob: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -70,6 +75,7 @@ LEDGER_FIELDS = [
     "result",
     "pnl",
     "veto_gate",
+    "raw_prob",
 ]
 
 
@@ -103,6 +109,7 @@ def entries_from_graded(
                 result=result,
                 pnl=_pnl(result, rec.market_american),
                 veto_gate=rec.veto_gate or "",
+                raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
             )
         )
     return entries
@@ -139,6 +146,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     result=row["result"],
                     pnl=_to_float(row["pnl"]) or 0.0,
                     veto_gate=row.get("veto_gate", ""),
+                    raw_prob=_to_float(row.get("raw_prob", "")),
                 )
             )
     return out

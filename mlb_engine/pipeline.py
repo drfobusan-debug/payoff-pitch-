@@ -8,7 +8,7 @@ from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
 
-from mlb_engine.calibration import Calibrator
+from mlb_engine.calibration import Calibrator, ConfidenceShrink
 from mlb_engine.config import Config
 from mlb_engine.data import catcher_framing
 from mlb_engine.data.divisions import same_division
@@ -230,8 +230,17 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
 _CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
 
 
-def _load_calibrator() -> Calibrator:
-    """Load the packaged 2024 isotonic calibration map (identity if missing)."""
+def load_calibrator(live: Path | None = None) -> Calibrator:
+    """Load the isotonic calibration map.
+
+    A map refit locally by ``mlb-engine calibrate`` wins over the packaged 2024
+    fit: it is trained on this engine's own graded results, so it also covers
+    markets the packaged file never saw (``batter_tb`` among them, which is why
+    total bases was pricing off the flatter pooled curve).
+    """
+    if live is not None and live.exists():
+        log.info("using locally refit calibration map %s", live)
+        return Calibrator.from_json(live)
     if _CALIBRATION_FILE.exists():
         return Calibrator.from_json(_CALIBRATION_FILE)
     log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
@@ -247,7 +256,14 @@ class Pipeline:
         self._fatigue: dict[int, float | None] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
-        self._calibrator = _load_calibrator() if cfg.calibrate else Calibrator.identity()
+        self._calibrator = (
+            load_calibrator(cfg.calibration_file) if cfg.calibrate else Calibrator.identity()
+        )
+        self._shrink = (
+            ConfidenceShrink(pivot=cfg.shrink_pivot, slope=cfg.shrink_slope)
+            if cfg.shrink_tails
+            else None
+        )
         self._rbi_selector = RBISelector(cfg.rbi_obp_threshold)
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
@@ -987,7 +1003,7 @@ class Pipeline:
             tb_sel = sels[i].get("TB") if i < len(sels) else None
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
-                if stat == "RBI" and rbi_sel is not None:
+                if stat == "RBI" and rbi_sel is not None and self.cfg.legacy_prop_post_mult:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
                 for line in sl:
@@ -1006,7 +1022,7 @@ class Pipeline:
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
-            if tb_sel is not None:
+            if tb_sel is not None and self.cfg.legacy_prop_post_mult:
                 tb = tb * tb_sel.factor
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
             for line in (1.5, 2.5, 3.5):
@@ -1038,6 +1054,8 @@ class Pipeline:
             selector: Selection | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
+        if self._shrink is not None:
+            calibrated = self._shrink.apply(calibrated)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,

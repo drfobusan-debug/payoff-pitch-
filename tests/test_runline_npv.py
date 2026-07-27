@@ -76,10 +76,19 @@ def test_gate_iso_gb_vetoes_only_the_favorite_when_enabled() -> None:
 
 
 def test_gate_iso_gb_is_inert_when_disabled_or_below_threshold() -> None:
-    assert not runline_veto("home", -1.5, _fav_signal(), RunLineGates()).triggered
+    assert not runline_veto("home", -1.5, _fav_signal(), RunLineGates(iso_gb=False)).triggered
     gates = RunLineGates(iso_gb=True)
     assert not runline_veto("home", -1.5, _fav_signal(fav_iso=0.190), gates).triggered
-    assert not runline_veto("home", -1.5, _fav_signal(fav_opp_sp_gb_pct=0.41), gates).triggered
+    assert not runline_veto("home", -1.5, _fav_signal(fav_opp_sp_gb_pct=0.39), gates).triggered
+
+
+def test_gate_defaults_match_the_graded_counterfactuals() -> None:
+    """Only the gate that removed losers ships on."""
+    gates = RunLineGates()
+    assert gates.iso_gb
+    assert not gates.dog_sp
+    assert not gates.dog_pen
+    assert not gates.low_total
 
 
 def test_missing_inputs_never_veto() -> None:

@@ -10,18 +10,21 @@ from pathlib import Path
 
 from mlb_engine.audit.analysis import prop_insights
 from mlb_engine.audit.email import send_audit_summary
-from mlb_engine.audit.grade import grade
+from mlb_engine.audit.grade import LOSS, WIN, grade
 from mlb_engine.audit.ledger import (
+    LedgerEntry,
     daily_engine_metrics,
     daily_rollup,
     engine_metrics,
     entries_from_graded,
+    load_ledger,
     overall_metrics,
     prop_metrics,
     runline_metrics,
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
+from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config, load_config
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
@@ -35,7 +38,7 @@ from mlb_engine.market.tiers import Tier
 from mlb_engine.output.card import build_cards, render_html, render_markdown
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
-from mlb_engine.pipeline import Pipeline, PipelineDeps
+from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
 
@@ -252,6 +255,86 @@ def cmd_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_calibrate(args: argparse.Namespace) -> int:
+    """Refit the isotonic calibration map from the audit ledger.
+
+    Trains on every graded row (pushes dropped) and holds out the most recent
+    ``--holdout`` slates to check, market by market, whether the refit map
+    actually beats the packaged 2024 fit out of sample. Only the markets that
+    win are adopted; the rest keep the packaged map.
+    """
+    cfg = load_config()
+    ledger_path = cfg.audit_dir / "ledger.csv"
+    entries = [
+        e for e in load_ledger(ledger_path) if e.result in (WIN, LOSS) and e.raw_prob is not None
+    ]
+    if not entries:
+        print(
+            f"No graded rows with a raw probability in {ledger_path}; "
+            "re-run `mlb-engine audit` to backfill the raw_prob column"
+        )
+        return 1
+
+    dates = sorted({e.date for e in entries})
+    if len(dates) <= args.holdout:
+        print(f"Need more than {args.holdout} graded slates to validate; have {len(dates)}")
+        return 1
+    split = dates[-args.holdout]
+
+    def rows_of(subset: list[LedgerEntry]) -> list[tuple[str, float, int]]:
+        return [
+            (e.market, e.raw_prob, 1 if e.result == WIN else 0)
+            for e in subset
+            if e.raw_prob is not None
+        ]
+
+    rows = rows_of(entries)
+    train = rows_of([e for e in entries if e.date < split])
+    test = rows_of([e for e in entries if e.date >= split])
+
+    packaged = load_calibrator()
+    refit = Calibrator.fit(train)
+
+    def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
+        return sum((cal.apply(m, p) - w) ** 2 for m, p, w in subset) / len(subset)
+
+    by_market: dict[str, list[tuple[str, float, int]]] = {}
+    for row in test:
+        by_market.setdefault(row[0], []).append(row)
+
+    # Adopt the refit map per market rather than wholesale. Local history is
+    # thin, and on the eight-slate ledger it beat the packaged 2024 fit exactly
+    # where that fit was stale or absent (batter_tb had no map at all) while
+    # losing on the low-volume game-level markets.
+    print(f"Holdout: {split}..{dates[-1]} ({len(test)} rows), trained on {len(train)}")
+    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}  adopt")
+    adopt: list[str] = []
+    for market in sorted(by_market):
+        subset = by_market[market]
+        b_old, b_new = brier(packaged, subset), brier(refit, subset)
+        take = len(subset) >= args.min_holdout and b_new < b_old
+        if take:
+            adopt.append(market)
+        print(
+            f"{market:<14}{len(subset):>7}{b_old:>11.4f}{b_new:>10.4f}"
+            f"{b_new - b_old:>+9.4f}  {'yes' if take else 'no'}"
+        )
+
+    if not adopt and not args.force:
+        print("\nNo market improved out of sample; nothing written")
+        return 1
+
+    final = Calibrator.fit(rows)
+    merged = Calibrator(
+        maps={**packaged.maps, **{m: final.maps[m] for m in adopt if m in final.maps}},
+        default=packaged.default,
+    )
+    merged.to_json(cfg.calibration_file)
+    print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
+    print(f"Wrote {cfg.calibration_file} (other markets keep the packaged fit)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     p = argparse.ArgumentParser(prog="mlb-engine", description="MLB prediction engine")
@@ -283,6 +366,14 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--no-email", action="store_false", dest="email",
                   help="skip sending the nightly audit email")
     a.set_defaults(func=cmd_audit, email=True)
+
+    cal = sub.add_parser("calibrate", help="refit the calibration map from the audit ledger")
+    cal.add_argument("--holdout", type=int, default=2, help="slates held out for validation")
+    cal.add_argument(
+        "--min-holdout", type=int, default=200, help="holdout rows a market needs to be adopted"
+    )
+    cal.add_argument("--force", action="store_true", help="write even if no market improves")
+    cal.set_defaults(func=cmd_calibrate)
 
     args = p.parse_args(argv)
     return args.func(args)

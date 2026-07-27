@@ -154,3 +154,32 @@ class Calibrator:
     @classmethod
     def identity(cls) -> Calibrator:
         return cls(maps={}, default=IsotonicMap([], []))
+
+
+@dataclass(frozen=True)
+class ConfidenceShrink:
+    """Pull the confident tails toward the pivot.
+
+    The eight-slate audit found the engine well calibrated between .50 and .70
+    but badly over-confident above it: the .70+ bucket predicted 75.7% and won
+    59.3%. Isotonic maps only correct a tail once that tail has enough graded
+    history; this is the standing guard that keeps an untrained tail from
+    manufacturing Strong Buys in the meantime.
+
+    Everything beyond the pivot is compressed by ``slope`` (``p' = pivot +
+    slope * (p - pivot)``), which keeps the map continuous and monotone -- a
+    hard cut at .70 would rank a .699 pick above a .701 one. The shrink is
+    symmetric about .5 so complementary sides of a two-way market still sum to
+    1, and it never crosses .5, so it cannot flip which side the model prefers.
+    """
+
+    pivot: float = 0.60
+    slope: float = 0.55
+
+    def apply(self, p: float) -> float:
+        if p >= self.pivot:
+            return self.pivot + self.slope * (p - self.pivot)
+        lo_pivot = 1.0 - self.pivot
+        if p <= lo_pivot:
+            return lo_pivot + self.slope * (p - lo_pivot)
+        return p

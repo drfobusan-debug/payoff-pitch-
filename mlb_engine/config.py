@@ -87,12 +87,19 @@ class RunLineGates:
 
     # Favorite -1.5: a low-power lineup facing a ground-ball starter has almost
     # no blowout path (needs multi-run homers it cannot hit).
-    iso_gb: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_ISO_GB", False))
-    iso_max: float = field(default_factory=lambda: _env_float("MLBE_RL_ISO_MAX", 0.140))
-    gb_min: float = field(default_factory=lambda: _env_float("MLBE_RL_GB_MIN", 0.50))
+    # On by default: over eight graded slates this gate removed six favorite
+    # -1.5s that went 1-5, against a 59.6% baseline for the run lines it kept.
+    # Thresholds are the engine's own tracked-batted-ball scale, which reads a
+    # few points below the public leaderboards the .140/.50 figures come from.
+    iso_gb: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_ISO_GB", True))
+    iso_max: float = field(default_factory=lambda: _env_float("MLBE_RL_ISO_MAX", 0.170))
+    gb_min: float = field(default_factory=lambda: _env_float("MLBE_RL_GB_MIN", 0.40))
 
     # Underdog +1.5: a starter putting runners on and giving up hard contact is
     # a blowout waiting to happen.
+    # Both underdog gates stay off: over the same eight slates they removed 35
+    # +1.5s that won at 66-75%, i.e. they deleted winners. The sim already
+    # prices weak-starter and weak-bullpen matchups, so the gates double-count.
     dog_sp: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_DOG_SP", False))
     dog_sp_whip_max: float = field(default_factory=lambda: _env_float("MLBE_RL_DOG_WHIP_MAX", 1.45))
     dog_sp_hard_hit_max: float = field(
@@ -192,6 +199,18 @@ class Config:
     calibrate: bool = field(
         default_factory=lambda: os.getenv("MLBE_CALIBRATE", "1") not in ("0", "false", "")
     )
+    # Compress the over-confident tails after calibration (see ConfidenceShrink).
+    shrink_tails: bool = field(default_factory=lambda: _env_bool("MLBE_SHRINK_TAILS", True))
+    shrink_pivot: float = field(default_factory=lambda: _env_float("MLBE_SHRINK_PIVOT", 0.60))
+    shrink_slope: float = field(default_factory=lambda: _env_float("MLBE_SHRINK_SLOPE", 0.55))
+
+    # Post-simulation TB/RBI selector scaling. The selector's park/weather and
+    # batted-ball terms are already applied inside the simulation, so scaling
+    # the simulated count arrays again double-counts them; kept only as an
+    # escape hatch for reproducing pre-fix runs.
+    legacy_prop_post_mult: bool = field(
+        default_factory=lambda: _env_bool("MLBE_LEGACY_PROP_POST_MULT", False)
+    )
 
     # Directories.
     data_dir: Path = field(
@@ -201,6 +220,19 @@ class Config:
     @property
     def cache_dir(self) -> Path:
         return self.data_dir / "cache"
+
+    @property
+    def calibration_file(self) -> Path:
+        """Isotonic map to price with: a locally refit one wins if it exists.
+
+        ``mlb-engine calibrate`` writes ``calibration_live.json`` into the data
+        directory from the audit ledger, so an operator who has graded history
+        prices off their own results instead of the packaged 2024 fit.
+        """
+        override = os.getenv("MLBE_CALIBRATION_FILE")
+        if override:
+            return Path(override)
+        return self.data_dir / "calibration_live.json"
 
     @property
     def output_dir(self) -> Path:
