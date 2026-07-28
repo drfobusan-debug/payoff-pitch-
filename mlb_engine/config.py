@@ -46,6 +46,21 @@ class RollingWindows:
     # Bullpen: relievers' last ~3 weeks and batters' late-inning last ~3 weeks.
     bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 21))
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))
+    # A separate, longer window for the bullpen's stuff and command signals.
+    # Split-half reliability of a 3-week relief read (30 pens, ~270 batters faced
+    # each): K% 0.66, whiff 0.58, velocity 0.67, but xwOBA 0.37, BB% 0.19,
+    # hard-hit 0.13, HR/BF 0.06. Out of sample against the next three weeks, K%
+    # scores 0.73 on 42 days vs 0.66 on 21, and in a joint regression the 42-day
+    # read takes +0.68 against +0.14 for the last three weeks. 0 keeps the single
+    # 21-day window for everything.
+    bullpen_skill_days: int = field(
+        default_factory=lambda: _env_int("MLBE_BULLPEN_SKILL_DAYS", 0)
+    )
+    # Share of a bullpen's distance from the league mean xwOBA to keep. 1.0 is
+    # the raw three-week mean; 0.37 is its measured reliability.
+    bullpen_xwoba_shrink: float = field(
+        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 1.0)
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -294,6 +309,18 @@ class Config:
     odds_cache_ttl: int = field(default_factory=lambda: _env_int("MLBE_ODDS_CACHE_TTL", 1800))
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
+
+    # Weight given to the devigged market price when forming the probability the
+    # EV screen bets on (see market.ev.anchor_to_market). The model's own
+    # probability is untouched, so PPV/NPV and the calibration refit still
+    # measure the model. Because the screen is affine in the probability, a weight
+    # w is equivalent to demanding edge >= threshold / (1 - w): it raises the toll
+    # on disagreeing with the market rather than making the engine defer to it.
+    # Default 0 (off). Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4,
+    # -3.5% at 0.6 on a third as many bets, -12.9% at 0.8 -- every interval still
+    # spans zero, so this shrinks a loss rather than earning a profit. Judge a
+    # weight on closing line value, which resolves in far fewer bets than ROI.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest

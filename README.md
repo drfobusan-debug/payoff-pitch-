@@ -80,6 +80,38 @@ kept, so it ships on. The two underdog gates removed 35 +1.5s that won at
 66-75%: the simulation already prices weak starters and weak bullpens, so the
 gates double-count and delete winners. They stay off.
 
+### Bullpen windows
+
+A bullpen's last three weeks is about 270 batters faced spread over a dozen
+arms, and at that size the *results* move far more than the *ability* does.
+Split-half reliability across the 30 pens (6/16–7/27, non-overlapping halves):
+
+| metric | repeats at | keep |
+| --- | --- | --- |
+| Velocity | 0.67 | 67% |
+| K% | 0.66 | 66% |
+| Whiff% | 0.58 | 58% |
+| wOBA allowed | 0.47 | 47% |
+| xwOBA allowed | 0.37 | 37% |
+| BB% | 0.19 | 19% |
+| Hard-hit% | 0.13 | 13% |
+| HR per batter faced | 0.06 | 6% |
+
+Two knobs follow from that, both **off by default** until closing line value
+says otherwise:
+
+| Knob | Default | What it does |
+| --- | --- | --- |
+| `MLBE_BULLPEN_SKILL_DAYS` | `0` (off) | Reads the pen's stuff/command signals over a longer window than its rates. Set to `42`: out of sample against the following three weeks, relief K% scores 0.73 on 42 days against 0.66 on 21, and in a joint regression the 42-day read takes weight +0.68 against +0.14 for the last three weeks. Results-based rates stay on `MLBE_BULLPEN_DAYS` (21), where they belong — xwOBA scores 0.37 on 21 days against 0.32 on 42. |
+| `MLBE_BULLPEN_XWOBA_SHRINK` | `1.0` (raw) | Share of a pen's distance from the league mean (.306) to keep. `0.37` is the measured reliability. `xwoba_allowed` is otherwise a plain three-week mean that `MLBE_RL_GATE_DOG_PEN` compares to a hard .330 threshold, so roughly two thirds of what that gate reads is noise. `BullpenProfile.xwoba_raw` keeps the unshrunk value for reporting. |
+
+One caveat worth carrying: team-level *velocity* is the most reliable bullpen
+number and also the most misleading one. Detroit's pen appeared to lose 2.2 mph
+between those two windows, the largest drop in baseball; restricting to the eight
+arms who pitched in both, it was +0.01. The whole move was roster churn, and
+league-wide 18% of a window's relief pitches come from arms who were not there
+three weeks earlier.
+
 Calibrate the thresholds against this engine's own scales, not FanGraphs/Savant
 leaderboards: hard-hit% and GB% are computed off the tracked-batted-ball slice
 (same convention as `build_pitcher_regression`) and read a few points lower than
@@ -108,6 +140,9 @@ mlb-engine run
 # a specific date, with market prices, custom sim count
 mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 20000
 
+# snapshot the closing market just before first pitch (scores CLV in the audit)
+mlb-engine close --game-only
+
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 
@@ -127,6 +162,50 @@ mlb-engine audit --report --email --to you@gmail.com
 mlb-engine report --period daily  --email
 mlb-engine report --period weekly --email
 ```
+
+### Closing line value
+
+Win rate answers "was the pick right"; **closing line value** answers "was the
+price good", and it answers it in dozens of bets instead of thousands. Run
+`mlb-engine close` as late as possible before the first game, then `mlb-engine
+audit` fills four columns per graded bet — the closing price, its no-vig
+probability, the probability points the market moved toward our side (`clv`),
+and the EV of the price we took under the closing probability (`clv_ev`) — and
+summarizes them per market on the workbook's **Closing Line Value** sheet.
+`--game-only` costs 3 credits for the whole slate; without it, props are priced
+per event. Bets with no captured close stay blank rather than reading as zero.
+
+Why it is now the primary scoreboard: nine retro-priced slates put the card at
+-5.4% ROI with a 95% interval spanning [-16%, +6%] — hundreds of graded bets and
+still no verdict. Over the same bets the market out-forecast the model in every
+single market (Brier .2347 vs .2408), so the ROI ambiguity was hiding a clear
+result. Every metrics sheet now also reports **Needs %**, the win rate the
+prices actually charged for, next to the win rate achieved: 59.6% of favoured
+bets won into a 60.5% break-even, which is why 58% PPV never became profit.
+
+### Market anchoring
+
+`MLBE_MARKET_ANCHOR` (default `0`, off) blends the devigged market price into the
+probability the EV screen bets on: `0` bets the model alone, `1` bets the market,
+`0.4` moves the market 40% of the way toward the model. The model's own
+probability is left untouched, so PPV/NPV, the calibration refit and the Brier
+comparisons keep measuring the model rather than the blend, and both numbers are
+recorded per pick (`Model %` and `Market %` on the card, `fair_prob`/`bet_prob`
+in the ledger).
+
+It exists because the market is the better forecaster in every market we bet
+(Brier .2347 vs .2408), so the model should have to earn its departures from it.
+Be precise about the mechanism, though: the screen is affine in the probability,
+so weight `w` scales the measured edge to `(1 − w)·(model − fair)`, which against
+a fixed threshold is identical to demanding `edge >= threshold / (1 − w)` — at
+`0.6`, a .02 edge requirement becomes .05. It therefore **keeps** the model's
+biggest disagreements and drops the small ones; it raises the toll on
+disagreeing, it does not make the engine defer.
+
+Nine priced slates: -5.4% at `0`, -4.1% at `0.4`, -3.5% at `0.6` on a third of
+the bets, -12.9% at `0.8`. Every one of those intervals still spans zero, so this
+shrinks a loss rather than earning a profit. It ships off; pick a weight on CLV,
+not on ROI.
 
 ### Audit report (daily + weekly)
 
@@ -162,8 +241,9 @@ Each audit also maintains a **running ledger** across every graded slate:
 `audit/ledger.csv` (one row per bet: date, market, selection, odds, tier, result,
 P/L) and `output/ledger.xlsx` with these sheets:
 
-- **Overall** — cumulative sensitivity / specificity / PPV / NPV / win% / ROI /
-  net units. The first row is the **whole engine** (`ENGINE (p>=.5)`): PPV/NPV
+- **Overall** — cumulative sensitivity / specificity / PPV / NPV / win% /
+  **Needs %** (the break-even win rate the prices charged) / ROI / net units.
+  The first row is the **whole engine** (`ENGINE (p>=.5)`): PPV/NPV
   keyed on the model's own probability boundary across *every* graded market and
   tier, so it measures the engine's raw directional discrimination (how often the
   side the model favors wins vs. how often the side it fades loses), independent
@@ -176,8 +256,13 @@ P/L) and `output/ledger.xlsx` with these sheets:
   **false negatives** (faded props that won -> under-rated pockets to reclaim,
   lifting NPV), and **true positives** (favored props that won -> the pockets the
   model nails, to concentrate/size up).
+- **Closing Line Value** — per-market CLV: mean points the market moved our way,
+  how often the close came to us, and mean EV per unit at the price we took,
+  judged by the closing no-vig probability. Only appears for slates where
+  `mlb-engine close` captured a closing snapshot.
 - **Daily** — per-date Buy (S+M) rollup.
-- **Bets** — every graded pick, win/loss/push shaded.
+- **Bets** — every graded pick, win/loss/push shaded, with the market's price at
+  bet time, the close, and that bet's CLV.
 
 Re-auditing a date replaces that date's rows rather than duplicating them.
 

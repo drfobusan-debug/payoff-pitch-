@@ -64,6 +64,26 @@ class EVResult:
     devig_coverage: float = 1.0
 
 
+def anchor_to_market(model_prob: float, fair_prob: float, weight: float) -> float:
+    """Shrink the model toward the market's no-vig price by ``weight``.
+
+    ``weight`` 0 leaves the model untouched, 1 bets the market itself. Rationale:
+    retro-pricing nine slates showed the devigged market is the better forecaster
+    in every market we bet (Brier .2347 vs .2408), so the market is the better
+    prior and the model should have to earn its departures from it.
+
+    Note what this does to selection, because it is not what it sounds like.
+    Both screening criteria are affine in the probability, so shrinking by
+    ``weight`` scales the measured edge: ``edge = (1 - weight) * (model - fair)``.
+    Against a fixed threshold that is arithmetically identical to *raising* the
+    edge requirement to ``threshold / (1 - weight)`` -- it keeps the model's
+    largest disagreements with the market and drops the small ones. It makes the
+    model pay a bigger toll to disagree; it does not make it defer.
+    """
+    w = min(max(weight, 0.0), 1.0)
+    return (1.0 - w) * model_prob + w * fair_prob
+
+
 def ev_per_dollar(model_prob: float, american: float) -> float:
     dec = american_to_decimal(american)
     return model_prob * (dec - 1.0) - (1.0 - model_prob)

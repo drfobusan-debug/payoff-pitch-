@@ -75,7 +75,7 @@ from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
-from mlb_engine.market.ev import MarketQuote, evaluate
+from mlb_engine.market.ev import MarketQuote, anchor_to_market, evaluate
 from mlb_engine.market.runline import (
     RunLineSignal,
     RunLineVeto,
@@ -527,9 +527,16 @@ class Pipeline:
         # plus PPV (K-BB%/CSW/barrel/IVB via pitcher regression on the relief set)
         # and NPV (zone% walk-trap + 3-in-4 fatigue) tripwires.
         bpen = build_bullpen_profile(
-            statcast, opp.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
+            statcast,
+            opp.abbrev,
+            slate_date,
+            w.bullpen_days,
+            w.bullpen_min_inning,
+            skill_days=w.bullpen_skill_days,
+            xwoba_shrink=w.bullpen_xwoba_shrink,
         )
-        bpen_reg = build_pitcher_regression(bpen.relief)
+        # Rates come off the recent window, stuff and command off the longer one.
+        bpen_reg = build_pitcher_regression(bpen.skill_frame)
         bpen_allowed = bpen_reg.allowed_multipliers()
         bpen_k = bpen_reg.k_multiplier()
         avail = (
@@ -730,7 +737,13 @@ class Pipeline:
         pen_xwoba = pen_k = None
         if gates.dog_pen:
             pen = build_bullpen_profile(
-                statcast, dog.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
+                statcast,
+                dog.abbrev,
+                slate_date,
+                w.bullpen_days,
+                w.bullpen_min_inning,
+                skill_days=w.bullpen_skill_days,
+                xwoba_shrink=w.bullpen_xwoba_shrink,
             )
             pen_xwoba = pen.xwoba_allowed
             pen_k = pen.k_pct if pen.xwoba_allowed is not None else None
@@ -1278,10 +1291,19 @@ class Pipeline:
         q = (quotes or {}).get(key)
         if q:
             evres = evaluate(rec.model_prob, q)
+            if self.cfg.market_anchor > 0:
+                # Re-price against a probability pulled toward the market. Only
+                # the bet probability moves; rec.model_prob stays the model's.
+                bet_prob = anchor_to_market(
+                    rec.model_prob, evres.fair_prob, self.cfg.market_anchor
+                )
+                evres = evaluate(bet_prob, q)
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
             rec.ev = evres.ev
             rec.edge = evres.edge
+            rec.fair_prob = evres.fair_prob
+            rec.bet_prob = evres.model_prob
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
             if rec.handle_pct is None:

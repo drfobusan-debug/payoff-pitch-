@@ -1,0 +1,203 @@
+"""Closing line value: did we beat the price, not did the pick win.
+
+Win rate is a slow and noisy way to find out whether a model has an edge. Nine
+retro-priced slates put the card at -5.4% ROI with a 95% interval of [-15.6%,
++6.1%] -- hundreds of bets and still no verdict. Closing line value answers the
+same question in dozens of bets, because it compares our price against the
+sharpest estimate available (the closing market) instead of against a single
+binary outcome.
+
+Two numbers per bet:
+
+    clv      = closing no-vig probability - the no-vig probability we bet
+    clv_ev   = EV of our price under the closing no-vig probability
+
+``clv`` is in probability points and says which direction the market moved after
+we bet. ``clv_ev`` converts that into money at our actual price, so a bet at
+-150 and a bet at +200 are comparable. Positive means we bought the side the
+market later agreed with, at a price it no longer offers.
+
+Capturing the close costs three credits a slate (one bulk request, three game
+markets) plus one per event for props, against ~250 for a historical re-price.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+
+from mlb_engine.audit.ledger import LedgerEntry
+from mlb_engine.market.ev import MarketQuote, evaluate
+from mlb_engine.market.odds import american_to_decimal
+
+_KEY_SEP = "|"
+
+
+@dataclass(frozen=True)
+class ClosingQuote:
+    """The market's last word on one selection before first pitch."""
+
+    matchup: str
+    market: str
+    selection: str
+    american: float  # best available price at the close
+    no_vig_prob: float  # book-weighted consensus, vig removed where possible
+
+    @property
+    def key(self) -> str:
+        return _KEY_SEP.join((self.matchup, self.market, self.selection))
+
+
+def closing_quotes(
+    quotes: dict[tuple[str, str, str], list[MarketQuote]],
+) -> list[ClosingQuote]:
+    """Collapse a fetched odds board into one closing quote per selection.
+
+    Uses the same consensus math as the live EV screen (``evaluate``) so the
+    closing probability is directly comparable to the one we bet against.
+    """
+    out: list[ClosingQuote] = []
+    for (matchup, market, selection), qs in quotes.items():
+        if not qs:
+            continue
+        res = evaluate(0.5, qs)
+        out.append(
+            ClosingQuote(
+                matchup=matchup,
+                market=market,
+                selection=selection,
+                american=res.best_quote.american,
+                no_vig_prob=round(res.fair_prob, 6),
+            )
+        )
+    return out
+
+
+def save_closing(path: Path, quotes: list[ClosingQuote]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = [
+        {
+            "matchup": q.matchup,
+            "market": q.market,
+            "selection": q.selection,
+            "american": q.american,
+            "no_vig_prob": q.no_vig_prob,
+        }
+        for q in quotes
+    ]
+    path.write_text(json.dumps(payload, indent=2))
+
+
+def load_closing(path: Path) -> dict[str, ClosingQuote]:
+    """Closing quotes keyed by ``matchup|market|selection``; empty if not captured."""
+    if not path.exists():
+        return {}
+    out: dict[str, ClosingQuote] = {}
+    for row in json.loads(path.read_text()):
+        q = ClosingQuote(
+            matchup=str(row["matchup"]),
+            market=str(row["market"]),
+            selection=str(row["selection"]),
+            american=float(row["american"]),
+            no_vig_prob=float(row["no_vig_prob"]),
+        )
+        out[q.key] = q
+    return out
+
+
+def clv_points(bet_prob: float, close_prob: float) -> float:
+    """Probability points the market moved our way after we bet."""
+    return round(close_prob - bet_prob, 6)
+
+
+def clv_ev(bet_american: float, close_prob: float) -> float:
+    """EV per unit staked at our price, judged by the closing no-vig probability."""
+    dec = american_to_decimal(bet_american)
+    return round(close_prob * (dec - 1.0) - (1.0 - close_prob), 6)
+
+
+def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> int:
+    """Fill the CLV columns on every entry we have both a bet price and a close for.
+
+    Returns the number of entries priced. Rows without a captured close, or that
+    were never priced at bet time, are left as None rather than defaulted -- a
+    missing close is missing information, not zero closing line value.
+    """
+    n = 0
+    for e in entries:
+        if e.odds is None:
+            continue
+        close = closing.get(_KEY_SEP.join((e.matchup, e.market, e.selection)))
+        if close is None:
+            continue
+        e.close_odds = close.american
+        e.close_prob = close.no_vig_prob
+        # Measured against the price we bet, not the probability we predicted:
+        # CLV asks whether the market came to our side, not whether we were right.
+        e.clv = clv_points(_no_vig_at_bet(e), close.no_vig_prob)
+        e.clv_ev = clv_ev(e.odds, close.no_vig_prob)
+        n += 1
+    return n
+
+
+def _no_vig_at_bet(e: LedgerEntry) -> float:
+    """The devigged market probability for the side we took, at bet time."""
+    if e.fair_prob is not None:
+        return e.fair_prob
+    # Pre-devig ledger rows: fall back to the raw implied probability of our
+    # price, which overstates the market by about half the hold and therefore
+    # makes CLV look worse than it was. Flagged here rather than silently mixed.
+    return 1.0 / american_to_decimal(e.odds) if e.odds is not None else 0.5
+
+
+@dataclass
+class ClvSummary:
+    """Closing-line-value rollup for one market (or 'ALL')."""
+
+    label: str
+    n: int
+    mean_clv: float  # probability points, our side
+    beat_close_pct: float  # share of bets where the close came to us
+    mean_clv_ev: float  # EV per unit at our price, closing probabilities
+
+    @property
+    def positive(self) -> bool:
+        return self.mean_clv_ev > 0
+
+
+def clv_rows(entries: list[LedgerEntry]) -> list[tuple[str, float, float]]:
+    """``(market, clv, clv_ev)`` for every entry with closing line value attached."""
+    return [
+        (e.market, e.clv, e.clv_ev)
+        for e in entries
+        if e.clv is not None and e.clv_ev is not None
+    ]
+
+
+def summarize(rows: list[tuple[str, float, float]]) -> list[ClvSummary]:
+    """Roll ``(market, clv, clv_ev)`` triples up per market, plus an ALL row.
+
+    Only bets with a captured close appear, so a short list means the closing
+    snapshot was missing or partial, not that the engine had no edge.
+    """
+    by_market: dict[str, list[tuple[float, float]]] = {}
+    for market, clv, ev in rows:
+        by_market.setdefault(market, []).append((clv, ev))
+    out: list[ClvSummary] = []
+    for label in sorted(by_market):
+        out.append(_summary(label, by_market[label]))
+    if by_market:
+        out.append(_summary("ALL", [v for vals in by_market.values() for v in vals]))
+    return out
+
+
+def _summary(label: str, vals: list[tuple[float, float]]) -> ClvSummary:
+    n = len(vals)
+    return ClvSummary(
+        label=label,
+        n=n,
+        mean_clv=round(sum(c for c, _ in vals) / n, 5),
+        beat_close_pct=round(sum(1 for c, _ in vals if c > 0) / n, 4),
+        mean_clv_ev=round(sum(e for _, e in vals) / n, 5),
+    )

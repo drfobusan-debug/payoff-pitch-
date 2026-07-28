@@ -26,6 +26,14 @@ class Recommendation:
     market_american: float | None = None
     ev: float | None = None
     edge: float | None = None
+    # Devigged market consensus probability for this selection, and the
+    # probability the EV screen actually bet on. They differ from model_prob only
+    # when MLBE_MARKET_ANCHOR pulls the model toward the market; model_prob stays
+    # the model's own output so PPV/NPV and the calibration refit keep measuring
+    # the model rather than the blend. bet_prob is also the baseline for closing
+    # line value: the audit compares it against the closing no-vig price.
+    fair_prob: float | None = None
+    bet_prob: float | None = None
     handle_pct: float | None = None
     bets_pct: float | None = None
     tier: Tier = Tier.PASS
@@ -98,6 +106,7 @@ class Recommendation:
             "Selection": self.selection,
             "Line": self.line if self.line is not None else "",
             "Model %": round(self.model_prob * 100, 1),
+            "Market %": round(self.fair_prob * 100, 1) if self.fair_prob is not None else "",
             "Fair Odds": round(self.model_american),
             "Book": self.book or "",
             "Book Odds": round(self.market_american) if self.market_american is not None else "",

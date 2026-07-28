@@ -9,6 +9,14 @@ from datetime import timedelta
 from pathlib import Path
 
 from mlb_engine.audit.analysis import prop_insights
+from mlb_engine.audit.clv import (
+    attach_clv,
+    closing_quotes,
+    clv_rows,
+    load_closing,
+    save_closing,
+    summarize,
+)
 from mlb_engine.audit.grade import LOSS, WIN, grade
 from mlb_engine.audit.ledger import (
     LedgerEntry,
@@ -128,6 +136,24 @@ def _generate_card(
     return md_path, html_path
 
 
+def _odds_client(cfg: Config, *, cache_ttl: int | None = None) -> OddsAPIClient:
+    """Odds API client on the configured credit budget.
+
+    ``cache_ttl`` overrides the configured TTL. The closing snapshot passes 0:
+    serving it a cached board from the pre-slate run would silently report zero
+    closing line value on every bet.
+    """
+    props = cfg.odds_props if cfg.odds_props is not None else DEFAULT_PROP_MARKETS
+    return OddsAPIClient(
+        cfg.creds.odds_api_key,
+        prop_markets=props,
+        include_f5=cfg.odds_f5,
+        cache_dir=cfg.odds_cache_dir,
+        cache_ttl=cfg.odds_cache_ttl if cache_ttl is None else cache_ttl,
+        min_credits=cfg.odds_min_credits,
+    )
+
+
 def _generate_report(
     entries: list[LedgerEntry],
     cfg: Config,
@@ -177,19 +203,6 @@ def _generate_report(
         except EmailNotConfigured as exc:
             print(f"Email not sent: {exc}")
     return md_path, html_path, pdf_path
-
-
-def _odds_client(cfg: Config) -> OddsAPIClient:
-    """Odds API client on the configured credit budget."""
-    props = cfg.odds_props if cfg.odds_props is not None else DEFAULT_PROP_MARKETS
-    return OddsAPIClient(
-        cfg.creds.odds_api_key,
-        prop_markets=props,
-        include_f5=cfg.odds_f5,
-        cache_dir=cfg.odds_cache_dir,
-        cache_ttl=cfg.odds_cache_ttl,
-        min_credits=cfg.odds_min_credits,
-    )
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -279,6 +292,37 @@ def cmd_team_form(args: argparse.Namespace) -> int:
     return 0
 
 
+def _closing_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"closing_{slate_date.isoformat()}.json"
+
+
+def cmd_close(args: argparse.Namespace) -> int:
+    """Snapshot the closing market so the next audit can score closing line value.
+
+    Run this as late as possible before the first game starts: the closing price
+    is the sharpest forecast available, and beating it is the only fast evidence
+    that a pick was good. Cheap by design -- one bulk request for the game
+    markets, and props only if the credit budget allows.
+    """
+    cfg = load_config()
+    slate_date = _parse_date(args.date, Date.today())
+    client = _odds_client(cfg, cache_ttl=0)
+    if not client.available():
+        print("No Odds API key configured; cannot capture the close")
+        return 1
+    slate = MLBStatsClient().get_slate(slate_date)
+    quotes = client.fetch(slate, include_props=not args.game_only)
+    if not quotes:
+        print(f"No closing prices returned for {slate_date}")
+        return 1
+    closing = closing_quotes(quotes)
+    path = _closing_path(cfg, slate_date)
+    save_closing(path, closing)
+    markets = len({q.market for q in closing})
+    print(f"Captured {len(closing)} closing prices across {markets} markets -> {path}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     audit_date = _parse_date(args.date, Date.today() - timedelta(days=1))
@@ -309,7 +353,10 @@ def cmd_audit(args: argparse.Namespace) -> int:
     append_scorecard(rows, cfg.audit_dir / "scorecard.csv")
 
     entries = entries_from_graded(graded, audit_date, results)
+    closing = load_closing(_closing_path(cfg, audit_date))
+    n_clv = attach_clv(entries, closing)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
+    clv_summary = summarize(clv_rows(all_entries))
     engine = engine_metrics(all_entries)
     overall = [engine, *overall_metrics(all_entries)]
     daily_engine = daily_engine_metrics(all_entries)
@@ -326,6 +373,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         prop_rows=props,
         insights=insights,
         runline_rows=runlines,
+        clv_rows=clv_summary,
     )
 
     print(f"Graded {len(graded)} markets for {audit_date}")
@@ -346,6 +394,20 @@ def cmd_audit(args: argparse.Namespace) -> int:
             f"  OVERALL {m.tier:<14} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
             f"PPV={m.ppv:.3f} sens={m.sensitivity:.3f} spec={m.specificity:.3f} "
             f"NPV={m.npv:.3f} ROI={m.roi * 100:+.1f}% units={m.units:+.1f}"
+        )
+
+    if closing:
+        print(f"\nClosing line value ({n_clv} of {len(entries)} rows had a captured close):")
+        for c in clv_summary:
+            print(
+                f"  {c.label:<14} n={c.n:<5} CLV={c.mean_clv * 100:+.2f} pts "
+                f"beat close={c.beat_close_pct * 100:5.1f}% "
+                f"CLV EV={c.mean_clv_ev:+.4f}/unit"
+            )
+    else:
+        print(
+            "\nNo closing snapshot for this slate: run `mlb-engine close` just before "
+            "first pitch to score closing line value (~3 credits)."
         )
 
     if props:
@@ -524,6 +586,17 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--email", action="store_true", help="email the card")
     c.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     c.set_defaults(func=cmd_card)
+
+    cl = sub.add_parser(
+        "close", help="snapshot closing prices for tonight's slate (for CLV scoring)"
+    )
+    cl.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    cl.add_argument(
+        "--game-only",
+        action="store_true",
+        help="skip per-event F5/prop markets: 3 credits for the whole slate",
+    )
+    cl.set_defaults(func=cmd_close)
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")

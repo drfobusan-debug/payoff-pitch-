@@ -1377,6 +1377,10 @@ def test_ledger_overall_and_dedup(tmp_path):
     strong = next(m for m in overall_metrics(all_entries) if m.tier == Tier.STRONG.value)
     assert strong.n == 3 and strong.wins == 2 and abs(strong.ppv - 2 / 3) < 1e-3
     assert abs(strong.units - 1.0) < 1e-9  # +1 -1 +1
+    # Two +100s and one -110: the prices demanded (.5 + .5 + .5238) / 3 to break
+    # even, so a 66.7% win rate is genuinely ahead rather than assumed to be.
+    assert abs(strong.required_win_pct - 0.5079) < 1e-3
+    assert strong.win_pct > strong.required_win_pct
 
 
 # ---- backtest analytics ----
