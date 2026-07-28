@@ -795,6 +795,10 @@ class Pipeline:
         h, a = res.home_runs_full.astype(float), res.away_runs_full.astype(float)
         total = h + a
         margin = h - a
+        # Expected run differential (home perspective): sequencing-luck-free mean
+        # of the simulated margin, plus its spread. Surfaced on the card.
+        xrd = float(margin.mean())
+        xrd_sd = float(margin.std())
 
         # Run-line PPV confidence: team xwOBA differential + depleted-favorite
         # bullpen (live from the public StatsAPI workload proxy).
@@ -866,11 +870,11 @@ class Pipeline:
         recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes))
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
 
-        self._attach_context(recs, park, eff)
+        self._attach_context(recs, park, eff, xrd, xrd_sd)
         return recs
 
     @staticmethod
-    def _attach_context(recs, park, eff) -> None:
+    def _attach_context(recs, park, eff, xrd=None, xrd_sd=None) -> None:
         """Stamp shared park + live-weather context onto every rec in a game."""
         wx_summary = wx_note = None
         wx_hr = None
@@ -888,6 +892,8 @@ class Pipeline:
             r.wx_summary = wx_summary
             r.wx_hr_mult = wx_hr
             r.wx_note = wx_note
+            r.xrd = xrd
+            r.xrd_sd = xrd_sd
 
     def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
                        home_mgr, away_mgr, home_fat, away_fat):

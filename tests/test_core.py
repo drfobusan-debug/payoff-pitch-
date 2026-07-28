@@ -1819,6 +1819,8 @@ def _card_recs() -> list[Recommendation]:
             wx_summary="78F 40% wind 6mph (2 in to CF)",
             wx_hr_mult=0.97,
             wx_note="",
+            xrd=0.8,
+            xrd_sd=3.9,
         )
 
     return [
@@ -1856,6 +1858,8 @@ def test_card_build_picks_positive_ev_and_starters():
     assert "wind" in blob.lower()
     # DET ML is a negative-EV favorite -> flagged as too rich, not a play.
     assert "too rich" in blob
+    # Expected run differential (xRD/G) is surfaced, home (DET) perspective.
+    assert "Expected run differential: DET +0.8" in blob
 
 
 def test_card_renderers_emit_md_and_html():
