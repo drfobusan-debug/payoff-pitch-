@@ -2210,3 +2210,56 @@ def test_siera_matchup_gate_helpers():
     # Thin sample and missing data stay neutral on both sides.
     assert not faces_ace(thin, 3.4) and not faces_scrub(thin, 4.4)
     assert not faces_ace(None, 3.4) and not faces_scrub(None, 4.4)
+
+
+def test_card_render_pdf_produces_pdf_bytes():
+    from mlb_engine.output.card import build_cards, render_html, render_pdf
+
+    cards = build_cards(_card_recs())
+    pdf = render_pdf(render_html(cards, date(2026, 7, 24)))
+    assert pdf[:5] == b"%PDF-"
+    assert len(pdf) > 1000
+
+
+def test_email_attachments_infer_mime_type(monkeypatch):
+    import smtplib
+
+    from mlb_engine.config import Config, Credentials
+    from mlb_engine.output import email as email_mod
+
+    captured = {}
+
+    class _FakeSMTP:
+        def __init__(self, *a, **k):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def login(self, *a):
+            pass
+
+        def send_message(self, msg):
+            captured["msg"] = msg
+
+    monkeypatch.setattr(smtplib, "SMTP_SSL", _FakeSMTP)
+    cfg = Config(creds=Credentials(gmail_user="x@y.com", gmail_app_password="pw"))
+    email_mod.send_card_email(
+        cfg,
+        subject="s",
+        html_body="<p>hi</p>",
+        text_body="t",
+        to="a@b.com",
+        attachments=[("card.pdf", b"%PDF-1.4 x"), ("bets.xlsx", b"PK\x03\x04")],
+    )
+    types = {
+        part.get_filename(): part.get_content_type()
+        for part in captured["msg"].iter_attachments()
+    }
+    assert types["card.pdf"] == "application/pdf"
+    assert types["bets.xlsx"] == (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )

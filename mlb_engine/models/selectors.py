@@ -10,6 +10,7 @@ and simulated RBI markets rather than creating new ones.
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import dataclass, field
 
 from mlb_engine.data.parks import Park
@@ -58,6 +59,25 @@ def power_floor_reason(
     return None
 
 
+def _env_float(name: str, default: float) -> float:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    try:
+        return float(val)
+    except ValueError:
+        return default
+
+
+# Total-bases selector weights. Backtesting the graded total-bases props showed
+# max exit velocity is the one metric that separates over-winners from losers at
+# every line (strongest on the power-driven 2.5/3.5 lines), while xSLG/xBA carry
+# little signal -- yet max_ev was historically weighted ~5x smaller than xSLG.
+# These up-weight raw power and are env-tunable.
+TB_MAX_EV_W = _env_float("MLBE_TB_MAX_EV_W", 0.20)
+TB_BARREL_W = _env_float("MLBE_TB_BARREL_W", 5.0)
+
+
 @dataclass
 class Selection:
     """A V1-style selector recommendation for a single batter/prop."""
@@ -70,6 +90,13 @@ class Selection:
     outcome_multipliers: dict[str, float] = field(default_factory=dict)
     # Post-simulation stat multipliers (e.g. RBI/TB derived arrays)
     post_multipliers: dict[str, float] = field(default_factory=dict)
+    # Batter power inputs for the home-run power gate (None when unavailable).
+    hr_max_ev: float | None = None
+    hr_barrel: float | None = None
+    hr_bbe: int | None = None
+    # Contact-quality inputs for the H+R+RBI adjuster (None when unavailable).
+    bat_sweet_spot: float | None = None
+    bat_xslg: float | None = None
 
     def __bool__(self) -> bool:
         return self.signal not in ("none", "hold") or self.factor != 1.0
@@ -285,11 +312,11 @@ class TBSelector:
         reasons.append(f"bat_speed={breg.bat_speed:.1f}({bat_speed_delta:+.1f})")
 
         max_ev_delta = breg.max_ev - BL_MAX_EV
-        score += max_ev_delta * 0.04
+        score += max_ev_delta * TB_MAX_EV_W
         reasons.append(f"max_ev={breg.max_ev:.1f}({max_ev_delta:+.1f})")
 
         barrel_delta = breg.barrel_rate - BL_BARREL
-        score += barrel_delta * 3.0
+        score += barrel_delta * TB_BARREL_W
         reasons.append(f"barrel={breg.barrel_rate:.3f}({barrel_delta:+.3f})")
 
         hard_delta = breg.hard_hit - BL_HARD_HIT
@@ -299,6 +326,12 @@ class TBSelector:
         sprint_delta = breg.sprint_speed - 27.0
         score += sprint_delta * 0.05
         reasons.append(f"sprint={breg.sprint_speed:.1f}({sprint_delta:+.1f})")
+
+        # Stamped for HR/PPV auditing (not scored here).
+        if breg.gb_pct == breg.gb_pct:  # not NaN
+            reasons.append(f"gb={breg.gb_pct:.3f}")
+        if breg.pull_air_pct == breg.pull_air_pct:  # not NaN
+            reasons.append(f"pull_air={breg.pull_air_pct:.3f}")
 
         if slot is not None and 2 <= slot <= 5:
             score += 0.5
@@ -327,4 +360,9 @@ class TBSelector:
             score=round(score, 2),
             profile=" | ".join(reasons),
             post_multipliers={"TB": factor},
+            hr_max_ev=breg.max_ev,
+            hr_barrel=breg.barrel_rate,
+            hr_bbe=breg.bbe,
+            bat_sweet_spot=breg.sweet_spot,
+            bat_xslg=breg.xslg,
         )

@@ -81,6 +81,9 @@ class BatterRegression:
     k_pct: float = float("nan")  # season PA strikeout rate (NaN when no PAs)
     bb_pct: float = float("nan")  # season PA walk rate (NaN when no PAs)
     gb_rate: float = BL_GB_RATE
+    # Ground-ball rate and pulled-air rate: stamped for HR/PPV backtesting.
+    gb_pct: float = float("nan")
+    pull_air_pct: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
@@ -100,13 +103,17 @@ class BatterRegression:
             return {}
 
         # --- Home runs ---
+        # Barrel rate and max exit velocity are the two metrics that actually
+        # separate true HRs from false positives in the graded backtest; max EV
+        # was the single strongest separator yet historically carried one of the
+        # smallest weights, so it is up-weighted here.
         hr = 1.0
         hr *= 1.0 + _clip((self.barrel_rate - BL_BARREL) * 2.5, -0.12, 0.15)  # PPV
         hr *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.010, -0.06, 0.06)  # sensitive
-        hr *= 1.0 + _clip((self.max_ev - BL_MAX_EV) * 0.006, -0.05, 0.06)  # sensitive
+        hr *= 1.0 + _clip((self.max_ev - BL_MAX_EV) * 0.009, -0.06, 0.09)  # PPV (top separator)
         if self.hard_hit < 0.30:  # NPV
             hr *= 0.80
-        hr = _clip(hr, 0.75, 1.30)
+        hr = _clip(hr, 0.75, 1.32)
 
         # --- Extra-base hits (2B/3B) ---
         xbh = 1.0
@@ -171,6 +178,8 @@ def build_batter_regression(
     hard_hit = float((batted["launch_speed"] >= 95).mean()) if n_bbe else 0.0
     la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
     sweet = float(la.between(8, 32).mean()) if len(la) else 0.0
+    gb_pct = float((la < 10).mean()) if len(la) else float("nan")
+    pull_air = _pull_air_rate(batted)
     bat_speed = (
         float(bdf["bat_speed"].dropna().mean()) if bdf["bat_speed"].notna().any() else BL_BAT_SPEED
     )
@@ -234,7 +243,32 @@ def build_batter_regression(
         k_pct=k_pct,
         bb_pct=bb_pct,
         gb_rate=gb_rate,
+        gb_pct=gb_pct,
+        pull_air_pct=pull_air,
     )
+
+
+def _pull_air_rate(batted: pd.DataFrame) -> float:
+    """Share of batted balls that are pulled *and* in the air (LA >= 10).
+
+    Spray angle from hit coordinates (home plate ~(125.42, 198.27)); negative =
+    third-base/left-field side. A pull for a RHB is to left field (negative
+    angle), for a LHB to right field (positive). Returns NaN when the hit-
+    location or stance columns are unavailable.
+    """
+    need = {"hc_x", "hc_y", "launch_angle", "stand"}
+    if not need.issubset(batted.columns) or batted.empty:
+        return float("nan")
+    df = batted.dropna(subset=["hc_x", "hc_y", "launch_angle", "stand"])
+    if df.empty:
+        return float("nan")
+    spray = np.degrees(
+        np.arctan2(df["hc_x"].astype(float) - 125.42, 198.27 - df["hc_y"].astype(float))
+    )
+    is_rhb = df["stand"].astype(str) == "R"
+    pulled = (is_rhb & (spray < -10)) | (~is_rhb & (spray > 10))
+    in_air = df["launch_angle"].astype(float) >= 10
+    return float((pulled & in_air).mean())
 
 
 def _estimate_xslg(batted: pd.DataFrame) -> float:

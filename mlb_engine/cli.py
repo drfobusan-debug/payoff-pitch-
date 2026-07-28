@@ -35,7 +35,7 @@ from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
-from mlb_engine.output.card import build_cards, render_html, render_markdown
+from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
 from mlb_engine.output.report import (
@@ -78,27 +78,49 @@ def _generate_card(
     *,
     email: bool,
     to: str | None,
+    workbook: Path | None = None,
 ) -> tuple[Path, Path]:
-    """Write the card's Markdown + HTML and optionally email it."""
+    """Write the card's Markdown + HTML + PDF and optionally email it.
+
+    When ``email`` is set the message carries the written card as a PDF plus,
+    when available, the master Excel bet sheet (``workbook``).
+    """
     cards = build_cards(recs)
     md = render_markdown(cards, slate_date)
     html_body = render_html(cards, slate_date)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
+    pdf_path = cfg.output_dir / f"card_{slate_date.isoformat()}.pdf"
     md_path.write_text(md)
     html_path.write_text(html_body)
+    try:
+        rendered = render_pdf(html_body)
+        pdf_path.write_bytes(rendered)
+        pdf_bytes: bytes | None = rendered
+    except Exception as exc:  # noqa: BLE001 - PDF is best-effort; fall back to markdown
+        pdf_bytes = None
+        print(f"Card PDF not rendered ({exc}); attaching markdown instead")
     print(f"Card: {len(cards)} games -> {md_path}")
 
     if email:
         subject = f"PayoffPitch Card — {slate_date.isoformat()} ({len(cards)} games)"
+        if pdf_bytes is not None:
+            attachments = [(pdf_path.name, pdf_bytes)]
+        else:
+            attachments = [(md_path.name, md.encode())]
+        if workbook is not None and workbook.exists():
+            attachments.append((workbook.name, workbook.read_bytes()))
         try:
             recipient = send_card_email(
                 cfg,
                 subject=subject,
                 html_body=html_body,
-                text_body="Your PayoffPitch card is attached; HTML in the body.\n",
+                text_body=(
+                    "Your PayoffPitch daily slate card (PDF) and the master Excel "
+                    "bet sheet are attached; the card is also in the HTML body.\n"
+                ),
                 to=to,
-                attachments=[(md_path.name, md.encode(), "text", "markdown")],
+                attachments=attachments,
             )
             print(f"Emailed card to {recipient}")
         except EmailNotConfigured as exc:
@@ -139,11 +161,9 @@ def _generate_report(
 
     if email:
         subject = f"PayoffPitch Audit — {period_label} ({subtitle})"
-        attachments: list[tuple[str, bytes, str, str]] = [
-            (md_path.name, md.encode(), "text", "markdown")
-        ]
+        attachments: list[tuple[str, bytes]] = [(md_path.name, md.encode())]
         if pdf_bytes is not None and pdf_path is not None:
-            attachments.insert(0, (pdf_path.name, pdf_bytes, "application", "pdf"))
+            attachments.insert(0, (pdf_path.name, pdf_bytes))
         try:
             recipient = send_card_email(
                 cfg,
@@ -220,7 +240,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
-        _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
+        _generate_card(
+            recs, slate_date, cfg, email=args.email, to=args.to, workbook=Path(xlsx)
+        )
     return 0
 
 
@@ -232,7 +254,10 @@ def cmd_card(args: argparse.Namespace) -> int:
         print(f"No predictions found for {slate_date} at {pred_path}; run `mlb-engine run` first")
         return 1
     recs = load_json(pred_path)
-    _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
+    workbook = cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx"
+    _generate_card(
+        recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook
+    )
     return 0
 
 

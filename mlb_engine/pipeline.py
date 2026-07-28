@@ -32,6 +32,9 @@ from mlb_engine.features.efficiency import (
     opponent_discipline_factor,
     recent_start_form,
 )
+from mlb_engine.features.hr_gate import HRPowerGate
+from mlb_engine.features.hrr_adjust import HRRAdjuster
+from mlb_engine.features.ml_gate import MLSharpGate
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -311,6 +314,9 @@ class Pipeline:
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
         self._luck_gaps: dict[str, float] = {}
+        self._hr_gate = HRPowerGate.from_env()
+        self._ml_gate = MLSharpGate.from_env()
+        self._hrr_adjust = HRRAdjuster.from_env()
 
     def run(
         self,
@@ -1176,11 +1182,13 @@ class Pipeline:
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(breg, su, opp_siera, "HRR")
+            hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
+            hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
                     line=line, player_id=pid, stat="HRR", side="over", quotes=quotes,
-                    gate_reason=hrr_gate, **feat,
+                    gate_reason=hrr_gate, hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
                 ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
@@ -1221,11 +1229,15 @@ class Pipeline:
             bat_k_pct: float | None = None,
             bat_bb_pct: float | None = None,
             bat_singles_under: float | None = None,
-            opp_starter_siera: float | None = None) -> Recommendation:
+            opp_starter_siera: float | None = None,
+            hrr_sweet: float | None = None,
+            hrr_xslg: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
             calibrated = self._shrink.apply(calibrated)
+        if market == "batter_hrr":
+            calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
@@ -1288,6 +1300,34 @@ class Pipeline:
                 if steps:
                     tier = bump_tier(tier, steps)
                 reasons.extend(rl_reasons)
+            if (
+                market == "batter_hr"
+                and tier != Tier.PASS
+                and selector is not None
+            ):
+                keep, gate_reason = self._hr_gate.allows(
+                    selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if gate_reason:
+                    reasons.append(gate_reason)
+            if market == "game_ml" and tier != Tier.PASS:
+                keep, gate_reason = self._ml_gate.allows(
+                    rec.handle_pct, rec.bets_pct
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if gate_reason:
+                    reasons.append(gate_reason)
+            if market == "game_ml" and tier == Tier.PASS:
+                up, up_reason = self._ml_gate.upgrades(
+                    rec.handle_pct, rec.bets_pct, evres.fair_prob
+                )
+                if up:
+                    tier = Tier.MODERATE
+                if up_reason:
+                    reasons.append(up_reason)
             rec.tier = tier
             rec.reasons = reasons
         else:

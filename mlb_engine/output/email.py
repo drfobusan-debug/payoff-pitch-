@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import mimetypes
 import smtplib
 import ssl
 from email.message import EmailMessage
 
 from mlb_engine.config import Config
+
+mimetypes.add_type(
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx"
+)
+mimetypes.add_type("text/markdown", ".md")
 
 
 class EmailNotConfigured(RuntimeError):
@@ -20,13 +26,13 @@ def send_card_email(
     html_body: str,
     text_body: str,
     to: str | None = None,
-    attachments: list[tuple[str, bytes, str, str]] | None = None,
+    attachments: list[tuple[str, bytes]] | None = None,
 ) -> str:
     """Send the card as a multipart HTML email. Returns the recipient address.
 
-    ``attachments`` is a list of ``(filename, data, maintype, subtype)`` (e.g.
-    ``("card.md", b"...", "text", "markdown")`` or
-    ``("report.pdf", b"...", "application", "pdf")``). Raises
+    ``attachments`` is a list of ``(filename, data)``; the MIME type is inferred
+    from the filename extension (e.g. ``.pdf`` -> application/pdf, ``.xlsx`` ->
+    a spreadsheet), falling back to ``application/octet-stream``. Raises
     :class:`EmailNotConfigured` when the SMTP password or recipient is missing.
     """
     creds = cfg.creds
@@ -47,7 +53,9 @@ def send_card_email(
     msg["To"] = recipient
     msg.set_content(text_body)
     msg.add_alternative(html_body, subtype="html")
-    for filename, data, maintype, subtype in attachments or []:
+    for filename, data in attachments or []:
+        ctype, _ = mimetypes.guess_type(filename)
+        maintype, _, subtype = (ctype or "application/octet-stream").partition("/")
         msg.add_attachment(data, maintype=maintype, subtype=subtype, filename=filename)
 
     # Gmail App Passwords are shown grouped in 4s; strip any spaces the user kept.
