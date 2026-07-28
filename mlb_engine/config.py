@@ -24,6 +24,14 @@ def _env_float(name: str, default: float) -> float:
     return float(raw) if raw not in (None, "") else default
 
 
+def _env_csv(name: str) -> tuple[str, ...] | None:
+    """Comma-separated override, or ``None`` to keep the caller's default."""
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return None
+    return tuple(part.strip() for part in str(raw).split(",") if part.strip())
+
+
 @dataclass(frozen=True)
 class RollingWindows:
     """Rolling look-back windows (in days) for stat aggregation."""
@@ -234,6 +242,19 @@ class Config:
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
     )
 
+    # Odds API credit budget. The vendor bills markets x regions per request, so
+    # a 16-game slate at every market it can name costs ~230 credits. Props are
+    # restricted to the markets with a positive graded edge (see
+    # data.oddsapi.DEFAULT_PROP_MARKETS); MLBE_ODDS_PROPS takes a comma list.
+    odds_props: tuple[str, ...] | None = field(
+        default_factory=lambda: _env_csv("MLBE_ODDS_PROPS")
+    )
+    odds_f5: bool = field(default_factory=lambda: _env_bool("MLBE_ODDS_F5", True))
+    # Re-running the same slate inside the TTL costs nothing.
+    odds_cache_ttl: int = field(default_factory=lambda: _env_int("MLBE_ODDS_CACHE_TTL", 1800))
+    # Credits held in reserve so one runaway slate cannot drain the plan.
+    odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
@@ -242,6 +263,10 @@ class Config:
     @property
     def cache_dir(self) -> Path:
         return self.data_dir / "cache"
+
+    @property
+    def odds_cache_dir(self) -> Path:
+        return self.cache_dir / "oddsapi"
 
     @property
     def calibration_file(self) -> Path:

@@ -9,12 +9,23 @@ Full-game markets come from the bulk odds endpoint (one request). F5 and player
 props are per-event markets, so they cost one request per game; they are only
 fetched when ``include_props`` is set. All access is via an API key; with no key
 the client is inert and the engine falls back to VSIN/model-only behavior.
+
+The vendor charges *markets x regions* per request, so a 16-game slate asking
+for every market it can name costs ~230 credits -- enough to drain a 20k plan in
+three months. Three things keep that down: ``_PROP_MARKETS`` lists only the
+props the engine actually bets, responses are cached on disk for the slate, and
+``x-requests-remaining`` is tracked so the per-event loop stops before it
+exhausts the plan instead of after.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import re
+import time
+from pathlib import Path
 
 import requests
 
@@ -43,6 +54,18 @@ _PITCHER_MARKETS = {
     "pitcher_walks": ("pitcher_bb", "Walks"),
     "pitcher_earned_runs": ("pitcher_er", "ER"),
 }
+# Every market above can be *parsed*; only these are worth *paying* for. Over 54
+# graded slates the engine produced zero favored picks in HR, doubles, runs and
+# RBI (75-87% NPV -- it is right to abstain), so buying those prices is spend
+# with no bet attached. Singles (50.4% PPV) and earned runs (45.5%) are priced
+# below break-even, so they are excluded too. Override with MLBE_ODDS_PROPS.
+DEFAULT_PROP_MARKETS = (
+    "batter_hits",
+    "pitcher_strikeouts",
+    "pitcher_outs",
+    "pitcher_hits_allowed",
+    "pitcher_walks",
+)
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)
 
 Quotes = dict[tuple[str, str, str], list[MarketQuote]]
@@ -62,12 +85,32 @@ class _Event:
 
 
 class OddsAPIClient:
-    def __init__(self, api_key: str | None, timeout: int = 25) -> None:
+    def __init__(
+        self,
+        api_key: str | None,
+        timeout: int = 25,
+        *,
+        prop_markets: tuple[str, ...] = DEFAULT_PROP_MARKETS,
+        include_f5: bool = True,
+        cache_dir: Path | None = None,
+        cache_ttl: int = 1800,
+        min_credits: int = 200,
+    ) -> None:
         self.api_key = api_key
         self.timeout = timeout
+        self.prop_markets = tuple(m for m in prop_markets if m in _PROP_MARKETS)
+        self.include_f5 = include_f5
+        self.cache_dir = cache_dir
+        self.cache_ttl = cache_ttl
+        self.min_credits = min_credits
+        self.credits_remaining: int | None = None
 
     def available(self) -> bool:
         return bool(self.api_key)
+
+    def event_markets(self) -> list[str]:
+        """Markets requested per event. Each one costs a credit per region."""
+        return (list(_F5_MARKETS) if self.include_f5 else []) + list(self.prop_markets)
 
     def fetch(self, slate: Slate, *, include_props: bool = True) -> Quotes:
         """Return priced quotes across books for the slate.
@@ -95,18 +138,38 @@ class OddsAPIClient:
             events.append(ev)
             self._parse_game(raw, ev, out, f5=False)
 
-        if include_props:
+        markets = self.event_markets()
+        if include_props and markets:
+            cost = len(markets)
+            log.info(
+                "Odds API: %d events x %d markets = ~%d credits (%s remaining)",
+                len(events), cost, len(events) * cost,
+                self.credits_remaining if self.credits_remaining is not None else "?",
+            )
             for ev in events:
-                self._fetch_event(ev, out)
+                if not self._afford(cost):
+                    break
+                self._fetch_event(ev, out, markets)
         return out
 
+    def _afford(self, cost: int) -> bool:
+        """Stop the per-event loop before the plan is drained, not after."""
+        if self.credits_remaining is None or self.credits_remaining - cost >= self.min_credits:
+            return True
+        log.warning(
+            "Odds API: %d credits left, holding back the %d-credit reserve; "
+            "remaining events priced from the model only",
+            self.credits_remaining, self.min_credits,
+        )
+        return False
+
     # -- per-event (F5 + props) -------------------------------------------
-    def _fetch_event(self, ev: _Event, out: Quotes) -> None:
-        markets = ",".join(_F5_MARKETS + _PROP_MARKETS)
-        raw = self._get_json(f"{BASE}/events/{ev.event_id}/odds", markets=markets)
+    def _fetch_event(self, ev: _Event, out: Quotes, markets: list[str]) -> None:
+        raw = self._get_json(f"{BASE}/events/{ev.event_id}/odds", markets=",".join(markets))
         if not isinstance(raw, dict):
             return
-        self._parse_game(raw, ev, out, f5=True)
+        if self.include_f5:
+            self._parse_game(raw, ev, out, f5=True)
         self._parse_props(raw, ev, out)
 
     # -- parsing ----------------------------------------------------------
@@ -192,12 +255,34 @@ class OddsAPIClient:
             return None
         return _Event(str(eid), home_ab, away_ab, home_name, away_name)
 
+    def _cache_path(self, url: str, params: dict[str, str]) -> Path | None:
+        if self.cache_dir is None:
+            return None
+        stamp = json.dumps({"url": url, **params}, sort_keys=True)
+        return self.cache_dir / f"{hashlib.sha256(stamp.encode()).hexdigest()[:20]}.json"
+
     def _get_json(self, url: str, **params: str) -> object:
-        q = {"apiKey": self.api_key, "regions": "us", "oddsFormat": "american", **params}
+        q = {"regions": "us", "oddsFormat": "american", **params}
+        # Keyed on the query minus the key, so a re-run of the same slate is free.
+        cache = self._cache_path(url, q)
+        if cache is not None and cache.exists():
+            if time.time() - cache.stat().st_mtime < self.cache_ttl:
+                try:
+                    return json.loads(cache.read_text())
+                except ValueError:
+                    pass
         try:
-            resp = requests.get(url, params=q, timeout=self.timeout)
+            resp = requests.get(url, params={"apiKey": self.api_key or "", **q},
+                                timeout=self.timeout)
+            remaining = resp.headers.get("x-requests-remaining")
+            if remaining is not None:
+                self.credits_remaining = int(float(remaining))
             resp.raise_for_status()
-            return resp.json()
+            payload = resp.json()
+            if cache is not None:
+                cache.parent.mkdir(parents=True, exist_ok=True)
+                cache.write_text(json.dumps(payload))
+            return payload
         except (requests.RequestException, ValueError) as exc:
             # requests puts the full request URL -- query string and API key
             # included -- into the exception message, so never log it verbatim.

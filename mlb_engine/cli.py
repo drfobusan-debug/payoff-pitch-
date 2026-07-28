@@ -28,7 +28,7 @@ from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config, load_config
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
-from mlb_engine.data.oddsapi import OddsAPIClient
+from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
 from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -97,6 +97,19 @@ def _generate_card(
     return md_path, html_path
 
 
+def _odds_client(cfg: Config) -> OddsAPIClient:
+    """Odds API client on the configured credit budget."""
+    props = cfg.odds_props if cfg.odds_props is not None else DEFAULT_PROP_MARKETS
+    return OddsAPIClient(
+        cfg.creds.odds_api_key,
+        prop_markets=props,
+        include_f5=cfg.odds_f5,
+        cache_dir=cfg.odds_cache_dir,
+        cache_ttl=cfg.odds_cache_ttl,
+        min_credits=cfg.odds_min_credits,
+    )
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -104,7 +117,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         statcast=StatcastRepository(cfg.cache_dir),
         weather=WeatherProvider(),
         vsin=VSINClient(cfg.creds),
-        oddsapi=OddsAPIClient(cfg.creds.odds_api_key),
+        oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
         fangraphs=FanGraphsClient(cfg.creds),
     )
