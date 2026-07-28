@@ -110,7 +110,29 @@ mlb-engine run --email --to you@gmail.com
 
 # (re)build the card from a prior run's predictions without re-simulating
 mlb-engine card --date 2024-07-19 --email
+
+# grade yesterday AND email the formatted audit report (md/html/pdf) in one shot
+mlb-engine audit --report --email --to you@gmail.com
+
+# render the daily or weekly audit report from the existing ledger (no grading)
+mlb-engine report --period daily  --email
+mlb-engine report --period weekly --email
 ```
+
+### Audit report (daily + weekly)
+
+`mlb-engine report` renders the graded ledger into a reader-facing **audit
+article** — executive summary, core metrics, a **market scorecard** (every
+market rated 🟢 Play / 🟡 Neutral / 🔴 Fade by PPV / NPV / ROI with a *Min p to
+Play* conviction floor), the most common errors, recommendations mapped to their
+goal (↑ PPV · ↑ NPV · ✕ eliminate false positives · ↓ reduce false negatives),
+and a play/fade call. It writes `output/audit_report_<slug>.md`, `.html`, and
+`.pdf`. `--period daily` covers a single graded slate; `--period weekly` rolls up
+the trailing seven days in the same layout. `mlb-engine audit --report` produces
+the daily report for the slate it just graded; add `--email` to send it (PDF +
+markdown attached, HTML in the body). The scorecard verdicts are rule-based
+(`PPV ≥ 0.55` and positive ROI → Play; `ROI ≤ −15%` or `PPV < 0.45` → Fade;
+markets with fewer than five favored picks stay Neutral until the sample grows).
 
 ### Daily card (hybrid writeups)
 
