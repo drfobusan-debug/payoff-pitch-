@@ -11,7 +11,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mlb_engine.features.regression import SINGLES_BARREL_SLOPE
+from mlb_engine.features.regression import SINGLES_BARREL_SLOPE, SINGLES_GB_SLOPE
 
 
 def _env_int(name: str, default: int) -> int:
@@ -224,6 +224,14 @@ class Config:
     )
     tail_power_split: bool = field(
         default_factory=lambda: _env_bool("MLBE_TAIL_POWER_SPLIT", True)
+    )
+
+    # Ground-ball rate is the batted-ball half of the same story and the largest
+    # remaining contact term, but on eight slates it is not separable from zero.
+    # Off by default: enabling it grades a counterfactual without moving picks.
+    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
+    singles_gb_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
     )
 
     # Directories.

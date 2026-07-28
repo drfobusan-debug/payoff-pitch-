@@ -333,6 +333,13 @@ Two changes, both on by default:
   an elite-power tail no longer lifts the singles line. Disable with
   `MLBE_TAIL_POWER_SPLIT=0`.
 
+The mirror image -- ground balls being the singles-producing batted ball -- ships
+**off**. Enable with `MLBE_SINGLES_GB=1` (slope `MLBE_SINGLES_GB_SLOPE`, 0.5,
+clipped to +-6%). Leave-one-slate-out wants a larger coefficient than that, but
+it is not separable from zero: over the same eight slates the term moved
+`batter_1b` PPV .4861 -> .4880 on seven fewer picks and left the engine flat, so
+it is there to accumulate a graded counterfactual rather than to be trusted yet.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);

@@ -32,6 +32,7 @@ BL_XBA = 0.250
 BL_XSLG = 0.400
 BL_BABIP = 0.290
 BL_SPRINT = 27.0
+BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
@@ -46,6 +47,15 @@ MIN_BBE = 15  # minimum batted-ball events for a stable signal
 # from .756 to .568 while his total hits barely move. This slope prices that half
 # only; the full -3.5 would charge for the strikeouts twice.
 SINGLES_BARREL_SLOPE = 1.5
+
+# Ground balls are the singles-producing batted ball, and nothing on the 1B line
+# reads batted-ball mix. Leave-one-slate-out on eight slates wants +0.152 logit
+# per SD of GB rate (SD .085), the largest of any contact term -- but it is not
+# separable from zero on that sample and GB rate is already correlated -.28 with
+# the barrel term above, so this slope is about 40% of the fitted value and the
+# term is off by default. `Config.singles_gb` turns it on to accumulate a graded
+# counterfactual.
+SINGLES_GB_SLOPE = 0.5
 
 
 def _clip(x: float, lo: float, hi: float) -> float:
@@ -68,17 +78,21 @@ class BatterRegression:
     woba: float
     xwoba: float
     sprint_speed: float = BL_SPRINT
+    gb_rate: float = BL_GB_RATE
 
     @property
     def dxwoba(self) -> float:
         return self.xwoba - self.woba
 
     def multipliers(
-        self, singles_barrel_slope: float = SINGLES_BARREL_SLOPE
+        self,
+        singles_barrel_slope: float = SINGLES_BARREL_SLOPE,
+        singles_gb_slope: float = 0.0,
     ) -> dict[str, float]:
         """Return bounded outcome multipliers for {1B,2B,3B,HR}.
 
-        ``singles_barrel_slope`` of 0 restores the pre-barrel singles behaviour.
+        Either singles slope at 0 drops that term; ``singles_gb_slope`` defaults
+        to 0 because the ground-ball effect is not yet separable from zero.
         """
         if self.bbe < MIN_BBE:
             return {}
@@ -108,6 +122,9 @@ class BatterRegression:
         one *= 1.0 + _clip(
             (BL_BARREL - self.barrel_rate) * singles_barrel_slope, -0.06, 0.06
         )  # NPV power
+        one *= 1.0 + _clip(
+            (self.gb_rate - BL_GB_RATE) * singles_gb_slope, -0.06, 0.06
+        )  # PPV batted-ball mix
         one = _clip(one, 0.85, 1.18)
 
         # --- BABIP / dxwOBA luck regression (nudges contact outcomes) ---
@@ -184,6 +201,8 @@ def build_batter_regression(
     )
     xslg = _estimate_xslg(batted)
     babip = _babip(bdf)
+    bb_type = batted["bb_type"].dropna() if "bb_type" in batted else pd.Series(dtype=object)
+    gb_rate = float(bb_type.eq("ground_ball").mean()) if len(bb_type) else BL_GB_RATE
 
     if np.isnan(xwoba):
         xwoba = BL_XBA
@@ -205,6 +224,7 @@ def build_batter_regression(
         woba=woba,
         xwoba=xwoba,
         sprint_speed=sprint_speed,
+        gb_rate=gb_rate,
     )
 
 

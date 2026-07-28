@@ -503,7 +503,8 @@ class Pipeline:
             )
             regs.append(breg)
             bmult = breg.multipliers(
-                self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0
+                self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,
+                self.cfg.singles_gb_slope if self.cfg.singles_gb else 0.0,
             )
 
             bats = slot.player.bats.value if slot.player.bats else None
