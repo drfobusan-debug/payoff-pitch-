@@ -178,6 +178,7 @@ class OddsAPIClient:
             book = bm.get("key", "")
             for mkt in bm.get("markets", []):
                 mk = mkt.get("key", "")
+                opposite = _opposite_prices(mkt.get("outcomes", []))
                 for oc in mkt.get("outcomes", []):
                     price = oc.get("price")
                     if price is None:
@@ -187,7 +188,11 @@ class OddsAPIClient:
                         continue
                     market, selection = sel
                     out.setdefault((ev.matchup, market, selection), []).append(
-                        MarketQuote(book=book, american=float(price))
+                        MarketQuote(
+                            book=book,
+                            american=float(price),
+                            opposite_american=opposite.get(id(oc)),
+                        )
                     )
 
     def _game_selection(
@@ -229,6 +234,7 @@ class OddsAPIClient:
                     is_pitcher = True
                 else:
                     continue
+                opposite = _opposite_prices(mkt.get("outcomes", []))
                 for oc in mkt.get("outcomes", []):
                     if str(oc.get("name", "")).lower() != "over":
                         continue
@@ -241,7 +247,13 @@ class OddsAPIClient:
                         else keys.batter_prop(str(player), stat, line)
                     )
                     out.setdefault((ev.matchup, market, selection), []).append(
-                        MarketQuote(book=book, american=float(price))
+                        MarketQuote(
+                            book=book,
+                            american=float(price),
+                            # The under is not bet, but it is what makes the
+                            # over's fair probability computable.
+                            opposite_american=opposite.get(id(oc)),
+                        )
                     )
 
     # -- helpers ----------------------------------------------------------
@@ -292,6 +304,34 @@ class OddsAPIClient:
                 _redact(str(exc), self.api_key),
             )
             return None
+
+
+def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
+    """Map each outcome to the price of the other side of the same two-way line.
+
+    A two-outcome market is a pair outright, which covers moneylines and run
+    lines (whose two sides carry *different* points, -1.5 and +1.5). Anything
+    larger is grouped by player and line, so a prop or alternate total pairs its
+    own over with its own under. Only exact pairs qualify -- a three-way or
+    orphaned side is left unpaired rather than devigged against the wrong price.
+    """
+    priced = [oc for oc in outcomes if oc.get("price") is not None]
+    if len(priced) == 2:
+        a, b = priced
+        return {id(a): float(b["price"]), id(b): float(a["price"])}
+    groups: dict[tuple[str, object], list[dict]] = {}
+    for oc in outcomes:
+        if oc.get("price") is None:
+            continue
+        groups.setdefault((str(oc.get("description", "")), oc.get("point")), []).append(oc)
+    pairs: dict[int, float] = {}
+    for members in groups.values():
+        if len(members) != 2:
+            continue
+        a, b = members
+        pairs[id(a)] = float(b["price"])
+        pairs[id(b)] = float(a["price"])
+    return pairs
 
 
 def _redact(message: str, api_key: str | None) -> str:
