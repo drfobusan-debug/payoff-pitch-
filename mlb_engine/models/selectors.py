@@ -63,6 +63,9 @@ class Selection:
     hr_max_ev: float | None = None
     hr_barrel: float | None = None
     hr_bbe: int | None = None
+    # Contact-quality inputs for the H+R+RBI adjuster (None when unavailable).
+    bat_sweet_spot: float | None = None
+    bat_xslg: float | None = None
 
     def __bool__(self) -> bool:
         return self.signal not in ("none", "hold") or self.factor != 1.0
@@ -329,4 +332,6 @@ class TBSelector:
             hr_max_ev=breg.max_ev,
             hr_barrel=breg.barrel_rate,
             hr_bbe=breg.bbe,
+            bat_sweet_spot=breg.sweet_spot,
+            bat_xslg=breg.xslg,
         )

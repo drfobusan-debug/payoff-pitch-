@@ -31,6 +31,7 @@ from mlb_engine.features.efficiency import (
     opponent_discipline_factor,
 )
 from mlb_engine.features.hr_gate import HRPowerGate
+from mlb_engine.features.hrr_adjust import HRRAdjuster
 from mlb_engine.features.ml_gate import MLSharpGate
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
@@ -247,6 +248,7 @@ class Pipeline:
         self._tb_selector = TBSelector()
         self._hr_gate = HRPowerGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
+        self._hrr_adjust = HRRAdjuster.from_env()
 
     def run(
         self,
@@ -933,10 +935,13 @@ class Pipeline:
                         selector=sel,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
+            hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
+            hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
                     line=line, player_id=pid, stat="HRR", side="over", quotes=quotes,
+                    hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg,
                 ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
@@ -970,9 +975,12 @@ class Pipeline:
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
             rl_signal: RunLineSignal | None = None,
-            selector: Selection | None = None) -> Recommendation:
+            selector: Selection | None = None,
+            hrr_sweet: float | None = None, hrr_xslg: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
+        if market == "batter_hrr":
+            calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
