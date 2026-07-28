@@ -155,6 +155,13 @@ class Config:
         default_factory=lambda: os.getenv("MLBE_CALIBRATE", "1") not in ("0", "false", "")
     )
 
+    # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
+    # daily-built team-form cache; OFF by default until the graded-data backtest
+    # sets the threshold.
+    runline_luck_gap: bool = field(
+        default_factory=lambda: _env_bool("MLBE_RL_LUCK_GAP", False)
+    )
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
@@ -176,6 +183,11 @@ class Config:
     def fangraphs_dir(self) -> Path:
         """Default drop-in folder for FanGraphs custom-report exports."""
         return self.data_dir / "fangraphs"
+
+    @property
+    def team_form_path(self) -> Path:
+        """Cached daily-built season team-form baseline (luck-gap inputs)."""
+        return self.cache_dir / "team_form.json"
 
     def ensure_dirs(self) -> None:
         for d in (

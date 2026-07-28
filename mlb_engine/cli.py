@@ -30,6 +30,7 @@ from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
+from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.card import build_cards, render_html, render_markdown
@@ -220,6 +221,24 @@ def cmd_card(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_team_form(args: argparse.Namespace) -> int:
+    """Build the season team-form (luck-gap) baseline cache -- run once daily."""
+    cfg = load_config()
+    as_of = _parse_date(args.date, Date.today())
+    statcast = StatcastRepository(cfg.cache_dir)
+    df = statcast.load_trailing(as_of, args.days, refresh=args.refresh)
+    run_diffs = MLBStatsClient().team_run_differentials(as_of.year)
+    forms = build_team_forms(df, run_diffs)
+    save_team_forms(forms, cfg.team_form_path)
+    gaps = compute_luck_gaps(forms)
+    print(f"Built team-form baseline for {len(forms)} teams -> {cfg.team_form_path}")
+    for team, gap in sorted(gaps.items(), key=lambda kv: kv[1], reverse=True):
+        f = forms[team]
+        rd = f"{f.actual_rd_g:+.2f}" if f.actual_rd_g is not None else "  n/a"
+        print(f"  {team:4s} luck_gap {gap:+.2f}  actual_rd/g {rd}  xrd_proxy {f.xrd_proxy:+.3f}")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     audit_date = _parse_date(args.date, Date.today() - timedelta(days=1))
@@ -395,6 +414,14 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--email", action="store_true", help="email the report")
     rp.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     rp.set_defaults(func=cmd_report)
+
+    tf = sub.add_parser(
+        "team-form", help="build the season team-form (luck-gap) baseline cache"
+    )
+    tf.add_argument("--date", help="as-of date YYYY-MM-DD (default: today)")
+    tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
+    tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
+    tf.set_defaults(func=cmd_team_form)
 
     args = p.parse_args(argv)
     return args.func(args)
