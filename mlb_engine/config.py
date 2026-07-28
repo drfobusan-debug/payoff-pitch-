@@ -129,6 +129,46 @@ class Config:
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
     rbi_obp_threshold: float = field(default_factory=lambda: _env_float("MLBE_RBI_OBP", 0.345))
 
+    # Contact-quality floor on batter props: exclude low-power bats from the
+    # power markets (HR/XBH/TB) below MLBE_POWER_XSLG_FLOOR xSLG, and whiff-prone
+    # bats from the contact markets (H/1B/H+R+RBI) above MLBE_CONTACT_K_CEILING
+    # K%. Live by default; set MLBE_POWER_FLOOR=0 to disable.
+    power_floor: bool = field(default_factory=lambda: _env_bool("MLBE_POWER_FLOOR", True))
+    power_xslg_floor: float = field(
+        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.400)
+    )
+    contact_k_ceiling: float = field(
+        default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
+    )
+
+    # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
+    # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
+    # power contact, pull-heavy grounders). Live by default; set
+    # MLBE_SINGLES_UNDER=0 to disable, MLBE_SINGLES_UNDER_MIN to retune the score.
+    singles_under: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_UNDER", True)
+    )
+    singles_under_min: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_MIN", 3.0)
+    )
+
+    # Opposing-starter SIERA gate on the batter singles/hit market. Since singles
+    # PPV is weak, lean on matchup quality: skip the singles/H/H+R+RBI OVER when
+    # the batter faces an ace (SIERA < ace floor, e.g. Arraez vs Skubal), and do
+    # NOT apply the singles-Under exclusion when he faces a scrub (SIERA > bad
+    # ceiling, e.g. a power bat vs Gallen -- a weak arm inflates cheap singles).
+    # SIERA is computed from Statcast; the gate stays neutral when the opposing
+    # starter has too few PA. Set MLBE_SINGLES_SIERA=0 to disable.
+    singles_siera: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_SIERA", True)
+    )
+    singles_siera_ace: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_SIERA_ACE", 3.4)
+    )
+    singles_siera_bad: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_SIERA_BAD", 4.4)
+    )
+
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")

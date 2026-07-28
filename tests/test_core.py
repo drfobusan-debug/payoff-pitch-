@@ -2019,3 +2019,194 @@ def test_weekly_window_filters_to_seven_days():
     recent = _ledger_entry("game_ml", 0.6, WIN, date_str="2026-07-23")
     kept = weekly_entries([old, recent], date(2026, 7, 23))
     assert recent in kept and old not in kept
+
+
+# ---- contact-quality floor on batter props ----
+def _floor_reg(xslg: float, k_pct: float, bbe: int = 40):
+    from mlb_engine.features.regression import BatterRegression
+
+    return BatterRegression(
+        bbe=bbe, barrel_rate=0.08, hard_hit=0.40, sweet_spot=0.33, bat_speed=72.0,
+        max_ev=108.0, whiff=0.24, zone_contact=0.82, xba=0.25, xslg=xslg,
+        babip=0.29, woba=0.32, xwoba=0.32, k_pct=k_pct, bb_pct=0.08,
+    )
+
+
+def test_power_floor_reason_gates():
+    from mlb_engine.models.selectors import power_floor_reason
+
+    kw = {"xslg_floor": 0.400, "k_ceiling": 0.25}
+    # Power markets: below the xSLG floor -> excluded; above -> kept.
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "HR", **kw)
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "TB", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.20), "HR", **kw) is None
+    # A high-K slugger is NOT gated out of the power markets.
+    assert power_floor_reason(_floor_reg(0.520, 0.32), "HR", **kw) is None
+    # Contact markets: above the K% ceiling -> excluded; below -> kept.
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "H", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "HRR", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.18), "1B", **kw) is None
+    # Never gate on a thin sample or a missing (NaN) feature.
+    assert power_floor_reason(_floor_reg(0.330, 0.20, bbe=5), "HR", **kw) is None
+    assert power_floor_reason(_floor_reg(0.480, float("nan")), "H", **kw) is None
+
+
+def test_batter_regression_k_bb_pct():
+    import pandas as pd
+
+    from mlb_engine.features.regression import build_batter_regression
+
+    events = ["strikeout"] * 3 + ["walk"] + ["single"] * 4 + ["field_out"] * 2
+    n = len(events)
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "batter": [1] * n,
+            "launch_speed": [float("nan")] * 4 + [95.0] * 4 + [80.0] * 2,
+            "launch_angle": [float("nan")] * n,
+            "launch_speed_angle": [float("nan")] * n,
+            "bat_speed": [float("nan")] * n,
+            "description": (
+                ["swinging_strike"] * 3 + ["ball"] + ["hit_into_play"] * 6
+            ),
+            "estimated_ba_using_speedangle": [float("nan")] * n,
+            "estimated_woba_using_speedangle": [float("nan")] * n,
+            "woba_value": [float("nan")] * n,
+            "zone": [5] * n,
+        }
+    )
+    breg = build_batter_regression(df)
+    assert breg.k_pct == 0.3  # 3 / 10
+    assert breg.bb_pct == 0.1  # 1 / 10
+
+
+# ---- singles "Under" NPV screen ----
+def test_singles_under_score_flags_tto_and_flyball():
+    from mlb_engine.features.singles_under import (
+        SINGLES_UNDER_STRONG,
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    # Textbook TTO fly-ball slugger: high K% & BB%, passive zone approach,
+    # steep launch angle, elite power contact -> strong Under, well over strong.
+    slugger = SinglesUnderProfile(
+        pa=95, bip=60, k_pct=0.31, bb_pct=0.14, z_swing=0.55, avg_la=22.0,
+        barrel=0.18, hard_hit=0.52, pull_rate=0.40,
+    )
+    score, reasons = singles_under_score(slugger)
+    assert score >= SINGLES_UNDER_STRONG
+    assert any("TTO" in r for r in reasons)
+    assert any("fly-ball" in r for r in reasons)
+
+    # A contact, line-drive hitter trips no flags.
+    contact = SinglesUnderProfile(
+        pa=95, bip=70, k_pct=0.14, bb_pct=0.07, z_swing=0.72, avg_la=10.0,
+        barrel=0.05, hard_hit=0.35, pull_rate=0.38,
+    )
+    cscore, creasons = singles_under_score(contact)
+    assert cscore == 0.0 and creasons == []
+
+
+def test_singles_under_thin_sample_is_neutral():
+    from mlb_engine.features.singles_under import (
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    thin = SinglesUnderProfile(
+        pa=10, bip=6, k_pct=0.40, bb_pct=0.20, z_swing=0.50, avg_la=25.0,
+        barrel=0.20, hard_hit=0.55, pull_rate=0.50,
+    )
+    assert not thin.has_data
+    assert singles_under_score(thin) == (0.0, [])
+
+
+def test_build_singles_under_from_statcast():
+    import numpy as np
+    import pandas as pd
+
+    from mlb_engine.features.singles_under import build_singles_under
+
+    # 30 K, 15 BB, 55 batted balls (all pulled fly balls) over 100 PA.
+    events = ["strikeout"] * 30 + ["walk"] * 15 + ["field_out"] * 55
+    n = len(events)
+    ls = [float("nan")] * 45 + [100.0] * 55  # only batted balls have exit velo
+    la = [float("nan")] * 45 + [25.0] * 55  # steep fly-ball angle
+    zone = [5] * 60 + [12] * 40  # 60 in-zone, 40 out
+    # Batted balls pulled to LF for a RHB (hc_x < origin, deep).
+    hc_x = [float("nan")] * 45 + [80.0] * 55
+    hc_y = [float("nan")] * 45 + [100.0] * 55
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "description": ["swinging_strike"] * 45 + ["hit_into_play"] * 55,
+            "launch_speed": ls,
+            "launch_angle": la,
+            "launch_speed_angle": [float("nan")] * n,
+            "zone": zone,
+            "hc_x": hc_x,
+            "hc_y": hc_y,
+        }
+    )
+    p = build_singles_under(df, "R")
+    assert p.pa == 100
+    assert np.isclose(p.k_pct, 0.30)
+    assert np.isclose(p.bb_pct, 0.15)
+    assert p.avg_la == 25.0
+    assert p.bip == 55
+
+
+# ---- SIERA from Statcast ----
+def test_pitcher_siera_ace_vs_scrub_and_empty():
+    import pandas as pd
+
+    from mlb_engine.features.siera import pitcher_siera
+
+    def _mk(n_pa, k, bb, gb, fb, pu):
+        # n_pa PA: k strikeouts, bb walks, rest batted balls split gb/fb/pu.
+        events = (
+            ["strikeout"] * k
+            + ["walk"] * bb
+            + ["field_out"] * (n_pa - k - bb)
+        )
+        bip = n_pa - k - bb
+        bt = (
+            [None] * (k + bb)
+            + ["ground_ball"] * gb
+            + ["fly_ball"] * fb
+            + ["popup"] * pu
+            + [None] * (bip - gb - fb - pu)
+        )
+        return pd.DataFrame({"events": events, "bb_type": bt})
+
+    # High-K, low-BB, grounder-leaning -> low (elite) SIERA.
+    ace = pitcher_siera(_mk(200, 76, 10, 60, 30, 5))
+    # Low-K, high-BB, fly-ball-leaning -> high SIERA.
+    scrub = pitcher_siera(_mk(200, 24, 22, 30, 55, 12))
+    assert ace.has_data and scrub.has_data
+    assert ace.siera < 3.4 < scrub.siera
+    assert 1.0 < ace.siera < 3.4
+    assert 4.0 < scrub.siera < 6.5
+
+    # No plate appearances -> neutral, not trusted.
+    empty = pitcher_siera(pd.DataFrame({"events": [None, None], "bb_type": [None, None]}))
+    assert empty.pa == 0 and not empty.has_data
+    assert empty.siera != empty.siera  # nan
+
+
+def test_siera_matchup_gate_helpers():
+    from mlb_engine.features.siera import Siera, faces_ace, faces_scrub
+
+    ace = Siera(pa=180, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.1)
+    mid = Siera(pa=150, so_rate=0.22, bb_rate=0.08, net_gb_rate=0.05, siera=3.9)
+    scrub = Siera(pa=140, so_rate=0.13, bb_rate=0.10, net_gb_rate=0.06, siera=4.9)
+    thin = Siera(pa=20, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.0)
+
+    # Ace triggers the over-exclude; mid/scrub do not.
+    assert faces_ace(ace, 3.4) and not faces_ace(mid, 3.4) and not faces_ace(scrub, 3.4)
+    # Scrub triggers the under-veto; ace/mid do not.
+    assert faces_scrub(scrub, 4.4) and not faces_scrub(mid, 4.4) and not faces_scrub(ace, 4.4)
+    # Thin sample and missing data stay neutral on both sides.
+    assert not faces_ace(thin, 3.4) and not faces_scrub(thin, 4.4)
+    assert not faces_ace(None, 3.4) and not faces_scrub(None, 4.4)
