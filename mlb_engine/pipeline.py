@@ -31,6 +31,7 @@ from mlb_engine.features.efficiency import (
     opponent_discipline_factor,
 )
 from mlb_engine.features.hr_gate import HRPowerGate
+from mlb_engine.features.ml_gate import MLSharpGate
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -245,6 +246,7 @@ class Pipeline:
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
         self._hr_gate = HRPowerGate.from_env()
+        self._ml_gate = MLSharpGate.from_env()
 
     def run(
         self,
@@ -1019,6 +1021,14 @@ class Pipeline:
             ):
                 keep, gate_reason = self._hr_gate.allows(
                     selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if gate_reason:
+                    reasons.append(gate_reason)
+            if market == "game_ml" and tier != Tier.PASS:
+                keep, gate_reason = self._ml_gate.allows(
+                    rec.handle_pct, rec.bets_pct
                 )
                 if not keep:
                     tier = Tier.PASS
