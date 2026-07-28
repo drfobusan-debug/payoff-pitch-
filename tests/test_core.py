@@ -1936,3 +1936,82 @@ def test_siera_matchup_gate_helpers():
     # Thin sample and missing data stay neutral on both sides.
     assert not faces_ace(thin, 3.4) and not faces_scrub(thin, 4.4)
     assert not faces_ace(None, 3.4) and not faces_scrub(None, 4.4)
+
+
+# ---- audit report ----
+def _ledger_entry(market, model_prob, result, *, odds=-110, ev=0.0, tier=Tier.PASS,
+                  selection="Over 7.5", date_str="2026-07-23", pnl=None):
+    from mlb_engine.audit.ledger import LedgerEntry
+
+    if pnl is None:
+        won = result == WIN
+        pnl = (0.91 if odds == -110 else (odds / 100.0)) if won else (
+            0.0 if result == PUSH else -1.0
+        )
+    return LedgerEntry(
+        date=date_str, matchup="AAA @ BBB", category="game", market=market,
+        selection=selection, line=7.5, book="dk", odds=odds, tier=tier.value,
+        model_prob=model_prob, ev=ev, result=result, pnl=pnl,
+    )
+
+
+def _report_ledger():
+    entries = []
+    # A clean, profitable play market (pitcher_k): favored picks mostly win.
+    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(8)]
+    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(2)]
+    # A losing pocket (f5_total): favored picks mostly lose big.
+    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(7)]
+    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(3)]
+    # A market the model always fades -> abstain row.
+    entries += [_ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(6)]
+    return entries
+
+
+def test_market_metrics_sorted_and_abstain_last():
+    from mlb_engine.audit.ledger import market_metrics
+
+    rows = market_metrics(_report_ledger())
+    # highest ROI first, model-never-favored (n==0) row sinks to the bottom
+    assert rows[0].tier == "pitcher_k"
+    assert rows[-1].tier == "batter_hr" and rows[-1].n == 0
+
+
+def test_report_classifies_and_renders():
+    from mlb_engine.output.report import (
+        FADE,
+        NEUTRAL,
+        PLAY,
+        build_report_data,
+        render_html_report,
+        render_markdown_report,
+    )
+
+    data = build_report_data(
+        _report_ledger(), period_label="Daily", subtitle="slate graded 2026-07-23"
+    )
+    verdicts = {r.market: r.verdict for r in data.rows}
+    assert verdicts["pitcher_k"] == PLAY
+    assert verdicts["f5_total"] == FADE
+    assert verdicts["batter_hr"] == NEUTRAL  # abstained
+    assert any(r.abstained for r in data.rows if r.market == "batter_hr")
+
+    md = render_markdown_report(data)
+    assert "## Executive summary" in md
+    assert "## Market scorecard" in md
+    assert "Min p to Play" in md
+    assert "Recommendations" in md
+    assert "Pitcher strikeouts" in md
+
+    html_body = render_html_report(data)
+    assert html_body.startswith("<!DOCTYPE html>")
+    assert "Market scorecard" in html_body and "<table>" in html_body
+
+
+def test_weekly_window_filters_to_seven_days():
+    from mlb_engine.output.report import weekly_entries
+
+    old = _ledger_entry("game_ml", 0.6, WIN, date_str="2026-07-01")
+    recent = _ledger_entry("game_ml", 0.6, WIN, date_str="2026-07-23")
+    kept = weekly_entries([old, recent], date(2026, 7, 23))
+    assert recent in kept and old not in kept

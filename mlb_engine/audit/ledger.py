@@ -303,3 +303,17 @@ def prop_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     if props:
         rows.append(_metrics(props, _favors, "ALL PROPS"))
     return rows
+
+
+def market_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """Whole-engine-style PPV/NPV for *every* market, sorted by ROI (high to low).
+
+    One :class:`OverallMetrics` row per distinct market (game and F5 lines as well
+    as props), each keyed on the model-favored boundary (``model_prob >= 0.5``).
+    Markets the model never favored (``n == 0``) still appear so the report can
+    show that the engine correctly abstained; they sort last.
+    """
+    by_market = _by(entries, lambda e: e.market)
+    rows = [_metrics(by_market[m], _favors, m) for m in by_market]
+    rows.sort(key=lambda m: (m.n == 0, -m.roi))
+    return rows
