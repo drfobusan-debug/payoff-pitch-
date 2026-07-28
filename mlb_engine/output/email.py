@@ -31,8 +31,10 @@ def send_card_email(
     creds = cfg.creds
     if not creds.gmail_app_password:
         raise EmailNotConfigured("GMAIL_APP_PASSWORD is not set")
-    sender = creds.gmail_user or to or cfg.email_to
-    recipient = to or cfg.email_to or sender
+    recipient = to or cfg.email_to or creds.gmail_user or cfg.audit_email
+    # The App Password belongs to one mailbox, so the recipient is the safest
+    # sender fallback when GMAIL_USER is unset -- Gmail rejects a mismatched From.
+    sender = creds.gmail_user or recipient
     if not recipient:
         raise EmailNotConfigured("no recipient set (pass --to or MLBE_EMAIL_TO)")
     if not sender:
