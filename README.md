@@ -80,6 +80,38 @@ kept, so it ships on. The two underdog gates removed 35 +1.5s that won at
 66-75%: the simulation already prices weak starters and weak bullpens, so the
 gates double-count and delete winners. They stay off.
 
+### Bullpen windows
+
+A bullpen's last three weeks is about 270 batters faced spread over a dozen
+arms, and at that size the *results* move far more than the *ability* does.
+Split-half reliability across the 30 pens (6/16–7/27, non-overlapping halves):
+
+| metric | repeats at | keep |
+| --- | --- | --- |
+| Velocity | 0.67 | 67% |
+| K% | 0.66 | 66% |
+| Whiff% | 0.58 | 58% |
+| wOBA allowed | 0.47 | 47% |
+| xwOBA allowed | 0.37 | 37% |
+| BB% | 0.19 | 19% |
+| Hard-hit% | 0.13 | 13% |
+| HR per batter faced | 0.06 | 6% |
+
+Two knobs follow from that, both **off by default** until closing line value
+says otherwise:
+
+| Knob | Default | What it does |
+| --- | --- | --- |
+| `MLBE_BULLPEN_SKILL_DAYS` | `0` (off) | Reads the pen's stuff/command signals over a longer window than its rates. Set to `42`: out of sample against the following three weeks, relief K% scores 0.73 on 42 days against 0.66 on 21, and in a joint regression the 42-day read takes weight +0.68 against +0.14 for the last three weeks. Results-based rates stay on `MLBE_BULLPEN_DAYS` (21), where they belong — xwOBA scores 0.37 on 21 days against 0.32 on 42. |
+| `MLBE_BULLPEN_XWOBA_SHRINK` | `1.0` (raw) | Share of a pen's distance from the league mean (.306) to keep. `0.37` is the measured reliability. `xwoba_allowed` is otherwise a plain three-week mean that `MLBE_RL_GATE_DOG_PEN` compares to a hard .330 threshold, so roughly two thirds of what that gate reads is noise. `BullpenProfile.xwoba_raw` keeps the unshrunk value for reporting. |
+
+One caveat worth carrying: team-level *velocity* is the most reliable bullpen
+number and also the most misleading one. Detroit's pen appeared to lose 2.2 mph
+between those two windows, the largest drop in baseball; restricting to the eight
+arms who pitched in both, it was +0.01. The whole move was roster churn, and
+league-wide 18% of a window's relief pitches come from arms who were not there
+three weeks earlier.
+
 Calibrate the thresholds against this engine's own scales, not FanGraphs/Savant
 leaderboards: hard-hit% and GB% are computed off the tracked-batted-ball slice
 (same convention as `build_pitcher_regression`) and read a few points lower than
