@@ -171,3 +171,19 @@ def test_anchor_to_market_blends_and_clamps() -> None:
     assert abs(anchor_to_market(0.64, 0.55, 0.5) - 0.595) < 1e-12
     assert anchor_to_market(0.64, 0.55, 2.5) == 0.55
     assert anchor_to_market(0.64, 0.55, -1.0) == 0.64
+
+
+def test_anchor_scales_the_edge_requirement() -> None:
+    """A weight is a stricter edge threshold, not a deferral to the market.
+
+    Anchoring keeps the model's biggest disagreements and drops the small ones,
+    which is the opposite of how "market as prior" reads. Pinned here so the
+    mechanism cannot be quietly misdescribed.
+    """
+    fair = 0.50
+    for model, w in ((0.56, 0.6), (0.62, 0.4), (0.51, 0.5)):
+        edge = anchor_to_market(model, fair, w) - fair
+        assert abs(edge - (1 - w) * (model - fair)) < 1e-12
+    # At w=.6 a .02 edge screen passes only disagreements of .05 or more.
+    assert anchor_to_market(0.549, fair, 0.6) - fair < 0.02
+    assert anchor_to_market(0.551, fair, 0.6) - fair > 0.02

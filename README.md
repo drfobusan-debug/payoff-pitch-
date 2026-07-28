@@ -154,12 +154,19 @@ comparisons keep measuring the model rather than the blend, and both numbers are
 recorded per pick (`Model %` and `Market %` on the card, `fair_prob`/`bet_prob`
 in the ledger).
 
-It exists because the current screen fires precisely where the model disagrees
-with the market, and on nine priced slates the largest disagreements were the
-largest errors — where the model sat furthest above the market it claimed 57.5%
-and delivered 49.1%. Anchoring shrinks the loss (-5.4% at `0`, -4.1% at `0.4`,
--3.5% at `0.6` on a third of the bets) but never turns it positive, and past
-`0.6` it degrades badly. It ships off; pick a weight on CLV, not on ROI.
+It exists because the market is the better forecaster in every market we bet
+(Brier .2347 vs .2408), so the model should have to earn its departures from it.
+Be precise about the mechanism, though: the screen is affine in the probability,
+so weight `w` scales the measured edge to `(1 − w)·(model − fair)`, which against
+a fixed threshold is identical to demanding `edge >= threshold / (1 − w)` — at
+`0.6`, a .02 edge requirement becomes .05. It therefore **keeps** the model's
+biggest disagreements and drops the small ones; it raises the toll on
+disagreeing, it does not make the engine defer.
+
+Nine priced slates: -5.4% at `0`, -4.1% at `0.4`, -3.5% at `0.6` on a third of
+the bets, -12.9% at `0.8`. Every one of those intervals still spans zero, so this
+shrinks a loss rather than earning a profit. It ships off; pick a weight on CLV,
+not on ROI.
 
 ### Daily card (hybrid writeups)
 
