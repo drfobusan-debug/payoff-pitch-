@@ -91,6 +91,31 @@ def league_pitcher_rates() -> OutcomeRates:
     )
 
 
+def _pen_matchup(
+    late_ctx: OutcomeRates,
+    pen_allowed: OutcomeRates,
+    bmult: dict[str, float],
+    xbh_mult: dict[str, float],
+    bpen_allowed: dict[str, float],
+    bpen_k: float,
+    bpen_npv: dict[str, float],
+    bat_tail: dict[str, float],
+) -> dict[str, float]:
+    """A batter's outcome probs vs a given pen ``pen_allowed`` profile.
+
+    Same multiplier stack for the aggregate and high-leverage pens; only the base
+    ``pen_allowed`` rates differ.
+    """
+    vp = combine(late_ctx, pen_allowed)
+    vp = apply_multipliers(vp, bmult)
+    # Apply XBH selection to the bullpen matchup too.
+    vp = apply_multipliers(vp, xbh_mult)
+    vp = apply_multipliers(vp, bpen_allowed)
+    vp = apply_multipliers(vp, {"K": bpen_k})
+    vp = apply_multipliers(vp, bpen_npv)
+    return apply_multipliers(vp, bat_tail)
+
+
 @dataclass
 class PipelineDeps:
     stats: MLBStatsClient
@@ -413,7 +438,7 @@ class Pipeline:
         park,
         weather_mult: dict[str, float] | None,
     ):
-        """Return (bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections) for a lineup."""
+        """Return (bat_vs_starter, bat_vs_pen, bat_vs_pen_close, rbi_flags, prev, selections)."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -463,6 +488,7 @@ class Pipeline:
         regs = []
         bat_vs_starter = []
         bat_vs_pen = []
+        bat_vs_pen_close = []
         selections: list[dict[str, Selection | None]] = []
         for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
@@ -515,17 +541,15 @@ class Pipeline:
                 late_ctx = build_batter_late_rates(
                     statcast, pid, slate_date, w.bullpen_days, w.bullpen_min_inning
                 )
-            vs_pen = combine(late_ctx, bpen.allowed)
-            vs_pen = apply_multipliers(vs_pen, bmult)
-            # Apply XBH selection to bullpen matchup too.
-            vs_pen = apply_multipliers(vs_pen, xbh_sel.outcome_multipliers)
-            vs_pen = apply_multipliers(vs_pen, bpen_allowed)
-            vs_pen = apply_multipliers(vs_pen, {"K": bpen_k})
-            vs_pen = apply_multipliers(vs_pen, bpen_npv)
-            vs_pen = apply_multipliers(vs_pen, bat_tail)
+            # Aggregate pen (used once the game is out of hand) vs the team's
+            # high-leverage arms (used late in a still-close game).
+            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
+            vs_pen = _pen_matchup(late_ctx, bpen.allowed, *pen_args)
+            vs_pen_close = _pen_matchup(late_ctx, bpen.allowed_leverage, *pen_args)
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)
+            bat_vs_pen_close.append(vs_pen_close)
             selections.append({"RBI": None, "XBH": xbh_sel, "TB": tb_sel})
 
         rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold, regs)
@@ -544,7 +568,7 @@ class Pipeline:
                 opp_hand=opp_throws,
             )
 
-        return bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections
+        return bat_vs_starter, bat_vs_pen, bat_vs_pen_close, rbi_flags, prev, selections
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
         if not mult:
@@ -650,10 +674,10 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        home_start, home_pen, home_rbi, home_prev, home_sels = self._team_offense(
+        home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels = self._team_offense(
             game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
-        away_start, away_pen, away_rbi, away_prev, away_sels = self._team_offense(
+        away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels = self._team_offense(
             game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
@@ -704,9 +728,13 @@ class Pipeline:
         away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def,
                     away_mgr.offense_multipliers(), away_dgang]
         home_start = self._apply_all(home_start, home_env)
-        home_pen = self._apply_all(home_pen, [*home_env, home_mgr.pen_multipliers()])
+        home_pen_env = [*home_env, home_mgr.pen_multipliers()]
+        home_pen = self._apply_all(home_pen, home_pen_env)
+        home_pen_close = self._apply_all(home_pen_close, home_pen_env)
         away_start = self._apply_all(away_start, away_env)
-        away_pen = self._apply_all(away_pen, [*away_env, away_mgr.pen_multipliers()])
+        away_pen_env = [*away_env, away_mgr.pen_multipliers()]
+        away_pen = self._apply_all(away_pen, away_pen_env)
+        away_pen_close = self._apply_all(away_pen_close, away_pen_env)
 
         # Starter exit model: manager hooks (batters-faced + pitch-count caps)
         # tightened by each starter's own recent workload, plus a pitch-efficiency
@@ -740,6 +768,7 @@ class Pipeline:
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
+            bat_vs_pen_close=home_pen_close,
             starter_bf_cap=home_cap,
             starter_pitch_cap=home_eff.pitch_cap,
             pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
@@ -748,6 +777,7 @@ class Pipeline:
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
+            bat_vs_pen_close=away_pen_close,
             starter_bf_cap=away_cap,
             starter_pitch_cap=away_eff.pitch_cap,
             pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
