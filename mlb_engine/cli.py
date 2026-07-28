@@ -44,9 +44,9 @@ from mlb_engine.output.report import (
     daily_entries,
     render_html_report,
     render_markdown_report,
-    render_pdf,
     weekly_entries,
 )
+from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
@@ -150,7 +150,7 @@ def _generate_report(
     pdf_path: Path | None = cfg.output_dir / f"audit_report_{slug}.pdf"
     pdf_bytes: bytes | None = None
     try:
-        pdf_bytes = render_pdf(html_body)
+        pdf_bytes = render_report_pdf(html_body)
         assert pdf_path is not None
         pdf_path.write_bytes(pdf_bytes)
     except PdfNotAvailable as exc:
