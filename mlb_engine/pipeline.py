@@ -1034,6 +1034,14 @@ class Pipeline:
                     tier = Tier.PASS
                 if gate_reason:
                     reasons.append(gate_reason)
+            if market == "game_ml" and tier == Tier.PASS:
+                up, up_reason = self._ml_gate.upgrades(
+                    rec.handle_pct, rec.bets_pct, evres.fair_prob
+                )
+                if up:
+                    tier = Tier.MODERATE
+                if up_reason:
+                    reasons.append(up_reason)
             rec.tier = tier
             rec.reasons = reasons
         else:
