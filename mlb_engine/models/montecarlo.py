@@ -188,8 +188,15 @@ class MonteCarlo:
         bf = {"home": 0, "away": 0}
         pitches = {"home": 0.0, "away": 0.0}
 
-        def half(team: str, inning: int) -> int:
-            """Simulate one half-inning for ``team`` batting. Returns runs."""
+        def half(team: str, inning: int, walkoff_deficit: int | None = None) -> int:
+            """Simulate one half-inning for ``team`` batting. Returns runs.
+
+            ``walkoff_deficit`` is the number of runs the batting team trails by
+            (0 when tied) in a half-inning that ends the game the moment it takes
+            the lead. The half stops there rather than playing out three outs, so
+            walk-off margins stay at the realistic +1 (or the runners-plus-batter
+            total on a walk-off home run).
+            """
             if team == "home":
                 cdf_start, cdf_pen = home_cdf_start, home_cdf_pen
                 cdf_pen_close = home_cdf_pen_close
@@ -255,6 +262,9 @@ class MonteCarlo:
                     if oc in ("K", "OUT"):
                         p["outs"][s] += 2 if dp else 1
                     p["ER"][s] += scored
+
+                if walkoff_deficit is not None and runs > walkoff_deficit:
+                    break
             return runs
 
         scored_runners_holder: list[int] = []
@@ -342,7 +352,10 @@ class MonteCarlo:
             # Home does not bat in the bottom of the 9th+ if already leading.
             if inning >= 9 and home_runs > away_runs:
                 break
-            home_r = half("home", inning)
+            # In the bottom of the 9th+ the game ends the instant the home team
+            # takes the lead, so the half-inning is walk-off truncated.
+            deficit = (away_runs - home_runs) if inning >= 9 else None
+            home_r = half("home", inning, walkoff_deficit=deficit)
             home_runs += home_r
             if inning <= 5:
                 f5_home += home_r

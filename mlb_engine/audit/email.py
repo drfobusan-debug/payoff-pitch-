@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import smtplib
+import ssl
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -29,20 +30,46 @@ def send_audit_summary(
 ) -> bool:
     """Email the nightly audit workbook to the configured address.
 
-    Parameters can be provided explicitly or pulled from environment variables:
-    ``SMTP_SERVER``, ``SMTP_PORT`` (default 587), ``SMTP_USER``, ``SMTP_PASS``.
-    The recipient defaults to ``drfobusan@gmail.com`` unless overridden by
-    ``AUDIT_EMAIL`` or ``cfg.audit_email``.
+    Credentials come from explicit arguments, then a generic SMTP relay
+    (``SMTP_SERVER``/``SMTP_PORT``/``SMTP_USER``/``SMTP_PASS``), and finally the
+    same Gmail App Password the daily card uses (``GMAIL_APP_PASSWORD``, sender
+    ``GMAIL_USER`` falling back to the recipient). The recipient defaults to
+    ``cfg.audit_email``/``AUDIT_EMAIL``.
+
+    A missing credential is an error, not a silent skip: an audit that cannot
+    reach an inbox looks identical to an audit that never ran.
     """
     cfg = cfg or Config()
-    recipient = to or cfg.audit_email or os.getenv("AUDIT_EMAIL", "drfobusan@gmail.com")
+    recipient = to or cfg.audit_email or os.getenv("AUDIT_EMAIL")
     server = smtp_server or cfg.creds.smtp_server or os.getenv("SMTP_SERVER")
     port = smtp_port or cfg.creds.smtp_port or int(os.getenv("SMTP_PORT", "587"))
     user = smtp_user or cfg.creds.smtp_user or os.getenv("SMTP_USER")
     password = smtp_pass or cfg.creds.smtp_pass or os.getenv("SMTP_PASS")
 
+    # Gmail App Password path: one credential drives both the card and the audit.
+    gmail = False
+    if not (server and user and password) and cfg.creds.gmail_app_password:
+        server, port = cfg.smtp_host, cfg.smtp_port
+        user = cfg.creds.gmail_user or recipient
+        password = cfg.creds.gmail_app_password.replace(" ", "")
+        gmail = True
+
     if not recipient or not server or not user or not password:
-        log.warning("SMTP credentials not configured; skipping audit email")
+        missing = ", ".join(
+            name
+            for name, value in (
+                ("recipient", recipient),
+                ("server", server),
+                ("user", user),
+                ("password", password),
+            )
+            if not value
+        )
+        log.error(
+            "audit email not sent: missing %s. Set GMAIL_APP_PASSWORD (+ GMAIL_USER) or "
+            "SMTP_SERVER/SMTP_USER/SMTP_PASS, and MLBE_AUDIT_EMAIL for the recipient.",
+            missing,
+        )
         return False
 
     msg = MIMEMultipart()
@@ -67,12 +94,19 @@ def send_audit_summary(
         log.warning("ledger workbook not found at %s; email will have no attachment", ledger_xlsx)
 
     try:
-        with smtplib.SMTP(server, port, timeout=30) as smtp:
-            smtp.starttls()
-            smtp.login(user, password)
-            smtp.send_message(msg)
-        log.info("audit email sent to %s", to)
+        if gmail or port == 465:
+            with smtplib.SMTP_SSL(
+                server, port, context=ssl.create_default_context(), timeout=30
+            ) as smtp:
+                smtp.login(user, password)
+                smtp.send_message(msg)
+        else:
+            with smtplib.SMTP(server, port, timeout=30) as smtp:
+                smtp.starttls()
+                smtp.login(user, password)
+                smtp.send_message(msg)
+        log.info("audit email sent to %s", recipient)
         return True
     except Exception as exc:  # noqa: BLE001
-        log.warning("failed to send audit email: %s", exc)
+        log.error("failed to send audit email to %s: %s", recipient, exc)
         return False

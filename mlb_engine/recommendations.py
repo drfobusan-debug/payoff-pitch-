@@ -35,6 +35,9 @@ class Recommendation:
     player_id: int | None = None
     stat: str | None = None  # e.g. "H", "HR", "K", "outs", "ER"
     side: str | None = None  # "win" | "cover" | "over" | "under"
+    # Name of the run-line NPV gate that vetoed this selection, if any. Kept so
+    # the audit can grade the counterfactual: did the gate remove losers?
+    veto_gate: str | None = None
     # V1-style selector metadata surfaced for prop recommendations.
     signal: str | None = None
     factor: float | None = None

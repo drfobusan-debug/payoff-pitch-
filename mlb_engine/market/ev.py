@@ -18,6 +18,10 @@ class MarketQuote:
     american: float
     handle_pct: float | None = None  # VSIN: % of money on this side
     bets_pct: float | None = None  # VSIN: % of tickets on this side
+    # Same book, same line, other side (under / opposing team). Required to strip
+    # the vig: one side's implied probability carries roughly half the book's
+    # overround, which is ~3.4 points on a player prop.
+    opposite_american: float | None = None
 
     @property
     def sharp_divergence(self) -> float | None:
@@ -26,6 +30,25 @@ class MarketQuote:
             return None
         return self.handle_pct - self.bets_pct
 
+    @property
+    def no_vig_prob(self) -> float:
+        """The book's fair probability for this side, vig removed if possible.
+
+        Two-sided normalisation (``p / (p + q)``) is the only way to recover it.
+        Without the other side this falls back to the raw implied probability,
+        which overstates the market by about half the hold.
+        """
+        p = american_to_prob(self.american)
+        if self.opposite_american is None:
+            return p
+        q = american_to_prob(self.opposite_american)
+        total = p + q
+        return p / total if total > 0 else p
+
+    @property
+    def devigged(self) -> bool:
+        return self.opposite_american is not None
+
 
 @dataclass
 class EVResult:
@@ -33,9 +56,12 @@ class EVResult:
     best_quote: MarketQuote
     decimal: float
     ev: float  # EV per $1 staked
-    fair_prob: float  # market no-vig implied (single-side approx)
+    fair_prob: float  # market no-vig implied
     edge: float  # model_prob - fair_prob
     sharp_divergence: float | None
+    # Share of consensus weight whose vig was actually removed. Below 1.0 the
+    # edge is understated, so a thin-edge guard is stricter than it looks.
+    devig_coverage: float = 1.0
 
 
 def ev_per_dollar(model_prob: float, american: float) -> float:
@@ -60,7 +86,8 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
     ev = model_prob * (dec - 1.0) - (1.0 - model_prob)
 
     wsum = sum(_weight(q.book) for q in quotes)
-    fair = sum(_weight(q.book) * american_to_prob(q.american) for q in quotes) / wsum
+    fair = sum(_weight(q.book) * q.no_vig_prob for q in quotes) / wsum
+    covered = sum(_weight(q.book) for q in quotes if q.devigged) / wsum
 
     weighted_divs = [
         (_weight(q.book), d) for q in quotes if (d := q.sharp_divergence) is not None
@@ -78,4 +105,5 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
         fair_prob=fair,
         edge=model_prob - fair,
         sharp_divergence=divergence,
+        devig_coverage=covered,
     )

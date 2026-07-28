@@ -11,6 +11,8 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from mlb_engine.features.regression import SINGLES_BARREL_SLOPE, SINGLES_GB_SLOPE
+
 
 def _env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
@@ -20,6 +22,14 @@ def _env_int(name: str, default: int) -> int:
 def _env_float(name: str, default: float) -> float:
     raw = os.getenv(name)
     return float(raw) if raw not in (None, "") else default
+
+
+def _env_csv(name: str) -> tuple[str, ...] | None:
+    """Comma-separated override, or ``None`` to keep the caller's default."""
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return None
+    return tuple(part.strip() for part in str(raw).split(",") if part.strip())
 
 
 @dataclass(frozen=True)
@@ -77,6 +87,50 @@ class EVThresholds:
 
 
 @dataclass(frozen=True)
+class RunLineGates:
+    """NPV gates that veto a run-line selection outright.
+
+    Each gate removes selections whose *failure* to cover is highly predictable,
+    lifting realized NPV at the cost of bet volume. They ship disabled so each
+    can be A/B'd against the ledger one at a time (see ``runline_metrics``).
+    """
+
+    # Favorite -1.5: a low-power lineup facing a ground-ball starter has almost
+    # no blowout path (needs multi-run homers it cannot hit).
+    # On by default: over eight graded slates this gate removed six favorite
+    # -1.5s that went 1-5, against a 59.6% baseline for the run lines it kept.
+    # Thresholds are the engine's own tracked-batted-ball scale, which reads a
+    # few points below the public leaderboards the .140/.50 figures come from.
+    iso_gb: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_ISO_GB", True))
+    iso_max: float = field(default_factory=lambda: _env_float("MLBE_RL_ISO_MAX", 0.170))
+    gb_min: float = field(default_factory=lambda: _env_float("MLBE_RL_GB_MIN", 0.40))
+
+    # Underdog +1.5: a starter putting runners on and giving up hard contact is
+    # a blowout waiting to happen.
+    # Both underdog gates stay off: over the same eight slates they removed 35
+    # +1.5s that won at 66-75%, i.e. they deleted winners. The sim already
+    # prices weak-starter and weak-bullpen matchups, so the gates double-count.
+    dog_sp: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_DOG_SP", False))
+    dog_sp_whip_max: float = field(default_factory=lambda: _env_float("MLBE_RL_DOG_WHIP_MAX", 1.45))
+    dog_sp_hard_hit_max: float = field(
+        default_factory=lambda: _env_float("MLBE_RL_DOG_HARD_HIT_MAX", 0.45)
+    )
+
+    # Underdog +1.5: a bullpen that cannot strand inherited runners hands the
+    # favorite the late-innings cushion that breaks the spread.
+    dog_pen: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_DOG_PEN", False))
+    dog_pen_xwoba_max: float = field(
+        default_factory=lambda: _env_float("MLBE_RL_DOG_PEN_XWOBA_MAX", 0.330)
+    )
+    dog_pen_k_min: float = field(default_factory=lambda: _env_float("MLBE_RL_DOG_PEN_K_MIN", 0.18))
+
+    # Favorite -1.5: low-total games trend to 1-run margins. Redundant with the
+    # simulated margin distribution, so it is off by default.
+    low_total: bool = field(default_factory=lambda: _env_bool("MLBE_RL_GATE_TOTAL", False))
+    low_total_max: float = field(default_factory=lambda: _env_float("MLBE_RL_TOTAL_MAX", 7.0))
+
+
+@dataclass(frozen=True)
 class Credentials:
     """Credentials for subscription data sources and SMTP (never logged)."""
 
@@ -124,6 +178,7 @@ class Credentials:
 class Config:
     windows: RollingWindows = field(default_factory=RollingWindows)
     ev: EVThresholds = field(default_factory=EVThresholds)
+    runline_gates: RunLineGates = field(default_factory=RunLineGates)
     creds: Credentials = field(default_factory=Credentials)
 
     # RBI hard-rule threshold: on-base pct of preceding 3 batters over 3wk window.
@@ -194,6 +249,51 @@ class Config:
     calibrate: bool = field(
         default_factory=lambda: os.getenv("MLBE_CALIBRATE", "1") not in ("0", "false", "")
     )
+    # Compress the over-confident tails after calibration (see ConfidenceShrink).
+    shrink_tails: bool = field(default_factory=lambda: _env_bool("MLBE_SHRINK_TAILS", True))
+    shrink_pivot: float = field(default_factory=lambda: _env_float("MLBE_SHRINK_PIVOT", 0.60))
+    shrink_slope: float = field(default_factory=lambda: _env_float("MLBE_SHRINK_SLOPE", 0.55))
+
+    # Post-simulation TB/RBI selector scaling. The selector's park/weather and
+    # batted-ball terms are already applied inside the simulation, so scaling
+    # the simulated count arrays again double-counts them; kept only as an
+    # escape hatch for reproducing pre-fix runs.
+    legacy_prop_post_mult: bool = field(
+        default_factory=lambda: _env_bool("MLBE_LEGACY_PROP_POST_MULT", False)
+    )
+
+    # Barrel rate is a negative for singles: power hitters take the same number
+    # of hits but convert them to extra bases. The slope prices the half of that
+    # effect the simulated K rate does not already carry; ``power_split`` stops
+    # the distribution-tail bonus lifting 1B by the same factor it lifts HR.
+    singles_barrel: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_BARREL", True))
+    singles_barrel_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_BARREL_SLOPE", SINGLES_BARREL_SLOPE)
+    )
+    tail_power_split: bool = field(
+        default_factory=lambda: _env_bool("MLBE_TAIL_POWER_SPLIT", True)
+    )
+
+    # Ground-ball rate is the batted-ball half of the same story and the largest
+    # remaining contact term, but on eight slates it is not separable from zero.
+    # Off by default: enabling it grades a counterfactual without moving picks.
+    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
+    singles_gb_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
+    )
+
+    # Odds API credit budget. The vendor bills markets x regions per request, so
+    # a 16-game slate at every market it can name costs ~230 credits. Props are
+    # restricted to the markets with a positive graded edge (see
+    # data.oddsapi.DEFAULT_PROP_MARKETS); MLBE_ODDS_PROPS takes a comma list.
+    odds_props: tuple[str, ...] | None = field(
+        default_factory=lambda: _env_csv("MLBE_ODDS_PROPS")
+    )
+    odds_f5: bool = field(default_factory=lambda: _env_bool("MLBE_ODDS_F5", True))
+    # Re-running the same slate inside the TTL costs nothing.
+    odds_cache_ttl: int = field(default_factory=lambda: _env_int("MLBE_ODDS_CACHE_TTL", 1800))
+    # Credits held in reserve so one runaway slate cannot drain the plan.
+    odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
@@ -210,6 +310,23 @@ class Config:
     @property
     def cache_dir(self) -> Path:
         return self.data_dir / "cache"
+
+    @property
+    def odds_cache_dir(self) -> Path:
+        return self.cache_dir / "oddsapi"
+
+    @property
+    def calibration_file(self) -> Path:
+        """Isotonic map to price with: a locally refit one wins if it exists.
+
+        ``mlb-engine calibrate`` writes ``calibration_live.json`` into the data
+        directory from the audit ledger, so an operator who has graded history
+        prices off their own results instead of the packaged 2024 fit.
+        """
+        override = os.getenv("MLBE_CALIBRATION_FILE")
+        if override:
+            return Path(override)
+        return self.data_dir / "calibration_live.json"
 
     @property
     def output_dir(self) -> Path:

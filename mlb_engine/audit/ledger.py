@@ -57,6 +57,12 @@ class LedgerEntry:
     # game/first-5 run-line rows only; None for every other market. Enables the
     # run-line miss matrix (one-run-win vs blowout errors) in the audit report.
     margin: float | None = None
+    veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
+    # Pre-calibration probability. `mlb-engine calibrate` refits the isotonic
+    # map from this column, not from `model_prob`: the map is applied to raw
+    # simulation output, so fitting it on already-calibrated probabilities
+    # would learn a correction that is then applied to the wrong input.
+    raw_prob: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -74,6 +80,8 @@ LEDGER_FIELDS = [
     "result",
     "pnl",
     "margin",
+    "veto_gate",
+    "raw_prob",
 ]
 
 
@@ -119,6 +127,8 @@ def entries_from_graded(
                 result=result,
                 pnl=_pnl(result, rec.market_american),
                 margin=margin,
+                veto_gate=rec.veto_gate or "",
+                raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
             )
         )
     return entries
@@ -155,6 +165,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     result=row["result"],
                     pnl=_to_float(row["pnl"]) or 0.0,
                     margin=_to_float(row.get("margin", "") or ""),
+                    veto_gate=row.get("veto_gate", ""),
+                    raw_prob=_to_float(row.get("raw_prob", "")),
                 )
             )
     return out
@@ -337,4 +349,36 @@ def market_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     by_market = _by(entries, lambda e: e.market)
     rows = [_metrics(by_market[m], _favors, m) for m in by_market]
     rows.sort(key=lambda m: (m.n == 0, -m.roi))
+    return rows
+
+
+
+# --- run lines: per-line metrics + NPV gate attribution --------------------
+RUNLINE_MARKETS = ("game_rl", "f5_rl")
+
+
+def runline_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """PPV/NPV for run lines, split by side, plus one row per NPV gate.
+
+    The gate rows are the point of the exercise: each reports how the selections
+    a gate *removed* actually finished. A gate is earning its keep when its row
+    shows a low win rate (it deleted losers); a gate whose vetoed picks won near
+    50% is destroying bet volume for nothing. ``KEPT`` is the complement — every
+    run line that cleared the gates.
+    """
+    rls = [e for e in entries if e.market in RUNLINE_MARKETS]
+    if not rls:
+        return []
+
+    rows = [_metrics(rls, _favors, "ALL RUN LINES")]
+    for label, line in (("FAVORITE (-1.5)", -1.5), ("UNDERDOG (+1.5)", 1.5)):
+        side = [e for e in rls if e.line == line]
+        if side:
+            rows.append(_metrics(side, _favors, label))
+
+    vetoed = [e for e in rls if e.veto_gate]
+    for gate in sorted({e.veto_gate for e in vetoed}):
+        rows.append(_metrics([e for e in vetoed if e.veto_gate == gate], _favors, f"VETO {gate}"))
+    if vetoed:
+        rows.append(_metrics([e for e in rls if not e.veto_gate], _favors, "KEPT (no veto)"))
     return rows

@@ -51,8 +51,42 @@ book (and VSIN handle/bets divergence when provided).
     league mean.
 9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers
    (`MLBE_MIN_EDGE` thin-edge guard, `MLBE_STRONG_ONLY` for strict selection).
+9a. **Run-line NPV gates** — veto (not nudge) selections whose failure to cover
+    is highly predictable. All off by default; see below.
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
     per tier from final box scores).
+
+## Run-line NPV gates
+
+Gates only ever *remove* a run line, trading bet volume for realized NPV. Each
+is independently switchable and tags the vetoed pick with its gate name, so
+`mlb-engine audit` can grade the counterfactual on the **Run Line NPV** sheet:
+a gate earns its keep only when the picks it removed lost at a materially higher
+rate than the ones it kept (`VETO <gate>` vs `KEPT (no veto)`). A gate never
+fires on missing data.
+
+| Env flag | Applies to | Fires when | Thresholds |
+| --- | --- | --- | --- |
+| `MLBE_RL_GATE_ISO_GB` **(on)** | favorite -1.5 | low-power lineup vs a ground-ball starter (no multi-run-homer path) | `MLBE_RL_ISO_MAX` (.170), `MLBE_RL_GB_MIN` (.40) |
+| `MLBE_RL_GATE_DOG_SP` | underdog +1.5 | dog starter's last 3 starts show traffic **and** hard contact | `MLBE_RL_DOG_WHIP_MAX` (1.45), `MLBE_RL_DOG_HARD_HIT_MAX` (.45) |
+| `MLBE_RL_GATE_DOG_PEN` | underdog +1.5 | dog bullpen cannot strand inherited runners | `MLBE_RL_DOG_PEN_XWOBA_MAX` (.330), `MLBE_RL_DOG_PEN_K_MIN` (.18) |
+| `MLBE_RL_GATE_TOTAL` | favorite -1.5 | low-scoring game trending to a 1-run margin (redundant with the simulated margin distribution — validate before using) | `MLBE_RL_TOTAL_MAX` (7.0) |
+
+Turn on one gate at a time and re-run `mlb-engine audit` before adding the next.
+
+Eight graded slates (19-26 Jul 2026) decided the current defaults. `iso_gb`
+removed six favorite -1.5s that went 1-5, against 59.6% for the run lines it
+kept, so it ships on. The two underdog gates removed 35 +1.5s that won at
+66-75%: the simulation already prices weak starters and weak bullpens, so the
+gates double-count and delete winners. They stay off.
+
+Calibrate the thresholds against this engine's own scales, not FanGraphs/Savant
+leaderboards: hard-hit% and GB% are computed off the tracked-batted-ball slice
+(same convention as `build_pitcher_regression`) and read a few points lower than
+the public versions, and WHIP is the PA-derived proxy. On a full 15-game slate
+the published defaults (.45 hard-hit, .50 GB) fired on 0 of 60 run lines, while
+.25 / .40 fired on 12 — start loose enough to get a sample, then tighten on what
+the `VETO` rows show.
 
 ## Install
 
@@ -76,6 +110,9 @@ mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 
 
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
+
+# refit the calibration map from the ledger (per-market, validated out of sample)
+mlb-engine calibrate --holdout 2
 
 # run the slate, build the reader-facing card, and email it in one shot
 mlb-engine run --email --to you@gmail.com
@@ -269,6 +306,61 @@ systematically under-rated bands (reclaiming false negatives). Out-of-sample
 to ~1.2 pts and lifted favored-pick PPV from .554 to .580. The raw probability is
 kept on each recommendation (`raw_prob`) for audit. Disable with
 `MLBE_CALIBRATE=0`.
+
+### Refitting from your own ledger
+
+The packaged map is a 2024 fit and does not cover every market the engine now
+prices -- `batter_tb` had no map at all, so total bases priced off the flatter
+pooled curve and ran 15.5 pts over-confident. `mlb-engine calibrate` refits from
+`~/.mlb_engine/audit/ledger.csv` (the `raw_prob` column, since the map applies to
+raw simulation output), holds out the most recent slates, and adopts the refit
+**per market** -- only where it beats the packaged fit out of sample:
+
+```bash
+mlb-engine calibrate --holdout 2
+```
+
+The result goes to `~/.mlb_engine/calibration_live.json`, which the pipeline
+prefers over the packaged file; markets that did not improve keep the packaged
+map. Point somewhere else with `MLBE_CALIBRATION_FILE`.
+
+### Confidence shrink
+
+Isotonic only corrects a tail once that tail has graded history. As a standing
+guard, everything past `MLBE_SHRINK_PIVOT` (.60) is compressed by
+`MLBE_SHRINK_SLOPE` (.55) after calibration: on the eight-slate ledger the .70+
+bucket predicted 75.7% and won 59.3%, and that bucket is exactly what trips a
+Strong Buy. The shrink is continuous, monotone and never crosses .5, so it
+cannot flip a side. It is one-sided: mirroring it about .5 lifts genuinely rare
+events (a .10 home-run over becomes .24) and cost Brier on the graded slates.
+Disable with `MLBE_SHRINK_TAILS=0`.
+
+### Barrel rate on the singles line
+
+A singles over needs a *single* -- an extra-base hit loses it. Across 323
+qualified batters (95k PA) singles per PA falls from .175 under 2% barrel to
+.124 at 10-12%, while total hits per PA barely move (.224 vs .219): power
+hitters convert hits to extra bases and strike out more. The engine used to
+miss this entirely, and the distribution-tail bonus actively made it worse by
+lifting 1B, 2B, 3B and HR with the same multiplier.
+
+Two changes, both on by default:
+
+- The singles multiplier carries a barrel term centred on the .080 league
+  baseline, `MLBE_SINGLES_BARREL_SLOPE` (1.5, clipped to +-6%). The raw league
+  slope is roughly 3.5; half of the effect is strikeouts the simulator already
+  carries in each batter's own K rate, so pricing the full slope would
+  double-count. Disable with `MLBE_SINGLES_BARREL=0`.
+- `TailAdjuster` holds barrel, hard-hit% and xSLG out of the 1B multiplier, so
+  an elite-power tail no longer lifts the singles line. Disable with
+  `MLBE_TAIL_POWER_SPLIT=0`.
+
+The mirror image -- ground balls being the singles-producing batted ball -- ships
+**off**. Enable with `MLBE_SINGLES_GB=1` (slope `MLBE_SINGLES_GB_SLOPE`, 0.5,
+clipped to +-6%). Leave-one-slate-out wants a larger coefficient than that, but
+it is not separable from zero: over the same eight slates the term moved
+`batter_1b` PPV .4861 -> .4880 on seven fewer picks and left the engine flat, so
+it is there to accumulate a graded counterfactual rather than to be trusted yet.
 
 ## Notes / limitations
 

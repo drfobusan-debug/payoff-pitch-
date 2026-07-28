@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
 
-from mlb_engine.calibration import Calibrator
+from mlb_engine.calibration import Calibrator, ConfidenceShrink
 from mlb_engine.config import Config
 from mlb_engine.data import catcher_framing
 from mlb_engine.data.divisions import same_division
@@ -27,8 +27,10 @@ from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.efficiency import (
+    PitcherEfficiency,
     build_pitcher_efficiency,
     opponent_discipline_factor,
+    recent_start_form,
 )
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
@@ -49,6 +51,7 @@ from mlb_engine.features.rolling import (
     build_batter_profile,
     build_bullpen_profile,
     build_pitcher_profile,
+    lineup_iso,
 )
 from mlb_engine.features.siera import (
     Siera,
@@ -70,7 +73,12 @@ from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
-from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+from mlb_engine.market.runline import (
+    RunLineSignal,
+    RunLineVeto,
+    runline_adjustment,
+    runline_veto,
+)
 from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
@@ -265,8 +273,17 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
 _CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
 
 
-def _load_calibrator() -> Calibrator:
-    """Load the packaged 2024 isotonic calibration map (identity if missing)."""
+def load_calibrator(live: Path | None = None) -> Calibrator:
+    """Load the isotonic calibration map.
+
+    A map refit locally by ``mlb-engine calibrate`` wins over the packaged 2024
+    fit: it is trained on this engine's own graded results, so it also covers
+    markets the packaged file never saw (``batter_tb`` among them, which is why
+    total bases was pricing off the flatter pooled curve).
+    """
+    if live is not None and live.exists():
+        log.info("using locally refit calibration map %s", live)
+        return Calibrator.from_json(live)
     if _CALIBRATION_FILE.exists():
         return Calibrator.from_json(_CALIBRATION_FILE)
     log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
@@ -282,7 +299,14 @@ class Pipeline:
         self._fatigue: dict[int, float | None] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
-        self._calibrator = _load_calibrator() if cfg.calibrate else Calibrator.identity()
+        self._calibrator = (
+            load_calibrator(cfg.calibration_file) if cfg.calibrate else Calibrator.identity()
+        )
+        self._shrink = (
+            ConfidenceShrink(pivot=cfg.shrink_pivot, slope=cfg.shrink_slope)
+            if cfg.shrink_tails
+            else None
+        )
         self._rbi_selector = RBISelector(cfg.rbi_obp_threshold)
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
@@ -318,7 +342,9 @@ class Pipeline:
         self._framing = catcher_framing.load_framing(slate_date.year) if enrich_leaderboards else {}
         batter_xslg = load_batter_xslg(slate_date.year) if enrich_leaderboards else {}
         fg_bz, fg_pz = self._fangraphs_tail_z(fangraphs_csv, slate)
-        self._tails = TailAdjuster.build(statcast, batter_xslg, fg_bz, fg_pz)
+        self._tails = TailAdjuster.build(
+            statcast, batter_xslg, fg_bz, fg_pz, power_split=self.cfg.tail_power_split
+        )
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}
@@ -528,7 +554,10 @@ class Pipeline:
             bslice = statcast[statcast["batter"] == pid]
             breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
             regs.append(breg)
-            bmult = breg.multipliers()
+            bmult = breg.multipliers(
+                self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,
+                self.cfg.singles_gb_slope if self.cfg.singles_gb else 0.0,
+            )
 
             bats = slot.player.bats.value if slot.player.bats else None
             # Switch hitters bat from the side opposite the starter's hand.
@@ -660,6 +689,55 @@ class Pipeline:
         if not vals:
             return None
         return sum(vals) / len(vals)
+
+    def _runline_gate_inputs(
+        self,
+        base: RunLineSignal,
+        statcast,
+        slate_date: Date,
+        *,
+        fav: TeamGameInfo,
+        dog: TeamGameInfo,
+        dog_pit_rows,
+        fav_opp_eff: PitcherEfficiency,
+    ) -> RunLineSignal:
+        """Inputs for the run-line NPV gates, computed only for enabled gates.
+
+        Each is ``None`` when its sample is too thin, which leaves the gate
+        keyed on it inert rather than vetoing on noise.
+        """
+        gates = self.cfg.runline_gates
+        w = self.cfg.windows
+
+        fav_iso = opp_gb = None
+        if gates.iso_gb:
+            fav_iso = lineup_iso(
+                statcast,
+                [s.player.mlbam_id for s in fav.lineup],
+                slate_date,
+                w.batter_home_away_days,
+            )
+            opp_gb = fav_opp_eff.gb_pct
+
+        form = recent_start_form(dog_pit_rows, slate_date) if gates.dog_sp else None
+
+        pen_xwoba = pen_k = None
+        if gates.dog_pen:
+            pen = build_bullpen_profile(
+                statcast, dog.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
+            )
+            pen_xwoba = pen.xwoba_allowed
+            pen_k = pen.k_pct if pen.xwoba_allowed is not None else None
+
+        return replace(
+            base,
+            fav_iso=fav_iso,
+            fav_opp_sp_gb_pct=opp_gb,
+            dog_sp_whip_l3=form.whip if form else None,
+            dog_sp_hard_hit_l3=form.hard_hit_pct if form else None,
+            dog_pen_xwoba=pen_xwoba,
+            dog_pen_k_pct=pen_k,
+        )
 
     def _dgang_multiplier(self, prev, today_park, today_iso: str | None, slate_date: Date):
         """Day-game-after-night-game offense tax for a team, from schedule times."""
@@ -856,14 +934,26 @@ class Pipeline:
         away_fat = self._bullpen_fatigue(game.away.team_id, slate_date)
         fav_side = "home" if float((margin > 0).mean()) >= 0.5 else "away"
         fav_fat = home_fat if fav_side == "home" else away_fat
-        rl_signal = RunLineSignal(
-            xwoba_diff=(home_x - away_x) if home_x is not None and away_x is not None else None,
-            fav_pen_depleted_side=(
-                fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
+        rl_signal = self._runline_gate_inputs(
+            RunLineSignal(
+                xwoba_diff=(
+                    (home_x - away_x) if home_x is not None and away_x is not None else None
+                ),
+                fav_pen_depleted_side=(
+                    fav_side if fav_fat is not None and fav_fat >= FATIGUE_DEPLETED else None
+                ),
+                sharp_money_side=self._sharp_spread_side(m, ha, aa),
+                fav_side=fav_side,
+                model_total=float(total.mean()),
+                luck_gap_home=luck_gap_for(ha, self._luck_gaps),
+                luck_gap_away=luck_gap_for(aa, self._luck_gaps),
             ),
-            sharp_money_side=self._sharp_spread_side(m, ha, aa),
-            luck_gap_home=luck_gap_for(ha, self._luck_gaps),
-            luck_gap_away=luck_gap_for(aa, self._luck_gaps),
+            statcast,
+            slate_date,
+            fav=game.home if fav_side == "home" else game.away,
+            dog=game.away if fav_side == "home" else game.home,
+            dog_pit_rows=away_pit_rows if fav_side == "home" else home_pit_rows,
+            fav_opp_eff=home_eff if fav_side == "away" else away_eff,
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
@@ -1073,7 +1163,7 @@ class Pipeline:
                 feat["opp_starter_siera"] = opp_siera.siera
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
-                if stat == "RBI" and rbi_sel is not None:
+                if stat == "RBI" and rbi_sel is not None and self.cfg.legacy_prop_post_mult:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
                 gate = self._batter_gate(breg, su, opp_siera, stat)
@@ -1095,7 +1185,7 @@ class Pipeline:
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
-            if tb_sel is not None:
+            if tb_sel is not None and self.cfg.legacy_prop_post_mult:
                 tb = tb * tb_sel.factor
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
             tb_gate = self._power_floor_reason(breg, "TB")
@@ -1134,6 +1224,8 @@ class Pipeline:
             opp_starter_siera: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
+        if self._shrink is not None:
+            calibrated = self._shrink.apply(calibrated)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
@@ -1159,6 +1251,17 @@ class Pipeline:
         rec.bat_bb_pct = bat_bb_pct
         rec.bat_singles_under = bat_singles_under
         rec.opp_starter_siera = opp_starter_siera
+        # NPV gates run whether or not the market is priced: an unpriced run
+        # line is already a Pass, but the audit still needs to know which gate
+        # removed it to grade the counterfactual.
+        veto = (
+            runline_veto(team_side, line, rl_signal, self.cfg.runline_gates)
+            if rl_signal is not None
+            else RunLineVeto()
+        )
+        if veto.triggered:
+            rec.veto_gate = veto.gate
+
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
         if q:
@@ -1175,7 +1278,12 @@ class Pipeline:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
             tier, reasons = classify(evres, self.cfg.ev.for_market(market))
-            if rl_signal is not None and tier != Tier.PASS:
+            if veto.triggered:
+                # A gate vetoes outright; the xwOBA/sharp-money signals only
+                # nudge the tier of a selection that survived the gates.
+                tier = Tier.PASS
+                reasons.append(veto.reason())
+            elif rl_signal is not None and tier != Tier.PASS:
                 steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
                 if steps:
                     tier = bump_tier(tier, steps)
@@ -1184,7 +1292,7 @@ class Pipeline:
             rec.reasons = reasons
         else:
             rec.tier = Tier.PASS
-            rec.reasons = ["no market price"]
+            rec.reasons = [veto.reason()] if veto.triggered else ["no market price"]
             sp = self._splits.get(key)
             if sp is not None:
                 rec.handle_pct = sp.handle_pct

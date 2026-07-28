@@ -9,7 +9,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from mlb_engine.audit.analysis import prop_insights
-from mlb_engine.audit.grade import grade
+from mlb_engine.audit.grade import LOSS, WIN, grade
 from mlb_engine.audit.ledger import (
     LedgerEntry,
     daily_engine_metrics,
@@ -19,13 +19,15 @@ from mlb_engine.audit.ledger import (
     load_ledger,
     overall_metrics,
     prop_metrics,
+    runline_metrics,
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
+from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config, load_config
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
-from mlb_engine.data.oddsapi import OddsAPIClient
+from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
 from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -45,7 +47,7 @@ from mlb_engine.output.report import (
     render_pdf,
     weekly_entries,
 )
-from mlb_engine.pipeline import Pipeline, PipelineDeps
+from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
 
@@ -157,6 +159,19 @@ def _generate_report(
     return md_path, html_path, pdf_path
 
 
+def _odds_client(cfg: Config) -> OddsAPIClient:
+    """Odds API client on the configured credit budget."""
+    props = cfg.odds_props if cfg.odds_props is not None else DEFAULT_PROP_MARKETS
+    return OddsAPIClient(
+        cfg.creds.odds_api_key,
+        prop_markets=props,
+        include_f5=cfg.odds_f5,
+        cache_dir=cfg.odds_cache_dir,
+        cache_ttl=cfg.odds_cache_ttl,
+        min_credits=cfg.odds_min_credits,
+    )
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -164,7 +179,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         statcast=StatcastRepository(cfg.cache_dir),
         weather=WeatherProvider(),
         vsin=VSINClient(cfg.creds),
-        oddsapi=OddsAPIClient(cfg.creds.odds_api_key),
+        oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
         fangraphs=FanGraphsClient(cfg.creds),
     )
@@ -274,6 +289,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     overall = [engine, *overall_metrics(all_entries)]
     daily_engine = daily_engine_metrics(all_entries)
     props = prop_metrics(all_entries)
+    runlines = runline_metrics(all_entries)
     insights = prop_insights(all_entries)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
     write_ledger_workbook(
@@ -284,6 +300,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
         daily_engine=daily_engine,
         prop_rows=props,
         insights=insights,
+        runline_rows=runlines,
     )
 
     print(f"Graded {len(graded)} markets for {audit_date}")
@@ -313,6 +330,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"  {m.tier:<14} n={m.n:<5} PPV={m.ppv:.3f} NPV={m.npv:.3f} "
                 f"sens={m.sensitivity:.3f} spec={m.specificity:.3f}"
             )
+    if runlines:
+        print("\nRun lines PPV/NPV (VETO rows = what each gate removed):")
+        for m in runlines:
+            print(
+                f"  {m.tier:<18} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
+                f"PPV={m.ppv:.3f} NPV={m.npv:.3f}"
+            )
+
     if insights:
         print(f"\nProp insights ({len(insights)}):")
         for ins in insights:
@@ -369,6 +394,86 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_calibrate(args: argparse.Namespace) -> int:
+    """Refit the isotonic calibration map from the audit ledger.
+
+    Trains on every graded row (pushes dropped) and holds out the most recent
+    ``--holdout`` slates to check, market by market, whether the refit map
+    actually beats the packaged 2024 fit out of sample. Only the markets that
+    win are adopted; the rest keep the packaged map.
+    """
+    cfg = load_config()
+    ledger_path = cfg.audit_dir / "ledger.csv"
+    entries = [
+        e for e in load_ledger(ledger_path) if e.result in (WIN, LOSS) and e.raw_prob is not None
+    ]
+    if not entries:
+        print(
+            f"No graded rows with a raw probability in {ledger_path}; "
+            "re-run `mlb-engine audit` to backfill the raw_prob column"
+        )
+        return 1
+
+    dates = sorted({e.date for e in entries})
+    if len(dates) <= args.holdout:
+        print(f"Need more than {args.holdout} graded slates to validate; have {len(dates)}")
+        return 1
+    split = dates[-args.holdout]
+
+    def rows_of(subset: list[LedgerEntry]) -> list[tuple[str, float, int]]:
+        return [
+            (e.market, e.raw_prob, 1 if e.result == WIN else 0)
+            for e in subset
+            if e.raw_prob is not None
+        ]
+
+    rows = rows_of(entries)
+    train = rows_of([e for e in entries if e.date < split])
+    test = rows_of([e for e in entries if e.date >= split])
+
+    packaged = load_calibrator()
+    refit = Calibrator.fit(train)
+
+    def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
+        return sum((cal.apply(m, p) - w) ** 2 for m, p, w in subset) / len(subset)
+
+    by_market: dict[str, list[tuple[str, float, int]]] = {}
+    for row in test:
+        by_market.setdefault(row[0], []).append(row)
+
+    # Adopt the refit map per market rather than wholesale. Local history is
+    # thin, and on the eight-slate ledger it beat the packaged 2024 fit exactly
+    # where that fit was stale or absent (batter_tb had no map at all) while
+    # losing on the low-volume game-level markets.
+    print(f"Holdout: {split}..{dates[-1]} ({len(test)} rows), trained on {len(train)}")
+    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}  adopt")
+    adopt: list[str] = []
+    for market in sorted(by_market):
+        subset = by_market[market]
+        b_old, b_new = brier(packaged, subset), brier(refit, subset)
+        take = len(subset) >= args.min_holdout and b_new < b_old
+        if take:
+            adopt.append(market)
+        print(
+            f"{market:<14}{len(subset):>7}{b_old:>11.4f}{b_new:>10.4f}"
+            f"{b_new - b_old:>+9.4f}  {'yes' if take else 'no'}"
+        )
+
+    if not adopt and not args.force:
+        print("\nNo market improved out of sample; nothing written")
+        return 1
+
+    final = Calibrator.fit(rows)
+    merged = Calibrator(
+        maps={**packaged.maps, **{m: final.maps[m] for m in adopt if m in final.maps}},
+        default=packaged.default,
+    )
+    merged.to_json(cfg.calibration_file)
+    print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
+    print(f"Wrote {cfg.calibration_file} (other markets keep the packaged fit)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     p = argparse.ArgumentParser(prog="mlb-engine", description="MLB prediction engine")
@@ -422,6 +527,14 @@ def main(argv: list[str] | None = None) -> int:
     tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
     tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
     tf.set_defaults(func=cmd_team_form)
+
+    cal = sub.add_parser("calibrate", help="refit the calibration map from the audit ledger")
+    cal.add_argument("--holdout", type=int, default=2, help="slates held out for validation")
+    cal.add_argument(
+        "--min-holdout", type=int, default=200, help="holdout rows a market needs to be adopted"
+    )
+    cal.add_argument("--force", action="store_true", help="write even if no market improves")
+    cal.set_defaults(func=cmd_calibrate)
 
     args = p.parse_args(argv)
     return args.func(args)
