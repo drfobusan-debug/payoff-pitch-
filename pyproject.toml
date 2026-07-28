@@ -1,0 +1,45 @@
+[project]
+name = "mlb-prediction-engine"
+version = "0.1.0"
+description = "Automated MLB game & prop prediction engine with EV-based buy tiers and nightly self-audit"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "python-dateutil>=2.8",
+    "openpyxl>=3.1",
+    "pydantic>=2.5",
+    "pybaseball>=2.2",
+    "weasyprint>=60",
+    "markdown>=3.5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4", "ruff>=0.1", "mypy>=1.7"]
+
+[project.scripts]
+mlb-engine = "mlb_engine.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["mlb_engine*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = true
