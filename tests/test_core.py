@@ -202,6 +202,64 @@ def test_bullpen_profile_excludes_starter_and_uses_late_innings():
     assert pen.allowed.p_k > LEAGUE_RATES["K"]
 
 
+def _relief_frame(rows):
+    import pandas as pd
+
+    df = pd.DataFrame(
+        rows, columns=["game_date", "pitcher", "inning", "inning_topbot", "events"]
+    )
+    df["batter"] = 1
+    df["home_team"] = "NYY"
+    df["away_team"] = "BOS"
+    return df
+
+
+def test_bullpen_leverage_split_isolates_late_arms():
+    from mlb_engine.features.rolling import build_bullpen_profile
+
+    gd = date(2024, 7, 10)
+    rows = (
+        # 7th-inning middle relief gives up singles (dilutes the aggregate)
+        [(gd, 201, 7, "Top", "single") for _ in range(30)]
+        # 8th/9th high-leverage arms strike everyone out
+        + [(gd, 200, 8, "Top", "strikeout") for _ in range(20)]
+        + [(gd, 202, 9, "Top", "strikeout") for _ in range(10)]
+    )
+    pen = build_bullpen_profile(_relief_frame(rows), "NYY", date(2024, 7, 19), 21, min_inning=6)
+    # 8th+ arms (all Ks) grade far better than the single-diluted 6th+ aggregate.
+    assert pen.allowed_leverage.p_k > pen.allowed.p_k
+
+
+def test_bullpen_leverage_falls_back_when_thin():
+    from mlb_engine.features.rolling import build_bullpen_profile
+
+    gd = date(2024, 7, 10)
+    rows = (
+        [(gd, 201, 7, "Top", "single") for _ in range(30)]
+        # only 5 8th-inning PAs: below MIN_LEVERAGE_PA -> no separate profile
+        + [(gd, 200, 8, "Top", "strikeout") for _ in range(5)]
+    )
+    pen = build_bullpen_profile(_relief_frame(rows), "NYY", date(2024, 7, 19), 21, min_inning=6)
+    assert pen.allowed_leverage.p_k == pen.allowed.p_k
+
+
+def test_leverage_pen_suppresses_close_game_scoring():
+    lg = LEAGUE_RATES
+    bat = [dict(lg) for _ in range(9)]
+    hot = {"1B": 0.5, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.0, "OUT": 0.5}
+    cold = {"1B": 0.0, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.5, "OUT": 0.5}
+    hot_pen = [dict(hot) for _ in range(9)]
+    cold_pen = [dict(cold) for _ in range(9)]
+    # Early hook so the pen pitches most of the game.
+    base = dict(bat_vs_starter=bat, starter_bf_cap=9, starter_pitch_cap=200)
+    no_split = TeamSimConfig(bat_vs_pen=hot_pen, **base)
+    with_split = TeamSimConfig(bat_vs_pen=hot_pen, bat_vs_pen_close=cold_pen, **base)
+    res_no = MonteCarlo(600, seed=7).simulate(no_split, no_split)
+    res_yes = MonteCarlo(600, seed=7).simulate(with_split, with_split)
+    # Shutdown leverage arms in the close innings pull scoring down sharply.
+    assert res_yes.home_runs_full.mean() < res_no.home_runs_full.mean()
+
+
 def test_bullpen_npv_walk_trap_and_fatigue():
     import pandas as pd
 
@@ -210,10 +268,10 @@ def test_bullpen_npv_walk_trap_and_fatigue():
     lg = rates_from_events(pd.Series(dtype=object))
     empty = pd.DataFrame()
     # Walk trap: zone% below .40 -> BB boosted.
-    trap = BullpenProfile(lg, empty, zone_pct=0.34, recent_load=1.0)
+    trap = BullpenProfile(lg, lg, empty, zone_pct=0.34, recent_load=1.0)
     assert trap.npv_multipliers().get("BB", 1.0) > 1.0
     # Fatigue: heavy recent workload -> HR/hits boosted.
-    tired = BullpenProfile(lg, empty, zone_pct=0.50, recent_load=1.4)
+    tired = BullpenProfile(lg, lg, empty, zone_pct=0.50, recent_load=1.4)
     assert tired.npv_multipliers().get("HR", 1.0) > 1.0
     # Rotowire availability override (rested) suppresses the fatigue penalty.
     assert "HR" not in tired.npv_multipliers(availability=1.0)
@@ -738,6 +796,64 @@ def test_runline_xwoba_confirms_and_contradicts():
 
     # Non-run-line selection -> untouched.
     assert runline_adjustment("home", None, sig) == (0, [])
+
+
+def test_runline_luck_gap_nudges():
+    from mlb_engine.market.runline import RunLineSignal, runline_adjustment
+
+    # Home overperforms its contact quality (lucky), away lags (unlucky/buy-low).
+    sig = RunLineSignal(luck_gap_home=1.5, luck_gap_away=-1.5)
+    # Backing the lucky favorite at -1.5 -> fade (regression risk).
+    steps, reasons = runline_adjustment("home", -1.5, sig)
+    assert steps == -1 and any("regression" in r for r in reasons)
+    # Backing the dog +1.5 when the favorite (home) is overperforming -> support.
+    up, upr = runline_adjustment("away", 1.5, sig)
+    assert up == 1 and any("back dog" in r for r in upr)
+    # Backing the underrated team at -1.5 -> support.
+    assert runline_adjustment("away", -1.5, sig)[0] == 1
+    # Missing either side's gap -> neutral (backward compatible).
+    assert runline_adjustment("home", -1.5, RunLineSignal(luck_gap_home=1.5)) == (0, [])
+
+
+def test_team_form_build_and_luck_gaps():
+    import pandas as pd
+
+    from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps
+
+    # AAA bats poorly (proxy low) but has a high actual RD -> lucky/fade.
+    # BBB bats well (proxy high) but a low actual RD -> unlucky/buy-low.
+    rows = []
+    for _ in range(250):
+        rows.append({"home_team": "BBB", "away_team": "AAA", "inning_topbot": "Top",
+                     "estimated_woba_using_speedangle": 0.300})  # AAA batting (low)
+        rows.append({"home_team": "BBB", "away_team": "AAA", "inning_topbot": "Bot",
+                     "estimated_woba_using_speedangle": 0.400})  # BBB batting (high)
+    df = pd.DataFrame(rows)
+    run_diffs = {"AAA": (0.8, 100), "BBB": (-0.8, 100)}
+
+    forms = build_team_forms(df, run_diffs)
+    assert set(forms) == {"AAA", "BBB"}
+    assert abs(forms["AAA"].xwoba_for - 0.300) < 1e-9
+    assert abs(forms["AAA"].xwoba_against - 0.400) < 1e-9
+    assert forms["AAA"].xrd_proxy < 0 < forms["BBB"].xrd_proxy
+
+    gaps = compute_luck_gaps(forms)
+    assert gaps["AAA"] > 0 > gaps["BBB"]  # lucky vs unlucky
+
+    # Thin batted-ball sample is dropped.
+    thin = build_team_forms(df.head(10), run_diffs)
+    assert thin == {}
+
+
+def test_team_form_round_trip(tmp_path):
+    from mlb_engine.features.team_form import TeamForm, load_team_forms, save_team_forms
+
+    forms = {"AAA": TeamForm("AAA", 0.33, 0.31, 0.5, 100)}
+    path = tmp_path / "team_form.json"
+    save_team_forms(forms, path)
+    assert load_team_forms(path) == forms
+    # Missing cache -> empty (off/neutral).
+    assert load_team_forms(tmp_path / "nope.json") == {}
 
 
 # ---- distribution tails ----
@@ -1405,6 +1521,81 @@ def test_prop_insights_fp_fn_tp():
     assert any(i.market == "batter_1b" and i.kind == FALSE_NEGATIVE for i in fns)
 
 
+def test_picked_margin_run_line():
+    from mlb_engine.audit.grade import picked_margin
+
+    res = GameResult(1, True, 5, 3, 3, 1)  # home wins 5-3 (full), 3-1 (F5)
+    assert picked_margin(_rec(market="game_rl", team_side="home", line=-1.5), res) == 2.0
+    assert picked_margin(_rec(market="game_rl", team_side="away", line=1.5), res) == -2.0
+    assert picked_margin(_rec(market="f5_rl", team_side="home", line=-1.5), res) == 2.0
+    # non run-line markets carry no margin
+    assert picked_margin(_rec(market="game_ml", team_side="home"), res) is None
+    # missing team_side -> None
+    assert picked_margin(_rec(market="game_rl", line=-1.5), res) is None
+
+
+def test_run_line_miss_matrix_and_findings():
+    from mlb_engine.audit.analysis import run_line_miss_findings, run_line_miss_matrix
+    from mlb_engine.audit.ledger import entries_from_graded
+
+    results = {
+        1: GameResult(1, True, 4, 3, 0, 0),  # home +1  -> -1.5 fav loses by 1
+        2: GameResult(2, True, 6, 3, 0, 0),  # home +3  -> -1.5 fav covers
+        3: GameResult(3, True, 2, 5, 0, 0),  # home -3  -> -1.5 fav loses outright
+        4: GameResult(4, True, 7, 1, 0, 0),  # home +6  -> away +1.5 dog blown out
+        5: GameResult(5, True, 5, 3, 0, 0),  # home +2  -> away +1.5 dog loses close
+    }
+    graded = [
+        (_rec(game_pk=1, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=2, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), WIN),
+        (_rec(game_pk=3, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=4, market="game_rl", team_side="away", line=1.5, model_prob=0.6), LOSS),
+        (_rec(game_pk=5, market="game_rl", team_side="away", line=1.5, model_prob=0.6), LOSS),
+    ]
+    entries = entries_from_graded(graded, date(2024, 7, 19), results)
+    assert entries[0].margin == 1.0  # one-run win recorded
+
+    m = run_line_miss_matrix(entries)
+    assert (m.fav_n, m.fav_cover, m.fav_one_run, m.fav_outright) == (3, 1, 1, 1)
+    assert (m.dog_n, m.dog_cover, m.dog_moderate, m.dog_blowout) == (2, 0, 1, 1)
+
+    finds = run_line_miss_findings(entries)
+    assert any("one-run" in f for f in finds)
+    assert any("blowout" in f for f in finds)
+
+
+def test_run_line_miss_matrix_persists_across_ledger_io(tmp_path):
+    from mlb_engine.audit.analysis import run_line_miss_matrix
+    from mlb_engine.audit.ledger import entries_from_graded, load_ledger, update_ledger
+
+    results = {1: GameResult(1, True, 4, 3, 0, 0)}
+    graded = [
+        (_rec(game_pk=1, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
+    ]
+    entries = entries_from_graded(graded, date(2024, 7, 19), results)
+    path = tmp_path / "ledger.csv"
+    update_ledger(path, entries, date(2024, 7, 19))
+    reloaded = load_ledger(path)
+    assert reloaded[0].margin == 1.0  # margin survives the CSV round-trip
+    assert run_line_miss_matrix(reloaded).fav_one_run == 1
+
+
+def test_report_renders_run_line_miss_matrix():
+    from mlb_engine.audit.ledger import entries_from_graded
+    from mlb_engine.output.report import build_report_data, render_markdown_report
+
+    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, 6)}
+    graded = [
+        (_rec(game_pk=i, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
+        for i in range(1, 6)
+    ]
+    entries = entries_from_graded(graded, date(2026, 7, 23), results)
+    data = build_report_data(entries, period_label="Daily", subtitle="x")
+    assert data.rl_matrix.has_data
+    md = render_markdown_report(data)
+    assert "Run-line miss matrix" in md
+
+
 def test_ledger_workbook_with_analysis(tmp_path):
     from mlb_engine.audit.analysis import prop_insights
     from mlb_engine.audit.ledger import (
@@ -1690,6 +1881,8 @@ def _card_recs() -> list[Recommendation]:
             wx_summary="78F 40% wind 6mph (2 in to CF)",
             wx_hr_mult=0.97,
             wx_note="",
+            xrd=0.8,
+            xrd_sd=3.9,
         )
 
     return [
@@ -1727,6 +1920,8 @@ def test_card_build_picks_positive_ev_and_starters():
     assert "wind" in blob.lower()
     # DET ML is a negative-EV favorite -> flagged as too rich, not a play.
     assert "too rich" in blob
+    # Expected run differential (xRD/G) is surfaced, home (DET) perspective.
+    assert "Expected run differential: DET +0.8" in blob
 
 
 def test_card_renderers_emit_md_and_html():
@@ -1828,3 +2023,247 @@ def test_weekly_window_filters_to_seven_days():
     recent = _ledger_entry("game_ml", 0.6, WIN, date_str="2026-07-23")
     kept = weekly_entries([old, recent], date(2026, 7, 23))
     assert recent in kept and old not in kept
+
+
+# ---- contact-quality floor on batter props ----
+def _floor_reg(xslg: float, k_pct: float, bbe: int = 40):
+    from mlb_engine.features.regression import BatterRegression
+
+    return BatterRegression(
+        bbe=bbe, barrel_rate=0.08, hard_hit=0.40, sweet_spot=0.33, bat_speed=72.0,
+        max_ev=108.0, whiff=0.24, zone_contact=0.82, xba=0.25, xslg=xslg,
+        babip=0.29, woba=0.32, xwoba=0.32, k_pct=k_pct, bb_pct=0.08,
+    )
+
+
+def test_power_floor_reason_gates():
+    from mlb_engine.models.selectors import power_floor_reason
+
+    kw = {"xslg_floor": 0.400, "k_ceiling": 0.25}
+    # Power markets: below the xSLG floor -> excluded; above -> kept.
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "HR", **kw)
+    assert power_floor_reason(_floor_reg(0.330, 0.20), "TB", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.20), "HR", **kw) is None
+    # A high-K slugger is NOT gated out of the power markets.
+    assert power_floor_reason(_floor_reg(0.520, 0.32), "HR", **kw) is None
+    # Contact markets: above the K% ceiling -> excluded; below -> kept.
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "H", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.30), "HRR", **kw)
+    assert power_floor_reason(_floor_reg(0.480, 0.18), "1B", **kw) is None
+    # Never gate on a thin sample or a missing (NaN) feature.
+    assert power_floor_reason(_floor_reg(0.330, 0.20, bbe=5), "HR", **kw) is None
+    assert power_floor_reason(_floor_reg(0.480, float("nan")), "H", **kw) is None
+
+
+def test_batter_regression_k_bb_pct():
+    import pandas as pd
+
+    from mlb_engine.features.regression import build_batter_regression
+
+    events = ["strikeout"] * 3 + ["walk"] + ["single"] * 4 + ["field_out"] * 2
+    n = len(events)
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "batter": [1] * n,
+            "launch_speed": [float("nan")] * 4 + [95.0] * 4 + [80.0] * 2,
+            "launch_angle": [float("nan")] * n,
+            "launch_speed_angle": [float("nan")] * n,
+            "bat_speed": [float("nan")] * n,
+            "description": (
+                ["swinging_strike"] * 3 + ["ball"] + ["hit_into_play"] * 6
+            ),
+            "estimated_ba_using_speedangle": [float("nan")] * n,
+            "estimated_woba_using_speedangle": [float("nan")] * n,
+            "woba_value": [float("nan")] * n,
+            "zone": [5] * n,
+        }
+    )
+    breg = build_batter_regression(df)
+    assert breg.k_pct == 0.3  # 3 / 10
+    assert breg.bb_pct == 0.1  # 1 / 10
+
+
+# ---- singles "Under" NPV screen ----
+def test_singles_under_score_flags_tto_and_flyball():
+    from mlb_engine.features.singles_under import (
+        SINGLES_UNDER_STRONG,
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    # Textbook TTO fly-ball slugger: high K% & BB%, passive zone approach,
+    # steep launch angle, elite power contact -> strong Under, well over strong.
+    slugger = SinglesUnderProfile(
+        pa=95, bip=60, k_pct=0.31, bb_pct=0.14, z_swing=0.55, avg_la=22.0,
+        barrel=0.18, hard_hit=0.52, pull_rate=0.40,
+    )
+    score, reasons = singles_under_score(slugger)
+    assert score >= SINGLES_UNDER_STRONG
+    assert any("TTO" in r for r in reasons)
+    assert any("fly-ball" in r for r in reasons)
+
+    # A contact, line-drive hitter trips no flags.
+    contact = SinglesUnderProfile(
+        pa=95, bip=70, k_pct=0.14, bb_pct=0.07, z_swing=0.72, avg_la=10.0,
+        barrel=0.05, hard_hit=0.35, pull_rate=0.38,
+    )
+    cscore, creasons = singles_under_score(contact)
+    assert cscore == 0.0 and creasons == []
+
+
+def test_singles_under_thin_sample_is_neutral():
+    from mlb_engine.features.singles_under import (
+        SinglesUnderProfile,
+        singles_under_score,
+    )
+
+    thin = SinglesUnderProfile(
+        pa=10, bip=6, k_pct=0.40, bb_pct=0.20, z_swing=0.50, avg_la=25.0,
+        barrel=0.20, hard_hit=0.55, pull_rate=0.50,
+    )
+    assert not thin.has_data
+    assert singles_under_score(thin) == (0.0, [])
+
+
+def test_build_singles_under_from_statcast():
+    import numpy as np
+    import pandas as pd
+
+    from mlb_engine.features.singles_under import build_singles_under
+
+    # 30 K, 15 BB, 55 batted balls (all pulled fly balls) over 100 PA.
+    events = ["strikeout"] * 30 + ["walk"] * 15 + ["field_out"] * 55
+    n = len(events)
+    ls = [float("nan")] * 45 + [100.0] * 55  # only batted balls have exit velo
+    la = [float("nan")] * 45 + [25.0] * 55  # steep fly-ball angle
+    zone = [5] * 60 + [12] * 40  # 60 in-zone, 40 out
+    # Batted balls pulled to LF for a RHB (hc_x < origin, deep).
+    hc_x = [float("nan")] * 45 + [80.0] * 55
+    hc_y = [float("nan")] * 45 + [100.0] * 55
+    df = pd.DataFrame(
+        {
+            "events": events,
+            "description": ["swinging_strike"] * 45 + ["hit_into_play"] * 55,
+            "launch_speed": ls,
+            "launch_angle": la,
+            "launch_speed_angle": [float("nan")] * n,
+            "zone": zone,
+            "hc_x": hc_x,
+            "hc_y": hc_y,
+        }
+    )
+    p = build_singles_under(df, "R")
+    assert p.pa == 100
+    assert np.isclose(p.k_pct, 0.30)
+    assert np.isclose(p.bb_pct, 0.15)
+    assert p.avg_la == 25.0
+    assert p.bip == 55
+
+
+# ---- SIERA from Statcast ----
+def test_pitcher_siera_ace_vs_scrub_and_empty():
+    import pandas as pd
+
+    from mlb_engine.features.siera import pitcher_siera
+
+    def _mk(n_pa, k, bb, gb, fb, pu):
+        # n_pa PA: k strikeouts, bb walks, rest batted balls split gb/fb/pu.
+        events = (
+            ["strikeout"] * k
+            + ["walk"] * bb
+            + ["field_out"] * (n_pa - k - bb)
+        )
+        bip = n_pa - k - bb
+        bt = (
+            [None] * (k + bb)
+            + ["ground_ball"] * gb
+            + ["fly_ball"] * fb
+            + ["popup"] * pu
+            + [None] * (bip - gb - fb - pu)
+        )
+        return pd.DataFrame({"events": events, "bb_type": bt})
+
+    # High-K, low-BB, grounder-leaning -> low (elite) SIERA.
+    ace = pitcher_siera(_mk(200, 76, 10, 60, 30, 5))
+    # Low-K, high-BB, fly-ball-leaning -> high SIERA.
+    scrub = pitcher_siera(_mk(200, 24, 22, 30, 55, 12))
+    assert ace.has_data and scrub.has_data
+    assert ace.siera < 3.4 < scrub.siera
+    assert 1.0 < ace.siera < 3.4
+    assert 4.0 < scrub.siera < 6.5
+
+    # No plate appearances -> neutral, not trusted.
+    empty = pitcher_siera(pd.DataFrame({"events": [None, None], "bb_type": [None, None]}))
+    assert empty.pa == 0 and not empty.has_data
+    assert empty.siera != empty.siera  # nan
+
+
+def test_siera_matchup_gate_helpers():
+    from mlb_engine.features.siera import Siera, faces_ace, faces_scrub
+
+    ace = Siera(pa=180, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.1)
+    mid = Siera(pa=150, so_rate=0.22, bb_rate=0.08, net_gb_rate=0.05, siera=3.9)
+    scrub = Siera(pa=140, so_rate=0.13, bb_rate=0.10, net_gb_rate=0.06, siera=4.9)
+    thin = Siera(pa=20, so_rate=0.35, bb_rate=0.05, net_gb_rate=0.1, siera=2.0)
+
+    # Ace triggers the over-exclude; mid/scrub do not.
+    assert faces_ace(ace, 3.4) and not faces_ace(mid, 3.4) and not faces_ace(scrub, 3.4)
+    # Scrub triggers the under-veto; ace/mid do not.
+    assert faces_scrub(scrub, 4.4) and not faces_scrub(mid, 4.4) and not faces_scrub(ace, 4.4)
+    # Thin sample and missing data stay neutral on both sides.
+    assert not faces_ace(thin, 3.4) and not faces_scrub(thin, 4.4)
+    assert not faces_ace(None, 3.4) and not faces_scrub(None, 4.4)
+
+
+def test_card_render_pdf_produces_pdf_bytes():
+    from mlb_engine.output.card import build_cards, render_html, render_pdf
+
+    cards = build_cards(_card_recs())
+    pdf = render_pdf(render_html(cards, date(2026, 7, 24)))
+    assert pdf[:5] == b"%PDF-"
+    assert len(pdf) > 1000
+
+
+def test_email_attachments_infer_mime_type(monkeypatch):
+    import smtplib
+
+    from mlb_engine.config import Config, Credentials
+    from mlb_engine.output import email as email_mod
+
+    captured = {}
+
+    class _FakeSMTP:
+        def __init__(self, *a, **k):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def login(self, *a):
+            pass
+
+        def send_message(self, msg):
+            captured["msg"] = msg
+
+    monkeypatch.setattr(smtplib, "SMTP_SSL", _FakeSMTP)
+    cfg = Config(creds=Credentials(gmail_user="x@y.com", gmail_app_password="pw"))
+    email_mod.send_card_email(
+        cfg,
+        subject="s",
+        html_body="<p>hi</p>",
+        text_body="t",
+        to="a@b.com",
+        attachments=[("card.pdf", b"%PDF-1.4 x"), ("bets.xlsx", b"PK\x03\x04")],
+    )
+    types = {
+        part.get_filename(): part.get_content_type()
+        for part in captured["msg"].iter_attachments()
+    }
+    assert types["card.pdf"] == "application/pdf"
+    assert types["bets.xlsx"] == (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )

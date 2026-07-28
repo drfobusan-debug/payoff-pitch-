@@ -32,12 +32,16 @@ from mlb_engine.features.efficiency import (
     opponent_discipline_factor,
     recent_start_form,
 )
+from mlb_engine.features.hr_gate import HRPowerGate
+from mlb_engine.features.hrr_adjust import HRRAdjuster
+from mlb_engine.features.ml_gate import MLSharpGate
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
     build_batter_pitch_profile,
 )
 from mlb_engine.features.regression import (
+    MIN_BBE,
     build_batter_regression,
     build_pitcher_regression,
 )
@@ -52,7 +56,18 @@ from mlb_engine.features.rolling import (
     build_pitcher_profile,
     lineup_iso,
 )
+from mlb_engine.features.siera import (
+    Siera,
+    faces_ace,
+    faces_scrub,
+    pitcher_siera,
+)
+from mlb_engine.features.singles_under import (
+    SinglesUnderResult,
+    evaluate_singles_under,
+)
 from mlb_engine.features.tails import TailAdjuster
+from mlb_engine.features.team_form import compute_luck_gaps, load_team_forms, luck_gap_for
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
@@ -75,7 +90,13 @@ from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup
-from mlb_engine.models.selectors import RBISelector, Selection, TBSelector, XBHSelector
+from mlb_engine.models.selectors import (
+    RBISelector,
+    Selection,
+    TBSelector,
+    XBHSelector,
+    power_floor_reason,
+)
 from mlb_engine.recommendations import Recommendation
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
@@ -97,6 +118,31 @@ def league_pitcher_rates() -> OutcomeRates:
         p_k=r["K"],
         p_out=r["OUT"],
     )
+
+
+def _pen_matchup(
+    late_ctx: OutcomeRates,
+    pen_allowed: OutcomeRates,
+    bmult: dict[str, float],
+    xbh_mult: dict[str, float],
+    bpen_allowed: dict[str, float],
+    bpen_k: float,
+    bpen_npv: dict[str, float],
+    bat_tail: dict[str, float],
+) -> dict[str, float]:
+    """A batter's outcome probs vs a given pen ``pen_allowed`` profile.
+
+    Same multiplier stack for the aggregate and high-leverage pens; only the base
+    ``pen_allowed`` rates differ.
+    """
+    vp = combine(late_ctx, pen_allowed)
+    vp = apply_multipliers(vp, bmult)
+    # Apply XBH selection to the bullpen matchup too.
+    vp = apply_multipliers(vp, xbh_mult)
+    vp = apply_multipliers(vp, bpen_allowed)
+    vp = apply_multipliers(vp, {"K": bpen_k})
+    vp = apply_multipliers(vp, bpen_npv)
+    return apply_multipliers(vp, bat_tail)
 
 
 @dataclass
@@ -267,6 +313,10 @@ class Pipeline:
         self._rbi_selector = RBISelector(cfg.rbi_obp_threshold)
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
+        self._luck_gaps: dict[str, float] = {}
+        self._hr_gate = HRPowerGate.from_env()
+        self._ml_gate = MLSharpGate.from_env()
+        self._hrr_adjust = HRRAdjuster.from_env()
 
     def run(
         self,
@@ -317,6 +367,12 @@ class Pipeline:
             odds = self.deps.oddsapi.fetch(slate)
             quotes = _merge_quotes(odds, quotes)
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
+
+        self._luck_gaps = (
+            compute_luck_gaps(load_team_forms(self.cfg.team_form_path))
+            if self.cfg.runline_luck_gap
+            else {}
+        )
 
         recs: list[Recommendation] = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
@@ -439,7 +495,8 @@ class Pipeline:
         park,
         weather_mult: dict[str, float] | None,
     ):
-        """Return (bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections) for a lineup."""
+        """Return (bat_vs_starter, bat_vs_pen, bat_vs_pen_close, rbi_flags, prev,
+        selections, regs, sunders) for a lineup."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -494,8 +551,10 @@ class Pipeline:
 
         profiles = []
         regs = []
+        sunders: list[SinglesUnderResult] = []
         bat_vs_starter = []
         bat_vs_pen = []
+        bat_vs_pen_close = []
         selections: list[dict[str, Selection | None]] = []
         for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
@@ -505,9 +564,8 @@ class Pipeline:
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)
 
-            breg = build_batter_regression(
-                statcast[statcast["batter"] == pid], sprint.get(pid, 27.0)
-            )
+            bslice = statcast[statcast["batter"] == pid]
+            breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
             regs.append(breg)
             bmult = breg.multipliers(
                 self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,
@@ -515,6 +573,9 @@ class Pipeline:
             )
 
             bats = slot.player.bats.value if slot.player.bats else None
+            # Switch hitters bat from the side opposite the starter's hand.
+            stand = bats if bats in ("L", "R") else ("L" if opp_throws == "R" else "R")
+            sunders.append(evaluate_singles_under(bslice, stand))
             xbh_sel = self._xbh_selector.select(
                 breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
             )
@@ -522,7 +583,7 @@ class Pipeline:
                 breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
             )
 
-            bpp = build_batter_pitch_profile(statcast[statcast["batter"] == pid])
+            bpp = build_batter_pitch_profile(bslice)
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
             bat_tail = self._tails.batter_multiplier(pid)
 
@@ -551,17 +612,15 @@ class Pipeline:
                 late_ctx = build_batter_late_rates(
                     statcast, pid, slate_date, w.bullpen_days, w.bullpen_min_inning
                 )
-            vs_pen = combine(late_ctx, bpen.allowed)
-            vs_pen = apply_multipliers(vs_pen, bmult)
-            # Apply XBH selection to bullpen matchup too.
-            vs_pen = apply_multipliers(vs_pen, xbh_sel.outcome_multipliers)
-            vs_pen = apply_multipliers(vs_pen, bpen_allowed)
-            vs_pen = apply_multipliers(vs_pen, {"K": bpen_k})
-            vs_pen = apply_multipliers(vs_pen, bpen_npv)
-            vs_pen = apply_multipliers(vs_pen, bat_tail)
+            # Aggregate pen (used once the game is out of hand) vs the team's
+            # high-leverage arms (used late in a still-close game).
+            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
+            vs_pen = _pen_matchup(late_ctx, bpen.allowed, *pen_args)
+            vs_pen_close = _pen_matchup(late_ctx, bpen.allowed_leverage, *pen_args)
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)
+            bat_vs_pen_close.append(vs_pen_close)
             selections.append({"RBI": None, "XBH": xbh_sel, "TB": tb_sel})
 
         rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold, regs)
@@ -580,7 +639,16 @@ class Pipeline:
                 opp_hand=opp_throws,
             )
 
-        return bat_vs_starter, bat_vs_pen, rbi_flags, prev, selections
+        return (
+            bat_vs_starter,
+            bat_vs_pen,
+            bat_vs_pen_close,
+            rbi_flags,
+            prev,
+            selections,
+            regs,
+            sunders,
+        )
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
         if not mult:
@@ -741,11 +809,15 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        home_start, home_pen, home_rbi, home_prev, home_sels = self._team_offense(
-            game.home, game.away, statcast, slate_date, sprint, park, weather_mult
+        home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels, home_regs, home_su = (
+            self._team_offense(
+                game.home, game.away, statcast, slate_date, sprint, park, weather_mult
+            )
         )
-        away_start, away_pen, away_rbi, away_prev, away_sels = self._team_offense(
-            game.away, game.home, statcast, slate_date, sprint, park, weather_mult
+        away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels, away_regs, away_su = (
+            self._team_offense(
+                game.away, game.home, statcast, slate_date, sprint, park, weather_mult
+            )
         )
 
         # travel/rest (circadian) per team
@@ -795,9 +867,13 @@ class Pipeline:
         away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def,
                     away_mgr.offense_multipliers(), away_dgang]
         home_start = self._apply_all(home_start, home_env)
-        home_pen = self._apply_all(home_pen, [*home_env, home_mgr.pen_multipliers()])
+        home_pen_env = [*home_env, home_mgr.pen_multipliers()]
+        home_pen = self._apply_all(home_pen, home_pen_env)
+        home_pen_close = self._apply_all(home_pen_close, home_pen_env)
         away_start = self._apply_all(away_start, away_env)
-        away_pen = self._apply_all(away_pen, [*away_env, away_mgr.pen_multipliers()])
+        away_pen_env = [*away_env, away_mgr.pen_multipliers()]
+        away_pen = self._apply_all(away_pen, away_pen_env)
+        away_pen_close = self._apply_all(away_pen_close, away_pen_env)
 
         # Starter exit model: manager hooks (batters-faced + pitch-count caps)
         # tightened by each starter's own recent workload, plus a pitch-efficiency
@@ -806,6 +882,12 @@ class Pipeline:
         w = self.cfg.windows
         home_pit_rows = statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id]
         away_pit_rows = statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id]
+        # SIERA of each starter (from Statcast); away batters face the home
+        # starter and vice-versa -> map by the batter's own team_key.
+        opp_siera = {
+            "away": pitcher_siera(home_pit_rows),
+            "home": pitcher_siera(away_pit_rows),
+        }
         home_cap = expected_bf_cap(
             home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
         )
@@ -831,6 +913,7 @@ class Pipeline:
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
+            bat_vs_pen_close=home_pen_close,
             starter_bf_cap=home_cap,
             starter_pitch_cap=home_eff.pitch_cap,
             pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
@@ -839,6 +922,7 @@ class Pipeline:
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
+            bat_vs_pen_close=away_pen_close,
             starter_bf_cap=away_cap,
             starter_pitch_cap=away_eff.pitch_cap,
             pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
@@ -856,6 +940,10 @@ class Pipeline:
         h, a = res.home_runs_full.astype(float), res.away_runs_full.astype(float)
         total = h + a
         margin = h - a
+        # Expected run differential (home perspective): sequencing-luck-free mean
+        # of the simulated margin, plus its spread. Surfaced on the card.
+        xrd = float(margin.mean())
+        xrd_sd = float(margin.std())
 
         # Run-line PPV confidence: team xwOBA differential + depleted-favorite
         # bullpen (live from the public StatsAPI workload proxy).
@@ -876,6 +964,8 @@ class Pipeline:
                 sharp_money_side=self._sharp_spread_side(m, ha, aa),
                 fav_side=fav_side,
                 model_total=float(total.mean()),
+                luck_gap_home=luck_gap_for(ha, self._luck_gaps),
+                luck_gap_away=luck_gap_for(aa, self._luck_gaps),
             ),
             statcast,
             slate_date,
@@ -928,22 +1018,27 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes))
 
         # ---- batter props ----
-        for team_key, tinfo, flags, sels in (
-            ("home", game.home, home_rbi, home_sels),
-            ("away", game.away, away_rbi, away_sels),
+        for team_key, tinfo, flags, sels, regs, sunders in (
+            ("home", game.home, home_rbi, home_sels, home_regs, home_su),
+            ("away", game.away, away_rbi, away_sels, away_regs, away_su),
         ):
-            recs.extend(self._batter_props(game, m, res, team_key, tinfo, flags, sels, quotes))
+            recs.extend(
+                self._batter_props(
+                    game, m, res, team_key, tinfo, flags, sels, regs, sunders,
+                    opp_siera[team_key], quotes,
+                )
+            )
 
         # ---- pitcher props (starters) ----
         # home team's starter faces away hitters -> stats tracked under pit["home"]
         recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes))
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
 
-        self._attach_context(recs, park, eff)
+        self._attach_context(recs, park, eff, xrd, xrd_sd)
         return recs
 
     @staticmethod
-    def _attach_context(recs, park, eff) -> None:
+    def _attach_context(recs, park, eff, xrd=None, xrd_sd=None) -> None:
         """Stamp shared park + live-weather context onto every rec in a game."""
         wx_summary = wx_note = None
         wx_hr = None
@@ -961,6 +1056,8 @@ class Pipeline:
             r.wx_summary = wx_summary
             r.wx_hr_mult = wx_hr
             r.wx_note = wx_note
+            r.xrd = xrd
+            r.xrd_sd = xrd_sd
 
     def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
                        home_mgr, away_mgr, home_fat, away_fat):
@@ -1010,7 +1107,60 @@ class Pipeline:
             return sels.get("TB")
         return None
 
-    def _batter_props(self, game, m, res, team_key, tinfo, flags, sels, quotes):
+    def _power_floor_reason(self, breg, stat: str) -> str | None:
+        """Pipeline wrapper: apply the contact-quality floor when enabled."""
+        if not self.cfg.power_floor:
+            return None
+        return power_floor_reason(
+            breg,
+            stat,
+            xslg_floor=self.cfg.power_xslg_floor,
+            k_ceiling=self.cfg.contact_k_ceiling,
+        )
+
+    def _singles_under_reason(
+        self, su: SinglesUnderResult | None, opp: Siera | None
+    ) -> str | None:
+        """Exclude the singles/H/H+R+RBI over for a strong singles-Under profile.
+
+        Vetoed when the batter faces a weak arm (SIERA above the ceiling): a
+        scrub inflates cheap singles even for a power bat, so don't fade it.
+        """
+        if (
+            not self.cfg.singles_under
+            or su is None
+            or su.score < self.cfg.singles_under_min
+        ):
+            return None
+        if self.cfg.singles_siera and faces_scrub(opp, self.cfg.singles_siera_bad):
+            return None
+        return f"singles under (score {su.score:.1f}): {'; '.join(su.reasons)}"
+
+    def _singles_ace_reason(self, opp: Siera | None) -> str | None:
+        """Exclude the singles/hit over when the batter faces an ace starter."""
+        if opp is None or not self.cfg.singles_siera:
+            return None
+        if not faces_ace(opp, self.cfg.singles_siera_ace):
+            return None
+        return f"vs ace: opp SIERA {opp.siera:.2f} < {self.cfg.singles_siera_ace:.2f}"
+
+    def _batter_gate(
+        self, breg, su: SinglesUnderResult | None, opp: Siera | None, stat: str
+    ) -> str | None:
+        """Combined batter-prop floor: contact-quality, then SIERA/singles-Under."""
+        reason = self._power_floor_reason(breg, stat)
+        if reason is not None:
+            return reason
+        if stat in ("H", "1B", "HRR"):
+            ace = self._singles_ace_reason(opp)
+            if ace is not None:
+                return ace
+            return self._singles_under_reason(su, opp)
+        return None
+
+    def _batter_props(
+        self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera, quotes
+    ):
         out = []
         bat = res.bat[team_key]
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
@@ -1019,23 +1169,39 @@ class Pipeline:
             pid = slot.player.mlbam_id
             rbi_sel = sels[i].get("RBI") if i < len(sels) else None
             tb_sel = sels[i].get("TB") if i < len(sels) else None
+            breg = regs[i] if i < len(regs) else None
+            su = sunders[i] if i < len(sunders) else None
+            feat = (
+                {"bat_xslg": breg.xslg, "bat_k_pct": breg.k_pct, "bat_bb_pct": breg.bb_pct}
+                if breg is not None and breg.bbe >= MIN_BBE
+                else {}
+            )
+            if su is not None and su.profile.has_data:
+                feat["bat_singles_under"] = su.score
+            if opp_siera is not None and opp_siera.has_data:
+                feat["opp_starter_siera"] = opp_siera.siera
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
                 if stat == "RBI" and rbi_sel is not None and self.cfg.legacy_prop_post_mult:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
+                gate = self._batter_gate(breg, su, opp_siera, stat)
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",
                         keys.batter_prop(name, stat, line), p_over(arr, line),
                         line=line, player_id=pid, stat=stat, side="over", quotes=quotes,
-                        selector=sel,
+                        selector=sel, gate_reason=gate, **feat,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
+            hrr_gate = self._batter_gate(breg, su, opp_siera, "HRR")
+            hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
+            hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
                     line=line, player_id=pid, stat="HRR", side="over", quotes=quotes,
+                    gate_reason=hrr_gate, hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
                 ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
@@ -1043,11 +1209,12 @@ class Pipeline:
             if tb_sel is not None and self.cfg.legacy_prop_post_mult:
                 tb = tb * tb_sel.factor
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
+            tb_gate = self._power_floor_reason(breg, "TB")
             for line in (1.5, 2.5, 3.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_tb", f"{name} TB o{line}", p_over(tb, line),
                     line=line, player_id=pid, stat="TB", side="over", quotes=quotes,
-                    selector=tb_sel_out,
+                    selector=tb_sel_out, gate_reason=tb_gate, **feat,
                 ))
         return out
 
@@ -1069,11 +1236,21 @@ class Pipeline:
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
             rl_signal: RunLineSignal | None = None,
-            selector: Selection | None = None) -> Recommendation:
+            selector: Selection | None = None,
+            gate_reason: str | None = None,
+            bat_xslg: float | None = None,
+            bat_k_pct: float | None = None,
+            bat_bb_pct: float | None = None,
+            bat_singles_under: float | None = None,
+            opp_starter_siera: float | None = None,
+            hrr_sweet: float | None = None,
+            hrr_xslg: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
             calibrated = self._shrink.apply(calibrated)
+        if market == "batter_hrr":
+            calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,
@@ -1094,6 +1271,11 @@ class Pipeline:
             rec.factor = selector.factor
             rec.score = selector.score
             rec.profile = selector.profile
+        rec.bat_xslg = bat_xslg
+        rec.bat_k_pct = bat_k_pct
+        rec.bat_bb_pct = bat_bb_pct
+        rec.bat_singles_under = bat_singles_under
+        rec.opp_starter_siera = opp_starter_siera
         # NPV gates run whether or not the market is priced: an unpriced run
         # line is already a Pass, but the audit still needs to know which gate
         # removed it to grade the counterfactual.
@@ -1140,6 +1322,34 @@ class Pipeline:
                 if steps:
                     tier = bump_tier(tier, steps)
                 reasons.extend(rl_reasons)
+            if (
+                market == "batter_hr"
+                and tier != Tier.PASS
+                and selector is not None
+            ):
+                keep, gate_reason = self._hr_gate.allows(
+                    selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if gate_reason:
+                    reasons.append(gate_reason)
+            if market == "game_ml" and tier != Tier.PASS:
+                keep, gate_reason = self._ml_gate.allows(
+                    rec.handle_pct, rec.bets_pct
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if gate_reason:
+                    reasons.append(gate_reason)
+            if market == "game_ml" and tier == Tier.PASS:
+                up, up_reason = self._ml_gate.upgrades(
+                    rec.handle_pct, rec.bets_pct, evres.fair_prob
+                )
+                if up:
+                    tier = Tier.MODERATE
+                if up_reason:
+                    reasons.append(up_reason)
             rec.tier = tier
             rec.reasons = reasons
         else:
@@ -1153,6 +1363,11 @@ class Pipeline:
                     rec.reasons.append(
                         f"VSIN handle {sp.handle_pct:.0f}% / bets {sp.bets_pct:.0f}%"
                     )
+        # Contact-quality floor: hard-exclude a failing batter prop from betting
+        # regardless of price (attacks the low-power/whiff-prone false positives).
+        if gate_reason is not None and rec.tier != Tier.PASS:
+            rec.tier = Tier.PASS
+            rec.reasons = [gate_reason, *rec.reasons]
         return rec
 
 

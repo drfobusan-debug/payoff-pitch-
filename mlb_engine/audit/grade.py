@@ -8,6 +8,26 @@ from mlb_engine.recommendations import Recommendation
 WIN, LOSS, PUSH = "win", "loss", "push"
 
 
+def picked_margin(rec: Recommendation, res: GameResult) -> float | None:
+    """Final margin from the picked side's perspective (team_runs - opp_runs).
+
+    Defined only for run-line markets (``game_rl`` / ``f5_rl``); returns ``None``
+    for every other market. Positive = the backed team won by that many; used by
+    the audit run-line miss matrix to tell one-run-win errors from blowouts.
+    """
+    if not rec.team_side:
+        return None
+    if rec.market == "game_rl":
+        team = res.home_runs if rec.team_side == "home" else res.away_runs
+        opp = res.away_runs if rec.team_side == "home" else res.home_runs
+        return float(team - opp)
+    if rec.market == "f5_rl":
+        team = res.f5_home if rec.team_side == "home" else res.f5_away
+        opp = res.f5_away if rec.team_side == "home" else res.f5_home
+        return float(team - opp)
+    return None
+
+
 def _ou(actual: float, line: float, side: str) -> str:
     if actual == line:
         return PUSH

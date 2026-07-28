@@ -51,6 +51,15 @@ class Recommendation:
     factor: float | None = None
     score: float | None = None
     profile: str | None = None
+    # Batter contact-quality features stamped on prop recs (for audit tuning of
+    # the power/contact floor). None on non-batter markets.
+    bat_xslg: float | None = None
+    bat_k_pct: float | None = None
+    bat_bb_pct: float | None = None
+    # Singles-Under NPV score (structural anti-singles red flags); None off-batter.
+    bat_singles_under: float | None = None
+    # Opposing starter's SIERA (Statcast) for the singles matchup gate.
+    opp_starter_siera: float | None = None
     # --- game environment context (same for every rec in a game; for the card) ---
     park_name: str | None = None
     park_factor: float | None = None
@@ -59,6 +68,10 @@ class Recommendation:
     wx_summary: str | None = None  # live weather string, None if roofed/unavailable
     wx_hr_mult: float | None = None  # weather HR multiplier (1.0 = neutral)
     wx_note: str | None = None
+    # Expected run differential (home perspective) = mean of the simulated run
+    # margin, and its spread -- the sequencing-luck-free per-game xRD/G.
+    xrd: float | None = None
+    xrd_sd: float | None = None
 
     @property
     def model_american(self) -> float:

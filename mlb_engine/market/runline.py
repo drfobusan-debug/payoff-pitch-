@@ -34,6 +34,7 @@ from mlb_engine.config import RunLineGates
 
 XWOBA_DIFF_STRONG = 0.030  # meaningful team hard-contact edge
 XWOBA_DIFF_CLOSE = 0.010  # near-even by underlying contact quality
+LUCK_GAP_STRONG = 1.0  # |z(actual RD) - z(xRD proxy)| at which regression is a real edge
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,11 @@ class RunLineSignal:
     cold_sound_side: str | None = None  # 'home'/'away': cold by results, sound by xwOBA
     fav_pen_depleted_side: str | None = None  # 'home'/'away': favorite with a thin pen
     sharp_money_side: str | None = None  # 'home'/'away': VSIN spread handle% >> bets%
+    # Season luck gap = z(actual RD/G) - z(xRD proxy) per team. Positive => the
+    # team overperforms its contact quality (lucky, a fade); negative => it lags
+    # its contact quality (unlucky, a buy-low). None keeps the signal neutral.
+    luck_gap_home: float | None = None
+    luck_gap_away: float | None = None
 
     # --- NPV gate inputs (None whenever the underlying sample is too thin) ---
     fav_side: str | None = None  # 'home'/'away': the side the model favors
@@ -186,5 +192,23 @@ def runline_adjustment(
     if signal.sharp_money_side == team_side:
         steps += 1
         reasons.append("VSIN sharp money (handle% > bets%) backs this side")
+
+    if signal.luck_gap_home is not None and signal.luck_gap_away is not None:
+        own_gap = signal.luck_gap_home if team_side == "home" else signal.luck_gap_away
+        opp_gap = signal.luck_gap_away if team_side == "home" else signal.luck_gap_home
+        if line == -1.5:  # backing a favorite to cover by 2+
+            if own_gap >= LUCK_GAP_STRONG:
+                steps -= 1
+                reasons.append(f"luck gap {own_gap:+.1f}: favorite overperforming -> regression risk")
+            elif own_gap <= -LUCK_GAP_STRONG:
+                steps += 1
+                reasons.append(f"luck gap {own_gap:+.1f}: favorite underrated -> covers")
+        else:  # +1.5 dog
+            if opp_gap >= LUCK_GAP_STRONG:
+                steps += 1
+                reasons.append(f"luck gap {opp_gap:+.1f}: favorite overperforming -> back dog +1.5")
+            elif own_gap <= -LUCK_GAP_STRONG:
+                steps += 1
+                reasons.append(f"luck gap {own_gap:+.1f}: dog underrated -> keeps it close")
 
     return steps, reasons

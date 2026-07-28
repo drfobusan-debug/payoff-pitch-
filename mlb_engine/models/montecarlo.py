@@ -23,6 +23,12 @@ import numpy as np
 OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
+# Run margin (absolute) at or below which a game is still "close" -- the state in
+# which a manager deploys his high-leverage relievers. Beyond it the game is out
+# of hand and lower-leverage / mop-up arms finish, so the offense faces the
+# team's *aggregate* pen instead of its leverage arms.
+CLOSE_MARGIN = 3
+
 # League-average pitches thrown to resolve a plate appearance, by outcome. The
 # blend averages ~3.9 P/PA under a typical outcome mix; the per-pitcher
 # ``pitch_eff`` scaler recentres it for command/efficiency.
@@ -45,6 +51,11 @@ class TeamSimConfig:
     # starter and vs a generic bullpen arm.
     bat_vs_starter: list[dict[str, float]]
     bat_vs_pen: list[dict[str, float]]
+    # Optional: matchup vs the opposing team's *high-leverage* relievers (its
+    # 8th/9th-inning arms). Used once the starter is out AND the game is still
+    # close (|margin| <= CLOSE_MARGIN); when None the aggregate ``bat_vs_pen`` is
+    # used in every post-starter inning (backward-compatible default).
+    bat_vs_pen_close: list[dict[str, float]] | None = None
     # Pitching: this team's starter caps before the bullpen takes over.
     starter_bf_cap: int = 24
     starter_pitch_cap: int = 95
@@ -101,6 +112,16 @@ class MonteCarlo:
         home_cdf_pen = np.stack([_cdf(p) for p in home.bat_vs_pen])
         away_cdf_start = np.stack([_cdf(p) for p in away.bat_vs_starter])
         away_cdf_pen = np.stack([_cdf(p) for p in away.bat_vs_pen])
+        home_cdf_pen_close = (
+            np.stack([_cdf(p) for p in home.bat_vs_pen_close])
+            if home.bat_vs_pen_close is not None
+            else None
+        )
+        away_cdf_pen_close = (
+            np.stack([_cdf(p) for p in away.bat_vs_pen_close])
+            if away.bat_vs_pen_close is not None
+            else None
+        )
 
         # Pitching caps/efficiency are keyed by the team doing the PITCHING. Away
         # pitching faces the home hitters and vice versa.
@@ -116,6 +137,8 @@ class MonteCarlo:
                 home_cdf_pen,
                 away_cdf_start,
                 away_cdf_pen,
+                home_cdf_pen_close,
+                away_cdf_pen_close,
                 pitch_caps,
                 pitch_count_caps,
                 pitch_eff,
@@ -145,6 +168,8 @@ class MonteCarlo:
         home_cdf_pen: np.ndarray,
         away_cdf_start: np.ndarray,
         away_cdf_pen: np.ndarray,
+        home_cdf_pen_close: np.ndarray | None,
+        away_cdf_pen_close: np.ndarray | None,
         bf_caps: dict[str, int],
         pitch_count_caps: dict[str, int],
         pitch_eff: dict[str, float],
@@ -174,9 +199,11 @@ class MonteCarlo:
             """
             if team == "home":
                 cdf_start, cdf_pen = home_cdf_start, home_cdf_pen
+                cdf_pen_close = home_cdf_pen_close
                 pitch_team = "away"
             else:
                 cdf_start, cdf_pen = away_cdf_start, away_cdf_pen
+                cdf_pen_close = away_cdf_pen_close
                 pitch_team = "home"
             bf_cap = bf_caps[pitch_team]
             pitch_cap = pitch_count_caps[pitch_team]
@@ -189,9 +216,17 @@ class MonteCarlo:
             while outs < 3:
                 slot = ptr[team]
                 # Starter stays in until EITHER the batters-faced or pitch-count
-                # hook trips; then the bullpen (generic arm) takes over.
+                # hook trips; then the bullpen takes over. In a still-close game
+                # (|margin| <= CLOSE_MARGIN) the offense faces the pitching team's
+                # high-leverage arms; once it is out of hand, the aggregate/mop-up
+                # pen finishes.
                 starter_in = bf[pitch_team] < bf_cap and pitches[pitch_team] < pitch_cap
-                cdf = cdf_start[slot] if starter_in else cdf_pen[slot]
+                if starter_in:
+                    cdf = cdf_start[slot]
+                elif cdf_pen_close is not None and abs(home_runs - away_runs) <= CLOSE_MARGIN:
+                    cdf = cdf_pen_close[slot]
+                else:
+                    cdf = cdf_pen[slot]
                 r = rng.random()
                 oc = OUTCOMES[int(np.searchsorted(cdf, r))]
                 bf[pitch_team] += 1

@@ -343,11 +343,19 @@ def bullpen_relief_frame(
     return relief
 
 
+LEVERAGE_INNING = 8  # 8th+ relief = the high-leverage innings the run line hinges on
+MIN_LEVERAGE_PA = 20  # need this many 8th+ relief PAs to trust a separate profile
+
+
 @dataclass
 class BullpenProfile:
     """A team's late-inning bullpen: aggregate rates + predictive tripwires."""
 
     allowed: OutcomeRates
+    # Rates allowed by the team's high-leverage arms (8th+ relief). Isolates the
+    # closer/setup quality from mop-up men so a shutdown pen and a leaky one stop
+    # looking alike late; falls back to ``allowed`` when the 8th+ sample is thin.
+    allowed_leverage: OutcomeRates
     relief: pd.DataFrame
     zone_pct: float  # NPV: below ~.40 -> walk trap
     recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
@@ -419,6 +427,15 @@ def build_bullpen_profile(
     relief = bullpen_relief_frame(df, team_abbrev, as_of, days, min_inning)
     allowed = rates_from_events(_pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object))
 
+    # High-leverage split: rates from the 8th+ relief PAs only, so the closer/
+    # setup corps drives the late-and-close matchup instead of the mop-up-diluted
+    # aggregate. Fall back to the aggregate when the 8th+ sample is too thin.
+    allowed_leverage = allowed
+    if len(relief) and "inning" in relief:
+        lev_events = _pa_rows(relief[relief["inning"] >= LEVERAGE_INNING])["events"]
+        if len(lev_events) >= MIN_LEVERAGE_PA:
+            allowed_leverage = rates_from_events(lev_events)
+
     zone_pct = (
         float(relief["zone"].between(1, 9).mean())
         if len(relief) and "zone" in relief and relief["zone"].notna().any()
@@ -448,6 +465,7 @@ def build_bullpen_profile(
 
     return BullpenProfile(
         allowed=allowed,
+        allowed_leverage=allowed_leverage,
         relief=relief,
         zone_pct=zone_pct,
         recent_load=recent_load,

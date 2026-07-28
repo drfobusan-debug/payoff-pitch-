@@ -40,9 +40,10 @@ from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
+from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
-from mlb_engine.output.card import build_cards, render_html, render_markdown
+from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
 from mlb_engine.output.report import (
@@ -51,9 +52,9 @@ from mlb_engine.output.report import (
     daily_entries,
     render_html_report,
     render_markdown_report,
-    render_pdf,
     weekly_entries,
 )
+from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
@@ -85,27 +86,49 @@ def _generate_card(
     *,
     email: bool,
     to: str | None,
+    workbook: Path | None = None,
 ) -> tuple[Path, Path]:
-    """Write the card's Markdown + HTML and optionally email it."""
+    """Write the card's Markdown + HTML + PDF and optionally email it.
+
+    When ``email`` is set the message carries the written card as a PDF plus,
+    when available, the master Excel bet sheet (``workbook``).
+    """
     cards = build_cards(recs)
     md = render_markdown(cards, slate_date)
     html_body = render_html(cards, slate_date)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
+    pdf_path = cfg.output_dir / f"card_{slate_date.isoformat()}.pdf"
     md_path.write_text(md)
     html_path.write_text(html_body)
+    try:
+        rendered = render_pdf(html_body)
+        pdf_path.write_bytes(rendered)
+        pdf_bytes: bytes | None = rendered
+    except Exception as exc:  # noqa: BLE001 - PDF is best-effort; fall back to markdown
+        pdf_bytes = None
+        print(f"Card PDF not rendered ({exc}); attaching markdown instead")
     print(f"Card: {len(cards)} games -> {md_path}")
 
     if email:
         subject = f"PayoffPitch Card — {slate_date.isoformat()} ({len(cards)} games)"
+        if pdf_bytes is not None:
+            attachments = [(pdf_path.name, pdf_bytes)]
+        else:
+            attachments = [(md_path.name, md.encode())]
+        if workbook is not None and workbook.exists():
+            attachments.append((workbook.name, workbook.read_bytes()))
         try:
             recipient = send_card_email(
                 cfg,
                 subject=subject,
                 html_body=html_body,
-                text_body="Your PayoffPitch card is attached; HTML in the body.\n",
+                text_body=(
+                    "Your PayoffPitch daily slate card (PDF) and the master Excel "
+                    "bet sheet are attached; the card is also in the HTML body.\n"
+                ),
                 to=to,
-                attachments=[(md_path.name, md.encode(), "text", "markdown")],
+                attachments=attachments,
             )
             print(f"Emailed card to {recipient}")
         except EmailNotConfigured as exc:
@@ -153,7 +176,7 @@ def _generate_report(
     pdf_path: Path | None = cfg.output_dir / f"audit_report_{slug}.pdf"
     pdf_bytes: bytes | None = None
     try:
-        pdf_bytes = render_pdf(html_body)
+        pdf_bytes = render_report_pdf(html_body)
         assert pdf_path is not None
         pdf_path.write_bytes(pdf_bytes)
     except PdfNotAvailable as exc:
@@ -164,11 +187,9 @@ def _generate_report(
 
     if email:
         subject = f"PayoffPitch Audit — {period_label} ({subtitle})"
-        attachments: list[tuple[str, bytes, str, str]] = [
-            (md_path.name, md.encode(), "text", "markdown")
-        ]
+        attachments: list[tuple[str, bytes]] = [(md_path.name, md.encode())]
         if pdf_bytes is not None and pdf_path is not None:
-            attachments.insert(0, (pdf_path.name, pdf_bytes, "application", "pdf"))
+            attachments.insert(0, (pdf_path.name, pdf_bytes))
         try:
             recipient = send_card_email(
                 cfg,
@@ -232,7 +253,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
-        _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
+        _generate_card(
+            recs, slate_date, cfg, email=args.email, to=args.to, workbook=Path(xlsx)
+        )
     return 0
 
 
@@ -244,7 +267,28 @@ def cmd_card(args: argparse.Namespace) -> int:
         print(f"No predictions found for {slate_date} at {pred_path}; run `mlb-engine run` first")
         return 1
     recs = load_json(pred_path)
-    _generate_card(recs, slate_date, cfg, email=args.email, to=args.to)
+    workbook = cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx"
+    _generate_card(
+        recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook
+    )
+    return 0
+
+
+def cmd_team_form(args: argparse.Namespace) -> int:
+    """Build the season team-form (luck-gap) baseline cache -- run once daily."""
+    cfg = load_config()
+    as_of = _parse_date(args.date, Date.today())
+    statcast = StatcastRepository(cfg.cache_dir)
+    df = statcast.load_trailing(as_of, args.days, refresh=args.refresh)
+    run_diffs = MLBStatsClient().team_run_differentials(as_of.year)
+    forms = build_team_forms(df, run_diffs)
+    save_team_forms(forms, cfg.team_form_path)
+    gaps = compute_luck_gaps(forms)
+    print(f"Built team-form baseline for {len(forms)} teams -> {cfg.team_form_path}")
+    for team, gap in sorted(gaps.items(), key=lambda kv: kv[1], reverse=True):
+        f = forms[team]
+        rd = f"{f.actual_rd_g:+.2f}" if f.actual_rd_g is not None else "  n/a"
+        print(f"  {team:4s} luck_gap {gap:+.2f}  actual_rd/g {rd}  xrd_proxy {f.xrd_proxy:+.3f}")
     return 0
 
 
@@ -308,7 +352,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     rows = build_scorecard(graded, audit_date)
     append_scorecard(rows, cfg.audit_dir / "scorecard.csv")
 
-    entries = entries_from_graded(graded, audit_date)
+    entries = entries_from_graded(graded, audit_date, results)
     closing = load_closing(_closing_path(cfg, audit_date))
     n_clv = attach_clv(entries, closing)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
@@ -573,6 +617,14 @@ def main(argv: list[str] | None = None) -> int:
     rp.add_argument("--email", action="store_true", help="email the report")
     rp.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     rp.set_defaults(func=cmd_report)
+
+    tf = sub.add_parser(
+        "team-form", help="build the season team-form (luck-gap) baseline cache"
+    )
+    tf.add_argument("--date", help="as-of date YYYY-MM-DD (default: today)")
+    tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
+    tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
+    tf.set_defaults(func=cmd_team_form)
 
     cal = sub.add_parser("calibrate", help="refit the calibration map from the audit ledger")
     cal.add_argument("--holdout", type=int, default=2, help="slates held out for validation")

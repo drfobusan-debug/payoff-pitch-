@@ -29,7 +29,8 @@ from dataclasses import asdict, dataclass
 from datetime import date as Date
 from pathlib import Path
 
-from mlb_engine.audit.grade import LOSS, PUSH, WIN
+from mlb_engine.audit.grade import LOSS, PUSH, WIN, picked_margin
+from mlb_engine.data.results import GameResult
 from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
@@ -52,6 +53,10 @@ class LedgerEntry:
     ev: float | None
     result: str  # win | loss | push
     pnl: float  # net units on a 1u stake (win: dec-1, loss: -1, push: 0)
+    # Final margin from the picked side's perspective (team_runs - opp_runs), for
+    # game/first-5 run-line rows only; None for every other market. Enables the
+    # run-line miss matrix (one-run-win vs blowout errors) in the audit report.
+    margin: float | None = None
     veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
     # Pre-calibration probability. `mlb-engine calibrate` refits the isotonic
     # map from this column, not from `model_prob`: the map is applied to raw
@@ -86,6 +91,7 @@ LEDGER_FIELDS = [
     "ev",
     "result",
     "pnl",
+    "margin",
     "veto_gate",
     "raw_prob",
     "fair_prob",
@@ -99,6 +105,7 @@ _OPTIONAL_FLOAT_FIELDS = (
     "line",
     "odds",
     "ev",
+    "margin",
     "fair_prob",
     "bet_prob",
     "close_odds",
@@ -118,10 +125,22 @@ def _pnl(result: str, odds: float | None) -> float:
 
 
 def entries_from_graded(
-    graded: list[tuple[Recommendation, str]], date: Date
+    graded: list[tuple[Recommendation, str]],
+    date: Date,
+    results: dict[int, GameResult] | None = None,
 ) -> list[LedgerEntry]:
+    """Build ledger rows from graded picks.
+
+    ``results`` (game_pk -> :class:`GameResult`) is optional; when supplied, the
+    picked-side run-line margin is recorded on run-line rows for the miss matrix.
+    """
     entries: list[LedgerEntry] = []
     for rec, result in graded:
+        margin: float | None = None
+        if results is not None:
+            res = results.get(rec.game_pk)
+            if res is not None:
+                margin = picked_margin(rec, res)
         entries.append(
             LedgerEntry(
                 date=date.isoformat(),
@@ -137,6 +156,7 @@ def entries_from_graded(
                 ev=round(rec.ev, 4) if rec.ev is not None else None,
                 result=result,
                 pnl=_pnl(result, rec.market_american),
+                margin=margin,
                 veto_gate=rec.veto_gate or "",
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
                 fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
@@ -176,6 +196,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     ev=_to_float(row["ev"]),
                     result=row["result"],
                     pnl=_to_float(row["pnl"]) or 0.0,
+                    margin=_to_float(row.get("margin", "") or ""),
                     veto_gate=row.get("veto_gate", ""),
                     raw_prob=_to_float(row.get("raw_prob", "")),
                     fair_prob=_to_float(row.get("fair_prob", "")),

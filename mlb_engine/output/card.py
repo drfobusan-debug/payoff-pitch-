@@ -126,6 +126,27 @@ def _weather_clause(recs: list[Recommendation]) -> str:
     return lead
 
 
+def _xrd_clause(recs: list[Recommendation]) -> str:
+    """Expected run differential (xRD/G): the sim's sequencing-luck-free margin."""
+    ctx = recs[0]
+    if ctx.xrd is None:
+        return ""
+    parts = ctx.matchup.split(" @ ")
+    if len(parts) != 2:
+        return ""
+    away_abbr, home_abbr = parts
+    team = home_abbr if ctx.xrd >= 0 else away_abbr
+    mag = abs(ctx.xrd)
+    if mag >= 1.0:
+        tier = "an elite, run-line-reliable edge"
+    elif mag >= 0.5:
+        tier = "a structurally sound edge"
+    else:
+        tier = "a coin-flip margin, matchup-dependent"
+    sd = f" ±{ctx.xrd_sd:.1f}" if ctx.xrd_sd is not None else ""
+    return f"Expected run differential: {team} +{mag:.1f}{sd} runs/game — {tier}"
+
+
 def _narrative(recs: list[Recommendation], starters: list[Starter]) -> list[str]:
     read: list[str] = []
 
@@ -181,7 +202,11 @@ def _narrative(recs: list[Recommendation], starters: list[Starter]) -> list[str]
             )
     market_para = (", ".join(market) + ".") if market else ""
 
-    return [p for p in (read_para, market_para) if p]
+    xrd_para = _xrd_clause(recs)
+    if xrd_para:
+        xrd_para += "."
+
+    return [p for p in (read_para, market_para, xrd_para) if p]
 
 
 def _plays(recs: list[Recommendation]) -> list[Play]:
@@ -327,3 +352,10 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{style}</style></head>"
         f"<body>{''.join(blocks)}</body></html>"
     )
+
+
+def render_pdf(html_body: str) -> bytes:
+    """Render the card HTML to a PDF byte string via WeasyPrint."""
+    from weasyprint import HTML
+
+    return HTML(string=html_body).write_pdf()
