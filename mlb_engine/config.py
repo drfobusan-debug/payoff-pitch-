@@ -255,6 +255,17 @@ class Config:
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
+    # Weight given to the devigged market price when forming the probability the
+    # EV screen bets on (see market.ev.anchor_to_market). The model's own
+    # probability is untouched, so PPV/NPV and the calibration refit still
+    # measure the model. Default 0 (off) because the evidence is directional, not
+    # decisive: replaying the same screen over nine retro-priced slates, ROI runs
+    # -5.4% at 0, -4.1% at 0.4 and -3.5% at 0.6 on a third as many bets, and turns
+    # sharply worse past that (-12.9% at 0.8). Anchoring shrinks the loss without
+    # earning a profit, so it is measured rather than assumed; judge a weight on
+    # closing line value, which needs far fewer bets than ROI to say anything.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))

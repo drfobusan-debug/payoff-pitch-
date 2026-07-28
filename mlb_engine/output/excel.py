@@ -28,6 +28,7 @@ from mlb_engine.audit.analysis import (
     TRUE_POSITIVE,
     PropInsight,
 )
+from mlb_engine.audit.clv import ClvSummary
 from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
@@ -48,6 +49,7 @@ COLUMNS = [
     "Selection",
     "Line",
     "Model %",
+    "Market %",
     "Fair Odds",
     "Book",
     "Book Odds",
@@ -167,7 +169,7 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
         tier_fill = TIER_FILL.get(rec.tier.value)
         if tier_fill:
             ws.cell(row=r, column=COLUMNS.index("Tier") + 1).fill = tier_fill
-    widths = [11, 12, 9, 14, 26, 6, 8, 9, 11, 10, 8, 8, 9, 8, 12, 8, 7, 7, 30, 40]
+    widths = [11, 12, 9, 14, 26, 6, 8, 9, 9, 11, 10, 8, 8, 9, 8, 12, 8, 7, 7, 30, 40]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
     if recs:
@@ -292,6 +294,7 @@ _OVERALL_COLUMNS = [
     "NPV",
     "Sensitivity",
     "Specificity",
+    "Needs %",
     "ROI",
     "Units",
 ]
@@ -313,7 +316,11 @@ _BET_COLUMNS = [
     "Odds",
     "Tier",
     "Model %",
+    "Market %",
     "EV",
+    "Close",
+    "CLV",
+    "CLV EV",
     "Result",
     "P/L",
 ]
@@ -335,6 +342,7 @@ def _metric_row(m: OverallMetrics) -> list[object]:
         m.npv,
         m.sensitivity,
         m.specificity,
+        _pct(m.required_win_pct),
         _pct(m.roi),
         m.units,
     ]
@@ -369,7 +377,7 @@ def _write_metric_sheet(
     for r, m in enumerate(rows, start=2):
         for c, v in enumerate(_metric_row(m), start=1):
             ws.cell(row=r, column=c, value=v)
-    for i, w in enumerate([14, 6, 6, 7, 7, 8, 7, 7, 12, 12, 8, 8], start=1):
+    for i, w in enumerate([14, 6, 6, 7, 7, 8, 7, 7, 12, 12, 9, 8, 8], start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
     if rows:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(cols))}{len(rows) + 1}"
@@ -400,6 +408,31 @@ def _write_insight_sheet(ws: Worksheet, insights: list[PropInsight]) -> None:
     ws.freeze_panes = "A2"
 
 
+_CLV_COLUMNS = ["Market", "N", "Mean CLV", "Beat close %", "Mean CLV EV"]
+_CLV_FILL = {
+    True: PatternFill("solid", fgColor="C6EFCE"),
+    False: PatternFill("solid", fgColor="FFC7CE"),
+}
+
+
+def _write_clv_sheet(ws: Worksheet, rows: list[ClvSummary]) -> None:
+    _write_metric_header(ws, _CLV_COLUMNS)
+    for r, m in enumerate(rows, start=2):
+        vals: list[object] = [
+            m.label,
+            m.n,
+            f"{m.mean_clv * 100:+.2f}",
+            _pct(m.beat_close_pct),
+            f"{m.mean_clv_ev:+.4f}",
+        ]
+        for c, v in enumerate(vals, start=1):
+            ws.cell(row=r, column=c, value=v)
+        ws.cell(row=r, column=5).fill = _CLV_FILL[m.positive]
+    for i, w in enumerate([16, 7, 11, 13, 12], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.freeze_panes = "A2"
+
+
 def write_ledger_workbook(
     entries: list[LedgerEntry],
     overall: list[OverallMetrics],
@@ -409,6 +442,7 @@ def write_ledger_workbook(
     prop_rows: list[OverallMetrics] | None = None,
     insights: list[PropInsight] | None = None,
     runline_rows: list[OverallMetrics] | None = None,
+    clv_rows: list[ClvSummary] | None = None,
 ) -> Path:
     wb = Workbook()
 
@@ -424,6 +458,9 @@ def write_ledger_workbook(
 
     if runline_rows:
         _write_metric_sheet(wb.create_sheet("Run Line NPV"), runline_rows, "Run line / gate")
+
+    if clv_rows:
+        _write_clv_sheet(wb.create_sheet("Closing Line Value"), clv_rows)
 
     if insights:
         _write_insight_sheet(wb.create_sheet("Prop Insights"), insights)
@@ -452,7 +489,11 @@ def write_ledger_workbook(
             _american(e.odds),
             e.tier,
             round(e.model_prob * 100, 1),
+            round(e.fair_prob * 100, 1) if e.fair_prob is not None else "",
             e.ev if e.ev is not None else "",
+            _american(e.close_odds),
+            round(e.clv * 100, 2) if e.clv is not None else "",
+            round(e.clv_ev, 3) if e.clv_ev is not None else "",
             e.result,
             round(e.pnl, 3),
         ]
@@ -461,7 +502,7 @@ def write_ledger_workbook(
         fill = _RESULT_FILL.get(e.result)
         if fill:
             ws_bets.cell(row=r, column=_BET_COLUMNS.index("Result") + 1).fill = fill
-    for i, w in enumerate([12, 15, 30, 13, 13, 8, 10, 8, 8, 8, 8], start=1):
+    for i, w in enumerate([12, 15, 30, 13, 13, 8, 10, 8, 9, 8, 8, 8, 8, 8, 8], start=1):
         ws_bets.column_dimensions[get_column_letter(i)].width = w
     if entries:
         ws_bets.auto_filter.ref = f"A1:{get_column_letter(len(_BET_COLUMNS))}{len(entries) + 1}"

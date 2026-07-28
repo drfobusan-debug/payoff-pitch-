@@ -58,6 +58,18 @@ class LedgerEntry:
     # simulation output, so fitting it on already-calibrated probabilities
     # would learn a correction that is then applied to the wrong input.
     raw_prob: float | None = None
+    # Devigged market price at bet time and the probability the EV screen bet
+    # (they differ only when MLBE_MARKET_ANCHOR is on).
+    fair_prob: float | None = None
+    bet_prob: float | None = None
+    # Closing line value: the closing price, its no-vig probability, the points
+    # the market moved our way, and the EV of our price under the closing
+    # probability. Populated by `mlb-engine close` + audit; None when the closing
+    # snapshot was not captured.
+    close_odds: float | None = None
+    close_prob: float | None = None
+    clv: float | None = None
+    clv_ev: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -76,7 +88,24 @@ LEDGER_FIELDS = [
     "pnl",
     "veto_gate",
     "raw_prob",
+    "fair_prob",
+    "bet_prob",
+    "close_odds",
+    "close_prob",
+    "clv",
+    "clv_ev",
 ]
+_OPTIONAL_FLOAT_FIELDS = (
+    "line",
+    "odds",
+    "ev",
+    "fair_prob",
+    "bet_prob",
+    "close_odds",
+    "close_prob",
+    "clv",
+    "clv_ev",
+)
 
 
 def _pnl(result: str, odds: float | None) -> float:
@@ -110,6 +139,8 @@ def entries_from_graded(
                 pnl=_pnl(result, rec.market_american),
                 veto_gate=rec.veto_gate or "",
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
+                fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
+                bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
             )
         )
     return entries
@@ -147,6 +178,12 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     pnl=_to_float(row["pnl"]) or 0.0,
                     veto_gate=row.get("veto_gate", ""),
                     raw_prob=_to_float(row.get("raw_prob", "")),
+                    fair_prob=_to_float(row.get("fair_prob", "")),
+                    bet_prob=_to_float(row.get("bet_prob", "")),
+                    close_odds=_to_float(row.get("close_odds", "")),
+                    close_prob=_to_float(row.get("close_prob", "")),
+                    clv=_to_float(row.get("clv", "")),
+                    clv_ev=_to_float(row.get("clv_ev", "")),
                 )
             )
     return out
@@ -164,9 +201,9 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
         w.writeheader()
         for e in merged:
             row = asdict(e)
-            row["line"] = "" if e.line is None else e.line
-            row["odds"] = "" if e.odds is None else e.odds
-            row["ev"] = "" if e.ev is None else e.ev
+            for name in _OPTIONAL_FLOAT_FIELDS:
+                if row[name] is None:
+                    row[name] = ""
             w.writerow(row)
     return merged
 
@@ -189,6 +226,11 @@ class OverallMetrics:
     specificity: float
     roi: float
     units: float
+    # Win rate the prices actually charged for: mean 1/decimal over the bets this
+    # row counts as positive. Nine retro-priced slates won 59.6% of favoured bets
+    # into an average break-even of 60.5%, so win% alone reads as a success and
+    # loses money. Every reported win% now travels with the bar it had to clear.
+    required_win_pct: float = 0.0
 
 
 def _metrics(
@@ -199,6 +241,7 @@ def _metrics(
     tp = fp = fn = tn = pushes = 0
     stake = 0.0
     units = 0.0
+    breakeven = 0.0
     for e in entries:
         pred_pos = is_positive(e)
         if e.result == PUSH:
@@ -217,6 +260,8 @@ def _metrics(
         if pred_pos:
             stake += 1.0
             units += e.pnl
+            dec = american_to_decimal(e.odds) if e.odds is not None else _DEFAULT_DECIMAL
+            breakeven += 1.0 / dec
     return OverallMetrics(
         tier=label,
         n=tp + fp,
@@ -230,6 +275,7 @@ def _metrics(
         specificity=_safe(tn, tn + fp),
         roi=_safe(units, stake),
         units=round(units, 3),
+        required_win_pct=_safe(breakeven, stake),
     )
 
 

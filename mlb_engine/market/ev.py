@@ -64,6 +64,20 @@ class EVResult:
     devig_coverage: float = 1.0
 
 
+def anchor_to_market(model_prob: float, fair_prob: float, weight: float) -> float:
+    """Shrink the model toward the market's no-vig price by ``weight``.
+
+    Retro-pricing nine slates showed the devigged market is the better
+    forecaster in every market we bet (Brier .2347 vs .2408), and that the
+    engine's largest disagreements are its largest errors: where it sat furthest
+    above the market it claimed 57.5% and delivered 49.1%. Anchoring keeps the
+    market as the prior and lets the model move it only as far as ``weight``
+    allows. ``weight`` 0 leaves the model untouched, 1 bets the market itself.
+    """
+    w = min(max(weight, 0.0), 1.0)
+    return (1.0 - w) * model_prob + w * fair_prob
+
+
 def ev_per_dollar(model_prob: float, american: float) -> float:
     dec = american_to_decimal(american)
     return model_prob * (dec - 1.0) - (1.0 - model_prob)

@@ -60,7 +60,7 @@ from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
-from mlb_engine.market.ev import MarketQuote, evaluate
+from mlb_engine.market.ev import MarketQuote, anchor_to_market, evaluate
 from mlb_engine.market.runline import (
     RunLineSignal,
     RunLineVeto,
@@ -1096,10 +1096,19 @@ class Pipeline:
         q = (quotes or {}).get(key)
         if q:
             evres = evaluate(rec.model_prob, q)
+            if self.cfg.market_anchor > 0:
+                # Re-price against a probability pulled toward the market. Only
+                # the bet probability moves; rec.model_prob stays the model's.
+                bet_prob = anchor_to_market(
+                    rec.model_prob, evres.fair_prob, self.cfg.market_anchor
+                )
+                evres = evaluate(bet_prob, q)
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
             rec.ev = evres.ev
             rec.edge = evres.edge
+            rec.fair_prob = evres.fair_prob
+            rec.bet_prob = evres.model_prob
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
             if rec.handle_pct is None:
