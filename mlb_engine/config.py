@@ -46,6 +46,21 @@ class RollingWindows:
     # Bullpen: relievers' last ~3 weeks and batters' late-inning last ~3 weeks.
     bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 21))
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))
+    # A separate, longer window for the bullpen's stuff and command signals.
+    # Split-half reliability of a 3-week relief read (30 pens, ~270 batters faced
+    # each): K% 0.66, whiff 0.58, velocity 0.67, but xwOBA 0.37, BB% 0.19,
+    # hard-hit 0.13, HR/BF 0.06. Out of sample against the next three weeks, K%
+    # scores 0.73 on 42 days vs 0.66 on 21, and in a joint regression the 42-day
+    # read takes +0.68 against +0.14 for the last three weeks. 0 keeps the single
+    # 21-day window for everything.
+    bullpen_skill_days: int = field(
+        default_factory=lambda: _env_int("MLBE_BULLPEN_SKILL_DAYS", 0)
+    )
+    # Share of a bullpen's distance from the league mean xwOBA to keep. 1.0 is
+    # the raw three-week mean; 0.37 is its measured reliability.
+    bullpen_xwoba_shrink: float = field(
+        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 1.0)
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:

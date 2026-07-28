@@ -52,6 +52,10 @@ PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
 MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
 MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
+# League-average relief xwOBA allowed, the target a thin three-week bullpen read
+# is shrunk toward. Measured over 2026-06-16..07-27, 30 pens, ~17k batters faced.
+LEAGUE_PEN_XWOBA = 0.306
+
 
 @dataclass
 class OutcomeRates:
@@ -348,10 +352,19 @@ class BullpenProfile:
     zone_pct: float  # NPV: below ~.40 -> walk trap
     recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
     xwoba_allowed: float | None = None  # contact quality allowed; None if thin
+    # Relief rows over the longer skill window (K%, whiff, velocity persist far
+    # better than results do); the short window when no skill window is set.
+    skill: pd.DataFrame | None = None
+    xwoba_raw: float | None = None  # pre-shrinkage mean, for reporting
 
     @property
     def k_pct(self) -> float:
         return self.allowed.p_k
+
+    @property
+    def skill_frame(self) -> pd.DataFrame:
+        """Rows to read persistent stuff/command signals from."""
+        return self.relief if self.skill is None else self.skill
 
     def npv_multipliers(self, availability: float | None = None) -> dict[str, float]:
         """Bounded penalty multipliers for the two bullpen NPV tripwires.
@@ -374,14 +387,35 @@ class BullpenProfile:
         return m
 
 
+def shrink_pen_xwoba(raw: float, weight: float, league: float = LEAGUE_PEN_XWOBA) -> float:
+    """Pull a bullpen's observed xwOBA allowed toward the league mean.
+
+    ``weight`` is the share of the team's deviation to keep, i.e. the measured
+    split-half reliability of the window. Three weeks of relief work is ~270
+    batters faced across a dozen arms and repeats at r=0.37, so roughly two
+    thirds of the distance from league average is noise.
+    """
+    w = min(max(weight, 0.0), 1.0)
+    return league + w * (raw - league)
+
+
 def build_bullpen_profile(
     df: pd.DataFrame,
     team_abbrev: str,
     as_of: Date,
     days: int,
     min_inning: int = 6,
+    skill_days: int = 0,
+    xwoba_shrink: float = 1.0,
 ) -> BullpenProfile:
-    """Aggregate a team's relief corps into rates plus PPV/NPV tripwires."""
+    """Aggregate a team's relief corps into rates plus PPV/NPV tripwires.
+
+    ``days`` covers the results-based rates, which are best read recently.
+    ``skill_days`` (0 to disable) covers the stuff and command signals, which
+    are best read over a longer window: measured out of sample against the
+    following three weeks, relief K% correlates 0.73 on 42 days against 0.66 on
+    21, and jointly the longer read carries the weight (+0.68 vs +0.14).
+    """
     relief = bullpen_relief_frame(df, team_abbrev, as_of, days, min_inning)
     allowed = rates_from_events(_pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object))
 
@@ -391,11 +425,13 @@ def build_bullpen_profile(
         else 0.0
     )
 
+    xwoba_raw = None
     xwoba_allowed = None
     if len(relief) and "estimated_woba_using_speedangle" in relief:
         xw = relief["estimated_woba_using_speedangle"].dropna()
         if len(xw) >= MIN_BBE_FOR_XWOBA:
-            xwoba_allowed = float(xw.mean())
+            xwoba_raw = float(xw.mean())
+            xwoba_allowed = shrink_pen_xwoba(xwoba_raw, xwoba_shrink)
 
     recent_load = 0.0
     if len(relief):
@@ -404,12 +440,20 @@ def build_bullpen_profile(
         expected_3d = len(relief) / days * 3.0
         recent_load = len(recent) / expected_3d if expected_3d > 0 else 0.0
 
+    skill = (
+        bullpen_relief_frame(df, team_abbrev, as_of, skill_days, min_inning)
+        if skill_days > days
+        else None
+    )
+
     return BullpenProfile(
         allowed=allowed,
         relief=relief,
         zone_pct=zone_pct,
         recent_load=recent_load,
         xwoba_allowed=xwoba_allowed,
+        skill=skill,
+        xwoba_raw=xwoba_raw,
     )
 
 
