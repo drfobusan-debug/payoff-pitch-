@@ -94,6 +94,15 @@ MODE="\${1:-run}"
 cd "$REPO_DIR"
 [[ -d "$VENV_DIR" ]] && source "$VENV_DIR/bin/activate"
 
+# CA bundle: a fresh macOS venv has no root certificates, so the stdlib ssl
+# used by the SMTP email step (and requests) fails with
+# CERTIFICATE_VERIFY_FAILED. Point OpenSSL + requests at certifi's bundle.
+_CERTS="\$(python -m certifi 2>/dev/null || true)"
+if [[ -n "\$_CERTS" ]]; then
+  export SSL_CERT_FILE="\$_CERTS"
+  export REQUESTS_CA_BUNDLE="\$_CERTS"
+fi
+
 # WeasyPrint (PDF export) loads pango/cairo/gdk-pixbuf via ctypes; on macOS
 # those live in the Homebrew lib dir, which is NOT on the default dyld search
 # path. Point at it so the slate-preview + audit PDFs render.
@@ -101,8 +110,6 @@ for _brew_lib in /opt/homebrew/lib /usr/local/lib; do
   [[ -d "\$_brew_lib" ]] && export DYLD_FALLBACK_LIBRARY_PATH="\$_brew_lib:\${DYLD_FALLBACK_LIBRARY_PATH:-}"
 done
 
-# caffeinate -i blocks *idle* sleep during the run. (The 03:00 forced
-# sleep from pmset is intentional and will still fire.)
 if [[ "\$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # $MORNING_WAKE_HHMM so the machine wakes after the 03:00 sleep. No engine work.
@@ -111,8 +118,15 @@ if [[ "\$MODE" == "night" ]]; then
   echo "[\$(date)] armed morning wake for \$NEXT $MORNING_WAKE_HHMM:00"
 else
   # THE daily job (before noon): today's slate, then grade yesterday + email.
-  caffeinate -i $RUN_CMD   || echo "[\$(date)] '$RUN_CMD' exited non-zero" >&2
-  caffeinate -i $AUDIT_CMD || echo "[\$(date)] '$AUDIT_CMD' exited non-zero" >&2
+  #
+  # Keep the Mac awake WITHOUT wrapping the engine in caffeinate: caffeinate is
+  # a SIP-protected /usr/bin binary, and launching it strips DYLD_* from the
+  # environment -- so WeasyPrint, run as caffeinate's child, could not find the
+  # Homebrew libs. Instead hold a background caffeinate tied to THIS script's
+  # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
+  /usr/bin/caffeinate -i -w \$\$ &
+  $RUN_CMD   || echo "[\$(date)] '$RUN_CMD' exited non-zero" >&2
+  $AUDIT_CMD || echo "[\$(date)] '$AUDIT_CMD' exited non-zero" >&2
 fi
 EOF
 chmod 755 "$RUNNER"
