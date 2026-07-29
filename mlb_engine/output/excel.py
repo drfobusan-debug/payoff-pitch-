@@ -1,14 +1,19 @@
 """Write daily recommendations to a formatted Excel workbook.
 
 Sheets:
-  * Strong Buys : strong-tier picks, categorized, green spectrum (dark = BEST).
-  * Moderate Buys : moderate-tier picks, categorized, yellow spectrum.
-  * All        : every priced market, tier color-coded.
+  * Strong Buys   : strong-tier picks, categorized, neon-green -> fade spectrum.
+  * Moderate Buys : moderate-tier picks, categorized, neon-yellow -> fade.
+  * Fades         : the picks the model is against, neon-red -> fade.
+  * Moneyline     : game family (ML / run line / totals), colored by tier.
+  * First-5 (F5)  : first-five family, colored by tier.
+  * Pitcher Props : pitcher family, colored by tier.
+  * Batter Props  : batter family, colored by tier.
+  * All           : every priced market, colored by tier.
 
-Within the tier sheets picks are grouped by market category (Moneyline, Totals,
-Run Lines, First-5, Batter Props, Pitcher Props, Comeback) and shaded on a
-light->dark spectrum by EV, with a ``BEST`` flag highlighting the
-high-conviction plays.
+Every sheet uses one color language: neon green fading to pale for strong buys,
+neon yellow fading to pale for moderate buys, and neon red fading to pale for
+fades. The most intense (neon) end marks the highest-conviction plays; a
+``BEST`` flag highlights the standout buys.
 """
 
 from __future__ import annotations
@@ -35,11 +40,6 @@ from mlb_engine.recommendations import Recommendation
 
 HEADER_FILL = PatternFill("solid", fgColor="1F2937")
 HEADER_FONT = Font(color="FFFFFF", bold=True)
-TIER_FILL = {
-    Tier.STRONG.value: PatternFill("solid", fgColor="C6EFCE"),
-    Tier.MODERATE.value: PatternFill("solid", fgColor="FFEB9C"),
-    Tier.PASS.value: PatternFill("solid", fgColor="F2F2F2"),
-}
 
 COLUMNS = [
     "Date",
@@ -67,7 +67,7 @@ COLUMNS = [
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 
-# --- categorized tier-sheet layout -----------------------------------------
+# --- categorized sheet layout ----------------------------------------------
 
 CATEGORY_ORDER = [
     "Moneyline",
@@ -81,8 +81,19 @@ CATEGORY_ORDER = [
 _GAME_CATEGORIES = {"Moneyline", "Totals", "Run Lines", "First-5 (F5)"}
 _PROP_CATEGORIES = {"Batter Props", "Pitcher Props"}
 
-TIER_COLUMNS = [
+# Per-game "family" tabs, keyed on Recommendation.category. These partition every
+# priced market, so nothing is lost across the four family sheets.
+FAMILY_TABS: list[tuple[str, str]] = [
+    ("Moneyline", "game"),
+    ("First-5 (F5)", "f5"),
+    ("Pitcher Props", "pitcher"),
+    ("Batter Props", "batter"),
+]
+
+# Compact grid shared by the tier tabs, the Fades tab and the family tabs.
+GRID_COLUMNS = [
     "Best",
+    "Tier",
     "Category",
     "EV",
     "Selection",
@@ -90,6 +101,7 @@ TIER_COLUMNS = [
     "Book",
     "Odds",
     "Model %",
+    "Market %",
     "Edge",
     "Handle %",
     "Bets %",
@@ -99,37 +111,77 @@ TIER_COLUMNS = [
     "Profile",
     "Notes",
 ]
-TIER_COLUMN_WIDTHS = [8, 15, 8, 30, 13, 13, 8, 8, 8, 9, 8, 8, 7, 7, 30, 40]
+GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 8, 8, 8, 8, 9, 8, 8, 7, 7, 26, 40]
+GRID_CENTER = {
+    "Best", "Tier", "EV", "Odds", "Model %", "Market %", "Edge", "Handle %", "Bets %",
+}
 
-# Green spectrum (strong) / yellow spectrum (moderate).
+# Scheme keys.
+_STRONG = "strong"
+_MODERATE = "moderate"
+_FADE = "fade"
+_SCHEME_RANK = {_STRONG: 0, _MODERATE: 1, _FADE: 2}
+
+
+# neon (high-conviction) -> fade (pale) spectrums, one per class.
 @dataclass(frozen=True)
 class _Scheme:
     best: str  # BEST-row fill
     best_font: str  # BEST-row font color
-    light: tuple[int, int, int]  # low-EV end of the gradient
-    dark: tuple[int, int, int]  # high-EV end of the gradient
+    light: tuple[int, int, int]  # faded, low-conviction end of the gradient
+    neon: tuple[int, int, int]  # neon, high-conviction end of the gradient
     header: str
     border: str
 
 
-_SPECTRUM: dict[str, _Scheme] = {
-    Tier.STRONG.value: _Scheme(
-        best="1B5E20",
-        best_font="FFFFFF",
-        light=(0xE8, 0xF5, 0xE9),
-        dark=(0x66, 0xBB, 0x6A),
-        header="0D3311",
-        border="C8E6C9",
+_SCHEMES: dict[str, _Scheme] = {
+    _STRONG: _Scheme(
+        best="00C853",
+        best_font="00320F",
+        light=(0xDE, 0xFF, 0xE7),
+        neon=(0x00, 0xE6, 0x76),
+        header="0B3D1E",
+        border="9BE7B8",
     ),
-    Tier.MODERATE.value: _Scheme(
-        best="F9A825",
-        best_font="000000",
-        light=(0xFF, 0xFD, 0xE7),
-        dark=(0xFF, 0xEB, 0x3B),
-        header="7A5B00",
-        border="FFF59D",
+    _MODERATE: _Scheme(
+        best="FFD600",
+        best_font="332B00",
+        light=(0xFF, 0xFD, 0xD6),
+        neon=(0xFF, 0xEA, 0x00),
+        header="6B5600",
+        border="FFEE7A",
+    ),
+    _FADE: _Scheme(
+        best="FF1744",
+        best_font="FFFFFF",
+        light=(0xFF, 0xDA, 0xDA),
+        neon=(0xFF, 0x17, 0x44),
+        header="5A0A16",
+        border="FFAEB8",
     ),
 }
+
+
+def _scheme_key(rec: Recommendation) -> str:
+    """Green for strong buys, yellow for moderate, red for everything faded."""
+    if rec.tier == Tier.STRONG:
+        return _STRONG
+    if rec.tier == Tier.MODERATE:
+        return _MODERATE
+    return _FADE
+
+
+def _conviction(rec: Recommendation, key: str) -> float:
+    """Sort/shade magnitude: EV for buys, model-vs-market fade strength for fades."""
+    if key == _FADE:
+        if rec.fair_prob is not None:
+            v = rec.fair_prob - rec.model_prob
+        elif rec.ev is not None:
+            v = -rec.ev
+        else:
+            v = 0.0
+        return max(0.0, v)
+    return rec.ev if rec.ev is not None else 0.0
 
 
 def _is_best(rec: Recommendation, category: str) -> bool:
@@ -151,106 +203,141 @@ def _american(odds: float | None) -> str:
     return f"+{o}" if o > 0 else str(o)
 
 
-def _interp(light: tuple[int, int, int], dark: tuple[int, int, int], t: float) -> str:
-    rgb = tuple(int(light[i] + (dark[i] - light[i]) * t) for i in range(3))
+def _interp(light: tuple[int, int, int], neon: tuple[int, int, int], t: float) -> str:
+    rgb = tuple(int(light[i] + (neon[i] - light[i]) * t) for i in range(3))
     return f"{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
 
 
-def _write_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
+def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]:
+    return {
+        "Best": "BEST" if best else "",
+        "Tier": rec.tier.value,
+        "Category": cat,
+        "EV": round(rec.ev, 3) if rec.ev is not None else "",
+        "Selection": rec.selection,
+        "Matchup": rec.matchup,
+        "Book": rec.book or "",
+        "Odds": _american(rec.market_american),
+        "Model %": round(rec.model_prob * 100, 1),
+        "Market %": round(rec.fair_prob * 100, 1) if rec.fair_prob is not None else "",
+        "Edge": round(rec.edge, 3) if rec.edge is not None else "",
+        "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
+        "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
+        "Signal": rec.signal or "",
+        "Factor": round(rec.factor, 3) if rec.factor is not None else "",
+        "Score": round(rec.score, 2) if rec.score is not None else "",
+        "Profile": rec.profile or "",
+        "Notes": "; ".join(rec.reasons),
+    }
+
+
+def _row_style(
+    rec: Recommendation, key: str, best: bool, t: float
+) -> tuple[PatternFill, Font | None, Border]:
+    scheme = _SCHEMES[key]
+    if best:
+        fill = PatternFill("solid", fgColor=scheme.best)
+        font: Font | None = Font(color=scheme.best_font, bold=True)
+    else:
+        fill = PatternFill(
+            "solid", fgColor=_interp(scheme.light, scheme.neon, 0.15 + 0.7 * t)
+        )
+        font = None
+    side = Side(style="thin", color=scheme.border)
+    return fill, font, Border(left=side, right=side, top=side, bottom=side)
+
+
+def _write_grid(
+    ws: Worksheet, recs: list[Recommendation], header_key: str | None = None
+) -> None:
+    """Categorized grid; rows shaded neon->fade by class (green/yellow/red)."""
+    header_fill = (
+        PatternFill("solid", fgColor=_SCHEMES[header_key].header)
+        if header_key
+        else HEADER_FILL
+    )
+    center = Alignment(horizontal="center")
+
+    cat_rank = {c: i for i, c in enumerate(CATEGORY_ORDER)}
+    tagged = [(r, r.display_category, _scheme_key(r)) for r in recs]
+    tagged.sort(
+        key=lambda t: (
+            _SCHEME_RANK[t[2]],
+            cat_rank.get(t[1], len(CATEGORY_ORDER)),
+            0 if _is_best(t[0], t[1]) else 1,
+            -_conviction(t[0], t[2]),
+        )
+    )
+
+    # conviction range per class, for the intra-class gradient.
+    conv_range: dict[str, tuple[float, float]] = {}
+    for rec, _cat, key in tagged:
+        conv = _conviction(rec, key)
+        lo, hi = conv_range.get(key, (conv, conv))
+        conv_range[key] = (min(lo, conv), max(hi, conv))
+
+    for c, name in enumerate(GRID_COLUMNS, start=1):
+        cell = ws.cell(row=1, column=c, value=name)
+        cell.fill = header_fill
+        cell.font = HEADER_FONT
+        cell.alignment = center
+
+    for r, (rec, cat, key) in enumerate(tagged, start=2):
+        best = key in (_STRONG, _MODERATE) and _is_best(rec, cat)
+        lo, hi = conv_range[key]
+        conv = _conviction(rec, key)
+        t = 0.5 if hi == lo else (conv - lo) / (hi - lo)
+        fill, font, border = _row_style(rec, key, best, t)
+        values = _grid_values(rec, cat, best)
+        for c, name in enumerate(GRID_COLUMNS, start=1):
+            cell = ws.cell(row=r, column=c, value=values[name])
+            cell.fill = fill
+            cell.border = border
+            if font is not None:
+                cell.font = font
+            if name in GRID_CENTER:
+                cell.alignment = center
+
+    for i, w in enumerate(GRID_WIDTHS, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    if tagged:
+        ws.auto_filter.ref = f"A1:{get_column_letter(len(GRID_COLUMNS))}{len(tagged) + 1}"
+    ws.freeze_panes = "A2"
+
+
+def _write_all_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
+    """Full-detail sheet, every row shaded by class (neon->fade)."""
     for c, name in enumerate(COLUMNS, start=1):
         cell = ws.cell(row=1, column=c, value=name)
         cell.fill = HEADER_FILL
         cell.font = HEADER_FONT
         cell.alignment = Alignment(horizontal="center")
-    for r, rec in enumerate(recs, start=2):
+
+    tagged = [(r, _scheme_key(r)) for r in recs]
+    conv_range: dict[str, tuple[float, float]] = {}
+    for rec, key in tagged:
+        conv = _conviction(rec, key)
+        lo, hi = conv_range.get(key, (conv, conv))
+        conv_range[key] = (min(lo, conv), max(hi, conv))
+
+    for r, (rec, key) in enumerate(tagged, start=2):
+        best = key in (_STRONG, _MODERATE) and _is_best(rec, rec.display_category)
+        lo, hi = conv_range[key]
+        conv = _conviction(rec, key)
+        t = 0.5 if hi == lo else (conv - lo) / (hi - lo)
+        fill, font, _border = _row_style(rec, key, best, t)
         row = rec.as_row()
         for c, name in enumerate(COLUMNS, start=1):
-            ws.cell(row=r, column=c, value=row[name])
-        tier_fill = TIER_FILL.get(rec.tier.value)
-        if tier_fill:
-            ws.cell(row=r, column=COLUMNS.index("Tier") + 1).fill = tier_fill
+            cell = ws.cell(row=r, column=c, value=row[name])
+            cell.fill = fill
+            if font is not None:
+                cell.font = font
+
     widths = [11, 12, 9, 14, 26, 6, 8, 9, 9, 11, 10, 8, 8, 9, 8, 12, 8, 7, 7, 30, 40]
     for i, w in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = w
     if recs:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(recs) + 1}"
-    ws.freeze_panes = "A2"
-
-
-def _write_tier_sheet(ws: Worksheet, recs: list[Recommendation], tier: Tier) -> None:
-    """Categorized, EV-shaded sheet for one tier (green=strong, yellow=moderate)."""
-    scheme = _SPECTRUM[tier.value]
-    header_fill = PatternFill("solid", fgColor=scheme.header)
-    best_fill = PatternFill("solid", fgColor=scheme.best)
-    best_font = Font(color=scheme.best_font, bold=True)
-    side = Side(style="thin", color=scheme.border)
-    border = Border(left=side, right=side, top=side, bottom=side)
-    center = Alignment(horizontal="center")
-
-    tagged = [(r, r.display_category) for r in recs]
-    cat_rank = {c: i for i, c in enumerate(CATEGORY_ORDER)}
-    tagged.sort(
-        key=lambda t: (
-            cat_rank.get(t[1], len(CATEGORY_ORDER)),
-            0 if _is_best(t[0], t[1]) else 1,
-            -(t[0].ev if t[0].ev is not None else -99.0),
-        )
-    )
-
-    # EV range per category for shading.
-    ev_range: dict[str, tuple[float, float]] = {}
-    for rec, cat in tagged:
-        ev = rec.ev if rec.ev is not None else 0.0
-        lo, hi = ev_range.get(cat, (ev, ev))
-        ev_range[cat] = (min(lo, ev), max(hi, ev))
-
-    for c, name in enumerate(TIER_COLUMNS, start=1):
-        cell = ws.cell(row=1, column=c, value=name)
-        cell.fill = header_fill
-        cell.font = HEADER_FONT
-        cell.alignment = center
-        cell.border = border
-
-    centered_cols = {"Best", "EV", "Odds", "Model %", "Edge", "Handle %", "Bets %"}
-    for r, (rec, cat) in enumerate(tagged, start=2):
-        best = _is_best(rec, cat)
-        ev = rec.ev if rec.ev is not None else 0.0
-        lo, hi = ev_range[cat]
-        t = 0.5 if hi == lo else (ev - lo) / (hi - lo)
-        fill = best_fill if best else PatternFill(
-            "solid", fgColor=_interp(scheme.light, scheme.dark, 0.15 + 0.7 * t)
-        )
-        values = {
-            "Best": "BEST" if best else "",
-            "Category": cat,
-            "EV": round(rec.ev, 3) if rec.ev is not None else "",
-            "Selection": rec.selection,
-            "Matchup": rec.matchup,
-            "Book": rec.book or "",
-            "Odds": _american(rec.market_american),
-            "Model %": round(rec.model_prob * 100, 1),
-            "Edge": round(rec.edge, 3) if rec.edge is not None else "",
-            "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
-            "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
-            "Signal": rec.signal or "",
-            "Factor": round(rec.factor, 3) if rec.factor is not None else "",
-            "Score": round(rec.score, 2) if rec.score is not None else "",
-            "Profile": rec.profile or "",
-            "Notes": "; ".join(rec.reasons),
-        }
-        for c, name in enumerate(TIER_COLUMNS, start=1):
-            cell = ws.cell(row=r, column=c, value=values[name])
-            cell.fill = fill
-            cell.border = border
-            if best:
-                cell.font = best_font
-            if name in centered_cols:
-                cell.alignment = center
-
-    for i, w in enumerate(TIER_COLUMN_WIDTHS, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
-    if tagged:
-        ws.auto_filter.ref = f"A1:{get_column_letter(len(TIER_COLUMNS))}{len(tagged) + 1}"
     ws.freeze_panes = "A2"
 
 
@@ -261,16 +348,21 @@ def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date)
     wb = Workbook()
     strong = [r for r in recs if r.tier == Tier.STRONG]
     moderate = [r for r in recs if r.tier == Tier.MODERATE]
+    fades = [r for r in recs if r.tier == Tier.PASS]
 
     ws_strong = wb.active
     ws_strong.title = "Strong Buys"
-    _write_tier_sheet(ws_strong, strong, Tier.STRONG)
+    _write_grid(ws_strong, strong, header_key=_STRONG)
 
-    ws_moderate = wb.create_sheet("Moderate Buys")
-    _write_tier_sheet(ws_moderate, moderate, Tier.MODERATE)
+    _write_grid(wb.create_sheet("Moderate Buys"), moderate, header_key=_MODERATE)
+    _write_grid(wb.create_sheet("Fades"), fades, header_key=_FADE)
 
-    ws_all = wb.create_sheet("All")
-    _write_sheet(ws_all, sorted(recs, key=sort_key))
+    # Family tabs: buys and fades together, each row keeping its own class color.
+    for title, cat in FAMILY_TABS:
+        family = [r for r in recs if r.category == cat]
+        _write_grid(wb.create_sheet(title), family)
+
+    _write_all_sheet(wb.create_sheet("All"), sorted(recs, key=sort_key))
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)

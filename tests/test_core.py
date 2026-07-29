@@ -1631,6 +1631,55 @@ def test_ledger_workbook_with_analysis(tmp_path):
         assert sheet in wb.sheetnames
 
 
+def test_recommendation_workbook_tabs_and_colors(tmp_path):
+    from openpyxl import load_workbook
+
+    from mlb_engine.output.excel import write_workbook
+
+    recs = [
+        _rec(category="game", market="game_ml", selection="BBB ML",
+             model_prob=0.62, fair_prob=0.50, ev=0.18, edge=0.12,
+             market_american=110, tier=Tier.STRONG),
+        _rec(category="game", market="game_total", selection="Over 8.5",
+             model_prob=0.55, fair_prob=0.51, ev=0.05, edge=0.04,
+             market_american=-105, tier=Tier.MODERATE),
+        _rec(category="f5", market="f5_ml", selection="AAA F5",
+             model_prob=0.40, fair_prob=0.52, ev=-0.10, edge=-0.12,
+             market_american=-120, tier=Tier.PASS),
+        _rec(category="pitcher", market="pitcher_k", selection="P Ks o5.5",
+             model_prob=0.58, fair_prob=0.50, ev=0.22, edge=0.09,
+             market_american=100, tier=Tier.STRONG, line=5.5),
+        _rec(category="batter", market="batter_h", selection="B Hits o0.5",
+             model_prob=0.45, fair_prob=0.55, ev=-0.06, edge=-0.10,
+             market_american=-140, tier=Tier.PASS),
+    ]
+    out = tmp_path / "recs.xlsx"
+    write_workbook(recs, out, date(2024, 7, 19))
+    assert out.exists()
+
+    wb = load_workbook(out)
+    for sheet in (
+        "Strong Buys", "Moderate Buys", "Fades",
+        "Moneyline", "First-5 (F5)", "Pitcher Props", "Batter Props", "All",
+    ):
+        assert sheet in wb.sheetnames
+
+    # Fades tab holds only the PASS picks the model is against.
+    fades = wb["Fades"]
+    assert fades.max_row == 3  # header + 2 fades
+    # Family tabs partition by category: the F5 fade lands on the F5 tab.
+    assert wb["First-5 (F5)"].max_row == 2
+    assert wb["Batter Props"].max_row == 2
+
+    # Every non-header cell on the All tab is shaded (no blank fill).
+    all_ws = wb["All"]
+    filled = [
+        all_ws.cell(row=r, column=1).fill.fgColor.rgb
+        for r in range(2, all_ws.max_row + 1)
+    ]
+    assert all(c not in (None, "00000000") for c in filled)
+
+
 # ---- pitcher-outs: efficiency + pitch-count exit model ----
 def _pitcher_statcast(
     *,
