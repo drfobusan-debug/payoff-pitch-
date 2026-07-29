@@ -505,7 +505,7 @@ class Pipeline:
             statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
-        pit_reg = build_pitcher_regression(pit_rows)
+        pit_reg = build_pitcher_regression(pit_rows, shrink=w.starter_contact_shrink)
         pit_allowed_mult = pit_reg.allowed_multipliers()
         k_mult = pit_reg.k_multiplier()
 

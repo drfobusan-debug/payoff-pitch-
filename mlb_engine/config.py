@@ -36,7 +36,12 @@ def _env_csv(name: str) -> tuple[str, ...] | None:
 class RollingWindows:
     """Rolling look-back windows (in days) for stat aggregation."""
 
-    pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 28))
+    # Six weeks, not four. Over 2,894 starts, the six-week read is the stronger
+    # predictor of the next start on 66 of 100 metric/target pairs and wins every
+    # held-out target (next-start xwOBA R^2 0.087 vs 0.075, IP 0.067 vs 0.055).
+    # Replaying 54 slates moves favoured PPV .5831 -> .5867, date-clustered 95%
+    # CI [+0.04, +0.64] pp, and +1.54 pp on pitcher strikeouts.
+    pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 42))
     batter_home_away_days: int = field(
         default_factory=lambda: _env_int("MLBE_BATTER_HOME_AWAY_DAYS", 21)
     )
@@ -55,6 +60,15 @@ class RollingWindows:
     # 21-day window for everything.
     bullpen_skill_days: int = field(
         default_factory=lambda: _env_int("MLBE_BULLPEN_SKILL_DAYS", 0)
+    )
+    # Share of the empirical-Bayes correction to apply to a starter's
+    # contact-quality rates (xwOBA/wOBA allowed, BABIP, hard-hit, barrel) before
+    # they drive the hit and HR multipliers. Split-half across adjacent six-week
+    # blocks: xwOBA r=0.31, hard-hit r=0.24, BABIP r=0.10, barrel r=0.09, against
+    # K% r=0.52 and CSW r=0.50 for the command signals, which are left raw.
+    # 0.0 is the legacy raw behaviour; 1.0 applies the measured weight in full.
+    starter_contact_shrink: float = field(
+        default_factory=lambda: _env_float("MLBE_STARTER_CONTACT_SHRINK", 0.0)
     )
     # Share of a bullpen's distance from the league mean xwOBA to keep. 1.0 is
     # the raw three-week mean; 0.37 is its measured reliability.
