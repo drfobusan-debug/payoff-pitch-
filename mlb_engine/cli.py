@@ -43,6 +43,7 @@ from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
+from mlb_engine.output.audit_insight import generate_audit_insight
 from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
@@ -432,15 +433,31 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     if getattr(args, "report", False) or getattr(args, "email", False):
         day_entries = daily_entries(all_entries, audit_date)
+        # The classic md/HTML/PDF audit report is still written to disk for
+        # reference, but email delivery is owned by the insight report below so
+        # a single email carries the Excel ledger + article + audio.
         _generate_report(
             day_entries,
             cfg,
             period_label="Daily",
             subtitle=f"slate graded {audit_date.isoformat()}",
             slug=audit_date.isoformat(),
-            email=getattr(args, "email", False),
+            email=False,
             to=getattr(args, "to", None),
         )
+        try:
+            ledger_bytes = ledger_xlsx.read_bytes() if ledger_xlsx.exists() else None
+            extra = [(ledger_xlsx.name, ledger_bytes)] if ledger_bytes else None
+            generate_audit_insight(
+                graded,
+                audit_date,
+                cfg,
+                email=getattr(args, "email", False),
+                to=getattr(args, "to", None),
+                extra_attachments=extra,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logging.warning("audit insight report failed: %s", exc)
     return 0
 
 
