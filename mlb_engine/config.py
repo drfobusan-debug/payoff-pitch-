@@ -36,7 +36,12 @@ def _env_csv(name: str) -> tuple[str, ...] | None:
 class RollingWindows:
     """Rolling look-back windows (in days) for stat aggregation."""
 
-    pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 28))
+    # Six weeks, not four. Over 2,894 starts, the six-week read is the stronger
+    # predictor of the next start on 66 of 100 metric/target pairs and wins every
+    # held-out target (next-start xwOBA R^2 0.087 vs 0.075, IP 0.067 vs 0.055).
+    # Replaying 54 slates moves favoured PPV .5831 -> .5867, date-clustered 95%
+    # CI [+0.04, +0.64] pp, and +1.54 pp on pitcher strikeouts.
+    pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 42))
     batter_home_away_days: int = field(
         default_factory=lambda: _env_int("MLBE_BATTER_HOME_AWAY_DAYS", 21)
     )

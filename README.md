@@ -80,6 +80,28 @@ kept, so it ships on. The two underdog gates removed 35 +1.5s that won at
 66-75%: the simulation already prices weak starters and weak bullpens, so the
 gates double-count and delete winners. They stay off.
 
+### Starter window
+
+`MLBE_PITCHER_FORM_DAYS` defaults to **42**, not 28. Across 2,894 starts by 273
+pitchers, with every rolling profile rebuilt from the days *before* the start,
+the six-week read is the stronger predictor on 66 of 100 metric/target pairs
+tested head to head on identical rows, and it wins every held-out target: next
+start xwOBA R² 0.087 against 0.075, innings 0.067 against 0.055, K% 0.140
+against 0.138. Replaying the 54-slate history moves favoured PPV from .5831 to
+.5867, date-clustered 95% CI **[+0.04, +0.64] pp** with 98% of resamples
+positive — the effect is concentrated where the study says it should be, on
+pitcher strikeouts (+1.54 pp) and F5 run lines (+2.72 pp). Feeding a model both
+windows is worse than either alone; they are the same information twice.
+
+Two related findings that did *not* become knobs. A starter's four-week form
+*relative to his own six* predicts nothing (next-start xwOBA ρ = +0.023,
+p = 0.27), so there is no case for a recency override. And results metrics are
+mostly noise at this sample: reliability against the next start is 0.90 for
+velocity, 0.33 whiff, 0.30 K%, but 0.18 xwOBA allowed, 0.09 hits/BF, 0.06 HR/BF
+and 0.05 barrel%. A starter 40 points of xwOBA better than league over six weeks
+projects about 7 points better, so any gate comparing a raw rolling rate to a
+hard threshold is reading mostly noise.
+
 ### Bullpen windows
 
 A bullpen's last three weeks is about 270 batters faced spread over a dozen
