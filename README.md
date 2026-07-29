@@ -96,11 +96,51 @@ windows is worse than either alone; they are the same information twice.
 Two related findings that did *not* become knobs. A starter's four-week form
 *relative to his own six* predicts nothing (next-start xwOBA ρ = +0.023,
 p = 0.27), so there is no case for a recency override. And results metrics are
-mostly noise at this sample: reliability against the next start is 0.90 for
-velocity, 0.33 whiff, 0.30 K%, but 0.18 xwOBA allowed, 0.09 hits/BF, 0.06 HR/BF
-and 0.05 barrel%. A starter 40 points of xwOBA better than league over six weeks
-projects about 7 points better, so any gate comparing a raw rolling rate to a
-hard threshold is reading mostly noise.
+far less repeatable than command metrics. Correlating a six-week window against
+the *next single start* gives 0.90 velocity, 0.33 whiff, 0.30 K%, 0.18 xwOBA
+allowed, 0.06 HR/BF, 0.05 barrel — but that number is not a reliability, because
+one start is itself mostly noise, and it understates every rate. Splitting the
+season into adjacent, non-overlapping six-week blocks and correlating one block
+against the next (112 pitcher-pairs, ~155 batters faced a block) is the honest
+version:
+
+| metric | six-week block repeats at |
+| --- | --- |
+| Velocity | 0.95 |
+| K% | 0.52 |
+| Whiff% | 0.52 |
+| CSW% | 0.50 |
+| K−BB% | 0.46 |
+| BB% | 0.40 |
+| GB% | 0.39 |
+| Hits/BF | 0.33 |
+| xwOBA allowed | 0.31 |
+| Hard-hit% | 0.24 |
+| wOBA allowed | 0.22 |
+| BABIP | 0.10 |
+| Barrel% | 0.09 |
+| HR/BF | 0.02 |
+
+So a starter 40 points of xwOBA better than league over six weeks projects about
+12 points better, not 40 — and his barrel and home-run rates project at league.
+
+`MLBE_STARTER_CONTACT_SHRINK` acts on that, **default `0.0` (off)**. At `1.0` it
+applies each rate's measured empirical-Bayes weight — `keep = bbe / (bbe + k)`,
+with `k` solved so a league-sized six-week sample keeps exactly the reliability
+above — to the four contact rates that drive the hit and HR multipliers (xwOBA
+and wOBA allowed, BABIP, hard-hit, barrel), and leaves the command and stuff
+signals alone. `PitcherRegression.raw_contact` keeps the unshrunk rates.
+
+It is off because the measurement says it does nothing, not because it is
+untested: over 54 slates and 182,215 graded picks it moves favoured PPV .5867 →
+.5864, date-clustered 95% CI **[−0.26, +0.21] pp**, Brier +0.0001. It is very
+far from a no-op — 79% of rows move, mean |Δp| 0.015, and hits+runs+RBI moves on
+99% of rows by 0.022 — the accuracy just does not follow. The one
+market that clearly dislikes it is hits+runs+RBI (−1.53 pp), which is the most
+barrel-driven prop on the board and the place shrinkage bites hardest; make that
+survive before turning it on. The honest reading is that the reliability
+correction is *right* about the metrics and the simulation was already damping
+them enough that re-damping them adds nothing.
 
 ### Bullpen windows
 

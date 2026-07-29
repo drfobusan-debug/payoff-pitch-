@@ -336,6 +336,37 @@ XBB_ZONE_COEF = 0.50
 XBB_CHASE_COEF = 0.40
 XBB_FSTRIKE_COEF = 0.30
 
+# Empirical-Bayes prior strengths for the contact-quality signals a starter
+# allows, in batted balls. Measured by splitting the season into adjacent,
+# non-overlapping six-week blocks (112 pitcher-pairs, ~106 batted balls a block)
+# and correlating one block against the next: xwOBA r=0.31, hard-hit r=0.24,
+# BABIP r=0.10, barrel r=0.09. Solving n/(n+k) = r at n=106 gives k, so a
+# starter with a league-average sample keeps exactly his measured reliability
+# and thin samples keep less. Contrast the command signals on the same blocks,
+# which are left alone: K% r=0.52, whiff r=0.52, CSW r=0.50, velocity r=0.95.
+STARTER_PRIOR_BBE = {
+    "xwoba": 233.0,
+    "babip": 998.0,
+    "hard_hit": 343.0,
+    "barrel": 1127.0,
+}
+
+
+def shrink_starter_rate(raw: float, baseline: float, bbe: int, prior_bbe: float,
+                        strength: float = 1.0) -> float:
+    """Pull an observed contact-quality rate toward its league baseline.
+
+    ``strength`` scales the whole correction: 1.0 applies the measured
+    empirical-Bayes weight, 0.0 leaves the raw rate untouched.
+    """
+    s = min(max(strength, 0.0), 1.0)
+    if s == 0.0 or bbe <= 0:
+        return raw
+    keep = bbe / (bbe + prior_bbe)
+    keep = keep + (1.0 - s) * (1.0 - keep)
+    return baseline + keep * (raw - baseline)
+
+
 CALLED_OR_WHIFF = {"called_strike", "swinging_strike", "swinging_strike_blocked", "foul_tip"}
 WHIFF_DESC = {"swinging_strike", "swinging_strike_blocked", "foul_tip"}
 SWING_DESC = {"swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play"}
@@ -370,6 +401,8 @@ class PitcherRegression:
     stuff_plus: float | None = None
     location_plus: float | None = None
     metrics: dict[str, float] = field(default_factory=dict)
+    # Pre-shrinkage contact-quality rates, kept for reporting.
+    raw_contact: dict[str, float] = field(default_factory=dict)
 
     @property
     def dxwoba(self) -> float:
@@ -454,6 +487,7 @@ def build_pitcher_regression(
     pdf: pd.DataFrame,
     stuff_plus: float | None = None,
     location_plus: float | None = None,
+    shrink: float = 0.0,
 ) -> PitcherRegression:
     batted = pdf[pdf["launch_speed"].notna()]
     n_bbe = int(len(batted))
@@ -561,6 +595,28 @@ def build_pitcher_regression(
     )
     spin = float(pdf["release_spin_rate"].dropna().mean()) if pdf["release_spin_rate"].notna().any() else float("nan")
 
+    # Contact quality is the least reliable thing a six-week starter sample
+    # measures, and it drives the hit/HR multipliers, so it is the one group
+    # that gets pulled toward league. xwOBA and wOBA share a weight because
+    # they are the same batted balls and only their difference is consumed.
+    raws = {
+        "babip": babip,
+        "woba": woba,
+        "xwoba": xwoba,
+        "hard_hit": hard_hit,
+        "barrel": barrel,
+    }
+    if shrink > 0.0 and n_bbe:
+        babip = shrink_starter_rate(babip, BL_BABIP, n_bbe, STARTER_PRIOR_BBE["babip"], shrink)
+        xwoba = shrink_starter_rate(xwoba, BL_XBA, n_bbe, STARTER_PRIOR_BBE["xwoba"], shrink)
+        woba = shrink_starter_rate(woba, BL_XBA, n_bbe, STARTER_PRIOR_BBE["xwoba"], shrink)
+        hard_hit = shrink_starter_rate(
+            hard_hit, BL_HARD_HIT, n_bbe, STARTER_PRIOR_BBE["hard_hit"], shrink
+        )
+        barrel = shrink_starter_rate(
+            barrel, BL_BARREL_ALLOWED, n_bbe, STARTER_PRIOR_BBE["barrel"], shrink
+        )
+
     return PitcherRegression(
         bbe=n_bbe,
         pitches=n_pitches,
@@ -569,6 +625,7 @@ def build_pitcher_regression(
         xwoba_allowed=xwoba,
         hard_hit_allowed=hard_hit,
         barrel_allowed=barrel,
+        raw_contact=raws,
         csw=csw,
         k_pct=k_pct,
         bb_pct=bb_pct,
