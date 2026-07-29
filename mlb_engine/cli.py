@@ -258,8 +258,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
+        # Write the card (md/html/pdf) for the record, but do NOT email it here:
+        # the slate preview below owns email delivery so a single message carries
+        # the Morningstar article + audio + Excel bet sheet (mirrors the audit).
         _generate_card(
-            recs, slate_date, cfg, email=args.email, to=args.to, workbook=Path(xlsx)
+            recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx)
         )
         excel = [(Path(xlsx).name, Path(xlsx).read_bytes())] if Path(xlsx).exists() else None
         generate_daily_preview(
