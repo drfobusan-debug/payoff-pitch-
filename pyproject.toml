@@ -17,6 +17,8 @@ dependencies = [
     "markdown>=3.5",
     "matplotlib>=3.7",
     "gtts>=2.4",
+    "edge-tts>=6.1",
+    "certifi>=2024.2",
 ]
 
 [project.optional-dependencies]
