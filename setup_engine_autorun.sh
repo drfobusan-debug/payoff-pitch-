@@ -10,9 +10,11 @@
 #   * Morning: wake 10:00  ->  run 10:05  (before noon: THE daily job)
 #
 # The MORNING run (before noon) is the real job and does both, in order:
-#   1) mlb-engine run    -> today's slate. By mid-morning the VSIN public
+#   1) mlb-engine run --email -> today's slate. By mid-morning the VSIN public
 #                           handle/bets splits have posted, so the picks use
 #                           them -- that's why the slate runs in the morning.
+#                           --email sends the Morningstar slate preview
+#                           (PDF + audio) with the Excel bet sheet.
 #   2) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
 #                           and EMAIL the Excel ledger + article + audio.
 #
@@ -33,7 +35,7 @@ VENV_DIR="$REPO_DIR/.venv"
 # >>> Real engine commands (already baked in -- nothing to edit) <<<
 # The morning job runs these two in order: generate today's slate (with the
 # morning handle/bets splits), then grade yesterday and email the 3 artifacts.
-RUN_CMD="mlb-engine run"                       # today's slate; defaults to today
+RUN_CMD="mlb-engine run --email"               # today's slate + email preview; defaults to today
 AUDIT_CMD="mlb-engine audit --report --email"  # grade yesterday; defaults to yesterday
 
 # Schedule (24h). Change if you like.
