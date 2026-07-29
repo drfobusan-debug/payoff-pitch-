@@ -94,6 +94,13 @@ MODE="\${1:-run}"
 cd "$REPO_DIR"
 [[ -d "$VENV_DIR" ]] && source "$VENV_DIR/bin/activate"
 
+# WeasyPrint (PDF export) loads pango/cairo/gdk-pixbuf via ctypes; on macOS
+# those live in the Homebrew lib dir, which is NOT on the default dyld search
+# path. Point at it so the slate-preview + audit PDFs render.
+for _brew_lib in /opt/homebrew/lib /usr/local/lib; do
+  [[ -d "\$_brew_lib" ]] && export DYLD_FALLBACK_LIBRARY_PATH="\$_brew_lib:\${DYLD_FALLBACK_LIBRARY_PATH:-}"
+done
+
 # caffeinate -i blocks *idle* sleep during the run. (The 03:00 forced
 # sleep from pmset is intentional and will still fire.)
 if [[ "\$MODE" == "night" ]]; then
@@ -132,6 +139,13 @@ EOF
 write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MIN"   night
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
 echo "Wrote daemons: $NIGHT_PLIST , $MORNING_PLIST"
+
+# The daemons run as $RUN_AS_USER, but /var/log is root-owned -- launchd can't
+# create the StandardOut/Err files there and the job dies with EX_CONFIG (78).
+# Pre-create them owned by the run user so logging (and the job) works.
+touch "$LOG_OUT" "$LOG_ERR"
+chown "$RUN_AS_USER" "$LOG_OUT" "$LOG_ERR"
+chmod 644 "$LOG_OUT" "$LOG_ERR"
 
 for p in "$NIGHT_PLIST" "$MORNING_PLIST"; do
   launchctl bootout system "$p" 2>/dev/null || true
