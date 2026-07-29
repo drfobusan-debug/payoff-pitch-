@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass, replace
 from datetime import date as Date
 from pathlib import Path
@@ -76,6 +77,7 @@ from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, anchor_to_market, evaluate
+from mlb_engine.market.odds import american_to_prob
 from mlb_engine.market.runline import (
     RunLineSignal,
     RunLineVeto,
@@ -96,6 +98,14 @@ from mlb_engine.models.selectors import (
     TBSelector,
     XBHSelector,
     power_floor_reason,
+)
+from mlb_engine.preview import (
+    BestBet,
+    BullpenLine,
+    GamePreview,
+    LineupLine,
+    RegFlag,
+    StarterLine,
 )
 from mlb_engine.recommendations import Recommendation
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
@@ -317,6 +327,7 @@ class Pipeline:
         self._hr_gate = HRPowerGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
         self._hrr_adjust = HRRAdjuster.from_env()
+        self._previews: list[GamePreview] = []
 
     def run(
         self,
@@ -375,6 +386,7 @@ class Pipeline:
         )
 
         recs: list[Recommendation] = []
+        self._previews = []
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
         for game in slate.games:
             if not (game.home.lineup_confirmed() and game.away.lineup_confirmed()):
@@ -385,6 +397,11 @@ class Pipeline:
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
         return recs
+
+    @property
+    def previews(self) -> list[GamePreview]:
+        """Per-game slate previews assembled during the last :meth:`run`."""
+        return self._previews
 
     # ------------------------------------------------------------------
     def _enrich_expected_lineups(self, slate: Slate, slate_date: Date) -> None:
@@ -639,6 +656,11 @@ class Pipeline:
                 opp_hand=opp_throws,
             )
 
+        # Reader-facing matchup story: this offense's lineup line, plus the
+        # opposing starter + bullpen it will face (built from the same objects
+        # the simulator just consumed, so nothing is recomputed).
+        half = _preview_half(team, opp, regs, pit_reg, bpen)
+
         return (
             bat_vs_starter,
             bat_vs_pen,
@@ -648,6 +670,7 @@ class Pipeline:
             selections,
             regs,
             sunders,
+            half,
         )
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
@@ -809,15 +832,13 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels, home_regs, home_su = (
-            self._team_offense(
-                game.home, game.away, statcast, slate_date, sprint, park, weather_mult
-            )
+        (home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels,
+         home_regs, home_su, home_half) = self._team_offense(
+            game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
-        away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels, away_regs, away_su = (
-            self._team_offense(
-                game.away, game.home, statcast, slate_date, sprint, park, weather_mult
-            )
+        (away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels,
+         away_regs, away_su, away_half) = self._team_offense(
+            game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
         # travel/rest (circadian) per team
@@ -1035,7 +1056,102 @@ class Pipeline:
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
 
         self._attach_context(recs, park, eff, xrd, xrd_sd)
+
+        # ---- reader-facing slate preview ----
+        # home starter is the arm the AWAY lineup faced (away_half.opp_*), and
+        # the home offense faces the away pitching (home_half.opp_*).
+        away_half.opp_pen.fatigue = _fnum(away_fat)  # away pen faced by home bats
+        home_half.opp_pen.fatigue = _fnum(home_fat)
+        self._previews.append(
+            self._build_preview(
+                game, m, recs, total, margin, xrd, xrd_sd,
+                park, eff, home_half, away_half,
+            )
+        )
         return recs
+
+    def _build_preview(
+        self, game, matchup, recs, total, margin, xrd, xrd_sd,
+        park, eff, home_half, away_half,
+    ) -> GamePreview:
+        """Assemble the per-game preview record from the priced slate."""
+        p_home_win = float((margin > 0).mean())
+        p_blowout = float((abs(margin) >= 4).mean())
+        p_close = float((abs(margin) <= 1).mean())
+
+        # Moneyline market: pull the two game_ml recs for implied prob + edge.
+        ha, aa = game.home.abbrev, game.away.abbrev
+        ml = {r.team_side: r for r in recs if r.market == "game_ml" and r.team_side in ("home", "away")}
+        home_ml = ml.get("home")
+        away_ml = ml.get("away")
+        home_prob = float(home_ml.model_prob) if home_ml else p_home_win
+        away_prob = float(away_ml.model_prob) if away_ml else 1.0 - p_home_win
+        fav_side = "home" if home_prob >= away_prob else "away"
+        fav_rec = home_ml if fav_side == "home" else away_ml
+        fav_team = ha if fav_side == "home" else aa
+        fav_odds = _fnum(fav_rec.market_american) if fav_rec else None
+
+        # Best bets in this game: the engine's own buy tiers, best EV first.
+        buys = [
+            r for r in recs
+            if r.tier in (Tier.STRONG, Tier.MODERATE) and r.ev is not None
+        ]
+        buys.sort(key=lambda r: (r.tier != Tier.STRONG, -(r.ev or 0.0)))
+        best_bets = [
+            BestBet(
+                selection=r.selection,
+                market=r.market,
+                odds=_fnum(r.market_american),
+                model_prob=float(r.model_prob),
+                edge=_fnum(r.edge),
+                ev=_fnum(r.ev),
+                tier=r.tier.value,
+            )
+            for r in buys[:4]
+        ]
+
+        wx_summary = None
+        wx_hr = None
+        if eff is not None:
+            wx_hr = _fnum(eff.hr_mult)
+            if eff.conditions is not None:
+                wx_summary = eff.conditions.summary()
+
+        game_date = recs[0].game_date.isoformat() if recs else ""
+        return GamePreview(
+            game_date=game_date,
+            game_pk=int(game.game_pk),
+            matchup=matchup,
+            home=ha,
+            away=aa,
+            home_starter=away_half.opp_starter,
+            away_starter=home_half.opp_starter,
+            home_lineup=home_half.lineup,
+            away_lineup=away_half.lineup,
+            home_pen=away_half.opp_pen,
+            away_pen=home_half.opp_pen,
+            xrd=round(float(xrd), 2),
+            xrd_sd=round(float(xrd_sd), 2),
+            total_mean=round(float(total.mean()), 2),
+            p_home_win=round(p_home_win, 3),
+            p_blowout=round(p_blowout, 3),
+            p_close=round(p_close, 3),
+            park_name=park.name if park else None,
+            park_factor=_fnum(park.park_factor) if park else None,
+            roof=park.roof if park else None,
+            wx_summary=wx_summary,
+            wx_hr_mult=wx_hr,
+            home_ml_prob=round(home_prob, 3),
+            away_ml_prob=round(away_prob, 3),
+            fav_side=fav_side,
+            fav_team=fav_team,
+            fav_odds=fav_odds,
+            fav_implied=(
+                round(american_to_prob(fav_odds), 3) if fav_odds is not None else None
+            ),
+            fav_edge=_fnum(fav_rec.edge) if fav_rec else None,
+            best_bets=best_bets,
+        )
 
     @staticmethod
     def _attach_context(recs, park, eff, xrd=None, xrd_sd=None) -> None:
@@ -1379,3 +1495,89 @@ def _prev_to_pg(prev):
     if not p:
         return None
     return travel_rest.PrevGame(game_date=d, lat=p.lat, lon=p.lon)
+
+
+def _fnum(x) -> float | None:
+    """Coerce to a finite float, or None (keeps NaN out of the JSON/report)."""
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return None
+    return v if math.isfinite(v) else None
+
+
+@dataclass
+class PreviewHalf:
+    """One offense's slate-preview story: its lineup + the pitching it faces."""
+
+    lineup: LineupLine
+    opp_starter: StarterLine
+    opp_pen: BullpenLine
+
+
+def _preview_half(team, opp, regs, pit_reg, bpen) -> PreviewHalf:
+    """Assemble the preview half from objects the simulator already computed."""
+    assert opp.probable_pitcher is not None
+    starter = StarterLine(
+        name=opp.probable_pitcher.name,
+        pitches=int(pit_reg.pitches),
+        k_pct=_fnum(pit_reg.k_pct) or 0.0,
+        xk_pct=_fnum(pit_reg.expected_k_pct()) or 0.0,
+        bb_pct=_fnum(pit_reg.bb_pct) or 0.0,
+        xbb_pct=_fnum(pit_reg.expected_bb_pct()) or 0.0,
+        csw=_fnum(pit_reg.csw) or 0.0,
+        whiff=_fnum(pit_reg.whiff) or 0.0,
+        swstr=_fnum(pit_reg.swstr) or 0.0,
+        zone_pct=_fnum(pit_reg.zone_pct) or 0.0,
+        xwoba_allowed=_fnum(pit_reg.xwoba_allowed) or 0.0,
+        barrel_allowed=_fnum(pit_reg.barrel_allowed) or 0.0,
+        dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
+        spin=_fnum(pit_reg.spin),
+    )
+
+    named = [
+        (slot.player.name, r)
+        for slot, r in zip(team.lineup, regs, strict=False)
+        if r.bbe >= MIN_BBE
+    ]
+
+    def _mean(vals: list[float | None]) -> float:
+        clean = [v for v in vals if v is not None]
+        return sum(clean) / len(clean) if clean else 0.0
+
+    woba = _mean([_fnum(r.woba) for _, r in named])
+    xwoba = _mean([_fnum(r.xwoba) for _, r in named])
+    xslg = _mean([_fnum(r.xslg) for _, r in named])
+    barrel = _mean([_fnum(r.barrel_rate) for _, r in named])
+    # regression: dxwoba = xwoba - woba. Negative => overperforming (hot, due to
+    # cool off); positive => underperforming (cold, buy-low / due to heat up).
+    by_gap = sorted(named, key=lambda nr: nr[1].dxwoba)
+    hot = [
+        RegFlag(name=n, points=round(-r.dxwoba * 1000, 1))
+        for n, r in by_gap
+        if r.dxwoba <= -0.030
+    ][:3]
+    cold = [
+        RegFlag(name=n, points=round(r.dxwoba * 1000, 1))
+        for n, r in reversed(by_gap)
+        if r.dxwoba >= 0.030
+    ][:3]
+    lineup = LineupLine(
+        n=len(named),
+        woba=round(woba, 3),
+        xwoba=round(xwoba, 3),
+        dxwoba=round(xwoba - woba, 3),
+        xslg=round(xslg, 3),
+        barrel=round(barrel, 3),
+        hot=hot,
+        cold=cold,
+    )
+
+    pen = BullpenLine(
+        xwoba_allowed=_fnum(bpen.xwoba_allowed),
+        k_pct=_fnum(bpen.k_pct),
+        zone_pct=_fnum(bpen.zone_pct),
+        recent_load=_fnum(bpen.recent_load),
+        fatigue=None,  # filled in at game level from the StatsAPI proxy
+    )
+    return PreviewHalf(lineup=lineup, opp_starter=starter, opp_pen=pen)

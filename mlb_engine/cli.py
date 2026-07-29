@@ -45,6 +45,7 @@ from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import generate_audit_insight
 from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
+from mlb_engine.output.daily_preview import generate_daily_preview
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
 from mlb_engine.output.report import (
@@ -57,6 +58,7 @@ from mlb_engine.output.report import (
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
+from mlb_engine.preview import save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
 
@@ -241,6 +243,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
     save_json(recs, cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json")
+    previews = pipe.previews
+    save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
     if not vsin_csv:
@@ -256,6 +260,15 @@ def cmd_run(args: argparse.Namespace) -> int:
     if getattr(args, "card", False) or getattr(args, "email", False):
         _generate_card(
             recs, slate_date, cfg, email=args.email, to=args.to, workbook=Path(xlsx)
+        )
+        excel = [(Path(xlsx).name, Path(xlsx).read_bytes())] if Path(xlsx).exists() else None
+        generate_daily_preview(
+            previews,
+            slate_date,
+            cfg,
+            email=args.email,
+            to=args.to,
+            extra_attachments=excel,
         )
     return 0
 
