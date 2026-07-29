@@ -78,12 +78,14 @@ command -v mlb-engine >/dev/null 2>&1 || \
 [[ "$(uname -m)" == "arm64" ]] && \
   echo "Apple Silicon confirmed: leave the Mac ASLEEP (not shut down), plugged in."
 
-# --- 1. secrets file (root-only) ----------------------------------
+# --- 1. secrets file ----------------------------------------------
+# Owned by $RUN_AS_USER (mode 600): the daemons run as that user and source
+# this file, so root ownership would make it unreadable and the job would exit 1.
 if [[ ! -f "$ENV_FILE" ]]; then
-  printf '# root-only (chmod 600). e.g.:\n# ODDS_API_KEY=your_key_here\n' > "$ENV_FILE"
-  chmod 600 "$ENV_FILE"; chown root:wheel "$ENV_FILE"
+  printf '# private (chmod 600). e.g.:\n# ODDS_API_KEY=your_key_here\n' > "$ENV_FILE"
   echo "Created $ENV_FILE -- add your ODDS_API_KEY line."
 fi
+chmod 600 "$ENV_FILE"; chown "$RUN_AS_USER" "$ENV_FILE"
 
 # --- 2. runner: runs engine; if invoked as 'night', arm next 10:00 wake
 cat > "$RUNNER" <<EOF
