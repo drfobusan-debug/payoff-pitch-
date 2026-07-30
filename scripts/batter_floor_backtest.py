@@ -40,9 +40,22 @@ def _fmt(pct: float | None) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--floor", type=float, default=0.58)
+    ap.add_argument("--floor", type=float, default=0.58, help="default floor for all markets")
+    ap.add_argument(
+        "--market-floor",
+        action="append",
+        default=[],
+        metavar="MARKET=PROB",
+        help="per-market override, e.g. --market-floor batter_1b=0.44 "
+        "(repeatable); overrides --floor for that market",
+    )
     ap.add_argument("--ledger", type=Path, default=None)
     args = ap.parse_args()
+
+    overrides: dict[str, float] = {}
+    for spec in args.market_floor:
+        mkt, _, val = spec.partition("=")
+        overrides[mkt.strip()] = float(val)
 
     path = args.ledger or (load_config().audit_dir / "ledger.csv")
     if not path.exists():
@@ -53,25 +66,30 @@ def main() -> None:
         raise SystemExit(f"No batter-prop rows in {path}")
 
     markets = sorted({e.market for e in ledger})
-    floor = args.floor
+
+    def floor_for(market: str) -> float:
+        return overrides.get(market, args.floor)
 
     print(f"Ledger: {path}")
-    print(f"Conviction floor: model_prob >= {floor:.2f} AND ev > 0")
+    print(f"Conviction floor: model_prob >= {args.floor:.2f} AND ev > 0 (default)")
+    for mkt, val in sorted(overrides.items()):
+        print(f"  override: {mkt} >= {val:.2f}")
     print(f"Batter rows: {len(ledger)}  markets: {len(markets)}\n")
 
     header = (
-        f"{'market':<16} "
+        f"{'market':<16} {'floor':>5} "
         f"{'buys':>5} {'PPV now':>8}  |  "
         f"{'kept':>5} {'PPV floor':>10} {'dropped':>8} {'ROI/u now':>10} {'ROI/u flr':>10}"
     )
     print(header)
     print("-" * len(header))
 
-    def row_line(name: str, rows: list[LedgerEntry]) -> None:
+    def _kept(r: LedgerEntry) -> bool:
+        return r.model_prob >= floor_for(r.market) and (r.ev is not None and r.ev > 0)
+
+    def row_line(name: str, rows: list[LedgerEntry], floor_label: str) -> None:
         buys = [r for r in rows if r.tier in BUY_TIERS]
-        kept = [
-            r for r in buys if r.model_prob >= floor and (r.ev is not None and r.ev > 0)
-        ]
+        kept = [r for r in buys if _kept(r)]
         n0, _, ppv0 = _ppv(buys)
         n1, _, ppv1 = _ppv(kept)
         roi0 = sum(r.pnl for r in buys) / n0 if n0 else None
@@ -79,15 +97,15 @@ def main() -> None:
         roi0s = f"{roi0 * 100:+8.1f}%" if roi0 is not None else "   --  "
         roi1s = f"{roi1 * 100:+8.1f}%" if roi1 is not None else "   --  "
         print(
-            f"{name:<16} "
+            f"{name:<16} {floor_label:>5} "
             f"{n0:>5} {_fmt(ppv0):>8}  |  "
             f"{n1:>5} {_fmt(ppv1):>10} {n0 - n1:>8} {roi0s:>10} {roi1s:>10}"
         )
 
     for m in markets:
-        row_line(m, [e for e in ledger if e.market == m])
+        row_line(m, [e for e in ledger if e.market == m], f"{floor_for(m):.2f}")
     print("-" * len(header))
-    row_line("ALL batter", ledger)
+    row_line("ALL batter", ledger, "mix")
     print(
         "\nPPV now = win% of current Strong/Moderate buys.  "
         "PPV floor = win% of the buys that clear the floor.\n"
