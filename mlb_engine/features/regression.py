@@ -16,9 +16,23 @@ outcome probabilities before simulation.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import SupportsFloat, cast
 
 import numpy as np
 import pandas as pd
+
+
+def _safe_float(val: object, default: float) -> float:
+    """Coerce a scalar to float, falling back when it is NA/NaN/None.
+
+    Statcast columns arrive as pandas *nullable* dtypes, so an all-NA slice's
+    ``.mean()`` / ``.max()`` returns ``pd.NA`` (not ``nan``), and ``float(pd.NA)``
+    raises ``TypeError``. This guards every such reduction.
+    """
+    if val is None or pd.isna(val):
+        return default
+    return float(cast(SupportsFloat, val))
+
 
 # League baselines (approximate, recalibratable).
 BL_BARREL = 0.080
@@ -175,7 +189,7 @@ def build_batter_regression(
     n_bbe = int(len(batted))
     lsa = batted["launch_speed_angle"].dropna() if "launch_speed_angle" in batted else pd.Series([])
     barrel = float((lsa == 6).mean()) if len(lsa) else 0.0
-    hard_hit = float((batted["launch_speed"] >= 95).mean()) if n_bbe else 0.0
+    hard_hit = _safe_float((batted["launch_speed"] >= 95).mean(), 0.0) if n_bbe else 0.0
     la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
     sweet = float(la.between(8, 32).mean()) if len(la) else 0.0
     gb_pct = float((la < 10).mean()) if len(la) else float("nan")
@@ -183,7 +197,7 @@ def build_batter_regression(
     bat_speed = (
         float(bdf["bat_speed"].dropna().mean()) if bdf["bat_speed"].notna().any() else BL_BAT_SPEED
     )
-    max_ev = float(batted["launch_speed"].max()) if n_bbe else BL_MAX_EV
+    max_ev = _safe_float(batted["launch_speed"].max(), BL_MAX_EV) if n_bbe else BL_MAX_EV
     n_sw = int(len(swings))
     whiff = float(whiffs.sum() / n_sw) if n_sw else BL_WHIFF
     zc_swings = swings["zone"].between(1, 9) if "zone" in swings else pd.Series(dtype=bool)
@@ -195,18 +209,18 @@ def build_batter_regression(
         float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
     )
     xba = (
-        float(batted["estimated_ba_using_speedangle"].dropna().mean())
+        _safe_float(batted["estimated_ba_using_speedangle"].dropna().mean(), BL_XBA)
         if n_bbe and "estimated_ba_using_speedangle" in batted
         else BL_XBA
     )
     xwoba = (
-        float(batted["estimated_woba_using_speedangle"].dropna().mean())
+        _safe_float(batted["estimated_woba_using_speedangle"].dropna().mean(), float("nan"))
         if n_bbe and "estimated_woba_using_speedangle" in batted
         else float("nan")
     )
     # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
     woba = (
-        float(batted["woba_value"].dropna().mean())
+        _safe_float(batted["woba_value"].dropna().mean(), float("nan"))
         if n_bbe and "woba_value" in batted
         else float("nan")
     )
