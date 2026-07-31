@@ -21,7 +21,7 @@ from mlb_engine.data.fangraphs import (
 )
 from mlb_engine.data.managers import get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
-from mlb_engine.data.oddsapi import OddsAPIClient
+from mlb_engine.data.oddsapi import PRICE_ONLY_MARKETS, OddsAPIClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_person
 from mlb_engine.data.savant_expected import load_batter_xslg
@@ -1485,6 +1485,12 @@ class Pipeline:
         if gate_reason is not None and rec.tier != Tier.PASS:
             rec.tier = Tier.PASS
             rec.reasons = [gate_reason, *rec.reasons]
+        # Price-only markets (e.g. singles) are fetched to persist the under
+        # quote, never to bet the side we price. Hard-pass the over after every
+        # tier decision so pricing the market cannot re-enable buying it.
+        if market in PRICE_ONLY_MARKETS and rec.tier != Tier.PASS:
+            rec.tier = Tier.PASS
+            rec.reasons = ["price captured for audit only", *rec.reasons]
         return rec
 
 

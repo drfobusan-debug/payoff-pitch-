@@ -7,8 +7,21 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
+from mlb_engine.data.oddsapi import (
+    DEFAULT_PROP_MARKETS,
+    PRICE_ONLY_MARKETS,
+    OddsAPIClient,
+)
 from mlb_engine.schemas import Game, Slate, TeamGameInfo, Venue
+
+
+def test_price_only_markets_are_fetched_but_never_bet() -> None:
+    """Singles is priced to capture the under quote, not to buy the over; it must
+    be in the fetched set AND in the price-only set that pipeline hard-passes."""
+    for m in PRICE_ONLY_MARKETS:
+        assert m in {"batter_1b"}
+    assert "batter_singles" in DEFAULT_PROP_MARKETS  # its odds are fetched
+    assert "batter_1b" in PRICE_ONLY_MARKETS  # ...but the over is never recommended
 
 
 def _slate(n: int = 2) -> Slate:

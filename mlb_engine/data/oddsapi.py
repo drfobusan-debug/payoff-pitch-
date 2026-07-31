@@ -70,6 +70,13 @@ DEFAULT_PROP_MARKETS = (
     "pitcher_hits_allowed",
     "pitcher_walks",
 )
+# Markets fetched only to record the *other* side's price (the under), never to
+# bet the side we price. Pricing a market normally makes it bettable -- a pick
+# is only forced to Pass when it has no quote -- so these are hard-passed after
+# classification so the under quote is persisted without ever recommending the
+# over. Singles is priced at ~48.8% PPV, below break-even, so its over is never
+# a bet; we keep the under for the NPV-fade audit.
+PRICE_ONLY_MARKETS = frozenset({"batter_1b"})
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)
 
 Quotes = dict[tuple[str, str, str], list[MarketQuote]]
