@@ -24,6 +24,10 @@ class Recommendation:
     line: float | None = None
     book: str | None = None
     market_american: float | None = None
+    # American price of the *other* side of this two-way market at the same book
+    # (the under for an O/U prop, the opposing team for ML/RL). Already fetched to
+    # devig; persisted so the audit can grade the fade side without re-pricing.
+    opposite_american: float | None = None
     ev: float | None = None
     edge: float | None = None
     # Devigged market consensus probability for this selection, and the

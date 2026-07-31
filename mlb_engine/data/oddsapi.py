@@ -57,10 +57,14 @@ _PITCHER_MARKETS = {
 # Every market above can be *parsed*; only these are worth *paying* for. Over 54
 # graded slates the engine produced zero favored picks in HR, doubles, runs and
 # RBI (75-87% NPV -- it is right to abstain), so buying those prices is spend
-# with no bet attached. Singles (50.4% PPV) and earned runs (45.5%) are priced
-# below break-even, so they are excluded too. Override with MLBE_ODDS_PROPS.
+# with no bet attached; they stay excluded. Earned runs (45.5% PPV) is priced
+# below break-even and is not bought. Singles is fetched not to buy the over
+# (50.4% PPV) but to capture the *under* price: the model fades ~90% of singles
+# overs at a ~74% NPV, and persisting the under quote lets the audit grade that
+# fade as a bettable under. Override with MLBE_ODDS_PROPS.
 DEFAULT_PROP_MARKETS = (
     "batter_hits",
+    "batter_singles",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",

@@ -40,17 +40,20 @@ def _bulk(slate: Slate) -> list[dict]:
 
 
 def test_default_props_exclude_the_markets_the_engine_never_bets() -> None:
-    """HR/doubles/runs/RBI produced zero favored picks in 54 slates; singles and
-    ER priced below break-even. Paying a credit each buys prices for no bet."""
+    """HR/doubles/runs/RBI produced zero favored picks in 54 slates; ER is priced
+    below break-even. Paying a credit each buys prices for no bet. Singles IS
+    fetched -- not to buy the over but to capture the under price for the
+    NPV-fade backtest."""
     client = OddsAPIClient("k")
     assert client.prop_markets == DEFAULT_PROP_MARKETS
     for skipped in (
         "batter_home_runs", "batter_doubles", "batter_runs_scored",
-        "batter_rbis", "batter_singles", "pitcher_earned_runs",
+        "batter_rbis", "pitcher_earned_runs",
     ):
         assert skipped not in client.prop_markets
-    # 3 F5 + 5 props = 8 credits per event, down from 14.
-    assert len(client.event_markets()) == 8
+    assert "batter_singles" in client.prop_markets
+    # 3 F5 + 6 props = 9 credits per event.
+    assert len(client.event_markets()) == 9
 
 
 def test_prop_override_is_filtered_to_known_markets() -> None:

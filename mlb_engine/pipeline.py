@@ -1416,6 +1416,7 @@ class Pipeline:
                 evres = evaluate(bet_prob, q)
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
+            rec.opposite_american = evres.best_quote.opposite_american
             rec.ev = evres.ev
             rec.edge = evres.edge
             rec.fair_prob = evres.fair_prob
