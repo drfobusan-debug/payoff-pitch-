@@ -29,6 +29,7 @@ from pathlib import Path
 
 import numpy as np
 
+from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
     GOLD,
     INK,
@@ -45,7 +46,7 @@ from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
 
-_TIER_RANK = {"Strong buy": 0, "Moderate buy": 1}
+_TIER_RANK = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1}
 
 
 # --- interpretation helpers ------------------------------------------------
@@ -208,22 +209,31 @@ def _best_bets_block(gp: GamePreview) -> str:
     return f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
 
 
-def _slate_best_bets_block(previews: list[GamePreview]) -> str:
-    """Every best bet across the slate, strongest first, bold, at the bottom."""
-    rows = [(gp, b) for gp in previews for b in gp.best_bets]
-    rows.sort(key=lambda t: (_TIER_RANK.get(t[1].tier, 9), -(t[1].edge or 0.0)))
+def _slate_best_bets_block(
+    previews: list[GamePreview], recs: list[Recommendation]
+) -> str:
+    """Every buy across the slate, strongest first, bold, at the bottom.
+
+    Built from the full ``recs`` (not ``GamePreview.best_bets``, which the
+    pipeline truncates to the top four per game) so the count is the true number
+    of Strong/Moderate plays and no qualifying bet is silently dropped.
+    """
+    labels = {gp.game_pk: f"{gp.away}@{gp.home}" for gp in previews}
+    rows = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE)]
+    rows.sort(key=lambda r: (_TIER_RANK.get(r.tier.value, 9), -(r.edge or 0.0)))
     if not rows:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
             "<p>The model passes the entire board today — no selection clears the buy threshold.</p></div>"
         )
     items = ""
-    for gp, b in rows:
-        odds = "" if b.odds is None else f" ({b.odds:+.0f})"
-        edge = "" if b.edge is None else f", edge {b.edge * 100:+.1f}%"
+    for r in rows:
+        odds = "" if r.market_american is None else f" ({r.market_american:+.0f})"
+        edge = "" if r.edge is None else f", edge {r.edge * 100:+.1f}%"
+        where = f" ({labels[r.game_pk]})" if r.game_pk in labels else ""
         items += (
-            f"<li><b>{b.selection}{odds}</b> — {market_label(b.market)} "
-            f"({gp.away}@{gp.home}), model {b.model_prob * 100:.0f}%{edge} · <i>{b.tier}</i></li>"
+            f"<li><b>{r.selection}{odds}</b> — {market_label(r.market)}"
+            f"{where}, model {r.model_prob * 100:.0f}%{edge} · <i>{r.tier.value}</i></li>"
         )
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
@@ -347,7 +357,7 @@ def build_preview_report(
         "This is a model preview, not betting advice."
     )
     body = "".join(_game_section(gp, hr_map.get(gp.game_pk, [])) for gp in previews)
-    body += _slate_best_bets_block(previews)
+    body += _slate_best_bets_block(previews, recs or [])
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Regression flags are the gap "
