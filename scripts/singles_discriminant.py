@@ -77,7 +77,7 @@ def _profile(sub: pd.DataFrame, label_a: str, label_b: str, y: np.ndarray) -> No
         rows.append((min(tp, mw, rp), col, xa.mean(), xb.mean(), rp, tp, mw, r))
     rows.sort(key=lambda t: t[0])
     for _, col, ma, mb, rp, tp, mw, r in rows:
-        sig = "***" if min(tp, mw, rp) < 0.05 else ""
+        sig = "***" if max(tp, mw, rp) < 0.05 else ""
         lab = METRIC_LABELS.get(col, col)[:28]
         print(
             f"  {lab:<28} {ma:>11.4f} {mb:>11.4f} {mb - ma:>9.4f} "
