@@ -1,0 +1,1415 @@
+[
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 822946,
+    "matchup": "TEX @ TB",
+    "home": "TB",
+    "away": "TEX",
+    "home_starter": {
+      "name": "Shane McClanahan",
+      "pitches": 387,
+      "k_pct": 0.17272727272727273,
+      "xk_pct": 0.2708165374677002,
+      "bb_pct": 0.06363636363636363,
+      "xbb_pct": 0.036917647491927254,
+      "csw": 0.29198966408268734,
+      "whiff": 0.2553191489361702,
+      "swstr": 0.12403100775193798,
+      "zone_pct": 0.4806201550387597,
+      "xwoba_allowed": 0.3737228915662651,
+      "barrel_allowed": 0.09523809523809523,
+      "dxwoba": 0.058246701090074626,
+      "spin": 2125.9483204134367
+    },
+    "away_starter": {
+      "name": "Cole Winn",
+      "pitches": 192,
+      "k_pct": 0.1896551724137931,
+      "xk_pct": 0.32966666666666655,
+      "bb_pct": 0.034482758620689655,
+      "xbb_pct": 0.04987467345872519,
+      "csw": 0.2916666666666667,
+      "whiff": 0.29357798165137616,
+      "swstr": 0.16666666666666666,
+      "zone_pct": 0.484375,
+      "xwoba_allowed": 0.4262045454545454,
+      "barrel_allowed": 0.1111111111111111,
+      "dxwoba": -0.018239898989899028,
+      "spin": 2369.3802083333335
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.387,
+      "xwoba": 0.349,
+      "dxwoba": -0.038,
+      "xslg": 0.471,
+      "barrel": 0.072,
+      "hot": [
+        {
+          "name": "Victor Mesa Jr.",
+          "points": 86.4
+        },
+        {
+          "name": "Cedric Mullins",
+          "points": 73.5
+        },
+        {
+          "name": "Junior Caminero",
+          "points": 64.2
+        }
+      ],
+      "cold": [
+        {
+          "name": "Hunter Feduccia",
+          "points": 47.5
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 8,
+      "woba": 0.423,
+      "xwoba": 0.353,
+      "dxwoba": -0.069,
+      "xslg": 0.477,
+      "barrel": 0.078,
+      "hot": [
+        {
+          "name": "Cam Cauley",
+          "points": 139.7
+        },
+        {
+          "name": "Wyatt Langford",
+          "points": 139.6
+        },
+        {
+          "name": "Justin Foscue",
+          "points": 132.1
+        }
+      ],
+      "cold": []
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.2802867409090909,
+      "k_pct": 0.22438162544169613,
+      "zone_pct": 0.48484848484848486,
+      "recent_load": 1.0406504065040652,
+      "fatigue": 0.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.34490358035714286,
+      "k_pct": 0.1810344827586207,
+      "zone_pct": 0.46314631463146316,
+      "recent_load": 0.837867247007617,
+      "fatigue": 40.0
+    },
+    "xrd": 0.5,
+    "xrd_sd": 3.54,
+    "total_mean": 7.19,
+    "p_home_win": 0.586,
+    "p_blowout": 0.282,
+    "p_close": 0.341,
+    "park_name": "Tropicana Field",
+    "park_factor": 96.0,
+    "roof": "closed",
+    "wx_summary": null,
+    "wx_hr_mult": 1.0,
+    "home_ml_prob": 0.558,
+    "away_ml_prob": 0.44,
+    "fav_side": "home",
+    "fav_team": "TB",
+    "fav_odds": -180.0,
+    "fav_implied": 0.643,
+    "fav_edge": -0.08670880312668983,
+    "best_bets": []
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 823674,
+    "matchup": "KC @ MIN",
+    "home": "MIN",
+    "away": "KC",
+    "home_starter": {
+      "name": "Bailey Ober",
+      "pitches": 251,
+      "k_pct": 0.22950819672131148,
+      "xk_pct": 0.1913864541832667,
+      "bb_pct": 0.06557377049180328,
+      "xbb_pct": 0.07295752871936663,
+      "csw": 0.2788844621513944,
+      "whiff": 0.20175438596491227,
+      "swstr": 0.09163346613545817,
+      "zone_pct": 0.5338645418326693,
+      "xwoba_allowed": 0.396046511627907,
+      "barrel_allowed": 0.06976744186046512,
+      "dxwoba": 0.003023255813953518,
+      "spin": 2137.3466135458166
+    },
+    "away_starter": {
+      "name": "Noah Cameron",
+      "pitches": 696,
+      "k_pct": 0.20224719101123595,
+      "xk_pct": 0.22075862068965513,
+      "bb_pct": 0.11797752808988764,
+      "xbb_pct": 0.13027916611554996,
+      "csw": 0.27298850574712646,
+      "whiff": 0.2721518987341772,
+      "swstr": 0.1235632183908046,
+      "zone_pct": 0.43948126801152737,
+      "xwoba_allowed": 0.4301196581196581,
+      "barrel_allowed": 0.1,
+      "dxwoba": -0.02488034188034194,
+      "spin": 2178.3847262247837
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.398,
+      "xwoba": 0.34,
+      "dxwoba": -0.058,
+      "xslg": 0.459,
+      "barrel": 0.058,
+      "hot": [
+        {
+          "name": "Alex Jackson",
+          "points": 187.8
+        },
+        {
+          "name": "Austin Martin",
+          "points": 89.3
+        },
+        {
+          "name": "Luke Keaschall",
+          "points": 84.3
+        }
+      ],
+      "cold": []
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.407,
+      "xwoba": 0.372,
+      "dxwoba": -0.035,
+      "xslg": 0.503,
+      "barrel": 0.084,
+      "hot": [
+        {
+          "name": "Tyler Tolbert",
+          "points": 162.5
+        },
+        {
+          "name": "Josh Rojas",
+          "points": 97.5
+        },
+        {
+          "name": "Isaac Collins",
+          "points": 94.5
+        }
+      ],
+      "cold": [
+        {
+          "name": "John Rave",
+          "points": 190.9
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.2832820427350427,
+      "k_pct": 0.22203389830508474,
+      "zone_pct": 0.45705196182396607,
+      "recent_load": 0.7613516367476241,
+      "fatigue": 40.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.3606518168316832,
+      "k_pct": 0.188212927756654,
+      "zone_pct": 0.4588688946015424,
+      "recent_load": 0.6298200514138816,
+      "fatigue": 20.0
+    },
+    "xrd": 1.27,
+    "xrd_sd": 4.6,
+    "total_mean": 11.03,
+    "p_home_win": 0.652,
+    "p_blowout": 0.414,
+    "p_close": 0.26,
+    "park_name": "Target Field",
+    "park_factor": 100.0,
+    "roof": "open",
+    "wx_summary": "86F 62% wind 8mph (3 out to CF)",
+    "wx_hr_mult": 1.0824053770991342,
+    "home_ml_prob": 0.558,
+    "away_ml_prob": 0.44,
+    "fav_side": "home",
+    "fav_team": "MIN",
+    "fav_odds": -130.0,
+    "fav_implied": 0.565,
+    "fav_edge": -0.010589334596275868,
+    "best_bets": [
+      {
+        "selection": "MIN ML",
+        "market": "game_ml",
+        "odds": -130.0,
+        "model_prob": 0.5583126550868487,
+        "edge": -0.010589334596275868,
+        "ev": -0.012216071769421577,
+        "tier": "Moderate buy"
+      }
+    ]
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 824568,
+    "matchup": "NYY @ CWS",
+    "home": "CWS",
+    "away": "NYY",
+    "home_starter": {
+      "name": "Sean Burke",
+      "pitches": 661,
+      "k_pct": 0.3313953488372093,
+      "xk_pct": 0.42,
+      "bb_pct": 0.05813953488372093,
+      "xbb_pct": 0.02155796335447497,
+      "csw": 0.3358547655068079,
+      "whiff": 0.3125,
+      "swstr": 0.1664145234493192,
+      "zone_pct": 0.5151515151515151,
+      "xwoba_allowed": 0.34337623762376235,
+      "barrel_allowed": 0.0784313725490196,
+      "dxwoba": -0.004662978062512146,
+      "spin": 2558.3515151515153
+    },
+    "away_starter": {
+      "name": "Ryan Weathers",
+      "pitches": 615,
+      "k_pct": 0.271523178807947,
+      "xk_pct": 0.3084065040650405,
+      "bb_pct": 0.0728476821192053,
+      "xbb_pct": 0.09576217090892936,
+      "csw": 0.2926829268292683,
+      "whiff": 0.30564784053156147,
+      "swstr": 0.14959349593495935,
+      "zone_pct": 0.44227642276422763,
+      "xwoba_allowed": 0.4311212121212122,
+      "barrel_allowed": 0.050505050505050504,
+      "dxwoba": -0.03554545454545449,
+      "spin": 2372.7609756097563
+    },
+    "home_lineup": {
+      "n": 8,
+      "woba": 0.386,
+      "xwoba": 0.386,
+      "dxwoba": -0.0,
+      "xslg": 0.52,
+      "barrel": 0.087,
+      "hot": [
+        {
+          "name": "Randal Grichuk",
+          "points": 71.5
+        },
+        {
+          "name": "Chase Meidroth",
+          "points": 67.2
+        },
+        {
+          "name": "Luisangel Acu\u00f1a",
+          "points": 53.6
+        }
+      ],
+      "cold": [
+        {
+          "name": "Edgar Quero",
+          "points": 236.1
+        },
+        {
+          "name": "Miguel Vargas",
+          "points": 38.9
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.371,
+      "xwoba": 0.379,
+      "dxwoba": 0.008,
+      "xslg": 0.511,
+      "barrel": 0.088,
+      "hot": [
+        {
+          "name": "Paul Goldschmidt",
+          "points": 74.0
+        },
+        {
+          "name": "Spencer Jones",
+          "points": 35.6
+        }
+      ],
+      "cold": [
+        {
+          "name": "Austin Wells",
+          "points": 81.4
+        },
+        {
+          "name": "Trent Grisham",
+          "points": 60.9
+        },
+        {
+          "name": "Ryan McMahon",
+          "points": 43.2
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.26765448908296946,
+      "k_pct": 0.25,
+      "zone_pct": 0.4967741935483871,
+      "recent_load": 1.623404255319149,
+      "fatigue": 0.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.29971776724137933,
+      "k_pct": 0.23299319727891157,
+      "zone_pct": 0.45157657657657657,
+      "recent_load": 1.3228346456692914,
+      "fatigue": 20.0
+    },
+    "xrd": 1.31,
+    "xrd_sd": 3.22,
+    "total_mean": 5.6,
+    "p_home_win": 0.683,
+    "p_blowout": 0.272,
+    "p_close": 0.362,
+    "park_name": "Rate Field",
+    "park_factor": 101.0,
+    "roof": "open",
+    "wx_summary": "78F 75% wind 8mph (6 in to CF)",
+    "wx_hr_mult": 0.9556346520805715,
+    "home_ml_prob": 0.558,
+    "away_ml_prob": 0.438,
+    "fav_side": "home",
+    "fav_team": "CWS",
+    "fav_odds": -110.0,
+    "fav_implied": 0.524,
+    "fav_edge": 0.02426247587537922,
+    "best_bets": [
+      {
+        "selection": "NYY ML",
+        "market": "game_ml",
+        "odds": 105.0,
+        "model_prob": 0.43788854605148103,
+        "edge": -0.06191788058421388,
+        "ev": -0.10232848059446403,
+        "tier": "Moderate buy"
+      }
+    ]
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 823023,
+    "matchup": "CHC @ STL",
+    "home": "STL",
+    "away": "CHC",
+    "home_starter": {
+      "name": "Andre Pallante",
+      "pitches": 560,
+      "k_pct": 0.14285714285714285,
+      "xk_pct": 0.08,
+      "bb_pct": 0.05442176870748299,
+      "xbb_pct": 0.11909429978888103,
+      "csw": 0.23035714285714284,
+      "whiff": 0.18359375,
+      "swstr": 0.08392857142857142,
+      "zone_pct": 0.48214285714285715,
+      "xwoba_allowed": 0.3083305084745762,
+      "barrel_allowed": 0.0423728813559322,
+      "dxwoba": -0.02811016949152545,
+      "spin": 2270.1464285714287
+    },
+    "away_starter": {
+      "name": "Javier Assad",
+      "pitches": 361,
+      "k_pct": 0.18888888888888888,
+      "xk_pct": 0.11860941828254844,
+      "bb_pct": 0.07777777777777778,
+      "xbb_pct": 0.06859791332263245,
+      "csw": 0.2659279778393352,
+      "whiff": 0.14556962025316456,
+      "swstr": 0.06371191135734072,
+      "zone_pct": 0.5280898876404494,
+      "xwoba_allowed": 0.42501538461538463,
+      "barrel_allowed": 0.12307692307692308,
+      "dxwoba": -0.00036923076923078835,
+      "spin": 2075.6629213483147
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.33,
+      "xwoba": 0.348,
+      "dxwoba": 0.019,
+      "xslg": 0.47,
+      "barrel": 0.071,
+      "hot": [],
+      "cold": [
+        {
+          "name": "Blaze Jordan",
+          "points": 82.0
+        },
+        {
+          "name": "Nathan Church",
+          "points": 68.1
+        },
+        {
+          "name": "Alec Burleson",
+          "points": 43.0
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.435,
+      "xwoba": 0.356,
+      "dxwoba": -0.078,
+      "xslg": 0.481,
+      "barrel": 0.071,
+      "hot": [
+        {
+          "name": "Pete Crow-Armstrong",
+          "points": 171.2
+        },
+        {
+          "name": "Michael Conforto",
+          "points": 137.8
+        },
+        {
+          "name": "Seiya Suzuki",
+          "points": 135.1
+        }
+      ],
+      "cold": []
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.3099530438247012,
+      "k_pct": 0.2365079365079365,
+      "zone_pct": 0.45652173913043476,
+      "recent_load": 1.512218963831867,
+      "fatigue": 0.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.3111009528301887,
+      "k_pct": 0.23905109489051096,
+      "zone_pct": 0.47880299251870323,
+      "recent_load": 1.2158808933002483,
+      "fatigue": 20.0
+    },
+    "xrd": -0.9,
+    "xrd_sd": 4.44,
+    "total_mean": 9.75,
+    "p_home_win": 0.437,
+    "p_blowout": 0.413,
+    "p_close": 0.264,
+    "park_name": "Busch Stadium",
+    "park_factor": 98.0,
+    "roof": "open",
+    "wx_summary": "85F 56% wind 2mph (1 in to CF)",
+    "wx_hr_mult": 1.0361033812127671,
+    "home_ml_prob": 0.44,
+    "away_ml_prob": 0.555,
+    "fav_side": "away",
+    "fav_team": "CHC",
+    "fav_odds": 100.0,
+    "fav_implied": 0.5,
+    "fav_edge": 0.05031300798093585,
+    "best_bets": []
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 824488,
+    "matchup": "PIT @ CIN",
+    "home": "CIN",
+    "away": "PIT",
+    "home_starter": {
+      "name": "Rhett Lowder",
+      "pitches": 511,
+      "k_pct": 0.1917808219178082,
+      "xk_pct": 0.17479060665362023,
+      "bb_pct": 0.08904109589041095,
+      "xbb_pct": 0.05198091108048955,
+      "csw": 0.26810176125244617,
+      "whiff": 0.20816326530612245,
+      "swstr": 0.09980430528375733,
+      "zone_pct": 0.5266272189349113,
+      "xwoba_allowed": 0.4439795918367347,
+      "barrel_allowed": 0.12121212121212122,
+      "dxwoba": -0.02925273139558865,
+      "spin": 2353.037475345168
+    },
+    "away_starter": {
+      "name": "Yohan Ram\u00edrez",
+      "pitches": 279,
+      "k_pct": 0.24285714285714285,
+      "xk_pct": 0.17312544802867372,
+      "bb_pct": 0.18571428571428572,
+      "xbb_pct": 0.11281240751414884,
+      "csw": 0.26523297491039427,
+      "whiff": 0.2396694214876033,
+      "swstr": 0.1039426523297491,
+      "zone_pct": 0.44765342960288806,
+      "xwoba_allowed": 0.3353846153846154,
+      "barrel_allowed": 0.05128205128205128,
+      "dxwoba": 0.008461538461538465,
+      "spin": 2450.1516245487364
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.387,
+      "xwoba": 0.388,
+      "dxwoba": 0.001,
+      "xslg": 0.523,
+      "barrel": 0.086,
+      "hot": [
+        {
+          "name": "Dane Myers",
+          "points": 124.6
+        },
+        {
+          "name": "Eugenio Su\u00e1rez",
+          "points": 103.1
+        },
+        {
+          "name": "Sal Stewart",
+          "points": 58.7
+        }
+      ],
+      "cold": [
+        {
+          "name": "Matt McLain",
+          "points": 208.9
+        },
+        {
+          "name": "JJ Bleday",
+          "points": 70.2
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 8,
+      "woba": 0.457,
+      "xwoba": 0.399,
+      "dxwoba": -0.058,
+      "xslg": 0.538,
+      "barrel": 0.101,
+      "hot": [
+        {
+          "name": "Esmerlyn Valdez",
+          "points": 160.1
+        },
+        {
+          "name": "Nick Gonzales",
+          "points": 137.1
+        },
+        {
+          "name": "Jake Mangum",
+          "points": 71.8
+        }
+      ],
+      "cold": []
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.3067669768518518,
+      "k_pct": 0.20818505338078291,
+      "zone_pct": 0.48578199052132703,
+      "recent_load": 1.5683962264150944,
+      "fatigue": 40.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.329055027131783,
+      "k_pct": 0.21384615384615385,
+      "zone_pct": 0.47641073080481033,
+      "recent_load": 1.488138686131387,
+      "fatigue": 80.0
+    },
+    "xrd": -0.7,
+    "xrd_sd": 4.23,
+    "total_mean": 9.55,
+    "p_home_win": 0.458,
+    "p_blowout": 0.355,
+    "p_close": 0.296,
+    "park_name": "Great American Ball Park",
+    "park_factor": 104.0,
+    "roof": "open",
+    "wx_summary": "84F 44% wind 3mph (3 in to CF)",
+    "wx_hr_mult": 1.003352954419755,
+    "home_ml_prob": 0.48,
+    "away_ml_prob": 0.529,
+    "fav_side": "away",
+    "fav_team": "PIT",
+    "fav_odds": -120.0,
+    "fav_implied": 0.545,
+    "fav_edge": -0.018623805413855776,
+    "best_bets": [
+      {
+        "selection": "Jacob Gonzalez H o0.5",
+        "market": "batter_h",
+        "odds": -119.0,
+        "model_prob": 0.6287711162604214,
+        "edge": 0.11959496110139167,
+        "ev": 0.15715020555489323,
+        "tier": "Strong buy"
+      },
+      {
+        "selection": "Noelvi Marte H o0.5",
+        "market": "batter_h",
+        "odds": -119.0,
+        "model_prob": 0.6263796669195206,
+        "edge": 0.11464287468758294,
+        "ev": 0.1527491349191179,
+        "tier": "Strong buy"
+      },
+      {
+        "selection": "Tyler Stephenson H o0.5",
+        "market": "batter_h",
+        "odds": -128.0,
+        "model_prob": 0.6461361449352131,
+        "edge": 0.11372758235639668,
+        "ev": 0.15093000816584834,
+        "tier": "Strong buy"
+      },
+      {
+        "selection": "Over 7.5",
+        "market": "game_total",
+        "odds": -113.0,
+        "model_prob": 0.6061694992109574,
+        "edge": 0.08789229255207998,
+        "ev": 0.14260268435339762,
+        "tier": "Strong buy"
+      }
+    ]
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 823595,
+    "matchup": "MIA @ NYM",
+    "home": "NYM",
+    "away": "MIA",
+    "home_starter": {
+      "name": "Nolan McLean",
+      "pitches": 579,
+      "k_pct": 0.29605263157894735,
+      "xk_pct": 0.3459447322970638,
+      "bb_pct": 0.09868421052631579,
+      "xbb_pct": 0.08681877241128114,
+      "csw": 0.3160621761658031,
+      "whiff": 0.2873134328358209,
+      "swstr": 0.13298791018998274,
+      "zone_pct": 0.4982698961937716,
+      "xwoba_allowed": 0.3916703296703297,
+      "barrel_allowed": 0.08695652173913043,
+      "dxwoba": -0.013220974677496389,
+      "spin": 2573.2629757785467
+    },
+    "away_starter": {
+      "name": "Eury P\u00e9rez",
+      "pitches": 542,
+      "k_pct": 0.25,
+      "xk_pct": 0.19335055350553498,
+      "bb_pct": 0.09558823529411764,
+      "xbb_pct": 0.07444667483413372,
+      "csw": 0.2564575645756458,
+      "whiff": 0.2579505300353357,
+      "swstr": 0.13468634686346864,
+      "zone_pct": 0.48154981549815495,
+      "xwoba_allowed": 0.2600459770114943,
+      "barrel_allowed": 0.034482758620689655,
+      "dxwoba": 0.0014252873563218582,
+      "spin": 2558.7435424354244
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.361,
+      "xwoba": 0.358,
+      "dxwoba": -0.003,
+      "xslg": 0.483,
+      "barrel": 0.071,
+      "hot": [
+        {
+          "name": "A.J. Ewing",
+          "points": 102.0
+        },
+        {
+          "name": "Francisco Alvarez",
+          "points": 76.6
+        },
+        {
+          "name": "Carson Benge",
+          "points": 35.1
+        }
+      ],
+      "cold": [
+        {
+          "name": "Jorge Polanco",
+          "points": 68.6
+        },
+        {
+          "name": "Brett Baty",
+          "points": 66.5
+        },
+        {
+          "name": "Francisco Lindor",
+          "points": 30.3
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.407,
+      "xwoba": 0.384,
+      "dxwoba": -0.024,
+      "xslg": 0.518,
+      "barrel": 0.091,
+      "hot": [
+        {
+          "name": "Otto Lopez",
+          "points": 83.7
+        },
+        {
+          "name": "Liam Hicks",
+          "points": 65.6
+        },
+        {
+          "name": "Griffin Conine",
+          "points": 63.3
+        }
+      ],
+      "cold": [
+        {
+          "name": "Graham Pauley",
+          "points": 102.1
+        },
+        {
+          "name": "Jakob Marsee",
+          "points": 30.9
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.2831192272727273,
+      "k_pct": 0.21428571428571427,
+      "zone_pct": 0.4557291666666667,
+      "recent_load": 1.2942708333333335,
+      "fatigue": 20.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.33034611538461545,
+      "k_pct": 0.2351851851851852,
+      "zone_pct": 0.4407185628742515,
+      "recent_load": 1.3161676646706588,
+      "fatigue": 100.0
+    },
+    "xrd": 0.08,
+    "xrd_sd": 3.64,
+    "total_mean": 6.77,
+    "p_home_win": 0.546,
+    "p_blowout": 0.292,
+    "p_close": 0.339,
+    "park_name": "Citi Field",
+    "park_factor": 97.0,
+    "roof": "open",
+    "wx_summary": "73F 86% wind 1mph (1 out to CF)",
+    "wx_hr_mult": 1.0209602344372937,
+    "home_ml_prob": 0.539,
+    "away_ml_prob": 0.464,
+    "fav_side": "home",
+    "fav_team": "NYM",
+    "fav_odds": -115.0,
+    "fav_implied": 0.535,
+    "fav_edge": -0.0033801020235515455,
+    "best_bets": [
+      {
+        "selection": "F5 Under 4.5",
+        "market": "f5_total",
+        "odds": 100.0,
+        "model_prob": 0.6071769181289448,
+        "edge": 0.13070266905071737,
+        "ev": 0.21435383625788962,
+        "tier": "Strong buy"
+      },
+      {
+        "selection": "Under 8.5",
+        "market": "game_total",
+        "odds": -112.0,
+        "model_prob": 0.6260444518411084,
+        "edge": 0.11603710337264694,
+        "ev": 0.18501271241352646,
+        "tier": "Strong buy"
+      },
+      {
+        "selection": "MIA F5 ML",
+        "market": "f5_ml",
+        "odds": 105.0,
+        "model_prob": 0.5116883116883116,
+        "edge": 0.05089744955013681,
+        "ev": 0.04896103896103876,
+        "tier": "Moderate buy"
+      },
+      {
+        "selection": "NYM ML",
+        "market": "game_ml",
+        "odds": -115.0,
+        "model_prob": 0.5391238508750771,
+        "edge": -0.0033801020235515455,
+        "ev": 0.007927199462100576,
+        "tier": "Moderate buy"
+      }
+    ]
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 824894,
+    "matchup": "WSH @ ATL",
+    "home": "ATL",
+    "away": "WSH",
+    "home_starter": {
+      "name": "Grant Holmes",
+      "pitches": 476,
+      "k_pct": 0.18032786885245902,
+      "xk_pct": 0.14304201680672252,
+      "bb_pct": 0.09836065573770492,
+      "xbb_pct": 0.08469142117589054,
+      "csw": 0.2542016806722689,
+      "whiff": 0.21777777777777776,
+      "swstr": 0.10294117647058823,
+      "zone_pct": 0.49894736842105264,
+      "xwoba_allowed": 0.3534022988505747,
+      "barrel_allowed": 0.06818181818181818,
+      "dxwoba": 0.03408411703239289,
+      "spin": 2422.997894736842
+    },
+    "away_starter": {
+      "name": "Jake Irvin",
+      "pitches": 0,
+      "k_pct": 0.22,
+      "xk_pct": 0.21999999999999995,
+      "bb_pct": 0.08,
+      "xbb_pct": 0.08,
+      "csw": 0.28,
+      "whiff": 0.24,
+      "swstr": 0.11,
+      "zone_pct": 0.48,
+      "xwoba_allowed": 0.25,
+      "barrel_allowed": 0.08,
+      "dxwoba": 0.0,
+      "spin": null
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.34,
+      "xwoba": 0.332,
+      "dxwoba": -0.008,
+      "xslg": 0.449,
+      "barrel": 0.079,
+      "hot": [
+        {
+          "name": "Ozzie Albies",
+          "points": 93.0
+        },
+        {
+          "name": "Dominic Smith",
+          "points": 59.2
+        },
+        {
+          "name": "Jim Jarvis",
+          "points": 47.4
+        }
+      ],
+      "cold": [
+        {
+          "name": "Ronald Acu\u00f1a Jr.",
+          "points": 216.3
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.435,
+      "xwoba": 0.384,
+      "dxwoba": -0.051,
+      "xslg": 0.518,
+      "barrel": 0.089,
+      "hot": [
+        {
+          "name": "CJ Abrams",
+          "points": 111.8
+        },
+        {
+          "name": "Jos\u00e9 Tena",
+          "points": 94.2
+        },
+        {
+          "name": "Nasim Nu\u00f1ez",
+          "points": 91.2
+        }
+      ],
+      "cold": [
+        {
+          "name": "James Wood",
+          "points": 33.7
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.34886084469696965,
+      "k_pct": 0.23716012084592145,
+      "zone_pct": 0.4642184557438795,
+      "recent_load": 1.2109158186864015,
+      "fatigue": 40.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.34089406437768244,
+      "k_pct": 0.17918088737201365,
+      "zone_pct": 0.43784994400895855,
+      "recent_load": 1.5877094972067038,
+      "fatigue": 100.0
+    },
+    "xrd": -0.45,
+    "xrd_sd": 4.59,
+    "total_mean": 10.49,
+    "p_home_win": 0.501,
+    "p_blowout": 0.406,
+    "p_close": 0.266,
+    "park_name": "Truist Park",
+    "park_factor": 101.0,
+    "roof": "open",
+    "wx_summary": "85F 43% wind 8mph (3 in to CF)",
+    "wx_hr_mult": 1.0048568735810917,
+    "home_ml_prob": 0.502,
+    "away_ml_prob": 0.502,
+    "fav_side": "home",
+    "fav_team": "ATL",
+    "fav_odds": -121.0,
+    "fav_implied": 0.548,
+    "fav_edge": -0.043714149664986435,
+    "best_bets": [
+      {
+        "selection": "ATL -1.5",
+        "market": "game_rl",
+        "odds": 172.0,
+        "model_prob": 0.41504854368932037,
+        "edge": 0.04676174814387263,
+        "ev": 0.1289320388349513,
+        "tier": "Moderate buy"
+      }
+    ]
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 824974,
+    "matchup": "BOS @ ATH",
+    "home": "ATH",
+    "away": "BOS",
+    "home_starter": {
+      "name": "Mason Barnett",
+      "pitches": 260,
+      "k_pct": 0.14516129032258066,
+      "xk_pct": 0.1356923076923076,
+      "bb_pct": 0.12903225806451613,
+      "xbb_pct": 0.11359132480130898,
+      "csw": 0.2653846153846154,
+      "whiff": 0.18518518518518517,
+      "swstr": 0.07692307692307693,
+      "zone_pct": 0.4609375,
+      "xwoba_allowed": 0.4224772727272727,
+      "barrel_allowed": 0.11363636363636363,
+      "dxwoba": -0.03661363636363629,
+      "spin": 2405.734375
+    },
+    "away_starter": {
+      "name": "Sonny Gray",
+      "pitches": 606,
+      "k_pct": 0.24,
+      "xk_pct": 0.23502970297029696,
+      "bb_pct": 0.06857142857142857,
+      "xbb_pct": 0.05588076640481385,
+      "csw": 0.2854785478547855,
+      "whiff": 0.23508771929824562,
+      "swstr": 0.11056105610561057,
+      "zone_pct": 0.466996699669967,
+      "xwoba_allowed": 0.3348264462809918,
+      "barrel_allowed": 0.06611570247933884,
+      "dxwoba": -0.015173553719008248,
+      "spin": 2465.526402640264
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.365,
+      "xwoba": 0.353,
+      "dxwoba": -0.012,
+      "xslg": 0.476,
+      "barrel": 0.062,
+      "hot": [
+        {
+          "name": "Donovan Walton",
+          "points": 67.9
+        },
+        {
+          "name": "Jacob Wilson",
+          "points": 43.4
+        },
+        {
+          "name": "Tyler Soderstrom",
+          "points": 43.2
+        }
+      ],
+      "cold": [
+        {
+          "name": "Nick Kurtz",
+          "points": 85.9
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.388,
+      "xwoba": 0.361,
+      "dxwoba": -0.027,
+      "xslg": 0.488,
+      "barrel": 0.082,
+      "hot": [
+        {
+          "name": "Caleb Durbin",
+          "points": 160.0
+        },
+        {
+          "name": "Ceddanne Rafaela",
+          "points": 93.2
+        },
+        {
+          "name": "Willson Contreras",
+          "points": 43.8
+        }
+      ],
+      "cold": [
+        {
+          "name": "Jarren Duran",
+          "points": 113.3
+        },
+        {
+          "name": "Wilyer Abreu",
+          "points": 35.6
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.3723560076335878,
+      "k_pct": 0.1996904024767802,
+      "zone_pct": 0.45951417004048584,
+      "recent_load": 1.3943377148634986,
+      "fatigue": 0.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.24705318333333334,
+      "k_pct": 0.2367549668874172,
+      "zone_pct": 0.5425414364640884,
+      "recent_load": 1.1447513812154697,
+      "fatigue": 0.0
+    },
+    "xrd": -4.29,
+    "xrd_sd": 5.4,
+    "total_mean": 12.07,
+    "p_home_win": 0.22,
+    "p_blowout": 0.557,
+    "p_close": 0.189,
+    "park_name": "Sutter Health Park",
+    "park_factor": 100.0,
+    "roof": "open",
+    "wx_summary": "89F 27% wind 9mph (8 out to CF)",
+    "wx_hr_mult": 1.1460867310966978,
+    "home_ml_prob": 0.407,
+    "away_ml_prob": 0.585,
+    "fav_side": "away",
+    "fav_team": "BOS",
+    "fav_odds": -182.0,
+    "fav_implied": 0.645,
+    "fav_edge": -0.06595156722938667,
+    "best_bets": []
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 823271,
+    "matchup": "SF @ SD",
+    "home": "SD",
+    "away": "SF",
+    "home_starter": {
+      "name": "JP Sears",
+      "pitches": 434,
+      "k_pct": 0.19827586206896552,
+      "xk_pct": 0.09652534562211965,
+      "bb_pct": 0.07758620689655173,
+      "xbb_pct": 0.1283705117487339,
+      "csw": 0.23963133640552994,
+      "whiff": 0.20588235294117646,
+      "swstr": 0.0967741935483871,
+      "zone_pct": 0.4700460829493088,
+      "xwoba_allowed": 0.3677926829268292,
+      "barrel_allowed": 0.08536585365853659,
+      "dxwoba": 0.009358947987070154,
+      "spin": 1981.426267281106
+    },
+    "away_starter": {
+      "name": "Robbie Ray",
+      "pitches": 552,
+      "k_pct": 0.17532467532467533,
+      "xk_pct": 0.0840144927536231,
+      "bb_pct": 0.11688311688311688,
+      "xbb_pct": 0.11417771494012553,
+      "csw": 0.22644927536231885,
+      "whiff": 0.2366412213740458,
+      "swstr": 0.11231884057971014,
+      "zone_pct": 0.44464609800362975,
+      "xwoba_allowed": 0.29203703703703704,
+      "barrel_allowed": 0.027777777777777776,
+      "dxwoba": 0.0022222222222222365,
+      "spin": 2112.1397459165155
+    },
+    "home_lineup": {
+      "n": 9,
+      "woba": 0.421,
+      "xwoba": 0.381,
+      "dxwoba": -0.04,
+      "xslg": 0.515,
+      "barrel": 0.087,
+      "hot": [
+        {
+          "name": "Ty France",
+          "points": 113.2
+        },
+        {
+          "name": "Luis Rengifo",
+          "points": 101.1
+        },
+        {
+          "name": "Luis Campusano",
+          "points": 91.7
+        }
+      ],
+      "cold": [
+        {
+          "name": "Jase Bowen",
+          "points": 54.2
+        },
+        {
+          "name": "Xander Bogaerts",
+          "points": 48.6
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.37,
+      "xwoba": 0.361,
+      "dxwoba": -0.008,
+      "xslg": 0.488,
+      "barrel": 0.078,
+      "hot": [
+        {
+          "name": "Jung Hoo Lee",
+          "points": 65.1
+        },
+        {
+          "name": "Luis Arraez",
+          "points": 59.9
+        },
+        {
+          "name": "Willy Adames",
+          "points": 56.7
+        }
+      ],
+      "cold": [
+        {
+          "name": "Daniel Susac",
+          "points": 91.5
+        },
+        {
+          "name": "Grant McCray",
+          "points": 37.0
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.24941583474576273,
+      "k_pct": 0.23754152823920266,
+      "zone_pct": 0.4508108108108108,
+      "recent_load": 0.9552238805970149,
+      "fatigue": 40.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.2815819656862745,
+      "k_pct": 0.2113970588235294,
+      "zone_pct": 0.468557336621455,
+      "recent_load": 1.5432399512789283,
+      "fatigue": 60.0
+    },
+    "xrd": -0.05,
+    "xrd_sd": 4.13,
+    "total_mean": 8.72,
+    "p_home_win": 0.51,
+    "p_blowout": 0.355,
+    "p_close": 0.295,
+    "park_name": "Petco Park",
+    "park_factor": 95.0,
+    "roof": "open",
+    "wx_summary": "73F 81% wind 6mph (3 out to CF)",
+    "wx_hr_mult": 1.0480234918037332,
+    "home_ml_prob": 0.502,
+    "away_ml_prob": 0.5,
+    "fav_side": "home",
+    "fav_team": "SD",
+    "fav_odds": -166.0,
+    "fav_implied": 0.624,
+    "fav_edge": -0.12382079324515716,
+    "best_bets": []
+  },
+  {
+    "game_date": "2026-07-30",
+    "game_pk": 823921,
+    "matchup": "SEA @ LAD",
+    "home": "LAD",
+    "away": "SEA",
+    "home_starter": {
+      "name": "Roki Sasaki",
+      "pitches": 525,
+      "k_pct": 0.23255813953488372,
+      "xk_pct": 0.30447619047619034,
+      "bb_pct": 0.10077519379844961,
+      "xbb_pct": 0.07702726091669308,
+      "csw": 0.2876190476190476,
+      "whiff": 0.30597014925373134,
+      "swstr": 0.15619047619047619,
+      "zone_pct": 0.46095238095238095,
+      "xwoba_allowed": 0.36144186046511634,
+      "barrel_allowed": 0.12790697674418605,
+      "dxwoba": -0.06646511627906976,
+      "spin": 1732.8342857142857
+    },
+    "away_starter": {
+      "name": "Bryan Woo",
+      "pitches": 561,
+      "k_pct": 0.23972602739726026,
+      "xk_pct": 0.22035294117647056,
+      "bb_pct": 0.06164383561643835,
+      "xbb_pct": 0.05356714111037625,
+      "csw": 0.26737967914438504,
+      "whiff": 0.25510204081632654,
+      "swstr": 0.13368983957219252,
+      "zone_pct": 0.49910873440285203,
+      "xwoba_allowed": 0.37050495049504956,
+      "barrel_allowed": 0.04950495049504951,
+      "dxwoba": -0.04236633663366335,
+      "spin": 2272.836007130125
+    },
+    "home_lineup": {
+      "n": 8,
+      "woba": 0.393,
+      "xwoba": 0.378,
+      "dxwoba": -0.015,
+      "xslg": 0.51,
+      "barrel": 0.077,
+      "hot": [
+        {
+          "name": "Tommy Edman",
+          "points": 78.4
+        },
+        {
+          "name": "Max Muncy",
+          "points": 72.5
+        },
+        {
+          "name": "Andy Pages",
+          "points": 37.6
+        }
+      ],
+      "cold": [
+        {
+          "name": "Kyle Tucker",
+          "points": 71.7
+        },
+        {
+          "name": "Teoscar Hern\u00e1ndez",
+          "points": 49.3
+        }
+      ]
+    },
+    "away_lineup": {
+      "n": 9,
+      "woba": 0.356,
+      "xwoba": 0.374,
+      "dxwoba": 0.019,
+      "xslg": 0.505,
+      "barrel": 0.085,
+      "hot": [
+        {
+          "name": "Weston Wilson",
+          "points": 114.7
+        },
+        {
+          "name": "Randy Arozarena",
+          "points": 47.2
+        }
+      ],
+      "cold": [
+        {
+          "name": "Colt Emerson",
+          "points": 106.9
+        },
+        {
+          "name": "Luke Raley",
+          "points": 102.4
+        },
+        {
+          "name": "Julio Rodr\u00edguez",
+          "points": 78.6
+        }
+      ]
+    },
+    "home_pen": {
+      "xwoba_allowed": 0.3480341744186047,
+      "k_pct": 0.24468085106382978,
+      "zone_pct": 0.4647058823529412,
+      "recent_load": 0.9462209302325583,
+      "fatigue": 0.0
+    },
+    "away_pen": {
+      "xwoba_allowed": 0.2946848871794872,
+      "k_pct": 0.24903474903474904,
+      "zone_pct": 0.5237467018469657,
+      "recent_load": 1.405511811023622,
+      "fatigue": 20.0
+    },
+    "xrd": -1.97,
+    "xrd_sd": 4.22,
+    "total_mean": 9.94,
+    "p_home_win": 0.31,
+    "p_blowout": 0.43,
+    "p_close": 0.239,
+    "park_name": "Dodger Stadium",
+    "park_factor": 98.0,
+    "roof": "open",
+    "wx_summary": "77F 67% wind 8mph (5 out to CF)",
+    "wx_hr_mult": 1.0778995173313912,
+    "home_ml_prob": 0.438,
+    "away_ml_prob": 0.558,
+    "fav_side": "away",
+    "fav_team": "SEA",
+    "fav_odds": 124.0,
+    "fav_implied": 0.446,
+    "fav_edge": 0.10920283097702455,
+    "best_bets": [
+      {
+        "selection": "LAD ML",
+        "market": "game_ml",
+        "odds": -136.0,
+        "model_prob": 0.438366656524735,
+        "edge": -0.14581413443571706,
+        "ev": -0.2393049195600186,
+        "tier": "Moderate buy"
+      }
+    ]
+  }
+]
