@@ -222,15 +222,30 @@ def build_html(day: Date, rows: list[dict], window: str) -> str:
 
 
 def build_narration(day: Date, rows: list[dict]) -> str:
-    top = rows[0]
-    calm = rows[-1]
-    parts = [
-        f"Payoff Pitch volatility report for {day:%A, %B %-d}.",
+    intro = (
+        f"Payoff Pitch volatility report for {day:%A, %B %-d}. "
         "This is the collapse index: the leading indicators of a multi-run inning, "
-        "walks and loud contact net of command, scored for every starter and bullpen.",
-        f"The most volatile game on the board is {top['matchup']}, "
-        f"at a fireworks score of {top['volatility']:+.1f} — lean the over and the plus one and a half dog.",
-    ]
+        "walks and loud contact net of command, scored for every starter and bullpen."
+    )
+    if not rows:
+        return intro + " No games could be scored today."
+
+    top = rows[0]
+    parts = [intro]
+    # Only pitch the Over/dog when the top game actually clears the volatility
+    # band used in the written report; otherwise describe the board honestly.
+    if top["volatility"] >= 6:
+        parts.append(
+            f"The most volatile game on the board is {top['matchup']}, "
+            f"at a fireworks score of {top['volatility']:+.1f} — "
+            "lean the over and the plus one and a half dog."
+        )
+    else:
+        parts.append(
+            f"No game clears the fireworks threshold today; the most volatile is "
+            f"{top['matchup']} at only {top['volatility']:+.1f}, so there is no "
+            "over lean from volatility alone."
+        )
     hi = [r for r in rows if r["volatility"] >= 6]
     if len(hi) > 1:
         parts.append(
@@ -238,10 +253,13 @@ def build_narration(day: Date, rows: list[dict]) -> str:
             + ", ".join(r["matchup"] for r in hi[1:])
             + "."
         )
-    parts.append(
-        f"The calmest, most collapse-resistant game is {calm['matchup']}, "
-        f"at {calm['volatility']:+.1f} — unders and laying the run line are safer there."
-    )
+    calm = rows[-1]
+    # With a single game, top and calm are the same row — don't describe it twice.
+    if calm is not top and calm["volatility"] <= -4:
+        parts.append(
+            f"The calmest, most collapse-resistant game is {calm['matchup']}, "
+            f"at {calm['volatility']:+.1f} — unders and laying the run line are safer there."
+        )
     parts.append(
         "Remember this measures variance, not edge: a volatile game is only a bet "
         "when the price is wrong."
