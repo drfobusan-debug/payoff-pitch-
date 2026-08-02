@@ -1342,10 +1342,17 @@ class Pipeline:
         for stat, sl in lines.items():
             arr = pit[stat].astype(float)
             for line in sl:
+                gate = None
+                if stat == "K" and line > self.cfg.pitcher_k_max_buy_line:
+                    gate = (
+                        f"pitcher_k o{line} above buy cap "
+                        f"{self.cfg.pitcher_k_max_buy_line}"
+                    )
                 out.append(self._mk(
                     game, m, "pitcher", f"pitcher_{stat.lower()}",
                     keys.pitcher_prop(pitcher.name, label[stat], line), p_over(arr, line),
                     line=line, player_id=pitcher.mlbam_id, stat=stat, side="over", quotes=quotes,
+                    gate_reason=gate,
                 ))
         return out
 
