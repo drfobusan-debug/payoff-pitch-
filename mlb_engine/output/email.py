@@ -7,6 +7,8 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 
+import certifi
+
 from mlb_engine.config import Config
 
 mimetypes.add_type(
@@ -60,7 +62,7 @@ def send_card_email(
 
     # Gmail App Passwords are shown grouped in 4s; strip any spaces the user kept.
     password = creds.gmail_app_password.replace(" ", "")
-    context = ssl.create_default_context()
+    context = ssl.create_default_context(cafile=certifi.where())
     with smtplib.SMTP_SSL(cfg.smtp_host, cfg.smtp_port, context=context) as server:
         server.login(sender, password)
         server.send_message(msg)

@@ -19,6 +19,15 @@ for _envf in /etc/engine.env "$HOME/.mlb_engine/engine.env"; do
     fi
 done
 
+# WeasyPrint (PDF articles) needs Homebrew's native libs (glib/pango/cairo).
+# A double-clicked shell doesn't inherit them, so point the dynamic loader at
+# the Homebrew lib dir(s). Requires `brew install pango` (pulls glib/cairo).
+for _libdir in /opt/homebrew/lib /usr/local/lib; do
+    if [ -d "$_libdir" ]; then
+        export DYLD_FALLBACK_LIBRARY_PATH="${DYLD_FALLBACK_LIBRARY_PATH:+$DYLD_FALLBACK_LIBRARY_PATH:}$_libdir"
+    fi
+done
+
 VSIN="$HOME/.mlb_engine/vsin_today.csv"
 if [ -f "$VSIN" ]; then
     mlb-engine run --vsin-csv "$VSIN"
