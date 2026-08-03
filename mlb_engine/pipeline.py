@@ -328,6 +328,7 @@ class Pipeline:
         self._ml_gate = MLSharpGate.from_env()
         self._hrr_adjust = HRRAdjuster.from_env()
         self._previews: list[GamePreview] = []
+        self.slate: Slate | None = None
 
     def run(
         self,
@@ -346,6 +347,7 @@ class Pipeline:
         """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
+        self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
         if self.deps.rotowire is not None:
             self._enrich_expected_lineups(slate, slate_date)
