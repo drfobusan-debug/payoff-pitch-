@@ -1,9 +1,36 @@
 #!/bin/bash
-# Nightly self-audit: grade yesterday's recommendations, update the scorecard.
+# One-click daily self-audit: grade yesterday's slate, build the audit report
+# (Morningstar article + audio + Excel ledger), email it all in one message,
+# then open the ledger workbook locally.
+set -uo pipefail
 cd "$(dirname "$0")/../.." || exit 1
 # shellcheck disable=SC1091
 source .venv/bin/activate
-mlb-engine audit
+
+# Load engine credentials (Gmail app password, Odds API key, etc.) from the same
+# env file(s) the scheduled autorun uses, so a manual double-click can email too.
+for _envf in /etc/engine.env "$HOME/.mlb_engine/engine.env"; do
+    if [ -f "$_envf" ]; then
+        set -a
+        # shellcheck disable=SC1090
+        . "$_envf"
+        set +a
+    fi
+done
+
+# WeasyPrint (PDF report) needs Homebrew's native libs (glib/pango/cairo).
+# A double-clicked shell doesn't inherit them, so point the dynamic loader at
+# the Homebrew lib dir(s). Requires `brew install pango` (pulls glib/cairo).
+for _libdir in /opt/homebrew/lib /usr/local/lib; do
+    if [ -d "$_libdir" ]; then
+        export DYLD_FALLBACK_LIBRARY_PATH="${DYLD_FALLBACK_LIBRARY_PATH:+$DYLD_FALLBACK_LIBRARY_PATH:}$_libdir"
+    fi
+done
+
+# Grade yesterday, write the report + audio + Excel ledger, and email them.
+mlb-engine audit --report --email || echo "WARN: audit step failed" >&2
 echo "Scorecard: $HOME/.mlb_engine/audit/scorecard.csv"
 echo "Ledger:    $HOME/.mlb_engine/audit/ledger.csv"
+
+# Open the ledger workbook locally.
 [ -f "$HOME/.mlb_engine/output/ledger.xlsx" ] && open "$HOME/.mlb_engine/output/ledger.xlsx"
