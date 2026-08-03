@@ -5,9 +5,10 @@ from __future__ import annotations
 from mlb_engine.features.hr_gate import HRPowerGate
 
 
-def test_gate_keeps_power_hitter() -> None:
+def test_gate_keeps_elite_barrel_hitter() -> None:
+    # Barrel above the standing gate keeps the buy without needing a trend.
     gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
-    keep, reason = gate.allows(max_ev=112.0, barrel=0.12, bbe=50)
+    keep, reason = gate.allows(max_ev=112.0, barrel=0.16, bbe=50)
     assert keep is True
     assert "OK" in reason
 
@@ -46,13 +47,55 @@ def test_gate_disabled_keeps_everything() -> None:
     assert reason == ""
 
 
+def test_barrel_gate_demotes_mid_barrel_when_flat() -> None:
+    # Clears the power floor but barrel < 0.15 and no rising trend -> demote,
+    # even though max EV is strong (the gate fires regardless of EV).
+    gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
+    keep, reason = gate.allows(max_ev=112.0, barrel=0.10, bbe=50)
+    assert keep is False
+    assert "PASS" in reason and "not rising" in reason
+
+
+def test_barrel_gate_keeps_rising_barrel() -> None:
+    # Sub-0.15 barrel is kept when the last 3 weeks are above the 6-week rate.
+    gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
+    keep, reason = gate.allows(
+        max_ev=112.0, barrel=0.10, bbe=50, barrel_3w=0.14, barrel_6w=0.09
+    )
+    assert keep is True
+    assert "rising" in reason
+
+
+def test_barrel_gate_demotes_falling_barrel() -> None:
+    gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
+    keep, reason = gate.allows(
+        max_ev=112.0, barrel=0.10, bbe=50, barrel_3w=0.08, barrel_6w=0.12
+    )
+    assert keep is False
+    assert "PASS" in reason
+
+
+def test_barrel_gate_disabled_via_zero_threshold() -> None:
+    # barrel_gate=0 keeps the power floor but disables the level/trend gate.
+    gate = HRPowerGate(
+        enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15, barrel_gate=0.0
+    )
+    keep, reason = gate.allows(max_ev=112.0, barrel=0.10, bbe=50)
+    assert keep is True
+    assert "OK" in reason
+
+
 def test_from_env_defaults(monkeypatch) -> None:
-    for k in ("MLBE_HR_POWER_GATE", "MLBE_HR_MAX_EV", "MLBE_HR_BARREL", "MLBE_HR_MIN_BBE"):
+    for k in (
+        "MLBE_HR_POWER_GATE", "MLBE_HR_MAX_EV", "MLBE_HR_BARREL",
+        "MLBE_HR_MIN_BBE", "MLBE_HR_BARREL_GATE",
+    ):
         monkeypatch.delenv(k, raising=False)
     gate = HRPowerGate.from_env()
     assert gate.enabled is True
     assert gate.min_max_ev == 109.0
     assert gate.min_barrel == 0.07
+    assert gate.barrel_gate == 0.15
 
 
 def test_from_env_kill_switch(monkeypatch) -> None:

@@ -262,6 +262,28 @@ def build_batter_regression(
     )
 
 
+def barrel_rate(bdf: pd.DataFrame) -> tuple[float | None, int]:
+    """Barrel rate over a pitch-level Statcast slice, plus its batted-ball count.
+
+    Barrels are ``launch_speed_angle == 6`` (Statcast's optimal EV+LA class).
+    Returns ``(None, n)`` when there are no batted balls / no classification, so
+    callers can decide whether a window is thick enough to trust rather than
+    reading 0.0 as "no power".
+    """
+    batted = bdf[bdf["launch_speed"].notna()]
+    n = int(len(batted))
+    if n == 0:
+        return None, 0
+    lsa = (
+        batted["launch_speed_angle"].dropna()
+        if "launch_speed_angle" in batted
+        else pd.Series([], dtype=float)
+    )
+    if len(lsa) == 0:
+        return None, n
+    return float((lsa == 6).mean()), n
+
+
 def _pull_air_rate(batted: pd.DataFrame) -> float:
     """Share of batted balls that are pulled *and* in the air (LA >= 10).
 

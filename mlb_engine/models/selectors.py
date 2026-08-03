@@ -94,6 +94,9 @@ class Selection:
     hr_max_ev: float | None = None
     hr_barrel: float | None = None
     hr_bbe: int | None = None
+    # Barrel-rate trend windows for the HR barrel gate (None when too thin).
+    hr_barrel_3w: float | None = None
+    hr_barrel_6w: float | None = None
     # Contact-quality inputs for the H+R+RBI adjuster (None when unavailable).
     bat_sweet_spot: float | None = None
     bat_xslg: float | None = None

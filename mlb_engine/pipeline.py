@@ -6,6 +6,7 @@ import logging
 import math
 from dataclasses import dataclass, replace
 from datetime import date as Date
+from datetime import timedelta
 from pathlib import Path
 from typing import TypeVar
 
@@ -43,6 +44,7 @@ from mlb_engine.features.pitch_mix import (
 )
 from mlb_engine.features.regression import (
     MIN_BBE,
+    barrel_rate,
     build_batter_regression,
     build_pitcher_regression,
 )
@@ -601,6 +603,9 @@ class Pipeline:
             tb_sel = self._tb_selector.select(
                 breg, park=park, weather=weather_mult, slot=slot_idx, bats=bats, opp_hand=opp_throws
             )
+            b3, b6 = self._barrel_trend(bslice, slate_date)
+            tb_sel.hr_barrel_3w = b3
+            tb_sel.hr_barrel_6w = b6
 
             bpp = build_batter_pitch_profile(bslice)
             arsenal_mult = arsenal_matchup_multiplier(arsenal, bpp)
@@ -1235,6 +1240,28 @@ class Pipeline:
             return sels.get("TB")
         return None
 
+    @staticmethod
+    def _barrel_trend(
+        bslice, slate_date: Date
+    ) -> tuple[float | None, float | None]:
+        """Barrel rate over the last 3 weeks and last 6 weeks for the HR gate.
+
+        Each window returns ``None`` unless it clears ``MIN_BBE`` batted balls,
+        so the gate treats a thin window as "trend unknown" rather than trusting
+        a noisy rate. Requires a ``game_date`` column (present on the Statcast
+        slice); returns ``(None, None)`` when it is missing.
+        """
+        if "game_date" not in bslice.columns:
+            return None, None
+        d3 = slate_date - timedelta(days=21)
+        d6 = slate_date - timedelta(days=42)
+        b3, n3 = barrel_rate(bslice[bslice["game_date"] >= d3])
+        b6, n6 = barrel_rate(bslice[bslice["game_date"] >= d6])
+        return (
+            b3 if n3 >= MIN_BBE else None,
+            b6 if n6 >= MIN_BBE else None,
+        )
+
     def _power_floor_reason(self, breg, stat: str) -> str | None:
         """Pipeline wrapper: apply the contact-quality floor when enabled."""
         if not self.cfg.power_floor:
@@ -1477,7 +1504,8 @@ class Pipeline:
                 and selector is not None
             ):
                 keep, gate_reason = self._hr_gate.allows(
-                    selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe
+                    selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe,
+                    selector.hr_barrel_3w, selector.hr_barrel_6w,
                 )
                 if not keep:
                     tier = Tier.PASS

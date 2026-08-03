@@ -27,6 +27,14 @@ DEFAULT_MIN_MAX_EV = 109.0
 DEFAULT_MIN_BARREL = 0.070
 DEFAULT_MIN_BBE = 15
 
+# Standing barrel gate (user-requested): on top of the power floor above, an HR
+# buy must EITHER carry an elite barrel level, OR show barrel rising over the
+# last three weeks vs the rolling six-week rate. This demotes HR longshots on
+# hitters who are neither elite-power nor trending up -- even when the EV looks
+# good -- which is where the graded HR overs bled money. Set to 0 to disable
+# just this gate (the power floor stays).
+DEFAULT_BARREL_GATE = 0.15
+
 
 def _env_flag(name: str, default: bool) -> bool:
     val = os.getenv(name)
@@ -63,6 +71,7 @@ class HRPowerGate:
     min_max_ev: float = DEFAULT_MIN_MAX_EV
     min_barrel: float = DEFAULT_MIN_BARREL
     min_bbe: int = DEFAULT_MIN_BBE
+    barrel_gate: float = DEFAULT_BARREL_GATE
 
     @classmethod
     def from_env(cls) -> HRPowerGate:
@@ -71,6 +80,7 @@ class HRPowerGate:
             min_max_ev=_env_float("MLBE_HR_MAX_EV", DEFAULT_MIN_MAX_EV),
             min_barrel=_env_float("MLBE_HR_BARREL", DEFAULT_MIN_BARREL),
             min_bbe=_env_int("MLBE_HR_MIN_BBE", DEFAULT_MIN_BBE),
+            barrel_gate=_env_float("MLBE_HR_BARREL_GATE", DEFAULT_BARREL_GATE),
         )
 
     def allows(
@@ -78,11 +88,15 @@ class HRPowerGate:
         max_ev: float | None,
         barrel: float | None,
         bbe: int | None,
+        barrel_3w: float | None = None,
+        barrel_6w: float | None = None,
     ) -> tuple[bool, str]:
         """Return (keep_buy, reason).
 
         ``keep_buy`` is False only when the gate is enabled, the sample is large
-        enough to trust, and the hitter fails the max-EV or barrel floor.
+        enough to trust, and the hitter fails either the max-EV/barrel power
+        floor or the standing barrel gate (barrel level below ``barrel_gate``
+        AND not trending up over the last three weeks).
         """
         if not self.enabled:
             return True, ""
@@ -94,6 +108,27 @@ class HRPowerGate:
             return False, (
                 f"hr-gate: PASS (max_ev {max_ev:.1f}<{self.min_max_ev:.0f} "
                 f"or barrel {barrel:.3f}<{self.min_barrel:.3f})"
+            )
+        # Standing barrel gate: keep only if barrel is elite OR rising 3w vs 6w.
+        if self.barrel_gate > 0.0 and barrel < self.barrel_gate:
+            rising = (
+                barrel_3w is not None
+                and barrel_6w is not None
+                and barrel_3w > barrel_6w
+            )
+            if not rising:
+                trend = (
+                    f"3w {barrel_3w:.3f}<={barrel_6w:.3f} 6w"
+                    if barrel_3w is not None and barrel_6w is not None
+                    else "no 3w/6w trend"
+                )
+                return False, (
+                    f"hr-gate: PASS (barrel {barrel:.3f}<{self.barrel_gate:.2f} "
+                    f"and not rising: {trend})"
+                )
+            return True, (
+                f"hr-gate: OK (barrel {barrel:.3f} rising 3w {barrel_3w:.3f}"
+                f">{barrel_6w:.3f} 6w)"
             )
         return True, (
             f"hr-gate: OK (max_ev {max_ev:.1f}, barrel {barrel:.3f})"
