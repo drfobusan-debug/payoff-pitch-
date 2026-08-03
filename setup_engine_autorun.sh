@@ -32,7 +32,9 @@ set -euo pipefail
 
 # ================== EDIT THESE ====================================
 RUN_AS_USER="jong"
-REPO_DIR="/Users/jong/Desktop/payoff-pitch-"  # same clone the manual shortcut uses
+REPO_DIR="/Users/jong/payoff-pitch-"          # NOT under ~/Desktop: macOS TCC blocks
+                                              # background daemons from reading Desktop
+                                              # (venv activate -> "Operation not permitted")
 VENV_DIR="$REPO_DIR/.venv"
 
 # >>> Real engine commands (already baked in -- nothing to edit) <<<
