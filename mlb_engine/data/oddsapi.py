@@ -57,15 +57,26 @@ _PITCHER_MARKETS = {
 # Every market above can be *parsed*; only these are worth *paying* for. Over 54
 # graded slates the engine produced zero favored picks in HR, doubles, runs and
 # RBI (75-87% NPV -- it is right to abstain), so buying those prices is spend
-# with no bet attached. Singles (50.4% PPV) and earned runs (45.5%) are priced
-# below break-even, so they are excluded too. Override with MLBE_ODDS_PROPS.
+# with no bet attached; they stay excluded. Earned runs (45.5% PPV) is priced
+# below break-even and is not bought. Singles is fetched not to buy the over
+# (50.4% PPV) but to capture the *under* price: the model fades ~90% of singles
+# overs at a ~74% NPV, and persisting the under quote lets the audit grade that
+# fade as a bettable under. Override with MLBE_ODDS_PROPS.
 DEFAULT_PROP_MARKETS = (
     "batter_hits",
+    "batter_singles",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",
     "pitcher_walks",
 )
+# Markets fetched only to record the *other* side's price (the under), never to
+# bet the side we price. Pricing a market normally makes it bettable -- a pick
+# is only forced to Pass when it has no quote -- so these are hard-passed after
+# classification so the under quote is persisted without ever recommending the
+# over. Singles is priced at ~48.8% PPV, below break-even, so its over is never
+# a bet; we keep the under for the NPV-fade audit.
+PRICE_ONLY_MARKETS = frozenset({"batter_1b"})
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)
 
 Quotes = dict[tuple[str, str, str], list[MarketQuote]]

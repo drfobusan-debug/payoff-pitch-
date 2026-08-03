@@ -75,6 +75,10 @@ class LedgerEntry:
     close_prob: float | None = None
     clv: float | None = None
     clv_ev: float | None = None
+    # American price of the other side (under for O/U props, opposing team for
+    # ML/RL) at the same book. Persisted so the fade side can be graded/backtested
+    # without re-fetching historical odds. None when the market was unpriced.
+    under_odds: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -86,6 +90,7 @@ LEDGER_FIELDS = [
     "line",
     "book",
     "odds",
+    "under_odds",
     "tier",
     "model_prob",
     "ev",
@@ -104,6 +109,7 @@ LEDGER_FIELDS = [
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
     "odds",
+    "under_odds",
     "ev",
     "margin",
     "fair_prob",
@@ -151,6 +157,7 @@ def entries_from_graded(
                 line=rec.line,
                 book=rec.book or "",
                 odds=rec.market_american,
+                under_odds=rec.opposite_american,
                 tier=rec.tier.value,
                 model_prob=round(rec.model_prob, 4),
                 ev=round(rec.ev, 4) if rec.ev is not None else None,
@@ -191,6 +198,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     line=_to_float(row["line"]),
                     book=row["book"],
                     odds=_to_float(row["odds"]),
+                    under_odds=_to_float(row.get("under_odds", "") or ""),
                     tier=row["tier"],
                     model_prob=_to_float(row["model_prob"]) or 0.0,
                     ev=_to_float(row["ev"]),
