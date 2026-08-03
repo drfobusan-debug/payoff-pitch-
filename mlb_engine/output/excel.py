@@ -98,6 +98,7 @@ GRID_COLUMNS = [
     "EV",
     "Selection",
     "Matchup",
+    "Date",
     "Book",
     "Odds",
     "Model %",
@@ -111,9 +112,9 @@ GRID_COLUMNS = [
     "Profile",
     "Notes",
 ]
-GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 8, 8, 8, 8, 9, 8, 8, 7, 7, 26, 40]
+GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 8, 9, 8, 8, 7, 7, 26, 40]
 GRID_CENTER = {
-    "Best", "Tier", "EV", "Odds", "Model %", "Market %", "Edge", "Handle %", "Bets %",
+    "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -216,6 +217,7 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "EV": round(rec.ev, 3) if rec.ev is not None else "",
         "Selection": rec.selection,
         "Matchup": rec.matchup,
+        "Date": rec.game_date.isoformat(),
         "Book": rec.book or "",
         "Odds": _american(rec.market_american),
         "Model %": round(rec.model_prob * 100, 1),

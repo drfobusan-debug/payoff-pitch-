@@ -8,6 +8,17 @@ cd "$(dirname "$0")/../.." || exit 1
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
+# Load engine credentials (Gmail app password, Odds API key, etc.) from the same
+# env file(s) the scheduled autorun uses, so a manual double-click can email too.
+for _envf in /etc/engine.env "$HOME/.mlb_engine/engine.env"; do
+    if [ -f "$_envf" ]; then
+        set -a
+        # shellcheck disable=SC1090
+        . "$_envf"
+        set +a
+    fi
+done
+
 VSIN="$HOME/.mlb_engine/vsin_today.csv"
 if [ -f "$VSIN" ]; then
     mlb-engine run --vsin-csv "$VSIN"
