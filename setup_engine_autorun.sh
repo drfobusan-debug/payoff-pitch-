@@ -8,6 +8,7 @@
 #   * Night:   wake 23:00           (keep-awake only -- no engine work)
 #   * Forced sleep at 03:00
 #   * Morning: wake 10:00  ->  run 10:05  (before noon: THE daily job)
+#   * Evening: wake 18:35  ->  close 18:40 (snapshot the closing market for CLV)
 #
 # The MORNING run (before noon) is the real job and does both, in order:
 #   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
@@ -48,6 +49,10 @@ AUDIT_CMD="mlb-engine audit --report --email"  # grade yesterday; defaults to ye
 NIGHT_WAKE="23:00:00"; NIGHT_RUN_HOUR=23; NIGHT_RUN_MIN=5
 FORCE_SLEEP="03:00:00"
 MORNING_WAKE_HHMM="10:00"; MORNING_RUN_HOUR=10; MORNING_RUN_MIN=5
+# Evening closing-line snapshot (for CLV scoring). A fixed time can't be optimal
+# for every game -- it's a near-close proxy for the (majority) night slate and
+# runs early for, or misses, early day games. Adjust to taste.
+CLOSE_WAKE_HHMM="18:35"; CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
 
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
@@ -58,12 +63,14 @@ LOG_OUT="/var/log/engine.out.log"
 LOG_ERR="/var/log/engine.err.log"
 NIGHT_LABEL="com.franz.engine.night"
 MORNING_LABEL="com.franz.engine.morning"
+CLOSE_LABEL="com.franz.engine.close"
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
+CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
-  for p in "$NIGHT_PLIST" "$MORNING_PLIST"; do
+  for p in "$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST"; do
     launchctl bootout system "$p" 2>/dev/null || launchctl unload "$p" 2>/dev/null || true
     rm -f "$p"
   done
@@ -127,6 +134,11 @@ if [[ "\$MODE" == "night" ]]; then
   NEXT=\$(date -v+1d +"%m/%d/%Y")
   /usr/bin/pmset schedule wake "\$NEXT $MORNING_WAKE_HHMM:00" || true
   echo "[\$(date)] armed morning wake for \$NEXT $MORNING_WAKE_HHMM:00"
+elif [[ "\$MODE" == "close" ]]; then
+  # Snapshot tonight's CLOSING market so tomorrow morning's audit can score
+  # closing line value (CLV) -- the fast way to tell whether a pick had real
+  # edge. Cheap (~3 credits + props); writes closing_<today>.json only.
+  mlb-engine close || echo "[\$(date)] 'mlb-engine close' exited non-zero" >&2
 else
   # THE daily job (before noon): build today's FULL package (slate + pitcher/
   # batter regression articles + audio) and email it as one message, then grade
@@ -138,6 +150,10 @@ else
   # Homebrew libs. Instead hold a background caffeinate tied to THIS script's
   # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
   /usr/bin/caffeinate -i -w \$\$ &
+
+  # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
+  # the close daemon can fire even if the Mac would otherwise sleep by evening.
+  /usr/bin/pmset schedule wake "\$(date +%m/%d/%Y) $CLOSE_WAKE_HHMM:00" || true
 
   # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
   #    cache pkl). No --email here: the package email below owns delivery.
@@ -192,7 +208,8 @@ EOF
 }
 write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MIN"   night
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
-echo "Wrote daemons: $NIGHT_PLIST , $MORNING_PLIST"
+write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MIN"   close
+echo "Wrote daemons: $NIGHT_PLIST , $MORNING_PLIST , $CLOSE_PLIST"
 
 # The daemons run as $RUN_AS_USER, but /var/log is root-owned -- launchd can't
 # create the StandardOut/Err files there and the job dies with EX_CONFIG (78).
@@ -201,7 +218,7 @@ touch "$LOG_OUT" "$LOG_ERR"
 chown "$RUN_AS_USER" "$LOG_OUT" "$LOG_ERR"
 chmod 644 "$LOG_OUT" "$LOG_ERR"
 
-for p in "$NIGHT_PLIST" "$MORNING_PLIST"; do
+for p in "$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST"; do
   launchctl bootout system "$p" 2>/dev/null || true
   launchctl bootstrap system "$p" 2>/dev/null || launchctl load "$p"
 done
@@ -222,6 +239,7 @@ echo "==================== DONE ===================="
 echo "Verify:            pmset -g sched"
 echo "Test night run:    sudo launchctl start ${NIGHT_LABEL}"
 echo "Test morning run:  sudo launchctl start ${MORNING_LABEL}"
+echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo
 echo "Reminders: keep it PLUGGED IN; use SLEEP (not Shut Down);"
