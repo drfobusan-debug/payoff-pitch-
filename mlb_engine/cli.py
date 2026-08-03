@@ -178,9 +178,15 @@ def cmd_run(args: argparse.Namespace) -> int:
                         pitcher_names.add(side.probable_pitcher.name)
                     for slot in side.lineup:
                         batter_names.add(slot.player.name)
-            radar_pdf, _ = generate_radar_pdf(
+            radar_pdf, radar = generate_radar_pdf(
                 pitcher_names, batter_names, slate_date, year=slate_date.year
             )
+            if radar_pdf is not None:
+                from mlb_engine.output.regression_radar import render_html as radar_html, render_markdown as radar_md
+
+                (cfg.output_dir / f"regression_radar_{slate_date.isoformat()}.pdf").write_bytes(radar_pdf)
+                (cfg.output_dir / f"regression_radar_{slate_date.isoformat()}.md").write_text(radar_md(radar, slate_date))
+                (cfg.output_dir / f"regression_radar_{slate_date.isoformat()}.html").write_text(radar_html(radar, slate_date))
         _generate_card(
             recs,
             slate_date,

@@ -142,24 +142,122 @@ def build_batter_regression(
     zc_contact = swings["description"].eq("hit_into_play") | swings["description"].isin(
         ["foul", "foul_tip"]
     )
-    n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
+        n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
     zone_contact = (
         float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
     )
-    xba = (
-        float(batted["estimated_ba_using_speedangle"].dropna().mean())
-        if n_bbe and "estimated_ba_using_speedangle" in batted
-        else BL_XBA
-    )
-    xwoba = (
-        float(batted["estimated_woba_using_speedangle"].dropna().mean())
-        if n_bbe and "estimated_woba_using_speedangle" in batted
-        else float("nan")
-    )
+    
+    # Safe xBA calculation with fallback
+    if n_bbe and "estimated_ba_using_speedangle" in batted:
+        xba_series = batted["estimated_ba_using_speedangle"].dropna()
+        xba = float(xba_series.mean()) if not xba_series.empty else BL_XBA
+    else:
+        xba = BL_XBA
+
+    # Safe xwOBA calculation with fallback
+    if n_bbe and "estimated_woba_using_speedangle" in batted:
+        xwoba_series = batted["estimated_woba_using_speedangle"].dropna()
+        xwoba = float(xwoba_series.mean()) if not xwoba_series.empty else float("nan")
+    else:
+        xwoba = float("nan")
+        
     # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
     woba = (
         float(batted["woba_value"].dropna().mean())
         if n_bbe and "woba_value" in batted
+    n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
+    zone_contact = (
+        float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
+    )
+    
+    # Safe xBA calculation with fallback
+    if n_bbe and "estimated_ba_using_speedangle" in batted:
+        xba_series = batted["estimated_ba_using_speedangle"].dropna()
+        xba = float(xba_series.mean()) if not xba_series.empty else BL_XBA
+    else:
+        xba = BL_XBA
+
+    # Safe xwOBA calculation with fallback
+    if n_bbe and "estimated_woba_using_speedangle" in batted:
+        xwoba_series = batted["estimated_woba_using_speedangle"].dropna()
+        xwoba = float(xwoba_series.mean()) if not xwoba_series.empty else float("nan")
+    else:
+        xwoba = float("nan")
+        
+    # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
+    woba = (
+        float(batted["woba_value"].dropna().mean())
+        if n_bbe and "woba_value" in batted
+    n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
+    zone_contact = (
+        float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
+    )
+    
+    # Safe xBA calculation with fallback
+    if n_bbe and "estimated_ba_using_speedangle" in batted:
+        xba_series = batted["estimated_ba_using_speedangle"].dropna()
+        xba = float(xba_series.mean()) if not xba_series.empty else BL_XBA
+    else:
+        xba = BL_XBA
+
+    # Safe xwOBA calculation with fallback
+    if n_bbe and "estimated_woba_using_speedangle" in batted:
+        xwoba_series = batted["estimated_woba_using_speedangle"].dropna()
+        xwoba = float(xwoba_series.mean()) if not xwoba_series.empty else float("nan")
+    else:
+        xwoba = float("nan")
+        
+    # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
+    woba = (
+        float(batted["woba_value"].dropna().mean())
+        if n_bbe and "woba_value" in batted
+    n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
+    zone_contact = (
+        float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
+    )
+    
+    # Safe xBA calculation with fallback
+    if n_bbe and "estimated_ba_using_speedangle" in batted:
+        xba_series = batted["estimated_ba_using_speedangle"].dropna()
+        xba = float(xba_series.mean()) if not xba_series.empty else BL_XBA
+    else:
+        xba = BL_XBA
+
+    # Safe xwOBA calculation with fallback
+    if n_bbe and "estimated_woba_using_speedangle" in batted:
+        xwoba_series = batted["estimated_woba_using_speedangle"].dropna()
+        xwoba = float(xwoba_series.mean()) if not xwoba_series.empty else float("nan")
+    else:
+        xwoba = float("nan")
+        
+    # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
+    woba = (
+        float(batted["woba_value"].dropna().mean())
+        if n_bbe and "woba_value" in batted
+    n_zsw = int(zc_swings.sum()) if len(zc_swings) else 0
+    zone_contact = (
+        float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
+    )
+    
+    # Safe xBA calculation with fallback
+    if n_bbe and "estimated_ba_using_speedangle" in batted:
+        xba_series = batted["estimated_ba_using_speedangle"].dropna()
+        xba = float(xba_series.mean()) if not xba_series.empty else BL_XBA
+    else:
+        xba = BL_XBA
+
+    # Safe xwOBA calculation with fallback
+    if n_bbe and "estimated_woba_using_speedangle" in batted:
+        xwoba_series = batted["estimated_woba_using_speedangle"].dropna()
+        xwoba = float(xwoba_series.mean()) if not xwoba_series.empty else float("nan")
+    else:
+        xwoba = float("nan")
+        
+    # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
+    woba = (
+        float(batted["woba_value"].dropna().mean())
+        if n_bbe and "woba_value" in batted
+
         else float("nan")
     )
     xslg = _estimate_xslg(batted)

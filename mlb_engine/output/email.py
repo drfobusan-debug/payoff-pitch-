@@ -6,8 +6,21 @@ import mimetypes
 import smtplib
 import ssl
 from email.message import EmailMessage
+from pathlib import Path
 
 from mlb_engine.config import Config
+
+try:
+    import certifi
+except Exception:  # pragma: no cover - certifi is bundled with requests
+    certifi = None  # type: ignore[assignment]
+
+
+def _ssl_context() -> ssl.SSLContext:
+    """Create a TLS context that uses certifi's CA bundle when the system lacks one."""
+    if certifi is not None and Path(certifi.where()).exists():
+        return ssl.create_default_context(cafile=certifi.where())
+    return ssl.create_default_context()
 
 mimetypes.add_type(
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx"
@@ -58,7 +71,7 @@ def send_card_email(
 
     # Gmail App Passwords are shown grouped in 4s; strip any spaces the user kept.
     password = creds.gmail_app_password.replace(" ", "")
-    context = ssl.create_default_context()
+    context = _ssl_context()
     with smtplib.SMTP_SSL(cfg.smtp_host, cfg.smtp_port, context=context) as server:
         server.login(sender, password)
         server.send_message(msg)
