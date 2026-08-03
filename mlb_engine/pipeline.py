@@ -118,6 +118,19 @@ FATIGUE_DEPLETED = 60.0  # bullpen-fatigue score at/above which a pen is "deplet
 SHARP_SPREAD_DIV = 15.0  # VSIN run-line handle%-bets% gap treated as sharp money
 
 
+def apply_outs_bias(prob: float, bias: float, max_prob: float) -> float:
+    """Lift a calibrated pitcher_outs over-probability by a capped bias.
+
+    Applied only at/below ``max_prob`` -- the band where the graded audit showed
+    the model under-projected outs -- so the correction targets the passed-but-
+    profitable overs without inflating high-confidence tails. A ``bias`` of 0
+    leaves the probability untouched.
+    """
+    if bias == 0.0 or prob > max_prob:
+        return prob
+    return min(1 - 1e-6, prob + bias)
+
+
 def league_pitcher_rates() -> OutcomeRates:
     r = LEAGUE_RATES
     return OutcomeRates(
@@ -1408,6 +1421,13 @@ class Pipeline:
             return None
         return f"thin Statcast: {name} {pitches}p < {floor}"
 
+    def _apply_outs_bias(self, prob: float) -> float:
+        return apply_outs_bias(
+            prob,
+            self.cfg.pitcher_outs_prob_bias,
+            self.cfg.pitcher_outs_bias_max_prob,
+        )
+
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
             rl_signal: RunLineSignal | None = None,
@@ -1424,6 +1444,8 @@ class Pipeline:
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
             calibrated = self._shrink.apply(calibrated)
+        if market == "pitcher_outs":
+            calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
         rec = Recommendation(
