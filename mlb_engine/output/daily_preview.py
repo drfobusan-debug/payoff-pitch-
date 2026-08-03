@@ -29,6 +29,7 @@ from pathlib import Path
 
 import numpy as np
 
+from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
     GOLD,
     INK,
@@ -41,8 +42,11 @@ from mlb_engine.output.audit_insight import (
     to_pdf,
 )
 from mlb_engine.preview import GamePreview
+from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
+
+_TIER_RANK = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1}
 
 
 # --- interpretation helpers ------------------------------------------------
@@ -173,6 +177,24 @@ def _reg_bits(gp: GamePreview) -> str:
     return side(gp.home, gp.home_lineup) + side(gp.away, gp.away_lineup)
 
 
+def top_hr_prop(hr_recs: list[Recommendation]) -> Recommendation | None:
+    """The single most likely home-run prop in a game (highest model prob)."""
+    priced = [r for r in hr_recs if r.model_prob is not None]
+    return max(priced, key=lambda r: r.model_prob) if priced else None
+
+
+def _hr_line(hr_recs: list[Recommendation]) -> str:
+    best = top_hr_prop(hr_recs)
+    if best is None:
+        return "<p class='hr'><b>Top HR prop:</b> no home-run market priced for this game.</p>"
+    odds = "" if best.market_american is None else f" ({best.market_american:+.0f})"
+    name = best.selection.replace(" HR o0.5", "").replace(" o0.5", "")
+    return (
+        f"<p class='hr'><b>Top HR prop:</b> {name}{odds} — model gives him "
+        f"<b>{best.model_prob * 100:.1f}%</b> to go yard, the best shot in this game.</p>"
+    )
+
+
 def _best_bets_block(gp: GamePreview) -> str:
     if not gp.best_bets:
         return "<p><b>Best bets:</b> none clear the buy threshold — the model passes this game.</p>"
@@ -187,7 +209,40 @@ def _best_bets_block(gp: GamePreview) -> str:
     return f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
 
 
-def _game_section(gp: GamePreview) -> str:
+def _slate_best_bets_block(
+    previews: list[GamePreview], recs: list[Recommendation]
+) -> str:
+    """Every buy across the slate, strongest first, bold, at the bottom.
+
+    Built from the full ``recs`` (not ``GamePreview.best_bets``, which the
+    pipeline truncates to the top four per game) so the count is the true number
+    of Strong/Moderate plays and no qualifying bet is silently dropped.
+    """
+    labels = {gp.game_pk: f"{gp.away}@{gp.home}" for gp in previews}
+    rows = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE)]
+    rows.sort(key=lambda r: (_TIER_RANK.get(r.tier.value, 9), -(r.edge or 0.0)))
+    if not rows:
+        return (
+            "<div class='slatebets'><h2>Slate best bets</h2>"
+            "<p>The model passes the entire board today — no selection clears the buy threshold.</p></div>"
+        )
+    items = ""
+    for r in rows:
+        odds = "" if r.market_american is None else f" ({r.market_american:+.0f})"
+        edge = "" if r.edge is None else f", edge {r.edge * 100:+.1f}%"
+        where = f" ({labels[r.game_pk]})" if r.game_pk in labels else ""
+        items += (
+            f"<li><b>{r.selection}{odds}</b> — {market_label(r.market)}"
+            f"{where}, model {r.model_prob * 100:.0f}%{edge} · <i>{r.tier.value}</i></li>"
+        )
+    return (
+        "<div class='slatebets'><h2>Slate best bets</h2>"
+        f"<p class='sbnote'>{len(rows)} plays clear the buy threshold, strongest first:</p>"
+        f"<ul class='bets big'>{items}</ul></div>"
+    )
+
+
+def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
     shape_label, shape_desc = game_shape(gp)
     env_bits = []
     if gp.park_name:
@@ -224,6 +279,7 @@ def _game_section(gp: GamePreview) -> str:
         f"<img class='chart' src='data:image/png;base64,{_matchup_chart(gp)}'/>"
         f"<h3>Regression watch</h3>{_reg_bits(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_shape_chart(gp)}'/>"
+        f"{_hr_line(hr_recs)}"
         f"{_best_bets_block(gp)}"
         "</div>"
     )
@@ -258,12 +314,30 @@ img.chart{width:100%;margin:6px 0 2px;}
 p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
 ul.bets b{color:#111;}
+.hr{background:#fff8e6;border-left:4px solid #c8a02e;padding:5px 10px;margin:8px 0;font-size:9.8pt;}
+.slatebets{page-break-inside:avoid;background:#0f2438;color:#f4f6f8;border-radius:6px;padding:12px 16px;margin:22px 0 8px;}
+.slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
+.slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
+ul.bets.big{font-size:10.5pt;}
+ul.bets.big b{color:#fff;}
+.slatebets i{color:#ffd76a;}
 .callout{background:#eef2f6;border-left:4px solid #16324f;padding:8px 12px;margin:10px 0;font-size:9.6pt;}
 .fine{font-size:7.6pt;color:#9aa0a8;font-family:'DejaVu Sans',sans-serif;border-top:1px solid #e6e8ec;margin-top:16px;padding-top:6px;line-height:1.35;}
 """
 
 
-def build_preview_report(day: Date, previews: list[GamePreview]) -> tuple[str, str]:
+def _hr_by_game(recs: list[Recommendation]) -> dict[int, list[Recommendation]]:
+    out: dict[int, list[Recommendation]] = {}
+    for r in recs:
+        if r.market == "batter_hr":
+            out.setdefault(r.game_pk, []).append(r)
+    return out
+
+
+def build_preview_report(
+    day: Date, previews: list[GamePreview], recs: list[Recommendation] | None = None
+) -> tuple[str, str]:
+    hr_map = _hr_by_game(recs or [])
     nice = day.strftime("%A, %B %-d, %Y")
     masthead = (
         "<div class='masthead'>"
@@ -279,9 +353,11 @@ def build_preview_report(day: Date, previews: list[GamePreview]) -> tuple[str, s
         "meets late), flag the hitters the Statcast model says are running hot or cold, and let the simulator "
         "call the shape of the game. Then we put the moneyline's market-implied number next to the model's and "
         f"read the edge. The engine's flagged <b>{n_bets}</b> best bets across the slate — they're in bold under "
-        "each game. This is a model preview, not betting advice."
+        "each game and gathered at the very bottom. Each game also gets its single most likely home-run prop. "
+        "This is a model preview, not betting advice."
     )
-    body = "".join(_game_section(gp) for gp in previews)
+    body = "".join(_game_section(gp, hr_map.get(gp.game_pk, [])) for gp in previews)
+    body += _slate_best_bets_block(previews, recs or [])
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Regression flags are the gap "
@@ -292,11 +368,14 @@ def build_preview_report(day: Date, previews: list[GamePreview]) -> tuple[str, s
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{body}{fine}</body></html>"
     )
-    narr = _narration(day, previews)
+    narr = _narration(day, previews, hr_map)
     return html, narr
 
 
-def _narration(day: Date, previews: list[GamePreview]) -> str:
+def _narration(
+    day: Date, previews: list[GamePreview], hr_map: dict[int, list[Recommendation]] | None = None
+) -> str:
+    hr_map = hr_map or {}
     nice = day.strftime("%A, %B %-d")
     parts = [
         f"What's up everybody, welcome into the Payoff Pitch Slate Preview for {nice}. "
@@ -326,6 +405,25 @@ def _narration(day: Date, previews: list[GamePreview]) -> str:
             )
         else:
             parts.append("No bet here, the model passes. ")
+        hr_best = top_hr_prop(hr_map.get(gp.game_pk, []))
+        if hr_best is not None:
+            name = hr_best.selection.replace(" HR o0.5", "").replace(" o0.5", "")
+            parts.append(
+                f"If you want a longball, {name} is the top home-run shot here at "
+                f"{hr_best.model_prob * 100:.0f} percent. "
+            )
+    strong = [
+        (gp, b)
+        for gp in previews
+        for b in gp.best_bets
+        if _TIER_RANK.get(b.tier, 9) == 0
+    ]
+    strong.sort(key=lambda t: -(t[1].edge or 0.0))
+    if strong:
+        parts.append("Alright, the headline plays of the day. ")
+        for _gp, b in strong[:5]:
+            odds = "" if b.odds is None else f" at {b.odds:+.0f}"
+            parts.append(f"{b.selection}{odds}, {market_label(b.market)}. ")
     parts.append(
         "That's the slate. Bet the edges, skip the coin-flips, and we'll grade it all tomorrow. "
         "Payoff Pitch, out."
@@ -341,6 +439,7 @@ def generate_daily_preview(
     *,
     email: bool,
     to: str | None,
+    recs: list[Recommendation] | None = None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
 ) -> dict[str, Path | None]:
     """Build the preview PDF + MP3 and optionally email them with the ledger."""
@@ -349,7 +448,7 @@ def generate_daily_preview(
         logger.warning("no previews for %s; skipping slate preview report", slate_date)
         return out
 
-    html, narr = build_preview_report(slate_date, previews)
+    html, narr = build_preview_report(slate_date, previews, recs)
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"slate_preview_{iso}.html"
