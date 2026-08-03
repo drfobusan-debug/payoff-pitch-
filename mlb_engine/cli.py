@@ -33,6 +33,7 @@ from mlb_engine.audit.ledger import (
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import Calibrator
 from mlb_engine.config import Config, load_config
+from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
@@ -356,6 +357,16 @@ def cmd_audit(args: argparse.Namespace) -> int:
             results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
         except Exception as exc:  # noqa: BLE001
             logging.warning("could not fetch result for %s: %s", pk, exc)
+
+    # Observe-only: log per-pitcher, per-inning run attribution (inherited-runner
+    # credit) so pitcher collapse/volatility can be measured. No effect on grading.
+    final_pks = [pk for pk, res in results.items() if res is not None and res.final]
+    try:
+        collapse_lines = capture_slate(final_pks, audit_date.isoformat(), cfg.cache_dir, cfg.audit_dir)
+        if collapse_lines:
+            print(f"Captured {len(collapse_lines)} pitcher-inning rows -> {cfg.audit_dir / 'collapse_ledger.csv'}")
+    except Exception as exc:  # noqa: BLE001 -- capture must never break the audit
+        logging.warning("collapse capture failed: %s", exc)
 
     graded = []
     for r in recs:
