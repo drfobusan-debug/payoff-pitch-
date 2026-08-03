@@ -49,6 +49,9 @@ from mlb_engine.output.card import build_cards, render_html, render_markdown, re
 from mlb_engine.output.daily_preview import generate_daily_preview
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.regression_radar import generate_radar_pdf
+from mlb_engine.output.regression_radar import render_html as render_radar_html
+from mlb_engine.output.regression_radar import render_markdown as render_radar_markdown
 from mlb_engine.output.report import (
     PdfNotAvailable,
     build_report_data,
@@ -265,7 +268,15 @@ def cmd_run(args: argparse.Namespace) -> int:
         _generate_card(
             recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx)
         )
-        excel = [(Path(xlsx).name, Path(xlsx).read_bytes())] if Path(xlsx).exists() else None
+        attachments: list[tuple[str, bytes]] = []
+        if Path(xlsx).exists():
+            attachments.append((Path(xlsx).name, Path(xlsx).read_bytes()))
+        if args.email:
+            radar_pdf = _build_radar_pdf(pipe, slate_date, cfg)
+            if radar_pdf is not None:
+                attachments.append(
+                    (f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf)
+                )
         generate_daily_preview(
             previews,
             slate_date,
@@ -273,9 +284,39 @@ def cmd_run(args: argparse.Namespace) -> int:
             email=args.email,
             to=args.to,
             recs=recs,
-            extra_attachments=excel,
+            extra_attachments=attachments or None,
         )
     return 0
+
+
+def _build_radar_pdf(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
+    """Build the Regression Radar PDF for the slate and persist md/html/pdf.
+
+    Returns the PDF bytes for the preview email, or ``None`` when the slate
+    isn't available or the radar can't be rendered.
+    """
+    slate = pipe.slate
+    if slate is None:
+        return None
+    pitcher_names: set[str] = set()
+    batter_names: set[str] = set()
+    for game in slate.games:
+        for side in (game.home, game.away):
+            if side.probable_pitcher:
+                pitcher_names.add(side.probable_pitcher.name)
+            for slot in side.lineup:
+                batter_names.add(slot.player.name)
+    radar_pdf, radar = generate_radar_pdf(
+        pitcher_names, batter_names, slate_date, year=slate_date.year
+    )
+    if radar_pdf is None:
+        return None
+    cfg.output_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"regression_radar_{slate_date.isoformat()}"
+    (cfg.output_dir / f"{stem}.pdf").write_bytes(radar_pdf)
+    (cfg.output_dir / f"{stem}.md").write_text(render_radar_markdown(radar, slate_date))
+    (cfg.output_dir / f"{stem}.html").write_text(render_radar_html(radar, slate_date))
+    return radar_pdf
 
 
 def cmd_card(args: argparse.Namespace) -> int:
