@@ -10,11 +10,14 @@
 #   * Morning: wake 10:00  ->  run 10:05  (before noon: THE daily job)
 #
 # The MORNING run (before noon) is the real job and does both, in order:
-#   1) mlb-engine run --email -> today's slate. By mid-morning the VSIN public
-#                           handle/bets splits have posted, so the picks use
-#                           them -- that's why the slate runs in the morning.
-#                           --email sends the Morningstar slate preview
-#                           (PDF + audio) with the Excel bet sheet.
+#   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
+#                           preview article + audio and the pitcher/batter
+#                           regression articles + audio are generated and emailed
+#                           as ONE message (Excel bet sheet + all PDFs/MP3s).
+#                           By mid-morning the VSIN public handle/bets splits have
+#                           posted, so the picks use them -- that's why the slate
+#                           runs in the morning. This mirrors the one-click
+#                           PAYOFF PITCH.command shortcut, minus opening Excel.
 #   2) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
 #                           and EMAIL the Excel ledger + article + audio.
 #
@@ -29,13 +32,14 @@ set -euo pipefail
 
 # ================== EDIT THESE ====================================
 RUN_AS_USER="jong"
-REPO_DIR="/Users/jong/payoff-pitch-"          # confirm this path (see note in chat)
+REPO_DIR="/Users/jong/Desktop/payoff-pitch-"  # same clone the manual shortcut uses
 VENV_DIR="$REPO_DIR/.venv"
 
 # >>> Real engine commands (already baked in -- nothing to edit) <<<
-# The morning job runs these two in order: generate today's slate (with the
-# morning handle/bets splits), then grade yesterday and email the 3 artifacts.
-RUN_CMD="mlb-engine run --email"               # today's slate + email preview; defaults to today
+# The morning job builds today's full package (slate + regression articles,
+# emailed as one message via scripts.email_daily_package), then grades yesterday
+# and emails the ledger/report. The package steps are inlined in the runner
+# below so it stays a single source of truth with the one-click shortcut.
 AUDIT_CMD="mlb-engine audit --report --email"  # grade yesterday; defaults to yesterday
 
 # Schedule (24h). Change if you like.
@@ -93,6 +97,9 @@ cat > "$RUNNER" <<EOF
 set -euo pipefail
 MODE="\${1:-run}"
 [[ -f "$ENV_FILE" ]] && set -a && source "$ENV_FILE" && set +a
+# Also read the user-level env file (same one the manual shortcut uses), so
+# Gmail creds placed there work for the autorun too.
+[[ -f "\$HOME/.mlb_engine/engine.env" ]] && set -a && source "\$HOME/.mlb_engine/engine.env" && set +a
 cd "$REPO_DIR"
 [[ -d "$VENV_DIR" ]] && source "$VENV_DIR/bin/activate"
 
@@ -119,7 +126,9 @@ if [[ "\$MODE" == "night" ]]; then
   /usr/bin/pmset schedule wake "\$NEXT $MORNING_WAKE_HHMM:00" || true
   echo "[\$(date)] armed morning wake for \$NEXT $MORNING_WAKE_HHMM:00"
 else
-  # THE daily job (before noon): today's slate, then grade yesterday + email.
+  # THE daily job (before noon): build today's FULL package (slate + pitcher/
+  # batter regression articles + audio) and email it as one message, then grade
+  # yesterday and email the ledger/report.
   #
   # Keep the Mac awake WITHOUT wrapping the engine in caffeinate: caffeinate is
   # a SIP-protected /usr/bin binary, and launching it strips DYLD_* from the
@@ -127,7 +136,34 @@ else
   # Homebrew libs. Instead hold a background caffeinate tied to THIS script's
   # PID and run the engine as a direct child, so DYLD_*/SSL_CERT_FILE survive.
   /usr/bin/caffeinate -i -w \$\$ &
-  $RUN_CMD   || echo "[\$(date)] '$RUN_CMD' exited non-zero" >&2
+
+  # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
+  #    cache pkl). No --email here: the package email below owns delivery.
+  VSIN="\$HOME/.mlb_engine/vsin_today.csv"
+  if [[ -f "\$VSIN" ]]; then
+    mlb-engine run --vsin-csv "\$VSIN" || echo "[\$(date)] 'mlb-engine run' exited non-zero" >&2
+  else
+    mlb-engine run || echo "[\$(date)] 'mlb-engine run' exited non-zero" >&2
+  fi
+
+  # 2) slate + regression articles, then email the whole package as one message.
+  OUT="\$HOME/.mlb_engine/output"
+  xlsx=\$(ls -t "\$OUT"/mlb_recommendations_*.xlsx 2>/dev/null | head -1) || true
+  if [[ -n "\$xlsx" ]]; then
+    day=\$(basename "\$xlsx" .xlsx); day=\${day#mlb_recommendations_}
+    python -m scripts.regen_slate "\$day" || echo "[\$(date)] slate article failed" >&2
+    pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
+    if [[ -n "\$pkl" ]]; then
+      python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" || echo "[\$(date)] regression articles failed" >&2
+    else
+      echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
+    fi
+    python -m scripts.email_daily_package "\$day" || echo "[\$(date)] package email failed" >&2
+  else
+    echo "[\$(date)] no workbook produced; skipping package email" >&2
+  fi
+
+  # 3) grade yesterday + email the ledger/report.
   $AUDIT_CMD || echo "[\$(date)] '$AUDIT_CMD' exited non-zero" >&2
 fi
 EOF
