@@ -270,6 +270,20 @@ class Config:
         default_factory=lambda: _env_float("MLBE_SINGLES_SIERA_BAD", 4.4)
     )
 
+    # Thin-Statcast starter gate: when a probable starter has fewer than
+    # MLBE_THIN_SP_MIN_PITCHES tracked pitches in the window (e.g. a debut/call-up
+    # with no MLB data), the engine has no real read on him and falls back to an
+    # optimistic prior -- which manufactures phantom edges on that game's
+    # starter-driven markets (game/F5 ML, run line, totals, and his pitcher props).
+    # Veto those to Pass rather than bet a matchup the model can't price. Live by
+    # default; set MLBE_THIN_SP_GATE=0 to disable.
+    thin_starter_gate: bool = field(
+        default_factory=lambda: _env_bool("MLBE_THIN_SP_GATE", True)
+    )
+    thin_starter_min_pitches: int = field(
+        default_factory=lambda: _env_int("MLBE_THIN_SP_MIN_PITCHES", 150)
+    )
+
     # Default recipient for the nightly audit email.
     audit_email: str = field(
         default_factory=lambda: os.getenv("MLBE_AUDIT_EMAIL", "drfobusan@gmail.com")

@@ -905,6 +905,16 @@ class Pipeline:
         w = self.cfg.windows
         home_pit_rows = statcast[statcast["pitcher"] == game.home.probable_pitcher.mlbam_id]
         away_pit_rows = statcast[statcast["pitcher"] == game.away.probable_pitcher.mlbam_id]
+        # Thin-Statcast starter gate: a starter with too few tracked pitches is
+        # priced off an optimistic prior, so veto that game's starter-driven
+        # markets rather than bet a matchup the model can't actually read.
+        home_sp_thin = self._thin_starter_reason(
+            game.home.probable_pitcher.name, len(home_pit_rows)
+        )
+        away_sp_thin = self._thin_starter_reason(
+            game.away.probable_pitcher.name, len(away_pit_rows)
+        )
+        game_sp_thin = home_sp_thin or away_sp_thin
         # SIERA of each starter (from Statcast); away batters face the home
         # starter and vice-versa -> map by the batter's own team_key.
         opp_siera = {
@@ -999,17 +1009,17 @@ class Pipeline:
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
-                             team_side="home", side="win", quotes=quotes))
+                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(aa), float((margin < 0).mean()),
-                             team_side="away", side="win", quotes=quotes))
+                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
-                             line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
+                             line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin > -1.5).mean()),
-                             line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
+                             line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, -1.5), float((-margin > 1.5).mean()),
-                             line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal))
+                             line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((-margin > -1.5).mean()),
-                             line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal))
+                             line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
 
         # ---- comeback-resilience flags ----
         recs.extend(self._comeback_recs(
@@ -1019,26 +1029,26 @@ class Pipeline:
 
         for line in (7.5, 8.5, 9.5, 10.5):
             recs.append(self._mk(game, m, "game", "game_total", keys.game_total(True, line), p_over(total, line),
-                                 line=line, side="over", quotes=quotes))
+                                 line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
             recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), 1 - p_over(total, line),
-                                 line=line, side="under", quotes=quotes))
+                                 line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- F5 markets ----
         recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(ha), f5.p_home_ml,
-                             team_side="home", side="win", quotes=quotes))
+                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(aa), f5.p_away_ml,
-                             team_side="away", side="win", quotes=quotes))
-        recs.append(self._mk(game, m, "f5", "f5_ml", "F5 Tie", f5.p_tie, side="tie", quotes=quotes))
+                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin))
+        recs.append(self._mk(game, m, "f5", "f5_ml", "F5 Tie", f5.p_tie, side="tie", quotes=quotes, gate_reason=game_sp_thin))
         for line in (4.5, 5.5):
             po = f5.p_total_over(line)
             recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(True, line), po,
-                                 line=line, side="over", quotes=quotes))
+                                 line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
             recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), 1 - po,
-                                 line=line, side="under", quotes=quotes))
+                                 line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(ha, -0.5), f5.p_home_cover(0.5),
-                             line=-0.5, team_side="home", side="cover", quotes=quotes))
+                             line=-0.5, team_side="home", side="cover", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(aa, 0.5), 1 - f5.p_home_cover(0.5),
-                             line=0.5, team_side="away", side="cover", quotes=quotes))
+                             line=0.5, team_side="away", side="cover", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- batter props ----
         for team_key, tinfo, flags, sels, regs, sunders in (
@@ -1054,8 +1064,8 @@ class Pipeline:
 
         # ---- pitcher props (starters) ----
         # home team's starter faces away hitters -> stats tracked under pit["home"]
-        recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes))
-        recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes))
+        recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes, home_sp_thin))
+        recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes, away_sp_thin))
 
         self._attach_context(recs, park, eff, xrd, xrd_sd)
 
@@ -1336,7 +1346,7 @@ class Pipeline:
                 ))
         return out
 
-    def _pitcher_props(self, game, m, res, team_key, pitcher, quotes):
+    def _pitcher_props(self, game, m, res, team_key, pitcher, quotes, gate_reason=None):
         out = []
         pit = res.pit[team_key]
         lines = {"K": [4.5, 5.5, 6.5], "outs": [15.5, 17.5], "H": [4.5, 5.5], "BB": [1.5, 2.5], "ER": [2.5, 3.5]}
@@ -1354,9 +1364,22 @@ class Pipeline:
                     game, m, "pitcher", f"pitcher_{stat.lower()}",
                     keys.pitcher_prop(pitcher.name, label[stat], line), p_over(arr, line),
                     line=line, player_id=pitcher.mlbam_id, stat=stat, side="over", quotes=quotes,
-                    gate_reason=gate,
+                    gate_reason=gate or gate_reason,
                 ))
         return out
+
+    def _thin_starter_reason(self, name: str, pitches: int) -> str | None:
+        """Gate reason when a starter has too little Statcast to be priced.
+
+        Returns ``None`` (no gate) when the gate is disabled or the sample clears
+        the ``thin_starter_min_pitches`` floor.
+        """
+        if not self.cfg.thin_starter_gate:
+            return None
+        floor = self.cfg.thin_starter_min_pitches
+        if pitches >= floor:
+            return None
+        return f"thin Statcast: {name} {pitches}p < {floor}"
 
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,

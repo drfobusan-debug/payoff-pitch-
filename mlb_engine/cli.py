@@ -283,6 +283,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             cfg,
             email=args.email,
             to=args.to,
+            recs=recs,
             extra_attachments=attachments or None,
         )
     return 0
