@@ -84,6 +84,19 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+# Cumulative-audit false-positive pockets. The model is over-confident on these
+# counting-prop overs (measured PPV well below the ~52.4% breakeven), so a global
+# EV floor still lets marginal, unprofitable buys through. Each market must clear
+# a higher measured edge before it can fire. Values are (strong, moderate, min_edge)
+# in EV per $1; env overrides (MLBE_EV_STRONG_<MARKET> etc.) still win.
+_OVERBET_FLOORS: dict[str, tuple[float, float, float]] = {
+    "batter_tb": (0.12, 0.08, 0.05),
+    "batter_r": (0.12, 0.08, 0.05),
+    "batter_hrr": (0.10, 0.06, 0.04),
+    "batter_1b": (0.10, 0.06, 0.04),
+}
+
+
 @dataclass(frozen=True)
 class EVThresholds:
     """Expected-value cutoffs (in EV per $1 staked) for buy tiers."""
@@ -107,10 +120,14 @@ class EVThresholds:
         global cutoffs when no override is set.
         """
         suffix = market.upper()
+        floor = _OVERBET_FLOORS.get(market)
+        d_strong, d_moderate, d_edge = (
+            floor if floor is not None else (self.strong_buy, self.moderate_buy, self.min_edge)
+        )
         return EVThresholds(
-            strong_buy=_env_float(f"MLBE_EV_STRONG_{suffix}", self.strong_buy),
-            moderate_buy=_env_float(f"MLBE_EV_MODERATE_{suffix}", self.moderate_buy),
-            min_edge=_env_float(f"MLBE_MIN_EDGE_{suffix}", self.min_edge),
+            strong_buy=_env_float(f"MLBE_EV_STRONG_{suffix}", d_strong),
+            moderate_buy=_env_float(f"MLBE_EV_MODERATE_{suffix}", d_moderate),
+            min_edge=_env_float(f"MLBE_MIN_EDGE_{suffix}", d_edge),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
         )
 
@@ -289,6 +306,14 @@ class Config:
     # escape hatch for reproducing pre-fix runs.
     legacy_prop_post_mult: bool = field(
         default_factory=lambda: _env_bool("MLBE_LEGACY_PROP_POST_MULT", False)
+    )
+
+    # High pitcher-K lines (o6.5+) are a cumulative false-positive pocket
+    # (~38% hit vs the ~52.4% breakeven): the model over-projects strikeouts at
+    # the top of the ladder. Gate any K prop whose line exceeds this cap to Pass
+    # so only the reliable low lines (o4.5/o5.5) can be bought.
+    pitcher_k_max_buy_line: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
     # Barrel rate is a negative for singles: power hitters take the same number
