@@ -330,6 +330,21 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
+    # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
+    # the model under-projected outs in its meaty 0.45-0.60 band, which actually
+    # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were
+    # passed. This adds a small, capped upward bias to the calibrated
+    # pitcher_outs over-probability -- only below ``pitcher_outs_bias_max_prob``,
+    # where the miss was measured -- to lift those bets back over the buy bar.
+    # Conservative default (well under the measured 8-15pp gap); provisional
+    # pending CLV validation. Set MLBE_PITCHER_OUTS_PROB_BIAS=0 to disable.
+    pitcher_outs_prob_bias: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_OUTS_PROB_BIAS", 0.04)
+    )
+    pitcher_outs_bias_max_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_OUTS_BIAS_MAX_PROB", 0.62)
+    )
+
     # Barrel rate is a negative for singles: power hitters take the same number
     # of hits but convert them to extra bases. The slope prices the half of that
     # effect the simulated K rate does not already carry; ``power_split`` stops
