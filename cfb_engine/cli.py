@@ -8,6 +8,8 @@ Commands mirror the MLB engine:
     cfb-engine audit     grade a past slate, update the ledger, email the recap
     cfb-engine report    rebuild the ledger workbook from history (no grading)
     cfb-engine calibrate refit the probability calibration from the ledger
+    cfb-engine backtest  A/B the score engines (normal vs markov) on a season
+    cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
 """
 
 from __future__ import annotations
@@ -37,6 +39,7 @@ from cfb_engine.audit.ledger import (
     overall_metrics,
     update_ledger,
 )
+from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
@@ -152,6 +155,15 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
+    scorecard = build_scorecard(graded, day)
+    append_scorecard(scorecard, cfg.scorecard_file)
+    buy = next((r for r in scorecard if r.market == "All" and r.tier == "Buy (S+M)"), None)
+    if buy is not None and buy.n:
+        print(
+            f"Buy PPV {buy.ppv:.1%} vs break-even {buy.breakeven:.1%} "
+            f"(edge {buy.edge_vs_be:+.1%}); ROI {buy.roi:+.1%} on {buy.n} bets."
+        )
+
     _emit_ledger(cfg, merged, day, n_graded=len(entries), email=not args.no_email, to=args.to)
     return 0
 
@@ -183,6 +195,36 @@ def cmd_calibrate(cfg: Config, args: argparse.Namespace) -> int:
     calib = Calibrator.fit(rows)
     calib.to_json(cfg.calibration_file)
     print(f"Fit calibration from {len(rows)} graded bets -> {cfg.calibration_file}")
+    return 0
+
+
+def cmd_backtest(cfg: Config, args: argparse.Namespace) -> int:
+    from cfb_engine.backtest import run_backtest
+
+    season = args.season or _season(cfg, _day(args))
+    scores = run_backtest(cfg, season)
+    if not scores:
+        print(f"No completed games / ratings for {season} to backtest.")
+        return 1
+    print(f"Engine A/B on {season} ({scores[0].n} games), same ratings-implied means:")
+    print(f"{'engine':>8}  {'Brier':>7}  {'logloss':>8}  {'margin RMSE':>12}  {'total RMSE':>11}")
+    for s in scores:
+        print(
+            f"{s.engine:>8}  {s.brier:>7.4f}  {s.logloss:>8.4f}  "
+            f"{s.margin_rmse:>12.2f}  {s.total_rmse:>11.2f}"
+        )
+    print(
+        "note: means are shared, so RMSE is identical by design; the engines differ\n"
+        "only in distribution shape, which shows up in Brier/logloss (moneyline)."
+    )
+    return 0
+
+
+def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
+    if not cfg.scorecard_file.exists():
+        print("No scorecard yet; run `cfb-engine audit` on graded slates first.")
+        return 1
+    print(cfg.scorecard_file.read_text().rstrip())
     return 0
 
 
@@ -237,6 +279,10 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(sub.add_parser("calibrate", help="refit probability calibration"))
+    bt = sub.add_parser("backtest", help="A/B the score engines (normal vs markov)")
+    bt.add_argument("--season", type=int, help="season year (default: inferred)")
+    bt.add_argument("--date", help="slate date used to infer the season")
+    add_common(sub.add_parser("scorecard", help="print the PPV/NPV-by-market scorecard"))
     return p
 
 
@@ -247,6 +293,8 @@ _DISPATCH = {
     "audit": cmd_audit,
     "report": cmd_report,
     "calibrate": cmd_calibrate,
+    "backtest": cmd_backtest,
+    "scorecard": cmd_scorecard,
 }
 
 

@@ -15,6 +15,7 @@ from datetime import date as Date
 
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
+from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
@@ -25,8 +26,15 @@ from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
 from cfb_engine.market.board import GameOdds
+from cfb_engine.market.confidence import (
+    MatchupSignal,
+    build_signal,
+    confidence_adjustment,
+    market_veto,
+)
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
-from cfb_engine.market.tiers import Tier, classify
+from cfb_engine.market.tiers import Tier, bump_tier, classify
+from cfb_engine.models.markov import DriveShape, MarkovSim
 from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
 from cfb_engine.recommendations import Recommendation
 from cfb_engine.schemas import Game, Slate
@@ -61,6 +69,7 @@ class Pipeline:
         self.ensemble = EnsembleProvider(cfg.cache_dir, cfg.models_dir)
         self.calibrator = calibrator or self._load_calibrator()
         self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
+        self.advanced: AdvancedBook = parse_advanced([], {})
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -105,14 +114,19 @@ class Pipeline:
                     target_sd=self.cfg.ensemble_target_sd,
                 )
         ctx_book = build_context_book(self.cfbd, season, slate)
+        if self.cfg.marking.enabled or self.cfg.sim_engine == "markov":
+            self.advanced = self.cfbd.fetch_advanced(season)
+            if self.advanced.teams:
+                logger.info("advanced stats: %d teams", len(self.advanced.teams))
         mc = MonteCarlo(self.cfg.model)
+        markov = MarkovSim(self.cfg.model) if self.cfg.sim_engine == "markov" else None
 
         recs: list[Recommendation] = []
         for game in slate.games:
             odds = board.get(game.matchup())
             if odds is None:
                 continue
-            recs.extend(self._price_game(game, odds, ratings, ctx_book, mc))
+            recs.extend(self._price_game(game, odds, ratings, ctx_book, mc, markov))
         recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
         return recs
 
@@ -124,6 +138,7 @@ class Pipeline:
         ratings: RatingBook | None,
         ctx_book: ContextBook,
         mc: MonteCarlo,
+        markov: MarkovSim | None,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(
             game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
@@ -144,13 +159,33 @@ class Pipeline:
             margin_sd=self.cfg.model.margin_sd,
             total_sd=self.cfg.model.total_sd,
         )
-        sim = mc.simulate(exp)
-        ctx = _GameCtx(game, sim, adj)
+        sim = self._simulate(game, exp, mc, markov)
+        signal = (
+            build_signal(self.advanced, game.home.name, game.away.name)
+            if self.cfg.marking.enabled
+            else MatchupSignal()
+        )
+        ctx = _GameCtx(game, sim, adj, signal)
         out: list[Recommendation] = []
         out.extend(self._price_ml(ctx, odds))
         out.extend(self._price_ats(ctx, odds))
         out.extend(self._price_total(ctx, odds))
         return out
+
+    def _simulate(
+        self, game: Game, exp: ExpectedGame, mc: MonteCarlo, markov: MarkovSim | None
+    ) -> GameSimResult:
+        """Markov engine when selected and both teams have pace stats; else normal."""
+        if markov is not None:
+            home = self.advanced.get(game.home.name)
+            away = self.advanced.get(game.away.name)
+            if home is not None and away is not None:
+                shape = DriveShape(
+                    home_drives=home.drives_per_game,
+                    away_drives=away.drives_per_game,
+                )
+                return markov.simulate(exp, shape)
+        return mc.simulate(exp)
 
     def _means(
         self, game: Game, odds: GameOdds, ratings: RatingBook | None, home_hfa: float
@@ -284,6 +319,8 @@ class Pipeline:
         tier, reasons = classify(result, thr)
         # Surface the situational nudges alongside the EV reasoning.
         reasons = [*reasons, *ctx.adj.reasons]
+        tier, mark_reasons = self._mark(ctx.signal, market, team_side, side, line, tier)
+        reasons = [*reasons, *mark_reasons]
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -312,14 +349,38 @@ class Pipeline:
             exp_total_sd=ctx.sim.exp_total_sd,
         )
 
+    def _mark(
+        self,
+        signal: MatchupSignal,
+        market: str,
+        team_side: str | None,
+        side: str | None,
+        line: float | None,
+        tier: Tier,
+    ) -> tuple[Tier, list[str]]:
+        """Apply the metric marking layer: NPV veto first, then confidence bump."""
+        if not self.cfg.marking.enabled or not signal.has_efficiency or tier == Tier.PASS:
+            return tier, []
+        params = self.cfg.marking
+        veto = market_veto(market, team_side, side, line, signal, params)
+        if veto.dropped:
+            return Tier.PASS, [f"veto: {veto.gate}"]
+        steps, reasons = confidence_adjustment(market, team_side, side, signal, params)
+        if steps == 0:
+            return tier, []
+        return bump_tier(tier, steps), reasons
+
 
 class _GameCtx:
-    __slots__ = ("game", "sim", "adj", "home_ab", "away_ab", "matchup")
+    __slots__ = ("game", "sim", "adj", "signal", "home_ab", "away_ab", "matchup")
 
-    def __init__(self, game: Game, sim: GameSimResult, adj: Adjustment) -> None:
+    def __init__(
+        self, game: Game, sim: GameSimResult, adj: Adjustment, signal: MatchupSignal
+    ) -> None:
         self.game = game
         self.sim = sim
         self.adj = adj
+        self.signal = signal
         self.home_ab = game.home.abbrev
         self.away_ab = game.away.abbrev
         self.matchup = game.matchup()

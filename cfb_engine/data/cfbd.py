@@ -22,6 +22,7 @@ from datetime import timedelta
 
 import requests
 
+from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.teamnames import school_key
 
 log = logging.getLogger(__name__)
@@ -152,6 +153,37 @@ class CFBDClient:
         league_avg = sum(offs) / len(offs)
         return RatingBook(ratings=ratings, league_avg=league_avg)
 
+    def fetch_advanced(self, season: int) -> AdvancedBook:
+        """Advanced efficiency stats + turnover components for ``season``.
+
+        Falls back to the prior season if the current one is still empty
+        (preseason), and returns an empty book if the key is absent or the
+        endpoint is unentitled -- callers treat that as "no signal".
+        """
+        if not self.available():
+            return parse_advanced([], {})
+        adv = self._get("/stats/season/advanced", year=season)
+        if not isinstance(adv, list) or not adv:
+            season -= 1
+            adv = self._get("/stats/season/advanced", year=season)
+        if not isinstance(adv, list) or not adv:
+            return parse_advanced([], {})
+        adv_rows = [r for r in adv if isinstance(r, dict)]
+
+        season_stats: dict[str, dict[str, float]] = {}
+        raw = self._get("/stats/season", year=season)
+        if isinstance(raw, list):
+            for row in raw:
+                if not isinstance(row, dict):
+                    continue
+                team = row.get("team")
+                name = row.get("statName")
+                val = row.get("statValue")
+                if not team or not name or not isinstance(val, (int, float)):
+                    continue
+                season_stats.setdefault(school_key(str(team)), {})[str(name)] = float(val)
+        return parse_advanced(adv_rows, season_stats)
+
     def _games(self, season: int) -> list[dict[str, object]]:
         """Every regular- and post-season game for ``season`` (cached)."""
         if season in self._games_cache:
@@ -181,6 +213,21 @@ class CFBDClient:
             start = str(row.get("start_date") or row.get("startDate") or "")
             if start[:10] not in allowed:
                 continue
+            hp = row.get("home_points", row.get("homePoints"))
+            ap = row.get("away_points", row.get("awayPoints"))
+            home = row.get("home_team", row.get("homeTeam"))
+            away = row.get("away_team", row.get("awayTeam"))
+            if not isinstance(hp, (int, float)) or not isinstance(ap, (int, float)):
+                continue
+            if not home or not away:
+                continue
+            out.append(GameResult(str(home), str(away), int(hp), int(ap)))
+        return out
+
+    def fetch_all_results(self, season: int) -> list[GameResult]:
+        """Every completed game's final score for ``season`` (backtest input)."""
+        out: list[GameResult] = []
+        for row in self._games(season):
             hp = row.get("home_points", row.get("homePoints"))
             ap = row.get("away_points", row.get("awayPoints"))
             home = row.get("home_team", row.get("homeTeam"))

@@ -188,11 +188,52 @@ class Credentials:
 
 
 @dataclass(frozen=True)
+class MarkingParams:
+    """Metric-driven 'marking' layer: PPV confidence bumps + NPV veto gates.
+
+    Fed by CFBD advanced stats, this layer only re-tiers an already-priced bet:
+    confidence bumps nudge a selection up/down when the efficiency metrics that
+    carry documented PPV (net PPA, success rate, havoc, finishing drives) agree
+    or disagree with it, and NPV gates drop a bet outright when the matchup is
+    structurally hostile to it (a turnover-luck regression candidate, a
+    low/high-scoring totals environment, an efficiency blowout laying points).
+    Every threshold degrades to a no-op when its input stat is missing.
+    """
+
+    enabled: bool = field(default_factory=lambda: _env_bool("CFBE_MARKING", True))
+    # Weighted support score (sum of PPV-weighted agreeing metrics minus
+    # disagreeing) needed to move a bet one tier up / down.
+    bump_up: float = field(default_factory=lambda: _env_float("CFBE_MARK_BUMP_UP", 0.20))
+    bump_down: float = field(default_factory=lambda: _env_float("CFBE_MARK_BUMP_DOWN", 0.20))
+    # Deadband (in each metric's own units) below which a metric is "neutral".
+    ppa_deadband: float = field(default_factory=lambda: _env_float("CFBE_MARK_PPA_DEAD", 0.03))
+    # NPV gates (each individually switchable).
+    veto_turnover: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TURNOVER", True))
+    veto_totals_env: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TOTALS_ENV", True))
+    veto_ats_blowout: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_ATS_BLOWOUT", True))
+    # A per-game turnover margin at/above which a team is a regression (fade)
+    # candidate (~ +9 turnovers over a 12-game season).
+    turnover_extreme: float = field(default_factory=lambda: _env_float("CFBE_TO_EXTREME", 0.75))
+    # Net-PPA gap (home minus away, per play) at which the losing side is too
+    # outclassed to trust its cover when it is also laying points.
+    ppa_blowout: float = field(default_factory=lambda: _env_float("CFBE_PPA_BLOWOUT", 0.25))
+
+
+@dataclass(frozen=True)
 class Config:
     model: ModelParams = field(default_factory=ModelParams)
     ev: EVThresholds = field(default_factory=EVThresholds)
     features: FeatureParams = field(default_factory=FeatureParams)
+    marking: MarkingParams = field(default_factory=MarkingParams)
     creds: Credentials = field(default_factory=Credentials)
+
+    # Score simulator: "normal" (correlated-bivariate-normal Monte Carlo) or
+    # "markov" (drive-based possession model). Markov re-shapes the score
+    # distribution around the *same* ratings-implied means using pace and
+    # per-drive scoring structure; the two share a means so a backtest can A/B
+    # the distribution shape cleanly. Falls back to normal when a game lacks
+    # advanced stats for both teams.
+    sim_engine: str = field(default_factory=lambda: os.getenv("CFBE_SIM_ENGINE", "normal"))
 
     # Season year for CFBD ratings lookups. Defaults to the current year; the
     # pipeline overrides it from the slate date so an early-January bowl slate
@@ -311,6 +352,11 @@ class Config:
     def closing_file(self, day: Date) -> Path:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
+
+    @property
+    def scorecard_file(self) -> Path:
+        """Rolling PPV/NPV-by-tier-and-market scorecard (CSV), appended nightly."""
+        return self.audit_dir / "scorecard.csv"
 
     def ensure_dirs(self) -> None:
         for d in (
