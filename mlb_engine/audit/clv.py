@@ -74,6 +74,23 @@ def closing_quotes(
     return out
 
 
+def merge_closing(
+    existing: dict[str, ClosingQuote], fresh: list[ClosingQuote]
+) -> list[ClosingQuote]:
+    """Later capture wins per selection, but nothing already captured is dropped.
+
+    A slate rarely closes at one moment: by the time the 7pm games are near
+    first pitch the afternoon games are already under way and have left the
+    pre-match board entirely. Capturing twice and overwriting would therefore
+    trade the day games' close for the night games', so the last price seen for
+    each selection is kept instead.
+    """
+    merged = dict(existing)
+    for q in fresh:
+        merged[q.key] = q
+    return sorted(merged.values(), key=lambda q: q.key)
+
+
 def save_closing(path: Path, quotes: list[ClosingQuote]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = [

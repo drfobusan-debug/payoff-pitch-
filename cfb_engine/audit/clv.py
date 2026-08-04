@@ -63,6 +63,19 @@ def closing_quotes(slate: Slate, board: dict[str, GameOdds]) -> dict[str, Closin
     return out
 
 
+def merge_closing(
+    existing: dict[str, ClosingQuote], fresh: dict[str, ClosingQuote]
+) -> dict[str, ClosingQuote]:
+    """Later capture wins per selection, but nothing already captured is dropped.
+
+    A Saturday runs from noon to past midnight, so any single capture sees the
+    close of one kickoff window and the long-stale opener of the rest. Repeat
+    captures therefore merge instead of replacing: an in-progress game has left
+    the pre-match board, and its captured close must survive later snapshots.
+    """
+    return {**existing, **fresh}
+
+
 def save_closing(quotes: dict[str, ClosingQuote], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {k: {"american": q.american, "no_vig_prob": q.no_vig_prob} for k, q in quotes.items()}

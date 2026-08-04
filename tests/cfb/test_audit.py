@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from cfb_engine.audit.clv import ClosingQuote, compute_clv
+from cfb_engine.audit.clv import ClosingQuote, compute_clv, merge_closing
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import entries_from_graded, load_ledger, update_ledger
 from cfb_engine.data.cfbd import GameResult
@@ -92,3 +92,21 @@ def test_clv_positive_when_market_moves_to_us():
 
 def test_clv_missing_selection_is_none():
     assert compute_clv("game_ml", "Nobody ML", -120, 0.5, {}) == (None, None, None, None)
+
+
+def test_merge_closing_keeps_earlier_kickoffs():
+    """A Saturday needs several captures, and the noon window must survive them.
+
+    Games already under way have left the pre-match board, so a late-window
+    capture returns nothing for them; replacing the file would discard their
+    close entirely.
+    """
+    noon = {"game_ml|Georgia ML": ClosingQuote(american=-150, no_vig_prob=0.60)}
+    night = {
+        "game_ml|Georgia ML": ClosingQuote(american=-160, no_vig_prob=0.615),
+        "game_ml|Oregon ML": ClosingQuote(american=-200, no_vig_prob=0.665),
+    }
+    merged = merge_closing(noon, night)
+    assert set(merged) == {"game_ml|Georgia ML", "game_ml|Oregon ML"}
+    assert merged["game_ml|Georgia ML"].no_vig_prob == 0.615
+    assert merge_closing(merged, {}) == merged

@@ -12,6 +12,7 @@ from mlb_engine.audit.clv import (
     clv_points,
     clv_rows,
     load_closing,
+    merge_closing,
     save_closing,
     summarize,
 )
@@ -72,6 +73,31 @@ def test_save_load_roundtrip(tmp_path: Path) -> None:
 
 def test_load_closing_missing_file_is_empty(tmp_path: Path) -> None:
     assert load_closing(tmp_path / "nope.json") == {}
+
+
+def test_second_capture_keeps_the_day_games_it_can_no_longer_see(tmp_path: Path) -> None:
+    """The afternoon close must survive the evening capture.
+
+    A game in progress has left the pre-match board, so the evening snapshot
+    returns nothing for it. Overwriting would trade the day slate's CLV for the
+    night slate's; merging keeps both, latest price winning per selection.
+    """
+    path = tmp_path / "closing.json"
+    save_closing(path, [ClosingQuote("KC@DET", "game_ml", "DET", -135.0, 0.5712)])
+
+    evening = [
+        ClosingQuote("KC@DET", "game_ml", "DET", -150.0, 0.5901),  # a later look
+        ClosingQuote("LAD@SF", "game_ml", "LAD", -180.0, 0.6350),  # a night game
+    ]
+    merged = merge_closing(load_closing(path), evening)
+    save_closing(path, merged)
+
+    final = load_closing(path)
+    assert set(final) == {"KC@DET|game_ml|DET", "LAD@SF|game_ml|LAD"}
+    assert final["KC@DET|game_ml|DET"].no_vig_prob == 0.5901
+
+    # A third capture that no longer sees either game changes nothing.
+    assert merge_closing(final, []) == sorted(final.values(), key=lambda q: q.key)
 
 
 def test_clv_points_and_ev() -> None:

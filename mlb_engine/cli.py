@@ -14,6 +14,7 @@ from mlb_engine.audit.clv import (
     closing_quotes,
     clv_rows,
     load_closing,
+    merge_closing,
     save_closing,
     summarize,
 )
@@ -359,10 +360,15 @@ def _closing_path(cfg: Config, slate_date: Date) -> Path:
 def cmd_close(args: argparse.Namespace) -> int:
     """Snapshot the closing market so the next audit can score closing line value.
 
-    Run this as late as possible before the first game starts: the closing price
-    is the sharpest forecast available, and beating it is the only fast evidence
-    that a pick was good. Cheap by design -- one bulk request for the game
-    markets, and props only if the credit budget allows.
+    Run this as late as possible before a game starts: the closing price is the
+    sharpest forecast available, and beating it is the only fast evidence that a
+    pick was good. Cheap by design -- one bulk request for the game markets, and
+    props only if the credit budget allows.
+
+    Safe to run more than once a day, and worth doing: a game that has started
+    has left the pre-match board, so an evening capture alone never sees the
+    afternoon slate's close. Repeat captures merge, keeping the last price seen
+    for each selection.
     """
     cfg = load_config()
     slate_date = _parse_date(args.date, Date.today())
@@ -375,11 +381,18 @@ def cmd_close(args: argparse.Namespace) -> int:
     if not quotes:
         print(f"No closing prices returned for {slate_date}")
         return 1
-    closing = closing_quotes(quotes)
     path = _closing_path(cfg, slate_date)
+    already = load_closing(path)
+    fresh = closing_quotes(quotes)
+    closing = merge_closing(already, fresh)
     save_closing(path, closing)
     markets = len({q.market for q in closing})
-    print(f"Captured {len(closing)} closing prices across {markets} markets -> {path}")
+    kept = len(closing) - len(fresh)
+    detail = f", {kept} carried over from an earlier capture" if kept > 0 else ""
+    print(
+        f"Captured {len(fresh)} closing prices; {len(closing)} total across "
+        f"{markets} markets{detail} -> {path}"
+    )
     return 0
 
 
