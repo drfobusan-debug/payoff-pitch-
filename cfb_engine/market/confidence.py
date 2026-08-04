@@ -88,10 +88,18 @@ def build_signal(book: AdvancedBook, home_name: str, away_name: str) -> MatchupS
         home_to_margin=home.turnover_margin_pg,
         away_to_margin=away.turnover_margin_pg,
         combined_ppa_env=(home.off_ppa + away.off_ppa) - 2 * book.mean_off_ppa,
-        combined_explosive_env=(home.off_explosive + away.off_explosive)
-        - 2 * book.mean_off_explosive,
-        pace_env=(home.plays_per_game + away.plays_per_game) - 2 * book.mean_plays_per_game,
+        combined_explosive_env=_env(
+            home.off_explosive, away.off_explosive, book.mean_off_explosive
+        ),
+        pace_env=_env(home.plays_per_game, away.plays_per_game, book.mean_plays_per_game),
     )
+
+
+def _env(home_val: float, away_val: float, mean: float) -> float | None:
+    """Combined-vs-average environment, or None if either side's stat is unknown."""
+    if home_val <= 0.0 or away_val <= 0.0:
+        return None
+    return (home_val + away_val) - 2 * mean
 
 
 def _sign_for_side(team_side: str | None, side: str | None) -> int:

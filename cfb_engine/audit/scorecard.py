@@ -163,11 +163,22 @@ FIELDS = [
 
 
 def append_scorecard(rows: list[TierMetrics], path: Path) -> None:
+    """Persist ``rows``, replacing any existing rows for the same date(s).
+
+    Grading a slate is intentionally re-runnable (see ``update_ledger``), so we
+    drop a date's prior block before writing the new one -- otherwise a re-audit
+    would double-count that slate in the rolling scorecard.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
-    exists = path.exists()
-    with path.open("a", newline="") as f:
+    new_dates = {r.date for r in rows}
+    kept: list[dict[str, str]] = []
+    if path.exists():
+        with path.open(newline="") as f:
+            kept = [row for row in csv.DictReader(f) if row.get("date") not in new_dates]
+    with path.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS)
-        if not exists:
-            w.writeheader()
+        w.writeheader()
+        for row in kept:
+            w.writerow(row)
         for r in rows:
             w.writerow(asdict(r))

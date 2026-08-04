@@ -85,6 +85,34 @@ def test_low_scoring_environment_vetoes_the_over():
     assert market_veto("game_total", None, "under", 62.0, sig, PARAMS).dropped is False
 
 
+def test_missing_game_count_leaves_pace_unknown_not_inflated():
+    # No /stats/season row and no `games` in the advanced row -> pace unknown (0.0),
+    # not season totals divided by 1.
+    rows = [
+        {
+            "team": "Toledo",
+            "offense": {"ppa": 0.15, "plays": 900, "drives": 165},
+            "defense": {"ppa": 0.12},
+        }
+    ]
+    book = parse_advanced(rows, {})
+    t = book.get("Toledo")
+    assert t is not None
+    assert t.plays_per_game == 0.0 and t.drives_per_game == 0.0
+    # A row that *does* carry games divides correctly.
+    rows2 = [
+        {
+            "team": "Toledo",
+            "games": 12,
+            "offense": {"ppa": 0.15, "plays": 900, "drives": 165},
+            "defense": {"ppa": 0.12},
+        }
+    ]
+    t2 = parse_advanced(rows2, {}).get("Toledo")
+    assert t2 is not None
+    assert abs(t2.plays_per_game - 75.0) < 1e-9
+
+
 def test_parse_advanced_computes_turnover_margin_and_pace():
     rows = [
         {

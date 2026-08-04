@@ -111,8 +111,14 @@ def parse_advanced(
         if off_ppa is None or def_ppa is None:
             continue
         key = school_key(str(team))
-        to_margin, games = _turnover_margin(season_stats.get(key, {}))
-        games = games or 1
+        to_margin, so_games = _turnover_margin(season_stats.get(key, {}))
+        # Prefer the advanced row's own game count; fall back to the season-stats
+        # count. With no reliable count we leave pace at 0.0 -- the "unknown"
+        # value MarkovSim treats as "use the default drive count" -- rather than
+        # dividing season totals by 1 and simulating at absurd tempo.
+        row_games = _num(row, "games")
+        games = int(row_games) if row_games and row_games > 0 else so_games
+        per_game = games if games > 0 else None
         teams[key] = TeamAdvanced(
             team=str(team),
             games=games,
@@ -125,8 +131,8 @@ def parse_advanced(
             off_finishing=_num(row, "offense", "pointsPerOpportunity") or 0.0,
             def_finishing=_num(row, "defense", "pointsPerOpportunity") or 0.0,
             havoc=_num(row, "defense", "havoc", "total") or 0.0,
-            plays_per_game=(off_plays / games) if off_plays else 0.0,
-            drives_per_game=(off_drives / games) if off_drives else 0.0,
+            plays_per_game=(off_plays / per_game) if (off_plays and per_game) else 0.0,
+            drives_per_game=(off_drives / per_game) if (off_drives and per_game) else 0.0,
             turnover_margin_pg=to_margin,
         )
     return _finalize(teams)
@@ -134,11 +140,12 @@ def parse_advanced(
 
 def _finalize(teams: dict[str, TeamAdvanced]) -> AdvancedBook:
     def mean(vals: list[float], default: float) -> float:
-        return statistics.fmean(vals) if vals else default
+        known = [v for v in vals if v > 0.0]
+        return statistics.fmean(known) if known else default
 
     return AdvancedBook(
         teams=teams,
-        mean_off_ppa=mean([t.off_ppa for t in teams.values()], 0.0),
+        mean_off_ppa=statistics.fmean([t.off_ppa for t in teams.values()]) if teams else 0.0,
         mean_off_explosive=mean([t.off_explosive for t in teams.values()], 1.2),
         mean_off_finishing=mean([t.off_finishing for t in teams.values()], 4.3),
         mean_plays_per_game=mean([t.plays_per_game for t in teams.values()], 68.0),
