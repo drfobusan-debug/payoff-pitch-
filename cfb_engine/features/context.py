@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import date as Date
 
 from cfb_engine.data.cfbd import CFBDClient
-from cfb_engine.data.teamnames import norm
+from cfb_engine.data.teamnames import school_key
 from cfb_engine.schemas import Slate
 
 _EARTH_MILES = 3958.8
@@ -35,7 +35,7 @@ ContextBook = dict[frozenset[str], GameContext]
 
 
 def _pair(home: str, away: str) -> frozenset[str]:
-    return frozenset({norm(home), norm(away)})
+    return frozenset({school_key(home), school_key(away)})
 
 
 def haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -71,12 +71,12 @@ def build_context_book(cfbd: CFBDClient, season: int, slate: Slate) -> ContextBo
         if day is None:
             continue
         for team in (meta.home, meta.away):
-            team_days.setdefault(norm(team), []).append(day)
+            team_days.setdefault(school_key(team), []).append(day)
     for days in team_days.values():
         days.sort()
 
     def rest_days(team: str, day: Date) -> int | None:
-        prior = [d for d in team_days.get(norm(team), []) if d < day]
+        prior = [d for d in team_days.get(school_key(team), []) if d < day]
         return (day - prior[-1]).days if prior else None
 
     wanted = {_pair(g.home.name, g.away.name) for g in slate.games}
@@ -88,7 +88,7 @@ def build_context_book(cfbd: CFBDClient, season: int, slate: Slate) -> ContextBo
         day = _game_day(meta.start_date)
         venue = venues.get(meta.venue_id) if meta.venue_id is not None else None
         travel = None
-        away_loc = team_locs.get(norm(meta.away))
+        away_loc = team_locs.get(school_key(meta.away))
         if venue is not None and away_loc is not None:
             travel = haversine_miles(
                 away_loc.latitude, away_loc.longitude, venue.latitude, venue.longitude

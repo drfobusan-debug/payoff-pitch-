@@ -22,7 +22,7 @@ from datetime import timedelta
 
 import requests
 
-from cfb_engine.data.teamnames import norm
+from cfb_engine.data.teamnames import school_key
 
 log = logging.getLogger(__name__)
 
@@ -46,11 +46,11 @@ class TeamRating:
 class RatingBook:
     """The slate's ratings plus the league scoring average that scales them."""
 
-    ratings: dict[str, TeamRating]  # keyed by normalized team name
+    ratings: dict[str, TeamRating]  # keyed by school_key
     league_avg: float  # mean adjusted offense (== mean adjusted defense)
 
     def get(self, team_name: str) -> TeamRating | None:
-        return self.ratings.get(norm(team_name))
+        return self.ratings.get(school_key(team_name))
 
 
 @dataclass(frozen=True)
@@ -145,7 +145,7 @@ class CFBDClient:
             deff = _nested(row, "defense", "rating")
             if not team or off is None or deff is None:
                 continue
-            ratings[norm(str(team))] = TeamRating(str(team), float(off), float(deff))
+            ratings[school_key(str(team))] = TeamRating(str(team), float(off), float(deff))
             offs.append(float(off))
         if not ratings:
             return None
@@ -241,7 +241,7 @@ class CFBDClient:
         return out
 
     def fetch_team_locations(self, season: int) -> dict[str, TeamLocation]:
-        """Each FBS team's home-stadium coordinates, keyed by normalized name."""
+        """Each FBS team's home-stadium coordinates, keyed by school_key."""
         if not self.available():
             return {}
         data = self._get("/teams/fbs", year=season)
@@ -256,7 +256,7 @@ class CFBDClient:
             lon = _nested(row, "location", "longitude")
             if not team or lat is None or lon is None:
                 continue
-            out[norm(str(team))] = TeamLocation(str(team), lat, lon)
+            out[school_key(str(team))] = TeamLocation(str(team), lat, lon)
         return out
 
     def fetch_weather(self, season: int) -> list[GameWeather]:

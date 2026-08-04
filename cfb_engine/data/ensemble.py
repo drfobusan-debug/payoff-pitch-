@@ -37,7 +37,8 @@ from pathlib import Path
 import requests
 
 from cfb_engine.data.cfbd import RatingBook, TeamRating
-from cfb_engine.data.teamnames import norm, school_key
+from cfb_engine.data.preseason import MAKINEN, TEAMRANKINGS
+from cfb_engine.data.teamnames import school_key
 
 log = logging.getLogger(__name__)
 
@@ -265,7 +266,7 @@ def blend_ensemble(
 
     if base is None:
         ratings = {
-            norm(team): TeamRating(team, _DEFAULT_LEAGUE_AVG + n / 2, _DEFAULT_LEAGUE_AVG - n / 2)
+            school_key(team): TeamRating(team, _DEFAULT_LEAGUE_AVG + n / 2, _DEFAULT_LEAGUE_AVG - n / 2)
             for team, n in consensus.items()
         }
         return RatingBook(ratings=ratings, league_avg=_DEFAULT_LEAGUE_AVG) if ratings else None
@@ -315,10 +316,15 @@ class EnsembleProvider:
         self.ttl = ttl
 
     def weights(self) -> dict[str, float]:
-        return {s: _weight_env(s) for s in ("sagarin", "fpi", "fei", "tsi", "cfbgraphs")}
+        sources = ("sagarin", "fpi", "fei", "tsi", "cfbgraphs", "makinen", "teamrankings")
+        return {s: _weight_env(s) for s in sources}
 
     def collect(self, season: int) -> list[ModelRatings]:
         models: list[ModelRatings] = []
+        if _enabled("makinen"):
+            models.append(ModelRatings("makinen", dict(MAKINEN)))
+        if _enabled("teamrankings"):
+            models.append(ModelRatings("teamrankings", dict(TEAMRANKINGS)))
         if _enabled("sagarin"):
             models.append(self._sagarin())
         if _enabled("fpi"):

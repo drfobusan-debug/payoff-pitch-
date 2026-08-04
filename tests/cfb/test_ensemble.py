@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import math
+from pathlib import Path
 
 from cfb_engine.data.cfbd import RatingBook, TeamRating
 from cfb_engine.data.ensemble import (
+    EnsembleProvider,
     ModelRatings,
     blend_ensemble,
     consensus_net,
@@ -14,6 +16,8 @@ from cfb_engine.data.ensemble import (
     parse_ratings_csv,
     parse_sagarin,
 )
+from cfb_engine.data.preseason import MAKINEN, TEAMRANKINGS
+from cfb_engine.data.teamnames import school_key
 
 SAGARIN_TEXT = """
 Jeff Sagarin Ratings
@@ -105,3 +109,29 @@ def test_blend_with_no_base_builds_book():
 def test_empty_consensus_returns_base_unchanged():
     base = RatingBook(ratings={"x": TeamRating("X", 28.0, 27.0)}, league_avg=27.5)
     assert blend_ensemble(base, [], blend=0.5) is base
+
+
+def test_provider_collects_preseason_sources(tmp_path: Path, monkeypatch):
+    # No network sources; only the baked-in Makinen + TeamRankings books.
+    for src in ("sagarin", "fpi", "fei"):
+        monkeypatch.setenv(f"CFBE_{src.upper()}", "0")
+    provider = EnsembleProvider(tmp_path / "cache", tmp_path / "models")
+    sources = {m.source for m in provider.collect(2026)}
+    assert {"makinen", "teamrankings"} <= sources
+    assert set(provider.weights()) >= {"makinen", "teamrankings"}
+
+
+def test_preseason_only_ensemble_builds_full_book():
+    # With no CFBD base, Makinen + TeamRankings alone yield a real rating book
+    # with a spread of net ratings (so the engine produces edges preseason).
+    models = [
+        ModelRatings("makinen", dict(MAKINEN)),
+        ModelRatings("teamrankings", dict(TEAMRANKINGS)),
+    ]
+    book = blend_ensemble(
+        None, models, blend=0.35, weights={"makinen": 1.0, "teamrankings": 1.0}
+    )
+    assert book is not None and len(book.ratings) == 138
+    osu = book.ratings[school_key("Ohio State")]
+    umass = book.ratings[school_key("Massachusetts")]
+    assert (osu.offense - osu.defense) > (umass.offense - umass.defense)

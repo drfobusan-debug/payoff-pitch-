@@ -222,6 +222,10 @@ class Config:
     # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))
 
+    # Use the VSiN guide's 0-19 roster-stability score to shrink a preseason
+    # rating gap toward a pick'em when both teams have volatile rosters.
+    vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", True))
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). Default 0 (off).
     market_anchor: float = field(default_factory=lambda: _env_float("CFBE_MARKET_ANCHOR", 0.0))

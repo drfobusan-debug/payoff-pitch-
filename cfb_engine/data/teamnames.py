@@ -9,6 +9,7 @@ code for cards and Excel by dropping the trailing mascot.
 from __future__ import annotations
 
 import re
+import unicodedata
 
 # Multi-word mascots that must be stripped as a unit so the school name survives
 # (e.g. "Notre Dame Fighting Irish" -> "Notre Dame"). Single trailing mascot
@@ -40,12 +41,25 @@ _MULTIWORD_MASCOTS = (
     "blue hens",
     "boll weevils",
     "seminoles",
+    "rainbow warriors",
+    "golden panthers",
+    "golden eagles",
+    "thundering herd",
 )
 
 
 def norm(name: str) -> str:
-    """Lowercase alphanumeric comparison key."""
-    return re.sub(r"[^a-z0-9 ]", "", str(name).lower()).strip()
+    """Lowercase alphanumeric comparison key.
+
+    Transliterates accents (``San José`` -> ``san jose``) and treats hyphens and
+    slashes as spaces (``Louisiana-Monroe`` -> ``louisiana monroe``) so the same
+    school spelled differently across sources collapses to one key.
+    """
+    decomposed = unicodedata.normalize("NFKD", str(name))
+    ascii_only = "".join(c for c in decomposed if not unicodedata.combining(c))
+    spaced = ascii_only.lower().replace("-", " ").replace("/", " ")
+    cleaned = re.sub(r"[^a-z0-9 ]", "", spaced)
+    return re.sub(r"\s+", " ", cleaned).strip()
 
 
 # External power-rating sources (Sagarin, FPI, FEI, ...) label teams by school
@@ -83,6 +97,7 @@ _SCHOOL_ALIASES: dict[str, str] = {
     "texas am": "texas am",
     "sam houston st": "sam houston",
     "st francis pa": "saint francis",
+    "middle tennessee state": "middle tennessee",
 }
 
 
@@ -103,7 +118,7 @@ _MASCOTS = frozenset(
         "irish", "aztecs", "broncos", "rams", "falcons", "raiders", "mustangs", "frogs", "bearcats", "cajuns", "warhawks", "chanticleers",
         "hilltoppers", "blazers", "miners", "vandals", "redhawks",
         "chippewas", "rockets", "zips", "bobcats", "cardinals",
-        "minutemen", "midshipmen",
+        "minutemen", "midshipmen", "bison", "hornets",
     }
 )
 

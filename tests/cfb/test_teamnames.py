@@ -31,5 +31,16 @@ def test_notre_dame_multiword_mascot():
     assert school_key("Notre Dame Fighting Irish") == "notre dame"
 
 
+def test_accents_and_hyphens_normalize():
+    assert school_key("San José State") == school_key("San Jose St") == "san jose state"
+    assert school_key("Louisiana-Monroe") == "louisiana monroe"
+
+
+def test_previously_unmatched_mascots_strip():
+    assert school_key("North Dakota State Bison") == "north dakota state"
+    assert school_key("Sacramento State Hornets") == "sacramento state"
+    assert school_key("Hawaii Rainbow Warriors") == "hawaii"
+
+
 def test_short_code_drops_mascot():
     assert short_code("Alabama Crimson Tide") == "Alabama"

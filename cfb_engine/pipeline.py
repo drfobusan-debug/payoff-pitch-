@@ -18,6 +18,7 @@ from cfb_engine.config import Config
 from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
+from cfb_engine.data.preseason import stability_factor
 from cfb_engine.data.ratings import build_rating_book
 from cfb_engine.data.vsin import hfa_for
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
@@ -171,9 +172,13 @@ class Pipeline:
                 away_pts = away.offense * home.defense / la
                 # Mean-reversion regression: shrink the rating gap toward zero
                 # (guide-style) before adding HFA, since SP+ separation overstates
-                # true edge; the total is left on its own scale.
-                raw_gap = (home_pts - away_pts) * self.cfg.features.regression_factor
-                rating_margin = raw_gap + self.cfg.model.home_field_pts
+                # true edge; the total is left on its own scale. Volatile rosters
+                # (low VSiN stability) shrink the gap harder toward a pick'em.
+                regression = self.cfg.features.regression_factor * stability_factor(
+                    game.home.name, game.away.name, enabled=self.cfg.vsin_stability
+                )
+                raw_gap = (home_pts - away_pts) * regression
+                rating_margin = raw_gap + home_hfa
                 rating_total = home_pts + away_pts
 
         if rating_margin is not None and market_margin is not None:

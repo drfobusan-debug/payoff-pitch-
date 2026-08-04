@@ -21,7 +21,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from cfb_engine.data.cfbd import RatingBook, TeamRating
-from cfb_engine.data.teamnames import norm
+from cfb_engine.data.teamnames import school_key
 
 log = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ def _read_pff(path: Path, league_avg: float) -> dict[str, TeamRating]:
                 offense = league_avg + (off_grade - _PFF_GRADE_PIVOT) * scale
                 # Higher defensive grade = fewer points allowed.
                 defense = league_avg - (def_grade - _PFF_GRADE_PIVOT) * scale
-                out[norm(team)] = TeamRating(team, offense, defense)
+                out[school_key(team)] = TeamRating(team, offense, defense)
     except OSError as exc:
         log.warning("could not read PFF CSV %s: %s", path, exc)
     return out
@@ -107,7 +107,7 @@ def _read_local(path: Path) -> dict[str, TeamRating]:
                 if not team:
                     continue
                 try:
-                    out[norm(team)] = TeamRating(team, float(row[off_col]), float(row[def_col]))
+                    out[school_key(team)] = TeamRating(team, float(row[off_col]), float(row[def_col]))
                 except (TypeError, ValueError):
                     continue
     except OSError as exc:
