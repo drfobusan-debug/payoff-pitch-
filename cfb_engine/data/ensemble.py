@@ -51,6 +51,17 @@ FPI_URL = (
     "college-football/powerindex?region=us&lang=en&limit=200&season={season}"
 )
 FEI_URL = "https://www.bcftoys.com/{season}-fei/"
+TEAMRANKINGS_URL = "https://www.teamrankings.com/college-football/ranking/{slug}"
+# Live TeamRankings ranking pages, by ensemble source name. ``teamrankings`` is
+# the season-long predictive power rating (baked-in preseason values are the
+# fallback until the live page updates); the ``_l5``/``_l10`` variants are recent
+# -form power ratings that are blank ("--") preseason and populate in-season.
+TEAMRANKINGS_SLUGS = {
+    "teamrankings": "predictive-by-other",
+    "teamrankings_l5": "last-5-games-by-other",
+    "teamrankings_l10": "last-10-games-by-other",
+}
+_TR_RECORD = re.compile(r"\s*\(\d+-\d+(?:-\d+)?\)\s*$")
 
 
 @dataclass(frozen=True)
@@ -189,6 +200,43 @@ def parse_fei(html: str) -> ModelRatings:
     return ModelRatings("fei", net)
 
 
+def parse_teamrankings(html: str, source: str) -> ModelRatings:
+    """Parse a TeamRankings ranking page (``Team`` + ``Rating`` columns).
+
+    Team cells carry a ``(W-L)`` record suffix that is stripped. Rows whose
+    rating is a placeholder ("--", blank) are skipped, so a recent-form page
+    with no games yet yields an empty (harmlessly dropped) model.
+    """
+    try:
+        import pandas as pd
+    except ImportError:  # pragma: no cover - pandas is a project dep
+        log.warning("pandas unavailable; skipping TeamRankings parse")
+        return ModelRatings(source, {})
+    try:
+        tables = pd.read_html(io.StringIO(html))
+    except (ValueError, ImportError) as exc:
+        log.warning("could not parse TeamRankings table: %s", exc)
+        return ModelRatings(source, {})
+    net: dict[str, float] = {}
+    for table in tables:
+        cols = {str(c).strip().lower(): c for c in table.columns}
+        team_col = cols.get("team")
+        rating_col = cols.get("rating")
+        if team_col is None or rating_col is None:
+            continue
+        for _, row in table.iterrows():
+            team = _TR_RECORD.sub("", str(row[team_col]).strip())
+            try:
+                val = float(row[rating_col])
+            except (TypeError, ValueError):
+                continue
+            if team and team.lower() != "nan":
+                net[school_key(team)] = val
+        if net:
+            break
+    return ModelRatings(source, net)
+
+
 def parse_ratings_csv(text: str, source: str) -> ModelRatings:
     """Parse a drop-in CSV/tab file into net ratings.
 
@@ -295,9 +343,17 @@ def _net_spread(base: RatingBook | None) -> float:
 # --------------------------------------------------------------------------- #
 # Fetchers (cached, fail-soft)
 # --------------------------------------------------------------------------- #
+# Per-source default weights (1.0 unless a source should tilt rather than
+# dominate). Recent-form pages inform in-season, but shouldn't outweigh the
+# season-long books when they populate.
+_DEFAULT_WEIGHTS = {"teamrankings_l5": 0.5, "teamrankings_l10": 0.5}
+
+
 def _weight_env(source: str) -> float:
     raw = os.getenv(f"CFBE_W_{source.upper()}")
-    return float(raw) if raw not in (None, "") else 1.0
+    if raw not in (None, ""):
+        return float(raw)
+    return _DEFAULT_WEIGHTS.get(source, 1.0)
 
 
 def _enabled(source: str) -> bool:
@@ -316,7 +372,10 @@ class EnsembleProvider:
         self.ttl = ttl
 
     def weights(self) -> dict[str, float]:
-        sources = ("sagarin", "fpi", "fei", "tsi", "cfbgraphs", "makinen", "teamrankings")
+        sources = (
+            "sagarin", "fpi", "fei", "tsi", "cfbgraphs", "makinen",
+            "teamrankings", "teamrankings_l5", "teamrankings_l10",
+        )
         return {s: _weight_env(s) for s in sources}
 
     def collect(self, season: int) -> list[ModelRatings]:
@@ -324,7 +383,14 @@ class EnsembleProvider:
         if _enabled("makinen"):
             models.append(ModelRatings("makinen", dict(MAKINEN)))
         if _enabled("teamrankings"):
-            models.append(ModelRatings("teamrankings", dict(TEAMRANKINGS)))
+            # Live predictive rating; fall back to the baked-in preseason snapshot
+            # until the live page publishes (or if the fetch fails).
+            live = self._teamrankings("teamrankings")
+            models.append(live if live.net else ModelRatings("teamrankings", dict(TEAMRANKINGS)))
+        if _enabled("teamrankings_l5"):
+            models.append(self._teamrankings("teamrankings_l5"))
+        if _enabled("teamrankings_l10"):
+            models.append(self._teamrankings("teamrankings_l10"))
         if _enabled("sagarin"):
             models.append(self._sagarin())
         if _enabled("fpi"):
@@ -335,6 +401,11 @@ class EnsembleProvider:
         return [m for m in models if m.net]
 
     # -- individual sources ----------------------------------------------
+    def _teamrankings(self, source: str) -> ModelRatings:
+        slug = TEAMRANKINGS_SLUGS[source]
+        text = self._get_text(f"{source}.html", TEAMRANKINGS_URL.format(slug=slug))
+        return parse_teamrankings(text, source) if text else ModelRatings(source, {})
+
     def _sagarin(self) -> ModelRatings:
         text = self._get_text("sagarin.html", SAGARIN_URL)
         return parse_sagarin(text) if text else ModelRatings("sagarin", {})

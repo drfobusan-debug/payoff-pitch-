@@ -15,6 +15,7 @@ from cfb_engine.data.ensemble import (
     parse_fpi,
     parse_ratings_csv,
     parse_sagarin,
+    parse_teamrankings,
 )
 from cfb_engine.data.preseason import MAKINEN, TEAMRANKINGS
 from cfb_engine.data.teamnames import school_key
@@ -111,14 +112,41 @@ def test_empty_consensus_returns_base_unchanged():
     assert blend_ensemble(base, [], blend=0.5) is base
 
 
+TEAMRANKINGS_HTML = """
+<table>
+  <thead><tr><th>Rank</th><th>Team</th><th>Rating</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Ohio St (12-1)</td><td>32.3</td></tr>
+    <tr><td>2</td><td>Georgia (11-2)</td><td>28.4</td></tr>
+    <tr><td>3</td><td>UMass (2-10)</td><td>-28.5</td></tr>
+    <tr><td>4</td><td>Fresno St (0-0)</td><td>--</td></tr>
+  </tbody>
+</table>
+"""
+
+
+def test_parse_teamrankings_strips_record_and_skips_placeholder():
+    m = parse_teamrankings(TEAMRANKINGS_HTML, "teamrankings")
+    assert m.source == "teamrankings"
+    assert m.net[school_key("Ohio State")] == 32.3
+    assert m.net[school_key("Georgia")] == 28.4
+    assert m.net[school_key("UMass")] == -28.5
+    # "--" placeholder (no games yet) is dropped, not coerced to 0.
+    assert school_key("Fresno State") not in m.net
+
+
 def test_provider_collects_preseason_sources(tmp_path: Path, monkeypatch):
-    # No network sources; only the baked-in Makinen + TeamRankings books.
+    # No network sources; live TeamRankings fetch stubbed to empty so the
+    # baked-in preseason snapshot is used (keeps the test hermetic/offline).
     for src in ("sagarin", "fpi", "fei"):
         monkeypatch.setenv(f"CFBE_{src.upper()}", "0")
     provider = EnsembleProvider(tmp_path / "cache", tmp_path / "models")
+    monkeypatch.setattr(provider, "_get_text", lambda *a, **k: "")
     sources = {m.source for m in provider.collect(2026)}
     assert {"makinen", "teamrankings"} <= sources
-    assert set(provider.weights()) >= {"makinen", "teamrankings"}
+    assert set(provider.weights()) >= {
+        "makinen", "teamrankings", "teamrankings_l5", "teamrankings_l10"
+    }
 
 
 def test_preseason_only_ensemble_builds_full_book():
