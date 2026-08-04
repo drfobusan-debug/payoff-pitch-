@@ -218,6 +218,33 @@ class Config:
     )
     ensemble_target_sd: float = field(default_factory=lambda: _env_float("CFBE_ENSEMBLE_SD", 0.0))
 
+    # Opponent-adjusted per-play efficiency (CFBD game PPA, ridge-fit on games
+    # played strictly before the slate week -- see data/efficiency.py).
+    #
+    # ``efficiency`` only controls whether the book is built; with it on and the
+    # blend at 0 the ratings are unchanged and efficiency serves purely as the
+    # *fallback* when SP+ is unavailable, which beats echoing the market back at
+    # itself (standalone r 0.56 / MAE 13.1 on held-out margins, 2014-2025).
+    #
+    # ``efficiency_blend`` pulls the SP+ net rating toward efficiency. It defaults
+    # to 0 because after the closing spread is in the model efficiency adds
+    # nothing: partial r -0.001 (season-clustered 95% CI [-0.022, +0.020]),
+    # held-out MAE 12.218 -> 12.220, 50.1% ATS on the disagreements (-4.4% ROI).
+    efficiency: bool = field(default_factory=lambda: _env_bool("CFBE_EFFICIENCY", True))
+    efficiency_blend: float = field(
+        default_factory=lambda: _env_float("CFBE_EFFICIENCY_BLEND", 0.0)
+    )
+
+    # Returning-production experience edge, in points of margin per unit of gap
+    # (see data/returning.py). The only candidate with residual signal after the
+    # closing spread -- partial r +0.039, CI [+0.020, +0.058], fitted at +2.5
+    # pts/unit -- but betting it goes 51.96% ATS against a 52.38% break-even, so
+    # it ships off. Set CFBE_RETURNING_PTS=2.5 to enable.
+    returning_pts: float = field(default_factory=lambda: _env_float("CFBE_RETURNING_PTS", 0.0))
+    returning_max_pts: float = field(
+        default_factory=lambda: _env_float("CFBE_RETURNING_MAX_PTS", 3.0)
+    )
+
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
     # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))

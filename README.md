@@ -509,6 +509,50 @@ it is not separable from zero: over the same eight slates the term moved
 `batter_1b` PPV .4861 -> .4880 on seven fewer picks and left the engine flat, so
 it is there to accumulate a graded counterfactual rather than to be trusted yet.
 
+## College football: efficiency and talent (`cfb_engine`)
+
+The CFB engine's spine is an SP+/public-model consensus plus situational point
+adjustments. Two objective layers now sit underneath it, both measured on
+2014-2025 before being wired in (6,513 games with a consensus closing spread;
+ratings for a week-*W* game are fit only on weeks before *W*, so nothing has seen
+the game it prices).
+
+**Opponent-adjusted per-play efficiency** (`cfb_engine/data/efficiency.py`).
+CFBD game PPA (college EPA/play) fed into a ridge
+`ppa = mu + off[team] - def[opponent] + hfa*site`. It is a real model -- held-out
+margin r 0.56 / MAE 13.1, season-to-season repeatability r 0.69 versus 0.60 for a
+ratings fit on scoring margin, correlation 0.88 with SP+ on live 2025 data, and a
+fitted home field of 1.7 points.
+
+It nevertheless **adds nothing the closing spread has not already priced**:
+partial correlation with margin -0.001 (season-clustered 95% CI [-0.022,
++0.020]), held-out MAE 12.218 -> 12.220, and betting its disagreements goes 50.1%
+ATS (-4.4% ROI, i.e. exactly the hold; the biggest disagreements are the worst, at
+45.0% past 10 points). So `CFBE_EFFICIENCY_BLEND` defaults to **0** and the layer
+earns its place as the *fallback* when SP+ is unavailable, where the engine
+previously fell back to market-implied ratings -- i.e. to echoing the market back
+at itself. Set `CFBE_EFFICIENCY_BLEND=0.3` to blend it into the SP+ net rating;
+the measurement above does not support doing so.
+
+Every other Tier-1/Tier-2 candidate was tested the same way and came back at
+zero after the spread: four-year recruiting composite +0.008, line yards +0.017,
+points per opportunity +0.013, havoc +0.007, success rate -0.004, explosiveness
+-0.012. None of their intervals excludes zero.
+
+**Returning production** (`cfb_engine/data/returning.py`) is the exception, and
+the closest anything in either engine has come to beating a price:
+
+    partial r +0.0389, p = 0.001, season-clustered 95% CI [+0.020, +0.058]
+
+present in weeks 4-7 (+0.053) and weeks 8+ (+0.033) as well as September, so it
+is not merely a slow-to-update opener. Fitted at **+2.5 points of margin per unit
+of returning-production gap** (gap SD 0.34, so ~0.9 points in a typical game).
+Betting it goes **51.96% ATS (2663-2462-89, -0.8% ROI)** against a 52.38%
+break-even -- four fifths of the vig recovered, and still not through it. So it
+ships **off**: `CFBE_RETURNING_PTS=2.5` enables it, capped by
+`CFBE_RETURNING_MAX_PTS` (3.0). CLV, not outcomes, should decide whether it ever
+ships on.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);
