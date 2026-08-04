@@ -26,13 +26,14 @@ dev = ["pytest>=7.4", "ruff>=0.1", "mypy>=1.7"]
 
 [project.scripts]
 mlb-engine = "mlb_engine.cli:main"
+cfb-engine = "cfb_engine.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["mlb_engine*"]
+include = ["mlb_engine*", "cfb_engine*"]
 
 [tool.ruff]
 line-length = 100
