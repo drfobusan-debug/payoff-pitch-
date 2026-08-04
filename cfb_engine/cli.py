@@ -24,6 +24,7 @@ from cfb_engine.audit.clv import (
     clv_summary,
     compute_clv,
     load_closing,
+    merge_closing,
     save_closing,
 )
 from cfb_engine.audit.grade import build_result_index, grade, result_for
@@ -111,9 +112,15 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     if not slate.games:
         print(f"No NCAAF games to snapshot for {day}.")
         return 0
-    quotes = closing_quotes(slate, board)
+    fresh = closing_quotes(slate, board)
+    quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
-    print(f"Captured {len(quotes)} closing quotes -> {cfg.closing_file(day)}")
+    kept = len(quotes) - len(fresh)
+    detail = f", {kept} carried over from an earlier capture" if kept > 0 else ""
+    print(
+        f"Captured {len(fresh)} closing quotes; {len(quotes)} total{detail} "
+        f"-> {cfg.closing_file(day)}"
+    )
     return 0
 
 
