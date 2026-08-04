@@ -553,6 +553,37 @@ ships **off**: `CFBE_RETURNING_PTS=2.5` enables it, capped by
 `CFBE_RETURNING_MAX_PTS` (3.0). CLV, not outcomes, should decide whether it ever
 ships on.
 
+### College-football shortcuts and daily schedule
+
+One-click desktop launchers mirror the MLB set. Run the installer for your OS
+once to drop **CFB Predictions** (`cfb-engine run` -> emails the Excel card +
+article PDF + MP3), **CFB Audit** (`cfb-engine audit` -> grades + emails the
+recap), and **CFB Ledger** (opens the ledger workbook) on your Desktop:
+
+- **macOS**: `scripts/cfb/macos/install_shortcuts.command`
+- **Linux**: `scripts/cfb/linux/install_shortcuts.sh`
+
+For hands-off operation, install the daily schedule so the card, closing-line
+snapshots, and audit run by themselves:
+
+- **macOS** (launchd): `scripts/cfb/macos/install_schedule.command`
+- **Linux** (cron): `scripts/cfb/linux/install_schedule.sh`
+
+Default local times: `run` 09:00, `close` 11:00/15:00/19:00/23:00 (repeat-safe
+CLV snapshots across the game day), `audit` 03:00. Override the card/audit hours
+with `CFB_RUN_HOUR` / `CFB_AUDIT_HOUR`. Both installers are idempotent (re-running
+replaces the previous jobs) and shells out through `autorun.{command,sh}`, which
+loads credentials from `/etc/engine.env` or `~/.cfb_engine/engine.env` -- neither
+launchd nor cron reads your shell profile, so API keys and the Gmail app password
+must live in one of those files. The shortcut and schedule installers seed
+`~/.cfb_engine/engine.env` from `scripts/cfb/engine.env.example` (chmod 600, never
+overwriting an existing file) on first run; fill in `CFBD_API_KEY`,
+`THE_ODDS_API_KEY`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, and `CFBE_EMAIL_TO`. Logs
+go to `~/.cfb_engine/schedule.log`.
+
+Remove the schedule with `launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist`
+(macOS) or `crontab -l | grep -vF '# payoff-pitch-cfb-schedule' | crontab -` (Linux).
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);
