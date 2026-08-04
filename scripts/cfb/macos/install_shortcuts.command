@@ -19,6 +19,9 @@ fi
 
 chmod +x "$SCRIPTS"/run_predictions.command "$SCRIPTS"/run_audit.command "$SCRIPTS"/open_ledger.command
 
+# Seed the private credentials file the shortcuts read (no-op if it exists).
+bash "$REPO/scripts/cfb/ensure_env.sh"
+
 make_app() {
     local name="$1" ident="$2" target="$3"
     local app="$HOME/Desktop/$name.app"

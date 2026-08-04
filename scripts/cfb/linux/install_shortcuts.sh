@@ -18,6 +18,9 @@ fi
 
 chmod +x "$SCRIPTS"/run_predictions.sh "$SCRIPTS"/run_audit.sh "$SCRIPTS"/open_ledger.sh
 
+# Seed the private credentials file the shortcuts read (no-op if it exists).
+bash "$REPO/scripts/cfb/ensure_env.sh"
+
 DESKTOP_DIR="$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")"
 mkdir -p "$DESKTOP_DIR"
 

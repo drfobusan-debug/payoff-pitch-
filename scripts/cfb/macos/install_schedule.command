@@ -21,6 +21,9 @@ AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
 chmod +x "$AUTORUN"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
 
+# Seed the private credentials file the scheduled jobs read (no-op if present).
+bash "$REPO/scripts/cfb/ensure_env.sh"
+
 install_agent() {
     # $1 label  $2 calendar-interval-XML  $3.. cfb-engine args
     local label="$1" calendar="$2"

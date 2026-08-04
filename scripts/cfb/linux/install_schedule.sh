@@ -21,6 +21,9 @@ AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
 chmod +x "$AUTORUN"
 mkdir -p "$HOME/.cfb_engine"
 
+# Seed the private credentials file the scheduled jobs read (no-op if present).
+bash "$REPO/scripts/cfb/ensure_env.sh"
+
 # Keep every existing crontab line except our previous CFB block.
 existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
 

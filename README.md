@@ -575,7 +575,11 @@ with `CFB_RUN_HOUR` / `CFB_AUDIT_HOUR`. Both installers are idempotent (re-runni
 replaces the previous jobs) and shells out through `autorun.{command,sh}`, which
 loads credentials from `/etc/engine.env` or `~/.cfb_engine/engine.env` -- neither
 launchd nor cron reads your shell profile, so API keys and the Gmail app password
-must live in one of those files. Logs go to `~/.cfb_engine/schedule.log`.
+must live in one of those files. The shortcut and schedule installers seed
+`~/.cfb_engine/engine.env` from `scripts/cfb/engine.env.example` (chmod 600, never
+overwriting an existing file) on first run; fill in `CFBD_API_KEY`,
+`THE_ODDS_API_KEY`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, and `CFBE_EMAIL_TO`. Logs
+go to `~/.cfb_engine/schedule.log`.
 
 Remove the schedule with `launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist`
 (macOS) or `crontab -l | grep -vF '# payoff-pitch-cfb-schedule' | crontab -` (Linux).
