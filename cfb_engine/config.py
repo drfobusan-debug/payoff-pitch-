@@ -218,6 +218,10 @@ class Config:
     )
     ensemble_target_sd: float = field(default_factory=lambda: _env_float("CFBE_ENSEMBLE_SD", 0.0))
 
+    # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
+    # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
+    vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). Default 0 (off).
     market_anchor: float = field(default_factory=lambda: _env_float("CFBE_MARKET_ANCHOR", 0.0))

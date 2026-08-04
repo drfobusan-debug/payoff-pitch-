@@ -19,6 +19,7 @@ from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
 from cfb_engine.data.ratings import build_rating_book
+from cfb_engine.data.vsin import hfa_for
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -123,13 +124,16 @@ class Pipeline:
         ctx_book: ContextBook,
         mc: MonteCarlo,
     ) -> list[Recommendation]:
-        means = self._means(game, odds, ratings)
+        home_hfa = hfa_for(
+            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
+        )
+        means = self._means(game, odds, ratings, home_hfa)
         if means is None:
             return []
         adj = compute_adjustment(
             context_for(ctx_book, game.home.name, game.away.name),
             self.cfg.features,
-            self.cfg.model.home_field_pts,
+            home_hfa,
             game.home.abbrev,
             game.away.abbrev,
         )
@@ -147,7 +151,9 @@ class Pipeline:
         out.extend(self._price_total(ctx, odds))
         return out
 
-    def _means(self, game: Game, odds: GameOdds, ratings: RatingBook | None) -> _Means | None:
+    def _means(
+        self, game: Game, odds: GameOdds, ratings: RatingBook | None, home_hfa: float
+    ) -> _Means | None:
         mkt_spread = odds.consensus_home_spread()
         mkt_total = odds.consensus_total()
         market_margin = -mkt_spread if mkt_spread is not None else None
