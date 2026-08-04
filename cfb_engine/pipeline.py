@@ -16,10 +16,12 @@ from datetime import date as Date
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
 from cfb_engine.data.cfbd import CFBDClient, RatingBook
+from cfb_engine.data.efficiency import EfficiencyProvider, blend_efficiency
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
 from cfb_engine.data.preseason import stability_factor
 from cfb_engine.data.ratings import build_rating_book
+from cfb_engine.data.returning import ReturningBook, build_returning_book
 from cfb_engine.data.vsin import hfa_for
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
@@ -59,6 +61,7 @@ class Pipeline:
         )
         self.cfbd = cfbd or CFBDClient(cfg.creds.cfbd_api_key)
         self.ensemble = EnsembleProvider(cfg.cache_dir, cfg.models_dir)
+        self.efficiency = EfficiencyProvider(self.cfbd)
         self.calibrator = calibrator or self._load_calibrator()
         self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
 
@@ -69,6 +72,23 @@ class Pipeline:
             except (ValueError, OSError) as exc:
                 logger.warning("could not load calibration (%s); using identity", exc)
         return Calibrator.identity()
+
+    def _slate_week(self, season: int, slate_date: Date) -> int:
+        """The slate's week number, so efficiency is fit on earlier weeks only.
+
+        Anything the schedule cannot place (bowls, a missing key) becomes week 99,
+        which simply means "fit on the whole season so far" -- still leak-free,
+        since a game cannot appear in the fit before it has been played.
+        """
+        target = slate_date.isoformat()
+        weeks = [
+            meta.week
+            for meta in self.cfbd.fetch_schedule(season)
+            if meta.week is not None
+            and meta.season_type == "regular"
+            and meta.start_date[:10] >= target
+        ]
+        return min(weeks) if weeks else 99
 
     def _season(self, slate_date: Date) -> int:
         if self.cfg.season:
@@ -104,6 +124,24 @@ class Pipeline:
                     weights=self.ensemble.weights(),
                     target_sd=self.cfg.ensemble_target_sd,
                 )
+        if self.cfg.efficiency:
+            book = self.efficiency.book(season, self._slate_week(season, slate_date))
+            if book is not None:
+                logger.info(
+                    "efficiency: %d teams (blend %.2f%s)",
+                    len(book.ratings),
+                    self.cfg.efficiency_blend,
+                    ", fallback ratings" if ratings is None else "",
+                )
+                ratings = blend_efficiency(
+                    ratings,
+                    book,
+                    blend=self.cfg.efficiency_blend,
+                    league_avg=self.cfg.model.avg_team_points,
+                )
+        returning = (
+            build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
+        )
         ctx_book = build_context_book(self.cfbd, season, slate)
         mc = MonteCarlo(self.cfg.model)
 
@@ -112,7 +150,7 @@ class Pipeline:
             odds = board.get(game.matchup())
             if odds is None:
                 continue
-            recs.extend(self._price_game(game, odds, ratings, ctx_book, mc))
+            recs.extend(self._price_game(game, odds, ratings, ctx_book, mc, returning))
         recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
         return recs
 
@@ -124,6 +162,7 @@ class Pipeline:
         ratings: RatingBook | None,
         ctx_book: ContextBook,
         mc: MonteCarlo,
+        returning: ReturningBook | None = None,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(
             game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
@@ -138,6 +177,17 @@ class Pipeline:
             game.home.abbrev,
             game.away.abbrev,
         )
+        if returning is not None:
+            delta = returning.margin_delta(
+                game.home.name,
+                game.away.name,
+                self.cfg.returning_pts,
+                self.cfg.returning_max_pts,
+            )
+            if abs(delta) >= 0.05:
+                adj.margin_delta += delta
+                side = game.home.abbrev if delta > 0 else game.away.abbrev
+                adj.reasons.append(f"{side} returns more production ({delta:+.1f})")
         exp = ExpectedGame(
             exp_margin=means.exp_margin + adj.margin_delta,
             exp_total=max(0.0, means.exp_total + adj.total_delta),
