@@ -15,7 +15,7 @@ from cfb_engine.data.efficiency import (
     blend_efficiency,
     fit_efficiency,
 )
-from cfb_engine.data.returning import ReturningBook
+from cfb_engine.data.returning import FITTED_PTS_PER_UNIT, ReturningBook
 
 # Four teams whose true offensive strengths are 0.4/0.2/0.0/-0.2 and whose
 # defences suppress 0.1/0.0/-0.1/-0.2 PPA per play (higher = stingier). A double
@@ -184,14 +184,28 @@ def test_book_falls_back_to_the_prior_season_when_the_current_one_is_thin():
 
 def test_returning_margin_delta_signs_and_cap():
     book = ReturningBook(shares={"alpha": 0.80, "bravo": 0.40})
+    pts = FITTED_PTS_PER_UNIT
     # gap +0.40 x 2.5 pts = +1.0 to the home side
-    assert math.isclose(book.margin_delta("Alpha", "Bravo", 2.5, 3.0), 1.0, abs_tol=1e-9)
-    assert math.isclose(book.margin_delta("Bravo", "Alpha", 2.5, 3.0), -1.0, abs_tol=1e-9)
+    assert math.isclose(book.margin_delta("Alpha", "Bravo", pts, 3.0), 1.0, abs_tol=1e-9)
+    assert math.isclose(book.margin_delta("Bravo", "Alpha", pts, 3.0), -1.0, abs_tol=1e-9)
     # capped
     assert math.isclose(book.margin_delta("Alpha", "Bravo", 50.0, 3.0), 3.0, abs_tol=1e-9)
-    # disabled, and unknown teams
+    # disabled
     assert book.margin_delta("Alpha", "Bravo", 0.0, 3.0) == 0.0
-    assert book.margin_delta("Alpha", "Nobody", 2.5, 3.0) == 0.0
+
+
+def test_a_missing_team_yields_no_adjustment_rather_than_an_imputed_one():
+    """One unknown side means no nudge, not a league-average stand-in.
+
+    The coefficient was fit only on games where both teams were in CFBD's
+    returning-production table; a team missing from it is usually an FCS
+    opponent, so imputing an average share would price a gap the measurement
+    never saw.
+    """
+    book = ReturningBook(shares={"alpha": 0.80})
+    assert book.gap("Alpha", "Nobody") is None
+    assert book.gap("Nobody", "Alpha") is None
+    assert book.margin_delta("Alpha", "Nobody", FITTED_PTS_PER_UNIT, 3.0) == 0.0
 
 
 def test_defaults_keep_both_new_features_out_of_the_price():

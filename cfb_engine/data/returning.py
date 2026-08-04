@@ -41,11 +41,8 @@ from cfb_engine.data.teamnames import school_key
 log = logging.getLogger(__name__)
 
 # Fitted on 2014-2025, held-out later seasons: points of margin per unit of gap.
+# This is the value to put in ``CFBE_RETURNING_PTS`` if the term is ever enabled.
 FITTED_PTS_PER_UNIT = 2.5
-
-# League-typical returning share, used when only one side is known so a missing
-# team cannot masquerade as a roster with nobody coming back.
-DEFAULT_SHARE = 0.60
 
 
 @dataclass
@@ -58,7 +55,15 @@ class ReturningBook:
         return self.shares.get(school_key(team_name))
 
     def gap(self, home: str, away: str) -> float | None:
-        """Home minus away returning share; ``None`` unless both are known."""
+        """Home minus away returning share; ``None`` unless both are known.
+
+        A missing side is deliberately *not* imputed to a league-average share.
+        The +2.5 pts/unit coefficient was fit only on games where both teams
+        appear in CFBD's returning-production table, so imputing one side would
+        apply a measured coefficient to a gap the measurement never saw -- and a
+        team absent from that table is usually an FCS opponent, whose returning
+        share is not league-average to begin with.
+        """
         h, a = self.get(home), self.get(away)
         if h is None or a is None:
             return None
