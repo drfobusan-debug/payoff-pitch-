@@ -91,6 +91,20 @@ class TeamLocation:
 
 
 @dataclass(frozen=True)
+class TeamGamePPA:
+    """One team's offensive points-per-play in one game (CFBD ``/ppa/games``)."""
+
+    game_id: int
+    season: int
+    week: int
+    season_type: str
+    team: str
+    opponent: str
+    offence_ppa: float
+    home: bool
+
+
+@dataclass(frozen=True)
 class GameWeather:
     home: str
     away: str
@@ -261,6 +275,79 @@ class CFBDClient:
                     season_type=str(row.get("season_type", row.get("seasonType", ""))),
                 )
             )
+        return out
+
+    def fetch_team_game_ppa(self, season: int) -> list[TeamGamePPA]:
+        """Per-team, per-game offensive/defensive PPA (CFBD's EPA per play)."""
+        if not self.available():
+            return []
+        data = self._get("/ppa/games", year=season)
+        if not isinstance(data, list):
+            return []
+        home_side = self._home_teams(season)
+        out: list[TeamGamePPA] = []
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            team = row.get("team")
+            opp = row.get("opponent")
+            game_id = row.get("gameId", row.get("game_id"))
+            off = _nested(row, "offense", "overall")
+            if not team or not opp or off is None or not isinstance(game_id, (int, float)):
+                continue
+            week = row.get("week")
+            out.append(
+                TeamGamePPA(
+                    game_id=int(game_id),
+                    season=season,
+                    week=int(week) if isinstance(week, (int, float)) else 0,
+                    season_type=str(row.get("seasonType", row.get("season_type", "regular"))),
+                    team=str(team),
+                    opponent=str(opp),
+                    offence_ppa=off,
+                    home=home_side.get(int(game_id)) == school_key(str(team)),
+                )
+            )
+        return out
+
+    def _home_teams(self, season: int) -> dict[int, str]:
+        out: dict[int, str] = {}
+        for row in self._games(season):
+            gid = row.get("id")
+            home = row.get("home_team", row.get("homeTeam"))
+            if isinstance(gid, (int, float)) and home:
+                out[int(gid)] = school_key(str(home))
+        return out
+
+    def neutral_game_ids(self, season: int) -> set[int]:
+        out: set[int] = set()
+        for row in self._games(season):
+            gid = row.get("id")
+            if not isinstance(gid, (int, float)):
+                continue
+            if bool(row.get("neutral_site", row.get("neutralSite", False))):
+                out.add(int(gid))
+        return out
+
+    def fetch_returning_production(self, season: int) -> dict[str, float]:
+        """Share of last season's production returning, keyed by school_key.
+
+        CFBD's ``percentPPA`` is the fraction of a team's prior-year PPA that
+        comes back, so 0.60 means a typically-experienced roster.
+        """
+        if not self.available():
+            return {}
+        data = self._get("/player/returning", year=season)
+        if not isinstance(data, list):
+            return {}
+        out: dict[str, float] = {}
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            team = row.get("team")
+            pct = row.get("percentPPA", row.get("percent_ppa"))
+            if team and isinstance(pct, (int, float)):
+                out[school_key(str(team))] = float(pct)
         return out
 
     def fetch_venues(self) -> dict[int, Venue]:
