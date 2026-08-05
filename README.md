@@ -208,6 +208,9 @@ mlb-engine close --game-only
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 
+# on a disposable machine, carry the ledger/closes/pregame picks across runs
+mlb-engine state pull --date 2024-07-19 && mlb-engine state push
+
 # refit the calibration map from the ledger (per-market, validated out of sample)
 mlb-engine calibrate --holdout 2
 
@@ -244,6 +247,37 @@ single market (Brier .2347 vs .2408), so the ROI ambiguity was hiding a clear
 result. Every metrics sheet now also reports **Needs %**, the win rate the
 prices actually charged for, next to the win rate achieved: 59.6% of favoured
 bets won into a 60.5% break-even, which is why 58% PPV never became profit.
+
+### Carrying state between machines (`mlb-engine state`)
+
+Scheduled runs are separate, disposable machines, so `~/.mlb_engine` starts
+empty on each one: the 6:50pm close capture, the 11:30am card and the 2:30am
+audit cannot see each other's files. Left alone, that costs both of the audit's
+memories — CLV is never scored because the snapshot is on another box, and the
+ledger reports one slate as "all dates" every night.
+
+`mlb-engine state pull` / `state push` keep that state on an orphan
+`engine-state` branch of this repo: the pregame `predictions_<date>.json`
+(gzipped, most recent 35 slates), the closing snapshots, `ledger.csv` and
+`scorecard.csv`. Data only, never code. Pull before a run and push after:
+
+```bash
+mlb-engine state pull --date "$DATE"   # closes + ledger + that slate's pregame picks
+mlb-engine close --game-only           # or run / audit
+mlb-engine state push
+```
+
+Syncs merge rather than replace, in both directions: closing snapshots union
+per selection (latest price wins), and the ledger takes the branch's dates plus
+this machine's rows for any date it graded, since that box is the one holding
+the results. A push that loses a race re-pulls and re-applies rather than
+overwriting the other run.
+
+The pregame predictions matter as much as the closes. An audit that re-prices
+the slate at 2:30am grades a different set of picks, at prices that no longer
+exist, and the "bet price" the CLV is measured against becomes a post-game
+quote. Pulling the real pregame file means the audit grades what the card
+actually sent.
 
 ### Market anchoring
 
