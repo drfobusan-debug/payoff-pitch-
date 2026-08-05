@@ -1,0 +1,954 @@
+[
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_ml",
+    "selection": "ATH ML",
+    "american": 122.0,
+    "no_vig_prob": 0.444201
+  },
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_ml",
+    "selection": "CIN ML",
+    "american": -129.0,
+    "no_vig_prob": 0.555799
+  },
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_rl",
+    "selection": "ATH +1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.611808
+  },
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_rl",
+    "selection": "CIN -1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.388192
+  },
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -102.0,
+    "no_vig_prob": 0.490224
+  },
+  {
+    "matchup": "ATH @ CIN",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -110.0,
+    "no_vig_prob": 0.509776
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_ml",
+    "selection": "BOS ML",
+    "american": -116.0,
+    "no_vig_prob": 0.555551
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_ml",
+    "selection": "CWS ML",
+    "american": 125.0,
+    "no_vig_prob": 0.444449
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_rl",
+    "selection": "BOS +1.5",
+    "american": -194.0,
+    "no_vig_prob": 0.631764
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_rl",
+    "selection": "BOS -1.5",
+    "american": 155.0,
+    "no_vig_prob": 0.385079
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_rl",
+    "selection": "CWS +1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.614921
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_rl",
+    "selection": "CWS -1.5",
+    "american": 160.0,
+    "no_vig_prob": 0.368236
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -102.0,
+    "no_vig_prob": 0.492579
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -102.0,
+    "no_vig_prob": 0.491101
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -108.0,
+    "no_vig_prob": 0.507421
+  },
+  {
+    "matchup": "CWS @ BOS",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -110.0,
+    "no_vig_prob": 0.508899
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_ml",
+    "selection": "DET ML",
+    "american": 111.0,
+    "no_vig_prob": 0.466737
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_ml",
+    "selection": "SEA ML",
+    "american": -118.0,
+    "no_vig_prob": 0.533263
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_rl",
+    "selection": "DET +1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.636385
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_rl",
+    "selection": "SEA -1.5",
+    "american": 170.0,
+    "no_vig_prob": 0.363615
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": -108.0,
+    "no_vig_prob": 0.506417
+  },
+  {
+    "matchup": "DET @ SEA",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -104.0,
+    "no_vig_prob": 0.493583
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_ml",
+    "selection": "BAL ML",
+    "american": -135.0,
+    "no_vig_prob": 0.577072
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_ml",
+    "selection": "LAA ML",
+    "american": 143.0,
+    "no_vig_prob": 0.422928
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_rl",
+    "selection": "BAL -1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.406144
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_rl",
+    "selection": "LAA +1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.593856
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 101.0,
+    "no_vig_prob": 0.484376
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -110.0,
+    "no_vig_prob": 0.508568
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": 102.0,
+    "no_vig_prob": 0.473468
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -114.0,
+    "no_vig_prob": 0.515624
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -104.0,
+    "no_vig_prob": 0.491432
+  },
+  {
+    "matchup": "LAA @ BAL",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -121.0,
+    "no_vig_prob": 0.526532
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_ml",
+    "selection": "CHC ML",
+    "american": 176.0,
+    "no_vig_prob": 0.39848
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_ml",
+    "selection": "LAD ML",
+    "american": 108.0,
+    "no_vig_prob": 0.60152
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_rl",
+    "selection": "CHC +1.5",
+    "american": 106.0,
+    "no_vig_prob": 0.475679
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_rl",
+    "selection": "CHC -1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.37086
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_rl",
+    "selection": "LAD +1.5",
+    "american": -192.0,
+    "no_vig_prob": 0.62914
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_rl",
+    "selection": "LAD -1.5",
+    "american": -118.0,
+    "no_vig_prob": 0.524321
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -114.0,
+    "no_vig_prob": 0.512977
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": -106.0,
+    "no_vig_prob": 0.491336
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": 101.0,
+    "no_vig_prob": 0.487023
+  },
+  {
+    "matchup": "LAD @ CHC",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -114.0,
+    "no_vig_prob": 0.508664
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_ml",
+    "selection": "ATL ML",
+    "american": -125.0,
+    "no_vig_prob": 0.565083
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_ml",
+    "selection": "MIA ML",
+    "american": 132.0,
+    "no_vig_prob": 0.434917
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_rl",
+    "selection": "ATL -1.5",
+    "american": 168.0,
+    "no_vig_prob": 0.396944
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_rl",
+    "selection": "MIA +1.5",
+    "american": -157.0,
+    "no_vig_prob": 0.603056
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -113.0,
+    "no_vig_prob": 0.514405
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -114.0,
+    "no_vig_prob": 0.514643
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": 102.0,
+    "no_vig_prob": 0.47484
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": 100.0,
+    "no_vig_prob": 0.485595
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": 100.0,
+    "no_vig_prob": 0.485357
+  },
+  {
+    "matchup": "MIA @ ATL",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -121.0,
+    "no_vig_prob": 0.52516
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_ml",
+    "selection": "KC ML",
+    "american": 131.0,
+    "no_vig_prob": 0.449035
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_ml",
+    "selection": "MIN ML",
+    "american": -102.0,
+    "no_vig_prob": 0.550965
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_rl",
+    "selection": "KC +1.5",
+    "american": -128.0,
+    "no_vig_prob": 0.556311
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_rl",
+    "selection": "MIN -1.5",
+    "american": 154.0,
+    "no_vig_prob": 0.443689
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -109.0,
+    "no_vig_prob": 0.510793
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": 102.0,
+    "no_vig_prob": 0.473623
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": 100.0,
+    "no_vig_prob": 0.489207
+  },
+  {
+    "matchup": "MIN @ KC",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -122.0,
+    "no_vig_prob": 0.526377
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_ml",
+    "selection": "CLE ML",
+    "american": 102.0,
+    "no_vig_prob": 0.53598
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_ml",
+    "selection": "NYM ML",
+    "american": 128.0,
+    "no_vig_prob": 0.46402
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_rl",
+    "selection": "CLE +1.5",
+    "american": -162.0,
+    "no_vig_prob": 0.605022
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_rl",
+    "selection": "CLE -1.5",
+    "american": 162.0,
+    "no_vig_prob": 0.374354
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_rl",
+    "selection": "NYM +1.5",
+    "american": -180.0,
+    "no_vig_prob": 0.625646
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_rl",
+    "selection": "NYM -1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.394978
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": 103.0,
+    "no_vig_prob": 0.480917
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -107.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -106.0,
+    "no_vig_prob": 0.491336
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -112.0,
+    "no_vig_prob": 0.519083
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -107.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "NYM @ CLE",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -114.0,
+    "no_vig_prob": 0.508664
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_ml",
+    "selection": "MIL ML",
+    "american": -140.0,
+    "no_vig_prob": 0.575371
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_ml",
+    "selection": "PIT ML",
+    "american": 132.0,
+    "no_vig_prob": 0.424629
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_rl",
+    "selection": "MIL -1.5",
+    "american": 148.0,
+    "no_vig_prob": 0.395463
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_rl",
+    "selection": "PIT +1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.604537
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_total",
+    "selection": "Over 7.0",
+    "american": -125.0,
+    "no_vig_prob": 0.53125
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": 100.0,
+    "no_vig_prob": 0.485334
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": 104.0,
+    "no_vig_prob": 0.46875
+  },
+  {
+    "matchup": "PIT @ MIL",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -110.0,
+    "no_vig_prob": 0.514666
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_ml",
+    "selection": "AZ ML",
+    "american": -115.0,
+    "no_vig_prob": 0.52512
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_ml",
+    "selection": "SD ML",
+    "american": 110.0,
+    "no_vig_prob": 0.47488
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_rl",
+    "selection": "AZ +1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.638585
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_rl",
+    "selection": "AZ -1.5",
+    "american": 168.0,
+    "no_vig_prob": 0.366929
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_rl",
+    "selection": "SD +1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.633071
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_rl",
+    "selection": "SD -1.5",
+    "american": 168.0,
+    "no_vig_prob": 0.361415
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": 103.0,
+    "no_vig_prob": 0.481886
+  },
+  {
+    "matchup": "SD @ AZ",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -115.0,
+    "no_vig_prob": 0.518114
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_ml",
+    "selection": "SF ML",
+    "american": 176.0,
+    "no_vig_prob": 0.360475
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_ml",
+    "selection": "TEX ML",
+    "american": -182.0,
+    "no_vig_prob": 0.639525
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_rl",
+    "selection": "SF +1.5",
+    "american": -122.0,
+    "no_vig_prob": 0.536009
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_rl",
+    "selection": "TEX -1.5",
+    "american": 110.0,
+    "no_vig_prob": 0.463991
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -104.0,
+    "no_vig_prob": 0.49485
+  },
+  {
+    "matchup": "SF @ TEX",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -110.0,
+    "no_vig_prob": 0.50515
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_ml",
+    "selection": "NYY ML",
+    "american": -140.0,
+    "no_vig_prob": 0.623219
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_ml",
+    "selection": "STL ML",
+    "american": 176.0,
+    "no_vig_prob": 0.376781
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_rl",
+    "selection": "NYY -1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.462663
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_rl",
+    "selection": "STL +1.5",
+    "american": -114.0,
+    "no_vig_prob": 0.537337
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -121.0,
+    "no_vig_prob": 0.52144
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 101.0,
+    "no_vig_prob": 0.494207
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": 100.0,
+    "no_vig_prob": 0.478261
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -101.0,
+    "no_vig_prob": 0.47856
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": 107.0,
+    "no_vig_prob": 0.505793
+  },
+  {
+    "matchup": "STL @ NYY",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -120.0,
+    "no_vig_prob": 0.521739
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_ml",
+    "selection": "COL ML",
+    "american": 154.0,
+    "no_vig_prob": 0.396746
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_ml",
+    "selection": "TB ML",
+    "american": -150.0,
+    "no_vig_prob": 0.603254
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_rl",
+    "selection": "COL +1.5",
+    "american": -105.0,
+    "no_vig_prob": 0.499822
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_rl",
+    "selection": "TB -1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.500178
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_total",
+    "selection": "Over 11.0",
+    "american": -109.0,
+    "no_vig_prob": 0.507605
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_total",
+    "selection": "Over 11.5",
+    "american": -107.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_total",
+    "selection": "Under 11.0",
+    "american": -105.0,
+    "no_vig_prob": 0.492395
+  },
+  {
+    "matchup": "TB @ COL",
+    "market": "game_total",
+    "selection": "Under 11.5",
+    "american": -107.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_ml",
+    "selection": "HOU ML",
+    "american": -104.0,
+    "no_vig_prob": 0.534482
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_ml",
+    "selection": "TOR ML",
+    "american": 116.0,
+    "no_vig_prob": 0.465518
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_rl",
+    "selection": "HOU +1.5",
+    "american": -178.0,
+    "no_vig_prob": 0.62511
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_rl",
+    "selection": "HOU -1.5",
+    "american": 160.0,
+    "no_vig_prob": 0.373327
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_rl",
+    "selection": "TOR +1.5",
+    "american": -180.0,
+    "no_vig_prob": 0.626673
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_rl",
+    "selection": "TOR -1.5",
+    "american": 165.0,
+    "no_vig_prob": 0.37489
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": 103.0,
+    "no_vig_prob": 0.479502
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -102.0,
+    "no_vig_prob": 0.489133
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -118.0,
+    "no_vig_prob": 0.520498
+  },
+  {
+    "matchup": "TOR @ HOU",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -113.0,
+    "no_vig_prob": 0.510867
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_ml",
+    "selection": "PHI ML",
+    "american": -155.0,
+    "no_vig_prob": 0.686014
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_ml",
+    "selection": "WSH ML",
+    "american": 263.0,
+    "no_vig_prob": 0.313986
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "PHI -1.5",
+    "american": 132.0,
+    "no_vig_prob": 0.526423
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "PHI -2.5",
+    "american": 110.0,
+    "no_vig_prob": 0.44586
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "WSH +1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.473577
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "WSH +2.5",
+    "american": -145.0,
+    "no_vig_prob": 0.55414
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 10.0",
+    "american": 100.0,
+    "no_vig_prob": 0.478261
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -124.0,
+    "no_vig_prob": 0.527904
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -102.0,
+    "no_vig_prob": 0.487837
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": -115.0,
+    "no_vig_prob": 0.518704
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 10.0",
+    "american": -120.0,
+    "no_vig_prob": 0.521739
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": 102.0,
+    "no_vig_prob": 0.472096
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -113.0,
+    "no_vig_prob": 0.512163
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": 103.0,
+    "no_vig_prob": 0.481296
+  }
+]
