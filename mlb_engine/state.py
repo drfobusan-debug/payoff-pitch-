@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import csv
 import gzip
+import logging
 import shutil
 import subprocess
 from collections.abc import Iterable
@@ -32,6 +33,12 @@ STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
 # is far more history than the audit reads and keeps the branch clonable.
 PREDICTION_KEEP_DAYS = 35
+# Pulled predictions keep their own name. The nightly audit regenerates the
+# slate before grading it, which would otherwise overwrite the pregame picks
+# with an after-the-fact re-price, so what the card actually sent is kept
+# under a name nothing else writes.
+PREGAME_SUFFIX = ".pregame.json"
+log = logging.getLogger(__name__)
 # A nightly run grades yesterday, so restoring more slates than that only
 # spends time expanding megabytes nothing will read.
 _PULL_PREDICTION_DAYS = 2
@@ -112,13 +119,16 @@ def _worktree(repo: Path, branch: str) -> Path:
     A worktree rather than a second clone so the authenticated remote, and
     nothing else, is inherited. Created empty when the branch does not exist
     yet, which is the first run of a fresh installation.
+
+    Discarded and recreated when one is already there, rather than reset in
+    place: it holds nothing but a copy of the branch, and every git command
+    that could rescue a half-finished sync would also be one that can destroy
+    work if this path ever pointed somewhere it should not.
     """
     path = repo.parent / f".{repo.name}-{branch}"
-    if (path / ".git").exists():
-        if _remote_has_branch(repo, branch):
-            _fetch(repo, branch)
-            _git(["reset", "--hard", f"refs/remotes/origin/{branch}"], path)
-        return path
+    if path.exists():
+        if not _git_ok(["worktree", "remove", "--force", str(path)], repo):
+            shutil.rmtree(path, ignore_errors=True)
     _git_ok(["worktree", "prune"], repo)
     if _remote_has_branch(repo, branch):
         _fetch(repo, branch)
@@ -223,7 +233,7 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
     moved = []
     for name in wanted:
         src = state / "mlb" / "predictions" / name
-        dest = _audit_dir(data_dir) / name[: -len(".gz")]
+        dest = _audit_dir(data_dir) / (name[: -len(".json.gz")] + PREGAME_SUFFIX)
         if not src.exists() or dest.exists():
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -260,11 +270,21 @@ def pull_state(
 
 
 def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
+    """Publish pregame picks, write-once per slate.
+
+    A date already on the branch is never republished: the machine holding a
+    second copy is usually the audit, whose local file is a re-price made after
+    the games finished. Only the run that actually produced the card publishes.
+    """
     out = state / "mlb" / "predictions"
     out.mkdir(parents=True, exist_ok=True)
     staged = []
     for src in sorted(_audit_dir(data_dir).glob("predictions_*.json")):
+        if src.name.endswith(PREGAME_SUFFIX):
+            continue
         dest = out / f"{src.name}.gz"
+        if dest.exists():
+            continue
         with src.open("rb") as fin, gzip.open(dest, "wb", compresslevel=6) as fout:
             shutil.copyfileobj(fin, fout)
         staged.append(dest.name)
@@ -322,9 +342,35 @@ def push_state(
     raise RuntimeError(f"{last_error} after {_PUSH_ATTEMPTS} attempts")
 
 
+def auto_pull(
+    data_dir: Path,
+    branch: str = STATE_BRANCH,
+    dates: tuple[str, ...] | None = None,
+) -> SyncReport | None:
+    """Sync down, best effort: no remote, no branch and no credentials are all
+    reasons to run without shared state rather than to fail a priced slate."""
+    try:
+        return pull_state(data_dir, branch=branch, dates=dates)
+    except Exception as exc:  # noqa: BLE001 - state sync is never the point of the run
+        log.warning("state pull skipped: %s", exc)
+        return None
+
+
+def auto_push(data_dir: Path, message: str, branch: str = STATE_BRANCH) -> SyncReport | None:
+    """Sync up, best effort. The local files are written either way."""
+    try:
+        return push_state(data_dir, message, branch=branch)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("state push skipped: %s", exc)
+        return None
+
+
 __all__ = [
     "PREDICTION_KEEP_DAYS",
+    "PREGAME_SUFFIX",
     "STATE_BRANCH",
+    "auto_pull",
+    "auto_push",
     "SyncReport",
     "merge_closing_files",
     "merge_dated_csv",

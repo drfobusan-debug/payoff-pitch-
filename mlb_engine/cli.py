@@ -65,7 +65,14 @@ from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.preview import save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
-from mlb_engine.state import STATE_BRANCH, pull_state, push_state
+from mlb_engine.state import (
+    PREGAME_SUFFIX,
+    STATE_BRANCH,
+    auto_pull,
+    auto_push,
+    pull_state,
+    push_state,
+)
 
 
 def _parse_date(s: str | None, default: Date) -> Date:
@@ -288,6 +295,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             recs=recs,
             extra_attachments=attachments or None,
         )
+    # Publish the picks at the prices they were priced at, so whichever machine
+    # grades this slate grades what was actually sent.
+    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
     return 0
 
 
@@ -358,6 +368,24 @@ def _closing_path(cfg: Config, slate_date: Date) -> Path:
     return cfg.audit_dir / f"closing_{slate_date.isoformat()}.json"
 
 
+def _state_pull(cfg: Config, slate_date: Date | None = None) -> None:
+    """Recover state written by an earlier run, possibly on another machine."""
+    if not cfg.state_sync:
+        return
+    dates = (slate_date.isoformat(),) if slate_date is not None else None
+    report = auto_pull(cfg.data_dir, branch=cfg.state_branch, dates=dates)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
+def _state_push(cfg: Config, message: str) -> None:
+    if not cfg.state_sync:
+        return
+    report = auto_push(cfg.data_dir, message, branch=cfg.state_branch)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
 def cmd_close(args: argparse.Namespace) -> int:
     """Snapshot the closing market so the next audit can score closing line value.
 
@@ -372,11 +400,14 @@ def cmd_close(args: argparse.Namespace) -> int:
     for each selection.
     """
     cfg = load_config()
+    cfg.ensure_dirs()
     slate_date = _parse_date(args.date, Date.today())
     client = _odds_client(cfg, cache_ttl=0)
     if not client.available():
         print("No Odds API key configured; cannot capture the close")
         return 1
+    # An earlier capture of this slate may live on another machine entirely.
+    _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
     quotes = client.fetch(slate, include_props=not args.game_only)
     if not quotes:
@@ -394,13 +425,24 @@ def cmd_close(args: argparse.Namespace) -> int:
         f"Captured {len(fresh)} closing prices; {len(closing)} total across "
         f"{markets} markets{detail} -> {path}"
     )
+    _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
     return 0
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
+    cfg.ensure_dirs()
     audit_date = _parse_date(args.date, Date.today() - timedelta(days=1))
+    _state_pull(cfg, audit_date)
     pred_path = cfg.audit_dir / f"predictions_{audit_date.isoformat()}.json"
+    # A pregame copy is what the card actually sent, at the prices it was sent
+    # at. Anything regenerated after the games finished grades different picks
+    # against quotes that no longer exist, so it loses to the real thing.
+    pregame = cfg.audit_dir / f"predictions_{audit_date.isoformat()}{PREGAME_SUFFIX}"
+    if pregame.exists():
+        if pred_path.exists():
+            print(f"Grading the pregame predictions from {pregame.name}, not the local re-price")
+        pred_path = pregame
     if not pred_path.exists():
         print(f"No predictions found for {audit_date} at {pred_path}")
         return 1
@@ -541,11 +583,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
             )
         except Exception as exc:  # noqa: BLE001
             logging.warning("audit insight report failed: %s", exc)
+    _state_push(cfg, f"audit {audit_date.isoformat()}: {len(graded)} graded")
     return 0
 
 
 def cmd_report(args: argparse.Namespace) -> int:
     cfg = load_config()
+    _state_pull(cfg)
     ledger_path = cfg.audit_dir / "ledger.csv"
     if not ledger_path.exists():
         print(f"No ledger found at {ledger_path}; run `mlb-engine audit` first")

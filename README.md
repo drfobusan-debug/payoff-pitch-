@@ -208,7 +208,8 @@ mlb-engine close --game-only
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 
-# on a disposable machine, carry the ledger/closes/pregame picks across runs
+# carry the ledger/closes/pregame picks across machines by hand (run/close/audit
+# already do it themselves)
 mlb-engine state pull --date 2024-07-19 && mlb-engine state push
 
 # refit the calibration map from the ledger (per-market, validated out of sample)
@@ -256,14 +257,19 @@ audit cannot see each other's files. Left alone, that costs both of the audit's
 memories — CLV is never scored because the snapshot is on another box, and the
 ledger reports one slate as "all dates" every night.
 
-`mlb-engine state pull` / `state push` keep that state on an orphan
-`engine-state` branch of this repo: the pregame `predictions_<date>.json`
-(gzipped, most recent 35 slates), the closing snapshots, `ledger.csv` and
-`scorecard.csv`. Data only, never code. Pull before a run and push after:
+That state lives on an orphan `engine-state` branch of this repo: the pregame
+`predictions_<date>.json` (gzipped, most recent 35 slates), the closing
+snapshots, `ledger.csv` and `scorecard.csv`. Data only, never code.
+
+**`run`, `close`, `audit` and `report` sync it themselves** — `close` and
+`audit` pull before they work and every one of them pushes after — so a
+scheduled run needs no extra commands and cannot forget them. Sync is
+best-effort: no checkout, no remote, no branch or no push credentials logs a
+warning and the run continues on local state alone. Set `MLBE_STATE_SYNC=0` to
+turn it off (or `MLBE_STATE_BRANCH` to move it), and drive it by hand with:
 
 ```bash
 mlb-engine state pull --date "$DATE"   # closes + ledger + that slate's pregame picks
-mlb-engine close --game-only           # or run / audit
 mlb-engine state push
 ```
 
@@ -276,8 +282,10 @@ overwriting the other run.
 The pregame predictions matter as much as the closes. An audit that re-prices
 the slate at 2:30am grades a different set of picks, at prices that no longer
 exist, and the "bet price" the CLV is measured against becomes a post-game
-quote. Pulling the real pregame file means the audit grades what the card
-actually sent.
+quote. So pregame files are write-once on the branch — only the run that priced
+the slate publishes one — and a pulled copy lands as
+`predictions_<date>.pregame.json`, which nothing else writes. `audit` prefers it
+over any local re-price and says so, so it grades what the card actually sent.
 
 ### Market anchoring
 

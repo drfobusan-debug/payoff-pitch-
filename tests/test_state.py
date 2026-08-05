@@ -11,8 +11,13 @@ from pathlib import Path
 import pytest
 
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
+from mlb_engine.config import load_config
 from mlb_engine.state import (
     PREDICTION_KEEP_DAYS,
+    PREGAME_SUFFIX,
+    STATE_BRANCH,
+    auto_pull,
+    auto_push,
     merge_closing_files,
     merge_dated_csv,
     pull_state,
@@ -136,10 +141,11 @@ def test_the_evening_capture_reaches_the_overnight_audit(
     report = pull_state(data_b, repo=repo_b, branch="engine-state")
     assert "closing_2026-08-04.json" in report.pulled
     assert load_closing(data_b / "audit" / "closing_2026-08-04.json")["KC@DET|game_ml|DET"]
-    # The pregame picks come back too, so the audit grades what was actually
-    # recommended instead of re-pricing the slate after the games finished.
-    assert "predictions_2026-08-04.json" in report.pulled
-    assert json.loads((data_b / "audit" / "predictions_2026-08-04.json").read_text())
+    # The pregame picks come back too, under a name the nightly re-price cannot
+    # clobber, so the audit grades what was actually recommended.
+    pregame = data_b / "audit" / f"predictions_2026-08-04{PREGAME_SUFFIX}"
+    assert pregame.name in report.pulled
+    assert json.loads(pregame.read_text())
 
 
 def test_a_second_machine_cannot_erase_the_first(
@@ -179,6 +185,40 @@ def test_a_single_branch_clone_can_still_read_the_state(
 
     report = pull_state(tmp_path / "box_c" / "data", repo=shallow, branch="engine-state")
     assert "ledger.csv" in report.pulled
+
+
+def test_a_pregame_slate_is_never_republished_by_the_audit(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The card's picks are write-once; a later re-price must not replace them."""
+    repo_a, data_a, repo_b, data_b = machines
+    (data_a / "audit").mkdir(parents=True)
+    (data_a / "audit" / "predictions_2026-08-04.json").write_text('[{"selection": "DET"}]')
+    push_state(data_a, "card", repo=repo_a, branch="engine-state")
+
+    # box_b is the audit: it pulls the pregame copy and regenerates its own.
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+    (data_b / "audit" / "predictions_2026-08-04.json").write_text('[{"selection": "KC"}]')
+    push_state(data_b, "audit", repo=repo_b, branch="engine-state")
+
+    state = repo_a.parent / f".{repo_a.name}-engine-state"
+    with gzip.open(state / "mlb" / "predictions" / "predictions_2026-08-04.json.gz", "rt") as f:
+        assert json.load(f) == [{"selection": "DET"}]
+
+
+def test_a_run_outside_a_checkout_is_not_a_failed_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Sync is best effort: an engine installed outside a checkout still runs."""
+    monkeypatch.chdir(tmp_path)
+    assert auto_pull(tmp_path / "data") is None
+    assert auto_push(tmp_path / "data", "nothing") is None
+
+
+def test_state_sync_is_on_by_default_and_agrees_with_the_module() -> None:
+    cfg = load_config()
+    assert cfg.state_sync
+    assert cfg.state_branch == STATE_BRANCH
 
 
 def test_predictions_are_compressed_and_pruned(
