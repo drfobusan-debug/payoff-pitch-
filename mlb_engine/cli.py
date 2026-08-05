@@ -65,6 +65,7 @@ from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
 from mlb_engine.preview import save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
+from mlb_engine.state import STATE_BRANCH, pull_state, push_state
 
 
 def _parse_date(s: str | None, default: Date) -> Date:
@@ -660,6 +661,27 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_state(args: argparse.Namespace) -> int:
+    """Sync the audit's memory with the state branch.
+
+    Scheduled runs are separate machines: the capture that snapshots the close,
+    the morning card that records what was actually recommended and the audit
+    that grades it all start with an empty data directory. Pull before a run
+    and push after, or CLV has nothing to compare against and the ledger
+    resets to a single slate every night.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    if args.direction == "pull":
+        dates = (args.date,) if args.date else None
+        report = pull_state(cfg.data_dir, branch=args.branch, dates=dates)
+    else:
+        message = args.message or f"engine state {Date.today().isoformat()}"
+        report = push_state(cfg.data_dir, message, branch=args.branch)
+    print(report.describe())
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     p = argparse.ArgumentParser(prog="mlb-engine", description="MLB prediction engine")
@@ -732,6 +754,20 @@ def main(argv: list[str] | None = None) -> int:
     )
     cal.add_argument("--force", action="store_true", help="write even if no market improves")
     cal.set_defaults(func=cmd_calibrate)
+
+    st = sub.add_parser(
+        "state",
+        help="sync the audit's memory (predictions, closes, ledger) with the engine-state branch",
+    )
+    st.add_argument("direction", choices=("pull", "push"))
+    st.add_argument("--branch", default=STATE_BRANCH, help=f"state branch (default: {STATE_BRANCH})")
+    st.add_argument(
+        "--date",
+        help="on a pull, restore the pregame predictions for this slate date "
+        "(default: the most recent couple on the branch)",
+    )
+    st.add_argument("--message", help="commit message for a push")
+    st.set_defaults(func=cmd_state)
 
     args = p.parse_args(argv)
     return args.func(args)
