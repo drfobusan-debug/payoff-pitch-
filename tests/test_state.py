@@ -160,6 +160,27 @@ def test_a_second_machine_cannot_erase_the_first(
     assert dates == ["2026-08-03", "2026-08-04"]
 
 
+def test_a_single_branch_clone_can_still_read_the_state(
+    machines: tuple[Path, Path, Path, Path], tmp_path: Path
+) -> None:
+    """A scheduled run clones one branch, which hides every other remote ref.
+
+    ``git fetch origin engine-state`` then updates FETCH_HEAD only and leaves
+    ``origin/engine-state`` undefined, so the sync has to name the refspec.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-03", "DET")])
+    push_state(data_a, "audit 08-03", repo=repo_a, branch="engine-state")
+
+    shallow = tmp_path / "box_c" / "repo"
+    shallow.parent.mkdir()
+    origin = tmp_path / "origin.git"
+    _git(["clone", "-q", "--single-branch", "--depth", "1", str(origin), str(shallow)], tmp_path)
+
+    report = pull_state(tmp_path / "box_c" / "data", repo=shallow, branch="engine-state")
+    assert "ledger.csv" in report.pulled
+
+
 def test_predictions_are_compressed_and_pruned(
     machines: tuple[Path, Path, Path, Path],
 ) -> None:

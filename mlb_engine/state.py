@@ -96,6 +96,16 @@ def _remote_has_branch(repo: Path, branch: str) -> bool:
     return bool(proc.stdout.strip())
 
 
+def _fetch(repo: Path, branch: str) -> None:
+    """Fetch the state branch into a tracking ref.
+
+    Spelled out rather than ``fetch origin <branch>`` because a scheduled run
+    clones one branch: the configured refspec then covers only that branch, so
+    a bare fetch updates FETCH_HEAD and leaves ``origin/<branch>`` undefined.
+    """
+    _git(["fetch", "origin", f"+refs/heads/{branch}:refs/remotes/origin/{branch}"], repo)
+
+
 def _worktree(repo: Path, branch: str) -> Path:
     """A checkout of the state branch, sharing the repo's remote and credentials.
 
@@ -106,13 +116,24 @@ def _worktree(repo: Path, branch: str) -> Path:
     path = repo.parent / f".{repo.name}-{branch}"
     if (path / ".git").exists():
         if _remote_has_branch(repo, branch):
-            _git(["fetch", "origin", branch], repo)
-            _git(["reset", "--hard", f"origin/{branch}"], path)
+            _fetch(repo, branch)
+            _git(["reset", "--hard", f"refs/remotes/origin/{branch}"], path)
         return path
     _git_ok(["worktree", "prune"], repo)
     if _remote_has_branch(repo, branch):
-        _git(["fetch", "origin", branch], repo)
-        _git(["worktree", "add", "--force", "-B", branch, str(path), f"origin/{branch}"], repo)
+        _fetch(repo, branch)
+        _git(
+            [
+                "worktree",
+                "add",
+                "--force",
+                "-B",
+                branch,
+                str(path),
+                f"refs/remotes/origin/{branch}",
+            ],
+            repo,
+        )
     else:
         _git(["worktree", "add", "--detach", str(path), "HEAD"], repo)
         _git(["checkout", "--orphan", branch], path)
