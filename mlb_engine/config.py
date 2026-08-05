@@ -397,6 +397,15 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_RL_LUCK_GAP", False)
     )
 
+    # Shared state (see mlb_engine/state.py). On by default because the runs
+    # that need it most are scheduled ones on disposable machines, and it is
+    # best-effort: no remote, no branch or no credentials just means the run
+    # keeps its own local state.
+    state_sync: bool = field(default_factory=lambda: _env_bool("MLBE_STATE_SYNC", True))
+    state_branch: str = field(
+        default_factory=lambda: os.getenv("MLBE_STATE_BRANCH", "engine-state")
+    )
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
