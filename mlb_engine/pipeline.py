@@ -58,6 +58,8 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
     lineup_iso,
+    pen_arm_spread,
+    woba_from_rates,
 )
 from mlb_engine.features.siera import (
     Siera,
@@ -71,6 +73,13 @@ from mlb_engine.features.singles_under import (
 )
 from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.features.team_form import compute_luck_gaps, load_team_forms, luck_gap_for
+from mlb_engine.features.team_splits import (
+    LeagueContact,
+    TeamSplits,
+    build_team_splits,
+    league_contact,
+)
+from mlb_engine.features.trend import PitcherTrends, pitcher_trends
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
@@ -343,6 +352,8 @@ class Pipeline:
         self._ml_gate = MLSharpGate.from_env()
         self._hrr_adjust = HRRAdjuster.from_env()
         self._previews: list[GamePreview] = []
+        self._team_splits: dict[str, TeamSplits] = {}
+        self._league_contact = LeagueContact(batter=None, pitcher=None)
         self.slate: Slate | None = None
 
     def run(
@@ -404,6 +415,14 @@ class Pipeline:
 
         recs: list[Recommendation] = []
         self._previews = []
+        # League-wide platoon and home/road offense, for the article's ranked
+        # matchup verdict. Read once per slate off the frame already loaded.
+        self._team_splits = build_team_splits(
+            statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
+        )
+        self._league_contact = league_contact(
+            statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
+        )
         mc = MonteCarlo(self.cfg.mc_sims, seed=seed)
         for game in slate.games:
             if not (game.home.lineup_confirmed() and game.away.lineup_confirmed()):
@@ -587,6 +606,7 @@ class Pipeline:
         regs = []
         sunders: list[SinglesUnderResult] = []
         bat_vs_starter = []
+        bat_vs_league = []  # same hitters vs a league-average arm, for the preview
         bat_vs_pen = []
         bat_vs_pen_close = []
         selections: list[dict[str, Selection | None]] = []
@@ -637,6 +657,15 @@ class Pipeline:
             vs_start = apply_multipliers(vs_start, pit_tail)
             vs_start = apply_multipliers(vs_start, bat_tail)
 
+            # The same batter, same platoon/venue context, against a
+            # league-average arm: the article's reference point for how much of
+            # this matchup is the lineup and how much is the man on the mound.
+            vs_league = combine(ctx, league_pitcher_rates())
+            vs_league = apply_multipliers(vs_league, bmult)
+            vs_league = apply_multipliers(vs_league, xbh_sel.outcome_multipliers)
+            vs_league = apply_multipliers(vs_league, bat_tail)
+            bat_vs_league.append(vs_league)
+
             # Bullpen matchup: batter's late-inning (>=6th) 3-week rates vs the
             # pen (FanGraphs split when available, else Statcast), then bullpen
             # regression PPV + NPV tripwires.
@@ -679,7 +708,22 @@ class Pipeline:
         # Reader-facing matchup story: this offense's lineup line, plus the
         # opposing starter + bullpen it will face (built from the same objects
         # the simulator just consumed, so nothing is recomputed).
-        half = _preview_half(team, opp, regs, pit_reg, bpen)
+        half = _preview_half(
+            team,
+            opp,
+            regs,
+            pit_reg,
+            bpen,
+            pitcher_trends(pit_rows, slate_date, w.pitcher_form_days),
+            self._team_splits.get(team.abbrev),
+            opp_throws,
+            pitcher_siera(pit_rows),
+            self._league_contact,
+            _mean_woba(bat_vs_starter),
+            _mean_woba(bat_vs_league),
+            _mean_woba(bat_vs_pen),
+            _mean_woba(bat_vs_pen_close),
+        )
 
         return (
             bat_vs_starter,
@@ -1604,7 +1648,29 @@ class PreviewHalf:
     opp_pen: BullpenLine
 
 
-def _preview_half(team, opp, regs, pit_reg, bpen) -> PreviewHalf:
+def _mean_woba(matchups: list[dict[str, float]]) -> float | None:
+    """Lineup-average wOBA implied by the simulator's per-hitter matchup rates."""
+    if not matchups:
+        return None
+    return round(sum(woba_from_rates(m) for m in matchups) / len(matchups), 3)
+
+
+def _preview_half(
+    team,
+    opp,
+    regs,
+    pit_reg,
+    bpen,
+    trends: PitcherTrends,
+    splits: TeamSplits | None,
+    opp_throws: str | None,
+    opp_siera: Siera,
+    league: LeagueContact,
+    proj_woba: float | None,
+    proj_woba_vs_league: float | None,
+    pen_proj_woba: float | None,
+    pen_proj_woba_close: float | None,
+) -> PreviewHalf:
     """Assemble the preview half from objects the simulator already computed."""
     assert opp.probable_pitcher is not None
     starter = StarterLine(
@@ -1622,7 +1688,17 @@ def _preview_half(team, opp, regs, pit_reg, bpen) -> PreviewHalf:
         barrel_allowed=_fnum(pit_reg.barrel_allowed) or 0.0,
         dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
         spin=_fnum(pit_reg.spin),
+        hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
+        babip_allowed=_fnum(pit_reg.babip_allowed),
+        siera=opp_siera.siera if opp_siera.has_data else None,
+        siera_trend=trends.siera.delta,
+        stuff_trend=trends.stuff.delta,
+        vfa_trend=trends.vfa.delta,
+        league_xwoba_allowed=league.pitcher,
     )
+    split = splits.vs_hand(opp_throws) if splits is not None else None
+    overall = splits.overall if splits is not None else None
+    venue = splits.at_venue(bool(team.is_home)) if splits is not None else None
 
     named = [
         (slot.player.name, r)
@@ -1660,13 +1736,34 @@ def _preview_half(team, opp, regs, pit_reg, bpen) -> PreviewHalf:
         barrel=round(barrel, 3),
         hot=hot,
         cold=cold,
+        vs_hand=opp_throws,
+        split_woba=None if split is None else split.woba,
+        split_rank=None if split is None else split.rank,
+        split_of=None if split is None else split.of,
+        split_bucket=None if split is None else split.bucket,
+        home_woba=None if splits is None else splits.home_woba,
+        away_woba=None if splits is None else splits.away_woba,
+        is_home=bool(team.is_home),
+        team_woba=None if overall is None else overall.woba,
+        team_rank=None if overall is None else overall.rank,
+        team_of=None if overall is None else overall.of,
+        venue_rank=None if venue is None else venue.rank,
+        venue_of=None if venue is None else venue.of,
+        league_xwoba=league.batter,
+        proj_woba=proj_woba,
+        proj_woba_vs_league=proj_woba_vs_league,
     )
 
+    spread, arms = pen_arm_spread(bpen.relief)
     pen = BullpenLine(
         xwoba_allowed=_fnum(bpen.xwoba_allowed),
         k_pct=_fnum(bpen.k_pct),
         zone_pct=_fnum(bpen.zone_pct),
         recent_load=_fnum(bpen.recent_load),
         fatigue=None,  # filled in at game level from the StatsAPI proxy
+        proj_woba=pen_proj_woba,
+        proj_woba_close=pen_proj_woba_close,
+        arm_spread=spread,
+        arms=arms,
     )
     return PreviewHalf(lineup=lineup, opp_starter=starter, opp_pen=pen)

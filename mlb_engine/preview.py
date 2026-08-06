@@ -37,6 +37,17 @@ class StarterLine:
     barrel_allowed: float
     dxwoba: float  # xwOBA - wOBA allowed: positive => bailed out, hits coming
     spin: float | None = None
+    hard_hit_allowed: float | None = None
+    babip_allowed: float | None = None
+    siera: float | None = None
+    # Form direction inside the same window: recent half minus earlier half.
+    # SIERA and CSW% in rate points, velocity in mph. None => too thin to read.
+    siera_trend: float | None = None
+    stuff_trend: float | None = None  # CSW%
+    vfa_trend: float | None = None  # mph
+    # League mean of per-pitcher xwOBA allowed, so this arm can be read as better
+    # or worse than average rather than against the hitters' own scale.
+    league_xwoba_allowed: float | None = None
 
 
 @dataclass
@@ -46,6 +57,12 @@ class BullpenLine:
     zone_pct: float | None = None
     recent_load: float | None = None  # >1 => heavier 3-day workload than baseline
     fatigue: float | None = None  # 0-100 StatsAPI workload proxy
+    # Log5 projections of the opposing order against this pen, aggregate and
+    # against its 8th-inning arms only (the innings a one-run game hinges on).
+    proj_woba: float | None = None
+    proj_woba_close: float | None = None
+    arm_spread: float | None = None  # SD of wOBA allowed across individual arms
+    arms: int | None = None  # arms with enough work to carry their own line
 
 
 @dataclass
@@ -66,6 +83,29 @@ class LineupLine:
     # off); `cold` = underperforming (expected > actual, buy-low / due to heat up)
     hot: list[RegFlag] = field(default_factory=list)
     cold: list[RegFlag] = field(default_factory=list)
+    # Team-level context for the matchup verdict: how this offense hits the hand
+    # it draws tonight (with its league rank) and how it hits home vs. away.
+    vs_hand: str | None = None  # the opposing starter's throwing hand
+    split_woba: float | None = None  # team wOBA vs that hand
+    split_rank: int | None = None  # 1 = best offense vs that hand
+    split_of: int | None = None  # teams ranked in the split
+    split_bucket: str | None = None  # top / middle / bottom third
+    home_woba: float | None = None
+    away_woba: float | None = None
+    is_home: bool | None = None
+    # Club wOBA overall and in tonight's venue split, each with its rank, so the
+    # reader gets "how they hit" before "how they hit here".
+    team_woba: float | None = None
+    team_rank: int | None = None
+    team_of: int | None = None
+    venue_rank: int | None = None
+    venue_of: int | None = None
+    league_xwoba: float | None = None  # league mean of per-hitter xwOBA
+    # Log5 matchup projections from the simulator's own per-hitter rates, so the
+    # article can say what this order does against *this* arm and against an
+    # average one. Platoon and home/road context are already inside them.
+    proj_woba: float | None = None
+    proj_woba_vs_league: float | None = None
 
 
 @dataclass
