@@ -37,6 +37,17 @@ class StarterLine:
     barrel_allowed: float
     dxwoba: float  # xwOBA - wOBA allowed: positive => bailed out, hits coming
     spin: float | None = None
+    hard_hit_allowed: float | None = None
+    babip_allowed: float | None = None
+    siera: float | None = None
+    # Form direction inside the same window: recent half minus earlier half.
+    # SIERA and CSW% in rate points, velocity in mph. None => too thin to read.
+    siera_trend: float | None = None
+    stuff_trend: float | None = None  # CSW%
+    vfa_trend: float | None = None  # mph
+    # League mean of per-pitcher xwOBA allowed, so this arm can be read as better
+    # or worse than average rather than against the hitters' own scale.
+    league_xwoba_allowed: float | None = None
 
 
 @dataclass
@@ -66,6 +77,17 @@ class LineupLine:
     # off); `cold` = underperforming (expected > actual, buy-low / due to heat up)
     hot: list[RegFlag] = field(default_factory=list)
     cold: list[RegFlag] = field(default_factory=list)
+    # Team-level context for the matchup verdict: how this offense hits the hand
+    # it draws tonight (with its league rank) and how it hits home vs. away.
+    vs_hand: str | None = None  # the opposing starter's throwing hand
+    split_woba: float | None = None  # team wOBA vs that hand
+    split_rank: int | None = None  # 1 = best offense vs that hand
+    split_of: int | None = None  # teams ranked in the split
+    split_bucket: str | None = None  # top / middle / bottom third
+    home_woba: float | None = None
+    away_woba: float | None = None
+    is_home: bool | None = None
+    league_xwoba: float | None = None  # league mean of per-hitter xwOBA
 
 
 @dataclass

@@ -29,6 +29,8 @@ from pathlib import Path
 
 import numpy as np
 
+from mlb_engine.features.regression import BL_BABIP
+from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
     GOLD,
@@ -41,7 +43,7 @@ from mlb_engine.output.audit_insight import (
     to_mp3,
     to_pdf,
 )
-from mlb_engine.preview import GamePreview
+from mlb_engine.preview import GamePreview, LineupLine, StarterLine
 from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
@@ -90,7 +92,12 @@ def _edge_cls(edge: float | None) -> str:
 
 # --- charts ----------------------------------------------------------------
 def _matchup_chart(gp: GamePreview) -> str:
-    """Grouped bars: each offense's lineup xwOBA vs the pitching it faces."""
+    """Grouped bars: each offense's lineup xwOBA vs the pitching it faces.
+
+    League baselines are drawn for both scales, because the two bars measure
+    different populations — the written verdict above the chart is what compares
+    them, and the bars are the levels behind it.
+    """
     import matplotlib
 
     matplotlib.use("Agg")
@@ -117,12 +124,18 @@ def _matchup_chart(gp: GamePreview) -> str:
     ax.set_yticklabels(labels, fontsize=9, color=INK)
     ax.invert_yaxis()
     ax.set_xlim(0, max([*bats, *arms, 0.35]) * 1.18)
-    ax.set_xlabel("xwOBA (higher bar = the edge)", fontsize=9, color=MUTE)
+    lg_bats = gp.home_lineup.league_xwoba
+    lg_arms = gp.home_starter.league_xwoba_allowed
+    if lg_bats is not None:
+        ax.axvline(lg_bats, color=NAVY, ls=":", lw=1.2, zorder=4, label="League lineup")
+    if lg_arms is not None:
+        ax.axvline(lg_arms, color=GOLD, ls=":", lw=1.2, zorder=4, label="League pitching")
+    ax.set_xlabel("xwOBA — read each bar against its own dotted league line", fontsize=9, color=MUTE)
     ax.legend(fontsize=8, loc="lower right", frameon=False)
     ax.grid(axis="x", color="#e6e8ec", zorder=0)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
-    ax.set_title("Bats vs. the arms they face", fontsize=11, color=NAVY, loc="left")
+    ax.set_title("Bats and the arms they face, vs. league", fontsize=11, color=NAVY, loc="left")
     return _fig_b64(fig)
 
 
@@ -154,14 +167,155 @@ def _shape_chart(gp: GamePreview) -> str:
 
 
 # --- HTML pieces -----------------------------------------------------------
-def _starter_row(tag: str, sl) -> str:
+def _starter_row(tag: str, sl: StarterLine) -> str:
     spin = "" if sl.spin is None else f", {sl.spin:.0f} rpm"
+    hard = "—" if sl.hard_hit_allowed is None else f"{sl.hard_hit_allowed * 100:.0f}%"
     return (
         f"<tr><td class='l'><b>{tag}</b> {sl.name}</td>"
         f"<td>{sl.k_pct * 100:.0f}% (x{sl.xk_pct * 100:.0f})</td>"
         f"<td>{sl.bb_pct * 100:.0f}% (x{sl.xbb_pct * 100:.0f})</td>"
-        f"<td>{sl.csw * 100:.0f}%</td><td>{sl.zone_pct * 100:.0f}%</td>"
+        f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td><td>{hard}</td>"
         f"<td>{sl.xwoba_allowed:.3f}</td><td>{sl.barrel_allowed * 100:.0f}%{spin}</td></tr>"
+    )
+
+
+def _trend_phrase(delta: float | None, flat: float, unit: str, *, lower_is_better: bool) -> str:
+    """Describe a half-window change: direction, size, and whose favour it is.
+
+    ``lower_is_better`` is from the pitcher's side, so a falling SIERA improves
+    and falling velocity slips.
+    """
+    if delta is None:
+        return "too thin to read"
+    if abs(delta) < flat:
+        return f"flat ({delta:+{unit}})"
+    improving = (delta < 0) if lower_is_better else (delta > 0)
+    word = "improving" if improving else "slipping"
+    cls = "pos" if improving else "neg"
+    return f"<span class='{cls}'>{word}</span> ({delta:+{unit}})"
+
+
+def starter_trend_sentence(team: str, sl: StarterLine) -> str:
+    """Prose for one starter's form direction and his contact-luck gap."""
+    siera = "SIERA unavailable (thin sample)" if sl.siera is None else f"SIERA {sl.siera:.2f}"
+    bits = [
+        f"{siera}, {_trend_phrase(sl.siera_trend, FLAT_SIERA, '.2f', lower_is_better=True)}",
+        f"stuff {_trend_phrase(sl.stuff_trend, FLAT_CSW, '.1%', lower_is_better=False)} on CSW%",
+        f"velocity {_trend_phrase(sl.vfa_trend, FLAT_VFA, '.1f', lower_is_better=False)} mph",
+    ]
+    if sl.babip_allowed is None:
+        luck = ""
+    else:
+        gap = sl.dxwoba * 1000
+        woba_allowed = sl.xwoba_allowed - sl.dxwoba
+        babip = "a lucky" if sl.babip_allowed < BL_BABIP - 0.020 else (
+            "an unlucky" if sl.babip_allowed > BL_BABIP + 0.020 else "a normal"
+        )
+        if gap >= 15:
+            read = (
+                f"<span class='neg'>the hits are owed</span> — his contact deserved "
+                f"{gap:.0f} points more damage than it did"
+            )
+        elif gap <= -15:
+            read = (
+                f"<span class='pos'>he's been hit harder than the contact deserved</span> "
+                f"by {-gap:.0f} points, so the line should improve"
+            )
+        else:
+            read = f"results match the contact ({gap:+.0f} points), nothing owed either way"
+        luck = (
+            f" He's allowed {woba_allowed:.3f} wOBA on {sl.xwoba_allowed:.3f} xwOBA with "
+            f"{babip} {sl.babip_allowed:.3f} BABIP ({BL_BABIP:.3f} league): {read}."
+        )
+    return f"<p><b>{sl.name} ({team}).</b> " + "; ".join(bits) + f".{luck}</p>"
+
+
+def _starter_trends(gp: GamePreview) -> str:
+    return starter_trend_sentence(gp.home, gp.home_starter) + starter_trend_sentence(
+        gp.away, gp.away_starter
+    )
+
+
+def _split_clause(lu: LineupLine) -> str:
+    hand = {"R": "right-handers", "L": "left-handers"}.get(lu.vs_hand or "", "this hand")
+    if lu.split_woba is None or lu.split_rank is None or lu.split_of is None:
+        return f"their form against {hand} is too thin to rank"
+    return (
+        f"they hit {hand} at a {lu.split_woba:.3f} wOBA, "
+        f"<b>{lu.split_rank} of {lu.split_of}</b> — the <b>{lu.split_bucket} third</b>"
+    )
+
+
+def _venue_clause(lu: LineupLine) -> str:
+    if lu.home_woba is None or lu.away_woba is None or lu.is_home is None:
+        return ""
+    here, there = ("at home", "on the road") if lu.is_home else ("on the road", "at home")
+    mine = lu.home_woba if lu.is_home else lu.away_woba
+    theirs = lu.away_woba if lu.is_home else lu.home_woba
+    diff = mine - theirs
+    splits = f"{mine:.3f} wOBA {here} vs {theirs:.3f} {there}"
+    if abs(diff) < 0.010:
+        shape = f"which is no help either way — {splits}"
+    elif diff > 0:
+        shape = f"their better half — {splits}"
+    else:
+        shape = f"their weaker half — {splits}"
+    return f" They're {here} tonight, {shape}."
+
+
+# Points of league-relative xwOBA below which neither side owns the half.
+WASH_XWOBA = 0.010
+
+
+def _league_relative(lu: LineupLine, sl: StarterLine) -> tuple[float, float]:
+    """Each side's xwOBA against the league baseline for *its own* statistic.
+
+    A lineup's xwOBA (mean over hitters) and a starter's xwOBA allowed (mean over
+    his batted balls) sit on different scales, so comparing them raw would hand
+    the bats every matchup. Both are centred first: positive means better than
+    league at what that side does.
+    """
+    bats = lu.xwoba - lu.league_xwoba if lu.league_xwoba is not None else 0.0
+    arm = sl.league_xwoba_allowed - sl.xwoba_allowed if sl.league_xwoba_allowed else 0.0
+    return bats, arm
+
+
+def edge_side(lu: LineupLine, sl: StarterLine) -> str:
+    """``bats`` / ``arm`` / ``wash`` for one offense against one starter."""
+    bats, arm = _league_relative(lu, sl)
+    gap = bats - arm
+    if abs(gap) < WASH_XWOBA:
+        return "wash"
+    return "bats" if gap > 0 else "arm"
+
+
+def _vs_league(points: float) -> str:
+    if abs(points) < 5:
+        return "league-average"
+    return f"{abs(points):.0f} points {'better' if points > 0 else 'worse'} than league"
+
+
+def matchup_verdict(bats_team: str, arm_team: str, lu: LineupLine, sl: StarterLine) -> str:
+    """One sentence on who wins a bats-vs-arm half, and why."""
+    bats, arm = _league_relative(lu, sl)
+    side = edge_side(lu, sl)
+    if side == "wash":
+        verdict = f"<b>Wash</b> — {bats_team}'s bats and {sl.name} price out even"
+    elif side == "bats":
+        verdict = f"<b>Edge: {bats_team}'s bats</b>"
+    else:
+        verdict = f"<b>Edge: {sl.name} ({arm_team})</b>"
+    return (
+        f"<p>{verdict}. The lineup's {lu.xwoba:.3f} xwOBA is {_vs_league(bats * 1000)} for a "
+        f"batting order, {sl.name}'s {sl.xwoba_allowed:.3f} allowed is "
+        f"{_vs_league(arm * 1000)} for a pitcher, and {_split_clause(lu)}."
+        f"{_venue_clause(lu)}</p>"
+    )
+
+
+def _matchup_verdicts(gp: GamePreview) -> str:
+    return matchup_verdict(gp.home, gp.away, gp.home_lineup, gp.away_starter) + matchup_verdict(
+        gp.away, gp.home, gp.away_lineup, gp.home_starter
     )
 
 
@@ -264,7 +418,8 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
 
     starter_tbl = (
         "<table><tr><th class='l'>Starter</th><th>K% (x)</th><th>BB% (x)</th>"
-        "<th>CSW%</th><th>Zone%</th><th>xwOBA</th><th>Barrel% / spin</th></tr>"
+        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>xwOBA</th>"
+        "<th>Barrel% / spin</th></tr>"
         + _starter_row(gp.home, gp.home_starter)
         + _starter_row(gp.away, gp.away_starter)
         + "</table>"
@@ -276,7 +431,9 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
         f"<div class='shape'><span class='tag'>{shape_label}</span> {shape_desc}</div>"
         f"{ml}"
         f"<h3>Starters vs. the lineups</h3>{starter_tbl}"
+        f"<h3>Where the matchup edge is</h3>{_matchup_verdicts(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_matchup_chart(gp)}'/>"
+        f"<h3>Starter form and contact luck</h3>{_starter_trends(gp)}"
         f"<h3>Regression watch</h3>{_reg_bits(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_shape_chart(gp)}'/>"
         f"{_hr_line(hr_recs)}"
@@ -349,8 +506,10 @@ def build_preview_report(
     n_bets = sum(len(p.best_bets) for p in previews)
     lead = (
         f"Good morning — here's the {len(previews)}-game board for {nice.split(',')[0]}. For every matchup "
-        "we stack each lineup's expected offense against the arms it draws (starter first, then the bullpen it "
-        "meets late), flag the hitters the Statcast model says are running hot or cold, and let the simulator "
+        "we call which side owns it — each lineup's expected offense against the arms it draws (starter first, "
+        "then the bullpen it meets late), with where that offense ranks against the hand it faces and how it "
+        "hits home versus away — read each starter's form direction on SIERA, stuff and velocity, "
+        "flag the hitters the Statcast model says are running hot or cold, and let the simulator "
         "call the shape of the game. Then we put the moneyline's market-implied number next to the model's and "
         f"read the edge. The engine's flagged <b>{n_bets}</b> best bets across the slate — they're in bold under "
         "each game and gathered at the very bottom. Each game also gets its single most likely home-run prop. "
@@ -360,7 +519,12 @@ def build_preview_report(
     body += _slate_best_bets_block(previews, recs or [])
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
-        "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Regression flags are the gap "
+        "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
+        "six-week window in half and report the recent half minus the earlier one, for the three signals that "
+        "repeat on three weeks of pitches (velocity, CSW%, SIERA); contact quality is excluded because it does "
+        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact deserved. "
+        "Platoon and home/road ranks are club-level wOBA over the trailing window, ranked among teams with at "
+        "least 150 plate appearances in the split. Regression flags are the gap "
         "between a hitter's actual and expected wOBA (points). Implied probability is the devig-free American-odds "
         "conversion of the best posted price; edge is model minus implied. Model preview, not investment advice.</p>"
     )
@@ -370,6 +534,31 @@ def build_preview_report(
     )
     narr = _narration(day, previews, hr_map)
     return html, narr
+
+
+def _narrate_matchup(gp: GamePreview) -> str:
+    """Spoken version of the two bats-vs-arm verdicts and the split ranks."""
+    out = []
+    for bats, lu, sl in (
+        (gp.home, gp.home_lineup, gp.away_starter),
+        (gp.away, gp.away_lineup, gp.home_starter),
+    ):
+        side = edge_side(lu, sl)
+        if side == "wash":
+            who = f"{bats}'s bats and {sl.name} are a wash"
+        elif side == "bats":
+            who = f"{bats}'s bats have the edge on {sl.name}"
+        else:
+            who = f"{sl.name} has the edge on the {bats} bats"
+        rank = ""
+        if lu.split_rank is not None and lu.split_of is not None:
+            hand = "lefties" if lu.vs_hand == "L" else "righties"
+            rank = (
+                f", and {bats} is {lu.split_rank} of {lu.split_of} against {hand}, "
+                f"{lu.split_bucket} third"
+            )
+        out.append(f"{who}{rank}. ")
+    return "".join(out)
 
 
 def _narration(
@@ -396,6 +585,7 @@ def _narration(
             f"{gp.away} at {gp.home}. The sim likes a {shape_label.lower()} game, "
             f"about {gp.total_mean:.1f} runs, leaning {gp.fav_team}.{edge_txt} "
         )
+        parts.append(_narrate_matchup(gp))
         if gp.best_bets:
             b = gp.best_bets[0]
             odds = "" if b.odds is None else f" at {b.odds:+.0f}"
