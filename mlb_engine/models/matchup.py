@@ -26,6 +26,29 @@ def combine(batter: OutcomeRates, pitcher: OutcomeRates) -> dict[str, float]:
     return {k: v / total for k, v in raw.items()}
 
 
+# Linear wOBA weights (FanGraphs scale). HBP is folded into BB, which the
+# outcome model does not separate.
+WOBA_WEIGHTS = {
+    "BB": 0.690,
+    "1B": 0.880,
+    "2B": 1.247,
+    "3B": 1.578,
+    "HR": 2.031,
+    "K": 0.0,
+    "OUT": 0.0,
+}
+
+
+def woba_from_rates(rates: dict[str, float]) -> float:
+    """wOBA implied by a set of PA-outcome probabilities.
+
+    Lets a matchup produced by :func:`combine` be reported on the same scale as
+    a season wOBA line, so "this order vs this arm" and "this order vs a
+    league-average arm" are directly comparable numbers.
+    """
+    return sum(WOBA_WEIGHTS[k] * rates.get(k, 0.0) for k in WOBA_WEIGHTS)
+
+
 def apply_multipliers(rates: dict[str, float], multipliers: dict[str, float]) -> dict[str, float]:
     """Multiply selected outcome probabilities and renormalize.
 

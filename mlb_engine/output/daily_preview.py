@@ -91,18 +91,64 @@ def _edge_cls(edge: float | None) -> str:
 
 
 # --- charts ----------------------------------------------------------------
-def _matchup_chart(gp: GamePreview) -> str:
-    """Grouped bars: each offense's lineup xwOBA vs the pitching it faces.
+def _projection_rows(gp: GamePreview) -> list[tuple[str, float, float]] | None:
+    """Each offense's projected wOBA vs this starter and vs a league-average arm."""
+    rows = []
+    for bats, lu, sl in (
+        (gp.home, gp.home_lineup, gp.away_starter),
+        (gp.away, gp.away_lineup, gp.home_starter),
+    ):
+        if lu.proj_woba is None or lu.proj_woba_vs_league is None:
+            return None
+        rows.append((f"{bats} bats — vs {sl.name}", lu.proj_woba, lu.proj_woba_vs_league))
+    return rows
 
-    League baselines are drawn for both scales, because the two bars measure
-    different populations — the written verdict above the chart is what compares
-    them, and the bars are the levels behind it.
+
+def _projection_chart(rows: list[tuple[str, float, float]]) -> str:
+    """Bars of the projected matchup wOBA against the same order's neutral mark."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    labels = [r[0] for r in rows]
+    vs_arm = [r[1] for r in rows]
+    vs_lg = [r[2] for r in rows]
+    y = np.arange(len(labels))
+    h = 0.38
+    fig, ax = plt.subplots(figsize=(7.6, 0.72 * len(labels) + 1.2))
+    ax.barh(y - h / 2, vs_arm, height=h, color=NAVY, zorder=3, label="Projected vs this starter")
+    ax.barh(y + h / 2, vs_lg, height=h, color=MUTE, zorder=3, label="Same order vs average arm")
+    for yi, (a, lg) in enumerate(zip(vs_arm, vs_lg, strict=False)):
+        ax.text(a + 0.004, yi - h / 2, f"{a:.3f}", va="center", fontsize=8, color=INK)
+        ax.text(lg + 0.004, yi + h / 2, f"{lg:.3f}", va="center", fontsize=8, color=INK)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=9, color=INK)
+    ax.invert_yaxis()
+    ax.set_xlim(0, max([*vs_arm, *vs_lg]) * 1.18)
+    ax.set_xlabel("Projected wOBA per plate appearance (log5 matchup)", fontsize=9, color=MUTE)
+    ax.legend(fontsize=8, loc="lower right", frameon=False)
+    ax.grid(axis="x", color="#e6e8ec", zorder=0)
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    ax.set_title("What each order projects to do tonight", fontsize=11, color=NAVY, loc="left")
+    return _fig_b64(fig)
+
+
+def _matchup_chart(gp: GamePreview) -> str:
+    """The projected-wOBA bars, or the old xwOBA levels for older previews.
+
+    In the fallback both league baselines are drawn, because those two bars
+    measure different populations and can't be read against each other.
     """
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    proj = _projection_rows(gp)
+    if proj is not None:
+        return _projection_chart(proj)
     rows = [
         (f"{gp.home} bats — vs {gp.away} SP", gp.home_lineup.xwoba, gp.away_starter.xwoba_allowed),
         (f"{gp.home} bats — vs {gp.away} pen", gp.home_lineup.xwoba, gp.away_pen.xwoba_allowed or 0.0),
@@ -239,9 +285,9 @@ def _starter_trends(gp: GamePreview) -> str:
 def _split_clause(lu: LineupLine) -> str:
     hand = {"R": "right-handers", "L": "left-handers"}.get(lu.vs_hand or "", "this hand")
     if lu.split_woba is None or lu.split_rank is None or lu.split_of is None:
-        return f"their form against {hand} is too thin to rank"
+        return f"has too thin a sample against {hand} to rank"
     return (
-        f"they hit {hand} at a {lu.split_woba:.3f} wOBA, "
+        f"hits {hand} at a {lu.split_woba:.3f} wOBA, "
         f"<b>{lu.split_rank} of {lu.split_of}</b> — the <b>{lu.split_bucket} third</b>"
     )
 
@@ -263,8 +309,26 @@ def _venue_clause(lu: LineupLine) -> str:
     return f" They're {here} tonight, {shape}."
 
 
-# Points of league-relative xwOBA below which neither side owns the half.
+# Points of projected wOBA below which neither side owns the half.
+WASH_WOBA = 0.008
+# Fallback scale: points of league-relative xwOBA (previews without projections).
 WASH_XWOBA = 0.010
+
+
+def matchup_gap(lu: LineupLine, sl: StarterLine) -> float:
+    """Points of projected wOBA this arm costs the order, positive = bats ahead.
+
+    The simulator already prices each hitter against this starter by log5 on the
+    seven PA outcomes, with the hitter's platoon and home/road context inside it.
+    ``proj_woba`` is that lineup average, and ``proj_woba_vs_league`` is the same
+    order against a league-average arm, so their difference isolates the starter.
+    Previews written before those fields existed fall back to comparing each
+    side's xwOBA with its own league baseline.
+    """
+    if lu.proj_woba is not None and lu.proj_woba_vs_league is not None:
+        return lu.proj_woba - lu.proj_woba_vs_league
+    bats, arm = _league_relative(lu, sl)
+    return bats - arm
 
 
 def _league_relative(lu: LineupLine, sl: StarterLine) -> tuple[float, float]:
@@ -282,9 +346,9 @@ def _league_relative(lu: LineupLine, sl: StarterLine) -> tuple[float, float]:
 
 def edge_side(lu: LineupLine, sl: StarterLine) -> str:
     """``bats`` / ``arm`` / ``wash`` for one offense against one starter."""
-    bats, arm = _league_relative(lu, sl)
-    gap = bats - arm
-    if abs(gap) < WASH_XWOBA:
+    projected = lu.proj_woba is not None and lu.proj_woba_vs_league is not None
+    gap = matchup_gap(lu, sl)
+    if abs(gap) < (WASH_WOBA if projected else WASH_XWOBA):
         return "wash"
     return "bats" if gap > 0 else "arm"
 
@@ -295,9 +359,25 @@ def _vs_league(points: float) -> str:
     return f"{abs(points):.0f} points {'better' if points > 0 else 'worse'} than league"
 
 
+def _gap_clause(bats_team: str, lu: LineupLine, sl: StarterLine) -> str:
+    """The evidence behind the verdict, in the strongest form available."""
+    if lu.proj_woba is not None and lu.proj_woba_vs_league is not None:
+        gap = (lu.proj_woba - lu.proj_woba_vs_league) * 1000
+        direction = "above" if gap > 0 else "below"
+        return (
+            f"the sim projects {bats_team}'s order at a {lu.proj_woba:.3f} wOBA against "
+            f"{sl.name}, {abs(gap):.0f} points {direction} the {lu.proj_woba_vs_league:.3f} "
+            "that same order projects against a league-average arm"
+        )
+    bats, arm = _league_relative(lu, sl)
+    return (
+        f"the lineup's {lu.xwoba:.3f} xwOBA is {_vs_league(bats * 1000)} for a batting order "
+        f"and {sl.name}'s {sl.xwoba_allowed:.3f} allowed is {_vs_league(arm * 1000)} for a pitcher"
+    )
+
+
 def matchup_verdict(bats_team: str, arm_team: str, lu: LineupLine, sl: StarterLine) -> str:
     """One sentence on who wins a bats-vs-arm half, and why."""
-    bats, arm = _league_relative(lu, sl)
     side = edge_side(lu, sl)
     if side == "wash":
         verdict = f"<b>Wash</b> — {bats_team}'s bats and {sl.name} price out even"
@@ -306,10 +386,8 @@ def matchup_verdict(bats_team: str, arm_team: str, lu: LineupLine, sl: StarterLi
     else:
         verdict = f"<b>Edge: {sl.name} ({arm_team})</b>"
     return (
-        f"<p>{verdict}. The lineup's {lu.xwoba:.3f} xwOBA is {_vs_league(bats * 1000)} for a "
-        f"batting order, {sl.name}'s {sl.xwoba_allowed:.3f} allowed is "
-        f"{_vs_league(arm * 1000)} for a pitcher, and {_split_clause(lu)}."
-        f"{_venue_clause(lu)}</p>"
+        f"<p>{verdict}. Against an order that {_split_clause(lu)}, "
+        f"{_gap_clause(bats_team, lu, sl)}.{_venue_clause(lu)}</p>"
     )
 
 
@@ -522,7 +600,10 @@ def build_preview_report(
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
         "six-week window in half and report the recent half minus the earlier one, for the three signals that "
         "repeat on three weeks of pitches (velocity, CSW%, SIERA); contact quality is excluded because it does "
-        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact deserved. "
+        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact "
+        "deserved. Matchup verdicts are the simulator's own log5 projection — each hitter's rates in "
+        "his platoon and home/road context against this starter's — averaged over the order and "
+        "compared with the same order against a league-average arm. "
         "Platoon and home/road ranks are club-level wOBA over the trailing window, ranked among teams with at "
         "least 150 plate appearances in the split. Regression flags are the gap "
         "between a hitter's actual and expected wOBA (points). Implied probability is the devig-free American-odds "

@@ -97,7 +97,7 @@ from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups
-from mlb_engine.models.matchup import apply_multipliers, combine
+from mlb_engine.models.matchup import apply_multipliers, combine, woba_from_rates
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup
@@ -604,6 +604,7 @@ class Pipeline:
         regs = []
         sunders: list[SinglesUnderResult] = []
         bat_vs_starter = []
+        bat_vs_league = []  # same hitters vs a league-average arm, for the preview
         bat_vs_pen = []
         bat_vs_pen_close = []
         selections: list[dict[str, Selection | None]] = []
@@ -653,6 +654,15 @@ class Pipeline:
             vs_start = apply_multipliers(vs_start, arsenal_mult)
             vs_start = apply_multipliers(vs_start, pit_tail)
             vs_start = apply_multipliers(vs_start, bat_tail)
+
+            # The same batter, same platoon/venue context, against a
+            # league-average arm: the article's reference point for how much of
+            # this matchup is the lineup and how much is the man on the mound.
+            vs_league = combine(ctx, league_pitcher_rates())
+            vs_league = apply_multipliers(vs_league, bmult)
+            vs_league = apply_multipliers(vs_league, xbh_sel.outcome_multipliers)
+            vs_league = apply_multipliers(vs_league, bat_tail)
+            bat_vs_league.append(vs_league)
 
             # Bullpen matchup: batter's late-inning (>=6th) 3-week rates vs the
             # pen (FanGraphs split when available, else Statcast), then bullpen
@@ -707,6 +717,8 @@ class Pipeline:
             opp_throws,
             pitcher_siera(pit_rows),
             self._league_contact,
+            _mean_woba(bat_vs_starter),
+            _mean_woba(bat_vs_league),
         )
 
         return (
@@ -1632,6 +1644,13 @@ class PreviewHalf:
     opp_pen: BullpenLine
 
 
+def _mean_woba(matchups: list[dict[str, float]]) -> float | None:
+    """Lineup-average wOBA implied by the simulator's per-hitter matchup rates."""
+    if not matchups:
+        return None
+    return round(sum(woba_from_rates(m) for m in matchups) / len(matchups), 3)
+
+
 def _preview_half(
     team,
     opp,
@@ -1643,6 +1662,8 @@ def _preview_half(
     opp_throws: str | None,
     opp_siera: Siera,
     league: LeagueContact,
+    proj_woba: float | None,
+    proj_woba_vs_league: float | None,
 ) -> PreviewHalf:
     """Assemble the preview half from objects the simulator already computed."""
     assert opp.probable_pitcher is not None
@@ -1716,6 +1737,8 @@ def _preview_half(
         away_woba=None if splits is None else splits.away_woba,
         is_home=bool(team.is_home),
         league_xwoba=league.batter,
+        proj_woba=proj_woba,
+        proj_woba_vs_league=proj_woba_vs_league,
     )
 
     pen = BullpenLine(

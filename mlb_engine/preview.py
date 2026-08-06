@@ -88,6 +88,11 @@ class LineupLine:
     away_woba: float | None = None
     is_home: bool | None = None
     league_xwoba: float | None = None  # league mean of per-hitter xwOBA
+    # Log5 matchup projections from the simulator's own per-hitter rates, so the
+    # article can say what this order does against *this* arm and against an
+    # average one. Platoon and home/road context are already inside them.
+    proj_woba: float | None = None
+    proj_woba_vs_league: float | None = None
 
 
 @dataclass

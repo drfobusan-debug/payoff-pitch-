@@ -8,9 +8,11 @@ import pandas as pd
 
 from mlb_engine.features.team_splits import build_team_splits, league_contact
 from mlb_engine.features.trend import pitcher_trends
+from mlb_engine.models.matchup import woba_from_rates
 from mlb_engine.output.daily_preview import (
     build_preview_report,
     edge_side,
+    matchup_gap,
     matchup_verdict,
     starter_trend_sentence,
 )
@@ -103,34 +105,51 @@ def test_trend_sentence_reads_the_babip_xwoba_gap():
     assert "unlucky 0.330 BABIP" in unlucky
 
 
-def test_verdict_centres_each_side_on_its_own_league_baseline():
-    # Raw numbers favour the bats (.389 vs .326 allowed); against their own
-    # baselines the starter is 44 points better than league and the bats 17.
-    lu, sl = _lineup(), _starter()
-    assert edge_side(lu, sl) == "arm"
+def test_verdict_reads_the_simulators_own_matchup_projection():
+    lu = _lineup(proj_woba=0.305, proj_woba_vs_league=0.333)
+    assert round(matchup_gap(lu, _starter()), 3) == -0.028
+    assert edge_side(lu, _starter()) == "arm"
 
-    txt = matchup_verdict("SD", "AZ", lu, sl)
+    txt = matchup_verdict("SD", "AZ", lu, _starter())
     assert "Edge: Casey Mize (AZ)" in txt
-    assert "44 points better than league" in txt
-    assert "17 points better than league" in txt
+    assert "projects SD's order at a 0.305 wOBA against Casey Mize" in txt
+    assert "28 points below the 0.333" in txt
 
 
-def test_verdict_names_the_bats_when_the_lineup_is_the_better_side():
-    lu = _lineup(xwoba=0.440)
+def test_verdict_names_the_bats_when_the_projection_beats_an_average_arm():
+    lu = _lineup(proj_woba=0.350, proj_woba_vs_league=0.333)
     assert edge_side(lu, _starter()) == "bats"
     assert "Edge: SD's bats" in matchup_verdict("SD", "AZ", lu, _starter())
 
 
-def test_verdict_calls_a_wash_when_neither_side_is_ahead():
-    lu = _lineup(xwoba=0.372 + 0.044)
+def test_verdict_calls_a_wash_when_the_starter_projects_as_average():
+    lu = _lineup(proj_woba=0.336, proj_woba_vs_league=0.333)
     assert edge_side(lu, _starter()) == "wash"
     assert "Wash" in matchup_verdict("SD", "AZ", lu, _starter())
+
+
+def test_verdict_falls_back_to_centred_xwoba_without_a_projection():
+    # Raw numbers favour the bats (.389 vs .326 allowed); against their own
+    # baselines the starter is 44 points better than league and the bats 17.
+    lu, sl = _lineup(), _starter()
+    assert lu.proj_woba is None
+    assert edge_side(lu, sl) == "arm"
+
+    txt = matchup_verdict("SD", "AZ", lu, sl)
+    assert "44 points better than league" in txt
+    assert "17 points better than league" in txt
+
+
+def test_woba_from_rates_puts_matchup_probabilities_on_the_woba_scale():
+    league = {"1B": 0.140, "2B": 0.045, "3B": 0.004, "HR": 0.032, "BB": 0.085, "K": 0.225, "OUT": 0.469}
+    assert 0.30 < woba_from_rates(league) < 0.34
+    assert woba_from_rates({"OUT": 1.0}) == 0.0
 
 
 def test_verdict_reports_split_rank_bucket_and_venue_form():
     txt = matchup_verdict("SD", "AZ", _lineup(), _starter())
 
-    assert "they hit right-handers at a 0.336 wOBA" in txt
+    assert "an order that hits right-handers at a 0.336 wOBA" in txt
     assert "12 of 30" in txt
     assert "middle third" in txt
     assert "on the road tonight" in txt
@@ -139,7 +158,7 @@ def test_verdict_reports_split_rank_bucket_and_venue_form():
 
 def test_verdict_says_so_when_the_split_is_too_thin_to_rank():
     txt = matchup_verdict("SD", "AZ", _lineup(split_woba=None, split_rank=None), _starter())
-    assert "too thin to rank" in txt
+    assert "too thin a sample against right-handers to rank" in txt
 
 
 def test_narration_speaks_the_edge_and_the_split_rank():
