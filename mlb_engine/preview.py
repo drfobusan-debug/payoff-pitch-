@@ -57,6 +57,12 @@ class BullpenLine:
     zone_pct: float | None = None
     recent_load: float | None = None  # >1 => heavier 3-day workload than baseline
     fatigue: float | None = None  # 0-100 StatsAPI workload proxy
+    # Log5 projections of the opposing order against this pen, aggregate and
+    # against its 8th-inning arms only (the innings a one-run game hinges on).
+    proj_woba: float | None = None
+    proj_woba_close: float | None = None
+    arm_spread: float | None = None  # SD of wOBA allowed across individual arms
+    arms: int | None = None  # arms with enough work to carry their own line
 
 
 @dataclass
@@ -87,6 +93,13 @@ class LineupLine:
     home_woba: float | None = None
     away_woba: float | None = None
     is_home: bool | None = None
+    # Club wOBA overall and in tonight's venue split, each with its rank, so the
+    # reader gets "how they hit" before "how they hit here".
+    team_woba: float | None = None
+    team_rank: int | None = None
+    team_of: int | None = None
+    venue_rank: int | None = None
+    venue_of: int | None = None
     league_xwoba: float | None = None  # league mean of per-hitter xwOBA
     # Log5 matchup projections from the simulator's own per-hitter rates, so the
     # article can say what this order does against *this* arm and against an

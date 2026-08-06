@@ -27,6 +27,7 @@ from datetime import timedelta
 import pandas as pd
 
 MIN_SPLIT_PA = 150  # PA in a split before a team is ranked in it
+MIN_VENUE_PA = 100  # a venue split is roughly half a season's PA, so a lower floor
 MIN_BASELINE_BBE = 15  # batted balls before a player joins a league baseline
 
 XWOBA_COL = "estimated_woba_using_speedangle"
@@ -62,13 +63,22 @@ class SplitRank:
 
 @dataclass(frozen=True)
 class TeamSplits:
-    """One club's platoon and home/road offense over the window."""
+    """One club's overall, platoon and home/road offense over the window."""
 
     team: str
     vs_rhp: SplitRank | None
     vs_lhp: SplitRank | None
-    home_woba: float | None
-    away_woba: float | None
+    at_home: SplitRank | None
+    on_road: SplitRank | None
+    overall: SplitRank | None = None
+
+    @property
+    def home_woba(self) -> float | None:
+        return None if self.at_home is None else self.at_home.woba
+
+    @property
+    def away_woba(self) -> float | None:
+        return None if self.on_road is None else self.on_road.woba
 
     def vs_hand(self, hand: str | None) -> SplitRank | None:
         if hand == "L":
@@ -76,6 +86,11 @@ class TeamSplits:
         if hand == "R":
             return self.vs_rhp
         return None
+
+    def at_venue(self, is_home: bool | None) -> SplitRank | None:
+        if is_home is None:
+            return None
+        return self.at_home if is_home else self.on_road
 
 
 def _player_mean_xwoba(df: pd.DataFrame, by: str) -> float | None:
@@ -145,28 +160,31 @@ def build_team_splits(df: pd.DataFrame, as_of: Date, days: int) -> dict[str, Tea
 
     vs_r: dict[str, tuple[float | None, int]] = {}
     vs_l: dict[str, tuple[float | None, int]] = {}
-    home: dict[str, float | None] = {}
-    away: dict[str, float | None] = {}
+    home: dict[str, tuple[float | None, int]] = {}
+    away: dict[str, tuple[float | None, int]] = {}
+    overall: dict[str, tuple[float | None, int]] = {}
     for team, rows in pa_rows.groupby("bat_team"):
         team = str(team)
         vs_r[team] = _woba(rows[rows["p_throws"] == "R"])
         vs_l[team] = _woba(rows[rows["p_throws"] == "L"])
-        home[team] = _woba(rows[rows["inning_topbot"] == "Bot"])[0]
-        away[team] = _woba(rows[rows["inning_topbot"] == "Top"])[0]
+        home[team] = _woba(rows[rows["inning_topbot"] == "Bot"])
+        away[team] = _woba(rows[rows["inning_topbot"] == "Top"])
+        overall[team] = _woba(rows)
 
     r_ranked = _rank_split(vs_r)
     l_ranked = _rank_split(vs_l)
-
-    def _rounded(w: float | None) -> float | None:
-        return None if w is None else round(w, 3)
+    home_ranked = _rank_split(home, min_pa=MIN_VENUE_PA)
+    away_ranked = _rank_split(away, min_pa=MIN_VENUE_PA)
+    all_ranked = _rank_split(overall)
 
     return {
         team: TeamSplits(
             team=team,
             vs_rhp=r_ranked.get(team),
             vs_lhp=l_ranked.get(team),
-            home_woba=_rounded(home[team]),
-            away_woba=_rounded(away[team]),
+            at_home=home_ranked.get(team),
+            on_road=away_ranked.get(team),
+            overall=all_ranked.get(team),
         )
         for team in vs_r
     }

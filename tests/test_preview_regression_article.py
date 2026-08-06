@@ -6,17 +6,26 @@ import datetime as dt
 
 import pandas as pd
 
+from mlb_engine.features.rolling import pen_arm_spread, woba_from_rates
 from mlb_engine.features.team_splits import build_team_splits, league_contact
 from mlb_engine.features.trend import pitcher_trends
-from mlb_engine.models.matchup import woba_from_rates
 from mlb_engine.output.daily_preview import (
     build_preview_report,
+    bullpen_verdict,
     edge_side,
+    lineup_profile,
     matchup_gap,
     matchup_verdict,
+    starter_duel,
     starter_trend_sentence,
 )
-from mlb_engine.preview import LineupLine, StarterLine, load_previews, save_previews
+from mlb_engine.preview import (
+    BullpenLine,
+    LineupLine,
+    StarterLine,
+    load_previews,
+    save_previews,
+)
 from tests.test_preview import _preview
 
 
@@ -271,3 +280,123 @@ def test_league_contact_baselines_average_per_player():
 def test_league_contact_is_empty_without_data():
     league = league_contact(pd.DataFrame(), dt.date(2026, 8, 5), 42)
     assert league.batter is None and league.pitcher is None
+
+
+def _pen(**over) -> BullpenLine:
+    base = dict(
+        xwoba_allowed=0.31,
+        k_pct=0.24,
+        zone_pct=0.45,
+        recent_load=0.90,
+        fatigue=0.0,
+        proj_woba=0.320,
+        proj_woba_close=0.305,
+        arm_spread=0.028,
+        arms=7,
+    )
+    base.update(over)
+    return BullpenLine(**base)
+
+
+def test_starter_duel_names_the_better_arm_by_siera():
+    gp = _preview(
+        home_starter=_starter(),
+        away_starter=_starter(name="Mitch Bratt", siera=5.94, swstr=0.09, hard_hit_allowed=0.44),
+    )
+    txt = starter_duel(gp)
+
+    assert "Better pitcher: Casey Mize (BBB)" in txt
+    assert "by a wide margin" in txt
+    assert "2.98 SIERA to Mitch Bratt's 5.94" in txt
+    assert "13% SwStr" in txt and "44% hard-hit" in txt
+
+
+def test_starter_duel_says_so_when_siera_is_missing():
+    gp = _preview(home_starter=_starter(siera=None), away_starter=_starter(name="Mitch Bratt"))
+
+    assert "No SIERA read on both arms" in starter_duel(gp)
+
+
+def test_bullpen_verdict_reads_freshness_projection_and_volatility():
+    txt = bullpen_verdict("SD", "AZ", _pen())
+
+    assert "AZ's pen" in txt
+    assert "Fresh" in txt and "nobody on back-to-back days" in txt
+    assert "three-day workload 0.90× normal" in txt
+    assert "projects 0.320 wOBA against SD's order" in txt
+    assert "0.305 once the 8th-inning arms take it" in txt
+    assert "normal spread" in txt and "across 7 arms" in txt
+
+
+def test_bullpen_verdict_flags_a_worked_volatile_walk_prone_pen():
+    txt = bullpen_verdict("SD", "AZ", _pen(fatigue=80.0, arm_spread=0.061, zone_pct=0.37))
+
+    assert "Worked" in txt and "4 arms gassed" in txt
+    assert "volatile" in txt and "0.061 wOBA spread" in txt
+    assert "walk trap at 37% zone" in txt
+
+
+def test_bullpen_verdict_admits_a_thin_relief_sample():
+    txt = bullpen_verdict("SD", "AZ", _pen(proj_woba=None, arm_spread=None, arms=1, fatigue=None))
+
+    assert "no projection against this order" in txt
+    assert "too few arms" in txt
+    assert "Workload unknown" in txt
+
+
+def test_article_says_which_pen_holds_late():
+    gp = _preview(home_pen=_pen(proj_woba=0.300), away_pen=_pen(proj_woba=0.360))
+    html, narr = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "Late-inning edge: <b>BBB's pen</b>, by 60 points" in html
+    assert "late innings favor the BBB pen" in narr
+
+
+def test_article_calls_the_pens_even_when_they_project_together():
+    gp = _preview(home_pen=_pen(proj_woba=0.320), away_pen=_pen(proj_woba=0.323))
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "Late-inning edge: <b>even</b>" in html
+
+
+def test_lineup_profile_gives_general_form_then_tonights_situation():
+    lu = _lineup(team_woba=0.331, team_rank=6, team_of=30, venue_rank=4, venue_of=30)
+    txt = lineup_profile("SD", lu)
+
+    assert "0.331 wOBA club overall" in txt
+    assert "<b>6 of 30</b> (top third)" in txt
+    assert "hits right-handers at a 0.336 wOBA" in txt  # tonight's platoon split
+    assert "on the road they hit 0.361, 4 of 30 in that split" in txt
+    assert "24 points better than the 0.337 they hit at home" in txt
+
+
+def test_lineup_profile_falls_back_to_the_lineup_line_without_club_ranks():
+    txt = lineup_profile("SD", _lineup())
+
+    assert "0.340 wOBA / 0.389 xwOBA batting order" in txt
+
+
+def test_pen_arm_spread_measures_the_gap_between_a_pens_arms():
+    rows = []
+    for arm, ev in ((1, "home_run"), (2, "strikeout")):
+        rows.extend({"pitcher": arm, "events": ev} for _ in range(30))
+    spread, arms = pen_arm_spread(pd.DataFrame(rows))
+
+    assert arms == 2
+    assert spread is not None and spread > 0.05  # a slugger's pen next to a shutdown arm
+
+    tight, _ = pen_arm_spread(pd.DataFrame([{"pitcher": 1, "events": "strikeout"}] * 30))
+    assert tight is None  # one arm can't have a spread
+
+
+def test_team_splits_rank_the_venue_and_overall_offenses():
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 42)
+
+    sd, lad = splits["SD"], splits["LAD"]
+    assert sd.overall is not None and sd.overall.rank == 1
+    assert lad.overall is not None and lad.overall.rank == 3
+    home = sd.at_venue(True)
+    road = sd.at_venue(False)
+    assert home is not None and road is not None
+    assert home.rank == 1 and road.rank == 1
+    assert sd.at_venue(None) is None

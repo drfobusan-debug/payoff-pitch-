@@ -58,6 +58,8 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
     lineup_iso,
+    pen_arm_spread,
+    woba_from_rates,
 )
 from mlb_engine.features.siera import (
     Siera,
@@ -97,7 +99,7 @@ from mlb_engine.market.tiers import Tier, bump_tier, classify
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups
-from mlb_engine.models.matchup import apply_multipliers, combine, woba_from_rates
+from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup
@@ -719,6 +721,8 @@ class Pipeline:
             self._league_contact,
             _mean_woba(bat_vs_starter),
             _mean_woba(bat_vs_league),
+            _mean_woba(bat_vs_pen),
+            _mean_woba(bat_vs_pen_close),
         )
 
         return (
@@ -1664,6 +1668,8 @@ def _preview_half(
     league: LeagueContact,
     proj_woba: float | None,
     proj_woba_vs_league: float | None,
+    pen_proj_woba: float | None,
+    pen_proj_woba_close: float | None,
 ) -> PreviewHalf:
     """Assemble the preview half from objects the simulator already computed."""
     assert opp.probable_pitcher is not None
@@ -1691,6 +1697,8 @@ def _preview_half(
         league_xwoba_allowed=league.pitcher,
     )
     split = splits.vs_hand(opp_throws) if splits is not None else None
+    overall = splits.overall if splits is not None else None
+    venue = splits.at_venue(bool(team.is_home)) if splits is not None else None
 
     named = [
         (slot.player.name, r)
@@ -1736,16 +1744,26 @@ def _preview_half(
         home_woba=None if splits is None else splits.home_woba,
         away_woba=None if splits is None else splits.away_woba,
         is_home=bool(team.is_home),
+        team_woba=None if overall is None else overall.woba,
+        team_rank=None if overall is None else overall.rank,
+        team_of=None if overall is None else overall.of,
+        venue_rank=None if venue is None else venue.rank,
+        venue_of=None if venue is None else venue.of,
         league_xwoba=league.batter,
         proj_woba=proj_woba,
         proj_woba_vs_league=proj_woba_vs_league,
     )
 
+    spread, arms = pen_arm_spread(bpen.relief)
     pen = BullpenLine(
         xwoba_allowed=_fnum(bpen.xwoba_allowed),
         k_pct=_fnum(bpen.k_pct),
         zone_pct=_fnum(bpen.zone_pct),
         recent_load=_fnum(bpen.recent_load),
         fatigue=None,  # filled in at game level from the StatsAPI proxy
+        proj_woba=pen_proj_woba,
+        proj_woba_close=pen_proj_woba_close,
+        arm_spread=spread,
+        arms=arms,
     )
     return PreviewHalf(lineup=lineup, opp_starter=starter, opp_pen=pen)

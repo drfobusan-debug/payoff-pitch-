@@ -43,7 +43,7 @@ from mlb_engine.output.audit_insight import (
     to_mp3,
     to_pdf,
 )
-from mlb_engine.preview import GamePreview, LineupLine, StarterLine
+from mlb_engine.preview import BullpenLine, GamePreview, LineupLine, StarterLine
 from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
@@ -391,6 +391,170 @@ def matchup_verdict(bats_team: str, arm_team: str, lu: LineupLine, sl: StarterLi
     )
 
 
+# Bullpen reader thresholds: workload proxy at/above which a pen is worked, and
+# the per-arm wOBA spread that makes the choice of reliever matter.
+FATIGUE_DEPLETED = 60.0
+WIDE_ARM_SPREAD = 0.040
+TIGHT_ARM_SPREAD = 0.020
+
+
+def _better_arm(a: StarterLine, b: StarterLine) -> tuple[StarterLine, StarterLine, float] | None:
+    """The better of two starters by SIERA, with the gap in runs."""
+    if a.siera is None or b.siera is None:
+        return None
+    better, worse = (a, b) if a.siera <= b.siera else (b, a)
+    return better, worse, worse.siera - better.siera  # type: ignore[operator]
+
+
+def _margin_word(gap: float) -> str:
+    if gap >= 1.25:
+        return "by a wide margin"
+    if gap >= 0.50:
+        return "clearly"
+    return "narrowly"
+
+
+def starter_duel(gp: GamePreview) -> str:
+    """Who is the better pitcher tonight, and where the two disagree."""
+    home, away = gp.home_starter, gp.away_starter
+    teams = {home.name: gp.home, away.name: gp.away}
+    ranked = _better_arm(home, away)
+    if ranked is None:
+        lead = (
+            f"<b>No SIERA read on both arms</b> — {home.name} and {away.name} are compared on "
+            "contact and stuff only"
+        )
+    else:
+        better, worse, gap = ranked
+        lead = (
+            f"<b>Better pitcher: {better.name} ({teams[better.name]})</b> {_margin_word(gap)} — "
+            f"{better.siera:.2f} SIERA to {worse.name}'s {worse.siera:.2f}"
+        )
+    bits = []
+    for tag, sl in ((gp.home, home), (gp.away, away)):
+        hard = "" if sl.hard_hit_allowed is None else f", {sl.hard_hit_allowed * 100:.0f}% hard-hit"
+        bits.append(
+            f"{sl.name} ({tag}) misses bats at {sl.swstr * 100:.0f}% SwStr and allows "
+            f"{sl.xwoba_allowed:.3f} xwOBA{hard}"
+        )
+    return f"<p>{lead}. " + "; ".join(bits) + ".</p>"
+
+
+def _fresh_clause(bp: BullpenLine) -> str:
+    """Rested or worked, from the workload proxy and the 3-day load.
+
+    The proxy counts arms on back-to-back days or a heavy two-day pitch count at
+    20 points each, so it reads back as a number of gassed relievers.
+    """
+    load = "" if bp.recent_load is None else f", three-day workload {bp.recent_load:.2f}× normal"
+    if bp.fatigue is None:
+        return "Workload unknown" + load
+    gassed = round(bp.fatigue / 20)
+    if bp.fatigue >= FATIGUE_DEPLETED:
+        state = f"<span class='neg'>Worked</span> — {gassed} arms gassed"
+    elif bp.fatigue > 0:
+        state = f"About normal — {gassed} arm{'s' if gassed != 1 else ''} gassed"
+    else:
+        state = "<span class='pos'>Fresh</span> — nobody on back-to-back days or a heavy two-day count"
+    return state + load
+
+
+def _volatility_clause(bp: BullpenLine) -> str:
+    if bp.arm_spread is None:
+        return "too few arms with real work to judge how much the choice of reliever matters"
+    if bp.arm_spread >= WIDE_ARM_SPREAD:
+        read = "<span class='neg'>volatile</span> — which reliever appears matters more than the average"
+    elif bp.arm_spread <= TIGHT_ARM_SPREAD:
+        read = "<span class='pos'>uniform</span> — any arm out of it does about the same job"
+    else:
+        read = "normal spread between its best and worst arm"
+    arms = "" if bp.arms is None else f" across {bp.arms} arms"
+    return f"{read} ({bp.arm_spread:.3f} wOBA spread{arms})"
+
+
+def bullpen_verdict(bats_team: str, pen_team: str, bp: BullpenLine) -> str:
+    """One pen: how rested, how it projects against this order, how volatile."""
+    if bp.proj_woba is None:
+        proj = "no projection against this order (thin relief sample)"
+    else:
+        close = (
+            ""
+            if bp.proj_woba_close is None
+            else f", {bp.proj_woba_close:.3f} once the 8th-inning arms take it"
+        )
+        proj = f"projects {bp.proj_woba:.3f} wOBA against {bats_team}'s order{close}"
+    walk = ""
+    if bp.zone_pct is not None and bp.zone_pct < 0.40:
+        walk = f" It's also a walk trap at {bp.zone_pct * 100:.0f}% zone."
+    return (
+        f"<p><b>{pen_team}'s pen.</b> {_fresh_clause(bp)}; {proj}; "
+        f"{_volatility_clause(bp)}.{walk}</p>"
+    )
+
+
+def _pen_edge(gp: GamePreview) -> str:
+    """Which pen is the better bet to hold, given the order it must face."""
+    home, away = gp.home_pen, gp.away_pen
+    if home.proj_woba is None or away.proj_woba is None:
+        return ""
+    gap = (away.proj_woba - home.proj_woba) * 1000
+    if abs(gap) < 8:
+        return f"<p>Late-inning edge: <b>even</b> — both pens project within {abs(gap):.0f} points.</p>"
+    better = gp.home if gap > 0 else gp.away
+    return (
+        f"<p>Late-inning edge: <b>{better}'s pen</b>, by {abs(gap):.0f} points of projected "
+        "wOBA against the order it has to face.</p>"
+    )
+
+
+def _bullpens(gp: GamePreview) -> str:
+    return (
+        bullpen_verdict(gp.away, gp.home, gp.home_pen)
+        + bullpen_verdict(gp.home, gp.away, gp.away_pen)
+        + _pen_edge(gp)
+    )
+
+
+def _rank_bucket(rank: int, of: int) -> str:
+    third = of / 3.0
+    if rank <= third:
+        return "top"
+    return "middle" if rank <= 2 * third else "bottom"
+
+
+def lineup_profile(team: str, lu: LineupLine) -> str:
+    """How this offense hits in general, then how it hits in tonight's situation."""
+    if lu.team_woba is None or lu.team_rank is None or lu.team_of is None:
+        general = f"a {lu.woba:.3f} wOBA / {lu.xwoba:.3f} xwOBA batting order"
+    else:
+        bucket = _rank_bucket(lu.team_rank, lu.team_of)
+        general = (
+            f"a {lu.team_woba:.3f} wOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
+            f"({bucket} third), hitting {lu.xwoba:.3f} xwOBA on contact"
+        )
+    situ = [_split_clause(lu)]
+    if lu.is_home is not None and lu.home_woba is not None and lu.away_woba is not None:
+        where = "at home" if lu.is_home else "on the road"
+        mine = lu.home_woba if lu.is_home else lu.away_woba
+        rank = (
+            ""
+            if lu.venue_rank is None or lu.venue_of is None
+            else f", {lu.venue_rank} of {lu.venue_of} in that split"
+        )
+        other = lu.away_woba if lu.is_home else lu.home_woba
+        swing = (mine - other) * 1000
+        gap = f"{abs(swing):.0f} points {'better' if swing > 0 else 'worse'} than the {other:.3f}"
+        situ.append(
+            f"{where} they hit {mine:.3f}{rank}, {gap} they hit "
+            f"{'on the road' if lu.is_home else 'at home'}"
+        )
+    return f"<p><b>{team}.</b> They are {general}. Tonight: " + "; ".join(situ) + ".</p>"
+
+
+def _lineup_profiles(gp: GamePreview) -> str:
+    return lineup_profile(gp.home, gp.home_lineup) + lineup_profile(gp.away, gp.away_lineup)
+
+
 def _matchup_verdicts(gp: GamePreview) -> str:
     return matchup_verdict(gp.home, gp.away, gp.home_lineup, gp.away_starter) + matchup_verdict(
         gp.away, gp.home, gp.away_lineup, gp.home_starter
@@ -508,11 +672,13 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
         f"<p class='env'>{env}</p>"
         f"<div class='shape'><span class='tag'>{shape_label}</span> {shape_desc}</div>"
         f"{ml}"
-        f"<h3>Starters vs. the lineups</h3>{starter_tbl}"
-        f"<h3>Where the matchup edge is</h3>{_matchup_verdicts(gp)}"
+        f"<h3>Who's the better pitcher</h3>{starter_duel(gp)}{starter_tbl}"
+        f"<h3>Who wins the batter-pitcher matchup</h3>{_matchup_verdicts(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_matchup_chart(gp)}'/>"
-        f"<h3>Starter form and contact luck</h3>{_starter_trends(gp)}"
-        f"<h3>Regression watch</h3>{_reg_bits(gp)}"
+        f"<h3>How these lineups hit — overall and tonight</h3>{_lineup_profiles(gp)}"
+        f"<h3>Who's pitching well, and who's due to turn</h3>{_starter_trends(gp)}"
+        f"<h3>Hitters due to cool off or heat up</h3>{_reg_bits(gp)}"
+        f"<h3>The bullpens: rested, effective, volatile?</h3>{_bullpens(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_shape_chart(gp)}'/>"
         f"{_hr_line(hr_recs)}"
         f"{_best_bets_block(gp)}"
@@ -605,7 +771,10 @@ def build_preview_report(
         "his platoon and home/road context against this starter's — averaged over the order and "
         "compared with the same order against a league-average arm. "
         "Platoon and home/road ranks are club-level wOBA over the trailing window, ranked among teams with at "
-        "least 150 plate appearances in the split. Regression flags are the gap "
+        "least 150 plate appearances in the split. Bullpen lines are the same log5 projection against "
+        "the pen as a whole and against its 8th-inning arms; volatility is the standard deviation of "
+        "wOBA allowed across individual relievers with 25+ batters faced, and freshness is the "
+        "StatsAPI workload proxy alongside the three-day load. Regression flags are the gap "
         "between a hitter's actual and expected wOBA (points). Implied probability is the devig-free American-odds "
         "conversion of the best posted price; edge is model minus implied. Model preview, not investment advice.</p>"
     )
@@ -617,9 +786,39 @@ def build_preview_report(
     return html, narr
 
 
+def _narrate_bullpens(gp: GamePreview) -> str:
+    """Spoken bullpen read: who's rested, who holds, who's volatile."""
+    bits = []
+    for pen_team, bp in ((gp.home, gp.home_pen), (gp.away, gp.away_pen)):
+        if bp.fatigue is not None and bp.fatigue >= FATIGUE_DEPLETED:
+            bits.append(f"The {pen_team} bullpen is worked")
+        elif bp.arm_spread is not None and bp.arm_spread >= WIDE_ARM_SPREAD:
+            bits.append(f"The {pen_team} bullpen is volatile arm to arm")
+    home, away = gp.home_pen, gp.away_pen
+    if home.proj_woba is not None and away.proj_woba is not None:
+        gap = (away.proj_woba - home.proj_woba) * 1000
+        if abs(gap) >= 8:
+            better = gp.home if gap > 0 else gp.away
+            bits.append(f"and late innings favor the {better} pen")
+    return "" if not bits else ", ".join(bits) + ". "
+
+
+def _narrate_arms(gp: GamePreview) -> str:
+    """Spoken version of the better-pitcher verdict."""
+    ranked = _better_arm(gp.home_starter, gp.away_starter)
+    if ranked is None:
+        return ""
+    better, worse, gap = ranked
+    team = gp.home if better is gp.home_starter else gp.away
+    return (
+        f"{better.name} is the better arm {_margin_word(gap)}, {better.siera:.2f} SIERA "
+        f"for {team} against {worse.siera:.2f}. "
+    )
+
+
 def _narrate_matchup(gp: GamePreview) -> str:
     """Spoken version of the two bats-vs-arm verdicts and the split ranks."""
-    out = []
+    out = [_narrate_arms(gp)]
     for bats, lu, sl in (
         (gp.home, gp.home_lineup, gp.away_starter),
         (gp.away, gp.away_lineup, gp.home_starter),
@@ -639,7 +838,7 @@ def _narrate_matchup(gp: GamePreview) -> str:
                 f"{lu.split_bucket} third"
             )
         out.append(f"{who}{rank}. ")
-    return "".join(out)
+    return "".join(out) + _narrate_bullpens(gp)
 
 
 def _narration(

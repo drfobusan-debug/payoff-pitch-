@@ -395,6 +395,53 @@ class BullpenProfile:
         return m
 
 
+# Linear wOBA weights (FanGraphs scale). HBP is folded into BB, which the
+# outcome model does not separate.
+WOBA_WEIGHTS = {
+    "BB": 0.690,
+    "1B": 0.880,
+    "2B": 1.247,
+    "3B": 1.578,
+    "HR": 2.031,
+    "K": 0.0,
+    "OUT": 0.0,
+}
+MIN_ARM_PA = 25  # batters faced before one reliever gets his own wOBA line
+
+
+def woba_from_rates(rates: dict[str, float]) -> float:
+    """wOBA implied by a set of PA-outcome probabilities.
+
+    Puts a log5 matchup on the same scale as a season wOBA line, so "this order
+    vs this arm" and "this order vs an average arm" are comparable numbers.
+    """
+    return sum(WOBA_WEIGHTS[k] * rates.get(k, 0.0) for k in WOBA_WEIGHTS)
+
+
+def pen_arm_spread(relief: pd.DataFrame) -> tuple[float | None, int]:
+    """Spread of wOBA allowed across a bullpen's individual arms.
+
+    How much the pen's aggregate line depends on *which* reliever appears: a
+    uniform corps and one carried by a closer in front of four leaky arms have
+    the same mean and very different variance late in a one-run game. Returns
+    the population standard deviation over arms with at least ``MIN_ARM_PA``
+    batters faced, and how many arms that is.
+    """
+    if not len(relief) or "pitcher" not in relief or "events" not in relief:
+        return None, 0
+    wobas = []
+    for _, arm in relief.groupby("pitcher"):
+        events = arm["events"].dropna()
+        if len(events) < MIN_ARM_PA:
+            continue
+        wobas.append(woba_from_rates(rates_from_events(events).as_dict()))
+    if len(wobas) < 2:
+        return None, len(wobas)
+    mean = sum(wobas) / len(wobas)
+    var = sum((w - mean) ** 2 for w in wobas) / len(wobas)
+    return round(var**0.5, 3), len(wobas)
+
+
 def shrink_pen_xwoba(raw: float, weight: float, league: float = LEAGUE_PEN_XWOBA) -> float:
     """Pull a bullpen's observed xwOBA allowed toward the league mean.
 
