@@ -39,37 +39,41 @@ def _mk_pipeline(cfg: Config) -> Pipeline:
 
 # ---- per-market buy floors -------------------------------------------------
 def test_overbet_markets_get_a_raised_floor() -> None:
-    base = EVThresholds(strong_buy=0.08, moderate_buy=0.03, min_edge=0.02)
-    tb = base.for_market("batter_tb")
-    assert (tb.strong_buy, tb.moderate_buy, tb.min_edge) == (0.12, 0.08, 0.05)
-    hrr = base.for_market("batter_hrr")
-    assert (hrr.strong_buy, hrr.moderate_buy, hrr.min_edge) == (0.10, 0.06, 0.04)
+    base = EVThresholds(min_edge=0.02)
+    assert base.for_market("batter_tb").min_edge == 0.05
+    assert base.for_market("batter_hrr").min_edge == 0.04
 
 
 def test_non_flagged_market_keeps_global_floor() -> None:
-    base = EVThresholds(strong_buy=0.08, moderate_buy=0.03, min_edge=0.02)
+    base = EVThresholds(min_ev=0.0, min_edge=0.02)
     ml = base.for_market("game_ml")
-    assert (ml.strong_buy, ml.moderate_buy, ml.min_edge) == (0.08, 0.03, 0.02)
+    assert (ml.min_ev, ml.min_edge) == (0.0, 0.02)
 
 
 def test_env_override_still_wins(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_EV_STRONG_BATTER_TB", "0.20")
+    monkeypatch.setenv("MLBE_MIN_EDGE_BATTER_TB", "0.09")
     base = EVThresholds()
-    assert base.for_market("batter_tb").strong_buy == 0.20
-    # unspecified fields still fall back to the raised code floor
-    assert base.for_market("batter_tb").moderate_buy == 0.08
+    assert base.for_market("batter_tb").min_edge == 0.09
+    # unspecified fields still fall back to the global default
+    assert base.for_market("batter_tb").max_edge == base.max_edge
+
+
+def test_raised_edge_floor_keeps_a_moderate_band() -> None:
+    """A flagged market must not grade every surviving buy Strong."""
+    tb = EVThresholds().for_market("batter_tb")
+    assert tb.min_edge + tb.strong_edge_gap > tb.min_edge
 
 
 def test_raised_floor_flips_a_marginal_buy_to_pass() -> None:
     q = MarketQuote(book="bk", american=-110)
-    # EV +0.05 / edge +0.05 is a Moderate buy under the global floor...
+    # A 4.5-point edge at a positive-EV price is a buy under the global floor...
     res = EVResult(
-        model_prob=0.5, best_quote=q, decimal=1.91, ev=0.05,
-        fair_prob=0.45, edge=0.05, sharp_divergence=None,
+        model_prob=0.545, best_quote=q, decimal=1.91, ev=0.041,
+        fair_prob=0.50, edge=0.045, sharp_divergence=None,
     )
     base = EVThresholds()
-    assert classify(res, base.for_market("game_ml"))[0] is Tier.MODERATE
-    # ...but Pass for batter_tb, whose moderate floor is 0.08.
+    assert classify(res, base.for_market("game_ml"))[0] is Tier.STRONG
+    # ...but Pass for batter_tb, which has to show 5 points.
     assert classify(res, base.for_market("batter_tb"))[0] is Tier.PASS
 
 
@@ -82,9 +86,14 @@ def _pitcher_props(cfg: Config, quote_line: float):
     res = SimpleNamespace(
         pit={"home": {k: np.full(n, 8.0) for k in ("K", "outs", "H", "BB", "ER")}}
     )
+    # Half the sims over any line at or below 8, so the model sits at 50% rather
+    # than a certainty the implausible-edge cap would reject outright.
+    res.pit["home"]["K"][: n // 2] = 4.0
     sel = keys.pitcher_prop(pitcher.name, "Ks", quote_line)
     quotes = {
-        ("MATCH", "pitcher_k", sel): [MarketQuote(book="dk", american=120.0)]
+        ("MATCH", "pitcher_k", sel): [
+            MarketQuote(book="dk", american=120.0, opposite_american=-140.0)
+        ]
     }
     recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)
     return next(r for r in recs if r.selection == sel)

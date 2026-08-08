@@ -988,9 +988,9 @@ def test_ev_positive_when_underpriced():
 
 
 def test_classify_tiers():
-    thr = EVThresholds(strong_buy=0.08, moderate_buy=0.03)
-    q = [MarketQuote("draftkings", 120, handle_pct=70, bets_pct=45)]
-    res = evaluate(0.60, q)
+    thr = EVThresholds()
+    q = [MarketQuote("draftkings", 120, opposite_american=-140, handle_pct=70, bets_pct=45)]
+    res = evaluate(0.50, q)
     tier, reasons = classify(res, thr)
     assert tier in (Tier.STRONG, Tier.MODERATE)
     # negative edge -> pass
@@ -1323,13 +1323,58 @@ def test_strong_only_and_min_edge_selection():
             fair_prob=0.5 - edge, edge=edge, sharp_divergence=None,
         )
 
-    moderate = _res(ev=0.05, edge=0.05)
-    assert classify(moderate, EVThresholds(strong_buy=0.08, moderate_buy=0.03))[0] == Tier.MODERATE
+    moderate = _res(ev=0.05, edge=0.03)
+    assert classify(moderate, EVThresholds())[0] == Tier.MODERATE
     # strong_only downgrades Moderate to Pass.
-    strict = EVThresholds(strong_buy=0.08, moderate_buy=0.03, strong_only=True)
-    assert classify(moderate, strict)[0] == Tier.PASS
+    assert classify(moderate, EVThresholds(strong_only=True))[0] == Tier.PASS
     # A raised min_edge also rejects a thin edge.
     assert classify(_res(ev=0.05, edge=0.01), EVThresholds(min_edge=0.03))[0] == Tier.PASS
+
+
+def test_tier_does_not_reward_the_longer_price():
+    """Same edge, two prices: EV differs, the tier must not."""
+    from mlb_engine.config import EVThresholds
+    from mlb_engine.market.ev import MarketQuote, evaluate
+    from mlb_engine.market.tiers import classify
+
+    thr = EVThresholds()
+    # A 5-point edge over the devigged price, quoted as a dog and as a favourite.
+    dog = evaluate(1 / 3 + 0.05, [MarketQuote("dk", 200, opposite_american=-200)])
+    fave = evaluate(5 / 7 + 0.05, [MarketQuote("dk", -250, opposite_american=250)])
+    assert abs(dog.edge - 0.05) < 1e-9 and abs(fave.edge - 0.05) < 1e-9
+    assert dog.ev > fave.ev  # EV = decimal odds x edge, so the dog looks bigger
+    assert classify(dog, thr)[0] is classify(fave, thr)[0] is Tier.STRONG
+
+
+def test_implausible_edge_is_a_pass():
+    """Past max_edge the disagreement reads as a model error, not a bet."""
+    from mlb_engine.config import EVThresholds
+    from mlb_engine.market.ev import EVResult, MarketQuote
+    from mlb_engine.market.tiers import classify
+
+    q = MarketQuote(book="bk", american=-110)
+    huge = EVResult(
+        model_prob=0.70, best_quote=q, decimal=1.91, ev=0.337,
+        fair_prob=0.50, edge=0.20, sharp_divergence=None,
+    )
+    assert classify(huge, EVThresholds())[0] is Tier.PASS
+    assert any("> 0.08" in r for r in classify(huge, EVThresholds())[1])
+    # The cap is what rejects it, not the EV or the thin-edge guard.
+    assert classify(huge, EVThresholds(max_edge=1.0))[0] is Tier.STRONG
+
+
+def test_zero_ev_price_is_a_pass():
+    """An edge over the consensus is not a bet if the best price does not pay."""
+    from mlb_engine.config import EVThresholds
+    from mlb_engine.market.ev import EVResult, MarketQuote
+    from mlb_engine.market.tiers import classify
+
+    q = MarketQuote(book="bk", american=-140)
+    vigged = EVResult(
+        model_prob=0.58, best_quote=q, decimal=1.714, ev=-0.0058,
+        fair_prob=0.53, edge=0.05, sharp_divergence=None,
+    )
+    assert classify(vigged, EVThresholds())[0] is Tier.PASS
 
 
 # ---- ledger ----
@@ -1813,16 +1858,16 @@ def test_gb_double_play_lifts_outs_per_start():
 
 
 def test_ev_thresholds_per_market_override(monkeypatch):
-    base = EVThresholds(strong_buy=0.08, moderate_buy=0.03, min_edge=0.02)
+    base = EVThresholds(min_edge=0.02, max_edge=0.08)
     # No override -> unchanged.
-    assert base.for_market("batter_hr").strong_buy == 0.08
-    monkeypatch.setenv("MLBE_EV_STRONG_PITCHER_OUTS", "0.15")
+    assert base.for_market("batter_hr").min_edge == 0.02
+    monkeypatch.setenv("MLBE_MAX_EDGE_PITCHER_OUTS", "0.06")
     monkeypatch.setenv("MLBE_MIN_EDGE_PITCHER_OUTS", "0.05")
     tuned = base.for_market("pitcher_outs")
-    assert tuned.strong_buy == 0.15
+    assert tuned.max_edge == 0.06
     assert tuned.min_edge == 0.05
     # Other markets still use the global cutoff.
-    assert base.for_market("batter_hr").strong_buy == 0.08
+    assert base.for_market("batter_hr").min_edge == 0.02
 
 
 def test_calibration_min_samples_env(monkeypatch):

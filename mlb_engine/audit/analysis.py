@@ -174,7 +174,8 @@ def false_positive_insights(
                         len(buys),
                         bwr,
                         f"{market}: Strong/Moderate BUYS win {bwr * 100:.1f}% (n={len(buys)}) "
-                        f"-> raise the EV threshold; current buys are false positives",
+                        f"-> raise MLBE_MIN_EDGE_{market.upper()}; current buys are "
+                        "false positives",
                     )
                 )
     return out

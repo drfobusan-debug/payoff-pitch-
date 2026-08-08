@@ -49,8 +49,13 @@ book (and VSIN handle/bets divergence when provided).
     (O-Swing%), and first-pitch-strike% (fast-stabilizing discipline signals),
     blended into the BB bucket so thin samples regress to command, not the flat
     league mean.
-9. **Market + EV** — no-vig fair prob, EV per $1, Strong/Moderate/Pass tiers
-   (`MLBE_MIN_EDGE` thin-edge guard, `MLBE_STRONG_ONLY` for strict selection).
+9. **Market + EV** — no-vig fair prob, EV per $1, then Strong/Moderate/Pass tiers
+   ranked on *edge over the devigged price*, not on EV: `EV = decimal_odds x
+   edge`, so an EV cutoff is a cheaper bar at longer prices and filled the Strong
+   tier with plus-money dogs. Knobs: `MLBE_MIN_EV` (the price must pay at all),
+   `MLBE_MIN_EDGE` thin-edge guard, `MLBE_EDGE_STRONG_GAP` (extra edge for
+   Strong), `MLBE_MAX_EDGE` (disagreement past which the edge reads as a model
+   error), `MLBE_STRONG_ONLY` for strict selection.
 9a. **Run-line NPV gates** — veto (not nudge) selections whose failure to cover
     is highly predictable. All off by default; see below.
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
