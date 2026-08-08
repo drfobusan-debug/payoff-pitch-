@@ -25,7 +25,13 @@ from dataclasses import dataclass
 # are meant to be tuned against a longer graded window; see MLBE_HR_* env knobs.
 DEFAULT_MIN_MAX_EV = 109.0
 DEFAULT_MIN_BARREL = 0.070
-DEFAULT_MIN_BBE = 15
+# The thin-sample branch *keeps* the buy, so this floor is an exemption, not a
+# requirement: every hitter under it is waved past the power screen. On the
+# graded window the 13 props under 15 BBE went 0-for-13, so the exemption was
+# only ever admitting hitters with no evidence of power. Set to 1 -- a hitter
+# needs one batted ball to be judged, and the metrics reaching this gate are
+# already shrunk toward league average in proportion to their sample.
+DEFAULT_MIN_BBE = 1
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -81,8 +87,8 @@ class HRPowerGate:
     ) -> tuple[bool, str]:
         """Return (keep_buy, reason).
 
-        ``keep_buy`` is False only when the gate is enabled, the sample is large
-        enough to trust, and the hitter fails the max-EV or barrel floor.
+        ``keep_buy`` is False only when the gate is enabled, there is a sample to
+        read, and the hitter fails the max-EV or barrel floor.
         """
         if not self.enabled:
             return True, ""

@@ -58,3 +58,19 @@ def test_from_env_defaults(monkeypatch) -> None:
 def test_from_env_kill_switch(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_HR_POWER_GATE", "0")
     assert HRPowerGate.from_env().enabled is False
+
+
+def test_thin_sample_exemption_is_off_by_default() -> None:
+    """One batted ball is enough to be judged.
+
+    The thin-sample branch keeps the buy, so a high floor here is an exemption
+    that admits hitters with no evidence of power rather than a requirement.
+    """
+    gate = HRPowerGate()
+    assert gate.min_bbe == 1
+    keep, reason = gate.allows(max_ev=99.0, barrel=0.0, bbe=6)
+    assert keep is False
+    assert "hr-gate: PASS" in reason
+    # Still neutral when there is genuinely nothing to read.
+    assert gate.allows(max_ev=99.0, barrel=0.0, bbe=0)[0] is True
+    assert gate.allows(max_ev=None, barrel=None, bbe=40)[0] is True
