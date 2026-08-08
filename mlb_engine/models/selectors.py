@@ -97,6 +97,10 @@ class Selection:
     # Barrel-rate trend windows for the HR barrel gate (None when too thin).
     hr_barrel_3w: float | None = None
     hr_barrel_6w: float | None = None
+    # Barrels per plate appearance and mean exit velocity on air contact, for
+    # the HR gate's contact-frequency and soft-air tests (None when unavailable).
+    hr_barrel_pa: float | None = None
+    hr_fb_ld_ev: float | None = None
     # Contact-quality inputs for the H+R+RBI adjuster (None when unavailable).
     bat_sweet_spot: float | None = None
     bat_xslg: float | None = None
@@ -107,6 +111,11 @@ class Selection:
 
 def _clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
+
+
+def _finite(x: float) -> float | None:
+    """``None`` for a NaN metric, so a gate reads it as "no data" not "zero"."""
+    return x if x == x else None
 
 
 def _env_factor(
@@ -363,9 +372,11 @@ class TBSelector:
             score=round(score, 2),
             profile=" | ".join(reasons),
             post_multipliers={"TB": factor},
-            hr_max_ev=breg.max_ev,
+            hr_max_ev=breg.air_max_ev,
             hr_barrel=breg.barrel_rate,
             hr_bbe=breg.bbe,
+            hr_barrel_pa=_finite(breg.barrel_per_pa),
+            hr_fb_ld_ev=_finite(breg.fb_ld_ev),
             bat_sweet_spot=breg.sweet_spot,
             bat_xslg=breg.xslg,
         )

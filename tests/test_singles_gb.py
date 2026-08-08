@@ -7,6 +7,7 @@ import pandas as pd
 from mlb_engine.config import Config
 from mlb_engine.features.regression import (
     BL_GB_RATE,
+    GB_RATE_CEILING,
     SINGLES_GB_SLOPE,
     BatterRegression,
     build_batter_regression,
@@ -40,14 +41,18 @@ def test_gb_term_is_off_unless_asked_for() -> None:
     assert worm_burner.multipliers(singles_gb_slope=SINGLES_GB_SLOPE)["1B"] > 1.0
 
 
-def test_grounders_help_singles_and_nothing_else() -> None:
+def test_grounders_help_singles_and_hurt_home_runs() -> None:
     ground = _reg(0.60).multipliers(singles_gb_slope=SINGLES_GB_SLOPE)
     air = _reg(0.25).multipliers(singles_gb_slope=SINGLES_GB_SLOPE)
     assert ground["1B"] > 1.0 > air["1B"]
     assert _reg(BL_GB_RATE).multipliers(singles_gb_slope=SINGLES_GB_SLOPE)["1B"] == 1.0
-    # The batted-ball mix belongs to the singles line alone.
-    for key in ("2B", "3B", "HR"):
+    # Extra-base hits read contact quality, not the batted-ball mix.
+    for key in ("2B", "3B"):
         assert ground[key] == air[key]
+    # Home runs do: you cannot hit one on the ground, so a ground-ball hitter is
+    # braked past the 50% ceiling while the fly-ball hitter is untouched.
+    assert ground["HR"] < air["HR"]
+    assert air["HR"] == _reg(GB_RATE_CEILING).multipliers()["HR"]
 
 
 def test_gb_term_is_bounded() -> None:

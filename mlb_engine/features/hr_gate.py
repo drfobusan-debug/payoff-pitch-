@@ -27,6 +27,12 @@ DEFAULT_MIN_MAX_EV = 109.0
 DEFAULT_MIN_BARREL = 0.070
 DEFAULT_MIN_BBE = 15
 
+# Soft air contact is a near-absolute negative for home runs: a hitter whose
+# fly balls and line drives average under 90 mph cannot carry a ball 350+ feet.
+# Unlike the barrel tests this reads air contact only, so it is not satisfied by
+# hard ground balls. Set to 0 to disable.
+DEFAULT_MIN_FB_LD_EV = 90.0
+
 # Standing barrel gate (user-requested): on top of the power floor above, an HR
 # buy must EITHER carry an elite barrel level, OR show barrel rising over the
 # last three weeks vs the rolling six-week rate. This demotes HR longshots on
@@ -34,6 +40,16 @@ DEFAULT_MIN_BBE = 15
 # good -- which is where the graded HR overs bled money. Set to 0 to disable
 # just this gate (the power floor stays).
 DEFAULT_BARREL_GATE = 0.15
+
+# The same standing gate expressed per plate appearance. Barrel rate per batted
+# ball says nothing about how often a hitter puts the ball in play, so a
+# whiff-prone slugger can barrel 16% of his contact and still clear a 15% gate
+# while barreling far less often than a contact hitter at 10%. Barrels/PA folds
+# contact frequency in and is the form projection systems weight. A hitter must
+# clear the level in EITHER form (or be trending up), so this only removes bats
+# that look elite per batted ball purely because they rarely make contact.
+# 0.065/PA is roughly the 15%-per-BBE hitter at league-average contact.
+DEFAULT_BARREL_PA_GATE = 0.065
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -72,6 +88,8 @@ class HRPowerGate:
     min_barrel: float = DEFAULT_MIN_BARREL
     min_bbe: int = DEFAULT_MIN_BBE
     barrel_gate: float = DEFAULT_BARREL_GATE
+    barrel_pa_gate: float = DEFAULT_BARREL_PA_GATE
+    min_fb_ld_ev: float = DEFAULT_MIN_FB_LD_EV
 
     @classmethod
     def from_env(cls) -> HRPowerGate:
@@ -81,6 +99,10 @@ class HRPowerGate:
             min_barrel=_env_float("MLBE_HR_BARREL", DEFAULT_MIN_BARREL),
             min_bbe=_env_int("MLBE_HR_MIN_BBE", DEFAULT_MIN_BBE),
             barrel_gate=_env_float("MLBE_HR_BARREL_GATE", DEFAULT_BARREL_GATE),
+            barrel_pa_gate=_env_float(
+                "MLBE_HR_BARREL_PA_GATE", DEFAULT_BARREL_PA_GATE
+            ),
+            min_fb_ld_ev=_env_float("MLBE_HR_MIN_FB_LD_EV", DEFAULT_MIN_FB_LD_EV),
         )
 
     def allows(
@@ -90,13 +112,16 @@ class HRPowerGate:
         bbe: int | None,
         barrel_3w: float | None = None,
         barrel_6w: float | None = None,
+        barrel_pa: float | None = None,
+        fb_ld_ev: float | None = None,
     ) -> tuple[bool, str]:
         """Return (keep_buy, reason).
 
         ``keep_buy`` is False only when the gate is enabled, the sample is large
-        enough to trust, and the hitter fails either the max-EV/barrel power
-        floor or the standing barrel gate (barrel level below ``barrel_gate``
-        AND not trending up over the last three weeks).
+        enough to trust, and the hitter fails the max-EV/barrel power floor, the
+        soft-air-contact floor, or the standing barrel gate (barrel below
+        ``barrel_gate`` per batted ball AND below ``barrel_pa_gate`` per plate
+        appearance AND not trending up over the last three weeks).
         """
         if not self.enabled:
             return True, ""
@@ -109,8 +134,23 @@ class HRPowerGate:
                 f"hr-gate: PASS (max_ev {max_ev:.1f}<{self.min_max_ev:.0f} "
                 f"or barrel {barrel:.3f}<{self.min_barrel:.3f})"
             )
-        # Standing barrel gate: keep only if barrel is elite OR rising 3w vs 6w.
-        if self.barrel_gate > 0.0 and barrel < self.barrel_gate:
+        # Soft air contact: cannot carry a ball out however hard the grounders.
+        if (
+            self.min_fb_ld_ev > 0.0
+            and fb_ld_ev is not None
+            and fb_ld_ev < self.min_fb_ld_ev
+        ):
+            return False, (
+                f"hr-gate: PASS (FB/LD EV {fb_ld_ev:.1f}<{self.min_fb_ld_ev:.0f})"
+            )
+        # Standing barrel gate: keep only if barrel is elite per batted ball OR
+        # per plate appearance OR rising 3w vs 6w.
+        elite_per_pa = (
+            self.barrel_pa_gate > 0.0
+            and barrel_pa is not None
+            and barrel_pa >= self.barrel_pa_gate
+        )
+        if self.barrel_gate > 0.0 and barrel < self.barrel_gate and not elite_per_pa:
             rising = (
                 barrel_3w is not None
                 and barrel_6w is not None
