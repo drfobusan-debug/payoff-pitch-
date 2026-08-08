@@ -18,9 +18,25 @@ Applying the map before EV/tier:
 from __future__ import annotations
 
 import json
+import logging
 import os
 from dataclasses import dataclass
+from datetime import date as Date
 from pathlib import Path
+
+log = logging.getLogger(__name__)
+
+# Identifies the feature definitions a fitted map was trained against. A map
+# learns "what the engine's 0.62 really means", so it is only valid for the
+# probabilities that engine produced: if the features change, applying the old
+# map re-imposes exactly the bias that was corrected. Bump this whenever a
+# change moves raw probabilities systematically, which retires stale maps until
+# the next fit. "bip" == balls in play: foul balls left the batted-ball pool.
+FEATURE_BASIS = "bip-2026.08"
+
+# First slate priced on the current basis. Ledger rows older than this were
+# produced by different features, so a refit trains only on rows from here on.
+FEATURE_BASIS_SINCE = Date(2026, 8, 9)
 
 
 def _min_samples() -> int:
@@ -137,6 +153,7 @@ class Calibrator:
 
     def to_json(self, path: Path) -> None:
         payload = {
+            "basis": FEATURE_BASIS,
             "markets": {mk: {"x": m.x, "y": m.y} for mk, m in self.maps.items()},
             "default": {"x": self.default.x, "y": self.default.y},
         }
@@ -145,6 +162,16 @@ class Calibrator:
     @classmethod
     def from_json(cls, path: Path) -> Calibrator:
         data = json.loads(path.read_text())
+        basis = data.get("basis")
+        if basis != FEATURE_BASIS:
+            log.warning(
+                "calibration map %s was fit on feature basis %r, engine is on %r: "
+                "ignoring it until it is refit on graded slates from this engine",
+                path.name,
+                basis,
+                FEATURE_BASIS,
+            )
+            return cls.identity()
         maps = {
             mk: IsotonicMap(v["x"], v["y"]) for mk, v in data.get("markets", {}).items()
         }

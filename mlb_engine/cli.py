@@ -37,7 +37,7 @@ from mlb_engine.audit.ledger import (
     update_ledger,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
-from mlb_engine.calibration import Calibrator
+from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
 from mlb_engine.config import Config, load_config
 from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
@@ -653,12 +653,25 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     ``--holdout`` slates to check, market by market, whether the refit map
     actually beats the packaged 2024 fit out of sample. Only the markets that
     win are adopted; the rest keep the packaged map.
+
+    Rows priced before ``FEATURE_BASIS_SINCE`` are dropped: a map learns what
+    this engine's probabilities mean, so rows produced by a materially different
+    feature basis would teach it to undo a correction rather than measure one.
     """
     cfg = load_config()
     ledger_path = cfg.audit_dir / "ledger.csv"
-    entries = [
+    graded = [
         e for e in load_ledger(ledger_path) if e.result in (WIN, LOSS) and e.raw_prob is not None
     ]
+    since = FEATURE_BASIS_SINCE.isoformat()
+    entries = [e for e in graded if e.date >= since]
+    if not entries and graded:
+        print(
+            f"{len(graded)} graded row(s) in {ledger_path}, none on or after "
+            f"{FEATURE_BASIS_SINCE}: they were priced on a previous feature basis "
+            f"({FEATURE_BASIS} is current). Grade a few slates from this engine first."
+        )
+        return 1
     if not entries:
         print(
             f"No graded rows with a raw probability in {ledger_path}; "

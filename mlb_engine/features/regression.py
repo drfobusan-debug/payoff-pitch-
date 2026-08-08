@@ -21,6 +21,8 @@ from typing import SupportsFloat, cast
 import numpy as np
 import pandas as pd
 
+from mlb_engine.data.statcast import batted_balls
+
 
 def _safe_float(val: object, default: float) -> float:
     """Coerce a scalar to float, falling back when it is NA/NaN/None.
@@ -85,14 +87,23 @@ SINGLES_GB_SLOPE = 0.5
 
 # Home-run NPV thresholds. Each describes contact that structurally cannot leave
 # the park, so a hitter past one of them is braked rather than nudged:
-#   * a hitter who cannot drive air contact 90 mph lacks the force to clear a
+#   * a hitter who cannot drive air contact hard lacks the force to clear a
 #     fence, however hard he hits his ground balls;
 #   * above a 50% ground-ball rate there are too few fly balls to sustain home
 #     runs, even with elite raw power;
 #   * pop-ups are fly balls with too *much* launch angle -- functionally dead.
-FB_LD_EV_FLOOR = 90.0
-GB_RATE_CEILING = 0.50
-IFFB_CEILING = 0.15
+# Mean exit velocity on air contact below which a bat cannot drive the ball out.
+# League median air EV is 89.4 mph over balls in play, so the old 90.0 floor sat
+# *above* the median and penalised 55% of hitters (99.8% before fouls were
+# excluded from the pool). 86.5 is the ~18th percentile, which matches the
+# incidence of the air-hard-hit brake beside it.
+FB_LD_EV_FLOOR = 86.5
+GB_RATE_CEILING = 0.50  # ~86th percentile of batter ground-ball rate
+# Popups as a share of fly balls. Statcast's ``bb_type`` calls 21.5% of fly balls
+# popups league-wide -- roughly twice the FanGraphs IFFB% convention this ceiling
+# was borrowed from -- so 0.15 sat at the 24th percentile and braked three
+# hitters in four for being ordinary. 0.285 is the ~80th percentile, a real tail.
+IFFB_CEILING = 0.285
 
 
 def _clip(x: float, lo: float, hi: float) -> float:
@@ -255,7 +266,7 @@ def build_batter_regression(
     bdf: pd.DataFrame, sprint_speed: float = BL_SPRINT
 ) -> BatterRegression:
     """Compute regression metrics from a batter's pitch-level Statcast slice."""
-    batted = bdf[bdf["launch_speed"].notna()]
+    batted = batted_balls(bdf)
     swings = bdf[
         bdf["description"].isin(
             ["swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play"]
@@ -379,7 +390,7 @@ def barrel_rate(bdf: pd.DataFrame) -> tuple[float | None, int]:
     callers can decide whether a window is thick enough to trust rather than
     reading 0.0 as "no power".
     """
-    batted = bdf[bdf["launch_speed"].notna()]
+    batted = batted_balls(bdf)
     n = int(len(batted))
     if n == 0:
         return None, 0
@@ -489,11 +500,16 @@ XBB_FSTRIKE_COEF = 0.30
 # starter with a league-average sample keeps exactly his measured reliability
 # and thin samples keep less. Contrast the command signals on the same blocks,
 # which are left alone: K% r=0.52, whiff r=0.52, CSW r=0.50, velocity r=0.95.
+# Scaled by the ball-in-play share of the old pool (78,107 / 147,827 = 0.53):
+# the block sizes those k values were solved at counted foul balls as batted
+# balls, so every prior was ~1.9x too strong. Re-measuring the block-to-block
+# correlations on balls in play alone leaves the reliabilities essentially
+# unchanged (hard-hit .274 -> .255, barrel .214 -> .211), so only n moves.
 STARTER_PRIOR_BBE = {
-    "xwoba": 233.0,
-    "babip": 998.0,
-    "hard_hit": 343.0,
-    "barrel": 1127.0,
+    "xwoba": 123.0,
+    "babip": 527.0,
+    "hard_hit": 181.0,
+    "barrel": 595.0,
 }
 
 
@@ -642,7 +658,7 @@ def build_pitcher_regression(
     location_plus: float | None = None,
     shrink: float = 0.0,
 ) -> PitcherRegression:
-    batted = pdf[pdf["launch_speed"].notna()]
+    batted = batted_balls(pdf)
     n_bbe = int(len(batted))
     n_pitches = int(len(pdf))
     babip = _babip(pdf)
