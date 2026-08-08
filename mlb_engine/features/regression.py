@@ -513,10 +513,18 @@ class PitcherRegression:
         base *= 1.0 + _clip(self.dxwoba * 1.2, -0.06, 0.08)
         base = _clip(base, 0.88, 1.14)
 
+        # Hard-hit rate allowed is the most reliable contact signal a starter
+        # carries (block-to-block r=0.24, vs barrel's 0.09) and it separates
+        # extra-base contact rather than singles, so it lifts 2B/3B/HR only.
+        hard = 1.0 + _clip((self.hard_hit_allowed - BL_HARD_HIT) * 1.0, -0.08, 0.10)
+
         # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
-        hr = base * (1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18))
+        hr = base * hard * (
+            1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
+        )
         hr = _clip(hr, 0.85, 1.35)
-        return {"1B": base, "2B": base, "3B": base, "HR": hr}
+        xbh = _clip(base * hard, 0.85, 1.30)
+        return {"1B": base, "2B": xbh, "3B": xbh, "HR": hr}
 
 
 def build_pitcher_regression(

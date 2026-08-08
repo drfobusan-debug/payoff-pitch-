@@ -72,6 +72,7 @@ from mlb_engine.features.singles_under import (
     evaluate_singles_under,
 )
 from mlb_engine.features.tails import TailAdjuster
+from mlb_engine.features.tb_gate import TBGate
 from mlb_engine.features.team_form import compute_luck_gaps, load_team_forms, luck_gap_for
 from mlb_engine.features.team_splits import (
     LeagueContact,
@@ -349,6 +350,7 @@ class Pipeline:
         self._tb_selector = TBSelector()
         self._luck_gaps: dict[str, float] = {}
         self._hr_gate = HRPowerGate.from_env()
+        self._tb_gate = TBGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
         self._hrr_adjust = HRRAdjuster.from_env()
         self._previews: list[GamePreview] = []
@@ -549,7 +551,7 @@ class Pipeline:
         weather_mult: dict[str, float] | None,
     ):
         """Return (bat_vs_starter, bat_vs_pen, bat_vs_pen_close, rbi_flags, prev,
-        selections, regs, sunders) for a lineup."""
+        selections, regs, sunders, half, opp_starter_regression) for a lineup."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -735,6 +737,7 @@ class Pipeline:
             regs,
             sunders,
             half,
+            pit_reg,
         )
 
     def _apply_env(self, rates_list, mult: dict[str, float]):
@@ -897,11 +900,11 @@ class Pipeline:
             weather_mult = eff.multipliers()
 
         (home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels,
-         home_regs, home_su, home_half) = self._team_offense(
+         home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
             game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
         (away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels,
-         away_regs, away_su, away_half) = self._team_offense(
+         away_regs, away_su, away_half, away_opp_reg) = self._team_offense(
             game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
@@ -983,6 +986,10 @@ class Pipeline:
             "away": pitcher_siera(home_pit_rows),
             "home": pitcher_siera(away_pit_rows),
         }
+        # Contact quality the starter each lineup faces allows (reusing the
+        # regression the simulator already consumed), so the total-bases gate can
+        # drop overs against a barrel/hard-hit suppressor.
+        opp_contact = {"home": home_opp_reg, "away": away_opp_reg}
         home_cap = expected_bf_cap(
             home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
         )
@@ -1120,7 +1127,7 @@ class Pipeline:
             recs.extend(
                 self._batter_props(
                     game, m, res, team_key, tinfo, flags, sels, regs, sunders,
-                    opp_siera[team_key], quotes,
+                    opp_siera[team_key], opp_contact[team_key], quotes,
                 )
             )
 
@@ -1371,7 +1378,8 @@ class Pipeline:
         return None
 
     def _batter_props(
-        self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera, quotes
+        self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera,
+        opp_contact, quotes
     ):
         out = []
         bat = res.bat[team_key]
@@ -1421,7 +1429,7 @@ class Pipeline:
             if tb_sel is not None and self.cfg.legacy_prop_post_mult:
                 tb = tb * tb_sel.factor
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
-            tb_gate = self._power_floor_reason(breg, "TB")
+            tb_gate = self._tb_gate_reason(breg, tb_sel, opp_contact)
             for line in (1.5, 2.5, 3.5):
                 out.append(self._mk(
                     game, m, "batter", "batter_tb", f"{name} TB o{line}", p_over(tb, line),
@@ -1464,6 +1472,27 @@ class Pipeline:
         if pitches >= floor:
             return None
         return f"thin Statcast: {name} {pitches}p < {floor}"
+
+    def _tb_gate_reason(self, breg, tb_sel: Selection | None, opp) -> str | None:
+        """Gate reason excluding a total-bases over from betting.
+
+        Total bases is a power market, so it is gated on the hitter's barrel rate
+        and max exit velocity -- the metrics the graded window showed separate the
+        over winners -- rather than on xSLG alone, and on the contact quality the
+        opposing starter allows. Falls back to the shared contact floor when the
+        TB gate is disabled so the market is never left ungated.
+        """
+        if not self._tb_gate.enabled:
+            return self._power_floor_reason(breg, "TB")
+        barrel = tb_sel.hr_barrel if tb_sel is not None else None
+        max_ev = tb_sel.hr_max_ev if tb_sel is not None else None
+        bbe = tb_sel.hr_bbe if tb_sel is not None else None
+        reason = self._tb_gate.power_reason(barrel, max_ev, bbe)
+        if reason is not None:
+            return reason
+        return self._tb_gate.opponent_reason(
+            opp.barrel_allowed, opp.hard_hit_allowed, opp.bbe
+        )
 
     def _apply_outs_bias(self, prob: float) -> float:
         return apply_outs_bias(
