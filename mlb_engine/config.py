@@ -282,6 +282,12 @@ class Config:
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
     )
 
+    # Barrels per PA folds contact frequency into the HR term, which is the
+    # cleaner HR-rate predictor than barrels per batted ball. Off by default: the
+    # graded window that set the HR weights measured per BBE, so flipping this
+    # changes what those weights were fitted against.
+    barrel_per_pa: bool = field(default_factory=lambda: _env_bool("MLBE_BARREL_PER_PA", False))
+
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are
     # restricted to the markets with a positive graded edge (see

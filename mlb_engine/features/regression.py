@@ -20,8 +20,11 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
+from mlb_engine.features.stabilize import Stabilizer
+
 # League baselines (approximate, recalibratable).
 BL_BARREL = 0.080
+BL_BARREL_PA = 0.045  # barrels per plate appearance (folds in contact frequency)
 BL_HARD_HIT = 0.400
 BL_SWEET_SPOT = 0.330
 BL_BAT_SPEED = 71.5
@@ -33,8 +36,36 @@ BL_XSLG = 0.400
 BL_BABIP = 0.290
 BL_SPRINT = 27.0
 BL_GB_RATE = 0.420
+BL_XWOBA = 0.370  # xwOBA on contact (batted balls only)
+BL_K_PCT = 0.225
+BL_BB_PCT = 0.085
 
-MIN_BBE = 15  # minimum batted-ball events for a stable signal
+MIN_BBE = 15  # minimum batted-ball events before any batter signal is used
+
+# League baseline per metric, keyed to ``BatterRegression`` field names. Used as
+# the shrink target when a metric's sample is short of its stabilization point.
+BASELINES: dict[str, float] = {
+    "barrel_rate": BL_BARREL,
+    "barrel_pa": BL_BARREL_PA,
+    "hard_hit": BL_HARD_HIT,
+    "sweet_spot": BL_SWEET_SPOT,
+    "xba": BL_XBA,
+    "xslg": BL_XSLG,
+    "xwoba": BL_XWOBA,
+    "woba": BL_XWOBA,
+    "gb_rate": BL_GB_RATE,
+    "gb_pct": BL_GB_RATE,
+    "k_pct": BL_K_PCT,
+    "bb_pct": BL_BB_PCT,
+    "whiff": BL_WHIFF,
+    "zone_contact": BL_ZONE_CONTACT,
+}
+
+# Barrels per PA is the cleaner HR-rate predictor (a barrel-heavy hitter who
+# rarely makes contact homers less than his barrel% suggests), but the graded
+# backtest that set the HR weights measured barrels per BBE, so the switch is
+# off until it is re-measured on the same window.
+BARREL_PA_SLOPE = 2.5 * BL_BARREL / BL_BARREL_PA  # rescaled to the per-PA range
 
 # Singles fall as barrel rate rises: across 323 qualified batters (95k PA) the
 # league goes from .175 singles/PA under 2% barrel to .124 at 10-12%, a slope of
@@ -84,6 +115,13 @@ class BatterRegression:
     # Ground-ball rate and pulled-air rate: stamped for HR/PPV backtesting.
     gb_pct: float = float("nan")
     pull_air_pct: float = float("nan")
+    barrel_pa: float = float("nan")  # barrels per plate appearance
+    # Sample counters behind each metric, so the stabilization shrink knows how
+    # much of an observed deviation is skill. Zero means "unknown": the metric is
+    # then left raw rather than collapsed to league average.
+    pa: int = 0
+    swings: int = 0
+    zone_swings: int = 0
 
     @property
     def dxwoba(self) -> float:
@@ -93,6 +131,7 @@ class BatterRegression:
         self,
         singles_barrel_slope: float = SINGLES_BARREL_SLOPE,
         singles_gb_slope: float = 0.0,
+        barrel_per_pa: bool = False,
     ) -> dict[str, float]:
         """Return bounded outcome multipliers for {1B,2B,3B,HR}.
 
@@ -108,7 +147,12 @@ class BatterRegression:
         # was the single strongest separator yet historically carried one of the
         # smallest weights, so it is up-weighted here.
         hr = 1.0
-        hr *= 1.0 + _clip((self.barrel_rate - BL_BARREL) * 2.5, -0.12, 0.15)  # PPV
+        if barrel_per_pa and not np.isnan(self.barrel_pa):
+            hr *= 1.0 + _clip(
+                (self.barrel_pa - BL_BARREL_PA) * BARREL_PA_SLOPE, -0.12, 0.15
+            )  # PPV
+        else:
+            hr *= 1.0 + _clip((self.barrel_rate - BL_BARREL) * 2.5, -0.12, 0.15)  # PPV
         hr *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.010, -0.06, 0.06)  # sensitive
         hr *= 1.0 + _clip((self.max_ev - BL_MAX_EV) * 0.009, -0.06, 0.09)  # PPV (top separator)
         if self.hard_hit < 0.30:  # NPV
@@ -161,9 +205,15 @@ def _rate(series: pd.Series, cond) -> float:
 
 
 def build_batter_regression(
-    bdf: pd.DataFrame, sprint_speed: float = BL_SPRINT
+    bdf: pd.DataFrame,
+    sprint_speed: float = BL_SPRINT,
+    stabilizer: Stabilizer | None = None,
 ) -> BatterRegression:
-    """Compute regression metrics from a batter's pitch-level Statcast slice."""
+    """Compute regression metrics from a batter's pitch-level Statcast slice.
+
+    Rate metrics are stabilized toward league average by sample size (see
+    ``stabilize``); pass ``Stabilizer(enabled=False)`` for the raw values.
+    """
     batted = bdf[bdf["launch_speed"].notna()]
     swings = bdf[
         bdf["description"].isin(
@@ -174,6 +224,7 @@ def build_batter_regression(
 
     n_bbe = int(len(batted))
     lsa = batted["launch_speed_angle"].dropna() if "launch_speed_angle" in batted else pd.Series([])
+    n_barrels = int((lsa == 6).sum()) if len(lsa) else 0
     barrel = float((lsa == 6).mean()) if len(lsa) else 0.0
     hard_hit = float((batted["launch_speed"] >= 95).mean()) if n_bbe else 0.0
     la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
@@ -225,26 +276,50 @@ def build_batter_regression(
     if np.isnan(woba):
         woba = xwoba
 
+    stab = stabilizer if stabilizer is not None else Stabilizer.from_env()
+    counts = {"bbe": n_bbe, "pa": n_pa, "swings": n_sw, "zone_swings": n_zsw}
+    raw = {
+        "barrel_rate": barrel,
+        "barrel_pa": float(n_barrels / n_pa) if n_pa else float("nan"),
+        "hard_hit": hard_hit,
+        "sweet_spot": sweet,
+        "xba": xba,
+        "xslg": xslg,
+        "xwoba": xwoba,
+        "woba": woba,
+        "gb_rate": gb_rate,
+        "gb_pct": gb_pct,
+        "k_pct": k_pct,
+        "bb_pct": bb_pct,
+        "whiff": whiff,
+        "zone_contact": zone_contact,
+    }
+    s = stab.apply(raw, BASELINES, counts)
+
     return BatterRegression(
         bbe=n_bbe,
-        barrel_rate=barrel,
-        hard_hit=hard_hit,
-        sweet_spot=sweet,
+        barrel_rate=s["barrel_rate"],
+        hard_hit=s["hard_hit"],
+        sweet_spot=s["sweet_spot"],
         bat_speed=bat_speed,
         max_ev=max_ev,
-        whiff=whiff,
-        zone_contact=zone_contact,
-        xba=xba,
-        xslg=xslg,
+        whiff=s["whiff"],
+        zone_contact=s["zone_contact"],
+        xba=s["xba"],
+        xslg=s["xslg"],
         babip=babip,
-        woba=woba,
-        xwoba=xwoba,
+        woba=s["woba"],
+        xwoba=s["xwoba"],
         sprint_speed=sprint_speed,
-        k_pct=k_pct,
-        bb_pct=bb_pct,
-        gb_rate=gb_rate,
-        gb_pct=gb_pct,
+        k_pct=s["k_pct"],
+        bb_pct=s["bb_pct"],
+        gb_rate=s["gb_rate"],
+        gb_pct=s["gb_pct"],
         pull_air_pct=pull_air,
+        barrel_pa=s["barrel_pa"],
+        pa=n_pa,
+        swings=n_sw,
+        zone_swings=n_zsw,
     )
 
 

@@ -66,8 +66,10 @@ from mlb_engine.features.singles_under import (
     SinglesUnderResult,
     evaluate_singles_under,
 )
+from mlb_engine.features.stabilize import Stabilizer
 from mlb_engine.features.tails import TailAdjuster
 from mlb_engine.features.team_form import compute_luck_gaps, load_team_forms, luck_gap_for
+from mlb_engine.features.team_total import TeamTotalAnchor
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
@@ -317,6 +319,8 @@ class Pipeline:
         self._hr_gate = HRPowerGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
         self._hrr_adjust = HRRAdjuster.from_env()
+        self._stabilizer = Stabilizer.from_env()
+        self._team_total = TeamTotalAnchor.from_env()
 
     def run(
         self,
@@ -558,11 +562,14 @@ class Pipeline:
             ctx = bprof.for_context(team.is_home, opp_throws)
 
             bslice = statcast[statcast["batter"] == pid]
-            breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
+            breg = build_batter_regression(
+                bslice, sprint.get(pid, 27.0), self._stabilizer
+            )
             regs.append(breg)
             bmult = breg.multipliers(
                 self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,
                 self.cfg.singles_gb_slope if self.cfg.singles_gb else 0.0,
+                self.cfg.barrel_per_pa,
             )
 
             bats = slot.player.bats.value if slot.player.bats else None
@@ -1145,11 +1152,47 @@ class Pipeline:
             return self._singles_under_reason(su, opp)
         return None
 
+    def _market_game_total(self, matchup: str, quotes) -> float | None:
+        """The book's main total for a game: the Over line priced nearest 50/50."""
+        best: tuple[float, float] | None = None
+        for (mu, market, selection), qs in (quotes or {}).items():
+            if mu != matchup or market != "game_total" or not selection.startswith("Over "):
+                continue
+            try:
+                line = float(selection.split()[1])
+            except (IndexError, ValueError):
+                continue
+            for q in qs:
+                dist = abs(q.no_vig_prob - 0.5)
+                if best is None or dist < best[0]:
+                    best = (dist, line)
+        return best[1] if best else None
+
+    def _market_win_prob(self, matchup: str, abbrev: str, quotes) -> float | None:
+        """Consensus no-vig moneyline probability for ``abbrev``."""
+        qs = (quotes or {}).get((matchup, "game_ml", keys.game_ml(abbrev)))
+        if not qs:
+            return None
+        probs = [q.no_vig_prob for q in qs]
+        return sum(probs) / len(probs)
+
+    def _run_env_factor(self, game, m, res, team_key, quotes) -> float:
+        """Market run-environment anchor for this team's simulated R/RBI."""
+        team = game.home if team_key == "home" else game.away
+        runs = res.home_runs_full if team_key == "home" else res.away_runs_full
+        model_runs = float(runs.mean()) if len(runs) else None
+        return self._team_total.factor(
+            self._market_game_total(m, quotes),
+            self._market_win_prob(m, team.abbrev, quotes),
+            model_runs,
+        )
+
     def _batter_props(
         self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera, quotes
     ):
         out = []
         bat = res.bat[team_key]
+        run_env = self._run_env_factor(game, m, res, team_key, quotes)
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
@@ -1169,6 +1212,8 @@ class Pipeline:
                 feat["opp_starter_siera"] = opp_siera.siera
             for stat, sl in lines.items():
                 arr = bat[stat][:, i].astype(float)
+                if stat in ("R", "RBI"):
+                    arr = arr * run_env
                 if stat == "RBI" and rbi_sel is not None and self.cfg.legacy_prop_post_mult:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
@@ -1180,7 +1225,9 @@ class Pipeline:
                         line=line, player_id=pid, stat=stat, side="over", quotes=quotes,
                         selector=sel, gate_reason=gate, **feat,
                     ))
-            hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
+            hrr = bat["H"][:, i].astype(float) + (
+                bat["R"][:, i] + bat["RBI"][:, i]
+            ).astype(float) * run_env
             hrr_gate = self._batter_gate(breg, su, opp_siera, "HRR")
             hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None

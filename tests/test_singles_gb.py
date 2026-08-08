@@ -11,6 +11,7 @@ from mlb_engine.features.regression import (
     BatterRegression,
     build_batter_regression,
 )
+from mlb_engine.features.stabilize import Stabilizer
 
 
 def _reg(gb: float) -> BatterRegression:
@@ -69,9 +70,10 @@ def test_gb_rate_is_read_off_batted_ball_type() -> None:
         }
         for i in range(20)
     ]
-    reg = build_batter_regression(pd.DataFrame(rows))
+    raw = Stabilizer(enabled=False)
+    reg = build_batter_regression(pd.DataFrame(rows), stabilizer=raw)
     assert reg.gb_rate == 0.75
 
     # No bb_type column at all falls back to the league baseline, not zero.
     bare = pd.DataFrame(rows).drop(columns=["bb_type"])
-    assert build_batter_regression(bare).gb_rate == BL_GB_RATE
+    assert build_batter_regression(bare, stabilizer=raw).gb_rate == BL_GB_RATE
