@@ -136,7 +136,9 @@ class EVThresholds:
         global cutoffs when no override is set.
         """
         suffix = market.upper()
-        d_edge = _OVERBET_EDGE_FLOORS.get(market, self.min_edge)
+        # The flagged floor raises the global guard, it never lowers it: a
+        # tightened MLBE_MIN_EDGE must not loosen the leakiest markets.
+        d_edge = max(_OVERBET_EDGE_FLOORS.get(market, 0.0), self.min_edge)
         return EVThresholds(
             min_ev=_env_float(f"MLBE_MIN_EV_{suffix}", self.min_ev),
             min_edge=_env_float(f"MLBE_MIN_EDGE_{suffix}", d_edge),

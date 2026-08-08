@@ -58,6 +58,12 @@ def test_env_override_still_wins(monkeypatch) -> None:
     assert base.for_market("batter_tb").max_edge == base.max_edge
 
 
+def test_flagged_floor_never_loosens_a_tightened_global_guard() -> None:
+    tight = EVThresholds(min_edge=0.06)
+    assert tight.for_market("batter_tb").min_edge == 0.06  # not the 0.05 floor
+    assert tight.for_market("game_ml").min_edge == 0.06
+
+
 def test_raised_edge_floor_keeps_a_moderate_band() -> None:
     """A flagged market must not grade every surviving buy Strong."""
     tb = EVThresholds().for_market("batter_tb")

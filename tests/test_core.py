@@ -1676,6 +1676,39 @@ def test_ledger_workbook_with_analysis(tmp_path):
         assert sheet in wb.sheetnames
 
 
+def test_best_flag_is_reachable_under_the_edge_cap():
+    """A BEST bar in EV points is unreachable once edge is capped."""
+    from mlb_engine.config import EVThresholds
+    from mlb_engine.output.excel import _is_best
+
+    cap = EVThresholds().max_edge
+    # A prop at the cap: the most a capped buy can ever disagree with the price.
+    prop = _rec(
+        category="pitcher", market="pitcher_k", selection="P Ks o5.5",
+        model_prob=0.58, fair_prob=0.58 - cap, edge=cap, ev=0.17,
+        market_american=110, tier=Tier.STRONG,
+    )
+    assert _is_best(prop, "Pitcher Props")
+    # The price window still excludes prop longshots.
+    assert not _is_best(
+        _rec(
+            category="pitcher", market="pitcher_k", selection="P Ks o8.5",
+            model_prob=0.30, fair_prob=0.30 - cap, edge=cap, ev=0.60,
+            market_american=400, tier=Tier.STRONG,
+        ),
+        "Pitcher Props",
+    )
+    # A thin-edge buy at a long price is not a standout, however big its EV.
+    assert not _is_best(
+        _rec(
+            category="game", market="game_ml", selection="AAA ML",
+            model_prob=0.36, fair_prob=0.335, edge=0.025, ev=0.08,
+            market_american=200, tier=Tier.MODERATE,
+        ),
+        "Moneyline",
+    )
+
+
 def test_recommendation_workbook_tabs_and_colors(tmp_path):
     from openpyxl import load_workbook
 
