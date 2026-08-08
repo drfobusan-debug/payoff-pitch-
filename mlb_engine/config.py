@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from mlb_engine.features.regression import SINGLES_BARREL_SLOPE, SINGLES_GB_SLOPE
+from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
 
 
 def _env_int(name: str, default: int) -> int:
@@ -363,6 +364,14 @@ class Config:
     singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
     singles_gb_slope: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
+    )
+
+    # Blend each hitter's observed HR/PA toward what his batted balls were worth
+    # against the walls they were hit toward (xHR/PA). On by default: raw HR/PA
+    # carries the park and weather noise expected HR exists to strip out.
+    xhr_blend: bool = field(default_factory=lambda: _env_bool("MLBE_XHR_BLEND", True))
+    xhr_prior_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_XHR_PRIOR_WEIGHT", HR_PRIOR_WEIGHT)
     )
 
     # Odds API credit budget. The vendor bills markets x regions per request, so

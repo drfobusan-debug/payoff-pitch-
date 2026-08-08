@@ -52,6 +52,7 @@ from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OutcomeRates,
     blend_bb_rate,
+    blend_hr_rate,
     blend_k_rate,
     build_batter_late_rates,
     build_batter_profile,
@@ -82,6 +83,7 @@ from mlb_engine.features.team_splits import (
 )
 from mlb_engine.features.trend import PitcherTrends, pitcher_trends
 from mlb_engine.features.workload import expected_bf_cap
+from mlb_engine.features.xhr import batter_xhr
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
@@ -621,6 +623,12 @@ class Pipeline:
             ctx = bprof.for_context(team.is_home, opp_throws)
 
             bslice = statcast[statcast["batter"] == pid]
+            # Observed HR/PA counts home runs; expected HR measures the contact
+            # that produced them, against the actual walls it was hit toward.
+            if self.cfg.xhr_blend:
+                ctx = blend_hr_rate(
+                    ctx, batter_xhr(bslice).xhr_per_pa, self.cfg.xhr_prior_weight
+                )
             breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
             regs.append(breg)
             bmult = breg.multipliers(

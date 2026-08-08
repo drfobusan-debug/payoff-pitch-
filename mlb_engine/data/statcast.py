@@ -41,6 +41,7 @@ USE_COLS = [
     "bb_type",
     "hc_x",
     "hc_y",
+    "hit_distance_sc",  # projected landing distance, for expected HR
     "zone",
     "estimated_woba_using_speedangle",
     "estimated_ba_using_speedangle",
