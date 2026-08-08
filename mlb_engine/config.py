@@ -86,33 +86,49 @@ def _env_bool(name: str, default: bool) -> bool:
 
 # Cumulative-audit false-positive pockets. The model is over-confident on these
 # counting-prop overs (measured PPV well below the ~52.4% breakeven), so a global
-# EV floor still lets marginal, unprofitable buys through. Each market must clear
-# a higher measured edge before it can fire. Values are (strong, moderate, min_edge)
-# in EV per $1; env overrides (MLBE_EV_STRONG_<MARKET> etc.) still win.
-_OVERBET_FLOORS: dict[str, tuple[float, float, float]] = {
-    "batter_tb": (0.12, 0.08, 0.05),
-    "batter_r": (0.12, 0.08, 0.05),
-    "batter_hrr": (0.10, 0.06, 0.04),
-    "batter_1b": (0.10, 0.06, 0.04),
+# thin-edge guard still lets marginal, unprofitable buys through. Each must show
+# a bigger edge over the devigged price before it can fire; the env override
+# ``MLBE_MIN_EDGE_<MARKET>`` still wins.
+_OVERBET_EDGE_FLOORS: dict[str, float] = {
+    "batter_tb": 0.05,
+    "batter_r": 0.05,
+    "batter_hrr": 0.04,
+    "batter_1b": 0.04,
 }
 
 
 @dataclass(frozen=True)
 class EVThresholds:
-    """Expected-value cutoffs (in EV per $1 staked) for buy tiers."""
+    """Cutoffs for buy tiers: an EV floor to clear, then edge to rank on."""
 
-    strong_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_STRONG", 0.08))
-    moderate_buy: float = field(default_factory=lambda: _env_float("MLBE_EV_MODERATE", 0.03))
-    # Below moderate_buy -> "pass"
+    # The price has to pay at all: EV per $1 at the best number we can bet must
+    # exceed this. Deliberately 0 rather than a margin, because EV = decimal_odds
+    # x edge, so an EV *margin* is a cheaper bar the longer the price -- the old
+    # 0.03 floor left the thin-edge band 73% plus-money, and it lost 13.5% per
+    # unit. The bar is sized in edge below, not here.
+    min_ev: float = field(default_factory=lambda: _env_float("MLBE_MIN_EV", 0.0))
     # Minimum model edge over the no-vig market price required to buy (thin-edge
     # guard). Raise it to trade volume for realized PPV/NPV.
     min_edge: float = field(default_factory=lambda: _env_float("MLBE_MIN_EDGE", 0.02))
+    # Extra edge, in probability points over ``min_edge``, that promotes a buy to
+    # Strong. EV cannot do this job: EV = decimal_odds x edge, so an EV cutoff is
+    # a *cheaper* bar at longer prices and the Strong tier filled up with
+    # plus-money dogs (median price +101 vs -123 for Moderate) and inverted --
+    # 39.9% (n=153) against Moderate's 46.9%.
+    strong_edge_gap: float = field(
+        default_factory=lambda: _env_float("MLBE_EDGE_STRONG_GAP", 0.02)
+    )
+    # Disagreement with the devigged market beyond which the edge is treated as a
+    # model error rather than a bet. Realized win rate falls as the model departs
+    # from the price: over the real-priced rows, buys inside 8 points went 51.0%
+    # and buys past it 39.0% (-18.6% ROI). 1.0 disables the cap.
+    max_edge: float = field(default_factory=lambda: _env_float("MLBE_MAX_EDGE", 0.08))
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
 
     def for_market(self, market: str) -> EVThresholds:
-        """Per-market thresholds, overridable via ``MLBE_EV_STRONG_<MARKET>`` etc.
+        """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
 
         Lets a market the audit flags as a false-positive pocket (e.g.
         ``pitcher_outs``) be tightened independently -- raising its buy bar lifts
@@ -120,14 +136,18 @@ class EVThresholds:
         global cutoffs when no override is set.
         """
         suffix = market.upper()
-        floor = _OVERBET_FLOORS.get(market)
-        d_strong, d_moderate, d_edge = (
-            floor if floor is not None else (self.strong_buy, self.moderate_buy, self.min_edge)
-        )
+        # The flagged floor raises the global guard, it never lowers it: a
+        # tightened MLBE_MIN_EDGE must not loosen the leakiest markets.
+        d_edge = max(_OVERBET_EDGE_FLOORS.get(market, 0.0), self.min_edge)
         return EVThresholds(
-            strong_buy=_env_float(f"MLBE_EV_STRONG_{suffix}", d_strong),
-            moderate_buy=_env_float(f"MLBE_EV_MODERATE_{suffix}", d_moderate),
+            min_ev=_env_float(f"MLBE_MIN_EV_{suffix}", self.min_ev),
             min_edge=_env_float(f"MLBE_MIN_EDGE_{suffix}", d_edge),
+            # A gap, not an absolute edge, so a market with a raised floor keeps
+            # a Moderate band above it instead of grading every buy Strong.
+            strong_edge_gap=_env_float(
+                f"MLBE_EDGE_STRONG_GAP_{suffix}", self.strong_edge_gap
+            ),
+            max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
         )
 

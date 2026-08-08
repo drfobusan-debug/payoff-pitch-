@@ -1582,7 +1582,8 @@ class Pipeline:
                 if sp is not None:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
-            tier, reasons = classify(evres, self.cfg.ev.for_market(market))
+            thr = self.cfg.ev.for_market(market)
+            tier, reasons = classify(evres, thr)
             if veto.triggered:
                 # A gate vetoes outright; the xwOBA/sharp-money signals only
                 # nudge the tier of a selection that survived the gates.
@@ -1598,23 +1599,26 @@ class Pipeline:
                 and tier != Tier.PASS
                 and selector is not None
             ):
-                keep, gate_reason = self._hr_gate.allows(
+                keep, hr_reason = self._hr_gate.allows(
                     selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe,
                     selector.hr_barrel_3w, selector.hr_barrel_6w,
                 )
                 if not keep:
                     tier = Tier.PASS
-                if gate_reason:
-                    reasons.append(gate_reason)
+                if hr_reason:
+                    reasons.append(hr_reason)
             if market == "game_ml" and tier != Tier.PASS:
-                keep, gate_reason = self._ml_gate.allows(
+                keep, ml_reason = self._ml_gate.allows(
                     rec.handle_pct, rec.bets_pct
                 )
                 if not keep:
                     tier = Tier.PASS
-                if gate_reason:
-                    reasons.append(gate_reason)
-            if market == "game_ml" and tier == Tier.PASS:
+                if ml_reason:
+                    reasons.append(ml_reason)
+            # Sharp money can promote a side the model passed on, but not one the
+            # price cannot pay: the upgrade is evidence about the number, not a
+            # licence to bet a negative expectation at it.
+            if market == "game_ml" and tier == Tier.PASS and evres.ev > thr.min_ev:
                 up, up_reason = self._ml_gate.upgrades(
                     rec.handle_pct, rec.bets_pct, evres.fair_prob
                 )

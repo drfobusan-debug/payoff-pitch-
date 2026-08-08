@@ -99,3 +99,76 @@ def test_from_env_kill_switch(monkeypatch) -> None:
 def test_from_env_upgrade_kill_switch(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_ML_SHARP_UPGRADE", "0")
     assert MLSharpGate.from_env().upgrade_enabled is False
+
+# ---- the upgrade cannot buy a price that does not pay ----------------------
+def _ml_rec(model_prob: float, american: float, opposite: float):
+    """Price one game_ml selection through the pipeline with sharp money on it."""
+    from types import SimpleNamespace
+
+    from mlb_engine.config import Config
+    from mlb_engine.data.vsin import Split
+    from mlb_engine.features.ml_gate import MLSharpGate as Gate
+    from mlb_engine.market.ev import MarketQuote
+    from mlb_engine.pipeline import Pipeline
+
+    p = Pipeline.__new__(Pipeline)
+    p.cfg = Config()
+    p._calibrator = _Identity()
+    p._shrink = None
+    p._ml_gate = Gate.from_env()
+    p._splits = {
+        ("MIA @ ATL", "game_ml", "MIA ML"): Split(handle_pct=80.0, bets_pct=37.0)
+    }
+    game = SimpleNamespace(game_date="2026-08-08", game_pk=1)
+    quotes = {
+        ("MIA @ ATL", "game_ml", "MIA ML"): [
+            MarketQuote(book="dk", american=american, opposite_american=opposite,
+                        handle_pct=80.0, bets_pct=37.0)
+        ]
+    }
+    return p._mk(
+        game, "MIA @ ATL", "game", "game_ml", "MIA ML", model_prob,
+        team_side="away", side="win", quotes=quotes,
+    )
+
+
+class _Identity:
+    def apply(self, market: str, prob: float) -> float:
+        return prob
+
+
+def test_sharp_upgrade_does_not_buy_a_negative_ev_price() -> None:
+    from mlb_engine.market.tiers import Tier
+
+    # Model 44% on a -150 favourite: sharp money is heavily on it, but the price
+    # is unplayable at that probability (EV ~ -0.27).
+    rec = _ml_rec(0.44, american=-150.0, opposite=130.0)
+    assert (rec.ev or 0.0) < 0
+    assert rec.tier is Tier.PASS
+    assert not any("ml-upgrade" in r for r in rec.reasons)
+
+
+def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
+    from mlb_engine.market.tiers import Tier
+
+    # Too thin an edge for the tiers to buy on their own, but a long enough
+    # price that it still pays: the sharp signal promotes it.
+    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
+    assert (rec.ev or 0.0) > 0 and (rec.edge or 0.0) < 0.02
+    assert rec.tier is Tier.MODERATE
+    assert any("ml-upgrade: BUY" in r for r in rec.reasons)
+
+
+def test_a_confirmed_moneyline_is_actually_buyable() -> None:
+    """The ml gate's own OK must not read as a batter contact-quality veto.
+
+    The two gates wrote their reason into the same local, so every moneyline the
+    gate confirmed was then hard-passed by the batter-prop floor further down --
+    leaving sharp-money upgrades as the only ML bets that could reach the card.
+    """
+    from mlb_engine.market.tiers import Tier
+
+    rec = _ml_rec(0.46, american=140.0, opposite=-160.0)
+    assert (rec.ev or 0.0) > 0 and 0.02 <= (rec.edge or 0.0) <= 0.08
+    assert rec.tier is Tier.STRONG
+    assert any("ml-gate: OK" in r for r in rec.reasons)

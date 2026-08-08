@@ -1,8 +1,10 @@
 """Classify EV results into Strong buy / Moderate buy / Pass tiers.
 
-Base tier is set by EV thresholds, then adjusted by:
-  * model edge over the no-vig market price (guards against thin edges), and
-  * VSIN handle/bets divergence (sharp money agreement/disagreement).
+A bet has to clear the EV floor at the price we can actually get, and is then
+ranked on its edge over the no-vig market -- not on EV, because ``EV =
+decimal_odds x edge`` makes an EV cutoff a cheaper bar the longer the price.
+Edge also has a ceiling: past ``max_edge`` a disagreement reads as a model
+error. Tiers are then adjusted by VSIN handle/bets divergence.
 """
 
 from __future__ import annotations
@@ -12,7 +14,6 @@ from enum import Enum
 from mlb_engine.config import EVThresholds
 from mlb_engine.market.ev import EVResult
 
-MIN_EDGE = 0.02  # require at least 2% edge over no-vig market to buy
 SHARP_DIVERGENCE_STRONG = 15.0  # handle-bets gap considered a strong sharp signal
 
 
@@ -22,12 +23,11 @@ class Tier(str, Enum):
     PASS = "Pass"
 
 
-def _base_tier(ev: float, thr: EVThresholds) -> Tier:
-    if ev >= thr.strong_buy:
+def _base_tier(edge: float, thr: EVThresholds) -> Tier:
+    """Rank a buy by how far the model departs from the devigged price."""
+    if edge >= thr.min_edge + thr.strong_edge_gap:
         return Tier.STRONG
-    if ev >= thr.moderate_buy:
-        return Tier.MODERATE
-    return Tier.PASS
+    return Tier.MODERATE
 
 
 def bump_tier(tier: Tier, steps: int) -> Tier:
@@ -42,20 +42,30 @@ def _bump(tier: Tier, steps: int) -> Tier:
 
 def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
     reasons: list[str] = []
-    tier = _base_tier(result.ev, thr)
-    reasons.append(f"EV={result.ev:+.3f}")
+    reasons.append(f"EV={result.ev:+.3f} edge={result.edge:+.3f}")
+
+    # The price still has to pay at the best number we can bet.
+    if result.ev <= thr.min_ev:
+        reasons.append(f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass")
+        return Tier.PASS, reasons
 
     # Thin-edge guard: never buy without a real edge over the no-vig line.
-    min_edge = getattr(thr, "min_edge", MIN_EDGE)
-    if tier != Tier.PASS and result.edge < min_edge:
-        tier = Tier.PASS
-        reasons.append(f"edge {result.edge:+.3f} < {min_edge} -> pass")
-        return tier, reasons
+    if result.edge < thr.min_edge:
+        reasons.append(f"edge {result.edge:+.3f} < {thr.min_edge} -> pass")
+        return Tier.PASS, reasons
+
+    # Implausible-edge guard: the market is the better forecaster, so a large
+    # departure from it is evidence against the model, not a bigger bet.
+    if result.edge > thr.max_edge:
+        reasons.append(f"edge {result.edge:+.3f} > {thr.max_edge} -> pass")
+        return Tier.PASS, reasons
+
+    tier = _base_tier(result.edge, thr)
 
     div = result.sharp_divergence
     if div is not None:
         reasons.append(f"handle-bets={div:+.0f}")
-        if div <= -SHARP_DIVERGENCE_STRONG and tier != Tier.PASS:
+        if div <= -SHARP_DIVERGENCE_STRONG:
             tier = _bump(tier, -1)
             reasons.append("sharp money against -> downgrade")
         elif div >= SHARP_DIVERGENCE_STRONG and tier == Tier.MODERATE:
@@ -63,7 +73,7 @@ def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
             reasons.append("sharp money with -> upgrade")
 
     # Strict selection: keep only Strong buys.
-    if getattr(thr, "strong_only", False) and tier == Tier.MODERATE:
+    if thr.strong_only and tier == Tier.MODERATE:
         tier = Tier.PASS
         reasons.append("strong-only mode -> pass")
 

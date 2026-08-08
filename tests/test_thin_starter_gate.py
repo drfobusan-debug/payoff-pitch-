@@ -61,14 +61,15 @@ def _f5_ml_rec(cfg: Config, gate_reason: str | None):
     """Price one clearly +EV F5 ML selection through _mk with/without the gate."""
     p = _mk_pipeline(cfg)
     game = SimpleNamespace(game_date="2026-08-01", game_pk=822781)
-    # model 60% at +150 (fair ~40%) is a decisive Strong buy absent any gate.
+    # model 44% at +150 (devigged fair ~39%) is a Strong buy absent any gate: a
+    # 5-point edge, inside the implausible-edge cap.
     quotes = {
         ("STL @ TOR", "f5_ml", "STL F5 ML"): [
             MarketQuote(book="draftkings", american=150.0, opposite_american=-170.0)
         ]
     }
     return p._mk(
-        game, "STL @ TOR", "f5", "f5_ml", "STL F5 ML", 0.60,
+        game, "STL @ TOR", "f5", "f5_ml", "STL F5 ML", 0.44,
         team_side="away", side="win", quotes=quotes, gate_reason=gate_reason,
     )
 

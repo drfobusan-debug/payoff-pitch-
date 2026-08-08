@@ -35,6 +35,7 @@ from mlb_engine.audit.analysis import (
 )
 from mlb_engine.audit.clv import ClvSummary
 from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
+from mlb_engine.config import EVThresholds
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -173,7 +174,11 @@ def _scheme_key(rec: Recommendation) -> str:
 
 
 def _conviction(rec: Recommendation, key: str) -> float:
-    """Sort/shade magnitude: EV for buys, model-vs-market fade strength for fades."""
+    """Sort/shade magnitude: distance from the no-vig price, in either direction.
+
+    Both ends are probability points, so a shade means the same thing on a dog and
+    on chalk; EV would make the gradient a function of price length.
+    """
     if key == _FADE:
         if rec.fair_prob is not None:
             v = rec.fair_prob - rec.model_prob
@@ -182,18 +187,29 @@ def _conviction(rec: Recommendation, key: str) -> float:
         else:
             v = 0.0
         return max(0.0, v)
+    if rec.edge is not None:
+        return rec.edge
     return rec.ev if rec.ev is not None else 0.0
 
 
 def _is_best(rec: Recommendation, category: str) -> bool:
-    ev = rec.ev
+    """Flag the standout buys: the most edge over the price, not the most EV.
+
+    Keyed off edge for the same reason the tiers are: ``EV = decimal_odds x edge``,
+    so an EV bar picks out long prices rather than strong opinions. Props keep the
+    price window, which is a separate judgement about which prop prices are worth
+    taking at all.
+    """
+    edge = rec.edge
     odds = rec.market_american
-    if ev is None or odds is None:
+    if edge is None or odds is None:
         return False
+    thr = EVThresholds().for_market(rec.market)
+    standout = thr.min_edge + 2 * thr.strong_edge_gap
     if category in _GAME_CATEGORIES:
-        return ev >= 0.15
+        return edge >= standout
     if category in _PROP_CATEGORIES:
-        return ev >= 0.20 and -200 <= odds <= 120
+        return edge >= standout and -200 <= odds <= 120
     return False
 
 
