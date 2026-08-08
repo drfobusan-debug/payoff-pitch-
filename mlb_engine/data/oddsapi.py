@@ -29,6 +29,7 @@ from pathlib import Path
 
 import requests
 
+from mlb_engine.data import http
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.schemas import Slate
@@ -295,8 +296,8 @@ class OddsAPIClient:
                 except ValueError:
                     pass
         try:
-            resp = requests.get(url, params={"apiKey": self.api_key or "", **q},
-                                timeout=self.timeout)
+            resp = http.get(url, params={"apiKey": self.api_key or "", **q},
+                            timeout=self.timeout)
             remaining = resp.headers.get("x-requests-remaining")
             if remaining is not None:
                 self.credits_remaining = int(float(remaining))

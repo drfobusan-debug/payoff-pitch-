@@ -114,7 +114,7 @@ def test_cache_hit_costs_no_request(tmp_path: Path) -> None:
     resp = MagicMock(status_code=200, headers={"x-requests-remaining": "8000"})
     resp.json.return_value = [{"id": "evt"}]
 
-    with patch("requests.get", return_value=resp) as get:
+    with patch("mlb_engine.data.http.get", return_value=resp) as get:
         first = client._get_json("https://x/odds", markets="h2h")
         second = client._get_json("https://x/odds", markets="h2h")
 
@@ -129,7 +129,7 @@ def test_cache_key_ignores_the_api_key_and_is_not_written_to_disk(tmp_path: Path
     resp = MagicMock(status_code=200, headers={})
     resp.json.return_value = {"ok": True}
 
-    with patch("requests.get", return_value=resp):
+    with patch("mlb_engine.data.http.get", return_value=resp):
         client._get_json("https://x/odds", markets="h2h")
 
     written = list(tmp_path.glob("*.json"))
@@ -144,7 +144,7 @@ def test_stale_cache_is_refetched(tmp_path: Path) -> None:
     resp = MagicMock(status_code=200, headers={})
     resp.json.return_value = {"ok": True}
 
-    with patch("requests.get", return_value=resp) as get:
+    with patch("mlb_engine.data.http.get", return_value=resp) as get:
         client._get_json("https://x/odds", markets="h2h")
         client._get_json("https://x/odds", markets="h2h")
 

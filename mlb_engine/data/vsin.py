@@ -32,6 +32,7 @@ import pandas as pd
 import requests
 
 from mlb_engine.config import Credentials
+from mlb_engine.data import http
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.schemas import Slate
 
@@ -153,7 +154,7 @@ class VSINClient:
     def _fetch_book(self, src: str) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
-            resp = requests.get(url, headers=_HEADERS, timeout=self.timeout)
+            resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
             resp.raise_for_status()
             tables = pd.read_html(io.StringIO(resp.text))
         except (requests.RequestException, ValueError) as exc:

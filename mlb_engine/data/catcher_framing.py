@@ -19,7 +19,8 @@ import io
 import logging
 
 import pandas as pd
-import requests
+
+from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ def load_framing(year: int, timeout: int = 30) -> dict[int, float]:
     Empty dict on any failure so the caller falls back to the curated table.
     """
     try:
-        resp = requests.get(_URL.format(year=year), headers=_HEADERS, timeout=timeout)
+        resp = http.get(_URL.format(year=year), headers=_HEADERS, timeout=timeout)
         resp.raise_for_status()
         df = pd.read_csv(io.StringIO(resp.text))
     except Exception as exc:  # optional enrichment
