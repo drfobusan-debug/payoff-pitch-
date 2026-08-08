@@ -72,6 +72,15 @@ class Recommendation:
     wx_summary: str | None = None  # live weather string, None if roofed/unavailable
     wx_hr_mult: float | None = None  # weather HR multiplier (1.0 = neutral)
     wx_note: str | None = None
+    # Bullpen depletion (0-100 StatsAPI workload proxy) for the team this rec
+    # backs and for its opponent. Stamped on game-level recs so the audit can
+    # grade the moneyline bullpen gate's counterfactual.
+    pen_fatigue: float | None = None
+    opp_pen_fatigue: float | None = None
+    # Lineup provenance ("posted" | "projected") and hours to first pitch at
+    # pricing time -- the late-information read (see features.lineup_lock).
+    lineup_status: str | None = None
+    hours_to_first_pitch: float | None = None
     # Expected run differential (home perspective) = mean of the simulated run
     # margin, and its spread -- the sequencing-luck-free per-game xRD/G.
     xrd: float | None = None
