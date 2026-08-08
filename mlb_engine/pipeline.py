@@ -1602,6 +1602,7 @@ class Pipeline:
                 keep, hr_reason = self._hr_gate.allows(
                     selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe,
                     selector.hr_barrel_3w, selector.hr_barrel_6w,
+                    selector.hr_barrel_pa, selector.hr_fb_ld_ev,
                 )
                 if not keep:
                     tier = Tier.PASS

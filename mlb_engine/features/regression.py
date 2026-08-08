@@ -44,6 +44,18 @@ BL_WHIFF = 0.240
 BL_ZONE_CONTACT = 0.820
 BL_XBA = 0.250
 BL_XSLG = 0.400
+# Mean exit velocity on fly balls + line drives. Higher than the all-batted-ball
+# mean because ground balls (which carry no home-run information) are excluded.
+BL_FB_LD_EV = 92.5
+# Infield-fly rate: pop-ups as a share of all fly balls (Statcast ``popup`` /
+# (``popup`` + ``fly_ball``)).
+BL_IFFB = 0.100
+# Pulled-air rate: batted balls that are both pulled and in the air (LA >= 10),
+# as a share of all batted balls.
+BL_PULL_AIR = 0.220
+# Barrels per plate appearance -- league barrel rate (~8% of batted balls) times
+# the share of PAs that end in a batted ball (~0.62).
+BL_BARREL_PA = 0.050
 BL_BABIP = 0.290
 BL_SPRINT = 27.0
 BL_GB_RATE = 0.420
@@ -70,6 +82,17 @@ SINGLES_BARREL_SLOPE = 1.5
 # term is off by default. `Config.singles_gb` turns it on to accumulate a graded
 # counterfactual.
 SINGLES_GB_SLOPE = 0.5
+
+# Home-run NPV thresholds. Each describes contact that structurally cannot leave
+# the park, so a hitter past one of them is braked rather than nudged:
+#   * a hitter who cannot drive air contact 90 mph lacks the force to clear a
+#     fence, however hard he hits his ground balls;
+#   * above a 50% ground-ball rate there are too few fly balls to sustain home
+#     runs, even with elite raw power;
+#   * pop-ups are fly balls with too *much* launch angle -- functionally dead.
+FB_LD_EV_FLOOR = 90.0
+GB_RATE_CEILING = 0.50
+IFFB_CEILING = 0.15
 
 
 def _clip(x: float, lo: float, hi: float) -> float:
@@ -98,10 +121,47 @@ class BatterRegression:
     # Ground-ball rate and pulled-air rate: stamped for HR/PPV backtesting.
     gb_pct: float = float("nan")
     pull_air_pct: float = float("nan")
+    # Plate appearances behind the slice, so barrel rate can be expressed per PA.
+    pa: int = 0
+    # Contact quality restricted to balls hit in the air. An unfiltered max/mean
+    # exit velocity can be set by a scorched ground ball, which carries no
+    # home-run information; these isolate the contact that can actually leave
+    # the park. NaN when the launch-angle data is unavailable.
+    fb_ld_ev: float = float("nan")
+    fb_ld_max_ev: float = float("nan")
+    fb_ld_hard_hit: float = float("nan")
+    # Pop-ups as a share of fly balls: high launch angle that dies on the infield.
+    iffb_pct: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
         return self.xwoba - self.woba
+
+    @property
+    def barrel_per_pa(self) -> float:
+        """Barrels per plate appearance.
+
+        Barrel rate per *batted ball* credits a hitter who barrels often but
+        rarely puts the ball in play; per PA folds contact frequency in, which is
+        what actually converts power into home runs. NaN when PAs are unknown.
+        """
+        if self.pa <= 0:
+            return float("nan")
+        return self.barrel_rate * self.bbe / self.pa
+
+    @property
+    def air_max_ev(self) -> float:
+        """Max EV on air contact, falling back to all batted balls."""
+        return self.fb_ld_max_ev if self.fb_ld_max_ev == self.fb_ld_max_ev else self.max_ev
+
+    @property
+    def air_hard_hit(self) -> float:
+        """Hard-hit rate on air contact, falling back to all batted balls."""
+        return (
+            self.fb_ld_hard_hit
+            if self.fb_ld_hard_hit == self.fb_ld_hard_hit
+            else self.hard_hit
+        )
 
     def multipliers(
         self,
@@ -124,10 +184,27 @@ class BatterRegression:
         hr = 1.0
         hr *= 1.0 + _clip((self.barrel_rate - BL_BARREL) * 2.5, -0.12, 0.15)  # PPV
         hr *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.010, -0.06, 0.06)  # sensitive
-        hr *= 1.0 + _clip((self.max_ev - BL_MAX_EV) * 0.009, -0.06, 0.09)  # PPV (top separator)
-        if self.hard_hit < 0.30:  # NPV
+        # Max EV over air contact only: an unfiltered max is often set by a
+        # scorched ground ball, which cannot leave the park.
+        hr *= 1.0 + _clip((self.air_max_ev - BL_MAX_EV) * 0.009, -0.06, 0.09)  # PPV
+        # Pulled air contact has the shortest distance to the fence and the
+        # highest HR conversion per batted ball.
+        if self.pull_air_pct == self.pull_air_pct:  # not NaN
+            hr *= 1.0 + _clip((self.pull_air_pct - BL_PULL_AIR) * 0.50, -0.05, 0.08)  # PPV
+        if self.air_hard_hit < 0.30:  # NPV
             hr *= 0.80
-        hr = _clip(hr, 0.75, 1.32)
+
+        # --- Home-run NPV brakes ---
+        # These describe contact that cannot become a home run, so they are
+        # deliberately stronger than the PPV terms above: soft air contact and
+        # ground balls are near-absolute negatives, not gentle tilts.
+        if self.fb_ld_ev == self.fb_ld_ev and self.fb_ld_ev < FB_LD_EV_FLOOR:
+            hr *= _clip(1.0 - (FB_LD_EV_FLOOR - self.fb_ld_ev) * 0.06, 0.70, 1.0)
+        if self.gb_rate > GB_RATE_CEILING:
+            hr *= _clip(1.0 - (self.gb_rate - GB_RATE_CEILING) * 2.0, 0.80, 1.0)
+        if self.iffb_pct == self.iffb_pct and self.iffb_pct > IFFB_CEILING:
+            hr *= _clip(1.0 - (self.iffb_pct - IFFB_CEILING) * 1.5, 0.85, 1.0)
+        hr = _clip(hr, 0.50, 1.32)
 
         # --- Extra-base hits (2B/3B) ---
         xbh = 1.0
@@ -228,6 +305,11 @@ def build_batter_regression(
     babip = _babip(bdf)
     bb_type = batted["bb_type"].dropna() if "bb_type" in batted else pd.Series(dtype=object)
     gb_rate = float(bb_type.eq("ground_ball").mean()) if len(bb_type) else BL_GB_RATE
+    # Pop-ups as a share of all fly balls: the over-corrected swing whose extra
+    # launch angle dies on the infield rather than clearing a fence.
+    n_fb = int(bb_type.isin(["fly_ball", "popup"]).sum())
+    iffb = float(bb_type.eq("popup").sum() / n_fb) if n_fb else float("nan")
+    fb_ld_ev, fb_ld_max_ev, fb_ld_hard_hit = _air_contact(batted)
 
     ev = bdf["events"].dropna()
     n_pa = int(len(ev))
@@ -259,6 +341,33 @@ def build_batter_regression(
         gb_rate=gb_rate,
         gb_pct=gb_pct,
         pull_air_pct=pull_air,
+        pa=n_pa,
+        fb_ld_ev=fb_ld_ev,
+        fb_ld_max_ev=fb_ld_max_ev,
+        fb_ld_hard_hit=fb_ld_hard_hit,
+        iffb_pct=iffb,
+    )
+
+
+def _air_contact(batted: pd.DataFrame) -> tuple[float, float, float]:
+    """Return (mean EV, max EV, hard-hit rate) over balls hit in the air.
+
+    Air contact is launch angle >= 10 degrees -- fly balls and line drives. An
+    exit velocity measured over *all* batted balls can be set by a scorched
+    ground ball, which cannot become a home run, so the home-run terms read these
+    instead. Returns NaNs when there is no launch-angle data to split on.
+    """
+    nan = float("nan")
+    if "launch_angle" not in batted or "launch_speed" not in batted:
+        return nan, nan, nan
+    air = batted[batted["launch_angle"] >= 10.0]
+    speed = air["launch_speed"].dropna()
+    if speed.empty:
+        return nan, nan, nan
+    return (
+        float(speed.mean()),
+        float(speed.max()),
+        float((speed >= 95.0).mean()),
     )
 
 
