@@ -14,13 +14,12 @@ import pickle
 from collections import defaultdict
 
 from mlb_engine.audit.grade import PUSH, WIN
-from mlb_engine.calibration import Calibrator
-from mlb_engine.pipeline import _CALIBRATION_FILE
+from mlb_engine.pipeline import load_calibrator
 
 
 def main() -> int:
     graded = pickle.load(open("/tmp/backtest_graded.pkl", "rb"))
-    cal = Calibrator.from_json(_CALIBRATION_FILE)
+    cal = load_calibrator()
 
     # faded picks: raw prob < 0.5
     faded = [

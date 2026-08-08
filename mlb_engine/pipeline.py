@@ -276,23 +276,32 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
         return {}
 
 
-_CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
+_CALIBRATION_DIR = Path(__file__).parent / "data"
+# newest first: a packaged map fit on a later season supersedes an earlier one
+_CALIBRATION_FILES = (
+    _CALIBRATION_DIR / "calibration_2026.json",
+    _CALIBRATION_DIR / "calibration_2024.json",
+)
 
 
 def load_calibrator(live: Path | None = None) -> Calibrator:
     """Load the isotonic calibration map.
 
-    A map refit locally by ``mlb-engine calibrate`` wins over the packaged 2024
-    fit: it is trained on this engine's own graded results, so it also covers
-    markets the packaged file never saw (``batter_tb`` among them, which is why
-    total bases was pricing off the flatter pooled curve).
+    A map refit locally by ``mlb-engine calibrate`` wins over any packaged fit: it
+    is trained on this engine's own graded results, so it also covers markets the
+    packaged files never saw (``batter_tb`` among them, which is why total bases
+    was pricing off the flatter pooled curve). Otherwise the most recent packaged
+    season wins -- a 2024 map mis-prices markets whose run environment moved.
     """
     if live is not None and live.exists():
         log.info("using locally refit calibration map %s", live)
         return Calibrator.from_json(live)
-    if _CALIBRATION_FILE.exists():
-        return Calibrator.from_json(_CALIBRATION_FILE)
-    log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
+    for path in _CALIBRATION_FILES:
+        if path.exists():
+            return Calibrator.from_json(path)
+    log.warning(
+        "no calibration map in %s; probabilities left uncalibrated", _CALIBRATION_DIR
+    )
     return Calibrator.identity()
 
 

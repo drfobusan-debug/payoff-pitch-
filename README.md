@@ -307,9 +307,19 @@ to ~1.2 pts and lifted favored-pick PPV from .554 to .580. The raw probability i
 kept on each recommendation (`raw_prob`) for audit. Disable with
 `MLBE_CALIBRATE=0`.
 
+A second packaged map, `mlb_engine/data/calibration_2026.json`, is refit from 92
+backfilled 2026 slates (`scripts/backfill_graded_history.py` ->
+`scripts/fit_calibration_from_backfill.py`) and takes precedence: the 2024 fit had
+drifted, most visibly on pitcher props, where it predicted .336 on strikeout overs
+that realized .366 and .357 on walk overs that realized .396 -- it was talking the
+engine *out* of K/BB props. 13 of 19 markets improved out-of-sample in both
+directions of a temporal split and were adopted; the six that did not
+(`batter_h`, `batter_1b`, `batter_2b`, `game_ml`, `game_total`, `f5_total`) keep
+the 2024 map.
+
 ### Refitting from your own ledger
 
-The packaged map is a 2024 fit and does not cover every market the engine now
+Neither packaged map covers every market the engine now
 prices -- `batter_tb` had no map at all, so total bases priced off the flatter
 pooled curve and ran 15.5 pts over-confident. `mlb-engine calibrate` refits from
 `~/.mlb_engine/audit/ledger.csv` (the `raw_prob` column, since the map applies to

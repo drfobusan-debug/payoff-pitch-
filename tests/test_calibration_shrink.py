@@ -52,6 +52,59 @@ def test_refit_map_learns_a_market_the_packaged_fit_never_saw():
     assert cal.apply("batter_tb", 0.54) < 0.5  # no longer a favored pick
 
 
+def test_the_packaged_2026_map_wins_over_the_2024_one():
+    from mlb_engine.pipeline import _CALIBRATION_DIR, load_calibrator
+
+    cal = load_calibrator()
+    packaged_2026 = Calibrator.from_json(_CALIBRATION_DIR / "calibration_2026.json")
+    for mk in ("pitcher_k", "pitcher_bb", "pitcher_outs", "batter_tb"):
+        assert cal.apply(mk, 0.4) == packaged_2026.apply(mk, 0.4)
+
+
+def test_a_local_refit_still_outranks_every_packaged_map(tmp_path):
+    from mlb_engine.pipeline import load_calibrator
+
+    live = tmp_path / "live.json"
+    rows = [("pitcher_k", 0.4, 1) for _ in range(600)]
+    Calibrator.fit(rows).to_json(live)
+    assert load_calibrator(live).apply("pitcher_k", 0.4) > 0.9
+
+
+def test_the_2026_map_lifts_the_pitcher_k_and_bb_underconfidence():
+    """Regression guard for the gap the 92-slate backfill measured.
+
+    Over 7,242 graded strikeout props the 2024 map predicted .336 against a
+    realized .366, and .357 vs .396 on 4,828 walk props -- it was talking the
+    engine out of K/BB props it should have been buying. The refit has to push
+    those probabilities *up* on average (not at every single point: the maps
+    cross in a couple of places), and pull the over-confident total-bases map
+    *down* from its +2.5-point gap.
+    """
+    from mlb_engine.pipeline import _CALIBRATION_DIR
+
+    old = Calibrator.from_json(_CALIBRATION_DIR / "calibration_2024.json")
+    new = Calibrator.from_json(_CALIBRATION_DIR / "calibration_2026.json")
+    grid = [i / 20 for i in range(1, 20)]
+
+    def mean(cal: Calibrator, mk: str) -> float:
+        return sum(cal.apply(mk, p) for p in grid) / len(grid)
+
+    for mk in ("pitcher_k", "pitcher_bb", "pitcher_outs"):
+        assert mean(new, mk) > mean(old, mk)
+    assert mean(new, "batter_tb") < mean(old, "batter_tb")
+
+
+def test_markets_the_refit_lost_out_of_sample_keep_the_2024_map():
+    """batter_h/1b/2b were better on the packaged fit, so they must be untouched."""
+    from mlb_engine.pipeline import _CALIBRATION_DIR
+
+    old = Calibrator.from_json(_CALIBRATION_DIR / "calibration_2024.json")
+    new = Calibrator.from_json(_CALIBRATION_DIR / "calibration_2026.json")
+    for mk in ("batter_h", "batter_1b", "batter_2b", "game_ml", "game_total", "f5_total"):
+        for raw in (0.2, 0.45, 0.7):
+            assert new.apply(mk, raw) == pytest.approx(old.apply(mk, raw))
+
+
 def test_odds_api_errors_never_leak_the_key():
     from mlb_engine.data.oddsapi import _redact
 
