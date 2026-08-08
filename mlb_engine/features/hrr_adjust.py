@@ -29,8 +29,12 @@ from dataclasses import dataclass
 
 # Population means of the graded H+R+RBI sample -- the tilt is centered here so
 # above-average contact quality nudges the probability up, below-average down.
+# The xSLG centre moved with the metric: .495 was the mean of an expected
+# slugging read per batted ball, which runs ~86 points above the league's real
+# slugging. Left at .495 against a calibrated xSLG, the tilt would push every
+# hitter down by its full cap.
 HRR_SWEET_CENTER = 0.303
-HRR_XSLG_CENTER = 0.495
+HRR_XSLG_CENTER = 0.400
 
 DEFAULT_PIVOT = 0.45
 DEFAULT_SHRINK = 0.70  # o1.5 probs above the pivot are pulled 30% toward it

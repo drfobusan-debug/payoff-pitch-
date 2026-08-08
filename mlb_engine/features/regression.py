@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.xtb import NON_AB_EVENTS, TB_VALUE, LeagueXTB
 
 
 def _safe_float(val: object, default: float) -> float:
@@ -63,13 +64,6 @@ BL_SPRINT = 27.0
 BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
-
-# Total bases by terminal event, and the plate appearances that are not at-bats
-# (slugging's denominator excludes them).
-TB_VALUE = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
-NON_AB_EVENTS = frozenset(
-    {"walk", "intent_walk", "hit_by_pitch", "sac_fly", "sac_bunt", "catcher_interf"}
-)
 
 # Extra-base multiplier per ft/s of sprint speed, and the slow-bat conjunction.
 # 26.5 ft/s is roughly the bottom third of the league; .060 2B+3B/PA is the top
@@ -170,6 +164,10 @@ class BatterRegression:
     # human wants beside those numbers -- "are his bases a ballpark artefact?" --
     # rather than a second adjustment. NaN when either half is too thin.
     tb_home_bias: float = float("nan")
+    # Expected slugging *on contact*: the same launch parameters read per batted
+    # ball, with no strikeout in the denominator. Runs high against real slugging
+    # by construction; kept because the gap against it is what predicts decay.
+    contact_slg: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
@@ -177,14 +175,18 @@ class BatterRegression:
 
     @property
     def slg_gap(self) -> float:
-        """Actual slugging minus expected slugging.
+        """Slugging beyond what the hitter's per-ball contact quality supports.
 
         Total bases *is* the numerator of slugging, so this is the market's own
-        luck term: bases collected beyond what the contact behind them supports
-        -- bloops, misplays, wind. Positive means over-performing. NaN when
-        either side is unknown.
+        luck term: bases collected off contact that does not carry them --
+        bloops, misplays, wind. Measured against ``contact_slg`` rather than
+        against ``xslg``, because netting strikeouts out of the expectation the
+        way a calibrated xSLG does also nets out the discrepancy: the same
+        threshold on the calibrated gap flags 556 batter-weeks that go on to
+        produce +0.2% (p=.93), while this one flags 139 that give back 8.5%.
+        Positive means over-performing; NaN when either side is unknown.
         """
-        return self.slg - self.xslg
+        return self.slg - self.contact_slg
 
     @property
     def barrel_per_pa(self) -> float:
@@ -315,7 +317,9 @@ def _rate(series: pd.Series, cond) -> float:
 
 
 def build_batter_regression(
-    bdf: pd.DataFrame, sprint_speed: float = BL_SPRINT
+    bdf: pd.DataFrame,
+    sprint_speed: float = BL_SPRINT,
+    league_xtb: LeagueXTB | None = None,
 ) -> BatterRegression:
     """Compute regression metrics from a batter's pitch-level Statcast slice."""
     batted = batted_balls(bdf)
@@ -364,7 +368,7 @@ def build_batter_regression(
         if n_bbe and "woba_value" in batted
         else float("nan")
     )
-    xslg = _estimate_xslg(batted)
+    contact_slg = _estimate_xslg(batted)
     babip = _babip(bdf)
     bb_type = batted["bb_type"].dropna() if "bb_type" in batted else pd.Series(dtype=object)
     gb_rate = float(bb_type.eq("ground_ball").mean()) if len(bb_type) else BL_GB_RATE
@@ -379,6 +383,13 @@ def build_batter_regression(
     ev = bdf["events"].dropna()
     n_pa = int(len(ev))
     n_ab = int((~ev.isin(NON_AB_EVENTS)).sum())
+    # Expected slugging on slugging's own scale: expected bases over at-bats.
+    # Falls back to the contact-quality rescale when no league lookup is given.
+    xslg = contact_slg
+    if league_xtb is not None and n_bbe and n_ab > 0:
+        from_grid = league_xtb.xslg(batted, n_ab)
+        if not np.isnan(from_grid):
+            xslg = from_grid
     total_bases = float(ev.map(TB_VALUE).fillna(0.0).sum())
     slg = total_bases / n_ab if n_ab else float("nan")
     xbh_per_pa = float(ev.isin(["double", "triple"]).sum() / n_pa) if n_pa else float("nan")
@@ -420,6 +431,7 @@ def build_batter_regression(
         xbh_per_pa=xbh_per_pa,
         ld_pct=ld_pct,
         tb_home_bias=tb_home_bias,
+        contact_slg=contact_slg,
     )
 
 
@@ -512,9 +524,13 @@ def _pull_air_rate(batted: pd.DataFrame) -> float:
 
 
 def _estimate_xslg(batted: pd.DataFrame) -> float:
-    """Approximate xSLG from launch parameters (no clean per-pitch column).
+    """Expected slugging *on contact*, rescaled from expected wOBA on contact.
 
-    Uses estimated wOBA-on-contact scaled to a slugging-like range as a proxy.
+    An average over batted balls with no strikeout in the denominator, so it runs
+    ~86 points above the slugging hitters actually post (league .486 against
+    .400). That makes it the right side of the over-performance gap and the wrong
+    thing to compare against a league slugging baseline -- for the level, see
+    ``LeagueXTB``, which this only stands in for when no lookup is available.
     """
     if len(batted) == 0 or "estimated_woba_using_speedangle" not in batted:
         return BL_XSLG

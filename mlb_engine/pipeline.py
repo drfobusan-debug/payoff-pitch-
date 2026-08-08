@@ -90,6 +90,7 @@ from mlb_engine.features.team_splits import (
 from mlb_engine.features.trend import PitcherTrends, pitcher_trends
 from mlb_engine.features.workload import expected_bf_cap
 from mlb_engine.features.xhr import batter_xhr, park_hr_multiplier
+from mlb_engine.features.xtb import LeagueXTB
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
@@ -371,6 +372,7 @@ class Pipeline:
         self._previews: list[GamePreview] = []
         self._team_splits: dict[str, TeamSplits] = {}
         self._league_contact = LeagueContact(batter=None, pitcher=None)
+        self._league_xtb: LeagueXTB | None = None
         self.slate: Slate | None = None
 
     def run(
@@ -409,6 +411,14 @@ class Pipeline:
         self._tails = TailAdjuster.build(
             statcast, batter_xslg, fg_bz, fg_pz, power_split=self.cfg.tail_power_split
         )
+        # Expected bases per ball, fitted on the season the slate sits in, so
+        # every hitter's xSLG is read off the league's own contact.
+        self._league_xtb = LeagueXTB.from_statcast(statcast)
+        if self._league_xtb is not None:
+            log.info(
+                "Fitted league expected total bases: %d cells, %.3f TB per ball in play",
+                len(self._league_xtb.cells), self._league_xtb.league,
+            )
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
         self._splits = {}
@@ -652,7 +662,9 @@ class Pipeline:
                 ctx = scale_hr_rate(
                     ctx, park_hr_multiplier(bslice, park.venue_id)
                 )
-            breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
+            breg = build_batter_regression(
+                bslice, sprint.get(pid, 27.0), league_xtb=self._league_xtb
+            )
             regs.append(breg)
             bmult = breg.multipliers(
                 self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,

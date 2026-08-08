@@ -256,8 +256,13 @@ class Config:
     # bats from the contact markets (H/1B/H+R+RBI) above MLBE_CONTACT_K_CEILING
     # K%. Live by default; set MLBE_POWER_FLOOR=0 to disable.
     power_floor: bool = field(default_factory=lambda: _env_bool("MLBE_POWER_FLOOR", True))
+    # .360 rather than .400: the floor was set against an expected slugging read
+    # per batted ball, whose league mean is .486, and cut the bottom sixth of a
+    # slate's starters. Against a calibrated xSLG (league mean .400) the same
+    # .400 would cut half of them; .360 holds the cut where it was (15.9% of the
+    # Aug 8 lineups against 16.7%).
     power_xslg_floor: float = field(
-        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.400)
+        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.360)
     )
     contact_k_ceiling: float = field(
         default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
