@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 import requests
 
+from mlb_engine.data import http
 from mlb_engine.data.parks import Park
 
 log = logging.getLogger(__name__)
@@ -62,7 +63,7 @@ def _wind_out_component(wind_from_deg: float, wind_mph: float, cf_bearing: float
 
 class WeatherProvider:
     def __init__(self, session: requests.Session | None = None, timeout: int = 20) -> None:
-        self.session = session or requests.Session()
+        self.session = session or http.session()
         self.timeout = timeout
 
     def fetch(self, park: Park, game_dt_utc: str | None) -> WeatherEffect:

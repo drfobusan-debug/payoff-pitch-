@@ -9,6 +9,8 @@ from pathlib import Path
 
 import requests
 
+from mlb_engine.data import http
+
 BASE = "https://statsapi.mlb.com/api/v1"
 
 log = logging.getLogger(__name__)
@@ -84,7 +86,7 @@ def fetch_result(
     On a successful fetch, the response is written to ``cache_dir/boxscores/{game_pk}.json``
     so a later audit can still grade the game even if the network is down.
     """
-    s = session or requests.Session()
+    s = session or http.session()
     cache_path = _cache_path(cache_dir, game_pk)
     try:
         ls = s.get(f"{BASE}/game/{game_pk}/linescore", timeout=timeout).json()

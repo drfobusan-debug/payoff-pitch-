@@ -1295,7 +1295,7 @@ def test_load_framing_parses_savant_columns(monkeypatch):
         def raise_for_status(self):
             return None
 
-    monkeypatch.setattr(cf.requests, "get", lambda *a, **k: _Resp())
+    monkeypatch.setattr(cf.http, "get", lambda *a, **k: _Resp())
     out = cf.load_framing(2024)
     assert out == {111: 8.4, 222: -6.1}
 
@@ -1306,7 +1306,7 @@ def test_load_framing_neutral_on_failure(monkeypatch):
     def _boom(*a, **k):
         raise RuntimeError("network down")
 
-    monkeypatch.setattr(cf.requests, "get", _boom)
+    monkeypatch.setattr(cf.http, "get", _boom)
     assert cf.load_framing(2024) == {}
 
 
