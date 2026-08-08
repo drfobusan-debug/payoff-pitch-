@@ -331,6 +331,28 @@ markdown attached, HTML in the body). The scorecard verdicts are rule-based
 (`PPV ≥ 0.55` and positive ROI → Play; `ROI ≤ −15%` or `PPV < 0.45` → Fade;
 markets with fewer than five favored picks stay Neutral until the sample grows).
 
+#### Price buckets: judging a bet against the price it was taken at
+
+A win rate only means something next to the break-even its price demands, so the
+report carries a **price-bucket** section (also printed by `mlb-engine audit`)
+grouping every buy that had a *real* book price into plus-money vs minus-money
+and six bands from `-200 and shorter` to `+400 and up`. Each row reports the
+realized win rate, the `1/decimal` break-even the prices demanded, and the **gap**
+between them:
+
+```
+Underdogs (plus money)    n=132  win% 35.6  need 42.9  gap  -7.3 pts  ROI -16.9%
+Favorite (-199 to -110)   n= 76  win% 55.3  need 56.7  gap  -1.4 pts  ROI  -2.1%
+```
+
+A dog is meant to lose most of its bets, so 35.6% is only a leak because the
+price wanted 42.9% — and 55.3% on short favorites is only a loss because the
+price wanted 56.7%. Rows graded at the assumed -110 fallback are excluded, which
+makes this the only ROI in the report that reflects prices we actually got.
+Bands are reported at `n ≥ 15` and flagged as leaks at 3+ points short. Because a
+single slate cannot fill six bands, the daily report measures this section over
+the whole ledger and labels how many priced slates it covers.
+
 ### Daily card (hybrid writeups)
 
 `mlb-engine card` turns a run's recommendations into a reader-facing **betting

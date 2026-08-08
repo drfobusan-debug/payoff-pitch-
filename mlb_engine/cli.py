@@ -8,7 +8,12 @@ from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
-from mlb_engine.audit.analysis import prop_insights
+from mlb_engine.audit.analysis import (
+    dog_vs_favorite,
+    price_bucket_findings,
+    price_buckets,
+    prop_insights,
+)
 from mlb_engine.audit.clv import (
     attach_clv,
     closing_quotes,
@@ -179,9 +184,12 @@ def _generate_report(
     slug: str,
     email: bool,
     to: str | None,
+    history: list[LedgerEntry] | None = None,
 ) -> tuple[Path, Path, Path | None]:
     """Build the audit report (md + html + pdf) and optionally email it."""
-    data = build_report_data(entries, period_label=period_label, subtitle=subtitle)
+    data = build_report_data(
+        entries, period_label=period_label, subtitle=subtitle, history=history
+    )
     md = render_markdown_report(data)
     html_body = render_html_report(data)
     md_path = cfg.output_dir / f"audit_report_{slug}.md"
@@ -536,6 +544,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
             "first pitch to score closing line value (~3 credits)."
         )
 
+    price_rows = [*dog_vs_favorite(all_entries), *price_buckets(all_entries)]
+    if price_rows:
+        print("\nReal-priced buys by price length (Need = win rate the price demands):")
+        for pb in price_rows:
+            print(
+                f"  {pb.label:<34} n={pb.n:<4} win%={pb.win_rate * 100:5.1f} "
+                f"need={pb.breakeven * 100:5.1f} gap={pb.shortfall * 100:+5.1f}pts "
+                f"ROI={pb.roi * 100:+6.1f}% units={pb.units:+.2f}"
+            )
+        for finding in price_bucket_findings(all_entries):
+            print(f"  - {finding}")
+
     if props:
         print("\nProps PPV/NPV:")
         for m in props:
@@ -569,6 +589,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             slug=audit_date.isoformat(),
             email=False,
             to=getattr(args, "to", None),
+            history=all_entries,
         )
         try:
             ledger_bytes = ledger_xlsx.read_bytes() if ledger_xlsx.exists() else None

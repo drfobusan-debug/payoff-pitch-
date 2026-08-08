@@ -24,8 +24,12 @@ from datetime import timedelta
 
 from mlb_engine.audit.analysis import (
     BREAKEVEN,
+    PriceBucket,
     RunLineMissMatrix,
+    dog_vs_favorite,
     false_negative_insights,
+    price_bucket_findings,
+    price_buckets,
     run_line_miss_findings,
     run_line_miss_matrix,
 )
@@ -136,6 +140,10 @@ class ReportData:
     fade: list[str]
     rl_matrix: RunLineMissMatrix
     rl_findings: list[str]
+    price_rows: list[PriceBucket]
+    price_sides: list[PriceBucket]
+    price_findings: list[str]
+    price_n_dates: int
 
 
 def _pct(x: float) -> str:
@@ -177,9 +185,20 @@ def _outs_faded_deep(entries: list[LedgerEntry]) -> tuple[bool, float, int]:
 
 
 def build_report_data(
-    entries: list[LedgerEntry], *, period_label: str, subtitle: str
+    entries: list[LedgerEntry],
+    *,
+    period_label: str,
+    subtitle: str,
+    history: list[LedgerEntry] | None = None,
 ) -> ReportData:
+    """Build one period's report, pricing the buckets off ``history`` when given.
+
+    A single slate carries a few dozen buys spread over six price bands, far too
+    few to read a band off. The price section therefore measures the whole
+    ledger even inside the daily report, and labels the sample it used.
+    """
     n_dates = len({e.date for e in entries})
+    priced = history if history is not None else entries
     engine = engine_metrics(entries)
     tiers = overall_metrics(entries)
     rows = [_classify(m) for m in market_metrics(entries)]
@@ -299,6 +318,10 @@ def build_report_data(
         fade=fade,
         rl_matrix=rl_matrix,
         rl_findings=rl_findings,
+        price_rows=price_buckets(priced),
+        price_sides=dog_vs_favorite(priced),
+        price_findings=price_bucket_findings(priced),
+        price_n_dates=len({e.date for e in priced if e.odds is not None}),
     )
 
 
@@ -372,6 +395,32 @@ def render_markdown_report(d: ReportData) -> str:
         "*(Diagnostic accuracy terms — NPV here is **not** the financial 'Net "
         "Present Value'.)*\n"
     )
+
+    if d.price_rows:
+        L.append("---\n")
+        L.append("## Price buckets — is the payout covering the miss?\n")
+        L.append(
+            f"Every buy that carried a **real book price**, over the "
+            f"{d.price_n_dates} slate(s) that have one, grouped by how long the "
+            "price was. A dog is *meant* to win under half its bets, so the column "
+            "that matters is **Need** — the win rate the price demands — and the "
+            "gap to it. A positive gap is a profitable band whatever the raw win "
+            "rate says; a negative one is a leak the payout is not covering. Rows "
+            "graded at an assumed -110 are excluded, so this table is smaller than "
+            "the scorecard above and is the only one whose ROI is real.\n"
+        )
+        L.append("| Price | n | Win% | Need | Gap | ROI | Units |")
+        L.append("|---|---|---|---|---|---|---|")
+        for b in [*d.price_sides, *d.price_rows]:
+            L.append(
+                f"| {b.label} | {b.n} | {_pct(b.win_rate)} | {_pct(b.breakeven)} | "
+                f"**{b.shortfall * 100:+.1f} pts** | {b.roi * 100:+.1f}% | "
+                f"{b.units:+.2f} |"
+            )
+        L.append("")
+        for f in d.price_findings:
+            L.append(f"- {f}")
+        L.append("")
 
     if d.rl_matrix.has_data:
         m = d.rl_matrix
@@ -523,6 +572,34 @@ def render_html_report(d: ReportData) -> str:
         "(Negative Predictive Value):</strong> of the sides the model fades, the "
         "share that lose. <em>(NPV here is not the financial 'Net Present Value'.)</em></p>"
     )
+
+    if d.price_rows:
+        b.append("<h2>Price buckets — is the payout covering the miss?</h2>")
+        b.append(
+            "<p>Every buy that carried a <strong>real book price</strong>, over the "
+            f"{d.price_n_dates} slate(s) that have one, grouped by how long the price "
+            "was. A dog is <em>meant</em> to win under half its bets, so the column "
+            "that matters is <strong>Need</strong> — the win rate the price demands — "
+            "and the gap to it. A positive gap is a profitable band whatever the raw "
+            "win rate says; a negative one is a leak the payout is not covering. Rows "
+            "graded at an assumed -110 are excluded, so this is the only table here "
+            "whose ROI is real.</p>"
+        )
+        pb = ["<tr><th>Price</th><th>n</th><th>Win%</th><th>Need</th><th>Gap</th>"
+              "<th>ROI</th><th>Units</th></tr>"]
+        for pr in [*d.price_sides, *d.price_rows]:
+            pb.append(
+                f"<tr><td>{html.escape(pr.label)}</td><td>{pr.n}</td>"
+                f"<td>{_pct(pr.win_rate)}</td><td>{_pct(pr.breakeven)}</td>"
+                f"<td><strong>{pr.shortfall * 100:+.1f} pts</strong></td>"
+                f"<td>{pr.roi * 100:+.1f}%</td><td>{pr.units:+.2f}</td></tr>"
+            )
+        b.append("<table>" + "".join(pb) + "</table>")
+        if d.price_findings:
+            b.append("<ul>")
+            for f in d.price_findings:
+                b.append(f"<li>{_md_inline_to_html(f)}</li>")
+            b.append("</ul>")
 
     if d.rl_matrix.has_data:
         m = d.rl_matrix
