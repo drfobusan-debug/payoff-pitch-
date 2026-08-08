@@ -176,6 +176,48 @@ def blend_bb_rate(rates: OutcomeRates, bb_prior: float, prior_weight: float = 15
     )
 
 
+# Home runs are the rarest outcome the simulator draws, so an observed HR/PA is
+# the noisiest of the rates -- and unlike K and BB it is heavily contaminated by
+# the parks and weather a hitter happened to face. Expected HR is both steadier
+# and the better predictor of future home runs, so it gets a heavier prior than
+# the K/BB blends: the observed rate only takes over past a full season's PAs.
+HR_PRIOR_WEIGHT = 200.0
+
+
+def blend_hr_rate(
+    rates: OutcomeRates, xhr_prior: float, prior_weight: float = HR_PRIOR_WEIGHT
+) -> OutcomeRates:
+    """Pull the HR rate toward an expected-HR prior (xHR/PA) by sample size.
+
+    Mirrors :func:`blend_k_rate`: a thin or lucky sample leans on what the
+    batted balls were physically worth against the walls they were hit toward,
+    a large sample keeps more of the observed rate, and the non-HR outcomes are
+    rescaled proportionally so the seven outcomes still sum to 1. A NaN prior
+    (no distance data) leaves the rates untouched.
+    """
+    if xhr_prior != xhr_prior or prior_weight <= 0:  # NaN prior
+        return rates
+    w_obs = max(rates.pa, 0.0)
+    total = w_obs + prior_weight
+    old_non_hr = 1.0 - rates.p_hr
+    if total <= 0 or old_non_hr <= 0:
+        return rates
+    new_hr = (rates.p_hr * w_obs + xhr_prior * prior_weight) / total
+    new_hr = min(max(new_hr, 0.001), 0.15)
+    scale = (1.0 - new_hr) / old_non_hr
+    d = rates.as_dict()
+    return OutcomeRates(
+        pa=rates.pa,
+        p_1b=d["1B"] * scale,
+        p_2b=d["2B"] * scale,
+        p_3b=d["3B"] * scale,
+        p_hr=new_hr,
+        p_bb=d["BB"] * scale,
+        p_k=d["K"] * scale,
+        p_out=d["OUT"] * scale,
+    )
+
+
 def _slice_dates(df: pd.DataFrame, as_of: Date, days: int) -> pd.DataFrame:
     end = as_of - timedelta(days=1)
     start = end - timedelta(days=days - 1)
