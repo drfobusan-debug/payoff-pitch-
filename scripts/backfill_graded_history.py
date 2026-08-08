@@ -17,6 +17,10 @@ outcome", not for "was this a good price".
 
 Each shard appends to ~/.mlb_engine/audit/backfill_shard<N>.csv and skips dates
 already present, so it is safe to re-run after an interruption.
+
+Both `raw_prob` and `model_prob` are recorded. Refitting the calibration map
+needs the **raw** one: fitting on `model_prob` composes the new map on top of the
+map that produced it, so the correction gets applied twice.
 """
 
 from __future__ import annotations
@@ -29,8 +33,8 @@ from datetime import date, timedelta
 from mlb_engine.backtest import load_season_frame, run_backtest
 from mlb_engine.config import load_config
 
-HEADER = ["date", "game_pk", "matchup", "market", "selection", "line", "model_prob",
-          "tier", "result"]
+HEADER = ["date", "game_pk", "matchup", "market", "selection", "line", "raw_prob",
+          "model_prob", "tier", "result"]
 # trailing-window lead-in: the batter/pitcher windows look back up to 6 weeks
 LEADIN_DAYS = 45
 
@@ -68,8 +72,8 @@ def main() -> int:
         for d in dates:
             for rec, result in run_backtest(cfg, frame, [d]):
                 w.writerow([d.isoformat(), rec.game_pk, rec.matchup, rec.market,
-                            rec.selection, rec.line, f"{rec.model_prob:.6f}",
-                            rec.tier, result])
+                            rec.selection, rec.line, f"{rec.raw_prob:.6f}",
+                            f"{rec.model_prob:.6f}", rec.tier, result])
             fh.flush()
             print(f"shard {shard} {d}: done", flush=True)
     return 0
