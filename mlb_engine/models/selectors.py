@@ -16,9 +16,11 @@ from dataclasses import dataclass, field
 from mlb_engine.data.parks import Park
 from mlb_engine.features.regression import (
     BL_BARREL,
+    BL_BARREL_PA,
     BL_BAT_SPEED,
     BL_HARD_HIT,
     BL_MAX_EV,
+    BL_SPRINT,
     BL_SWEET_SPOT,
     BL_XBA,
     BL_XSLG,
@@ -69,13 +71,54 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
-# Total-bases selector weights. Backtesting the graded total-bases props showed
-# max exit velocity is the one metric that separates over-winners from losers at
-# every line (strongest on the power-driven 2.5/3.5 lines), while xSLG/xBA carry
-# little signal -- yet max_ev was historically weighted ~5x smaller than xSLG.
-# These up-weight raw power and are env-tunable.
-TB_MAX_EV_W = _env_float("MLBE_TB_MAX_EV_W", 0.20)
-TB_BARREL_W = _env_float("MLBE_TB_BARREL_W", 5.0)
+# Total-bases selector weights, measured rather than assumed.
+#
+# 2,609 batter-weeks: each hitter's trailing-42-day profile against his *next*
+# seven days of real total bases, fitted unstandardized so a coefficient converts
+# straight into this selector's units (score -> factor is ``1 + 0.03 * score``,
+# so weight = beta / mean TB per PA / 0.03), then re-fitted on May-June and
+# checked on July. Only two terms keep their sign and size out of sample:
+#
+#   metric      univariate r   score weight (May-Jun -> Jul)
+#   max_ev          +0.145      +0.44 -> +0.63   p<.005 in both
+#   barrel/PA       +0.125     +31.6  -> +35.8
+#   xSLG            +0.114     -50.6  -> +14.1   sign flips
+#   xBA             +0.088      +3.3  -> -16.2   sign flips
+#   sweet_spot      +0.027      +9.3  -> -12.1   sign flips
+#   LD%             +0.006      -7.9  -> +22.0   nothing, either half
+#
+# So xSLG, xBA and SweetSpot% are univariately positive but carry no information
+# max EV and barrel/PA do not already carry: their weights come down to a level
+# anchor rather than the largest terms on the line, and LD% is stamped for
+# auditing but not scored. Barrel/PA replaces barrel-per-batted-ball, which
+# credits a hitter who barrels rarely but puts few balls in play.
+TB_MAX_EV_W = _env_float("MLBE_TB_MAX_EV_W", 0.50)
+TB_BARREL_PA_W = _env_float("MLBE_TB_BARREL_PA_W", 30.0)
+TB_XSLG_W = _env_float("MLBE_TB_XSLG_W", 3.0)
+TB_XBA_W = _env_float("MLBE_TB_XBA_W", 3.0)
+TB_SWEET_W = _env_float("MLBE_TB_SWEET_W", 2.0)
+TB_HARD_HIT_W = _env_float("MLBE_TB_HARD_HIT_W", 1.0)
+TB_SPRINT_W = _env_float("MLBE_TB_SPRINT_W", 0.15)
+
+# False-positive brakes: a hitter whose bases outrun his contact. Both are steps
+# rather than slopes because that is how they measure -- forward TB/PA relative
+# to every other batter-week, on the same 2,609:
+#
+#   SLG - xSLG > +.050            n=134  -11.0%  p=.008   (-7.5% / -15.9% by half)
+#   SLG - xSLG > +.100            n= 47   -4.3%  p=.53    no worse than +.050
+#   BABIP > .360 & hard-hit < .40 n= 84  -14.1%  p=.003  (-15.7% / -10.3%)
+#   BABIP > .330 & hard-hit < .40 n=216   -9.7%  p=.004
+#
+# The flagged group's trailing rate is .496 TB/PA against .361 for everyone
+# else: they look like the best bats on the board and then produce below average.
+# Every one of those rows also trips the existing dxwOBA luck term, so these are
+# sized on the *incremental* effect measured within that set (-9.9% and -13.6%),
+# not on the raw gap.
+TB_SLG_GAP_FLAG = 0.050
+TB_SLG_GAP_PENALTY = _env_float("MLBE_TB_SLG_GAP_PENALTY", 3.0)
+TB_BABIP_HIGH = 0.360
+TB_BABIP_ELEVATED = 0.330
+TB_BABIP_PENALTY = _env_float("MLBE_TB_BABIP_PENALTY", 4.0)
 
 
 @dataclass
@@ -116,6 +159,33 @@ def _clamp(x: float, lo: float, hi: float) -> float:
 def _finite(x: float) -> float | None:
     """``None`` for a NaN metric, so a gate reads it as "no data" not "zero"."""
     return x if x == x else None
+
+
+def _tb_false_positives(breg: BatterRegression) -> list[tuple[float, str]]:
+    """Score penalties for bases the hitter's contact does not support.
+
+    Total bases is the numerator of slugging, so a hitter slugging well past his
+    expected slugging is collecting bases from bloops, misplays and wind -- and
+    gives them back. Same for a hitter carrying a high BABIP on below-average
+    hard contact. A metric that is unknown never brakes anything.
+    """
+    out: list[tuple[float, str]] = []
+    gap = breg.slg_gap
+    if gap == gap and gap > TB_SLG_GAP_FLAG:
+        out.append((TB_SLG_GAP_PENALTY, f"slg-xslg={gap:+.3f} over-performing"))
+    if breg.hard_hit < BL_HARD_HIT and breg.babip == breg.babip:
+        if breg.babip > TB_BABIP_HIGH:
+            out.append(
+                (TB_BABIP_PENALTY, f"babip={breg.babip:.3f} on hard-hit={breg.hard_hit:.3f}")
+            )
+        elif breg.babip > TB_BABIP_ELEVATED:
+            out.append(
+                (
+                    TB_BABIP_PENALTY * 0.625,
+                    f"babip={breg.babip:.3f} on hard-hit={breg.hard_hit:.3f}",
+                )
+            )
+    return out
 
 
 def _env_factor(
@@ -307,37 +377,66 @@ class TBSelector:
         score = 0.0
         reasons: list[str] = []
 
+        max_ev_delta = breg.max_ev - BL_MAX_EV
+        score += max_ev_delta * TB_MAX_EV_W
+        reasons.append(f"max_ev={breg.max_ev:.1f}({max_ev_delta:+.1f})")
+
+        # Barrels per plate appearance, not per batted ball: contact frequency is
+        # part of the metric, which is what turns power into bases.
+        barrel_pa = breg.barrel_per_pa
+        if barrel_pa == barrel_pa:  # not NaN
+            barrel_delta = barrel_pa - BL_BARREL_PA
+            score += barrel_delta * TB_BARREL_PA_W
+            reasons.append(f"barrel/pa={barrel_pa:.3f}({barrel_delta:+.3f})")
+        else:
+            barrel_delta = breg.barrel_rate - BL_BARREL
+            score += barrel_delta * TB_BARREL_PA_W * BL_BARREL_PA / BL_BARREL
+            reasons.append(f"barrel={breg.barrel_rate:.3f}({barrel_delta:+.3f})")
+
         xslg_delta = breg.xslg - BL_XSLG
-        score += xslg_delta * 10.0
+        score += xslg_delta * TB_XSLG_W
         reasons.append(f"xslg={breg.xslg:.3f}({xslg_delta:+.3f})")
 
         xba_delta = breg.xba - BL_XBA
-        score += xba_delta * 8.0
+        score += xba_delta * TB_XBA_W
         reasons.append(f"xba={breg.xba:.3f}({xba_delta:+.3f})")
 
         sweet_delta = breg.sweet_spot - BL_SWEET_SPOT
-        score += sweet_delta * 5.0
+        score += sweet_delta * TB_SWEET_W
         reasons.append(f"sweet={breg.sweet_spot:.3f}({sweet_delta:+.3f})")
 
         bat_speed_delta = breg.bat_speed - BL_BAT_SPEED
         score += bat_speed_delta * 0.08
         reasons.append(f"bat_speed={breg.bat_speed:.1f}({bat_speed_delta:+.1f})")
 
-        max_ev_delta = breg.max_ev - BL_MAX_EV
-        score += max_ev_delta * TB_MAX_EV_W
-        reasons.append(f"max_ev={breg.max_ev:.1f}({max_ev_delta:+.1f})")
-
-        barrel_delta = breg.barrel_rate - BL_BARREL
-        score += barrel_delta * TB_BARREL_W
-        reasons.append(f"barrel={breg.barrel_rate:.3f}({barrel_delta:+.3f})")
-
         hard_delta = breg.hard_hit - BL_HARD_HIT
-        score += hard_delta * 2.0
+        score += hard_delta * TB_HARD_HIT_W
         reasons.append(f"hard={breg.hard_hit:.3f}({hard_delta:+.3f})")
 
-        sprint_delta = breg.sprint_speed - 27.0
-        score += sprint_delta * 0.05
+        # Doubles and triples are 31% of the total bases in play, and speed is
+        # what converts contact into them; the bulk of the effect sits on the
+        # 2B/3B multiplier itself rather than here.
+        sprint_delta = breg.sprint_speed - BL_SPRINT
+        score += sprint_delta * TB_SPRINT_W
         reasons.append(f"sprint={breg.sprint_speed:.1f}({sprint_delta:+.1f})")
+
+        for penalty, reason in _tb_false_positives(breg):
+            score -= penalty
+            reasons.append(reason)
+
+        # Line-drive rate: stamped for auditing, deliberately not scored (r=+0.006
+        # against forward TB/PA, and the sign flips between halves of the season).
+        if breg.ld_pct == breg.ld_pct:  # not NaN
+            reasons.append(f"ld={breg.ld_pct:.3f}")
+
+        # Home/road total-base split, beside tonight's park factor: the reader's
+        # check on whether a hitter's bases are a ballpark artefact. Stamped, not
+        # scored -- tonight's venue is already priced from the matching half of
+        # the hitter's own splits and then multiplied by the park factor below, so
+        # scoring it here would charge for the same thing twice.
+        if breg.tb_home_bias == breg.tb_home_bias:  # not NaN
+            pf = f", tonight's park {park.park_factor:.0f}" if park is not None else ""
+            reasons.append(f"home_tb_bias={breg.tb_home_bias:+.1%}{pf}")
 
         # Stamped for HR/PPV auditing (not scored here).
         if breg.gb_pct == breg.gb_pct:  # not NaN

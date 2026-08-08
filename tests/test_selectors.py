@@ -78,9 +78,14 @@ def test_tb_selector_buy(elite_batter: BatterRegression) -> None:
 
 
 def test_tb_selector_sell(weak_batter: BatterRegression) -> None:
+    """104 max EV on a 2% barrel rate is an exclude, not a shade.
+
+    It reads harder than it used to because max EV and barrels carry the weights
+    the backtest measured -- 0.50 and 30 per unit -- instead of xSLG's old 10.
+    """
     sel = TBSelector().select(weak_batter)
     assert sel.factor < 0.97
-    assert sel.signal == "sell"
+    assert sel.signal == "exclude"
 
 
 def test_tb_selector_max_ev_drives_factor() -> None:

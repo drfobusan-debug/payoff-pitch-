@@ -118,6 +118,8 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
     p._calibrator = _Identity()
     p._shrink = None
     p._ml_gate = Gate.from_env()
+    # The availability gates run after the sharp-money upgrade, so a hand-built
+    # pipeline needs them too; neither vetoes anything without fatigue inputs.
     p._pen_gate = MLPenGate.from_env()
     p._lineup_gate = LineupLockGate.from_env()
     p._lineup_lock = None

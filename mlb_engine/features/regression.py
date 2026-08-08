@@ -64,6 +64,20 @@ BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
+# Total bases by terminal event, and the plate appearances that are not at-bats
+# (slugging's denominator excludes them).
+TB_VALUE = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
+NON_AB_EVENTS = frozenset(
+    {"walk", "intent_walk", "hit_by_pitch", "sac_fly", "sac_bunt", "catcher_interf"}
+)
+
+# Extra-base multiplier per ft/s of sprint speed, and the slow-bat conjunction.
+# 26.5 ft/s is roughly the bottom third of the league; .060 2B+3B/PA is the top
+# quarter, so the pair reads "can't run, yet the doubles are pouring in".
+SPRINT_XBH_SLOPE = 0.025
+SLOW_SPRINT = 26.5
+XBH_SURGE = 0.060
+
 # Singles fall as barrel rate rises: across 323 qualified batters (95k PA) the
 # league goes from .175 singles/PA under 2% barrel to .124 at 10-12%, a slope of
 # roughly -0.5 singles/PA per unit barrel -- about -3.5 in relative terms.
@@ -143,10 +157,34 @@ class BatterRegression:
     fb_ld_hard_hit: float = float("nan")
     # Pop-ups as a share of fly balls: high launch angle that dies on the infield.
     iffb_pct: float = float("nan")
+    # Actual slugging over the slice, alongside doubles+triples per PA and line
+    # drives per batted ball. Total bases is the numerator of slugging, so these
+    # are the market's own surface stats: kept to measure the gap against the
+    # expected versions rather than to score levels.
+    slg: float = float("nan")
+    xbh_per_pa: float = float("nan")
+    ld_pct: float = float("nan")
+    # Home total bases per PA over road, as a share of the road rate. Diagnostic:
+    # the simulator already prices tonight's venue from the matching half of the
+    # hitter's splits and multiplies by the park factor, so this is the read a
+    # human wants beside those numbers -- "are his bases a ballpark artefact?" --
+    # rather than a second adjustment. NaN when either half is too thin.
+    tb_home_bias: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
         return self.xwoba - self.woba
+
+    @property
+    def slg_gap(self) -> float:
+        """Actual slugging minus expected slugging.
+
+        Total bases *is* the numerator of slugging, so this is the market's own
+        luck term: bases collected beyond what the contact behind them supports
+        -- bloops, misplays, wind. Positive means over-performing. NaN when
+        either side is unknown.
+        """
+        return self.slg - self.xslg
 
     @property
     def barrel_per_pa(self) -> float:
@@ -222,6 +260,20 @@ class BatterRegression:
         xbh *= 1.0 + _clip((self.xslg - BL_XSLG) * 0.30, -0.10, 0.12)  # PPV
         xbh *= 1.0 + _clip((self.sweet_spot - BL_SWEET_SPOT) * 0.60, -0.08, 0.08)  # sensitive
         xbh *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.006, -0.05, 0.05)  # NPV (blast)
+        # Sprint speed belongs here and nowhere else in the power stack: it turns
+        # a single into a double and a gap shot into a triple, and does nothing
+        # for a home run. Over 2,609 batter-weeks it predicts forward 2B+3B/PA
+        # holding prior extra-base rate and contact quality fixed (beta +0.0031
+        # per SD, p=.001); the slow third averages .0407 against the fast third's
+        # .0483. Sized at half the measured slope, since 42 days of sprint speed
+        # is a season-long tool being read on a short window.
+        xbh *= 1.0 + _clip((self.sprint_speed - BL_SPRINT) * SPRINT_XBH_SLOPE, -0.07, 0.07)
+        # A slow bat whose doubles have spiked is the third false positive: among
+        # hitters over .060 2B+3B/PA, the slow third keeps .0420 of a .0778 rate
+        # while the fast third keeps .0568 of .0766. The continuous term above
+        # covers about half that spread, so the conjunction adds the rest.
+        if self.sprint_speed < SLOW_SPRINT and self.xbh_per_pa > XBH_SURGE:
+            xbh *= 0.96
         xbh = _clip(xbh, 0.82, 1.20)
 
         # --- Singles ---
@@ -322,8 +374,15 @@ def build_batter_regression(
     iffb = float(bb_type.eq("popup").sum() / n_fb) if n_fb else float("nan")
     fb_ld_ev, fb_ld_max_ev, fb_ld_hard_hit = _air_contact(batted)
 
+    ld_pct = float(bb_type.eq("line_drive").mean()) if len(bb_type) else float("nan")
+
     ev = bdf["events"].dropna()
     n_pa = int(len(ev))
+    n_ab = int((~ev.isin(NON_AB_EVENTS)).sum())
+    total_bases = float(ev.map(TB_VALUE).fillna(0.0).sum())
+    slg = total_bases / n_ab if n_ab else float("nan")
+    xbh_per_pa = float(ev.isin(["double", "triple"]).sum() / n_pa) if n_pa else float("nan")
+    tb_home_bias = _tb_home_bias(bdf)
     k_pct = float(ev.isin(["strikeout", "strikeout_double_play"]).sum() / n_pa) if n_pa else float("nan")
     bb_pct = float(ev.eq("walk").sum() / n_pa) if n_pa else float("nan")
 
@@ -357,7 +416,32 @@ def build_batter_regression(
         fb_ld_max_ev=fb_ld_max_ev,
         fb_ld_hard_hit=fb_ld_hard_hit,
         iffb_pct=iffb,
+        slg=slg,
+        xbh_per_pa=xbh_per_pa,
+        ld_pct=ld_pct,
+        tb_home_bias=tb_home_bias,
     )
+
+
+# Plate appearances needed on *each* side before a venue gap is worth printing.
+# A total-base rate over 30 PA is still noisy, but below that the split says more
+# about which pitchers happened to be scheduled than about the ballpark.
+MIN_VENUE_PA = 30
+
+
+def _tb_home_bias(bdf: pd.DataFrame) -> float:
+    """Home total bases per PA over road, as a share of the road rate."""
+    if "inning_topbot" not in bdf:
+        return float("nan")
+    pa_rows = bdf[bdf["events"].notna()]
+    home = pa_rows[pa_rows["inning_topbot"].eq("Bot")]["events"]
+    away = pa_rows[pa_rows["inning_topbot"].eq("Top")]["events"]
+    if min(len(home), len(away)) < MIN_VENUE_PA:
+        return float("nan")
+    road = float(away.map(TB_VALUE).fillna(0.0).mean())
+    if road <= 0:
+        return float("nan")
+    return float(home.map(TB_VALUE).fillna(0.0).mean()) / road - 1.0
 
 
 def _air_contact(batted: pd.DataFrame) -> tuple[float, float, float]:
@@ -468,6 +552,39 @@ BL_STUFF_PLUS = 100.0
 BL_LOCATION_PLUS = 100.0
 BL_SWSTR = 0.110  # swinging strikes / pitches
 BL_WHIFF_PITCHER = 0.240  # swinging strikes / swings induced
+BL_GB_ALLOWED = 0.420
+BL_FB_ALLOWED = 0.360  # fly balls + pop-ups / batted balls
+
+# You cannot hit a home run on the ground, and that is as true of the arm that
+# induced the grounder as of the bat that hit it. Above this share of batted
+# balls a starter is keeping the ball down as a matter of profile rather than
+# luck; same ceiling and slope as the batter-side ground-ball brake.
+GB_ALLOWED_CEILING = 0.50
+GB_ALLOWED_SLOPE = 2.0
+GB_ALLOWED_FLOOR = 0.78
+
+# Fly-ball volume on its own is not a liability -- a starter can give up all the
+# fly balls he likes if they are hit softly. It becomes a home-run problem only
+# in combination with hard contact, so the term is the *product* of the two
+# excesses rather than either alone, and stays dormant unless both are above
+# baseline. The gain is large because it multiplies two small differences.
+FB_ALLOWED_FLOOR = 0.420
+FB_HARD_GAIN = 20.0
+FB_HARD_CAP = 0.10
+
+# Induced vertical break of the four-seamer, in inches: the usable proxy for a
+# flat vertical approach angle. A high-ride fastball at the top of the zone is
+# the pitch a high-launch hitter turns into a souvenir; a heavy sinking one is
+# not. Weakest evidence of the matchup terms, so the least authority.
+BL_IVB = 15.0
+IVB_SLOPE = 0.008
+IVB_CLIP = (-0.04, 0.06)
+FOUR_SEAM_TYPES = {"FF", "FA"}
+
+# Batted balls against one side of the plate before a starter's platoon contact
+# split is trusted. Higher than the K split's PA floor because contact quality
+# is the noisier measurement.
+MIN_SPLIT_BBE = 40
 
 # Stuff-based expected-K% fit: xK% is a linear function of the two fastest-
 # stabilizing whiff signals (CSW% and SwStr%), anchored so a league-average arm
@@ -554,6 +671,12 @@ class PitcherRegression:
     fstrike: float = BL_FSTRIKE
     k_pct_vs_l: float = float("nan")
     k_pct_vs_r: float = float("nan")
+    gb_allowed: float = BL_GB_ALLOWED
+    fb_allowed: float = BL_FB_ALLOWED
+    barrel_allowed_vs_l: float = float("nan")
+    barrel_allowed_vs_r: float = float("nan")
+    hard_hit_allowed_vs_l: float = float("nan")
+    hard_hit_allowed_vs_r: float = float("nan")
     ivb: float = float("nan")
     extension: float = float("nan")
     release_var: float = float("nan")
@@ -611,6 +734,51 @@ class PitcherRegression:
             return 1.0
         return _clip(split / self.k_pct, 0.85, 1.18)
 
+    def platoon_power_multiplier(self, bats: str | None) -> float:
+        """HR multiplier for a batter of a given handedness (contact-quality split).
+
+        A starter's overall home-run rate routinely hides a severe vulnerability
+        to one side of the plate, and the K split cannot see it -- missing bats
+        and suppressing contact quality are different skills. This reads the
+        barrels and hard contact he actually allows to this handedness against
+        his own overall rate, so a reverse-split arm stops looking ordinary.
+
+        Returns 1.0 when handedness is unknown or the split sample is too thin.
+        """
+        if bats not in ("L", "R"):
+            return 1.0
+        barrel = self.barrel_allowed_vs_l if bats == "L" else self.barrel_allowed_vs_r
+        hard = (
+            self.hard_hit_allowed_vs_l if bats == "L" else self.hard_hit_allowed_vs_r
+        )
+        m = 1.0
+        if barrel == barrel and self.barrel_allowed > 0:  # not NaN
+            m *= _clip(barrel / self.barrel_allowed, 0.80, 1.25)
+        if hard == hard and self.hard_hit_allowed > 0:
+            m *= _clip(hard / self.hard_hit_allowed, 0.90, 1.12)
+        return _clip(m, 0.85, 1.25)
+
+    def batted_ball_hr_mult(self) -> float:
+        """HR effect of *where* the pitcher lets the ball go, not how hard.
+
+        Two opposite profiles, and the multiplier stack had neither: the sinker/
+        ground-ball starter who suppresses the long ball against even elite
+        power, and the fly-ball starter whose air contact is also hard.
+        """
+        m = 1.0
+        if self.gb_allowed > GB_ALLOWED_CEILING:
+            m *= _clip(
+                1.0 - (self.gb_allowed - GB_ALLOWED_CEILING) * GB_ALLOWED_SLOPE,
+                GB_ALLOWED_FLOOR,
+                1.0,
+            )
+        if self.fb_allowed > FB_ALLOWED_FLOOR and self.hard_hit_allowed > BL_HARD_HIT:
+            excess = (self.fb_allowed - FB_ALLOWED_FLOOR) * (
+                self.hard_hit_allowed - BL_HARD_HIT
+            )
+            m *= 1.0 + _clip(excess * FB_HARD_GAIN, 0.0, FB_HARD_CAP)
+        return m
+
     def k_multiplier(self) -> float:
         """Multiplier on the pitcher's projected strikeout rate.
 
@@ -647,7 +815,15 @@ class PitcherRegression:
         hr = base * hard * (
             1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
         )
-        hr = _clip(hr, 0.85, 1.35)
+        # Where he lets the ball go, which is a separate skill from how hard it
+        # is hit and the one the stack was missing entirely.
+        hr *= self.batted_ball_hr_mult()
+        # Ride on the four-seamer: the flat-approach fastball at the letters.
+        if self.ivb == self.ivb:  # not NaN
+            hr *= 1.0 + _clip((self.ivb - BL_IVB) * IVB_SLOPE, *IVB_CLIP)
+        # Floor drops with the ground-ball brake so a sinkerballer can actually
+        # suppress; the ceiling is unchanged.
+        hr = _clip(hr, 0.78, 1.35)
         xbh = _clip(base * hard, 0.85, 1.30)
         return {"1B": base, "2B": xbh, "3B": xbh, "HR": hr}
 
@@ -749,12 +925,14 @@ def build_pitcher_regression(
     else:
         two_strike_whiff = BL_TWO_STRIKE_WHIFF
 
-    # Induced vertical break of fastball-ish pitches (pfx_z in feet -> inches).
-    ivb = (
-        float(pdf["pfx_z"].dropna().mean() * 12.0)
-        if "pfx_z" in pdf and pdf["pfx_z"].notna().any()
-        else float("nan")
-    )
+    # Induced vertical break of the FOUR-SEAMER (pfx_z in feet -> inches). The
+    # mean over every pitch is not a ride measurement -- breaking balls carry
+    # negative pfx_z, so it mostly reported arsenal composition.
+    ivb = float("nan")
+    if "pfx_z" in pdf and "pitch_type" in pdf:
+        four_seam = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)]["pfx_z"].dropna()
+        if len(four_seam) >= 20:
+            ivb = float(four_seam.mean() * 12.0)
 
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
@@ -786,9 +964,46 @@ def build_pitcher_regression(
             barrel, BL_BARREL_ALLOWED, n_bbe, STARTER_PRIOR_BBE["barrel"], shrink
         )
 
+    # Where the batted balls he allows actually go. The hitter side has carried
+    # a ground-ball rate since the batted-ball work; the pitcher side had none.
+    if n_bbe and "bb_type" in batted:
+        bbt = batted["bb_type"].dropna()
+        n_bbt = len(bbt)
+        gb_allowed = float(bbt.eq("ground_ball").sum() / n_bbt) if n_bbt else (
+            BL_GB_ALLOWED
+        )
+        fb_allowed = (
+            float(bbt.isin(["fly_ball", "popup"]).sum() / n_bbt)
+            if n_bbt
+            else BL_FB_ALLOWED
+        )
+    else:
+        gb_allowed, fb_allowed = BL_GB_ALLOWED, BL_FB_ALLOWED
+
+    # Contact quality allowed by batter handedness: a starter's home-run risk
+    # routinely lives on one side of the plate only, and the K split cannot see
+    # it. Left raw -- these are read as a ratio to his own overall rate, which
+    # is already shrunk, so shrinking both ends would cancel the split out.
+    barrel_vs = {"L": float("nan"), "R": float("nan")}
+    hard_vs = {"L": float("nan"), "R": float("nan")}
+    if n_bbe and "stand" in batted:
+        for hand in ("L", "R"):
+            side = batted[batted["stand"] == hand]
+            if len(side) < MIN_SPLIT_BBE:
+                continue
+            hard_vs[hand] = float((side["launch_speed"] >= 95).mean())
+            if "launch_speed_angle" in side:
+                barrel_vs[hand] = float((side["launch_speed_angle"] == 6).mean())
+
     return PitcherRegression(
         bbe=n_bbe,
         pitches=n_pitches,
+        gb_allowed=gb_allowed,
+        fb_allowed=fb_allowed,
+        barrel_allowed_vs_l=barrel_vs["L"],
+        barrel_allowed_vs_r=barrel_vs["R"],
+        hard_hit_allowed_vs_l=hard_vs["L"],
+        hard_hit_allowed_vs_r=hard_vs["R"],
         babip_allowed=babip,
         woba_allowed=woba,
         xwoba_allowed=xwoba,
