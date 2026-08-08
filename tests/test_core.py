@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 
 import numpy as np
+import pytest
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN, grade
 from mlb_engine.audit.scorecard import build_scorecard
@@ -2055,6 +2056,7 @@ def test_batter_regression_k_bb_pct():
     import pandas as pd
 
     from mlb_engine.features.regression import build_batter_regression
+    from mlb_engine.features.stabilize import Stabilizer
 
     events = ["strikeout"] * 3 + ["walk"] + ["single"] * 4 + ["field_out"] * 2
     n = len(events)
@@ -2075,9 +2077,16 @@ def test_batter_regression_k_bb_pct():
             "zone": [5] * n,
         }
     )
-    breg = build_batter_regression(df)
+    breg = build_batter_regression(df, stabilizer=Stabilizer(enabled=False))
     assert breg.k_pct == 0.3  # 3 / 10
     assert breg.bb_pct == 0.1  # 1 / 10
+
+    # 10 PA is well short of where either rate stabilizes (60 PA for K%, 120 for
+    # BB%), so with the shrink on both are pulled most of the way to league.
+    shrunk = build_batter_regression(df)
+    assert 0.225 < shrunk.k_pct < 0.3
+    assert 0.085 < shrunk.bb_pct < 0.1
+    assert shrunk.pa == 10
 
 
 # ---- singles "Under" NPV screen ----
@@ -2262,4 +2271,142 @@ def test_email_attachments_infer_mime_type(monkeypatch):
     assert types["card.pdf"] == "application/pdf"
     assert types["bets.xlsx"] == (
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+
+# --- sample-size stabilization -------------------------------------------------
+
+
+def test_shrink_scales_deviation_by_sample_weight():
+    from mlb_engine.features.stabilize import shrink
+
+    # At n == n_stabilize the metric keeps half its deviation from baseline.
+    assert shrink(0.20, 0.08, 50, 50) == pytest.approx(0.14)
+    # A large sample is nearly untouched; a tiny one collapses toward baseline.
+    assert shrink(0.20, 0.08, 950, 50) == pytest.approx(0.194)
+    assert shrink(0.20, 0.08, 5, 50) == pytest.approx(0.0909, abs=1e-4)
+
+
+def test_shrink_is_inert_without_a_sample_or_a_value():
+    import math
+
+    from mlb_engine.features.stabilize import shrink
+
+    assert shrink(0.20, 0.08, 0, 50) == 0.20  # unknown count -> leave raw
+    assert shrink(0.20, 0.08, 100, 0) == 0.20  # disabled
+    assert math.isnan(shrink(float("nan"), 0.08, 100, 50))
+
+
+def test_stabilizer_disabled_returns_raw_metrics():
+    from mlb_engine.features.stabilize import Stabilizer
+
+    raw = {"barrel_rate": 0.25, "k_pct": 0.40}
+    base = {"barrel_rate": 0.08, "k_pct": 0.225}
+    counts = {"bbe": 20, "pa": 30}
+    assert Stabilizer(enabled=False).apply(raw, base, counts) == raw
+    assert Stabilizer(enabled=True, scale=0.0).apply(raw, base, counts) == raw
+
+
+def test_stabilizer_uses_each_metrics_own_counter():
+    from mlb_engine.features.stabilize import Stabilizer
+
+    stab = Stabilizer()
+    counts = {"bbe": 50, "pa": 60, "swings": 100, "zone_swings": 100}
+    # barrel stabilizes at 50 BBE, K% at 60 PA, whiff at 100 swings: each of
+    # these samples is exactly its stabilization point, so each keeps half.
+    out = stab.apply(
+        {"barrel_rate": 0.16, "k_pct": 0.325, "whiff": 0.34},
+        {"barrel_rate": 0.08, "k_pct": 0.225, "whiff": 0.24},
+        counts,
+    )
+    assert out["barrel_rate"] == pytest.approx(0.12)
+    assert out["k_pct"] == pytest.approx(0.275)
+    assert out["whiff"] == pytest.approx(0.29)
+
+
+def test_walk_rate_needs_twice_the_sample_of_strikeout_rate():
+    from mlb_engine.features.stabilize import Stabilizer
+
+    stab = Stabilizer()
+    assert stab.n_for("bb_pct") == 120
+    assert stab.n_for("k_pct") == 60
+    # Same 60-PA sample: K% keeps half its deviation, BB% only a third.
+    out = stab.apply(
+        {"k_pct": 0.425, "bb_pct": 0.185},
+        {"k_pct": 0.225, "bb_pct": 0.085},
+        {"pa": 60},
+    )
+    assert out["k_pct"] == pytest.approx(0.325)
+    assert out["bb_pct"] == pytest.approx(0.11833, abs=1e-4)
+
+
+def test_max_ev_and_babip_are_not_stabilized():
+    from mlb_engine.features.stabilize import STAB_POINTS
+
+    # max EV is a maximum, not a rate, and BABIP is read as a luck signal:
+    # shrinking either toward league average would erase the signal.
+    assert "max_ev" not in STAB_POINTS
+    assert "babip" not in STAB_POINTS
+
+
+# --- market implied team total -------------------------------------------------
+
+
+def test_implied_team_total_splits_on_the_moneyline():
+    from mlb_engine.features.team_total import implied_team_total
+
+    # A pick'em splits the total evenly.
+    assert implied_team_total(9.0, 0.50) == pytest.approx(4.5)
+    # The favourite gets the larger half, the dog the smaller, and they add back
+    # up to the total.
+    fav = implied_team_total(9.0, 0.65)
+    dog = implied_team_total(9.0, 0.35)
+    assert fav > 4.5 > dog
+    assert fav + dog == pytest.approx(9.0)
+
+
+def test_team_total_anchor_pulls_toward_the_market():
+    from mlb_engine.features.team_total import TeamTotalAnchor
+
+    anchor = TeamTotalAnchor()
+    # Market expects more runs than the model -> nudge up, and vice versa.
+    assert anchor.factor(10.5, 0.60, 4.2) > 1.0
+    assert anchor.factor(7.0, 0.40, 4.8) < 1.0
+    # The move is capped, so a wild line cannot swing the prop.
+    assert anchor.factor(20.0, 0.90, 3.0) == pytest.approx(1.0 + anchor.cap)
+
+
+def test_team_total_anchor_is_inert_when_unpriced_or_disabled():
+    from mlb_engine.features.team_total import TeamTotalAnchor
+
+    anchor = TeamTotalAnchor()
+    assert anchor.factor(None, 0.55, 4.5) == 1.0
+    assert anchor.factor(9.0, None, 4.5) == 1.0
+    assert anchor.factor(9.0, 0.55, None) == 1.0
+    assert TeamTotalAnchor(enabled=False).factor(10.5, 0.65, 4.0) == 1.0
+
+
+def test_barrels_per_pa_hr_term_matches_per_bbe_at_league_average():
+    from mlb_engine.features.regression import BatterRegression
+
+    def reg(**kw):
+        base = dict(
+            bbe=200, barrel_rate=0.08, hard_hit=0.40, sweet_spot=0.33,
+            bat_speed=71.5, max_ev=108.0, whiff=0.24, zone_contact=0.82,
+            xba=0.250, xslg=0.400, babip=0.290, woba=0.370, xwoba=0.370,
+        )
+        base.update(kw)
+        return BatterRegression(**base)
+
+    # A league-average hitter on both scales gets the same HR multiplier.
+    at_league = reg(barrel_pa=0.045)
+    assert at_league.multipliers(barrel_per_pa=True)["HR"] == pytest.approx(
+        at_league.multipliers()["HR"]
+    )
+    # A hitter who barrels often but rarely makes contact is priced down on the
+    # per-PA scale relative to his per-BBE rate.
+    thin_contact = reg(barrel_rate=0.16, barrel_pa=0.045)
+    assert (
+        thin_contact.multipliers(barrel_per_pa=True)["HR"]
+        < thin_contact.multipliers()["HR"]
     )
