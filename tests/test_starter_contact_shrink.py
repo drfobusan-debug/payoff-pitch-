@@ -37,9 +37,14 @@ def test_shrink_is_a_weighted_walk_toward_the_baseline() -> None:
 
 
 def test_measured_weights_reproduce_the_split_half_reliabilities() -> None:
-    """At the mean six-week sample the kept share IS the metric's reliability."""
-    for metric, n, expected in (("xwoba", 106, 0.31), ("hard_hit", 106, 0.24),
-                                ("babip", 106, 0.10), ("barrel", 106, 0.09)):
+    """At the mean six-week sample the kept share IS the metric's reliability.
+
+    That sample is 56 balls in play, not the 106 the priors were first solved at:
+    the original block sizes counted foul balls as batted balls, which are 47% of
+    the exit-velocity rows. The reliabilities themselves barely moved.
+    """
+    for metric, n, expected in (("xwoba", 56, 0.31), ("hard_hit", 56, 0.24),
+                                ("babip", 56, 0.10), ("barrel", 56, 0.09)):
         keep = n / (n + STARTER_PRIOR_BBE[metric])
         assert abs(keep - expected) < 0.01, metric
 

@@ -28,6 +28,8 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
+from mlb_engine.data.statcast import batted_balls
+
 MIN_BBE = 15
 MIN_PITCHES = 100
 Z_THRESHOLD = 2.0
@@ -122,7 +124,7 @@ class TailAdjuster:
 
 
 def _batter_z(df: pd.DataFrame) -> dict[int, dict[str, float]]:
-    batted = df[df["launch_speed"].notna()].copy()
+    batted = batted_balls(df).copy()
     if batted.empty:
         return {}
     batted["_hard"] = (batted["launch_speed"] >= 95).astype(float)
@@ -155,7 +157,7 @@ def _pitcher_z(df: pd.DataFrame) -> dict[int, dict[str, float]]:
     eg = ev.groupby("pitcher").agg(k=("_k", "mean"), bb=("_bb", "mean"))
     k_bb = (eg["k"] - eg["bb"]).reindex(pg.index)
 
-    batted = work[work["launch_speed"].notna()].copy()
+    batted = batted_balls(work).copy()
     batted["_hard"] = (batted["launch_speed"] >= 95).astype(float)
     batted["_barrel"] = (batted["launch_speed_angle"] == 6).astype(float)
     bg = batted.groupby("pitcher").agg(

@@ -58,6 +58,28 @@ USE_COLS = [
 ]
 
 
+def batted_balls(df: pd.DataFrame) -> pd.DataFrame:
+    """Rows that are genuinely balls in play.
+
+    Statcast records exit velocity on **foul balls** as well as balls in play, so
+    filtering on ``launch_speed.notna()`` builds a pool that is ~47% fouls --
+    weak contact by construction, which drags every contact-quality rate away
+    from its true value (league hard-hit reads 24% instead of 39%) and roughly
+    doubles any batted-ball count. Balls in play are ``type == "X"``
+    (equivalently ``description == "hit_into_play"``).
+
+    Falls back to the exit-velocity filter only when neither column is present,
+    so callers working with a reduced frame still get a usable slice.
+    """
+    if "type" in df:
+        bip = df[df["type"].eq("X")]
+    elif "description" in df:
+        bip = df[df["description"].eq("hit_into_play")]
+    else:
+        return df[df["launch_speed"].notna()] if "launch_speed" in df else df.iloc[0:0]
+    return bip[bip["launch_speed"].notna()] if "launch_speed" in bip else bip
+
+
 class StatcastRepository:
     """Loads and caches Statcast pitch-level data."""
 

@@ -37,6 +37,7 @@ from datetime import timedelta
 
 import pandas as pd
 
+from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features.rolling import HIT_EVENTS, WALK_EVENTS
 
 # League baselines (approximate, recalibratable).
@@ -174,7 +175,7 @@ def recent_start_form(
     ip_est = max(len(ev) - hits - walks, 1) / 3.0
     whip = (hits + walks) / ip_est
 
-    batted = window[window["launch_speed"].notna()] if "launch_speed" in window else pd.DataFrame()
+    batted = batted_balls(window) if "launch_speed" in window else pd.DataFrame()
     hard_hit = float((batted["launch_speed"] >= 95).mean()) if len(batted) else BL_HARD_HIT
 
     return RecentStartForm(starts=n_starts, whip=whip, hard_hit_pct=hard_hit)

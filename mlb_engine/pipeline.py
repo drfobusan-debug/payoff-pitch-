@@ -26,7 +26,7 @@ from mlb_engine.data.oddsapi import PRICE_ONLY_MARKETS, OddsAPIClient
 from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_person
 from mlb_engine.data.savant_expected import load_batter_xslg
-from mlb_engine.data.statcast import StatcastRepository
+from mlb_engine.data.statcast import StatcastRepository, batted_balls
 from mlb_engine.data.vsin import Split, VSINClient
 from mlb_engine.features.efficiency import (
     PitcherEfficiency,
@@ -801,7 +801,7 @@ class Pipeline:
         vals = []
         for slot in tinfo.lineup:
             rows = statcast[statcast["batter"] == slot.player.mlbam_id]
-            x = rows.loc[rows["launch_speed"].notna(), "estimated_woba_using_speedangle"].dropna()
+            x = batted_balls(rows)["estimated_woba_using_speedangle"].dropna()
             if len(x) >= 15:
                 vals.append(float(x.mean()))
         if not vals:

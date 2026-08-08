@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from mlb_engine.calibration import Calibrator, ConfidenceShrink
@@ -63,3 +65,24 @@ def test_odds_api_errors_never_leak_the_key():
     assert "SEKRIT" not in out
     assert "apiKey" not in out
     assert "401 Client Error" in out
+
+
+def test_a_map_fit_on_other_features_is_ignored_rather_than_applied(tmp_path):
+    """A map learns what *this* engine's 0.62 means; a foreign one would undo a fix."""
+    from mlb_engine.calibration import FEATURE_BASIS
+
+    rows = [("batter_tb", 0.54, 0) for _ in range(900)]
+    rows += [("batter_tb", 0.54, 1) for _ in range(100)]
+    path = tmp_path / "calibration_live.json"
+    Calibrator.fit(rows).to_json(path)
+
+    # Round-trips while the basis matches.
+    assert json.loads(path.read_text())["basis"] == FEATURE_BASIS
+    assert Calibrator.from_json(path).apply("batter_tb", 0.54) < 0.5
+
+    # Stamped with anything else -- or unstamped, like every map fit before the
+    # stamp existed -- it falls back to the identity map.
+    for payload in ({**json.loads(path.read_text()), "basis": "older-features"},
+                    {k: v for k, v in json.loads(path.read_text()).items() if k != "basis"}):
+        path.write_text(json.dumps(payload))
+        assert Calibrator.from_json(path).apply("batter_tb", 0.54) == 0.54
