@@ -187,6 +187,22 @@ the published defaults (.45 hard-hit, .50 GB) fired on 0 of 60 run lines, while
 .25 / .40 fired on 12 — start loose enough to get a sample, then tighten on what
 the `VETO` rows show.
 
+### Bridge innings
+
+A pen's 8th+ profile is its setup man and closer, its two best arms. The
+simulator used to hand every post-hook inning of a close game to that profile,
+so a 6th-inning hand-off was priced as if the closer were already in — the
+overrating is largest for the pens with the widest closer-to-middle-relief gap,
+which is one way a favourite's moneyline edge gets manufactured. Relief before
+the 8th is now read as its own profile (`BullpenProfile.bridge`, 20 PA minimum,
+otherwise the aggregate) and covers the innings up to the 8th; the leverage arms
+take over from there.
+
+| Knob | Default | What it does |
+| --- | --- | --- |
+| `MLBE_PEN_BRIDGE` | `1` (on) | Prices the innings between the starter's hook and the 8th off the arms that cover them. `0` restores the old behaviour, for repricing a slate both ways. |
+| `MLBE_PEN_ARSENAL` | `1` (on) | Extends the starter's arsenal matching (mix usage x per-class SwStr% against the hitter's per-class whiff/xwOBA) to the pen, read separately for its bridge and leverage subsets. |
+
 ## Install
 
 ```bash

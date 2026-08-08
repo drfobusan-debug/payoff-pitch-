@@ -398,6 +398,19 @@ class Config:
     # park factor cannot tell a pull-heavy lefty from an opposite-field bat.
     xhr_park: bool = field(default_factory=lambda: _env_bool("MLBE_XHR_PARK", True))
 
+    # Bridge innings: once the starter is hooked in a close game, the simulator
+    # used to hand every remaining inning to the pen's 8th+ leverage profile,
+    # so a 6th-inning hand-off was charged the closer's rates. With this on, the
+    # innings before the 8th are priced off the arms that actually cover them
+    # (relief before the 8th) and the leverage profile starts in the 8th. It
+    # moves full-game and total prices, so it can be turned off to reprice a
+    # slate the old way for comparison.
+    pen_bridge: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_BRIDGE", True))
+    # Extend the starter's arsenal matching (pitch-mix usage x per-class SwStr%
+    # vs the hitter's per-class whiff/xwOBA) to the bullpen matchups, read
+    # separately for the bridge and leverage subsets of the corps.
+    pen_arsenal: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_ARSENAL", True))
+
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are
     # restricted to the markets with a positive graded edge (see
