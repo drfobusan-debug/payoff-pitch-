@@ -64,6 +64,20 @@ BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
+# Total bases by terminal event, and the plate appearances that are not at-bats
+# (slugging's denominator excludes them).
+TB_VALUE = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
+NON_AB_EVENTS = frozenset(
+    {"walk", "intent_walk", "hit_by_pitch", "sac_fly", "sac_bunt", "catcher_interf"}
+)
+
+# Extra-base multiplier per ft/s of sprint speed, and the slow-bat conjunction.
+# 26.5 ft/s is roughly the bottom third of the league; .060 2B+3B/PA is the top
+# quarter, so the pair reads "can't run, yet the doubles are pouring in".
+SPRINT_XBH_SLOPE = 0.025
+SLOW_SPRINT = 26.5
+XBH_SURGE = 0.060
+
 # Singles fall as barrel rate rises: across 323 qualified batters (95k PA) the
 # league goes from .175 singles/PA under 2% barrel to .124 at 10-12%, a slope of
 # roughly -0.5 singles/PA per unit barrel -- about -3.5 in relative terms.
@@ -143,10 +157,34 @@ class BatterRegression:
     fb_ld_hard_hit: float = float("nan")
     # Pop-ups as a share of fly balls: high launch angle that dies on the infield.
     iffb_pct: float = float("nan")
+    # Actual slugging over the slice, alongside doubles+triples per PA and line
+    # drives per batted ball. Total bases is the numerator of slugging, so these
+    # are the market's own surface stats: kept to measure the gap against the
+    # expected versions rather than to score levels.
+    slg: float = float("nan")
+    xbh_per_pa: float = float("nan")
+    ld_pct: float = float("nan")
+    # Home total bases per PA over road, as a share of the road rate. Diagnostic:
+    # the simulator already prices tonight's venue from the matching half of the
+    # hitter's splits and multiplies by the park factor, so this is the read a
+    # human wants beside those numbers -- "are his bases a ballpark artefact?" --
+    # rather than a second adjustment. NaN when either half is too thin.
+    tb_home_bias: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
         return self.xwoba - self.woba
+
+    @property
+    def slg_gap(self) -> float:
+        """Actual slugging minus expected slugging.
+
+        Total bases *is* the numerator of slugging, so this is the market's own
+        luck term: bases collected beyond what the contact behind them supports
+        -- bloops, misplays, wind. Positive means over-performing. NaN when
+        either side is unknown.
+        """
+        return self.slg - self.xslg
 
     @property
     def barrel_per_pa(self) -> float:
@@ -222,6 +260,20 @@ class BatterRegression:
         xbh *= 1.0 + _clip((self.xslg - BL_XSLG) * 0.30, -0.10, 0.12)  # PPV
         xbh *= 1.0 + _clip((self.sweet_spot - BL_SWEET_SPOT) * 0.60, -0.08, 0.08)  # sensitive
         xbh *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.006, -0.05, 0.05)  # NPV (blast)
+        # Sprint speed belongs here and nowhere else in the power stack: it turns
+        # a single into a double and a gap shot into a triple, and does nothing
+        # for a home run. Over 2,609 batter-weeks it predicts forward 2B+3B/PA
+        # holding prior extra-base rate and contact quality fixed (beta +0.0031
+        # per SD, p=.001); the slow third averages .0407 against the fast third's
+        # .0483. Sized at half the measured slope, since 42 days of sprint speed
+        # is a season-long tool being read on a short window.
+        xbh *= 1.0 + _clip((self.sprint_speed - BL_SPRINT) * SPRINT_XBH_SLOPE, -0.07, 0.07)
+        # A slow bat whose doubles have spiked is the third false positive: among
+        # hitters over .060 2B+3B/PA, the slow third keeps .0420 of a .0778 rate
+        # while the fast third keeps .0568 of .0766. The continuous term above
+        # covers about half that spread, so the conjunction adds the rest.
+        if self.sprint_speed < SLOW_SPRINT and self.xbh_per_pa > XBH_SURGE:
+            xbh *= 0.96
         xbh = _clip(xbh, 0.82, 1.20)
 
         # --- Singles ---
@@ -322,8 +374,15 @@ def build_batter_regression(
     iffb = float(bb_type.eq("popup").sum() / n_fb) if n_fb else float("nan")
     fb_ld_ev, fb_ld_max_ev, fb_ld_hard_hit = _air_contact(batted)
 
+    ld_pct = float(bb_type.eq("line_drive").mean()) if len(bb_type) else float("nan")
+
     ev = bdf["events"].dropna()
     n_pa = int(len(ev))
+    n_ab = int((~ev.isin(NON_AB_EVENTS)).sum())
+    total_bases = float(ev.map(TB_VALUE).fillna(0.0).sum())
+    slg = total_bases / n_ab if n_ab else float("nan")
+    xbh_per_pa = float(ev.isin(["double", "triple"]).sum() / n_pa) if n_pa else float("nan")
+    tb_home_bias = _tb_home_bias(bdf)
     k_pct = float(ev.isin(["strikeout", "strikeout_double_play"]).sum() / n_pa) if n_pa else float("nan")
     bb_pct = float(ev.eq("walk").sum() / n_pa) if n_pa else float("nan")
 
@@ -357,7 +416,32 @@ def build_batter_regression(
         fb_ld_max_ev=fb_ld_max_ev,
         fb_ld_hard_hit=fb_ld_hard_hit,
         iffb_pct=iffb,
+        slg=slg,
+        xbh_per_pa=xbh_per_pa,
+        ld_pct=ld_pct,
+        tb_home_bias=tb_home_bias,
     )
+
+
+# Plate appearances needed on *each* side before a venue gap is worth printing.
+# A total-base rate over 30 PA is still noisy, but below that the split says more
+# about which pitchers happened to be scheduled than about the ballpark.
+MIN_VENUE_PA = 30
+
+
+def _tb_home_bias(bdf: pd.DataFrame) -> float:
+    """Home total bases per PA over road, as a share of the road rate."""
+    if "inning_topbot" not in bdf:
+        return float("nan")
+    pa_rows = bdf[bdf["events"].notna()]
+    home = pa_rows[pa_rows["inning_topbot"].eq("Bot")]["events"]
+    away = pa_rows[pa_rows["inning_topbot"].eq("Top")]["events"]
+    if min(len(home), len(away)) < MIN_VENUE_PA:
+        return float("nan")
+    road = float(away.map(TB_VALUE).fillna(0.0).mean())
+    if road <= 0:
+        return float("nan")
+    return float(home.map(TB_VALUE).fillna(0.0).mean()) / road - 1.0
 
 
 def _air_contact(batted: pd.DataFrame) -> tuple[float, float, float]:
