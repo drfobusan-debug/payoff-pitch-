@@ -70,26 +70,40 @@ def test_barrel_per_pa_falls_back_to_barrel_rate_when_pas_are_unknown() -> None:
 # --- false positives -------------------------------------------------------
 
 
-def test_slugging_past_expected_slugging_brakes_the_bat() -> None:
+def test_slugging_past_the_contact_behind_it_brakes_the_bat() -> None:
     """Total bases is slugging's numerator, so the gap is the market's own luck term."""
-    honest = tb(slg=0.400, xslg=0.400)
-    lucky = tb(slg=0.470, xslg=0.400)  # +.070, past the +.050 flag
+    honest = tb(slg=0.400, contact_slg=0.400)
+    lucky = tb(slg=0.470, contact_slg=0.400)  # +.070, past the +.050 flag
     assert lucky < honest
     assert lucky / honest == pytest.approx(1.0 - 0.09, abs=0.02)  # a 3-point brake
 
 
 def test_the_gap_brake_is_a_step_and_does_not_keep_deepening() -> None:
     """Bats over +.100 measured no worse than bats over +.050 (-4.3%, p=.53)."""
-    assert tb(slg=0.560, xslg=0.400) == pytest.approx(tb(slg=0.460, xslg=0.400))
+    assert tb(slg=0.560, contact_slg=0.400) == pytest.approx(tb(slg=0.460, contact_slg=0.400))
 
 
 def test_a_gap_the_other_way_is_not_a_brake() -> None:
     """Slugging *under* expected is the unlucky bat the dxwOBA term already lifts."""
-    assert tb(slg=0.330, xslg=0.400) == pytest.approx(tb(slg=0.400, xslg=0.400))
+    assert tb(slg=0.330, contact_slg=0.400) == pytest.approx(tb(slg=0.400, contact_slg=0.400))
 
 
 def test_an_unknown_slugging_never_brakes_anything() -> None:
-    assert tb(slg=float("nan")) == pytest.approx(tb(slg=0.400))
+    assert tb(slg=float("nan"), contact_slg=0.400) == pytest.approx(
+        tb(slg=0.400, contact_slg=0.400)
+    )
+
+
+def test_the_brake_reads_contact_quality_not_the_calibrated_expected_slugging() -> None:
+    """A calibrated xSLG nets strikeouts out, and the gap stops predicting with them.
+
+    Two hitters slug .470. One's contact says .400 a ball -- bases he did not earn.
+    The other's contact says .470 and only his xSLG, which divides by at-bats he
+    struck out in, reads lower. Only the first is a false positive.
+    """
+    unearned = tb(slg=0.470, contact_slg=0.400, xslg=0.400)
+    earned = tb(slg=0.470, contact_slg=0.470, xslg=0.400)
+    assert unearned < earned
 
 
 def test_high_babip_on_soft_contact_brakes_harder_than_high_babip_alone() -> None:
@@ -106,8 +120,8 @@ def test_the_babip_brake_steps_with_how_elevated_it_is() -> None:
 
 
 def test_the_two_brakes_compound_on_a_bat_that_trips_both() -> None:
-    both = tb(slg=0.480, xslg=0.400, babip=0.370, hard_hit=0.35)
-    one = tb(slg=0.480, xslg=0.400)
+    both = tb(slg=0.480, contact_slg=0.400, babip=0.370, hard_hit=0.35)
+    one = tb(slg=0.480, contact_slg=0.400)
     assert both < one
 
 
@@ -164,7 +178,7 @@ def test_the_home_road_split_is_reported_but_never_scored() -> None:
 
 
 def test_thin_samples_score_nothing_at_all() -> None:
-    sel = TBSelector().select(reg(bbe=5, slg=0.700, xslg=0.400))
+    sel = TBSelector().select(reg(bbe=5, slg=0.700, contact_slg=0.400))
     assert sel.factor == 1.0
     assert sel.signal == "none"
 
@@ -230,4 +244,4 @@ def test_slugging_and_the_extra_base_rate_come_off_the_events() -> None:
     assert r.slg == pytest.approx(10 / 5)  # 1+2+3+4 bases over 5 at-bats
     assert r.xbh_per_pa == pytest.approx(2 / 6)
     assert r.ld_pct == pytest.approx(1.0)
-    assert r.slg_gap == pytest.approx(r.slg - r.xslg)
+    assert r.slg_gap == pytest.approx(r.slg - r.contact_slg)
