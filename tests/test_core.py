@@ -2410,3 +2410,63 @@ def test_barrels_per_pa_hr_term_matches_per_bbe_at_league_average():
         thin_contact.multipliers(barrel_per_pa=True)["HR"]
         < thin_contact.multipliers()["HR"]
     )
+
+
+# --- what counts as a batted ball ---------------------------------------------
+
+
+def _pitches():
+    """Two balls in play plus two tracked fouls and an untracked take."""
+    import pandas as pd
+
+    return pd.DataFrame(
+        {
+            "batter": [1] * 5,
+            "description": [
+                "hit_into_play", "foul", "hit_into_play", "foul", "called_strike",
+            ],
+            # both fouls are scorched, both balls in play are soft
+            "launch_speed": [88.0, 104.0, 91.0, 102.0, float("nan")],
+            "launch_angle": [12.0, 25.0, 18.0, 30.0, float("nan")],
+            "launch_speed_angle": [3, float("nan"), 3, float("nan"), float("nan")],
+            "bb_type": ["ground_ball", None, "line_drive", None, None],
+            "events": ["field_out", None, "single", None, None],
+            "bat_speed": [71.5] * 5,
+            "zone": [5] * 5,
+            "estimated_ba_using_speedangle": [float("nan")] * 5,
+            "estimated_woba_using_speedangle": [float("nan")] * 5,
+            "woba_value": [float("nan")] * 5,
+        }
+    )
+
+
+def test_tracked_fouls_are_not_batted_balls():
+    from mlb_engine.features.batted import batted_balls
+
+    df = _pitches()
+    assert len(batted_balls(df)) == 2
+    assert set(batted_balls(df)["description"]) == {"hit_into_play"}
+    # Statcast tracks exit velocity on fouls, so this is what the naive filter
+    # would have returned.
+    assert int(df["launch_speed"].notna().sum()) == 4
+
+
+def test_hard_hit_pct_excludes_fouls():
+    from mlb_engine.features.regression import build_batter_regression
+    from mlb_engine.features.stabilize import Stabilizer
+
+    reg = build_batter_regression(_pitches(), stabilizer=Stabilizer(enabled=False))
+    # Neither ball in play was 95+, so hard-hit% is 0 -- counting the two 100+
+    # fouls would have reported 50%.
+    assert reg.hard_hit == 0.0
+    assert reg.bbe == 2
+    # Barrel% was never affected: its denominator is launch_speed_angle, which a
+    # foul does not carry.
+    assert reg.barrel_rate == 0.0
+
+
+def test_batted_balls_falls_back_without_a_description_column():
+    from mlb_engine.features.batted import batted_balls
+
+    df = _pitches().drop(columns=["description"])
+    assert len(batted_balls(df)) == 4

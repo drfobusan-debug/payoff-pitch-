@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
+from mlb_engine.features.batted import batted_balls
+
 # Statcast spray-chart origin (home plate) in the hc_x/hc_y coordinate frame.
 _HC_X0 = 125.42
 _HC_Y0 = 198.27
@@ -116,7 +118,7 @@ def build_singles_under(bdf: pd.DataFrame, stand: str | None) -> SinglesUnderPro
     zone_swings = int((in_zone & desc.isin(_SWING_DESC)).sum())
     z_swing = float(zone_swings / zone_pitches) if zone_pitches else float("nan")
 
-    batted = bdf[bdf["launch_speed"].notna()]
+    batted = batted_balls(bdf)
     bip = int(len(batted))
     la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
     avg_la = float(la.mean()) if len(la) else float("nan")
