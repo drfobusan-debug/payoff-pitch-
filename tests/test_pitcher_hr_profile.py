@@ -164,11 +164,19 @@ def test_platoon_splits_need_enough_batted_balls() -> None:
     rows = []
     for hand, n in (("L", 10), ("R", 200)):  # LHB sample below the floor
         rows += [
-            {"stand": hand, "launch_speed": 100.0, "launch_speed_angle": 6}
+            # ``type``/``description`` mark these as balls in play: exit velocity
+            # alone is also recorded on foul balls, which are not batted balls.
+            {
+                "stand": hand,
+                "launch_speed": 100.0,
+                "launch_speed_angle": 6,
+                "type": "X",
+                "description": "hit_into_play",
+            }
             for _ in range(n)
         ]
     pdf = pd.DataFrame(rows).assign(
-        events=None, description=None, pitch_type=None, pfx_z=None,
+        events=None, pitch_type=None, pfx_z=None,
         release_extension=None, release_pos_x=None, release_pos_z=None,
         release_spin_rate=None, bb_type=None,
     )
