@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
+from mlb_engine.features.batted import batted_balls
 from mlb_engine.features.stabilize import Stabilizer
 
 # League baselines (approximate, recalibratable).
@@ -214,7 +215,7 @@ def build_batter_regression(
     Rate metrics are stabilized toward league average by sample size (see
     ``stabilize``); pass ``Stabilizer(enabled=False)`` for the raw values.
     """
-    batted = bdf[bdf["launch_speed"].notna()]
+    batted = batted_balls(bdf)
     swings = bdf[
         bdf["description"].isin(
             ["swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play"]
@@ -530,7 +531,7 @@ def build_pitcher_regression(
     stuff_plus: float | None = None,
     location_plus: float | None = None,
 ) -> PitcherRegression:
-    batted = pdf[pdf["launch_speed"].notna()]
+    batted = batted_balls(pdf)
     n_bbe = int(len(batted))
     n_pitches = int(len(pdf))
     babip = _babip(pdf)
