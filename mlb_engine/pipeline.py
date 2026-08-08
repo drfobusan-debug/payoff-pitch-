@@ -662,6 +662,10 @@ class Pipeline:
             bat_tail = self._tails.batter_multiplier(pid)
 
             platoon_k = pit_reg.platoon_k_multiplier(bats)
+            # Missing bats and suppressing contact quality are different skills,
+            # so the K split says nothing about the starter's home-run risk to
+            # this side of the plate.
+            platoon_hr = pit_reg.platoon_power_multiplier(bats)
 
             vs_start = combine(ctx, pit_allowed)
             vs_start = apply_multipliers(vs_start, bmult)
@@ -670,6 +674,7 @@ class Pipeline:
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
             vs_start = apply_multipliers(vs_start, {"K": k_mult})
             vs_start = apply_multipliers(vs_start, {"K": platoon_k})
+            vs_start = apply_multipliers(vs_start, {"HR": platoon_hr})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
             vs_start = apply_multipliers(vs_start, pit_tail)
             vs_start = apply_multipliers(vs_start, bat_tail)

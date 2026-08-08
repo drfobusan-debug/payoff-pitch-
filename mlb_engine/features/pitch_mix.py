@@ -22,16 +22,23 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 # Statcast pitch_type codes -> broad, stable classes.
-_FB = {"FF", "FA", "FT", "SI", "FC"}  # four-seam, sinker, cutter
+# The sinker used to share a class with the four-seamer, which made the single
+# most important shape distinction in home-run modelling invisible: a high-ride
+# four-seamer at the letters and a heavy two-seamer at the knees are opposite
+# pitches, and lumping them together averaged one into the other.
+_FB = {"FF", "FA", "FC"}  # four-seam, cutter
+_SNK = {"SI", "FT"}  # sinker / two-seam
 _BRK = {"SL", "ST", "CU", "KC", "SV", "CS", "SC", "KN"}  # slider/sweeper/curve
 _OFF = {"CH", "FS", "FO"}  # changeup/splitter
 
-CLASSES = ("FB", "BRK", "OFF")
+CLASSES = ("FB", "SNK", "BRK", "OFF")
 
 # Rough league baselines per class (whiff = per-swing, swstr = per-pitch).
-LEAGUE_WHIFF = {"FB": 0.20, "BRK": 0.32, "OFF": 0.30}
-LEAGUE_SWSTR = {"FB": 0.09, "BRK": 0.16, "OFF": 0.16}
-LEAGUE_XWOBA = {"FB": 0.350, "BRK": 0.280, "OFF": 0.300}
+LEAGUE_WHIFF = {"FB": 0.20, "SNK": 0.14, "BRK": 0.32, "OFF": 0.30}
+LEAGUE_SWSTR = {"FB": 0.09, "SNK": 0.06, "BRK": 0.16, "OFF": 0.16}
+# The sinker is hit for a respectable average and almost no power, which is the
+# whole point of throwing it; the four-seam baseline is the slugging one.
+LEAGUE_XWOBA = {"FB": 0.350, "SNK": 0.330, "BRK": 0.280, "OFF": 0.300}
 
 _MIN_PITCHES = 20  # per-class stability floor
 _MIN_SWINGS = 12
@@ -49,6 +56,8 @@ def pitch_class(code: object) -> str | None:
         return None
     if code in _FB:
         return "FB"
+    if code in _SNK:
+        return "SNK"
     if code in _BRK:
         return "BRK"
     if code in _OFF:
