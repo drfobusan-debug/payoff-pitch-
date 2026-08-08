@@ -24,12 +24,17 @@ from dataclasses import dataclass
 
 from mlb_engine.audit.grade import PUSH, WIN
 from mlb_engine.audit.ledger import ENGINE_PROB_THRESHOLD, LedgerEntry, is_prop
+from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.market.tiers import Tier
 
 # A -110 line needs ~52.4% to break even; the model's own decision boundary is
 # 0.5. We flag favored pockets under breakeven and faded pockets over it.
 BREAKEVEN = 0.524
 DEFAULT_MIN_N = 20
+# Price-bucket samples are one bet per game, not one per batter, so they build a
+# tenth as fast as the prop pockets and get a lower bar to be reported at all.
+PRICE_MIN_N = 15
+PRICE_LEAK_POINTS = 0.03  # win rate this far under break-even is worth naming
 _BUY = {Tier.STRONG.value, Tier.MODERATE.value}
 
 FALSE_POSITIVE = "false_positive"
@@ -409,5 +414,139 @@ def run_line_miss_findings(entries: list[LedgerEntry]) -> list[str]:
                 f"**+1.5 dogs lose close.** {m.dog_moderate} of {m.dog_losses} underdog "
                 f"run-line losses were 2-4 run games, not blowouts — the +1.5 is landing "
                 f"near the number; a small push toward tighter game scripts recovers them."
+            )
+    return out
+
+
+# --- price buckets ---------------------------------------------------------
+# A dog is *supposed* to win less than half the time, so a sub-50% win rate is
+# not evidence of anything on its own: what matters is the win rate against the
+# break-even the price demands. These buckets report that gap, so "we win 36% of
+# our +150 dogs" can be read as the -4 point miss it is rather than a disaster,
+# and a 52% hit rate on -140 favorites can be read as the loss it is.
+PRICE_BUCKETS: tuple[tuple[str, float, float], ...] = (
+    ("Heavy favorite (-200 and shorter)", -1e9, -200.0),
+    ("Favorite (-199 to -110)", -199.0, -110.0),
+    ("Pick'em (-109 to +109)", -109.0, 109.0),
+    ("Short dog (+110 to +199)", 110.0, 199.0),
+    ("Mid dog (+200 to +399)", 200.0, 399.0),
+    ("Longshot (+400 and up)", 400.0, 1e9),
+)
+
+
+@dataclass
+class PriceBucket:
+    """Realized performance of the buys in one price band."""
+
+    label: str
+    n: int
+    win_rate: float
+    breakeven: float  # mean break-even win rate the prices demand
+    roi: float
+    units: float
+
+    @property
+    def shortfall(self) -> float:
+        """Points of win rate above (positive) or below the price's demand."""
+        return self.win_rate - self.breakeven
+
+
+def _buys(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Decided, really-priced buys: the only rows whose ROI means anything."""
+    return [
+        e for e in _decided(entries)
+        if e.tier in _BUY and e.odds is not None
+    ]
+
+
+def price_buckets(entries: list[LedgerEntry]) -> list[PriceBucket]:
+    """Group real-priced buys by how long the price was."""
+    buys = _buys(entries)
+    out: list[PriceBucket] = []
+    for label, lo, hi in PRICE_BUCKETS:
+        rows = [e for e in buys if e.odds is not None and lo <= e.odds <= hi]
+        if not rows:
+            continue
+        n = len(rows)
+        wins = sum(1 for e in rows if _won(e))
+        be = sum(1.0 / american_to_decimal(e.odds) for e in rows if e.odds is not None)
+        units = sum(e.pnl for e in rows)
+        out.append(
+            PriceBucket(
+                label=label,
+                n=n,
+                win_rate=wins / n,
+                breakeven=be / n,
+                roi=units / n,
+                units=units,
+            )
+        )
+    return out
+
+
+def dog_vs_favorite(entries: list[LedgerEntry]) -> list[PriceBucket]:
+    """The same measurement collapsed to two rows: plus-money vs minus-money."""
+    buys = _buys(entries)
+    out: list[PriceBucket] = []
+    for label, keep in (
+        ("Underdogs (plus money)", lambda o: o > 0),
+        ("Favorites (minus money)", lambda o: o < 0),
+    ):
+        rows = [e for e in buys if e.odds is not None and keep(e.odds)]
+        if not rows:
+            continue
+        n = len(rows)
+        be = sum(1.0 / american_to_decimal(e.odds) for e in rows if e.odds is not None)
+        units = sum(e.pnl for e in rows)
+        out.append(
+            PriceBucket(
+                label=label,
+                n=n,
+                win_rate=sum(1 for e in rows if _won(e)) / n,
+                breakeven=be / n,
+                roi=units / n,
+                units=units,
+            )
+        )
+    return out
+
+
+def price_bucket_findings(
+    entries: list[LedgerEntry], min_n: int = PRICE_MIN_N
+) -> list[str]:
+    """Plain-language read on whether the long prices are paying for themselves."""
+    out: list[str] = []
+    sides = {b.label.split(" ")[0]: b for b in dog_vs_favorite(entries)}
+    dogs = sides.get("Underdogs")
+    favs = sides.get("Favorites")
+    if dogs is not None and dogs.n >= min_n:
+        verdict = (
+            "clearing the bar the price sets"
+            if dogs.shortfall >= 0
+            else "not clearing the bar the price sets"
+        )
+        out.append(
+            f"**Underdog buys win {dogs.win_rate * 100:.1f}% and need "
+            f"{dogs.breakeven * 100:.1f}%** (n={dogs.n}) — {verdict}, "
+            f"{dogs.shortfall * 100:+.1f} points, for {dogs.roi * 100:+.1f}% ROI. A "
+            "sub-50% win rate on plus money is expected; this line is the honest "
+            "test of whether the price compensates."
+        )
+    if favs is not None and favs.n >= min_n and dogs is not None and dogs.n >= min_n:
+        worse = "underdogs" if dogs.shortfall < favs.shortfall else "favorites"
+        gap = abs(dogs.shortfall - favs.shortfall) * 100
+        out.append(
+            f"Favorites miss their break-even by {favs.shortfall * 100:+.1f} points "
+            f"({favs.win_rate * 100:.1f}% vs {favs.breakeven * 100:.1f}%, n={favs.n}), so the "
+            f"leak is worse on **{worse}** by {gap:.1f} points. Price length, not "
+            "side, is the axis to gate on."
+        )
+    for b in price_buckets(entries):
+        if b.n >= min_n and b.shortfall <= -PRICE_LEAK_POINTS:
+            out.append(
+                f"**{b.label}: {b.win_rate * 100:.1f}% against a "
+                f"{b.breakeven * 100:.1f}% break-even** (n={b.n}, {b.roi * 100:+.1f}% ROI) "
+                f"— {abs(b.shortfall) * 100:.1f} points short. If it holds, cap buys in "
+                "this band."
             )
     return out
