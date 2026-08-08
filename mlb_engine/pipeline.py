@@ -36,7 +36,12 @@ from mlb_engine.features.efficiency import (
 )
 from mlb_engine.features.hr_gate import HRPowerGate
 from mlb_engine.features.hrr_adjust import HRRAdjuster
-from mlb_engine.features.ml_gate import MLSharpGate
+from mlb_engine.features.lineup_lock import (
+    LineupLock,
+    LineupLockGate,
+    hours_to_first_pitch,
+)
+from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.features.pitch_mix import (
     arsenal_matchup_multiplier,
     build_arsenal,
@@ -338,6 +343,7 @@ class Pipeline:
         self._team_defense: dict[str, TeamDefense] = {}
         self._framing: dict[int, float] = {}
         self._fatigue: dict[int, float | None] = {}
+        self._pen_avail: dict[str, float | None] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
         self._calibrator = (
@@ -355,6 +361,12 @@ class Pipeline:
         self._hr_gate = HRPowerGate.from_env()
         self._tb_gate = TBGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
+        self._pen_gate = MLPenGate.from_env()
+        self._lineup_gate = LineupLockGate.from_env()
+        # Games whose lineup came from Rotowire's projection rather than MLB's
+        # posted card, and the per-game lineup/timing read built from them.
+        self._projected_lineups: set[int] = set()
+        self._lineup_lock: LineupLock | None = None
         self._hrr_adjust = HRRAdjuster.from_env()
         self._previews: list[GamePreview] = []
         self._team_splits: dict[str, TeamSplits] = {}
@@ -380,6 +392,8 @@ class Pipeline:
         slate = self.deps.stats.get_slate(slate_date)
         self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
+        self._projected_lineups = set()
+        self._pen_avail = {}
         if self.deps.rotowire is not None:
             self._enrich_expected_lineups(slate, slate_date)
 
@@ -476,6 +490,8 @@ class Pipeline:
                     continue
                 if self._apply_expected_lineup(team, side, slate_date.year):
                     filled += 1
+                    if not side.confirmed:
+                        self._projected_lineups.add(game.game_pk)
         if filled:
             log.info("Filled %d expected lineups from Rotowire", filled)
 
@@ -765,6 +781,17 @@ class Pipeline:
             rates_list = self._apply_env(rates_list, m)
         return rates_list
 
+    def _pen_availability(self, abbrev: str) -> float | None:
+        """Cached Rotowire bullpen availability (0..1 rested), None when no feed."""
+        if abbrev not in self._pen_avail:
+            roto = self.deps.rotowire
+            self._pen_avail[abbrev] = (
+                roto.bullpen_availability(abbrev)
+                if roto is not None and roto.available()
+                else None
+            )
+        return self._pen_avail[abbrev]
+
     def _bullpen_fatigue(self, team_id: int, slate_date: Date) -> float | None:
         """Cached 0-100 bullpen-fatigue score for a team on the slate date."""
         if team_id not in self._fatigue:
@@ -906,6 +933,13 @@ class Pipeline:
         assert game.away.probable_pitcher is not None
         recs: list[Recommendation] = []
         park = get_park(game.venue.venue_id)
+        # Late-information read for this game: did we price the posted lineup,
+        # and how long before first pitch? Consumed by the game_ml gate below and
+        # stamped on every rec in _attach_context.
+        self._lineup_lock = self._lineup_gate.read(
+            projected=game.game_pk in self._projected_lineups,
+            hours=hours_to_first_pitch(game.game_datetime_utc),
+        )
 
         # weather effect (park-level)
         weather_mult = {}
@@ -1093,9 +1127,13 @@ class Pipeline:
         )
 
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
-                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin))
+                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin,
+                             pen_fatigue=home_fat, opp_pen_fatigue=away_fat,
+                             pen_availability=self._pen_availability(ha)))
         recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(aa), float((margin < 0).mean()),
-                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin))
+                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin,
+                             pen_fatigue=away_fat, opp_pen_fatigue=home_fat,
+                             pen_availability=self._pen_availability(aa)))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
                              line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin > -1.5).mean()),
@@ -1151,7 +1189,7 @@ class Pipeline:
         recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes, home_sp_thin))
         recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes, away_sp_thin))
 
-        self._attach_context(recs, park, eff, xrd, xrd_sd)
+        self._attach_context(recs, park, eff, xrd, xrd_sd, self._lineup_lock)
 
         # ---- reader-facing slate preview ----
         # home starter is the arm the AWAY lineup faced (away_half.opp_*), and
@@ -1250,8 +1288,8 @@ class Pipeline:
         )
 
     @staticmethod
-    def _attach_context(recs, park, eff, xrd=None, xrd_sd=None) -> None:
-        """Stamp shared park + live-weather context onto every rec in a game."""
+    def _attach_context(recs, park, eff, xrd=None, xrd_sd=None, lock=None) -> None:
+        """Stamp shared park + weather + lineup-lock context onto a game's recs."""
         wx_summary = wx_note = None
         wx_hr = None
         if eff is not None:
@@ -1270,6 +1308,9 @@ class Pipeline:
             r.wx_note = wx_note
             r.xrd = xrd
             r.xrd_sd = xrd_sd
+            if lock is not None:
+                r.lineup_status = lock.status
+                r.hours_to_first_pitch = lock.hours_to_first_pitch
 
     def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
                        home_mgr, away_mgr, home_fat, away_fat):
@@ -1547,7 +1588,10 @@ class Pipeline:
             bat_singles_under: float | None = None,
             opp_starter_siera: float | None = None,
             hrr_sweet: float | None = None,
-            hrr_xslg: float | None = None) -> Recommendation:
+            hrr_xslg: float | None = None,
+            pen_fatigue: float | None = None,
+            opp_pen_fatigue: float | None = None,
+            pen_availability: float | None = None) -> Recommendation:
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
@@ -1581,6 +1625,8 @@ class Pipeline:
         rec.bat_bb_pct = bat_bb_pct
         rec.bat_singles_under = bat_singles_under
         rec.opp_starter_siera = opp_starter_siera
+        rec.pen_fatigue = pen_fatigue
+        rec.opp_pen_fatigue = opp_pen_fatigue
         # NPV gates run whether or not the market is priced: an unpriced run
         # line is already a Pass, but the audit still needs to know which gate
         # removed it to grade the counterfactual.
@@ -1662,6 +1708,22 @@ class Pipeline:
                     tier = Tier.MODERATE
                 if up_reason:
                     reasons.append(up_reason)
+            # Availability gates run last so they also veto a sharp-money
+            # upgrade: sharp money on a team whose high-leverage arms are gone,
+            # or on a lineup that may not bat, is money bet on stale inputs.
+            if market == "game_ml" and tier != Tier.PASS:
+                keep, pen_reason = self._pen_gate.allows(
+                    pen_fatigue, opp_pen_fatigue, pen_availability
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if pen_reason:
+                    reasons.append(pen_reason)
+                keep, lock_reason = self._lineup_gate.allows(self._lineup_lock)
+                if not keep:
+                    tier = Tier.PASS
+                if lock_reason:
+                    reasons.append(lock_reason)
             rec.tier = tier
             rec.reasons = reasons
         else:

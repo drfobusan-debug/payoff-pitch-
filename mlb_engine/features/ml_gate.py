@@ -1,4 +1,4 @@
-"""Sharp-money confirmation gate for moneyline buys.
+"""Post-model selection gates for moneyline buys (sharp money, bullpen depletion).
 
 Backtesting the graded ``game_ml`` props showed that the model's own EV/edge is
 the *wrong* way round -- higher-EV moneyline buys won less often (EV AUC 0.33,
@@ -35,6 +35,24 @@ DEFAULT_MIN_DIVERGENCE = 0.0
 # no-vig implied probability already exceeds DEFAULT_MAX_FAIR_PROB.
 DEFAULT_UPGRADE_DIVERGENCE = 5.0
 DEFAULT_MAX_FAIR_PROB = 0.65
+
+
+# --- bullpen-depletion gate ------------------------------------------------
+# The simulator hands the ball to a *generic* pen built from three weeks of
+# late-inning relief rates, so it prices bullpen **skill** and never bullpen
+# **availability**: a team whose high-leverage arms worked three days running
+# still gets its season-quality pen in every simulated 7th-9th. The 0-100
+# StatsAPI fatigue proxy already exists on the slate (it feeds the run-line PPV
+# gate and the comeback flags) but never reached the moneyline, which is the
+# market most exposed to it -- the full-game ML is decided in exactly the innings
+# the depleted arms cover, while F5 markets never see them.
+#
+# Only a *relative* depletion is actionable: a gassed pen matters when the
+# opponent's is fresher, so both pens at 70 is a wash the sim's neutral pen
+# already approximates.
+DEFAULT_PEN_DEPLETED = 60.0  # same 0-100 threshold the run-line gate calls depleted
+DEFAULT_PEN_EDGE = 15.0  # fatigue points our pen must trail by before demoting
+DEFAULT_MIN_AVAILABILITY = 0.25  # 0..1 rested share (Rotowire feed, when live)
 
 
 def _env_flag(name: str, default: bool) -> bool:
@@ -123,3 +141,64 @@ class MLSharpGate:
                 f"ml-upgrade: skip chalk (fair {fair_prob:.2f} > {self.max_fair_prob:.2f})"
             )
         return True, f"ml-upgrade: BUY (sharp handle-bets {div:+.0f})"
+
+
+@dataclass(frozen=True)
+class MLPenGate:
+    """Demote a full-game moneyline buy whose own bullpen is depleted.
+
+    A post-model selection gate (it never touches a probability), applied to
+    ``game_ml`` only. Neutral whenever the fatigue proxy is unavailable, so a
+    game with no workload read is never punished.
+    """
+
+    enabled: bool = True
+    depleted: float = DEFAULT_PEN_DEPLETED
+    min_edge: float = DEFAULT_PEN_EDGE
+    min_availability: float = DEFAULT_MIN_AVAILABILITY
+
+    @classmethod
+    def from_env(cls) -> MLPenGate:
+        return cls(
+            enabled=_env_flag("MLBE_ML_PEN_GATE", True),
+            depleted=_env_float("MLBE_ML_PEN_DEPLETED", DEFAULT_PEN_DEPLETED),
+            min_edge=_env_float("MLBE_ML_PEN_EDGE", DEFAULT_PEN_EDGE),
+            min_availability=_env_float(
+                "MLBE_ML_PEN_MIN_AVAIL", DEFAULT_MIN_AVAILABILITY
+            ),
+        )
+
+    def allows(
+        self,
+        own_fatigue: float | None,
+        opp_fatigue: float | None,
+        own_availability: float | None = None,
+    ) -> tuple[bool, str]:
+        """Return (keep_buy, reason) for the side this recommendation backs.
+
+        ``own_fatigue`` / ``opp_fatigue`` are the 0-100 StatsAPI depletion proxy
+        (higher = less high-leverage depth left). ``own_availability`` is the
+        Rotowire 0..1 rested share, which overrides the proxy when the feed is
+        live because it reads actual arm-by-arm unavailability rather than
+        inferring it from pitch counts.
+        """
+        if not self.enabled:
+            return True, ""
+        if own_availability is not None and own_availability <= self.min_availability:
+            return False, (
+                f"ml-pen: PASS (pen availability {own_availability:.2f} "
+                f"<= {self.min_availability:.2f})"
+            )
+        if own_fatigue is None:
+            return True, "ml-pen: neutral (no bullpen workload read)"
+        if own_fatigue < self.depleted:
+            return True, f"ml-pen: OK (fatigue {own_fatigue:.0f})"
+        if opp_fatigue is not None and (own_fatigue - opp_fatigue) < self.min_edge:
+            return True, (
+                f"ml-pen: OK (both pens worked: {own_fatigue:.0f} vs {opp_fatigue:.0f})"
+            )
+        opp_txt = "unknown" if opp_fatigue is None else f"{opp_fatigue:.0f}"
+        return False, (
+            f"ml-pen: PASS (own pen depleted {own_fatigue:.0f} vs opp {opp_txt}; "
+            "sim prices pen skill, not availability)"
+        )

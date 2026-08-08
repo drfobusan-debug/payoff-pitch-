@@ -18,6 +18,7 @@ import html
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+from mlb_engine.features.lineup_lock import DEFAULT_STALE_HOURS
 from mlb_engine.market.odds import american_to_prob
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
@@ -25,6 +26,9 @@ from mlb_engine.recommendations import Recommendation
 # Markets that make coherent stand-alone plays on the card, best-first.
 _GAME_MARKETS = ("game_total", "game_rl", "game_ml", "f5_rl", "f5_ml", "f5_total")
 _MAX_PLAYS = 5
+# Mirrors features.lineup_lock.DEFAULT_STALE_HOURS: the card is rendered from
+# persisted recommendations, so it re-derives the warning from the stamped hours.
+_STALE_HOURS = DEFAULT_STALE_HOURS
 
 
 @dataclass
@@ -60,6 +64,9 @@ class GameCard:
     starters: list[Starter] = field(default_factory=list)
     narrative: list[str] = field(default_factory=list)  # paragraphs
     plays: list[Play] = field(default_factory=list)
+    # Late-information warning: the lineup was projected rather than posted, or
+    # the card was priced well before first pitch. None when neither applies.
+    lineup_note: str | None = None
 
 
 def _pitcher_name(selection: str, token: str) -> str:
@@ -209,6 +216,23 @@ def _narrative(recs: list[Recommendation], starters: list[Starter]) -> list[str]
     return [p for p in (read_para, market_para, xrd_para) if p]
 
 
+def _lineup_note(recs: list[Recommendation]) -> str | None:
+    """Reader-facing warning when a game was priced on stale lineup information."""
+    ctx = recs[0]
+    bits: list[str] = []
+    if ctx.lineup_status == "projected":
+        bits.append("lineup is projected, not posted")
+    hours = ctx.hours_to_first_pitch
+    if hours is not None and hours >= _STALE_HOURS:
+        bits.append(f"priced {hours:.0f}h before first pitch")
+    if not bits:
+        return None
+    return (
+        "Heads up: " + " and ".join(bits)
+        + " — a late scratch or weather change can undo these numbers; re-check near lock."
+    )
+
+
 def _plays(recs: list[Recommendation]) -> list[Play]:
     buys = [
         r
@@ -266,6 +290,7 @@ def build_cards(recs: list[Recommendation]) -> list[GameCard]:
                 starters=starters,
                 narrative=_narrative(grp, starters),
                 plays=plays,
+                lineup_note=_lineup_note(grp),
             )
         )
     # Order games by their strongest edge, best first.
@@ -302,6 +327,8 @@ def render_markdown(cards: list[GameCard], slate_date: Date) -> str:
         lines += ["---", "", f"## {c.matchup}", ""]
         for para in c.narrative:
             lines += [para, ""]
+        if c.lineup_note:
+            lines += [f"*{c.lineup_note}*", ""]
         lines.append("**🔒 PLAYS**")
         lines += [_play_line_md(p) for p in c.plays]
         lines.append("")
@@ -333,6 +360,8 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         blocks.append(f"<h2>{html.escape(c.matchup)}</h2>")
         for para in c.narrative:
             blocks.append(f"<p>{html.escape(para)}</p>")
+        if c.lineup_note:
+            blocks.append(f"<p class='warn'><em>{html.escape(c.lineup_note)}</em></p>")
         items = "".join(_play_line_html(p) for p in c.plays)
         blocks.append(f"<p><strong>🔒 PLAYS</strong></p><ul>{items}</ul>")
     blocks.append(
@@ -347,6 +376,8 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         "h2{font-size:18px;margin-top:26px;background:#0b6;color:#fff;padding:8px 12px;"
         "border-radius:6px}ul{padding-left:20px}li{margin:5px 0}em{color:#555;font-size:13px}"
         "strong{color:#0a5}"
+        ".warn{background:#fff6e0;border-left:4px solid #e8a400;padding:8px 12px;"
+        "border-radius:4px}.warn em{color:#8a5a00}"
     )
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{style}</style></head>"
