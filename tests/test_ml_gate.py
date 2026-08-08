@@ -107,6 +107,8 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
 
     from mlb_engine.config import Config
     from mlb_engine.data.vsin import Split
+    from mlb_engine.features.lineup_lock import LineupLockGate
+    from mlb_engine.features.ml_gate import MLPenGate
     from mlb_engine.features.ml_gate import MLSharpGate as Gate
     from mlb_engine.market.ev import MarketQuote
     from mlb_engine.pipeline import Pipeline
@@ -116,6 +118,9 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
     p._calibrator = _Identity()
     p._shrink = None
     p._ml_gate = Gate.from_env()
+    p._pen_gate = MLPenGate.from_env()
+    p._lineup_gate = LineupLockGate.from_env()
+    p._lineup_lock = None
     p._splits = {
         ("MIA @ ATL", "game_ml", "MIA ML"): Split(handle_pct=80.0, bets_pct=37.0)
     }

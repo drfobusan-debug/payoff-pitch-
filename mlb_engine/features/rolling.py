@@ -414,6 +414,12 @@ def bullpen_relief_frame(
 
 LEVERAGE_INNING = 8  # 8th+ relief = the high-leverage innings the run line hinges on
 MIN_LEVERAGE_PA = 20  # need this many 8th+ relief PAs to trust a separate profile
+# Relief before the 8th is the *bridge*: the middle men who cover the innings
+# between the starter's hook and the setup/closer pair. Read separately because
+# a pen's 8th+ arms are its two best and its bridge arms are not, so charging a
+# 6th-inning hand-off the closer's rates overrates every pen -- most of all the
+# good ones, whose leverage-to-bridge gap is widest.
+MIN_BRIDGE_PA = 20
 
 
 @dataclass
@@ -429,6 +435,10 @@ class BullpenProfile:
     zone_pct: float  # NPV: below ~.40 -> walk trap
     recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
     xwoba_allowed: float | None = None  # contact quality allowed; None if thin
+    # Rates allowed in relief before ``LEVERAGE_INNING`` (the bridge innings).
+    # None when that sample is too thin to read, in which case ``bridge`` serves
+    # the aggregate.
+    allowed_bridge: OutcomeRates | None = None
     # Relief rows over the longer skill window (K%, whiff, velocity persist far
     # better than results do); the short window when no skill window is set.
     skill: pd.DataFrame | None = None
@@ -437,6 +447,11 @@ class BullpenProfile:
     @property
     def k_pct(self) -> float:
         return self.allowed.p_k
+
+    @property
+    def bridge(self) -> OutcomeRates:
+        """Rates for the innings between the starter's hook and the 8th."""
+        return self.allowed if self.allowed_bridge is None else self.allowed_bridge
 
     @property
     def skill_frame(self) -> pd.DataFrame:
@@ -547,10 +562,14 @@ def build_bullpen_profile(
     # setup corps drives the late-and-close matchup instead of the mop-up-diluted
     # aggregate. Fall back to the aggregate when the 8th+ sample is too thin.
     allowed_leverage = allowed
+    allowed_bridge = None
     if len(relief) and "inning" in relief:
         lev_events = _pa_rows(relief[relief["inning"] >= LEVERAGE_INNING])["events"]
         if len(lev_events) >= MIN_LEVERAGE_PA:
             allowed_leverage = rates_from_events(lev_events)
+        bridge_events = _pa_rows(relief[relief["inning"] < LEVERAGE_INNING])["events"]
+        if len(bridge_events) >= MIN_BRIDGE_PA:
+            allowed_bridge = rates_from_events(bridge_events)
 
     zone_pct = (
         float(relief["zone"].between(1, 9).mean())
@@ -586,6 +605,7 @@ def build_bullpen_profile(
         zone_pct=zone_pct,
         recent_load=recent_load,
         xwoba_allowed=xwoba_allowed,
+        allowed_bridge=allowed_bridge,
         skill=skill,
         xwoba_raw=xwoba_raw,
     )

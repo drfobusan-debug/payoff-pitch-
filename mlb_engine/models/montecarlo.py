@@ -29,6 +29,11 @@ IDX = {o: i for i, o in enumerate(OUTCOMES)}
 # team's *aggregate* pen instead of its leverage arms.
 CLOSE_MARGIN = 3
 
+# First inning in which the high-leverage arms (setup man, closer) are the ones
+# who appear. Before it a close game is bridged by middle relief, so the
+# leverage profile must not be applied to the 6th and 7th.
+LEVERAGE_INNING = 8
+
 # League-average pitches thrown to resolve a plate appearance, by outcome. The
 # blend averages ~3.9 P/PA under a typical outcome mix; the per-pitcher
 # ``pitch_eff`` scaler recentres it for command/efficiency.
@@ -56,6 +61,11 @@ class TeamSimConfig:
     # close (|margin| <= CLOSE_MARGIN); when None the aggregate ``bat_vs_pen`` is
     # used in every post-starter inning (backward-compatible default).
     bat_vs_pen_close: list[dict[str, float]] | None = None
+    # Optional: matchup vs the arms that bridge from the starter's hook to the
+    # 8th. Used in a close game before ``LEVERAGE_INNING``; without it those
+    # innings fall back to ``bat_vs_pen_close`` (the legacy behaviour, which
+    # charges a 6th-inning hand-off the closer's rates).
+    bat_vs_pen_bridge: list[dict[str, float]] | None = None
     # Pitching: this team's starter caps before the bullpen takes over.
     starter_bf_cap: int = 24
     starter_pitch_cap: int = 95
@@ -122,6 +132,16 @@ class MonteCarlo:
             if away.bat_vs_pen_close is not None
             else None
         )
+        home_cdf_pen_bridge = (
+            np.stack([_cdf(p) for p in home.bat_vs_pen_bridge])
+            if home.bat_vs_pen_bridge is not None
+            else None
+        )
+        away_cdf_pen_bridge = (
+            np.stack([_cdf(p) for p in away.bat_vs_pen_bridge])
+            if away.bat_vs_pen_bridge is not None
+            else None
+        )
 
         # Pitching caps/efficiency are keyed by the team doing the PITCHING. Away
         # pitching faces the home hitters and vice versa.
@@ -139,6 +159,8 @@ class MonteCarlo:
                 away_cdf_pen,
                 home_cdf_pen_close,
                 away_cdf_pen_close,
+                home_cdf_pen_bridge,
+                away_cdf_pen_bridge,
                 pitch_caps,
                 pitch_count_caps,
                 pitch_eff,
@@ -170,6 +192,8 @@ class MonteCarlo:
         away_cdf_pen: np.ndarray,
         home_cdf_pen_close: np.ndarray | None,
         away_cdf_pen_close: np.ndarray | None,
+        home_cdf_pen_bridge: np.ndarray | None,
+        away_cdf_pen_bridge: np.ndarray | None,
         bf_caps: dict[str, int],
         pitch_count_caps: dict[str, int],
         pitch_eff: dict[str, float],
@@ -200,10 +224,12 @@ class MonteCarlo:
             if team == "home":
                 cdf_start, cdf_pen = home_cdf_start, home_cdf_pen
                 cdf_pen_close = home_cdf_pen_close
+                cdf_pen_bridge = home_cdf_pen_bridge
                 pitch_team = "away"
             else:
                 cdf_start, cdf_pen = away_cdf_start, away_cdf_pen
                 cdf_pen_close = away_cdf_pen_close
+                cdf_pen_bridge = away_cdf_pen_bridge
                 pitch_team = "home"
             bf_cap = bf_caps[pitch_team]
             pitch_cap = pitch_count_caps[pitch_team]
@@ -218,12 +244,15 @@ class MonteCarlo:
                 # Starter stays in until EITHER the batters-faced or pitch-count
                 # hook trips; then the bullpen takes over. In a still-close game
                 # (|margin| <= CLOSE_MARGIN) the offense faces the pitching team's
-                # high-leverage arms; once it is out of hand, the aggregate/mop-up
-                # pen finishes.
+                # bridge arms until the 8th and its high-leverage arms from there;
+                # once it is out of hand, the aggregate/mop-up pen finishes.
                 starter_in = bf[pitch_team] < bf_cap and pitches[pitch_team] < pitch_cap
+                close = abs(home_runs - away_runs) <= CLOSE_MARGIN
                 if starter_in:
                     cdf = cdf_start[slot]
-                elif cdf_pen_close is not None and abs(home_runs - away_runs) <= CLOSE_MARGIN:
+                elif close and cdf_pen_bridge is not None and inning < LEVERAGE_INNING:
+                    cdf = cdf_pen_bridge[slot]
+                elif close and cdf_pen_close is not None:
                     cdf = cdf_pen_close[slot]
                 else:
                     cdf = cdf_pen[slot]

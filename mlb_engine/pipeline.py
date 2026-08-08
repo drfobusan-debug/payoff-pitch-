@@ -43,6 +43,8 @@ from mlb_engine.features.lineup_lock import (
 )
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.features.pitch_mix import (
+    ArsenalProfile,
+    BatterPitchProfile,
     arsenal_matchup_multiplier,
     build_arsenal,
     build_batter_pitch_profile,
@@ -55,6 +57,7 @@ from mlb_engine.features.regression import (
 )
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
+    LEVERAGE_INNING,
     OutcomeRates,
     blend_bb_rate,
     blend_hr_rate,
@@ -163,6 +166,15 @@ def league_pitcher_rates() -> OutcomeRates:
     )
 
 
+def _pen_arsenal_mult(
+    arsenal: ArsenalProfile | None, batter: BatterPitchProfile
+) -> dict[str, float]:
+    """Arsenal matchup for a pen subset; neutral when its mix is unreadable."""
+    if arsenal is None:
+        return {}
+    return arsenal_matchup_multiplier(arsenal, batter)
+
+
 def _pen_matchup(
     late_ctx: OutcomeRates,
     pen_allowed: OutcomeRates,
@@ -172,11 +184,12 @@ def _pen_matchup(
     bpen_k: float,
     bpen_npv: dict[str, float],
     bat_tail: dict[str, float],
+    arsenal_mult: dict[str, float] | None = None,
 ) -> dict[str, float]:
     """A batter's outcome probs vs a given pen ``pen_allowed`` profile.
 
-    Same multiplier stack for the aggregate and high-leverage pens; only the base
-    ``pen_allowed`` rates differ.
+    Same multiplier stack for the aggregate, bridge and high-leverage pens; only
+    the base ``pen_allowed`` rates and the pen's own arsenal differ.
     """
     vp = combine(late_ctx, pen_allowed)
     vp = apply_multipliers(vp, bmult)
@@ -185,6 +198,8 @@ def _pen_matchup(
     vp = apply_multipliers(vp, bpen_allowed)
     vp = apply_multipliers(vp, {"K": bpen_k})
     vp = apply_multipliers(vp, bpen_npv)
+    if arsenal_mult:
+        vp = apply_multipliers(vp, arsenal_mult)
     return apply_multipliers(vp, bat_tail)
 
 
@@ -569,8 +584,9 @@ class Pipeline:
         park,
         weather_mult: dict[str, float] | None,
     ):
-        """Return (bat_vs_starter, bat_vs_pen, bat_vs_pen_close, rbi_flags, prev,
-        selections, regs, sunders, half, opp_starter_regression) for a lineup."""
+        """Return (bat_vs_starter, bat_vs_pen, bat_vs_pen_close, bat_vs_pen_bridge,
+        rbi_flags, prev, selections, regs, sunders, half, opp_starter_regression)
+        for a lineup."""
         w = self.cfg.windows
         assert opp.probable_pitcher is not None  # guarded in run()
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
@@ -620,6 +636,21 @@ class Pipeline:
         )
         bpen_npv = bpen.npv_multipliers(avail)
 
+        # Arsenal matching for the pen as well as the starter: the corps' mix and
+        # per-class SwStr% against the same hitter pitch-class profile. A pen's
+        # leverage arms throw a different mix from its bridge arms, so each
+        # subset is read on its own and falls back to the whole corps when thin.
+        pen_arsenal = pen_bridge_arsenal = pen_lev_arsenal = None
+        if self.cfg.pen_arsenal:
+            pen_rows = bpen.skill_frame
+            pen_arsenal = build_arsenal(pen_rows)
+            pen_bridge_arsenal = pen_lev_arsenal = pen_arsenal
+            if len(pen_rows) and "inning" in pen_rows:
+                lev = build_arsenal(pen_rows[pen_rows["inning"] >= LEVERAGE_INNING])
+                bridge = build_arsenal(pen_rows[pen_rows["inning"] < LEVERAGE_INNING])
+                pen_lev_arsenal = lev if lev.usage else pen_arsenal
+                pen_bridge_arsenal = bridge if bridge.usage else pen_arsenal
+
         # travel/rest for this offense (applied at game level via prev game)
         prev = self.deps.stats.last_game_venue(team.team_id, slate_date)
 
@@ -630,6 +661,7 @@ class Pipeline:
         bat_vs_league = []  # same hitters vs a league-average arm, for the preview
         bat_vs_pen = []
         bat_vs_pen_close = []
+        bat_vs_pen_bridge = []
         selections: list[dict[str, Selection | None]] = []
         for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
@@ -714,12 +746,25 @@ class Pipeline:
             # Aggregate pen (used once the game is out of hand) vs the team's
             # high-leverage arms (used late in a still-close game).
             pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
-            vs_pen = _pen_matchup(late_ctx, bpen.allowed, *pen_args)
-            vs_pen_close = _pen_matchup(late_ctx, bpen.allowed_leverage, *pen_args)
+            vs_pen = _pen_matchup(
+                late_ctx, bpen.allowed, *pen_args,
+                arsenal_mult=_pen_arsenal_mult(pen_arsenal, bpp),
+            )
+            vs_pen_close = _pen_matchup(
+                late_ctx, bpen.allowed_leverage, *pen_args,
+                arsenal_mult=_pen_arsenal_mult(pen_lev_arsenal, bpp),
+            )
+            # The middle men who cover the hand-off to the 8th, priced apart from
+            # the setup/closer pair they precede.
+            vs_pen_bridge = _pen_matchup(
+                late_ctx, bpen.bridge, *pen_args,
+                arsenal_mult=_pen_arsenal_mult(pen_bridge_arsenal, bpp),
+            )
 
             bat_vs_starter.append(vs_start)
             bat_vs_pen.append(vs_pen)
             bat_vs_pen_close.append(vs_pen_close)
+            bat_vs_pen_bridge.append(vs_pen_bridge)
             selections.append({"RBI": None, "XBH": xbh_sel, "TB": tb_sel})
 
         rbi_flags = evaluate_lineup(profiles, self.cfg.rbi_obp_threshold, regs)
@@ -762,6 +807,7 @@ class Pipeline:
             bat_vs_starter,
             bat_vs_pen,
             bat_vs_pen_close,
+            bat_vs_pen_bridge,
             rbi_flags,
             prev,
             selections,
@@ -948,12 +994,12 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        (home_start, home_pen, home_pen_close, home_rbi, home_prev, home_sels,
-         home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
+        (home_start, home_pen, home_pen_close, home_pen_bridge, home_rbi, home_prev,
+         home_sels, home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
             game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
-        (away_start, away_pen, away_pen_close, away_rbi, away_prev, away_sels,
-         away_regs, away_su, away_half, away_opp_reg) = self._team_offense(
+        (away_start, away_pen, away_pen_close, away_pen_bridge, away_rbi, away_prev,
+         away_sels, away_regs, away_su, away_half, away_opp_reg) = self._team_offense(
             game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
@@ -1007,10 +1053,12 @@ class Pipeline:
         home_pen_env = [*home_env, home_mgr.pen_multipliers()]
         home_pen = self._apply_all(home_pen, home_pen_env)
         home_pen_close = self._apply_all(home_pen_close, home_pen_env)
+        home_pen_bridge = self._apply_all(home_pen_bridge, home_pen_env)
         away_start = self._apply_all(away_start, away_env)
         away_pen_env = [*away_env, away_mgr.pen_multipliers()]
         away_pen = self._apply_all(away_pen, away_pen_env)
         away_pen_close = self._apply_all(away_pen_close, away_pen_env)
+        away_pen_bridge = self._apply_all(away_pen_bridge, away_pen_env)
 
         # Starter exit model: manager hooks (batters-faced + pitch-count caps)
         # tightened by each starter's own recent workload, plus a pitch-efficiency
@@ -1065,6 +1113,7 @@ class Pipeline:
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
             bat_vs_pen_close=home_pen_close,
+            bat_vs_pen_bridge=home_pen_bridge if self.cfg.pen_bridge else None,
             starter_bf_cap=home_cap,
             starter_pitch_cap=home_eff.pitch_cap,
             pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
@@ -1074,6 +1123,7 @@ class Pipeline:
             bat_vs_starter=away_start,
             bat_vs_pen=away_pen,
             bat_vs_pen_close=away_pen_close,
+            bat_vs_pen_bridge=away_pen_bridge if self.cfg.pen_bridge else None,
             starter_bf_cap=away_cap,
             starter_pitch_cap=away_eff.pitch_cap,
             pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
