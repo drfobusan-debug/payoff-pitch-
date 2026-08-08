@@ -209,3 +209,53 @@ def test_new_gate_thresholds_are_env_tunable(monkeypatch) -> None:
         max_ev=112.0, barrel=0.200, bbe=120, barrel_pa=0.001, fb_ld_ev=70.0
     )
     assert keep
+
+
+# --- matchup and lineup-slot gates -------------------------------------------
+
+
+def test_hr_buy_is_dropped_against_a_contact_suppressing_starter() -> None:
+    """The HR line was the last power market with no opposing-pitcher veto."""
+    gate = HRPowerGate()
+    assert gate.opponent_reason(0.045, 0.320, 200) is not None
+
+
+def test_one_suppression_signal_alone_does_not_veto() -> None:
+    """Either metric on its own is too noisy to decline a bet on."""
+    gate = HRPowerGate()
+    assert gate.opponent_reason(0.045, 0.410, 200) is None  # barrels only
+    assert gate.opponent_reason(0.085, 0.320, 200) is None  # hard contact only
+
+
+def test_opponent_gate_is_neutral_on_thin_or_missing_data() -> None:
+    gate = HRPowerGate()
+    assert gate.opponent_reason(0.045, 0.320, 5) is None
+    assert gate.opponent_reason(None, 0.320, 200) is None
+    assert gate.opponent_reason(0.045, None, 200) is None
+    assert HRPowerGate(opp_enabled=False).opponent_reason(0.045, 0.320, 200) is None
+    assert HRPowerGate(enabled=False).opponent_reason(0.045, 0.320, 200) is None
+
+
+def test_hr_buy_requires_a_lineup_spot_that_gets_the_plate_appearances() -> None:
+    gate = HRPowerGate()
+    for slot in (1, 2, 3, 4, 5, 6):
+        assert gate.slot_reason(slot) is None
+    for slot in (7, 8, 9):
+        assert gate.slot_reason(slot) is not None
+
+
+def test_slot_gate_is_neutral_when_unknown_or_disabled() -> None:
+    assert HRPowerGate().slot_reason(None) is None
+    assert HRPowerGate(max_slot=9).slot_reason(9) is None
+    assert HRPowerGate(enabled=False).slot_reason(9) is None
+
+
+def test_matchup_and_slot_gates_are_env_tunable(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_HR_MAX_SLOT", "4")
+    monkeypatch.setenv("MLBE_HR_MAX_OPP_BARREL", "0.030")
+    monkeypatch.setenv("MLBE_HR_OPP_GATE", "0")
+    gate = HRPowerGate.from_env()
+    assert gate.max_slot == 4
+    assert gate.slot_reason(5) is not None
+    assert gate.max_opp_barrel == 0.030
+    assert gate.opponent_reason(0.045, 0.320, 200) is None  # gate switched off

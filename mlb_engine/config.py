@@ -393,6 +393,10 @@ class Config:
     xhr_prior_weight: float = field(
         default_factory=lambda: _env_float("MLBE_XHR_PRIOR_WEIGHT", HR_PRIOR_WEIGHT)
     )
+    # Having neutralised the parks he came from, apply the one he is walking
+    # into: his own batted balls re-scored against tonight's fences. A scalar
+    # park factor cannot tell a pull-heavy lefty from an opposite-field bat.
+    xhr_park: bool = field(default_factory=lambda: _env_bool("MLBE_XHR_PARK", True))
 
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are

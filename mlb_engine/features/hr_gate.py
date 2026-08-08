@@ -51,6 +51,22 @@ DEFAULT_BARREL_GATE = 0.15
 # 0.065/PA is roughly the 15%-per-BBE hitter at league-average contact.
 DEFAULT_BARREL_PA_GATE = 0.065
 
+# Opposing-starter contact suppression, mirroring the total-bases matchup gate.
+# Home runs are the most contact-quality-dependent outcome there is, so a
+# starter who gives up neither barrels nor hard contact is the wrong arm to buy
+# a longshot against however good the hitter. Both floors must be breached --
+# one alone is too noisy to decline a bet on. Set either to 0 to disable.
+DEFAULT_MAX_OPP_BARREL = 0.060
+DEFAULT_MAX_OPP_HARD_HIT = 0.360
+DEFAULT_MIN_OPP_BBE = 30
+
+# Home runs are a counting outcome: a hitter cannot hit one in a plate
+# appearance he never gets. A leadoff bat averages ~4.6 PAs against ~3.9 for the
+# nine hole, so the bottom third of the order is buying ~15% fewer chances at
+# the same price -- and usually in a weaker run-scoring context. Slots are
+# 1-indexed; 9 disables the test.
+DEFAULT_MAX_SLOT = 6
+
 
 def _env_flag(name: str, default: bool) -> bool:
     val = os.getenv(name)
@@ -90,6 +106,11 @@ class HRPowerGate:
     barrel_gate: float = DEFAULT_BARREL_GATE
     barrel_pa_gate: float = DEFAULT_BARREL_PA_GATE
     min_fb_ld_ev: float = DEFAULT_MIN_FB_LD_EV
+    opp_enabled: bool = True
+    max_opp_barrel: float = DEFAULT_MAX_OPP_BARREL
+    max_opp_hard_hit: float = DEFAULT_MAX_OPP_HARD_HIT
+    min_opp_bbe: int = DEFAULT_MIN_OPP_BBE
+    max_slot: int = DEFAULT_MAX_SLOT
 
     @classmethod
     def from_env(cls) -> HRPowerGate:
@@ -103,7 +124,57 @@ class HRPowerGate:
                 "MLBE_HR_BARREL_PA_GATE", DEFAULT_BARREL_PA_GATE
             ),
             min_fb_ld_ev=_env_float("MLBE_HR_MIN_FB_LD_EV", DEFAULT_MIN_FB_LD_EV),
+            opp_enabled=_env_flag("MLBE_HR_OPP_GATE", True),
+            max_opp_barrel=_env_float(
+                "MLBE_HR_MAX_OPP_BARREL", DEFAULT_MAX_OPP_BARREL
+            ),
+            max_opp_hard_hit=_env_float(
+                "MLBE_HR_MAX_OPP_HARD_HIT", DEFAULT_MAX_OPP_HARD_HIT
+            ),
+            min_opp_bbe=_env_int("MLBE_HR_MIN_OPP_BBE", DEFAULT_MIN_OPP_BBE),
+            max_slot=_env_int("MLBE_HR_MAX_SLOT", DEFAULT_MAX_SLOT),
         )
+
+    def opponent_reason(
+        self,
+        barrel_allowed: float | None,
+        hard_hit_allowed: float | None,
+        bbe: int | None,
+    ) -> str | None:
+        """Reason the opposing starter disqualifies a home-run over.
+
+        Fires only for a starter who suppresses *both* barrels and hard contact;
+        stays neutral on a thin sample or missing data.
+        """
+        if not self.enabled or not self.opp_enabled:
+            return None
+        if bbe is None or bbe < self.min_opp_bbe:
+            return None
+        if barrel_allowed is None or hard_hit_allowed is None:
+            return None
+        if self.max_opp_barrel <= 0.0 or self.max_opp_hard_hit <= 0.0:
+            return None
+        if (
+            barrel_allowed < self.max_opp_barrel
+            and hard_hit_allowed < self.max_opp_hard_hit
+        ):
+            return (
+                f"hr-gate: vs contact suppressor (barrel allowed "
+                f"{barrel_allowed:.3f} < {self.max_opp_barrel:.3f}, hard-hit "
+                f"{hard_hit_allowed:.3f} < {self.max_opp_hard_hit:.3f})"
+            )
+        return None
+
+    def slot_reason(self, slot: int | None) -> str | None:
+        """Reason the hitter's place in the order disqualifies a home-run over.
+
+        ``slot`` is 1-indexed. Neutral when the lineup spot is unknown.
+        """
+        if not self.enabled or self.max_slot >= 9 or slot is None:
+            return None
+        if slot > self.max_slot:
+            return f"hr-gate: bats {slot}th (too few PAs, cap {self.max_slot})"
+        return None
 
     def allows(
         self,

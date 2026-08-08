@@ -60,6 +60,7 @@ from mlb_engine.features.rolling import (
     build_pitcher_profile,
     lineup_iso,
     pen_arm_spread,
+    scale_hr_rate,
     woba_from_rates,
 )
 from mlb_engine.features.siera import (
@@ -83,7 +84,7 @@ from mlb_engine.features.team_splits import (
 )
 from mlb_engine.features.trend import PitcherTrends, pitcher_trends
 from mlb_engine.features.workload import expected_bf_cap
-from mlb_engine.features.xhr import batter_xhr
+from mlb_engine.features.xhr import batter_xhr, park_hr_multiplier
 from mlb_engine.filters import travel_rest
 from mlb_engine.filters.defense import TeamDefense, load_team_defense
 from mlb_engine.filters.human import HumanFactors
@@ -628,6 +629,12 @@ class Pipeline:
             if self.cfg.xhr_blend:
                 ctx = blend_hr_rate(
                     ctx, batter_xhr(bslice).xhr_per_pa, self.cfg.xhr_prior_weight
+                )
+            # ...which leaves the rate park-neutral, so put tonight's park back:
+            # what his own batted balls would be worth against these fences.
+            if self.cfg.xhr_park and park is not None:
+                ctx = scale_hr_rate(
+                    ctx, park_hr_multiplier(bslice, park.venue_id)
                 )
             breg = build_batter_regression(bslice, sprint.get(pid, 27.0))
             regs.append(breg)
@@ -1372,7 +1379,13 @@ class Pipeline:
         return f"vs ace: opp SIERA {opp.siera:.2f} < {self.cfg.singles_siera_ace:.2f}"
 
     def _batter_gate(
-        self, breg, su: SinglesUnderResult | None, opp: Siera | None, stat: str
+        self,
+        breg,
+        su: SinglesUnderResult | None,
+        opp: Siera | None,
+        stat: str,
+        opp_contact=None,
+        slot: int | None = None,
     ) -> str | None:
         """Combined batter-prop floor: contact-quality, then SIERA/singles-Under."""
         reason = self._power_floor_reason(breg, stat)
@@ -1383,6 +1396,18 @@ class Pipeline:
             if ace is not None:
                 return ace
             return self._singles_under_reason(su, opp)
+        if stat == "HR":
+            # The hitter's own power is gated at tier time (it needs the barrel
+            # trend windows); the matchup and the lineup spot are known here.
+            if opp_contact is not None:
+                matchup = self._hr_gate.opponent_reason(
+                    opp_contact.barrel_allowed,
+                    opp_contact.hard_hit_allowed,
+                    opp_contact.bbe,
+                )
+                if matchup is not None:
+                    return matchup
+            return self._hr_gate.slot_reason(slot)
         return None
 
     def _batter_props(
@@ -1413,7 +1438,9 @@ class Pipeline:
                 if stat == "RBI" and rbi_sel is not None and self.cfg.legacy_prop_post_mult:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
-                gate = self._batter_gate(breg, su, opp_siera, stat)
+                gate = self._batter_gate(
+                    breg, su, opp_siera, stat, opp_contact=opp_contact, slot=i + 1
+                )
                 for line in sl:
                     out.append(self._mk(
                         game, m, "batter", f"batter_{stat.lower()}",

@@ -218,6 +218,33 @@ def blend_hr_rate(
     )
 
 
+def scale_hr_rate(rates: OutcomeRates, mult: float) -> OutcomeRates:
+    """Scale the HR rate by a multiplier, rescaling the rest to still sum to 1.
+
+    Used for effects that act on the park rather than the hitter, where the
+    right operation is "this contact is worth more here" and not a change to
+    what the contact was. A NaN multiplier leaves the rates untouched.
+    """
+    if mult != mult or mult <= 0.0:  # NaN or nonsense
+        return rates
+    new_hr = min(max(rates.p_hr * mult, 0.001), 0.15)
+    old_non_hr = 1.0 - rates.p_hr
+    if old_non_hr <= 0:
+        return rates
+    scale = (1.0 - new_hr) / old_non_hr
+    d = rates.as_dict()
+    return OutcomeRates(
+        pa=rates.pa,
+        p_1b=d["1B"] * scale,
+        p_2b=d["2B"] * scale,
+        p_3b=d["3B"] * scale,
+        p_hr=new_hr,
+        p_bb=d["BB"] * scale,
+        p_k=d["K"] * scale,
+        p_out=d["OUT"] * scale,
+    )
+
+
 def _slice_dates(df: pd.DataFrame, as_of: Date, days: int) -> pd.DataFrame:
     end = as_of - timedelta(days=1)
     start = end - timedelta(days=days - 1)

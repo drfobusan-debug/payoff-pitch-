@@ -22,11 +22,19 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 import pandas as pd
 
-from mlb_engine.data.fences import Fence, fence_for_team, wall_distance
+from mlb_engine.data.fences import (
+    LEAGUE_FENCE,
+    Fence,
+    fence_for_team,
+    get_fence,
+    wall_distance,
+)
+from mlb_engine.data.parks import get_park
 
 # Home plate in Statcast's hit-coordinate frame.
 HOME_X, HOME_Y = 125.42, 198.27
@@ -43,6 +51,20 @@ MAX_HR_ANGLE = 50.0
 
 # Below this a ball has no chance in any park, so it is skipped outright.
 MIN_HR_DISTANCE = 280.0
+
+# A park multiplier is a ratio of two small sums, so it needs a real spray chart
+# underneath it to mean anything: enough balls in the air to describe where the
+# hitter puts them, and enough expected home runs for the ratio to be stable.
+# Below either, the batter falls back to a neutral park rather than betting on
+# the shape of three fly balls.
+MIN_PARK_BALLS = 25
+MIN_PARK_XHR = 1.0
+
+# Geometry alone cannot double or halve a hitter -- the extremes here are the
+# real ones (a pull-happy lefty in the Bronx, the same bat in Detroit) and the
+# clamp stops a thin or lopsided spray chart from running away with the price.
+PARK_MULT_FLOOR = 0.80
+PARK_MULT_CEILING = 1.25
 
 
 @dataclass(frozen=True)
@@ -137,3 +159,109 @@ def batter_xhr(bdf: pd.DataFrame) -> XHRProfile:
         xhr += hr_probability(dist, wall_distance(fence, float(sprays[idx])))
 
     return XHRProfile(pa=n_pa, batted=n_batted, hr=n_hr, xhr=xhr, has_data=True)
+
+
+def _live_balls(bdf: pd.DataFrame) -> pd.DataFrame | None:
+    """Batted balls carrying far enough, and at an angle, to be home runs."""
+    needed = {"hit_distance_sc", "hc_x", "hc_y", "launch_angle"}
+    if not needed.issubset(bdf.columns):
+        return None
+    balls = bdf.dropna(subset=["hit_distance_sc", "hc_x", "hc_y", "launch_angle"])
+    if balls.empty:
+        return None
+    angle = balls["launch_angle"].astype(float)
+    distance = balls["hit_distance_sc"].astype(float)
+    return balls[
+        angle.between(MIN_HR_ANGLE, MAX_HR_ANGLE) & (distance >= MIN_HR_DISTANCE)
+    ]
+
+
+def xhr_at_fence(bdf: pd.DataFrame, fence: Fence) -> float:
+    """Expected home runs if every one of these batted balls were hit here."""
+    live = _live_balls(bdf)
+    if live is None:
+        return float("nan")
+    if live.empty:
+        return 0.0
+    sprays = spray_angle(live["hc_x"], live["hc_y"])
+    return sum(
+        hr_probability(float(d), wall_distance(fence, float(sprays[idx])))
+        for idx, d in live["hit_distance_sc"].astype(float).items()
+    )
+
+
+def _league_spray() -> list[tuple[float, float, float]]:
+    """A fixed (spray, distance, weight) grid standing in for an average hitter.
+
+    Deterministic and league-generic: spray centred slightly to the pull side
+    with a 20-degree spread, distance centred at 350 feet with a 45-foot spread.
+    """
+    grid = []
+    for spray in range(-45, 50, 5):
+        w_s = math.exp(-0.5 * (spray / 20.0) ** 2)
+        for dist in range(280, 460, 10):
+            w_d = math.exp(-0.5 * ((dist - 350.0) / 45.0) ** 2)
+            grid.append((float(spray), float(dist), w_s * w_d))
+    return grid
+
+
+LEAGUE_SPRAY = _league_spray()
+
+
+@lru_cache(maxsize=64)
+def park_shape_baseline(venue_id: int | None) -> float:
+    """What an *average* hitter gains or loses from this park's geometry alone."""
+    here = sum(
+        w * hr_probability(d, wall_distance(get_fence(venue_id), s))
+        for s, d, w in LEAGUE_SPRAY
+    )
+    neutral = sum(
+        w * hr_probability(d, wall_distance(LEAGUE_FENCE, s))
+        for s, d, w in LEAGUE_SPRAY
+    )
+    return here / neutral if neutral > 0 else 1.0
+
+
+def park_hr_multiplier(bdf: pd.DataFrame, venue_id: int | None) -> float:
+    """How much tonight's park is worth to *this* hitter's batted-ball profile.
+
+    :func:`batter_xhr` deliberately strips park effects out, scoring a hitter's
+    contact against the walls he happened to face so the base rate measures the
+    swing rather than the itinerary. This puts the park back -- but the one he
+    is walking into, and only as it applies to him.
+
+    Two separable things decide what a park is worth, and conflating them gets
+    Coors Field exactly backwards. Its fences are among the deepest in baseball,
+    so pure geometry scores it as a *pitcher's* park; it plays as the best home-
+    run park in the league because of the altitude, which no wall diagram can
+    see. So the level comes from the park's measured ``carry_factor`` -- an
+    empirical number that already contains the air -- and geometry supplies only
+    the part that is specific to this hitter:
+
+        multiplier = carry_factor x  xHR(his contact @ here) / xHR(@ average)
+                                    -------------------------------------------
+                                     same ratio for a league-average spray chart
+
+    The denominator is what makes it batter-specific rather than another scalar.
+    An average hitter comes out at roughly ``carry_factor`` in every park; the
+    deviation is earned by *his* spray chart, so Yankee Stadium's 314ft porch
+    pays a pull-heavy left-handed hitter and does nothing for a right-handed bat
+    who works the opposite field. Returns NaN when the sample is too thin or the
+    distance data is missing, which callers read as a neutral park.
+    """
+    live = _live_balls(bdf)
+    if live is None or len(live) < MIN_PARK_BALLS:
+        return float("nan")
+    neutral = xhr_at_fence(bdf, LEAGUE_FENCE)
+    if neutral != neutral or neutral < MIN_PARK_XHR:  # NaN or too thin
+        return float("nan")
+    here = xhr_at_fence(bdf, get_fence(venue_id))
+    if here != here:
+        return float("nan")
+    baseline = park_shape_baseline(venue_id)
+    if baseline <= 0:
+        return float("nan")
+    park = get_park(venue_id) if venue_id is not None else None
+    level = park.carry_factor if park is not None else 1.0
+    mult = level * (here / neutral) / baseline
+    return min(max(mult, PARK_MULT_FLOOR), PARK_MULT_CEILING)
