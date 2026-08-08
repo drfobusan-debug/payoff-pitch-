@@ -20,6 +20,8 @@ from mlb_engine.features.xhr import (
     HOME_Y,
     batter_xhr,
     hr_probability,
+    park_hr_multiplier,
+    park_shape_baseline,
     spray_angle,
 )
 
@@ -209,3 +211,91 @@ def test_blend_is_switchable_and_weighted_from_config() -> None:
 
     assert Config().xhr_blend is True
     assert Config().xhr_prior_weight > 0
+
+
+# --- tonight's park, applied to this hitter ----------------------------------
+
+
+def _spray_profile(mean_spray: float, n: int = 250, seed: int = 0) -> pd.DataFrame:
+    """A synthetic batted-ball profile centred on a given spray angle."""
+    import numpy as np
+
+    rng = np.random.default_rng(seed)
+    spray = rng.normal(mean_spray, 12.0, n)
+    rad = np.radians(spray)
+    return pd.DataFrame({
+        "events": "field_out",
+        "launch_angle": rng.normal(28.0, 7.0, n),
+        "hit_distance_sc": rng.normal(360.0, 40.0, n),
+        "hc_x": HOME_X + np.sin(rad) * 100.0,
+        "hc_y": HOME_Y - np.cos(rad) * 100.0,
+        "home_team": "NYY",
+    })
+
+
+PULL_LHH, PULL_RHH = 30.0, -30.0
+
+
+def test_the_short_porch_pays_the_pull_hitter_who_can_reach_it() -> None:
+    """Yankee Stadium's 314ft right field is worth more to a lefty than Detroit."""
+    lhh = _spray_profile(PULL_LHH)
+    assert park_hr_multiplier(lhh, 3313) > park_hr_multiplier(lhh, 2394)
+
+
+def test_the_same_park_is_worth_different_amounts_to_different_hitters() -> None:
+    """The point of the whole exercise: a scalar park factor cannot do this."""
+    # Oracle Park: 309ft down the right-field line behind a 25ft wall, but a
+    # 415ft right-centre. A pull right-hander gains; a pull lefty is buried.
+    assert park_hr_multiplier(_spray_profile(PULL_RHH), 2395) > park_hr_multiplier(
+        _spray_profile(PULL_LHH), 2395
+    )
+    # Fenway is the mirror image: the Monster eats the right-handed pull side.
+    assert park_hr_multiplier(_spray_profile(PULL_LHH), 3) > park_hr_multiplier(
+        _spray_profile(PULL_RHH), 3
+    )
+
+
+def test_coors_is_a_home_run_park_despite_deep_fences() -> None:
+    """Geometry alone gets Coors backwards; the carry factor carries the level."""
+    assert park_shape_baseline(19) < 1.0  # deepest fences in baseball
+    assert park_hr_multiplier(_spray_profile(0.0), 19) > 1.0  # still a HR park
+    # A pitcher's park stays a pitcher's park.
+    assert park_hr_multiplier(_spray_profile(0.0), 2394) < 1.0  # Comerica
+
+
+def test_an_average_spray_chart_lands_near_the_park_level() -> None:
+    """The batter-specific term is a deviation, not a second park factor."""
+    from mlb_engine.data.parks import get_park
+
+    balanced = _spray_profile(0.0, n=400)
+    for venue in (22, 2889, 4):  # Dodger, Busch, Rate: unremarkable geometry
+        park = get_park(venue)
+        assert park is not None
+        assert abs(park_hr_multiplier(balanced, venue) - park.carry_factor) < 0.12
+
+
+def test_park_multiplier_is_bounded_and_degrades_safely() -> None:
+    balanced = _spray_profile(0.0)
+    for venue in list(FENCES) + [None, 999999]:
+        m = park_hr_multiplier(balanced, venue)
+        assert 0.80 <= m <= 1.25, venue
+    # No distance column, or too few fly balls to mean anything -> neutral.
+    assert park_hr_multiplier(balanced.drop(columns=["hit_distance_sc"]), 3313) != (
+        park_hr_multiplier(balanced.drop(columns=["hit_distance_sc"]), 3313)
+    )
+    thin = _spray_profile(0.0, n=3)
+    assert park_hr_multiplier(thin, 3313) != park_hr_multiplier(thin, 3313)  # NaN
+
+
+def test_scale_hr_rate_moves_only_home_runs_and_stays_normalised() -> None:
+    from mlb_engine.features.rolling import scale_hr_rate
+
+    src = _rates(0.040, pa=300)
+    up = scale_hr_rate(src, 1.20)
+    assert abs(up.p_hr - 0.048) < 1e-9
+    total = up.p_1b + up.p_2b + up.p_3b + up.p_hr + up.p_bb + up.p_k + up.p_out
+    assert abs(total - 1.0) < 1e-9
+    assert abs(up.p_1b / up.p_k - src.p_1b / src.p_k) < 1e-9
+    # A NaN or nonsense multiplier is a no-op, not a wipeout.
+    assert scale_hr_rate(src, float("nan")) is src
+    assert scale_hr_rate(src, 0.0) is src
