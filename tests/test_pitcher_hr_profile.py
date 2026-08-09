@@ -9,6 +9,7 @@ plate his home-run risk actually lives on.
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from mlb_engine.features.pitch_mix import (
     CLASSES,
@@ -19,6 +20,7 @@ from mlb_engine.features.pitch_mix import (
 )
 from mlb_engine.features.regression import (
     BL_BABIP,
+    BL_GB_ALLOWED,
     BL_HARD_HIT,
     BL_XBA,
     PitcherRegression,
@@ -225,3 +227,43 @@ def test_the_allowed_hr_multiplier_stays_bounded() -> None:
 
 def test_a_thin_batted_ball_sample_yields_no_multipliers() -> None:
     assert _pitcher(bbe=3).allowed_multipliers() == {}
+
+
+# --- ground balls on the singles line ----------------------------------------
+
+
+def _allowed(**kw: float) -> dict[str, float]:
+    return _pitcher(**kw).allowed_multipliers()
+
+
+def test_a_sinkerballer_concedes_singles_while_suppressing_the_rest() -> None:
+    """The same grounder that cannot clear a fence very often falls in.
+
+    Split-half reliability puts GB% allowed at .658 against BABIP allowed's
+    .126, so the trajectory is the part of his contact profile a starter
+    actually repeats.
+    """
+    worm = _allowed(gb_allowed=0.56)
+    flyball = _allowed(gb_allowed=0.30)
+    assert worm["1B"] > flyball["1B"]
+    assert worm["HR"] < flyball["HR"]
+
+
+def test_the_singles_term_does_not_leak_into_extra_bases() -> None:
+    # A grounder is a single *instead of* an extra-base hit. Letting the term
+    # lift 2B/3B would assert the opposite of what it means.
+    worm = _allowed(gb_allowed=0.56)
+    flyball = _allowed(gb_allowed=0.30)
+    for key in ("2B", "3B"):
+        assert worm[key] == flyball[key]
+
+
+def test_a_league_average_ground_ball_rate_is_neutral_on_singles() -> None:
+    # An otherwise-neutral starter -- league BABIP allowed, no dxwOBA gap -- must
+    # come out at exactly 1.0, so the term charges nothing for being ordinary.
+    assert _allowed(gb_allowed=BL_GB_ALLOWED)["1B"] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_the_singles_ground_ball_term_is_bounded() -> None:
+    assert _allowed(gb_allowed=0.75)["1B"] <= 1.14 * 1.035
+    assert _allowed(gb_allowed=0.15)["1B"] >= 0.88 * 0.965

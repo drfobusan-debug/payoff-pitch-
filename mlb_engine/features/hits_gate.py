@@ -56,31 +56,45 @@ BL_K_PCT = 0.227
 # Weights for the contact composite, in units of "standard deviations of the
 # league distribution".
 #
-# These are *fitted*, not asserted. Hits per plate appearance -- the quantity the
-# market actually settles on -- was regressed on the standardized inputs across
-# 244 batters with 120+ PA in April-May, then re-run untouched on 213 batters in
-# June-July as a holdout (R2 0.48 train, 0.44 out of sample). Weights are the
-# coefficients scaled so xBA is 1.0:
+# These are *fitted*, and fitted **out of time**, which is not the same thing and
+# turned out to matter enormously. The first version of these weights regressed
+# hits per PA on inputs measured over *the same window as the outcome*, holding
+# out a different set of batters. That design is circular: a ball that falls in
+# for a hit raises the hitter's xBA and his hit total simultaneously, so xBA is
+# partly a restatement of the target rather than a predictor of it. It came out
+# the largest weight in the model.
 #
-#     input     train      holdout    p (train / holdout)
-#     xBA       +1.00      +1.00      <1e-4 / <1e-4
-#     K%        -0.96      -1.03      <1e-4 / <1e-4
-#     sprint    +0.15      +0.14      .053  / .151
-#     zone-ct   -0.08      -0.06      .432  / .689     <- dropped
-#     GB%       +0.05      +0.04      .604  / .726     <- not added
-#     PU%       +0.02      -0.04      .812  / .735     <- not added
+# The honest design is the one the engine actually faces: read a 42-day window,
+# predict the games that come *after* it. Stacked over four rolls, n=862
+# batter-windows:
 #
-# Two things that survived the fit and two that did not. Zone contact was carried
-# at +0.4 on the reasoning that bat-to-bat drives hits; on this evidence it is
-# insignificant and *negatively* signed, because it is collinear with K% and adds
-# nothing once K% is in the model. Batted-ball mix is the same story: GB% looks
-# strongly predictive of BA-on-contact (p=.001), but that is strikeout rate
-# leaking through -- ground-ball hitters are contact hitters -- and it evaporates
-# against hits per PA with K% controlled. Both are excluded rather than shipped
-# at a weight the data will not support.
-W_XBA = 1.0
+#     input     same-window    OUT OF TIME    p (out of time)
+#     xBA         +2.51          +0.65          .062
+#     K%          -1.42          -1.00          .0018
+#     GB%         +0.07          +0.85          .0082    <- added
+#     sprint      +0.01          +0.37          .218
+#     LD%         +0.14          +0.32          .363     <- not added
+#     zone-ct     -0.08           n/a           .432     <- dropped earlier
+#
+# Two reversals. **xBA falls from dominant to marginal** -- most of its apparent
+# power was the circularity, and it is now the smaller of the two main terms
+# rather than the anchor. **GB% flips from nothing to significant**: the earlier
+# same-window test showed p=.60 and was used to justify leaving batted-ball mix
+# out of this gate entirely. That conclusion was wrong. A ground ball cannot be
+# a home run, but it can very easily be a hit, and the hitters who hit them keep
+# hitting them (split-half reliability .68, the most stable input here).
+#
+# K% remains the one input that never moves under any design, which is what a
+# real effect looks like. Zone contact stays out. Line-drive rate stays out of
+# *this* gate -- it is a singles effect, and it lives on the singles multiplier
+# in ``regression.py`` where it is significant at p<1e-4.
+#
+# Weights are the standardized coefficients scaled so K% is 1.0, since K% is now
+# the most reliable of the four.
+W_XBA = 0.65
 W_K = 1.0
-W_SPRINT = 0.15
+W_GB = 0.85
+W_SPRINT = 0.37
 
 # League standard deviations, used to put the inputs on one scale. Measured over
 # the same cohort, except sprint speed, which comes from a season leaderboard
@@ -88,15 +102,20 @@ W_SPRINT = 0.15
 SD_XBA = 0.047
 SD_K = 0.079
 SD_SPRINT = 1.6
+# Ground-ball rate: league mean and spread over the same out-of-time panel
+# (10th/90th percentile .321/.528).
+BL_GB_RATE_CONTACT = 0.420
+SD_GB = 0.081
 
-# Tier cut points, read off the percentiles of the composite pooled over two
-# Statcast windows (791 batter-windows): elite is the top 15% of bats, good the
+# Tier cut points, read off the percentiles of the composite pooled over three
+# Statcast windows (1,262 batter-windows): elite is the top 15% of bats, good the
 # next 30%, poor the bottom 20%. Set as quantiles rather than round numbers so
 # the tier mix is a known share of the league instead of an accident of the
-# weights. The two windows agree to within 0.08 on every cut.
-DEFAULT_ELITE = 1.24
-DEFAULT_GOOD = 0.04
-DEFAULT_POOR = -0.89
+# weights -- and re-derived from scratch whenever a weight changes, since adding
+# GB% widened the composite's spread and every cut moved with it.
+DEFAULT_ELITE = 1.62
+DEFAULT_GOOD = 0.41
+DEFAULT_POOR = -1.16
 
 # Context floor an "average" bat must clear to be bought: park factor times the
 # weather multiplier, where 1.0 is a neutral night in a neutral yard. Elite and
@@ -165,6 +184,7 @@ def contact_score(breg: BatterRegression | None) -> float:
     if breg.k_pct == breg.k_pct:  # not NaN
         score += W_K * (BL_K_PCT - breg.k_pct) / SD_K
     score += W_SPRINT * (breg.sprint_speed - BL_SPRINT) / SD_SPRINT
+    score += W_GB * (breg.gb_rate - BL_GB_RATE_CONTACT) / SD_GB
     return float(score)
 
 
