@@ -132,6 +132,24 @@ def test_attach_clv_leaves_unmatched_and_unpriced_rows_alone() -> None:
         assert e.clv is None and e.clv_ev is None and e.close_prob is None
 
 
+def test_attach_clv_matches_a_close_that_spells_the_name_differently() -> None:
+    """The close carries the book's spelling and the ledger the lineup feed's."""
+    e = _entry(selection="Ronald Acuna H o0.5", fair_prob=0.58)
+    close = ClosingQuote("KC@DET", "batter_h", "Ronald Acu\u00f1a Jr. H o0.5", -170.0, 0.62)
+    assert attach_clv([e], {close.key: close}) == 1
+    assert e.close_odds == -170.0
+    # The ledger keeps the spelling it was written with.
+    assert e.selection == "Ronald Acuna H o0.5"
+
+
+def test_attach_clv_will_not_guess_between_two_players_of_the_same_name() -> None:
+    a = ClosingQuote("WSH@HOU", "batter_h", "Luis Garcia Jr. H o0.5", -170.0, 0.62)
+    b = ClosingQuote("WSH@HOU", "batter_h", "Luis Garc\u00eda H o0.5", 120.0, 0.44)
+    e = _entry(matchup="WSH@HOU", selection="Luis Garcia H o0.5", fair_prob=0.58)
+    assert attach_clv([e], {a.key: a, b.key: b}) == 0
+    assert e.clv is None
+
+
 def test_attach_clv_falls_back_to_implied_for_legacy_rows() -> None:
     """Rows written before the devig fix have no fair_prob; CLV still scores."""
     e = _entry(fair_prob=None, bet_prob=None)
