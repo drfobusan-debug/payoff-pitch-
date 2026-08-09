@@ -209,6 +209,15 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 # --- the state map -----------------------------------------------------------
 
 
+# The accumulating records, and the columns identifying one row of each. Both
+# directions merge on these: a machine only ever contributes the dates it
+# graded, and never speaks for the ones it did not.
+_MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
+    ("scorecard.csv", ("date", "tier")),
+)
+
+
 def _audit_dir(data_dir: Path) -> Path:
     return data_dir / "audit"
 
@@ -259,10 +268,7 @@ def pull_state(
     for src in sorted((state / "mlb" / "closing").glob("closing_*.json")):
         if merge_closing_files(src, audit / src.name):
             pulled.append(src.name)
-    for name, key in (
-        ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
-        ("scorecard.csv", ("date", "tier")),
-    ):
+    for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
     pulled.extend(_pull_predictions(state, data_dir, dates))
@@ -320,11 +326,19 @@ def push_state(
             merge_closing_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
-        for name in ("ledger.csv", "scorecard.csv"):
+        for name, key in _MERGED_CSVS:
             src = audit / name
             if src.exists():
                 dest = state / "mlb" / name
                 dest.parent.mkdir(parents=True, exist_ok=True)
+                # Fold the branch's dates into ours before overwriting it, the
+                # same way the closing snapshots above are merged. A push that
+                # git accepts as a fast-forward is not evidence that this
+                # machine's ledger is a superset of the branch's: a run that
+                # pulled before last night's audit landed will happily publish
+                # a ledger missing that slate, and the ledger is a growing
+                # record, not this machine's opinion.
+                merge_dated_csv(dest, src, key)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
         staged, pruned = _stage_predictions(state, data_dir)
