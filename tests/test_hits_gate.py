@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from mlb_engine.features.hits_gate import (
+    BL_K_PCT,
+    BL_XBA_CONTACT,
+    BL_ZCONTACT,
     TIER_AVERAGE,
     TIER_ELITE,
     TIER_GOOD,
@@ -16,11 +19,15 @@ from mlb_engine.features.regression import BatterRegression
 def _bat(
     xba: float,
     k_pct: float,
-    zone_contact: float = 0.820,
+    zone_contact: float = BL_ZCONTACT,
     sprint: float = 27.0,
     bbe: int = 60,
 ) -> BatterRegression:
-    """A batter carrying only the fields the contact composite reads."""
+    """A batter carrying only the fields the contact composite reads.
+
+    ``xba`` is expected BA over *batted balls*, which averages ~.320 -- not the
+    ~.250 league BA per plate appearance.
+    """
     return BatterRegression(
         bbe=bbe,
         barrel_rate=0.08,
@@ -41,10 +48,12 @@ def _bat(
     )
 
 
-ELITE = _bat(xba=0.305, k_pct=0.160, zone_contact=0.880, sprint=28.5)
-GOOD = _bat(xba=0.268, k_pct=0.200)
-AVERAGE = _bat(xba=0.250, k_pct=0.225)
-POOR = _bat(xba=0.215, k_pct=0.300, zone_contact=0.780, sprint=26.0)
+ELITE = _bat(xba=0.400, k_pct=0.150, zone_contact=0.920, sprint=28.5)
+GOOD = _bat(xba=0.350, k_pct=0.200)
+AVERAGE = _bat(xba=0.310, k_pct=BL_K_PCT)
+POOR = _bat(xba=0.260, k_pct=0.300, zone_contact=0.800, sprint=26.0)
+# Exactly league average on every input.
+MEDIAN = _bat(xba=BL_XBA_CONTACT, k_pct=BL_K_PCT)
 
 
 def test_tiers_order_from_elite_to_poor() -> None:
@@ -54,6 +63,15 @@ def test_tiers_order_from_elite_to_poor() -> None:
     assert gate.tier(AVERAGE) == TIER_AVERAGE
     assert gate.tier(POOR) == TIER_POOR
     assert contact_score(ELITE) > contact_score(GOOD) > contact_score(POOR)
+
+
+def test_the_league_average_bat_scores_zero_and_is_not_elite() -> None:
+    # Regression guard. The composite is centred on the mean of the *batted-ball*
+    # distribution; centring it on the .250 league BA per PA instead put the
+    # median hitter +2.3 SD high and tiered 81% of the league as elite, which
+    # made the gate inert.
+    assert abs(contact_score(MEDIAN)) < 0.05
+    assert HitsContactGate().tier(MEDIAN) != TIER_ELITE
 
 
 def test_elite_and_good_clear_without_help_from_the_park() -> None:
@@ -114,7 +132,7 @@ def test_platoon_pa_risk_blocks_the_over_from_the_bottom_third() -> None:
 
 def test_neutral_on_a_thin_batted_ball_sample() -> None:
     gate = HitsContactGate()
-    thin = _bat(xba=0.200, k_pct=0.340, bbe=5)
+    thin = _bat(xba=0.260, k_pct=0.340, bbe=5)
     assert gate.tier(thin) is None
     keep, reason = gate.allows(thin, context=0.90)
     assert keep is True
@@ -139,6 +157,6 @@ def test_kill_switch_disables_every_path() -> None:
 
 def test_missing_strikeout_rate_does_not_poison_the_score() -> None:
     # k_pct is NaN when the slice has no completed plate appearances.
-    bat = _bat(xba=0.268, k_pct=float("nan"))
+    bat = _bat(xba=0.350, k_pct=float("nan"))
     score = contact_score(bat)
     assert score == score  # not NaN

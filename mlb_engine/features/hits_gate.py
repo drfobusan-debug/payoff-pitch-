@@ -31,17 +31,26 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from mlb_engine.features.regression import (
-    BL_SPRINT,
-    BL_XBA,
-    BL_ZONE_CONTACT,
-    BatterRegression,
-)
+from mlb_engine.features.regression import BL_SPRINT, BatterRegression
+
+# Baselines and spreads measured over the 386 batters with 40+ batted balls in a
+# six-week Statcast window, read through ``build_batter_regression`` so they are
+# the same quantities the gate sees at runtime.
+#
+# Note these are deliberately *not* ``regression.BL_XBA`` / ``BL_ZONE_CONTACT``.
+# Those constants are league rates per plate appearance, while ``breg.xba`` is
+# the mean expected BA over *batted balls only* -- a much higher number, since
+# it excludes strikeouts. Centring on .250 put the median hitter +2.3 SD above
+# baseline and classified 81% of the league "elite".
+BL_XBA_CONTACT = 0.320
 
 # League-average strikeout rate. Unlike the contact-quality metrics this one is
 # a direct subtraction from hit chances: a strikeout is the one PA outcome that
 # can never become a hit, whatever the contact quality behind it.
-BL_K_PCT = 0.225
+BL_K_PCT = 0.227
+
+# Zone-contact rate over the same cohort.
+BL_ZCONTACT = 0.861
 
 # Weights for the contact composite, in units of "standard deviations of the
 # league distribution". xBA leads because it is the expected-hit content of the
@@ -53,18 +62,21 @@ W_K = 0.9
 W_ZCONTACT = 0.4
 W_SPRINT = 0.3
 
-# Approximate league standard deviations, used to put the four inputs on one
-# scale. Taken from the qualified-batter distribution.
-SD_XBA = 0.030
-SD_K = 0.060
-SD_ZCONTACT = 0.045
+# League standard deviations, used to put the four inputs on one scale. Measured
+# over the same cohort, except sprint speed, which comes from a season leaderboard
+# rather than the Statcast window.
+SD_XBA = 0.047
+SD_K = 0.079
+SD_ZCONTACT = 0.057
 SD_SPRINT = 1.6
 
-# Tier cut points on the weighted composite. Roughly: elite is the top ~15% of
-# bats, good the next ~25%, poor the bottom ~20%.
-DEFAULT_ELITE = 1.10
-DEFAULT_GOOD = 0.25
-DEFAULT_POOR = -0.70
+# Tier cut points, read off the percentiles of the composite over that cohort
+# (mean +0.01, SD 1.41): elite is the top 15% of bats, good the next 30%, poor
+# the bottom 20%. Set as quantiles rather than round numbers so the tier mix is
+# a known share of the league instead of an accident of the weights.
+DEFAULT_ELITE = 1.40
+DEFAULT_GOOD = 0.00
+DEFAULT_POOR = -1.10
 
 # Context floor an "average" bat must clear to be bought: park factor times the
 # weather multiplier, where 1.0 is a neutral night in a neutral yard. Elite and
@@ -127,12 +139,12 @@ def contact_score(breg: BatterRegression | None) -> float:
     """
     if breg is None or breg.bbe < DEFAULT_MIN_BBE:
         return float("nan")
-    score = W_XBA * (breg.xba - BL_XBA) / SD_XBA
+    score = W_XBA * (breg.xba - BL_XBA_CONTACT) / SD_XBA
     # K% is the only input where lower is better, and it is NaN when the slice
     # carries no completed plate appearances.
     if breg.k_pct == breg.k_pct:  # not NaN
         score += W_K * (BL_K_PCT - breg.k_pct) / SD_K
-    score += W_ZCONTACT * (breg.zone_contact - BL_ZONE_CONTACT) / SD_ZCONTACT
+    score += W_ZCONTACT * (breg.zone_contact - BL_ZCONTACT) / SD_ZCONTACT
     score += W_SPRINT * (breg.sprint_speed - BL_SPRINT) / SD_SPRINT
     return float(score)
 
