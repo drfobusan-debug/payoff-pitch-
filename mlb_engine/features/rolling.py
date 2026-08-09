@@ -12,7 +12,7 @@ Carlo game simulator directly.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
@@ -49,6 +49,25 @@ LEAGUE_RATES = {
     "OUT": 0.469,
 }
 PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
+
+# Equivalent PA of the *hierarchical* prior: how hard a batter's home/away and
+# platoon splits are pulled toward his own overall rate before anything is
+# pulled toward the league.
+#
+# A 21-day home split is roughly 40 PA, so under a flat 60-PA league prior a
+# hitter arrived at the simulator already ~60% league-average -- and that
+# compression is measurable in the graded ledger. Splitting batter_h o0.5 by
+# hitter quality, the realised gap between the worst and best quartile was 9.3
+# points while the model priced 3.7, and essentially all of the error sat on
+# weak hitters (bottom quartile priced .577, won .493). Weak bats priced as
+# near-average look underpriced against a market that has them right, which is
+# how they become false-positive buys.
+#
+# The fix is hierarchical rather than heavier: a split regresses toward *this
+# batter's* overall rate, and only the overall regresses toward the league. A
+# thin platoon split for a poor hitter then lands on that poor hitter's own
+# baseline instead of on an average major leaguer.
+SPLIT_PRIOR_STRENGTH = 60.0
 MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
 MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
@@ -100,14 +119,24 @@ def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
     return counts
 
 
-def rates_from_events(pa_events: pd.Series) -> OutcomeRates:
-    """Shrink observed counts toward the league prior and normalize to rates."""
+def rates_from_events(
+    pa_events: pd.Series,
+    prior: Mapping[str, float] | None = None,
+    prior_strength: float = PRIOR_STRENGTH,
+) -> OutcomeRates:
+    """Shrink observed counts toward a prior and normalize to rates.
+
+    ``prior`` defaults to the league rates. Passing a batter's own overall rates
+    instead makes the shrinkage hierarchical: the split regresses toward the
+    hitter rather than toward an average major leaguer.
+    """
+    target = LEAGUE_RATES if prior is None else prior
     counts = _bucket_counts(pa_events)
     n = sum(counts.values())
     smoothed = {}
-    total = n + PRIOR_STRENGTH
+    total = n + prior_strength
     for k in LEAGUE_RATES:
-        smoothed[k] = (counts[k] + PRIOR_STRENGTH * LEAGUE_RATES[k]) / total
+        smoothed[k] = (counts[k] + prior_strength * target[k]) / total
     return OutcomeRates(
         pa=n,
         p_1b=smoothed["1B"],
@@ -337,7 +366,13 @@ def build_batter_profile(
     home_away_days: int,
     vs_rhp_days: int,
     vs_lhp_days: int,
+    split_prior: bool = True,
 ) -> BatterProfile:
+    """Build a batter's context splits.
+
+    ``split_prior`` regresses each split toward the batter's own overall rate;
+    set it False to restore the flat league-average prior on every split.
+    """
     bdf = _pa_rows(df[df["batter"] == batter_id])
 
     home_slice = _slice_dates(bdf, as_of, home_away_days)
@@ -352,13 +387,19 @@ def build_batter_profile(
 
     overall_pa = _slice_dates(bdf, as_of, max(home_away_days, vs_rhp_days))["events"]
 
+    # Hierarchical: the overall window regresses toward the league, then each
+    # split regresses toward *this hitter's* overall rather than toward an
+    # average major leaguer. A 40-PA home split for a weak bat then lands on his
+    # own baseline instead of being handed most of a league-average profile.
+    overall = rates_from_events(overall_pa)
+    prior = overall.as_dict() if split_prior else None
     return BatterProfile(
         mlbam_id=batter_id,
-        home=rates_from_events(home_pa),
-        away=rates_from_events(away_pa),
-        vs_rhp=rates_from_events(vs_rhp_pa),
-        vs_lhp=rates_from_events(vs_lhp_pa),
-        overall=rates_from_events(overall_pa),
+        home=rates_from_events(home_pa, prior, SPLIT_PRIOR_STRENGTH),
+        away=rates_from_events(away_pa, prior, SPLIT_PRIOR_STRENGTH),
+        vs_rhp=rates_from_events(vs_rhp_pa, prior, SPLIT_PRIOR_STRENGTH),
+        vs_lhp=rates_from_events(vs_lhp_pa, prior, SPLIT_PRIOR_STRENGTH),
+        overall=overall,
     )
 
 

@@ -11,7 +11,11 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mlb_engine.features.regression import SINGLES_BARREL_SLOPE, SINGLES_GB_SLOPE
+from mlb_engine.features.regression import (
+    SINGLES_BARREL_SLOPE,
+    SINGLES_GB_SLOPE,
+    SINGLES_LD_SLOPE,
+)
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
 
 
@@ -268,6 +272,13 @@ class Config:
         default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
     )
 
+    # Hierarchical batter splits: regress each home/away and platoon split
+    # toward the batter's own overall rate rather than toward the league. Set
+    # MLBE_BATTER_SPLIT_PRIOR=0 to restore the flat league prior everywhere.
+    batter_split_prior: bool = field(
+        default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
+    )
+
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
     # power contact, pull-heavy grounders). Live by default; set
@@ -383,12 +394,24 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_TAIL_POWER_SPLIT", True)
     )
 
-    # Ground-ball rate is the batted-ball half of the same story and the largest
-    # remaining contact term, but on eight slates it is not separable from zero.
-    # Off by default: enabling it grades a counterfactual without moving picks.
-    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
+    # Batted-ball mix is the other half of the same story: a single is a ground
+    # ball or a line drive, almost never a ball hit in the air. Previously off,
+    # because an eight-slate fit could not separate the ground-ball slope from
+    # zero. Both slopes are now fitted out of time -- a 42-day window predicting
+    # the *following* 21 days, over 862 batter-windows -- and clear p<1e-4 taken
+    # alone, so the terms are live.
+    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", True))
     singles_gb_slope: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
+    )
+    singles_ld_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_LD_SLOPE", SINGLES_LD_SLOPE)
+    )
+    # Shape within those classes -- pulled grounders, soft line drives, line
+    # drives an outfielder can cut off. Smaller effects than the mix itself
+    # (p .013-.046), so they get their own switch.
+    singles_shape: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_SHAPE", True)
     )
 
     # Blend each hitter's observed HR/PA toward what his batted balls were worth

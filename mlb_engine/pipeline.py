@@ -34,6 +34,7 @@ from mlb_engine.features.efficiency import (
     opponent_discipline_factor,
     recent_start_form,
 )
+from mlb_engine.features.hits_gate import HitsContactGate
 from mlb_engine.features.hr_gate import HRPowerGate
 from mlb_engine.features.hrr_adjust import HRRAdjuster
 from mlb_engine.features.lineup_lock import (
@@ -379,6 +380,7 @@ class Pipeline:
         self._tb_selector = TBSelector()
         self._luck_gaps: dict[str, float] = {}
         self._hr_gate = HRPowerGate.from_env()
+        self._hits_gate = HitsContactGate.from_env()
         self._tb_gate = TBGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
         self._pen_gate = MLPenGate.from_env()
@@ -681,7 +683,8 @@ class Pipeline:
         for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
             bprof = build_batter_profile(
-                statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days
+                statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days,
+                w.batter_vs_lhp_days, self.cfg.batter_split_prior,
             )
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)
@@ -706,6 +709,8 @@ class Pipeline:
             bmult = breg.multipliers(
                 self.cfg.singles_barrel_slope if self.cfg.singles_barrel else 0.0,
                 self.cfg.singles_gb_slope if self.cfg.singles_gb else 0.0,
+                self.cfg.singles_ld_slope if self.cfg.singles_gb else 0.0,
+                self.cfg.singles_shape,
             )
 
             bats = slot.player.bats.value if slot.player.bats else None
@@ -1245,14 +1250,22 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- batter props ----
-        for team_key, tinfo, flags, sels, regs, sunders in (
-            ("home", game.home, home_rbi, home_sels, home_regs, home_su),
-            ("away", game.away, away_rbi, away_sels, away_regs, away_su),
+        for team_key, tinfo, flags, sels, regs, sunders, opp_sp in (
+            ("home", game.home, home_rbi, home_sels, home_regs, home_su,
+             game.away.probable_pitcher),
+            ("away", game.away, away_rbi, away_sels, away_regs, away_su,
+             game.home.probable_pitcher),
         ):
             recs.extend(
                 self._batter_props(
                     game, m, res, team_key, tinfo, flags, sels, regs, sunders,
                     opp_siera[team_key], opp_contact[team_key], quotes,
+                    park=park, weather_mult=weather_mult,
+                    opp_throws=(
+                        opp_sp.throws.value
+                        if opp_sp is not None and opp_sp.throws
+                        else None
+                    ),
                 )
             )
 
@@ -1491,6 +1504,18 @@ class Pipeline:
             return None
         return f"vs ace: opp SIERA {opp.siera:.2f} < {self.cfg.singles_siera_ace:.2f}"
 
+    @staticmethod
+    def _hits_context(park, weather_mult: dict[str, float] | None) -> float | None:
+        """Tonight's hit environment: park factor times the weather hit term.
+
+        1.0 is a neutral night in a neutral yard. ``None`` when the park is
+        unknown, which leaves the contact gate neutral rather than guessing.
+        """
+        if park is None or park.park_factor is None:
+            return None
+        wx = 1.0 if not weather_mult else weather_mult.get("1B", 1.0)
+        return float(park.park_factor) / 100.0 * float(wx)
+
     def _batter_gate(
         self,
         breg,
@@ -1499,6 +1524,8 @@ class Pipeline:
         stat: str,
         opp_contact=None,
         slot: int | None = None,
+        context: float | None = None,
+        platoon_disadvantage: bool = False,
     ) -> str | None:
         """Combined batter-prop floor: contact-quality, then SIERA/singles-Under."""
         reason = self._power_floor_reason(breg, stat)
@@ -1508,6 +1535,19 @@ class Pipeline:
             ace = self._singles_ace_reason(opp)
             if ace is not None:
                 return ace
+            pa_risk = self._hits_gate.platoon_pa_reason(slot, platoon_disadvantage)
+            if pa_risk is not None:
+                return pa_risk
+            keep, hits_reason = self._hits_gate.allows(breg, context)
+            if not keep:
+                # A poor bat whose night is also against him is a fade, not just
+                # a no-buy; say so, so the under price is graded as a bet.
+                return (
+                    self._hits_gate.under_reason(
+                        breg, context, slot, platoon_disadvantage
+                    )
+                    or hits_reason
+                )
             return self._singles_under_reason(su, opp)
         if stat == "HR":
             # The hitter's own power is gated at tier time (it needs the barrel
@@ -1525,14 +1565,19 @@ class Pipeline:
 
     def _batter_props(
         self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera,
-        opp_contact, quotes
+        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None
     ):
         out = []
         bat = res.bat[team_key]
+        context = self._hits_context(park, weather_mult)
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
             pid = slot.player.mlbam_id
+            bats = slot.player.bats.value if slot.player.bats else None
+            # Same-handed and not a switch hitter: the side of the platoon a
+            # bench bat gets lifted from.
+            platoon_bad = bats is not None and opp_throws is not None and bats == opp_throws
             rbi_sel = sels[i].get("RBI") if i < len(sels) else None
             tb_sel = sels[i].get("TB") if i < len(sels) else None
             breg = regs[i] if i < len(regs) else None
@@ -1552,7 +1597,8 @@ class Pipeline:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
                 gate = self._batter_gate(
-                    breg, su, opp_siera, stat, opp_contact=opp_contact, slot=i + 1
+                    breg, su, opp_siera, stat, opp_contact=opp_contact, slot=i + 1,
+                    context=context, platoon_disadvantage=platoon_bad,
                 )
                 for line in sl:
                     out.append(self._mk(
@@ -1562,7 +1608,10 @@ class Pipeline:
                         selector=sel, gate_reason=gate, **feat,
                     ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
-            hrr_gate = self._batter_gate(breg, su, opp_siera, "HRR")
+            hrr_gate = self._batter_gate(
+                breg, su, opp_siera, "HRR", slot=i + 1,
+                context=context, platoon_disadvantage=platoon_bad,
+            )
             hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
