@@ -5952,6 +5952,13 @@
   {
     "matchup": "WSH @ PHI",
     "market": "f5_rl",
+    "selection": "PHI F5 -3.5",
+    "american": 102.0,
+    "no_vig_prob": 0.469738
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "f5_rl",
     "selection": "WSH F5 +0.5",
     "american": 165.0,
     "no_vig_prob": 0.369934
@@ -5976,6 +5983,13 @@
     "selection": "WSH F5 +2.5",
     "american": -148.0,
     "no_vig_prob": 0.55853
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "f5_rl",
+    "selection": "WSH F5 +3.5",
+    "american": -129.0,
+    "no_vig_prob": 0.530262
   },
   {
     "matchup": "WSH @ PHI",
@@ -6064,6 +6078,20 @@
   {
     "matchup": "WSH @ PHI",
     "market": "game_rl",
+    "selection": "PHI -3.5",
+    "american": -120.0,
+    "no_vig_prob": 0.527556
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "PHI -4.5",
+    "american": -105.0,
+    "no_vig_prob": 0.472936
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
     "selection": "WSH +1.5",
     "american": 135.0,
     "no_vig_prob": 0.416424
@@ -6074,6 +6102,34 @@
     "selection": "WSH +2.5",
     "american": -115.0,
     "no_vig_prob": 0.521651
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "WSH +3.5",
+    "american": 105.0,
+    "no_vig_prob": 0.472444
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_rl",
+    "selection": "WSH +4.5",
+    "american": -133.0,
+    "no_vig_prob": 0.527064
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 10.5",
+    "american": -120.0,
+    "no_vig_prob": 0.526957
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Over 11.0",
+    "american": -133.0,
+    "no_vig_prob": 0.527064
   },
   {
     "matchup": "WSH @ PHI",
@@ -6102,6 +6158,20 @@
     "selection": "Over 9.0",
     "american": 102.0,
     "no_vig_prob": 0.483273
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 10.5",
+    "american": 105.0,
+    "no_vig_prob": 0.473043
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "game_total",
+    "selection": "Under 11.0",
+    "american": -105.0,
+    "no_vig_prob": 0.472936
   },
   {
     "matchup": "WSH @ PHI",
@@ -6162,6 +6232,13 @@
   {
     "matchup": "WSH @ PHI",
     "market": "pitcher_h",
+    "selection": "Miles Mikolas Hits o7.5",
+    "american": -115.0,
+    "no_vig_prob": 0.495108
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "pitcher_h",
     "selection": "Miles Mikolas Hits o9.5",
     "american": 120.0,
     "no_vig_prob": 0.466048
@@ -6179,6 +6256,13 @@
     "selection": "Cristopher Sanchez Ks o7.5",
     "american": 121.0,
     "no_vig_prob": 0.443281
+  },
+  {
+    "matchup": "WSH @ PHI",
+    "market": "pitcher_k",
+    "selection": "Miles Mikolas Ks o1.5",
+    "american": -195.0,
+    "no_vig_prob": 0.618247
   },
   {
     "matchup": "WSH @ PHI",

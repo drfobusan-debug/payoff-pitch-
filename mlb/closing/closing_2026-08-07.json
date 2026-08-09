@@ -7022,6 +7022,13 @@
   },
   {
     "matchup": "MIN @ MIL",
+    "market": "pitcher_bb",
+    "selection": "Zebby Matthews Walks o2.5",
+    "american": 151.0,
+    "no_vig_prob": 0.373955
+  },
+  {
+    "matchup": "MIN @ MIL",
     "market": "pitcher_h",
     "selection": "Shane Drohan Hits o4.5",
     "american": 100.0,
@@ -7520,6 +7527,13 @@
   {
     "matchup": "NYM @ PIT",
     "market": "game_rl",
+    "selection": "NYM +1.0",
+    "american": -139.0,
+    "no_vig_prob": 0.555638
+  },
+  {
+    "matchup": "NYM @ PIT",
+    "market": "game_rl",
     "selection": "NYM +1.5",
     "american": -175.0,
     "no_vig_prob": 0.619966
@@ -7593,6 +7607,13 @@
     "selection": "PIT +4.5",
     "american": -425.0,
     "no_vig_prob": 0.777909
+  },
+  {
+    "matchup": "NYM @ PIT",
+    "market": "game_rl",
+    "selection": "PIT -1.0",
+    "american": 115.0,
+    "no_vig_prob": 0.444362
   },
   {
     "matchup": "NYM @ PIT",
@@ -7691,6 +7712,13 @@
     "selection": "Bubba Chandler Ks o4.5",
     "american": -105.0,
     "no_vig_prob": 0.486392
+  },
+  {
+    "matchup": "NYM @ PIT",
+    "market": "pitcher_k",
+    "selection": "Carmen Mlodzinski Ks o2.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583497
   },
   {
     "matchup": "NYM @ PIT",
