@@ -5,7 +5,6 @@ from __future__ import annotations
 from mlb_engine.features.hits_gate import (
     BL_K_PCT,
     BL_XBA_CONTACT,
-    BL_ZCONTACT,
     TIER_AVERAGE,
     TIER_ELITE,
     TIER_GOOD,
@@ -19,7 +18,7 @@ from mlb_engine.features.regression import BatterRegression
 def _bat(
     xba: float,
     k_pct: float,
-    zone_contact: float = BL_ZCONTACT,
+    zone_contact: float = 0.861,
     sprint: float = 27.0,
     bbe: int = 60,
 ) -> BatterRegression:
@@ -48,10 +47,10 @@ def _bat(
     )
 
 
-ELITE = _bat(xba=0.400, k_pct=0.150, zone_contact=0.920, sprint=28.5)
-GOOD = _bat(xba=0.350, k_pct=0.200)
-AVERAGE = _bat(xba=0.310, k_pct=BL_K_PCT)
-POOR = _bat(xba=0.260, k_pct=0.300, zone_contact=0.800, sprint=26.0)
+ELITE = _bat(xba=0.380, k_pct=0.150, sprint=28.5)
+GOOD = _bat(xba=0.345, k_pct=0.210)
+AVERAGE = _bat(xba=0.315, k_pct=BL_K_PCT)
+POOR = _bat(xba=0.280, k_pct=0.290, sprint=26.0)
 # Exactly league average on every input.
 MEDIAN = _bat(xba=BL_XBA_CONTACT, k_pct=BL_K_PCT)
 
@@ -160,3 +159,13 @@ def test_missing_strikeout_rate_does_not_poison_the_score() -> None:
     bat = _bat(xba=0.350, k_pct=float("nan"))
     score = contact_score(bat)
     assert score == score  # not NaN
+
+
+def test_zone_contact_and_batted_ball_mix_do_not_move_the_score() -> None:
+    # Both were tested against hits per PA and neither survived once K% was in
+    # the model -- zone contact came out insignificant and wrong-signed, and the
+    # apparent GB% effect was strikeout rate leaking through. Neither is an
+    # input, so varying them must be inert.
+    base = _bat(xba=0.330, k_pct=0.200)
+    extreme = _bat(xba=0.330, k_pct=0.200, zone_contact=0.999)
+    assert contact_score(base) == contact_score(extreme)

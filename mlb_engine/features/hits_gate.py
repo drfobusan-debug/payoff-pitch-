@@ -15,7 +15,11 @@ the graded buy list filled up with backup catchers and utility infielders at
 -149 while only 9% of buys landed on a top-quartile bat.
 
 This gate is the selection-side answer: tier the hitter on the inputs that
-actually produce hits, and require the context to justify the buy.
+actually produce hits -- expected BA on his contact, how often he makes contact
+at all, and a small credit for speed -- and require the context to justify the
+buy. The composite's weights are fitted against hits per plate appearance with a
+held-out window, not asserted; see ``W_XBA`` below for what survived and what
+did not.
 
 * **elite / good** contact -- buy on the normal edge floor.
 * **average** -- only when the park and the weather are working for him.
@@ -49,34 +53,50 @@ BL_XBA_CONTACT = 0.320
 # can never become a hit, whatever the contact quality behind it.
 BL_K_PCT = 0.227
 
-# Zone-contact rate over the same cohort.
-BL_ZCONTACT = 0.861
-
 # Weights for the contact composite, in units of "standard deviations of the
-# league distribution". xBA leads because it is the expected-hit content of the
-# contact itself; K% is close behind because it sets how often that contact
-# happens at all. Zone contact and speed are real but secondary -- bat-to-bat
-# and infield hits move the number less than the first two.
+# league distribution".
+#
+# These are *fitted*, not asserted. Hits per plate appearance -- the quantity the
+# market actually settles on -- was regressed on the standardized inputs across
+# 244 batters with 120+ PA in April-May, then re-run untouched on 213 batters in
+# June-July as a holdout (R2 0.48 train, 0.44 out of sample). Weights are the
+# coefficients scaled so xBA is 1.0:
+#
+#     input     train      holdout    p (train / holdout)
+#     xBA       +1.00      +1.00      <1e-4 / <1e-4
+#     K%        -0.96      -1.03      <1e-4 / <1e-4
+#     sprint    +0.15      +0.14      .053  / .151
+#     zone-ct   -0.08      -0.06      .432  / .689     <- dropped
+#     GB%       +0.05      +0.04      .604  / .726     <- not added
+#     PU%       +0.02      -0.04      .812  / .735     <- not added
+#
+# Two things that survived the fit and two that did not. Zone contact was carried
+# at +0.4 on the reasoning that bat-to-bat drives hits; on this evidence it is
+# insignificant and *negatively* signed, because it is collinear with K% and adds
+# nothing once K% is in the model. Batted-ball mix is the same story: GB% looks
+# strongly predictive of BA-on-contact (p=.001), but that is strikeout rate
+# leaking through -- ground-ball hitters are contact hitters -- and it evaporates
+# against hits per PA with K% controlled. Both are excluded rather than shipped
+# at a weight the data will not support.
 W_XBA = 1.0
-W_K = 0.9
-W_ZCONTACT = 0.4
-W_SPRINT = 0.3
+W_K = 1.0
+W_SPRINT = 0.15
 
-# League standard deviations, used to put the four inputs on one scale. Measured
-# over the same cohort, except sprint speed, which comes from a season leaderboard
+# League standard deviations, used to put the inputs on one scale. Measured over
+# the same cohort, except sprint speed, which comes from a season leaderboard
 # rather than the Statcast window.
 SD_XBA = 0.047
 SD_K = 0.079
-SD_ZCONTACT = 0.057
 SD_SPRINT = 1.6
 
-# Tier cut points, read off the percentiles of the composite over that cohort
-# (mean +0.01, SD 1.41): elite is the top 15% of bats, good the next 30%, poor
-# the bottom 20%. Set as quantiles rather than round numbers so the tier mix is
-# a known share of the league instead of an accident of the weights.
-DEFAULT_ELITE = 1.40
-DEFAULT_GOOD = 0.00
-DEFAULT_POOR = -1.10
+# Tier cut points, read off the percentiles of the composite pooled over two
+# Statcast windows (791 batter-windows): elite is the top 15% of bats, good the
+# next 30%, poor the bottom 20%. Set as quantiles rather than round numbers so
+# the tier mix is a known share of the league instead of an accident of the
+# weights. The two windows agree to within 0.08 on every cut.
+DEFAULT_ELITE = 1.24
+DEFAULT_GOOD = 0.04
+DEFAULT_POOR = -0.89
 
 # Context floor an "average" bat must clear to be bought: park factor times the
 # weather multiplier, where 1.0 is a neutral night in a neutral yard. Elite and
@@ -144,7 +164,6 @@ def contact_score(breg: BatterRegression | None) -> float:
     # carries no completed plate appearances.
     if breg.k_pct == breg.k_pct:  # not NaN
         score += W_K * (BL_K_PCT - breg.k_pct) / SD_K
-    score += W_ZCONTACT * (breg.zone_contact - BL_ZCONTACT) / SD_ZCONTACT
     score += W_SPRINT * (breg.sprint_speed - BL_SPRINT) / SD_SPRINT
     return float(score)
 
