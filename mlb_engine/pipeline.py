@@ -353,6 +353,10 @@ def load_calibrator(live: Path | None = None) -> Calibrator:
 
 
 class Pipeline:
+    # Rebound per slate in ``run``. The class-level empty default lets a caller
+    # that prices a single recommendation stand up a Pipeline without a board.
+    _quote_aliases: dict[tuple[str, str, str], list[MarketQuote]] = {}
+
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
         self.deps = deps
@@ -450,6 +454,7 @@ class Pipeline:
             odds = self.deps.oddsapi.fetch(slate)
             quotes = _merge_quotes(odds, quotes)
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
+        self._quote_aliases = keys.canonical_index(quotes)
 
         self._luck_gaps = (
             compute_luck_gaps(load_team_forms(self.cfg.team_form_path))
@@ -1707,6 +1712,8 @@ class Pipeline:
 
         key = (matchup, market, selection)
         q = (quotes or {}).get(key)
+        if q is None:
+            q = self._quote_aliases.get((matchup, market, keys.canonical(selection)))
         if q:
             evres = evaluate(rec.model_prob, q)
             if self.cfg.market_anchor > 0:

@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
+from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.odds import american_to_decimal
 
@@ -141,11 +142,19 @@ def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> 
     were never priced at bet time, are left as None rather than defaulted -- a
     missing close is missing information, not zero closing line value.
     """
+    # The close is keyed on the book's spelling of a name and the ledger on the
+    # lineup feed's, so props need the same accent/suffix-insensitive fallback
+    # the live pricing uses.
+    aliases = keys.canonical_index(
+        {(c.matchup, c.market, c.selection): c for c in closing.values()}
+    )
     n = 0
     for e in entries:
         if e.odds is None:
             continue
         close = closing.get(_KEY_SEP.join((e.matchup, e.market, e.selection)))
+        if close is None:
+            close = aliases.get((e.matchup, e.market, keys.canonical(e.selection)))
         if close is None:
             continue
         e.close_odds = close.american
