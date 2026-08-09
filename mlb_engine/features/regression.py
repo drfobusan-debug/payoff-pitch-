@@ -80,14 +80,36 @@ BARREL_PA_SLOPE = 2.5 * BL_BARREL / BL_BARREL_PA  # rescaled to the per-PA range
 # only; the full -3.5 would charge for the strikeouts twice.
 SINGLES_BARREL_SLOPE = 1.5
 
-# Ground balls are the singles-producing batted ball, and nothing on the 1B line
-# reads batted-ball mix. Leave-one-slate-out on eight slates wants +0.152 logit
-# per SD of GB rate (SD .085), the largest of any contact term -- but it is not
-# separable from zero on that sample and GB rate is already correlated -.28 with
-# the barrel term above, so this slope is about 40% of the fitted value and the
-# term is off by default. `Config.singles_gb` turns it on to accumulate a graded
-# counterfactual.
+# Ground balls are the singles-producing batted ball, and nothing else on the 1B
+# line reads batted-ball mix. The eight-slate sample this slope was first set on
+# could not separate it from zero; the full 2026 season can. Splitting the season
+# in half and regressing each hitter's second-half singles rate on his first-half
+# profile (n=214, 80+ BBE) puts ground-ball rate at +.083 singles/PA per unit
+# (t=+2.71) jointly with xBA, whiff%, zone-contact% and barrel% -- a +0.58
+# multiplier slope against a .143 base, and it survives controlling for contact%
+# and K% (partial r +.250, p=2.4e-4), so it is not a contact proxy. GB% also
+# split-half correlates .771 at 80 batted balls, the fastest-stabilizing input on
+# the line. The 0.5 here predates that fit and is within its interval, so it is
+# kept and the term is simply switched on.
+#
+# Re-scoring the graded singles props one game at a time cannot confirm or refute
+# this: the whole multiplier only reaches AUC .5385 against a single game's four
+# plate appearances, and the bootstrap CI on any one term is +/-.004, wider than
+# the effect. The season-level fit is the powered test; the prop-level one is
+# neutral, not contradictory.
 SINGLES_GB_SLOPE = 0.5
+
+# Contact-term weights. The half-season fit wants far more on zone-contact%
+# (+1.38 per unit, t=+2.45) and almost none on whiff% (-0.14, t=-0.30), since the
+# two are near-duplicates and zone contact absorbs the pair -- but that is a
+# 300-PA read and the engine sees 21 days. Re-scoring the 19,010 graded singles
+# props on their real trailing windows, fit on the early half and scored on the
+# late half and vice versa, the two halves want opposite weights (early prefers
+# whiff up, late prefers it down) and the full-set AUC does not move: .5385 both
+# ways, bootstrap dAUC -.0002, 95% CI [-.0038, +.0033]. So the re-weight is not
+# separable from zero on the window that ships, and these stay where they were.
+SINGLES_ZONE_CONTACT_SLOPE = 0.30
+SINGLES_WHIFF_SLOPE = 0.30
 
 
 def _clip(x: float, lo: float, hi: float) -> float:
@@ -136,8 +158,8 @@ class BatterRegression:
     ) -> dict[str, float]:
         """Return bounded outcome multipliers for {1B,2B,3B,HR}.
 
-        Either singles slope at 0 drops that term; ``singles_gb_slope`` defaults
-        to 0 because the ground-ball effect is not yet separable from zero.
+        Either singles slope at 0 drops that term. ``singles_gb_slope`` is passed
+        as 0 by callers that keep the ground-ball term off.
         """
         if self.bbe < MIN_BBE:
             return {}
@@ -170,8 +192,12 @@ class BatterRegression:
         # --- Singles ---
         one = 1.0
         one *= 1.0 + _clip((self.xba - BL_XBA) * 0.60, -0.08, 0.10)  # PPV
-        one *= 1.0 + _clip((BL_WHIFF - self.whiff) * 0.30, -0.06, 0.06)  # sensitive
-        one *= 1.0 + _clip((self.zone_contact - BL_ZONE_CONTACT) * 0.30, -0.05, 0.05)  # sensitive
+        one *= 1.0 + _clip(
+            (BL_WHIFF - self.whiff) * SINGLES_WHIFF_SLOPE, -0.06, 0.06
+        )  # sensitive
+        one *= 1.0 + _clip(
+            (self.zone_contact - BL_ZONE_CONTACT) * SINGLES_ZONE_CONTACT_SLOPE, -0.05, 0.05
+        )  # sensitive
         one *= 1.0 + _clip((self.sprint_speed - BL_SPRINT) * 0.010, -0.04, 0.05)  # PPV speed
         one *= 1.0 + _clip(
             (BL_BARREL - self.barrel_rate) * singles_barrel_slope, -0.06, 0.06
@@ -388,6 +414,21 @@ BL_STUFF_PLUS = 100.0
 BL_LOCATION_PLUS = 100.0
 BL_SWSTR = 0.110  # swinging strikes / pitches
 BL_WHIFF_PITCHER = 0.240  # swinging strikes / swings induced
+BL_GB_ALLOWED = 0.420
+
+# A ground-ball arm does not allow fewer hits -- it allows a different kind of
+# hit. Regressing each pitcher's second-half batted-ball outcomes on his
+# first-half ground-ball rate (n=159, 70+ BBE, jointly with barrel rate allowed)
+# leaves the hit rate untouched (-.052 hits/BIP per unit, t=-1.09, r=-.016) while
+# moving the composition hard: extra-base hits per BIP -.092 (t=-3.00) and home
+# runs per PA -.035 (t=-2.05), with singles per BIP taking up the slack (+.039,
+# t=+1.03). Total hits allowed is therefore roughly conserved and only the split
+# changes -- which is why a rate-only screen sees nothing here, and why a single
+# multiplier shared by 1B/2B/3B cannot express it. Slopes below are the fitted
+# per-unit multipliers (absolute slope / that outcome's base rate).
+GB_ALLOWED_1B_SLOPE = 0.19
+GB_ALLOWED_XBH_SLOPE = -1.32
+GB_ALLOWED_HR_SLOPE = -1.05
 
 # Stuff-based expected-K% fit: xK% is a linear function of the two fastest-
 # stabilizing whiff signals (CSW% and SwStr%), anchored so a league-average arm
@@ -436,6 +477,7 @@ class PitcherRegression:
     zone_pct: float = BL_ZONE
     chase: float = BL_CHASE
     fstrike: float = BL_FSTRIKE
+    gb_allowed: float = BL_GB_ALLOWED
     k_pct_vs_l: float = float("nan")
     k_pct_vs_r: float = float("nan")
     ivb: float = float("nan")
@@ -509,8 +551,13 @@ class PitcherRegression:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
 
-    def allowed_multipliers(self) -> dict[str, float]:
-        """Multipliers on outcomes the pitcher ALLOWS (hits/xbh/hr)."""
+    def allowed_multipliers(self, gb_composition: bool = True) -> dict[str, float]:
+        """Multipliers on outcomes the pitcher ALLOWS (hits/xbh/hr).
+
+        ``base`` sets how many hits the arm allows; the ground-ball terms set
+        what kind, shifting extra-base hits and home runs into singles without
+        moving the total. Pass ``gb_composition=False`` to price the rate only.
+        """
         if self.bbe < MIN_BBE:
             return {}
         base = 1.0
@@ -522,8 +569,20 @@ class PitcherRegression:
 
         # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
         hr = base * (1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18))
-        hr = _clip(hr, 0.85, 1.35)
-        return {"1B": base, "2B": base, "3B": base, "HR": hr}
+        one = xbh = base
+
+        if gb_composition and self.gb_allowed == self.gb_allowed:
+            gb = self.gb_allowed - BL_GB_ALLOWED
+            one *= 1.0 + _clip(gb * GB_ALLOWED_1B_SLOPE, -0.04, 0.04)
+            xbh *= 1.0 + _clip(gb * GB_ALLOWED_XBH_SLOPE, -0.15, 0.15)
+            hr *= 1.0 + _clip(gb * GB_ALLOWED_HR_SLOPE, -0.12, 0.12)
+
+        return {
+            "1B": _clip(one, 0.85, 1.18),
+            "2B": _clip(xbh, 0.80, 1.25),
+            "3B": _clip(xbh, 0.80, 1.25),
+            "HR": _clip(hr, 0.85, 1.35),
+        }
 
 
 def build_pitcher_regression(
@@ -551,6 +610,9 @@ def build_pitcher_regression(
         if n_bbe and "woba_value" in batted
         else xwoba
     )
+
+    bb_type = batted["bb_type"].dropna() if "bb_type" in batted else pd.Series(dtype=object)
+    gb_allowed = float(bb_type.eq("ground_ball").mean()) if len(bb_type) else BL_GB_ALLOWED
 
     # CSW% = (called strikes + whiffs) / pitches
     if n_pitches and "description" in pdf:
@@ -654,6 +716,7 @@ def build_pitcher_regression(
         zone_pct=zone_pct,
         chase=chase,
         fstrike=fstrike,
+        gb_allowed=gb_allowed,
         k_pct_vs_l=k_pct_vs_l,
         k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,

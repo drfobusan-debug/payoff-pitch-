@@ -520,7 +520,9 @@ class Pipeline:
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
         pit_reg = build_pitcher_regression(pit_rows)
-        pit_allowed_mult = pit_reg.allowed_multipliers()
+        pit_allowed_mult = pit_reg.allowed_multipliers(
+            gb_composition=self.cfg.pitcher_gb_composition
+        )
         k_mult = pit_reg.k_multiplier()
 
         # Stuff/command priors: pull the starter's allowed K and BB rates toward
@@ -544,7 +546,9 @@ class Pipeline:
             statcast, opp.abbrev, slate_date, w.bullpen_days, w.bullpen_min_inning
         )
         bpen_reg = build_pitcher_regression(bpen.relief)
-        bpen_allowed = bpen_reg.allowed_multipliers()
+        bpen_allowed = bpen_reg.allowed_multipliers(
+            gb_composition=self.cfg.pitcher_gb_composition
+        )
         bpen_k = bpen_reg.k_multiplier()
         avail = (
             self.deps.rotowire.bullpen_availability(opp.abbrev)
