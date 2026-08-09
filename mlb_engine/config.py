@@ -268,6 +268,13 @@ class Config:
         default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
     )
 
+    # Hierarchical batter splits: regress each home/away and platoon split
+    # toward the batter's own overall rate rather than toward the league. Set
+    # MLBE_BATTER_SPLIT_PRIOR=0 to restore the flat league prior everywhere.
+    batter_split_prior: bool = field(
+        default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
+    )
+
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
     # power contact, pull-heavy grounders). Live by default; set

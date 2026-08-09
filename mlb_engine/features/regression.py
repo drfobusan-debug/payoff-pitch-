@@ -290,7 +290,14 @@ class BatterRegression:
         one *= 1.0 + _clip(
             (self.gb_rate - BL_GB_RATE) * singles_gb_slope, -0.06, 0.06
         )  # PPV batted-ball mix
-        one = _clip(one, 0.85, 1.18)
+        # The floor is deliberately further from 1.0 than the ceiling, and was
+        # widened from 0.85. At 0.85 a genuinely poor contact hitter could not
+        # be marked down more than 15% while the home-run line allows 50% -- and
+        # the graded ledger shows the cost of that asymmetry lands exactly here:
+        # the realised hit gap between the worst and best quartile of bats was
+        # 9.3 points and the model priced 3.7. Weak bats were the false
+        # positives, so the room to price them down is the half that mattered.
+        one = _clip(one, 0.72, 1.18)
 
         # --- BABIP / dxwOBA luck regression (nudges contact outcomes) ---
         # Positive dxwOBA (unlucky) -> nudge up; high BABIP + neg dxwOBA -> down.
