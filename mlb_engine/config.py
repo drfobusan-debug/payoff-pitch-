@@ -275,9 +275,10 @@ class Config:
     )
 
     # Ground-ball rate is the batted-ball half of the same story and the largest
-    # remaining contact term, but on eight slates it is not separable from zero.
-    # Off by default: enabling it grades a counterfactual without moving picks.
-    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
+    # remaining contact term. Eight slates could not separate it from zero; the
+    # 2026 half-season split can (t=+2.71 jointly, partial r +.250 after contact%
+    # and K%), so it is on. MLBE_SINGLES_GB=0 restores the old behaviour.
+    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", True))
     singles_gb_slope: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
     )
@@ -287,6 +288,13 @@ class Config:
     # graded window that set the HR weights measured per BBE, so flipping this
     # changes what those weights were fitted against.
     barrel_per_pa: bool = field(default_factory=lambda: _env_bool("MLBE_BARREL_PER_PA", False))
+
+    # A ground-ball starter allows the same number of hits as anyone else and a
+    # different kind: fewer extra-base hits and home runs, more singles. Set
+    # MLBE_PITCHER_GB=0 to price only the hit rate, as before.
+    pitcher_gb_composition: bool = field(
+        default_factory=lambda: _env_bool("MLBE_PITCHER_GB", True)
+    )
 
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are

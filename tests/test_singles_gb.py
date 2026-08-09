@@ -1,4 +1,4 @@
-"""Ground-ball rate on the singles line (off by default)."""
+"""Ground-ball rate on the singles line."""
 
 from __future__ import annotations
 
@@ -34,11 +34,17 @@ def _reg(gb: float) -> BatterRegression:
     )
 
 
-def test_gb_term_is_off_unless_asked_for() -> None:
+def test_gb_term_is_on_by_default_and_still_switchable() -> None:
     worm_burner = _reg(0.60)
-    assert worm_burner.multipliers()["1B"] == 1.0
-    assert Config().singles_gb is False
+    assert Config().singles_gb is True
     assert worm_burner.multipliers(singles_gb_slope=SINGLES_GB_SLOPE)["1B"] > 1.0
+    # A caller that passes no slope keeps the term out entirely.
+    assert worm_burner.multipliers()["1B"] == 1.0
+
+
+def test_gb_term_can_be_switched_off_by_env(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_SINGLES_GB", "0")
+    assert Config().singles_gb is False
 
 
 def test_grounders_help_singles_and_nothing_else() -> None:
