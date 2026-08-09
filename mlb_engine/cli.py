@@ -417,9 +417,12 @@ def cmd_close(args: argparse.Namespace) -> int:
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
-    quotes = client.fetch(slate, include_props=not args.game_only)
+    quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
-        print(f"No closing prices returned for {slate_date}")
+        print(
+            f"No closing prices returned for {slate_date}: every game has started, "
+            "or the board is empty. Nothing captured -- an in-play price is not a close."
+        )
         return 1
     path = _closing_path(cfg, slate_date)
     already = load_closing(path)

@@ -25,6 +25,7 @@ import json
 import logging
 import re
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -84,16 +85,26 @@ Quotes = dict[tuple[str, str, str], list[MarketQuote]]
 
 
 class _Event:
-    __slots__ = ("event_id", "matchup", "home_ab", "away_ab", "home_name", "away_name")
+    __slots__ = (
+        "event_id", "matchup", "home_ab", "away_ab", "home_name", "away_name", "commence",
+    )
 
     def __init__(self, event_id: str, home_ab: str, away_ab: str,
-                 home_name: str, away_name: str) -> None:
+                 home_name: str, away_name: str,
+                 commence: datetime | None = None) -> None:
         self.event_id = event_id
         self.matchup = f"{away_ab} @ {home_ab}"
         self.home_ab = home_ab
         self.away_ab = away_ab
         self.home_name = home_name
         self.away_name = away_name
+        self.commence = commence
+
+    def started(self, now: datetime | None = None) -> bool:
+        """Whether first pitch has passed, so any price quoted is in-play."""
+        if self.commence is None:
+            return False
+        return self.commence <= (now or datetime.now(timezone.utc))
 
 
 class OddsAPIClient:
@@ -124,11 +135,21 @@ class OddsAPIClient:
         """Markets requested per event. Each one costs a credit per region."""
         return (list(_F5_MARKETS) if self.include_f5 else []) + list(self.prop_markets)
 
-    def fetch(self, slate: Slate, *, include_props: bool = True) -> Quotes:
+    def fetch(
+        self, slate: Slate, *, include_props: bool = True, pregame_only: bool = False
+    ) -> Quotes:
         """Return priced quotes across books for the slate.
 
         Full-game ML/run-line/total from one bulk call; F5 and props per event
         (only when ``include_props``). Returns ``{}`` if no key or on failure.
+
+        ``pregame_only`` drops games that have already started. The vendor keeps
+        quoting a game once it is under way, and those in-play prices are not
+        comparable to the ones we bet -- a team up 6-0 in the 7th is -2000, which
+        as a "close" would read as an enormous edge or an enormous miss purely
+        from the score. The closing capture sets it; a pregame run does not need
+        it, and a re-run of a finished slate (the audit regenerating yesterday's
+        picks) must not have it or it would price nothing at all.
         """
         if not self.available():
             return {}
@@ -143,12 +164,18 @@ class OddsAPIClient:
 
         out: Quotes = {}
         events: list[_Event] = []
+        started = 0
         for raw in data:
             ev = self._to_event(raw, norm_to_ab)
             if ev is None:
                 continue
+            if pregame_only and ev.started():
+                started += 1
+                continue
             events.append(ev)
             self._parse_game(raw, ev, out, f5=False)
+        if started:
+            log.info("Odds API: skipped %d game(s) already under way", started)
 
         markets = self.event_markets()
         if include_props and markets:
@@ -277,7 +304,10 @@ class OddsAPIClient:
         eid = raw.get("id")
         if home_ab is None or away_ab is None or not eid:
             return None
-        return _Event(str(eid), home_ab, away_ab, home_name, away_name)
+        return _Event(
+            str(eid), home_ab, away_ab, home_name, away_name,
+            _commence_time(raw.get("commence_time")),
+        )
 
     def _cache_path(self, url: str, params: dict[str, str]) -> Path | None:
         if self.cache_dir is None:
@@ -316,6 +346,16 @@ class OddsAPIClient:
                 _redact(str(exc), self.api_key),
             )
             return None
+
+
+def _commence_time(raw: object) -> datetime | None:
+    """First pitch from the vendor's ISO-8601 UTC stamp, or ``None`` if absent."""
+    if not isinstance(raw, str) or not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
 
 
 def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:

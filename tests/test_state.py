@@ -166,6 +166,37 @@ def test_a_second_machine_cannot_erase_the_first(
     assert dates == ["2026-08-03", "2026-08-04"]
 
 
+def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The 2026-08-09 data loss: a stale push silently truncated the ledger.
+
+    The overnight audit graded 08-08 and pushed. The next morning's run had
+    pulled before that landed, so its ledger stopped at 08-07 -- and pushing it
+    overwrote the branch, taking 08-08 and 33,199 earlier rows with it. Git
+    accepted it as a fast-forward, so the retry-and-merge path never ran: a
+    clean push is not evidence that this machine holds every date.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    _ledger(data_b / "audit" / "ledger.csv", [_row("2026-08-07", "KC")])
+    push_state(data_b, "run 08-08", repo=repo_b, branch="engine-state")
+
+    # The audit box grades the new slate on top of what it already had.
+    _ledger(
+        data_a / "audit" / "ledger.csv",
+        [_row("2026-08-07", "KC"), _row("2026-08-08", "DET")],
+    )
+    push_state(data_a, "audit 08-08", repo=repo_a, branch="engine-state")
+
+    # The morning run publishes again from its stale copy, without pulling.
+    push_state(data_b, "run 08-09", repo=repo_b, branch="engine-state")
+
+    pull_state(data_a, repo=repo_a, branch="engine-state")
+    with (data_a / "audit" / "ledger.csv").open(newline="") as f:
+        dates = [r["date"] for r in csv.DictReader(f)]
+    assert dates == ["2026-08-07", "2026-08-08"]
+
+
 def test_a_single_branch_clone_can_still_read_the_state(
     machines: tuple[Path, Path, Path, Path], tmp_path: Path
 ) -> None:
