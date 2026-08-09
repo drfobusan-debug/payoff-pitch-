@@ -153,10 +153,18 @@ def batter_xhr(bdf: pd.DataFrame) -> XHRProfile:
     fences = _fence_lookup(teams)
     sprays = spray_angle(live["hc_x"], live["hc_y"])
 
+    # Positional, not label: a Statcast slice stitched from cached day-frames
+    # repeats index labels, and ``sprays[idx]`` then hands back every row that
+    # shares the label instead of one angle.
     xhr = 0.0
-    for idx, dist in live["hit_distance_sc"].astype(float).items():
-        fence = fences.get(str(teams.get(idx)), fence_for_team(None))
-        xhr += hr_probability(dist, wall_distance(fence, float(sprays[idx])))
+    for dist, spray, team in zip(
+        live["hit_distance_sc"].astype(float).to_numpy(),
+        sprays.to_numpy(),
+        teams.to_numpy(),
+        strict=True,
+    ):
+        fence = fences.get(str(team), fence_for_team(None))
+        xhr += hr_probability(float(dist), wall_distance(fence, float(spray)))
 
     return XHRProfile(pa=n_pa, batted=n_batted, hr=n_hr, xhr=xhr, has_data=True)
 
@@ -185,8 +193,12 @@ def xhr_at_fence(bdf: pd.DataFrame, fence: Fence) -> float:
         return 0.0
     sprays = spray_angle(live["hc_x"], live["hc_y"])
     return sum(
-        hr_probability(float(d), wall_distance(fence, float(sprays[idx])))
-        for idx, d in live["hit_distance_sc"].astype(float).items()
+        hr_probability(float(d), wall_distance(fence, float(spray)))
+        for d, spray in zip(
+            live["hit_distance_sc"].astype(float).to_numpy(),
+            sprays.to_numpy(),
+            strict=True,
+        )
     )
 
 

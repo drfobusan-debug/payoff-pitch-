@@ -80,6 +80,17 @@ def batted_balls(df: pd.DataFrame) -> pd.DataFrame:
     return bip[bip["launch_speed"].notna()] if "launch_speed" in bip else bip
 
 
+def _unique_index(df: pd.DataFrame) -> pd.DataFrame:
+    """Renumber the rows.
+
+    pybaseball stitches the range together one day at a time and keeps each
+    day's row numbers, so labels repeat thousands of times. Any ``series[idx]``
+    downstream then returns every row sharing that label instead of a value --
+    it reads as a hitter's whole slice where one batted ball was meant.
+    """
+    return df if df.index.is_unique else df.reset_index(drop=True)
+
+
 class StatcastRepository:
     """Loads and caches Statcast pitch-level data."""
 
@@ -95,7 +106,7 @@ class StatcastRepository:
         cache = self._cache_path(start, end)
         if cache.exists() and not refresh:
             log.info("Loading cached Statcast %s..%s", start, end)
-            return pd.read_pickle(cache)
+            return _unique_index(pd.read_pickle(cache))
 
         from pybaseball import statcast  # imported lazily; heavy dependency
 
@@ -107,6 +118,7 @@ class StatcastRepository:
             keep = [c for c in USE_COLS if c in df.columns]
             df = df[keep].copy()
             df["game_date"] = pd.to_datetime(df["game_date"]).dt.date
+        df = _unique_index(df)
         df.to_pickle(cache)
         return df
 
