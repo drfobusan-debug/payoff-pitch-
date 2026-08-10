@@ -406,6 +406,32 @@ def test_vsin_fetch_quotes_maps_to_slate():
     assert splits[("MIN @ CLE", "game_total", "Under 7.5")].handle_pct == 87.0
     assert client.fetch_quotes(slate).keys() == quotes.keys()
 
+    # An alternate line is the same public money: VSIN posts the split against
+    # its own line, but the engine routinely picks 8.5 or 9.5 on the same game,
+    # and keying on the full selection dropped the split on every one of them.
+    from mlb_engine.data.vsin import lookup_split
+
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Over 9.5").handle_pct == 13.0
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Under 8.5").handle_pct == 87.0
+    assert lookup_split(splits, "MIN @ CLE", "game_rl", "MIN -2.5").handle_pct == 96.0
+    # The exact line still wins when it is present, and an uncovered game or a
+    # market VSIN never reports stays absent rather than borrowing a side.
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Over 7.5").handle_pct == 13.0
+    assert lookup_split(splits, "TB @ ATH", "game_total", "Over 8.5") is None
+    assert lookup_split(splits, "MIN @ CLE", "batter_h", "Jose Ramirez H o0.5") is None
+
+
+def test_split_side_ignores_the_line():
+    from mlb_engine.data.vsin import split_side
+
+    assert split_side("game_total", "Over 7.5") == "Over"
+    assert split_side("game_total", "Under 9.5") == "Under"
+    assert split_side("game_rl", "BAL -1.5") == "BAL"
+    assert split_side("game_ml", "LAD ML") == "LAD"
+    # Props have no public split anywhere, so there is no side to fall back to.
+    assert split_side("batter_h", "Aaron Judge H o1.5") is None
+    assert split_side("game_total", "") is None
+
 
 def test_circa_weighted_consensus_and_divergence():
     from mlb_engine.market.ev import MarketQuote, evaluate

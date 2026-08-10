@@ -27,7 +27,7 @@ from mlb_engine.data.parks import get_park
 from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_person
 from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository, batted_balls
-from mlb_engine.data.vsin import Split, VSINClient
+from mlb_engine.data.vsin import Split, VSINClient, lookup_split
 from mlb_engine.features.efficiency import (
     PitcherEfficiency,
     build_pitcher_efficiency,
@@ -873,11 +873,8 @@ class Pipeline:
 
     def _spread_divergence(self, matchup: str, abbrev: str) -> float | None:
         """VSIN run-line handle% - bets% for a team (sharp side when positive)."""
-        for suffix in ("-1.5", "+1.5"):
-            sp = self._splits.get((matchup, "game_rl", f"{abbrev} {suffix}"))
-            if sp is not None:
-                return sp.divergence
-        return None
+        sp = lookup_split(self._splits, matchup, "game_rl", f"{abbrev} -1.5")
+        return sp.divergence if sp is not None else None
 
     def _sharp_spread_side(self, matchup: str, home_ab: str, away_ab: str) -> str | None:
         """Return 'home'/'away' when VSIN spread money notably outweighs tickets."""
@@ -1782,7 +1779,7 @@ class Pipeline:
             rec.handle_pct = evres.best_quote.handle_pct
             rec.bets_pct = evres.best_quote.bets_pct
             if rec.handle_pct is None:
-                sp = self._splits.get(key)
+                sp = lookup_split(self._splits, *key)
                 if sp is not None:
                     rec.handle_pct = sp.handle_pct
                     rec.bets_pct = sp.bets_pct
@@ -1852,7 +1849,7 @@ class Pipeline:
         else:
             rec.tier = Tier.PASS
             rec.reasons = [veto.reason()] if veto.triggered else ["no market price"]
-            sp = self._splits.get(key)
+            sp = lookup_split(self._splits, *key)
             if sp is not None:
                 rec.handle_pct = sp.handle_pct
                 rec.bets_pct = sp.bets_pct
