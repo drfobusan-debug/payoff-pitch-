@@ -10,6 +10,12 @@ tier:
     Specificity = TN / (TN + FP)
 
 A combined "Buy" row treats Strong+Moderate as the positive prediction.
+
+PPV and NPV are both reported alongside the rate they would show with no skill
+at all, because on their own they are easy to misread in opposite directions.
+NPV especially: when a prop only wins 15% of the time, declining to bet it scores
+85% NPV for free, and a tier that passes on everything scores a perfect one. The
+lift columns are the part that reflects the engine rather than the base rate.
 """
 
 from __future__ import annotations
@@ -34,6 +40,10 @@ class TierMetrics:
     losses: int
     ppv: float
     npv: float
+    base_win: float
+    base_loss: float
+    ppv_lift: float
+    npv_lift: float
     sensitivity: float
     specificity: float
     roi: float
@@ -81,6 +91,9 @@ def _tier_metrics(
             tn += 1
         if pred_pos:
             subset.append((rec, g))
+    graded_n = tp + fp + fn + tn
+    base_win = _safe(tp + fn, graded_n)
+    base_loss = _safe(fp + tn, graded_n)
     return TierMetrics(
         date=date.isoformat(),
         tier=label,
@@ -89,6 +102,10 @@ def _tier_metrics(
         losses=fp,
         ppv=_safe(tp, tp + fp),
         npv=_safe(tn, tn + fn),
+        base_win=base_win,
+        base_loss=base_loss,
+        ppv_lift=round(_safe(tp, tp + fp) - base_win, 4) if tp + fp else 0.0,
+        npv_lift=round(_safe(tn, tn + fn) - base_loss, 4) if tn + fn else 0.0,
         sensitivity=_safe(tp, tp + fn),
         specificity=_safe(tn, tn + fp),
         roi=_roi(subset),
@@ -113,15 +130,41 @@ FIELDS = [
     "losses",
     "ppv",
     "npv",
+    "base_win",
+    "base_loss",
+    "ppv_lift",
+    "npv_lift",
     "sensitivity",
     "specificity",
     "roi",
 ]
 
 
+def _migrate(path: Path) -> None:
+    """Widen an existing scorecard to the current columns.
+
+    Appending new fields to a CSV written under an older header silently shifts
+    every value in the new rows one column left of where the reader expects it.
+    Rewrite the file with the full header instead, leaving the added columns
+    blank on historical rows -- they cannot be recomputed, since the scorecard
+    never stored the true-negative counts the lift is derived from.
+    """
+    with path.open(newline="") as f:
+        prior = list(csv.DictReader(f))
+    if not prior or set(prior[0]) >= set(FIELDS):
+        return
+    with path.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=FIELDS)
+        w.writeheader()
+        for row in prior:
+            w.writerow({k: row.get(k, "") for k in FIELDS})
+
+
 def append_scorecard(rows: list[TierMetrics], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     exists = path.exists()
+    if exists:
+        _migrate(path)
     with path.open("a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS)
         if not exists:

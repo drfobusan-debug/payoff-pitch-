@@ -46,7 +46,7 @@ BREAKEVEN = 0.524  # -110 juice: below this, a "buy" side bleeds money
 MIN_FAVORED = 10  # favored picks needed before we judge a prop's PPV
 MIN_FADED = 10  # faded picks needed before we judge a prop's NPV
 MIN_GROUP = 6  # per-outcome sample needed to run a discriminant test
-NPV_FLOOR = 0.62  # faded winners above this rate → reclaimable FN pocket
+NPV_LIFT_FLOOR = 0.02  # fade side adding less than this over base → unexamined FN pocket
 PVAL = 0.05
 
 STORE_NAME = "graded_metrics.csv"
@@ -230,16 +230,61 @@ class PropStat:
         return self.tp / d if d else float("nan")
 
     @property
+    def base_win(self) -> float:
+        """How often this prop wins regardless of what the engine said."""
+        return (self.tp + self.fn) / self.n if self.n else float("nan")
+
+    @property
+    def base_loss(self) -> float:
+        """How often it loses regardless -- the reference NPV must beat."""
+        return (self.fp + self.tn) / self.n if self.n else float("nan")
+
+    @property
+    def ppv_lift(self) -> float:
+        return self.ppv - self.base_win
+
+    @property
+    def npv_lift(self) -> float:
+        """NPV above the rate at which the faded side loses anyway.
+
+        Raw NPV is close to free when the event is rare: fade every home run and
+        you score ~0.90 without knowing anything, because 90% of them miss. Only
+        the lift is skill, and on a market the engine fades 100% of the time the
+        lift is exactly zero by construction.
+        """
+        return self.npv - self.base_loss
+
+    @property
     def leaks_ppv(self) -> bool:
         return self.n_fav >= MIN_FAVORED and self.ppv < BREAKEVEN
 
     @property
+    def picks_below_random(self) -> bool:
+        """Distinguishes 'no signal' from 'real signal that the price beats'.
+
+        A market can sit far below breakeven and still be picking well -- total
+        bases wins 30% of the time against a 21% base rate, so the selections are
+        good and the price is simply worse. Switching that market off deletes the
+        signal; repricing it is the fix. Only a market picking below its own base
+        rate has nothing to salvage.
+        """
+        return self.n_fav >= MIN_FAVORED and self.ppv < self.base_win
+
+    @property
     def reclaimable_fn(self) -> bool:
-        # faded picks that keep winning → NPV low → false-negative pocket
+        """Fades that are not beating the base rate -- where false negatives hide.
+
+        This used to test raw NPV against a fixed 0.62 floor, which selects on the
+        base rate instead of the engine and so flags close to the opposite set of
+        markets. Home runs sit at 0.90 NPV and never tripped it, yet the engine
+        fades every single one, so its lift is exactly zero and every faded winner
+        is a false negative nobody has looked at. Run lines sit at 0.53 and always
+        tripped it while carrying a genuine +12 points of fade skill.
+        """
         d = self.tn + self.fn
         if self.n_fade < MIN_FADED or not d:
             return False
-        return self.npv < NPV_FLOOR
+        return self.npv_lift < NPV_LIFT_FLOOR
 
 
 def _counts(sub: pd.DataFrame) -> tuple[int, int, int, int]:
@@ -406,26 +451,46 @@ def _family_chart(fams: list[PropStat]) -> str:
     labels = [f.label for f in fams]
     ppv = [f.ppv * 100 if not np.isnan(f.ppv) else 0 for f in fams]
     npv = [f.npv * 100 if not np.isnan(f.npv) else 0 for f in fams]
+    # What each bar would read with no skill whatsoever. Without these the NPV
+    # bars are indefensible: fading every home run scores ~90% for free, and
+    # against a 52.4% breakeven line that looks like the best market on the card.
+    base_ppv = [f.base_win * 100 if not np.isnan(f.base_win) else 0 for f in fams]
+    base_npv = [f.base_loss * 100 if not np.isnan(f.base_loss) else 0 for f in fams]
     y = np.arange(len(labels))
     h = 0.38
     fig, ax = plt.subplots(figsize=(7.6, max(1.8, 0.62 * len(labels) + 0.8)))
     ax.barh(y - h / 2, ppv, height=h, color=NAVY, zorder=3, label="PPV (buy side)")
     ax.barh(y + h / 2, npv, height=h, color=GOLD, zorder=3, label="NPV (fade side)")
+    ax.scatter(
+        base_ppv + base_npv,
+        list(y - h / 2) + list(y + h / 2),
+        marker="|",
+        s=170,
+        linewidths=1.6,
+        color=INK,
+        zorder=5,
+        label="base rate (zero skill)",
+    )
     ax.axvline(BREAKEVEN * 100, color=RED, lw=1.2, ls="--", zorder=4)
     ax.text(BREAKEVEN * 100 + 0.4, len(labels) - 0.4, "52.4% breakeven", color=RED, fontsize=8)
-    for yi, (pv, nv) in enumerate(zip(ppv, npv, strict=False)):
-        ax.text(pv + 0.6, yi - h / 2, f"{pv:.0f}", va="center", fontsize=8, color=INK)
-        ax.text(nv + 0.6, yi + h / 2, f"{nv:.0f}", va="center", fontsize=8, color=INK)
+    # Label the lift, not the raw value: the raw value is mostly the base rate.
+    for yi, f in enumerate(fams):
+        for val, off, lift in (
+            (ppv[yi], -h / 2, f.ppv_lift),
+            (npv[yi], h / 2, f.npv_lift),
+        ):
+            txt = "--" if np.isnan(lift) else f"{lift * 100:+.0f}"
+            ax.text(val + 0.6, yi + off, txt, va="center", fontsize=8, color=INK)
     ax.set_yticks(y)
     ax.set_yticklabels(labels, fontsize=9.5, color=INK)
     ax.invert_yaxis()
-    ax.set_xlabel("Predictive value (%)", fontsize=9, color=MUTE)
+    ax.set_xlabel("Predictive value (%) -- labels show lift over the base rate", fontsize=9, color=MUTE)
     ax.set_xlim(0, 105)
     ax.legend(fontsize=8, loc="lower right", frameon=False)
     ax.grid(axis="x", color="#e6e8ec", zorder=0)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
-    ax.set_title("PPV vs NPV by prop family (all slates)", fontsize=11, color=NAVY, loc="left")
+    ax.set_title("PPV vs NPV by prop family, against zero-skill base", fontsize=11, color=NAVY, loc="left")
     return _fig_b64(fig)
 
 
@@ -539,19 +604,35 @@ def _pct(x: float) -> str:
     return "—" if x is None or np.isnan(x) else f"{x * 100:.1f}%"
 
 
+def _signed(x: float) -> str:
+    """Percentage-point lift, always signed -- it is a difference, not a rate."""
+    return "—" if x is None or np.isnan(x) else f"{x * 100:+.1f}"
+
+
 def _pct_cls(x: float) -> str:
     if x is None or np.isnan(x):
         return ""
     return "pos" if x >= BREAKEVEN else "neg"
 
 
+def _lift_cls(x: float) -> str:
+    # Zero is the meaningful threshold for a lift, not the 52.4% betting breakeven.
+    if x is None or np.isnan(x):
+        return ""
+    return "pos" if x > 0 else "neg"
+
+
 def _kpi(day_stat: PropStat, cum_stat: PropStat) -> str:
+    # The headline pair is the all-slate lift, not the raw rate. A raw NPV in the
+    # seventies is what abstention alone pays and says nothing about the engine.
     return (
         "<div class='kpi'>"
         f"<div class='box'><div class='n'>{_pct(day_stat.ppv)}</div><div class='k'>Slate PPV</div></div>"
         f"<div class='box'><div class='n'>{_pct(day_stat.npv)}</div><div class='k'>Slate NPV</div></div>"
-        f"<div class='box'><div class='n'>{_pct(cum_stat.ppv)}</div><div class='k'>All-slate PPV</div></div>"
-        f"<div class='box'><div class='n'>{_pct(cum_stat.npv)}</div><div class='k'>All-slate NPV</div></div>"
+        f"<div class='box'><div class='n'>{_signed(cum_stat.ppv_lift)}</div>"
+        f"<div class='k'>PPV vs base ({_pct(cum_stat.base_win)})</div></div>"
+        f"<div class='box'><div class='n'>{_signed(cum_stat.npv_lift)}</div>"
+        f"<div class='k'>NPV vs base ({_pct(cum_stat.base_loss)})</div></div>"
         f"<div class='box'><div class='n'>{cum_stat.n:,}</div><div class='k'>Graded picks</div></div>"
         "</div>"
     )
@@ -560,14 +641,17 @@ def _kpi(day_stat: PropStat, cum_stat: PropStat) -> str:
 def _stat_table(stats: list[PropStat], first_col: str) -> str:
     head = (
         f"<tr><th class='l'>{first_col}</th><th>Picks</th><th>Favored</th>"
-        "<th>PPV</th><th>NPV</th><th>TP</th><th>FP</th><th>FN</th><th>TN</th></tr>"
+        "<th>PPV</th><th>vs base</th><th>NPV</th><th>vs base</th>"
+        "<th>TP</th><th>FP</th><th>FN</th><th>TN</th></tr>"
     )
     body = ""
     for s in stats:
         body += (
             f"<tr><td class='l'>{s.label}</td><td>{s.n}</td><td>{s.n_fav}</td>"
             f"<td class='{_pct_cls(s.ppv)}'>{_pct(s.ppv)}</td>"
+            f"<td class='{_lift_cls(s.ppv_lift)}'>{_signed(s.ppv_lift)}</td>"
             f"<td class='{_pct_cls(s.npv)}'>{_pct(s.npv)}</td>"
+            f"<td class='{_lift_cls(s.npv_lift)}'>{_signed(s.npv_lift)}</td>"
             f"<td>{s.tp}</td><td>{s.fp}</td><td>{s.fn}</td><td>{s.tn}</td></tr>"
         )
     return f"<table>{head}{body}</table>"
@@ -612,7 +696,12 @@ def build_report(
         f"On the {nice.split(',')[0]} slate the model hit <b>{_pct(day_engine.ppv)}</b> on the buy side and "
         f"<b>{_pct(day_engine.npv)}</b> on the fade side across {day_engine.n:,} graded picks. Across the full "
         f"{cum_df['date'].nunique()}-slate history that settles to <b>{_pct(cum_engine.ppv)}</b> PPV and "
-        f"<b>{_pct(cum_engine.npv)}</b> NPV on {cum_engine.n:,} picks — the number that actually matters, since "
+        f"<b>{_pct(cum_engine.npv)}</b> NPV on {cum_engine.n:,} picks. "
+        "Read both against the base rate rather than on their own: these props lose "
+        f"<b>{_pct(cum_engine.base_loss)}</b> of the time no matter what, so declining to bet one is right "
+        "that often for free, and a fade list that abstained from everything would score a perfect NPV. "
+        f"The part that is actually the engine is <b>{_signed(cum_engine.ppv_lift)}</b> on the buy side and "
+        f"<b>{_signed(cum_engine.npv_lift)}</b> on the fade side — that is the number that matters, since "
         "one slate is mostly noise."
     )
 
@@ -623,14 +712,22 @@ def build_report(
     if diags:
         diag_html += (
             "<h2>Why the Failing Props Fail</h2>"
-            "<p>For every market leaking on the buy side (PPV under the 52.4% breakeven) or sitting on a "
-            "reclaimable false-negative pocket, we split the picks into winners and losers and ask which "
+            "<p>For every market leaking on the buy side (PPV under the 52.4% breakeven) or whose fade side "
+            "is not beating its own base rate, we split the picks into winners and losers and ask which "
             "engine metric actually separates them — point-biserial correlation, run on the full history so "
             "the sample is real. A significant metric is a lever: tighten the buy on it, or stop fading it.</p>"
+            "<p>Note the difference between a market that picks badly and one that picks well at a bad price. "
+            "A market can sit well under breakeven and still be beating its base rate — the selections are "
+            "good and the price is simply worse. Turning that market off deletes the signal; repricing it is "
+            "the fix. Only the markets marked <i>below random</i> have nothing to salvage.</p>"
         )
         for dg in diags:
             st = dg.stat
-            diag_html += f"<h3>{st.label} — PPV {_pct(st.ppv)} (n={st.n_fav}), NPV {_pct(st.npv)} (n={st.n_fade})</h3>"
+            verdict = " · <b>below random</b>" if st.picks_below_random else ""
+            diag_html += (
+                f"<h3>{st.label} — PPV {_pct(st.ppv)} ({_signed(st.ppv_lift)} vs base, n={st.n_fav}), "
+                f"NPV {_pct(st.npv)} ({_signed(st.npv_lift)} vs base, n={st.n_fade}){verdict}</h3>"
+            )
             if st.leaks_ppv:
                 diag_html += (
                     "<p><b>Buy side (false positives).</b> Separating the winning buys from the losing buys: "
