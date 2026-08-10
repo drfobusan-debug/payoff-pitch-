@@ -12,6 +12,7 @@ import pytest
 
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
 from mlb_engine.config import load_config
+from mlb_engine.data.opta import OptaRow, load_rows, save_rows
 from mlb_engine.state import (
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
@@ -270,3 +271,49 @@ def test_predictions_are_compressed_and_pruned(
     assert kept[-1] == f"predictions_2026-06-{PREDICTION_KEEP_DAYS + 3:02d}.json.gz"
     with gzip.open(state / "mlb" / "predictions" / kept[0], "rt") as f:
         assert json.load(f)
+
+
+def _opta(result: str | None, player: str = "Alan Roden") -> OptaRow:
+    return OptaRow(
+        date="2026-08-08",
+        matchup="MIN @ MIL",
+        market="batter_h",
+        selection=f"{player} H o0.5",
+        player=player,
+        player_id=1,
+        stat="H",
+        line=0.5,
+        projection=0.83,
+        over_odds=-229.0,
+        under_odds=170.0,
+        over_prob=0.565,
+        edge=0.064,
+        bet="under",
+        confidence=2,
+        result=result,
+        actual=None if result is None else 0.0,
+    )
+
+
+def test_the_morning_s_projections_meet_the_evening_s_results(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Opta is captured twice a day, and never twice on the same machine.
+
+    The pre-slate capture has the projections and no outcomes; the post-slate
+    one has the outcomes. Whichever pushes second must not erase the other.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    save_rows(data_a / "audit" / "opta_2026-08-08.json", [_opta(None)])
+    pushed = push_state(data_a, "opta morning", repo=repo_a, branch="engine-state")
+    assert "opta_2026-08-08.json" in pushed.pushed
+
+    save_rows(
+        data_b / "audit" / "opta_2026-08-08.json",
+        [_opta("hit"), _opta(None, player="Max Muncy")],
+    )
+    push_state(data_b, "opta evening", repo=repo_b, branch="engine-state")
+
+    pull_state(data_a, repo=repo_a, branch="engine-state")
+    rows = {r.player: r.result for r in load_rows(data_a / "audit" / "opta_2026-08-08.json")}
+    assert rows == {"Alan Roden": "hit", "Max Muncy": None}

@@ -43,6 +43,7 @@ from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
+from mlb_engine.data.opta import OptaClient, load_rows, merge_rows, save_rows
 from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -440,6 +441,51 @@ def cmd_close(args: argparse.Namespace) -> int:
     return 0
 
 
+def _opta_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"opta_{slate_date}.json"
+
+
+def cmd_opta(args: argparse.Namespace) -> int:
+    """Capture VSIN's Opta projections for a slate, as an outside benchmark.
+
+    Free and uncredited, but only ever three days wide: ``day`` clamps at
+    yesterday, so a slate not captured within a day of being played is gone.
+    Run it twice -- once before the games for the projections and prices, once
+    after for the graded outcomes, which the second capture merges in.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    client = OptaClient()
+    dates = client.slate_dates()
+    if not dates:
+        print("VSIN's projection page returned nothing; captured no benchmark.")
+        return 1
+    day = args.day
+    if args.date:
+        offsets = [d for d, iso in dates.items() if iso == args.date]
+        if not offsets:
+            available = ", ".join(sorted(dates.values()))
+            print(f"VSIN only publishes {available}; {args.date} is out of reach.")
+            return 1
+        day = offsets[0]
+    slate_date = dates.get(day, "")
+    rows = client.fetch(day=day, date=slate_date)
+    if not rows:
+        print(f"No Opta projections published for {slate_date or day}.")
+        return 1
+    _state_pull(cfg)
+    path = _opta_path(cfg, slate_date)
+    merged = merge_rows(load_rows(path), rows)
+    save_rows(path, merged)
+    graded = sum(1 for r in merged if r.result is not None)
+    print(
+        f"Captured {len(rows)} Opta projections for {slate_date}; "
+        f"{len(merged)} total, {graded} graded -> {path}"
+    )
+    _state_push(cfg, f"opta {slate_date}: {len(merged)} projections, {graded} graded")
+    return 0
+
+
 def cmd_audit(args: argparse.Namespace) -> int:
     cfg = load_config()
     cfg.ensure_dirs()
@@ -799,6 +845,21 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    op = sub.add_parser(
+        "opta", help="capture VSIN's Opta prop projections as an outside benchmark"
+    )
+    op.add_argument(
+        "--day",
+        type=int,
+        default=0,
+        help="VSIN slate offset: -1 yesterday, 0 today, 1 tomorrow (default: 0)",
+    )
+    op.add_argument(
+        "--date",
+        help="slate date YYYY-MM-DD; must be one of the three VSIN publishes",
+    )
+    op.set_defaults(func=cmd_opta)
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
