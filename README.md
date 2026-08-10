@@ -226,6 +226,9 @@ mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 
 # snapshot the closing market just before first pitch (scores CLV in the audit)
 mlb-engine close --game-only
 
+# capture an outside model's take on the same props (free, expires in a day)
+mlb-engine opta
+
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 
@@ -269,6 +272,38 @@ single market (Brier .2347 vs .2408), so the ROI ambiguity was hiding a clear
 result. Every metrics sheet now also reports **Needs %**, the win rate the
 prices actually charged for, next to the win rate achieved: 59.6% of favoured
 bets won into a 60.5% break-even, which is why 58% PPV never became profit.
+
+### An outside model to be judged against (`mlb-engine opta`)
+
+CLV says whether the *price* was good. It says nothing about whether the
+*probability* was good, because the market only quotes the props it chooses to.
+VSIN publishes Opta AI's MLB projections beside DraftKings' prices and, once a
+slate finishes, the graded outcome of every call — a second model, forecasting
+the same props, scored the same way.
+
+```bash
+mlb-engine opta            # today's projections and prices
+mlb-engine opta --day -1   # yesterday's, now carrying results
+```
+
+Free and uncredited, but only three days wide: the page's `day` offset clamps
+at yesterday, so a slate not captured within a day of being played is gone for
+good. Run it morning and night — the second capture merges the graded outcomes
+into the morning's projections.
+
+On the first two slates where both models had a probability for the same prop
+(2,523 graded), Opta out-forecast the engine in all five batter markets:
+
+| market | n | engine AUC | Opta AUC |
+|---|---|---|---|
+| `batter_hr` | 462 | .574 | **.701** |
+| `batter_h` | 516 | .600 | **.635** |
+| `batter_tb` | 464 | .534 | **.557** |
+| `batter_2b` | 462 | .507 | **.553** |
+| `batter_hrr` | 449 | .488 | **.530** |
+
+Two slates is not a verdict, which is the reason the capture exists rather than
+a reason to act on it yet.
 
 ### Carrying state between machines (`mlb-engine state`)
 

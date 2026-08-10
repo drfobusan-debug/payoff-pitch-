@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from mlb_engine.audit.clv import load_closing, merge_closing, save_closing
+from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -169,6 +170,18 @@ def merge_closing_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_opta_files(remote: Path, local: Path) -> bool:
+    """Union two Opta captures, the later view of a projection winning.
+
+    The morning capture holds the projections and the evening one holds the
+    graded outcomes, and they are usually made on different machines.
+    """
+    if not remote.exists():
+        return False
+    save_rows(local, merge_rows(load_rows(local), load_rows(remote)))
+    return True
+
+
 def _rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
@@ -268,6 +281,9 @@ def pull_state(
     for src in sorted((state / "mlb" / "closing").glob("closing_*.json")):
         if merge_closing_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
+        if merge_opta_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
@@ -324,6 +340,12 @@ def push_state(
             dest = state / "mlb" / "closing" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_closing_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("opta_*.json")):
+            dest = state / "mlb" / "opta" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_opta_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for name, key in _MERGED_CSVS:
@@ -387,6 +409,7 @@ __all__ = [
     "auto_push",
     "SyncReport",
     "merge_closing_files",
+    "merge_opta_files",
     "merge_dated_csv",
     "pull_state",
     "push_state",
