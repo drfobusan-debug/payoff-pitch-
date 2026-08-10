@@ -180,6 +180,148 @@ def test_stale_cache_is_refetched(tmp_path: Path) -> None:
     assert get.call_count == 2
 
 
+def _dated_slate() -> Slate:
+    """Two games, both with a scheduled first pitch, unlike ``_slate``."""
+    slate = _slate(2)
+    for i, g in enumerate(slate.games):
+        g.game_datetime_utc = f"2026-07-28T2{i}:10:00Z"
+    return slate
+
+
+def test_a_later_meeting_of_the_same_clubs_is_not_priced() -> None:
+    """A series puts the same two teams on the vendor's board three nights
+    running, and every one of them matches the slate's name map. Those extra
+    events bill per market and come back empty of props, because the books have
+    not posted tomorrow's yet."""
+    slate = _dated_slate()
+    board = _bulk(slate)
+    for i, g in enumerate(slate.games):
+        board[i]["commence_time"] = g.game_datetime_utc
+        board.append(
+            {
+                "id": f"tomorrow{i}",
+                "home_team": g.home.name,
+                "away_team": g.away.name,
+                "commence_time": f"2026-07-29T2{i}:10:00Z",
+                "bookmakers": [],
+            }
+        )
+
+    client = OddsAPIClient("k")
+    calls: list[str] = []
+
+    def fake_get(url: str, **params: str) -> object:
+        calls.append(url)
+        return {"id": "e", "bookmakers": []} if "/events/" in url else board
+
+    client._get_json = fake_get  # type: ignore[method-assign]
+    client.fetch(slate)
+
+    per_event = [c for c in calls if "/events/" in c]
+    assert len(per_event) == 2
+    assert not any("tomorrow" in c for c in per_event)
+
+
+def test_a_doubleheader_nightcap_is_still_priced() -> None:
+    """Both ends are on the slate in their own right, hours rather than a day
+    apart, so the date filter must not mistake the second for tomorrow."""
+    slate = _slate(1)
+    slate.games[0].game_datetime_utc = "2026-07-28T17:10:00Z"
+    nightcap = Game(
+        game_pk=99,
+        game_date=datetime.date(2026, 7, 28),
+        game_datetime_utc="2026-07-28T21:40:00Z",
+        status="Preview",
+        venue=Venue(venue_id=1, name="x"),
+        home=slate.games[0].home,
+        away=slate.games[0].away,
+    )
+    slate.games.append(nightcap)
+
+    board = [
+        {
+            "id": f"evt{i}",
+            "home_team": g.home.name,
+            "away_team": g.away.name,
+            "commence_time": g.game_datetime_utc,
+            "bookmakers": [],
+        }
+        for i, g in enumerate(slate.games)
+    ]
+
+    client = OddsAPIClient("k")
+    calls: list[str] = []
+
+    def fake_get(url: str, **params: str) -> object:
+        calls.append(url)
+        return {"id": "e", "bookmakers": []} if "/events/" in url else board
+
+    client._get_json = fake_get  # type: ignore[method-assign]
+    client.fetch(slate)
+
+    assert len([c for c in calls if "/events/" in c]) == 2
+
+
+def test_an_event_without_a_start_time_is_kept() -> None:
+    """The vendor omitting a commence stamp should cost a wasted credit at worst,
+    never a missing price."""
+    slate = _dated_slate()
+    board = _bulk(slate)  # no commence_time on any row
+
+    client = OddsAPIClient("k")
+    calls: list[str] = []
+
+    def fake_get(url: str, **params: str) -> object:
+        calls.append(url)
+        return {"id": "e", "bookmakers": []} if "/events/" in url else board
+
+    client._get_json = fake_get  # type: ignore[method-assign]
+    client.fetch(slate)
+
+    assert len([c for c in calls if "/events/" in c]) == 2
+
+
+def test_the_free_event_fallback_also_drops_later_dates() -> None:
+    """The props path must not re-import tomorrow's games when the bulk board
+    fails and event ids come from /events instead."""
+    slate = _dated_slate()
+    listing = [
+        {
+            "id": f"evt{i}",
+            "home_team": g.home.name,
+            "away_team": g.away.name,
+            "commence_time": g.game_datetime_utc,
+        }
+        for i, g in enumerate(slate.games)
+    ]
+    listing.append(
+        {
+            "id": "tomorrow",
+            "home_team": slate.games[0].home.name,
+            "away_team": slate.games[0].away.name,
+            "commence_time": "2026-07-29T20:10:00Z",
+        }
+    )
+
+    client = OddsAPIClient("k")
+    calls: list[str] = []
+
+    def fake_get(url: str, **params: str) -> object:
+        calls.append(url)
+        if "/events/" in url:
+            return {"id": "e", "bookmakers": []}
+        if url.endswith("/events"):
+            return listing
+        return None  # the bulk board fails
+
+    client._get_json = fake_get  # type: ignore[method-assign]
+    client.fetch(slate)
+
+    per_event = [c for c in calls if "/events/" in c]
+    assert len(per_event) == 2
+    assert not any("tomorrow" in c for c in per_event)
+
+
 def test_f5_can_be_dropped_from_the_request() -> None:
     client = OddsAPIClient("k", include_f5=False)
     assert client.event_markets() == list(DEFAULT_PROP_MARKETS)
