@@ -2158,9 +2158,23 @@
   {
     "matchup": "CHC @ KC",
     "market": "game_total",
+    "selection": "Over 10.0",
+    "american": -113.0,
+    "no_vig_prob": 0.506496
+  },
+  {
+    "matchup": "CHC @ KC",
+    "market": "game_total",
     "selection": "Over 10.5",
     "american": 100.0,
     "no_vig_prob": 0.486899
+  },
+  {
+    "matchup": "CHC @ KC",
+    "market": "game_total",
+    "selection": "Under 10.0",
+    "american": -107.0,
+    "no_vig_prob": 0.493504
   },
   {
     "matchup": "CHC @ KC",
@@ -2508,9 +2522,23 @@
   {
     "matchup": "CIN @ WSH",
     "market": "f5_rl",
+    "selection": "CIN F5 +0.5",
+    "american": 118.0,
+    "no_vig_prob": 0.428258
+  },
+  {
+    "matchup": "CIN @ WSH",
+    "market": "f5_rl",
     "selection": "CIN F5 +1.5",
     "american": -135.0,
     "no_vig_prob": 0.559757
+  },
+  {
+    "matchup": "CIN @ WSH",
+    "market": "f5_rl",
+    "selection": "WSH F5 -0.5",
+    "american": -158.0,
+    "no_vig_prob": 0.571742
   },
   {
     "matchup": "CIN @ WSH",
@@ -2623,6 +2651,13 @@
     "selection": "Brady Singer Walks o2.5",
     "american": 145.0,
     "no_vig_prob": 0.379747
+  },
+  {
+    "matchup": "CIN @ WSH",
+    "market": "pitcher_h",
+    "selection": "Brady Singer Hits o4.5",
+    "american": -145.0,
+    "no_vig_prob": 0.548179
   },
   {
     "matchup": "CIN @ WSH",
@@ -2788,6 +2823,13 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_1b",
+    "selection": "Steven Kwan 1B o2.5",
+    "american": 185.0,
+    "no_vig_prob": 0.32582
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_1b",
     "selection": "Travis Bazzana 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.476457
@@ -2935,6 +2977,13 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_h",
+    "selection": "Steven Kwan H o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.413793
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_h",
     "selection": "Travis Bazzana H o0.5",
     "american": -175.0,
     "no_vig_prob": 0.616853
@@ -2998,6 +3047,13 @@
   {
     "matchup": "CLE @ CWS",
     "market": "game_rl",
+    "selection": "CLE +3.5",
+    "american": -130.0,
+    "no_vig_prob": 0.555178
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "game_rl",
     "selection": "CLE -1.5",
     "american": 130.0,
     "no_vig_prob": 0.422166
@@ -3011,6 +3067,20 @@
   },
   {
     "matchup": "CLE @ CWS",
+    "market": "game_rl",
+    "selection": "CWS -3.5",
+    "american": 140.0,
+    "no_vig_prob": 0.444822
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "game_total",
+    "selection": "Over 10.5",
+    "american": 108.0,
+    "no_vig_prob": 0.46428
+  },
+  {
+    "matchup": "CLE @ CWS",
     "market": "game_total",
     "selection": "Over 8.5",
     "american": -103.0,
@@ -3019,9 +3089,30 @@
   {
     "matchup": "CLE @ CWS",
     "market": "game_total",
+    "selection": "Over 9.5",
+    "american": -125.0,
+    "no_vig_prob": 0.541146
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "game_total",
+    "selection": "Under 10.5",
+    "american": -130.0,
+    "no_vig_prob": 0.53572
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "game_total",
     "selection": "Under 8.5",
     "american": -110.0,
     "no_vig_prob": 0.507207
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": 120.0,
+    "no_vig_prob": 0.458854
   },
   {
     "matchup": "CLE @ CWS",
@@ -4125,9 +4216,23 @@
   {
     "matchup": "DET @ SF",
     "market": "game_total",
+    "selection": "Over 4.5",
+    "american": -160.0,
+    "no_vig_prob": 0.611941
+  },
+  {
+    "matchup": "DET @ SF",
+    "market": "game_total",
     "selection": "Over 7.5",
     "american": 105.0,
     "no_vig_prob": 0.476818
+  },
+  {
+    "matchup": "DET @ SF",
+    "market": "game_total",
+    "selection": "Under 4.5",
+    "american": 155.0,
+    "no_vig_prob": 0.388059
   },
   {
     "matchup": "DET @ SF",
@@ -5770,6 +5875,20 @@
   {
     "matchup": "LAD @ AZ",
     "market": "game_rl",
+    "selection": "AZ -1.5",
+    "american": -455.0,
+    "no_vig_prob": 0.890981
+  },
+  {
+    "matchup": "LAD @ AZ",
+    "market": "game_rl",
+    "selection": "LAD +1.5",
+    "american": 1500.0,
+    "no_vig_prob": 0.109019
+  },
+  {
+    "matchup": "LAD @ AZ",
+    "market": "game_rl",
     "selection": "LAD -1.5",
     "american": 118.0,
     "no_vig_prob": 0.451684
@@ -5777,9 +5896,23 @@
   {
     "matchup": "LAD @ AZ",
     "market": "game_total",
+    "selection": "Over 6.5",
+    "american": 1500.0,
+    "no_vig_prob": 0.145795
+  },
+  {
+    "matchup": "LAD @ AZ",
+    "market": "game_total",
     "selection": "Over 9.0",
     "american": -103.0,
     "no_vig_prob": 0.489036
+  },
+  {
+    "matchup": "LAD @ AZ",
+    "market": "game_total",
+    "selection": "Under 6.5",
+    "american": -167.0,
+    "no_vig_prob": 0.854205
   },
   {
     "matchup": "LAD @ AZ",
@@ -7576,6 +7709,13 @@
   {
     "matchup": "TB @ SEA",
     "market": "game_rl",
+    "selection": "SEA +2.5",
+    "american": 180.0,
+    "no_vig_prob": 0.405613
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_rl",
     "selection": "SEA -1.5",
     "american": 196.0,
     "no_vig_prob": 0.334834
@@ -7596,6 +7736,34 @@
   },
   {
     "matchup": "TB @ SEA",
+    "market": "game_rl",
+    "selection": "TB -2.5",
+    "american": -131.0,
+    "no_vig_prob": 0.594387
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Over 5.5",
+    "american": -114.0,
+    "no_vig_prob": 0.531053
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Over 6.0",
+    "american": 100.0,
+    "no_vig_prob": 0.466934
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Over 6.5",
+    "american": 152.0,
+    "no_vig_prob": 0.409609
+  },
+  {
+    "matchup": "TB @ SEA",
     "market": "game_total",
     "selection": "Over 7.0",
     "american": -124.0,
@@ -7607,6 +7775,27 @@
     "selection": "Over 7.5",
     "american": 107.0,
     "no_vig_prob": 0.471598
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Under 5.5",
+    "american": 120.0,
+    "no_vig_prob": 0.468947
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Under 6.0",
+    "american": -133.0,
+    "no_vig_prob": 0.533066
+  },
+  {
+    "matchup": "TB @ SEA",
+    "market": "game_total",
+    "selection": "Under 6.5",
+    "american": -150.0,
+    "no_vig_prob": 0.590391
   },
   {
     "matchup": "TB @ SEA",
