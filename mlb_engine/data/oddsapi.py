@@ -32,7 +32,7 @@ import json
 import logging
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -146,6 +146,47 @@ class _Event:
         return self.commence <= (now or datetime.now(timezone.utc))
 
 
+# How far an event's first pitch may sit from a scheduled one and still be the
+# same game. Wide enough for a rain delay or the nightcap of a doubleheader
+# (~3.5h later, and listed on the slate in its own right), far short of the ~24h
+# to the next meeting of the same two clubs.
+_SAME_GAME_WINDOW = timedelta(hours=8)
+
+
+class _SlateIndex:
+    """Which vendor events belong to the slate being priced.
+
+    Team names alone are not enough. The vendor's board runs days ahead, and a
+    series means the same two clubs appear on it three nights running -- all of
+    them matching the slate's name map. A 10-game slate resolved 17 events that
+    way, and the seven extras were tomorrow's games: billed for, and empty of
+    props because the books had not posted them yet.
+    """
+
+    __slots__ = ("norm_to_ab", "scheduled")
+
+    def __init__(self, slate: Slate) -> None:
+        self.norm_to_ab: dict[str, str] = {}
+        self.scheduled: dict[tuple[str, str], list[datetime]] = {}
+        for g in slate.games:
+            self.norm_to_ab[_norm(g.home.name)] = g.home.abbrev
+            self.norm_to_ab[_norm(g.away.name)] = g.away.abbrev
+            first_pitch = _commence_time(g.game_datetime_utc)
+            if first_pitch is not None:
+                self.scheduled.setdefault((g.home.abbrev, g.away.abbrev), []).append(first_pitch)
+
+    def on_slate(self, ev: _Event) -> bool:
+        """Whether this event is one of the slate's games rather than a later one.
+
+        Unknown times are kept, not dropped: the vendor omitting a commence
+        stamp should cost us a wasted credit, never a missing price.
+        """
+        times = self.scheduled.get((ev.home_ab, ev.away_ab))
+        if not times or ev.commence is None:
+            return True
+        return any(abs(ev.commence - t) <= _SAME_GAME_WINDOW for t in times)
+
+
 class OddsAPIClient:
     def __init__(
         self,
@@ -199,17 +240,14 @@ class OddsAPIClient:
                 "and the model only, and every prop will grade at an assumed price"
             )
             return {}
-        norm_to_ab: dict[str, str] = {}
-        for g in slate.games:
-            norm_to_ab[_norm(g.home.name)] = g.home.abbrev
-            norm_to_ab[_norm(g.away.name)] = g.away.abbrev
+        index = _SlateIndex(slate)
 
         out: Quotes = {}
-        events = self._fetch_game_board(norm_to_ab, out, pregame_only=pregame_only)
+        events = self._fetch_game_board(index, out, pregame_only=pregame_only)
         if not events:
             # The board failed or matched nothing. Event ids are free, so fall
             # back to them rather than abandoning the props too.
-            events = self._list_events(norm_to_ab, pregame_only=pregame_only)
+            events = self._list_events(index, pregame_only=pregame_only)
         if not events:
             log.error(
                 "Odds API: no events resolved for the slate -- nothing priced. "
@@ -246,7 +284,7 @@ class OddsAPIClient:
 
     # -- events -----------------------------------------------------------
     def _fetch_game_board(
-        self, norm_to_ab: dict[str, str], out: Quotes, *, pregame_only: bool
+        self, index: _SlateIndex, out: Quotes, *, pregame_only: bool
     ) -> list[_Event]:
         """Bulk game markets. Returns the events it resolved, or ``[]`` on failure."""
         data = self._get_json(f"{BASE}/odds", markets=",".join(_GAME_MARKETS))
@@ -258,9 +296,13 @@ class OddsAPIClient:
             return []
         events: list[_Event] = []
         started = 0
+        later = 0
         for raw in data:
-            ev = self._to_event(raw, norm_to_ab)
+            ev = self._to_event(raw, index.norm_to_ab)
             if ev is None:
+                continue
+            if not index.on_slate(ev):
+                later += 1
                 continue
             if pregame_only and ev.started():
                 started += 1
@@ -269,17 +311,19 @@ class OddsAPIClient:
             self._parse_game(raw, ev, out, f5=False)
         if started:
             log.info("Odds API: skipped %d game(s) already under way", started)
+        if later:
+            log.info("Odds API: skipped %d game(s) on a later date", later)
         return events
 
-    def _list_events(self, norm_to_ab: dict[str, str], *, pregame_only: bool) -> list[_Event]:
+    def _list_events(self, index: _SlateIndex, *, pregame_only: bool) -> list[_Event]:
         """Event ids only. The vendor bills this endpoint at zero credits."""
         data = self._get_json(f"{BASE}/events")
         if not isinstance(data, list):
             return []
-        events = (self._to_event(raw, norm_to_ab) for raw in data)
+        events = (self._to_event(raw, index.norm_to_ab) for raw in data)
         return [
             ev for ev in events
-            if ev is not None and not (pregame_only and ev.started())
+            if ev is not None and index.on_slate(ev) and not (pregame_only and ev.started())
         ]
 
     def _afford(self, cost: int) -> bool:
