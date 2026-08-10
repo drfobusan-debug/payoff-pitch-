@@ -32,14 +32,48 @@ distribution, so:
 * hits and total bases come from an exact convolution over those PA of the
   per-PA outcome vector (1B/2B/3B/HR/other), so they share the right joint --
   a home run lifts both;
-* runs and RBI have no per-PA decomposition in the feed, so they fall back to a
-  Poisson on the projected mean.
+* runs and RBI have no per-PA decomposition in the feed, so they need a
+  distribution imposed on the projected mean, and a Poisson is measurably the
+  wrong one -- RBI arrive in clumps (a three-run homer is one swing), which
+  gives more zero-RBI games than a Poisson allows. They use negative binomials
+  whose dispersion is fitted to our own ledger's realised rates
+  (``--rbi-dispersion``, ``--r-dispersion``).
 
 ``batter_hrr`` (H+R+RBI) is the weakest of the set: it convolves the exact hit
-distribution with independent Poissons, and hits/runs/RBI are emphatically not
-independent -- a home run scores all three at once. Independence understates the
-variance, so P(over) on the combo is biased toward the mean. It is reported, but
-it is the one number here not to trust.
+distribution with independent run and RBI distributions, and hits/runs/RBI are
+emphatically not independent -- a home run scores all three at once. Independence
+understates the variance, so P(over) on the combo is biased toward the mean. It
+is reported, but it is the one number here not to trust.
+
+Which markets are a clean read on BAT X, and which are a read on our own
+assumptions, is worth keeping straight when the verdict lands:
+
+===============================  ==================================================
+clean -- feed only               ``batter_h``, ``batter_1b``, ``batter_2b``,
+                                 ``batter_hr``, ``batter_tb``
+assumption-dependent             ``batter_r``, ``batter_rbi``, ``batter_hrr``,
+                                 ``pitcher_outs``, ``pitcher_er``, and (through
+                                 the out distribution) ``pitcher_k``,
+                                 ``pitcher_bb``, ``pitcher_h``
+===============================  ==================================================
+
+The pitcher export carries the same shape of line -- TBF, K, BB, H, ER, OUTS --
+and splits cleanly in two:
+
+* strikeouts, walks and hits allowed are per-batter-faced events, so their count
+  is binomial over the batters actually faced;
+* outs and earned runs have no such decomposition, and both are badly
+  overdispersed relative to a Poisson -- a starter's night ends early far more
+  often than a Poisson on 19 outs allows, and crooked innings give ER a fat right
+  tail. They are priced as negative binomials whose spread is an *assumption of
+  ours*, not something the feed states (``--outs-sd``, ``--er-dispersion``).
+
+Crucially the first group is not independent of the second. Batters faced is a
+consequence of how long the starter lasts, and an early hook is what actually
+kills a strikeout over -- so TBF is not held at its projected 24.5 but scaled off
+the same overdispersed out distribution before the binomial is applied. That
+couples every pitcher market to ``--outs-sd``: a verdict on pitcher props is
+partly a verdict on the spread we imposed, in a way the batter markets are not.
 """
 
 from __future__ import annotations
@@ -54,7 +88,7 @@ import unicodedata
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-from scipy.stats import poisson
+from scipy.stats import binom, nbinom, poisson
 
 LEDGER = os.path.expanduser("~/.mlb_engine/audit/ledger.csv")
 
@@ -64,10 +98,54 @@ LEDGER = os.path.expanduser("~/.mlb_engine/audit/ledger.csv")
 HIT_BASES = {"1B": 1, "2B": 2, "3B": 3, "HR": 4}
 
 # Ledger market -> the BAT X quantity that prices it.
-MARKETS = ("batter_h", "batter_1b", "batter_2b", "batter_hr", "batter_tb", "batter_r", "batter_rbi", "batter_hrr")
+BATTER_MARKETS = (
+    "batter_h",
+    "batter_1b",
+    "batter_2b",
+    "batter_hr",
+    "batter_tb",
+    "batter_r",
+    "batter_rbi",
+    "batter_hrr",
+)
+PITCHER_MARKETS = ("pitcher_k", "pitcher_bb", "pitcher_h", "pitcher_er", "pitcher_outs")
+MARKETS = (*BATTER_MARKETS, *PITCHER_MARKETS)
+
+# Pitcher counting stats that resolve once per batter faced, so their count is
+# binomial over TBF: ledger market -> column in the pitcher export.
+PER_TBF = {"pitcher_k": "K", "pitcher_bb": "BB", "pitcher_h": "H"}
+
+# A starter's out total is far more spread than a Poisson on its mean: the mean
+# is dragged down by short outings that a Poisson cannot produce. 5.5 outs of
+# standard deviation at a ~19-out mean is the shape of a typical starter's
+# distribution, and it is an assumption of ours -- the feed projects only a mean.
+DEFAULT_OUTS_SD = 5.5
+
+# Earned runs are overdispersed for the same reason in reverse: most starts give
+# up one or two, a few give up seven in one inning. Variance ~ 1.6x the mean.
+DEFAULT_ER_DISPERSION = 1.6
+
+# RBI are the clumpiest counting stat a hitter has -- they arrive two and three at
+# a time on one swing -- so a Poisson badly understates how often a hitter drives
+# in nobody. At 2.0 the slate's mean P(RBI >= 1) lands on the 0.274 the ledger
+# actually realised, against 0.367 for a Poisson. Runs need far less help (a
+# hitter scores at most one per trip), and 1.25 matches the realised 0.354.
+# Both are fitted to our own outcomes, so they are OUR parameters, not BAT X's.
+DEFAULT_RBI_DISPERSION = 2.0
+DEFAULT_R_DISPERSION = 1.25
+
+# Lines to price. The book's line varies night to night, so cover the range the
+# ledger has ever shown plus room either side; unjoined lines simply go unused.
+PITCHER_LINES = {
+    "pitcher_k": (3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5),
+    "pitcher_bb": (1.5, 2.5, 3.5),
+    "pitcher_h": (3.5, 4.5, 5.5, 6.5, 7.5),
+    "pitcher_er": (1.5, 2.5, 3.5, 4.5),
+    "pitcher_outs": (12.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5),
+}
 
 # Trailing tokens the engine appends to a player's name in ``selection``.
-_SEL_SUFFIX = re.compile(r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|H|R|RBI)\s+[ou][\d.]+$")
+_SEL_SUFFIX = re.compile(r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|H|R|RBI|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$")
 
 
 def norm_name(name: str) -> str:
@@ -121,6 +199,99 @@ def hit_tb_distribution(mean_pa: float, rates: dict[str, float]) -> dict[tuple[i
     return joint
 
 
+def _raw_count_pmf(mean: float, var: float, cap: int) -> np.ndarray:
+    mean = max(1e-6, float(mean))
+    k = np.arange(cap + 1)
+    if var <= mean * (1.0 + 1e-6):
+        pmf = poisson.pmf(k, mean)
+    else:
+        p = mean / var
+        r = mean * mean / (var - mean)
+        pmf = nbinom.pmf(k, r, p)
+    total = pmf.sum()
+    return pmf / total if total > 0 else pmf
+
+
+def _moments(pmf: np.ndarray) -> tuple[float, float]:
+    k = np.arange(len(pmf))
+    m = float(k @ pmf)
+    return m, float(max(0.0, (k * k) @ pmf - m * m) ** 0.5)
+
+
+def dist_mean(dist: dict[int, float]) -> float:
+    return float(sum(k * w for k, w in dist.items()))
+
+
+def dist_sd(dist: dict[int, float]) -> float:
+    m = dist_mean(dist)
+    return float(max(0.0, sum(k * k * w for k, w in dist.items()) - m * m) ** 0.5)
+
+
+def _match_mean(target_mean: float, var: float, cap: int) -> np.ndarray:
+    """Solve for the underlying mean whose truncated distribution hits the target."""
+    lo, hi = target_mean, float(cap) * 4.0
+    for _ in range(50):
+        mid = (lo + hi) / 2.0
+        if _moments(_raw_count_pmf(mid, max(var, mid * 1.000001), cap))[0] < target_mean:
+            lo = mid
+        else:
+            hi = mid
+    return _raw_count_pmf(hi, max(var, hi * 1.000001), cap)
+
+
+def overdispersed_pmf(mean: float, sd: float, cap: int) -> dict[int, float]:
+    """Count distribution on ``0..cap`` matching both ``mean`` and ``sd``.
+
+    Truncation is not a detail here. A negative binomial matched to a starter's
+    19.1 projected outs with a 5.5 spread puts ~5% of its mass beyond the 27 outs
+    a complete game allows; renormalising that away drops the mean by two full
+    outs *and* squeezes the spread to 4.4. Both errors push in the same direction
+    -- they would understate every out and strikeout over, and the shortfall would
+    look like BAT X being wrong rather than us being sloppy.
+
+    So both moments are solved for on the truncated support: an outer search on
+    the underlying spread, an inner search on the underlying mean.
+    """
+    mean = max(1e-6, float(mean))
+    lo, hi = mean**0.5, float(cap)
+    pmf = _match_mean(mean, max(sd, mean**0.5) ** 2, cap)
+    for _ in range(40):
+        mid = (lo + hi) / 2.0
+        pmf = _match_mean(mean, mid * mid, cap)
+        if _moments(pmf)[1] < sd:
+            lo = mid
+        else:
+            hi = mid
+    return {k: float(w) for k, w in enumerate(pmf)}
+
+
+def tbf_distribution(mean_tbf: float, outs: dict[int, float], mean_outs: float) -> dict[int, float]:
+    """Spread batters faced along the out distribution.
+
+    A starter who records 12 outs does not face his projected 24 batters. Holding
+    TBF at its mean would price strikeout overs as if the hook never comes early,
+    which is precisely how those overs lose.
+    """
+    if mean_outs <= 0:
+        return {int(round(mean_tbf)): 1.0}
+    per_out = mean_tbf / mean_outs
+    out: dict[int, float] = {}
+    for o, w in outs.items():
+        n = max(1, int(round(o * per_out)))
+        out[n] = out.get(n, 0.0) + w
+    return out
+
+
+def binomial_count_pmf(trials: dict[int, float], rate: float, cap: int) -> dict[int, float]:
+    """Distribution of a per-trial Bernoulli count, averaged over the trial count."""
+    rate = min(max(rate, 0.0), 1.0)
+    out: dict[int, float] = {}
+    for n, w in trials.items():
+        for k in range(min(n, cap) + 1):
+            out[k] = out.get(k, 0.0) + w * float(binom.pmf(k, n, rate))
+    return out
+
+
 def p_at_least(dist: dict[int, float], threshold: int) -> float:
     return float(sum(w for k, w in dist.items() if k >= threshold))
 
@@ -147,12 +318,7 @@ def convolve(a: dict[int, float], b: dict[int, float]) -> dict[int, float]:
     return out
 
 
-def poisson_pmf(mean: float, cap: int = 12) -> dict[int, float]:
-    mean = max(0.0, float(mean))
-    return {k: float(poisson.pmf(k, mean)) for k in range(cap + 1)}
-
-
-def price_row(row: pd.Series) -> dict[str, float]:
+def price_row(row: pd.Series, r_dispersion: float, rbi_dispersion: float) -> dict[str, float]:
     """All batter-prop over probabilities implied by one BAT X projected line."""
     pa = float(row["PA"])
     rates = {k: (float(row[k]) / pa if pa > 0 else 0.0) for k in HIT_BASES}
@@ -161,7 +327,9 @@ def price_row(row: pd.Series) -> dict[str, float]:
     bases = marginal(joint, 1)
 
     r_mean, rbi_mean = float(row["R"]), float(row["RBI"])
-    hrr = convolve(convolve(hits, poisson_pmf(r_mean)), poisson_pmf(rbi_mean))
+    runs = overdispersed_pmf(r_mean, (r_dispersion * r_mean) ** 0.5, cap=6)
+    rbis = overdispersed_pmf(rbi_mean, (rbi_dispersion * rbi_mean) ** 0.5, cap=8)
+    hrr = convolve(convolve(hits, runs), rbis)
 
     return {
         "batter_h@0.5": p_at_least(hits, 1),
@@ -173,11 +341,86 @@ def price_row(row: pd.Series) -> dict[str, float]:
         "batter_tb@1.5": p_at_least(bases, 2),
         "batter_tb@2.5": p_at_least(bases, 3),
         "batter_tb@3.5": p_at_least(bases, 4),
-        "batter_r@0.5": p_at_least(poisson_pmf(r_mean), 1),
-        "batter_rbi@0.5": p_at_least(poisson_pmf(rbi_mean), 1),
+        "batter_r@0.5": p_at_least(runs, 1),
+        "batter_rbi@0.5": p_at_least(rbis, 1),
         "batter_hrr@1.5": p_at_least(hrr, 2),
         "batter_hrr@2.5": p_at_least(hrr, 3),
     }
+
+
+def price_pitcher_row(
+    row: pd.Series, outs_sd: float, er_dispersion: float
+) -> tuple[dict[str, float], tuple[float, float]]:
+    """Pitcher-prop over probabilities, plus the realised (mean, sd) of the outs fit."""
+    mean_outs = float(row["OUTS"])
+    mean_tbf = float(row["TBF"])
+    # 27 outs is a complete game; the distribution cannot run past it.
+    outs = overdispersed_pmf(mean_outs, outs_sd, cap=27)
+    trials = tbf_distribution(mean_tbf, outs, mean_outs)
+
+    probs: dict[str, float] = {}
+    for market, col in PER_TBF.items():
+        rate = float(row[col]) / mean_tbf if mean_tbf > 0 else 0.0
+        dist = binomial_count_pmf(trials, rate, cap=20)
+        for line in PITCHER_LINES[market]:
+            probs[f"{market}@{line}"] = p_at_least(dist, math.ceil(line))
+
+    mean_er = float(row["ER"])
+    er = overdispersed_pmf(mean_er, (er_dispersion * mean_er) ** 0.5, cap=15)
+    for line in PITCHER_LINES["pitcher_er"]:
+        probs[f"pitcher_er@{line}"] = p_at_least(er, math.ceil(line))
+    for line in PITCHER_LINES["pitcher_outs"]:
+        probs[f"pitcher_outs@{line}"] = p_at_least(outs, math.ceil(line))
+    return probs, (dist_mean(outs), dist_sd(outs))
+
+
+def read_pitchers(path: str) -> pd.DataFrame:
+    """Load the BAT X pitchers export."""
+    df = pd.read_csv(os.path.expanduser(path))
+    df.columns = [str(c).strip().upper() for c in df.columns]
+    name_col = next((c for c in ("PLAYER", "NAME", "PLAYER_NAME") if c in df.columns), None)
+    if name_col is None:
+        raise SystemExit(f"no player-name column in {path}: {list(df.columns)[:12]}")
+    missing = [c for c in ("TBF", "OUTS", "ER", *PER_TBF.values()) if c not in df.columns]
+    if missing:
+        raise SystemExit(f"{path} is missing projection columns {missing}")
+    df = df.rename(columns={name_col: "NAME"})
+    return drop_non_players(df)
+
+
+def drop_non_players(df: pd.DataFrame) -> pd.DataFrame:
+    """Discard footer/legend rows the export appends after the last player.
+
+    The pitchers file ends with a row whose name is ``1`` and whose columns hold
+    what look like column indices -- 44 strikeouts, 56 earned runs. It parses
+    perfectly happily and would be priced as a real starter.
+
+    The test is deliberately just "has letters in it": anything stricter starts
+    throwing away real players. Requiring two whole words dropped ``A.J. Ewing``,
+    ``Tyler O'Neill`` and ``Travis d'Arnaud``.
+    """
+    named = df["NAME"].astype(str).str.count(r"[A-Za-z]") >= 3
+    dropped = int((~named).sum())
+    if dropped:
+        print(f"dropped {dropped} non-player row(s): {list(df.loc[~named, 'NAME'])[:5]}")
+    out = df[named].copy()
+    out["player"] = out["NAME"].map(norm_name)
+    return out
+
+
+def check_pitcher_schema(df: pd.DataFrame) -> None:
+    """Outs and innings pitched must agree, and hits must not exceed batters faced."""
+    if {"IP", "OUTS"} <= set(df.columns):
+        # IP is a plain decimal here (6.36 IP = 19.1 outs), not the scoreboard
+        # convention where .1 and .2 mean thirds of an inning.
+        err = (df["IP"] * 3 - df["OUTS"]).abs()
+        print(f"schema check: IP vs OUTS median abs error {err.median():.2f} outs")
+        if err.median() > 0.5:
+            print("  WARNING: IP and OUTS disagree -- the columns are probably misaligned")
+            raise SystemExit(1)
+    bad = int((df["H"] + df["BB"] > df["TBF"]).sum())
+    if bad:
+        print(f"  WARNING: {bad} rows have H+BB above TBF, which cannot happen")
 
 
 # DraftKings MLB hitter scoring. Used only to verify the export's columns are
@@ -214,34 +457,59 @@ def read_hitters(path: str) -> pd.DataFrame:
     if missing:
         raise SystemExit(f"{path} is missing projection columns {missing}")
     df = df.rename(columns={name_col: "NAME"})
-    df["player"] = df["NAME"].map(norm_name)
-    return df
+    return drop_non_players(df)
+
+
+def _emit(date: str, player: str, team: str, probs: dict[str, float]) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for key, prob in probs.items():
+        market, line = key.split("@")
+        rows.append(
+            {
+                "date": date,
+                "player": player,
+                "team": team,
+                "market": market,
+                "line": float(line),
+                "batx_prob": round(prob, 6),
+            }
+        )
+    return rows
 
 
 def cmd_price(args: argparse.Namespace) -> None:
-    df = read_hitters(args.hitters)
-    check_schema(df)
     rows: list[dict[str, object]] = []
-    for _, row in df.iterrows():
+
+    hitters = read_hitters(args.hitters)
+    check_schema(hitters)
+    for _, row in hitters.iterrows():
         if not np.isfinite(row.get("PA", np.nan)) or float(row["PA"]) <= 0:
             continue
-        for key, prob in price_row(row).items():
-            market, line = key.split("@")
-            rows.append(
-                {
-                    "date": args.date,
-                    "player": row["player"],
-                    "team": row.get("TEAM", ""),
-                    "market": market,
-                    "line": float(line),
-                    "batx_prob": round(prob, 6),
-                }
-            )
-    out = pd.DataFrame(rows)
+        probs = price_row(row, args.r_dispersion, args.rbi_dispersion)
+        rows.extend(_emit(args.date, str(row["player"]), str(row.get("TEAM", "")), probs))
+    print(f"{len(hitters)} hitters -> {len(rows)} selections")
+
+    if args.pitchers:
+        pitchers = read_pitchers(args.pitchers)
+        check_pitcher_schema(pitchers)
+        before = len(rows)
+        drift: list[float] = []
+        for _, row in pitchers.iterrows():
+            if not np.isfinite(row.get("OUTS", np.nan)) or float(row["OUTS"]) <= 0:
+                continue
+            probs, (fit_mean, fit_sd) = price_pitcher_row(row, args.outs_sd, args.er_dispersion)
+            drift.append(abs(fit_mean - float(row["OUTS"])))
+            drift.append(abs(fit_sd - args.outs_sd))
+            rows.extend(_emit(args.date, str(row["player"]), str(row.get("TM", "")), probs))
+        print(f"{len(pitchers)} pitchers -> {len(rows) - before} selections")
+        # The out distribution is capped at 27, so confirm the moment solve still
+        # landed on the projected mean and the spread we asked for.
+        print(f"  outs fit: worst moment miss {max(drift):.4f} (target sd {args.outs_sd})")
+
     dest = os.path.expanduser(args.out)
     os.makedirs(os.path.dirname(dest), exist_ok=True)
-    out.to_csv(dest, index=False)
-    print(f"{len(df)} hitters -> {len(out)} priced selections -> {dest}")
+    pd.DataFrame(rows).to_csv(dest, index=False)
+    print(f"wrote {len(rows)} priced selections -> {dest}")
 
 
 def logit(p: np.ndarray) -> np.ndarray:
@@ -328,8 +596,33 @@ def main() -> None:
 
     p = sub.add_parser("price", help="turn a BAT X hitters export into over probabilities")
     p.add_argument("--hitters", required=True, help="path to the BAT X hitters CSV export")
+    p.add_argument("--pitchers", help="path to the BAT X pitchers CSV export")
     p.add_argument("--date", required=True, help="slate date the export covers (YYYY-MM-DD)")
     p.add_argument("--out", required=True, help="where to write the priced selections")
+    p.add_argument(
+        "--outs-sd",
+        type=float,
+        default=DEFAULT_OUTS_SD,
+        help="assumed standard deviation of a starter's out total (feed gives only a mean)",
+    )
+    p.add_argument(
+        "--er-dispersion",
+        type=float,
+        default=DEFAULT_ER_DISPERSION,
+        help="assumed ratio of earned-run variance to its mean",
+    )
+    p.add_argument(
+        "--rbi-dispersion",
+        type=float,
+        default=DEFAULT_RBI_DISPERSION,
+        help="assumed ratio of RBI variance to its mean (RBI arrive in clumps)",
+    )
+    p.add_argument(
+        "--r-dispersion",
+        type=float,
+        default=DEFAULT_R_DISPERSION,
+        help="assumed ratio of runs-scored variance to its mean",
+    )
     p.set_defaults(func=cmd_price)
 
     g = sub.add_parser("grade", help="join priced selections to graded ledger rows")
