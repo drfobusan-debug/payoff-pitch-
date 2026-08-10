@@ -1048,6 +1048,51 @@ def test_grade_batter_total_bases():
     assert grade(push, res) == PUSH  # 7 == 7
 
 
+def test_grade_voids_props_on_players_who_never_appeared():
+    # 99 played; 77 was a late scratch and so is absent from the box score.
+    res = GameResult(
+        1, True, 5, 3, 3, 1,
+        players={99: PlayerLine(batting={"PA": 4, "H": 2, "R": 1, "RBI": 2})},
+    )
+    played = _rec(category="batter", market="batter_h", player_id=99, stat="H", line=1.5, side="over")
+    assert grade(played, res) == WIN
+
+    # Reading a missing player's stats back gives zero for everything, which
+    # would sink this over. A book voids it instead, and so do we.
+    scratched = _rec(
+        category="batter", market="batter_h", player_id=77, stat="H", line=0.5, side="over"
+    )
+    assert grade(scratched, res) is None
+
+    # A pinch runner appears in the box score but never bats.
+    res.players[88] = PlayerLine(batting={"PA": 0, "H": 0, "R": 1, "RBI": 0})
+    runner = _rec(
+        category="batter", market="batter_h", player_id=88, stat="H", line=0.5, side="over"
+    )
+    assert grade(runner, res) is None
+
+    # Same for a starter who was scratched before first pitch.
+    sp = _rec(
+        category="pitcher", market="pitcher_k", player_id=77, stat="K", line=5.5, side="over"
+    )
+    assert grade(sp, res) is None
+    res.players[66] = PlayerLine(pitching={"BF": 24, "K": 7, "outs": 18})
+    threw = _rec(
+        category="pitcher", market="pitcher_k", player_id=66, stat="K", line=5.5, side="over"
+    )
+    assert grade(threw, res) == WIN
+
+
+def test_grade_under_on_a_scratch_is_not_a_free_win():
+    # The mirror image, and the reason "absent -> zero" is not a harmless default:
+    # it would hand every under an automatic win on players who never played.
+    res = GameResult(1, True, 5, 3, 3, 1, players={})
+    under = _rec(
+        category="batter", market="batter_h", player_id=77, stat="H", line=0.5, side="under"
+    )
+    assert grade(under, res) is None
+
+
 def test_props_total_bases_market():
     import numpy as np
 

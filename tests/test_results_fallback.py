@@ -90,7 +90,13 @@ def test_fetch_result_uses_cache_when_api_fails(tmp_path: Path) -> None:
     assert result.away_runs == 1
     assert result.f5_home == 3
     assert result.f5_away == 1
-    assert result.players[100] == PlayerLine(batting={"H": 2, "1B": 1, "2B": 1, "3B": 0, "HR": 0, "RBI": 1, "R": 1})
+    # This cached box score predates the plateAppearances field, so PA is rebuilt
+    # from the rest of the line -- a hitter with two hits must not read as absent.
+    assert result.players[100] == PlayerLine(
+        batting={"PA": 2, "H": 2, "1B": 1, "2B": 1, "3B": 0, "HR": 0, "RBI": 1, "R": 1}
+    )
+    assert result.batted(100) is True
+    assert result.batted(404) is False
 
 
 def test_fetch_result_raises_when_api_and_cache_both_fail(tmp_path: Path) -> None:

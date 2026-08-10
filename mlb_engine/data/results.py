@@ -38,6 +38,26 @@ class GameResult:
     def pitcher(self, pid: int) -> dict[str, int]:
         return self.players.get(pid, PlayerLine()).pitching
 
+    def batted(self, pid: int) -> bool:
+        """Did this player actually take a plate appearance?
+
+        A scratched hitter is simply absent from the box score, so every counting
+        stat reads zero and every over on him looks like a loss. That is not what
+        a book does -- the prop is voided -- and it is not what the audit should
+        do either, because those phantom losses are indistinguishable from the
+        engine picking badly.
+        """
+        bat = self.batter(pid)
+        # A missing PA key means the line predates this field, and a batting line
+        # only exists at all for a player the box score lists as having batted --
+        # so absence of the counter is not evidence of absence from the game.
+        return bool(bat) and bat.get("PA", 1) > 0
+
+    def pitched(self, pid: int) -> bool:
+        """Did this player actually face a batter?"""
+        pit = self.pitcher(pid)
+        return bool(pit) and (pit.get("BF", 1) > 0 or pit.get("outs", 0) > 0)
+
 
 def _ip_to_outs(ip: object) -> int:
     """Convert innings-pitched string (e.g. '5.2') to outs."""
@@ -127,7 +147,22 @@ def fetch_result(
                 doubles = int(bat.get("doubles", 0) or 0)
                 triples = int(bat.get("triples", 0) or 0)
                 hr = int(bat.get("homeRuns", 0) or 0)
+                pa = int(bat.get("plateAppearances", 0) or 0)
+                if pa == 0:
+                    # Older cached box scores predate this field. Rebuild it rather
+                    # than let a missing key void a hitter who demonstrably batted.
+                    pa = max(
+                        int(bat.get("atBats", 0) or 0)
+                        + int(bat.get("baseOnBalls", 0) or 0)
+                        + int(bat.get("hitByPitch", 0) or 0)
+                        + int(bat.get("sacFlies", 0) or 0)
+                        + int(bat.get("sacBunts", 0) or 0),
+                        hits,
+                    )
                 line.batting = {
+                    # Plate appearances are not a market, but they are what says
+                    # the hitter played at all -- see GameResult.batted.
+                    "PA": pa,
                     "H": hits,
                     "1B": hits - doubles - triples - hr,
                     "2B": doubles,
@@ -138,6 +173,7 @@ def fetch_result(
                 }
             if pit:
                 line.pitching = {
+                    "BF": int(pit.get("battersFaced", 0) or 0),
                     "K": int(pit.get("strikeOuts", 0) or 0),
                     "outs": _ip_to_outs(pit.get("inningsPitched", "0.0")),
                     "H": int(pit.get("hits", 0) or 0),
