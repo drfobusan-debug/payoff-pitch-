@@ -10,12 +10,19 @@ props are per-event markets, so they cost one request per game; they are only
 fetched when ``include_props`` is set. All access is via an API key; with no key
 the client is inert and the engine falls back to VSIN/model-only behavior.
 
-The vendor charges *markets x regions* per request, so a 16-game slate asking
-for every market it can name costs ~230 credits -- enough to drain a 20k plan in
-three months. Three things keep that down: ``_PROP_MARKETS`` lists only the
-props the engine actually bets, responses are cached on disk for the slate, and
-``x-requests-remaining`` is tracked so the per-event loop stops before it
-exhausts the plan instead of after.
+The two halves are deliberately independent. The bulk call used to double as the
+event-id source, so a single failure on it -- a 401 from an unreadable key file,
+a 422, a read timeout past the retry budget -- returned ``{}`` and the per-event
+loop never ran, leaving a whole slate priced from VSIN moneylines alone. Ten of
+twenty audited slates lost every prop that way. Event ids now come from
+``/events``, which the vendor bills at *zero* credits, so the props survive a
+bad bulk call and vice versa.
+
+The vendor charges *markets x regions* per request (a market that returns no
+book is not billed), so a 15-game slate asking for every market it can name
+costs ~250 credits -- ~7.5k a month against a 100k plan. Responses are cached on
+disk for the slate and ``x-requests-remaining`` is tracked so the per-event loop
+stops before it exhausts the plan instead of after.
 """
 
 from __future__ import annotations
@@ -48,6 +55,8 @@ _BATTER_MARKETS = {
     "batter_home_runs": ("batter_hr", "HR"),
     "batter_runs_scored": ("batter_r", "R"),
     "batter_rbis": ("batter_rbi", "RBI"),
+    "batter_total_bases": ("batter_tb", "TB"),
+    "batter_hits_runs_rbis": ("batter_hrr", "H+R+RBI"),
 }
 _PITCHER_MARKETS = {
     "pitcher_strikeouts": ("pitcher_k", "Ks"),
@@ -56,21 +65,32 @@ _PITCHER_MARKETS = {
     "pitcher_walks": ("pitcher_bb", "Walks"),
     "pitcher_earned_runs": ("pitcher_er", "ER"),
 }
-# Every market above can be *parsed*; only these are worth *paying* for. Over 54
-# graded slates the engine produced zero favored picks in HR, doubles, runs and
-# RBI (75-87% NPV -- it is right to abstain), so buying those prices is spend
-# with no bet attached; they stay excluded. Earned runs (45.5% PPV) is priced
-# below break-even and is not bought. Singles is fetched not to buy the over
-# (50.4% PPV) but to capture the *under* price: the model fades ~90% of singles
-# overs at a ~74% NPV, and persisting the under quote lets the audit grade that
-# fade as a bettable under. Override with MLBE_ODDS_PROPS.
+# Every parseable market is now bought, because the argument for excluding some
+# of them was circular. The old list dropped HR, doubles, runs, RBI and earned
+# runs on the grounds that the engine "produced zero favored picks (75-87% NPV
+# -- it is right to abstain)". But a market the engine fades 100% of the time
+# scores NPV equal to its base rate for free: measured against that baseline the
+# fade skill in HR, doubles and RBI is +0.000, so the high NPV was arithmetic,
+# not evidence of correct abstention -- and dropping the price meant the audit
+# could never find out. Total bases and H+R+RBI were never mapped at all, so
+# 23.5k ledger rows were graded at an assumed -110 against a price that never
+# existed; total bases' "-40% ROI" was measured entirely against that phantom.
+# The cost of buying all of it is ~7.5k credits a month on a 100k plan.
+# Override with MLBE_ODDS_PROPS.
 DEFAULT_PROP_MARKETS = (
     "batter_hits",
     "batter_singles",
+    "batter_doubles",
+    "batter_home_runs",
+    "batter_runs_scored",
+    "batter_rbis",
+    "batter_total_bases",
+    "batter_hits_runs_rbis",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",
     "pitcher_walks",
+    "pitcher_earned_runs",
 )
 # Markets fetched only to record the *other* side's price (the under), never to
 # bet the side we price. Pricing a market normally makes it bettable -- a pick
@@ -78,7 +98,26 @@ DEFAULT_PROP_MARKETS = (
 # classification so the under quote is persisted without ever recommending the
 # over. Singles is priced at ~48.8% PPV, below break-even, so its over is never
 # a bet; we keep the under for the NPV-fade audit.
-PRICE_ONLY_MARKETS = frozenset({"batter_1b"})
+#
+# The markets restored to the fetch list above join it. Buying a price must not
+# be what decides whether we bet a market: the point of paying for them is to
+# replace the assumed -110 the audit has been grading them at with a real
+# number, and that has to happen before -- not after -- they become bettable.
+# The set of markets the engine actually bets is therefore unchanged by the
+# restoration; promoting one out of here is a separate decision, on evidence
+# this capture is what finally supplies.
+PRICE_ONLY_MARKETS = frozenset(
+    {
+        "batter_1b",
+        "batter_2b",
+        "batter_hr",
+        "batter_r",
+        "batter_rbi",
+        "batter_tb",
+        "batter_hrr",
+        "pitcher_er",
+    }
+)
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)
 
 Quotes = dict[tuple[str, str, str], list[MarketQuote]]
@@ -143,6 +182,9 @@ class OddsAPIClient:
         Full-game ML/run-line/total from one bulk call; F5 and props per event
         (only when ``include_props``). Returns ``{}`` if no key or on failure.
 
+        The bulk call and the per-event loop fail independently: losing the game
+        board must not also lose every prop on the slate.
+
         ``pregame_only`` drops games that have already started. The vendor keeps
         quoting a game once it is under way, and those in-play prices are not
         comparable to the ones we bet -- a team up 6-0 in the 7th is -2000, which
@@ -152,17 +194,68 @@ class OddsAPIClient:
         picks) must not have it or it would price nothing at all.
         """
         if not self.available():
+            log.warning(
+                "Odds API: no key configured -- the slate is priced from VSIN "
+                "and the model only, and every prop will grade at an assumed price"
+            )
             return {}
         norm_to_ab: dict[str, str] = {}
         for g in slate.games:
             norm_to_ab[_norm(g.home.name)] = g.home.abbrev
             norm_to_ab[_norm(g.away.name)] = g.away.abbrev
 
+        out: Quotes = {}
+        events = self._fetch_game_board(norm_to_ab, out, pregame_only=pregame_only)
+        if not events:
+            # The board failed or matched nothing. Event ids are free, so fall
+            # back to them rather than abandoning the props too.
+            events = self._list_events(norm_to_ab, pregame_only=pregame_only)
+        if not events:
+            log.error(
+                "Odds API: no events resolved for the slate -- nothing priced. "
+                "Check the API key and the plan's remaining credits"
+            )
+            return out
+
+        markets = self.event_markets()
+        if include_props and markets:
+            cost = len(markets)
+            log.info(
+                "Odds API: %d events x %d markets = ~%d credits (%s remaining)",
+                len(events), cost, len(events) * cost,
+                self.credits_remaining if self.credits_remaining is not None else "?",
+            )
+            priced = 0
+            for ev in events:
+                if not self._afford(cost):
+                    break
+                priced += int(self._fetch_event(ev, out, markets))
+            if priced == 0:
+                log.error(
+                    "Odds API: all %d per-event requests came back empty -- the "
+                    "slate has no prop prices and they will grade at an assumed "
+                    "price. This is a fetch failure, not an absent market",
+                    len(events),
+                )
+            elif priced < len(events):
+                log.warning(
+                    "Odds API: priced %d of %d events; the rest have no prop quotes",
+                    priced, len(events),
+                )
+        return out
+
+    # -- events -----------------------------------------------------------
+    def _fetch_game_board(
+        self, norm_to_ab: dict[str, str], out: Quotes, *, pregame_only: bool
+    ) -> list[_Event]:
+        """Bulk game markets. Returns the events it resolved, or ``[]`` on failure."""
         data = self._get_json(f"{BASE}/odds", markets=",".join(_GAME_MARKETS))
         if not isinstance(data, list):
-            return {}
-
-        out: Quotes = {}
+            log.warning(
+                "Odds API: the bulk game board failed; falling back to the free "
+                "event list so props are still priced"
+            )
+            return []
         events: list[_Event] = []
         started = 0
         for raw in data:
@@ -176,20 +269,18 @@ class OddsAPIClient:
             self._parse_game(raw, ev, out, f5=False)
         if started:
             log.info("Odds API: skipped %d game(s) already under way", started)
+        return events
 
-        markets = self.event_markets()
-        if include_props and markets:
-            cost = len(markets)
-            log.info(
-                "Odds API: %d events x %d markets = ~%d credits (%s remaining)",
-                len(events), cost, len(events) * cost,
-                self.credits_remaining if self.credits_remaining is not None else "?",
-            )
-            for ev in events:
-                if not self._afford(cost):
-                    break
-                self._fetch_event(ev, out, markets)
-        return out
+    def _list_events(self, norm_to_ab: dict[str, str], *, pregame_only: bool) -> list[_Event]:
+        """Event ids only. The vendor bills this endpoint at zero credits."""
+        data = self._get_json(f"{BASE}/events")
+        if not isinstance(data, list):
+            return []
+        events = (self._to_event(raw, norm_to_ab) for raw in data)
+        return [
+            ev for ev in events
+            if ev is not None and not (pregame_only and ev.started())
+        ]
 
     def _afford(self, cost: int) -> bool:
         """Stop the per-event loop before the plan is drained, not after."""
@@ -203,13 +294,15 @@ class OddsAPIClient:
         return False
 
     # -- per-event (F5 + props) -------------------------------------------
-    def _fetch_event(self, ev: _Event, out: Quotes, markets: list[str]) -> None:
+    def _fetch_event(self, ev: _Event, out: Quotes, markets: list[str]) -> bool:
+        """Price one event. Returns whether the vendor returned a usable board."""
         raw = self._get_json(f"{BASE}/events/{ev.event_id}/odds", markets=",".join(markets))
         if not isinstance(raw, dict):
-            return
+            return False
         if self.include_f5:
             self._parse_game(raw, ev, out, f5=True)
         self._parse_props(raw, ev, out)
+        return bool(raw.get("bookmakers"))
 
     # -- parsing ----------------------------------------------------------
     def _parse_game(self, raw: dict, ev: _Event, out: Quotes, *, f5: bool) -> None:
