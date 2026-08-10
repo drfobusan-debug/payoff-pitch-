@@ -7,7 +7,7 @@ from datetime import date
 import numpy as np
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN, grade
-from mlb_engine.audit.scorecard import build_scorecard
+from mlb_engine.audit.scorecard import FIELDS, append_scorecard, build_scorecard
 from mlb_engine.config import EVThresholds
 from mlb_engine.data.results import GameResult, PlayerLine, _ip_to_outs
 from mlb_engine.features.rolling import LEAGUE_RATES, OutcomeRates, rates_from_events
@@ -1139,6 +1139,45 @@ def test_scorecard_metrics():
     assert strong.n == 3
     assert strong.wins == 2
     assert abs(strong.ppv - 2 / 3) < 1e-3
+    # 2 of 5 graded rows won, so a 2/3 hit rate is 26.7 points of real skill.
+    assert abs(strong.base_win - 0.4) < 1e-3
+    assert abs(strong.ppv_lift - (2 / 3 - 0.4)) < 1e-3
+
+
+def test_scorecard_npv_is_free_when_a_tier_passes_on_everything():
+    # Pass never bets, so all three of its "negatives" that lost score a perfect
+    # NPV -- against a base loss rate that is itself 0.6. The lift is what shows
+    # the abstention was worth nothing.
+    graded = [
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.STRONG), WIN),
+        (_rec(tier=Tier.STRONG), WIN),
+    ]
+    buy = next(r for r in build_scorecard(graded, date(2024, 7, 19)) if r.tier == "Buy (S+M)")
+    assert buy.npv == 1.0
+    assert abs(buy.base_loss - 0.6) < 1e-3
+    assert abs(buy.npv_lift - 0.4) < 1e-3
+
+
+def test_append_scorecard_widens_a_file_written_under_an_older_header(tmp_path):
+    # Appending new fields to an old header would shift every value in the new
+    # rows one column left of where a reader expects it.
+    path = tmp_path / "scorecard.csv"
+    path.write_text("date,tier,n,wins,losses,ppv,npv,sensitivity,specificity,roi\n2024-07-18,Strong,2,1,1,0.5,0.5,0.5,0.5,-0.05\n")
+    append_scorecard(build_scorecard([(_rec(tier=Tier.STRONG), WIN)], date(2024, 7, 19)), path)
+
+    import csv as _csv
+
+    with path.open(newline="") as f:
+        rows = list(_csv.DictReader(f))
+    assert list(rows[0]) == FIELDS
+    assert rows[0]["date"] == "2024-07-18"
+    assert rows[0]["ppv"] == "0.5"
+    assert rows[0]["npv_lift"] == ""  # cannot be recomputed; never guessed
+    assert rows[-1]["date"] == "2024-07-19"
+    assert rows[-1]["ppv"] == "1.0"
 
 
 def test_rates_from_events_sums_to_one():
