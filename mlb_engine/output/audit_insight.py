@@ -486,7 +486,10 @@ def _family_chart(fams: list[PropStat]) -> str:
     ax.invert_yaxis()
     ax.set_xlabel("Predictive value (%) -- labels show lift over the base rate", fontsize=9, color=MUTE)
     ax.set_xlim(0, 105)
-    ax.legend(fontsize=8, loc="lower right", frameon=False)
+    # Below the axes: in the corner it sits on top of the last family's bars.
+    ax.legend(
+        fontsize=8, loc="upper left", bbox_to_anchor=(0.0, -0.16), ncol=3, frameon=False
+    )
     ax.grid(axis="x", color="#e6e8ec", zorder=0)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
@@ -761,7 +764,11 @@ def build_report(
         + _kpi(day_engine, cum_engine)
         + "<div class='callout'><b>How to read PPV / NPV:</b> PPV is the buy-side batting average — of the picks "
         "the model backed, how many won. NPV is the discipline score — of the picks it passed on, how many it "
-        "was right to pass. The 52.4% line is the break-even at standard -110 juice.</div>"
+        "was right to pass. The 52.4% line is the break-even at standard -110 juice. "
+        "<b>Always read the <i>vs base</i> column first.</b> Both rates are dominated by how often the prop "
+        "wins or loses on its own: passing on a home run is right 90% of the time whether or not the engine "
+        "understands home runs, so a market it fades entirely scores a high NPV and a lift of zero. The lift "
+        "is the part the engine earned, and zero means it contributed nothing.</div>"
         "<h2>The Slate vs. The Record</h2>"
         + _stat_table([day_engine, cum_engine], "Window").replace(
             "<td class='l'>Whole engine</td>", "<td class='l'>Tonight's slate</td>", 1
