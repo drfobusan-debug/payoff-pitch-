@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
+
 from mlb_engine.features.hr_gate import HRPowerGate
 
 
 def test_gate_keeps_elite_barrel_hitter() -> None:
-    # Barrel above the standing gate keeps the buy without needing a trend.
+    # Barrel above the standing gate keeps the buy.
     gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
     keep, reason = gate.allows(max_ev=112.0, barrel=0.16, bbe=50)
     assert keep is True
@@ -47,32 +49,32 @@ def test_gate_disabled_keeps_everything() -> None:
     assert reason == ""
 
 
-def test_barrel_gate_demotes_mid_barrel_when_flat() -> None:
-    # Clears the power floor but barrel < 0.15 and no rising trend -> demote,
-    # even though max EV is strong (the gate fires regardless of EV).
+def test_barrel_gate_demotes_mid_barrel() -> None:
+    # Clears the power floor but barrel < 0.15 -> demote, even though max EV is
+    # strong (the gate fires regardless of EV).
     gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
     keep, reason = gate.allows(max_ev=112.0, barrel=0.10, bbe=50)
     assert keep is False
-    assert "PASS" in reason and "not rising" in reason
+    assert "PASS" in reason and "barrel 0.100" in reason
 
 
-def test_barrel_gate_keeps_rising_barrel() -> None:
-    # Sub-0.15 barrel is kept when the last 3 weeks are above the 6-week rate.
+def test_a_rising_barrel_no_longer_buys_a_sub_elite_hitter() -> None:
+    """The trend earns nothing out of time (t = -0.14), so the level stands alone."""
     gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
-    keep, reason = gate.allows(
-        max_ev=112.0, barrel=0.10, bbe=50, barrel_3w=0.14, barrel_6w=0.09
-    )
-    assert keep is True
-    assert "rising" in reason
-
-
-def test_barrel_gate_demotes_falling_barrel() -> None:
-    gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
-    keep, reason = gate.allows(
-        max_ev=112.0, barrel=0.10, bbe=50, barrel_3w=0.08, barrel_6w=0.12
-    )
+    keep, _ = gate.allows(max_ev=112.0, barrel=0.10, bbe=50, barrel_pa=0.04)
     assert keep is False
-    assert "PASS" in reason
+    with pytest.raises(TypeError):
+        gate.allows(  # type: ignore[call-arg]
+            max_ev=112.0, barrel=0.10, bbe=50, barrel_3w=0.14, barrel_6w=0.09
+        )
+
+
+def test_elite_per_pa_still_clears_a_sub_elite_barrel_rate() -> None:
+    """The surviving escape hatch: barrels per PA, which measures the same level."""
+    gate = HRPowerGate(enabled=True, min_max_ev=108.0, min_barrel=0.06, min_bbe=15)
+    keep, reason = gate.allows(max_ev=112.0, barrel=0.10, bbe=50, barrel_pa=0.07)
+    assert keep is True
+    assert "OK" in reason
 
 
 def test_barrel_gate_disabled_via_zero_threshold() -> None:
