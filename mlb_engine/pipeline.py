@@ -711,7 +711,6 @@ class Pipeline:
                 self.cfg.singles_gb_slope if self.cfg.singles_gb else 0.0,
                 self.cfg.singles_ld_slope if self.cfg.singles_gb else 0.0,
                 self.cfg.singles_shape,
-                self.cfg.singles_la_slope if self.cfg.singles_la else 0.0,
             )
 
             bats = slot.player.bats.value if slot.player.bats else None

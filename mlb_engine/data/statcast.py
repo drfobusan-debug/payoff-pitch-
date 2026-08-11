@@ -80,6 +80,44 @@ def batted_balls(df: pd.DataFrame) -> pd.DataFrame:
     return bip[bip["launch_speed"].notna()] if "launch_speed" in bip else bip
 
 
+#: A pitch has no id in the Statcast feed, so it is identified by the game, the
+#: two players, the count and the delivery. Two pitches matching on all of these
+#: are the same pitch scraped twice.
+PITCH_KEY = [
+    "game_date",
+    "home_team",
+    "away_team",
+    "batter",
+    "pitcher",
+    "inning",
+    "inning_topbot",
+    "balls",
+    "strikes",
+    "pitch_type",
+    "release_speed",
+    "description",
+    "events",
+]
+
+
+def dedupe_pitches(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop pitches that appear more than once, for frames stitched from caches.
+
+    Cached ranges overlap, and a pitch carries no id, so concatenating two of
+    them counts the shared days twice. ``drop_duplicates()`` over every column
+    does not catch it -- the frames can differ in which columns they carry, or
+    in a value Savant revised between scrapes -- and the result silently
+    corrupts every rate built on plate appearances: a starter's walk rate read
+    .275 against a true .100, which pushed median SIERA from 4.06 to 7.0 and
+    would have moved the ace gate.
+
+    Production reads one cached range at a time and does not need this; it is
+    for research code assembling a season from several caches.
+    """
+    key = [c for c in PITCH_KEY if c in df.columns]
+    return _unique_index(df.drop_duplicates(subset=key) if key else df)
+
+
 def _unique_index(df: pd.DataFrame) -> pd.DataFrame:
     """Renumber the rows.
 

@@ -119,59 +119,6 @@ SINGLES_BARREL_SLOPE = 1.5
 SINGLES_GB_SLOPE = 0.47
 SINGLES_LD_SLOPE = 0.87
 
-# Mean launch angle, alongside the ground-ball rate rather than instead of it.
-#
-# ``gb_rate`` is a threshold count of exactly this quantity -- every ball under
-# ten degrees scores one and the rest score zero -- so it keeps the count and
-# discards the size. A hitter going from fourteen degrees to nine registers a
-# large ground-ball jump; one going from six to one registers none, though the
-# swing changed as much. Measured on this cache over 1,077 batter-windows, odd
-# against even batted balls inside a 42-day window:
-#
-#     mean launch angle    split-half .433
-#     GB%                  split-half .336
-#
-# and against the *following* fourteen days' singles per PA, mean launch angle
-# correlates -.224 where GB% manages +.188. The more stable measurement is the
-# one this file was not reading.
-#
-# Fitted out of time on the residual the rest of the multiplier leaves, slope fit
-# leave-one-roll-out over five rolls so no roll informs its own prediction:
-# -0.0126 to -0.0161 per degree, and significant beside the rest of the stack
-# (t -3.35) where GB% on its own is not (t -0.77).
-#
-# GB% stays. The two are not redundant -- the pair beats either alone in four of
-# five rolls -- and dropping GB% costs both accuracy and spread:
-#
-#     variant                     mean r    spread scale (1.0 = right)
-#     GB% + mean LA                .2808        1.009
-#     mean LA alone                .2737        0.882
-#     GB% alone (previous)         .2680        0.838
-#
-# That last column is the reason this term is worth having beyond its accuracy:
-# the multiplier's spread between the best and worst bat was ~16% too narrow, and
-# a hitter priced closer to average than he is clears the edge floor against a
-# market that has him right. Adding the term removes the compression outright.
-#
-# The +-5% clamp below is tight against a league launch-angle spread of 5.3
-# degrees, and it binds on a little under half the league. That is deliberate,
-# and it is the one place where the clamp is doing pricing work rather than
-# noise control -- widening it buys almost nothing in rank and overshoots the
-# spread it was added to fix:
-#
-#     clamp    pinned    mean r    spread scale
-#     +-0.04    54.5%     .2792       0.974
-#     +-0.05    44.4%     .2808       1.009   <- shipped
-#     +-0.07    27.2%     .2834       1.067
-#     +-0.10    13.2%     .2839       1.136
-#     +-0.15     2.7%     .2859       1.186
-#
-# Five thousandths of correlation is not worth pricing a spread 19% wider than
-# the one hitters actually produce: an overstated spread is the same false
-# positive as an understated one, pointed the other way.
-BL_MEAN_LA = 13.5
-SINGLES_LA_SLOPE = -0.014
-
 # Shape *within* those batted-ball classes. Same out-of-time design, same panel:
 #
 #     input          slope    p        what it says
@@ -263,9 +210,6 @@ class BatterRegression:
     gb_rate: float = BL_GB_RATE
     # Ground-ball rate and pulled-air rate: stamped for HR/PPV backtesting.
     gb_pct: float = float("nan")
-    # Mean launch angle over batted balls -- the continuous quantity ``gb_pct``
-    # and ``gb_rate`` threshold. NaN when no launch angles are available.
-    mean_la: float = float("nan")
     pull_air_pct: float = float("nan")
     # Plate appearances behind the slice, so barrel rate can be expressed per PA.
     pa: int = 0
@@ -352,7 +296,6 @@ class BatterRegression:
         singles_gb_slope: float = SINGLES_GB_SLOPE,
         singles_ld_slope: float = SINGLES_LD_SLOPE,
         singles_shape: bool = True,
-        singles_la_slope: float = SINGLES_LA_SLOPE,
     ) -> dict[str, float]:
         """Return bounded outcome multipliers for {1B,2B,3B,HR}.
 
@@ -439,12 +382,6 @@ class BatterRegression:
         one *= 1.0 + _clip(
             (self.gb_rate - BL_GB_RATE) * singles_gb_slope, -0.05, 0.05
         )  # PPV batted-ball mix
-        # Launch angle itself, which is what that rate thresholds. Negative: the
-        # ball hit lower falls in front of the defence rather than into a glove.
-        if self.mean_la == self.mean_la:  # not NaN
-            one *= 1.0 + _clip(
-                (self.mean_la - BL_MEAN_LA) * singles_la_slope, -0.05, 0.05
-            )  # PPV launch angle
         if self.ld_pct == self.ld_pct:  # not NaN
             one *= 1.0 + _clip(
                 (self.ld_pct - BL_LD_RATE) * singles_ld_slope, -0.05, 0.05
@@ -524,7 +461,6 @@ def build_batter_regression(
     la = batted["launch_angle"].dropna() if "launch_angle" in batted else pd.Series([])
     sweet = float(la.between(8, 32).mean()) if len(la) else 0.0
     gb_pct = float((la < 10).mean()) if len(la) else float("nan")
-    mean_la = float(la.mean()) if len(la) else float("nan")
     pull_air = _pull_air_rate(batted)
     bat_speed = (
         float(bdf["bat_speed"].dropna().mean()) if bdf["bat_speed"].notna().any() else BL_BAT_SPEED
@@ -610,7 +546,6 @@ def build_batter_regression(
         bb_pct=bb_pct,
         gb_rate=gb_rate,
         gb_pct=gb_pct,
-        mean_la=mean_la,
         pull_air_pct=pull_air,
         pa=n_pa,
         fb_ld_ev=fb_ld_ev,
