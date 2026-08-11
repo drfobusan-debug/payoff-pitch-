@@ -7,6 +7,36 @@ center-field axis and gated by each park's structural wind-receptivity, while
 temperature/wind HR payoff is scaled by the park's fence/outfield profile.
 Humidity is down-weighted (humidor-neutralized). Domed / closed-roof parks
 neutralize weather.
+
+Singles are fitted separately rather than echoed off the home-run term
+---------------------------------------------------------------------
+The hit multiplier used to be ``1 + (hr_mult - 1) * 0.35``: the carry model at
+35% strength, a figure asserted rather than measured. Carry is the wrong
+mechanism for singles -- it is what turns a single into a home run -- so the
+sign was not even obvious, and the wind channel dominated the number.
+
+Fitted on 3,347 game-halves (128,318 plate appearances), with park and month
+fixed effects and each offence's season rate controlled, standard errors
+clustered by game:
+
+    singles/PA        coef        t        home runs/PA for comparison
+    temperature    +0.000224    +1.73     +0.000424   t +6.61
+    wind to CF     +0.000012    +0.06     +0.000317   t +3.29
+    crosswind      -0.000101    -0.22     -0.000318   t -1.48
+    wind speed     -0.000167    -0.40     +0.000041   t +0.20
+    humidity       -0.000034    -0.51     +0.000069   t +2.12
+
+The home-run column reproduces the physics, which is the evidence that the
+measurement works. The singles column does not: **wind does nothing to singles**
+(t = 0.06 on the very component the old term was driven by), and neither does
+humidity. Only temperature shows anything, and it is weak -- t = 1.7, and the
+coefficient is unstable across alternate days (+0.00033 against +0.00007). So
+the term kept below is temperature only, at roughly half the fitted slope, and
+the old model's implied echo of 0.35 is replaced by the fitted 0.11.
+
+Doubles and triples lose their weather term entirely: temperature reads t =
++0.31 and wind-to-CF t = -0.10 on extra-base hits, so the same echo was pricing
+an effect that is not there.
 """
 
 from __future__ import annotations
@@ -22,6 +52,10 @@ from mlb_engine.data import http
 from mlb_engine.data.parks import Park
 
 log = logging.getLogger(__name__)
+
+# Relative change in singles per degree above 70F, half of the +0.0016/F the
+# regression in the module docstring puts on a .154 base rate.
+SINGLES_TEMP_PER_F = 0.0008
 
 OPEN_METEO = "https://api.open-meteo.com/v1/forecast"
 OPEN_METEO_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
@@ -51,7 +85,7 @@ class WeatherEffect:
     note: str = ""
 
     def multipliers(self) -> dict[str, float]:
-        return {"HR": self.hr_mult, "1B": self.hit_mult, "2B": self.hit_mult, "3B": self.hit_mult}
+        return {"HR": self.hr_mult, "1B": self.hit_mult}
 
 
 def _wind_out_component(wind_from_deg: float, wind_mph: float, cf_bearing: float) -> float:
@@ -141,7 +175,8 @@ def _effect(c: WeatherConditions, park: Park) -> tuple[float, float]:
     hr = (1.0 + temp_term) * (1.0 + humid_term) * (1.0 + wind_term)
     hr = max(0.70, min(1.40, hr))
 
-    # doubles/singles track a damped version of the same drivers
-    hit = 1.0 + (hr - 1.0) * 0.35
-    hit = max(0.90, min(1.12, hit))
+    # Singles: temperature only, and not through the carry chain above. Half the
+    # fitted slope, since the fit is t = 1.7 and unstable across alternate days;
+    # capped at 3% so a 110F afternoon cannot be worth more than the ballpark.
+    hit = 1.0 + max(-0.03, min(0.03, (c.temp_f - 70.0) * SINGLES_TEMP_PER_F))
     return hr, hit
