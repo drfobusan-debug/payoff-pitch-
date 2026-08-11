@@ -107,13 +107,13 @@ def test_weather_park_config_gates_wind():
     from mlb_engine.filters.weather import WeatherConditions, _effect
 
     out = WeatherConditions(85, 50, 15, 0, 15)  # 15 mph straight out to CF
-    wrigley, _ = _effect(out, get_park(17))  # open bowl, wind-receptive
-    oracle, _ = _effect(out, get_park(2395))  # shielded
+    wrigley = _effect(out, get_park(17))  # open bowl, wind-receptive
+    oracle = _effect(out, get_park(2395))  # shielded
     assert wrigley > 1.15  # wind reaches the field -> big HR boost
     assert oracle < wrigley  # architecture suppresses the same wind
 
     blow_in = WeatherConditions(85, 50, 15, 180, -15)
-    wrigley_in, _ = _effect(blow_in, get_park(17))
+    wrigley_in = _effect(blow_in, get_park(17))
     assert wrigley_in < 1.0  # in-from-CF suppresses power
 
 

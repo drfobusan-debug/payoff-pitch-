@@ -46,20 +46,15 @@ def test_the_park_moves_the_simulated_singles_rate() -> None:
 
 
 def test_the_gate_context_reads_the_singles_factor() -> None:
-    ctx = Pipeline._hits_context(get_park(YANKEE), None)
+    ctx = Pipeline._hits_context(get_park(YANKEE))
     assert ctx == PARKS[YANKEE].singles_factor
     # The old behaviour bought an average bat here on a 102 runs factor.
     assert ctx < 1.0
-
-
-def test_the_gate_context_still_multiplies_the_weather() -> None:
-    hot = Pipeline._hits_context(get_park(BUSCH), {"1B": 1.05})
-    calm = Pipeline._hits_context(get_park(BUSCH), None)
-    assert hot > calm > 1.0
+    assert Pipeline._hits_context(get_park(BUSCH)) > 1.0
 
 
 def test_an_unknown_park_leaves_the_gate_neutral() -> None:
-    assert Pipeline._hits_context(None, {"1B": 1.05}) is None
+    assert Pipeline._hits_context(None) is None
 
 
 def test_the_switch_turns_the_park_term_off(monkeypatch) -> None:

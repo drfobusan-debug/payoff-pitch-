@@ -7,6 +7,39 @@ center-field axis and gated by each park's structural wind-receptivity, while
 temperature/wind HR payoff is scaled by the park's fence/outfield profile.
 Humidity is down-weighted (humidor-neutralized). Domed / closed-roof parks
 neutralize weather.
+
+The weather does not touch hits, because it does not measure as touching hits
+----------------------------------------------------------------------------
+There used to be a hit multiplier, ``1 + (hr_mult - 1) * 0.35``: the carry model
+at 35% strength, a figure asserted rather than measured, applied to 1B/2B/3B.
+Carry is the wrong mechanism for singles -- it is what turns a single into a
+home run -- so the sign was not even obvious, and the wind channel dominated
+the number.
+
+Fitted on 3,347 game-halves (128,318 plate appearances), with park and month
+fixed effects and each offence's season rate controlled, standard errors
+clustered by game:
+
+    singles/PA        coef        t        home runs/PA for comparison
+    temperature    +0.000224    +1.73     +0.000424   t +6.61
+    wind to CF     +0.000012    +0.06     +0.000317   t +3.29
+    crosswind      -0.000101    -0.22     -0.000318   t -1.48
+    wind speed     -0.000167    -0.40     +0.000041   t +0.20
+    humidity       -0.000034    -0.51     +0.000069   t +2.12
+
+The home-run column reproduces the physics, which is the evidence that the
+measurement works. The singles column does not: **wind does nothing to singles**
+(t = 0.06 on the very component the old term was driven by), and neither does
+humidity. Only temperature shows anything, and it is weak -- t = 1.7 -- and the
+coefficient does not replicate across alternate days (+0.00033 against
++0.00007). Extra-base hits are the same story: temperature t = +0.31, wind
+t = -0.10.
+
+So the hit term is gone rather than refitted. A multiplier that is nominally
+"small" is not harmless when it is unfounded: the old one added up to 10% to a
+hitter's singles number on a windy night, which is a phantom edge on a market
+whose real park spread is only a few percent. The weather still prices home
+runs, where it belongs and where it measures.
 """
 
 from __future__ import annotations
@@ -47,11 +80,10 @@ class WeatherConditions:
 class WeatherEffect:
     conditions: WeatherConditions | None
     hr_mult: float
-    hit_mult: float
     note: str = ""
 
     def multipliers(self) -> dict[str, float]:
-        return {"HR": self.hr_mult, "1B": self.hit_mult, "2B": self.hit_mult, "3B": self.hit_mult}
+        return {"HR": self.hr_mult}
 
 
 def _wind_out_component(wind_from_deg: float, wind_mph: float, cf_bearing: float) -> float:
@@ -68,23 +100,22 @@ class WeatherProvider:
 
     def fetch(self, park: Park, game_dt_utc: str | None) -> WeatherEffect:
         if park.roof in ("closed", "dome"):
-            return WeatherEffect(None, 1.0, 1.0, note="closed roof: weather neutral")
+            return WeatherEffect(None, 1.0, note="closed roof: weather neutral")
 
         try:
             cond = self._fetch_conditions(park, game_dt_utc)
         except Exception as exc:  # network / API issues shouldn't kill the run
             log.warning("weather fetch failed for %s: %s", park.name, exc)
-            return WeatherEffect(None, 1.0, 1.0, note="weather unavailable")
+            return WeatherEffect(None, 1.0, note="weather unavailable")
 
         if park.roof == "retractable":
             # Unknown whether open; damp the effect by half.
-            hr, hit = _effect(cond, park)
+            hr = _effect(cond, park)
             return WeatherEffect(
-                cond, 1.0 + (hr - 1.0) * 0.5, 1.0 + (hit - 1.0) * 0.5, note="retractable (damped)"
+                cond, 1.0 + (hr - 1.0) * 0.5, note="retractable (damped)"
             )
 
-        hr, hit = _effect(cond, park)
-        return WeatherEffect(cond, hr, hit, note="open")
+        return WeatherEffect(cond, _effect(cond, park), note="open")
 
     def _fetch_conditions(self, park: Park, game_dt_utc: str | None) -> WeatherConditions:
         game_dt = (
@@ -120,8 +151,8 @@ class WeatherProvider:
         return WeatherConditions(temp, hum, wspd, wdir, out)
 
 
-def _effect(c: WeatherConditions, park: Park) -> tuple[float, float]:
-    """Return (hr_mult, hit_mult) via a WAM-style park-configuration filter.
+def _effect(c: WeatherConditions, park: Park) -> float:
+    """Return the home-run multiplier via a WAM-style park-configuration filter.
 
     Temperature (~3.3 ft / +10F) and wind (~19 ft / 5 mph out) drive carry, but
     the HR payoff is scaled by the park's fence/outfield profile (``carry_factor``)
@@ -139,9 +170,4 @@ def _effect(c: WeatherConditions, park: Park) -> tuple[float, float]:
     wind_term = max(-0.30, min(0.35, c.out_to_cf_mph * 0.011 * wind_recv)) * carry
 
     hr = (1.0 + temp_term) * (1.0 + humid_term) * (1.0 + wind_term)
-    hr = max(0.70, min(1.40, hr))
-
-    # doubles/singles track a damped version of the same drivers
-    hit = 1.0 + (hr - 1.0) * 0.35
-    hit = max(0.90, min(1.12, hit))
-    return hr, hit
+    return max(0.70, min(1.40, hr))
