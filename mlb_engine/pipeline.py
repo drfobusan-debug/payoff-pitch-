@@ -1018,6 +1018,15 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
+        # The ballpark's own effect on singles, which the weather term does not
+        # carry: it models carry, and carry is what turns a single into a home
+        # run rather than what drops one in front of a deep outfielder.
+        park_mult = (
+            {"1B": park.singles_factor}
+            if park is not None and self.cfg.park_singles
+            else {}
+        )
+
         (home_start, home_pen, home_pen_close, home_pen_bridge, home_rbi, home_prev,
          home_sels, home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
             game.home, game.away, statcast, slate_date, sprint, park, weather_mult
@@ -1069,10 +1078,10 @@ class Pipeline:
 
         # apply env filters: weather + own travel + opponent-staff HR boost +
         # human element + opponent fielding defense + manager speed engine + DGANG.
-        home_env = [weather_mult, home_tr, home_hr_boost, home_human, home_def,
-                    home_mgr.offense_multipliers(), home_dgang]
-        away_env = [weather_mult, away_tr, away_hr_boost, away_human, away_def,
-                    away_mgr.offense_multipliers(), away_dgang]
+        home_env = [weather_mult, park_mult, home_tr, home_hr_boost, home_human,
+                    home_def, home_mgr.offense_multipliers(), home_dgang]
+        away_env = [weather_mult, park_mult, away_tr, away_hr_boost, away_human,
+                    away_def, away_mgr.offense_multipliers(), away_dgang]
         home_start = self._apply_all(home_start, home_env)
         home_pen_env = [*home_env, home_mgr.pen_multipliers()]
         home_pen = self._apply_all(home_pen, home_pen_env)
@@ -1503,15 +1512,21 @@ class Pipeline:
 
     @staticmethod
     def _hits_context(park, weather_mult: dict[str, float] | None) -> float | None:
-        """Tonight's hit environment: park factor times the weather hit term.
+        """Tonight's hit environment: the park's singles factor times the weather.
 
         1.0 is a neutral night in a neutral yard. ``None`` when the park is
         unknown, which leaves the contact gate neutral rather than guessing.
+
+        This reads ``singles_factor`` rather than the runs park factor it used
+        to. The runs factor is mostly home runs and carries no singles signal
+        (+0.09 across the 30 parks), so an average bat was being bought at
+        Yankee Stadium -- one of the worst singles parks -- and blocked at
+        Busch, the best.
         """
-        if park is None or park.park_factor is None:
+        if park is None:
             return None
         wx = 1.0 if not weather_mult else weather_mult.get("1B", 1.0)
-        return float(park.park_factor) / 100.0 * float(wx)
+        return float(park.singles_factor) * float(wx)
 
     def _batter_gate(
         self,
