@@ -65,6 +65,14 @@ BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
+# A bullpen is not a small-sample pitcher. Pooled over 42 days a pen puts ~1,240
+# batted balls on the board against a starter's ~100, so the spread between pens
+# is mostly talent where the spread between starters is mostly noise -- which
+# inverts how its contact profile should be read. See ``allowed_multipliers``.
+BL_PEN_XWOBA = 0.311  # league bullpen xwOBA allowed on contact
+PEN_XWOBA_SLOPE = 1.70  # fitted on hits per relief PA, t +4.5
+PEN_XWOBA_CLIP = (-0.06, 0.06)
+
 # Extra-base multiplier per ft/s of sprint speed, and the slow-bat conjunction.
 # 26.5 ft/s is roughly the bottom third of the league; .060 2B+3B/PA is the top
 # quarter, so the pair reads "can't run, yet the doubles are pouring in".
@@ -882,6 +890,8 @@ class PitcherRegression:
     metrics: dict[str, float] = field(default_factory=dict)
     # Pre-shrinkage contact-quality rates, kept for reporting.
     raw_contact: dict[str, float] = field(default_factory=dict)
+    # Whether these rates pool a whole bullpen rather than describing one arm.
+    bullpen: bool = False
 
     @property
     def dxwoba(self) -> float:
@@ -995,10 +1005,30 @@ class PitcherRegression:
         if self.bbe < MIN_BBE:
             return {}
         base = 1.0
-        # High BABIP allowed -> positive regression (fewer hits going forward).
-        base *= 1.0 + _clip((BL_BABIP - self.babip_allowed) * 0.6, -0.08, 0.08)
-        # Positive dxwOBA allowed (getting bailed out) -> more hits coming.
-        base *= 1.0 + _clip(self.dxwoba * 1.2, -0.06, 0.08)
+        if self.bullpen:
+            # A pen's rates pool ~1,240 batted balls, twelve times a starter's,
+            # so the luck correction below is the wrong instrument on it: what
+            # reads as a lucky starter is a good bullpen, and treating it as
+            # luck prices the pen backwards. Measured on 16,547 game-batter rows
+            # of relief plate appearances, held out on the last 40% of the
+            # season:
+            #
+            #                              hits/PA deviance
+            #     no pen contact term          .41972
+            #     inverse BABIP (was shipped)  .41997   <- worse than nothing
+            #     xwOBA allowed level          .41921
+            #
+            # The quintile table is blunter still: the pens allowing the most
+            # hits (.2245/PA) were the ones handed a 0.989 suppression.
+            base *= 1.0 + _clip(
+                (self.xwoba_allowed - BL_PEN_XWOBA) * PEN_XWOBA_SLOPE,
+                *PEN_XWOBA_CLIP,
+            )
+        else:
+            # High BABIP allowed -> positive regression (fewer hits going forward).
+            base *= 1.0 + _clip((BL_BABIP - self.babip_allowed) * 0.6, -0.08, 0.08)
+            # Positive dxwOBA allowed (getting bailed out) -> more hits coming.
+            base *= 1.0 + _clip(self.dxwoba * 1.2, -0.06, 0.08)
         # Ground balls allowed. A grounder that gets through is a single 91% of
         # the time, so the starter who keeps the ball down concedes singles in
         # place of extra bases -- and unlike the rest of his allowed-contact
@@ -1073,6 +1103,7 @@ def build_pitcher_regression(
     stuff_plus: float | None = None,
     location_plus: float | None = None,
     shrink: float = 0.0,
+    bullpen: bool = False,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1267,4 +1298,5 @@ def build_pitcher_regression(
         spin=spin,
         stuff_plus=stuff_plus,
         location_plus=location_plus,
+        bullpen=bullpen,
     )

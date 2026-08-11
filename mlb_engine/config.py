@@ -440,6 +440,14 @@ class Config:
     # does. Total bases were priced identically at Coors and Wrigley without it.
     park_xbh: bool = field(default_factory=lambda: _env_bool("MLBE_PARK_XBH", True))
 
+    # Read a bullpen's contact quality as talent rather than as luck. The pen
+    # covers ~44% of a hitter's plate appearances and was running through the
+    # small-sample luck corrections built for starters -- on ~1,240 pooled
+    # batted balls those invert, suppressing the pens that allow the most hits.
+    pen_contact_level: bool = field(
+        default_factory=lambda: _env_bool("MLBE_PEN_CONTACT_LEVEL", True)
+    )
+
     # Bridge innings: once the starter is hooked in a close game, the simulator
     # used to hand every remaining inning to the pen's 8th+ leverage profile,
     # so a 6th-inning hand-off was charged the closer's rates. With this on, the

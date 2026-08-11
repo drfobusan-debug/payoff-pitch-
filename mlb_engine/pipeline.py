@@ -641,7 +641,9 @@ class Pipeline:
             xwoba_shrink=w.bullpen_xwoba_shrink,
         )
         # Rates come off the recent window, stuff and command off the longer one.
-        bpen_reg = build_pitcher_regression(bpen.skill_frame)
+        bpen_reg = build_pitcher_regression(
+            bpen.skill_frame, bullpen=self.cfg.pen_contact_level
+        )
         bpen_allowed = bpen_reg.allowed_multipliers()
         bpen_k = bpen_reg.k_multiplier()
         avail = (
