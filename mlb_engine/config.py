@@ -434,6 +434,12 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_PARK_SINGLES", True)
     )
 
+    # The ballpark on the doubles line, and the widest of the component factors:
+    # ``Park.xbh_factor`` spans 0.86..1.25 after shrinking, against singles'
+    # 0.945..1.035, because outfield geometry varies more than fence distance
+    # does. Total bases were priced identically at Coors and Wrigley without it.
+    park_xbh: bool = field(default_factory=lambda: _env_bool("MLBE_PARK_XBH", True))
+
     # Bridge innings: once the starter is hooked in a close game, the simulator
     # used to hand every remaining inning to the pen's 8th+ leverage profile,
     # so a 6th-inning hand-off was charged the closer's rates. With this on, the
