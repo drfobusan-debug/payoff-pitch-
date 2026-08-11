@@ -1484,22 +1484,23 @@ class Pipeline:
         return f"vs ace: opp SIERA {opp.siera:.2f} < {self.cfg.singles_siera_ace:.2f}"
 
     @staticmethod
-    def _hits_context(park, weather_mult: dict[str, float] | None) -> float | None:
-        """Tonight's hit environment: the park's singles factor times the weather.
+    def _hits_context(park) -> float | None:
+        """Tonight's hit environment: the park's singles factor, 1.0 = neutral.
 
-        1.0 is a neutral night in a neutral yard. ``None`` when the park is
-        unknown, which leaves the contact gate neutral rather than guessing.
+        ``None`` when the park is unknown, which leaves the contact gate neutral
+        rather than guessing.
 
         This reads ``singles_factor`` rather than the runs park factor it used
         to. The runs factor is mostly home runs and carries no singles signal
         (+0.09 across the 30 parks), so an average bat was being bought at
         Yankee Stadium -- one of the worst singles parks -- and blocked at
-        Busch, the best.
+        Busch, the best. The weather no longer contributes: fitted against
+        realised singles it measures nothing (see ``filters/weather.py``), so
+        the ballpark is the whole of tonight's hit environment.
         """
         if park is None:
             return None
-        wx = 1.0 if not weather_mult else weather_mult.get("1B", 1.0)
-        return float(park.singles_factor) * float(wx)
+        return float(park.singles_factor)
 
     def _batter_gate(
         self,
@@ -1554,7 +1555,7 @@ class Pipeline:
     ):
         out = []
         bat = res.bat[team_key]
-        context = self._hits_context(park, weather_mult)
+        context = self._hits_context(park)
         lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
