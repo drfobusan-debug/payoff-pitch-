@@ -756,6 +756,19 @@ OPP_GB_SINGLES_SLOPE = 0.39
 # half of one.
 OPP_GB_XBH_SLOPE = -1.45
 OPP_GB_XBH_CLIP = (-0.14, 0.14)
+# The same fact read off a bullpen, which is a different measurement. Pooling a
+# corps of ~24 arms halves the spread in GB% allowed (sd 0.038 against a
+# starter's 0.065) and it halves the slope with it: fitted on 13,681
+# (game, batter) pairs against relief, holding the hitter's own rate and the
+# pen's xwOBA allowed fixed, the extra-base coefficient is -0.76 where the
+# starter's is -1.47, and the singles coefficient +0.51 where the starter's
+# fitted +0.77. Neither reaches significance on one season of relief data
+# (t -1.33 and +1.66), so the pen slopes are the fitted values rather than
+# anything stronger, and the clip is tightened to match the narrower spread.
+# Applying the starter's slope here overstated the term roughly two-fold.
+PEN_GB_SINGLES_SLOPE = 0.25
+PEN_GB_XBH_SLOPE = -0.75
+PEN_GB_XBH_CLIP = (-0.07, 0.07)
 BL_FB_ALLOWED = 0.360  # fly balls + pop-ups / batted balls
 
 # You cannot hit a home run on the ground, and that is as true of the arm that
@@ -1058,10 +1071,13 @@ class PitcherRegression:
         # is that a grounder is a single *instead of* an extra-base hit, so
         # letting it lift 2B/3B/HR would assert the opposite of what it means.
         base = _clip(base, 0.88, 1.14)
+        gb_singles_slope = (
+            PEN_GB_SINGLES_SLOPE if self.bullpen else OPP_GB_SINGLES_SLOPE
+        )
         one = base * (
             1.0
             + _clip(
-                (self.gb_allowed - BL_GB_ALLOWED) * OPP_GB_SINGLES_SLOPE, -0.035, 0.035
+                (self.gb_allowed - BL_GB_ALLOWED) * gb_singles_slope, -0.035, 0.035
             )
         )  # PPV opposing grounders
 
@@ -1077,9 +1093,12 @@ class PitcherRegression:
         # barrel allowed's r=0.05 and a ~500-BBE stabilization point -- so it is
         # the only member of this family strong enough to move a rate rather than
         # merely inform a veto.
-        gb_xbh = 1.0 + _clip(
-            (self.gb_allowed - BL_GB_ALLOWED) * OPP_GB_XBH_SLOPE, *OPP_GB_XBH_CLIP
+        gb_slope, gb_clip = (
+            (PEN_GB_XBH_SLOPE, PEN_GB_XBH_CLIP)
+            if self.bullpen
+            else (OPP_GB_XBH_SLOPE, OPP_GB_XBH_CLIP)
         )
+        gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
         # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
         hr = base * hard * (
