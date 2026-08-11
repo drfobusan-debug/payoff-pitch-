@@ -117,10 +117,15 @@ DEFAULT_ELITE = 1.62
 DEFAULT_GOOD = 0.41
 DEFAULT_POOR = -1.16
 
-# Context floor an "average" bat must clear to be bought: park factor times the
-# weather multiplier, where 1.0 is a neutral night in a neutral yard. Elite and
-# good bats are not context-gated -- the thesis is that they are worth buying
-# when the price is right, and the park is a modifier, not a veto.
+# Context floor an "average" bat must clear to be bought: the park's *singles*
+# factor times the weather multiplier, where 1.0 is a neutral night in a neutral
+# yard. It used to read the runs park factor, which is mostly home runs and
+# correlates +0.09 with the measured singles index -- so the test was noise on
+# the market it gates, buying an average bat at Yankee Stadium (singles index
+# 86) and blocking him at Busch (109).
+#
+# Elite and good bats are not context-gated -- the thesis is that they are worth
+# buying when the price is right, and the park is a modifier, not a veto.
 DEFAULT_MIN_CONTEXT = 1.00
 
 # Context below which a *poor* bat becomes an active under candidate rather than
@@ -256,8 +261,8 @@ class HitsContactGate:
     ) -> tuple[bool, str]:
         """Return ``(keep_buy, reason)`` for a hit / H+R+RBI over.
 
-        ``context`` is the park factor times the weather multiplier for tonight
-        (1.0 = neutral). A poor bat is never bought; an average bat needs the
+        ``context`` is the park's singles factor times the weather multiplier
+        for tonight (1.0 = neutral). A poor bat is never bought; an average bat needs the
         context working for him; elite and good bats clear on price alone.
         """
         if not self.enabled:

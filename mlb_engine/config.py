@@ -426,6 +426,14 @@ class Config:
     # park factor cannot tell a pull-heavy lefty from an opposite-field bat.
     xhr_park: bool = field(default_factory=lambda: _env_bool("MLBE_XHR_PARK", True))
 
+    # The ballpark on the singles line. The runs park factor is mostly home runs
+    # and carries no singles signal, so singles were priced identically at
+    # Coors and Dodger Stadium; ``Park.singles_factor`` is the component version,
+    # measured per park and shrunk to its split-half reliability.
+    park_singles: bool = field(
+        default_factory=lambda: _env_bool("MLBE_PARK_SINGLES", True)
+    )
+
     # Bridge innings: once the starter is hooked in a close game, the simulator
     # used to hand every remaining inning to the pen's 8th+ leverage profile,
     # so a 6th-inning hand-off was charged the closer's rates. With this on, the
