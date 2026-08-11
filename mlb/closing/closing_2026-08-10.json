@@ -1395,6 +1395,13 @@
   {
     "matchup": "BAL @ MIN",
     "market": "game_rl",
+    "selection": "BAL +1.5",
+    "american": -225.0,
+    "no_vig_prob": 0.663648
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_rl",
     "selection": "BAL -1.5",
     "american": 146.0,
     "no_vig_prob": 0.394635
@@ -1405,6 +1412,13 @@
     "selection": "MIN +1.5",
     "american": -165.0,
     "no_vig_prob": 0.605365
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_rl",
+    "selection": "MIN -1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.336352
   },
   {
     "matchup": "BAL @ MIN",
@@ -1423,6 +1437,20 @@
   {
     "matchup": "BAL @ MIN",
     "market": "game_total",
+    "selection": "Over 9.0",
+    "american": -113.0,
+    "no_vig_prob": 0.516122
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_total",
+    "selection": "Over 9.5",
+    "american": -105.0,
+    "no_vig_prob": 0.490251
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_total",
     "selection": "Under 8.0",
     "american": -112.0,
     "no_vig_prob": 0.485673
@@ -1433,6 +1461,20 @@
     "selection": "Under 8.5",
     "american": -110.0,
     "no_vig_prob": 0.506971
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": 100.0,
+    "no_vig_prob": 0.483878
+  },
+  {
+    "matchup": "BAL @ MIN",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -114.0,
+    "no_vig_prob": 0.509749
   },
   {
     "matchup": "BAL @ MIN",
@@ -3271,6 +3313,13 @@
   {
     "matchup": "BOS @ TOR",
     "market": "game_rl",
+    "selection": "BOS +1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.60952
+  },
+  {
+    "matchup": "BOS @ TOR",
+    "market": "game_rl",
     "selection": "BOS -1.5",
     "american": 118.0,
     "no_vig_prob": 0.449787
@@ -3281,6 +3330,20 @@
     "selection": "TOR +1.5",
     "american": -130.0,
     "no_vig_prob": 0.550213
+  },
+  {
+    "matchup": "BOS @ TOR",
+    "market": "game_rl",
+    "selection": "TOR -1.5",
+    "american": 155.0,
+    "no_vig_prob": 0.39048
+  },
+  {
+    "matchup": "BOS @ TOR",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": 105.0,
+    "no_vig_prob": 0.487042
   },
   {
     "matchup": "BOS @ TOR",
@@ -3295,6 +3358,13 @@
     "selection": "Over 8.5",
     "american": 100.0,
     "no_vig_prob": 0.481196
+  },
+  {
+    "matchup": "BOS @ TOR",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -107.0,
+    "no_vig_prob": 0.512958
   },
   {
     "matchup": "BOS @ TOR",
@@ -4916,6 +4986,13 @@
   {
     "matchup": "COL @ AZ",
     "market": "game_total",
+    "selection": "Over 9.5",
+    "american": 105.0,
+    "no_vig_prob": 0.469814
+  },
+  {
+    "matchup": "COL @ AZ",
+    "market": "game_total",
     "selection": "Under 8.5",
     "american": 100.0,
     "no_vig_prob": 0.486642
@@ -4926,6 +5003,13 @@
     "selection": "Under 9.0",
     "american": -121.0,
     "no_vig_prob": 0.52516
+  },
+  {
+    "matchup": "COL @ AZ",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -124.0,
+    "no_vig_prob": 0.530186
   },
   {
     "matchup": "COL @ AZ",
@@ -8297,6 +8381,20 @@
   {
     "matchup": "KC @ LAD",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -107.0,
+    "no_vig_prob": 0.500866
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 100.0,
+    "no_vig_prob": 0.477328
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "game_total",
     "selection": "Under 7.0",
     "american": -107.0,
     "no_vig_prob": 0.492472
@@ -8307,6 +8405,20 @@
     "selection": "Under 7.5",
     "american": -120.0,
     "no_vig_prob": 0.525
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -107.0,
+    "no_vig_prob": 0.499134
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -120.0,
+    "no_vig_prob": 0.522672
   },
   {
     "matchup": "KC @ LAD",
@@ -9935,9 +10047,37 @@
   {
     "matchup": "MIL @ SD",
     "market": "game_total",
+    "selection": "Over 7.5",
+    "american": -110.0,
+    "no_vig_prob": 0.503033
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": 107.0,
+    "no_vig_prob": 0.46722
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_total",
     "selection": "Under 7.0",
     "american": -102.0,
     "no_vig_prob": 0.494285
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -105.0,
+    "no_vig_prob": 0.496967
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -123.0,
+    "no_vig_prob": 0.53278
   },
   {
     "matchup": "MIL @ SD",
@@ -11475,9 +11615,23 @@
   {
     "matchup": "NYM @ ATL",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -118.0,
+    "no_vig_prob": 0.522639
+  },
+  {
+    "matchup": "NYM @ ATL",
+    "market": "game_total",
     "selection": "Over 8.5",
     "american": -105.0,
     "no_vig_prob": 0.49574
+  },
+  {
+    "matchup": "NYM @ ATL",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": 103.0,
+    "no_vig_prob": 0.477361
   },
   {
     "matchup": "NYM @ ATL",
@@ -12469,6 +12623,13 @@
   {
     "matchup": "PHI @ STL",
     "market": "batter_h",
+    "selection": "Alec Bohm H o1.5",
+    "american": 209.0,
+    "no_vig_prob": 0.303999
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "batter_h",
     "selection": "Alec Burleson H o0.5",
     "american": -286.0,
     "no_vig_prob": 0.740933
@@ -12563,6 +12724,13 @@
     "selection": "J.T. Realmuto H o0.5",
     "american": -230.0,
     "no_vig_prob": 0.672582
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "batter_h",
+    "selection": "J.T. Realmuto H o1.5",
+    "american": 209.0,
+    "no_vig_prob": 0.303999
   },
   {
     "matchup": "PHI @ STL",
@@ -13267,9 +13435,37 @@
   {
     "matchup": "PHI @ STL",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -113.0,
+    "no_vig_prob": 0.512442
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 100.0,
+    "no_vig_prob": 0.47949
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "game_total",
     "selection": "Over 9.0",
     "american": -104.0,
     "no_vig_prob": 0.497901
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -102.0,
+    "no_vig_prob": 0.487558
+  },
+  {
+    "matchup": "PHI @ STL",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -120.0,
+    "no_vig_prob": 0.52051
   },
   {
     "matchup": "PHI @ STL",
@@ -16543,6 +16739,13 @@
   {
     "matchup": "TEX @ LAA",
     "market": "game_total",
+    "selection": "Over 9.5",
+    "american": -102.0,
+    "no_vig_prob": 0.48072
+  },
+  {
+    "matchup": "TEX @ LAA",
+    "market": "game_total",
     "selection": "Under 7.5",
     "american": 100.0,
     "no_vig_prob": 0.487171
@@ -16556,10 +16759,24 @@
   },
   {
     "matchup": "TEX @ LAA",
+    "market": "game_total",
+    "selection": "Under 9.5",
+    "american": -120.0,
+    "no_vig_prob": 0.51928
+  },
+  {
+    "matchup": "TEX @ LAA",
     "market": "pitcher_bb",
     "selection": "MacKenzie Gore Walks o1.5",
     "american": -187.0,
     "no_vig_prob": 0.613048
+  },
+  {
+    "matchup": "TEX @ LAA",
+    "market": "pitcher_bb",
+    "selection": "MacKenzie Gore Walks o2.5",
+    "american": 155.0,
+    "no_vig_prob": 0.363224
   },
   {
     "matchup": "TEX @ LAA",
