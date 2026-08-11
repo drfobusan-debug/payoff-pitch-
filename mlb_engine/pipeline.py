@@ -1013,14 +1013,17 @@ class Pipeline:
             eff = self.deps.weather.fetch(park, game.game_datetime_utc)
             weather_mult = eff.multipliers()
 
-        # The ballpark's own effect on singles, which the weather term does not
-        # carry: it models carry, and carry is what turns a single into a home
-        # run rather than what drops one in front of a deep outfielder.
-        park_mult = (
-            {"1B": park.singles_factor}
-            if park is not None and self.cfg.park_singles
-            else {}
-        )
+        # The ballpark's own effect on the hit types the HR park multiplier and
+        # the weather term do not reach. Both model carry, and carry is what
+        # turns a fly ball into a home run -- not what drops a single in front
+        # of a deep outfielder or rolls a double into the alley behind him.
+        park_mult: dict[str, float] = {}
+        if park is not None:
+            if self.cfg.park_singles:
+                park_mult["1B"] = park.singles_factor
+            if self.cfg.park_xbh:
+                park_mult["2B"] = park.xbh_factor
+                park_mult["3B"] = park.xbh_factor
 
         (home_start, home_pen, home_pen_close, home_pen_bridge, home_rbi, home_prev,
          home_sels, home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
