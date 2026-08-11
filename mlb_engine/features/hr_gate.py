@@ -33,12 +33,21 @@ DEFAULT_MIN_BBE = 15
 # hard ground balls. Set to 0 to disable.
 DEFAULT_MIN_FB_LD_EV = 90.0
 
-# Standing barrel gate (user-requested): on top of the power floor above, an HR
-# buy must EITHER carry an elite barrel level, OR show barrel rising over the
-# last three weeks vs the rolling six-week rate. This demotes HR longshots on
-# hitters who are neither elite-power nor trending up -- even when the EV looks
-# good -- which is where the graded HR overs bled money. Set to 0 to disable
-# just this gate (the power floor stays).
+# Standing barrel gate: on top of the power floor above, an HR buy must carry an
+# elite barrel level. This demotes HR longshots on hitters who are not
+# elite-power -- even when the EV looks good -- which is where the graded HR
+# overs bled money. Set to 0 to disable just this gate (the power floor stays).
+#
+# It once had an escape hatch: a sub-elite hitter was bought anyway when his
+# barrel rate over the last three weeks exceeded the trailing six. Out of time
+# that trend earns nothing -- regressing the next fortnight's HR rate on the
+# barrel *level* plus the trend puts the trend at coefficient -0.002, t = -0.14
+# on 996 batter-windows, and faintly the wrong sign. Because the clause was
+# permissive, a worthless trend cost no false negatives; it admitted buys the
+# level test meant to block, and roughly half of hitters show a rising three
+# weeks by chance, so it voided about half the gate. The graded ledger agrees in
+# direction: HR buys admitted only by the trend won 7.4% against 16.2% for those
+# clearing on level (n=27 and 37, too few to be decisive on their own).
 DEFAULT_BARREL_GATE = 0.15
 
 # The same standing gate expressed per plate appearance. Barrel rate per batted
@@ -46,8 +55,8 @@ DEFAULT_BARREL_GATE = 0.15
 # whiff-prone slugger can barrel 16% of his contact and still clear a 15% gate
 # while barreling far less often than a contact hitter at 10%. Barrels/PA folds
 # contact frequency in and is the form projection systems weight. A hitter must
-# clear the level in EITHER form (or be trending up), so this only removes bats
-# that look elite per batted ball purely because they rarely make contact.
+# clear the level in EITHER form, so this only removes bats that look elite per
+# batted ball purely because they rarely make contact.
 # 0.065/PA is roughly the 15%-per-BBE hitter at league-average contact.
 DEFAULT_BARREL_PA_GATE = 0.065
 
@@ -181,8 +190,6 @@ class HRPowerGate:
         max_ev: float | None,
         barrel: float | None,
         bbe: int | None,
-        barrel_3w: float | None = None,
-        barrel_6w: float | None = None,
         barrel_pa: float | None = None,
         fb_ld_ev: float | None = None,
     ) -> tuple[bool, str]:
@@ -192,7 +199,7 @@ class HRPowerGate:
         enough to trust, and the hitter fails the max-EV/barrel power floor, the
         soft-air-contact floor, or the standing barrel gate (barrel below
         ``barrel_gate`` per batted ball AND below ``barrel_pa_gate`` per plate
-        appearance AND not trending up over the last three weeks).
+        appearance).
         """
         if not self.enabled:
             return True, ""
@@ -215,31 +222,21 @@ class HRPowerGate:
                 f"hr-gate: PASS (FB/LD EV {fb_ld_ev:.1f}<{self.min_fb_ld_ev:.0f})"
             )
         # Standing barrel gate: keep only if barrel is elite per batted ball OR
-        # per plate appearance OR rising 3w vs 6w.
+        # per plate appearance.
         elite_per_pa = (
             self.barrel_pa_gate > 0.0
             and barrel_pa is not None
             and barrel_pa >= self.barrel_pa_gate
         )
         if self.barrel_gate > 0.0 and barrel < self.barrel_gate and not elite_per_pa:
-            rising = (
-                barrel_3w is not None
-                and barrel_6w is not None
-                and barrel_3w > barrel_6w
+            per_pa = (
+                f", {barrel_pa:.3f}/PA<{self.barrel_pa_gate:.3f}"
+                if barrel_pa is not None
+                else ""
             )
-            if not rising:
-                trend = (
-                    f"3w {barrel_3w:.3f}<={barrel_6w:.3f} 6w"
-                    if barrel_3w is not None and barrel_6w is not None
-                    else "no 3w/6w trend"
-                )
-                return False, (
-                    f"hr-gate: PASS (barrel {barrel:.3f}<{self.barrel_gate:.2f} "
-                    f"and not rising: {trend})"
-                )
-            return True, (
-                f"hr-gate: OK (barrel {barrel:.3f} rising 3w {barrel_3w:.3f}"
-                f">{barrel_6w:.3f} 6w)"
+            return False, (
+                f"hr-gate: PASS (barrel {barrel:.3f}<{self.barrel_gate:.2f}"
+                f"{per_pa})"
             )
         return True, (
             f"hr-gate: OK (max_ev {max_ev:.1f}, barrel {barrel:.3f})"

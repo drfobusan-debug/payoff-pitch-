@@ -137,9 +137,6 @@ class Selection:
     hr_max_ev: float | None = None
     hr_barrel: float | None = None
     hr_bbe: int | None = None
-    # Barrel-rate trend windows for the HR barrel gate (None when too thin).
-    hr_barrel_3w: float | None = None
-    hr_barrel_6w: float | None = None
     # Barrels per plate appearance and mean exit velocity on air contact, for
     # the HR gate's contact-frequency and soft-air tests (None when unavailable).
     hr_barrel_pa: float | None = None
