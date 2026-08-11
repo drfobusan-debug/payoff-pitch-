@@ -736,6 +736,18 @@ BL_WHIFF_PITCHER = 0.240  # swinging strikes / swings induced
 BL_GB_ALLOWED = 0.420
 # Half the fitted +0.77; see ``allowed_multipliers`` for why it is discounted.
 OPP_GB_SINGLES_SLOPE = 0.39
+# The other half of the same fact, and much better evidenced: a grounder that
+# falls in is a single, so the extra-base channel loses what the singles channel
+# gains. Fitted on 14,957 (game, batter) pairs against the game's starter over
+# 201 starters, weighted by plate appearances and holding the hitter's own
+# extra-base multiplier fixed: -1.47 of the league 2B+3B rate per unit of GB%
+# allowed, t = -7.0, and monotone across all five quintiles of GB% allowed
+# (2B+3B per PA .0528 .0495 .0467 .0420 .0411). It replicates out of time --
+# -1.51 fitting on the first 60% of dates, -1.39 on the held out 40% (t = -4.1)
+# -- which is why this ships at the fitted slope where the singles term ships at
+# half of one.
+OPP_GB_XBH_SLOPE = -1.45
+OPP_GB_XBH_CLIP = (-0.14, 0.14)
 BL_FB_ALLOWED = 0.360  # fly balls + pop-ups / batted balls
 
 # You cannot hit a home run on the ground, and that is as true of the arm that
@@ -1028,6 +1040,17 @@ class PitcherRegression:
         # extra-base contact rather than singles, so it lifts 2B/3B/HR only.
         hard = 1.0 + _clip((self.hard_hit_allowed - BL_HARD_HIT) * 1.0, -0.08, 0.10)
 
+        # Ground balls on the extra-base line: the mirror of the singles term
+        # above, and the half of it that was missing. GB% allowed is the one
+        # batted-ball rate a starter genuinely repeats -- it forward-predicts his
+        # next three weeks at r=0.42 and stabilizes by ~50 batted balls, against
+        # barrel allowed's r=0.05 and a ~500-BBE stabilization point -- so it is
+        # the only member of this family strong enough to move a rate rather than
+        # merely inform a veto.
+        gb_xbh = 1.0 + _clip(
+            (self.gb_allowed - BL_GB_ALLOWED) * OPP_GB_XBH_SLOPE, *OPP_GB_XBH_CLIP
+        )
+
         # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
         hr = base * hard * (
             1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
@@ -1041,7 +1064,7 @@ class PitcherRegression:
         # Floor drops with the ground-ball brake so a sinkerballer can actually
         # suppress; the ceiling is unchanged.
         hr = _clip(hr, 0.78, 1.35)
-        xbh = _clip(base * hard, 0.85, 1.30)
+        xbh = _clip(base * hard * gb_xbh, 0.85, 1.30)
         return {"1B": one, "2B": xbh, "3B": xbh, "HR": hr}
 
 

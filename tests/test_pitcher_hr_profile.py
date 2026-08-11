@@ -249,13 +249,29 @@ def test_a_sinkerballer_concedes_singles_while_suppressing_the_rest() -> None:
     assert worm["HR"] < flyball["HR"]
 
 
-def test_the_singles_term_does_not_leak_into_extra_bases() -> None:
-    # A grounder is a single *instead of* an extra-base hit. Letting the term
-    # lift 2B/3B would assert the opposite of what it means.
+def test_grounders_move_the_two_channels_in_opposite_directions() -> None:
+    """A grounder is a single *instead of* an extra-base hit.
+
+    The singles channel gains what the extra-base channel loses, so the term
+    must not carry the same sign into 2B/3B -- that would assert the opposite
+    of what it means.
+    """
     worm = _allowed(gb_allowed=0.56)
     flyball = _allowed(gb_allowed=0.30)
     for key in ("2B", "3B"):
-        assert worm[key] == flyball[key]
+        assert worm[key] < flyball[key]
+    assert worm["1B"] > flyball["1B"]
+
+
+def test_the_extra_base_ground_ball_term_is_bounded() -> None:
+    # An extreme sinkerballer is not allowed to erase the doubles line: the
+    # clip binds outside roughly the 5th and 95th percentile of GB% allowed.
+    extreme_worm = _allowed(gb_allowed=0.70)["2B"]
+    extreme_air = _allowed(gb_allowed=0.20)["2B"]
+    neutral = _allowed(gb_allowed=0.42)["2B"]
+    assert extreme_worm == pytest.approx(0.86 * neutral)
+    assert extreme_air == pytest.approx(1.14 * neutral)
+    assert extreme_worm < neutral < extreme_air
 
 
 def test_a_league_average_ground_ball_rate_is_neutral_on_singles() -> None:
