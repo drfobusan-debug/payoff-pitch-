@@ -32,11 +32,19 @@ log = logging.getLogger(__name__)
 # map re-imposes exactly the bias that was corrected. Bump this whenever a
 # change moves raw probabilities systematically, which retires stale maps until
 # the next fit. "bip" == balls in play: foul balls left the batted-ball pool.
-FEATURE_BASIS = "bip-2026.08"
+#
+# Four merged changes moved raw probabilities after the "bip" basis was set and
+# none of them bumped it: the ground ball taking extra bases away (#112), the
+# park priced on the doubles line (#113), the bullpen's contact quality read as
+# talent rather than luck (#114), and the pen's own ground-ball slope (#115).
+# #114 alone is a sign flip on ~44% of plate appearances, so a map fitted on
+# 08-09 and 08-10 would be teaching the engine what a probability meant before
+# those terms existed.
+FEATURE_BASIS = "pen-park-gb-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-FEATURE_BASIS_SINCE = Date(2026, 8, 9)
+FEATURE_BASIS_SINCE = Date(2026, 8, 11)
 
 
 def _min_samples() -> int:
