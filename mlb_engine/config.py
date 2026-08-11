@@ -14,6 +14,7 @@ from pathlib import Path
 from mlb_engine.features.regression import (
     SINGLES_BARREL_SLOPE,
     SINGLES_GB_SLOPE,
+    SINGLES_LA_SLOPE,
     SINGLES_LD_SLOPE,
 )
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
@@ -406,6 +407,16 @@ class Config:
     )
     singles_ld_slope: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_LD_SLOPE", SINGLES_LD_SLOPE)
+    )
+    # Mean launch angle, which is the quantity the ground-ball rate above counts
+    # over a threshold. Kept alongside it rather than in place of it: over five
+    # out-of-time rolls the pair beats either alone (mean r .2808 against .2737
+    # for launch angle and .2680 for the rate), and the pair is what lands the
+    # multiplier's cross-hitter spread at 1.009 of the realised spread where the
+    # rate alone priced 0.838 of it. Own switch, since it is the newest term.
+    singles_la: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_LA", True))
+    singles_la_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_LA_SLOPE", SINGLES_LA_SLOPE)
     )
     # Shape within those classes -- pulled grounders, soft line drives, line
     # drives an outfielder can cut off. Smaller effects than the mix itself
