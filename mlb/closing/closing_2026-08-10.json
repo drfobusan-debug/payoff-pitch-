@@ -7086,6 +7086,20 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_hr",
+    "selection": "Carter Jensen HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Carter Jensen HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
     "selection": "Enrique Hernandez HR o0.5",
     "american": 425.0,
     "no_vig_prob": 0.5
@@ -7128,9 +7142,37 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_hr",
+    "selection": "Hunter Feduccia HR o1.5",
+    "american": 10000.0,
+    "no_vig_prob": 0.009901
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Hunter Feduccia HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
     "selection": "Isaac Collins HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Isaac Collins HR o1.5",
+    "american": 10000.0,
+    "no_vig_prob": 0.009901
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Isaac Collins HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "KC @ LAD",
@@ -7212,9 +7254,30 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_hr",
+    "selection": "Max Muncy HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
     "selection": "Michael Massey HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Michael Massey HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Michael Massey HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "KC @ LAD",
@@ -7229,6 +7292,13 @@
     "selection": "Miguel Rojas HR o1.5",
     "american": 8000.0,
     "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Miguel Rojas HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "KC @ LAD",
@@ -7891,6 +7961,13 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_tb",
+    "selection": "Carter Jensen TB o1.5",
+    "american": 250.0,
+    "no_vig_prob": 0.285714
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
     "selection": "Enrique Hernandez TB o0.5",
     "american": -128.0,
     "no_vig_prob": 0.531171
@@ -7908,6 +7985,13 @@
     "selection": "Hunter Feduccia TB o0.5",
     "american": 100.0,
     "no_vig_prob": 0.465347
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Hunter Feduccia TB o1.5",
+    "american": 270.0,
+    "no_vig_prob": 0.27027
   },
   {
     "matchup": "KC @ LAD",
@@ -7961,6 +8045,13 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_tb",
+    "selection": "Max Muncy TB o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.527085
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
     "selection": "Max Muncy TB o1.5",
     "american": 161.0,
     "no_vig_prob": 0.360213
@@ -7971,6 +8062,20 @@
     "selection": "Michael Massey TB o0.5",
     "american": -112.0,
     "no_vig_prob": 0.503513
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Michael Massey TB o1.5",
+    "american": 260.0,
+    "no_vig_prob": 0.277778
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Miguel Rojas TB o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.589697
   },
   {
     "matchup": "KC @ LAD",
@@ -8209,6 +8314,13 @@
     "selection": "Noah Cameron Walks o1.5",
     "american": -175.0,
     "no_vig_prob": 0.598222
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "pitcher_bb",
+    "selection": "Noah Cameron Walks o2.5",
+    "american": 150.0,
+    "no_vig_prob": 0.374613
   },
   {
     "matchup": "KC @ LAD",
