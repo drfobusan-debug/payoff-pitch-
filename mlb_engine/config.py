@@ -382,6 +382,25 @@ class Config:
         default_factory=lambda: _env_float("MLBE_HR_MAX_BUY_ODDS", 700.0)
     )
 
+    # Singles are won or lost on the price, not on the read. The hit rate on a
+    # singles buy is ~35-39% whatever the book charges -- our probability barely
+    # moves with the market's -- so the same pick profits at +200 and loses two
+    # thirds of stake at -130. Graded: 34 minus-money buys cost 15.4 units,
+    # while the 78 at +150 or better returned +4.4%. A price floor rather than a
+    # model claim: it stops us paying a premium for a read we do not have.
+    singles_min_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # RBI overs are the one market where a conviction floor works: 20.5 of the
+    # 21.5 units that market lost came from buys under 40% model probability
+    # (11 bets under 30% alone lost 61.8% of stake), while everything above the
+    # floor was roughly flat. All of them were plus-money o0.5 tickets -- cheap
+    # lottery lines the EV screen liked precisely because the payout was long.
+    rbi_min_buy_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_RBI_MIN_BUY_PROB", 0.40)
+    )
+
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
     # the model under-projected outs in its meaty 0.45-0.60 band, which actually
     # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were
