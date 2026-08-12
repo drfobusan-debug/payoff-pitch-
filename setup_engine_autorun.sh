@@ -20,7 +20,11 @@
 #                           posted, so the picks use them -- that's why the slate
 #                           runs in the morning. This mirrors the one-click
 #                           PAYOFF PITCH.command shortcut, minus opening Excel.
-#   2) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
+#   2) mlb-engine opta   -> capture the outside benchmark, yesterday's graded
+#                           calls then today's. VSIN's day offset clamps at
+#                           yesterday, so a slate not captured within a day is
+#                           gone for good -- it has to be a daemon step.
+#   3) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
 #                           and EMAIL the Excel ledger + article + audio.
 #
 # The night wake exists ONLY to keep the Mac up for the morning run: it re-arms
@@ -213,7 +217,15 @@ else
     echo "[\$(date)] no workbook for \$today; skipping package email" >&2
   fi
 
-  # 3) grade yesterday + email the ledger/report.
+  # 3) capture the Opta benchmark, both halves of it. VSIN's day offset clamps
+  #    at yesterday, so a slate missed by a day is gone permanently -- which is
+  #    why this is a daemon step and not something to remember to run. day=-1
+  #    brings back last night's graded outcomes; day=0 takes today's calls
+  #    before the games start. Free, no credits, and a failure is not fatal.
+  mlb-engine opta --day -1 || echo "[\$(date)] 'mlb-engine opta --day -1' exited non-zero" >&2
+  mlb-engine opta || echo "[\$(date)] 'mlb-engine opta' exited non-zero" >&2
+
+  # 4) grade yesterday + email the ledger/report.
   $AUDIT_CMD || echo "[\$(date)] '$AUDIT_CMD' exited non-zero" >&2
 fi
 EOF

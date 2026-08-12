@@ -11,5 +11,8 @@ else
     mlb-engine run
 fi
 
+# Today's Opta calls, taken on the day: the page keeps no archive.
+mlb-engine opta || echo "WARN: Opta benchmark capture failed" >&2
+
 latest=$(ls -t "$HOME/.mlb_engine/output/"*.xlsx 2>/dev/null | head -1)
 [ -n "$latest" ] && xdg-open "$latest"
