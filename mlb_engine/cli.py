@@ -30,6 +30,7 @@ from mlb_engine.audit.ledger import (
     daily_rollup,
     engine_metrics,
     entries_from_graded,
+    gate_metrics,
     load_ledger,
     overall_metrics,
     prop_metrics,
@@ -545,6 +546,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     daily_engine = daily_engine_metrics(all_entries)
     props = prop_metrics(all_entries)
     runlines = runline_metrics(all_entries)
+    gates = gate_metrics(all_entries)
     insights = prop_insights(all_entries)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
     write_ledger_workbook(
@@ -618,6 +620,17 @@ def cmd_audit(args: argparse.Namespace) -> int:
             print(
                 f"  {m.tier:<18} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
                 f"PPV={m.ppv:.3f} NPV={m.npv:.3f}"
+            )
+
+    if gates:
+        print("\nScreens: how the picks each one rejected actually finished")
+        print("  (win% below Need = the screen deleted losers and is earning its keep)")
+        for m in gates:
+            print(
+                f"  {m.tier:<24} n={m.n:<6} win%={m.win_pct * 100:5.1f} "
+                f"need={m.required_win_pct * 100:5.1f} "
+                f"gap={(m.win_pct - m.required_win_pct) * 100:+5.1f}pts "
+                f"ROI={m.roi * 100:+6.1f}% units={m.units:+9.2f}"
             )
 
     if insights:
