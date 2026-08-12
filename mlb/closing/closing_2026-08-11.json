@@ -11062,9 +11062,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_1b",
+    "selection": "Alex Call 1B o0.5",
+    "american": 123.0,
+    "no_vig_prob": 0.415434
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_1b",
     "selection": "Andy Pages 1B o0.5",
     "american": -110.0,
     "no_vig_prob": 0.495428
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_1b",
+    "selection": "Ben Rortvedt 1B o0.5",
+    "american": 173.0,
+    "no_vig_prob": 0.340554
   },
   {
     "matchup": "KC @ LAD",
@@ -11202,9 +11216,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_2b",
+    "selection": "Alex Call 2B o0.5",
+    "american": 537.0,
+    "no_vig_prob": 0.154405
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_2b",
     "selection": "Andy Pages 2B o0.5",
     "american": 382.0,
     "no_vig_prob": 0.202716
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_2b",
+    "selection": "Ben Rortvedt 2B o0.5",
+    "american": 730.0,
+    "no_vig_prob": 0.11803
   },
   {
     "matchup": "KC @ LAD",
@@ -11338,6 +11366,20 @@
     "selection": "Tyler Tolbert 2B o0.5",
     "american": 600.0,
     "no_vig_prob": 0.134831
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hrr",
+    "selection": "Alex Call H+R+RBI o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hrr",
+    "selection": "Alex Call H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.413976
   },
   {
     "matchup": "KC @ LAD",
@@ -11503,6 +11545,27 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_hr",
+    "selection": "Alex Call HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.108187
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Alex Call HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Alex Call HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
     "selection": "Andy Pages HR o0.5",
     "american": 390.0,
     "no_vig_prob": 0.401361
@@ -11518,6 +11581,27 @@
     "matchup": "KC @ LAD",
     "market": "batter_hr",
     "selection": "Andy Pages HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Ben Rortvedt HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.097619
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Ben Rortvedt HR o1.5",
+    "american": 12500.0,
+    "no_vig_prob": 0.007937
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Ben Rortvedt HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -11643,9 +11727,37 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_hr",
+    "selection": "John Rave HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "John Rave HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
     "selection": "Kyle Isbel HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Kyle Isbel HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Kyle Isbel HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "KC @ LAD",
@@ -11859,6 +11971,27 @@
   },
   {
     "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Tyler Tolbert HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_hr",
+    "selection": "Tyler Tolbert HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_h",
+    "selection": "Alex Call H o0.5",
+    "american": -142.0,
+    "no_vig_prob": 0.568467
+  },
+  {
+    "matchup": "KC @ LAD",
     "market": "batter_h",
     "selection": "Andy Pages H o0.5",
     "american": -250.0,
@@ -11870,6 +12003,13 @@
     "selection": "Andy Pages H o1.5",
     "american": 182.0,
     "no_vig_prob": 0.333307
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_h",
+    "selection": "Ben Rortvedt H o0.5",
+    "american": 106.0,
+    "no_vig_prob": 0.467476
   },
   {
     "matchup": "KC @ LAD",
@@ -12014,9 +12154,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_rbi",
+    "selection": "Alex Call RBI o0.5",
+    "american": 259.0,
+    "no_vig_prob": 0.286494
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_rbi",
     "selection": "Andy Pages RBI o0.5",
     "american": 175.0,
     "no_vig_prob": 0.3721
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_rbi",
+    "selection": "Ben Rortvedt RBI o0.5",
+    "american": 341.0,
+    "no_vig_prob": 0.24353
   },
   {
     "matchup": "KC @ LAD",
@@ -12154,9 +12308,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_r",
+    "selection": "Alex Call R o0.5",
+    "american": 158.0,
+    "no_vig_prob": 0.360197
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_r",
     "selection": "Andy Pages R o0.5",
     "american": -115.0,
     "no_vig_prob": 0.500489
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_r",
+    "selection": "Ben Rortvedt R o0.5",
+    "american": 178.0,
+    "no_vig_prob": 0.334423
   },
   {
     "matchup": "KC @ LAD",
@@ -12294,9 +12462,37 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_tb",
+    "selection": "Alex Call TB o0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.526186
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Alex Call TB o1.5",
+    "american": 210.0,
+    "no_vig_prob": 0.322581
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
     "selection": "Andy Pages TB o1.5",
     "american": 115.0,
     "no_vig_prob": 0.448777
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Ben Rortvedt TB o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.437341
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Ben Rortvedt TB o1.5",
+    "american": 320.0,
+    "no_vig_prob": 0.238095
   },
   {
     "matchup": "KC @ LAD",
@@ -12364,9 +12560,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "batter_tb",
+    "selection": "John Rave TB o1.5",
+    "american": 320.0,
+    "no_vig_prob": 0.238095
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
     "selection": "Kyle Isbel TB o0.5",
     "american": 112.0,
     "no_vig_prob": 0.447382
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Kyle Isbel TB o1.5",
+    "american": 325.0,
+    "no_vig_prob": 0.235294
   },
   {
     "matchup": "KC @ LAD",
@@ -12493,6 +12703,13 @@
     "selection": "Tyler Tolbert TB o0.5",
     "american": -105.0,
     "no_vig_prob": 0.479695
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "batter_tb",
+    "selection": "Tyler Tolbert TB o1.5",
+    "american": 295.0,
+    "no_vig_prob": 0.253165
   },
   {
     "matchup": "KC @ LAD",
@@ -12672,9 +12889,23 @@
   {
     "matchup": "KC @ LAD",
     "market": "pitcher_k",
+    "selection": "Blake Snell Ks o5.5",
+    "american": -157.0,
+    "no_vig_prob": 0.571138
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "pitcher_k",
     "selection": "Blake Snell Ks o6.5",
     "american": 126.0,
     "no_vig_prob": 0.426205
+  },
+  {
+    "matchup": "KC @ LAD",
+    "market": "pitcher_k",
+    "selection": "Michael Wacha Ks o3.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
   },
   {
     "matchup": "KC @ LAD",
