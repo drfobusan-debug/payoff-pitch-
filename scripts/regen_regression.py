@@ -1,5 +1,5 @@
-"""Regenerate just the pitcher + batter regression reports (standalone PDFs)
-and a single combined MP3, matching the morning house style."""
+"""Regenerate the regression reports: the combined prose article (arms + bats
+in one PDF), the two stat-card PDFs it was written from, and one MP3."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import pandas as pd
 
 import scripts.comprehensive_report as cr
 import scripts.pitcher_slate_analysis as psa
+import scripts.regression_article as art
 from mlb_engine.config import load_config
 from mlb_engine.output.audit_insight import to_mp3
 
@@ -43,11 +44,18 @@ def main() -> None:
     batter_pdf = out / f"PayoffPitch_Batter_{day.isoformat()}.pdf"
     mound_pdf.write_bytes(cr.merge_pdf([pitcher_html]))
     batter_pdf.write_bytes(cr.merge_pdf([batter_html]))
+    article_pdf = out / f"PayoffPitch_Regression_{day.isoformat()}.pdf"
+    article_pdf.write_bytes(
+        cr.merge_pdf(
+            [art.build_html(day, ppos, pneg, pctxs, bpos, bneg, bctxs, preds_raw)]
+        )
+    )
     mp3 = out / f"PayoffPitch_Regression_{day.isoformat()}.mp3"
     to_mp3(pitcher_narr + " " + batter_narr, mp3)
 
     print(f"pitchers: positive={len(ppos)} negative={len(pneg)}")
     print(f"batters:  positive={len(bpos)} negative={len(bneg)}")
+    print("ARTICLE PDF:", article_pdf)
     print("MOUND PDF:", mound_pdf)
     print("BATTER PDF:", batter_pdf)
     print("MP3:", mp3)

@@ -6,8 +6,9 @@ sends them in one email (same Gmail App Password credentials the engine's
 
     * mlb_recommendations_<day>.xlsx   (bet card)
     * PayoffPitch_Slate_<day>.pdf/.mp3 (slate preview article + audio)
-    * PayoffPitch_Mound_<day>.pdf      (pitcher regression article)
-    * PayoffPitch_Batter_<day>.pdf     (batter regression article)
+    * PayoffPitch_Regression_<day>.pdf (combined regression article, arms + bats)
+    * PayoffPitch_Mound_<day>.pdf      (pitcher regression stat cards)
+    * PayoffPitch_Batter_<day>.pdf     (batter regression stat cards)
     * PayoffPitch_Regression_<day>.mp3 (combined regression narration)
     * regression_radar_<day>.pdf       (regression radar, if present)
 
@@ -51,6 +52,7 @@ def collect_attachments(out_dir: Path, day: Date) -> list[tuple[str, bytes]]:
         f"mlb_recommendations_{iso}.xlsx",
         f"PayoffPitch_Slate_{iso}.pdf",
         f"PayoffPitch_Slate_{iso}.mp3",
+        f"PayoffPitch_Regression_{iso}.pdf",
         f"PayoffPitch_Mound_{iso}.pdf",
         f"PayoffPitch_Batter_{iso}.pdf",
         f"PayoffPitch_Regression_{iso}.mp3",
@@ -87,8 +89,8 @@ def main(argv: list[str]) -> int:
     nice = day.strftime("%A, %B %-d, %Y")
     html_body = (
         f"<p>Good morning — here's the full Payoff Pitch package for <b>{nice}</b>.</p>"
-        "<p>Attached: the bet card (Excel), the slate preview article + audio, and the "
-        "pitcher (Mound) and batter regression articles + narration.</p>"
+        "<p>Attached: the bet card (Excel), the slate preview article + audio, the "
+        "combined regression article, and the Mound/Batter stat cards + narration.</p>"
         "<ul>" + "".join(f"<li>{name}</li>" for name in names) + "</ul>"
     )
     text_body = (
