@@ -50,6 +50,11 @@ class Recommendation:
     # Name of the run-line NPV gate that vetoed this selection, if any. Kept so
     # the audit can grade the counterfactual: did the gate remove losers?
     veto_gate: str | None = None
+    # Which screen turned this selection into a Pass ("" when it was bought).
+    # `reasons` already says so in prose, but only a stable name makes the
+    # decision gradeable: a gate that rejects winners is a false negative and
+    # is invisible until its own rows can be pulled out of the ledger.
+    pass_gate: str | None = None
     # V1-style selector metadata surfaced for prop recommendations.
     signal: str | None = None
     factor: float | None = None

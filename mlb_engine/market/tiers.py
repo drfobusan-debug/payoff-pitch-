@@ -23,6 +23,28 @@ class Tier(str, Enum):
     PASS = "Pass"
 
 
+def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
+    """Name the price screen that rejects this selection, or None if it clears.
+
+    Returns ``(gate, reason)``: a short machine-readable gate name for the
+    ledger, and the human sentence :func:`classify` puts in ``reasons``. The
+    name is what makes a screen gradeable -- ``edge_ceiling`` in particular
+    rejects picks the model likes *most*, so whether it removes losers or
+    winners can only be settled by grading its own rows.
+    """
+    # The price still has to pay at the best number we can bet.
+    if result.ev <= thr.min_ev:
+        return "ev_floor", f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass"
+    # Thin-edge guard: never buy without a real edge over the no-vig line.
+    if result.edge < thr.min_edge:
+        return "thin_edge", f"edge {result.edge:+.3f} < {thr.min_edge} -> pass"
+    # Implausible-edge guard: the market is the better forecaster, so a large
+    # departure from it is evidence against the model, not a bigger bet.
+    if result.edge > thr.max_edge:
+        return "edge_ceiling", f"edge {result.edge:+.3f} > {thr.max_edge} -> pass"
+    return None
+
+
 def _base_tier(edge: float, thr: EVThresholds) -> Tier:
     """Rank a buy by how far the model departs from the devigged price."""
     if edge >= thr.min_edge + thr.strong_edge_gap:
@@ -44,20 +66,9 @@ def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
     reasons: list[str] = []
     reasons.append(f"EV={result.ev:+.3f} edge={result.edge:+.3f}")
 
-    # The price still has to pay at the best number we can bet.
-    if result.ev <= thr.min_ev:
-        reasons.append(f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass")
-        return Tier.PASS, reasons
-
-    # Thin-edge guard: never buy without a real edge over the no-vig line.
-    if result.edge < thr.min_edge:
-        reasons.append(f"edge {result.edge:+.3f} < {thr.min_edge} -> pass")
-        return Tier.PASS, reasons
-
-    # Implausible-edge guard: the market is the better forecaster, so a large
-    # departure from it is evidence against the model, not a bigger bet.
-    if result.edge > thr.max_edge:
-        reasons.append(f"edge {result.edge:+.3f} > {thr.max_edge} -> pass")
+    screened = price_screen(result, thr)
+    if screened is not None:
+        reasons.append(screened[1])
         return Tier.PASS, reasons
 
     tier = _base_tier(result.edge, thr)

@@ -107,7 +107,7 @@ from mlb_engine.market.runline import (
     runline_adjustment,
     runline_veto,
 )
-from mlb_engine.market.tiers import Tier, bump_tier, classify
+from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups
@@ -1779,10 +1779,13 @@ class Pipeline:
                     rec.bets_pct = sp.bets_pct
             thr = self.cfg.ev.for_market(market)
             tier, reasons = classify(evres, thr)
+            screened = price_screen(evres, thr)
+            gate = screened[0] if screened is not None else None
             if veto.triggered:
                 # A gate vetoes outright; the xwOBA/sharp-money signals only
                 # nudge the tier of a selection that survived the gates.
                 tier = Tier.PASS
+                gate = veto.gate
                 reasons.append(veto.reason())
             elif rl_signal is not None and tier != Tier.PASS:
                 steps, rl_reasons = runline_adjustment(team_side, line, rl_signal)
@@ -1800,6 +1803,7 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
+                    gate = "hr_barrel_gate"
                 if hr_reason:
                     reasons.append(hr_reason)
             if market == "game_ml" and tier != Tier.PASS:
@@ -1808,6 +1812,7 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
+                    gate = "ml_handle_gate"
                 if ml_reason:
                     reasons.append(ml_reason)
             # Sharp money can promote a side the model passed on, but not one the
@@ -1819,6 +1824,7 @@ class Pipeline:
                 )
                 if up:
                     tier = Tier.MODERATE
+                    gate = None
                 if up_reason:
                     reasons.append(up_reason)
             # Availability gates run last so they also veto a sharp-money
@@ -1830,17 +1836,24 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
+                    gate = "pen_availability"
                 if pen_reason:
                     reasons.append(pen_reason)
                 keep, lock_reason = self._lineup_gate.allows(self._lineup_lock)
                 if not keep:
                     tier = Tier.PASS
+                    gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
             rec.tier = tier
             rec.reasons = reasons
+            # A Pass with no named screen was demoted by a tier adjustment
+            # (sharp money against it, or strong-only mode) rather than rejected
+            # outright; naming it keeps every Pass row attributable.
+            rec.pass_gate = (gate or "tier_downgrade") if tier == Tier.PASS else None
         else:
             rec.tier = Tier.PASS
+            rec.pass_gate = veto.gate if veto.triggered else "unpriced"
             rec.reasons = [veto.reason()] if veto.triggered else ["no market price"]
             sp = lookup_split(self._splits, *key)
             if sp is not None:
@@ -1854,12 +1867,14 @@ class Pipeline:
         # regardless of price (attacks the low-power/whiff-prone false positives).
         if gate_reason is not None and rec.tier != Tier.PASS:
             rec.tier = Tier.PASS
+            rec.pass_gate = "contact_floor"
             rec.reasons = [gate_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
         if market in PRICE_ONLY_MARKETS and rec.tier != Tier.PASS:
             rec.tier = Tier.PASS
+            rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
         return rec
 

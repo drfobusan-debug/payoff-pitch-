@@ -58,6 +58,10 @@ class LedgerEntry:
     # run-line miss matrix (one-run-win vs blowout errors) in the audit report.
     margin: float | None = None
     veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
+    # Which screen turned this selection into a Pass ("" when it was bought).
+    # A gate is only gradeable once its own rows can be selected: see
+    # :func:`gate_metrics`.
+    pass_gate: str = ""
     # Pre-calibration probability. `mlb-engine calibrate` refits the isotonic
     # map from this column, not from `model_prob`: the map is applied to raw
     # simulation output, so fitting it on already-calibrated probabilities
@@ -98,6 +102,7 @@ LEDGER_FIELDS = [
     "pnl",
     "margin",
     "veto_gate",
+    "pass_gate",
     "raw_prob",
     "fair_prob",
     "bet_prob",
@@ -165,6 +170,7 @@ def entries_from_graded(
                 pnl=_pnl(result, rec.market_american),
                 margin=margin,
                 veto_gate=rec.veto_gate or "",
+                pass_gate=rec.pass_gate or "",
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
                 fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
@@ -206,6 +212,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     pnl=_to_float(row["pnl"]) or 0.0,
                     margin=_to_float(row.get("margin", "") or ""),
                     veto_gate=row.get("veto_gate", ""),
+                    pass_gate=row.get("pass_gate", ""),
                     raw_prob=_to_float(row.get("raw_prob", "")),
                     fair_prob=_to_float(row.get("fair_prob", "")),
                     bet_prob=_to_float(row.get("bet_prob", "")),
@@ -420,6 +427,36 @@ def runline_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
         rows.append(_metrics([e for e in vetoed if e.veto_gate == gate], _favors, f"VETO {gate}"))
     if vetoed:
         rows.append(_metrics([e for e in rls if not e.veto_gate], _favors, "KEPT (no veto)"))
+    return rows
+
+
+# --- gates: what each screen rejected, and how those picks finished ---------
+def _all(_e: LedgerEntry) -> bool:
+    return True
+
+
+def gate_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """How the selections each screen *rejected* would actually have finished.
+
+    Every rejected pick counts as a bet here rather than only the model-favored
+    side, because that is the counterfactual being tested: had the screen not
+    fired, the engine would have bet these selections at these prices. So read
+    each row against its ``required_win_pct`` and not against 50% -- a screen is
+    earning its keep when the picks it deleted finished *below* the bar their
+    price set, and is manufacturing false negatives when they cleared it.
+
+    Unpriced rows are excluded: there was no bet to forgo. ``BOUGHT`` is the
+    complement, every priced selection that survived every screen.
+    """
+    priced = [e for e in entries if e.odds is not None]
+    by_gate = _by([e for e in priced if e.pass_gate], lambda e: e.pass_gate)
+    rows = [
+        _metrics(by_gate[g], _all, f"GATE {g}")
+        for g in sorted(by_gate, key=lambda g: -len(by_gate[g]))
+    ]
+    bought = [e for e in priced if not e.pass_gate]
+    if bought:
+        rows.append(_metrics(bought, _all, "BOUGHT (no gate)"))
     return rows
 
 
