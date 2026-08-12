@@ -401,6 +401,31 @@ class Config:
         default_factory=lambda: _env_float("MLBE_RBI_MIN_BUY_PROB", 0.40)
     )
 
+    # The road moneyline underdog is the only sides cell the graded card
+    # condemns twice. Split four ways by venue and role:
+    #
+    #   away ML dog   n=77  won 28.6%  -26.1u  -33.9%   (train -40.1, test -23.8)
+    #   home ML dog   n=35  won 45.7%   +1.1u   +3.0%
+    #   away ML fav   n=41  won 51.2%   -3.2u   -7.7%
+    #   home ML fav   n=63  won 50.8%   -7.3u  -11.6%
+    #
+    # Neither "underdogs" nor "road teams" is the problem; their intersection
+    # is. It is the highest-variance side on the board and the one where the
+    # book's edge on lineups, travel and bullpen availability is largest, so our
+    # probability error is both biggest and most amplified by the payout -- the
+    # same failure as the +700 home run. It applies to the full game and the
+    # first five alike, because each condemns itself without the other's help:
+    #
+    #   game_ml away dog  n=42  -39.2%   (train -43.5, test -27.0)
+    #   f5_ml   away dog  n=35  -27.6%   (train -33.7, test -21.8)
+    #
+    # Run lines are deliberately untouched: every rule fitted to them reverses
+    # sign across the window, including the home +1.5 that made 34.5% in July
+    # and lost 11.9% in August.
+    away_ml_refuse_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
+    )
+
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
     # the model under-projected outs in its meaty 0.45-0.60 band, which actually
     # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were
