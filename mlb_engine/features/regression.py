@@ -1037,11 +1037,24 @@ class PitcherRegression:
                 (self.xwoba_allowed - BL_PEN_XWOBA) * PEN_XWOBA_SLOPE,
                 *PEN_XWOBA_CLIP,
             )
-        else:
-            # High BABIP allowed -> positive regression (fewer hits going forward).
-            base *= 1.0 + _clip((BL_BABIP - self.babip_allowed) * 0.6, -0.08, 0.08)
-            # Positive dxwOBA allowed (getting bailed out) -> more hits coming.
-            base *= 1.0 + _clip(self.dxwoba * 1.2, -0.06, 0.08)
+        # A single starter gets no contact-*level* term at all, and the reason is
+        # sample size rather than baseball. The pen term above works because a pen
+        # pools ~1,240 batted balls; a starter's 42-day window is a median of 95,
+        # where the measurement error on a rate is the size of the whole spread
+        # between pitchers. Measured on 2,311 starts / 53,353 PA against starters,
+        # binomial deviance per PA, K% controlled, chronological 60/40 holdout:
+        #
+        #                                    coef       t   train    holdout
+        #     no contact term                  --      --  1.06259   1.05355
+        #     inverse BABIP (was shipped)   -0.089   -0.44  1.06255   1.05364
+        #     dxwOBA allowed (was shipped)  -0.122   -0.61  1.06253   1.05369
+        #     xwOBAcon level                 0.053    0.24  1.06259   1.05355
+        #
+        # Every instrument is indistinguishable from noise and every one made the
+        # holdout worse, while the two that shipped swung the allowed-hit rate over
+        # a 0.865..1.166 range -- more than 5% in 54% of starts. What a starter
+        # repeats is the trajectory, not the outcome, so the ground-ball term below
+        # is the only allowed-contact read he earns.
         # Ground balls allowed. A grounder that gets through is a single 91% of
         # the time, so the starter who keeps the ball down concedes singles in
         # place of extra bases -- and unlike the rest of his allowed-contact
