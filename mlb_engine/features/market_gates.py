@@ -37,6 +37,22 @@ def price_band_allows(
     return False, f"{label}: PASS ({price:+.0f} outside {bound})"
 
 
+def price_ceiling_allows(
+    price: float | None, refuse_at: float, label: str = "price-ceiling"
+) -> tuple[bool, str]:
+    """Whether a buy is short enough in price to be worth taking at all.
+
+    Unlike ``price_band_allows`` the ceiling is exclusive, because the rule it
+    encodes is "at this price or longer, don't": road moneyline underdogs won
+    28.6% of 77 bets and lost a third of stake, in both halves of the window.
+    """
+    if price is None:
+        return True, ""
+    if price < refuse_at:
+        return True, ""
+    return False, f"{label}: PASS ({price:+.0f} at or beyond {refuse_at:+.0f})"
+
+
 def prob_floor_allows(
     prob: float | None, floor: float, label: str = "prob-floor"
 ) -> tuple[bool, str]:

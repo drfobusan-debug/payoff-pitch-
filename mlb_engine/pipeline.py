@@ -41,7 +41,11 @@ from mlb_engine.features.lineup_lock import (
     LineupLockGate,
     hours_to_first_pitch,
 )
-from mlb_engine.features.market_gates import price_band_allows, prob_floor_allows
+from mlb_engine.features.market_gates import (
+    price_band_allows,
+    price_ceiling_allows,
+    prob_floor_allows,
+)
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.features.pitch_mix import (
     ArsenalProfile,
@@ -1883,6 +1887,24 @@ class Pipeline:
                     gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
+            # Runs after the sharp-money upgrade, which it is entitled to
+            # overrule: handle agreeing with us about a road dog is the market
+            # agreeing about the side, not about the price we are paying for it.
+            if (
+                market in ("game_ml", "f5_ml")
+                and team_side == "away"
+                and tier != Tier.PASS
+            ):
+                keep, dog_reason = price_ceiling_allows(
+                    rec.market_american,
+                    self.cfg.away_ml_refuse_odds,
+                    "away-dog",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "away_ml_dog"
+                if dog_reason:
+                    reasons.append(dog_reason)
             rec.tier = tier
             rec.reasons = reasons
             # A Pass with no named screen was demoted by a tier adjustment
