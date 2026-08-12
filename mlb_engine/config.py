@@ -367,6 +367,21 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
+    # Home-run overs only pay inside a price band. Graded buys by price:
+    # +300-400 lost 50% of stake on 10 bets, +400-500 returned +20.5% on 19, and
+    # everything from +500 up collapsed -- 62 bets at +500 or longer won three
+    # times between them (-37 units, the single largest pocket left on the card).
+    # The long prices are where a small absolute probability error is a huge
+    # relative one, so the model's edge there is noise wearing a big number.
+    # This is a hard price screen: a home-run buy must sit inside the band no
+    # matter what EV or probability the model reports for it.
+    hr_min_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_HR_MIN_BUY_ODDS", 400.0)
+    )
+    hr_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_HR_MAX_BUY_ODDS", 700.0)
+    )
+
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
     # the model under-projected outs in its meaty 0.45-0.60 band, which actually
     # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were

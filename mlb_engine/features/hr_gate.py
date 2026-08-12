@@ -241,3 +241,25 @@ class HRPowerGate:
         return True, (
             f"hr-gate: OK (max_ev {max_ev:.1f}, barrel {barrel:.3f})"
         )
+
+
+def price_band_allows(
+    price: float | None, min_odds: float, max_odds: float
+) -> tuple[bool, str]:
+    """Whether a home-run buy's price sits inside the payable band.
+
+    A hard screen, deliberately blind to EV and probability: the model's edge on
+    a +900 home run is a fraction of a percentage point dressed up as a large
+    number, and the graded card bears that out -- three winners in 62 bets at
+    +500 or longer. Short prices fail for the opposite reason: the payout no
+    longer covers a home run's base rate. Returns (keep_buy, reason); an
+    unpriced selection is left alone for the other screens to judge.
+    """
+    if price is None:
+        return True, ""
+    if min_odds <= price <= max_odds:
+        return True, ""
+    return False, (
+        f"hr-price-band: PASS ({price:+.0f} outside "
+        f"{min_odds:+.0f}..{max_odds:+.0f})"
+    )

@@ -34,7 +34,7 @@ from mlb_engine.features.efficiency import (
     recent_start_form,
 )
 from mlb_engine.features.hits_gate import HitsContactGate
-from mlb_engine.features.hr_gate import HRPowerGate
+from mlb_engine.features.hr_gate import HRPowerGate, price_band_allows
 from mlb_engine.features.hrr_adjust import HRRAdjuster
 from mlb_engine.features.lineup_lock import (
     LineupLock,
@@ -1796,6 +1796,17 @@ class Pipeline:
                 if steps:
                     tier = bump_tier(tier, steps)
                 reasons.extend(rl_reasons)
+            if market == "batter_hr" and tier != Tier.PASS:
+                keep, band_reason = price_band_allows(
+                    rec.market_american,
+                    self.cfg.hr_min_buy_odds,
+                    self.cfg.hr_max_buy_odds,
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "hr_price_band"
+                if band_reason:
+                    reasons.append(band_reason)
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS
