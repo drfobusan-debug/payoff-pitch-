@@ -27,6 +27,10 @@ for _libdir in /opt/homebrew/lib /usr/local/lib; do
     fi
 done
 
+# Pull back yesterday's Opta calls now that they carry results. VSIN's day
+# offset clamps at yesterday, so this is the last chance to have them at all.
+mlb-engine opta --day -1 || echo "WARN: Opta benchmark capture failed" >&2
+
 # Grade yesterday, write the report + audio + Excel ledger, and email them.
 mlb-engine audit --report --email || echo "WARN: audit step failed" >&2
 echo "Scorecard: $HOME/.mlb_engine/audit/scorecard.csv"

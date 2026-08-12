@@ -288,8 +288,10 @@ mlb-engine opta --day -1   # yesterday's, now carrying results
 
 Free and uncredited, but only three days wide: the page's `day` offset clamps
 at yesterday, so a slate not captured within a day of being played is gone for
-good. Run it morning and night — the second capture merges the graded outcomes
-into the morning's projections.
+good. Because of that it is not a command to remember — the morning daemon and
+both one-click shortcuts run it themselves, `--day -1` first (last night's
+calls, now carrying results) and then today's. The two captures merge, so the
+graded outcomes land on the projections already stored for that date.
 
 On the first two slates where both models had a probability for the same prop
 (2,523 graded), Opta out-forecast the engine in all five batter markets:
