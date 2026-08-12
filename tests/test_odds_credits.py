@@ -35,13 +35,13 @@ def test_price_only_markets_are_fetched_but_never_bet() -> None:
 def test_buying_a_price_still_does_not_make_a_market_bettable() -> None:
     """Reopening is a separate decision from pricing, and it is made per market.
 
-    Five markets were promoted out of the price-only set once the capture had
-    graded them. The ones still in it are there because nothing in their record
-    argues for reopening: runs lost 31.8% with no profitable slice, and total
-    bases and pitcher ER have never been examined at all. Fetching their prices
-    must not quietly do the promoting.
+    Six markets were promoted out of the price-only set once the capture had
+    graded them. The two still in it are there because nothing in their record
+    argues for reopening: runs lost 31.8% with no profitable slice, and pitcher
+    ER has never been examined at all. Fetching their prices must not quietly do
+    the promoting.
     """
-    for vendor in ("batter_runs_scored", "batter_total_bases", "pitcher_earned_runs"):
+    for vendor in ("batter_runs_scored", "pitcher_earned_runs"):
         assert vendor in DEFAULT_PROP_MARKETS
         engine, _ = {**_BATTER_MARKETS, **_PITCHER_MARKETS}[vendor]
         assert engine in PRICE_ONLY_MARKETS, engine

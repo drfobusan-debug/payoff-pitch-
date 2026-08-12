@@ -15,8 +15,16 @@ import math
 from mlb_engine.config import Config
 from mlb_engine.data.oddsapi import PRICE_ONLY_MARKETS
 from mlb_engine.features.market_gates import price_band_allows, prob_floor_allows
+from mlb_engine.features.tb_gate import TBGate
 
-REOPENED = ("batter_1b", "batter_2b", "batter_hr", "batter_rbi", "batter_hrr")
+REOPENED = (
+    "batter_1b",
+    "batter_2b",
+    "batter_hr",
+    "batter_rbi",
+    "batter_hrr",
+    "batter_tb",
+)
 
 
 # --- what is open and what is not ------------------------------------------
@@ -30,8 +38,20 @@ def test_runs_stays_shut_because_no_rule_reopens_it() -> None:
     assert "batter_r" in PRICE_ONLY_MARKETS
 
 
-def test_the_untested_markets_are_left_alone() -> None:
-    assert {"batter_tb", "pitcher_er"} <= PRICE_ONLY_MARKETS
+def test_the_untested_market_is_left_alone() -> None:
+    """Pitcher ER has never been cut, so there is nothing to reopen it on."""
+    assert "pitcher_er" in PRICE_ONLY_MARKETS
+
+
+def test_total_bases_relies_on_the_gate_it_already_has() -> None:
+    """No slice of the TB counterfactual pays, so #74 is the whole screen.
+
+    A conviction floor was tested and rejected: it lifts -11.0% to -6.7% and
+    reverses sign between the halves of the window. Adding it would be fitting
+    noise on top of a gate that has never been allowed to decide a bet.
+    """
+    assert "batter_tb" not in PRICE_ONLY_MARKETS
+    assert TBGate.from_env().enabled
 
 
 # --- singles: a price floor, not a model claim ------------------------------
