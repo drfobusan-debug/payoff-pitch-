@@ -46,20 +46,34 @@ def test_a_pen_that_gets_hit_hard_is_priced_up_not_down() -> None:
     hard = _reg(0.345, babip=0.315, bullpen=True).allowed_multipliers()
     for outcome in ("1B", "2B", "3B", "HR"):
         assert hard[outcome] > soft[outcome]
-    # The old luck reading had these the wrong way round: the .315-BABIP pen
-    # allowed the most hits (.2245/PA) and was suppressed to 0.989.
-    old_soft = _reg(0.282, babip=0.245, bullpen=False).allowed_multipliers()
-    old_hard = _reg(0.345, babip=0.315, bullpen=False).allowed_multipliers()
-    assert old_hard["1B"] < old_soft["1B"]
 
 
-def test_the_starter_path_is_untouched() -> None:
-    """Luck corrections stay where the sample is genuinely small."""
+def test_a_starters_contact_level_does_not_move_his_price_at_all() -> None:
+    """No contact-*level* read survives on a starter, in either direction.
+
+    The inverse-BABIP and dxwOBA terms that used to sit here were the pen's
+    mistake repeated on a smaller sample: over 2,311 starts neither predicted the
+    hits their pitcher went on to allow (t -0.44 and -0.61, both worsening a
+    chronological holdout) while together swinging the allowed-hit rate across a
+    0.865..1.166 range. A starter's 42-day window holds a median of 95 batted
+    balls, where a rate's measurement error is the size of the whole spread
+    between pitchers -- so the honest multiplier is exactly 1.0.
+    """
     lucky = _reg(0.310, babip=0.245, bullpen=False).allowed_multipliers()
     unlucky = _reg(0.310, babip=0.340, bullpen=False).allowed_multipliers()
-    # A starter with a low BABIP allowed is due to give hits back.
-    assert lucky["1B"] > unlucky["1B"]
+    for outcome in ("1B", "2B", "3B", "HR"):
+        assert lucky[outcome] == unlucky[outcome]
+    # Not merely equal to each other: neutral, so nothing is priced off the level.
+    assert lucky["1B"] == 1.0
     assert BL_BABIP == 0.290
+
+
+def test_a_starter_is_still_read_on_the_trajectory_he_controls() -> None:
+    """Dropping the luck terms must not silence the ground-ball term beside them."""
+    worm = replace(_reg(0.310, babip=0.290, bullpen=False), gb_allowed=0.520)
+    air = replace(_reg(0.310, babip=0.290, bullpen=False), gb_allowed=0.320)
+    assert worm.allowed_multipliers()["1B"] > air.allowed_multipliers()["1B"]
+    assert worm.allowed_multipliers()["2B"] < air.allowed_multipliers()["2B"]
 
 
 def test_the_pen_term_is_bounded() -> None:
