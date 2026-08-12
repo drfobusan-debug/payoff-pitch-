@@ -25,24 +25,23 @@ _BETTABLE_BEFORE = {
 
 
 def test_price_only_markets_are_fetched_but_never_bet() -> None:
-    """Singles is priced to capture the under quote, not to buy the over; it must
-    be in the fetched set AND in the price-only set that pipeline hard-passes."""
-    assert "batter_singles" in DEFAULT_PROP_MARKETS  # its odds are fetched
-    assert "batter_1b" in PRICE_ONLY_MARKETS  # ...but the over is never recommended
+    """Runs is priced to capture the quote, not to buy the over; it must be in
+    the fetched set AND in the price-only set that pipeline hard-passes."""
+    assert "batter_runs_scored" in DEFAULT_PROP_MARKETS  # its odds are fetched
+    assert "batter_r" in PRICE_ONLY_MARKETS  # ...but the over is never recommended
     assert not PRICE_ONLY_MARKETS & _BETTABLE_BEFORE
 
 
-def test_buying_a_price_does_not_make_a_market_bettable() -> None:
-    """The restored markets are fetched to replace the assumed -110 the audit has
-    been grading them at, not to start betting them. Every engine market whose
-    price is newly bought must be hard-passed, or this change would silently
-    open six markets the ledger says are losing."""
-    restored = {
-        "batter_doubles", "batter_home_runs", "batter_runs_scored",
-        "batter_rbis", "batter_total_bases", "batter_hits_runs_rbis",
-        "pitcher_earned_runs",
-    }
-    for vendor in restored:
+def test_buying_a_price_still_does_not_make_a_market_bettable() -> None:
+    """Reopening is a separate decision from pricing, and it is made per market.
+
+    Six markets were promoted out of the price-only set once the capture had
+    graded them. The two still in it are there because nothing in their record
+    argues for reopening: runs lost 31.8% with no profitable slice, and pitcher
+    ER has never been examined at all. Fetching their prices must not quietly do
+    the promoting.
+    """
+    for vendor in ("batter_runs_scored", "pitcher_earned_runs"):
         assert vendor in DEFAULT_PROP_MARKETS
         engine, _ = {**_BATTER_MARKETS, **_PITCHER_MARKETS}[vendor]
         assert engine in PRICE_ONLY_MARKETS, engine

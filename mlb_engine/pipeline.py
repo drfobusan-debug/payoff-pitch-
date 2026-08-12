@@ -34,13 +34,14 @@ from mlb_engine.features.efficiency import (
     recent_start_form,
 )
 from mlb_engine.features.hits_gate import HitsContactGate
-from mlb_engine.features.hr_gate import HRPowerGate, price_band_allows
+from mlb_engine.features.hr_gate import HRPowerGate
 from mlb_engine.features.hrr_adjust import HRRAdjuster
 from mlb_engine.features.lineup_lock import (
     LineupLock,
     LineupLockGate,
     hours_to_first_pitch,
 )
+from mlb_engine.features.market_gates import price_band_allows, prob_floor_allows
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.features.pitch_mix import (
     ArsenalProfile,
@@ -1801,12 +1802,34 @@ class Pipeline:
                     rec.market_american,
                     self.cfg.hr_min_buy_odds,
                     self.cfg.hr_max_buy_odds,
+                    "hr-price-band",
                 )
                 if not keep:
                     tier = Tier.PASS
                     gate = "hr_price_band"
                 if band_reason:
                     reasons.append(band_reason)
+            if market == "batter_1b" and tier != Tier.PASS:
+                keep, sing_reason = price_band_allows(
+                    rec.market_american,
+                    self.cfg.singles_min_buy_odds,
+                    math.inf,
+                    "singles-price-floor",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "singles_price_floor"
+                if sing_reason:
+                    reasons.append(sing_reason)
+            if market == "batter_rbi" and tier != Tier.PASS:
+                keep, rbi_reason = prob_floor_allows(
+                    rec.model_prob, self.cfg.rbi_min_buy_prob, "rbi-floor"
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "rbi_prob_floor"
+                if rbi_reason:
+                    reasons.append(rbi_reason)
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS

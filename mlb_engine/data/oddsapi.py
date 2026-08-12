@@ -106,15 +106,31 @@ DEFAULT_PROP_MARKETS = (
 # The set of markets the engine actually bets is therefore unchanged by the
 # restoration; promoting one out of here is a separate decision, on evidence
 # this capture is what finally supplies.
+#
+# The capture has now supplied that evidence, so five markets are promoted out.
+# Each carries the price rule its own graded record earns, and the rules are
+# hard screens rather than EV inputs because the EV is what was wrong:
+#
+#   batter_2b    +12.8u, +25.7% on 50 bets     no rule -- it was the one winner
+#   batter_hr    -36.4u                        buy only +400..+700 (see config)
+#   batter_1b    -22.5u -> +3.5u at plus money singles price floor
+#   batter_rbi   -21.5u -> -1.0u above p=.40   RBI conviction floor
+#   batter_hrr   never bet, so never measured  reopened to measure it
+#   batter_tb    -12.3% counterfactual         the #74 power/contact gate
+#
+# Total bases is the weakest case of the six, and it is reopened on the strength
+# of already having a screen: #74 gates it on barrel rate, exit velocity and the
+# opposing starter's contact suppression, and that gate has never once been
+# allowed to decide a bet. Nothing in the counterfactual argues for a second
+# one -- a 0.50 conviction floor lifts -11.0% to only -6.7%, and it helps in one
+# half of the window while hurting in the other, which is the shape of noise.
+#
+# ``batter_r`` stays shut: no probability band and no price bucket of it has
+# ever paid (-41.4u, -31.8%), so there is no rule to reopen it behind. Pitcher
+# ER stays shut for want of anyone having looked.
 PRICE_ONLY_MARKETS = frozenset(
     {
-        "batter_1b",
-        "batter_2b",
-        "batter_hr",
         "batter_r",
-        "batter_rbi",
-        "batter_tb",
-        "batter_hrr",
         "pitcher_er",
     }
 )

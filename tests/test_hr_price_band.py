@@ -11,7 +11,7 @@ were wrong.
 from __future__ import annotations
 
 from mlb_engine.config import Config
-from mlb_engine.features.hr_gate import price_band_allows
+from mlb_engine.features.market_gates import price_band_allows
 
 BAND = (400.0, 700.0)
 
