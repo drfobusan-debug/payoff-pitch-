@@ -336,16 +336,28 @@ def test_human_divisional_and_umpire_zone():
 
 
 # ---- manager tendencies ----
-def test_manager_hook_platoon_and_speed():
+def test_no_manager_sets_the_starter_hook() -> None:
+    """The hook is measured per start, so no manager may carry a cap.
+
+    The hand-entered caps ranged 19-29 batters faced across five managers; the
+    measured p75 over 3,299 starts ranges 23-26 across all thirty teams, and
+    correlated with the entered value at r = +0.22. Los Angeles had the longest
+    leash in baseball and was entered as the third quickest.
+    """
+    from mlb_engine.data.managers import MANAGERS, ManagerProfile
+
+    fields = set(ManagerProfile.__dataclass_fields__)
+    assert "starter_bf_cap" not in fields
+    assert "starter_pitch_cap" not in fields
+    for tid in (139, 141, 119, 113, 137):  # TB, TOR, LAD, CIN, SF
+        assert tid not in MANAGERS
+
+
+def test_manager_platoon_and_speed():
     from mlb_engine.data.managers import get_manager
 
-    # Quick-hook (Cash, TB=139) caps starter well below the long-leash default;
-    # long leash (Francona, CIN=113) extends it.
-    assert get_manager(139).starter_bf_cap < 24
-    assert get_manager(113).starter_bf_cap > 24
     # Unknown team -> neutral default, no tilts.
     neutral = get_manager(999999)
-    assert neutral.starter_bf_cap == 24
     assert neutral.offense_multipliers() == {}
     assert neutral.pen_multipliers() == {}
     # Platoon maximizer (Baldelli, MIN=142) tilts only the bullpen matchup.
@@ -353,6 +365,19 @@ def test_manager_hook_platoon_and_speed():
     # Speed engine (Vogt, CLE=114) boosts advancement + lowers K.
     speed = get_manager(114).offense_multipliers()
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
+
+
+def test_the_third_time_through_window_reads_measured_depth() -> None:
+    """The comeback signal must stay reachable now no manager reports 26+ BF."""
+    from mlb_engine.models.comeback import TTTO_LONG_LEASH, ComebackSignal
+    from mlb_engine.models.comeback import evaluate as evaluate_comeback
+
+    deep = evaluate_comeback(ComebackSignal(opp_starter_bf_cap=TTTO_LONG_LEASH))
+    short = evaluate_comeback(ComebackSignal(opp_starter_bf_cap=TTTO_LONG_LEASH - 1))
+    assert deep.score > short.score
+    assert any("long-leash" in r for r in deep.reasons)
+    # Reachable from a real starter: the measured p90 start is 27 batters faced.
+    assert TTTO_LONG_LEASH <= 27
 
 
 # ---- VSIN public splits -> moneyline quotes ----

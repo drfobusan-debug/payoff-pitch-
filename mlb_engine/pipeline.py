@@ -19,7 +19,7 @@ from mlb_engine.data.fangraphs import (
     MetricValues,
     load_fangraphs_tail_csv,
 )
-from mlb_engine.data.managers import get_manager
+from mlb_engine.data.managers import DEFAULT_BF_CAP, DEFAULT_PITCH_CAP, get_manager
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import PRICE_ONLY_MARKETS, OddsAPIClient
 from mlb_engine.data.parks import get_park
@@ -1121,16 +1121,16 @@ class Pipeline:
         # drop overs against a barrel/hard-hit suppressor.
         opp_contact = {"home": home_opp_reg, "away": away_opp_reg}
         home_cap = expected_bf_cap(
-            home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_bf_cap,
+            home_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_BF_CAP,
         )
         away_cap = expected_bf_cap(
-            away_pit_rows, slate_date, w.pitcher_form_days, away_mgr.starter_bf_cap,
+            away_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_BF_CAP,
         )
         home_eff = build_pitcher_efficiency(
-            home_pit_rows, slate_date, w.pitcher_form_days, home_mgr.starter_pitch_cap,
+            home_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_PITCH_CAP,
         )
         away_eff = build_pitcher_efficiency(
-            away_pit_rows, slate_date, w.pitcher_form_days, away_mgr.starter_pitch_cap,
+            away_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_PITCH_CAP,
         )
         # Opponent lineup discipline (pitches-seen-per-PA): each starter's pitch
         # budget is burned faster by the patient lineup he actually faces.
@@ -1228,7 +1228,7 @@ class Pipeline:
 
         # ---- comeback-resilience flags ----
         recs.extend(self._comeback_recs(
-            game, m, home_x, away_x, home_rbi, away_rbi, home_mgr, away_mgr,
+            game, m, home_x, away_x, home_rbi, away_rbi, home_cap, away_cap,
             home_fat, away_fat,
         ))
 
@@ -1404,22 +1404,26 @@ class Pipeline:
                 r.hours_to_first_pitch = lock.hours_to_first_pitch
 
     def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
-                       home_mgr, away_mgr, home_fat, away_fat):
-        """Emit an informational comeback-resilience flag per team."""
+                       home_cap, away_cap, home_fat, away_fat):
+        """Emit an informational comeback-resilience flag per team.
+
+        The third-time-through window is read off the opposing starter's own
+        expected depth rather than his manager's reputation.
+        """
         out = []
         diff = (home_x - away_x) if home_x is not None and away_x is not None else None
         specs = (
-            ("home", game.home.abbrev, diff, home_rbi, away_mgr, away_fat),
-            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_mgr, home_fat),
+            ("home", game.home.abbrev, diff, home_rbi, away_cap, away_fat),
+            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_cap, home_fat),
         )
-        for team_side, abbrev, xdiff, flags, opp_mgr, opp_fat in specs:
+        for team_side, abbrev, xdiff, flags, opp_cap, opp_fat in specs:
             obp = None
             if flags:
                 obp = sum(f.preceding_obp for f in flags) / len(flags)
             sig = ComebackSignal(
                 xwoba_diff=xdiff,
                 team_obp=obp,
-                opp_starter_bf_cap=opp_mgr.starter_bf_cap,
+                opp_starter_bf_cap=opp_cap,
                 opp_bullpen_fatigue=opp_fat,
             )
             a = evaluate_comeback(sig)
