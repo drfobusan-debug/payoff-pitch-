@@ -27,6 +27,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import unicodedata
 from collections.abc import Iterator
 from dataclasses import asdict, dataclass
 from datetime import date as Date
@@ -343,6 +344,48 @@ def _bet(cell: str) -> str | None:
     if "UNDER" in txt:
         return "under"
     return None
+
+
+def _match_key(market: str, selection: str) -> str:
+    """Join key tolerant of the spelling differences between two feeds.
+
+    Both sides build the selection with ``market.keys``, so the shape already
+    agrees; what does not is punctuation in a name -- "Luis Robert Jr." against
+    "Luis Robert Jr", "Andres" against "Andrés".
+    """
+    plain = unicodedata.normalize("NFKD", selection.casefold())
+    plain = "".join(c for c in plain if not unicodedata.combining(c))
+    return f"{market}|" + re.sub(r"[^a-z0-9]+", "", plain)
+
+
+def annotate(recs: list, rows: list[OptaRow]) -> int:
+    """Stamp each recommendation with Opta's read on the same prop.
+
+    A second model's probability beside our own is the one thing the card
+    cannot get from the price: the market quotes what it chooses to, and CLV
+    only grades the number we paid. Where Opta has an opinion on the same
+    selection, the sheet can show whether an outside forecast agrees.
+
+    Opta's own star rating is carried through rather than a threshold of our
+    invention, and it is only shown against the side Opta actually bet -- three
+    stars on the under says nothing good about our over.
+    """
+    by_key: dict[str, OptaRow] = {}
+    for row in rows:
+        by_key.setdefault(_match_key(row.market, row.selection), row)
+    hits = 0
+    for rec in recs:
+        row = by_key.get(_match_key(rec.market, rec.selection))
+        if row is None:
+            continue
+        prob = row.over_prob
+        if prob is not None and rec.side == "under":
+            prob = 1.0 - prob
+        rec.opta_prob = prob
+        rec.opta_stars = row.confidence
+        rec.opta_agrees = None if row.bet is None else row.bet == rec.side
+        hits += 1
+    return hits
 
 
 def save_rows(path: Path, rows: list[OptaRow]) -> None:

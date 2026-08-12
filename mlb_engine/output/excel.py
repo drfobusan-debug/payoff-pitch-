@@ -63,6 +63,8 @@ COLUMNS = [
     "Factor",
     "Score",
     "Profile",
+    "Opta %",
+    "AI",
     "Notes",
 ]
 
@@ -104,6 +106,8 @@ GRID_COLUMNS = [
     "Odds",
     "Model %",
     "Market %",
+    "AI",
+    "Opta %",
     "Edge",
     "Handle %",
     "Bets %",
@@ -113,9 +117,10 @@ GRID_COLUMNS = [
     "Profile",
     "Notes",
 ]
-GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 8, 9, 8, 8, 7, 7, 26, 40]
+GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 8, 9, 8, 8, 7, 7, 26, 40]
 GRID_CENTER = {
-    "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "Edge", "Handle %", "Bets %",
+    "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
+    "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -238,6 +243,8 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "Odds": _american(rec.market_american),
         "Model %": round(rec.model_prob * 100, 1),
         "Market %": round(rec.fair_prob * 100, 1) if rec.fair_prob is not None else "",
+        "AI": rec.opta_mark,
+        "Opta %": round(rec.opta_prob * 100, 1) if rec.opta_prob is not None else "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
         "Bets %": rec.bets_pct if rec.bets_pct is not None else "",

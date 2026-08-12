@@ -90,6 +90,22 @@ class Recommendation:
     # margin, and its spread -- the sequencing-luck-free per-game xRD/G.
     xrd: float | None = None
     xrd_sd: float | None = None
+    # An outside model's read on this same selection (VSIN/Opta, see data.opta).
+    # opta_stars is Opta's own 0-3 rating, and it belongs to the side *it* bet:
+    # opta_agrees says whether that is our side, so three stars against us are
+    # never displayed as three stars for us. None throughout where Opta had no
+    # projection for the prop, which is most game-level markets.
+    opta_prob: float | None = None
+    opta_stars: int | None = None
+    opta_agrees: bool | None = None
+
+    @property
+    def opta_mark(self) -> str:
+        """Opta's stars, shown only when it likes the side we are buying."""
+        if not self.opta_stars or self.opta_agrees is None:
+            return ""
+        stars = "\u2605" * self.opta_stars
+        return stars if self.opta_agrees else f"fade {stars}"
 
     @property
     def model_american(self) -> float:
@@ -137,6 +153,8 @@ class Recommendation:
             "Factor": round(self.factor, 3) if self.factor is not None else "",
             "Score": round(self.score, 2) if self.score is not None else "",
             "Profile": self.profile or "",
+            "Opta %": round(self.opta_prob * 100, 1) if self.opta_prob is not None else "",
+            "AI": self.opta_mark,
             "Notes": "; ".join(self.reasons),
         }
 

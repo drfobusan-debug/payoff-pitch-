@@ -44,7 +44,13 @@ from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
-from mlb_engine.data.opta import OptaClient, load_rows, merge_rows, save_rows
+from mlb_engine.data.opta import (
+    OptaClient,
+    annotate,
+    load_rows,
+    merge_rows,
+    save_rows,
+)
 from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -231,6 +237,33 @@ def _generate_report(
     return md_path, html_path, pdf_path
 
 
+def _annotate_opta(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put the outside model's read on the card, before the workbook is written.
+
+    Prefers the capture already on disk and only goes to VSIN when the slate has
+    none, so a morning that already ran ``mlb-engine opta`` costs nothing. The
+    whole thing is best-effort: an annotation is worth strictly less than the
+    card, and must never be able to stop it being produced.
+    """
+    try:
+        rows = load_rows(_opta_path(cfg, slate_date.isoformat()))
+        if not rows:
+            client = OptaClient()
+            day = next(
+                (d for d, iso in client.slate_dates().items() if iso == slate_date.isoformat()),
+                None,
+            )
+            if day is None:
+                return
+            rows = client.fetch(day=day, date=slate_date.isoformat())
+        matched = annotate(recs, rows)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("Opta benchmark unavailable; card written without it", exc_info=True)
+        return
+    if matched:
+        print(f"Opta benchmark: {matched} of {len(recs)} selections carry an outside projection")
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -262,6 +295,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     else:
         fangraphs_csv = None
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
+    _annotate_opta(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
