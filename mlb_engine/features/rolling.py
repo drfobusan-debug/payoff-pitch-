@@ -16,6 +16,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -68,6 +69,48 @@ PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
 # thin platoon split for a poor hitter then lands on that poor hitter's own
 # baseline instead of on an average major leaguer.
 SPLIT_PRIOR_STRENGTH = 60.0
+
+# Equivalent PA of prior each outcome deserves *individually*. A flat 60 assumes
+# every bucket is equally noisy, and they are not: for a rate observed over n PA
+# the spread across hitters is talent plus binomial noise p(1-p)/n, so the prior
+# strength that minimises squared error is k = p(1-p)/var(talent), which differs
+# by an order of magnitude between a strikeout and a double.
+#
+# Fitted on 280 hitters with 60+ PA in the 42 days to 2026-08-11
+# (``scripts.ros_prior_study shrink``), with talent variance estimated two
+# independent ways -- the spread of THE BAT X rest-of-season projections, and the
+# window's own spread with binomial noise subtracted -- taking whichever implies
+# the *lighter* shrinkage:
+#
+#     outcome   talent sd (ROS)   talent sd (window)   k
+#     1B             0.0192            0.0261         181
+#     2B             0.0046            0.0055        1247
+#     3B             0.0023            0.0031         423
+#     HR             0.0122            0.0130         181
+#     BB             0.0212            0.0293         101
+#     K              0.0543            0.0591          48
+#     OUT            0.0498            0.0604          68
+#
+# So the flat 60 was about right for strikeouts and outs -- which is why the
+# engine's best-ranked markets are the K-driven ones -- and far too light
+# everywhere else. A hitter's 42-day doubles rate is almost entirely noise: the
+# spread we were feeding the simulator was 2.8x the spread of real talent and
+# correlated 0.20 with it. That is the mechanism behind a model that knows a
+# hitter will get a hit but not which kind.
+#
+# Heavier shrinkage is only safe with somewhere true to shrink *to*. Toward the
+# league mean it would flatten the lineup and make the ranking worse; toward the
+# hitter's own projection it removes noise and keeps the hitter. The two changes
+# are one change.
+OUTCOME_PRIOR_STRENGTH = {
+    "1B": 181.0,
+    "2B": 1247.0,
+    "3B": 423.0,
+    "HR": 181.0,
+    "BB": 101.0,
+    "K": 48.0,
+    "OUT": 68.0,
+}
 MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
 MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
@@ -105,6 +148,88 @@ class OutcomeRates:
         }
 
 
+OUTCOMES_ORDER = ("1B", "2B", "3B", "HR", "BB", "K", "OUT")
+
+# Columns a FanGraphs rest-of-season projection export must carry for the rate
+# vector to be built from it. ``1B`` is published directly; if a future export
+# drops it, it is H - 2B - 3B - HR.
+ROS_COLUMNS = ("PA", "H", "2B", "3B", "HR", "BB", "SO", "MLBAMID")
+
+
+def ros_rates_from_projection(df: pd.DataFrame) -> pd.DataFrame:
+    """Per-PA outcome rates from a rest-of-season projection export.
+
+    A projection is a talent estimate, so it is the right shrinkage target for a
+    thin window: the league mean pulls every hitter toward the same place, which
+    is exactly what a model that has to *rank* hitters cannot afford.
+
+    Returns one row per MLBAM id with the seven simulator outcomes, which sum to
+    1 by construction. HBP is folded into BB, as the simulator has no separate
+    bucket for it and both put a man on first.
+    """
+    missing = [c for c in ROS_COLUMNS if c not in df.columns]
+    if missing:
+        raise ValueError(f"projection export is missing {missing}")
+    d = df[df["PA"] > 0].copy()
+    singles = d["1B"] if "1B" in d.columns else d["H"] - d["2B"] - d["3B"] - d["HR"]
+    pa = d["PA"].astype(float)
+    walks = d["BB"].astype(float) + d.get("HBP", 0.0)
+    rates = pd.DataFrame(
+        {
+            "mlbam_id": d["MLBAMID"].astype("Int64"),
+            "pa": pa,
+            "1B": singles.astype(float) / pa,
+            "2B": d["2B"].astype(float) / pa,
+            "3B": d["3B"].astype(float) / pa,
+            "HR": d["HR"].astype(float) / pa,
+            "BB": walks / pa,
+            "K": d["SO"].astype(float) / pa,
+        }
+    ).dropna(subset=["mlbam_id"])
+    on_base_or_k = rates[["1B", "2B", "3B", "HR", "BB", "K"]].sum(axis=1)
+    rates["OUT"] = (1.0 - on_base_or_k).clip(lower=0.0)
+    total = rates[list(OUTCOMES_ORDER)].sum(axis=1)
+    for oc in OUTCOMES_ORDER:
+        rates[oc] = rates[oc] / total
+    return rates.drop_duplicates("mlbam_id").reset_index(drop=True)
+
+
+def load_ros_priors(path: str | Path) -> dict[int, dict[str, float]]:
+    """MLBAM id -> prior rate vector, from a file written by ``scripts.ros_prior_study``.
+
+    A missing file is not an error: the engine falls back to the league prior,
+    which is what it has always used.
+    """
+    p = Path(path).expanduser()
+    if not p.exists():
+        return {}
+    df = pd.read_csv(p)
+    if "mlbam_id" not in df.columns:
+        return {}
+    if any(oc not in df.columns for oc in OUTCOMES_ORDER):
+        return {}
+    out: dict[int, dict[str, float]] = {}
+    for row in df.to_dict("records"):
+        vec = {oc: float(row[oc]) for oc in OUTCOMES_ORDER}
+        if any(v != v for v in vec.values()):  # NaN
+            continue
+        out[int(row["mlbam_id"])] = vec
+    return out
+
+
+def raw_window_counts(
+    df: pd.DataFrame, batter_id: int, as_of: Date, days: int
+) -> tuple[dict[str, float], float]:
+    """Unshrunk outcome counts for one batter's window, and its PA total.
+
+    Exposed for the shrinkage study: fitting how hard a bucket should be
+    regressed needs the raw counts, because shrinkage is the thing being fitted.
+    """
+    rows = _slice_dates(_pa_rows(df[df["batter"] == batter_id]), as_of, days)
+    counts = _bucket_counts(rows["events"])
+    return counts, sum(counts.values())
+
+
 def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
     counts = {"1B": 0.0, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.0, "OUT": 0.0}
     for ev in pa_events.dropna():
@@ -122,21 +247,31 @@ def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
 def rates_from_events(
     pa_events: pd.Series,
     prior: Mapping[str, float] | None = None,
-    prior_strength: float = PRIOR_STRENGTH,
+    prior_strength: float | Mapping[str, float] = PRIOR_STRENGTH,
 ) -> OutcomeRates:
     """Shrink observed counts toward a prior and normalize to rates.
 
     ``prior`` defaults to the league rates. Passing a batter's own overall rates
     instead makes the shrinkage hierarchical: the split regresses toward the
     hitter rather than toward an average major leaguer.
+
+    ``prior_strength`` may be a single equivalent-PA figure, or one per outcome
+    (see ``OUTCOME_PRIOR_STRENGTH``) when the buckets differ in how noisy they
+    are. Per-outcome shrinkage gives each bucket its own denominator, so the
+    seven rates are renormalized to sum to 1 afterwards.
     """
     target = LEAGUE_RATES if prior is None else prior
     counts = _bucket_counts(pa_events)
     n = sum(counts.values())
     smoothed = {}
-    total = n + prior_strength
     for k in LEAGUE_RATES:
-        smoothed[k] = (counts[k] + prior_strength * target[k]) / total
+        strength = (
+            prior_strength[k] if isinstance(prior_strength, Mapping) else prior_strength
+        )
+        smoothed[k] = (counts[k] + strength * target[k]) / (n + strength)
+    scale = sum(smoothed.values())
+    if scale > 0:
+        smoothed = {k: v / scale for k, v in smoothed.items()}
     return OutcomeRates(
         pa=n,
         p_1b=smoothed["1B"],
@@ -367,11 +502,19 @@ def build_batter_profile(
     vs_rhp_days: int,
     vs_lhp_days: int,
     split_prior: bool = True,
+    ros_prior: Mapping[str, float] | None = None,
 ) -> BatterProfile:
     """Build a batter's context splits.
 
     ``split_prior`` regresses each split toward the batter's own overall rate;
     set it False to restore the flat league-average prior on every split.
+
+    ``ros_prior`` is this hitter's rest-of-season projection, used as the target
+    the overall window regresses toward, and it switches the overall window onto
+    the per-outcome prior strengths. Without it the target is the league mean at
+    a flat 60 PA, which is what the engine has always done: heavy shrinkage
+    toward an average major leaguer would flatten the lineup rather than clean
+    it, so the projection and the fitted strengths arrive together or not at all.
     """
     bdf = _pa_rows(df[df["batter"] == batter_id])
 
@@ -391,7 +534,10 @@ def build_batter_profile(
     # split regresses toward *this hitter's* overall rather than toward an
     # average major leaguer. A 40-PA home split for a weak bat then lands on his
     # own baseline instead of being handed most of a league-average profile.
-    overall = rates_from_events(overall_pa)
+    if ros_prior is None:
+        overall = rates_from_events(overall_pa)
+    else:
+        overall = rates_from_events(overall_pa, ros_prior, OUTCOME_PRIOR_STRENGTH)
     prior = overall.as_dict() if split_prior else None
     return BatterProfile(
         mlbam_id=batter_id,
