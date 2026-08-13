@@ -38,6 +38,15 @@ log = logging.getLogger(__name__)
 # by more than 5% in 54% of starts, so a map fitted across the change would carry
 # that swing into every hit prop it corrected. One slate is the cheapest moment
 # to reset, and the alternative was resetting after the first refit instead.
+#
+# Teaching the simulators how runners actually move does NOT retire it, which is
+# a departure. Measured against the league's own plate-appearance rates the change
+# moves run props by about a point and team scoring by four hundredths of a run,
+# while the bias the map exists to remove is three to four points in every batter
+# market at once. Retiring the basis for a one-point shift would throw away the
+# window accumulated since 08-12 and leave the engine pricing uncalibrated for a
+# further week, which costs more than the contamination it avoids. The next refit
+# therefore trains across the change and absorbs it.
 FEATURE_BASIS = "starter-contact-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
