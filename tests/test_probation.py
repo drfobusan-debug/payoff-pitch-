@@ -24,6 +24,7 @@ from mlb_engine.audit.probation import (
     probation_findings,
     screen_probation,
 )
+from mlb_engine.calibration import FEATURE_BASIS
 from mlb_engine.market.tiers import Tier
 
 # The window probation grades by default: bets before the current feature basis
@@ -158,7 +159,7 @@ def test_the_default_window_starts_at_the_feature_basis() -> None:
     (p,) = market_probation([*old, *_run(20, -1.0)], min_n=100)
     assert p.n == 20
     assert p.status == WATCHING
-    assert "starter-contact-2026.08" in p.finding
+    assert FEATURE_BASIS in p.finding
 
 
 def test_all_history_is_an_explicit_opt_in() -> None:
