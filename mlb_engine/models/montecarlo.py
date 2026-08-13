@@ -47,6 +47,31 @@ PITCH_COST = {
     "OUT": 3.3,
 }
 
+# How runners actually move, measured off the play-by-play feed by
+# ``scripts/baserunning_study.py``. Every one of these was previously hard-coded
+# at certainty: a single sent the runner from first to third and scored anyone
+# from second, a double scored the runner from first, and an out never drove a
+# run in. Since batter_r, batter_rbi and batter_hrr are priced entirely off this
+# conversion of hits into runs, the certainty was not conservative -- it inflated
+# every run-scoring prop and both totals.
+# Measured over 760 games (2026-06-01..07-27): n=2820, 1400 and 788 chances.
+FIRST_TO_THIRD_ON_SINGLE = 0.35
+SCORE_FROM_SECOND_ON_SINGLE = 0.62
+SCORE_FROM_FIRST_ON_DOUBLE = 0.40
+# Ball in play for an out with a runner on third and fewer than two outs: the sac
+# fly and the run-scoring groundout. Roughly a tenth of real RBI arrive this way
+# and the simulator could produce none of them. Measured on 1,217 such outs.
+SCORE_FROM_THIRD_ON_OUT = 0.56
+
+# Bases handed over without a hit, per plate appearance with a runner on: stolen
+# bases, wild pitches, passed balls, balks and errors. Measured 2,424 such
+# advances over 24,762 such plate appearances, of which half moved every runner
+# (wild pitch, passed ball, balk) and half moved one (steal, single error); 287
+# runners were thrown out or picked off.
+FREE_ADVANCE_PER_PA = 0.098
+FREE_ADVANCE_ALL_SHARE = 0.50
+RUNNER_ERASED_PER_PA = 0.012
+
 
 @dataclass
 class TeamSimConfig:
@@ -263,6 +288,8 @@ class MonteCarlo:
 
                 scored, rbi, outs, bases, dp = _apply_pa(oc, slot, outs, bases, dp_rate)
                 runs += scored
+                free_runs, outs, erased = _free_bases(outs, bases)
+                runs += free_runs
 
                 # batting stats
                 b = bat[team]
@@ -290,13 +317,60 @@ class MonteCarlo:
                         p["BB"][s] += 1
                     if oc in ("K", "OUT"):
                         p["outs"][s] += 2 if dp else 1
-                    p["ER"][s] += scored
+                    if erased:
+                        p["outs"][s] += 1
+                    p["ER"][s] += scored + free_runs
 
                 if walkoff_deficit is not None and runs > walkoff_deficit:
                     break
             return runs
 
         scored_runners_holder: list[int] = []
+
+        def _free_bases(outs: int, bases: list[int]) -> tuple[int, int, bool]:
+            """Bases given away between plate appearances. Returns (runs, outs, erased).
+
+            A tenth of plate appearances with someone on move a runner up without a
+            hit -- stolen base, wild pitch, passed ball, balk, error -- and a
+            hundredth erase one on the bases. Leaving these out is not neutral: it
+            was the missing scoring the certain advancement above was standing in
+            for, and unlike that certainty it credits the run to the runner rather
+            than to a batter as an RBI.
+            """
+            if outs >= 3 or all(b < 0 for b in bases):
+                return 0, outs, False
+            if rng.random() < RUNNER_ERASED_PER_PA:
+                # The man erased is the one who was going: the trailing runner.
+                for i in (0, 1, 2):
+                    if bases[i] >= 0:
+                        bases[i] = -1
+                        break
+                return 0, outs + 1, True
+            if rng.random() >= FREE_ADVANCE_PER_PA:
+                return 0, outs, False
+            runs = 0
+            if rng.random() < FREE_ADVANCE_ALL_SHARE:
+                # Wild pitch, passed ball, balk, throwing error: everyone moves up.
+                if bases[2] >= 0:
+                    scored_runners_holder.append(bases[2])
+                    runs += 1
+                bases[2], bases[1], bases[0] = bases[1], bases[0], -1
+                return runs, outs, False
+            # Stolen base or a single fielding error: the trailing runner takes the
+            # next base if it is open, otherwise the man ahead of him goes.
+            for i in (0, 1, 2):
+                if bases[i] < 0:
+                    continue
+                if i == 2:
+                    scored_runners_holder.append(bases[2])
+                    bases[2] = -1
+                    runs += 1
+                elif bases[i + 1] < 0:
+                    bases[i + 1], bases[i] = bases[i], -1
+                else:
+                    continue
+                break
+            return runs, outs, False
 
         def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
             """Advance runners. Returns (runs, rbi, outs, bases, dp)."""
@@ -309,6 +383,13 @@ class MonteCarlo:
                     bases[0] = -1
                     outs += 2
                     return 0, 0, outs, bases, True
+                # Sac fly / run-scoring groundout: with a runner on third and an
+                # out to spare, the out itself buys a run.
+                if bases[2] >= 0 and outs < 2 and rng.random() < SCORE_FROM_THIRD_ON_OUT:
+                    scored_runners_holder.append(bases[2])
+                    bases[2] = -1
+                    outs += 1
+                    return 1, 1, outs, bases, False
                 outs += 1
                 return 0, 0, outs, bases, False
             if oc == "K":
@@ -334,18 +415,32 @@ class MonteCarlo:
                     b1 = b0
                 b0 = slot
             elif oc == "1B":
-                # 3rd & 2nd score, 1st -> 3rd, batter -> 1st
+                # Resolved lead runner first: a trailing runner cannot pass the
+                # man ahead of him, so whether first-to-third is even available
+                # depends on where the runner from second stopped.
                 score(b2)
-                score(b1)
-                b2 = b0 if b0 >= 0 else -1
-                b1 = -1
+                held_third = -1
+                if b1 >= 0:
+                    if rng.random() < SCORE_FROM_SECOND_ON_SINGLE:
+                        score(b1)
+                    else:
+                        held_third = b1
+                if b0 >= 0 and held_third < 0 and rng.random() < FIRST_TO_THIRD_ON_SINGLE:
+                    b2 = b0
+                    b1 = -1
+                else:
+                    b2 = held_third
+                    b1 = b0
                 b0 = slot
             elif oc == "2B":
                 score(b2)
                 score(b1)
-                if b0 >= 0:
-                    score(b0)
                 b2 = -1
+                if b0 >= 0:
+                    if rng.random() < SCORE_FROM_FIRST_ON_DOUBLE:
+                        score(b0)
+                    else:
+                        b2 = b0
                 b1 = slot
                 b0 = -1
             elif oc == "3B":
