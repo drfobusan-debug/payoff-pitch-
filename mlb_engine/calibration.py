@@ -39,17 +39,19 @@ log = logging.getLogger(__name__)
 # that swing into every hit prop it corrected. One slate is the cheapest moment
 # to reset, and the alternative was resetting after the first refit instead.
 #
-# Teaching the simulators how runners actually move retires it again after two
-# slates. It changes no batter's rates, only what his hits are worth: an RBI can
-# now arrive on an out, a run can arrive without one, and the man on second no
-# longer scores on every single. Run and RBI props move a point or two and the
-# runs-to-RBI relation changes shape, so a map fitted on the old physics would
-# correct the wrong thing.
-FEATURE_BASIS = "baserunning-2026.08"
+# Teaching the simulators how runners actually move does NOT retire it, which is
+# a departure. Measured against the league's own plate-appearance rates the change
+# moves run props by about a point and team scoring by four hundredths of a run,
+# while the bias the map exists to remove is three to four points in every batter
+# market at once. Retiring the basis for a one-point shift would throw away the
+# window accumulated since 08-12 and leave the engine pricing uncalibrated for a
+# further week, which costs more than the contamination it avoids. The next refit
+# therefore trains across the change and absorbs it.
+FEATURE_BASIS = "starter-contact-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-FEATURE_BASIS_SINCE = Date(2026, 8, 14)
+FEATURE_BASIS_SINCE = Date(2026, 8, 12)
 
 
 def _min_samples() -> int:
