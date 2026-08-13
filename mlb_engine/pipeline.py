@@ -71,6 +71,7 @@ from mlb_engine.features.rolling import (
     build_bullpen_profile,
     build_pitcher_profile,
     lineup_iso,
+    load_ros_priors,
     pen_arm_spread,
     scale_hr_rate,
     woba_from_rates,
@@ -368,6 +369,7 @@ class Pipeline:
         self._framing: dict[int, float] = {}
         self._fatigue: dict[int, float | None] = {}
         self._pen_avail: dict[str, float | None] = {}
+        self._ros_priors: dict[int, dict[str, float]] = {}
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
         self._calibrator = (
@@ -427,6 +429,15 @@ class Pipeline:
             slate_date,
             [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
         )
+        self._ros_priors = (
+            load_ros_priors(self.cfg.ros_prior_path) if self.cfg.ros_prior_path else {}
+        )
+        if self.cfg.ros_prior_path:
+            log.info(
+                "Rest-of-season batter priors: %d hitters from %s",
+                len(self._ros_priors),
+                self.cfg.ros_prior_path,
+            )
         sprint = load_sprint_speeds(slate_date.year) if enrich_leaderboards else {}
         self._team_defense = load_team_defense(slate_date.year) if enrich_leaderboards else {}
         self._framing = catcher_framing.load_framing(slate_date.year) if enrich_leaderboards else {}
@@ -690,6 +701,7 @@ class Pipeline:
             bprof = build_batter_profile(
                 statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days,
                 w.batter_vs_lhp_days, self.cfg.batter_split_prior,
+                self._ros_priors.get(int(pid)) if pid else None,
             )
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)

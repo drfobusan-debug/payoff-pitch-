@@ -279,6 +279,16 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
     )
 
+    # Rest-of-season projections as the batter prior. The path holds the file
+    # written by ``scripts.ros_prior_study prior``; when it is set and readable,
+    # a hitter's window regresses toward his own projection at the per-outcome
+    # strengths in OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a
+    # flat 60 PA. Off by default: it moves every batter probability, so it is
+    # meant to arrive with a calibration refit rather than mid-window.
+    ros_prior_path: str | None = field(
+        default_factory=lambda: os.getenv("MLBE_ROS_PRIOR") or None
+    )
+
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
     # power contact, pull-heavy grounders). Live by default; set
