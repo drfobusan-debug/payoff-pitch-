@@ -50,18 +50,29 @@ def weak_batter() -> BatterRegression:
     )
 
 
-def test_xbh_selector_buy(elite_batter: BatterRegression) -> None:
-    sel = XBHSelector().select(elite_batter)
-    assert sel.signal == "buy"
-    assert sel.factor > 1.05
-    assert sel.outcome_multipliers.get("2B", 1.0) > 1.05
-    assert sel.outcome_multipliers.get("3B", 1.0) > 1.05
+def test_xbh_selector_ignores_contact_quality(
+    elite_batter: BatterRegression, weak_batter: BatterRegression
+) -> None:
+    """No contact measure forward-predicts a double, so none of them ranks one.
+
+    The selector used to call the elite bat a buy at 1.05+ and the weak one a
+    sell; both were sorting noise.
+    """
+    elite = XBHSelector().select(elite_batter)
+    weak = XBHSelector().select(weak_batter)
+    assert elite.factor == weak.factor == 1.0
+    for sel in (elite, weak):
+        assert sel.outcome_multipliers.get("2B", 1.0) == 1.0
+        assert sel.outcome_multipliers.get("3B", 1.0) == 1.0
 
 
-def test_xbh_selector_sell(weak_batter: BatterRegression) -> None:
-    sel = XBHSelector().select(weak_batter)
-    assert sel.factor < 0.97
-    assert sel.signal == "sell"
+def test_xbh_selector_still_reads_the_lineup_spot(
+    weak_batter: BatterRegression,
+) -> None:
+    """Plate appearances are not a talent claim: a middle-order spot still counts."""
+    middle = XBHSelector().select(weak_batter, slot=4)
+    bottom = XBHSelector().select(weak_batter, slot=9)
+    assert middle.factor > bottom.factor == 1.0
 
 
 def test_xbh_selector_neutral_for_missing_data() -> None:
@@ -78,14 +89,16 @@ def test_tb_selector_buy(elite_batter: BatterRegression) -> None:
 
 
 def test_tb_selector_sell(weak_batter: BatterRegression) -> None:
-    """104 max EV on a 2% barrel rate is an exclude, not a shade.
+    """104 max EV on a 2% barrel rate is still a fade on total bases.
 
-    It reads harder than it used to because max EV and barrels carry the weights
-    the backtest measured -- 0.50 and 30 per unit -- instead of xSLG's old 10.
+    Max EV and barrels carry the weights the backtest measured -- 0.50 and 30 per
+    unit -- and they are what forward TB/PA responds to. It reads a shade softer
+    than it used to now that the sweet-spot and bat-speed weights are gone: both
+    were the same power signal counted twice, and neither survives beside max EV.
     """
     sel = TBSelector().select(weak_batter)
     assert sel.factor < 0.97
-    assert sel.signal == "exclude"
+    assert sel.signal == "sell"
 
 
 def test_tb_selector_max_ev_drives_factor() -> None:

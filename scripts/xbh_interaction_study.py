@@ -28,7 +28,8 @@ import pandas as pd
 from mlb_engine.features.xtb import LeagueXTB
 
 XBH_EVENTS = ("double", "triple")
-BAT_TERMS = ("sweet", "hard", "xwoba", "bat_speed", "xslg")
+TB_VALUE = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
+BAT_TERMS = ("sweet", "hard", "xwoba", "bat_speed", "xslg", "barrel", "max_ev")
 MIN_BBE_BAT = 40  # batted balls needed to read a hitter's sweet-spot rate
 MIN_BBE_PIT = 50  # GB% allowed stabilizes by ~50 batted balls
 
@@ -83,6 +84,11 @@ def bat_contact_rates(win: pd.DataFrame) -> pd.DataFrame:
             "hard": g["launch_speed"].apply(lambda s: float((s >= 95).mean())),
             "xwoba": g["estimated_woba_using_speedangle"].mean(),
             "bat_speed": g["bat_speed"].mean(),
+            # The two terms the total-bases selector weights heaviest.
+            "barrel": g["launch_speed_angle"].apply(
+                lambda s: float(s.dropna().eq(6).mean()) if s.notna().any() else float("nan")
+            ),
+            "max_ev": g["launch_speed"].max(),
             "bbe": g.size(),
         }
     )
@@ -108,8 +114,13 @@ def forward_pa(df: pd.DataFrame, lo: Date, hi: Date, target: str) -> pd.DataFram
     pa = fwd[fwd["events"].notna()].copy()
     if target == "xbh_of_bip":
         pa = pa[pa["bb_type"].notna() & (pa["events"] != "home_run")]
-    hit = [*XBH_EVENTS, "home_run"] if target == "xbh_hr" else list(XBH_EVENTS)
-    pa["xbh"] = pa["events"].isin(hit).astype(float)
+    if target == "tb":
+        # Total bases per PA, home runs included at four: the selector's own
+        # market, where contact quality has a claim the doubles line does not.
+        pa["xbh"] = pa["events"].map(TB_VALUE).fillna(0.0)
+    else:
+        hit = [*XBH_EVENTS, "home_run"] if target == "xbh_hr" else list(XBH_EVENTS)
+        pa["xbh"] = pa["events"].isin(hit).astype(float)
     return pa[["game_date", "batter", "pitcher", "xbh"]]
 
 
@@ -127,6 +138,16 @@ def fit_logit(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         if np.max(np.abs(step)) < 1e-9:
             break
     cov = np.linalg.inv(x.T @ (x * w[:, None]) + 1e-9 * np.eye(x.shape[1]))
+    return beta, np.sqrt(np.diag(cov))
+
+
+def fit_ols(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Least squares with heteroskedasticity-robust standard errors."""
+    xtx_inv = np.linalg.inv(x.T @ x)
+    beta = xtx_inv @ (x.T @ y)
+    resid = y - x @ beta
+    meat = x.T @ (x * (resid**2)[:, None])
+    cov = xtx_inv @ meat @ xtx_inv
     return beta, np.sqrt(np.diag(cov))
 
 
@@ -157,7 +178,7 @@ def build_rolls(
         pa = pa[pa["batter"].isin(bat.index) & pa["pitcher"].isin(pit.index)].copy()
         if pa.empty:
             continue
-        for col in BAT_TERMS:
+        for col in (*BAT_TERMS, "bbe"):
             pa[col] = pa["batter"].map(bat[col])
         pa["gb"] = pa["pitcher"].map(pit)
         pa["roll"] = i
@@ -179,8 +200,8 @@ def main() -> None:
     ap.add_argument(
         "--target",
         default="xbh",
-        choices=("xbh", "xbh_of_bip", "xbh_hr"),
-        help="2B+3B per PA, per ball in play, or 2B+3B+HR per PA",
+        choices=("xbh", "xbh_of_bip", "xbh_hr", "tb"),
+        help="2B+3B per PA, per ball in play, 2B+3B+HR per PA, or total bases per PA",
     )
     args = ap.parse_args()
 
@@ -227,8 +248,18 @@ def main() -> None:
     for c in BAT_TERMS:
         designs[f"{c} alone"] = np.column_stack([ones, zs[c]])
         names[f"{c} alone"] = ["intercept", c]
+    # Max exit velocity is the maximum of a sample, so it rises with the number
+    # of batted balls whether or not the hitter is stronger. Anything it claims
+    # has to survive the batted-ball count sitting beside it.
+    if "max_ev" in BAT_TERMS:
+        bbe = ((d["bbe"] - d["bbe"].mean()) / d["bbe"].std()).to_numpy()
+        designs["max_ev, controlling for batted balls"] = np.column_stack(
+            [ones, zs["max_ev"], bbe]
+        )
+        names["max_ev, controlling for batted balls"] = ["intercept", "max_ev", "bbe"]
+    fit = fit_ols if args.target == "tb" else fit_logit
     for label, x in designs.items():
-        beta, se = fit_logit(x, y)
+        beta, se = fit(x, y)
         print(f"  -- {label}")
         for nm, b, s in zip(names[label], beta, se, strict=True):
             z = b / s if s > 0 else 0.0
@@ -244,11 +275,24 @@ def main() -> None:
         s = (g["sweet"] - d["sweet"].mean()) / d["sweet"].std()
         b_ = (g["gb"] - d["gb"].mean()) / d["gb"].std()
         x = np.column_stack([np.ones(len(g)), s, b_, s * b_])
-        beta, se = fit_logit(x, g["xbh"].to_numpy())
+        beta, se = fit(x, g["xbh"].to_numpy())
         print(
             f"  roll {r}: n={len(g):<6} sweet {beta[1]:+.4f}  gb {beta[2]:+.4f}  "
             f"interaction {beta[3]:+.4f} (se {se[3]:.4f})"
         )
+
+    # Same question of any term that did survive the pooled fit: one block at a
+    # time, with the batted-ball count controlled.
+    if "max_ev" in BAT_TERMS:
+        print("\nper-roll max_ev coefficient, controlling for batted balls")
+        for r, g in d.groupby("roll"):
+            if len(g) < 2000:
+                continue
+            mev = (g["max_ev"] - d["max_ev"].mean()) / d["max_ev"].std()
+            nbbe = (g["bbe"] - d["bbe"].mean()) / d["bbe"].std()
+            x = np.column_stack([np.ones(len(g)), mev, nbbe])
+            beta, se = fit(x, g["xbh"].to_numpy())
+            print(f"  roll {r}: n={len(g):<6} max_ev {beta[1]:+.4f} (se {se[1]:.4f})")
 
     # And what it would be worth: the implied rate in the four corners.
     print("\nrealised 2B+3B per PA by tercile, as the interaction would show up")

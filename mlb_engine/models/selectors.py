@@ -17,11 +17,9 @@ from mlb_engine.data.parks import Park
 from mlb_engine.features.regression import (
     BL_BARREL,
     BL_BARREL_PA,
-    BL_BAT_SPEED,
     BL_HARD_HIT,
     BL_MAX_EV,
     BL_SPRINT,
-    BL_SWEET_SPOT,
     BL_XBA,
     BL_XSLG,
     MIN_BBE,
@@ -96,7 +94,6 @@ TB_MAX_EV_W = _env_float("MLBE_TB_MAX_EV_W", 0.50)
 TB_BARREL_PA_W = _env_float("MLBE_TB_BARREL_PA_W", 30.0)
 TB_XSLG_W = _env_float("MLBE_TB_XSLG_W", 3.0)
 TB_XBA_W = _env_float("MLBE_TB_XBA_W", 3.0)
-TB_SWEET_W = _env_float("MLBE_TB_SWEET_W", 2.0)
 TB_HARD_HIT_W = _env_float("MLBE_TB_HARD_HIT_W", 1.0)
 TB_SPRINT_W = _env_float("MLBE_TB_SPRINT_W", 0.15)
 
@@ -311,31 +308,30 @@ class XBHSelector:
         score = 0.0
         reasons: list[str] = []
 
-        xslg_delta = breg.xslg - BL_XSLG
-        score += xslg_delta * 10.0
-        reasons.append(f"xslg={breg.xslg:.3f}({xslg_delta:+.3f})")
+        # No contact-quality score. This selector used to rank a hitter on six
+        # measures -- xSLG, sweet spot, bat speed, max EV, barrel rate, hard-hit
+        # rate -- and move his doubles rate by up to 30% on the result. Fitted
+        # out of time against forward 2B+3B per PA (48,120 plate appearances,
+        # eight rolling blocks, hitters at 40+ batted balls), not one of them
+        # separates the hitters who go on to double:
+        #
+        #     xslg  -0.017 (p=.44)   sweet   -0.024 (p=.26)   hard  +0.013 (p=.57)
+        #     barrel -0.014 (p=.54)  bat_spd -0.014 (p=.51)   xwoba -0.001 (p=.97)
+        #
+        # Max EV is the near miss and it does not survive either: +0.041 at
+        # p=.066, and once the batted-ball count it is a maximum over sits
+        # beside it the sign flips in three of eight blocks. It survives on
+        # *total bases* (see ``TBSelector``), where the home run it really
+        # measures is in the target.
+        #
+        # #132 removed the same three terms from the rate multiplier; this is
+        # the second, independent copy of them that sat on top of it.
+        #
+        # Park and weather stay: where the ball is hit is not who hits it, and
+        # the doubles park factor was fitted on doubles (#113).
 
-        sweet_delta = breg.sweet_spot - BL_SWEET_SPOT
-        score += sweet_delta * 8.0
-        reasons.append(f"sweet={breg.sweet_spot:.3f}({sweet_delta:+.3f})")
-
-        bat_speed_delta = breg.bat_speed - BL_BAT_SPEED
-        score += bat_speed_delta * 0.08
-        reasons.append(f"bat_speed={breg.bat_speed:.1f}({bat_speed_delta:+.1f})")
-
-        max_ev_delta = breg.max_ev - BL_MAX_EV
-        score += max_ev_delta * 0.04
-        reasons.append(f"max_ev={breg.max_ev:.1f}({max_ev_delta:+.1f})")
-
-        barrel_delta = breg.barrel_rate - BL_BARREL
-        score += barrel_delta * 3.0
-        reasons.append(f"barrel={breg.barrel_rate:.3f}({barrel_delta:+.3f})")
-
-        hard_delta = breg.hard_hit - BL_HARD_HIT
-        score += hard_delta * 2.0
-        reasons.append(f"hard={breg.hard_hit:.3f}({hard_delta:+.3f})")
-
-        # Platoon / lineup context (small nudges).
+        # Lineup context: a middle-order spot is more plate appearances, which
+        # is a real effect on a per-game prop rather than a talent claim.
         if slot is not None and 2 <= slot <= 5:
             score += 0.5
             reasons.append("cleanup_spot")
@@ -402,13 +398,21 @@ class TBSelector:
         score += xba_delta * TB_XBA_W
         reasons.append(f"xba={breg.xba:.3f}({xba_delta:+.3f})")
 
-        sweet_delta = breg.sweet_spot - BL_SWEET_SPOT
-        score += sweet_delta * TB_SWEET_W
-        reasons.append(f"sweet={breg.sweet_spot:.3f}({sweet_delta:+.3f})")
-
-        bat_speed_delta = breg.bat_speed - BL_BAT_SPEED
-        score += bat_speed_delta * 0.08
-        reasons.append(f"bat_speed={breg.bat_speed:.1f}({bat_speed_delta:+.1f})")
+        # Sweet-spot rate and bat speed are not scored. Total bases is the market
+        # where contact quality has a claim -- the home run it measures is in the
+        # target -- and on forward TB per PA over the same 48,120 plate
+        # appearances the claim belongs to raw power, not to launch angle:
+        #
+        #     max_ev  +0.0194 (p<.0001)      sweet     +0.0022 (p=.55)
+        #     xwoba   +0.0124 (p=.001)       bat_speed +0.0120 (p=.001)
+        #     barrel  +0.0098 (p=.012)       xslg      +0.0074 (p=.049)
+        #
+        # but they are one signal wearing six coats: fitted together only max EV
+        # survives (+0.0215, p=.0002) and xSLG turns negative. Max EV holds up
+        # against the batted-ball count it is a maximum over (+0.0170, p<.0001)
+        # and keeps its sign in six of eight blocks; sweet spot is the one
+        # measure that is dead on this target as well as on doubles, and bat
+        # speed only spoke through the power it shares with max EV.
 
         hard_delta = breg.hard_hit - BL_HARD_HIT
         score += hard_delta * TB_HARD_HIT_W
