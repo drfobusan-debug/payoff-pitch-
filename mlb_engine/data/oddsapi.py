@@ -519,9 +519,15 @@ def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
     larger is grouped by player and line, so a prop or alternate total pairs its
     own over with its own under. Only exact pairs qualify -- a three-way or
     orphaned side is left unpaired rather than devigged against the wrong price.
+
+    A pair must also be two *different* sides. Books duplicate a player's over
+    at one point (William Hill lists a home-run over twice, at different
+    prices), and a home-run market is over-only at most books, so grouping on
+    player and line alone pairs an over with an over and records a plus-money
+    "under" that cannot exist.
     """
     priced = [oc for oc in outcomes if oc.get("price") is not None]
-    if len(priced) == 2:
+    if len(priced) == 2 and _opposed(*priced):
         a, b = priced
         return {id(a): float(b["price"]), id(b): float(a["price"])}
     groups: dict[tuple[str, object], list[dict]] = {}
@@ -531,12 +537,17 @@ def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
         groups.setdefault((str(oc.get("description", "")), oc.get("point")), []).append(oc)
     pairs: dict[int, float] = {}
     for members in groups.values():
-        if len(members) != 2:
+        if len(members) != 2 or not _opposed(*members):
             continue
         a, b = members
         pairs[id(a)] = float(b["price"])
         pairs[id(b)] = float(a["price"])
     return pairs
+
+
+def _opposed(a: dict, b: dict) -> bool:
+    """True when two outcomes are the two sides of one line, not a duplicate."""
+    return _norm(a.get("name", "")) != _norm(b.get("name", ""))
 
 
 def _redact(message: str, api_key: str | None) -> str:

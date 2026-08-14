@@ -123,3 +123,22 @@ def test_missing_price_does_not_form_a_pair() -> None:
         {"name": "Under", "description": "A", "point": 0.5, "price": None},
     ]
     assert _opposite_prices(outcomes) == {}
+
+
+def test_duplicated_over_is_not_treated_as_the_under() -> None:
+    """Books list a home-run over twice at one point; the second is not an under."""
+    outcomes = [
+        {"name": "Over", "description": "Gunnar Henderson", "point": 0.5, "price": 500},
+        {"name": "Over", "description": "Gunnar Henderson", "point": 0.5, "price": 400},
+        {"name": "Over", "description": "Coby Mayo", "point": 0.5, "price": 425},
+        {"name": "Over", "description": "Coby Mayo", "point": 0.5, "price": 360},
+    ]
+    assert _opposite_prices(outcomes) == {}
+
+
+def test_two_over_only_props_do_not_pair_with_each_other() -> None:
+    outcomes = [
+        {"name": "Over", "description": "A", "point": 0.5, "price": 475},
+        {"name": "Over", "description": "B", "point": 0.5, "price": 380},
+    ]
+    assert _opposite_prices(outcomes) == {}
