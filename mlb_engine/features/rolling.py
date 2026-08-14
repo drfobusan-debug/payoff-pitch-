@@ -29,9 +29,29 @@ HIT_EVENTS = {"single": "1B", "double": "2B", "triple": "3B", "home_run": "HR"}
 # concentrated on the best bats rather than spread thin across the league.
 WALK_EVENTS = {"walk", "hit_by_pitch", "intent_walk"}
 # Reaching first without a hit, an out, or anything the pitcher did. Kept apart from
-# WALK_EVENTS because that set also stands in for a pitcher's walks allowed, and
-# interference is the catcher's doing.
+# WALK_EVENTS because interference is the catcher's doing.
 FREE_PASS_EVENTS = WALK_EVENTS | {"catcher_interf"}
+
+# Share of the BB bucket that is a walk the box score charges as a walk.
+#
+# The bucket above is a *free pass*: walk, intentional walk and hit-by-pitch. That
+# is the right unit for the run models, because a hit batsman stands on first like
+# any other, and it is the right unit for a batter reaching base. It is the wrong
+# unit for the pitcher-walks prop, which settles on ``baseOnBalls`` alone -- see
+# ``data.results``, where the pitching line reads that field and not hitByPitch.
+# So the prop was priced on 0.1007 of plate appearances and graded against 0.0893
+# of them: 0.26 phantom walks in an average start, worth +6.7 points on P(BB>=2).
+#
+# Measured on the same 116,384 plate appearances as LEAGUE_RATES: walk 8.6558%,
+# intent_walk 0.2698%, hit_by_pitch 1.1402%, so walks are 0.8843 of the three.
+# Applying it to the modelled free pass is a change of units and not a fitted
+# factor, and the two independent measurements agree to five decimals: starters
+# free-pass 0.0929 per batter faced over 2,890 starts, and 0.0929 * 0.8843 =
+# 0.08215 against a strict walk rate of 0.0821 counted directly off the same
+# starts. A league constant rather than a per-pitcher rate for the same reason as
+# LEAGUE_ROE_RATE: at 1.1% of plate appearances a starter's own hit-by-pitch rate
+# over one window is almost entirely noise.
+LEAGUE_WALK_SHARE_OF_FREE_PASS = 0.8843
 K_EVENTS = {"strikeout", "strikeout_double_play"}
 # Reaching base with no hit, no walk and no out recorded. There is nowhere in the
 # seven outcomes to put this, so these plate appearances are left out of the rates

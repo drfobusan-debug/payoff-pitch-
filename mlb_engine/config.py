@@ -384,6 +384,27 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
+    # Walks-allowed unders are vetoed while the model's walk level is unvalidated.
+    #
+    # Pricing both sides of every prop opened this side up, and pitcher_bb is the
+    # one market whose *over* was the profitable side: on the 149 graded rows
+    # carrying both prices the over returned +2.84% and the under -17.88%, with a
+    # bootstrap interval of [-32.7%, -3.0%] that excludes zero. The cause is small
+    # and the loss is not, which is the point -- pitchers walked 2+ in 55.0% of
+    # those starts against a devigged market price of 49.6%, a 5.4-point miss that
+    # is only 1.32 SE, but the under is the short side and short prices turn a
+    # coin-flip miss into a fifth of the stake.
+    #
+    # The model then leans that way by construction: it averaged .4649 on P(BB>=2)
+    # against the market's .4961, so at a .03 minimum edge it takes 81 unders and
+    # 50 overs -- 62% of its walk buys on the side that lost. That lean is not
+    # evidence, because every one of those rows was priced before the league walk
+    # prior was corrected, so the veto stands until slates graded on the current
+    # basis can measure the level. Set MLBE_PITCHER_BB_UNDER=1 to allow them.
+    pitcher_bb_under_gate: bool = field(
+        default_factory=lambda: not _env_bool("MLBE_PITCHER_BB_UNDER", False)
+    )
+
     # Home-run overs only pay inside a price band. Graded buys by price:
     # +300-400 lost 50% of stake on 10 bets, +400-500 returned +20.5% on 19, and
     # everything from +500 up collapsed -- 62 bets at +500 or longer won three
