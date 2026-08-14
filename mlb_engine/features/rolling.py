@@ -33,6 +33,17 @@ WALK_EVENTS = {"walk", "hit_by_pitch", "intent_walk"}
 # interference is the catcher's doing.
 FREE_PASS_EVENTS = WALK_EVENTS | {"catcher_interf"}
 K_EVENTS = {"strikeout", "strikeout_double_play"}
+# Reaching base with no hit, no walk and no out recorded. There is nowhere in the
+# seven outcomes to put this, so these plate appearances are left out of the rates
+# altogether and the run models put the league's rate back in -- see
+# ``baserunning.LEAGUE_ROE_RATE``, and note that a batter's own error rate is nearly
+# all defence and nearly all noise. Calling it an out, which is what the bucketer's
+# ``else`` did, ended innings that in fact continued.
+REACHED_ON_ERROR_EVENTS = {"field_error"}
+# A plate appearance that never finished: the third out was made on the bases, or
+# the game ended, mid-count. These rows sit at 0-0, 1-1, 2-2 and end on a ball or a
+# called strike, so the batter did nothing at all -- not an out, and not a PA.
+INCOMPLETE_PA_EVENTS = {"truncated_pa"}
 
 # Total bases per hit event, and the PA-ending events that are not at-bats
 # (needed for ISO = SLG - AVG, which is per-AB rather than per-PA).
@@ -61,20 +72,24 @@ NON_AB_EVENTS = {
 # says. Only the data can check it, so it is pinned by a test and refit by
 # ``python -m scripts.league_rates``.
 #
-# Measured season-to-date on 116,384 plate appearances (2026-03-25..07-22) with the
-# engine's own bucketer, by ``scripts.league_rates``. Season-to-date and not a
-# trailing window on purpose: the month table in that script shows home runs running
-# 0.0281 in April against 0.0350 in July while walks run the other way, 0.1080 down
-# to 0.0974, so a summer window biases two markets in opposite directions -- the same
-# reason the run environment is not pinned to an annual 4.3 R/9.
+# Measured season-to-date on the 115,504 classified plate appearances of 116,384
+# (2026-03-25..07-22) with the engine's own bucketer, by ``scripts.league_rates``.
+# Season-to-date and not a trailing window on purpose: the month table in that script
+# shows home runs running 0.0283 in April against 0.0352 in July while walks run the
+# other way, 0.1088 down to 0.0982, so a summer window biases two markets in opposite
+# directions -- the same reason the run environment is not pinned to an annual 4.3 R/9.
+#
+# These are per plate appearance *that one of the seven can describe*. Reaching on an
+# error is not one of them and is left out of the denominator rather than called an
+# out; the run models add it back at ``baserunning.LEAGUE_ROE_RATE``.
 LEAGUE_RATES = {
-    "1B": 0.1406,
-    "2B": 0.0413,
-    "3B": 0.0035,
-    "HR": 0.0309,
-    "BB": 0.1012,
-    "K": 0.2211,
-    "OUT": 0.4614,
+    "1B": 0.1417,
+    "2B": 0.0416,
+    "3B": 0.0036,
+    "HR": 0.0311,
+    "BB": 0.1020,
+    "K": 0.2228,
+    "OUT": 0.4572,  # the residual, so the seven sum to 1 exactly at this precision
 }
 PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
 
@@ -312,6 +327,8 @@ def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
             counts["BB"] += 1
         elif ev in K_EVENTS:
             counts["K"] += 1
+        elif ev in REACHED_ON_ERROR_EVENTS or ev in INCOMPLETE_PA_EVENTS:
+            continue  # neither an out nor one of the seven; see the sets above
         else:
             counts["OUT"] += 1
     return counts

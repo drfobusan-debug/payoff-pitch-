@@ -21,7 +21,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from mlb_engine.models.baserunning import LEAGUE_DP_RATE, transitions
+from mlb_engine.models.baserunning import LEAGUE_DP_RATE, transitions, with_roe
 from mlb_engine.models.matchup import apply_multipliers
 from mlb_engine.models.montecarlo import OUTCOMES
 
@@ -63,7 +63,7 @@ def _inning_distribution(
     ``dp_rate`` is the *pitcher's* double-play rate, since the force is only
     turned as often as he keeps the ball on the ground.
     """
-    p = np.array([prob[o] for o in OUTCOMES], dtype=float)
+    p = np.array([with_roe(prob)[o] for o in OUTCOMES], dtype=float)
     p = p / p.sum()
     # dp[base, outs] = vector over runs-so-far (len RUN_CAP+1)
     dp = np.zeros((8, 3, RUN_CAP + 1), dtype=float)
@@ -143,7 +143,9 @@ def _slot_prob_table(
     for bi, rates in enumerate(slots):
         for tto, factor in enumerate(tto_factors):
             adj = apply_multipliers(rates, {k: factor for k in ON_BASE}) if factor != 1.0 else rates
-            arr = np.array([adj[o] for o in OUTCOMES], dtype=float)
+            # TTO first, then the error: a tiring starter gives up more of the
+            # seven, and none of the defence's mistakes behind him.
+            arr = np.array([with_roe(adj)[o] for o in OUTCOMES], dtype=float)
             s = arr.sum()
             table[(bi, tto)] = arr / s if s > 0 else arr
     return table
