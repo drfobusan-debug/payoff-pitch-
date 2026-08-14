@@ -24,8 +24,22 @@ the feed splits an advance into legs, so a man going first to third appears as
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 
-OUTCOMES = ("1B", "2B", "3B", "HR", "BB", "K", "OUT")
+OUTCOMES = ("1B", "2B", "3B", "HR", "BB", "K", "OUT", "ROE")
+
+# Reaching on an error: the batter is safe and *no out is recorded*. The bucketer
+# used to call it an out, which ended innings that should have continued, and it is
+# the one remaining event where the batter reaches and the seven outcomes have
+# nowhere to put him -- he did not hit, he was not walked, he was not retired.
+#
+# It is a league constant here rather than a per-batter rate on purpose. Reaching on
+# an error is overwhelmingly the defence's doing, and at 0.58% of plate appearances a
+# hitter sees about one in a 150-PA window: giving every batter his own estimate
+# would feed eight markets a number that is almost pure noise, to model something
+# that barely varies. Measured over 116,384 PA (2026-03-25..07-22) by
+# ``scripts.league_rates``.
+LEAGUE_ROE_RATE = 0.0058
 
 # Rates below are indexed by the out count the batter came to the plate with.
 
@@ -65,6 +79,14 @@ DOUBLE_SCORES_1B = (0.292, 0.363, 0.530)  # n=144 / 212 / 232
 FREE_ADVANCE_PER_PA = 0.098
 FREE_ADVANCE_ALL_SHARE = 0.50
 RUNNER_ERASED_PER_PA = 0.012
+
+# Kill switch for the error. MLBE_REACHED_ON_ERROR=0 sets the rate to zero, which
+# restores the previous run level exactly -- the bucketer no longer calls the play an
+# out either way, so the plate appearance simply leaves the sample. Worth having
+# separately because this one *raises* the run environment about 2.9%, and a totals
+# regression needs to be attributable to it rather than to the outs split below.
+if os.environ.get("MLBE_REACHED_ON_ERROR", "1").strip().lower() in {"0", "false", "no"}:
+    LEAGUE_ROE_RATE = 0.0
 
 # Kill switch. MLBE_OUTS_SPLIT_ADVANCE=0 restores the pooled rates that #128
 # measured, so a regression can be attributed to the out-count split rather than
@@ -201,7 +223,12 @@ def advance_dist(base: int, outs: int, oc: str, dp_rate: float) -> tuple[Branch,
             return ((1.0, 0b111, outs, 0),)
         return ((1.0, 0b111, outs, 1),)
 
-    if oc == "1B":
+    if oc in ("1B", "ROE"):
+        # Reaching on an error moves runners like a single. It is if anything a
+        # little better than one -- an error is often what lets the extra base be
+        # taken -- but on 0.58% of plate appearances that difference is far below
+        # what the feed can resolve, and treating it as a single is the honest
+        # floor rather than an invented advantage.
         return _single_branches(base, outs)
 
     if oc == "2B":
@@ -253,6 +280,22 @@ def free_bases(base: int, outs: int) -> tuple[Branch, ...]:
     out.append((p_move * (1.0 - FREE_ADVANCE_ALL_SHARE), one_up, outs, runs))
     out.append((1.0 - RUNNER_ERASED_PER_PA - p_move, base, outs, 0))
     return _merge(out)
+
+
+def with_roe(prob: Mapping[str, float]) -> dict[str, float]:
+    """Add the league's reached-on-error rate to a seven-outcome vector.
+
+    The seven rates a batter arrives with are conditional on the plate appearance
+    not having been an error, since ``_bucket_counts`` leaves those PAs out of its
+    denominator entirely. So they are scaled down by the error rate rather than
+    renormalized against it, which keeps each one's per-PA meaning and leaves the
+    eight summing to 1. Both run models go through here, so neither can price a
+    slate with the error in and the other with it out.
+    """
+    keep = 1.0 - LEAGUE_ROE_RATE
+    out = {k: prob[k] * keep for k in OUTCOMES if k != "ROE"}
+    out["ROE"] = LEAGUE_ROE_RATE
+    return out
 
 
 def transitions(base: int, outs: int, oc: str, dp_rate: float) -> tuple[Branch, ...]:

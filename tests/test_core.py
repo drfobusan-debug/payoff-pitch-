@@ -1242,6 +1242,12 @@ def test_rates_from_events_sums_to_one():
 
 
 def test_the_league_rates_are_a_distribution():
+    """Exactly, not nearly: several callers assert their own normalisation to 1e-9.
+
+    Four decimal places on seven independently rounded numbers misses a distribution
+    by 1e-4 about half the time, which is 1e5 outside what those callers allow. The
+    refit script emits OUT as the residual for this reason.
+    """
     assert abs(sum(LEAGUE_RATES.values()) - 1.0) < 1e-9
     assert all(v > 0 for v in LEAGUE_RATES.values())
 
@@ -1261,14 +1267,14 @@ def test_the_league_rates_are_the_measured_league():
     wrong, and only the data can say so. Hence a pinned measurement, refittable with
     ``python -m scripts.league_rates``.
     """
-    measured = {  # 116,384 PA, 2026-03-25..07-22, the engine's own bucketer
-        "1B": 0.1406,
-        "2B": 0.0413,
-        "3B": 0.0035,
-        "HR": 0.0309,
-        "BB": 0.1012,
-        "K": 0.2211,
-        "OUT": 0.4614,
+    measured = {  # 115,504 classified PA, 2026-03-25..07-22, the engine's own bucketer
+        "1B": 0.1417,
+        "2B": 0.0416,
+        "3B": 0.0036,
+        "HR": 0.0311,
+        "BB": 0.1020,
+        "K": 0.2228,
+        "OUT": 0.4572,
     }
     assert LEAGUE_RATES == measured
 
@@ -2588,3 +2594,39 @@ def test_email_attachments_infer_mime_type(monkeypatch):
     assert types["bets.xlsx"] == (
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+
+def test_reaching_on_an_error_is_neither_an_out_nor_a_plate_appearance_outcome():
+    """The bucketer's ``else`` called it an out. The batter is standing on first.
+
+    It cannot go anywhere in the seven -- not a hit, not a walk, not an out -- so the
+    plate appearance leaves the denominator entirely and the run models add the
+    league's rate back. The alternative bucketings each corrupt a market that gets
+    bet: ``1B`` inflates batter_h and batter_tb, ``BB`` inflates batter_bb, ``OUT``
+    is the status quo and shortens innings that in fact continued.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["field_error", "single", "field_out"]))
+    assert counts["OUT"] == 1
+    assert counts["1B"] == 1
+    assert counts["BB"] == 0
+    assert sum(counts.values()) == 2, "the error is not in the denominator"
+
+
+def test_a_plate_appearance_the_third_out_cut_short_is_not_an_out():
+    """``truncated_pa`` is a PA that never finished: caught stealing, or the game ended.
+
+    These rows sit at 0-0, 1-1, 2-2 and end on a ball or a called strike, so the
+    batter did nothing -- he was not retired, and he does not have a plate appearance.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["truncated_pa", "truncated_pa", "strikeout"]))
+    assert counts["K"] == 1
+    assert counts["OUT"] == 0
+    assert sum(counts.values()) == 1
