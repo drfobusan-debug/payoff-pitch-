@@ -22,7 +22,7 @@ import numpy as np
 
 from mlb_engine.models import baserunning
 
-OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
+OUTCOMES = list(baserunning.OUTCOMES)
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
 # Run margin (absolute) at or below which a game is still "close" -- the state in
@@ -47,6 +47,7 @@ PITCH_COST = {
     "2B": 3.5,
     "3B": 3.5,
     "OUT": 3.3,
+    "ROE": 3.3,  # a ball in play, and the pitcher threw the same pitches for it
 }
 
 # How runners actually move lives in ``baserunning``, measured off the play-by-play
@@ -85,7 +86,7 @@ class TeamSimConfig:
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
-    arr = np.array([prob[o] for o in OUTCOMES], dtype=float)
+    arr = np.array([baserunning.with_roe(prob)[o] for o in OUTCOMES], dtype=float)
     arr = arr / arr.sum()
     return np.cumsum(arr)
 
@@ -303,7 +304,11 @@ class MonteCarlo:
                         p["outs"][s] += 2 if dp else 1
                     if erased:
                         p["outs"][s] += 1
-                    p["ER"][s] += scored + free_runs
+                    # A run that scores on the error itself is unearned. A runner
+                    # who reached on one and comes round later is unearned too,
+                    # which this does not track -- ER is understated by less than
+                    # it was overstated, and no priced market reads it.
+                    p["ER"][s] += free_runs if oc == "ROE" else scored + free_runs
 
                 if walkoff_deficit is not None and runs > walkoff_deficit:
                     break
@@ -379,8 +384,9 @@ class MonteCarlo:
             bases[0], bases[1], bases[2] = placed
             scored_runners_holder.extend(scored)
             # A run that scores ahead of the second out of a double play was not
-            # driven in; every other plate-appearance run was.
-            rbi = 0 if dp else runs
+            # driven in; every other plate-appearance run was -- except on an error,
+            # where the run is unearned and nobody is credited with driving it in.
+            rbi = 0 if dp or oc == "ROE" else runs
             return runs, rbi, new_outs, bases, dp
 
         # 9 innings (or more for tie in full game); F5 = first 5.
