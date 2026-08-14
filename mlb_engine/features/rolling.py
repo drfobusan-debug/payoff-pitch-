@@ -48,15 +48,33 @@ NON_AB_EVENTS = {
     "catcher_interf",
 }
 
-# League-average PA outcome rates, used as a Bayesian prior / fallback.
+# League-average PA outcome rates. Three jobs, and being wrong costs something
+# different in each: the Bayesian prior a thin batter window is shrunk toward, the
+# fallback for a pitcher with no sample, and -- least obviously -- the *denominator*
+# of the log5 matchup, where ``b * p / lg`` means a value that is too small inflates
+# that outcome in every matchup on the slate.
+#
+# The walk rate sat at 0.085 against a measured 0.1012, so walks were inflated 18.6%
+# in every matchup and doubles were 8.5% light. Nothing caught it because nothing
+# inside the engine can: ``combine`` divides the batter's rate by this constant, and
+# a test that feeds it a batter *built from* this constant gets it back whatever it
+# says. Only the data can check it, so it is pinned by a test and refit by
+# ``python -m scripts.league_rates``.
+#
+# Measured season-to-date on 116,384 plate appearances (2026-03-25..07-22) with the
+# engine's own bucketer, by ``scripts.league_rates``. Season-to-date and not a
+# trailing window on purpose: the month table in that script shows home runs running
+# 0.0281 in April against 0.0350 in July while walks run the other way, 0.1080 down
+# to 0.0974, so a summer window biases two markets in opposite directions -- the same
+# reason the run environment is not pinned to an annual 4.3 R/9.
 LEAGUE_RATES = {
-    "1B": 0.140,
-    "2B": 0.045,
-    "3B": 0.004,
-    "HR": 0.032,
-    "BB": 0.085,
-    "K": 0.225,
-    "OUT": 0.469,
+    "1B": 0.1406,
+    "2B": 0.0413,
+    "3B": 0.0035,
+    "HR": 0.0309,
+    "BB": 0.1012,
+    "K": 0.2211,
+    "OUT": 0.4614,
 }
 PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
 
