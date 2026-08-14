@@ -25,6 +25,11 @@ import requests
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.teamnames import school_key
 
+# Transport only, and nothing in it is baseball-specific: retries and a default
+# deadline so one dropped connection does not cost a Saturday's card the way it
+# cost an August one.
+from mlb_engine.data import http
+
 log = logging.getLogger(__name__)
 
 BASE = "https://api.collegefootballdata.com"
@@ -127,7 +132,7 @@ class CFBDClient:
     def _get(self, path: str, **params: str | int) -> object:
         headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
         try:
-            resp = requests.get(
+            resp = http.get(
                 f"{BASE}{path}", params=params, headers=headers, timeout=self.timeout
             )
             resp.raise_for_status()
@@ -170,16 +175,24 @@ class CFBDClient:
     def fetch_advanced(self, season: int) -> AdvancedBook:
         """Advanced efficiency stats + turnover components for ``season``.
 
+        Garbage time is excluded. Mop-up snaps are a real if modest dilution of
+        the per-play rates every threshold here is compared against: over 2024's
+        134 teams, dropping them moves net PPA by .014/play on average (up to
+        .059 for Navy, -.055 for Mississippi State), flips 1.0% of pairwise
+        net-PPA matchups and moves 33 teams ten or more ranks in explosiveness.
+        Havoc and points-per-opportunity are unaffected -- CFBD does not apply
+        the filter to them.
+
         Falls back to the prior season if the current one is still empty
         (preseason), and returns an empty book if the key is absent or the
         endpoint is unentitled -- callers treat that as "no signal".
         """
         if not self.available():
             return parse_advanced([], {})
-        adv = self._get("/stats/season/advanced", year=season)
+        adv = self._get("/stats/season/advanced", year=season, excludeGarbageTime="true")
         if not isinstance(adv, list) or not adv:
             season -= 1
-            adv = self._get("/stats/season/advanced", year=season)
+            adv = self._get("/stats/season/advanced", year=season, excludeGarbageTime="true")
         if not isinstance(adv, list) or not adv:
             return parse_advanced([], {})
         adv_rows = [r for r in adv if isinstance(r, dict)]

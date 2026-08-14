@@ -39,6 +39,7 @@ import requests
 from cfb_engine.data.cfbd import RatingBook, TeamRating
 from cfb_engine.data.preseason import MAKINEN, TEAMRANKINGS
 from cfb_engine.data.teamnames import school_key
+from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
 
@@ -446,7 +447,7 @@ class EnsembleProvider:
         if cached is not None:
             return cached
         try:
-            resp = requests.get(url, timeout=25, headers={"User-Agent": "payoff-pitch-cfb/1.0"})
+            resp = http.get(url, timeout=25, headers={"User-Agent": "payoff-pitch-cfb/1.0"})
             resp.raise_for_status()
         except requests.RequestException as exc:
             log.warning("ensemble fetch failed (%s): %s", url, exc)

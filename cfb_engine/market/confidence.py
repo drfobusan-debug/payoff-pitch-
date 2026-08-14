@@ -15,6 +15,15 @@ rate are deliberately *excluded* -- they barely autocorrelate, so they are noise
 until proven. Totals lean on the combined-PPA scoring environment (~69% Over
 above average vs ~26% below).
 
+Those cover rates are descriptive, and the distinction turns out to decide the
+layer. Against the *closing spread's residual* -- the only quantity a bet can
+profit from -- none of the metrics survives over 8,009 games (2014-2025): net PPA
+r=+.0035 (t=+0.32), success rate -.0056, explosiveness -.0047, havoc +.0078,
+points-per-opportunity +.0051, and adding the efficiency gap to the spread moves
+R2 by +0.00000. So the support score is computed and *reported* but does not move
+a tier unless ``CFBE_MARK_BUMPS`` is set: a bump built on a null signal is a coin
+flip applied to the tier a bet is sized off.
+
 Caveat: CFBD per-play stats are not opponent-adjusted, so these diffs are noisy
 cross-conference; they are used only as a small tie-breaker on top of the
 already-opponent-adjusted SP+/ensemble rating that sets the number.
@@ -23,7 +32,10 @@ Veto gates encode negative-predictive-value findings: an extreme turnover margin
 is a *regression/fade* signal precisely because it does not repeat (the recovery
 half is a coin flip), a low/high-scoring environment sinks the wrong side of a
 total, and an efficiency blowout makes a points-laying cover structurally
-unlikely.
+unlikely. They stay on because they only ever *remove* a bet, but the last two
+read the same efficiency metrics as the null above and should be the first thing
+the graded season settles; only the turnover gate has a mechanism independent of
+them (fumble recovery does not repeat).
 """
 
 from __future__ import annotations
@@ -156,13 +168,22 @@ def confidence_adjustment(
     sig: MatchupSignal,
     params: MarkingParams,
 ) -> tuple[int, list[str]]:
-    """Tier steps (+1 / 0 / -1) from metric agreement, plus audit reasons."""
+    """Tier steps (+1 / 0 / -1) from metric agreement, plus audit reasons.
+
+    With ``confidence_bumps`` off (the default) the steps are always 0 and the
+    score is returned as a reason only, so the ledger records what the layer
+    *would* have done and the next graded season can settle it.
+    """
     score = _support_score(market, team_side, side, sig, params.ppa_deadband)
     if score >= params.bump_up:
-        return 1, [f"metrics back it (score {score:+.2f})"]
-    if score <= -params.bump_down:
-        return -1, [f"metrics fade it (score {score:+.2f})"]
-    return 0, []
+        step, note = 1, f"metrics back it (score {score:+.2f})"
+    elif score <= -params.bump_down:
+        step, note = -1, f"metrics fade it (score {score:+.2f})"
+    else:
+        return 0, []
+    if not params.confidence_bumps:
+        return 0, [f"{note} [reported, not scored]"]
+    return step, [note]
 
 
 def market_veto(

@@ -135,21 +135,38 @@ class FeatureParams:
 
 @dataclass(frozen=True)
 class EVThresholds:
-    """Expected-value cutoffs (EV per $1 staked) for buy tiers."""
+    """Cutoffs for buy tiers: an EV floor to clear, then edge to rank on."""
 
-    strong_buy: float = field(default_factory=lambda: _env_float("CFBE_EV_STRONG", 0.06))
-    moderate_buy: float = field(default_factory=lambda: _env_float("CFBE_EV_MODERATE", 0.025))
+    # The price has to pay at all at the best number we can bet. Deliberately 0
+    # rather than a margin: ``EV = decimal_odds x edge``, so an EV *margin* is a
+    # cheaper bar the longer the price. The old 0.06 Strong cutoff asked a -400
+    # favourite for 4.8 points of edge and a +300 dog for 1.5, which is how the
+    # MLB engine's Strong tier filled with plus-money dogs and inverted (39.9%
+    # against Moderate's 46.9%). The bar is sized in edge below, not here.
+    min_ev: float = field(default_factory=lambda: _env_float("CFBE_MIN_EV", 0.0))
     # Minimum model edge over the no-vig market price required to buy.
     min_edge: float = field(default_factory=lambda: _env_float("CFBE_MIN_EDGE", 0.02))
+    # Extra edge, in probability points over ``min_edge``, that promotes a buy to
+    # Strong -- price-independent, unlike an EV cutoff.
+    strong_edge_gap: float = field(
+        default_factory=lambda: _env_float("CFBE_EDGE_STRONG_GAP", 0.02)
+    )
+    # Disagreement with the devigged market beyond which the edge reads as model
+    # error rather than a bet. The market is the better forecaster here by a wide
+    # margin -- the closing spread carries r=+.647 against the final margin while
+    # the engine's efficiency gap adds nothing to it -- so a wide departure is
+    # evidence against the sim. 1.0 disables the cap.
+    max_edge: float = field(default_factory=lambda: _env_float("CFBE_MAX_EDGE", 0.08))
     strong_only: bool = field(default_factory=lambda: _env_bool("CFBE_STRONG_ONLY", False))
 
     def for_market(self, market: str) -> EVThresholds:
-        """Per-market thresholds, overridable via ``CFBE_EV_STRONG_<MARKET>`` etc."""
+        """Per-market thresholds, overridable via ``CFBE_MIN_EDGE_<MARKET>`` etc."""
         suffix = market.upper()
         return EVThresholds(
-            strong_buy=_env_float(f"CFBE_EV_STRONG_{suffix}", self.strong_buy),
-            moderate_buy=_env_float(f"CFBE_EV_MODERATE_{suffix}", self.moderate_buy),
+            min_ev=_env_float(f"CFBE_MIN_EV_{suffix}", self.min_ev),
             min_edge=_env_float(f"CFBE_MIN_EDGE_{suffix}", self.min_edge),
+            strong_edge_gap=_env_float(f"CFBE_EDGE_STRONG_GAP_{suffix}", self.strong_edge_gap),
+            max_edge=_env_float(f"CFBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"CFBE_STRONG_ONLY_{suffix}", self.strong_only),
         )
 
@@ -201,6 +218,15 @@ class MarkingParams:
     """
 
     enabled: bool = field(default_factory=lambda: _env_bool("CFBE_MARKING", True))
+    # Whether the support score may actually move a tier. Default off: measured
+    # against what the closing spread missed over 8,009 games (2014-2025), every
+    # metric the score is built from is indistinguishable from noise -- net PPA
+    # r=+.0035 (t=+0.32), success rate -.0056, explosiveness -.0047, havoc
+    # +.0078, points-per-opportunity +.0051, and the gap adds +0.00000 R2 on top
+    # of the spread. The published cover rates the weights came from are real but
+    # descriptive; they are not value over the price. The score is still computed
+    # and printed as a reason so it can be graded before it is trusted.
+    confidence_bumps: bool = field(default_factory=lambda: _env_bool("CFBE_MARK_BUMPS", False))
     # Weighted support score (sum of PPV-weighted agreeing metrics minus
     # disagreeing) needed to move a bet one tier up / down.
     bump_up: float = field(default_factory=lambda: _env_float("CFBE_MARK_BUMP_UP", 0.20))
