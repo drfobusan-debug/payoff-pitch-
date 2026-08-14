@@ -89,6 +89,14 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
+    """A comma-separated override, where an empty value means the empty set."""
+    raw = os.getenv(name)
+    if raw is None:
+        return frozenset(default)
+    return frozenset(part.strip() for part in raw.split(",") if part.strip())
+
+
 # Cumulative-audit false-positive pockets. The model is over-confident on these
 # counting-prop overs (measured PPV well below the ~52.4% breakeven), so a global
 # thin-edge guard still lets marginal, unprofitable buys through. Each must show
@@ -297,14 +305,22 @@ class Config:
     pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", False))
 
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
-    # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
-    # power contact, pull-heavy grounders). Live by default; set
+    # a strong structural anti-singles profile (high K%, fly-ball tilt -- the two
+    # flags that survived the out-of-time fit). Live by default; set
     # MLBE_SINGLES_UNDER=0 to disable, MLBE_SINGLES_UNDER_MIN to retune the score.
     singles_under: bool = field(
         default_factory=lambda: _env_bool("MLBE_SINGLES_UNDER", True)
     )
     singles_under_min: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_MIN", 3.0)
+    )
+    # Score a singles UNDER must show before it is bought. The profile is the
+    # only screen the fade side has, and it is the one thing measured to separate
+    # a paying singles under from a losing one: on the shadow book, buys on a
+    # batter over the strikeout flag went 75.9% for +24.2%, and buys below it
+    # 45.1% for -16.9% (n=29 / 71). 2.0 is the strikeout flag on its own.
+    singles_under_buy_min: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_BUY_MIN", 2.0)
     )
 
     # Opposing-starter SIERA gate on the batter singles/hit market. Since singles
@@ -407,6 +423,42 @@ class Config:
     # model claim: it stops us paying a premium for a read we do not have.
     singles_min_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Player-prop markets that get an under recommendation as well as an over.
+    # Every prop was over-only, so a fade could only ever be a Pass; the
+    # shadow book (1,560 gradeable unders at EV>2%, -0.1%) says the under is
+    # not free money, so it is bet on its own EV like any other side.
+    #
+    # Home runs, doubles and triples are deliberately absent. They are rare
+    # events, so the under is a heavy favourite whose vig swallows any edge,
+    # and after #132/#138 the engine's extra-base numbers are near-flat by
+    # design -- fading them would be betting the prior, not a read.
+    # Shortest price an under may be bought at. A deep favourite has no room:
+    # the graded shadow book returns -2.1% on unders priced worse than -300 and
+    # -0.7% between -300 and -200 (they win 77% and 70%, and still lose), while
+    # -200 to -150 returns +2.0% and plus money +1.9%. It bites hardest on RBI
+    # unders, whose median shadow price was -350 for -10.7%.
+    prop_under_min_price: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_UNDER_MIN_PRICE", -250.0)
+    )
+
+    prop_under_markets: frozenset[str] = field(
+        default_factory=lambda: _env_set(
+            "MLBE_PROP_UNDER_MARKETS",
+            (
+                "batter_h",
+                "batter_1b",
+                "batter_tb",
+                "batter_hrr",
+                "batter_rbi",
+                "pitcher_k",
+                "pitcher_outs",
+                "pitcher_h",
+                "pitcher_bb",
+                "pitcher_er",
+            ),
+        )
     )
 
     # RBI overs are the one market where a conviction floor works: 20.5 of the

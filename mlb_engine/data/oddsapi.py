@@ -428,22 +428,25 @@ class OddsAPIClient:
                     continue
                 opposite = _opposite_prices(mkt.get("outcomes", []))
                 for oc in mkt.get("outcomes", []):
-                    if str(oc.get("name", "")).lower() != "over":
+                    name = str(oc.get("name", "")).lower()
+                    if name not in ("over", "under"):
                         continue
                     price, point, player = oc.get("price"), oc.get("point"), oc.get("description")
                     if price is None or point is None or not player:
                         continue
                     line = float(point)
+                    over = name == "over"
                     selection = (
-                        keys.pitcher_prop(str(player), stat, line) if is_pitcher
-                        else keys.batter_prop(str(player), stat, line)
+                        keys.pitcher_prop(str(player), stat, line, over) if is_pitcher
+                        else keys.batter_prop(str(player), stat, line, over)
                     )
                     out.setdefault((ev.matchup, market, selection), []).append(
                         MarketQuote(
                             book=book,
                             american=float(price),
-                            # The under is not bet, but it is what makes the
-                            # over's fair probability computable.
+                            # The other side of the same line: what makes this
+                            # one's fair probability computable, and -- on the
+                            # markets the engine fades -- a bet in its own right.
                             opposite_american=opposite.get(id(oc)),
                         )
                     )

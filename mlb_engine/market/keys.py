@@ -84,12 +84,12 @@ def f5_rl(abbrev: str, point: float) -> str:
     return f"{abbrev} F5 {_pt(point)}"
 
 
-def batter_prop(name: str, stat: str, line: float) -> str:
-    return f"{name} {stat} o{line}"
+def batter_prop(name: str, stat: str, line: float, over: bool = True) -> str:
+    return f"{name} {stat} {'o' if over else 'u'}{line}"
 
 
-def pitcher_prop(name: str, label: str, line: float) -> str:
-    return f"{name} {label} o{line}"
+def pitcher_prop(name: str, label: str, line: float, over: bool = True) -> str:
+    return f"{name} {label} {'o' if over else 'u'}{line}"
 
 
 # Engine pitcher stat symbol -> label used in the selection string.
