@@ -9,14 +9,19 @@ from mlb_engine.models import baserunning as B
 from mlb_engine.models.markov_f5 import _inning_distribution
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 
+# The league's own rates over the window these tests compare against, on the same
+# basis the engine now uses: per plate appearance that one of the seven can describe.
+# The error is not one of them, so it is out of the denominator here and the run
+# models put it back at ``baserunning.LEAGUE_ROE_RATE``. Leaving the old vector in
+# place would have counted it twice -- once inside this OUT, once added on top.
 LEAGUE = {
-    "1B": 0.1422,
-    "2B": 0.0411,
+    "1B": 0.1430,
+    "2B": 0.0413,
     "3B": 0.0038,
-    "HR": 0.0338,
-    "BB": 0.0967,
-    "K": 0.2221,
-    "OUT": 0.4603,
+    "HR": 0.0340,
+    "BB": 0.0973,
+    "K": 0.2234,
+    "OUT": 0.4572,
 }
 
 
@@ -47,13 +52,20 @@ def test_runs_and_rbi_are_not_identical() -> None:
 def test_league_scoring_is_reproduced() -> None:
     """Fed the league's own plate-appearance rates, the sim scores like the league.
 
-    Measured over 760 games (2026-06-01..07-27): 9.18 runs per game between the
-    two teams. The sim sits a little under, since it models no error-assisted
-    reaching, only error-assisted advancement.
+    Measured over 760 games (2026-06-01..07-27): 9.18 runs per game between the two
+    teams. The band is deliberately wide and this is deliberately *not* the test that
+    decides whether the model is right -- matching an aggregate is what let three
+    canceling advancement errors survive for years, since they were wrong in every
+    base-out state and right on average. The market comparison in the study script is
+    the honest test.
+
+    The upper edge moved with the error: the sim now lands near 9.45, above the
+    league, and that overshoot is real rather than a fixture artifact -- see
+    ``test_the_error_raises_the_run_environment``.
     """
     res = _sim(n=3000)
     total = (res.home_runs_full + res.away_runs_full).mean()
-    assert 8.3 < total < 9.4
+    assert 8.3 < total < 9.7
 
 
 def test_lineup_order_drives_runs_and_rbi() -> None:
@@ -263,3 +275,55 @@ def test_the_double_play_costs_the_chain_runs() -> None:
         return 5 * float((d * np.arange(len(d))).sum())
 
     assert f5(0.0) > f5(0.12) > f5(B.LEAGUE_DP_RATE)
+
+
+def test_the_error_is_not_an_out_and_is_not_a_hit() -> None:
+    """Reaching on an error: batter safe, nobody retired, nothing credited to anyone.
+
+    Every ``if oc == ...`` in the sim's crediting has to miss it. The old bucketer
+    called it an out, which is the one thing it certainly is not.
+    """
+    on_first = 0b001
+    for outs in (0, 1, 2):
+        roe = B.advance_dist(on_first, outs, "ROE", B.LEAGUE_DP_RATE)
+        assert all(no == outs for _, _, no, _ in roe), "an error records no out"
+        # The batter always reaches, so first base is occupied on every branch.
+        assert all(nb & 1 for _, nb, _, _ in roe)
+        assert B.advance_dist(on_first, outs, "1B", B.LEAGUE_DP_RATE) == roe
+
+
+def test_the_error_raises_the_run_environment() -> None:
+    """And it is worth about 2.9%, which is why the kill switch exists.
+
+    The rate is a league constant, so this is not a per-batter effect: it is 0.58%
+    of plate appearances moving out of the out bucket, and turning an out into a
+    man on first is worth roughly 0.7 runs each time.
+    """
+    hot = _inning_distribution(LEAGUE, B.LEAGUE_DP_RATE)
+    hot_runs = float((hot * np.arange(len(hot))).sum())
+
+    saved = B.LEAGUE_ROE_RATE
+    try:
+        B.LEAGUE_ROE_RATE = 0.0  # what MLBE_REACHED_ON_ERROR=0 does
+        cold = _inning_distribution(LEAGUE, B.LEAGUE_DP_RATE)
+        cold_runs = float((cold * np.arange(len(cold))).sum())
+    finally:
+        B.LEAGUE_ROE_RATE = saved
+
+    assert hot_runs > cold_runs
+    assert 0.015 < hot_runs / cold_runs - 1 < 0.05
+
+
+def test_both_run_models_see_the_error() -> None:
+    """The chain and the sampler go through one injection point, so neither can miss it.
+
+    The double play lived in the sampler and not in the chain for exactly as long as
+    there were two copies of the advancement logic (#133).
+    """
+    injected = B.with_roe(LEAGUE)
+    assert injected["ROE"] == B.LEAGUE_ROE_RATE
+    assert sum(injected.values()) == pytest.approx(1.0)
+    assert set(injected) == set(B.OUTCOMES)
+    # The seven arrive conditional on the PA not having been an error, so they are
+    # scaled down rather than renormalized against it: their ratios are untouched.
+    assert injected["1B"] / injected["OUT"] == pytest.approx(LEAGUE["1B"] / LEAGUE["OUT"])

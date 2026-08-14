@@ -33,9 +33,11 @@ from mlb_engine.config import load_config
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OUTCOMES_ORDER,
+    REACHED_ON_ERROR_EVENTS,
     _bucket_counts,
     _pa_rows,
 )
+from mlb_engine.models.baserunning import LEAGUE_ROE_RATE
 
 CACHE_RE = re.compile(r"statcast_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})\.pkl")
 
@@ -66,7 +68,12 @@ def rates(pa_events: pd.Series) -> dict[str, float]:
 def report(pa: pd.DataFrame) -> str:
     L: list[str] = []
     measured = rates(pa["events"])
-    L.append(f"{len(pa):,} plate appearances, {pa.game_date.min()} .. {pa.game_date.max()}\n")
+    kept = int(sum(_bucket_counts(pa["events"]).values()))
+    L.append(f"{len(pa):,} plate appearances, {pa.game_date.min()} .. {pa.game_date.max()}")
+    L.append(
+        f"{kept:,} of them classified; {len(pa) - kept:,} are neither one of the seven "
+        "nor an out\n  (reached on error, and plate appearances the third out cut short)\n"
+    )
     L.append(f"{'':6}{'shipped':>10}{'measured':>10}{'error':>9}{'relative':>10}")
     for k in OUTCOMES_ORDER:
         err = LEAGUE_RATES[k] - measured[k]
@@ -84,10 +91,25 @@ def report(pa: pd.DataFrame) -> str:
         m = rates(g["events"])
         L.append(f"{month:>9}{len(g):9,}" + "".join(f"{m[k]:8.4f}" for k in OUTCOMES_ORDER))
 
+    # The eighth thing that happens, which the seven cannot hold: the batter is safe
+    # and no out is recorded. The run models put it back as a league constant.
+    roe = float(pa["events"].isin(REACHED_ON_ERROR_EVENTS).sum()) / len(pa)
+    L.append(
+        f"\nreached on error {roe:.4%} of plate appearances "
+        f"(shipped {LEAGUE_ROE_RATE:.4%})"
+    )
+
+    # OUT last and as the residual, not as its own rounding. Four decimal places on
+    # seven independent numbers lands 1e-4 off a distribution about half the time,
+    # and the engine asserts normalisation to 1e-9 in several places -- OUT is the
+    # bucket everything unrecognised falls into, so it is the one that should absorb it.
     L.append("\nLEAGUE_RATES = {")
-    for k in OUTCOMES_ORDER:
+    head = [k for k in OUTCOMES_ORDER if k != "OUT"]
+    for k in head:
         L.append(f'    "{k}": {measured[k]:.4f},')
+    L.append(f'    "OUT": {1.0 - sum(round(measured[k], 4) for k in head):.4f},')
     L.append("}")
+    L.append(f"LEAGUE_ROE_RATE = {roe:.4f}")
     return "\n".join(L)
 
 
