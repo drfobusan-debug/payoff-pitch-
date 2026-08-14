@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from cfb_engine.config import MarkingParams
 from cfb_engine.data.advanced import AdvancedBook, TeamAdvanced, parse_advanced
 from cfb_engine.market.confidence import (
@@ -48,12 +50,30 @@ def test_missing_stats_is_a_noop():
     assert market_veto("game_ats", "home", "cover", -7.0, MatchupSignal(), PARAMS).dropped is False
 
 
-def test_efficiency_edge_bumps_the_backed_side_and_fades_the_other():
+def test_efficiency_edge_is_reported_but_does_not_move_a_tier() -> None:
+    """Default is report-only: the metrics add nothing over the closing spread.
+
+    Over 8,009 games none of them predicts what the market missed (net PPA
+    r=+.0035), so a bump would be a coin flip applied to the tier a bet is sized
+    off. The score still prints so the ledger can settle it.
+    """
     home = _team("home", off_ppa=0.35, off_success=0.52, havoc=0.22)
     away = _team("away", off_ppa=0.05, off_success=0.38, havoc=0.09)
     sig = build_signal(_book(home, away), "home", "away")
-    up, _ = confidence_adjustment("game_ml", "home", "win", sig, PARAMS)
-    down, _ = confidence_adjustment("game_ml", "away", "win", sig, PARAMS)
+    up, up_why = confidence_adjustment("game_ml", "home", "win", sig, PARAMS)
+    down, down_why = confidence_adjustment("game_ml", "away", "win", sig, PARAMS)
+    assert up == 0 and down == 0
+    assert "reported, not scored" in up_why[0]
+    assert "reported, not scored" in down_why[0]
+
+
+def test_bumps_still_work_when_explicitly_enabled() -> None:
+    scored = replace(MarkingParams(), confidence_bumps=True)
+    home = _team("home", off_ppa=0.35, off_success=0.52, havoc=0.22)
+    away = _team("away", off_ppa=0.05, off_success=0.38, havoc=0.09)
+    sig = build_signal(_book(home, away), "home", "away")
+    up, _ = confidence_adjustment("game_ml", "home", "win", sig, scored)
+    down, _ = confidence_adjustment("game_ml", "away", "win", sig, scored)
     assert up == 1
     assert down == -1
 

@@ -38,6 +38,7 @@ from cfb_engine.audit.ledger import (
     load_ledger,
     market_metrics,
     overall_metrics,
+    price_bucket_metrics,
     update_ledger,
 )
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
@@ -251,6 +252,7 @@ def _emit_ledger(
     daily = daily_rollup(entries)
     markets = market_metrics(entries)
     clv_rows = clv_summary([(e.category, e.clv, e.clv_ev) for e in entries])
+    price_rows = price_bucket_metrics(entries)
     xlsx = write_ledger_workbook(
         entries,
         overall,
@@ -258,11 +260,20 @@ def _emit_ledger(
         cfg.audit_dir / f"PayoffPitch_CFB_Ledger_{day.isoformat()}.xlsx",
         market_rows=markets,
         clv_rows=clv_rows,
+        price_rows=price_rows,
     )
     print(f"Wrote ledger workbook -> {xlsx}")
     extra = [(xlsx.name, xlsx.read_bytes())]
     generate_audit_report(
-        day, overall, clv_rows, n_graded, cfg, email=email, to=to, extra_attachments=extra
+        day,
+        overall,
+        clv_rows,
+        n_graded,
+        cfg,
+        email=email,
+        to=to,
+        extra_attachments=extra,
+        price_rows=price_rows,
     )
 
 
