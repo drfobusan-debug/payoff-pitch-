@@ -60,6 +60,7 @@ from mlb_engine.features.regression import (
     build_batter_regression,
     build_pitcher_regression,
 )
+from mlb_engine.features.removal import RemovalHazard
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     LEVERAGE_INNING,
@@ -1167,6 +1168,14 @@ class Pipeline:
         away_disc = opponent_discipline_factor(
             statcast, home_ids, slate_date, w.batter_home_away_days
         )
+        # Mid-game removal: which hitter is in the wrong-handed matchup a manager
+        # pinch-hits for. Switch hitters are resolved against the starter's hand,
+        # the same convention the singles-Under profile uses.
+        hazard = RemovalHazard() if self.cfg.removal_hazard else None
+        home_throws = _throws(game.home.probable_pitcher)
+        away_throws = _throws(game.away.probable_pitcher)
+        home_hands = _stand_hands(game.home.lineup, away_throws)
+        away_hands = _stand_hands(game.away.lineup, home_throws)
         home_cfg = TeamSimConfig(
             bat_vs_starter=home_start,
             bat_vs_pen=home_pen,
@@ -1176,6 +1185,9 @@ class Pipeline:
             starter_pitch_cap=home_eff.pitch_cap,
             pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
             gb_dp_rate=home_eff.gb_dp_rate(),
+            bat_hands=home_hands,
+            starter_hand=home_throws,
+            removal_hazard=hazard,
         )
         away_cfg = TeamSimConfig(
             bat_vs_starter=away_start,
@@ -1186,6 +1198,9 @@ class Pipeline:
             starter_pitch_cap=away_eff.pitch_cap,
             pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
             gb_dp_rate=away_eff.gb_dp_rate(),
+            bat_hands=away_hands,
+            starter_hand=away_throws,
+            removal_hazard=hazard,
         )
         res = mc.simulate(home_cfg, away_cfg)
 
@@ -1995,6 +2010,33 @@ def _prev_to_pg(prev):
     if not p:
         return None
     return travel_rest.PrevGame(game_date=d, lat=p.lat, lon=p.lon)
+
+
+def _throws(pitcher) -> str | None:
+    """A probable starter's throwing hand, or None when the board has not said."""
+    if pitcher is None or pitcher.throws is None:
+        return None
+    hand = pitcher.throws.value
+    return hand if hand in ("L", "R") else None
+
+
+def _stand_hands(lineup, opp_throws: str | None) -> tuple[str | None, ...]:
+    """The side each lineup slot bats from tonight.
+
+    A switch hitter has no fixed hand, so he takes the side opposite the starter
+    -- which is also the side that makes him hard to pinch-hit for, and the fit
+    agrees: he is on the platoon-edge hazard, not the wrong-handed one.
+    """
+    out: list[str | None] = []
+    for slot in lineup[:9]:
+        bats = slot.player.bats.value if slot.player.bats else None
+        if bats in ("L", "R"):
+            out.append(bats)
+        elif opp_throws in ("L", "R"):
+            out.append("L" if opp_throws == "R" else "R")
+        else:
+            out.append(None)
+    return tuple(out)
 
 
 def _fnum(x) -> float | None:

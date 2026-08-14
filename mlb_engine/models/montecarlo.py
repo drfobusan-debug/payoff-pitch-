@@ -20,6 +20,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from mlb_engine.features import removal
 from mlb_engine.models import baserunning
 
 OUTCOMES = list(baserunning.OUTCOMES)
@@ -83,6 +84,41 @@ class TeamSimConfig:
     pitch_eff: float = 1.0
     # Probability a ground-ball out turns into a double play (runner on first).
     gb_dp_rate: float = baserunning.LEAGUE_DP_RATE
+    # Batting hand of each lineup slot ("L"/"R", switch hitters already resolved
+    # against the opposing starter). Read only by the removal branch, to decide
+    # whether the slot is walking into the wrong end of a platoon matchup.
+    bat_hands: tuple[str | None, ...] | None = None
+    # Throwing hand of THIS team's starter, and the share of its bullpen's plate
+    # appearances a left-hander throws -- the pitching side of that same matchup,
+    # so they belong to the config of the team on the mound.
+    starter_hand: str | None = None
+    pen_lhp_share: float = removal.PEN_LHP_SHARE
+    # When set, the original occupant of a slot can be lifted mid-game and the
+    # rest of his plate appearances go to a substitute, whose production is not
+    # credited to him. ``None`` keeps the fixed nine batting to the last out.
+    removal_hazard: removal.RemovalHazard | None = None
+    # Outcome rates of whoever replaces him.
+    bat_replacement: dict[str, float] | None = None
+
+
+@dataclass(frozen=True)
+class _Removal:
+    """One offense's removal branch: the hazard, the hands, the replacement."""
+
+    hazard: removal.RemovalHazard
+    hands: tuple[str | None, ...]
+    cdf: np.ndarray
+
+
+def _removal_ctx(team: TeamSimConfig) -> _Removal | None:
+    if team.removal_hazard is None:
+        return None
+    hands = team.bat_hands or (None,) * 9
+    return _Removal(
+        hazard=team.removal_hazard,
+        hands=tuple(hands) + (None,) * max(0, 9 - len(hands)),
+        cdf=_cdf(team.bat_replacement or removal.SUB_RATES),
+    )
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
@@ -159,6 +195,11 @@ class MonteCarlo:
         pitch_count_caps = {"home": home.starter_pitch_cap, "away": away.starter_pitch_cap}
         pitch_eff = {"home": home.pitch_eff, "away": away.pitch_eff}
         gb_dp = {"home": home.gb_dp_rate, "away": away.gb_dp_rate}
+        # Removal is a property of the *batting* team; the hand it is judged
+        # against belongs to the team pitching.
+        rem = {"home": _removal_ctx(home), "away": _removal_ctx(away)}
+        sp_hand = {"home": home.starter_hand, "away": away.starter_hand}
+        pen_lhp = {"home": home.pen_lhp_share, "away": away.pen_lhp_share}
 
         for s in range(n):
             self._sim_one(
@@ -175,6 +216,9 @@ class MonteCarlo:
                 pitch_count_caps,
                 pitch_eff,
                 gb_dp,
+                rem,
+                sp_hand,
+                pen_lhp,
                 home_full,
                 away_full,
                 home_f5,
@@ -208,6 +252,9 @@ class MonteCarlo:
         pitch_count_caps: dict[str, int],
         pitch_eff: dict[str, float],
         gb_dp: dict[str, float],
+        rem: dict[str, _Removal | None],
+        sp_hand: dict[str, str | None],
+        pen_lhp: dict[str, float],
         home_full: np.ndarray,
         away_full: np.ndarray,
         home_f5: np.ndarray,
@@ -221,6 +268,9 @@ class MonteCarlo:
         # batters faced / pitches thrown by each team's starter (drives the hook)
         bf = {"home": 0, "away": 0}
         pitches = {"home": 0.0, "away": 0.0}
+        # Slots whose original occupant has been lifted. A slot is replaced at
+        # most once: the substitute is not himself pinch-hit for.
+        lifted = {"home": [False] * 9, "away": [False] * 9}
 
         def half(team: str, inning: int, walkoff_deficit: int | None = None) -> int:
             """Simulate one half-inning for ``team`` batting. Returns runs.
@@ -258,7 +308,32 @@ class MonteCarlo:
                 # once it is out of hand, the aggregate/mop-up pen finishes.
                 starter_in = bf[pitch_team] < bf_cap and pitches[pitch_team] < pitch_cap
                 close = abs(home_runs - away_runs) <= CLOSE_MARGIN
-                if starter_in:
+                # Is this still his plate appearance? A slot's original occupant
+                # can be lifted for a substitute once the opposing starter is
+                # gone, most often when the arm coming in has his handedness and
+                # he is batting at the bottom of the order. From then on the slot
+                # keeps batting -- the team does not forfeit the turn -- but a
+                # worse bat takes it, and none of it is credited to him.
+                removal_ctx = rem[team]
+                if removal_ctx is not None and not lifted[team][slot]:
+                    hand = (
+                        sp_hand[pitch_team]
+                        if starter_in
+                        else ("L" if rng.random() < pen_lhp[pitch_team] else "R")
+                    )
+                    own = removal_ctx.hands[slot]
+                    p_lift = removal_ctx.hazard.per_pa(
+                        slot=slot + 1,
+                        inning=inning,
+                        starter_out=not starter_in,
+                        same_hand=own is not None and hand is not None and own == hand,
+                    )
+                    if rng.random() < p_lift:
+                        lifted[team][slot] = True
+                his_pa = removal_ctx is None or not lifted[team][slot]
+                if removal_ctx is not None and not his_pa:
+                    cdf = removal_ctx.cdf
+                elif starter_in:
                     cdf = cdf_start[slot]
                 elif close and cdf_pen_bridge is not None and inning < LEVERAGE_INNING:
                     cdf = cdf_pen_bridge[slot]
@@ -271,23 +346,28 @@ class MonteCarlo:
                 bf[pitch_team] += 1
                 ptr[team] = (slot + 1) % 9
 
-                scored, rbi, outs, bases, dp = _apply_pa(oc, slot, outs, bases, dp_rate)
+                # A substitute is tracked as slot + 9 on the bases, so a run he
+                # scores is not credited to the man he replaced.
+                runner = slot if his_pa else slot + 9
+                scored, rbi, outs, bases, dp = _apply_pa(oc, runner, outs, bases, dp_rate)
                 runs += scored
                 free_runs, outs, erased = _free_bases(outs, bases)
                 runs += free_runs
 
                 # batting stats
                 b = bat[team]
-                if oc in ("1B", "2B", "3B", "HR"):
-                    b["H"][s, slot] += 1
-                    b[oc][s, slot] += 1
-                elif oc == "BB":
-                    b["BB"][s, slot] += 1
-                elif oc == "K":
-                    b["K"][s, slot] += 1
-                b["RBI"][s, slot] += rbi
+                if his_pa:
+                    if oc in ("1B", "2B", "3B", "HR"):
+                        b["H"][s, slot] += 1
+                        b[oc][s, slot] += 1
+                    elif oc == "BB":
+                        b["BB"][s, slot] += 1
+                    elif oc == "K":
+                        b["K"][s, slot] += 1
+                    b["RBI"][s, slot] += rbi
                 for runner_slot in scored_runners_holder:
-                    b["R"][s, runner_slot] += 1
+                    if runner_slot < 9:
+                        b["R"][s, runner_slot] += 1
                 scored_runners_holder.clear()
 
                 # pitching stats (attributed to starter only while he's in)
