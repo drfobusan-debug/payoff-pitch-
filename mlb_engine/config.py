@@ -461,6 +461,18 @@ class Config:
         )
     )
 
+    # Let the simulator lift a hitter mid-game instead of batting the same nine
+    # to the last out. The hazard is measured (``features.removal``): 8.6% per
+    # appearance once the opposing starter is gone, 24.2% for a wrong-handed bat
+    # batting 9th, and the substitute who takes over is a worse hitter, so the
+    # branch moves hits and total bases down through lost opportunity rather than
+    # by cutting anyone's rates. Off until the reprice scores it: it changes every
+    # batter number the engine produces, and the live calibration map was fitted
+    # without it.
+    removal_hazard: bool = field(
+        default_factory=lambda: _env_bool("MLBE_REMOVAL_HAZARD", False)
+    )
+
     # RBI overs are the one market where a conviction floor works: 20.5 of the
     # 21.5 units that market lost came from buys under 40% model probability
     # (11 bets under 30% alone lost 61.8% of stake), while everything above the
