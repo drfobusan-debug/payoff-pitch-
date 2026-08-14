@@ -343,10 +343,28 @@ class BatterRegression:
         hr = _clip(hr, 0.50, 1.32)
 
         # --- Extra-base hits (2B/3B) ---
+        # No contact-quality terms. There were three -- xSLG, sweet-spot rate and
+        # bat speed, together worth up to 25% on a hitter's doubles rate -- and
+        # none of them forward-predicts a double. Fitted out of time over 48,120
+        # plate appearances in eight rolling blocks (features from a 42-day
+        # window, outcome the games after it), each is indistinguishable from
+        # zero, alone and beside the others:
+        #
+        #     sweet_spot  -0.024 (p=.26)    bat_speed  -0.014 (p=.51)
+        #     xslg        -0.017 (p=.44)    hard_hit   +0.013 (p=.57)
+        #     xwoba_contact -0.001 (p=.97)  gb_allowed -0.112 (p<.0001)
+        #
+        # and the signs are mostly *negative*: the top third of sweet-spot
+        # hitters collected .0440 of a double per PA against the bottom third's
+        # .0463. This is the same fact #129 measured from the other end -- a
+        # hitter's doubles rate carries 2.8x more spread than his talent and
+        # correlates 0.20 with it -- so contact quality read over six weeks is
+        # sorting noise, and pricing it manufactures exactly the dispersion the
+        # total-bases market has been losing money on.
+        #
+        # What survives is on the arm's side of the matchup (``gb_allowed``, in
+        # ``allowed_multipliers``) and the runner's legs, below.
         xbh = 1.0
-        xbh *= 1.0 + _clip((self.xslg - BL_XSLG) * 0.30, -0.10, 0.12)  # PPV
-        xbh *= 1.0 + _clip((self.sweet_spot - BL_SWEET_SPOT) * 0.60, -0.08, 0.08)  # sensitive
-        xbh *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.006, -0.05, 0.05)  # NPV (blast)
         # Sprint speed belongs here and nowhere else in the power stack: it turns
         # a single into a double and a gap shot into a triple, and does nothing
         # for a home run. Over 2,609 batter-weeks it predicts forward 2B+3B/PA
