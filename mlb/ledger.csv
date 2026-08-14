@@ -67305,8 +67305,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-08,ATH @ BOS,First-5 (F5),f5_total,F5 Over 5.5,5.5,,,,Pass,0.5776,,loss,-1.0,,,,0.6439,,,,,,
 2026-08-08,ATH @ BOS,First-5 (F5),f5_total,F5 Under 4.5,4.5,fanduel,110.0,-144.0,Pass,0.3711,-0.2206,loss,-1.0,,,,0.2606,0.4462,0.3711,,,,
 2026-08-08,ATH @ BOS,First-5 (F5),f5_total,F5 Under 5.5,5.5,,,,Pass,0.4224,,win,0.91,,,,0.3561,,,,,,
-2026-08-08,ATH @ BOS,Moneyline,game_ml,ATH ML,,circa,242.0,,Moderate buy,0.1667,-0.43,win,2.42,,,,0.1475,0.3203,0.1667,,,,
-2026-08-08,ATH @ BOS,Moneyline,game_ml,BOS ML,,williamhill_us,-219.0,199.0,Pass,0.7283,0.0609,loss,-1.0,,,,0.8512,0.6837,0.7283,,,,
+2026-08-08,ATH @ BOS,Moneyline,game_ml,ATH ML,,circa,242.0,,Moderate buy,0.1667,-0.43,win,2.42,,,,0.1475,0.3203,0.1667,-2000.0,0.920708,0.600408,2.148821
+2026-08-08,ATH @ BOS,Moneyline,game_ml,BOS ML,,williamhill_us,-219.0,199.0,Pass,0.7283,0.0609,loss,-1.0,,,,0.8512,0.6837,0.7283,1600.0,0.079292,-0.604408,-0.884502
 2026-08-08,ATH @ BOS,Pitcher Props,pitcher_bb,Gage Jump Walks o1.5,1.5,,,,Pass,0.6218,,win,0.91,,,,0.8263,,,,,,
 2026-08-08,ATH @ BOS,Pitcher Props,pitcher_bb,Gage Jump Walks o2.5,2.5,,,,Pass,0.4281,,loss,-1.0,,,,0.5687,,,,,,
 2026-08-08,ATH @ BOS,Pitcher Props,pitcher_bb,Jake Bennett Walks o1.5,1.5,,,,Pass,0.27,,win,0.91,,,,0.335,,,,,,
@@ -69654,7 +69654,7 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-08,LAA @ MIA,First-5 (F5),f5_total,F5 Over 5.5,5.5,,,,Pass,0.3711,,win,0.91,,,,0.2189,,,,,,
 2026-08-08,LAA @ MIA,First-5 (F5),f5_total,F5 Under 4.5,4.5,fanduel,-130.0,100.0,Strong buy,0.5776,0.0219,loss,-1.0,,,,0.6816,0.5306,0.5776,,,,
 2026-08-08,LAA @ MIA,First-5 (F5),f5_total,F5 Under 5.5,5.5,,,,Pass,0.6159,,loss,-1.0,,,,0.7811,,,,,,
-2026-08-08,LAA @ MIA,Moneyline,game_ml,LAA ML,,williamhill_us,143.0,-153.0,Pass,0.5573,0.3543,loss,-1.0,,,,0.5713,0.414,0.5573,,,,
+2026-08-08,LAA @ MIA,Moneyline,game_ml,LAA ML,,williamhill_us,143.0,-153.0,Pass,0.5573,0.3543,loss,-1.0,,,,0.5713,0.414,0.5573,3300.0,0.375484,-0.038516,-0.087574
 2026-08-08,LAA @ MIA,Moneyline,game_ml,MIA ML,,circa,-147.0,,Pass,0.4404,-0.2601,win,0.6803,,,,0.4263,0.59,0.4404,-145.0,0.624516,0.034516,0.049357
 2026-08-08,LAA @ MIA,Pitcher Props,pitcher_bb,Sandy Alcantara Walks o1.5,1.5,,,,Pass,0.4737,,loss,-1.0,,,,0.6162,,,,,,
 2026-08-08,LAA @ MIA,Pitcher Props,pitcher_bb,Sandy Alcantara Walks o2.5,2.5,,,,Pass,0.2602,,loss,-1.0,,,,0.3237,,,,,,
@@ -70805,7 +70805,7 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-08,TOR @ PHI,Batter Props,batter_h,Nathan Lukes H o0.5,0.5,,,,Pass,0.6206,,win,0.91,,,,0.6575,,,,,,
 2026-08-08,TOR @ PHI,Batter Props,batter_h,Nathan Lukes H o1.5,1.5,draftkings,187.0,-253.0,Pass,0.2428,-0.3033,win,1.87,,,,0.2587,0.3271,0.2428,,,,
 2026-08-08,TOR @ PHI,Batter Props,batter_h,Trea Turner H o0.5,0.5,,,,Pass,0.6677,,win,0.91,,,,0.8163,,,,,,
-2026-08-08,TOR @ PHI,Batter Props,batter_h,Trea Turner H o1.5,1.5,draftkings,183.0,-248.0,Moderate buy,0.3548,0.0042,win,1.83,,,,0.4437,0.3315,0.3548,,,,
+2026-08-08,TOR @ PHI,Batter Props,batter_h,Trea Turner H o1.5,1.5,draftkings,183.0,-248.0,Moderate buy,0.3548,0.0042,win,1.83,,,,0.4437,0.3315,0.3548,-185.0,0.611138,0.279638,0.729521
 2026-08-08,TOR @ PHI,Batter Props,batter_hr,Alec Bohm HR o0.5,0.5,,,,Pass,0.0991,,loss,-1.0,,,,0.0625,,,,,,
 2026-08-08,TOR @ PHI,Batter Props,batter_hr,Alejandro Kirk HR o0.5,0.5,,,,Pass,0.1608,,loss,-1.0,,,,0.1675,,,,,,
 2026-08-08,TOR @ PHI,Batter Props,batter_hr,Andres Gimenez HR o0.5,0.5,,,,Pass,0.1052,,loss,-1.0,,,,0.09,,,,,,
