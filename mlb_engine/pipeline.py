@@ -1159,7 +1159,12 @@ class Pipeline:
         res = mc.simulate(home_cfg, away_cfg)
 
         # F5: non-stationary per-lineup-slot Markov (TTO-aware).
-        f5 = f5_from_lineups(home_start, away_start)
+        f5 = f5_from_lineups(
+            home_start,
+            away_start,
+            home_dp_rate=home_eff.gb_dp_rate(),
+            away_dp_rate=away_eff.gb_dp_rate(),
+        )
 
         ha, aa = game.home.abbrev, game.away.abbrev
         m = game.matchup()

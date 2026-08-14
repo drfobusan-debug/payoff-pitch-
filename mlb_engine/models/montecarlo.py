@@ -20,6 +20,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from mlb_engine.models import baserunning
+
 OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
@@ -72,7 +74,7 @@ class TeamSimConfig:
     # Per-PA pitch-cost scaler (>1 = inefficient / deep counts, <1 = efficient).
     pitch_eff: float = 1.0
     # Probability a ground-ball out turns into a double play (runner on first).
-    gb_dp_rate: float = 0.0
+    gb_dp_rate: float = baserunning.LEAGUE_DP_RATE
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
@@ -299,73 +301,28 @@ class MonteCarlo:
         scored_runners_holder: list[int] = []
 
         def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
-            """Advance runners. Returns (runs, rbi, outs, bases, dp)."""
-            runs = 0
-            rbi = 0
-            if oc == "OUT":
-                # Ground-ball double play: runner on first erased, two outs on
-                # one ball in play (only with a runner on first and <2 outs).
-                if dp_rate > 0.0 and bases[0] >= 0 and outs < 2 and rng.random() < dp_rate:
-                    bases[0] = -1
-                    outs += 2
-                    return 0, 0, outs, bases, True
-                outs += 1
-                return 0, 0, outs, bases, False
-            if oc == "K":
-                outs += 1
-                return 0, 0, outs, bases, False
+            """Advance runners off the shared transition table.
 
-            b2, b1, b0 = bases[2], bases[1], bases[0]  # 3rd, 2nd, 1st
-
-            def score(runner: int) -> None:
-                nonlocal runs, rbi
+            Returns (runs, rbi, outs, bases, dp). The branch is drawn from
+            :func:`baserunning.advance_dist`, the same distribution the F5 Markov
+            chain sums over exactly, so the two run models cannot drift apart.
+            """
+            mask = 0
+            for i, runner in enumerate(bases):
                 if runner >= 0:
-                    runs += 1
-                    rbi += 1
-                    scored_runners_holder.append(runner)
-
-            if oc == "BB":
-                # force advance only
-                if b0 >= 0:
-                    if b1 >= 0:
-                        if b2 >= 0:
-                            score(b2)
-                        b2 = b1
-                    b1 = b0
-                b0 = slot
-            elif oc == "1B":
-                # 3rd & 2nd score, 1st -> 3rd, batter -> 1st
-                score(b2)
-                score(b1)
-                b2 = b0 if b0 >= 0 else -1
-                b1 = -1
-                b0 = slot
-            elif oc == "2B":
-                score(b2)
-                score(b1)
-                if b0 >= 0:
-                    score(b0)
-                b2 = -1
-                b1 = slot
-                b0 = -1
-            elif oc == "3B":
-                score(b2)
-                score(b1)
-                score(b0)
-                b2 = slot
-                b1 = -1
-                b0 = -1
-            elif oc == "HR":
-                score(b2)
-                score(b1)
-                score(b0)
-                runs += 1
-                rbi += 1
-                scored_runners_holder.append(slot)
-                b2 = b1 = b0 = -1
-
-            bases[2], bases[1], bases[0] = b2, b1, b0
-            return runs, rbi, outs, bases, False
+                    mask |= 1 << i
+            new_mask, new_outs, runs, _ = baserunning.sample(
+                mask, outs, oc, dp_rate, rng.random()
+            )
+            order = [bases[2], bases[1], bases[0]]
+            order = [r for r in order if r >= 0] + [slot]
+            placed, scored = baserunning.assign(order, new_mask, runs)
+            bases[0], bases[1], bases[2] = placed
+            scored_runners_holder.extend(scored)
+            # A run driven in by an out is still an RBI; one scored on a strikeout
+            # or a fielding lapse is not, and the table only scores on contact.
+            rbi = runs if oc != "K" else 0
+            return runs, rbi, new_outs, bases, new_outs - outs >= 2
 
         # 9 innings (or more for tie in full game); F5 = first 5.
         away_runs = 0
