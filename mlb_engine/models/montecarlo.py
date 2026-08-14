@@ -21,6 +21,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from mlb_engine.features import removal
+from mlb_engine.features.rolling import LEAGUE_WALK_SHARE_OF_FREE_PASS
 from mlb_engine.models import baserunning
 
 OUTCOMES = list(baserunning.OUTCOMES)
@@ -50,6 +51,10 @@ PITCH_COST = {
     "OUT": 3.3,
     "ROE": 3.3,  # a ball in play, and the pitcher threw the same pitches for it
 }
+
+# A modelled free pass is charged to the starter as a walk only when it is one;
+# see ``rolling.LEAGUE_WALK_SHARE_OF_FREE_PASS``.
+WALK_SHARE_OF_FREE_PASS = LEAGUE_WALK_SHARE_OF_FREE_PASS
 
 # How runners actually move lives in ``baserunning``, measured off the play-by-play
 # feed, and is shared with the F5 Markov chain so the two run models cannot
@@ -378,7 +383,12 @@ class MonteCarlo:
                         p["K"][s] += 1
                     if oc in ("1B", "2B", "3B", "HR"):
                         p["H"][s] += 1
-                    if oc == "BB":
+                    # The BB outcome is a free pass, hit-by-pitch included, which
+                    # is what puts the man on first. The prop settles on walks
+                    # alone, so the free pass is thinned to the league's walk
+                    # share here rather than in the outcome rates. Thinning a
+                    # binomial count is exact in both mean and variance.
+                    if oc == "BB" and rng.random() < WALK_SHARE_OF_FREE_PASS:
                         p["BB"][s] += 1
                     if oc in ("K", "OUT"):
                         p["outs"][s] += 2 if dp else 1

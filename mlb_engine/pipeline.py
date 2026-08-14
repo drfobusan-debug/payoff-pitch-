@@ -1702,14 +1702,27 @@ class Pipeline:
                     )
                 po = p_over(arr, line)
                 for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
+                    # The K buy cap and the thin-starter gate are screens on
+                    # buying the over; neither is a reason to decline an under.
+                    # Walks are the exception: it is the under that is vetoed
+                    # there, and the over is left alone.
+                    side_gate = gate or gate_reason if pside == "over" else None
+                    gate_name = "contact_floor"
+                    if (
+                        pside == "under"
+                        and stat == "BB"
+                        and self.cfg.pitcher_bb_under_gate
+                    ):
+                        side_gate = "walks under vetoed: walk level unvalidated"
+                        # Its own gate name, so the veto's own rows stay gradeable
+                        # and it cannot be confused with the batter contact floor.
+                        gate_name = "bb_under"
                     out.append(self._mk(
                         game, m, "pitcher", f"pitcher_{stat.lower()}",
                         keys.pitcher_prop(pitcher.name, label[stat], line, pside), po,
                         line=line, player_id=pitcher.mlbam_id, stat=stat, side=pside,
                         quotes=quotes,
-                        # The K buy cap and the thin-starter gate are screens on
-                        # buying the over; neither is a reason to decline an under.
-                        gate_reason=(gate or gate_reason) if pside == "over" else None,
+                        gate_reason=side_gate, gate_name=gate_name,
                     ))
         return out
 
@@ -1772,6 +1785,7 @@ class Pipeline:
             rl_signal: RunLineSignal | None = None,
             selector: Selection | None = None,
             gate_reason: str | None = None,
+            gate_name: str = "contact_floor",
             bat_xslg: float | None = None,
             bat_k_pct: float | None = None,
             bat_bb_pct: float | None = None,
@@ -2030,7 +2044,7 @@ class Pipeline:
         # regardless of price (attacks the low-power/whiff-prone false positives).
         if gate_reason is not None and rec.tier != Tier.PASS:
             rec.tier = Tier.PASS
-            rec.pass_gate = "contact_floor"
+            rec.pass_gate = gate_name
             rec.reasons = [gate_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every

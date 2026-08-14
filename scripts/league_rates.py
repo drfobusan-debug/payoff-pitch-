@@ -32,8 +32,10 @@ import pandas as pd
 from mlb_engine.config import load_config
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
+    LEAGUE_WALK_SHARE_OF_FREE_PASS,
     OUTCOMES_ORDER,
     REACHED_ON_ERROR_EVENTS,
+    WALK_EVENTS,
     _bucket_counts,
     _pa_rows,
 )
@@ -97,6 +99,22 @@ def report(pa: pd.DataFrame) -> str:
     L.append(
         f"\nreached on error {roe:.4%} of plate appearances "
         f"(shipped {LEAGUE_ROE_RATE:.4%})"
+    )
+
+    # The BB bucket is a free pass and the walks prop settles on walks alone, so the
+    # share that is a walk is what converts one into the other. Reported per event
+    # because the split is the whole argument: the hit batsman belongs in the bucket
+    # for the run models and not in the count charged to the pitcher.
+    counts = pa["events"].value_counts()
+    free = {e: int(counts.get(e, 0)) for e in sorted(WALK_EVENTS)}
+    total = sum(free.values())
+    L.append("\nThe free pass, by event -- the BB bucket is all three")
+    for event, n in free.items():
+        L.append(f"{event:>16}{n:9,}{n / len(pa):9.4%}")
+    charged = total - free.get("hit_by_pitch", 0)
+    L.append(
+        f"\nwalk share of the free pass {charged / total:.4f} "
+        f"(shipped {LEAGUE_WALK_SHARE_OF_FREE_PASS:.4f}, measured over starts)"
     )
 
     # OUT last and as the residual, not as its own rounding. Four decimal places on
