@@ -89,6 +89,14 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
+    """A comma-separated override, where an empty value means the empty set."""
+    raw = os.getenv(name)
+    if raw is None:
+        return frozenset(default)
+    return frozenset(part.strip() for part in raw.split(",") if part.strip())
+
+
 # Cumulative-audit false-positive pockets. The model is over-confident on these
 # counting-prop overs (measured PPV well below the ~52.4% breakeven), so a global
 # thin-edge guard still lets marginal, unprofitable buys through. Each must show
@@ -407,6 +415,33 @@ class Config:
     # model claim: it stops us paying a premium for a read we do not have.
     singles_min_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Player-prop markets that get an under recommendation as well as an over.
+    # Every prop was over-only, so a fade could only ever be a Pass; the
+    # shadow book (1,560 gradeable unders at EV>2%, -0.1%) says the under is
+    # not free money, so it is bet on its own EV like any other side.
+    #
+    # Home runs, doubles and triples are deliberately absent. They are rare
+    # events, so the under is a heavy favourite whose vig swallows any edge,
+    # and after #132/#138 the engine's extra-base numbers are near-flat by
+    # design -- fading them would be betting the prior, not a read.
+    prop_under_markets: frozenset[str] = field(
+        default_factory=lambda: _env_set(
+            "MLBE_PROP_UNDER_MARKETS",
+            (
+                "batter_h",
+                "batter_1b",
+                "batter_tb",
+                "batter_hrr",
+                "batter_rbi",
+                "pitcher_k",
+                "pitcher_outs",
+                "pitcher_h",
+                "pitcher_bb",
+                "pitcher_er",
+            ),
+        )
     )
 
     # RBI overs are the one market where a conviction floor works: 20.5 of the

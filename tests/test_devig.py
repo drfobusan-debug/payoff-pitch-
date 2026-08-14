@@ -70,11 +70,18 @@ def test_props_pair_over_with_its_own_under() -> None:
         _event(),
         quotes,
     )
-    by_line = {k[2]: v[0] for k, v in quotes.items()}
-    assert len(by_line) == 2
-    half, one_half = (by_line[k] for k in sorted(by_line))
-    assert half.opposite_american == 150.0
-    assert one_half.opposite_american == -280.0
+    by_sel = {k[2]: v[0] for k, v in quotes.items()}
+    # Both sides of both lines are quoted, each paired with the other.
+    assert set(by_sel) == {
+        "Aaron Judge H o0.5",
+        "Aaron Judge H u0.5",
+        "Aaron Judge H o1.5",
+        "Aaron Judge H u1.5",
+    }
+    assert by_sel["Aaron Judge H o0.5"].opposite_american == 150.0
+    assert by_sel["Aaron Judge H u0.5"].opposite_american == -196.0
+    assert by_sel["Aaron Judge H o1.5"].opposite_american == -280.0
+    assert by_sel["Aaron Judge H u1.5"].opposite_american == 220.0
 
 
 def test_run_line_pairs_across_different_points() -> None:

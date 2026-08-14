@@ -548,8 +548,9 @@ def test_oddsapi_maps_game_f5_and_props():
     assert ("MIN @ CLE", "batter_h", "Byron Buxton H o0.5") in q
     assert ("MIN @ CLE", "pitcher_k", "Pablo Lopez Ks o5.5") in q
     assert q[("MIN @ CLE", "game_ml", "MIN ML")][0].american == -130.0
-    # Under-side props are ignored (the engine only prices the over).
-    assert all(not sel.endswith("u0.5") for _, _, sel in q)
+    # The under is quoted too, so the fade side can be recommended.
+    assert ("MIN @ CLE", "batter_h", "Byron Buxton H u0.5") in q
+    assert q[("MIN @ CLE", "batter_h", "Byron Buxton H u0.5")][0].american == 120.0
 
 
 def test_merge_quotes_dedupes_by_book():
