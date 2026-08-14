@@ -1241,6 +1241,33 @@ def test_rates_from_events_sums_to_one():
     assert 0 < r.obp < 1
 
 
+def test_a_free_pass_is_not_an_out():
+    """The intentional walk and catcher's interference put the batter on first.
+
+    Both fell through the bucketer's ``else`` and were counted as outs, and the
+    intentional walk is not spread evenly: it is aimed at the best hitter in the
+    lineup, so the error concentrated on exactly the bats worth pricing. Yordan
+    Alvarez's walk rate over the measured window was 10.8% against a true 15.2%.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["intent_walk", "catcher_interf", "walk", "hit_by_pitch"]))
+    assert counts["BB"] == 4
+    assert counts["OUT"] == 0
+
+
+def test_an_intentional_walk_is_charged_to_the_pitcher_and_interference_is_not():
+    """``WALK_EVENTS`` doubles as a pitcher's walks allowed, where the two differ."""
+    from mlb_engine.features.rolling import FREE_PASS_EVENTS, WALK_EVENTS
+
+    assert "intent_walk" in WALK_EVENTS
+    assert "catcher_interf" not in WALK_EVENTS
+    assert WALK_EVENTS < FREE_PASS_EVENTS
+    assert "catcher_interf" in FREE_PASS_EVENTS
+
+
 def test_np_import_available():
     assert np.array([1, 2, 3]).sum() == 6
 

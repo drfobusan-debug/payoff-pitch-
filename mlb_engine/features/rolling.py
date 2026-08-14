@@ -22,7 +22,16 @@ import pandas as pd
 
 # Event -> outcome bucket.
 HIT_EVENTS = {"single": "1B", "double": "2B", "triple": "3B", "home_run": "HR"}
-WALK_EVENTS = {"walk", "hit_by_pitch"}
+# Walks charged to the pitcher. The intentional walk is one of them, and leaving it
+# out sent it to the bucketer's ``else`` and counted it as an out. It lands on the
+# hitters the engine bets most -- Alvarez, Ohtani, Soto and Schwarber are walked on
+# purpose precisely because they are the ones worth walking -- so the miss was
+# concentrated on the best bats rather than spread thin across the league.
+WALK_EVENTS = {"walk", "hit_by_pitch", "intent_walk"}
+# Reaching first without a hit, an out, or anything the pitcher did. Kept apart from
+# WALK_EVENTS because that set also stands in for a pitcher's walks allowed, and
+# interference is the catcher's doing.
+FREE_PASS_EVENTS = WALK_EVENTS | {"catcher_interf"}
 K_EVENTS = {"strikeout", "strikeout_double_play"}
 
 # Total bases per hit event, and the PA-ending events that are not at-bats
@@ -281,7 +290,7 @@ def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
     for ev in pa_events.dropna():
         if ev in HIT_EVENTS:
             counts[HIT_EVENTS[ev]] += 1
-        elif ev in WALK_EVENTS:
+        elif ev in FREE_PASS_EVENTS:
             counts["BB"] += 1
         elif ev in K_EVENTS:
             counts["K"] += 1
