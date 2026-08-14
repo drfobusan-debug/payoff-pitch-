@@ -34,8 +34,9 @@ def _pa_frame(batter_id: int, hit_rate: float, n: int = 200) -> pd.DataFrame:
 
 
 def test_split_regresses_toward_the_hitter_not_the_league() -> None:
-    # A genuinely poor contact hitter: .120 singles/PA against a .140 league.
+    # A genuinely poor contact hitter: .050 singles/PA against a .1406 league.
     weak = _pa_frame(1, hit_rate=0.05)
+    observed = 0.05  # his own rate, which is what "toward the hitter" has to mean
 
     flat = build_batter_profile(weak, 1, AS_OF, 21, 21, 42, split_prior=False)
     hier = build_batter_profile(weak, 1, AS_OF, 21, 21, 42, split_prior=True)
@@ -44,9 +45,14 @@ def test_split_regresses_toward_the_hitter_not_the_league() -> None:
     # league single rate; the hierarchical prior leaves him near his own level.
     assert flat.home.p_1b > hier.home.p_1b
     assert hier.home.p_1b < LEAGUE_RATES["1B"]
-    assert abs(hier.home.p_1b - hier.overall.p_1b) < abs(
-        flat.home.p_1b - flat.overall.p_1b
-    )
+    # Measured against what he actually did, not against his own shrunk overall.
+    # The latter is how this was written and it could not fail either way: with a
+    # split rate equal to the overall rate, shrinking toward that overall and
+    # shrinking toward the league land *exactly* equidistant either side of it --
+    # 1359/104000 in each direction -- so the assertion was decided by which way the
+    # last bit rounded, and it had been rounding the passing way. Against his own
+    # observed rate the hierarchy is a real effect and a large one.
+    assert abs(hier.home.p_1b - observed) < abs(flat.home.p_1b - observed) / 3
 
 
 def test_hierarchy_widens_the_gap_between_a_good_and_a_bad_bat() -> None:

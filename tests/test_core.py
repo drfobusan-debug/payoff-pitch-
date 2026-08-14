@@ -1241,6 +1241,38 @@ def test_rates_from_events_sums_to_one():
     assert 0 < r.obp < 1
 
 
+def test_the_league_rates_are_a_distribution():
+    assert abs(sum(LEAGUE_RATES.values()) - 1.0) < 1e-9
+    assert all(v > 0 for v in LEAGUE_RATES.values())
+
+
+def test_the_league_rates_are_the_measured_league():
+    """A tripwire on the constants, because no invariant inside the engine can be one.
+
+    ``LEAGUE_RATES`` is the log5 denominator in ``combine``, so a value that is too
+    small inflates that outcome in every matchup on the slate. It sat at BB 0.085
+    against a measured 0.1012 -- walks 18.6% high everywhere, doubles 8.5% light.
+
+    Note what cannot catch this. ``test_combine_normalizes`` asserts that a
+    league-average batter facing a league-average pitcher returns the league, which
+    reads like the right invariant and is vacuous: the batter is *built from*
+    ``LEAGUE_RATES``, so ``b * p / lg`` returns ``lg`` identically for any values at
+    all, right or wrong. ``combine`` was always self-consistent; the constant was
+    wrong, and only the data can say so. Hence a pinned measurement, refittable with
+    ``python -m scripts.league_rates``.
+    """
+    measured = {  # 116,384 PA, 2026-03-25..07-22, the engine's own bucketer
+        "1B": 0.1406,
+        "2B": 0.0413,
+        "3B": 0.0035,
+        "HR": 0.0309,
+        "BB": 0.1012,
+        "K": 0.2211,
+        "OUT": 0.4614,
+    }
+    assert LEAGUE_RATES == measured
+
+
 def test_a_free_pass_is_not_an_out():
     """The intentional walk and catcher's interference put the batter on first.
 
