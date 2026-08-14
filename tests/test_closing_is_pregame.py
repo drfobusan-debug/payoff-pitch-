@@ -105,3 +105,48 @@ def test_first_pitch_exactly_now_counts_as_started() -> None:
     assert not _Event(
         "e", "BOS", "ATH", "b", "o", at + datetime.timedelta(minutes=1)
     ).started(_NOW)
+
+
+def test_a_heavy_favourite_is_not_a_close_on_any_market() -> None:
+    """-2000 is a 91% certainty. Across 7,894 captured closes the most negative was -375.
+
+    This is the Aug 8 ATH @ BOS row: bet at +242, recorded as closing -2000, and it
+    won. That is not a line coming to our side, it is a team leading late.
+    """
+    from mlb_engine.audit.clv import is_plausible_close
+
+    assert not is_plausible_close(-2000.0, "game_ml")
+    assert not is_plausible_close(-2000.0, "batter_hr")
+    assert is_plausible_close(-375.0, "batter_h")
+
+
+def test_a_longshot_prop_closes_at_plus_2600_and_is_kept() -> None:
+    """The bound cannot be symmetric, which is the whole difficulty.
+
+    A weak hitter to homer is honestly +2600, and 46 such closes sit past +1000 with a
+    mean |clv| of 0.003 -- exactly what a real close looks like. A symmetric |1000|
+    rule reads them as in-play and throws away the market the engine is most often
+    priced on. Only a *team* market has no longshot side.
+    """
+    from mlb_engine.audit.clv import is_plausible_close
+
+    assert is_plausible_close(2600.0, "batter_hr")
+    assert is_plausible_close(1150.0, "batter_hr")
+    assert not is_plausible_close(3300.0, "game_ml")
+    assert not is_plausible_close(1600.0, "game_ml")
+
+
+def test_the_guard_cannot_catch_an_in_play_price_that_looks_ordinary() -> None:
+    """Documenting the limit, because a pass here is not a certificate.
+
+    Trea Turner's over closed at -185 on Aug 8 after he already had his hits. The
+    price is an entirely ordinary number and its move, 0.2796, sits 25% past the
+    largest legitimate move of the season (0.2241) -- where a scratched starter can
+    move a hitter's line nearly as far. No threshold separates them, so that row is
+    named by hand in ``scripts/scrub_inplay_closes.py`` and not detected. The real
+    defence is ``pregame_only``; this is the backstop for when the vendor omits a
+    first-pitch stamp.
+    """
+    from mlb_engine.audit.clv import is_plausible_close
+
+    assert is_plausible_close(-185.0, "batter_h")
