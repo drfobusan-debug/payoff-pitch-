@@ -113,6 +113,50 @@ def test_an_over_only_gate_does_not_become_an_under_buy() -> None:
     assert flat.pass_gate == "contact_floor"
 
 
+def test_a_deep_favourite_under_is_refused() -> None:
+    """Shorter than the price floor the fade has nothing to win.
+
+    The shadow book's unders priced worse than -300 won 77% of the time and
+    still returned -2.1%: the payout stops covering the hit rate.
+    """
+    rec = _hits_sides(Config(), 0.22, 260, -320)
+    assert rec.side == "over"  # the under was the edge, the price refused it
+    assert rec.tier is Tier.PASS
+    under = _hits_sides(Config(prop_under_min_price=-1000.0), 0.22, 260, -320)
+    assert under.side == "under"
+    assert under.tier in (Tier.STRONG, Tier.MODERATE)
+
+
+def test_a_singles_under_needs_the_profile() -> None:
+    """The fade's one market-specific screen, on the market it was fitted on."""
+    p = _pipeline(Config())
+    game = SimpleNamespace(game_date="2026-08-01", game_pk=1)
+    quotes = {
+        ("MATCH", "batter_1b", sel): [
+            MarketQuote(book="dk", american=-110.0, opposite_american=-110.0)
+        ]
+        for sel in ("Some Hitter 1B o0.5", "Some Hitter 1B u0.5")
+    }
+
+    def rec(score: float | None):
+        (r,) = p._mk_sides(
+            game, "MATCH", "batter", "batter_1b", "Some Hitter", "1B", 0.45,
+            line=0.5, player_id=7, stat="1B", quotes=quotes,
+            bat_singles_under=score,
+        )
+        return r
+
+    # A strikeout-prone fly-ball bat (the fitted flags) is bettable...
+    assert rec(3.0).side == "under"
+    assert rec(2.0).side == "under"
+    # ...a contact bat is not, and neither is a batter with no profile at all,
+    # so the row that survives is the over's pass rather than a fade.
+    for score in (1.0, 0.0, None):
+        r = rec(score)
+        assert r.tier is Tier.PASS
+        assert r.side == "over"
+
+
 def test_no_under_quote_leaves_the_over() -> None:
     rec = _hits_sides(Config(), 0.45, -110, -110, quote_under=False)
     assert rec.side == "over"

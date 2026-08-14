@@ -1905,6 +1905,31 @@ class Pipeline:
                     gate = "rbi_prob_floor"
                 if rbi_reason:
                     reasons.append(rbi_reason)
+            # The fade's own screens, in place of the over screens it does not
+            # inherit: a price with room to pay, and -- on singles, the only
+            # market where the profile is measured -- the batter shape that
+            # actually fails the line.
+            if under and tier != Tier.PASS:
+                keep, under_reason = price_band_allows(
+                    rec.market_american,
+                    self.cfg.prop_under_min_price,
+                    math.inf,
+                    "under-price-floor",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "under_price_floor"
+                if under_reason:
+                    reasons.append(under_reason)
+            if market == "batter_1b" and under and tier != Tier.PASS:
+                score = bat_singles_under or 0.0
+                if score < self.cfg.singles_under_buy_min:
+                    tier = Tier.PASS
+                    gate = "singles_under_profile"
+                    reasons.append(
+                        f"singles-under profile {score:.1f} < "
+                        f"{self.cfg.singles_under_buy_min:.1f}"
+                    )
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS
