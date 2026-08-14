@@ -139,7 +139,7 @@ from mlb_engine.preview import (
     RegFlag,
     StarterLine,
 )
-from mlb_engine.recommendations import Recommendation
+from mlb_engine.recommendations import Recommendation, enforce_one_buy_per_group
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -503,7 +503,7 @@ class Pipeline:
                 log.info("skip %s: probable pitcher missing", game.matchup())
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
-        return recs
+        return enforce_one_buy_per_group(recs)
 
     @property
     def previews(self) -> list[GamePreview]:
@@ -1249,11 +1249,11 @@ class Pipeline:
                              pen_availability=self._pen_availability(aa)))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
                              line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin < 1.5).mean()),
                              line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, -1.5), float((-margin > 1.5).mean()),
                              line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((-margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((margin > -1.5).mean()),
                              line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
 
         # ---- comeback-resilience flags ----

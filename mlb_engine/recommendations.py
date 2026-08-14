@@ -100,6 +100,17 @@ class Recommendation:
     opta_agrees: bool | None = None
 
     @property
+    def bet_group(self) -> tuple[int, str, int | None]:
+        """The thing being bet, independent of side and line.
+
+        A prop is one opinion, so a player's hit total is one bet whether it is
+        expressed as o0.5 or o1.5, and a run line is one bet whether it is taken
+        as the favourite at -1.5 or the dog at +1.5. Grouping on this is what
+        :func:`enforce_one_buy_per_group` deduplicates.
+        """
+        return (self.game_pk, self.market, self.player_id)
+
+    @property
     def opta_mark(self) -> str:
         """Opta's stars, shown only when it likes the side we are buying."""
         if not self.opta_stars or self.opta_agrees is None:
@@ -157,6 +168,58 @@ class Recommendation:
             "AI": self.opta_mark,
             "Notes": "; ".join(self.reasons),
         }
+
+
+ONE_BUY_GATE = "one_buy_per_group"
+
+
+def enforce_one_buy_per_group(recs: list[Recommendation]) -> list[Recommendation]:
+    """Leave at most one buy per prop: over, under, or pass, never two.
+
+    The pipeline prices every side of every line so the audit can grade the side
+    we declined, which is what makes a gate's false negatives measurable. But a
+    priced row is not a recommendation, and two buys on one prop are never one
+    opinion: both sides of a run line are mutually exclusive and lose the vig
+    with certainty, while a hit total bought at o0.5 *and* o1.5 stakes a single
+    view twice and loses both legs together on an 0-for-4.
+
+    The losing sides stay in the ledger as Passes rather than being dropped, so
+    they are still graded and this rule's own false negatives are visible in the
+    ``pass_gate`` breakdown. Ranking is by edge, matching :mod:`market.tiers`,
+    which ranks on departure from the no-vig price rather than on EV.
+
+    Rows with no price are left alone: the comeback flags carry a tier without
+    being bets, and both teams in a game can honestly be resilient.
+    """
+    best: dict[tuple[int, str, int | None], Recommendation] = {}
+    for r in recs:
+        if not _is_buy(r):
+            continue
+        cur = best.get(r.bet_group)
+        if cur is None or _buy_rank(r) > _buy_rank(cur):
+            best[r.bet_group] = r
+    for r in recs:
+        if not _is_buy(r) or best.get(r.bet_group) is r:
+            continue
+        kept = best[r.bet_group]
+        r.tier = Tier.PASS
+        r.pass_gate = ONE_BUY_GATE
+        r.reasons.append(
+            f"one buy per prop: {kept.selection} is the better side of this market"
+        )
+    return recs
+
+
+def _is_buy(r: Recommendation) -> bool:
+    return r.tier is not Tier.PASS and r.market_american is not None
+
+
+def _buy_rank(r: Recommendation) -> tuple[int, float, float]:
+    return (
+        1 if r.tier is Tier.STRONG else 0,
+        r.edge if r.edge is not None else float("-inf"),
+        r.ev if r.ev is not None else float("-inf"),
+    )
 
 
 def save_json(recs: list[Recommendation], path: Path) -> None:
