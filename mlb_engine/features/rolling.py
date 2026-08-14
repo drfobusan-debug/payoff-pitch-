@@ -111,6 +111,45 @@ OUTCOME_PRIOR_STRENGTH = {
     "K": 48.0,
     "OUT": 68.0,
 }
+
+# The same estimator on the 30 bullpens, whose aggregate is the thinnest sample
+# the engine trusts (a mean 265 relief PA in 21 days). Talent variance across
+# pens is measured from the spread of usage-weighted rest-of-season projections
+# for each team's relief arms and from the pens' own spread net of binomial
+# noise, again taking the lighter shrinkage (``scripts.ros_prior_study pen``):
+#
+#     bucket   talent sd   noise in the window at w=0.82   k
+#     1B         0.0081              0.0174              1834
+#     2B         0.0000              0.0097               cap
+#     3B         0.0000              0.0032               cap
+#     HR         0.0059              0.0079               708
+#     BB         0.0163              0.0151               344
+#     K          0.0268              0.0209               241
+#     OUT        0.0246              0.0250               410
+#
+# Pens are far more alike than hitters -- a pen's strikeout rate varies half as
+# much as a hitter's -- so at a flat 60 PA the vector the simulator receives is
+# mostly sampling error: noise exceeds real spread in every bucket but K and BB.
+#
+# The two extra-base buckets are the sharp result: **across 30 pens, the entire
+# observed spread in doubles and triples allowed is explained by binomial noise**,
+# leaving no measurable talent at all. A pen's own doubles rate over three weeks
+# carries nothing, so it is shrunk effectively to the league pen, which is what
+# the cap expresses.
+#
+# Unlike the hitter case the projection matters here as the *estimator* rather
+# than as a target: pens differ so little that shrinking toward the league pen
+# instead of toward each pen's own projection costs under a point.
+PEN_PRIOR_CAP = 5000.0  # "use the league pen", written as an equivalent-PA weight
+PEN_PRIOR_STRENGTH = {
+    "1B": 1834.0,
+    "2B": PEN_PRIOR_CAP,
+    "3B": PEN_PRIOR_CAP,
+    "HR": 708.0,
+    "BB": 344.0,
+    "K": 241.0,
+    "OUT": 410.0,
+}
 MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
 MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
@@ -228,6 +267,13 @@ def raw_window_counts(
     rows = _slice_dates(_pa_rows(df[df["batter"] == batter_id]), as_of, days)
     counts = _bucket_counts(rows["events"])
     return counts, sum(counts.values())
+
+
+def pa_outcome_counts(frame: pd.DataFrame) -> dict[str, float]:
+    """Outcome counts for any frame of pitch rows, keeping only PA-ending ones."""
+    if frame.empty or "events" not in frame:
+        return dict.fromkeys(OUTCOMES_ORDER, 0.0)
+    return _bucket_counts(_pa_rows(frame)["events"])
 
 
 def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
@@ -733,8 +779,13 @@ def build_bullpen_profile(
     min_inning: int = 6,
     skill_days: int = 0,
     xwoba_shrink: float = 1.0,
+    prior_strength: float | Mapping[str, float] = PRIOR_STRENGTH,
 ) -> BullpenProfile:
     """Aggregate a team's relief corps into rates plus PPV/NPV tripwires.
+
+    ``prior_strength`` accepts one figure per outcome (``PEN_PRIOR_STRENGTH``);
+    the leverage and bridge subsets are thinner still, so they take the same
+    strengths as the aggregate.
 
     ``days`` covers the results-based rates, which are best read recently.
     ``skill_days`` (0 to disable) covers the stuff and command signals, which
@@ -743,7 +794,10 @@ def build_bullpen_profile(
     21, and jointly the longer read carries the weight (+0.68 vs +0.14).
     """
     relief = bullpen_relief_frame(df, team_abbrev, as_of, days, min_inning)
-    allowed = rates_from_events(_pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object))
+    allowed = rates_from_events(
+        _pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object),
+        prior_strength=prior_strength,
+    )
 
     # High-leverage split: rates from the 8th+ relief PAs only, so the closer/
     # setup corps drives the late-and-close matchup instead of the mop-up-diluted
@@ -753,10 +807,10 @@ def build_bullpen_profile(
     if len(relief) and "inning" in relief:
         lev_events = _pa_rows(relief[relief["inning"] >= LEVERAGE_INNING])["events"]
         if len(lev_events) >= MIN_LEVERAGE_PA:
-            allowed_leverage = rates_from_events(lev_events)
+            allowed_leverage = rates_from_events(lev_events, prior_strength=prior_strength)
         bridge_events = _pa_rows(relief[relief["inning"] < LEVERAGE_INNING])["events"]
         if len(bridge_events) >= MIN_BRIDGE_PA:
-            allowed_bridge = rates_from_events(bridge_events)
+            allowed_bridge = rates_from_events(bridge_events, prior_strength=prior_strength)
 
     zone_pct = (
         float(relief["zone"].between(1, 9).mean())

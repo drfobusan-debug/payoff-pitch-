@@ -289,6 +289,13 @@ class Config:
         default_factory=lambda: os.getenv("MLBE_ROS_PRIOR") or None
     )
 
+    # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
+    # three-week sample is thin enough that at the flat 60 PA the pen vector is
+    # mostly binomial noise -- and whose doubles/triples-allowed spread across the
+    # 30 pens is *entirely* noise. Off by default for the same reason as the ROS
+    # prior: it moves every pen-driven probability, so it ships with a refit.
+    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", False))
+
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
     # power contact, pull-heavy grounders). Live by default; set

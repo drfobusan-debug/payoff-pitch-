@@ -50,6 +50,8 @@ from mlb_engine.features.rolling import (
     OUTCOMES_ORDER,
     PRIOR_STRENGTH,
     build_batter_profile,
+    bullpen_relief_frame,
+    pa_outcome_counts,
     raw_window_counts,
     ros_rates_from_projection,
 )
@@ -161,6 +163,103 @@ def cmd_shrink(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_pen(args: argparse.Namespace) -> None:
+    """The same estimator for a bullpen's allowed rates.
+
+    A pen's three-week aggregate is the thinnest sample the engine trusts, so the
+    question is whether a projection should carry it. Talent variance is measured
+    across the 30 pens two ways: the spread of usage-weighted rest-of-season
+    projections for each team's relievers, and the spread of the windows
+    themselves with binomial noise subtracted.
+
+    The pitcher projection publishes H and HR but not 2B or 3B, so hits are
+    treated as one bucket here -- the hit-type shape is not something this feed
+    can prior.
+    """
+    proj = _load(args.pitchers)
+    proj = proj[proj["TBF"] > 0].copy()
+    starter_share = proj["GS"] / proj["G"].replace(0, np.nan)
+    pen = proj[starter_share.fillna(0.0) < args.max_gs_share]
+    pen_rates = []
+    for team, g in pen.groupby("Team"):
+        w = g["TBF"].astype(float)
+        tbf = float(w.sum())
+        if tbf < args.min_tbf:
+            continue
+        pen_rates.append(
+            {
+                "team": team,
+                "tbf": tbf,
+                "H": float((g["H"] - g["HR"]).sum()) / tbf,  # hits that are not HR
+                "HR": float(g["HR"].sum()) / tbf,
+                "BB": float((g["BB"] + g.get("HBP", 0.0)).sum()) / tbf,
+                "K": float(g["SO"].sum()) / tbf,
+            }
+        )
+    ros = pd.DataFrame(pen_rates)
+    print(f"{len(ros)} pens from the projection ({len(pen)} relief arms)")
+
+    df = pd.read_pickle(os.path.expanduser(args.statcast))
+    last = df["game_date"].max()
+    as_of = Date.fromisoformat(args.as_of) if args.as_of else (
+        last if isinstance(last, Date) else last.date()
+    )
+    obs, pas = [], []
+    for team in sorted(set(df["home_team"].dropna()) | set(df["away_team"].dropna())):
+        relief = bullpen_relief_frame(df, str(team), as_of, args.days)
+        if relief.empty:
+            continue
+        counts = pa_outcome_counts(relief)
+        n = sum(counts.values())
+        if n < args.min_pa:
+            continue
+        row = {oc: counts[oc] / n for oc in OUTCOMES_ORDER}
+        row["H"] = (counts["1B"] + counts["2B"] + counts["3B"]) / n
+        obs.append(row)
+        pas.append(n)
+    win = pd.DataFrame(obs)
+    n_bar = float(np.mean(pas))
+    print(f"{len(win)} pens with >= {args.min_pa} relief PA in {args.days} days, mean {n_bar:.0f}")
+
+    print("\n  bucket    p     talent sd (ROS)  talent sd (window)    k (PA)   current")
+    for oc in ("H", *OUTCOMES_ORDER):
+        p = float(win[oc].mean())
+        # The pitcher projection has no 2B/3B, so those buckets have only the
+        # window's own spread to go on.
+        sd_ros = float(ros[oc].std()) if oc in ros else float("nan")
+        var_noise = p * (1.0 - p) / n_bar
+        var_win = max(float(win[oc].var()) - var_noise, 1e-12)
+        var_talent = var_win if np.isnan(sd_ros) else max(sd_ros**2, var_win)
+        k = p * (1.0 - p) / var_talent
+        shown = "     n/a" if np.isnan(sd_ros) else f"{sd_ros:8.4f}"
+        print(
+            f"  {oc:<8} {p:6.3f} {shown:>16} {np.sqrt(var_win):19.4f} {k:9.0f} "
+            f"{PRIOR_STRENGTH:9.0f}"
+        )
+
+    print("\n  what the current weight is actually made of, at the mean window (pp)")
+    print(f"  {'bucket':<8}{'w now':>7}{'w fit':>7}{'noise now':>11}{'noise fit':>11}{'talent':>9}")
+    for oc in ("H", *OUTCOMES_ORDER):
+        p = float(win[oc].mean())
+        var_noise = p * (1.0 - p) / n_bar
+        var_win = max(float(win[oc].var()) - var_noise, 1e-12)
+        sd_ros = float(ros[oc].std()) if oc in ros else float("nan")
+        var_talent = var_win if np.isnan(sd_ros) else max(sd_ros**2, var_win)
+        k = p * (1.0 - p) / var_talent
+        noise_sd = float(np.sqrt(var_noise))
+        w_now, w_fit = n_bar / (n_bar + PRIOR_STRENGTH), n_bar / (n_bar + k)
+        print(
+            f"  {oc:<8}{w_now:7.2f}{w_fit:7.2f}{noise_sd * w_now * 100:11.2f}"
+            f"{noise_sd * w_fit * 100:11.2f}{np.sqrt(var_talent) * 100:9.2f}"
+        )
+    print(
+        "\n  Noise now above the talent column means the pen vector the simulator\n"
+        "  receives is mostly sampling error rather than pen. Where the two talent\n"
+        "  estimates are close, shrinking toward the league pen loses little, so the\n"
+        "  gain is in the weight rather than in the projection as a target."
+    )
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -184,6 +283,21 @@ def main() -> None:
     sh.add_argument("--days", type=int, default=42)
     sh.add_argument("--min-pa", type=int, default=60)
     sh.set_defaults(func=cmd_shrink)
+
+    pen = sub.add_parser("pen", help="the same estimator for bullpen allowed rates")
+    pen.add_argument("--pitchers", required=True, help="FanGraphs ROS pitcher export")
+    pen.add_argument("--statcast", required=True)
+    pen.add_argument("--as-of")
+    pen.add_argument("--days", type=int, default=21)
+    pen.add_argument("--min-pa", type=int, default=100)
+    pen.add_argument("--min-tbf", type=float, default=200.0)
+    pen.add_argument(
+        "--max-gs-share",
+        type=float,
+        default=0.5,
+        help="an arm counts as relief below this share of its games started",
+    )
+    pen.set_defaults(func=cmd_pen)
 
     args = p.parse_args()
     args.func(args)

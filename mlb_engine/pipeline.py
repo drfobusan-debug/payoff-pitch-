@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from datetime import date as Date
 from pathlib import Path
@@ -62,6 +63,8 @@ from mlb_engine.features.regression import (
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     LEVERAGE_INNING,
+    PEN_PRIOR_STRENGTH,
+    PRIOR_STRENGTH,
     OutcomeRates,
     blend_bb_rate,
     blend_hr_rate,
@@ -370,6 +373,9 @@ class Pipeline:
         self._fatigue: dict[int, float | None] = {}
         self._pen_avail: dict[str, float | None] = {}
         self._ros_priors: dict[int, dict[str, float]] = {}
+        self._pen_prior: float | Mapping[str, float] = (
+            PEN_PRIOR_STRENGTH if cfg.pen_shrink else PRIOR_STRENGTH
+        )
         self._splits: dict[tuple[str, str, str], Split] = {}
         self._tails = TailAdjuster()
         self._calibrator = (
@@ -655,6 +661,7 @@ class Pipeline:
             w.bullpen_min_inning,
             skill_days=w.bullpen_skill_days,
             xwoba_shrink=w.bullpen_xwoba_shrink,
+            prior_strength=self._pen_prior,
         )
         # Rates come off the recent window, stuff and command off the longer one.
         bpen_reg = build_pitcher_regression(
@@ -960,6 +967,7 @@ class Pipeline:
                 w.bullpen_min_inning,
                 skill_days=w.bullpen_skill_days,
                 xwoba_shrink=w.bullpen_xwoba_shrink,
+                prior_strength=self._pen_prior,
             )
             pen_xwoba = pen.xwoba_allowed
             pen_k = pen.k_pct if pen.xwoba_allowed is not None else None

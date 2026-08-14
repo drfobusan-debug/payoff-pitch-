@@ -11,8 +11,11 @@ from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OUTCOME_PRIOR_STRENGTH,
     OUTCOMES_ORDER,
+    PEN_PRIOR_STRENGTH,
     build_batter_profile,
+    build_bullpen_profile,
     load_ros_priors,
+    pa_outcome_counts,
     rates_from_events,
     ros_rates_from_projection,
 )
@@ -103,6 +106,61 @@ def test_profile_without_a_projection_is_unchanged() -> None:
     a = build_batter_profile(df, 12345, Date(2026, 8, 13), 21, 21, 42)
     b = build_batter_profile(df, 12345, Date(2026, 8, 13), 21, 21, 42, True, None)
     assert a.overall.as_dict() == b.overall.as_dict()
+
+
+def _relief_frame(events: list[str]) -> pd.DataFrame:
+    """A pen's late-inning relief rows, plus a starter's 1st-inning row to exclude."""
+    rows = [
+        {
+            "game_date": Date(2026, 8, 1),
+            "pitcher": 200,
+            "inning": 7,
+            "inning_topbot": "Top",
+            "events": ev,
+            "batter": 1,
+            "home_team": "NYY",
+            "away_team": "BOS",
+        }
+        for ev in events
+    ]
+    rows.append({**rows[0], "pitcher": 100, "inning": 1, "events": "single"})
+    return pd.DataFrame(rows)
+
+
+def test_pen_counts_ignore_the_starter() -> None:
+    frame = _relief_frame(["double"] * 5 + ["field_out"] * 5)
+    counts = pa_outcome_counts(frame)
+    assert counts["2B"] == 5
+    assert counts["1B"] == 1  # the starter row is in the frame until it is filtered
+
+
+def test_pen_doubles_are_shrunk_to_the_league() -> None:
+    """Across 30 pens the doubles-allowed spread is all noise, so ignore the pen's."""
+    hot = build_bullpen_profile(
+        _relief_frame(["double"] * 40 + ["field_out"] * 60),
+        "NYY",
+        Date(2026, 8, 13),
+        21,
+        prior_strength=PEN_PRIOR_STRENGTH,
+    )
+    # 40 doubles in 100 relief PA, and the read still lands near the league's
+    # rate: nine tenths of the pen's own doubles signal is discarded. It is not
+    # exactly league because each bucket has its own denominator and the vector
+    # is renormalized afterwards, which redistributes a little.
+    assert hot.allowed.p_2b < LEAGUE_RATES["2B"] * 1.3
+    # The strikeout rate is the one bucket a three-week pen read does carry, so a
+    # pen that struck out nobody should still read below league.
+    assert hot.allowed.p_k < LEAGUE_RATES["K"]
+
+
+def test_pen_default_is_the_flat_prior() -> None:
+    frame = _relief_frame(["double"] * 40 + ["field_out"] * 60)
+    flat = build_bullpen_profile(frame, "NYY", Date(2026, 8, 13), 21)
+    fitted = build_bullpen_profile(
+        frame, "NYY", Date(2026, 8, 13), 21, prior_strength=PEN_PRIOR_STRENGTH
+    )
+    assert flat.allowed.p_2b > fitted.allowed.p_2b * 3
+    assert pytest.approx(sum(fitted.allowed.as_dict().values()), abs=1e-9) == 1.0
 
 
 def test_projection_moves_the_hitter_toward_his_own_line() -> None:
