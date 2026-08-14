@@ -20,6 +20,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from mlb_engine.models import baserunning
+
 OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
@@ -47,30 +49,12 @@ PITCH_COST = {
     "OUT": 3.3,
 }
 
-# How runners actually move, measured off the play-by-play feed by
-# ``scripts/baserunning_study.py``. Every one of these was previously hard-coded
-# at certainty: a single sent the runner from first to third and scored anyone
-# from second, a double scored the runner from first, and an out never drove a
-# run in. Since batter_r, batter_rbi and batter_hrr are priced entirely off this
-# conversion of hits into runs, the certainty was not conservative -- it inflated
-# every run-scoring prop and both totals.
-# Measured over 760 games (2026-06-01..07-27): n=2820, 1400 and 788 chances.
-FIRST_TO_THIRD_ON_SINGLE = 0.35
-SCORE_FROM_SECOND_ON_SINGLE = 0.62
-SCORE_FROM_FIRST_ON_DOUBLE = 0.40
-# Ball in play for an out with a runner on third and fewer than two outs: the sac
-# fly and the run-scoring groundout. Roughly a tenth of real RBI arrive this way
-# and the simulator could produce none of them. Measured on 1,217 such outs.
-SCORE_FROM_THIRD_ON_OUT = 0.56
-
-# Bases handed over without a hit, per plate appearance with a runner on: stolen
-# bases, wild pitches, passed balls, balks and errors. Measured 2,424 such
-# advances over 24,762 such plate appearances, of which half moved every runner
-# (wild pitch, passed ball, balk) and half moved one (steal, single error); 287
-# runners were thrown out or picked off.
-FREE_ADVANCE_PER_PA = 0.098
-FREE_ADVANCE_ALL_SHARE = 0.50
-RUNNER_ERASED_PER_PA = 0.012
+# How runners actually move lives in ``baserunning``, measured off the play-by-play
+# feed, and is shared with the F5 Markov chain so the two run models cannot
+# disagree. Re-exported here because the free-bases path below reads them.
+FREE_ADVANCE_PER_PA = baserunning.FREE_ADVANCE_PER_PA
+FREE_ADVANCE_ALL_SHARE = baserunning.FREE_ADVANCE_ALL_SHARE
+RUNNER_ERASED_PER_PA = baserunning.RUNNER_ERASED_PER_PA
 
 
 @dataclass
@@ -97,7 +81,7 @@ class TeamSimConfig:
     # Per-PA pitch-cost scaler (>1 = inefficient / deep counts, <1 = efficient).
     pitch_eff: float = 1.0
     # Probability a ground-ball out turns into a double play (runner on first).
-    gb_dp_rate: float = 0.0
+    gb_dp_rate: float = baserunning.LEAGUE_DP_RATE
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
@@ -373,94 +357,31 @@ class MonteCarlo:
             return runs, outs, False
 
         def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
-            """Advance runners. Returns (runs, rbi, outs, bases, dp)."""
-            runs = 0
-            rbi = 0
-            if oc == "OUT":
-                # Ground-ball double play: runner on first erased, two outs on
-                # one ball in play (only with a runner on first and <2 outs).
-                if dp_rate > 0.0 and bases[0] >= 0 and outs < 2 and rng.random() < dp_rate:
-                    bases[0] = -1
-                    outs += 2
-                    return 0, 0, outs, bases, True
-                # Sac fly / run-scoring groundout: with a runner on third and an
-                # out to spare, the out itself buys a run.
-                if bases[2] >= 0 and outs < 2 and rng.random() < SCORE_FROM_THIRD_ON_OUT:
-                    scored_runners_holder.append(bases[2])
-                    bases[2] = -1
-                    outs += 1
-                    return 1, 1, outs, bases, False
-                outs += 1
-                return 0, 0, outs, bases, False
-            if oc == "K":
-                outs += 1
-                return 0, 0, outs, bases, False
+            """Advance runners off the shared table. Returns (runs, rbi, outs, bases, dp).
 
-            b2, b1, b0 = bases[2], bases[1], bases[0]  # 3rd, 2nd, 1st
-
-            def score(runner: int) -> None:
-                nonlocal runs, rbi
+            The branch is drawn from :func:`baserunning.advance_dist`, the same
+            distribution the F5 Markov chain sums over exactly, so the two run
+            models cannot disagree about what a ground ball does -- which they did
+            while the double play lived here and not in the chain.
+            """
+            mask = 0
+            for i, runner in enumerate(bases):
                 if runner >= 0:
-                    runs += 1
-                    rbi += 1
-                    scored_runners_holder.append(runner)
-
-            if oc == "BB":
-                # force advance only
-                if b0 >= 0:
-                    if b1 >= 0:
-                        if b2 >= 0:
-                            score(b2)
-                        b2 = b1
-                    b1 = b0
-                b0 = slot
-            elif oc == "1B":
-                # Resolved lead runner first: a trailing runner cannot pass the
-                # man ahead of him, so whether first-to-third is even available
-                # depends on where the runner from second stopped.
-                score(b2)
-                held_third = -1
-                if b1 >= 0:
-                    if rng.random() < SCORE_FROM_SECOND_ON_SINGLE:
-                        score(b1)
-                    else:
-                        held_third = b1
-                if b0 >= 0 and held_third < 0 and rng.random() < FIRST_TO_THIRD_ON_SINGLE:
-                    b2 = b0
-                    b1 = -1
-                else:
-                    b2 = held_third
-                    b1 = b0
-                b0 = slot
-            elif oc == "2B":
-                score(b2)
-                score(b1)
-                b2 = -1
-                if b0 >= 0:
-                    if rng.random() < SCORE_FROM_FIRST_ON_DOUBLE:
-                        score(b0)
-                    else:
-                        b2 = b0
-                b1 = slot
-                b0 = -1
-            elif oc == "3B":
-                score(b2)
-                score(b1)
-                score(b0)
-                b2 = slot
-                b1 = -1
-                b0 = -1
-            elif oc == "HR":
-                score(b2)
-                score(b1)
-                score(b0)
-                runs += 1
-                rbi += 1
-                scored_runners_holder.append(slot)
-                b2 = b1 = b0 = -1
-
-            bases[2], bases[1], bases[0] = b2, b1, b0
-            return runs, rbi, outs, bases, False
+                    mask |= 1 << i
+            _, new_mask, new_outs, runs = baserunning.sample(
+                mask, outs, oc, dp_rate, rng.random()
+            )
+            dp = new_outs - outs >= 2
+            # Lead runner first, batter last: nobody passes anybody, so this plus
+            # the new base state settles who scored and who was retired.
+            order = [b for b in (bases[2], bases[1], bases[0]) if b >= 0] + [slot]
+            placed, scored = baserunning.assign(order, new_mask, runs)
+            bases[0], bases[1], bases[2] = placed
+            scored_runners_holder.extend(scored)
+            # A run that scores ahead of the second out of a double play was not
+            # driven in; every other plate-appearance run was.
+            rbi = 0 if dp else runs
+            return runs, rbi, new_outs, bases, dp
 
         # 9 innings (or more for tie in full game); F5 = first 5.
         away_runs = 0

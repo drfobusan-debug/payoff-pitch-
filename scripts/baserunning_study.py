@@ -44,14 +44,30 @@ SIM_ASSUMES = {
 
 @dataclass
 class Tally:
-    """One situation: how often the runner did the thing the sim assumes."""
+    """One situation, split by the out count the batter came to the plate with.
 
-    did: int = 0
-    chances: int = 0
+    Pooling across outs hides the dominant conditioner. A man on second scores on
+    a single 40% of the time with nobody out and 79% with two: with two outs he
+    leaves on contact, with none he cannot afford to be erased. One pooled rate is
+    wrong in both directions at once, so the model indexes these by outs and so
+    does this study.
+    """
+
+    did: list[int] = field(default_factory=lambda: [0, 0, 0])
+    chances: list[int] = field(default_factory=lambda: [0, 0, 0])
+
+    def add(self, outs: int, happened: bool) -> None:
+        self.chances[outs] += 1
+        self.did[outs] += int(happened)
+
+    def rate(self, outs: int) -> float:
+        n = self.chances[outs]
+        return self.did[outs] / n if n else 0.0
 
     @property
-    def rate(self) -> float:
-        return self.did / self.chances if self.chances else 0.0
+    def pooled(self) -> float:
+        n = sum(self.chances)
+        return sum(self.did) / n if n else 0.0
 
 
 @dataclass
@@ -62,6 +78,12 @@ class Study:
     # Ball in play for an out with a runner on 3rd and fewer than 2 outs: the sac
     # fly and the run-scoring groundout, neither of which the sim can produce.
     score_from_third_on_out: Tally = field(default_factory=Tally)
+    # Two outs on one ball in play: the force at second, available only with a man
+    # on first. It was in the simulator and not in the Markov chain.
+    double_play: Tally = field(default_factory=Tally)
+    # The productive out: the runner takes the next base while the batter is retired.
+    second_to_third_on_out: Tally = field(default_factory=Tally)
+    first_to_second_on_out: Tally = field(default_factory=Tally)
     rbi_by_event: Counter[str] = field(default_factory=Counter)
     runs: int = 0
     rbi: int = 0
@@ -211,24 +233,40 @@ def read_game(pbp: dict, st: Study) -> None:
         from_second = next((m for m in moves.values() if m.origin == "2B"), None)
         from_third = next((m for m in moves.values() if m.origin == "3B"), None)
 
+        if outs_at_bat > 2:
+            continue
+
         if event == "single":
             if on_first:
-                st.first_to_third.chances += 1
-                if from_first is not None and from_first.end in ("3B", "score"):
-                    st.first_to_third.did += 1
+                took_third = from_first is not None and from_first.end in ("3B", "score")
+                st.first_to_third.add(outs_at_bat, took_third)
             if on_second:
-                st.score_from_second.chances += 1
-                if from_second is not None and from_second.scored:
-                    st.score_from_second.did += 1
+                st.score_from_second.add(
+                    outs_at_bat, from_second is not None and from_second.scored
+                )
         elif event == "double" and on_first:
-            st.score_from_first.chances += 1
-            if from_first is not None and from_first.scored:
-                st.score_from_first.did += 1
+            st.score_from_first.add(outs_at_bat, from_first is not None and from_first.scored)
 
-        if event in BALL_IN_PLAY_OUTS and on_third and outs_at_bat < 2:
-            st.score_from_third_on_out.chances += 1
-            if from_third is not None and from_third.scored:
-                st.score_from_third_on_out.did += 1
+        if event in BALL_IN_PLAY_OUTS and outs_at_bat < 2:
+            if on_third:
+                st.score_from_third_on_out.add(
+                    outs_at_bat, from_third is not None and from_third.scored
+                )
+            if on_second:
+                st.second_to_third_on_out.add(
+                    outs_at_bat, from_second is not None and from_second.end == "3B"
+                )
+            if on_first:
+                # The feed's out total is the figure after the play, so two outs
+                # recorded on one ball in play is the double play by definition --
+                # more robust than trusting the event name, which misses the
+                # fielder's-choice-plus-tag and the lineout doubling off.
+                turned_two = outs_after - outs_at_bat >= 2
+                st.double_play.add(outs_at_bat, turned_two)
+                if not turned_two:
+                    st.first_to_second_on_out.add(
+                        outs_at_bat, from_first is not None and from_first.end == "2B"
+                    )
 
 
 # Outs on a ball in play: the chance to trade an out for a run. Strikeouts are
@@ -265,18 +303,26 @@ def report(st: Study) -> str:
         f"{st.games} games, {st.plays} plays, {st.runs} runs "
         f"({st.runs / st.games:.2f} per game), {st.rbi} RBI\n"
     )
-    L.append("Runner advancement -- what the sim assumes vs what happened")
-    L.append(f"{'situation':<32}{'real':>8}{'sim':>8}{'n':>8}")
+    L.append("Runner advancement, by the out count the batter came up with")
+    L.append(f"{'situation':<32}{'0 outs':>16}{'1 out':>16}{'2 outs':>16}{'pooled':>9}")
     for label, tally in (
         ("1st->3rd on a single", st.first_to_third),
         ("scores from 2nd on a single", st.score_from_second),
         ("scores from 1st on a double", st.score_from_first),
         ("scores from 3rd on an out", st.score_from_third_on_out),
+        ("2nd->3rd on an out", st.second_to_third_on_out),
+        ("1st->2nd on an out (no DP)", st.first_to_second_on_out),
+        ("two outs on one ball in play", st.double_play),
     ):
-        L.append(
-            f"{label:<32}{tally.rate * 100:7.1f}%{SIM_ASSUMES[label] * 100:7.0f}%"
-            f"{tally.chances:8d}"
-        )
+        cells = ""
+        for outs in (0, 1, 2):
+            n = tally.chances[outs]
+            cells += f"{f'{tally.rate(outs):.3f} (n={n:,})' if n >= 30 else (f'n={n}'):>16}"
+        L.append(f"{label:<32}{cells}{tally.pooled:9.3f}")
+    L.append("")
+    L.append("The rates the sim used to hold at certainty, for comparison:")
+    for label, assumed in SIM_ASSUMES.items():
+        L.append(f"  {label:<32}{assumed:.2f}")
 
     out_rbi = sum(n for ev, n in st.rbi_by_event.items() if ev in OUT_EVENTS)
     L.append("")

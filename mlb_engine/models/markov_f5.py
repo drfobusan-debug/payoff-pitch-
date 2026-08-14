@@ -21,17 +21,9 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from mlb_engine.models.baserunning import LEAGUE_DP_RATE, transitions
 from mlb_engine.models.matchup import apply_multipliers
-from mlb_engine.models.montecarlo import (
-    FIRST_TO_THIRD_ON_SINGLE,
-    FREE_ADVANCE_ALL_SHARE,
-    FREE_ADVANCE_PER_PA,
-    OUTCOMES,
-    RUNNER_ERASED_PER_PA,
-    SCORE_FROM_FIRST_ON_DOUBLE,
-    SCORE_FROM_SECOND_ON_SINGLE,
-    SCORE_FROM_THIRD_ON_OUT,
-)
+from mlb_engine.models.montecarlo import OUTCOMES
 
 RUN_CAP = 20  # max runs tracked per inning
 N_INNINGS = 5
@@ -41,152 +33,6 @@ ON_BASE = ("1B", "2B", "3B", "HR", "BB")
 DEFAULT_TTO_FACTORS = (1.0, 1.03, 1.08, 1.10)
 
 # base state is a 3-bit mask: bit0=1B, bit1=2B, bit2=3B
-
-
-def _advance(base: int, outs: int, oc: str) -> list[tuple[float, int, int, int]]:
-    """Successor states for an outcome from (base, outs), as (prob, base, outs, runs).
-
-    Runners do not advance on command. Held at certainty -- every single scoring
-    the man from second and pushing the man from first to third, every double
-    scoring from first, no out ever driving a run in -- the chain overstates how
-    many of a lineup's hits become runs, which is the whole content of an F5 total
-    and an F5 moneyline. The rates are measured off 760 games of play-by-play; see
-    ``montecarlo`` for the constants and ``scripts/baserunning_study.py`` for the
-    measurement.
-    """
-    on1 = base & 1
-    on2 = (base >> 1) & 1
-    on3 = (base >> 2) & 1
-
-    if oc == "K":
-        return [(1.0, base, outs + 1, 0)]
-
-    if oc == "OUT":
-        # Sac fly / run-scoring groundout, available only with a man on third and
-        # an out to spare.
-        if on3 and outs < 2:
-            held = (on2 << 1) | on1
-            return [
-                (SCORE_FROM_THIRD_ON_OUT, held, outs + 1, 1),
-                (1.0 - SCORE_FROM_THIRD_ON_OUT, base, outs + 1, 0),
-            ]
-        return [(1.0, base, outs + 1, 0)]
-
-    if oc == "BB":
-        runs = 0
-        if on1:
-            if on2:
-                if on3:
-                    runs += 1  # forced in
-                on3 = 1
-            on2 = 1
-        on1 = 1
-        return [(1.0, (on3 << 2) | (on2 << 1) | on1, outs, runs)]
-
-    if oc == "1B":
-        out: list[tuple[float, int, int, int]] = []
-        # The man from second either scores or stops at third, and only if third
-        # is then empty can the man from first take it.
-        second_paths = (
-            [(SCORE_FROM_SECOND_ON_SINGLE, 1, 0), (1.0 - SCORE_FROM_SECOND_ON_SINGLE, 0, 1)]
-            if on2
-            else [(1.0, 0, 0)]
-        )
-        for p2, scored, held_third in second_paths:
-            base_runs = on3 + scored
-            if on1 and not held_third:
-                out.append(
-                    (
-                        p2 * FIRST_TO_THIRD_ON_SINGLE,
-                        (1 << 2) | 1,  # third and first
-                        outs,
-                        base_runs,
-                    )
-                )
-                out.append(
-                    (
-                        p2 * (1.0 - FIRST_TO_THIRD_ON_SINGLE),
-                        (1 << 1) | 1,  # second and first
-                        outs,
-                        base_runs,
-                    )
-                )
-            else:
-                nb = (held_third << 2) | (on1 << 1) | 1
-                out.append((p2, nb, outs, base_runs))
-        return out
-
-    if oc == "2B":
-        runs = on3 + on2
-        if on1:
-            return [
-                (SCORE_FROM_FIRST_ON_DOUBLE, 1 << 1, outs, runs + 1),
-                (1.0 - SCORE_FROM_FIRST_ON_DOUBLE, (1 << 2) | (1 << 1), outs, runs),
-            ]
-        return [(1.0, 1 << 1, outs, runs)]
-
-    if oc == "3B":
-        return [(1.0, 1 << 2, outs, on3 + on2 + on1)]
-
-    # HR
-    return [(1.0, 0, outs, on3 + on2 + on1 + 1)]
-
-
-def _free_bases(base: int, outs: int) -> list[tuple[float, int, int, int]]:
-    """Bases given away between plate appearances, as (prob, base, outs, runs).
-
-    Steals, wild pitches, passed balls, balks and errors. They are what the old
-    certainty on the bases was silently standing in for: remove the certainty
-    without them and the chain scores about half a run a game too few.
-    """
-    if base == 0 or outs >= 3:
-        return [(1.0, base, outs, 0)]
-    on1 = base & 1
-    on2 = (base >> 1) & 1
-    on3 = (base >> 2) & 1
-    out: list[tuple[float, int, int, int]] = []
-
-    # Caught stealing / picked off: the trailing runner is the one who was going.
-    if on1:
-        erased = base & ~1
-    elif on2:
-        erased = base & ~2
-    else:
-        erased = 0
-    out.append((RUNNER_ERASED_PER_PA, erased, outs + 1, 0))
-
-    p_move = (1.0 - RUNNER_ERASED_PER_PA) * FREE_ADVANCE_PER_PA
-    # Wild pitch, passed ball, balk: everybody moves up one.
-    all_up = ((on2 << 2) | (on1 << 1)) & 0b111
-    out.append((p_move * FREE_ADVANCE_ALL_SHARE, all_up, outs, on3))
-    # Steal or a single error: the trailing runner takes the next base if it is
-    # open, otherwise the man ahead of him goes.
-    if on1 and not on2:
-        one_up = (base & ~1) | (1 << 1)
-        runs = 0
-    elif on2 and not on3:
-        one_up = (base & ~2) | (1 << 2)
-        runs = 0
-    elif on3:
-        one_up = base & ~(1 << 2)
-        runs = 1
-    else:
-        one_up, runs = base, 0
-    out.append((p_move * (1.0 - FREE_ADVANCE_ALL_SHARE), one_up, outs, runs))
-    out.append((1.0 - RUNNER_ERASED_PER_PA - p_move, base, outs, 0))
-    return [b for b in out if b[0] > 0]
-
-
-def _transitions(base: int, outs: int, oc: str) -> list[tuple[float, int, int, int]]:
-    """The plate appearance and then the bases given away after it."""
-    out: list[tuple[float, int, int, int]] = []
-    for p_pa, nb, no, runs in _advance(base, outs, oc):
-        if no >= 3:
-            out.append((p_pa, nb, no, runs))
-            continue
-        for p_free, fb, fo, fruns in _free_bases(nb, no):
-            out.append((p_pa * p_free, fb, fo, runs + fruns))
-    return out
 
 
 @dataclass
@@ -209,8 +55,14 @@ class F5Result:
         return _p_margin_gt(self.home_dist, self.away_dist, spread)
 
 
-def _inning_distribution(prob: dict[str, float]) -> np.ndarray:
-    """Exact run distribution for a single half-inning."""
+def _inning_distribution(
+    prob: dict[str, float], dp_rate: float = LEAGUE_DP_RATE
+) -> np.ndarray:
+    """Exact run distribution for a single half-inning.
+
+    ``dp_rate`` is the *pitcher's* double-play rate, since the force is only
+    turned as often as he keeps the ball on the ground.
+    """
     p = np.array([prob[o] for o in OUTCOMES], dtype=float)
     p = p / p.sum()
     # dp[base, outs] = vector over runs-so-far (len RUN_CAP+1)
@@ -232,7 +84,7 @@ def _inning_distribution(prob: dict[str, float]) -> np.ndarray:
                     pr = p[oi]
                     if pr <= 0:
                         continue
-                    for branch_p, nb, no, r in _transitions(base, outs, oc):
+                    for branch_p, nb, no, r in transitions(base, outs, oc, dp_rate):
                         shifted = _shift(mass, r) * (pr * branch_p)
                         if no >= 3:
                             out_dist += shifted
@@ -300,6 +152,7 @@ def _slot_prob_table(
 def team_f5_distribution(
     slots: list[dict[str, float]],
     tto_factors: tuple[float, ...] = DEFAULT_TTO_FACTORS,
+    dp_rate: float = LEAGUE_DP_RATE,
 ) -> np.ndarray:
     """F5 run distribution for a lineup, tracking batting order + TTO across innings."""
     if len(slots) != 9:
@@ -326,7 +179,7 @@ def team_f5_distribution(
                 pr = probs[oi]
                 if pr <= 0:
                     continue
-                for branch_p, nbase, nouts, runs in _transitions(base, outs, oc):
+                for branch_p, nbase, nouts, runs in transitions(base, outs, oc, dp_rate):
                     shifted = _shift(mass, runs) * (pr * branch_p)
                     if nouts >= 3:
                         ninn = inn + 1
@@ -371,15 +224,27 @@ def f5_from_lineups(
     home_slots: list[dict[str, float]],
     away_slots: list[dict[str, float]],
     tto_factors: tuple[float, ...] = DEFAULT_TTO_FACTORS,
+    home_dp_rate: float = LEAGUE_DP_RATE,
+    away_dp_rate: float = LEAGUE_DP_RATE,
 ) -> F5Result:
-    """Non-stationary, per-slot F5 model (preferred)."""
-    home5 = team_f5_distribution(home_slots, tto_factors)
-    away5 = team_f5_distribution(away_slots, tto_factors)
+    """Non-stationary, per-slot F5 model (preferred).
+
+    The rates are named for the pitcher they describe, so each is applied to the
+    lineup facing him: the home offense turns double plays at the away starter's
+    rate.
+    """
+    home5 = team_f5_distribution(home_slots, tto_factors, away_dp_rate)
+    away5 = team_f5_distribution(away_slots, tto_factors, home_dp_rate)
     return _combine(home5, away5)
 
 
-def f5_from_rates(home_pa: dict[str, float], away_pa: dict[str, float]) -> F5Result:
+def f5_from_rates(
+    home_pa: dict[str, float],
+    away_pa: dict[str, float],
+    home_dp_rate: float = LEAGUE_DP_RATE,
+    away_dp_rate: float = LEAGUE_DP_RATE,
+) -> F5Result:
     """Stationary team-average F5 model (independent innings)."""
-    home5 = _convolve_n(_inning_distribution(home_pa), 5)
-    away5 = _convolve_n(_inning_distribution(away_pa), 5)
+    home5 = _convolve_n(_inning_distribution(home_pa, away_dp_rate), 5)
+    away5 = _convolve_n(_inning_distribution(away_pa, home_dp_rate), 5)
     return _combine(home5, away5)
