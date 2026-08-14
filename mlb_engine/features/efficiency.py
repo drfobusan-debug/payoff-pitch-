@@ -39,6 +39,7 @@ import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features.rolling import HIT_EVENTS, WALK_EVENTS
+from mlb_engine.models.baserunning import dp_rate_from_gb
 
 # League baselines (approximate, recalibratable).
 LEAGUE_PPA = 3.9  # pitches per plate appearance
@@ -112,12 +113,14 @@ class PitcherEfficiency:
         return _control_factor(self.whip, self.bb9)
 
     def gb_dp_rate(self) -> float:
-        """Probability a ground-ball out becomes a double play (runner on first).
+        """P(two outs | ball in play for an out, force at second) for this pitcher.
 
-        Scales with the pitcher's GB% around a ~12% league DP-conversion anchor,
-        bounded so no single arm turns two on demand.
+        Measured rather than scaled off an assumed anchor: a ground-ball out with
+        the force on turns two 39.1% of the time and an air out 4.8%, so the rate
+        follows from the pitcher's GB%. The old 12% anchor was little more than
+        half the 20.7% the league actually turns.
         """
-        return _clip(0.12 * (self.gb_pct / BL_GB_PCT), 0.05, 0.22)
+        return _clip(dp_rate_from_gb(self.gb_pct), 0.05, 0.35)
 
 
 # First pitch of a plate appearance is a 0-0 count. Statcast ``type``: S=strike,
