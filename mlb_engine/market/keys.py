@@ -84,12 +84,21 @@ def f5_rl(abbrev: str, point: float) -> str:
     return f"{abbrev} F5 {_pt(point)}"
 
 
-def batter_prop(name: str, stat: str, line: float, over: bool = True) -> str:
-    return f"{name} {stat} {'o' if over else 'u'}{line}"
+def prop_side(side: str) -> str:
+    """Selection-string marker for a prop side.
+
+    ``over`` keeps the historic ``o`` spelling, so every selection already held
+    in the ledger and the closing captures still matches by string.
+    """
+    return "u" if side == "under" else "o"
 
 
-def pitcher_prop(name: str, label: str, line: float, over: bool = True) -> str:
-    return f"{name} {label} {'o' if over else 'u'}{line}"
+def batter_prop(name: str, stat: str, line: float, side: str = "over") -> str:
+    return f"{name} {stat} {prop_side(side)}{line}"
+
+
+def pitcher_prop(name: str, label: str, line: float, side: str = "over") -> str:
+    return f"{name} {label} {prop_side(side)}{line}"
 
 
 # Engine pitcher stat symbol -> label used in the selection string.

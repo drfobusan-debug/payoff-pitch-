@@ -139,7 +139,7 @@ from mlb_engine.preview import (
     RegFlag,
     StarterLine,
 )
-from mlb_engine.recommendations import Recommendation
+from mlb_engine.recommendations import Recommendation, enforce_one_buy_per_group
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -503,7 +503,7 @@ class Pipeline:
                 log.info("skip %s: probable pitcher missing", game.matchup())
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
-        return recs
+        return enforce_one_buy_per_group(recs)
 
     @property
     def previews(self) -> list[GamePreview]:
@@ -1249,11 +1249,11 @@ class Pipeline:
                              pen_availability=self._pen_availability(aa)))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
                              line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin < 1.5).mean()),
                              line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, -1.5), float((-margin > 1.5).mean()),
                              line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((-margin > -1.5).mean()),
+        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((margin > -1.5).mean()),
                              line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
 
         # ---- comeback-resilience flags ----
@@ -1265,7 +1265,7 @@ class Pipeline:
         for line in (7.5, 8.5, 9.5, 10.5):
             recs.append(self._mk(game, m, "game", "game_total", keys.game_total(True, line), p_over(total, line),
                                  line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), 1 - p_over(total, line),
+            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), p_over(total, line),
                                  line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- F5 markets ----
@@ -1278,7 +1278,7 @@ class Pipeline:
             po = f5.p_total_over(line)
             recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(True, line), po,
                                  line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), 1 - po,
+            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), po,
                                  line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(ha, -0.5), f5.p_home_cover(0.5),
                              line=-0.5, team_side="home", side="cover", quotes=quotes, gate_reason=game_sp_thin))
@@ -1626,12 +1626,15 @@ class Pipeline:
                     context=context, platoon_disadvantage=platoon_bad,
                 )
                 for line in sl:
-                    out.extend(self._mk_sides(
-                        game, m, "batter", f"batter_{stat.lower()}",
-                        name, stat, p_over(arr, line),
-                        line=line, player_id=pid, stat=stat, quotes=quotes,
-                        selector=sel, gate_reason=gate, **feat,
-                    ))
+                    po = p_over(arr, line)
+                    for pside in self._prop_sides(f"batter_{stat.lower()}"):
+                        out.append(self._mk(
+                            game, m, "batter", f"batter_{stat.lower()}",
+                            keys.batter_prop(name, stat, line, pside), po,
+                            line=line, player_id=pid, stat=stat, side=pside, quotes=quotes,
+                            selector=sel, gate_reason=gate if pside == "over" else None,
+                            **feat,
+                        ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(
                 breg, su, opp_siera, "HRR", slot=i + 1,
@@ -1640,11 +1643,15 @@ class Pipeline:
             hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
-                out.extend(self._mk_sides(
-                    game, m, "batter", "batter_hrr", name, "H+R+RBI", p_over(hrr, line),
-                    line=line, player_id=pid, stat="HRR", quotes=quotes,
-                    gate_reason=hrr_gate, hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
-                ))
+                po = p_over(hrr, line)
+                for pside in self._prop_sides("batter_hrr"):
+                    out.append(self._mk(
+                        game, m, "batter", "batter_hrr",
+                        keys.batter_prop(name, "H+R+RBI", line, pside), po,
+                        line=line, player_id=pid, stat="HRR", side=pside, quotes=quotes,
+                        gate_reason=hrr_gate if pside == "over" else None,
+                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
+                    ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
@@ -1653,11 +1660,15 @@ class Pipeline:
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
             tb_gate = self._tb_gate_reason(breg, tb_sel, opp_contact)
             for line in (1.5, 2.5, 3.5):
-                out.extend(self._mk_sides(
-                    game, m, "batter", "batter_tb", name, "TB", p_over(tb, line),
-                    line=line, player_id=pid, stat="TB", quotes=quotes,
-                    selector=tb_sel_out, gate_reason=tb_gate, **feat,
-                ))
+                po = p_over(tb, line)
+                for pside in self._prop_sides("batter_tb"):
+                    out.append(self._mk(
+                        game, m, "batter", "batter_tb",
+                        keys.batter_prop(name, "TB", line, pside), po,
+                        line=line, player_id=pid, stat="TB", side=pside, quotes=quotes,
+                        selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
+                        **feat,
+                    ))
         return out
 
     def _pitcher_props(self, game, m, res, team_key, pitcher, quotes, gate_reason=None):
@@ -1674,16 +1685,17 @@ class Pipeline:
                         f"pitcher_k o{line} above buy cap "
                         f"{self.cfg.pitcher_k_max_buy_line}"
                     )
-                out.extend(self._mk_sides(
-                    game, m, "pitcher", f"pitcher_{stat.lower()}",
-                    pitcher.name, label[stat], p_over(arr, line),
-                    line=line, player_id=pitcher.mlbam_id, stat=stat, quotes=quotes,
-                    gate_reason=gate or gate_reason,
-                    # A starter with too little Statcast to project is unbettable
-                    # in both directions; the K-line buy cap is a claim about the
-                    # over only, so it does not travel to the under.
-                    both_sides_gate=gate_reason,
-                ))
+                po = p_over(arr, line)
+                for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
+                    out.append(self._mk(
+                        game, m, "pitcher", f"pitcher_{stat.lower()}",
+                        keys.pitcher_prop(pitcher.name, label[stat], line, pside), po,
+                        line=line, player_id=pitcher.mlbam_id, stat=stat, side=pside,
+                        quotes=quotes,
+                        # The K buy cap and the thin-starter gate are screens on
+                        # buying the over; neither is a reason to decline an under.
+                        gate_reason=(gate or gate_reason) if pside == "over" else None,
+                    ))
         return out
 
     def _thin_starter_reason(self, name: str, pitches: int) -> str | None:
@@ -1727,41 +1739,18 @@ class Pipeline:
             self.cfg.pitcher_outs_bias_max_prob,
         )
 
-    def _mk_sides(self, game, matchup, category, market, player, label, prob_over, *,
-                  line, both_sides_gate: str | None = None, **kw) -> list[Recommendation]:
-        """The one recommendation a prop line gets: its over, its under, or a pass.
+    def _prop_sides(self, market: str) -> tuple[str, ...]:
+        """The sides of a prop worth pricing.
 
-        Both sides are priced, then a single row survives -- whichever is a buy,
-        the better-priced one if both somehow are, and the over when neither is,
-        so the Pass rows and the NPV-gate counts stay comparable with every slate
-        already graded.
-
-        The under is the *complement of the same calibrated number* rather than a
-        separately calibrated one: the isotonic maps are fitted on over rows, so
-        applying one to ``1 - p`` would read the correction backwards, and two
-        independent numbers could disagree about the same line. It is priced
-        against the book's own under quote and has to clear the same EV floor,
-        thin-edge and edge-ceiling screens.
-
-        Over-only screens do not travel. A gate that says "do not buy this over"
-        is not evidence for the under -- it was fitted on over rows -- so the
-        under carries only gates about the *inputs* (``both_sides_gate``), and
-        starts life with no market-specific screen of its own.
+        Rare-event lines are priced over-only. Their under is a heavy favourite
+        -- a home-run under is around -600 -- so the vig eats an edge the model
+        would need to be far sharper than it is to find, and the doubles number
+        is now deliberately near-flat (#132/#138), which makes a fade there a bet
+        on the prior rather than on the hitter.
         """
-        key = keys.pitcher_prop if category == "pitcher" else keys.batter_prop
-        over = self._mk(
-            game, matchup, category, market, key(player, label, line),
-            prob_over, line=line, side="over", **kw,
-        )
-        if market not in self.cfg.prop_under_markets:
-            return [over]
-        under = self._mk(
-            game, matchup, category, market, key(player, label, line, False),
-            prob_over, line=line, side="under", under=True,
-            gate_reason=both_sides_gate,
-            **{k: v for k, v in kw.items() if k != "gate_reason"},
-        )
-        return [_better_side(over, under)]
+        if market in self.cfg.prop_under_markets:
+            return ("over", "under")
+        return ("over",)
 
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
@@ -1777,8 +1766,8 @@ class Pipeline:
             hrr_xslg: float | None = None,
             pen_fatigue: float | None = None,
             opp_pen_fatigue: float | None = None,
-            pen_availability: float | None = None,
-            under: bool = False) -> Recommendation:
+            pen_availability: float | None = None) -> Recommendation:
+        under = side == "under"
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
@@ -1787,10 +1776,12 @@ class Pipeline:
             calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
-        # ``prob`` is always the over. Every calibration and bias correction is
-        # fitted on over rows, so they are applied on that scale and the under
-        # is taken as the complement afterwards.
-        if under:
+        if side == "under":
+            # Callers hand every prop its P(over), because that is the scale the
+            # calibration map, the outs bias and the H+R+RBI shrink were all fit
+            # on. Complementing afterwards keeps a prop one opinion expressed two
+            # ways: the two sides sum to 1 by construction, so the engine can
+            # never hold contradictory probabilities for the same line.
             raw, calibrated = 1.0 - raw, 1.0 - calibrated
         rec = Recommendation(
             game_date=game.game_date,
@@ -2034,22 +2025,6 @@ class Pipeline:
             rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
         return rec
-
-
-def _better_side(over: Recommendation, under: Recommendation) -> Recommendation:
-    """The one side of a prop line to recommend.
-
-    A buy beats a pass, and between two buys the larger expected value wins --
-    which happens only when the two prices leave a gap the vig usually closes,
-    so it is a line-shopping decision rather than a model one. With neither side
-    bettable the over is kept: it is the row the ledger has always carried, and
-    its ``pass_gate`` is what the NPV audit grades.
-    """
-    if under.tier == Tier.PASS:
-        return over
-    if over.tier == Tier.PASS:
-        return under
-    return under if (under.ev or 0.0) > (over.ev or 0.0) else over
 
 
 def _prev_to_pg(prev):

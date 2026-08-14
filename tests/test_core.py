@@ -548,7 +548,8 @@ def test_oddsapi_maps_game_f5_and_props():
     assert ("MIN @ CLE", "batter_h", "Byron Buxton H o0.5") in q
     assert ("MIN @ CLE", "pitcher_k", "Pablo Lopez Ks o5.5") in q
     assert q[("MIN @ CLE", "game_ml", "MIN ML")][0].american == -130.0
-    # The under is quoted too, so the fade side can be recommended.
+    # Both sides of a prop are priced, so a prop can be passed on its merits
+    # rather than for want of a price on the side the model prefers.
     assert ("MIN @ CLE", "batter_h", "Byron Buxton H u0.5") in q
     assert q[("MIN @ CLE", "batter_h", "Byron Buxton H u0.5")][0].american == 120.0
 

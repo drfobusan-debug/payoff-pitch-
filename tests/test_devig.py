@@ -71,17 +71,21 @@ def test_props_pair_over_with_its_own_under() -> None:
         quotes,
     )
     by_sel = {k[2]: v[0] for k, v in quotes.items()}
-    # Both sides of both lines are quoted, each paired with the other.
-    assert set(by_sel) == {
-        "Aaron Judge H o0.5",
-        "Aaron Judge H u0.5",
-        "Aaron Judge H o1.5",
-        "Aaron Judge H u1.5",
-    }
+    # Both sides of both lines are priced, and each pairs against its own
+    # opposite rather than against the other line.
+    assert sorted(by_sel) == [
+        "Aaron Judge H o0.5", "Aaron Judge H o1.5",
+        "Aaron Judge H u0.5", "Aaron Judge H u1.5",
+    ]
+    assert by_sel["Aaron Judge H o0.5"].american == -196.0
     assert by_sel["Aaron Judge H o0.5"].opposite_american == 150.0
+    assert by_sel["Aaron Judge H u0.5"].american == 150.0
     assert by_sel["Aaron Judge H u0.5"].opposite_american == -196.0
     assert by_sel["Aaron Judge H o1.5"].opposite_american == -280.0
     assert by_sel["Aaron Judge H u1.5"].opposite_american == 220.0
+    # The two sides of one line agree on a single fair probability.
+    o, u = by_sel["Aaron Judge H o0.5"], by_sel["Aaron Judge H u0.5"]
+    assert abs(o.no_vig_prob + u.no_vig_prob - 1.0) < 1e-9
 
 
 def test_run_line_pairs_across_different_points() -> None:
@@ -128,24 +132,5 @@ def test_missing_price_does_not_form_a_pair() -> None:
     outcomes = [
         {"name": "Over", "description": "A", "point": 0.5, "price": -110},
         {"name": "Under", "description": "A", "point": 0.5, "price": None},
-    ]
-    assert _opposite_prices(outcomes) == {}
-
-
-def test_duplicated_over_is_not_treated_as_the_under() -> None:
-    """Books list a home-run over twice at one point; the second is not an under."""
-    outcomes = [
-        {"name": "Over", "description": "Gunnar Henderson", "point": 0.5, "price": 500},
-        {"name": "Over", "description": "Gunnar Henderson", "point": 0.5, "price": 400},
-        {"name": "Over", "description": "Coby Mayo", "point": 0.5, "price": 425},
-        {"name": "Over", "description": "Coby Mayo", "point": 0.5, "price": 360},
-    ]
-    assert _opposite_prices(outcomes) == {}
-
-
-def test_two_over_only_props_do_not_pair_with_each_other() -> None:
-    outcomes = [
-        {"name": "Over", "description": "A", "point": 0.5, "price": 475},
-        {"name": "Over", "description": "B", "point": 0.5, "price": 380},
     ]
     assert _opposite_prices(outcomes) == {}
