@@ -137,3 +137,21 @@ def test_the_two_sides_of_a_run_line_are_complements(margins: np.ndarray) -> Non
     assert away_fav + home_dog == pytest.approx(1.0)
     # and the bug's signature: same-team pairs must NOT be complements
     assert home_fav + home_dog != pytest.approx(1.0)
+
+
+def test_over_and_under_of_one_prop_cannot_both_be_bought() -> None:
+    """Now that both sides are priced, this is the rule that keeps a prop one
+    opinion: over, under, or pass, never over *and* under."""
+    over = _rec(
+        "batter_h", "Aaron Judge H o1.5", line=1.5, player_id=592450, edge=0.03
+    )
+    under = _rec(
+        "batter_h", "Aaron Judge H u1.5", line=1.5, player_id=592450, edge=0.06
+    )
+    out = enforce_one_buy_per_group([over, under])
+    buys = [r for r in out if r.tier is not Tier.PASS]
+    assert [r.selection for r in buys] == ["Aaron Judge H u1.5"]
+    assert over.tier is Tier.PASS
+    assert over.pass_gate == ONE_BUY_GATE
+    # The declined side stays in the ledger so this rule is itself auditable.
+    assert over in out

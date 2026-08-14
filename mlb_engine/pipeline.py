@@ -1265,7 +1265,7 @@ class Pipeline:
         for line in (7.5, 8.5, 9.5, 10.5):
             recs.append(self._mk(game, m, "game", "game_total", keys.game_total(True, line), p_over(total, line),
                                  line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), 1 - p_over(total, line),
+            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), p_over(total, line),
                                  line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- F5 markets ----
@@ -1278,7 +1278,7 @@ class Pipeline:
             po = f5.p_total_over(line)
             recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(True, line), po,
                                  line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), 1 - po,
+            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), po,
                                  line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
         recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(ha, -0.5), f5.p_home_cover(0.5),
                              line=-0.5, team_side="home", side="cover", quotes=quotes, gate_reason=game_sp_thin))
@@ -1626,12 +1626,15 @@ class Pipeline:
                     context=context, platoon_disadvantage=platoon_bad,
                 )
                 for line in sl:
-                    out.append(self._mk(
-                        game, m, "batter", f"batter_{stat.lower()}",
-                        keys.batter_prop(name, stat, line), p_over(arr, line),
-                        line=line, player_id=pid, stat=stat, side="over", quotes=quotes,
-                        selector=sel, gate_reason=gate, **feat,
-                    ))
+                    po = p_over(arr, line)
+                    for pside in ("over", "under"):
+                        out.append(self._mk(
+                            game, m, "batter", f"batter_{stat.lower()}",
+                            keys.batter_prop(name, stat, line, pside), po,
+                            line=line, player_id=pid, stat=stat, side=pside, quotes=quotes,
+                            selector=sel, gate_reason=gate if pside == "over" else None,
+                            **feat,
+                        ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(
                 breg, su, opp_siera, "HRR", slot=i + 1,
@@ -1640,11 +1643,15 @@ class Pipeline:
             hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
-                out.append(self._mk(
-                    game, m, "batter", "batter_hrr", f"{name} H+R+RBI o{line}", p_over(hrr, line),
-                    line=line, player_id=pid, stat="HRR", side="over", quotes=quotes,
-                    gate_reason=hrr_gate, hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
-                ))
+                po = p_over(hrr, line)
+                for pside in ("over", "under"):
+                    out.append(self._mk(
+                        game, m, "batter", "batter_hrr",
+                        keys.batter_prop(name, "H+R+RBI", line, pside), po,
+                        line=line, player_id=pid, stat="HRR", side=pside, quotes=quotes,
+                        gate_reason=hrr_gate if pside == "over" else None,
+                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
+                    ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
@@ -1653,11 +1660,15 @@ class Pipeline:
             tb_sel_out = self._selection_for_stat("TB", sels[i]) if i < len(sels) else None
             tb_gate = self._tb_gate_reason(breg, tb_sel, opp_contact)
             for line in (1.5, 2.5, 3.5):
-                out.append(self._mk(
-                    game, m, "batter", "batter_tb", f"{name} TB o{line}", p_over(tb, line),
-                    line=line, player_id=pid, stat="TB", side="over", quotes=quotes,
-                    selector=tb_sel_out, gate_reason=tb_gate, **feat,
-                ))
+                po = p_over(tb, line)
+                for pside in ("over", "under"):
+                    out.append(self._mk(
+                        game, m, "batter", "batter_tb",
+                        keys.batter_prop(name, "TB", line, pside), po,
+                        line=line, player_id=pid, stat="TB", side=pside, quotes=quotes,
+                        selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
+                        **feat,
+                    ))
         return out
 
     def _pitcher_props(self, game, m, res, team_key, pitcher, quotes, gate_reason=None):
@@ -1674,12 +1685,17 @@ class Pipeline:
                         f"pitcher_k o{line} above buy cap "
                         f"{self.cfg.pitcher_k_max_buy_line}"
                     )
-                out.append(self._mk(
-                    game, m, "pitcher", f"pitcher_{stat.lower()}",
-                    keys.pitcher_prop(pitcher.name, label[stat], line), p_over(arr, line),
-                    line=line, player_id=pitcher.mlbam_id, stat=stat, side="over", quotes=quotes,
-                    gate_reason=gate or gate_reason,
-                ))
+                po = p_over(arr, line)
+                for pside in ("over", "under"):
+                    out.append(self._mk(
+                        game, m, "pitcher", f"pitcher_{stat.lower()}",
+                        keys.pitcher_prop(pitcher.name, label[stat], line, pside), po,
+                        line=line, player_id=pitcher.mlbam_id, stat=stat, side=pside,
+                        quotes=quotes,
+                        # The K buy cap and the thin-starter gate are screens on
+                        # buying the over; neither is a reason to decline an under.
+                        gate_reason=(gate or gate_reason) if pside == "over" else None,
+                    ))
         return out
 
     def _thin_starter_reason(self, name: str, pitches: int) -> str | None:
@@ -1746,6 +1762,13 @@ class Pipeline:
             calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
+        if side == "under":
+            # Callers hand every prop its P(over), because that is the scale the
+            # calibration map, the outs bias and the H+R+RBI shrink were all fit
+            # on. Complementing afterwards keeps a prop one opinion expressed two
+            # ways: the two sides sum to 1 by construction, so the engine can
+            # never hold contradictory probabilities for the same line.
+            raw, calibrated = 1.0 - raw, 1.0 - calibrated
         rec = Recommendation(
             game_date=game.game_date,
             game_pk=game.game_pk,

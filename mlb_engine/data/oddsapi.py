@@ -428,22 +428,21 @@ class OddsAPIClient:
                     continue
                 opposite = _opposite_prices(mkt.get("outcomes", []))
                 for oc in mkt.get("outcomes", []):
-                    if str(oc.get("name", "")).lower() != "over":
+                    side = str(oc.get("name", "")).lower()
+                    if side not in ("over", "under"):
                         continue
                     price, point, player = oc.get("price"), oc.get("point"), oc.get("description")
                     if price is None or point is None or not player:
                         continue
                     line = float(point)
                     selection = (
-                        keys.pitcher_prop(str(player), stat, line) if is_pitcher
-                        else keys.batter_prop(str(player), stat, line)
+                        keys.pitcher_prop(str(player), stat, line, side) if is_pitcher
+                        else keys.batter_prop(str(player), stat, line, side)
                     )
                     out.setdefault((ev.matchup, market, selection), []).append(
                         MarketQuote(
                             book=book,
                             american=float(price),
-                            # The under is not bet, but it is what makes the
-                            # over's fair probability computable.
                             opposite_american=opposite.get(id(oc)),
                         )
                     )
@@ -514,14 +513,22 @@ def _commence_time(raw: object) -> datetime | None:
 def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
     """Map each outcome to the price of the other side of the same two-way line.
 
-    A two-outcome market is a pair outright, which covers moneylines and run
-    lines (whose two sides carry *different* points, -1.5 and +1.5). Anything
-    larger is grouped by player and line, so a prop or alternate total pairs its
-    own over with its own under. Only exact pairs qualify -- a three-way or
-    orphaned side is left unpaired rather than devigged against the wrong price.
+    A two-outcome *team* market is a pair outright, which covers moneylines and
+    run lines (whose two sides carry *different* points, -1.5 and +1.5, so they
+    cannot be grouped by point). Anything else is grouped by player and line, so
+    a prop or alternate total pairs its own over with its own under. Only exact
+    pairs qualify -- a three-way or orphaned side is left unpaired rather than
+    devigged against the wrong price.
+
+    The two-outcome path must check that the two sides really are opposite. A
+    book that lists only the over for two different players is also a
+    two-outcome market, and pairing those devigs one longshot against another:
+    an over at +390 against an unrelated over at +575 returns .579 where the
+    honest number is .196, and a probability *above* the raw implied is the
+    signature, since removing vig can only move a side down.
     """
     priced = [oc for oc in outcomes if oc.get("price") is not None]
-    if len(priced) == 2:
+    if len(priced) == 2 and _is_two_way(priced[0], priced[1]):
         a, b = priced
         return {id(a): float(b["price"]), id(b): float(a["price"])}
     groups: dict[tuple[str, object], list[dict]] = {}
@@ -534,9 +541,29 @@ def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
         if len(members) != 2:
             continue
         a, b = members
+        if not _is_opposite_side(a, b):
+            continue
         pairs[id(a)] = float(b["price"])
         pairs[id(b)] = float(a["price"])
     return pairs
+
+
+def _is_two_way(a: dict, b: dict) -> bool:
+    """Are these two outcomes the two sides of one line?
+
+    True for a team market, where the outcome names are the two teams and no
+    player is named. For anything carrying a player, the two sides must belong
+    to that same player and be opposite sides of the same line.
+    """
+    da, db = str(a.get("description", "")), str(b.get("description", ""))
+    if not da and not db:
+        return _is_opposite_side(a, b)
+    return da == db and _is_opposite_side(a, b)
+
+
+def _is_opposite_side(a: dict, b: dict) -> bool:
+    """Two outcomes are opposite sides only if their names differ."""
+    return str(a.get("name", "")).strip().lower() != str(b.get("name", "")).strip().lower()
 
 
 def _redact(message: str, api_key: str | None) -> str:
