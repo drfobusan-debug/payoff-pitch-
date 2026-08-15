@@ -302,10 +302,22 @@ def test_a_capture_round_trips_and_the_fresher_one_wins(tmp_path) -> None:
 
     moved = [p for p in parse_picks(ROW.replace("Under 8.0", "Under 8.5"))]
     merged = merge_picks(picks, moved)
-    totals = sorted(p.selection for p in merged if p.market == "game_total")
-    # A line move is a second pick, not a rewrite of the first: both were live.
-    assert totals == ["Under 8.0", "Under 8.5"]
+    # A moved line is the same call revised, not a second bet -- the capture runs
+    # several times before first pitch, and two rows would settle it twice.
+    totals = [p.selection for p in merged if p.market == "game_total"]
+    assert totals == ["Under 8.5"]
     assert len(merge_picks(picks, picks)) == len(picks)
+
+
+def test_a_re_captured_slate_settles_each_market_once() -> None:
+    """The whole benchmark is unreadable if their P&L counts a market twice."""
+    picks = list(_picks().values())
+    moved = list(parse_picks(ROW.replace("Under 8.0", "Under 8.5")))
+    rows = entries_from_picks(
+        picks + moved, {1: _result(4, 3)}, {"AZ @ ATL": 1}, Date(2026, 8, 14)
+    )
+    assert [r.market for r in rows].count("game_total") == 1
+    assert sum(1 for r in rows if r.market == "game_ml") == 1
 
 
 def test_a_missing_capture_is_not_an_error(tmp_path) -> None:

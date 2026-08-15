@@ -74,10 +74,13 @@ def entries_from_picks(
     finds its box score: the two feeds agree on ``AWAY @ HOME`` in engine team
     codes, and a pick whose game is not in ``results`` is dropped rather than
     guessed at.
+
+    One row per game market, the last capture of it winning: the grid is read
+    several times before first pitch, and a revised line must not settle twice.
     """
     iso = date.isoformat()
     out: list[LedgerEntry] = []
-    for pick in picks:
+    for pick in {p.key: p for p in picks}.values():
         if pick.date != iso:
             continue
         pk = game_pks.get(pick.matchup)
