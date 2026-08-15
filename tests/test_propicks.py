@@ -8,11 +8,14 @@ one opinion about one game, and must not read as "no comparison available".
 
 from __future__ import annotations
 
+import argparse
 from datetime import date as Date
+from types import SimpleNamespace
 
 import pytest
 import requests
 
+from mlb_engine import cli
 from mlb_engine.data import propicks
 from mlb_engine.data.propicks import (
     ProPick,
@@ -335,6 +338,25 @@ def test_row_and_grid_expose_the_mark() -> None:
     assert row["VSiN"] == "\u2605"
     assert row["VSiN Pick"] == "VOLT UNDER 7.5 (-102)"
     assert row["VSiN Edge"] == 7.9
+
+
+def test_a_capture_refuses_to_file_todays_cards_under_another_day(monkeypatch, capsys) -> None:
+    """VSiN only ever holds tonight's board, so --date cannot relabel it."""
+    monkeypatch.setattr(cli, "fetch_propicks", lambda league="MLB": parse_cards(_card(), "VOLT"))
+    args = argparse.Namespace(date="2026-08-01", league="MLB")
+    assert cli.cmd_propicks(args) == 1
+    assert "not 2026-08-01" in capsys.readouterr().out
+
+
+def test_a_stale_capture_file_is_not_stamped_onto_another_slate(tmp_path, monkeypatch) -> None:
+    """A file named for one day but holding another day's picks annotates nothing."""
+    cfg = SimpleNamespace(audit_dir=tmp_path)
+    path = tmp_path / "propicks_2026-08-16.json"
+    save_picks(path, parse_cards(_card(date="Aug 15, 2026"), "VOLT"))
+    monkeypatch.setattr(cli, "fetch_propicks", lambda **kw: [])
+    rec = _rec(game_date=Date(2026, 8, 16))
+    cli._annotate_propicks(cfg, [rec], Date(2026, 8, 16))
+    assert rec.vsin_pick is None
 
 
 def test_pick_key_separates_two_models_on_one_game() -> None:

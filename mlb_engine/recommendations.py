@@ -104,6 +104,10 @@ class Recommendation:
     vsin_pick: str | None = None
     vsin_edge: float | None = None
     vsin_agrees: bool | None = None
+    # THE BAT X's probability for the side we are backing (see data.batx). It is
+    # displayed and persisted to the ledger, and it is an input to nothing: the
+    # head-to-head that would justify weighting it is itself run off this column.
+    batx_prob: float | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -182,6 +186,7 @@ class Recommendation:
             "VSiN": self.vsin_mark,
             "VSiN Pick": self.vsin_pick or "",
             "VSiN Edge": round(self.vsin_edge * 100, 1) if self.vsin_edge is not None else "",
+            "BAT X %": round(self.batx_prob * 100, 1) if self.batx_prob is not None else "",
             "Notes": "; ".join(self.reasons),
         }
 

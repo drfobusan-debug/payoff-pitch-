@@ -28,6 +28,11 @@ for _libdir in /opt/homebrew/lib /usr/local/lib; do
     fi
 done
 
+# Archive today's saved propsheet prices before anything is priced. There is no
+# historical archive of prop lines to buy, so a price not captured on the day is
+# gone; the import finds the newest save in ~/Downloads by itself.
+python -m scripts.propsheet_import || echo "WARN: propsheet price archive failed" >&2
+
 VSIN="$HOME/.mlb_engine/vsin_today.csv"
 if [ -f "$VSIN" ]; then
     mlb-engine run --vsin-csv "$VSIN"

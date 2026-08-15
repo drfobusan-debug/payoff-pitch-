@@ -1,0 +1,314 @@
+"""TeamRankings on its own rows, graded the same way and counted separately.
+
+A second model is the only check on the engine that is not the engine or the
+price, so what matters in these tests is the two things that make it worth
+having: that its picks are read as *it* published them (star rating, price,
+"Lay Off"), and that its record can never leak into ours.
+
+The HTML is a row captured verbatim from their grid.
+"""
+
+from __future__ import annotations
+
+from datetime import date as Date
+
+from mlb_engine.audit.grade import LOSS, PUSH, WIN
+from mlb_engine.audit.ledger import (
+    ENGINE,
+    LEDGER_FIELDS,
+    LedgerEntry,
+    engine_metrics,
+    engine_rows,
+    load_ledger,
+    update_ledger,
+)
+from mlb_engine.audit.outside import (
+    TEAMRANKINGS,
+    entries_from_picks,
+    grade_pick,
+    head_to_head,
+    star_tier,
+)
+from mlb_engine.data.results import GameResult
+from mlb_engine.data.teamrankings import TRPick, load_picks, merge_picks, parse_picks, save_picks
+
+_MATCHUP_URL = "https://www.teamrankings.com/mlb/matchup/diamondbacks-braves-2026-08-14"
+
+ROW = f"""
+<tr class="div_714 team_1426">
+<td data-sort="957">957<br />958</td>
+<td>Arizona<br />Atlanta</td>
+<td class="picks green" data-sort="2-60.93"><a href="{_MATCHUP_URL}">
+  <div class="picks-block-in">Arizona
+  <div class="tr_stars"><span class="tr_stars_2"></span></div></div></a></td>
+<td class="picks red" data-sort="2-03.23"><a href="{_MATCHUP_URL}">
+  <div class="picks-block-in">ATL -1.5 +105
+  <div class="tr_stars"><span class="tr_stars_2"></span></div></div></a></td>
+<td class="picks green" data-sort="1-50.07"><a href="{_MATCHUP_URL}">
+  <div class="picks-block-in">Under 8.0
+  <div class="tr_stars"><span class="tr_stars_1"></span></div></div></a></td>
+<td class="picks red" data-sort="2-03.23"><a href="{_MATCHUP_URL}">
+  <div class="picks-block-in">ATL +179
+  <div class="tr_stars"><span class="tr_stars_2"></span></div></div></a></td>
+</tr>
+"""
+
+LAY_OFF_ROW = ROW.replace("ATL -1.5 +105", "Lay Off").replace("ATL +179", "Lay Off")
+
+
+def _picks() -> dict[str, TRPick]:
+    return {p.market: p for p in parse_picks(ROW)}
+
+
+def _result(home: int, away: int) -> GameResult:
+    return GameResult(
+        game_pk=1, final=True, home_runs=home, away_runs=away, f5_home=0, f5_away=0
+    )
+
+
+def test_the_grid_reads_as_four_calls_on_one_game() -> None:
+    picks = _picks()
+    assert set(picks) == {"game_winner", "game_rl", "game_total", "game_ml"}
+    assert all(p.date == "2026-08-14" for p in picks.values())
+    # Their long club names become our codes, visitor first, so the row joins to
+    # the same matchup string our own recommendations carry.
+    assert all(p.matchup == "AZ @ ATL" for p in picks.values())
+
+
+def test_selections_are_our_own_market_keys() -> None:
+    """Otherwise the two ledgers cannot be read side by side."""
+    picks = _picks()
+    assert picks["game_ml"].selection == "ATL ML"
+    assert picks["game_rl"].selection == "ATL -1.5"
+    assert picks["game_total"].selection == "Under 8.0"
+
+
+def test_their_price_is_kept_and_ours_is_not_invented() -> None:
+    picks = _picks()
+    assert picks["game_ml"].american == 179.0
+    assert picks["game_rl"].american == 105.0
+    # The grid quotes no price on a total or on the projected winner. A number
+    # they did not publish is not filled in.
+    assert picks["game_total"].american is None
+    assert picks["game_winner"].american is None
+
+
+def test_stars_are_read_as_published() -> None:
+    picks = _picks()
+    assert picks["game_ml"].stars == 2
+    assert picks["game_total"].stars == 1
+    assert star_tier(2) == "2 stars"
+    assert star_tier(1) == "1 star"
+    # A row with no star markup says so rather than claiming one star.
+    assert star_tier(0) == "unrated"
+
+
+def test_their_published_numbers_are_kept_apart_by_column() -> None:
+    """A win probability and an edge are different quantities."""
+    picks = _picks()
+    assert picks["game_winner"].win_prob == 0.6093
+    assert picks["game_total"].win_prob == 0.5007
+    assert picks["game_ml"].value == 0.0323
+    assert picks["game_rl"].value == 0.0323
+    # The value columns publish no probability, and the forecast columns no edge.
+    assert picks["game_ml"].win_prob is None
+    assert picks["game_winner"].value is None
+
+
+def test_the_projected_winner_is_not_the_money_line_pick() -> None:
+    """They are separate columns, and on this game they disagree.
+
+    Their winner column takes Arizona; their money-line column takes Atlanta at
+    +179. Folding the two together would credit the model with a bet it did not
+    make -- and, on a "Lay Off" game, with one it explicitly declined.
+    """
+    picks = _picks()
+    assert picks["game_winner"].team == "AZ"
+    assert picks["game_ml"].team == "ATL"
+
+
+def test_lay_off_is_no_pick_rather_than_a_pick() -> None:
+    markets = {p.market for p in parse_picks(LAY_OFF_ROW)}
+    assert markets == {"game_winner", "game_total"}
+
+
+def test_a_row_we_cannot_read_is_dropped_whole() -> None:
+    """Half-reading a row would put a pick on the wrong team."""
+    assert parse_picks(ROW.replace("Atlanta", "Some New Club")) == []
+    assert parse_picks(ROW.replace(_MATCHUP_URL, "/mlb/matchup/no-date-here")) == []
+
+
+def test_grading_matches_the_box_score() -> None:
+    picks = _picks()
+    # Atlanta 5, Arizona 2: 7 runs under 8, Atlanta covers -1.5, Arizona loses.
+    res = _result(home=5, away=2)
+    assert grade_pick(picks["game_ml"], res) == WIN
+    assert grade_pick(picks["game_rl"], res) == WIN
+    assert grade_pick(picks["game_total"], res) == WIN
+    assert grade_pick(picks["game_winner"], res) == LOSS
+
+    # Arizona 6, Atlanta 3: nine runs, so the under loses and so does Atlanta.
+    flipped = _result(home=3, away=6)
+    assert grade_pick(picks["game_ml"], flipped) == LOSS
+    assert grade_pick(picks["game_total"], flipped) == LOSS
+    assert grade_pick(picks["game_winner"], flipped) == WIN
+
+
+def test_a_total_landing_on_the_number_is_a_push() -> None:
+    assert grade_pick(_picks()["game_total"], _result(home=4, away=4)) == PUSH
+
+
+def test_a_one_run_win_loses_the_run_line() -> None:
+    assert grade_pick(_picks()["game_rl"], _result(home=4, away=3)) == LOSS
+
+
+def _entries(home: int = 5, away: int = 2) -> list[LedgerEntry]:
+    return entries_from_picks(
+        list(_picks().values()),
+        {1: _result(home, away)},
+        {"AZ @ ATL": 1},
+        Date(2026, 8, 14),
+    )
+
+
+def test_rows_are_theirs_and_say_so() -> None:
+    rows = _entries()
+    assert len(rows) == 4
+    assert {r.source for r in rows} == {TEAMRANKINGS}
+    assert {r.book for r in rows} == {"teamrankings"}
+    # Their star rating stands where our tier would be, unconverted.
+    by_market = {r.market: r for r in rows}
+    assert by_market["game_ml"].tier == "2 stars"
+    assert by_market["game_total"].tier == "1 star"
+
+
+def test_the_forecast_column_is_graded_but_never_staked() -> None:
+    """A projected winner has no price, so it cannot be a wager."""
+    winner = next(r for r in _entries() if r.market == "game_winner")
+    assert winner.result == LOSS
+    assert winner.pnl == 0.0
+
+
+def test_an_unpriced_total_is_paid_at_the_standard_price() -> None:
+    total = next(r for r in _entries() if r.market == "game_total")
+    assert total.result == WIN
+    assert total.pnl == 0.91
+
+
+def test_a_game_with_no_final_score_is_not_graded() -> None:
+    assert entries_from_picks(list(_picks().values()), {}, {"AZ @ ATL": 1}, Date(2026, 8, 14)) == []
+    assert entries_from_picks(list(_picks().values()), {1: _result(5, 2)}, {}, Date(2026, 8, 14)) == []
+
+
+def test_picks_from_another_slate_are_not_graded_into_this_one() -> None:
+    stale = [p for p in parse_picks(ROW.replace("2026-08-14", "2026-08-13"))]
+    assert entries_from_picks(stale, {1: _result(5, 2)}, {"AZ @ ATL": 1}, Date(2026, 8, 14)) == []
+
+
+def _ours(**kw) -> LedgerEntry:
+    base = dict(
+        date="2026-08-14",
+        matchup="AZ @ ATL",
+        category="game",
+        market="game_total",
+        selection="Over 8.0",
+        line=8.0,
+        book="draftkings",
+        odds=-110.0,
+        tier="Strong buy",
+        model_prob=0.55,
+        ev=0.05,
+        result=LOSS,
+        pnl=-1.0,
+    )
+    base.update(kw)
+    return LedgerEntry(**base)
+
+
+def test_our_measurements_do_not_count_their_bets() -> None:
+    """The whole point of a benchmark is that it is not inside the thing it checks.
+
+    Their record is graded and stored, and then every measurement of the engine
+    is taken through ``engine_rows``: their 4-0 on a night would otherwise be
+    our PPV, our ROI and our calibration basis.
+    """
+    ours = [_ours(), _ours(selection="Under 8.0", result=WIN, pnl=0.91)]
+    mixed = ours + _entries()
+    assert engine_rows(mixed) == ours
+    assert all(r.source == ENGINE for r in engine_rows(mixed))
+    assert engine_metrics(engine_rows(mixed)) == engine_metrics(ours)
+    # And the unfiltered ledger really would have been contaminated.
+    assert engine_metrics(mixed).n > engine_metrics(ours).n
+
+
+def test_an_old_ledger_row_is_ours(tmp_path) -> None:
+    """Every row written before the benchmark existed is the engine's own."""
+    path = tmp_path / "ledger.csv"
+    header = ",".join(f for f in LEDGER_FIELDS if f != "source")
+    path.write_text(f"{header}\n2026-08-01,AZ @ ATL,game,game_total,Over 8.0{',' * 26}\n")
+    rows = load_ledger(path)
+    assert len(rows) == 1
+    assert rows[0].source == ENGINE
+    assert engine_rows(rows) == rows
+
+
+def test_a_re_audit_replaces_both_ledgers_for_the_date(tmp_path) -> None:
+    """Their rows are written in the same call as ours, so neither is orphaned."""
+    path = tmp_path / "ledger.csv"
+    update_ledger(path, [_ours(), *_entries()], Date(2026, 8, 14))
+    again = update_ledger(path, [_ours(), *_entries()], Date(2026, 8, 14))
+    assert len(again) == 5
+    assert sum(1 for r in again if r.source == TEAMRANKINGS) == 4
+
+
+def test_an_earlier_slate_of_theirs_survives_a_later_audit(tmp_path) -> None:
+    path = tmp_path / "ledger.csv"
+    yesterday = [r for r in _entries()]
+    update_ledger(path, yesterday, Date(2026, 8, 14))
+    kept = update_ledger(path, [_ours(date="2026-08-15")], Date(2026, 8, 15))
+    assert sum(1 for r in kept if r.source == TEAMRANKINGS) == 4
+
+
+def test_the_head_to_head_shows_what_each_of_us_did() -> None:
+    rows = {r.market: r for r in head_to_head([_ours()], _entries())}
+    total = rows["game_total"]
+    assert (total.ours, total.our_result) == ("Over 8.0", LOSS)
+    assert (total.theirs, total.their_tier, total.their_result) == ("Under 8.0", "1 star", WIN)
+    assert total.contested and not total.agree
+    # A market we passed on is still shown: their call there is the interesting one.
+    assert rows["game_ml"].ours == ""
+    assert rows["game_ml"].theirs == "ATL ML"
+    # The forecast column is not a bet, so it is not in the bet comparison.
+    assert "game_winner" not in rows
+
+
+def test_agreement_is_agreement_on_the_same_selection() -> None:
+    rows = {r.market: r for r in head_to_head([_ours(selection="Under 8.0")], _entries())}
+    assert rows["game_total"].agree
+    assert not rows["game_total"].contested
+
+
+def test_a_pick_we_passed_on_is_not_read_as_our_bet() -> None:
+    passed = _ours(tier="Pass", selection="Under 8.0")
+    rows = {r.market: r for r in head_to_head([passed], _entries())}
+    assert rows["game_total"].ours == ""
+
+
+def test_a_capture_round_trips_and_the_fresher_one_wins(tmp_path) -> None:
+    path = tmp_path / "teamrankings_2026-08-14.json"
+    picks = list(_picks().values())
+    save_picks(path, picks)
+    assert load_picks(path) == picks
+
+    moved = [p for p in parse_picks(ROW.replace("Under 8.0", "Under 8.5"))]
+    merged = merge_picks(picks, moved)
+    totals = sorted(p.selection for p in merged if p.market == "game_total")
+    # A line move is a second pick, not a rewrite of the first: both were live.
+    assert totals == ["Under 8.0", "Under 8.5"]
+    assert len(merge_picks(picks, picks)) == len(picks)
+
+
+def test_a_missing_capture_is_not_an_error(tmp_path) -> None:
+    assert load_picks(tmp_path / "nothing.json") == []
+    (tmp_path / "junk.json").write_text("not json")
+    assert load_picks(tmp_path / "junk.json") == []

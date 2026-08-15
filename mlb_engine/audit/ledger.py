@@ -36,6 +36,7 @@ from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
 _DEFAULT_DECIMAL = 1.91  # assume -110 when no price was captured
+ENGINE = "engine"  # ``LedgerEntry.source`` for our own picks
 
 
 @dataclass
@@ -91,6 +92,18 @@ class LedgerEntry:
     # the recommendation. "" on rows written before they were persisted.
     lineup_status: str = ""
     hours_to_first_pitch: float | None = None
+    # THE BAT X's probability for this same side at pricing time. Stored so the
+    # head-to-head (does an outside forecast add anything next to the price?)
+    # is a query against graded rows rather than a re-join of daily exports
+    # that may not have been kept. None when the feed had no projection.
+    batx_prob: float | None = None
+    # Whose call this row is. ``engine`` for our own recommendations; an outside
+    # model writes its name (``teamrankings``) so its picks sit in the same
+    # ledger, graded the same way, on their own rows -- and so that every
+    # measurement of *us* can exclude them. Mixing a benchmark into our PPV, ROI
+    # or calibration would make the engine's own record unreadable, which is the
+    # same failure the fade side caused before it was counted once.
+    source: str = ENGINE
 
 
 LEDGER_FIELDS = [
@@ -120,6 +133,8 @@ LEDGER_FIELDS = [
     "clv_ev",
     "lineup_status",
     "hours_to_first_pitch",
+    "batx_prob",
+    "source",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
@@ -134,10 +149,11 @@ _OPTIONAL_FLOAT_FIELDS = (
     "clv",
     "clv_ev",
     "hours_to_first_pitch",
+    "batx_prob",
 )
 
 
-def _pnl(result: str, odds: float | None) -> float:
+def pnl_units(result: str, odds: float | None) -> float:
     if result == WIN:
         dec = american_to_decimal(odds) if odds is not None else _DEFAULT_DECIMAL
         return round(dec - 1.0, 4)
@@ -178,7 +194,7 @@ def entries_from_graded(
                 model_prob=round(rec.model_prob, 4),
                 ev=round(rec.ev, 4) if rec.ev is not None else None,
                 result=result,
-                pnl=_pnl(result, rec.market_american),
+                pnl=pnl_units(result, rec.market_american),
                 margin=margin,
                 veto_gate=rec.veto_gate or "",
                 pass_gate=rec.pass_gate or "",
@@ -191,6 +207,7 @@ def entries_from_graded(
                     if rec.hours_to_first_pitch is not None
                     else None
                 ),
+                batx_prob=round(rec.batx_prob, 4) if rec.batx_prob is not None else None,
             )
         )
     return entries
@@ -239,9 +256,17 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     clv_ev=_to_float(row.get("clv_ev", "")),
                     lineup_status=row.get("lineup_status", ""),
                     hours_to_first_pitch=_to_float(row.get("hours_to_first_pitch", "")),
+                    batx_prob=_to_float(row.get("batx_prob", "")),
+                    # Every row written before outside picks existed is ours.
+                    source=row.get("source", "") or ENGINE,
                 )
             )
     return out
+
+
+def engine_rows(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Our own picks only -- what every measurement of the engine must run on."""
+    return [e for e in entries if e.source == ENGINE]
 
 
 def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> list[LedgerEntry]:

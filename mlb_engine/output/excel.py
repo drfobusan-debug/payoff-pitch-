@@ -68,6 +68,7 @@ COLUMNS = [
     "VSiN",
     "VSiN Pick",
     "VSiN Edge",
+    "BAT X %",
     "Notes",
 ]
 
@@ -113,6 +114,7 @@ GRID_COLUMNS = [
     "Opta %",
     "VSiN",
     "VSiN Pick",
+    "BAT X %",
     "Edge",
     "Handle %",
     "Bets %",
@@ -123,11 +125,11 @@ GRID_COLUMNS = [
     "Notes",
 ]
 GRID_WIDTHS = [
-    7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 6, 20, 8, 9, 8, 8, 7, 7, 26, 40
+    7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 6, 20, 9, 8, 9, 8, 8, 7, 7, 26, 40
 ]
 GRID_CENTER = {
     "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
-    "VSiN", "Edge", "Handle %", "Bets %",
+    "VSiN", "BAT X %", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -254,6 +256,7 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "Opta %": round(rec.opta_prob * 100, 1) if rec.opta_prob is not None else "",
         "VSiN": rec.vsin_mark,
         "VSiN Pick": rec.vsin_pick or "",
+        "BAT X %": round(rec.batx_prob * 100, 1) if rec.batx_prob is not None else "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
         "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
@@ -435,6 +438,7 @@ _DAILY_COLUMNS = [
 ]
 _BET_COLUMNS = [
     "Date",
+    "Source",
     "Category",
     "Selection",
     "Matchup",
@@ -608,6 +612,7 @@ def write_ledger_workbook(
     for r, e in enumerate(entries, start=2):
         vals = [
             e.date,
+            e.source,
             e.category,
             e.selection,
             e.matchup,
@@ -628,7 +633,7 @@ def write_ledger_workbook(
         fill = _RESULT_FILL.get(e.result)
         if fill:
             ws_bets.cell(row=r, column=_BET_COLUMNS.index("Result") + 1).fill = fill
-    for i, w in enumerate([12, 15, 30, 13, 13, 8, 10, 8, 9, 8, 8, 8, 8, 8, 8], start=1):
+    for i, w in enumerate([12, 13, 15, 30, 13, 13, 8, 10, 8, 9, 8, 8, 8, 8, 8, 8], start=1):
         ws_bets.column_dimensions[get_column_letter(i)].width = w
     if entries:
         ws_bets.auto_filter.ref = f"A1:{get_column_letter(len(_BET_COLUMNS))}{len(entries) + 1}"
