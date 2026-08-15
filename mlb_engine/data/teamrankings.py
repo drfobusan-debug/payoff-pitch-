@@ -114,7 +114,14 @@ class TRPick:
 
     @property
     def key(self) -> str:
-        return "|".join((self.date, self.matchup, self.market, self.selection))
+        """One call per game market, so re-capturing a slate cannot double it.
+
+        Deliberately excludes the selection: the grid is captured several times
+        before first pitch, and if they move a total from 8.0 to 8.5 that is the
+        same call revised, not a second bet. Keying on the selection would leave
+        both in the ledger and pay their benchmark twice on one market.
+        """
+        return "|".join((self.date, self.matchup, self.market))
 
 
 def _text(html: str) -> str:
