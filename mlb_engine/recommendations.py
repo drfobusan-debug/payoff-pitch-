@@ -98,6 +98,12 @@ class Recommendation:
     opta_prob: float | None = None
     opta_stars: int | None = None
     opta_agrees: bool | None = None
+    # VSiN's VOLT (game markets) / JOLT (props) model pick on this same bet, see
+    # data.propicks. vsin_pick is their side as they state it; vsin_agrees is
+    # whether it is ours. Display only -- no probability, tier or price reads it.
+    vsin_pick: str | None = None
+    vsin_edge: float | None = None
+    vsin_agrees: bool | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -117,6 +123,13 @@ class Recommendation:
             return ""
         stars = "\u2605" * self.opta_stars
         return stars if self.opta_agrees else f"fade {stars}"
+
+    @property
+    def vsin_mark(self) -> str:
+        """A star when VSiN's model is on our side of this bet, a cross when not."""
+        if self.vsin_agrees is None:
+            return ""
+        return "\u2605" if self.vsin_agrees else "\u2717"
 
     @property
     def model_american(self) -> float:
@@ -166,6 +179,9 @@ class Recommendation:
             "Profile": self.profile or "",
             "Opta %": round(self.opta_prob * 100, 1) if self.opta_prob is not None else "",
             "AI": self.opta_mark,
+            "VSiN": self.vsin_mark,
+            "VSiN Pick": self.vsin_pick or "",
+            "VSiN Edge": round(self.vsin_edge * 100, 1) if self.vsin_edge is not None else "",
             "Notes": "; ".join(self.reasons),
         }
 

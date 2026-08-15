@@ -29,6 +29,9 @@ _MAX_PLAYS = 5
 # Mirrors features.lineup_lock.DEFAULT_STALE_HOURS: the card is rendered from
 # persisted recommendations, so it re-derives the warning from the stamped hours.
 _STALE_HOURS = DEFAULT_STALE_HOURS
+# Shown beside a play when VSiN's model has an opinion on the same bet.
+_AGREE = "\u2605"
+_DISAGREE = "\u2717"
 
 
 @dataclass
@@ -41,6 +44,17 @@ class Play:
     edge: float | None
     ev: float | None
     tier: Tier
+    # VSiN's VOLT/JOLT read on this same bet: their side, and whether it is ours.
+    vsin_pick: str | None = None
+    vsin_agrees: bool | None = None
+
+    @property
+    def vsin_bit(self) -> str:
+        """"VOLT UNDER 9 (-111)" with a star or a cross; empty when it had no pick."""
+        if self.vsin_pick is None or self.vsin_agrees is None:
+            return ""
+        mark = _AGREE if self.vsin_agrees else _DISAGREE
+        return f"{mark} {self.vsin_pick}"
 
     def _odds_str(self) -> str:
         return "n/a" if self.odds is None else f"{self.odds:+.0f}"
@@ -265,6 +279,8 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
                 edge=r.edge,
                 ev=r.ev,
                 tier=r.tier,
+                vsin_pick=r.vsin_pick,
+                vsin_agrees=r.vsin_agrees,
             )
         )
         if len(out) >= _MAX_PLAYS:
@@ -306,7 +322,21 @@ def _play_bits(p: Play) -> str:
         bits.append(f"{p.edge * 100:+.0f}% edge")
     if p.ev is not None:
         bits.append(f"+{p.ev:.2f} EV")
+    if p.vsin_bit:
+        bits.append(p.vsin_bit)
     return ", ".join(bits)
+
+
+_VSIN_LEGEND = (
+    f"{_AGREE}/{_DISAGREE} is whether VSiN's VOLT (games) or JOLT (props) model "
+    "landed on the same side \u2014 a second opinion, not a reason. "
+)
+
+
+def _vsin_legend(cards: list[GameCard]) -> str:
+    """The mark is only explained on cards that actually carry one."""
+    marked = any(p.vsin_bit for c in cards for p in c.plays)
+    return _VSIN_LEGEND if marked else ""
 
 
 def _play_line_md(p: Play) -> str:
@@ -337,7 +367,8 @@ def render_markdown(cards: list[GameCard], slate_date: Date) -> str:
         "",
         "*EV = expected value per $1 staked at the listed price; edge = model "
         "probability minus the book's implied probability. 🎯 darts are "
-        "high-variance longshots — bet small. Prices move; shop the number.*",
+        "high-variance longshots — bet small. " + _vsin_legend(cards)
+        + "Prices move; shop the number.*",
     ]
     return "\n".join(lines)
 
@@ -367,7 +398,8 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
     blocks.append(
         "<hr><p><em>EV = expected value per $1 staked; edge = model minus the "
         "book's implied probability. 🎯 darts are high-variance longshots — bet "
-        "small. Prices move; shop the number.</em></p>"
+        "small. " + html.escape(_vsin_legend(cards))
+        + "Prices move; shop the number.</em></p>"
     )
     style = (
         "body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"
