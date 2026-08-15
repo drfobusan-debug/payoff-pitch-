@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import os
 from datetime import date as Date
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -101,6 +103,27 @@ def test_the_file_is_named_for_the_date_most_games_are_on() -> None:
 def test_a_sheet_with_no_readable_date_asks_for_one() -> None:
     assert ps.slate_day(sheet([{"DATE": "n/a"}]), Date(2026, 8, 15)) is None
     assert ps.slate_day(pd.DataFrame([{"MARKET": "Hits"}]), Date(2026, 8, 15)) is None
+
+
+def test_the_newest_save_is_the_one_imported(tmp_path: Path) -> None:
+    """A second save of the same page becomes "... (1).html" and is the current one."""
+    old = tmp_path / "MLB_Betting_Model_-_Player_Prop_Odd_Predictions.html"
+    new = tmp_path / "MLB_Betting_Model_-_Player_Prop_Odd_Predictions (1).html"
+    old.write_text("old")
+    new.write_text("new")
+    os.utime(old, (1_000_000, 1_000_000))
+    os.utime(new, (2_000_000, 2_000_000))
+    assert ps.find_saved_sheet(str(tmp_path)) == new
+
+
+def test_unrelated_downloads_are_ignored(tmp_path: Path) -> None:
+    (tmp_path / "bank-statement.html").write_text("no")
+    (tmp_path / "propsheet.csv").write_text("no")
+    assert ps.find_saved_sheet(str(tmp_path)) is None
+
+
+def test_a_missing_downloads_folder_is_not_a_crash(tmp_path: Path) -> None:
+    assert ps.find_saved_sheet(str(tmp_path / "nope")) is None
 
 
 def test_an_unpriced_row_is_dropped() -> None:

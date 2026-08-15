@@ -27,10 +27,10 @@ percentage difference, which is the ordering our own best-bets list was
 just taken off: on this sheet it points at triples at +4100 and stolen
 bases at +925, the price band where our ledger loses most.
 
-Usage -- the sheet supplies its own date and the archive its own path, so a
-saved page needs nothing but itself::
+Usage -- the newest save in ~/Downloads is found, dated and filed by itself,
+so the daily step is the command and nothing else::
 
-    python scripts/propsheet_import.py --html ~/Downloads/propsheet.html
+    python scripts/propsheet_import.py
 
 ``--date`` and ``--out`` remain for backfilling an old save, where the year
 cannot be inferred from today::
@@ -46,10 +46,17 @@ import os
 import re
 from collections import Counter
 from datetime import date as Date
+from pathlib import Path
 
 import pandas as pd
 
 DEFAULT_OUT_DIR = "~/.mlb_engine/props"
+DEFAULT_SAVE_DIR = "~/Downloads"
+# The browser names the save after the page title, so "prop" is the stable part
+# across "MLB_Betting_Model_-_Player_Prop_Odd_Predictions_-_EVAnalytics.com.html"
+# and whatever the propsheet is called next season. read_sheet still has to find
+# the table, so a wrong guess fails loudly rather than importing something else.
+_SAVED_SHEET = re.compile(r"prop", re.IGNORECASE)
 
 MONTHS = {
     "jan": 1,
@@ -166,6 +173,25 @@ def slate_day(sheet: pd.DataFrame, today: Date) -> Date | None:
     return Counter(days).most_common(1)[0][0]
 
 
+def find_saved_sheet(directory: str) -> Path | None:
+    """The most recently saved propsheet page in ``directory``.
+
+    Newest rather than a fixed name because the browser appends " (1)" to a
+    second save of the same page, and the second save is the current one.
+    """
+    folder = Path(os.path.expanduser(directory))
+    if not folder.is_dir():
+        return None
+    saves = [
+        p
+        for p in folder.iterdir()
+        if p.is_file() and p.suffix.lower() in (".html", ".htm") and _SAVED_SHEET.search(p.name)
+    ]
+    if not saves:
+        return None
+    return max(saves, key=lambda p: p.stat().st_mtime)
+
+
 def read_sheet(path: str) -> pd.DataFrame:
     tables = pd.read_html(path)
     for table in tables:
@@ -213,15 +239,31 @@ def to_rows(sheet: pd.DataFrame, day: Date) -> list[dict[str, object]]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--html", required=True, help="saved EV Analytics propsheet")
+    ap.add_argument(
+        "--html",
+        help=f"saved propsheet; defaults to the newest one in {DEFAULT_SAVE_DIR}",
+    )
     ap.add_argument("--date", help="slate date, YYYY-MM-DD; read off the sheet when omitted")
     ap.add_argument("--out", help=f"defaults to {DEFAULT_OUT_DIR}/<date>.csv")
+    ap.add_argument("--downloads", default=DEFAULT_SAVE_DIR, help=argparse.SUPPRESS)
     args = ap.parse_args()
 
-    sheet = read_sheet(args.html)
+    html = args.html
+    if html is None:
+        found = find_saved_sheet(args.downloads)
+        if found is None:
+            raise SystemExit(f"no saved propsheet in {args.downloads} -- pass --html")
+        html = str(found)
+        print(f"reading {html}")
+
+    sheet = read_sheet(html)
     day = Date.fromisoformat(args.date) if args.date else slate_day(sheet, Date.today())
     if day is None:
         raise SystemExit("could not read a date off the sheet -- pass --date YYYY-MM-DD")
+    if args.date is None and day != Date.today():
+        # A save that was never refreshed imports yesterday's prices under
+        # yesterday's name, which is silent and wrong rather than loud and wrong.
+        print(f"warning: this sheet is for {day.isoformat()}, not today")
     rows = to_rows(sheet, day)
     if not rows:
         raise SystemExit("no priced rows parsed -- check the saved page is the propsheet itself")
