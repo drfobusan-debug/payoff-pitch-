@@ -333,6 +333,21 @@ class Config:
     # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))
 
+    # Read the injury feed and the box-score usage book. On by default because it
+    # only reports and logs: an absence is printed on the card and appended to the
+    # availability log with the line at that moment, which is what measures whether
+    # we hear the news before the market moves.
+    injury_feed: bool = field(default_factory=lambda: _env_bool("CFBE_INJURY_FEED", True))
+
+    # Points to charge a team missing an established starting quarterback. Measured
+    # at -2.2 against the closing spread (604 team-games, 55.3% fading, t=+2.60,
+    # holdout 56.7%) -- but the whole effect sits in the *first* game of an absence
+    # (holdout 59.9% against 47.1% once it is common knowledge), so it is a bet on
+    # hearing the news early, not on knowing the backup is playing. Default 0.0
+    # until the availability log shows we get there before the number does;
+    # :mod:`cfb_engine.data.injuries` records the measurement.
+    injury_qb_pts: float = field(default_factory=lambda: _env_float("CFBE_INJURY_QB_PTS", 0.0))
+
     # Use the VSiN guide's 0-19 roster-stability score to shrink a preseason
     # rating gap toward a pick'em when both teams have volatile rosters.
     vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", True))
@@ -422,6 +437,14 @@ class Config:
     def closing_file(self, day: Date) -> Path:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
+
+    @property
+    def availability_file(self) -> Path:
+        """Append-only log of absences, each stamped with the line at capture."""
+        override = os.getenv("CFBE_AVAILABILITY_FILE")
+        if override:
+            return Path(override)
+        return self.audit_dir / "availability.jsonl"
 
     @property
     def scorecard_file(self) -> Path:

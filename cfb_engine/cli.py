@@ -21,6 +21,7 @@ from datetime import date as Date
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     closing_quotes,
     clv_summary,
@@ -228,6 +229,28 @@ def cmd_backtest(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_latency(cfg: Config, args: argparse.Namespace) -> int:
+    """Print the availability log's lead time and the movement left after it."""
+    sightings = read_log(cfg.availability_file)
+    if not sightings:
+        print(
+            "No absences logged yet; `cfb-engine run` appends to "
+            f"{cfg.availability_file} whenever the feed lists someone out."
+        )
+        return 1
+    print(summarize(sightings))
+    print()
+    print(f"{'game':<34}{'player':<24}{'pos':<5}{'lead h':>8}{'move':>8}{'obs':>5}")
+    for s in sightings:
+        lead = f"{s.lead_s / 3600.0:+.1f}" if s.lead_s is not None else "-"
+        move = f"{s.move_after:+.2f}" if s.move_after is not None else "-"
+        print(
+            f"{s.game[:33]:<34}{s.player[:23]:<24}{s.position[:4]:<5}"
+            f"{lead:>8}{move:>8}{s.observations:>5}"
+        )
+    return 0
+
+
 def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
     if not cfg.scorecard_file.exists():
         print("No scorecard yet; run `cfb-engine audit` on graded slates first.")
@@ -301,6 +324,7 @@ def _build_parser() -> argparse.ArgumentParser:
     bt.add_argument("--season", type=int, help="season year (default: inferred)")
     bt.add_argument("--date", help="slate date used to infer the season")
     add_common(sub.add_parser("scorecard", help="print the PPV/NPV-by-market scorecard"))
+    sub.add_parser("latency", help="how early the injury feed reaches us, vs the line")
     return p
 
 
@@ -313,6 +337,7 @@ _DISPATCH = {
     "calibrate": cmd_calibrate,
     "backtest": cmd_backtest,
     "scorecard": cmd_scorecard,
+    "latency": cmd_latency,
 }
 
 
