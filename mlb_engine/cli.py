@@ -580,11 +580,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
     closing = load_closing(_closing_path(cfg, audit_date))
     n_clv = attach_clv(entries, closing)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
-    clv_summary = summarize(clv_rows(all_entries))
     # The ledger keeps both sides of every prop so the fade stays graded; a
     # measurement takes one row per wager (see `one_side_per_prop`). The workbook
     # below still writes the full ledger.
     measured = one_side_per_prop(all_entries)
+    # CLV especially: the two sides of a prop are devigged complements, so their
+    # CLV is an exact negation and counting both drives every market's mean to
+    # zero and "beat the close" to 50% arithmetically.
+    clv_summary = summarize(clv_rows(measured))
     engine = engine_metrics(measured)
     overall = [engine, *overall_metrics(measured)]
     daily_engine = daily_engine_metrics(measured)
