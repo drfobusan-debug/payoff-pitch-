@@ -19,6 +19,7 @@ from mlb_engine.state import (
     STATE_BRANCH,
     auto_pull,
     auto_push,
+    merge_board_files,
     merge_closing_files,
     merge_dated_csv,
     pull_state,
@@ -85,6 +86,17 @@ def test_closing_snapshots_union_across_machines(tmp_path: Path) -> None:
 
     assert merge_closing_files(remote, local)
     assert set(load_closing(local)) == {"KC@DET|game_ml|DET", "LAD@SF|game_ml|LAD"}
+
+
+def test_opening_boards_keep_the_earliest_price_across_machines(tmp_path: Path) -> None:
+    """The morning run's price is the open, whichever machine captured it."""
+    remote = tmp_path / "remote.json"
+    local = tmp_path / "local.json"
+    save_closing(remote, [ClosingQuote("KC@DET", "game_ml", "DET", -130.0, 0.5600)])
+    save_closing(local, [ClosingQuote("KC@DET", "game_ml", "DET", -170.0, 0.6200)])
+
+    assert merge_board_files(remote, local)
+    assert load_closing(local)["KC@DET|game_ml|DET"].no_vig_prob == 0.56
 
 
 # --- git round trip ----------------------------------------------------------

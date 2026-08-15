@@ -32,6 +32,14 @@ def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
     rejects picks the model likes *most*, so whether it removes losers or
     winners can only be settled by grading its own rows.
     """
+    # Price ceiling. The engine's plus-money buys are its overconfidence being
+    # cashed, so a long price is a veto rather than a bigger payout.
+    price = result.best_quote.american
+    if price > thr.max_buy_odds:
+        return (
+            "price_ceiling",
+            f"price {price:+.0f} longer than {thr.max_buy_odds:+.0f} -> pass",
+        )
     # The price still has to pay at the best number we can bet.
     if result.ev <= thr.min_ev:
         return "ev_floor", f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass"
