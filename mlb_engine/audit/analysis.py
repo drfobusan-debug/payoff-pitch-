@@ -24,6 +24,7 @@ from dataclasses import dataclass
 
 from mlb_engine.audit.grade import PUSH, WIN
 from mlb_engine.audit.ledger import ENGINE_PROB_THRESHOLD, LedgerEntry, is_prop
+from mlb_engine.features.lineup_lock import POSTED, PROJECTED
 from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.market.tiers import Tier
 
@@ -35,6 +36,9 @@ DEFAULT_MIN_N = 20
 # tenth as fast as the prop pockets and get a lower bar to be reported at all.
 PRICE_MIN_N = 15
 PRICE_LEAK_POINTS = 0.03  # win rate this far under break-even is worth naming
+# A batter row's outcome is close to a coin flip, so the gap between two groups
+# of them needs hundreds of rows before it clears its own standard error.
+LINEUP_MIN_N = 300
 _BUY = {Tier.STRONG.value, Tier.MODERATE.value}
 
 FALSE_POSITIVE = "false_positive"
@@ -509,6 +513,105 @@ def dog_vs_favorite(entries: list[LedgerEntry]) -> list[PriceBucket]:
             )
         )
     return out
+
+
+@dataclass
+class LineupSplit:
+    """Calibration and ROI for the rows priced against one lineup provenance."""
+
+    status: str  # posted | projected
+    n: int
+    model: float  # mean model probability
+    realized: float  # share that actually happened
+    n_buys: int
+    roi: float
+
+    @property
+    def bias(self) -> float:
+        """Points of probability the model was long by on these rows."""
+        return self.model - self.realized
+
+
+def lineup_splits(entries: list[LedgerEntry]) -> list[LineupSplit]:
+    """Split graded batter rows by whether the lineup was posted or projected.
+
+    Calibration on *all* graded rows, buys and passes alike, because that is the
+    measurement the gate needs: a projected lineup damages a probability whether
+    or not the row cleared the EV screen, and restricting to buys would select on
+    the very overstatement being measured. ROI is reported alongside, off buys
+    only, since a pass has no price to have won or lost at.
+    """
+    rows = [
+        e for e in _decided(entries)
+        if e.market.startswith("batter_") and e.lineup_status
+    ]
+    out: list[LineupSplit] = []
+    for status in (POSTED, PROJECTED):
+        group = [e for e in rows if e.lineup_status == status]
+        if not group:
+            continue
+        buys = [e for e in group if e.tier in _BUY and e.odds is not None]
+        out.append(
+            LineupSplit(
+                status=status,
+                n=len(group),
+                model=sum(e.model_prob for e in group) / len(group),
+                realized=sum(1 for e in group if _won(e)) / len(group),
+                n_buys=len(buys),
+                roi=(sum(e.pnl for e in buys) / len(buys)) if buys else 0.0,
+            )
+        )
+    return out
+
+
+def lineup_findings(entries: list[LedgerEntry], min_n: int = LINEUP_MIN_N) -> list[str]:
+    """Does pricing a projected lineup cost what the lineup-lock gate assumes?
+
+    Under-powered is stated as under-powered. The gate this feeds is off pending
+    exactly this evidence, and "projected looks worse on 40 rows" is not evidence
+    -- a batter probability carries a standard error near .5 per row, so the gap
+    between two groups needs hundreds of rows before it separates from noise.
+    """
+    splits = {s.status: s for s in lineup_splits(entries)}
+    posted, projected = splits.get(POSTED), splits.get(PROJECTED)
+    if not splits:
+        return [
+            "Lineup provenance: no graded batter row carries it yet, so "
+            "projected-vs-posted cannot be measured yet. Rows priced from here "
+            "record it."
+        ]
+    if posted is None or projected is None:
+        have = ", ".join(f"{s.status} n={s.n}" for s in splits.values())
+        return [
+            "Lineup provenance: only one side of the split has graded batter rows "
+            f"({have}), so projected-vs-posted cannot be measured yet."
+        ]
+    gap = projected.bias - posted.bias
+    # Two independent proportions, each row's variance bounded by .25.
+    se = (0.25 / projected.n + 0.25 / posted.n) ** 0.5
+    head = (
+        f"**Lineup provenance: projected lineups run {projected.bias * 100:+.2f}pp "
+        f"against posted {posted.bias * 100:+.2f}pp** on batter markets "
+        f"(projected n={projected.n}, posted n={posted.n}), a "
+        f"{gap * 100:+.2f}pp difference at {abs(gap) / se if se else 0:.1f} SE."
+    )
+    if projected.n < min_n or posted.n < min_n:
+        return [
+            head + f" Under the {min_n} rows a side needs to be read at all — "
+            "reported to show the sample building, not to act on."
+        ]
+    if abs(gap) < se:
+        return [
+            head + " Inside one standard error: the two are indistinguishable so "
+            "far, which is an argument against the lineup-lock demotion, not for it."
+        ]
+    worse = "projected" if gap > 0 else "posted"
+    return [
+        head + f" The {worse} rows are the worse-calibrated side. Buys: projected "
+        f"{projected.roi * 100:+.1f}% on {projected.n_buys}, posted "
+        f"{posted.roi * 100:+.1f}% on {posted.n_buys}. If it holds, the cheap "
+        "version is to price props after lineups post rather than to demote them."
+    ]
 
 
 def price_bucket_findings(
