@@ -888,7 +888,7 @@ def _narration(
             parts.append("No bet here, the model passes. ")
         hr_best = top_hr_prop(hr_map.get(gp.game_pk, []))
         if hr_best is not None:
-            name = hr_best.selection.replace(" HR o0.5", "").replace(" o0.5", "")
+            name = _HR_SUFFIX.sub("", hr_best.selection)
             parts.append(
                 f"If you want a longball, {name} is the top home-run shot here at "
                 f"{hr_best.model_prob * 100:.0f} percent. "
