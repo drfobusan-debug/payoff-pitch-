@@ -182,6 +182,67 @@ def test_empty_folder_and_unreadable_page_are_survivable(tmp_path) -> None:
     assert load_board(tmp_path) == []
 
 
+def test_a_batters_walks_and_strikeouts_are_their_own_markets() -> None:
+    """Their two largest sections after runs+RBIs, and both are the batter's own
+    line -- ``Walks`` must never collide with the pitcher's ``Walks Allowed``."""
+    props = parse_board(
+        _page(
+            _row("Walks", "Salvador Perez", "0.5 (+291)", "0.21", "0.21", "UNDER"),
+            _row("Hitter Strikeouts", "Ronny Simon", "0.5 (-154)", "0.84", "0.69", ""),
+            _row("Walks Allowed", "Troy Melton", "1.5 (-110)", "1.60", "1.40", "UNDER"),
+        ),
+        year=2026,
+    )
+    assert [p.market for p in props] == ["batter_bb", "batter_k", "pitcher_bb"]
+    # Equal projection and implied: their own board suggests a side, so take it.
+    assert props[0].side == "under"
+    # No suggestion: 0.69 projected against 0.84 implied is their under.
+    assert props[1].side == "under"
+
+
+def test_their_walks_join_our_batter_walk_rows() -> None:
+    props = parse_board(
+        _page(_row("Hitter Strikeouts", "Ronny Simon", "0.5 (-154)", "0.84", "0.69", "")),
+        year=2026,
+    )
+    over = _rec("batter_k", "Ronny Simon K o0.5", 0.5, "over")
+    under = _rec("batter_k", "Ronny Simon K u0.5", 0.5, "under")
+    assert annotate([over, under], props) == 2
+    assert over.ev_agrees is False
+    assert under.ev_agrees is True
+
+
+def test_a_batters_walks_and_strikeouts_are_priced_but_never_bought() -> None:
+    from mlb_engine.data.oddsapi import (
+        DEFAULT_PROP_MARKETS,
+        PRICE_ONLY_MARKETS,
+    )
+    from mlb_engine.models.props import BATTER_PROP_LINES
+
+    assert "batter_walks" in DEFAULT_PROP_MARKETS
+    assert "batter_strikeouts" in DEFAULT_PROP_MARKETS
+    assert BATTER_PROP_LINES["BB"] and BATTER_PROP_LINES["K"]
+    assert {"batter_bb", "batter_k"} <= PRICE_ONLY_MARKETS
+
+
+def test_a_batters_walks_and_strikeouts_are_gradeable() -> None:
+    """A market priced off a box score that does not carry the stat grades every
+    over as a loss, so the batting line has to read both back."""
+    from mlb_engine.audit.grade import grade
+    from mlb_engine.data.results import GameResult, PlayerLine
+
+    res = GameResult(
+        game_pk=1, final=True, home_runs=3, away_runs=1, f5_home=2, f5_away=1,
+        players={7: PlayerLine(batting={"PA": 4, "H": 1, "BB": 2, "K": 1})},
+    )
+    walks = _rec("batter_bb", "Someone BB o1.5", 1.5, "over")
+    walks.player_id, walks.stat = 7, "BB"
+    ks = _rec("batter_k", "Someone K o1.5", 1.5, "over")
+    ks.player_id, ks.stat = 7, "K"
+    assert grade(walks, res) == "win"
+    assert grade(ks, res) == "loss"
+
+
 @dataclass
 class _Sheet:
     columns: list[str]

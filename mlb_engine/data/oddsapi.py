@@ -57,6 +57,8 @@ _BATTER_MARKETS = {
     "batter_rbis": ("batter_rbi", "RBI"),
     "batter_total_bases": ("batter_tb", "TB"),
     "batter_hits_runs_rbis": ("batter_hrr", "H+R+RBI"),
+    "batter_walks": ("batter_bb", "BB"),
+    "batter_strikeouts": ("batter_k", "K"),
 }
 _PITCHER_MARKETS = {
     "pitcher_strikeouts": ("pitcher_k", "Ks"),
@@ -86,6 +88,8 @@ DEFAULT_PROP_MARKETS = (
     "batter_rbis",
     "batter_total_bases",
     "batter_hits_runs_rbis",
+    "batter_walks",
+    "batter_strikeouts",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",
@@ -128,10 +132,18 @@ DEFAULT_PROP_MARKETS = (
 # ``batter_r`` stays shut: no probability band and no price bucket of it has
 # ever paid (-41.4u, -31.8%), so there is no rule to reopen it behind. Pitcher
 # ER stays shut for want of anyone having looked.
+# A batter's own walks and strikeouts are new to the fetch list and have never
+# been graded here, so they are quoted and never bought -- the order every other
+# market was reopened in: buy the price, let the ledger earn the bet. They are
+# priced at all because an outside prop board carries them heavily (two of EV
+# Analytics' largest sections) and a market the engine does not price cannot be
+# compared against anybody.
 PRICE_ONLY_MARKETS = frozenset(
     {
         "batter_r",
         "pitcher_er",
+        "batter_bb",
+        "batter_k",
     }
 )
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)

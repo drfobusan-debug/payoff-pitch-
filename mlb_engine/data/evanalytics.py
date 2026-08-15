@@ -29,10 +29,11 @@ from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
 
-# Their market names, mapped onto ours. The unmapped ones are real markets we do
-# not price (stolen bases, triples, hitter strikeouts, pitcher win) -- they are
-# dropped rather than guessed at, and counted so a renamed column shows up as a
-# fall in coverage instead of as silence.
+# Their market names, mapped onto ours. Note that "Walks" is the batter's own
+# walks and "Walks Allowed" the pitcher's, which are different rows in the same
+# column. The unmapped ones are real markets we do not price (stolen bases,
+# triples, runs+RBIs, pitcher win) -- dropped rather than guessed at, so a
+# renamed column shows up as a fall in coverage instead of as silence.
 MARKETS = {
     "Hits": "batter_h",
     "Singles": "batter_1b",
@@ -42,6 +43,8 @@ MARKETS = {
     "RBIs": "batter_rbi",
     "Hits Runs and RBIs": "batter_hrr",
     "Total Bases": "batter_tb",
+    "Walks": "batter_bb",
+    "Hitter Strikeouts": "batter_k",
     "Strikeouts": "pitcher_k",
     "Pitching Outs": "pitcher_outs",
     "Hits Allowed": "pitcher_h",
@@ -52,7 +55,7 @@ MARKETS = {
 # "0.5 (+172)" -> line 0.5, price +172. The price is absent on some rows.
 _QUOTE = re.compile(r"(-?\d+(?:\.\d+)?)\s*(?:\(([+-]?\d+)\))?")
 _SEL_SUFFIX = re.compile(
-    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|H|R|RBI|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$"
+    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|BB|H|R|RBI|K|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$"
 )
 
 

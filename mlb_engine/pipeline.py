@@ -1664,7 +1664,12 @@ class Pipeline:
         out = []
         bat = res.bat[team_key]
         context = self._hits_context(park)
-        lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
+        lines = {
+            "H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5],
+            "RBI": [0.5],
+            # Price-only (see oddsapi.PRICE_ONLY_MARKETS): quoted, never bought.
+            "BB": [0.5, 1.5], "K": [0.5, 1.5],
+        }
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
             pid = slot.player.mlbam_id
