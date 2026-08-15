@@ -7,6 +7,7 @@ daily slate using wOBA vs. xwOBA gaps.
 from __future__ import annotations
 
 import logging
+import math
 from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
@@ -27,9 +28,10 @@ class RegressionTarget:
     team: str
     woba: float
     xwoba: float
-    k_pct: float | None
-    bb_pct: float | None
-    barrel_pct: float | None
+    # Savant percentile ranks (0-100, higher is better for the player), not rates.
+    k_rank: float | None
+    bb_rank: float | None
+    barrel_rank: float | None
     pa: int
 
     @property
@@ -48,12 +50,12 @@ def _standardize_name(name: str) -> str:
 
 
 def _pct(value: Any) -> float | None:
-    """Convert a percentage value to a float; None if missing."""
+    """Convert a percentile rank to a float; None when missing or NaN."""
     try:
         v = float(value)
-        return v
     except (TypeError, ValueError):
         return None
+    return None if math.isnan(v) else v
 
 
 def _load_batter_expected_stats(year: int, min_pa: int = 60) -> pd.DataFrame:
@@ -154,9 +156,9 @@ def _to_targets(df: pd.DataFrame, is_pitcher: bool) -> list[RegressionTarget]:
                 team=team,
                 woba=float(row["woba"]) if pd.notna(row.get("woba")) else 0.0,
                 xwoba=float(row["xwoba"]) if pd.notna(row.get("xwoba")) else 0.0,
-                k_pct=_pct(row.get("k_percent")),
-                bb_pct=_pct(row.get("bb_percent")),
-                barrel_pct=_pct(row.get("brl_percent")),
+                k_rank=_pct(row.get("k_percent")),
+                bb_rank=_pct(row.get("bb_percent")),
+                barrel_rank=_pct(row.get("brl_percent")),
                 pa=int(row.get("bf" if is_pitcher else "pa", 1)) if pd.notna(row.get("bf" if is_pitcher else "pa")) else 0,
             )
         )
@@ -187,47 +189,54 @@ def load_regression_targets(
     return _to_targets(p_df, is_pitcher=True), _to_targets(b_df, is_pitcher=False)
 
 
-def _fmt_pct(v: float | None) -> str:
+def _ordinal(v: float) -> str:
+    n = int(round(v))
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def _fmt_rank(v: float | None) -> str:
+    """Savant serves these columns as percentile ranks, so say percentile."""
     if v is None:
-        return "0.0%"
-    return f"{v:.1f}%"
+        return "unranked"
+    return f"{_ordinal(v)} percentile"
 
 
 def _pitcher_blurb(t: RegressionTarget) -> str:
     """One paragraph for a pitcher regression target."""
     gap = t.woba - t.xwoba
-    k = _fmt_pct(t.k_pct)
-    bb = _fmt_pct(t.bb_pct)
+    k = _fmt_rank(t.k_rank)
+    bb = _fmt_rank(t.bb_rank)
     name_team = f"{t.name} ({t.team})" if t.team else t.name
     if gap > 0:
         return (
             f"{name_team} has allowed a {t.woba:.3f} wOBA but his expected wOBA sits at "
             f"{t.xwoba:.3f} — that gap means he's been worse than his contact profile. "
-            f"With {k} Ks and {bb} BBs, he's a classic buy-low."
+            f"Strikeouts rank {k}, walks {bb}; he's a classic buy-low."
         )
     return (
         f"{name_team} has allowed a {t.woba:.3f} wOBA but his expected wOBA is {t.xwoba:.3f} "
         f"— he's out-pitched his contact and is due to give up more damage. "
-        f"{k} Ks and {bb} BBs back that up."
+        f"Strikeouts rank {k}, walks {bb}."
     )
 
 
 def _batter_blurb(t: RegressionTarget, positive: bool) -> str:
     """One paragraph for a batter regression target."""
-    k = _fmt_pct(t.k_pct)
-    bb = _fmt_pct(t.bb_pct)
-    brl = _fmt_pct(t.barrel_pct)
+    k = _fmt_rank(t.k_rank)
+    bb = _fmt_rank(t.bb_rank)
+    brl = _fmt_rank(t.barrel_rank)
     name_team = f"{t.name} ({t.team})" if t.team else t.name
     if positive:
         return (
             f"{name_team} is running a {t.woba:.3f} wOBA but his xwOBA is {t.xwoba:.3f} — "
             f"the underlying contact says the box score is lying to the downside. "
-            f"{k} Ks, {bb} BBs, {brl} barrels. Buy-low candidate."
+            f"Strikeouts rank {k}, walks {bb}, barrels {brl}. Buy-low candidate."
         )
     return (
         f"{name_team} is posting a {t.woba:.3f} wOBA but his xwOBA is only {t.xwoba:.3f} — "
         f"he's been finding holes and gaps that contact doesn't support. "
-        f"{k} Ks, {bb} BBs, {brl} barrels. Regression risk."
+        f"Strikeouts rank {k}, walks {bb}, barrels {brl}. Regression risk."
     )
 
 

@@ -18,7 +18,7 @@ DAY = date(2026, 8, 2)
 def _pitcher(name: str, woba: float, xwoba: float) -> RegressionTarget:
     return RegressionTarget(
         name=name, team="BOS", woba=woba, xwoba=xwoba,
-        k_pct=0.25, bb_pct=0.06, barrel_pct=0.07, pa=120,
+        k_rank=72.0, bb_rank=88.0, barrel_rank=35.0, pa=120,
     )
 
 
@@ -52,3 +52,21 @@ def test_populated_radar_includes_player_blurbs() -> None:
     html = render_html(radar, DAY)
     assert "Jane Doe" in html
     assert "buy-low" in html.lower()
+
+
+def test_savant_ranks_are_reported_as_percentiles_not_rates() -> None:
+    """These columns are 0-100 percentile ranks; "48.0% BBs" is not a walk rate."""
+    radar = build_radar([_pitcher("Jane Doe", 0.360, 0.300)], [], top_n=10)
+    md = render_markdown(radar, DAY)
+    assert "88th percentile" in md
+    assert "88.0%" not in md
+
+
+def test_missing_rank_says_so_instead_of_printing_zero() -> None:
+    thin = RegressionTarget(
+        name="Rook", team="BOS", woba=0.360, xwoba=0.300,
+        k_rank=None, bb_rank=None, barrel_rank=None, pa=90,
+    )
+    md = render_markdown(build_radar([thin], [], top_n=10), DAY)
+    assert "unranked" in md
+    assert "0th percentile" not in md
