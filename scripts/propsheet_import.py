@@ -27,7 +27,13 @@ percentage difference, which is the ordering our own best-bets list was
 just taken off: on this sheet it points at triples at +4100 and stolen
 bases at +925, the price band where our ledger loses most.
 
-Usage::
+Usage -- the sheet supplies its own date and the archive its own path, so a
+saved page needs nothing but itself::
+
+    python scripts/propsheet_import.py --html ~/Downloads/propsheet.html
+
+``--date`` and ``--out`` remain for backfilling an old save, where the year
+cannot be inferred from today::
 
     python scripts/propsheet_import.py --html propsheet.html --date 2026-08-15 \\
         --out ~/.mlb_engine/props/2026-08-15.csv
@@ -38,9 +44,27 @@ from __future__ import annotations
 import argparse
 import os
 import re
+from collections import Counter
 from datetime import date as Date
 
 import pandas as pd
+
+DEFAULT_OUT_DIR = "~/.mlb_engine/props"
+
+MONTHS = {
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "may": 5,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+}
 
 # Sheet market -> our ledger market. Anything absent is kept with an empty
 # ledger market rather than guessed at: a mis-mapped market grades the wrong
@@ -67,6 +91,9 @@ MARKET_MAP: dict[str, str] = {
 # "0.5 (+280)" -> line 0.5, price +280. A line printed without a price is a
 # line we cannot bet, so both halves of the cell are required.
 _PRICED = re.compile(r"^\s*([\d.]+)\s*\(([+-]\d+)\)\s*$")
+
+# "Aug 15" -- the sheet prints no year.
+_SHEET_DAY = re.compile(r"^\s*([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2})\s*$")
 
 COLUMNS = (
     "date",
@@ -101,6 +128,44 @@ def _number(cell: object) -> float | None:
     return None if pd.isna(value) else value
 
 
+def parse_day(cell: object, today: Date) -> Date | None:
+    """Read "Aug 15" as a date, choosing the year that sits nearest today.
+
+    Nearest rather than the current one so that a sheet saved either side of
+    New Year lands in the right season instead of eleven months away.
+    """
+    match = _SHEET_DAY.match(str(cell))
+    if match is None:
+        return None
+    month = MONTHS.get(match.group(1).lower())
+    if month is None:
+        return None
+    day = int(match.group(2))
+    best: Date | None = None
+    for year in (today.year - 1, today.year, today.year + 1):
+        try:
+            candidate = Date(year, month, day)
+        except ValueError:  # Feb 29 in a common year
+            continue
+        if best is None or abs((candidate - today).days) < abs((best - today).days):
+            best = candidate
+    return best
+
+
+def slate_day(sheet: pd.DataFrame, today: Date) -> Date | None:
+    """The date most of the sheet's games fall on, which names the archive file.
+
+    Every row keeps its own date, so a sheet spanning midnight is still
+    archived row-accurately; this only decides what the file is called.
+    """
+    if "DATE" not in sheet.columns:
+        return None
+    days = [d for d in (parse_day(cell, today) for cell in sheet["DATE"]) if d is not None]
+    if not days:
+        return None
+    return Counter(days).most_common(1)[0][0]
+
+
 def read_sheet(path: str) -> pd.DataFrame:
     tables = pd.read_html(path)
     for table in tables:
@@ -110,8 +175,10 @@ def read_sheet(path: str) -> pd.DataFrame:
 
 
 def to_rows(sheet: pd.DataFrame, day: Date) -> list[dict[str, object]]:
+    """``day`` dates any row whose own DATE cell cannot be read."""
     rows: list[dict[str, object]] = []
     for _, row in sheet.iterrows():
+        row_day = parse_day(row.get("DATE"), day) or day
         over = parse_priced(row["OVER"])
         under = parse_priced(row["UNDER"])
         side = over if over is not None else under
@@ -125,7 +192,7 @@ def to_rows(sheet: pd.DataFrame, day: Date) -> list[dict[str, object]]:
         sheet_market = str(row["MARKET"]).strip()
         rows.append(
             {
-                "date": day.isoformat(),
+                "date": row_day.isoformat(),
                 "book": str(row.get("SITE", "")).strip(),
                 "player": str(row["PLAYER"]).strip(),
                 "team": str(row.get("TM", "")).strip(),
@@ -147,18 +214,20 @@ def to_rows(sheet: pd.DataFrame, day: Date) -> list[dict[str, object]]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--html", required=True, help="saved EV Analytics propsheet")
-    ap.add_argument("--date", required=True, help="slate date, YYYY-MM-DD (the sheet prints no year)")
-    ap.add_argument("--out", required=True)
+    ap.add_argument("--date", help="slate date, YYYY-MM-DD; read off the sheet when omitted")
+    ap.add_argument("--out", help=f"defaults to {DEFAULT_OUT_DIR}/<date>.csv")
     args = ap.parse_args()
 
-    day = Date.fromisoformat(args.date)
     sheet = read_sheet(args.html)
+    day = Date.fromisoformat(args.date) if args.date else slate_day(sheet, Date.today())
+    if day is None:
+        raise SystemExit("could not read a date off the sheet -- pass --date YYYY-MM-DD")
     rows = to_rows(sheet, day)
     if not rows:
         raise SystemExit("no priced rows parsed -- check the saved page is the propsheet itself")
 
     out = pd.DataFrame(rows, columns=list(COLUMNS))
-    dest = os.path.expanduser(args.out)
+    dest = os.path.expanduser(args.out or f"{DEFAULT_OUT_DIR}/{day.isoformat()}.csv")
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     out.to_csv(dest, index=False)
 

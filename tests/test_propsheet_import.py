@@ -72,10 +72,35 @@ def test_the_two_walk_and_two_strikeout_markets_do_not_cross(sheet_market: str, 
     assert rows[0]["market"] == market
 
 
-def test_the_slate_date_comes_from_the_caller() -> None:
-    """The sheet prints 'Aug 15' with no year, so it cannot supply the date."""
-    rows = ps.to_rows(sheet([{}]), Date(2026, 8, 15))
+def test_the_sheet_supplies_the_day_and_today_supplies_the_year() -> None:
+    assert ps.parse_day("Aug 15", Date(2026, 8, 15)) == Date(2026, 8, 15)
+
+
+def test_the_year_is_the_nearest_one_not_the_current_one() -> None:
+    """A sheet saved either side of New Year must not land eleven months away."""
+    assert ps.parse_day("Dec 30", Date(2027, 1, 2)) == Date(2026, 12, 30)
+    assert ps.parse_day("Jan 2", Date(2026, 12, 30)) == Date(2027, 1, 2)
+
+
+def test_a_row_keeps_its_own_date() -> None:
+    """A sheet spanning midnight is archived row-accurately."""
+    rows = ps.to_rows(sheet([{"DATE": "Aug 15"}, {"DATE": "Aug 16"}]), Date(2026, 8, 15))
+    assert [r["date"] for r in rows] == ["2026-08-15", "2026-08-16"]
+
+
+def test_an_unreadable_date_falls_back_to_the_slate() -> None:
+    rows = ps.to_rows(sheet([{"DATE": "later today"}]), Date(2026, 8, 15))
     assert rows[0]["date"] == "2026-08-15"
+
+
+def test_the_file_is_named_for_the_date_most_games_are_on() -> None:
+    frame = sheet([{"DATE": "Aug 15"}, {"DATE": "Aug 15"}, {"DATE": "Aug 16"}])
+    assert ps.slate_day(frame, Date(2026, 8, 15)) == Date(2026, 8, 15)
+
+
+def test_a_sheet_with_no_readable_date_asks_for_one() -> None:
+    assert ps.slate_day(sheet([{"DATE": "n/a"}]), Date(2026, 8, 15)) is None
+    assert ps.slate_day(pd.DataFrame([{"MARKET": "Hits"}]), Date(2026, 8, 15)) is None
 
 
 def test_an_unpriced_row_is_dropped() -> None:
