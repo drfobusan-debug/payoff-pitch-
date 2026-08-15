@@ -16,6 +16,7 @@ a PPV of .706 -- the tell that it is no longer independent information.
 from __future__ import annotations
 
 from mlb_engine.audit.analysis import false_positive_insights
+from mlb_engine.audit.clv import clv_rows, summarize
 from mlb_engine.audit.ledger import (
     LedgerEntry,
     engine_metrics,
@@ -95,6 +96,27 @@ def test_the_near_certain_complement_cannot_credit_itself() -> None:
     assert (before.n, before.npv) == (0, 1.0)
     assert (polluted.n, polluted.ppv) == (10, 1.0)  # what the bug looks like
     assert (after.n, after.ppv, after.npv) == (before.n, before.ppv, before.npv)
+
+
+def test_closing_line_value_cannot_cancel_itself_out() -> None:
+    """CLV is the worst-hit metric, because the cancellation there is exact.
+
+    ``clv = close_prob - bet_prob`` and both are devigged, so the fade side's CLV
+    is ``-clv`` to the decimal. Counting both sides drives every market's mean CLV
+    to exactly zero and "beat the close" to 50% -- arithmetic, not evidence. On
+    the real ledger's 6,633 prop rows with a close attached: ``batter_tb``
+    +0.113pts -> +0.000, ``pitcher_k`` +0.100 -> +0.000.
+    """
+    over = _prop("o", 0.40, "loss")
+    over.close_odds, over.close_prob, over.clv, over.clv_ev = 250, 0.46, 0.06, 0.05
+    under = _prop("u", 0.60, "win")
+    under.close_odds, under.close_prob, under.clv, under.clv_ev = -320, 0.54, -0.06, -0.02
+
+    both = {s.label: s for s in summarize(clv_rows([over, under]))}["batter_hr"]
+    assert (both.n, both.mean_clv, both.beat_close_pct) == (2, 0.0, 0.5)  # the bug
+
+    kept = {s.label: s for s in summarize(clv_rows(one_side_per_prop([over, under])))}
+    assert (kept["batter_hr"].n, kept["batter_hr"].mean_clv) == (1, 0.06)
 
 
 def test_an_over_only_history_is_untouched() -> None:
