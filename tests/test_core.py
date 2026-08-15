@@ -2421,16 +2421,24 @@ def test_singles_under_score_flags_tto_and_flyball():
         singles_under_score,
     )
 
-    # Textbook TTO fly-ball slugger: high K% & BB%, passive zone approach,
-    # steep launch angle, elite power contact -> strong Under, well over strong.
+    # Both fitted flags: he misses the ball, and lifts it when he doesn't.
     slugger = SinglesUnderProfile(
         pa=95, bip=60, k_pct=0.31, bb_pct=0.14, z_swing=0.55, avg_la=22.0,
         barrel=0.18, hard_hit=0.52, pull_rate=0.40,
     )
     score, reasons = singles_under_score(slugger)
     assert score >= SINGLES_UNDER_STRONG
-    assert any("TTO" in r for r in reasons)
+    assert any("K%" in r for r in reasons)
     assert any("fly-ball" in r for r in reasons)
+
+    # The dropped flags no longer score: a passive, barrel-heavy, pull-happy
+    # bat who makes contact on the ground trips nothing (none of those measures
+    # predicted a no-single game out of time).
+    unfitted = SinglesUnderProfile(
+        pa=95, bip=60, k_pct=0.18, bb_pct=0.15, z_swing=0.52, avg_la=3.0,
+        barrel=0.19, hard_hit=0.55, pull_rate=0.50,
+    )
+    assert singles_under_score(unfitted) == (0.0, [])
 
     # A contact, line-drive hitter trips no flags.
     contact = SinglesUnderProfile(

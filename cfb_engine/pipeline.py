@@ -410,7 +410,12 @@ class Pipeline:
         line: float | None,
         tier: Tier,
     ) -> tuple[Tier, list[str]]:
-        """Apply the metric marking layer: NPV veto first, then confidence bump."""
+        """Apply the metric marking layer: NPV veto first, then confidence bump.
+
+        With bumps off (the default) the support score comes back with zero steps
+        and is kept as a reason, so the ledger records what the layer would have
+        done and a graded season can settle whether it should.
+        """
         if not self.cfg.marking.enabled or not signal.has_efficiency or tier == Tier.PASS:
             return tier, []
         params = self.cfg.marking
@@ -419,7 +424,7 @@ class Pipeline:
             return Tier.PASS, [f"veto: {veto.gate}"]
         steps, reasons = confidence_adjustment(market, team_side, side, signal, params)
         if steps == 0:
-            return tier, []
+            return tier, reasons
         return bump_tier(tier, steps), reasons
 
 

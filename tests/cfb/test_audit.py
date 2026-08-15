@@ -4,10 +4,19 @@ from __future__ import annotations
 
 from datetime import date
 
+import pytest
+
 from cfb_engine.audit.clv import ClosingQuote, compute_clv, merge_closing
 from cfb_engine.audit.grade import build_result_index, grade, result_for
-from cfb_engine.audit.ledger import entries_from_graded, load_ledger, update_ledger
+from cfb_engine.audit.ledger import (
+    LedgerEntry,
+    entries_from_graded,
+    load_ledger,
+    price_bucket_metrics,
+    update_ledger,
+)
 from cfb_engine.data.cfbd import GameResult
+from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
 
@@ -110,3 +119,47 @@ def test_merge_closing_keeps_earlier_kickoffs():
     assert set(merged) == {"game_ml|Georgia ML", "game_ml|Oregon ML"}
     assert merged["game_ml|Georgia ML"].no_vig_prob == 0.615
     assert merge_closing(merged, {}) == merged
+
+
+def _entry(odds: float, result: str, tier: str = Tier.MODERATE.value) -> LedgerEntry:
+    return LedgerEntry(
+        date=DAY.isoformat(),
+        matchup="Alabama vs Georgia",
+        category="Moneyline",
+        market="game_ml",
+        selection="Georgia ML",
+        line=None,
+        book="pinnacle",
+        odds=odds,
+        tier=tier,
+        model_prob=0.55,
+        ev=0.05,
+        result=result,
+        pnl=round(american_to_decimal(odds) - 1.0, 4) if result == "win" else -1.0,
+    )
+
+
+def test_price_buckets_grade_a_dog_against_what_its_price_demands() -> None:
+    """A dog winning 33% is not a leak by itself; the price is the yardstick.
+
+    Two of six +200 dogs is exactly the rate a +200 price charges, so the band
+    reads as break-even rather than as a 33% disaster.
+    """
+    entries = [_entry(200, "win")] * 2 + [_entry(200, "loss")] * 4
+    rows = {m.tier: m for m in price_bucket_metrics(entries)}
+    mid = rows["Mid dog (+200 to +399)"]
+    assert mid.n == 6
+    assert mid.win_pct == pytest.approx(1 / 3, abs=1e-3)
+    assert mid.required_win_pct == pytest.approx(1 / 3, abs=1e-3)
+    assert mid.units == pytest.approx(0.0, abs=1e-3)
+    assert rows["All underdogs"].n == 6
+    assert "All favorites" not in rows
+
+
+def test_price_buckets_ignore_rows_that_never_carried_a_price() -> None:
+    """The -110 stand-in used for P&L would pile unpriced rows into Pick'em."""
+    priced = _entry(-150, "win")
+    unpriced = _entry(-150, "win")
+    unpriced.odds = None
+    rows = price_bucket_metrics([priced, unpriced])
+    assert sum(m.n for m in rows if m.tier.startswith(("Heavy", "Favorite", "Pick"))) == 1

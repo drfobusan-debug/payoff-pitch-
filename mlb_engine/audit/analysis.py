@@ -162,7 +162,7 @@ def false_positive_insights(
                     FALSE_POSITIVE,
                     n,
                     wr,
-                    f"{market} o{_fmt_line(line)}: favored picks at this line win "
+                    f"{market} line {_fmt_line(line)}: favored picks at this line win "
                     f"{wr * 100:.1f}% (n={n}) -> stop buying this line or demand a bigger edge",
                 )
             )
@@ -224,7 +224,7 @@ def false_negative_insights(
                     FALSE_NEGATIVE,
                     n,
                     wr,
-                    f"{market} o{_fmt_line(line)}: faded picks at this line win "
+                    f"{market} line {_fmt_line(line)}: faded picks at this line win "
                     f"{wr * 100:.1f}% (n={n}) -> lift the projection here; it is a "
                     f"reclaimable false-negative pocket",
                 )
@@ -268,7 +268,7 @@ def true_positive_insights(
                     TRUE_POSITIVE,
                     n,
                     wr,
-                    f"{market} o{_fmt_line(line)}: favored picks at this line hit "
+                    f"{market} line {_fmt_line(line)}: favored picks at this line hit "
                     f"{wr * 100:.1f}% (n={n}) -> highest-conviction pocket; concentrate here",
                 )
             )

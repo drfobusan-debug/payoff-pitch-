@@ -1,27 +1,38 @@
-"""Singles "Under" NPV screen -- structural red flags that a batter fails a
-1+ singles prop.
+"""Singles "Under" screen -- the batter shape that fails a 1+ singles prop.
 
-The Monte Carlo already reflects opponent defense (middle-infield OAA via the
-defense layer) and the starter's contact profile (a groundball arm suppresses
-the batter's hit rate), so those Tier-3 game-context factors are *already* in the
-simulated singles probability.  What the sim's singles multiplier does **not**
-capture is the batter's own structural anti-singles shape:
+The Monte Carlo already reflects opponent defense, the starter's contact profile
+and the batter's own singles rate, so this screen is only about what the sim
+misses: the batter's structural anti-singles shape.
 
-  Tier 1 -- volume killers: the ball never gets in play.
-    * Three-True-Outcome profile: K% > 25% *and* BB% > 12%.
-    * Passive in-zone approach: Z-Swing% < 60% (deep counts -> more Ks).
+The five flags this began with came from a framework, with hand-picked weights.
+Fitted out of time -- 20,413 batter-games, features from a 42-day window scoring
+only the 7 days after it, 13 rolling blocks, target "no single in the game" --
+only two survive a joint fit that controls for plate appearances and the
+batter's own singles rate:
 
-  Tier 2 -- contact "cleaners": contact bypasses the singles bucket.
-    * Fly-ball tilt: average launch angle > 20 deg (singles peak ~5-15 deg).
-    * Elite power contact: Barrel% > 15% *and* Hard-Hit% > 48% (hits leave as
-      doubles/HRs, clearing the singles line).
-    * Pull-heavy grounders: Pull% > 45% with a groundball tilt (avg LA < 5 deg)
-      -- easily gloved by standard infield positioning.
+    k_pct        +0.087  z  5.02   11/13 blocks positive   KEPT
+    avg_la       +0.049  z  3.02   11/13 blocks positive   KEPT
+    hard_hit     +0.030  z  1.48                           dropped
+    bb_pct       +0.022  z  1.38                           dropped
+    z_swing      +0.013  z  0.81                           dropped
+    barrel       -0.006  z -0.26    6/13 blocks positive   dropped
+    pull_rate    -0.057  z -3.78    1/13 blocks positive   dropped, wrong sign
 
-``build_singles_under`` computes each factor from a batter's Statcast slice and
-``singles_under_score`` turns the flags into a bounded NPV score with reasons.
-The score is diagnostic -- callers decide how to act on it (e.g. excluding the
-singles *over* from betting).
+As the flags actually fired, against a 57.6% base rate: high K% 62.8%, fly-ball
+tilt 62.2%, **both 65.5%**, elite power contact 58.3% (nothing), passive
+Z-Swing% 57.3% (nothing). Pull-heavy grounders fired 36 times in 20,413 and
+point the other way -- a pull-heavy batter records *more* singles, not fewer.
+
+So the score is now K% (weight 2.0) plus fly-ball tilt (1.0), in the ratio the
+coefficients came out at, and ``SINGLES_UNDER_STRONG`` = 3.0 means both fired --
+the 65.5% cell, whose lift over the base rate was positive in 13 of 13 blocks.
+
+The extra profile fields (BB%, Z-Swing%, barrel, hard-hit, pull) are still
+computed: they are recorded on the recommendation for the audit, they just no
+longer claim to predict a single.
+
+``build_singles_under`` computes the factors from a batter's Statcast slice and
+``singles_under_score`` scores them with reasons.
 """
 
 from __future__ import annotations
@@ -46,14 +57,11 @@ _SWING_DESC = {
     "hit_into_play",
 }
 
-# --- factor thresholds (from the framework) ---
+# --- factor thresholds ---
 K_PCT_HI = 0.25
-BB_PCT_HI = 0.12
-Z_SWING_LO = 0.60
 LA_FLYBALL = 20.0
+# Retained for the diagnostic fields, not for scoring.
 LA_GROUNDBALL = 5.0
-BARREL_HI = 0.15
-HARD_HIT_HI = 0.48
 PULL_HI = 0.45
 
 MIN_PA = 40  # min plate appearances before the screen is trusted
@@ -149,10 +157,11 @@ def _ok(x: float) -> bool:
 
 
 def singles_under_score(p: SinglesUnderProfile) -> tuple[float, list[str]]:
-    """Weighted NPV score + human-readable reasons for the singles-Under screen.
+    """Score + reasons for the singles-Under screen, on the two fitted flags.
 
-    Returns ``(0.0, [])`` when the sample is too thin to trust.  Higher scores
-    mean a stronger structural case that the batter fails a 1+ singles prop.
+    Returns ``(0.0, [])`` when the sample is too thin to trust. 2.0 is the
+    strikeout flag, 1.0 the fly-ball flag, so 3.0 -- ``SINGLES_UNDER_STRONG`` --
+    is a batter who both misses the ball and lifts it when he doesn't.
     """
     if not p.has_data:
         return 0.0, []
@@ -160,34 +169,14 @@ def singles_under_score(p: SinglesUnderProfile) -> tuple[float, list[str]]:
     score = 0.0
     reasons: list[str] = []
 
-    # Tier 1 -- volume killers.
-    if _ok(p.k_pct) and _ok(p.bb_pct) and p.k_pct > K_PCT_HI and p.bb_pct > BB_PCT_HI:
+    # The ball never gets in play.
+    if _ok(p.k_pct) and p.k_pct > K_PCT_HI:
         score += 2.0
-        reasons.append(f"TTO: K% {p.k_pct:.1%} & BB% {p.bb_pct:.1%}")
-    elif _ok(p.k_pct) and p.k_pct > K_PCT_HI:
-        score += 1.0
         reasons.append(f"high K% {p.k_pct:.1%}")
-    if _ok(p.z_swing) and p.z_swing < Z_SWING_LO:
-        score += 1.0
-        reasons.append(f"passive Z-Swing% {p.z_swing:.1%}")
-
-    # Tier 2 -- contact cleaners.
+    # In play, but over the infield rather than through it.
     if _ok(p.avg_la) and p.avg_la > LA_FLYBALL:
-        score += 1.5
-        reasons.append(f"fly-ball tilt (avg LA {p.avg_la:.1f} deg)")
-    if _ok(p.barrel) and _ok(p.hard_hit) and p.barrel > BARREL_HI and p.hard_hit > HARD_HIT_HI:
-        score += 1.5
-        reasons.append(
-            f"elite power contact (barrel {p.barrel:.1%}, hard {p.hard_hit:.1%})"
-        )
-    if (
-        _ok(p.pull_rate)
-        and _ok(p.avg_la)
-        and p.pull_rate > PULL_HI
-        and p.avg_la < LA_GROUNDBALL
-    ):
         score += 1.0
-        reasons.append(f"pull-heavy grounders (pull {p.pull_rate:.1%})")
+        reasons.append(f"fly-ball tilt (avg LA {p.avg_la:.1f} deg)")
 
     return round(score, 2), reasons
 
