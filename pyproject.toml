@@ -19,6 +19,7 @@ dependencies = [
     "gtts>=2.4",
     "edge-tts>=6.1",
     "certifi>=2024.2",
+    "pyarrow>=14.0",
 ]
 
 [project.optional-dependencies]
@@ -33,7 +34,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["mlb_engine*", "cfb_engine*"]
+include = ["mlb_engine*", "cfb_engine*", "nfl_engine*"]
 
 [tool.ruff]
 line-length = 100
