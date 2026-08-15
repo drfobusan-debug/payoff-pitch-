@@ -429,6 +429,7 @@ _DAILY_COLUMNS = [
 ]
 _BET_COLUMNS = [
     "Date",
+    "Source",
     "Category",
     "Selection",
     "Matchup",
@@ -602,6 +603,7 @@ def write_ledger_workbook(
     for r, e in enumerate(entries, start=2):
         vals = [
             e.date,
+            e.source,
             e.category,
             e.selection,
             e.matchup,
@@ -622,7 +624,7 @@ def write_ledger_workbook(
         fill = _RESULT_FILL.get(e.result)
         if fill:
             ws_bets.cell(row=r, column=_BET_COLUMNS.index("Result") + 1).fill = fill
-    for i, w in enumerate([12, 15, 30, 13, 13, 8, 10, 8, 9, 8, 8, 8, 8, 8, 8], start=1):
+    for i, w in enumerate([12, 13, 15, 30, 13, 13, 8, 10, 8, 9, 8, 8, 8, 8, 8, 8], start=1):
         ws_bets.column_dimensions[get_column_letter(i)].width = w
     if entries:
         ws_bets.auto_filter.ref = f"A1:{get_column_letter(len(_BET_COLUMNS))}{len(entries) + 1}"
