@@ -39,6 +39,10 @@ from nfl_engine.market.screens import Tier, tier_of
 WIN, LOSS, PUSH, VOID = "win", "loss", "push", "void"
 OVER, UNDER = "over", "under"
 ENGINE = "engine"
+# Every row records whether money was at risk. Nothing in this repository writes
+# LIVE: the dry run has no staking path at all, and the column exists so that the
+# day one is added, a paper record cannot be quoted as a real one by accident.
+PAPER, LIVE = "paper", "live"
 
 
 @dataclass
@@ -76,6 +80,12 @@ class LedgerEntry:
     # sit in the same ledger, graded identically, and be excluded from every
     # measurement of us.
     source: str = ENGINE
+    # paper | live. See PAPER above.
+    mode: str = PAPER
+    # When the price on this row was seen. Distinct from ``date`` (kickoff): an
+    # execution edge is a claim about a price that existed at a moment, and
+    # without the moment the claim cannot be checked against the archive.
+    captured_at: str = ""
 
 
 LEDGER_FIELDS = [f.name for f in fields(LedgerEntry)]
@@ -87,6 +97,8 @@ def entry_from_bet(
     season: int,
     week: int,
     date: str,
+    captured_at: str = "",
+    mode: str = PAPER,
 ) -> LedgerEntry:
     return LedgerEntry(
         season=season,
@@ -106,6 +118,8 @@ def entry_from_bet(
         ev_fair=None if bet.ev_fair is None else round(bet.ev_fair, 6),
         paired_books=0 if bet.fair is None else bet.fair.paired_books,
         screens=";".join(bet.screens),
+        mode=mode,
+        captured_at=captured_at,
     )
 
 
@@ -239,6 +253,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     clv=_float(row.get("clv")),
                     clv_ev=_float(row.get("clv_ev")),
                     source=row.get("source", ENGINE),
+                    mode=row.get("mode") or PAPER,
+                    captured_at=row.get("captured_at", ""),
                 )
             )
     return out
@@ -256,6 +272,46 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry]) -> list[LedgerEntr
     merged = kept + new_entries
     save_ledger(path, merged)
     return merged
+
+
+def position_key(entry: LedgerEntry) -> tuple[str, ...]:
+    """What makes two rows the same position, for repeated captures.
+
+    The book and the rung are part of the identity: -3 and -3.5 are different
+    bets, and the same rung at two books is two prices. The price itself is not,
+    which is the whole point -- a re-run at a moved number must not silently
+    become a second position.
+    """
+    line = "" if entry.line is None else f"{entry.line:g}"
+    return (
+        str(entry.season),
+        str(entry.week),
+        entry.matchup,
+        entry.market,
+        entry.side,
+        line,
+        entry.book,
+        entry.source,
+    )
+
+
+def merge_ledger(path: Path, new_entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Add positions that are new; leave every existing row exactly as it stands.
+
+    This is what makes a repeated capture safe, and it encodes a betting decision
+    rather than a storage one: **the price of record is the first one seen.** A dry
+    run that re-priced Sunday's board every hour and kept the latest number would
+    quietly grant itself the best price of the week in hindsight and destroy the
+    CLV measurement, which is the only honest read available before hundreds of
+    graded bets exist. Grading and closing rewrite rows through
+    :func:`update_ledger`; pricing only ever appends.
+    """
+    existing = load_ledger(path)
+    seen = {position_key(entry) for entry in existing}
+    fresh = [entry for entry in new_entries if position_key(entry) not in seen]
+    if fresh:
+        save_ledger(path, existing + fresh)
+    return fresh
 
 
 def _float(value: str | None) -> float | None:

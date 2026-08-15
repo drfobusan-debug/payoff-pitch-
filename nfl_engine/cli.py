@@ -1,40 +1,66 @@
-"""`nfl-engine price`, `close`, `grade` and `report`.
+"""The week, as commands: `capture`, `price`, `close`, `grade`, `report`, plus
+`replay` and the unattended `job`.
 
-Four verbs in the order a week actually happens: price the board and write every
-selection *and rejection* to the ledger; capture the closing number so CLV can be
-scored; settle the rows against final scores; read the record back with PPV/NPV
-against the base rate. Nothing here stakes money -- the paper dry run is phase 6.
+In the order a week actually happens: archive the board; price it and write every
+selection *and rejection* to the ledger; archive and stamp the closing number so
+CLV can be scored; settle against final scores; read the record back with PPV/NPV
+against the base rate.
+
+**Nothing here can stake money.** There is no stake, bankroll or Kelly argument
+anywhere in the engine, and every ledger row is written ``mode=paper``. That is
+not a flag that could be flipped by accident -- placing a bet would require code
+that does not exist. `price` prints the fact on every run, so a screenshot of a
+run can never be mistaken for a bet slip.
+
+Two properties the dry run needs that the phase-5 commands did not have:
+
+**Pricing appends; it never rewrites.** Re-running on a moved board adds only
+new positions and keeps the first price seen, because keeping the latest number
+would hand the paper record the best price of the week in hindsight.
+
+**What gets priced is what got archived.** Every fetch writes a timestamped
+snapshot before anything is priced, so a recommendation can be checked against the
+board that existed at the time rather than against a memory of it.
+
+`replay` runs a played week at its closing prices through these same functions,
+which is the only way to exercise grading, CLV and the report out of season.
 """
 
 from __future__ import annotations
 
 import argparse
 import logging
+from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
 
+from nfl_engine import replay as replay_mod
 from nfl_engine.audit.ledger import (
+    PAPER,
     LedgerEntry,
     apply_close,
     entry_from_bet,
     grade,
     load_ledger,
     market_metrics,
+    merge_ledger,
     metrics,
     screen_metrics,
     tier_metrics,
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config
-from nfl_engine.data import nflverse
-from nfl_engine.data.oddsapi import OddsAPIClient
+from nfl_engine.data import capture, nflverse
+from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.pipeline import price_slate, slate_buys
+from nfl_engine.schemas import Game
 
 log = logging.getLogger(__name__)
 
 LEDGER_NAME = "nfl_ledger.csv"
+PAPER_BANNER = "paper only: no stake is placed and no bankroll exists in this engine"
 
 
 def ledger_path(root: Path | None = None) -> Path:
@@ -64,39 +90,94 @@ def current_week(today: Date | None = None) -> tuple[int, int, Date]:
     return season, week, Date.fromisoformat(first)
 
 
-def _board_and_slate(days: int) -> tuple[list, dict]:
+@dataclass
+class Fetched:
+    season: int
+    week: int
+    captured_at: str
+    games: list[Game]
+    board: Board
+    archived: Path | None = None
+
+
+def _fetch(days: int, *, kind: str = capture.GAME_KIND, archive: bool = True) -> Fetched:
+    """Pull the board and archive it before a probability is formed."""
     client = _client()
-    if not client.available():
-        log.warning("no Odds API key: nothing to price")
-        return [], {}
     season, week, first_day = current_week()
+    taken = capture.stamp()
+    if not client.available():
+        log.warning("no Odds API key: nothing to fetch")
+        return Fetched(season, week, taken, [], {})
     slate, board = client.fetch_board(
         season=season, week=week, first_day=first_day, days=days
     )
-    return list(slate.games), board
+    games = list(slate.games)
+    rows = capture.rows_from_board(
+        board,
+        season=season,
+        week=week,
+        captured_at=taken,
+        dates={game.matchup(): game.game_date.isoformat() for game in games},
+        event_ids={game.matchup(): game.game_id for game in games},
+    )
+    written = capture.write_snapshot(rows, season=season, week=week, kind=kind) if archive else None
+    if rows:
+        print(f"{capture.archive_summary(rows)}")
+        print(f"  archived {written.name if written else '(unchanged: board had not moved)'}")
+    if client.credits_remaining is not None:
+        print(f"  Odds API credits remaining: {client.credits_remaining}")
+    return Fetched(season, week, taken, games, board, written)
+
+
+def cmd_capture(args: argparse.Namespace) -> int:
+    """Archive prices and nothing else -- the command that has to run from now on.
+
+    Game prices are recoverable from nflverse afterwards; prop prices are not
+    recoverable from anywhere, at any price, which is why this runs through the
+    preseason even though the props layer is blocked and nothing is bet.
+    """
+    fetched = _fetch(args.days)
+    if args.props and fetched.games:
+        client = _client()
+        rows = client.fetch_props(
+            fetched.games, captured_at=fetched.captured_at, max_events=args.max_events
+        )
+        path = capture.write_snapshot(
+            rows, season=fetched.season, week=fetched.week, kind=capture.PROP_KIND
+        )
+        players = len({row.player for row in rows})
+        markets = len({row.market for row in rows})
+        print(f"props: {len(rows)} quotes, {players} players, {markets} markets")
+        print(f"  archived {path.name if path else '(unchanged)'}")
+    return 0
+
+
+def _ledger_rows(pricings: list, captured_at: str) -> list[LedgerEntry]:
+    return [
+        entry_from_bet(
+            bet,
+            season=pricing.game.season,
+            week=pricing.game.week,
+            date=pricing.game.game_date.isoformat(),
+            captured_at=captured_at,
+            mode=PAPER,
+        )
+        for pricing in pricings
+        for bet in pricing.bets
+    ]
 
 
 def cmd_price(args: argparse.Namespace) -> int:
-    games, board = _board_and_slate(args.days)
-    if not games:
+    fetched = _fetch(args.days)
+    if not fetched.games:
         return 0
-    pricings = price_slate(games, board, sim=DriveSim(n_sims=args.sims))
-    entries: list[LedgerEntry] = []
-    for pricing in pricings:
-        for bet in pricing.bets:
-            entries.append(
-                entry_from_bet(
-                    bet,
-                    season=pricing.game.season,
-                    week=pricing.game.week,
-                    date=pricing.game.game_date.isoformat(),
-                )
-            )
-    path = ledger_path()
-    if args.write:
-        update_ledger(path, entries)
+    pricings = price_slate(fetched.games, fetched.board, sim=DriveSim(n_sims=args.sims))
+    entries = _ledger_rows(pricings, fetched.captured_at)
+    added = merge_ledger(ledger_path(), entries) if args.write else []
     buys = slate_buys(pricings)
-    print(f"{len(entries)} selections, {len(buys)} survive the screens")
+    print(f"{len(entries)} selections, {len(buys)} survive the screens [{PAPER_BANNER}]")
+    if args.write:
+        print(f"  {len(added)} new ledger rows ({len(entries) - len(added)} already held)")
     for bet in buys[: args.top]:
         fair_ev = bet.ev_fair or 0.0
         print(
@@ -114,7 +195,7 @@ def cmd_close(args: argparse.Namespace) -> int:
     if not entries:
         print("empty ledger")
         return 0
-    _, board = _board_and_slate(args.days)
+    board = _fetch(args.days, kind=capture.CLOSE_KIND).board
     stamped = 0
     for entry in entries:
         if entry.close_odds is not None or entry.result:
@@ -186,6 +267,75 @@ def _final_scores(season: int | None) -> dict[tuple[str, str], tuple[int, int]]:
     return out
 
 
+def cmd_replay(args: argparse.Namespace) -> int:
+    """Run played weeks at their closing prices through the live functions.
+
+    The board has one book, so the de-vigged consensus is the price taken and the
+    execution edge is zero: every replayed row is a Pass, and that is the right
+    answer rather than a bug. What is being tested is the machinery -- append-once
+    ledger writes, grading on the side taken, CLV against the price struck, and the
+    PPV/NPV report over real outcomes.
+    """
+    weeks = replay_mod.played_weeks(args.season, args.weeks)
+    if not weeks:
+        print(f"no played games for {args.season}")
+        return 0
+    path = ledger_path()
+    sim = DriveSim(n_sims=args.sims)
+    priced = added = graded = closed = 0
+    for week in weeks:
+        taken = capture.stamp()
+        if args.archive:
+            capture.write_snapshot(
+                week.quote_rows(taken),
+                season=week.season,
+                week=week.week,
+                kind=capture.CLOSE_KIND,
+            )
+        pricings = price_slate(week.games, week.board, sim=sim)
+        entries = _ledger_rows(pricings, taken)
+        priced += len(entries)
+        for entry in entries:
+            quote = _closing_quote(week.board, entry)
+            if quote is not None:
+                apply_close(entry, quote[0], quote[1])
+                closed += 1
+            final = week.finals.get(entry.matchup)
+            if final is not None:
+                grade(entry, final[0], final[1], home=entry.matchup.split(" @ ")[-1])
+                graded += 1
+        if args.write:
+            added += len(merge_ledger(path, entries))
+    print(
+        f"{args.season}: {len(weeks)} weeks, {priced} selections priced, "
+        f"{closed} closed, {graded} graded [{PAPER_BANNER}]"
+    )
+    if args.write:
+        print(f"  {added} new ledger rows ({priced - added} already held)")
+    return 0
+
+
+def cmd_job(args: argparse.Namespace) -> int:
+    """The unattended weekly run: capture, price, close, grade, report.
+
+    One entry point for cron or a double-click, so the archive accrues and the
+    ledger settles without anyone remembering the order. Each step is the same
+    function the individual command calls, and a step with nothing to do is not an
+    error -- in the off-season the whole job is a no-op that still exits 0.
+    """
+    steps = (
+        ("capture", cmd_capture),
+        ("price", cmd_price),
+        ("close", cmd_close),
+        ("grade", cmd_grade),
+        ("report", cmd_report),
+    )
+    for name, func in steps:
+        print(f"== {name}")
+        func(args)
+    return 0
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     entries = load_ledger(ledger_path())
     if not entries:
@@ -240,6 +390,35 @@ def main(argv: list[str] | None = None) -> int:
     report = sub.add_parser("report", help="tier, market and screen records")
     report.add_argument("--all", action="store_true")
     report.set_defaults(func=cmd_report)
+
+    capture_cmd = sub.add_parser("capture", help="archive prices, price nothing")
+    capture_cmd.add_argument("--days", type=int, default=8)
+    capture_cmd.add_argument(
+        "--props", action="store_true", help="also archive player-prop prices"
+    )
+    capture_cmd.add_argument("--max-events", type=int, default=32)
+    capture_cmd.set_defaults(func=cmd_capture)
+
+    replay_cmd = sub.add_parser("replay", help="run played weeks at their closing prices")
+    replay_cmd.add_argument("--season", type=int, required=True)
+    replay_cmd.add_argument("--weeks", type=int, nargs="*", default=None)
+    replay_cmd.add_argument("--sims", type=int, default=20000)
+    replay_cmd.add_argument("--archive", action="store_true", default=False)
+    replay_cmd.add_argument("--write", action="store_true", default=True)
+    replay_cmd.add_argument("--no-write", dest="write", action="store_false")
+    replay_cmd.set_defaults(func=cmd_replay)
+
+    job = sub.add_parser("job", help="capture, price, close, grade and report in order")
+    job.add_argument("--days", type=int, default=8)
+    job.add_argument("--sims", type=int, default=40000)
+    job.add_argument("--top", type=int, default=25)
+    job.add_argument("--props", action="store_true")
+    job.add_argument("--max-events", type=int, default=32)
+    job.add_argument("--season", type=int, default=None)
+    job.add_argument("--all", action="store_true")
+    job.add_argument("--write", action="store_true", default=True)
+    job.add_argument("--no-write", dest="write", action="store_false")
+    job.set_defaults(func=cmd_job)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)

@@ -124,7 +124,8 @@ def price_game(
             if side == home:
                 point, prob = home_point, distribution.spread(home_point)
             elif side == away:
-                point, prob = -home_point, distribution.spread(-home_point)
+                point = -home_point
+                prob = distribution.spread(point, home=False)
             else:
                 continue
             bets.extend(_bets_for(odds, SPREAD, side, point, quotes, prob, method))
