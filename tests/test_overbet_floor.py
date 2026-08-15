@@ -17,7 +17,6 @@ from types import SimpleNamespace
 import numpy as np
 
 from mlb_engine.config import Config, EVThresholds
-from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.market import keys
 from mlb_engine.market.ev import EVResult, MarketQuote
 from mlb_engine.market.tiers import Tier, classify
@@ -35,10 +34,6 @@ def _mk_pipeline(cfg: Config) -> Pipeline:
     p._calibrator = _IdentityCalibrator()
     p._shrink = None
     p._splits = {}
-    # The drift gate runs on every buy; with no opening board captured it is
-    # neutral, exactly as on a slate's first run.
-    p._drift_gate = DriftGate.from_env()
-    p._open_board = {}
     return p
 
 

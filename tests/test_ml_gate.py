@@ -116,7 +116,6 @@ def _ml_rec(
 
     from mlb_engine.config import Config
     from mlb_engine.data.vsin import Split
-    from mlb_engine.features.drift_gate import DriftGate
     from mlb_engine.features.lineup_lock import LineupLockGate
     from mlb_engine.features.ml_gate import MLPenGate
     from mlb_engine.features.ml_gate import MLSharpGate as Gate
@@ -133,8 +132,6 @@ def _ml_rec(
     p._pen_gate = MLPenGate.from_env()
     p._lineup_gate = LineupLockGate.from_env()
     p._lineup_lock = None
-    p._drift_gate = DriftGate.from_env()
-    p._open_board = {}
     sel = "MIA ML" if team_side == "away" else "ATL ML"
     p._splits = {
         ("MIA @ ATL", "game_ml", sel): Split(handle_pct=80.0, bets_pct=37.0)
