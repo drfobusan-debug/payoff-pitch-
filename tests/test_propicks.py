@@ -27,6 +27,7 @@ from mlb_engine.data.propicks import (
     save_picks,
 )
 from mlb_engine.market.tiers import Tier
+from mlb_engine.output import excel
 from mlb_engine.output.card import build_cards, render_markdown
 from mlb_engine.recommendations import Recommendation
 
@@ -338,6 +339,12 @@ def test_row_and_grid_expose_the_mark() -> None:
     assert row["VSiN"] == "\u2605"
     assert row["VSiN Pick"] == "VOLT UNDER 7.5 (-102)"
     assert row["VSiN Edge"] == 7.9
+
+
+def test_every_column_has_its_own_width() -> None:
+    """A width list one entry short silently shifts every column after it."""
+    assert len(excel.GRID_COLUMNS) == len(excel.GRID_WIDTHS)
+    assert set(excel.COLUMNS) == set(excel.COLUMN_WIDTHS)
 
 
 def test_a_capture_refuses_to_file_todays_cards_under_another_day(monkeypatch, capsys) -> None:
