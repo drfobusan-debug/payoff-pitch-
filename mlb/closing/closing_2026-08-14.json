@@ -7989,9 +7989,23 @@
   {
     "matchup": "COL @ SF",
     "market": "batter_h",
+    "selection": "Jung Hoo Lee H o0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.683878
+  },
+  {
+    "matchup": "COL @ SF",
+    "market": "batter_h",
     "selection": "Jung Hoo Lee H o1.5",
     "american": 185.0,
     "no_vig_prob": 0.359883
+  },
+  {
+    "matchup": "COL @ SF",
+    "market": "batter_h",
+    "selection": "Jung Hoo Lee H u0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.316122
   },
   {
     "matchup": "COL @ SF",
@@ -16341,6 +16355,27 @@
     "matchup": "MIL @ LAD",
     "market": "batter_hr",
     "selection": "Kyle Tucker HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Luis Lara HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.094298
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Luis Lara HR o1.5",
+    "american": 12500.0,
+    "no_vig_prob": 0.007937
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Luis Lara HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
