@@ -23,7 +23,12 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from mlb_engine.audit.grade import PUSH, WIN
-from mlb_engine.audit.ledger import ENGINE_PROB_THRESHOLD, LedgerEntry, is_prop
+from mlb_engine.audit.ledger import (
+    ENGINE_PROB_THRESHOLD,
+    LedgerEntry,
+    is_prop,
+    prop_side_of,
+)
 from mlb_engine.features.lineup_lock import POSTED, PROJECTED
 from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.market.tiers import Tier
@@ -78,37 +83,49 @@ def _faded(entries: list[LedgerEntry]) -> list[LedgerEntry]:
     return [e for e in _decided(entries) if e.model_prob < ENGINE_PROB_THRESHOLD]
 
 
-def _fmt_line(line: float | None) -> str:
-    return "?" if line is None else (f"{line:g}")
+def _fmt_line(line: float | None, side: str = "") -> str:
+    """``o0.5`` where the side is known, bare ``0.5`` where it is not.
+
+    An over and an under at the same number are opposite bets, so a finding that
+    prints only the number tells the reader to stop buying both of them.
+    """
+    num = "?" if line is None else f"{line:g}"
+    return f"{side}{num}" if side else num
 
 
-def _worst_line(entries: list[LedgerEntry], min_n: int) -> tuple[float | None, float, int] | None:
-    """Line with the lowest win rate among ``entries`` (n>=min_n)."""
-    by_line: dict[float | None, list[LedgerEntry]] = defaultdict(list)
+def _lines(
+    entries: list[LedgerEntry], min_n: int, *, worst: bool
+) -> tuple[float | None, str, float, int] | None:
+    """The best or worst (side, line) pocket among ``entries`` (n>=min_n).
+
+    Keyed on side as well as number: both sides of a prop are priced now, so
+    pooling them under one line averages two complementary bets together and
+    reports the mixture as though it were one of them.
+    """
+    by_line: dict[tuple[float | None, str], list[LedgerEntry]] = defaultdict(list)
     for e in entries:
-        by_line[e.line].append(e)
-    best: tuple[float | None, float, int] | None = None
-    for line, es in by_line.items():
+        by_line[(e.line, prop_side_of(e.selection))].append(e)
+    best: tuple[float | None, str, float, int] | None = None
+    for (line, side), es in by_line.items():
         if len(es) < min_n:
             continue
         wr = _win_rate(es)
-        if best is None or wr < best[1]:
-            best = (line, wr, len(es))
+        if best is None or (wr < best[2] if worst else wr > best[2]):
+            best = (line, side, wr, len(es))
     return best
 
 
-def _best_line(entries: list[LedgerEntry], min_n: int) -> tuple[float | None, float, int] | None:
-    by_line: dict[float | None, list[LedgerEntry]] = defaultdict(list)
-    for e in entries:
-        by_line[e.line].append(e)
-    best: tuple[float | None, float, int] | None = None
-    for line, es in by_line.items():
-        if len(es) < min_n:
-            continue
-        wr = _win_rate(es)
-        if best is None or wr > best[1]:
-            best = (line, wr, len(es))
-    return best
+def _worst_line(
+    entries: list[LedgerEntry], min_n: int
+) -> tuple[float | None, str, float, int] | None:
+    """Side+line with the lowest win rate among ``entries`` (n>=min_n)."""
+    return _lines(entries, min_n, worst=True)
+
+
+def _best_line(
+    entries: list[LedgerEntry], min_n: int
+) -> tuple[float | None, str, float, int] | None:
+    return _lines(entries, min_n, worst=False)
 
 
 def false_positive_insights(
@@ -158,15 +175,15 @@ def false_positive_insights(
 
         # worst line inside the favored set
         wl = _worst_line(fav, min_n)
-        if wl is not None and wl[1] < BREAKEVEN:
-            line, wr, n = wl
+        if wl is not None and wl[2] < BREAKEVEN:
+            line, side, wr, n = wl
             out.append(
                 PropInsight(
                     market,
                     FALSE_POSITIVE,
                     n,
                     wr,
-                    f"{market} line {_fmt_line(line)}: favored picks at this line win "
+                    f"{market} line {_fmt_line(line, side)}: favored picks at this line win "
                     f"{wr * 100:.1f}% (n={n}) -> stop buying this line or demand a bigger edge",
                 )
             )
@@ -220,15 +237,15 @@ def false_negative_insights(
             )
         # most reclaimable line among fades (highest realized win rate over breakeven)
         bl = _best_line(faded, min_n)
-        if bl is not None and bl[1] > BREAKEVEN:
-            line, wr, n = bl
+        if bl is not None and bl[2] > BREAKEVEN:
+            line, side, wr, n = bl
             out.append(
                 PropInsight(
                     market,
                     FALSE_NEGATIVE,
                     n,
                     wr,
-                    f"{market} line {_fmt_line(line)}: faded picks at this line win "
+                    f"{market} line {_fmt_line(line, side)}: faded picks at this line win "
                     f"{wr * 100:.1f}% (n={n}) -> lift the projection here; it is a "
                     f"reclaimable false-negative pocket",
                 )
@@ -264,15 +281,15 @@ def true_positive_insights(
             )
         # sharpest line among the true positives
         bl = _best_line(fav, min_n)
-        if bl is not None and bl[1] > max(ppv, BREAKEVEN):
-            line, wr, n = bl
+        if bl is not None and bl[2] > max(ppv, BREAKEVEN):
+            line, side, wr, n = bl
             out.append(
                 PropInsight(
                     market,
                     TRUE_POSITIVE,
                     n,
                     wr,
-                    f"{market} line {_fmt_line(line)}: favored picks at this line hit "
+                    f"{market} line {_fmt_line(line, side)}: favored picks at this line hit "
                     f"{wr * 100:.1f}% (n={n}) -> highest-conviction pocket; concentrate here",
                 )
             )
