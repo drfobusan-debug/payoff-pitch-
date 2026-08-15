@@ -111,6 +111,7 @@ from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, anchor_to_market, evaluate
 from mlb_engine.market.odds import american_to_prob
+from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.runline import (
     RunLineSignal,
     RunLineVeto,
@@ -1361,12 +1362,21 @@ class Pipeline:
         fav_team = ha if fav_side == "home" else aa
         fav_odds = _fnum(fav_rec.market_american) if fav_rec else None
 
-        # Best bets in this game: the engine's own buy tiers, best EV first.
+        # Best bets in this game: the engine's own buy tiers, ordered by
+        # ``market.ranking`` rather than by EV -- EV rises with the payout, and
+        # the graded book runs -5.0% on the shortest EV cell against -15.2% in
+        # the middle, so ranking on it promoted exactly the wrong four.
         buys = [
             r for r in recs
             if r.tier in (Tier.STRONG, Tier.MODERATE) and r.ev is not None
         ]
-        buys.sort(key=lambda r: (r.tier != Tier.STRONG, -(r.ev or 0.0)))
+        buys.sort(
+            key=lambda r: bet_sort_key(
+                strong=r.tier == Tier.STRONG,
+                american=_fnum(r.market_american),
+                edge=_fnum(r.edge),
+            )
+        )
         best_bets = [
             BestBet(
                 selection=r.selection,

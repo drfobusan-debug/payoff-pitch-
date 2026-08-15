@@ -31,6 +31,7 @@ import numpy as np
 
 from mlb_engine.features.regression import BL_BABIP
 from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
+from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
     GOLD,
@@ -608,7 +609,12 @@ def _best_bets_block(gp: GamePreview) -> str:
 def _slate_best_bets_block(
     previews: list[GamePreview], recs: list[Recommendation]
 ) -> str:
-    """Every buy across the slate, strongest first, bold, at the bottom.
+    """Every buy across the slate, bold, at the bottom.
+
+    Ordered by ``market.ranking``: conviction tier, then shortest price. Not by
+    edge -- the ledger says edge does not order the record inside the band we
+    allow, so listing by it put the rows nearest the model-error ceiling at the
+    top of the page.
 
     Built from the full ``recs`` (not ``GamePreview.best_bets``, which the
     pipeline truncates to the top four per game) so the count is the true number
@@ -616,7 +622,13 @@ def _slate_best_bets_block(
     """
     labels = {gp.game_pk: f"{gp.away}@{gp.home}" for gp in previews}
     rows = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE)]
-    rows.sort(key=lambda r: (_TIER_RANK.get(r.tier.value, 9), -(r.edge or 0.0)))
+    rows.sort(
+        key=lambda r: bet_sort_key(
+            strong=r.tier == Tier.STRONG,
+            american=r.market_american,
+            edge=r.edge,
+        )
+    )
     if not rows:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
@@ -633,7 +645,10 @@ def _slate_best_bets_block(
         )
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
-        f"<p class='sbnote'>{len(rows)} plays clear the buy threshold, strongest first:</p>"
+        f"<p class='sbnote'>{len(rows)} plays clear the buy threshold, listed by "
+        "conviction and then by price, shortest first. The order is not a "
+        "strength ranking: on 823 graded buys the edge column does not separate "
+        "winners from losers, while the longer prices lose the most.</p>"
         f"<ul class='bets big'>{items}</ul></div>"
     )
 
