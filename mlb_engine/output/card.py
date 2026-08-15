@@ -50,6 +50,9 @@ class Play:
     # TeamRankings' call on the same game market, same contract.
     tr_pick: str | None = None
     tr_agrees: bool | None = None
+    # THE BAT X's projection for this prop, off EV Analytics' board.
+    ev_pick: str | None = None
+    ev_agrees: bool | None = None
 
     @property
     def vsin_bit(self) -> str:
@@ -66,6 +69,14 @@ class Play:
             return ""
         mark = _AGREE if self.tr_agrees else _DISAGREE
         return f"{mark} TR {self.tr_pick}"
+
+    @property
+    def ev_bit(self) -> str:
+        """"BATX 1.47 vs 1.11 implied", starred when it clears our line our way."""
+        if self.ev_pick is None or self.ev_agrees is None:
+            return ""
+        mark = _AGREE if self.ev_agrees else _DISAGREE
+        return f"{mark} {self.ev_pick}"
 
     def _odds_str(self) -> str:
         return "n/a" if self.odds is None else f"{self.odds:+.0f}"
@@ -294,6 +305,8 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
                 vsin_agrees=r.vsin_agrees,
                 tr_pick=r.tr_pick,
                 tr_agrees=r.tr_agrees,
+                ev_pick=r.ev_pick,
+                ev_agrees=r.ev_agrees,
             )
         )
         if len(out) >= _MAX_PLAYS:
@@ -339,6 +352,8 @@ def _play_bits(p: Play) -> str:
         bits.append(p.vsin_bit)
     if p.tr_bit:
         bits.append(p.tr_bit)
+    if p.ev_bit:
+        bits.append(p.ev_bit)
     return ", ".join(bits)
 
 
@@ -347,6 +362,11 @@ _VSIN_LEGEND = (
     "landed on the same side \u2014 a second opinion, not a reason. "
 )
 
+
+_EV_LEGEND = (
+    "A \u201cBATX\u201d figure is THE BAT X's projected mean for the stat, off "
+    "EV Analytics' board, marked against our line. "
+)
 
 _TR_LEGEND = (
     "A \u201cTR\u201d mark is TeamRankings' model on the same game market. "
@@ -360,6 +380,8 @@ def _vsin_legend(cards: list[GameCard]) -> str:
         legend += _VSIN_LEGEND
     if any(p.tr_bit for c in cards for p in c.plays):
         legend += _TR_LEGEND
+    if any(p.ev_bit for c in cards for p in c.plays):
+        legend += _EV_LEGEND
     return legend
 
 

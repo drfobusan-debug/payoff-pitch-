@@ -798,6 +798,11 @@ class Config:
         return self.data_dir / "batx"
 
     @property
+    def evanalytics_dir(self) -> Path:
+        """Saved EV Analytics prop boards, dropped in as whole HTML pages."""
+        return self.data_dir / "evanalytics"
+
+    @property
     def team_form_path(self) -> Path:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
@@ -823,6 +828,7 @@ class Config:
             self.audit_dir,
             self.fangraphs_dir,
             self.batx_dir,
+            self.evanalytics_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 

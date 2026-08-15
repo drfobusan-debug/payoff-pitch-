@@ -119,6 +119,13 @@ class Recommendation:
     # displayed and persisted to the ledger, and it is an input to nothing: the
     # head-to-head that would justify weighting it is itself run off this column.
     batx_prob: float | None = None
+    # EV Analytics' board (see data.evanalytics), which publishes THE BAT X's
+    # projected *mean* for the stat next to the book's line. ev_agrees compares
+    # that mean to our own line, so the same forecast is a star on over 0.5 and
+    # a cross on over 1.5. Display only, like every other outside model here.
+    ev_proj: float | None = None
+    ev_pick: str | None = None
+    ev_agrees: bool | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -152,6 +159,13 @@ class Recommendation:
         if self.tr_agrees is None:
             return ""
         return "\u2605" if self.tr_agrees else "\u2717"
+
+    @property
+    def ev_mark(self) -> str:
+        """A star when THE BAT X's projection clears our line on our side."""
+        if self.ev_agrees is None:
+            return ""
+        return "\u2605" if self.ev_agrees else "\u2717"
 
     @property
     def model_american(self) -> float:
@@ -209,6 +223,9 @@ class Recommendation:
             "TR Pick": self.tr_pick or "",
             "TR Stars": self.tr_stars if self.tr_stars is not None else "",
             "TR Winner": self.tr_winner or "",
+            "EVA": self.ev_mark,
+            "EVA Proj": round(self.ev_proj, 2) if self.ev_proj is not None else "",
+            "EVA Pick": self.ev_pick or "",
             "Notes": "; ".join(self.reasons),
         }
 

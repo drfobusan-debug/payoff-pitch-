@@ -73,6 +73,9 @@ COLUMNS = [
     "TR Pick",
     "TR Stars",
     "TR Winner",
+    "EVA",
+    "EVA Proj",
+    "EVA Pick",
     "Notes",
 ]
 
@@ -110,6 +113,9 @@ COLUMN_WIDTHS = {
     "TR Pick": 20,
     "TR Stars": 8,
     "TR Winner": 16,
+    "EVA": 5,
+    "EVA Proj": 9,
+    "EVA Pick": 22,
     "Notes": 40,
 }
 
@@ -159,6 +165,8 @@ GRID_COLUMNS = [
     "TR",
     "TR Pick",
     "TR Winner",
+    "EVA",
+    "EVA Pick",
     "Edge",
     "Handle %",
     "Bets %",
@@ -174,13 +182,14 @@ GRID_WIDTHS = {
     "Best": 7, "Tier": 13, "Category": 15, "EV": 8, "Selection": 30,
     "Matchup": 13, "Date": 12, "Book": 12, "Odds": 8, "Model %": 8,
     "Market %": 8, "AI": 7, "Opta %": 8, "VSiN": 6, "VSiN Pick": 20,
-    "BAT X %": 9, "TR": 5, "TR Pick": 20, "TR Winner": 16, "Edge": 8,
+    "BAT X %": 9, "TR": 5, "TR Pick": 20, "TR Winner": 16, "EVA": 5,
+    "EVA Pick": 22, "Edge": 8,
     "Handle %": 9, "Bets %": 8, "Signal": 8, "Factor": 7, "Score": 7,
     "Profile": 26, "Notes": 40,
 }
 GRID_CENTER = {
     "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
-    "VSiN", "BAT X %", "TR", "Edge", "Handle %", "Bets %",
+    "VSiN", "BAT X %", "TR", "EVA", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -311,6 +320,8 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "TR": rec.tr_mark,
         "TR Pick": rec.tr_pick or "",
         "TR Winner": rec.tr_winner or "",
+        "EVA": rec.ev_mark,
+        "EVA Pick": rec.ev_pick or "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
         "Bets %": rec.bets_pct if rec.bets_pct is not None else "",

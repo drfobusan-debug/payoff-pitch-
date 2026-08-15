@@ -52,6 +52,8 @@ from mlb_engine.config import Config, load_config
 from mlb_engine.data.batx import annotate as annotate_batx
 from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
+from mlb_engine.data.evanalytics import annotate as annotate_eva
+from mlb_engine.data.evanalytics import load_board
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
@@ -371,6 +373,28 @@ def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
     print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
+def _annotate_evanalytics(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put THE BAT X's projection, as EV Analytics publishes it, beside our props.
+
+    A saved page rather than a fetch: signed out their board returns placeholder
+    text in place of every number. Best-effort, like every other benchmark.
+    """
+    try:
+        props = load_board(cfg.evanalytics_dir, date=slate_date.isoformat())
+        if not props:
+            print(
+                "EV Analytics: no saved board for "
+                f"{slate_date.isoformat()} in {cfg.evanalytics_dir}; column left blank"
+            )
+            return
+        matched = annotate_eva(recs, props)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("EV Analytics board unavailable", exc_info=True)
+        return
+    agree = sum(1 for r in recs if r.ev_agrees is True)
+    print(f"EV Analytics: {len(props)} props read, {matched} joined, {agree} on our side")
+
+
 def _capture_teamrankings(cfg: Config, recs: list, slate_date: Date) -> None:
     """Store tonight's TeamRankings picks and put them beside ours on the card.
 
@@ -444,6 +468,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
     _capture_teamrankings(cfg, recs, slate_date)
+    _annotate_evanalytics(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
