@@ -54,7 +54,12 @@ class ModelParams:
     rating_to_points: float = field(
         default_factory=lambda: _env_float("CFBE_RATING_TO_POINTS", 1.0)
     )
-    # Home-field advantage in points, added to the home margin.
+    # Home-field advantage in points, added to the home margin. Measured on 7,345
+    # home-site games (2014-2025) by regressing on the SP+ gap, which carries no
+    # venue: home field delivered +2.33 +/- 0.16 pts, so 2.4 stands. The market
+    # prices +2.84 -- it charged 1.29 pts too much in 2014-2016 and +0.07 since
+    # 2022 -- and neutral sites came in at +0.13 in the price, hence a 0.0 default
+    # for FeatureParams.neutral_site_hfa.
     home_field_pts: float = field(default_factory=lambda: _env_float("CFBE_HFA_PTS", 2.4))
     # League-average points scored per team per game (sets the total baseline).
     avg_team_points: float = field(default_factory=lambda: _env_float("CFBE_AVG_TEAM_PTS", 27.5))
@@ -330,8 +335,13 @@ class Config:
     )
 
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
-    # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
-    vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))
+    # ``model.home_field_pts`` for listed home teams). Off by default: the guide
+    # buckets teams by their own three-year home ATS record, so it grades 64% /
+    # 30% inside that window and r=+0.042 outside it, and a program's home edge
+    # over the market does not persist year to year at all (r=+0.017, p=.68).
+    # :mod:`cfb_engine.data.vsin` records the measurement. The table is still
+    # printed on the card; set the env var to price it again.
+    vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
 
     # Read the injury feed and the box-score usage book. On by default because it
     # only reports and logs: an absence is printed on the card and appended to the

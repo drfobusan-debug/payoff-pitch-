@@ -35,7 +35,7 @@ from cfb_engine.data.ratings import build_rating_book
 from cfb_engine.data.returning import ReturningBook, build_returning_book
 from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
-from cfb_engine.data.vsin import hfa_for
+from cfb_engine.data.vsin import hfa_for, hfa_note
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -243,6 +243,11 @@ class Pipeline:
             note = portal_note(portal, game.home.name, game.away.name)
             if note is not None:
                 adj.reasons.append(note)
+        vsin = hfa_note(
+            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
+        )
+        if vsin is not None:
+            adj.reasons.append(vsin)
         if injuries:
             note = injury_note(injuries, game.home.name, game.away.name)
             if note is not None:
