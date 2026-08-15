@@ -384,6 +384,33 @@ probability floor on the card was fitted against unanchored probabilities, and a
 global weight rescales all of them at once (`edge -> edge x (1 - w)`). Raise it
 one market at a time and re-grade that market's floors underneath it.
 
+The moneyline is the first market that re-grade was asked of, and the answer was
+no. Rescale its edge floor with the weight, and the blend changes no graded row up
+to `0.5` — its only remaining bite is the toll against the vig-inclusive
+break-even. Leave the floor alone, and the blend *is* the floor: 0.02 at `w`
+selects exactly the rows 0.02/(1−w) selects unanchored, and every higher floor
+re-grades worse than the shipped one (n=49 at +9.4%, against -5% to -24% at .03
+through .06). It stays registered as a candidate rather than settled, so the
+verdict refreshes as the ledger grows — see below.
+
+### Grading a screen that does not exist yet
+
+`audit/probation.py` grades three things on the same three tests (volume, a margin
+past one standard error, and both halves of the window agreeing): each market on
+its own buys, each live screen on the picks it refused, and each **candidate** —
+a proposed price band or floor — on the buys it *would* have refused. A candidate
+reads `SHIP` only when the rows it deletes lose on all three; anything else means
+the floor is a fit to where the window was cut.
+
+The candidates live in `CANDIDATE_SCREENS` and appear in the audit's probation
+table beside the live screens. Two are registered, both proposed off the graded
+moneyline and both refused by the consistency test: a home-side mirror of
+`away_ml_refuse_odds` at -120 (its near-pick'em band ran +11.8% over the older
+half and -53.3% over the newer, and the first-five rows it would have deleted were
++30.7%), and the market blend at `0.5`, graded as the EV toll it actually is.
+Keeping them here rather than in a chat message is the point: another month of
+slates may say something the first 27 did not.
+
 ### Selection guards
 
 Twenty-seven graded slates put the model's *ranking* ahead of its *buying*: inside

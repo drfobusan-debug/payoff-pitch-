@@ -32,6 +32,13 @@ required:
    doubles cell. A pooled average over a window whose halves disagree is an
    artefact of where the window was cut.
 
+The same three tests also grade a screen that does not exist yet
+(:func:`candidate_probation`): a proposed price band or probability floor is
+judged on the buys it *would* have refused, before it is allowed to refuse one
+for real. This is the third question, and it is asked for the same reason as the
+other two -- a floor is normally proposed with a pooled ROI over the cell it was
+found in, which is exactly the number the consistency test exists to distrust.
+
 Nothing here changes a bet by itself. It emits findings, and a market it
 condemns is shut by an explicit config change with the verdict quoted as the
 reason -- so the decision stays reviewable and reversible.
@@ -46,12 +53,14 @@ gap in the data, not a clean bill of health for the screens.
 from __future__ import annotations
 
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from statistics import fmean, stdev
 
 from mlb_engine.audit.grade import PUSH
 from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE
+from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.market.tiers import Tier
 
 # One slate contributes roughly 10-40 buys in a live market, so 100 is a handful
@@ -75,6 +84,7 @@ WATCHING = "WATCHING"  # not enough graded bets to judge
 CLEAR = "CLEAR"  # judged, and not condemned
 SHUT = "SHUT"  # market losing on all three tests
 LIFT = "LIFT"  # screen refusing winners on all three tests
+SHIP = "SHIP"  # proposed screen refusing losers on all three tests
 
 _BUY = {Tier.STRONG.value, Tier.MODERATE.value}
 
@@ -92,7 +102,7 @@ class Probation:
     """One market's or one screen's verdict."""
 
     name: str
-    kind: str  # "market" | "screen"
+    kind: str  # "market" | "screen" | "candidate"
     n: int
     roi: float  # mean per-unit return
     se: float  # standard error of that mean
@@ -103,7 +113,7 @@ class Probation:
 
     @property
     def actionable(self) -> bool:
-        return self.status in (SHUT, LIFT)
+        return self.status in (SHUT, LIFT, SHIP)
 
 
 def _decided(entries: list[LedgerEntry]) -> list[LedgerEntry]:
@@ -164,6 +174,8 @@ def _judge(
     h1, h2 = _mean(older), _mean(newer)
     sign = -1.0 if losing_is_bad else 1.0
     label = "buys" if kind == "market" else "refusals"
+    if kind == "candidate":
+        label = "buys it would refuse"
 
     if n < min_n:
         return Probation(
@@ -176,17 +188,17 @@ def _judge(
     # Condition 3: both halves agree.
     consistent = sign * h1 > 0 and sign * h2 > 0
     if beyond_se and consistent:
-        status = SHUT if kind == "market" else LIFT
-        verb = (
-            f"losing {abs(roi) * 100:.1f}% of stake"
-            if kind == "market"
-            else f"refusing winners at {roi * 100:+.1f}%"
-        )
-        act = (
-            f"shut {name} until the refit"
-            if kind == "market"
-            else f"lift {name}; it is deleting money"
-        )
+        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP}[kind]
+        verb = {
+            "market": f"losing {abs(roi) * 100:.1f}% of stake",
+            "screen": f"refusing winners at {roi * 100:+.1f}%",
+            "candidate": f"losing {abs(roi) * 100:.1f}% of stake",
+        }[kind]
+        act = {
+            "market": f"shut {name} until the refit",
+            "screen": f"lift {name}; it is deleting money",
+            "candidate": f"ship {name}",
+        }[kind]
         return Probation(
             name, kind, n, roi, se, h1, h2, status,
             f"{name}: {n} {label} {verb} (se {se * 100:.1f}), "
@@ -258,6 +270,107 @@ def screen_probation(
     return sorted(out, key=lambda p: (p.status != LIFT, -p.roi))
 
 
+@dataclass(frozen=True)
+class CandidateScreen:
+    """A screen that does not exist yet, expressed as "would this row be refused?".
+
+    ``refuses`` is evaluated against graded buys, so a candidate is graded on the
+    money it would have saved rather than on the cell it was spotted in.
+    """
+
+    name: str
+    refuses: Callable[[LedgerEntry], bool]
+    rationale: str
+
+
+def _is_ml(e: LedgerEntry) -> bool:
+    return e.market in ("game_ml", "f5_ml")
+
+
+def _is_home(e: LedgerEntry) -> bool:
+    """Is the picked side the home team? Ledger matchups read ``AWAY @ HOME``."""
+    parts = e.matchup.split(" @ ")
+    if len(parts) != 2:
+        return False
+    return e.selection.split()[0] == parts[1]
+
+
+def _home_ml_short_of(floor: float) -> Callable[[LedgerEntry], bool]:
+    def refuses(e: LedgerEntry) -> bool:
+        return _is_ml(e) and _is_home(e) and e.odds is not None and e.odds > floor
+
+    return refuses
+
+
+def _anchored_ev_negative(weight: float) -> Callable[[LedgerEntry], bool]:
+    """Would a market-anchored probability have priced this ML buy at EV <= 0?
+
+    Anchoring is affine, so on the *edge* screen a weight is only the edge floor
+    restated (``edge -> edge x (1 - w)``); what it adds is a toll against the
+    vig-inclusive break-even that grows with the price, and that is what this
+    grades.
+    """
+
+    def refuses(e: LedgerEntry) -> bool:
+        if not _is_ml(e) or e.fair_prob is None or e.odds is None:
+            return False
+        bet = (1.0 - weight) * e.model_prob + weight * e.fair_prob
+        dec = american_to_decimal(e.odds)
+        return bet * (dec - 1.0) - (1.0 - bet) <= 0.0
+
+    return refuses
+
+
+# The candidates asked for and re-graded so far. They stay here, graded every
+# audit, rather than being settled once in a chat message: the verdicts below are
+# what 27 slates said, and the point of keeping them is that another 27 may say
+# something else.
+CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
+    # Proposed as the home-side mirror of ``away_ml_refuse_odds`` after the
+    # graded card put home ML at -7.9% over n=108, concentrated in the near
+    # pick'em band. It failed the consistency test on the data that suggested it
+    # -- the -120..-100 band ran +11.8% over the older half and -53.3% over the
+    # newer -- and the rows it would have refused on the first five were +30.7%.
+    CandidateScreen(
+        "home_ml_refuse_longer_than_-120",
+        _home_ml_short_of(-120.0),
+        "mirror away_ml_refuse_odds on the home side",
+    ),
+    # The market blend, judged as the screen it actually is. Only the EV toll is
+    # graded here, because the edge floor has to be rescaled by (1 - w) alongside
+    # it or the blend is a floor hike wearing a different name.
+    CandidateScreen(
+        "game_ml_market_anchor_0.5",
+        _anchored_ev_negative(0.5),
+        "defer to the price where it out-forecasts the model",
+    ),
+)
+
+
+def candidate_probation(
+    entries: list[LedgerEntry],
+    candidates: tuple[CandidateScreen, ...] = CANDIDATE_SCREENS,
+    since: str | None = None,
+    min_n: int | None = None,
+) -> list[Probation]:
+    """Verdict per proposed screen, over the graded buys it would have refused.
+
+    Same three tests as a live market, because a candidate is the same claim: the
+    rows in here lose. ``SHIP`` means they lose by more than a standard error in
+    both halves of the window; anything else means the floor is a fit to where
+    the window was cut, and the answer is to keep grading rather than to ship it
+    and find out.
+    """
+    bar = _min_n() if min_n is None else min_n
+    floor = DEFAULT_SINCE if since is None else since
+    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    out = [
+        _judge(c.name, "candidate", [e for e in rows if c.refuses(e)], bar, losing_is_bad=True)
+        for c in candidates
+    ]
+    return sorted(out, key=lambda p: (p.status != SHIP, p.roi))
+
+
 def probation_findings(
     entries: list[LedgerEntry], since: str | None = None
 ) -> list[str]:
@@ -270,5 +383,6 @@ def probation_findings(
     rows = [
         *market_probation(entries, since),
         *screen_probation(entries, since),
+        *candidate_probation(entries, since=since),
     ]
     return [p.finding for p in rows if p.actionable]

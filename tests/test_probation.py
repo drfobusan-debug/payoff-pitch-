@@ -15,11 +15,14 @@ from datetime import timedelta
 from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.audit.probation import (
     ALL_HISTORY,
+    CANDIDATE_SCREENS,
     CLEAR,
     DEFAULT_SINCE,
     LIFT,
+    SHIP,
     SHUT,
     WATCHING,
+    candidate_probation,
     market_probation,
     probation_findings,
     screen_probation,
@@ -61,6 +64,31 @@ def _e(
 
 def _run(n: int, pnl: float, *, start_day: int = 0, **kw) -> list[LedgerEntry]:
     return [_e(start_day + i, pnl, **kw) for i in range(n)]
+
+
+def _ml(
+    n: int,
+    pnl: float,
+    *,
+    odds: float,
+    start_day: int = 0,
+    home: bool = True,
+    model_prob: float = 0.6,
+    fair_prob: float | None = None,
+) -> list[LedgerEntry]:
+    """Graded moneyline buys on one side of the matchup, for the candidates."""
+    rows = []
+    for i in range(n):
+        e = _e(start_day + i, pnl, market="game_ml")
+        e.selection = f"{'HOME' if home else 'AWAY'} ML"
+        e.odds = odds
+        e.model_prob = model_prob
+        e.fair_prob = fair_prob
+        rows.append(e)
+    return rows
+
+
+(_HOME_FLOOR,) = (c for c in CANDIDATE_SCREENS if c.name.startswith("home_ml"))
 
 
 # --- condition 1: volume ----------------------------------------------------
@@ -182,6 +210,60 @@ def test_each_market_is_judged_on_its_own_rows() -> None:
     ]
     verdicts = {p.name: p.status for p in market_probation(rows, min_n=100)}
     assert verdicts == {"batter_rbi": SHUT, "batter_h": CLEAR}
+
+
+def test_a_proposed_screen_is_graded_on_the_buys_it_would_refuse() -> None:
+    """The candidate ships only if the rows it deletes lose in both halves."""
+    losing = [
+        *_ml(60, -1.0, odds=-110.0),
+        *_ml(60, -0.4, start_day=60, odds=-110.0),
+    ]
+    (p,) = candidate_probation(losing, candidates=(_HOME_FLOOR,), min_n=100)
+    assert p.status == SHIP
+    assert p.kind == "candidate"
+    assert "ship home_ml_refuse_longer_than_-120" in p.finding
+
+
+def test_a_proposed_screen_whose_halves_disagree_is_not_shipped() -> None:
+    """The shape of every floor this engine has had to unship."""
+    mixed = [
+        *_ml(60, 0.91, odds=-110.0),
+        *_ml(60, -1.0, start_day=60, odds=-110.0),
+    ]
+    (p,) = candidate_probation(mixed, candidates=(_HOME_FLOOR,), min_n=100)
+    assert p.status == CLEAR
+    assert not p.actionable
+    assert "the halves disagree" in p.finding
+    assert probation_findings(mixed) == []
+
+
+def test_a_proposed_screen_only_sees_the_rows_it_would_refuse() -> None:
+    rows = [
+        *_ml(120, -1.0, odds=-110.0),  # inside the band the floor refuses
+        *_ml(120, -1.0, start_day=120, odds=-160.0),  # shorter than the floor
+        *_ml(120, -1.0, start_day=240, odds=-110.0, home=False),  # road side
+    ]
+    (p,) = candidate_probation(rows, candidates=(_HOME_FLOOR,), min_n=100)
+    assert p.n == 120
+
+
+def test_the_registered_candidates_cover_the_two_that_were_asked_for() -> None:
+    assert [c.name for c in CANDIDATE_SCREENS] == [
+        "home_ml_refuse_longer_than_-120",
+        "game_ml_market_anchor_0.5",
+    ]
+
+
+def test_the_market_anchor_candidate_only_refuses_what_the_toll_reprices() -> None:
+    """Anchoring costs a buy only when the toll drags it under the vig."""
+    keep = _ml(1, -1.0, odds=-110.0, model_prob=0.70, fair_prob=0.60)[0]
+    # -110 breaks even at 52.4%, so half the way back to a 50% price is under it.
+    refuse = _ml(1, -1.0, odds=-110.0, model_prob=0.545, fair_prob=0.50)[0]
+    (anchor,) = (c for c in CANDIDATE_SCREENS if c.name == "game_ml_market_anchor_0.5")
+    assert not anchor.refuses(keep)
+    assert anchor.refuses(refuse)
+    # No devigged price recorded means the question cannot be asked of the row.
+    assert not anchor.refuses(_ml(1, -1.0, odds=-110.0, model_prob=0.56)[0])
 
 
 def test_the_standard_error_shrinks_as_the_sample_grows() -> None:
