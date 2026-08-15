@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.xtb import NON_AB_EVENTS, TB_VALUE, LeagueXTB
 
 
 def _safe_float(val: object, default: float) -> float:
@@ -64,12 +65,13 @@ BL_GB_RATE = 0.420
 
 MIN_BBE = 15  # minimum batted-ball events for a stable signal
 
-# Total bases by terminal event, and the plate appearances that are not at-bats
-# (slugging's denominator excludes them).
-TB_VALUE = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
-NON_AB_EVENTS = frozenset(
-    {"walk", "intent_walk", "hit_by_pitch", "sac_fly", "sac_bunt", "catcher_interf"}
-)
+# A bullpen is not a small-sample pitcher. Pooled over 42 days a pen puts ~1,240
+# batted balls on the board against a starter's ~100, so the spread between pens
+# is mostly talent where the spread between starters is mostly noise -- which
+# inverts how its contact profile should be read. See ``allowed_multipliers``.
+BL_PEN_XWOBA = 0.311  # league bullpen xwOBA allowed on contact
+PEN_XWOBA_SLOPE = 1.70  # fitted on hits per relief PA, t +4.5
+PEN_XWOBA_CLIP = (-0.06, 0.06)
 
 # Extra-base multiplier per ft/s of sprint speed, and the slow-bat conjunction.
 # 26.5 ft/s is roughly the bottom third of the league; .060 2B+3B/PA is the top
@@ -90,14 +92,85 @@ XBH_SURGE = 0.060
 # only; the full -3.5 would charge for the strikeouts twice.
 SINGLES_BARREL_SLOPE = 1.5
 
-# Ground balls are the singles-producing batted ball, and nothing on the 1B line
-# reads batted-ball mix. Leave-one-slate-out on eight slates wants +0.152 logit
-# per SD of GB rate (SD .085), the largest of any contact term -- but it is not
-# separable from zero on that sample and GB rate is already correlated -.28 with
-# the barrel term above, so this slope is about 40% of the fitted value and the
-# term is off by default. `Config.singles_gb` turns it on to accumulate a graded
-# counterfactual.
-SINGLES_GB_SLOPE = 0.5
+# Batted-ball mix on the singles line. A single is overwhelmingly a ground ball
+# or a line drive -- measured over this cache, 45.6% of singles are ground balls
+# and 48.7% are line drives, leaving 5.7% to the air. The two arrive there by
+# opposite routes: line drives are hit less often (23.7% of contact) but land for
+# a hit .623 of the time, while ground balls are hit far more often (42.4%) and
+# land only .245 of the time -- but 91.4% of the ground balls that do land are
+# singles, against 68.6% of line drives.
+#
+# Both slopes are fitted **out of time**, which matters more here than anywhere
+# else in this file: features from a 42-day window predicting singles per PA over
+# the *following* 21 days, stacked over four rolls (n=862 batter-windows),
+# controlling for xBA, K% and sprint speed, with air contact as the omitted
+# category. Fitting a rate against outcomes from the same window is circular --
+# a line drive that falls in for a single raises both sides of the regression at
+# once -- and it inflates these slopes by roughly a third.
+#
+#                same-window   OUT OF TIME    p (out of time)
+#     GB%           +1.02         +0.86         <1e-4
+#     LD%           +1.43         +1.23         <1e-4
+#
+# Both survive, which is the important result, and the line drive stays worth
+# more per unit. Note the contrast with the home-run line, where GB% is a brake:
+# the batted ball that cannot clear a fence is the one most likely to fall in for
+# a single.
+#
+# One caveat on the line-drive term specifically. Line-drive rate is the least
+# stable input in this file -- split-half reliability .21 over a 42-day window,
+# against .68 for ground-ball rate -- so a hot line-drive stretch is mostly
+# noise. The out-of-time design already charges the term for that (its slope
+# falls further than GB's), but it is the more fragile of the two.
+# Fitted jointly with the shape terms below, which share variance with them --
+# hence smaller than the +0.86/+1.23 they take alone.
+SINGLES_GB_SLOPE = 0.47
+SINGLES_LD_SLOPE = 0.87
+
+# Shape *within* those batted-ball classes. Same out-of-time design, same panel:
+#
+#     input          slope    p        what it says
+#     GB pull%       -0.25   .046     the rollover, into a defence aligned for it
+#     LD soft%       +0.25   .013     the flare that lands in front of the outfield
+#     LD oppo+mid%   +0.22   .024     the line drive an outfielder can cut off
+#
+# Pulled grounders are a *negative*: a pulled ground ball is the hardest-hit and
+# most-defended one, and the pull-side slugger rolling over an offspeed pitch
+# outnumbers the speedster slashing one past a deep third baseman -- pull x
+# sprint speed and pull x exit velocity were both tested as explicit
+# interactions to separate the two archetypes and neither came close (p=.38,
+# p=.36). The same logic runs the other way on line drives: the ones that stay
+# singles are the soft, oppo, cut-off ones, because the hard pulled line drive
+# is a double.
+#
+# Two candidates from the same family were tested and rejected, both for the
+# same reason -- they do not persist for a hitter across windows:
+#
+#     GB BABIP          p=.91,  split-half reliability .14
+#     LD launch angle   p=.41,  split-half reliability .13
+#
+# Ball-level, both look decisive: line drives at 10-15 degrees are singles .627
+# of the time against .223 above 20 degrees. But a hitter's *rate* of them is
+# almost pure noise over 42 days, so there is nothing to select on. GB BABIP is
+# the clearest trap of the group: it is the natural sorting metric and it adds
+# exactly zero out of time.
+SINGLES_GB_PULL_SLOPE = -0.25
+SINGLES_LD_SOFT_SLOPE = 0.25
+SINGLES_LD_OPPOMID_SLOPE = 0.22
+
+# League line-drive rate, as a share of all batted balls, and league shape rates
+# within each class. Measured back through ``build_batter_regression`` over 1,262
+# batter-windows rather than taken from the fitting panel, so an average hitter
+# reads exactly 1.0 on the quantities the engine actually computes at runtime.
+BL_LD_RATE = 0.234
+BL_GB_PULL = 0.663
+BL_LD_SOFT = 0.403
+BL_LD_OPPOMID = 0.526
+
+# Batted balls of each class needed before its shape is read at all. Below these
+# the rate is NaN and the term drops out rather than pricing a handful of balls.
+MIN_GB_SHAPE = 15
+MIN_LD_SHAPE = 12
 
 # Home-run NPV thresholds. Each describes contact that structurally cannot leave
 # the park, so a hitter past one of them is braked rather than nudged:
@@ -157,6 +230,11 @@ class BatterRegression:
     fb_ld_hard_hit: float = float("nan")
     # Pop-ups as a share of fly balls: high launch angle that dies on the infield.
     iffb_pct: float = float("nan")
+    # Shape within the two singles-producing batted-ball classes. See
+    # ``_singles_shape``. NaN when that class is too thin to read.
+    gb_pull_pct: float = float("nan")
+    ld_soft_pct: float = float("nan")
+    ld_oppomid_pct: float = float("nan")
     # Actual slugging over the slice, alongside doubles+triples per PA and line
     # drives per batted ball. Total bases is the numerator of slugging, so these
     # are the market's own surface stats: kept to measure the gap against the
@@ -170,6 +248,10 @@ class BatterRegression:
     # human wants beside those numbers -- "are his bases a ballpark artefact?" --
     # rather than a second adjustment. NaN when either half is too thin.
     tb_home_bias: float = float("nan")
+    # Expected slugging *on contact*: the same launch parameters read per batted
+    # ball, with no strikeout in the denominator. Runs high against real slugging
+    # by construction; kept because the gap against it is what predicts decay.
+    contact_slg: float = float("nan")
 
     @property
     def dxwoba(self) -> float:
@@ -177,14 +259,18 @@ class BatterRegression:
 
     @property
     def slg_gap(self) -> float:
-        """Actual slugging minus expected slugging.
+        """Slugging beyond what the hitter's per-ball contact quality supports.
 
         Total bases *is* the numerator of slugging, so this is the market's own
-        luck term: bases collected beyond what the contact behind them supports
-        -- bloops, misplays, wind. Positive means over-performing. NaN when
-        either side is unknown.
+        luck term: bases collected off contact that does not carry them --
+        bloops, misplays, wind. Measured against ``contact_slg`` rather than
+        against ``xslg``, because netting strikeouts out of the expectation the
+        way a calibrated xSLG does also nets out the discrepancy: the same
+        threshold on the calibrated gap flags 556 batter-weeks that go on to
+        produce +0.2% (p=.93), while this one flags 139 that give back 8.5%.
+        Positive means over-performing; NaN when either side is unknown.
         """
-        return self.slg - self.xslg
+        return self.slg - self.contact_slg
 
     @property
     def barrel_per_pa(self) -> float:
@@ -215,12 +301,13 @@ class BatterRegression:
     def multipliers(
         self,
         singles_barrel_slope: float = SINGLES_BARREL_SLOPE,
-        singles_gb_slope: float = 0.0,
+        singles_gb_slope: float = SINGLES_GB_SLOPE,
+        singles_ld_slope: float = SINGLES_LD_SLOPE,
+        singles_shape: bool = True,
     ) -> dict[str, float]:
         """Return bounded outcome multipliers for {1B,2B,3B,HR}.
 
-        Either singles slope at 0 drops that term; ``singles_gb_slope`` defaults
-        to 0 because the ground-ball effect is not yet separable from zero.
+        Any singles slope at 0 drops that term.
         """
         if self.bbe < MIN_BBE:
             return {}
@@ -256,10 +343,28 @@ class BatterRegression:
         hr = _clip(hr, 0.50, 1.32)
 
         # --- Extra-base hits (2B/3B) ---
+        # No contact-quality terms. There were three -- xSLG, sweet-spot rate and
+        # bat speed, together worth up to 25% on a hitter's doubles rate -- and
+        # none of them forward-predicts a double. Fitted out of time over 48,120
+        # plate appearances in eight rolling blocks (features from a 42-day
+        # window, outcome the games after it), each is indistinguishable from
+        # zero, alone and beside the others:
+        #
+        #     sweet_spot  -0.024 (p=.26)    bat_speed  -0.014 (p=.51)
+        #     xslg        -0.017 (p=.44)    hard_hit   +0.013 (p=.57)
+        #     xwoba_contact -0.001 (p=.97)  gb_allowed -0.112 (p<.0001)
+        #
+        # and the signs are mostly *negative*: the top third of sweet-spot
+        # hitters collected .0440 of a double per PA against the bottom third's
+        # .0463. This is the same fact #129 measured from the other end -- a
+        # hitter's doubles rate carries 2.8x more spread than his talent and
+        # correlates 0.20 with it -- so contact quality read over six weeks is
+        # sorting noise, and pricing it manufactures exactly the dispersion the
+        # total-bases market has been losing money on.
+        #
+        # What survives is on the arm's side of the matchup (``gb_allowed``, in
+        # ``allowed_multipliers``) and the runner's legs, below.
         xbh = 1.0
-        xbh *= 1.0 + _clip((self.xslg - BL_XSLG) * 0.30, -0.10, 0.12)  # PPV
-        xbh *= 1.0 + _clip((self.sweet_spot - BL_SWEET_SPOT) * 0.60, -0.08, 0.08)  # sensitive
-        xbh *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.006, -0.05, 0.05)  # NPV (blast)
         # Sprint speed belongs here and nowhere else in the power stack: it turns
         # a single into a double and a gap shot into a triple, and does nothing
         # for a home run. Over 2,609 batter-weeks it predicts forward 2B+3B/PA
@@ -278,17 +383,64 @@ class BatterRegression:
 
         # --- Singles ---
         one = 1.0
-        one *= 1.0 + _clip((self.xba - BL_XBA) * 0.60, -0.08, 0.10)  # PPV
+        # No xBA term. There was one -- ``(xba - BL_XBA) * 0.60`` -- and it was
+        # wrong twice over. It was **mis-centred**: ``BL_XBA`` is .250, a league
+        # batting average per plate appearance, while ``self.xba`` is expected BA
+        # over *batted balls only* and averages .332, so the median hitter was
+        # collecting a free +4.9% on his singles rate and the whole distribution
+        # sat at 1.034 instead of 1.0. And it was **not predictive**: fitted out
+        # of time against singles per PA it comes back at -0.10, p=.78. The
+        # apparent in-sample strength was circularity -- a ball that falls in for
+        # a single is also a ball with a high xBA.
+        #
+        # Removing it does two things at once: the distribution re-centres on
+        # 1.0, and the terms that *are* predictive stop being clipped away by a
+        # constant offset that was pushing everyone into the ceiling.
         one *= 1.0 + _clip((BL_WHIFF - self.whiff) * 0.30, -0.06, 0.06)  # sensitive
         one *= 1.0 + _clip((self.zone_contact - BL_ZONE_CONTACT) * 0.30, -0.05, 0.05)  # sensitive
         one *= 1.0 + _clip((self.sprint_speed - BL_SPRINT) * 0.010, -0.04, 0.05)  # PPV speed
         one *= 1.0 + _clip(
             (BL_BARREL - self.barrel_rate) * singles_barrel_slope, -0.06, 0.06
         )  # NPV power
+        # Batted-ball mix. Clamps sit at the 10th/90th percentile of each rate
+        # so a real tail is priced but a thin-window outlier cannot run away
+        # with the number.
         one *= 1.0 + _clip(
-            (self.gb_rate - BL_GB_RATE) * singles_gb_slope, -0.06, 0.06
+            (self.gb_rate - BL_GB_RATE) * singles_gb_slope, -0.05, 0.05
         )  # PPV batted-ball mix
-        one = _clip(one, 0.85, 1.18)
+        if self.ld_pct == self.ld_pct:  # not NaN
+            one *= 1.0 + _clip(
+                (self.ld_pct - BL_LD_RATE) * singles_ld_slope, -0.05, 0.05
+            )  # PPV batted-ball mix
+        # Shape within those classes: which grounders and which line drives.
+        # Each drops out on its own when that batted-ball class is too thin.
+        if singles_shape:
+            if self.gb_pull_pct == self.gb_pull_pct:  # not NaN
+                one *= 1.0 + _clip(
+                    (self.gb_pull_pct - BL_GB_PULL) * SINGLES_GB_PULL_SLOPE,
+                    -0.04,
+                    0.04,
+                )  # NPV rollover
+            if self.ld_soft_pct == self.ld_soft_pct:
+                one *= 1.0 + _clip(
+                    (self.ld_soft_pct - BL_LD_SOFT) * SINGLES_LD_SOFT_SLOPE,
+                    -0.04,
+                    0.04,
+                )  # PPV flare
+            if self.ld_oppomid_pct == self.ld_oppomid_pct:
+                one *= 1.0 + _clip(
+                    (self.ld_oppomid_pct - BL_LD_OPPOMID) * SINGLES_LD_OPPOMID_SLOPE,
+                    -0.04,
+                    0.04,
+                )  # PPV cut-off
+        # The floor is deliberately further from 1.0 than the ceiling, and was
+        # widened from 0.85. At 0.85 a genuinely poor contact hitter could not
+        # be marked down more than 15% while the home-run line allows 50% -- and
+        # the graded ledger shows the cost of that asymmetry lands exactly here:
+        # the realised hit gap between the worst and best quartile of bats was
+        # 9.3 points and the model priced 3.7. Weak bats were the false
+        # positives, so the room to price them down is the half that mattered.
+        one = _clip(one, 0.72, 1.18)
 
         # --- BABIP / dxwOBA luck regression (nudges contact outcomes) ---
         # Positive dxwOBA (unlucky) -> nudge up; high BABIP + neg dxwOBA -> down.
@@ -315,7 +467,9 @@ def _rate(series: pd.Series, cond) -> float:
 
 
 def build_batter_regression(
-    bdf: pd.DataFrame, sprint_speed: float = BL_SPRINT
+    bdf: pd.DataFrame,
+    sprint_speed: float = BL_SPRINT,
+    league_xtb: LeagueXTB | None = None,
 ) -> BatterRegression:
     """Compute regression metrics from a batter's pitch-level Statcast slice."""
     batted = batted_balls(bdf)
@@ -364,7 +518,7 @@ def build_batter_regression(
         if n_bbe and "woba_value" in batted
         else float("nan")
     )
-    xslg = _estimate_xslg(batted)
+    contact_slg = _estimate_xslg(batted)
     babip = _babip(bdf)
     bb_type = batted["bb_type"].dropna() if "bb_type" in batted else pd.Series(dtype=object)
     gb_rate = float(bb_type.eq("ground_ball").mean()) if len(bb_type) else BL_GB_RATE
@@ -373,12 +527,20 @@ def build_batter_regression(
     n_fb = int(bb_type.isin(["fly_ball", "popup"]).sum())
     iffb = float(bb_type.eq("popup").sum() / n_fb) if n_fb else float("nan")
     fb_ld_ev, fb_ld_max_ev, fb_ld_hard_hit = _air_contact(batted)
+    gb_pull_pct, ld_soft_pct, ld_oppomid_pct = _singles_shape(batted)
 
     ld_pct = float(bb_type.eq("line_drive").mean()) if len(bb_type) else float("nan")
 
     ev = bdf["events"].dropna()
     n_pa = int(len(ev))
     n_ab = int((~ev.isin(NON_AB_EVENTS)).sum())
+    # Expected slugging on slugging's own scale: expected bases over at-bats.
+    # Falls back to the contact-quality rescale when no league lookup is given.
+    xslg = contact_slg
+    if league_xtb is not None and n_bbe and n_ab > 0:
+        from_grid = league_xtb.xslg(batted, n_ab)
+        if not np.isnan(from_grid):
+            xslg = from_grid
     total_bases = float(ev.map(TB_VALUE).fillna(0.0).sum())
     slg = total_bases / n_ab if n_ab else float("nan")
     xbh_per_pa = float(ev.isin(["double", "triple"]).sum() / n_pa) if n_pa else float("nan")
@@ -416,10 +578,14 @@ def build_batter_regression(
         fb_ld_max_ev=fb_ld_max_ev,
         fb_ld_hard_hit=fb_ld_hard_hit,
         iffb_pct=iffb,
+        gb_pull_pct=gb_pull_pct,
+        ld_soft_pct=ld_soft_pct,
+        ld_oppomid_pct=ld_oppomid_pct,
         slg=slg,
         xbh_per_pa=xbh_per_pa,
         ld_pct=ld_pct,
         tb_home_bias=tb_home_bias,
+        contact_slg=contact_slg,
     )
 
 
@@ -511,10 +677,51 @@ def _pull_air_rate(batted: pd.DataFrame) -> float:
     return float((pulled & in_air).mean())
 
 
-def _estimate_xslg(batted: pd.DataFrame) -> float:
-    """Approximate xSLG from launch parameters (no clean per-pitch column).
+def _singles_shape(batted: pd.DataFrame) -> tuple[float, float, float]:
+    """Spray and contact quality *within* a hitter's grounders and line drives.
 
-    Uses estimated wOBA-on-contact scaled to a slugging-like range as a proxy.
+    Returns ``(gb_pull_pct, ld_soft_pct, ld_oppomid_pct)``:
+
+    * pulled grounders as a share of grounders -- the "rollover" swing, which
+      hits into the teeth of a defence aligned for exactly that;
+    * line drives under 93 mph as a share of line drives -- the flare that is
+      too high to field and too soft to reach the gap;
+    * line drives to centre or the opposite field as a share of line drives --
+      the ones an outfielder can cut off, holding the hitter to first.
+
+    Each is NaN when the underlying batted-ball class is too thin to read.
+    """
+    need = {"hc_x", "hc_y", "launch_angle", "launch_speed", "stand", "bb_type"}
+    if not need.issubset(batted.columns) or batted.empty:
+        return (float("nan"), float("nan"), float("nan"))
+    df = batted.dropna(subset=list(need))
+    if df.empty:
+        return (float("nan"), float("nan"), float("nan"))
+    spray = np.degrees(
+        np.arctan2(df["hc_x"].astype(float) - 125.42, 198.27 - df["hc_y"].astype(float))
+    )
+    is_rhb = df["stand"].astype(str) == "R"
+    pulled = (is_rhb & (spray < -10)) | (~is_rhb & (spray > 10))
+    gb = df["bb_type"] == "ground_ball"
+    ld = df["bb_type"] == "line_drive"
+    n_gb, n_ld = int(gb.sum()), int(ld.sum())
+    gb_pull = float(pulled[gb].mean()) if n_gb >= MIN_GB_SHAPE else float("nan")
+    if n_ld >= MIN_LD_SHAPE:
+        ld_soft = float((df.loc[ld, "launch_speed"].astype(float) < 93.0).mean())
+        ld_oppomid = float((~pulled[ld]).mean())
+    else:
+        ld_soft = ld_oppomid = float("nan")
+    return (gb_pull, ld_soft, ld_oppomid)
+
+
+def _estimate_xslg(batted: pd.DataFrame) -> float:
+    """Expected slugging *on contact*, rescaled from expected wOBA on contact.
+
+    An average over batted balls with no strikeout in the denominator, so it runs
+    ~86 points above the slugging hitters actually post (league .486 against
+    .400). That makes it the right side of the over-performance gap and the wrong
+    thing to compare against a league slugging baseline -- for the level, see
+    ``LeagueXTB``, which this only stands in for when no lookup is available.
     """
     if len(batted) == 0 or "estimated_woba_using_speedangle" not in batted:
         return BL_XSLG
@@ -553,6 +760,33 @@ BL_LOCATION_PLUS = 100.0
 BL_SWSTR = 0.110  # swinging strikes / pitches
 BL_WHIFF_PITCHER = 0.240  # swinging strikes / swings induced
 BL_GB_ALLOWED = 0.420
+# Half the fitted +0.77; see ``allowed_multipliers`` for why it is discounted.
+OPP_GB_SINGLES_SLOPE = 0.39
+# The other half of the same fact, and much better evidenced: a grounder that
+# falls in is a single, so the extra-base channel loses what the singles channel
+# gains. Fitted on 14,957 (game, batter) pairs against the game's starter over
+# 201 starters, weighted by plate appearances and holding the hitter's own
+# extra-base multiplier fixed: -1.47 of the league 2B+3B rate per unit of GB%
+# allowed, t = -7.0, and monotone across all five quintiles of GB% allowed
+# (2B+3B per PA .0528 .0495 .0467 .0420 .0411). It replicates out of time --
+# -1.51 fitting on the first 60% of dates, -1.39 on the held out 40% (t = -4.1)
+# -- which is why this ships at the fitted slope where the singles term ships at
+# half of one.
+OPP_GB_XBH_SLOPE = -1.45
+OPP_GB_XBH_CLIP = (-0.14, 0.14)
+# The same fact read off a bullpen, which is a different measurement. Pooling a
+# corps of ~24 arms halves the spread in GB% allowed (sd 0.038 against a
+# starter's 0.065) and it halves the slope with it: fitted on 13,681
+# (game, batter) pairs against relief, holding the hitter's own rate and the
+# pen's xwOBA allowed fixed, the extra-base coefficient is -0.76 where the
+# starter's is -1.47, and the singles coefficient +0.51 where the starter's
+# fitted +0.77. Neither reaches significance on one season of relief data
+# (t -1.33 and +1.66), so the pen slopes are the fitted values rather than
+# anything stronger, and the clip is tightened to match the narrower spread.
+# Applying the starter's slope here overstated the term roughly two-fold.
+PEN_GB_SINGLES_SLOPE = 0.25
+PEN_GB_XBH_SLOPE = -0.75
+PEN_GB_XBH_CLIP = (-0.07, 0.07)
 BL_FB_ALLOWED = 0.360  # fly balls + pop-ups / batted balls
 
 # You cannot hit a home run on the ground, and that is as true of the arm that
@@ -687,6 +921,8 @@ class PitcherRegression:
     metrics: dict[str, float] = field(default_factory=dict)
     # Pre-shrinkage contact-quality rates, kept for reporting.
     raw_contact: dict[str, float] = field(default_factory=dict)
+    # Whether these rates pool a whole bullpen rather than describing one arm.
+    bullpen: bool = False
 
     @property
     def dxwoba(self) -> float:
@@ -800,16 +1036,100 @@ class PitcherRegression:
         if self.bbe < MIN_BBE:
             return {}
         base = 1.0
-        # High BABIP allowed -> positive regression (fewer hits going forward).
-        base *= 1.0 + _clip((BL_BABIP - self.babip_allowed) * 0.6, -0.08, 0.08)
-        # Positive dxwOBA allowed (getting bailed out) -> more hits coming.
-        base *= 1.0 + _clip(self.dxwoba * 1.2, -0.06, 0.08)
+        if self.bullpen:
+            # A pen's rates pool ~1,240 batted balls, twelve times a starter's,
+            # so the luck correction below is the wrong instrument on it: what
+            # reads as a lucky starter is a good bullpen, and treating it as
+            # luck prices the pen backwards. Measured on 16,547 game-batter rows
+            # of relief plate appearances, held out on the last 40% of the
+            # season:
+            #
+            #                              hits/PA deviance
+            #     no pen contact term          .41972
+            #     inverse BABIP (was shipped)  .41997   <- worse than nothing
+            #     xwOBA allowed level          .41921
+            #
+            # The quintile table is blunter still: the pens allowing the most
+            # hits (.2245/PA) were the ones handed a 0.989 suppression.
+            base *= 1.0 + _clip(
+                (self.xwoba_allowed - BL_PEN_XWOBA) * PEN_XWOBA_SLOPE,
+                *PEN_XWOBA_CLIP,
+            )
+        # A single starter gets no contact-*level* term at all, and the reason is
+        # sample size rather than baseball. The pen term above works because a pen
+        # pools ~1,240 batted balls; a starter's 42-day window is a median of 95,
+        # where the measurement error on a rate is the size of the whole spread
+        # between pitchers. Measured on 2,311 starts / 53,353 PA against starters,
+        # binomial deviance per PA, K% controlled, chronological 60/40 holdout:
+        #
+        #                                    coef       t   train    holdout
+        #     no contact term                  --      --  1.06259   1.05355
+        #     inverse BABIP (was shipped)   -0.089   -0.44  1.06255   1.05364
+        #     dxwOBA allowed (was shipped)  -0.122   -0.61  1.06253   1.05369
+        #     xwOBAcon level                 0.053    0.24  1.06259   1.05355
+        #
+        # Every instrument is indistinguishable from noise and every one made the
+        # holdout worse, while the two that shipped swung the allowed-hit rate over
+        # a 0.865..1.166 range -- more than 5% in 54% of starts. What a starter
+        # repeats is the trajectory, not the outcome, so the ground-ball term below
+        # is the only allowed-contact read he earns.
+        # Ground balls allowed. A grounder that gets through is a single 91% of
+        # the time, so the starter who keeps the ball down concedes singles in
+        # place of extra bases -- and unlike the rest of his allowed-contact
+        # profile, this one is his to control. Split-half reliability over 42
+        # days, measured on this cache:
+        #
+        #     GB% allowed     .658      <- stable, and the term below
+        #     hard% allowed   .488
+        #     xBA allowed     .158
+        #     BABIP allowed   .126
+        #
+        # which is McCracken's DIPS result reproduced directly: what a pitcher
+        # repeats is the trajectory, not the outcome.
+        #
+        # Sized at *half* the fitted slope (+0.77 out of time, K% controlled,
+        # p=.018) and this is the weakest-evidenced term in this file. Three
+        # reasons to discount it rather than ship it at full strength: n=128
+        # pitcher-windows; it was one of nine candidates tested, so p=.018 does
+        # not survive a multiplicity correction; and sinker share (p=.045) is
+        # very nearly the same variable, so the two cannot both be believed.
+        # Rejected alongside it, all failing outright: the xBA-minus-xwOBA gap
+        # (p=.71), xBA allowed (p=.49), extension (p=.55), sweet-spot allowed
+        # (p=.17) and hard-hit allowed (p=.60) -- every one of them a stat from
+        # the low-reliability family above.
+        #
+        # Applied to 1B only, never through ``base``: the whole point of the term
+        # is that a grounder is a single *instead of* an extra-base hit, so
+        # letting it lift 2B/3B/HR would assert the opposite of what it means.
         base = _clip(base, 0.88, 1.14)
+        gb_singles_slope = (
+            PEN_GB_SINGLES_SLOPE if self.bullpen else OPP_GB_SINGLES_SLOPE
+        )
+        one = base * (
+            1.0
+            + _clip(
+                (self.gb_allowed - BL_GB_ALLOWED) * gb_singles_slope, -0.035, 0.035
+            )
+        )  # PPV opposing grounders
 
         # Hard-hit rate allowed is the most reliable contact signal a starter
         # carries (block-to-block r=0.24, vs barrel's 0.09) and it separates
         # extra-base contact rather than singles, so it lifts 2B/3B/HR only.
         hard = 1.0 + _clip((self.hard_hit_allowed - BL_HARD_HIT) * 1.0, -0.08, 0.10)
+
+        # Ground balls on the extra-base line: the mirror of the singles term
+        # above, and the half of it that was missing. GB% allowed is the one
+        # batted-ball rate a starter genuinely repeats -- it forward-predicts his
+        # next three weeks at r=0.42 and stabilizes by ~50 batted balls, against
+        # barrel allowed's r=0.05 and a ~500-BBE stabilization point -- so it is
+        # the only member of this family strong enough to move a rate rather than
+        # merely inform a veto.
+        gb_slope, gb_clip = (
+            (PEN_GB_XBH_SLOPE, PEN_GB_XBH_CLIP)
+            if self.bullpen
+            else (OPP_GB_XBH_SLOPE, OPP_GB_XBH_CLIP)
+        )
+        gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
         # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
         hr = base * hard * (
@@ -824,8 +1144,8 @@ class PitcherRegression:
         # Floor drops with the ground-ball brake so a sinkerballer can actually
         # suppress; the ceiling is unchanged.
         hr = _clip(hr, 0.78, 1.35)
-        xbh = _clip(base * hard, 0.85, 1.30)
-        return {"1B": base, "2B": xbh, "3B": xbh, "HR": hr}
+        xbh = _clip(base * hard * gb_xbh, 0.85, 1.30)
+        return {"1B": one, "2B": xbh, "3B": xbh, "HR": hr}
 
 
 def build_pitcher_regression(
@@ -833,6 +1153,7 @@ def build_pitcher_regression(
     stuff_plus: float | None = None,
     location_plus: float | None = None,
     shrink: float = 0.0,
+    bullpen: bool = False,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1027,4 +1348,5 @@ def build_pitcher_regression(
         spin=spin,
         stuff_plus=stuff_plus,
         location_plus=location_plus,
+        bullpen=bullpen,
     )

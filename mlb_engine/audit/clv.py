@@ -24,13 +24,17 @@ markets) plus one per event for props, against ~250 for a historical re-price.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
+from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.odds import american_to_decimal
+
+log = logging.getLogger(__name__)
 
 _KEY_SEP = "|"
 
@@ -149,6 +153,38 @@ def board_path(audit_dir: Path, slate_date: Date) -> Path:
     return audit_dir / f"board_{slate_date.isoformat()}.json"
 
 
+# Team markets: both sides are a whole team, so neither is ever a longshot. The
+# lopsided ones are the props, where a weak hitter to homer is honestly +2600.
+_TEAM_MARKETS = frozenset(
+    {"game_ml", "game_rl", "game_total", "f5_ml", "f5_rl", "f5_total"}
+)
+
+# A favourite this heavy is not a pre-game price on anything the engine bets: -1000 is
+# a 91% certainty, and across 7,894 captured closes the most negative was -375. A team
+# up 6-0 in the seventh is -2000.
+IMPLAUSIBLE_FAVOURITE = -1000.0
+
+# The dog side has to be judged per market, because a symmetric bound is impossible.
+# The most positive legitimate close on a team market is +375 (an F5 moneyline); on a
+# home-run prop it is +2600, which a symmetric rule would throw away -- 34 real
+# ``batter_hr o0.5`` closes sit between +1000 and +2600, all with CLV of about 0.000.
+IMPLAUSIBLE_TEAM_DOG = 1000.0
+
+
+def is_plausible_close(american: float, market: str) -> bool:
+    """Whether a captured price can be a pre-game close at all.
+
+    Cheap and one-sided on purpose. It cannot detect an in-play price that merely
+    looks normal -- a hitter who already has two hits prices his over at a perfectly
+    ordinary number -- so a pass here is not a certificate. Only a fail is meaningful,
+    and it is meant to fire on the case that is wrong by a factor of four rather than
+    to police the margins.
+    """
+    if american <= IMPLAUSIBLE_FAVOURITE:
+        return False
+    return not (market in _TEAM_MARKETS and american >= IMPLAUSIBLE_TEAM_DOG)
+
+
 def clv_points(bet_prob: float, close_prob: float) -> float:
     """Probability points the market moved our way after we bet."""
     return round(close_prob - bet_prob, 6)
@@ -167,12 +203,30 @@ def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> 
     were never priced at bet time, are left as None rather than defaulted -- a
     missing close is missing information, not zero closing line value.
     """
+    # The close is keyed on the book's spelling of a name and the ledger on the
+    # lineup feed's, so props need the same accent/suffix-insensitive fallback
+    # the live pricing uses.
+    aliases = keys.canonical_index(
+        {(c.matchup, c.market, c.selection): c for c in closing.values()}
+    )
     n = 0
     for e in entries:
         if e.odds is None:
             continue
         close = closing.get(_KEY_SEP.join((e.matchup, e.market, e.selection)))
         if close is None:
+            close = aliases.get((e.matchup, e.market, keys.canonical(e.selection)))
+        if close is None:
+            continue
+        if not is_plausible_close(close.american, e.market):
+            log.warning(
+                "CLV: refusing %s %s %s -- a close of %+.0f is an in-play price and "
+                "not a close; the row stays unpriced",
+                e.matchup,
+                e.market,
+                e.selection,
+                close.american,
+            )
             continue
         e.close_odds = close.american
         e.close_prob = close.no_vig_prob

@@ -4,7 +4,7 @@ Buys over that ledger went 39.8% for -12.6% ROI while the model's own ranking
 held up, so every guard here tightens *selection* only -- none of them touches a
 simulated or calibrated probability, and each is independently switchable:
 
-  * ``MLBE_MAX_BUY_ODDS`` -- price ceiling (plus-money buys went 28.5%)
+  * ``MLBE_MAX_BUY_ODDS[_<MARKET>]`` -- price ceiling (plus-money buys went 28.5%)
   * ``MLBE_NO_BUY_<MARKET>`` -- markets the ledger disqualified outright
   * ``MLBE_MARKET_ANCHOR[_<MARKET>]`` -- toll for disagreeing with the price
   * ``MLBE_CLV_GATE`` -- pre-bet closing line value, off the opening board
@@ -12,6 +12,7 @@ simulated or calibrated probability, and each is independently switchable:
 
 from __future__ import annotations
 
+import math
 from datetime import date
 from types import SimpleNamespace
 
@@ -90,47 +91,51 @@ def _rec(
 
 
 # ---- price ceiling ---------------------------------------------------------
-def test_plus_money_is_never_bought() -> None:
-    thr = EVThresholds()
+def test_a_plus_money_run_line_is_never_bought() -> None:
+    thr = EVThresholds().for_market("game_rl")
     tier, reasons = classify(_res(0.06, american=150.0), thr)
     assert tier is Tier.PASS
     assert any("longer than" in r for r in reasons)
 
 
-def test_the_same_edge_at_a_short_price_still_buys() -> None:
-    tier, _ = classify(_res(0.06, american=-130.0), EVThresholds())
-    assert tier is Tier.STRONG
+def test_the_same_run_line_edge_at_a_short_price_still_buys() -> None:
+    thr = EVThresholds().for_market("game_rl")
+    assert classify(_res(0.06, american=-130.0), thr)[0] is Tier.STRONG
+
+
+def test_only_the_two_sided_markets_carry_the_ceiling() -> None:
+    """A prop is honestly plus money; a run line's two sides are not."""
+    base = EVThresholds()
+    assert base.for_market("game_rl").max_buy_odds == 109.0
+    assert base.for_market("f5_rl").max_buy_odds == 109.0
+    # Home runs are screened by their own +400..+700 band instead.
+    assert base.for_market("batter_hr").max_buy_odds == math.inf
 
 
 def test_ceiling_is_configurable(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_MAX_BUY_ODDS", "100000")
-    thr = EVThresholds().for_market("game_ml")
+    monkeypatch.setenv("MLBE_MAX_BUY_ODDS_GAME_RL", "100000")
+    thr = EVThresholds().for_market("game_rl")
     assert classify(_res(0.06, american=150.0), thr)[0] is Tier.STRONG
 
 
-def test_ceiling_takes_a_per_market_override(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_MAX_BUY_ODDS_GAME_TOTAL", "100000")
+def test_a_global_ceiling_reaches_the_markets_without_their_own(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MAX_BUY_ODDS", "109")
     base = EVThresholds()
-    assert base.for_market("game_total").max_buy_odds == 100000
-    assert base.for_market("game_ml").max_buy_odds == base.max_buy_odds
+    assert base.for_market("batter_hr").max_buy_odds == 109.0
+    assert base.for_market("game_rl").max_buy_odds == 109.0
 
 
 # ---- disqualified markets --------------------------------------------------
 def test_losing_batter_markets_are_disqualified() -> None:
     base = EVThresholds()
     assert base.for_market("batter_h").no_buy
-    assert base.for_market("batter_hr").no_buy
-    # Doubles are the one batter market the ledger has in profit, and the
-    # game markets are graded on their own record.
+    assert base.for_market("batter_r").no_buy
+    # Doubles are the one batter market the ledger has in profit; home runs,
+    # singles and RBI keep their own fitted price band or probability floor,
+    # which is the sharper screen; game markets are graded on their own record.
     assert not base.for_market("batter_2b").no_buy
+    assert not base.for_market("batter_hr").no_buy
     assert not base.for_market("game_ml").no_buy
-
-
-def test_a_disqualified_market_passes_at_any_edge() -> None:
-    thr = EVThresholds().for_market("batter_h")
-    tier, reasons = classify(_res(0.07), thr)
-    assert tier is Tier.PASS
-    assert any("disqualified" in r for r in reasons)
 
 
 def test_disqualification_is_reversible(monkeypatch) -> None:
@@ -138,40 +143,45 @@ def test_disqualification_is_reversible(monkeypatch) -> None:
     assert not EVThresholds().for_market("batter_h").no_buy
 
 
+def test_any_market_can_be_disqualified(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_NO_BUY_GAME_ML", "1")
+    assert EVThresholds().for_market("game_ml").no_buy
+
+
 def test_a_disqualified_market_is_still_priced_and_graded() -> None:
     """Shadow bets: the pass keeps the price, EV and edge for the ledger."""
     p = _pipeline()
-    rec = _rec(p, "batter_h", 0.62, selection="Some Batter o0.5 H")
+    rec = _rec(p, "batter_h", 0.56, selection="Some Batter o0.5 H")
     assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "no_buy"
     assert rec.market_american == -110.0
     assert rec.ev is not None and rec.edge is not None
-    assert rec.model_prob == 0.62
+    assert rec.model_prob == 0.56
 
 
 # ---- market anchoring ------------------------------------------------------
-def test_anchor_defaults_to_a_toll_everywhere_but_totals() -> None:
+def test_anchor_ships_off_and_totals_can_never_be_taxed(monkeypatch) -> None:
     cfg = Config()
-    assert cfg.anchor_for("game_ml") == 0.5
-    assert cfg.anchor_for("batter_h") == 0.5
+    assert cfg.anchor_for("game_ml") == 0.0
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.8")
+    raised = Config()
+    assert raised.anchor_for("game_ml") == 0.8
     # Totals are the only market where the model out-forecasts the price, and
-    # the only profitable buy bucket, so they are not taxed.
-    assert cfg.anchor_for("game_total") == 0.0
-    assert cfg.anchor_for("f5_total") == 0.0
+    # the only profitable buy bucket, so the global toll never reaches them.
+    assert raised.anchor_for("game_total") == 0.0
+    assert raised.anchor_for("f5_total") == 0.0
 
 
 def test_anchor_takes_a_per_market_override(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MARKET_ANCHOR_GAME_TOTAL", "0.3")
-    assert Config().anchor_for("game_total") == 0.3
-
-
-def test_a_raised_global_anchor_leaves_totals_alone(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.8")
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_GAME_ML", "0.5")
     cfg = Config()
-    assert cfg.anchor_for("game_ml") == 0.8
-    assert cfg.anchor_for("game_total") == 0.0
+    assert cfg.anchor_for("game_total") == 0.3
+    assert cfg.anchor_for("game_ml") == 0.5
 
 
-def test_anchoring_shrinks_the_bet_probability_not_the_model() -> None:
+def test_anchoring_shrinks_the_bet_probability_not_the_model(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_GAME_ML", "0.5")
     p = _pipeline()
     rec = _rec(p, "game_ml", 0.60)
     assert rec.model_prob == 0.60  # what the audit grades the model on
@@ -179,8 +189,7 @@ def test_anchoring_shrinks_the_bet_probability_not_the_model() -> None:
     assert rec.edge is not None and abs(rec.edge - 0.05) < 1e-6
 
 
-def test_anchor_off_bets_the_model_itself(monkeypatch) -> None:
-    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0")
+def test_anchor_off_bets_the_model_itself() -> None:
     p = _pipeline()
     rec = _rec(p, "game_ml", 0.56)
     assert rec.bet_prob == 0.56
@@ -223,7 +232,7 @@ def test_drift_tolerance_is_configurable(monkeypatch) -> None:
 def test_drift_gate_vetoes_a_buy_in_the_pipeline() -> None:
     p = _pipeline()
     p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.56}
-    rec = _rec(p, "game_ml", 0.60)
+    rec = _rec(p, "game_ml", 0.56)
     assert rec.tier is Tier.PASS
     assert any("clv: PASS" in r for r in rec.reasons)
 

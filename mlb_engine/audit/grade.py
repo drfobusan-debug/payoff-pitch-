@@ -38,7 +38,13 @@ def _ou(actual: float, line: float, side: str) -> str:
 
 
 def grade(rec: Recommendation, res: GameResult) -> str | None:
-    """Return 'win'|'loss'|'push', or None if not gradeable."""
+    """Return 'win'|'loss'|'push', or None if not gradeable.
+
+    A player prop on someone who never appeared is ungradeable, not a loss. The
+    box score simply omits a scratched hitter, so reading his stats back gives
+    zero for everything and sinks every over on him -- which is how a late lineup
+    change ends up in the ledger looking exactly like a bad pick.
+    """
     cat, market = rec.category, rec.market
 
     if market == "game_ml" and rec.team_side:
@@ -77,6 +83,8 @@ def grade(rec: Recommendation, res: GameResult) -> str | None:
         return WIN if adj > 0 else LOSS
 
     if cat == "batter" and rec.player_id and rec.stat and rec.line is not None:
+        if not res.batted(rec.player_id):
+            return None
         if rec.stat == "HRR":
             b = res.batter(rec.player_id)
             actual = b.get("H", 0) + b.get("R", 0) + b.get("RBI", 0)
@@ -88,6 +96,8 @@ def grade(rec: Recommendation, res: GameResult) -> str | None:
         return _ou(actual, rec.line, rec.side or "over")
 
     if cat == "pitcher" and rec.player_id and rec.stat and rec.line is not None:
+        if not res.pitched(rec.player_id):
+            return None
         actual = res.pitcher(rec.player_id).get(rec.stat, 0)
         return _ou(actual, rec.line, rec.side or "over")
 

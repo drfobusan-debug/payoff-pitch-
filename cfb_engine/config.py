@@ -54,7 +54,12 @@ class ModelParams:
     rating_to_points: float = field(
         default_factory=lambda: _env_float("CFBE_RATING_TO_POINTS", 1.0)
     )
-    # Home-field advantage in points, added to the home margin.
+    # Home-field advantage in points, added to the home margin. Measured on 7,345
+    # home-site games (2014-2025) by regressing on the SP+ gap, which carries no
+    # venue: home field delivered +2.33 +/- 0.16 pts, so 2.4 stands. The market
+    # prices +2.84 -- it charged 1.29 pts too much in 2014-2016 and +0.07 since
+    # 2022 -- and neutral sites came in at +0.13 in the price, hence a 0.0 default
+    # for FeatureParams.neutral_site_hfa.
     home_field_pts: float = field(default_factory=lambda: _env_float("CFBE_HFA_PTS", 2.4))
     # League-average points scored per team per game (sets the total baseline).
     avg_team_points: float = field(default_factory=lambda: _env_float("CFBE_AVG_TEAM_PTS", 27.5))
@@ -115,14 +120,31 @@ class FeatureParams:
 
     # -- weather (totals) -------------------------------------------------
     # Wind above the threshold knocks points off the total, per mph, capped.
+    #
+    # These default to zero, i.e. observed and printed but not priced, because
+    # the closing total already contains them. Measured on 7,651 outdoor games
+    # (2014-2025) against the *closing total's* residual, not the raw score:
+    #
+    #   wind                     r=-0.0125 (t=-1.09), -0.058 pts per mph
+    #   wind >= 15mph as a flag  r=-0.0077 (t=-0.68)
+    #   wind x pass rate         r=-0.0021 (t=-0.19)   the named mechanism
+    #   temperature              r=+0.0152 (t=+1.33)
+    #   R2 over the closing total: +0.00018 for wind, +0.00000 for the interaction
+    #
+    # Precipitation is the one term with a pulse (r=-0.0233, t=-2.04; unders hit
+    # 55.6% in 0.5-1.5mm/hr and 57.6% above that, and 59.4% when rain meets 8mph+
+    # wind) -- but it dies out of time: 56.6% unders in 2014-2019, 47.8% in
+    # 2023-2025. Same shape as returning production, so it is not scored either.
+    # Set the env vars to price any of them; the old defaults were 0.45/mph over
+    # 12mph capped at 7, which is ~8x the measured slope in the same direction.
     wind_threshold_mph: float = field(default_factory=lambda: _env_float("CFBE_WIND_MPH", 12.0))
     wind_total_per_mph: float = field(
-        default_factory=lambda: _env_float("CFBE_WIND_TOTAL_PER_MPH", 0.45)
+        default_factory=lambda: _env_float("CFBE_WIND_TOTAL_PER_MPH", 0.0)
     )
     wind_total_max: float = field(default_factory=lambda: _env_float("CFBE_WIND_TOTAL_MAX", 7.0))
-    precip_total_pts: float = field(default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 2.5))
+    precip_total_pts: float = field(default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 0.0))
     cold_threshold_f: float = field(default_factory=lambda: _env_float("CFBE_COLD_F", 32.0))
-    cold_total_pts: float = field(default_factory=lambda: _env_float("CFBE_COLD_TOTAL_PTS", 1.5))
+    cold_total_pts: float = field(default_factory=lambda: _env_float("CFBE_COLD_TOTAL_PTS", 0.0))
 
     # -- regression -------------------------------------------------------
     # Shrink the ratings-implied margin toward zero (mean reversion): early and
@@ -135,21 +157,38 @@ class FeatureParams:
 
 @dataclass(frozen=True)
 class EVThresholds:
-    """Expected-value cutoffs (EV per $1 staked) for buy tiers."""
+    """Cutoffs for buy tiers: an EV floor to clear, then edge to rank on."""
 
-    strong_buy: float = field(default_factory=lambda: _env_float("CFBE_EV_STRONG", 0.06))
-    moderate_buy: float = field(default_factory=lambda: _env_float("CFBE_EV_MODERATE", 0.025))
+    # The price has to pay at all at the best number we can bet. Deliberately 0
+    # rather than a margin: ``EV = decimal_odds x edge``, so an EV *margin* is a
+    # cheaper bar the longer the price. The old 0.06 Strong cutoff asked a -400
+    # favourite for 4.8 points of edge and a +300 dog for 1.5, which is how the
+    # MLB engine's Strong tier filled with plus-money dogs and inverted (39.9%
+    # against Moderate's 46.9%). The bar is sized in edge below, not here.
+    min_ev: float = field(default_factory=lambda: _env_float("CFBE_MIN_EV", 0.0))
     # Minimum model edge over the no-vig market price required to buy.
     min_edge: float = field(default_factory=lambda: _env_float("CFBE_MIN_EDGE", 0.02))
+    # Extra edge, in probability points over ``min_edge``, that promotes a buy to
+    # Strong -- price-independent, unlike an EV cutoff.
+    strong_edge_gap: float = field(
+        default_factory=lambda: _env_float("CFBE_EDGE_STRONG_GAP", 0.02)
+    )
+    # Disagreement with the devigged market beyond which the edge reads as model
+    # error rather than a bet. The market is the better forecaster here by a wide
+    # margin -- the closing spread carries r=+.647 against the final margin while
+    # the engine's efficiency gap adds nothing to it -- so a wide departure is
+    # evidence against the sim. 1.0 disables the cap.
+    max_edge: float = field(default_factory=lambda: _env_float("CFBE_MAX_EDGE", 0.08))
     strong_only: bool = field(default_factory=lambda: _env_bool("CFBE_STRONG_ONLY", False))
 
     def for_market(self, market: str) -> EVThresholds:
-        """Per-market thresholds, overridable via ``CFBE_EV_STRONG_<MARKET>`` etc."""
+        """Per-market thresholds, overridable via ``CFBE_MIN_EDGE_<MARKET>`` etc."""
         suffix = market.upper()
         return EVThresholds(
-            strong_buy=_env_float(f"CFBE_EV_STRONG_{suffix}", self.strong_buy),
-            moderate_buy=_env_float(f"CFBE_EV_MODERATE_{suffix}", self.moderate_buy),
+            min_ev=_env_float(f"CFBE_MIN_EV_{suffix}", self.min_ev),
             min_edge=_env_float(f"CFBE_MIN_EDGE_{suffix}", self.min_edge),
+            strong_edge_gap=_env_float(f"CFBE_EDGE_STRONG_GAP_{suffix}", self.strong_edge_gap),
+            max_edge=_env_float(f"CFBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"CFBE_STRONG_ONLY_{suffix}", self.strong_only),
         )
 
@@ -201,6 +240,15 @@ class MarkingParams:
     """
 
     enabled: bool = field(default_factory=lambda: _env_bool("CFBE_MARKING", True))
+    # Whether the support score may actually move a tier. Default off: measured
+    # against what the closing spread missed over 8,009 games (2014-2025), every
+    # metric the score is built from is indistinguishable from noise -- net PPA
+    # r=+.0035 (t=+0.32), success rate -.0056, explosiveness -.0047, havoc
+    # +.0078, points-per-opportunity +.0051, and the gap adds +0.00000 R2 on top
+    # of the spread. The published cover rates the weights came from are real but
+    # descriptive; they are not value over the price. The score is still computed
+    # and printed as a reason so it can be graded before it is trusted.
+    confidence_bumps: bool = field(default_factory=lambda: _env_bool("CFBE_MARK_BUMPS", False))
     # Weighted support score (sum of PPV-weighted agreeing metrics minus
     # disagreeing) needed to move a bet one tier up / down.
     bump_up: float = field(default_factory=lambda: _env_float("CFBE_MARK_BUMP_UP", 0.20))
@@ -287,8 +335,28 @@ class Config:
     )
 
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
-    # ``model.home_field_pts`` for listed home teams). Unlisted teams keep the default.
-    vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", True))
+    # ``model.home_field_pts`` for listed home teams). Off by default: the guide
+    # buckets teams by their own three-year home ATS record, so it grades 64% /
+    # 30% inside that window and r=+0.042 outside it, and a program's home edge
+    # over the market does not persist year to year at all (r=+0.017, p=.68).
+    # :mod:`cfb_engine.data.vsin` records the measurement. The table is still
+    # printed on the card; set the env var to price it again.
+    vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
+
+    # Read the injury feed and the box-score usage book. On by default because it
+    # only reports and logs: an absence is printed on the card and appended to the
+    # availability log with the line at that moment, which is what measures whether
+    # we hear the news before the market moves.
+    injury_feed: bool = field(default_factory=lambda: _env_bool("CFBE_INJURY_FEED", True))
+
+    # Points to charge a team missing an established starting quarterback. Measured
+    # at -2.2 against the closing spread (604 team-games, 55.3% fading, t=+2.60,
+    # holdout 56.7%) -- but the whole effect sits in the *first* game of an absence
+    # (holdout 59.9% against 47.1% once it is common knowledge), so it is a bet on
+    # hearing the news early, not on knowing the backup is playing. Default 0.0
+    # until the availability log shows we get there before the number does;
+    # :mod:`cfb_engine.data.injuries` records the measurement.
+    injury_qb_pts: float = field(default_factory=lambda: _env_float("CFBE_INJURY_QB_PTS", 0.0))
 
     # Use the VSiN guide's 0-19 roster-stability score to shrink a preseason
     # rating gap toward a pick'em when both teams have volatile rosters.
@@ -379,6 +447,14 @@ class Config:
     def closing_file(self, day: Date) -> Path:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
+
+    @property
+    def availability_file(self) -> Path:
+        """Append-only log of absences, each stamped with the line at capture."""
+        override = os.getenv("CFBE_AVAILABILITY_FILE")
+        if override:
+            return Path(override)
+        return self.audit_dir / "availability.jsonl"
 
     @property
     def scorecard_file(self) -> Path:

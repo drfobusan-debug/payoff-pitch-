@@ -137,9 +137,6 @@ class Selection:
     hr_max_ev: float | None = None
     hr_barrel: float | None = None
     hr_bbe: int | None = None
-    # Barrel-rate trend windows for the HR barrel gate (None when too thin).
-    hr_barrel_3w: float | None = None
-    hr_barrel_6w: float | None = None
     # Barrels per plate appearance and mean exit velocity on air contact, for
     # the HR gate's contact-frequency and soft-air tests (None when unavailable).
     hr_barrel_pa: float | None = None
@@ -164,15 +161,19 @@ def _finite(x: float) -> float | None:
 def _tb_false_positives(breg: BatterRegression) -> list[tuple[float, str]]:
     """Score penalties for bases the hitter's contact does not support.
 
-    Total bases is the numerator of slugging, so a hitter slugging well past his
-    expected slugging is collecting bases from bloops, misplays and wind -- and
-    gives them back. Same for a hitter carrying a high BABIP on below-average
+    Total bases is the numerator of slugging, so a hitter slugging well past the
+    quality of his contact is collecting bases from bloops, misplays and wind --
+    and gives them back. Same for a hitter carrying a high BABIP on below-average
     hard contact. A metric that is unknown never brakes anything.
+
+    The comparison is against expected slugging *on contact*, not against the
+    calibrated xSLG: see ``BatterRegression.slg_gap`` for why the calibrated gap
+    stops predicting.
     """
     out: list[tuple[float, str]] = []
     gap = breg.slg_gap
     if gap == gap and gap > TB_SLG_GAP_FLAG:
-        out.append((TB_SLG_GAP_PENALTY, f"slg-xslg={gap:+.3f} over-performing"))
+        out.append((TB_SLG_GAP_PENALTY, f"slg-contact={gap:+.3f} over-performing"))
     if breg.hard_hit < BL_HARD_HIT and breg.babip == breg.babip:
         if breg.babip > TB_BABIP_HIGH:
             out.append(

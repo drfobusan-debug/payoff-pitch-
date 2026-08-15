@@ -22,6 +22,7 @@ import pandas as pd
 import requests
 
 from mlb_engine.config import Credentials
+from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ class RotowireClient:
         to MLB Stats API lineups.
         """
         try:
-            resp = requests.get(LINEUPS_URL, headers=_HEADERS, timeout=self.timeout)
+            resp = http.get(LINEUPS_URL, headers=_HEADERS, timeout=self.timeout)
             resp.raise_for_status()
         except requests.RequestException as exc:
             log.warning("Rotowire daily-lineups fetch failed: %s", exc)

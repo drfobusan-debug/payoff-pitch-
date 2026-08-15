@@ -5,11 +5,6 @@ ranked on its edge over the no-vig market -- not on EV, because ``EV =
 decimal_odds x edge`` makes an EV cutoff a cheaper bar the longer the price.
 Edge also has a ceiling: past ``max_edge`` a disagreement reads as a model
 error. Tiers are then adjusted by VSIN handle/bets divergence.
-
-Two screens sit in front of all of that and no edge can buy past them: markets
-the ledger has disqualified outright (``no_buy``) and prices longer than
-``max_buy_odds``. Both exist because a big measured edge is the symptom of the
-losses, not the cure -- see the thresholds in ``mlb_engine.config``.
 """
 
 from __future__ import annotations
@@ -26,6 +21,36 @@ class Tier(str, Enum):
     STRONG = "Strong buy"
     MODERATE = "Moderate buy"
     PASS = "Pass"
+
+
+def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
+    """Name the price screen that rejects this selection, or None if it clears.
+
+    Returns ``(gate, reason)``: a short machine-readable gate name for the
+    ledger, and the human sentence :func:`classify` puts in ``reasons``. The
+    name is what makes a screen gradeable -- ``edge_ceiling`` in particular
+    rejects picks the model likes *most*, so whether it removes losers or
+    winners can only be settled by grading its own rows.
+    """
+    # Price ceiling. The engine's plus-money buys are its overconfidence being
+    # cashed, so a long price is a veto rather than a bigger payout.
+    price = result.best_quote.american
+    if price > thr.max_buy_odds:
+        return (
+            "price_ceiling",
+            f"price {price:+.0f} longer than {thr.max_buy_odds:+.0f} -> pass",
+        )
+    # The price still has to pay at the best number we can bet.
+    if result.ev <= thr.min_ev:
+        return "ev_floor", f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass"
+    # Thin-edge guard: never buy without a real edge over the no-vig line.
+    if result.edge < thr.min_edge:
+        return "thin_edge", f"edge {result.edge:+.3f} < {thr.min_edge} -> pass"
+    # Implausible-edge guard: the market is the better forecaster, so a large
+    # departure from it is evidence against the model, not a bigger bet.
+    if result.edge > thr.max_edge:
+        return "edge_ceiling", f"edge {result.edge:+.3f} > {thr.max_edge} -> pass"
+    return None
 
 
 def _base_tier(edge: float, thr: EVThresholds) -> Tier:
@@ -49,32 +74,9 @@ def classify(result: EVResult, thr: EVThresholds) -> tuple[Tier, list[str]]:
     reasons: list[str] = []
     reasons.append(f"EV={result.ev:+.3f} edge={result.edge:+.3f}")
 
-    # Disqualified market: priced and graded as a shadow bet, never bought.
-    if thr.no_buy:
-        reasons.append("market disqualified by the graded ledger -> pass")
-        return Tier.PASS, reasons
-
-    # Price ceiling. The engine's plus-money buys are its overconfidence being
-    # cashed, so a long price is a veto rather than a bigger payout.
-    price = result.best_quote.american
-    if price > thr.max_buy_odds:
-        reasons.append(f"price {price:+.0f} longer than {thr.max_buy_odds:+.0f} -> pass")
-        return Tier.PASS, reasons
-
-    # The price still has to pay at the best number we can bet.
-    if result.ev <= thr.min_ev:
-        reasons.append(f"EV {result.ev:+.3f} <= {thr.min_ev} -> pass")
-        return Tier.PASS, reasons
-
-    # Thin-edge guard: never buy without a real edge over the no-vig line.
-    if result.edge < thr.min_edge:
-        reasons.append(f"edge {result.edge:+.3f} < {thr.min_edge} -> pass")
-        return Tier.PASS, reasons
-
-    # Implausible-edge guard: the market is the better forecaster, so a large
-    # departure from it is evidence against the model, not a bigger bet.
-    if result.edge > thr.max_edge:
-        reasons.append(f"edge {result.edge:+.3f} > {thr.max_edge} -> pass")
+    screened = price_screen(result, thr)
+    if screened is not None:
+        reasons.append(screened[1])
         return Tier.PASS, reasons
 
     tier = _base_tier(result.edge, thr)

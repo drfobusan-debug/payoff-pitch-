@@ -32,6 +32,7 @@ import pandas as pd
 import requests
 
 from mlb_engine.config import Credentials
+from mlb_engine.data import http
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.schemas import Slate
 
@@ -55,6 +56,34 @@ class Split:
         if self.handle_pct is None or self.bets_pct is None:
             return None
         return self.handle_pct - self.bets_pct
+
+
+def split_side(market: str, selection: str) -> str | None:
+    """The line-independent side a selection takes: ``Over``/``Under``, or a team.
+
+    Public money on a game's total is a property of the game, not of the line we
+    happen to price. 92% of handle on the Over is 92% whether the engine bets
+    7.5 or 9.5 -- but the split arrives keyed to VSIN's main line, so an
+    alternate-line pick found no entry and looked like a game VSIN never
+    covered. Same for a run line quoted at anything but +/-1.5.
+    """
+    head = selection.split()[0] if selection.split() else ""
+    if market == "game_total":
+        return head if head in ("Over", "Under") else None
+    if market in ("game_rl", "game_ml"):
+        return head or None
+    return None
+
+
+def lookup_split(
+    splits: dict[tuple[str, str, str], Split], matchup: str, market: str, selection: str
+) -> Split | None:
+    """Exact selection first, then the side, so an alternate line still resolves."""
+    sp = splits.get((matchup, market, selection))
+    if sp is not None:
+        return sp
+    side = split_side(market, selection)
+    return splits.get((matchup, market, side)) if side is not None else None
 
 
 class _RawRow(NamedTuple):
@@ -111,6 +140,8 @@ class VSINClient:
         - ``splits``: handle/bets-only entries for moneyline, run line, and total
           selections (VSIN gives no run-line/total price, so these carry no EV;
           they surface the public/sharp split and feed the run-line PPV layer).
+          Run-line and total entries are filed twice -- under VSIN's own line and
+          under the bare side -- so ``lookup_split`` resolves an alternate line.
 
         Each VSIN row is matched to a slate team by normalized full name. On the
         total, VSIN lists the visitor row as the Over and the home row as the
@@ -138,12 +169,14 @@ class VSINClient:
                     )
                     splits[(matchup, "game_ml", f"{abbrev} ML")] = Split(row.ml_handle, row.ml_bets)
                 if row.spread_line is not None:
-                    sel = f"{abbrev} {row.spread_line:+.1f}"
-                    splits[(matchup, "game_rl", sel)] = Split(row.spread_handle, row.spread_bets)
+                    sp = Split(row.spread_handle, row.spread_bets)
+                    splits[(matchup, "game_rl", f"{abbrev} {row.spread_line:+.1f}")] = sp
+                    splits[(matchup, "game_rl", abbrev)] = sp
                 if row.total_line is not None:
                     side = "Under" if is_home else "Over"
-                    sel = f"{side} {row.total_line}"
-                    splits[(matchup, "game_total", sel)] = Split(row.total_handle, row.total_bets)
+                    sp = Split(row.total_handle, row.total_bets)
+                    splits[(matchup, "game_total", f"{side} {row.total_line}")] = sp
+                    splits[(matchup, "game_total", side)] = sp
         return quotes, splits
 
     def fetch_quotes(self, slate: Slate) -> Quotes:
@@ -153,7 +186,7 @@ class VSINClient:
     def _fetch_book(self, src: str) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
-            resp = requests.get(url, headers=_HEADERS, timeout=self.timeout)
+            resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
             resp.raise_for_status()
             tables = pd.read_html(io.StringIO(resp.text))
         except (requests.RequestException, ValueError) as exc:

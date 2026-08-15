@@ -87,7 +87,7 @@ class NeutralWeather(WeatherProvider):
         pass
 
     def fetch(self, park: Park, game_dt_utc: str | None) -> WeatherEffect:
-        return WeatherEffect(None, 1.0, 1.0, note="backtest: weather neutral")
+        return WeatherEffect(None, 1.0, note="backtest: weather neutral")
 
 
 class NullVSIN(VSINClient):

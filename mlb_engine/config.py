@@ -7,11 +7,16 @@ defaults that can be overridden via environment variables prefixed ``MLBE_``.
 
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mlb_engine.features.regression import SINGLES_BARREL_SLOPE, SINGLES_GB_SLOPE
+from mlb_engine.features.regression import (
+    SINGLES_BARREL_SLOPE,
+    SINGLES_GB_SLOPE,
+    SINGLES_LD_SLOPE,
+)
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
 
 
@@ -85,6 +90,14 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
+    """A comma-separated override, where an empty value means the empty set."""
+    raw = os.getenv(name)
+    if raw is None:
+        return frozenset(default)
+    return frozenset(part.strip() for part in raw.split(",") if part.strip())
+
+
 # Cumulative-audit false-positive pockets. The model is over-confident on these
 # counting-prop overs (measured PPV well below the ~52.4% breakeven), so a global
 # thin-edge guard still lets marginal, unprofitable buys through. Each must show
@@ -99,17 +112,36 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 
 # Markets whose buys the accumulated ledger cannot justify at any edge. Over 27
 # graded slates (1,894 buys) every batter market except doubles lost money on
-# the side the engine backed: hits 48.3% for -14.0% ROI (n=447), singles 36.7%
-# (n=221), runs 29.7% (n=128), RBI 22.5% (n=129), home runs 8.8% (n=91), total
-# bases 11.1% (n=9), H+R+RBI 43.8% (n=16), against doubles' +36.3% (n=73).
-# Raising each edge floor is the wrong instrument when the whole family is
-# under water, so these are hard-passed and keep grading as shadow bets --
-# the ledger still records the price, the tier reason and the result, so a
-# rebuilt batter model can be graded before it is trusted with money.
-# ``MLBE_NO_BUY_<MARKET>=0`` re-enables one.
+# the side the engine backed: hits 48.3% for -14.0% ROI (n=447), runs 29.7%
+# (n=128), total bases 11.1% (n=9), H+R+RBI 43.8% (n=16), against doubles'
+# +36.3% (n=73). Raising an edge floor is the wrong instrument when the market
+# itself is under water at every edge, so these overs are hard-passed and keep
+# grading as shadow bets -- the ledger still records the price, the tier reason
+# and the result, so a rebuilt batter model can be graded before it is trusted
+# with money. ``MLBE_NO_BUY_<MARKET>=0`` re-enables one, and
+# ``MLBE_NO_BUY_<MARKET>=1`` disqualifies any other.
+#
+# Home runs, singles and RBI lost money too and are deliberately *not* here:
+# each already has a price band or probability floor fitted to its own graded
+# rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
+# which is the sharper instrument. Disqualification is for the markets with no
+# surviving profitable pocket to screen for.
 _NO_BUY_MARKETS: frozenset[str] = frozenset(
-    {"batter_h", "batter_hr", "batter_hrr", "batter_r", "batter_rbi", "batter_tb"}
+    {"batter_h", "batter_hrr", "batter_r", "batter_tb"}
 )
+
+# Longest price a buy may be taken at, per market, overriding the global
+# ``EVThresholds.max_buy_odds``. Plus-money buys went 28.5% (n=933, -15.5% ROI)
+# against 50.7% at minus money, but the cure has to be aimed: props are
+# one-sided by construction -- a home run is honestly +500 -- and moneylines
+# already have ``away_ml_refuse_odds``, which locates the damage on the road dog
+# specifically. Run lines are what is left uncovered, and they split cleanly:
+# +11.8% at -110 or shorter against -21.2% at plus money, where taking +1.5
+# means paying a premium to need the fewest runs.
+_MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
+    "game_rl": 109.0,
+    "f5_rl": 109.0,
+}
 
 # Weight given to the devigged market price per market, overriding the global
 # ``Config.market_anchor``. Scoring both probability sources on the 10,497
@@ -117,8 +149,12 @@ _NO_BUY_MARKETS: frozenset[str] = frozenset(
 # engine bets (Brier: batter props .2180 vs .2210, F5 .2425 vs .2674, moneyline
 # .2470 vs .2597, pitcher props .2461 vs .2769, run lines .2414 vs .2567) --
 # except totals, where the model wins (.2446 vs .2480) and is also the only
-# profitable buy bucket (+16 units on n=93). So totals keep their own number and
-# everything else pays a toll to disagree with the price.
+# profitable buy bucket (+16 units on n=93).
+#
+# Totals are therefore pinned at zero rather than left to inherit the global
+# weight: anchoring scales the measured edge by ``1 - w``, so raising the global
+# toll to make the engine defer where it is beaten would silently double the
+# edge required in the one market it is not.
 _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "game_total": 0.0,
     "f5_total": 0.0,
@@ -154,17 +190,14 @@ class EVThresholds:
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
-    # Longest American price a buy may be taken at. Plus money is where the
-    # engine's overconfidence is cashed: across 27 graded slates its plus-money
-    # buys went 28.5% (n=933, -15.5% ROI, -145 units) against 50.7% (-9.7%) at
-    # minus money, and the deficit holds in every category -- even run lines,
-    # profitable at -110 or shorter (+11.8%) and -21.2% at plus money. A long
-    # price is a market statement that this side rarely wins, and the model has
-    # not earned the right to overrule it. Raise it (e.g. 100000) to disable.
+    # Longest American price a buy may be taken at. Off globally and applied per
+    # market (see ``_MAX_BUY_ODDS_BY_MARKET``), because a long price means
+    # opposite things on a two-sided team market and a one-sided prop.
     max_buy_odds: float = field(
-        default_factory=lambda: _env_float("MLBE_MAX_BUY_ODDS", 109.0)
+        default_factory=lambda: _env_float("MLBE_MAX_BUY_ODDS", math.inf)
     )
-    # Never buy this market, whatever the price (see ``_NO_BUY_MARKETS``).
+    # Never buy this market's over, whatever the price (see
+    # ``_NO_BUY_MARKETS``); the fade keeps its own screens.
     no_buy: bool = False
 
     def for_market(self, market: str) -> EVThresholds:
@@ -189,7 +222,10 @@ class EVThresholds:
             ),
             max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
-            max_buy_odds=_env_float(f"MLBE_MAX_BUY_ODDS_{suffix}", self.max_buy_odds),
+            max_buy_odds=_env_float(
+                f"MLBE_MAX_BUY_ODDS_{suffix}",
+                _MAX_BUY_ODDS_BY_MARKET.get(market, self.max_buy_odds),
+            ),
             no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
         )
 
@@ -297,22 +333,59 @@ class Config:
     # bats from the contact markets (H/1B/H+R+RBI) above MLBE_CONTACT_K_CEILING
     # K%. Live by default; set MLBE_POWER_FLOOR=0 to disable.
     power_floor: bool = field(default_factory=lambda: _env_bool("MLBE_POWER_FLOOR", True))
+    # .360 rather than .400: the floor was set against an expected slugging read
+    # per batted ball, whose league mean is .486, and cut the bottom sixth of a
+    # slate's starters. Against a calibrated xSLG (league mean .400) the same
+    # .400 would cut half of them; .360 holds the cut where it was (15.9% of the
+    # Aug 8 lineups against 16.7%).
     power_xslg_floor: float = field(
-        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.400)
+        default_factory=lambda: _env_float("MLBE_POWER_XSLG_FLOOR", 0.360)
     )
     contact_k_ceiling: float = field(
         default_factory=lambda: _env_float("MLBE_CONTACT_K_CEILING", 0.25)
     )
 
+    # Hierarchical batter splits: regress each home/away and platoon split
+    # toward the batter's own overall rate rather than toward the league. Set
+    # MLBE_BATTER_SPLIT_PRIOR=0 to restore the flat league prior everywhere.
+    batter_split_prior: bool = field(
+        default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
+    )
+
+    # Rest-of-season projections as the batter prior. The path holds the file
+    # written by ``scripts.ros_prior_study prior``; when it is set and readable,
+    # a hitter's window regresses toward his own projection at the per-outcome
+    # strengths in OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a
+    # flat 60 PA. Off by default: it moves every batter probability, so it is
+    # meant to arrive with a calibration refit rather than mid-window.
+    ros_prior_path: str | None = field(
+        default_factory=lambda: os.getenv("MLBE_ROS_PRIOR") or None
+    )
+
+    # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
+    # three-week sample is thin enough that at the flat 60 PA the pen vector is
+    # mostly binomial noise -- and whose doubles/triples-allowed spread across the
+    # 30 pens is *entirely* noise. Off by default for the same reason as the ROS
+    # prior: it moves every pen-driven probability, so it ships with a refit.
+    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", False))
+
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
-    # a strong structural anti-singles profile (TTO volume, fly-ball tilt, elite
-    # power contact, pull-heavy grounders). Live by default; set
+    # a strong structural anti-singles profile (high K%, fly-ball tilt -- the two
+    # flags that survived the out-of-time fit). Live by default; set
     # MLBE_SINGLES_UNDER=0 to disable, MLBE_SINGLES_UNDER_MIN to retune the score.
     singles_under: bool = field(
         default_factory=lambda: _env_bool("MLBE_SINGLES_UNDER", True)
     )
     singles_under_min: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_MIN", 3.0)
+    )
+    # Score a singles UNDER must show before it is bought. The profile is the
+    # only screen the fade side has, and it is the one thing measured to separate
+    # a paying singles under from a losing one: on the shadow book, buys on a
+    # batter over the strikeout flag went 75.9% for +24.2%, and buys below it
+    # 45.1% for -16.9% (n=29 / 71). 2.0 is the strikeout flag on its own.
+    singles_under_buy_min: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_UNDER_BUY_MIN", 2.0)
     )
 
     # Opposing-starter SIERA gate on the batter singles/hit market. Since singles
@@ -392,6 +465,140 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
+    # Walks-allowed unders are vetoed while the model's walk level is unvalidated.
+    #
+    # Pricing both sides of every prop opened this side up, and pitcher_bb is the
+    # one market whose *over* was the profitable side: on the 149 graded rows
+    # carrying both prices the over returned +2.84% and the under -17.88%, with a
+    # bootstrap interval of [-32.7%, -3.0%] that excludes zero. The cause is small
+    # and the loss is not, which is the point -- pitchers walked 2+ in 55.0% of
+    # those starts against a devigged market price of 49.6%, a 5.4-point miss that
+    # is only 1.32 SE, but the under is the short side and short prices turn a
+    # coin-flip miss into a fifth of the stake.
+    #
+    # The model then leans that way by construction: it averaged .4649 on P(BB>=2)
+    # against the market's .4961, so at a .03 minimum edge it takes 81 unders and
+    # 50 overs -- 62% of its walk buys on the side that lost. That lean is not
+    # evidence, because every one of those rows was priced before the league walk
+    # prior was corrected, so the veto stands until slates graded on the current
+    # basis can measure the level. Set MLBE_PITCHER_BB_UNDER=1 to allow them.
+    pitcher_bb_under_gate: bool = field(
+        default_factory=lambda: not _env_bool("MLBE_PITCHER_BB_UNDER", False)
+    )
+
+    # Home-run overs only pay inside a price band. Graded buys by price:
+    # +300-400 lost 50% of stake on 10 bets, +400-500 returned +20.5% on 19, and
+    # everything from +500 up collapsed -- 62 bets at +500 or longer won three
+    # times between them (-37 units, the single largest pocket left on the card).
+    # The long prices are where a small absolute probability error is a huge
+    # relative one, so the model's edge there is noise wearing a big number.
+    # This is a hard price screen: a home-run buy must sit inside the band no
+    # matter what EV or probability the model reports for it.
+    hr_min_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_HR_MIN_BUY_ODDS", 400.0)
+    )
+    hr_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_HR_MAX_BUY_ODDS", 700.0)
+    )
+
+    # Singles are won or lost on the price, not on the read. The hit rate on a
+    # singles buy is ~35-39% whatever the book charges -- our probability barely
+    # moves with the market's -- so the same pick profits at +200 and loses two
+    # thirds of stake at -130. Graded: 34 minus-money buys cost 15.4 units,
+    # while the 78 at +150 or better returned +4.4%. A price floor rather than a
+    # model claim: it stops us paying a premium for a read we do not have.
+    singles_min_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Player-prop markets that get an under recommendation as well as an over.
+    # Every prop was over-only, so a fade could only ever be a Pass; the
+    # shadow book (1,560 gradeable unders at EV>2%, -0.1%) says the under is
+    # not free money, so it is bet on its own EV like any other side.
+    #
+    # Home runs, doubles and triples are deliberately absent. They are rare
+    # events, so the under is a heavy favourite whose vig swallows any edge,
+    # and after #132/#138 the engine's extra-base numbers are near-flat by
+    # design -- fading them would be betting the prior, not a read.
+    # Shortest price an under may be bought at. A deep favourite has no room:
+    # the graded shadow book returns -2.1% on unders priced worse than -300 and
+    # -0.7% between -300 and -200 (they win 77% and 70%, and still lose), while
+    # -200 to -150 returns +2.0% and plus money +1.9%. It bites hardest on RBI
+    # unders, whose median shadow price was -350 for -10.7%.
+    prop_under_min_price: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_UNDER_MIN_PRICE", -250.0)
+    )
+
+    prop_under_markets: frozenset[str] = field(
+        default_factory=lambda: _env_set(
+            "MLBE_PROP_UNDER_MARKETS",
+            (
+                "batter_h",
+                "batter_1b",
+                "batter_tb",
+                "batter_hrr",
+                "batter_rbi",
+                "pitcher_k",
+                "pitcher_outs",
+                "pitcher_h",
+                "pitcher_bb",
+                "pitcher_er",
+            ),
+        )
+    )
+
+    # Let the simulator lift a hitter mid-game instead of batting the same nine
+    # to the last out. The hazard is measured (``features.removal``): 10.1% per
+    # appearance once the opposing starter is gone, 22.7% for a wrong-handed bat
+    # batting 9th, and the substitute who takes over is a worse hitter, so the
+    # branch moves hits and total bases down through lost opportunity rather than
+    # by cutting anyone's rates. On: the reprice it was waiting for scores it
+    # against three independent measurements -- the credited-appearance ratio
+    # lands on .9538 against a play-by-play .9541, the substitute share runs
+    # 2.5% at the top of the order to 7.8% at the bottom against a measured
+    # 3.1% to 8.0%, and both agree with the box score's own ``battingOrder``
+    # codes. It takes 1.0-1.4pp off every batter market, which is about 40% of
+    # the +1.75-3.40pp the graded ledger says those markets are long by; the
+    # rest is level rather than opportunity and is not corrected here.
+    # ``MLBE_REMOVAL_HAZARD=0`` reverts to batting the same nine.
+    removal_hazard: bool = field(
+        default_factory=lambda: _env_bool("MLBE_REMOVAL_HAZARD", True)
+    )
+
+    # RBI overs are the one market where a conviction floor works: 20.5 of the
+    # 21.5 units that market lost came from buys under 40% model probability
+    # (11 bets under 30% alone lost 61.8% of stake), while everything above the
+    # floor was roughly flat. All of them were plus-money o0.5 tickets -- cheap
+    # lottery lines the EV screen liked precisely because the payout was long.
+    rbi_min_buy_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_RBI_MIN_BUY_PROB", 0.40)
+    )
+
+    # The road moneyline underdog is the only sides cell the graded card
+    # condemns twice. Split four ways by venue and role:
+    #
+    #   away ML dog   n=77  won 28.6%  -26.1u  -33.9%   (train -40.1, test -23.8)
+    #   home ML dog   n=35  won 45.7%   +1.1u   +3.0%
+    #   away ML fav   n=41  won 51.2%   -3.2u   -7.7%
+    #   home ML fav   n=63  won 50.8%   -7.3u  -11.6%
+    #
+    # Neither "underdogs" nor "road teams" is the problem; their intersection
+    # is. It is the highest-variance side on the board and the one where the
+    # book's edge on lineups, travel and bullpen availability is largest, so our
+    # probability error is both biggest and most amplified by the payout -- the
+    # same failure as the +700 home run. It applies to the full game and the
+    # first five alike, because each condemns itself without the other's help:
+    #
+    #   game_ml away dog  n=42  -39.2%   (train -43.5, test -27.0)
+    #   f5_ml   away dog  n=35  -27.6%   (train -33.7, test -21.8)
+    #
+    # Run lines are deliberately untouched: every rule fitted to them reverses
+    # sign across the window, including the home +1.5 that made 34.5% in July
+    # and lost 11.9% in August.
+    away_ml_refuse_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
+    )
+
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
     # the model under-projected outs in its meaty 0.45-0.60 band, which actually
     # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were
@@ -419,12 +626,24 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_TAIL_POWER_SPLIT", True)
     )
 
-    # Ground-ball rate is the batted-ball half of the same story and the largest
-    # remaining contact term, but on eight slates it is not separable from zero.
-    # Off by default: enabling it grades a counterfactual without moving picks.
-    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", False))
+    # Batted-ball mix is the other half of the same story: a single is a ground
+    # ball or a line drive, almost never a ball hit in the air. Previously off,
+    # because an eight-slate fit could not separate the ground-ball slope from
+    # zero. Both slopes are now fitted out of time -- a 42-day window predicting
+    # the *following* 21 days, over 862 batter-windows -- and clear p<1e-4 taken
+    # alone, so the terms are live.
+    singles_gb: bool = field(default_factory=lambda: _env_bool("MLBE_SINGLES_GB", True))
     singles_gb_slope: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_GB_SLOPE", SINGLES_GB_SLOPE)
+    )
+    singles_ld_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_SINGLES_LD_SLOPE", SINGLES_LD_SLOPE)
+    )
+    # Shape within those classes -- pulled grounders, soft line drives, line
+    # drives an outfielder can cut off. Smaller effects than the mix itself
+    # (p .013-.046), so they get their own switch.
+    singles_shape: bool = field(
+        default_factory=lambda: _env_bool("MLBE_SINGLES_SHAPE", True)
     )
 
     # Blend each hitter's observed HR/PA toward what his batted balls were worth
@@ -438,6 +657,28 @@ class Config:
     # into: his own batted balls re-scored against tonight's fences. A scalar
     # park factor cannot tell a pull-heavy lefty from an opposite-field bat.
     xhr_park: bool = field(default_factory=lambda: _env_bool("MLBE_XHR_PARK", True))
+
+    # The ballpark on the singles line. The runs park factor is mostly home runs
+    # and carries no singles signal, so singles were priced identically at
+    # Coors and Dodger Stadium; ``Park.singles_factor`` is the component version,
+    # measured per park and shrunk to its split-half reliability.
+    park_singles: bool = field(
+        default_factory=lambda: _env_bool("MLBE_PARK_SINGLES", True)
+    )
+
+    # The ballpark on the doubles line, and the widest of the component factors:
+    # ``Park.xbh_factor`` spans 0.86..1.25 after shrinking, against singles'
+    # 0.945..1.035, because outfield geometry varies more than fence distance
+    # does. Total bases were priced identically at Coors and Wrigley without it.
+    park_xbh: bool = field(default_factory=lambda: _env_bool("MLBE_PARK_XBH", True))
+
+    # Read a bullpen's contact quality as talent rather than as luck. The pen
+    # covers ~44% of a hitter's plate appearances and was running through the
+    # small-sample luck corrections built for starters -- on ~1,240 pooled
+    # batted balls those invert, suppressing the pens that allow the most hits.
+    pen_contact_level: bool = field(
+        default_factory=lambda: _env_bool("MLBE_PEN_CONTACT_LEVEL", True)
+    )
 
     # Bridge innings: once the starter is hooked in a close game, the simulator
     # used to hand every remaining inning to the pen's 8th+ leverage profile,
@@ -474,12 +715,16 @@ class Config:
     # Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4, -3.5% at 0.6 on a
     # third as many bets, -12.9% at 0.8 -- every interval spans zero, so this
     # shrinks a loss rather than earning a profit; judge a weight on closing
-    # line value, which resolves in far fewer bets than ROI. It now ships at 0.5
-    # because 27 graded slates put the market ahead of the model on Brier and log
-    # loss in every market the engine bets except totals, which keep their own
-    # weight (see ``_MARKET_ANCHOR_BY_MARKET``). ``MLBE_MARKET_ANCHOR=0``
-    # restores the untolled behaviour.
-    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.5))
+    # line value, which resolves in far fewer bets than ROI.
+    #
+    # Still off, despite 27 graded slates putting the market ahead of the model
+    # on Brier and log loss in every market the engine bets except totals, and
+    # for a mechanical reason rather than a lack of evidence: every edge floor,
+    # price band and probability floor on the card was fitted against unanchored
+    # probabilities, and a global weight rescales all of them at once
+    # (edge -> edge x (1 - w)). Raise it per market with
+    # ``MLBE_MARKET_ANCHOR_<MARKET>`` and re-grade that market's floors with it.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest

@@ -8,6 +8,13 @@ right lens for a batter-vs-starter matchup gate: a low-SIERA arm suppresses hits
 We reproduce the FanGraphs (Swartz) revised-SIERA formula from the per-plate-
 appearance strikeout, walk and net-groundball rates, all derivable from a
 pitcher's Statcast slice (``events`` for K/BB/PA, ``bb_type`` for GB/FB/PU).
+
+The formula is then **re-centred onto the published scale**, which is a step the
+first version of this module missed. Swartz's coefficients were fitted to the
+run environment of their era; FanGraphs re-centres the output every season so
+that league SIERA equals league ERA. Skipping that left every arm reading about
+four tenths of a run better than its published number -- see
+``SIERA_LEAGUE_ANCHOR``.
 """
 
 from __future__ import annotations
@@ -27,6 +34,24 @@ _A_SO_GB = 10.130
 _A_BB_GB = -5.195
 
 MIN_SIERA_PA = 80  # min plate appearances before SIERA is trusted
+
+# Where league-average SIERA is pinned. FanGraphs defines SIERA so that the
+# league mean equals league ERA, and re-centres it each season; the raw Swartz
+# polynomial does not do this on its own.
+#
+# Fed league-average rates (K/PA .220, BB/PA .086, net-GB/PA .057, all measured
+# on the Statcast cache) the bare formula returns 3.64, against a published
+# league SIERA that sits near 4.05. Every input rate checks out individually, so
+# the gap is the missing re-centring and not a broken term.
+#
+# This offset is the one number in the module that is *assumed* rather than
+# measured, and it will drift with the run environment. It is worth carrying
+# anyway, because ``opp_starter_siera`` is written into the ledger and printed
+# in the preview: a reader comparing it against FanGraphs should see the same
+# number, and the ace/scrub cut points are quoted on that scale too.
+SIERA_LEAGUE_ANCHOR = 4.05
+_SIERA_RAW_LEAGUE = 3.64  # the bare polynomial at league-average rates
+SIERA_RECENTRE = SIERA_LEAGUE_ANCHOR - _SIERA_RAW_LEAGUE
 
 _K_EVENTS = ("strikeout", "strikeout_double_play")
 
@@ -83,7 +108,7 @@ def pitcher_siera(pdf: pd.DataFrame) -> Siera:
         so_rate=so,
         bb_rate=bb,
         net_gb_rate=net_gb,
-        siera=round(float(siera), 3),
+        siera=round(float(siera) + SIERA_RECENTRE, 3),
     )
 
 

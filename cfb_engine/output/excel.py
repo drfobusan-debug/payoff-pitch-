@@ -204,6 +204,7 @@ def write_ledger_workbook(
     out_path: Path,
     market_rows: list[OverallMetrics] | None = None,
     clv_rows: list[ClvSummary] | None = None,
+    price_rows: list[OverallMetrics] | None = None,
 ) -> Path:
     wb = Workbook()
     ws_overall = wb.active
@@ -212,6 +213,8 @@ def write_ledger_workbook(
 
     if market_rows:
         _write_metric_sheet(wb.create_sheet("By Market"), market_rows, "Market")
+    if price_rows:
+        _write_metric_sheet(wb.create_sheet("By Price"), price_rows, "Price band")
     if clv_rows:
         _write_clv_sheet(wb.create_sheet("Closing Line Value"), clv_rows)
 

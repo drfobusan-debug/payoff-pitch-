@@ -101,8 +101,17 @@ def test_from_env_upgrade_kill_switch(monkeypatch) -> None:
     assert MLSharpGate.from_env().upgrade_enabled is False
 
 # ---- the upgrade cannot buy a price that does not pay ----------------------
-def _ml_rec(model_prob: float, american: float, opposite: float):
-    """Price one game_ml selection through the pipeline with sharp money on it."""
+def _ml_rec(
+    model_prob: float,
+    american: float,
+    opposite: float,
+    team_side: str = "home",
+):
+    """Price one game_ml selection through the pipeline with sharp money on it.
+
+    Defaults to the home side because a road moneyline dog is refused on price
+    alone, which would swallow every sharp-money case these tests are about.
+    """
     from types import SimpleNamespace
 
     from mlb_engine.config import Config
@@ -126,19 +135,20 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
     p._lineup_lock = None
     p._drift_gate = DriftGate.from_env()
     p._open_board = {}
+    sel = "MIA ML" if team_side == "away" else "ATL ML"
     p._splits = {
-        ("MIA @ ATL", "game_ml", "MIA ML"): Split(handle_pct=80.0, bets_pct=37.0)
+        ("MIA @ ATL", "game_ml", sel): Split(handle_pct=80.0, bets_pct=37.0)
     }
     game = SimpleNamespace(game_date="2026-08-08", game_pk=1)
     quotes = {
-        ("MIA @ ATL", "game_ml", "MIA ML"): [
+        ("MIA @ ATL", "game_ml", sel): [
             MarketQuote(book="dk", american=american, opposite_american=opposite,
                         handle_pct=80.0, bets_pct=37.0)
         ]
     }
     return p._mk(
-        game, "MIA @ ATL", "game", "game_ml", "MIA ML", model_prob,
-        team_side="away", side="win", quotes=quotes,
+        game, "MIA @ ATL", "game", "game_ml", sel, model_prob,
+        team_side=team_side, side="win", quotes=quotes,
     )
 
 
@@ -161,26 +171,28 @@ def test_sharp_upgrade_does_not_buy_a_negative_ev_price() -> None:
 def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
     from mlb_engine.market.tiers import Tier
 
-    # Too thin an edge for the tiers to buy on their own, but the price still
-    # pays at the anchored probability: the sharp signal promotes it.
-    rec = _ml_rec(0.53, american=-105.0, opposite=-105.0)
+    # Too thin an edge for the tiers to buy on their own, but a long enough
+    # price that it still pays: the sharp signal promotes it.
+    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
     assert (rec.ev or 0.0) > 0 and (rec.edge or 0.0) < 0.02
     assert rec.tier is Tier.MODERATE
     assert any("ml-upgrade: BUY" in r for r in rec.reasons)
 
 
-def test_sharp_upgrade_cannot_buy_past_the_price_ceiling() -> None:
-    """Plus money is where the engine's confirmed moneylines went to die.
+def test_sharp_money_cannot_buy_a_road_dog() -> None:
+    """The screen runs after the upgrade, and is meant to overrule it.
 
-    Sharp money on a +200 dog is still evidence about the number, but the graded
-    ledger has it at 28.5% on plus-money buys, so the ceiling outranks it.
+    Handle piling onto a road underdog is the market agreeing about the side,
+    not about the price -- and the price is what lost 33.9% of stake on that
+    cell. The same selection is promoted when it is the home team.
     """
     from mlb_engine.market.tiers import Tier
 
-    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
-    assert rec.tier is Tier.PASS
-    assert not any("ml-upgrade" in r for r in rec.reasons)
-    assert any("longer than" in r for r in rec.reasons)
+    road = _ml_rec(0.3366, american=200.0, opposite=-220.0, team_side="away")
+    assert road.tier is Tier.PASS
+    assert road.pass_gate == "away_ml_dog"
+    assert any("ml-upgrade: BUY" in r for r in road.reasons)
+    assert _ml_rec(0.3366, 200.0, -220.0, team_side="home").tier is Tier.MODERATE
 
 
 def test_a_confirmed_moneyline_is_actually_buyable() -> None:
@@ -192,7 +204,7 @@ def test_a_confirmed_moneyline_is_actually_buyable() -> None:
     """
     from mlb_engine.market.tiers import Tier
 
-    rec = _ml_rec(0.59, american=-110.0, opposite=-110.0)
+    rec = _ml_rec(0.46, american=140.0, opposite=-160.0)
     assert (rec.ev or 0.0) > 0 and 0.02 <= (rec.edge or 0.0) <= 0.08
     assert rec.tier is Tier.STRONG
     assert any("ml-gate: OK" in r for r in rec.reasons)

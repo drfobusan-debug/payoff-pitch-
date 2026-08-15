@@ -13,8 +13,6 @@ model never fabricates coefficients:
 - ``pitcher_slow_to_plate`` opp starter time-to-plate > 1.35s and
   ``catcher_poor_pop`` opp catcher slow pop time: enable the run game -> a small
   extra-base/advancement (2B) nudge (steals put runners in scoring position).
-- ``manager_quick_hook``    opp manager pulls the starter at the TTO line ->
-  earlier bullpen exposure, applied as a negative starter batters-faced delta.
 - ``divisional``            same-division matchup -> familiarity removes the
   pitcher's novelty edge: fewer K, a touch more contact.
 """
@@ -51,7 +49,6 @@ class HumanFactors:
     umpire_zone_runs: float = 0.0
     pitcher_slow_to_plate: bool = False
     catcher_poor_pop: bool = False
-    manager_quick_hook: bool = False
 
     def offense_multipliers(self) -> dict[str, float]:
         """Bounded multipliers on this offense's PA outcomes."""
@@ -89,7 +86,3 @@ class HumanFactors:
         if xbh != 1.0:
             out["2B"] = xbh
         return out
-
-    def starter_bf_cap_delta(self) -> int:
-        """Batters-faced adjustment for the opposing starter (manager hook)."""
-        return -6 if self.manager_quick_hook else 0

@@ -7,7 +7,7 @@ from datetime import date
 import numpy as np
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN, grade
-from mlb_engine.audit.scorecard import build_scorecard
+from mlb_engine.audit.scorecard import FIELDS, append_scorecard, build_scorecard
 from mlb_engine.config import EVThresholds
 from mlb_engine.data.results import GameResult, PlayerLine, _ip_to_outs
 from mlb_engine.features.rolling import LEAGUE_RATES, OutcomeRates, rates_from_events
@@ -107,13 +107,13 @@ def test_weather_park_config_gates_wind():
     from mlb_engine.filters.weather import WeatherConditions, _effect
 
     out = WeatherConditions(85, 50, 15, 0, 15)  # 15 mph straight out to CF
-    wrigley, _ = _effect(out, get_park(17))  # open bowl, wind-receptive
-    oracle, _ = _effect(out, get_park(2395))  # shielded
+    wrigley = _effect(out, get_park(17))  # open bowl, wind-receptive
+    oracle = _effect(out, get_park(2395))  # shielded
     assert wrigley > 1.15  # wind reaches the field -> big HR boost
     assert oracle < wrigley  # architecture suppresses the same wind
 
     blow_in = WeatherConditions(85, 50, 15, 180, -15)
-    wrigley_in, _ = _effect(blow_in, get_park(17))
+    wrigley_in = _effect(blow_in, get_park(17))
     assert wrigley_in < 1.0  # in-from-CF suppresses power
 
 
@@ -336,16 +336,28 @@ def test_human_divisional_and_umpire_zone():
 
 
 # ---- manager tendencies ----
-def test_manager_hook_platoon_and_speed():
+def test_no_manager_sets_the_starter_hook() -> None:
+    """The hook is measured per start, so no manager may carry a cap.
+
+    The hand-entered caps ranged 19-29 batters faced across five managers; the
+    measured p75 over 3,299 starts ranges 23-26 across all thirty teams, and
+    correlated with the entered value at r = +0.22. Los Angeles had the longest
+    leash in baseball and was entered as the third quickest.
+    """
+    from mlb_engine.data.managers import MANAGERS, ManagerProfile
+
+    fields = set(ManagerProfile.__dataclass_fields__)
+    assert "starter_bf_cap" not in fields
+    assert "starter_pitch_cap" not in fields
+    for tid in (139, 141, 119, 113, 137):  # TB, TOR, LAD, CIN, SF
+        assert tid not in MANAGERS
+
+
+def test_manager_platoon_and_speed():
     from mlb_engine.data.managers import get_manager
 
-    # Quick-hook (Cash, TB=139) caps starter well below the long-leash default;
-    # long leash (Francona, CIN=113) extends it.
-    assert get_manager(139).starter_bf_cap < 24
-    assert get_manager(113).starter_bf_cap > 24
     # Unknown team -> neutral default, no tilts.
     neutral = get_manager(999999)
-    assert neutral.starter_bf_cap == 24
     assert neutral.offense_multipliers() == {}
     assert neutral.pen_multipliers() == {}
     # Platoon maximizer (Baldelli, MIN=142) tilts only the bullpen matchup.
@@ -353,6 +365,19 @@ def test_manager_hook_platoon_and_speed():
     # Speed engine (Vogt, CLE=114) boosts advancement + lowers K.
     speed = get_manager(114).offense_multipliers()
     assert speed.get("2B", 1.0) > 1.0 and speed.get("K", 1.0) < 1.0
+
+
+def test_the_third_time_through_window_reads_measured_depth() -> None:
+    """The comeback signal must stay reachable now no manager reports 26+ BF."""
+    from mlb_engine.models.comeback import TTTO_LONG_LEASH, ComebackSignal
+    from mlb_engine.models.comeback import evaluate as evaluate_comeback
+
+    deep = evaluate_comeback(ComebackSignal(opp_starter_bf_cap=TTTO_LONG_LEASH))
+    short = evaluate_comeback(ComebackSignal(opp_starter_bf_cap=TTTO_LONG_LEASH - 1))
+    assert deep.score > short.score
+    assert any("long-leash" in r for r in deep.reasons)
+    # Reachable from a real starter: the measured p90 start is 27 batters faced.
+    assert TTTO_LONG_LEASH <= 27
 
 
 # ---- VSIN public splits -> moneyline quotes ----
@@ -405,6 +430,32 @@ def test_vsin_fetch_quotes_maps_to_slate():
     assert splits[("MIN @ CLE", "game_total", "Over 7.5")].handle_pct == 13.0
     assert splits[("MIN @ CLE", "game_total", "Under 7.5")].handle_pct == 87.0
     assert client.fetch_quotes(slate).keys() == quotes.keys()
+
+    # An alternate line is the same public money: VSIN posts the split against
+    # its own line, but the engine routinely picks 8.5 or 9.5 on the same game,
+    # and keying on the full selection dropped the split on every one of them.
+    from mlb_engine.data.vsin import lookup_split
+
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Over 9.5").handle_pct == 13.0
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Under 8.5").handle_pct == 87.0
+    assert lookup_split(splits, "MIN @ CLE", "game_rl", "MIN -2.5").handle_pct == 96.0
+    # The exact line still wins when it is present, and an uncovered game or a
+    # market VSIN never reports stays absent rather than borrowing a side.
+    assert lookup_split(splits, "MIN @ CLE", "game_total", "Over 7.5").handle_pct == 13.0
+    assert lookup_split(splits, "TB @ ATH", "game_total", "Over 8.5") is None
+    assert lookup_split(splits, "MIN @ CLE", "batter_h", "Jose Ramirez H o0.5") is None
+
+
+def test_split_side_ignores_the_line():
+    from mlb_engine.data.vsin import split_side
+
+    assert split_side("game_total", "Over 7.5") == "Over"
+    assert split_side("game_total", "Under 9.5") == "Under"
+    assert split_side("game_rl", "BAL -1.5") == "BAL"
+    assert split_side("game_ml", "LAD ML") == "LAD"
+    # Props have no public split anywhere, so there is no side to fall back to.
+    assert split_side("batter_h", "Aaron Judge H o1.5") is None
+    assert split_side("game_total", "") is None
 
 
 def test_circa_weighted_consensus_and_divergence():
@@ -497,8 +548,10 @@ def test_oddsapi_maps_game_f5_and_props():
     assert ("MIN @ CLE", "batter_h", "Byron Buxton H o0.5") in q
     assert ("MIN @ CLE", "pitcher_k", "Pablo Lopez Ks o5.5") in q
     assert q[("MIN @ CLE", "game_ml", "MIN ML")][0].american == -130.0
-    # Under-side props are ignored (the engine only prices the over).
-    assert all(not sel.endswith("u0.5") for _, _, sel in q)
+    # Both sides of a prop are priced, so a prop can be passed on its merits
+    # rather than for want of a price on the side the model prefers.
+    assert ("MIN @ CLE", "batter_h", "Byron Buxton H u0.5") in q
+    assert q[("MIN @ CLE", "batter_h", "Byron Buxton H u0.5")][0].american == 120.0
 
 
 def test_merge_quotes_dedupes_by_book():
@@ -989,8 +1042,8 @@ def test_ev_positive_when_underpriced():
 
 def test_classify_tiers():
     thr = EVThresholds()
-    q = [MarketQuote("draftkings", -110, opposite_american=-110, handle_pct=70, bets_pct=45)]
-    res = evaluate(0.56, q)
+    q = [MarketQuote("draftkings", 120, opposite_american=-140, handle_pct=70, bets_pct=45)]
+    res = evaluate(0.50, q)
     tier, reasons = classify(res, thr)
     assert tier in (Tier.STRONG, Tier.MODERATE)
     # negative edge -> pass
@@ -1048,6 +1101,51 @@ def test_grade_batter_total_bases():
     assert grade(push, res) == PUSH  # 7 == 7
 
 
+def test_grade_voids_props_on_players_who_never_appeared():
+    # 99 played; 77 was a late scratch and so is absent from the box score.
+    res = GameResult(
+        1, True, 5, 3, 3, 1,
+        players={99: PlayerLine(batting={"PA": 4, "H": 2, "R": 1, "RBI": 2})},
+    )
+    played = _rec(category="batter", market="batter_h", player_id=99, stat="H", line=1.5, side="over")
+    assert grade(played, res) == WIN
+
+    # Reading a missing player's stats back gives zero for everything, which
+    # would sink this over. A book voids it instead, and so do we.
+    scratched = _rec(
+        category="batter", market="batter_h", player_id=77, stat="H", line=0.5, side="over"
+    )
+    assert grade(scratched, res) is None
+
+    # A pinch runner appears in the box score but never bats.
+    res.players[88] = PlayerLine(batting={"PA": 0, "H": 0, "R": 1, "RBI": 0})
+    runner = _rec(
+        category="batter", market="batter_h", player_id=88, stat="H", line=0.5, side="over"
+    )
+    assert grade(runner, res) is None
+
+    # Same for a starter who was scratched before first pitch.
+    sp = _rec(
+        category="pitcher", market="pitcher_k", player_id=77, stat="K", line=5.5, side="over"
+    )
+    assert grade(sp, res) is None
+    res.players[66] = PlayerLine(pitching={"BF": 24, "K": 7, "outs": 18})
+    threw = _rec(
+        category="pitcher", market="pitcher_k", player_id=66, stat="K", line=5.5, side="over"
+    )
+    assert grade(threw, res) == WIN
+
+
+def test_grade_under_on_a_scratch_is_not_a_free_win():
+    # The mirror image, and the reason "absent -> zero" is not a harmless default:
+    # it would hand every under an automatic win on players who never played.
+    res = GameResult(1, True, 5, 3, 3, 1, players={})
+    under = _rec(
+        category="batter", market="batter_h", player_id=77, stat="H", line=0.5, side="under"
+    )
+    assert grade(under, res) is None
+
+
 def test_props_total_bases_market():
     import numpy as np
 
@@ -1094,6 +1192,45 @@ def test_scorecard_metrics():
     assert strong.n == 3
     assert strong.wins == 2
     assert abs(strong.ppv - 2 / 3) < 1e-3
+    # 2 of 5 graded rows won, so a 2/3 hit rate is 26.7 points of real skill.
+    assert abs(strong.base_win - 0.4) < 1e-3
+    assert abs(strong.ppv_lift - (2 / 3 - 0.4)) < 1e-3
+
+
+def test_scorecard_npv_is_free_when_a_tier_passes_on_everything():
+    # Pass never bets, so all three of its "negatives" that lost score a perfect
+    # NPV -- against a base loss rate that is itself 0.6. The lift is what shows
+    # the abstention was worth nothing.
+    graded = [
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.PASS), LOSS),
+        (_rec(tier=Tier.STRONG), WIN),
+        (_rec(tier=Tier.STRONG), WIN),
+    ]
+    buy = next(r for r in build_scorecard(graded, date(2024, 7, 19)) if r.tier == "Buy (S+M)")
+    assert buy.npv == 1.0
+    assert abs(buy.base_loss - 0.6) < 1e-3
+    assert abs(buy.npv_lift - 0.4) < 1e-3
+
+
+def test_append_scorecard_widens_a_file_written_under_an_older_header(tmp_path):
+    # Appending new fields to an old header would shift every value in the new
+    # rows one column left of where a reader expects it.
+    path = tmp_path / "scorecard.csv"
+    path.write_text("date,tier,n,wins,losses,ppv,npv,sensitivity,specificity,roi\n2024-07-18,Strong,2,1,1,0.5,0.5,0.5,0.5,-0.05\n")
+    append_scorecard(build_scorecard([(_rec(tier=Tier.STRONG), WIN)], date(2024, 7, 19)), path)
+
+    import csv as _csv
+
+    with path.open(newline="") as f:
+        rows = list(_csv.DictReader(f))
+    assert list(rows[0]) == FIELDS
+    assert rows[0]["date"] == "2024-07-18"
+    assert rows[0]["ppv"] == "0.5"
+    assert rows[0]["npv_lift"] == ""  # cannot be recomputed; never guessed
+    assert rows[-1]["date"] == "2024-07-19"
+    assert rows[-1]["ppv"] == "1.0"
 
 
 def test_rates_from_events_sums_to_one():
@@ -1104,6 +1241,71 @@ def test_rates_from_events_sums_to_one():
     total = sum(r.as_dict().values())
     assert abs(total - 1.0) < 1e-9
     assert 0 < r.obp < 1
+
+
+def test_the_league_rates_are_a_distribution():
+    """Exactly, not nearly: several callers assert their own normalisation to 1e-9.
+
+    Four decimal places on seven independently rounded numbers misses a distribution
+    by 1e-4 about half the time, which is 1e5 outside what those callers allow. The
+    refit script emits OUT as the residual for this reason.
+    """
+    assert abs(sum(LEAGUE_RATES.values()) - 1.0) < 1e-9
+    assert all(v > 0 for v in LEAGUE_RATES.values())
+
+
+def test_the_league_rates_are_the_measured_league():
+    """A tripwire on the constants, because no invariant inside the engine can be one.
+
+    ``LEAGUE_RATES`` is the log5 denominator in ``combine``, so a value that is too
+    small inflates that outcome in every matchup on the slate. It sat at BB 0.085
+    against a measured 0.1012 -- walks 18.6% high everywhere, doubles 8.5% light.
+
+    Note what cannot catch this. ``test_combine_normalizes`` asserts that a
+    league-average batter facing a league-average pitcher returns the league, which
+    reads like the right invariant and is vacuous: the batter is *built from*
+    ``LEAGUE_RATES``, so ``b * p / lg`` returns ``lg`` identically for any values at
+    all, right or wrong. ``combine`` was always self-consistent; the constant was
+    wrong, and only the data can say so. Hence a pinned measurement, refittable with
+    ``python -m scripts.league_rates``.
+    """
+    measured = {  # 115,504 classified PA, 2026-03-25..07-22, the engine's own bucketer
+        "1B": 0.1417,
+        "2B": 0.0416,
+        "3B": 0.0036,
+        "HR": 0.0311,
+        "BB": 0.1020,
+        "K": 0.2228,
+        "OUT": 0.4572,
+    }
+    assert LEAGUE_RATES == measured
+
+
+def test_a_free_pass_is_not_an_out():
+    """The intentional walk and catcher's interference put the batter on first.
+
+    Both fell through the bucketer's ``else`` and were counted as outs, and the
+    intentional walk is not spread evenly: it is aimed at the best hitter in the
+    lineup, so the error concentrated on exactly the bats worth pricing. Yordan
+    Alvarez's walk rate over the measured window was 10.8% against a true 15.2%.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["intent_walk", "catcher_interf", "walk", "hit_by_pitch"]))
+    assert counts["BB"] == 4
+    assert counts["OUT"] == 0
+
+
+def test_an_intentional_walk_is_charged_to_the_pitcher_and_interference_is_not():
+    """``WALK_EVENTS`` doubles as a pitcher's walks allowed, where the two differ."""
+    from mlb_engine.features.rolling import FREE_PASS_EVENTS, WALK_EVENTS
+
+    assert "intent_walk" in WALK_EVENTS
+    assert "catcher_interf" not in WALK_EVENTS
+    assert WALK_EVENTS < FREE_PASS_EVENTS
+    assert "catcher_interf" in FREE_PASS_EVENTS
 
 
 def test_np_import_available():
@@ -1295,7 +1497,7 @@ def test_load_framing_parses_savant_columns(monkeypatch):
         def raise_for_status(self):
             return None
 
-    monkeypatch.setattr(cf.requests, "get", lambda *a, **k: _Resp())
+    monkeypatch.setattr(cf.http, "get", lambda *a, **k: _Resp())
     out = cf.load_framing(2024)
     assert out == {111: 8.4, 222: -6.1}
 
@@ -1306,7 +1508,7 @@ def test_load_framing_neutral_on_failure(monkeypatch):
     def _boom(*a, **k):
         raise RuntimeError("network down")
 
-    monkeypatch.setattr(cf.requests, "get", _boom)
+    monkeypatch.setattr(cf.http, "get", _boom)
     assert cf.load_framing(2024) == {}
 
 
@@ -1337,9 +1539,7 @@ def test_tier_does_not_reward_the_longer_price():
     from mlb_engine.market.ev import MarketQuote, evaluate
     from mlb_engine.market.tiers import classify
 
-    # Price ceiling lifted: it would reject the dog outright, and the point here
-    # is that the tiers rank on edge rather than on the payout multiple.
-    thr = EVThresholds(max_buy_odds=1000.0)
+    thr = EVThresholds()
     # A 5-point edge over the devigged price, quoted as a dog and as a favourite.
     dog = evaluate(1 / 3 + 0.05, [MarketQuote("dk", 200, opposite_american=-200)])
     fave = evaluate(5 / 7 + 0.05, [MarketQuote("dk", -250, opposite_american=250)])
@@ -2221,16 +2421,24 @@ def test_singles_under_score_flags_tto_and_flyball():
         singles_under_score,
     )
 
-    # Textbook TTO fly-ball slugger: high K% & BB%, passive zone approach,
-    # steep launch angle, elite power contact -> strong Under, well over strong.
+    # Both fitted flags: he misses the ball, and lifts it when he doesn't.
     slugger = SinglesUnderProfile(
         pa=95, bip=60, k_pct=0.31, bb_pct=0.14, z_swing=0.55, avg_la=22.0,
         barrel=0.18, hard_hit=0.52, pull_rate=0.40,
     )
     score, reasons = singles_under_score(slugger)
     assert score >= SINGLES_UNDER_STRONG
-    assert any("TTO" in r for r in reasons)
+    assert any("K%" in r for r in reasons)
     assert any("fly-ball" in r for r in reasons)
+
+    # The dropped flags no longer score: a passive, barrel-heavy, pull-happy
+    # bat who makes contact on the ground trips nothing (none of those measures
+    # predicted a no-single game out of time).
+    unfitted = SinglesUnderProfile(
+        pa=95, bip=60, k_pct=0.18, bb_pct=0.15, z_swing=0.52, avg_la=3.0,
+        barrel=0.19, hard_hit=0.55, pull_rate=0.50,
+    )
+    assert singles_under_score(unfitted) == (0.0, [])
 
     # A contact, line-drive hitter trips no flags.
     contact = SinglesUnderProfile(
@@ -2396,3 +2604,39 @@ def test_email_attachments_infer_mime_type(monkeypatch):
     assert types["bets.xlsx"] == (
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+
+def test_reaching_on_an_error_is_neither_an_out_nor_a_plate_appearance_outcome():
+    """The bucketer's ``else`` called it an out. The batter is standing on first.
+
+    It cannot go anywhere in the seven -- not a hit, not a walk, not an out -- so the
+    plate appearance leaves the denominator entirely and the run models add the
+    league's rate back. The alternative bucketings each corrupt a market that gets
+    bet: ``1B`` inflates batter_h and batter_tb, ``BB`` inflates batter_bb, ``OUT``
+    is the status quo and shortens innings that in fact continued.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["field_error", "single", "field_out"]))
+    assert counts["OUT"] == 1
+    assert counts["1B"] == 1
+    assert counts["BB"] == 0
+    assert sum(counts.values()) == 2, "the error is not in the denominator"
+
+
+def test_a_plate_appearance_the_third_out_cut_short_is_not_an_out():
+    """``truncated_pa`` is a PA that never finished: caught stealing, or the game ended.
+
+    These rows sit at 0-0, 1-1, 2-2 and end on a ball or a called strike, so the
+    batter did nothing -- he was not retired, and he does not have a plate appearance.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.rolling import _bucket_counts
+
+    counts = _bucket_counts(pd.Series(["truncated_pa", "truncated_pa", "strikeout"]))
+    assert counts["K"] == 1
+    assert counts["OUT"] == 0
+    assert sum(counts.values()) == 1

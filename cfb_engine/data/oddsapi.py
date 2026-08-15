@@ -29,6 +29,7 @@ import requests
 from cfb_engine.market.board import GameOdds
 from cfb_engine.market.ev import MarketQuote
 from cfb_engine.schemas import Game, Slate, TeamGameInfo
+from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
 
@@ -183,7 +184,7 @@ class OddsAPIClient:
                 except ValueError:
                     pass
         try:
-            resp = requests.get(
+            resp = http.get(
                 url, params={"apiKey": self.api_key or "", **q}, timeout=self.timeout
             )
             remaining = resp.headers.get("x-requests-remaining")

@@ -52,6 +52,26 @@ def _metric_table(rows: list[OverallMetrics]) -> str:
     return f"<table>{head}{body}</table>"
 
 
+def _price_table(rows: list[OverallMetrics]) -> str:
+    """Win rate against the rate each price band actually demands."""
+    if not rows:
+        return "<p>No real-priced buys graded yet.</p>"
+    head = (
+        "<tr><th>Price band</th><th>N</th><th>Win%</th><th>Needs</th><th>Gap</th>"
+        "<th>ROI</th></tr>"
+    )
+    body = ""
+    for m in rows:
+        gap = m.win_pct - m.required_win_pct
+        body += (
+            f"<tr><td>{m.tier}</td><td>{m.n}</td><td>{m.win_pct * 100:.1f}%</td>"
+            f"<td>{m.required_win_pct * 100:.1f}%</td>"
+            f"<td class='{_cls(gap)}'>{gap * 100:+.1f}</td>"
+            f"<td class='{_cls(m.roi)}'>{m.roi * 100:+.1f}%</td></tr>"
+        )
+    return f"<table>{head}{body}</table>"
+
+
 def _clv_table(rows: list[ClvSummary]) -> str:
     if not rows:
         return "<p>No closing snapshot captured for this slate.</p>"
@@ -70,6 +90,7 @@ def build_audit_article(
     overall: list[OverallMetrics],
     clv_rows: list[ClvSummary],
     n_graded: int,
+    price_rows: list[OverallMetrics] | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the graded slate."""
     nice = audit_date.strftime("%A, %B %-d, %Y")
@@ -91,6 +112,7 @@ def build_audit_article(
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_CSS}</style></head><body>"
         f"{masthead}<p>{lead}</p>"
         f"<h2>By segment</h2>{_metric_table(overall)}"
+        f"<h2>By price length</h2>{_price_table(price_rows or [])}"
         f"<h2>Closing line value</h2>{_clv_table(clv_rows)}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
@@ -124,10 +146,11 @@ def generate_audit_report(
     email: bool,
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
+    price_rows: list[OverallMetrics] | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
-    html, narr = build_audit_article(audit_date, overall, clv_rows, n_graded)
+    html, narr = build_audit_article(audit_date, overall, clv_rows, n_graded, price_rows)
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_audit_{iso}.html"

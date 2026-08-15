@@ -12,6 +12,7 @@ from datetime import timedelta
 
 import requests
 
+from mlb_engine.data import http
 from mlb_engine.schemas import (
     BatterSlot,
     Game,
@@ -43,8 +44,7 @@ def _utc_hour(iso: str | None) -> float | None:
 
 class MLBStatsClient:
     def __init__(self, session: requests.Session | None = None, timeout: int = 20) -> None:
-        self.session = session or requests.Session()
-        self.session.headers.setdefault("User-Agent", "mlb-prediction-engine/0.1")
+        self.session = session or http.session()
         self.timeout = timeout
 
     def _get(self, path: str, **params: str | int) -> dict:

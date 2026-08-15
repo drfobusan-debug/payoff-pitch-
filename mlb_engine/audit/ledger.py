@@ -58,6 +58,10 @@ class LedgerEntry:
     # run-line miss matrix (one-run-win vs blowout errors) in the audit report.
     margin: float | None = None
     veto_gate: str = ""  # run-line NPV gate that removed this pick, "" if none
+    # Which screen turned this selection into a Pass ("" when it was bought).
+    # A gate is only gradeable once its own rows can be selected: see
+    # :func:`gate_metrics`.
+    pass_gate: str = ""
     # Pre-calibration probability. `mlb-engine calibrate` refits the isotonic
     # map from this column, not from `model_prob`: the map is applied to raw
     # simulation output, so fitting it on already-calibrated probabilities
@@ -79,6 +83,14 @@ class LedgerEntry:
     # ML/RL) at the same book. Persisted so the fade side can be graded/backtested
     # without re-fetching historical odds. None when the market was unpriced.
     under_odds: float | None = None
+    # Was this row priced against the lineup that actually batted, and how long
+    # before first pitch? ``features.lineup_lock`` stamps both on every
+    # recommendation so the ledger can measure whether projected-lineup buys
+    # underperform posted ones -- which is the evidence its own demotion gate is
+    # waiting on, and which nothing could measure while the columns stopped at
+    # the recommendation. "" on rows written before they were persisted.
+    lineup_status: str = ""
+    hours_to_first_pitch: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -98,6 +110,7 @@ LEDGER_FIELDS = [
     "pnl",
     "margin",
     "veto_gate",
+    "pass_gate",
     "raw_prob",
     "fair_prob",
     "bet_prob",
@@ -105,6 +118,8 @@ LEDGER_FIELDS = [
     "close_prob",
     "clv",
     "clv_ev",
+    "lineup_status",
+    "hours_to_first_pitch",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
@@ -118,6 +133,7 @@ _OPTIONAL_FLOAT_FIELDS = (
     "close_prob",
     "clv",
     "clv_ev",
+    "hours_to_first_pitch",
 )
 
 
@@ -165,9 +181,16 @@ def entries_from_graded(
                 pnl=_pnl(result, rec.market_american),
                 margin=margin,
                 veto_gate=rec.veto_gate or "",
+                pass_gate=rec.pass_gate or "",
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
                 fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
+                lineup_status=rec.lineup_status or "",
+                hours_to_first_pitch=(
+                    round(rec.hours_to_first_pitch, 2)
+                    if rec.hours_to_first_pitch is not None
+                    else None
+                ),
             )
         )
     return entries
@@ -206,6 +229,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     pnl=_to_float(row["pnl"]) or 0.0,
                     margin=_to_float(row.get("margin", "") or ""),
                     veto_gate=row.get("veto_gate", ""),
+                    pass_gate=row.get("pass_gate", ""),
                     raw_prob=_to_float(row.get("raw_prob", "")),
                     fair_prob=_to_float(row.get("fair_prob", "")),
                     bet_prob=_to_float(row.get("bet_prob", "")),
@@ -213,6 +237,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_to_float(row.get("close_prob", "")),
                     clv=_to_float(row.get("clv", "")),
                     clv_ev=_to_float(row.get("clv_ev", "")),
+                    lineup_status=row.get("lineup_status", ""),
+                    hours_to_first_pitch=_to_float(row.get("hours_to_first_pitch", "")),
                 )
             )
     return out
@@ -377,6 +403,101 @@ def is_prop(market: str) -> bool:
     return market.startswith(PROP_PREFIXES)
 
 
+_BUY_TIERS = frozenset({Tier.STRONG.value, Tier.MODERATE.value})
+
+
+def _side_marker(token: str) -> str:
+    """``o``/``u`` when ``token`` is a prop side+line marker like ``o1.5``."""
+    if len(token) > 1 and token[0] in ("o", "u") and token[1].isdigit():
+        return token[0]
+    return ""
+
+
+def prop_subject(selection: str) -> str:
+    """A prop selection with its side/line marker dropped: who and what, not which way.
+
+    ``"Bobby Witt Jr. H o0.5"`` and ``"Bobby Witt Jr. H u0.5"`` are the same
+    wager seen from both ends, so both return ``"Bobby Witt Jr. H"``.
+    """
+    head, _, last = selection.rpartition(" ")
+    if head and _side_marker(last):
+        return head
+    return selection
+
+
+def prop_side_of(selection: str) -> str:
+    """``o``, ``u``, or "" for a selection that carries no prop side marker."""
+    return _side_marker(selection.rpartition(" ")[2])
+
+
+def _is_over(selection: str) -> bool:
+    return prop_side_of(selection) == "o"
+
+
+def one_side_per_prop(entries: list[LedgerEntry]) -> list[LedgerEntry]:
+    """Collapse the two rows of a prop to the one the engine actually stood behind.
+
+    Since both sides of every prop are priced, each prop lands in the ledger
+    twice: the side that was bought, and its complement as a Pass so the fade is
+    still graded. Keeping both in a *measurement* double-counts one wager, and
+    not neutrally -- the two rows are complements, so one of them is whichever
+    side is nearly certain. Grading "Ohtani HR u0.5" at .96 as a correct positive
+    prediction is free credit for the base rate, and it flatters every rate keyed
+    on ``model_prob >= 0.5``: on the current ledger, adding the complements moves
+    whole-engine PPV .531 -> .706, ``batter_hr`` .20 -> .90, and lifts five
+    markets off Fade while promoting ``pitcher_k`` to Play. NPV becomes .707
+    against a PPV of .706, which is the tell -- with both sides present it is no
+    longer independent information, it is the same measurement restated.
+
+    So a prop contributes one row: the side that was bought if either was, else
+    the **over**. The bought side wins the tie-break because a long price can be
+    taken on a side the model puts under .5 (a +560 double), and dropping that
+    row would erase a real bet and its P&L. Where nothing was bought the over is
+    kept rather than the favored side, for two reasons: it is the side the ledger
+    has always recorded, so the calibration series stays continuous across the
+    change; and "keep whichever side the model favors" would reintroduce exactly
+    the problem, because the favored side of a prop is generally the near-certain
+    one, and a rate built from always choosing it measures the base rate rather
+    than the model.
+
+    A row is only ever dropped where the group is exactly one over and one under,
+    so the function can only remove a row it has proved is the other half of one
+    already counted. Everything else passes through: non-prop markets, selections
+    with no side marker, and a prop with only one side in the ledger -- which is
+    every row graded before both sides were priced, so no historical number
+    moves. Verified against the real ledger: synthesising the complement of all
+    86,762 rows and measuring the deduped result reproduces today's numbers
+    exactly, market verdicts included.
+    """
+    Key = tuple[str, str, str, float | None, str]
+    groups: dict[Key, list[LedgerEntry]] = {}
+    order: list[Key] = []
+    out: list[LedgerEntry] = []
+    for e in entries:
+        if not is_prop(e.market) or not prop_side_of(e.selection):
+            out.append(e)
+            continue
+        key = (e.date, e.matchup, e.market, e.line, prop_subject(e.selection))
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(e)
+    for key in order:
+        rows = groups[key]
+        overs = [r for r in rows if _is_over(r.selection)]
+        unders = [r for r in rows if not _is_over(r.selection)]
+        if not (len(overs) == 1 and len(unders) == 1):
+            # Not a complementary pair. Anything else -- one side alone, or a key
+            # that somehow repeats -- is left exactly as it is, so this can only
+            # ever remove a row it has proved is the other half of one already
+            # counted.
+            out.extend(rows)
+            continue
+        bought = [r for r in rows if r.tier in _BUY_TIERS]
+        out.append(bought[0] if bought else overs[0])
+    return out
+
+
 def prop_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     """Whole-engine-style PPV/NPV for every prop market, plus an ALL PROPS row.
 
@@ -420,6 +541,36 @@ def runline_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
         rows.append(_metrics([e for e in vetoed if e.veto_gate == gate], _favors, f"VETO {gate}"))
     if vetoed:
         rows.append(_metrics([e for e in rls if not e.veto_gate], _favors, "KEPT (no veto)"))
+    return rows
+
+
+# --- gates: what each screen rejected, and how those picks finished ---------
+def _all(_e: LedgerEntry) -> bool:
+    return True
+
+
+def gate_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """How the selections each screen *rejected* would actually have finished.
+
+    Every rejected pick counts as a bet here rather than only the model-favored
+    side, because that is the counterfactual being tested: had the screen not
+    fired, the engine would have bet these selections at these prices. So read
+    each row against its ``required_win_pct`` and not against 50% -- a screen is
+    earning its keep when the picks it deleted finished *below* the bar their
+    price set, and is manufacturing false negatives when they cleared it.
+
+    Unpriced rows are excluded: there was no bet to forgo. ``BOUGHT`` is the
+    complement, every priced selection that survived every screen.
+    """
+    priced = [e for e in entries if e.odds is not None]
+    by_gate = _by([e for e in priced if e.pass_gate], lambda e: e.pass_gate)
+    rows = [
+        _metrics(by_gate[g], _all, f"GATE {g}")
+        for g in sorted(by_gate, key=lambda g: -len(by_gate[g]))
+    ]
+    bought = [e for e in priced if not e.pass_gate]
+    if bought:
+        rows.append(_metrics(bought, _all, "BOUGHT (no gate)"))
     return rows
 
 

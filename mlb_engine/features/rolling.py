@@ -12,17 +12,58 @@ Carlo game simulator directly.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 
 # Event -> outcome bucket.
 HIT_EVENTS = {"single": "1B", "double": "2B", "triple": "3B", "home_run": "HR"}
-WALK_EVENTS = {"walk", "hit_by_pitch"}
+# Walks charged to the pitcher. The intentional walk is one of them, and leaving it
+# out sent it to the bucketer's ``else`` and counted it as an out. It lands on the
+# hitters the engine bets most -- Alvarez, Ohtani, Soto and Schwarber are walked on
+# purpose precisely because they are the ones worth walking -- so the miss was
+# concentrated on the best bats rather than spread thin across the league.
+WALK_EVENTS = {"walk", "hit_by_pitch", "intent_walk"}
+# Reaching first without a hit, an out, or anything the pitcher did. Kept apart from
+# WALK_EVENTS because interference is the catcher's doing.
+FREE_PASS_EVENTS = WALK_EVENTS | {"catcher_interf"}
+
+# Share of the BB bucket that is a walk the box score charges as a walk.
+#
+# The bucket above is a *free pass*: walk, intentional walk and hit-by-pitch. That
+# is the right unit for the run models, because a hit batsman stands on first like
+# any other, and it is the right unit for a batter reaching base. It is the wrong
+# unit for the pitcher-walks prop, which settles on ``baseOnBalls`` alone -- see
+# ``data.results``, where the pitching line reads that field and not hitByPitch.
+# So the prop was priced on 0.1007 of plate appearances and graded against 0.0893
+# of them: 0.26 phantom walks in an average start, worth +6.7 points on P(BB>=2).
+#
+# Measured on the same 116,384 plate appearances as LEAGUE_RATES: walk 8.6558%,
+# intent_walk 0.2698%, hit_by_pitch 1.1402%, so walks are 0.8843 of the three.
+# Applying it to the modelled free pass is a change of units and not a fitted
+# factor, and the two independent measurements agree to five decimals: starters
+# free-pass 0.0929 per batter faced over 2,890 starts, and 0.0929 * 0.8843 =
+# 0.08215 against a strict walk rate of 0.0821 counted directly off the same
+# starts. A league constant rather than a per-pitcher rate for the same reason as
+# LEAGUE_ROE_RATE: at 1.1% of plate appearances a starter's own hit-by-pitch rate
+# over one window is almost entirely noise.
+LEAGUE_WALK_SHARE_OF_FREE_PASS = 0.8843
 K_EVENTS = {"strikeout", "strikeout_double_play"}
+# Reaching base with no hit, no walk and no out recorded. There is nowhere in the
+# seven outcomes to put this, so these plate appearances are left out of the rates
+# altogether and the run models put the league's rate back in -- see
+# ``baserunning.LEAGUE_ROE_RATE``, and note that a batter's own error rate is nearly
+# all defence and nearly all noise. Calling it an out, which is what the bucketer's
+# ``else`` did, ended innings that in fact continued.
+REACHED_ON_ERROR_EVENTS = {"field_error"}
+# A plate appearance that never finished: the third out was made on the bases, or
+# the game ended, mid-count. These rows sit at 0-0, 1-1, 2-2 and end on a ball or a
+# called strike, so the batter did nothing at all -- not an out, and not a PA.
+INCOMPLETE_PA_EVENTS = {"truncated_pa"}
 
 # Total bases per hit event, and the PA-ending events that are not at-bats
 # (needed for ISO = SLG - AVG, which is per-AB rather than per-PA).
@@ -38,17 +79,139 @@ NON_AB_EVENTS = {
     "catcher_interf",
 }
 
-# League-average PA outcome rates, used as a Bayesian prior / fallback.
+# League-average PA outcome rates. Three jobs, and being wrong costs something
+# different in each: the Bayesian prior a thin batter window is shrunk toward, the
+# fallback for a pitcher with no sample, and -- least obviously -- the *denominator*
+# of the log5 matchup, where ``b * p / lg`` means a value that is too small inflates
+# that outcome in every matchup on the slate.
+#
+# The walk rate sat at 0.085 against a measured 0.1012, so walks were inflated 18.6%
+# in every matchup and doubles were 8.5% light. Nothing caught it because nothing
+# inside the engine can: ``combine`` divides the batter's rate by this constant, and
+# a test that feeds it a batter *built from* this constant gets it back whatever it
+# says. Only the data can check it, so it is pinned by a test and refit by
+# ``python -m scripts.league_rates``.
+#
+# Measured season-to-date on the 115,504 classified plate appearances of 116,384
+# (2026-03-25..07-22) with the engine's own bucketer, by ``scripts.league_rates``.
+# Season-to-date and not a trailing window on purpose: the month table in that script
+# shows home runs running 0.0283 in April against 0.0352 in July while walks run the
+# other way, 0.1088 down to 0.0982, so a summer window biases two markets in opposite
+# directions -- the same reason the run environment is not pinned to an annual 4.3 R/9.
+#
+# These are per plate appearance *that one of the seven can describe*. Reaching on an
+# error is not one of them and is left out of the denominator rather than called an
+# out; the run models add it back at ``baserunning.LEAGUE_ROE_RATE``.
 LEAGUE_RATES = {
-    "1B": 0.140,
-    "2B": 0.045,
-    "3B": 0.004,
-    "HR": 0.032,
-    "BB": 0.085,
-    "K": 0.225,
-    "OUT": 0.469,
+    "1B": 0.1417,
+    "2B": 0.0416,
+    "3B": 0.0036,
+    "HR": 0.0311,
+    "BB": 0.1020,
+    "K": 0.2228,
+    "OUT": 0.4572,  # the residual, so the seven sum to 1 exactly at this precision
 }
 PRIOR_STRENGTH = 60.0  # equivalent PA of the league prior
+
+# Equivalent PA of the *hierarchical* prior: how hard a batter's home/away and
+# platoon splits are pulled toward his own overall rate before anything is
+# pulled toward the league.
+#
+# A 21-day home split is roughly 40 PA, so under a flat 60-PA league prior a
+# hitter arrived at the simulator already ~60% league-average -- and that
+# compression is measurable in the graded ledger. Splitting batter_h o0.5 by
+# hitter quality, the realised gap between the worst and best quartile was 9.3
+# points while the model priced 3.7, and essentially all of the error sat on
+# weak hitters (bottom quartile priced .577, won .493). Weak bats priced as
+# near-average look underpriced against a market that has them right, which is
+# how they become false-positive buys.
+#
+# The fix is hierarchical rather than heavier: a split regresses toward *this
+# batter's* overall rate, and only the overall regresses toward the league. A
+# thin platoon split for a poor hitter then lands on that poor hitter's own
+# baseline instead of on an average major leaguer.
+SPLIT_PRIOR_STRENGTH = 60.0
+
+# Equivalent PA of prior each outcome deserves *individually*. A flat 60 assumes
+# every bucket is equally noisy, and they are not: for a rate observed over n PA
+# the spread across hitters is talent plus binomial noise p(1-p)/n, so the prior
+# strength that minimises squared error is k = p(1-p)/var(talent), which differs
+# by an order of magnitude between a strikeout and a double.
+#
+# Fitted on 280 hitters with 60+ PA in the 42 days to 2026-08-11
+# (``scripts.ros_prior_study shrink``), with talent variance estimated two
+# independent ways -- the spread of THE BAT X rest-of-season projections, and the
+# window's own spread with binomial noise subtracted -- taking whichever implies
+# the *lighter* shrinkage:
+#
+#     outcome   talent sd (ROS)   talent sd (window)   k
+#     1B             0.0192            0.0261         181
+#     2B             0.0046            0.0055        1247
+#     3B             0.0023            0.0031         423
+#     HR             0.0122            0.0130         181
+#     BB             0.0212            0.0293         101
+#     K              0.0543            0.0591          48
+#     OUT            0.0498            0.0604          68
+#
+# So the flat 60 was about right for strikeouts and outs -- which is why the
+# engine's best-ranked markets are the K-driven ones -- and far too light
+# everywhere else. A hitter's 42-day doubles rate is almost entirely noise: the
+# spread we were feeding the simulator was 2.8x the spread of real talent and
+# correlated 0.20 with it. That is the mechanism behind a model that knows a
+# hitter will get a hit but not which kind.
+#
+# Heavier shrinkage is only safe with somewhere true to shrink *to*. Toward the
+# league mean it would flatten the lineup and make the ranking worse; toward the
+# hitter's own projection it removes noise and keeps the hitter. The two changes
+# are one change.
+OUTCOME_PRIOR_STRENGTH = {
+    "1B": 181.0,
+    "2B": 1247.0,
+    "3B": 423.0,
+    "HR": 181.0,
+    "BB": 101.0,
+    "K": 48.0,
+    "OUT": 68.0,
+}
+
+# The same estimator on the 30 bullpens, whose aggregate is the thinnest sample
+# the engine trusts (a mean 265 relief PA in 21 days). Talent variance across
+# pens is measured from the spread of usage-weighted rest-of-season projections
+# for each team's relief arms and from the pens' own spread net of binomial
+# noise, again taking the lighter shrinkage (``scripts.ros_prior_study pen``):
+#
+#     bucket   talent sd   noise in the window at w=0.82   k
+#     1B         0.0081              0.0174              1834
+#     2B         0.0000              0.0097               cap
+#     3B         0.0000              0.0032               cap
+#     HR         0.0059              0.0079               708
+#     BB         0.0163              0.0151               344
+#     K          0.0268              0.0209               241
+#     OUT        0.0246              0.0250               410
+#
+# Pens are far more alike than hitters -- a pen's strikeout rate varies half as
+# much as a hitter's -- so at a flat 60 PA the vector the simulator receives is
+# mostly sampling error: noise exceeds real spread in every bucket but K and BB.
+#
+# The two extra-base buckets are the sharp result: **across 30 pens, the entire
+# observed spread in doubles and triples allowed is explained by binomial noise**,
+# leaving no measurable talent at all. A pen's own doubles rate over three weeks
+# carries nothing, so it is shrunk effectively to the league pen, which is what
+# the cap expresses.
+#
+# Unlike the hitter case the projection matters here as the *estimator* rather
+# than as a target: pens differ so little that shrinking toward the league pen
+# instead of toward each pen's own projection costs under a point.
+PEN_PRIOR_CAP = 5000.0  # "use the league pen", written as an equivalent-PA weight
+PEN_PRIOR_STRENGTH = {
+    "1B": 1834.0,
+    "2B": PEN_PRIOR_CAP,
+    "3B": PEN_PRIOR_CAP,
+    "HR": 708.0,
+    "BB": 344.0,
+    "K": 241.0,
+    "OUT": 410.0,
+}
 MIN_AB_FOR_ISO = 40  # at-bats before a batter's ISO is trusted over no signal
 MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trusted
 
@@ -86,28 +249,139 @@ class OutcomeRates:
         }
 
 
+OUTCOMES_ORDER = ("1B", "2B", "3B", "HR", "BB", "K", "OUT")
+
+# Columns a FanGraphs rest-of-season projection export must carry for the rate
+# vector to be built from it. ``1B`` is published directly; if a future export
+# drops it, it is H - 2B - 3B - HR.
+ROS_COLUMNS = ("PA", "H", "2B", "3B", "HR", "BB", "SO", "MLBAMID")
+
+
+def ros_rates_from_projection(df: pd.DataFrame) -> pd.DataFrame:
+    """Per-PA outcome rates from a rest-of-season projection export.
+
+    A projection is a talent estimate, so it is the right shrinkage target for a
+    thin window: the league mean pulls every hitter toward the same place, which
+    is exactly what a model that has to *rank* hitters cannot afford.
+
+    Returns one row per MLBAM id with the seven simulator outcomes, which sum to
+    1 by construction. HBP is folded into BB, as the simulator has no separate
+    bucket for it and both put a man on first.
+    """
+    missing = [c for c in ROS_COLUMNS if c not in df.columns]
+    if missing:
+        raise ValueError(f"projection export is missing {missing}")
+    d = df[df["PA"] > 0].copy()
+    singles = d["1B"] if "1B" in d.columns else d["H"] - d["2B"] - d["3B"] - d["HR"]
+    pa = d["PA"].astype(float)
+    walks = d["BB"].astype(float) + d.get("HBP", 0.0)
+    rates = pd.DataFrame(
+        {
+            "mlbam_id": d["MLBAMID"].astype("Int64"),
+            "pa": pa,
+            "1B": singles.astype(float) / pa,
+            "2B": d["2B"].astype(float) / pa,
+            "3B": d["3B"].astype(float) / pa,
+            "HR": d["HR"].astype(float) / pa,
+            "BB": walks / pa,
+            "K": d["SO"].astype(float) / pa,
+        }
+    ).dropna(subset=["mlbam_id"])
+    on_base_or_k = rates[["1B", "2B", "3B", "HR", "BB", "K"]].sum(axis=1)
+    rates["OUT"] = (1.0 - on_base_or_k).clip(lower=0.0)
+    total = rates[list(OUTCOMES_ORDER)].sum(axis=1)
+    for oc in OUTCOMES_ORDER:
+        rates[oc] = rates[oc] / total
+    return rates.drop_duplicates("mlbam_id").reset_index(drop=True)
+
+
+def load_ros_priors(path: str | Path) -> dict[int, dict[str, float]]:
+    """MLBAM id -> prior rate vector, from a file written by ``scripts.ros_prior_study``.
+
+    A missing file is not an error: the engine falls back to the league prior,
+    which is what it has always used.
+    """
+    p = Path(path).expanduser()
+    if not p.exists():
+        return {}
+    df = pd.read_csv(p)
+    if "mlbam_id" not in df.columns:
+        return {}
+    if any(oc not in df.columns for oc in OUTCOMES_ORDER):
+        return {}
+    out: dict[int, dict[str, float]] = {}
+    for row in df.to_dict("records"):
+        vec = {oc: float(row[oc]) for oc in OUTCOMES_ORDER}
+        if any(v != v for v in vec.values()):  # NaN
+            continue
+        out[int(row["mlbam_id"])] = vec
+    return out
+
+
+def raw_window_counts(
+    df: pd.DataFrame, batter_id: int, as_of: Date, days: int
+) -> tuple[dict[str, float], float]:
+    """Unshrunk outcome counts for one batter's window, and its PA total.
+
+    Exposed for the shrinkage study: fitting how hard a bucket should be
+    regressed needs the raw counts, because shrinkage is the thing being fitted.
+    """
+    rows = _slice_dates(_pa_rows(df[df["batter"] == batter_id]), as_of, days)
+    counts = _bucket_counts(rows["events"])
+    return counts, sum(counts.values())
+
+
+def pa_outcome_counts(frame: pd.DataFrame) -> dict[str, float]:
+    """Outcome counts for any frame of pitch rows, keeping only PA-ending ones."""
+    if frame.empty or "events" not in frame:
+        return dict.fromkeys(OUTCOMES_ORDER, 0.0)
+    return _bucket_counts(_pa_rows(frame)["events"])
+
+
 def _bucket_counts(pa_events: pd.Series) -> dict[str, float]:
     counts = {"1B": 0.0, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0, "K": 0.0, "OUT": 0.0}
     for ev in pa_events.dropna():
         if ev in HIT_EVENTS:
             counts[HIT_EVENTS[ev]] += 1
-        elif ev in WALK_EVENTS:
+        elif ev in FREE_PASS_EVENTS:
             counts["BB"] += 1
         elif ev in K_EVENTS:
             counts["K"] += 1
+        elif ev in REACHED_ON_ERROR_EVENTS or ev in INCOMPLETE_PA_EVENTS:
+            continue  # neither an out nor one of the seven; see the sets above
         else:
             counts["OUT"] += 1
     return counts
 
 
-def rates_from_events(pa_events: pd.Series) -> OutcomeRates:
-    """Shrink observed counts toward the league prior and normalize to rates."""
+def rates_from_events(
+    pa_events: pd.Series,
+    prior: Mapping[str, float] | None = None,
+    prior_strength: float | Mapping[str, float] = PRIOR_STRENGTH,
+) -> OutcomeRates:
+    """Shrink observed counts toward a prior and normalize to rates.
+
+    ``prior`` defaults to the league rates. Passing a batter's own overall rates
+    instead makes the shrinkage hierarchical: the split regresses toward the
+    hitter rather than toward an average major leaguer.
+
+    ``prior_strength`` may be a single equivalent-PA figure, or one per outcome
+    (see ``OUTCOME_PRIOR_STRENGTH``) when the buckets differ in how noisy they
+    are. Per-outcome shrinkage gives each bucket its own denominator, so the
+    seven rates are renormalized to sum to 1 afterwards.
+    """
+    target = LEAGUE_RATES if prior is None else prior
     counts = _bucket_counts(pa_events)
     n = sum(counts.values())
     smoothed = {}
-    total = n + PRIOR_STRENGTH
     for k in LEAGUE_RATES:
-        smoothed[k] = (counts[k] + PRIOR_STRENGTH * LEAGUE_RATES[k]) / total
+        strength = (
+            prior_strength[k] if isinstance(prior_strength, Mapping) else prior_strength
+        )
+        smoothed[k] = (counts[k] + strength * target[k]) / (n + strength)
+    scale = sum(smoothed.values())
+    if scale > 0:
+        smoothed = {k: v / scale for k, v in smoothed.items()}
     return OutcomeRates(
         pa=n,
         p_1b=smoothed["1B"],
@@ -337,7 +611,21 @@ def build_batter_profile(
     home_away_days: int,
     vs_rhp_days: int,
     vs_lhp_days: int,
+    split_prior: bool = True,
+    ros_prior: Mapping[str, float] | None = None,
 ) -> BatterProfile:
+    """Build a batter's context splits.
+
+    ``split_prior`` regresses each split toward the batter's own overall rate;
+    set it False to restore the flat league-average prior on every split.
+
+    ``ros_prior`` is this hitter's rest-of-season projection, used as the target
+    the overall window regresses toward, and it switches the overall window onto
+    the per-outcome prior strengths. Without it the target is the league mean at
+    a flat 60 PA, which is what the engine has always done: heavy shrinkage
+    toward an average major leaguer would flatten the lineup rather than clean
+    it, so the projection and the fitted strengths arrive together or not at all.
+    """
     bdf = _pa_rows(df[df["batter"] == batter_id])
 
     home_slice = _slice_dates(bdf, as_of, home_away_days)
@@ -352,13 +640,22 @@ def build_batter_profile(
 
     overall_pa = _slice_dates(bdf, as_of, max(home_away_days, vs_rhp_days))["events"]
 
+    # Hierarchical: the overall window regresses toward the league, then each
+    # split regresses toward *this hitter's* overall rather than toward an
+    # average major leaguer. A 40-PA home split for a weak bat then lands on his
+    # own baseline instead of being handed most of a league-average profile.
+    if ros_prior is None:
+        overall = rates_from_events(overall_pa)
+    else:
+        overall = rates_from_events(overall_pa, ros_prior, OUTCOME_PRIOR_STRENGTH)
+    prior = overall.as_dict() if split_prior else None
     return BatterProfile(
         mlbam_id=batter_id,
-        home=rates_from_events(home_pa),
-        away=rates_from_events(away_pa),
-        vs_rhp=rates_from_events(vs_rhp_pa),
-        vs_lhp=rates_from_events(vs_lhp_pa),
-        overall=rates_from_events(overall_pa),
+        home=rates_from_events(home_pa, prior, SPLIT_PRIOR_STRENGTH),
+        away=rates_from_events(away_pa, prior, SPLIT_PRIOR_STRENGTH),
+        vs_rhp=rates_from_events(vs_rhp_pa, prior, SPLIT_PRIOR_STRENGTH),
+        vs_lhp=rates_from_events(vs_lhp_pa, prior, SPLIT_PRIOR_STRENGTH),
+        overall=overall,
     )
 
 
@@ -546,8 +843,13 @@ def build_bullpen_profile(
     min_inning: int = 6,
     skill_days: int = 0,
     xwoba_shrink: float = 1.0,
+    prior_strength: float | Mapping[str, float] = PRIOR_STRENGTH,
 ) -> BullpenProfile:
     """Aggregate a team's relief corps into rates plus PPV/NPV tripwires.
+
+    ``prior_strength`` accepts one figure per outcome (``PEN_PRIOR_STRENGTH``);
+    the leverage and bridge subsets are thinner still, so they take the same
+    strengths as the aggregate.
 
     ``days`` covers the results-based rates, which are best read recently.
     ``skill_days`` (0 to disable) covers the stuff and command signals, which
@@ -556,7 +858,10 @@ def build_bullpen_profile(
     21, and jointly the longer read carries the weight (+0.68 vs +0.14).
     """
     relief = bullpen_relief_frame(df, team_abbrev, as_of, days, min_inning)
-    allowed = rates_from_events(_pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object))
+    allowed = rates_from_events(
+        _pa_rows(relief)["events"] if len(relief) else pd.Series(dtype=object),
+        prior_strength=prior_strength,
+    )
 
     # High-leverage split: rates from the 8th+ relief PAs only, so the closer/
     # setup corps drives the late-and-close matchup instead of the mop-up-diluted
@@ -566,10 +871,10 @@ def build_bullpen_profile(
     if len(relief) and "inning" in relief:
         lev_events = _pa_rows(relief[relief["inning"] >= LEVERAGE_INNING])["events"]
         if len(lev_events) >= MIN_LEVERAGE_PA:
-            allowed_leverage = rates_from_events(lev_events)
+            allowed_leverage = rates_from_events(lev_events, prior_strength=prior_strength)
         bridge_events = _pa_rows(relief[relief["inning"] < LEVERAGE_INNING])["events"]
         if len(bridge_events) >= MIN_BRIDGE_PA:
-            allowed_bridge = rates_from_events(bridge_events)
+            allowed_bridge = rates_from_events(bridge_events, prior_strength=prior_strength)
 
     zone_pct = (
         float(relief["zone"].between(1, 9).mean())

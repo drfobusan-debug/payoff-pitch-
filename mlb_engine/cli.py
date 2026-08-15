@@ -30,11 +30,18 @@ from mlb_engine.audit.ledger import (
     daily_rollup,
     engine_metrics,
     entries_from_graded,
+    gate_metrics,
     load_ledger,
+    one_side_per_prop,
     overall_metrics,
     prop_metrics,
     runline_metrics,
     update_ledger,
+)
+from mlb_engine.audit.probation import (
+    WATCHING,
+    market_probation,
+    screen_probation,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
@@ -43,6 +50,13 @@ from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
+from mlb_engine.data.opta import (
+    OptaClient,
+    annotate,
+    load_rows,
+    merge_rows,
+    save_rows,
+)
 from mlb_engine.data.results import fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -229,6 +243,33 @@ def _generate_report(
     return md_path, html_path, pdf_path
 
 
+def _annotate_opta(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put the outside model's read on the card, before the workbook is written.
+
+    Prefers the capture already on disk and only goes to VSIN when the slate has
+    none, so a morning that already ran ``mlb-engine opta`` costs nothing. The
+    whole thing is best-effort: an annotation is worth strictly less than the
+    card, and must never be able to stop it being produced.
+    """
+    try:
+        rows = load_rows(_opta_path(cfg, slate_date.isoformat()))
+        if not rows:
+            client = OptaClient()
+            day = next(
+                (d for d, iso in client.slate_dates().items() if iso == slate_date.isoformat()),
+                None,
+            )
+            if day is None:
+                return
+            rows = client.fetch(day=day, date=slate_date.isoformat())
+        matched = annotate(recs, rows)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("Opta benchmark unavailable; card written without it", exc_info=True)
+        return
+    if matched:
+        print(f"Opta benchmark: {matched} of {len(recs)} selections carry an outside projection")
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -260,6 +301,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     else:
         fangraphs_csv = None
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
+    _annotate_opta(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
@@ -417,9 +459,12 @@ def cmd_close(args: argparse.Namespace) -> int:
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
-    quotes = client.fetch(slate, include_props=not args.game_only)
+    quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
-        print(f"No closing prices returned for {slate_date}")
+        print(
+            f"No closing prices returned for {slate_date}: every game has started, "
+            "or the board is empty. Nothing captured -- an in-play price is not a close."
+        )
         return 1
     path = _closing_path(cfg, slate_date)
     already = load_closing(path)
@@ -434,6 +479,51 @@ def cmd_close(args: argparse.Namespace) -> int:
         f"{markets} markets{detail} -> {path}"
     )
     _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
+    return 0
+
+
+def _opta_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"opta_{slate_date}.json"
+
+
+def cmd_opta(args: argparse.Namespace) -> int:
+    """Capture VSIN's Opta projections for a slate, as an outside benchmark.
+
+    Free and uncredited, but only ever three days wide: ``day`` clamps at
+    yesterday, so a slate not captured within a day of being played is gone.
+    Run it twice -- once before the games for the projections and prices, once
+    after for the graded outcomes, which the second capture merges in.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    client = OptaClient()
+    dates = client.slate_dates()
+    if not dates:
+        print("VSIN's projection page returned nothing; captured no benchmark.")
+        return 1
+    day = args.day
+    if args.date:
+        offsets = [d for d, iso in dates.items() if iso == args.date]
+        if not offsets:
+            available = ", ".join(sorted(dates.values()))
+            print(f"VSIN only publishes {available}; {args.date} is out of reach.")
+            return 1
+        day = offsets[0]
+    slate_date = dates.get(day, "")
+    rows = client.fetch(day=day, date=slate_date)
+    if not rows:
+        print(f"No Opta projections published for {slate_date or day}.")
+        return 1
+    _state_pull(cfg)
+    path = _opta_path(cfg, slate_date)
+    merged = merge_rows(load_rows(path), rows)
+    save_rows(path, merged)
+    graded = sum(1 for r in merged if r.result is not None)
+    print(
+        f"Captured {len(rows)} Opta projections for {slate_date}; "
+        f"{len(merged)} total, {graded} graded -> {path}"
+    )
+    _state_push(cfg, f"opta {slate_date}: {len(merged)} projections, {graded} graded")
     return 0
 
 
@@ -490,18 +580,26 @@ def cmd_audit(args: argparse.Namespace) -> int:
     closing = load_closing(_closing_path(cfg, audit_date))
     n_clv = attach_clv(entries, closing)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
-    clv_summary = summarize(clv_rows(all_entries))
-    engine = engine_metrics(all_entries)
-    overall = [engine, *overall_metrics(all_entries)]
-    daily_engine = daily_engine_metrics(all_entries)
-    props = prop_metrics(all_entries)
-    runlines = runline_metrics(all_entries)
-    insights = prop_insights(all_entries)
+    # The ledger keeps both sides of every prop so the fade stays graded; a
+    # measurement takes one row per wager (see `one_side_per_prop`). The workbook
+    # below still writes the full ledger.
+    measured = one_side_per_prop(all_entries)
+    # CLV especially: the two sides of a prop are devigged complements, so their
+    # CLV is an exact negation and counting both drives every market's mean to
+    # zero and "beat the close" to 50% arithmetically.
+    clv_summary = summarize(clv_rows(measured))
+    engine = engine_metrics(measured)
+    overall = [engine, *overall_metrics(measured)]
+    daily_engine = daily_engine_metrics(measured)
+    props = prop_metrics(measured)
+    runlines = runline_metrics(measured)
+    gates = gate_metrics(measured)
+    insights = prop_insights(measured)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
     write_ledger_workbook(
         all_entries,
         overall,
-        daily_rollup(all_entries),
+        daily_rollup(measured),
         ledger_xlsx,
         daily_engine=daily_engine,
         prop_rows=props,
@@ -544,7 +642,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             "first pitch to score closing line value (~3 credits)."
         )
 
-    price_rows = [*dog_vs_favorite(all_entries), *price_buckets(all_entries)]
+    price_rows = [*dog_vs_favorite(measured), *price_buckets(measured)]
     if price_rows:
         print("\nReal-priced buys by price length (Need = win rate the price demands):")
         for pb in price_rows:
@@ -553,7 +651,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"need={pb.breakeven * 100:5.1f} gap={pb.shortfall * 100:+5.1f}pts "
                 f"ROI={pb.roi * 100:+6.1f}% units={pb.units:+.2f}"
             )
-        for finding in price_bucket_findings(all_entries):
+        for finding in price_bucket_findings(measured):
             print(f"  - {finding}")
 
     if props:
@@ -570,6 +668,32 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"  {m.tier:<18} n={m.n:<5} win%={m.win_pct * 100:5.1f} "
                 f"PPV={m.ppv:.3f} NPV={m.npv:.3f}"
             )
+
+    if gates:
+        print("\nScreens: how the picks each one rejected actually finished")
+        print("  (win% below Need = the screen deleted losers and is earning its keep)")
+        for m in gates:
+            print(
+                f"  {m.tier:<24} n={m.n:<6} win%={m.win_pct * 100:5.1f} "
+                f"need={m.required_win_pct * 100:5.1f} "
+                f"gap={(m.win_pct - m.required_win_pct) * 100:+5.1f}pts "
+                f"ROI={m.roi * 100:+6.1f}% units={m.units:+9.2f}"
+            )
+
+    probation = [*market_probation(measured), *screen_probation(measured)]
+    if probation:
+        print("\nProbation: markets on their own buys, screens on what they refused")
+        print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
+        for p in probation:
+            flag = "  " if p.status == WATCHING else "->"
+            print(
+                f"  {flag} {p.status:<9} {p.name:<22} n={p.n:<5} "
+                f"ROI={p.roi * 100:+6.1f}% se={p.se * 100:4.1f} "
+                f"halves {p.first_half * 100:+6.1f}% / {p.second_half * 100:+6.1f}%"
+            )
+        for p in probation:
+            if p.actionable:
+                print(f"  - {p.finding}")
 
     if insights:
         print(f"\nProp insights ({len(insights)}):")
@@ -796,6 +920,21 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    op = sub.add_parser(
+        "opta", help="capture VSIN's Opta prop projections as an outside benchmark"
+    )
+    op.add_argument(
+        "--day",
+        type=int,
+        default=0,
+        help="VSIN slate offset: -1 yesterday, 0 today, 1 tomorrow (default: 0)",
+    )
+    op.add_argument(
+        "--date",
+        help="slate date YYYY-MM-DD; must be one of the three VSIN publishes",
+    )
+    op.set_defaults(func=cmd_opta)
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")

@@ -1,0 +1,158 @@
+"""Measure the league's PA outcome rates, which are a prior and a log5 denominator.
+
+``LEAGUE_RATES`` does three jobs, and being wrong costs something different in each:
+
+* it is the Bayesian prior a thin batter window is shrunk toward, at 60 equivalent
+  PA, so a stale value drags every low-PA hitter toward a league that never existed;
+* it is the **denominator of the log5 matchup**, where ``b * p / lg`` means a value
+  that is too small *inflates* that outcome in every matchup in the slate;
+* it is the fallback when a pitcher has no sample at all.
+
+So it has to be measured with the same bucketer that produces the observations it is
+combined with, which is what this script does -- ``_bucket_counts`` rather than a
+reimplementation, on the Statcast frame the engine itself caches.
+
+Exhibition games have to be excluded by date: the engine's cached column set drops
+Statcast's ``game_type``, and the widest cache on this box reaches back to March 6.
+Leaving spring training in moves walks by 0.06pp, which is small but is not nothing
+and is not the league.
+
+    python -m scripts.league_rates
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+from datetime import date as Date
+from pathlib import Path
+
+import pandas as pd
+
+from mlb_engine.config import load_config
+from mlb_engine.features.rolling import (
+    LEAGUE_RATES,
+    LEAGUE_WALK_SHARE_OF_FREE_PASS,
+    OUTCOMES_ORDER,
+    REACHED_ON_ERROR_EVENTS,
+    WALK_EVENTS,
+    _bucket_counts,
+    _pa_rows,
+)
+from mlb_engine.models.baserunning import LEAGUE_ROE_RATE
+
+CACHE_RE = re.compile(r"statcast_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})\.pkl")
+
+# Opening day 2026. Identifiable in the cache as the discontinuity it is: eight to
+# seventeen exhibition games a day through 2026-03-24, then a single 74-PA game.
+SEASON_START = Date(2026, 3, 25)
+
+
+def widest_cache(cache_dir: Path) -> Path | None:
+    """The cached Statcast frame covering the most days."""
+    best: tuple[int, Path] | None = None
+    for path in cache_dir.glob("statcast_*.pkl"):
+        m = CACHE_RE.fullmatch(path.name)
+        if m is None:
+            continue
+        span = (Date.fromisoformat(m.group(2)) - Date.fromisoformat(m.group(1))).days
+        if best is None or span > best[0]:
+            best = (span, path)
+    return best[1] if best else None
+
+
+def rates(pa_events: pd.Series) -> dict[str, float]:
+    counts = _bucket_counts(pa_events)
+    n = sum(counts.values())
+    return {k: counts[k] / n for k in OUTCOMES_ORDER} if n else dict.fromkeys(OUTCOMES_ORDER, 0.0)
+
+
+def report(pa: pd.DataFrame) -> str:
+    L: list[str] = []
+    measured = rates(pa["events"])
+    kept = int(sum(_bucket_counts(pa["events"]).values()))
+    L.append(f"{len(pa):,} plate appearances, {pa.game_date.min()} .. {pa.game_date.max()}")
+    L.append(
+        f"{kept:,} of them classified; {len(pa) - kept:,} are neither one of the seven "
+        "nor an out\n  (reached on error, and plate appearances the third out cut short)\n"
+    )
+    L.append(f"{'':6}{'shipped':>10}{'measured':>10}{'error':>9}{'relative':>10}")
+    for k in OUTCOMES_ORDER:
+        err = LEAGUE_RATES[k] - measured[k]
+        rel = err / measured[k] if measured[k] else 0.0
+        L.append(f"{k:6}{LEAGUE_RATES[k]:10.4f}{measured[k]:10.4f}{err:+9.4f}{rel:+9.1%}")
+    L.append(f"\nmeasured sums to {sum(measured.values()):.6f}")
+
+    # The seasonal drift, which is the argument against fitting this to a window.
+    # A summer window is warmer on home runs and *colder* on walks, so pinning the
+    # prior to one biases two markets in opposite directions.
+    by_month = pa.assign(month=pd.to_datetime(pa.game_date).dt.strftime("%Y-%m"))
+    L.append("\nBy month -- why this is measured season-to-date and not on a window")
+    L.append(f"{'month':>9}{'PA':>9}" + "".join(f"{k:>8}" for k in OUTCOMES_ORDER))
+    for month, g in by_month.groupby("month"):
+        m = rates(g["events"])
+        L.append(f"{month:>9}{len(g):9,}" + "".join(f"{m[k]:8.4f}" for k in OUTCOMES_ORDER))
+
+    # The eighth thing that happens, which the seven cannot hold: the batter is safe
+    # and no out is recorded. The run models put it back as a league constant.
+    roe = float(pa["events"].isin(REACHED_ON_ERROR_EVENTS).sum()) / len(pa)
+    L.append(
+        f"\nreached on error {roe:.4%} of plate appearances "
+        f"(shipped {LEAGUE_ROE_RATE:.4%})"
+    )
+
+    # The BB bucket is a free pass and the walks prop settles on walks alone, so the
+    # share that is a walk is what converts one into the other. Reported per event
+    # because the split is the whole argument: the hit batsman belongs in the bucket
+    # for the run models and not in the count charged to the pitcher.
+    counts = pa["events"].value_counts()
+    free = {e: int(counts.get(e, 0)) for e in sorted(WALK_EVENTS)}
+    total = sum(free.values())
+    L.append("\nThe free pass, by event -- the BB bucket is all three")
+    for event, n in free.items():
+        L.append(f"{event:>16}{n:9,}{n / len(pa):9.4%}")
+    charged = total - free.get("hit_by_pitch", 0)
+    L.append(
+        f"\nwalk share of the free pass {charged / total:.4f} "
+        f"(shipped {LEAGUE_WALK_SHARE_OF_FREE_PASS:.4f}, measured over starts)"
+    )
+
+    # OUT last and as the residual, not as its own rounding. Four decimal places on
+    # seven independent numbers lands 1e-4 off a distribution about half the time,
+    # and the engine asserts normalisation to 1e-9 in several places -- OUT is the
+    # bucket everything unrecognised falls into, so it is the one that should absorb it.
+    L.append("\nLEAGUE_RATES = {")
+    head = [k for k in OUTCOMES_ORDER if k != "OUT"]
+    for k in head:
+        L.append(f'    "{k}": {measured[k]:.4f},')
+    L.append(f'    "OUT": {1.0 - sum(round(measured[k], 4) for k in head):.4f},')
+    L.append("}")
+    L.append(f"LEAGUE_ROE_RATE = {roe:.4f}")
+    return "\n".join(L)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--frame", default=None, help="path to a cached Statcast pickle")
+    ap.add_argument(
+        "--start",
+        default=SEASON_START.isoformat(),
+        help="drop games before this date, to keep spring training out",
+    )
+    args = ap.parse_args()
+
+    path = Path(args.frame) if args.frame else widest_cache(load_config().cache_dir)
+    if path is None or not path.exists():
+        raise SystemExit("no cached Statcast frame found; pass --frame")
+    print(f"reading {path.name}")
+    pa = _pa_rows(pd.read_pickle(path))
+    start = Date.fromisoformat(args.start)
+    before = len(pa)
+    pa = pa[pd.to_datetime(pa.game_date).dt.date >= start]
+    if before > len(pa):
+        print(f"dropped {before - len(pa):,} plate appearances before {start} (exhibition)")
+    print(report(pa))
+
+
+if __name__ == "__main__":
+    main()

@@ -12,6 +12,7 @@ import pytest
 
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
 from mlb_engine.config import load_config
+from mlb_engine.data.opta import OptaRow, load_rows, save_rows
 from mlb_engine.state import (
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
@@ -178,6 +179,37 @@ def test_a_second_machine_cannot_erase_the_first(
     assert dates == ["2026-08-03", "2026-08-04"]
 
 
+def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The 2026-08-09 data loss: a stale push silently truncated the ledger.
+
+    The overnight audit graded 08-08 and pushed. The next morning's run had
+    pulled before that landed, so its ledger stopped at 08-07 -- and pushing it
+    overwrote the branch, taking 08-08 and 33,199 earlier rows with it. Git
+    accepted it as a fast-forward, so the retry-and-merge path never ran: a
+    clean push is not evidence that this machine holds every date.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    _ledger(data_b / "audit" / "ledger.csv", [_row("2026-08-07", "KC")])
+    push_state(data_b, "run 08-08", repo=repo_b, branch="engine-state")
+
+    # The audit box grades the new slate on top of what it already had.
+    _ledger(
+        data_a / "audit" / "ledger.csv",
+        [_row("2026-08-07", "KC"), _row("2026-08-08", "DET")],
+    )
+    push_state(data_a, "audit 08-08", repo=repo_a, branch="engine-state")
+
+    # The morning run publishes again from its stale copy, without pulling.
+    push_state(data_b, "run 08-09", repo=repo_b, branch="engine-state")
+
+    pull_state(data_a, repo=repo_a, branch="engine-state")
+    with (data_a / "audit" / "ledger.csv").open(newline="") as f:
+        dates = [r["date"] for r in csv.DictReader(f)]
+    assert dates == ["2026-08-07", "2026-08-08"]
+
+
 def test_a_single_branch_clone_can_still_read_the_state(
     machines: tuple[Path, Path, Path, Path], tmp_path: Path
 ) -> None:
@@ -251,3 +283,49 @@ def test_predictions_are_compressed_and_pruned(
     assert kept[-1] == f"predictions_2026-06-{PREDICTION_KEEP_DAYS + 3:02d}.json.gz"
     with gzip.open(state / "mlb" / "predictions" / kept[0], "rt") as f:
         assert json.load(f)
+
+
+def _opta(result: str | None, player: str = "Alan Roden") -> OptaRow:
+    return OptaRow(
+        date="2026-08-08",
+        matchup="MIN @ MIL",
+        market="batter_h",
+        selection=f"{player} H o0.5",
+        player=player,
+        player_id=1,
+        stat="H",
+        line=0.5,
+        projection=0.83,
+        over_odds=-229.0,
+        under_odds=170.0,
+        over_prob=0.565,
+        edge=0.064,
+        bet="under",
+        confidence=2,
+        result=result,
+        actual=None if result is None else 0.0,
+    )
+
+
+def test_the_morning_s_projections_meet_the_evening_s_results(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Opta is captured twice a day, and never twice on the same machine.
+
+    The pre-slate capture has the projections and no outcomes; the post-slate
+    one has the outcomes. Whichever pushes second must not erase the other.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    save_rows(data_a / "audit" / "opta_2026-08-08.json", [_opta(None)])
+    pushed = push_state(data_a, "opta morning", repo=repo_a, branch="engine-state")
+    assert "opta_2026-08-08.json" in pushed.pushed
+
+    save_rows(
+        data_b / "audit" / "opta_2026-08-08.json",
+        [_opta("hit"), _opta(None, player="Max Muncy")],
+    )
+    push_state(data_b, "opta evening", repo=repo_b, branch="engine-state")
+
+    pull_state(data_a, repo=repo_a, branch="engine-state")
+    rows = {r.player: r.result for r in load_rows(data_a / "audit" / "opta_2026-08-08.json")}
+    assert rows == {"Alan Roden": "hit", "Max Muncy": None}

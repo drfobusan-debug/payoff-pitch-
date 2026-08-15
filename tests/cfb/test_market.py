@@ -56,9 +56,10 @@ def test_evaluate_devigs_and_edges():
     assert res.devig_coverage == 1.0
 
 
-def test_classify_tiers_by_ev():
+def test_classify_ranks_on_edge_not_ev():
     thr = EVThresholds()
-    strong = evaluate(0.80, [MarketQuote("pinnacle", +100, -120)])
+    # Comfortably inside the edge cap: 4.5 points over the devigged price.
+    strong = evaluate(0.523, [MarketQuote("pinnacle", +100, -120)])
     tier, reasons = classify(strong, thr)
     assert tier == Tier.STRONG
     assert reasons
@@ -66,3 +67,26 @@ def test_classify_tiers_by_ev():
     flat = evaluate(0.50, [MarketQuote("pinnacle", -110, -110)])
     tier2, _ = classify(flat, thr)
     assert tier2 == Tier.PASS
+
+
+def test_a_long_price_no_longer_reaches_strong_on_a_thin_edge():
+    """``EV = decimal x edge``, so an EV cutoff was a cheaper bar on long prices.
+
+    A +300 dog cleared the old 0.06 Strong threshold on 1.5 points of
+    disagreement while a -400 favorite needed 4.8. Tiering on edge charges both
+    the same, so this dog lands one tier lower than the EV rule put it.
+    """
+    thr = EVThresholds()
+    dog = evaluate(0.2675, [MarketQuote("pinnacle", +300, -400)])
+    assert dog.ev > 0.06  # would have been Strong under the EV rule
+    tier, _ = classify(dog, thr)
+    assert tier == Tier.MODERATE
+
+
+def test_an_implausible_edge_is_a_model_error_not_a_bigger_bet():
+    thr = EVThresholds()
+    wild = evaluate(0.80, [MarketQuote("pinnacle", +100, -120)])
+    assert wild.edge > thr.max_edge
+    tier, reasons = classify(wild, thr)
+    assert tier == Tier.PASS
+    assert any("> 0.08" in r for r in reasons)

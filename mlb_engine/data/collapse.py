@@ -25,6 +25,8 @@ from pathlib import Path
 
 import requests
 
+from mlb_engine.data import http
+
 BASE = "https://statsapi.mlb.com/api/v1"
 
 log = logging.getLogger(__name__)
@@ -204,7 +206,7 @@ def capture_game(
     timeout: int = 20,
 ) -> list[InningLine]:
     """Fetch PBP for one final game and return its per-pitcher inning rows."""
-    s = session or requests.Session()
+    s = session or http.session()
     pbp = _fetch_pbp(game_pk, s, cache_dir, timeout)
     if not pbp:
         return []
@@ -256,7 +258,7 @@ def capture_slate(
     timeout: int = 20,
 ) -> list[InningLine]:
     """Capture every game on a slate and persist the collapse ledger."""
-    session = requests.Session()
+    session = http.session()
     lines: list[InningLine] = []
     for pk in game_pks:
         try:

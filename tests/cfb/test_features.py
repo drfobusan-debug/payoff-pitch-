@@ -55,11 +55,33 @@ def test_travel_below_threshold_ignored():
     assert adj.margin_delta == 0.0
 
 
-def test_weather_cuts_total_outdoors_only():
+def test_weather_is_reported_but_not_priced_by_default():
+    """The closing total already contains the wind; the reader still sees it."""
     windy = _adj(GameContext(wind_mph=25.0, precipitation=0.2, temperature_f=20.0))
+    assert windy.total_delta == 0.0
+    assert any("Wind 25 mph" in r and "not scored" in r for r in windy.reasons)
+    assert any("Precipitation" in r for r in windy.reasons)
+    assert any("Cold 20F" in r for r in windy.reasons)
+
+
+def test_weather_cuts_total_when_explicitly_priced():
+    windy = _adj(
+        GameContext(wind_mph=25.0, precipitation=0.2, temperature_f=20.0),
+        wind_total_per_mph=0.45,
+        precip_total_pts=2.5,
+        cold_total_pts=1.5,
+    )
     assert windy.total_delta < 0
-    indoors = _adj(GameContext(dome=True, wind_mph=25.0, precipitation=0.2, temperature_f=20.0))
+    assert any("Wind 25 mph" == r for r in windy.reasons)
+
+
+def test_weather_skipped_indoors():
+    indoors = _adj(
+        GameContext(dome=True, wind_mph=25.0, precipitation=0.2, temperature_f=20.0),
+        wind_total_per_mph=0.45,
+    )
     assert indoors.total_delta == 0.0
+    assert indoors.reasons == []
 
 
 def test_haversine_known_distance():

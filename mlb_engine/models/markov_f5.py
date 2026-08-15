@@ -21,6 +21,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from mlb_engine.models.baserunning import LEAGUE_DP_RATE, transitions, with_roe
 from mlb_engine.models.matchup import apply_multipliers
 from mlb_engine.models.montecarlo import OUTCOMES
 
@@ -32,47 +33,6 @@ ON_BASE = ("1B", "2B", "3B", "HR", "BB")
 DEFAULT_TTO_FACTORS = (1.0, 1.03, 1.08, 1.10)
 
 # base state is a 3-bit mask: bit0=1B, bit1=2B, bit2=3B
-
-
-def _advance(base: int, outs: int, oc: str) -> tuple[int, int, int]:
-    """Return (new_base, new_outs, runs) for an outcome from (base, outs)."""
-    on1 = base & 1
-    on2 = (base >> 1) & 1
-    on3 = (base >> 2) & 1
-    runs = 0
-
-    if oc in ("K", "OUT"):
-        return base, outs + 1, 0
-
-    if oc == "BB":
-        if on1:
-            if on2:
-                if on3:
-                    runs += 1  # forced in
-                on3 = 1
-            on2 = 1
-        on1 = 1
-    elif oc == "1B":
-        runs += on3 + on2
-        on3 = on1
-        on2 = 0
-        on1 = 1
-    elif oc == "2B":
-        runs += on3 + on2 + on1
-        on3 = 0
-        on2 = 1
-        on1 = 0
-    elif oc == "3B":
-        runs += on3 + on2 + on1
-        on3 = 1
-        on2 = 0
-        on1 = 0
-    elif oc == "HR":
-        runs += on3 + on2 + on1 + 1
-        on3 = on2 = on1 = 0
-
-    new_base = (on3 << 2) | (on2 << 1) | on1
-    return new_base, outs, runs
 
 
 @dataclass
@@ -95,9 +55,15 @@ class F5Result:
         return _p_margin_gt(self.home_dist, self.away_dist, spread)
 
 
-def _inning_distribution(prob: dict[str, float]) -> np.ndarray:
-    """Exact run distribution for a single half-inning."""
-    p = np.array([prob[o] for o in OUTCOMES], dtype=float)
+def _inning_distribution(
+    prob: dict[str, float], dp_rate: float = LEAGUE_DP_RATE
+) -> np.ndarray:
+    """Exact run distribution for a single half-inning.
+
+    ``dp_rate`` is the *pitcher's* double-play rate, since the force is only
+    turned as often as he keeps the ball on the ground.
+    """
+    p = np.array([with_roe(prob)[o] for o in OUTCOMES], dtype=float)
     p = p / p.sum()
     # dp[base, outs] = vector over runs-so-far (len RUN_CAP+1)
     dp = np.zeros((8, 3, RUN_CAP + 1), dtype=float)
@@ -118,12 +84,12 @@ def _inning_distribution(prob: dict[str, float]) -> np.ndarray:
                     pr = p[oi]
                     if pr <= 0:
                         continue
-                    nb, no, r = _advance(base, outs, oc)
-                    shifted = _shift(mass, r) * pr
-                    if no >= 3:
-                        out_dist += shifted
-                    else:
-                        new_dp[nb, no] += shifted
+                    for branch_p, nb, no, r in transitions(base, outs, oc, dp_rate):
+                        shifted = _shift(mass, r) * (pr * branch_p)
+                        if no >= 3:
+                            out_dist += shifted
+                        else:
+                            new_dp[nb, no] += shifted
         dp = new_dp
         if not moved:
             break
@@ -177,7 +143,9 @@ def _slot_prob_table(
     for bi, rates in enumerate(slots):
         for tto, factor in enumerate(tto_factors):
             adj = apply_multipliers(rates, {k: factor for k in ON_BASE}) if factor != 1.0 else rates
-            arr = np.array([adj[o] for o in OUTCOMES], dtype=float)
+            # TTO first, then the error: a tiring starter gives up more of the
+            # seven, and none of the defence's mistakes behind him.
+            arr = np.array([with_roe(adj)[o] for o in OUTCOMES], dtype=float)
             s = arr.sum()
             table[(bi, tto)] = arr / s if s > 0 else arr
     return table
@@ -186,6 +154,7 @@ def _slot_prob_table(
 def team_f5_distribution(
     slots: list[dict[str, float]],
     tto_factors: tuple[float, ...] = DEFAULT_TTO_FACTORS,
+    dp_rate: float = LEAGUE_DP_RATE,
 ) -> np.ndarray:
     """F5 run distribution for a lineup, tracking batting order + TTO across innings."""
     if len(slots) != 9:
@@ -212,18 +181,18 @@ def team_f5_distribution(
                 pr = probs[oi]
                 if pr <= 0:
                     continue
-                nbase, nouts, runs = _advance(base, outs, oc)
-                shifted = _shift(mass, runs) * pr
-                if nouts >= 3:
-                    ninn = inn + 1
-                    if ninn >= N_INNINGS:
-                        final += shifted
+                for branch_p, nbase, nouts, runs in transitions(base, outs, oc, dp_rate):
+                    shifted = _shift(mass, runs) * (pr * branch_p)
+                    if nouts >= 3:
+                        ninn = inn + 1
+                        if ninn >= N_INNINGS:
+                            final += shifted
+                        else:
+                            key = (ninn, 0, 0, nb_idx, ntto)
+                            _accum(new_dp, key, shifted)
                     else:
-                        key = (ninn, 0, 0, nb_idx, ntto)
+                        key = (inn, nouts, nbase, nb_idx, ntto)
                         _accum(new_dp, key, shifted)
-                else:
-                    key = (inn, nouts, nbase, nb_idx, ntto)
-                    _accum(new_dp, key, shifted)
         dp = new_dp
     for mass in dp.values():  # residual safety
         final += mass
@@ -257,15 +226,27 @@ def f5_from_lineups(
     home_slots: list[dict[str, float]],
     away_slots: list[dict[str, float]],
     tto_factors: tuple[float, ...] = DEFAULT_TTO_FACTORS,
+    home_dp_rate: float = LEAGUE_DP_RATE,
+    away_dp_rate: float = LEAGUE_DP_RATE,
 ) -> F5Result:
-    """Non-stationary, per-slot F5 model (preferred)."""
-    home5 = team_f5_distribution(home_slots, tto_factors)
-    away5 = team_f5_distribution(away_slots, tto_factors)
+    """Non-stationary, per-slot F5 model (preferred).
+
+    The rates are named for the pitcher they describe, so each is applied to the
+    lineup facing him: the home offense turns double plays at the away starter's
+    rate.
+    """
+    home5 = team_f5_distribution(home_slots, tto_factors, away_dp_rate)
+    away5 = team_f5_distribution(away_slots, tto_factors, home_dp_rate)
     return _combine(home5, away5)
 
 
-def f5_from_rates(home_pa: dict[str, float], away_pa: dict[str, float]) -> F5Result:
+def f5_from_rates(
+    home_pa: dict[str, float],
+    away_pa: dict[str, float],
+    home_dp_rate: float = LEAGUE_DP_RATE,
+    away_dp_rate: float = LEAGUE_DP_RATE,
+) -> F5Result:
     """Stationary team-average F5 model (independent innings)."""
-    home5 = _convolve_n(_inning_distribution(home_pa), 5)
-    away5 = _convolve_n(_inning_distribution(away_pa), 5)
+    home5 = _convolve_n(_inning_distribution(home_pa, away_dp_rate), 5)
+    away5 = _convolve_n(_inning_distribution(away_pa, home_dp_rate), 5)
     return _combine(home5, away5)

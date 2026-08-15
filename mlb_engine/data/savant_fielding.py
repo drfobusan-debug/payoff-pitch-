@@ -16,7 +16,8 @@ import io
 import logging
 
 import pandas as pd
-import requests
+
+from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ _MIDDLE_IF = {"2B", "SS"}
 
 def fetch_oaa(year: int, timeout: int = 30) -> pd.DataFrame:
     """Return the raw Savant fielder OAA leaderboard for a season."""
-    resp = requests.get(_URL.format(year=year), headers=_HEADERS, timeout=timeout)
+    resp = http.get(_URL.format(year=year), headers=_HEADERS, timeout=timeout)
     resp.raise_for_status()
     return pd.read_csv(io.StringIO(resp.text))
 

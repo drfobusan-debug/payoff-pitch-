@@ -33,6 +33,7 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -189,6 +190,18 @@ def merge_board_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_opta_files(remote: Path, local: Path) -> bool:
+    """Union two Opta captures, the later view of a projection winning.
+
+    The morning capture holds the projections and the evening one holds the
+    graded outcomes, and they are usually made on different machines.
+    """
+    if not remote.exists():
+        return False
+    save_rows(local, merge_rows(load_rows(local), load_rows(remote)))
+    return True
+
+
 def _rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
@@ -227,6 +240,15 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 
 
 # --- the state map -----------------------------------------------------------
+
+
+# The accumulating records, and the columns identifying one row of each. Both
+# directions merge on these: a machine only ever contributes the dates it
+# graded, and never speaks for the ones it did not.
+_MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
+    ("scorecard.csv", ("date", "tier")),
+)
 
 
 def _audit_dir(data_dir: Path) -> Path:
@@ -282,10 +304,10 @@ def pull_state(
     for src in sorted((state / "mlb" / "board").glob("board_*.json")):
         if merge_board_files(src, audit / src.name):
             pulled.append(src.name)
-    for name, key in (
-        ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
-        ("scorecard.csv", ("date", "tier")),
-    ):
+    for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
+        if merge_opta_files(src, audit / src.name):
+            pulled.append(src.name)
+    for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
     pulled.extend(_pull_predictions(state, data_dir, dates))
@@ -349,11 +371,25 @@ def push_state(
             merge_board_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
-        for name in ("ledger.csv", "scorecard.csv"):
+        for src in sorted(audit.glob("opta_*.json")):
+            dest = state / "mlb" / "opta" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_opta_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for name, key in _MERGED_CSVS:
             src = audit / name
             if src.exists():
                 dest = state / "mlb" / name
                 dest.parent.mkdir(parents=True, exist_ok=True)
+                # Fold the branch's dates into ours before overwriting it, the
+                # same way the closing snapshots above are merged. A push that
+                # git accepts as a fast-forward is not evidence that this
+                # machine's ledger is a superset of the branch's: a run that
+                # pulled before last night's audit landed will happily publish
+                # a ledger missing that slate, and the ledger is a growing
+                # record, not this machine's opinion.
+                merge_dated_csv(dest, src, key)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
         staged, pruned = _stage_predictions(state, data_dir)
@@ -403,6 +439,7 @@ __all__ = [
     "SyncReport",
     "merge_board_files",
     "merge_closing_files",
+    "merge_opta_files",
     "merge_dated_csv",
     "pull_state",
     "push_state",

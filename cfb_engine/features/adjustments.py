@@ -30,6 +30,18 @@ class Adjustment:
             self.total_delta += pts
             self.reasons.append(reason)
 
+    def _add_total_or_note(self, pts: float, reason: str) -> None:
+        """Price the nudge, or -- when it is switched off -- just name it.
+
+        A condition the model observes but does not charge for still belongs on
+        the card: the reader can see it, and the ledger records what the layer
+        would have done if a graded season ever justifies turning it on.
+        """
+        if abs(pts) >= 0.05:
+            self._add_total(pts, reason)
+        else:
+            self.reasons.append(f"{reason} [observed, not scored]")
+
 
 def _clamp(value: float, limit: float) -> float:
     return max(-limit, min(limit, value))
@@ -73,14 +85,17 @@ def compute_adjustment(
         adj._add_margin(pts, f"{away_ab} travels {ctx.travel_away_miles:.0f} mi")
 
     # -- weather: totals only, skipped indoors ----------------------------
+    # The point values default to zero (see FeatureParams), so conditions are
+    # named on the card without moving the total. ``_add_total`` drops a zero
+    # nudge and its reason with it, hence the explicit report.
     if not ctx.dome:
         if ctx.wind_mph is not None and ctx.wind_mph > params.wind_threshold_mph:
             over = ctx.wind_mph - params.wind_threshold_mph
             cut = min(over * params.wind_total_per_mph, params.wind_total_max)
-            adj._add_total(-cut, f"Wind {ctx.wind_mph:.0f} mph")
+            adj._add_total_or_note(-cut, f"Wind {ctx.wind_mph:.0f} mph")
         if ctx.precipitation is not None and ctx.precipitation > 0:
-            adj._add_total(-params.precip_total_pts, "Precipitation")
+            adj._add_total_or_note(-params.precip_total_pts, "Precipitation")
         if ctx.temperature_f is not None and ctx.temperature_f < params.cold_threshold_f:
-            adj._add_total(-params.cold_total_pts, f"Cold {ctx.temperature_f:.0f}F")
+            adj._add_total_or_note(-params.cold_total_pts, f"Cold {ctx.temperature_f:.0f}F")
 
     return adj

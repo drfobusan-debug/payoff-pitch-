@@ -63,20 +63,24 @@ def test_exactly_at_floor_is_allowed() -> None:
 
 
 def _f5_ml_rec(cfg: Config, gate_reason: str | None):
-    """Price one clearly +EV F5 ML selection through _mk with/without the gate."""
+    """Price one clearly +EV F5 ML selection through _mk with/without the gate.
+
+    The buy is the *home* side: a road moneyline dog is refused outright on
+    price, which would mask whatever this test is trying to say.
+    """
     p = _mk_pipeline(cfg)
     game = SimpleNamespace(game_date="2026-08-01", game_pk=822781)
-    # model 60% at -110 both ways (devigged fair 50%) is a Strong buy absent any
-    # gate: 10 raw points, half of which survive the market anchor, inside the
-    # implausible-edge cap and short enough for the price ceiling.
+    # model 44% against a devigged fair 38.9% is a buy absent any gate: 5 raw
+    # points, half of which survive the market anchor, inside the
+    # implausible-edge cap.
     quotes = {
-        ("STL @ TOR", "f5_ml", "STL F5 ML"): [
-            MarketQuote(book="draftkings", american=-110.0, opposite_american=-110.0)
+        ("STL @ TOR", "f5_ml", "TOR F5 ML"): [
+            MarketQuote(book="draftkings", american=150.0, opposite_american=-170.0)
         ]
     }
     return p._mk(
-        game, "STL @ TOR", "f5", "f5_ml", "STL F5 ML", 0.60,
-        team_side="away", side="win", quotes=quotes, gate_reason=gate_reason,
+        game, "STL @ TOR", "f5", "f5_ml", "TOR F5 ML", 0.44,
+        team_side="home", side="win", quotes=quotes, gate_reason=gate_reason,
     )
 
 

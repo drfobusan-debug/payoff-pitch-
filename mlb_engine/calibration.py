@@ -32,11 +32,55 @@ log = logging.getLogger(__name__)
 # map re-imposes exactly the bias that was corrected. Bump this whenever a
 # change moves raw probabilities systematically, which retires stale maps until
 # the next fit. "bip" == balls in play: foul balls left the batted-ball pool.
-FEATURE_BASIS = "bip-2026.08"
+#
+# Dropping the starter's two luck terms retires the "pen-park-gb" basis after a
+# single slate. That is deliberately early: the terms moved the allowed-hit rate
+# by more than 5% in 54% of starts, so a map fitted across the change would carry
+# that swing into every hit prop it corrected. One slate is the cheapest moment
+# to reset, and the alternative was resetting after the first refit instead.
+#
+# Teaching the simulators how runners actually move did NOT retire the
+# "starter-contact" basis: it moved run props by about a point and team scoring by
+# four hundredths of a run, against a map that exists to remove three to four
+# points in every batter market at once.
+#
+# Correcting the league prior does retire it, and by a margin that leaves no
+# judgement call. LEAGUE_RATES is the log5 denominator, so its walk rate moving
+# .0850 -> .1020 reprices every matchup on the slate, not just walk-heavy ones.
+# Priced through the old denominator against the new, over 3000 batter x pitcher
+# pairs:
+#
+#   P(a walk in 4 PA)   .4127 -> .3576   -5.52pp
+#   P(F5 total o4.5)    .5366 -> .5507   +1.41pp   (reaching on an error)
+#   every other market                   under .1pp
+#
+# A walk map fitted on 08-12/08-13 learned to shrink a walk probability that was
+# 5.5 points too high, and that overstatement is now gone. Applying it would
+# subtract the correction twice -- the precise failure this constant exists to
+# prevent, and larger than the bias the map was built for.
+#
+# The window this discards is two slates, neither of which could fit a map anyway
+# (`calibrate` holds out two and so needs a third). So unlike the case above there
+# is nothing to trade off: this is the cheapest moment a reset will ever be, and
+# the same argument that reset "pen-park-gb" after a single slate.
+#
+# Lifting a hitter mid-game retires it again, and this time the argument is
+# simpler than any of the above: the branch takes 1.0-1.4pp off every batter
+# market at once, which is the same quantity, in the same direction, across the
+# same nine markets a batter map is built to correct. A map fitted without it
+# would learn to shrink an overstatement the simulator no longer makes.
+#
+# It is free, for the second time running. The window opened by the previous
+# reset holds no graded rows at all -- nothing has been priced on
+# "league-prior-roe-2026.08" yet -- so there is nothing to discard and no
+# trade-off to weigh.
+FEATURE_BASIS = "removal-hazard-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-FEATURE_BASIS_SINCE = Date(2026, 8, 9)
+# 08-14 was priced before the league-prior and reached-on-error corrections landed,
+# and before the lineup could be substituted.
+FEATURE_BASIS_SINCE = Date(2026, 8, 15)
 
 
 def _min_samples() -> int:

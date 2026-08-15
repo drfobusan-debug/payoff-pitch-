@@ -28,6 +28,7 @@ from mlb_engine.audit.analysis import (
     RunLineMissMatrix,
     dog_vs_favorite,
     false_negative_insights,
+    lineup_findings,
     price_bucket_findings,
     price_buckets,
     run_line_miss_findings,
@@ -38,7 +39,13 @@ from mlb_engine.audit.ledger import (
     OverallMetrics,
     engine_metrics,
     market_metrics,
+    one_side_per_prop,
     overall_metrics,
+)
+from mlb_engine.audit.probation import (
+    Probation,
+    market_probation,
+    screen_probation,
 )
 
 # --- verdict thresholds (documented in the report itself) ------------------
@@ -144,6 +151,8 @@ class ReportData:
     price_sides: list[PriceBucket]
     price_findings: list[str]
     price_n_dates: int
+    lineup_findings: list[str]
+    probation: list[Probation]
 
 
 def _pct(x: float) -> str:
@@ -198,7 +207,10 @@ def build_report_data(
     ledger even inside the daily report, and labels the sample it used.
     """
     n_dates = len({e.date for e in entries})
-    priced = history if history is not None else entries
+    # Both sides of a prop are in the ledger; a measurement wants one row per
+    # wager, or the near-certain complement grades itself correct for free.
+    entries = one_side_per_prop(entries)
+    priced = one_side_per_prop(history) if history is not None else entries
     engine = engine_metrics(entries)
     tiers = overall_metrics(entries)
     rows = [_classify(m) for m in market_metrics(entries)]
@@ -322,6 +334,14 @@ def build_report_data(
         price_sides=dog_vs_favorite(priced),
         price_findings=price_bucket_findings(priced),
         price_n_dates=len({e.date for e in priced if e.odds is not None}),
+        # Whether the card saw the lineup that batted. Reads the history for the
+        # same reason the price bands do: one slate carries nowhere near the rows
+        # the comparison needs.
+        lineup_findings=lineup_findings(priced),
+        # Probation is a standing judgement on the whole book, so it reads the
+        # history rather than the day: a market cannot be condemned or cleared
+        # by one slate, which is the entire point of it.
+        probation=[*market_probation(priced), *screen_probation(priced)],
     )
 
 
@@ -420,6 +440,38 @@ def render_markdown_report(d: ReportData) -> str:
         L.append("")
         for f in d.price_findings:
             L.append(f"- {f}")
+        L.append("")
+
+    if d.lineup_findings:
+        L.append("---\n")
+        L.append("## Did the card see the lineup?\n")
+        for f in d.lineup_findings:
+            L.append(f"- {f}")
+        L.append("")
+
+    if d.probation:
+        L.append("---\n")
+        L.append("## Probation\n")
+        L.append(
+            "Each market graded on its own buys, each screen on the picks it "
+            "refused. A verdict changes nothing on its own: acting needs volume, "
+            "a margin bigger than one standard error, **and** both halves of the "
+            "window agreeing — the last condition being the one that caught every "
+            "false finding this engine has shipped.\n"
+        )
+        L.append("| Subject | Kind | n | ROI | se | Older half | Newer half | Verdict |")
+        L.append("|---|---|---|---|---|---|---|---|")
+        for p in d.probation:
+            verdict = f"**{p.status}**" if p.actionable else p.status
+            L.append(
+                f"| {p.name} | {p.kind} | {p.n} | {p.roi * 100:+.1f}% | "
+                f"{p.se * 100:.1f} | {p.first_half * 100:+.1f}% | "
+                f"{p.second_half * 100:+.1f}% | {verdict} |"
+            )
+        L.append("")
+        for p in d.probation:
+            if p.actionable:
+                L.append(f"- {p.finding}")
         L.append("")
 
     if d.rl_matrix.has_data:
@@ -599,6 +651,42 @@ def render_html_report(d: ReportData) -> str:
             b.append("<ul>")
             for f in d.price_findings:
                 b.append(f"<li>{_md_inline_to_html(f)}</li>")
+            b.append("</ul>")
+
+    if d.lineup_findings:
+        b.append("<h2>Did the card see the lineup?</h2>")
+        b.append("<ul>")
+        for f in d.lineup_findings:
+            b.append(f"<li>{_md_inline_to_html(f)}</li>")
+        b.append("</ul>")
+
+    if d.probation:
+        b.append("<h2>Probation</h2>")
+        b.append(
+            "<p>Each market graded on its own buys, each screen on the picks it "
+            "refused. A verdict changes nothing on its own: acting needs volume, a "
+            "margin bigger than one standard error, <strong>and</strong> both halves "
+            "of the window agreeing — the last condition being the one that caught "
+            "every false finding this engine has shipped.</p>"
+        )
+        prb = [
+            "<tr><th>Subject</th><th>Kind</th><th>n</th><th>ROI</th><th>se</th>"
+            "<th>Older half</th><th>Newer half</th><th>Verdict</th></tr>"
+        ]
+        for p in d.probation:
+            verdict = f"<strong>{p.status}</strong>" if p.actionable else p.status
+            prb.append(
+                f"<tr><td>{html.escape(p.name)}</td><td>{p.kind}</td><td>{p.n}</td>"
+                f"<td>{p.roi * 100:+.1f}%</td><td>{p.se * 100:.1f}</td>"
+                f"<td>{p.first_half * 100:+.1f}%</td>"
+                f"<td>{p.second_half * 100:+.1f}%</td><td>{verdict}</td></tr>"
+            )
+        b.append("<table>" + "".join(prb) + "</table>")
+        actionable = [p for p in d.probation if p.actionable]
+        if actionable:
+            b.append("<ul>")
+            for p in actionable:
+                b.append(f"<li>{_md_inline_to_html(p.finding)}</li>")
             b.append("</ul>")
 
     if d.rl_matrix.has_data:

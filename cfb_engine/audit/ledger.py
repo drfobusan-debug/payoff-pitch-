@@ -270,6 +270,42 @@ def daily_rollup(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     return [_metrics_for(by_date[d], buy, d) for d in sorted(by_date)]
 
 
+# A dog is *supposed* to win less than half the time, so a sub-50% win rate is
+# not evidence of anything by itself: what matters is the win rate against the
+# break-even the price demands. Banding the buys by price length reports that gap
+# -- and it is the axis where the MLB leak turned out to live (short dogs came in
+# 9.7 points under the rate their prices charged while the favorites were fine).
+PRICE_BUCKETS: tuple[tuple[str, float, float], ...] = (
+    ("Heavy favorite (-200 and shorter)", -1e9, -200.0),
+    ("Favorite (-199 to -110)", -199.0, -110.0),
+    ("Pick'em (-109 to +109)", -109.0, 109.0),
+    ("Short dog (+110 to +199)", 110.0, 199.0),
+    ("Mid dog (+200 to +399)", 200.0, 399.0),
+    ("Longshot (+400 and up)", 400.0, 1e9),
+)
+
+
+def price_bucket_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
+    """Buy (S+M) performance per price band, plus the dog/favorite split.
+
+    Only rows carrying a real price are counted: a bucket keyed on ``odds`` is
+    meaningless for a bet whose price was never captured, and the -110 stand-in
+    would pile every such row into Pick'em.
+    """
+    buy = {Tier.STRONG.value, Tier.MODERATE.value}
+    priced = [e for e in entries if e.odds is not None and e.tier in buy]
+    rows: list[OverallMetrics] = []
+    for label, lo, hi in PRICE_BUCKETS:
+        band = [e for e in priced if e.odds is not None and lo <= e.odds <= hi]
+        if band:
+            rows.append(_metrics_for(band, buy, label))
+    for label, plus in (("All underdogs", True), ("All favorites", False)):
+        side = [e for e in priced if e.odds is not None and (e.odds > 0) == plus]
+        if side:
+            rows.append(_metrics_for(side, buy, label))
+    return rows
+
+
 def market_metrics(entries: list[LedgerEntry]) -> list[OverallMetrics]:
     """Buy (S+M) PPV/ROI per market family, sorted by ROI (high to low)."""
     buy = {Tier.STRONG.value, Tier.MODERATE.value}

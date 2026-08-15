@@ -55,9 +55,9 @@ book (and VSIN handle/bets divergence when provided).
    tier with plus-money dogs. Knobs: `MLBE_MIN_EV` (the price must pay at all),
    `MLBE_MIN_EDGE` thin-edge guard, `MLBE_EDGE_STRONG_GAP` (extra edge for
    Strong), `MLBE_MAX_EDGE` (disagreement past which the edge reads as a model
-   error), `MLBE_MAX_BUY_ODDS` (price ceiling), `MLBE_NO_BUY_<MARKET>` (markets
-   the ledger disqualified), `MLBE_STRONG_ONLY` for strict selection. See
-   **Selection guards** below.
+   error), `MLBE_MAX_BUY_ODDS[_<MARKET>]` (price ceiling),
+   `MLBE_NO_BUY_<MARKET>` (markets the ledger disqualified), `MLBE_STRONG_ONLY`
+   for strict selection. See **Selection guards** below.
 9a. **Run-line NPV gates** — veto (not nudge) selections whose failure to cover
     is highly predictable. All off by default; see below.
 9b. **Pre-bet CLV** — `MLBE_CLV_GATE` vetoes a buy the market has been walking
@@ -230,6 +230,9 @@ mlb-engine run --date 2024-07-19 --vsin-csv ~/.mlb_engine/vsin_today.csv --sims 
 # snapshot the closing market just before first pitch (scores CLV in the audit)
 mlb-engine close --game-only
 
+# capture an outside model's take on the same props (free, expires in a day)
+mlb-engine opta
+
 # grade yesterday, update the scorecard, and append to the running ledger
 mlb-engine audit
 
@@ -274,6 +277,40 @@ result. Every metrics sheet now also reports **Needs %**, the win rate the
 prices actually charged for, next to the win rate achieved: 59.6% of favoured
 bets won into a 60.5% break-even, which is why 58% PPV never became profit.
 
+### An outside model to be judged against (`mlb-engine opta`)
+
+CLV says whether the *price* was good. It says nothing about whether the
+*probability* was good, because the market only quotes the props it chooses to.
+VSIN publishes Opta AI's MLB projections beside DraftKings' prices and, once a
+slate finishes, the graded outcome of every call — a second model, forecasting
+the same props, scored the same way.
+
+```bash
+mlb-engine opta            # today's projections and prices
+mlb-engine opta --day -1   # yesterday's, now carrying results
+```
+
+Free and uncredited, but only three days wide: the page's `day` offset clamps
+at yesterday, so a slate not captured within a day of being played is gone for
+good. Because of that it is not a command to remember — the morning daemon and
+both one-click shortcuts run it themselves, `--day -1` first (last night's
+calls, now carrying results) and then today's. The two captures merge, so the
+graded outcomes land on the projections already stored for that date.
+
+On the first two slates where both models had a probability for the same prop
+(2,523 graded), Opta out-forecast the engine in all five batter markets:
+
+| market | n | engine AUC | Opta AUC |
+|---|---|---|---|
+| `batter_hr` | 462 | .574 | **.701** |
+| `batter_h` | 516 | .600 | **.635** |
+| `batter_tb` | 464 | .534 | **.557** |
+| `batter_2b` | 462 | .507 | **.553** |
+| `batter_hrr` | 449 | .488 | **.530** |
+
+Two slates is not a verdict, which is the reason the capture exists rather than
+a reason to act on it yet.
+
 ### Carrying state between machines (`mlb-engine state`)
 
 Scheduled runs are separate, disposable machines, so `~/.mlb_engine` starts
@@ -314,14 +351,14 @@ over any local re-price and says so, so it grades what the card actually sent.
 
 ### Market anchoring
 
-`MLBE_MARKET_ANCHOR` (default `0.5`) blends the devigged market price into the
+`MLBE_MARKET_ANCHOR` (default `0`, off) blends the devigged market price into the
 probability the EV screen bets on: `0` bets the model alone, `1` bets the market,
-`0.4` moves the market 40% of the way toward the model. Totals default to `0`
-instead, because they are the one market where the model beats the price on Brier
-(.2446 vs .2480) and the only profitable buy bucket in the graded ledger; any
-market takes its own weight from `MLBE_MARKET_ANCHOR_<MARKET>`, and a per-market
-default ignores the global one so raising the global toll cannot start taxing
-totals. The model's own
+`0.4` moves the market 40% of the way toward the model. Any market takes its own
+weight from `MLBE_MARKET_ANCHOR_<MARKET>`, and a market with a per-market default
+ignores the global one. Totals are pinned at `0` that way, because they are the
+one market where the model beats the price on Brier (.2446 vs .2480) and the only
+profitable buy bucket in the graded ledger, so raising the global toll can never
+start taxing them. The model's own
 probability is left untouched, so PPV/NPV, the calibration refit and the Brier
 comparisons keep measuring the model rather than the blend, and both numbers are
 recorded per pick (`Model %` and `Market %` on the card, `fair_prob`/`bet_prob`
@@ -340,6 +377,13 @@ Nine priced slates: -5.4% at `0`, -4.1% at `0.4`, -3.5% at `0.6` on a third of
 the bets, -12.9% at `0.8`. Every one of those intervals still spans zero, so this
 shrinks a loss rather than earning a profit. Judge a weight on CLV, not on ROI.
 
+It still ships off even though 27 graded slates put the market ahead of the model
+on Brier and log loss in every market the engine bets except totals, and for a
+mechanical reason rather than a lack of evidence: every edge floor, price band and
+probability floor on the card was fitted against unanchored probabilities, and a
+global weight rescales all of them at once (`edge -> edge x (1 - w)`). Raise it
+one market at a time and re-grade that market's floors underneath it.
+
 ### Selection guards
 
 Twenty-seven graded slates put the model's *ranking* ahead of its *buying*: inside
@@ -351,13 +395,22 @@ tell you what each one cost or saved.
 
 | Env flag | Default | Passes a buy when | Ledger evidence |
 | --- | --- | --- | --- |
-| `MLBE_MAX_BUY_ODDS` | `109` | the best price is longer than the ceiling | plus-money buys 28.5% for -15.5% ROI (n=933) vs 50.7% at minus money |
-| `MLBE_NO_BUY_<MARKET>` | on for `batter_h`, `batter_hr`, `batter_hrr`, `batter_r`, `batter_rbi`, `batter_tb` | ever, in that market | every batter market except doubles lost, -169 units in total |
+| `MLBE_MAX_BUY_ODDS[_<MARKET>]` | off globally, `+109` on `game_rl` and `f5_rl` | the best price is longer than the ceiling | plus-money buys 28.5% for -15.5% ROI (n=933) vs 50.7% at minus money; run lines +11.8% at -110 or shorter vs -21.2% at plus money |
+| `MLBE_NO_BUY_<MARKET>` | on for `batter_h`, `batter_hrr`, `batter_r`, `batter_tb` | ever, on that market's over | every batter market except doubles lost, -169 units in total |
 | `MLBE_CLV_GATE` | on, `MLBE_CLV_DRIFT` `0.02` | the side's no-vig price has drifted `>= 0.02` against us since the slate opened | buys that beat the close returned +5.4%, buys that lost it -11.8% |
 
-The price ceiling also outranks the sharp-money upgrade: a confirmed +200 dog is
-still a +200 dog. The CLV gate runs last, after every gate and upgrade, and needs
-no future information — the pipeline snapshots the first price it sees for each
+The ceiling is per market rather than global because a long price means opposite
+things on a two-sided market and a one-sided prop — a home run is honestly +500 —
+and the markets that are not run lines already have an aimed screen: moneylines
+`away_ml_refuse_odds`, home runs their `+400..+700` band, singles a price floor,
+RBI a probability floor. Disqualification is likewise for the batter markets with
+no surviving profitable pocket to screen for; home runs, singles and RBI lost
+money too but keep their own fitted screens, which are sharper instruments. Both
+apply to overs only: the fade is a different bet with its own screens.
+
+The ceiling outranks the sharp-money upgrade: a confirmed +200 dog is still a
++200 dog. The CLV gate runs last, after every gate and upgrade, and needs no
+future information — the pipeline snapshots the first price it sees for each
 selection into `audit/board_<date>.json` and never overwrites it, so a slate's
 first run defines the open and later runs measure their drift against it. On the
 first run of a slate, and for any selection with no captured open, the gate is

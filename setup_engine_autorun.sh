@@ -20,7 +20,11 @@
 #                           posted, so the picks use them -- that's why the slate
 #                           runs in the morning. This mirrors the one-click
 #                           PAYOFF PITCH.command shortcut, minus opening Excel.
-#   2) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
+#   2) mlb-engine opta   -> capture the outside benchmark, yesterday's graded
+#                           calls then today's. VSIN's day offset clamps at
+#                           yesterday, so a slate not captured within a day is
+#                           gone for good -- it has to be a daemon step.
+#   3) mlb-engine audit  -> grade YESTERDAY's finished games, write the report,
 #                           and EMAIL the Excel ledger + article + audio.
 #
 # The night wake exists ONLY to keep the Mac up for the morning run: it re-arms
@@ -61,6 +65,7 @@ WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
 
 RUNNER="/usr/local/bin/run_engine.sh"
+SUDOERS="/etc/sudoers.d/payoffpitch-pmset"
 ENV_FILE="/etc/engine.env"
 LOG_OUT="/var/log/engine.out.log"
 LOG_ERR="/var/log/engine.err.log"
@@ -75,6 +80,7 @@ DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
+  rm -f "$SUDOERS"
   for p in "$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST"; do
     launchctl bootout system "$p" 2>/dev/null || launchctl unload "$p" 2>/dev/null || true
     rm -f "$p"
@@ -105,11 +111,30 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 chmod 600 "$ENV_FILE"; chown "$RUN_AS_USER" "$ENV_FILE"
 
+# --- 1b. let the run user schedule wakes ---------------------------
+# Every job re-arms the next machine wake through pmset, which is root-only:
+# as $RUN_AS_USER it fails with "must be run as root", nothing re-arms, and the
+# Mac stops waking for the morning card. Grant NOPASSWD on that one binary.
+cat > "$SUDOERS" <<SUDO
+# Installed by setup_engine_autorun.sh: the engine daemons run as $RUN_AS_USER
+# and need pmset to schedule the next wake.
+$RUN_AS_USER ALL=(root) NOPASSWD: /usr/bin/pmset
+SUDO
+chmod 440 "$SUDOERS"
+visudo -cf "$SUDOERS" >/dev/null || { echo "bad sudoers drop-in; removing" >&2; rm -f "$SUDOERS"; }
+
 # --- 2. runner: runs engine; if invoked as 'night', arm next 10:00 wake
 cat > "$RUNNER" <<EOF
 #!/bin/bash
 set -euo pipefail
 MODE="\${1:-run}"
+# The daemons run as $RUN_AS_USER so the engine can read its own caches, but
+# pmset is root-only -- unprivileged calls fail with "must be run as root" and
+# the machine then never wakes for the next job. Escalate just this binary (see
+# the sudoers drop-in this installer writes).
+pmset_() {
+  if [[ \$EUID -eq 0 ]]; then /usr/bin/pmset "\$@"; else sudo -n /usr/bin/pmset "\$@"; fi
+}
 [[ -f "$ENV_FILE" ]] && set -a && source "$ENV_FILE" && set +a
 # Also read the user-level env file (same one the manual shortcut uses), so
 # Gmail creds placed there work for the autorun too.
@@ -137,7 +162,7 @@ if [[ "\$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # $MORNING_WAKE_HHMM so the machine wakes after the 03:00 sleep. No engine work.
   NEXT=\$(date -v+1d +"%m/%d/%Y")
-  /usr/bin/pmset schedule wake "\$NEXT $MORNING_WAKE_HHMM:00" || true
+  pmset_ schedule wake "\$NEXT $MORNING_WAKE_HHMM:00" || echo "[\$(date)] could not arm morning wake" >&2
   echo "[\$(date)] armed morning wake for \$NEXT $MORNING_WAKE_HHMM:00"
 elif [[ "\$MODE" == "close" ]]; then
   # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
@@ -146,7 +171,7 @@ elif [[ "\$MODE" == "close" ]]; then
   # the pre-match board. Cheap (~3 credits + one per event for props).
   mlb-engine close || echo "[\$(date)] 'mlb-engine close' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
-  /usr/bin/pmset schedule wake "\$(date +%m/%d/%Y) $CLOSE_WAKE_HHMM:00" || true
+  pmset_ schedule wake "\$(date +%m/%d/%Y) $CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm evening wake" >&2
 else
   # THE daily job (before noon): build today's FULL package (slate + pitcher/
   # batter regression articles + audio) and email it as one message, then grade
@@ -161,7 +186,7 @@ else
 
   # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
   # the close daemon can fire even if the Mac would otherwise sleep by evening.
-  /usr/bin/pmset schedule wake "\$(date +%m/%d/%Y) $DAY_CLOSE_WAKE_HHMM:00" || true
+  pmset_ schedule wake "\$(date +%m/%d/%Y) $DAY_CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm afternoon wake" >&2
 
   # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
   #    cache pkl). No --email here: the package email below owns delivery.
@@ -173,10 +198,13 @@ else
   fi
 
   # 2) slate + regression articles, then email the whole package as one message.
+  # Today's card only. "newest on disk" would silently email yesterday's slate
+  # as today's on any morning the run failed, which is exactly when it matters.
   OUT="\$HOME/.mlb_engine/output"
-  xlsx=\$(ls -t "\$OUT"/mlb_recommendations_*.xlsx 2>/dev/null | head -1) || true
-  if [[ -n "\$xlsx" ]]; then
-    day=\$(basename "\$xlsx" .xlsx); day=\${day#mlb_recommendations_}
+  today=\$(date +%Y-%m-%d)
+  xlsx="\$OUT/mlb_recommendations_\$today.xlsx"
+  if [[ -f "\$xlsx" ]]; then
+    day="\$today"
     python -m scripts.regen_slate "\$day" || echo "[\$(date)] slate article failed" >&2
     pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
     if [[ -n "\$pkl" ]]; then
@@ -186,10 +214,18 @@ else
     fi
     python -m scripts.email_daily_package "\$day" || echo "[\$(date)] package email failed" >&2
   else
-    echo "[\$(date)] no workbook produced; skipping package email" >&2
+    echo "[\$(date)] no workbook for \$today; skipping package email" >&2
   fi
 
-  # 3) grade yesterday + email the ledger/report.
+  # 3) capture the Opta benchmark, both halves of it. VSIN's day offset clamps
+  #    at yesterday, so a slate missed by a day is gone permanently -- which is
+  #    why this is a daemon step and not something to remember to run. day=-1
+  #    brings back last night's graded outcomes; day=0 takes today's calls
+  #    before the games start. Free, no credits, and a failure is not fatal.
+  mlb-engine opta --day -1 || echo "[\$(date)] 'mlb-engine opta --day -1' exited non-zero" >&2
+  mlb-engine opta || echo "[\$(date)] 'mlb-engine opta' exited non-zero" >&2
+
+  # 4) grade yesterday + email the ledger/report.
   $AUDIT_CMD || echo "[\$(date)] '$AUDIT_CMD' exited non-zero" >&2
 fi
 EOF

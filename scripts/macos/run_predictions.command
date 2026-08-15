@@ -35,6 +35,10 @@ else
     mlb-engine run
 fi
 
+# Today's Opta calls, taken while the page still offers them: the benchmark
+# only exists if it is captured on the day.
+mlb-engine opta || echo "WARN: Opta benchmark capture failed" >&2
+
 OUT="$HOME/.mlb_engine/output"
 xlsx=$(ls -t "$OUT"/mlb_recommendations_*.xlsx 2>/dev/null | head -1)
 if [ -z "$xlsx" ]; then

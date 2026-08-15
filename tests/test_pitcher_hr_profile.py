@@ -9,6 +9,7 @@ plate his home-run risk actually lives on.
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from mlb_engine.features.pitch_mix import (
     CLASSES,
@@ -19,6 +20,7 @@ from mlb_engine.features.pitch_mix import (
 )
 from mlb_engine.features.regression import (
     BL_BABIP,
+    BL_GB_ALLOWED,
     BL_HARD_HIT,
     BL_XBA,
     PitcherRegression,
@@ -225,3 +227,59 @@ def test_the_allowed_hr_multiplier_stays_bounded() -> None:
 
 def test_a_thin_batted_ball_sample_yields_no_multipliers() -> None:
     assert _pitcher(bbe=3).allowed_multipliers() == {}
+
+
+# --- ground balls on the singles line ----------------------------------------
+
+
+def _allowed(**kw: float) -> dict[str, float]:
+    return _pitcher(**kw).allowed_multipliers()
+
+
+def test_a_sinkerballer_concedes_singles_while_suppressing_the_rest() -> None:
+    """The same grounder that cannot clear a fence very often falls in.
+
+    Split-half reliability puts GB% allowed at .658 against BABIP allowed's
+    .126, so the trajectory is the part of his contact profile a starter
+    actually repeats.
+    """
+    worm = _allowed(gb_allowed=0.56)
+    flyball = _allowed(gb_allowed=0.30)
+    assert worm["1B"] > flyball["1B"]
+    assert worm["HR"] < flyball["HR"]
+
+
+def test_grounders_move_the_two_channels_in_opposite_directions() -> None:
+    """A grounder is a single *instead of* an extra-base hit.
+
+    The singles channel gains what the extra-base channel loses, so the term
+    must not carry the same sign into 2B/3B -- that would assert the opposite
+    of what it means.
+    """
+    worm = _allowed(gb_allowed=0.56)
+    flyball = _allowed(gb_allowed=0.30)
+    for key in ("2B", "3B"):
+        assert worm[key] < flyball[key]
+    assert worm["1B"] > flyball["1B"]
+
+
+def test_the_extra_base_ground_ball_term_is_bounded() -> None:
+    # An extreme sinkerballer is not allowed to erase the doubles line: the
+    # clip binds outside roughly the 5th and 95th percentile of GB% allowed.
+    extreme_worm = _allowed(gb_allowed=0.70)["2B"]
+    extreme_air = _allowed(gb_allowed=0.20)["2B"]
+    neutral = _allowed(gb_allowed=0.42)["2B"]
+    assert extreme_worm == pytest.approx(0.86 * neutral)
+    assert extreme_air == pytest.approx(1.14 * neutral)
+    assert extreme_worm < neutral < extreme_air
+
+
+def test_a_league_average_ground_ball_rate_is_neutral_on_singles() -> None:
+    # An otherwise-neutral starter -- league BABIP allowed, no dxwOBA gap -- must
+    # come out at exactly 1.0, so the term charges nothing for being ordinary.
+    assert _allowed(gb_allowed=BL_GB_ALLOWED)["1B"] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_the_singles_ground_ball_term_is_bounded() -> None:
+    assert _allowed(gb_allowed=0.75)["1B"] <= 1.14 * 1.035
+    assert _allowed(gb_allowed=0.15)["1B"] >= 0.88 * 0.965

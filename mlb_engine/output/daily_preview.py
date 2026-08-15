@@ -24,6 +24,7 @@ This is a model preview, not betting advice.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date as Date
 from pathlib import Path
 
@@ -31,6 +32,7 @@ import numpy as np
 
 from mlb_engine.features.regression import BL_BABIP
 from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
+from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
     GOLD,
@@ -573,9 +575,19 @@ def _reg_bits(gp: GamePreview) -> str:
     return side(gp.home, gp.home_lineup) + side(gp.away, gp.away_lineup)
 
 
+# "Aaron Judge HR o0.5" -> "Aaron Judge"; the side belongs in the sentence,
+# not in the name, and it is no longer always the over.
+_HR_SUFFIX = re.compile(r"\s+(?:HR\s+)?[ou]\d+(?:\.\d+)?$")
+
+
 def top_hr_prop(hr_recs: list[Recommendation]) -> Recommendation | None:
-    """The single most likely home-run prop in a game (highest model prob)."""
-    priced = [r for r in hr_recs if r.model_prob is not None]
+    """The likeliest man in the game to homer.
+
+    Only the over answers that question. Both sides of a prop are priced, and
+    the under's probability is the complement, so ranking every side by model
+    probability returns the *weakest* bat in the lineup at better than 95%.
+    """
+    priced = [r for r in hr_recs if r.model_prob is not None and r.side == "over"]
     return max(priced, key=lambda r: r.model_prob) if priced else None
 
 
@@ -584,7 +596,7 @@ def _hr_line(hr_recs: list[Recommendation]) -> str:
     if best is None:
         return "<p class='hr'><b>Top HR prop:</b> no home-run market priced for this game.</p>"
     odds = "" if best.market_american is None else f" ({best.market_american:+.0f})"
-    name = best.selection.replace(" HR o0.5", "").replace(" o0.5", "")
+    name = _HR_SUFFIX.sub("", best.selection)
     return (
         f"<p class='hr'><b>Top HR prop:</b> {name}{odds} — model gives him "
         f"<b>{best.model_prob * 100:.1f}%</b> to go yard, the best shot in this game.</p>"
@@ -608,7 +620,12 @@ def _best_bets_block(gp: GamePreview) -> str:
 def _slate_best_bets_block(
     previews: list[GamePreview], recs: list[Recommendation]
 ) -> str:
-    """Every buy across the slate, strongest first, bold, at the bottom.
+    """Every buy across the slate, bold, at the bottom.
+
+    Ordered by ``market.ranking``: conviction tier, then shortest price. Not by
+    edge -- the ledger says edge does not order the record inside the band we
+    allow, so listing by it put the rows nearest the model-error ceiling at the
+    top of the page.
 
     Built from the full ``recs`` (not ``GamePreview.best_bets``, which the
     pipeline truncates to the top four per game) so the count is the true number
@@ -616,7 +633,13 @@ def _slate_best_bets_block(
     """
     labels = {gp.game_pk: f"{gp.away}@{gp.home}" for gp in previews}
     rows = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE)]
-    rows.sort(key=lambda r: (_TIER_RANK.get(r.tier.value, 9), -(r.edge or 0.0)))
+    rows.sort(
+        key=lambda r: bet_sort_key(
+            strong=r.tier == Tier.STRONG,
+            american=r.market_american,
+            edge=r.edge,
+        )
+    )
     if not rows:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
@@ -633,7 +656,10 @@ def _slate_best_bets_block(
         )
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
-        f"<p class='sbnote'>{len(rows)} plays clear the buy threshold, strongest first:</p>"
+        f"<p class='sbnote'>{len(rows)} plays clear the buy threshold, listed by "
+        "conviction and then by price, shortest first. The order is not a "
+        "strength ranking: on 823 graded buys the edge column does not separate "
+        "winners from losers, while the longer prices lose the most.</p>"
         f"<ul class='bets big'>{items}</ul></div>"
     )
 
@@ -877,7 +903,7 @@ def _narration(
             parts.append("No bet here, the model passes. ")
         hr_best = top_hr_prop(hr_map.get(gp.game_pk, []))
         if hr_best is not None:
-            name = hr_best.selection.replace(" HR o0.5", "").replace(" o0.5", "")
+            name = _HR_SUFFIX.sub("", hr_best.selection)
             parts.append(
                 f"If you want a longball, {name} is the top home-run shot here at "
                 f"{hr_best.model_prob * 100:.0f} percent. "

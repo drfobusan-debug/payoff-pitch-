@@ -20,7 +20,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
-OUTCOMES = ["1B", "2B", "3B", "HR", "BB", "K", "OUT"]
+from mlb_engine.features import removal
+from mlb_engine.features.rolling import LEAGUE_WALK_SHARE_OF_FREE_PASS
+from mlb_engine.models import baserunning
+
+OUTCOMES = list(baserunning.OUTCOMES)
 IDX = {o: i for i, o in enumerate(OUTCOMES)}
 
 # Run margin (absolute) at or below which a game is still "close" -- the state in
@@ -45,7 +49,19 @@ PITCH_COST = {
     "2B": 3.5,
     "3B": 3.5,
     "OUT": 3.3,
+    "ROE": 3.3,  # a ball in play, and the pitcher threw the same pitches for it
 }
+
+# A modelled free pass is charged to the starter as a walk only when it is one;
+# see ``rolling.LEAGUE_WALK_SHARE_OF_FREE_PASS``.
+WALK_SHARE_OF_FREE_PASS = LEAGUE_WALK_SHARE_OF_FREE_PASS
+
+# How runners actually move lives in ``baserunning``, measured off the play-by-play
+# feed, and is shared with the F5 Markov chain so the two run models cannot
+# disagree. Re-exported here because the free-bases path below reads them.
+FREE_ADVANCE_PER_PA = baserunning.FREE_ADVANCE_PER_PA
+FREE_ADVANCE_ALL_SHARE = baserunning.FREE_ADVANCE_ALL_SHARE
+RUNNER_ERASED_PER_PA = baserunning.RUNNER_ERASED_PER_PA
 
 
 @dataclass
@@ -72,11 +88,46 @@ class TeamSimConfig:
     # Per-PA pitch-cost scaler (>1 = inefficient / deep counts, <1 = efficient).
     pitch_eff: float = 1.0
     # Probability a ground-ball out turns into a double play (runner on first).
-    gb_dp_rate: float = 0.0
+    gb_dp_rate: float = baserunning.LEAGUE_DP_RATE
+    # Batting hand of each lineup slot ("L"/"R", switch hitters already resolved
+    # against the opposing starter). Read only by the removal branch, to decide
+    # whether the slot is walking into the wrong end of a platoon matchup.
+    bat_hands: tuple[str | None, ...] | None = None
+    # Throwing hand of THIS team's starter, and the share of its bullpen's plate
+    # appearances a left-hander throws -- the pitching side of that same matchup,
+    # so they belong to the config of the team on the mound.
+    starter_hand: str | None = None
+    pen_lhp_share: float = removal.PEN_LHP_SHARE
+    # When set, the original occupant of a slot can be lifted mid-game and the
+    # rest of his plate appearances go to a substitute, whose production is not
+    # credited to him. ``None`` keeps the fixed nine batting to the last out.
+    removal_hazard: removal.RemovalHazard | None = None
+    # Outcome rates of whoever replaces him.
+    bat_replacement: dict[str, float] | None = None
+
+
+@dataclass(frozen=True)
+class _Removal:
+    """One offense's removal branch: the hazard, the hands, the replacement."""
+
+    hazard: removal.RemovalHazard
+    hands: tuple[str | None, ...]
+    cdf: np.ndarray
+
+
+def _removal_ctx(team: TeamSimConfig) -> _Removal | None:
+    if team.removal_hazard is None:
+        return None
+    hands = team.bat_hands or (None,) * 9
+    return _Removal(
+        hazard=team.removal_hazard,
+        hands=tuple(hands) + (None,) * max(0, 9 - len(hands)),
+        cdf=_cdf(team.bat_replacement or removal.SUB_RATES),
+    )
 
 
 def _cdf(prob: dict[str, float]) -> np.ndarray:
-    arr = np.array([prob[o] for o in OUTCOMES], dtype=float)
+    arr = np.array([baserunning.with_roe(prob)[o] for o in OUTCOMES], dtype=float)
     arr = arr / arr.sum()
     return np.cumsum(arr)
 
@@ -149,6 +200,11 @@ class MonteCarlo:
         pitch_count_caps = {"home": home.starter_pitch_cap, "away": away.starter_pitch_cap}
         pitch_eff = {"home": home.pitch_eff, "away": away.pitch_eff}
         gb_dp = {"home": home.gb_dp_rate, "away": away.gb_dp_rate}
+        # Removal is a property of the *batting* team; the hand it is judged
+        # against belongs to the team pitching.
+        rem = {"home": _removal_ctx(home), "away": _removal_ctx(away)}
+        sp_hand = {"home": home.starter_hand, "away": away.starter_hand}
+        pen_lhp = {"home": home.pen_lhp_share, "away": away.pen_lhp_share}
 
         for s in range(n):
             self._sim_one(
@@ -165,6 +221,9 @@ class MonteCarlo:
                 pitch_count_caps,
                 pitch_eff,
                 gb_dp,
+                rem,
+                sp_hand,
+                pen_lhp,
                 home_full,
                 away_full,
                 home_f5,
@@ -198,6 +257,9 @@ class MonteCarlo:
         pitch_count_caps: dict[str, int],
         pitch_eff: dict[str, float],
         gb_dp: dict[str, float],
+        rem: dict[str, _Removal | None],
+        sp_hand: dict[str, str | None],
+        pen_lhp: dict[str, float],
         home_full: np.ndarray,
         away_full: np.ndarray,
         home_f5: np.ndarray,
@@ -211,6 +273,13 @@ class MonteCarlo:
         # batters faced / pitches thrown by each team's starter (drives the hook)
         bf = {"home": 0, "away": 0}
         pitches = {"home": 0.0, "away": 0.0}
+        # Slots whose original occupant has been lifted. A slot is replaced at
+        # most once: the substitute is not himself pinch-hit for.
+        lifted = {"home": [False] * 9, "away": [False] * 9}
+        # Slots that have come to the plate. A man in the batting order takes his
+        # first turn: over 27,090 slot-games the starter has it 100.0% of the
+        # time, so he is not at risk of being lifted before he has batted.
+        batted = {"home": [False] * 9, "away": [False] * 9}
 
         def half(team: str, inning: int, walkoff_deficit: int | None = None) -> int:
             """Simulate one half-inning for ``team`` batting. Returns runs.
@@ -248,7 +317,33 @@ class MonteCarlo:
                 # once it is out of hand, the aggregate/mop-up pen finishes.
                 starter_in = bf[pitch_team] < bf_cap and pitches[pitch_team] < pitch_cap
                 close = abs(home_runs - away_runs) <= CLOSE_MARGIN
-                if starter_in:
+                # Is this still his plate appearance? A slot's original occupant
+                # can be lifted for a substitute once the opposing starter is
+                # gone, most often when the arm coming in has his handedness and
+                # he is batting at the bottom of the order. From then on the slot
+                # keeps batting -- the team does not forfeit the turn -- but a
+                # worse bat takes it, and none of it is credited to him.
+                removal_ctx = rem[team]
+                if removal_ctx is not None and batted[team][slot] and not lifted[team][slot]:
+                    hand = (
+                        sp_hand[pitch_team]
+                        if starter_in
+                        else ("L" if rng.random() < pen_lhp[pitch_team] else "R")
+                    )
+                    own = removal_ctx.hands[slot]
+                    p_lift = removal_ctx.hazard.per_pa(
+                        slot=slot + 1,
+                        inning=inning,
+                        starter_out=not starter_in,
+                        same_hand=own is not None and hand is not None and own == hand,
+                    )
+                    if rng.random() < p_lift:
+                        lifted[team][slot] = True
+                batted[team][slot] = True
+                his_pa = removal_ctx is None or not lifted[team][slot]
+                if removal_ctx is not None and not his_pa:
+                    cdf = removal_ctx.cdf
+                elif starter_in:
                     cdf = cdf_start[slot]
                 elif close and cdf_pen_bridge is not None and inning < LEVERAGE_INNING:
                     cdf = cdf_pen_bridge[slot]
@@ -261,21 +356,28 @@ class MonteCarlo:
                 bf[pitch_team] += 1
                 ptr[team] = (slot + 1) % 9
 
-                scored, rbi, outs, bases, dp = _apply_pa(oc, slot, outs, bases, dp_rate)
+                # A substitute is tracked as slot + 9 on the bases, so a run he
+                # scores is not credited to the man he replaced.
+                runner = slot if his_pa else slot + 9
+                scored, rbi, outs, bases, dp = _apply_pa(oc, runner, outs, bases, dp_rate)
                 runs += scored
+                free_runs, outs, erased = _free_bases(outs, bases)
+                runs += free_runs
 
                 # batting stats
                 b = bat[team]
-                if oc in ("1B", "2B", "3B", "HR"):
-                    b["H"][s, slot] += 1
-                    b[oc][s, slot] += 1
-                elif oc == "BB":
-                    b["BB"][s, slot] += 1
-                elif oc == "K":
-                    b["K"][s, slot] += 1
-                b["RBI"][s, slot] += rbi
+                if his_pa:
+                    if oc in ("1B", "2B", "3B", "HR"):
+                        b["H"][s, slot] += 1
+                        b[oc][s, slot] += 1
+                    elif oc == "BB":
+                        b["BB"][s, slot] += 1
+                    elif oc == "K":
+                        b["K"][s, slot] += 1
+                    b["RBI"][s, slot] += rbi
                 for runner_slot in scored_runners_holder:
-                    b["R"][s, runner_slot] += 1
+                    if runner_slot < 9:
+                        b["R"][s, runner_slot] += 1
                 scored_runners_holder.clear()
 
                 # pitching stats (attributed to starter only while he's in)
@@ -286,11 +388,22 @@ class MonteCarlo:
                         p["K"][s] += 1
                     if oc in ("1B", "2B", "3B", "HR"):
                         p["H"][s] += 1
-                    if oc == "BB":
+                    # The BB outcome is a free pass, hit-by-pitch included, which
+                    # is what puts the man on first. The prop settles on walks
+                    # alone, so the free pass is thinned to the league's walk
+                    # share here rather than in the outcome rates. Thinning a
+                    # binomial count is exact in both mean and variance.
+                    if oc == "BB" and rng.random() < WALK_SHARE_OF_FREE_PASS:
                         p["BB"][s] += 1
                     if oc in ("K", "OUT"):
                         p["outs"][s] += 2 if dp else 1
-                    p["ER"][s] += scored
+                    if erased:
+                        p["outs"][s] += 1
+                    # A run that scores on the error itself is unearned. A runner
+                    # who reached on one and comes round later is unearned too,
+                    # which this does not track -- ER is understated by less than
+                    # it was overstated, and no priced market reads it.
+                    p["ER"][s] += free_runs if oc == "ROE" else scored + free_runs
 
                 if walkoff_deficit is not None and runs > walkoff_deficit:
                     break
@@ -298,74 +411,78 @@ class MonteCarlo:
 
         scored_runners_holder: list[int] = []
 
-        def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
-            """Advance runners. Returns (runs, rbi, outs, bases, dp)."""
+        def _free_bases(outs: int, bases: list[int]) -> tuple[int, int, bool]:
+            """Bases given away between plate appearances. Returns (runs, outs, erased).
+
+            A tenth of plate appearances with someone on move a runner up without a
+            hit -- stolen base, wild pitch, passed ball, balk, error -- and a
+            hundredth erase one on the bases. Leaving these out is not neutral: it
+            was the missing scoring the certain advancement above was standing in
+            for, and unlike that certainty it credits the run to the runner rather
+            than to a batter as an RBI.
+            """
+            if outs >= 3 or all(b < 0 for b in bases):
+                return 0, outs, False
+            if rng.random() < RUNNER_ERASED_PER_PA:
+                # The man erased is the one who was going: the trailing runner.
+                for i in (0, 1, 2):
+                    if bases[i] >= 0:
+                        bases[i] = -1
+                        break
+                return 0, outs + 1, True
+            if rng.random() >= FREE_ADVANCE_PER_PA:
+                return 0, outs, False
             runs = 0
-            rbi = 0
-            if oc == "OUT":
-                # Ground-ball double play: runner on first erased, two outs on
-                # one ball in play (only with a runner on first and <2 outs).
-                if dp_rate > 0.0 and bases[0] >= 0 and outs < 2 and rng.random() < dp_rate:
-                    bases[0] = -1
-                    outs += 2
-                    return 0, 0, outs, bases, True
-                outs += 1
-                return 0, 0, outs, bases, False
-            if oc == "K":
-                outs += 1
-                return 0, 0, outs, bases, False
-
-            b2, b1, b0 = bases[2], bases[1], bases[0]  # 3rd, 2nd, 1st
-
-            def score(runner: int) -> None:
-                nonlocal runs, rbi
-                if runner >= 0:
+            if rng.random() < FREE_ADVANCE_ALL_SHARE:
+                # Wild pitch, passed ball, balk, throwing error: everyone moves up.
+                if bases[2] >= 0:
+                    scored_runners_holder.append(bases[2])
                     runs += 1
-                    rbi += 1
-                    scored_runners_holder.append(runner)
+                bases[2], bases[1], bases[0] = bases[1], bases[0], -1
+                return runs, outs, False
+            # Stolen base or a single fielding error: the trailing runner takes the
+            # next base if it is open, otherwise the man ahead of him goes.
+            for i in (0, 1, 2):
+                if bases[i] < 0:
+                    continue
+                if i == 2:
+                    scored_runners_holder.append(bases[2])
+                    bases[2] = -1
+                    runs += 1
+                elif bases[i + 1] < 0:
+                    bases[i + 1], bases[i] = bases[i], -1
+                else:
+                    continue
+                break
+            return runs, outs, False
 
-            if oc == "BB":
-                # force advance only
-                if b0 >= 0:
-                    if b1 >= 0:
-                        if b2 >= 0:
-                            score(b2)
-                        b2 = b1
-                    b1 = b0
-                b0 = slot
-            elif oc == "1B":
-                # 3rd & 2nd score, 1st -> 3rd, batter -> 1st
-                score(b2)
-                score(b1)
-                b2 = b0 if b0 >= 0 else -1
-                b1 = -1
-                b0 = slot
-            elif oc == "2B":
-                score(b2)
-                score(b1)
-                if b0 >= 0:
-                    score(b0)
-                b2 = -1
-                b1 = slot
-                b0 = -1
-            elif oc == "3B":
-                score(b2)
-                score(b1)
-                score(b0)
-                b2 = slot
-                b1 = -1
-                b0 = -1
-            elif oc == "HR":
-                score(b2)
-                score(b1)
-                score(b0)
-                runs += 1
-                rbi += 1
-                scored_runners_holder.append(slot)
-                b2 = b1 = b0 = -1
+        def _apply_pa(oc: str, slot: int, outs: int, bases: list[int], dp_rate: float):
+            """Advance runners off the shared table. Returns (runs, rbi, outs, bases, dp).
 
-            bases[2], bases[1], bases[0] = b2, b1, b0
-            return runs, rbi, outs, bases, False
+            The branch is drawn from :func:`baserunning.advance_dist`, the same
+            distribution the F5 Markov chain sums over exactly, so the two run
+            models cannot disagree about what a ground ball does -- which they did
+            while the double play lived here and not in the chain.
+            """
+            mask = 0
+            for i, runner in enumerate(bases):
+                if runner >= 0:
+                    mask |= 1 << i
+            _, new_mask, new_outs, runs = baserunning.sample(
+                mask, outs, oc, dp_rate, rng.random()
+            )
+            dp = new_outs - outs >= 2
+            # Lead runner first, batter last: nobody passes anybody, so this plus
+            # the new base state settles who scored and who was retired.
+            order = [b for b in (bases[2], bases[1], bases[0]) if b >= 0] + [slot]
+            placed, scored = baserunning.assign(order, new_mask, runs)
+            bases[0], bases[1], bases[2] = placed
+            scored_runners_holder.extend(scored)
+            # A run that scores ahead of the second out of a double play was not
+            # driven in; every other plate-appearance run was -- except on an error,
+            # where the run is unearned and nobody is credited with driving it in.
+            rbi = 0 if dp or oc == "ROE" else runs
+            return runs, rbi, new_outs, bases, dp
 
         # 9 innings (or more for tie in full game); F5 = first 5.
         away_runs = 0

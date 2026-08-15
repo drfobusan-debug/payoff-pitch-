@@ -1,20 +1,28 @@
 """Assemble per-game situational context (rest, travel, weather, venue) from
 CFBD schedule/venues/teams/weather feeds, keyed by the unordered team pair.
 
-Every field is optional: a missing feed (e.g. a key without the weather
-entitlement) simply leaves that field ``None`` and the adjustment layer skips
-the corresponding nudge.
+Every field is optional: a missing feed simply leaves that field ``None`` and the
+adjustment layer skips the corresponding nudge. Weather is the one that was
+*always* missing -- CFBD's ``/games/weather`` needs a Patreon tier, so on a free
+key every wind/precipitation/temperature field came back ``None`` and the totals
+nudges keyed on them never ran. Open-Meteo backfills the outdoor games CFBD does
+not cover, off the venue coordinates already loaded here.
 """
 
 from __future__ import annotations
 
+import logging
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date as Date
+from datetime import datetime, timezone
 
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.teamnames import school_key
+from cfb_engine.data.weather import fetch_venue_weather
 from cfb_engine.schemas import Slate
+
+log = logging.getLogger(__name__)
 
 _EARTH_MILES = 3958.8
 
@@ -53,6 +61,15 @@ def _game_day(start_date: str) -> Date | None:
         return None
 
 
+def _kickoff(start_date: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(start_date.replace("Z", "+00:00")).astimezone(
+            timezone.utc
+        )
+    except ValueError:
+        return None
+
+
 def build_context_book(cfbd: CFBDClient, season: int, slate: Slate) -> ContextBook:
     """Build the slate's context book. Returns empty when CFBD is unavailable."""
     if not cfbd.available():
@@ -81,6 +98,9 @@ def build_context_book(cfbd: CFBDClient, season: int, slate: Slate) -> ContextBo
 
     wanted = {_pair(g.home.name, g.away.name) for g in slate.games}
     book: ContextBook = {}
+    # Outdoor games CFBD did not report weather for, to backfill in one batch.
+    pending: dict[str, tuple[float, float, datetime]] = {}
+    keys_by_id: dict[str, frozenset[str]] = {}
     for meta in schedule:
         key = _pair(meta.home, meta.away)
         if key not in wanted or key in book:
@@ -104,6 +124,29 @@ def build_context_book(cfbd: CFBDClient, season: int, slate: Slate) -> ContextBo
             wind_mph=wx.wind_mph if wx else None,
             precipitation=wx.precipitation if wx else None,
             temperature_f=wx.temperature_f if wx else None,
+        )
+        kick = _kickoff(meta.start_date)
+        if wx is None and not dome and venue is not None and kick is not None:
+            ident = f"{meta.home}|{meta.away}|{meta.start_date}"
+            pending[ident] = (venue.latitude, venue.longitude, kick)
+            keys_by_id[ident] = key
+
+    if pending:
+        for ident, obs in fetch_venue_weather(pending).items():
+            key = keys_by_id[ident]
+            base = book.get(key)
+            if base is None:
+                continue
+            book[key] = replace(
+                base,
+                wind_mph=obs.wind_mph,
+                precipitation=obs.precipitation,
+                temperature_f=obs.temperature_f,
+            )
+        log.info(
+            "backfilled weather for %d of %d outdoor games CFBD did not cover",
+            sum(1 for k in keys_by_id.values() if book[k].wind_mph is not None),
+            len(pending),
         )
     return book
 

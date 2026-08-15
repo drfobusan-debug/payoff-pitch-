@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import date as Date
+from pathlib import Path
+
 import pandas as pd
+import pytest
 
 from mlb_engine.data.fences import (
     ANCHOR_ANGLES,
@@ -14,6 +18,7 @@ from mlb_engine.data.fences import (
     wall_distance,
 )
 from mlb_engine.data.parks import PARKS
+from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.features.rolling import LEAGUE_RATES, OutcomeRates, blend_hr_rate
 from mlb_engine.features.xhr import (
     HOME_X,
@@ -150,6 +155,18 @@ def test_missing_distance_data_reports_no_data_rather_than_zero() -> None:
     assert not prof.has_data
     assert prof.xhr_per_pa != prof.xhr_per_pa  # NaN
     assert prof.pa == 1  # PAs are still counted
+
+
+def test_repeated_index_labels_score_one_ball_each() -> None:
+    """pybaseball stitches the season a day at a time and repeats row numbers.
+
+    A label lookup then hands back every row sharing the label, which crashed
+    the slate with "cannot convert the series to <class 'float'>".
+    """
+    two = pd.DataFrame([_ball(430.0, la=28.0), _ball(430.0, la=28.0)])
+    stacked = two.set_index(pd.Index([0, 0]))
+    one = batter_xhr(pd.DataFrame([_ball(430.0, la=28.0)])).xhr
+    assert batter_xhr(stacked).xhr == pytest.approx(2 * one)
 
 
 def test_pa_and_batted_ball_counts() -> None:
@@ -299,3 +316,13 @@ def test_scale_hr_rate_moves_only_home_runs_and_stays_normalised() -> None:
     # A NaN or nonsense multiplier is a no-op, not a wipeout.
     assert scale_hr_rate(src, float("nan")) is src
     assert scale_hr_rate(src, 0.0) is src
+
+
+def test_the_loader_renumbers_a_duplicated_index(tmp_path: Path) -> None:
+    """Fix it once at the source so no other feature can trip on the labels."""
+    repo = StatcastRepository(tmp_path)
+    frame = pd.DataFrame({"launch_speed": [95.0, 88.0]}, index=[0, 0])
+    frame.to_pickle(repo._cache_path(Date(2026, 8, 1), Date(2026, 8, 2)))
+    loaded = repo.load_range(Date(2026, 8, 1), Date(2026, 8, 2))
+    assert loaded.index.is_unique
+    assert len(loaded) == 2
