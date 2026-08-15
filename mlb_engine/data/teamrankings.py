@@ -36,12 +36,15 @@ from pathlib import Path
 
 import requests
 
+from mlb_engine.config import Credentials
 from mlb_engine.data import http
 from mlb_engine.market import keys
+from mlb_engine.recommendations import Recommendation
 
 log = logging.getLogger(__name__)
 
 PICKS_URL = "https://www.teamrankings.com/mlb-betting-picks/"
+LOGIN_URL = "https://www.teamrankings.com/login/"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 
 # TeamRankings writes a club's name its own way in the grid's team column, and
@@ -63,6 +66,10 @@ TEAM_CODES: dict[str, str] = {
     "ARI": "AZ", "CHW": "CWS", "KAN": "KC", "SAC": "ATH",
     "SDG": "SD", "SFO": "SF", "TAM": "TB", "WAS": "WSH",
 }
+
+# The engine markets their grid speaks to. Their projected winner is game-level
+# context, so it is shown on any of the three, not only on the moneyline.
+GAME_MARKETS = frozenset({"game_ml", "game_rl", "game_total"})
 
 _ROW = re.compile(r"(?s)<tr[^>]*>(.*?)</tr>")
 _CELL = re.compile(r"(?s)<t[dh]([^>]*)>(.*?)</t[dh]>")
@@ -123,6 +130,21 @@ class TRPick:
         """
         return "|".join((self.date, self.matchup, self.market))
 
+    @property
+    def summary(self) -> str:
+        """Their call as they publish it, with their own number attached.
+
+        The winner and total columns carry a win probability and the two value
+        columns the edge they see in the price, so each is printed in the unit
+        the column is actually about rather than being coerced into one field.
+        """
+        stars = f" {self.stars}\u2605" if self.stars else ""
+        if self.win_prob is not None:
+            return f"{self.selection} {self.win_prob * 100:.0f}%{stars}"
+        if self.value is not None:
+            return f"{self.selection} +{self.value * 100:.1f}% val{stars}"
+        return f"{self.selection}{stars}"
+
 
 def _text(html: str) -> str:
     return re.sub(r"\s+", " ", unescape(_TAG.sub(" ", html))).strip()
@@ -166,14 +188,54 @@ def _teams(cell: str) -> tuple[str, str] | None:
 
 
 class TeamRankingsClient:
-    """Reads the TeamRankings MLB picks grid. No credentials, no credits."""
+    """Reads the TeamRankings MLB picks grid, signed in when we have an account.
 
-    def __init__(self, timeout: float = 20.0) -> None:
+    Signed out, the grid serves the *last completed* slate with the results
+    already filled in -- their model's calls become public only once they can no
+    longer be bet. Tonight's grid needs the subscriber cookie, so a run without
+    credentials captures nothing rather than filing yesterday's board as today's.
+    """
+
+    def __init__(self, creds: Credentials | None = None, timeout: float = 20.0) -> None:
         self.timeout = timeout
+        self.creds = creds or Credentials()
+        self._session: requests.Session | None = None
+
+    def _signed_in(self) -> requests.Session | None:
+        """A logged-in session, or ``None`` when we have no account or it failed."""
+        if self._session is not None:
+            return self._session
+        if not self.creds.has_teamrankings():
+            return None
+        session = requests.Session()
+        try:
+            session.get(LOGIN_URL, headers=_HEADERS, timeout=self.timeout)
+            resp = session.post(
+                LOGIN_URL,
+                data={
+                    "email": self.creds.teamrankings_user,
+                    "password": self.creds.teamrankings_pass,
+                },
+                headers={**_HEADERS, "Referer": LOGIN_URL},
+                timeout=self.timeout,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            log.warning("TeamRankings login failed: %s", exc)
+            return None
+        if "tr_session" not in session.cookies:
+            log.warning("TeamRankings login rejected the credentials")
+            return None
+        self._session = session
+        return session
 
     def _get(self, url: str) -> str:
+        session = self._signed_in()
         try:
-            resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
+            if session is not None:
+                resp = session.get(url, headers=_HEADERS, timeout=self.timeout)
+            else:
+                resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
             resp.raise_for_status()
             return resp.text
         except requests.RequestException as exc:
@@ -307,6 +369,56 @@ def _moneyline(cell: Cell, date: str, matchup: str, away: str, home: str) -> TRP
         team_side=side, american=float(m.group(2)) if m.group(2) else None,
         stars=cell.stars, value=_fraction(cell.figure),
     )
+
+
+def annotate(recs: list[Recommendation], picks: list[TRPick]) -> int:
+    """Stamp each game-market recommendation with TeamRankings' calls on it.
+
+    All four of their columns are carried, because they are four different
+    statements. The run line, total and money-line *value* picks each answer the
+    bet we are making and are joined market to market. The projected winner is
+    not a bet -- it names a side on every game, including the ones where the
+    value columns say "Lay Off" -- so it rides along on every row of the game as
+    context rather than being folded into the money-line comparison, where it
+    would silently turn "no value here" into a pick they never made.
+
+    Props are untouched: TeamRankings does not price them.
+    """
+    by_market: dict[str, TRPick] = {}
+    winners: dict[str, TRPick] = {}
+    for pick in picks:
+        if pick.market == "game_winner":
+            winners[pick.matchup] = pick
+        else:
+            by_market[f"{pick.market}|{pick.matchup}"] = pick
+    hits = 0
+    for rec in recs:
+        winner = winners.get(rec.matchup)
+        if winner is not None and rec.market in GAME_MARKETS:
+            rec.tr_winner = winner.summary
+        theirs = by_market.get(f"{rec.market}|{rec.matchup}")
+        if theirs is None:
+            continue
+        rec.tr_pick = theirs.summary
+        rec.tr_stars = theirs.stars or None
+        rec.tr_agrees = _agrees(rec, theirs)
+        hits += 1
+    return hits
+
+
+def _agrees(rec: Recommendation, pick: TRPick) -> bool | None:
+    """Whether TeamRankings is on our side of this bet, ``None`` when unclear.
+
+    Totals are compared as a direction and team markets as a team, for the same
+    reason as VSiN's join: two models can back the same side at two numbers, and
+    which side of the game they are on is the comparison worth printing.
+    """
+    if pick.side in ("over", "under"):
+        return pick.side == rec.side if rec.side in ("over", "under") else None
+    if not pick.team:
+        return None
+    head = rec.selection.split()[0] if rec.selection.split() else ""
+    return pick.team == head if head else None
 
 
 def save_picks(path: Path, picks: list[TRPick]) -> None:

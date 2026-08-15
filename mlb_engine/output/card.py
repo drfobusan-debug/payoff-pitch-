@@ -47,6 +47,9 @@ class Play:
     # VSiN's VOLT/JOLT read on this same bet: their side, and whether it is ours.
     vsin_pick: str | None = None
     vsin_agrees: bool | None = None
+    # TeamRankings' call on the same game market, same contract.
+    tr_pick: str | None = None
+    tr_agrees: bool | None = None
 
     @property
     def vsin_bit(self) -> str:
@@ -55,6 +58,14 @@ class Play:
             return ""
         mark = _AGREE if self.vsin_agrees else _DISAGREE
         return f"{mark} {self.vsin_pick}"
+
+    @property
+    def tr_bit(self) -> str:
+        """"TR CHC +1.5 +2.6% val" with a star or a cross; empty without a pick."""
+        if self.tr_pick is None or self.tr_agrees is None:
+            return ""
+        mark = _AGREE if self.tr_agrees else _DISAGREE
+        return f"{mark} TR {self.tr_pick}"
 
     def _odds_str(self) -> str:
         return "n/a" if self.odds is None else f"{self.odds:+.0f}"
@@ -281,6 +292,8 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
                 tier=r.tier,
                 vsin_pick=r.vsin_pick,
                 vsin_agrees=r.vsin_agrees,
+                tr_pick=r.tr_pick,
+                tr_agrees=r.tr_agrees,
             )
         )
         if len(out) >= _MAX_PLAYS:
@@ -324,6 +337,8 @@ def _play_bits(p: Play) -> str:
         bits.append(f"+{p.ev:.2f} EV")
     if p.vsin_bit:
         bits.append(p.vsin_bit)
+    if p.tr_bit:
+        bits.append(p.tr_bit)
     return ", ".join(bits)
 
 
@@ -333,10 +348,19 @@ _VSIN_LEGEND = (
 )
 
 
+_TR_LEGEND = (
+    "A \u201cTR\u201d mark is TeamRankings' model on the same game market. "
+)
+
+
 def _vsin_legend(cards: list[GameCard]) -> str:
-    """The mark is only explained on cards that actually carry one."""
-    marked = any(p.vsin_bit for c in cards for p in c.plays)
-    return _VSIN_LEGEND if marked else ""
+    """The marks are only explained on cards that actually carry one."""
+    legend = ""
+    if any(p.vsin_bit for c in cards for p in c.plays):
+        legend += _VSIN_LEGEND
+    if any(p.tr_bit for c in cards for p in c.plays):
+        legend += _TR_LEGEND
+    return legend
 
 
 def _play_line_md(p: Play) -> str:

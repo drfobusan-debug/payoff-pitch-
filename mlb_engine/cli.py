@@ -76,6 +76,7 @@ from mlb_engine.data.teamrankings import (
     merge_picks,
     save_picks,
 )
+from mlb_engine.data.teamrankings import annotate as annotate_tr
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
@@ -355,36 +356,57 @@ def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
     there is nothing to fetch -- and, like the Opta benchmark, is worth less
     than the card and must never be able to stop it being written.
     """
+    path = cfg.batx_dir / f"{slate_date.isoformat()}.csv"
     try:
-        rows = load_batx_rows(cfg.batx_dir / f"{slate_date.isoformat()}.csv")
+        rows = load_batx_rows(path)
         if not rows:
+            # Silence here reads as "BAT X had nothing to say", when in fact the
+            # export is a manual download nobody made. Say which it is.
+            print(f"BAT X benchmark: no priced export at {path}; column left blank")
             return
         matched = annotate_batx(recs, rows)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("BAT X benchmark unavailable; card written without it", exc_info=True)
         return
-    if matched:
-        print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
+    print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
-def _capture_teamrankings(cfg: Config, slate_date: Date) -> None:
-    """Store the outside model's picks for tonight, so the audit can grade them.
+def _capture_teamrankings(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Store tonight's TeamRankings picks and put them beside ours on the card.
 
     Runs as part of the slate because their grid keeps no archive: a pick not
     captured before the games is not recoverable afterwards, and a benchmark with
     holes in it cannot be compared over a season. Best-effort, like Opta.
+
+    Signed out their grid publishes a slate only once it has been played, so a
+    run without the subscriber login captures nothing rather than filing
+    yesterday's board against tonight's bets.
     """
     try:
         iso = slate_date.isoformat()
-        picks = TeamRankingsClient().fetch(date=iso)
-        if not picks:
-            return
         path = _tr_path(cfg, iso)
-        save_picks(path, merge_picks(load_picks(path), picks))
+        picks = [p for p in load_picks(path) if p.date == iso]
+        fetched = TeamRankingsClient(cfg.creds).fetch(date=iso)
+        if fetched:
+            picks = merge_picks(picks, fetched)
+            save_picks(path, picks)
+        if not picks:
+            if not cfg.creds.has_teamrankings():
+                print(
+                    "TeamRankings: no picks for "
+                    f"{iso} (their free grid only publishes a slate after it is played; "
+                    "set TEAMRANKINGS_EMAIL/TEAMRANKINGS_PASSWORD for tonight's)."
+                )
+            return
+        matched = annotate_tr(recs, picks)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("TeamRankings benchmark unavailable", exc_info=True)
         return
-    print(f"TeamRankings benchmark: {len(picks)} picks captured for {iso}")
+    agree = sum(1 for r in recs if r.tr_agrees is True)
+    print(
+        f"TeamRankings benchmark: {len(picks)} picks captured for {iso}, "
+        f"{matched} shared bets, {agree} on our side"
+    )
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -421,7 +443,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     _annotate_opta(cfg, recs, slate_date)
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
-    _capture_teamrankings(cfg, slate_date)
+    _capture_teamrankings(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
@@ -620,7 +642,7 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     """
     cfg = load_config()
     cfg.ensure_dirs()
-    picks = TeamRankingsClient().fetch()
+    picks = TeamRankingsClient(cfg.creds).fetch()
     if not picks:
         print("TeamRankings' picks grid returned nothing; captured no benchmark.")
         return 1
