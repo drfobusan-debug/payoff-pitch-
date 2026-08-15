@@ -46,6 +46,8 @@ from mlb_engine.audit.probation import (
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
 from mlb_engine.config import Config, load_config
+from mlb_engine.data.batx import annotate as annotate_batx
+from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
@@ -270,6 +272,25 @@ def _annotate_opta(cfg: Config, recs: list, slate_date: Date) -> None:
         print(f"Opta benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
+def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put THE BAT X's number beside ours, where a slate has been priced.
+
+    Reads only what is already on disk -- the export is a manual download, so
+    there is nothing to fetch -- and, like the Opta benchmark, is worth less
+    than the card and must never be able to stop it being written.
+    """
+    try:
+        rows = load_batx_rows(cfg.batx_dir / f"{slate_date.isoformat()}.csv")
+        if not rows:
+            return
+        matched = annotate_batx(recs, rows)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("BAT X benchmark unavailable; card written without it", exc_info=True)
+        return
+    if matched:
+        print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -302,6 +323,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         fangraphs_csv = None
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
     _annotate_opta(cfg, recs, slate_date)
+    _annotate_batx(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)

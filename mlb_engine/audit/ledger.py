@@ -91,6 +91,11 @@ class LedgerEntry:
     # the recommendation. "" on rows written before they were persisted.
     lineup_status: str = ""
     hours_to_first_pitch: float | None = None
+    # THE BAT X's probability for this same side at pricing time. Stored so the
+    # head-to-head (does an outside forecast add anything next to the price?)
+    # is a query against graded rows rather than a re-join of daily exports
+    # that may not have been kept. None when the feed had no projection.
+    batx_prob: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -120,6 +125,7 @@ LEDGER_FIELDS = [
     "clv_ev",
     "lineup_status",
     "hours_to_first_pitch",
+    "batx_prob",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
@@ -134,6 +140,7 @@ _OPTIONAL_FLOAT_FIELDS = (
     "clv",
     "clv_ev",
     "hours_to_first_pitch",
+    "batx_prob",
 )
 
 
@@ -191,6 +198,7 @@ def entries_from_graded(
                     if rec.hours_to_first_pitch is not None
                     else None
                 ),
+                batx_prob=round(rec.batx_prob, 4) if rec.batx_prob is not None else None,
             )
         )
     return entries
@@ -239,6 +247,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     clv_ev=_to_float(row.get("clv_ev", "")),
                     lineup_status=row.get("lineup_status", ""),
                     hours_to_first_pitch=_to_float(row.get("hours_to_first_pitch", "")),
+                    batx_prob=_to_float(row.get("batx_prob", "")),
                 )
             )
     return out

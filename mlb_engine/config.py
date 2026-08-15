@@ -7,6 +7,7 @@ defaults that can be overridden via environment variables prefixed ``MLBE_``.
 
 from __future__ import annotations
 
+import math
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -109,6 +110,56 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
     "batter_1b": 0.04,
 }
 
+# Markets whose buys the accumulated ledger cannot justify at any edge. Over 27
+# graded slates (1,894 buys) every batter market except doubles lost money on
+# the side the engine backed: hits 48.3% for -14.0% ROI (n=447), runs 29.7%
+# (n=128), total bases 11.1% (n=9), H+R+RBI 43.8% (n=16), against doubles'
+# +36.3% (n=73). Raising an edge floor is the wrong instrument when the market
+# itself is under water at every edge, so these overs are hard-passed and keep
+# grading as shadow bets -- the ledger still records the price, the tier reason
+# and the result, so a rebuilt batter model can be graded before it is trusted
+# with money. ``MLBE_NO_BUY_<MARKET>=0`` re-enables one, and
+# ``MLBE_NO_BUY_<MARKET>=1`` disqualifies any other.
+#
+# Home runs, singles and RBI lost money too and are deliberately *not* here:
+# each already has a price band or probability floor fitted to its own graded
+# rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
+# which is the sharper instrument. Disqualification is for the markets with no
+# surviving profitable pocket to screen for.
+_NO_BUY_MARKETS: frozenset[str] = frozenset(
+    {"batter_h", "batter_hrr", "batter_r", "batter_tb"}
+)
+
+# Longest price a buy may be taken at, per market, overriding the global
+# ``EVThresholds.max_buy_odds``. Plus-money buys went 28.5% (n=933, -15.5% ROI)
+# against 50.7% at minus money, but the cure has to be aimed: props are
+# one-sided by construction -- a home run is honestly +500 -- and moneylines
+# already have ``away_ml_refuse_odds``, which locates the damage on the road dog
+# specifically. Run lines are what is left uncovered, and they split cleanly:
+# +11.8% at -110 or shorter against -21.2% at plus money, where taking +1.5
+# means paying a premium to need the fewest runs.
+_MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
+    "game_rl": 109.0,
+    "f5_rl": 109.0,
+}
+
+# Weight given to the devigged market price per market, overriding the global
+# ``Config.market_anchor``. Scoring both probability sources on the 10,497
+# real-priced graded rows, the market is the better forecaster everywhere the
+# engine bets (Brier: batter props .2180 vs .2210, F5 .2425 vs .2674, moneyline
+# .2470 vs .2597, pitcher props .2461 vs .2769, run lines .2414 vs .2567) --
+# except totals, where the model wins (.2446 vs .2480) and is also the only
+# profitable buy bucket (+16 units on n=93).
+#
+# Totals are therefore pinned at zero rather than left to inherit the global
+# weight: anchoring scales the measured edge by ``1 - w``, so raising the global
+# toll to make the engine defer where it is beaten would silently double the
+# edge required in the one market it is not.
+_MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
+    "game_total": 0.0,
+    "f5_total": 0.0,
+}
+
 
 @dataclass(frozen=True)
 class EVThresholds:
@@ -139,6 +190,15 @@ class EVThresholds:
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
+    # Longest American price a buy may be taken at. Off globally and applied per
+    # market (see ``_MAX_BUY_ODDS_BY_MARKET``), because a long price means
+    # opposite things on a two-sided team market and a one-sided prop.
+    max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_MAX_BUY_ODDS", math.inf)
+    )
+    # Never buy this market's over, whatever the price (see
+    # ``_NO_BUY_MARKETS``); the fade keeps its own screens.
+    no_buy: bool = False
 
     def for_market(self, market: str) -> EVThresholds:
         """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
@@ -162,6 +222,11 @@ class EVThresholds:
             ),
             max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
+            max_buy_odds=_env_float(
+                f"MLBE_MAX_BUY_ODDS_{suffix}",
+                _MAX_BUY_ODDS_BY_MARKET.get(market, self.max_buy_odds),
+            ),
+            no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
         )
 
 
@@ -647,10 +712,18 @@ class Config:
     # measure the model. Because the screen is affine in the probability, a weight
     # w is equivalent to demanding edge >= threshold / (1 - w): it raises the toll
     # on disagreeing with the market rather than making the engine defer to it.
-    # Default 0 (off). Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4,
-    # -3.5% at 0.6 on a third as many bets, -12.9% at 0.8 -- every interval still
-    # spans zero, so this shrinks a loss rather than earning a profit. Judge a
-    # weight on closing line value, which resolves in far fewer bets than ROI.
+    # Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4, -3.5% at 0.6 on a
+    # third as many bets, -12.9% at 0.8 -- every interval spans zero, so this
+    # shrinks a loss rather than earning a profit; judge a weight on closing
+    # line value, which resolves in far fewer bets than ROI.
+    #
+    # Still off, despite 27 graded slates putting the market ahead of the model
+    # on Brier and log loss in every market the engine bets except totals, and
+    # for a mechanical reason rather than a lack of evidence: every edge floor,
+    # price band and probability floor on the card was fitted against unanchored
+    # probabilities, and a global weight rescales all of them at once
+    # (edge -> edge x (1 - w)). Raise it per market with
+    # ``MLBE_MARKET_ANCHOR_<MARKET>`` and re-grade that market's floors with it.
     market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
@@ -709,9 +782,27 @@ class Config:
         return self.data_dir / "fangraphs"
 
     @property
+    def batx_dir(self) -> Path:
+        """Priced THE BAT X exports, one CSV per slate (scripts/batx_study.py)."""
+        return self.data_dir / "batx"
+
+    @property
     def team_form_path(self) -> Path:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
+
+    def anchor_for(self, market: str) -> float:
+        """Anchor weight for one market: per-market default, then env override.
+
+        The default is not uniform because the model's accuracy against the
+        price is not uniform -- see ``_MARKET_ANCHOR_BY_MARKET``. A market with
+        its own default ignores the global weight, so raising the global toll
+        cannot start taxing the one market that out-forecasts the price.
+        """
+        return _env_float(
+            f"MLBE_MARKET_ANCHOR_{market.upper()}",
+            _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor),
+        )
 
     def ensure_dirs(self) -> None:
         for d in (
@@ -720,6 +811,7 @@ class Config:
             self.output_dir,
             self.audit_dir,
             self.fangraphs_dir,
+            self.batx_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 
