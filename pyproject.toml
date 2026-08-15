@@ -20,6 +20,9 @@ dependencies = [
     "edge-tts>=6.1",
     "certifi>=2024.2",
     "pyarrow>=14.0",
+    # pandas.read_html needs a parser; without lxml the TeamRankings ratings
+    # parse silently returns nothing instead of failing.
+    "lxml>=5.0",
 ]
 
 [project.optional-dependencies]
