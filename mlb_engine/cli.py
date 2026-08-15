@@ -40,6 +40,7 @@ from mlb_engine.audit.ledger import (
 )
 from mlb_engine.audit.probation import (
     WATCHING,
+    candidate_probation,
     market_probation,
     screen_probation,
 )
@@ -702,9 +703,16 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"ROI={m.roi * 100:+6.1f}% units={m.units:+9.2f}"
             )
 
-    probation = [*market_probation(measured), *screen_probation(measured)]
+    probation = [
+        *market_probation(measured),
+        *screen_probation(measured),
+        *candidate_probation(measured),
+    ]
     if probation:
-        print("\nProbation: markets on their own buys, screens on what they refused")
+        print(
+            "\nProbation: markets on their own buys, screens on what they refused, "
+            "candidates on what they would"
+        )
         print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
         for p in probation:
             flag = "  " if p.status == WATCHING else "->"

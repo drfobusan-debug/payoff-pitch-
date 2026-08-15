@@ -44,6 +44,7 @@ from mlb_engine.audit.ledger import (
 )
 from mlb_engine.audit.probation import (
     Probation,
+    candidate_probation,
     market_probation,
     screen_probation,
 )
@@ -341,7 +342,11 @@ def build_report_data(
         # Probation is a standing judgement on the whole book, so it reads the
         # history rather than the day: a market cannot be condemned or cleared
         # by one slate, which is the entire point of it.
-        probation=[*market_probation(priced), *screen_probation(priced)],
+        probation=[
+            *market_probation(priced),
+            *screen_probation(priced),
+            *candidate_probation(priced),
+        ],
     )
 
 
@@ -454,10 +459,11 @@ def render_markdown_report(d: ReportData) -> str:
         L.append("## Probation\n")
         L.append(
             "Each market graded on its own buys, each screen on the picks it "
-            "refused. A verdict changes nothing on its own: acting needs volume, "
-            "a margin bigger than one standard error, **and** both halves of the "
-            "window agreeing — the last condition being the one that caught every "
-            "false finding this engine has shipped.\n"
+            "refused, and each proposed screen on the buys it *would* refuse. A "
+            "verdict changes nothing on its own: acting needs volume, a margin "
+            "bigger than one standard error, **and** both halves of the window "
+            "agreeing — the last condition being the one that caught every false "
+            "finding this engine has shipped.\n"
         )
         L.append("| Subject | Kind | n | ROI | se | Older half | Newer half | Verdict |")
         L.append("|---|---|---|---|---|---|---|---|")
@@ -664,10 +670,11 @@ def render_html_report(d: ReportData) -> str:
         b.append("<h2>Probation</h2>")
         b.append(
             "<p>Each market graded on its own buys, each screen on the picks it "
-            "refused. A verdict changes nothing on its own: acting needs volume, a "
-            "margin bigger than one standard error, <strong>and</strong> both halves "
-            "of the window agreeing — the last condition being the one that caught "
-            "every false finding this engine has shipped.</p>"
+            "refused, and each proposed screen on the buys it <em>would</em> refuse. "
+            "A verdict changes nothing on its own: acting needs volume, a margin "
+            "bigger than one standard error, <strong>and</strong> both halves of the "
+            "window agreeing — the last condition being the one that caught every "
+            "false finding this engine has shipped.</p>"
         )
         prb = [
             "<tr><th>Subject</th><th>Kind</th><th>n</th><th>ROI</th><th>se</th>"
