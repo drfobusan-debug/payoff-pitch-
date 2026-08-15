@@ -711,7 +711,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if probation:
         print(
             "\nProbation: markets on their own buys, screens on what they refused, "
-            "candidates on what they would"
+            "candidates on what they would refuse"
         )
         print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
         for p in probation:
