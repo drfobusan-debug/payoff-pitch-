@@ -98,6 +98,10 @@ class Recommendation:
     opta_prob: float | None = None
     opta_stars: int | None = None
     opta_agrees: bool | None = None
+    # THE BAT X's probability for the side we are backing (see data.batx). It is
+    # displayed and persisted to the ledger, and it is an input to nothing: the
+    # head-to-head that would justify weighting it is itself run off this column.
+    batx_prob: float | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -166,6 +170,7 @@ class Recommendation:
             "Profile": self.profile or "",
             "Opta %": round(self.opta_prob * 100, 1) if self.opta_prob is not None else "",
             "AI": self.opta_mark,
+            "BAT X %": round(self.batx_prob * 100, 1) if self.batx_prob is not None else "",
             "Notes": "; ".join(self.reasons),
         }
 

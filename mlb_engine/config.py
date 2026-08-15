@@ -709,6 +709,11 @@ class Config:
         return self.data_dir / "fangraphs"
 
     @property
+    def batx_dir(self) -> Path:
+        """Priced THE BAT X exports, one CSV per slate (scripts/batx_study.py)."""
+        return self.data_dir / "batx"
+
+    @property
     def team_form_path(self) -> Path:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
@@ -720,6 +725,7 @@ class Config:
             self.output_dir,
             self.audit_dir,
             self.fangraphs_dir,
+            self.batx_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 
