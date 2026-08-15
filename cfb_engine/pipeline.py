@@ -19,11 +19,22 @@ from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.efficiency import EfficiencyProvider, blend_efficiency
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
+from cfb_engine.data.injuries import (
+    InjuryBook,
+    NewsItem,
+    fetch_injury_report,
+    fetch_news,
+    injury_note,
+    log_availability,
+    unavailable_for,
+)
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
 from cfb_engine.data.portal import PortalBook, portal_note
 from cfb_engine.data.preseason import stability_factor
 from cfb_engine.data.ratings import build_rating_book
 from cfb_engine.data.returning import ReturningBook, build_returning_book
+from cfb_engine.data.starters import StarterBook, starter_absent
+from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
@@ -74,6 +85,7 @@ class Pipeline:
         self.calibrator = calibrator or self._load_calibrator()
         self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
         self.advanced: AdvancedBook = parse_advanced([], {})
+        self.news: dict[str, NewsItem] = {}
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -156,6 +168,18 @@ class Pipeline:
         portal = self.cfbd.fetch_portal(season)
         if portal:
             logger.info("portal book: %d teams", len(portal))
+        injuries: InjuryBook = {}
+        starters: StarterBook = {}
+        if self.cfg.injury_feed:
+            injuries = fetch_injury_report()
+            if injuries:
+                # Usage decides what an absence is worth, so the feed is only read
+                # against who had been taking the snaps before this week.
+                starters = self.cfbd.fetch_starters(season, self._slate_week(season, slate_date))
+                self.news = fetch_news(cache=self.cfg.cache_dir / "injury_news.json")
+                logger.info(
+                    "injury feed: %d teams, usage book %d teams", len(injuries), len(starters)
+                )
         if self.cfg.marking.enabled or self.cfg.sim_engine == "markov":
             self.advanced = self.cfbd.fetch_advanced(season)
             if self.advanced.teams:
@@ -170,7 +194,8 @@ class Pipeline:
                 continue
             recs.extend(
                 self._price_game(
-                    game, odds, ratings, ctx_book, mc, markov, returning, portal
+                    game, odds, ratings, ctx_book, mc, markov, returning, portal,
+                    injuries, starters,
                 )
             )
         recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
@@ -187,6 +212,8 @@ class Pipeline:
         markov: MarkovSim | None = None,
         returning: ReturningBook | None = None,
         portal: PortalBook | None = None,
+        injuries: InjuryBook | None = None,
+        starters: StarterBook | None = None,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(
             game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
@@ -221,6 +248,11 @@ class Pipeline:
         )
         if vsin is not None:
             adj.reasons.append(vsin)
+        if injuries:
+            note = injury_note(injuries, game.home.name, game.away.name)
+            if note is not None:
+                adj.reasons.append(note)
+            self._record_absences(adj, game, odds, injuries, starters or {})
         exp = ExpectedGame(
             exp_margin=means.exp_margin + adj.margin_delta,
             exp_total=max(0.0, means.exp_total + adj.total_delta),
@@ -297,6 +329,50 @@ class Pipeline:
         if market_margin is not None:
             return _Means(market_margin, market_total or 0.0, "market")
         return None
+
+    def _record_absences(
+        self,
+        adj: Adjustment,
+        game: Game,
+        odds: GameOdds,
+        injuries: InjuryBook,
+        starters: StarterBook,
+    ) -> None:
+        """Log every absence with the line at this moment; charge points only if asked.
+
+        The log is the measurement: an absence is worth -2.2 points against the
+        close in the *first* game (holdout 59.9% fading) and nothing once it is
+        common knowledge (holdout 47.1%), so what matters is whether we hear it
+        before the number moves. ``CFBE_INJURY_QB_PTS`` is 0.0 until the log says
+        we do.
+        """
+        spread = odds.consensus_home_spread()
+        for name, abbrev, sign in (
+            (game.home.name, game.home.abbrev, -1.0),
+            (game.away.name, game.away.abbrev, 1.0),
+        ):
+            rows = unavailable_for(injuries, name)
+            if not rows:
+                continue
+            log_availability(
+                self.cfg.availability_file,
+                home=game.home.name,
+                away=game.away.name,
+                rows=rows,
+                spread=spread,
+                news=self.news,
+            )
+            starter = starters.get(school_key(name))
+            if starter is None or not starter_absent(starter, [row.player for row in rows]):
+                continue
+            stale = starter.missed_last_week
+            detail = f"{abbrev} without QB {starter.name} ({starter.share:.0%} of attempts)"
+            if self.cfg.injury_qb_pts <= 0 or stale:
+                why = "already priced in" if stale else "reported, not scored"
+                adj.reasons.append(f"{detail} [{why}]")
+                continue
+            adj.margin_delta += sign * self.cfg.injury_qb_pts
+            adj.reasons.append(f"{detail} -{self.cfg.injury_qb_pts:.1f}")
 
     # -- markets ----------------------------------------------------------
     def _price_ml(self, ctx: _GameCtx, odds: GameOdds) -> list[Recommendation]:

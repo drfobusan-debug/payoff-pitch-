@@ -28,6 +28,7 @@ from mlb_engine.audit.analysis import (
     RunLineMissMatrix,
     dog_vs_favorite,
     false_negative_insights,
+    lineup_findings,
     price_bucket_findings,
     price_buckets,
     run_line_miss_findings,
@@ -38,6 +39,7 @@ from mlb_engine.audit.ledger import (
     OverallMetrics,
     engine_metrics,
     market_metrics,
+    one_side_per_prop,
     overall_metrics,
 )
 from mlb_engine.audit.probation import (
@@ -149,6 +151,7 @@ class ReportData:
     price_sides: list[PriceBucket]
     price_findings: list[str]
     price_n_dates: int
+    lineup_findings: list[str]
     probation: list[Probation]
 
 
@@ -204,7 +207,10 @@ def build_report_data(
     ledger even inside the daily report, and labels the sample it used.
     """
     n_dates = len({e.date for e in entries})
-    priced = history if history is not None else entries
+    # Both sides of a prop are in the ledger; a measurement wants one row per
+    # wager, or the near-certain complement grades itself correct for free.
+    entries = one_side_per_prop(entries)
+    priced = one_side_per_prop(history) if history is not None else entries
     engine = engine_metrics(entries)
     tiers = overall_metrics(entries)
     rows = [_classify(m) for m in market_metrics(entries)]
@@ -328,6 +334,10 @@ def build_report_data(
         price_sides=dog_vs_favorite(priced),
         price_findings=price_bucket_findings(priced),
         price_n_dates=len({e.date for e in priced if e.odds is not None}),
+        # Whether the card saw the lineup that batted. Reads the history for the
+        # same reason the price bands do: one slate carries nowhere near the rows
+        # the comparison needs.
+        lineup_findings=lineup_findings(priced),
         # Probation is a standing judgement on the whole book, so it reads the
         # history rather than the day: a market cannot be condemned or cleared
         # by one slate, which is the entire point of it.
@@ -429,6 +439,13 @@ def render_markdown_report(d: ReportData) -> str:
             )
         L.append("")
         for f in d.price_findings:
+            L.append(f"- {f}")
+        L.append("")
+
+    if d.lineup_findings:
+        L.append("---\n")
+        L.append("## Did the card see the lineup?\n")
+        for f in d.lineup_findings:
             L.append(f"- {f}")
         L.append("")
 
@@ -635,6 +652,13 @@ def render_html_report(d: ReportData) -> str:
             for f in d.price_findings:
                 b.append(f"<li>{_md_inline_to_html(f)}</li>")
             b.append("</ul>")
+
+    if d.lineup_findings:
+        b.append("<h2>Did the card see the lineup?</h2>")
+        b.append("<ul>")
+        for f in d.lineup_findings:
+            b.append(f"<li>{_md_inline_to_html(f)}</li>")
+        b.append("</ul>")
 
     if d.probation:
         b.append("<h2>Probation</h2>")
