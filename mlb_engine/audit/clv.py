@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import date as Date
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
@@ -32,6 +33,11 @@ from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.odds import american_to_decimal
 
 _KEY_SEP = "|"
+
+
+def quote_key(matchup: str, market: str, selection: str) -> str:
+    """The key a snapshotted quote is stored under."""
+    return _KEY_SEP.join((matchup, market, selection))
 
 
 @dataclass(frozen=True)
@@ -46,7 +52,7 @@ class ClosingQuote:
 
     @property
     def key(self) -> str:
-        return _KEY_SEP.join((self.matchup, self.market, self.selection))
+        return quote_key(self.matchup, self.market, self.selection)
 
 
 def closing_quotes(
@@ -91,6 +97,21 @@ def merge_closing(
     return sorted(merged.values(), key=lambda q: q.key)
 
 
+def merge_board(
+    existing: dict[str, ClosingQuote], fresh: list[ClosingQuote]
+) -> list[ClosingQuote]:
+    """The mirror of ``merge_closing``: the *first* price seen per selection wins.
+
+    Same file format, opposite end of the day. Held across the slate's runs this
+    accumulates the opening board, which is what a pre-bet CLV check needs to
+    measure the day's drift against (see ``features.drift_gate``).
+    """
+    merged = dict(existing)
+    for q in fresh:
+        merged.setdefault(q.key, q)
+    return sorted(merged.values(), key=lambda q: q.key)
+
+
 def save_closing(path: Path, quotes: list[ClosingQuote]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = [
@@ -121,6 +142,11 @@ def load_closing(path: Path) -> dict[str, ClosingQuote]:
         )
         out[q.key] = q
     return out
+
+
+def board_path(audit_dir: Path, slate_date: Date) -> Path:
+    """Where the slate's opening board lives, alongside its closing snapshot."""
+    return audit_dir / f"board_{slate_date.isoformat()}.json"
 
 
 def clv_points(bet_prob: float, close_prob: float) -> float:

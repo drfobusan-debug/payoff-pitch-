@@ -107,6 +107,7 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
 
     from mlb_engine.config import Config
     from mlb_engine.data.vsin import Split
+    from mlb_engine.features.drift_gate import DriftGate
     from mlb_engine.features.lineup_lock import LineupLockGate
     from mlb_engine.features.ml_gate import MLPenGate
     from mlb_engine.features.ml_gate import MLSharpGate as Gate
@@ -123,6 +124,8 @@ def _ml_rec(model_prob: float, american: float, opposite: float):
     p._pen_gate = MLPenGate.from_env()
     p._lineup_gate = LineupLockGate.from_env()
     p._lineup_lock = None
+    p._drift_gate = DriftGate.from_env()
+    p._open_board = {}
     p._splits = {
         ("MIA @ ATL", "game_ml", "MIA ML"): Split(handle_pct=80.0, bets_pct=37.0)
     }
@@ -158,12 +161,26 @@ def test_sharp_upgrade_does_not_buy_a_negative_ev_price() -> None:
 def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
     from mlb_engine.market.tiers import Tier
 
-    # Too thin an edge for the tiers to buy on their own, but a long enough
-    # price that it still pays: the sharp signal promotes it.
-    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
+    # Too thin an edge for the tiers to buy on their own, but the price still
+    # pays at the anchored probability: the sharp signal promotes it.
+    rec = _ml_rec(0.53, american=-105.0, opposite=-105.0)
     assert (rec.ev or 0.0) > 0 and (rec.edge or 0.0) < 0.02
     assert rec.tier is Tier.MODERATE
     assert any("ml-upgrade: BUY" in r for r in rec.reasons)
+
+
+def test_sharp_upgrade_cannot_buy_past_the_price_ceiling() -> None:
+    """Plus money is where the engine's confirmed moneylines went to die.
+
+    Sharp money on a +200 dog is still evidence about the number, but the graded
+    ledger has it at 28.5% on plus-money buys, so the ceiling outranks it.
+    """
+    from mlb_engine.market.tiers import Tier
+
+    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
+    assert rec.tier is Tier.PASS
+    assert not any("ml-upgrade" in r for r in rec.reasons)
+    assert any("longer than" in r for r in rec.reasons)
 
 
 def test_a_confirmed_moneyline_is_actually_buyable() -> None:
@@ -175,7 +192,7 @@ def test_a_confirmed_moneyline_is_actually_buyable() -> None:
     """
     from mlb_engine.market.tiers import Tier
 
-    rec = _ml_rec(0.46, american=140.0, opposite=-160.0)
+    rec = _ml_rec(0.59, american=-110.0, opposite=-110.0)
     assert (rec.ev or 0.0) > 0 and 0.02 <= (rec.edge or 0.0) <= 0.08
     assert rec.tier is Tier.STRONG
     assert any("ml-gate: OK" in r for r in rec.reasons)

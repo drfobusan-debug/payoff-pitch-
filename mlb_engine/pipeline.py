@@ -10,6 +10,14 @@ from datetime import timedelta
 from pathlib import Path
 from typing import TypeVar
 
+from mlb_engine.audit.clv import (
+    board_path,
+    closing_quotes,
+    load_closing,
+    merge_board,
+    quote_key,
+    save_closing,
+)
 from mlb_engine.calibration import Calibrator, ConfidenceShrink
 from mlb_engine.config import Config
 from mlb_engine.data import catcher_framing
@@ -28,6 +36,7 @@ from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_
 from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository, batted_balls
 from mlb_engine.data.vsin import Split, VSINClient
+from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.efficiency import (
     PitcherEfficiency,
     build_pitcher_efficiency,
@@ -377,6 +386,10 @@ class Pipeline:
         self._tb_gate = TBGate.from_env()
         self._ml_gate = MLSharpGate.from_env()
         self._pen_gate = MLPenGate.from_env()
+        self._drift_gate = DriftGate.from_env()
+        # No-vig price of each selection when the slate first opened, keyed
+        # ``matchup|market|selection``. Empty on a slate's first run.
+        self._open_board: dict[str, float] = {}
         self._lineup_gate = LineupLockGate.from_env()
         # Games whose lineup came from Rotowire's projection rather than MLB's
         # posted card, and the per-game lineup/timing read built from them.
@@ -441,6 +454,8 @@ class Pipeline:
             quotes = _merge_quotes(odds, quotes)
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
 
+        self._open_board = self._record_board(slate_date, quotes)
+
         self._luck_gaps = (
             compute_luck_gaps(load_team_forms(self.cfg.team_form_path))
             if self.cfg.runline_luck_gap
@@ -472,6 +487,31 @@ class Pipeline:
     def previews(self) -> list[GamePreview]:
         """Per-game slate previews assembled during the last :meth:`run`."""
         return self._previews
+
+    # ------------------------------------------------------------------
+    def _record_board(
+        self,
+        slate_date: Date,
+        quotes: dict[tuple[str, str, str], list[MarketQuote]],
+    ) -> dict[str, float]:
+        """Persist the slate's opening board and return it as no-vig probabilities.
+
+        Written on every run but never overwritten per selection, so the first
+        run of the day defines the open and later runs measure their drift
+        against it (see ``features.drift_gate``). Best-effort: an unwritable
+        audit directory leaves the drift gate with nothing to compare and
+        therefore neutral, which is the same state as a slate's first run.
+        """
+        if not quotes:
+            return {}
+        path = board_path(self.cfg.audit_dir, slate_date)
+        try:
+            board = merge_board(load_closing(path), closing_quotes(quotes))
+            save_closing(path, board)
+        except OSError as exc:
+            log.warning("opening board %s unavailable (%s); drift gate idle", path, exc)
+            return {}
+        return {q.key: q.no_vig_prob for q in board}
 
     # ------------------------------------------------------------------
     def _enrich_expected_lineups(self, slate: Slate, slate_date: Date) -> None:
@@ -1697,12 +1737,11 @@ class Pipeline:
         q = (quotes or {}).get(key)
         if q:
             evres = evaluate(rec.model_prob, q)
-            if self.cfg.market_anchor > 0:
+            anchor = self.cfg.anchor_for(market)
+            if anchor > 0:
                 # Re-price against a probability pulled toward the market. Only
                 # the bet probability moves; rec.model_prob stays the model's.
-                bet_prob = anchor_to_market(
-                    rec.model_prob, evres.fair_prob, self.cfg.market_anchor
-                )
+                bet_prob = anchor_to_market(rec.model_prob, evres.fair_prob, anchor)
                 evres = evaluate(bet_prob, q)
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
@@ -1753,9 +1792,16 @@ class Pipeline:
                 if ml_reason:
                     reasons.append(ml_reason)
             # Sharp money can promote a side the model passed on, but not one the
-            # price cannot pay: the upgrade is evidence about the number, not a
-            # licence to bet a negative expectation at it.
-            if market == "game_ml" and tier == Tier.PASS and evres.ev > thr.min_ev:
+            # price cannot pay, nor one the price ceiling or the market
+            # disqualification already vetoed: the upgrade is evidence about the
+            # number, not a licence to bet a negative expectation at it.
+            if (
+                market == "game_ml"
+                and tier == Tier.PASS
+                and evres.ev > thr.min_ev
+                and evres.best_quote.american <= thr.max_buy_odds
+                and not thr.no_buy
+            ):
                 up, up_reason = self._ml_gate.upgrades(
                     rec.handle_pct, rec.bets_pct, evres.fair_prob
                 )
@@ -1779,6 +1825,17 @@ class Pipeline:
                     tier = Tier.PASS
                 if lock_reason:
                     reasons.append(lock_reason)
+            # Drift runs after everything, across every market: a side the
+            # market has moved away from all day is one whose CLV is already
+            # negative, whatever promoted it.
+            if tier != Tier.PASS:
+                keep, drift_reason = self._drift_gate.allows(
+                    self._open_board.get(quote_key(*key)), evres.fair_prob
+                )
+                if not keep:
+                    tier = Tier.PASS
+                if drift_reason:
+                    reasons.append(drift_reason)
             rec.tier = tier
             rec.reasons = reasons
         else:

@@ -989,8 +989,8 @@ def test_ev_positive_when_underpriced():
 
 def test_classify_tiers():
     thr = EVThresholds()
-    q = [MarketQuote("draftkings", 120, opposite_american=-140, handle_pct=70, bets_pct=45)]
-    res = evaluate(0.50, q)
+    q = [MarketQuote("draftkings", -110, opposite_american=-110, handle_pct=70, bets_pct=45)]
+    res = evaluate(0.56, q)
     tier, reasons = classify(res, thr)
     assert tier in (Tier.STRONG, Tier.MODERATE)
     # negative edge -> pass
@@ -1337,7 +1337,9 @@ def test_tier_does_not_reward_the_longer_price():
     from mlb_engine.market.ev import MarketQuote, evaluate
     from mlb_engine.market.tiers import classify
 
-    thr = EVThresholds()
+    # Price ceiling lifted: it would reject the dog outright, and the point here
+    # is that the tiers rank on edge rather than on the payout multiple.
+    thr = EVThresholds(max_buy_odds=1000.0)
     # A 5-point edge over the devigged price, quoted as a dog and as a favourite.
     dog = evaluate(1 / 3 + 0.05, [MarketQuote("dk", 200, opposite_american=-200)])
     fave = evaluate(5 / 7 + 0.05, [MarketQuote("dk", -250, opposite_american=250)])

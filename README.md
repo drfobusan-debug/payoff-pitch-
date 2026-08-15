@@ -55,9 +55,13 @@ book (and VSIN handle/bets divergence when provided).
    tier with plus-money dogs. Knobs: `MLBE_MIN_EV` (the price must pay at all),
    `MLBE_MIN_EDGE` thin-edge guard, `MLBE_EDGE_STRONG_GAP` (extra edge for
    Strong), `MLBE_MAX_EDGE` (disagreement past which the edge reads as a model
-   error), `MLBE_STRONG_ONLY` for strict selection.
+   error), `MLBE_MAX_BUY_ODDS` (price ceiling), `MLBE_NO_BUY_<MARKET>` (markets
+   the ledger disqualified), `MLBE_STRONG_ONLY` for strict selection. See
+   **Selection guards** below.
 9a. **Run-line NPV gates** — veto (not nudge) selections whose failure to cover
     is highly predictable. All off by default; see below.
+9b. **Pre-bet CLV** — `MLBE_CLV_GATE` vetoes a buy the market has been walking
+    away from since the slate opened.
 10. **Excel output** + **nightly audit** (sensitivity / specificity / PPV / NPV
     per tier from final box scores).
 
@@ -310,9 +314,14 @@ over any local re-price and says so, so it grades what the card actually sent.
 
 ### Market anchoring
 
-`MLBE_MARKET_ANCHOR` (default `0`, off) blends the devigged market price into the
+`MLBE_MARKET_ANCHOR` (default `0.5`) blends the devigged market price into the
 probability the EV screen bets on: `0` bets the model alone, `1` bets the market,
-`0.4` moves the market 40% of the way toward the model. The model's own
+`0.4` moves the market 40% of the way toward the model. Totals default to `0`
+instead, because they are the one market where the model beats the price on Brier
+(.2446 vs .2480) and the only profitable buy bucket in the graded ledger; any
+market takes its own weight from `MLBE_MARKET_ANCHOR_<MARKET>`, and a per-market
+default ignores the global one so raising the global toll cannot start taxing
+totals. The model's own
 probability is left untouched, so PPV/NPV, the calibration refit and the Brier
 comparisons keep measuring the model rather than the blend, and both numbers are
 recorded per pick (`Model %` and `Market %` on the card, `fair_prob`/`bet_prob`
@@ -329,8 +338,30 @@ disagreeing, it does not make the engine defer.
 
 Nine priced slates: -5.4% at `0`, -4.1% at `0.4`, -3.5% at `0.6` on a third of
 the bets, -12.9% at `0.8`. Every one of those intervals still spans zero, so this
-shrinks a loss rather than earning a profit. It ships off; pick a weight on CLV,
-not on ROI.
+shrinks a loss rather than earning a profit. Judge a weight on CLV, not on ROI.
+
+### Selection guards
+
+Twenty-seven graded slates put the model's *ranking* ahead of its *buying*: inside
+every probability band the rows the engine bought lost 6-11 points more than the
+rows it passed, at longer prices, for -12.6% ROI over 1,894 buys. Three guards
+narrow what a measured edge is allowed to buy. None changes a probability, all are
+switchable, and a guarded selection is still priced and graded, so the ledger can
+tell you what each one cost or saved.
+
+| Env flag | Default | Passes a buy when | Ledger evidence |
+| --- | --- | --- | --- |
+| `MLBE_MAX_BUY_ODDS` | `109` | the best price is longer than the ceiling | plus-money buys 28.5% for -15.5% ROI (n=933) vs 50.7% at minus money |
+| `MLBE_NO_BUY_<MARKET>` | on for `batter_h`, `batter_hr`, `batter_hrr`, `batter_r`, `batter_rbi`, `batter_tb` | ever, in that market | every batter market except doubles lost, -169 units in total |
+| `MLBE_CLV_GATE` | on, `MLBE_CLV_DRIFT` `0.02` | the side's no-vig price has drifted `>= 0.02` against us since the slate opened | buys that beat the close returned +5.4%, buys that lost it -11.8% |
+
+The price ceiling also outranks the sharp-money upgrade: a confirmed +200 dog is
+still a +200 dog. The CLV gate runs last, after every gate and upgrade, and needs
+no future information — the pipeline snapshots the first price it sees for each
+selection into `audit/board_<date>.json` and never overwrites it, so a slate's
+first run defines the open and later runs measure their drift against it. On the
+first run of a slate, and for any selection with no captured open, the gate is
+neutral.
 
 ### Audit report (daily + weekly)
 

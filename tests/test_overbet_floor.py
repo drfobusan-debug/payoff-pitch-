@@ -17,6 +17,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from mlb_engine.config import Config, EVThresholds
+from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.market import keys
 from mlb_engine.market.ev import EVResult, MarketQuote
 from mlb_engine.market.tiers import Tier, classify
@@ -34,6 +35,10 @@ def _mk_pipeline(cfg: Config) -> Pipeline:
     p._calibrator = _IdentityCalibrator()
     p._shrink = None
     p._splits = {}
+    # The drift gate runs on every buy; with no opening board captured it is
+    # neutral, exactly as on a slate's first run.
+    p._drift_gate = DriftGate.from_env()
+    p._open_board = {}
     return p
 
 
@@ -92,13 +97,14 @@ def _pitcher_props(cfg: Config, quote_line: float):
     res = SimpleNamespace(
         pit={"home": {k: np.full(n, 8.0) for k in ("K", "outs", "H", "BB", "ER")}}
     )
-    # Half the sims over any line at or below 8, so the model sits at 50% rather
-    # than a certainty the implausible-edge cap would reject outright.
-    res.pit["home"]["K"][: n // 2] = 4.0
+    # 60% of the sims over any line at or below 8, so the model shows an edge
+    # over the coin-flip price that survives the market anchor without tripping
+    # the implausible-edge cap.
+    res.pit["home"]["K"][: int(n * 0.4)] = 4.0
     sel = keys.pitcher_prop(pitcher.name, "Ks", quote_line)
     quotes = {
         ("MATCH", "pitcher_k", sel): [
-            MarketQuote(book="dk", american=120.0, opposite_american=-140.0)
+            MarketQuote(book="dk", american=-110.0, opposite_american=-110.0)
         ]
     }
     recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)

@@ -10,6 +10,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from mlb_engine.config import Config
+from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
@@ -32,6 +33,10 @@ def _mk_pipeline(cfg: Config) -> Pipeline:
     p._calibrator = _IdentityCalibrator()
     p._shrink = None
     p._splits = {}
+    # The drift gate runs on every buy; with no opening board captured it is
+    # neutral, exactly as on a slate's first run.
+    p._drift_gate = DriftGate.from_env()
+    p._open_board = {}
     return p
 
 
@@ -61,15 +66,16 @@ def _f5_ml_rec(cfg: Config, gate_reason: str | None):
     """Price one clearly +EV F5 ML selection through _mk with/without the gate."""
     p = _mk_pipeline(cfg)
     game = SimpleNamespace(game_date="2026-08-01", game_pk=822781)
-    # model 44% at +150 (devigged fair ~39%) is a Strong buy absent any gate: a
-    # 5-point edge, inside the implausible-edge cap.
+    # model 60% at -110 both ways (devigged fair 50%) is a Strong buy absent any
+    # gate: 10 raw points, half of which survive the market anchor, inside the
+    # implausible-edge cap and short enough for the price ceiling.
     quotes = {
         ("STL @ TOR", "f5_ml", "STL F5 ML"): [
-            MarketQuote(book="draftkings", american=150.0, opposite_american=-170.0)
+            MarketQuote(book="draftkings", american=-110.0, opposite_american=-110.0)
         ]
     }
     return p._mk(
-        game, "STL @ TOR", "f5", "f5_ml", "STL F5 ML", 0.44,
+        game, "STL @ TOR", "f5", "f5_ml", "STL F5 ML", 0.60,
         team_side="away", side="win", quotes=quotes, gate_reason=gate_reason,
     )
 

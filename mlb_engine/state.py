@@ -27,7 +27,12 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from mlb_engine.audit.clv import load_closing, merge_closing, save_closing
+from mlb_engine.audit.clv import (
+    load_closing,
+    merge_board,
+    merge_closing,
+    save_closing,
+)
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -169,6 +174,21 @@ def merge_closing_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_board_files(remote: Path, local: Path) -> bool:
+    """Union two opening boards, the price already published winning.
+
+    The mirror of ``merge_closing_files``: a close is worth the latest price
+    seen, an open the first, and the branch is the older of the two sides by
+    construction. This is also the only way the morning run's board reaches the
+    afternoon run, which happens on a different machine.
+    """
+    if not remote.exists():
+        return False
+    merged = merge_board(load_closing(remote), list(load_closing(local).values()))
+    save_closing(local, merged)
+    return True
+
+
 def _rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
@@ -259,6 +279,9 @@ def pull_state(
     for src in sorted((state / "mlb" / "closing").glob("closing_*.json")):
         if merge_closing_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "board").glob("board_*.json")):
+        if merge_board_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key in (
         ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
         ("scorecard.csv", ("date", "tier")),
@@ -320,6 +343,12 @@ def push_state(
             merge_closing_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
+        for src in sorted(audit.glob("board_*.json")):
+            dest = state / "mlb" / "board" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_board_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
         for name in ("ledger.csv", "scorecard.csv"):
             src = audit / name
             if src.exists():
@@ -372,6 +401,7 @@ __all__ = [
     "auto_pull",
     "auto_push",
     "SyncReport",
+    "merge_board_files",
     "merge_closing_files",
     "merge_dated_csv",
     "pull_state",

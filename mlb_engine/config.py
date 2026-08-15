@@ -97,6 +97,33 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
     "batter_1b": 0.04,
 }
 
+# Markets whose buys the accumulated ledger cannot justify at any edge. Over 27
+# graded slates (1,894 buys) every batter market except doubles lost money on
+# the side the engine backed: hits 48.3% for -14.0% ROI (n=447), singles 36.7%
+# (n=221), runs 29.7% (n=128), RBI 22.5% (n=129), home runs 8.8% (n=91), total
+# bases 11.1% (n=9), H+R+RBI 43.8% (n=16), against doubles' +36.3% (n=73).
+# Raising each edge floor is the wrong instrument when the whole family is
+# under water, so these are hard-passed and keep grading as shadow bets --
+# the ledger still records the price, the tier reason and the result, so a
+# rebuilt batter model can be graded before it is trusted with money.
+# ``MLBE_NO_BUY_<MARKET>=0`` re-enables one.
+_NO_BUY_MARKETS: frozenset[str] = frozenset(
+    {"batter_h", "batter_hr", "batter_hrr", "batter_r", "batter_rbi", "batter_tb"}
+)
+
+# Weight given to the devigged market price per market, overriding the global
+# ``Config.market_anchor``. Scoring both probability sources on the 10,497
+# real-priced graded rows, the market is the better forecaster everywhere the
+# engine bets (Brier: batter props .2180 vs .2210, F5 .2425 vs .2674, moneyline
+# .2470 vs .2597, pitcher props .2461 vs .2769, run lines .2414 vs .2567) --
+# except totals, where the model wins (.2446 vs .2480) and is also the only
+# profitable buy bucket (+16 units on n=93). So totals keep their own number and
+# everything else pays a toll to disagree with the price.
+_MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
+    "game_total": 0.0,
+    "f5_total": 0.0,
+}
+
 
 @dataclass(frozen=True)
 class EVThresholds:
@@ -127,6 +154,18 @@ class EVThresholds:
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
+    # Longest American price a buy may be taken at. Plus money is where the
+    # engine's overconfidence is cashed: across 27 graded slates its plus-money
+    # buys went 28.5% (n=933, -15.5% ROI, -145 units) against 50.7% (-9.7%) at
+    # minus money, and the deficit holds in every category -- even run lines,
+    # profitable at -110 or shorter (+11.8%) and -21.2% at plus money. A long
+    # price is a market statement that this side rarely wins, and the model has
+    # not earned the right to overrule it. Raise it (e.g. 100000) to disable.
+    max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_MAX_BUY_ODDS", 109.0)
+    )
+    # Never buy this market, whatever the price (see ``_NO_BUY_MARKETS``).
+    no_buy: bool = False
 
     def for_market(self, market: str) -> EVThresholds:
         """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
@@ -150,6 +189,8 @@ class EVThresholds:
             ),
             max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
+            max_buy_odds=_env_float(f"MLBE_MAX_BUY_ODDS_{suffix}", self.max_buy_odds),
+            no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
         )
 
 
@@ -430,11 +471,15 @@ class Config:
     # measure the model. Because the screen is affine in the probability, a weight
     # w is equivalent to demanding edge >= threshold / (1 - w): it raises the toll
     # on disagreeing with the market rather than making the engine defer to it.
-    # Default 0 (off). Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4,
-    # -3.5% at 0.6 on a third as many bets, -12.9% at 0.8 -- every interval still
-    # spans zero, so this shrinks a loss rather than earning a profit. Judge a
-    # weight on closing line value, which resolves in far fewer bets than ROI.
-    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
+    # Nine retro-priced slates: ROI -5.4% at 0, -4.1% at 0.4, -3.5% at 0.6 on a
+    # third as many bets, -12.9% at 0.8 -- every interval spans zero, so this
+    # shrinks a loss rather than earning a profit; judge a weight on closing
+    # line value, which resolves in far fewer bets than ROI. It now ships at 0.5
+    # because 27 graded slates put the market ahead of the model on Brier and log
+    # loss in every market the engine bets except totals, which keep their own
+    # weight (see ``_MARKET_ANCHOR_BY_MARKET``). ``MLBE_MARKET_ANCHOR=0``
+    # restores the untolled behaviour.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.5))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
@@ -495,6 +540,19 @@ class Config:
     def team_form_path(self) -> Path:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
+
+    def anchor_for(self, market: str) -> float:
+        """Anchor weight for one market: per-market default, then env override.
+
+        The default is not uniform because the model's accuracy against the
+        price is not uniform -- see ``_MARKET_ANCHOR_BY_MARKET``. A market with
+        its own default ignores the global weight, so raising the global toll
+        cannot start taxing the one market that out-forecasts the price.
+        """
+        return _env_float(
+            f"MLBE_MARKET_ANCHOR_{market.upper()}",
+            _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor),
+        )
 
     def ensure_dirs(self) -> None:
         for d in (
