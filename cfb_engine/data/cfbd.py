@@ -24,6 +24,7 @@ import requests
 
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.portal import PortalBook, build_portal_book
+from cfb_engine.data.starters import PasserGame, StarterBook, build_starter_book
 from cfb_engine.data.teamnames import school_key
 
 # Transport only, and nothing in it is baseball-specific: retries and a default
@@ -378,6 +379,24 @@ class CFBDClient:
         rows = [row for row in data if isinstance(row, dict)]
         return build_portal_book(rows, season)
 
+    def fetch_starters(self, season: int, through_week: int) -> StarterBook:
+        """Primary passer per team from box scores in weeks before ``through_week``.
+
+        Read against the injury feed by :mod:`cfb_engine.data.injuries`: a
+        designation only matters in proportion to the usage it removes.
+        """
+        if not self.available() or through_week <= 1:
+            return {}
+        rows: list[PasserGame] = []
+        for week in range(1, min(through_week, 20)):
+            data = self._get("/games/players", year=season, week=week)
+            if not isinstance(data, list):
+                continue
+            rows.extend(_passer_games(data, week))
+        if not rows:
+            return {}
+        return build_starter_book(rows, through_week=through_week)
+
     def fetch_venues(self) -> dict[int, Venue]:
         """Venue geo + dome flag, keyed by venue id."""
         if not self.available():
@@ -448,6 +467,62 @@ class CFBDClient:
                     )
                 )
         return out
+
+
+def _passer_games(games: list[object], week: int) -> list[PasserGame]:
+    """Pull ``C/ATT`` out of one week of ``/games/players`` box scores."""
+    rows: list[PasserGame] = []
+    for game in games:
+        if not isinstance(game, dict):
+            continue
+        teams = game.get("teams")
+        if not isinstance(teams, list):
+            continue
+        for team in teams:
+            if not isinstance(team, dict):
+                continue
+            name = team.get("team")
+            categories = team.get("categories")
+            if not name or not isinstance(categories, list):
+                continue
+            for category in categories:
+                if not isinstance(category, dict) or category.get("name") != "passing":
+                    continue
+                types = category.get("types")
+                if not isinstance(types, list):
+                    continue
+                for stat_type in types:
+                    if not isinstance(stat_type, dict) or stat_type.get("name") != "C/ATT":
+                        continue
+                    athletes = stat_type.get("athletes")
+                    if not isinstance(athletes, list):
+                        continue
+                    for athlete in athletes:
+                        if not isinstance(athlete, dict):
+                            continue
+                        attempts = _attempts(athlete.get("stat"))
+                        if attempts is None:
+                            continue
+                        rows.append(
+                            PasserGame(
+                                week=week,
+                                team=school_key(str(name)),
+                                player_id=str(athlete.get("id", "")),
+                                name=str(athlete.get("name", "")),
+                                attempts=attempts,
+                            )
+                        )
+    return rows
+
+
+def _attempts(stat: object) -> int | None:
+    """Attempts out of a ``"18/22"`` completions-slash-attempts string."""
+    if not isinstance(stat, str) or "/" not in stat:
+        return None
+    try:
+        return int(stat.split("/")[1])
+    except (IndexError, ValueError):
+        return None
 
 
 def _nested(row: dict[str, object], *path: str) -> float | None:
