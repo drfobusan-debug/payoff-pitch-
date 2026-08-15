@@ -20,6 +20,7 @@ from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.efficiency import EfficiencyProvider, blend_efficiency
 from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
+from cfb_engine.data.portal import PortalBook, portal_note
 from cfb_engine.data.preseason import stability_factor
 from cfb_engine.data.ratings import build_rating_book
 from cfb_engine.data.returning import ReturningBook, build_returning_book
@@ -152,6 +153,9 @@ class Pipeline:
             build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
         )
         ctx_book = build_context_book(self.cfbd, season, slate)
+        portal = self.cfbd.fetch_portal(season)
+        if portal:
+            logger.info("portal book: %d teams", len(portal))
         if self.cfg.marking.enabled or self.cfg.sim_engine == "markov":
             self.advanced = self.cfbd.fetch_advanced(season)
             if self.advanced.teams:
@@ -165,7 +169,9 @@ class Pipeline:
             if odds is None:
                 continue
             recs.extend(
-                self._price_game(game, odds, ratings, ctx_book, mc, markov, returning)
+                self._price_game(
+                    game, odds, ratings, ctx_book, mc, markov, returning, portal
+                )
             )
         recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
         return recs
@@ -180,6 +186,7 @@ class Pipeline:
         mc: MonteCarlo,
         markov: MarkovSim | None = None,
         returning: ReturningBook | None = None,
+        portal: PortalBook | None = None,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(
             game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
@@ -205,6 +212,10 @@ class Pipeline:
                 adj.margin_delta += delta
                 side = game.home.abbrev if delta > 0 else game.away.abbrev
                 adj.reasons.append(f"{side} returns more production ({delta:+.1f})")
+        if portal:
+            note = portal_note(portal, game.home.name, game.away.name)
+            if note is not None:
+                adj.reasons.append(note)
         exp = ExpectedGame(
             exp_margin=means.exp_margin + adj.margin_delta,
             exp_total=max(0.0, means.exp_total + adj.total_delta),

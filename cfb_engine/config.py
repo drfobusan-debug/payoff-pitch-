@@ -115,14 +115,31 @@ class FeatureParams:
 
     # -- weather (totals) -------------------------------------------------
     # Wind above the threshold knocks points off the total, per mph, capped.
+    #
+    # These default to zero, i.e. observed and printed but not priced, because
+    # the closing total already contains them. Measured on 7,651 outdoor games
+    # (2014-2025) against the *closing total's* residual, not the raw score:
+    #
+    #   wind                     r=-0.0125 (t=-1.09), -0.058 pts per mph
+    #   wind >= 15mph as a flag  r=-0.0077 (t=-0.68)
+    #   wind x pass rate         r=-0.0021 (t=-0.19)   the named mechanism
+    #   temperature              r=+0.0152 (t=+1.33)
+    #   R2 over the closing total: +0.00018 for wind, +0.00000 for the interaction
+    #
+    # Precipitation is the one term with a pulse (r=-0.0233, t=-2.04; unders hit
+    # 55.6% in 0.5-1.5mm/hr and 57.6% above that, and 59.4% when rain meets 8mph+
+    # wind) -- but it dies out of time: 56.6% unders in 2014-2019, 47.8% in
+    # 2023-2025. Same shape as returning production, so it is not scored either.
+    # Set the env vars to price any of them; the old defaults were 0.45/mph over
+    # 12mph capped at 7, which is ~8x the measured slope in the same direction.
     wind_threshold_mph: float = field(default_factory=lambda: _env_float("CFBE_WIND_MPH", 12.0))
     wind_total_per_mph: float = field(
-        default_factory=lambda: _env_float("CFBE_WIND_TOTAL_PER_MPH", 0.45)
+        default_factory=lambda: _env_float("CFBE_WIND_TOTAL_PER_MPH", 0.0)
     )
     wind_total_max: float = field(default_factory=lambda: _env_float("CFBE_WIND_TOTAL_MAX", 7.0))
-    precip_total_pts: float = field(default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 2.5))
+    precip_total_pts: float = field(default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 0.0))
     cold_threshold_f: float = field(default_factory=lambda: _env_float("CFBE_COLD_F", 32.0))
-    cold_total_pts: float = field(default_factory=lambda: _env_float("CFBE_COLD_TOTAL_PTS", 1.5))
+    cold_total_pts: float = field(default_factory=lambda: _env_float("CFBE_COLD_TOTAL_PTS", 0.0))
 
     # -- regression -------------------------------------------------------
     # Shrink the ratings-implied margin toward zero (mean reversion): early and
