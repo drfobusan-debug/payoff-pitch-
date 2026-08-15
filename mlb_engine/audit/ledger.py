@@ -83,6 +83,14 @@ class LedgerEntry:
     # ML/RL) at the same book. Persisted so the fade side can be graded/backtested
     # without re-fetching historical odds. None when the market was unpriced.
     under_odds: float | None = None
+    # Was this row priced against the lineup that actually batted, and how long
+    # before first pitch? ``features.lineup_lock`` stamps both on every
+    # recommendation so the ledger can measure whether projected-lineup buys
+    # underperform posted ones -- which is the evidence its own demotion gate is
+    # waiting on, and which nothing could measure while the columns stopped at
+    # the recommendation. "" on rows written before they were persisted.
+    lineup_status: str = ""
+    hours_to_first_pitch: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -110,6 +118,8 @@ LEDGER_FIELDS = [
     "close_prob",
     "clv",
     "clv_ev",
+    "lineup_status",
+    "hours_to_first_pitch",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
@@ -123,6 +133,7 @@ _OPTIONAL_FLOAT_FIELDS = (
     "close_prob",
     "clv",
     "clv_ev",
+    "hours_to_first_pitch",
 )
 
 
@@ -174,6 +185,12 @@ def entries_from_graded(
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
                 fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
+                lineup_status=rec.lineup_status or "",
+                hours_to_first_pitch=(
+                    round(rec.hours_to_first_pitch, 2)
+                    if rec.hours_to_first_pitch is not None
+                    else None
+                ),
             )
         )
     return entries
@@ -220,6 +237,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_to_float(row.get("close_prob", "")),
                     clv=_to_float(row.get("clv", "")),
                     clv_ev=_to_float(row.get("clv_ev", "")),
+                    lineup_status=row.get("lineup_status", ""),
+                    hours_to_first_pitch=_to_float(row.get("hours_to_first_pitch", "")),
                 )
             )
     return out

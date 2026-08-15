@@ -18,6 +18,11 @@ normal state for an early card, and hard-passing on it would empty most slates
 before the graded data says the passes were right. The status and note ship on,
 so the ledger can measure whether projected-lineup buys actually underperform
 posted-lineup ones before the gate is switched on.
+
+That measurement needs the status to reach the *ledger*, not just the
+recommendation, which it did not until the columns were added: see
+:func:`mlb_engine.audit.analysis.lineup_findings` for the read, which reports an
+under-powered split as under-powered rather than as a verdict on this gate.
 """
 
 from __future__ import annotations
