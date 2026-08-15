@@ -39,7 +39,7 @@ def test_the_hazard_is_the_shape_that_was_measured() -> None:
         **late, inning=LATE_INNING - 1
     )
     # Handedness, and the slot only through it: the platoon-edge bat's hazard is
-    # flat down the order (slot alone was z = -1.4), the wrong-handed bat's is not.
+    # flat down the order (slot alone fits to -0.001), the wrong-handed bat's is not.
     state = dict(inning=8, starter_out=True)
     assert HAZ.per_pa(**state, slot=9, same_hand=True) > HAZ.per_pa(
         **state, slot=9, same_hand=False
@@ -98,17 +98,35 @@ def test_removal_takes_plate_appearances_off_the_hitter() -> None:
 
 
 def test_a_slot_is_replaced_once_and_the_hitter_never_returns() -> None:
-    """Removal is absorbing: no plate appearance comes back to him."""
+    """Removal is absorbing, and it starts after his first turn.
+
+    Two facts in one test, because they are the same accounting. A man in the
+    batting order takes his first appearance -- over 27,090 slot-games the starter
+    has it 100.0% of the time, since being pinch-hit *for* presupposes he was due
+    up -- and once he has been lifted nothing comes back to him. So with certain
+    removal his line is exactly one plate appearance, every time.
+
+    Every outcome here is a single or a strikeout, both of which the batter arrays
+    record, so ``1B + K`` per slot IS that slot's credited plate appearances.
+    """
+    counted = {"1B": 0.3, "K": 0.7, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0,
+               "OUT": 0.0}
     always = RemovalHazard(intercept=50.0)
-    lifted = _team(
+    lifted = TeamSimConfig(
+        bat_vs_starter=[dict(counted) for _ in range(9)],
+        bat_vs_pen=[dict(counted) for _ in range(9)],
         bat_hands=("R",) * 9,
         removal_hazard=always,
-        bat_replacement=SUB_RATES,
+        bat_replacement=dict(counted),
     )
-    # The bullpen from the first batter, so he is lifted at once.
-    res = MonteCarlo(50, seed=3).simulate(lifted, _team(starter_bf_cap=0, starter_hand="R"))
-    for stat in ("H", "1B", "2B", "3B", "HR", "BB", "K", "R", "RBI"):
-        assert res.bat["home"][stat].sum() == 0, stat
+    # The bullpen from the first batter, so he is lifted the moment he is at risk.
+    res = MonteCarlo(200, seed=3).simulate(
+        lifted, _team(starter_bf_cap=0, starter_hand="R")
+    )
+    pa = res.bat["home"]["1B"] + res.bat["home"]["K"]
+    assert pa.max() == 1  # no second turn ever lands on him
+    for slot in range(9):  # and no slot is erased before the game reaches it
+        assert float(pa[:, slot].mean()) > 0.97, slot
     # The offense itself is intact: somebody batted, and the game was played.
     assert res.home_runs_full.sum() > 0
     assert res.bat["away"]["H"].sum() > 0  # and the other lineup is untouched
@@ -119,32 +137,56 @@ def test_removal_moves_hits_down_without_touching_the_rate_vector() -> None:
 
     The rate vectors handed in are identical; only the chance of being lifted
     differs, and that alone has to move the hits distribution toward the Under.
+
+    Measured rather than sampled loosely, because the effect is small on purpose:
+    the hazard costs a hitter ~4.5% of his turns, so at the top of the order a
+    slot's loss is 0.05 of a plate appearance and Monte Carlo noise on a
+    thousand-game sample is 0.03 of one. Every outcome here is a single or a
+    strikeout, both recorded, so ``1B + K`` is the exact credited count and the
+    comparison does not rest on a subset of outcomes.
     """
+    counted = {"1B": 0.3, "K": 0.7, "2B": 0.0, "3B": 0.0, "HR": 0.0, "BB": 0.0,
+               "OUT": 0.0}
+
+    def bats(**kw) -> TeamSimConfig:
+        return TeamSimConfig(
+            bat_vs_starter=[dict(counted) for _ in range(9)],
+            bat_vs_pen=[dict(counted) for _ in range(9)],
+            bat_replacement=dict(counted),  # same bat, so only attribution differs
+            **kw,
+        )
+
     hands = ("L",) * 9
     lhp = _team(starter_hand="L")
-    fixed = _team(bat_hands=hands)
-    lifted = _team(bat_hands=hands, removal_hazard=HAZ)
-    base = MonteCarlo(3000, seed=5).simulate(fixed, lhp)
-    rem = MonteCarlo(3000, seed=5).simulate(lifted, lhp)
+    base = MonteCarlo(20_000, seed=5).simulate(bats(bat_hands=hands), lhp)
+    rem = MonteCarlo(20_000, seed=5).simulate(
+        bats(bat_hands=hands, removal_hazard=HAZ), lhp
+    )
     # The same nine against a right-hander: the platoon edge, same rate vectors.
-    ok = MonteCarlo(3000, seed=5).simulate(lifted, _team(starter_hand="R"))
+    ok = MonteCarlo(20_000, seed=5).simulate(
+        bats(bat_hands=hands, removal_hazard=HAZ), _team(starter_hand="R")
+    )
 
     def pa(res, slot: int) -> float:
-        return sum(float(res.bat["home"][s][:, slot].mean()) for s in ("H", "BB", "K"))
+        return float((res.bat["home"]["1B"][:, slot] + res.bat["home"]["K"][:, slot]).mean())
 
     def p_hit(res, slot: int) -> float:
-        return float((res.bat["home"]["H"][:, slot] >= 1).mean())
+        return float((res.bat["home"]["1B"][:, slot] >= 1).mean())
 
     for slot in range(9):
-        assert pa(rem, slot) < pa(base, slot)
-        assert p_hit(rem, slot) < p_hit(base, slot)
+        assert pa(rem, slot) < pa(base, slot), slot
+        assert p_hit(rem, slot) < p_hit(base, slot), slot
+    # The bottom of the order pays most of it: 8.0% of the 9-hole's appearances
+    # go to somebody else against 3.1% of the leadoff man's.
+    lost = [pa(base, s) - pa(rem, s) for s in range(9)]
+    assert lost[8] > lost[0]
     # And it is handedness that costs him the turns: the wrong-handed bat loses
     # more of them than the same hitter with the platoon edge.
     assert sum(pa(rem, i) for i in range(9)) < sum(pa(ok, i) for i in range(9))
 
 
 def test_the_substitute_is_a_worse_bat_than_the_league() -> None:
-    """Measured off 4,409 substitute plate appearances, not assumed."""
+    """Measured off 1,915 substitute plate appearances, not assumed."""
     assert abs(sum(SUB_RATES.values()) - 1.0) < 1e-9
     assert SUB_RATES["1B"] < 0.1417  # league singles rate
     assert SUB_RATES["K"] > 0.2228  # league strikeout rate

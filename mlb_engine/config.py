@@ -483,15 +483,21 @@ class Config:
     )
 
     # Let the simulator lift a hitter mid-game instead of batting the same nine
-    # to the last out. The hazard is measured (``features.removal``): 8.6% per
-    # appearance once the opposing starter is gone, 24.2% for a wrong-handed bat
+    # to the last out. The hazard is measured (``features.removal``): 10.1% per
+    # appearance once the opposing starter is gone, 22.7% for a wrong-handed bat
     # batting 9th, and the substitute who takes over is a worse hitter, so the
     # branch moves hits and total bases down through lost opportunity rather than
-    # by cutting anyone's rates. Off until the reprice scores it: it changes every
-    # batter number the engine produces, and the live calibration map was fitted
-    # without it.
+    # by cutting anyone's rates. On: the reprice it was waiting for scores it
+    # against three independent measurements -- the credited-appearance ratio
+    # lands on .9538 against a play-by-play .9541, the substitute share runs
+    # 2.5% at the top of the order to 7.8% at the bottom against a measured
+    # 3.1% to 8.0%, and both agree with the box score's own ``battingOrder``
+    # codes. It takes 1.0-1.4pp off every batter market, which is about 40% of
+    # the +1.75-3.40pp the graded ledger says those markets are long by; the
+    # rest is level rather than opportunity and is not corrected here.
+    # ``MLBE_REMOVAL_HAZARD=0`` reverts to batting the same nine.
     removal_hazard: bool = field(
-        default_factory=lambda: _env_bool("MLBE_REMOVAL_HAZARD", False)
+        default_factory=lambda: _env_bool("MLBE_REMOVAL_HAZARD", True)
     )
 
     # RBI overs are the one market where a conviction floor works: 20.5 of the

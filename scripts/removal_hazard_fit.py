@@ -14,6 +14,8 @@ from pathlib import Path
 
 import numpy as np
 
+from mlb_engine.data.pbp import plate_appearances
+
 PBP = Path.home() / ".mlb_engine" / "cache" / "pbp"
 FEATURES = ["sp_out", "late", "slot", "same_hand", "same_hand_x_slot"]
 
@@ -25,7 +27,7 @@ def rows() -> list[dict]:
             plays = json.loads(path.read_text()).get("allPlays") or []
         except (json.JSONDecodeError, OSError):
             continue
-        plays = [p for p in plays if (p.get("result") or {}).get("type") == "atBat"]
+        plays = plate_appearances(plays)
         if not plays or max(int(p["about"]["inning"]) for p in plays) < 8:
             continue
         date = str(plays[0]["about"].get("startTime", ""))[:10]

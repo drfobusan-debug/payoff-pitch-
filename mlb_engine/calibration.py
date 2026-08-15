@@ -63,11 +63,23 @@ log = logging.getLogger(__name__)
 # (`calibrate` holds out two and so needs a third). So unlike the case above there
 # is nothing to trade off: this is the cheapest moment a reset will ever be, and
 # the same argument that reset "pen-park-gb" after a single slate.
-FEATURE_BASIS = "league-prior-roe-2026.08"
+#
+# Lifting a hitter mid-game retires it again, and this time the argument is
+# simpler than any of the above: the branch takes 1.0-1.4pp off every batter
+# market at once, which is the same quantity, in the same direction, across the
+# same nine markets a batter map is built to correct. A map fitted without it
+# would learn to shrink an overstatement the simulator no longer makes.
+#
+# It is free, for the second time running. The window opened by the previous
+# reset holds no graded rows at all -- nothing has been priced on
+# "league-prior-roe-2026.08" yet -- so there is nothing to discard and no
+# trade-off to weigh.
+FEATURE_BASIS = "removal-hazard-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-14 was priced before the league-prior and reached-on-error corrections landed.
+# 08-14 was priced before the league-prior and reached-on-error corrections landed,
+# and before the lineup could be substituted.
 FEATURE_BASIS_SINCE = Date(2026, 8, 15)
 
 
