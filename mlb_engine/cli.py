@@ -29,6 +29,7 @@ from mlb_engine.audit.ledger import (
     daily_engine_metrics,
     daily_rollup,
     engine_metrics,
+    engine_rows,
     entries_from_graded,
     gate_metrics,
     load_ledger,
@@ -38,6 +39,7 @@ from mlb_engine.audit.ledger import (
     runline_metrics,
     update_ledger,
 )
+from mlb_engine.audit.outside import entries_from_picks, head_to_head
 from mlb_engine.audit.probation import (
     WATCHING,
     market_probation,
@@ -59,9 +61,15 @@ from mlb_engine.data.opta import (
     merge_rows,
     save_rows,
 )
-from mlb_engine.data.results import fetch_result
+from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
+from mlb_engine.data.teamrankings import (
+    TeamRankingsClient,
+    load_picks,
+    merge_picks,
+    save_picks,
+)
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
@@ -291,6 +299,26 @@ def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
         print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
+def _capture_teamrankings(cfg: Config, slate_date: Date) -> None:
+    """Store the outside model's picks for tonight, so the audit can grade them.
+
+    Runs as part of the slate because their grid keeps no archive: a pick not
+    captured before the games is not recoverable afterwards, and a benchmark with
+    holes in it cannot be compared over a season. Best-effort, like Opta.
+    """
+    try:
+        iso = slate_date.isoformat()
+        picks = TeamRankingsClient().fetch(date=iso)
+        if not picks:
+            return
+        path = _tr_path(cfg, iso)
+        save_picks(path, merge_picks(load_picks(path), picks))
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("TeamRankings benchmark unavailable", exc_info=True)
+        return
+    print(f"TeamRankings benchmark: {len(picks)} picks captured for {iso}")
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     cfg = load_config()
     deps = PipelineDeps(
@@ -324,6 +352,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
     _annotate_opta(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
+    _capture_teamrankings(cfg, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
@@ -508,6 +537,40 @@ def _opta_path(cfg: Config, slate_date: str) -> Path:
     return cfg.audit_dir / f"opta_{slate_date}.json"
 
 
+def _tr_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"teamrankings_{slate_date}.json"
+
+
+def cmd_teamrankings(args: argparse.Namespace) -> int:
+    """Capture TeamRankings' picks for a slate, as an outside benchmark.
+
+    Free and uncredited, but only ever the current grid: there is no date
+    parameter and no archive, so a slate not captured before it is replaced is
+    gone. The audit grades whatever was captured against the box score, so this
+    only has to run once, before the games.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    picks = TeamRankingsClient().fetch()
+    if not picks:
+        print("TeamRankings' picks grid returned nothing; captured no benchmark.")
+        return 1
+    wanted = args.date or max(p.date for p in picks)
+    slate = [p for p in picks if p.date == wanted]
+    if not slate:
+        published = ", ".join(sorted({p.date for p in picks}))
+        print(f"TeamRankings is showing {published}; {wanted} is not on the grid.")
+        return 1
+    _state_pull(cfg)
+    path = _tr_path(cfg, wanted)
+    merged = merge_picks(load_picks(path), slate)
+    save_picks(path, merged)
+    games = len({p.matchup for p in merged})
+    print(f"Captured {len(slate)} TeamRankings picks over {games} games for {wanted} -> {path}")
+    _state_push(cfg, f"teamrankings {wanted}: {len(merged)} picks, {games} games")
+    return 0
+
+
 def cmd_opta(args: argparse.Namespace) -> int:
     """Capture VSIN's Opta projections for a slate, as an outside benchmark.
 
@@ -547,6 +610,38 @@ def cmd_opta(args: argparse.Namespace) -> int:
     )
     _state_push(cfg, f"opta {slate_date}: {len(merged)} projections, {graded} graded")
     return 0
+
+
+def _outside_entries(
+    cfg: Config,
+    audit_date: Date,
+    recs: list[Recommendation],
+    results: dict[int, GameResult],
+) -> list[LedgerEntry]:
+    """Grade the captured outside picks for a slate, best-effort.
+
+    A benchmark must be gradeable on games we did not price -- most of the value
+    of a second model is what it says where we said nothing -- so a matchup our
+    own recommendations do not cover is looked up on the schedule and its box
+    score fetched. The whole thing is wrapped: a benchmark is worth less than
+    the audit and must never be able to stop it.
+    """
+    picks = load_picks(_tr_path(cfg, audit_date.isoformat()))
+    if not picks:
+        return []
+    game_pks = {r.matchup: r.game_pk for r in recs}
+    graded = dict(results)
+    missing = {p.matchup for p in picks} - set(game_pks)
+    if missing:
+        try:
+            slate = MLBStatsClient().get_slate(audit_date)
+            for game in slate.games:
+                if game.matchup() in missing:
+                    game_pks[game.matchup()] = game.game_pk
+                    graded[game.game_pk] = fetch_result(game.game_pk, cache_dir=cfg.cache_dir)
+        except Exception:  # noqa: BLE001 - the benchmark never blocks the audit
+            logging.warning("could not extend the slate for outside picks", exc_info=True)
+    return entries_from_picks(picks, graded, game_pks, audit_date)
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
@@ -601,11 +696,19 @@ def cmd_audit(args: argparse.Namespace) -> int:
     entries = entries_from_graded(graded, audit_date, results)
     closing = load_closing(_closing_path(cfg, audit_date))
     n_clv = attach_clv(entries, closing)
-    all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
-    # The ledger keeps both sides of every prop so the fade stays graded; a
-    # measurement takes one row per wager (see `one_side_per_prop`). The workbook
-    # below still writes the full ledger.
-    measured = one_side_per_prop(all_entries)
+    # The outside model's picks are graded off the same box scores and written
+    # beside ours, on their own rows, in the same `update_ledger` call: a second
+    # write for the same date would be treated as a re-audit and drop them.
+    outside = _outside_entries(cfg, audit_date, recs, results)
+    all_entries = update_ledger(
+        cfg.audit_dir / "ledger.csv", entries + outside, audit_date
+    )
+    # The ledger keeps both sides of every prop so the fade stays graded, and
+    # the outside model's picks beside ours; a measurement of the engine takes
+    # one row per wager of ours (see `one_side_per_prop`, `engine_rows`).
+    # Counting a benchmark inside our own PPV, ROI or CLV would corrupt the
+    # numbers it exists to check. The workbook below still writes every row.
+    measured = one_side_per_prop(engine_rows(all_entries))
     # CLV especially: the two sides of a prop are devigged complements, so their
     # CLV is an exact negation and counting both drives every market's mean to
     # zero and "beat the close" to 50% arithmetically.
@@ -629,6 +732,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
         runline_rows=runlines,
         clv_rows=clv_summary,
     )
+
+    if outside:
+        _print_head_to_head(entries, outside)
 
     print(f"Graded {len(graded)} markets for {audit_date}")
     for row in rows:
@@ -754,6 +860,23 @@ def cmd_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def _print_head_to_head(ours: list, theirs: list) -> None:
+    """Our game-market calls beside the outside model's, for the slate."""
+    rows = head_to_head(ours, theirs)
+    if not rows:
+        return
+    both = [r for r in rows if r.ours and r.theirs]
+    agreed = [r for r in both if r.agree]
+    print(f"\nTeamRankings head-to-head ({len(both)} markets both of us bet):")
+    for r in rows:
+        ours_txt = f"{r.ours} [{r.our_result}]" if r.ours else "(pass)"
+        theirs_txt = f"{r.theirs} {r.their_tier} [{r.their_result}]" if r.theirs else "(lay off)"
+        mark = "=" if r.ours and r.theirs and r.agree else " "
+        print(f"  {mark} {r.matchup:<12} {r.market:<11} us {ours_txt:<28} them {theirs_txt}")
+    if both:
+        print(f"  agreed on {len(agreed)} of {len(both)}")
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     cfg = load_config()
     _state_pull(cfg)
@@ -761,7 +884,8 @@ def cmd_report(args: argparse.Namespace) -> int:
     if not ledger_path.exists():
         print(f"No ledger found at {ledger_path}; run `mlb-engine audit` first")
         return 1
-    all_entries = load_ledger(ledger_path)
+    # The report grades the engine, so the benchmark's rows are not part of it.
+    all_entries = engine_rows(load_ledger(ledger_path))
     end = _parse_date(args.date, Date.today() - timedelta(days=1))
 
     if args.period == "weekly":
@@ -807,7 +931,9 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     cfg = load_config()
     ledger_path = cfg.audit_dir / "ledger.csv"
     graded = [
-        e for e in load_ledger(ledger_path) if e.result in (WIN, LOSS) and e.raw_prob is not None
+        e
+        for e in engine_rows(load_ledger(ledger_path))
+        if e.result in (WIN, LOSS) and e.raw_prob is not None
     ]
     since = FEATURE_BASIS_SINCE.isoformat()
     entries = [e for e in graded if e.date >= since]
@@ -957,6 +1083,16 @@ def main(argv: list[str] | None = None) -> int:
         help="slate date YYYY-MM-DD; must be one of the three VSIN publishes",
     )
     op.set_defaults(func=cmd_opta)
+
+    tr = sub.add_parser(
+        "teamrankings",
+        help="capture TeamRankings' game-market picks and star ratings as a benchmark",
+    )
+    tr.add_argument(
+        "--date",
+        help="slate date YYYY-MM-DD; defaults to the latest slate on their grid",
+    )
+    tr.set_defaults(func=cmd_teamrankings)
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
