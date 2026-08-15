@@ -146,6 +146,12 @@ PITCHER_LINES = {
 
 # Trailing tokens the engine appends to a player's name in ``selection``.
 _SEL_SUFFIX = re.compile(r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|H|R|RBI|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$")
+_SEL_SIDE = re.compile(r"\s([ou])[\d.]+$")
+
+# Markets the BAT X feed prices on its own numbers alone. The rest impose a
+# distribution of ours on their projected mean (see the module docstring), so a
+# verdict pooled over all of them grades our assumptions as much as their feed.
+CLEAN_MARKETS = frozenset({"batter_h", "batter_1b", "batter_2b", "batter_hr", "batter_tb"})
 
 
 def norm_name(name: str) -> str:
@@ -159,6 +165,11 @@ def norm_name(name: str) -> str:
 
 def player_from_selection(selection: str) -> str:
     return norm_name(_SEL_SUFFIX.sub("", str(selection)))
+
+
+def is_under(selection: str) -> bool:
+    match = _SEL_SIDE.search(str(selection))
+    return match is not None and match.group(1) == "u"
 
 
 def pa_distribution(mean_pa: float) -> dict[int, float]:
@@ -558,6 +569,15 @@ def cmd_grade(args: argparse.Namespace) -> None:
     if df.empty:
         raise SystemExit("no ledger rows joined to a BAT X projection -- check dates and name normalisation")
 
+    # The ledger's model_prob and fair_prob are the probability of the side that
+    # was recommended; batx_prob is always P(over). On an under row the two are
+    # complements, so comparing them unflipped grades BAT X against its own
+    # mirror image -- and every counting prop the engine fades is an under.
+    df["under"] = df.selection.map(is_under)
+    df.loc[df.under, "batx_prob"] = 1.0 - df.loc[df.under, "batx_prob"]
+    if int(df.under.sum()):
+        print(f"  of which under rows (batx flipped to P(under)): {int(df.under.sum())}")
+
     joined_dates = sorted(df.date.unique())
     print(f"joined {len(df)} graded rows over {len(joined_dates)} slates ({joined_dates[0]}..{joined_dates[-1]})")
     print(f"  unmatched ledger rows: {len(led) - len(df)}")
@@ -580,14 +600,62 @@ def cmd_grade(args: argparse.Namespace) -> None:
         print("  too few priced rows to read anything into the coefficients")
     if priced.empty:
         return
-    cols = ["model_prob", "fair_prob", "batx_prob"]
-    x = np.column_stack([logit(priced[c].to_numpy()) for c in cols])
-    beta, se = fit_logit(x, priced.y.to_numpy())
-    print(f"  {'term':<14} {'coef':>8} {'se':>7}")
-    print(f"  {'intercept':<14} {beta[0]:8.3f} {se[0]:7.3f}")
-    for name, b, s in zip(cols, beta[1:], se[1:], strict=True):
-        print(f"  {name:<14} {b:8.3f} {s:7.3f}")
+    _head_to_head(priced, "all markets")
+    _head_to_head(priced[priced.market.isin(CLEAN_MARKETS)], "feed only")
+    _head_to_head(priced[~priced.market.isin(CLEAN_MARKETS)], "our assumptions")
     print("\n  a forecast with information the others lack scores a positive coefficient here")
+    print("  read 'feed only': the other rows grade our own distributions as much as theirs")
+
+
+FIT_COLS = ("model_prob", "fair_prob", "batx_prob")
+
+
+def _design(frame: pd.DataFrame, markets: list[str]) -> np.ndarray:
+    """Logit forecasts plus a per-market intercept.
+
+    Without the market dummies the fit is free to score a forecast for knowing
+    that a home run is rarer than a hit, which every one of them knows. Only
+    variation *within* a market is information.
+    """
+    x = np.column_stack([logit(frame[c].to_numpy()) for c in FIT_COLS])
+    if len(markets) < 2:
+        return x
+    dummies = pd.get_dummies(frame.market).reindex(columns=markets).fillna(0.0)
+    return np.column_stack([x, dummies.to_numpy(float)[:, 1:]])
+
+
+def _head_to_head(frame: pd.DataFrame, label: str, draws: int = 300) -> None:
+    """Fit the three forecasts against each other, bootstrapped by player-date.
+
+    One hitter contributes up to five rows on a slate off a single projected
+    line, so the rows are anything but independent and the plain standard error
+    is roughly half what it should be. Resampling whole player-dates prices that
+    in: on the first four slates it moved the BAT X interval from comfortably
+    positive to touching zero.
+    """
+    if len(frame) < 150:
+        print(f"  {label:<16} n={len(frame):<5} too few rows to read")
+        return
+    markets = sorted(frame.market.unique())
+    beta, _ = fit_logit(_design(frame, markets), frame.y.to_numpy())
+    groups = [group for _, group in frame.groupby(frame.player + "|" + frame.date)]
+    rng = np.random.default_rng(4)
+    sampled: list[np.ndarray] = []
+    for _ in range(draws):
+        pick = rng.integers(0, len(groups), len(groups))
+        boot = pd.concat([groups[i] for i in pick], ignore_index=True)
+        try:
+            fit, _unused = fit_logit(_design(boot, markets), boot.y.to_numpy())
+        except (ValueError, np.linalg.LinAlgError):
+            continue
+        sampled.append(fit[1 : 1 + len(FIT_COLS)])
+    spread = np.array(sampled)
+    print(f"  {label:<16} n={len(frame):<5} ({len(groups)} player-dates)")
+    print(f"    {'term':<12} {'coef':>7} {'95% CI':>18} {'P(>0)':>7}")
+    for i, name in enumerate(FIT_COLS):
+        lo, hi = np.percentile(spread[:, i], [2.5, 97.5])
+        share = float(np.mean(spread[:, i] > 0))
+        print(f"    {name:<12} {beta[i + 1]:+7.2f} {f'[{lo:+.2f}, {hi:+.2f}]':>18} {share:7.2f}")
 
 
 def main() -> None:
