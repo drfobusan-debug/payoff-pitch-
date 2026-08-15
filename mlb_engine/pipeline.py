@@ -1642,7 +1642,7 @@ class Pipeline:
                 )
                 for line in sl:
                     po = p_over(arr, line)
-                    for pside in ("over", "under"):
+                    for pside in self._prop_sides(f"batter_{stat.lower()}"):
                         out.append(self._mk(
                             game, m, "batter", f"batter_{stat.lower()}",
                             keys.batter_prop(name, stat, line, pside), po,
@@ -1659,7 +1659,7 @@ class Pipeline:
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
                 po = p_over(hrr, line)
-                for pside in ("over", "under"):
+                for pside in self._prop_sides("batter_hrr"):
                     out.append(self._mk(
                         game, m, "batter", "batter_hrr",
                         keys.batter_prop(name, "H+R+RBI", line, pside), po,
@@ -1676,7 +1676,7 @@ class Pipeline:
             tb_gate = self._tb_gate_reason(breg, tb_sel, opp_contact)
             for line in (1.5, 2.5, 3.5):
                 po = p_over(tb, line)
-                for pside in ("over", "under"):
+                for pside in self._prop_sides("batter_tb"):
                     out.append(self._mk(
                         game, m, "batter", "batter_tb",
                         keys.batter_prop(name, "TB", line, pside), po,
@@ -1701,7 +1701,7 @@ class Pipeline:
                         f"{self.cfg.pitcher_k_max_buy_line}"
                     )
                 po = p_over(arr, line)
-                for pside in ("over", "under"):
+                for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
                     # The K buy cap and the thin-starter gate are screens on
                     # buying the over; neither is a reason to decline an under.
                     # Walks are the exception: it is the under that is vetoed
@@ -1767,6 +1767,19 @@ class Pipeline:
             self.cfg.pitcher_outs_bias_max_prob,
         )
 
+    def _prop_sides(self, market: str) -> tuple[str, ...]:
+        """The sides of a prop worth pricing.
+
+        Rare-event lines are priced over-only. Their under is a heavy favourite
+        -- a home-run under is around -600 -- so the vig eats an edge the model
+        would need to be far sharper than it is to find, and the doubles number
+        is now deliberately near-flat (#132/#138), which makes a fade there a bet
+        on the prior rather than on the hitter.
+        """
+        if market in self.cfg.prop_under_markets:
+            return ("over", "under")
+        return ("over",)
+
     def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
             team_side=None, player_id=None, stat=None, side=None, quotes=None,
             rl_signal: RunLineSignal | None = None,
@@ -1783,6 +1796,7 @@ class Pipeline:
             pen_fatigue: float | None = None,
             opp_pen_fatigue: float | None = None,
             pen_availability: float | None = None) -> Recommendation:
+        under = side == "under"
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
         if self._shrink is not None:
@@ -1878,7 +1892,7 @@ class Pipeline:
                 if steps:
                     tier = bump_tier(tier, steps)
                 reasons.extend(rl_reasons)
-            if market == "batter_hr" and tier != Tier.PASS:
+            if market == "batter_hr" and tier != Tier.PASS and not under:
                 keep, band_reason = price_band_allows(
                     rec.market_american,
                     self.cfg.hr_min_buy_odds,
@@ -1890,7 +1904,7 @@ class Pipeline:
                     gate = "hr_price_band"
                 if band_reason:
                     reasons.append(band_reason)
-            if market == "batter_1b" and tier != Tier.PASS:
+            if market == "batter_1b" and tier != Tier.PASS and not under:
                 keep, sing_reason = price_band_allows(
                     rec.market_american,
                     self.cfg.singles_min_buy_odds,
@@ -1902,7 +1916,7 @@ class Pipeline:
                     gate = "singles_price_floor"
                 if sing_reason:
                     reasons.append(sing_reason)
-            if market == "batter_rbi" and tier != Tier.PASS:
+            if market == "batter_rbi" and tier != Tier.PASS and not under:
                 keep, rbi_reason = prob_floor_allows(
                     rec.model_prob, self.cfg.rbi_min_buy_prob, "rbi-floor"
                 )
@@ -1911,10 +1925,36 @@ class Pipeline:
                     gate = "rbi_prob_floor"
                 if rbi_reason:
                     reasons.append(rbi_reason)
+            # The fade's own screens, in place of the over screens it does not
+            # inherit: a price with room to pay, and -- on singles, the only
+            # market where the profile is measured -- the batter shape that
+            # actually fails the line.
+            if under and tier != Tier.PASS:
+                keep, under_reason = price_band_allows(
+                    rec.market_american,
+                    self.cfg.prop_under_min_price,
+                    math.inf,
+                    "under-price-floor",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "under_price_floor"
+                if under_reason:
+                    reasons.append(under_reason)
+            if market == "batter_1b" and under and tier != Tier.PASS:
+                score = bat_singles_under or 0.0
+                if score < self.cfg.singles_under_buy_min:
+                    tier = Tier.PASS
+                    gate = "singles_under_profile"
+                    reasons.append(
+                        f"singles-under profile {score:.1f} < "
+                        f"{self.cfg.singles_under_buy_min:.1f}"
+                    )
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS
                 and selector is not None
+                and not under
             ):
                 keep, hr_reason = self._hr_gate.allows(
                     selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe,
@@ -2009,7 +2049,7 @@ class Pipeline:
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
-        if market in PRICE_ONLY_MARKETS and rec.tier != Tier.PASS:
+        if market in PRICE_ONLY_MARKETS and rec.tier != Tier.PASS and not under:
             rec.tier = Tier.PASS
             rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
