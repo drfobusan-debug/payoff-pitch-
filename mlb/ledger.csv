@@ -86761,6 +86761,28 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-13,TEX @ LAA,Totals,game_total,Under 7.5,7.5,,,,Pass,0.6324,,win,0.91,,,unpriced,0.6588,,,,,,,,,engine
 2026-08-13,TEX @ LAA,Totals,game_total,Under 8.5,8.5,,,,Pass,0.6738,,win,0.91,,,unpriced,0.7343,,,,,,,,,engine
 2026-08-13,TEX @ LAA,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7192,,win,0.91,,,unpriced,0.8167,,,,,,,,,engine
+2026-08-14,AZ @ ATL,game,game_ml,ATL ML,,teamrankings,179.0,,2 stars,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,AZ @ ATL,game,game_rl,ATL -1.5,-1.5,teamrankings,105.0,,2 stars,0.0,,loss,-1.0,-2.0,,,,,,,,,,,,teamrankings
+2026-08-14,AZ @ ATL,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,AZ @ ATL,game,game_winner,AZ ML,,teamrankings,,,2 stars,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,BAL @ TB,game,game_ml,TB ML,,teamrankings,140.0,,2 stars,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,BAL @ TB,game,game_rl,TB -1.5,-1.5,teamrankings,135.0,,2 stars,0.0,,loss,-1.0,-1.0,,,,,,,,,,,,teamrankings
+2026-08-14,BAL @ TB,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,BAL @ TB,game,game_winner,BAL ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,BOS @ PIT,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,BOS @ PIT,game,game_winner,PIT ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,COL @ SF,game,game_ml,SF ML,,teamrankings,123.0,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,COL @ SF,game,game_rl,SF -1.5,-1.5,teamrankings,156.0,,1 star,0.0,,loss,-1.0,-3.0,,,,,,,,,,,,teamrankings
+2026-08-14,COL @ SF,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,COL @ SF,game,game_winner,COL ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,CWS @ DET,game,game_ml,DET ML,,teamrankings,122.0,,2 stars,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,CWS @ DET,game,game_rl,DET -1.5,-1.5,teamrankings,141.0,,2 stars,0.0,,loss,-1.0,-4.0,,,,,,,,,,,,teamrankings
+2026-08-14,CWS @ DET,game,game_total,Under 8.5,8.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,CWS @ DET,game,game_winner,CWS ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,KC @ LAA,game,game_total,Under 8.5,8.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,KC @ LAA,game,game_winner,KC ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,MIA @ CIN,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,MIA @ CIN,game,game_winner,CIN ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
 2026-08-14,MIL @ LAD,Batter Props,batter_1b,Andrew Vaughn 1B o0.5,0.5,,,,Pass,0.4379,,loss,-1.0,,,unpriced,0.4379,,,,,,,posted,20.33,engine
 2026-08-14,MIL @ LAD,Batter Props,batter_1b,Andy Pages 1B o0.5,0.5,,,,Pass,0.6135,,win,0.91,,,unpriced,0.6246,,,,,,,posted,20.33,engine
 2026-08-14,MIL @ LAD,Batter Props,batter_1b,Christian Yelich 1B o0.5,0.5,,,,Pass,0.3597,,loss,-1.0,,,unpriced,0.3597,,,,,,,posted,20.33,engine
@@ -86988,3 +87010,23 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-14,MIL @ LAD,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6546,,win,0.91,,,unpriced,0.6992,,,,,,,posted,20.33,engine
 2026-08-14,MIL @ LAD,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
 2026-08-14,MIL @ LAD,game,game_winner,MIL ML,,teamrankings,,,2 stars,0.0,,loss,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,NYY @ TOR,game,game_ml,NYY ML,,teamrankings,136.0,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,NYY @ TOR,game,game_rl,NYY -1.5,-1.5,teamrankings,113.0,,1 star,0.0,,loss,-1.0,-2.0,,,,,,,,,,,,teamrankings
+2026-08-14,NYY @ TOR,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,NYY @ TOR,game,game_winner,TOR ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,SD @ CLE,game,game_ml,CLE ML,,teamrankings,109.0,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,SD @ CLE,game,game_rl,CLE -1.5,-1.5,teamrankings,174.0,,1 star,0.0,,loss,-1.0,-2.0,,,,,,,,,,,,teamrankings
+2026-08-14,SD @ CLE,game,game_total,Over 7.0,7.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,SD @ CLE,game,game_winner,CLE ML,,teamrankings,,,1 star,0.0,,loss,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,SEA @ HOU,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,SEA @ HOU,game,game_winner,SEA ML,,teamrankings,,,1 star,0.0,,loss,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,STL @ CHC,game,game_ml,STL ML,,teamrankings,162.0,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,STL @ CHC,game,game_rl,STL +1.5,1.5,teamrankings,-136.0,,1 star,0.0,,loss,-1.0,-3.0,,,,,,,,,,,,teamrankings
+2026-08-14,STL @ CHC,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.0,,win,0.91,,,,,,,,,,,,,teamrankings
+2026-08-14,STL @ CHC,game,game_winner,CHC ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,TEX @ ATH,game,game_ml,ATH ML,,teamrankings,-107.0,,2 stars,0.0,,win,0.9346,,,,,,,,,,,,,teamrankings
+2026-08-14,TEX @ ATH,game,game_rl,ATH -1.5,-1.5,teamrankings,138.0,,2 stars,0.0,,win,1.38,5.0,,,,,,,,,,,,teamrankings
+2026-08-14,TEX @ ATH,game,game_total,Under 9.5,9.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,TEX @ ATH,game,game_winner,ATH ML,,teamrankings,,,1 star,0.0,,win,0.0,,,,,,,,,,,,,teamrankings
+2026-08-14,WSH @ NYM,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.0,,loss,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-14,WSH @ NYM,game,game_winner,WSH ML,,teamrankings,,,1 star,0.0,,loss,0.0,,,,,,,,,,,,,teamrankings
