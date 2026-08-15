@@ -371,8 +371,8 @@ def annotate(recs: list, rows: list[OptaRow]) -> int:
     stars on the under says nothing good about our over.
     """
     by_key: dict[str, OptaRow] = {}
-    for row in rows:
-        by_key.setdefault(_match_key(row.market, row.selection), row)
+    for entry in rows:
+        by_key.setdefault(_match_key(entry.market, entry.selection), entry)
     hits = 0
     for rec in recs:
         row = by_key.get(_match_key(rec.market, rec.selection))

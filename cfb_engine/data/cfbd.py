@@ -23,6 +23,7 @@ from datetime import timedelta
 import requests
 
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
+from cfb_engine.data.portal import PortalBook, build_portal_book
 from cfb_engine.data.teamnames import school_key
 
 # Transport only, and nothing in it is baseball-specific: retries and a default
@@ -362,6 +363,20 @@ class CFBDClient:
             if team and isinstance(pct, (int, float)):
                 out[school_key(str(team))] = float(pct)
         return out
+
+    def fetch_portal(self, season: int) -> PortalBook:
+        """Pre-season transfer-portal churn per team (free endpoint, 2021 on).
+
+        Reported on the card, not priced -- :mod:`cfb_engine.data.portal` records
+        what it measured against the closing spread.
+        """
+        if not self.available():
+            return {}
+        data = self._get("/player/portal", year=season)
+        if not isinstance(data, list):
+            return {}
+        rows = [row for row in data if isinstance(row, dict)]
+        return build_portal_book(rows, season)
 
     def fetch_venues(self) -> dict[int, Venue]:
         """Venue geo + dome flag, keyed by venue id."""
