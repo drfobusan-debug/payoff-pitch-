@@ -71,13 +71,18 @@ class ScoreDistribution:
         wins = margin > 0 if home else margin < 0
         return MarketProb(win=float(np.mean(wins)), push=tie)
 
-    def spread(self, home_point: float) -> MarketProb:
-        """Cover probability for the *home* side laying/taking ``home_point``.
+    def spread(self, point: float, *, home: bool = True) -> MarketProb:
+        """Cover probability for one side taking ``point`` as *its own* handicap.
 
-        ``home_point`` is the home team's handicap: -3.0 means the home team must
-        win by more than 3. Pass the negated point for the away side.
+        -3.0 means that side must win by more than 3. The side has to be named
+        rather than inferred from the sign, because negating the point does **not**
+        give the other side's probability: an away team taking +3.5 covers when the
+        margin is *below* 3.5, while the home team taking +3.5 covers when the
+        margin is *above* -3.5, and the two differ by everything between. Reading
+        the away side off a negated home point is how a 0.54 became a 0.73.
         """
-        adjusted = self.margins() + home_point
+        margin = self.margins() if home else -self.margins()
+        adjusted = margin + point
         return MarketProb(
             win=float(np.mean(adjusted > 0)),
             push=float(np.mean(adjusted == 0)),
