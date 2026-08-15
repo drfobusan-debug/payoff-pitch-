@@ -39,6 +39,7 @@ from mlb_engine.audit.ledger import (
     OverallMetrics,
     engine_metrics,
     market_metrics,
+    one_side_per_prop,
     overall_metrics,
 )
 from mlb_engine.audit.probation import (
@@ -206,7 +207,10 @@ def build_report_data(
     ledger even inside the daily report, and labels the sample it used.
     """
     n_dates = len({e.date for e in entries})
-    priced = history if history is not None else entries
+    # Both sides of a prop are in the ledger; a measurement wants one row per
+    # wager, or the near-certain complement grades itself correct for free.
+    entries = one_side_per_prop(entries)
+    priced = one_side_per_prop(history) if history is not None else entries
     engine = engine_metrics(entries)
     tiers = overall_metrics(entries)
     rows = [_classify(m) for m in market_metrics(entries)]

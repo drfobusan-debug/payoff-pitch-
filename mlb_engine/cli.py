@@ -32,6 +32,7 @@ from mlb_engine.audit.ledger import (
     entries_from_graded,
     gate_metrics,
     load_ledger,
+    one_side_per_prop,
     overall_metrics,
     prop_metrics,
     runline_metrics,
@@ -580,18 +581,22 @@ def cmd_audit(args: argparse.Namespace) -> int:
     n_clv = attach_clv(entries, closing)
     all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries, audit_date)
     clv_summary = summarize(clv_rows(all_entries))
-    engine = engine_metrics(all_entries)
-    overall = [engine, *overall_metrics(all_entries)]
-    daily_engine = daily_engine_metrics(all_entries)
-    props = prop_metrics(all_entries)
-    runlines = runline_metrics(all_entries)
-    gates = gate_metrics(all_entries)
-    insights = prop_insights(all_entries)
+    # The ledger keeps both sides of every prop so the fade stays graded; a
+    # measurement takes one row per wager (see `one_side_per_prop`). The workbook
+    # below still writes the full ledger.
+    measured = one_side_per_prop(all_entries)
+    engine = engine_metrics(measured)
+    overall = [engine, *overall_metrics(measured)]
+    daily_engine = daily_engine_metrics(measured)
+    props = prop_metrics(measured)
+    runlines = runline_metrics(measured)
+    gates = gate_metrics(measured)
+    insights = prop_insights(measured)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
     write_ledger_workbook(
         all_entries,
         overall,
-        daily_rollup(all_entries),
+        daily_rollup(measured),
         ledger_xlsx,
         daily_engine=daily_engine,
         prop_rows=props,
@@ -634,7 +639,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             "first pitch to score closing line value (~3 credits)."
         )
 
-    price_rows = [*dog_vs_favorite(all_entries), *price_buckets(all_entries)]
+    price_rows = [*dog_vs_favorite(measured), *price_buckets(measured)]
     if price_rows:
         print("\nReal-priced buys by price length (Need = win rate the price demands):")
         for pb in price_rows:
@@ -643,7 +648,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"need={pb.breakeven * 100:5.1f} gap={pb.shortfall * 100:+5.1f}pts "
                 f"ROI={pb.roi * 100:+6.1f}% units={pb.units:+.2f}"
             )
-        for finding in price_bucket_findings(all_entries):
+        for finding in price_bucket_findings(measured):
             print(f"  - {finding}")
 
     if props:
@@ -672,7 +677,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 f"ROI={m.roi * 100:+6.1f}% units={m.units:+9.2f}"
             )
 
-    probation = [*market_probation(all_entries), *screen_probation(all_entries)]
+    probation = [*market_probation(measured), *screen_probation(measured)]
     if probation:
         print("\nProbation: markets on their own buys, screens on what they refused")
         print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
