@@ -11,6 +11,8 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+from mlb_engine.data.pbp import plate_appearances
+
 PBP = Path.home() / ".mlb_engine" / "cache" / "pbp"
 
 EVENT = {
@@ -37,7 +39,7 @@ def main() -> None:
             plays = json.loads(path.read_text()).get("allPlays") or []
         except (json.JSONDecodeError, OSError):
             continue
-        plays = [p for p in plays if (p.get("result") or {}).get("type") == "atBat"]
+        plays = plate_appearances(plays)
         if not plays or max(int(p["about"]["inning"]) for p in plays) < 8:
             continue
         n_pa: dict[str, int] = defaultdict(int)

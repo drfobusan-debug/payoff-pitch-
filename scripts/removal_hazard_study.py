@@ -9,7 +9,9 @@ platoon state of the matchup.
 
 Batting order is preserved through substitutions, so the k-th plate appearance a
 team takes belongs to slot k % 9 whatever the book says: the slot's original
-occupant is whoever batted there the first time through.
+occupant is whoever batted there the first time through. Which plays count as
+plate appearances is the whole ballgame here -- see ``data.pbp``, since the feed
+types a caught stealing as an at-bat and counting one shifts every slot after it.
 """
 
 from __future__ import annotations
@@ -17,6 +19,8 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from pathlib import Path
+
+from mlb_engine.data.pbp import is_plate_appearance
 
 PBP = Path.home() / ".mlb_engine" / "cache" / "pbp"
 
@@ -42,7 +46,7 @@ def slot_appearances() -> list[dict]:
         game_rows: list[dict] = []
 
         for play in plays:
-            if (play.get("result") or {}).get("type") != "atBat":
+            if not is_plate_appearance(play):
                 continue
             about, mu = play["about"], play["matchup"]
             team = "away" if about["isTopInning"] else "home"
