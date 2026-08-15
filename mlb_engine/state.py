@@ -34,6 +34,7 @@ from mlb_engine.audit.clv import (
     save_closing,
 )
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
+from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -202,6 +203,18 @@ def merge_opta_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_propick_files(remote: Path, local: Path) -> bool:
+    """Union two captures of a day's VSiN model picks.
+
+    The pages are same-day and get restated as the board moves, so whichever
+    machine ran the card first holds picks the other never saw.
+    """
+    if not remote.exists():
+        return False
+    save_picks(local, merge_picks(load_picks(local), load_picks(remote)))
+    return True
+
+
 def _rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     with path.open(newline="") as f:
         reader = csv.DictReader(f)
@@ -307,6 +320,9 @@ def pull_state(
     for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
         if merge_opta_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "propicks").glob("propicks_*.json")):
+        if merge_propick_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
@@ -377,6 +393,12 @@ def push_state(
             merge_opta_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
+        for src in sorted(audit.glob("propicks_*.json")):
+            dest = state / "mlb" / "propicks" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_propick_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
         for name, key in _MERGED_CSVS:
             src = audit / name
             if src.exists():
@@ -440,6 +462,7 @@ __all__ = [
     "merge_board_files",
     "merge_closing_files",
     "merge_opta_files",
+    "merge_propick_files",
     "merge_dated_csv",
     "pull_state",
     "push_state",

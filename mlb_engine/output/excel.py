@@ -65,9 +65,45 @@ COLUMNS = [
     "Profile",
     "Opta %",
     "AI",
+    "VSiN",
+    "VSiN Pick",
+    "VSiN Edge",
     "BAT X %",
     "Notes",
 ]
+
+# Keyed by name rather than position: this sheet's widths had silently drifted
+# six columns out of step behind three added benchmark columns, which put the
+# width meant for Notes on Opta %.
+COLUMN_WIDTHS = {
+    "Date": 11,
+    "Matchup": 12,
+    "Category": 9,
+    "Market": 14,
+    "Selection": 26,
+    "Line": 6,
+    "Model %": 8,
+    "Market %": 9,
+    "Fair Odds": 9,
+    "Book": 11,
+    "Book Odds": 10,
+    "EV": 8,
+    "Edge": 8,
+    "Handle %": 9,
+    "Bets %": 8,
+    "Tier": 12,
+    "Signal": 8,
+    "Factor": 7,
+    "Score": 7,
+    "Profile": 30,
+    "Opta %": 8,
+    "AI": 8,
+    "VSiN": 6,
+    "VSiN Pick": 20,
+    "VSiN Edge": 9,
+    "BAT X %": 9,
+    "Notes": 40,
+}
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 
@@ -109,6 +145,8 @@ GRID_COLUMNS = [
     "Market %",
     "AI",
     "Opta %",
+    "VSiN",
+    "VSiN Pick",
     "BAT X %",
     "Edge",
     "Handle %",
@@ -119,10 +157,12 @@ GRID_COLUMNS = [
     "Profile",
     "Notes",
 ]
-GRID_WIDTHS = [7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 9, 8, 9, 8, 8, 7, 7, 26, 40]
+GRID_WIDTHS = [
+    7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 6, 20, 9, 8, 9, 8, 8, 7, 7, 26, 40
+]
 GRID_CENTER = {
     "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
-    "BAT X %", "Edge", "Handle %", "Bets %",
+    "VSiN", "BAT X %", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -247,6 +287,8 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "Market %": round(rec.fair_prob * 100, 1) if rec.fair_prob is not None else "",
         "AI": rec.opta_mark,
         "Opta %": round(rec.opta_prob * 100, 1) if rec.opta_prob is not None else "",
+        "VSiN": rec.vsin_mark,
+        "VSiN Pick": rec.vsin_pick or "",
         "BAT X %": round(rec.batx_prob * 100, 1) if rec.batx_prob is not None else "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
@@ -361,9 +403,8 @@ def _write_all_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
             if font is not None:
                 cell.font = font
 
-    widths = [11, 12, 9, 14, 26, 6, 8, 9, 9, 11, 10, 8, 8, 9, 8, 12, 8, 7, 7, 30, 40]
-    for i, w in enumerate(widths, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
+    for i, name in enumerate(COLUMNS, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = COLUMN_WIDTHS.get(name, 10)
     if recs:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(recs) + 1}"
     ws.freeze_panes = "A2"

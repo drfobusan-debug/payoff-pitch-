@@ -62,6 +62,11 @@ from mlb_engine.data.opta import (
     merge_rows,
     save_rows,
 )
+from mlb_engine.data.propicks import annotate as annotate_propicks
+from mlb_engine.data.propicks import fetch as fetch_propicks
+from mlb_engine.data.propicks import load_picks as load_propicks
+from mlb_engine.data.propicks import merge_picks as merge_propicks
+from mlb_engine.data.propicks import save_picks as save_propicks
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -281,6 +286,68 @@ def _annotate_opta(cfg: Config, recs: list, slate_date: Date) -> None:
         print(f"Opta benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
+def _propicks_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"propicks_{slate_date}.json"
+
+
+def _annotate_propicks(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put VSiN's VOLT/JOLT pick beside ours on every bet they both have.
+
+    Same contract as the Opta benchmark: the capture on disk is preferred, the
+    fetch is a fallback, and a failure loses the column rather than the card.
+    """
+    try:
+        iso = slate_date.isoformat()
+        picks = [p for p in load_propicks(_propicks_path(cfg, iso)) if p.date in ("", iso)]
+        if not picks:
+            picks = [p for p in fetch_propicks() if p.date in ("", iso)]
+        matched = annotate_propicks(recs, picks)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("VSiN pro picks unavailable; card written without them", exc_info=True)
+        return
+    if matched:
+        agree = sum(1 for r in recs if r.vsin_agrees is True)
+        print(f"VSiN VOLT/JOLT: {matched} shared bets, {agree} on our side")
+
+
+def cmd_propicks(args: argparse.Namespace) -> int:
+    """Capture today's VOLT and JOLT cards. Same-day only, so it runs daily.
+
+    VSiN republishes the pages as the board moves and keeps no archive, so a day
+    not captured is a day the benchmark does not exist for. Captures merge, which
+    keeps a pick that has since been replaced.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    picks = fetch_propicks(league=args.league)
+    if not picks:
+        print("VSiN published no VOLT/JOLT cards for this league.")
+        return 1
+    slate_date = _parse_date(args.date, Date.today()).isoformat()
+    # The pages carry their own date and only ever hold today's board, so a
+    # --date the cards disagree with would file tonight's picks under another
+    # day and stamp the wrong slate with them.
+    stamped = {p.date for p in picks if p.date}
+    if stamped and stamped != {slate_date}:
+        print(
+            f"VSiN is publishing {', '.join(sorted(stamped))}, not {slate_date}; "
+            "nothing captured."
+        )
+        return 1
+    _state_pull(cfg)
+    path = _propicks_path(cfg, slate_date)
+    merged = merge_propicks(load_propicks(path), picks)
+    save_propicks(path, merged)
+    print(f"Captured {len(picks)} VSiN picks for {slate_date}; {len(merged)} total -> {path}")
+    for pick in merged:
+        print(f"  {pick.model:5s} {pick.subject} -- {pick.raw_market}: {pick.summary}")
+    unmapped = sorted({p.raw_market for p in merged if not p.market})
+    if unmapped:
+        print(f"  markets not mapped to an engine bet: {', '.join(unmapped)}")
+    _state_push(cfg, f"propicks {slate_date}: {len(merged)} VSiN model picks")
+    return 0
+
+
 def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
     """Put THE BAT X's number beside ours, where a slate has been priced.
 
@@ -352,6 +419,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         fangraphs_csv = None
     recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
     _annotate_opta(cfg, recs, slate_date)
+    _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
     _capture_teamrankings(cfg, slate_date)
 
@@ -1092,6 +1160,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     op.set_defaults(func=cmd_opta)
 
+    pp = sub.add_parser(
+        "propicks",
+        help="capture VSiN's VOLT/JOLT model picks to show beside our own",
+    )
+    pp.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    pp.add_argument("--league", default="MLB", help="league to keep (default: MLB)")
+    pp.set_defaults(func=cmd_propicks)
+
     tr = sub.add_parser(
         "teamrankings",
         help="capture TeamRankings' game-market picks and star ratings as a benchmark",
@@ -1101,6 +1177,7 @@ def main(argv: list[str] | None = None) -> int:
         help="slate date YYYY-MM-DD; defaults to the latest slate on their grid",
     )
     tr.set_defaults(func=cmd_teamrankings)
+
 
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
