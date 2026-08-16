@@ -827,6 +827,41 @@ IVB_SLOPE = 0.008
 IVB_CLIP = (-0.04, 0.06)
 FOUR_SEAM_TYPES = {"FF", "FA"}
 
+# Four-seam velocity, the one shape metric that pays on the strikeout side.
+#
+# What one start measures, correlated across a pitcher's consecutive starts:
+# release height .97, extension .95, velocity .93, spin .91, IVB .84 -- then a
+# cliff to whiff/swing .20, K/PA .20, CSW% .15, xwOBA allowed .10. One outing is
+# ~90 radar-measured fastballs and ~22 results, so a velocity read off a single
+# start is legitimate where every result-based read is not.
+#
+# Scored the way the engine uses it, 2,082 starts / 48,120 PA, binomial deviance
+# per PA on strikeouts, six-week K%/CSW%/xwOBAcon controlled, chronological
+# 60/40 holdout:
+#
+#                             coef      t   train    holdout
+#     priced levels only        --     --  1.05786    1.05839
+#     + velocity level      0.0478   7.88  1.05642    1.05732
+#     + last-start dev      0.0972   5.32  1.05736    1.05767
+#     + level and dev       0.0995   5.44  1.05588    1.05661
+#
+# Slopes are those logit coefficients on the strikeout scale (x0.78 at a .22
+# league rate). A one-sided fit -- a dip counted differently from a spike --
+# was tried because the velocity itself carries asymmetrically (30% of a dip
+# survives to the next start, 55% of a spike) and it did not beat the linear
+# term (.05684 / .05677 against .05661), so the simple version ships.
+#
+# It buys nothing on contact. On hits per NON-strikeout PA the level is t=-2.15
+# for .0002 of deviance and the last-start deviation makes the holdout worse,
+# which is the same verdict every starter contact instrument has drawn here.
+BL_VFA = 94.7
+VFA_K_LEVEL_SLOPE = 0.037  # per mph above the league four-seamer
+VFA_K_DEV_SLOPE = 0.078  # per mph of last start away from his own level
+VFA_K_LEVEL_CLIP = (-0.12, 0.12)
+VFA_K_DEV_CLIP = (-0.08, 0.08)
+MIN_VFA_PITCHES = 60  # four-seamers in the window before the level is read
+MIN_VFA_START = 15  # four-seamers in the last start before its deviation is read
+
 # Batted balls against one side of the plate before a starter's platoon contact
 # split is trusted. Higher than the K split's PA floor because contact quality
 # is the noisier measurement.
@@ -947,6 +982,11 @@ class PitcherRegression:
     extension: float = float("nan")
     release_var: float = float("nan")
     spin: float = float("nan")
+    # Four-seam velocity over the window, and how far his most recent start sat
+    # from it. ``vfa_k`` is the share of the fitted K term to charge (0 = off).
+    vfa: float = float("nan")
+    vfa_dev: float = float("nan")
+    vfa_k: float = 0.0
     # Optional FanGraphs pitch-modeling metrics (None if no subscription data).
     stuff_plus: float | None = None
     location_plus: float | None = None
@@ -1073,9 +1113,34 @@ class PitcherRegression:
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
         m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
+        m *= self.velocity_k_multiplier()
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
+
+    def velocity_k_multiplier(self) -> float:
+        """How much of his strikeout rate his fastball is worth.
+
+        Two terms: how hard he throws relative to the league, and how his most
+        recent start sat against his own window. The second is the point -- one
+        start measures velocity at r=.93 while measuring nothing else about him,
+        so it is the only same-week form read the engine can honestly take.
+
+        Returns 1.0 unless ``vfa_k`` is set, and for a reliever always: this was
+        fitted on starts.
+        """
+        if self.vfa_k <= 0.0 or self.bullpen:
+            return 1.0
+        m = 1.0
+        if self.vfa == self.vfa:  # not NaN
+            m *= 1.0 + self.vfa_k * _clip(
+                (self.vfa - BL_VFA) * VFA_K_LEVEL_SLOPE, *VFA_K_LEVEL_CLIP
+            )
+        if self.vfa_dev == self.vfa_dev:
+            m *= 1.0 + self.vfa_k * _clip(
+                self.vfa_dev * VFA_K_DEV_SLOPE, *VFA_K_DEV_CLIP
+            )
+        return m
 
     def allowed_multipliers(self) -> dict[str, float]:
         """Multipliers on outcomes the pitcher ALLOWS (hits/xbh/hr)."""
@@ -1194,12 +1259,34 @@ class PitcherRegression:
         return {"1B": one, "2B": xbh, "3B": xbh, "HR": hr}
 
 
+def _four_seam_velocity(pdf: pd.DataFrame) -> tuple[float, float]:
+    """Window four-seam velocity, and where his most recent start sat against it.
+
+    Both are NaN until there are enough four-seamers to read: a start's mean is
+    only a measurement because it averages ~90 pitches, so a start he barely
+    threw the pitch in says nothing.
+    """
+    if "pitch_type" not in pdf or "release_speed" not in pdf:
+        return float("nan"), float("nan")
+    fb = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)].dropna(subset=["release_speed"])
+    if len(fb) < MIN_VFA_PITCHES:
+        return float("nan"), float("nan")
+    level = float(fb["release_speed"].mean())
+    if "game_date" not in fb:
+        return level, float("nan")
+    last = fb[fb["game_date"] == fb["game_date"].max()]["release_speed"]
+    if len(last) < MIN_VFA_START:
+        return level, float("nan")
+    return level, float(last.mean()) - level
+
+
 def build_pitcher_regression(
     pdf: pd.DataFrame,
     stuff_plus: float | None = None,
     location_plus: float | None = None,
     shrink: float = 0.0,
     bullpen: bool = False,
+    vfa_k: float = 0.0,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1301,6 +1388,8 @@ def build_pitcher_regression(
         if len(four_seam) >= 20:
             ivb = float(four_seam.mean() * 12.0)
 
+    vfa, vfa_dev = _four_seam_velocity(pdf)
+
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
         float(np.sqrt(pdf["release_pos_x"].dropna().var() + pdf["release_pos_z"].dropna().var()))
@@ -1389,6 +1478,9 @@ def build_pitcher_regression(
         k_pct_vs_l=k_pct_vs_l,
         k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,
+        vfa=vfa,
+        vfa_dev=vfa_dev,
+        vfa_k=vfa_k,
         extension=ext,
         release_var=rel_var,
         spin=spin,
