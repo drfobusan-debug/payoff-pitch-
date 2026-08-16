@@ -397,7 +397,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     deps = PipelineDeps(
         stats=MLBStatsClient(),
         statcast=StatcastRepository(cfg.cache_dir),
-        weather=WeatherProvider(),
+        weather=WeatherProvider(
+            cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
+        ),
         vsin=VSINClient(cfg.creds),
         oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
