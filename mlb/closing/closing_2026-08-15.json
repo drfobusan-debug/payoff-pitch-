@@ -14016,6 +14016,20 @@
   {
     "matchup": "KC @ LAA",
     "market": "batter_hr",
+    "selection": "Adam Frazier HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
+    "selection": "Adam Frazier HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
     "selection": "Bobby Witt Jr. HR o0.5",
     "american": 350.0,
     "no_vig_prob": 0.235867
@@ -14086,6 +14100,20 @@
   {
     "matchup": "KC @ LAA",
     "market": "batter_hr",
+    "selection": "Isaac Collins HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
+    "selection": "Isaac Collins HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
     "selection": "Jac Caglianone HR o0.5",
     "american": 420.0,
     "no_vig_prob": 0.206527
@@ -14152,6 +14180,20 @@
     "selection": "Luke Maile HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
+    "selection": "Luke Maile HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_hr",
+    "selection": "Luke Maile HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "KC @ LAA",
@@ -15325,6 +15367,13 @@
   {
     "matchup": "KC @ LAA",
     "market": "batter_tb",
+    "selection": "Adam Frazier TB o1.5",
+    "american": 215.0,
+    "no_vig_prob": 0.31746
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_tb",
     "selection": "Adam Frazier TB u0.5",
     "american": -108.0,
     "no_vig_prob": 0.487685
@@ -15475,6 +15524,13 @@
     "selection": "Luke Maile TB o0.5",
     "american": 122.0,
     "no_vig_prob": 0.423216
+  },
+  {
+    "matchup": "KC @ LAA",
+    "market": "batter_tb",
+    "selection": "Luke Maile TB o1.5",
+    "american": 300.0,
+    "no_vig_prob": 0.25
   },
   {
     "matchup": "KC @ LAA",
@@ -37032,9 +37088,23 @@
   {
     "matchup": "TEX @ ATH",
     "market": "batter_tb",
+    "selection": "Austin Wynns TB o0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.547352
+  },
+  {
+    "matchup": "TEX @ ATH",
+    "market": "batter_tb",
     "selection": "Austin Wynns TB o1.5",
     "american": 199.0,
     "no_vig_prob": 0.314278
+  },
+  {
+    "matchup": "TEX @ ATH",
+    "market": "batter_tb",
+    "selection": "Austin Wynns TB u0.5",
+    "american": 109.0,
+    "no_vig_prob": 0.452648
   },
   {
     "matchup": "TEX @ ATH",
