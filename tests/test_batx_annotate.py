@@ -57,6 +57,32 @@ def test_names_join_across_accents_and_suffixes() -> None:
     assert r.batx_prob == 0.4
 
 
+def test_every_prop_market_reads_its_player_back_out_of_the_selection() -> None:
+    """A market whose stat token is unknown to the reader joins to nothing.
+
+    Batter walks and strikeouts were priced without their "BB"/"K" tokens being
+    added here, so the player of "A.J. Ewing BB o0.5" came back with the token
+    still on it and every row of two whole markets missed.
+    """
+    from mlb_engine.market import keys
+
+    cases = {
+        keys.batter_prop("A.J. Ewing", "BB", 0.5): "A.J. Ewing",
+        keys.batter_prop("A.J. Ewing", "K", 1.5, "under"): "A.J. Ewing",
+        keys.batter_prop("Aaron Judge", "H+R+RBI", 2.5): "Aaron Judge",
+        keys.batter_prop("Aaron Judge", "TB", 1.5): "Aaron Judge",
+        keys.pitcher_prop("Tarik Skubal", "Ks", 5.5): "Tarik Skubal",
+        keys.pitcher_prop("Tarik Skubal", "Walks", 1.5, "under"): "Tarik Skubal",
+    }
+    for selection, player in cases.items():
+        assert keys.player_from_selection(selection) == player, selection
+
+    rows = [BatxRow(player="A.J. Ewing", market="batter_bb", line=0.5, prob=0.11)]
+    r = rec(keys.batter_prop("A.J. Ewing", "BB", 0.5), "batter_bb", "over")
+    assert annotate([r], rows) == 1
+    assert r.batx_prob == 0.11
+
+
 def test_an_unmatched_selection_is_left_alone() -> None:
     r = rec("Shohei Ohtani HR o0.5", "batter_hr", "over")
     assert annotate([r], [BatxRow("Aaron Judge", "batter_hr", 0.5, 0.2)]) == 0

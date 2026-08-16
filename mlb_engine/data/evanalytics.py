@@ -27,6 +27,8 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 
+from mlb_engine.market import keys
+
 log = logging.getLogger(__name__)
 
 # Their market names, mapped onto ours. Note that "Walks" is the batter's own
@@ -54,9 +56,6 @@ MARKETS = {
 
 # "0.5 (+172)" -> line 0.5, price +172. The price is absent on some rows.
 _QUOTE = re.compile(r"(-?\d+(?:\.\d+)?)\s*(?:\(([+-]?\d+)\))?")
-_SEL_SUFFIX = re.compile(
-    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|BB|H|R|RBI|K|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$"
-)
 
 
 @dataclass(frozen=True)
@@ -131,8 +130,7 @@ def _norm(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", plain)
 
 
-def player_from_selection(selection: str) -> str:
-    return _SEL_SUFFIX.sub("", str(selection))
+player_from_selection = keys.player_from_selection
 
 
 def _number(text: str) -> float | None:
