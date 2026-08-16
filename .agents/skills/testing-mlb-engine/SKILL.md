@@ -137,6 +137,44 @@ A second full run within 30 min is free and price-stable: the Odds API responses
   up narrow, `Opta %` 40 wide). Values are written by header name and stay correct; check whether the
   list has been extended before reporting it as new.
 
+## Verifying a devig / fair-price change on a real board
+- `fair_prob` is persisted per selection in `predictions_<date>.json`, so the board-wide invariant
+  is cheap: group `game_ml` by matchup (and `game_rl` by pairing home `-1.5` with away `+1.5`,
+  `game_total` by over/under) and assert each pair's `fair_prob` sums to 1.000 +- 0.001. A summed
+  over-round (e.g. ~1.0055) means some quote in the consensus still carries its vig.
+- To show the *delta* a devig change makes without a second paid run, rebuild the identical live
+  board in-process — `MLBStatsClient().get_slate(d)`, `VSINClient(cfg.creds).fetch(slate)`,
+  `cli._odds_client(cfg).fetch(slate, include_props=False)`, `pipeline._merge_quotes(odds, vsin)` —
+  then per key compare `evaluate(0.5, qs).fair_prob` against the old formula recomputed on the same
+  quotes with `opposite_american` stripped from the VSIN books (`{"circa", "draftkings"}`). The
+  Odds call is served from the disk cache, so it is free.
+- Useful companions on the same harness: `evaluate(...).best_quote.american` must equal
+  `max(qs, key=american_to_decimal)` even when that quote has `devigged == False` (line shopping),
+  and `devig_coverage` must equal the book-weighted devigged share of the **whole** quote list, not
+  of the consensus subset.
+
+## Exercising a threshold gate the live slate does not reach
+- A shipped threshold can be completely inert on a given day. On 2026-08-16 the highest batter-prop
+  OVER buy was `model_prob` 0.505, so a 0.62 ceiling fired zero times — "no buy above the ceiling"
+  passes vacuously. Before concluding, print the max `model_prob` among the buys the gate targets.
+- The fix is to run the same live slate again with the knob moved into the populated part of the
+  distribution (e.g. `MLBE_BATTER_MAX_BUY_PROB=0.40`) and a third time with it disabled (`=1`).
+  Odds responses are cached for 30 min, so the extra runs cost no credits.
+- `run` overwrites `~/.mlb_engine/audit/predictions_<date>.json` every time — copy it to a scratch
+  path immediately after each run, and pass `--out /tmp/runX.xlsx` so the workbook is not clobbered.
+- Joining two runs on `(matchup, market, selection, line, side)` is stable, and with the Monte Carlo
+  seeded (`Pipeline(..., seed=7)`) back-to-back runs within the cache window gave **identical
+  `model_prob` on all 6705 rows**, which is what makes "the screen moves no probability" provable.
+  Expect a couple of unrelated `pass_gate` flips on `game_ml` rows anyway: the VSIN handle/bets
+  splits and `hours_to_first_pitch` move between runs and change which ML gate claims the PASS.
+- `pass_gate` reaches the ledger only via `~/.mlb_engine/audit/ledger.csv` (the `Bets` sheet of
+  `ledger.xlsx` has no such column), and only for **graded** dates — today's refusals cannot be in
+  it before the games finish. To prove gradeability the same day, feed the refused recs to
+  `audit.ledger.entries_from_graded` and `gate_metrics` in-process and check a
+  `GATE <name>` bucket appears.
+- A new `CANDIDATE_SCREENS` entry in `audit/probation.py` shows up in `mlb-engine audit --report`
+  output under the probation block (`WATCHING <name> n=… ROI=…`); grep for its name there.
+
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
