@@ -100,14 +100,25 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
     actual bet. The no-vig fair probability and the handle/bets divergence are
     book-weighted consensus values (Circa heavier -- see ``BOOK_WEIGHTS``) so
     thin-edge guards and the sharp signal defer to the sharper market.
+
+    A quote with no opposite price keeps its vig, so mixing one into the mean
+    pushes the consensus above the true probability on *both* sides of a market
+    -- the two no-vig probabilities then sum above 1, every edge is understated,
+    and the CLV against a fully devigged close is negative whichever side is
+    bet. The consensus therefore uses the devigged quotes when there are any,
+    and falls back to the raw board only when nothing can be devigged at all.
+    Line shopping is unaffected: the bet is still struck at the best price on
+    the board, devigged or not.
     """
     best = max(quotes, key=lambda q: american_to_decimal(q.american))
     dec = american_to_decimal(best.american)
     ev = model_prob * (dec - 1.0) - (1.0 - model_prob)
 
     wsum = sum(_weight(q.book) for q in quotes)
-    fair = sum(_weight(q.book) * q.no_vig_prob for q in quotes) / wsum
     covered = sum(_weight(q.book) for q in quotes if q.devigged) / wsum
+    consensus = [q for q in quotes if q.devigged] or quotes
+    cw = sum(_weight(q.book) for q in consensus)
+    fair = sum(_weight(q.book) * q.no_vig_prob for q in consensus) / cw
 
     weighted_divs = [
         (_weight(q.book), d) for q in quotes if (d := q.sharp_divergence) is not None

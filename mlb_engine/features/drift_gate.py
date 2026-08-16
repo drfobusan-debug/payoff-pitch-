@@ -3,9 +3,14 @@
 CLV is the only column in the graded ledger that separates a winning buy from a
 losing one: over 379 priced buys, the ones that beat the close returned +5.4%
 and the ones that lost it -11.8%. It is scored after first pitch, though, when
-the money is already down, and on ``game_ml`` the engine beat the close just
-28.1% of the time (mean CLV -0.32) -- it is systematically buying sides the
-market is still walking away from.
+the money is already down.
+
+The ``game_ml`` figure this gate was first justified by -- beating the close
+just 28.1% of the time -- was an artefact of an undevigged Circa quote in the
+consensus, not a side-selection failure: the two sides of a game summed to
+-0.41 points of CLV in 136 of 136 games, and once that over-round is removed
+the moneyline buys beat the close 57.5% of the time. The gate stands on the
++5.4%/-11.8% split alone, which is measured across every market.
 
 This gate runs the same arithmetic against the *opening* board rather than the
 closing one. The pipeline persists the first price it sees for each selection on

@@ -44,6 +44,15 @@ _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 _BOOKS = {"DK": "draftkings", "circa": "circa"}
 
 
+class _MoneyLine(NamedTuple):
+    """One team's moneyline at one book, held until its opponent's is known."""
+
+    abbrev: str
+    american: float
+    handle_pct: float | None
+    bets_pct: float | None
+
+
 @dataclass(frozen=True)
 class Split:
     """VSIN handle/bets percentages for a selection (no price attached)."""
@@ -146,6 +155,14 @@ class VSINClient:
         Each VSIN row is matched to a slate team by normalized full name. On the
         total, VSIN lists the visitor row as the Over and the home row as the
         Under. Returns empty mappings if the pages are unavailable.
+
+        A game's two rows are held until both are read so each moneyline carries
+        the opponent's price at the same book: without it the quote cannot be
+        devigged, and Circa is both the heaviest book in the consensus and the
+        only one whose price arrives here rather than from the odds feed. The
+        vig then stayed in on both sides, so the two no-vig probabilities summed
+        to 1.006 instead of 1 and every moneyline started ~0.2 points of CLV
+        behind the fully devigged close.
         """
         name_to_team: dict[str, tuple[str, str, bool]] = {}
         for g in slate.games:
@@ -154,6 +171,7 @@ class VSINClient:
 
         quotes: VSINClient.Quotes = {}
         splits: VSINClient.Splits = {}
+        moneylines: dict[tuple[str, str], list[_MoneyLine]] = {}
         for src, book in _BOOKS.items():
             for row in self._fetch_book(src):
                 match = name_to_team.get(_norm_name(row.name))
@@ -161,11 +179,8 @@ class VSINClient:
                     continue
                 matchup, abbrev, is_home = match
                 if row.ml_american is not None:
-                    quotes.setdefault((matchup, "game_ml", f"{abbrev} ML"), []).append(
-                        MarketQuote(
-                            book=book, american=row.ml_american,
-                            handle_pct=row.ml_handle, bets_pct=row.ml_bets,
-                        )
+                    moneylines.setdefault((matchup, book), []).append(
+                        _MoneyLine(abbrev, row.ml_american, row.ml_handle, row.ml_bets)
                     )
                     splits[(matchup, "game_ml", f"{abbrev} ML")] = Split(row.ml_handle, row.ml_bets)
                 if row.spread_line is not None:
@@ -177,6 +192,16 @@ class VSINClient:
                     sp = Split(row.total_handle, row.total_bets)
                     splits[(matchup, "game_total", f"{side} {row.total_line}")] = sp
                     splits[(matchup, "game_total", side)] = sp
+        for (matchup, book), sides in moneylines.items():
+            for ml in sides:
+                opposite = [o.american for o in sides if o.abbrev != ml.abbrev]
+                quotes.setdefault((matchup, "game_ml", f"{ml.abbrev} ML"), []).append(
+                    MarketQuote(
+                        book=book, american=ml.american,
+                        handle_pct=ml.handle_pct, bets_pct=ml.bets_pct,
+                        opposite_american=opposite[0] if len(opposite) == 1 else None,
+                    )
+                )
         return quotes, splits
 
     def fetch_quotes(self, slate: Slate) -> Quotes:

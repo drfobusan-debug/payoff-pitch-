@@ -41,6 +41,41 @@ def test_evaluate_reports_devig_coverage() -> None:
     assert res.edge > 0.60 - (150 / 250)  # edge is bigger once the vig is off
 
 
+def test_consensus_ignores_a_quote_that_still_carries_its_vig() -> None:
+    """One undevigged book pushed *both* sides of a market above their true
+    probability, which is how a moneyline could lose CLV whichever side we bet.
+    """
+    paired = MarketQuote(book="draftkings", american=-150.0, opposite_american=130.0)
+    raw = MarketQuote(book="circa", american=-140.0)
+    assert evaluate(0.60, [paired, raw]).fair_prob == paired.no_vig_prob
+    # Line shopping is untouched: the raw quote can still be the price we take.
+    assert evaluate(0.60, [paired, raw]).best_quote.book == "circa"
+
+
+def test_both_sides_of_a_devigged_market_sum_to_one() -> None:
+    home = [
+        MarketQuote(book="draftkings", american=-150.0, opposite_american=130.0),
+        MarketQuote(book="circa", american=-145.0, opposite_american=133.0),
+    ]
+    away = [
+        MarketQuote(book="draftkings", american=130.0, opposite_american=-150.0),
+        MarketQuote(book="circa", american=133.0, opposite_american=-145.0),
+    ]
+    total = evaluate(0.5, home).fair_prob + evaluate(0.5, away).fair_prob
+    assert abs(total - 1.0) < 1e-9
+
+
+def test_consensus_falls_back_when_no_quote_can_be_devigged() -> None:
+    quotes = [
+        MarketQuote(book="draftkings", american=120.0),
+        MarketQuote(book="circa", american=-110.0),
+    ]
+    res = evaluate(0.5, quotes)
+    weighted = (1.0 * quotes[0].no_vig_prob + 2.0 * quotes[1].no_vig_prob) / 3.0
+    assert abs(res.fair_prob - weighted) < 1e-9
+    assert res.devig_coverage == 0.0
+
+
 def test_props_pair_over_with_its_own_under() -> None:
     client = OddsAPIClient("k")
     quotes: dict = {}

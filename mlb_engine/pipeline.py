@@ -55,6 +55,7 @@ from mlb_engine.features.lineup_lock import (
 from mlb_engine.features.market_gates import (
     price_band_allows,
     price_ceiling_allows,
+    prob_ceiling_allows,
     prob_floor_allows,
 )
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
@@ -2026,6 +2027,18 @@ class Pipeline:
                     gate = "rbi_prob_floor"
                 if rbi_reason:
                     reasons.append(rbi_reason)
+            # Conviction ceiling: the batter model's surest overs are its
+            # worst bets (see ``batter_max_buy_prob``). Overs only -- the fade
+            # at the same conviction is 40 graded rows, too few to condemn.
+            if market.startswith("batter_") and tier != Tier.PASS and not under:
+                keep, ceil_reason = prob_ceiling_allows(
+                    rec.model_prob, self.cfg.batter_max_buy_prob, "batter-conviction-ceiling"
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "batter_prob_ceiling"
+                if ceil_reason:
+                    reasons.append(ceil_reason)
             # The fade's own screens, in place of the over screens it does not
             # inherit: a price with room to pay, and -- on singles, the only
             # market where the profile is measured -- the batter shape that

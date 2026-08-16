@@ -32,7 +32,8 @@ from zoneinfo import ZoneInfo
 import requests
 
 from mlb_engine.data import http
-from nfl_engine.data import teamnames
+from nfl_engine.data import capture, teamnames
+from nfl_engine.data.capture import QuoteRow
 from nfl_engine.market.board import GameOdds, MarketQuote
 from nfl_engine.schemas import Game, Slate, TeamGameInfo
 
@@ -40,6 +41,21 @@ log = logging.getLogger(__name__)
 
 BASE = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
 GAME_MARKETS = ("h2h", "spreads", "totals")
+# Opportunity markets first: phase 3's reliability panel put targets, carries and
+# attempts (r=0.91-0.93 split-half) far above any efficiency rate, so these are
+# the lines a props layer would ever be allowed to price, and therefore the ones
+# whose price history is worth paying credits to archive.
+PROP_MARKETS = (
+    "player_pass_attempts",
+    "player_pass_completions",
+    "player_pass_yds",
+    "player_pass_tds",
+    "player_rush_attempts",
+    "player_rush_yds",
+    "player_receptions",
+    "player_reception_yds",
+    "player_anytime_td",
+)
 # Kickoffs are quoted in US Eastern, and an NFL "slate" runs from the Thursday
 # night game to the Monday night one.
 SLATE_TZ = ZoneInfo("America/New_York")
@@ -139,6 +155,37 @@ class OddsAPIClient:
 
         games.sort(key=lambda game: game.kickoff_utc or "")
         return Slate(season=season, week=week, slate_date=first_day, games=games), board
+
+    def fetch_props(
+        self,
+        games: list[Game],
+        *,
+        markets: tuple[str, ...] = PROP_MARKETS,
+        captured_at: str | None = None,
+        max_events: int = 32,
+    ) -> list[QuoteRow]:
+        """Player-prop prices for the slate, as archive rows -- never as bets.
+
+        Props are fetched per event (the bulk endpoint does not carry them) and
+        returned in the archive schema rather than as a board, because phase 4 is
+        blocked: there is nothing here that may reach a price. The point is that
+        the prop-price history, which exists nowhere for free, starts existing.
+
+        Each event-market costs a credit per region, so the slate is capped and
+        the caller decides how often to run.
+        """
+        if not self.available():
+            return []
+        taken = captured_at or capture.stamp()
+        out: list[QuoteRow] = []
+        for game in games[:max_events]:
+            data = self._get_json(
+                f"{BASE}/events/{game.game_id}/odds", markets=",".join(markets)
+            )
+            if not isinstance(data, dict):
+                continue
+            out.extend(_prop_rows(data, game, taken))
+        return out
 
     # -- parsing ----------------------------------------------------------
     def _parse_game(self, raw: dict, event: _Event) -> GameOdds:
@@ -247,6 +294,69 @@ def _kickoff_date(commence_utc: str, fallback: Date) -> Date:
     except ValueError:
         return fallback
     return moment.astimezone(SLATE_TZ).date()
+
+
+def _prop_rows(payload: dict, game: Game, captured_at: str) -> list[QuoteRow]:
+    """Flatten one event's prop payload into archive rows.
+
+    Pairing is per player *and* per line, not per market: a market holds dozens of
+    outcomes, and pairing an over with the wrong player's under would fabricate a
+    hold. An outcome whose partner is missing is kept unpaired -- de-vigging it is
+    the consumer's problem, inventing its other side is nobody's right.
+    """
+    matchup = game.matchup()
+    out: list[QuoteRow] = []
+    for bookmaker in payload.get("bookmakers", []):
+        book = str(bookmaker.get("key", ""))
+        for market in bookmaker.get("markets", []):
+            key = str(market.get("key", ""))
+            outcomes = [
+                oc
+                for oc in market.get("outcomes", [])
+                if isinstance(oc, dict) and oc.get("price") is not None
+            ]
+            pairs: dict[tuple[str, float | None], dict[str, float]] = {}
+            for oc in outcomes:
+                player = str(oc.get("description") or oc.get("name") or "")
+                point = None if oc.get("point") is None else float(oc["point"])
+                side = _prop_side(oc)
+                pairs.setdefault((player, point), {})[side] = float(oc["price"])
+            for (player, point), sides in pairs.items():
+                for side, price in sides.items():
+                    other = _PROP_OPPOSITE.get(side)
+                    out.append(
+                        QuoteRow(
+                            captured_at=captured_at,
+                            season=game.season,
+                            week=game.week,
+                            game_date=game.game_date.isoformat(),
+                            matchup=matchup,
+                            market=key,
+                            side=side,
+                            line=point,
+                            book=book,
+                            american=price,
+                            opposite_american=sides.get(other) if other else None,
+                            player=player,
+                            event_id=game.game_id,
+                        )
+                    )
+    return out
+
+
+def _prop_side(outcome: dict) -> str:
+    name = _norm(str(outcome.get("name", "")))
+    if name.startswith("over"):
+        return "over"
+    if name.startswith("under"):
+        return "under"
+    if name in ("yes", "no"):
+        return name
+    # An anytime-scorer market names the player instead of a side.
+    return "yes"
+
+
+_PROP_OPPOSITE = {"over": "under", "under": "over", "yes": "no", "no": "yes"}
 
 
 def _opposite_prices(outcomes: list[dict]) -> dict[int, float]:
