@@ -104,12 +104,27 @@ log = logging.getLogger(__name__)
 #
 # That is larger than the prior refit it follows, moves K in the opposite
 # direction to the tax it removes, and hits both halves of every game at once.
-FEATURE_BASIS = "pitcher-baselines-2026.08"
+#
+# Switching the hitter prior on retires it again, and this is the counterpart on
+# the batter side of the pitcher-prior reset above. Every batter's rate vector
+# now regresses toward his own projection at the fitted per-outcome strengths
+# rather than toward the league mean at a flat 60 PA. Over 178 hitters with 60+
+# PA in the 42 days to 08-13:
+#
+#   spread across hitters (sd)   K 4.3pp -> 6.0pp   2B 1.26pp -> 0.63pp
+#   on-base move per hitter      mean 1.0pp, p95 2.6pp, max 3.5pp
+#
+# so the change is not a level shift a map could absorb -- it widens the lineup
+# on the buckets the model ranks well and halves it on the buckets it never
+# could, in opposite directions for different hitters. A map fitted on the
+# compressed vectors learned to correct a compression that is gone.
+FEATURE_BASIS = "ros-prior-baselines-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-16 was priced before the pitcher priors were fitted, and nothing has been
-# priced on "stuff-priors-2026.08" -- both land together on the 08-17 refit.
+# 08-16 was priced before either prior was fitted, and neither
+# "stuff-priors-2026.08" nor "ros-prior-2026.08" ever graded a row, so the
+# resets discard nothing: all of it lands together on the 08-17 refit.
 FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 

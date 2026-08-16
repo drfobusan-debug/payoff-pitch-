@@ -292,6 +292,78 @@ class MLBStatsClient:
                     best = (d, venue_id, _utc_hour(g.get("gameDate")))
         return best
 
+    def season_hitting(self, season: int, limit: int = 2000) -> list[dict[str, int]]:
+        """Every hitter's regular-season batting line for one season.
+
+        The counting stats a Marcel-style projection needs, keyed by MLBAM id --
+        the same id the Statcast frame and the simulator use, so no name matching
+        is involved. ``playerPool=All`` is required: the endpoint otherwise
+        returns only qualified hitters, which is a fifth of the league and
+        exactly the wrong fifth to prior.
+        """
+        out: list[dict[str, int]] = []
+        offset, seen, total = 0, 0, 1
+        while seen < total:
+            data = self._get(
+                "stats",
+                stats="season",
+                group="hitting",
+                season=season,
+                sportId=SPORT_ID,
+                gameType="R",
+                playerPool="All",
+                limit=limit,
+                offset=offset,
+            )
+            groups = data.get("stats", [])
+            if not groups:
+                break
+            total = int(groups[0].get("totalSplits") or 0)
+            splits = [s for g in groups for s in g.get("splits", [])]
+            if not splits:
+                break
+            seen += len(splits)
+            offset += len(splits)
+            out.extend(self._hitting_rows(splits, season))
+        return out
+
+    @staticmethod
+    def _hitting_rows(splits: list[dict], season: int) -> list[dict[str, int]]:
+        out: list[dict[str, int]] = []
+        for split in splits:
+            pid = (split.get("player") or {}).get("id")
+            stat = split.get("stat") or {}
+            pa = int(stat.get("plateAppearances") or 0)
+            if not pid or pa <= 0:
+                continue
+            out.append(
+                {
+                    "mlbam_id": int(pid),
+                    "season": season,
+                    "PA": pa,
+                    "H": int(stat.get("hits") or 0),
+                    "2B": int(stat.get("doubles") or 0),
+                    "3B": int(stat.get("triples") or 0),
+                    "HR": int(stat.get("homeRuns") or 0),
+                    "BB": int(stat.get("baseOnBalls") or 0),
+                    "SO": int(stat.get("strikeOuts") or 0),
+                    "HBP": int(stat.get("hitByPitch") or 0),
+                }
+            )
+        return out
+
+    def player_ages(self, ids: set[int]) -> dict[int, float]:
+        """{mlbam_id: current age in years}, for the projection's aging curve."""
+        out: dict[int, float] = {}
+        wanted = sorted(i for i in ids if i)
+        for start in range(0, len(wanted), 400):
+            chunk = ",".join(str(i) for i in wanted[start : start + 400])
+            for person in self._get("people", personIds=chunk).get("people", []):
+                pid, age = person.get("id"), person.get("currentAge")
+                if pid and age is not None:
+                    out[int(pid)] = float(age)
+        return out
+
     def team_run_differentials(self, season: int) -> dict[str, tuple[float, int]]:
         """Season {team_abbrev: (actual_rd_per_game, games_played)} from standings.
 

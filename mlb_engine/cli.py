@@ -48,7 +48,8 @@ from mlb_engine.audit.probation import (
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
-from mlb_engine.config import Config, load_config
+from mlb_engine.config import Config, default_ros_prior_path, load_config
+from mlb_engine.data import ros_prior
 from mlb_engine.data.batx import annotate as annotate_batx
 from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
@@ -409,6 +410,10 @@ def cmd_run(args: argparse.Namespace) -> int:
         cfg = load_config()
 
     slate_date = _parse_date(args.date, Date.today())
+    # Before the pipeline reads it: the file is derived rather than synced, so a
+    # machine seeing this slate for the first time has none, and a missing one
+    # is the league mean wearing the projection's name.
+    ros_prior.refresh_if_stale(cfg.ros_prior_path, slate_date, deps.stats)
     pipe = Pipeline(cfg, deps)
     vsin_csv = Path(args.vsin_csv) if args.vsin_csv else None
     fg_dir = cfg.fangraphs_dir
@@ -1037,6 +1042,26 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ros_prior(args: argparse.Namespace) -> int:
+    """Rebuild the hitter projection the batter prior shrinks toward.
+
+    A Marcel off the free official season lines: three seasons weighted 5/4/3,
+    regressed 1200 PA to the league, aged. ``run`` rebuilds it by itself once it
+    is a week old, so this is for forcing one out of turn or writing the file
+    somewhere other than the configured path.
+    """
+    cfg = load_config()
+    season = args.season or Date.today().year
+    out = Path(args.out) if args.out else Path(cfg.ros_prior_path or default_ros_prior_path())
+    try:
+        ros = ros_prior.build(MLBStatsClient(), season, out)
+    except RuntimeError as exc:
+        print(f"{exc}; leaving the existing file alone.")
+        return 1
+    print(f"{len(ros)} hitters -> {out}")
+    return 0
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
@@ -1251,6 +1276,13 @@ def main(argv: list[str] | None = None) -> int:
     tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
     tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
     tf.set_defaults(func=cmd_team_form)
+
+    rpr = sub.add_parser(
+        "ros-prior", help="rebuild the hitter projection the batter prior shrinks toward"
+    )
+    rpr.add_argument("--season", type=int, help="season being projected (default: this year)")
+    rpr.add_argument("--out", help=f"output path (default: {default_ros_prior_path()})")
+    rpr.set_defaults(func=cmd_ros_prior)
 
     cal = sub.add_parser("calibrate", help="refit the calibration map from the audit ledger")
     cal.add_argument("--holdout", type=int, default=2, help="slates held out for validation")
