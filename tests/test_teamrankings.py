@@ -33,12 +33,17 @@ from mlb_engine.config import Credentials
 from mlb_engine.data.results import GameResult
 from mlb_engine.data.teamrankings import (
     TeamRankingsClient,
+    TeamRating,
     TRPick,
     annotate,
     load_picks,
+    load_ratings,
     merge_picks,
+    merge_ratings,
     parse_picks,
+    parse_ratings,
     save_picks,
+    save_ratings,
 )
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
@@ -415,3 +420,52 @@ def test_a_slate_without_the_login_captures_nothing_rather_than_yesterday() -> N
     """Signed out their grid serves the last *played* slate, results included."""
     client = TeamRankingsClient(Credentials(teamrankings_user=None, teamrankings_pass=None))
     assert client._signed_in() is None
+
+
+# A luck-rating table row, captured verbatim: the team cell carries the record,
+# and the columns after the rating are their splits, which we do not store.
+RATING_ROW = """
+<tr><th>Rank</th><th>Team</th><th>Rating</th><th>v 1-5</th></tr>
+<tr><td>1</td><td><a href="/mlb/team/tampa-bay-rays/">Tampa Bay (74-48)</a></td>
+<td>11.76</td><td>6-6</td></tr>
+<tr><td>2</td><td><a href="/mlb/team/chicago-white-sox/">Chi Sox (64-58)</a></td>
+<td>-6.68</td><td>4-7</td></tr>
+<tr><td>3</td><td><a href="/mlb/team/sacramento-athletics/">Sacramento (55-70)</a></td>
+<td>0.40</td><td>2-9</td></tr>
+"""
+
+
+def test_a_rating_table_is_read_as_rank_and_number() -> None:
+    table = parse_ratings(RATING_ROW)
+    assert table["TB"] == (1, 11.76)
+    assert table["CWS"] == (2, -6.68)
+    # Their Athletics are "Sacramento"; a club named some other way must not be
+    # silently ranked as a different club.
+    assert table["ATH"] == (3, 0.40)
+    assert len(table) == 3
+
+
+def test_a_header_or_an_unreadable_row_is_dropped_not_guessed() -> None:
+    assert parse_ratings("<tr><td>x</td><td>Tampa Bay</td><td>1.0</td></tr>") == {}
+    assert parse_ratings("<tr><td>1</td><td>Tampa Bay</td><td>--</td></tr>") == {}
+    assert parse_ratings("<tr><td>1</td><td>Sheffield Wednesday</td><td>1.0</td></tr>") == {}
+
+
+def test_ratings_round_trip_and_the_fresher_capture_wins(tmp_path) -> None:
+    path = tmp_path / "tr_ratings_2026-08-16.json"
+    first = [TeamRating(date="2026-08-16", team="TB", luck=11.76, luck_rank=1)]
+    save_ratings(path, first)
+    assert load_ratings(path) == first
+
+    later = [TeamRating(date="2026-08-16", team="TB", luck=9.5, luck_rank=3)]
+    merged = merge_ratings(load_ratings(path), later)
+    assert [(r.luck, r.luck_rank) for r in merged] == [(9.5, 3)]
+    # A different day is a different row: the whole point is that these accrue.
+    across = merge_ratings(merged, [TeamRating(date="2026-08-17", team="TB", luck=9.0)])
+    assert len(across) == 2
+
+
+def test_a_missing_ratings_capture_is_not_an_error(tmp_path) -> None:
+    assert load_ratings(tmp_path / "nothing.json") == []
+    (tmp_path / "junk.json").write_text("not json")
+    assert load_ratings(tmp_path / "junk.json") == []

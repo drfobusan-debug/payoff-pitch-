@@ -424,6 +424,15 @@ def test_vsin_fetch_quotes_maps_to_slate():
     assert min_q[0].american == -131.0
     assert min_q[0].handle_pct == 84.0 and min_q[0].bets_pct == 62.0
 
+    # Each side carries the opponent's price at the same book, so the vig comes
+    # off. Unpaired, both sides kept it and their no-vig probabilities summed
+    # above 1 -- which put every moneyline behind a devigged close on CLV.
+    cle_q = quotes[("MIN @ CLE", "game_ml", "CLE ML")]
+    assert min_q[0].opposite_american == 109.0
+    assert cle_q[0].opposite_american == -131.0
+    assert min_q[0].devigged and cle_q[0].devigged
+    assert abs(min_q[0].no_vig_prob + cle_q[0].no_vig_prob - 1.0) < 1e-9
+
     # run-line + total handle/bets surface as splits (no price).
     assert splits[("MIN @ CLE", "game_rl", "MIN -1.5")].handle_pct == 96.0
     assert splits[("MIN @ CLE", "game_rl", "CLE +1.5")].bets_pct == 58.0

@@ -67,3 +67,23 @@ def prob_floor_allows(
     if prob >= floor:
         return True, ""
     return False, f"{label}: PASS (model {prob:.3f} under {floor:.2f})"
+
+
+def prob_ceiling_allows(
+    prob: float | None, ceiling: float, label: str = "prob-ceiling"
+) -> tuple[bool, str]:
+    """Whether a buy is *below* the conviction band where the model is wrong.
+
+    The mirror of the floor, and the graded card is unambiguous about which
+    batter props need it: where the model says 0.666 the bats win 0.523, so the
+    most confident rows are 14pp long and lose 16.5% of stake over 348 bets --
+    in both halves of the window (-23.2% then -10.3%) and at short prices
+    (-16.5%, n=239) as much as long ones. Confidence is inverted, so the screen
+    refuses the top of the band rather than the bottom of it. Sides and pitcher
+    markets are left alone: their high-conviction short-priced rows are +6.0%.
+    """
+    if prob is None or ceiling >= 1.0:
+        return True, ""
+    if prob < ceiling:
+        return True, ""
+    return False, f"{label}: PASS (model {prob:.3f} at or over {ceiling:.2f})"
