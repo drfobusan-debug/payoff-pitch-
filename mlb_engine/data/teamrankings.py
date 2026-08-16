@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import re
 from dataclasses import asdict, dataclass
 from html import unescape
@@ -394,6 +395,8 @@ def parse_ratings(html: str) -> dict[str, tuple[int, float]]:
         try:
             rating = float(cells[2])
         except ValueError:
+            continue
+        if not math.isfinite(rating):  # "nan" parses as a float and is not JSON
             continue
         if team is not None:
             out[team] = (int(cells[0]), rating)
