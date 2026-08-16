@@ -469,3 +469,44 @@ def test_a_missing_ratings_capture_is_not_an_error(tmp_path) -> None:
     assert load_ratings(tmp_path / "nothing.json") == []
     (tmp_path / "junk.json").write_text("not json")
     assert load_ratings(tmp_path / "junk.json") == []
+
+
+def test_a_rating_that_is_not_a_number_is_dropped() -> None:
+    """"nan" parses as a float and serialises to JSON nothing can read back."""
+    assert parse_ratings("<tr><td>1</td><td>Tampa Bay</td><td>nan</td></tr>") == {}
+    assert parse_ratings("<tr><td>1</td><td>Tampa Bay</td><td>inf</td></tr>") == {}
+
+
+def test_the_ratings_are_captured_even_when_tonight_is_not_on_the_grid(monkeypatch, tmp_path) -> None:
+    """Their grid rolls over late; the rating tables have no date on them at all.
+
+    Capturing them after the slate check meant a run before the rollover took
+    the "not on the grid" exit and stored no ratings for that day -- and a day
+    of ratings missed cannot be recovered.
+    """
+    from mlb_engine import cli
+
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    cfg = cli.load_config()
+    monkeypatch.setattr(
+        cli.TeamRankingsClient,
+        "fetch_ratings",
+        lambda self, date: [TeamRating(date=date, team="TB", luck=1.0)],
+    )
+    assert cli._capture_tr_ratings(cfg) == 1
+    assert list((tmp_path / "audit").glob("tr_ratings_*.json"))
+
+
+def test_a_ratings_failure_never_reaches_the_caller(monkeypatch, tmp_path) -> None:
+    """The picks are the benchmark; a research sample must not take them down."""
+    from mlb_engine import cli
+
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    cfg = cli.load_config()
+
+    def boom(self, date):
+        raise RuntimeError("their site moved")
+
+    monkeypatch.setattr(cli.TeamRankingsClient, "fetch_ratings", boom)
+    assert cli._capture_tr_ratings(cfg) == 0
+    assert not list(tmp_path.rglob("tr_ratings_*.json"))

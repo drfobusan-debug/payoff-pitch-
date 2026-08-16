@@ -420,7 +420,7 @@ def _capture_teamrankings(cfg: Config, recs: list, slate_date: Date) -> None:
         # Their team ratings, captured whether or not tonight's picks arrived:
         # the luck and consistency numbers are as-of-today with no archive, and
         # nothing reads them at pricing time.
-        _capture_tr_ratings(cfg, iso)
+        _capture_tr_ratings(cfg)
         if not picks:
             if not cfg.creds.has_teamrankings():
                 print(
@@ -668,20 +668,34 @@ def _tr_ratings_path(cfg: Config, slate_date: str) -> Path:
     return cfg.audit_dir / f"tr_ratings_{slate_date}.json"
 
 
-def _capture_tr_ratings(cfg: Config, slate_date: str) -> int:
-    """Store their team ratings for the day. Returns how many clubs were read.
+def _capture_tr_ratings(cfg: Config) -> int:
+    """Store their team ratings as they stand today. Returns clubs read.
 
     Their luck and consistency ratings are the two things on that site the
     engine does not already model or already have inside the market price it
     anchors to, and both are as-of-today with no archive. Captured so the
     question of whether they explain any of our error is answerable later with
     a measurement rather than an opinion -- nothing reads them at pricing time.
+
+    Always stamped with today, never with the slate being captured. The tables
+    have no date parameter, so a rating read today describes today whatever
+    slate the caller is working on -- filing it under an older date would
+    overwrite that day's genuine capture with a reading taken after its games.
+
+    Best-effort in the strong sense: the caller gets 0 rather than an exception
+    however this fails, because the ratings are a research sample and the picks
+    they are captured alongside are the benchmark that must not be lost.
     """
-    ratings = TeamRankingsClient(cfg.creds).fetch_ratings(slate_date)
-    if not ratings:
+    today = Date.today().isoformat()
+    try:
+        ratings = TeamRankingsClient(cfg.creds).fetch_ratings(today)
+        if not ratings:
+            return 0
+        path = _tr_ratings_path(cfg, today)
+        save_ratings(path, merge_ratings(load_ratings(path), ratings))
+    except Exception:  # noqa: BLE001 - a research sample must not break a capture
+        logging.warning("TeamRankings ratings unavailable", exc_info=True)
         return 0
-    path = _tr_ratings_path(cfg, slate_date)
-    save_ratings(path, merge_ratings(load_ratings(path), ratings))
     return len(ratings)
 
 
@@ -695,6 +709,13 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     """
     cfg = load_config()
     cfg.ensure_dirs()
+    _state_pull(cfg)
+    # Before anything can go wrong with the grid. The ratings are a separate set
+    # of pages with no date on them, so whether tonight's slate has been posted
+    # yet says nothing about whether today's ratings are readable -- and a day
+    # of them missed is a day that cannot be recovered.
+    clubs = _capture_tr_ratings(cfg)
+    print(f"Captured TeamRankings luck/consistency ratings for {clubs} clubs")
     picks = TeamRankingsClient(cfg.creds).fetch()
     if not picks:
         print("TeamRankings' picks grid returned nothing; captured no benchmark.")
@@ -705,14 +726,11 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
         published = ", ".join(sorted({p.date for p in picks}))
         print(f"TeamRankings is showing {published}; {wanted} is not on the grid.")
         return 1
-    _state_pull(cfg)
     path = _tr_path(cfg, wanted)
     merged = merge_picks(load_picks(path), slate)
     save_picks(path, merged)
     games = len({p.matchup for p in merged})
     print(f"Captured {len(slate)} TeamRankings picks over {games} games for {wanted} -> {path}")
-    clubs = _capture_tr_ratings(cfg, wanted)
-    print(f"Captured TeamRankings luck/consistency ratings for {clubs} clubs")
     _state_push(cfg, f"teamrankings {wanted}: {len(merged)} picks, {games} games")
     return 0
 
