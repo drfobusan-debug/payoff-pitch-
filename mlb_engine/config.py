@@ -574,6 +574,26 @@ class Config:
         default_factory=lambda: _env_float("MLBE_RBI_MIN_BUY_PROB", 0.40)
     )
 
+    # The conviction ceiling. Batter-prop buys since the screens shipped on
+    # 08-04, by model probability, against every one of those rows all-time:
+    #
+    #                since 08-04                 all 1,320 graded
+    #   p < .50     n=171  won 33.3%   +4.8%     -8.3%
+    #   .50-.58     n= 65  won 46.2%   -8.0%    -15.7%
+    #   .58-.62     n= 32  won 50.0%  -13.0%    -17.2%
+    #   p >= .62    n=188  won 56.9%  -11.4%    -16.5%  (model said 66.9%)
+    #
+    # Confidence is inverted. Every band improved once the screens landed
+    # except the most confident one, which is 14pp long, is the only band still
+    # losing double digits, and loses at short prices (-16.5%, n=239) as much
+    # as at long ones. This is a screen, not a recalibration -- it moves no
+    # probability, so the 08-17 refit grades against the same basis and can
+    # retire the ceiling if it fixes the level.
+    # ``MLBE_BATTER_MAX_BUY_PROB=1`` disables it.
+    batter_max_buy_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_BATTER_MAX_BUY_PROB", 0.62)
+    )
+
     # The road moneyline underdog is the only sides cell the graded card
     # condemns twice. Split four ways by venue and role:
     #
