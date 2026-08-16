@@ -1471,10 +1471,11 @@ def test_k_multiplier_is_a_comparison_not_a_tax():
         build_pitcher_regression,
     )
 
-    # An arm on every league baseline must come out at 1.0. It did not: the
-    # two-strike baseline was a per-swing rate read against a per-pitch one, so
-    # this term sat on its -0.06 clip for 98% of starters and the multiplier was
-    # a flat strikeout haircut applied to the whole league.
+    # Reported only -- nothing prices this any more -- but a number the article
+    # calls a comparison has to read as one: an arm on every league baseline must
+    # come out at 1.0. It did not, because the two-strike baseline was a
+    # per-swing rate read against a per-pitch one, so the term sat on its -0.06
+    # clip for 98% of starters and the product was a flat league-wide haircut.
     avg = build_pitcher_regression(
         _arm_rows(2000, BL_CSW, BL_SWSTR, BL_TWO_STRIKE_WHIFF, 0.22, 0.22 - BL_K_MINUS_BB)
     )
@@ -1504,6 +1505,23 @@ def test_pen_zone_walk_term_reaches_real_bullpens():
     # Bounded: no pen's walk rate may be moved by more than the clip.
     for zone in (0.20, 0.80):
         assert 0.85 < BullpenProfile(lg, lg, empty, zone, 1.0).npv_multipliers()["BB"] < 1.15
+
+
+def test_pen_matchup_does_not_price_the_pen_s_stuff():
+    import pandas as pd
+
+    from mlb_engine.pipeline import _pen_matchup
+
+    # The pen's strikeout rate reaches the batter through the pooled rates it
+    # actually posted, and through nothing else: multiplying those by a stuff
+    # multiplier is worse out of sample than leaving them alone (#190, and
+    # scripts/k_multiplier_study.py on the starter side).
+    ctx = rates_from_events(pd.Series(["strikeout"] * 20 + ["single"] * 10 + ["field_out"] * 70))
+    pen = rates_from_events(pd.Series(["strikeout"] * 25 + ["single"] * 10 + ["field_out"] * 65))
+    vp = _pen_matchup(ctx, pen, {}, {}, {}, {}, {})
+    plain = combine(ctx, pen)
+    assert abs(vp["K"] - plain["K"]) < 1e-12
+    assert abs(sum(vp.values()) - 1.0) < 1e-9
 
 
 def test_blend_bb_rate_small_sample_leans_on_prior():
