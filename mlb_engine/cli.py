@@ -8,8 +8,6 @@ from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
-import pandas as pd
-
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -51,6 +49,7 @@ from mlb_engine.audit.probation import (
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
 from mlb_engine.config import Config, default_ros_prior_path, load_config
+from mlb_engine.data import ros_prior
 from mlb_engine.data.batx import annotate as annotate_batx
 from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
@@ -82,8 +81,6 @@ from mlb_engine.data.teamrankings import (
     save_ratings,
 )
 from mlb_engine.data.vsin import VSINClient
-from mlb_engine.features.marcel import marcel_projection
-from mlb_engine.features.rolling import ros_rates_from_projection
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market.tiers import Tier
@@ -413,6 +410,10 @@ def cmd_run(args: argparse.Namespace) -> int:
         cfg = load_config()
 
     slate_date = _parse_date(args.date, Date.today())
+    # Before the pipeline reads it: the file is derived rather than synced, so a
+    # machine seeing this slate for the first time has none, and a missing one
+    # is the league mean wearing the projection's name.
+    ros_prior.refresh_if_stale(cfg.ros_prior_path, slate_date, deps.stats)
     pipe = Pipeline(cfg, deps)
     vsin_csv = Path(args.vsin_csv) if args.vsin_csv else None
     fg_dir = cfg.fangraphs_dir
@@ -1045,27 +1046,18 @@ def cmd_ros_prior(args: argparse.Namespace) -> int:
     """Rebuild the hitter projection the batter prior shrinks toward.
 
     A Marcel off the free official season lines: three seasons weighted 5/4/3,
-    regressed 1200 PA to the league, aged. It has to be rebuilt as the season
-    runs -- the current year's line is the heaviest of the three and grows every
-    night -- so this is a weekly job, not a one-off.
+    regressed 1200 PA to the league, aged. ``run`` rebuilds it by itself once it
+    is a week old, so this is for forcing one out of turn or writing the file
+    somewhere other than the configured path.
     """
     cfg = load_config()
     season = args.season or Date.today().year
     out = Path(args.out) if args.out else Path(cfg.ros_prior_path or default_ros_prior_path())
-    client = MLBStatsClient()
-    rows: list[dict[str, int]] = []
-    for back in range(3):
-        got = client.season_hitting(season - back)
-        print(f"  {season - back}: {len(got)} hitters")
-        rows.extend(got)
-    if not rows:
-        print("No season lines returned; leaving the existing file alone.")
+    try:
+        ros = ros_prior.build(MLBStatsClient(), season, out)
+    except RuntimeError as exc:
+        print(f"{exc}; leaving the existing file alone.")
         return 1
-    lines = pd.DataFrame(rows)
-    ages = client.player_ages({int(i) for i in lines["mlbam_id"]})
-    ros = ros_rates_from_projection(marcel_projection(lines, ages, season))
-    out.parent.mkdir(parents=True, exist_ok=True)
-    ros.to_csv(out, index=False)
     print(f"{len(ros)} hitters -> {out}")
     return 0
 
