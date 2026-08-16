@@ -1054,17 +1054,29 @@ class PitcherRegression:
         return m
 
     def k_multiplier(self) -> float:
-        """Multiplier on the pitcher's projected strikeout rate.
+        """Reported only: how this arm's stuff compares with the league's.
 
         Driven by CSW% and K-BB% (fast-stabilizing K predictors), the 2-strike
-        put-away whiff rate, and Stuff+ when a FanGraphs feed is present.
+        put-away whiff rate, and Stuff+ when a FanGraphs feed is present. Each
+        term is a deviation from a league baseline, so the product is a
+        comparison between arms and reads well as one.
 
-        Each term is a deviation from a league baseline, so the product is only a
-        comparison between arms if those baselines are the values the league
-        actually posts. Two of them were not, and both erred the same way: the
-        multiplier averaged 0.909 over starters and 0.926 over bullpens, i.e. it
-        was mostly a flat strikeout tax that raised offence everywhere rather
-        than a read on who misses bats.
+        It is **not** applied to a projected strikeout rate any more, because it
+        cannot improve one. The rate it used to multiply is the arm's observed
+        window K% blended toward xK% at 150 PA, and that rate is already
+        calibrated: over 2,777 starts, each predicted from pitches thrown
+        strictly before it, the blended rate's own quintiles land within a point
+        of what the arm went on to do (.1856 -> .1811 at the bottom, .2674 ->
+        .2658 at the top), while multiplying stretches them to .1473 and .3321.
+        Out of sample the multiplier is worse than not having it -- weekly
+        walk-forward wRMSE 0.10400 against 0.09763 -- and a dose search over the
+        exponent picks 0.0. Refitting the terms does not rescue it (0.10122), and
+        every term is individually harmful. #190 reached the same verdict on the
+        bullpen half, where the pen's own pooled K% beat its stuff outright.
+
+        CSW% is the reason: it is already inside xK%, so applying it again on top
+        prices the same variable twice and re-inflates the spread the blend was
+        built to shrink. See ``scripts/k_multiplier_study.py``.
         """
         if self.pitches < 100:
             return 1.0

@@ -202,7 +202,6 @@ def _pen_matchup(
     bmult: dict[str, float],
     xbh_mult: dict[str, float],
     bpen_allowed: dict[str, float],
-    bpen_k: float,
     bpen_npv: dict[str, float],
     bat_tail: dict[str, float],
     arsenal_mult: dict[str, float] | None = None,
@@ -217,7 +216,6 @@ def _pen_matchup(
     # Apply XBH selection to the bullpen matchup too.
     vp = apply_multipliers(vp, xbh_mult)
     vp = apply_multipliers(vp, bpen_allowed)
-    vp = apply_multipliers(vp, {"K": bpen_k})
     vp = apply_multipliers(vp, bpen_npv)
     if arsenal_mult:
         vp = apply_multipliers(vp, arsenal_mult)
@@ -690,7 +688,6 @@ class Pipeline:
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
         pit_reg = build_pitcher_regression(pit_rows, shrink=w.starter_contact_shrink)
         pit_allowed_mult = pit_reg.allowed_multipliers()
-        k_mult = pit_reg.k_multiplier()
 
         # Stuff/command priors: pull the starter's allowed K and BB rates toward
         # xK% (CSW%/SwStr%) and xBB% (Zone%/chase/F-strike) so thin PA samples
@@ -724,7 +721,6 @@ class Pipeline:
             bpen.skill_frame, bullpen=self.cfg.pen_contact_level
         )
         bpen_allowed = bpen_reg.allowed_multipliers()
-        bpen_k = bpen_reg.k_multiplier()
         avail = (
             self.deps.rotowire.bullpen_availability(opp.abbrev)
             if self.deps.rotowire and self.deps.rotowire.available()
@@ -819,7 +815,10 @@ class Pipeline:
             # V1-style XBH selector feeds the existing 2B/3B multiplier block.
             vs_start = apply_multipliers(vs_start, xbh_sel.outcome_multipliers)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
-            vs_start = apply_multipliers(vs_start, {"K": k_mult})
+            # No stuff multiplier on K: the blended rate above already carries
+            # CSW%/SwStr% through xK%, and multiplying it again only stretches a
+            # calibrated rate (scripts/k_multiplier_study.py). The platoon split
+            # is a different variable and stays.
             vs_start = apply_multipliers(vs_start, {"K": platoon_k})
             vs_start = apply_multipliers(vs_start, {"HR": platoon_hr})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
@@ -849,7 +848,7 @@ class Pipeline:
                 )
             # Aggregate pen (used once the game is out of hand) vs the team's
             # high-leverage arms (used late in a still-close game).
-            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
+            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_npv, bat_tail)
             vs_pen = _pen_matchup(
                 late_ctx, bpen.allowed, *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_arsenal, bpp),
