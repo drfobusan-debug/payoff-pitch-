@@ -103,3 +103,16 @@ def pitcher_prop(name: str, label: str, line: float, side: str = "over") -> str:
 
 # Engine pitcher stat symbol -> label used in the selection string.
 PITCHER_LABEL = {"K": "Ks", "outs": "Outs", "H": "Hits", "BB": "Walks", "ER": "ER"}
+
+# Every stat token a prop selection can end with, longest spelling first so "H"
+# never eats the "H" of "H+R+RBI". Lives here, next to the writers of those
+# strings, because an outside board joins by reading the player back out of one:
+# a market added to ``batter_prop`` and not to this list silently stops matching.
+_PROP_SUFFIX = re.compile(
+    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|BB|H|R|RBI|Ks|K|Walks|Hits|Outs|ER)\s+[ou][\d.]+$"
+)
+
+
+def player_from_selection(selection: str) -> str:
+    """"Jake Rogers H o0.5" -> "Jake Rogers"."""
+    return _PROP_SUFFIX.sub("", str(selection))

@@ -342,7 +342,20 @@ def price_row(row: pd.Series, r_dispersion: float, rbi_dispersion: float) -> dic
     rbis = overdispersed_pmf(rbi_mean, (rbi_dispersion * rbi_mean) ** 0.5, cap=8)
     hrr = convolve(convolve(hits, runs), rbis)
 
+    # A batter's own walks and strikeouts are per-PA events the feed states
+    # outright, so they are binomial over the same PA distribution -- the clean
+    # end of this file, with no dispersion assumption of ours in them.
+    extra: dict[str, float] = {}
+    trials = pa_distribution(pa)
+    for market, col, cap in (("batter_bb", "BB", 6), ("batter_k", "K", 8)):
+        if col not in row.index or not np.isfinite(row[col]):
+            continue
+        dist = binomial_count_pmf(trials, float(row[col]) / pa if pa > 0 else 0.0, cap=cap)
+        extra[f"{market}@0.5"] = p_at_least(dist, 1)
+        extra[f"{market}@1.5"] = p_at_least(dist, 2)
+
     return {
+        **extra,
         "batter_h@0.5": p_at_least(hits, 1),
         "batter_h@1.5": p_at_least(hits, 2),
         "batter_1b@0.5": binomial_at_least_one(pa, rates["1B"]),
@@ -488,11 +501,65 @@ def _emit(date: str, player: str, team: str, probs: dict[str, float]) -> list[di
     return rows
 
 
+def starters_on(slate_date: str) -> set[str]:
+    """Whose start MLB lists for a date, normalised for name matching."""
+    from datetime import date as Date
+
+    from mlb_engine.data.mlb_statsapi import MLBStatsClient
+
+    slate = MLBStatsClient().get_slate(Date.fromisoformat(slate_date))
+    out: set[str] = set()
+    for game in slate.games:
+        for team in (game.home, game.away):
+            if team.probable_pitcher is not None:
+                out.add(norm_name(team.probable_pitcher.name))
+    return out
+
+
+def check_slate_date(hitters: pd.DataFrame, pitchers: pd.DataFrame | None, date: str) -> None:
+    """Refuse an export that belongs to a different day than ``--date`` claims.
+
+    Nothing in the export states its date, and ``--date`` is what the join keys
+    on -- so a file saved for tomorrow, filed under today, joins by name and
+    lands another day's projections beside tonight's bets. It is not caught by
+    inspection either: consecutive days of a series carry the same 15 matchups
+    and most of the same hitters. The starting pitchers are what differ, and they
+    are stated by both files (the hitters export names each hitter's opposing
+    starter in ``PITCHER``), so they date the file.
+    """
+    named = set()
+    if pitchers is not None:
+        named |= {norm_name(n) for n in pitchers["NAME"].dropna()}
+    if "PITCHER" in hitters.columns:
+        named |= {norm_name(n) for n in hitters["PITCHER"].dropna()}
+    if not named:
+        print("date check: export names no starters, cannot verify it is this slate")
+        return
+    try:
+        listed = starters_on(date)
+    except Exception as exc:  # noqa: BLE001 - a check that cannot run must not block
+        print(f"date check: could not read {date}'s probables ({exc})")
+        return
+    hit = len(named & listed)
+    share = hit / len(listed) if listed else 0.0
+    if share >= 0.5:
+        print(f"date check: {hit}/{len(listed)} of {date}'s starters named in the export")
+        return
+    raise SystemExit(
+        f"this export is not {date}: only {hit} of {len(listed)} listed starters appear in it. "
+        "Check the slate you exported (a series' next day has the same matchups and "
+        "hitters, and would join by name)."
+    )
+
+
 def cmd_price(args: argparse.Namespace) -> None:
     rows: list[dict[str, object]] = []
 
     hitters = read_hitters(args.hitters)
     check_schema(hitters)
+    check_slate_date(
+        hitters, read_pitchers(args.pitchers) if args.pitchers else None, args.date
+    )
     for _, row in hitters.iterrows():
         if not np.isfinite(row.get("PA", np.nan)) or float(row["PA"]) <= 0:
             continue
