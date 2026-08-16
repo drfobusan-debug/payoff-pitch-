@@ -2089,7 +2089,9 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
-                    gate = "pen_availability"
+                    gate = (
+                        "pen_availability" if "availability" in pen_reason else "pen_workload"
+                    )
                 if pen_reason:
                     reasons.append(pen_reason)
                 keep, lock_reason = self._lineup_gate.allows(self._lineup_lock)
