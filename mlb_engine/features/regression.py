@@ -824,8 +824,21 @@ MIN_SPLIT_BBE = 40
 # stabilizing whiff signals (CSW% and SwStr%), anchored so a league-average arm
 # (CSW .280, SwStr .110) maps to ~.220 K%. Used as the small-sample K prior so a
 # pitcher regresses toward his stuff, not the flat league mean.
-XK_CSW_COEF = 2.6
-XK_SWSTR_COEF = 1.4
+#
+# The slopes were 2.6 and 1.4, never fitted -- only the anchor was ever chosen.
+# Measured (``scripts.xk_refit_study``) on 2,936 starter-starts, each predicted
+# from pitches thrown strictly before it and scored on the start that followed,
+# they are 0.34 and 0.71: the hand-set line was about three times too steep, and
+# a prior that steep is not a prior. Regressing the realised next-start K rate on
+# it gave a slope of 0.286 where a calibrated prior gives 1.0 -- the arms it put
+# at .100 struck out .181, the ones it put at .373 struck out .258, 27 points of
+# prediction across 8 points of reality. Out of sample it lost to the league
+# mean (wRMSE 0.1217 vs 0.1083) and to the pitcher's own raw 42-day rate
+# (0.1027), which is the whole argument: a prior meant to rescue a thin sample
+# was more extreme than the sample it was pulling on. It also pinned 27 of 259
+# starters to a clip; the fitted line pins none.
+XK_CSW_COEF = 0.34
+XK_SWSTR_COEF = 0.71
 XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
 MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
@@ -839,9 +852,16 @@ BL_FSTRIKE = 0.605
 # stabilize far faster than observed BB%. Each term is (baseline - value), so a
 # league-average arm maps to ~.085 and a high-Zone/high-chase arm (NPV screen)
 # maps below it. Used as the small-sample BB prior.
-XBB_ZONE_COEF = 0.50
-XBB_CHASE_COEF = 0.40
-XBB_FSTRIKE_COEF = 0.30
+#
+# Fitted alongside xK% and hand-set in the same way beforehand: 0.50/0.40/0.30
+# measure 0.21/0.09/0.11 against the next start's walk rate, a calibration slope
+# of 0.369, and out of sample the hand-set line lost to the league mean as well
+# (wRMSE 0.0647 vs 0.0621). Milder than the strikeout prior -- walks are noisier,
+# and even the refit line only just beats doing nothing -- but the same sign and
+# the same cause, so it is corrected rather than left to be found later.
+XBB_ZONE_COEF = 0.21
+XBB_CHASE_COEF = 0.09
+XBB_FSTRIKE_COEF = 0.11
 
 # Empirical-Bayes prior strengths for the contact-quality signals a starter
 # allows, in batted balls. Measured by splitting the season into adjacent,
@@ -938,6 +958,11 @@ class PitcherRegression:
         These whiff signals stabilize in far fewer pitches than observed K%, so
         xK% is the right small-sample prior: a hard-to-hit arm with a thin PA
         sample should regress toward his stuff, not the flat league mean.
+
+        The slopes are fitted against the next start's strikeout rate, so the
+        line is a forecast and not a restatement of the arm's stuff on the K
+        scale. It moves less than the raw rate it regularises, which is what a
+        prior is for.
         """
         xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
         return _clip(xk, 0.08, 0.42)
@@ -948,7 +973,8 @@ class PitcherRegression:
         These discipline signals stabilize far faster than observed BB%, so they
         are the right small-sample prior: fewer strikes / fewer chases / more
         first-pitch balls all push walks up; the reverse (the NPV screen) pushes
-        them below the league mean.
+        them below the league mean. Slopes fitted against the next start's walk
+        rate, as for :meth:`expected_k_pct`.
         """
         xbb = (
             BL_BB_PCT

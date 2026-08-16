@@ -1362,6 +1362,11 @@ def test_expected_k_pct_tracks_stuff():
     # A whiffy arm's xK% should clear the ~.22 league mean; a soft-tosser's shouldn't.
     assert hi.expected_k_pct() > 0.24
     assert lo.expected_k_pct() < 0.20
+    # A prior may not be more extreme than the outcome it is predicting: the two
+    # arms' xK% must sit inside the gap between the K rates they actually posted.
+    # The hand-set slopes failed this by more than double, and clipped as well.
+    assert hi.expected_k_pct() - lo.expected_k_pct() < 0.30 - 0.15
+    assert 0.08 < lo.expected_k_pct() and hi.expected_k_pct() < 0.42
 
 
 def _pitch_rows_disc(n_pitches, zone_frac, chase_frac, fstrike_frac):
@@ -1411,6 +1416,10 @@ def test_expected_bb_pct_tracks_command():
     assert wild.expected_bb_pct() > sharp.expected_bb_pct()
     assert wild.expected_bb_pct() > 0.085
     assert sharp.expected_bb_pct() < 0.085
+    # Both arms are plausible major leaguers, so both priors have to land inside
+    # the range starters actually walk people at. The hand-set slopes put the
+    # wild one at .19 and clipped the sharp one at the .02 floor.
+    assert 0.04 < sharp.expected_bb_pct() and wild.expected_bb_pct() < 0.14
 
 
 def test_blend_bb_rate_small_sample_leans_on_prior():

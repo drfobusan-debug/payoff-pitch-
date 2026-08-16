@@ -74,13 +74,27 @@ log = logging.getLogger(__name__)
 # reset holds no graded rows at all -- nothing has been priced on
 # "league-prior-roe-2026.08" yet -- so there is nothing to discard and no
 # trade-off to weigh.
-FEATURE_BASIS = "removal-hazard-2026.08"
+#
+# Fitting the two hand-set pitcher priors retires it again, and this is the
+# largest of these resets. xK% and xBB% are blended into every starter's K and
+# BB rate at 150 equivalent PA, and log5 multiplies that starter into all nine
+# lineup slots, so the change is correlated across a whole side rather than
+# spread over independent bets. Over 259 starters with 60+ PA in the window:
+#
+#   allowed K rate    mean |change| 3.8pp   p10 -6.7pp   p90 +5.4pp   max 12.1pp
+#   allowed BB rate   mean |change| 1.1pp   p10 -1.9pp   p90 +1.9pp   max  4.8pp
+#
+# and 45 of those arms sat pinned to a clip under the old slopes against none
+# under the fitted ones -- a map trained on the old basis learned to correct
+# strikeout and walk rates that were saturated, which is not a bias that exists
+# any more. The batter markets move with them, since the starter's rates are
+# half of every matchup.
+FEATURE_BASIS = "stuff-priors-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-14 was priced before the league-prior and reached-on-error corrections landed,
-# and before the lineup could be substituted.
-FEATURE_BASIS_SINCE = Date(2026, 8, 15)
+# 08-16 was priced before the pitcher priors were fitted.
+FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 
 def _min_samples() -> int:
