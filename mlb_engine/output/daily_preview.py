@@ -710,7 +710,7 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
         f"<h3>How these lineups hit — overall and tonight</h3>{_lineup_profiles(gp)}"
         f"<h3>Who's pitching well, and who's due to turn</h3>{_starter_trends(gp)}"
         f"<h3>Hitters due to cool off or heat up</h3>{_reg_bits(gp)}"
-        f"<h3>The bullpens: rested, effective, volatile?</h3>{_bullpens(gp)}"
+        f"<h3>The bullpens: how used, how effective?</h3>{_bullpens(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_shape_chart(gp)}'/>"
         f"{_hr_line(hr_recs)}"
         f"{_best_bets_block(gp)}"

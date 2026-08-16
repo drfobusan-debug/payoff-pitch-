@@ -444,7 +444,7 @@ def test_a_split_shrinks_toward_the_clubs_own_projection_not_the_league():
     """
     rows = []
     for i, team in enumerate(("SD", "AZ", "LAD")):
-        for n in range(1200):
+        for _n in range(1200):
             r = _bat("2026-08-01", team, f"OP{i}", topbot="Bot", hand="R", woba=0.400)
             r["batter"] = 100 + i
             rows.append(r)
