@@ -73,8 +73,11 @@ from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.teamrankings import (
     TeamRankingsClient,
     load_picks,
+    load_ratings,
     merge_picks,
+    merge_ratings,
     save_picks,
+    save_ratings,
 )
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
@@ -381,6 +384,7 @@ def _capture_teamrankings(cfg: Config, slate_date: Date) -> None:
             return
         path = _tr_path(cfg, iso)
         save_picks(path, merge_picks(load_picks(path), picks))
+        _capture_tr_ratings(cfg, iso)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("TeamRankings benchmark unavailable", exc_info=True)
         return
@@ -610,6 +614,27 @@ def _tr_path(cfg: Config, slate_date: str) -> Path:
     return cfg.audit_dir / f"teamrankings_{slate_date}.json"
 
 
+def _tr_ratings_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"tr_ratings_{slate_date}.json"
+
+
+def _capture_tr_ratings(cfg: Config, slate_date: str) -> int:
+    """Store their team ratings for the day. Returns how many clubs were read.
+
+    Their luck and consistency ratings are the two things on that site the
+    engine does not already model or already have inside the market price it
+    anchors to, and both are as-of-today with no archive. Captured so the
+    question of whether they explain any of our error is answerable later with
+    a measurement rather than an opinion -- nothing reads them at pricing time.
+    """
+    ratings = TeamRankingsClient().fetch_ratings(slate_date)
+    if not ratings:
+        return 0
+    path = _tr_ratings_path(cfg, slate_date)
+    save_ratings(path, merge_ratings(load_ratings(path), ratings))
+    return len(ratings)
+
+
 def cmd_teamrankings(args: argparse.Namespace) -> int:
     """Capture TeamRankings' picks for a slate, as an outside benchmark.
 
@@ -636,6 +661,8 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     save_picks(path, merged)
     games = len({p.matchup for p in merged})
     print(f"Captured {len(slate)} TeamRankings picks over {games} games for {wanted} -> {path}")
+    clubs = _capture_tr_ratings(cfg, wanted)
+    print(f"Captured TeamRankings luck/consistency ratings for {clubs} clubs")
     _state_push(cfg, f"teamrankings {wanted}: {len(merged)} picks, {games} games")
     return 0
 
