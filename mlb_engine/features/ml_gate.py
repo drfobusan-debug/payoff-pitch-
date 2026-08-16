@@ -50,6 +50,22 @@ DEFAULT_MAX_FAIR_PROB = 0.65
 # Only a *relative* depletion is actionable: a gassed pen matters when the
 # opponent's is fresher, so both pens at 70 is a wash the sim's neutral pen
 # already approximates.
+#
+# That reasoning was never scored, and it does not survive being scored. The
+# proxy was rebuilt per team-game over 3,956 team-games across two windows and
+# read against the game it was about to be spent in: the sides this gate would
+# have demoted won .529 and .507 against those same teams' own rates of .493
+# and .506 -- if anything *better* than usual -- and r(fatigue, win) is -0.005
+# and +0.000. The mechanism is missing upstream too: over 970 team-games the
+# proxy does not predict the relief wOBA the pen goes on to allow (r = -0.035;
+# ``scripts/pen_read_study.py``). So the fatigue branch is off by default. It
+# describes who threw yesterday, and it was quietly spending moneyline buys on
+# a coin flip.
+#
+# The Rotowire branch is a different signal -- arms declared unavailable rather
+# than pitch counts inferred to be tired -- and stays on, though there is no
+# history of that feed on this box to grade it against either.
+DEFAULT_PEN_FATIGUE = False
 DEFAULT_PEN_DEPLETED = 60.0  # same 0-100 threshold the run-line gate calls depleted
 DEFAULT_PEN_EDGE = 15.0  # fatigue points our pen must trail by before demoting
 DEFAULT_MIN_AVAILABILITY = 0.25  # 0..1 rested share (Rotowire feed, when live)
@@ -145,14 +161,17 @@ class MLSharpGate:
 
 @dataclass(frozen=True)
 class MLPenGate:
-    """Demote a full-game moneyline buy whose own bullpen is depleted.
+    """Demote a full-game moneyline buy whose own bullpen cannot cover the late innings.
 
     A post-model selection gate (it never touches a probability), applied to
-    ``game_ml`` only. Neutral whenever the fatigue proxy is unavailable, so a
-    game with no workload read is never punished.
+    ``game_ml`` only. Two branches, and only one of them is on: the Rotowire
+    availability read, and the pitch-count fatigue proxy, which was measured
+    against 3,956 team-games, predicted nothing, and now needs
+    ``MLBE_ML_PEN_FATIGUE=1`` to demote anything.
     """
 
     enabled: bool = True
+    fatigue_enabled: bool = DEFAULT_PEN_FATIGUE
     depleted: float = DEFAULT_PEN_DEPLETED
     min_edge: float = DEFAULT_PEN_EDGE
     min_availability: float = DEFAULT_MIN_AVAILABILITY
@@ -161,6 +180,7 @@ class MLPenGate:
     def from_env(cls) -> MLPenGate:
         return cls(
             enabled=_env_flag("MLBE_ML_PEN_GATE", True),
+            fatigue_enabled=_env_flag("MLBE_ML_PEN_FATIGUE", DEFAULT_PEN_FATIGUE),
             depleted=_env_float("MLBE_ML_PEN_DEPLETED", DEFAULT_PEN_DEPLETED),
             min_edge=_env_float("MLBE_ML_PEN_EDGE", DEFAULT_PEN_EDGE),
             min_availability=_env_float(
@@ -189,6 +209,8 @@ class MLPenGate:
                 f"ml-pen: PASS (pen availability {own_availability:.2f} "
                 f"<= {self.min_availability:.2f})"
             )
+        if not self.fatigue_enabled:
+            return True, "ml-pen: OK (workload proxy not scored against results)"
         if own_fatigue is None:
             return True, "ml-pen: neutral (no bullpen workload read)"
         if own_fatigue < self.depleted:
