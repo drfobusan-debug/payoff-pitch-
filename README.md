@@ -217,12 +217,23 @@ later study; it is no longer read out.
 relief wOBA that pen actually allowed that night: **r = −0.035**, and pens at the
 depleted threshold allowed **+0.005 ± 0.018** more than the rest. It is a true
 description of who threw yesterday and not a forecast, so the preview now reports
-it as usage with no colour and leaves it out of the narration. It still feeds the
-moneyline depletion gate (`features/ml_gate.py`), which on this evidence is owed
-the same test.
+it as usage with no colour and leaves it out of the narration.
 
-All three measurements are reproducible: `python -m scripts.pen_read_study
-{forward,spread,fatigue} --cache <statcast pickle>`.
+The same proxy was also spending money. `features/ml_gate.py` demoted a
+full-game moneyline buy whose own pen was depleted and at least 15 fatigue points
+worse off than the opponent's — the reasoning being that the full game is decided
+in the innings those arms cover. Rebuilt per team-game over **3,956 team-games**
+and scored against the game it was about to be spent in, the sides it would have
+demoted won **.529** and **.507** across the two windows against those same teams'
+own rates of .493 and .506 — no worse than usual, and arguably better — with
+r(fatigue, win) of −0.005 and +0.000. The fatigue branch is therefore **off by
+default** (`MLBE_ML_PEN_FATIGUE=1` restores it). The Rotowire *availability*
+branch, which reads arms actually declared unavailable rather than inferring
+tiredness from pitch counts, is a different signal and stays on — ungraded, for
+want of any history of that feed to grade it against.
+
+All four measurements are reproducible: `python -m scripts.pen_read_study
+{forward,spread,fatigue,mlgate} --cache <statcast pickle>`.
 
 One caveat worth carrying: team-level *velocity* is the most reliable bullpen
 number and also the most misleading one. Detroit's pen appeared to lose 2.2 mph

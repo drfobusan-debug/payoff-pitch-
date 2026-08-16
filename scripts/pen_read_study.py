@@ -21,11 +21,17 @@ evidence, each scored the way the number is used:
     StatsAPI boxscore version), scored against the relief wOBA the pen went on
     to allow that night.
 
+``mlgate``
+    The same proxy scored against the thing the moneyline gate spends on it:
+    did the side it would demote go on to lose more often than that team
+    usually does?
+
 Usage::
 
     python -m scripts.pen_read_study forward --cache ~/.mlb_engine/cache/statcast_2026-04-01_2026-07-27.pkl
     python -m scripts.pen_read_study spread  --cache ...
     python -m scripts.pen_read_study fatigue --cache ...
+    python -m scripts.pen_read_study mlgate  --cache ...
 
 The cache is a Statcast pickle the engine has already downloaded; the wider the
 span, the more window pairs ``forward`` can score.
@@ -40,7 +46,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 
+from mlb_engine.features.ml_gate import DEFAULT_PEN_DEPLETED as ML_PEN_DEPLETED
+from mlb_engine.features.ml_gate import DEFAULT_PEN_EDGE as ML_PEN_EDGE
 from mlb_engine.features.rolling import (
     MIN_ARM_PA,
     PEN_PRIOR_STRENGTH,
@@ -175,8 +184,8 @@ def spread(df: pd.DataFrame, teams: list[str], days: int = 21) -> None:
     print(f"  split-half r of the spread: {d.a.corr(d.b):+.3f}")
 
 
-def fatigue(df: pd.DataFrame, _teams: list[str]) -> None:
-    """Does the workload proxy predict the relief wOBA that follows it?"""
+def _relief_pitch_counts(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Relief rows and their per-arm daily pitch counts, keyed by fielding team."""
     df = df.copy()
     df["fielding"] = np.where(df["inning_topbot"] == "Top", df["home_team"], df["away_team"])
     starters = set(
@@ -185,6 +194,27 @@ def fatigue(df: pd.DataFrame, _teams: list[str]) -> None:
     rel = df[[(d, p) not in starters for d, p in zip(df["game_date"], df["pitcher"], strict=False)]]
     rel = rel[rel["inning"] >= 6]
     pitch = rel.groupby(["fielding", "game_date", "pitcher"]).size().rename("pitches").reset_index()
+    return rel, pitch
+
+
+def _workload(prior: pd.DataFrame, as_of: Date) -> tuple[float, float]:
+    """The StatsAPI proxy's rule, rebuilt from pitch rows: (0-100 score, three-day load)."""
+    last2 = sorted(prior["game_date"].unique())[-2:]
+    recent = prior[prior["game_date"].isin(last2)]
+    gassed = 0
+    for _, arm in recent.groupby("pitcher"):
+        last_day = arm.loc[arm["game_date"] == last2[-1], "pitches"].sum()
+        if arm["game_date"].nunique() >= 2 or arm["pitches"].sum() >= 40 or last_day >= 30:
+            gassed += 1
+    w21 = prior[prior["game_date"] >= as_of - timedelta(days=21)]
+    w3 = prior[prior["game_date"] >= as_of - timedelta(days=3)]
+    expect = len(w21) / 21 * 3 if len(w21) else 0
+    return min(100.0, gassed * 20.0), (len(w3) / expect if expect else float("nan"))
+
+
+def fatigue(df: pd.DataFrame, _teams: list[str]) -> None:
+    """Does the workload proxy predict the relief wOBA that follows it?"""
+    rel, pitch = _relief_pitch_counts(df)
 
     out = []
     for (team, gd), g in _pa_rows(rel).groupby(["fielding", "game_date"]):
@@ -204,17 +234,8 @@ def fatigue(df: pd.DataFrame, _teams: list[str]) -> None:
         prior = g[g["game_date"] < r.date]
         if prior.empty:
             continue
-        last2 = sorted(prior["game_date"].unique())[-2:]
-        recent = prior[prior["game_date"].isin(last2)]
-        gassed = 0
-        for _, arm in recent.groupby("pitcher"):
-            last_day = arm.loc[arm["game_date"] == last2[-1], "pitches"].sum()
-            if arm["game_date"].nunique() >= 2 or arm["pitches"].sum() >= 40 or last_day >= 30:
-                gassed += 1
-        w21 = prior[prior["game_date"] >= r.date - timedelta(days=21)]
-        w3 = prior[prior["game_date"] >= r.date - timedelta(days=3)]
-        expect = len(w21) / 21 * 3 if len(w21) else 0
-        rows.append((r.woba, gassed, min(100, gassed * 20), len(w3) / expect if expect else np.nan))
+        score, load = _workload(prior, r.date)
+        rows.append((r.woba, int(round(score / 20)), score, load))
 
     d = pd.DataFrame(rows, columns=["woba", "gassed", "fatigue", "load"]).dropna()
     print(f"\nteam-games: {len(d)}, mean relief wOBA allowed {d.woba.mean():.3f}")
@@ -227,13 +248,78 @@ def fatigue(df: pd.DataFrame, _teams: list[str]) -> None:
           f" -> {dep.woba.mean() - ok.woba.mean():+.4f} +/- {se:.4f}")
 
 
+def _finals(start: Date, end: Date) -> pd.DataFrame:
+    """One row per side of every decided game in the range, from the MLB schedule."""
+    js = requests.get(
+        "https://statsapi.mlb.com/api/v1/schedule",
+        params={"sportId": 1, "startDate": str(start), "endDate": str(end), "hydrate": "team"},
+        timeout=60,
+    ).json()
+    rows = []
+    for day in js.get("dates", []):
+        gd = pd.to_datetime(day["date"]).date()
+        for g in day.get("games", []):
+            if g.get("status", {}).get("abstractGameState") != "Final":
+                continue
+            home, away = g["teams"]["home"], g["teams"]["away"]
+            if "score" not in home or "score" not in away or home["score"] == away["score"]:
+                continue
+            ht, at = home["team"]["abbreviation"], away["team"]["abbreviation"]
+            rows.append((gd, ht, at, int(home["score"] > away["score"])))
+            rows.append((gd, at, ht, int(away["score"] > home["score"])))
+    return pd.DataFrame(rows, columns=["date", "team", "opp", "win"])
+
+
+def mlgate(df: pd.DataFrame, _teams: list[str]) -> None:
+    """Does the moneyline depletion gate demote losers, or just bets?
+
+    Rebuilds the proxy before each game and asks whether the side the gate would
+    have passed on lost more than that same team usually does -- the team's own
+    rate standing in for the price, which we do not have back this far.
+    """
+    _, pitch = _relief_pitch_counts(df)
+    dates = sorted(df["game_date"].unique())
+    rows = []
+    for team, g in pitch.groupby("fielding"):
+        for gd in dates:
+            prior = g[g["game_date"] < gd]
+            if prior.empty or (gd - max(prior["game_date"])).days > 3:
+                continue
+            rows.append((team, gd, _workload(prior, gd)[0]))
+    fat = pd.DataFrame(rows, columns=["team", "date", "fatigue"])
+
+    res = _finals(min(dates), max(dates))
+    d = res.merge(fat, on=["date", "team"]).merge(
+        fat.rename(columns={"team": "opp", "fatigue": "opp_fatigue"}), on=["date", "opp"]
+    )
+    d["gated"] = (d.fatigue >= ML_PEN_DEPLETED) & ((d.fatigue - d.opp_fatigue) >= ML_PEN_EDGE)
+    d = d.join(d.groupby("team")["win"].mean().rename("own_rate"), on="team")
+
+    print(f"\nteam-games with a read on both pens: {len(d)}")
+    for name, sub in (("gate would demote", d[d.gated]), ("gate lets through", d[~d.gated])):
+        se = float(np.sqrt(sub.win.mean() * (1 - sub.win.mean()) / max(len(sub), 1)))
+        print(f"  {name}: n={len(sub)} won {sub.win.mean():.3f} vs those teams' own"
+              f" {sub.own_rate.mean():.3f} -> {sub.win.mean() - sub.own_rate.mean():+.3f}"
+              f" +/- {se:.3f}")
+    print(f"  r(own fatigue, win) = {d.fatigue.corr(d.win):+.3f}")
+    print(f"  r(fatigue gap, win) = {(d.fatigue - d.opp_fatigue).corr(d.win):+.3f}")
+    print(
+        d.groupby(pd.cut(d.fatigue, [-1, 19, 39, 59, 79, 101]), observed=True)
+        .agg(games=("win", "size"), won=("win", "mean"), own_rate=("own_rate", "mean"))
+        .round(3)
+        .to_string()
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("mode", choices=("forward", "spread", "fatigue"))
+    ap.add_argument("mode", choices=("forward", "spread", "fatigue", "mlgate"))
     ap.add_argument("--cache", required=True, type=Path, help="Statcast pickle from the engine cache")
     args = ap.parse_args()
     df, teams = _load(args.cache)
-    {"forward": forward, "spread": spread, "fatigue": fatigue}[args.mode](df, teams)
+    {"forward": forward, "spread": spread, "fatigue": fatigue, "mlgate": mlgate}[args.mode](
+        df, teams
+    )
 
 
 if __name__ == "__main__":
