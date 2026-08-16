@@ -175,6 +175,7 @@ def fetch_result(
                     # off a zero and its overs read as losses.
                     "BB": int(bat.get("baseOnBalls", 0) or 0),
                     "K": int(bat.get("strikeOuts", 0) or 0),
+                    "SB": int(bat.get("stolenBases", 0) or 0),
                 }
             if pit:
                 line.pitching = {

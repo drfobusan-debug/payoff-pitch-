@@ -199,6 +199,58 @@ class MLBStatsClient:
             out.append((pid, p.get("fullName", ""), bats, throws))
         return out
 
+    def season_steal_lines(self, season: int) -> dict[int, tuple[float, float]]:
+        """Season ``{mlbam_id: (stolen_bases, times_on_first)}`` for every hitter.
+
+        Times on first is singles plus walks plus hit by pitch -- the chances a
+        steal had, which is the denominator :mod:`mlb_engine.features.steals`
+        measured its rates against. Reaching on an error or a fielder's choice
+        also puts a runner there and is not in a season line; both are rare
+        enough beside 23% of plate appearances that the rate absorbs them.
+
+        Returns ``{}`` on failure, which prices every runner off his legs alone.
+        """
+        out: dict[int, tuple[float, float]] = {}
+        offset = 0
+        while True:
+            try:
+                data = self._get(
+                    "stats",
+                    stats="season",
+                    season=season,
+                    group="hitting",
+                    gameType="R",
+                    playerPool="All",
+                    sportId=SPORT_ID,
+                    limit=500,
+                    offset=offset,
+                )
+            except requests.RequestException as exc:
+                log.warning("season steal lines failed at offset %s: %s", offset, exc)
+                return out
+            groups = data.get("stats") or []
+            splits = groups[0].get("splits", []) if groups else []
+            for sp in splits:
+                pid = (sp.get("player") or {}).get("id")
+                st = sp.get("stat") or {}
+                if not pid:
+                    continue
+                hits = float(st.get("hits") or 0)
+                extra = (
+                    float(st.get("doubles") or 0)
+                    + float(st.get("triples") or 0)
+                    + float(st.get("homeRuns") or 0)
+                )
+                on_first = (
+                    max(hits - extra, 0.0)
+                    + float(st.get("baseOnBalls") or 0)
+                    + float(st.get("hitByPitch") or 0)
+                )
+                out[int(pid)] = (float(st.get("stolenBases") or 0), on_first)
+            if len(splits) < 500:
+                return out
+            offset += 500
+
     def get_today_and_tomorrow(self, today: Date | None = None) -> tuple[Slate, Slate]:
         today = today or Date.today()
         return self.get_slate(today), self.get_slate(today + timedelta(days=1))

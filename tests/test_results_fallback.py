@@ -95,7 +95,7 @@ def test_fetch_result_uses_cache_when_api_fails(tmp_path: Path) -> None:
     assert result.players[100] == PlayerLine(
         batting={
             "PA": 2, "H": 2, "1B": 1, "2B": 1, "3B": 0, "HR": 0, "RBI": 1, "R": 1,
-            "BB": 0, "K": 0,
+            "BB": 0, "K": 0, "SB": 0,
         }
     )
     assert result.batted(100) is True
