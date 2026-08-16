@@ -151,6 +151,82 @@ survive before turning it on. The honest reading is that the reliability
 correction is *right* about the metrics and the simulation was already damping
 them enough that re-damping them adds nothing.
 
+### Fastball velocity, and what one start measures
+
+Every reliability number above is a *block* read: six weeks against the next six
+weeks. The question the slate article kept raising is narrower — what can be
+read off a single outing? Correlating each metric across a pitcher's consecutive
+starts (3,256 starts, 253 pitchers, 2026 season through 8/15):
+
+| read off ONE start | repeats next start |
+| --- | --- |
+| Release height | 0.97 |
+| Release extension | 0.95 |
+| **Four-seam velocity** | **0.93** |
+| Four-seam spin | 0.91 |
+| Four-seam IVB | 0.84 |
+| Whiff / swing | 0.20 |
+| K per PA | 0.20 |
+| CSW% | 0.15 |
+| xwOBA allowed | 0.10 |
+| Exit velo allowed | 0.09 |
+| BB per PA | 0.07 |
+
+The split is by *what is being counted*, not by how interesting the metric is:
+one start is ~90 radar-measured fastballs and ~22 results. So a velocity read
+off one outing is a measurement and a contact read off one outing is not, with
+nothing in between.
+
+Which window, then? Shorter is better, monotonically. Held-out RMSE on the next
+start's strikeout rate, one velocity read added to the levels the engine already
+prices (1,652 starts, chronological halves):
+
+| velocity read | K rate | xwOBA allowed |
+| --- | --- | --- |
+| none | .10551 | .08200 |
+| 7 days | **.10391** | **.08118** |
+| 14 days | .10399 | .08121 |
+| 21 days (what the article used) | .10408 | .08125 |
+| 42 days | .10422 | .08134 |
+| 7-day half-life decay | .10403 | .08124 |
+| season level + last-start deviation | **.09987** | **.08096** |
+
+Pooling sinkers and cutters in halves the gain (.10477): a sinker-heavy start
+otherwise reads as lost velocity. The deviation is asymmetric in the velocity
+itself — 30% of a dip survives to the next start against 55% of a spike — but a
+one-sided *outcome* fit did not beat the linear term, so the simple version
+ships.
+
+Two consequences:
+
+**The article now reads velocity as his last start against the whole window**
+rather than three weeks against three weeks. SIERA and CSW% keep their halves;
+three weeks is the shortest sample that measures them at all.
+
+**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` the starter's K
+multiplier carries both terms — his level against a 94.7 league four-seamer at
+3.7%/mph, and his last start against his own window at 7.8%/mph, each clipped.
+Scored as the engine uses it (2,082 starts / 48,120 PA, binomial deviance per PA
+on strikeouts, six-week K%/CSW%/xwOBAcon controlled, 60/40 chronological
+holdout): 1.05839 for the priced levels alone, 1.05732 adding the level,
+**1.05661** adding both. It ships quoted-but-unpriced because no graded ledger
+row has ever depended on it, which is the order every market here has been
+reopened in.
+
+It buys nothing on contact and is not applied there: on hits per *non-strikeout*
+PA the level is t = −2.15 for .0002 of deviance and the last-start deviation
+makes the holdout worse — the same verdict inverse-BABIP and ΔxwOBA drew when
+they were measured on the starter's contact term. IVB is the mirror image: it
+hurts a strikeout forecast (z −5.3) and carries home runs (z +13.1), which is
+the one place the engine already uses it.
+
+```bash
+python -m scripts.velocity_read_study reliability   # what one start measures
+python -m scripts.velocity_read_study window        # 1 to 8 weeks, and decays
+python -m scripts.velocity_read_study k             # the deviance bar, strikeouts
+python -m scripts.velocity_read_study hits          # the same on contact
+```
+
 ### Bullpen windows
 
 A bullpen's last three weeks is about 270 batters faced spread over a dozen

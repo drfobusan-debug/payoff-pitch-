@@ -100,6 +100,17 @@ class RollingWindows:
     bullpen_xwoba_shrink: float = field(
         default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 0.37)
     )
+    # Share of the fitted four-seam velocity term to charge on a starter's
+    # strikeout rate: his level against the league, plus how his most recent
+    # start sat against his own window. Velocity is the only read that survives
+    # a single start (r=.93 between consecutive starts, against .20 for K/PA and
+    # .15 for CSW%), and adding both terms improved held-out strikeout deviance
+    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
+    # until the ledger has graded it, which is the order every market here has
+    # been reopened in; 1.0 charges the fitted slopes in full.
+    vfa_k_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:

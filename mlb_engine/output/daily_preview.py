@@ -249,7 +249,9 @@ def starter_trend_sentence(team: str, sl: StarterLine) -> str:
     bits = [
         f"{siera}, {_trend_phrase(sl.siera_trend, FLAT_SIERA, '.2f', lower_is_better=True)}",
         f"stuff {_trend_phrase(sl.stuff_trend, FLAT_CSW, '.1%', lower_is_better=False)} on CSW%",
-        f"velocity {_trend_phrase(sl.vfa_trend, FLAT_VFA, '.1f', lower_is_better=False)} mph",
+        "last start's velocity "
+        + _trend_phrase(sl.vfa_trend, FLAT_VFA, ".1f", lower_is_better=False)
+        + ("" if sl.vfa_trend is None else " mph"),
     ]
     if sl.babip_allowed is None:
         luck = ""
@@ -796,9 +798,11 @@ def build_preview_report(
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
-        "six-week window in half and report the recent half minus the earlier one, for the three signals that "
-        "repeat on three weeks of pitches (velocity, CSW%, SIERA); contact quality is excluded because it does "
-        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact "
+        "six-week window in half and report the recent half minus the earlier one for SIERA and CSW%, the two "
+        "signals that repeat on three weeks of pitches; velocity is his last start against the whole window, "
+        "because one outing measures it (r=0.93 between consecutive starts, against .15 for CSW%). Contact "
+        "quality is excluded because it repeats at neither length. A starter's BABIP-vs-xwOBA gap is the "
+        "wOBA he allowed against the wOBA his contact "
         "deserved. Matchup verdicts are the simulator's own log5 projection — each hitter's rates in "
         "his platoon and home/road context against this starter's — averaged over the order and "
         "compared with the same order against a league-average arm. "
