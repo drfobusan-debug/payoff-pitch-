@@ -54,6 +54,13 @@ class RollingWindows:
     batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 21))
     batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 42))
     biomech_days: int = field(default_factory=lambda: _env_int("MLBE_BIOMECH_DAYS", 28))
+    # Team-level platoon and venue splits for the preview, which need a far
+    # longer look-back than an individual hitter does -- not because a club
+    # changes more slowly, but because ``team_splits.MIN_SPLIT_PA`` is 500 and a
+    # club sees roughly 390 PA against left-handers in six weeks. Over 42 days
+    # exactly 1 of 30 clubs clears the floor vs LHP; at 60 days, 21; at 90, all
+    # 30. Shorter than this and the platoon line simply stops printing.
+    team_split_days: int = field(default_factory=lambda: _env_int("MLBE_TEAM_SPLIT_DAYS", 90))
     # Bullpen: relievers' last ~3 weeks and batters' late-inning last ~3 weeks.
     bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 21))
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))

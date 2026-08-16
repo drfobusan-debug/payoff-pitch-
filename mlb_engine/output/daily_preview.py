@@ -289,9 +289,19 @@ def _split_clause(lu: LineupLine) -> str:
     if lu.split_woba is None or lu.split_rank is None or lu.split_of is None:
         return f"has too thin a sample against {hand} to rank"
     return (
-        f"hits {hand} at a {lu.split_woba:.3f} wOBA, "
+        f"hits {hand} at a {lu.split_woba:.3f} xwOBA, "
         f"<b>{lu.split_rank} of {lu.split_of}</b> — the <b>{lu.split_bucket} third</b>"
     )
+
+
+# Points of split xwOBA between a club's two venues before the preview calls one
+# of them its better half. Ten points is the *league's* entire home-field edge
+# (.3364 home, .3265 road), so a club has to separate its own halves by more
+# than the advantage of playing at home at all before the sentence is written.
+# The splits arriving here are shrunk, which is what makes that reachable
+# without being routine: unshrunk, the noise on a single club's home-road gap is
+# +-29 points and two thirds of the league cleared ten by accident.
+VENUE_WASH = 0.010
 
 
 def _venue_clause(lu: LineupLine) -> str:
@@ -301,8 +311,8 @@ def _venue_clause(lu: LineupLine) -> str:
     mine = lu.home_woba if lu.is_home else lu.away_woba
     theirs = lu.away_woba if lu.is_home else lu.home_woba
     diff = mine - theirs
-    splits = f"{mine:.3f} wOBA {here} vs {theirs:.3f} {there}"
-    if abs(diff) < 0.010:
+    splits = f"{mine:.3f} xwOBA {here} vs {theirs:.3f} {there}"
+    if abs(diff) < VENUE_WASH:
         shape = f"which is no help either way — {splits}"
     elif diff > 0:
         shape = f"their better half — {splits}"
@@ -531,7 +541,7 @@ def lineup_profile(team: str, lu: LineupLine) -> str:
     else:
         bucket = _rank_bucket(lu.team_rank, lu.team_of)
         general = (
-            f"a {lu.team_woba:.3f} wOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
+            f"a {lu.team_woba:.3f} xwOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
             f"({bucket} third), hitting {lu.xwoba:.3f} xwOBA on contact"
         )
     situ = [_split_clause(lu)]
