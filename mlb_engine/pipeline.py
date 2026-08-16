@@ -1025,8 +1025,12 @@ class Pipeline:
                 xwoba_shrink=w.bullpen_xwoba_shrink,
                 prior_strength=self._pen_prior,
             )
-            pen_xwoba = pen.xwoba_allowed
-            pen_k = pen.k_pct if pen.xwoba_allowed is not None else None
+            # The unshrunk mean on purpose: ``dog_pen_xwoba_max`` (.330) was
+            # calibrated against raw three-week reads, and a shrunk read never
+            # travels far enough from .306 to cross it -- the gate would stop
+            # firing without anyone changing its threshold.
+            pen_xwoba = pen.xwoba_raw
+            pen_k = pen.k_pct if pen.xwoba_raw is not None else None
 
         return replace(
             base,

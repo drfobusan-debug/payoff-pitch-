@@ -83,10 +83,13 @@ class RollingWindows:
     starter_contact_shrink: float = field(
         default_factory=lambda: _env_float("MLBE_STARTER_CONTACT_SHRINK", 0.0)
     )
-    # Share of a bullpen's distance from the league mean xwOBA to keep. 1.0 is
-    # the raw three-week mean; 0.37 is its measured reliability.
+    # Share of a bullpen's distance from the league mean xwOBA to keep, set to
+    # the measured split-half reliability of a three-week read. The run-line
+    # underdog gate keeps reading the unshrunk mean (``BullpenProfile.xwoba_raw``)
+    # so its .330 threshold still means what it was calibrated against; this
+    # value is what the reader and any level term see.
     bullpen_xwoba_shrink: float = field(
-        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 1.0)
+        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 0.37)
     )
 
 
@@ -372,9 +375,24 @@ class Config:
     # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
     # three-week sample is thin enough that at the flat 60 PA the pen vector is
     # mostly binomial noise -- and whose doubles/triples-allowed spread across the
-    # 30 pens is *entirely* noise. Off by default for the same reason as the ROS
-    # prior: it moves every pen-driven probability, so it ships with a refit.
-    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", False))
+    # 30 pens is *entirely* noise.
+    #
+    # On by default since the out-of-time check that was owed: 330 team-windows
+    # (Apr-Jul, 21-day read scored against the *next* 21 days of relief wOBA
+    # allowed), regressing what happened next on what the window said --
+    #
+    #     read              sd      slope on the next window   RMSE
+    #     raw             .0371            0.15                .0504
+    #     flat 60 PA      .0300            0.19                .0462
+    #     fitted priors   .0106            0.62                .0398
+    #     league mean      ---              ---                .0397
+    #
+    # A slope of 0.15 is the definition of a read used at six times its worth:
+    # production was handing the simulator a pen line whose spread is five sixths
+    # sampling error, and paying for it -- the raw and flat-60 reads forecast the
+    # next three weeks *worse than assuming every pen is league average*. The
+    # fitted priors are the first version that does not.
+    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", True))
 
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (high K%, fly-ball tilt -- the two

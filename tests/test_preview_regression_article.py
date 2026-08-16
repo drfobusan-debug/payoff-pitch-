@@ -341,30 +341,30 @@ def test_starter_duel_says_so_when_siera_is_missing():
     assert "No SIERA read on both arms" in starter_duel(gp)
 
 
-def test_bullpen_verdict_reads_freshness_projection_and_volatility():
+def test_bullpen_verdict_reads_usage_and_the_projection():
     txt = bullpen_verdict("SD", "AZ", _pen())
 
     assert "AZ's pen" in txt
-    assert "Fresh" in txt and "nobody on back-to-back days" in txt
+    assert "Usage: nobody on back-to-back days" in txt
     assert "three-day workload 0.90× normal" in txt
     assert "projects 0.320 wOBA against SD's order" in txt
     assert "0.305 once the 8th-inning arms take it" in txt
-    assert "normal spread" in txt and "across 7 arms" in txt
 
 
-def test_bullpen_verdict_flags_a_worked_volatile_walk_prone_pen():
+def test_bullpen_verdict_states_workload_without_calling_a_pen_worked():
     txt = bullpen_verdict("SD", "AZ", _pen(fatigue=80.0, arm_spread=0.061, zone_pct=0.37))
 
-    assert "Worked" in txt and "4 arms gassed" in txt
-    assert "volatile" in txt and "0.061 wOBA spread" in txt
+    assert "4 arms on back-to-back days or a heavy two-day count" in txt
     assert "walk trap at 37% zone" in txt
+    # The two claims that did not survive being scored.
+    assert "Worked" not in txt and "gassed" not in txt
+    assert "volatile" not in txt and "wOBA spread" not in txt
 
 
 def test_bullpen_verdict_admits_a_thin_relief_sample():
     txt = bullpen_verdict("SD", "AZ", _pen(proj_woba=None, arm_spread=None, arms=1, fatigue=None))
 
     assert "no projection against this order" in txt
-    assert "too few arms" in txt
     assert "Workload unknown" in txt
 
 
@@ -374,6 +374,7 @@ def test_article_says_which_pen_holds_late():
 
     assert "Late-inning edge: <b>BBB's pen</b>, by 60 points" in html
     assert "late innings favor the BBB pen" in narr
+    assert "worked" not in narr and "volatile" not in narr
 
 
 def test_article_calls_the_pens_even_when_they_project_together():

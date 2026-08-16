@@ -168,13 +168,61 @@ Split-half reliability across the 30 pens (6/16–7/27, non-overlapping halves):
 | Hard-hit% | 0.13 | 13% |
 | HR per batter faced | 0.06 | 6% |
 
-Two knobs follow from that, both **off by default** until closing line value
-says otherwise:
+Repeating is not the same as forecasting, so the read was scored the way it is
+used: 330 team-windows (April–July, a 21-day read against the **next** 21 days of
+relief wOBA allowed), regressing what happened next on what the window said.
+
+| read the simulator gets | sd across pens | slope on the next window | RMSE |
+| --- | --- | --- | --- |
+| raw | .0371 | 0.15 | .0504 |
+| flat 60-PA prior (was the default) | .0300 | 0.19 | .0462 |
+| fitted per-outcome priors | .0106 | 0.62 | .0398 |
+| assume every pen is league average | — | — | .0397 |
+
+A slope of 0.19 means the pen line was being used at roughly five times its
+worth, and the top two rows forecast the next three weeks *worse than knowing
+nothing about the pen at all*. `MLBE_PEN_SHRINK` is therefore **on by default**;
+the residual 0.62 says the fitted priors are still mildly optimistic, but
+strengthening them further buys under .0002 of RMSE and one more fitted constant.
+
+**wOBA or xwOBA?** Over the same windows, xwOBA is the better forecast of the
+pen's next three weeks (r = +0.185 against wOBA's +0.141, better in 9 of 11 start
+dates), and in a joint regression it takes all the weight (+0.0070 per sd against
++0.0004). It is not a large edge, and both are weak. The simulator needs an
+outcome vector rather than a single number, so the pen's contact quality enters
+as the xwOBA *level* term in `features/regression.py` (fitted on 16,547 relief
+rows, t = +4.5) while the rate vector carries the rest.
 
 | Knob | Default | What it does |
 | --- | --- | --- |
+| `MLBE_PEN_SHRINK` | `1` (on) | Shrinks the pen's outcome rates with the fitted per-outcome priors (1B k=1834, HR 708, BB 344, K 241, OUT 410; 2B/3B pinned to the league pen, where their entire observed spread is binomial noise). `0` restores the flat 60-PA prior. |
 | `MLBE_BULLPEN_SKILL_DAYS` | `0` (off) | Reads the pen's stuff/command signals over a longer window than its rates. Set to `42`: out of sample against the following three weeks, relief K% scores 0.73 on 42 days against 0.66 on 21, and in a joint regression the 42-day read takes weight +0.68 against +0.14 for the last three weeks. Results-based rates stay on `MLBE_BULLPEN_DAYS` (21), where they belong — xwOBA scores 0.37 on 21 days against 0.32 on 42. |
-| `MLBE_BULLPEN_XWOBA_SHRINK` | `1.0` (raw) | Share of a pen's distance from the league mean (.306) to keep. `0.37` is the measured reliability. `xwoba_allowed` is otherwise a plain three-week mean that `MLBE_RL_GATE_DOG_PEN` compares to a hard .330 threshold, so roughly two thirds of what that gate reads is noise. `BullpenProfile.xwoba_raw` keeps the unshrunk value for reporting. |
+| `MLBE_BULLPEN_XWOBA_SHRINK` | `0.37` | Share of a pen's distance from the league mean (.306) to keep, set to the measured reliability. The underdog run-line gate deliberately keeps reading `BullpenProfile.xwoba_raw`: its .330 cut was calibrated on unshrunk means, and at 0.37 even the league's worst pen (.353 raw on 8/16) lands at .323 — reading the shrunk value would retire that gate silently rather than on evidence. |
+
+### Two bullpen numbers that do not survive being scored
+
+Both were printed in the daily preview as verdicts, and both are gone from it.
+
+**Arm-to-arm "volatility"** — the standard deviation of wOBA allowed across a
+pen's individual relievers. Over two adjacent three-week windows it repeats at
+**r = −0.10** across 27 pens (−0.07 on the following window pair); the observed
+spread (.021–.027) sits *below* the binomial noise floor for arms with ~33
+batters faced (.031–.035), leaving no measurable talent spread at all in it; and
+the same reliever's wOBA allowed repeats
+window to window at **r = −0.04** (n=61). "Volatile" and "uniform" were two names
+for one coin flip. The number is still captured on `BullpenLine.arm_spread` for a
+later study; it is no longer read out.
+
+**The "gassed arms" workload proxy** — scored over 970 team-games against the
+relief wOBA that pen actually allowed that night: **r = −0.035**, and pens at the
+depleted threshold allowed **+0.005 ± 0.018** more than the rest. It is a true
+description of who threw yesterday and not a forecast, so the preview now reports
+it as usage with no colour and leaves it out of the narration. It still feeds the
+moneyline depletion gate (`features/ml_gate.py`), which on this evidence is owed
+the same test.
+
+All three measurements are reproducible: `python -m scripts.pen_read_study
+{forward,spread,fatigue} --cache <statcast pickle>`.
 
 One caveat worth carrying: team-level *velocity* is the most reliable bullpen
 number and also the most misleading one. Detroit's pen appeared to lose 2.2 mph
