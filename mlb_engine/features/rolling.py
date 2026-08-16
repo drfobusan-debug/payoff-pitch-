@@ -219,6 +219,24 @@ MIN_BBE_FOR_XWOBA = 30  # batted balls before a bullpen's xwOBA allowed is trust
 # is shrunk toward. Measured over 2026-06-16..07-27, 30 pens, ~17k batters faced.
 LEAGUE_PEN_XWOBA = 0.306
 
+# League-average relief Zone%, and the walk term built around it. The trap used
+# to fire below .40, which no bullpen in the league reaches: over 3,258 pen-games
+# the *minimum* Zone% is .394 and the 1st percentile is .424, so it fired twice,
+# 0.06% of the time, while the signal it was built to catch went unpriced. Zone%
+# does predict the next game's relief walk rate -- -0.23 per unit (t -1.70),
+# monotone across quintiles, .1108 BB% allowed at Zone% .442 against .0953 at
+# .498 -- which relative to the .1044 league relief walk rate is a slope of 2.2,
+# so the shipped 2.0 was the right size aimed at the wrong place.
+#
+# Centred rather than one-sided, because a penalty measured from a threshold no
+# pen clears and applied to half the league is a tax, not a read: a strike-
+# throwing pen has to be able to earn the credit its Zone% predicts, or the term
+# only ever adds walks. Same reason ``k_multiplier``'s baselines were corrected.
+# Measured on 2026, 30 pens, 3,258 pen-games (``scripts/pen_stuff_study.py``).
+LEAGUE_PEN_ZONE = 0.469
+PEN_ZONE_BB_SLOPE = 2.0
+PEN_ZONE_BB_CLIP = 0.12
+
 
 @dataclass
 class OutcomeRates:
@@ -729,7 +747,7 @@ class BullpenProfile:
     # looking alike late; falls back to ``allowed`` when the 8th+ sample is thin.
     allowed_leverage: OutcomeRates
     relief: pd.DataFrame
-    zone_pct: float  # NPV: below ~.40 -> walk trap
+    zone_pct: float  # NPV: below the league pen -> walk trap, above it -> credit
     recent_load: float  # NPV: >1 -> heavier 3-day workload than baseline (fatigue)
     xwoba_allowed: float | None = None  # contact quality allowed; None if thin
     # Rates allowed in relief before ``LEVERAGE_INNING`` (the bridge innings).
@@ -763,9 +781,11 @@ class BullpenProfile:
         """
         m: dict[str, float] = {}
         # Walk trap: a low-zone bullpen walks the tying/winning run on in late,
-        # high-leverage spots where hitters stop chasing.
-        if self.zone_pct and self.zone_pct < 0.40:
-            m["BB"] = 1.0 + min(0.20, (0.40 - self.zone_pct) * 2.0)
+        # high-leverage spots where hitters stop chasing -- and the pen that
+        # pounds the zone gives the free base back.
+        if self.zone_pct:
+            move = (LEAGUE_PEN_ZONE - self.zone_pct) * PEN_ZONE_BB_SLOPE
+            m["BB"] = 1.0 + max(-PEN_ZONE_BB_CLIP, min(PEN_ZONE_BB_CLIP, move))
         # 3-in-4 fatigue: heavy recent workload degrades spin/command -> more damage.
         load = (2.0 - availability) if availability is not None else self.recent_load
         if load > 1.15:

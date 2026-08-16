@@ -90,6 +90,21 @@ log = logging.getLogger(__name__)
 # any more. The batter markets move with them, since the starter's rates are
 # half of every matchup.
 #
+# Correcting the two mis-scaled baselines in ``k_multiplier`` retires it before a
+# single slate is priced on it, and the argument is the same one only larger:
+# ``BL_TWO_STRIKE_WHIFF`` was a per-swing rate compared against a per-pitch one,
+# so the term sat on its floor for 98% of arms and the multiplier was a flat
+# strikeout tax rather than a comparison. Over 201 starters with 400+ pitches
+# and the 30 bullpens:
+#
+#   starter K multiplier   mean 0.909 -> 0.966   mean |change| 5.7%   max 13.0%
+#                          sd 0.116 -> 0.141 (it now separates arms)
+#   bullpen K multiplier   mean 0.916 -> 1.002   max |change| 13.7%
+#   bullpen BB multiplier  fired 0/30 -> mean 1.011, range 0.942..1.077
+#
+# That is larger than the prior refit it follows, moves K in the opposite
+# direction to the tax it removes, and hits both halves of every game at once.
+#
 # Switching the hitter prior on retires it again, and this is the counterpart on
 # the batter side of the pitcher-prior reset above. Every batter's rate vector
 # now regresses toward his own projection at the fitted per-outcome strengths
@@ -103,12 +118,13 @@ log = logging.getLogger(__name__)
 # on the buckets the model ranks well and halves it on the buckets it never
 # could, in opposite directions for different hitters. A map fitted on the
 # compressed vectors learned to correct a compression that is gone.
-FEATURE_BASIS = "ros-prior-2026.08"
+FEATURE_BASIS = "ros-prior-baselines-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# The previous basis graded no rows at all before this reset, so nothing is
-# discarded by it.
+# 08-16 was priced before either prior was fitted, and neither
+# "stuff-priors-2026.08" nor "ros-prior-2026.08" ever graded a row, so the
+# resets discard nothing: all of it lands together on the 08-17 refit.
 FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 
