@@ -453,7 +453,13 @@ class Pipeline:
 
         statcast = self.deps.statcast.max_window(
             slate_date,
-            [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
+            [
+                w.pitcher_form_days,
+                w.batter_home_away_days,
+                w.batter_vs_rhp_days,
+                w.batter_vs_lhp_days,
+                w.team_split_days,
+            ],
         )
         self._ros_priors = (
             load_ros_priors(self.cfg.ros_prior_path) if self.cfg.ros_prior_path else {}
@@ -511,7 +517,10 @@ class Pipeline:
         # League-wide platoon and home/road offense, for the article's ranked
         # matchup verdict. Read once per slate off the frame already loaded.
         self._team_splits = build_team_splits(
-            statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
+            statcast,
+            slate_date,
+            self.cfg.windows.team_split_days,
+            self._ros_priors,
         )
         self._league_contact = league_contact(
             statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
