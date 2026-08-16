@@ -30,6 +30,15 @@ def _env_float(name: str, default: float) -> float:
     return float(raw) if raw not in (None, "") else default
 
 
+def _data_dir() -> Path:
+    return Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
+
+
+def default_ros_prior_path() -> str:
+    """Where ``mlb-engine ros-prior`` writes the hitter projection file."""
+    return str(_data_dir() / "ros_hitters.csv")
+
+
 def _env_csv(name: str) -> tuple[str, ...] | None:
     """Comma-separated override, or ``None`` to keep the caller's default."""
     raw = os.getenv(name)
@@ -359,14 +368,33 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
     )
 
-    # Rest-of-season projections as the batter prior. The path holds the file
-    # written by ``scripts.ros_prior_study prior``; when it is set and readable,
-    # a hitter's window regresses toward his own projection at the per-outcome
-    # strengths in OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a
-    # flat 60 PA. Off by default: it moves every batter probability, so it is
-    # meant to arrive with a calibration refit rather than mid-window.
+    # Rest-of-season projections as the batter prior: a hitter's window
+    # regresses toward his own projection at the per-outcome strengths in
+    # OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a flat 60 PA.
+    #
+    # This was built off and switched off, because the export it was written for
+    # (THE BAT X via FanGraphs) needs a subscription and does not survive the
+    # Cloudflare challenge, so there was never a file to read. The projection is
+    # now built from the free official season lines instead
+    # (``scripts.ros_prior_study marcel``, or ``mlb-engine ros-prior``), which
+    # writes ``ros_hitters.csv`` into the data directory -- so the default is the
+    # standard path rather than off, and an operator with no file still gets
+    # exactly today's behaviour.
+    #
+    # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
+    # 07-22 cutoff, priors built from seasons the holdout cannot reach:
+    #
+    #     vector                            log loss / PA   vs today
+    #     league rate for everyone               1.46643     +0.0024
+    #     window, flat 60 PA to league (today)   1.46403       0
+    #     window, fitted strengths to league     1.45845     -0.0056
+    #     window, fitted strengths to projection 1.45411     -0.0099  (5.8 SE)
+    #
+    # The line worth reading twice is the first: today's hitter model beats
+    # giving every hitter the league line by 0.8 SE. Set MLBE_ROS_PRIOR to a
+    # path to point elsewhere, or to an empty string to restore the league mean.
     ros_prior_path: str | None = field(
-        default_factory=lambda: os.getenv("MLBE_ROS_PRIOR") or None
+        default_factory=lambda: os.environ.get("MLBE_ROS_PRIOR", default_ros_prior_path()) or None
     )
 
     # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
@@ -770,9 +798,7 @@ class Config:
     )
 
     # Directories.
-    data_dir: Path = field(
-        default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
-    )
+    data_dir: Path = field(default_factory=_data_dir)
 
     @property
     def cache_dir(self) -> Path:

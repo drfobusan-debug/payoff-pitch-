@@ -89,11 +89,26 @@ log = logging.getLogger(__name__)
 # strikeout and walk rates that were saturated, which is not a bias that exists
 # any more. The batter markets move with them, since the starter's rates are
 # half of every matchup.
-FEATURE_BASIS = "stuff-priors-2026.08"
+#
+# Switching the hitter prior on retires it again, and this is the counterpart on
+# the batter side of the pitcher-prior reset above. Every batter's rate vector
+# now regresses toward his own projection at the fitted per-outcome strengths
+# rather than toward the league mean at a flat 60 PA. Over 178 hitters with 60+
+# PA in the 42 days to 08-13:
+#
+#   spread across hitters (sd)   K 4.3pp -> 6.0pp   2B 1.26pp -> 0.63pp
+#   on-base move per hitter      mean 1.0pp, p95 2.6pp, max 3.5pp
+#
+# so the change is not a level shift a map could absorb -- it widens the lineup
+# on the buckets the model ranks well and halves it on the buckets it never
+# could, in opposite directions for different hitters. A map fitted on the
+# compressed vectors learned to correct a compression that is gone.
+FEATURE_BASIS = "ros-prior-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-16 was priced before the pitcher priors were fitted.
+# The previous basis graded no rows at all before this reset, so nothing is
+# discarded by it.
 FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 
