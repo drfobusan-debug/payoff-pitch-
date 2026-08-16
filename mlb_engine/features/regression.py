@@ -754,7 +754,19 @@ BL_K_PCT = 0.220
 BL_BB_PCT = 0.080
 BL_K_MINUS_BB = 0.140
 BL_BARREL_ALLOWED = 0.080
-BL_TWO_STRIKE_WHIFF = 0.280
+# Whiffs per two-strike PITCH, which is what ``build_pitcher_regression``
+# measures. It was 0.280 -- a put-away rate per two-strike *swing* -- against a
+# rate whose league value is .1448 for starters and .1483 for relief, so the
+# term it feeds sat on its -0.06 clip for 98% of the 201 starters with 400+
+# pitches and for every bullpen: an unconditional strikeout haircut applied to
+# both sides of the ball, priced as if every arm in the league had the worst
+# put-away stuff in it. See ``scripts/pen_stuff_study.py``.
+BL_TWO_STRIKE_WHIFF = 0.145
+# The same statistic off a bullpen, which is a different population: pooled over
+# a dozen arms a pen posts .1196 K-BB against a starter's .140, so charging a pen
+# the starter's baseline docked every bullpen in the league ~3% of its
+# strikeouts before any of them was told apart from another.
+BL_PEN_K_MINUS_BB = 0.120
 BL_STUFF_PLUS = 100.0
 BL_LOCATION_PLUS = 100.0
 BL_SWSTR = 0.110  # swinging strikes / pitches
@@ -1046,12 +1058,20 @@ class PitcherRegression:
 
         Driven by CSW% and K-BB% (fast-stabilizing K predictors), the 2-strike
         put-away whiff rate, and Stuff+ when a FanGraphs feed is present.
+
+        Each term is a deviation from a league baseline, so the product is only a
+        comparison between arms if those baselines are the values the league
+        actually posts. Two of them were not, and both erred the same way: the
+        multiplier averaged 0.909 over starters and 0.926 over bullpens, i.e. it
+        was mostly a flat strikeout tax that raised offence everywhere rather
+        than a read on who misses bats.
         """
         if self.pitches < 100:
             return 1.0
+        k_bb_baseline = BL_PEN_K_MINUS_BB if self.bullpen else BL_K_MINUS_BB
         m = 1.0
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
-        m *= 1.0 + _clip((self.k_minus_bb - BL_K_MINUS_BB) * 1.5, -0.12, 0.15)
+        m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)

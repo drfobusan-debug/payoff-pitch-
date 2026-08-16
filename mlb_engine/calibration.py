@@ -89,11 +89,27 @@ log = logging.getLogger(__name__)
 # strikeout and walk rates that were saturated, which is not a bias that exists
 # any more. The batter markets move with them, since the starter's rates are
 # half of every matchup.
-FEATURE_BASIS = "stuff-priors-2026.08"
+#
+# Correcting the two mis-scaled baselines in ``k_multiplier`` retires it before a
+# single slate is priced on it, and the argument is the same one only larger:
+# ``BL_TWO_STRIKE_WHIFF`` was a per-swing rate compared against a per-pitch one,
+# so the term sat on its floor for 98% of arms and the multiplier was a flat
+# strikeout tax rather than a comparison. Over 201 starters with 400+ pitches
+# and the 30 bullpens:
+#
+#   starter K multiplier   mean 0.909 -> 0.966   mean |change| 5.7%   max 13.0%
+#                          sd 0.116 -> 0.141 (it now separates arms)
+#   bullpen K multiplier   mean 0.916 -> 1.002   max |change| 13.7%
+#   bullpen BB multiplier  fired 0/30 -> mean 1.011, range 0.942..1.077
+#
+# That is larger than the prior refit it follows, moves K in the opposite
+# direction to the tax it removes, and hits both halves of every game at once.
+FEATURE_BASIS = "pitcher-baselines-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-16 was priced before the pitcher priors were fitted.
+# 08-16 was priced before the pitcher priors were fitted, and nothing has been
+# priced on "stuff-priors-2026.08" -- both land together on the 08-17 refit.
 FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 
