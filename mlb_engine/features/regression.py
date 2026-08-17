@@ -818,6 +818,32 @@ FB_ALLOWED_FLOOR = 0.420
 FB_HARD_GAIN = 20.0
 FB_HARD_CAP = 0.10
 
+# Barrel rate allowed, on the home-run line. Measured against the next start's
+# HR/PA over 2,426 starts / 56,072 PA, every feature read from pitches thrown
+# strictly before the start, K% controlled, chronological 60/40 holdout:
+#
+#     term(s)                    coef      t   holdout dev
+#     none (K only)                --     --      0.28406
+#     barrel allowed            +2.12  +2.93      0.28391
+#     hard-hit allowed          +0.86  +0.72      0.28404
+#     GB% allowed               -1.33  -4.07      0.28362
+#     FB% allowed               +1.61  +4.75      0.28374
+#     GB + FB + barrel          +1.13  +1.46      0.28391
+#
+# Two things follow. The slope belongs where it is -- the fitted coefficient is
+# +2.12 against the 2.0 that ships, and a weekly walk-forward over the whole
+# multiplier is flat from 1.5 to 4.0 (0.28619/0.28617/0.28616) and worse at 0
+# (0.28635), so the term is not the #195 case of something better deleted.
+#
+# But it is the *weakest* of the three batted-ball reads, not the strongest: it
+# forward-predicts the next start's HR/PA at r=0.059 against fly-ball rate's
+# 0.090 and ground-ball rate's -0.079, and marginal to the pair added after it
+# (#87) it keeps only half its coefficient at t +1.46. Widening the clip was
+# measured too and changes nothing (0.28617 at every bound tried), so the 4.8%
+# of starts that reach it are reaching a bound the data does not mind.
+# See ``scripts/starter_hr_terms.py``.
+BARREL_ALLOWED_HR_SLOPE = 2.0
+
 # Induced vertical break of the four-seamer, in inches: the usable proxy for a
 # flat vertical approach angle. A high-ride fastball at the top of the zone is
 # the pitch a high-launch hitter turns into a souvenir; a heavy sinking one is
@@ -1254,9 +1280,23 @@ class PitcherRegression:
         )
         gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
-        # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
+        # Barrel rate allowed, read *unshrunk* because that is the scale
+        # ``BARREL_ALLOWED_HR_SLOPE`` was fitted on. ``starter_contact_shrink``
+        # ships at 0, so this is what production already prices; the point is
+        # that enabling the knob must not silently gut the term. A 42-day window
+        # is a median 95 batted balls against a 595-BBE prior, so shrinkage keeps
+        # 14% of the excess -- at a raw-fitted slope the whole term would shrink
+        # to about 1% of a home-run rate, an arithmetic accident rather than a
+        # decision. The shrunk-scale equivalent is a slope near 9, which is not
+        # what this constant is.
+        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
         hr = base * hard * (
-            1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
+            1.0
+            + _clip(
+                (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
+                -0.10,
+                0.18,
+            )
         )
         # Where he lets the ball go, which is a separate skill from how hard it
         # is hit and the one the stack was missing entirely.
