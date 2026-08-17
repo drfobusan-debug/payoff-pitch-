@@ -19,17 +19,21 @@ from mlb_engine.features.pitch_mix import (
     pitch_class,
 )
 from mlb_engine.features.regression import (
+    BARREL_ALLOWED_HR_SLOPE,
     BL_BABIP,
+    BL_BARREL_ALLOWED,
     BL_GB_ALLOWED,
     BL_HARD_HIT,
     BL_XBA,
+    STARTER_PRIOR_BBE,
     PitcherRegression,
     build_pitcher_regression,
+    shrink_starter_rate,
 )
 
 
-def _pitcher(**kw: float) -> PitcherRegression:
-    base = dict(
+def _pitcher(**kw: float | dict[str, float]) -> PitcherRegression:
+    base: dict[str, float | dict[str, float]] = dict(
         bbe=250,
         pitches=1500,
         babip_allowed=BL_BABIP,
@@ -46,7 +50,7 @@ def _pitcher(**kw: float) -> PitcherRegression:
     return PitcherRegression(**base)  # type: ignore[arg-type]
 
 
-def _hr(**kw: float) -> float:
+def _hr(**kw: float | dict[str, float]) -> float:
     return _pitcher(**kw).allowed_multipliers()["HR"]
 
 
@@ -92,6 +96,59 @@ def test_the_fly_ball_term_needs_both_halves() -> None:
     assert _hr(hard_hit_allowed=0.455, fb_allowed=0.36) == _hr(
         hard_hit_allowed=0.455, fb_allowed=0.30
     )  # hard but not in the air
+
+
+# --- barrels allowed: real, weakest of the three, and on the fitted scale ----
+
+
+def test_a_league_average_barrel_rate_is_worth_nothing() -> None:
+    """The term is a deviation, so an average arm must come out at 1.0."""
+    assert _hr(barrel_allowed=BL_BARREL_ALLOWED) == 1.0
+
+
+def test_barrels_allowed_move_the_home_run_line_monotonically() -> None:
+    mults = [_hr(barrel_allowed=b) for b in (0.05, 0.065, BL_BARREL_ALLOWED, 0.095, 0.11)]
+    assert mults == sorted(mults)
+    assert mults[0] < 1.0 < mults[-1]
+
+
+def test_the_barrel_term_carries_less_than_the_batted_ball_reads() -> None:
+    """Its coefficient is half the fly-ball read's and a third of its t.
+
+    Kept as a standing check on the ordering, because the constant's comment used
+    to claim the opposite: an extreme barrel rate must not outweigh what the
+    ground-ball and fly-ball profiles do to the same line.
+    """
+    barrels = _hr(barrel_allowed=0.14)
+    grounders = _hr(gb_allowed=0.58, fb_allowed=0.26)
+    assert abs(barrels - 1.0) < abs(grounders - 1.0)
+
+
+def test_shrinking_the_contact_rates_does_not_gut_the_barrel_term() -> None:
+    """The slope was fitted on the raw rate, so the term must read the raw rate.
+
+    ``starter_contact_shrink`` pulls a starter's barrel rate 86% of the way to the
+    league on a median window. Applying a raw-scale slope to that would leave the
+    term worth ~1% of a home-run rate -- a silent near-deletion of a measured
+    effect rather than a decision -- so the HR line reads ``raw_contact``.
+    """
+    raw_rate = 0.140
+    shrunk_rate = shrink_starter_rate(
+        raw_rate, BL_BARREL_ALLOWED, 95, STARTER_PRIOR_BBE["barrel"], 1.0
+    )
+    assert shrunk_rate < 0.09  # the knob really does flatten it
+
+    shrunk_only = _hr(barrel_allowed=shrunk_rate)
+    with_raw = _hr(barrel_allowed=shrunk_rate, raw_contact={"barrel": raw_rate})
+    assert with_raw == pytest.approx(_hr(barrel_allowed=raw_rate))
+    assert with_raw - 1.0 > 6 * (shrunk_only - 1.0)
+
+
+def test_the_barrel_slope_is_the_fitted_one() -> None:
+    """Pinned: +2.12 fitted against the next start's HR/PA, shipped at 2.0."""
+    assert BARREL_ALLOWED_HR_SLOPE == 2.0
+    lift = _hr(barrel_allowed=0.10) / _hr(barrel_allowed=BL_BARREL_ALLOWED)
+    assert lift == pytest.approx(1.0 + 0.02 * BARREL_ALLOWED_HR_SLOPE)
 
 
 # --- ride on the four-seamer -------------------------------------------------
