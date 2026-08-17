@@ -48,6 +48,8 @@ def _starter(**over) -> StarterLine:
         hard_hit_allowed=0.22,
         babip_allowed=0.228,
         siera=2.98,
+        vfa=93.4,
+        fb_allowed_recent=0.402,
         siera_trend=-0.60,
         stuff_trend=-0.106,
         vfa_trend=-0.54,
@@ -79,12 +81,30 @@ def _lineup(**over) -> LineupLine:
     return LineupLine(**base)
 
 
-def test_starter_row_shows_swstr_and_hard_hit_without_zone():
+def test_starter_row_carries_only_the_reads_that_repeat():
+    """Barrel and hard-hit came out; SIERA, velocity and fly-ball rate went in.
+
+    The two that left repeat at .24 and .28 across a starter's own starts and
+    forecast his home runs at nothing; fly-ball rate repeats at .52 and is the
+    one batted-ball read that does.
+    """
     gp = _preview(home_starter=_starter(), away_starter=_starter(name="Mitch Bratt"))
     html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
 
-    assert "SwStr%" in html and "Hard-hit%" in html
+    assert "SwStr%" in html and "SIERA" in html
+    assert "Hard-hit%" not in html and "Barrel%" not in html
     assert "Zone%" not in html
+    assert "FB% (4 st)" in html
+    assert "40%" in html  # fb_allowed_recent
+    assert "93.4 (-0.5) / 2178 rpm" in html  # velocity, its arrow, then spin
+
+
+def test_starter_row_says_so_when_a_read_is_missing():
+    thin = _starter(siera=None, vfa=None, fb_allowed_recent=None, spin=None)
+    gp = _preview(home_starter=thin, away_starter=_starter(name="Mitch Bratt"))
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert html.count("<td>—</td>") >= 3  # SIERA, velocity and fly-ball rate
 
 
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
@@ -92,12 +112,21 @@ def test_trend_sentence_reads_direction_from_the_pitchers_side():
 
     assert "SIERA 2.98" in txt
     assert "improving" in txt  # SIERA fell
-    assert txt.count("slipping") == 2  # CSW% and velocity both fell
-    assert "-10.6%" in txt and "-0.5" in txt
+    assert txt.count("slipping") == 1  # velocity fell; CSW% no longer gets a verdict
+    assert "-0.5" in txt
+
+
+def test_trend_sentence_reports_csw_as_a_level_not_a_direction():
+    """Its level is z+67 on a next-start K forecast; its change is nothing."""
+    txt = starter_trend_sentence("SD", _starter())
+
+    assert "29% CSW" in txt
+    assert "-10.6%" not in txt
+    assert "stuff" not in txt
 
 
 def test_trend_sentence_flags_a_thin_half_window_instead_of_guessing():
-    txt = starter_trend_sentence("SD", _starter(siera_trend=None, stuff_trend=None))
+    txt = starter_trend_sentence("SD", _starter(siera_trend=None, vfa_trend=None))
 
     assert txt.count("too thin to read") == 2
 
@@ -352,14 +381,17 @@ def _pen(**over) -> BullpenLine:
 def test_starter_duel_names_the_better_arm_by_siera():
     gp = _preview(
         home_starter=_starter(),
-        away_starter=_starter(name="Mitch Bratt", siera=5.94, swstr=0.09, hard_hit_allowed=0.44),
+        away_starter=_starter(
+            name="Mitch Bratt", siera=5.94, swstr=0.09, fb_allowed_recent=0.44
+        ),
     )
     txt = starter_duel(gp)
 
     assert "Better pitcher: Casey Mize (BBB)" in txt
     assert "by a wide margin" in txt
     assert "2.98 SIERA to Mitch Bratt's 5.94" in txt
-    assert "13% SwStr" in txt and "44% hard-hit" in txt
+    assert "13% SwStr" in txt and "44% fly balls" in txt
+    assert "hard-hit" not in txt
 
 
 def test_starter_duel_says_so_when_siera_is_missing():
@@ -415,8 +447,11 @@ def test_lineup_profile_gives_general_form_then_tonights_situation():
     lu = _lineup(team_woba=0.331, team_rank=6, team_of=30, venue_rank=4, venue_of=30)
     txt = lineup_profile("SD", lu)
 
-    assert "0.331 xwOBA club overall" in txt
+    assert "0.331 xwOBA club per plate appearance" in txt
     assert "<b>6 of 30</b> (top third)" in txt
+    # The contact figure is a different denominator and now says so, against the
+    # league's own contact mean rather than beside the per-PA number bare.
+    assert "0.389 xwOBA on contact — 17 points above the league's 0.372" in txt
     assert "hits right-handers at a 0.336 xwOBA" in txt  # tonight's platoon split
     assert "on the road they hit 0.361, 4 of 30 in that split" in txt
     assert "24 points better than the 0.337 they hit at home" in txt
@@ -425,7 +460,7 @@ def test_lineup_profile_gives_general_form_then_tonights_situation():
 def test_lineup_profile_falls_back_to_the_lineup_line_without_club_ranks():
     txt = lineup_profile("SD", _lineup())
 
-    assert "0.340 wOBA / 0.389 xwOBA batting order" in txt
+    assert "0.340 wOBA / 0.389 xwOBA batting order on contact" in txt
 
 
 def test_pen_arm_spread_measures_the_gap_between_a_pens_arms():
