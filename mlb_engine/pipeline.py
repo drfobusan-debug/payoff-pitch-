@@ -1992,6 +1992,17 @@ class Pipeline:
                     gate = "singles_price_floor"
                 if sing_reason:
                     reasons.append(sing_reason)
+            if market == "batter_2b" and tier != Tier.PASS and not under:
+                keep, dbl_reason = price_ceiling_allows(
+                    rec.market_american,
+                    self.cfg.doubles_max_buy_odds,
+                    "doubles-price-ceiling",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "doubles_price_ceiling"
+                if dbl_reason:
+                    reasons.append(dbl_reason)
             if market == "batter_rbi" and tier != Tier.PASS and not under:
                 keep, rbi_reason = prob_floor_allows(
                     rec.model_prob, self.cfg.rbi_min_buy_prob, "rbi-floor"
