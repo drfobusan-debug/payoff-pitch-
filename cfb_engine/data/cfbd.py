@@ -232,6 +232,23 @@ class CFBDClient:
         self._games_cache[season] = rows
         return rows
 
+    def fetch_lines(self, season: int) -> list[dict[str, object]]:
+        """Every game's closing numbers by provider, with the final score.
+
+        Raw payload rather than a typed book: the only consumer is the line-shop
+        distribution fit, which needs each provider's spread and total so it can
+        take a median over real sportsbooks and drop the projection feeds CFBD
+        mixes in alongside them.
+        """
+        if not self.available():
+            return []
+        rows: list[dict[str, object]] = []
+        for season_type in ("regular", "postseason"):
+            data = self._get("/lines", year=season, seasonType=season_type)
+            if isinstance(data, list):
+                rows.extend(r for r in data if isinstance(r, dict))
+        return rows
+
     def fetch_results(self, season: int, day: Date) -> list[GameResult]:
         """Final scores for completed games kicking around ``day``.
 
