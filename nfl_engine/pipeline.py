@@ -39,6 +39,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import date as Date
 
+from nfl_engine.features.quarterback import StarterBook, margin_delta
 from nfl_engine.features.ratings import RatingBook
 from nfl_engine.market.board import GameOdds
 from nfl_engine.market.ev import PricedBet, best_by_line, price_game
@@ -81,6 +82,7 @@ def price_slate(
     board: dict[str, GameOdds],
     *,
     book: RatingBook | None = None,
+    starters: StarterBook | None = None,
     sim: DriveSim | None = None,
     thresholds: Thresholds | None = None,
     method: str = DEFAULT_METHOD,
@@ -101,12 +103,26 @@ def price_slate(
             notes: tuple[str, ...] = ("no_market_anchor",)
         else:
             notes = ()
+        qb_points: float = 0.0
+        qb_notes: tuple[str, ...] = ()
+        if starters is not None:
+            qb_points, qb_notes = margin_delta(
+                starters,
+                season=game.season,
+                week=game.week,
+                home=game.home.abbrev,
+                away=game.away.abbrev,
+                home_qb=game.home_qb_id,
+                away_qb=game.away_qb_id,
+            )
         shot = forecast(
             ratings,
             game.home.abbrev,
             game.away.abbrev,
             market_margin=market_margin,
             market_total=market_total,
+            qb_margin_points=qb_points,
+            qb_notes=qb_notes,
         )
         distribution = simulator.simulate(_expected(shot))
         bets = price_game(

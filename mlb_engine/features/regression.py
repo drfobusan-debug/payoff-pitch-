@@ -834,6 +834,32 @@ FB_HR_CLIP = (-0.15, 0.18)
 FB_HR_STARTS = 4
 MIN_FB_HR_BBE = 30  # batted balls over those starts before the rate is a read
 
+# Barrel rate allowed, on the home-run line. Measured against the next start's
+# HR/PA over 2,426 starts / 56,072 PA, every feature read from pitches thrown
+# strictly before the start, K% controlled, chronological 60/40 holdout:
+#
+#     term(s)                    coef      t   holdout dev
+#     none (K only)                --     --      0.28406
+#     barrel allowed            +2.12  +2.93      0.28391
+#     hard-hit allowed          +0.86  +0.72      0.28404
+#     GB% allowed               -1.33  -4.07      0.28362
+#     FB% allowed               +1.61  +4.75      0.28374
+#     GB + FB + barrel          +1.13  +1.46      0.28391
+#
+# Two things follow. The slope belongs where it is -- the fitted coefficient is
+# +2.12 against the 2.0 that ships, and a weekly walk-forward over the whole
+# multiplier is flat from 1.5 to 4.0 (0.28619/0.28617/0.28616) and worse at 0
+# (0.28635), so the term is not the #195 case of something better deleted.
+#
+# But it is the *weakest* of the three batted-ball reads, not the strongest: it
+# forward-predicts the next start's HR/PA at r=0.059 against fly-ball rate's
+# 0.090 and ground-ball rate's -0.079, and marginal to the pair added after it
+# (#87) it keeps only half its coefficient at t +1.46. Widening the clip was
+# measured too and changes nothing (0.28617 at every bound tried), so the 4.8%
+# of starts that reach it are reaching a bound the data does not mind.
+# See ``scripts/starter_hr_terms.py``.
+BARREL_ALLOWED_HR_SLOPE = 2.0
+
 # Induced vertical break of the four-seamer, in inches: the usable proxy for a
 # flat vertical approach angle. A high-ride fastball at the top of the zone is
 # the pitch a high-launch hitter turns into a souvenir; a heavy sinking one is
@@ -1106,9 +1132,17 @@ class PitcherRegression:
         ``hr_flyball`` crossfades between the two rather than switching, so the
         term can be graded at part weight, and falls back toward neutral (not
         back to barrel) when he has too few recent batted balls to read.
+
+        The barrel half reads the *unshrunk* rate, which is the scale
+        ``BARREL_ALLOWED_HR_SLOPE`` was fitted on: shrinkage keeps 14% of the
+        excess, so enabling ``starter_contact_shrink`` at a raw-fitted slope
+        would silently gut the term rather than temper it.
         """
+        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
         barrel = 1.0 + _clip(
-            (self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18
+            (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
+            -0.10,
+            0.18,
         )
         w = 0.0 if self.bullpen else _clip(self.hr_flyball, 0.0, 1.0)
         if w <= 0.0:

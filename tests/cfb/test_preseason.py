@@ -64,3 +64,14 @@ def test_stability_factor_missing_team_uses_mid_reliability():
 
 def test_stability_factor_disabled_is_noop():
     assert stability_factor("Virginia Tech", "Virginia Tech", enabled=False) == 1.0
+
+
+def test_stability_haircut_ships_off(monkeypatch):
+    # Measured worse at every dose (scripts/cfb/stability_study.py), so the
+    # pipeline must not apply it unless the operator opts in.
+    from cfb_engine.config import Config
+
+    monkeypatch.delenv("CFBE_VSIN_STABILITY", raising=False)
+    assert Config().vsin_stability is False
+    monkeypatch.setenv("CFBE_VSIN_STABILITY", "1")
+    assert Config().vsin_stability is True

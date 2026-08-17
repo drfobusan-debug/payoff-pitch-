@@ -734,6 +734,35 @@ missing file/metric) simply stay neutral. These feed the ≥2 SD tail layer.
 Re-export daily — the engine reuses whatever files are in the folder, so stale
 files feed stale numbers.
 
+## Rest-of-season projections (the batter prior)
+
+Every hitter's rate vector is shrunk toward a rest-of-season projection rather
+than toward the league mean, so the prior is what keeps a slugger and a backup
+catcher apart in a thin window. By default the engine builds its own Marcel off
+the free official season lines, but a subscriber's projection is better: drop a
+**Standard-view rest-of-season export** (FanGraphs → Projections → *system* →
+Rest of Season → Batters → *Export Data*) in **`~/.mlb_engine/projections/`** and
+it becomes the prior, with the Marcel covering the hitters it omits.
+
+```bash
+MLBE_PROJECTION_SOURCE=atc   # match on the file name; batx, steamer, ... also work
+MLBE_PROJECTIONS_DIR=~/Downloads   # or read them where the browser already puts them
+mlb-engine ros-prior         # or just run the slate: a new export is picked up at once
+```
+
+The export must carry `MLBAMID` (it is the join to Statcast) plus `PA`, `H`,
+`2B`, `3B`, `HR`, `BB`, `SO` — all present in the Standard view. Hitters
+projected for fewer than 25 PA are left to the Marcel, since a system that
+rounds its counting stats to integers turns a two-PA bench line into a .000
+hitter.
+
+**Name the files by system** (`atc_ros.csv`, `batx_ros.csv`): the folder is
+resolved by finding `MLBE_PROJECTION_SOURCE` as a *word* in the file name — set
+off by punctuation, so `Statcast_leaderboard.csv` and `Match_History.csv` are not
+`atc` — rather than by taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR`
+at a download folder full of unrelated CSVs is safe. A named system that isn't
+there logs a warning and prices off the Marcel rather than guessing.
+
 ## Credentials
 
 Subscription logins are read from environment variables and never committed:

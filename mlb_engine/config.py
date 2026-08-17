@@ -399,12 +399,19 @@ class Config:
     #
     # This was built off and switched off, because the export it was written for
     # (THE BAT X via FanGraphs) needs a subscription and does not survive the
-    # Cloudflare challenge, so there was never a file to read. The projection is
-    # now built from the free official season lines instead
+    # Cloudflare challenge from this machine, so there was never a file to read.
+    # It falls back to a Marcel off the free official season lines
     # (``scripts.ros_prior_study marcel``, or ``mlb-engine ros-prior``), which
     # writes ``ros_hitters.csv`` into the data directory -- so the default is the
     # standard path rather than off, and an operator with no file still gets
     # exactly today's behaviour.
+    #
+    # A subscriber can hand the better projection over the wall instead: any
+    # projection CSV dropped in ``projections_dir`` is read first and the Marcel
+    # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
+    # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
+    # them), which is the direction that matters -- compressing the lineup is
+    # this engine's known failure, not over-separating it.
     #
     # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
     # 07-22 cutoff, priors built from seasons the holdout cannot reach:
@@ -420,6 +427,17 @@ class Config:
     # path to point elsewhere, or to an empty string to restore the league mean.
     ros_prior_path: str | None = field(
         default_factory=lambda: os.environ.get("MLBE_ROS_PRIOR", default_ros_prior_path()) or None
+    )
+
+    # Which dropped-in projection to prefer when the folder holds several,
+    # matched against the file name. ATC is the default because it is an
+    # accuracy-weighted ensemble of the systems below it, and a model whose job
+    # is to *rank* hitters wants the projection that is rarely badly wrong about
+    # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
+    # to batx to anchor on the Statcast batted-ball system instead; an empty
+    # value takes whichever export was written most recently.
+    projection_source: str = field(
+        default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
 
     # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
@@ -801,6 +819,17 @@ class Config:
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
+    # How long a forecast is reused before it is pulled again. The point is not
+    # the API quota (Open-Meteo is free) but reproducibility: the forecast for a
+    # park moves between calls, so an uncached run of the same slate off the same
+    # odds board priced 6,050 of 6,705 rows differently from the run before it,
+    # mean 1.23pp and up to 6.9pp -- larger than most of the changes the engine is
+    # asked to measure. Matching the odds TTL means one slate is priced on one
+    # forecast and a re-run reproduces it; a past date never re-fetches at all.
+    weather_cache_ttl: int = field(
+        default_factory=lambda: _env_int("MLBE_WEATHER_CACHE_TTL", 1800)
+    )
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). The model's own
     # probability is untouched, so PPV/NPV and the calibration refit still
@@ -849,6 +878,10 @@ class Config:
         return self.cache_dir / "oddsapi"
 
     @property
+    def weather_cache_dir(self) -> Path:
+        return self.cache_dir / "weather"
+
+    @property
     def calibration_file(self) -> Path:
         """Isotonic map to price with: a locally refit one wins if it exists.
 
@@ -873,6 +906,27 @@ class Config:
     def fangraphs_dir(self) -> Path:
         """Default drop-in folder for FanGraphs custom-report exports."""
         return self.data_dir / "fangraphs"
+
+    @property
+    def projections_dir(self) -> Path:
+        """Drop-in folder for rest-of-season projection exports.
+
+        The matching CSV here becomes the batter prior, with the Marcel filling
+        in the hitters it omits. Standard-view FanGraphs exports carry the
+        columns needed (``PA``, ``H``, ``2B``, ``3B``, ``HR``, ``BB``, ``SO``,
+        ``MLBAMID``); an export without ``MLBAMID`` cannot be joined to Statcast
+        and is skipped with a warning rather than name-matched.
+
+        ``MLBE_PROJECTIONS_DIR`` points this at a folder the exports already land
+        in -- a browser's download folder, typically, which is the difference
+        between a file that is refreshed daily and one that is refreshed when
+        somebody remembers to move it. Sharing a folder with every other download
+        is why ``projection_source`` is matched strictly there.
+        """
+        override = os.getenv("MLBE_PROJECTIONS_DIR")
+        if override:
+            return Path(override).expanduser()
+        return self.data_dir / "projections"
 
     @property
     def batx_dir(self) -> Path:
@@ -905,6 +959,7 @@ class Config:
             self.audit_dir,
             self.fangraphs_dir,
             self.batx_dir,
+            self.projections_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 

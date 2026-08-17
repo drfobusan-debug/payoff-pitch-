@@ -52,6 +52,7 @@ from nfl_engine.audit.ledger import (
 from nfl_engine.config import data_dir, load_config
 from nfl_engine.data import capture, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
+from nfl_engine.features import books as books_mod
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.pipeline import price_slate, slate_buys
@@ -61,6 +62,10 @@ log = logging.getLogger(__name__)
 
 LEDGER_NAME = "nfl_ledger.csv"
 PAPER_BANNER = "paper only: no stake is placed and no bankroll exists in this engine"
+# Points of rating-versus-line disagreement worth printing. Reported only: the
+# rating's disagreement explains none of the line's error (t +0.25), so this is a
+# thing to look at, never a thing to bet.
+RATING_EDGE_NOTE = 3.0
 
 
 def ledger_path(root: Path | None = None) -> Path:
@@ -108,9 +113,7 @@ def _fetch(days: int, *, kind: str = capture.GAME_KIND, archive: bool = True) ->
     if not client.available():
         log.warning("no Odds API key: nothing to fetch")
         return Fetched(season, week, taken, [], {})
-    slate, board = client.fetch_board(
-        season=season, week=week, first_day=first_day, days=days
-    )
+    slate, board = client.fetch_board(season=season, week=week, first_day=first_day, days=days)
     games = list(slate.games)
     rows = capture.rows_from_board(
         board,
@@ -167,13 +170,54 @@ def _ledger_rows(pricings: list, captured_at: str) -> list[LedgerEntry]:
     ]
 
 
+def _books(season: int, week: int, *, ratings: bool) -> books_mod.Books:
+    """The books the slate is priced with, announced so a run says which it had."""
+    if not ratings:
+        print("  ratings off: pricing on the market alone")
+        return books_mod.Books()
+    book = books_mod.as_of(season, week)
+    print(f"  {book.summary()}")
+    return book
+
+
+def _print_rating_notes(pricings: list) -> None:
+    """The quarterback charge, and how far the rating is from the line.
+
+    Printed rather than screened: with the market at weight 1.0 neither number
+    moved a price, and a run that shows them is how a disagreement gets noticed
+    before it is ever trusted.
+    """
+    for pricing in pricings:
+        shot = pricing.forecast
+        if shot is None:
+            continue
+        edge, line = shot.rating_edge_margin(), shot.market_margin
+        for note in shot.qb_notes:
+            print(f"  {pricing.game.matchup():12s} {note}")
+        if edge is not None and line is not None and abs(edge) >= RATING_EDGE_NOTE:
+            print(
+                f"  {pricing.game.matchup():12s} rating disagrees by {edge:+.1f}"
+                f" (rating {shot.rating_margin:+.1f}, line {line:+.1f})"
+            )
+
+
 def cmd_price(args: argparse.Namespace) -> int:
     fetched = _fetch(args.days)
     if not fetched.games:
         return 0
-    pricings = price_slate(fetched.games, fetched.board, sim=DriveSim(n_sims=args.sims))
+    book = _books(fetched.season, fetched.week, ratings=args.ratings)
+    named = books_mod.attach_qbs(fetched.games, fetched.season, fetched.week)
+    print(f"  {named} of {2 * len(fetched.games)} starting quarterbacks named")
+    pricings = price_slate(
+        fetched.games,
+        fetched.board,
+        book=book.ratings,
+        starters=book.starters,
+        sim=DriveSim(n_sims=args.sims),
+    )
     entries = _ledger_rows(pricings, fetched.captured_at)
     added = merge_ledger(ledger_path(), entries) if args.write else []
+    _print_rating_notes(pricings)
     buys = slate_buys(pricings)
     print(f"{len(entries)} selections, {len(buys)} survive the screens [{PAPER_BANNER}]")
     if args.write:
@@ -292,7 +336,14 @@ def cmd_replay(args: argparse.Namespace) -> int:
                 week=week.week,
                 kind=capture.CLOSE_KIND,
             )
-        pricings = price_slate(week.games, week.board, sim=sim)
+        book = _books(week.season, week.week, ratings=args.ratings)
+        pricings = price_slate(
+            week.games,
+            week.board,
+            book=book.ratings,
+            starters=book.starters,
+            sim=sim,
+        )
         entries = _ledger_rows(pricings, taken)
         priced += len(entries)
         for entry in entries:
@@ -373,6 +424,13 @@ def main(argv: list[str] | None = None) -> int:
     price.add_argument("--top", type=int, default=25)
     price.add_argument("--write", action="store_true", default=True)
     price.add_argument("--no-write", dest="write", action="store_false")
+    price.add_argument(
+        "--no-ratings",
+        dest="ratings",
+        action="store_false",
+        default=True,
+        help="price on the market alone, without reading the play-by-play panel",
+    )
     price.set_defaults(func=cmd_price)
 
     close = sub.add_parser("close", help="stamp the closing number for CLV")
@@ -393,9 +451,7 @@ def main(argv: list[str] | None = None) -> int:
 
     capture_cmd = sub.add_parser("capture", help="archive prices, price nothing")
     capture_cmd.add_argument("--days", type=int, default=8)
-    capture_cmd.add_argument(
-        "--props", action="store_true", help="also archive player-prop prices"
-    )
+    capture_cmd.add_argument("--props", action="store_true", help="also archive player-prop prices")
     capture_cmd.add_argument("--max-events", type=int, default=32)
     capture_cmd.set_defaults(func=cmd_capture)
 
@@ -406,6 +462,7 @@ def main(argv: list[str] | None = None) -> int:
     replay_cmd.add_argument("--archive", action="store_true", default=False)
     replay_cmd.add_argument("--write", action="store_true", default=True)
     replay_cmd.add_argument("--no-write", dest="write", action="store_false")
+    replay_cmd.add_argument("--no-ratings", dest="ratings", action="store_false", default=True)
     replay_cmd.set_defaults(func=cmd_replay)
 
     job = sub.add_parser("job", help="capture, price, close, grade and report in order")
@@ -418,6 +475,7 @@ def main(argv: list[str] | None = None) -> int:
     job.add_argument("--all", action="store_true")
     job.add_argument("--write", action="store_true", default=True)
     job.add_argument("--no-write", dest="write", action="store_false")
+    job.add_argument("--no-ratings", dest="ratings", action="store_false", default=True)
     job.set_defaults(func=cmd_job)
 
     args = parser.parse_args(argv)

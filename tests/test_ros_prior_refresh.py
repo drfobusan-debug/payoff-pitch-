@@ -5,10 +5,12 @@ from __future__ import annotations
 import os
 import time
 from datetime import date as Date
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
+from mlb_engine.config import Config
 from mlb_engine.data import ros_prior
 from mlb_engine.features.rolling import load_ros_priors
 
@@ -103,3 +105,142 @@ def test_no_configured_path_means_no_network_call() -> None:
     client = _Client()
     ros_prior.refresh_if_stale(None, TODAY, client)
     assert client.seasons == []
+
+
+def test_the_projections_folder_can_be_the_download_folder(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("MLBE_PROJECTIONS_DIR", str(tmp_path / "Downloads"))
+    assert Config().projections_dir == tmp_path / "Downloads"
+    monkeypatch.delenv("MLBE_PROJECTIONS_DIR")
+    assert Config().projections_dir.name == "projections"
+
+
+def _export(folder: Path, name: str, hr: int) -> Path:
+    """A FanGraphs-shaped rest-of-season export for one hitter."""
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / name
+    pd.DataFrame(
+        [
+            {
+                "MLBAMID": 1,
+                "PA": 200,
+                "H": 50,
+                "2B": 10,
+                "3B": 1,
+                "HR": hr,
+                "BB": 20,
+                "SO": 40,
+                "HBP": 2,
+            }
+        ]
+    ).to_csv(path, index=False)
+    return path
+
+
+def test_a_dropped_in_projection_prices_the_hitters_it_lists(tmp_path) -> None:
+    """The subscriber's projection beats the Marcel, hitter by hitter."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    _export(proj, "atc_ros.csv", hr=40)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[1]["HR"] == pytest.approx(40 / 200)
+    # ... and the Marcel still covers the 40 hitters it does not list.
+    assert len(priors) == 41
+
+
+def test_the_preferred_system_wins_over_a_newer_export(tmp_path) -> None:
+    """A folder holding every system resolves to the one asked for, not the last download."""
+    proj = tmp_path / "projections"
+    wanted = _export(proj, "atc_ros.csv", hr=40)
+    newer = _export(proj, "batx_ros.csv", hr=10)
+    later = time.time() + 60
+    os.utime(newer, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == wanted
+    assert ros_prior.newest_export(proj, "batx") == newer
+    assert ros_prior.newest_export(proj, "") == newer
+
+
+def test_a_new_export_refreshes_a_file_that_is_not_yet_a_week_old(tmp_path) -> None:
+    """The export is dropped by hand, so it cannot wait for the weekly clock."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    assert not ros_prior.is_stale(path, TODAY, projections=proj)
+    export = _export(proj, "atc_ros.csv", hr=40)
+    later = time.time() + 60
+    os.utime(export, (later, later))
+    assert ros_prior.is_stale(path, TODAY, projections=proj)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    assert load_ros_priors(path)[1]["HR"] == pytest.approx(40 / 200)
+
+
+def test_an_unreadable_export_leaves_the_marcel_in_charge(tmp_path, caplog) -> None:
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    proj.mkdir()
+    (proj / "atc_ros.csv").write_text("Name,Team\nnot a projection,KCR\n")
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert len(priors) == 41
+    assert priors[1]["HR"] < 0.2  # the Marcel's slugger, not the export's
+    assert "using the Marcel" in caplog.text
+
+
+def test_an_unrelated_download_never_becomes_the_batter_prior(tmp_path, caplog) -> None:
+    """The folder is often the download folder, so the system name is required."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "Downloads"
+    _export(proj, "bank-statement.csv", hr=40)
+    assert ros_prior.newest_export(proj, "atc") is None
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj, source="atc")
+    priors = load_ros_priors(path)
+    assert len(priors) == 41  # the Marcel alone
+    assert priors[1]["HR"] < 0.2
+    assert "using the Marcel" in caplog.text
+
+
+def test_a_download_that_merely_contains_the_letters_is_not_the_export(tmp_path) -> None:
+    """``atc`` lives inside match, batch, dispatch, watchlist and Statcast."""
+    proj = tmp_path / "Downloads"
+    wanted = _export(proj, "atc_ros_2026-08-17.csv", hr=40)
+    later = time.time() + 60
+    for name in (
+        "Match_History_2026-08-18.csv",
+        "batch_invoice_aug.csv",
+        "dispatch_log.csv",
+        "watchlist.csv",
+        "Patch_notes.csv",
+        "Statcast_leaderboard.csv",
+    ):
+        decoy = _export(proj, name, hr=0)
+        os.utime(decoy, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == wanted
+
+
+def test_a_rounded_bench_line_is_left_to_the_marcel(tmp_path) -> None:
+    """Two projected PA rounded to integers is a .000 hitter, not a projection."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    proj.mkdir()
+    pd.DataFrame(
+        [
+            {"MLBAMID": 1, "PA": 2, "H": 0, "2B": 0, "3B": 0, "HR": 0, "BB": 0, "SO": 0, "HBP": 0},
+            {"MLBAMID": 2, "PA": 200, "H": 50, "2B": 10, "3B": 1, "HR": 40, "BB": 20, "SO": 40,
+             "HBP": 2},
+        ]
+    ).to_csv(proj / "atc_ros.csv", index=False)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[2]["HR"] == pytest.approx(40 / 200)
+    assert priors[1]["HR"] > 0.05  # the Marcel's slugger, not a .000 bench line
+
+
+def test_an_export_prices_the_slate_when_the_api_is_down(tmp_path) -> None:
+    """Losing the Marcel costs the bench, not the lineup."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    _export(proj, "atc_ros.csv", hr=40)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(fail=True), projections=proj)
+    priors = load_ros_priors(path)
+    assert list(priors) == [1]
+    assert priors[1]["HR"] == pytest.approx(40 / 200)
