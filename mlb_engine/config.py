@@ -626,7 +626,10 @@ class Config:
     # #129 for the same reason. The evidence for shutting the buys is the
     # 6,656-row calibration table, not the 70. Refusals keep grading as shadow
     # bets, so ``screen_probation`` will say to lift this if it starts deleting
-    # winners. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
+    # winners -- which is also why the screen runs last in ``_mk`` rather than
+    # beside the other price bands: run early it inherits the rows the contact
+    # floor would have refused anyway, and is then judged on bets it never
+    # removed. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
     doubles_max_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_DOUBLES_MAX_BUY_ODDS", 300.0)
     )

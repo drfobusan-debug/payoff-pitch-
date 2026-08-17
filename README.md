@@ -575,7 +575,10 @@ because no band survived the rows (`+300-350` 0-for-5, `+350-400` -14.4%,
 `+400-450` -25.4%, `+450-500` -16.1%, `+500` and longer +18.1% on three winners
 in nineteen); the evidence is the calibration table over all 6,656 rows, not the
 70 buys, which are under the sample `probation` needs and disagree across the
-halves of their window. Disqualification is likewise for the batter markets with
+halves of their window. It runs after every other screen, including the contact
+floor, so a row another gate had already refused keeps that gate's name: a screen
+the ledger judges on its own refusals cannot be credited with somebody else's.
+Disqualification is likewise for the batter markets with
 no surviving profitable pocket to screen for; home runs, singles and RBI lost
 money too but keep their own fitted screens, which are sharper instruments. Both
 apply to overs only: the fade is a different bet with its own screens.
