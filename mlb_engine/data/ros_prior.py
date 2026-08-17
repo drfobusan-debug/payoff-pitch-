@@ -47,18 +47,33 @@ def newest_export(folder: Path | None, source: str = "") -> Path | None:
     """The projection CSV in ``folder`` to price off, if any.
 
     ``source`` names the preferred system and is matched against the file name,
-    so a folder holding every system's export still resolves to one file rather
-    than to whichever download finished last. Nothing matching it falls back to
-    the newest export -- a projection the operator did not ask for beats no
-    projection, and the log says which one was read.
+    so a folder holding every system's export resolves to one file rather than to
+    whichever download finished last. The match is required rather than
+    preferred, because this folder is often the browser's download folder: with
+    no source named, "the newest CSV here" is a bank statement away from becoming
+    the batter prior. Naming a system that is not present is a warning and the
+    Marcel, not a guess.
+
+    An empty ``source`` does mean the newest CSV, which is only safe in a folder
+    kept for projections.
     """
     if folder is None or not folder.is_dir():
         return None
     files = [f for f in folder.iterdir() if f.is_file() and f.suffix.lower() == ".csv"]
     if not files:
         return None
-    wanted = [f for f in files if source and source.lower() in f.name.lower()]
-    return max(wanted or files, key=lambda f: f.stat().st_mtime)
+    if not source:
+        return max(files, key=lambda f: f.stat().st_mtime)
+    wanted = [f for f in files if source.lower() in f.name.lower()]
+    if not wanted:
+        log.warning(
+            "no projection export naming %r in %s (%d CSVs there); using the Marcel",
+            source,
+            folder,
+            len(files),
+        )
+        return None
+    return max(wanted, key=lambda f: f.stat().st_mtime)
 
 
 def _from_export(path: Path) -> pd.DataFrame | None:

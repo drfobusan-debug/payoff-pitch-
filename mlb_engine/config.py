@@ -900,12 +900,21 @@ class Config:
     def projections_dir(self) -> Path:
         """Drop-in folder for rest-of-season projection exports.
 
-        The newest CSV here becomes the batter prior, with the Marcel filling in
-        the hitters it omits. Standard-view FanGraphs exports carry the columns
-        needed (``PA``, ``H``, ``2B``, ``3B``, ``HR``, ``BB``, ``SO``,
+        The matching CSV here becomes the batter prior, with the Marcel filling
+        in the hitters it omits. Standard-view FanGraphs exports carry the
+        columns needed (``PA``, ``H``, ``2B``, ``3B``, ``HR``, ``BB``, ``SO``,
         ``MLBAMID``); an export without ``MLBAMID`` cannot be joined to Statcast
         and is skipped with a warning rather than name-matched.
+
+        ``MLBE_PROJECTIONS_DIR`` points this at a folder the exports already land
+        in -- a browser's download folder, typically, which is the difference
+        between a file that is refreshed daily and one that is refreshed when
+        somebody remembers to move it. Sharing a folder with every other download
+        is why ``projection_source`` is matched strictly there.
         """
+        override = os.getenv("MLBE_PROJECTIONS_DIR")
+        if override:
+            return Path(override).expanduser()
         return self.data_dir / "projections"
 
     @property

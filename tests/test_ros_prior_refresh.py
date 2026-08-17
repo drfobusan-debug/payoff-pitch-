@@ -10,6 +10,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from mlb_engine.config import Config
 from mlb_engine.data import ros_prior
 from mlb_engine.features.rolling import load_ros_priors
 
@@ -106,6 +107,13 @@ def test_no_configured_path_means_no_network_call() -> None:
     assert client.seasons == []
 
 
+def test_the_projections_folder_can_be_the_download_folder(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("MLBE_PROJECTIONS_DIR", str(tmp_path / "Downloads"))
+    assert Config().projections_dir == tmp_path / "Downloads"
+    monkeypatch.delenv("MLBE_PROJECTIONS_DIR")
+    assert Config().projections_dir.name == "projections"
+
+
 def _export(folder: Path, name: str, hr: int) -> Path:
     """A FanGraphs-shaped rest-of-season export for one hitter."""
     folder.mkdir(parents=True, exist_ok=True)
@@ -149,7 +157,6 @@ def test_the_preferred_system_wins_over_a_newer_export(tmp_path) -> None:
     os.utime(newer, (later, later))
     assert ros_prior.newest_export(proj, "atc") == wanted
     assert ros_prior.newest_export(proj, "batx") == newer
-    assert ros_prior.newest_export(proj, "steamer") == newer  # nothing matched: newest
     assert ros_prior.newest_export(proj, "") == newer
 
 
@@ -176,6 +183,19 @@ def test_an_unreadable_export_leaves_the_marcel_in_charge(tmp_path, caplog) -> N
     priors = load_ros_priors(path)
     assert len(priors) == 41
     assert priors[1]["HR"] < 0.2  # the Marcel's slugger, not the export's
+    assert "using the Marcel" in caplog.text
+
+
+def test_an_unrelated_download_never_becomes_the_batter_prior(tmp_path, caplog) -> None:
+    """The folder is often the download folder, so the system name is required."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "Downloads"
+    _export(proj, "bank-statement.csv", hr=40)
+    assert ros_prior.newest_export(proj, "atc") is None
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj, source="atc")
+    priors = load_ros_priors(path)
+    assert len(priors) == 41  # the Marcel alone
+    assert priors[1]["HR"] < 0.2
     assert "using the Marcel" in caplog.text
 
 

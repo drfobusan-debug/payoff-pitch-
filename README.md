@@ -746,6 +746,7 @@ it becomes the prior, with the Marcel covering the hitters it omits.
 
 ```bash
 MLBE_PROJECTION_SOURCE=atc   # match on the file name; batx, steamer, ... also work
+MLBE_PROJECTIONS_DIR=~/Downloads   # or read them where the browser already puts them
 mlb-engine ros-prior         # or just run the slate: a new export is picked up at once
 ```
 
@@ -753,9 +754,13 @@ The export must carry `MLBAMID` (it is the join to Statcast) plus `PA`, `H`,
 `2B`, `3B`, `HR`, `BB`, `SO` — all present in the Standard view. Hitters
 projected for fewer than 25 PA are left to the Marcel, since a system that
 rounds its counting stats to integers turns a two-PA bench line into a .000
-hitter. Name the files by system (`atc_ros.csv`, `batx_ros.csv`) so
-`MLBE_PROJECTION_SOURCE` resolves the folder to one file rather than to whichever
-download finished last.
+hitter.
+
+**Name the files by system** (`atc_ros.csv`, `batx_ros.csv`): the folder is
+resolved by matching `MLBE_PROJECTION_SOURCE` against the file name, not by
+taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR` at a download folder
+full of unrelated CSVs is safe. A named system that isn't there logs a warning
+and prices off the Marcel rather than guessing.
 
 ## Credentials
 
