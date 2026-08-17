@@ -559,13 +559,26 @@ tell you what each one cost or saved.
 | --- | --- | --- | --- |
 | `MLBE_MAX_BUY_ODDS[_<MARKET>]` | off globally, `+109` on `game_rl` and `f5_rl` | the best price is longer than the ceiling | plus-money buys 28.5% for -15.5% ROI (n=933) vs 50.7% at minus money; run lines +11.8% at -110 or shorter vs -21.2% at plus money |
 | `MLBE_NO_BUY_<MARKET>` | on for `batter_h`, `batter_hrr`, `batter_r`, `batter_tb` | ever, on that market's over | every batter market except doubles lost, -169 units in total |
+| `MLBE_DOUBLES_MAX_BUY_ODDS` | `+300` | the doubles over is priced shorter than the ceiling | the model is calibrated on 6,656 graded `batter_2b` rows except in the band it bets: .258 predicted, 15.0% actual (n=346). Bought rows hit 14.3% (n=70), passed rows 14.2% (n=6,586) |
 | `MLBE_CLV_GATE` | on, `MLBE_CLV_DRIFT` `0.02` | the side's no-vig price has drifted `>= 0.02` against us since the slate opened | buys that beat the close returned +5.4%, buys that lost it -11.8% |
 
 The ceiling is per market rather than global because a long price means opposite
 things on a two-sided market and a one-sided prop — a home run is honestly +500 —
 and the markets that are not run lines already have an aimed screen: moneylines
 `away_ml_refuse_odds`, home runs their `+400..+700` band, singles a price floor,
-RBI a probability floor. Disqualification is likewise for the batter markets with
+RBI a probability floor, doubles a price ceiling.
+
+The doubles ceiling is close to a disqualification — it refuses 69 of the 70 buys
+graded so far, because a 20% event is never priced short — and is written as a
+price so the rare short number stays buyable. It is a ceiling rather than a band
+because no band survived the rows (`+300-350` 0-for-5, `+350-400` -14.4%,
+`+400-450` -25.4%, `+450-500` -16.1%, `+500` and longer +18.1% on three winners
+in nineteen); the evidence is the calibration table over all 6,656 rows, not the
+70 buys, which are under the sample `probation` needs and disagree across the
+halves of their window. It runs after every other screen, including the contact
+floor, so a row another gate had already refused keeps that gate's name: a screen
+the ledger judges on its own refusals cannot be credited with somebody else's.
+Disqualification is likewise for the batter markets with
 no surviving profitable pocket to screen for; home runs, singles and RBI lost
 money too but keep their own fitted screens, which are sharper instruments. Both
 apply to overs only: the fade is a different bet with its own screens.
