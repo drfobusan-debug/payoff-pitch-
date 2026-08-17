@@ -107,6 +107,24 @@ def test_starter_row_says_so_when_a_read_is_missing():
     assert html.count("<td>—</td>") >= 3  # SIERA, velocity and fly-ball rate
 
 
+def test_starter_row_prints_the_air_rate_the_hr_term_reads():
+    """The printed air rate is the four-start one the HR term forecasts on.
+
+    The six-week rate held this column first; it reads the same to a reader and
+    forecasts a third as well, so the column now carries the recent window.
+    """
+    gp = _preview(
+        home_starter=_starter(fb_allowed=0.415, fb_allowed_recent=0.415),
+        away_starter=_starter(name="Mitch Bratt", fb_allowed=None, fb_allowed_recent=None),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>FB% (4 st)</th>" in html
+    assert "<td>42%</td>" in html
+    # An arm with no batted-ball sample reads as unavailable, not as 0%.
+    assert "<td>0%</td>" not in html
+
+
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
     txt = starter_trend_sentence("SD", _starter())
 

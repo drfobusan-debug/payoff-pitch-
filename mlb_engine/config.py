@@ -162,6 +162,11 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 # with money. ``MLBE_NO_BUY_<MARKET>=0`` re-enables one, and
 # ``MLBE_NO_BUY_<MARKET>=1`` disqualifies any other.
 #
+# Doubles were the one batter market carrying that comparison and no longer
+# are: on the current basis their buys are 14.3% for -15.5% ROI (n=70), which
+# is what the passed rows do anyway. They are screened by price rather than
+# listed here -- see ``doubles_max_buy_odds``.
+#
 # Home runs, singles and RBI lost money too and are deliberately *not* here:
 # each already has a price band or probability floor fitted to its own graded
 # rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
@@ -602,6 +607,42 @@ class Config:
     # model claim: it stops us paying a premium for a read we do not have.
     singles_min_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Doubles are refused at +300 and longer, which on the card so far is 69 of
+    # 70 graded buys: this is a shut market with a door left open, and it is
+    # written as a price rather than as a disqualification because a double is
+    # only ever a long price when the model is the one claiming the edge.
+    #
+    # The market is calibrated everywhere except where it bets. Over 6,656
+    # graded o0.5 rows the model reads .140 -> 14.0% actual, .165 -> 14.8%,
+    # .188 -> 17.7%, and then .258 -> 15.0% (n=346). The confident tail is the
+    # only broken band and the buy list is drawn entirely from it, which is why
+    # the selection is worth nothing: bought rows hit 14.3% (n=70) against
+    # passed rows' 14.2% (n=6,586).
+    #
+    # It is a price ceiling and not a band because no band survives contact
+    # with the rows: +300-350 went 0 for 5, +350-400 -14.4%, +400-450 -25.4%,
+    # +450-500 -16.1%, +500 and longer +18.1% on three winners in nineteen.
+    # Fitting the cutoff to that shape would be fitting it to one hitter's good
+    # night. What the data does support is the general fact the home-run band
+    # already encodes -- at 20% and longer a fraction of a point of probability
+    # error is a fifth of the stake -- plus the measured absence of any edge at
+    # all on this market.
+    #
+    # Three cautions, kept here because the next person to read the cell will
+    # find them: 70 buys is under the 100 ``probation`` needs to condemn a
+    # market, the halves of that window disagree (+16% then -61%), and the
+    # engine's own doubles multiplier was already stripped to sprint speed in
+    # #129 for the same reason. The evidence for shutting the buys is the
+    # 6,656-row calibration table, not the 70. Refusals keep grading as shadow
+    # bets, so ``screen_probation`` will say to lift this if it starts deleting
+    # winners -- which is also why the screen runs last in ``_mk`` rather than
+    # beside the other price bands: run early it inherits the rows the contact
+    # floor would have refused anyway, and is then judged on bets it never
+    # removed. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
+    doubles_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_DOUBLES_MAX_BUY_ODDS", 300.0)
     )
 
     # Player-prop markets that get an under recommendation as well as an over.
