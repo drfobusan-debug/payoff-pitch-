@@ -334,6 +334,17 @@ class Config:
         default_factory=lambda: _env_float("CFBE_RETURNING_MAX_PTS", 3.0)
     )
 
+    # Roster continuity -- production kept *plus* production bought in the portal
+    # (see data/roster.py) -- on the ratings-only margin, the fallback used when a
+    # game has no consensus spread. Fitted at +6.5 pts per unit of gap, walk-forward
+    # RMSE 18.231 -> 17.901 in all four held-out seasons, with the 8-point cap chosen
+    # by sweep. It never contests a market number: against the closing spread the
+    # same term goes 51.11% ATS, so it is deliberately confined to the fallback.
+    roster_pts: float = field(default_factory=lambda: _env_float("CFBE_ROSTER_PTS", 6.5))
+    roster_max_pts: float = field(
+        default_factory=lambda: _env_float("CFBE_ROSTER_MAX_PTS", 8.0)
+    )
+
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
     # ``model.home_field_pts`` for listed home teams). Off by default: the guide
     # buckets teams by their own three-year home ATS record, so it grades 64% /

@@ -24,6 +24,12 @@ import requests
 
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.portal import PortalBook, build_portal_book
+from cfb_engine.data.roster import (
+    ProductionBook,
+    RosterBook,
+    build_incoming_shares,
+    parse_production,
+)
 from cfb_engine.data.starters import PasserGame, StarterBook, build_starter_book
 from cfb_engine.data.teamnames import school_key
 
@@ -378,6 +384,33 @@ class CFBDClient:
             return {}
         rows = [row for row in data if isinstance(row, dict)]
         return build_portal_book(rows, season)
+
+    def fetch_player_production(self, season: int) -> ProductionBook:
+        """Per-player season PPA, garbage time excluded (the transfer join's key)."""
+        if not self.available():
+            return parse_production([])
+        data = self._get("/ppa/players/season", year=season, excludeGarbageTime="true")
+        if not isinstance(data, list):
+            return parse_production([])
+        return parse_production([row for row in data if isinstance(row, dict)])
+
+    def fetch_roster_book(self, season: int) -> RosterBook | None:
+        """Production kept *and* bought, for the ratings-only margin.
+
+        Two extra calls, so callers build this lazily: it is only read when a game
+        has no consensus spread to price from (:mod:`cfb_engine.data.roster`).
+        """
+        retained = self.fetch_returning_production(season)
+        if not retained:
+            return None
+        prior = self.fetch_player_production(season - 1)
+        data = self._get("/player/portal", year=season)
+        entries = [row for row in data if isinstance(row, dict)] if isinstance(data, list) else []
+        bought = build_incoming_shares(entries, prior, season)
+        log.info(
+            "roster book: %d teams returning, %d bought production", len(retained), len(bought)
+        )
+        return RosterBook(retained=retained, bought=bought)
 
     def fetch_starters(self, season: int, through_week: int) -> StarterBook:
         """Primary passer per team from box scores in weeks before ``through_week``.
