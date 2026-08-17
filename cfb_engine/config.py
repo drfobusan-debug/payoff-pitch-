@@ -358,9 +358,15 @@ class Config:
     # :mod:`cfb_engine.data.injuries` records the measurement.
     injury_qb_pts: float = field(default_factory=lambda: _env_float("CFBE_INJURY_QB_PTS", 0.0))
 
-    # Use the VSiN guide's 0-19 roster-stability score to shrink a preseason
-    # rating gap toward a pick'em when both teams have volatile rosters.
-    vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", True))
+    # Use the VSiN guide's 0-19 roster-stability score to shrink a rating gap
+    # toward a pick'em when both teams have volatile rosters. Measured off by
+    # default: continuity does move how much of a gap the data supports, but by
+    # ~0.05 of it (low-continuity b 0.916 vs high 0.968 over 6,818 games), against
+    # a haircut up to 0.25 wide, and walk-forward every dose of it is worse than
+    # none (rating MAE 12.549 flat -> 12.654 at the shipped floor). The effect is
+    # also smallest in September, which is the window the term was written for.
+    # ``scripts/cfb/stability_study.py`` reproduces it.
+    vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", False))
 
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). Default 0 (off).
