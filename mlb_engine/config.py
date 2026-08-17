@@ -790,6 +790,17 @@ class Config:
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
+    # How long a forecast is reused before it is pulled again. The point is not
+    # the API quota (Open-Meteo is free) but reproducibility: the forecast for a
+    # park moves between calls, so an uncached run of the same slate off the same
+    # odds board priced 6,050 of 6,705 rows differently from the run before it,
+    # mean 1.23pp and up to 6.9pp -- larger than most of the changes the engine is
+    # asked to measure. Matching the odds TTL means one slate is priced on one
+    # forecast and a re-run reproduces it; a past date never re-fetches at all.
+    weather_cache_ttl: int = field(
+        default_factory=lambda: _env_int("MLBE_WEATHER_CACHE_TTL", 1800)
+    )
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). The model's own
     # probability is untouched, so PPV/NPV and the calibration refit still
@@ -836,6 +847,10 @@ class Config:
     @property
     def odds_cache_dir(self) -> Path:
         return self.cache_dir / "oddsapi"
+
+    @property
+    def weather_cache_dir(self) -> Path:
+        return self.cache_dir / "weather"
 
     @property
     def calibration_file(self) -> Path:
