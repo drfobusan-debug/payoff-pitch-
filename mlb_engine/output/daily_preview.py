@@ -218,11 +218,13 @@ def _shape_chart(gp: GamePreview) -> str:
 def _starter_row(tag: str, sl: StarterLine) -> str:
     spin = "" if sl.spin is None else f", {sl.spin:.0f} rpm"
     hard = "—" if sl.hard_hit_allowed is None else f"{sl.hard_hit_allowed * 100:.0f}%"
+    air = "—" if sl.fb_allowed is None else f"{sl.fb_allowed * 100:.0f}%"
     return (
         f"<tr><td class='l'><b>{tag}</b> {sl.name}</td>"
         f"<td>{sl.k_pct * 100:.0f}% (x{sl.xk_pct * 100:.0f})</td>"
         f"<td>{sl.bb_pct * 100:.0f}% (x{sl.xbb_pct * 100:.0f})</td>"
         f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td><td>{hard}</td>"
+        f"<td>{air}</td>"
         f"<td>{sl.xwoba_allowed:.3f}</td><td>{sl.barrel_allowed * 100:.0f}%{spin}</td></tr>"
     )
 
@@ -694,7 +696,7 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
 
     starter_tbl = (
         "<table><tr><th class='l'>Starter</th><th>K% (x)</th><th>BB% (x)</th>"
-        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>xwOBA</th>"
+        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>FB%</th><th>xwOBA</th>"
         "<th>Barrel% / spin</th></tr>"
         + _starter_row(gp.home, gp.home_starter)
         + _starter_row(gp.away, gp.away_starter)

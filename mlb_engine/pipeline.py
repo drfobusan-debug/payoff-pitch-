@@ -2277,6 +2277,7 @@ def _preview_half(
         dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
+        fb_allowed=_fnum(pit_reg.fb_allowed),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,
