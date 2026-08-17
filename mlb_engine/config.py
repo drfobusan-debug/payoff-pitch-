@@ -30,6 +30,15 @@ def _env_float(name: str, default: float) -> float:
     return float(raw) if raw not in (None, "") else default
 
 
+def _data_dir() -> Path:
+    return Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
+
+
+def default_ros_prior_path() -> str:
+    """Where ``mlb-engine ros-prior`` writes the hitter projection file."""
+    return str(_data_dir() / "ros_hitters.csv")
+
+
 def _env_csv(name: str) -> tuple[str, ...] | None:
     """Comma-separated override, or ``None`` to keep the caller's default."""
     raw = os.getenv(name)
@@ -54,6 +63,13 @@ class RollingWindows:
     batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 21))
     batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 42))
     biomech_days: int = field(default_factory=lambda: _env_int("MLBE_BIOMECH_DAYS", 28))
+    # Team-level platoon and venue splits for the preview, which need a far
+    # longer look-back than an individual hitter does -- not because a club
+    # changes more slowly, but because ``team_splits.MIN_SPLIT_PA`` is 500 and a
+    # club sees roughly 390 PA against left-handers in six weeks. Over 42 days
+    # exactly 1 of 30 clubs clears the floor vs LHP; at 60 days, 21; at 90, all
+    # 30. Shorter than this and the platoon line simply stops printing.
+    team_split_days: int = field(default_factory=lambda: _env_int("MLBE_TEAM_SPLIT_DAYS", 90))
     # Bullpen: relievers' last ~3 weeks and batters' late-inning last ~3 weeks.
     bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 21))
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))
@@ -76,10 +92,24 @@ class RollingWindows:
     starter_contact_shrink: float = field(
         default_factory=lambda: _env_float("MLBE_STARTER_CONTACT_SHRINK", 0.0)
     )
-    # Share of a bullpen's distance from the league mean xwOBA to keep. 1.0 is
-    # the raw three-week mean; 0.37 is its measured reliability.
+    # Share of a bullpen's distance from the league mean xwOBA to keep, set to
+    # the measured split-half reliability of a three-week read. The run-line
+    # underdog gate keeps reading the unshrunk mean (``BullpenProfile.xwoba_raw``)
+    # so its .330 threshold still means what it was calibrated against; this
+    # value is what the reader and any level term see.
     bullpen_xwoba_shrink: float = field(
-        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 1.0)
+        default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 0.37)
+    )
+    # Share of the fitted four-seam velocity term to charge on a starter's
+    # strikeout rate: his level against the league, plus how his most recent
+    # start sat against his own window. Velocity is the only read that survives
+    # a single start (r=.93 between consecutive starts, against .20 for K/PA and
+    # .15 for CSW%), and adding both terms improved held-out strikeout deviance
+    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
+    # until the ledger has graded it, which is the order every market here has
+    # been reopened in; 1.0 charges the fitted slopes in full.
+    vfa_k_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
     )
 
 
@@ -363,22 +393,74 @@ class Config:
         default_factory=lambda: _env_bool("MLBE_BATTER_SPLIT_PRIOR", True)
     )
 
-    # Rest-of-season projections as the batter prior. The path holds the file
-    # written by ``scripts.ros_prior_study prior``; when it is set and readable,
-    # a hitter's window regresses toward his own projection at the per-outcome
-    # strengths in OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a
-    # flat 60 PA. Off by default: it moves every batter probability, so it is
-    # meant to arrive with a calibration refit rather than mid-window.
+    # Rest-of-season projections as the batter prior: a hitter's window
+    # regresses toward his own projection at the per-outcome strengths in
+    # OUTCOME_PRIOR_STRENGTH instead of toward the league mean at a flat 60 PA.
+    #
+    # This was built off and switched off, because the export it was written for
+    # (THE BAT X via FanGraphs) needs a subscription and does not survive the
+    # Cloudflare challenge from this machine, so there was never a file to read.
+    # It falls back to a Marcel off the free official season lines
+    # (``scripts.ros_prior_study marcel``, or ``mlb-engine ros-prior``), which
+    # writes ``ros_hitters.csv`` into the data directory -- so the default is the
+    # standard path rather than off, and an operator with no file still gets
+    # exactly today's behaviour.
+    #
+    # A subscriber can hand the better projection over the wall instead: any
+    # projection CSV dropped in ``projections_dir`` is read first and the Marcel
+    # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
+    # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
+    # them), which is the direction that matters -- compressing the lineup is
+    # this engine's known failure, not over-separating it.
+    #
+    # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
+    # 07-22 cutoff, priors built from seasons the holdout cannot reach:
+    #
+    #     vector                            log loss / PA   vs today
+    #     league rate for everyone               1.46643     +0.0024
+    #     window, flat 60 PA to league (today)   1.46403       0
+    #     window, fitted strengths to league     1.45845     -0.0056
+    #     window, fitted strengths to projection 1.45411     -0.0099  (5.8 SE)
+    #
+    # The line worth reading twice is the first: today's hitter model beats
+    # giving every hitter the league line by 0.8 SE. Set MLBE_ROS_PRIOR to a
+    # path to point elsewhere, or to an empty string to restore the league mean.
     ros_prior_path: str | None = field(
-        default_factory=lambda: os.getenv("MLBE_ROS_PRIOR") or None
+        default_factory=lambda: os.environ.get("MLBE_ROS_PRIOR", default_ros_prior_path()) or None
+    )
+
+    # Which dropped-in projection to prefer when the folder holds several,
+    # matched against the file name. ATC is the default because it is an
+    # accuracy-weighted ensemble of the systems below it, and a model whose job
+    # is to *rank* hitters wants the projection that is rarely badly wrong about
+    # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
+    # to batx to anchor on the Statcast batted-ball system instead; an empty
+    # value takes whichever export was written most recently.
+    projection_source: str = field(
+        default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
 
     # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
     # three-week sample is thin enough that at the flat 60 PA the pen vector is
     # mostly binomial noise -- and whose doubles/triples-allowed spread across the
-    # 30 pens is *entirely* noise. Off by default for the same reason as the ROS
-    # prior: it moves every pen-driven probability, so it ships with a refit.
-    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", False))
+    # 30 pens is *entirely* noise.
+    #
+    # On by default since the out-of-time check that was owed: 330 team-windows
+    # (Apr-Jul, 21-day read scored against the *next* 21 days of relief wOBA
+    # allowed), regressing what happened next on what the window said --
+    #
+    #     read              sd      slope on the next window   RMSE
+    #     raw             .0371            0.15                .0504
+    #     flat 60 PA      .0300            0.19                .0462
+    #     fitted priors   .0106            0.62                .0398
+    #     league mean      ---              ---                .0397
+    #
+    # A slope of 0.15 is the definition of a read used at six times its worth:
+    # production was handing the simulator a pen line whose spread is five sixths
+    # sampling error, and paying for it -- the raw and flat-60 reads forecast the
+    # next three weeks *worse than assuming every pen is league average*. The
+    # fitted priors are the first version that does not.
+    pen_shrink: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_SHRINK", True))
 
     # Singles "Under" screen: exclude the singles/H/H+R+RBI OVER for batters with
     # a strong structural anti-singles profile (high K%, fly-ball tilt -- the two
@@ -737,6 +819,17 @@ class Config:
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
+    # How long a forecast is reused before it is pulled again. The point is not
+    # the API quota (Open-Meteo is free) but reproducibility: the forecast for a
+    # park moves between calls, so an uncached run of the same slate off the same
+    # odds board priced 6,050 of 6,705 rows differently from the run before it,
+    # mean 1.23pp and up to 6.9pp -- larger than most of the changes the engine is
+    # asked to measure. Matching the odds TTL means one slate is priced on one
+    # forecast and a re-run reproduces it; a past date never re-fetches at all.
+    weather_cache_ttl: int = field(
+        default_factory=lambda: _env_int("MLBE_WEATHER_CACHE_TTL", 1800)
+    )
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). The model's own
     # probability is untouched, so PPV/NPV and the calibration refit still
@@ -774,9 +867,7 @@ class Config:
     )
 
     # Directories.
-    data_dir: Path = field(
-        default_factory=lambda: Path(os.getenv("MLBE_DATA_DIR", str(Path.home() / ".mlb_engine")))
-    )
+    data_dir: Path = field(default_factory=_data_dir)
 
     @property
     def cache_dir(self) -> Path:
@@ -785,6 +876,10 @@ class Config:
     @property
     def odds_cache_dir(self) -> Path:
         return self.cache_dir / "oddsapi"
+
+    @property
+    def weather_cache_dir(self) -> Path:
+        return self.cache_dir / "weather"
 
     @property
     def calibration_file(self) -> Path:
@@ -811,6 +906,27 @@ class Config:
     def fangraphs_dir(self) -> Path:
         """Default drop-in folder for FanGraphs custom-report exports."""
         return self.data_dir / "fangraphs"
+
+    @property
+    def projections_dir(self) -> Path:
+        """Drop-in folder for rest-of-season projection exports.
+
+        The matching CSV here becomes the batter prior, with the Marcel filling
+        in the hitters it omits. Standard-view FanGraphs exports carry the
+        columns needed (``PA``, ``H``, ``2B``, ``3B``, ``HR``, ``BB``, ``SO``,
+        ``MLBAMID``); an export without ``MLBAMID`` cannot be joined to Statcast
+        and is skipped with a warning rather than name-matched.
+
+        ``MLBE_PROJECTIONS_DIR`` points this at a folder the exports already land
+        in -- a browser's download folder, typically, which is the difference
+        between a file that is refreshed daily and one that is refreshed when
+        somebody remembers to move it. Sharing a folder with every other download
+        is why ``projection_source`` is matched strictly there.
+        """
+        override = os.getenv("MLBE_PROJECTIONS_DIR")
+        if override:
+            return Path(override).expanduser()
+        return self.data_dir / "projections"
 
     @property
     def batx_dir(self) -> Path:
@@ -849,6 +965,7 @@ class Config:
             self.fangraphs_dir,
             self.batx_dir,
             self.evanalytics_dir,
+            self.projections_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 

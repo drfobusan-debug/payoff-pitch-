@@ -74,13 +74,69 @@ log = logging.getLogger(__name__)
 # reset holds no graded rows at all -- nothing has been priced on
 # "league-prior-roe-2026.08" yet -- so there is nothing to discard and no
 # trade-off to weigh.
-FEATURE_BASIS = "removal-hazard-2026.08"
+#
+# Fitting the two hand-set pitcher priors retires it again, and this is the
+# largest of these resets. xK% and xBB% are blended into every starter's K and
+# BB rate at 150 equivalent PA, and log5 multiplies that starter into all nine
+# lineup slots, so the change is correlated across a whole side rather than
+# spread over independent bets. Over 259 starters with 60+ PA in the window:
+#
+#   allowed K rate    mean |change| 3.8pp   p10 -6.7pp   p90 +5.4pp   max 12.1pp
+#   allowed BB rate   mean |change| 1.1pp   p10 -1.9pp   p90 +1.9pp   max  4.8pp
+#
+# and 45 of those arms sat pinned to a clip under the old slopes against none
+# under the fitted ones -- a map trained on the old basis learned to correct
+# strikeout and walk rates that were saturated, which is not a bias that exists
+# any more. The batter markets move with them, since the starter's rates are
+# half of every matchup.
+#
+# Correcting the two mis-scaled baselines in ``k_multiplier`` retires it before a
+# single slate is priced on it, and the argument is the same one only larger:
+# ``BL_TWO_STRIKE_WHIFF`` was a per-swing rate compared against a per-pitch one,
+# so the term sat on its floor for 98% of arms and the multiplier was a flat
+# strikeout tax rather than a comparison. Over 201 starters with 400+ pitches
+# and the 30 bullpens:
+#
+#   starter K multiplier   mean 0.909 -> 0.966   mean |change| 5.7%   max 13.0%
+#                          sd 0.116 -> 0.141 (it now separates arms)
+#   bullpen K multiplier   mean 0.916 -> 1.002   max |change| 13.7%
+#   bullpen BB multiplier  fired 0/30 -> mean 1.011, range 0.942..1.077
+#
+# That is larger than the prior refit it follows, moves K in the opposite
+# direction to the tax it removes, and hits both halves of every game at once.
+#
+# Switching the hitter prior on retires it again, and this is the counterpart on
+# the batter side of the pitcher-prior reset above. Every batter's rate vector
+# now regresses toward his own projection at the fitted per-outcome strengths
+# rather than toward the league mean at a flat 60 PA. Over 178 hitters with 60+
+# PA in the 42 days to 08-13:
+#
+#   spread across hitters (sd)   K 4.3pp -> 6.0pp   2B 1.26pp -> 0.63pp
+#   on-base move per hitter      mean 1.0pp, p95 2.6pp, max 3.5pp
+#
+# so the change is not a level shift a map could absorb -- it widens the lineup
+# on the buckets the model ranks well and halves it on the buckets it never
+# could, in opposite directions for different hitters. A map fitted on the
+# compressed vectors learned to correct a compression that is gone.
+#
+# Retiring ``k_multiplier`` from the K path retires it once more, and this one
+# subsumes the baseline correction two paragraphs up: rather than comparing an
+# arm against better baselines, the engine no longer multiplies its strikeout
+# rate by its stuff at all. The blended rate already carries CSW%/SwStr% through
+# xK%, and over 2,777 starts predicted from prior pitches only, multiplying a
+# calibrated rate stretches it (bottom quintile priced .1473 against .1811
+# realised, top .3321 against .2658); weekly walk-forward wRMSE 0.10400 with the
+# multiplier against 0.09763 without, and a dose search picks 0.0. Every
+# starter's and every bullpen's K rate moves, in both directions, on both halves
+# of every game -- the largest single change to the strikeout path this month.
+FEATURE_BASIS = "no-stuff-multiplier-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-14 was priced before the league-prior and reached-on-error corrections landed,
-# and before the lineup could be substituted.
-FEATURE_BASIS_SINCE = Date(2026, 8, 15)
+# 08-16 was priced before any of this landed, and none of the intermediate bases
+# ever graded a row, so the resets discard nothing: they land together on the
+# 08-17 refit.
+FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 
 def _min_samples() -> int:

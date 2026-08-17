@@ -6,12 +6,12 @@ import sys
 from datetime import date as Date
 
 from mlb_engine.config import load_config
+from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import OddsAPIClient
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
-from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.features.regression import (
     BL_BABIP,
     BL_BARREL_ALLOWED,
@@ -21,7 +21,7 @@ from mlb_engine.features.regression import (
     BL_SWSTR,
     build_pitcher_regression,
 )
-from mlb_engine.data.fangraphs import FanGraphsClient
+from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.pipeline import Pipeline, PipelineDeps
 
 day = Date.fromisoformat(sys.argv[1]) if len(sys.argv) > 1 else Date.today()
@@ -29,7 +29,9 @@ cfg = load_config()
 deps = PipelineDeps(
     stats=MLBStatsClient(),
     statcast=StatcastRepository(cfg.cache_dir),
-    weather=WeatherProvider(),
+    weather=WeatherProvider(
+        cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
+    ),
     vsin=VSINClient(cfg.creds),
     oddsapi=OddsAPIClient(cfg.creds.odds_api_key),
     rotowire=RotowireClient(cfg.creds),

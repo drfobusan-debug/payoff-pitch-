@@ -151,6 +151,82 @@ survive before turning it on. The honest reading is that the reliability
 correction is *right* about the metrics and the simulation was already damping
 them enough that re-damping them adds nothing.
 
+### Fastball velocity, and what one start measures
+
+Every reliability number above is a *block* read: six weeks against the next six
+weeks. The question the slate article kept raising is narrower — what can be
+read off a single outing? Correlating each metric across a pitcher's consecutive
+starts (3,256 starts, 253 pitchers, 2026 season through 8/15):
+
+| read off ONE start | repeats next start |
+| --- | --- |
+| Release height | 0.97 |
+| Release extension | 0.95 |
+| **Four-seam velocity** | **0.93** |
+| Four-seam spin | 0.91 |
+| Four-seam IVB | 0.84 |
+| Whiff / swing | 0.20 |
+| K per PA | 0.20 |
+| CSW% | 0.15 |
+| xwOBA allowed | 0.10 |
+| Exit velo allowed | 0.09 |
+| BB per PA | 0.07 |
+
+The split is by *what is being counted*, not by how interesting the metric is:
+one start is ~90 radar-measured fastballs and ~22 results. So a velocity read
+off one outing is a measurement and a contact read off one outing is not, with
+nothing in between.
+
+Which window, then? Shorter is better, monotonically. Held-out RMSE on the next
+start's strikeout rate, one velocity read added to the levels the engine already
+prices (1,652 starts, chronological halves):
+
+| velocity read | K rate | xwOBA allowed |
+| --- | --- | --- |
+| none | .10551 | .08200 |
+| 7 days | **.10391** | **.08118** |
+| 14 days | .10399 | .08121 |
+| 21 days (what the article used) | .10408 | .08125 |
+| 42 days | .10422 | .08134 |
+| 7-day half-life decay | .10403 | .08124 |
+| season level + last-start deviation | **.09987** | **.08096** |
+
+Pooling sinkers and cutters in halves the gain (.10477): a sinker-heavy start
+otherwise reads as lost velocity. The deviation is asymmetric in the velocity
+itself — 30% of a dip survives to the next start against 55% of a spike — but a
+one-sided *outcome* fit did not beat the linear term, so the simple version
+ships.
+
+Two consequences:
+
+**The article now reads velocity as his last start against the whole window**
+rather than three weeks against three weeks. SIERA and CSW% keep their halves;
+three weeks is the shortest sample that measures them at all.
+
+**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` the starter's K
+multiplier carries both terms — his level against a 94.7 league four-seamer at
+3.7%/mph, and his last start against his own window at 7.8%/mph, each clipped.
+Scored as the engine uses it (2,082 starts / 48,120 PA, binomial deviance per PA
+on strikeouts, six-week K%/CSW%/xwOBAcon controlled, 60/40 chronological
+holdout): 1.05839 for the priced levels alone, 1.05732 adding the level,
+**1.05661** adding both. It ships quoted-but-unpriced because no graded ledger
+row has ever depended on it, which is the order every market here has been
+reopened in.
+
+It buys nothing on contact and is not applied there: on hits per *non-strikeout*
+PA the level is t = −2.15 for .0002 of deviance and the last-start deviation
+makes the holdout worse — the same verdict inverse-BABIP and ΔxwOBA drew when
+they were measured on the starter's contact term. IVB is the mirror image: it
+hurts a strikeout forecast (z −5.3) and carries home runs (z +13.1), which is
+the one place the engine already uses it.
+
+```bash
+python -m scripts.velocity_read_study reliability   # what one start measures
+python -m scripts.velocity_read_study window        # 1 to 8 weeks, and decays
+python -m scripts.velocity_read_study k             # the deviance bar, strikeouts
+python -m scripts.velocity_read_study hits          # the same on contact
+```
+
 ### Bullpen windows
 
 A bullpen's last three weeks is about 270 batters faced spread over a dozen
@@ -168,13 +244,72 @@ Split-half reliability across the 30 pens (6/16–7/27, non-overlapping halves):
 | Hard-hit% | 0.13 | 13% |
 | HR per batter faced | 0.06 | 6% |
 
-Two knobs follow from that, both **off by default** until closing line value
-says otherwise:
+Repeating is not the same as forecasting, so the read was scored the way it is
+used: 330 team-windows (April–July, a 21-day read against the **next** 21 days of
+relief wOBA allowed), regressing what happened next on what the window said.
+
+| read the simulator gets | sd across pens | slope on the next window | RMSE |
+| --- | --- | --- | --- |
+| raw | .0371 | 0.15 | .0504 |
+| flat 60-PA prior (was the default) | .0300 | 0.19 | .0462 |
+| fitted per-outcome priors | .0106 | 0.62 | .0398 |
+| assume every pen is league average | — | — | .0397 |
+
+A slope of 0.19 means the pen line was being used at roughly five times its
+worth, and the top two rows forecast the next three weeks *worse than knowing
+nothing about the pen at all*. `MLBE_PEN_SHRINK` is therefore **on by default**;
+the residual 0.62 says the fitted priors are still mildly optimistic, but
+strengthening them further buys under .0002 of RMSE and one more fitted constant.
+
+**wOBA or xwOBA?** Over the same windows, xwOBA is the better forecast of the
+pen's next three weeks (r = +0.185 against wOBA's +0.141, better in 9 of 11 start
+dates), and in a joint regression it takes all the weight (+0.0070 per sd against
++0.0004). It is not a large edge, and both are weak. The simulator needs an
+outcome vector rather than a single number, so the pen's contact quality enters
+as the xwOBA *level* term in `features/regression.py` (fitted on 16,547 relief
+rows, t = +4.5) while the rate vector carries the rest.
 
 | Knob | Default | What it does |
 | --- | --- | --- |
+| `MLBE_PEN_SHRINK` | `1` (on) | Shrinks the pen's outcome rates with the fitted per-outcome priors (1B k=1834, HR 708, BB 344, K 241, OUT 410; 2B/3B pinned to the league pen, where their entire observed spread is binomial noise). `0` restores the flat 60-PA prior. |
 | `MLBE_BULLPEN_SKILL_DAYS` | `0` (off) | Reads the pen's stuff/command signals over a longer window than its rates. Set to `42`: out of sample against the following three weeks, relief K% scores 0.73 on 42 days against 0.66 on 21, and in a joint regression the 42-day read takes weight +0.68 against +0.14 for the last three weeks. Results-based rates stay on `MLBE_BULLPEN_DAYS` (21), where they belong — xwOBA scores 0.37 on 21 days against 0.32 on 42. |
-| `MLBE_BULLPEN_XWOBA_SHRINK` | `1.0` (raw) | Share of a pen's distance from the league mean (.306) to keep. `0.37` is the measured reliability. `xwoba_allowed` is otherwise a plain three-week mean that `MLBE_RL_GATE_DOG_PEN` compares to a hard .330 threshold, so roughly two thirds of what that gate reads is noise. `BullpenProfile.xwoba_raw` keeps the unshrunk value for reporting. |
+| `MLBE_BULLPEN_XWOBA_SHRINK` | `0.37` | Share of a pen's distance from the league mean (.306) to keep, set to the measured reliability. The underdog run-line gate deliberately keeps reading `BullpenProfile.xwoba_raw`: its .330 cut was calibrated on unshrunk means, and at 0.37 even the league's worst pen (.353 raw on 8/16) lands at .323 — reading the shrunk value would retire that gate silently rather than on evidence. |
+
+### Two bullpen numbers that do not survive being scored
+
+Both were printed in the daily preview as verdicts, and both are gone from it.
+
+**Arm-to-arm "volatility"** — the standard deviation of wOBA allowed across a
+pen's individual relievers. Over two adjacent three-week windows it repeats at
+**r = −0.10** across 27 pens (−0.07 on the following window pair); the observed
+spread (.021–.027) sits *below* the binomial noise floor for arms with ~33
+batters faced (.031–.035), leaving no measurable talent spread at all in it; and
+the same reliever's wOBA allowed repeats
+window to window at **r = −0.04** (n=61). "Volatile" and "uniform" were two names
+for one coin flip. The number is still captured on `BullpenLine.arm_spread` for a
+later study; it is no longer read out.
+
+**The "gassed arms" workload proxy** — scored over 970 team-games against the
+relief wOBA that pen actually allowed that night: **r = −0.035**, and pens at the
+depleted threshold allowed **+0.005 ± 0.018** more than the rest. It is a true
+description of who threw yesterday and not a forecast, so the preview now reports
+it as usage with no colour and leaves it out of the narration.
+
+The same proxy was also spending money. `features/ml_gate.py` demoted a
+full-game moneyline buy whose own pen was depleted and at least 15 fatigue points
+worse off than the opponent's — the reasoning being that the full game is decided
+in the innings those arms cover. Rebuilt per team-game over **3,956 team-games**
+and scored against the game it was about to be spent in, the sides it would have
+demoted won **.529** and **.507** across the two windows against those same teams'
+own rates of .493 and .506 — no worse than usual, and arguably better — with
+r(fatigue, win) of −0.005 and +0.000. The fatigue branch is therefore **off by
+default** (`MLBE_ML_PEN_FATIGUE=1` restores it). The Rotowire *availability*
+branch, which reads arms actually declared unavailable rather than inferring
+tiredness from pitch counts, is a different signal and stays on — ungraded, for
+want of any history of that feed to grade it against.
+
+All four measurements are reproducible: `python -m scripts.pen_read_study
+{forward,spread,fatigue,mlgate} --cache <statcast pickle>`.
 
 One caveat worth carrying: team-level *velocity* is the most reliable bullpen
 number and also the most misleading one. Detroit's pen appeared to lose 2.2 mph
@@ -598,6 +733,34 @@ Rows are matched to the slate by MLBAM id (FanGraphs exports include an
 missing file/metric) simply stay neutral. These feed the ≥2 SD tail layer.
 Re-export daily — the engine reuses whatever files are in the folder, so stale
 files feed stale numbers.
+
+## Rest-of-season projections (the batter prior)
+
+Every hitter's rate vector is shrunk toward a rest-of-season projection rather
+than toward the league mean, so the prior is what keeps a slugger and a backup
+catcher apart in a thin window. By default the engine builds its own Marcel off
+the free official season lines, but a subscriber's projection is better: drop a
+**Standard-view rest-of-season export** (FanGraphs → Projections → *system* →
+Rest of Season → Batters → *Export Data*) in **`~/.mlb_engine/projections/`** and
+it becomes the prior, with the Marcel covering the hitters it omits.
+
+```bash
+MLBE_PROJECTION_SOURCE=atc   # match on the file name; batx, steamer, ... also work
+MLBE_PROJECTIONS_DIR=~/Downloads   # or read them where the browser already puts them
+mlb-engine ros-prior         # or just run the slate: a new export is picked up at once
+```
+
+The export must carry `MLBAMID` (it is the join to Statcast) plus `PA`, `H`,
+`2B`, `3B`, `HR`, `BB`, `SO` — all present in the Standard view. Hitters
+projected for fewer than 25 PA are left to the Marcel, since a system that
+rounds its counting stats to integers turns a two-PA bench line into a .000
+hitter.
+
+**Name the files by system** (`atc_ros.csv`, `batx_ros.csv`): the folder is
+resolved by matching `MLBE_PROJECTION_SOURCE` against the file name, not by
+taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR` at a download folder
+full of unrelated CSVs is safe. A named system that isn't there logs a warning
+and prices off the Marcel rather than guessing.
 
 ## Credentials
 

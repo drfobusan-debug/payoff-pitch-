@@ -45,6 +45,8 @@ from datetime import date as Date
 import numpy as np
 import pandas as pd
 
+from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.features.marcel import marcel_projection
 from mlb_engine.features.rolling import (
     LEAGUE_RATES,
     OUTCOMES_ORDER,
@@ -63,6 +65,31 @@ def _load(path: str) -> pd.DataFrame:
 
 def cmd_prior(args: argparse.Namespace) -> None:
     ros = ros_rates_from_projection(_load(args.hitters))
+    out = os.path.expanduser(args.out)
+    ros.to_csv(out, index=False)
+    print(f"{len(ros)} hitters -> {out}")
+    print(ros[list(OUTCOMES_ORDER)].describe().loc[["mean", "std", "min", "max"]].to_string())
+
+
+def cmd_marcel(args: argparse.Namespace) -> None:
+    """Build the projection ourselves, from the free official season lines.
+
+    THE BAT X export needs a FanGraphs subscription and does not survive the
+    Cloudflare challenge from this machine, so the prior it was written for has
+    never had a file to read. A Marcel off statsapi is weaker than THE BAT X and
+    far stronger than the league mean, and it costs one HTTP call a season.
+    """
+    client = MLBStatsClient()
+    rows: list[dict[str, int]] = []
+    for back in range(3):
+        season = args.season - back
+        got = client.season_hitting(season)
+        print(f"  {season}: {len(got)} hitters")
+        rows.extend(got)
+    lines = pd.DataFrame(rows)
+    ages = client.player_ages(set(lines["mlbam_id"].astype(int)))
+    proj = marcel_projection(lines, ages, args.season, args.min_pa)
+    ros = ros_rates_from_projection(proj)
     out = os.path.expanduser(args.out)
     ros.to_csv(out, index=False)
     print(f"{len(ros)} hitters -> {out}")
@@ -268,6 +295,17 @@ def main() -> None:
     pr.add_argument("--hitters", required=True, help="FanGraphs ROS projection export")
     pr.add_argument("--out", required=True)
     pr.set_defaults(func=cmd_prior)
+
+    mc = sub.add_parser("marcel", help="build the priors file from free statsapi season lines")
+    mc.add_argument("--season", type=int, required=True, help="season being projected")
+    mc.add_argument("--out", required=True)
+    mc.add_argument(
+        "--min-pa",
+        type=float,
+        default=100.0,
+        help="weighted PA of history below which a hitter is left to the league prior",
+    )
+    mc.set_defaults(func=cmd_marcel)
 
     ds = sub.add_parser("disperse", help="measure how much the league prior compresses")
     ds.add_argument("--hitters", required=True)

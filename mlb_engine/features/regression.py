@@ -754,7 +754,19 @@ BL_K_PCT = 0.220
 BL_BB_PCT = 0.080
 BL_K_MINUS_BB = 0.140
 BL_BARREL_ALLOWED = 0.080
-BL_TWO_STRIKE_WHIFF = 0.280
+# Whiffs per two-strike PITCH, which is what ``build_pitcher_regression``
+# measures. It was 0.280 -- a put-away rate per two-strike *swing* -- against a
+# rate whose league value is .1448 for starters and .1483 for relief, so the
+# term it feeds sat on its -0.06 clip for 98% of the 201 starters with 400+
+# pitches and for every bullpen: an unconditional strikeout haircut applied to
+# both sides of the ball, priced as if every arm in the league had the worst
+# put-away stuff in it. See ``scripts/pen_stuff_study.py``.
+BL_TWO_STRIKE_WHIFF = 0.145
+# The same statistic off a bullpen, which is a different population: pooled over
+# a dozen arms a pen posts .1196 K-BB against a starter's .140, so charging a pen
+# the starter's baseline docked every bullpen in the league ~3% of its
+# strikeouts before any of them was told apart from another.
+BL_PEN_K_MINUS_BB = 0.120
 BL_STUFF_PLUS = 100.0
 BL_LOCATION_PLUS = 100.0
 BL_SWSTR = 0.110  # swinging strikes / pitches
@@ -815,6 +827,41 @@ IVB_SLOPE = 0.008
 IVB_CLIP = (-0.04, 0.06)
 FOUR_SEAM_TYPES = {"FF", "FA"}
 
+# Four-seam velocity, the one shape metric that pays on the strikeout side.
+#
+# What one start measures, correlated across a pitcher's consecutive starts:
+# release height .97, extension .95, velocity .93, spin .91, IVB .84 -- then a
+# cliff to whiff/swing .20, K/PA .20, CSW% .15, xwOBA allowed .10. One outing is
+# ~90 radar-measured fastballs and ~22 results, so a velocity read off a single
+# start is legitimate where every result-based read is not.
+#
+# Scored the way the engine uses it, 2,082 starts / 48,120 PA, binomial deviance
+# per PA on strikeouts, six-week K%/CSW%/xwOBAcon controlled, chronological
+# 60/40 holdout:
+#
+#                             coef      t   train    holdout
+#     priced levels only        --     --  1.05786    1.05839
+#     + velocity level      0.0478   7.88  1.05642    1.05732
+#     + last-start dev      0.0972   5.32  1.05736    1.05767
+#     + level and dev       0.0995   5.44  1.05588    1.05661
+#
+# Slopes are those logit coefficients on the strikeout scale (x0.78 at a .22
+# league rate). A one-sided fit -- a dip counted differently from a spike --
+# was tried because the velocity itself carries asymmetrically (30% of a dip
+# survives to the next start, 55% of a spike) and it did not beat the linear
+# term (.05684 / .05677 against .05661), so the simple version ships.
+#
+# It buys nothing on contact. On hits per NON-strikeout PA the level is t=-2.15
+# for .0002 of deviance and the last-start deviation makes the holdout worse,
+# which is the same verdict every starter contact instrument has drawn here.
+BL_VFA = 94.7
+VFA_K_LEVEL_SLOPE = 0.037  # per mph above the league four-seamer
+VFA_K_DEV_SLOPE = 0.078  # per mph of last start away from his own level
+VFA_K_LEVEL_CLIP = (-0.12, 0.12)
+VFA_K_DEV_CLIP = (-0.08, 0.08)
+MIN_VFA_PITCHES = 60  # four-seamers in the window before the level is read
+MIN_VFA_START = 15  # four-seamers in the last start before its deviation is read
+
 # Batted balls against one side of the plate before a starter's platoon contact
 # split is trusted. Higher than the K split's PA floor because contact quality
 # is the noisier measurement.
@@ -824,8 +871,21 @@ MIN_SPLIT_BBE = 40
 # stabilizing whiff signals (CSW% and SwStr%), anchored so a league-average arm
 # (CSW .280, SwStr .110) maps to ~.220 K%. Used as the small-sample K prior so a
 # pitcher regresses toward his stuff, not the flat league mean.
-XK_CSW_COEF = 2.6
-XK_SWSTR_COEF = 1.4
+#
+# The slopes were 2.6 and 1.4, never fitted -- only the anchor was ever chosen.
+# Measured (``scripts.xk_refit_study``) on 2,936 starter-starts, each predicted
+# from pitches thrown strictly before it and scored on the start that followed,
+# they are 0.34 and 0.71: the hand-set line was about three times too steep, and
+# a prior that steep is not a prior. Regressing the realised next-start K rate on
+# it gave a slope of 0.286 where a calibrated prior gives 1.0 -- the arms it put
+# at .100 struck out .181, the ones it put at .373 struck out .258, 27 points of
+# prediction across 8 points of reality. Out of sample it lost to the league
+# mean (wRMSE 0.1217 vs 0.1083) and to the pitcher's own raw 42-day rate
+# (0.1027), which is the whole argument: a prior meant to rescue a thin sample
+# was more extreme than the sample it was pulling on. It also pinned 27 of 259
+# starters to a clip; the fitted line pins none.
+XK_CSW_COEF = 0.34
+XK_SWSTR_COEF = 0.71
 XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
 MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
@@ -839,9 +899,16 @@ BL_FSTRIKE = 0.605
 # stabilize far faster than observed BB%. Each term is (baseline - value), so a
 # league-average arm maps to ~.085 and a high-Zone/high-chase arm (NPV screen)
 # maps below it. Used as the small-sample BB prior.
-XBB_ZONE_COEF = 0.50
-XBB_CHASE_COEF = 0.40
-XBB_FSTRIKE_COEF = 0.30
+#
+# Fitted alongside xK% and hand-set in the same way beforehand: 0.50/0.40/0.30
+# measure 0.21/0.09/0.11 against the next start's walk rate, a calibration slope
+# of 0.369, and out of sample the hand-set line lost to the league mean as well
+# (wRMSE 0.0647 vs 0.0621). Milder than the strikeout prior -- walks are noisier,
+# and even the refit line only just beats doing nothing -- but the same sign and
+# the same cause, so it is corrected rather than left to be found later.
+XBB_ZONE_COEF = 0.21
+XBB_CHASE_COEF = 0.09
+XBB_FSTRIKE_COEF = 0.11
 
 # Empirical-Bayes prior strengths for the contact-quality signals a starter
 # allows, in batted balls. Measured by splitting the season into adjacent,
@@ -915,6 +982,11 @@ class PitcherRegression:
     extension: float = float("nan")
     release_var: float = float("nan")
     spin: float = float("nan")
+    # Four-seam velocity over the window, and how far his most recent start sat
+    # from it. ``vfa_k`` is the share of the fitted K term to charge (0 = off).
+    vfa: float = float("nan")
+    vfa_dev: float = float("nan")
+    vfa_k: float = 0.0
     # Optional FanGraphs pitch-modeling metrics (None if no subscription data).
     stuff_plus: float | None = None
     location_plus: float | None = None
@@ -938,6 +1010,11 @@ class PitcherRegression:
         These whiff signals stabilize in far fewer pitches than observed K%, so
         xK% is the right small-sample prior: a hard-to-hit arm with a thin PA
         sample should regress toward his stuff, not the flat league mean.
+
+        The slopes are fitted against the next start's strikeout rate, so the
+        line is a forecast and not a restatement of the arm's stuff on the K
+        scale. It moves less than the raw rate it regularises, which is what a
+        prior is for.
         """
         xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
         return _clip(xk, 0.08, 0.42)
@@ -948,7 +1025,8 @@ class PitcherRegression:
         These discipline signals stabilize far faster than observed BB%, so they
         are the right small-sample prior: fewer strikes / fewer chases / more
         first-pitch balls all push walks up; the reverse (the NPV screen) pushes
-        them below the league mean.
+        them below the league mean. Slopes fitted against the next start's walk
+        rate, as for :meth:`expected_k_pct`.
         """
         xbb = (
             BL_BB_PCT
@@ -1016,20 +1094,65 @@ class PitcherRegression:
         return m
 
     def k_multiplier(self) -> float:
-        """Multiplier on the pitcher's projected strikeout rate.
+        """Reported only: how this arm's stuff compares with the league's.
 
         Driven by CSW% and K-BB% (fast-stabilizing K predictors), the 2-strike
-        put-away whiff rate, and Stuff+ when a FanGraphs feed is present.
+        put-away whiff rate, and Stuff+ when a FanGraphs feed is present. Each
+        term is a deviation from a league baseline, so the product is a
+        comparison between arms and reads well as one.
+
+        It is **not** applied to a projected strikeout rate any more, because it
+        cannot improve one. The rate it used to multiply is the arm's observed
+        window K% blended toward xK% at 150 PA, and that rate is already
+        calibrated: over 2,777 starts, each predicted from pitches thrown
+        strictly before it, the blended rate's own quintiles land within a point
+        of what the arm went on to do (.1856 -> .1811 at the bottom, .2674 ->
+        .2658 at the top), while multiplying stretches them to .1473 and .3321.
+        Out of sample the multiplier is worse than not having it -- weekly
+        walk-forward wRMSE 0.10400 against 0.09763 -- and a dose search over the
+        exponent picks 0.0. Refitting the terms does not rescue it (0.10122), and
+        every term is individually harmful. #190 reached the same verdict on the
+        bullpen half, where the pen's own pooled K% beat its stuff outright.
+
+        CSW% is the reason: it is already inside xK%, so applying it again on top
+        prices the same variable twice and re-inflates the spread the blend was
+        built to shrink. See ``scripts/k_multiplier_study.py``.
         """
         if self.pitches < 100:
             return 1.0
+        k_bb_baseline = BL_PEN_K_MINUS_BB if self.bullpen else BL_K_MINUS_BB
         m = 1.0
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
-        m *= 1.0 + _clip((self.k_minus_bb - BL_K_MINUS_BB) * 1.5, -0.12, 0.15)
+        m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
+        m *= self.velocity_k_multiplier()
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
+
+    def velocity_k_multiplier(self) -> float:
+        """How much of his strikeout rate his fastball is worth.
+
+        Two terms: how hard he throws relative to the league, and how his most
+        recent start sat against his own window. The second is the point -- one
+        start measures velocity at r=.93 while measuring nothing else about him,
+        so it is the only same-week form read the engine can honestly take.
+
+        Returns 1.0 unless ``vfa_k`` is set, and for a reliever always: this was
+        fitted on starts.
+        """
+        if self.vfa_k <= 0.0 or self.bullpen:
+            return 1.0
+        m = 1.0
+        if self.vfa == self.vfa:  # not NaN
+            m *= 1.0 + self.vfa_k * _clip(
+                (self.vfa - BL_VFA) * VFA_K_LEVEL_SLOPE, *VFA_K_LEVEL_CLIP
+            )
+        if self.vfa_dev == self.vfa_dev:
+            m *= 1.0 + self.vfa_k * _clip(
+                self.vfa_dev * VFA_K_DEV_SLOPE, *VFA_K_DEV_CLIP
+            )
+        return m
 
     def allowed_multipliers(self) -> dict[str, float]:
         """Multipliers on outcomes the pitcher ALLOWS (hits/xbh/hr)."""
@@ -1148,12 +1271,34 @@ class PitcherRegression:
         return {"1B": one, "2B": xbh, "3B": xbh, "HR": hr}
 
 
+def _four_seam_velocity(pdf: pd.DataFrame) -> tuple[float, float]:
+    """Window four-seam velocity, and where his most recent start sat against it.
+
+    Both are NaN until there are enough four-seamers to read: a start's mean is
+    only a measurement because it averages ~90 pitches, so a start he barely
+    threw the pitch in says nothing.
+    """
+    if "pitch_type" not in pdf or "release_speed" not in pdf:
+        return float("nan"), float("nan")
+    fb = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)].dropna(subset=["release_speed"])
+    if len(fb) < MIN_VFA_PITCHES:
+        return float("nan"), float("nan")
+    level = float(fb["release_speed"].mean())
+    if "game_date" not in fb:
+        return level, float("nan")
+    last = fb[fb["game_date"] == fb["game_date"].max()]["release_speed"]
+    if len(last) < MIN_VFA_START:
+        return level, float("nan")
+    return level, float(last.mean()) - level
+
+
 def build_pitcher_regression(
     pdf: pd.DataFrame,
     stuff_plus: float | None = None,
     location_plus: float | None = None,
     shrink: float = 0.0,
     bullpen: bool = False,
+    vfa_k: float = 0.0,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1255,6 +1400,8 @@ def build_pitcher_regression(
         if len(four_seam) >= 20:
             ivb = float(four_seam.mean() * 12.0)
 
+    vfa, vfa_dev = _four_seam_velocity(pdf)
+
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
         float(np.sqrt(pdf["release_pos_x"].dropna().var() + pdf["release_pos_z"].dropna().var()))
@@ -1343,6 +1490,9 @@ def build_pitcher_regression(
         k_pct_vs_l=k_pct_vs_l,
         k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,
+        vfa=vfa,
+        vfa_dev=vfa_dev,
+        vfa_k=vfa_k,
         extension=ext,
         release_var=rel_var,
         spin=spin,

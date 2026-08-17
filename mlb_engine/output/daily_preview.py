@@ -249,7 +249,9 @@ def starter_trend_sentence(team: str, sl: StarterLine) -> str:
     bits = [
         f"{siera}, {_trend_phrase(sl.siera_trend, FLAT_SIERA, '.2f', lower_is_better=True)}",
         f"stuff {_trend_phrase(sl.stuff_trend, FLAT_CSW, '.1%', lower_is_better=False)} on CSW%",
-        f"velocity {_trend_phrase(sl.vfa_trend, FLAT_VFA, '.1f', lower_is_better=False)} mph",
+        "last start's velocity "
+        + _trend_phrase(sl.vfa_trend, FLAT_VFA, ".1f", lower_is_better=False)
+        + ("" if sl.vfa_trend is None else " mph"),
     ]
     if sl.babip_allowed is None:
         luck = ""
@@ -289,9 +291,19 @@ def _split_clause(lu: LineupLine) -> str:
     if lu.split_woba is None or lu.split_rank is None or lu.split_of is None:
         return f"has too thin a sample against {hand} to rank"
     return (
-        f"hits {hand} at a {lu.split_woba:.3f} wOBA, "
+        f"hits {hand} at a {lu.split_woba:.3f} xwOBA, "
         f"<b>{lu.split_rank} of {lu.split_of}</b> — the <b>{lu.split_bucket} third</b>"
     )
+
+
+# Points of split xwOBA between a club's two venues before the preview calls one
+# of them its better half. Ten points is the *league's* entire home-field edge
+# (.3364 home, .3265 road), so a club has to separate its own halves by more
+# than the advantage of playing at home at all before the sentence is written.
+# The splits arriving here are shrunk, which is what makes that reachable
+# without being routine: unshrunk, the noise on a single club's home-road gap is
+# +-29 points and two thirds of the league cleared ten by accident.
+VENUE_WASH = 0.010
 
 
 def _venue_clause(lu: LineupLine) -> str:
@@ -301,8 +313,8 @@ def _venue_clause(lu: LineupLine) -> str:
     mine = lu.home_woba if lu.is_home else lu.away_woba
     theirs = lu.away_woba if lu.is_home else lu.home_woba
     diff = mine - theirs
-    splits = f"{mine:.3f} wOBA {here} vs {theirs:.3f} {there}"
-    if abs(diff) < 0.010:
+    splits = f"{mine:.3f} xwOBA {here} vs {theirs:.3f} {there}"
+    if abs(diff) < VENUE_WASH:
         shape = f"which is no help either way — {splits}"
     elif diff > 0:
         shape = f"their better half — {splits}"
@@ -393,11 +405,11 @@ def matchup_verdict(bats_team: str, arm_team: str, lu: LineupLine, sl: StarterLi
     )
 
 
-# Bullpen reader thresholds: workload proxy at/above which a pen is worked, and
-# the per-arm wOBA spread that makes the choice of reliever matter.
-FATIGUE_DEPLETED = 60.0
-WIDE_ARM_SPREAD = 0.040
-TIGHT_ARM_SPREAD = 0.020
+# The bullpen reader's thresholds are gone with the claims they supported: a
+# workload score at which a pen was called "worked" and a per-arm spread at which
+# it was called "volatile", neither of which survived being scored. The spread is
+# still carried on ``BullpenLine.arm_spread`` -- captured for a later study, not
+# read out as a verdict.
 
 
 def _better_arm(a: StarterLine, b: StarterLine) -> tuple[StarterLine, StarterLine, float] | None:
@@ -442,40 +454,39 @@ def starter_duel(gp: GamePreview) -> str:
     return f"<p>{lead}. " + "; ".join(bits) + ".</p>"
 
 
-def _fresh_clause(bp: BullpenLine) -> str:
-    """Rested or worked, from the workload proxy and the 3-day load.
+def _usage_clause(bp: BullpenLine) -> str:
+    """How the pen has been used lately. A description, deliberately not a verdict.
 
-    The proxy counts arms on back-to-back days or a heavy two-day pitch count at
-    20 points each, so it reads back as a number of gassed relievers.
+    Scored over 970 team-games: the relief wOBA a pen actually allowed that night
+    against its own workload count beforehand, r = -0.035, and depleted pens
+    (three or more such arms) allowed +0.005 +/- 0.018 more than the rest. It is
+    a true statement about who threw yesterday and no statement at all about how
+    tonight goes, so it is reported as usage and given no colour, no "worked" or
+    "fresh" label, and no place in the spoken read.
     """
     load = "" if bp.recent_load is None else f", three-day workload {bp.recent_load:.2f}× normal"
     if bp.fatigue is None:
         return "Workload unknown" + load
-    gassed = round(bp.fatigue / 20)
-    if bp.fatigue >= FATIGUE_DEPLETED:
-        state = f"<span class='neg'>Worked</span> — {gassed} arms gassed"
-    elif bp.fatigue > 0:
-        state = f"About normal — {gassed} arm{'s' if gassed != 1 else ''} gassed"
+    used = round(bp.fatigue / 20)
+    if used:
+        state = (
+            f"{used} arm{'s' if used != 1 else ''} on back-to-back days or a heavy two-day count"
+        )
     else:
-        state = "<span class='pos'>Fresh</span> — nobody on back-to-back days or a heavy two-day count"
-    return state + load
-
-
-def _volatility_clause(bp: BullpenLine) -> str:
-    if bp.arm_spread is None:
-        return "too few arms with real work to judge how much the choice of reliever matters"
-    if bp.arm_spread >= WIDE_ARM_SPREAD:
-        read = "<span class='neg'>volatile</span> — which reliever appears matters more than the average"
-    elif bp.arm_spread <= TIGHT_ARM_SPREAD:
-        read = "<span class='pos'>uniform</span> — any arm out of it does about the same job"
-    else:
-        read = "normal spread between its best and worst arm"
-    arms = "" if bp.arms is None else f" across {bp.arms} arms"
-    return f"{read} ({bp.arm_spread:.3f} wOBA spread{arms})"
+        state = "nobody on back-to-back days or a heavy two-day count"
+    return "Usage: " + state + load
 
 
 def bullpen_verdict(bats_team: str, pen_team: str, bp: BullpenLine) -> str:
-    """One pen: how rested, how it projects against this order, how volatile."""
+    """One pen: how it has been used, and how it projects against this order.
+
+    The per-arm wOBA spread this used to call volatility is gone. Over two
+    adjacent three-week windows it repeats at r = -0.10 across 27 pens, its
+    observed size (.027) sits *below* the binomial noise floor for arms with ~33
+    batters faced (.031), and the same reliever's wOBA allowed repeats at
+    r = -0.04 -- so "volatile" and "uniform" were two names for the same coin
+    flip, printed in the same sentence as a projection that means something.
+    """
     if bp.proj_woba is None:
         proj = "no projection against this order (thin relief sample)"
     else:
@@ -488,10 +499,7 @@ def bullpen_verdict(bats_team: str, pen_team: str, bp: BullpenLine) -> str:
     walk = ""
     if bp.zone_pct is not None and bp.zone_pct < 0.40:
         walk = f" It's also a walk trap at {bp.zone_pct * 100:.0f}% zone."
-    return (
-        f"<p><b>{pen_team}'s pen.</b> {_fresh_clause(bp)}; {proj}; "
-        f"{_volatility_clause(bp)}.{walk}</p>"
-    )
+    return f"<p><b>{pen_team}'s pen.</b> {_usage_clause(bp)}; {proj}.{walk}</p>"
 
 
 def _pen_edge(gp: GamePreview) -> str:
@@ -531,7 +539,7 @@ def lineup_profile(team: str, lu: LineupLine) -> str:
     else:
         bucket = _rank_bucket(lu.team_rank, lu.team_of)
         general = (
-            f"a {lu.team_woba:.3f} wOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
+            f"a {lu.team_woba:.3f} xwOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
             f"({bucket} third), hitting {lu.xwoba:.3f} xwOBA on contact"
         )
     situ = [_split_clause(lu)]
@@ -704,7 +712,7 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
         f"<h3>How these lineups hit — overall and tonight</h3>{_lineup_profiles(gp)}"
         f"<h3>Who's pitching well, and who's due to turn</h3>{_starter_trends(gp)}"
         f"<h3>Hitters due to cool off or heat up</h3>{_reg_bits(gp)}"
-        f"<h3>The bullpens: rested, effective, volatile?</h3>{_bullpens(gp)}"
+        f"<h3>The bullpens: how used, how effective?</h3>{_bullpens(gp)}"
         f"<img class='chart' src='data:image/png;base64,{_shape_chart(gp)}'/>"
         f"{_hr_line(hr_recs)}"
         f"{_best_bets_block(gp)}"
@@ -790,17 +798,20 @@ def build_preview_report(
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
-        "six-week window in half and report the recent half minus the earlier one, for the three signals that "
-        "repeat on three weeks of pitches (velocity, CSW%, SIERA); contact quality is excluded because it does "
-        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact "
+        "six-week window in half and report the recent half minus the earlier one for SIERA and CSW%, the two "
+        "signals that repeat on three weeks of pitches; velocity is his last start against the whole window, "
+        "because one outing measures it (r=0.93 between consecutive starts, against .15 for CSW%). Contact "
+        "quality is excluded because it repeats at neither length. A starter's BABIP-vs-xwOBA gap is the "
+        "wOBA he allowed against the wOBA his contact "
         "deserved. Matchup verdicts are the simulator's own log5 projection — each hitter's rates in "
         "his platoon and home/road context against this starter's — averaged over the order and "
         "compared with the same order against a league-average arm. "
         "Platoon and home/road ranks are club-level wOBA over the trailing window, ranked among teams with at "
         "least 150 plate appearances in the split. Bullpen lines are the same log5 projection against "
-        "the pen as a whole and against its 8th-inning arms; volatility is the standard deviation of "
-        "wOBA allowed across individual relievers with 25+ batters faced, and freshness is the "
-        "StatsAPI workload proxy alongside the three-day load. Regression flags are the gap "
+        "the pen as a whole and against its 8th-inning arms, off relief rates shrunk toward the league "
+        "pen by their measured reliability; the workload line describes recent usage only, and is not a "
+        "forecast \u2014 scored over 970 team-games it does not predict the relief wOBA a pen goes on to "
+        "allow (r = -0.04). Regression flags are the gap "
         "between a hitter's actual and expected wOBA (points). Implied probability is the devig-free American-odds "
         "conversion of the best posted price; edge is model minus implied. Model preview, not investment advice.</p>"
     )
@@ -813,13 +824,13 @@ def build_preview_report(
 
 
 def _narrate_bullpens(gp: GamePreview) -> str:
-    """Spoken bullpen read: who's rested, who holds, who's volatile."""
-    bits = []
-    for pen_team, bp in ((gp.home, gp.home_pen), (gp.away, gp.away_pen)):
-        if bp.fatigue is not None and bp.fatigue >= FATIGUE_DEPLETED:
-            bits.append(f"The {pen_team} bullpen is worked")
-        elif bp.arm_spread is not None and bp.arm_spread >= WIDE_ARM_SPREAD:
-            bits.append(f"The {pen_team} bullpen is volatile arm to arm")
+    """Spoken bullpen read: which pen holds up better against the order it faces.
+
+    Workload and arm-to-arm spread are left out: neither predicts the innings it
+    would be describing (see ``_usage_clause`` and ``bullpen_verdict``), and in a
+    narration there is no room to say so beside them.
+    """
+    bits: list[str] = []
     home, away = gp.home_pen, gp.away_pen
     if home.proj_woba is not None and away.proj_woba is not None:
         gap = (away.proj_woba - home.proj_woba) * 1000

@@ -21,7 +21,9 @@ cfg = load_config()
 deps = PipelineDeps(
     stats=MLBStatsClient(),
     statcast=StatcastRepository(cfg.cache_dir),
-    weather=WeatherProvider(),
+    weather=WeatherProvider(
+        cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
+    ),
     vsin=VSINClient(cfg.creds),
     oddsapi=OddsAPIClient(cfg.creds.odds_api_key),
     rotowire=RotowireClient(cfg.creds),
