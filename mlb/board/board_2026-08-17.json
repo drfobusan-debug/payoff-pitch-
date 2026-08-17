@@ -22857,9 +22857,23 @@
   {
     "matchup": "SD @ NYM",
     "market": "batter_tb",
+    "selection": "Manny Machado TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.61039
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_tb",
     "selection": "Manny Machado TB o1.5",
     "american": 146.0,
     "no_vig_prob": 0.400222
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_tb",
+    "selection": "Manny Machado TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.38961
   },
   {
     "matchup": "SD @ NYM",
@@ -23130,9 +23144,23 @@
   {
     "matchup": "SD @ NYM",
     "market": "pitcher_k",
+    "selection": "Nolan McLean Ks o6.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "pitcher_k",
     "selection": "Nolan McLean Ks u5.5",
     "american": 110.0,
     "no_vig_prob": 0.449621
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "pitcher_k",
+    "selection": "Nolan McLean Ks u6.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
   },
   {
     "matchup": "SD @ NYM",
@@ -23851,9 +23879,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hrr",
+    "selection": "Everson Pereira H+R+RBI o1.5",
+    "american": 115.0,
+    "no_vig_prob": 0.438741
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
     "selection": "Everson Pereira H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.411171
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Everson Pereira H+R+RBI u1.5",
+    "american": -149.0,
+    "no_vig_prob": 0.561259
   },
   {
     "matchup": "STL @ CIN",
@@ -24180,6 +24222,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Alec Burleson HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Blaze Jordan HR o0.5",
     "american": 525.0,
     "no_vig_prob": 0.175238
@@ -24194,9 +24243,30 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Blaze Jordan HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Dane Myers HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Dane Myers HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Dane Myers HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24215,6 +24285,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Elly De La Cruz HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Eugenio Suarez HR o0.5",
     "american": 330.0,
     "no_vig_prob": 0.247858
@@ -24225,6 +24302,13 @@
     "selection": "Eugenio Suarez HR o1.5",
     "american": 3000.0,
     "no_vig_prob": 0.032258
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Eugenio Suarez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24243,6 +24327,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Everson Pereira HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Ivan Herrera HR o0.5",
     "american": 390.0,
     "no_vig_prob": 0.219688
@@ -24253,6 +24344,13 @@
     "selection": "Ivan Herrera HR o1.5",
     "american": 4000.0,
     "no_vig_prob": 0.02439
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Ivan Herrera HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24285,9 +24383,30 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Jordan Walker HR o2.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Jose Fermin HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Jose Fermin HR o1.5",
+    "american": 7500.0,
+    "no_vig_prob": 0.013158
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Jose Fermin HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24306,9 +24425,30 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Joshua Baez HR o2.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Ke'Bryan Hayes HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Ke'Bryan Hayes HR o1.5",
+    "american": 15000.0,
+    "no_vig_prob": 0.006623
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Ke'Bryan Hayes HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24320,9 +24460,37 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Masyn Winn HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Masyn Winn HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Matt McLain HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Matt McLain HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Matt McLain HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24341,6 +24509,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Michael Toglia HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Noelvi Marte HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
@@ -24351,6 +24526,13 @@
     "selection": "Noelvi Marte HR o1.5",
     "american": 8000.0,
     "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Noelvi Marte HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24369,6 +24551,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Pedro Pages HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Sal Stewart HR o0.5",
     "american": 350.0,
     "no_vig_prob": 0.239316
@@ -24383,6 +24572,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Sal Stewart HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Tyler Stephenson HR o0.5",
     "american": 425.0,
     "no_vig_prob": 0.203934
@@ -24393,6 +24589,13 @@
     "selection": "Tyler Stephenson HR o1.5",
     "american": 4500.0,
     "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Tyler Stephenson HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ CIN",
@@ -24442,6 +24645,13 @@
     "selection": "Elly De La Cruz H o0.5",
     "american": -220.0,
     "no_vig_prob": 0.650337
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Elly De La Cruz H o1.5",
+    "american": 205.0,
+    "no_vig_prob": 0.327869
   },
   {
     "matchup": "STL @ CIN",
@@ -24652,6 +24862,13 @@
     "selection": "Sal Stewart H o0.5",
     "american": -238.0,
     "no_vig_prob": 0.664597
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Sal Stewart H o1.5",
+    "american": 210.0,
+    "no_vig_prob": 0.322581
   },
   {
     "matchup": "STL @ CIN",
@@ -25328,9 +25545,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Everson Pereira TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.364652
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Everson Pereira TB u0.5",
     "american": 110.0,
     "no_vig_prob": 0.441754
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Everson Pereira TB u1.5",
+    "american": -208.0,
+    "no_vig_prob": 0.635348
   },
   {
     "matchup": "STL @ CIN",
@@ -25440,6 +25671,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Ke'Bryan Hayes TB o1.5",
+    "american": 245.0,
+    "no_vig_prob": 0.289855
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Ke'Bryan Hayes TB u0.5",
     "american": -110.0,
     "no_vig_prob": 0.486393
@@ -25468,6 +25706,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Matt McLain TB o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.357143
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Matt McLain TB u0.5",
     "american": 115.0,
     "no_vig_prob": 0.427592
@@ -25482,9 +25727,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Michael Toglia TB o1.5",
+    "american": 174.0,
+    "no_vig_prob": 0.342797
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Michael Toglia TB u0.5",
     "american": 105.0,
     "no_vig_prob": 0.452215
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Michael Toglia TB u1.5",
+    "american": -233.0,
+    "no_vig_prob": 0.657203
   },
   {
     "matchup": "STL @ CIN",
@@ -25510,6 +25769,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Noelvi Marte TB o1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.350877
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Noelvi Marte TB u0.5",
     "american": 115.0,
     "no_vig_prob": 0.432466
@@ -25520,6 +25786,13 @@
     "selection": "Pedro Pages TB o0.5",
     "american": -140.0,
     "no_vig_prob": 0.532468
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Pedro Pages TB o1.5",
+    "american": 175.0,
+    "no_vig_prob": 0.363636
   },
   {
     "matchup": "STL @ CIN",
@@ -25576,6 +25849,20 @@
     "selection": "CIN F5 +0.5",
     "american": -125.0,
     "no_vig_prob": 0.54048
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "f5_rl",
+    "selection": "CIN F5 -0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436681
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "f5_rl",
+    "selection": "STL F5 +0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.563319
   },
   {
     "matchup": "STL @ CIN",
