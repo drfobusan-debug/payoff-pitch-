@@ -1151,7 +1151,6 @@ class PitcherRegression:
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
         m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
-        m *= self.velocity_k_multiplier()
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
@@ -1163,6 +1162,15 @@ class PitcherRegression:
         recent start sat against his own window. The second is the point -- one
         start measures velocity at r=.93 while measuring nothing else about him,
         so it is the only same-week form read the engine can honestly take.
+
+        Applied to the blended strikeout rate in the pipeline, not folded into
+        ``k_multiplier``: that one is reported only, and multiplying there would
+        show the velocity read twice while pricing it once. As a rate forecast it
+        earns that place -- weekly walk-forward over 3,086 starts, wRMSE 0.09749
+        on the blended rate alone against 0.09634 with this term, and the dose
+        search keeps ~0.8 of it where it kept none of stuff -- but replayed
+        through the simulator on graded slates it prices slightly worse, so
+        ``vfa_k`` ships at 0. Both studies are in ``scripts/``.
 
         Returns 1.0 unless ``vfa_k`` is set, and for a reliever always: this was
         fitted on starts.
