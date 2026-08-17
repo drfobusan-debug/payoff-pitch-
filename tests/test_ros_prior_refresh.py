@@ -199,6 +199,24 @@ def test_an_unrelated_download_never_becomes_the_batter_prior(tmp_path, caplog) 
     assert "using the Marcel" in caplog.text
 
 
+def test_a_download_that_merely_contains_the_letters_is_not_the_export(tmp_path) -> None:
+    """``atc`` lives inside match, batch, dispatch, watchlist and Statcast."""
+    proj = tmp_path / "Downloads"
+    wanted = _export(proj, "atc_ros_2026-08-17.csv", hr=40)
+    later = time.time() + 60
+    for name in (
+        "Match_History_2026-08-18.csv",
+        "batch_invoice_aug.csv",
+        "dispatch_log.csv",
+        "watchlist.csv",
+        "Patch_notes.csv",
+        "Statcast_leaderboard.csv",
+    ):
+        decoy = _export(proj, name, hr=0)
+        os.utime(decoy, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == wanted
+
+
 def test_a_rounded_bench_line_is_left_to_the_marcel(tmp_path) -> None:
     """Two projected PA rounded to integers is a .000 hitter, not a projection."""
     path = tmp_path / "ros_hitters.csv"
