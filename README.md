@@ -757,10 +757,11 @@ rounds its counting stats to integers turns a two-PA bench line into a .000
 hitter.
 
 **Name the files by system** (`atc_ros.csv`, `batx_ros.csv`): the folder is
-resolved by matching `MLBE_PROJECTION_SOURCE` against the file name, not by
-taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR` at a download folder
-full of unrelated CSVs is safe. A named system that isn't there logs a warning
-and prices off the Marcel rather than guessing.
+resolved by finding `MLBE_PROJECTION_SOURCE` as a *word* in the file name — set
+off by punctuation, so `Statcast_leaderboard.csv` and `Match_History.csv` are not
+`atc` — rather than by taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR`
+at a download folder full of unrelated CSVs is safe. A named system that isn't
+there logs a warning and prices off the Marcel rather than guessing.
 
 ## Credentials
 

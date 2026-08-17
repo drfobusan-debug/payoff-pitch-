@@ -26,6 +26,7 @@ appears rather than on the weekly clock, since it is refreshed by hand.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date as Date
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -43,12 +44,24 @@ SEASONS = 3
 MIN_EXPORT_PA = 25.0
 
 
+def _names_the_source(name: str, source: str) -> bool:
+    """Whether ``name`` is an export of ``source``, by word rather than by letters.
+
+    A substring test reads ``atc`` out of m*atc*h, disp*atc*h, w*atc*hlist and
+    St*atc*ast_leaderboard, any of which can sit in a download folder and is
+    newer than this morning's projection about half the time. The file name has
+    to say the system, not merely contain its letters.
+    """
+    words = re.split(r"[^a-z0-9]+", name.lower())
+    return source.lower() in words
+
+
 def newest_export(folder: Path | None, source: str = "") -> Path | None:
     """The projection CSV in ``folder`` to price off, if any.
 
-    ``source`` names the preferred system and is matched against the file name,
-    so a folder holding every system's export resolves to one file rather than to
-    whichever download finished last. The match is required rather than
+    ``source`` names the preferred system and has to appear as a word in the file
+    name, so a folder holding every system's export resolves to one file rather
+    than to whichever download finished last. The match is required rather than
     preferred, because this folder is often the browser's download folder: with
     no source named, "the newest CSV here" is a bank statement away from becoming
     the batter prior. Naming a system that is not present is a warning and the
@@ -64,7 +77,7 @@ def newest_export(folder: Path | None, source: str = "") -> Path | None:
         return None
     if not source:
         return max(files, key=lambda f: f.stat().st_mtime)
-    wanted = [f for f in files if source.lower() in f.name.lower()]
+    wanted = [f for f in files if _names_the_source(f.name, source)]
     if not wanted:
         log.warning(
             "no projection export naming %r in %s (%d CSVs there); using the Marcel",
