@@ -32,13 +32,17 @@ dev = ["pytest>=7.4", "ruff>=0.1", "mypy>=1.7"]
 mlb-engine = "mlb_engine.cli:main"
 cfb-engine = "cfb_engine.cli:main"
 nfl-engine = "nfl_engine.cli:main"
+lineshop = "lineshop.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["mlb_engine*", "cfb_engine*", "nfl_engine*"]
+include = ["mlb_engine*", "cfb_engine*", "nfl_engine*", "lineshop*"]
+
+[tool.setuptools.package-data]
+lineshop = ["data/*.json"]
 
 [tool.ruff]
 line-length = 100
