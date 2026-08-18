@@ -2171,6 +2171,21 @@ class Pipeline:
                 rec.pass_gate = "doubles_price_ceiling"
             if dbl_reason:
                 rec.reasons = [dbl_reason, *rec.reasons]
+        # Hits-allowed price ceiling, same placement and for the same reason: a
+        # plus-money over on this market is a long start and bad contact sold as
+        # one event, and it is the price rather than the line that separates the
+        # buys that held from the buys that did not.
+        if market == "pitcher_h" and rec.tier != Tier.PASS and not under:
+            keep, hits_reason = price_ceiling_allows(
+                rec.market_american,
+                self.cfg.pitcher_hits_max_buy_odds,
+                "pitcher-hits-price-ceiling",
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "pitcher_hits_price_ceiling"
+            if hits_reason:
+                rec.reasons = [hits_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.

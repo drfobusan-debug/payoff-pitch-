@@ -195,6 +195,23 @@ _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "f5_total": 0.0,
 }
 
+# Edge ceiling per market, overriding the global ``EVThresholds.max_edge``. The
+# ceiling is the one screen that refuses the picks the model likes *most*, so it
+# is only defensible where its own refused rows lost. On strikeouts they won:
+# 57 graded refusals went 56.1% against a 53.8% breakeven (+7.9%), and the
+# profit is at the far end -- the band from 8 to 20 points is flat (+1.3%, n=28)
+# while 25 to 35 points went 64.3% (n=14). A partial relaxation therefore buys
+# nothing; 0.30 admits the 45 rows that made +11.1% and still refuses the dozen
+# past it, where the model is disagreeing with the market by more than a third
+# of a probability and is usually reading a start it has no sample for.
+#
+# Outs are the control and deliberately absent: the same screen's refusals there
+# went 35.0% against a 49.1% breakeven (-32.0%, n=40), i.e. it is removing real
+# losers, so it keeps the global 0.08.
+_MAX_EDGE_BY_MARKET: dict[str, float] = {
+    "pitcher_k": 0.30,
+}
+
 
 @dataclass(frozen=True)
 class EVThresholds:
@@ -255,7 +272,10 @@ class EVThresholds:
             strong_edge_gap=_env_float(
                 f"MLBE_EDGE_STRONG_GAP_{suffix}", self.strong_edge_gap
             ),
-            max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
+            max_edge=_env_float(
+                f"MLBE_MAX_EDGE_{suffix}",
+                _MAX_EDGE_BY_MARKET.get(market, self.max_edge),
+            ),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
             max_buy_odds=_env_float(
                 f"MLBE_MAX_BUY_ODDS_{suffix}",
@@ -632,6 +652,30 @@ class Config:
     # removed. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
     doubles_max_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_DOUBLES_MAX_BUY_ODDS", 300.0)
+    )
+
+    # Hits allowed, same instrument as doubles and the same reason: the buys are
+    # drawn from a tail the market prices better than the model does. Over 60
+    # graded o-buys the split is by price, not by pitcher -- shorter than even
+    # money they went 52.9% for -0.5% ROI (n=35), at even money or longer 26.7%
+    # for -40.7% (n=25). No buy sat exactly on -100, so the ceiling states the
+    # rule rather than fitting the boundary.
+    #
+    # What sits on the far side of it is not really a contact bet. A plus-money
+    # over is almost always 5.5, which needs six hits, which needs both bad
+    # contact *and* a start long enough to allow it -- and the sim treats those
+    # as independent. The night that prompted this had McClanahan pulled after
+    # 10 outs and Mathews after 12, against 15.4 and 16.3 projected: at that
+    # length the over cannot win however the contact goes, so the model is
+    # selling a joint event at the price of one of its halves.
+    #
+    # Cautions as with doubles: 25 refused buys is a thin basis, and the halves
+    # disagree in size though not in sign (-9.6 units then -0.6). Refusals grade
+    # as shadow bets under ``pitcher_hits_price_ceiling`` and the screen runs
+    # last in ``_mk`` so it is judged only on buys nothing else had removed.
+    # ``MLBE_PITCHER_HITS_MAX_BUY_ODDS=100000`` disables it.
+    pitcher_hits_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_HITS_MAX_BUY_ODDS", -100.0)
     )
 
     # Player-prop markets that get an under recommendation as well as an over.
