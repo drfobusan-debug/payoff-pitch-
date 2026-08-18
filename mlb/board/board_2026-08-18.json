@@ -2102,9 +2102,23 @@
   {
     "matchup": "ATH @ KC",
     "market": "batter_tb",
+    "selection": "Michael Massey TB o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_tb",
     "selection": "Michael Massey TB o1.5",
     "american": 146.0,
     "no_vig_prob": 0.392003
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_tb",
+    "selection": "Michael Massey TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
   },
   {
     "matchup": "ATH @ KC",
@@ -4937,9 +4951,23 @@
   {
     "matchup": "ATL @ MIN",
     "market": "pitcher_outs",
+    "selection": "Zebby Matthews Outs o16.5",
+    "american": -105.0,
+    "no_vig_prob": 0.475394
+  },
+  {
+    "matchup": "ATL @ MIN",
+    "market": "pitcher_outs",
     "selection": "Zebby Matthews Outs u15.5",
     "american": -130.0,
     "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "ATL @ MIN",
+    "market": "pitcher_outs",
+    "selection": "Zebby Matthews Outs u16.5",
+    "american": -130.0,
+    "no_vig_prob": 0.524606
   },
   {
     "matchup": "AZ @ BOS",
@@ -19917,9 +19945,23 @@
   {
     "matchup": "MIA @ PHI",
     "market": "f5_total",
+    "selection": "F5 Over 4.0",
+    "american": -127.0,
+    "no_vig_prob": 0.532999
+  },
+  {
+    "matchup": "MIA @ PHI",
+    "market": "f5_total",
     "selection": "F5 Over 4.5",
     "american": -103.0,
     "no_vig_prob": 0.482044
+  },
+  {
+    "matchup": "MIA @ PHI",
+    "market": "f5_total",
+    "selection": "F5 Under 4.0",
+    "american": 104.0,
+    "no_vig_prob": 0.467001
   },
   {
     "matchup": "MIA @ PHI",
@@ -23543,9 +23585,23 @@
   {
     "matchup": "SD @ NYM",
     "market": "batter_hrr",
+    "selection": "Marcus Semien H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_hrr",
     "selection": "Marcus Semien H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.411688
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_hrr",
+    "selection": "Marcus Semien H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
   },
   {
     "matchup": "SD @ NYM",
@@ -27431,6 +27487,13 @@
     "selection": "Cole Young TB u0.5",
     "american": 138.0,
     "no_vig_prob": 0.394787
+  },
+  {
+    "matchup": "SEA @ MIL",
+    "market": "batter_tb",
+    "selection": "Cole Young TB u1.5",
+    "american": -238.0,
+    "no_vig_prob": 0.661878
   },
   {
     "matchup": "SEA @ MIL",
@@ -33147,6 +33210,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "pitcher_outs",
+    "selection": "Kyle Leahy Outs o15.0",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
     "selection": "Kyle Leahy Outs o15.5",
     "american": 130.0,
     "no_vig_prob": 0.411128
@@ -33157,6 +33227,13 @@
     "selection": "Kyle Leahy Outs u14.5",
     "american": 150.0,
     "no_vig_prob": 0.371257
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Kyle Leahy Outs u15.0",
+    "american": -120.0,
+    "no_vig_prob": 0.5
   },
   {
     "matchup": "STL @ CIN",
