@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features import stuff
 from mlb_engine.features.xtb import NON_AB_EVENTS, TB_VALUE, LeagueXTB
 
 
@@ -929,6 +930,25 @@ MIN_SPLIT_BBE = 40
 XK_CSW_COEF = 0.34
 XK_SWSTR_COEF = 0.71
 XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
+
+# Third term on the same line: the pitch-shape grade (``features.stuff``), the
+# one strikeout signal here that is not a result. Fitted the same way
+# (``scripts.stuff_study``) -- on starts before 2026-06-15, scored on the 1,230
+# that came a clear week later -- the prior's own error falls from wRMSE 0.10280
+# to 0.10105, and the blended prediction the engine actually prices from 0.10141
+# to 0.10097. The fitted slope is +0.58 and every dose from 0.25 to 0.90 beats
+# leaving it out (0.10115 / 0.10105 / 0.10097 / 0.10100), so this sits in the
+# middle of a flat curve rather than on a peak.
+#
+# It survives beside the results terms because it counts different events: CSW%
+# is what hitters did, the grade scores the pitch itself. Refitting all three
+# together drops the CSW/SwStr slopes from 0.43/0.56 to 0.33/0.30 -- the grade
+# absorbs part of what they were standing in for rather than stacking on them.
+#
+# What it does *not* do is rescue the thinnest windows, which was the reason to
+# expect it: under 60 trailing PA (78 starts) it made the prediction worse
+# (0.11072 -> 0.11236). The gain lives between 60 and 180 PA.
+XK_SHAPE_COEF = 0.6
 MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
 # Walk (plate-discipline) baselines: Zone%, chase (O-Swing%), first-pitch strike%.
@@ -1033,6 +1053,9 @@ class PitcherRegression:
     # contact read to take from it rather than from barrel rate (0 = off).
     fb_allowed_recent: float = float("nan")
     hr_flyball: float = 0.0
+    # Pitch-shape grade: the usage-weighted whiff rate his shapes earn above the
+    # league's same pitch types. 0.0 means no opinion (thin or unmeasurable).
+    shape_plus: float = 0.0
     # Optional FanGraphs pitch-modeling metrics (None if no subscription data).
     stuff_plus: float | None = None
     location_plus: float | None = None
@@ -1062,7 +1085,12 @@ class PitcherRegression:
         scale. It moves less than the raw rate it regularises, which is what a
         prior is for.
         """
-        xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
+        xk = (
+            XK_INTERCEPT
+            + XK_CSW_COEF * self.csw
+            + XK_SWSTR_COEF * self.swstr
+            + XK_SHAPE_COEF * _clip(self.shape_plus, -stuff.GRADE_CLIP, stuff.GRADE_CLIP)
+        )
         return _clip(xk, 0.08, 0.42)
 
     def expected_bb_pct(self) -> float:
@@ -1500,6 +1528,7 @@ def build_pitcher_regression(
             ivb = float(four_seam.mean() * 12.0)
 
     vfa, vfa_dev = _four_seam_velocity(pdf)
+    grade = stuff.shape_plus(pdf)
 
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
@@ -1594,6 +1623,7 @@ def build_pitcher_regression(
         vfa_k=vfa_k,
         fb_allowed_recent=_recent_flyball_rate(batted),
         hr_flyball=hr_flyball,
+        shape_plus=grade,
         extension=ext,
         release_var=rel_var,
         spin=spin,
