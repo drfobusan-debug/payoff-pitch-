@@ -43,6 +43,9 @@ include = ["mlb_engine*", "cfb_engine*", "nfl_engine*", "lineshop*"]
 
 [tool.setuptools.package-data]
 lineshop = ["data/*.json"]
+# The fitted maps the engine prices off: the calibration curve and the pitch-shape
+# models. A wheel without them silently falls back to "no opinion".
+mlb_engine = ["data/*.json"]
 
 [tool.ruff]
 line-length = 100
