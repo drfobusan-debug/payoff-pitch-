@@ -739,6 +739,14 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     save_picks(path, merged)
     games = len({p.matchup for p in merged})
     print(f"Captured {len(slate)} TeamRankings picks over {games} games for {wanted} -> {path}")
+    if args.date is None and wanted < Date.today().isoformat():
+        # The free grid publishes a slate only once it has been played, so the
+        # newest date on the page being older than today is what a rejected
+        # login looks like from here: picks captured, benchmark useless.
+        print(
+            f"Note: {wanted} is not today. Signed out, the grid only publishes slates "
+            "already played -- check TEAMRANKINGS_EMAIL/TEAMRANKINGS_PASSWORD."
+        )
     _state_push(cfg, f"teamrankings {wanted}: {len(merged)} picks, {games} games")
     return 0
 
