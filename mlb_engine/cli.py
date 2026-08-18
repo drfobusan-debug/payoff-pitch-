@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import random
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
@@ -47,7 +49,12 @@ from mlb_engine.audit.probation import (
     screen_probation,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
-from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
+from mlb_engine.calibration import (
+    FEATURE_BASIS,
+    FEATURE_BASIS_SINCE,
+    Calibrator,
+    IsotonicMap,
+)
 from mlb_engine.config import Config, default_ros_prior_path, load_config
 from mlb_engine.data import ros_prior
 from mlb_engine.data.batx import annotate as annotate_batx
@@ -222,9 +229,7 @@ def _generate_report(
     history: list[LedgerEntry] | None = None,
 ) -> tuple[Path, Path, Path | None]:
     """Build the audit report (md + html + pdf) and optionally email it."""
-    data = build_report_data(
-        entries, period_label=period_label, subtitle=subtitle, history=history
-    )
+    data = build_report_data(entries, period_label=period_label, subtitle=subtitle, history=history)
     md = render_markdown_report(data)
     html_body = render_html_report(data)
     md_path = cfg.output_dir / f"audit_report_{slug}.md"
@@ -335,8 +340,7 @@ def cmd_propicks(args: argparse.Namespace) -> int:
     stamped = {p.date for p in picks if p.date}
     if stamped and stamped != {slate_date}:
         print(
-            f"VSiN is publishing {', '.join(sorted(stamped))}, not {slate_date}; "
-            "nothing captured."
+            f"VSiN is publishing {', '.join(sorted(stamped))}, not {slate_date}; nothing captured."
         )
         return 1
     _state_pull(cfg)
@@ -398,9 +402,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     deps = PipelineDeps(
         stats=MLBStatsClient(),
         statcast=StatcastRepository(cfg.cache_dir),
-        weather=WeatherProvider(
-            cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
-        ),
+        weather=WeatherProvider(cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl),
         vsin=VSINClient(cfg.creds),
         oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
@@ -449,9 +451,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
     if not vsin_csv:
-        _write_quotes_template(
-            recs, cfg.output_dir / f"vsin_template_{slate_date.isoformat()}.csv"
-        )
+        _write_quotes_template(recs, cfg.output_dir / f"vsin_template_{slate_date.isoformat()}.csv")
 
     strong = sum(1 for r in recs if r.tier == Tier.STRONG)
     mod = sum(1 for r in recs if r.tier == Tier.MODERATE)
@@ -462,18 +462,14 @@ def cmd_run(args: argparse.Namespace) -> int:
         # Write the card (md/html/pdf) for the record, but do NOT email it here:
         # the slate preview below owns email delivery so a single message carries
         # the Morningstar article + audio + Excel bet sheet (mirrors the audit).
-        _generate_card(
-            recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx)
-        )
+        _generate_card(recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx))
         attachments: list[tuple[str, bytes]] = []
         if Path(xlsx).exists():
             attachments.append((Path(xlsx).name, Path(xlsx).read_bytes()))
         if args.email:
             radar_pdf = _build_radar_pdf(pipe, slate_date, cfg)
             if radar_pdf is not None:
-                attachments.append(
-                    (f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf)
-                )
+                attachments.append((f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf))
         generate_daily_preview(
             previews,
             slate_date,
@@ -528,9 +524,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         return 1
     recs = load_json(pred_path)
     workbook = cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx"
-    _generate_card(
-        recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook
-    )
+    _generate_card(recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook)
     return 0
 
 
@@ -808,9 +802,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # credit) so pitcher collapse/volatility can be measured. No effect on grading.
     final_pks = [pk for pk, res in results.items() if res is not None and res.final]
     try:
-        collapse_lines = capture_slate(final_pks, audit_date.isoformat(), cfg.cache_dir, cfg.audit_dir)
+        collapse_lines = capture_slate(
+            final_pks, audit_date.isoformat(), cfg.cache_dir, cfg.audit_dir
+        )
         if collapse_lines:
-            print(f"Captured {len(collapse_lines)} pitcher-inning rows -> {cfg.audit_dir / 'collapse_ledger.csv'}")
+            print(
+                f"Captured {len(collapse_lines)} pitcher-inning rows -> {cfg.audit_dir / 'collapse_ledger.csv'}"
+            )
     except Exception as exc:  # noqa: BLE001 -- capture must never break the audit
         logging.warning("collapse capture failed: %s", exc)
 
@@ -833,9 +831,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # beside ours, on their own rows, in the same `update_ledger` call: a second
     # write for the same date would be treated as a re-audit and drop them.
     outside = _outside_entries(cfg, audit_date, recs, results)
-    all_entries = update_ledger(
-        cfg.audit_dir / "ledger.csv", entries + outside, audit_date
-    )
+    all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries + outside, audit_date)
     # The ledger keeps both sides of every prop so the fade stays graded, and
     # the outside model's picks beside ours; a measurement of the engine takes
     # one row per wager of ours (see `one_side_per_prop`, `engine_rows`).
@@ -1086,6 +1082,99 @@ def cmd_ros_prior(args: argparse.Namespace) -> int:
     return 0
 
 
+# Brier a stale market's map may cost before it is retired. Set at half the
+# smallest gain the surviving markets showed, so a market is dropped on measured
+# harm rather than on an interval too wide to say anything.
+_HARM_TOLERANCE = 0.005
+_GAIN_DRAWS = 2000
+
+
+def _gain_interval(
+    pairs: list[tuple[float, int, str]], m: IsotonicMap, draws: int = _GAIN_DRAWS
+) -> tuple[float, float]:
+    """Bootstrap interval for the map's Brier gain, resampling whole games."""
+    games: dict[str, list[tuple[float, int]]] = {}
+    for prob, won, game in pairs:
+        games.setdefault(game, []).append((prob, won))
+    keys = list(games)
+    rng = random.Random(11)
+    gains: list[float] = []
+    for _ in range(draws):
+        sample = [row for k in rng.choices(keys, k=len(keys)) for row in games[k]]
+        raw = sum((p - w) ** 2 for p, w in sample) / len(sample)
+        mapped = sum((m.apply(p) - w) ** 2 for p, w in sample) / len(sample)
+        gains.append(raw - mapped)
+    gains.sort()
+    return gains[int(0.025 * draws)], gains[int(0.975 * draws)]
+
+
+def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows: int) -> int:
+    """Keep the markets of a stale map that still measure as an improvement.
+
+    A basis bump retires every market at once, on the argument that changed
+    features make the old map correct a bias that has moved. That is right for
+    the markets the change touched and wrong for the rest, and which is which is
+    measurable: score the map against the raw probability it would replace, on
+    graded rows priced *after* it was fitted, and keep the markets it does not
+    demonstrably harm. Survivors are re-stamped onto the current basis;
+    everything else stays retired until a refit.
+
+    The test is deliberately asymmetric. Retiring a market is not a neutral
+    default -- it prices that market off a probability measured to be worse on
+    average -- so a positive point estimate with a wide interval is kept, while
+    a market is dropped once the interval shows real harm. Whole games are
+    resampled rather than rows: a slate's props share a lineup, a park and a
+    starter, so rows are nowhere near independent and resampling them would
+    shrink every interval by roughly the square root of the props per game.
+    """
+    if not path.exists():
+        print(f"No calibration map at {path}")
+        return 1
+    data = json.loads(path.read_text())
+    rows = [e for e in graded if e.date >= since and e.raw_prob is not None]
+    if not rows:
+        print(f"No graded rows priced on or after {since} in the ledger")
+        return 1
+
+    by_market: dict[str, list[tuple[float, int, str]]] = {}
+    for e in rows:
+        if e.raw_prob is None:
+            continue
+        by_market.setdefault(e.market, []).append(
+            (e.raw_prob, 1 if e.result == WIN else 0, f"{e.date} {e.matchup}")
+        )
+
+    print(f"{len(rows)} graded row(s) priced on or after {since}")
+    print(f"{'market':<14}{'n':>7}{'raw':>10}{'mapped':>10}{'gain':>9}{'95% CI':>22}  keep")
+    keep: dict[str, IsotonicMap] = {}
+    for market, entry in sorted(data.get("markets", {}).items()):
+        pairs = by_market.get(market, [])
+        m = IsotonicMap([float(v) for v in entry["x"]], [float(v) for v in entry["y"]])
+        if len(pairs) < min_rows:
+            print(f"{market:<14}{len(pairs):>7}{'-':>10}{'-':>10}{'-':>9}{'-':>22}  no (thin)")
+            continue
+        b_raw = sum((p - w) ** 2 for p, w, _ in pairs) / len(pairs)
+        b_map = sum((m.apply(p) - w) ** 2 for p, w, _ in pairs) / len(pairs)
+        gain = b_raw - b_map
+        lo, hi = _gain_interval(pairs, m)
+        take = gain > 0 and lo > -_HARM_TOLERANCE
+        if take:
+            keep[market] = m
+        print(
+            f"{market:<14}{len(pairs):>7}{b_raw:>10.4f}{b_map:>10.4f}"
+            f"{gain:>+9.4f}   {lo:>+8.4f}..{hi:<+8.4f} {'yes' if take else 'no'}"
+        )
+
+    if not keep:
+        print("\nNo market still improves on its raw probability; the map stays retired")
+        return 1
+    cal = Calibrator(maps=dict(keep), default=Calibrator.identity().default)
+    cal.to_json(path)
+    print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
+    print(f"Wrote {path}; the pooled fallback and every other market stay retired")
+    return 0
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
@@ -1105,6 +1194,8 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
         for e in engine_rows(load_ledger(ledger_path))
         if e.result in (WIN, LOSS) and e.raw_prob is not None
     ]
+    if args.revalidate:
+        return _revalidate_map(cfg.calibration_file, graded, args.revalidate, args.min_holdout)
     since = FEATURE_BASIS_SINCE.isoformat()
     entries = [e for e in graded if e.date >= since]
     if not entries and graded:
@@ -1239,9 +1330,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     cl.set_defaults(func=cmd_close)
 
-    op = sub.add_parser(
-        "opta", help="capture VSIN's Opta prop projections as an outside benchmark"
-    )
+    op = sub.add_parser("opta", help="capture VSIN's Opta prop projections as an outside benchmark")
     op.add_argument(
         "--day",
         type=int,
@@ -1272,7 +1361,6 @@ def main(argv: list[str] | None = None) -> int:
     )
     tr.set_defaults(func=cmd_teamrankings)
 
-
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
     a.add_argument(
@@ -1285,17 +1373,13 @@ def main(argv: list[str] | None = None) -> int:
     a.set_defaults(func=cmd_audit)
 
     rp = sub.add_parser("report", help="render a daily/weekly audit report from the ledger")
-    rp.add_argument(
-        "--period", choices=("daily", "weekly"), default="daily", help="report window"
-    )
+    rp.add_argument("--period", choices=("daily", "weekly"), default="daily", help="report window")
     rp.add_argument("--date", help="end date YYYY-MM-DD (default: yesterday)")
     rp.add_argument("--email", action="store_true", help="email the report")
     rp.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     rp.set_defaults(func=cmd_report)
 
-    tf = sub.add_parser(
-        "team-form", help="build the season team-form (luck-gap) baseline cache"
-    )
+    tf = sub.add_parser("team-form", help="build the season team-form (luck-gap) baseline cache")
     tf.add_argument("--date", help="as-of date YYYY-MM-DD (default: today)")
     tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
     tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
@@ -1314,6 +1398,12 @@ def main(argv: list[str] | None = None) -> int:
         "--min-holdout", type=int, default=200, help="holdout rows a market needs to be adopted"
     )
     cal.add_argument("--force", action="store_true", help="write even if no market improves")
+    cal.add_argument(
+        "--revalidate",
+        metavar="DATE",
+        help="instead of refitting: re-stamp the markets of the existing map that still "
+        "beat the uncalibrated probability on graded rows priced on or after DATE",
+    )
     cal.set_defaults(func=cmd_calibrate)
 
     st = sub.add_parser(
@@ -1321,7 +1411,9 @@ def main(argv: list[str] | None = None) -> int:
         help="sync the audit's memory (predictions, closes, ledger) with the engine-state branch",
     )
     st.add_argument("direction", choices=("pull", "push"))
-    st.add_argument("--branch", default=STATE_BRANCH, help=f"state branch (default: {STATE_BRANCH})")
+    st.add_argument(
+        "--branch", default=STATE_BRANCH, help=f"state branch (default: {STATE_BRANCH})"
+    )
     st.add_argument(
         "--date",
         help="on a pull, restore the pregame predictions for this slate date "
