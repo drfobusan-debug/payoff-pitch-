@@ -105,9 +105,17 @@ class RollingWindows:
     # start sat against his own window. Velocity is the only read that survives
     # a single start (r=.93 between consecutive starts, against .20 for K/PA and
     # .15 for CSW%), and adding both terms improved held-out strikeout deviance
-    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
-    # until the ledger has graded it, which is the order every market here has
-    # been reopened in; 1.0 charges the fitted slopes in full.
+    # from 1.05839 to 1.05661 over 2,082 starts.
+    #
+    # Still 0.0, on evidence rather than on caution. As a *rate* forecast it
+    # clears the bar that retired the stuff multiplier: weekly walk-forward
+    # wRMSE 0.09634 against 0.09749 for the blended rate alone, and the dose
+    # search keeps ~0.8 of it where it kept none of stuff
+    # (scripts/vfa_k_price_study.py). Priced through the simulator on nine
+    # graded slates it does not: strikeout Brier .20197 -> .20166 but log loss
+    # .60567 -> .62127, and 16 of 18 other markets get worse, because scaling a
+    # starter's K rate rescales every other outcome he allows
+    # (scripts/vfa_k_backtest.py). 1.0 charges the fitted slopes in full.
     vfa_k_weight: float = field(
         default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
     )
@@ -151,6 +159,11 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 # with money. ``MLBE_NO_BUY_<MARKET>=0`` re-enables one, and
 # ``MLBE_NO_BUY_<MARKET>=1`` disqualifies any other.
 #
+# Doubles were the one batter market carrying that comparison and no longer
+# are: on the current basis their buys are 14.3% for -15.5% ROI (n=70), which
+# is what the passed rows do anyway. They are screened by price rather than
+# listed here -- see ``doubles_max_buy_odds``.
+#
 # Home runs, singles and RBI lost money too and are deliberately *not* here:
 # each already has a price band or probability floor fitted to its own graded
 # rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
@@ -188,6 +201,23 @@ _MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
 _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "game_total": 0.0,
     "f5_total": 0.0,
+}
+
+# Edge ceiling per market, overriding the global ``EVThresholds.max_edge``. The
+# ceiling is the one screen that refuses the picks the model likes *most*, so it
+# is only defensible where its own refused rows lost. On strikeouts they won:
+# 57 graded refusals went 56.1% against a 53.8% breakeven (+7.9%), and the
+# profit is at the far end -- the band from 8 to 20 points is flat (+1.3%, n=28)
+# while 25 to 35 points went 64.3% (n=14). A partial relaxation therefore buys
+# nothing; 0.30 admits the 45 rows that made +11.1% and still refuses the dozen
+# past it, where the model is disagreeing with the market by more than a third
+# of a probability and is usually reading a start it has no sample for.
+#
+# Outs are the control and deliberately absent: the same screen's refusals there
+# went 35.0% against a 49.1% breakeven (-32.0%, n=40), i.e. it is removing real
+# losers, so it keeps the global 0.08.
+_MAX_EDGE_BY_MARKET: dict[str, float] = {
+    "pitcher_k": 0.30,
 }
 
 
@@ -250,7 +280,10 @@ class EVThresholds:
             strong_edge_gap=_env_float(
                 f"MLBE_EDGE_STRONG_GAP_{suffix}", self.strong_edge_gap
             ),
-            max_edge=_env_float(f"MLBE_MAX_EDGE_{suffix}", self.max_edge),
+            max_edge=_env_float(
+                f"MLBE_MAX_EDGE_{suffix}",
+                _MAX_EDGE_BY_MARKET.get(market, self.max_edge),
+            ),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
             max_buy_odds=_env_float(
                 f"MLBE_MAX_BUY_ODDS_{suffix}",
@@ -411,7 +444,9 @@ class Config:
     # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
     # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
     # them), which is the direction that matters -- compressing the lineup is
-    # this engine's known failure, not over-separating it.
+    # this engine's known failure, not over-separating it. Against ATC rather
+    # than the Marcel it is the *narrower* of the two, which is a different
+    # question and is measured at ``projection_source`` below.
     #
     # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
     # 07-22 cutoff, priors built from seasons the holdout cannot reach:
@@ -436,6 +471,24 @@ class Config:
     # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
     # to batx to anchor on the Statcast batted-ball system instead; an empty
     # value takes whichever export was written most recently.
+    #
+    # Measured on one pair of 08-18 exports, 419 hitters in both, 328 of them
+    # with 150+ PA that season (``scripts.projection_compare``):
+    #
+    #     sd of projected wOBA   atc .0285   batx .0262
+    #     realized on projected  atc  .860   batx  .904   (slope, PA-weighted)
+    #     log loss / PA          atc 1.4521  batx 1.4439  (league 1.4629)
+    #
+    # So the two files rank hitters nearly identically (r .87 on HR rate, .96 on
+    # K, 2.7 HR per 600 PA apart on average) and THE BAT X is the tighter, better
+    # calibrated of the pair here -- the opposite of the widening the note above
+    # measured against the Marcel, so neither file is reliably "the wide one".
+    #
+    # It is not enough to move the default. Both exports were pulled after the
+    # season they are scored against, so every number is in sample and a system
+    # fitted nearer to contemporaneous batted balls is flattered most, which is
+    # exactly what THE BAT X is. A dated export graded on the games that came
+    # after it is the version that would settle this.
     projection_source: str = field(
         default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
@@ -602,6 +655,66 @@ class Config:
     # model claim: it stops us paying a premium for a read we do not have.
     singles_min_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Doubles are refused at +300 and longer, which on the card so far is 69 of
+    # 70 graded buys: this is a shut market with a door left open, and it is
+    # written as a price rather than as a disqualification because a double is
+    # only ever a long price when the model is the one claiming the edge.
+    #
+    # The market is calibrated everywhere except where it bets. Over 6,656
+    # graded o0.5 rows the model reads .140 -> 14.0% actual, .165 -> 14.8%,
+    # .188 -> 17.7%, and then .258 -> 15.0% (n=346). The confident tail is the
+    # only broken band and the buy list is drawn entirely from it, which is why
+    # the selection is worth nothing: bought rows hit 14.3% (n=70) against
+    # passed rows' 14.2% (n=6,586).
+    #
+    # It is a price ceiling and not a band because no band survives contact
+    # with the rows: +300-350 went 0 for 5, +350-400 -14.4%, +400-450 -25.4%,
+    # +450-500 -16.1%, +500 and longer +18.1% on three winners in nineteen.
+    # Fitting the cutoff to that shape would be fitting it to one hitter's good
+    # night. What the data does support is the general fact the home-run band
+    # already encodes -- at 20% and longer a fraction of a point of probability
+    # error is a fifth of the stake -- plus the measured absence of any edge at
+    # all on this market.
+    #
+    # Three cautions, kept here because the next person to read the cell will
+    # find them: 70 buys is under the 100 ``probation`` needs to condemn a
+    # market, the halves of that window disagree (+16% then -61%), and the
+    # engine's own doubles multiplier was already stripped to sprint speed in
+    # #129 for the same reason. The evidence for shutting the buys is the
+    # 6,656-row calibration table, not the 70. Refusals keep grading as shadow
+    # bets, so ``screen_probation`` will say to lift this if it starts deleting
+    # winners -- which is also why the screen runs last in ``_mk`` rather than
+    # beside the other price bands: run early it inherits the rows the contact
+    # floor would have refused anyway, and is then judged on bets it never
+    # removed. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
+    doubles_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_DOUBLES_MAX_BUY_ODDS", 300.0)
+    )
+
+    # Hits allowed, same instrument as doubles and the same reason: the buys are
+    # drawn from a tail the market prices better than the model does. Over 60
+    # graded o-buys the split is by price, not by pitcher -- shorter than even
+    # money they went 52.9% for -0.5% ROI (n=35), at even money or longer 26.7%
+    # for -40.7% (n=25). No buy sat exactly on -100, so the ceiling states the
+    # rule rather than fitting the boundary.
+    #
+    # What sits on the far side of it is not really a contact bet. A plus-money
+    # over is almost always 5.5, which needs six hits, which needs both bad
+    # contact *and* a start long enough to allow it -- and the sim treats those
+    # as independent. The night that prompted this had McClanahan pulled after
+    # 10 outs and Mathews after 12, against 15.4 and 16.3 projected: at that
+    # length the over cannot win however the contact goes, so the model is
+    # selling a joint event at the price of one of its halves.
+    #
+    # Cautions as with doubles: 25 refused buys is a thin basis, and the halves
+    # disagree in size though not in sign (-9.6 units then -0.6). Refusals grade
+    # as shadow bets under ``pitcher_hits_price_ceiling`` and the screen runs
+    # last in ``_mk`` so it is judged only on buys nothing else had removed.
+    # ``MLBE_PITCHER_HITS_MAX_BUY_ODDS=100000`` disables it.
+    pitcher_hits_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_HITS_MAX_BUY_ODDS", -100.0)
     )
 
     # Player-prop markets that get an under recommendation as well as an over.
@@ -805,6 +918,26 @@ class Config:
     # vs the hitter's per-class whiff/xwOBA) to the bullpen matchups, read
     # separately for the bridge and leverage subsets of the corps.
     pen_arsenal: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_ARSENAL", True))
+
+    # Price the first five off the game simulator's own first five innings rather
+    # than the per-slot Markov chain. The two disagree in one direction, and the
+    # chain is the hotter one: replaying 10 slates (133 games graded against the
+    # first five actually scored) the chain projected 5.99 runs and the simulator
+    # 5.70 against 4.85, and on the two F5 total lines the simulator's Brier is
+    # 0.0053 better (95% 0.0011..0.0094, paired; scripts/f5_model_study.py). The
+    # F5 side is unchanged (0.2744 vs 0.2747), so this is a run-level fix, not a
+    # side one. Graded cards say the same in miniature, the calibrator having
+    # already absorbed most of it: 5.05 projected against 4.80 scored.
+    #
+    # It moves nothing outside f5_ml/f5_total/f5_rl -- props and the full-game
+    # markets are built from the simulator result, and the F5 arrays this reads
+    # were already being computed and discarded. Proven by repricing a cached
+    # slate both ways: 135 F5 rows moved, 0 of the other 6,570.
+    #
+    # Off until it has graded slates of its own: the F5 edge floors and the F5
+    # calibration map were both fitted against the chain's probabilities, so
+    # turning this on needs those refit on cards priced with it.
+    f5_from_sim: bool = field(default_factory=lambda: _env_bool("MLBE_F5_FROM_SIM", False))
 
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are

@@ -334,6 +334,17 @@ class Config:
         default_factory=lambda: _env_float("CFBE_RETURNING_MAX_PTS", 3.0)
     )
 
+    # Roster continuity -- production kept *plus* production bought in the portal
+    # (see data/roster.py) -- on the ratings-only margin, the fallback used when a
+    # game has no consensus spread. Fitted at +6.5 pts per unit of gap, walk-forward
+    # RMSE 18.231 -> 17.901 in all four held-out seasons, with the 8-point cap chosen
+    # by sweep. It never contests a market number: against the closing spread the
+    # same term goes 51.11% ATS, so it is deliberately confined to the fallback.
+    roster_pts: float = field(default_factory=lambda: _env_float("CFBE_ROSTER_PTS", 6.5))
+    roster_max_pts: float = field(
+        default_factory=lambda: _env_float("CFBE_ROSTER_MAX_PTS", 8.0)
+    )
+
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
     # ``model.home_field_pts`` for listed home teams). Off by default: the guide
     # buckets teams by their own three-year home ATS record, so it grades 64% /
@@ -358,9 +369,15 @@ class Config:
     # :mod:`cfb_engine.data.injuries` records the measurement.
     injury_qb_pts: float = field(default_factory=lambda: _env_float("CFBE_INJURY_QB_PTS", 0.0))
 
-    # Use the VSiN guide's 0-19 roster-stability score to shrink a preseason
-    # rating gap toward a pick'em when both teams have volatile rosters.
-    vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", True))
+    # Use the VSiN guide's 0-19 roster-stability score to shrink a rating gap
+    # toward a pick'em when both teams have volatile rosters. Measured off by
+    # default: continuity does move how much of a gap the data supports, but by
+    # ~0.05 of it (low-continuity b 0.916 vs high 0.968 over 6,818 games), against
+    # a haircut up to 0.25 wide, and walk-forward every dose of it is worse than
+    # none (rating MAE 12.549 flat -> 12.654 at the shipped floor). The effect is
+    # also smallest in September, which is the window the term was written for.
+    # ``scripts/cfb/stability_study.py`` reproduces it.
+    vsin_stability: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_STABILITY", False))
 
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). Default 0 (off).

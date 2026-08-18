@@ -203,15 +203,39 @@ Two consequences:
 rather than three weeks against three weeks. SIERA and CSW% keep their halves;
 three weeks is the shortest sample that measures them at all.
 
-**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` the starter's K
-multiplier carries both terms — his level against a 94.7 league four-seamer at
-3.7%/mph, and his last start against his own window at 7.8%/mph, each clipped.
-Scored as the engine uses it (2,082 starts / 48,120 PA, binomial deviance per PA
-on strikeouts, six-week K%/CSW%/xwOBAcon controlled, 60/40 chronological
-holdout): 1.05839 for the priced levels alone, 1.05732 adding the level,
-**1.05661** adding both. It ships quoted-but-unpriced because no graded ledger
-row has ever depended on it, which is the order every market here has been
-reopened in.
+**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` both terms — his
+level against a 94.7 league four-seamer at 3.7%/mph, and his last start against
+his own window at 7.8%/mph, each clipped — multiply the *blended* strikeout rate.
+Scored per PA (2,082 starts / 48,120 PA, binomial deviance, six-week
+K%/CSW%/xwOBAcon controlled, 60/40 chronological holdout): 1.05839 for the priced
+levels alone, 1.05732 adding the level, **1.05661** adding both.
+
+It stays off because the two ways of scoring it disagree, which is worth stating
+precisely.
+
+As a *rate forecast* it passes the bar that retired the stuff multiplier — weekly
+walk-forward wRMSE on the next start's K rate, 3,086 starts, no multiplier
+0.09749, stuff 0.10400, **velocity 0.09634** — and a dose search keeps ~0.8 of it
+where it kept none of stuff, because CSW% and SwStr% are already inside xK% and
+`release_speed` is in no other term. The blended rate is flat across last-start
+velocity, which is the finding:
+
+| last start vs his window | starts | blended | with velocity | realised |
+| --- | --- | --- | --- | --- |
+| below −1.0 mph | 75 | .2348 | .2168 | .2177 |
+| −1.0 to −0.4 | 388 | .2293 | .2194 | .2146 |
+| −0.4 to +0.4 | 1,339 | .2276 | .2280 | .2227 |
+| +0.4 to +1.0 | 447 | .2272 | .2381 | .2370 |
+| above +1.0 mph | 79 | .2319 | .2502 | .2688 |
+
+As a *price*, replaying nine graded slates at both weights (54,269 graded picks,
+identical inputs), it does not: strikeout Brier .20197 → .20166 but log loss
+.60567 → **.62127**, and 16 of the 18 other markets get worse. Scaling a
+starter's K rate rescales every other outcome he allows, so a mph of fastball
+moves his walks, his hits and the game total too — the same coupling that made
+the stuff multiplier a worse price than no multiplier at all. A better rate
+forecast is not yet a better price, so the columns quote it and no bet pays for
+it.
 
 It buys nothing on contact and is not applied there: on hits per *non-strikeout*
 PA the level is t = −2.15 for .0002 of deviance and the last-start deviation
@@ -225,6 +249,8 @@ python -m scripts.velocity_read_study reliability   # what one start measures
 python -m scripts.velocity_read_study window        # 1 to 8 weeks, and decays
 python -m scripts.velocity_read_study k             # the deviance bar, strikeouts
 python -m scripts.velocity_read_study hits          # the same on contact
+python -m scripts.vfa_k_price_study                 # the bar that retired stuff
+python -m scripts.vfa_k_backtest                    # graded slates, both weights
 ```
 
 ### Bullpen windows
@@ -559,13 +585,26 @@ tell you what each one cost or saved.
 | --- | --- | --- | --- |
 | `MLBE_MAX_BUY_ODDS[_<MARKET>]` | off globally, `+109` on `game_rl` and `f5_rl` | the best price is longer than the ceiling | plus-money buys 28.5% for -15.5% ROI (n=933) vs 50.7% at minus money; run lines +11.8% at -110 or shorter vs -21.2% at plus money |
 | `MLBE_NO_BUY_<MARKET>` | on for `batter_h`, `batter_hrr`, `batter_r`, `batter_tb` | ever, on that market's over | every batter market except doubles lost, -169 units in total |
+| `MLBE_DOUBLES_MAX_BUY_ODDS` | `+300` | the doubles over is priced shorter than the ceiling | the model is calibrated on 6,656 graded `batter_2b` rows except in the band it bets: .258 predicted, 15.0% actual (n=346). Bought rows hit 14.3% (n=70), passed rows 14.2% (n=6,586) |
 | `MLBE_CLV_GATE` | on, `MLBE_CLV_DRIFT` `0.02` | the side's no-vig price has drifted `>= 0.02` against us since the slate opened | buys that beat the close returned +5.4%, buys that lost it -11.8% |
 
 The ceiling is per market rather than global because a long price means opposite
 things on a two-sided market and a one-sided prop — a home run is honestly +500 —
 and the markets that are not run lines already have an aimed screen: moneylines
 `away_ml_refuse_odds`, home runs their `+400..+700` band, singles a price floor,
-RBI a probability floor. Disqualification is likewise for the batter markets with
+RBI a probability floor, doubles a price ceiling.
+
+The doubles ceiling is close to a disqualification — it refuses 69 of the 70 buys
+graded so far, because a 20% event is never priced short — and is written as a
+price so the rare short number stays buyable. It is a ceiling rather than a band
+because no band survived the rows (`+300-350` 0-for-5, `+350-400` -14.4%,
+`+400-450` -25.4%, `+450-500` -16.1%, `+500` and longer +18.1% on three winners
+in nineteen); the evidence is the calibration table over all 6,656 rows, not the
+70 buys, which are under the sample `probation` needs and disagree across the
+halves of their window. It runs after every other screen, including the contact
+floor, so a row another gate had already refused keeps that gate's name: a screen
+the ledger judges on its own refusals cannot be credited with somebody else's.
+Disqualification is likewise for the batter markets with
 no surviving profitable pocket to screen for; home runs, singles and RBI lost
 money too but keep their own fitted screens, which are sharper instruments. Both
 apply to overs only: the fade is a different bet with its own screens.
@@ -757,10 +796,11 @@ rounds its counting stats to integers turns a two-PA bench line into a .000
 hitter.
 
 **Name the files by system** (`atc_ros.csv`, `batx_ros.csv`): the folder is
-resolved by matching `MLBE_PROJECTION_SOURCE` against the file name, not by
-taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR` at a download folder
-full of unrelated CSVs is safe. A named system that isn't there logs a warning
-and prices off the Marcel rather than guessing.
+resolved by finding `MLBE_PROJECTION_SOURCE` as a *word* in the file name — set
+off by punctuation, so `Statcast_leaderboard.csv` and `Match_History.csv` are not
+`atc` — rather than by taking the newest CSV, so pointing `MLBE_PROJECTIONS_DIR`
+at a download folder full of unrelated CSVs is safe. A named system that isn't
+there logs a warning and prices off the Marcel rather than guessing.
 
 ## Credentials
 

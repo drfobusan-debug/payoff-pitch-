@@ -22,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features import stuff
 from mlb_engine.features.xtb import NON_AB_EVENTS, TB_VALUE, LeagueXTB
 
 
@@ -818,6 +819,32 @@ FB_ALLOWED_FLOOR = 0.420
 FB_HARD_GAIN = 20.0
 FB_HARD_CAP = 0.10
 
+# Barrel rate allowed, on the home-run line. Measured against the next start's
+# HR/PA over 2,426 starts / 56,072 PA, every feature read from pitches thrown
+# strictly before the start, K% controlled, chronological 60/40 holdout:
+#
+#     term(s)                    coef      t   holdout dev
+#     none (K only)                --     --      0.28406
+#     barrel allowed            +2.12  +2.93      0.28391
+#     hard-hit allowed          +0.86  +0.72      0.28404
+#     GB% allowed               -1.33  -4.07      0.28362
+#     FB% allowed               +1.61  +4.75      0.28374
+#     GB + FB + barrel          +1.13  +1.46      0.28391
+#
+# Two things follow. The slope belongs where it is -- the fitted coefficient is
+# +2.12 against the 2.0 that ships, and a weekly walk-forward over the whole
+# multiplier is flat from 1.5 to 4.0 (0.28619/0.28617/0.28616) and worse at 0
+# (0.28635), so the term is not the #195 case of something better deleted.
+#
+# But it is the *weakest* of the three batted-ball reads, not the strongest: it
+# forward-predicts the next start's HR/PA at r=0.059 against fly-ball rate's
+# 0.090 and ground-ball rate's -0.079, and marginal to the pair added after it
+# (#87) it keeps only half its coefficient at t +1.46. Widening the clip was
+# measured too and changes nothing (0.28617 at every bound tried), so the 4.8%
+# of starts that reach it are reaching a bound the data does not mind.
+# See ``scripts/starter_hr_terms.py``.
+BARREL_ALLOWED_HR_SLOPE = 2.0
+
 # Induced vertical break of the four-seamer, in inches: the usable proxy for a
 # flat vertical approach angle. A high-ride fastball at the top of the zone is
 # the pitch a high-launch hitter turns into a souvenir; a heavy sinking one is
@@ -887,6 +914,25 @@ MIN_SPLIT_BBE = 40
 XK_CSW_COEF = 0.34
 XK_SWSTR_COEF = 0.71
 XK_INTERCEPT = BL_K_PCT - XK_CSW_COEF * BL_CSW - XK_SWSTR_COEF * BL_SWSTR
+
+# Third term on the same line: the pitch-shape grade (``features.stuff``), the
+# one strikeout signal here that is not a result. Fitted the same way
+# (``scripts.stuff_study``) -- on starts before 2026-06-15, scored on the 1,230
+# that came a clear week later -- the prior's own error falls from wRMSE 0.10280
+# to 0.10105, and the blended prediction the engine actually prices from 0.10141
+# to 0.10097. The fitted slope is +0.58 and every dose from 0.25 to 0.90 beats
+# leaving it out (0.10115 / 0.10105 / 0.10097 / 0.10100), so this sits in the
+# middle of a flat curve rather than on a peak.
+#
+# It survives beside the results terms because it counts different events: CSW%
+# is what hitters did, the grade scores the pitch itself. Refitting all three
+# together drops the CSW/SwStr slopes from 0.43/0.56 to 0.33/0.30 -- the grade
+# absorbs part of what they were standing in for rather than stacking on them.
+#
+# What it does *not* do is rescue the thinnest windows, which was the reason to
+# expect it: under 60 trailing PA (78 starts) it made the prediction worse
+# (0.11072 -> 0.11236). The gain lives between 60 and 180 PA.
+XK_SHAPE_COEF = 0.6
 MIN_SPLIT_PA = 25  # min PA vs a handedness before trusting a pitcher's platoon K%
 
 # Walk (plate-discipline) baselines: Zone%, chase (O-Swing%), first-pitch strike%.
@@ -987,6 +1033,9 @@ class PitcherRegression:
     vfa: float = float("nan")
     vfa_dev: float = float("nan")
     vfa_k: float = 0.0
+    # Pitch-shape grade: the usage-weighted whiff rate his shapes earn above the
+    # league's same pitch types. 0.0 means no opinion (thin or unmeasurable).
+    shape_plus: float = 0.0
     # Optional FanGraphs pitch-modeling metrics (None if no subscription data).
     stuff_plus: float | None = None
     location_plus: float | None = None
@@ -1016,7 +1065,12 @@ class PitcherRegression:
         scale. It moves less than the raw rate it regularises, which is what a
         prior is for.
         """
-        xk = XK_INTERCEPT + XK_CSW_COEF * self.csw + XK_SWSTR_COEF * self.swstr
+        xk = (
+            XK_INTERCEPT
+            + XK_CSW_COEF * self.csw
+            + XK_SWSTR_COEF * self.swstr
+            + XK_SHAPE_COEF * _clip(self.shape_plus, -stuff.GRADE_CLIP, stuff.GRADE_CLIP)
+        )
         return _clip(xk, 0.08, 0.42)
 
     def expected_bb_pct(self) -> float:
@@ -1125,7 +1179,6 @@ class PitcherRegression:
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
         m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
-        m *= self.velocity_k_multiplier()
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
@@ -1137,6 +1190,15 @@ class PitcherRegression:
         recent start sat against his own window. The second is the point -- one
         start measures velocity at r=.93 while measuring nothing else about him,
         so it is the only same-week form read the engine can honestly take.
+
+        Applied to the blended strikeout rate in the pipeline, not folded into
+        ``k_multiplier``: that one is reported only, and multiplying there would
+        show the velocity read twice while pricing it once. As a rate forecast it
+        earns that place -- weekly walk-forward over 3,086 starts, wRMSE 0.09749
+        on the blended rate alone against 0.09634 with this term, and the dose
+        search keeps ~0.8 of it where it kept none of stuff -- but replayed
+        through the simulator on graded slates it prices slightly worse, so
+        ``vfa_k`` ships at 0. Both studies are in ``scripts/``.
 
         Returns 1.0 unless ``vfa_k`` is set, and for a reliever always: this was
         fitted on starts.
@@ -1254,9 +1316,23 @@ class PitcherRegression:
         )
         gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
-        # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
+        # Barrel rate allowed, read *unshrunk* because that is the scale
+        # ``BARREL_ALLOWED_HR_SLOPE`` was fitted on. ``starter_contact_shrink``
+        # ships at 0, so this is what production already prices; the point is
+        # that enabling the knob must not silently gut the term. A 42-day window
+        # is a median 95 batted balls against a 595-BBE prior, so shrinkage keeps
+        # 14% of the excess -- at a raw-fitted slope the whole term would shrink
+        # to about 1% of a home-run rate, an arithmetic accident rather than a
+        # decision. The shrunk-scale equivalent is a slope near 9, which is not
+        # what this constant is.
+        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
         hr = base * hard * (
-            1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
+            1.0
+            + _clip(
+                (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
+                -0.10,
+                0.18,
+            )
         )
         # Where he lets the ball go, which is a separate skill from how hard it
         # is hit and the one the stack was missing entirely.
@@ -1401,6 +1477,7 @@ def build_pitcher_regression(
             ivb = float(four_seam.mean() * 12.0)
 
     vfa, vfa_dev = _four_seam_velocity(pdf)
+    grade = stuff.shape_plus(pdf)
 
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
@@ -1493,6 +1570,7 @@ def build_pitcher_regression(
         vfa=vfa,
         vfa_dev=vfa_dev,
         vfa_k=vfa_k,
+        shape_plus=grade,
         extension=ext,
         release_var=rel_var,
         spin=spin,

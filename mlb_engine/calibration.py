@@ -129,14 +129,30 @@ log = logging.getLogger(__name__)
 # multiplier against 0.09763 without, and a dose search picks 0.0. Every
 # starter's and every bullpen's K rate moves, in both directions, on both halves
 # of every game -- the largest single change to the strikeout path this month.
-FEATURE_BASIS = "no-stuff-multiplier-2026.08"
+#
+# Reading the shape of a starter's pitches (``features.stuff``) retires it once
+# more, and this one nearly had to be caught after the fact: the term entered
+# ``expected_k_pct`` without touching this string, so a map refit on the previous
+# engine would have matched the basis and been applied to prices it was never
+# fitted on, with no stale-basis warning. Measured on a live 4,023-market board,
+# the grade moves 3,906 of those rows and 43 tiers, and the direction is not a
+# level a map could absorb -- it separates arms:
+#
+#   xK% shift        mean -0.79pp   range -3.00..+1.32pp   (2 of 18 arms on the clip)
+#   pitcher_k prob   mean |change| 2.70pp   p90 6.25pp   max 10.88pp
+#   batter markets   mean |change| 1.57pp   game totals 2.07pp
+#
+# so half the slate's starters get a *lower* strikeout rate and half a higher one,
+# which is the opposite of the uniform over-statement a calibration curve exists
+# to shrink.
+FEATURE_BASIS = "pitch-shape-grade-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
 # 08-16 was priced before any of this landed, and none of the intermediate bases
 # ever graded a row, so the resets discard nothing: they land together on the
-# 08-17 refit.
-FEATURE_BASIS_SINCE = Date(2026, 8, 17)
+# first refit from here.
+FEATURE_BASIS_SINCE = Date(2026, 8, 18)
 
 
 def _min_samples() -> int:
@@ -231,8 +247,18 @@ class Calibrator:
 
     maps: dict[str, IsotonicMap]
     default: IsotonicMap
+    retired: frozenset[str] = frozenset()
 
     def apply(self, market: str, prob: float) -> float:
+        """Calibrate, unless this market's own map has been retired.
+
+        A retired market takes no correction at all, not the pooled one: the
+        pooled curve is the average of every market's over-confidence, so
+        falling back to it would apply a correction fitted mostly elsewhere to
+        the one market known to have changed.
+        """
+        if market in self.retired:
+            return prob
         m = self.maps.get(market, self.default)
         return m.apply(prob)
 
@@ -251,32 +277,64 @@ class Calibrator:
         }
         return cls(maps=maps, default=IsotonicMap.fit(allp))
 
-    def to_json(self, path: Path) -> None:
+    def to_json(self, path: Path, bases: dict[str, str] | None = None) -> None:
+        """Write the map, stamping each market with the basis it is valid for.
+
+        ``bases`` writes a market's stamp as some older basis, which is how a
+        caller records that a curve predates the current features. No shipping
+        path does that: ``calibrate --revalidate`` stamps every survivor
+        current, having just measured it as still helping.
+        """
+        carried = bases or {}
         payload = {
             "basis": FEATURE_BASIS,
-            "markets": {mk: {"x": m.x, "y": m.y} for mk, m in self.maps.items()},
+            "markets": {
+                mk: {"x": m.x, "y": m.y, "basis": carried.get(mk, FEATURE_BASIS)}
+                for mk, m in self.maps.items()
+            },
             "default": {"x": self.default.x, "y": self.default.y},
         }
         path.write_text(json.dumps(payload, indent=2))
 
     @classmethod
     def from_json(cls, path: Path) -> Calibrator:
+        """Load the map, dropping only the markets whose basis is stale.
+
+        A basis bump used to retire the whole file, which is stricter than the
+        evidence: measured out of time on 32,716 graded rows priced after the
+        bumps of 2026-08, the retired map still beat the uncalibrated
+        probability on most markets (``pitcher_h`` +.0177 Brier, ``pitcher_k``
+        +.0165) and lost on three (``batter_tb`` -.0237, whose total-bases
+        weighting had genuinely changed). Retiring per market keeps the
+        first group priced and drops the second, and a map with no stamp at all
+        is still refused everywhere -- an unlabelled fit could have been trained
+        on anything.
+        """
         data = json.loads(path.read_text())
-        basis = data.get("basis")
-        if basis != FEATURE_BASIS:
+        pooled = data.get("basis")
+        maps: dict[str, IsotonicMap] = {}
+        stale: list[str] = []
+        for mk, v in data.get("markets", {}).items():
+            if v.get("basis", pooled) == FEATURE_BASIS:
+                maps[mk] = IsotonicMap(v["x"], v["y"])
+            else:
+                stale.append(mk)
+        if stale:
             log.warning(
-                "calibration map %s was fit on feature basis %r, engine is on %r: "
-                "ignoring it until it is refit on graded slates from this engine",
+                "calibration map %s: %d of %d markets were fit on a feature basis "
+                "other than %r and are ignored until refit (%s)",
                 path.name,
-                basis,
+                len(stale),
+                len(stale) + len(maps),
                 FEATURE_BASIS,
+                ", ".join(sorted(stale)),
             )
-            return cls.identity()
-        maps = {
-            mk: IsotonicMap(v["x"], v["y"]) for mk, v in data.get("markets", {}).items()
-        }
-        d = data.get("default", {"x": [], "y": []})
-        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]))
+        d = (
+            data.get("default", {"x": [], "y": []})
+            if pooled == FEATURE_BASIS
+            else {"x": [], "y": []}
+        )
+        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]), retired=frozenset(stale))
 
     @classmethod
     def identity(cls) -> Calibrator:

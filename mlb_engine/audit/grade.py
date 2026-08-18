@@ -28,6 +28,32 @@ def picked_margin(rec: Recommendation, res: GameResult) -> float | None:
     return None
 
 
+def batter_actual(res: GameResult, player_id: int, stat: str) -> int:
+    """The hitter's realized count in a prop's stat, derived where it is a sum.
+
+    ``HRR`` and ``TB`` are not box-score columns; every other stat is.
+    """
+    b = res.batter(player_id)
+    if stat == "HRR":
+        return b.get("H", 0) + b.get("R", 0) + b.get("RBI", 0)
+    if stat == "TB":
+        return b.get("1B", 0) + 2 * b.get("2B", 0) + 3 * b.get("3B", 0) + 4 * b.get("HR", 0)
+    return b.get(stat, 0)
+
+
+def grade_batter(
+    res: GameResult, player_id: int, stat: str, line: float, side: str = "over"
+) -> str | None:
+    """Grade one batter prop, or ``None`` for a hitter who never batted.
+
+    Shared by the ledger and by anything else grading a batter line off a box
+    score, so a scratch is voided in one place rather than in each caller.
+    """
+    if not res.batted(player_id):
+        return None
+    return _ou(batter_actual(res, player_id, stat), line, side)
+
+
 def _ou(actual: float, line: float, side: str) -> str:
     if actual == line:
         return PUSH
@@ -83,17 +109,7 @@ def grade(rec: Recommendation, res: GameResult) -> str | None:
         return WIN if adj > 0 else LOSS
 
     if cat == "batter" and rec.player_id and rec.stat and rec.line is not None:
-        if not res.batted(rec.player_id):
-            return None
-        if rec.stat == "HRR":
-            b = res.batter(rec.player_id)
-            actual = b.get("H", 0) + b.get("R", 0) + b.get("RBI", 0)
-        elif rec.stat == "TB":
-            b = res.batter(rec.player_id)
-            actual = b.get("1B", 0) + 2 * b.get("2B", 0) + 3 * b.get("3B", 0) + 4 * b.get("HR", 0)
-        else:
-            actual = res.batter(rec.player_id).get(rec.stat, 0)
-        return _ou(actual, rec.line, rec.side or "over")
+        return grade_batter(res, rec.player_id, rec.stat, rec.line, rec.side or "over")
 
     if cat == "pitcher" and rec.player_id and rec.stat and rec.line is not None:
         if not res.pitched(rec.player_id):

@@ -137,6 +137,109 @@ A second full run within 30 min is free and price-stable: the Odds API responses
   up narrow, `Opta %` 40 wide). Values are written by header name and stay correct; check whether the
   list has been extended before reporting it as new.
 
+## Replaying a past slate off the odds cache (deterministic A/B for a pricing/gate change)
+When a change alters *pricing or tiering*, the in-process field-diff above does not apply and two
+live runs are not comparable. Replay one past slate instead: identical real prices, zero credits, and
+a **zero** noise floor (verified: `main` vs the branch with the new screen lifted differed on 0 of
+6705 rows, every field).
+1. Pick the slate by evidence, not by date: read `~/.mlb_engine/audit/predictions_<date>.json`
+   (`asdict`, all fields incl. `tier`/`pass_gate`/`market_american`) and count the rows the change
+   should move. Prop-rich slates are the ones run near first pitch; a run made ~18h out prices almost
+   no props at all (lineups unposted), so **today's early run is usually the wrong testbed**.
+2. `MLBE_ODDS_CACHE_TTL=99999999` makes the disk cache authoritative. Per-event prop responses are
+   keyed by event id and survive for days, but the **bulk game board (`{BASE}/odds`) is keyed on the
+   query alone**, so today's run has overwritten the one for the replay day and the run will resolve
+   0 events and price nothing. Rebuild it: scan `~/.mlb_engine/cache/oddsapi/*.json` for dicts whose
+   `commence_time` starts with the replay date, emit a list of their
+   `{id, sport_key, commence_time, home_team, away_team, bookmakers: []}`, and write it to
+   `sha256(json.dumps({"url": f"{BASE}/odds", "regions": "us", "oddsFormat": "american",
+   "markets": ",".join(_GAME_MARKETS)}, sort_keys=True))[:20] + ".json"`. Caveat to disclose:
+   game-market (h2h/spread/total) prices are then absent; **prop prices are the real captured ones**.
+   `run` uses `pregame_only=False`, so a finished slate still prices.
+3. Isolate state or the runs are not repeatable: `MLBE_DATA_DIR=/tmp/mlbe_replay` (symlink `cache`
+   contents, `projections`, `ros_hitters.csv`, `calibration_live.json`; copy `output/vsin_template_*`),
+   `MLBE_STATE_SYNC=0` so nothing is pushed to `engine-state`, and **re-copy the audit dir before
+   every variant** — `board_<date>.json` is written by each run and feeds the CLV/drift gate.
+4. Freeze the clock: patch `mlb_engine.pipeline.hours_to_first_pitch` to pass a fixed `now=` before
+   importing `cli.main`. Without this the variants are not comparable (see the section above).
+5. Run `main` from a `git worktree add /tmp/main_wt HEAD^` so the branch checkout is left alone.
+6. Run the variants and diff by `(matchup, market, selection, line, side)`. Always include a
+   **gate-lifted** variant (e.g. `MLBE_<X>_MAX_BUY_ODDS=100000`): its diff against `main` is the noise
+   floor and should be empty, which is also the proof the change is inert when disabled.
+7. Set the threshold to a value that *splits the real rows* (e.g. a ceiling of 500 when the slate has
+   buys at +485, +500 and +502) — that tests an exclusive bound on live data rather than in a unit
+   test.
+
+## First-five (F5) markets, and testing an opt-in model swap (`MLBE_F5_FROM_SIM`)
+- Structure is fixed at **9 F5 rows per game** (`pipeline.py`): 3 `f5_ml` (home/away/tie), 4
+  `f5_total` (4.5/5.5 x over/under), 2 `f5_rl` (+/-0.5). A slate of 15 games therefore has exactly
+  135 F5 rows — assert the per-game count, not just the total.
+- **F5 book quotes come from the per-event request** (`_F5_MARKETS` =
+  `h2h/spreads/totals_1st_5_innings`), *not* the bulk board. A board pulled early in the day very
+  often has **zero** F5 quotes, so every F5 row lands `Tier=Pass`, `Odds=n/a`, blank EV/Edge, and the
+  card shows no F5 pick. That is legitimate, not a bug — but it means a fresh live run may be unable
+  to prove any *priced* F5 behaviour. Reprice a **cached prop-rich past slate** (rebuild the bulk
+  board per the section above) to get priced F5 rows; a 2026-08-16 reprice gave 66 priced F5 rows
+  across 9 books, including F5 Strong buys, at 0 credits.
+- For an opt-in model-swap flag, prove the flag *actually switches implementations* before trusting
+  any diff: wrap both functions (e.g. `pipeline.f5_from_lineups` / `pipeline.f5_from_sim`) in the
+  runner and assert one is called once per game and the other **zero** times in each variant. A no-op
+  flag otherwise produces a clean-looking "no unintended rows moved" result.
+- Isolation diffs must join on `(matchup, market, selection, line)` and compare `model_prob`,
+  `raw_prob`, `bet_prob`, `ev`, `edge`, `tier`, `pass_gate`, `veto_gate`, `market_american`, `book`.
+  Expect the derived fields to move only where the market is priced: swapping the F5 model moved
+  `model_prob`/`raw_prob` on all 135 F5 rows but `bet_prob`/`ev`/`edge` on only the 66 priced ones.
+- Sanity band for F5 projected totals is roughly 3-8 runs, but **check the baseline model too before
+  calling an outlier a bug**: the highest-total park produced a mean F5 total of 10.2 with the flag
+  off and 9.5 with it on, i.e. the outlier is a property of the slate, not of the new model.
+- Excel: F5 rows live in the `First-5 (F5)` sheet (and `All`). The probability column is
+  **`Model %`** (there is no `Prob` column) and unpriced rows carry `Odds = "n/a"` with a
+  `no market price` note — parse defensively. Audit md/HTML/PDF label them `First-5 moneyline` /
+  `First-5 run line` / `First-5 total`, and only `audit --report` writes those files.
+
+## Where a `pass_gate` shows up (and where it does not)
+- Predictions JSON: yes, `rec.pass_gate` verbatim. This is the primary evidence.
+- Excel: there is **no** `pass_gate` column. The evidence is `Tier == "Pass"` plus the reason string
+  appended to `Notes` (e.g. `doubles-price-ceiling: PASS (+340 at or beyond +300)`); assert the price
+  inside the note equals that row's own `Book Odds`.
+- `ledger.csv` is **not** written by `run` — it stays byte-identical. Rows (and `pass_gate`) are
+  written by `mlb-engine audit --date <date>`, which grades `predictions_<date>.json` from the same
+  data dir. Run it in the scratch dir to prove the `screen_probation` dependency; `screen_probation`
+  itself needs a graded window and returns nothing for a single day, so assert on the ledger rows.
+- A new gate placed early will **re-attribute** rows that a later screen would also have refused
+  (`contact_floor`, `clv_drift` …). Expect the gate's row count to exceed the number of buys it
+  actually removed, and separate the two in the report.
+
+## Testing state publication / pull (`engine-state`) without touching production
+The `engine-state` branch is the production record — never push test predictions to it. Build a
+throwaway origin instead; the state code only ever talks to `origin` of the checkout it is run from
+(`state.repo_root()` = `git rev-parse --show-toplevel` of the **cwd**), so:
+1. `git init --bare /tmp/x/origin.git`; `git clone <repo> /tmp/x/boxA` then
+   `git -C /tmp/x/boxA remote set-url origin /tmp/x/origin.git`. Assert
+   `git remote get-url origin` before every push. A second clone (`boxB`) with the same fake origin
+   is a second machine; the state worktree path is `repo.parent/.<repo-name>-engine-state`, so
+   distinct clone names keep concurrent boxes from colliding.
+2. One scratch data dir per box: `MLBE_DATA_DIR=/tmp/x/dataA` (symlink `cache` entries,
+   `projections`, `fangraphs`, `batx`, `evanalytics`, `calibration_live.json`, `ros_hitters.csv`;
+   copy `output/vsin_template_*.csv`; copy the real `audit/*` non-prediction files if the run needs
+   boards/closes). Delete `ledger.csv`/`scorecard.csv` when you want to count a single date's rows.
+3. `mlb-engine state push|pull [--date]` drives sync explicitly — much cheaper than a full `run`.
+   `run` pushes (cli.py), `audit` pulls first and pushes after grading.
+4. Published path on the branch: `mlb/predictions/predictions_<date>.json.gz`. Inspect it by
+   `git clone --branch engine-state /tmp/x/origin.git`, then compare `state.card_lead_hours()`,
+   row counts and json equality against the local card; md5 the `.gz` to prove "unchanged".
+5. Real cards are the best fixtures: `~/.mlb_engine/audit/predictions_<date>.json` (the run's own
+   card) and `predictions_<date>.pregame.json` (the copy pulled from the branch) often have very
+   different lead hours, including a **negative** lead when the local file is the audit's
+   after-the-fact re-price. Copy them into a scratch data dir instead of generating new ones.
+6. To make a genuinely later pregame card of *today's* slate without waiting for first pitch: run
+   once live, then re-run off the cache (`MLBE_ODDS_CACHE_TTL` huge, 0 credits) with
+   `hours_to_first_pitch` frozen a couple of hours before first pitch. The lead hours differ, which
+   is what the publication rule keys on.
+7. Adversarial cases worth including: push an *earlier* card after the later one (must not change
+   the branch), push a card with `hours_to_first_pitch` stripped (untimed → must not change it), and
+   write an earlier card onto the branch directly and pull (a box must not regress to it).
+
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.

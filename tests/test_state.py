@@ -19,6 +19,8 @@ from mlb_engine.state import (
     STATE_BRANCH,
     auto_pull,
     auto_push,
+    card_lead_hours,
+    card_supersedes,
     merge_board_files,
     merge_closing_files,
     merge_dated_csv,
@@ -248,6 +250,128 @@ def test_a_pregame_slate_is_never_republished_by_the_audit(
     state = repo_a.parent / f".{repo_a.name}-engine-state"
     with gzip.open(state / "mlb" / "predictions" / "predictions_2026-08-04.json.gz", "rt") as f:
         assert json.load(f) == [{"selection": "DET"}]
+
+
+def _card(path: Path, selection: str, lead_hours: float | None) -> None:
+    """A prediction file as ``run`` writes it, timed by hours to first pitch."""
+    row: dict[str, object] = {"selection": selection}
+    if lead_hours is not None:
+        row["hours_to_first_pitch"] = lead_hours
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps([row]))
+
+
+def _published(repo: Path) -> list[dict[str, object]]:
+    state = repo.parent / f".{repo.name}-engine-state"
+    with gzip.open(state / "mlb" / "predictions" / "predictions_2026-08-04.json.gz", "rt") as f:
+        published: list[dict[str, object]] = json.load(f)
+    return published
+
+
+def test_the_card_priced_nearest_first_pitch_becomes_the_slate_s_record(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The 2026-08-17 loss: the day's record was the run that saw one game.
+
+    Publishing was write-once, so a 00:42Z card holding the single game with a
+    posted board stood as an 11-game slate's permanent record and the 14:48Z
+    card that priced 4,917 markets was never graded.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _card(card, "early", lead_hours=17.0)
+    push_state(data_a, "morning card", repo=repo_a, branch="engine-state")
+
+    _card(card, "near lock", lead_hours=2.3)
+    pushed = push_state(data_a, "lock card", repo=repo_a, branch="engine-state")
+
+    assert "predictions_2026-08-04.json.gz" in pushed.pushed
+    assert _published(repo_a) == [{"selection": "near lock", "hours_to_first_pitch": 2.3}]
+
+
+def test_a_card_priced_earlier_never_takes_over_from_a_later_one(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    repo_a, data_a, _repo_b, _data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _card(card, "near lock", lead_hours=2.3)
+    push_state(data_a, "lock card", repo=repo_a, branch="engine-state")
+
+    _card(card, "early", lead_hours=17.0)
+    push_state(data_a, "stale card", repo=repo_a, branch="engine-state")
+
+    assert _published(repo_a)[0]["selection"] == "near lock"
+
+
+def test_a_reprice_made_after_first_pitch_still_cannot_publish(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The audit re-prices the slate to grade it, hours after the games end.
+
+    Its rows carry a negative lead, which is what disqualifies it however much
+    closer to first pitch that makes it look.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    _card(data_a / "audit" / "predictions_2026-08-04.json", "card", lead_hours=2.3)
+    push_state(data_a, "card", repo=repo_a, branch="engine-state")
+
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+    _card(data_b / "audit" / "predictions_2026-08-04.json", "re-price", lead_hours=-11.4)
+    push_state(data_b, "audit", repo=repo_b, branch="engine-state")
+
+    assert _published(repo_a)[0]["selection"] == "card"
+
+
+def test_a_card_of_unknown_vintage_is_left_where_it_is(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """No row carries a start time: neither side can be shown to be later."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _card(card, "first", lead_hours=None)
+    push_state(data_a, "card", repo=repo_a, branch="engine-state")
+
+    _card(card, "second", lead_hours=None)
+    push_state(data_a, "second card", repo=repo_a, branch="engine-state")
+    assert _published(repo_a)[0]["selection"] == "first"
+
+    # A timed card cannot displace an untimed one either -- there is nothing to
+    # compare it against, and the published file is the one that sent the card.
+    _card(card, "timed", lead_hours=2.3)
+    push_state(data_a, "timed card", repo=repo_a, branch="engine-state")
+    assert _published(repo_a)[0]["selection"] == "first"
+
+
+def test_a_pull_refreshes_a_pregame_copy_the_branch_has_since_improved(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The audit box pulls twice a day; the second pull must see the later card."""
+    repo_a, data_a, repo_b, data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _card(card, "early", lead_hours=17.0)
+    push_state(data_a, "morning card", repo=repo_a, branch="engine-state")
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+
+    _card(card, "near lock", lead_hours=2.3)
+    push_state(data_a, "lock card", repo=repo_a, branch="engine-state")
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+
+    pregame = data_b / "audit" / f"predictions_2026-08-04{PREGAME_SUFFIX}"
+    assert json.loads(pregame.read_text())[0]["selection"] == "near lock"
+
+
+def test_the_audit_grades_its_own_later_card_over_an_earlier_pregame_copy(
+    tmp_path: Path,
+) -> None:
+    """Same machine, two cards: the pulled copy is not automatically the record."""
+    early = tmp_path / f"predictions_2026-08-04{PREGAME_SUFFIX}"
+    _card(early, "early", lead_hours=17.0)
+    late = tmp_path / "predictions_2026-08-04.json"
+    _card(late, "near lock", lead_hours=2.3)
+
+    assert card_lead_hours(late) == 2.3
+    assert card_supersedes(late, early)
+    assert not card_supersedes(early, late)
 
 
 def test_a_run_outside_a_checkout_is_not_a_failed_run(

@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date
 
 import numpy as np
+import pytest
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN, grade
 from mlb_engine.audit.scorecard import FIELDS, append_scorecard, build_scorecard
@@ -22,6 +23,7 @@ from mlb_engine.market.tiers import Tier, classify
 from mlb_engine.models.markov_f5 import (
     f5_from_lineups,
     f5_from_rates,
+    f5_from_sim,
     team_f5_distribution,
 )
 from mlb_engine.models.matchup import apply_multipliers, combine
@@ -99,6 +101,33 @@ def test_f5_tto_raises_scoring():
     assert tto > base
     r = f5_from_lineups([lg] * 9, [lg] * 9)
     assert abs(r.p_home_ml + r.p_away_ml + r.p_tie - 1.0) < 1e-6
+
+
+def test_f5_from_sim_reads_the_simulated_first_five():
+    rng = np.random.default_rng(7)
+    home = rng.poisson(2.6, 4000)
+    away = rng.poisson(2.2, 4000)
+    r = f5_from_sim(home, away)
+
+    assert abs(sum(r.home_dist) - 1.0) < 1e-9
+    assert abs(sum(r.total_dist) - 1.0) < 1e-9
+    assert abs(r.p_home_ml + r.p_away_ml + r.p_tie - 1.0) < 1e-6
+    # the distributions are the simulated runs, not a fitted shape
+    mean_home = sum(i * p for i, p in enumerate(r.home_dist))
+    assert abs(mean_home - home.mean()) < 1e-9
+    # the joint is the two marginals convolved, as it is for the chain, so the
+    # total and the sides track the draws to sampling error rather than exactly
+    assert abs(r.p_total_over(4.5) - ((home + away) > 4.5).mean()) < 0.02
+    assert abs(r.p_home_ml - (home > away).mean()) < 0.02
+    assert r.p_home_ml > r.p_away_ml  # the better offense is favored through 5
+    # the run line reads off the same margin
+    assert abs(r.p_home_cover(0.5) - r.p_home_ml) < 0.02
+
+
+def test_f5_from_sim_clips_absurd_innings_without_losing_mass():
+    r = f5_from_sim(np.array([0, 1, 40]), np.array([0, 0, 0]))
+    assert abs(sum(r.home_dist) - 1.0) < 1e-9
+    assert r.home_dist[20] == pytest.approx(1 / 3)  # capped, still counted
 
 
 # ---- weather (WAM park-config filter) ----
