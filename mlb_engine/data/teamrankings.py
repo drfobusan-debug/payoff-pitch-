@@ -307,10 +307,24 @@ class TeamRankingsClient:
         archive -- so, exactly as with Opta, a benchmark exists only if it is
         captured nightly.
         """
-        picks = parse_picks(self._get(PICKS_URL))
-        if date is not None:
-            picks = [p for p in picks if p.date == date]
-        log.info("TeamRankings %s: %d picks", date or "all", len(picks))
+        published = parse_picks(self._get(PICKS_URL))
+        if date is None:
+            log.info("TeamRankings all: %d picks", len(published))
+            return published
+        picks = [p for p in published if p.date == date]
+        if not picks and published:
+            # A grid that has not rolled over yet reads exactly like a broken
+            # scrape -- both log zero -- so name the slate it is actually
+            # showing. The other slate is deliberately not captured: their picks
+            # carry no timestamp, and a grid still showing yesterday is being
+            # read after those games started.
+            log.info(
+                "TeamRankings is showing %s, not %s: no benchmark for this slate "
+                "yet -- their grid rolls over once the day's lines are up",
+                ", ".join(sorted({p.date for p in published})), date,
+            )
+        else:
+            log.info("TeamRankings %s: %d picks", date, len(picks))
         return picks
 
     def fetch_ratings(self, date: str) -> list[TeamRating]:

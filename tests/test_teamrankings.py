@@ -580,3 +580,34 @@ def test_capturing_a_slate_already_played_says_so(monkeypatch, tmp_path, capsys)
     args = argparse.Namespace(date=stale)
     assert cli.cmd_teamrankings(args) == 0
     assert "TEAMRANKINGS_EMAIL" not in capsys.readouterr().out
+
+
+def test_a_grid_that_has_not_rolled_over_is_not_a_broken_scrape(caplog) -> None:
+    """Their grid keeps only the current slate, and it lags: a run that asks for
+    tonight while yesterday is still posted must say so, or "0 picks" reads as a
+    dead parse."""
+    import logging
+
+    from mlb_engine.data.teamrankings import TeamRankingsClient
+
+    client = TeamRankingsClient()
+    client._get = lambda url: ROW  # type: ignore[method-assign]
+    with caplog.at_level(logging.INFO):
+        assert client.fetch(date="2026-08-15") == []
+
+    text = caplog.text
+    assert "showing 2026-08-14" in text and "2026-08-15" in text
+
+
+def test_the_slate_on_the_grid_is_still_returned(caplog) -> None:
+    import logging
+
+    from mlb_engine.data.teamrankings import TeamRankingsClient
+
+    client = TeamRankingsClient()
+    client._get = lambda url: ROW  # type: ignore[method-assign]
+    with caplog.at_level(logging.INFO):
+        picks = client.fetch(date="2026-08-14")
+
+    assert len(picks) == 4
+    assert "showing" not in caplog.text
