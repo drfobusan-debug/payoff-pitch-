@@ -1,0 +1,72 @@
+[
+  {
+    "matchup": "AZ @ STL",
+    "market": "game_ml",
+    "selection": "AZ ML",
+    "american": 153.0,
+    "no_vig_prob": 0.427935
+  },
+  {
+    "matchup": "AZ @ STL",
+    "market": "game_ml",
+    "selection": "STL ML",
+    "american": -112.0,
+    "no_vig_prob": 0.572065
+  },
+  {
+    "matchup": "KC @ DET",
+    "market": "game_ml",
+    "selection": "DET ML",
+    "american": 131.0,
+    "no_vig_prob": 0.416259
+  },
+  {
+    "matchup": "KC @ DET",
+    "market": "game_ml",
+    "selection": "KC ML",
+    "american": -153.0,
+    "no_vig_prob": 0.583741
+  },
+  {
+    "matchup": "MIN @ CLE",
+    "market": "game_ml",
+    "selection": "CLE ML",
+    "american": -182.0,
+    "no_vig_prob": 0.579208
+  },
+  {
+    "matchup": "MIN @ CLE",
+    "market": "game_ml",
+    "selection": "MIN ML",
+    "american": 112.0,
+    "no_vig_prob": 0.420792
+  },
+  {
+    "matchup": "SD @ ATL",
+    "market": "game_ml",
+    "selection": "ATL ML",
+    "american": -119.0,
+    "no_vig_prob": 0.513995
+  },
+  {
+    "matchup": "SD @ ATL",
+    "market": "game_ml",
+    "selection": "SD ML",
+    "american": -106.0,
+    "no_vig_prob": 0.486005
+  },
+  {
+    "matchup": "TB @ TOR",
+    "market": "game_ml",
+    "selection": "TB ML",
+    "american": -128.0,
+    "no_vig_prob": 0.551365
+  },
+  {
+    "matchup": "TB @ TOR",
+    "market": "game_ml",
+    "selection": "TOR ML",
+    "american": 120.0,
+    "no_vig_prob": 0.448635
+  }
+]

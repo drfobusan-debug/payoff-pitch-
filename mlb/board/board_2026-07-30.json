@@ -1,0 +1,142 @@
+[
+  {
+    "matchup": "BOS @ ATH",
+    "market": "game_ml",
+    "selection": "ATH ML",
+    "american": 142.0,
+    "no_vig_prob": 0.406261
+  },
+  {
+    "matchup": "BOS @ ATH",
+    "market": "game_ml",
+    "selection": "BOS ML",
+    "american": -157.0,
+    "no_vig_prob": 0.593739
+  },
+  {
+    "matchup": "CHC @ STL",
+    "market": "game_ml",
+    "selection": "CHC ML",
+    "american": -165.0,
+    "no_vig_prob": 0.541726
+  },
+  {
+    "matchup": "CHC @ STL",
+    "market": "game_ml",
+    "selection": "STL ML",
+    "american": -112.0,
+    "no_vig_prob": 0.458274
+  },
+  {
+    "matchup": "KC @ MIN",
+    "market": "game_ml",
+    "selection": "KC ML",
+    "american": -153.0,
+    "no_vig_prob": 0.56307
+  },
+  {
+    "matchup": "KC @ MIN",
+    "market": "game_ml",
+    "selection": "MIN ML",
+    "american": 112.0,
+    "no_vig_prob": 0.43693
+  },
+  {
+    "matchup": "MIA @ NYM",
+    "market": "game_ml",
+    "selection": "MIA ML",
+    "american": 195.0,
+    "no_vig_prob": 0.403153
+  },
+  {
+    "matchup": "MIA @ NYM",
+    "market": "game_ml",
+    "selection": "NYM ML",
+    "american": -101.0,
+    "no_vig_prob": 0.596847
+  },
+  {
+    "matchup": "NYY @ CWS",
+    "market": "game_ml",
+    "selection": "CWS ML",
+    "american": 157.0,
+    "no_vig_prob": 0.426389
+  },
+  {
+    "matchup": "NYY @ CWS",
+    "market": "game_ml",
+    "selection": "NYY ML",
+    "american": -109.0,
+    "no_vig_prob": 0.573611
+  },
+  {
+    "matchup": "PIT @ CIN",
+    "market": "game_ml",
+    "selection": "CIN ML",
+    "american": 105.0,
+    "no_vig_prob": 0.457847
+  },
+  {
+    "matchup": "PIT @ CIN",
+    "market": "game_ml",
+    "selection": "PIT ML",
+    "american": -140.0,
+    "no_vig_prob": 0.542153
+  },
+  {
+    "matchup": "SEA @ LAD",
+    "market": "game_ml",
+    "selection": "LAD ML",
+    "american": -184.0,
+    "no_vig_prob": 0.625216
+  },
+  {
+    "matchup": "SEA @ LAD",
+    "market": "game_ml",
+    "selection": "SEA ML",
+    "american": 159.0,
+    "no_vig_prob": 0.374784
+  },
+  {
+    "matchup": "SF @ SD",
+    "market": "game_ml",
+    "selection": "SD ML",
+    "american": -106.0,
+    "no_vig_prob": 0.584723
+  },
+  {
+    "matchup": "SF @ SD",
+    "market": "game_ml",
+    "selection": "SF ML",
+    "american": 173.0,
+    "no_vig_prob": 0.415277
+  },
+  {
+    "matchup": "TEX @ TB",
+    "market": "game_ml",
+    "selection": "TB ML",
+    "american": -128.0,
+    "no_vig_prob": 0.485014
+  },
+  {
+    "matchup": "TEX @ TB",
+    "market": "game_ml",
+    "selection": "TEX ML",
+    "american": -148.0,
+    "no_vig_prob": 0.514986
+  },
+  {
+    "matchup": "WSH @ ATL",
+    "market": "game_ml",
+    "selection": "ATL ML",
+    "american": -119.0,
+    "no_vig_prob": 0.565786
+  },
+  {
+    "matchup": "WSH @ ATL",
+    "market": "game_ml",
+    "selection": "WSH ML",
+    "american": 138.0,
+    "no_vig_prob": 0.434214
+  }
+]
