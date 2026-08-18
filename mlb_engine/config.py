@@ -105,9 +105,17 @@ class RollingWindows:
     # start sat against his own window. Velocity is the only read that survives
     # a single start (r=.93 between consecutive starts, against .20 for K/PA and
     # .15 for CSW%), and adding both terms improved held-out strikeout deviance
-    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
-    # until the ledger has graded it, which is the order every market here has
-    # been reopened in; 1.0 charges the fitted slopes in full.
+    # from 1.05839 to 1.05661 over 2,082 starts.
+    #
+    # Still 0.0, on evidence rather than on caution. As a *rate* forecast it
+    # clears the bar that retired the stuff multiplier: weekly walk-forward
+    # wRMSE 0.09634 against 0.09749 for the blended rate alone, and the dose
+    # search keeps ~0.8 of it where it kept none of stuff
+    # (scripts/vfa_k_price_study.py). Priced through the simulator on nine
+    # graded slates it does not: strikeout Brier .20197 -> .20166 but log loss
+    # .60567 -> .62127, and 16 of 18 other markets get worse, because scaling a
+    # starter's K rate rescales every other outcome he allows
+    # (scripts/vfa_k_backtest.py). 1.0 charges the fitted slopes in full.
     vfa_k_weight: float = field(
         default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
     )
@@ -425,7 +433,9 @@ class Config:
     # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
     # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
     # them), which is the direction that matters -- compressing the lineup is
-    # this engine's known failure, not over-separating it.
+    # this engine's known failure, not over-separating it. Against ATC rather
+    # than the Marcel it is the *narrower* of the two, which is a different
+    # question and is measured at ``projection_source`` below.
     #
     # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
     # 07-22 cutoff, priors built from seasons the holdout cannot reach:
@@ -450,6 +460,24 @@ class Config:
     # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
     # to batx to anchor on the Statcast batted-ball system instead; an empty
     # value takes whichever export was written most recently.
+    #
+    # Measured on one pair of 08-18 exports, 419 hitters in both, 328 of them
+    # with 150+ PA that season (``scripts.projection_compare``):
+    #
+    #     sd of projected wOBA   atc .0285   batx .0262
+    #     realized on projected  atc  .860   batx  .904   (slope, PA-weighted)
+    #     log loss / PA          atc 1.4521  batx 1.4439  (league 1.4629)
+    #
+    # So the two files rank hitters nearly identically (r .87 on HR rate, .96 on
+    # K, 2.7 HR per 600 PA apart on average) and THE BAT X is the tighter, better
+    # calibrated of the pair here -- the opposite of the widening the note above
+    # measured against the Marcel, so neither file is reliably "the wide one".
+    #
+    # It is not enough to move the default. Both exports were pulled after the
+    # season they are scored against, so every number is in sample and a system
+    # fitted nearer to contemporaneous batted balls is flattered most, which is
+    # exactly what THE BAT X is. A dated export graded on the games that came
+    # after it is the version that would settle this.
     projection_source: str = field(
         default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
@@ -879,6 +907,26 @@ class Config:
     # vs the hitter's per-class whiff/xwOBA) to the bullpen matchups, read
     # separately for the bridge and leverage subsets of the corps.
     pen_arsenal: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_ARSENAL", True))
+
+    # Price the first five off the game simulator's own first five innings rather
+    # than the per-slot Markov chain. The two disagree in one direction, and the
+    # chain is the hotter one: replaying 10 slates (133 games graded against the
+    # first five actually scored) the chain projected 5.99 runs and the simulator
+    # 5.70 against 4.85, and on the two F5 total lines the simulator's Brier is
+    # 0.0053 better (95% 0.0011..0.0094, paired; scripts/f5_model_study.py). The
+    # F5 side is unchanged (0.2744 vs 0.2747), so this is a run-level fix, not a
+    # side one. Graded cards say the same in miniature, the calibrator having
+    # already absorbed most of it: 5.05 projected against 4.80 scored.
+    #
+    # It moves nothing outside f5_ml/f5_total/f5_rl -- props and the full-game
+    # markets are built from the simulator result, and the F5 arrays this reads
+    # were already being computed and discarded. Proven by repricing a cached
+    # slate both ways: 135 F5 rows moved, 0 of the other 6,570.
+    #
+    # Off until it has graded slates of its own: the F5 edge floors and the F5
+    # calibration map were both fitted against the chain's probabilities, so
+    # turning this on needs those refit on cards priced with it.
+    f5_from_sim: bool = field(default_factory=lambda: _env_bool("MLBE_F5_FROM_SIM", False))
 
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are

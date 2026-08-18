@@ -27,6 +27,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4", "ruff>=0.1", "mypy>=1.7"]
+# The offline studies under scripts/ that fit and score terms before they are
+# priced (k_multiplier_study, vfa_k_price_study, xk_refit_study). The engine
+# itself never imports statsmodels.
+research = ["statsmodels>=0.14"]
 
 [project.scripts]
 mlb-engine = "mlb_engine.cli:main"

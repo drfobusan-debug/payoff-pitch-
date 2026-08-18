@@ -88,6 +88,7 @@ from mlb_engine.features.rolling import (
     load_ros_priors,
     pen_arm_spread,
     scale_hr_rate,
+    scale_k_rate,
     woba_from_rates,
 )
 from mlb_engine.features.siera import (
@@ -131,7 +132,7 @@ from mlb_engine.market.runline import (
 from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
-from mlb_engine.models.markov_f5 import f5_from_lineups
+from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
@@ -696,6 +697,12 @@ class Pipeline:
         # regress to his skills, not the flat league mean.
         pit_allowed = blend_k_rate(pit_prof.allowed, pit_reg.expected_k_pct())
         pit_allowed = blend_bb_rate(pit_allowed, pit_reg.expected_bb_pct())
+        # Then the four-seam velocity read, if it is switched on: his level
+        # against the league, and where his last start sat against his own. It
+        # forecasts the next start's K rate better than the blend alone (weekly
+        # walk-forward wRMSE 0.09634 against 0.09749) and prices graded slates
+        # slightly worse, so ``vfa_k_weight`` ships at 0 and this is a no-op.
+        pit_allowed = scale_k_rate(pit_allowed, pit_reg.velocity_k_multiplier())
 
         # Arsenal matching: starter's pitch-mix usage/SwStr% vs. each batter's
         # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).
@@ -1264,12 +1271,17 @@ class Pipeline:
         )
         res = mc.simulate(home_cfg, away_cfg)
 
-        # F5: non-stationary per-lineup-slot Markov (TTO-aware).
-        f5 = f5_from_lineups(
-            home_start,
-            away_start,
-            home_dp_rate=home_eff.gb_dp_rate(),
-            away_dp_rate=away_eff.gb_dp_rate(),
+        # F5: the simulator's own first five, or the non-stationary per-lineup-slot
+        # Markov (TTO-aware) it replaces.
+        f5 = (
+            f5_from_sim(res.home_runs_f5, res.away_runs_f5)
+            if self.cfg.f5_from_sim
+            else f5_from_lineups(
+                home_start,
+                away_start,
+                home_dp_rate=home_eff.gb_dp_rate(),
+                away_dp_rate=away_eff.gb_dp_rate(),
+            )
         )
 
         ha, aa = game.home.abbrev, game.away.abbrev
@@ -2293,6 +2305,9 @@ def _preview_half(
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
         fb_allowed=_fnum(pit_reg.fb_allowed),
+        ivb=_fnum(pit_reg.ivb),
+        vfa=_fnum(pit_reg.vfa),
+        vfa_dev=_fnum(pit_reg.vfa_dev),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,
