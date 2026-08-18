@@ -2942,9 +2942,23 @@
   {
     "matchup": "ATH @ KC",
     "market": "pitcher_h",
+    "selection": "Michael Wacha Hits o6.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "pitcher_h",
     "selection": "Michael Wacha Hits u5.5",
     "american": 117.0,
     "no_vig_prob": 0.436926
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "pitcher_h",
+    "selection": "Michael Wacha Hits u6.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
   },
   {
     "matchup": "ATH @ KC",
@@ -16291,6 +16305,13 @@
   {
     "matchup": "DET @ PIT",
     "market": "batter_tb",
+    "selection": "Javier Baez TB u1.5",
+    "american": -238.0,
+    "no_vig_prob": 0.661878
+  },
+  {
+    "matchup": "DET @ PIT",
+    "market": "batter_tb",
     "selection": "Kevin McGonigle TB o1.5",
     "american": 110.0,
     "no_vig_prob": 0.448773
@@ -17544,9 +17565,23 @@
   {
     "matchup": "LAD @ COL",
     "market": "batter_hrr",
+    "selection": "Kyle Tucker H+R+RBI o2.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "LAD @ COL",
+    "market": "batter_hrr",
     "selection": "Kyle Tucker H+R+RBI u1.5",
     "american": 120.0,
     "no_vig_prob": 0.426609
+  },
+  {
+    "matchup": "LAD @ COL",
+    "market": "batter_hrr",
+    "selection": "Kyle Tucker H+R+RBI u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
   },
   {
     "matchup": "LAD @ COL",
@@ -24943,6 +24978,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_1b",
+    "selection": "Bryan Torres 1B o0.5",
+    "american": 142.0,
+    "no_vig_prob": 0.383049
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "Bryan Torres 1B u0.5",
+    "american": -199.0,
+    "no_vig_prob": 0.616951
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
     "selection": "Dane Myers 1B o0.5",
     "american": 104.0,
     "no_vig_prob": 0.466715
@@ -24999,6 +25048,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_1b",
+    "selection": "Hector Rodriguez 1B o0.5",
+    "american": 119.0,
+    "no_vig_prob": 0.423086
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "Hector Rodriguez 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.576914
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
     "selection": "Ivan Herrera 1B o0.5",
     "american": -134.0,
     "no_vig_prob": 0.537402
@@ -25009,6 +25072,34 @@
     "selection": "Ivan Herrera 1B u0.5",
     "american": 105.0,
     "no_vig_prob": 0.462598
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Bleday 1B o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.431056
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Bleday 1B u0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.568944
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Wetherholt 1B o0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.489227
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Wetherholt 1B u0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.510773
   },
   {
     "matchup": "STL @ CIN",
@@ -25037,6 +25128,20 @@
     "selection": "Jose Fermin 1B u0.5",
     "american": -105.0,
     "no_vig_prob": 0.476956
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "Jose Trevino 1B o0.5",
+    "american": 113.0,
+    "no_vig_prob": 0.435167
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "Jose Trevino 1B u0.5",
+    "american": -156.0,
+    "no_vig_prob": 0.564833
   },
   {
     "matchup": "STL @ CIN",
@@ -25111,6 +25216,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_1b",
+    "selection": "Nathan Church 1B o0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.488321
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "Nathan Church 1B u0.5",
+    "american": -124.0,
+    "no_vig_prob": 0.511679
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
     "selection": "Noelvi Marte 1B o0.5",
     "american": 115.0,
     "no_vig_prob": 0.434328
@@ -25153,6 +25272,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_1b",
+    "selection": "TJ Friedl 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.386221
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
+    "selection": "TJ Friedl 1B u0.5",
+    "american": -196.0,
+    "no_vig_prob": 0.613779
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_1b",
     "selection": "Tyler Stephenson 1B o0.5",
     "american": 108.0,
     "no_vig_prob": 0.460117
@@ -25191,6 +25324,20 @@
     "selection": "Blaze Jordan 2B u0.5",
     "american": -525.0,
     "no_vig_prob": 0.798027
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "Bryan Torres 2B o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.15577
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "Bryan Torres 2B u0.5",
+    "american": -860.0,
+    "no_vig_prob": 0.848461
   },
   {
     "matchup": "STL @ CIN",
@@ -25251,6 +25398,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_2b",
+    "selection": "Hector Rodriguez 2B o0.5",
+    "american": 533.0,
+    "no_vig_prob": 0.154879
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "Hector Rodriguez 2B u0.5",
+    "american": -870.0,
+    "no_vig_prob": 0.850242
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
     "selection": "Ivan Herrera 2B o0.5",
     "american": 375.0,
     "no_vig_prob": 0.204172
@@ -25261,6 +25422,34 @@
     "selection": "Ivan Herrera 2B u0.5",
     "american": -523.0,
     "no_vig_prob": 0.795828
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "JJ Bleday 2B o0.5",
+    "american": 347.0,
+    "no_vig_prob": 0.217491
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "JJ Bleday 2B u0.5",
+    "american": -526.0,
+    "no_vig_prob": 0.789737
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "JJ Wetherholt 2B o0.5",
+    "american": 386.0,
+    "no_vig_prob": 0.199979
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "JJ Wetherholt 2B u0.5",
+    "american": -595.0,
+    "no_vig_prob": 0.806229
   },
   {
     "matchup": "STL @ CIN",
@@ -25289,6 +25478,20 @@
     "selection": "Jose Fermin 2B u0.5",
     "american": -700.0,
     "no_vig_prob": 0.824718
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "Jose Trevino 2B o0.5",
+    "american": 564.0,
+    "no_vig_prob": 0.148399
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "Jose Trevino 2B u0.5",
+    "american": -930.0,
+    "no_vig_prob": 0.857048
   },
   {
     "matchup": "STL @ CIN",
@@ -25370,6 +25573,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_2b",
+    "selection": "Nathan Church 2B u0.5",
+    "american": -630.0,
+    "no_vig_prob": 0.812768
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
     "selection": "Noelvi Marte 2B o0.5",
     "american": 487.0,
     "no_vig_prob": 0.162425
@@ -25408,6 +25618,20 @@
     "selection": "Sal Stewart 2B u0.5",
     "american": -485.0,
     "no_vig_prob": 0.799878
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "TJ Friedl 2B o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.139225
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_2b",
+    "selection": "TJ Friedl 2B u0.5",
+    "american": -1020.0,
+    "no_vig_prob": 0.864407
   },
   {
     "matchup": "STL @ CIN",
@@ -25552,9 +25776,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
     "selection": "Hector Rodriguez H+R+RBI o1.5",
     "american": 110.0,
     "no_vig_prob": 0.44586
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
   },
   {
     "matchup": "STL @ CIN",
@@ -25664,9 +25902,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hrr",
+    "selection": "Jose Trevino H+R+RBI o0.5",
+    "american": -179.0,
+    "no_vig_prob": 0.600957
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
     "selection": "Jose Trevino H+R+RBI o1.5",
     "american": 115.0,
     "no_vig_prob": 0.43958
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Jose Trevino H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.399043
   },
   {
     "matchup": "STL @ CIN",
@@ -25888,6 +26140,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Bryan Torres HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Dane Myers HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.121324
@@ -25972,6 +26231,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Hector Rodriguez HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Ivan Herrera HR o0.5",
     "american": 500.0,
     "no_vig_prob": 0.200654
@@ -25987,6 +26253,48 @@
     "matchup": "STL @ CIN",
     "market": "batter_hr",
     "selection": "Ivan Herrera HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Bleday HR o0.5",
+    "american": 390.0,
+    "no_vig_prob": 0.221254
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Bleday HR o1.5",
+    "american": 4500.0,
+    "no_vig_prob": 0.023065
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Bleday HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Wetherholt HR o0.5",
+    "american": 400.0,
+    "no_vig_prob": 0.210451
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Wetherholt HR o1.5",
+    "american": 4500.0,
+    "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "JJ Wetherholt HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -26029,6 +26337,27 @@
     "matchup": "STL @ CIN",
     "market": "batter_hr",
     "selection": "Jose Fermin HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Jose Trevino HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.108187
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Jose Trevino HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Jose Trevino HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -26140,6 +26469,27 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "Nathan Church HR o0.5",
+    "american": 575.0,
+    "no_vig_prob": 0.162072
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Nathan Church HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.013215
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "Nathan Church HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Noelvi Marte HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.149204
@@ -26203,6 +26553,27 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hr",
+    "selection": "TJ Friedl HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.103175
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "TJ Friedl HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
+    "selection": "TJ Friedl HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hr",
     "selection": "Tyler Stephenson HR o0.5",
     "american": 430.0,
     "no_vig_prob": 0.198849
@@ -26248,6 +26619,20 @@
     "selection": "Blaze Jordan H u0.5",
     "american": 172.0,
     "no_vig_prob": 0.355973
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Bryan Torres H o0.5",
+    "american": -138.0,
+    "no_vig_prob": 0.552272
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Bryan Torres H u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.447728
   },
   {
     "matchup": "STL @ CIN",
@@ -26315,6 +26700,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_h",
+    "selection": "Hector Rodriguez H o0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.569105
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Hector Rodriguez H u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.430895
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
     "selection": "Ivan Herrera H o0.5",
     "american": -268.0,
     "no_vig_prob": 0.683838
@@ -26343,9 +26742,51 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_h",
+    "selection": "JJ Bleday H o0.5",
+    "american": -215.0,
+    "no_vig_prob": 0.661675
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "JJ Bleday H u0.5",
+    "american": 167.0,
+    "no_vig_prob": 0.36686
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "JJ Wetherholt H o0.5",
+    "american": -227.0,
+    "no_vig_prob": 0.670541
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "JJ Wetherholt H u0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.344934
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Jordan Walker H o0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.691601
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
     "selection": "Jordan Walker H o1.5",
     "american": 189.0,
     "no_vig_prob": 0.342981
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Jordan Walker H u0.5",
+    "american": 196.0,
+    "no_vig_prob": 0.317671
   },
   {
     "matchup": "STL @ CIN",
@@ -26367,6 +26808,20 @@
     "selection": "Jose Fermin H u0.5",
     "american": 165.0,
     "no_vig_prob": 0.357885
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Jose Trevino H o0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.546028
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "Jose Trevino H u0.5",
+    "american": 107.0,
+    "no_vig_prob": 0.453972
   },
   {
     "matchup": "STL @ CIN",
@@ -26497,6 +26952,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_h",
+    "selection": "TJ Friedl H o0.5",
+    "american": -116.0,
+    "no_vig_prob": 0.546264
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
+    "selection": "TJ Friedl H u0.5",
+    "american": 103.0,
+    "no_vig_prob": 0.480604
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_h",
     "selection": "Tyler Stephenson H o0.5",
     "american": -192.0,
     "no_vig_prob": 0.625619
@@ -26535,6 +27004,20 @@
     "selection": "Blaze Jordan RBI u0.5",
     "american": -220.0,
     "no_vig_prob": 0.654062
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "Bryan Torres RBI o0.5",
+    "american": 223.0,
+    "no_vig_prob": 0.288634
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "Bryan Torres RBI u0.5",
+    "american": -322.0,
+    "no_vig_prob": 0.711366
   },
   {
     "matchup": "STL @ CIN",
@@ -26595,6 +27078,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_rbi",
+    "selection": "Hector Rodriguez RBI o0.5",
+    "american": 274.0,
+    "no_vig_prob": 0.250221
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "Hector Rodriguez RBI u0.5",
+    "american": -403.0,
+    "no_vig_prob": 0.749779
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
     "selection": "Ivan Herrera RBI o0.5",
     "american": 181.0,
     "no_vig_prob": 0.349313
@@ -26605,6 +27102,34 @@
     "selection": "Ivan Herrera RBI u0.5",
     "american": -220.0,
     "no_vig_prob": 0.650687
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "JJ Bleday RBI o0.5",
+    "american": 152.0,
+    "no_vig_prob": 0.38417
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "JJ Bleday RBI u0.5",
+    "american": -213.0,
+    "no_vig_prob": 0.631661
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "JJ Wetherholt RBI o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.34171
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "JJ Wetherholt RBI u0.5",
+    "american": -263.0,
+    "no_vig_prob": 0.673723
   },
   {
     "matchup": "STL @ CIN",
@@ -26633,6 +27158,20 @@
     "selection": "Jose Fermin RBI u0.5",
     "american": -235.0,
     "no_vig_prob": 0.674505
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "Jose Trevino RBI o0.5",
+    "american": 276.0,
+    "no_vig_prob": 0.248856
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "Jose Trevino RBI u0.5",
+    "american": -407.0,
+    "no_vig_prob": 0.751144
   },
   {
     "matchup": "STL @ CIN",
@@ -26763,6 +27302,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_rbi",
+    "selection": "TJ Friedl RBI o0.5",
+    "american": 329.0,
+    "no_vig_prob": 0.242796
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
+    "selection": "TJ Friedl RBI u0.5",
+    "american": -494.0,
+    "no_vig_prob": 0.781075
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_rbi",
     "selection": "Tyler Stephenson RBI o0.5",
     "american": 181.0,
     "no_vig_prob": 0.355944
@@ -26801,6 +27354,20 @@
     "selection": "Blaze Jordan R u0.5",
     "american": -178.0,
     "no_vig_prob": 0.597286
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Bryan Torres R o0.5",
+    "american": 152.0,
+    "no_vig_prob": 0.368339
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Bryan Torres R u0.5",
+    "american": -213.0,
+    "no_vig_prob": 0.631661
   },
   {
     "matchup": "STL @ CIN",
@@ -26861,6 +27428,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_r",
+    "selection": "Hector Rodriguez R o0.5",
+    "american": 190.0,
+    "no_vig_prob": 0.321121
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Hector Rodriguez R u0.5",
+    "american": -269.0,
+    "no_vig_prob": 0.678879
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
     "selection": "Ivan Herrera R o0.5",
     "american": -111.0,
     "no_vig_prob": 0.49837
@@ -26871,6 +27452,34 @@
     "selection": "Ivan Herrera R u0.5",
     "american": -115.0,
     "no_vig_prob": 0.50163
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "JJ Bleday R o0.5",
+    "american": 103.0,
+    "no_vig_prob": 0.45638
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "JJ Bleday R u0.5",
+    "american": -142.0,
+    "no_vig_prob": 0.54362
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "JJ Wetherholt R o0.5",
+    "american": -121.0,
+    "no_vig_prob": 0.506851
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "JJ Wetherholt R u0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.493149
   },
   {
     "matchup": "STL @ CIN",
@@ -26899,6 +27508,20 @@
     "selection": "Jose Fermin R u0.5",
     "american": -160.0,
     "no_vig_prob": 0.58361
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Jose Trevino R o0.5",
+    "american": 179.0,
+    "no_vig_prob": 0.333624
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Jose Trevino R u0.5",
+    "american": -252.0,
+    "no_vig_prob": 0.666376
   },
   {
     "matchup": "STL @ CIN",
@@ -26973,6 +27596,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_r",
+    "selection": "Nathan Church R o0.5",
+    "american": 137.0,
+    "no_vig_prob": 0.391303
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "Nathan Church R u0.5",
+    "american": -191.0,
+    "no_vig_prob": 0.608697
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
     "selection": "Noelvi Marte R o0.5",
     "american": 146.0,
     "no_vig_prob": 0.383428
@@ -27015,6 +27652,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_r",
+    "selection": "TJ Friedl R o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.326509
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
+    "selection": "TJ Friedl R u0.5",
+    "american": -262.0,
+    "no_vig_prob": 0.673491
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_r",
     "selection": "Tyler Stephenson R o0.5",
     "american": 115.0,
     "no_vig_prob": 0.438138
@@ -27043,6 +27694,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Blaze Jordan TB o0.5",
+    "american": -172.0,
+    "no_vig_prob": 0.593617
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Blaze Jordan TB o1.5",
     "american": 141.0,
     "no_vig_prob": 0.402055
@@ -27050,9 +27708,30 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Blaze Jordan TB u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.406383
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Blaze Jordan TB u1.5",
     "american": -173.0,
     "no_vig_prob": 0.597945
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Bryan Torres TB o0.5",
+    "american": -147.0,
+    "no_vig_prob": 0.559015
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Bryan Torres TB u0.5",
+    "american": 113.0,
+    "no_vig_prob": 0.440985
   },
   {
     "matchup": "STL @ CIN",
@@ -27155,6 +27834,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Hector Rodriguez TB o0.5",
+    "american": -137.0,
+    "no_vig_prob": 0.543546
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Hector Rodriguez TB u0.5",
+    "american": 106.0,
+    "no_vig_prob": 0.456454
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Ivan Herrera TB o1.5",
     "american": 115.0,
     "no_vig_prob": 0.44843
@@ -27183,6 +27876,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "JJ Wetherholt TB o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.434897
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "JJ Wetherholt TB u1.5",
+    "american": -152.0,
+    "no_vig_prob": 0.571058
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Jordan Walker TB o1.5",
     "american": 100.0,
     "no_vig_prob": 0.484125
@@ -27197,6 +27904,13 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Jose Fermin TB o0.5",
+    "american": -161.0,
+    "no_vig_prob": 0.580143
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Jose Fermin TB o1.5",
     "american": 156.0,
     "no_vig_prob": 0.379277
@@ -27204,9 +27918,30 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Jose Fermin TB u0.5",
+    "american": 124.0,
+    "no_vig_prob": 0.419857
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Jose Fermin TB u1.5",
     "american": -185.0,
     "no_vig_prob": 0.620723
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Jose Trevino TB o0.5",
+    "american": -141.0,
+    "no_vig_prob": 0.550113
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Jose Trevino TB u0.5",
+    "american": 109.0,
+    "no_vig_prob": 0.449887
   },
   {
     "matchup": "STL @ CIN",
@@ -27309,6 +28044,20 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_tb",
+    "selection": "Nathan Church TB o1.5",
+    "american": 163.0,
+    "no_vig_prob": 0.383511
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Nathan Church TB u1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.615669
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
     "selection": "Noelvi Marte TB o0.5",
     "american": -156.0,
     "no_vig_prob": 0.578049
@@ -27326,6 +28075,13 @@
     "selection": "Noelvi Marte TB u0.5",
     "american": 120.0,
     "no_vig_prob": 0.421951
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "Noelvi Marte TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626866
   },
   {
     "matchup": "STL @ CIN",
@@ -27361,6 +28117,27 @@
     "selection": "Sal Stewart TB u1.5",
     "american": -141.0,
     "no_vig_prob": 0.555061
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "TJ Friedl TB o0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "TJ Friedl TB o1.5",
+    "american": 220.0,
+    "no_vig_prob": 0.3125
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_tb",
+    "selection": "TJ Friedl TB u0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.5
   },
   {
     "matchup": "STL @ CIN",
@@ -27463,9 +28240,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "game_rl",
+    "selection": "CIN +1.0",
+    "american": -122.0,
+    "no_vig_prob": 0.523605
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "game_rl",
     "selection": "CIN +1.5",
     "american": -150.0,
     "no_vig_prob": 0.589808
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "game_rl",
+    "selection": "STL -1.0",
+    "american": 100.0,
+    "no_vig_prob": 0.476395
   },
   {
     "matchup": "STL @ CIN",
@@ -27504,6 +28295,48 @@
   },
   {
     "matchup": "STL @ CIN",
+    "market": "pitcher_bb",
+    "selection": "Andre Pallante Walks o1.5",
+    "american": -180.0,
+    "no_vig_prob": 0.604461
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_bb",
+    "selection": "Andre Pallante Walks u1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.395539
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_bb",
+    "selection": "Rhett Lowder Walks o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411455
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_bb",
+    "selection": "Rhett Lowder Walks u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.588545
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_er",
+    "selection": "Andre Pallante ER o2.5",
+    "american": -105.0,
+    "no_vig_prob": 0.500207
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_er",
+    "selection": "Andre Pallante ER u2.5",
+    "american": -106.0,
+    "no_vig_prob": 0.499793
+  },
+  {
+    "matchup": "STL @ CIN",
     "market": "pitcher_er",
     "selection": "Quinn Mathews ER o2.5",
     "american": 110.0,
@@ -27518,6 +28351,34 @@
   },
   {
     "matchup": "STL @ CIN",
+    "market": "pitcher_er",
+    "selection": "Rhett Lowder ER o2.5",
+    "american": -111.0,
+    "no_vig_prob": 0.496963
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_er",
+    "selection": "Rhett Lowder ER u2.5",
+    "american": -115.0,
+    "no_vig_prob": 0.503037
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_h",
+    "selection": "Andre Pallante Hits o5.5",
+    "american": 120.0,
+    "no_vig_prob": 0.428365
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_h",
+    "selection": "Andre Pallante Hits u5.5",
+    "american": -155.0,
+    "no_vig_prob": 0.571635
+  },
+  {
+    "matchup": "STL @ CIN",
     "market": "pitcher_h",
     "selection": "Quinn Mathews Hits o4.5",
     "american": 105.0,
@@ -27529,6 +28390,20 @@
     "selection": "Quinn Mathews Hits u4.5",
     "american": -125.0,
     "no_vig_prob": 0.530524
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_h",
+    "selection": "Rhett Lowder Hits o5.5",
+    "american": -105.0,
+    "no_vig_prob": 0.479466
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_h",
+    "selection": "Rhett Lowder Hits u5.5",
+    "american": -127.0,
+    "no_vig_prob": 0.520534
   },
   {
     "matchup": "STL @ CIN",
@@ -27575,6 +28450,34 @@
   {
     "matchup": "STL @ CIN",
     "market": "pitcher_outs",
+    "selection": "Andre Pallante Outs o16.5",
+    "american": -138.0,
+    "no_vig_prob": 0.549703
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Andre Pallante Outs o17.5",
+    "american": -105.0,
+    "no_vig_prob": 0.487033
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Andre Pallante Outs u16.5",
+    "american": 110.0,
+    "no_vig_prob": 0.450297
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Andre Pallante Outs u17.5",
+    "american": -110.0,
+    "no_vig_prob": 0.512967
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
     "selection": "Quinn Mathews Outs o13.5",
     "american": -121.0,
     "no_vig_prob": 0.526832
@@ -27599,5 +28502,19 @@
     "selection": "Quinn Mathews Outs u14.5",
     "american": -115.0,
     "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Rhett Lowder Outs o16.5",
+    "american": -109.0,
+    "no_vig_prob": 0.503451
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Rhett Lowder Outs u16.5",
+    "american": -106.0,
+    "no_vig_prob": 0.496549
   }
 ]
