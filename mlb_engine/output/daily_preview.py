@@ -30,7 +30,7 @@ from pathlib import Path
 
 import numpy as np
 
-from mlb_engine.features.regression import BL_BABIP
+from mlb_engine.features.regression import BL_BABIP, BL_IVB
 from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
 from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.tiers import Tier
@@ -214,6 +214,52 @@ def _shape_chart(gp: GamePreview) -> str:
     return _fig_b64(fig)
 
 
+# Inches of four-seam ride away from the league mean before the table marks it.
+# Two inches is roughly the top and bottom quartile of starters (13.8 / 16.6
+# against a 15.2 median), so the mark lands on a quarter of arms at each end
+# rather than on anyone slightly off centre.
+IVB_MARK = 2.0
+
+# Mph a starter's last outing has to sit off his own window before the arrow is
+# drawn. Below this the deviation is inside a start's own measurement noise.
+VFA_DEV_MARK = 0.4
+
+
+def _ivb_cell(sl: StarterLine) -> str:
+    """Four-seam ride, marked at both ends for what the engine does with it.
+
+    High ride is the flat-approach fastball: it misses bats at the top of the
+    zone, and the whiffs it earns are already in this row's CSW% and SwStr%.
+    What it adds beyond them is home runs -- measured over 2,082 starts, ride
+    *hurt* a next-start strikeout forecast built on those two columns (z -5.3)
+    and carried home runs instead (z +13.1) -- so the mark reads as a fly-ball
+    warning and not as a second strikeout signal.
+    """
+    if sl.ivb is None:
+        return "<td>—</td>"
+    txt = f"{sl.ivb:.1f}\""
+    if sl.ivb >= BL_IVB + IVB_MARK:
+        return f"<td><span class='neg'>{txt} ride</span></td>"
+    if sl.ivb <= BL_IVB - IVB_MARK:
+        return f"<td><span class='pos'>{txt} heavy</span></td>"
+    return f"<td>{txt}</td>"
+
+
+def _vfa_cell(sl: StarterLine) -> str:
+    """Window four-seam velocity, and where his last start sat against it.
+
+    The deviation is the read: one outing measures velocity at r=.93 between
+    consecutive starts while measuring nothing else about him (K/PA .20, CSW%
+    .15), so it is the only same-week form signal here that is a measurement.
+    """
+    if sl.vfa is None:
+        return "<td>—</td>"
+    if sl.vfa_dev is None or abs(sl.vfa_dev) < VFA_DEV_MARK:
+        return f"<td>{sl.vfa:.1f}</td>"
+    cls = "pos" if sl.vfa_dev > 0 else "neg"
+    return f"<td>{sl.vfa:.1f} <span class='{cls}'>({sl.vfa_dev:+.1f})</span></td>"
+
+
 # --- HTML pieces -----------------------------------------------------------
 def _starter_row(tag: str, sl: StarterLine) -> str:
     spin = "" if sl.spin is None else f", {sl.spin:.0f} rpm"
@@ -223,7 +269,10 @@ def _starter_row(tag: str, sl: StarterLine) -> str:
         f"<tr><td class='l'><b>{tag}</b> {sl.name}</td>"
         f"<td>{sl.k_pct * 100:.0f}% (x{sl.xk_pct * 100:.0f})</td>"
         f"<td>{sl.bb_pct * 100:.0f}% (x{sl.xbb_pct * 100:.0f})</td>"
-        f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td><td>{hard}</td>"
+        f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td>"
+        + _vfa_cell(sl)
+        + _ivb_cell(sl)
+        + f"<td>{hard}</td>"
         f"<td>{air}</td>"
         f"<td>{sl.xwoba_allowed:.3f}</td><td>{sl.barrel_allowed * 100:.0f}%{spin}</td></tr>"
     )
@@ -696,7 +745,8 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
 
     starter_tbl = (
         "<table><tr><th class='l'>Starter</th><th>K% (x)</th><th>BB% (x)</th>"
-        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>FB%</th><th>xwOBA</th>"
+        "<th>CSW%</th><th>SwStr%</th><th>FB velo (last)</th><th>IVB</th>"
+        "<th>Hard-hit%</th><th>FB%</th><th>xwOBA</th>"
         "<th>Barrel% / spin</th></tr>"
         + _starter_row(gp.home, gp.home_starter)
         + _starter_row(gp.away, gp.away_starter)
@@ -802,7 +852,12 @@ def build_preview_report(
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
         "six-week window in half and report the recent half minus the earlier one for SIERA and CSW%, the two "
         "signals that repeat on three weeks of pitches; velocity is his last start against the whole window, "
-        "because one outing measures it (r=0.93 between consecutive starts, against .15 for CSW%). Contact "
+        "because one outing measures it (r=0.93 between consecutive starts, against .15 for CSW%). The "
+        "starter table's velocity column is that window level with the last start's deviation beside it, "
+        "marked past 0.4 mph. IVB is four-seam ride in inches, marked past two inches either side of the "
+        "15.2-inch league mean: the strikeouts ride earns are already inside CSW% and SwStr%, and what it "
+        "adds beyond them is home runs, so a marked ride is a fly-ball warning rather than a second K "
+        "signal. Contact "
         "quality is excluded because it repeats at neither length. A starter's BABIP-vs-xwOBA gap is the "
         "wOBA he allowed against the wOBA his contact "
         "deserved. Matchup verdicts are the simulator's own log5 projection — each hitter's rates in "

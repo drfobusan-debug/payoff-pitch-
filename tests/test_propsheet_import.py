@@ -105,25 +105,27 @@ def test_a_sheet_with_no_readable_date_asks_for_one() -> None:
     assert ps.slate_day(pd.DataFrame([{"MARKET": "Hits"}]), Date(2026, 8, 15)) is None
 
 
-def test_the_newest_save_is_the_one_imported(tmp_path: Path) -> None:
-    """A second save of the same page becomes "... (1).html" and is the current one."""
-    old = tmp_path / "MLB_Betting_Model_-_Player_Prop_Odd_Predictions.html"
-    new = tmp_path / "MLB_Betting_Model_-_Player_Prop_Odd_Predictions (1).html"
-    old.write_text("old")
-    new.write_text("new")
-    os.utime(old, (1_000_000, 1_000_000))
-    os.utime(new, (2_000_000, 2_000_000))
-    assert ps.find_saved_sheet(str(tmp_path)) == new
+def test_every_page_of_tonights_slate_is_imported(tmp_path: Path) -> None:
+    """The sheet paginates, so a slate is several saves, not one."""
+    stale = tmp_path / "MLB_Betting_Model_-_Player_Prop_Odd_Predictions.html"
+    page1 = tmp_path / "MLB_Betting_Model_-_1Player_Prop_Odd_Predictions.html"
+    page2 = tmp_path / "MLB_Betting_Model_-_2Player_Prop_Odd_Predictions.html"
+    for path in (stale, page1, page2):
+        path.write_text("x")
+    os.utime(stale, (1_000_000, 1_000_000))  # yesterday's save, still in the folder
+    os.utime(page1, (2_000_000, 2_000_000))
+    os.utime(page2, (2_000_060, 2_000_060))
+    assert ps.find_saved_sheets(str(tmp_path)) == [page1, page2]
 
 
 def test_unrelated_downloads_are_ignored(tmp_path: Path) -> None:
     (tmp_path / "bank-statement.html").write_text("no")
     (tmp_path / "propsheet.csv").write_text("no")
-    assert ps.find_saved_sheet(str(tmp_path)) is None
+    assert ps.find_saved_sheets(str(tmp_path)) == []
 
 
 def test_a_missing_downloads_folder_is_not_a_crash(tmp_path: Path) -> None:
-    assert ps.find_saved_sheet(str(tmp_path / "nope")) is None
+    assert ps.find_saved_sheets(str(tmp_path / "nope")) == []
 
 
 def test_an_unpriced_row_is_dropped() -> None:

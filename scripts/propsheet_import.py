@@ -27,16 +27,21 @@ percentage difference, which is the ordering our own best-bets list was
 just taken off: on this sheet it points at triples at +4100 and stolen
 bases at +925, the price band where our ledger loses most.
 
-Usage -- the newest save in ~/Downloads is found, dated and filed by itself,
+The sheet paginates -- a full slate is two or three saved pages, ~600 prices --
+so every page saved for the slate is archived together, deduplicated on
+(date, book, player, sheet market, line) because the pages overlap at their
+seams.
+
+Usage -- the saves in ~/Downloads are found, dated and filed by themselves,
 so the daily step is the command and nothing else::
 
     python scripts/propsheet_import.py
 
-``--date`` and ``--out`` remain for backfilling an old save, where the year
+``--date`` and ``--out`` remain for backfilling old saves, where the year
 cannot be inferred from today::
 
-    python scripts/propsheet_import.py --html propsheet.html --date 2026-08-15 \\
-        --out ~/.mlb_engine/props/2026-08-15.csv
+    python scripts/propsheet_import.py --html page1.html page2.html \\
+        --date 2026-08-15 --out ~/.mlb_engine/props/2026-08-15.csv
 """
 
 from __future__ import annotations
@@ -173,23 +178,30 @@ def slate_day(sheet: pd.DataFrame, today: Date) -> Date | None:
     return Counter(days).most_common(1)[0][0]
 
 
-def find_saved_sheet(directory: str) -> Path | None:
-    """The most recently saved propsheet page in ``directory``.
+def find_saved_sheets(directory: str, within_hours: float = 12.0) -> list[Path]:
+    """Every propsheet page in ``directory`` saved alongside the newest one.
 
-    Newest rather than a fixed name because the browser appends " (1)" to a
-    second save of the same page, and the second save is the current one.
+    Taken by save time rather than by name: the browser numbers a second save
+    of the same page " (1)", and last night's pages are still in the folder.
+    Pages saved more than ``within_hours`` before the newest one are a previous
+    slate and left alone, so a stale straggler cannot smuggle yesterday's
+    prices into tonight's archive.
     """
     folder = Path(os.path.expanduser(directory))
     if not folder.is_dir():
-        return None
+        return []
     saves = [
         p
         for p in folder.iterdir()
         if p.is_file() and p.suffix.lower() in (".html", ".htm") and _SAVED_SHEET.search(p.name)
     ]
     if not saves:
-        return None
-    return max(saves, key=lambda p: p.stat().st_mtime)
+        return []
+    newest = max(p.stat().st_mtime for p in saves)
+    return sorted(
+        (p for p in saves if newest - p.stat().st_mtime <= within_hours * 3600),
+        key=lambda p: p.stat().st_mtime,
+    )
 
 
 def read_sheet(path: str) -> pd.DataFrame:
@@ -241,41 +253,48 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
         "--html",
-        help=f"saved propsheet; defaults to the newest one in {DEFAULT_SAVE_DIR}",
+        nargs="+",
+        help=f"saved propsheet pages; defaults to the newest slate's in {DEFAULT_SAVE_DIR}",
     )
     ap.add_argument("--date", help="slate date, YYYY-MM-DD; read off the sheet when omitted")
     ap.add_argument("--out", help=f"defaults to {DEFAULT_OUT_DIR}/<date>.csv")
     ap.add_argument("--downloads", default=DEFAULT_SAVE_DIR, help=argparse.SUPPRESS)
     args = ap.parse_args()
 
-    html = args.html
-    if html is None:
-        found = find_saved_sheet(args.downloads)
-        if found is None:
-            raise SystemExit(f"no saved propsheet in {args.downloads} -- pass --html")
-        html = str(found)
-        print(f"reading {html}")
+    pages = [str(p) for p in (args.html or find_saved_sheets(args.downloads))]
+    if not pages:
+        raise SystemExit(f"no saved propsheet in {args.downloads} -- pass --html")
 
-    sheet = read_sheet(html)
-    day = Date.fromisoformat(args.date) if args.date else slate_day(sheet, Date.today())
+    sheets = [read_sheet(p) for p in pages]
+    if args.html is None:
+        for page, sheet in zip(pages, sheets, strict=True):
+            print(f"reading {page} ({len(sheet)} rows)")
+
+    both = pd.concat(sheets, ignore_index=True)
+    day = Date.fromisoformat(args.date) if args.date else slate_day(both, Date.today())
     if day is None:
         raise SystemExit("could not read a date off the sheet -- pass --date YYYY-MM-DD")
     if args.date is None and day != Date.today():
         # A save that was never refreshed imports yesterday's prices under
         # yesterday's name, which is silent and wrong rather than loud and wrong.
         print(f"warning: this sheet is for {day.isoformat()}, not today")
-    rows = to_rows(sheet, day)
+    rows = to_rows(both, day)
     if not rows:
         raise SystemExit("no priced rows parsed -- check the saved page is the propsheet itself")
 
     out = pd.DataFrame(rows, columns=list(COLUMNS))
+    # The pages overlap where one ends and the next begins, and a page saved
+    # twice is saved whole; the last copy of a row is the later save of it.
+    out = out.drop_duplicates(
+        subset=["date", "book", "player", "sheet_market", "line"], keep="last"
+    ).reset_index(drop=True)
     dest = os.path.expanduser(args.out or f"{DEFAULT_OUT_DIR}/{day.isoformat()}.csv")
     os.makedirs(os.path.dirname(dest), exist_ok=True)
     out.to_csv(dest, index=False)
 
     mapped = out[out.market != ""]
     paired = out[out.over_american.notna() & out.under_american.notna()]
-    print(f"{len(sheet)} sheet rows -> {len(out)} prices -> {dest}")
+    print(f"{len(both)} sheet rows over {len(pages)} page(s) -> {len(out)} prices -> {dest}")
     print(f"  both sides printed: {len(paired)}; one side only: {len(out) - len(paired)}")
     print(f"  joinable to a ledger market: {len(mapped)} over {mapped.market.nunique()} markets")
     unmapped = sorted(set(out.loc[out.market == "", "sheet_market"]))

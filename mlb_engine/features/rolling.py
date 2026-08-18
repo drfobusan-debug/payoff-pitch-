@@ -440,6 +440,32 @@ def blend_k_rate(rates: OutcomeRates, k_prior: float, prior_weight: float = 150.
     )
 
 
+def scale_k_rate(rates: OutcomeRates, mult: float) -> OutcomeRates:
+    """Multiply the blended K rate, rescaling the rest so the vector still sums to 1.
+
+    Applied once, for the four-seam velocity read: unlike the stuff multiplier
+    this replaces, it is not already inside xK% -- ``release_speed`` enters no
+    other term -- and it is the one same-week form signal a single start
+    measures. See ``scripts/vfa_k_price_study.py``.
+    """
+    old_non_k = 1.0 - rates.p_k
+    if mult == 1.0 or old_non_k <= 0:
+        return rates
+    new_k = min(max(rates.p_k * mult, 0.01), 0.60)
+    scale = (1.0 - new_k) / old_non_k
+    d = rates.as_dict()
+    return OutcomeRates(
+        pa=rates.pa,
+        p_1b=d["1B"] * scale,
+        p_2b=d["2B"] * scale,
+        p_3b=d["3B"] * scale,
+        p_hr=d["HR"] * scale,
+        p_bb=d["BB"] * scale,
+        p_k=new_k,
+        p_out=d["OUT"] * scale,
+    )
+
+
 def blend_bb_rate(rates: OutcomeRates, bb_prior: float, prior_weight: float = 150.0) -> OutcomeRates:
     """Pull the BB rate toward a command-based prior (xBB%), weighted by sample size.
 
