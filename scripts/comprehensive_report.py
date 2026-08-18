@@ -54,9 +54,12 @@ def load_recs(path) -> list[Recommendation]:
 
 
 # --- batter regression -----------------------------------------------------
-# selection is "{name} {stat} o{line}" (e.g. "Matt McLain 1B o0.5",
-# "Matt McLain H+R+RBI o1.5"); strip the trailing " {stat} o{line}".
-_SEL_RE = re.compile(r"\s+[A-Za-z0-9+]+\s+o\d.*$")
+# selection is "{name} {stat} {side}{line}" ("Matt McLain 1B o0.5", "Carlos
+# Narvaez H+R+RBI u1.5"); strip the trailing market off to leave the hitter.
+# Both sides: every prop has had its under priced since #144, and a side this
+# misses leaves the market glued to the name, which then reads as a separate
+# hitter carrying identical contact -- ten of them fill the top ten.
+_SEL_RE = re.compile(r"\s+[A-Za-z0-9+]+\s+[ou]\d.*$")
 
 
 def _batter_name(sel: str) -> str:
@@ -132,7 +135,13 @@ def build_batter_profiles(preds: list[dict], df: pd.DataFrame):
     cutoff = maxd - pd.Timedelta(days=RECENT_DAYS)
     cutoff = cutoff if isinstance(cutoff, Date) else cutoff.date()
     profs = []
+    seen: set[int] = set()
     for name, pid in idmap.items():
+        # A hitter is one hitter however his name reaches the sheet: two spellings
+        # of the same id must not both be ranked.
+        if pid in seen:
+            continue
+        seen.add(pid)
         p = analyze_batter(name, pid, df, cutoff)
         if p["bbe"] < MIN_BBE:
             continue
