@@ -88,6 +88,7 @@ from mlb_engine.features.rolling import (
     load_ros_priors,
     pen_arm_spread,
     scale_hr_rate,
+    scale_k_rate,
     woba_from_rates,
 )
 from mlb_engine.features.siera import (
@@ -696,6 +697,12 @@ class Pipeline:
         # regress to his skills, not the flat league mean.
         pit_allowed = blend_k_rate(pit_prof.allowed, pit_reg.expected_k_pct())
         pit_allowed = blend_bb_rate(pit_allowed, pit_reg.expected_bb_pct())
+        # Then the four-seam velocity read, if it is switched on: his level
+        # against the league, and where his last start sat against his own. It
+        # forecasts the next start's K rate better than the blend alone (weekly
+        # walk-forward wRMSE 0.09634 against 0.09749) and prices graded slates
+        # slightly worse, so ``vfa_k_weight`` ships at 0 and this is a no-op.
+        pit_allowed = scale_k_rate(pit_allowed, pit_reg.velocity_k_multiplier())
 
         # Arsenal matching: starter's pitch-mix usage/SwStr% vs. each batter's
         # per-pitch-class whiff/xwOBA (replaces noisy BvP head-to-heads).
