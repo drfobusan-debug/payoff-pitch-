@@ -43,9 +43,13 @@ class StarterLine:
     # because hard contact on the ground is a single and soft contact in the air
     # is an out, so the table prints them together.
     fb_allowed: float | None = None
+    # Four-seam ride, in inches, and the velocity pair the K term is fitted on:
+    # his window level and how his most recent start sat against it.
+    ivb: float | None = None
+    vfa: float | None = None
+    vfa_dev: float | None = None
     babip_allowed: float | None = None
     siera: float | None = None
-    vfa: float | None = None  # mph, his last start's four-seam mean
     # Fly-ball share of the batted balls in his last four starts: the one
     # batted-ball read a starter repeats, and the one that forecasts his home
     # runs. Short on purpose -- six weeks of it forecasts a third as well.

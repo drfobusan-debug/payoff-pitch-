@@ -131,7 +131,7 @@ from mlb_engine.market.runline import (
 from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
-from mlb_engine.models.markov_f5 import f5_from_lineups
+from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
@@ -1267,12 +1267,17 @@ class Pipeline:
         )
         res = mc.simulate(home_cfg, away_cfg)
 
-        # F5: non-stationary per-lineup-slot Markov (TTO-aware).
-        f5 = f5_from_lineups(
-            home_start,
-            away_start,
-            home_dp_rate=home_eff.gb_dp_rate(),
-            away_dp_rate=away_eff.gb_dp_rate(),
+        # F5: the simulator's own first five, or the non-stationary per-lineup-slot
+        # Markov (TTO-aware) it replaces.
+        f5 = (
+            f5_from_sim(res.home_runs_f5, res.away_runs_f5)
+            if self.cfg.f5_from_sim
+            else f5_from_lineups(
+                home_start,
+                away_start,
+                home_dp_rate=home_eff.gb_dp_rate(),
+                away_dp_rate=away_eff.gb_dp_rate(),
+            )
         )
 
         ha, aa = game.home.abbrev, game.away.abbrev
@@ -2174,6 +2179,21 @@ class Pipeline:
                 rec.pass_gate = "doubles_price_ceiling"
             if dbl_reason:
                 rec.reasons = [dbl_reason, *rec.reasons]
+        # Hits-allowed price ceiling, same placement and for the same reason: a
+        # plus-money over on this market is a long start and bad contact sold as
+        # one event, and it is the price rather than the line that separates the
+        # buys that held from the buys that did not.
+        if market == "pitcher_h" and rec.tier != Tier.PASS and not under:
+            keep, hits_reason = price_ceiling_allows(
+                rec.market_american,
+                self.cfg.pitcher_hits_max_buy_odds,
+                "pitcher-hits-price-ceiling",
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "pitcher_hits_price_ceiling"
+            if hits_reason:
+                rec.reasons = [hits_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
@@ -2281,11 +2301,13 @@ def _preview_half(
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
         fb_allowed=_fnum(pit_reg.fb_allowed),
+        ivb=_fnum(pit_reg.ivb),
+        vfa=_fnum(pit_reg.vfa),
+        vfa_dev=_fnum(pit_reg.vfa_dev),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,
         stuff_trend=trends.stuff.delta,
-        vfa=trends.vfa.recent,
         vfa_trend=trends.vfa.delta,
         fb_allowed_recent=_fnum(pit_reg.fb_allowed_recent),
         league_xwoba_allowed=league.pitcher,

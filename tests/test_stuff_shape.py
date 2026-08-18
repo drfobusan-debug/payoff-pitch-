@@ -9,8 +9,11 @@ nothing and a grade that rewarded throwing sliders would be measuring it.
 
 from __future__ import annotations
 
+import datetime as dt
+
 import pandas as pd
 
+from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE
 from mlb_engine.features import stuff
 from mlb_engine.features.regression import (
     BL_CSW,
@@ -137,6 +140,20 @@ def test_a_pitcher_with_no_grade_prices_exactly_as_before() -> None:
     """The term is additive on the grade, so 0.0 leaves the shipped line alone."""
     reg = _reg(shape_plus=0.0)
     assert abs(reg.expected_k_pct() - 0.220) < 1e-9
+
+
+def test_pricing_on_the_grade_means_a_new_calibration_basis() -> None:
+    """A live grade and the previous basis string cannot both be true.
+
+    The term shipped without bumping ``FEATURE_BASIS``, which a live board caught:
+    it moves 3,906 of 4,023 priced rows, so a map refit on the previous engine
+    would have matched the basis and been applied silently to prices it was never
+    fitted on. Pinned here rather than in the calibration tests because it is the
+    grade being priced that invalidates the old map.
+    """
+    assert XK_SHAPE_COEF > 0.0
+    assert FEATURE_BASIS != "no-stuff-multiplier-2026.08"
+    assert FEATURE_BASIS_SINCE >= dt.date(2026, 8, 18)
 
 
 def test_the_window_is_graded_end_to_end() -> None:
