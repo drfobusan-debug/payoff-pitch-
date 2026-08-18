@@ -124,6 +124,7 @@ MARKET_LABEL: dict[str, str] = {
     "batter_rbi": "Batter RBI",
     "batter_bb": "Batter walks",
     "batter_k": "Batter strikeouts",
+    "batter_sb": "Batter stolen bases",
 }
 
 FAMILY_LABEL: dict[str, str] = {

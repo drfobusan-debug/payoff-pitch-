@@ -59,6 +59,7 @@ _BATTER_MARKETS = {
     "batter_hits_runs_rbis": ("batter_hrr", "H+R+RBI"),
     "batter_walks": ("batter_bb", "BB"),
     "batter_strikeouts": ("batter_k", "K"),
+    "batter_stolen_bases": ("batter_sb", "SB"),
 }
 _PITCHER_MARKETS = {
     "pitcher_strikeouts": ("pitcher_k", "Ks"),
@@ -90,6 +91,7 @@ DEFAULT_PROP_MARKETS = (
     "batter_hits_runs_rbis",
     "batter_walks",
     "batter_strikeouts",
+    "batter_stolen_bases",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",
@@ -138,12 +140,17 @@ DEFAULT_PROP_MARKETS = (
 # priced at all because an outside prop board carries them heavily (two of EV
 # Analytics' largest sections) and a market the engine does not price cannot be
 # compared against anybody.
+# Stolen bases joins them, and has the furthest to earn: it is the one market
+# here whose event the simulator does not draw at all (the run models hand out
+# bases anonymously at a league rate), so it is priced from a season rate on top
+# of the simulated times on first. Quoted only, until the ledger says otherwise.
 PRICE_ONLY_MARKETS = frozenset(
     {
         "batter_r",
         "pitcher_er",
         "batter_bb",
         "batter_k",
+        "batter_sb",
     }
 )
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)

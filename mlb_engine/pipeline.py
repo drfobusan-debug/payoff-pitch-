@@ -36,6 +36,7 @@ from mlb_engine.data.rotowire import RotoGame, RotoLineup, RotowireClient, norm_
 from mlb_engine.data.savant_expected import load_batter_xslg
 from mlb_engine.data.statcast import StatcastRepository, batted_balls
 from mlb_engine.data.vsin import Split, VSINClient, lookup_split
+from mlb_engine.features import steals
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.efficiency import (
     PitcherEfficiency,
@@ -135,7 +136,7 @@ from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
-from mlb_engine.models.props import p_over
+from mlb_engine.models.props import p_over, p_steal_over_half
 from mlb_engine.models.rbi_rule import evaluate_lineup
 from mlb_engine.models.selectors import (
     RBISelector,
@@ -388,6 +389,7 @@ class Pipeline:
         self._fatigue: dict[int, float | None] = {}
         self._pen_avail: dict[str, float | None] = {}
         self._ros_priors: dict[int, dict[str, float]] = {}
+        self._steal_rates: dict[int, float] = {}
         self._pen_prior: float | Mapping[str, float] = (
             PEN_PRIOR_STRENGTH if cfg.pen_shrink else PRIOR_STRENGTH
         )
@@ -470,6 +472,9 @@ class Pipeline:
                 self.cfg.ros_prior_path,
             )
         sprint = load_sprint_speeds(slate_date.year) if enrich_leaderboards else {}
+        self._steal_rates = (
+            self._load_steal_rates(slate_date, sprint) if enrich_leaderboards else {}
+        )
         self._team_defense = load_team_defense(slate_date.year) if enrich_leaderboards else {}
         self._framing = catcher_framing.load_framing(slate_date.year) if enrich_leaderboards else {}
         batter_xslg = load_batter_xslg(slate_date.year) if enrich_leaderboards else {}
@@ -1770,6 +1775,21 @@ class Pipeline:
                         selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
                         **feat,
                     ))
+            # Stolen bases, on the single 0.5 line the books hang. Priced on top
+            # of the simulated times this hitter reached first rather than out of
+            # the simulator, which steals anonymously at a league rate; so this
+            # market reads the sim and changes nothing in it.
+            sb_rate = self._steal_rates.get(pid) if pid is not None else None
+            if sb_rate is not None:
+                reaches = (bat["1B"][:, i] + bat["BB"][:, i]).astype(float)
+                po = p_steal_over_half(reaches, sb_rate)
+                for pside in self._prop_sides("batter_sb"):
+                    out.append(self._mk(
+                        game, m, "batter", "batter_sb",
+                        keys.batter_prop(name, "SB", 0.5, pside), po,
+                        line=0.5, player_id=pid, stat="SB", side=pside, quotes=quotes,
+                        **feat,
+                    ))
         return out
 
     def _pitcher_props(self, game, m, res, team_key, pitcher, quotes, gate_reason=None):
@@ -1852,6 +1872,21 @@ class Pipeline:
             self.cfg.pitcher_outs_prob_bias,
             self.cfg.pitcher_outs_bias_max_prob,
         )
+
+    def _load_steal_rates(self, slate_date: Date, sprint: dict[int, float]) -> dict[int, float]:
+        """Every runner's steals per time on first, for the ``batter_sb`` market."""
+        lines = self.deps.stats.season_steal_lines(slate_date.year)
+        rates = {
+            pid: steals.steal_rate(sb, on_first, sprint.get(pid))
+            for pid, (sb, on_first) in lines.items()
+        }
+        if rates:
+            top = max(rates.values())
+            log.info(
+                "Steal rates: %d hitters, league %.3f per time on first, fastest %.3f",
+                len(rates), steals.LEAGUE_SB_PER_OPP, top,
+            )
+        return rates
 
     def _prop_sides(self, market: str) -> tuple[str, ...]:
         """The sides of a prop worth pricing.

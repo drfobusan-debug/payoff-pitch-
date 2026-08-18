@@ -109,7 +109,7 @@ PITCHER_LABEL = {"K": "Ks", "outs": "Outs", "H": "Hits", "BB": "Walks", "ER": "E
 # strings, because an outside board joins by reading the player back out of one:
 # a market added to ``batter_prop`` and not to this list silently stops matching.
 _PROP_SUFFIX = re.compile(
-    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|BB|H|R|RBI|Ks|K|Walks|Hits|Outs|ER)\s+[ou][\d.]+$"
+    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|BB|SB|H|R|RBI|Ks|K|Walks|Hits|Outs|ER)\s+[ou][\d.]+$"
 )
 
 

@@ -85,6 +85,17 @@ BATTER_PROP_LINES = {
 }
 
 
+def p_steal_over_half(reaches: np.ndarray, sb_rate: float) -> float:
+    """P(at least one steal) given how often the runner reached first in each sim.
+
+    Averaged over the simulated distribution of times on first rather than drawn,
+    so the number carries no Monte Carlo noise of its own, and the correlation
+    that matters is kept: a night with more times on first is a night with more
+    chances to run.
+    """
+    return float((1.0 - (1.0 - sb_rate) ** reaches).mean())
+
+
 def batter_markets(
     res: GameSimResult,
     team: str,
@@ -92,6 +103,7 @@ def batter_markets(
     player_name: str,
     rbi_factor: float = 1.0,
     tb_factor: float = 1.0,
+    sb_rate: float | None = None,
 ) -> list[MarketProb]:
     out: list[MarketProb] = []
     bat = res.bat[team]
@@ -119,6 +131,20 @@ def batter_markets(
     tb = tb * tb_factor
     for line in (1.5, 2.5, 3.5):
         out.append(MarketProb("batter_tb", f"{player_name} TB o{line}", p_over(tb, line), line))
+    # Stolen bases. The simulator has no per-runner steal in it -- the run models
+    # hand out bases between plate appearances at a league rate, anonymously (see
+    # baserunning.FREE_ADVANCE_PER_PA) -- so the prop is priced on top of the
+    # times this hitter reached first, and pricing it moves no total.
+    if sb_rate is not None:
+        reaches = (bat["1B"][:, slot] + bat["BB"][:, slot]).astype(float)
+        out.append(
+            MarketProb(
+                "batter_sb",
+                f"{player_name} SB o0.5",
+                p_steal_over_half(reaches, sb_rate),
+                0.5,
+            )
+        )
     return out
 
 

@@ -92,8 +92,9 @@ def test_every_parseable_prop_market_is_priced() -> None:
     client = OddsAPIClient("k")
     assert client.prop_markets == DEFAULT_PROP_MARKETS
     assert set(client.prop_markets) == set(_BATTER_MARKETS) | set(_PITCHER_MARKETS)
-    # 3 F5 + 15 props = 18 credits per event, ~270 a slate.
-    assert len(client.event_markets()) == 18
+    # 3 F5 + 16 props = 19 credits per event, ~285 a slate. Stolen bases is the
+    # sixteenth: one more credit per event, ~450 a month on a 100k plan.
+    assert len(client.event_markets()) == 19
 
 
 def test_prop_override_is_filtered_to_known_markets() -> None:
