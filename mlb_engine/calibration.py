@@ -247,8 +247,18 @@ class Calibrator:
 
     maps: dict[str, IsotonicMap]
     default: IsotonicMap
+    retired: frozenset[str] = frozenset()
 
     def apply(self, market: str, prob: float) -> float:
+        """Calibrate, unless this market's own map has been retired.
+
+        A retired market takes no correction at all, not the pooled one: the
+        pooled curve is the average of every market's over-confidence, so
+        falling back to it would apply a correction fitted mostly elsewhere to
+        the one market known to have changed.
+        """
+        if market in self.retired:
+            return prob
         m = self.maps.get(market, self.default)
         return m.apply(prob)
 
@@ -267,32 +277,63 @@ class Calibrator:
         }
         return cls(maps=maps, default=IsotonicMap.fit(allp))
 
-    def to_json(self, path: Path) -> None:
+    def to_json(self, path: Path, bases: dict[str, str] | None = None) -> None:
+        """Write the map, stamping each market with the basis it is valid for.
+
+        ``bases`` carries a market forward on an older basis, which only
+        ``calibrate --revalidate`` may do and only for a market it has just
+        measured as still helping. Everything else is stamped current.
+        """
+        carried = bases or {}
         payload = {
             "basis": FEATURE_BASIS,
-            "markets": {mk: {"x": m.x, "y": m.y} for mk, m in self.maps.items()},
+            "markets": {
+                mk: {"x": m.x, "y": m.y, "basis": carried.get(mk, FEATURE_BASIS)}
+                for mk, m in self.maps.items()
+            },
             "default": {"x": self.default.x, "y": self.default.y},
         }
         path.write_text(json.dumps(payload, indent=2))
 
     @classmethod
     def from_json(cls, path: Path) -> Calibrator:
+        """Load the map, dropping only the markets whose basis is stale.
+
+        A basis bump used to retire the whole file, which is stricter than the
+        evidence: measured out of time on 33,712 graded rows priced after the
+        bumps of 2026-08, the retired map still beat the uncalibrated
+        probability on fourteen of nineteen markets (``pitcher_h`` +.0114 Brier,
+        ``game_ml`` +.0096) and lost on four (``batter_tb`` -.0238, whose total-
+        bases weighting had genuinely changed). Retiring per market keeps the
+        first group priced and drops the second, and a map with no stamp at all
+        is still refused everywhere -- an unlabelled fit could have been trained
+        on anything.
+        """
         data = json.loads(path.read_text())
-        basis = data.get("basis")
-        if basis != FEATURE_BASIS:
+        pooled = data.get("basis")
+        maps: dict[str, IsotonicMap] = {}
+        stale: list[str] = []
+        for mk, v in data.get("markets", {}).items():
+            if v.get("basis", pooled) == FEATURE_BASIS:
+                maps[mk] = IsotonicMap(v["x"], v["y"])
+            else:
+                stale.append(mk)
+        if stale:
             log.warning(
-                "calibration map %s was fit on feature basis %r, engine is on %r: "
-                "ignoring it until it is refit on graded slates from this engine",
+                "calibration map %s: %d of %d markets were fit on a feature basis "
+                "other than %r and are ignored until refit (%s)",
                 path.name,
-                basis,
+                len(stale),
+                len(stale) + len(maps),
                 FEATURE_BASIS,
+                ", ".join(sorted(stale)),
             )
-            return cls.identity()
-        maps = {
-            mk: IsotonicMap(v["x"], v["y"]) for mk, v in data.get("markets", {}).items()
-        }
-        d = data.get("default", {"x": [], "y": []})
-        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]))
+        d = (
+            data.get("default", {"x": [], "y": []})
+            if pooled == FEATURE_BASIS
+            else {"x": [], "y": []}
+        )
+        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]), retired=frozenset(stale))
 
     @classmethod
     def identity(cls) -> Calibrator:
