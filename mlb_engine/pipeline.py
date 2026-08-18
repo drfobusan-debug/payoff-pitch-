@@ -2155,6 +2155,22 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = gate_name
             rec.reasons = [gate_reason, *rec.reasons]
+        # Doubles price ceiling. Runs after the contact floor rather than beside
+        # the other price screens so it claims only the buys nothing else had
+        # already refused: ``screen_probation`` decides whether to lift a screen
+        # from the rows attributed to it, and a screen credited with another
+        # gate's refusals is judged on bets it never removed.
+        if market == "batter_2b" and rec.tier != Tier.PASS and not under:
+            keep, dbl_reason = price_ceiling_allows(
+                rec.market_american,
+                self.cfg.doubles_max_buy_odds,
+                "doubles-price-ceiling",
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "doubles_price_ceiling"
+            if dbl_reason:
+                rec.reasons = [dbl_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
@@ -2261,6 +2277,7 @@ def _preview_half(
         dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
+        fb_allowed=_fnum(pit_reg.fb_allowed),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,

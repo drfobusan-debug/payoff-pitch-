@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -431,3 +432,33 @@ def test_total_bases_and_hrr_prices_reach_the_quote_keys() -> None:
     assert tb[0].opposite_american == -105
     assert hrr[0].american == 120
     assert hrr[0].opposite_american == -140
+
+
+def test_a_board_that_has_moved_on_does_not_blame_the_key(caplog) -> None:
+    """Re-pricing a played slate reads as an auth failure otherwise.
+
+    Every event the vendor returns matches a slate pairing at the wrong first
+    pitch -- tomorrow's game of the same series -- so nothing resolves and the
+    generic error sends you after a key and a credit balance that are both fine.
+    """
+    slate = _dated_slate()
+    board = [
+        {
+            "id": f"tomorrow{i}",
+            "home_team": g.home.name,
+            "away_team": g.away.name,
+            "commence_time": f"2026-07-29T2{i}:10:00Z",
+            "bookmakers": [],
+        }
+        for i, g in enumerate(slate.games)
+    ]
+
+    client = OddsAPIClient("k")
+    client._get_json = lambda url, **params: board  # type: ignore[method-assign]
+    with caplog.at_level(logging.ERROR):
+        assert client.fetch(slate) == {}
+
+    assert client.skipped_later == 2
+    text = caplog.text
+    assert "moved on" in text and "2026-07-28" in text
+    assert "API key" not in text

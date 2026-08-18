@@ -87,6 +87,19 @@ def test_starter_row_shows_swstr_and_hard_hit_without_zone():
     assert "Zone%" not in html
 
 
+def test_starter_row_prints_the_air_rate_the_hr_term_reads():
+    gp = _preview(
+        home_starter=_starter(fb_allowed=0.415),
+        away_starter=_starter(name="Mitch Bratt", fb_allowed=None),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>FB%</th>" in html
+    assert "<td>42%</td>" in html
+    # An arm with no batted-ball sample reads as unavailable, not as 0%.
+    assert "<td>0%</td>" not in html
+
+
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
     txt = starter_trend_sentence("SD", _starter())
 
