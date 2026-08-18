@@ -54,6 +54,7 @@ from mlb_engine.features.lineup_lock import (
 from mlb_engine.features.market_gates import (
     price_band_allows,
     price_ceiling_allows,
+    prob_ceiling_allows,
     prob_floor_allows,
 )
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
@@ -201,7 +202,6 @@ def _pen_matchup(
     bmult: dict[str, float],
     xbh_mult: dict[str, float],
     bpen_allowed: dict[str, float],
-    bpen_k: float,
     bpen_npv: dict[str, float],
     bat_tail: dict[str, float],
     arsenal_mult: dict[str, float] | None = None,
@@ -216,7 +216,6 @@ def _pen_matchup(
     # Apply XBH selection to the bullpen matchup too.
     vp = apply_multipliers(vp, xbh_mult)
     vp = apply_multipliers(vp, bpen_allowed)
-    vp = apply_multipliers(vp, {"K": bpen_k})
     vp = apply_multipliers(vp, bpen_npv)
     if arsenal_mult:
         vp = apply_multipliers(vp, arsenal_mult)
@@ -452,7 +451,13 @@ class Pipeline:
 
         statcast = self.deps.statcast.max_window(
             slate_date,
-            [w.pitcher_form_days, w.batter_home_away_days, w.batter_vs_rhp_days, w.batter_vs_lhp_days],
+            [
+                w.pitcher_form_days,
+                w.batter_home_away_days,
+                w.batter_vs_rhp_days,
+                w.batter_vs_lhp_days,
+                w.team_split_days,
+            ],
         )
         self._ros_priors = (
             load_ros_priors(self.cfg.ros_prior_path) if self.cfg.ros_prior_path else {}
@@ -510,7 +515,10 @@ class Pipeline:
         # League-wide platoon and home/road offense, for the article's ranked
         # matchup verdict. Read once per slate off the frame already loaded.
         self._team_splits = build_team_splits(
-            statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
+            statcast,
+            slate_date,
+            self.cfg.windows.team_split_days,
+            self._ros_priors,
         )
         self._league_contact = league_contact(
             statcast, slate_date, self.cfg.windows.batter_vs_lhp_days
@@ -678,9 +686,10 @@ class Pipeline:
             statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
-        pit_reg = build_pitcher_regression(pit_rows, shrink=w.starter_contact_shrink)
+        pit_reg = build_pitcher_regression(
+            pit_rows, shrink=w.starter_contact_shrink, vfa_k=w.vfa_k_weight
+        )
         pit_allowed_mult = pit_reg.allowed_multipliers()
-        k_mult = pit_reg.k_multiplier()
 
         # Stuff/command priors: pull the starter's allowed K and BB rates toward
         # xK% (CSW%/SwStr%) and xBB% (Zone%/chase/F-strike) so thin PA samples
@@ -714,7 +723,6 @@ class Pipeline:
             bpen.skill_frame, bullpen=self.cfg.pen_contact_level
         )
         bpen_allowed = bpen_reg.allowed_multipliers()
-        bpen_k = bpen_reg.k_multiplier()
         avail = (
             self.deps.rotowire.bullpen_availability(opp.abbrev)
             if self.deps.rotowire and self.deps.rotowire.available()
@@ -809,7 +817,10 @@ class Pipeline:
             # V1-style XBH selector feeds the existing 2B/3B multiplier block.
             vs_start = apply_multipliers(vs_start, xbh_sel.outcome_multipliers)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
-            vs_start = apply_multipliers(vs_start, {"K": k_mult})
+            # No stuff multiplier on K: the blended rate above already carries
+            # CSW%/SwStr% through xK%, and multiplying it again only stretches a
+            # calibrated rate (scripts/k_multiplier_study.py). The platoon split
+            # is a different variable and stays.
             vs_start = apply_multipliers(vs_start, {"K": platoon_k})
             vs_start = apply_multipliers(vs_start, {"HR": platoon_hr})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
@@ -839,7 +850,7 @@ class Pipeline:
                 )
             # Aggregate pen (used once the game is out of hand) vs the team's
             # high-leverage arms (used late in a still-close game).
-            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
+            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_npv, bat_tail)
             vs_pen = _pen_matchup(
                 late_ctx, bpen.allowed, *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_arsenal, bpp),
@@ -1015,8 +1026,12 @@ class Pipeline:
                 xwoba_shrink=w.bullpen_xwoba_shrink,
                 prior_strength=self._pen_prior,
             )
-            pen_xwoba = pen.xwoba_allowed
-            pen_k = pen.k_pct if pen.xwoba_allowed is not None else None
+            # The unshrunk mean on purpose: ``dog_pen_xwoba_max`` (.330) was
+            # calibrated against raw three-week reads, and a shrunk read never
+            # travels far enough from .306 to cross it -- the gate would stop
+            # firing without anyone changing its threshold.
+            pen_xwoba = pen.xwoba_raw
+            pen_k = pen.k_pct if pen.xwoba_raw is not None else None
 
         return replace(
             base,
@@ -1986,6 +2001,18 @@ class Pipeline:
                     gate = "rbi_prob_floor"
                 if rbi_reason:
                     reasons.append(rbi_reason)
+            # Conviction ceiling: the batter model's surest overs are its
+            # worst bets (see ``batter_max_buy_prob``). Overs only -- the fade
+            # at the same conviction is 40 graded rows, too few to condemn.
+            if market.startswith("batter_") and tier != Tier.PASS and not under:
+                keep, ceil_reason = prob_ceiling_allows(
+                    rec.model_prob, self.cfg.batter_max_buy_prob, "batter-conviction-ceiling"
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "batter_prob_ceiling"
+                if ceil_reason:
+                    reasons.append(ceil_reason)
             # The fade's own screens, in place of the over screens it does not
             # inherit: a price with room to pay, and -- on singles, the only
             # market where the profile is measured -- the batter shape that
@@ -2063,7 +2090,9 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
-                    gate = "pen_availability"
+                    gate = (
+                        "pen_availability" if "availability" in pen_reason else "pen_workload"
+                    )
                 if pen_reason:
                     reasons.append(pen_reason)
                 keep, lock_reason = self._lineup_gate.allows(self._lineup_lock)
@@ -2126,6 +2155,22 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = gate_name
             rec.reasons = [gate_reason, *rec.reasons]
+        # Doubles price ceiling. Runs after the contact floor rather than beside
+        # the other price screens so it claims only the buys nothing else had
+        # already refused: ``screen_probation`` decides whether to lift a screen
+        # from the rows attributed to it, and a screen credited with another
+        # gate's refusals is judged on bets it never removed.
+        if market == "batter_2b" and rec.tier != Tier.PASS and not under:
+            keep, dbl_reason = price_ceiling_allows(
+                rec.market_american,
+                self.cfg.doubles_max_buy_odds,
+                "doubles-price-ceiling",
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "doubles_price_ceiling"
+            if dbl_reason:
+                rec.reasons = [dbl_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
@@ -2232,6 +2277,7 @@ def _preview_half(
         dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
+        fb_allowed=_fnum(pit_reg.fb_allowed),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,

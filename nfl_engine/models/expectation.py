@@ -47,6 +47,13 @@ Brier 0.2221 against 0.2470 for always predicting the home team, and the deciles
 above 0.5 land within 1.6pp of their prediction -- which is precisely the trap
 this constant exists to close: being right about football is not the same as
 being right about the price.
+
+Both of those jobs are why ``qb_margin_points`` exists. It corrects the *rating*
+for a starting quarterback whose team's history was run by somebody else, which a
+team rating cannot see, and it is added to the rating before the blend -- so with
+the market at weight 1.0 it moves no price and only reaches the mean where no
+market has posted. See ``nfl_engine/features/quarterback.py`` for the size of it
+and for why fading that team is not a bet.
 """
 
 from __future__ import annotations
@@ -84,6 +91,10 @@ class Forecast:
     market_margin: float | None
     market_total: float | None
     adjustment: Adjustment
+    # Reported separately from ``adjustment`` because it moves the rating rather
+    # than the blended mean: with the market at weight 1.0 it changes no price.
+    qb_margin_points: float = 0.0
+    qb_notes: tuple[str, ...] = ()
 
     def margin(self) -> float:
         return self.home_points - self.away_points
@@ -154,22 +165,28 @@ def forecast(
     market_margin: float | None = None,
     market_total: float | None = None,
     market_weight: float = MARKET_WEIGHT,
+    qb_margin_points: float = 0.0,
+    qb_notes: tuple[str, ...] = (),
 ) -> Forecast:
     """Blend the rating with the market, then apply the situational block.
 
     ``market_margin`` is the home team's expected margin (so a 3-point home
     favourite is +3.0, the sign ``games.csv`` already uses), and a missing market
     falls back to the rating alone.
+
+    ``qb_margin_points`` corrects the rating for a starting quarterback the
+    rating's history was not run by, from
+    :func:`nfl_engine.features.quarterback.margin_delta`. It moves the rating,
+    not the market's number, so it reaches the price only where the rating is the
+    mean.
     """
-    r_margin = rating_margin(book, home, away)
+    r_margin = rating_margin(book, home, away) + qb_margin_points
     r_total = rating_total(book, home, away)
     weight = market_weight if book.is_usable() else 1.0
-    margin = r_margin if market_margin is None else (
-        weight * market_margin + (1.0 - weight) * r_margin
+    margin = (
+        r_margin if market_margin is None else (weight * market_margin + (1.0 - weight) * r_margin)
     )
-    total = r_total if market_total is None else (
-        weight * market_total + (1.0 - weight) * r_total
-    )
+    total = r_total if market_total is None else (weight * market_total + (1.0 - weight) * r_total)
     situation = situation or Situation()
     delta = adjust(situation)
     total += delta.total_points
@@ -185,4 +202,6 @@ def forecast(
         market_margin=market_margin,
         market_total=market_total,
         adjustment=delta,
+        qb_margin_points=qb_margin_points,
+        qb_notes=qb_notes,
     )

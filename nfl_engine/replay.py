@@ -101,6 +101,10 @@ def _week(frame: pd.DataFrame, season: int, week: int) -> ReplayWeek:
                 ),
                 home_rest=_int(row.get("home_rest")),
                 away_rest=_int(row.get("away_rest")),
+                # Named on the schedule, and announced before kickoff in life, so
+                # a replay may read them without seeing the future.
+                home_qb_id=_text(row.get("home_qb_id")),
+                away_qb_id=_text(row.get("away_qb_id")),
             )
         )
         board[matchup] = _odds(row, matchup, home, away)

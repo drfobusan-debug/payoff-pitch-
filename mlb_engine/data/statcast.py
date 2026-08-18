@@ -47,6 +47,11 @@ USE_COLS = [
     "estimated_ba_using_speedangle",
     "woba_value",
     "woba_denom",
+    # change in run expectancy on the pitch, signed for the pitching side. The
+    # only field that scores a called strike and a foul, so it is what a
+    # pitch-type matchup read has to be built on. Frames cached before it was
+    # requested do not carry it; callers must treat it as optional.
+    "delta_run_exp",
     # bat tracking (2024+)
     "bat_speed",
     "swing_length",

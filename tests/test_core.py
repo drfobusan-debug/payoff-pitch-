@@ -1362,6 +1362,11 @@ def test_expected_k_pct_tracks_stuff():
     # A whiffy arm's xK% should clear the ~.22 league mean; a soft-tosser's shouldn't.
     assert hi.expected_k_pct() > 0.24
     assert lo.expected_k_pct() < 0.20
+    # A prior may not be more extreme than the outcome it is predicting: the two
+    # arms' xK% must sit inside the gap between the K rates they actually posted.
+    # The hand-set slopes failed this by more than double, and clipped as well.
+    assert hi.expected_k_pct() - lo.expected_k_pct() < 0.30 - 0.15
+    assert 0.08 < lo.expected_k_pct() and hi.expected_k_pct() < 0.42
 
 
 def _pitch_rows_disc(n_pitches, zone_frac, chase_frac, fstrike_frac):
@@ -1411,6 +1416,112 @@ def test_expected_bb_pct_tracks_command():
     assert wild.expected_bb_pct() > sharp.expected_bb_pct()
     assert wild.expected_bb_pct() > 0.085
     assert sharp.expected_bb_pct() < 0.085
+    # Both arms are plausible major leaguers, so both priors have to land inside
+    # the range starters actually walk people at. The hand-set slopes put the
+    # wild one at .19 and clipped the sharp one at the .02 floor.
+    assert 0.04 < sharp.expected_bb_pct() and wild.expected_bb_pct() < 0.14
+
+
+def _arm_rows(n_pitches, csw, swstr, two_strike_whiff, k_pct, bb_pct):
+    """Pitch rows with a controllable two-strike put-away rate, per two-strike PITCH."""
+    import pandas as pd
+
+    # A quarter of pitches are thrown with two strikes, of which the given share
+    # are whiffs -- the rate the strikeout multiplier compares to its baseline.
+    n_two = n_pitches // 4
+    two_whiff = int(n_two * two_strike_whiff)
+    rest_whiff = int(n_pitches * swstr) - two_whiff
+    rest_called = int(n_pitches * (csw - swstr))
+    desc = (
+        ["swinging_strike"] * two_whiff
+        + ["foul"] * (n_two - two_whiff)
+        + ["swinging_strike"] * rest_whiff
+        + ["called_strike"] * rest_called
+        + ["hit_into_play"] * (n_pitches - n_two - rest_whiff - rest_called)
+    )
+    strikes = [2] * n_two + [0] * (n_pitches - n_two)
+    n_pa = n_pitches // 4
+    events = (
+        ["strikeout"] * int(n_pa * k_pct)
+        + ["walk"] * int(n_pa * bb_pct)
+        + ["field_out"] * (n_pa - int(n_pa * k_pct) - int(n_pa * bb_pct))
+    )
+    return pd.DataFrame(
+        {
+            "description": desc,
+            "events": events + [None] * (n_pitches - n_pa),
+            "stand": ["R"] * n_pitches,
+            "strikes": strikes,
+            "launch_speed": [None] * n_pitches,
+            "pfx_z": [None] * n_pitches,
+            "release_extension": [None] * n_pitches,
+            "release_pos_x": [None] * n_pitches,
+            "release_pos_z": [None] * n_pitches,
+            "release_spin_rate": [None] * n_pitches,
+        }
+    )
+
+
+def test_k_multiplier_is_a_comparison_not_a_tax():
+    from mlb_engine.features.regression import (
+        BL_CSW,
+        BL_K_MINUS_BB,
+        BL_SWSTR,
+        BL_TWO_STRIKE_WHIFF,
+        build_pitcher_regression,
+    )
+
+    # Reported only -- nothing prices this any more -- but a number the article
+    # calls a comparison has to read as one: an arm on every league baseline must
+    # come out at 1.0. It did not, because the two-strike baseline was a
+    # per-swing rate read against a per-pitch one, so the term sat on its -0.06
+    # clip for 98% of starters and the product was a flat league-wide haircut.
+    avg = build_pitcher_regression(
+        _arm_rows(2000, BL_CSW, BL_SWSTR, BL_TWO_STRIKE_WHIFF, 0.22, 0.22 - BL_K_MINUS_BB)
+    )
+    assert abs(avg.two_strike_whiff - BL_TWO_STRIKE_WHIFF) < 0.02
+    assert abs(avg.k_multiplier() - 1.0) < 0.03
+    # And it still has to separate arms in both directions around that centre.
+    nasty = build_pitcher_regression(_arm_rows(2000, 0.32, 0.15, 0.22, 0.30, 0.06))
+    soft = build_pitcher_regression(_arm_rows(2000, 0.25, 0.08, 0.09, 0.16, 0.10))
+    assert nasty.k_multiplier() > 1.0 > soft.k_multiplier()
+
+
+def test_pen_zone_walk_term_reaches_real_bullpens():
+    import pandas as pd
+
+    from mlb_engine.features.rolling import LEAGUE_PEN_ZONE, BullpenProfile
+
+    lg = rates_from_events(pd.Series(dtype=object))
+    empty = pd.DataFrame()
+    # The trap used to fire below Zone% .40, which no bullpen reaches -- the
+    # minimum over 3,258 pen-games is .394. It has to bite inside the range pens
+    # actually occupy, and give the strike-thrower the other side of the same
+    # measured slope rather than taxing half the league for nothing.
+    wild = BullpenProfile(lg, lg, empty, zone_pct=0.437, recent_load=1.0)
+    sharp = BullpenProfile(lg, lg, empty, zone_pct=0.495, recent_load=1.0)
+    assert wild.npv_multipliers()["BB"] > 1.0 > sharp.npv_multipliers()["BB"]
+    assert abs(BullpenProfile(lg, lg, empty, LEAGUE_PEN_ZONE, 1.0).npv_multipliers()["BB"] - 1.0) < 1e-9
+    # Bounded: no pen's walk rate may be moved by more than the clip.
+    for zone in (0.20, 0.80):
+        assert 0.85 < BullpenProfile(lg, lg, empty, zone, 1.0).npv_multipliers()["BB"] < 1.15
+
+
+def test_pen_matchup_does_not_price_the_pen_s_stuff():
+    import pandas as pd
+
+    from mlb_engine.pipeline import _pen_matchup
+
+    # The pen's strikeout rate reaches the batter through the pooled rates it
+    # actually posted, and through nothing else: multiplying those by a stuff
+    # multiplier is worse out of sample than leaving them alone (#190, and
+    # scripts/k_multiplier_study.py on the starter side).
+    ctx = rates_from_events(pd.Series(["strikeout"] * 20 + ["single"] * 10 + ["field_out"] * 70))
+    pen = rates_from_events(pd.Series(["strikeout"] * 25 + ["single"] * 10 + ["field_out"] * 65))
+    vp = _pen_matchup(ctx, pen, {}, {}, {}, {}, {})
+    plain = combine(ctx, pen)
+    assert abs(vp["K"] - plain["K"]) < 1e-12
+    assert abs(sum(vp.values()) - 1.0) < 1e-9
 
 
 def test_blend_bb_rate_small_sample_leans_on_prior():

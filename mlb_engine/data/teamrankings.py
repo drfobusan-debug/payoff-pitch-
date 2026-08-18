@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import re
 from dataclasses import asdict, dataclass
 from html import unescape
@@ -43,6 +44,23 @@ log = logging.getLogger(__name__)
 
 PICKS_URL = "https://www.teamrankings.com/mlb-betting-picks/"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
+
+# Their team rating tables. Only the two that are not already inside the market
+# price we anchor to are worth storing, plus the headline rating for context:
+#
+#   luck         wins above what the run differential implies -- an outside
+#                reading of the season luck gap ``features.team_form`` scaffolds
+#   consistency  game-to-game variability, *lower is steadier*. Nothing in the
+#                engine models the spread of a team's performance, only its
+#                mean, and the spread is what a total and a run line are priced
+#                off -- a volatile club blows out and gets blown out.
+#   predictive   their power rating, kept only as the yardstick the other two
+#                are read against.
+#
+# Ratings are as-of-today with no archive, so like the picks they exist only if
+# they are captured nightly.
+RATING_URL = "https://www.teamrankings.com/mlb/ranking/{}-by-other"
+RATINGS = ("luck", "consistency", "predictive")
 
 # TeamRankings writes a club's name its own way in the grid's team column, and
 # its own abbreviation inside a pick cell. Both are mapped to the engine's code
@@ -76,6 +94,7 @@ _SLUG_DATE = re.compile(r"/mlb/matchup/[a-z0-9-]+?-(\d{4}-\d{2}-\d{2})")
 _RUNLINE = re.compile(r"^([A-Z]{2,3})\s*([+-]\d+(?:\.\d+)?)\s*([+-]\d+)?$")
 _MONEYLINE = re.compile(r"^([A-Z]{2,3})\s*([+-]\d+)?$")
 _TOTAL = re.compile(r"^(Over|Under)\s+(\d+(?:\.\d+)?)$", re.I)
+_RECORD = re.compile(r"\(\d+-\d+\)")
 
 # Column order in the grid. The winner column is a straight projection with no
 # price; the other two bet columns can decline to bet.
@@ -122,6 +141,31 @@ class TRPick:
         both in the ledger and pay their benchmark twice on one market.
         """
         return "|".join((self.date, self.matchup, self.market))
+
+
+@dataclass(frozen=True)
+class TeamRating:
+    """Their ratings for one club on one day, as published.
+
+    Kept as their number and their rank, unnormalised: the rank is the only part
+    that is comparable across days, because the rating's scale drifts as the
+    season fills in. Nothing here is a probability and none of it is blended
+    with ours -- these are stored to be measured against our own errors first.
+    """
+
+    date: str
+    team: str
+    luck: float | None = None
+    luck_rank: int | None = None
+    # Lower is steadier: their table ranks the least volatile club first.
+    consistency: float | None = None
+    consistency_rank: int | None = None
+    predictive: float | None = None
+    predictive_rank: int | None = None
+
+    @property
+    def key(self) -> str:
+        return f"{self.date}|{self.team}"
 
 
 def _text(html: str) -> str:
@@ -193,6 +237,33 @@ class TeamRankingsClient:
             picks = [p for p in picks if p.date == date]
         log.info("TeamRankings %s: %d picks", date or "all", len(picks))
         return picks
+
+    def fetch_ratings(self, date: str) -> list[TeamRating]:
+        """Their luck, consistency and predictive ratings, one row per club.
+
+        A table that fails to load leaves its fields empty rather than dropping
+        the club: the ratings are independent of each other, and a day with one
+        of the three missing is still worth having.
+        """
+        tables = {
+            name: parse_ratings(self._get(RATING_URL.format(name))) for name in RATINGS
+        }
+        teams = sorted({t for table in tables.values() for t in table})
+        out: list[TeamRating] = []
+        for team in teams:
+            luck_rank, luck = _rating_of(tables["luck"], team)
+            con_rank, con = _rating_of(tables["consistency"], team)
+            pred_rank, pred = _rating_of(tables["predictive"], team)
+            out.append(
+                TeamRating(
+                    date=date, team=team,
+                    luck=luck, luck_rank=luck_rank,
+                    consistency=con, consistency_rank=con_rank,
+                    predictive=pred, predictive_rank=pred_rank,
+                )
+            )
+        log.info("TeamRankings ratings %s: %d clubs", date, len(out))
+        return out
 
 
 def parse_picks(html: str) -> list[TRPick]:
@@ -309,6 +380,36 @@ def _moneyline(cell: Cell, date: str, matchup: str, away: str, home: str) -> TRP
     )
 
 
+def parse_ratings(html: str) -> dict[str, tuple[int, float]]:
+    """One rating table: engine team code -> (their rank, their rating).
+
+    The team cell carries the record ("Tampa Bay (74-48)"), which is stripped;
+    a club we cannot name is skipped rather than ranked as something else.
+    """
+    out: dict[str, tuple[int, float]] = {}
+    for raw in _ROW.findall(html):
+        cells = [_text(html_) for _, html_ in _CELL.findall(raw)]
+        if len(cells) < 3 or not cells[0].isdigit():  # a header or a spacer
+            continue
+        team = TEAM_NAMES.get(_RECORD.sub("", cells[1]).strip().lower())
+        try:
+            rating = float(cells[2])
+        except ValueError:
+            continue
+        if not math.isfinite(rating):  # "nan" parses as a float and is not JSON
+            continue
+        if team is not None:
+            out[team] = (int(cells[0]), rating)
+    return out
+
+
+def _rating_of(
+    table: dict[str, tuple[int, float]], team: str
+) -> tuple[int | None, float | None]:
+    got = table.get(team)
+    return (None, None) if got is None else got
+
+
 def save_picks(path: Path, picks: list[TRPick]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps([asdict(p) for p in picks], indent=1), encoding="utf-8")
@@ -324,6 +425,28 @@ def load_picks(path: Path) -> list[TRPick]:
     return [TRPick(**p) for p in raw if isinstance(p, dict)]
 
 
+def save_ratings(path: Path, ratings: list[TeamRating]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps([asdict(r) for r in ratings], indent=1), encoding="utf-8")
+
+
+def load_ratings(path: Path) -> list[TeamRating]:
+    if not path.exists():
+        return []
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return []
+    return [TeamRating(**r) for r in raw if isinstance(r, dict)]
+
+
+def merge_ratings(old: list[TeamRating], new: list[TeamRating]) -> list[TeamRating]:
+    """One row per club per day, the later capture winning."""
+    merged: dict[str, TeamRating] = {r.key: r for r in old}
+    merged.update({r.key: r for r in new})
+    return [merged[k] for k in sorted(merged)]
+
+
 def merge_picks(old: list[TRPick], new: list[TRPick]) -> list[TRPick]:
     """Union two captures of a slate, the later one winning.
 
@@ -331,6 +454,6 @@ def merge_picks(old: list[TRPick], new: list[TRPick]) -> list[TRPick]:
     against the box score itself -- so there is no forward-only field to protect
     and the fresher capture simply wins.
     """
-    merged = {p.key: p for p in old}
+    merged: dict[str, TRPick] = {p.key: p for p in old}
     merged.update({p.key: p for p in new})
     return [merged[k] for k in sorted(merged)]

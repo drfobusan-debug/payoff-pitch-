@@ -247,10 +247,11 @@ def test_a_proposed_screen_only_sees_the_rows_it_would_refuse() -> None:
     assert p.n == 120
 
 
-def test_the_registered_candidates_cover_the_two_that_were_asked_for() -> None:
+def test_every_screen_that_was_proposed_and_not_shipped_stays_registered() -> None:
     assert [c.name for c in CANDIDATE_SCREENS] == [
         "home_ml_refuse_longer_than_-120",
         "game_ml_market_anchor_0.5",
+        "batter_under_prob_ceiling_0.62",
     ]
 
 

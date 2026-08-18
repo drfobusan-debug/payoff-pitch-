@@ -48,7 +48,8 @@ from mlb_engine.audit.probation import (
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
 from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
-from mlb_engine.config import Config, load_config
+from mlb_engine.config import Config, default_ros_prior_path, load_config
+from mlb_engine.data import ros_prior
 from mlb_engine.data.batx import annotate as annotate_batx
 from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
@@ -73,8 +74,11 @@ from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.teamrankings import (
     TeamRankingsClient,
     load_picks,
+    load_ratings,
     merge_picks,
+    merge_ratings,
     save_picks,
+    save_ratings,
 )
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
@@ -105,6 +109,7 @@ from mlb_engine.state import (
     STATE_BRANCH,
     auto_pull,
     auto_push,
+    card_supersedes,
     pull_state,
     push_state,
 )
@@ -381,6 +386,7 @@ def _capture_teamrankings(cfg: Config, slate_date: Date) -> None:
             return
         path = _tr_path(cfg, iso)
         save_picks(path, merge_picks(load_picks(path), picks))
+        _capture_tr_ratings(cfg)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("TeamRankings benchmark unavailable", exc_info=True)
         return
@@ -392,7 +398,9 @@ def cmd_run(args: argparse.Namespace) -> int:
     deps = PipelineDeps(
         stats=MLBStatsClient(),
         statcast=StatcastRepository(cfg.cache_dir),
-        weather=WeatherProvider(),
+        weather=WeatherProvider(
+            cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
+        ),
         vsin=VSINClient(cfg.creds),
         oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
@@ -405,6 +413,16 @@ def cmd_run(args: argparse.Namespace) -> int:
         cfg = load_config()
 
     slate_date = _parse_date(args.date, Date.today())
+    # Before the pipeline reads it: the file is derived rather than synced, so a
+    # machine seeing this slate for the first time has none, and a missing one
+    # is the league mean wearing the projection's name.
+    ros_prior.refresh_if_stale(
+        cfg.ros_prior_path,
+        slate_date,
+        deps.stats,
+        projections=cfg.projections_dir,
+        source=cfg.projection_source,
+    )
     pipe = Pipeline(cfg, deps)
     vsin_csv = Path(args.vsin_csv) if args.vsin_csv else None
     fg_dir = cfg.fangraphs_dir
@@ -610,6 +628,41 @@ def _tr_path(cfg: Config, slate_date: str) -> Path:
     return cfg.audit_dir / f"teamrankings_{slate_date}.json"
 
 
+def _tr_ratings_path(cfg: Config, slate_date: str) -> Path:
+    return cfg.audit_dir / f"tr_ratings_{slate_date}.json"
+
+
+def _capture_tr_ratings(cfg: Config) -> int:
+    """Store their team ratings as they stand today. Returns clubs read.
+
+    Their luck and consistency ratings are the two things on that site the
+    engine does not already model or already have inside the market price it
+    anchors to, and both are as-of-today with no archive. Captured so the
+    question of whether they explain any of our error is answerable later with
+    a measurement rather than an opinion -- nothing reads them at pricing time.
+
+    Always stamped with today, never with the slate being captured. The tables
+    have no date parameter, so a rating read today describes today whatever
+    slate the caller is working on -- filing it under an older date would
+    overwrite that day's genuine capture with a reading taken after its games.
+
+    Best-effort in the strong sense: the caller gets 0 rather than an exception
+    however this fails, because the ratings are a research sample and the picks
+    they are captured alongside are the benchmark that must not be lost.
+    """
+    today = Date.today().isoformat()
+    try:
+        ratings = TeamRankingsClient().fetch_ratings(today)
+        if not ratings:
+            return 0
+        path = _tr_ratings_path(cfg, today)
+        save_ratings(path, merge_ratings(load_ratings(path), ratings))
+    except Exception:  # noqa: BLE001 - a research sample must not break a capture
+        logging.warning("TeamRankings ratings unavailable", exc_info=True)
+        return 0
+    return len(ratings)
+
+
 def cmd_teamrankings(args: argparse.Namespace) -> int:
     """Capture TeamRankings' picks for a slate, as an outside benchmark.
 
@@ -620,6 +673,13 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     """
     cfg = load_config()
     cfg.ensure_dirs()
+    _state_pull(cfg)
+    # Before anything can go wrong with the grid. The ratings are a separate set
+    # of pages with no date on them, so whether tonight's slate has been posted
+    # yet says nothing about whether today's ratings are readable -- and a day
+    # of them missed is a day that cannot be recovered.
+    clubs = _capture_tr_ratings(cfg)
+    print(f"Captured TeamRankings luck/consistency ratings for {clubs} clubs")
     picks = TeamRankingsClient().fetch()
     if not picks:
         print("TeamRankings' picks grid returned nothing; captured no benchmark.")
@@ -630,7 +690,6 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
         published = ", ".join(sorted({p.date for p in picks}))
         print(f"TeamRankings is showing {published}; {wanted} is not on the grid.")
         return 1
-    _state_pull(cfg)
     path = _tr_path(cfg, wanted)
     merged = merge_picks(load_picks(path), slate)
     save_picks(path, merged)
@@ -724,9 +783,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # against quotes that no longer exist, so it loses to the real thing.
     pregame = cfg.audit_dir / f"predictions_{audit_date.isoformat()}{PREGAME_SUFFIX}"
     if pregame.exists():
-        if pred_path.exists():
-            print(f"Grading the pregame predictions from {pregame.name}, not the local re-price")
-        pred_path = pregame
+        if pred_path.exists() and card_supersedes(pred_path, pregame):
+            print(f"Grading {pred_path.name}: priced later than {pregame.name}, still pregame")
+        else:
+            if pred_path.exists():
+                print(
+                    f"Grading the pregame predictions from {pregame.name}, not the local re-price"
+                )
+            pred_path = pregame
     if not pred_path.exists():
         print(f"No predictions found for {audit_date} at {pred_path}")
         return 1
@@ -992,6 +1056,36 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ros_prior(args: argparse.Namespace) -> int:
+    """Rebuild the hitter projection the batter prior shrinks toward.
+
+    Any projection CSV in the projections folder is read first -- a subscriber's
+    rest-of-season export beats anything buildable here -- and a Marcel off the
+    free official season lines covers the hitters it omits: three seasons
+    weighted 5/4/3, regressed 1200 PA to the league, aged. ``run`` rebuilds it by
+    itself once a new export appears or the file is a week old, so this is for
+    forcing one out of turn or writing it somewhere other than the usual path.
+    """
+    cfg = load_config()
+    season = args.season or Date.today().year
+    out = Path(args.out) if args.out else Path(cfg.ros_prior_path or default_ros_prior_path())
+    export = ros_prior.newest_export(cfg.projections_dir, cfg.projection_source)
+    try:
+        ros = ros_prior.build(
+            MLBStatsClient(),
+            season,
+            out,
+            projections=cfg.projections_dir,
+            source=cfg.projection_source,
+        )
+    except RuntimeError as exc:
+        print(f"{exc}; leaving the existing file alone.")
+        return 1
+    source = f" ({export.name} over the Marcel)" if export is not None else ""
+    print(f"{len(ros)} hitters{source} -> {out}")
+    return 0
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
@@ -1206,6 +1300,13 @@ def main(argv: list[str] | None = None) -> int:
     tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
     tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
     tf.set_defaults(func=cmd_team_form)
+
+    rpr = sub.add_parser(
+        "ros-prior", help="rebuild the hitter projection the batter prior shrinks toward"
+    )
+    rpr.add_argument("--season", type=int, help="season being projected (default: this year)")
+    rpr.add_argument("--out", help=f"output path (default: {default_ros_prior_path()})")
+    rpr.set_defaults(func=cmd_ros_prior)
 
     cal = sub.add_parser("calibrate", help="refit the calibration map from the audit ledger")
     cal.add_argument("--holdout", type=int, default=2, help="slates held out for validation")
