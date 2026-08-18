@@ -12,7 +12,8 @@ requested for F5 accuracy are supported:
   a state dimension.
 
 A stationary, single-distribution wrapper (`f5_from_rates`) is kept for callers
-that only have team-average rates.
+that only have team-average rates, and `f5_from_sim` prices the same markets off
+the game simulator's own first five innings instead of the chain.
 """
 
 from __future__ import annotations
@@ -238,6 +239,24 @@ def f5_from_lineups(
     home5 = team_f5_distribution(home_slots, tto_factors, away_dp_rate)
     away5 = team_f5_distribution(away_slots, tto_factors, home_dp_rate)
     return _combine(home5, away5)
+
+
+def f5_from_sim(home_runs_f5: np.ndarray, away_runs_f5: np.ndarray) -> F5Result:
+    """F5 markets off the game simulator's first five innings.
+
+    The simulator draws the two offenses independently within a game, so the
+    empirical marginals carry the whole joint and the probabilities are formed
+    the same way as the chain's.
+    """
+    return _combine(_empirical_dist(home_runs_f5), _empirical_dist(away_runs_f5))
+
+
+def _empirical_dist(runs: np.ndarray) -> np.ndarray:
+    counts = np.bincount(
+        np.clip(np.asarray(runs).astype(int), 0, RUN_CAP), minlength=RUN_CAP + 1
+    ).astype(float)
+    total = counts.sum()
+    return counts / total if total > 0 else counts
 
 
 def f5_from_rates(
