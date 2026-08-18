@@ -22,6 +22,14 @@ But it is entirely a timing edge, and that is why nothing here moves a price:
     first game of the absence     406    56.2%   |  2024-25 holdout  59.9%
     he was out last week too      156    55.1%   |  2024-25 holdout  47.1%
 
+And it is weaker than that, because every row above is flagged from the box score
+of the game being graded, which no Saturday morning has. Re-asked of last week's
+box score -- the starter missed the previous game, so fade his team in this one --
+the fade is 51.4% over 717 team-games against a 52.4% break-even, null in each
+era, and the miss against the number falls from -2.03 points to -0.60. Most of
+the retrospective effect is a starter hooked in a blowout, i.e. the flag reading
+the result. See ``scripts/cfb/qb_absence_study.py``.
+
 Once the backup is common knowledge the market prices him correctly. So this
 module's job is to record what we knew and when we knew it -- each observation is
 stamped with the line at that moment in the availability log -- so the question
