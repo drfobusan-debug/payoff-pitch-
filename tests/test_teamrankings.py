@@ -10,6 +10,7 @@ The HTML is a row captured verbatim from their grid.
 
 from __future__ import annotations
 
+import argparse
 from datetime import date as Date
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN
@@ -510,3 +511,72 @@ def test_a_ratings_failure_never_reaches_the_caller(monkeypatch, tmp_path) -> No
     monkeypatch.setattr(cli.TeamRankingsClient, "fetch_ratings", boom)
     assert cli._capture_tr_ratings(cfg) == 0
     assert not list(tmp_path.rglob("tr_ratings_*.json"))
+
+
+def test_an_anonymous_session_cookie_is_not_a_login(monkeypatch) -> None:
+    """``tr_session`` is handed out before any login, so it proved nothing.
+
+    Checking for it accepted every rejected password: the client returned a
+    signed-out session, the capture filed the free grid -- the last slate
+    already played -- and the run reported success. Only ``tru`` means
+    subscriber.
+    """
+    import requests
+
+    from mlb_engine.data import teamrankings as tr
+
+    class FakeResponse:
+        status_code = 200
+        text = ""
+
+        def raise_for_status(self) -> None:
+            return None
+
+    class FakeSession:
+        def __init__(self, names: tuple[str, ...]) -> None:
+            self.cookies = requests.cookies.RequestsCookieJar()
+            for name in names:
+                self.cookies.set(name, "x")
+
+        def get(self, *a, **k) -> FakeResponse:
+            return FakeResponse()
+
+        def post(self, *a, **k) -> FakeResponse:
+            return FakeResponse()
+
+    creds = Credentials(teamrankings_user="a@b.c", teamrankings_pass="pw")
+
+    monkeypatch.setattr(requests, "Session", lambda: FakeSession(("tr_session", "trv3")))
+    assert TeamRankingsClient(creds)._signed_in() is None
+
+    monkeypatch.setattr(requests, "Session", lambda: FakeSession(("tr_session", "tru")))
+    assert TeamRankingsClient(creds)._signed_in() is not None
+    assert tr.SUBSCRIBER_COOKIE == "tru"
+
+
+def test_capturing_a_slate_already_played_says_so(monkeypatch, tmp_path, capsys) -> None:
+    """Signed out the newest grid date is in the past, which read as a success."""
+    from mlb_engine import cli
+
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("MLBE_STATE_SYNC", "0")
+    stale = "2020-05-05"
+    picks = [
+        TRPick(
+            date=stale, matchup="AAA @ BBB", market="game_ml", selection="AAA ML",
+            line=None, side="", team="AAA", team_side="away", american=-120, stars=2,
+        )
+    ]
+    monkeypatch.setattr(cli.TeamRankingsClient, "fetch", lambda self, date=None: picks)
+    monkeypatch.setattr(cli, "_capture_tr_ratings", lambda cfg: 0)
+
+    args = argparse.Namespace(date=None)
+    assert cli.cmd_teamrankings(args) == 0
+    out = capsys.readouterr().out
+    assert stale in out
+    assert "TEAMRANKINGS_EMAIL" in out
+
+    # Asked for that date explicitly, it is a backfill and not a warning.
+    args = argparse.Namespace(date=stale)
+    assert cli.cmd_teamrankings(args) == 0
+    assert "TEAMRANKINGS_EMAIL" not in capsys.readouterr().out

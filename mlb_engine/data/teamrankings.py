@@ -48,6 +48,14 @@ PICKS_URL = "https://www.teamrankings.com/mlb-betting-picks/"
 LOGIN_URL = "https://www.teamrankings.com/login/"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 
+# The cookie that means *subscriber*, and the only one that does. ``tr_session``
+# is handed to anonymous visitors by the login page itself, so checking for it
+# accepted every rejected login: the account that could not sign in captured the
+# free grid -- the last slate already played -- and reported success. A wrong
+# password has to be louder than a missing benchmark, because it looks exactly
+# like one.
+SUBSCRIBER_COOKIE = "tru"
+
 # Their team rating tables. Only the two that are not already inside the market
 # price we anchor to are worth storing, plus the headline rating for context:
 #
@@ -267,8 +275,13 @@ class TeamRankingsClient:
         except requests.RequestException as exc:
             log.warning("TeamRankings login failed: %s", exc)
             return None
-        if "tr_session" not in session.cookies:
-            log.warning("TeamRankings login rejected the credentials")
+        if SUBSCRIBER_COOKIE not in session.cookies:
+            log.warning(
+                "TeamRankings login rejected the credentials (no %s cookie): tonight's "
+                "grid will not be published to us and the capture will file the last "
+                "slate that was played",
+                SUBSCRIBER_COOKIE,
+            )
             return None
         self._session = session
         return session
