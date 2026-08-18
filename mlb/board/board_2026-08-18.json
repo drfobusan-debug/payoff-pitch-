@@ -1136,9 +1136,23 @@
   {
     "matchup": "ATH @ KC",
     "market": "batter_h",
+    "selection": "Henry Bolte H o0.5",
+    "american": -268.0,
+    "no_vig_prob": 0.683838
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_h",
     "selection": "Henry Bolte H o1.5",
     "american": 192.0,
     "no_vig_prob": 0.34519
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_h",
+    "selection": "Henry Bolte H u0.5",
+    "american": 197.0,
+    "no_vig_prob": 0.316162
   },
   {
     "matchup": "ATH @ KC",
@@ -2018,9 +2032,23 @@
   {
     "matchup": "ATH @ KC",
     "market": "batter_tb",
+    "selection": "Jonah Heim TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.61039
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_tb",
     "selection": "Jonah Heim TB o1.5",
     "american": 152.0,
     "no_vig_prob": 0.384254
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_tb",
+    "selection": "Jonah Heim TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.38961
   },
   {
     "matchup": "ATH @ KC",
@@ -6197,9 +6225,23 @@
   {
     "matchup": "AZ @ BOS",
     "market": "batter_h",
+    "selection": "Geraldo Perdomo H o1.5",
+    "american": 210.0,
+    "no_vig_prob": 0.296684
+  },
+  {
+    "matchup": "AZ @ BOS",
+    "market": "batter_h",
     "selection": "Geraldo Perdomo H u0.5",
     "american": 152.0,
     "no_vig_prob": 0.371227
+  },
+  {
+    "matchup": "AZ @ BOS",
+    "market": "batter_h",
+    "selection": "Geraldo Perdomo H u1.5",
+    "american": -325.0,
+    "no_vig_prob": 0.703316
   },
   {
     "matchup": "AZ @ BOS",
@@ -8227,9 +8269,23 @@
   {
     "matchup": "CWS @ CHC",
     "market": "batter_hrr",
+    "selection": "Pete Crow-Armstrong H+R+RBI o2.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "batter_hrr",
     "selection": "Pete Crow-Armstrong H+R+RBI u1.5",
     "american": 121.0,
     "no_vig_prob": 0.426957
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "batter_hrr",
+    "selection": "Pete Crow-Armstrong H+R+RBI u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
   },
   {
     "matchup": "CWS @ CHC",
@@ -9725,9 +9781,23 @@
   {
     "matchup": "CWS @ CHC",
     "market": "f5_rl",
+    "selection": "CHC F5 -1.0",
+    "american": 100.0,
+    "no_vig_prob": 0.469388
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "f5_rl",
     "selection": "CWS F5 +0.5",
     "american": 105.0,
     "no_vig_prob": 0.468941
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "f5_rl",
+    "selection": "CWS F5 +1.0",
+    "american": -130.0,
+    "no_vig_prob": 0.530612
   },
   {
     "matchup": "CWS @ CHC",
@@ -9812,6 +9882,20 @@
     "selection": "Under 9.0",
     "american": -105.0,
     "no_vig_prob": 0.507531
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "pitcher_bb",
+    "selection": "Kevin Gausman Walks o1.5",
+    "american": -138.0,
+    "no_vig_prob": 0.545032
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "pitcher_bb",
+    "selection": "Kevin Gausman Walks u1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.454968
   },
   {
     "matchup": "CWS @ CHC",
@@ -15066,9 +15150,23 @@
   {
     "matchup": "LAA @ HOU",
     "market": "pitcher_outs",
+    "selection": "Cristian Javier Outs o15.0",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "pitcher_outs",
     "selection": "Cristian Javier Outs o15.5",
     "american": 130.0,
     "no_vig_prob": 0.433145
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "pitcher_outs",
+    "selection": "Cristian Javier Outs u15.0",
+    "american": -120.0,
+    "no_vig_prob": 0.5
   },
   {
     "matchup": "LAA @ HOU",
@@ -19693,9 +19791,23 @@
   {
     "matchup": "MIA @ PHI",
     "market": "batter_tb",
+    "selection": "J.T. Realmuto TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.364652
+  },
+  {
+    "matchup": "MIA @ PHI",
+    "market": "batter_tb",
     "selection": "J.T. Realmuto TB u0.5",
     "american": 140.0,
     "no_vig_prob": 0.388295
+  },
+  {
+    "matchup": "MIA @ PHI",
+    "market": "batter_tb",
+    "selection": "J.T. Realmuto TB u1.5",
+    "american": -208.0,
+    "no_vig_prob": 0.635348
   },
   {
     "matchup": "MIA @ PHI",
@@ -24803,9 +24915,23 @@
   {
     "matchup": "SD @ NYM",
     "market": "batter_tb",
+    "selection": "Austin Hays TB o0.5",
+    "american": -193.0,
+    "no_vig_prob": 0.612935
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_tb",
     "selection": "Austin Hays TB o1.5",
     "american": 167.0,
     "no_vig_prob": 0.352013
+  },
+  {
+    "matchup": "SD @ NYM",
+    "market": "batter_tb",
+    "selection": "Austin Hays TB u0.5",
+    "american": 143.0,
+    "no_vig_prob": 0.387065
   },
   {
     "matchup": "SD @ NYM",
@@ -31295,6 +31421,20 @@
     "selection": "Everson Pereira H+R+RBI u0.5",
     "american": 120.0,
     "no_vig_prob": 0.433956
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI o1.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416503
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583497
   },
   {
     "matchup": "STL @ CIN",
