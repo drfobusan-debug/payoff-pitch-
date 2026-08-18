@@ -32,6 +32,30 @@ memory shrinks the total weight and the same nominal ridge shrinks every rating
 several times harder, so the grid reads as an interaction that is really an
 artefact of the scaling.
 
+September, and the discount that is not there
+---------------------------------------------
+The decay clock counts *weeks present in the panel*, so the offseason is one
+tick: a week-1 rating weights the previous January at ~0.92 and is, honestly
+described, "how you finished last season" applied to a roster that has since
+turned over. The obvious fix is to charge the boundary extra age, and
+``scripts/nfl/september_study.py`` measures it as **wrong**, monotonically, in
+the exact window it was meant to help -- weeks 1-4 margin MAE against extra
+half-lives of offseason:
+
+    extra weeks   0       2       4       6       8      12      20
+    weeks 1-4   10.306  10.322  10.339  10.359  10.392  10.475  10.698
+
+Forgetting last season faster is not the answer, because prior-season evidence is
+carrying real signal in September; the same script's memory grid says early weeks
+want *more* memory, not less (weeks 1-4 MAE 10.260 at a 12-week half-life against
+10.306 at 8), which the shipped 8 weeks keeps because it is better over the full
+season (10.282 against 10.314) and the September gain is 0.05 points.
+
+What does help in September is *adding* offseason information rather than
+discarding evidence, and the one piece of it the panel already carries is who is
+taking the snaps -- see ``quarterback.py``, which also finds that a genuine
+offseason quarterback change carries no rating bias at all.
+
 **What this rating is worth is measured in scripts/nfl/ratings_study.py, and it
 is not worth a bet on its own**: 10.282 margin MAE against the closing line's
 9.905, and its disagreement with the line explains none of that line's error
@@ -53,6 +77,11 @@ RIDGE = 600.0
 # A rating needs some history behind it before it means anything; below this the
 # book reports league means and the caller falls back to the market.
 MIN_HISTORY_GAMES = 400
+# Extra weeks of age charged per season boundary crossed. Ships at zero because
+# it measured worse at every value tried -- see the module docstring. It is a
+# parameter rather than a deleted experiment so ``scripts/nfl/september_study.py``
+# can keep re-running the test that says not to use it.
+OFFSEASON_WEEKS = 0.0
 
 METRICS = ("epa", "success", "proe", "sec_per_play", "drives")
 
@@ -145,15 +174,29 @@ def _solve(
     return offence, defence, float(beta[-1]), float(beta[0])
 
 
-def _weights(frame: pd.DataFrame, asof: float, half_life: float) -> np.ndarray:
+def _weights(
+    frame: pd.DataFrame,
+    asof: float,
+    half_life: float,
+    *,
+    asof_season: float | None = None,
+    offseason: float = OFFSEASON_WEEKS,
+) -> np.ndarray:
     """Exponential decay in weeks of age, so a rating forgets at a fitted rate.
 
     Normalised to average 1, which makes the ridge penalty mean the same thing at
     every half-life: without it, a short memory shrinks the total weight and the
     same nominal penalty shrinks the ratings several times harder, so the two
     parameters cannot be fitted independently.
+
+    ``offseason`` charges each season boundary that extra many weeks of age, which
+    is the discount September looks like it should want and measured worse at
+    every value; it is zero unless a study asks for it.
     """
     age = np.maximum(asof - frame.week_index.to_numpy(dtype=float), 0.0)
+    if offseason and asof_season is not None:
+        gap = np.maximum(float(asof_season) - frame.season.to_numpy(dtype=float), 0.0)
+        age = age + offseason * gap
     weights = np.asarray(0.5 ** (age / half_life), dtype=float)
     mean = float(weights.mean())
     return weights / mean if mean > 0 else weights
@@ -175,19 +218,24 @@ def fit(
     history: pd.DataFrame,
     *,
     asof: float | None = None,
+    asof_season: int | None = None,
     half_life: float = HALF_LIFE_WEEKS,
     ridge: float = RIDGE,
+    offseason: float = OFFSEASON_WEEKS,
 ) -> RatingBook:
     """Rate every team in ``history``, which must contain only prior games.
 
     ``asof`` is the week index the ratings are for; ratings age relative to it.
+    ``asof_season`` and ``offseason`` together charge extra age across a season
+    boundary, and are only used by the September study: the shipped discount is
+    zero.
     """
     if history.empty:
         return RatingBook()
     frame = history if "week_index" in history.columns else week_index(history)
     frame = frame.reset_index(drop=True)
     point = float(frame.week_index.max()) + 1.0 if asof is None else float(asof)
-    weights = _weights(frame, point, half_life)
+    weights = _weights(frame, point, half_life, asof_season=asof_season, offseason=offseason)
     teams = sorted(set(frame.posteam.dropna()) | set(frame.defteam.dropna()))
     offence: dict[str, dict[str, float]] = {}
     defence: dict[str, dict[str, float]] = {}

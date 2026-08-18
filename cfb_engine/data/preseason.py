@@ -12,9 +12,10 @@ Both are keyed by :func:`school_key`. The ensemble standardizes each source to a
 common z-scale, so the absolute-vs-net difference washes out in the blend.
 
 :data:`STABILITY` is the guide's 0-19 roster/coaching-stability score. It is not
-a point rating; it feeds :func:`stability_factor`, which shrinks a preseason
-rating gap toward a pick'em when the two teams have volatile rosters (new
-coordinators, few returning starters), and trusts it fully when both are stable.
+a point rating; it feeds :func:`stability_factor`, which shrinks a rating gap
+toward a pick'em when the two teams have volatile rosters (new coordinators, few
+returning starters), and trusts it fully when both are stable. That term now
+ships **off** -- see :func:`stability_factor` for what it measured.
 """
 
 from __future__ import annotations
@@ -474,9 +475,26 @@ def _min_keep() -> float:
 def stability_factor(home_name: str, away_name: str, *, enabled: bool = True) -> float:
     """Bounded multiplier (``_min_keep()``..1.0) on a game's regression factor.
 
-    Low average roster stability -> shrink the preseason rating gap harder toward
-    a pick'em (and thus lean more on the market blend); full stability -> keep the
-    gap intact. Returns 1.0 when disabled.
+    Low average roster stability -> shrink the rating gap harder toward a pick'em
+    (and thus lean more on the market blend); full stability -> keep the gap
+    intact. Returns 1.0 when disabled, which is now the default.
+
+    Measured, and the direction is right while the size is not. Against dated
+    TeamRankings snapshots (6,818 graded games, 2014-2025) the fraction of a
+    rating gap the data supports is 0.916 for the least continuous third of
+    matchups and 0.968 for the most -- a real ~0.05 spread, against a haircut up
+    to 0.25 wide. Worse for the term's own story, the spread is *smallest* in
+    September (0.012) and largest from week 10 (0.102), so it is not preseason
+    uncertainty it is picking up. Walk-forward, every dose is worse than none:
+
+        no haircut 12.549 | floor 0.95 12.556 | 0.90 12.572 | 0.75 12.654
+
+    (rating MAE; the blended 65/35 numbers rank identically, and the repo's own
+    PPA-ridge instrument agrees). ``CFBE_VSIN_STABILITY=1`` restores it;
+    ``scripts/cfb/stability_study.py`` reproduces the measurement.
+
+    Note the score itself has one season of history, so the study splits on CFBD
+    returning production instead; the two agree at r=+0.43 on the 2026 book.
     """
     if not enabled:
         return 1.0

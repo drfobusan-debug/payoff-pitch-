@@ -111,8 +111,34 @@ def test_profile_keeps_the_raw_xwoba_alongside_the_shrunk_one() -> None:
     assert shrunk.xwoba_allowed < LEAGUE_PEN_XWOBA
 
 
-def test_defaults_leave_the_engine_unchanged() -> None:
+def test_defaults_read_the_pen_at_its_measured_reliability() -> None:
     w = Config().windows
     assert w.bullpen_days == 21
     assert w.bullpen_skill_days == 0
-    assert w.bullpen_xwoba_shrink == 1.0
+    # A three-week xwOBA repeats at 0.37, and is now used at 0.37.
+    assert w.bullpen_xwoba_shrink == 0.37
+
+
+def test_pen_rates_ship_shrunk_to_the_fitted_priors() -> None:
+    """The pen vector the simulator receives is the empirical-Bayes one.
+
+    Out of time (330 team-windows, a 21-day read against the next 21 days), the
+    flat-60 read forecast the next three weeks worse than assuming every pen is
+    league average; the fitted priors do not.
+    """
+    cfg = Config()
+    assert cfg.pen_shrink is True
+
+
+def test_the_run_line_gate_still_has_a_threshold_it_can_reach() -> None:
+    """Why the underdog-pen gate keeps reading ``xwoba_raw``.
+
+    Its .330 cut was calibrated against unshrunk three-week means. At the
+    measured 0.37 weight even the worst pen in baseball lands short of it, so
+    reading the shrunk value would retire the gate silently rather than on
+    evidence.
+    """
+    worst = 0.353  # the league's worst pen on 2026-08-16, raw (the 30 span .243-.353)
+    cut = Config().runline_gates.dog_pen_xwoba_max
+    assert worst > cut
+    assert shrink_pen_xwoba(worst, 0.37) < cut

@@ -33,6 +33,7 @@ from cfb_engine.data.portal import PortalBook, portal_note
 from cfb_engine.data.preseason import stability_factor
 from cfb_engine.data.ratings import build_rating_book
 from cfb_engine.data.returning import ReturningBook, build_returning_book
+from cfb_engine.data.roster import RosterBook
 from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
@@ -86,6 +87,7 @@ class Pipeline:
         self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
         self.advanced: AdvancedBook = parse_advanced([], {})
         self.news: dict[str, NewsItem] = {}
+        self._roster: dict[int, RosterBook | None] = {}
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -195,7 +197,7 @@ class Pipeline:
             recs.extend(
                 self._price_game(
                     game, odds, ratings, ctx_book, mc, markov, returning, portal,
-                    injuries, starters,
+                    injuries, starters, season=season,
                 )
             )
         recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
@@ -214,6 +216,7 @@ class Pipeline:
         portal: PortalBook | None = None,
         injuries: InjuryBook | None = None,
         starters: StarterBook | None = None,
+        season: int = 0,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(
             game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
@@ -239,6 +242,8 @@ class Pipeline:
                 adj.margin_delta += delta
                 side = game.home.abbrev if delta > 0 else game.away.abbrev
                 adj.reasons.append(f"{side} returns more production ({delta:+.1f})")
+        if means.source == "ratings":
+            self._apply_roster(adj, game, season)
         if portal:
             note = portal_note(portal, game.home.name, game.away.name)
             if note is not None:
@@ -329,6 +334,37 @@ class Pipeline:
         if market_margin is not None:
             return _Means(market_margin, market_total or 0.0, "market")
         return None
+
+    def _roster_book(self, season: int) -> RosterBook | None:
+        """Production kept plus bought, built on first use.
+
+        Two extra CFBD calls that all but the rare line-less game never need, so
+        the book is only fetched when one turns up.
+        """
+        if season not in self._roster:
+            self._roster[season] = self.cfbd.fetch_roster_book(season)
+        return self._roster[season]
+
+    def _apply_roster(self, adj: Adjustment, game: Game, season: int) -> None:
+        """Charge roster continuity, but only where no market number exists.
+
+        Against a closing spread the same term goes 51.11% ATS, so it is confined
+        to the ratings-only margin, where it is worth 0.33 points of held-out RMSE
+        and has no market price to be redundant with (see data/roster.py).
+        """
+        if self.cfg.roster_pts <= 0 or season <= 0:
+            return
+        book = self._roster_book(season)
+        if book is None:
+            return
+        delta = book.margin_delta(
+            game.home.name, game.away.name, self.cfg.roster_pts, self.cfg.roster_max_pts
+        )
+        if abs(delta) < 0.05:
+            return
+        adj.margin_delta += delta
+        side = game.home.abbrev if delta > 0 else game.away.abbrev
+        adj.reasons.append(f"{side} returns and buys more production ({delta:+.1f}, no line)")
 
     def _record_absences(
         self,

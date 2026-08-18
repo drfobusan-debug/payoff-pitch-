@@ -45,6 +45,11 @@ class Game(BaseModel):
     # Rest days since each team's previous game; a bye shows up as ~13.
     home_rest: int | None = None
     away_rest: int | None = None
+    # Announced starting quarterback, as an nflverse player id. Optional because a
+    # live slate may be priced before the starters are known, and unknown charges
+    # nothing rather than assuming the incumbent is upright.
+    home_qb_id: str | None = None
+    away_qb_id: str | None = None
 
     def matchup(self) -> str:
         return f"{self.away.abbrev} @ {self.home.abbrev}"

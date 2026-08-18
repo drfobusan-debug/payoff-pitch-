@@ -87,6 +87,19 @@ def test_starter_row_shows_swstr_and_hard_hit_without_zone():
     assert "Zone%" not in html
 
 
+def test_starter_row_prints_the_air_rate_the_hr_term_reads():
+    gp = _preview(
+        home_starter=_starter(fb_allowed=0.415),
+        away_starter=_starter(name="Mitch Bratt", fb_allowed=None),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>FB%</th>" in html
+    assert "<td>42%</td>" in html
+    # An arm with no batted-ball sample reads as unavailable, not as 0%.
+    assert "<td>0%</td>" not in html
+
+
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
     txt = starter_trend_sentence("SD", _starter())
 
@@ -158,7 +171,7 @@ def test_woba_from_rates_puts_matchup_probabilities_on_the_woba_scale():
 def test_verdict_reports_split_rank_bucket_and_venue_form():
     txt = matchup_verdict("SD", "AZ", _lineup(), _starter())
 
-    assert "an order that hits right-handers at a 0.336 wOBA" in txt
+    assert "an order that hits right-handers at a 0.336 xwOBA" in txt
     assert "12 of 30" in txt
     assert "middle third" in txt
     assert "on the road tonight" in txt
@@ -217,15 +230,42 @@ def test_pitcher_trend_needs_both_halves_before_it_reports_a_change():
     )
     trends = pitcher_trends(recent, dt.date(2026, 8, 5), 42)
     assert trends.vfa.recent is not None
+    # One outing cannot deviate from itself: no earlier window, no read.
     assert trends.vfa.prior is None
     assert trends.vfa.delta is None
+    assert trends.stuff.prior is None
+    assert trends.stuff.delta is None
 
     both = pd.concat(
         [recent, pd.DataFrame([_pitch("2026-07-05", csw=True, velo=96.0, pa=i % 4 == 0) for i in range(200)])]
     )
     trends = pitcher_trends(both, dt.date(2026, 8, 5), 42)
     assert trends.vfa.delta is not None
-    assert round(trends.vfa.delta, 1) == -2.0
+    # Velocity is his last start (94.0) against the whole window (95.0), not
+    # three weeks against three weeks: one start measures velocity at r=0.93.
+    assert round(trends.vfa.delta, 1) == -1.0
+
+
+def test_a_starts_velocity_is_read_against_the_window_that_contains_it():
+    days = ["2026-07-10", "2026-07-16", "2026-07-22", "2026-07-28"]
+    history = pd.DataFrame(
+        [_pitch(d, csw=True, velo=95.0, pa=i % 4 == 0) for d in days for i in range(80)]
+    )
+    last = pd.DataFrame(
+        [_pitch("2026-08-03", csw=True, velo=93.0, pa=i % 4 == 0) for i in range(80)]
+    )
+    trends = pitcher_trends(pd.concat([history, last]), dt.date(2026, 8, 5), 42)
+    assert trends.vfa.recent == 93.0
+    assert trends.vfa.prior == 94.6  # the window, his last start included
+    assert round(trends.vfa.delta, 1) == -1.6
+
+    # A start he barely threw the four-seamer in is not a velocity measurement.
+    thin = pd.DataFrame(
+        [_pitch("2026-08-03", csw=True, velo=93.0, pa=i % 4 == 0) for i in range(10)]
+    )
+    trends = pitcher_trends(pd.concat([history, thin]), dt.date(2026, 8, 5), 42)
+    assert trends.vfa.recent is None
+    assert trends.vfa.delta is None
 
 
 def _bat(day: str, team: str, opp: str, *, topbot: str, hand: str, woba: float) -> dict:
@@ -244,17 +284,17 @@ def _bat(day: str, team: str, opp: str, *, topbot: str, hand: str, woba: float) 
     }
 
 
-def _split_frame() -> pd.DataFrame:
+def _split_frame(pa: int = 1200) -> pd.DataFrame:
     rows = []
     for i, (team, woba) in enumerate([("SD", 0.5), ("AZ", 0.3), ("LAD", 0.1)]):
-        for n in range(200):
+        for n in range(pa):
             topbot = "Bot" if n % 2 else "Top"
             rows.append(_bat("2026-08-01", team, f"OP{i}", topbot=topbot, hand="R", woba=woba))
     return pd.DataFrame(rows)
 
 
 def test_team_splits_rank_and_bucket_the_platoon_offenses():
-    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 42)
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90)
 
     sd = splits["SD"].vs_hand("R")
     lad = splits["LAD"].vs_hand("R")
@@ -262,17 +302,41 @@ def test_team_splits_rank_and_bucket_the_platoon_offenses():
     assert (sd.rank, sd.of, sd.bucket) == (1, 3, "top")
     assert (lad.rank, lad.bucket) == (3, "bottom")
     assert splits["SD"].vs_hand("L") is None  # no LHP faced
-    assert splits["SD"].home_woba == 0.5 and splits["SD"].away_woba == 0.5
+    assert sd.raw == 0.5  # what the window showed, kept beside the shrunk read
+
+
+def test_a_split_is_pulled_toward_the_league_by_how_little_it_resolves():
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90)
+
+    sd = splits["SD"].vs_hand("R")
+    lad = splits["LAD"].vs_hand("R")
+    assert sd is not None and lad is not None
+    # 1,200 PA against a 3,007 PA prior keeps 28.5% of the distance from the
+    # league mean of the three clubs (0.300), so a 400-point spread prints as 114.
+    assert sd.woba == 0.357 and lad.woba == 0.243
+    assert sd.woba - lad.woba < (sd.raw - lad.raw) / 3
+
+
+def test_the_venue_split_is_shrunk_hardest_of_the_four():
+    """A club's home-road gap is mostly the parks it drew, so it must move least."""
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90)
+
+    sd = splits["SD"]
+    home, road = sd.at_venue(True), sd.at_venue(False)
+    platoon = sd.vs_hand("R")
+    assert home is not None and road is not None and platoon is not None
+    assert home.raw == road.raw == 0.5  # the club hit the same in both halves
+    assert abs(home.woba - 0.300) < abs(platoon.woba - 0.300)
 
 
 def test_team_splits_skip_offenses_with_too_few_plate_appearances():
-    thin = _split_frame().head(10)
-    splits = build_team_splits(thin, dt.date(2026, 8, 5), 42)
-    assert splits["SD"].vs_hand("R") is None
+    thin = _split_frame(pa=400)
+    splits = build_team_splits(thin, dt.date(2026, 8, 5), 90)
+    assert splits["SD"].vs_hand("R") is None  # 400 PA is under the 500 floor
 
 
 def test_league_contact_baselines_average_per_player():
-    league = league_contact(_split_frame(), dt.date(2026, 8, 5), 42)
+    league = league_contact(_split_frame(), dt.date(2026, 8, 5), 90)
     assert league.batter == 0.3  # mean of the three clubs' hitters
     assert league.pitcher == 0.3
 
@@ -317,30 +381,30 @@ def test_starter_duel_says_so_when_siera_is_missing():
     assert "No SIERA read on both arms" in starter_duel(gp)
 
 
-def test_bullpen_verdict_reads_freshness_projection_and_volatility():
+def test_bullpen_verdict_reads_usage_and_the_projection():
     txt = bullpen_verdict("SD", "AZ", _pen())
 
     assert "AZ's pen" in txt
-    assert "Fresh" in txt and "nobody on back-to-back days" in txt
+    assert "Usage: nobody on back-to-back days" in txt
     assert "three-day workload 0.90× normal" in txt
     assert "projects 0.320 wOBA against SD's order" in txt
     assert "0.305 once the 8th-inning arms take it" in txt
-    assert "normal spread" in txt and "across 7 arms" in txt
 
 
-def test_bullpen_verdict_flags_a_worked_volatile_walk_prone_pen():
+def test_bullpen_verdict_states_workload_without_calling_a_pen_worked():
     txt = bullpen_verdict("SD", "AZ", _pen(fatigue=80.0, arm_spread=0.061, zone_pct=0.37))
 
-    assert "Worked" in txt and "4 arms gassed" in txt
-    assert "volatile" in txt and "0.061 wOBA spread" in txt
+    assert "4 arms on back-to-back days or a heavy two-day count" in txt
     assert "walk trap at 37% zone" in txt
+    # The two claims that did not survive being scored.
+    assert "Worked" not in txt and "gassed" not in txt
+    assert "volatile" not in txt and "wOBA spread" not in txt
 
 
 def test_bullpen_verdict_admits_a_thin_relief_sample():
     txt = bullpen_verdict("SD", "AZ", _pen(proj_woba=None, arm_spread=None, arms=1, fatigue=None))
 
     assert "no projection against this order" in txt
-    assert "too few arms" in txt
     assert "Workload unknown" in txt
 
 
@@ -350,6 +414,7 @@ def test_article_says_which_pen_holds_late():
 
     assert "Late-inning edge: <b>BBB's pen</b>, by 60 points" in html
     assert "late innings favor the BBB pen" in narr
+    assert "worked" not in narr and "volatile" not in narr
 
 
 def test_article_calls_the_pens_even_when_they_project_together():
@@ -363,9 +428,9 @@ def test_lineup_profile_gives_general_form_then_tonights_situation():
     lu = _lineup(team_woba=0.331, team_rank=6, team_of=30, venue_rank=4, venue_of=30)
     txt = lineup_profile("SD", lu)
 
-    assert "0.331 wOBA club overall" in txt
+    assert "0.331 xwOBA club overall" in txt
     assert "<b>6 of 30</b> (top third)" in txt
-    assert "hits right-handers at a 0.336 wOBA" in txt  # tonight's platoon split
+    assert "hits right-handers at a 0.336 xwOBA" in txt  # tonight's platoon split
     assert "on the road they hit 0.361, 4 of 30 in that split" in txt
     assert "24 points better than the 0.337 they hit at home" in txt
 
@@ -390,7 +455,7 @@ def test_pen_arm_spread_measures_the_gap_between_a_pens_arms():
 
 
 def test_team_splits_rank_the_venue_and_overall_offenses():
-    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 42)
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90)
 
     sd, lad = splits["SD"], splits["LAD"]
     assert sd.overall is not None and sd.overall.rank == 1
@@ -400,3 +465,48 @@ def test_team_splits_rank_the_venue_and_overall_offenses():
     assert home is not None and road is not None
     assert home.rank == 1 and road.rank == 1
     assert sd.at_venue(None) is None
+
+
+def _ros(**by_batter: float) -> dict[int, dict[str, float]]:
+    """A projection vector per hitter, at the given home-run rate."""
+    return {
+        int(pid): {"1B": 0.15, "2B": 0.04, "3B": 0.0, "HR": hr, "BB": 0.09, "K": 0.22, "OUT": 0.5}
+        for pid, hr in by_batter.items()
+    }
+
+
+def test_a_split_shrinks_toward_the_clubs_own_projection_not_the_league():
+    """The whole point of the target: a good offense must not be flattened.
+
+    Two clubs post the identical raw split off the identical sample, and the one
+    whose hitters are projected better keeps a higher read. Shrinking both to the
+    league mean would print them as the same offense.
+    """
+    rows = []
+    for i, team in enumerate(("SD", "AZ", "LAD")):
+        for _n in range(1200):
+            r = _bat("2026-08-01", team, f"OP{i}", topbot="Bot", hand="R", woba=0.400)
+            r["batter"] = 100 + i
+            rows.append(r)
+    frame = pd.DataFrame(rows)
+    priors = _ros(**{"100": 0.06, "101": 0.03, "102": 0.00})
+
+    flat = build_team_splits(frame, dt.date(2026, 8, 5), 90)
+    projected = build_team_splits(frame, dt.date(2026, 8, 5), 90, priors)
+
+    sd_flat, lad_flat = flat["SD"].vs_hand("R"), flat["LAD"].vs_hand("R")
+    sd, lad = projected["SD"].vs_hand("R"), projected["LAD"].vs_hand("R")
+    assert sd_flat is not None and lad_flat is not None and sd is not None and lad is not None
+    assert sd_flat.woba == lad_flat.woba  # identical windows, nothing to tell them apart
+    assert sd.raw == lad.raw == 0.400
+    assert sd.woba > lad.woba and sd.rank == 1 and lad.rank == 3
+
+
+def test_a_projection_nobody_in_the_lineup_appears_in_is_ignored():
+    priors = _ros(**{"999": 0.06})
+    splits = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90, priors)
+    plain = build_team_splits(_split_frame(), dt.date(2026, 8, 5), 90)
+
+    sd, sd_plain = splits["SD"].vs_hand("R"), plain["SD"].vs_hand("R")
+    assert sd is not None and sd_plain is not None
+    assert sd.woba == sd_plain.woba
