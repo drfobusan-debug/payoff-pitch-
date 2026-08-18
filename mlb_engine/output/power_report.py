@@ -373,7 +373,8 @@ def _board_section(board: Board) -> str:
     if board.dropped:
         out.append(
             f"<p class='sub'>{board.dropped} further priced rows on these hitters are not shown; "
-            f"each keeps his {ROWS_PER_BATTER} best by expected value.</p>"
+            f"each keeps his homer and his H+R+RBI where both were quoted, then fills to "
+            f"{ROWS_PER_BATTER} rows by expected value, one quote per bet.</p>"
         )
     if board.unpriced:
         names = ", ".join(html.escape(n) for n in board.unpriced)

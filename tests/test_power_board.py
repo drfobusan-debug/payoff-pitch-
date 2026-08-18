@@ -111,11 +111,74 @@ def test_only_the_best_rows_per_hitter_are_printed_and_the_rest_are_counted() ->
     result = _result()
     pid = _pid(result)
     recs = [
-        _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.01 * i) for i in range(7)
+        _rec("Matt Olson", "TB", 0.5 + i, player_id=pid, ev=0.01 * i) for i in range(7)
     ]
     board = power_board.build(result, recs, rows_per_batter=2)
     assert len(board.rows) == 2
     assert board.dropped == 5
+
+
+def test_the_same_bet_at_two_books_is_one_row_at_the_better_price() -> None:
+    """Two prices on one bet is a line-shopping question, not a board row."""
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=280.0, ev=0.30),
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=255.0, ev=0.22),
+        ],
+    )
+    assert [r.american for r in board.rows] == [280.0]
+    assert board.dropped == 0  # a second quote on one bet is not a row the note withheld
+
+
+def test_the_homer_and_the_hits_runs_rbis_are_both_printed_for_every_hitter() -> None:
+    """The two markets the note is read for cannot be sorted off the page.
+
+    A long HR price inflates EV by construction, so ranking on EV alone drops
+    H+R+RBI on nearly every hitter -- which is the comparison the reader wants.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=280.0, ev=0.96),
+            _rec("Matt Olson", "RBI", 0.5, player_id=pid, ev=0.48),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.35),
+            _rec("Matt Olson", "R", 0.5, player_id=pid, ev=0.26),
+            _rec("Matt Olson", "HRR", 1.5, player_id=pid, ev=0.13),
+        ],
+        rows_per_batter=3,
+    )
+    labels = [r.label for r in board.rows]
+    assert labels == ["HR o0.5", "RBI o0.5", "H+R+RBI o1.5"]  # HRR kept over the better TB and R
+    assert board.dropped == 2
+
+
+def test_the_better_of_two_hits_runs_rbis_lines_is_the_one_anchored() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HRR", 1.5, player_id=pid, ev=0.02),
+            _rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.28),
+        ],
+        rows_per_batter=1,
+    )
+    assert [r.label for r in board.rows] == ["H+R+RBI o2.5"]
+
+
+def test_a_hitter_the_book_never_hung_a_homer_on_still_shows_his_other_markets() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.28)], rows_per_batter=2
+    )
+    assert [r.label for r in board.rows] == ["H+R+RBI o2.5"]
+    assert board.dropped == 0
 
 
 def test_a_one_sided_quote_is_flagged_as_undevigged() -> None:

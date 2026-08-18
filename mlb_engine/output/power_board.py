@@ -37,6 +37,12 @@ from mlb_engine.recommendations import Recommendation
 # a hitter can own twenty rows; the note wants the ones worth acting on.
 ROWS_PER_BATTER = 4
 
+# The two markets this note is read for, printed for every hitter who has them
+# priced. Sorting on EV alone buries H+R+RBI behind the homer on nearly every
+# name -- a long HR price inflates EV by construction -- so the instrument the
+# reader is comparing would be the one missing from the comparison.
+ANCHOR_MARKETS = ("HR", "HRR")
+
 # Pretty names for the market keys the pipeline writes.
 MARKET_LABEL = {
     "H": "H",
@@ -149,28 +155,63 @@ def _matches(rec: Recommendation, name: str, mlbam_id: int) -> bool:
     return rec.selection.startswith(name)
 
 
+def _ev(row: BoardRow) -> float:
+    return row.ev if row.ev is not None else -9.9
+
+
+def _best_per_quote(rows: list[BoardRow]) -> list[BoardRow]:
+    """One row per market, line and side -- the best quote the card found for it.
+
+    The board can hold the same bet from several books; two prices on one bet is
+    a line-shopping question, and this page is not that page.
+    """
+    best: dict[tuple[str, float | None, str], BoardRow] = {}
+    for r in rows:
+        key = (r.stat, r.line, r.side)
+        if key not in best or _ev(r) > _ev(best[key]):
+            best[key] = r
+    return list(best.values())
+
+
+def _select(rows: list[BoardRow], limit: int, anchors: tuple[str, ...]) -> list[BoardRow]:
+    """The hitter's rows for the note: both anchor markets, then the best rest."""
+    kept: list[BoardRow] = []
+    for stat in anchors:
+        of_stat = [r for r in rows if r.stat == stat]
+        if of_stat:
+            kept.append(max(of_stat, key=_ev))
+    rest = sorted((r for r in rows if r not in kept), key=_ev, reverse=True)
+    kept.extend(rest[: max(limit - len(kept), 0)])
+    return sorted(kept, key=_ev, reverse=True)
+
+
 def build(
     result: ScreenResult,
     recs: list[Recommendation],
     *,
     rows_per_batter: int = ROWS_PER_BATTER,
     source: str | None = None,
+    anchors: tuple[str, ...] = ANCHOR_MARKETS,
 ) -> Board:
     """The screened hitters' priced rows, best EV first, and the ones with none.
 
     Only priced rows survive: a market the pipeline modelled but never got a
     quote for has no bet in it, and the note already carries the model's view of
     the matchup in every other table.
+
+    Every hitter shows his homer and his H+R+RBI where both were quoted, even
+    when a third market prices better, because those two are what the page is
+    for; ``rows_per_batter`` governs how much else comes with them.
     """
     batters = [(v.line.name, v.line.mlbam_id) for s in result.sections for v in s.hitters]
     priced = [r for r in recs if r.category == "batter" and r.market_american is not None]
     board = Board(source=source)
     for name, mlbam_id in batters:
-        mine = [_row(r, name) for r in priced if _matches(r, name, mlbam_id)]
+        mine = _best_per_quote([_row(r, name) for r in priced if _matches(r, name, mlbam_id)])
         if not mine:
             board.unpriced.append(name)
             continue
-        mine.sort(key=lambda r: (r.ev if r.ev is not None else -9.9), reverse=True)
-        board.rows.extend(mine[:rows_per_batter])
-        board.dropped += max(len(mine) - rows_per_batter, 0)
+        kept = _select(mine, rows_per_batter, anchors)
+        board.rows.extend(kept)
+        board.dropped += len(mine) - len(kept)
     return board
