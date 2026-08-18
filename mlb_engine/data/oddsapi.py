@@ -223,6 +223,10 @@ class OddsAPIClient:
         self.cache_ttl = cache_ttl
         self.min_credits = min_credits
         self.credits_remaining: int | None = None
+        # Board events matching a slate pairing at the wrong first pitch, i.e.
+        # the next game of the same series. Kept so the no-events error can say
+        # which failure it is.
+        self.skipped_later = 0
 
     def available(self) -> bool:
         return bool(self.api_key)
@@ -264,6 +268,19 @@ class OddsAPIClient:
             # The board failed or matched nothing. Event ids are free, so fall
             # back to them rather than abandoning the props too.
             events = self._list_events(index, pregame_only=pregame_only)
+        if not events and self.skipped_later:
+            # The board answered, and every game on it was a later one: the
+            # slate's own games are off the pre-match board because they have
+            # been played. Blaming the key here sent a morning of debugging
+            # after a key that was fine.
+            log.error(
+                "Odds API: the board has moved on -- all %d event(s) it returned are "
+                "later than %s, so that slate is no longer quoted and nothing was "
+                "priced. Price today's slate; a past slate has to come from the "
+                "stored board",
+                self.skipped_later, slate.slate_date.isoformat(),
+            )
+            return out
         if not events:
             log.error(
                 "Odds API: no events resolved for the slate -- nothing priced. "
@@ -329,6 +346,7 @@ class OddsAPIClient:
             log.info("Odds API: skipped %d game(s) already under way", started)
         if later:
             log.info("Odds API: skipped %d game(s) on a later date", later)
+        self.skipped_later = later
         return events
 
     def _list_events(self, index: _SlateIndex, *, pregame_only: bool) -> list[_Event]:

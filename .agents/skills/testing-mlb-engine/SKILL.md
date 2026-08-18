@@ -137,6 +137,52 @@ A second full run within 30 min is free and price-stable: the Odds API responses
   up narrow, `Opta %` 40 wide). Values are written by header name and stay correct; check whether the
   list has been extended before reporting it as new.
 
+## Replaying a past slate off the odds cache (deterministic A/B for a pricing/gate change)
+When a change alters *pricing or tiering*, the in-process field-diff above does not apply and two
+live runs are not comparable. Replay one past slate instead: identical real prices, zero credits, and
+a **zero** noise floor (verified: `main` vs the branch with the new screen lifted differed on 0 of
+6705 rows, every field).
+1. Pick the slate by evidence, not by date: read `~/.mlb_engine/audit/predictions_<date>.json`
+   (`asdict`, all fields incl. `tier`/`pass_gate`/`market_american`) and count the rows the change
+   should move. Prop-rich slates are the ones run near first pitch; a run made ~18h out prices almost
+   no props at all (lineups unposted), so **today's early run is usually the wrong testbed**.
+2. `MLBE_ODDS_CACHE_TTL=99999999` makes the disk cache authoritative. Per-event prop responses are
+   keyed by event id and survive for days, but the **bulk game board (`{BASE}/odds`) is keyed on the
+   query alone**, so today's run has overwritten the one for the replay day and the run will resolve
+   0 events and price nothing. Rebuild it: scan `~/.mlb_engine/cache/oddsapi/*.json` for dicts whose
+   `commence_time` starts with the replay date, emit a list of their
+   `{id, sport_key, commence_time, home_team, away_team, bookmakers: []}`, and write it to
+   `sha256(json.dumps({"url": f"{BASE}/odds", "regions": "us", "oddsFormat": "american",
+   "markets": ",".join(_GAME_MARKETS)}, sort_keys=True))[:20] + ".json"`. Caveat to disclose:
+   game-market (h2h/spread/total) prices are then absent; **prop prices are the real captured ones**.
+   `run` uses `pregame_only=False`, so a finished slate still prices.
+3. Isolate state or the runs are not repeatable: `MLBE_DATA_DIR=/tmp/mlbe_replay` (symlink `cache`
+   contents, `projections`, `ros_hitters.csv`, `calibration_live.json`; copy `output/vsin_template_*`),
+   `MLBE_STATE_SYNC=0` so nothing is pushed to `engine-state`, and **re-copy the audit dir before
+   every variant** — `board_<date>.json` is written by each run and feeds the CLV/drift gate.
+4. Freeze the clock: patch `mlb_engine.pipeline.hours_to_first_pitch` to pass a fixed `now=` before
+   importing `cli.main`. Without this the variants are not comparable (see the section above).
+5. Run `main` from a `git worktree add /tmp/main_wt HEAD^` so the branch checkout is left alone.
+6. Run the variants and diff by `(matchup, market, selection, line, side)`. Always include a
+   **gate-lifted** variant (e.g. `MLBE_<X>_MAX_BUY_ODDS=100000`): its diff against `main` is the noise
+   floor and should be empty, which is also the proof the change is inert when disabled.
+7. Set the threshold to a value that *splits the real rows* (e.g. a ceiling of 500 when the slate has
+   buys at +485, +500 and +502) — that tests an exclusive bound on live data rather than in a unit
+   test.
+
+## Where a `pass_gate` shows up (and where it does not)
+- Predictions JSON: yes, `rec.pass_gate` verbatim. This is the primary evidence.
+- Excel: there is **no** `pass_gate` column. The evidence is `Tier == "Pass"` plus the reason string
+  appended to `Notes` (e.g. `doubles-price-ceiling: PASS (+340 at or beyond +300)`); assert the price
+  inside the note equals that row's own `Book Odds`.
+- `ledger.csv` is **not** written by `run` — it stays byte-identical. Rows (and `pass_gate`) are
+  written by `mlb-engine audit --date <date>`, which grades `predictions_<date>.json` from the same
+  data dir. Run it in the scratch dir to prove the `screen_probation` dependency; `screen_probation`
+  itself needs a graded window and returns nothing for a single day, so assert on the ledger rows.
+- A new gate placed early will **re-attribute** rows that a later screen would also have refused
+  (`contact_floor`, `clv_drift` …). Expect the gate's row count to exceed the number of buys it
+  actually removed, and separate the two in the report.
+
 ## Verifying a devig / fair-price change on a real board
 - `fair_prob` is persisted per selection in `predictions_<date>.json`, so the board-wide invariant
   is cheap: group `game_ml` by matchup (and `game_rl` by pairing home `-1.5` with away `+1.5`,

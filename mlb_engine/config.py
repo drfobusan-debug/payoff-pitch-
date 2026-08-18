@@ -100,6 +100,17 @@ class RollingWindows:
     bullpen_xwoba_shrink: float = field(
         default_factory=lambda: _env_float("MLBE_BULLPEN_XWOBA_SHRINK", 0.37)
     )
+    # Share of the fitted four-seam velocity term to charge on a starter's
+    # strikeout rate: his level against the league, plus how his most recent
+    # start sat against his own window. Velocity is the only read that survives
+    # a single start (r=.93 between consecutive starts, against .20 for K/PA and
+    # .15 for CSW%), and adding both terms improved held-out strikeout deviance
+    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
+    # until the ledger has graded it, which is the order every market here has
+    # been reopened in; 1.0 charges the fitted slopes in full.
+    vfa_k_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -139,6 +150,11 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 # and the result, so a rebuilt batter model can be graded before it is trusted
 # with money. ``MLBE_NO_BUY_<MARKET>=0`` re-enables one, and
 # ``MLBE_NO_BUY_<MARKET>=1`` disqualifies any other.
+#
+# Doubles were the one batter market carrying that comparison and no longer
+# are: on the current basis their buys are 14.3% for -15.5% ROI (n=70), which
+# is what the passed rows do anyway. They are screened by price rather than
+# listed here -- see ``doubles_max_buy_odds``.
 #
 # Home runs, singles and RBI lost money too and are deliberately *not* here:
 # each already has a price band or probability floor fitted to its own graded
@@ -377,12 +393,19 @@ class Config:
     #
     # This was built off and switched off, because the export it was written for
     # (THE BAT X via FanGraphs) needs a subscription and does not survive the
-    # Cloudflare challenge, so there was never a file to read. The projection is
-    # now built from the free official season lines instead
+    # Cloudflare challenge from this machine, so there was never a file to read.
+    # It falls back to a Marcel off the free official season lines
     # (``scripts.ros_prior_study marcel``, or ``mlb-engine ros-prior``), which
     # writes ``ros_hitters.csv`` into the data directory -- so the default is the
     # standard path rather than off, and an operator with no file still gets
     # exactly today's behaviour.
+    #
+    # A subscriber can hand the better projection over the wall instead: any
+    # projection CSV dropped in ``projections_dir`` is read first and the Marcel
+    # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
+    # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
+    # them), which is the direction that matters -- compressing the lineup is
+    # this engine's known failure, not over-separating it.
     #
     # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
     # 07-22 cutoff, priors built from seasons the holdout cannot reach:
@@ -398,6 +421,17 @@ class Config:
     # path to point elsewhere, or to an empty string to restore the league mean.
     ros_prior_path: str | None = field(
         default_factory=lambda: os.environ.get("MLBE_ROS_PRIOR", default_ros_prior_path()) or None
+    )
+
+    # Which dropped-in projection to prefer when the folder holds several,
+    # matched against the file name. ATC is the default because it is an
+    # accuracy-weighted ensemble of the systems below it, and a model whose job
+    # is to *rank* hitters wants the projection that is rarely badly wrong about
+    # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
+    # to batx to anchor on the Statcast batted-ball system instead; an empty
+    # value takes whichever export was written most recently.
+    projection_source: str = field(
+        default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
 
     # Per-outcome shrinkage on the bullpen aggregate (PEN_PRIOR_STRENGTH), whose
@@ -562,6 +596,42 @@ class Config:
     # model claim: it stops us paying a premium for a read we do not have.
     singles_min_buy_odds: float = field(
         default_factory=lambda: _env_float("MLBE_SINGLES_MIN_BUY_ODDS", 100.0)
+    )
+
+    # Doubles are refused at +300 and longer, which on the card so far is 69 of
+    # 70 graded buys: this is a shut market with a door left open, and it is
+    # written as a price rather than as a disqualification because a double is
+    # only ever a long price when the model is the one claiming the edge.
+    #
+    # The market is calibrated everywhere except where it bets. Over 6,656
+    # graded o0.5 rows the model reads .140 -> 14.0% actual, .165 -> 14.8%,
+    # .188 -> 17.7%, and then .258 -> 15.0% (n=346). The confident tail is the
+    # only broken band and the buy list is drawn entirely from it, which is why
+    # the selection is worth nothing: bought rows hit 14.3% (n=70) against
+    # passed rows' 14.2% (n=6,586).
+    #
+    # It is a price ceiling and not a band because no band survives contact
+    # with the rows: +300-350 went 0 for 5, +350-400 -14.4%, +400-450 -25.4%,
+    # +450-500 -16.1%, +500 and longer +18.1% on three winners in nineteen.
+    # Fitting the cutoff to that shape would be fitting it to one hitter's good
+    # night. What the data does support is the general fact the home-run band
+    # already encodes -- at 20% and longer a fraction of a point of probability
+    # error is a fifth of the stake -- plus the measured absence of any edge at
+    # all on this market.
+    #
+    # Three cautions, kept here because the next person to read the cell will
+    # find them: 70 buys is under the 100 ``probation`` needs to condemn a
+    # market, the halves of that window disagree (+16% then -61%), and the
+    # engine's own doubles multiplier was already stripped to sprint speed in
+    # #129 for the same reason. The evidence for shutting the buys is the
+    # 6,656-row calibration table, not the 70. Refusals keep grading as shadow
+    # bets, so ``screen_probation`` will say to lift this if it starts deleting
+    # winners -- which is also why the screen runs last in ``_mk`` rather than
+    # beside the other price bands: run early it inherits the rows the contact
+    # floor would have refused anyway, and is then judged on bets it never
+    # removed. ``MLBE_DOUBLES_MAX_BUY_ODDS=100000`` disables it.
+    doubles_max_buy_odds: float = field(
+        default_factory=lambda: _env_float("MLBE_DOUBLES_MAX_BUY_ODDS", 300.0)
     )
 
     # Player-prop markets that get an under recommendation as well as an over.
@@ -779,6 +849,17 @@ class Config:
     # Credits held in reserve so one runaway slate cannot drain the plan.
     odds_min_credits: int = field(default_factory=lambda: _env_int("MLBE_ODDS_MIN_CREDITS", 200))
 
+    # How long a forecast is reused before it is pulled again. The point is not
+    # the API quota (Open-Meteo is free) but reproducibility: the forecast for a
+    # park moves between calls, so an uncached run of the same slate off the same
+    # odds board priced 6,050 of 6,705 rows differently from the run before it,
+    # mean 1.23pp and up to 6.9pp -- larger than most of the changes the engine is
+    # asked to measure. Matching the odds TTL means one slate is priced on one
+    # forecast and a re-run reproduces it; a past date never re-fetches at all.
+    weather_cache_ttl: int = field(
+        default_factory=lambda: _env_int("MLBE_WEATHER_CACHE_TTL", 1800)
+    )
+
     # Weight given to the devigged market price when forming the probability the
     # EV screen bets on (see market.ev.anchor_to_market). The model's own
     # probability is untouched, so PPV/NPV and the calibration refit still
@@ -827,6 +908,10 @@ class Config:
         return self.cache_dir / "oddsapi"
 
     @property
+    def weather_cache_dir(self) -> Path:
+        return self.cache_dir / "weather"
+
+    @property
     def calibration_file(self) -> Path:
         """Isotonic map to price with: a locally refit one wins if it exists.
 
@@ -851,6 +936,27 @@ class Config:
     def fangraphs_dir(self) -> Path:
         """Default drop-in folder for FanGraphs custom-report exports."""
         return self.data_dir / "fangraphs"
+
+    @property
+    def projections_dir(self) -> Path:
+        """Drop-in folder for rest-of-season projection exports.
+
+        The matching CSV here becomes the batter prior, with the Marcel filling
+        in the hitters it omits. Standard-view FanGraphs exports carry the
+        columns needed (``PA``, ``H``, ``2B``, ``3B``, ``HR``, ``BB``, ``SO``,
+        ``MLBAMID``); an export without ``MLBAMID`` cannot be joined to Statcast
+        and is skipped with a warning rather than name-matched.
+
+        ``MLBE_PROJECTIONS_DIR`` points this at a folder the exports already land
+        in -- a browser's download folder, typically, which is the difference
+        between a file that is refreshed daily and one that is refreshed when
+        somebody remembers to move it. Sharing a folder with every other download
+        is why ``projection_source`` is matched strictly there.
+        """
+        override = os.getenv("MLBE_PROJECTIONS_DIR")
+        if override:
+            return Path(override).expanduser()
+        return self.data_dir / "projections"
 
     @property
     def batx_dir(self) -> Path:
@@ -883,6 +989,7 @@ class Config:
             self.audit_dir,
             self.fangraphs_dir,
             self.batx_dir,
+            self.projections_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)
 

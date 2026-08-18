@@ -218,11 +218,13 @@ def _shape_chart(gp: GamePreview) -> str:
 def _starter_row(tag: str, sl: StarterLine) -> str:
     spin = "" if sl.spin is None else f", {sl.spin:.0f} rpm"
     hard = "—" if sl.hard_hit_allowed is None else f"{sl.hard_hit_allowed * 100:.0f}%"
+    air = "—" if sl.fb_allowed is None else f"{sl.fb_allowed * 100:.0f}%"
     return (
         f"<tr><td class='l'><b>{tag}</b> {sl.name}</td>"
         f"<td>{sl.k_pct * 100:.0f}% (x{sl.xk_pct * 100:.0f})</td>"
         f"<td>{sl.bb_pct * 100:.0f}% (x{sl.xbb_pct * 100:.0f})</td>"
         f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td><td>{hard}</td>"
+        f"<td>{air}</td>"
         f"<td>{sl.xwoba_allowed:.3f}</td><td>{sl.barrel_allowed * 100:.0f}%{spin}</td></tr>"
     )
 
@@ -249,7 +251,9 @@ def starter_trend_sentence(team: str, sl: StarterLine) -> str:
     bits = [
         f"{siera}, {_trend_phrase(sl.siera_trend, FLAT_SIERA, '.2f', lower_is_better=True)}",
         f"stuff {_trend_phrase(sl.stuff_trend, FLAT_CSW, '.1%', lower_is_better=False)} on CSW%",
-        f"velocity {_trend_phrase(sl.vfa_trend, FLAT_VFA, '.1f', lower_is_better=False)} mph",
+        "last start's velocity "
+        + _trend_phrase(sl.vfa_trend, FLAT_VFA, ".1f", lower_is_better=False)
+        + ("" if sl.vfa_trend is None else " mph"),
     ]
     if sl.babip_allowed is None:
         luck = ""
@@ -692,7 +696,7 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
 
     starter_tbl = (
         "<table><tr><th class='l'>Starter</th><th>K% (x)</th><th>BB% (x)</th>"
-        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>xwOBA</th>"
+        "<th>CSW%</th><th>SwStr%</th><th>Hard-hit%</th><th>FB%</th><th>xwOBA</th>"
         "<th>Barrel% / spin</th></tr>"
         + _starter_row(gp.home, gp.home_starter)
         + _starter_row(gp.away, gp.away_starter)
@@ -796,9 +800,11 @@ def build_preview_report(
     fine = (
         "<p class='fine'>Methodology: probabilities and run distribution come from the engine's Monte Carlo game "
         "simulation and F5 Markov model; xwOBA lines are trailing-window Statcast. Starter trends split the same "
-        "six-week window in half and report the recent half minus the earlier one, for the three signals that "
-        "repeat on three weeks of pitches (velocity, CSW%, SIERA); contact quality is excluded because it does "
-        "not. A starter's BABIP-vs-xwOBA gap is the wOBA he allowed against the wOBA his contact "
+        "six-week window in half and report the recent half minus the earlier one for SIERA and CSW%, the two "
+        "signals that repeat on three weeks of pitches; velocity is his last start against the whole window, "
+        "because one outing measures it (r=0.93 between consecutive starts, against .15 for CSW%). Contact "
+        "quality is excluded because it repeats at neither length. A starter's BABIP-vs-xwOBA gap is the "
+        "wOBA he allowed against the wOBA his contact "
         "deserved. Matchup verdicts are the simulator's own log5 projection — each hitter's rates in "
         "his platoon and home/road context against this starter's — averaged over the order and "
         "compared with the same order against a league-average arm. "

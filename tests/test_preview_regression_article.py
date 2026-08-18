@@ -87,6 +87,19 @@ def test_starter_row_shows_swstr_and_hard_hit_without_zone():
     assert "Zone%" not in html
 
 
+def test_starter_row_prints_the_air_rate_the_hr_term_reads():
+    gp = _preview(
+        home_starter=_starter(fb_allowed=0.415),
+        away_starter=_starter(name="Mitch Bratt", fb_allowed=None),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>FB%</th>" in html
+    assert "<td>42%</td>" in html
+    # An arm with no batted-ball sample reads as unavailable, not as 0%.
+    assert "<td>0%</td>" not in html
+
+
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
     txt = starter_trend_sentence("SD", _starter())
 
@@ -217,15 +230,42 @@ def test_pitcher_trend_needs_both_halves_before_it_reports_a_change():
     )
     trends = pitcher_trends(recent, dt.date(2026, 8, 5), 42)
     assert trends.vfa.recent is not None
+    # One outing cannot deviate from itself: no earlier window, no read.
     assert trends.vfa.prior is None
     assert trends.vfa.delta is None
+    assert trends.stuff.prior is None
+    assert trends.stuff.delta is None
 
     both = pd.concat(
         [recent, pd.DataFrame([_pitch("2026-07-05", csw=True, velo=96.0, pa=i % 4 == 0) for i in range(200)])]
     )
     trends = pitcher_trends(both, dt.date(2026, 8, 5), 42)
     assert trends.vfa.delta is not None
-    assert round(trends.vfa.delta, 1) == -2.0
+    # Velocity is his last start (94.0) against the whole window (95.0), not
+    # three weeks against three weeks: one start measures velocity at r=0.93.
+    assert round(trends.vfa.delta, 1) == -1.0
+
+
+def test_a_starts_velocity_is_read_against_the_window_that_contains_it():
+    days = ["2026-07-10", "2026-07-16", "2026-07-22", "2026-07-28"]
+    history = pd.DataFrame(
+        [_pitch(d, csw=True, velo=95.0, pa=i % 4 == 0) for d in days for i in range(80)]
+    )
+    last = pd.DataFrame(
+        [_pitch("2026-08-03", csw=True, velo=93.0, pa=i % 4 == 0) for i in range(80)]
+    )
+    trends = pitcher_trends(pd.concat([history, last]), dt.date(2026, 8, 5), 42)
+    assert trends.vfa.recent == 93.0
+    assert trends.vfa.prior == 94.6  # the window, his last start included
+    assert round(trends.vfa.delta, 1) == -1.6
+
+    # A start he barely threw the four-seamer in is not a velocity measurement.
+    thin = pd.DataFrame(
+        [_pitch("2026-08-03", csw=True, velo=93.0, pa=i % 4 == 0) for i in range(10)]
+    )
+    trends = pitcher_trends(pd.concat([history, thin]), dt.date(2026, 8, 5), 42)
+    assert trends.vfa.recent is None
+    assert trends.vfa.delta is None
 
 
 def _bat(day: str, team: str, opp: str, *, topbot: str, hand: str, woba: float) -> dict:

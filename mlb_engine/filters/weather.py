@@ -44,10 +44,14 @@ runs, where it belongs and where it measures.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import math
-from dataclasses import dataclass
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 
 import requests
 
@@ -58,6 +62,29 @@ log = logging.getLogger(__name__)
 
 OPEN_METEO = "https://api.open-meteo.com/v1/forecast"
 OPEN_METEO_ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
+
+
+@dataclass
+class HourlyForecast:
+    """The hourly series Open-Meteo returns, and the shape the cache holds."""
+
+    time: list[str]
+    temperature_2m: list[float]
+    relative_humidity_2m: list[float]
+    wind_speed_10m: list[float]
+    wind_direction_10m: list[float]
+
+
+def _hourly_from(payload: object) -> HourlyForecast:
+    if not isinstance(payload, dict):
+        raise TypeError("hourly forecast is not an object")
+    return HourlyForecast(
+        time=[str(t) for t in payload["time"]],
+        temperature_2m=[float(v) for v in payload["temperature_2m"]],
+        relative_humidity_2m=[float(v) for v in payload["relative_humidity_2m"]],
+        wind_speed_10m=[float(v) for v in payload["wind_speed_10m"]],
+        wind_direction_10m=[float(v) for v in payload["wind_direction_10m"]],
+    )
 
 
 @dataclass
@@ -94,9 +121,33 @@ def _wind_out_component(wind_from_deg: float, wind_mph: float, cf_bearing: float
 
 
 class WeatherProvider:
-    def __init__(self, session: requests.Session | None = None, timeout: int = 20) -> None:
+    """Open-Meteo forecasts, cached so a slate is priced on one forecast.
+
+    The cache is about reproducibility rather than quota. Open-Meteo revises a
+    park's hourly forecast continuously, so two runs of the same slate minutes
+    apart used to price it differently: 6,050 of 6,705 rows moved, mean 1.23pp
+    and up to 6.9pp, which is larger than most of the changes the engine is asked
+    to measure and made every before/after comparison partly weather drift. The
+    tell was that the one game already in progress -- whose forecast had settled
+    -- was the only one that matched.
+
+    Keyed on the request itself (park coordinates and the game's date), so a
+    re-run inside ``cache_ttl`` reproduces the earlier run exactly, and a date
+    old enough to come from the archive API is treated as immutable: past
+    weather does not change, so it never re-fetches.
+    """
+
+    def __init__(
+        self,
+        session: requests.Session | None = None,
+        timeout: int = 20,
+        cache_dir: Path | None = None,
+        cache_ttl: int = 1800,
+    ) -> None:
         self.session = session or http.session()
         self.timeout = timeout
+        self.cache_dir = cache_dir
+        self.cache_ttl = cache_ttl
 
     def fetch(self, park: Park, game_dt_utc: str | None) -> WeatherEffect:
         if park.roof in ("closed", "dome"):
@@ -137,18 +188,42 @@ class WeatherProvider:
         # Forecast API only covers the recent past + near future; older dates
         # (backtests) come from the historical archive API.
         days_ago = (datetime.now(timezone.utc).date() - game_dt.date()).days
-        url = OPEN_METEO_ARCHIVE if days_ago > 5 else OPEN_METEO
-        resp = self.session.get(url, params=params, timeout=self.timeout)
-        resp.raise_for_status()
-        h = resp.json()["hourly"]
-        times = [datetime.fromisoformat(t) for t in h["time"]]
+        archived = days_ago > 5
+        url = OPEN_METEO_ARCHIVE if archived else OPEN_METEO
+        h = self._hourly(url, params, immutable=archived)
+        times = [datetime.fromisoformat(t) for t in h.time]
         idx = min(range(len(times)), key=lambda i: abs(times[i] - game_dt.replace(tzinfo=None)))
-        temp = h["temperature_2m"][idx]
-        hum = h["relative_humidity_2m"][idx]
-        wspd = h["wind_speed_10m"][idx]
-        wdir = h["wind_direction_10m"][idx]
+        temp = h.temperature_2m[idx]
+        hum = h.relative_humidity_2m[idx]
+        wspd = h.wind_speed_10m[idx]
+        wdir = h.wind_direction_10m[idx]
         out = _wind_out_component(wdir, wspd, park.orientation_deg)
         return WeatherConditions(temp, hum, wspd, wdir, out)
+
+    def _cache_path(self, url: str, params: dict[str, float | str]) -> Path | None:
+        if self.cache_dir is None:
+            return None
+        stamp = json.dumps({"url": url, **params}, sort_keys=True)
+        return self.cache_dir / f"{hashlib.sha256(stamp.encode()).hexdigest()[:20]}.json"
+
+    def _hourly(
+        self, url: str, params: dict[str, float | str], *, immutable: bool
+    ) -> HourlyForecast:
+        cache = self._cache_path(url, params)
+        if cache is not None and cache.exists():
+            fresh = immutable or time.time() - cache.stat().st_mtime < self.cache_ttl
+            if fresh:
+                try:
+                    return _hourly_from(json.loads(cache.read_text()))
+                except (ValueError, KeyError, TypeError):
+                    pass
+        resp = self.session.get(url, params=params, timeout=self.timeout)
+        resp.raise_for_status()
+        hourly = _hourly_from(resp.json()["hourly"])
+        if cache is not None:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(json.dumps(asdict(hourly)))
+        return hourly
 
 
 def _effect(c: WeatherConditions, park: Park) -> float:

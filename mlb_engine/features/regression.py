@@ -818,6 +818,32 @@ FB_ALLOWED_FLOOR = 0.420
 FB_HARD_GAIN = 20.0
 FB_HARD_CAP = 0.10
 
+# Barrel rate allowed, on the home-run line. Measured against the next start's
+# HR/PA over 2,426 starts / 56,072 PA, every feature read from pitches thrown
+# strictly before the start, K% controlled, chronological 60/40 holdout:
+#
+#     term(s)                    coef      t   holdout dev
+#     none (K only)                --     --      0.28406
+#     barrel allowed            +2.12  +2.93      0.28391
+#     hard-hit allowed          +0.86  +0.72      0.28404
+#     GB% allowed               -1.33  -4.07      0.28362
+#     FB% allowed               +1.61  +4.75      0.28374
+#     GB + FB + barrel          +1.13  +1.46      0.28391
+#
+# Two things follow. The slope belongs where it is -- the fitted coefficient is
+# +2.12 against the 2.0 that ships, and a weekly walk-forward over the whole
+# multiplier is flat from 1.5 to 4.0 (0.28619/0.28617/0.28616) and worse at 0
+# (0.28635), so the term is not the #195 case of something better deleted.
+#
+# But it is the *weakest* of the three batted-ball reads, not the strongest: it
+# forward-predicts the next start's HR/PA at r=0.059 against fly-ball rate's
+# 0.090 and ground-ball rate's -0.079, and marginal to the pair added after it
+# (#87) it keeps only half its coefficient at t +1.46. Widening the clip was
+# measured too and changes nothing (0.28617 at every bound tried), so the 4.8%
+# of starts that reach it are reaching a bound the data does not mind.
+# See ``scripts/starter_hr_terms.py``.
+BARREL_ALLOWED_HR_SLOPE = 2.0
+
 # Induced vertical break of the four-seamer, in inches: the usable proxy for a
 # flat vertical approach angle. A high-ride fastball at the top of the zone is
 # the pitch a high-launch hitter turns into a souvenir; a heavy sinking one is
@@ -826,6 +852,41 @@ BL_IVB = 15.0
 IVB_SLOPE = 0.008
 IVB_CLIP = (-0.04, 0.06)
 FOUR_SEAM_TYPES = {"FF", "FA"}
+
+# Four-seam velocity, the one shape metric that pays on the strikeout side.
+#
+# What one start measures, correlated across a pitcher's consecutive starts:
+# release height .97, extension .95, velocity .93, spin .91, IVB .84 -- then a
+# cliff to whiff/swing .20, K/PA .20, CSW% .15, xwOBA allowed .10. One outing is
+# ~90 radar-measured fastballs and ~22 results, so a velocity read off a single
+# start is legitimate where every result-based read is not.
+#
+# Scored the way the engine uses it, 2,082 starts / 48,120 PA, binomial deviance
+# per PA on strikeouts, six-week K%/CSW%/xwOBAcon controlled, chronological
+# 60/40 holdout:
+#
+#                             coef      t   train    holdout
+#     priced levels only        --     --  1.05786    1.05839
+#     + velocity level      0.0478   7.88  1.05642    1.05732
+#     + last-start dev      0.0972   5.32  1.05736    1.05767
+#     + level and dev       0.0995   5.44  1.05588    1.05661
+#
+# Slopes are those logit coefficients on the strikeout scale (x0.78 at a .22
+# league rate). A one-sided fit -- a dip counted differently from a spike --
+# was tried because the velocity itself carries asymmetrically (30% of a dip
+# survives to the next start, 55% of a spike) and it did not beat the linear
+# term (.05684 / .05677 against .05661), so the simple version ships.
+#
+# It buys nothing on contact. On hits per NON-strikeout PA the level is t=-2.15
+# for .0002 of deviance and the last-start deviation makes the holdout worse,
+# which is the same verdict every starter contact instrument has drawn here.
+BL_VFA = 94.7
+VFA_K_LEVEL_SLOPE = 0.037  # per mph above the league four-seamer
+VFA_K_DEV_SLOPE = 0.078  # per mph of last start away from his own level
+VFA_K_LEVEL_CLIP = (-0.12, 0.12)
+VFA_K_DEV_CLIP = (-0.08, 0.08)
+MIN_VFA_PITCHES = 60  # four-seamers in the window before the level is read
+MIN_VFA_START = 15  # four-seamers in the last start before its deviation is read
 
 # Batted balls against one side of the plate before a starter's platoon contact
 # split is trusted. Higher than the K split's PA floor because contact quality
@@ -947,6 +1008,11 @@ class PitcherRegression:
     extension: float = float("nan")
     release_var: float = float("nan")
     spin: float = float("nan")
+    # Four-seam velocity over the window, and how far his most recent start sat
+    # from it. ``vfa_k`` is the share of the fitted K term to charge (0 = off).
+    vfa: float = float("nan")
+    vfa_dev: float = float("nan")
+    vfa_k: float = 0.0
     # Optional FanGraphs pitch-modeling metrics (None if no subscription data).
     stuff_plus: float | None = None
     location_plus: float | None = None
@@ -1054,17 +1120,29 @@ class PitcherRegression:
         return m
 
     def k_multiplier(self) -> float:
-        """Multiplier on the pitcher's projected strikeout rate.
+        """Reported only: how this arm's stuff compares with the league's.
 
         Driven by CSW% and K-BB% (fast-stabilizing K predictors), the 2-strike
-        put-away whiff rate, and Stuff+ when a FanGraphs feed is present.
+        put-away whiff rate, and Stuff+ when a FanGraphs feed is present. Each
+        term is a deviation from a league baseline, so the product is a
+        comparison between arms and reads well as one.
 
-        Each term is a deviation from a league baseline, so the product is only a
-        comparison between arms if those baselines are the values the league
-        actually posts. Two of them were not, and both erred the same way: the
-        multiplier averaged 0.909 over starters and 0.926 over bullpens, i.e. it
-        was mostly a flat strikeout tax that raised offence everywhere rather
-        than a read on who misses bats.
+        It is **not** applied to a projected strikeout rate any more, because it
+        cannot improve one. The rate it used to multiply is the arm's observed
+        window K% blended toward xK% at 150 PA, and that rate is already
+        calibrated: over 2,777 starts, each predicted from pitches thrown
+        strictly before it, the blended rate's own quintiles land within a point
+        of what the arm went on to do (.1856 -> .1811 at the bottom, .2674 ->
+        .2658 at the top), while multiplying stretches them to .1473 and .3321.
+        Out of sample the multiplier is worse than not having it -- weekly
+        walk-forward wRMSE 0.10400 against 0.09763 -- and a dose search over the
+        exponent picks 0.0. Refitting the terms does not rescue it (0.10122), and
+        every term is individually harmful. #190 reached the same verdict on the
+        bullpen half, where the pen's own pooled K% beat its stuff outright.
+
+        CSW% is the reason: it is already inside xK%, so applying it again on top
+        prices the same variable twice and re-inflates the spread the blend was
+        built to shrink. See ``scripts/k_multiplier_study.py``.
         """
         if self.pitches < 100:
             return 1.0
@@ -1073,9 +1151,34 @@ class PitcherRegression:
         m *= 1.0 + _clip((self.csw - BL_CSW) * 2.5, -0.15, 0.20)  # highest baseline PPV
         m *= 1.0 + _clip((self.k_minus_bb - k_bb_baseline) * 1.5, -0.12, 0.15)
         m *= 1.0 + _clip((self.two_strike_whiff - BL_TWO_STRIKE_WHIFF) * 0.8, -0.06, 0.08)
+        m *= self.velocity_k_multiplier()
         if self.stuff_plus is not None:
             m *= 1.0 + _clip((self.stuff_plus - BL_STUFF_PLUS) * 0.004, -0.10, 0.15)
         return _clip(m, 0.75, 1.30)
+
+    def velocity_k_multiplier(self) -> float:
+        """How much of his strikeout rate his fastball is worth.
+
+        Two terms: how hard he throws relative to the league, and how his most
+        recent start sat against his own window. The second is the point -- one
+        start measures velocity at r=.93 while measuring nothing else about him,
+        so it is the only same-week form read the engine can honestly take.
+
+        Returns 1.0 unless ``vfa_k`` is set, and for a reliever always: this was
+        fitted on starts.
+        """
+        if self.vfa_k <= 0.0 or self.bullpen:
+            return 1.0
+        m = 1.0
+        if self.vfa == self.vfa:  # not NaN
+            m *= 1.0 + self.vfa_k * _clip(
+                (self.vfa - BL_VFA) * VFA_K_LEVEL_SLOPE, *VFA_K_LEVEL_CLIP
+            )
+        if self.vfa_dev == self.vfa_dev:
+            m *= 1.0 + self.vfa_k * _clip(
+                self.vfa_dev * VFA_K_DEV_SLOPE, *VFA_K_DEV_CLIP
+            )
+        return m
 
     def allowed_multipliers(self) -> dict[str, float]:
         """Multipliers on outcomes the pitcher ALLOWS (hits/xbh/hr)."""
@@ -1177,9 +1280,23 @@ class PitcherRegression:
         )
         gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
-        # Barrel rate allowed drives HR specifically (highest PPV for HR/9).
+        # Barrel rate allowed, read *unshrunk* because that is the scale
+        # ``BARREL_ALLOWED_HR_SLOPE`` was fitted on. ``starter_contact_shrink``
+        # ships at 0, so this is what production already prices; the point is
+        # that enabling the knob must not silently gut the term. A 42-day window
+        # is a median 95 batted balls against a 595-BBE prior, so shrinkage keeps
+        # 14% of the excess -- at a raw-fitted slope the whole term would shrink
+        # to about 1% of a home-run rate, an arithmetic accident rather than a
+        # decision. The shrunk-scale equivalent is a slope near 9, which is not
+        # what this constant is.
+        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
         hr = base * hard * (
-            1.0 + _clip((self.barrel_allowed - BL_BARREL_ALLOWED) * 2.0, -0.10, 0.18)
+            1.0
+            + _clip(
+                (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
+                -0.10,
+                0.18,
+            )
         )
         # Where he lets the ball go, which is a separate skill from how hard it
         # is hit and the one the stack was missing entirely.
@@ -1194,12 +1311,34 @@ class PitcherRegression:
         return {"1B": one, "2B": xbh, "3B": xbh, "HR": hr}
 
 
+def _four_seam_velocity(pdf: pd.DataFrame) -> tuple[float, float]:
+    """Window four-seam velocity, and where his most recent start sat against it.
+
+    Both are NaN until there are enough four-seamers to read: a start's mean is
+    only a measurement because it averages ~90 pitches, so a start he barely
+    threw the pitch in says nothing.
+    """
+    if "pitch_type" not in pdf or "release_speed" not in pdf:
+        return float("nan"), float("nan")
+    fb = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)].dropna(subset=["release_speed"])
+    if len(fb) < MIN_VFA_PITCHES:
+        return float("nan"), float("nan")
+    level = float(fb["release_speed"].mean())
+    if "game_date" not in fb:
+        return level, float("nan")
+    last = fb[fb["game_date"] == fb["game_date"].max()]["release_speed"]
+    if len(last) < MIN_VFA_START:
+        return level, float("nan")
+    return level, float(last.mean()) - level
+
+
 def build_pitcher_regression(
     pdf: pd.DataFrame,
     stuff_plus: float | None = None,
     location_plus: float | None = None,
     shrink: float = 0.0,
     bullpen: bool = False,
+    vfa_k: float = 0.0,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1301,6 +1440,8 @@ def build_pitcher_regression(
         if len(four_seam) >= 20:
             ivb = float(four_seam.mean() * 12.0)
 
+    vfa, vfa_dev = _four_seam_velocity(pdf)
+
     ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
     rel_var = (
         float(np.sqrt(pdf["release_pos_x"].dropna().var() + pdf["release_pos_z"].dropna().var()))
@@ -1389,6 +1530,9 @@ def build_pitcher_regression(
         k_pct_vs_l=k_pct_vs_l,
         k_pct_vs_r=k_pct_vs_r,
         ivb=ivb,
+        vfa=vfa,
+        vfa_dev=vfa_dev,
+        vfa_k=vfa_k,
         extension=ext,
         release_var=rel_var,
         spin=spin,

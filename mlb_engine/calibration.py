@@ -118,13 +118,24 @@ log = logging.getLogger(__name__)
 # on the buckets the model ranks well and halves it on the buckets it never
 # could, in opposite directions for different hitters. A map fitted on the
 # compressed vectors learned to correct a compression that is gone.
-FEATURE_BASIS = "ros-prior-baselines-2026.08"
+#
+# Retiring ``k_multiplier`` from the K path retires it once more, and this one
+# subsumes the baseline correction two paragraphs up: rather than comparing an
+# arm against better baselines, the engine no longer multiplies its strikeout
+# rate by its stuff at all. The blended rate already carries CSW%/SwStr% through
+# xK%, and over 2,777 starts predicted from prior pitches only, multiplying a
+# calibrated rate stretches it (bottom quintile priced .1473 against .1811
+# realised, top .3321 against .2658); weekly walk-forward wRMSE 0.10400 with the
+# multiplier against 0.09763 without, and a dose search picks 0.0. Every
+# starter's and every bullpen's K rate moves, in both directions, on both halves
+# of every game -- the largest single change to the strikeout path this month.
+FEATURE_BASIS = "no-stuff-multiplier-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
-# 08-16 was priced before either prior was fitted, and neither
-# "stuff-priors-2026.08" nor "ros-prior-2026.08" ever graded a row, so the
-# resets discard nothing: all of it lands together on the 08-17 refit.
+# 08-16 was priced before any of this landed, and none of the intermediate bases
+# ever graded a row, so the resets discard nothing: they land together on the
+# 08-17 refit.
 FEATURE_BASIS_SINCE = Date(2026, 8, 17)
 
 

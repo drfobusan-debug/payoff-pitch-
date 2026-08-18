@@ -202,7 +202,6 @@ def _pen_matchup(
     bmult: dict[str, float],
     xbh_mult: dict[str, float],
     bpen_allowed: dict[str, float],
-    bpen_k: float,
     bpen_npv: dict[str, float],
     bat_tail: dict[str, float],
     arsenal_mult: dict[str, float] | None = None,
@@ -217,7 +216,6 @@ def _pen_matchup(
     # Apply XBH selection to the bullpen matchup too.
     vp = apply_multipliers(vp, xbh_mult)
     vp = apply_multipliers(vp, bpen_allowed)
-    vp = apply_multipliers(vp, {"K": bpen_k})
     vp = apply_multipliers(vp, bpen_npv)
     if arsenal_mult:
         vp = apply_multipliers(vp, arsenal_mult)
@@ -688,9 +686,10 @@ class Pipeline:
             statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
-        pit_reg = build_pitcher_regression(pit_rows, shrink=w.starter_contact_shrink)
+        pit_reg = build_pitcher_regression(
+            pit_rows, shrink=w.starter_contact_shrink, vfa_k=w.vfa_k_weight
+        )
         pit_allowed_mult = pit_reg.allowed_multipliers()
-        k_mult = pit_reg.k_multiplier()
 
         # Stuff/command priors: pull the starter's allowed K and BB rates toward
         # xK% (CSW%/SwStr%) and xBB% (Zone%/chase/F-strike) so thin PA samples
@@ -724,7 +723,6 @@ class Pipeline:
             bpen.skill_frame, bullpen=self.cfg.pen_contact_level
         )
         bpen_allowed = bpen_reg.allowed_multipliers()
-        bpen_k = bpen_reg.k_multiplier()
         avail = (
             self.deps.rotowire.bullpen_availability(opp.abbrev)
             if self.deps.rotowire and self.deps.rotowire.available()
@@ -819,7 +817,10 @@ class Pipeline:
             # V1-style XBH selector feeds the existing 2B/3B multiplier block.
             vs_start = apply_multipliers(vs_start, xbh_sel.outcome_multipliers)
             vs_start = apply_multipliers(vs_start, pit_allowed_mult)
-            vs_start = apply_multipliers(vs_start, {"K": k_mult})
+            # No stuff multiplier on K: the blended rate above already carries
+            # CSW%/SwStr% through xK%, and multiplying it again only stretches a
+            # calibrated rate (scripts/k_multiplier_study.py). The platoon split
+            # is a different variable and stays.
             vs_start = apply_multipliers(vs_start, {"K": platoon_k})
             vs_start = apply_multipliers(vs_start, {"HR": platoon_hr})
             vs_start = apply_multipliers(vs_start, arsenal_mult)
@@ -849,7 +850,7 @@ class Pipeline:
                 )
             # Aggregate pen (used once the game is out of hand) vs the team's
             # high-leverage arms (used late in a still-close game).
-            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_k, bpen_npv, bat_tail)
+            pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_npv, bat_tail)
             vs_pen = _pen_matchup(
                 late_ctx, bpen.allowed, *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_arsenal, bpp),
@@ -2154,6 +2155,22 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = gate_name
             rec.reasons = [gate_reason, *rec.reasons]
+        # Doubles price ceiling. Runs after the contact floor rather than beside
+        # the other price screens so it claims only the buys nothing else had
+        # already refused: ``screen_probation`` decides whether to lift a screen
+        # from the rows attributed to it, and a screen credited with another
+        # gate's refusals is judged on bets it never removed.
+        if market == "batter_2b" and rec.tier != Tier.PASS and not under:
+            keep, dbl_reason = price_ceiling_allows(
+                rec.market_american,
+                self.cfg.doubles_max_buy_odds,
+                "doubles-price-ceiling",
+            )
+            if not keep:
+                rec.tier = Tier.PASS
+                rec.pass_gate = "doubles_price_ceiling"
+            if dbl_reason:
+                rec.reasons = [dbl_reason, *rec.reasons]
         # Price-only markets (e.g. singles) are fetched to persist the under
         # quote, never to bet the side we price. Hard-pass the over after every
         # tier decision so pricing the market cannot re-enable buying it.
@@ -2260,6 +2277,7 @@ def _preview_half(
         dxwoba=_fnum(pit_reg.dxwoba) or 0.0,
         spin=_fnum(pit_reg.spin),
         hard_hit_allowed=_fnum(pit_reg.hard_hit_allowed),
+        fb_allowed=_fnum(pit_reg.fb_allowed),
         babip_allowed=_fnum(pit_reg.babip_allowed),
         siera=opp_siera.siera if opp_siera.has_data else None,
         siera_trend=trends.siera.delta,
