@@ -68,6 +68,10 @@ class BoardRow:
     ev: float | None
     tier: str
     devigged: bool
+    # Identity, carried so the row can be graded later off a box score rather
+    # than re-matched by name against it (see audit.power_ledger).
+    player_id: int | None = None
+    game_pk: int | None = None
 
     @property
     def label(self) -> str:
@@ -128,6 +132,8 @@ def _row(rec: Recommendation, name: str) -> BoardRow:
         ev=rec.ev,
         tier=rec.tier.value,
         devigged=rec.opposite_american is not None,
+        player_id=rec.player_id,
+        game_pk=rec.game_pk,
     )
 
 

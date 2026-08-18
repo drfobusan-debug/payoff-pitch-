@@ -19,6 +19,7 @@ import html
 import math
 from datetime import date as Date
 
+from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
 from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     SCORED,
@@ -398,6 +399,92 @@ def _board_section(board: Board) -> str:
     return "".join(out)
 
 
+def ratings(result: ScreenResult) -> dict[str, str]:
+    """Each survivor's BUY/HOLD/AVOID, for anything recording what the note said."""
+    return {v.line.name: _rating(v)[0] for s in result.sections for v in s.hitters}
+
+
+def _wl(rec: Record) -> str:
+    out = f"{rec.wins}-{rec.losses}"
+    return out + (f"-{rec.pushes}" if rec.pushes else "")
+
+
+def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
+    """How the previous board actually did, before this one asks to be believed.
+
+    Printed first among the priced sections deliberately: the receipt for the
+    last claim belongs above the next one.
+    """
+    o = card.overall
+    if not o.n:
+        return (
+            "<h2>Yesterday's board, graded</h2>"
+            f"<p>Nothing from {html.escape(card.day)} could be graded"
+            + (f" &mdash; {card.voided} rows voided" if card.voided else "")
+            + ". A row is voided when the game did not finish or the hitter never batted, "
+            "which is a book's answer too, not a loss.</p>"
+        )
+    rows = [
+        [
+            html.escape(g.position.batter),
+            g.position.label,
+            _price(g.position.odds),
+            _pc(g.position.model_prob),
+            _pc(g.position.fair_prob) if g.position.fair_prob is not None else "one-way",
+            str(g.actual),
+            g.result,
+            _num(g.units, 2, signed=True),
+        ]
+        for g in sorted(graded, key=lambda g: -g.units)
+    ]
+    out = [
+        "<h2>Yesterday's board, graded</h2>",
+        f"<p><strong>{html.escape(card.day)}: {_wl(o)}, "
+        f"{_num(o.units, 2, signed=True)} units at the prices shown"
+        + (f", {card.voided} voided" if card.voided else "")
+        + ".</strong> Every row the note printed that day is graded here off the box score, "
+        "flat one unit apiece at the price it was shown at &mdash; not at a better one found "
+        "later, and not only on the rows that worked.</p>",
+        _table(
+            ["batter", "market", "price", "model", "no-vig", "actual", "result", "units"],
+            rows,
+            numeric_from=2,
+        ),
+    ]
+    if card.model_brier is not None and card.market_brier is not None:
+        verdict = "the model" if card.model_beat_market else "the price"
+        out.append(
+            f"<p><strong>{verdict.capitalize()} was closer.</strong> Brier score "
+            f"{card.model_brier:.3f} for the model against {card.market_brier:.3f} for the "
+            f"two-sided no-vig line, over the {card.scored_probs} rows where the hold could be "
+            f"stripped; the model averaged "
+            f"{_pc(card.mean_model_prob) if card.mean_model_prob is not None else '&mdash;'} "
+            f"against the market's "
+            f"{_pc(card.mean_market_prob) if card.mean_market_prob is not None else '&mdash;'} "
+            f"and the rows went {o.wins} of {o.decided}. One slate settles nothing; the column "
+            f"that matters is this line repeated, which is what the ledger accumulates.</p>"
+        )
+    splits = [
+        ("card tier", card.by_tier),
+        ("screen rating", card.by_rating),
+        ("market", card.by_market),
+    ]
+    split_rows = [
+        [html.escape(label), html.escape(rec.label), _wl(rec), _num(rec.units, 2, signed=True)]
+        for label, recs in splits
+        for rec in recs
+    ]
+    if split_rows:
+        out.append(_table(["cut", "bucket", "W-L", "units"], split_rows, numeric_from=2))
+        out.append(
+            "<p class='sub'>The tier cut says whether the card's buys beat the rows it passed "
+            "on; the rating cut says whether the matchup read discriminated at all. They are "
+            "separate because a rating carries no price and can be right about the hitter while "
+            "the number was wrong.</p>"
+        )
+    return "".join(out)
+
+
 def _provenance(result: ScreenResult, board: Board | None = None) -> str:
     rows = [
         ["Hitter form, hand-split", "Statcast pitch-level",
@@ -652,6 +739,7 @@ def render_html(
     *,
     prepared_for: str | None = None,
     board: Board | None = None,
+    review: tuple[Scorecard, list[GradedPosition]] | None = None,
 ) -> str:
     """The full note as a standalone HTML document."""
     subtitle = f"Power screen &middot; {result.as_of:%A, %-d %B %Y}"
@@ -690,6 +778,8 @@ def render_html(
         + ", ".join(f"{label} ({'high' if hi else 'low'} is better)" for _a, label, hi in SCORED)
         + f". One point apiece, a second for a top-{TOP_K} finish within the surviving pool.</p>"
     )
+    if review is not None:
+        body.append(_scorecard_section(*review))
     if board is not None:
         body.append(_board_section(board))
     body.append(_recommendations(result, board))
@@ -705,11 +795,12 @@ def render_pdf(
     *,
     prepared_for: str | None = None,
     board: Board | None = None,
+    review: tuple[Scorecard, list[GradedPosition]] | None = None,
 ) -> bytes:
     """The note as a PDF, through the same WeasyPrint path as the nightly card."""
     from mlb_engine.output.card import render_pdf as _pdf
 
-    return _pdf(render_html(result, prepared_for=prepared_for, board=board))
+    return _pdf(render_html(result, prepared_for=prepared_for, board=board, review=review))
 
 
 def default_filename(as_of: Date, suffix: str = "pdf") -> str:
