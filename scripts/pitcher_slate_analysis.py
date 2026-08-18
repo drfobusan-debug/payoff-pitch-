@@ -135,6 +135,8 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "k_pct": reg.k_pct,
         "bb_pct": reg.bb_pct,
         "barrel": reg.barrel_allowed,
+        "fb": reg.fb_allowed,
+        "gb": reg.gb_allowed,
         "vfa": _vfa(sl),
         "biomech": _biomech(sl),
         "unlucky_babip": unlucky_babip,

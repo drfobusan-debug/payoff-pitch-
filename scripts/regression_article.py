@@ -23,7 +23,12 @@ from datetime import date as Date
 
 import scripts.comprehensive_report as cr
 import scripts.pitcher_slate_analysis as psa
-from mlb_engine.features.regression import BL_BABIP, BL_K_PCT, BL_XSLG
+from mlb_engine.features.regression import (
+    BL_BABIP,
+    BL_FB_ALLOWED,
+    BL_K_PCT,
+    BL_XSLG,
+)
 
 BL_VFA = 93.8  # league mean four-seam/sinker velocity, 2026 window
 BUY_TIERS = ("Strong buy", "Moderate buy")
@@ -61,6 +66,72 @@ def _velo_phrase(p: dict) -> str:
     if vfa <= BL_VFA - 1.5:
         return f"a fringe fastball at {vfa:.1f}"
     return f"a fastball at {vfa:.1f}"
+
+
+def _air_sentence(p: dict, positive: bool) -> str:
+    """Which way the correction arrives: over the fence, or on the ground.
+
+    Batted-ball shape does not say whether a starter is due to improve -- the
+    luck term does that -- but it says what the improvement is made of, and the
+    reader is pricing home-run props off exactly that distinction.
+    """
+    fb = p.get("fb", float("nan"))
+    if fb != fb:  # NaN
+        return ""
+    if fb >= BL_FB_ALLOWED + 0.05:
+        shape = (
+            f"He is a fly-ball arm: {fb:.0%} of the contact he allows goes in "
+            f"the air against a {BL_FB_ALLOWED:.0%} norm"
+        )
+        return shape + (
+            ", so the correction arrives over the fence &mdash; the home runs are "
+            "the first thing to thin out, and the strikeout props move least."
+            if positive
+            else ", which is where a run of good luck ends fastest: one "
+            "carrying night and the flies that were dying start landing."
+        )
+    gb = p.get("gb", float("nan"))
+    if fb <= BL_FB_ALLOWED - 0.05:
+        ground = f"{gb:.0%} of his contact" if gb == gb else "most of his contact"
+        return (
+            f"He keeps the ball down &mdash; {ground} on the ground, {fb:.0%} "
+            "in the air &mdash; so "
+            + (
+                "expect the correction in singles and double plays rather than "
+                "in home runs."
+                if positive
+                else "the damage that comes back is hits rather than homers."
+            )
+        )
+    return f"His batted-ball shape is ordinary ({fb:.0%} fly balls)."
+
+
+def _bat_air_sentence(p: dict, positive: bool) -> str:
+    """What the hitter's correction is made of, read off his batted-ball shape."""
+    fb = p.get("fb", float("nan"))
+    if fb != fb:  # NaN
+        return ""
+    iffb = p.get("iffb", float("nan"))
+    if fb >= BL_FB_ALLOWED + 0.05:
+        out = f"The shape is airborne: {fb:.0%} of his batted balls are fly balls"
+        if iffb == iffb and iffb > 0.25:
+            return (
+                out + f", but {iffb:.0%} of them are pop-ups, and that is the "
+                "share of his air contact that was never going to pay."
+            )
+        return out + (
+            ", which is where the extra-base version of the correction lives."
+            if positive
+            else ", so the fall comes out of his power rather than his average."
+        )
+    gb = p.get("gb", float("nan"))
+    if fb <= BL_FB_ALLOWED - 0.05:
+        ground = f" ({gb:.0%} grounders)" if gb == gb else ""
+        return (
+            f"He hits the ball on the ground{ground} with only {fb:.0%} in the "
+            "air, so read this as singles and total bases rather than as home runs."
+        )
+    return ""
 
 
 def _luck_sentence(p: dict, positive: bool) -> str:
@@ -197,6 +268,7 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
         for x in (
             opener,
             _luck_sentence(p, positive),
+            _air_sentence(p, positive),
             _pitcher_verdict(p, positive),
             _today_sentence(ctx),
         )
@@ -268,7 +340,9 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
             bits.append("carrying air")
         if bits:
             env = "Tonight: " + " and ".join(bits) + "."
-    body = " ".join(x for x in (lead, verdict, heat, env) if x)
+    body = " ".join(
+        x for x in (lead, verdict, _bat_air_sentence(p, positive), heat, env) if x
+    )
     bets = [bet] if bet else []
     cls = "up" if positive else "down"
     return (
@@ -340,7 +414,11 @@ FINE = (
     "Methodology: pitcher SIERA, Stuff (an xK% proxy fitted on CSW% and SwStr%) "
     "and the rate stats come from each arm's trailing six-week Statcast slice; "
     "vFA is mean four-seam/sinker velocity over the last three weeks, and the "
-    "three-week deltas compare that window with everything before it. Hitter "
+    "three-week deltas compare that window with everything before it. Fly-ball "
+    "rate counts fly balls and pop-ups as a share of batted balls (36% is the "
+    "league share); for hitters it is what ground balls and line drives leave "
+    "behind, and it is read as the <i>shape</i> of a correction rather than as "
+    "a reason to expect one. Hitter "
     "wOBA, xwOBA and xSLG use a six-week batted-ball slice with a 25-event "
     "minimum, and the three-week figure is the same measure over the recent "
     "window. Ranking is the luck term only: z(BABIP &minus; .290) + "

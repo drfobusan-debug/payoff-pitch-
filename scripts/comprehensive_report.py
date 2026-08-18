@@ -26,7 +26,11 @@ import pandas as pd
 
 import scripts.pitcher_slate_analysis as psa
 from mlb_engine.config import load_config
-from mlb_engine.features.regression import BL_XSLG, build_batter_regression
+from mlb_engine.features.regression import (
+    BL_XSLG,
+    BatterRegression,
+    build_batter_regression,
+)
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import to_mp3
 from mlb_engine.output.daily_preview import build_preview_report
@@ -98,6 +102,19 @@ def _woba(slice_df: pd.DataFrame) -> float:
     return build_batter_regression(slice_df).woba
 
 
+def _fb_rate(reg: BatterRegression) -> float:
+    """Fly balls (with pop-ups) as a share of a hitter's batted balls.
+
+    Statcast's four batted-ball classes exhaust the slice, so the air share is
+    what the ground balls and line drives leave behind. NaN when either half is
+    unmeasurable.
+    """
+    gb, ld = reg.gb_pct, reg.ld_pct
+    if gb != gb or ld != ld:
+        return float("nan")
+    return max(0.0, 1.0 - gb - ld)
+
+
 def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["batter"] == pid]
     reg = build_batter_regression(sl)
@@ -112,6 +129,9 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "barrel": reg.barrel_rate,
         "babip": reg.babip,
         "hard_hit": reg.hard_hit,
+        "fb": _fb_rate(reg),
+        "gb": reg.gb_pct,
+        "iffb": reg.iffb_pct,
         "woba6": reg.woba,
         "woba3": _woba(recent),
     }

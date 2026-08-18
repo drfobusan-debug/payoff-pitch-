@@ -96,3 +96,50 @@ def test_article_flags_that_the_trend_arrows_are_unproven() -> None:
     assert "three-week direction</i> of those same" in html
     assert "does not predict the next start" in html
     assert "Part one" in html and "Part two" in html
+
+
+def test_a_fly_ball_arm_is_told_where_the_correction_lands() -> None:
+    """Shape is prose about *what* the correction is, never about whether."""
+    text = art._air_sentence(_pitcher(fb=0.44, gb=0.34), positive=True)
+    assert "fly-ball arm" in text and "44%" in text
+    assert "over the fence" in text
+    text = art._air_sentence(_pitcher(fb=0.44, gb=0.34), positive=False)
+    assert "ends fastest" in text
+
+
+def test_a_ground_ball_arm_is_not_sold_home_run_regression() -> None:
+    text = art._air_sentence(_pitcher(fb=0.27, gb=0.52), positive=True)
+    assert "keeps the ball down" in text and "52%" in text
+    assert "singles and double plays" in text
+    assert "fence" not in text
+
+
+def test_shape_is_silent_when_the_batted_ball_data_is_missing() -> None:
+    assert art._air_sentence(_pitcher(fb=float("nan")), positive=True) == ""
+    assert art._bat_air_sentence(_batter(fb=float("nan")), positive=True) == ""
+
+
+def test_a_hitters_air_contact_is_discounted_by_his_pop_ups() -> None:
+    text = art._bat_air_sentence(_batter(fb=0.45, gb=0.32, iffb=0.30), positive=True)
+    assert "45%" in text and "30%" in text
+    assert "never going to pay" in text
+
+
+def test_a_ground_ball_hitter_reads_as_singles_not_power() -> None:
+    text = art._bat_air_sentence(_batter(fb=0.26, gb=0.52), positive=True)
+    assert "on the ground" in text and "52%" in text
+    assert "rather than as home runs" in text
+
+
+def test_the_pitcher_entry_carries_both_velocity_and_shape() -> None:
+    html = art._pitcher_entry(_pitcher(fb=0.44, gb=0.34), None, [], True)
+    assert "fastball at 95.2" in html  # vFA level
+    assert "vFA +0.0 mph" in html  # vFA three-week trend
+    assert "fly-ball arm" in html
+
+
+def test_the_methodology_defines_fly_ball_rate() -> None:
+    html = art.build_html(
+        Date(2026, 8, 12), [_pitcher(fb=0.44)], [], {}, [_batter(fb=0.44)], [], {}, []
+    )
+    assert "Fly-ball rate counts fly balls and pop-ups" in html
