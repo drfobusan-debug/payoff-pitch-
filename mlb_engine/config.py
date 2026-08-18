@@ -105,9 +105,17 @@ class RollingWindows:
     # start sat against his own window. Velocity is the only read that survives
     # a single start (r=.93 between consecutive starts, against .20 for K/PA and
     # .15 for CSW%), and adding both terms improved held-out strikeout deviance
-    # from 1.05839 to 1.05661 over 2,082 starts. 0.0 ships it quoted but unpriced
-    # until the ledger has graded it, which is the order every market here has
-    # been reopened in; 1.0 charges the fitted slopes in full.
+    # from 1.05839 to 1.05661 over 2,082 starts.
+    #
+    # Still 0.0, on evidence rather than on caution. As a *rate* forecast it
+    # clears the bar that retired the stuff multiplier: weekly walk-forward
+    # wRMSE 0.09634 against 0.09749 for the blended rate alone, and the dose
+    # search keeps ~0.8 of it where it kept none of stuff
+    # (scripts/vfa_k_price_study.py). Priced through the simulator on nine
+    # graded slates it does not: strikeout Brier .20197 -> .20166 but log loss
+    # .60567 -> .62127, and 16 of 18 other markets get worse, because scaling a
+    # starter's K rate rescales every other outcome he allows
+    # (scripts/vfa_k_backtest.py). 1.0 charges the fitted slopes in full.
     vfa_k_weight: float = field(
         default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
     )
