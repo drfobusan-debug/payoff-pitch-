@@ -13,9 +13,10 @@
 #
 # The MORNING run (before noon) is the real job and does both, in order:
 #   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
-#                           preview article + audio and the pitcher/batter
-#                           regression articles + audio are generated and emailed
-#                           as ONE message (Excel bet sheet + all PDFs/MP3s).
+#                           preview article + audio, the pitcher/batter
+#                           regression articles + audio and the morning power
+#                           screen are generated and emailed as ONE message
+#                           (Excel bet sheet + all PDFs/MP3s).
 #                           By mid-morning the VSIN public handle/bets splits have
 #                           posted, so the picks use them -- that's why the slate
 #                           runs in the morning. This mirrors the one-click
@@ -212,6 +213,11 @@ else
     else
       echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
     fi
+    # The power screen reads the slate that was just priced, so it runs after it
+    # and before delivery: its PDF rides in the package email instead of sending
+    # a second one. Not fatal -- a slate with no soft arm on it screens nobody.
+    python scripts/power_screen.py --date "\$day" \\
+      || echo "[\$(date)] power screen failed" >&2
     python -m scripts.email_daily_package "\$day" || echo "[\$(date)] package email failed" >&2
   else
     echo "[\$(date)] no workbook for \$today; skipping package email" >&2

@@ -38,6 +38,16 @@ class StarterLine:
     dxwoba: float  # xwOBA - wOBA allowed: positive => bailed out, hits coming
     spin: float | None = None
     hard_hit_allowed: float | None = None
+    # Share of balls in play he allows in the air (fly balls plus pop-ups). The
+    # home-run term reads this beside hard-hit rate rather than either alone,
+    # because hard contact on the ground is a single and soft contact in the air
+    # is an out, so the table prints them together.
+    fb_allowed: float | None = None
+    # Four-seam ride, in inches, and the velocity pair the K term is fitted on:
+    # his window level and how his most recent start sat against it.
+    ivb: float | None = None
+    vfa: float | None = None
+    vfa_dev: float | None = None
     babip_allowed: float | None = None
     siera: float | None = None
     # Form direction inside the same window: recent half minus earlier half.

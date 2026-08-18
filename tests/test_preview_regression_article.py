@@ -87,6 +87,54 @@ def test_starter_row_shows_swstr_and_hard_hit_without_zone():
     assert "Zone%" not in html
 
 
+def test_starter_row_prints_the_air_rate_the_hr_term_reads():
+    gp = _preview(
+        home_starter=_starter(fb_allowed=0.415),
+        away_starter=_starter(name="Mitch Bratt", fb_allowed=None),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>FB%</th>" in html
+    assert "<td>42%</td>" in html
+    # An arm with no batted-ball sample reads as unavailable, not as 0%.
+    assert "<td>0%</td>" not in html
+
+
+def test_starter_row_marks_ride_as_a_home_run_read_not_a_second_k_signal():
+    gp = _preview(
+        home_starter=_starter(ivb=17.6),
+        away_starter=_starter(name="Mitch Bratt", ivb=12.4),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "<th>IVB</th>" in html
+    # Ride reads against the pitcher (neg), a heavy fastball for him (pos).
+    assert "<span class='neg'>17.6\" ride</span>" in html
+    assert "<span class='pos'>12.4\" heavy</span>" in html
+
+
+def test_starter_row_prints_the_last_start_velocity_deviation():
+    gp = _preview(
+        home_starter=_starter(vfa=96.2, vfa_dev=-1.1),
+        away_starter=_starter(name="Mitch Bratt", vfa=93.0, vfa_dev=0.2),
+    )
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "96.2 <span class='neg'>(-1.1)</span>" in html
+    # Inside a start's own noise, the level prints without an arrow.
+    assert "<td>93.0</td>" in html
+
+
+def test_starter_row_leaves_shape_blank_when_the_fastball_sample_is_thin():
+    """No four-seamers to read is unavailable, not a league-average fastball."""
+    gp = _preview(home_starter=_starter(), away_starter=_starter(name="Mitch Bratt"))
+    html, _ = build_preview_report(dt.date(2026, 8, 5), [gp])
+
+    assert "\" ride" not in html and "\" heavy" not in html
+    # Velocity, IVB and air rate, unread for both starters.
+    assert html.count("<td>—</td>") == 6
+
+
 def test_trend_sentence_reads_direction_from_the_pitchers_side():
     txt = starter_trend_sentence("SD", _starter())
 
