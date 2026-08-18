@@ -6,8 +6,11 @@ analysis, and a rated recommendation table at the end. The prose that carries
 judgement is generated from the numbers -- what makes an arsenal dangerous is a
 comparison, and a comparison is a sentence, not a cell.
 
-No market data enters here. Ratings describe conviction in the *matchup*; sizing
-against a price is a separate step, and the note says so.
+Ratings describe conviction in the *matchup* and read no price. A priced board
+is appended when one is supplied (see ``power_board``, which reads the card's own
+devigged rows off disk rather than fetching anything); it sits beside the ratings
+and feeds none of them, so a bet still has to clear the matchup and the number
+separately.
 """
 
 from __future__ import annotations
@@ -16,6 +19,7 @@ import html
 import math
 from datetime import date as Date
 
+from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     SCORED,
     TOP_K,
@@ -321,7 +325,80 @@ def _thesis(result: ScreenResult) -> str:
     return "".join(paras)
 
 
-def _provenance(result: ScreenResult) -> str:
+def _price(american: float | None) -> str:
+    if american is None:
+        return "&mdash;"
+    return f"{american:+.0f}"
+
+
+def _board_section(board: Board) -> str:
+    """The survivors on the card's own board, best expected value first."""
+    rows = []
+    for r in board.rows:
+        fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
+        rows.append([
+            html.escape(r.batter),
+            r.label,
+            _price(r.american),
+            html.escape(r.book or "&mdash;"),
+            _pc(r.model_prob),
+            fair + ("" if r.devigged else "*"),
+            _num((r.edge or 0.0) * 100, 1, signed=True) if r.edge is not None else "&mdash;",
+            _pc(r.ev, 1) if r.ev is not None else "&mdash;",
+            r.tier,
+        ])
+    out = [
+        "<h2>The board</h2>",
+        f"<p><strong>{len(board.priced)} of "
+        f"{len(board.priced) + len(board.unpriced)} survivors have a price</strong>, and "
+        f"{len(board.buys)} of their rows cleared the card's buy tiers. Every figure below is "
+        f"the nightly run's own: the model probability it simulated, the best price it found, "
+        f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
+        f"re-simulated for this note, so a row here is the bet the engine actually made.</p>",
+    ]
+    if rows:
+        out.append(
+            _table(
+                ["batter", "market", "price", "book", "model", "no-vig", "edge", "EV", "tier"],
+                rows,
+                numeric_from=2,
+            )
+        )
+        out.append(
+            "<p class='sub'>Edge is model minus no-vig, in points. A no-vig mark starred is "
+            "one-sided at the book, so its vig could not be stripped and the edge beside it is "
+            "overstated by roughly half the hold.</p>"
+        )
+    if board.dropped:
+        out.append(
+            f"<p class='sub'>{board.dropped} further priced rows on these hitters are not shown; "
+            f"each keeps his {ROWS_PER_BATTER} best by expected value.</p>"
+        )
+    if board.unpriced:
+        names = ", ".join(html.escape(n) for n in board.unpriced)
+        out.append(
+            f"<div class='caveat'><strong>Priced by nobody: {names}.</strong> The pipeline "
+            f"declines a game whose lineup is not posted, and this screen runs before that on "
+            f"purpose. These are matchup opinions with no bet attached yet &mdash; re-read the "
+            f"card once the lineups land.</div>"
+        )
+    against = [
+        r for r in board.rows
+        if r.side == "over" and r.edge is not None and r.edge <= -0.03
+    ]
+    if against:
+        worst = min(against, key=lambda r: r.edge or 0.0)
+        out.append(
+            f"<p><strong>The market disagrees hardest on {html.escape(worst.batter)} "
+            f"{worst.label}</strong>: {_pc(worst.model_prob)} modelled against a "
+            f"{_pc(worst.fair_prob) if worst.fair_prob is not None else 'one-way'} no-vig line. "
+            f"The screen reads form and exposure; the price reads everything, including the "
+            f"lineup card this note is guessing at.</p>"
+        )
+    return "".join(out)
+
+
+def _provenance(result: ScreenResult, board: Board | None = None) -> str:
     rows = [
         ["Hitter form, hand-split", "Statcast pitch-level",
          f"{result.window_start:%-m/%d}&ndash;{result.window_end:%-m/%d}", "Observed"],
@@ -333,6 +410,13 @@ def _provenance(result: ScreenResult) -> str:
          "21d relief from the 6th", "Observed"],
         ["Lineup slots, projected PA", "Rotowire expected lineups", "Today", "Projected"],
     ]
+    if board is not None:
+        rows.append([
+            "Prices, model probabilities, no-vig",
+            f"the card's own run ({html.escape(board.source or 'predictions file')})",
+            "Today",
+            "Market",
+        ])
     out = [
         "<h2>Data basis</h2>",
         _table(["Layer", "Source", "Window", "Status"], rows, numeric_from=4),
@@ -352,9 +436,22 @@ def _provenance(result: ScreenResult) -> str:
             "Lineup slots are projections, not posted lineups. Every plate-appearance split below "
             "moves if the order does, and the top recommendation usually rests on one slot."
         )
-    caveats.append(
-        "This note reads no market. A matchup rating is not a bet; size it against a price."
-    )
+    if board is None:
+        caveats.append(
+            "This note reads no market. A matchup rating is not a bet; size it against a price."
+        )
+    else:
+        caveats.append(
+            "A matchup rating still contains no price: the board is shown beside the ratings and "
+            "is an input to none of them, so agreement between the two is evidence and "
+            "disagreement is not resolved for you."
+        )
+        if board.unpriced:
+            caveats.append(
+                f"{len(board.unpriced)} of the survivors were never priced by the engine, whose "
+                f"games had no posted lineup at the time of the run. Their ratings stand; their "
+                f"bets do not exist yet."
+            )
     out.append(
         "<div class='caveat'><strong>Carried forward, unresolved.</strong><ul>"
         + "".join(f"<li>{c}</li>" for c in caveats)
@@ -489,7 +586,14 @@ def _section_html(section: MatchupSection, index: int) -> str:
     return "".join(out)
 
 
-def _recommendations(result: ScreenResult) -> str:
+def _best_price_cell(row: BoardRow | None) -> str:
+    if row is None:
+        return "not priced"
+    ev = _pc(row.ev, 1) if row.ev is not None else "&mdash;"
+    return f"{row.label} {_price(row.american)} ({ev})"
+
+
+def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     graded = [
         (v, s) for s in result.sections for v in s.hitters
     ]
@@ -499,12 +603,15 @@ def _recommendations(result: ScreenResult) -> str:
     rows = []
     for rating, reason, view, section in rated:
         css = rating.lower()
-        rows.append([
+        row = [
             f"<span class='{css}'>{rating}</span>",
             html.escape(view.line.name),
             html.escape(section.starter.name),
-            reason or "&mdash;",
-        ])
+        ]
+        if board is not None:
+            row.append(_best_price_cell(board.best_for_batter(view.line.name)))
+        row.append(reason or "&mdash;")
+        rows.append(row)
     buys = [r for r in rated if r[0] == "BUY"]
     lead = (
         f"<p><strong>{len(buys)} of {len(rated)} survivors rate a buy on the matchup.</strong> "
@@ -512,18 +619,40 @@ def _recommendations(result: ScreenResult) -> str:
         f"subtracts, contact quality, strikeout risk, and whether the bullpen gives the edge "
         f"back. They contain no price.</p>"
     )
+    if board is not None:
+        agreed = [
+            t for t in rated
+            if t[0] == "BUY" and (b := board.best_for_batter(t[2].line.name)) is not None
+            and b.is_buy
+        ]
+        lead += (
+            f"<p><strong>{len(agreed)} of those the card also bought at a price.</strong> The "
+            f"best-price column is his highest-EV row from the board above, and it is the only "
+            f"column here that knows what anything costs: a rating without a price is a matchup "
+            f"waiting for a number, and a price without a rating is the market's opinion, not "
+            f"ours.</p>"
+        )
     tail = (
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
+    headers = ["rating", "batter", "vs"]
+    if board is not None:
+        headers.append("best price (EV)")
+    headers.append("basis")
     return (
         "<h2>Recommendations</h2>" + lead
-        + _table(["rating", "batter", "vs", "basis"], rows, numeric_from=4)
+        + _table(headers, rows, numeric_from=len(headers) - 1)
         + tail
     )
 
 
-def render_html(result: ScreenResult, *, prepared_for: str | None = None) -> str:
+def render_html(
+    result: ScreenResult,
+    *,
+    prepared_for: str | None = None,
+    board: Board | None = None,
+) -> str:
     """The full note as a standalone HTML document."""
     subtitle = f"Power screen &middot; {result.as_of:%A, %-d %B %Y}"
     if prepared_for:
@@ -533,7 +662,7 @@ def render_html(result: ScreenResult, *, prepared_for: str | None = None) -> str
         f"<p class='sub'>{subtitle}</p>",
         "<h2>Thesis</h2>",
         _thesis(result),
-        _provenance(result),
+        _provenance(result, board),
         _starter_ranking(result),
     ]
     for i, section in enumerate(result.sections, 1):
@@ -561,7 +690,9 @@ def render_html(result: ScreenResult, *, prepared_for: str | None = None) -> str
         + ", ".join(f"{label} ({'high' if hi else 'low'} is better)" for _a, label, hi in SCORED)
         + f". One point apiece, a second for a top-{TOP_K} finish within the surviving pool.</p>"
     )
-    body.append(_recommendations(result))
+    if board is not None:
+        body.append(_board_section(board))
+    body.append(_recommendations(result, board))
     return (
         "<!DOCTYPE html><html><head><meta charset='utf-8'>"
         f"<title>Power screen {result.as_of.isoformat()}</title>"
@@ -569,11 +700,16 @@ def render_html(result: ScreenResult, *, prepared_for: str | None = None) -> str
     )
 
 
-def render_pdf(result: ScreenResult, *, prepared_for: str | None = None) -> bytes:
+def render_pdf(
+    result: ScreenResult,
+    *,
+    prepared_for: str | None = None,
+    board: Board | None = None,
+) -> bytes:
     """The note as a PDF, through the same WeasyPrint path as the nightly card."""
     from mlb_engine.output.card import render_pdf as _pdf
 
-    return _pdf(render_html(result, prepared_for=prepared_for))
+    return _pdf(render_html(result, prepared_for=prepared_for, board=board))
 
 
 def default_filename(as_of: Date, suffix: str = "pdf") -> str:
