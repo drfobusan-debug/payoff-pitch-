@@ -43,6 +43,11 @@ class StarterLine:
     # because hard contact on the ground is a single and soft contact in the air
     # is an out, so the table prints them together.
     fb_allowed: float | None = None
+    # Four-seam ride, in inches, and the velocity pair the K term is fitted on:
+    # his window level and how his most recent start sat against it.
+    ivb: float | None = None
+    vfa: float | None = None
+    vfa_dev: float | None = None
     babip_allowed: float | None = None
     siera: float | None = None
     # Form direction inside the same window: recent half minus earlier half.

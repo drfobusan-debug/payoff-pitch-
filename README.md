@@ -203,15 +203,39 @@ Two consequences:
 rather than three weeks against three weeks. SIERA and CSW% keep their halves;
 three weeks is the shortest sample that measures them at all.
 
-**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` the starter's K
-multiplier carries both terms — his level against a 94.7 league four-seamer at
-3.7%/mph, and his last start against his own window at 7.8%/mph, each clipped.
-Scored as the engine uses it (2,082 starts / 48,120 PA, binomial deviance per PA
-on strikeouts, six-week K%/CSW%/xwOBAcon controlled, 60/40 chronological
-holdout): 1.05839 for the priced levels alone, 1.05732 adding the level,
-**1.05661** adding both. It ships quoted-but-unpriced because no graded ledger
-row has ever depended on it, which is the order every market here has been
-reopened in.
+**`MLBE_VFA_K_WEIGHT` prices it, default `0.0` (off).** At `1.0` both terms — his
+level against a 94.7 league four-seamer at 3.7%/mph, and his last start against
+his own window at 7.8%/mph, each clipped — multiply the *blended* strikeout rate.
+Scored per PA (2,082 starts / 48,120 PA, binomial deviance, six-week
+K%/CSW%/xwOBAcon controlled, 60/40 chronological holdout): 1.05839 for the priced
+levels alone, 1.05732 adding the level, **1.05661** adding both.
+
+It stays off because the two ways of scoring it disagree, which is worth stating
+precisely.
+
+As a *rate forecast* it passes the bar that retired the stuff multiplier — weekly
+walk-forward wRMSE on the next start's K rate, 3,086 starts, no multiplier
+0.09749, stuff 0.10400, **velocity 0.09634** — and a dose search keeps ~0.8 of it
+where it kept none of stuff, because CSW% and SwStr% are already inside xK% and
+`release_speed` is in no other term. The blended rate is flat across last-start
+velocity, which is the finding:
+
+| last start vs his window | starts | blended | with velocity | realised |
+| --- | --- | --- | --- | --- |
+| below −1.0 mph | 75 | .2348 | .2168 | .2177 |
+| −1.0 to −0.4 | 388 | .2293 | .2194 | .2146 |
+| −0.4 to +0.4 | 1,339 | .2276 | .2280 | .2227 |
+| +0.4 to +1.0 | 447 | .2272 | .2381 | .2370 |
+| above +1.0 mph | 79 | .2319 | .2502 | .2688 |
+
+As a *price*, replaying nine graded slates at both weights (54,269 graded picks,
+identical inputs), it does not: strikeout Brier .20197 → .20166 but log loss
+.60567 → **.62127**, and 16 of the 18 other markets get worse. Scaling a
+starter's K rate rescales every other outcome he allows, so a mph of fastball
+moves his walks, his hits and the game total too — the same coupling that made
+the stuff multiplier a worse price than no multiplier at all. A better rate
+forecast is not yet a better price, so the columns quote it and no bet pays for
+it.
 
 It buys nothing on contact and is not applied there: on hits per *non-strikeout*
 PA the level is t = −2.15 for .0002 of deviance and the last-start deviation
@@ -225,6 +249,8 @@ python -m scripts.velocity_read_study reliability   # what one start measures
 python -m scripts.velocity_read_study window        # 1 to 8 weeks, and decays
 python -m scripts.velocity_read_study k             # the deviance bar, strikeouts
 python -m scripts.velocity_read_study hits          # the same on contact
+python -m scripts.vfa_k_price_study                 # the bar that retired stuff
+python -m scripts.vfa_k_backtest                    # graded slates, both weights
 ```
 
 ### Bullpen windows
