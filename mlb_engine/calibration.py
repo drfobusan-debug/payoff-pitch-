@@ -280,9 +280,10 @@ class Calibrator:
     def to_json(self, path: Path, bases: dict[str, str] | None = None) -> None:
         """Write the map, stamping each market with the basis it is valid for.
 
-        ``bases`` carries a market forward on an older basis, which only
-        ``calibrate --revalidate`` may do and only for a market it has just
-        measured as still helping. Everything else is stamped current.
+        ``bases`` writes a market's stamp as some older basis, which is how a
+        caller records that a curve predates the current features. No shipping
+        path does that: ``calibrate --revalidate`` stamps every survivor
+        current, having just measured it as still helping.
         """
         carried = bases or {}
         payload = {
@@ -300,11 +301,11 @@ class Calibrator:
         """Load the map, dropping only the markets whose basis is stale.
 
         A basis bump used to retire the whole file, which is stricter than the
-        evidence: measured out of time on 33,712 graded rows priced after the
+        evidence: measured out of time on 32,716 graded rows priced after the
         bumps of 2026-08, the retired map still beat the uncalibrated
-        probability on fourteen of nineteen markets (``pitcher_h`` +.0114 Brier,
-        ``game_ml`` +.0096) and lost on four (``batter_tb`` -.0238, whose total-
-        bases weighting had genuinely changed). Retiring per market keeps the
+        probability on most markets (``pitcher_h`` +.0177 Brier, ``pitcher_k``
+        +.0165) and lost on three (``batter_tb`` -.0237, whose total-bases
+        weighting had genuinely changed). Retiring per market keeps the
         first group priced and drops the second, and a map with no stamp at all
         is still refused everywhere -- an unlabelled fit could have been trained
         on anything.
