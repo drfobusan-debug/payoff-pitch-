@@ -131,7 +131,7 @@ from mlb_engine.market.runline import (
 from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
-from mlb_engine.models.markov_f5 import f5_from_lineups
+from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
 from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
@@ -1264,12 +1264,17 @@ class Pipeline:
         )
         res = mc.simulate(home_cfg, away_cfg)
 
-        # F5: non-stationary per-lineup-slot Markov (TTO-aware).
-        f5 = f5_from_lineups(
-            home_start,
-            away_start,
-            home_dp_rate=home_eff.gb_dp_rate(),
-            away_dp_rate=away_eff.gb_dp_rate(),
+        # F5: the simulator's own first five, or the non-stationary per-lineup-slot
+        # Markov (TTO-aware) it replaces.
+        f5 = (
+            f5_from_sim(res.home_runs_f5, res.away_runs_f5)
+            if self.cfg.f5_from_sim
+            else f5_from_lineups(
+                home_start,
+                away_start,
+                home_dp_rate=home_eff.gb_dp_rate(),
+                away_dp_rate=away_eff.gb_dp_rate(),
+            )
         )
 
         ha, aa = game.home.abbrev, game.away.abbrev

@@ -880,6 +880,26 @@ class Config:
     # separately for the bridge and leverage subsets of the corps.
     pen_arsenal: bool = field(default_factory=lambda: _env_bool("MLBE_PEN_ARSENAL", True))
 
+    # Price the first five off the game simulator's own first five innings rather
+    # than the per-slot Markov chain. The two disagree in one direction, and the
+    # chain is the hotter one: replaying 10 slates (133 games graded against the
+    # first five actually scored) the chain projected 5.99 runs and the simulator
+    # 5.70 against 4.85, and on the two F5 total lines the simulator's Brier is
+    # 0.0053 better (95% 0.0011..0.0094, paired; scripts/f5_model_study.py). The
+    # F5 side is unchanged (0.2744 vs 0.2747), so this is a run-level fix, not a
+    # side one. Graded cards say the same in miniature, the calibrator having
+    # already absorbed most of it: 5.05 projected against 4.80 scored.
+    #
+    # It moves nothing outside f5_ml/f5_total/f5_rl -- props and the full-game
+    # markets are built from the simulator result, and the F5 arrays this reads
+    # were already being computed and discarded. Proven by repricing a cached
+    # slate both ways: 135 F5 rows moved, 0 of the other 6,570.
+    #
+    # Off until it has graded slates of its own: the F5 edge floors and the F5
+    # calibration map were both fitted against the chain's probabilities, so
+    # turning this on needs those refit on cards priced with it.
+    f5_from_sim: bool = field(default_factory=lambda: _env_bool("MLBE_F5_FROM_SIM", False))
+
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are
     # restricted to the markets with a positive graded edge (see
