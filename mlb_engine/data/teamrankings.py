@@ -313,14 +313,16 @@ class TeamRankingsClient:
             return published
         picks = [p for p in published if p.date == date]
         if not picks and published:
-            # A grid that has not rolled over yet reads exactly like a broken
-            # scrape -- both log zero -- so name the slate it is actually
-            # showing. The other slate is deliberately not captured: their picks
-            # carry no timestamp, and a grid still showing yesterday is being
-            # read after those games started.
+            # A grid on another slate reads exactly like a broken scrape -- both
+            # log zero -- so name the slate it is actually showing. Signed out
+            # that date is in the past, which is the paywall rather than a
+            # parser; the other slate is not captured either way, because their
+            # rows carry no timestamp and a grid on a date we did not ask for is
+            # being read either after those games started or before ours posted.
             log.info(
-                "TeamRankings is showing %s, not %s: no benchmark for this slate "
-                "yet -- their grid rolls over once the day's lines are up",
+                "TeamRankings is showing %s, not %s: nothing captured for this "
+                "slate (signed out their grid only publishes a slate once it has "
+                "been played)",
                 ", ".join(sorted({p.date for p in published})), date,
             )
         else:

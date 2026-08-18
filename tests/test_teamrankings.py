@@ -582,10 +582,10 @@ def test_capturing_a_slate_already_played_says_so(monkeypatch, tmp_path, capsys)
     assert "TEAMRANKINGS_EMAIL" not in capsys.readouterr().out
 
 
-def test_a_grid_that_has_not_rolled_over_is_not_a_broken_scrape(caplog) -> None:
-    """Their grid keeps only the current slate, and it lags: a run that asks for
-    tonight while yesterday is still posted must say so, or "0 picks" reads as a
-    dead parse."""
+def test_a_grid_on_another_slate_is_not_a_broken_scrape(caplog) -> None:
+    """Signed out their grid serves the slate already played, and a filter that
+    empties logs the same "0 picks" a dead parse does -- so name the date it is
+    showing."""
     import logging
 
     from mlb_engine.data.teamrankings import TeamRankingsClient
