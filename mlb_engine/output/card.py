@@ -47,6 +47,12 @@ class Play:
     # VSiN's VOLT/JOLT read on this same bet: their side, and whether it is ours.
     vsin_pick: str | None = None
     vsin_agrees: bool | None = None
+    # TeamRankings' call on the same game market, same contract.
+    tr_pick: str | None = None
+    tr_agrees: bool | None = None
+    # THE BAT X's projection for this prop, off EV Analytics' board.
+    ev_pick: str | None = None
+    ev_agrees: bool | None = None
 
     @property
     def vsin_bit(self) -> str:
@@ -55,6 +61,22 @@ class Play:
             return ""
         mark = _AGREE if self.vsin_agrees else _DISAGREE
         return f"{mark} {self.vsin_pick}"
+
+    @property
+    def tr_bit(self) -> str:
+        """"TR CHC +1.5 +2.6% val" with a star or a cross; empty without a pick."""
+        if self.tr_pick is None or self.tr_agrees is None:
+            return ""
+        mark = _AGREE if self.tr_agrees else _DISAGREE
+        return f"{mark} TR {self.tr_pick}"
+
+    @property
+    def ev_bit(self) -> str:
+        """"BATX 1.47 vs 1.11 implied", starred when it clears our line our way."""
+        if self.ev_pick is None or self.ev_agrees is None:
+            return ""
+        mark = _AGREE if self.ev_agrees else _DISAGREE
+        return f"{mark} {self.ev_pick}"
 
     def _odds_str(self) -> str:
         return "n/a" if self.odds is None else f"{self.odds:+.0f}"
@@ -281,6 +303,10 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
                 tier=r.tier,
                 vsin_pick=r.vsin_pick,
                 vsin_agrees=r.vsin_agrees,
+                tr_pick=r.tr_pick,
+                tr_agrees=r.tr_agrees,
+                ev_pick=r.ev_pick,
+                ev_agrees=r.ev_agrees,
             )
         )
         if len(out) >= _MAX_PLAYS:
@@ -324,6 +350,10 @@ def _play_bits(p: Play) -> str:
         bits.append(f"+{p.ev:.2f} EV")
     if p.vsin_bit:
         bits.append(p.vsin_bit)
+    if p.tr_bit:
+        bits.append(p.tr_bit)
+    if p.ev_bit:
+        bits.append(p.ev_bit)
     return ", ".join(bits)
 
 
@@ -333,10 +363,26 @@ _VSIN_LEGEND = (
 )
 
 
+_EV_LEGEND = (
+    "A \u201cBATX\u201d figure is THE BAT X's projected mean for the stat, off "
+    "EV Analytics' board, marked against our line. "
+)
+
+_TR_LEGEND = (
+    "A \u201cTR\u201d mark is TeamRankings' model on the same game market. "
+)
+
+
 def _vsin_legend(cards: list[GameCard]) -> str:
-    """The mark is only explained on cards that actually carry one."""
-    marked = any(p.vsin_bit for c in cards for p in c.plays)
-    return _VSIN_LEGEND if marked else ""
+    """The marks are only explained on cards that actually carry one."""
+    legend = ""
+    if any(p.vsin_bit for c in cards for p in c.plays):
+        legend += _VSIN_LEGEND
+    if any(p.tr_bit for c in cards for p in c.plays):
+        legend += _TR_LEGEND
+    if any(p.ev_bit for c in cards for p in c.plays):
+        legend += _EV_LEGEND
+    return legend
 
 
 def _play_line_md(p: Play) -> str:

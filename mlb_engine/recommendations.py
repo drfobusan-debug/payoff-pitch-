@@ -104,10 +104,28 @@ class Recommendation:
     vsin_pick: str | None = None
     vsin_edge: float | None = None
     vsin_agrees: bool | None = None
+    # TeamRankings' call on this same game market, see data.teamrankings. Their
+    # grid covers the moneyline, run line and total only, so props stay empty.
+    # tr_stars is their published rating for their own side, so it is shown only
+    # alongside tr_agrees -- two stars against us are never two stars for us.
+    tr_pick: str | None = None
+    tr_stars: int | None = None
+    tr_agrees: bool | None = None
+    # Their projected winner, which is a projection and not a bet: it names a
+    # side on every game, including the ones where their value columns decline
+    # to play, so it is carried on all three game markets as context.
+    tr_winner: str | None = None
     # THE BAT X's probability for the side we are backing (see data.batx). It is
     # displayed and persisted to the ledger, and it is an input to nothing: the
     # head-to-head that would justify weighting it is itself run off this column.
     batx_prob: float | None = None
+    # EV Analytics' board (see data.evanalytics), which publishes THE BAT X's
+    # projected *mean* for the stat next to the book's line. ev_agrees compares
+    # that mean to our own line, so the same forecast is a star on over 0.5 and
+    # a cross on over 1.5. Display only, like every other outside model here.
+    ev_proj: float | None = None
+    ev_pick: str | None = None
+    ev_agrees: bool | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -134,6 +152,20 @@ class Recommendation:
         if self.vsin_agrees is None:
             return ""
         return "\u2605" if self.vsin_agrees else "\u2717"
+
+    @property
+    def tr_mark(self) -> str:
+        """A star when TeamRankings' model is on our side of this bet, else a cross."""
+        if self.tr_agrees is None:
+            return ""
+        return "\u2605" if self.tr_agrees else "\u2717"
+
+    @property
+    def ev_mark(self) -> str:
+        """A star when THE BAT X's projection clears our line on our side."""
+        if self.ev_agrees is None:
+            return ""
+        return "\u2605" if self.ev_agrees else "\u2717"
 
     @property
     def model_american(self) -> float:
@@ -187,6 +219,13 @@ class Recommendation:
             "VSiN Pick": self.vsin_pick or "",
             "VSiN Edge": round(self.vsin_edge * 100, 1) if self.vsin_edge is not None else "",
             "BAT X %": round(self.batx_prob * 100, 1) if self.batx_prob is not None else "",
+            "TR": self.tr_mark,
+            "TR Pick": self.tr_pick or "",
+            "TR Stars": self.tr_stars if self.tr_stars is not None else "",
+            "TR Winner": self.tr_winner or "",
+            "EVA": self.ev_mark,
+            "EVA Proj": round(self.ev_proj, 2) if self.ev_proj is not None else "",
+            "EVA Pick": self.ev_pick or "",
             "Notes": "; ".join(self.reasons),
         }
 

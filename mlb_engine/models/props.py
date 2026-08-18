@@ -76,6 +76,12 @@ BATTER_PROP_LINES = {
     "HR": [0.5],
     "R": [0.5],
     "RBI": [0.5],
+    # A batter's own walks and strikeouts. Priced because the simulator already
+    # draws both outcomes per plate appearance, so they cost nothing to quote
+    # and are the two markets an outside prop board carries that the engine had
+    # no row for; they are bet by nothing (see oddsapi.PRICE_ONLY_MARKETS).
+    "BB": [0.5, 1.5],
+    "K": [0.5, 1.5],
 }
 
 

@@ -69,6 +69,13 @@ COLUMNS = [
     "VSiN Pick",
     "VSiN Edge",
     "BAT X %",
+    "TR",
+    "TR Pick",
+    "TR Stars",
+    "TR Winner",
+    "EVA",
+    "EVA Proj",
+    "EVA Pick",
     "Notes",
 ]
 
@@ -102,6 +109,13 @@ COLUMN_WIDTHS = {
     "VSiN Pick": 20,
     "VSiN Edge": 9,
     "BAT X %": 9,
+    "TR": 5,
+    "TR Pick": 20,
+    "TR Stars": 8,
+    "TR Winner": 16,
+    "EVA": 5,
+    "EVA Proj": 9,
+    "EVA Pick": 22,
     "Notes": 40,
 }
 
@@ -148,6 +162,11 @@ GRID_COLUMNS = [
     "VSiN",
     "VSiN Pick",
     "BAT X %",
+    "TR",
+    "TR Pick",
+    "TR Winner",
+    "EVA",
+    "EVA Pick",
     "Edge",
     "Handle %",
     "Bets %",
@@ -157,12 +176,20 @@ GRID_COLUMNS = [
     "Profile",
     "Notes",
 ]
-GRID_WIDTHS = [
-    7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 6, 20, 9, 8, 9, 8, 8, 7, 7, 26, 40
-]
+# Keyed by name for the same reason as COLUMN_WIDTHS: a positional list silently
+# mis-sizes every column after an inserted one.
+GRID_WIDTHS = {
+    "Best": 7, "Tier": 13, "Category": 15, "EV": 8, "Selection": 30,
+    "Matchup": 13, "Date": 12, "Book": 12, "Odds": 8, "Model %": 8,
+    "Market %": 8, "AI": 7, "Opta %": 8, "VSiN": 6, "VSiN Pick": 20,
+    "BAT X %": 9, "TR": 5, "TR Pick": 20, "TR Winner": 16, "EVA": 5,
+    "EVA Pick": 22, "Edge": 8,
+    "Handle %": 9, "Bets %": 8, "Signal": 8, "Factor": 7, "Score": 7,
+    "Profile": 26, "Notes": 40,
+}
 GRID_CENTER = {
     "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
-    "VSiN", "BAT X %", "Edge", "Handle %", "Bets %",
+    "VSiN", "BAT X %", "TR", "EVA", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -290,6 +317,11 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "VSiN": rec.vsin_mark,
         "VSiN Pick": rec.vsin_pick or "",
         "BAT X %": round(rec.batx_prob * 100, 1) if rec.batx_prob is not None else "",
+        "TR": rec.tr_mark,
+        "TR Pick": rec.tr_pick or "",
+        "TR Winner": rec.tr_winner or "",
+        "EVA": rec.ev_mark,
+        "EVA Pick": rec.ev_pick or "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
         "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
@@ -368,8 +400,8 @@ def _write_grid(
             if name in GRID_CENTER:
                 cell.alignment = center
 
-    for i, w in enumerate(GRID_WIDTHS, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
+    for i, name in enumerate(GRID_COLUMNS, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = GRID_WIDTHS.get(name, 12)
     if tagged:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(GRID_COLUMNS))}{len(tagged) + 1}"
     ws.freeze_panes = "A2"

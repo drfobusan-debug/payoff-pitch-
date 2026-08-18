@@ -347,6 +347,14 @@ class Credentials:
     rotowire_pass: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_PASS"))
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
+    # TeamRankings subscriber login. Their free grid only publishes a slate once
+    # it has been played, so tonight's picks need the account.
+    teamrankings_user: str | None = field(
+        default_factory=lambda: os.getenv("TEAMRANKINGS_EMAIL")
+    )
+    teamrankings_pass: str | None = field(
+        default_factory=lambda: os.getenv("TEAMRANKINGS_PASSWORD")
+    )
     # The Odds API (https://the-odds-api.com) key: multi-book ML/run-line/total prices.
     # Prefer the vendor-canonical THE_ODDS_API_KEY; fall back to the legacy ODDS_API_KEY.
     odds_api_key: str | None = field(
@@ -373,6 +381,9 @@ class Credentials:
 
     def has_vsin(self) -> bool:
         return bool(self.vsin_user and self.vsin_pass)
+
+    def has_teamrankings(self) -> bool:
+        return bool(self.teamrankings_user and self.teamrankings_pass)
 
     def has_odds_api(self) -> bool:
         return bool(self.odds_api_key)
@@ -1056,6 +1067,11 @@ class Config:
         return self.data_dir / "batx"
 
     @property
+    def evanalytics_dir(self) -> Path:
+        """Saved EV Analytics prop boards, dropped in as whole HTML pages."""
+        return self.data_dir / "evanalytics"
+
+    @property
     def team_form_path(self) -> Path:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
@@ -1081,6 +1097,7 @@ class Config:
             self.audit_dir,
             self.fangraphs_dir,
             self.batx_dir,
+            self.evanalytics_dir,
             self.projections_dir,
         ):
             d.mkdir(parents=True, exist_ok=True)

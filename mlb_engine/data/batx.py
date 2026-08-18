@@ -33,12 +33,9 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
-log = logging.getLogger(__name__)
+from mlb_engine.market import keys
 
-# Trailing tokens the engine appends to a player's name in ``selection``.
-_SEL_SUFFIX = re.compile(
-    r"\s+(H\+R\+RBI|1B|2B|3B|HR|TB|H|R|RBI|Ks|Walks|Hits|ER|Outs)\s+[ou][\d.]+$"
-)
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -62,8 +59,7 @@ def _key(market: str, player: str, line: float) -> str:
     return f"{market}|{_norm(player)}|{line:g}"
 
 
-def player_from_selection(selection: str) -> str:
-    return _SEL_SUFFIX.sub("", str(selection))
+player_from_selection = keys.player_from_selection
 
 
 def load_rows(path: Path) -> list[BatxRow]:

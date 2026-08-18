@@ -1191,7 +1191,7 @@ def test_props_total_bases_market():
     from mlb_engine.models.props import batter_markets
 
     z = np.zeros((4, 9), dtype=np.int16)
-    bat = {s: z.copy() for s in ("H", "1B", "2B", "3B", "HR", "R", "RBI")}
+    bat = {s: z.copy() for s in ("H", "1B", "2B", "3B", "HR", "R", "RBI", "BB", "K")}
     # slot 0 across 4 sims: TB = 1B + 2*2B + 3*3B + 4*HR
     bat["1B"][:, 0] = [1, 0, 0, 2]
     bat["2B"][:, 0] = [0, 1, 0, 0]
