@@ -183,6 +183,36 @@ a **zero** noise floor (verified: `main` vs the branch with the new screen lifte
   (`contact_floor`, `clv_drift` …). Expect the gate's row count to exceed the number of buys it
   actually removed, and separate the two in the report.
 
+## Testing state publication / pull (`engine-state`) without touching production
+The `engine-state` branch is the production record — never push test predictions to it. Build a
+throwaway origin instead; the state code only ever talks to `origin` of the checkout it is run from
+(`state.repo_root()` = `git rev-parse --show-toplevel` of the **cwd**), so:
+1. `git init --bare /tmp/x/origin.git`; `git clone <repo> /tmp/x/boxA` then
+   `git -C /tmp/x/boxA remote set-url origin /tmp/x/origin.git`. Assert
+   `git remote get-url origin` before every push. A second clone (`boxB`) with the same fake origin
+   is a second machine; the state worktree path is `repo.parent/.<repo-name>-engine-state`, so
+   distinct clone names keep concurrent boxes from colliding.
+2. One scratch data dir per box: `MLBE_DATA_DIR=/tmp/x/dataA` (symlink `cache` entries,
+   `projections`, `fangraphs`, `batx`, `evanalytics`, `calibration_live.json`, `ros_hitters.csv`;
+   copy `output/vsin_template_*.csv`; copy the real `audit/*` non-prediction files if the run needs
+   boards/closes). Delete `ledger.csv`/`scorecard.csv` when you want to count a single date's rows.
+3. `mlb-engine state push|pull [--date]` drives sync explicitly — much cheaper than a full `run`.
+   `run` pushes (cli.py), `audit` pulls first and pushes after grading.
+4. Published path on the branch: `mlb/predictions/predictions_<date>.json.gz`. Inspect it by
+   `git clone --branch engine-state /tmp/x/origin.git`, then compare `state.card_lead_hours()`,
+   row counts and json equality against the local card; md5 the `.gz` to prove "unchanged".
+5. Real cards are the best fixtures: `~/.mlb_engine/audit/predictions_<date>.json` (the run's own
+   card) and `predictions_<date>.pregame.json` (the copy pulled from the branch) often have very
+   different lead hours, including a **negative** lead when the local file is the audit's
+   after-the-fact re-price. Copy them into a scratch data dir instead of generating new ones.
+6. To make a genuinely later pregame card of *today's* slate without waiting for first pitch: run
+   once live, then re-run off the cache (`MLBE_ODDS_CACHE_TTL` huge, 0 credits) with
+   `hours_to_first_pitch` frozen a couple of hours before first pitch. The lead hours differ, which
+   is what the publication rule keys on.
+7. Adversarial cases worth including: push an *earlier* card after the later one (must not change
+   the branch), push a card with `hours_to_first_pitch` stripped (untimed → must not change it), and
+   write an earlier card onto the branch directly and pull (a box must not regress to it).
+
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
