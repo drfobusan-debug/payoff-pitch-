@@ -405,7 +405,9 @@ class Config:
     # covers whoever it does not list. THE BAT X spreads hitters 25% wider than
     # the Marcel does (sd of projected wOBA .0278 against .0222, r .80 between
     # them), which is the direction that matters -- compressing the lineup is
-    # this engine's known failure, not over-separating it.
+    # this engine's known failure, not over-separating it. Against ATC rather
+    # than the Marcel it is the *narrower* of the two, which is a different
+    # question and is measured at ``projection_source`` below.
     #
     # Measured forward, 113 hitters over the 8,494 PA in the three weeks after a
     # 07-22 cutoff, priors built from seasons the holdout cannot reach:
@@ -430,6 +432,24 @@ class Config:
     # anyone over the one that is sharpest about some. Set MLBE_PROJECTION_SOURCE
     # to batx to anchor on the Statcast batted-ball system instead; an empty
     # value takes whichever export was written most recently.
+    #
+    # Measured on one pair of 08-18 exports, 419 hitters in both, 328 of them
+    # with 150+ PA that season (``scripts.projection_compare``):
+    #
+    #     sd of projected wOBA   atc .0285   batx .0262
+    #     realized on projected  atc  .860   batx  .904   (slope, PA-weighted)
+    #     log loss / PA          atc 1.4521  batx 1.4439  (league 1.4629)
+    #
+    # So the two files rank hitters nearly identically (r .87 on HR rate, .96 on
+    # K, 2.7 HR per 600 PA apart on average) and THE BAT X is the tighter, better
+    # calibrated of the pair here -- the opposite of the widening the note above
+    # measured against the Marcel, so neither file is reliably "the wide one".
+    #
+    # It is not enough to move the default. Both exports were pulled after the
+    # season they are scored against, so every number is in sample and a system
+    # fitted nearer to contemporaneous batted balls is flattered most, which is
+    # exactly what THE BAT X is. A dated export graded on the games that came
+    # after it is the version that would settle this.
     projection_source: str = field(
         default_factory=lambda: os.environ.get("MLBE_PROJECTION_SOURCE", "atc")
     )
