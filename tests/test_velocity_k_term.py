@@ -1,8 +1,10 @@
 """The four-seam velocity term on a starter's strikeout rate.
 
 Two reads: how hard he throws against the league, and how his most recent start
-sat against his own window. Both are off unless ``vfa_k`` is set, because the
-term ships quoted before it is bought.
+sat against his own window. Both multiply the blended strikeout rate when
+``vfa_k`` is set, and the shipped weight is 0: the term forecasts a starter's K
+rate better than the blend does and prices nine graded slates slightly worse, so
+the wiring is live and the switch is off.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ from mlb_engine.features.regression import (
     PitcherRegression,
     build_pitcher_regression,
 )
+from mlb_engine.features.rolling import OutcomeRates, scale_k_rate
 
 
 def _rows(days: dict[str, tuple[float, int]]) -> pd.DataFrame:
@@ -50,11 +53,17 @@ def _reg(days: dict[str, tuple[float, int]], vfa_k: float) -> PitcherRegression:
     return build_pitcher_regression(_rows(days), vfa_k=vfa_k)
 
 
-def test_the_velocity_term_is_off_until_it_is_switched_on() -> None:
+def test_the_velocity_term_ships_off_and_the_switch_is_the_only_way_on() -> None:
     days = {"2026-07-20": (98.0, 200), "2026-08-01": (98.0, 90)}
     assert Config().windows.vfa_k_weight == 0.0
     assert _reg(days, 0.0).velocity_k_multiplier() == 1.0
     assert _reg(days, 1.0).velocity_k_multiplier() > 1.0
+
+
+def test_the_stuff_multiplier_does_not_carry_it_too() -> None:
+    """It is priced on the rate; ``k_multiplier`` is reported, so it must not double."""
+    days = {"2026-07-20": (99.0, 200), "2026-08-01": (99.0, 90)}
+    assert _reg(days, 1.0).k_multiplier() == _reg(days, 0.0).k_multiplier()
 
 
 def test_harder_is_more_strikeouts_and_softer_is_fewer() -> None:
@@ -108,6 +117,21 @@ def test_the_weight_scales_the_whole_correction() -> None:
     half = _reg(days, 0.5).velocity_k_multiplier() - 1.0
     assert 0 < half < full
     assert abs(half / full - 0.5) < 0.02
+
+
+def test_the_priced_rate_moves_with_the_fastball_and_still_sums_to_one() -> None:
+    rates = OutcomeRates(
+        pa=400, p_1b=0.150, p_2b=0.045, p_3b=0.005, p_hr=0.030, p_bb=0.080,
+        p_k=0.230, p_out=0.460,
+    )
+    up = scale_k_rate(rates, _reg({"2026-07-20": (95.0, 200), "2026-08-01": (97.0, 90)}, 1.0).velocity_k_multiplier())
+    down = scale_k_rate(rates, _reg({"2026-07-20": (95.0, 200), "2026-08-01": (93.0, 90)}, 1.0).velocity_k_multiplier())
+    assert up.p_k > rates.p_k > down.p_k
+    for r in (up, down):
+        assert abs(sum(r.as_dict().values()) - 1.0) < 1e-9
+        # The non-strikeout shape is rescaled, not reshaped: a velocity read
+        # buys nothing on contact, so it must not change what the contact is.
+        assert abs(r.p_2b / r.p_1b - rates.p_2b / rates.p_1b) < 1e-9
 
 
 def test_the_slate_article_reads_velocity_off_the_last_start() -> None:

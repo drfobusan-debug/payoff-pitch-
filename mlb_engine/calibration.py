@@ -129,14 +129,30 @@ log = logging.getLogger(__name__)
 # multiplier against 0.09763 without, and a dose search picks 0.0. Every
 # starter's and every bullpen's K rate moves, in both directions, on both halves
 # of every game -- the largest single change to the strikeout path this month.
-FEATURE_BASIS = "no-stuff-multiplier-2026.08"
+#
+# Reading the shape of a starter's pitches (``features.stuff``) retires it once
+# more, and this one nearly had to be caught after the fact: the term entered
+# ``expected_k_pct`` without touching this string, so a map refit on the previous
+# engine would have matched the basis and been applied to prices it was never
+# fitted on, with no stale-basis warning. Measured on a live 4,023-market board,
+# the grade moves 3,906 of those rows and 43 tiers, and the direction is not a
+# level a map could absorb -- it separates arms:
+#
+#   xK% shift        mean -0.79pp   range -3.00..+1.32pp   (2 of 18 arms on the clip)
+#   pitcher_k prob   mean |change| 2.70pp   p90 6.25pp   max 10.88pp
+#   batter markets   mean |change| 1.57pp   game totals 2.07pp
+#
+# so half the slate's starters get a *lower* strikeout rate and half a higher one,
+# which is the opposite of the uniform over-statement a calibration curve exists
+# to shrink.
+FEATURE_BASIS = "pitch-shape-grade-2026.08"
 
 # First slate priced on the current basis. Ledger rows older than this were
 # produced by different features, so a refit trains only on rows from here on.
 # 08-16 was priced before any of this landed, and none of the intermediate bases
 # ever graded a row, so the resets discard nothing: they land together on the
-# 08-17 refit.
-FEATURE_BASIS_SINCE = Date(2026, 8, 17)
+# first refit from here.
+FEATURE_BASIS_SINCE = Date(2026, 8, 18)
 
 
 def _min_samples() -> int:

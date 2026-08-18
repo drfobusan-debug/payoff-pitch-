@@ -27,6 +27,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4", "ruff>=0.1", "mypy>=1.7"]
+# The offline studies under scripts/ that fit and score terms before they are
+# priced (k_multiplier_study, vfa_k_price_study, xk_refit_study). The engine
+# itself never imports statsmodels.
+research = ["statsmodels>=0.14"]
 
 [project.scripts]
 mlb-engine = "mlb_engine.cli:main"
@@ -43,6 +47,9 @@ include = ["mlb_engine*", "cfb_engine*", "nfl_engine*", "lineshop*"]
 
 [tool.setuptools.package-data]
 lineshop = ["data/*.json"]
+# The fitted maps the engine prices off: the calibration curve and the pitch-shape
+# models. A wheel without them silently falls back to "no opinion".
+mlb_engine = ["data/*.json"]
 
 [tool.ruff]
 line-length = 100
