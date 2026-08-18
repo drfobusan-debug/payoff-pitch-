@@ -17,6 +17,12 @@ card's own board when the nightly run has already written one for the same day
 (``predictions_<date>.json`` in the audit directory), and appends the survivors'
 priced rows as a section; ``--no-prices`` suppresses that, and nothing about the
 screen or its ratings changes either way.
+
+Every priced row it prints is recorded to ``power_screen_ledger.csv``, and the
+previous day's rows are graded off the box score at the top of the next note, so
+the screen carries its own record instead of reading the same each morning
+regardless of what happened. ``--no-grade`` skips both; ``--grade-date`` picks the
+day to grade.
 """
 
 from __future__ import annotations
@@ -30,9 +36,11 @@ from pathlib import Path
 
 import pandas as pd
 
+from mlb_engine.audit import power_ledger
 from mlb_engine.config import Config, RollingWindows, load_config
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
@@ -100,6 +108,17 @@ def _parse_args() -> argparse.Namespace:
         "--no-prices",
         action="store_true",
         help="leave the board out even when the card has already priced the slate",
+    )
+    p.add_argument(
+        "--grade-date",
+        type=Date.fromisoformat,
+        default=None,
+        help="the recorded board to grade in this note (default: the day before --date)",
+    )
+    p.add_argument(
+        "--no-grade",
+        action="store_true",
+        help="neither record this board nor grade an earlier one",
     )
     p.add_argument("--email", action="store_true", help="email the PDF")
     p.add_argument("--to", default=None, help="override the recipient")
@@ -485,18 +504,96 @@ def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board
     return board
 
 
+def _ledger_path(cfg: Config) -> Path:
+    return cfg.audit_dir / power_ledger.LEDGER_NAME
+
+
+def _record(
+    result: ScreenResult, board: Board | None, cfg: Config, args: argparse.Namespace
+) -> None:
+    """Write today's priced rows to the ledger so tomorrow's note can grade them.
+
+    Only priced rows are recorded. A rating with no number beside it is not a
+    position, and grading one would have to invent the price it never had.
+    """
+    if args.no_grade or board is None or not board.rows:
+        return
+    positions = power_ledger.positions_from_board(
+        board, result.as_of, power_report.ratings(result)
+    )
+    try:
+        power_ledger.record(_ledger_path(cfg), positions, result.as_of)
+    except OSError as exc:  # pragma: no cover - a ledger write must not cost the note
+        log.warning("could not record %d positions: %s", len(positions), exc)
+        return
+    log.info("recorded %d positions to %s", len(positions), _ledger_path(cfg))
+
+
+def _review(
+    cfg: Config, args: argparse.Namespace, day: Date
+) -> tuple[power_ledger.Scorecard, list[power_ledger.GradedPosition]] | None:
+    """Grade an earlier day's recorded board off the box scores.
+
+    Best-effort throughout: the scorecard is the note's memory, not its subject,
+    so a Stats API outage costs the reader the receipt rather than the note.
+    """
+    if args.no_grade:
+        return None
+    graded_day = args.grade_date or (day - timedelta(days=1))
+    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day)
+    if not positions:
+        log.info("no recorded board for %s; the note carries no scorecard", graded_day)
+        return None
+    results: dict[int, GameResult] = {}
+    for pk in {p.game_pk for p in positions if p.game_pk is not None}:
+        try:
+            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
+        except Exception as exc:  # noqa: BLE001 - one missing box score voids one game
+            log.warning("could not fetch the box score for %s: %s", pk, exc)
+    graded, voided = power_ledger.grade_positions(positions, results)
+    return power_ledger.scorecard(graded_day, graded, voided), graded
+
+
+def _print_review(card: power_ledger.Scorecard) -> None:
+    o = card.overall
+    if not o.n:
+        print(f"{card.day}: nothing gradeable ({card.voided} voided)")
+        return
+    line = (
+        f"{card.day}: {o.wins}-{o.losses}"
+        + (f"-{o.pushes}" if o.pushes else "")
+        + f", {o.units:+.2f}u"
+        + (f", {card.voided} voided" if card.voided else "")
+    )
+    if card.model_brier is not None and card.market_brier is not None:
+        closer = "model" if card.model_beat_market else "market"
+        line += (
+            f", Brier {card.model_brier:.3f} model / {card.market_brier:.3f} no-vig"
+            f" ({closer} closer, n={card.scored_probs})"
+        )
+    print(line)
+
+
 def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
     out_dir = cfg.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     board = _board(result, cfg, args)
+    # Grade before recording: an earlier day is never this one, but a --grade-date
+    # pointing at today should read what the ledger held when the note was asked.
+    review = _review(cfg, args, result.as_of)
+    _record(result, board, cfg, args)
     html_path = out_dir / power_report.default_filename(result.as_of, "html")
     pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
     html_path.write_text(
-        power_report.render_html(result, prepared_for=args.prepared_for, board=board),
+        power_report.render_html(
+            result, prepared_for=args.prepared_for, board=board, review=review
+        ),
         encoding="utf-8",
     )
-    pdf = power_report.render_pdf(result, prepared_for=args.prepared_for, board=board)
+    pdf = power_report.render_pdf(
+        result, prepared_for=args.prepared_for, board=board, review=review
+    )
     pdf_path.write_bytes(pdf)
     kept = sum(len(s.hitters) for s in result.sections)
     print(f"{html_path}\n{pdf_path}")
@@ -519,12 +616,14 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
                 f"  {view.line.name:<20} vs {section.starter.name:<18} "
                 f"wRC+ {view.line.wrc:>4.0f}  fit {view.fit_delta * 1000:+4.0f}{tail}"
             )
+    if review is not None:
+        _print_review(review[0])
     if args.email:
         to = send_card_email(
             cfg,
             subject=f"Power screen - {result.as_of:%a %-m/%d}",
             html_body=power_report.render_html(
-                result, prepared_for=args.prepared_for, board=board
+                result, prepared_for=args.prepared_for, board=board, review=review
             ),
             text_body=f"Power screen for {result.as_of.isoformat()} attached.",
             to=args.to,
