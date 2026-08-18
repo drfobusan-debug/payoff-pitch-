@@ -3061,9 +3061,23 @@
   {
     "matchup": "ATL @ MIN",
     "market": "batter_hrr",
+    "selection": "Drake Baldwin H+R+RBI o1.5",
+    "american": -160.0,
+    "no_vig_prob": 0.576009
+  },
+  {
+    "matchup": "ATL @ MIN",
+    "market": "batter_hrr",
     "selection": "Drake Baldwin H+R+RBI o2.5",
     "american": 122.0,
     "no_vig_prob": 0.423151
+  },
+  {
+    "matchup": "ATL @ MIN",
+    "market": "batter_hrr",
+    "selection": "Drake Baldwin H+R+RBI u1.5",
+    "american": 121.0,
+    "no_vig_prob": 0.423991
   },
   {
     "matchup": "ATL @ MIN",
@@ -23921,9 +23935,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hrr",
+    "selection": "Ivan Herrera H+R+RBI o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.419355
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
     "selection": "Ivan Herrera H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.419355
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Ivan Herrera H+R+RBI u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.580645
   },
   {
     "matchup": "STL @ CIN",
