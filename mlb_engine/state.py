@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import csv
 import gzip
+import json
 import logging
 import shutil
 import subprocess
@@ -289,7 +290,11 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
     for name in wanted:
         src = state / "mlb" / "predictions" / name
         dest = _audit_dir(data_dir) / (name[: -len(".json.gz")] + PREGAME_SUFFIX)
-        if not src.exists() or dest.exists():
+        if not src.exists():
+            continue
+        # A copy pulled this morning is the morning's card. If the branch has
+        # since taken a later one, that is now the slate's record.
+        if dest.exists() and not card_supersedes(src, dest):
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
@@ -330,12 +335,58 @@ def pull_state(
     return SyncReport(pulled=tuple(pulled))
 
 
-def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
-    """Publish pregame picks, write-once per slate.
+def card_lead_hours(path: Path) -> float | None:
+    """Hours from when a card was priced to the first game on it, or None.
 
-    A date already on the branch is never republished: the machine holding a
-    second copy is usually the audit, whose local file is a re-price made after
-    the games finished. Only the run that actually produced the card publishes.
+    Read off the ``hours_to_first_pitch`` the pipeline stamps on every row: the
+    minimum is the game starting soonest, so a positive value means the whole
+    slate was still ahead of the card and a negative one means at least one game
+    had already begun. ``None`` when no row carries a time, which leaves a card
+    of unknown vintage where it is rather than guessing about it.
+    """
+    try:
+        if path.suffix == ".gz":
+            with gzip.open(path, "rt") as fz:
+                rows = json.load(fz)
+        else:
+            with path.open() as fp:
+                rows = json.load(fp)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    leads = [
+        float(row["hours_to_first_pitch"])
+        for row in rows
+        if isinstance(row, dict) and isinstance(row.get("hours_to_first_pitch"), (int, float))
+    ]
+    return min(leads) if leads else None
+
+
+def card_supersedes(candidate: Path, published: Path) -> bool:
+    """Whether a card should replace one already standing as the slate's record.
+
+    Only a card priced closer to first pitch, and still entirely ahead of the
+    slate, may take over. That second condition is what keeps the audit's own
+    after-the-fact re-price out: it is written once the games are over, so its
+    lead is negative and it can never win.
+    """
+    lead = card_lead_hours(candidate)
+    if lead is None or lead <= 0:
+        return False
+    prior = card_lead_hours(published)
+    return prior is not None and lead < prior
+
+
+def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
+    """Publish the last card priced before the slate began.
+
+    Two runs a day is the normal shape -- an early one, and one near lineup
+    lock -- and publishing write-once handed the whole day to whichever ran
+    first: on 2026-08-17 a 00:42Z card holding the single game with a posted
+    board became the permanent record of an 11-game slate, and the 14:48Z card
+    that priced 4,917 markets was never graded. So a later card replaces an
+    earlier one, but only while every game on it is still unplayed.
     """
     out = state / "mlb" / "predictions"
     out.mkdir(parents=True, exist_ok=True)
@@ -344,7 +395,7 @@ def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
         if src.name.endswith(PREGAME_SUFFIX):
             continue
         dest = out / f"{src.name}.gz"
-        if dest.exists():
+        if dest.exists() and not card_supersedes(src, dest):
             continue
         with src.open("rb") as fin, gzip.open(dest, "wb", compresslevel=6) as fout:
             shutil.copyfileobj(fin, fout)

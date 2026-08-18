@@ -109,6 +109,7 @@ from mlb_engine.state import (
     STATE_BRANCH,
     auto_pull,
     auto_push,
+    card_supersedes,
     pull_state,
     push_state,
 )
@@ -782,9 +783,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # against quotes that no longer exist, so it loses to the real thing.
     pregame = cfg.audit_dir / f"predictions_{audit_date.isoformat()}{PREGAME_SUFFIX}"
     if pregame.exists():
-        if pred_path.exists():
-            print(f"Grading the pregame predictions from {pregame.name}, not the local re-price")
-        pred_path = pregame
+        if pred_path.exists() and card_supersedes(pred_path, pregame):
+            print(f"Grading {pred_path.name}: priced later than {pregame.name}, still pregame")
+        else:
+            if pred_path.exists():
+                print(
+                    f"Grading the pregame predictions from {pregame.name}, not the local re-price"
+                )
+            pred_path = pregame
     if not pred_path.exists():
         print(f"No predictions found for {audit_date} at {pred_path}")
         return 1
