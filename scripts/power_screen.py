@@ -12,7 +12,11 @@ Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
 ``mlb_engine/output/power_screen.py`` for the five stages and every threshold, and
 ``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
 
-No market data is read, so nothing here is a price and no Odds API credit is spent.
+The screen fetches no market and spends no Odds API credit. It does read the
+card's own board when the nightly run has already written one for the same day
+(``predictions_<date>.json`` in the audit directory), and appends the survivors'
+priced rows as a section; ``--no-prices`` suppresses that, and nothing about the
+screen or its ratings changes either way.
 """
 
 from __future__ import annotations
@@ -22,6 +26,7 @@ import logging
 import math
 from datetime import date as Date
 from datetime import timedelta
+from pathlib import Path
 
 import pandas as pd
 
@@ -35,8 +40,9 @@ from mlb_engine.features.efficiency import build_pitcher_efficiency, opponent_di
 from mlb_engine.features.rolling import build_bullpen_profile
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_report
+from mlb_engine.output import power_board, power_report
 from mlb_engine.output.email import send_card_email
+from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
     MIN_WRC,
@@ -59,6 +65,7 @@ from mlb_engine.output.power_screen import (
     starter_damage,
     wrc_plus,
 )
+from mlb_engine.recommendations import load_json
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
@@ -83,6 +90,17 @@ def _parse_args() -> argparse.Namespace:
         help="drop hitters the wRC+ cut removes even when their contact is elite",
     )
     p.add_argument("--refresh", action="store_true", help="re-download the Statcast window")
+    p.add_argument(
+        "--predictions",
+        default=None,
+        help="the card's predictions JSON to price the survivors off "
+        "(default: the audit directory's file for --date)",
+    )
+    p.add_argument(
+        "--no-prices",
+        action="store_true",
+        help="leave the board out even when the card has already priced the slate",
+    )
     p.add_argument("--email", action="store_true", help="email the PDF")
     p.add_argument("--to", default=None, help="override the recipient")
     p.add_argument("--prepared-for", default=None, help="name in the note's subtitle")
@@ -435,16 +453,50 @@ def _build_section(
     )
 
 
+def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
+    """The survivors' rows off the card's own run, if it has already priced today.
+
+    Missing is the normal case in the morning -- the screen exists to run before
+    the engine can price anything -- so a missing or unreadable file is a note,
+    never an error.
+    """
+    if args.no_prices:
+        return None
+    path = (
+        Path(args.predictions).expanduser()
+        if args.predictions
+        else power_board.default_predictions_path(cfg.audit_dir, result.as_of)
+    )
+    if not path.exists():
+        log.info("no priced board at %s; the note will carry no prices", path)
+        return None
+    try:
+        recs = load_json(path)
+    except Exception as exc:  # pragma: no cover - a malformed ledger must not kill the note
+        log.warning("could not read %s (%s); the note will carry no prices", path, exc)
+        return None
+    board = power_board.build(result, recs, source=path.name)
+    log.info(
+        "board: %d priced rows on %d of %d survivors",
+        len(board.rows),
+        len(board.priced),
+        len(board.priced) + len(board.unpriced),
+    )
+    return board
+
+
 def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
     out_dir = cfg.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
+    board = _board(result, cfg, args)
     html_path = out_dir / power_report.default_filename(result.as_of, "html")
     pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
     html_path.write_text(
-        power_report.render_html(result, prepared_for=args.prepared_for), encoding="utf-8"
+        power_report.render_html(result, prepared_for=args.prepared_for, board=board),
+        encoding="utf-8",
     )
-    pdf = power_report.render_pdf(result, prepared_for=args.prepared_for)
+    pdf = power_report.render_pdf(result, prepared_for=args.prepared_for, board=board)
     pdf_path.write_bytes(pdf)
     kept = sum(len(s.hitters) for s in result.sections)
     print(f"{html_path}\n{pdf_path}")
@@ -456,6 +508,13 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
         for view in section.hitters:
             e = view.exposure
             tail = f"  PA vs SP {e.pa_vs_starter:.2f}" if e else ""
+            best = board.best_for_batter(view.line.name) if board else None
+            if best is not None:
+                tail += f"  {best.label} {best.american:+.0f}"
+                if best.ev is not None:
+                    tail += f" EV {best.ev * 100:+.1f}%"
+            elif board is not None:
+                tail += "  not priced"
             print(
                 f"  {view.line.name:<20} vs {section.starter.name:<18} "
                 f"wRC+ {view.line.wrc:>4.0f}  fit {view.fit_delta * 1000:+4.0f}{tail}"
@@ -464,7 +523,9 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
         to = send_card_email(
             cfg,
             subject=f"Power screen - {result.as_of:%a %-m/%d}",
-            html_body=power_report.render_html(result, prepared_for=args.prepared_for),
+            html_body=power_report.render_html(
+                result, prepared_for=args.prepared_for, board=board
+            ),
             text_body=f"Power screen for {result.as_of.isoformat()} attached.",
             to=args.to,
             attachments=[(pdf_path.name, pdf)],
