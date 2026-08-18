@@ -9816,6 +9816,13 @@
   {
     "matchup": "CWS @ CHC",
     "market": "f5_total",
+    "selection": "F5 Over 5.5",
+    "american": 110.0,
+    "no_vig_prob": 0.446559
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "f5_total",
     "selection": "F5 Under 4.5",
     "american": -106.0,
     "no_vig_prob": 0.483561
@@ -9826,6 +9833,13 @@
     "selection": "F5 Under 5.0",
     "american": -115.0,
     "no_vig_prob": 0.515554
+  },
+  {
+    "matchup": "CWS @ CHC",
+    "market": "f5_total",
+    "selection": "F5 Under 5.5",
+    "american": -144.0,
+    "no_vig_prob": 0.553441
   },
   {
     "matchup": "CWS @ CHC",
@@ -12133,9 +12147,23 @@
   {
     "matchup": "DET @ PIT",
     "market": "batter_tb",
+    "selection": "Oneil Cruz TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.6011
+  },
+  {
+    "matchup": "DET @ PIT",
+    "market": "batter_tb",
     "selection": "Oneil Cruz TB o1.5",
     "american": 130.0,
     "no_vig_prob": 0.418932
+  },
+  {
+    "matchup": "DET @ PIT",
+    "market": "batter_tb",
+    "selection": "Oneil Cruz TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.3989
   },
   {
     "matchup": "DET @ PIT",
@@ -15136,9 +15164,23 @@
   {
     "matchup": "LAA @ HOU",
     "market": "pitcher_k",
+    "selection": "George Klassen Ks o3.5",
+    "american": -175.0,
+    "no_vig_prob": 0.583333
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "pitcher_k",
     "selection": "George Klassen Ks o4.5",
     "american": 122.0,
     "no_vig_prob": 0.431049
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "pitcher_k",
+    "selection": "George Klassen Ks u3.5",
+    "american": 120.0,
+    "no_vig_prob": 0.416667
   },
   {
     "matchup": "LAA @ HOU",
@@ -35926,9 +35968,23 @@
   {
     "matchup": "TOR @ TB",
     "market": "pitcher_h",
+    "selection": "Jose Soriano Hits o4.5",
+    "american": -165.0,
+    "no_vig_prob": 0.584856
+  },
+  {
+    "matchup": "TOR @ TB",
+    "market": "pitcher_h",
     "selection": "Jose Soriano Hits o5.5",
     "american": 125.0,
     "no_vig_prob": 0.42773
+  },
+  {
+    "matchup": "TOR @ TB",
+    "market": "pitcher_h",
+    "selection": "Jose Soriano Hits u4.5",
+    "american": 126.0,
+    "no_vig_prob": 0.415144
   },
   {
     "matchup": "TOR @ TB",
