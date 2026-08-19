@@ -48,3 +48,20 @@ def test_one_hitter_is_ranked_once_however_many_props_he_has(monkeypatch):
 
     assert [p["pid"] for p in pos] == [1]
     assert [p["pid"] for p in neg] == [2]
+
+
+def test_name_left_alone_when_there_is_no_side_marker() -> None:
+    """The guard the shared parser needs: no marker means chop nothing, or a
+    plain name loses its surname."""
+    assert cr._batter_name("Matt McLain") == "Matt McLain"
+    assert cr._batter_name("Over 7.5") == "Over 7.5"
+
+
+def test_context_is_keyed_on_the_hitter_not_the_prop() -> None:
+    preds = [
+        {**_pred("Moises Ballesteros H u0.5", 1), "matchup": "KC @ LAA", "game_pk": 7},
+        {**_pred("Moises Ballesteros HR u0.5", 1), "matchup": "KC @ LAA", "game_pk": 7},
+    ]
+    ctx = cr._batter_ctx(preds, {7: {"park_factor": 97.0, "wx_hr_mult": 1.05}})
+    assert list(ctx) == ["Moises Ballesteros"]
+    assert ctx["Moises Ballesteros"]["park_factor"] == 97.0
