@@ -184,7 +184,10 @@ def priced_findings(stats: list[PricedStat], *, min_n: int = MIN_PRICED) -> list
             f"break-even, {best.units:+.1f}u on {best.n} bets "
             f"({best.roi * 100:+.1f}%)."
         )
-    one_way = [s for s in graded if s.n_one_way]
+    # Counted over every market, not just the printable ones: this sentence is
+    # read against the total row, and a thin market's one-way bets are in that
+    # total whether or not the market earned a line of its own.
+    one_way = [s for s in stats if s.n_one_way]
     if one_way:
         n = sum(s.n_one_way for s in one_way)
         units = sum(s.units_one_way for s in one_way)
