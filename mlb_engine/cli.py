@@ -989,6 +989,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 email=getattr(args, "email", False),
                 to=getattr(args, "to", None),
                 extra_attachments=extra,
+                history=all_entries,
             )
         except Exception as exc:  # noqa: BLE001
             logging.warning("audit insight report failed: %s", exc)

@@ -7,6 +7,8 @@ defaults that can be overridden via environment variables prefixed ``MLBE_``.
 
 from __future__ import annotations
 
+import json
+import logging
 import math
 import os
 from dataclasses import dataclass, field
@@ -18,6 +20,8 @@ from mlb_engine.features.regression import (
     SINGLES_LD_SLOPE,
 )
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
+
+logger = logging.getLogger(__name__)
 
 
 def _env_int(name: str, default: int) -> int:
@@ -202,6 +206,11 @@ _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "game_total": 0.0,
     "f5_total": 0.0,
 }
+
+# Parsed ``market_anchor_file`` contents, keyed by path. Read once per process:
+# ``anchor_for`` is called per candidate row, and the file only changes when the
+# study is re-run, which is never mid-slate.
+_ANCHOR_CACHE: dict[Path, dict[str, float]] = {}
 
 # Edge ceiling per market, overriding the global ``EVThresholds.max_edge``. The
 # ceiling is the one screen that refuses the picks the model likes *most*, so it
@@ -1060,6 +1069,36 @@ class Config:
         """Cached daily-built season team-form baseline (luck-gap inputs)."""
         return self.cache_dir / "team_form.json"
 
+    @property
+    def market_anchor_file(self) -> Path:
+        """Anchor weights fitted from this operator's own graded history.
+
+        Written only by ``scripts/market_shrink_study.py --write-anchors``, which
+        fits ``1 - alpha`` per market out of time. The file is absent unless
+        somebody ran that deliberately, so the packaged defaults stay in force by
+        default and a fitted weight is never adopted by accident.
+        """
+        override = os.getenv("MLBE_MARKET_ANCHOR_FILE")
+        if override:
+            return Path(override).expanduser()
+        return self.data_dir / "market_anchor_live.json"
+
+    def _fitted_anchors(self) -> dict[str, float]:
+        path = self.market_anchor_file
+        cached = _ANCHOR_CACHE.get(path)
+        if cached is None:
+            cached = {}
+            if path.exists():
+                try:
+                    raw = json.loads(path.read_text())
+                    cached = {
+                        str(k): float(v) for k, v in raw.get("anchors", {}).items()
+                    }
+                except (OSError, ValueError, AttributeError) as exc:
+                    logger.warning("ignoring %s: %s", path, exc)
+            _ANCHOR_CACHE[path] = cached
+        return cached
+
     def anchor_for(self, market: str) -> float:
         """Anchor weight for one market: per-market default, then env override.
 
@@ -1067,10 +1106,17 @@ class Config:
         price is not uniform -- see ``_MARKET_ANCHOR_BY_MARKET``. A market with
         its own default ignores the global weight, so raising the global toll
         cannot start taxing the one market that out-forecasts the price.
+
+        A fitted ``market_anchor_file`` sits between the two: it overrides the
+        packaged default for the markets it names, and is itself overridden by an
+        explicit env var, so a measurement can be adopted per market without
+        editing code and still be argued with from the command line.
         """
         return _env_float(
             f"MLBE_MARKET_ANCHOR_{market.upper()}",
-            _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor),
+            self._fitted_anchors().get(
+                market, _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor)
+            ),
         )
 
     def ensure_dirs(self) -> None:
