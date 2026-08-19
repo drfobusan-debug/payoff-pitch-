@@ -12,12 +12,12 @@ Only the second is due to move; ranking uses it alone.
 
 from __future__ import annotations
 
-import re
 from datetime import date as Date
 
 import numpy as np
 import pandas as pd
 
+from mlb_engine.audit.ledger import prop_subject
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -191,15 +191,19 @@ def build_profiles(previews: list[dict], preds: list[dict], df: pd.DataFrame):
 
 # --- hitters ---------------------------------------------------------------
 # selection is "{name} {stat} {side}{line}" ("Matt McLain 1B o0.5", "Carlos
-# Narvaez H+R+RBI u1.5"); strip the trailing market off to leave the hitter.
-# Both sides: every prop has had its under priced since #144, and a side this
-# misses leaves the market glued to the name, which then reads as a separate
-# hitter carrying identical contact -- ten of them fill the top ten.
-_SEL_RE = re.compile(r"\s+[A-Za-z0-9+]+\s+[ou]\d.*$")
+# Narvaez H+R+RBI u1.5"); the hitter is what is left once the stat and the side
+# marker are dropped. A local pattern for the marker is what put ten cards of one
+# man in a top ten -- it knew only the over, so every under kept the market glued
+# to the name and read as a separate hitter carrying identical contact. The
+# ledger already parses the marker to grade with, so read it there rather than
+# keep a copy that has to learn every new market and side by hand.
 
 
 def _batter_name(sel: str) -> str:
-    return _SEL_RE.sub("", sel)
+    subject = prop_subject(sel)
+    if subject == sel:  # no side marker: not a prop selection, so chop nothing
+        return sel
+    return subject.rpartition(" ")[0] or subject
 
 
 def _batter_id_map(preds: list[dict]) -> dict[str, int]:
