@@ -819,6 +819,22 @@ FB_ALLOWED_FLOOR = 0.420
 FB_HARD_GAIN = 20.0
 FB_HARD_CAP = 0.10
 
+# The same skill read as a plain two-sided level over his last four starts,
+# which is where it forecasts best: adding it to the HR forecast moves held-out
+# deviance -.00033 at four starts and -.00051 at three, against -.00017 on the
+# six weeks the rest of the starter line uses and -.00002 at sixty days. Four
+# starts is ~64 batted balls and the steadier of the two short reads. There is
+# no arrow here, unlike velocity -- a level plus a last-start deviation scores
+# the deviation at z=+0.05, because one start is ~16 batted balls and those are
+# the hitters, not him. ``BL_FB_HR`` is the mean of the fitted sample rather
+# than ``BL_FB_ALLOWED``, which is a whole-window figure on a wider window.
+# ``scripts.hr_contact_study window`` reproduces the table.
+BL_FB_HR = 0.338
+FB_HR_SLOPE = 1.25  # fitted logit slope per unit fly-ball rate, t=+4.16
+FB_HR_CLIP = (-0.15, 0.18)
+FB_HR_STARTS = 4
+MIN_FB_HR_BBE = 30  # batted balls over those starts before the rate is a read
+
 # Barrel rate allowed, on the home-run line. Measured against the next start's
 # HR/PA over 2,426 starts / 56,072 PA, every feature read from pitches thrown
 # strictly before the start, K% controlled, chronological 60/40 holdout:
@@ -1033,6 +1049,10 @@ class PitcherRegression:
     vfa: float = float("nan")
     vfa_dev: float = float("nan")
     vfa_k: float = 0.0
+    # Fly-ball rate over his last four starts, and the share of the home-run
+    # contact read to take from it rather than from barrel rate (0 = off).
+    fb_allowed_recent: float = float("nan")
+    hr_flyball: float = 0.0
     # Pitch-shape grade: the usage-weighted whiff rate his shapes earn above the
     # league's same pitch types. 0.0 means no opinion (thin or unmeasurable).
     shape_plus: float = 0.0
@@ -1125,6 +1145,42 @@ class PitcherRegression:
         if hard == hard and self.hard_hit_allowed > 0:
             m *= _clip(hard / self.hard_hit_allowed, 0.90, 1.12)
         return _clip(m, 0.85, 1.25)
+
+    def hr_contact_multiplier(self) -> float:
+        """The contact half of his home-run risk: how hard, or where.
+
+        Barrel rate allowed has driven this since the HR path was written, on
+        the grounds that it has the highest PPV for HR/9. It does not survive
+        being asked to forecast: added to the next start's home runs it fits at
+        t=+3.3 with the right sign and moves held-out deviance the wrong way
+        (+.00009 over 2,494 starts). It describes him weakly at best -- his own
+        starts agree at r=.24, against fly-ball rate's .52 -- and beside
+        fly-ball rate it makes the pair worse than fly-ball rate alone.
+
+        ``hr_flyball`` crossfades between the two rather than switching, so the
+        term can be graded at part weight, and falls back toward neutral (not
+        back to barrel) when he has too few recent batted balls to read.
+
+        The barrel half reads the *unshrunk* rate, which is the scale
+        ``BARREL_ALLOWED_HR_SLOPE`` was fitted on: shrinkage keeps 14% of the
+        excess, so enabling ``starter_contact_shrink`` at a raw-fitted slope
+        would silently gut the term rather than temper it.
+        """
+        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
+        barrel = 1.0 + _clip(
+            (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
+            -0.10,
+            0.18,
+        )
+        w = 0.0 if self.bullpen else _clip(self.hr_flyball, 0.0, 1.0)
+        if w <= 0.0:
+            return barrel
+        fly = 1.0
+        if self.fb_allowed_recent == self.fb_allowed_recent:  # not NaN
+            fly = 1.0 + _clip(
+                (self.fb_allowed_recent - BL_FB_HR) * FB_HR_SLOPE, *FB_HR_CLIP
+            )
+        return (1.0 - w) * barrel + w * fly
 
     def batted_ball_hr_mult(self) -> float:
         """HR effect of *where* the pitcher lets the ball go, not how hard.
@@ -1316,24 +1372,7 @@ class PitcherRegression:
         )
         gb_xbh = 1.0 + _clip((self.gb_allowed - BL_GB_ALLOWED) * gb_slope, *gb_clip)
 
-        # Barrel rate allowed, read *unshrunk* because that is the scale
-        # ``BARREL_ALLOWED_HR_SLOPE`` was fitted on. ``starter_contact_shrink``
-        # ships at 0, so this is what production already prices; the point is
-        # that enabling the knob must not silently gut the term. A 42-day window
-        # is a median 95 batted balls against a 595-BBE prior, so shrinkage keeps
-        # 14% of the excess -- at a raw-fitted slope the whole term would shrink
-        # to about 1% of a home-run rate, an arithmetic accident rather than a
-        # decision. The shrunk-scale equivalent is a slope near 9, which is not
-        # what this constant is.
-        barrel_allowed = self.raw_contact.get("barrel", self.barrel_allowed)
-        hr = base * hard * (
-            1.0
-            + _clip(
-                (barrel_allowed - BL_BARREL_ALLOWED) * BARREL_ALLOWED_HR_SLOPE,
-                -0.10,
-                0.18,
-            )
-        )
+        hr = base * hard * self.hr_contact_multiplier()
         # Where he lets the ball go, which is a separate skill from how hard it
         # is hit and the one the stack was missing entirely.
         hr *= self.batted_ball_hr_mult()
@@ -1368,6 +1407,25 @@ def _four_seam_velocity(pdf: pd.DataFrame) -> tuple[float, float]:
     return level, float(last.mean()) - level
 
 
+def _recent_flyball_rate(batted: pd.DataFrame) -> float:
+    """Fly-ball share of the batted balls in his last ``FB_HR_STARTS`` outings.
+
+    Read short and by outing rather than over the whole window: where the ball
+    goes is the batted-ball rate a starter actually owns, but it goes stale --
+    six weeks forecasts a third as well as four starts, and sixty days nothing.
+    """
+    if not len(batted) or "bb_type" not in batted or "game_date" not in batted:
+        return float("nan")
+    bbt = batted.dropna(subset=["bb_type"])
+    if not len(bbt):
+        return float("nan")
+    days = sorted(pd.unique(bbt["game_date"]))[-FB_HR_STARTS:]
+    recent = bbt[bbt["game_date"].isin(days)]
+    if len(recent) < MIN_FB_HR_BBE:
+        return float("nan")
+    return float(recent["bb_type"].isin(["fly_ball", "popup"]).mean())
+
+
 def build_pitcher_regression(
     pdf: pd.DataFrame,
     stuff_plus: float | None = None,
@@ -1375,6 +1433,7 @@ def build_pitcher_regression(
     shrink: float = 0.0,
     bullpen: bool = False,
     vfa_k: float = 0.0,
+    hr_flyball: float = 0.0,
 ) -> PitcherRegression:
     batted = batted_balls(pdf)
     n_bbe = int(len(batted))
@@ -1570,6 +1629,8 @@ def build_pitcher_regression(
         vfa=vfa,
         vfa_dev=vfa_dev,
         vfa_k=vfa_k,
+        fb_allowed_recent=_recent_flyball_rate(batted),
+        hr_flyball=hr_flyball,
         shape_plus=grade,
         extension=ext,
         release_var=rel_var,

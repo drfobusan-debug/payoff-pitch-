@@ -31,7 +31,7 @@ from pathlib import Path
 import numpy as np
 
 from mlb_engine.features.regression import BL_BABIP, BL_IVB
-from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
+from mlb_engine.features.trend import FLAT_SIERA, FLAT_VFA
 from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import (
@@ -245,36 +245,57 @@ def _ivb_cell(sl: StarterLine) -> str:
     return f"<td>{txt}</td>"
 
 
-def _vfa_cell(sl: StarterLine) -> str:
+def _vfa_cell(sl: StarterLine, suffix: str = "") -> str:
     """Window four-seam velocity, and where his last start sat against it.
 
     The deviation is the read: one outing measures velocity at r=.93 between
     consecutive starts while measuring nothing else about him (K/PA .20, CSW%
     .15), so it is the only same-week form signal here that is a measurement.
+
+    ``suffix`` carries spin, which used to ride in the barrel% cell this table
+    no longer prints: it is a property of the same fastball.
     """
     if sl.vfa is None:
-        return "<td>—</td>"
+        return f"<td>—{suffix}</td>"
     if sl.vfa_dev is None or abs(sl.vfa_dev) < VFA_DEV_MARK:
-        return f"<td>{sl.vfa:.1f}</td>"
+        return f"<td>{sl.vfa:.1f}{suffix}</td>"
     cls = "pos" if sl.vfa_dev > 0 else "neg"
-    return f"<td>{sl.vfa:.1f} <span class='{cls}'>({sl.vfa_dev:+.1f})</span></td>"
+    return (
+        f"<td>{sl.vfa:.1f} <span class='{cls}'>({sl.vfa_dev:+.1f})</span>{suffix}</td>"
+    )
 
 
 # --- HTML pieces -----------------------------------------------------------
 def _starter_row(tag: str, sl: StarterLine) -> str:
-    spin = "" if sl.spin is None else f", {sl.spin:.0f} rpm"
-    hard = "—" if sl.hard_hit_allowed is None else f"{sl.hard_hit_allowed * 100:.0f}%"
-    air = "—" if sl.fb_allowed is None else f"{sl.fb_allowed * 100:.0f}%"
+    """One arm's line, restricted to reads that repeat.
+
+    Barrel% and hard-hit% allowed used to sit here beside CSW% and K%, at equal
+    weight and in the same type. Across adjacent six-week blocks K% repeats at
+    .52, CSW% at .50, xwOBA allowed at .31, hard-hit at .24 and barrel at .09,
+    so two of those columns were noise printed as a measurement. xwOBA stays
+    despite its .31 because it is the contact number the engine prices.
+
+    Fly-ball rate takes barrel's place: it is the batted-ball read a starter
+    genuinely owns (his own starts agree at .52, against barrel's .24) and the
+    only one that forecasts the home runs he goes on to allow. Four starts of
+    it, because six weeks of it forecasts a third as well.
+    """
+    spin = "" if sl.spin is None else f" / {sl.spin:.0f} rpm"
+    siera = "—" if sl.siera is None else f"{sl.siera:.2f}"
+    fly = (
+        "—"
+        if sl.fb_allowed_recent is None
+        else f"{sl.fb_allowed_recent * 100:.0f}%"
+    )
     return (
         f"<tr><td class='l'><b>{tag}</b> {sl.name}</td>"
         f"<td>{sl.k_pct * 100:.0f}% (x{sl.xk_pct * 100:.0f})</td>"
         f"<td>{sl.bb_pct * 100:.0f}% (x{sl.xbb_pct * 100:.0f})</td>"
         f"<td>{sl.csw * 100:.0f}%</td><td>{sl.swstr * 100:.0f}%</td>"
-        + _vfa_cell(sl)
+        f"<td>{siera}</td>"
+        + _vfa_cell(sl, spin)
         + _ivb_cell(sl)
-        + f"<td>{hard}</td>"
-        f"<td>{air}</td>"
-        f"<td>{sl.xwoba_allowed:.3f}</td><td>{sl.barrel_allowed * 100:.0f}%{spin}</td></tr>"
+        + f"<td>{fly}</td><td>{sl.xwoba_allowed:.3f}</td></tr>"
     )
 
 
@@ -297,9 +318,14 @@ def _trend_phrase(delta: float | None, flat: float, unit: str, *, lower_is_bette
 def starter_trend_sentence(team: str, sl: StarterLine) -> str:
     """Prose for one starter's form direction and his contact-luck gap."""
     siera = "SIERA unavailable (thin sample)" if sl.siera is None else f"SIERA {sl.siera:.2f}"
+    # CSW% is reported as a level, never as a direction. Its level is the single
+    # largest term in a next-start strikeout forecast (z +67); its change adds
+    # z +3.0 on top of that, and split chronologically it is +3.6 then +0.9 and
+    # takes the wrong sign on contact. It read as a verdict here for as long as
+    # it has been measured to be nothing.
     bits = [
         f"{siera}, {_trend_phrase(sl.siera_trend, FLAT_SIERA, '.2f', lower_is_better=True)}",
-        f"stuff {_trend_phrase(sl.stuff_trend, FLAT_CSW, '.1%', lower_is_better=False)} on CSW%",
+        f"{sl.csw * 100:.0f}% CSW",
         "last start's velocity "
         + _trend_phrase(sl.vfa_trend, FLAT_VFA, ".1f", lower_is_better=False)
         + ("" if sl.vfa_trend is None else " mph"),
@@ -497,10 +523,17 @@ def starter_duel(gp: GamePreview) -> str:
         )
     bits = []
     for tag, sl in ((gp.home, home), (gp.away, away)):
-        hard = "" if sl.hard_hit_allowed is None else f", {sl.hard_hit_allowed * 100:.0f}% hard-hit"
+        # Hard-hit% used to close this clause. It is replaced by the fly-ball
+        # rate for the same reason it left the table above: where he lets the
+        # ball go is his, how hard it is hit is mostly the hitter's.
+        fly = (
+            ""
+            if sl.fb_allowed_recent is None
+            else f" on {sl.fb_allowed_recent * 100:.0f}% fly balls"
+        )
         bits.append(
             f"{sl.name} ({tag}) misses bats at {sl.swstr * 100:.0f}% SwStr and allows "
-            f"{sl.xwoba_allowed:.3f} xwOBA{hard}"
+            f"{sl.xwoba_allowed:.3f} xwOBA{fly}"
         )
     return f"<p>{lead}. " + "; ".join(bits) + ".</p>"
 
@@ -584,15 +617,34 @@ def _rank_bucket(rank: int, of: int) -> str:
 
 
 def lineup_profile(team: str, lu: LineupLine) -> str:
-    """How this offense hits in general, then how it hits in tonight's situation."""
+    """How this offense hits in general, then how it hits in tonight's situation.
+
+    Two numbers with two denominators used to sit in one sentence: the club
+    figure is xwOBA per *plate appearance* (strikeouts in the denominator, which
+    is what the rank is built on), and the lineup figure is xwOBA per *batted
+    ball*. They are 40-odd points apart for that reason alone, and the larger
+    one read as the headline. Each now says which it is, and the contact figure
+    is read against the league's own contact mean rather than left bare.
+    """
     if lu.team_woba is None or lu.team_rank is None or lu.team_of is None:
-        general = f"a {lu.woba:.3f} wOBA / {lu.xwoba:.3f} xwOBA batting order"
+        general = (
+            f"a {lu.woba:.3f} wOBA / {lu.xwoba:.3f} xwOBA batting order on contact"
+        )
     else:
         bucket = _rank_bucket(lu.team_rank, lu.team_of)
         general = (
-            f"a {lu.team_woba:.3f} xwOBA club overall, <b>{lu.team_rank} of {lu.team_of}</b> "
-            f"({bucket} third), hitting {lu.xwoba:.3f} xwOBA on contact"
+            f"a {lu.team_woba:.3f} xwOBA club per plate appearance, "
+            f"<b>{lu.team_rank} of {lu.team_of}</b> ({bucket} third)"
         )
+        if lu.league_xwoba is None:
+            general += f", and {lu.xwoba:.3f} xwOBA on contact"
+        else:
+            contact_gap = (lu.xwoba - lu.league_xwoba) * 1000
+            side = "above" if contact_gap >= 0 else "below"
+            general += (
+                f", and {lu.xwoba:.3f} xwOBA on contact — {abs(contact_gap):.0f} points "
+                f"{side} the league's {lu.league_xwoba:.3f} on the same denominator"
+            )
     situ = [_split_clause(lu)]
     if lu.is_home is not None and lu.home_woba is not None and lu.away_woba is not None:
         where = "at home" if lu.is_home else "on the road"
@@ -745,9 +797,9 @@ def _game_section(gp: GamePreview, hr_recs: list[Recommendation]) -> str:
 
     starter_tbl = (
         "<table><tr><th class='l'>Starter</th><th>K% (x)</th><th>BB% (x)</th>"
-        "<th>CSW%</th><th>SwStr%</th><th>FB velo (last)</th><th>IVB</th>"
-        "<th>Hard-hit%</th><th>FB%</th><th>xwOBA</th>"
-        "<th>Barrel% / spin</th></tr>"
+        "<th>CSW%</th><th>SwStr%</th><th>SIERA</th>"
+        "<th>FB velo (last) / spin</th><th>IVB</th>"
+        "<th>FB% (4 st)</th><th>xwOBA</th></tr>"
         + _starter_row(gp.home, gp.home_starter)
         + _starter_row(gp.away, gp.away_starter)
         + "</table>"
