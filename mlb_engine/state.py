@@ -71,9 +71,16 @@ class SyncReport:
 
 
 def _git(args: list[str], cwd: Path) -> str:
-    proc = subprocess.run(
-        ["git", *args], cwd=cwd, capture_output=True, text=True, check=True, timeout=300
-    )
+    """Run git, or raise carrying what git said about it.
+
+    ``CalledProcessError`` stringifies to the command and the exit status only,
+    and the sync is best effort: the warning it logs is the whole record of a
+    night that did not publish. Git's own message is the part worth keeping.
+    """
+    proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300)
+    if proc.returncode:
+        detail = proc.stderr.strip() or proc.stdout.strip() or f"exit status {proc.returncode}"
+        raise RuntimeError(f"git {' '.join(args)}: {detail}")
     return proc.stdout.strip()
 
 
@@ -162,18 +169,20 @@ def _worktree(repo: Path, branch: str) -> Path:
     _git_ok(["worktree", "prune"], repo)
     if _remote_has_branch(repo, branch):
         _fetch(repo, branch)
-        _git(
-            [
-                "worktree",
-                "add",
-                "--force",
-                "-B",
-                branch,
-                str(path),
-                f"refs/remotes/origin/{branch}",
-            ],
-            repo,
-        )
+        ref = f"refs/remotes/origin/{branch}"
+        try:
+            _git(["worktree", "add", "--force", "-B", branch, str(path), ref], repo)
+        except RuntimeError as exc:
+            # Naming the local branch is a courtesy to anyone opening this
+            # checkout by hand, and git refuses the name for reasons that have
+            # nothing to do with the sync -- another worktree holding it, a
+            # leftover registration under a path this one cannot reach. The push
+            # names its own refspec, so publish from a detached checkout of the
+            # same commit rather than lose the night's capture over a label.
+            log.info("state worktree kept detached, %s is not available: %s", branch, exc)
+            shutil.rmtree(path, ignore_errors=True)
+            _git_ok(["worktree", "prune"], repo)
+            _git(["worktree", "add", "--force", "--detach", str(path), ref], repo)
     else:
         # Unpublished, which is a fresh installation. ``--orphan`` refuses a name
         # already taken, and a name left behind by an earlier sync is not a

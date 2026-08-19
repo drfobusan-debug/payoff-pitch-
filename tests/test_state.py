@@ -10,6 +10,7 @@ from pathlib import Path
 
 import pytest
 
+import mlb_engine.state as engine_state
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
@@ -489,3 +490,37 @@ def test_a_first_push_survives_a_leftover_branch_name(
         data_a, "first push", repo=repo_a, branch="engine-state"
     ).pushed
     assert _remote_has_branch(repo_a, "engine-state")
+
+
+def test_a_branch_name_git_will_not_hand_over_still_publishes(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Franz's Mac, 08-19: 34 picks captured and then not published, because
+    ``worktree add -B engine-state`` failed. The label on the local checkout is
+    not the point of the sync -- the refspec the push names is -- so a name git
+    will not hand over leaves the worktree detached instead of dropping the day.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-18", "DET")])
+    push_state(data_a, "audit 08-18", repo=repo_a, branch="engine-state")
+
+    # The checkout itself sits on the name: "fatal: Cannot force update the
+    # current branch", which is git exiting 255 the way the Mac's log shows.
+    _git(["checkout", "-q", "-B", "engine-state"], repo_a)
+
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-19", "KC")])
+    assert "ledger.csv" in push_state(
+        data_a, "audit 08-19", repo=repo_a, branch="engine-state"
+    ).pushed
+
+    pull_state(_data_b, repo=_repo_b, branch="engine-state")
+    with (_data_b / "audit" / "ledger.csv").open(newline="") as f:
+        assert [r["date"] for r in csv.DictReader(f)] == ["2026-08-18", "2026-08-19"]
+
+
+def test_a_failed_git_call_says_what_git_said(tmp_path: Path) -> None:
+    """The sync only ever reports itself through one warning line, so the reason
+    has to be in it: an exit status is not a reason."""
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    with pytest.raises(RuntimeError, match="Needed a single revision"):
+        engine_state._git(["rev-parse", "--verify", "refs/heads/nope"], tmp_path)
