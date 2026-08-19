@@ -805,8 +805,14 @@ there logs a warning and prices off the Marcel rather than guessing.
 ## Credentials
 
 Subscription logins are read from environment variables and never committed:
-`FANGRAPHS_USER/PASS`, `ROTOWIRE_USER/PASS`, `VSIN_USER/PASS`. FanGraphs/Rotowire
-projections and VSIN quotes can also be imported from CSV (see `data/`).
+`FANGRAPHS_USER/PASS`, `ROTOWIRE_USER/PASS`, `VSIN_USER/PASS`,
+`TEAMRANKINGS_EMAIL/PASSWORD`. FanGraphs/Rotowire projections and VSIN quotes can
+also be imported from CSV (see `data/`).
+
+TeamRankings is the outside benchmark on the game markets, and it is the one login
+without which a run captures *nothing* rather than less: signed out, their grid
+serves the last slate already played, with the results filled in. The daemon reads
+these from `/etc/engine.env` like every other key.
 
 ## Development
 
