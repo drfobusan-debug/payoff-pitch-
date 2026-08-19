@@ -1,0 +1,307 @@
+"""Starter and hitter regression profiles: the luck/level read the reports rank.
+
+Moved out of ``scripts/`` so the daily run can build the regression article
+itself. The scripts that render the stat cards import these same builders, so
+the article the engine emails and the cards a study renders are read off one
+implementation rather than two.
+
+A profile carries the *level* a player is (SIERA, Stuff, vFA, xSLG) and the
+*luck* term the results have added on top (BABIP, the wOBA-minus-xwOBA gap).
+Only the second is due to move; ranking uses it alone.
+"""
+
+from __future__ import annotations
+
+import re
+from datetime import date as Date
+
+import numpy as np
+import pandas as pd
+
+from mlb_engine.features.regression import (
+    BL_BABIP,
+    BatterRegression,
+    build_batter_regression,
+    build_pitcher_regression,
+)
+from mlb_engine.features.siera import pitcher_siera
+
+FB = ("FF", "SI")
+RECENT_DAYS = 21  # "3-week" window for vFA + trend split
+MIN_BBE = 25  # a hitter's batted balls before his luck term is worth ranking
+TOPN = 10  # hitters printed per direction
+
+
+def _pitcher_id_map(preds: list[dict]) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for r in preds:
+        if r["market"].startswith("pitcher_") and r.get("player_id"):
+            nm = (
+                r["selection"]
+                .split(" Ks")[0]
+                .split(" Outs")[0]
+                .split(" Hits")[0]
+                .split(" Walks")[0]
+                .split(" ER")[0]
+            )
+            out[nm] = r["player_id"]
+    return out
+
+
+def _starter_games(previews: list[dict]) -> dict[str, dict]:
+    """Map each starter -> game context (opponent lineup, park, weather, matchup)."""
+    ctx: dict[str, dict] = {}
+    for g in previews:
+        for side, opp in (("home", "away"), ("away", "home")):
+            st = g[f"{side}_starter"]["name"]
+            ctx[st] = {
+                "matchup": g["matchup"],
+                "team": g[side],
+                "opp": g[opp],
+                "home_away": "home" if side == "home" else "away",
+                "opp_lineup_xwoba": g[f"{opp}_lineup"]["xwoba"],
+                "park_name": g.get("park_name"),
+                "park_factor": g.get("park_factor"),
+                "wx_summary": g.get("wx_summary"),
+                "wx_hr_mult": g.get("wx_hr_mult"),
+                "total_mean": g["total_mean"],
+                "fav_team": g.get("fav_team"),
+            }
+    return ctx
+
+
+def _vfa(slice_df: pd.DataFrame) -> float:
+    fb = slice_df[slice_df["pitch_type"].isin(FB)]
+    return _fmean(fb["release_speed"]) if len(fb) else float("nan")
+
+
+def _stuff_xk(slice_df: pd.DataFrame) -> float:
+    if slice_df.empty:
+        return float("nan")
+    return float(build_pitcher_regression(slice_df).expected_k_pct())
+
+
+def _siera_val(slice_df: pd.DataFrame) -> float:
+    return float(pitcher_siera(slice_df).siera)
+
+
+def _arr(s: pd.Series) -> np.ndarray:
+    return pd.to_numeric(s, errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
+
+
+def _fmean(s: pd.Series) -> float:
+    a = _arr(s)
+    return float(np.nanmean(a)) if np.isfinite(a).any() else float("nan")
+
+
+def _fstd(s: pd.Series) -> float:
+    a = _arr(s)
+    return float(np.nanstd(a)) if np.isfinite(a).any() else float("nan")
+
+
+def _biomech(slice_df: pd.DataFrame) -> dict[str, float]:
+    fb = slice_df[slice_df["pitch_type"].isin(FB)]
+    ext = _fmean(slice_df["release_extension"])
+    ivb = _fmean(fb["pfx_z"]) * 12 if len(fb) else float("nan")
+    spin = _fmean(fb["release_spin_rate"]) if len(fb) else float("nan")
+    # release scatter: how tightly the release point repeats (lower = more repeatable).
+    scatter = float(np.hypot(_fstd(slice_df["release_pos_x"]), _fstd(slice_df["release_pos_z"])) * 12)
+    return {"ext": ext, "ivb": ivb, "spin": spin, "scatter": scatter}
+
+
+def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
+    sl = df[df["pitcher"] == pid]
+    reg = build_pitcher_regression(sl)
+    sr = pitcher_siera(sl)
+    recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
+    prior = sl[pd.to_datetime(sl["game_date"]).dt.date <= cutoff]
+    unlucky_babip = reg.babip_allowed - BL_BABIP  # + => unlucky => positive regression
+    unlucky_xwoba = -reg.dxwoba  # dxwoba<0 (woba>xwoba) => unlucky => positive
+    return {
+        "name": name,
+        "pitches": int(len(sl)),
+        "siera": sr.siera,
+        "siera_pa": sr.pa,
+        "babip": reg.babip_allowed,
+        "dxwoba": reg.dxwoba,
+        "xwoba": reg.xwoba_allowed,
+        "woba": reg.woba_allowed,
+        "csw": reg.csw,
+        "xk": reg.expected_k_pct(),
+        "k_pct": reg.k_pct,
+        "bb_pct": reg.bb_pct,
+        "barrel": reg.barrel_allowed,
+        "fb": reg.fb_allowed,
+        "gb": reg.gb_allowed,
+        "vfa": _vfa(sl),
+        "biomech": _biomech(sl),
+        "unlucky_babip": unlucky_babip,
+        "unlucky_xwoba": unlucky_xwoba,
+        # recent-vs-prior trends (recent minus prior)
+        "d_siera": _siera_val(recent) - _siera_val(prior),
+        "d_xk": _stuff_xk(recent) - _stuff_xk(prior),
+        "d_vfa": _vfa(recent) - _vfa(prior),
+    }
+
+
+def _bets_for(pid: int, preds: list[dict]) -> list[dict]:
+    out = []
+    for r in preds:
+        if r.get("player_id") == pid and r["market"].startswith("pitcher_"):
+            out.append(r)
+    # buys first, then by EV
+    tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
+    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
+    return out
+
+
+def build_profiles(previews: list[dict], preds: list[dict], df: pd.DataFrame):
+    """Return (pos, neg, ctxs) starter regression profiles for the slate."""
+    idmap = _pitcher_id_map(preds)
+    ctxs = _starter_games(previews)
+    maxd = pd.to_datetime(df["game_date"]).dt.date.max()
+    cutoff = maxd - pd.Timedelta(days=RECENT_DAYS)
+    cutoff = cutoff if isinstance(cutoff, Date) else cutoff.date()
+
+    profiles = []
+    for name in sorted(ctxs):
+        pid = idmap.get(name)
+        if pid is None:
+            continue
+        p = analyze(name, pid, df, cutoff)
+        if p["pitches"] < 150:  # too thin to trust the luck read
+            continue
+        profiles.append(p)
+
+    # z-score the two luck components across the slate, then combine.
+    for key in ("unlucky_babip", "unlucky_xwoba"):
+        vals = np.array([p[key] for p in profiles])
+        mu, sd = vals.mean(), vals.std() or 1.0
+        for p in profiles:
+            p[f"z_{key}"] = (p[key] - mu) / sd
+    for p in profiles:
+        p["reg_index"] = p["z_unlucky_babip"] + p["z_unlucky_xwoba"]
+
+    profiles.sort(key=lambda p: -p["reg_index"])
+    pos = [p for p in profiles if p["reg_index"] > 0]
+    neg = [p for p in profiles if p["reg_index"] <= 0]
+    neg.sort(key=lambda p: p["reg_index"])  # most negative first
+    return pos, neg, ctxs
+
+
+# --- hitters ---------------------------------------------------------------
+# selection is "{name} {stat} {side}{line}" ("Matt McLain 1B o0.5", "Carlos
+# Narvaez H+R+RBI u1.5"); strip the trailing market off to leave the hitter.
+# Both sides: every prop has had its under priced since #144, and a side this
+# misses leaves the market glued to the name, which then reads as a separate
+# hitter carrying identical contact -- ten of them fill the top ten.
+_SEL_RE = re.compile(r"\s+[A-Za-z0-9+]+\s+[ou]\d.*$")
+
+
+def _batter_name(sel: str) -> str:
+    return _SEL_RE.sub("", sel)
+
+
+def _batter_id_map(preds: list[dict]) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for r in preds:
+        if r["market"].startswith("batter_") and r.get("player_id"):
+            out[_batter_name(r["selection"])] = r["player_id"]
+    return out
+
+
+def _batter_ctx(preds: list[dict], pv_by_pk: dict[int, dict]) -> dict[str, dict]:
+    ctx: dict[str, dict] = {}
+    for r in preds:
+        if not r["market"].startswith("batter_"):
+            continue
+        sel = _batter_name(r["selection"])
+        if sel in ctx:
+            continue
+        pk = r.get("game_pk")
+        g = pv_by_pk.get(int(pk), {}) if pk is not None else {}
+        ctx[sel] = {
+            "matchup": r.get("matchup", ""),
+            "park_factor": g.get("park_factor"),
+            "wx_hr_mult": g.get("wx_hr_mult"),
+        }
+    return ctx
+
+
+def _woba(slice_df: pd.DataFrame) -> float:
+    if slice_df.empty:
+        return float("nan")
+    return build_batter_regression(slice_df).woba
+
+
+def _fb_rate(reg: BatterRegression) -> float:
+    """Fly balls (with pop-ups) as a share of a hitter's batted balls.
+
+    Statcast's four batted-ball classes exhaust the slice, so the air share is
+    what the ground balls and line drives leave behind. NaN when either half is
+    unmeasurable.
+    """
+    gb, ld = reg.gb_pct, reg.ld_pct
+    if gb != gb or ld != ld:
+        return float("nan")
+    return max(0.0, 1.0 - gb - ld)
+
+
+def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
+    sl = df[df["batter"] == pid]
+    reg = build_batter_regression(sl)
+    recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
+    return {
+        "name": name,
+        "bbe": reg.bbe,
+        "woba": reg.woba,
+        "xwoba": reg.xwoba,
+        "dxwoba": reg.dxwoba,  # xwoba - woba: + => underperforming (heat up)
+        "xslg": reg.xslg,
+        "barrel": reg.barrel_rate,
+        "babip": reg.babip,
+        "hard_hit": reg.hard_hit,
+        "fb": _fb_rate(reg),
+        "gb": reg.gb_pct,
+        "iffb": reg.iffb_pct,
+        "woba6": reg.woba,
+        "woba3": _woba(recent),
+    }
+
+
+def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
+    cands = [
+        r for r in preds
+        if r.get("player_id") == pid and r["market"].startswith("batter_")
+    ]
+    if not cands:
+        return None
+    tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
+    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
+    return cands[0]
+
+
+    return cands[0]
+
+
+def build_batter_profiles(preds: list[dict], df: pd.DataFrame):
+    idmap = _batter_id_map(preds)
+    maxd = pd.to_datetime(df["game_date"]).dt.date.max()
+    cutoff = maxd - pd.Timedelta(days=RECENT_DAYS)
+    cutoff = cutoff if isinstance(cutoff, Date) else cutoff.date()
+    profs = []
+    seen: set[int] = set()
+    for name, pid in idmap.items():
+        # A hitter is one hitter however his name reaches the sheet: two spellings
+        # of the same id must not both be ranked.
+        if pid in seen:
+            continue
+        seen.add(pid)
+        p = analyze_batter(name, pid, df, cutoff)
+        if p["bbe"] < MIN_BBE:
+            continue
+        p["pid"] = pid
+        profs.append(p)
+    pos = sorted([p for p in profs if p["dxwoba"] > 0], key=lambda p: -p["dxwoba"])[:TOPN]
+    neg = sorted([p for p in profs if p["dxwoba"] < 0], key=lambda p: p["dxwoba"])[:TOPN]
+    return pos, neg
