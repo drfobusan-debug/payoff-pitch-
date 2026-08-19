@@ -37,6 +37,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from mlb_engine.audit.ledger import LedgerEntry
+from mlb_engine.audit.priced import (
+    MIN_PRICED,
+    PricedStat,
+    contradictions,
+    engine_priced_stat,
+    priced_findings,
+    priced_stats,
+)
 from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
@@ -526,6 +535,64 @@ def _market_chart(mkts: list[PropStat]) -> str:
     return _fig_b64(fig)
 
 
+def _priced_chart(stats: list[PricedStat]) -> str:
+    """Win rate against the win rate the price demanded, per market.
+
+    The PPV chart's reference line is a fixed 52.4%, which is the break-even of a
+    price most of these bets were not taken at. Here every market carries its own
+    bar, so a 70% market at -250 shows up as the loss it is.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    stats = [s for s in stats if s.n >= MIN_PRICED]
+    stats = sorted(stats, key=lambda s: s.shortfall)
+    labels = [s.label for s in stats]
+    y = np.arange(len(labels))
+    h = 0.38
+    fig, ax = plt.subplots(figsize=(7.6, max(1.8, 0.62 * len(labels) + 0.9)))
+    ax.barh(
+        y - h / 2,
+        [s.win_rate * 100 for s in stats],
+        height=h,
+        color=NAVY,
+        zorder=3,
+        label="won (%)",
+    )
+    ax.barh(
+        y + h / 2,
+        [s.breakeven * 100 for s in stats],
+        height=h,
+        color=GOLD,
+        zorder=3,
+        label="needed at the price (%)",
+    )
+    for yi, s in enumerate(stats):
+        ax.text(
+            max(s.win_rate, s.breakeven) * 100 + 0.8,
+            yi,
+            f"{s.shortfall * 100:+.1f} pts · {s.roi * 100:+.1f}% · {s.units:+.1f}u (n={s.n})",
+            va="center",
+            fontsize=7.6,
+            color=NEG if s.shortfall < 0 else POS,
+        )
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=9, color=INK)
+    ax.invert_yaxis()
+    ax.set_xlim(0, 118)
+    ax.set_xlabel("Realized vs required win rate on bets actually placed (%)", fontsize=9, color=MUTE)
+    ax.legend(fontsize=8, loc="upper left", bbox_to_anchor=(0.0, -0.12), ncol=2, frameon=False)
+    ax.grid(axis="x", color="#e6e8ec", zorder=0)
+    for s_ in ("top", "right"):
+        ax.spines[s_].set_visible(False)
+    ax.set_title(
+        "What the buys needed, and what they got", fontsize=11, color=NAVY, loc="left"
+    )
+    return _fig_b64(fig)
+
+
 def _discriminator_chart(title: str, discs: list[Discriminator]) -> str:
     import matplotlib
 
@@ -660,6 +727,110 @@ def _stat_table(stats: list[PropStat], first_col: str) -> str:
     return f"<table>{head}{body}</table>"
 
 
+def _units(x: float) -> str:
+    return "—" if x is None or np.isnan(x) else f"{x:+.1f}u"
+
+
+def _roi_cls(x: float) -> str:
+    if x is None or np.isnan(x):
+        return ""
+    return "pos" if x > 0 else "neg"
+
+
+def _priced_table(stats: list[PricedStat], total: PricedStat) -> str:
+    head = (
+        "<tr><th class='l'>Market</th><th>Bets</th><th>Won</th><th>Needed</th>"
+        "<th>vs price</th><th>Units</th><th>ROI</th><th>One-way</th>"
+        "<th>CLV</th><th>Beat close</th></tr>"
+    )
+    body = ""
+    for s in [total, *stats]:
+        body += (
+            f"<tr><td class='l'>{s.label}</td><td>{s.n}</td>"
+            f"<td>{_pct(s.win_rate)}</td><td>{_pct(s.breakeven)}</td>"
+            f"<td class='{_roi_cls(s.shortfall)}'>{_signed(s.shortfall)}</td>"
+            f"<td class='{_roi_cls(s.units)}'>{_units(s.units)}</td>"
+            f"<td class='{_roi_cls(s.roi)}'>{_signed(s.roi)}%</td>"
+            f"<td>{s.n_one_way}</td>"
+            f"<td>{'—' if np.isnan(s.clv) else f'{s.clv * 100:+.2f}'}</td>"
+            f"<td>{_pct(s.clv_rate)}</td></tr>"
+        )
+    return f"<table>{head}{body}</table>"
+
+
+def _money_section(history: list[LedgerEntry], mkts: list[PropStat]) -> str:
+    """The priced record, and the markets where it disagrees with the PPV table."""
+    stats = priced_stats(history, market_label)
+    total = engine_priced_stat(history)
+    if total.n == 0:
+        return (
+            "<h2>What the Prices Did</h2>"
+            "<div class='callout'>No graded row in the ledger carries both a buy "
+            "tier and a real price yet, so there is no P/L to report. Everything "
+            "above is classification only — it does not say whether a bet at "
+            "these prices earns anything.</div>"
+        )
+    lift = {m.key: m.ppv_lift for m in mkts}
+    clash = contradictions(stats, lift)
+    html = (
+        "<h2>What the Prices Did</h2>"
+        "<p>Everything above is a classification score: at the model's 0.5 boundary, "
+        "does it sort winners from losers. It is blind to the two things that decide "
+        "whether a bet pays — the price it was taken at, and whether it was taken at "
+        "all. This section is the money record: only rows the engine actually bought, "
+        "only rows with a real price, each market against the win rate <i>its own</i> "
+        "prices demanded rather than against a 52.4% line nobody was quoted.</p>"
+        f"<img class='chart' src='data:image/png;base64,{_priced_chart(stats)}'/>"
+        + _priced_table([s for s in stats if s.n >= MIN_PRICED], total)
+    )
+    if clash:
+        rows = "".join(
+            f"<li><b>{s.label}</b>: {_signed(lft)} points of PPV lift, and "
+            f"{_signed(s.roi)}% ROI ({s.units:+.1f}u on {s.n} bets) — "
+            f"{_pct(s.win_rate)} won where the price needed {_pct(s.breakeven)}.</li>"
+            for s, lft in clash
+        )
+        html += (
+            "<div class='warn'><b>Where the lift column is misleading.</b> These "
+            "markets pick the right side and still lose money, because the price "
+            "already knows. A positive lift is not an argument for betting them:"
+            f"<ul>{rows}</ul>"
+            "Read the lift as evidence the selection logic works, and the ROI as the "
+            "verdict on whether it works at these prices.</div>"
+        )
+    findings = priced_findings(stats)
+    if findings:
+        html += "".join(f"<p>{_bold(f)}</p>" for f in findings)
+    return html
+
+
+def _money_lead(history: list[LedgerEntry]) -> str:
+    """The lead's last sentence: what the record is worth in units.
+
+    PPV in the fifties and a negative ROI is the report's central fact, so it
+    belongs in the opening paragraph rather than eight pages down.
+    """
+    total = engine_priced_stat(history)
+    if total.n == 0:
+        return (
+            "None of that is a betting return: no graded row yet carries both a buy "
+            "tier and a real price, so the money column is empty."
+        )
+    verdict = "made" if total.units > 0 else "lost"
+    return (
+        f"None of that is a betting return. The bets the engine actually placed — "
+        f"{total.n:,} priced buys — won {_pct(total.win_rate)} against the "
+        f"{_pct(total.breakeven)} their prices demanded and {verdict} "
+        f"<b>{abs(total.units):.1f} units</b> ({_signed(total.roi)}%)."
+    )
+
+
+def _bold(text: str) -> str:
+    """``**x**`` -> ``<b>x</b>`` for the findings written in plain prose."""
+    parts = text.split("**")
+    return "".join(p if i % 2 == 0 else f"<b>{p}</b>" for i, p in enumerate(parts))
+
+
 def _disc_sentence(discs: list[Discriminator]) -> str:
     if not discs:
         return "no engine metric separated the winners from the losers at p&lt;0.05"
@@ -675,6 +846,7 @@ def build_report(
     day: Date,
     day_df: pd.DataFrame,
     cum_df: pd.DataFrame,
+    history: list[LedgerEntry] | None = None,
 ) -> tuple[str, str]:
     day_engine = whole_engine_stat(day_df)
     cum_engine = whole_engine_stat(cum_df)
@@ -705,7 +877,8 @@ def build_report(
         "that often for free, and a fade list that abstained from everything would score a perfect NPV. "
         f"The part that is actually the engine is <b>{_signed(cum_engine.ppv_lift)}</b> on the buy side and "
         f"<b>{_signed(cum_engine.npv_lift)}</b> on the fade side — that is the number that matters, since "
-        "one slate is mostly noise."
+        "one slate is mostly noise. "
+        + _money_lead(history or [])
     )
 
     fam_chart = _family_chart(fams)
@@ -762,7 +935,10 @@ def build_report(
     body = (
         f"<p class='lead'>{lead}</p>"
         + _kpi(day_engine, cum_engine)
-        + "<div class='callout'><b>How to read PPV / NPV:</b> PPV is the buy-side batting average — of the picks "
+        + "<div class='callout'><b>How to read PPV / NPV:</b> these are <i>classification</i> scores, not "
+        "betting returns — they say whether the model sorts winners from losers, and nothing about whether "
+        "a bet at the price on offer earns anything. The money answer is in <i>What the Prices Did</i>. "
+        "PPV is the buy-side batting average — of the picks "
         "the model backed, how many won. NPV is the discipline score — of the picks it passed on, how many it "
         "was right to pass. The 52.4% line is the break-even at standard -110 juice. "
         "<b>Always read the <i>vs base</i> column first.</b> Both rates are dominated by how often the prop "
@@ -779,17 +955,23 @@ def build_report(
         + "<h2>Every Prop</h2>"
         f"<img class='chart' src='data:image/png;base64,{mkt_chart}'/>"
         + _stat_table(mkts, "Market")
+        + _money_section(history or [], mkts)
         + diag_html
         + "<p class='fine'>Methodology: PPV/NPV computed at the model's 0.5 decision boundary (favored = model "
         "probability &ge; 0.5), pushes excluded. Discriminant tests are point-biserial correlations of each "
         "engine metric against the win/loss outcome, run on the cumulative graded-pick history; a metric is "
         "reported only at p&lt;0.05 with at least "
         f"{MIN_GROUP} picks on each side. P-values are unadjusted for multiple comparisons — treat single "
-        "hits as leads to confirm, not laws. Model self-audit, not betting advice.</p>"
+        "hits as leads to confirm, not laws. The priced section is a different population from the PPV "
+        "tables: it counts only Strong/Moderate buys that carried a real quote, one unit flat per bet, "
+        "break-even taken from each bet's own price, and it excludes the benchmark models' rows. A market "
+        f"needs {MIN_PRICED} graded bets to be printed there. Model self-audit, not betting advice.</p>"
     )
     html = f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{masthead}{body}</body></html>"
 
-    narr = _narration(day, day_engine, cum_engine, cum_df, fams, diags)
+    narr = _narration(
+        day, day_engine, cum_engine, cum_df, fams, diags, history or []
+    )
     return html, narr
 
 
@@ -800,6 +982,7 @@ def _narration(
     cum_df: pd.DataFrame,
     fams: list[PropStat],
     diags: list[PropDiag],
+    history: list[LedgerEntry],
 ) -> str:
     nice = day.strftime("%A, %B %-d")
     parts = [
@@ -812,6 +995,27 @@ def _narration(
         f"{cum_engine.ppv * 100:.0f} percent PPV and {cum_engine.npv * 100:.0f} percent NPV on "
         f"{cum_engine.n} picks. That's the honest number. ",
     ]
+    total = engine_priced_stat(history)
+    if total.n:
+        verdict = "up" if total.units > 0 else "down"
+        parts.append(
+            f"Now the part PPV doesn't tell you: the money. Across {total.n} bets the "
+            f"engine actually priced and bought, it won {total.win_rate * 100:.0f} percent "
+            f"against the {total.breakeven * 100:.0f} percent those prices demanded, and "
+            f"that's {verdict} {abs(total.units):.0f} units, "
+            f"{total.roi * 100:+.1f} percent return. A batting average is not a return: "
+            "you can hit seventy percent at minus two-fifty and still lose money. "
+        )
+        priced = priced_stats(history, market_label)
+        leak = min(
+            (s for s in priced if s.n >= MIN_PRICED), key=lambda s: s.roi, default=None
+        )
+        if leak is not None and leak.roi < 0:
+            parts.append(
+                f"The worst of it is {leak.label}, {leak.roi * 100:+.0f} percent on "
+                f"{leak.n} bets, {abs(leak.shortfall) * 100:.0f} points short of what "
+                "the price needed. "
+            )
     graded_fams = [f for f in fams if f.n_fav >= MIN_FAVORED]
     if graded_fams:
         best = max(graded_fams, key=lambda f: f.ppv)
@@ -888,11 +1092,18 @@ def generate_audit_insight(
     email: bool,
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
+    history: list[LedgerEntry] | None = None,
 ) -> dict[str, Path | None]:
     """Build the insight PDF + MP3, and (optionally) email them with the ledger.
 
     ``extra_attachments`` (e.g. the Excel ledger) are attached alongside the
     PDF and MP3 so a single email carries all three deliverables.
+
+    ``history`` is the cumulative graded ledger. The metric store this report is
+    built from holds probabilities but no stake: it cannot say what a pick cost,
+    only whether it was right. The ledger is where the price, the tier and the
+    P/L live, so the priced section reads from it and is simply omitted when it
+    is not supplied.
     """
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
     day = graded_to_frame(graded, audit_date)
@@ -908,7 +1119,7 @@ def generate_audit_insight(
         logger.warning("no gradeable picks after filtering pushes for %s", audit_date)
         return out
 
-    html, narr = build_report(audit_date, day_c, cum_c)
+    html, narr = build_report(audit_date, day_c, cum_c, history)
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"audit_insight_{iso}.html"
@@ -947,7 +1158,8 @@ def generate_audit_insight(
             "<h2 style='color:#16324f'>Payoff Pitch — Audit Desk</h2>"
             f"<p>Your nightly audit for <b>{audit_date.strftime('%A, %B %-d, %Y')}</b> is attached:</p>"
             "<ul><li><b>Excel ledger</b> — every graded pick, PPV/NPV, and CLV.</li>"
-            "<li><b>Audit article (PDF)</b> — slate &amp; all-time PPV/NPV, by family and prop, plus the "
+            "<li><b>Audit article (PDF)</b> — slate &amp; all-time PPV/NPV, by family and prop, what the "
+            "priced buys actually returned against the win rate their prices demanded, plus the "
             "metric-level diagnosis of the failing props.</li>"
             "<li><b>Audio narration (MP3)</b> — the same read, sportscaster style.</li></ul>"
             "<p style='color:#6b7280;font-size:13px'>Model self-audit, not investment advice.</p></div>"

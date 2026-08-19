@@ -16,6 +16,7 @@ import math
 from datetime import date
 from types import SimpleNamespace
 
+from mlb_engine import config as _config
 from mlb_engine.audit.clv import (
     ClosingQuote,
     board_path,
@@ -193,6 +194,40 @@ def test_anchor_off_bets_the_model_itself() -> None:
     p = _pipeline()
     rec = _rec(p, "game_ml", 0.56)
     assert rec.bet_prob == 0.56
+
+
+def _anchor_file(tmp_path, monkeypatch, body: str) -> None:
+    path = tmp_path / "market_anchor_live.json"
+    path.write_text(body)
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_FILE", str(path))
+    _config._ANCHOR_CACHE.clear()
+
+
+def test_a_fitted_anchor_file_overrides_the_packaged_default(tmp_path, monkeypatch) -> None:
+    _anchor_file(tmp_path, monkeypatch, '{"anchors": {"game_ml": 0.9, "game_total": 0.4}}')
+    cfg = Config()
+    assert cfg.anchor_for("game_ml") == 0.9
+    # Even the totals pin yields to a weight measured on this operator's ledger.
+    assert cfg.anchor_for("game_total") == 0.4
+    # A market the fit never named keeps shipping behaviour.
+    assert cfg.anchor_for("batter_hr") == 0.0
+
+
+def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
+    _anchor_file(tmp_path, monkeypatch, '{"anchors": {"game_ml": 0.9}}')
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_GAME_ML", "0.2")
+    assert Config().anchor_for("game_ml") == 0.2
+
+
+def test_a_corrupt_anchor_file_is_ignored_not_fatal(tmp_path, monkeypatch) -> None:
+    _anchor_file(tmp_path, monkeypatch, "{not json")
+    assert Config().anchor_for("game_ml") == 0.0
+
+
+def test_no_anchor_file_means_no_anchoring(tmp_path, monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_FILE", str(tmp_path / "absent.json"))
+    _config._ANCHOR_CACHE.clear()
+    assert Config().anchor_for("game_ml") == 0.0
 
 
 # ---- pre-bet CLV -----------------------------------------------------------
