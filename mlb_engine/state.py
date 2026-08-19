@@ -101,6 +101,13 @@ def repo_root(start: Path | None = None) -> Path:
 
 
 def _remote_has_branch(repo: Path, branch: str) -> bool:
+    """Whether the branch is published, or an error when origin did not answer.
+
+    A silent no on a failed call is the expensive reading: it says the shared
+    state does not exist, which sends the sync down the fresh-installation path
+    and abandons a branch holding every machine's ledger. So absence has to come
+    from git answering with nothing, not from git not answering.
+    """
     proc = subprocess.run(
         ["git", "ls-remote", "--heads", "origin", branch],
         cwd=repo,
@@ -108,6 +115,11 @@ def _remote_has_branch(repo: Path, branch: str) -> bool:
         text=True,
         timeout=300,
     )
+    if proc.returncode:
+        raise RuntimeError(
+            f"origin did not answer whether {branch} exists: "
+            f"{proc.stderr.strip() or f'git ls-remote exited {proc.returncode}'}"
+        )
     return bool(proc.stdout.strip())
 
 
@@ -119,6 +131,16 @@ def _fetch(repo: Path, branch: str) -> None:
     a bare fetch updates FETCH_HEAD and leaves ``origin/<branch>`` undefined.
     """
     _git(["fetch", "origin", f"+refs/heads/{branch}:refs/remotes/origin/{branch}"], repo)
+
+
+def _free_branch(repo: Path, branch: str) -> str:
+    """``branch``, or the first numbered variant of it no local ref holds."""
+    name = branch
+    n = 0
+    while _git_ok(["rev-parse", "--verify", "--quiet", f"refs/heads/{name}"], repo):
+        n += 1
+        name = f"{branch}-{n}"
+    return name
 
 
 def _worktree(repo: Path, branch: str) -> Path:
@@ -153,8 +175,12 @@ def _worktree(repo: Path, branch: str) -> Path:
             repo,
         )
     else:
+        # Unpublished, which is a fresh installation. ``--orphan`` refuses a name
+        # already taken, and a name left behind by an earlier sync is not a
+        # reason to fail this one: the push names its refspec, so the local
+        # branch only has to be free.
         _git(["worktree", "add", "--detach", str(path), "HEAD"], repo)
-        _git(["checkout", "--orphan", branch], path)
+        _git(["checkout", "--orphan", _free_branch(repo, branch)], path)
         _git_ok(["rm", "-rf", "--quiet", "."], path)
     return path
 

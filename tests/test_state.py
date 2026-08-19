@@ -17,6 +17,7 @@ from mlb_engine.state import (
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
     STATE_BRANCH,
+    _remote_has_branch,
     auto_pull,
     auto_push,
     card_lead_hours,
@@ -453,3 +454,38 @@ def test_the_morning_s_projections_meet_the_evening_s_results(
     pull_state(data_a, repo=repo_a, branch="engine-state")
     rows = {r.player: r.result for r in load_rows(data_a / "audit" / "opta_2026-08-08.json")}
     assert rows == {"Alan Roden": "hit", "Max Muncy": None}
+
+
+def test_an_unreachable_origin_is_not_a_missing_state_branch(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A failed ``ls-remote`` used to read as "no shared state yet".
+
+    That sends the sync down the fresh-installation path, which builds an empty
+    orphan and -- when a worktree from a working night already holds the branch
+    name -- dies on ``checkout --orphan``, so the night's capture never leaves
+    the box. Whatever origin does, silence and an error are not the same answer.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-18", "DET")])
+    push_state(data_a, "audit 08-18", repo=repo_a, branch="engine-state")
+
+    _git(["remote", "set-url", "origin", str(tmp := repo_a.parent / "gone.git")], repo_a)
+    assert not tmp.exists()
+    with pytest.raises(RuntimeError, match="did not answer"):
+        push_state(data_a, "audit 08-19", repo=repo_a, branch="engine-state")
+
+
+def test_a_first_push_survives_a_leftover_branch_name(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """No branch on origin and the name taken locally: the push names its own
+    refspec, so the local name is free to be anything."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    _git(["branch", "engine-state"], repo_a)
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-19", "KC")])
+
+    assert "ledger.csv" in push_state(
+        data_a, "first push", repo=repo_a, branch="engine-state"
+    ).pushed
+    assert _remote_has_branch(repo_a, "engine-state")

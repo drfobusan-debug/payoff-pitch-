@@ -107,7 +107,7 @@ command -v mlb-engine >/dev/null 2>&1 || \
 # Owned by $RUN_AS_USER (mode 600): the daemons run as that user and source
 # this file, so root ownership would make it unreadable and the job would exit 1.
 if [[ ! -f "$ENV_FILE" ]]; then
-  printf '# private (chmod 600). e.g.:\n# ODDS_API_KEY=your_key_here\n' > "$ENV_FILE"
+  printf '# private (chmod 600). e.g.:\n# ODDS_API_KEY=your_key_here\n# TEAMRANKINGS_EMAIL=you@example.com\n# TEAMRANKINGS_PASSWORD=your_password\n' > "$ENV_FILE"
   echo "Created $ENV_FILE -- add your ODDS_API_KEY line."
 fi
 chmod 600 "$ENV_FILE"; chown "$RUN_AS_USER" "$ENV_FILE"
@@ -295,4 +295,5 @@ echo "Test day close:    sudo launchctl start ${DAY_CLOSE_LABEL}"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo
 echo "Reminders: keep it PLUGGED IN; use SLEEP (not Shut Down);"
-echo "add ODDS_API_KEY to ${ENV_FILE}."
+echo "add ODDS_API_KEY to ${ENV_FILE}, and TEAMRANKINGS_EMAIL/PASSWORD for"
+echo "tonight's outside picks (signed out that grid only publishes played slates)."
