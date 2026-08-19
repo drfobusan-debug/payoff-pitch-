@@ -6,11 +6,13 @@ import csv
 import gzip
 import json
 import subprocess
+from datetime import date as Date
 from pathlib import Path
 
 import pytest
 
 import mlb_engine.state as engine_state
+from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
@@ -181,6 +183,51 @@ def test_a_second_machine_cannot_erase_the_first(
     with (data_a / "audit" / "ledger.csv").open(newline="") as f:
         dates = [r["date"] for r in csv.DictReader(f)]
     assert dates == ["2026-08-03", "2026-08-04"]
+
+
+def test_the_power_screen_s_receipts_cross_machines(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The Mac writes the note; this box has to be able to grade it.
+
+    ``power_screen_ledger.csv`` is the only record of what the screen showed and
+    at what price, and the scorecard in the next morning's note is built from it.
+    Absent from the state map it stays on one machine, so the screen reads as
+    having no history anywhere else -- which is the failure the ledger exists to
+    prevent.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    receipts = data_a / "audit" / power_ledger.LEDGER_NAME
+    receipts.parent.mkdir(parents=True, exist_ok=True)
+    positions = [
+        power_ledger.Position(
+            date="2026-08-16",
+            batter="Gabriel Moreno",
+            player_id=672515,
+            game_pk=824880,
+            stat="HR",
+            line=0.5,
+            side="over",
+            book="williamhill_us",
+            odds=750.0,
+            model_prob=0.1675,
+            fair_prob=0.1213,
+            edge=0.0462,
+            ev=0.4238,
+            tier="Pass",
+            rating="HOLD",
+            devigged=False,
+        )
+    ]
+    power_ledger.record(receipts, positions, Date(2026, 8, 16))
+    assert power_ledger.LEDGER_NAME in push_state(
+        data_a, "screen 08-16", repo=repo_a, branch=STATE_BRANCH
+    ).pushed
+
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert power_ledger.LEDGER_NAME in report.pulled
+    pulled = power_ledger.load(data_b / "audit" / power_ledger.LEDGER_NAME)
+    assert [(p.batter, p.stat, p.odds) for p in pulled] == [("Gabriel Moreno", "HR", 750.0)]
 
 
 def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(
