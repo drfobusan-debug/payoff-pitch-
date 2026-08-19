@@ -10,6 +10,8 @@ from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
 
+import pandas as pd
+
 from mlb_engine.audit.clv import (
     board_path,
     closing_quotes,
@@ -425,6 +427,9 @@ class Pipeline:
         self._league_contact = LeagueContact(batter=None, pitcher=None)
         self._league_xtb: LeagueXTB | None = None
         self.slate: Slate | None = None
+        # The frame the slate was priced off, kept so the reports built after the
+        # run read the same Statcast window rather than loading a second one.
+        self.statcast: pd.DataFrame | None = None
 
     def run(
         self,
@@ -460,6 +465,7 @@ class Pipeline:
                 w.team_split_days,
             ],
         )
+        self.statcast = statcast
         self._ros_priors = (
             load_ros_priors(self.cfg.ros_prior_path) if self.cfg.ros_prior_path else {}
         )

@@ -99,6 +99,7 @@ from mlb_engine.output.card import build_cards, render_html, render_markdown, re
 from mlb_engine.output.daily_preview import generate_daily_preview
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.regression_article import build_article_pdf
 from mlb_engine.output.regression_radar import generate_radar_pdf
 from mlb_engine.output.regression_radar import render_html as render_radar_html
 from mlb_engine.output.regression_radar import render_markdown as render_radar_markdown
@@ -516,6 +517,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         attachments: list[tuple[str, bytes]] = []
         if Path(xlsx).exists():
             attachments.append((Path(xlsx).name, Path(xlsx).read_bytes()))
+        article = _build_regression_article(pipe, slate_date, cfg)
+        if article is not None and args.email:
+            attachments.append((f"PayoffPitch_Regression_{slate_date.isoformat()}.pdf", article))
         if args.email:
             radar_pdf = _build_radar_pdf(pipe, slate_date, cfg)
             if radar_pdf is not None:
@@ -533,6 +537,36 @@ def cmd_run(args: argparse.Namespace) -> int:
     # grades this slate grades what was actually sent.
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
     return 0
+
+
+def _build_regression_article(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
+    """Write the prose regression report for the slate; return its PDF bytes.
+
+    Reads the previews and predictions the run has just saved, so the article
+    ranks the same arms and bats the card was priced from, off the same Statcast
+    frame the pricing used. ``None`` when the slate has nothing rankable or the
+    render fails -- a missing article must not cost the email its bet sheet.
+    """
+    if pipe.statcast is None:
+        return None
+    iso = slate_date.isoformat()
+    try:
+        previews = json.loads((cfg.audit_dir / f"previews_{iso}.json").read_text())
+        preds = json.loads((cfg.audit_dir / f"predictions_{iso}.json").read_text())
+        built = build_article_pdf(slate_date, previews, preds, pipe.statcast)
+    except Exception:
+        logging.warning("Regression article unavailable", exc_info=True)
+        return None
+    if built is None:
+        print("Regression article: no starter or hitter cleared the sample floor")
+        return None
+    pdf, html = built
+    cfg.output_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"PayoffPitch_Regression_{iso}"
+    (cfg.output_dir / f"{stem}.pdf").write_bytes(pdf)
+    (cfg.output_dir / f"{stem}.html").write_text(html)
+    print(f"Regression article: {cfg.output_dir / f'{stem}.pdf'}")
+    return pdf
 
 
 def _build_radar_pdf(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:

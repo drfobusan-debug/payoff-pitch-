@@ -19,25 +19,33 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import re
 from datetime import date as Date
 
 import pandas as pd
 
 import scripts.pitcher_slate_analysis as psa
 from mlb_engine.config import load_config
-from mlb_engine.features.regression import BL_XSLG, build_batter_regression
+from mlb_engine.features.regression import BL_XSLG
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import to_mp3
 from mlb_engine.output.daily_preview import build_preview_report
+from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
+    MIN_BBE,
+    RECENT_DAYS,
+    TOPN,
+    _batter_ctx,
+    _batter_id_map,
+    _batter_name,
+    _best_batter_bet,
+    _fb_rate,
+    analyze_batter,
+    build_batter_profiles,
+)
 from mlb_engine.preview import load_previews
 from mlb_engine.recommendations import Recommendation
 
 DAY = Date(2026, 7, 31)
 STATCAST_PKL = "statcast_2026-06-19_2026-07-30.pkl"
-RECENT_DAYS = 21
-MIN_BBE = 25
-TOPN = 10
 BATTER_STATS = ("hr", "tb", "h", "1b", "r", "rbi", "hrr")
 
 
@@ -52,104 +60,6 @@ def load_recs(path) -> list[Recommendation]:
         out.append(Recommendation(**d))
     return out
 
-
-# --- batter regression -----------------------------------------------------
-# selection is "{name} {stat} {side}{line}" ("Matt McLain 1B o0.5", "Carlos
-# Narvaez H+R+RBI u1.5"); strip the trailing market off to leave the hitter.
-# Both sides: every prop has had its under priced since #144, and a side this
-# misses leaves the market glued to the name, which then reads as a separate
-# hitter carrying identical contact -- ten of them fill the top ten.
-_SEL_RE = re.compile(r"\s+[A-Za-z0-9+]+\s+[ou]\d.*$")
-
-
-def _batter_name(sel: str) -> str:
-    return _SEL_RE.sub("", sel)
-
-
-def _batter_id_map(preds: list[dict]) -> dict[str, int]:
-    out: dict[str, int] = {}
-    for r in preds:
-        if r["market"].startswith("batter_") and r.get("player_id"):
-            out[_batter_name(r["selection"])] = r["player_id"]
-    return out
-
-
-def _batter_ctx(preds: list[dict], pv_by_pk: dict[int, dict]) -> dict[str, dict]:
-    ctx: dict[str, dict] = {}
-    for r in preds:
-        if not r["market"].startswith("batter_"):
-            continue
-        sel = _batter_name(r["selection"])
-        if sel in ctx:
-            continue
-        pk = r.get("game_pk")
-        g = pv_by_pk.get(pk, {})
-        ctx[sel] = {
-            "matchup": r.get("matchup", ""),
-            "park_factor": g.get("park_factor"),
-            "wx_hr_mult": g.get("wx_hr_mult"),
-        }
-    return ctx
-
-
-def _woba(slice_df: pd.DataFrame) -> float:
-    if slice_df.empty:
-        return float("nan")
-    return build_batter_regression(slice_df).woba
-
-
-def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
-    sl = df[df["batter"] == pid]
-    reg = build_batter_regression(sl)
-    recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
-    return {
-        "name": name,
-        "bbe": reg.bbe,
-        "woba": reg.woba,
-        "xwoba": reg.xwoba,
-        "dxwoba": reg.dxwoba,  # xwoba - woba: + => underperforming (heat up)
-        "xslg": reg.xslg,
-        "barrel": reg.barrel_rate,
-        "babip": reg.babip,
-        "hard_hit": reg.hard_hit,
-        "woba6": reg.woba,
-        "woba3": _woba(recent),
-    }
-
-
-def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
-    cands = [
-        r for r in preds
-        if r.get("player_id") == pid and r["market"].startswith("batter_")
-    ]
-    if not cands:
-        return None
-    tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
-    return cands[0]
-
-
-def build_batter_profiles(preds: list[dict], df: pd.DataFrame):
-    idmap = _batter_id_map(preds)
-    maxd = pd.to_datetime(df["game_date"]).dt.date.max()
-    cutoff = maxd - pd.Timedelta(days=RECENT_DAYS)
-    cutoff = cutoff if isinstance(cutoff, Date) else cutoff.date()
-    profs = []
-    seen: set[int] = set()
-    for name, pid in idmap.items():
-        # A hitter is one hitter however his name reaches the sheet: two spellings
-        # of the same id must not both be ranked.
-        if pid in seen:
-            continue
-        seen.add(pid)
-        p = analyze_batter(name, pid, df, cutoff)
-        if p["bbe"] < MIN_BBE:
-            continue
-        p["pid"] = pid
-        profs.append(p)
-    pos = sorted([p for p in profs if p["dxwoba"] > 0], key=lambda p: -p["dxwoba"])[:TOPN]
-    neg = sorted([p for p in profs if p["dxwoba"] < 0], key=lambda p: p["dxwoba"])[:TOPN]
-    return pos, neg
 
 
 def _bat_card(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -> str:
