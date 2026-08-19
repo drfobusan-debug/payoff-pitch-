@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import argparse
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -58,6 +61,47 @@ def test_market_dummies_leave_the_forecast_columns_alone() -> None:
     assert design.shape == (4, 4)  # three forecasts + one dropped-baseline dummy
     assert np.allclose(design[:, 0], bx.logit(frame.model_prob.to_numpy()))
     assert design[:, 3].tolist() == [0.0, 0.0, 1.0, 1.0]
+
+
+def test_grade_survives_a_ledger_that_carries_its_own_batx_column(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The engine stamps ``batx_prob`` on the ledger, and the join must not collide.
+
+    Both frames name the column the same thing, so an unqualified merge suffixes
+    them to ``_x``/``_y`` and every later reference raises ``KeyError``.
+    """
+    ledger = tmp_path / "ledger.csv"
+    pd.DataFrame(
+        {
+            "date": ["2026-08-14", "2026-08-14"],
+            "market": ["batter_hr", "batter_h"],
+            "selection": ["Aaron Judge HR u0.5", "Aaron Judge H o0.5"],
+            "line": [0.5, 0.5],
+            "result": ["win", "loss"],
+            "model_prob": [0.9, 0.55],
+            "fair_prob": [0.88, 0.53],
+            "batx_prob": [float("nan"), float("nan")],
+        }
+    ).to_csv(ledger, index=False)
+
+    probs = tmp_path / "2026-08-14.csv"
+    pd.DataFrame(
+        {
+            "date": ["2026-08-14", "2026-08-14"],
+            "player": ["aaron judge", "aaron judge"],
+            "market": ["batter_hr", "batter_h"],
+            "line": [0.5, 0.5],
+            "batx_prob": [0.12, 0.71],
+        }
+    ).to_csv(probs, index=False)
+
+    bx.cmd_grade(argparse.Namespace(probs=str(probs), ledger=str(ledger)))
+    out = capsys.readouterr().out
+    assert "joined 2 graded rows" in out
+    # Mean of the flipped HR under (0.88) and the hits over (0.71). Reading the
+    # ledger's own empty column instead of the priced one gives no number at all.
+    assert "0.795" in out
 
 
 def test_a_single_market_needs_no_dummy() -> None:
