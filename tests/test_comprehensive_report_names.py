@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-import scripts.comprehensive_report as cr
+import mlb_engine.output.regression_profiles as cr
 
 
 def _pred(selection: str, player_id: int) -> dict:
