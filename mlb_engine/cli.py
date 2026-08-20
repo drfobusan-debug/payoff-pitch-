@@ -1242,7 +1242,6 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     print(f"{len(rows)} graded row(s) priced on or after {since}")
     print(f"{'market':<14}{'n':>7}{'raw':>10}{'mapped':>10}{'gain':>9}{'95% CI':>22}  keep")
     keep: dict[str, IsotonicMap] = {}
-    harmful: set[str] = set()
     for market, entry in sorted(data.get("markets", {}).items()):
         pairs = by_market.get(market, [])
         m = IsotonicMap([float(v) for v in entry["x"]], [float(v) for v in entry["y"]])
@@ -1256,8 +1255,6 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
         take = gain > 0 and lo > -_HARM_TOLERANCE
         if take:
             keep[market] = m
-        else:
-            harmful.add(market)
         print(
             f"{market:<14}{len(pairs):>7}{b_raw:>10.4f}{b_map:>10.4f}"
             f"{gain:>+9.4f}   {lo:>+8.4f}..{hi:<+8.4f} {'yes' if take else 'no'}"
@@ -1266,15 +1263,16 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     if not keep:
         print("\nNo market still improves on its raw probability; the map stays retired")
         return 1
-    # A curve is dropped on evidence of harm, never on the absence of evidence:
-    # a market too thin to measure keeps its curve at the basis it was fitted on,
-    # still retired, still measurable once it has the rows. Likewise a pooled
-    # curve fitted on the current basis is not this command's to throw away -- it
-    # was measured when it was adopted, and every market with no own map prices
-    # off it.
+    # Re-stamping is the only edit. A market that failed here, or was too thin to
+    # measure, keeps its curve at the basis it was fitted on: that stamp *is* how
+    # the file says "retired", so deleting the curve instead would drop the market
+    # onto the pooled curve -- a correction nothing measured for it -- and would
+    # put it beyond the reach of the next revalidation. The pooled curve itself is
+    # not this command's to throw away either: a refit measured it when it adopted
+    # the markets that price off it.
     stored = read_stored(path)
-    maps = {mk: m for mk, m in stored.maps.items() if mk not in harmful} | keep
-    bases = {mk: b for mk, b in stored.bases.items() if mk not in keep and mk not in harmful}
+    maps = stored.maps | keep
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in keep}
     cal = Calibrator(maps=maps, default=stored.current_default())
     cal.to_json(path, bases=bases)
     print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
