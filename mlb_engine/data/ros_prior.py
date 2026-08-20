@@ -35,7 +35,7 @@ import pandas as pd
 
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.features.marcel import marcel_projection
-from mlb_engine.features.rolling import ros_rates_from_projection
+from mlb_engine.features.rolling import OUTCOMES_ORDER, ros_rates_from_projection
 
 log = logging.getLogger(__name__)
 
@@ -137,6 +137,41 @@ def _from_export(path: Path) -> pd.DataFrame | None:
         return None
 
 
+def _fill_rounded_zeros(dropped: pd.DataFrame, marcel: pd.DataFrame) -> pd.DataFrame:
+    """Replace an export's exact-zero rates with the Marcel's, hitter by hitter.
+
+    An export that rounds its counting stats reports a rate of exactly zero for
+    anything it projects below half a hit, which is not a projection of
+    zero -- ATC's rest-of-season file rounds, and 74% of the hitters it lists
+    come out unable to hit a triple, which then reaches the simulator through
+    total bases. No major-league hitter has a true rate of zero for any of these
+    outcomes, so an exact zero is read as *unstated* and the Marcel behind the
+    export supplies it. The vector is renormalised, so the fill costs the OUT
+    rate rather than inventing plate appearances.
+    """
+    fillable = [oc for oc in OUTCOMES_ORDER if oc != "OUT"]
+    prior = marcel.set_index("mlbam_id")
+    out = dropped.set_index("mlbam_id").copy()
+    shared = out.index.intersection(prior.index)
+    if shared.empty:
+        return dropped
+    filled = 0
+    for oc in fillable:
+        zero = out.loc[shared, oc] == 0.0
+        if not bool(zero.any()):
+            continue
+        ids = shared[zero.to_numpy()]
+        out.loc[ids, oc] = prior.loc[ids, oc]
+        filled += len(ids)
+    if not filled:
+        return dropped
+    total = out[list(OUTCOMES_ORDER)].sum(axis=1)
+    for oc in OUTCOMES_ORDER:
+        out[oc] = out[oc] / total
+    log.info("filled %d rounded-to-zero export rates from the Marcel", filled)
+    return out.reset_index()
+
+
 def is_stale(
     path: Path,
     today: Date,
@@ -193,6 +228,7 @@ def build(
         ros = dropped
     else:
         if dropped is not None and not dropped.empty:
+            dropped = _fill_rounded_zeros(dropped, ros)
             filled = ros[~ros["mlbam_id"].isin(dropped["mlbam_id"])]
             log.info(
                 "projection export %s: %d hitters, %d more from the Marcel",
