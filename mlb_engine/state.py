@@ -297,6 +297,9 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
     ("scorecard.csv", ("date", "tier")),
+    # The morning screen and the night's audit run on different machines, so a
+    # receipt left on the screen's disk is gone before anything can grade it.
+    ("power_screen_ledger.csv", ("date", "batter", "stat", "line", "side")),
 )
 
 
