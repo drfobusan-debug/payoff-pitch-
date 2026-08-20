@@ -12,9 +12,11 @@ import pytest
 
 import mlb_engine.state as engine_state
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
+from mlb_engine.calibration import FEATURE_BASIS, read_stored
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
 from mlb_engine.state import (
+    CALIBRATION_NAME,
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
     STATE_BRANCH,
@@ -24,6 +26,7 @@ from mlb_engine.state import (
     card_lead_hours,
     card_supersedes,
     merge_board_files,
+    merge_calibration_files,
     merge_closing_files,
     merge_dated_csv,
     pull_state,
@@ -101,6 +104,60 @@ def test_opening_boards_keep_the_earliest_price_across_machines(tmp_path: Path) 
 
     assert merge_board_files(remote, local)
     assert load_closing(local)["KC@DET|game_ml|DET"].no_vig_prob == 0.56
+
+
+def _map(path: Path, rows: int, markets: dict[str, str]) -> None:
+    """A calibration map fitted on ``rows`` rows, stamping each market's basis."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "basis": FEATURE_BASIS,
+                "rows": rows,
+                "markets": {
+                    mk: {"x": [0.0, 1.0], "y": [0.0, 0.9], "basis": basis}
+                    for mk, basis in markets.items()
+                },
+                "default": {"x": [0.0, 1.0], "y": [0.0, 0.8]},
+            }
+        )
+    )
+
+
+def test_the_map_fitted_on_more_of_the_ledger_wins(tmp_path: Path) -> None:
+    """Two rival fits of one record, so one has to win rather than be unioned."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    _map(remote, 13_433, {"batter_hr": FEATURE_BASIS})
+    _map(local, 400, {"batter_hr": FEATURE_BASIS})
+
+    assert merge_calibration_files(remote, local)
+    assert read_stored(local).rows == 13_433
+
+    # And the reverse: a machine that refit on less does not undo the better fit.
+    assert not merge_calibration_files(local, remote)
+    assert read_stored(remote).rows == 13_433
+
+
+def test_an_equally_fitted_map_wins_on_the_markets_it_can_price(tmp_path: Path) -> None:
+    """Same rows, so the tie goes to the map correcting more markets."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    _map(remote, 900, {"batter_hr": FEATURE_BASIS, "batter_tb": FEATURE_BASIS})
+    _map(local, 900, {"batter_hr": FEATURE_BASIS, "batter_tb": "pitch-shape-grade-2026.07"})
+
+    assert merge_calibration_files(remote, local)
+    assert read_stored(local).current_markets() == 2
+    # A dead heat leaves the file alone, so a pull that learns nothing is a no-op.
+    assert not merge_calibration_files(remote, local)
+
+
+def test_a_corrupt_published_map_never_replaces_a_working_one(tmp_path: Path) -> None:
+    """Half a JSON file on the branch is not evidence of a better fit."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    remote.write_text('{"basis": "x", "markets": {"batter_hr": {"x": [0.0')
+    _map(local, 900, {"batter_hr": FEATURE_BASIS})
+
+    assert not merge_calibration_files(remote, local)
+    assert read_stored(local).rows == 900
 
 
 # --- git round trip ----------------------------------------------------------
@@ -210,6 +267,27 @@ def test_the_power_screens_receipt_reaches_the_machine_that_grades_it(
     with (data_b / "audit" / "power_screen_ledger.csv").open(newline="") as f:
         rows = list(csv.DictReader(f))
     assert [r["batter"] for r in rows] == ["Matt Olson"]
+
+
+def test_the_refit_map_reaches_the_machine_pricing_the_next_slate(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Only one box runs ``calibrate``; the other must not price raw because of it."""
+    repo_a, data_a, repo_b, data_b = machines
+    _map(data_a / CALIBRATION_NAME, 13_433, {"batter_hr": FEATURE_BASIS})
+    _map(data_b / CALIBRATION_NAME, 400, {"batter_hr": FEATURE_BASIS})
+
+    assert CALIBRATION_NAME in push_state(
+        data_a, "calibrate", repo=repo_a, branch=STATE_BRANCH
+    ).pushed
+    assert CALIBRATION_NAME in pull_state(data_b, repo=repo_b, branch=STATE_BRANCH).pulled
+    assert read_stored(data_b / CALIBRATION_NAME).rows == 13_433
+
+    # The box with the thinner fit then pushes: the branch keeps the better map,
+    # so publishing cannot undo the refit it just pulled.
+    push_state(data_b, "nightly", repo=repo_b, branch=STATE_BRANCH)
+    pull_state(data_a, repo=repo_a, branch=STATE_BRANCH)
+    assert read_stored(data_a / CALIBRATION_NAME).rows == 13_433
 
 
 def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(

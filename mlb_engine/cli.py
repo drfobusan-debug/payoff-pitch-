@@ -1274,7 +1274,7 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     maps = stored.maps | keep
     bases = {mk: b for mk, b in stored.bases.items() if mk not in keep}
     cal = Calibrator(maps=maps, default=stored.current_default())
-    cal.to_json(path, bases=bases)
+    cal.to_json(path, bases=bases, rows=stored.rows)
     print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
     retired = sorted(mk for mk, b in bases.items() if b != FEATURE_BASIS)
     print(
@@ -1389,7 +1389,7 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
         else:
             maps.pop(market, None)
     merged = Calibrator(maps=maps, default=final.default)
-    merged.to_json(cfg.calibration_file, bases=bases)
+    merged.to_json(cfg.calibration_file, bases=bases, rows=len(rows))
     print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
     pooled = sorted(m for m in adopt if m not in final.maps)
     if pooled:
