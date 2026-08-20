@@ -948,21 +948,27 @@ class Config:
     # turning this on needs those refit on cards priced with it.
     f5_from_sim: bool = field(default_factory=lambda: _env_bool("MLBE_F5_FROM_SIM", False))
 
-    # Set the simulator's run environment to the league's own runs per game before
-    # anything is priced off it (models.run_env). Two league-average teams score
-    # 9.27 in the simulator against a league playing 8.95 season to date, and that
-    # gap is the uniform over/under asymmetry the ledger shows in every counting
-    # market at once -- so it is corrected once, at the rates, rather than per
-    # market. Graded walk-forward (scripts/run_env_study.py: scale fitted on games
-    # through 8/5, scored on 8/6-8/19) it improves all nine slices measured, and
-    # measured against the *calibrated* probability already in the ledger -- game
-    # totals o7.5-o10.5 by 0.0014-0.0031 Brier, TB/RBI/H+R+RBI by 0.0008-0.0019.
+    # Correct the simulator's run environment to the league's own runs per game
+    # (models.run_env). Two league-average teams score 9.27 in the simulator
+    # against a league playing 8.95 season to date, and that gap is the uniform
+    # over/under asymmetry the ledger shows in every counting market at once -- so
+    # it is one correction, from one measured league total, rather than a patch per
+    # market.
     #
-    # Off until the isotonic map is refit on cards priced with it: that map was fit
-    # on the uncorrected scale and is monotone, so applied to a corrected raw it
-    # would give some of the correction back. Turning this on means running
-    # ``mlb-engine calibrate`` on graded slates priced with it first.
-    run_env: bool = field(default_factory=lambda: _env_bool("MLBE_RUN_ENV", False))
+    # Applied *after* calibration, as the log-odds the scale is worth to that
+    # market's over. Applied to the simulator's rates instead -- the first version
+    # of this -- it was a wash to negative on the holdout, because the isotonic map
+    # is monotone and re-maps a corrected raw back toward the uncorrected raw's win
+    # rate (#252). Post-map it improves all nine slices graded walk-forward against
+    # the probability the engine actually logged: game totals o7.5-o10.5 by
+    # 0.0014-0.0031 Brier, TB/RBI/H+R+RBI by 0.0008-0.0019.
+    #
+    # Moves game totals and the batter counting markets; moneylines, run lines, the
+    # first five and pitcher props are left alone (no measured coefficient). Graded
+    # as shipped over every line the table moves, 14 of 16 slices improve, the two
+    # that do not (hits o0.5, singles o0.5) by <=0.0002 Brier -- so it is on, and
+    # ``MLBE_RUN_ENV=0`` prices a card without it.
+    run_env: bool = field(default_factory=lambda: _env_bool("MLBE_RUN_ENV", True))
 
     # Odds API credit budget. The vendor bills markets x regions per request, so
     # a 16-game slate at every market it can name costs ~230 credits. Props are

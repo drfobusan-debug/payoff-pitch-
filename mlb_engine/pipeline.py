@@ -139,7 +139,7 @@ from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup
-from mlb_engine.models.run_env import scale_all, scale_for_total
+from mlb_engine.models.run_env import apply_shift, scale_for_total
 from mlb_engine.models.selectors import (
     RBISelector,
     Selection,
@@ -267,9 +267,7 @@ def _merge_metric(a: MetricValues, b: MetricValues) -> MetricValues:
 def _load_fg_tail(path: Path) -> FanGraphsTail:
     """Load a FanGraphs tail export, or merge every CSV/XLSX in a directory."""
     if path.is_dir():
-        files = sorted(
-            f for f in path.iterdir() if f.suffix.lower() in (".csv", ".xlsx", ".xls")
-        )
+        files = sorted(f for f in path.iterdir() if f.suffix.lower() in (".csv", ".xlsx", ".xls"))
     else:
         files = [path]
     merged = FanGraphsTail()
@@ -312,7 +310,7 @@ def _zscores(values: dict[_ZKey, float]) -> dict[_ZKey, float]:
     var = sum((v - mean) ** 2 for v in vals) / len(vals)
     if var <= 0:
         return {}
-    std = var ** 0.5
+    std = var**0.5
     return {k: (v - mean) / std for k, v in values.items()}
 
 
@@ -382,6 +380,9 @@ class Pipeline:
     # slate's first run, where nothing can have drifted yet.
     _open_board: dict[str, float] = {}
     _drift_gate: DriftGate = DriftGate()
+    # Measured once per slate in ``run``; None until then, and for the same
+    # single-recommendation caller, which prices in the simulator's own league.
+    _run_env_scale: float | None = None
 
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
@@ -452,6 +453,9 @@ class Pipeline:
         slate = self.deps.stats.get_slate(slate_date)
         self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
+        # Measured before anything is priced: every game on the card is corrected
+        # into the same league, and the standings call happens once.
+        self._run_env(slate_date)
         self._projected_lineups = set()
         self._pen_avail = {}
         if self.deps.rotowire is not None:
@@ -491,7 +495,8 @@ class Pipeline:
         if self._league_xtb is not None:
             log.info(
                 "Fitted league expected total bases: %d cells, %.3f TB per ball in play",
-                len(self._league_xtb.cells), self._league_xtb.league,
+                len(self._league_xtb.cells),
+                self._league_xtb.league,
             )
 
         quotes: dict[tuple[str, str, str], list[MarketQuote]] = {}
@@ -503,7 +508,8 @@ class Pipeline:
             quotes, self._splits = self.deps.vsin.fetch(slate)
             log.info(
                 "Fetched VSIN public splits: %d moneyline prices, %d handle/bets entries",
-                len(quotes), len(self._splits),
+                len(quotes),
+                len(self._splits),
             )
         if self.deps.oddsapi is not None and self.deps.oddsapi.available():
             odds = self.deps.oddsapi.fetch(slate)
@@ -587,8 +593,7 @@ class Pipeline:
         if rotowire is None:
             return
         need = [
-            g for g in slate.games
-            if not (g.home.lineup_confirmed() and g.away.lineup_confirmed())
+            g for g in slate.games if not (g.home.lineup_confirmed() and g.away.lineup_confirmed())
         ]
         if not need:
             return
@@ -734,9 +739,7 @@ class Pipeline:
             prior_strength=self._pen_prior,
         )
         # Rates come off the recent window, stuff and command off the longer one.
-        bpen_reg = build_pitcher_regression(
-            bpen.skill_frame, bullpen=self.cfg.pen_contact_level
-        )
+        bpen_reg = build_pitcher_regression(bpen.skill_frame, bullpen=self.cfg.pen_contact_level)
         bpen_allowed = bpen_reg.allowed_multipliers()
         avail = (
             self.deps.rotowire.bullpen_availability(opp.abbrev)
@@ -775,8 +778,13 @@ class Pipeline:
         for slot_idx, slot in enumerate(team.lineup):
             pid = slot.player.mlbam_id
             bprof = build_batter_profile(
-                statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days,
-                w.batter_vs_lhp_days, self.cfg.batter_split_prior,
+                statcast,
+                pid,
+                slate_date,
+                w.batter_home_away_days,
+                w.batter_vs_rhp_days,
+                w.batter_vs_lhp_days,
+                self.cfg.batter_split_prior,
                 self._ros_priors.get(int(pid)) if pid else None,
             )
             profiles.append(bprof)
@@ -786,15 +794,11 @@ class Pipeline:
             # Observed HR/PA counts home runs; expected HR measures the contact
             # that produced them, against the actual walls it was hit toward.
             if self.cfg.xhr_blend:
-                ctx = blend_hr_rate(
-                    ctx, batter_xhr(bslice).xhr_per_pa, self.cfg.xhr_prior_weight
-                )
+                ctx = blend_hr_rate(ctx, batter_xhr(bslice).xhr_per_pa, self.cfg.xhr_prior_weight)
             # ...which leaves the rate park-neutral, so put tonight's park back:
             # what his own batted balls would be worth against these fences.
             if self.cfg.xhr_park and park is not None:
-                ctx = scale_hr_rate(
-                    ctx, park_hr_multiplier(bslice, park.venue_id)
-                )
+                ctx = scale_hr_rate(ctx, park_hr_multiplier(bslice, park.venue_id))
             breg = build_batter_regression(
                 bslice, sprint.get(pid, 27.0), league_xtb=self._league_xtb
             )
@@ -867,17 +871,23 @@ class Pipeline:
             # high-leverage arms (used late in a still-close game).
             pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_npv, bat_tail)
             vs_pen = _pen_matchup(
-                late_ctx, bpen.allowed, *pen_args,
+                late_ctx,
+                bpen.allowed,
+                *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_arsenal, bpp),
             )
             vs_pen_close = _pen_matchup(
-                late_ctx, bpen.allowed_leverage, *pen_args,
+                late_ctx,
+                bpen.allowed_leverage,
+                *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_lev_arsenal, bpp),
             )
             # The middle men who cover the hand-off to the 8th, priced apart from
             # the setup/closer pair they precede.
             vs_pen_bridge = _pen_matchup(
-                late_ctx, bpen.bridge, *pen_args,
+                late_ctx,
+                bpen.bridge,
+                *pen_args,
                 arsenal_mult=_pen_arsenal_mult(pen_bridge_arsenal, bpp),
             )
 
@@ -952,7 +962,9 @@ class Pipeline:
 
         Measured once per slate from the standings (season to date), so every game
         on the card is priced in the same league. 1.0 -- no correction -- when the
-        flag is off or the league cannot be measured.
+        flag is off or the league cannot be measured. What the scale is *worth* to a
+        probability is ``run_env.LOGIT_PER_SCALE``, applied in ``_mk`` after the
+        calibration map rather than to the rates the simulator reads (#252).
         """
         if not self.cfg.run_env:
             return 1.0
@@ -971,9 +983,7 @@ class Pipeline:
         if abbrev not in self._pen_avail:
             roto = self.deps.rotowire
             self._pen_avail[abbrev] = (
-                roto.bullpen_availability(abbrev)
-                if roto is not None and roto.available()
-                else None
+                roto.bullpen_availability(abbrev) if roto is not None and roto.available() else None
             )
         return self._pen_avail[abbrev]
 
@@ -1147,12 +1157,34 @@ class Pipeline:
                 park_mult["2B"] = park.xbh_factor
                 park_mult["3B"] = park.xbh_factor
 
-        (home_start, home_pen, home_pen_close, home_pen_bridge, home_rbi, home_prev,
-         home_sels, home_regs, home_su, home_half, home_opp_reg) = self._team_offense(
+        (
+            home_start,
+            home_pen,
+            home_pen_close,
+            home_pen_bridge,
+            home_rbi,
+            home_prev,
+            home_sels,
+            home_regs,
+            home_su,
+            home_half,
+            home_opp_reg,
+        ) = self._team_offense(
             game.home, game.away, statcast, slate_date, sprint, park, weather_mult
         )
-        (away_start, away_pen, away_pen_close, away_pen_bridge, away_rbi, away_prev,
-         away_sels, away_regs, away_su, away_half, away_opp_reg) = self._team_offense(
+        (
+            away_start,
+            away_pen,
+            away_pen_close,
+            away_pen_bridge,
+            away_rbi,
+            away_prev,
+            away_sels,
+            away_regs,
+            away_su,
+            away_half,
+            away_opp_reg,
+        ) = self._team_offense(
             game.away, game.home, statcast, slate_date, sprint, park, weather_mult
         )
 
@@ -1198,10 +1230,26 @@ class Pipeline:
 
         # apply env filters: weather + own travel + opponent-staff HR boost +
         # human element + opponent fielding defense + manager speed engine + DGANG.
-        home_env = [weather_mult, park_mult, home_tr, home_hr_boost, home_human,
-                    home_def, home_mgr.offense_multipliers(), home_dgang]
-        away_env = [weather_mult, park_mult, away_tr, away_hr_boost, away_human,
-                    away_def, away_mgr.offense_multipliers(), away_dgang]
+        home_env = [
+            weather_mult,
+            park_mult,
+            home_tr,
+            home_hr_boost,
+            home_human,
+            home_def,
+            home_mgr.offense_multipliers(),
+            home_dgang,
+        ]
+        away_env = [
+            weather_mult,
+            park_mult,
+            away_tr,
+            away_hr_boost,
+            away_human,
+            away_def,
+            away_mgr.offense_multipliers(),
+            away_dgang,
+        ]
         home_start = self._apply_all(home_start, home_env)
         home_pen_env = [*home_env, home_mgr.pen_multipliers()]
         home_pen = self._apply_all(home_pen, home_pen_env)
@@ -1212,20 +1260,6 @@ class Pipeline:
         away_pen = self._apply_all(away_pen, away_pen_env)
         away_pen_close = self._apply_all(away_pen_close, away_pen_env)
         away_pen_bridge = self._apply_all(away_pen_bridge, away_pen_env)
-
-        # Last, after every environment filter: the league's own run level. Scaling
-        # the non-out outcomes here rather than per market is what makes it one
-        # correction -- totals, props and the first five all read these rates.
-        scale = self._run_env(slate_date)
-        if scale != 1.0:
-            home_start = scale_all(home_start, scale)
-            home_pen = scale_all(home_pen, scale)
-            home_pen_close = scale_all(home_pen_close, scale)
-            home_pen_bridge = scale_all(home_pen_bridge, scale)
-            away_start = scale_all(away_start, scale)
-            away_pen = scale_all(away_pen, scale)
-            away_pen_close = scale_all(away_pen_close, scale)
-            away_pen_bridge = scale_all(away_pen_bridge, scale)
 
         # Starter exit model: manager hooks (batters-faced + pitch-count caps)
         # tightened by each starter's own recent workload, plus a pitch-efficiency
@@ -1255,16 +1289,28 @@ class Pipeline:
         # drop overs against a barrel/hard-hit suppressor.
         opp_contact = {"home": home_opp_reg, "away": away_opp_reg}
         home_cap = expected_bf_cap(
-            home_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_BF_CAP,
+            home_pit_rows,
+            slate_date,
+            w.pitcher_form_days,
+            DEFAULT_BF_CAP,
         )
         away_cap = expected_bf_cap(
-            away_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_BF_CAP,
+            away_pit_rows,
+            slate_date,
+            w.pitcher_form_days,
+            DEFAULT_BF_CAP,
         )
         home_eff = build_pitcher_efficiency(
-            home_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_PITCH_CAP,
+            home_pit_rows,
+            slate_date,
+            w.pitcher_form_days,
+            DEFAULT_PITCH_CAP,
         )
         away_eff = build_pitcher_efficiency(
-            away_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_PITCH_CAP,
+            away_pit_rows,
+            slate_date,
+            w.pitcher_form_days,
+            DEFAULT_PITCH_CAP,
         )
         # Opponent lineup discipline (pitches-seen-per-PA): each starter's pitch
         # budget is burned faster by the patient lineup he actually faces.
@@ -1367,76 +1413,309 @@ class Pipeline:
             fav_opp_eff=home_eff if fav_side == "away" else away_eff,
         )
 
-        recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(ha), float((margin > 0).mean()),
-                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin,
-                             pen_fatigue=home_fat, opp_pen_fatigue=away_fat,
-                             pen_availability=self._pen_availability(ha)))
-        recs.append(self._mk(game, m, "game", "game_ml", keys.game_ml(aa), float((margin < 0).mean()),
-                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin,
-                             pen_fatigue=away_fat, opp_pen_fatigue=home_fat,
-                             pen_availability=self._pen_availability(aa)))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, -1.5), float((margin > 1.5).mean()),
-                             line=-1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, 1.5), float((margin < 1.5).mean()),
-                             line=1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(aa, -1.5), float((-margin > 1.5).mean()),
-                             line=-1.5, team_side="away", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "game", "game_rl", keys.game_rl(ha, 1.5), float((margin > -1.5).mean()),
-                             line=1.5, team_side="home", side="cover", quotes=quotes, rl_signal=rl_signal, gate_reason=game_sp_thin))
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_ml",
+                keys.game_ml(ha),
+                float((margin > 0).mean()),
+                team_side="home",
+                side="win",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+                pen_fatigue=home_fat,
+                opp_pen_fatigue=away_fat,
+                pen_availability=self._pen_availability(ha),
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_ml",
+                keys.game_ml(aa),
+                float((margin < 0).mean()),
+                team_side="away",
+                side="win",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+                pen_fatigue=away_fat,
+                opp_pen_fatigue=home_fat,
+                pen_availability=self._pen_availability(aa),
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_rl",
+                keys.game_rl(ha, -1.5),
+                float((margin > 1.5).mean()),
+                line=-1.5,
+                team_side="home",
+                side="cover",
+                quotes=quotes,
+                rl_signal=rl_signal,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_rl",
+                keys.game_rl(aa, 1.5),
+                float((margin < 1.5).mean()),
+                line=1.5,
+                team_side="away",
+                side="cover",
+                quotes=quotes,
+                rl_signal=rl_signal,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_rl",
+                keys.game_rl(aa, -1.5),
+                float((-margin > 1.5).mean()),
+                line=-1.5,
+                team_side="away",
+                side="cover",
+                quotes=quotes,
+                rl_signal=rl_signal,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "game",
+                "game_rl",
+                keys.game_rl(ha, 1.5),
+                float((margin > -1.5).mean()),
+                line=1.5,
+                team_side="home",
+                side="cover",
+                quotes=quotes,
+                rl_signal=rl_signal,
+                gate_reason=game_sp_thin,
+            )
+        )
 
         # ---- comeback-resilience flags ----
-        recs.extend(self._comeback_recs(
-            game, m, home_x, away_x, home_rbi, away_rbi, home_cap, away_cap,
-            home_fat, away_fat,
-        ))
+        recs.extend(
+            self._comeback_recs(
+                game,
+                m,
+                home_x,
+                away_x,
+                home_rbi,
+                away_rbi,
+                home_cap,
+                away_cap,
+                home_fat,
+                away_fat,
+            )
+        )
 
         for line in (7.5, 8.5, 9.5, 10.5):
-            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(True, line), p_over(total, line),
-                                 line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "game", "game_total", keys.game_total(False, line), p_over(total, line),
-                                 line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
+            recs.append(
+                self._mk(
+                    game,
+                    m,
+                    "game",
+                    "game_total",
+                    keys.game_total(True, line),
+                    p_over(total, line),
+                    line=line,
+                    side="over",
+                    quotes=quotes,
+                    gate_reason=game_sp_thin,
+                )
+            )
+            recs.append(
+                self._mk(
+                    game,
+                    m,
+                    "game",
+                    "game_total",
+                    keys.game_total(False, line),
+                    p_over(total, line),
+                    line=line,
+                    side="under",
+                    quotes=quotes,
+                    gate_reason=game_sp_thin,
+                )
+            )
 
         # ---- F5 markets ----
-        recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(ha), f5.p_home_ml,
-                             team_side="home", side="win", quotes=quotes, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "f5", "f5_ml", keys.f5_ml(aa), f5.p_away_ml,
-                             team_side="away", side="win", quotes=quotes, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "f5", "f5_ml", "F5 Tie", f5.p_tie, side="tie", quotes=quotes, gate_reason=game_sp_thin))
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "f5",
+                "f5_ml",
+                keys.f5_ml(ha),
+                f5.p_home_ml,
+                team_side="home",
+                side="win",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "f5",
+                "f5_ml",
+                keys.f5_ml(aa),
+                f5.p_away_ml,
+                team_side="away",
+                side="win",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "f5",
+                "f5_ml",
+                "F5 Tie",
+                f5.p_tie,
+                side="tie",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+            )
+        )
         for line in (4.5, 5.5):
             po = f5.p_total_over(line)
-            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(True, line), po,
-                                 line=line, side="over", quotes=quotes, gate_reason=game_sp_thin))
-            recs.append(self._mk(game, m, "f5", "f5_total", keys.f5_total(False, line), po,
-                                 line=line, side="under", quotes=quotes, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(ha, -0.5), f5.p_home_cover(0.5),
-                             line=-0.5, team_side="home", side="cover", quotes=quotes, gate_reason=game_sp_thin))
-        recs.append(self._mk(game, m, "f5", "f5_rl", keys.f5_rl(aa, 0.5), 1 - f5.p_home_cover(0.5),
-                             line=0.5, team_side="away", side="cover", quotes=quotes, gate_reason=game_sp_thin))
+            recs.append(
+                self._mk(
+                    game,
+                    m,
+                    "f5",
+                    "f5_total",
+                    keys.f5_total(True, line),
+                    po,
+                    line=line,
+                    side="over",
+                    quotes=quotes,
+                    gate_reason=game_sp_thin,
+                )
+            )
+            recs.append(
+                self._mk(
+                    game,
+                    m,
+                    "f5",
+                    "f5_total",
+                    keys.f5_total(False, line),
+                    po,
+                    line=line,
+                    side="under",
+                    quotes=quotes,
+                    gate_reason=game_sp_thin,
+                )
+            )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "f5",
+                "f5_rl",
+                keys.f5_rl(ha, -0.5),
+                f5.p_home_cover(0.5),
+                line=-0.5,
+                team_side="home",
+                side="cover",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+            )
+        )
+        recs.append(
+            self._mk(
+                game,
+                m,
+                "f5",
+                "f5_rl",
+                keys.f5_rl(aa, 0.5),
+                1 - f5.p_home_cover(0.5),
+                line=0.5,
+                team_side="away",
+                side="cover",
+                quotes=quotes,
+                gate_reason=game_sp_thin,
+            )
+        )
 
         # ---- batter props ----
         for team_key, tinfo, flags, sels, regs, sunders, opp_sp in (
-            ("home", game.home, home_rbi, home_sels, home_regs, home_su,
-             game.away.probable_pitcher),
-            ("away", game.away, away_rbi, away_sels, away_regs, away_su,
-             game.home.probable_pitcher),
+            (
+                "home",
+                game.home,
+                home_rbi,
+                home_sels,
+                home_regs,
+                home_su,
+                game.away.probable_pitcher,
+            ),
+            (
+                "away",
+                game.away,
+                away_rbi,
+                away_sels,
+                away_regs,
+                away_su,
+                game.home.probable_pitcher,
+            ),
         ):
             recs.extend(
                 self._batter_props(
-                    game, m, res, team_key, tinfo, flags, sels, regs, sunders,
-                    opp_siera[team_key], opp_contact[team_key], quotes,
-                    park=park, weather_mult=weather_mult,
+                    game,
+                    m,
+                    res,
+                    team_key,
+                    tinfo,
+                    flags,
+                    sels,
+                    regs,
+                    sunders,
+                    opp_siera[team_key],
+                    opp_contact[team_key],
+                    quotes,
+                    park=park,
+                    weather_mult=weather_mult,
                     opp_throws=(
-                        opp_sp.throws.value
-                        if opp_sp is not None and opp_sp.throws
-                        else None
+                        opp_sp.throws.value if opp_sp is not None and opp_sp.throws else None
                     ),
                 )
             )
 
         # ---- pitcher props (starters) ----
         # home team's starter faces away hitters -> stats tracked under pit["home"]
-        recs.extend(self._pitcher_props(game, m, res, "home", game.home.probable_pitcher, quotes, home_sp_thin))
-        recs.extend(self._pitcher_props(game, m, res, "away", game.away.probable_pitcher, quotes, away_sp_thin))
+        recs.extend(
+            self._pitcher_props(
+                game, m, res, "home", game.home.probable_pitcher, quotes, home_sp_thin
+            )
+        )
+        recs.extend(
+            self._pitcher_props(
+                game, m, res, "away", game.away.probable_pitcher, quotes, away_sp_thin
+            )
+        )
 
         self._attach_context(recs, park, eff, xrd, xrd_sd, self._lineup_lock)
 
@@ -1447,15 +1726,34 @@ class Pipeline:
         home_half.opp_pen.fatigue = _fnum(home_fat)
         self._previews.append(
             self._build_preview(
-                game, m, recs, total, margin, xrd, xrd_sd,
-                park, eff, home_half, away_half,
+                game,
+                m,
+                recs,
+                total,
+                margin,
+                xrd,
+                xrd_sd,
+                park,
+                eff,
+                home_half,
+                away_half,
             )
         )
         return recs
 
     def _build_preview(
-        self, game, matchup, recs, total, margin, xrd, xrd_sd,
-        park, eff, home_half, away_half,
+        self,
+        game,
+        matchup,
+        recs,
+        total,
+        margin,
+        xrd,
+        xrd_sd,
+        park,
+        eff,
+        home_half,
+        away_half,
     ) -> GamePreview:
         """Assemble the per-game preview record from the priced slate."""
         p_home_win = float((margin > 0).mean())
@@ -1464,7 +1762,11 @@ class Pipeline:
 
         # Moneyline market: pull the two game_ml recs for implied prob + edge.
         ha, aa = game.home.abbrev, game.away.abbrev
-        ml = {r.team_side: r for r in recs if r.market == "game_ml" and r.team_side in ("home", "away")}
+        ml = {
+            r.team_side: r
+            for r in recs
+            if r.market == "game_ml" and r.team_side in ("home", "away")
+        }
         home_ml = ml.get("home")
         away_ml = ml.get("away")
         home_prob = float(home_ml.model_prob) if home_ml else p_home_win
@@ -1478,10 +1780,7 @@ class Pipeline:
         # ``market.ranking`` rather than by EV -- EV rises with the payout, and
         # the graded book runs -5.0% on the shortest EV cell against -15.2% in
         # the middle, so ranking on it promoted exactly the wrong four.
-        buys = [
-            r for r in recs
-            if r.tier in (Tier.STRONG, Tier.MODERATE) and r.ev is not None
-        ]
+        buys = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE) and r.ev is not None]
         buys.sort(
             key=lambda r: bet_sort_key(
                 strong=r.tier == Tier.STRONG,
@@ -1538,9 +1837,7 @@ class Pipeline:
             fav_side=fav_side,
             fav_team=fav_team,
             fav_odds=fav_odds,
-            fav_implied=(
-                round(american_to_prob(fav_odds), 3) if fav_odds is not None else None
-            ),
+            fav_implied=(round(american_to_prob(fav_odds), 3) if fav_odds is not None else None),
             fav_edge=_fnum(fav_rec.edge) if fav_rec else None,
             best_bets=best_bets,
         )
@@ -1570,8 +1867,9 @@ class Pipeline:
                 r.lineup_status = lock.status
                 r.hours_to_first_pitch = lock.hours_to_first_pitch
 
-    def _comeback_recs(self, game, m, home_x, away_x, home_rbi, away_rbi,
-                       home_cap, away_cap, home_fat, away_fat):
+    def _comeback_recs(
+        self, game, m, home_x, away_x, home_rbi, away_rbi, home_cap, away_cap, home_fat, away_fat
+    ):
         """Emit an informational comeback-resilience flag per team.
 
         The third-time-through window is read off the opposing starter's own
@@ -1581,7 +1879,14 @@ class Pipeline:
         diff = (home_x - away_x) if home_x is not None and away_x is not None else None
         specs = (
             ("home", game.home.abbrev, diff, home_rbi, away_cap, away_fat),
-            ("away", game.away.abbrev, (-diff if diff is not None else None), away_rbi, home_cap, home_fat),
+            (
+                "away",
+                game.away.abbrev,
+                (-diff if diff is not None else None),
+                away_rbi,
+                home_cap,
+                home_fat,
+            ),
         )
         for team_side, abbrev, xdiff, flags, opp_cap, opp_fat in specs:
             obp = None
@@ -1601,8 +1906,14 @@ class Pipeline:
             else:
                 tier = Tier.PASS
             rec = self._mk(
-                game, m, "comeback", "comeback", f"{abbrev} comeback",
-                a.score, team_side=team_side, side="resilient",
+                game,
+                m,
+                "comeback",
+                "comeback",
+                f"{abbrev} comeback",
+                a.score,
+                team_side=team_side,
+                side="resilient",
             )
             rec.tier = tier
             rec.reasons = a.reasons or ["baseline resilience"]
@@ -1633,19 +1944,13 @@ class Pipeline:
             k_ceiling=self.cfg.contact_k_ceiling,
         )
 
-    def _singles_under_reason(
-        self, su: SinglesUnderResult | None, opp: Siera | None
-    ) -> str | None:
+    def _singles_under_reason(self, su: SinglesUnderResult | None, opp: Siera | None) -> str | None:
         """Exclude the singles/H/H+R+RBI over for a strong singles-Under profile.
 
         Vetoed when the batter faces a weak arm (SIERA above the ceiling): a
         scrub inflates cheap singles even for a power bat, so don't fade it.
         """
-        if (
-            not self.cfg.singles_under
-            or su is None
-            or su.score < self.cfg.singles_under_min
-        ):
+        if not self.cfg.singles_under or su is None or su.score < self.cfg.singles_under_min:
             return None
         if self.cfg.singles_siera and faces_scrub(opp, self.cfg.singles_siera_bad):
             return None
@@ -1705,9 +2010,7 @@ class Pipeline:
                 # A poor bat whose night is also against him is a fade, not just
                 # a no-buy; say so, so the under price is graded as a bet.
                 return (
-                    self._hits_gate.under_reason(
-                        breg, context, slot, platoon_disadvantage
-                    )
+                    self._hits_gate.under_reason(breg, context, slot, platoon_disadvantage)
                     or hits_reason
                 )
             return self._singles_under_reason(su, opp)
@@ -1726,17 +2029,36 @@ class Pipeline:
         return None
 
     def _batter_props(
-        self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera,
-        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None
+        self,
+        game,
+        m,
+        res,
+        team_key,
+        tinfo,
+        flags,
+        sels,
+        regs,
+        sunders,
+        opp_siera,
+        opp_contact,
+        quotes,
+        park=None,
+        weather_mult=None,
+        opp_throws=None,
     ):
         out = []
         bat = res.bat[team_key]
         context = self._hits_context(park)
         lines = {
-            "H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5],
+            "H": [0.5, 1.5],
+            "1B": [0.5],
+            "2B": [0.5],
+            "HR": [0.5],
+            "R": [0.5],
             "RBI": [0.5],
             # Price-only (see oddsapi.PRICE_ONLY_MARKETS): quoted, never bought.
-            "BB": [0.5, 1.5], "K": [0.5, 1.5],
+            "BB": [0.5, 1.5],
+            "K": [0.5, 1.5],
         }
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
@@ -1764,36 +2086,70 @@ class Pipeline:
                     arr = arr * rbi_sel.factor
                 sel = self._selection_for_stat(stat, sels[i]) if i < len(sels) else None
                 gate = self._batter_gate(
-                    breg, su, opp_siera, stat, opp_contact=opp_contact, slot=i + 1,
-                    context=context, platoon_disadvantage=platoon_bad,
+                    breg,
+                    su,
+                    opp_siera,
+                    stat,
+                    opp_contact=opp_contact,
+                    slot=i + 1,
+                    context=context,
+                    platoon_disadvantage=platoon_bad,
                 )
                 for line in sl:
                     po = p_over(arr, line)
                     for pside in self._prop_sides(f"batter_{stat.lower()}"):
-                        out.append(self._mk(
-                            game, m, "batter", f"batter_{stat.lower()}",
-                            keys.batter_prop(name, stat, line, pside), po,
-                            line=line, player_id=pid, stat=stat, side=pside, quotes=quotes,
-                            selector=sel, gate_reason=gate if pside == "over" else None,
-                            **feat,
-                        ))
+                        out.append(
+                            self._mk(
+                                game,
+                                m,
+                                "batter",
+                                f"batter_{stat.lower()}",
+                                keys.batter_prop(name, stat, line, pside),
+                                po,
+                                line=line,
+                                player_id=pid,
+                                stat=stat,
+                                side=pside,
+                                quotes=quotes,
+                                selector=sel,
+                                gate_reason=gate if pside == "over" else None,
+                                **feat,
+                            )
+                        )
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(
-                breg, su, opp_siera, "HRR", slot=i + 1,
-                context=context, platoon_disadvantage=platoon_bad,
+                breg,
+                su,
+                opp_siera,
+                "HRR",
+                slot=i + 1,
+                context=context,
+                platoon_disadvantage=platoon_bad,
             )
             hrr_sweet = tb_sel.bat_sweet_spot if tb_sel is not None else None
             hrr_xslg = tb_sel.bat_xslg if tb_sel is not None else None
             for line in (1.5, 2.5):
                 po = p_over(hrr, line)
                 for pside in self._prop_sides("batter_hrr"):
-                    out.append(self._mk(
-                        game, m, "batter", "batter_hrr",
-                        keys.batter_prop(name, "H+R+RBI", line, pside), po,
-                        line=line, player_id=pid, stat="HRR", side=pside, quotes=quotes,
-                        gate_reason=hrr_gate if pside == "over" else None,
-                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
-                    ))
+                    out.append(
+                        self._mk(
+                            game,
+                            m,
+                            "batter",
+                            "batter_hrr",
+                            keys.batter_prop(name, "H+R+RBI", line, pside),
+                            po,
+                            line=line,
+                            player_id=pid,
+                            stat="HRR",
+                            side=pside,
+                            quotes=quotes,
+                            gate_reason=hrr_gate if pside == "over" else None,
+                            hrr_sweet=hrr_sweet,
+                            hrr_xslg=hrr_xslg,
+                            **feat,
+                        )
+                    )
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
             ).astype(float)
@@ -1804,29 +2160,43 @@ class Pipeline:
             for line in (1.5, 2.5, 3.5):
                 po = p_over(tb, line)
                 for pside in self._prop_sides("batter_tb"):
-                    out.append(self._mk(
-                        game, m, "batter", "batter_tb",
-                        keys.batter_prop(name, "TB", line, pside), po,
-                        line=line, player_id=pid, stat="TB", side=pside, quotes=quotes,
-                        selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
-                        **feat,
-                    ))
+                    out.append(
+                        self._mk(
+                            game,
+                            m,
+                            "batter",
+                            "batter_tb",
+                            keys.batter_prop(name, "TB", line, pside),
+                            po,
+                            line=line,
+                            player_id=pid,
+                            stat="TB",
+                            side=pside,
+                            quotes=quotes,
+                            selector=tb_sel_out,
+                            gate_reason=tb_gate if pside == "over" else None,
+                            **feat,
+                        )
+                    )
         return out
 
     def _pitcher_props(self, game, m, res, team_key, pitcher, quotes, gate_reason=None):
         out = []
         pit = res.pit[team_key]
-        lines = {"K": [4.5, 5.5, 6.5], "outs": [15.5, 17.5], "H": [4.5, 5.5], "BB": [1.5, 2.5], "ER": [2.5, 3.5]}
+        lines = {
+            "K": [4.5, 5.5, 6.5],
+            "outs": [15.5, 17.5],
+            "H": [4.5, 5.5],
+            "BB": [1.5, 2.5],
+            "ER": [2.5, 3.5],
+        }
         label = {"K": "Ks", "outs": "Outs", "H": "Hits", "BB": "Walks", "ER": "ER"}
         for stat, sl in lines.items():
             arr = pit[stat].astype(float)
             for line in sl:
                 gate = None
                 if stat == "K" and line > self.cfg.pitcher_k_max_buy_line:
-                    gate = (
-                        f"pitcher_k o{line} above buy cap "
-                        f"{self.cfg.pitcher_k_max_buy_line}"
-                    )
+                    gate = f"pitcher_k o{line} above buy cap {self.cfg.pitcher_k_max_buy_line}"
                 po = p_over(arr, line)
                 for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
                     # The K buy cap and the thin-starter gate are screens on
@@ -1835,22 +2205,28 @@ class Pipeline:
                     # there, and the over is left alone.
                     side_gate = gate or gate_reason if pside == "over" else None
                     gate_name = "contact_floor"
-                    if (
-                        pside == "under"
-                        and stat == "BB"
-                        and self.cfg.pitcher_bb_under_gate
-                    ):
+                    if pside == "under" and stat == "BB" and self.cfg.pitcher_bb_under_gate:
                         side_gate = "walks under vetoed: walk level unvalidated"
                         # Its own gate name, so the veto's own rows stay gradeable
                         # and it cannot be confused with the batter contact floor.
                         gate_name = "bb_under"
-                    out.append(self._mk(
-                        game, m, "pitcher", f"pitcher_{stat.lower()}",
-                        keys.pitcher_prop(pitcher.name, label[stat], line, pside), po,
-                        line=line, player_id=pitcher.mlbam_id, stat=stat, side=pside,
-                        quotes=quotes,
-                        gate_reason=side_gate, gate_name=gate_name,
-                    ))
+                    out.append(
+                        self._mk(
+                            game,
+                            m,
+                            "pitcher",
+                            f"pitcher_{stat.lower()}",
+                            keys.pitcher_prop(pitcher.name, label[stat], line, pside),
+                            po,
+                            line=line,
+                            player_id=pitcher.mlbam_id,
+                            stat=stat,
+                            side=pside,
+                            quotes=quotes,
+                            gate_reason=side_gate,
+                            gate_name=gate_name,
+                        )
+                    )
         return out
 
     def _thin_starter_reason(self, name: str, pitches: int) -> str | None:
@@ -1883,9 +2259,7 @@ class Pipeline:
         reason = self._tb_gate.power_reason(barrel, max_ev, bbe)
         if reason is not None:
             return reason
-        return self._tb_gate.opponent_reason(
-            opp.barrel_allowed, opp.hard_hit_allowed, opp.bbe
-        )
+        return self._tb_gate.opponent_reason(opp.barrel_allowed, opp.hard_hit_allowed, opp.bbe)
 
     def _apply_outs_bias(self, prob: float) -> float:
         return apply_outs_bias(
@@ -1907,22 +2281,36 @@ class Pipeline:
             return ("over", "under")
         return ("over",)
 
-    def _mk(self, game, matchup, category, market, selection, prob, *, line=None,
-            team_side=None, player_id=None, stat=None, side=None, quotes=None,
-            rl_signal: RunLineSignal | None = None,
-            selector: Selection | None = None,
-            gate_reason: str | None = None,
-            gate_name: str = "contact_floor",
-            bat_xslg: float | None = None,
-            bat_k_pct: float | None = None,
-            bat_bb_pct: float | None = None,
-            bat_singles_under: float | None = None,
-            opp_starter_siera: float | None = None,
-            hrr_sweet: float | None = None,
-            hrr_xslg: float | None = None,
-            pen_fatigue: float | None = None,
-            opp_pen_fatigue: float | None = None,
-            pen_availability: float | None = None) -> Recommendation:
+    def _mk(
+        self,
+        game,
+        matchup,
+        category,
+        market,
+        selection,
+        prob,
+        *,
+        line=None,
+        team_side=None,
+        player_id=None,
+        stat=None,
+        side=None,
+        quotes=None,
+        rl_signal: RunLineSignal | None = None,
+        selector: Selection | None = None,
+        gate_reason: str | None = None,
+        gate_name: str = "contact_floor",
+        bat_xslg: float | None = None,
+        bat_k_pct: float | None = None,
+        bat_bb_pct: float | None = None,
+        bat_singles_under: float | None = None,
+        opp_starter_siera: float | None = None,
+        hrr_sweet: float | None = None,
+        hrr_xslg: float | None = None,
+        pen_fatigue: float | None = None,
+        opp_pen_fatigue: float | None = None,
+        pen_availability: float | None = None,
+    ) -> Recommendation:
         under = side == "under"
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
@@ -1932,6 +2320,11 @@ class Pipeline:
             calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
+        # Last, on the finished over-probability: the league's run environment. It
+        # goes here and not on the simulator's rates because the calibration map is
+        # monotone and gives a pre-map correction back (#252). The under takes it by
+        # complement below, so a line's two sides still sum to 1.
+        calibrated = apply_shift(calibrated, market, line, self._run_env_scale or 1.0)
         if side == "under":
             # Callers hand every prop its P(over), because that is the scale the
             # calibration map, the outs bias and the H+R+RBI shrink were all fit
@@ -2093,18 +2486,15 @@ class Pipeline:
                     tier = Tier.PASS
                     gate = "singles_under_profile"
                     reasons.append(
-                        f"singles-under profile {score:.1f} < "
-                        f"{self.cfg.singles_under_buy_min:.1f}"
+                        f"singles-under profile {score:.1f} < {self.cfg.singles_under_buy_min:.1f}"
                     )
-            if (
-                market == "batter_hr"
-                and tier != Tier.PASS
-                and selector is not None
-                and not under
-            ):
+            if market == "batter_hr" and tier != Tier.PASS and selector is not None and not under:
                 keep, hr_reason = self._hr_gate.allows(
-                    selector.hr_max_ev, selector.hr_barrel, selector.hr_bbe,
-                    selector.hr_barrel_pa, selector.hr_fb_ld_ev,
+                    selector.hr_max_ev,
+                    selector.hr_barrel,
+                    selector.hr_bbe,
+                    selector.hr_barrel_pa,
+                    selector.hr_fb_ld_ev,
                 )
                 if not keep:
                     tier = Tier.PASS
@@ -2112,9 +2502,7 @@ class Pipeline:
                 if hr_reason:
                     reasons.append(hr_reason)
             if market == "game_ml" and tier != Tier.PASS:
-                keep, ml_reason = self._ml_gate.allows(
-                    rec.handle_pct, rec.bets_pct
-                )
+                keep, ml_reason = self._ml_gate.allows(rec.handle_pct, rec.bets_pct)
                 if not keep:
                     tier = Tier.PASS
                     gate = "ml_handle_gate"
@@ -2148,9 +2536,7 @@ class Pipeline:
                 )
                 if not keep:
                     tier = Tier.PASS
-                    gate = (
-                        "pen_availability" if "availability" in pen_reason else "pen_workload"
-                    )
+                    gate = "pen_availability" if "availability" in pen_reason else "pen_workload"
                 if pen_reason:
                     reasons.append(pen_reason)
                 keep, lock_reason = self._lineup_gate.allows(self._lineup_lock)
@@ -2162,11 +2548,7 @@ class Pipeline:
             # Runs after the sharp-money upgrade, which it is entitled to
             # overrule: handle agreeing with us about a road dog is the market
             # agreeing about the side, not about the price we are paying for it.
-            if (
-                market in ("game_ml", "f5_ml")
-                and team_side == "away"
-                and tier != Tier.PASS
-            ):
+            if market in ("game_ml", "f5_ml") and team_side == "away" and tier != Tier.PASS:
                 keep, dog_reason = price_ceiling_allows(
                     rec.market_american,
                     self.cfg.away_ml_refuse_odds,
@@ -2383,9 +2765,7 @@ def _preview_half(
     # cool off); positive => underperforming (cold, buy-low / due to heat up).
     by_gap = sorted(named, key=lambda nr: nr[1].dxwoba)
     hot = [
-        RegFlag(name=n, points=round(-r.dxwoba * 1000, 1))
-        for n, r in by_gap
-        if r.dxwoba <= -0.030
+        RegFlag(name=n, points=round(-r.dxwoba * 1000, 1)) for n, r in by_gap if r.dxwoba <= -0.030
     ][:3]
     cold = [
         RegFlag(name=n, points=round(r.dxwoba * 1000, 1))
