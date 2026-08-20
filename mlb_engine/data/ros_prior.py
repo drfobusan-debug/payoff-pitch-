@@ -86,7 +86,30 @@ def newest_export(folder: Path | None, source: str = "") -> Path | None:
             len(files),
         )
         return None
-    return max(wanted, key=lambda f: f.stat().st_mtime)
+    chosen = max(wanted, key=lambda f: f.stat().st_mtime)
+    # A strict name match fails silently when an older export *does* match: this
+    # morning's ``fg_atcros_2026-08-19.csv`` is not an ``atc`` file by word, so
+    # yesterday's ``atc_ros_2026-08-18.csv`` wins and the lineup is anchored on
+    # stale rates with nothing said. Name the newer file that was passed over.
+    newest = max(files, key=lambda f: f.stat().st_mtime)
+    # Narrow on purpose: the newer file has to spell the system without the
+    # separator *and* read as a projection. Warning on any newer CSV fires on
+    # every bank statement, and warning on any newer export fires every day on
+    # the other system's file, which is not misnamed.
+    misnamed = (
+        newest != chosen
+        and source.lower() in newest.name.lower()
+        and _from_export(newest) is not None
+    )
+    if misnamed:
+        log.warning(
+            "using %s, though the newer %s is a projection export whose name does "
+            "not say %r as a word -- rename it if it is today's",
+            chosen.name,
+            newest.name,
+            source,
+        )
+    return chosen
 
 
 def _from_export(path: Path) -> pd.DataFrame | None:

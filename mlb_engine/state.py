@@ -301,7 +301,8 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     # The power screen's receipts. Left out, they never leave the machine that
     # wrote the note, so the scorecard the next morning prints is that machine's
     # record rather than the screen's -- and a screen run on the Mac reads as
-    # having no history at all anywhere else.
+    # having no history at all anywhere else. The game keys the row too: a
+    # doubleheader can show the same bat, stat, line and side twice in a day.
     (
         power_ledger.LEDGER_NAME,
         ("date", "batter", "game_pk", "stat", "line", "side"),

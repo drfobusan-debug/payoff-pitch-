@@ -199,6 +199,28 @@ def test_an_unrelated_download_never_becomes_the_batter_prior(tmp_path, caplog) 
     assert "using the Marcel" in caplog.text
 
 
+def test_a_misnamed_export_is_named_rather_than_silently_skipped(tmp_path, caplog) -> None:
+    """``fg_atcros_...`` is not an ``atc`` file, so yesterday's would win in silence."""
+    proj = tmp_path / "projections"
+    yesterday = _export(proj, "atc_ros_2026-08-18.csv", hr=40)
+    today = _export(proj, "fg_atcros_2026-08-19.csv", hr=10)
+    later = time.time() + 60
+    os.utime(today, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == yesterday
+    assert "fg_atcros_2026-08-19.csv" in caplog.text
+
+
+def test_the_other_systems_export_is_not_reported_as_misnamed(tmp_path, caplog) -> None:
+    """Both systems land in this folder daily; the one not asked for is not a mistake."""
+    proj = tmp_path / "projections"
+    wanted = _export(proj, "atc_ros.csv", hr=40)
+    newer = _export(proj, "batx_ros.csv", hr=10)
+    later = time.time() + 60
+    os.utime(newer, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == wanted
+    assert "batx_ros.csv" not in caplog.text
+
+
 def test_a_download_that_merely_contains_the_letters_is_not_the_export(tmp_path) -> None:
     """``atc`` lives inside match, batch, dispatch, watchlist and Statcast."""
     proj = tmp_path / "Downloads"
