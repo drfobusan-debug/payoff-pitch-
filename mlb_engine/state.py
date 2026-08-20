@@ -34,6 +34,7 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
 
@@ -46,6 +47,9 @@ PREDICTION_KEEP_DAYS = 35
 # with an after-the-fact re-price, so what the card actually sent is kept
 # under a name nothing else writes.
 PREGAME_SUFFIX = ".pregame.json"
+# The fitted calibration map. It lives beside the audit rather than in it, and
+# the machine that refit it is not usually the machine pricing the next slate.
+CALIBRATION_NAME = "calibration_live.json"
 log = logging.getLogger(__name__)
 # A nightly run grades yesterday, so restoring more slates than that only
 # spends time expanding megabytes nothing will read.
@@ -303,6 +307,38 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
+def merge_calibration_files(remote: Path, local: Path) -> bool:
+    """Keep whichever of two fitted maps was trained on more of the ledger.
+
+    Nothing can be unioned here. The ledger is a growing record, so a merge
+    takes the dates each machine has; a map is one fit of that whole record, so
+    two copies are rival fits of it and one has to win. The ledger itself syncs,
+    which makes the row count the comparison worth making: the map fitted on
+    more rows was fitted on strictly more evidence, and once both machines have
+    pulled they fit the same rows and agree. Ties go to the map correcting more
+    markets on the current basis, then to the copy already here, so a pull that
+    learns nothing leaves the file alone.
+
+    Absent this, whichever machine last ran ``calibrate`` is the only one
+    pricing calibrated, and the other silently ships raw probability.
+    """
+    if not remote.exists():
+        return False
+    if not local.exists():
+        local.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(remote, local)
+        return True
+    try:
+        theirs, ours = read_stored(remote), read_stored(local)
+    except (OSError, ValueError, KeyError):
+        log.warning("unreadable calibration map in %s or %s; keeping ours", remote, local)
+        return False
+    better = (theirs.rows, theirs.current_markets()) > (ours.rows, ours.current_markets())
+    if better:
+        shutil.copyfile(remote, local)
+    return better
+
+
 def _audit_dir(data_dir: Path) -> Path:
     return data_dir / "audit"
 
@@ -369,6 +405,8 @@ def pull_state(
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
+    if merge_calibration_files(state / "mlb" / CALIBRATION_NAME, data_dir / CALIBRATION_NAME):
+        pulled.append(CALIBRATION_NAME)
     pulled.extend(_pull_predictions(state, data_dir, dates))
     return SyncReport(pulled=tuple(pulled))
 
@@ -503,6 +541,15 @@ def push_state(
                 merge_dated_csv(dest, src, key)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
+        cal = data_dir / CALIBRATION_NAME
+        if cal.exists():
+            dest = state / "mlb" / CALIBRATION_NAME
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            # Adopt the branch's map first if it is the better-evidenced one, so
+            # a machine that refit on fewer rows cannot publish over it.
+            merge_calibration_files(dest, cal)
+            shutil.copyfile(cal, dest)
+            pushed.append(CALIBRATION_NAME)
         staged, pruned = _stage_predictions(state, data_dir)
         pushed.extend(staged)
         if not pushed:

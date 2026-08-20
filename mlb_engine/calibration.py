@@ -277,17 +277,22 @@ class Calibrator:
         }
         return cls(maps=maps, default=IsotonicMap.fit(allp))
 
-    def to_json(self, path: Path, bases: dict[str, str] | None = None) -> None:
+    def to_json(self, path: Path, bases: dict[str, str] | None = None, rows: int = 0) -> None:
         """Write the map, stamping each market with the basis it is valid for.
 
         ``bases`` writes a market's stamp as some older basis, which is how a
         caller records that a curve predates the current features. No shipping
         path does that: ``calibrate --revalidate`` stamps every survivor
         current, having just measured it as still helping.
+
+        ``rows`` records how many graded rows the fit was trained on. Nothing
+        prices off it; it is what lets two machines' maps be compared when the
+        state sync meets both of them.
         """
         carried = bases or {}
         payload = {
             "basis": FEATURE_BASIS,
+            "rows": rows,
             "markets": {
                 mk: {"x": m.x, "y": m.y, "basis": carried.get(mk, FEATURE_BASIS)}
                 for mk, m in self.maps.items()
@@ -355,6 +360,11 @@ class StoredMaps:
     bases: dict[str, str]
     default: IsotonicMap
     default_basis: str = ""
+    rows: int = 0
+
+    def current_markets(self) -> int:
+        """How many curves this file would actually price off."""
+        return sum(1 for b in self.bases.values() if b == FEATURE_BASIS)
 
     def current_default(self) -> IsotonicMap:
         """The pooled curve if it was fitted on the current basis, else none."""
@@ -378,6 +388,7 @@ def read_stored(path: Path) -> StoredMaps:
         bases=bases,
         default=IsotonicMap(d["x"], d["y"]),
         default_basis=pooled,
+        rows=int(data.get("rows", 0)),
     )
 
 
