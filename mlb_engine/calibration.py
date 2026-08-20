@@ -342,6 +342,46 @@ class Calibrator:
 
 
 @dataclass(frozen=True)
+class StoredMaps:
+    """Every curve in a map file, with the basis each one was fitted on.
+
+    ``from_json`` is the pricing view: it drops the stale markets, which is what
+    a slate wants. A refit needs the other view -- the file as written -- because
+    the curves it is not replacing have to survive into the new file for
+    ``calibrate --revalidate`` to measure them later.
+    """
+
+    maps: dict[str, IsotonicMap]
+    bases: dict[str, str]
+    default: IsotonicMap
+    default_basis: str = ""
+
+    def current_default(self) -> IsotonicMap:
+        """The pooled curve if it was fitted on the current basis, else none."""
+        if self.default_basis == FEATURE_BASIS:
+            return self.default
+        return IsotonicMap([], [])
+
+
+def read_stored(path: Path) -> StoredMaps:
+    """Read a map file without filtering on basis."""
+    data = json.loads(path.read_text())
+    pooled = str(data.get("basis", ""))
+    maps: dict[str, IsotonicMap] = {}
+    bases: dict[str, str] = {}
+    for mk, v in data.get("markets", {}).items():
+        maps[mk] = IsotonicMap(v["x"], v["y"])
+        bases[mk] = str(v.get("basis", pooled))
+    d = data.get("default", {"x": [], "y": []})
+    return StoredMaps(
+        maps=maps,
+        bases=bases,
+        default=IsotonicMap(d["x"], d["y"]),
+        default_basis=pooled,
+    )
+
+
+@dataclass(frozen=True)
 class ConfidenceShrink:
     """Pull the confident tails toward the pivot.
 

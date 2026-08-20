@@ -356,6 +356,13 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
 _CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
 
 
+def calibration_source(live: Path | None = None) -> Path | None:
+    """The map file the engine would price off, or None if there is none."""
+    if live is not None and live.exists():
+        return live
+    return _CALIBRATION_FILE if _CALIBRATION_FILE.exists() else None
+
+
 def load_calibrator(live: Path | None = None) -> Calibrator:
     """Load the isotonic calibration map.
 
@@ -364,13 +371,15 @@ def load_calibrator(live: Path | None = None) -> Calibrator:
     markets the packaged file never saw (``batter_tb`` among them, which is why
     total bases was pricing off the flatter pooled curve).
     """
-    if live is not None and live.exists():
-        log.info("using locally refit calibration map %s", live)
-        return Calibrator.from_json(live)
-    if _CALIBRATION_FILE.exists():
-        return Calibrator.from_json(_CALIBRATION_FILE)
-    log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
-    return Calibrator.identity()
+    src = calibration_source(live)
+    if src is None:
+        log.warning(
+            "calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE
+        )
+        return Calibrator.identity()
+    if src == live:
+        log.info("using locally refit calibration map %s", src)
+    return Calibrator.from_json(src)
 
 
 class Pipeline:
