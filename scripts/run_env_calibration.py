@@ -19,6 +19,11 @@ gain then belongs to recalibration, not to the run environment -- and the flag i
 not what earns it. The heterogeneity section measures how nearly constant that
 shift is across game contexts, which bounds what repricing could ever add.
 
+The last section grades the answer that came out of all this: ``LOGIT_PER_SCALE``
+applied through ``run_env.apply_shift``, the production path with the flag on, on
+every market and line the shipped table moves -- including the ones this study's
+own deltas never scored.
+
 Nothing here writes a probability or the map; ``mlb-engine calibrate`` is what
 writes the map.
 
@@ -118,6 +123,42 @@ def grade(
     score("both", pd.Series([both.apply(p) for p in corr_test], index=test.index), test["won"])
 
 
+def shipped(d: pd.DataFrame, scale: float, split: str) -> None:
+    """Grade the table the engine ships, on every market and line it moves.
+
+    ``run_env.apply_shift`` on the logged probability, so this is the production
+    path with the flag on -- including the markets the deltas study never scored
+    (hits, singles, doubles, home runs, runs), which the coefficient grid covers
+    because the simulator can be asked about them, not because the ledger can.
+    """
+    test = d[d["date"] > split]
+    print(f"\nrun_env.LOGIT_PER_SCALE as shipped, scale {scale:.4f}, rows after {split}")
+    print(f"  {'market':<12}{'line':>6}{'n':>7}{'shift':>8}{'brier':>10}{'log loss':>11}")
+    for (market, line), sub in sorted(d.groupby(["market", "line"])):
+        rows_ = test[(test["market"] == market) & (np.isclose(test["line"], line))]
+        if len(rows_) < MIN_TEST or len(sub) == 0:
+            continue
+        moved = pd.Series(
+            [
+                run_env.apply_shift(p, market, line, scale)
+                if over
+                else 1.0 - run_env.apply_shift(1.0 - p, market, line, scale)
+                for p, over in zip(rows_["model_prob"], rows_["over"], strict=True)
+            ],
+            index=rows_.index,
+        )
+        won = rows_["won"]
+        db = float(np.mean((moved - won) ** 2) - np.mean((rows_["model_prob"] - won) ** 2))
+        p0 = rows_["model_prob"].clip(1e-6, 1 - 1e-6)
+        p1 = moved.clip(1e-6, 1 - 1e-6)
+        ll = float(
+            -np.mean(won * np.log(p1) + (1 - won) * np.log(1 - p1))
+            + np.mean(won * np.log(p0) + (1 - won) * np.log(1 - p0))
+        )
+        d_logit = run_env.logit_shift(market, float(line), scale)
+        print(f"  {market:<12}{line:>6}{len(rows_):>7}{d_logit:>+8.3f}{db:>+10.4f}{ll:>+11.4f}")
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     ap = argparse.ArgumentParser(description=__doc__)
@@ -141,6 +182,8 @@ def main() -> None:
         market, line = key.split("|")
         sub = d[(d["market"] == market) & (np.isclose(d["line"], float(line)))]
         grade(sub, delta, args.split, market, line, prod)
+
+    shipped(rows(args.ledger, tuple(run_env.LOGIT_PER_SCALE)), scale, args.split)
 
 
 if __name__ == "__main__":

@@ -59,6 +59,22 @@ GRADED = {
     "batter_hrr": ("HRR", (1.5, 2.5)),
 }
 
+# The grid ``--coeffs`` measures: every market and line the correction is allowed to
+# move, which is every counting market a book posts a number for. Wider than
+# ``GRADED`` on purpose -- the coefficient is a simulator measurement, so it is
+# taken for lines the ledger is too thin to grade rather than left to a guess.
+COEFF_GRID: dict[str, tuple[str, tuple[float, ...]]] = {
+    "game_total": ("total", (6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.5)),
+    "batter_h": ("H", (0.5, 1.5, 2.5)),
+    "batter_1b": ("1B", (0.5, 1.5)),
+    "batter_2b": ("2B", (0.5,)),
+    "batter_hr": ("HR", (0.5,)),
+    "batter_r": ("R", (0.5, 1.5)),
+    "batter_rbi": ("RBI", (0.5, 1.5)),
+    "batter_tb": ("TB", (0.5, 1.5, 2.5, 3.5)),
+    "batter_hrr": ("HRR", (0.5, 1.5, 2.5, 3.5)),
+}
+
 
 def league_team(scale: float) -> TeamSimConfig:
     """Nine league-average slots against a league-average staff, at one scale."""
@@ -101,6 +117,59 @@ def sim_at(scale: float, sims: int, seed: int = 7) -> dict[str, float]:
                 np.mean([p_over(arr[:, slot], line) for slot in range(9)])
             )
     return out
+
+
+def grid_prices(scale: float, sims: int, seed: int = 7) -> dict[str, float]:
+    """Every ``COEFF_GRID`` over-probability in a league-average game at one scale."""
+    res = MonteCarlo(sims, seed=seed).simulate(league_team(scale), league_team(scale))
+    total = (res.home_runs_full + res.away_runs_full).astype(float)
+    bat = res.bat["home"]
+    tb = (bat["1B"] + 2 * bat["2B"] + 3 * bat["3B"] + 4 * bat["HR"]).astype(float)
+    arrays: dict[str, np.ndarray] = {
+        "H": bat["H"].astype(float),
+        "1B": bat["1B"].astype(float),
+        "2B": bat["2B"].astype(float),
+        "HR": bat["HR"].astype(float),
+        "R": bat["R"].astype(float),
+        "RBI": bat["RBI"].astype(float),
+        "TB": tb,
+        "HRR": (bat["H"] + bat["R"] + bat["RBI"]).astype(float),
+    }
+    out: dict[str, float] = {}
+    for market, (stat, lines) in COEFF_GRID.items():
+        for line in lines:
+            if stat == "total":
+                out[f"{market}|{line}"] = float((total > line).mean())
+                continue
+            arr = arrays[stat]
+            # Averaged over the nine slots: the coefficient is a league-level
+            # number, and a per-slot one would be fitting the invented lineup.
+            out[f"{market}|{line}"] = float(
+                np.mean([p_over(arr[:, slot], line) for slot in range(9)])
+            )
+    return out
+
+
+def coefficients(sims: int, lo: float, hi: float) -> None:
+    """Print ``run_env.LOGIT_PER_SCALE``: log odds of the over per unit of scale.
+
+    Measured as a central difference across the clamp on common random numbers (the
+    same seed at both scales), which is what makes a 1-2 point move readable at
+    this many games. Paste-ready, because these are the constants the correction is
+    applied from and they should be re-measured, not hand-adjusted.
+    """
+    low, high = grid_prices(lo, sims), grid_prices(hi, sims)
+    print(f"\nLOGIT_PER_SCALE, central difference {lo:.2f}..{hi:.2f}, {sims} games per point")
+    for market, (_, lines) in COEFF_GRID.items():
+        cells = []
+        for line in lines:
+            key = f"{market}|{line}"
+            p0, p1 = low[key], high[key]
+            if not (0.005 < p0 < 0.995 and 0.005 < p1 < 0.995):
+                continue
+            slope = (np.log(p1 / (1 - p1)) - np.log(p0 / (1 - p0))) / (hi - lo)
+            cells.append(f"{line}: {slope:.2f}")
+        print(f'    "{market}": {{{", ".join(cells)}}},')
 
 
 def elasticity(sims: int, lo: float, hi: float) -> tuple[float, dict[str, float]]:
@@ -202,7 +271,16 @@ def main() -> None:
     ap.add_argument("--sims", type=int, default=20000)
     ap.add_argument("--split", default="2026-08-05", help="fit on or before, grade after")
     ap.add_argument("--target", type=float, help="league runs per game (default: measured)")
+    ap.add_argument(
+        "--coeffs",
+        action="store_true",
+        help="re-measure run_env.LOGIT_PER_SCALE and print it, then stop",
+    )
     args = ap.parse_args()
+
+    if args.coeffs:
+        coefficients(args.sims, 0.96, 1.04)
+        return
 
     games = fit_implied(join_finals(load_totals(args.ledger), args.cache))
     train = games[games["date"] <= args.split]
