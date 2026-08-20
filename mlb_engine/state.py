@@ -12,6 +12,12 @@ repo instead: the pregame predictions (the picks actually sent, at the prices
 they were sent at), the closing snapshots, the ledger and the scorecard. Pull
 before a run, push after.
 
+The same problem in the other direction applies to the files a person drops in
+by hand -- the priced BAT X export, the saved EV Analytics pages, the daily
+projection CSVs. They are downloaded on a laptop onto one box, and the card is
+priced on another, which is why those benchmark columns come out blank. So they
+travel on the branch too.
+
 Only data goes on that branch, never code, and it is deliberately shallow:
 predictions are the bulk and are pruned to the most recent few weeks.
 """
@@ -22,6 +28,7 @@ import csv
 import gzip
 import json
 import logging
+import re
 import shutil
 import subprocess
 from collections.abc import Iterable
@@ -47,6 +54,19 @@ PREDICTION_KEEP_DAYS = 35
 # with an after-the-fact re-price, so what the card actually sent is kept
 # under a name nothing else writes.
 PREGAME_SUFFIX = ".pregame.json"
+# The outside inputs someone downloads and drops in: a directory under the data
+# dir, the files worth carrying out of it, and how many copies the branch keeps.
+# ``None`` keeps every name, which is right for the saved pages -- they are named
+# after the page and not the day, so each push replaces yesterday's and the set
+# cannot grow. The dated exports are pruned like the predictions.
+#
+# Nothing here is merged: an export is one immutable download, so its name is its
+# whole identity and the only question is which copies exist where.
+_INPUT_DIRS: tuple[tuple[str, tuple[str, ...], int | None], ...] = (
+    ("batx", ("*.csv",), 14),
+    ("projections", ("*.csv",), 14),
+    ("evanalytics", ("*.html", "*.htm"), None),
+)
 # The fitted calibration map. It lives beside the audit rather than in it, and
 # the machine that refit it is not usually the machine pricing the next slate.
 CALIBRATION_NAME = "calibration_live.json"
@@ -69,7 +89,7 @@ class SyncReport:
         if self.pulled:
             return f"pulled {len(self.pulled)} state file(s): {', '.join(self.pulled)}"
         if self.pushed:
-            extra = f", pruned {self.pruned} stale prediction file(s)" if self.pruned else ""
+            extra = f", pruned {self.pruned} stale file(s)" if self.pruned else ""
             return f"pushed {len(self.pushed)} state file(s): {', '.join(self.pushed)}{extra}"
         return "nothing to sync"
 
@@ -377,6 +397,74 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
     return moved
 
 
+def _pull_inputs(state: Path, data_dir: Path) -> list[str]:
+    """Restore the hand-dropped exports, without overwriting a fresher drop.
+
+    Fill-in only, and that asymmetry is the point: a file sitting in the data dir
+    was put there by someone who had just downloaded it, and the branch is the
+    older side by construction. A saved page keeps its name from one day to the
+    next, so a pull that overwrote would hand today's card yesterday's board.
+    """
+    restored: list[str] = []
+    for name, _patterns, _keep in _INPUT_DIRS:
+        src_dir = state / "mlb" / "inputs" / name
+        if not src_dir.is_dir():
+            continue
+        for src in sorted(src_dir.glob("*.gz")):
+            dest = data_dir / name / src.name[: -len(".gz")]
+            if dest.exists():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
+            restored.append(dest.name)
+    return restored
+
+
+def _by_family(paths: Iterable[Path]) -> dict[str, list[Path]]:
+    """Group dated exports by what they are, oldest first within each group.
+
+    The date is in the name, and the names are not one convention: a slate's
+    priced BAT X export is ``2026-08-20.csv`` while the projections are
+    ``fg_atc_ros_2026-08-19.csv`` beside ``fg_batx_2026-08-19.csv``. Pruning a
+    flat sorted list would therefore drop a feed's newest file to keep another
+    feed's oldest, so each feed is kept to its own depth.
+    """
+    out: dict[str, list[Path]] = {}
+    for path in paths:
+        family = re.sub(r"\d+", "#", path.name)
+        out.setdefault(family, []).append(path)
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def _stage_inputs(state: Path, data_dir: Path) -> tuple[list[str], int]:
+    """Publish this machine's exports, gzipped, and prune the dated backlog.
+
+    Compressed because a saved prop board is ~900 KB of HTML and every push
+    writes a new blob: the branch has to stay clonable by a scheduled run.
+    """
+    staged: list[str] = []
+    pruned = 0
+    for name, patterns, keep in _INPUT_DIRS:
+        local = data_dir / name
+        out = state / "mlb" / "inputs" / name
+        found = sorted({p for pattern in patterns for p in local.glob(pattern)})
+        if not found:
+            continue
+        out.mkdir(parents=True, exist_ok=True)
+        for src in found:
+            with src.open("rb") as fin, gzip.open(out / f"{src.name}.gz", "wb", 6) as fout:
+                shutil.copyfileobj(fin, fout)
+            staged.append(src.name)
+        if keep is None:
+            continue
+        for family in _by_family(out.glob("*.gz")).values():
+            for path in family[:-keep]:
+                path.unlink()
+                pruned += 1
+    return staged, pruned
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -408,6 +496,7 @@ def pull_state(
     if merge_calibration_files(state / "mlb" / CALIBRATION_NAME, data_dir / CALIBRATION_NAME):
         pulled.append(CALIBRATION_NAME)
     pulled.extend(_pull_predictions(state, data_dir, dates))
+    pulled.extend(_pull_inputs(state, data_dir))
     return SyncReport(pulled=tuple(pulled))
 
 
@@ -552,6 +641,9 @@ def push_state(
             pushed.append(CALIBRATION_NAME)
         staged, pruned = _stage_predictions(state, data_dir)
         pushed.extend(staged)
+        staged_inputs, pruned_inputs = _stage_inputs(state, data_dir)
+        pushed.extend(staged_inputs)
+        pruned += pruned_inputs
         if not pushed:
             return SyncReport()
 

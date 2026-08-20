@@ -269,6 +269,70 @@ def test_the_power_screens_receipt_reaches_the_machine_that_grades_it(
     assert [r["batter"] for r in rows] == ["Matt Olson"]
 
 
+def test_a_hand_dropped_export_reaches_the_machine_that_prices_the_card(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The blank benchmark columns: the download lands on a box that never prices.
+
+    BAT X and EV Analytics are downloaded by hand and copied into the data dir,
+    and the 11:30am card runs on a fresh box whose data dir starts empty -- so
+    the columns were structurally blank whatever the operator did locally.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    (data_a / "batx").mkdir(parents=True)
+    (data_a / "batx" / "2026-08-20.csv").write_text("date,player,market,prob\n")
+    (data_a / "evanalytics").mkdir(parents=True)
+    (data_a / "evanalytics" / "board.html").write_text("<html>1</html>")
+    (data_a / "projections").mkdir(parents=True)
+    (data_a / "projections" / "fg_atc_ros_2026-08-19.csv").write_text("Name,PA\n")
+
+    pushed = push_state(data_a, "drop 08-20", repo=repo_a, branch=STATE_BRANCH)
+    assert {"2026-08-20.csv", "board.html", "fg_atc_ros_2026-08-19.csv"} <= set(pushed.pushed)
+
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert "2026-08-20.csv" in report.pulled
+    assert (data_b / "batx" / "2026-08-20.csv").exists()
+    assert (data_b / "evanalytics" / "board.html").read_text() == "<html>1</html>"
+    assert (data_b / "projections" / "fg_atc_ros_2026-08-19.csv").exists()
+
+
+def test_a_pull_never_overwrites_todays_drop_with_the_branchs(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A saved page is named after the page, so yesterday's has today's name."""
+    repo_a, data_a, repo_b, data_b = machines
+    (data_a / "evanalytics").mkdir(parents=True)
+    (data_a / "evanalytics" / "board.html").write_text("yesterday")
+    push_state(data_a, "drop 08-19", repo=repo_a, branch=STATE_BRANCH)
+
+    (data_b / "evanalytics").mkdir(parents=True)
+    (data_b / "evanalytics" / "board.html").write_text("today")
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert "board.html" not in report.pulled
+    assert (data_b / "evanalytics" / "board.html").read_text() == "today"
+
+
+def test_pruning_an_export_backlog_keeps_every_feeds_newest(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Each feed is kept to its own depth, so one cannot crowd out another."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    proj = data_a / "projections"
+    proj.mkdir(parents=True)
+    for day in range(1, 21):
+        (proj / f"fg_atc_ros_2026-08-{day:02d}.csv").write_text("Name,PA\n")
+    (proj / "fg_batx_2026-08-01.csv").write_text("Name,PA\n")
+
+    push_state(data_a, "projections", repo=repo_a, branch=STATE_BRANCH)
+    state = repo_a.parent / f".{repo_a.name}-{STATE_BRANCH}"
+    kept = sorted(p.name for p in (state / "mlb" / "inputs" / "projections").glob("*.gz"))
+    assert "fg_atc_ros_2026-08-20.csv.gz" in kept
+    # The lone BAT X file is the newest of its own feed, so it survives a
+    # backlog of twenty ATC files that a flat sort would have kept instead.
+    assert "fg_batx_2026-08-01.csv.gz" in kept
+    assert "fg_atc_ros_2026-08-01.csv.gz" not in kept
+
+
 def test_the_refit_map_reaches_the_machine_pricing_the_next_slate(
     machines: tuple[Path, Path, Path, Path],
 ) -> None:
