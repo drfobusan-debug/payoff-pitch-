@@ -2751,6 +2751,1217 @@
     "no_vig_prob": 0.577066
   },
   {
+    "matchup": "ATL @ CWS",
+    "market": "batter_1b",
+    "selection": "Austin Riley 1B o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.419255
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_1b",
+    "selection": "Austin Riley 1B u0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.580745
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_2b",
+    "selection": "Mauricio Dubon 2B o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.25
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Andrew Benintendi BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.257732
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Andrew Benintendi BB u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.742268
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Austin Riley BB o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.336095
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Austin Riley BB u0.5",
+    "american": -255.0,
+    "no_vig_prob": 0.663905
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Braden Montgomery BB o0.5",
+    "american": 165.0,
+    "no_vig_prob": 0.348361
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Braden Montgomery BB u0.5",
+    "american": -240.0,
+    "no_vig_prob": 0.651639
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Chase Meidroth BB o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.32972
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Chase Meidroth BB u0.5",
+    "american": -265.0,
+    "no_vig_prob": 0.67028
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Colson Montgomery BB o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.280374
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Colson Montgomery BB u0.5",
+    "american": -350.0,
+    "no_vig_prob": 0.719626
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Drake Baldwin BB o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.299052
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Drake Baldwin BB u0.5",
+    "american": -310.0,
+    "no_vig_prob": 0.700948
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Lane Thomas BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.355603
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Lane Thomas BB u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Matt Olson BB o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.375985
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Matt Olson BB u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.624015
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Mauricio Dubon BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.218818
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Mauricio Dubon BB u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.781182
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Michael Harris II BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.226415
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Michael Harris II BB u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.773585
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Miguel Vargas BB o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.375985
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Miguel Vargas BB u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.624015
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Munetaka Murakami BB o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.528653
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Munetaka Murakami BB u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.471347
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Ozzie Albies BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.218818
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Ozzie Albies BB u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.781182
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Ronald Acuna Jr. BB o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Ronald Acuna Jr. BB u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Sam Antonacci BB o0.5",
+    "american": 165.0,
+    "no_vig_prob": 0.348361
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Sam Antonacci BB u0.5",
+    "american": -240.0,
+    "no_vig_prob": 0.651639
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Sean Murphy BB o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Sean Murphy BB u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.692308
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Tristan Peters BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.218818
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_bb",
+    "selection": "Tristan Peters BB u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.781182
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hrr",
+    "selection": "Matt Olson H+R+RBI o1.5",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hrr",
+    "selection": "Matt Olson H+R+RBI u1.5",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Andrew Benintendi HR o0.5",
+    "american": 500.0,
+    "no_vig_prob": 0.1875
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Andrew Benintendi HR o1.5",
+    "american": 5500.0,
+    "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Austin Riley HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.18
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Austin Riley HR o1.5",
+    "american": 6000.0,
+    "no_vig_prob": 0.016393
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Braden Montgomery HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Chase Meidroth HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Colson Montgomery HR o0.5",
+    "american": 330.0,
+    "no_vig_prob": 0.244484
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Colson Montgomery HR o1.5",
+    "american": 3000.0,
+    "no_vig_prob": 0.032258
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Drake Baldwin HR o0.5",
+    "american": 475.0,
+    "no_vig_prob": 0.191123
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Drake Baldwin HR o1.5",
+    "american": 5500.0,
+    "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Drew Romo HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Lane Thomas HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Matt Olson HR o0.5",
+    "american": 370.0,
+    "no_vig_prob": 0.22984
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Matt Olson HR o1.5",
+    "american": 4000.0,
+    "no_vig_prob": 0.02439
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Mauricio Dubon HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Michael Harris II HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.175238
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Michael Harris II HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.014085
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Miguel Vargas HR o0.5",
+    "american": 370.0,
+    "no_vig_prob": 0.22984
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Miguel Vargas HR o1.5",
+    "american": 4000.0,
+    "no_vig_prob": 0.02439
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Munetaka Murakami HR o0.5",
+    "american": 320.0,
+    "no_vig_prob": 0.256034
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Munetaka Murakami HR o1.5",
+    "american": 2700.0,
+    "no_vig_prob": 0.035714
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Ozzie Albies HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Ronald Acuna Jr. HR o0.5",
+    "american": 400.0,
+    "no_vig_prob": 0.217647
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Ronald Acuna Jr. HR o1.5",
+    "american": 4000.0,
+    "no_vig_prob": 0.02439
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Sam Antonacci HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Sean Murphy HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.175238
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Sean Murphy HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.014085
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hr",
+    "selection": "Tristan Peters HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Andrew Benintendi H o0.5",
+    "american": -176.0,
+    "no_vig_prob": 0.601181
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Andrew Benintendi H u0.5",
+    "american": 138.0,
+    "no_vig_prob": 0.398819
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Austin Riley H o0.5",
+    "american": -161.0,
+    "no_vig_prob": 0.585236
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Austin Riley H u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.414764
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Braden Montgomery H o0.5",
+    "american": -204.0,
+    "no_vig_prob": 0.630427
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Braden Montgomery H u0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.369573
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Chase Meidroth H o0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.593034
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Chase Meidroth H u0.5",
+    "american": 134.0,
+    "no_vig_prob": 0.406966
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Colson Montgomery H o0.5",
+    "american": -156.0,
+    "no_vig_prob": 0.572813
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Colson Montgomery H u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.427187
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Drake Baldwin H o0.5",
+    "american": -233.0,
+    "no_vig_prob": 0.657491
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Drake Baldwin H u0.5",
+    "american": 174.0,
+    "no_vig_prob": 0.342509
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Drew Romo H o0.5",
+    "american": -101.0,
+    "no_vig_prob": 0.482318
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Drew Romo H u0.5",
+    "american": -116.0,
+    "no_vig_prob": 0.517682
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Lane Thomas H o0.5",
+    "american": -147.0,
+    "no_vig_prob": 0.561203
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Lane Thomas H u0.5",
+    "american": 117.0,
+    "no_vig_prob": 0.438797
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Matt Olson H o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.611203
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Matt Olson H u0.5",
+    "american": 142.0,
+    "no_vig_prob": 0.388797
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Mauricio Dubon H o0.5",
+    "american": -227.0,
+    "no_vig_prob": 0.656595
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Mauricio Dubon H u0.5",
+    "american": 176.0,
+    "no_vig_prob": 0.343405
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Michael Harris II H o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.627632
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Michael Harris II H u0.5",
+    "american": 152.0,
+    "no_vig_prob": 0.372368
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Miguel Vargas H o0.5",
+    "american": -217.0,
+    "no_vig_prob": 0.643066
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Miguel Vargas H u0.5",
+    "american": 164.0,
+    "no_vig_prob": 0.356934
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Munetaka Murakami H o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.598985
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Munetaka Murakami H u0.5",
+    "american": 134.0,
+    "no_vig_prob": 0.401015
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Ozzie Albies H o0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.665947
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Ozzie Albies H u0.5",
+    "american": 188.0,
+    "no_vig_prob": 0.334053
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Ronald Acuna Jr. H o0.5",
+    "american": -244.0,
+    "no_vig_prob": 0.667085
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Ronald Acuna Jr. H u0.5",
+    "american": 182.0,
+    "no_vig_prob": 0.332915
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Sam Antonacci H o0.5",
+    "american": -189.0,
+    "no_vig_prob": 0.61539
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Sam Antonacci H u0.5",
+    "american": 144.0,
+    "no_vig_prob": 0.38461
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Sean Murphy H o0.5",
+    "american": -106.0,
+    "no_vig_prob": 0.495552
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Sean Murphy H u0.5",
+    "american": -109.0,
+    "no_vig_prob": 0.504448
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Tristan Peters H o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.544931
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_h",
+    "selection": "Tristan Peters H u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.455069
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_rbi",
+    "selection": "Ozzie Albies RBI o0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.342772
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_rbi",
+    "selection": "Ozzie Albies RBI u0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.657228
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Andrew Benintendi TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.364652
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Andrew Benintendi TB u1.5",
+    "american": -208.0,
+    "no_vig_prob": 0.635348
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Austin Riley TB o1.5",
+    "american": 161.0,
+    "no_vig_prob": 0.360213
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Austin Riley TB u1.5",
+    "american": -213.0,
+    "no_vig_prob": 0.639787
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Braden Montgomery TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.379387
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Braden Montgomery TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.620613
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Chase Meidroth TB o1.5",
+    "american": 199.0,
+    "no_vig_prob": 0.314278
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Chase Meidroth TB u1.5",
+    "american": -270.0,
+    "no_vig_prob": 0.685722
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Colson Montgomery TB o1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.373134
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Colson Montgomery TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626866
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Drake Baldwin TB o1.5",
+    "american": 132.0,
+    "no_vig_prob": 0.41158
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Drake Baldwin TB u1.5",
+    "american": -164.0,
+    "no_vig_prob": 0.58842
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Drew Romo TB o0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.487685
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Drew Romo TB u0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.512315
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Lane Thomas TB o1.5",
+    "american": 178.0,
+    "no_vig_prob": 0.338122
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Lane Thomas TB u1.5",
+    "american": -238.0,
+    "no_vig_prob": 0.661878
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Matt Olson TB o1.5",
+    "american": 141.0,
+    "no_vig_prob": 0.400681
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Matt Olson TB u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.599319
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Mauricio Dubon TB o1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.386576
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Mauricio Dubon TB u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.613424
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Michael Harris II TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.387818
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Michael Harris II TB u1.5",
+    "american": -182.0,
+    "no_vig_prob": 0.612182
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Miguel Vargas TB o1.5",
+    "american": 122.0,
+    "no_vig_prob": 0.425867
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Miguel Vargas TB u1.5",
+    "american": -157.0,
+    "no_vig_prob": 0.574133
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Munetaka Murakami TB o1.5",
+    "american": 144.0,
+    "no_vig_prob": 0.385251
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Munetaka Murakami TB u1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.614749
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Ozzie Albies TB o1.5",
+    "american": 134.0,
+    "no_vig_prob": 0.417513
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Ozzie Albies TB u1.5",
+    "american": -160.0,
+    "no_vig_prob": 0.582487
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Ronald Acuna Jr. TB o1.5",
+    "american": 112.0,
+    "no_vig_prob": 0.445226
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Ronald Acuna Jr. TB u1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.554774
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Sam Antonacci TB o1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.385243
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Sam Antonacci TB u1.5",
+    "american": -182.0,
+    "no_vig_prob": 0.614757
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Sean Murphy TB o0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Sean Murphy TB u0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Tristan Peters TB o0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.558026
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_tb",
+    "selection": "Tristan Peters TB u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.441974
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_ml",
+    "selection": "ATL F5 ML",
+    "american": -104.0,
+    "no_vig_prob": 0.496055
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_ml",
+    "selection": "CWS F5 ML",
+    "american": -108.0,
+    "no_vig_prob": 0.503945
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_rl",
+    "selection": "ATL F5 +0.5",
+    "american": -148.0,
+    "no_vig_prob": 0.562082
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_rl",
+    "selection": "ATL F5 -0.5",
+    "american": 118.0,
+    "no_vig_prob": 0.437339
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_rl",
+    "selection": "CWS F5 +0.5",
+    "american": -144.0,
+    "no_vig_prob": 0.562661
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_rl",
+    "selection": "CWS F5 -0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.437918
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_total",
+    "selection": "F5 Over 4.5",
+    "american": -120.0,
+    "no_vig_prob": 0.524555
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "f5_total",
+    "selection": "F5 Under 4.5",
+    "american": 102.0,
+    "no_vig_prob": 0.475445
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_ml",
+    "selection": "ATL ML",
+    "american": -104.0,
+    "no_vig_prob": 0.505641
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_ml",
+    "selection": "CWS ML",
+    "american": 101.0,
+    "no_vig_prob": 0.494359
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_rl",
+    "selection": "ATL -1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.379569
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_rl",
+    "selection": "CWS +1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.620431
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": -110.0,
+    "no_vig_prob": 0.510078
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -102.0,
+    "no_vig_prob": 0.489922
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_er",
+    "selection": "Anthony Kay ER o2.5",
+    "american": 115.0,
+    "no_vig_prob": 0.43054
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_er",
+    "selection": "Anthony Kay ER u2.5",
+    "american": -155.0,
+    "no_vig_prob": 0.56946
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_er",
+    "selection": "Grant Holmes ER o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416503
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_er",
+    "selection": "Grant Holmes ER u2.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583497
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_h",
+    "selection": "Grant Holmes Hits o4.5",
+    "american": -115.0,
+    "no_vig_prob": 0.490521
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_h",
+    "selection": "Grant Holmes Hits u4.5",
+    "american": -125.0,
+    "no_vig_prob": 0.509479
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Anthony Kay Ks o3.5",
+    "american": -170.0,
+    "no_vig_prob": 0.591528
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Anthony Kay Ks o4.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410476
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Anthony Kay Ks u3.5",
+    "american": 130.0,
+    "no_vig_prob": 0.408472
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Anthony Kay Ks u4.5",
+    "american": -166.0,
+    "no_vig_prob": 0.589524
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Grant Holmes Ks o3.5",
+    "american": -171.0,
+    "no_vig_prob": 0.595437
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Grant Holmes Ks o4.5",
+    "american": 116.0,
+    "no_vig_prob": 0.436774
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Grant Holmes Ks u3.5",
+    "american": 133.0,
+    "no_vig_prob": 0.404563
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_k",
+    "selection": "Grant Holmes Ks u4.5",
+    "american": -148.0,
+    "no_vig_prob": 0.563226
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_outs",
+    "selection": "Anthony Kay Outs o15.5",
+    "american": 107.0,
+    "no_vig_prob": 0.458161
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_outs",
+    "selection": "Anthony Kay Outs u15.5",
+    "american": -132.0,
+    "no_vig_prob": 0.541839
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_outs",
+    "selection": "Grant Holmes Outs o14.5",
+    "american": -132.0,
+    "no_vig_prob": 0.529827
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "pitcher_outs",
+    "selection": "Grant Holmes Outs u14.5",
+    "american": -101.0,
+    "no_vig_prob": 0.470173
+  },
+  {
     "matchup": "ATL @ MIN",
     "market": "batter_1b",
     "selection": "Austin Riley 1B o0.5",
