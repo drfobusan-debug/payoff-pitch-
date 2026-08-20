@@ -257,6 +257,40 @@ def test_a_rounded_bench_line_is_left_to_the_marcel(tmp_path) -> None:
     assert priors[1]["HR"] > 0.05  # the Marcel's slugger, not a .000 bench line
 
 
+def test_a_rounded_zero_is_filled_from_the_marcel_not_priced_as_zero(tmp_path) -> None:
+    """A rounding export projects no triples for most hitters; none of them is a zero."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    _export(proj, "atc_ros.csv", hr=20)
+    rows = pd.read_csv(proj / "atc_ros.csv")
+    rows.loc[0, "3B"] = 0
+    rows.to_csv(proj / "atc_ros.csv", index=False)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[1]["3B"] == pytest.approx(priors[900]["3B"], rel=0.02)
+    # The export's own numbers still price the outcomes it does state, and the
+    # fill comes out of the outs rather than adding a plate appearance.
+    assert priors[1]["HR"] == pytest.approx(20 / 200, rel=1e-2)
+    assert sum(priors[1].values()) == pytest.approx(1.0)
+
+
+def test_a_hitter_the_marcel_never_saw_keeps_the_export_as_it_stands(tmp_path) -> None:
+    """Nothing is invented for a rookie: the fill needs a Marcel line to read."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    proj.mkdir()
+    pd.DataFrame(
+        [
+            {"MLBAMID": 5000, "PA": 200, "H": 50, "2B": 10, "3B": 0, "HR": 40, "BB": 20,
+             "SO": 40, "HBP": 2},
+        ]
+    ).to_csv(proj / "atc_ros.csv", index=False)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[5000]["3B"] == 0.0
+    assert priors[5000]["HR"] == pytest.approx(40 / 200)
+
+
 def test_an_export_prices_the_slate_when_the_api_is_down(tmp_path) -> None:
     """Losing the Marcel costs the bench, not the lineup."""
     path = tmp_path / "ros_hitters.csv"
