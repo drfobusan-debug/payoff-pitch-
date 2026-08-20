@@ -183,6 +183,35 @@ def test_a_second_machine_cannot_erase_the_first(
     assert dates == ["2026-08-03", "2026-08-04"]
 
 
+def test_the_power_screens_receipt_reaches_the_machine_that_grades_it(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The screen runs at 11:30am and the grade the next morning, on another box."""
+    repo_a, data_a, repo_b, data_b = machines
+    ledger = data_a / "audit" / "power_screen_ledger.csv"
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    with ledger.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=("date", "batter", "stat", "line", "side", "model_prob"))
+        w.writeheader()
+        w.writerow(
+            {
+                "date": "2026-08-19",
+                "batter": "Matt Olson",
+                "stat": "HR",
+                "line": "0.5",
+                "side": "over",
+                "model_prob": "0.18",
+            }
+        )
+    push_state(data_a, "screen 08-19", repo=repo_a, branch="engine-state")
+
+    report = pull_state(data_b, repo=repo_b, branch="engine-state")
+    assert "power_screen_ledger.csv" in report.pulled
+    with (data_b / "audit" / "power_screen_ledger.csv").open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert [r["batter"] for r in rows] == ["Matt Olson"]
+
+
 def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(
     machines: tuple[Path, Path, Path, Path],
 ) -> None:
