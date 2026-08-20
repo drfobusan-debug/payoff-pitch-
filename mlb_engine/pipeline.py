@@ -139,6 +139,7 @@ from mlb_engine.models.matchup import apply_multipliers, combine
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.models.props import p_over
 from mlb_engine.models.rbi_rule import evaluate_lineup
+from mlb_engine.models.run_env import scale_all, scale_for_total
 from mlb_engine.models.selectors import (
     RBISelector,
     Selection,
@@ -407,6 +408,7 @@ class Pipeline:
         self._xbh_selector = XBHSelector()
         self._tb_selector = TBSelector()
         self._luck_gaps: dict[str, float] = {}
+        self._run_env_scale: float | None = None
         self._hr_gate = HRPowerGate.from_env()
         self._hits_gate = HitsContactGate.from_env()
         self._tb_gate = TBGate.from_env()
@@ -945,6 +947,25 @@ class Pipeline:
             rates_list = self._apply_env(rates_list, m)
         return rates_list
 
+    def _run_env(self, slate_date: Date) -> float:
+        """Non-out scale that puts the simulator in the league's run environment.
+
+        Measured once per slate from the standings (season to date), so every game
+        on the card is priced in the same league. 1.0 -- no correction -- when the
+        flag is off or the league cannot be measured.
+        """
+        if not self.cfg.run_env:
+            return 1.0
+        if self._run_env_scale is None:
+            total = self.deps.stats.league_total_runs(slate_date.year)
+            self._run_env_scale = 1.0 if total is None else scale_for_total(total)
+            log.info(
+                "run environment: league %s runs/game -> non-out scale %.4f",
+                "unmeasured" if total is None else f"{total:.2f}",
+                self._run_env_scale,
+            )
+        return self._run_env_scale
+
     def _pen_availability(self, abbrev: str) -> float | None:
         """Cached Rotowire bullpen availability (0..1 rested), None when no feed."""
         if abbrev not in self._pen_avail:
@@ -1191,6 +1212,20 @@ class Pipeline:
         away_pen = self._apply_all(away_pen, away_pen_env)
         away_pen_close = self._apply_all(away_pen_close, away_pen_env)
         away_pen_bridge = self._apply_all(away_pen_bridge, away_pen_env)
+
+        # Last, after every environment filter: the league's own run level. Scaling
+        # the non-out outcomes here rather than per market is what makes it one
+        # correction -- totals, props and the first five all read these rates.
+        scale = self._run_env(slate_date)
+        if scale != 1.0:
+            home_start = scale_all(home_start, scale)
+            home_pen = scale_all(home_pen, scale)
+            home_pen_close = scale_all(home_pen_close, scale)
+            home_pen_bridge = scale_all(home_pen_bridge, scale)
+            away_start = scale_all(away_start, scale)
+            away_pen = scale_all(away_pen, scale)
+            away_pen_close = scale_all(away_pen_close, scale)
+            away_pen_bridge = scale_all(away_pen_bridge, scale)
 
         # Starter exit model: manager hooks (batters-faced + pitch-count caps)
         # tightened by each starter's own recent workload, plus a pitch-efficiency
