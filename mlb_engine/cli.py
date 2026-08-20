@@ -54,6 +54,8 @@ from mlb_engine.calibration import (
     FEATURE_BASIS_SINCE,
     Calibrator,
     IsotonicMap,
+    StoredMaps,
+    read_stored,
 )
 from mlb_engine.config import Config, default_ros_prior_path, load_config
 from mlb_engine.data import ros_prior
@@ -112,7 +114,7 @@ from mlb_engine.output.report import (
     weekly_entries,
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
-from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
+from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
 from mlb_engine.preview import save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 from mlb_engine.state import (
@@ -1261,10 +1263,24 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     if not keep:
         print("\nNo market still improves on its raw probability; the map stays retired")
         return 1
-    cal = Calibrator(maps=dict(keep), default=Calibrator.identity().default)
-    cal.to_json(path)
+    # Re-stamping is the only edit. A market that failed here, or was too thin to
+    # measure, keeps its curve at the basis it was fitted on: that stamp *is* how
+    # the file says "retired", so deleting the curve instead would drop the market
+    # onto the pooled curve -- a correction nothing measured for it -- and would
+    # put it beyond the reach of the next revalidation. The pooled curve itself is
+    # not this command's to throw away either: a refit measured it when it adopted
+    # the markets that price off it.
+    stored = read_stored(path)
+    maps = stored.maps | keep
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in keep}
+    cal = Calibrator(maps=maps, default=stored.current_default())
+    cal.to_json(path, bases=bases)
     print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
-    print(f"Wrote {path}; the pooled fallback and every other market stay retired")
+    retired = sorted(mk for mk, b in bases.items() if b != FEATURE_BASIS)
+    print(
+        f"Wrote {path}; {len(retired)} market(s) stay retired"
+        + (f" ({', '.join(retired)})" if retired else "")
+    )
     return 0
 
 
@@ -1323,6 +1339,7 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     test = rows_of([e for e in entries if e.date >= split])
 
     packaged = load_calibrator()
+    source = calibration_source(cfg.calibration_file)
     refit = Calibrator.fit(train)
 
     def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
@@ -1355,13 +1372,40 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
         return 1
 
     final = Calibrator.fit(rows)
-    merged = Calibrator(
-        maps={**packaged.maps, **{m: final.maps[m] for m in adopt if m in final.maps}},
-        default=packaged.default,
-    )
-    merged.to_json(cfg.calibration_file)
+    # Carry the curves this refit is not replacing, at the basis they were fitted
+    # on. Merging ``packaged.maps`` instead carries nothing once a basis bump has
+    # retired them -- ``load_calibrator`` has already dropped them -- so the
+    # refit would delete the very curves ``--revalidate`` exists to re-measure,
+    # and the live file wins over the packaged one, putting them out of reach.
+    stored = read_stored(source) if source else StoredMaps({}, {}, final.default)
+    maps = dict(stored.maps)
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in adopt}
+    for market in adopt:
+        # A market the fit left on the pooled curve was measured on that curve,
+        # so ship it: keeping its old own-map would price it off a curve the
+        # holdout never scored.
+        if market in final.maps:
+            maps[market] = final.maps[market]
+        else:
+            maps.pop(market, None)
+    merged = Calibrator(maps=maps, default=final.default)
+    merged.to_json(cfg.calibration_file, bases=bases)
     print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
-    print(f"Wrote {cfg.calibration_file} (other markets keep the packaged fit)")
+    pooled = sorted(m for m in adopt if m not in final.maps)
+    if pooled:
+        print(f"On the pooled curve (too thin for their own): {', '.join(pooled)}")
+    if bases:
+        stale_carried = sorted(m for m, b in bases.items() if b != FEATURE_BASIS)
+        print(
+            f"Carried {len(bases)} market(s) unchanged"
+            + (
+                f"; {len(stale_carried)} stay retired until `calibrate --revalidate` "
+                f"measures them ({', '.join(stale_carried)})"
+                if stale_carried
+                else ""
+            )
+        )
+    print(f"Wrote {cfg.calibration_file}")
     return 0
 
 
