@@ -39,3 +39,23 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,fair_prob,edge
 2026-08-18,Wilyer Abreu,677800,824723,HRR,1.5,over,draftkings,-124.0,0.6038,0.5327,0.0711,0.0907,Pass,HOLD,True
 2026-08-18,Wilyer Abreu,677800,824723,R,0.5,over,draftkings,102.0,0.6089,0.4676,0.1413,0.2301,Pass,HOLD,True
 2026-08-18,Wilyer Abreu,677800,824723,RBI,0.5,over,draftkings,152.0,0.5088,0.3925,0.1162,0.2821,Pass,HOLD,True
+2026-08-20,Isaac Paredes,670623,824153,HR,0.5,over,betrivers,480.0,0.2082,0.1849,0.0234,0.2078,Pass,HOLD,False
+2026-08-20,Isaac Paredes,670623,824153,HRR,1.5,over,bovada,-105.0,0.5557,0.4894,0.0663,0.0849,Pass,HOLD,True
+2026-08-20,Isaac Paredes,670623,824153,RBI,0.5,over,betrivers,180.0,0.3975,0.3576,0.0399,0.113,Pass,HOLD,False
+2026-08-20,Isaac Paredes,670623,824153,TB,1.5,over,betrivers,148.0,0.4252,0.4031,0.0221,0.0545,Pass,HOLD,False
+2026-08-20,Taylor Trammell,666211,824153,1B,0.5,under,betmgm,-220.0,0.7447,0.6677,0.0769,0.0831,Strong buy,HOLD,True
+2026-08-20,Taylor Trammell,666211,824153,HR,0.5,over,williamhill_us,575.0,0.151,0.1594,-0.0083,0.0196,Pass,HOLD,False
+2026-08-20,Taylor Trammell,666211,824153,R,0.5,over,draftkings,157.0,0.4376,0.3711,0.0665,0.1246,Pass,HOLD,True
+2026-08-20,Taylor Trammell,666211,824153,TB,1.5,over,betrivers,220.0,0.3454,0.3125,0.0329,0.1053,Pass,HOLD,False
+2026-08-20,Tyler Stephenson,663886,824474,2B,0.5,over,draftkings,486.0,0.213,0.1764,0.0366,0.2482,Pass,HOLD,True
+2026-08-20,Tyler Stephenson,663886,824474,HR,0.5,over,betrivers,430.0,0.2865,0.1988,0.0877,0.5184,Pass,HOLD,False
+2026-08-20,Tyler Stephenson,663886,824474,HRR,1.5,over,bovada,100.0,0.5662,0.4759,0.0903,0.1324,Pass,HOLD,True
+2026-08-20,Tyler Stephenson,663886,824474,RBI,0.5,over,draftkings,192.0,0.4459,0.3323,0.1136,0.302,Pass,HOLD,True
+2026-08-20,Yainer Diaz,673237,824153,1B,0.5,over,betmgm,-105.0,0.5512,0.4913,0.0599,0.0762,Pass,HOLD,True
+2026-08-20,Yainer Diaz,673237,824153,HR,0.5,over,williamhill_us,625.0,0.1639,0.1379,0.026,0.1883,Pass,HOLD,False
+2026-08-20,Yainer Diaz,673237,824153,HRR,1.5,over,williamhill_us,-109.0,0.5519,0.4894,0.0625,0.0583,Pass,HOLD,True
+2026-08-20,Yainer Diaz,673237,824153,RBI,0.5,over,draftkings,208.0,0.3586,0.3124,0.0462,0.1045,Pass,HOLD,True
+2026-08-20,Yordan Alvarez,670541,824153,2B,0.5,over,betmgm,340.0,0.2995,0.2203,0.0792,0.3178,Pass,BUY,True
+2026-08-20,Yordan Alvarez,670541,824153,H,1.5,over,betonlineag,209.0,0.4132,0.3177,0.0955,0.2768,Pass,BUY,True
+2026-08-20,Yordan Alvarez,670541,824153,HR,0.5,over,betrivers,250.0,0.3424,0.304,0.0384,0.1986,Pass,BUY,False
+2026-08-20,Yordan Alvarez,670541,824153,HRR,2.5,over,bovada,115.0,0.5885,0.4426,0.1459,0.2653,Pass,BUY,True

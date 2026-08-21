@@ -101866,6 +101866,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,ATH @ KC,Totals,game_total,Under 7.5,7.5,,,,Pass,0.366,,win,0.91,,,unpriced,0.3382,,,,,,,posted,2.43,,engine
 2026-08-18,ATH @ KC,Totals,game_total,Under 8.5,8.5,,,,Pass,0.415,,win,0.91,,,unpriced,0.415,,,,,,,posted,2.43,,engine
 2026-08-18,ATH @ KC,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5188,,win,0.91,,,unpriced,0.5188,,,,,,,posted,2.43,,engine
+2026-08-18,ATH @ KC,game,game_total,Over 9.0,9.0,teamrankings,,,1 star,0.501,,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,ATH @ KC,game,game_winner,KC ML,,teamrankings,,,1 star,0.5997,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,ATL @ MIN,Batter Props,batter_1b,Alan Roden 1B o0.5,0.5,betmgm,145.0,-200.0,Pass,0.4225,0.0352,loss,-1.0,,,thin_edge,0.4427,0.3855,0.4225,145.0,0.385525,2.5e-05,-0.055464,posted,2.42,,engine
 2026-08-18,ATL @ MIN,Batter Props,batter_1b,Alan Roden 1B u0.5,0.5,draftkings,-191.0,137.0,Pass,0.5775,-0.1202,win,0.5236,,,ev_floor,0.5573,0.6145,0.5775,-191.0,0.614475,-2.5e-05,-0.06381,posted,2.42,,engine
 2026-08-18,ATL @ MIN,Batter Props,batter_1b,Austin Riley 1B o0.5,0.5,draftkings,120.0,-166.0,Pass,0.4103,-0.0973,loss,-1.0,,,ev_floor,0.3907,0.4275,0.4103,125.0,0.422605,-0.004895,-0.070269,posted,2.42,,engine
@@ -102383,6 +102385,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,ATL @ MIN,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2953,,win,0.91,,,unpriced,0.2096,,,,,,,posted,2.42,,engine
 2026-08-18,ATL @ MIN,Totals,game_total,Under 8.5,8.5,williamhill_us,105.0,-125.0,Pass,0.3303,-0.323,win,1.05,,,ev_floor,0.2732,0.4775,0.3303,105.0,0.477124,-0.000376,-0.021896,posted,2.42,,engine
 2026-08-18,ATL @ MIN,Totals,game_total,Under 9.5,9.5,,,,Pass,0.3811,,win,0.91,,,unpriced,0.3656,,,,,,,posted,2.42,,engine
+2026-08-18,ATL @ MIN,game,game_total,Under 9.0,9.0,teamrankings,,,1 star,0.5028,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,ATL @ MIN,game,game_winner,ATL ML,,teamrankings,,,1 star,0.5776,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,AZ @ BOS,Batter Props,batter_1b,Adley Rutschman 1B o0.5,0.5,betmgm,105.0,-140.0,Pass,0.4911,0.0069,win,1.05,,,thin_edge,0.5538,0.465,0.4911,100.0,0.469956,0.004956,-0.03659,posted,1.94,,engine
 2026-08-18,AZ @ BOS,Batter Props,batter_1b,Adley Rutschman 1B u0.5,0.5,draftkings,-131.0,-105.0,Pass,0.5089,-0.1027,loss,-1.0,,,ev_floor,0.4462,0.535,0.5089,-131.0,0.530044,-0.004956,-0.065342,posted,1.94,,engine
 2026-08-18,AZ @ BOS,Batter Props,batter_1b,Andruw Monasterio 1B o0.5,0.5,draftkings,108.0,-150.0,Pass,0.4163,-0.1341,win,1.08,,,ev_floor,0.4353,0.4623,0.4163,105.0,0.465758,0.003458,-0.031223,posted,1.94,,engine
@@ -102900,6 +102904,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,AZ @ BOS,Totals,game_total,Under 7.5,7.5,betrivers,100.0,-118.0,Pass,0.3265,-0.347,loss,-1.0,,,ev_floor,0.2664,0.4885,0.3265,100.0,0.486503,-0.001997,-0.026994,posted,1.94,,engine
 2026-08-18,AZ @ BOS,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3672,,loss,-1.0,,,unpriced,0.3405,,,,,,,posted,1.94,,engine
 2026-08-18,AZ @ BOS,Totals,game_total,Under 9.5,9.5,,,,Pass,0.4443,,loss,-1.0,,,unpriced,0.4443,,,,,,,posted,1.94,,engine
+2026-08-18,AZ @ BOS,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.5074000000000001,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,AZ @ BOS,game,game_winner,BOS ML,,teamrankings,,,2 stars,0.6124,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,CWS @ CHC,Batter Props,batter_1b,Alex Bregman 1B o0.5,0.5,betmgm,-110.0,-120.0,Pass,0.4698,-0.1031,win,0.9091,,,ev_floor,0.5222,0.5057,0.4698,-105.0,0.494253,-0.011447,-0.056426,posted,2.82,,engine
 2026-08-18,CWS @ CHC,Batter Props,batter_1b,Alex Bregman 1B u0.5,0.5,draftkings,-107.0,-129.0,Pass,0.5302,0.0257,loss,-1.0,,,thin_edge,0.4778,0.4943,0.5302,-113.0,0.505747,0.011447,-0.021592,posted,2.82,,engine
 2026-08-18,CWS @ CHC,Batter Props,batter_1b,Andrew Benintendi 1B o0.5,0.5,draftkings,120.0,-166.0,Moderate buy,0.4841,0.065,loss,-1.0,,,,0.5416,0.4319,0.4841,124.0,0.423658,-0.008242,-0.067952,posted,2.82,,engine
@@ -103417,6 +103423,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,CWS @ CHC,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3828,,win,0.91,,,unpriced,0.3688,,,,,,,posted,2.82,,engine
 2026-08-18,CWS @ CHC,Totals,game_total,Under 8.5,8.5,,,,Pass,0.4479,,win,0.91,,,unpriced,0.4479,,,,,,,posted,2.82,,engine
 2026-08-18,CWS @ CHC,Totals,game_total,Under 9.5,9.5,fanatics,-120.0,100.0,Moderate buy,0.5547,0.017,win,0.8333,,,,0.5547,0.5217,0.5547,-110.0,0.521037,-0.000663,-0.044765,posted,2.82,,engine
+2026-08-18,CWS @ CHC,game,game_total,Under 9.5,9.5,teamrankings,,,1 star,0.5131,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,CWS @ CHC,game,game_winner,CHC ML,,teamrankings,,,2 stars,0.6163000000000001,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,DET @ PIT,Batter Props,batter_1b,Brandon Lowe 1B o0.5,0.5,draftkings,129.0,-179.0,Pass,0.4447,0.0183,loss,-1.0,,,thin_edge,0.4621,0.4237,0.4447,128.0,0.42426,0.00056,-0.028445,posted,1.48,,engine
 2026-08-18,DET @ PIT,Batter Props,batter_1b,Brandon Lowe 1B u0.5,0.5,betmgm,-150.0,110.0,Pass,0.5553,-0.0745,win,0.6667,,,ev_floor,0.5379,0.5763,0.5553,-150.0,0.57574,-0.00056,-0.040433,posted,1.48,,engine
 2026-08-18,DET @ PIT,Batter Props,batter_1b,Brett Callahan 1B o0.5,0.5,betmgm,140.0,-190.0,Pass,0.4452,0.0685,win,1.4,,,contact_floor,0.4636,0.4005,0.4452,140.0,0.397634,-0.002866,-0.045678,posted,1.48,,engine
@@ -103934,6 +103942,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,DET @ PIT,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2861,,win,0.91,,,unpriced,0.1929,,,,,,,posted,1.48,,engine
 2026-08-18,DET @ PIT,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3209,,win,0.91,,,unpriced,0.2562,,,,,,,posted,1.48,,engine
 2026-08-18,DET @ PIT,Totals,game_total,Under 9.5,9.5,,,,Pass,0.372,,win,0.91,,,unpriced,0.349,,,,,,,posted,1.48,,engine
+2026-08-18,DET @ PIT,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.5015,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,DET @ PIT,game,game_winner,PIT ML,,teamrankings,,,1 star,0.5921,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B o0.5,0.5,betmgm,120.0,-160.0,Pass,0.4148,-0.0874,loss,-1.0,,,ev_floor,0.428,0.4327,0.4148,130.0,0.428863,-0.003837,-0.056501,posted,2.9,,engine
 2026-08-18,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B u0.5,0.5,draftkings,-153.0,110.0,Pass,0.5852,-0.0324,win,0.6536,,,ev_floor,0.5719,0.5673,0.5852,-145.0,0.571137,0.003837,-0.055571,posted,2.9,,engine
 2026-08-18,LAA @ HOU,Batter Props,batter_1b,Christian Walker 1B o0.5,0.5,betmgm,130.0,-175.0,Pass,0.3735,-0.1409,loss,-1.0,,,ev_floor,0.3518,0.4128,0.3735,130.0,0.412835,3.5e-05,-0.05048,posted,2.9,,engine
@@ -104451,6 +104461,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,LAA @ HOU,Totals,game_total,Under 7.5,7.5,,,,Pass,0.4644,,win,0.91,,,unpriced,0.4644,,,,,,,posted,2.9,,engine
 2026-08-18,LAA @ HOU,Totals,game_total,Under 8.5,8.5,,,,Pass,0.5521,,win,0.91,,,unpriced,0.5521,,,,,,,posted,2.9,,engine
 2026-08-18,LAA @ HOU,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6579,,win,0.91,,,unpriced,0.6579,,,,,,,posted,2.9,,engine
+2026-08-18,LAA @ HOU,game,game_total,Over 9.0,9.0,teamrankings,,,1 star,0.5065999999999999,,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,LAA @ HOU,game,game_winner,HOU ML,,teamrankings,,,2 stars,0.6064,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,LAD @ COL,Batter Props,batter_1b,Adael Amador 1B o0.5,0.5,draftkings,-107.0,-129.0,Pass,0.425,-0.1778,loss,-1.0,,,ev_floor,0.4449,0.4785,0.425,108.0,0.445502,-0.032998,-0.138141,projected,3.39,,engine
 2026-08-18,LAD @ COL,Batter Props,batter_1b,Adael Amador 1B u0.5,0.5,draftkings,-129.0,-107.0,Pass,0.575,0.0207,win,0.7752,,,singles_under_profile,0.5551,0.5215,0.575,-149.0,0.554498,0.032998,-0.015659,projected,3.39,,engine
 2026-08-18,LAD @ COL,Batter Props,batter_1b,Andy Pages 1B o0.5,0.5,betmgm,-165.0,125.0,Pass,0.5203,-0.1644,win,0.6061,,,ev_floor,0.6591,0.583,0.5203,-160.0,0.578789,-0.004211,-0.07043,projected,3.39,,engine
@@ -104968,6 +104980,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,LAD @ COL,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2374,,loss,-1.0,,,unpriced,0.1043,,,,,,,projected,3.39,,engine
 2026-08-18,LAD @ COL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.2595,,loss,-1.0,,,unpriced,0.1445,,,,,,,projected,3.39,,engine
 2026-08-18,LAD @ COL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.2951,,loss,-1.0,,,unpriced,0.2093,,,,,,,projected,3.39,,engine
+2026-08-18,LAD @ COL,game,game_ml,COL ML,,teamrankings,176.0,,1 star,0.0,0.0239,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,LAD @ COL,game,game_rl,COL +1.5,1.5,teamrankings,117.0,,1 star,0.0,0.0239,win,1.17,-1.0,,,,,,,,,,,,,teamrankings
+2026-08-18,LAD @ COL,game,game_total,Over 11.5,11.5,teamrankings,,,1 star,0.507,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,LAD @ COL,game,game_winner,LAD ML,,teamrankings,,,2 stars,0.6138,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,MIA @ PHI,Batter Props,batter_1b,Agustín Ramírez 1B o0.5,0.5,betmgm,160.0,-220.0,Pass,0.4452,0.1575,loss,-1.0,,,contact_floor,0.4793,0.3874,0.4452,155.0,0.391304,0.003904,0.01739,posted,1.45,,engine
 2026-08-18,MIA @ PHI,Batter Props,batter_1b,Agustín Ramírez 1B u0.5,0.5,draftkings,-170.0,123.0,Pass,0.5548,-0.1189,win,0.5882,,,ev_floor,0.5207,0.6126,0.5548,-170.0,0.608696,-0.003904,-0.033248,posted,1.45,,engine
 2026-08-18,MIA @ PHI,Batter Props,batter_1b,Alec Bohm 1B o0.5,0.5,betmgm,-125.0,-105.0,Pass,0.52,-0.064,win,0.8,,,ev_floor,0.6114,0.5333,0.52,-120.0,0.528194,-0.005106,-0.049251,posted,1.45,,engine
@@ -105485,6 +105501,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,MIA @ PHI,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3546,,loss,-1.0,,,unpriced,0.3175,,,,,,,posted,1.45,,engine
 2026-08-18,MIA @ PHI,Totals,game_total,Under 8.5,8.5,fanatics,-115.0,-105.0,Pass,0.3946,-0.2623,loss,-1.0,,,ev_floor,0.3901,0.5156,0.3946,-120.0,0.521739,0.006139,-0.024575,posted,1.45,,engine
 2026-08-18,MIA @ PHI,Totals,game_total,Under 9.5,9.5,,,,Pass,0.4938,,loss,-1.0,,,unpriced,0.4938,,,,,,,posted,1.45,,engine
+2026-08-18,MIA @ PHI,game,game_ml,MIA ML,,teamrankings,190.0,,2 stars,0.0,0.027999999999999997,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,MIA @ PHI,game,game_rl,MIA +1.5,1.5,teamrankings,-119.0,,2 stars,0.0,0.027999999999999997,loss,-1.0,-2.0,,,,,,,,,,,,,teamrankings
+2026-08-18,MIA @ PHI,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.51,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,MIA @ PHI,game,game_winner,PHI ML,,teamrankings,,,2 stars,0.6272,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B o0.5,0.5,betmgm,180.0,-250.0,Pass,0.4107,0.1499,loss,-1.0,,,contact_floor,0.3959,0.3352,0.4107,180.0,0.341418,0.006218,-0.04403,posted,1.4,,engine
 2026-08-18,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B u0.5,0.5,draftkings,-248.0,176.0,Pass,0.5893,-0.173,win,0.4032,,,ev_floor,0.6041,0.6648,0.5893,-233.0,0.658582,-0.006218,-0.075861,posted,1.4,,engine
 2026-08-18,NYY @ BAL,Batter Props,batter_1b,Ben Rice 1B o0.5,0.5,betmgm,120.0,-160.0,Pass,0.375,-0.175,loss,-1.0,,,ev_floor,0.3525,0.4339,0.375,120.0,0.433919,1.9e-05,-0.045378,posted,1.4,,engine
@@ -106002,6 +106022,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,NYY @ BAL,Totals,game_total,Under 7.5,7.5,,,,Pass,0.403,,win,0.91,,,unpriced,0.403,,,,,,,posted,1.4,,engine
 2026-08-18,NYY @ BAL,Totals,game_total,Under 8.5,8.5,fanduel,-104.0,-118.0,Pass,0.4826,-0.0534,win,0.9615,,,ev_floor,0.4826,0.4901,0.4826,-102.0,0.490238,0.000138,-0.038379,posted,1.4,,engine
 2026-08-18,NYY @ BAL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5909,,win,0.91,,,unpriced,0.5909,,,,,,,posted,1.4,,engine
+2026-08-18,NYY @ BAL,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5017,,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,NYY @ BAL,game,game_winner,NYY ML,,teamrankings,,,1 star,0.5081,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,SD @ NYM,Batter Props,batter_1b,A.J. Ewing 1B o0.5,0.5,betmgm,125.0,-165.0,Pass,0.4112,-0.0747,loss,-1.0,,,ev_floor,0.4047,0.4238,0.4112,100.0,0.478268,0.054468,0.076103,posted,1.94,,engine
 2026-08-18,SD @ NYM,Batter Props,batter_1b,A.J. Ewing 1B u0.5,0.5,draftkings,-159.0,115.0,Pass,0.5888,-0.0409,win,0.6289,,,ev_floor,0.5954,0.5762,0.5888,-122.0,0.521732,-0.054468,-0.150135,posted,1.94,,engine
 2026-08-18,SD @ NYM,Batter Props,batter_1b,Austin Hays 1B o0.5,0.5,draftkings,116.0,-160.0,Pass,0.4452,-0.0384,win,1.16,,,ev_floor,0.4666,0.4424,0.4452,113.0,0.445287,0.002887,-0.03818,posted,1.94,,engine
@@ -106519,6 +106541,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,SD @ NYM,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3955,,win,0.91,,,unpriced,0.3919,,,,,,,posted,1.94,,engine
 2026-08-18,SD @ NYM,Totals,game_total,Under 8.5,8.5,bovada,-105.0,-115.0,Pass,0.4756,-0.0714,win,0.9524,,,ev_floor,0.4756,0.4997,0.4756,-105.0,0.497246,-0.002454,-0.029186,posted,1.94,,engine
 2026-08-18,SD @ NYM,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5843,,win,0.91,,,unpriced,0.5843,,,,,,,posted,1.94,,engine
+2026-08-18,SD @ NYM,game,game_total,Under 8.5,8.5,teamrankings,,,1 star,0.5024000000000001,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,SD @ NYM,game,game_winner,SD ML,,teamrankings,,,1 star,0.5183,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,SEA @ MIL,Batter Props,batter_1b,Brendan Donovan 1B o0.5,0.5,betmgm,-125.0,-105.0,Pass,0.4812,-0.1338,loss,-1.0,,,ev_floor,0.5367,0.5243,0.4812,-107.0,0.478518,-0.045782,-0.138668,posted,2.42,,engine
 2026-08-18,SEA @ MIL,Batter Props,batter_1b,Brendan Donovan 1B u0.5,0.5,draftkings,-104.0,-133.0,Pass,0.5188,0.0176,win,0.9615,,,singles_under_profile,0.4633,0.4757,0.5188,-129.0,0.521482,0.045782,0.022907,posted,2.42,,engine
 2026-08-18,SEA @ MIL,Batter Props,batter_1b,Brice Turang 1B o0.5,0.5,draftkings,-109.0,-127.0,Pass,0.496,-0.049,loss,-1.0,,,ev_floor,0.5708,0.4912,0.496,-109.0,0.491226,2.6e-05,-0.058108,posted,2.42,,engine
@@ -107036,6 +107060,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,SEA @ MIL,Totals,game_total,Under 7.5,7.5,lowvig,100.0,-115.0,Pass,0.3184,-0.3632,loss,-1.0,,,ev_floor,0.2517,0.4889,0.3184,-102.0,0.491096,0.002196,-0.017808,posted,2.42,,engine
 2026-08-18,SEA @ MIL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3558,,loss,-1.0,,,unpriced,0.3196,,,,,,,posted,2.42,,engine
 2026-08-18,SEA @ MIL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.4218,,loss,-1.0,,,unpriced,0.4218,,,,,,,posted,2.42,,engine
+2026-08-18,SEA @ MIL,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.5071,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,SEA @ MIL,game,game_winner,MIL ML,,teamrankings,,,2 stars,0.6143,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,SF @ CLE,Batter Props,batter_1b,Andrew Knizner 1B o0.5,0.5,draftkings,145.0,-202.0,Pass,0.4109,0.0066,loss,-1.0,,,thin_edge,0.3988,0.3924,0.4109,130.0,0.405206,0.012806,-0.007245,posted,1.47,,engine
 2026-08-18,SF @ CLE,Batter Props,batter_1b,Andrew Knizner 1B u0.5,0.5,betmgm,-175.0,130.0,Pass,0.5891,-0.0742,win,0.5714,,,ev_floor,0.6012,0.6076,0.5891,-175.0,0.594794,-0.012806,-0.065324,posted,1.47,,engine
 2026-08-18,SF @ CLE,Batter Props,batter_1b,Angel Genao 1B o0.5,0.5,draftkings,-122.0,-113.0,Pass,0.509,-0.0737,win,0.8197,,,ev_floor,0.6002,0.5267,0.509,-118.0,0.522785,-0.003915,-0.048703,posted,1.47,,engine
@@ -107553,6 +107579,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,SF @ CLE,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3575,,loss,-1.0,,,unpriced,0.3226,,,,,,,posted,1.47,,engine
 2026-08-18,SF @ CLE,Totals,game_total,Under 8.5,8.5,betrivers,-120.0,-103.0,Pass,0.4027,-0.2617,loss,-1.0,,,ev_floor,0.4027,0.5181,0.4027,-118.0,0.514975,-0.003125,-0.055879,posted,1.47,,engine
 2026-08-18,SF @ CLE,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5116,,win,0.91,,,unpriced,0.5116,,,,,,,posted,1.47,,engine
+2026-08-18,SF @ CLE,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.503,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,SF @ CLE,game,game_winner,CLE ML,,teamrankings,,,2 stars,0.6426000000000001,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B o0.5,0.5,draftkings,-115.0,-120.0,Pass,0.4452,-0.1677,loss,-1.0,,,ev_floor,0.4657,0.4976,0.4452,-115.0,0.497554,-4.6e-05,-0.06979,posted,1.46,,engine
 2026-08-18,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B u0.5,0.5,betmgm,-115.0,-115.0,Pass,0.5548,0.0372,win,0.8696,,,singles_under_profile,0.5343,0.5024,0.5548,-115.0,0.502446,4.6e-05,-0.060644,posted,1.46,,engine
 2026-08-18,STL @ CIN,Batter Props,batter_1b,Blaze Jordan 1B o0.5,0.5,betmgm,110.0,-150.0,Pass,0.4848,0.0181,loss,-1.0,,,thin_edge,0.5429,0.4698,0.4848,115.0,0.433489,-0.036311,-0.089673,posted,1.46,,engine
@@ -108070,6 +108098,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,STL @ CIN,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3721,,win,0.91,,,unpriced,0.3492,,,,,,,posted,1.46,,engine
 2026-08-18,STL @ CIN,Totals,game_total,Under 8.5,8.5,betrivers,-103.0,-118.0,Pass,0.4291,-0.1543,win,0.9709,,,ev_floor,0.4291,0.4838,0.4291,-104.0,0.486002,0.002202,-0.042151,posted,1.46,,engine
 2026-08-18,STL @ CIN,Totals,game_total,Under 9.5,9.5,,,,Pass,0.538,,win,0.91,,,unpriced,0.538,,,,,,,posted,1.46,,engine
+2026-08-18,STL @ CIN,game,game_total,Under 9.0,9.0,teamrankings,,,1 star,0.5047,,win,0.91,,,,,,,,,,,,,,teamrankings
+2026-08-18,STL @ CIN,game,game_winner,STL ML,,teamrankings,,,1 star,0.5206000000000001,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B o0.5,0.5,draftkings,-128.0,-108.0,Pass,0.5685,0.0126,win,0.7812,,,singles_price_floor,0.6903,0.5221,0.5685,-125.0,0.519909,-0.002191,-0.073912,posted,1.45,,engine
 2026-08-18,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B u0.5,0.5,betmgm,-105.0,-130.0,Pass,0.4315,-0.1575,loss,-1.0,,,ev_floor,0.3097,0.4779,0.4315,-105.0,0.480091,0.002191,-0.062679,posted,1.45,,engine
 2026-08-18,TOR @ TB,Batter Props,batter_1b,Andrés Giménez 1B o0.5,0.5,draftkings,122.0,-169.0,Pass,0.4743,0.0529,win,1.22,,,thin_edge,0.528,0.4347,0.4743,122.0,0.430032,-0.004668,-0.045329,posted,1.45,,engine
@@ -108587,6 +108617,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,TOR @ TB,Totals,game_total,Under 7.5,7.5,fanduel,-110.0,-110.0,Moderate buy,0.5459,0.0422,loss,-1.0,,,,0.5459,0.51,0.5459,-107.0,0.501775,-0.008225,-0.042066,posted,1.45,,engine
 2026-08-18,TOR @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.626,,loss,-1.0,,,unpriced,0.626,,,,,,,posted,1.45,,engine
 2026-08-18,TOR @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7224,,loss,-1.0,,,unpriced,0.7224,,,,,,,posted,1.45,,engine
+2026-08-18,TOR @ TB,game,game_ml,TB ML,,teamrankings,-129.0,,1 star,0.0,0.022799999999999997,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,TOR @ TB,game,game_rl,TB -1.5,-1.5,teamrankings,155.0,,1 star,0.0,0.022799999999999997,loss,-1.0,-5.0,,,,,,,,,,,,,teamrankings
+2026-08-18,TOR @ TB,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.5081,,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,TOR @ TB,game,game_winner,TB ML,,teamrankings,,,1 star,0.5861999999999999,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-18,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B o0.5,0.5,betmgm,120.0,-160.0,Pass,0.4427,-0.0261,loss,-1.0,,,ev_floor,0.4603,0.4251,0.4427,123.0,0.420399,-0.004701,-0.075122,posted,2.83,,engine
 2026-08-18,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B u0.5,0.5,betmgm,-160.0,120.0,Pass,0.5573,-0.0943,win,0.625,,,ev_floor,0.5397,0.5749,0.5573,-160.0,0.579601,0.004701,-0.058148,posted,2.83,,engine
 2026-08-18,WSH @ TEX,Batter Props,batter_1b,Brady House 1B o0.5,0.5,draftkings,105.0,-146.0,Pass,0.4716,-0.0332,loss,-1.0,,,ev_floor,0.5245,0.4756,0.4716,116.0,0.454218,-0.021382,-0.068853,posted,2.83,,engine
@@ -109104,6 +109138,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-18,WSH @ TEX,Totals,game_total,Under 7.5,7.5,lowvig,100.0,-115.0,Pass,0.336,-0.3281,win,1.0,,,ev_floor,0.2835,0.4869,0.336,100.0,0.485684,-0.001216,-0.028632,posted,2.83,,engine
 2026-08-18,WSH @ TEX,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3768,,win,0.91,,,unpriced,0.3578,,,,,,,posted,2.83,,engine
 2026-08-18,WSH @ TEX,Totals,game_total,Under 9.5,9.5,,,,Pass,0.4606,,win,0.91,,,unpriced,0.4606,,,,,,,posted,2.83,,engine
+2026-08-18,WSH @ TEX,game,game_ml,WSH ML,,teamrankings,125.0,,1 star,0.0,0.0227,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,WSH @ TEX,game,game_rl,WSH +1.5,1.5,teamrankings,-179.0,,1 star,0.0,0.0227,loss,-1.0,-5.0,,,,,,,,,,,,,teamrankings
+2026-08-18,WSH @ TEX,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.5047,,loss,-1.0,,,,,,,,,,,,,,teamrankings
+2026-08-18,WSH @ TEX,game,game_winner,TEX ML,,teamrankings,,,1 star,0.5328,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,ATH @ KC,Batter Props,batter_1b,Bobby Witt 1B o0.5,0.5,draftkings,-117.0,-118.0,Pass,0.6118,0.1348,loss,-1.0,,,edge_ceiling,0.6215,0.5046,0.6118,-115.0,0.499511,-0.005089,-0.073557,projected,8.08,,engine
 2026-08-19,ATH @ KC,Batter Props,batter_1b,Bobby Witt 1B u0.5,0.5,betmgm,-110.0,-120.0,Pass,0.3882,-0.2589,win,0.9091,,,ev_floor,0.3785,0.4954,0.3882,-115.0,0.500489,0.005089,-0.044521,projected,8.08,,engine
 2026-08-19,ATH @ KC,Batter Props,batter_1b,Carlos Cortes 1B o0.5,0.5,draftkings,104.0,-144.0,Pass,0.39,-0.2044,loss,-1.0,,,ev_floor,0.39,0.4769,0.39,100.0,0.481518,0.004618,-0.017703,projected,8.08,,engine
@@ -109596,8 +109634,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,ATH @ KC,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3145,,loss,-1.0,,,unpriced,0.2445,,,,,,,projected,8.08,,engine
 2026-08-19,ATH @ KC,Totals,game_total,Under 8.5,8.5,betrivers,-107.0,-112.0,Pass,0.3511,-0.3209,loss,-1.0,,,ev_floor,0.311,0.508,0.3511,101.0,0.483798,-0.024202,-0.064054,projected,8.08,,engine
 2026-08-19,ATH @ KC,Totals,game_total,Under 9.5,9.5,,,,Pass,0.408,,loss,-1.0,,,unpriced,0.408,,,,,,,projected,8.08,,engine
-2026-08-19,ATH @ KC,game,game_total,Under 8.5,8.5,teamrankings,,,1 star,0.5011,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,ATH @ KC,game,game_winner,KC ML,,teamrankings,,,1 star,0.5769,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,ATL @ MIN,Batter Props,batter_1b,Austin Riley 1B o0.5,0.5,draftkings,144.0,-201.0,Pass,0.346,-0.1558,loss,-1.0,,,ev_floor,0.346,0.3984,0.346,144.0,0.398411,1.1e-05,-0.027877,projected,2.1,,engine
 2026-08-19,ATL @ MIN,Batter Props,batter_1b,Austin Riley 1B u0.5,0.5,betmgm,-165.0,125.0,Moderate buy,0.654,0.0504,win,0.6061,,,,0.654,0.6016,0.654,-165.0,0.601589,-1.1e-05,-0.033812,projected,2.1,,engine
 2026-08-19,ATL @ MIN,Batter Props,batter_1b,Brooks Lee 1B o0.5,0.5,draftkings,116.0,-161.0,Pass,0.4285,-0.0744,win,1.16,,,ev_floor,0.4285,0.4311,0.4285,112.0,0.444382,0.013282,-0.040135,projected,2.1,,engine
@@ -110090,8 +110126,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,ATL @ MIN,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3032,,loss,-1.0,,,unpriced,0.224,,,,,,,projected,2.1,,engine
 2026-08-19,ATL @ MIN,Totals,game_total,Under 8.5,8.5,lowvig,-101.0,-114.0,Pass,0.3389,-0.3255,loss,-1.0,,,ev_floor,0.289,0.4889,0.3389,-102.0,0.482279,-0.006621,-0.040217,projected,2.1,,engine
 2026-08-19,ATL @ MIN,Totals,game_total,Under 9.5,9.5,,,,Pass,0.3937,,loss,-1.0,,,unpriced,0.3885,,,,,,,projected,2.1,,engine
-2026-08-19,ATL @ MIN,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5043,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,ATL @ MIN,game,game_winner,ATL ML,,teamrankings,,,1 star,0.5081,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,AZ @ BOS,Batter Props,batter_1b,Adley Rutschman 1B o0.5,0.5,draftkings,109.0,-151.0,Pass,0.561,0.1725,loss,-1.0,,,edge_ceiling,0.561,0.4674,0.561,,,,,projected,4.6,,engine
 2026-08-19,AZ @ BOS,Batter Props,batter_1b,Adley Rutschman 1B u0.5,0.5,betmgm,-118.0,-110.0,Pass,0.439,-0.189,win,0.8475,,,ev_floor,0.439,0.5326,0.439,,,,,projected,4.6,,engine
 2026-08-19,AZ @ BOS,Batter Props,batter_1b,Andruw Monasterio 1B o0.5,0.5,draftkings,102.0,-142.0,Pass,0.462,-0.0668,loss,-1.0,,,ev_floor,0.462,0.4839,0.462,-103.0,0.495046,0.011146,-7e-06,projected,4.6,,engine
@@ -110584,8 +110618,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,AZ @ BOS,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3962,,loss,-1.0,,,unpriced,0.393,,,,,,,projected,4.6,,engine
 2026-08-19,AZ @ BOS,Totals,game_total,Under 8.5,8.5,,,,Pass,0.4715,,loss,-1.0,,,unpriced,0.4715,,,,,,,projected,4.6,,engine
 2026-08-19,AZ @ BOS,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5715,,loss,-1.0,,,unpriced,0.5715,,,,,,,projected,4.6,,engine
-2026-08-19,AZ @ BOS,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.5065,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,AZ @ BOS,game,game_winner,BOS ML,,teamrankings,,,2 stars,0.6018,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,CWS @ CHC,Batter Props,batter_1b,Alex Bregman 1B o0.5,0.5,betmgm,-105.0,-125.0,Pass,0.468,-0.0863,loss,-1.0,,,ev_floor,0.468,0.5036,0.468,-110.0,0.507657,0.004057,-0.00886,projected,2.77,,engine
 2026-08-19,CWS @ CHC,Batter Props,batter_1b,Alex Bregman 1B u0.5,0.5,draftkings,-104.0,-132.0,Pass,0.532,0.0435,win,0.9615,,,thin_edge,0.532,0.4964,0.532,-105.0,0.492343,-0.004057,-0.03425,projected,2.77,,engine
 2026-08-19,CWS @ CHC,Batter Props,batter_1b,Andrew Benintendi 1B o0.5,0.5,draftkings,109.0,-150.0,Pass,0.4525,-0.0543,win,1.09,,,ev_floor,0.4525,0.4668,0.4525,109.0,0.466767,-3.3e-05,-0.024457,projected,2.77,,engine
@@ -111078,8 +111110,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,CWS @ CHC,Totals,game_total,Under 7.5,7.5,fanatics,100.0,-120.0,Pass,0.4415,-0.117,win,1.0,,,ev_floor,0.4415,0.4837,0.4415,-105.0,0.494679,0.010979,-0.010642,projected,2.77,,engine
 2026-08-19,CWS @ CHC,Totals,game_total,Under 8.5,8.5,,,,Pass,0.527,,win,0.91,,,unpriced,0.527,,,,,,,projected,2.77,,engine
 2026-08-19,CWS @ CHC,Totals,game_total,Under 9.5,9.5,,,,Pass,0.627,,win,0.91,,,unpriced,0.627,,,,,,,projected,2.77,,engine
-2026-08-19,CWS @ CHC,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.5085000000000001,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,CWS @ CHC,game,game_winner,CHC ML,,teamrankings,,,1 star,0.5733,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,DET @ PIT,Batter Props,batter_1b,Brandon Lowe 1B o0.5,0.5,betmgm,115.0,-155.0,Pass,0.4585,-0.0142,loss,-1.0,,,ev_floor,0.4585,0.4386,0.4585,,,,,posted,1.02,,engine
 2026-08-19,DET @ PIT,Batter Props,batter_1b,Brandon Lowe 1B u0.5,0.5,draftkings,-150.0,109.0,Pass,0.5415,-0.0975,win,0.6667,,,ev_floor,0.5415,0.5614,0.5415,,,,,posted,1.02,,engine
 2026-08-19,DET @ PIT,Batter Props,batter_1b,Brett Callahan 1B o0.5,0.5,betmgm,130.0,-175.0,Pass,0.553,0.2719,loss,-1.0,,,edge_ceiling,0.553,0.4104,0.553,,,,,posted,1.02,,engine
@@ -111597,8 +111627,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,DET @ PIT,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2581,,win,0.91,,,unpriced,0.142,,,,,,,posted,1.02,,engine
 2026-08-19,DET @ PIT,Totals,game_total,Under 8.5,8.5,lowvig,-104.0,-110.0,Pass,0.2823,-0.4463,win,0.9615,,,ev_floor,0.186,0.5124,0.2823,,,,,posted,1.02,,engine
 2026-08-19,DET @ PIT,Totals,game_total,Under 9.5,9.5,,,,Pass,0.3274,,win,0.91,,,unpriced,0.268,,,,,,,posted,1.02,,engine
-2026-08-19,DET @ PIT,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.5002,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,DET @ PIT,game,game_winner,PIT ML,,teamrankings,,,1 star,0.5949,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B o0.5,0.5,betmgm,135.0,-185.0,Pass,0.423,-0.0059,loss,-1.0,,,ev_floor,0.423,0.4291,0.423,120.0,0.443559,0.014459,0.042364,projected,8.57,,engine
 2026-08-19,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B u0.5,0.5,draftkings,-139.0,100.0,Pass,0.577,-0.0079,win,0.7194,,,ev_floor,0.577,0.5709,0.577,-139.0,0.556441,-0.014459,-0.043242,projected,8.57,,engine
 2026-08-19,LAA @ HOU,Batter Props,batter_1b,Christian Walker 1B o0.5,0.5,betmgm,140.0,-190.0,Pass,0.3185,-0.2356,loss,-1.0,,,ev_floor,0.3185,0.409,0.3185,140.0,0.409033,3.3e-05,-0.018321,projected,8.57,,engine
@@ -112041,8 +112069,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,LAA @ HOU,Totals,game_total,Under 7.5,7.5,,,,Pass,0.541,,win,0.91,,,unpriced,0.541,,,,,,,projected,8.57,,engine
 2026-08-19,LAA @ HOU,Totals,game_total,Under 8.5,8.5,lowvig,-102.0,-113.0,Pass,0.6215,0.2308,win,0.9804,,,edge_ceiling,0.6215,0.4894,0.6215,-102.0,0.489443,4.3e-05,-0.030711,projected,8.57,,engine
 2026-08-19,LAA @ HOU,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7155,,win,0.91,,,unpriced,0.7155,,,,,,,projected,8.57,,engine
-2026-08-19,LAA @ HOU,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5015,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,LAA @ HOU,game,game_winner,HOU ML,,teamrankings,,,1 star,0.5927,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,LAD @ COL,Batter Props,batter_1b,Andy Pages 1B o0.5,0.5,draftkings,-194.0,139.0,Pass,0.55,-0.1665,win,0.5155,,,ev_floor,0.55,0.612,0.55,-194.0,0.611963,-3.7e-05,-0.072592,projected,9.07,,engine
 2026-08-19,LAD @ COL,Batter Props,batter_1b,Andy Pages 1B u0.5,0.5,draftkings,139.0,-194.0,Pass,0.45,0.0755,loss,-1.0,,,singles_under_profile,0.45,0.388,0.45,139.0,0.388037,3.7e-05,-0.072592,projected,9.07,,engine
 2026-08-19,LAD @ COL,Batter Props,batter_1b,Ben Rortvedt 1B o0.5,0.5,draftkings,-113.0,-122.0,Pass,0.3965,-0.2526,win,0.885,,,ev_floor,0.3965,0.4912,0.3965,-113.0,0.491189,-1.1e-05,-0.07413,projected,9.07,,engine
@@ -112535,10 +112561,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,LAD @ COL,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3131,,loss,-1.0,,,unpriced,0.242,,,,,,,projected,9.07,,engine
 2026-08-19,LAD @ COL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3577,,loss,-1.0,,,unpriced,0.323,,,,,,,projected,9.07,,engine
 2026-08-19,LAD @ COL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.429,,loss,-1.0,,,unpriced,0.429,,,,,,,projected,9.07,,engine
-2026-08-19,LAD @ COL,game,game_ml,COL ML,,teamrankings,170.0,,2 stars,0.0,0.0252,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,LAD @ COL,game,game_rl,COL +1.5,1.5,teamrankings,110.0,,2 stars,0.0,0.0252,loss,-1.0,-2.0,,,,,,,,,,,,,teamrankings
-2026-08-19,LAD @ COL,game,game_total,Under 11.5,11.5,teamrankings,,,1 star,0.5089,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,LAD @ COL,game,game_winner,LAD ML,,teamrankings,,,2 stars,0.6045,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,MIA @ PHI,Batter Props,batter_1b,Alec Bohm 1B o0.5,0.5,betmgm,-130.0,-105.0,Pass,0.542,-0.0411,loss,-1.0,,,ev_floor,0.542,0.5364,0.542,-125.0,0.534242,-0.002158,-0.054803,projected,6.51,,engine
 2026-08-19,MIA @ PHI,Batter Props,batter_1b,Alec Bohm 1B u0.5,0.5,draftkings,105.0,-145.0,Pass,0.458,-0.0611,win,1.05,,,ev_floor,0.458,0.4636,0.458,105.0,0.465758,0.002158,-0.045196,projected,6.51,,engine
 2026-08-19,MIA @ PHI,Batter Props,batter_1b,Brandon Marsh 1B o0.5,0.5,draftkings,109.0,-151.0,Pass,0.3985,-0.1671,win,1.09,,,ev_floor,0.3985,0.4715,0.3985,109.0,0.471501,1e-06,-0.014563,projected,6.51,,engine
@@ -113006,8 +113028,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,MIA @ PHI,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2785,,win,0.91,,,unpriced,0.179,,,,,,,projected,6.51,,engine
 2026-08-19,MIA @ PHI,Totals,game_total,Under 8.5,8.5,fanduel,-102.0,-120.0,Pass,0.3071,-0.3919,win,0.9804,,,ev_floor,0.231,0.4866,0.3071,110.0,0.466826,-0.019774,-0.075501,projected,6.51,,engine
 2026-08-19,MIA @ PHI,Totals,game_total,Under 9.5,9.5,,,,Pass,0.3538,,win,0.91,,,unpriced,0.316,,,,,,,projected,6.51,,engine
-2026-08-19,MIA @ PHI,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5007,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,MIA @ PHI,game,game_winner,PHI ML,,teamrankings,,,1 star,0.5408,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B o0.5,0.5,betmgm,185.0,-250.0,Pass,0.4425,0.2611,loss,-1.0,,,edge_ceiling,0.4425,0.3419,0.4425,185.0,0.338741,-0.003159,-0.034588,projected,7.01,,engine
 2026-08-19,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B u0.5,0.5,draftkings,-228.0,162.0,Pass,0.5575,-0.198,win,0.4386,,,ev_floor,0.5575,0.6581,0.5575,-235.0,0.661259,0.003159,-0.048715,projected,7.01,,engine
 2026-08-19,NYY @ BAL,Batter Props,batter_1b,Ben Rice 1B o0.5,0.5,betmgm,110.0,-150.0,Pass,0.34,-0.286,win,1.1,,,ev_floor,0.34,0.4644,0.34,110.0,0.462465,-0.001935,-0.028823,projected,7.01,,engine
@@ -113500,8 +113520,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,NYY @ BAL,Totals,game_total,Under 7.5,7.5,,,,Pass,0.2969,,loss,-1.0,,,unpriced,0.2125,,,,,,,projected,7.01,,engine
 2026-08-19,NYY @ BAL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3392,,win,0.91,,,unpriced,0.2895,,,,,,,projected,7.01,,engine
 2026-08-19,NYY @ BAL,Totals,game_total,Under 9.5,9.5,fanatics,-120.0,100.0,Pass,0.3953,-0.2752,win,0.8333,,,ev_floor,0.3915,0.5224,0.3953,-120.0,0.521443,-0.000957,-0.044021,projected,7.01,,engine
-2026-08-19,NYY @ BAL,game,game_total,Over 9.0,9.0,teamrankings,,,1 star,0.5078,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,NYY @ BAL,game,game_winner,NYY ML,,teamrankings,,,1 star,0.5325,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,SD @ NYM,Batter Props,batter_1b,A.J. Ewing 1B o0.5,0.5,draftkings,-111.0,-124.0,Pass,0.428,-0.1864,win,0.9009,,,ev_floor,0.428,0.5038,0.428,-115.0,0.507706,0.003906,-0.034901,posted,1.6,,engine
 2026-08-19,SD @ NYM,Batter Props,batter_1b,A.J. Ewing 1B u0.5,0.5,betmgm,-105.0,-125.0,Strong buy,0.572,0.1168,loss,-1.0,,,,0.572,0.4962,0.572,-105.0,0.492294,-0.003906,-0.038855,posted,1.6,,engine
 2026-08-19,SD @ NYM,Batter Props,batter_1b,Bo Bichette 1B o0.5,0.5,draftkings,-124.0,-111.0,Pass,0.549,-0.0083,loss,-1.0,,,ev_floor,0.549,0.5187,0.549,-124.0,0.518672,-2.8e-05,-0.063044,posted,1.6,,engine
@@ -114019,8 +114037,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,SD @ NYM,Totals,game_total,Under 7.5,7.5,,,,Pass,0.404,,win,0.91,,,unpriced,0.404,,,,,,,posted,1.6,,engine
 2026-08-19,SD @ NYM,Totals,game_total,Under 8.5,8.5,lowvig,-102.0,-113.0,Pass,0.4905,-0.0286,win,0.9804,,,ev_floor,0.4905,0.4906,0.4905,-104.0,0.491507,0.000907,-0.026623,posted,1.6,,engine
 2026-08-19,SD @ NYM,Totals,game_total,Under 9.5,9.5,,,,Pass,0.59,,win,0.91,,,unpriced,0.59,,,,,,,posted,1.6,,engine
-2026-08-19,SD @ NYM,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5033,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,SD @ NYM,game,game_winner,SD ML,,teamrankings,,,1 star,0.5624,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,SEA @ MIL,Batter Props,batter_1b,Andrew Vaughn 1B o0.5,0.5,draftkings,106.0,-147.0,Pass,0.5085,0.0475,win,1.06,,,contact_floor,0.5085,0.4492,0.5085,106.0,0.449238,3.8e-05,-0.07457,projected,8.08,,engine
 2026-08-19,SEA @ MIL,Batter Props,batter_1b,Andrew Vaughn 1B u0.5,0.5,draftkings,-147.0,106.0,Pass,0.4915,-0.1741,loss,-1.0,,,ev_floor,0.4915,0.5508,0.4915,-147.0,0.550762,-3.8e-05,-0.07457,projected,8.08,,engine
 2026-08-19,SEA @ MIL,Batter Props,batter_1b,Brendan Donovan 1B o0.5,0.5,fanatics,110.0,-155.0,Pass,0.47,-0.013,win,1.1,,,ev_floor,0.47,0.4563,0.47,110.0,0.456298,-2e-06,-0.041774,projected,8.08,,engine
@@ -114488,10 +114504,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,SEA @ MIL,Totals,game_total,Under 7.5,7.5,,,,Pass,0.4085,,loss,-1.0,,,unpriced,0.4085,,,,,,,projected,8.08,,engine
 2026-08-19,SEA @ MIL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.503,,loss,-1.0,,,unpriced,0.503,,,,,,,projected,8.08,,engine
 2026-08-19,SEA @ MIL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.619,,loss,-1.0,,,unpriced,0.619,,,,,,,projected,8.08,,engine
-2026-08-19,SEA @ MIL,game,game_ml,MIL ML,,teamrankings,-121.0,,1 star,0.0,0.0246,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,SEA @ MIL,game,game_rl,MIL -1.5,-1.5,teamrankings,174.0,,1 star,0.0,0.0246,loss,-1.0,-2.0,,,,,,,,,,,,,teamrankings
-2026-08-19,SEA @ MIL,game,game_total,Over 7.0,7.0,teamrankings,,,1 star,0.506,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,SEA @ MIL,game,game_winner,MIL ML,,teamrankings,,,1 star,0.5721,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,SF @ CLE,Batter Props,batter_1b,Angel Genao 1B o0.5,0.5,betmgm,-120.0,-110.0,Pass,0.5835,0.0698,win,0.8333,,,singles_price_floor,0.5835,0.5119,0.5835,-120.0,0.511877,-2.3e-05,-0.061559,projected,7.09,,engine
 2026-08-19,SF @ CLE,Batter Props,batter_1b,Angel Genao 1B u0.5,0.5,betmgm,-110.0,-120.0,Pass,0.4165,-0.2049,loss,-1.0,,,ev_floor,0.4165,0.4881,0.4165,-110.0,0.488123,2.3e-05,-0.068129,projected,7.09,,engine
 2026-08-19,SF @ CLE,Batter Props,batter_1b,Brayan Rocchio 1B o0.5,0.5,betmgm,110.0,-150.0,Pass,0.374,-0.2146,loss,-1.0,,,ev_floor,0.374,0.4547,0.374,110.0,0.454748,4.8e-05,-0.045029,projected,7.09,,engine
@@ -114909,8 +114921,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,SF @ CLE,Totals,game_total,Under 7.5,7.5,betrivers,-114.0,-105.0,Pass,0.4405,-0.1731,win,0.8772,,,ev_floor,0.4405,0.5216,0.4405,-113.0,0.522843,0.001243,-0.018523,projected,7.09,,engine
 2026-08-19,SF @ CLE,Totals,game_total,Under 8.5,8.5,,,,Pass,0.526,,win,0.91,,,unpriced,0.526,,,,,,,projected,7.09,,engine
 2026-08-19,SF @ CLE,Totals,game_total,Under 9.5,9.5,,,,Pass,0.629,,win,0.91,,,unpriced,0.629,,,,,,,projected,7.09,,engine
-2026-08-19,SF @ CLE,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.5103,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-19,SF @ CLE,game,game_winner,CLE ML,,teamrankings,,,2 stars,0.6662,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B o0.5,0.5,betmgm,-105.0,-125.0,Pass,0.454,-0.1136,win,0.9524,,,ev_floor,0.454,0.4825,0.454,-105.0,0.482495,-5e-06,-0.057986,projected,7.09,,engine
 2026-08-19,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B u0.5,0.5,draftkings,-125.0,-110.0,Pass,0.546,-0.0172,loss,-1.0,,,ev_floor,0.546,0.5175,0.546,-125.0,0.517505,5e-06,-0.068491,projected,7.09,,engine
 2026-08-19,STL @ CIN,Batter Props,batter_1b,Dane Myers 1B o0.5,0.5,betmgm,-105.0,-125.0,Pass,0.508,-0.0082,win,0.9524,,,ev_floor,0.508,0.4845,0.508,-105.0,0.484461,-3.9e-05,-0.054148,projected,7.09,,engine
@@ -115403,8 +115413,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,STL @ CIN,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3604,,loss,-1.0,,,unpriced,0.328,,,,,,,projected,7.09,,engine
 2026-08-19,STL @ CIN,Totals,game_total,Under 8.5,8.5,betrivers,-107.0,-112.0,Pass,0.414,-0.1991,loss,-1.0,,,ev_floor,0.414,0.5093,0.414,-107.0,0.510374,0.001074,-0.012641,projected,7.09,,engine
 2026-08-19,STL @ CIN,Totals,game_total,Under 9.5,9.5,,,,Pass,0.52,,win,0.91,,,unpriced,0.52,,,,,,,projected,7.09,,engine
-2026-08-19,STL @ CIN,game,game_total,Under 8.5,8.5,teamrankings,,,1 star,0.5044,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,STL @ CIN,game,game_winner,CIN ML,,teamrankings,,,1 star,0.581,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B o0.5,0.5,draftkings,-115.0,-120.0,Pass,0.6399,0.1963,win,0.8696,,,edge_ceiling,0.6725,0.4976,0.6399,-115.0,0.497554,-4.6e-05,-0.06979,projected,7.08,,engine
 2026-08-19,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B u0.5,0.5,betmgm,-115.0,-115.0,Pass,0.3601,-0.3267,loss,-1.0,,,ev_floor,0.3275,0.5024,0.3601,-115.0,0.502446,4.6e-05,-0.060644,projected,7.08,,engine
 2026-08-19,TOR @ TB,Batter Props,batter_1b,Andres Gimenez 1B o0.5,0.5,draftkings,121.0,-168.0,Pass,0.5405,0.1945,loss,-1.0,,,edge_ceiling,0.5405,0.422,0.5405,121.0,0.422029,2.9e-05,-0.067316,projected,7.08,,engine
@@ -115897,8 +115905,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,TOR @ TB,Totals,game_total,Under 7.5,7.5,betrivers,-114.0,-105.0,Pass,0.4975,-0.0661,loss,-1.0,,,ev_floor,0.4975,0.5261,0.4975,-114.0,0.525429,-0.000671,-0.013668,projected,7.08,,engine
 2026-08-19,TOR @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.579,,loss,-1.0,,,unpriced,0.579,,,,,,,projected,7.08,,engine
 2026-08-19,TOR @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6775,,loss,-1.0,,,unpriced,0.6775,,,,,,,projected,7.08,,engine
-2026-08-19,TOR @ TB,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.5189,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,TOR @ TB,game,game_winner,TB ML,,teamrankings,,,2 stars,0.6507,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-19,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B o0.5,0.5,draftkings,134.0,-187.0,Pass,0.4435,0.0378,loss,-1.0,,,thin_edge,0.4435,0.4193,0.4435,134.0,0.419285,-1.5e-05,-0.018873,projected,8.49,,engine
 2026-08-19,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B u0.5,0.5,betmgm,-150.0,110.0,Pass,0.5565,-0.0725,win,0.6667,,,ev_floor,0.5565,0.5807,0.5565,-150.0,0.580715,1.5e-05,-0.032142,projected,8.49,,engine
 2026-08-19,WSH @ TEX,Batter Props,batter_1b,Brady House 1B o0.5,0.5,draftkings,129.0,-179.0,Pass,0.391,-0.1046,loss,-1.0,,,ev_floor,0.391,0.4352,0.391,129.0,0.430198,-0.005002,-0.014847,projected,8.49,,engine
@@ -116366,10 +116372,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-19,WSH @ TEX,Totals,game_total,Under 7.5,7.5,bovada,100.0,-120.0,Pass,0.3098,-0.3804,win,1.0,,,ev_floor,0.236,0.4911,0.3098,100.0,0.490603,-0.000497,-0.018794,projected,8.49,,engine
 2026-08-19,WSH @ TEX,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3475,,win,0.91,,,unpriced,0.3045,,,,,,,projected,8.49,,engine
 2026-08-19,WSH @ TEX,Totals,game_total,Under 9.5,9.5,,,,Pass,0.404,,win,0.91,,,unpriced,0.404,,,,,,,projected,8.49,,engine
-2026-08-19,WSH @ TEX,game,game_ml,WSH ML,,teamrankings,119.0,,2 stars,0.0,0.030600000000000002,win,1.19,,,,,,,,,,,,,,teamrankings
-2026-08-19,WSH @ TEX,game,game_rl,WSH +1.5,1.5,teamrankings,-190.0,,2 stars,0.0,0.030600000000000002,win,0.5263,6.0,,,,,,,,,,,,,teamrankings
-2026-08-19,WSH @ TEX,game,game_total,Over 7.5,7.5,teamrankings,,,1 star,0.5027,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-19,WSH @ TEX,game,game_winner,TEX ML,,teamrankings,,,1 star,0.5128,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,ATH @ KC,Batter Props,batter_1b,Bobby Witt Jr. 1B o0.5,0.5,betmgm,-120.0,-110.0,Pass,0.577,0.0578,win,0.8333,,,singles_price_floor,0.577,0.5104,0.577,-120.0,0.510447,4.7e-05,-0.06418,projected,2.62,,engine
 2026-08-20,ATH @ KC,Batter Props,batter_1b,Bobby Witt Jr. 1B u0.5,0.5,betmgm,-110.0,-120.0,Pass,0.423,-0.1925,loss,-1.0,,,ev_floor,0.423,0.4896,0.423,-110.0,0.489553,-4.7e-05,-0.065399,projected,2.62,,engine
 2026-08-20,ATH @ KC,Batter Props,batter_1b,Carlos Cortes 1B o0.5,0.5,draftkings,-107.0,-128.0,Pass,0.438,-0.1527,win,0.9346,,,ev_floor,0.438,0.4998,0.438,105.0,0.486063,-0.013737,-0.059673,projected,2.62,,engine
@@ -116812,8 +116814,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,ATH @ KC,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3741,,loss,-1.0,,,unpriced,0.353,,,,,,,projected,2.62,,engine
 2026-08-20,ATH @ KC,Totals,game_total,Under 8.5,8.5,betrivers,-117.0,-103.0,Pass,0.431,-0.2006,win,0.8547,,,ev_floor,0.431,0.5194,0.431,-120.0,0.524822,0.005422,-0.026612,projected,2.62,,engine
 2026-08-20,ATH @ KC,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5345,,win,0.91,,,unpriced,0.5345,,,,,,,projected,2.62,,engine
-2026-08-20,ATH @ KC,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.5025,,push,0.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,ATH @ KC,game,game_winner,KC ML,,teamrankings,,,1 star,0.5539999999999999,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,ATL @ CWS,Batter Props,batter_1b,Andrew Benintendi 1B o0.5,0.5,draftkings,125.0,-174.0,Pass,0.4615,0.0384,win,1.25,,,thin_edge,0.4615,0.4271,0.4615,125.0,0.427099,-1e-06,-0.039027,posted,2.61,,engine
 2026-08-20,ATL @ CWS,Batter Props,batter_1b,Andrew Benintendi 1B u0.5,0.5,betmgm,-150.0,110.0,Pass,0.5385,-0.1025,loss,-1.0,,,ev_floor,0.5385,0.5729,0.5385,-150.0,0.572901,1e-06,-0.045165,posted,2.61,,engine
 2026-08-20,ATL @ CWS,Batter Props,batter_1b,Austin Riley 1B o0.5,0.5,betmgm,130.0,-175.0,Pass,0.3525,-0.1893,win,1.3,,,ev_floor,0.3525,0.4064,0.3525,130.0,0.40639,-1e-05,-0.065303,posted,2.61,,engine
@@ -117331,10 +117331,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,ATL @ CWS,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3488,,win,0.91,,,unpriced,0.307,,,,,,,posted,2.61,,engine
 2026-08-20,ATL @ CWS,Totals,game_total,Under 8.5,8.5,lowvig,-102.0,-113.0,Pass,0.3898,-0.228,win,0.9804,,,ev_floor,0.3815,0.4901,0.3898,-102.0,0.489723,-0.000377,-0.030156,posted,2.61,,engine
 2026-08-20,ATL @ CWS,Totals,game_total,Under 9.5,9.5,,,,Pass,0.479,,win,0.91,,,unpriced,0.479,,,,,,,posted,2.61,,engine
-2026-08-20,ATL @ CWS,game,game_ml,CWS ML,,teamrankings,-106.0,,1 star,0.0,0.0229,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,ATL @ CWS,game,game_rl,CWS +1.5,1.5,teamrankings,-188.0,,1 star,0.0,0.0229,loss,-1.0,-2.0,,,,,,,,,,,,,teamrankings
-2026-08-20,ATL @ CWS,game,game_total,Over 8.5,8.5,teamrankings,,,1 star,0.5032,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,ATL @ CWS,game,game_winner,CWS ML,,teamrankings,,,1 star,0.5374,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B o0.5,0.5,draftkings,121.0,-168.0,Pass,0.403,-0.1094,loss,-1.0,,,ev_floor,0.403,0.4308,0.403,115.0,0.437333,0.006533,-0.033494,projected,8.6,,engine
 2026-08-20,LAA @ HOU,Batter Props,batter_1b,Cam Smith 1B u0.5,0.5,betmgm,-150.0,110.0,Pass,0.597,-0.005,win,0.6667,,,ev_floor,0.597,0.5692,0.597,-152.0,0.562667,-0.006533,-0.062222,projected,8.6,,engine
 2026-08-20,LAA @ HOU,Batter Props,batter_1b,Daulton Varsho 1B o0.5,0.5,betmgm,125.0,-165.0,Pass,0.3525,-0.2069,loss,-1.0,,,ev_floor,0.3525,0.4258,0.3525,125.0,0.429752,0.003952,-0.033058,projected,8.6,,engine
@@ -117802,8 +117798,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,LAA @ HOU,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3909,,loss,-1.0,,,unpriced,0.3835,,,,,,,projected,8.6,,engine
 2026-08-20,LAA @ HOU,Totals,game_total,Under 8.5,8.5,lowvig,-113.0,-102.0,Pass,0.4665,-0.1207,loss,-1.0,,,ev_floor,0.4665,0.5107,0.4665,-113.0,0.510881,0.000181,-0.037012,projected,8.6,,engine
 2026-08-20,LAA @ HOU,Totals,game_total,Under 9.5,9.5,,,,Pass,0.575,,loss,-1.0,,,unpriced,0.575,,,,,,,projected,8.6,,engine
-2026-08-20,LAA @ HOU,game,game_total,Over 8.0,8.0,teamrankings,,,1 star,0.5015,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-20,LAA @ HOU,game,game_winner,HOU ML,,teamrankings,,,2 stars,0.6333,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B o0.5,0.5,draftkings,187.0,-265.0,Pass,0.402,0.1537,win,1.87,,,contact_floor,0.402,0.3288,0.402,187.0,0.32881,1e-05,-0.056315,projected,7.02,,engine
 2026-08-20,NYY @ BAL,Batter Props,batter_1b,Austin Wells 1B u0.5,0.5,betmgm,-250.0,180.0,Pass,0.598,-0.1628,loss,-1.0,,,ev_floor,0.598,0.6712,0.598,-250.0,0.67119,-1e-05,-0.060334,projected,7.02,,engine
 2026-08-20,NYY @ BAL,Batter Props,batter_1b,Ben Rice 1B o0.5,0.5,draftkings,111.0,-153.0,Pass,0.362,-0.2362,win,1.11,,,ev_floor,0.362,0.4474,0.362,111.0,0.447387,-1.3e-05,-0.056013,projected,7.02,,engine
@@ -118271,8 +118265,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,NYY @ BAL,Totals,game_total,Under 7.5,7.5,lowvig,-105.0,-109.0,Pass,0.4135,-0.1927,win,0.9524,,,ev_floor,0.4135,0.4949,0.4135,-105.0,0.495265,0.000365,-0.033054,projected,7.02,,engine
 2026-08-20,NYY @ BAL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.502,,win,0.91,,,unpriced,0.502,,,,,,,projected,7.02,,engine
 2026-08-20,NYY @ BAL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.603,,win,0.91,,,unpriced,0.603,,,,,,,projected,7.02,,engine
-2026-08-20,NYY @ BAL,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.5134000000000001,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-20,NYY @ BAL,game,game_winner,NYY ML,,teamrankings,,,1 star,0.5012,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,SEA @ MIL,Batter Props,batter_1b,Brice Turang 1B o0.5,0.5,draftkings,-124.0,-111.0,Pass,0.526,-0.0498,win,0.8065,,,ev_floor,0.526,0.5187,0.526,-120.0,0.51143,-0.00727,-0.076126,projected,2.61,,engine
 2026-08-20,SEA @ MIL,Batter Props,batter_1b,Brice Turang 1B u0.5,0.5,betmgm,-105.0,-130.0,Pass,0.474,-0.0746,loss,-1.0,,,ev_floor,0.474,0.4813,0.474,-110.0,0.48857,0.00727,-0.046125,projected,2.61,,engine
 2026-08-20,SEA @ MIL,Batter Props,batter_1b,Brock Rodden 1B o0.5,0.5,draftkings,160.0,-225.0,Pass,0.3805,-0.0107,win,1.6,,,ev_floor,0.3805,0.3729,0.3805,166.0,0.369122,-0.003778,-0.040283,projected,2.61,,engine
@@ -118715,8 +118707,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,SEA @ MIL,Totals,game_total,Under 7.5,7.5,betrivers,100.0,-118.0,Pass,0.3535,-0.293,loss,-1.0,,,ev_floor,0.3155,0.4802,0.3535,-104.0,0.489264,0.009064,-0.021472,projected,2.61,,engine
 2026-08-20,SEA @ MIL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3945,,loss,-1.0,,,unpriced,0.39,,,,,,,projected,2.61,,engine
 2026-08-20,SEA @ MIL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.4865,,loss,-1.0,,,unpriced,0.4865,,,,,,,projected,2.61,,engine
-2026-08-20,SEA @ MIL,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.5057,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,SEA @ MIL,game,game_winner,MIL ML,,teamrankings,,,1 star,0.5631,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,SF @ CLE,Batter Props,batter_1b,Angel Genao 1B o0.5,0.5,draftkings,-111.0,-125.0,Pass,0.6234,0.185,win,0.9009,,,edge_ceiling,0.6425,0.4982,0.6234,-111.0,0.498245,4.5e-05,-0.052886,posted,1.62,,engine
 2026-08-20,SF @ CLE,Batter Props,batter_1b,Angel Genao 1B u0.5,0.5,betmgm,-110.0,-120.0,Pass,0.3766,-0.281,loss,-1.0,,,ev_floor,0.3575,0.5018,0.3766,-110.0,0.501755,-4.5e-05,-0.042104,posted,1.62,,engine
 2026-08-20,SF @ CLE,Batter Props,batter_1b,Angel Martínez 1B o0.5,0.5,betmgm,105.0,-140.0,Pass,0.484,-0.0078,win,1.05,,,ev_floor,0.484,0.463,0.484,105.0,0.462998,-2e-06,-0.050854,posted,1.62,,engine
@@ -119234,8 +119224,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,SF @ CLE,Totals,game_total,Under 7.5,7.5,,,,Pass,0.525,,win,0.91,,,unpriced,0.525,,,,,,,posted,1.62,,engine
 2026-08-20,SF @ CLE,Totals,game_total,Under 8.5,8.5,,,,Pass,0.603,,win,0.91,,,unpriced,0.603,,,,,,,posted,1.62,,engine
 2026-08-20,SF @ CLE,Totals,game_total,Under 9.5,9.5,,,,Pass,0.701,,win,0.91,,,unpriced,0.701,,,,,,,posted,1.62,,engine
-2026-08-20,SF @ CLE,game,game_total,Over 6.5,6.5,teamrankings,,,1 star,0.511,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-20,SF @ CLE,game,game_winner,CLE ML,,teamrankings,,,2 stars,0.6554000000000001,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B o0.5,0.5,betmgm,-130.0,-105.0,Pass,0.5025,-0.111,win,0.7692,,,ev_floor,0.5025,0.5331,0.5025,,,,,posted,1.13,,engine
 2026-08-20,STL @ CIN,Batter Props,batter_1b,Alec Burleson 1B u0.5,0.5,draftkings,102.0,-141.0,Pass,0.4975,0.005,loss,-1.0,,,thin_edge,0.4975,0.4669,0.4975,,,,,posted,1.13,,engine
 2026-08-20,STL @ CIN,Batter Props,batter_1b,Blaze Jordan 1B o0.5,0.5,betmgm,-105.0,-125.0,Pass,0.5415,0.0572,loss,-1.0,,,singles_price_floor,0.5415,0.4854,0.5415,,,,,posted,1.13,,engine
@@ -119753,8 +119741,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,STL @ CIN,Totals,game_total,Under 7.5,7.5,,,,Pass,0.3282,,loss,-1.0,,,unpriced,0.2695,,,,,,,posted,1.13,,engine
 2026-08-20,STL @ CIN,Totals,game_total,Under 8.5,8.5,,,,Pass,0.3706,,loss,-1.0,,,unpriced,0.3465,,,,,,,posted,1.13,,engine
 2026-08-20,STL @ CIN,Totals,game_total,Under 9.5,9.5,,,,Pass,0.452,,loss,-1.0,,,unpriced,0.452,,,,,,,posted,1.13,,engine
-2026-08-20,STL @ CIN,game,game_total,Under 9.0,9.0,teamrankings,,,1 star,0.5051,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,STL @ CIN,game,game_winner,STL ML,,teamrankings,,,1 star,0.5104,,win,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B o0.5,0.5,draftkings,-110.0,-125.0,Pass,0.6226,0.1885,win,0.9091,,,edge_ceiling,0.641,0.4876,0.6226,-110.0,0.492493,0.004893,-0.059786,posted,1.62,,engine
 2026-08-20,TOR @ TB,Batter Props,batter_1b,Alejandro Kirk 1B u0.5,0.5,betmgm,-120.0,-110.0,Pass,0.3774,-0.308,loss,-1.0,,,ev_floor,0.359,0.5124,0.3774,-120.0,0.507507,-0.004893,-0.06957,posted,1.62,,engine
 2026-08-20,TOR @ TB,Batter Props,batter_1b,Andrés Giménez 1B o0.5,0.5,betmgm,110.0,-150.0,Pass,0.54,0.134,win,1.1,,,edge_ceiling,0.54,0.4494,0.54,115.0,0.444935,-0.004465,-0.065636,posted,1.62,,engine
@@ -120272,8 +120258,6 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,TOR @ TB,Totals,game_total,Under 7.5,7.5,betmgm,-125.0,105.0,Pass,0.3629,-0.3468,win,0.8,,,ev_floor,0.3325,0.5325,0.3629,-125.0,0.532468,-3.2e-05,-0.041558,posted,1.62,,engine
 2026-08-20,TOR @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.409,,win,0.91,,,unpriced,0.409,,,,,,,posted,1.62,,engine
 2026-08-20,TOR @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5155,,win,0.91,,,unpriced,0.5155,,,,,,,posted,1.62,,engine
-2026-08-20,TOR @ TB,game,game_total,Over 7.0,7.0,teamrankings,,,1 star,0.5054,,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,TOR @ TB,game,game_winner,TB ML,,teamrankings,,,2 stars,0.6064,,loss,0.0,,,,,,,,,,,,,,teamrankings
 2026-08-20,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B o0.5,0.5,draftkings,131.0,-182.0,Pass,0.533,0.2312,loss,-1.0,,,edge_ceiling,0.533,0.4037,0.533,135.0,0.39872,-0.00498,-0.078957,projected,8.52,,engine
 2026-08-20,WSH @ TEX,Batter Props,batter_1b,Abimelec Ortiz 1B u0.5,0.5,betmgm,-175.0,130.0,Pass,0.467,-0.2661,win,0.5714,,,ev_floor,0.467,0.5963,0.467,-182.0,0.60128,0.00498,-0.055131,projected,8.52,,engine
 2026-08-20,WSH @ TEX,Batter Props,batter_1b,Brady House 1B o0.5,0.5,draftkings,126.0,-175.0,Pass,0.4795,0.0837,win,1.26,,,contact_floor,0.4795,0.4218,0.4795,126.0,0.421815,1.5e-05,-0.046698,projected,8.52,,engine
@@ -120716,7 +120700,3 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-20,WSH @ TEX,Totals,game_total,Under 7.5,7.5,lowvig,-107.0,-107.0,Pass,0.367,-0.29,win,0.9346,,,ev_floor,0.34,0.5016,0.367,-107.0,0.505389,0.003789,-0.022285,projected,8.52,,engine
 2026-08-20,WSH @ TEX,Totals,game_total,Under 8.5,8.5,,,,Pass,0.413,,win,0.91,,,unpriced,0.413,,,,,,,projected,8.52,,engine
 2026-08-20,WSH @ TEX,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5165,,win,0.91,,,unpriced,0.5165,,,,,,,projected,8.52,,engine
-2026-08-20,WSH @ TEX,game,game_ml,WSH ML,,teamrankings,163.0,,1 star,0.0,0.0235,loss,-1.0,,,,,,,,,,,,,,teamrankings
-2026-08-20,WSH @ TEX,game,game_rl,WSH +1.5,1.5,teamrankings,-140.0,,1 star,0.0,0.0235,loss,-1.0,-2.0,,,,,,,,,,,,,teamrankings
-2026-08-20,WSH @ TEX,game,game_total,Under 7.5,7.5,teamrankings,,,1 star,0.5075,,win,0.91,,,,,,,,,,,,,,teamrankings
-2026-08-20,WSH @ TEX,game,game_winner,TEX ML,,teamrankings,,,1 star,0.5962,,win,0.0,,,,,,,,,,,,,,teamrankings
