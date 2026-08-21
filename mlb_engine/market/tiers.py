@@ -4,7 +4,10 @@ A bet has to clear the EV floor at the price we can actually get, and is then
 ranked on its edge over the no-vig market -- not on EV, because ``EV =
 decimal_odds x edge`` makes an EV cutoff a cheaper bar the longer the price.
 Edge also has a ceiling: past ``max_edge`` a disagreement reads as a model
-error. Tiers are then adjusted by VSIN handle/bets divergence.
+error. Two level screens sit past it -- a conviction floor on the probability
+being bet and a ceiling on claimed EV -- because a bet can clear every relative
+test while still being a cheap ticket or an unmeasurable tail. Tiers are then
+adjusted by VSIN handle/bets divergence.
 """
 
 from __future__ import annotations
@@ -50,6 +53,18 @@ def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
     # departure from it is evidence against the model, not a bigger bet.
     if result.edge > thr.max_edge:
         return "edge_ceiling", f"edge {result.edge:+.3f} > {thr.max_edge} -> pass"
+    # Conviction floor, read on the probability the screen bets on -- anchored
+    # where the market anchor is on, so it asks whether the selection survives
+    # being pulled toward the price rather than whether the model liked it.
+    if result.model_prob < thr.min_prob:
+        return (
+            "prob_floor",
+            f"bet prob {result.model_prob:.3f} < {thr.min_prob} -> pass",
+        )
+    # EV tail guard: ``max_edge`` caps the disagreement, but a long price turns a
+    # capped edge into an uncapped EV, and return falls as claimed EV rises.
+    if result.ev > thr.max_ev:
+        return "ev_ceiling", f"EV {result.ev:+.3f} > {thr.max_ev} -> pass"
     return None
 
 

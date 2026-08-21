@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from mlb_engine.config import Config
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.features.market_gates import price_ceiling_allows
@@ -26,16 +26,24 @@ REFUSE_AT = 300.0
 MATCHUP = "MIA @ ATL"
 SELECTION = "Jazz Chisholm 2B o0.5"
 
+# A double is honestly a 25%-ish event, so the shipped conviction floor refuses
+# every one of these rows before the price ceiling is reached (see
+# ``test_the_conviction_floor_gets_there_first``). These tests are about the
+# ceiling, so they price the row with the level screens lifted.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
+
 
 class _Identity:
     def apply(self, market: str, prob: float) -> float:
         return prob
 
 
-def _doubles_rec(american: float, *, gate_reason: str | None = None):
+def _doubles_rec(
+    american: float, *, gate_reason: str | None = None, cfg: Config | None = None
+):
     """A priced ``batter_2b`` over, run through the real selection chain."""
     p = Pipeline.__new__(Pipeline)
-    p.cfg = Config()
+    p.cfg = cfg or Config(ev=LEVELS_OFF)
     p._calibrator = _Identity()
     p._shrink = None
     p._splits = {}
@@ -96,6 +104,21 @@ def test_the_refusal_is_named_in_the_ledger() -> None:
     assert rec.tier is Tier.PASS
     assert rec.pass_gate == "doubles_price_ceiling"
     assert any("doubles-price-ceiling" in r for r in rec.reasons)
+
+
+def test_the_conviction_floor_gets_there_first_on_shipped_defaults() -> None:
+    """The floor supersedes this ceiling, and the ledger agrees with the floor.
+
+    A 0.58 floor on the anchored probability cannot be cleared by a market whose
+    over is a 25% event, so with shipped settings the doubles book is refused on
+    conviction rather than on price. That is not a false negative being invented:
+    across 241 real-priced doubles and home-run buys the record is 14.1% for
+    -18.3% per unit. The ceiling stays because ``MLBE_MIN_PROB_BATTER_2B=0`` re-opens the
+    market, and the price rule is then the one that has been graded.
+    """
+    rec = _doubles_rec(455.0, cfg=Config())
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "prob_floor"
 
 
 def test_a_row_another_screen_already_refused_keeps_its_own_gate() -> None:
