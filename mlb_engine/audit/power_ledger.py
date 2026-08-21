@@ -35,7 +35,7 @@ from pathlib import Path
 from mlb_engine.audit.grade import LOSS, PUSH, WIN, batter_actual, grade_batter
 from mlb_engine.audit.ledger import pnl_units
 from mlb_engine.data.results import GameResult
-from mlb_engine.output.power_board import MARKET_LABEL, Board, BoardRow
+from mlb_engine.output.power_board import DISPLAY_ONLY, MARKET_LABEL, Board, BoardRow
 
 log = logging.getLogger(__name__)
 
@@ -101,10 +101,15 @@ def positions_from_board(
 
     ``ratings`` maps batter name to the note's BUY/HOLD/AVOID; it is supplied by
     the caller rather than computed here so this module never imports the report
-    that renders it.
+    that renders it. Rows in a ``DISPLAY_ONLY`` market are shown by the note but
+    held by nobody, so they are not positions.
     """
     rated = ratings or {}
-    return [_position(row, as_of, rated.get(row.batter, "")) for row in board.rows]
+    return [
+        _position(row, as_of, rated.get(row.batter, ""))
+        for row in board.rows
+        if row.stat not in DISPLAY_ONLY
+    ]
 
 
 def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
@@ -195,7 +200,15 @@ def record(path: Path, positions: list[Position], as_of: Date) -> list[Position]
 
 
 def positions_for(path: Path, day: Date) -> list[Position]:
-    return [p for p in load(path) if p.date == day.isoformat()]
+    """That day's positions, less the markets the note only displays.
+
+    Filtered on the way out as well as in, so the boards already written with HR
+    rows grade the same way as the ones written after: a scorecard whose meaning
+    changed on the day of a code change is worse than no scorecard.
+    """
+    return [
+        p for p in load(path) if p.date == day.isoformat() and p.stat not in DISPLAY_ONLY
+    ]
 
 
 @dataclass(frozen=True)

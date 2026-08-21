@@ -82,13 +82,13 @@ def test_the_board_is_recorded_with_the_price_it_was_shown_at(tmp_path) -> None:
     result = _result()
     pid = _pid(result)
     board = power_board.build(
-        result, [_rec("Matt Olson", "HR", 0.5, player_id=pid, american=255.0)]
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=pid, american=255.0)]
     )
     positions = power_ledger.positions_from_board(board, DAY, power_report.ratings(result))
 
     assert [p.batter for p in positions] == ["Matt Olson"]
     p = positions[0]
-    assert (p.odds, p.stat, p.line, p.player_id, p.game_pk) == (255.0, "HR", 0.5, pid, 1)
+    assert (p.odds, p.stat, p.line, p.player_id, p.game_pk) == (255.0, "TB", 1.5, pid, 1)
     assert p.rating in ("BUY", "HOLD", "AVOID")
 
     path = tmp_path / power_ledger.LEDGER_NAME
@@ -117,6 +117,40 @@ def test_an_earlier_day_survives_a_later_recording(tmp_path) -> None:
     assert len(power_ledger.positions_for(path, DAY)) == 1
     assert len(power_ledger.positions_for(path, Date(2026, 8, 18))) == 1
     assert len(power_ledger.load(path)) == 2
+
+
+def test_the_homer_is_shown_on_the_board_and_held_by_nobody(tmp_path) -> None:
+    """The screen's worst market is also its most eye-catching one.
+
+    Graded, its HR rows went 2-13 for -7.3 units while every other market
+    together lost 3.1, and no price band rescues them: the book's home-run overs
+    lose 34.5% above +300 and more the longer the price, because the quote is
+    one-way and the edge measured against it is mostly the hold. The arsenal work
+    is still the reason to watch the hitter, so the row stays on the board and out
+    of the record.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=480.0, ev=0.40),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.04),
+        ],
+    )
+    positions = power_ledger.positions_from_board(board, DAY)
+
+    assert [r.stat for r in board.rows] == ["HR", "TB"]
+    assert [p.stat for p in positions] == ["TB"]
+
+
+def test_a_homer_already_written_down_stops_scoring_the_screen(tmp_path) -> None:
+    """Filtered on the way out too, so an old board grades like a new one."""
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position("HR", 0.5, odds=480.0), _position("TB", 1.5)], DAY)
+
+    assert [p.stat for p in power_ledger.load(path)] == ["HR", "TB"]
+    assert [p.stat for p in power_ledger.positions_for(path, DAY)] == ["TB"]
 
 
 def test_an_absent_ledger_reads_as_empty(tmp_path) -> None:
