@@ -229,6 +229,15 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
     "pitcher_k": 0.30,
 }
 
+# Conviction floor per market, overriding the global ``EVThresholds.min_prob``.
+# The floor reads the *anchored* probability the EV screen bets on, so a market
+# pinned to a zero anchor is being screened on the model's own number and needs
+# its own value if that changes.
+_MIN_PROB_BY_MARKET: dict[str, float] = {}
+
+# EV ceiling per market, overriding the global ``EVThresholds.max_ev``.
+_MAX_EV_BY_MARKET: dict[str, float] = {}
+
 
 @dataclass(frozen=True)
 class EVThresholds:
@@ -256,6 +265,33 @@ class EVThresholds:
     # from the price: over the real-priced rows, buys inside 8 points went 51.0%
     # and buys past it 39.0% (-18.6% ROI). 1.0 disables the cap.
     max_edge: float = field(default_factory=lambda: _env_float("MLBE_MAX_EDGE", 0.08))
+    # Conviction floor: the probability the screen bets on -- anchored, so the
+    # blend of model and devigged market rather than the model alone -- has to
+    # reach this before the price is considered. Measured on the 1,619 real-priced
+    # graded buys that carry a devigged fair price (07-29..08-19), where the
+    # anchored ladder is monotone in realized win rate at every step: 45.5% with
+    # no floor, 53.3% at 0.50, 56.8% at 0.55, 60.8% at 0.58, 65.9% at 0.62, 70.3%
+    # at 0.65. 0.58 is where per-unit return crosses zero (-2.9% at 0.55, +0.6%
+    # at 0.58) and is chosen there rather than higher because 0.65 keeps 145 bets
+    # of 1,619 and its interval is wide. Read this floor together with the anchor:
+    # on the model's own probability the same floor is only -3.2%, and the anchor
+    # alone is -7.8%. It is the pair that stops the bleeding, and it works by
+    # asking whether a selection is still above 0.58 *after* being pulled 30%
+    # toward the price -- i.e. whether the market likes it too.
+    min_prob: float = field(default_factory=lambda: _env_float("MLBE_MIN_PROB", 0.58))
+    # EV ceiling, and the weakest-evidenced of the selection screens. ``max_edge``
+    # caps disagreement in probability points, but a long price turns a capped
+    # edge into an uncapped EV, and on unanchored EV realized return fell at every
+    # step (-5.7% under 5%, -11.4% at 5-10%, -13.1% at 10-20%, -18.9% at 20-40%).
+    # Anchored, that monotonicity breaks: the 0.20-0.40 band is +5.7% on 95 bets.
+    # What the ceiling actually does on top of the floor is refuse 10 of 497
+    # surviving buys, which went 40.0% for -16.6%, and lift the rule from +0.6% to
+    # +1.0% per unit. Ten bets is not a finding, so this ships as a guard on a
+    # tail too thin to price rather than as a screen with a record. 1.0 disables
+    # it. Note that with ``min_prob`` at 0.58 the pair implies a price ceiling
+    # near +115 (EV = p x decimal - 1), which is where the fitted run-line ceiling
+    # of +109 already sat.
+    max_ev: float = field(default_factory=lambda: _env_float("MLBE_MAX_EV", 0.25))
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
@@ -292,6 +328,14 @@ class EVThresholds:
             max_edge=_env_float(
                 f"MLBE_MAX_EDGE_{suffix}",
                 _MAX_EDGE_BY_MARKET.get(market, self.max_edge),
+            ),
+            min_prob=_env_float(
+                f"MLBE_MIN_PROB_{suffix}",
+                _MIN_PROB_BY_MARKET.get(market, self.min_prob),
+            ),
+            max_ev=_env_float(
+                f"MLBE_MAX_EV_{suffix}",
+                _MAX_EV_BY_MARKET.get(market, self.max_ev),
             ),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
             max_buy_odds=_env_float(
@@ -983,14 +1027,29 @@ class Config:
     # shrinks a loss rather than earning a profit; judge a weight on closing
     # line value, which resolves in far fewer bets than ROI.
     #
-    # Still off, despite 27 graded slates putting the market ahead of the model
-    # on Brier and log loss in every market the engine bets except totals, and
-    # for a mechanical reason rather than a lack of evidence: every edge floor,
-    # price band and probability floor on the card was fitted against unanchored
-    # probabilities, and a global weight rescales all of them at once
-    # (edge -> edge x (1 - w)). Raise it per market with
-    # ``MLBE_MARKET_ANCHOR_<MARKET>`` and re-grade that market's floors with it.
-    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
+    # On at 0.3, having been off for the mechanical reason that a global weight
+    # rescales every edge floor fitted against unanchored probabilities at once
+    # (edge -> edge x (1 - w)). What settles it is that the market beat the model
+    # at every band on the graded ledger -- inside a claimed 0.45-0.52 the buys
+    # won 36.3% where the devigged price said 43.5% -- and that the rescaling is
+    # the smaller effect. Over the 1,619 real-priced graded buys with a devigged
+    # price, the anchor plus the ``EVThresholds.min_prob`` floor and ``max_ev``
+    # ceiling it ships with move the book from -7.2% per unit on all 1,619 to
+    # +1.0% on the 487 that survive, positive in both halves of the window
+    # (+4.9% on 64 bets, +0.4% on 423).
+    #
+    # Two honest caveats. Neither piece does this alone -- the anchor by itself is
+    # -7.8% and the floor on the model's own number -3.2% -- so this is a pair,
+    # not a weight. And the surviving edge is thin: the larger half of the window
+    # is +0.4%, so treat 0.3 as the weight that stops a loss rather than one that
+    # earns a living, and re-fit it per market on closing line value.
+    #
+    # Why the two work together: the anchor moves probabilities toward the price,
+    # so it *lowers* most of them and by itself only re-sizes the edge toll, while
+    # the floor is a level test the anchor makes meaningful -- a selection still
+    # above 0.58 after being pulled 30% toward the market is one the market also
+    # likes, and those are the buys that won.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.3))
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
