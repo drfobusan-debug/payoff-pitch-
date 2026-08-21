@@ -20,7 +20,7 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
-from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
+from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     SCORED,
     TOP_K,
@@ -339,7 +339,7 @@ def _board_section(board: Board) -> str:
         fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
         rows.append([
             html.escape(r.batter),
-            r.label,
+            r.label + (" &dagger;" if r.stat in DISPLAY_ONLY else ""),
             _price(r.american),
             html.escape(r.book or "&mdash;"),
             _pc(r.model_prob),
@@ -355,7 +355,7 @@ def _board_section(board: Board) -> str:
         f"{len(board.buys)} of their rows cleared the card's buy tiers. Every figure below is "
         f"the nightly run's own: the model probability it simulated, the best price it found, "
         f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
-        f"re-simulated for this note, so a row here is the bet the engine actually made.</p>",
+        f"re-simulated for this note, so a row here is the number the engine actually saw.</p>",
     ]
     if rows:
         out.append(
@@ -370,10 +370,18 @@ def _board_section(board: Board) -> str:
             "one-sided at the book, so its vig could not be stripped and the edge beside it is "
             "overstated by roughly half the hold.</p>"
         )
+    if any(r.stat in DISPLAY_ONLY for r in board.rows):
+        out.append(
+            "<p class='sub'>&dagger; Shown, not held: the screen keeps no position in the homer "
+            "and does not quote it beside a rating. Graded, its HR rows went 2-13 for -7.3 units "
+            "while every other market together lost 3.1, and the wider ledger's home-run overs "
+            "lose 34.5% above +300 and more the longer the price. It is on the board because the "
+            "arsenal is the reason to watch the hitter, not because the number is buyable.</p>"
+        )
     if board.dropped:
         out.append(
             f"<p class='sub'>{board.dropped} further priced rows on these hitters are not shown; "
-            f"each keeps his homer and his H+R+RBI where both were quoted, then fills to "
+            f"each shows his homer and his H+R+RBI where both were quoted, then fills to "
             f"{ROWS_PER_BATTER} rows by expected value, one quote per bet.</p>"
         )
     if board.unpriced:

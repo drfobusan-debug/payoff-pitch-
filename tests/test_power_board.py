@@ -74,6 +74,26 @@ def test_a_survivor_keeps_his_own_rows_best_expected_value_first() -> None:
     assert board.best_for_batter("Matt Olson").label == "TB o1.5"
 
 
+def test_the_homer_never_wins_the_price_quoted_beside_a_rating() -> None:
+    """EV on a one-way longshot is measured against a price nobody devigged.
+
+    Left alone it wins this column on most of the board -- +480 against a modelled
+    21% prints an enormous expected value -- and the note would then quote the
+    screen's worst market as its recommendation.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=480.0, opposite=None, ev=0.40),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.04),
+        ],
+    )
+    assert [r.label for r in board.rows] == ["HR o0.5", "TB o1.5"]
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
 def test_another_players_row_is_not_priced_onto_this_one() -> None:
     """An id mismatch is a different hitter, whatever the book spells."""
     result = _result()
