@@ -1745,7 +1745,21 @@
   {
     "matchup": "ATH @ KC",
     "market": "batter_h",
+    "selection": "Jac Caglianone H o0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.672489
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_h",
     "selection": "Jac Caglianone H o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.327511
+  },
+  {
+    "matchup": "ATH @ KC",
+    "market": "batter_h",
+    "selection": "Jac Caglianone H u0.5",
     "american": 180.0,
     "no_vig_prob": 0.327511
   },
@@ -4090,9 +4104,23 @@
   {
     "matchup": "ATL @ CWS",
     "market": "batter_hrr",
+    "selection": "Lane Thomas H+R+RBI o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hrr",
     "selection": "Lane Thomas H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.396168
+  },
+  {
+    "matchup": "ATL @ CWS",
+    "market": "batter_hrr",
+    "selection": "Lane Thomas H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
   },
   {
     "matchup": "ATL @ CWS",
@@ -9676,9 +9704,23 @@
   {
     "matchup": "NYY @ BAL",
     "market": "batter_hrr",
+    "selection": "Christian Encarnacion-Strand H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.602452
+  },
+  {
+    "matchup": "NYY @ BAL",
+    "market": "batter_hrr",
     "selection": "Christian Encarnacion-Strand H+R+RBI o1.5",
     "american": 122.0,
     "no_vig_prob": 0.436615
+  },
+  {
+    "matchup": "NYY @ BAL",
+    "market": "batter_hrr",
+    "selection": "Christian Encarnacion-Strand H+R+RBI u0.5",
+    "american": 136.0,
+    "no_vig_prob": 0.397548
   },
   {
     "matchup": "NYY @ BAL",
@@ -9886,9 +9928,23 @@
   {
     "matchup": "NYY @ BAL",
     "market": "batter_hrr",
+    "selection": "Samuel Basallo H+R+RBI o0.5",
+    "american": -177.0,
+    "no_vig_prob": 0.59944
+  },
+  {
+    "matchup": "NYY @ BAL",
+    "market": "batter_hrr",
     "selection": "Samuel Basallo H+R+RBI o1.5",
     "american": 122.0,
     "no_vig_prob": 0.438815
+  },
+  {
+    "matchup": "NYY @ BAL",
+    "market": "batter_hrr",
+    "selection": "Samuel Basallo H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.40056
   },
   {
     "matchup": "NYY @ BAL",
@@ -12609,9 +12665,23 @@
   {
     "matchup": "SEA @ MIL",
     "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
+  },
+  {
+    "matchup": "SEA @ MIL",
+    "market": "batter_hrr",
     "selection": "Cooper Pratt H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.398293
+  },
+  {
+    "matchup": "SEA @ MIL",
+    "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI u1.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
   },
   {
     "matchup": "SEA @ MIL",
@@ -18790,9 +18860,23 @@
   {
     "matchup": "STL @ CIN",
     "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.59256
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
     "selection": "Hector Rodriguez H+R+RBI o1.5",
     "american": 120.0,
     "no_vig_prob": 0.434061
+  },
+  {
+    "matchup": "STL @ CIN",
+    "market": "batter_hrr",
+    "selection": "Hector Rodriguez H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.40744
   },
   {
     "matchup": "STL @ CIN",
@@ -23805,6 +23889,13 @@
     "selection": "Kazuma Okamoto TB u0.5",
     "american": 117.0,
     "no_vig_prob": 0.435738
+  },
+  {
+    "matchup": "TOR @ TB",
+    "market": "batter_tb",
+    "selection": "Kazuma Okamoto TB u1.5",
+    "american": -238.0,
+    "no_vig_prob": 0.661878
   },
   {
     "matchup": "TOR @ TB",

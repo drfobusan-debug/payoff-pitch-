@@ -8311,9 +8311,23 @@
   {
     "matchup": "LAA @ HOU",
     "market": "batter_hrr",
+    "selection": "Taylor Trammell H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410609
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "batter_hrr",
     "selection": "Taylor Trammell H+R+RBI u0.5",
     "american": 115.0,
     "no_vig_prob": 0.436018
+  },
+  {
+    "matchup": "LAA @ HOU",
+    "market": "batter_hrr",
+    "selection": "Taylor Trammell H+R+RBI u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.589391
   },
   {
     "matchup": "LAA @ HOU",
