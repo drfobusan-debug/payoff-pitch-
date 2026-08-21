@@ -11,7 +11,11 @@
 #   * Afternoon: wake 12:45 -> close 12:50 (snapshot the DAY games' close)
 #   * Evening:   wake 18:35 -> close 18:40 (snapshot the NIGHT games' close)
 #
-# The MORNING run (before noon) is the real job and does both, in order:
+# The MORNING run (before noon) is the real job and does all of it, in order:
+#   0) git pull --ff-only  -> price the slate with what has been MERGED, not with
+#                           whatever was on disk when the Mac was last touched.
+#                           Skipped on a dirty, diverged or non-main checkout,
+#                           and never fatal: see the runner for the guards.
 #   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
 #                           preview article + audio, the pitcher/batter
 #                           regression articles + audio and the morning power
@@ -188,6 +192,38 @@ else
   # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
   # the close daemon can fire even if the Mac would otherwise sleep by evening.
   pmset_ schedule wake "\$(date +%m/%d/%Y) $DAY_CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm afternoon wake" >&2
+
+  # 0) take whatever has been merged since yesterday. Without this the daemon
+  #    prices the slate with the code that happened to be on disk when the Mac
+  #    was last touched by hand, so a merged screen or bug fix silently never
+  #    reaches a card. Deliberately conservative, because a morning run that
+  #    fails is worse than one running yesterday's code:
+  #      * --ff-only, so a dirty or diverged checkout is left exactly as it is
+  #      * only on \`main\`, so a branch left checked out is never fast-forwarded
+  #      * GIT_TERMINAL_PROMPT=0 plus a low-speed abort, so neither a credential
+  #        prompt nor a stalled fetch can hang a daemon with no terminal to
+  #        answer it (there is no \`timeout\` on a stock macOS to lean on)
+  #      * non-fatal throughout: on any failure the run continues on disk code
+  #    An editable reinstall follows a pull that actually moved HEAD, since a
+  #    merge can add a dependency or a console entry point.
+  branch=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)
+  if [[ "\$branch" != "main" ]]; then
+    echo "[\$(date)] on branch '\$branch', not pulling; running the code on disk" >&2
+  elif ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "[\$(date)] uncommitted changes in $REPO_DIR; not pulling" >&2
+  else
+    was=\$(git rev-parse HEAD)
+    if GIT_TERMINAL_PROMPT=0 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 \\
+         pull --ff-only --quiet; then
+      now=\$(git rev-parse HEAD)
+      if [[ "\$was" != "\$now" ]]; then
+        echo "[\$(date)] pulled \${was:0:8} -> \${now:0:8}"
+        pip install -q -e . || echo "[\$(date)] editable reinstall failed" >&2
+      fi
+    else
+      echo "[\$(date)] git pull failed; running the code on disk" >&2
+    fi
+  fi
 
   # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
   #    cache pkl). No --email here: the package email below owns delivery.
