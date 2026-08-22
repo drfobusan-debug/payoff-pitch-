@@ -19,6 +19,7 @@ from mlb_engine.output.power_screen import (
     HitterLine,
     HitterView,
     MatchupSection,
+    PoolBatter,
     ScreenResult,
     apply_cuts,
     arsenal,
@@ -28,6 +29,7 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     contact_line,
     exposure,
+    hitter_pool,
     pa_vs_starter,
     pitch_family,
     rank_starters,
@@ -224,6 +226,41 @@ def test_the_cuts_run_in_order_and_say_why_each_hitter_left() -> None:
     assert "outruns" in lucky.cut_reason
     assert "at league" in at_league.cut_reason
     assert strong.kept and strong.points > 0
+
+
+def test_the_cuts_can_be_run_under_a_scoring_rule_the_screen_no_longer_uses() -> None:
+    """The replay's seam: whoever scores, the cuts read that scorer's own top-K."""
+
+    def score_nobody(pool: list[HitterLine]) -> None:
+        for h in pool:
+            h.points = 0
+            h.top_in = ()
+
+    assert apply_cuts([_hitter("Strong")], league_xwoba=0.305, scorer=score_nobody) == []
+
+
+def test_a_pool_is_built_from_the_rows_a_hitter_has_against_that_hand() -> None:
+    rows = pd.DataFrame(
+        [
+            {**_pitch(events="single"), "batter": 10, "p_throws": "R"},
+            {**_pitch(events="home_run"), "batter": 10, "p_throws": "R"},
+            {**_pitch(events="strikeout", description="swinging_strike"),
+             "batter": 11, "p_throws": "L"},
+        ]
+    )
+    pool = hitter_pool(
+        rows,
+        [PoolBatter(mlbam_id=10, name="Faces RHP", slot=2, bats="L"),
+         PoolBatter(mlbam_id=11, name="Faces LHP Only", slot=3, bats="R"),
+         PoolBatter(mlbam_id=12, name="No Rows", slot=4, bats="R")],
+        hand="R",
+        team="AAA",
+        versus="Some Arm",
+        league_woba=0.315,
+    )
+
+    assert [h.name for h in pool] == ["Faces RHP"]
+    assert pool[0].pa == 2 and pool[0].slot == 2 and pool[0].versus == "Some Arm"
 
 
 def test_a_power_bat_survives_the_wrc_cut_and_is_flagged() -> None:

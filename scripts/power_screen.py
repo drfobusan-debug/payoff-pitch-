@@ -59,6 +59,7 @@ from mlb_engine.output.power_screen import (
     HitterLine,
     HitterView,
     MatchupSection,
+    PoolBatter,
     ScreenResult,
     StarterCard,
     apply_cuts,
@@ -69,10 +70,10 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     contact_line,
     exposure,
+    hitter_pool,
     pa_vs_starter,
     rank_starters,
     starter_damage,
-    wrc_plus,
 )
 from mlb_engine.recommendations import load_json
 from mlb_engine.schemas import Game, Slate, TeamGameInfo
@@ -386,45 +387,24 @@ def _build_section(
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
     lg_xwoba = league_xwoba.get(hand, league_xwoba.get("R", 0.305))
 
-    pool: list[HitterLine] = []
-    slots = getattr(lineup_team, "lineup", []) or []
-    for slot in slots:
-        player = slot.player
-        if not player.mlbam_id:
-            continue
-        rows = window[
-            (window["batter"] == player.mlbam_id) & (window["p_throws"] == hand)
-        ]
-        line = batter_window_line(rows)
-        if not line:
-            continue
-        pool.append(
-            HitterLine(
-                name=player.name,
-                mlbam_id=int(player.mlbam_id),
-                team=getattr(lineup_team, "abbrev", "UNK"),
+    slots = lineup_team.lineup or []
+    pool = hitter_pool(
+        window,
+        [
+            PoolBatter(
+                mlbam_id=int(slot.player.mlbam_id),
+                name=slot.player.name,
                 slot=slot.order,
-                bats=getattr(player.bats, "value", player.bats),
-                versus=card.name,
-                pa=int(line["pa"]),
-                wrc=wrc_plus(line["woba"], lg_woba),
-                woba=line["woba"],
-                obp=line["obp"],
-                slg=line["slg"],
-                ops=line["obp"] + line["slg"],
-                ba=line["ba"],
-                xba=line["xba"],
-                xslg=line["xslg"],
-                xwoba_pa=line["xwoba_pa"],
-                xwoba_con=line["xwoba_con"],
-                k=line["k"],
-                bb=line["bb"],
-                brl=line["brl"],
-                hh=line["hh"],
-                ev90=line["ev90"],
-                osw=line["osw"],
+                bats=getattr(slot.player.bats, "value", slot.player.bats),
             )
-        )
+            for slot in slots
+            if slot.player.mlbam_id
+        ],
+        hand=hand,
+        team=lineup_team.abbrev,
+        versus=card.name,
+        league_woba=lg_woba,
+    )
     if not pool:
         log.warning("no readable hitters vs %s", card.name)
         return None

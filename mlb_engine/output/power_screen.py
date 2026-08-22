@@ -37,7 +37,7 @@ matchup share an axis; Savant prints a pitcher's version with the opposite sign.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 
@@ -381,6 +381,67 @@ def batter_window_line(rows: pd.DataFrame) -> dict[str, float]:
     }
 
 
+@dataclass(frozen=True)
+class PoolBatter:
+    """The identity half of a lineup slot, independent of the slate's schema."""
+
+    mlbam_id: int
+    name: str
+    slot: int | None = None
+    bats: str | None = None
+
+
+def hitter_pool(
+    window: pd.DataFrame,
+    batters: Sequence[PoolBatter],
+    *,
+    hand: str,
+    team: str,
+    versus: str,
+    league_woba: float,
+) -> list[HitterLine]:
+    """Window lines for a lineup, against one pitching hand.
+
+    A hitter with no readable rows against the hand is left out rather than
+    carried at league average: the pool is what the cuts and the top-K bonuses
+    are computed within, so a placeholder would move every other hitter's score.
+    """
+    pool: list[HitterLine] = []
+    for batter in batters:
+        rows = window[(window["batter"] == batter.mlbam_id) & (window["p_throws"] == hand)]
+        line = batter_window_line(rows)
+        if not line:
+            continue
+        pool.append(
+            HitterLine(
+                name=batter.name,
+                mlbam_id=int(batter.mlbam_id),
+                team=team,
+                slot=batter.slot,
+                bats=batter.bats,
+                versus=versus,
+                pa=int(line["pa"]),
+                wrc=wrc_plus(line["woba"], league_woba),
+                woba=line["woba"],
+                obp=line["obp"],
+                slg=line["slg"],
+                ops=line["obp"] + line["slg"],
+                ba=line["ba"],
+                xba=line["xba"],
+                xslg=line["xslg"],
+                xwoba_pa=line["xwoba_pa"],
+                xwoba_con=line["xwoba_con"],
+                k=line["k"],
+                bb=line["bb"],
+                brl=line["brl"],
+                hh=line["hh"],
+                ev90=line["ev90"],
+                osw=line["osw"],
+            )
+        )
+    return pool
+
+
 def wrc_plus(woba: float, league_woba: float) -> float:
     """Window wRC+ against the same window's league line for that hand.
 
@@ -459,6 +520,7 @@ def apply_cuts(
     min_pa: int = MIN_BATTER_PA,
     min_wrc: float = MIN_WRC,
     keep_power: bool = True,
+    scorer: Callable[[list[HitterLine]], None] = score_pool,
 ) -> list[HitterLine]:
     """Run the four cuts in order and return the survivors.
 
@@ -470,12 +532,15 @@ def apply_cuts(
     ``keep_power`` restores a hitter the wRC+ cut drops when his contact quality
     is high enough to matter for home runs specifically -- the Riley case. He is
     flagged, not silently promoted.
+
+    ``scorer`` exists so a replay can run the screen's cuts under a scoring rule
+    the screen no longer uses; nothing in the engine passes anything else.
     """
     survivors = [h for h in pool if h.pa >= min_pa]
     for h in pool:
         if h.pa < min_pa:
             h.cut_reason = f"under {min_pa} PA"
-    score_pool(survivors)
+    scorer(survivors)
 
     stage = []
     for h in survivors:
