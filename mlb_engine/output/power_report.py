@@ -20,6 +20,7 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.output import power_sim
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     SCORED,
@@ -662,6 +663,103 @@ def _exposure_table(section: MatchupSection) -> str:
     )
 
 
+#: Markets the simulated table prints, and how a book words each one.
+_SIM_MARKETS: tuple[tuple[str, float, str], ...] = (
+    ("H", 0.5, "1+ hits"),
+    ("H", 1.5, "2+ hits"),
+    ("1B", 0.5, "1+ singles"),
+    ("2B", 0.5, "1+ doubles"),
+    ("HR", 0.5, "home run"),
+    ("TB", 1.5, "2+ TB"),
+    ("TB", 2.5, "3+ TB"),
+    ("R", 0.5, "1+ runs"),
+    ("RBI", 0.5, "1+ RBI"),
+)
+
+
+def _sim_table(section: MatchupSection) -> str:
+    """Each survivor's simulated night: the shape of it, then the market prices.
+
+    Two tables' worth in one, because the pair is the point. The mean is what a
+    projection would quote and the mode is what actually happens: a hitter with
+    1.3 expected hits most commonly gets exactly one, and never gets 1.3.
+    """
+    shape: list[list[str]] = []
+    market: list[list[str]] = []
+    for v in section.hitters:
+        sim = v.sim
+        if sim is None:
+            continue
+        name = html.escape(v.line.name)
+        cells = [name, str(sim.slot), _num(sim.pa_mean, 1)]
+        for stat in ("H", "TB", "2B", "HR", "R", "RBI"):
+            d = sim.get(stat)
+            cells.append(
+                "&mdash;" if d is None else f"{d.mean:.2f} / {d.median:.0f} / {d.mode:.0f}"
+            )
+        shape.append(cells)
+        row = [name]
+        for stat, line, _label in _SIM_MARKETS:
+            d = sim.get(stat)
+            prob = math.nan if d is None else d.over.get(line, math.nan)
+            row.append(
+                "&mdash;" if math.isnan(prob)
+                else f"{prob * 100:.1f}% / {power_sim.fair_price(prob)}"
+            )
+        market.append(row)
+    if not shape:
+        return ""
+    n_sims = next(v.sim.n_sims for v in section.hitters if v.sim is not None)
+    return (
+        "<h3>The simulated night</h3>"
+        f"<p class='sub'>{n_sims:,} simulations of this game, plate appearance by plate "
+        "appearance: each hitter's own outcome rates combined with the starter's by log5, then "
+        "with the bullpen's once he is hooked, scaled by the park's measured singles and "
+        "extra-base factors, the exit point drawn from the batters-faced and pitch-count caps in "
+        "the exposure table above. Cells are mean / median / mode.</p>"
+        + _table(
+            ["batter", "LP", "PA", "hits", "TB", "2B", "HR", "R", "RBI"], shape, numeric_from=1
+        )
+        + "<p class='sub'>The same distributions read as the markets a book hangs, each cell the "
+        "model's probability and the price that probability is worth. <strong>These are fair "
+        "values, not bets:</strong> the screen reads no market, and a position needs this number "
+        "compared with a real one &mdash; blended toward the devigged price, as the card does "
+        "&mdash; before it is worth staking.</p>"
+        + _table(
+            ["batter", *(label for _s, _l, label in _SIM_MARKETS)], market, numeric_from=1
+        )
+    )
+
+
+def _withheld_note(section: MatchupSection) -> str:
+    """Which metrics were not allowed to carry a cut, and why.
+
+    The screen scores eleven metrics; four of them (wRC+, OPS, BA, SLG) never
+    reach r=.50 with themselves at any sample it sees, and the rest reach it at
+    wildly different points. A metric below that bar still contributes its
+    measured reliability to the score but cannot promote a hitter through the
+    top-five cut, which is the decision that used to be carried by two weeks of
+    batted-ball luck.
+    """
+    withheld: dict[str, list[str]] = {}
+    for v in section.hitters:
+        if v.line.withheld:
+            withheld[v.line.name] = list(v.line.withheld)
+    if not withheld:
+        return ""
+    items = "; ".join(
+        f"{html.escape(name)}: {', '.join(html.escape(m) for m in metrics)}"
+        for name, metrics in withheld.items()
+    )
+    return (
+        "<p class='caveat'><strong>Top-five finishes withheld as unreadable.</strong> "
+        f"{items}. Each was a top-five finish in the pool on a metric that does not repeat at "
+        "that hitter's sample size (split-half r below 0.50, measured on 145,707 plate "
+        "appearances), so it counts toward his score in proportion to its reliability but is not "
+        "allowed to carry him through a cut on its own.</p>"
+    )
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -704,6 +802,8 @@ def _section_html(section: MatchupSection, index: int) -> str:
     if exposure:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
+    out.append(_withheld_note(section))
+    out.append(_sim_table(section))
     return "".join(out)
 
 

@@ -37,12 +37,14 @@ matchup share an axis; Savant prints a pitcher's version with the opposite sign.
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date as Date
 
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.reliability import readable, reliability
 
 # --- pitch classification -------------------------------------------------
 # Savant's codes collapsed to what a hitter actually distinguishes. Kept finer
@@ -314,7 +316,9 @@ class HitterLine:
     ev90: float
     osw: float
     points: int = 0
+    score: float = 0.0
     top_in: tuple[str, ...] = ()
+    withheld: tuple[str, ...] = ()
     kept: bool = False
     cut_reason: str = ""
     power_exception: bool = False
@@ -388,28 +392,64 @@ def wrc_plus(woba: float, league_woba: float) -> float:
     return 100.0 + (woba - league_woba) / WOBA_SCALE / LG_R_PER_PA * 100.0
 
 
-def score_pool(pool: list[HitterLine], top_k: int = TOP_K) -> None:
-    """One point per scored metric, two for a top-``top_k`` finish in the pool.
+#: How to read each scored metric off a hitter's line. A table of accessors
+#: rather than attribute lookup by name, so a metric that is renamed or dropped
+#: fails at type-check time instead of at 6am on a slate.
+METRIC: dict[str, Callable[[HitterLine], float]] = {
+    "wrc": lambda h: h.wrc,
+    "ops": lambda h: h.ops,
+    "ba": lambda h: h.ba,
+    "xba": lambda h: h.xba,
+    "slg": lambda h: h.slg,
+    "xslg": lambda h: h.xslg,
+    "xwoba_con": lambda h: h.xwoba_con,
+    "brl": lambda h: h.brl,
+    "hh": lambda h: h.hh,
+    "ev90": lambda h: h.ev90,
+    "osw": lambda h: h.osw,
+}
 
-    Mutates ``pool``. The base point is unconditional, so the score is really
-    ``len(SCORED) + top-K count``; the flat part is kept because it makes the
-    number readable next to the count of top finishes rather than because it
-    discriminates.
+
+def score_pool(pool: list[HitterLine], top_k: int = TOP_K) -> None:
+    """Score each metric by how much of it is signal at the hitter's own sample.
+
+    Mutates ``pool``. A metric contributes its measured split-half reliability at
+    the hitter's plate-appearance count rather than a flat point, and a top-``k``
+    finish is worth the same weight again. So bat speed (r=.89 at 60 PA) is worth
+    nine times what wRC+ is (r=.11), which is the ratio the measurement found --
+    see ``features.reliability``.
+
+    A finish only counts as a top-K finish, and can therefore only carry a
+    hitter through the ``no top-K finish`` cut, when the metric is readable at
+    his sample. The unreadable ones are recorded in ``withheld`` so the note can
+    print what was not allowed to vote instead of quietly dropping it.
+
+    ``points`` is the rounded weighted score, kept as an integer because it is a
+    display and ledger field; ``score`` carries the unrounded number.
     """
     for h in pool:
         h.points = 0
+        h.score = 0.0
         h.top_in = ()
+        h.withheld = ()
     for attr, label, higher_better in SCORED:
+        read = METRIC[attr]
         ranked = sorted(
-            (h for h in pool if not math.isnan(getattr(h, attr))),
-            key=lambda h: getattr(h, attr),
+            (h for h in pool if not math.isnan(read(h))),
+            key=read,
             reverse=higher_better,
         )
         for i, h in enumerate(ranked):
-            h.points += 1
+            weight = reliability(attr, h.pa)
+            h.score += weight
             if i < top_k:
-                h.points += 1
-                h.top_in = (*h.top_in, label)
+                h.score += weight
+                if readable(attr, h.pa):
+                    h.top_in = (*h.top_in, label)
+                else:
+                    h.withheld = (*h.withheld, label)
+    for h in pool:
+        h.points = int(round(h.score))
 
 
 def apply_cuts(
@@ -563,6 +603,44 @@ class BullpenCard:
     late_k_pct: float
 
 
+@dataclass(frozen=True)
+class Distribution:
+    """What a hitter's night looks like in one stat, over every simulation.
+
+    The mode is carried alongside the mean because they disagree in the way that
+    matters: a mean of 1.3 hits reads like a hitter who usually gets one and
+    sometimes two, and the modal night behind it is one hit and nothing else.
+    """
+
+    mean: float
+    median: float
+    mode: float
+    over: dict[float, float]  # line -> P(stat > line)
+
+    @property
+    def p_any(self) -> float:
+        """P(at least one), the .5 line, which is how a book words it."""
+        return self.over.get(0.5, math.nan)
+
+
+@dataclass(frozen=True)
+class SimLine:
+    """One hitter's simulated night: a distribution per market.
+
+    Built by ``power_sim`` off the engine's own simulator. Lives here so the
+    screen's vocabulary does not depend on the module that fills it in.
+    """
+
+    mlbam_id: int
+    slot: int
+    n_sims: int
+    pa_mean: float
+    stats: dict[str, Distribution]
+
+    def get(self, stat: str) -> Distribution | None:
+        return self.stats.get(stat)
+
+
 @dataclass
 class HitterView:
     """A surviving hitter with everything the last two stages added."""
@@ -574,6 +652,7 @@ class HitterView:
     fit_xba: float
     fallback_share: float
     exposure: Exposure | None = None
+    sim: SimLine | None = None
 
     @property
     def fit_delta(self) -> float:
