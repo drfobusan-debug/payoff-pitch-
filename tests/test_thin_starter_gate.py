@@ -61,19 +61,21 @@ def _f5_ml_rec(cfg: Config, gate_reason: str | None):
     """Price one clearly +EV F5 ML selection through _mk with/without the gate.
 
     The buy is the *home* side: a road moneyline dog is refused outright on
-    price, which would mask whatever this test is trying to say.
+    price, which would mask whatever this test is trying to say. It is also a
+    market favourite, because the devigged-probability floor refuses any side the
+    price makes a dog whatever the model thinks of it.
     """
     p = _mk_pipeline(cfg)
     game = SimpleNamespace(game_date="2026-08-01", game_pk=822781)
-    # model 44% at +150 (devigged fair ~39%) is a Strong buy absent any gate: a
-    # 5-point edge, inside the implausible-edge cap.
+    # model 66% at -170 (devigged fair 0.612) is a Strong buy absent any gate: a
+    # 5-point edge, inside the implausible-edge cap and above the fair floor.
     quotes = {
         ("STL @ TOR", "f5_ml", "TOR F5 ML"): [
-            MarketQuote(book="draftkings", american=150.0, opposite_american=-170.0)
+            MarketQuote(book="draftkings", american=-170.0, opposite_american=150.0)
         ]
     }
     return p._mk(
-        game, "STL @ TOR", "f5", "f5_ml", "TOR F5 ML", 0.44,
+        game, "STL @ TOR", "f5", "f5_ml", "TOR F5 ML", 0.66,
         team_side="home", side="win", quotes=quotes, gate_reason=gate_reason,
     )
 

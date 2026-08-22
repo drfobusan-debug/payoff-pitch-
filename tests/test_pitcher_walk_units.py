@@ -109,13 +109,15 @@ def test_the_walk_share_matches_the_measured_event_split() -> None:
     assert abs(LEAGUE_WALK_SHARE_OF_FREE_PASS - league) < 3e-3
 
 
-def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
-    """Price every pitcher prop at ``p_over``, both sides quoted +100 / -110.
+def _bb_recs(cfg: Config, p_over: float, fav: str = "over") -> dict[tuple[str, str], object]:
+    """Price every pitcher prop at ``p_over``, with ``fav`` quoted -130 / +105.
 
-    That price devigs to a fair 0.4884, so whichever side is given 0.55 carries a
-    +0.062 edge -- inside the 0.02-0.08 buy band, and therefore a buy unless a
-    gate stops it. Without that the row passes on the ordinary EV screens and the
-    test proves nothing about the veto.
+    That price devigs to a fair 0.537 on the ``fav`` side, so giving it 0.60
+    carries a +0.063 edge -- inside the 0.02-0.08 buy band, and above the
+    devigged-probability floor, and therefore a buy unless a gate stops it.
+    ``fav`` has to be the side under test for the same reason: the floor refuses
+    any side the market makes an underdog, so a row priced against would pass on
+    the blanket screen and the test would prove nothing about the veto.
     """
     p = Pipeline.__new__(Pipeline)
     p.cfg = cfg
@@ -135,7 +137,11 @@ def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
             "MATCH",
             f"pitcher_{stat.lower()}",
             keys.pitcher_prop(pitcher.name, lab, ln, side),
-        ): [MarketQuote(book="dk", american=100.0, opposite_american=-110.0)]
+        ): [
+            MarketQuote(book="dk", american=-130.0, opposite_american=105.0)
+            if side == fav
+            else MarketQuote(book="dk", american=105.0, opposite_american=-130.0)
+        ]
         for stat, lab, lines in (
             ("K", "Ks", (4.5, 5.5, 6.5)),
             ("outs", "Outs", (15.5, 17.5)),
@@ -154,11 +160,11 @@ def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
 def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
     """pitcher_bb is the one market whose over was the profitable side.
 
-    At 0.45 the under is the side the model likes, and it is exactly the side the
+    At 0.40 the under is the side the model likes, and it is exactly the side the
     graded rows say not to take -- so the veto has to bite on a row that would
     otherwise be bought, not merely on one the EV screens already declined.
     """
-    recs = _bb_recs(Config(), p_over=0.45)
+    recs = _bb_recs(Config(), p_over=0.40, fav="under")
     under = recs[("pitcher_bb", "under")]
     assert under.tier is Tier.PASS
     assert under.pass_gate == "bb_under"
@@ -176,7 +182,7 @@ def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
 
 def test_the_walks_over_is_left_alone() -> None:
     """The veto is directional; the over is the side that made money."""
-    over = _bb_recs(Config(), p_over=0.55)[("pitcher_bb", "over")]
+    over = _bb_recs(Config(), p_over=0.60)[("pitcher_bb", "over")]
     assert over.tier is not Tier.PASS
     assert over.pass_gate is None
 
@@ -184,6 +190,6 @@ def test_the_walks_over_is_left_alone() -> None:
 def test_the_walks_under_can_be_re_enabled() -> None:
     """The veto is a stance on an unvalidated level, so it has to be reversible."""
     cfg = replace(Config(), pitcher_bb_under_gate=False)
-    under = _bb_recs(cfg, p_over=0.45)[("pitcher_bb", "under")]
+    under = _bb_recs(cfg, p_over=0.40, fav="under")[("pitcher_bb", "under")]
     assert under.tier is not Tier.PASS
     assert under.pass_gate is None

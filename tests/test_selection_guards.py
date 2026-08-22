@@ -1,4 +1,4 @@
-"""Tests for the four selection guards the 27-slate ledger review produced.
+"""Tests for the selection guards the ledger reviews produced.
 
 Buys over that ledger went 39.8% for -12.6% ROI while the model's own ranking
 held up, so every guard here tightens *selection* only -- none of them touches a
@@ -8,6 +8,9 @@ simulated or calibrated probability, and each is independently switchable:
   * ``MLBE_NO_BUY_<MARKET>`` -- markets the ledger disqualified outright
   * ``MLBE_MARKET_ANCHOR[_<MARKET>]`` -- toll for disagreeing with the price
   * ``MLBE_CLV_GATE`` -- pre-bet closing line value, off the opening board
+  * ``MLBE_MIN_FAIR_PROB[_<MARKET>]`` -- the price has to make the side a
+    favourite (the whole-ledger audit's one screen that moved the buy list)
+  * ``MLBE_MOMENTUM_GATE`` -- refuse a price that has already run to us
 """
 
 from __future__ import annotations
@@ -31,7 +34,7 @@ from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.market.ev import EVResult, MarketQuote, evaluate
-from mlb_engine.market.tiers import Tier, classify
+from mlb_engine.market.tiers import Tier, classify, fair_floor_screen
 from mlb_engine.pipeline import Pipeline
 
 MATCHUP = "MIA @ ATL"
@@ -78,11 +81,12 @@ def _rec(
     model_prob: float,
     american: float = -110.0,
     selection: str = "MIA ML",
+    opposite: float = -110.0,
 ):
     game = SimpleNamespace(game_date="2026-08-08", game_pk=1)
     quotes = {
         (MATCHUP, market, selection): [
-            MarketQuote(book="dk", american=american, opposite_american=-110.0)
+            MarketQuote(book="dk", american=american, opposite_american=opposite)
         ]
     }
     return p._mk(
@@ -161,9 +165,9 @@ def test_a_disqualified_market_is_still_priced_and_graded() -> None:
 
 
 # ---- market anchoring ------------------------------------------------------
-def test_anchor_ships_off_and_totals_can_never_be_taxed(monkeypatch) -> None:
+def test_anchor_ships_on_and_totals_can_never_be_taxed(monkeypatch) -> None:
     cfg = Config()
-    assert cfg.anchor_for("game_ml") == 0.0
+    assert cfg.anchor_for("game_ml") == 0.2
     monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.8")
     raised = Config()
     assert raised.anchor_for("game_ml") == 0.8
@@ -187,10 +191,21 @@ def test_anchoring_shrinks_the_bet_probability_not_the_model(monkeypatch) -> Non
     rec = _rec(p, "game_ml", 0.60)
     assert rec.model_prob == 0.60  # what the audit grades the model on
     assert rec.bet_prob is not None and abs(rec.bet_prob - 0.55) < 1e-6
-    assert rec.edge is not None and abs(rec.edge - 0.05) < 1e-6
+    # The screens keep reading the model's own edge, not the shrunk one: they
+    # were all fitted against unanchored edges, and rescaling them with one
+    # weight would re-tune screens nobody re-measured.
+    assert rec.edge is not None and abs(rec.edge - 0.10) < 1e-6
 
 
-def test_anchor_off_bets_the_model_itself() -> None:
+def test_the_shipping_anchor_prices_the_bet_off_the_blend() -> None:
+    p = _pipeline()
+    rec = _rec(p, "game_ml", 0.56)
+    assert rec.model_prob == 0.56
+    assert rec.bet_prob is not None and abs(rec.bet_prob - 0.548) < 1e-6
+
+
+def test_anchor_off_bets_the_model_itself(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0")
     p = _pipeline()
     rec = _rec(p, "game_ml", 0.56)
     assert rec.bet_prob == 0.56
@@ -210,7 +225,7 @@ def test_a_fitted_anchor_file_overrides_the_packaged_default(tmp_path, monkeypat
     # Even the totals pin yields to a weight measured on this operator's ledger.
     assert cfg.anchor_for("game_total") == 0.4
     # A market the fit never named keeps shipping behaviour.
-    assert cfg.anchor_for("batter_hr") == 0.0
+    assert cfg.anchor_for("batter_hr") == 0.2
 
 
 def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
@@ -221,13 +236,13 @@ def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
 
 def test_a_corrupt_anchor_file_is_ignored_not_fatal(tmp_path, monkeypatch) -> None:
     _anchor_file(tmp_path, monkeypatch, "{not json")
-    assert Config().anchor_for("game_ml") == 0.0
+    assert Config().anchor_for("game_ml") == 0.2
 
 
 def test_no_anchor_file_means_no_anchoring(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MARKET_ANCHOR_FILE", str(tmp_path / "absent.json"))
     _config._ANCHOR_CACHE.clear()
-    assert Config().anchor_for("game_ml") == 0.0
+    assert Config().anchor_for("game_ml") == 0.2
 
 
 # ---- pre-bet CLV -----------------------------------------------------------
@@ -266,9 +281,10 @@ def test_drift_tolerance_is_configurable(monkeypatch) -> None:
 
 def test_drift_gate_vetoes_a_buy_in_the_pipeline() -> None:
     p = _pipeline()
-    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.56}
-    rec = _rec(p, "game_ml", 0.56)
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.60}
+    rec = _rec(p, "game_ml", 0.60, american=-130.0, opposite=105.0)
     assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "clv_drift"
     assert any("clv: PASS" in r for r in rec.reasons)
 
 
@@ -328,3 +344,126 @@ def test_closing_quotes_and_the_board_agree_on_keys() -> None:
     assert [q.key for q in closing_quotes(quotes)] == [
         quote_key(MATCHUP, "game_ml", "MIA ML")
     ]
+
+
+# ---- the market's own number as the gate ------------------------------------
+def test_the_fair_floor_ships_at_the_measured_cutoff() -> None:
+    """.525 is where the graded buy list stops losing money.
+
+    2,863 priced buys returned -6.3%; the 705 of them the market itself made a
+    .525-or-better favourite returned -1.7%, and it is the only single screen in
+    the audit that moved the whole list. Totals are exempt for the reason they are
+    exempt from the anchor: they are the one family that out-forecast the price.
+    """
+    thr = EVThresholds()
+    assert thr.for_market("game_ml").min_fair_prob == 0.525
+    assert thr.for_market("batter_hr").min_fair_prob == 0.525
+    assert thr.for_market("game_total").min_fair_prob == 0.0
+    assert thr.for_market("f5_total").min_fair_prob == 0.0
+
+
+def test_the_fair_floor_takes_both_overrides(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MIN_FAIR_PROB", "0.55")
+    monkeypatch.setenv("MLBE_MIN_FAIR_PROB_GAME_ML", "0.50")
+    thr = EVThresholds()
+    assert thr.for_market("game_ml").min_fair_prob == 0.50
+    assert thr.for_market("batter_hr").min_fair_prob == 0.55
+    # A raised global floor still does not reach the totals pin.
+    assert thr.for_market("game_total").min_fair_prob == 0.0
+
+
+def test_the_fair_floor_is_neutral_on_an_unpriced_row() -> None:
+    """No devigged number, nothing to be a favourite in."""
+    assert fair_floor_screen(None, 0.525) is None
+
+
+def test_the_fair_floor_refuses_a_coin_flip_priced_side() -> None:
+    assert fair_floor_screen(0.500, 0.525) == (
+        "fair_floor",
+        "market fair 0.500 < 0.525 -> pass",
+    )
+    assert fair_floor_screen(0.525, 0.525) is None
+
+
+def test_the_fair_floor_vetoes_a_buy_in_the_pipeline() -> None:
+    """A -110/-110 market makes neither side a favourite, so neither is bought."""
+    p = _pipeline()
+    rec = _rec(p, "game_ml", 0.56)
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "fair_floor"
+    assert any("market fair 0.500" in r for r in rec.reasons)
+    # Still priced and graded: the shadow row keeps its number for the ledger.
+    assert rec.ev is not None and rec.model_prob == 0.56
+
+
+def test_the_same_edge_on_a_market_favourite_is_still_bought() -> None:
+    p = _pipeline()
+    rec = _rec(p, "game_ml", 0.65, american=-160.0, opposite=140.0)
+    assert rec.tier is not Tier.PASS
+    assert rec.fair_prob is not None and rec.fair_prob > 0.525
+
+
+def test_the_fair_floor_can_be_lifted(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MIN_FAIR_PROB", "0")
+    rec = _rec(_pipeline(), "game_ml", 0.56)
+    assert rec.tier is not Tier.PASS
+
+
+# ---- pre-bet momentum ------------------------------------------------------
+def test_momentum_is_neutral_without_an_opening_board() -> None:
+    keep, reason = DriftGate().momentum_allows(None, 0.55)
+    assert keep and reason == ""
+
+
+def test_momentum_refuses_a_price_that_has_already_run_to_us() -> None:
+    """919 priced buys with an opening board split on the sign of the move.
+
+    The 451 the market had already come to won 43.7% for -11.2%; the 465 it had
+    moved away from won 52.7% for +4.3%. Buying after the move is the losing half.
+    """
+    keep, reason = DriftGate().momentum_allows(0.52, 0.56)
+    assert not keep
+    assert "momentum: PASS" in reason and "+4.0 pts" in reason
+
+
+def test_momentum_keeps_a_price_that_has_not_moved_to_us() -> None:
+    keep, reason = DriftGate().momentum_allows(0.56, 0.54)
+    assert keep
+    assert "momentum: OK" in reason
+
+
+def test_momentum_tolerance_is_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_MAX_RUN_UP", "0.05")
+    gate = DriftGate.from_env()
+    assert gate.momentum_allows(0.52, 0.56)[0]
+    assert not gate.momentum_allows(0.52, 0.58)[0]
+
+
+def test_momentum_kill_switch(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_GATE", "0")
+    gate = DriftGate.from_env()
+    assert not gate.momentum
+    assert gate.momentum_allows(0.40, 0.60) == (True, "")
+    # The other end of the same variable is a separate switch.
+    assert gate.enabled
+
+
+def test_momentum_vetoes_a_buy_in_the_pipeline() -> None:
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.53}
+    rec = _rec(p, "game_ml", 0.62, american=-140.0, opposite=120.0)
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "momentum_run_up"
+    assert any("momentum: PASS" in r for r in rec.reasons)
+
+
+def test_a_side_the_market_walked_away_from_keeps_the_drift_name() -> None:
+    """Both ends of the move are vetoes; the ledger has to tell them apart.
+
+    ``screen_probation`` grades a screen on the rows it removed, so the adverse
+    move and the run-up cannot share one gate name.
+    """
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.62}
+    rec = _rec(p, "game_ml", 0.62, american=-140.0, opposite=120.0)
+    assert rec.pass_gate == "clv_drift"

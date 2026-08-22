@@ -92,13 +92,15 @@ def _pitcher_props(cfg: Config, quote_line: float):
     res = SimpleNamespace(
         pit={"home": {k: np.full(n, 8.0) for k in ("K", "outs", "H", "BB", "ER")}}
     )
-    # Half the sims over any line at or below 8, so the model sits at 50% rather
-    # than a certainty the implausible-edge cap would reject outright.
-    res.pit["home"]["K"][: n // 2] = 4.0
+    # 65% of the sims over any line at or below 8, against a -160 price the
+    # market devigs to 0.596: a 5-point edge inside the implausible-edge cap, on
+    # the side the price itself makes the favourite so the devigged-probability
+    # floor is not what refuses the row.
+    res.pit["home"]["K"][: int(n * 0.35)] = 4.0
     sel = keys.pitcher_prop(pitcher.name, "Ks", quote_line)
     quotes = {
         ("MATCH", "pitcher_k", sel): [
-            MarketQuote(book="dk", american=120.0, opposite_american=-140.0)
+            MarketQuote(book="dk", american=-160.0, opposite_american=140.0)
         ]
     }
     recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)

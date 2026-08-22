@@ -38,6 +38,7 @@ def _hits_rec(
     side: str = "over",
     model_prob: float = 0.50,
     gate_reason: str | None = None,
+    opposite: float = -110.0,
 ):
     """A priced ``pitcher_h`` selection, run through the real selection chain."""
     p = Pipeline.__new__(Pipeline)
@@ -55,7 +56,7 @@ def _hits_rec(
     selection = OVER if side == "over" else UNDER
     quotes = {
         (MATCHUP, "pitcher_h", selection): [
-            MarketQuote(book="dk", american=american, opposite_american=-110.0)
+            MarketQuote(book="dk", american=american, opposite_american=opposite)
         ]
     }
     return p._mk(
@@ -113,11 +114,20 @@ def test_the_under_is_untouched() -> None:
     """The screen is about paying a long price for a joint event, not the market.
 
     The two graded under-buys won, and an under at plus money is the opposite
-    bet: a short start makes it, so there is nothing joint to overpay for.
+    bet: a short start makes it, so there is nothing joint to overpay for. A
+    +135 under is a dog on the market's own number, so the blanket devigged floor
+    still refuses it -- what this test pins is that the ceiling is not the screen
+    that did it.
     """
     rec = _hits_rec(135.0, side="under")
-    assert rec.tier is not Tier.PASS
-    assert rec.pass_gate is None
+    assert rec.pass_gate != "pitcher_hits_price_ceiling"
+    assert not any("pitcher-hits-price-ceiling" in r for r in rec.reasons)
+    # Priced as the favourite instead, the under is bought: nothing about the
+    # side itself is refused.
+    assert (
+        _hits_rec(-160.0, side="under", model_prob=0.35, opposite=140.0).tier
+        is not Tier.PASS
+    )
 
 
 def test_a_row_another_screen_already_refused_keeps_its_own_gate() -> None:

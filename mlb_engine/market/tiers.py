@@ -5,6 +5,14 @@ ranked on its edge over the no-vig market -- not on EV, because ``EV =
 decimal_odds x edge`` makes an EV cutoff a cheaper bar the longer the price.
 Edge also has a ceiling: past ``max_edge`` a disagreement reads as a model
 error. Tiers are then adjusted by VSIN handle/bets divergence.
+
+Every screen above is a statement about the model's disagreement with the price,
+and the graded ledger says that variable predicts *losing*. ``min_fair_prob`` is
+the screen that says something about the price alone -- the side must be one the
+devigged market already makes a favourite -- and it is the only one that moves
+realized ROI (-6.3% ungated to -1.7% at .525 over 1,756 graded buys). Edge then
+does what it is good for: choosing among sides the market likes, not overruling
+it about which side that is.
 """
 
 from __future__ import annotations
@@ -51,6 +59,21 @@ def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
     if result.edge > thr.max_edge:
         return "edge_ceiling", f"edge {result.edge:+.3f} > {thr.max_edge} -> pass"
     return None
+
+
+def fair_floor_screen(fair_prob: float | None, floor: float) -> tuple[str, str] | None:
+    """Refuse a side the devigged market does not make a favourite.
+
+    Kept out of :func:`price_screen` and applied at the very end of the pipeline,
+    after the market-specific ceilings, for the reason they are ordered that way:
+    it is a blanket screen over every market, so claiming a row first would
+    relabel a refusal a specific, separately graded screen had earned and leave
+    that screen judged on bets it never removed. Neutral on an unpriced row,
+    which has no market number to be a favourite in.
+    """
+    if fair_prob is None or fair_prob >= floor:
+        return None
+    return ("fair_floor", f"market fair {fair_prob:.3f} < {floor:.3f} -> pass")
 
 
 def _base_tier(edge: float, thr: EVThresholds) -> Tier:

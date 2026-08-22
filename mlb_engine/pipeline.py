@@ -122,7 +122,7 @@ from mlb_engine.filters.human import HumanFactors
 from mlb_engine.filters.schedule import dgang_multipliers, local_hour, parse_utc_hour
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.market import keys
-from mlb_engine.market.ev import MarketQuote, anchor_to_market, evaluate
+from mlb_engine.market.ev import MarketQuote, anchored_evaluate
 from mlb_engine.market.odds import american_to_prob
 from mlb_engine.market.ranking import bet_sort_key
 from mlb_engine.market.runline import (
@@ -131,7 +131,13 @@ from mlb_engine.market.runline import (
     runline_adjustment,
     runline_veto,
 )
-from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
+from mlb_engine.market.tiers import (
+    Tier,
+    bump_tier,
+    classify,
+    fair_floor_screen,
+    price_screen,
+)
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
@@ -1956,13 +1962,10 @@ class Pipeline:
         if q is None:
             q = self._quote_aliases.get((matchup, market, keys.canonical(selection)))
         if q:
-            evres = evaluate(rec.model_prob, q)
-            anchor = self.cfg.anchor_for(market)
-            if anchor > 0:
-                # Re-price against a probability pulled toward the market. Only
-                # the bet probability moves; rec.model_prob stays the model's.
-                bet_prob = anchor_to_market(rec.model_prob, evres.fair_prob, anchor)
-                evres = evaluate(bet_prob, q)
+            # Priced against a probability pulled toward the market, screened on
+            # the model's own edge. Only the bet probability moves; rec.model_prob
+            # stays the model's, so calibration keeps grading the model.
+            evres = anchored_evaluate(rec.model_prob, q, self.cfg.anchor_for(market))
             rec.book = evres.best_quote.book
             rec.market_american = evres.best_quote.american
             rec.opposite_american = evres.best_quote.opposite_american
@@ -2155,14 +2158,24 @@ class Pipeline:
             # market has moved away from all day is one whose CLV is already
             # negative, whatever promoted it.
             if tier != Tier.PASS:
-                keep, drift_reason = self._drift_gate.allows(
-                    self._open_board.get(quote_key(*key)), evres.fair_prob
-                )
+                open_prob = self._open_board.get(quote_key(*key))
+                keep, drift_reason = self._drift_gate.allows(open_prob, evres.fair_prob)
                 if not keep:
                     tier = Tier.PASS
                     gate = "clv_drift"
                 if drift_reason:
                     reasons.append(drift_reason)
+                # The other end of the same variable: a price that has already
+                # run to us is one we are late to, and the run-up comes back.
+                if tier != Tier.PASS:
+                    keep, mom_reason = self._drift_gate.momentum_allows(
+                        open_prob, evres.fair_prob
+                    )
+                    if not keep:
+                        tier = Tier.PASS
+                        gate = "momentum_run_up"
+                    if mom_reason:
+                        reasons.append(mom_reason)
             rec.tier = tier
             rec.reasons = reasons
             # A Pass with no named screen was demoted by a tier adjustment
@@ -2225,6 +2238,20 @@ class Pipeline:
             rec.tier = Tier.PASS
             rec.pass_gate = "price_only"
             rec.reasons = ["price captured for audit only", *rec.reasons]
+        # The market's own number, screened after every other refusal for the
+        # reason the two ceilings above are: it applies to every market, so
+        # claiming a row first would relabel refusals that a specific, separately
+        # graded screen had earned and leave that screen judged on bets it never
+        # removed. Whatever promoted this row -- sharp money, a run-line bump --
+        # we are not taking a side the price itself makes an underdog.
+        if rec.tier != Tier.PASS:
+            floored = fair_floor_screen(
+                rec.fair_prob, self.cfg.ev.for_market(market).min_fair_prob
+            )
+            if floored is not None:
+                rec.tier = Tier.PASS
+                rec.pass_gate = floored[0]
+                rec.reasons = [floored[1], *rec.reasons]
         return rec
 
 

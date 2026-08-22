@@ -95,8 +95,11 @@ def test_a_singles_under_needs_the_profile() -> None:
     """
 
     def under(score: float | None):
+        # The fade is the market's own favourite at -140: the devigged floor
+        # refuses a side the price makes a dog, so a -110/-110 fixture would be
+        # removed by the floor rather than by the profile under test.
         return _sides(
-            Config(), "batter_1b", "1B", 0.45, -110, -110, bat_singles_under=score
+            Config(), "batter_1b", "1B", 0.38, 120, -140, bat_singles_under=score
         )["under"]
 
     for score in (3.0, 2.0):
@@ -112,5 +115,5 @@ def test_the_hits_under_carries_no_singles_screen() -> None:
     A strikeout-prone bat still doubles and homers, and either clears a hits
     line, so the hits fade runs on price and EV alone.
     """
-    sides = _sides(Config(), "batter_h", "H", 0.45, -110, -110, bat_singles_under=0.0)
+    sides = _sides(Config(), "batter_h", "H", 0.38, 120, -140, bat_singles_under=0.0)
     assert sides["under"].tier in (Tier.STRONG, Tier.MODERATE)
