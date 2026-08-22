@@ -6736,9 +6736,23 @@
   {
     "matchup": "CHC @ SEA",
     "market": "batter_hrr",
+    "selection": "Carson Kelly H+R+RBI o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hrr",
     "selection": "Carson Kelly H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.411171
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hrr",
+    "selection": "Carson Kelly H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
   },
   {
     "matchup": "CHC @ SEA",
@@ -7044,6 +7058,27 @@
   {
     "matchup": "CHC @ SEA",
     "market": "batter_hr",
+    "selection": "Carson Kelly HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.10049
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hr",
+    "selection": "Carson Kelly HR o1.5",
+    "american": 10000.0,
+    "no_vig_prob": 0.009901
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hr",
+    "selection": "Carson Kelly HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hr",
     "selection": "Cole Young HR o0.5",
     "american": 900.0,
     "no_vig_prob": 0.102632
@@ -7180,6 +7215,13 @@
     "selection": "Michael Conforto HR o1.5",
     "american": 7000.0,
     "no_vig_prob": 0.014085
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_hr",
+    "selection": "Michael Conforto HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "CHC @ SEA",
@@ -7369,6 +7411,20 @@
     "selection": "Cal Raleigh H u0.5",
     "american": 107.0,
     "no_vig_prob": 0.472031
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_h",
+    "selection": "Carson Kelly H o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.556481
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_h",
+    "selection": "Carson Kelly H u0.5",
+    "american": 112.0,
+    "no_vig_prob": 0.443519
   },
   {
     "matchup": "CHC @ SEA",
@@ -7621,6 +7677,13 @@
     "selection": "Cal Raleigh RBI u0.5",
     "american": -258.0,
     "no_vig_prob": 0.678858
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_rbi",
+    "selection": "Carson Kelly RBI o0.5",
+    "american": 285.0,
+    "no_vig_prob": 0.25974
   },
   {
     "matchup": "CHC @ SEA",
@@ -8178,6 +8241,27 @@
   {
     "matchup": "CHC @ SEA",
     "market": "batter_tb",
+    "selection": "Carson Kelly TB o0.5",
+    "american": -137.0,
+    "no_vig_prob": 0.546929
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_tb",
+    "selection": "Carson Kelly TB o1.5",
+    "american": 225.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_tb",
+    "selection": "Carson Kelly TB u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.453071
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_tb",
     "selection": "Cole Young TB o0.5",
     "american": -160.0,
     "no_vig_prob": 0.578787
@@ -8321,6 +8405,13 @@
     "selection": "Michael Conforto TB o0.5",
     "american": 105.0,
     "no_vig_prob": 0.464997
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "batter_tb",
+    "selection": "Michael Conforto TB o1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.350877
   },
   {
     "matchup": "CHC @ SEA",
@@ -27302,6 +27393,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_1b",
+    "selection": "Jared Triolo 1B o0.5",
+    "american": 133.0,
+    "no_vig_prob": 0.398473
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_1b",
+    "selection": "Jared Triolo 1B u0.5",
+    "american": -184.0,
+    "no_vig_prob": 0.601527
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_1b",
     "selection": "Kyle Tucker 1B o0.5",
     "american": 145.0,
     "no_vig_prob": 0.385525
@@ -27368,6 +27473,20 @@
     "selection": "Oneil Cruz 1B u0.5",
     "american": -235.0,
     "no_vig_prob": 0.664287
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_1b",
+    "selection": "Rafael Flores 1B o0.5",
+    "american": 154.0,
+    "no_vig_prob": 0.36547
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_1b",
+    "selection": "Rafael Flores 1B u0.5",
+    "american": -216.0,
+    "no_vig_prob": 0.63453
   },
   {
     "matchup": "PIT @ LAD",
@@ -27554,6 +27673,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_2b",
+    "selection": "Jared Triolo 2B o0.5",
+    "american": 670.0,
+    "no_vig_prob": 0.123481
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_2b",
+    "selection": "Jared Triolo 2B u0.5",
+    "american": -1180.0,
+    "no_vig_prob": 0.876519
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_2b",
     "selection": "Kyle Tucker 2B o0.5",
     "american": 510.0,
     "no_vig_prob": 0.166976
@@ -27620,6 +27753,20 @@
     "selection": "Oneil Cruz 2B u0.5",
     "american": -1100.0,
     "no_vig_prob": 0.868344
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_2b",
+    "selection": "Rafael Flores 2B o0.5",
+    "american": 620.0,
+    "no_vig_prob": 0.131938
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_2b",
+    "selection": "Rafael Flores 2B u0.5",
+    "american": -1060.0,
+    "no_vig_prob": 0.868062
   },
   {
     "matchup": "PIT @ LAD",
@@ -27802,6 +27949,20 @@
     "selection": "Jake Mangum BB u0.5",
     "american": -434.0,
     "no_vig_prob": 0.761567
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_bb",
+    "selection": "Jared Triolo BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.225807
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_bb",
+    "selection": "Jared Triolo BB u0.5",
+    "american": -462.0,
+    "no_vig_prob": 0.774193
   },
   {
     "matchup": "PIT @ LAD",
@@ -28096,6 +28257,20 @@
     "selection": "Jake Mangum H+R+RBI u1.5",
     "american": -175.0,
     "no_vig_prob": 0.599271
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hrr",
+    "selection": "Jared Triolo H+R+RBI o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.540105
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hrr",
+    "selection": "Jared Triolo H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.459895
   },
   {
     "matchup": "PIT @ LAD",
@@ -28429,6 +28604,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_hr",
+    "selection": "Jacob Gonzalez HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Jacob Gonzalez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
     "selection": "Jake Mangum HR o0.5",
     "american": 2000.0,
     "no_vig_prob": 0.06381
@@ -28444,6 +28633,27 @@
     "matchup": "PIT @ LAD",
     "market": "batter_hr",
     "selection": "Jake Mangum HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Jared Triolo HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.077381
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Jared Triolo HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Jared Triolo HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -28549,6 +28759,27 @@
     "matchup": "PIT @ LAD",
     "market": "batter_hr",
     "selection": "Oneil Cruz HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Rafael Flores HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.170159
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Rafael Flores HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.015971
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_hr",
+    "selection": "Rafael Flores HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -28765,6 +28996,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_h",
+    "selection": "Jared Triolo H o0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.498031
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_h",
+    "selection": "Jared Triolo H u0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.501969
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_h",
     "selection": "Kyle Tucker H o0.5",
     "american": -145.0,
     "no_vig_prob": 0.555223
@@ -28831,6 +29076,20 @@
     "selection": "Oneil Cruz H u0.5",
     "american": -102.0,
     "no_vig_prob": 0.484402
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_h",
+    "selection": "Rafael Flores H o0.5",
+    "american": -122.0,
+    "no_vig_prob": 0.522467
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_h",
+    "selection": "Rafael Flores H u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.477533
   },
   {
     "matchup": "PIT @ LAD",
@@ -29017,6 +29276,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_rbi",
+    "selection": "Jared Triolo RBI o0.5",
+    "american": 398.0,
+    "no_vig_prob": 0.189095
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_rbi",
+    "selection": "Jared Triolo RBI u0.5",
+    "american": -620.0,
+    "no_vig_prob": 0.810905
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_rbi",
     "selection": "Kyle Tucker RBI o0.5",
     "american": 211.0,
     "no_vig_prob": 0.315977
@@ -29083,6 +29356,20 @@
     "selection": "Oneil Cruz RBI u0.5",
     "american": -325.0,
     "no_vig_prob": 0.716628
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_rbi",
+    "selection": "Rafael Flores RBI o0.5",
+    "american": 263.0,
+    "no_vig_prob": 0.257732
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_rbi",
+    "selection": "Rafael Flores RBI u0.5",
+    "american": -384.0,
+    "no_vig_prob": 0.742268
   },
   {
     "matchup": "PIT @ LAD",
@@ -29269,6 +29556,20 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_r",
+    "selection": "Jared Triolo R o0.5",
+    "american": 251.0,
+    "no_vig_prob": 0.266185
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_r",
+    "selection": "Jared Triolo R u0.5",
+    "american": -366.0,
+    "no_vig_prob": 0.733815
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_r",
     "selection": "Kyle Tucker R o0.5",
     "american": 129.0,
     "no_vig_prob": 0.414912
@@ -29335,6 +29636,20 @@
     "selection": "Oneil Cruz R u0.5",
     "american": -200.0,
     "no_vig_prob": 0.623668
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_r",
+    "selection": "Rafael Flores R o0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.3155
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_r",
+    "selection": "Rafael Flores R u0.5",
+    "american": -278.0,
+    "no_vig_prob": 0.6845
   },
   {
     "matchup": "PIT @ LAD",
@@ -29535,6 +29850,13 @@
   {
     "matchup": "PIT @ LAD",
     "market": "batter_tb",
+    "selection": "Jacob Gonzalez TB o1.5",
+    "american": 255.0,
+    "no_vig_prob": 0.28169
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
     "selection": "Jacob Gonzalez TB u0.5",
     "american": -110.0,
     "no_vig_prob": 0.492244
@@ -29559,6 +29881,27 @@
     "selection": "Jake Mangum TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.418531
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Jared Triolo TB o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469388
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Jared Triolo TB o1.5",
+    "american": 290.0,
+    "no_vig_prob": 0.25641
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Jared Triolo TB u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.530612
   },
   {
     "matchup": "PIT @ LAD",
@@ -29664,6 +30007,27 @@
     "selection": "Oneil Cruz TB u0.5",
     "american": -108.0,
     "no_vig_prob": 0.487872
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Rafael Flores TB o0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.518507
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Rafael Flores TB o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.338983
+  },
+  {
+    "matchup": "PIT @ LAD",
+    "market": "batter_tb",
+    "selection": "Rafael Flores TB u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.481493
   },
   {
     "matchup": "PIT @ LAD",
