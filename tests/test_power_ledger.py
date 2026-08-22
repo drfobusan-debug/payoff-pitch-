@@ -32,6 +32,7 @@ def _position(
     side: str = "over",
     odds: float | None = 100.0,
     model: float = 0.60,
+    bet: float | None = None,
     fair: float | None = 0.50,
     tier: str = "Moderate buy",
     rating: str = "BUY",
@@ -48,6 +49,7 @@ def _position(
         book="DraftKings",
         odds=odds,
         model_prob=model,
+        bet_prob=bet,
         fair_prob=fair,
         edge=None if fair is None else round(model - fair, 4),
         ev=0.05,
@@ -327,6 +329,53 @@ def test_a_note_with_no_review_is_unchanged() -> None:
     result = _result()
 
     assert "graded" not in power_report.render_html(result)
+
+
+def test_a_row_recorded_before_the_anchor_shows_the_model_it_was_shown_at() -> None:
+    assert _position(model=0.60, bet=None).shown_prob == 0.60
+    assert _position(model=0.60, bet=0.54).shown_prob == 0.54
+
+
+def test_the_anchored_probability_survives_the_round_trip(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    power_ledger.record(path, [_position(model=0.60, bet=0.54)], DAY)
+
+    (back,) = power_ledger.load(path)
+
+    assert back.model_prob == 0.60
+    assert back.bet_prob == 0.54
+
+
+def test_the_printed_number_is_scored_beside_the_model_not_instead_of_it() -> None:
+    # Lost, and the anchored number was the more modest of the two, so the
+    # anchored score must be the better one and both must be reported.
+    graded = _graded(_position("HR", 0.5, model=0.60, bet=0.45, fair=0.30), players={7: _line(H=1)})
+    card = power_ledger.scorecard(DAY, graded)
+
+    assert card.model_brier == round(0.60**2, 4)
+    assert card.shown_brier == round(0.45**2, 4)
+    assert card.mean_shown_prob == 0.45
+    assert card.shown_beat_market is False
+
+
+def test_the_note_prints_the_number_the_card_bet_not_the_raw_model() -> None:
+    result = _result()
+    graded = _graded(
+        _position("HRR", 1.5, model=0.70, bet=0.61), players={7: _line(H=1, R=1)}
+    )
+    card = power_ledger.scorecard(DAY, graded)
+
+    doc = power_report.render_html(result, review=(card, graded))
+
+    assert "61.0%" in doc
+    assert "70.0%" not in doc
+
+
+def test_the_grade_is_lettered_until_it_grades_out() -> None:
+    doc = power_report.render_html(_result())
+
+    assert "MATCHUP A" in doc
+    assert "rate a buy on the matchup" not in doc
 
 
 def test_the_ratings_helper_names_every_survivor() -> None:

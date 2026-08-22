@@ -52,6 +52,7 @@ FIELDS = (
     "book",
     "odds",
     "model_prob",
+    "bet_prob",
     "fair_prob",
     "edge",
     "ev",
@@ -81,6 +82,15 @@ class Position:
     tier: str
     rating: str
     devigged: bool
+    # The anchored probability the note printed and the card's screens bet on.
+    # Absent on rows recorded before the board carried it, which fall back to the
+    # model so an old row still grades against the number it showed.
+    bet_prob: float | None = None
+
+    @property
+    def shown_prob(self) -> float:
+        """The probability the note put in front of the reader."""
+        return self.model_prob if self.bet_prob is None else self.bet_prob
 
     @property
     def label(self) -> str:
@@ -124,6 +134,7 @@ def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
         book=row.book or "",
         odds=row.american,
         model_prob=round(row.model_prob, 4),
+        bet_prob=round(row.bet_prob, 4) if row.bet_prob is not None else None,
         fair_prob=round(row.fair_prob, 4) if row.fair_prob is not None else None,
         edge=round(row.edge, 4) if row.edge is not None else None,
         ev=round(row.ev, 4) if row.ev is not None else None,
@@ -169,6 +180,7 @@ def load(path: Path) -> list[Position]:
                     book=r.get("book", ""),
                     odds=_to_float(r.get("odds", "")),
                     model_prob=model,
+                    bet_prob=_to_float(r.get("bet_prob", "")),
                     fair_prob=_to_float(r.get("fair_prob", "")),
                     edge=_to_float(r.get("edge", "")),
                     ev=_to_float(r.get("ev", "")),
@@ -308,6 +320,11 @@ class Scorecard:
     scored_probs: int = 0
     mean_model_prob: float | None = None
     mean_market_prob: float | None = None
+    # The printed (anchored) probability, scored on the same rows. Kept apart
+    # from ``model_brier`` on purpose: the model number is what a calibration
+    # refit has to measure, and the shown number is what the reader was told.
+    shown_brier: float | None = None
+    mean_shown_prob: float | None = None
 
     @property
     def graded(self) -> int:
@@ -324,6 +341,13 @@ class Scorecard:
             return None
         return self.model_brier < self.market_brier
 
+    @property
+    def shown_beat_market(self) -> bool | None:
+        """Did the number the note printed score better than the no-vig line's?"""
+        if self.shown_brier is None or self.market_brier is None:
+            return None
+        return self.shown_brier < self.market_brier
+
 
 def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Scorecard:
     """Roll the graded rows up into the note's scorecard."""
@@ -337,6 +361,7 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
         if g.position.devigged and g.position.fair_prob is not None
     ]
     model = [(g.position.model_prob, o) for g, o in pairs]
+    shown = [(g.position.shown_prob, o) for g, o in pairs]
     market = [(g.position.fair_prob or 0.0, o) for g, o in pairs]
     tiers = sorted({g.position.tier for g in graded})
     ratings = sorted({g.position.rating for g in graded if g.position.rating})
@@ -356,4 +381,6 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
         scored_probs=len(pairs),
         mean_model_prob=(round(sum(p for p, _ in model) / len(model), 4) if model else None),
         mean_market_prob=(round(sum(p for p, _ in market) / len(market), 4) if market else None),
+        shown_brier=_brier(shown),
+        mean_shown_prob=(round(sum(p for p, _ in shown) / len(shown), 4) if shown else None),
     )

@@ -221,6 +221,14 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
     return " ".join(bits)
 
 
+# The rating sorts matchups; it has never been shown to sort outcomes. Over the
+# 66 held rows the ledger has (8/18-8/20), BUY went 5-13 for -5.52 units against
+# HOLD's 20-25 for -0.26 -- ordered backwards, on a Fisher p of 0.199, so neither
+# a finding nor something to keep printing as conviction. Until it grades out it
+# is printed as a lettered matchup grade, which is all the evidence supports.
+RATING_DISPLAY = {"BUY": "MATCHUP A", "HOLD": "MATCHUP B", "AVOID": "MATCHUP C"}
+
+
 def _rating(view: HitterView) -> tuple[str, str]:
     """Conviction in the matchup, and the reason, from the assembled evidence.
 
@@ -342,7 +350,7 @@ def _board_section(board: Board) -> str:
             r.label + (" &dagger;" if r.stat in DISPLAY_ONLY else ""),
             _price(r.american),
             html.escape(r.book or "&mdash;"),
-            _pc(r.model_prob),
+            _pc(r.shown_prob),
             fair + ("" if r.devigged else "*"),
             _num((r.edge or 0.0) * 100, 1, signed=True) if r.edge is not None else "&mdash;",
             _pc(r.ev, 1) if r.ev is not None else "&mdash;",
@@ -360,13 +368,18 @@ def _board_section(board: Board) -> str:
     if rows:
         out.append(
             _table(
-                ["batter", "market", "price", "book", "model", "no-vig", "edge", "EV", "tier"],
+                ["batter", "market", "price", "book", "bet prob", "no-vig", "edge", "EV", "tier"],
                 rows,
                 numeric_from=2,
             )
         )
         out.append(
-            "<p class='sub'>Edge is model minus no-vig, in points. A no-vig mark starred is "
+            "<p class='sub'>The bet probability is the model pulled toward the no-vig line by "
+            "the card's own market anchor &mdash; the number its screens priced, so the edge "
+            "and EV beside it describe the same bet. On this screen's scored rows the anchored "
+            "number scored better than the raw model both in and out of sample (Brier .227 "
+            "against .230 on 8/18, .236 against .253 on 8/19-20), and the no-vig line beat them "
+            "both. Edge is that probability minus no-vig, in points. A no-vig mark starred is "
             "one-sided at the book, so its vig could not be stripped and the edge beside it is "
             "overstated by roughly half the hold.</p>"
         )
@@ -400,7 +413,7 @@ def _board_section(board: Board) -> str:
         worst = min(against, key=lambda r: r.edge or 0.0)
         out.append(
             f"<p><strong>The market disagrees hardest on {html.escape(worst.batter)} "
-            f"{worst.label}</strong>: {_pc(worst.model_prob)} modelled against a "
+            f"{worst.label}</strong>: {_pc(worst.shown_prob)} bet against a "
             f"{_pc(worst.fair_prob) if worst.fair_prob is not None else 'one-way'} no-vig line. "
             f"The screen reads form and exposure; the price reads everything, including the "
             f"lineup card this note is guessing at.</p>"
@@ -438,7 +451,7 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
             html.escape(g.position.batter),
             g.position.label,
             _price(g.position.odds),
-            _pc(g.position.model_prob),
+            _pc(g.position.shown_prob),
             _pc(g.position.fair_prob) if g.position.fair_prob is not None else "one-way",
             str(g.actual),
             g.result,
@@ -455,31 +468,42 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         "flat one unit apiece at the price it was shown at &mdash; not at a better one found "
         "later, and not only on the rows that worked.</p>",
         _table(
-            ["batter", "market", "price", "model", "no-vig", "actual", "result", "units"],
+            ["batter", "market", "price", "shown", "no-vig", "actual", "result", "units"],
             rows,
             numeric_from=2,
         ),
     ]
-    if card.model_brier is not None and card.market_brier is not None:
-        verdict = "the model" if card.model_beat_market else "the price"
+    if card.shown_brier is not None and card.market_brier is not None:
+        verdict = "the note's number" if card.shown_beat_market else "the price"
+        model = (
+            f" The unanchored model scored {card.model_brier:.3f} on the same rows."
+            if card.model_brier is not None
+            else ""
+        )
         out.append(
             f"<p><strong>{verdict.capitalize()} was closer.</strong> Brier score "
-            f"{card.model_brier:.3f} for the model against {card.market_brier:.3f} for the "
-            f"two-sided no-vig line, over the {card.scored_probs} rows where the hold could be "
-            f"stripped; the model averaged "
-            f"{_pc(card.mean_model_prob) if card.mean_model_prob is not None else '&mdash;'} "
+            f"{card.shown_brier:.3f} for the probability the note printed against "
+            f"{card.market_brier:.3f} for the two-sided no-vig line, over the "
+            f"{card.scored_probs} rows where the hold could be stripped; the note averaged "
+            f"{_pc(card.mean_shown_prob) if card.mean_shown_prob is not None else '&mdash;'} "
             f"against the market's "
             f"{_pc(card.mean_market_prob) if card.mean_market_prob is not None else '&mdash;'} "
-            f"and the rows went {o.wins} of {o.decided}. One slate settles nothing; the column "
-            f"that matters is this line repeated, which is what the ledger accumulates.</p>"
+            f"and the rows went {o.wins} of {o.decided}.{model} One slate settles nothing; the "
+            f"column that matters is this line repeated, which is what the ledger "
+            f"accumulates.</p>"
         )
     splits = [
         ("card tier", card.by_tier),
-        ("screen rating", card.by_rating),
+        ("matchup grade", card.by_rating),
         ("market", card.by_market),
     ]
     split_rows = [
-        [html.escape(label), html.escape(rec.label), _wl(rec), _num(rec.units, 2, signed=True)]
+        [
+            html.escape(label),
+            html.escape(RATING_DISPLAY.get(rec.label, rec.label)),
+            _wl(rec),
+            _num(rec.units, 2, signed=True),
+        ]
         for label, recs in splits
         for rec in recs
     ]
@@ -487,9 +511,10 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         out.append(_table(["cut", "bucket", "W-L", "units"], split_rows, numeric_from=2))
         out.append(
             "<p class='sub'>The tier cut says whether the card's buys beat the rows it passed "
-            "on; the rating cut says whether the matchup read discriminated at all. They are "
-            "separate because a rating carries no price and can be right about the hitter while "
-            "the number was wrong.</p>"
+            "on; the grade cut says whether the matchup read discriminated at all, and so far it "
+            "has not &mdash; which is why the grade is lettered rather than called a buy. They "
+            "are separate cuts because a grade carries no price and can be right about the "
+            "hitter while the number was wrong.</p>"
         )
     return "".join(out)
 
@@ -700,7 +725,7 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     for rating, reason, view, section in rated:
         css = rating.lower()
         row = [
-            f"<span class='{css}'>{rating}</span>",
+            f"<span class='{css}'>{RATING_DISPLAY.get(rating, rating)}</span>",
             html.escape(view.line.name),
             html.escape(section.starter.name),
         ]
@@ -710,10 +735,16 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         rows.append(row)
     buys = [r for r in rated if r[0] == "BUY"]
     lead = (
-        f"<p><strong>{len(buys)} of {len(rated)} survivors rate a buy on the matchup.</strong> "
-        f"Ratings weigh how much of the game is the matchup, whether the arsenal adds or "
+        f"<p><strong>{len(buys)} of {len(rated)} survivors grade A on the matchup.</strong> "
+        f"Grades weigh how much of the game is the matchup, whether the arsenal adds or "
         f"subtracts, contact quality, strikeout risk, and whether the bullpen gives the edge "
         f"back. They contain no price.</p>"
+        f"<p class='sub'><strong>The grade is a sort, and it has not been shown to sort "
+        f"outcomes.</strong> On the 66 held rows the ledger has scored, the A bucket went 5-13 "
+        f"for -5.52 units against the B bucket's 20-25 for -0.26 &mdash; the wrong order, though "
+        f"on three days and a Fisher p of 0.199 that is not a finding either. It is lettered "
+        f"rather than called a buy for that reason, and it will be named again when the ledger "
+        f"is large enough to say which way it points.</p>"
     )
     if board is not None:
         agreed = [
@@ -732,7 +763,7 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["rating", "batter", "vs"]
+    headers = ["grade", "batter", "vs"]
     if board is not None:
         headers.append("best price (EV)")
     headers.append("basis")
