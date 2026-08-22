@@ -8381,9 +8381,23 @@
   {
     "matchup": "CHC @ SEA",
     "market": "f5_total",
+    "selection": "F5 Over 4.0",
+    "american": -126.0,
+    "no_vig_prob": 0.530906
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "f5_total",
     "selection": "F5 Over 4.5",
     "american": 110.0,
     "no_vig_prob": 0.472972
+  },
+  {
+    "matchup": "CHC @ SEA",
+    "market": "f5_total",
+    "selection": "F5 Under 4.0",
+    "american": 103.0,
+    "no_vig_prob": 0.469094
   },
   {
     "matchup": "CHC @ SEA",

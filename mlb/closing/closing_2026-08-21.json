@@ -27239,6 +27239,13 @@
   {
     "matchup": "NYM @ CWS",
     "market": "pitcher_outs",
+    "selection": "Sean Burke Outs u16.5",
+    "american": -105.0,
+    "no_vig_prob": 0.471347
+  },
+  {
+    "matchup": "NYM @ CWS",
+    "market": "pitcher_outs",
     "selection": "Sean Burke Outs u17.5",
     "american": -114.0,
     "no_vig_prob": 0.502606
@@ -33273,6 +33280,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_1b",
+    "selection": "Bryan Torres 1B o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.412563
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_1b",
+    "selection": "Bryan Torres 1B u0.5",
+    "american": -168.0,
+    "no_vig_prob": 0.587437
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_1b",
     "selection": "Bryce Harper 1B o0.5",
     "american": 105.0,
     "no_vig_prob": 0.475258
@@ -33539,6 +33560,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_2b",
+    "selection": "Bryan Torres 2B o0.5",
+    "american": 710.0,
+    "no_vig_prob": 0.126209
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_2b",
+    "selection": "Bryan Torres 2B u0.5",
+    "american": -1100.0,
+    "no_vig_prob": 0.873791
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_2b",
     "selection": "Bryce Harper 2B o0.5",
     "american": 405.0,
     "no_vig_prob": 0.195516
@@ -33801,6 +33836,20 @@
     "selection": "Brandon Marsh BB u0.5",
     "american": -291.0,
     "no_vig_prob": 0.704349
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_bb",
+    "selection": "Bryan Torres BB o0.5",
+    "american": 346.0,
+    "no_vig_prob": 0.215375
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_bb",
+    "selection": "Bryan Torres BB u0.5",
+    "american": -524.0,
+    "no_vig_prob": 0.784625
   },
   {
     "matchup": "STL @ PHI",
@@ -34085,6 +34134,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hrr",
+    "selection": "Bryan Torres H+R+RBI o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.537799
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
+    "selection": "Bryan Torres H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.462201
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
     "selection": "Bryce Harper H+R+RBI o1.5",
     "american": -130.0,
     "no_vig_prob": 0.540328
@@ -34183,6 +34246,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hrr",
+    "selection": "Jose Fermin H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.596441
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
+    "selection": "Jose Fermin H+R+RBI u0.5",
+    "american": 133.0,
+    "no_vig_prob": 0.403559
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
     "selection": "Joshua Baez H+R+RBI o0.5",
     "american": -170.0,
     "no_vig_prob": 0.593335
@@ -34260,9 +34337,23 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hrr",
+    "selection": "Luis Arraez H+R+RBI o2.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
     "selection": "Luis Arraez H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.436237
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hrr",
+    "selection": "Luis Arraez H+R+RBI u2.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
   },
   {
     "matchup": "STL @ PHI",
@@ -34407,6 +34498,27 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hr",
+    "selection": "Bryan Torres HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.074176
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Bryan Torres HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Bryan Torres HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
     "selection": "Bryce Harper HR o0.5",
     "american": 390.0,
     "no_vig_prob": 0.218922
@@ -34498,9 +34610,37 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hr",
+    "selection": "J.T. Realmuto HR o1.5",
+    "american": 10000.0,
+    "no_vig_prob": 0.009901
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "J.T. Realmuto HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
     "selection": "JJ Wetherholt HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "JJ Wetherholt HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "JJ Wetherholt HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ PHI",
@@ -34520,6 +34660,27 @@
     "matchup": "STL @ PHI",
     "market": "batter_hr",
     "selection": "Jordan Walker HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Jose Fermin HR o0.5",
+    "american": 1000.0,
+    "no_vig_prob": 0.093074
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Jose Fermin HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.007092
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Jose Fermin HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -34550,6 +34711,20 @@
     "selection": "Justin Crawford HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Justin Crawford HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.007092
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Justin Crawford HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ PHI",
@@ -34624,6 +34799,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_hr",
+    "selection": "Pedro Pages HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
+    "selection": "Pedro Pages HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_hr",
     "selection": "Trea Turner HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.140394
@@ -34652,9 +34841,23 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_h",
+    "selection": "Alec Bohm H o1.5",
+    "american": 204.0,
+    "no_vig_prob": 0.31006
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_h",
     "selection": "Alec Bohm H u0.5",
     "american": 195.0,
     "no_vig_prob": 0.326242
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_h",
+    "selection": "Alec Bohm H u1.5",
+    "american": -275.0,
+    "no_vig_prob": 0.68994
   },
   {
     "matchup": "STL @ PHI",
@@ -34697,6 +34900,20 @@
     "selection": "Brandon Marsh H u0.5",
     "american": 175.0,
     "no_vig_prob": 0.360213
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_h",
+    "selection": "Bryan Torres H o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.49631
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_h",
+    "selection": "Bryan Torres H u0.5",
+    "american": -112.0,
+    "no_vig_prob": 0.50369
   },
   {
     "matchup": "STL @ PHI",
@@ -34967,6 +35184,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_rbi",
+    "selection": "Bryan Torres RBI o0.5",
+    "american": 364.0,
+    "no_vig_prob": 0.202543
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_rbi",
+    "selection": "Bryan Torres RBI u0.5",
+    "american": -555.0,
+    "no_vig_prob": 0.797457
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_rbi",
     "selection": "Bryce Harper RBI o0.5",
     "american": 152.0,
     "no_vig_prob": 0.381981
@@ -35229,6 +35460,20 @@
     "selection": "Brandon Marsh R u0.5",
     "american": -160.0,
     "no_vig_prob": 0.582761
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_r",
+    "selection": "Bryan Torres R o0.5",
+    "american": 273.0,
+    "no_vig_prob": 0.255639
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_r",
+    "selection": "Bryan Torres R u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.744361
   },
   {
     "matchup": "STL @ PHI",
@@ -35513,6 +35758,27 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_tb",
+    "selection": "Bryan Torres TB o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.493232
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Bryan Torres TB o1.5",
+    "american": 280.0,
+    "no_vig_prob": 0.263158
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Bryan Torres TB u0.5",
+    "american": -116.0,
+    "no_vig_prob": 0.506768
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
     "selection": "Bryce Harper TB o1.5",
     "american": 120.0,
     "no_vig_prob": 0.435448
@@ -35541,9 +35807,23 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_tb",
+    "selection": "Everson Pereira TB o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.439727
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
     "selection": "Everson Pereira TB o1.5",
     "american": 295.0,
     "no_vig_prob": 0.253165
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Everson Pereira TB u0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.560273
   },
   {
     "matchup": "STL @ PHI",
@@ -35611,6 +35891,13 @@
   {
     "matchup": "STL @ PHI",
     "market": "batter_tb",
+    "selection": "JJ Wetherholt TB o1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.350877
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
     "selection": "JJ Wetherholt TB u0.5",
     "american": 130.0,
     "no_vig_prob": 0.407624
@@ -35635,6 +35922,13 @@
     "selection": "Jose Fermin TB o0.5",
     "american": -140.0,
     "no_vig_prob": 0.544592
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Jose Fermin TB o1.5",
+    "american": 250.0,
+    "no_vig_prob": 0.285714
   },
   {
     "matchup": "STL @ PHI",
@@ -35670,6 +35964,13 @@
     "selection": "Justin Crawford TB o0.5",
     "american": -185.0,
     "no_vig_prob": 0.614437
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Justin Crawford TB o1.5",
+    "american": 200.0,
+    "no_vig_prob": 0.333333
   },
   {
     "matchup": "STL @ PHI",
@@ -35733,6 +36034,13 @@
     "selection": "Pedro Pages TB o0.5",
     "american": 122.0,
     "no_vig_prob": 0.424027
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "batter_tb",
+    "selection": "Pedro Pages TB o1.5",
+    "american": 340.0,
+    "no_vig_prob": 0.227273
   },
   {
     "matchup": "STL @ PHI",
@@ -35884,6 +36192,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "pitcher_bb",
+    "selection": "Hunter Dobbins Walks o1.5",
+    "american": -205.0,
+    "no_vig_prob": 0.633237
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_bb",
+    "selection": "Hunter Dobbins Walks u1.5",
+    "american": 155.0,
+    "no_vig_prob": 0.366763
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_bb",
     "selection": "Jesus Luzardo Walks o1.5",
     "american": -123.0,
     "no_vig_prob": 0.517616
@@ -35894,6 +36216,20 @@
     "selection": "Jesus Luzardo Walks u1.5",
     "american": -107.0,
     "no_vig_prob": 0.482384
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_er",
+    "selection": "Hunter Dobbins ER o2.5",
+    "american": -117.0,
+    "no_vig_prob": 0.540329
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_er",
+    "selection": "Hunter Dobbins ER u2.5",
+    "american": 110.0,
+    "no_vig_prob": 0.459671
   },
   {
     "matchup": "STL @ PHI",
@@ -35912,6 +36248,20 @@
   {
     "matchup": "STL @ PHI",
     "market": "pitcher_h",
+    "selection": "Hunter Dobbins Hits o5.5",
+    "american": -117.0,
+    "no_vig_prob": 0.516912
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_h",
+    "selection": "Hunter Dobbins Hits u5.5",
+    "american": 105.0,
+    "no_vig_prob": 0.483088
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_h",
     "selection": "Jesus Luzardo Hits o4.5",
     "american": -125.0,
     "no_vig_prob": 0.531097
@@ -35922,6 +36272,20 @@
     "selection": "Jesus Luzardo Hits u4.5",
     "american": 105.0,
     "no_vig_prob": 0.468903
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_k",
+    "selection": "Hunter Dobbins Ks o3.5",
+    "american": -125.0,
+    "no_vig_prob": 0.54434
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_k",
+    "selection": "Hunter Dobbins Ks u3.5",
+    "american": 123.0,
+    "no_vig_prob": 0.45566
   },
   {
     "matchup": "STL @ PHI",
@@ -35950,6 +36314,20 @@
     "selection": "Jesus Luzardo Ks u7.5",
     "american": -131.0,
     "no_vig_prob": 0.553288
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_outs",
+    "selection": "Hunter Dobbins Outs o15.5",
+    "american": 105.0,
+    "no_vig_prob": 0.480214
+  },
+  {
+    "matchup": "STL @ PHI",
+    "market": "pitcher_outs",
+    "selection": "Hunter Dobbins Outs u15.5",
+    "american": -119.0,
+    "no_vig_prob": 0.519786
   },
   {
     "matchup": "STL @ PHI",
@@ -36885,9 +37263,23 @@
   {
     "matchup": "TB @ BAL",
     "market": "batter_hrr",
+    "selection": "Coby Mayo H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "TB @ BAL",
+    "market": "batter_hrr",
     "selection": "Coby Mayo H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.425968
+  },
+  {
+    "matchup": "TB @ BAL",
+    "market": "batter_hrr",
+    "selection": "Coby Mayo H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
   },
   {
     "matchup": "TB @ BAL",

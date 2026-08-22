@@ -87,3 +87,9 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,fair_prob,edge
 2026-08-20,Yordan Alvarez,670541,824153,H,1.5,over,betonlineag,209.0,0.4132,0.3177,0.0955,0.2768,Pass,BUY,True
 2026-08-20,Yordan Alvarez,670541,824153,HR,0.5,over,betrivers,250.0,0.3424,0.304,0.0384,0.1986,Pass,BUY,False
 2026-08-20,Yordan Alvarez,670541,824153,HRR,2.5,over,bovada,115.0,0.5885,0.4426,0.1459,0.2653,Pass,BUY,True
+2026-08-21,Gunnar Henderson,683002,824800,BB,0.5,over,draftkings,171.0,0.4835,0.353,0.0914,0.2042,Pass,HOLD,True
+2026-08-21,Gunnar Henderson,683002,824800,HRR,1.5,over,draftkings,100.0,0.5624,0.4841,0.0548,0.0778,Pass,HOLD,True
+2026-08-21,Gunnar Henderson,683002,824800,R,0.5,over,draftkings,123.0,0.5508,0.429,0.0853,0.1467,Pass,HOLD,True
+2026-08-21,Pete Alonso,624413,824800,HRR,1.5,over,betmgm,-120.0,0.627,0.5168,0.0771,0.0889,Pass,BUY,True
+2026-08-21,Pete Alonso,624413,824800,R,0.5,over,draftkings,-107.0,0.628,0.4893,0.0971,0.1344,Pass,BUY,True
+2026-08-21,Pete Alonso,624413,824800,TB,1.5,over,bovada,120.0,0.6273,0.4353,0.1344,0.2533,Pass,BUY,True
