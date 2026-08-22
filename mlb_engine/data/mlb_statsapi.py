@@ -364,6 +364,37 @@ class MLBStatsClient:
                     out[int(pid)] = float(age)
         return out
 
+    def league_total_runs(self, season: int, min_team_games: int = 300) -> float | None:
+        """Runs per *game* the league is scoring this season, from the standings.
+
+        Both teams' runs, so it is comparable to a game total: the simulator's run
+        environment is set to it (``models.run_env``). Season to date rather than a
+        trailing window on purpose -- thousands of team-games make its standard
+        error a rounding error, where a 30-day window's is a tenth of a run and
+        would have the correction chasing weather.
+
+        ``None`` when the standings are too thin to be a league (early April, or a
+        payload the endpoint truncated), which leaves the environment uncorrected.
+        """
+        try:
+            data = self._get(
+                "standings", leagueId="103,104", season=season, standingsTypes="regularSeason"
+            )
+        except requests.RequestException as exc:
+            log.warning("league runs standings failed for %s: %s", season, exc)
+            return None
+        games = runs = 0
+        for rec in data.get("records", []):
+            for tr in rec.get("teamRecords", []):
+                gp = int(tr.get("gamesPlayed") or 0)
+                rs = tr.get("runsScored")
+                if gp and rs is not None:
+                    games += gp
+                    runs += int(rs)
+        if games < min_team_games:
+            return None
+        return 2.0 * runs / games
+
     def team_run_differentials(self, season: int) -> dict[str, tuple[float, int]]:
         """Season {team_abbrev: (actual_rd_per_game, games_played)} from standings.
 
