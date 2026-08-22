@@ -73,9 +73,10 @@ def test_raised_edge_floor_keeps_a_moderate_band() -> None:
 def test_raised_floor_flips_a_marginal_buy_to_pass() -> None:
     q = MarketQuote(book="bk", american=-110)
     # A 4.5-point edge at a positive-EV price is a buy under the global floor...
+    # The level sits above the conviction floor so the edge floor is what bites.
     res = EVResult(
-        model_prob=0.545, best_quote=q, decimal=1.91, ev=0.041,
-        fair_prob=0.50, edge=0.045, sharp_divergence=None,
+        model_prob=0.625, best_quote=q, decimal=1.91, ev=0.194,
+        fair_prob=0.58, edge=0.045, sharp_divergence=None,
     )
     base = EVThresholds()
     assert classify(res, base.for_market("game_ml"))[0] is Tier.STRONG
@@ -92,15 +93,13 @@ def _pitcher_props(cfg: Config, quote_line: float):
     res = SimpleNamespace(
         pit={"home": {k: np.full(n, 8.0) for k in ("K", "outs", "H", "BB", "ER")}}
     )
-    # 65% of the sims over any line at or below 8, against a -160 price the
-    # market devigs to 0.596: a 5-point edge inside the implausible-edge cap, on
-    # the side the price itself makes the favourite so the devigged-probability
-    # floor is not what refuses the row.
-    res.pit["home"]["K"][: int(n * 0.35)] = 4.0
+    # Half the sims over any line at or below 8, so the model sits at 50% rather
+    # than a certainty the implausible-edge cap would reject outright.
+    res.pit["home"]["K"][: n // 2] = 4.0
     sel = keys.pitcher_prop(pitcher.name, "Ks", quote_line)
     quotes = {
         ("MATCH", "pitcher_k", sel): [
-            MarketQuote(book="dk", american=-160.0, opposite_american=140.0)
+            MarketQuote(book="dk", american=120.0, opposite_american=-140.0)
         ]
     }
     recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)
@@ -108,14 +107,16 @@ def _pitcher_props(cfg: Config, quote_line: float):
 
 
 def test_high_k_line_is_gated_to_pass() -> None:
-    cfg = Config(pitcher_k_max_buy_line=5.5)
+    # A 50% model at +120 is refused by the conviction floor and the EV ceiling
+    # on shipped settings; the line cap is the screen under test.
+    cfg = Config(ev=EVThresholds(min_prob=0.0, max_ev=1.0), pitcher_k_max_buy_line=5.5)
     rec = _pitcher_props(cfg, 6.5)  # o6.5 > cap
     assert rec.tier is Tier.PASS
     assert any("buy cap" in r for r in rec.reasons)
 
 
 def test_low_k_line_is_not_gated() -> None:
-    cfg = Config(pitcher_k_max_buy_line=5.5)
+    cfg = Config(ev=EVThresholds(min_prob=0.0, max_ev=1.0), pitcher_k_max_buy_line=5.5)
     rec = _pitcher_props(cfg, 5.5)  # o5.5 == cap, allowed
     assert rec.tier in (Tier.STRONG, Tier.MODERATE)
     assert not any("buy cap" in r for r in rec.reasons)

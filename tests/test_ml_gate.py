@@ -165,32 +165,13 @@ def test_sharp_upgrade_does_not_buy_a_negative_ev_price() -> None:
     assert not any("ml-upgrade" in r for r in rec.reasons)
 
 
-def test_the_sharp_upgrade_cannot_buy_a_price_the_market_makes_a_dog() -> None:
-    """The devigged-probability floor overrules the upgrade, on purpose.
-
-    This case used to be the point of the upgrade: a thin edge on a +200 dog that
-    still pays, promoted because the handle is 80% on it. The graded ledger says
-    that is the losing half of every split it appears in -- game_ml went -17.3%,
-    plus-money buys 28.5%, and the model's disagreement with the price predicts
-    losing -- so a side the market itself makes a 33% shot is refused whatever the
-    handle says. Handle is the market agreeing about the side, not the price.
-    """
+def test_sharp_upgrade_still_promotes_a_paying_price() -> None:
     from mlb_engine.market.tiers import Tier
 
+    # Too thin an edge for the tiers to buy on their own, but a long enough
+    # price that it still pays: the sharp signal promotes it.
     rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
     assert (rec.ev or 0.0) > 0 and (rec.edge or 0.0) < 0.02
-    assert rec.tier is Tier.PASS
-    assert rec.pass_gate == "fair_floor"
-    # The upgrade still ran and is still on the record; it is simply overruled.
-    assert any("ml-upgrade: BUY" in r for r in rec.reasons)
-
-
-def test_the_floor_is_reversible_and_the_upgrade_then_promotes(monkeypatch) -> None:
-    """The floor is a stance on a price band, so it has to be switchable."""
-    from mlb_engine.market.tiers import Tier
-
-    monkeypatch.setenv("MLBE_MIN_FAIR_PROB", "0")
-    rec = _ml_rec(0.3366, american=200.0, opposite=-220.0)
     assert rec.tier is Tier.MODERATE
     assert any("ml-upgrade: BUY" in r for r in rec.reasons)
 
@@ -200,8 +181,7 @@ def test_sharp_money_cannot_buy_a_road_dog() -> None:
 
     Handle piling onto a road underdog is the market agreeing about the side,
     not about the price -- and the price is what lost 33.9% of stake on that
-    cell. It keeps its own gate name rather than the blanket floor's, because the
-    road-dog screen is graded on the rows it removed.
+    cell. The same selection is promoted when it is the home team.
     """
     from mlb_engine.market.tiers import Tier
 
@@ -209,6 +189,7 @@ def test_sharp_money_cannot_buy_a_road_dog() -> None:
     assert road.tier is Tier.PASS
     assert road.pass_gate == "away_ml_dog"
     assert any("ml-upgrade: BUY" in r for r in road.reasons)
+    assert _ml_rec(0.3366, 200.0, -220.0, team_side="home").tier is Tier.MODERATE
 
 
 def test_a_confirmed_moneyline_is_actually_buyable() -> None:
@@ -220,7 +201,9 @@ def test_a_confirmed_moneyline_is_actually_buyable() -> None:
     """
     from mlb_engine.market.tiers import Tier
 
-    rec = _ml_rec(0.65, american=-160.0, opposite=140.0)
+    # A favourite, because the conviction floor only ever clears on one: at -140
+    # the anchored probability is 0.627 for a 5-point edge.
+    rec = _ml_rec(0.65, american=-140.0, opposite=130.0)
     assert (rec.ev or 0.0) > 0 and 0.02 <= (rec.edge or 0.0) <= 0.08
     assert rec.tier is Tier.STRONG
     assert any("ml-gate: OK" in r for r in rec.reasons)

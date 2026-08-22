@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from mlb_engine.config import Config
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.features.market_gates import price_ceiling_allows
@@ -26,6 +26,11 @@ MATCHUP = "CWS @ CHC"
 OVER = "Shota Imanaga Hits o5.5"
 UNDER = "Shota Imanaga Hits u5.5"
 
+# These rows are a 50% model against a plus-money price, which the shipped
+# conviction floor and EV ceiling refuse on their own. The screen under test here
+# is the price ceiling, so the level screens are lifted while it is exercised.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
+
 
 class _Identity:
     def apply(self, market: str, prob: float) -> float:
@@ -38,11 +43,10 @@ def _hits_rec(
     side: str = "over",
     model_prob: float = 0.50,
     gate_reason: str | None = None,
-    opposite: float = -110.0,
 ):
     """A priced ``pitcher_h`` selection, run through the real selection chain."""
     p = Pipeline.__new__(Pipeline)
-    p.cfg = Config()
+    p.cfg = Config(ev=LEVELS_OFF)
     p._calibrator = _Identity()
     p._shrink = None
     p._splits = {}
@@ -56,7 +60,7 @@ def _hits_rec(
     selection = OVER if side == "over" else UNDER
     quotes = {
         (MATCHUP, "pitcher_h", selection): [
-            MarketQuote(book="dk", american=american, opposite_american=opposite)
+            MarketQuote(book="dk", american=american, opposite_american=-110.0)
         ]
     }
     return p._mk(
@@ -114,20 +118,11 @@ def test_the_under_is_untouched() -> None:
     """The screen is about paying a long price for a joint event, not the market.
 
     The two graded under-buys won, and an under at plus money is the opposite
-    bet: a short start makes it, so there is nothing joint to overpay for. A
-    +135 under is a dog on the market's own number, so the blanket devigged floor
-    still refuses it -- what this test pins is that the ceiling is not the screen
-    that did it.
+    bet: a short start makes it, so there is nothing joint to overpay for.
     """
     rec = _hits_rec(135.0, side="under")
-    assert rec.pass_gate != "pitcher_hits_price_ceiling"
-    assert not any("pitcher-hits-price-ceiling" in r for r in rec.reasons)
-    # Priced as the favourite instead, the under is bought: nothing about the
-    # side itself is refused.
-    assert (
-        _hits_rec(-160.0, side="under", model_prob=0.35, opposite=140.0).tier
-        is not Tier.PASS
-    )
+    assert rec.tier is not Tier.PASS
+    assert rec.pass_gate is None
 
 
 def test_a_row_another_screen_already_refused_keeps_its_own_gate() -> None:

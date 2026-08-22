@@ -52,12 +52,12 @@ class MarketQuote:
 
 @dataclass
 class EVResult:
-    model_prob: float  # the probability the bet is priced at (anchored, if any)
+    model_prob: float
     best_quote: MarketQuote
     decimal: float
     ev: float  # EV per $1 staked
     fair_prob: float  # market no-vig implied
-    edge: float  # the *model's* own departure from the price; what screens read
+    edge: float  # model_prob - fair_prob
     sharp_divergence: float | None
     # Share of consensus weight whose vig was actually removed. Below 1.0 the
     # edge is understated, so a thin-edge guard is stricter than it looks.
@@ -70,20 +70,15 @@ def anchor_to_market(model_prob: float, fair_prob: float, weight: float) -> floa
     ``weight`` 0 leaves the model untouched, 1 bets the market itself. Rationale:
     retro-pricing nine slates showed the devigged market is the better forecaster
     in every market we bet (Brier .2347 vs .2408), so the market is the better
-    prior and the model should have to earn its departures from it. 33 graded
-    slates since then are emphatic: fitting the weight on 26,697 priced rows puts
-    it at 0.95, and fitting it on the first 22 slates and scoring the last 11 puts
-    it at 1.00 (holdout Brier .2136 for the price against .2191 for the model).
+    prior and the model should have to earn its departures from it.
 
-    Note what shrinking does to *selection*, because it is not what it sounds
-    like. Both screening criteria are affine in the probability, so shrinking by
+    Note what this does to selection, because it is not what it sounds like.
+    Both screening criteria are affine in the probability, so shrinking by
     ``weight`` scales the measured edge: ``edge = (1 - weight) * (model - fair)``.
     Against a fixed threshold that is arithmetically identical to *raising* the
     edge requirement to ``threshold / (1 - weight)`` -- it keeps the model's
-    largest disagreements with the market and drops the small ones. That is the
-    wrong end of the variable to keep: the largest-edge quintile of graded buys
-    returned -10.6% and the smallest +2.7%. :func:`anchored_evaluate` is what the
-    pipeline calls, and it deliberately does not screen on the shrunk edge.
+    largest disagreements with the market and drops the small ones. It makes the
+    model pay a bigger toll to disagree; it does not make it defer.
     """
     w = min(max(weight, 0.0), 1.0)
     return (1.0 - w) * model_prob + w * fair_prob
@@ -143,35 +138,3 @@ def evaluate(model_prob: float, quotes: list[MarketQuote]) -> EVResult:
         sharp_divergence=divergence,
         devig_coverage=covered,
     )
-
-
-def anchored_evaluate(
-    model_prob: float, quotes: list[MarketQuote], weight: float
-) -> EVResult:
-    """Price the bet at a market-anchored probability, screen on the raw edge.
-
-    ``ev`` and ``model_prob`` come from the shrunk probability, so the price we
-    pay has to beat the market's own number pulled ``weight`` of the way toward
-    ours -- that is the shrink doing work, and it is what the stake is sized off.
-    ``edge`` is left at the model's own departure from the price, for two
-    reasons. Every edge floor, price band and probability floor on the card was
-    fitted against unanchored edges, and rescaling them all at once with one
-    weight silently re-tunes screens nobody re-measured. And the rescaling points
-    the wrong way: it drops the small disagreements and keeps the large ones,
-    which are the losing end of that variable in the ledger.
-
-    Measured on the 1,756 graded priced buys, under the devigged-probability
-    floor and the momentum screen: +0.5% at weight 0, +1.2% at 0.2, +1.2% at 0.4,
-    +2.6% at 0.5 on half the volume. Screening on the shrunk edge instead gives
-    +0.7% at 0.2 and -0.3% at 0.5, i.e. decoupling is what keeps the shrink from
-    paying for itself in selection. None of these intervals excludes zero
-    (p=0.38 at 0.2), so this shrinks a loss on the evidence available, and the
-    weight earns its way up per market rather than by fiat.
-    """
-    raw = evaluate(model_prob, quotes)
-    if weight <= 0:
-        return raw
-    bet_prob = anchor_to_market(model_prob, raw.fair_prob, weight)
-    res = evaluate(bet_prob, quotes)
-    res.edge = raw.edge
-    return res

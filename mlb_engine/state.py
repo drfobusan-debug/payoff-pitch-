@@ -35,6 +35,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import (
     load_closing,
     merge_board,
@@ -321,9 +322,15 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
     ("scorecard.csv", ("date", "tier")),
-    # The morning screen and the night's audit run on different machines, so a
-    # receipt left on the screen's disk is gone before anything can grade it.
-    ("power_screen_ledger.csv", ("date", "batter", "stat", "line", "side")),
+    # The power screen's receipts. Left out, they never leave the machine that
+    # wrote the note, so the scorecard the next morning prints is that machine's
+    # record rather than the screen's -- and a screen run on the Mac reads as
+    # having no history at all anywhere else. The game keys the row too: a
+    # doubleheader can show the same bat, stat, line and side twice in a day.
+    (
+        power_ledger.LEDGER_NAME,
+        ("date", "batter", "game_pk", "stat", "line", "side"),
+    ),
 )
 
 
