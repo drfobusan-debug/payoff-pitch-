@@ -10,6 +10,8 @@ simulated or calibrated probability, and each is independently switchable:
   * ``MLBE_MIN_PROB[_<MARKET>]`` / ``MLBE_MAX_EV[_<MARKET>]`` -- conviction floor
     and EV ceiling on the anchored number
   * ``MLBE_CLV_GATE`` -- pre-bet closing line value, off the opening board
+  * ``MLBE_MOMENTUM_GATE`` / ``MLBE_MOMENTUM_MAX_RUN_UP`` -- the other end of the
+    same move: a side the market has already come to
 """
 
 from __future__ import annotations
@@ -281,6 +283,67 @@ def test_drift_gate_vetoes_a_buy_in_the_pipeline() -> None:
     rec = _rec(p, "game_ml", 0.65, opposite=130.0)
     assert rec.tier is Tier.PASS
     assert any("clv: PASS" in r for r in rec.reasons)
+
+
+# ---- pre-bet momentum ------------------------------------------------------
+def test_momentum_is_neutral_without_an_opening_board() -> None:
+    keep, reason = DriftGate().momentum_allows(None, 0.55)
+    assert keep and reason == ""
+
+
+def test_momentum_refuses_a_price_that_has_already_run_to_us() -> None:
+    """919 priced buys with an opening board split on the sign of the move.
+
+    The 451 the market had already come to won 43.7% for -11.2%; the 465 it had
+    moved away from won 52.7% for +4.3%. Buying after the move is the losing half.
+    """
+    keep, reason = DriftGate().momentum_allows(0.52, 0.56)
+    assert not keep
+    assert "momentum: PASS" in reason and "+4.0 pts" in reason
+
+
+def test_momentum_keeps_a_price_that_has_not_moved_to_us() -> None:
+    keep, reason = DriftGate().momentum_allows(0.56, 0.54)
+    assert keep
+    assert "momentum: OK" in reason
+
+
+def test_momentum_tolerance_is_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_MAX_RUN_UP", "0.05")
+    gate = DriftGate.from_env()
+    assert gate.momentum_allows(0.52, 0.56)[0]
+    assert not gate.momentum_allows(0.52, 0.58)[0]
+
+
+def test_momentum_kill_switch(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_GATE", "0")
+    gate = DriftGate.from_env()
+    assert not gate.momentum
+    assert gate.momentum_allows(0.40, 0.60) == (True, "")
+    # The other end of the same variable is a separate switch.
+    assert gate.enabled
+
+
+def test_momentum_vetoes_a_buy_in_the_pipeline() -> None:
+    """Same row the drift test uses, with the move pointing the other way."""
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.52}
+    rec = _rec(p, "game_ml", 0.65, opposite=130.0)
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "momentum_run_up"
+    assert any("momentum: PASS" in r for r in rec.reasons)
+
+
+def test_a_side_the_market_walked_away_from_keeps_the_drift_name() -> None:
+    """Both ends of the move are vetoes; the ledger has to tell them apart.
+
+    ``screen_probation`` grades a screen on the rows it removed, so the adverse
+    move and the run-up cannot share one gate name.
+    """
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.63}
+    rec = _rec(p, "game_ml", 0.65, opposite=130.0)
+    assert rec.pass_gate == "clv_drift"
 
 
 # ---- the opening board -----------------------------------------------------
