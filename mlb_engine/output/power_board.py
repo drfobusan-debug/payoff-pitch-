@@ -89,6 +89,23 @@ class BoardRow:
     # than re-matched by name against it (see audit.power_ledger).
     player_id: int | None = None
     game_pk: int | None = None
+    # The probability the card's own screens bet on: the model pulled toward the
+    # devigged price by ``Config.anchor_for``. ``None`` on a row priced before
+    # the anchor existed, or one the card never anchored.
+    bet_prob: float | None = None
+
+    @property
+    def shown_prob(self) -> float:
+        """The number the note prints, which is the one ``edge`` and ``ev`` use.
+
+        The board's edge and EV always came from the card's anchored evaluation
+        while the probability column showed the unanchored model, so the three
+        did not describe one bet. Graded over the screen's own 55 two-sided rows
+        the anchored probability scores better than the model both in and out of
+        sample (Brier .2269 vs .2304 on 8/18, .2364 vs .2534 on 8/19-20), so
+        printing it is both the consistent and the more accurate choice.
+        """
+        return self.model_prob if self.bet_prob is None else self.bet_prob
 
     @property
     def label(self) -> str:
@@ -158,6 +175,7 @@ def _row(rec: Recommendation, name: str) -> BoardRow:
         devigged=rec.opposite_american is not None,
         player_id=rec.player_id,
         game_pk=rec.game_pk,
+        bet_prob=rec.bet_prob,
     )
 
 
