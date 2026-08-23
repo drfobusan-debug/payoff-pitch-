@@ -489,6 +489,7 @@ class Pipeline:
             slate_date,
             [
                 w.pitcher_form_days,
+                w.batter_overall_days,
                 w.batter_home_away_days,
                 w.batter_vs_rhp_days,
                 w.batter_vs_lhp_days,
@@ -814,6 +815,7 @@ class Pipeline:
                 statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days,
                 w.batter_vs_lhp_days, self.cfg.batter_split_prior,
                 self._ros_priors.get(int(pid)) if pid else None,
+                w.batter_overall_days,
             )
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)

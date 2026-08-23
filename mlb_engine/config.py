@@ -61,11 +61,38 @@ class RollingWindows:
     # Replaying 54 slates moves favoured PPV .5831 -> .5867, date-clustered 95%
     # CI [+0.04, +0.64] pp, and +1.54 pp on pitcher strikeouts.
     pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 42))
+    # The hitter's own baseline, which every split then regresses toward. It used
+    # to be whatever the longest split window happened to be (21 days, ~56 PA).
+    # Walk-forward against the next three weeks -- read before the cutoff, scored
+    # after, league prior so nothing leaks -- longer wins on every outcome at
+    # every prior strength, and the ordering is monotone (RMSE x1000, K: 68.1 at
+    # 21d, 64.3 at 42, 61.8 at 90, 61.4 at 180; OUT 81.7 / 80.9 / 77.9 / 78.2;
+    # BB, 1B and HR move under a point). Out-of-time correlation says the same
+    # thing (K 0.51 -> 0.62, OUT 0.38 -> 0.50). And the 21-day read carries
+    # nothing the long one does not: regressing the next 21 days on both gives
+    # the 90-day read 0.76 against 0.04 for the last three weeks on K, 0.66 vs
+    # 0.02 on OUT. Recent form, at a hitter's sample size, is noise. 90 rather
+    # than 180 because that is the window the slate already fetches for the team
+    # splits, so the better read costs nothing.
+    batter_overall_days: int = field(
+        default_factory=lambda: _env_int("MLBE_BATTER_OVERALL_DAYS", 90)
+    )
+    # The home/away split is the one read that never earned its place: alongside
+    # the 90-day overall it takes 0.11 on walks and either nothing or the wrong
+    # sign on everything else, at every window from 21 to 180 days. Left short
+    # deliberately -- at ~28 PA it is mostly the hitter's own baseline anyway,
+    # which is where the evidence says it belongs.
     batter_home_away_days: int = field(
         default_factory=lambda: _env_int("MLBE_BATTER_HOME_AWAY_DAYS", 21)
     )
-    batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 21))
-    batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 42))
+    # The platoon split does carry signal, but not over three weeks. Against the
+    # next 21 days of PA versus right-handers, the vs-RHP read scores 0.46 on K
+    # at 21 days and 0.56 at 90; next to the overall read the three-week split
+    # takes 0.08 and the 90-day split 0.11 on K, 0.10 vs 0.28 on BB, 0.05 vs
+    # 0.18 on HR. Same window for both hands: the case for six weeks vs
+    # left-handers was thinner samples, and 90 days fixes that more directly.
+    batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 90))
+    batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 90))
     biomech_days: int = field(default_factory=lambda: _env_int("MLBE_BIOMECH_DAYS", 28))
     # Team-level platoon and venue splits for the preview, which need a far
     # longer look-back than an individual hitter does -- not because a club
