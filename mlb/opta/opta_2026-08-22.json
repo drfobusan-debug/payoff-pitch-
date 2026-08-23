@@ -224,8 +224,8 @@
   "edge": -0.012,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -275,14 +275,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.17,
-  "over_odds": 541.0,
-  "under_odds": -890.0,
+  "over_odds": 560.0,
+  "under_odds": -930.0,
   "over_prob": 0.157233,
-  "edge": 0.001,
+  "edge": 0.006,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -300,8 +300,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -376,8 +376,8 @@
   "edge": 0.166,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -414,8 +414,8 @@
   "edge": 0.119,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -433,8 +433,8 @@
   "edge": 0.094,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -446,14 +446,14 @@
   "stat": "H+R+RBI",
   "line": 0.5,
   "projection": 1.31,
-  "over_odds": -133.0,
-  "under_odds": 100.0,
+  "over_odds": -129.0,
+  "under_odds": -103.0,
   "over_prob": 0.72973,
-  "edge": 0.159,
+  "edge": 0.166,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -509,8 +509,8 @@
   "edge": 0.08,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -528,8 +528,8 @@
   "edge": 0.095,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -623,8 +623,8 @@
   "edge": 0.179,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -642,8 +642,8 @@
   "edge": 0.067,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -661,8 +661,8 @@
   "edge": 0.144,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -680,8 +680,8 @@
   "edge": 0.04,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -699,8 +699,27 @@
   "edge": 0.145,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "ATH @ HOU",
+  "market": "batter_hrr",
+  "selection": "Tommy White H+R+RBI o0.5",
+  "player": "Tommy White",
+  "player_id": 32194,
+  "stat": "H+R+RBI",
+  "line": 0.5,
+  "projection": 1.5,
+  "over_odds": -186.0,
+  "under_odds": 139.0,
+  "over_prob": 0.777283,
+  "edge": 0.127,
+  "bet": "over",
+  "confidence": 3,
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -713,13 +732,13 @@
   "line": 1.5,
   "projection": 1.5,
   "over_odds": 138.0,
-  "under_odds": -185.0,
+  "under_odds": null,
   "over_prob": 0.442478,
   "edge": 0.022,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 1,
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -737,8 +756,8 @@
   "edge": 0.114,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -769,14 +788,14 @@
   "stat": "H+R+RBI",
   "line": 0.5,
   "projection": 1.52,
-  "over_odds": -180.0,
-  "under_odds": 135.0,
+  "over_odds": -174.0,
+  "under_odds": 130.0,
   "over_prob": 0.782135,
-  "edge": 0.139,
+  "edge": 0.147,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -870,8 +889,8 @@
   "edge": 0.047,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -889,8 +908,8 @@
   "edge": -0.043,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -1174,8 +1193,8 @@
   "edge": 0.021,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -1231,8 +1250,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -1288,8 +1307,8 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1358,14 +1377,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.69,
-  "over_odds": -110.0,
-  "under_odds": -121.0,
+  "over_odds": -114.0,
+  "under_odds": -117.0,
   "over_prob": 0.5,
-  "edge": -0.024,
+  "edge": -0.033,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -1383,8 +1402,8 @@
   "edge": 0.002,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1402,8 +1421,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -1415,14 +1434,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.92,
-  "over_odds": -157.0,
-  "under_odds": 118.0,
+  "over_odds": -152.0,
+  "under_odds": 114.0,
   "over_prob": 0.601594,
-  "edge": -0.01,
+  "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -1548,14 +1567,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.57,
-  "over_odds": 181.0,
+  "over_odds": 178.0,
   "under_odds": null,
   "over_prob": 0.462963,
-  "edge": 0.108,
+  "edge": 0.104,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -1573,8 +1592,8 @@
   "edge": 0.032,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -1630,8 +1649,8 @@
   "edge": 0.104,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1706,8 +1725,8 @@
   "edge": 0.019,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1725,8 +1744,8 @@
   "edge": 0.095,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1763,8 +1782,8 @@
   "edge": 0.067,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -1782,8 +1801,8 @@
   "edge": 0.118,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -1877,8 +1896,8 @@
   "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 7.0
  },
  {
   "date": "2026-08-22",
@@ -1953,8 +1972,8 @@
   "edge": -0.025,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 9.0
  },
  {
   "date": "2026-08-22",
@@ -4081,8 +4100,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4138,8 +4157,8 @@
   "edge": 0.007,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4176,8 +4195,8 @@
   "edge": 0.026,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4252,8 +4271,8 @@
   "edge": 0.016,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4271,8 +4290,8 @@
   "edge": 0.093,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -4423,8 +4442,8 @@
   "edge": 0.262,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4442,8 +4461,8 @@
   "edge": 0.181,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4461,8 +4480,8 @@
   "edge": 0.144,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -4499,8 +4518,8 @@
   "edge": 0.047,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -4518,8 +4537,8 @@
   "edge": 0.176,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4568,15 +4587,15 @@
   "player_id": 30023,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.98,
+  "projection": 2.03,
   "over_odds": -115.0,
   "under_odds": -115.0,
-  "over_prob": 0.590164,
-  "edge": 0.055,
+  "over_prob": 0.603175,
+  "edge": 0.068,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -4632,8 +4651,8 @@
   "edge": 0.179,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -4651,8 +4670,8 @@
   "edge": 0.074,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -4670,8 +4689,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4841,8 +4860,8 @@
   "edge": 0.019,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -4932,12 +4951,12 @@
   "projection": 0.13,
   "over_odds": 594.0,
   "under_odds": null,
-  "over_prob": 0.121065,
-  "edge": -0.023,
+  "over_prob": 0.123762,
+  "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5012,8 +5031,8 @@
   "edge": -0.006,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5062,15 +5081,15 @@
   "player_id": 30698,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.81,
+  "projection": 0.83,
   "over_odds": -129.0,
   "under_odds": -103.0,
-  "over_prob": 0.553571,
-  "edge": -0.01,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "over_prob": 0.563319,
+  "edge": 0.001,
+  "bet": "over",
+  "confidence": 2,
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5183,8 +5202,8 @@
   "edge": 0.056,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5202,8 +5221,8 @@
   "edge": 0.027,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5240,8 +5259,8 @@
   "edge": -0.025,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5259,8 +5278,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5278,8 +5297,8 @@
   "edge": 0.021,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5316,8 +5335,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5354,8 +5373,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -5373,8 +5392,8 @@
   "edge": 0.111,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -5525,8 +5544,8 @@
   "edge": 0.034,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -5544,8 +5563,8 @@
   "edge": 0.176,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -5582,8 +5601,8 @@
   "edge": 0.047,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -5620,8 +5639,8 @@
   "edge": 0.172,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -5632,15 +5651,15 @@
   "player_id": 30023,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.68,
+  "projection": 1.72,
   "over_odds": 137.0,
   "under_odds": -183.0,
-  "over_prob": 0.5,
-  "edge": 0.079,
+  "over_prob": 0.512195,
+  "edge": 0.09,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -5696,8 +5715,8 @@
   "edge": 0.109,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -5715,8 +5734,8 @@
   "edge": 0.085,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -5746,15 +5765,15 @@
   "player_id": 30432,
   "stat": "Ks",
   "line": 4.5,
-  "projection": 4.9,
+  "projection": 5.07,
   "over_odds": 109.0,
   "under_odds": -139.0,
-  "over_prob": 0.541284,
-  "edge": 0.063,
+  "over_prob": 0.57265,
+  "edge": 0.094,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 8.0
  },
  {
   "date": "2026-08-22",
@@ -5772,8 +5791,8 @@
   "edge": 0.004,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 18.0
  },
  {
   "date": "2026-08-22",
@@ -6202,15 +6221,15 @@
   "player_id": 31217,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.7,
+  "projection": 1.75,
   "over_odds": -110.0,
   "under_odds": -120.0,
-  "over_prob": 0.50495,
-  "edge": -0.018,
+  "over_prob": 0.521531,
+  "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -6266,6 +6285,25 @@
   "edge": 0.048,
   "bet": "over",
   "confidence": 3,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "CIN @ AZ",
+  "market": "batter_hrr",
+  "selection": "Gabriel Moreno H+R+RBI o2.5",
+  "player": "Gabriel Moreno",
+  "player_id": 30594,
+  "stat": "H+R+RBI",
+  "line": 2.5,
+  "projection": 2.26,
+  "over_odds": 145.0,
+  "under_odds": null,
+  "over_prob": 0.392157,
+  "edge": -0.016,
+  "bet": null,
+  "confidence": 0,
   "result": null,
   "actual": null
  },
@@ -6335,15 +6373,15 @@
   "player_id": 31019,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.55,
+  "projection": 1.6,
   "over_odds": 114.0,
   "under_odds": -151.0,
-  "over_prob": 0.458716,
-  "edge": -0.01,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "over_prob": 0.473934,
+  "edge": 0.007,
+  "bet": "over",
+  "confidence": 2,
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -6406,20 +6444,39 @@
   "date": "2026-08-22",
   "matchup": "CIN @ AZ",
   "market": "batter_hrr",
+  "selection": "Lars Nootbaar H+R+RBI o2.5",
+  "player": "Lars Nootbaar",
+  "player_id": 30678,
+  "stat": "H+R+RBI",
+  "line": 2.5,
+  "projection": 2.16,
+  "over_odds": 137.0,
+  "under_odds": null,
+  "over_prob": 0.3663,
+  "edge": -0.055,
+  "bet": null,
+  "confidence": 0,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "CIN @ AZ",
+  "market": "batter_hrr",
   "selection": "Matt Mclain H+R+RBI o0.5",
   "player": "Matt Mclain",
   "player_id": 31282,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.33,
+  "projection": 1.37,
   "over_odds": -161.0,
   "under_odds": 121.0,
-  "over_prob": 0.736148,
-  "edge": 0.119,
+  "over_prob": 0.746835,
+  "edge": 0.13,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -6430,15 +6487,15 @@
   "player_id": 31282,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.33,
+  "projection": 1.37,
   "over_odds": 159.0,
   "under_odds": null,
-  "over_prob": 0.384615,
-  "edge": -0.001,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "over_prob": 0.398406,
+  "edge": 0.013,
+  "bet": "over",
+  "confidence": 1,
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -6449,15 +6506,15 @@
   "player_id": 28163,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.97,
-  "over_odds": -117.0,
-  "under_odds": -114.0,
-  "over_prob": 0.585062,
-  "edge": 0.046,
+  "projection": 2.02,
+  "over_odds": -121.0,
+  "under_odds": -110.0,
+  "over_prob": 0.6,
+  "edge": 0.052,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -6487,15 +6544,15 @@
   "player_id": 31907,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.7,
-  "over_odds": -109.0,
-  "under_odds": -121.0,
-  "over_prob": 0.507389,
-  "edge": -0.014,
+  "projection": 1.75,
+  "over_odds": -113.0,
+  "under_odds": -117.0,
+  "over_prob": 0.52381,
+  "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -6544,15 +6601,15 @@
   "player_id": 30345,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.47,
-  "over_odds": 136.0,
-  "under_odds": null,
-  "over_prob": 0.431034,
-  "edge": 0.007,
+  "projection": 1.51,
+  "over_odds": 134.0,
+  "under_odds": -179.0,
+  "over_prob": 0.446429,
+  "edge": 0.019,
   "bet": "over",
-  "confidence": 1,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -6811,14 +6868,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.12,
-  "over_odds": 650.0,
+  "over_odds": 610.0,
   "under_odds": null,
-  "over_prob": 0.114025,
-  "edge": -0.019,
+  "over_prob": 0.114943,
+  "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -7152,15 +7209,15 @@
   "player_id": 30678,
   "stat": "H",
   "line": 1.5,
-  "projection": 0.97,
-  "over_odds": 224.0,
+  "projection": 0.98,
+  "over_odds": 216.0,
   "under_odds": null,
-  "over_prob": 0.254453,
-  "edge": -0.054,
+  "over_prob": 0.25641,
+  "edge": -0.06,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -7248,14 +7305,14 @@
   "stat": "H",
   "line": 1.5,
   "projection": 0.93,
-  "over_odds": 228.0,
+  "over_odds": 223.0,
   "under_odds": null,
-  "over_prob": 0.23753,
-  "edge": -0.068,
+  "over_prob": 0.238663,
+  "edge": -0.071,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -7342,15 +7399,15 @@
   "player_id": 31217,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.56,
+  "projection": 1.57,
   "over_odds": 125.0,
   "under_odds": -167.0,
-  "over_prob": 0.460829,
-  "edge": 0.017,
+  "over_prob": 0.462963,
+  "edge": 0.019,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -7456,15 +7513,15 @@
   "player_id": 31019,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.39,
+  "projection": 1.4,
   "over_odds": 136.0,
   "under_odds": -182.0,
-  "over_prob": 0.404858,
-  "edge": -0.018,
+  "over_prob": 0.408163,
+  "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -7513,15 +7570,15 @@
   "player_id": 30678,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.58,
-  "over_odds": 119.0,
-  "under_odds": -159.0,
-  "over_prob": 0.469484,
-  "edge": 0.013,
+  "projection": 1.59,
+  "over_odds": 116.0,
+  "under_odds": -154.0,
+  "over_prob": 0.471698,
+  "edge": 0.009,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -7554,12 +7611,12 @@
   "projection": 1.55,
   "over_odds": 138.0,
   "under_odds": -185.0,
-  "over_prob": 0.458716,
-  "edge": 0.038,
+  "over_prob": 0.460829,
+  "edge": 0.04,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -7590,14 +7647,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.54,
-  "over_odds": 129.0,
-  "under_odds": -172.0,
-  "over_prob": 0.454545,
-  "edge": 0.018,
+  "over_odds": 124.0,
+  "under_odds": -166.0,
+  "over_prob": 0.456621,
+  "edge": 0.01,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -7646,15 +7703,15 @@
   "player_id": 29565,
   "stat": "ER",
   "line": 1.5,
-  "projection": 2.0,
+  "projection": 2.11,
   "over_odds": -148.0,
   "under_odds": 111.0,
-  "over_prob": 0.593496,
-  "edge": -0.004,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "over_prob": 0.622642,
+  "edge": 0.026,
+  "bet": "over",
+  "confidence": 2,
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -8090,8 +8147,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -8255,14 +8312,14 @@
   "stat": "H+R+RBI",
   "line": 2.5,
   "projection": 2.51,
-  "over_odds": 106.0,
-  "under_odds": -141.0,
+  "over_odds": 110.0,
+  "under_odds": -146.0,
   "over_prob": 0.458716,
-  "edge": -0.026,
+  "edge": -0.018,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -8482,15 +8539,15 @@
   "player_id": 31875,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.0,
+  "projection": 2.02,
   "over_odds": -106.0,
   "under_odds": -126.0,
-  "over_prob": 0.595142,
-  "edge": 0.08,
+  "over_prob": 0.598394,
+  "edge": 0.084,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -8501,15 +8558,15 @@
   "player_id": 29534,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.03,
+  "projection": 2.04,
   "over_odds": -116.0,
   "under_odds": -114.0,
-  "over_prob": 0.601594,
-  "edge": 0.065,
+  "over_prob": 0.606299,
+  "edge": 0.069,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -8635,14 +8692,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.21,
-  "over_odds": 367.0,
+  "over_odds": 379.0,
   "under_odds": null,
   "over_prob": 0.18797,
-  "edge": -0.026,
+  "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -9401,8 +9458,8 @@
   "edge": 0.014,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -9584,15 +9641,15 @@
   "player_id": 31875,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.46,
+  "projection": 1.47,
   "over_odds": 151.0,
   "under_odds": -202.0,
-  "over_prob": 0.429185,
+  "over_prob": 0.431034,
   "edge": 0.032,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -9641,15 +9698,15 @@
   "player_id": 31957,
   "stat": "ER",
   "line": 2.5,
-  "projection": 3.32,
+  "projection": 3.31,
   "over_odds": -154.0,
   "under_odds": 116.0,
-  "over_prob": 0.64539,
-  "edge": 0.039,
+  "over_prob": 0.642857,
+  "edge": 0.037,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -9800,8 +9857,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9819,8 +9876,8 @@
   "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -9838,8 +9895,8 @@
   "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9857,8 +9914,8 @@
   "edge": -0.011,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9876,8 +9933,8 @@
   "edge": 0.013,
   "bet": "under",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9895,8 +9952,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9914,8 +9971,8 @@
   "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9933,8 +9990,8 @@
   "edge": -0.028,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -9952,8 +10009,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9971,8 +10028,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -9990,8 +10047,8 @@
   "edge": -0.011,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10009,8 +10066,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10028,8 +10085,8 @@
   "edge": -0.006,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10047,8 +10104,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10066,8 +10123,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10085,8 +10142,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10104,8 +10161,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10123,8 +10180,8 @@
   "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10142,8 +10199,8 @@
   "edge": 0.078,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10161,8 +10218,8 @@
   "edge": 0.068,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10180,8 +10237,8 @@
   "edge": 0.07,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10199,8 +10256,8 @@
   "edge": 0.126,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10218,8 +10275,8 @@
   "edge": 0.049,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10237,8 +10294,8 @@
   "edge": 0.073,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10250,14 +10307,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.7,
-  "over_odds": 124.0,
-  "under_odds": -166.0,
+  "over_odds": 121.0,
+  "under_odds": -160.0,
   "over_prob": 0.50495,
-  "edge": 0.059,
+  "edge": 0.053,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -10275,8 +10332,8 @@
   "edge": 0.066,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -10294,8 +10351,27 @@
   "edge": 0.08,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "DET @ KC",
+  "market": "batter_hrr",
+  "selection": "Kyle Isbel H+R+RBI o0.5",
+  "player": "Kyle Isbel",
+  "player_id": 30631,
+  "stat": "H+R+RBI",
+  "line": 0.5,
+  "projection": 1.56,
+  "over_odds": -178.0,
+  "under_odds": 133.0,
+  "over_prob": 0.788584,
+  "edge": 0.149,
+  "bet": "over",
+  "confidence": 3,
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -10307,14 +10383,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.56,
-  "over_odds": 135.0,
-  "under_odds": -180.0,
+  "over_odds": 134.0,
+  "under_odds": null,
   "over_prob": 0.460829,
-  "edge": 0.035,
+  "edge": 0.033,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -10331,9 +10407,9 @@
   "over_prob": 0.512195,
   "edge": 0.031,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10345,14 +10421,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.8,
-  "over_odds": 110.0,
-  "under_odds": -147.0,
+  "over_odds": 107.0,
+  "under_odds": -142.0,
   "over_prob": 0.537037,
-  "edge": 0.062,
+  "edge": 0.055,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10370,8 +10446,8 @@
   "edge": 0.027,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10389,8 +10465,8 @@
   "edge": 0.038,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -10402,14 +10478,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.75,
-  "over_odds": 101.0,
-  "under_odds": -135.0,
+  "over_odds": 105.0,
+  "under_odds": -140.0,
   "over_prob": 0.521531,
-  "edge": 0.025,
+  "edge": 0.034,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10427,8 +10503,8 @@
   "edge": 0.232,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10440,14 +10516,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 2.03,
-  "over_odds": -103.0,
-  "under_odds": -129.0,
+  "over_odds": 101.0,
+  "under_odds": -133.0,
   "over_prob": 0.6,
-  "edge": 0.093,
+  "edge": 0.103,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10465,8 +10541,8 @@
   "edge": 0.028,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10497,14 +10573,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.11,
-  "over_odds": 960.0,
+  "over_odds": 1020.0,
   "under_odds": null,
   "over_prob": 0.101523,
-  "edge": 0.007,
+  "edge": 0.012,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10522,8 +10598,8 @@
   "edge": 0.013,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10535,14 +10611,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.13,
-  "over_odds": 860.0,
+  "over_odds": 810.0,
   "under_odds": null,
   "over_prob": 0.12285,
-  "edge": 0.019,
+  "edge": 0.013,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10573,14 +10649,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.13,
-  "over_odds": 840.0,
+  "over_odds": 890.0,
   "under_odds": null,
   "over_prob": 0.121065,
-  "edge": 0.015,
+  "edge": 0.02,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10617,8 +10693,8 @@
   "edge": 0.027,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10674,8 +10750,8 @@
   "edge": 0.007,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10693,8 +10769,8 @@
   "edge": 0.002,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10731,8 +10807,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10769,8 +10845,8 @@
   "edge": 0.009,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10788,8 +10864,8 @@
   "edge": 0.025,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10826,8 +10902,8 @@
   "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10845,8 +10921,8 @@
   "edge": -0.018,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10864,8 +10940,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10883,8 +10959,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10896,14 +10972,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 1.04,
-  "over_odds": -261.0,
-  "under_odds": 192.0,
+  "over_odds": -253.0,
+  "under_odds": 186.0,
   "over_prob": 0.64539,
-  "edge": 0.012,
+  "edge": 0.005,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10940,8 +11016,8 @@
   "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -10953,14 +11029,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.87,
-  "over_odds": -148.0,
-  "under_odds": 111.0,
+  "over_odds": -153.0,
+  "under_odds": 115.0,
   "over_prob": 0.578059,
-  "edge": -0.018,
+  "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -10972,14 +11048,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.99,
-  "over_odds": -259.0,
-  "under_odds": 191.0,
+  "over_odds": -249.0,
+  "under_odds": 184.0,
   "over_prob": 0.62963,
-  "edge": 0.027,
+  "edge": 0.018,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11016,8 +11092,8 @@
   "edge": -0.013,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11054,8 +11130,8 @@
   "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11073,8 +11149,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11092,8 +11168,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11111,8 +11187,8 @@
   "edge": -0.018,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11124,14 +11200,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.94,
-  "over_odds": -235.0,
-  "under_odds": 174.0,
+  "over_odds": -226.0,
+  "under_odds": 168.0,
   "over_prob": 0.607843,
-  "edge": 0.027,
+  "edge": 0.019,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11143,14 +11219,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.83,
-  "over_odds": -164.0,
-  "under_odds": 123.0,
+  "over_odds": -159.0,
+  "under_odds": 119.0,
   "over_prob": 0.563319,
-  "edge": -0.011,
+  "edge": -0.019,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11168,8 +11244,8 @@
   "edge": 0.059,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11181,14 +11257,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.98,
-  "over_odds": -198.0,
-  "under_odds": 148.0,
+  "over_odds": -190.0,
+  "under_odds": 142.0,
   "over_prob": 0.622642,
-  "edge": -0.026,
+  "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11200,14 +11276,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.91,
-  "over_odds": -194.0,
-  "under_odds": 145.0,
+  "over_odds": -187.0,
+  "under_odds": 139.0,
   "over_prob": 0.598394,
-  "edge": -0.007,
+  "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11225,8 +11301,8 @@
   "edge": 0.077,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11243,9 +11319,9 @@
   "over_prob": 0.431034,
   "edge": 0.009,
   "bet": "over",
-  "confidence": 1,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -11263,8 +11339,8 @@
   "edge": 0.064,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11282,8 +11358,8 @@
   "edge": 0.097,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11301,8 +11377,8 @@
   "edge": 0.042,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11314,14 +11390,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.63,
-  "over_odds": 135.0,
-  "under_odds": -180.0,
+  "over_odds": 139.0,
+  "under_odds": -186.0,
   "over_prob": 0.485437,
-  "edge": 0.06,
+  "edge": 0.067,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11333,14 +11409,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.39,
-  "over_odds": 186.0,
+  "over_odds": 179.0,
   "under_odds": null,
   "over_prob": 0.404858,
-  "edge": 0.055,
+  "edge": 0.047,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -11358,8 +11434,8 @@
   "edge": 0.084,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -11377,8 +11453,8 @@
   "edge": 0.066,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11396,8 +11472,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -11409,14 +11485,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.37,
-  "over_odds": 164.0,
+  "over_odds": 169.0,
   "under_odds": null,
   "over_prob": 0.396825,
-  "edge": 0.019,
+  "edge": 0.026,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11428,14 +11504,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.51,
-  "over_odds": 159.0,
+  "over_odds": 161.0,
   "under_odds": null,
   "over_prob": 0.444444,
-  "edge": 0.059,
+  "edge": 0.062,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11453,8 +11529,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11472,8 +11548,8 @@
   "edge": 0.039,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -11491,8 +11567,8 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11510,8 +11586,8 @@
   "edge": 0.099,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11529,8 +11605,8 @@
   "edge": 0.092,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11542,14 +11618,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.41,
-  "over_odds": 163.0,
+  "over_odds": 167.0,
   "under_odds": null,
   "over_prob": 0.411523,
-  "edge": 0.032,
+  "edge": 0.038,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11567,8 +11643,8 @@
   "edge": 0.114,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -11586,8 +11662,8 @@
   "edge": 0.021,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11605,8 +11681,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -11618,14 +11694,14 @@
   "stat": "Hits",
   "line": 5.5,
   "projection": 5.44,
-  "over_odds": -115.0,
-  "under_odds": -115.0,
+  "over_odds": -112.0,
+  "under_odds": -119.0,
   "over_prob": 0.460829,
-  "edge": 0.005,
-  "bet": "under",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "edge": -0.004,
+  "bet": null,
+  "confidence": 0,
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -11637,14 +11713,14 @@
   "stat": "Ks",
   "line": 4.5,
   "projection": 5.37,
-  "over_odds": 121.0,
-  "under_odds": -154.0,
+  "over_odds": 115.0,
+  "under_odds": -147.0,
   "over_prob": 0.622642,
-  "edge": 0.17,
+  "edge": 0.157,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -11656,14 +11732,14 @@
   "stat": "Ks",
   "line": 4.5,
   "projection": 4.79,
-  "over_odds": 125.0,
-  "under_odds": -159.0,
+  "over_odds": 120.0,
+  "under_odds": -153.0,
   "over_prob": 0.521531,
-  "edge": 0.077,
+  "edge": 0.067,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -11681,8 +11757,8 @@
   "edge": 0.005,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 15.0
  },
  {
   "date": "2026-08-22",
@@ -11700,8 +11776,8 @@
   "edge": 0.139,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 21.0
  },
  {
   "date": "2026-08-22",
@@ -11719,8 +11795,8 @@
   "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11738,8 +11814,8 @@
   "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11757,8 +11833,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11776,8 +11852,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11795,8 +11871,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11814,8 +11890,8 @@
   "edge": 0.002,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11833,8 +11909,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11852,8 +11928,8 @@
   "edge": 0.011,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11871,8 +11947,8 @@
   "edge": 0.001,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11909,8 +11985,8 @@
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11928,8 +12004,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -11941,14 +12017,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.18,
-  "over_odds": 372.0,
-  "under_odds": -570.0,
+  "over_odds": 359.0,
+  "under_odds": -547.0,
   "over_prob": 0.167224,
-  "edge": -0.018,
+  "edge": -0.013,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11966,8 +12042,8 @@
   "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -11985,8 +12061,8 @@
   "edge": 0.022,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12004,8 +12080,8 @@
   "edge": -0.029,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12023,8 +12099,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12042,8 +12118,8 @@
   "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -12061,8 +12137,8 @@
   "edge": 0.064,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12080,8 +12156,8 @@
   "edge": 0.179,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12099,8 +12175,8 @@
   "edge": 0.063,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12112,14 +12188,14 @@
   "stat": "H+R+RBI",
   "line": 0.5,
   "projection": 1.86,
-  "over_odds": -179.0,
-  "under_odds": 134.0,
+  "over_odds": -186.0,
+  "under_odds": 139.0,
   "over_prob": 0.844479,
-  "edge": 0.203,
+  "edge": 0.194,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -12137,8 +12213,8 @@
   "edge": 0.138,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -12156,8 +12232,8 @@
   "edge": 0.119,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12169,14 +12245,14 @@
   "stat": "H+R+RBI",
   "line": 0.5,
   "projection": 1.77,
-  "over_odds": -162.0,
-  "under_odds": 122.0,
+  "over_odds": -170.0,
+  "under_odds": 127.0,
   "over_prob": 0.829352,
-  "edge": 0.211,
+  "edge": 0.2,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12188,14 +12264,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.77,
-  "over_odds": 143.0,
+  "over_odds": 142.0,
   "under_odds": null,
   "over_prob": 0.528302,
-  "edge": 0.116,
+  "edge": 0.114,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12213,8 +12289,8 @@
   "edge": 0.175,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12232,8 +12308,8 @@
   "edge": 0.072,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12251,8 +12327,8 @@
   "edge": 0.125,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12270,8 +12346,8 @@
   "edge": 0.097,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12289,8 +12365,8 @@
   "edge": 0.066,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -12327,8 +12403,27 @@
   "edge": 0.125,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "LAA @ TEX",
+  "market": "batter_hrr",
+  "selection": "Jose Siri H+R+RBI o0.5",
+  "player": "Jose Siri",
+  "player_id": 29503,
+  "stat": "H+R+RBI",
+  "line": 0.5,
+  "projection": 1.72,
+  "over_odds": -168.0,
+  "under_odds": 126.0,
+  "over_prob": 0.821429,
+  "edge": 0.195,
+  "bet": "over",
+  "confidence": 3,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12340,14 +12435,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.72,
-  "over_odds": 126.0,
-  "under_odds": -167.0,
+  "over_odds": 128.0,
+  "under_odds": null,
   "over_prob": 0.514563,
-  "edge": 0.071,
+  "edge": 0.075,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 1,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12365,8 +12460,8 @@
   "edge": 0.099,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -12384,8 +12479,8 @@
   "edge": 0.101,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -12403,8 +12498,8 @@
   "edge": 0.209,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12422,8 +12517,8 @@
   "edge": 0.1,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -12441,8 +12536,8 @@
   "edge": 0.099,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12459,9 +12554,9 @@
   "over_prob": 0.6337,
   "edge": 0.116,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 3,
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -12511,14 +12606,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.1,
-  "over_odds": 1100.0,
+  "over_odds": 1080.0,
   "under_odds": null,
   "over_prob": 0.09434,
-  "edge": 0.011,
+  "edge": 0.01,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12549,14 +12644,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.14,
-  "over_odds": 670.0,
+  "over_odds": 660.0,
   "under_odds": null,
   "over_prob": 0.134048,
-  "edge": 0.004,
+  "edge": 0.003,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12593,8 +12688,8 @@
   "edge": 0.009,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12612,8 +12707,8 @@
   "edge": 0.004,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12707,8 +12802,8 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12720,14 +12815,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.15,
-  "over_odds": 600.0,
+  "over_odds": 620.0,
   "under_odds": null,
   "over_prob": 0.141844,
-  "edge": -0.001,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "edge": 0.003,
+  "bet": "over",
+  "confidence": 1,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12764,8 +12859,8 @@
   "edge": 0.0,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12821,8 +12916,8 @@
   "edge": 0.01,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12859,8 +12954,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12878,8 +12973,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -12897,8 +12992,8 @@
   "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12916,8 +13011,8 @@
   "edge": 0.012,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12935,8 +13030,8 @@
   "edge": 0.002,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12954,8 +13049,8 @@
   "edge": 0.023,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12973,8 +13068,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -12992,8 +13087,8 @@
   "edge": 0.005,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13030,8 +13125,8 @@
   "edge": -0.01,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13049,8 +13144,8 @@
   "edge": 0.004,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13068,8 +13163,8 @@
   "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -13087,8 +13182,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -13106,8 +13201,8 @@
   "edge": 0.031,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13125,8 +13220,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13144,8 +13239,8 @@
   "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13163,8 +13258,8 @@
   "edge": 0.011,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -13182,8 +13277,8 @@
   "edge": 0.032,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13195,14 +13290,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.42,
-  "over_odds": 205.0,
+  "over_odds": 201.0,
   "under_odds": null,
   "over_prob": 0.413223,
-  "edge": 0.086,
+  "edge": 0.082,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13220,8 +13315,8 @@
   "edge": 0.13,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13239,8 +13334,8 @@
   "edge": 0.109,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13252,14 +13347,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.42,
-  "over_odds": 217.0,
+  "over_odds": 214.0,
   "under_odds": null,
   "over_prob": 0.413223,
-  "edge": 0.098,
+  "edge": 0.095,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13277,8 +13372,8 @@
   "edge": 0.103,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13296,8 +13391,8 @@
   "edge": 0.131,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13315,8 +13410,8 @@
   "edge": 0.107,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13334,8 +13429,8 @@
   "edge": 0.081,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13372,8 +13467,8 @@
   "edge": 0.113,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13391,8 +13486,8 @@
   "edge": 0.112,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13410,8 +13505,8 @@
   "edge": 0.133,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -13423,14 +13518,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.73,
-  "over_odds": 149.0,
+  "over_odds": 150.0,
   "under_odds": null,
   "over_prob": 0.516908,
-  "edge": 0.115,
+  "edge": 0.116,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -13442,14 +13537,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.42,
-  "over_odds": 226.0,
+  "over_odds": 229.0,
   "under_odds": null,
   "over_prob": 0.416667,
-  "edge": 0.109,
+  "edge": 0.112,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13467,8 +13562,8 @@
   "edge": 0.093,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13486,8 +13581,8 @@
   "edge": 0.085,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13505,8 +13600,8 @@
   "edge": 0.16,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 7.0
  },
  {
   "date": "2026-08-22",
@@ -13518,14 +13613,14 @@
   "stat": "ER",
   "line": 2.5,
   "projection": 2.21,
-  "over_odds": 126.0,
-  "under_odds": -169.0,
+  "over_odds": 130.0,
+  "under_odds": -174.0,
   "over_prob": 0.380228,
-  "edge": -0.009,
+  "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -13537,14 +13632,14 @@
   "stat": "ER",
   "line": 2.5,
   "projection": 2.34,
-  "over_odds": -113.0,
-  "under_odds": -118.0,
+  "over_odds": -117.0,
+  "under_odds": -114.0,
   "over_prob": 0.414938,
-  "edge": 0.044,
+  "edge": 0.053,
   "bet": "under",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -13556,14 +13651,14 @@
   "stat": "Hits",
   "line": 4.5,
   "projection": 5.23,
-  "over_odds": -126.0,
-  "under_odds": -105.0,
+  "over_odds": -121.0,
+  "under_odds": -110.0,
   "over_prob": 0.598394,
-  "edge": 0.041,
+  "edge": 0.051,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 7.0
  },
  {
   "date": "2026-08-22",
@@ -13581,8 +13676,8 @@
   "edge": -0.011,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13594,14 +13689,14 @@
   "stat": "Ks",
   "line": 5.5,
   "projection": 5.55,
-  "over_odds": 114.0,
-  "under_odds": -145.0,
+  "over_odds": 110.0,
+  "under_odds": -140.0,
   "over_prob": 0.480769,
-  "edge": 0.013,
+  "edge": 0.004,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -13619,8 +13714,8 @@
   "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -13638,8 +13733,8 @@
   "edge": -0.025,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 16.0
  },
  {
   "date": "2026-08-22",
@@ -13651,14 +13746,14 @@
   "stat": "Outs",
   "line": 14.5,
   "projection": 13.94,
-  "over_odds": -137.0,
-  "under_odds": 103.0,
+  "over_odds": -132.0,
+  "under_odds": 100.0,
   "over_prob": 0.423729,
-  "edge": 0.084,
+  "edge": 0.076,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 21.0
  },
  {
   "date": "2026-08-22",
@@ -13714,6 +13809,25 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 1,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "batter_2b",
+  "selection": "Freddy Fermin 2B o0.5",
+  "player": "Freddy Fermin",
+  "player_id": 31012,
+  "stat": "2B",
+  "line": 0.5,
+  "projection": 0.16,
+  "over_odds": 552.0,
+  "under_odds": -910.0,
+  "over_prob": 0.151286,
+  "edge": -0.002,
+  "bet": null,
+  "confidence": 0,
   "result": null,
   "actual": null
  },
@@ -13919,12 +14033,12 @@
   "projection": 0.21,
   "over_odds": 362.0,
   "under_odds": -552.0,
-  "over_prob": 0.18797,
-  "edge": -0.029,
+  "over_prob": 0.186916,
+  "edge": -0.03,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -13992,15 +14106,15 @@
   "player_id": 31579,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.66,
+  "projection": 1.65,
   "over_odds": -169.0,
   "under_odds": 127.0,
-  "over_prob": 0.810247,
-  "edge": 0.182,
+  "over_prob": 0.808795,
+  "edge": 0.18,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -14011,15 +14125,15 @@
   "player_id": 31579,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.66,
-  "over_odds": 145.0,
+  "projection": 1.65,
+  "over_odds": 150.0,
   "under_odds": null,
-  "over_prob": 0.49505,
-  "edge": 0.087,
+  "over_prob": 0.492611,
+  "edge": 0.092,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -14063,6 +14177,25 @@
   "date": "2026-08-22",
   "matchup": "MIN @ SD",
   "market": "batter_hrr",
+  "selection": "Freddy Fermin H+R+RBI o1.5",
+  "player": "Freddy Fermin",
+  "player_id": 31012,
+  "stat": "H+R+RBI",
+  "line": 1.5,
+  "projection": 1.7,
+  "over_odds": 131.0,
+  "under_odds": -175.0,
+  "over_prob": 0.50495,
+  "edge": 0.073,
+  "bet": "over",
+  "confidence": 2,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "batter_hrr",
   "selection": "Gavin Sheets H+R+RBI o1.5",
   "player": "Gavin Sheets",
   "player_id": 30535,
@@ -14087,15 +14220,15 @@
   "player_id": 31498,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.14,
-  "over_odds": -105.0,
-  "under_odds": -126.0,
-  "over_prob": 0.630996,
-  "edge": 0.118,
+  "projection": 2.15,
+  "over_odds": -103.0,
+  "under_odds": -128.0,
+  "over_prob": 0.6337,
+  "edge": 0.126,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -14144,15 +14277,15 @@
   "player_id": 32214,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.59,
-  "over_odds": -146.0,
-  "under_odds": 110.0,
-  "over_prob": 0.796334,
-  "edge": 0.203,
+  "projection": 1.58,
+  "over_odds": -141.0,
+  "under_odds": 106.0,
+  "over_prob": 0.794661,
+  "edge": 0.21,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -14163,15 +14296,15 @@
   "player_id": 30810,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.81,
-  "over_odds": 112.0,
-  "under_odds": -149.0,
-  "over_prob": 0.541284,
-  "edge": 0.069,
+  "projection": 1.8,
+  "over_odds": 113.0,
+  "under_odds": -150.0,
+  "over_prob": 0.537037,
+  "edge": 0.068,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -14201,15 +14334,15 @@
   "player_id": 31777,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.05,
+  "projection": 2.04,
   "over_odds": 101.0,
   "under_odds": -134.0,
-  "over_prob": 0.606299,
-  "edge": 0.109,
+  "over_prob": 0.603175,
+  "edge": 0.106,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -14258,15 +14391,15 @@
   "player_id": 30471,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.94,
+  "projection": 1.93,
   "over_odds": 102.0,
   "under_odds": -135.0,
-  "over_prob": 0.576271,
-  "edge": 0.082,
+  "over_prob": 0.574468,
+  "edge": 0.079,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -14335,14 +14468,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.1,
-  "over_odds": 860.0,
+  "over_odds": 850.0,
   "under_odds": null,
   "over_prob": 0.097943,
-  "edge": -0.006,
+  "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14386,6 +14519,25 @@
   "date": "2026-08-22",
   "matchup": "MIN @ SD",
   "market": "batter_hr",
+  "selection": "Freddy Fermin HR o0.5",
+  "player": "Freddy Fermin",
+  "player_id": 31012,
+  "stat": "HR",
+  "line": 0.5,
+  "projection": 0.09,
+  "over_odds": 910.0,
+  "under_odds": null,
+  "over_prob": 0.087873,
+  "edge": -0.011,
+  "bet": null,
+  "confidence": 0,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "batter_hr",
   "selection": "Gavin Sheets HR o0.5",
   "player": "Gavin Sheets",
   "player_id": 30535,
@@ -14411,14 +14563,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.16,
-  "over_odds": 575.0,
+  "over_odds": 581.0,
   "under_odds": null,
   "over_prob": 0.145349,
-  "edge": -0.003,
+  "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14468,14 +14620,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.11,
-  "over_odds": 1040.0,
+  "over_odds": 1060.0,
   "under_odds": null,
   "over_prob": 0.107643,
-  "edge": 0.02,
+  "edge": 0.022,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14525,14 +14677,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.09,
-  "over_odds": 1020.0,
+  "over_odds": 970.0,
   "under_odds": null,
   "over_prob": 0.083333,
-  "edge": -0.006,
+  "edge": -0.01,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14661,11 +14813,11 @@
   "over_odds": -142.0,
   "under_odds": 107.0,
   "over_prob": 0.596774,
-  "edge": 0.011,
+  "edge": 0.01,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14709,6 +14861,25 @@
   "date": "2026-08-22",
   "matchup": "MIN @ SD",
   "market": "batter_h",
+  "selection": "Freddy Fermin H o0.5",
+  "player": "Freddy Fermin",
+  "player_id": 31012,
+  "stat": "H",
+  "line": 0.5,
+  "projection": 0.87,
+  "over_odds": -141.0,
+  "under_odds": 107.0,
+  "over_prob": 0.579832,
+  "edge": -0.006,
+  "bet": null,
+  "confidence": 0,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "batter_h",
   "selection": "Gavin Sheets H o0.5",
   "player": "Gavin Sheets",
   "player_id": 30535,
@@ -14734,14 +14905,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 1.08,
-  "over_odds": -188.0,
-  "under_odds": 141.0,
+  "over_odds": -196.0,
+  "under_odds": 147.0,
   "over_prob": 0.661017,
-  "edge": 0.008,
-  "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "edge": -0.001,
+  "bet": null,
+  "confidence": 0,
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14791,14 +14962,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.84,
-  "over_odds": -119.0,
-  "under_odds": -112.0,
-  "over_prob": 0.568966,
-  "edge": 0.025,
+  "over_odds": -115.0,
+  "under_odds": -116.0,
+  "over_prob": 0.5671,
+  "edge": 0.033,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 3,
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14813,11 +14984,11 @@
   "over_odds": -162.0,
   "under_odds": 122.0,
   "over_prob": 0.601594,
-  "edge": -0.016,
+  "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14854,8 +15025,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14908,11 +15079,11 @@
   "over_odds": -192.0,
   "under_odds": 143.0,
   "over_prob": 0.632353,
-  "edge": -0.025,
+  "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -14981,14 +15152,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.43,
-  "over_odds": 205.0,
+  "over_odds": 199.0,
   "under_odds": null,
   "over_prob": 0.416667,
-  "edge": 0.09,
+  "edge": 0.083,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15032,6 +15203,25 @@
   "date": "2026-08-22",
   "matchup": "MIN @ SD",
   "market": "batter_tb",
+  "selection": "Freddy Fermin TB o1.5",
+  "player": "Freddy Fermin",
+  "player_id": 31012,
+  "stat": "TB",
+  "line": 1.5,
+  "projection": 1.31,
+  "over_odds": 216.0,
+  "under_odds": null,
+  "over_prob": 0.377358,
+  "edge": 0.061,
+  "bet": "over",
+  "confidence": 1,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "batter_tb",
   "selection": "Gavin Sheets TB o1.5",
   "player": "Gavin Sheets",
   "player_id": 30535,
@@ -15057,14 +15247,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.83,
-  "over_odds": 142.0,
-  "under_odds": -189.0,
-  "over_prob": 0.545455,
-  "edge": 0.133,
+  "over_odds": 138.0,
+  "under_odds": -185.0,
+  "over_prob": 0.547511,
+  "edge": 0.126,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15114,14 +15304,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.37,
-  "over_odds": 246.0,
+  "over_odds": 252.0,
   "under_odds": null,
   "over_prob": 0.398406,
-  "edge": 0.109,
+  "edge": 0.114,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15171,14 +15361,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.68,
-  "over_odds": 154.0,
-  "under_odds": -206.0,
-  "over_prob": 0.502488,
-  "edge": 0.108,
+  "over_odds": 155.0,
+  "under_odds": -208.0,
+  "over_prob": 0.5,
+  "edge": 0.109,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15228,14 +15418,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.68,
-  "over_odds": 140.0,
-  "under_odds": -188.0,
-  "over_prob": 0.502488,
-  "edge": 0.085,
+  "over_odds": 141.0,
+  "under_odds": -189.0,
+  "over_prob": 0.5,
+  "edge": 0.086,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -15423,6 +15613,25 @@
   "over_prob": 0.303951,
   "edge": 0.175,
   "bet": "under",
+  "confidence": 2,
+  "result": null,
+  "actual": null
+ },
+ {
+  "date": "2026-08-22",
+  "matchup": "MIN @ SD",
+  "market": "pitcher_outs",
+  "selection": "Dean Kremer Outs o15.5",
+  "player": "Dean Kremer",
+  "player_id": 30358,
+  "stat": "Outs",
+  "line": 15.5,
+  "projection": 16.37,
+  "over_odds": -130.0,
+  "under_odds": -102.0,
+  "over_prob": 0.568966,
+  "edge": 0.004,
+  "bet": "over",
   "confidence": 2,
   "result": null,
   "actual": null
@@ -15671,8 +15880,8 @@
   "edge": 0.024,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -15797,15 +16006,15 @@
   "player_id": 32073,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.99,
+  "projection": 2.02,
   "over_odds": -110.0,
   "under_odds": -121.0,
-  "over_prob": 0.591837,
-  "edge": 0.068,
+  "over_prob": 0.598394,
+  "edge": 0.075,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -15835,15 +16044,15 @@
   "player_id": 30003,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.09,
+  "projection": 2.11,
   "over_odds": -123.0,
   "under_odds": -108.0,
-  "over_prob": 0.616858,
-  "edge": 0.065,
+  "over_prob": 0.622642,
+  "edge": 0.072,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15858,11 +16067,11 @@
   "over_odds": 106.0,
   "under_odds": -141.0,
   "over_prob": 0.55157,
-  "edge": 0.065,
+  "edge": 0.066,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -15873,15 +16082,15 @@
   "player_id": 31050,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.75,
+  "projection": 1.78,
   "over_odds": -165.0,
   "under_odds": 124.0,
-  "over_prob": 0.82669,
-  "edge": 0.204,
+  "over_prob": 0.830795,
+  "edge": 0.208,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -15892,15 +16101,15 @@
   "player_id": 31050,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.75,
+  "projection": 1.78,
   "over_odds": 133.0,
   "under_odds": null,
-  "over_prob": 0.52381,
-  "edge": 0.094,
+  "over_prob": 0.530516,
+  "edge": 0.101,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -15911,15 +16120,15 @@
   "player_id": 32034,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.07,
+  "projection": 2.09,
   "over_odds": -135.0,
   "under_odds": 102.0,
-  "over_prob": 0.612403,
-  "edge": 0.037,
+  "over_prob": 0.618321,
+  "edge": 0.044,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 7.0
  },
  {
   "date": "2026-08-22",
@@ -15937,8 +16146,8 @@
   "edge": 0.08,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -15968,15 +16177,15 @@
   "player_id": 31624,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.55,
+  "projection": 1.56,
   "over_odds": -135.0,
   "under_odds": 102.0,
-  "over_prob": 0.788584,
-  "edge": 0.214,
+  "over_prob": 0.78903,
+  "edge": 0.215,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16025,15 +16234,15 @@
   "player_id": 31097,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.93,
+  "projection": 1.96,
   "over_odds": 112.0,
   "under_odds": -148.0,
-  "over_prob": 0.576271,
-  "edge": 0.104,
+  "over_prob": 0.583333,
+  "edge": 0.111,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -16044,15 +16253,15 @@
   "player_id": 30397,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.73,
+  "projection": 1.75,
   "over_odds": 112.0,
   "under_odds": -149.0,
-  "over_prob": 0.514563,
-  "edge": 0.044,
+  "over_prob": 0.521531,
+  "edge": 0.051,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -16063,15 +16272,15 @@
   "player_id": 28321,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.65,
+  "projection": 1.67,
   "over_odds": -171.0,
   "under_odds": 128.0,
-  "over_prob": 0.808061,
-  "edge": 0.177,
+  "over_prob": 0.81203,
+  "edge": 0.181,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16082,15 +16291,15 @@
   "player_id": 28321,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.65,
+  "projection": 1.67,
   "over_odds": 143.0,
   "under_odds": null,
-  "over_prob": 0.490196,
-  "edge": 0.08,
+  "over_prob": 0.497512,
+  "edge": 0.087,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16146,8 +16355,8 @@
   "edge": 0.123,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -16161,12 +16370,12 @@
   "projection": 1.74,
   "over_odds": -159.0,
   "under_odds": 120.0,
-  "over_prob": 0.824253,
-  "edge": 0.21,
+  "over_prob": 0.824561,
+  "edge": 0.211,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16184,8 +16393,8 @@
   "edge": 0.119,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16241,8 +16450,8 @@
   "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16260,8 +16469,8 @@
   "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16298,8 +16507,8 @@
   "edge": -0.07,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16431,8 +16640,8 @@
   "edge": -0.034,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16526,8 +16735,8 @@
   "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16538,15 +16747,15 @@
   "player_id": 32073,
   "stat": "H",
   "line": 0.5,
-  "projection": 1.05,
+  "projection": 1.06,
   "over_odds": -213.0,
   "under_odds": 158.0,
-  "over_prob": 0.651568,
-  "edge": -0.029,
+  "over_prob": 0.652778,
+  "edge": -0.028,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16598,12 +16807,12 @@
   "projection": 1.13,
   "over_odds": 198.0,
   "under_odds": null,
-  "over_prob": 0.311526,
-  "edge": -0.024,
+  "over_prob": 0.3125,
+  "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -16621,8 +16830,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16640,8 +16849,8 @@
   "edge": 0.016,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16674,12 +16883,12 @@
   "projection": 1.06,
   "over_odds": 231.0,
   "under_odds": null,
-  "over_prob": 0.286533,
-  "edge": -0.016,
+  "over_prob": 0.287356,
+  "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -16697,8 +16906,8 @@
   "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16732,11 +16941,11 @@
   "over_odds": -109.0,
   "under_odds": -122.0,
   "over_prob": 0.530516,
-  "edge": 0.009,
+  "edge": 0.01,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16789,11 +16998,11 @@
   "over_odds": -159.0,
   "under_odds": 119.0,
   "over_prob": 0.62406,
-  "edge": 0.01,
+  "edge": 0.011,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16826,12 +17035,12 @@
   "projection": 0.84,
   "over_odds": -136.0,
   "under_odds": 102.0,
-  "over_prob": 0.5671,
-  "edge": -0.009,
+  "over_prob": 0.568966,
+  "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -16868,8 +17077,8 @@
   "edge": -0.001,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16887,8 +17096,8 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16906,8 +17115,8 @@
   "edge": 0.038,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -16959,12 +17168,12 @@
   "projection": 1.71,
   "over_odds": 126.0,
   "under_odds": -168.0,
-  "over_prob": 0.507389,
-  "edge": 0.066,
+  "over_prob": 0.509804,
+  "edge": 0.067,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -16982,8 +17191,8 @@
   "edge": 0.082,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17017,11 +17226,11 @@
   "over_odds": 124.0,
   "under_odds": -165.0,
   "over_prob": 0.49505,
-  "edge": 0.048,
+  "edge": 0.049,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -17127,15 +17336,15 @@
   "player_id": 31097,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.66,
+  "projection": 1.67,
   "over_odds": 162.0,
   "under_odds": null,
   "over_prob": 0.49505,
   "edge": 0.114,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17149,12 +17358,12 @@
   "projection": 1.48,
   "over_odds": 156.0,
   "under_odds": null,
-  "over_prob": 0.4329,
-  "edge": 0.043,
+  "over_prob": 0.434783,
+  "edge": 0.044,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17169,11 +17378,11 @@
   "over_odds": 211.0,
   "under_odds": null,
   "over_prob": 0.387597,
-  "edge": 0.066,
+  "edge": 0.067,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17248,8 +17457,8 @@
   "edge": 0.102,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17260,15 +17469,15 @@
   "player_id": 31529,
   "stat": "ER",
   "line": 2.5,
-  "projection": 2.38,
+  "projection": 2.39,
   "over_odds": 128.0,
   "under_odds": -170.0,
-  "over_prob": 0.425532,
-  "edge": -0.013,
+  "over_prob": 0.42735,
+  "edge": -0.012,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17279,15 +17488,15 @@
   "player_id": 29244,
   "stat": "ER",
   "line": 2.5,
-  "projection": 2.62,
+  "projection": 2.67,
   "over_odds": 104.0,
   "under_odds": -138.0,
-  "over_prob": 0.485437,
-  "edge": -0.005,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "over_prob": 0.5,
+  "edge": 0.01,
+  "bet": "over",
+  "confidence": 2,
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17305,8 +17514,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -17317,15 +17526,15 @@
   "player_id": 29244,
   "stat": "Hits",
   "line": 5.5,
-  "projection": 5.33,
+  "projection": 5.34,
   "over_odds": 114.0,
   "under_odds": -151.0,
-  "over_prob": 0.442478,
-  "edge": -0.025,
+  "over_prob": 0.444444,
+  "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 8.0
  },
  {
   "date": "2026-08-22",
@@ -17761,8 +17970,8 @@
   "edge": 0.081,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17799,8 +18008,8 @@
   "edge": 0.158,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17818,8 +18027,8 @@
   "edge": 0.074,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17837,8 +18046,8 @@
   "edge": 0.226,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -17932,8 +18141,8 @@
   "edge": 0.157,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -17951,8 +18160,8 @@
   "edge": 0.158,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -17970,8 +18179,8 @@
   "edge": 0.06,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -18027,8 +18236,8 @@
   "edge": 0.191,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18046,8 +18255,8 @@
   "edge": 0.148,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -18065,8 +18274,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -18084,8 +18293,8 @@
   "edge": 0.223,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18122,8 +18331,8 @@
   "edge": 0.065,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -18502,8 +18711,8 @@
   "edge": -0.004,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18540,8 +18749,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18559,8 +18768,8 @@
   "edge": 0.066,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18654,8 +18863,8 @@
   "edge": 0.017,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18673,8 +18882,8 @@
   "edge": 0.022,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18768,8 +18977,8 @@
   "edge": 0.055,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -18787,8 +18996,8 @@
   "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -19072,8 +19281,8 @@
   "edge": 0.014,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -19148,8 +19357,8 @@
   "edge": 0.085,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -19262,8 +19471,8 @@
   "edge": 0.036,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -19300,8 +19509,8 @@
   "edge": 0.143,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -19376,8 +19585,8 @@
   "edge": -0.013,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 21.0
  },
  {
   "date": "2026-08-22",
@@ -19832,8 +20041,8 @@
   "edge": 0.219,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -19889,8 +20098,8 @@
   "edge": 0.044,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -20117,8 +20326,8 @@
   "edge": 0.066,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -20193,8 +20402,8 @@
   "edge": -0.012,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -20478,8 +20687,8 @@
   "edge": 0.014,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -20535,8 +20744,8 @@
   "edge": 0.069,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -20763,8 +20972,8 @@
   "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -20839,8 +21048,8 @@
   "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -20915,8 +21124,8 @@
   "edge": 0.081,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -20972,8 +21181,8 @@
   "edge": 0.069,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21200,8 +21409,8 @@
   "edge": 0.111,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -21257,8 +21466,8 @@
   "edge": -0.03,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21390,8 +21599,8 @@
   "edge": -0.025,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21409,8 +21618,8 @@
   "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21428,8 +21637,8 @@
   "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -21447,8 +21656,8 @@
   "edge": 0.003,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21466,8 +21675,8 @@
   "edge": 0.004,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21485,8 +21694,8 @@
   "edge": -0.018,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -21523,8 +21732,8 @@
   "edge": -0.012,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21542,8 +21751,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21561,8 +21770,8 @@
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -21580,8 +21789,8 @@
   "edge": 0.016,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21599,8 +21808,8 @@
   "edge": -0.026,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21618,8 +21827,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21637,8 +21846,8 @@
   "edge": 0.001,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21656,8 +21865,8 @@
   "edge": -0.028,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21675,8 +21884,8 @@
   "edge": 0.019,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21694,8 +21903,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21713,8 +21922,8 @@
   "edge": -0.03,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21751,8 +21960,8 @@
   "edge": 0.122,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21770,8 +21979,8 @@
   "edge": 0.07,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21788,9 +21997,9 @@
   "over_prob": 0.586777,
   "edge": 0.104,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 3,
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -21808,8 +22017,8 @@
   "edge": 0.086,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -21827,8 +22036,8 @@
   "edge": 0.184,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21846,8 +22055,8 @@
   "edge": 0.068,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -21883,9 +22092,9 @@
   "over_prob": 0.6633,
   "edge": 0.135,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21903,8 +22112,8 @@
   "edge": 0.109,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -21921,9 +22130,9 @@
   "over_prob": 0.568966,
   "edge": 0.072,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 3,
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -21941,8 +22150,8 @@
   "edge": 0.189,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -21960,8 +22169,8 @@
   "edge": 0.062,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -21979,8 +22188,8 @@
   "edge": 0.056,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -21998,8 +22207,8 @@
   "edge": 0.065,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22017,8 +22226,8 @@
   "edge": 0.078,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22036,8 +22245,8 @@
   "edge": 0.104,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 6.0
  },
  {
   "date": "2026-08-22",
@@ -22055,8 +22264,8 @@
   "edge": 0.069,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22074,8 +22283,8 @@
   "edge": 0.005,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22093,8 +22302,8 @@
   "edge": 0.116,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -22454,8 +22663,8 @@
   "edge": 0.007,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22473,8 +22682,8 @@
   "edge": -0.004,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22511,8 +22720,8 @@
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22530,8 +22739,8 @@
   "edge": 0.019,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22549,8 +22758,8 @@
   "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22568,8 +22777,8 @@
   "edge": -0.023,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22587,8 +22796,8 @@
   "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22606,8 +22815,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22644,8 +22853,8 @@
   "edge": 0.011,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22663,8 +22872,8 @@
   "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22682,8 +22891,8 @@
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22701,8 +22910,8 @@
   "edge": -0.001,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22720,8 +22929,8 @@
   "edge": -0.01,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22739,8 +22948,8 @@
   "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22758,8 +22967,8 @@
   "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -22777,8 +22986,8 @@
   "edge": 0.0,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22796,8 +23005,8 @@
   "edge": -0.031,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22815,8 +23024,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22834,8 +23043,8 @@
   "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22872,8 +23081,8 @@
   "edge": 0.035,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22890,9 +23099,9 @@
   "over_prob": 0.590164,
   "edge": 0.119,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22910,8 +23119,8 @@
   "edge": 0.072,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -22929,8 +23138,8 @@
   "edge": 0.082,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -22948,8 +23157,8 @@
   "edge": 0.065,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -22967,8 +23176,8 @@
   "edge": 0.027,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -23005,8 +23214,8 @@
   "edge": 0.145,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -23024,8 +23233,8 @@
   "edge": 0.112,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -23043,8 +23252,8 @@
   "edge": 0.043,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -23062,8 +23271,8 @@
   "edge": 0.051,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23081,8 +23290,8 @@
   "edge": 0.045,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -23100,8 +23309,8 @@
   "edge": 0.071,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -23119,8 +23328,8 @@
   "edge": 0.085,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -23138,8 +23347,8 @@
   "edge": 0.067,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -23157,8 +23366,8 @@
   "edge": 0.038,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23176,8 +23385,8 @@
   "edge": 0.105,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -23195,8 +23404,8 @@
   "edge": 0.086,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -23214,8 +23423,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23252,8 +23461,8 @@
   "edge": -0.024,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -23271,8 +23480,8 @@
   "edge": 0.025,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 10.0
  },
  {
   "date": "2026-08-22",
@@ -23290,8 +23499,8 @@
   "edge": 0.039,
   "bet": "under",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 8.0
  },
  {
   "date": "2026-08-22",
@@ -23309,8 +23518,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -23327,9 +23536,9 @@
   "over_prob": 0.389105,
   "edge": 0.017,
   "bet": "under",
-  "confidence": 1,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 21.0
  },
  {
   "date": "2026-08-22",
@@ -23347,8 +23556,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 15.0
  },
  {
   "date": "2026-08-22",
@@ -23385,8 +23594,8 @@
   "edge": -0.019,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23461,8 +23670,8 @@
   "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23537,8 +23746,8 @@
   "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -23816,14 +24025,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.75,
-  "over_odds": 115.0,
-  "under_odds": -153.0,
+  "over_odds": 111.0,
+  "under_odds": -147.0,
   "over_prob": 0.521531,
-  "edge": 0.056,
+  "edge": 0.047,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -23860,8 +24069,8 @@
   "edge": 0.068,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -23917,8 +24126,8 @@
   "edge": 0.028,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -23936,8 +24145,8 @@
   "edge": 0.118,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -24012,8 +24221,8 @@
   "edge": 0.093,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -24031,8 +24240,8 @@
   "edge": 0.062,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -24107,8 +24316,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -24354,8 +24563,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -24487,8 +24696,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -24696,8 +24905,8 @@
   "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -24829,8 +25038,8 @@
   "edge": 0.057,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -24899,14 +25108,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.52,
-  "over_odds": 148.0,
+  "over_odds": 144.0,
   "under_odds": null,
   "over_prob": 0.44843,
-  "edge": 0.045,
+  "edge": 0.038,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -24981,8 +25190,8 @@
   "edge": 0.01,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -25038,8 +25247,8 @@
   "edge": 0.063,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -25057,8 +25266,8 @@
   "edge": 0.089,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -25133,8 +25342,8 @@
   "edge": 0.042,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -25203,14 +25412,14 @@
   "stat": "Hits",
   "line": 3.5,
   "projection": 4.15,
-  "over_odds": -118.0,
-  "under_odds": -112.0,
+  "over_odds": -115.0,
+  "under_odds": -115.0,
   "over_prob": 0.595142,
-  "edge": 0.054,
+  "edge": 0.06,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -25241,14 +25450,14 @@
   "stat": "Ks",
   "line": 4.5,
   "projection": 5.75,
-  "over_odds": -108.0,
-  "under_odds": -118.0,
+  "over_odds": -104.0,
+  "under_odds": -122.0,
   "over_prob": 0.680511,
-  "edge": 0.161,
+  "edge": 0.17,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-08-22",
@@ -25285,8 +25494,8 @@
   "edge": 0.091,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 15.0
  },
  {
   "date": "2026-08-22",
@@ -27090,8 +27299,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27109,8 +27318,8 @@
   "edge": 0.007,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27128,8 +27337,8 @@
   "edge": 0.009,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27147,8 +27356,8 @@
   "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27185,8 +27394,8 @@
   "edge": 0.031,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27204,8 +27413,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27223,8 +27432,8 @@
   "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27242,8 +27451,8 @@
   "edge": -0.024,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27261,8 +27470,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27280,8 +27489,8 @@
   "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27299,8 +27508,8 @@
   "edge": 0.021,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27318,8 +27527,8 @@
   "edge": -0.004,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27337,8 +27546,8 @@
   "edge": 0.029,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27356,8 +27565,8 @@
   "edge": -0.019,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27375,8 +27584,8 @@
   "edge": -0.031,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27413,8 +27622,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27432,8 +27641,8 @@
   "edge": 0.091,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -27470,8 +27679,8 @@
   "edge": 0.144,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27489,8 +27698,8 @@
   "edge": 0.081,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27508,8 +27717,8 @@
   "edge": 0.079,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -27546,8 +27755,8 @@
   "edge": 0.181,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27565,8 +27774,8 @@
   "edge": 0.126,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27584,8 +27793,8 @@
   "edge": 0.088,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -27603,8 +27812,8 @@
   "edge": 0.163,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27641,8 +27850,8 @@
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27679,8 +27888,8 @@
   "edge": 0.024,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27698,8 +27907,8 @@
   "edge": 0.104,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -27736,8 +27945,8 @@
   "edge": 0.096,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27793,8 +28002,8 @@
   "edge": 0.053,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -27831,8 +28040,8 @@
   "edge": 0.048,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27850,8 +28059,8 @@
   "edge": 0.017,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27869,8 +28078,8 @@
   "edge": 0.009,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27926,8 +28135,8 @@
   "edge": 0.013,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -27964,8 +28173,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28059,8 +28268,8 @@
   "edge": 0.014,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28173,8 +28382,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28211,8 +28420,8 @@
   "edge": 0.002,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28230,8 +28439,8 @@
   "edge": 0.007,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28249,8 +28458,8 @@
   "edge": -0.014,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28267,9 +28476,9 @@
   "over_prob": 0.606299,
   "edge": 0.051,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28287,8 +28496,8 @@
   "edge": -0.03,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28306,8 +28515,8 @@
   "edge": 0.016,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28325,8 +28534,8 @@
   "edge": 0.011,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28344,8 +28553,8 @@
   "edge": -0.001,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28363,8 +28572,8 @@
   "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 2.0
  },
  {
   "date": "2026-08-22",
@@ -28382,8 +28591,8 @@
   "edge": -0.017,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28439,8 +28648,8 @@
   "edge": -0.028,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28458,8 +28667,8 @@
   "edge": -0.027,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28496,8 +28705,8 @@
   "edge": 0.008,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28515,8 +28724,8 @@
   "edge": 0.18,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28534,8 +28743,8 @@
   "edge": 0.151,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28553,8 +28762,8 @@
   "edge": 0.107,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28572,8 +28781,8 @@
   "edge": 0.121,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28610,8 +28819,8 @@
   "edge": 0.141,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28629,8 +28838,8 @@
   "edge": 0.075,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28647,9 +28856,9 @@
   "over_prob": 0.404858,
   "edge": 0.099,
   "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "confidence": 1,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28686,8 +28895,8 @@
   "edge": 0.006,
   "bet": "under",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28724,8 +28933,8 @@
   "edge": 0.041,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-08-22",
@@ -28743,8 +28952,8 @@
   "edge": 0.136,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28762,8 +28971,8 @@
   "edge": 0.078,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28800,8 +29009,8 @@
   "edge": 0.015,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28838,8 +29047,8 @@
   "edge": 0.006,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28857,8 +29066,8 @@
   "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-08-22",
@@ -28895,8 +29104,8 @@
   "edge": 0.039,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 3.0
  },
  {
   "date": "2026-08-22",
@@ -28933,8 +29142,8 @@
   "edge": 0.06,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -28952,8 +29161,8 @@
   "edge": -0.007,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-08-22",
@@ -28971,8 +29180,8 @@
   "edge": 0.302,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 15.0
  },
  {
   "date": "2026-08-22",
