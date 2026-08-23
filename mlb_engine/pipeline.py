@@ -390,6 +390,10 @@ class Pipeline:
     # slate's first run, where nothing can have drifted yet.
     _open_board: dict[str, float] = {}
     _drift_gate: DriftGate = DriftGate()
+    # And the lineup read, for the same reason: no lock is no first-pitch stamp,
+    # which the clock gate treats as neutral rather than as an early price.
+    _lineup_gate: LineupLockGate = LineupLockGate()
+    _lineup_lock: LineupLock | None = None
 
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
@@ -447,6 +451,7 @@ class Pipeline:
         fangraphs_csv: Path | None = None,
         seed: int | None = 7,
         enrich_leaderboards: bool = True,
+        within_hours: float | None = None,
     ) -> list[Recommendation]:
         """Price a slate.
 
@@ -454,11 +459,27 @@ class Pipeline:
         leaderboards (sprint speed, team defense, xSLG tails). It is left on for
         live runs and turned off by the historical backtester, where those
         full-season leaderboards would leak future information (look-ahead bias).
+
+        ``within_hours`` restricts pricing to the games starting inside that many
+        hours, which is what makes the late pass affordable: the games the clock
+        gate would refuse anyway cost nothing to skip, and each per-event prop
+        request is a paid Odds API credit. Games already underway are skipped
+        too, and a game with no published start time is always priced.
         """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
-        self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
+        if within_hours is not None:
+            keep = [
+                g for g in slate.games
+                if self._starts_within(g.game_datetime_utc, within_hours)
+            ]
+            log.info(
+                "Late pass: %d of %d games start inside %.1fh",
+                len(keep), len(slate.games), within_hours,
+            )
+            slate = slate.model_copy(update={"games": keep})
+        self.slate = slate
         self._projected_lineups = set()
         self._pen_avail = {}
         if self.deps.rotowire is not None:
@@ -549,6 +570,14 @@ class Pipeline:
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
         return enforce_one_buy_per_group(recs)
+
+    @staticmethod
+    def _starts_within(game_datetime_utc: str | None, hours: float) -> bool:
+        """Does this game start inside ``hours``, and has it not started yet?"""
+        h = hours_to_first_pitch(game_datetime_utc)
+        if h is None:
+            return True
+        return 0.0 <= h < hours
 
     @property
     def previews(self) -> list[GamePreview]:
@@ -2151,6 +2180,18 @@ class Pipeline:
                     gate = "away_ml_dog"
                 if dog_reason:
                     reasons.append(dog_reason)
+            # The clock runs across every market, and before drift, so an early
+            # row is attributed to the hour it was priced at rather than to a
+            # board it was too early to have moved yet. It is a fact about the
+            # information the bet was made on, not about this selection: whatever
+            # promoted the row, nothing on it was knowable hours before lock.
+            if tier != Tier.PASS:
+                keep, clock_reason = self._lineup_gate.clock_allows(self._lineup_lock)
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "lineup_clock"
+                if clock_reason:
+                    reasons.append(clock_reason)
             # Drift runs after everything, across every market: a side the
             # market has moved away from all day is one whose CLV is already
             # negative, whatever promoted it.
