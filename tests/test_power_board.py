@@ -25,6 +25,7 @@ def _rec(
     american: float | None = -115.0,
     opposite: float | None = -105.0,
     model: float = 0.55,
+    bet: float | None = None,
     fair: float | None = 0.50,
     ev: float | None = 0.04,
     edge: float | None = 0.05,
@@ -49,6 +50,7 @@ def _rec(
         player_id=player_id,
         stat=stat,
         side=side,
+        bet_prob=bet,
     )
 
 
@@ -71,6 +73,26 @@ def test_a_survivor_keeps_his_own_rows_best_expected_value_first() -> None:
     )
     assert [r.label for r in board.rows] == ["TB o1.5", "HR o0.5"]
     assert board.unpriced == []
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
+def test_the_homer_never_wins_the_price_quoted_beside_a_rating() -> None:
+    """EV on a one-way longshot is measured against a price nobody devigged.
+
+    Left alone it wins this column on most of the board -- +480 against a modelled
+    21% prints an enormous expected value -- and the note would then quote the
+    screen's worst market as its recommendation.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=480.0, opposite=None, ev=0.40),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.04),
+        ],
+    )
+    assert [r.label for r in board.rows] == ["HR o0.5", "TB o1.5"]
     assert board.best_for_batter("Matt Olson").label == "TB o1.5"
 
 
@@ -266,3 +288,31 @@ def test_the_board_round_trips_through_the_predictions_file(tmp_path) -> None:
     board = power_board.build(result, load_json(path), source=path.name)
     assert [r.label for r in board.rows] == ["TB o1.5"]
     assert board.rows[0].is_buy
+
+
+# --- the number the note prints -------------------------------------------
+
+
+def test_the_board_shows_the_probability_the_card_bet() -> None:
+    """The board's edge and EV come from the anchored probability, so the column
+    beside them has to be that same number rather than the raw model."""
+    result = _result()
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result), model=0.62, bet=0.55)]
+    )
+
+    assert board.rows[0].model_prob == 0.62
+    assert board.rows[0].shown_prob == 0.55
+
+    html = power_report.render_html(result, board=board)
+    assert "55.0%" in html
+    assert "62.0%" not in html
+
+
+def test_a_row_the_card_never_anchored_shows_its_model() -> None:
+    result = _result()
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result), model=0.62, bet=None)]
+    )
+
+    assert board.rows[0].shown_prob == 0.62

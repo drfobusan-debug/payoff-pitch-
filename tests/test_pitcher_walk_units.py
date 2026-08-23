@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 
 import mlb_engine.models.montecarlo as mc
-from mlb_engine.config import Config
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.rolling import (
     LEAGUE_WALK_SHARE_OF_FREE_PASS,
     WALK_EVENTS,
@@ -109,6 +109,11 @@ def test_the_walk_share_matches_the_measured_event_split() -> None:
     assert abs(LEAGUE_WALK_SHARE_OF_FREE_PASS - league) < 3e-3
 
 
+# A 0.55 side at +100 / -110 does not clear the shipped conviction floor once the
+# probability is anchored to the market, and the walks veto is what is under test.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
+
+
 def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
     """Price every pitcher prop at ``p_over``, both sides quoted +100 / -110.
 
@@ -158,7 +163,7 @@ def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
     graded rows say not to take -- so the veto has to bite on a row that would
     otherwise be bought, not merely on one the EV screens already declined.
     """
-    recs = _bb_recs(Config(), p_over=0.45)
+    recs = _bb_recs(Config(ev=LEVELS_OFF), p_over=0.45)
     under = recs[("pitcher_bb", "under")]
     assert under.tier is Tier.PASS
     assert under.pass_gate == "bb_under"
@@ -176,14 +181,14 @@ def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
 
 def test_the_walks_over_is_left_alone() -> None:
     """The veto is directional; the over is the side that made money."""
-    over = _bb_recs(Config(), p_over=0.55)[("pitcher_bb", "over")]
+    over = _bb_recs(Config(ev=LEVELS_OFF), p_over=0.55)[("pitcher_bb", "over")]
     assert over.tier is not Tier.PASS
     assert over.pass_gate is None
 
 
 def test_the_walks_under_can_be_re_enabled() -> None:
     """The veto is a stance on an unvalidated level, so it has to be reversible."""
-    cfg = replace(Config(), pitcher_bb_under_gate=False)
+    cfg = replace(Config(ev=LEVELS_OFF), pitcher_bb_under_gate=False)
     under = _bb_recs(cfg, p_over=0.45)[("pitcher_bb", "under")]
     assert under.tier is not Tier.PASS
     assert under.pass_gate is None

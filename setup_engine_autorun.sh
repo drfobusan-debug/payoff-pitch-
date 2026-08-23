@@ -8,10 +8,30 @@
 #   * Night:   wake 23:00           (keep-awake only -- no engine work)
 #   * Forced sleep at 03:00
 #   * Morning: wake 10:00  ->  run 10:05  (before noon: THE daily job)
+#   * Late:    11:45 / 14:45 / 17:45 / 20:45 -> re-price the games inside three
+#                           hours of first pitch and email that card. This is
+#                           where the bets are placed; see below.
 #   * Afternoon: wake 12:45 -> close 12:50 (snapshot the DAY games' close)
 #   * Evening:   wake 18:35 -> close 18:40 (snapshot the NIGHT games' close)
 #
-# The MORNING run (before noon) is the real job and does both, in order:
+# Why the LATE passes exist, and why the morning card is now a preview: over the
+# ledger's 915 graded buys carrying a first-pitch stamp, the ones priced inside
+# three hours of the game returned +5.7% (n=369) against -14.9% (n=546) for the
+# ones priced earlier, and the sign repeats in every market with a sample. A
+# 10:05 card prices most of a slate six or more hours out, on projected lineups.
+# So the engine's clock gate (MLBE_LINEUP_CLOCK_GATE) now refuses a buy priced
+# that early, and these four passes re-price the slate as each block of games
+# comes inside the window: four, because a day/night slate spans twelve hours and
+# a single pass would be too late for the matinees or too early for the west
+# coast. Each pass prices ONLY the games in its window, so the day costs roughly
+# one extra slate's worth of Odds API credits, and folds them into the same
+# card/ledger the morning run wrote -- the other games keep their morning prices.
+#
+# The MORNING run (before noon) is the real job and does all of it, in order:
+#   0) git pull --ff-only  -> price the slate with what has been MERGED, not with
+#                           whatever was on disk when the Mac was last touched.
+#                           Skipped on a dirty, diverged or non-main checkout,
+#                           and never fatal: see the runner for the guards.
 #   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
 #                           preview article + audio, the pitcher/batter
 #                           regression articles + audio and the morning power
@@ -59,8 +79,14 @@ MORNING_WAKE_HHMM="10:00"; MORNING_RUN_HOUR=10; MORNING_RUN_MIN=5
 # started is gone from the pre-match board: the evening capture alone would only
 # ever price the night slate. Captures merge, latest price per selection winning,
 # so the afternoon games keep the close taken while they were still quoted.
-CLOSE_WAKE_HHMM="18:35"; CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
-DAY_CLOSE_WAKE_HHMM="12:45"; DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
+CLOSE_WAKE_HHMM="18:35"; DAY_CLOSE_WAKE_HHMM="12:45"
+CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
+DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
+# The late re-pricing passes. Spaced by the window itself, so every first pitch
+# from lunchtime to the last west-coast start falls inside one of them.
+LATE_WINDOW_HOURS=3
+LATE_RUNS="11:45 14:45 17:45 20:45"
+LATE_WAKES="11:40 14:40 17:40 20:40"
 
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
@@ -79,10 +105,20 @@ MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
 
+# One daemon per late pass, labelled by its own clock time so a single pass can
+# be started, read in the log or removed on its own.
+LATE_LABELS=(); LATE_PLISTS=()
+for hm in $LATE_RUNS; do
+  label="com.franz.engine.late${hm/:/}"
+  LATE_LABELS+=("$label")
+  LATE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+done
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "${LATE_PLISTS[@]}")
+
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
   rm -f "$SUDOERS"
-  for p in "$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST"; do
+  for p in "${ALL_PLISTS[@]}"; do
     launchctl bootout system "$p" 2>/dev/null || launchctl unload "$p" 2>/dev/null || true
     rm -f "$p"
   done
@@ -159,6 +195,52 @@ for _brew_lib in /opt/homebrew/lib /usr/local/lib; do
   [[ -d "\$_brew_lib" ]] && export DYLD_FALLBACK_LIBRARY_PATH="\$_brew_lib:\${DYLD_FALLBACK_LIBRARY_PATH:-}"
 done
 
+# Take whatever has been merged since the last run. Without this a job prices
+# the slate with the code that happened to be on disk when the Mac was last
+# touched by hand, so a merged screen or bug fix silently never reaches a card.
+# Deliberately conservative, because a run that fails is worse than one running
+# yesterday's code:
+#   * --ff-only, so a dirty or diverged checkout is left exactly as it is
+#   * only on \`main\`, so a branch left checked out is never fast-forwarded
+#   * GIT_TERMINAL_PROMPT=0 plus a low-speed abort, so neither a credential
+#     prompt nor a stalled fetch can hang a daemon with no terminal to answer it
+#     (there is no \`timeout\` on a stock macOS to lean on)
+#   * non-fatal throughout: on any failure the run continues on disk code
+# An editable reinstall follows a pull that actually moved HEAD, since a merge
+# can add a dependency or a console entry point.
+pull_latest() {
+  branch=\$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)
+  if [[ "\$branch" != "main" ]]; then
+    echo "[\$(date)] on branch '\$branch', not pulling; running the code on disk" >&2
+  elif ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "[\$(date)] uncommitted changes in $REPO_DIR; not pulling" >&2
+  else
+    was=\$(git rev-parse HEAD)
+    if GIT_TERMINAL_PROMPT=0 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 \\
+         pull --ff-only --quiet; then
+      now=\$(git rev-parse HEAD)
+      if [[ "\$was" != "\$now" ]]; then
+        echo "[\$(date)] pulled \${was:0:8} -> \${now:0:8}"
+        pip install -q -e . || echo "[\$(date)] editable reinstall failed" >&2
+      fi
+    else
+      echo "[\$(date)] git pull failed; running the code on disk" >&2
+    fi
+  fi
+}
+
+# Arm the next of today's late passes, so the Mac is awake for it.
+arm_next_late() {
+  local nowhm; nowhm=\$(date +%H:%M)
+  for hm in $LATE_WAKES; do
+    if [[ "\$nowhm" < "\$hm" ]]; then
+      pmset_ schedule wake "\$(date +%m/%d/%Y) \$hm:00" \\
+        || echo "[\$(date)] could not arm the \$hm late wake" >&2
+      return 0
+    fi
+  done
+}
+
 if [[ "\$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # $MORNING_WAKE_HHMM so the machine wakes after the 03:00 sleep. No engine work.
@@ -173,6 +255,26 @@ elif [[ "\$MODE" == "close" ]]; then
   mlb-engine close || echo "[\$(date)] 'mlb-engine close' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
   pmset_ schedule wake "\$(date +%m/%d/%Y) $CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm evening wake" >&2
+elif [[ "\$MODE" == "late" ]]; then
+  # Re-price the games starting inside the next $LATE_WINDOW_HOURS hours -- off
+  # posted lineups, on the board as it stands -- and email the card that comes
+  # out of it. The run folds these games into today's predictions/Excel and
+  # leaves every other game at its morning price, so the audit still grades one
+  # card per slate and the refused early rows keep their reasons.
+  /usr/bin/caffeinate -i -w \$\$ &
+  arm_next_late
+  pull_latest
+  VSIN="\$HOME/.mlb_engine/vsin_today.csv"
+  if [[ -f "\$VSIN" ]]; then
+    mlb-engine run --within-hours $LATE_WINDOW_HOURS --vsin-csv "\$VSIN" \\
+      || echo "[\$(date)] late 'mlb-engine run' exited non-zero" >&2
+  else
+    mlb-engine run --within-hours $LATE_WINDOW_HOURS \\
+      || echo "[\$(date)] late 'mlb-engine run' exited non-zero" >&2
+  fi
+  # The card, not the package: the morning message already carried the articles,
+  # audio and screens, and what this pass adds is the bet slip.
+  mlb-engine card --email || echo "[\$(date)] late card email exited non-zero" >&2
 else
   # THE daily job (before noon): build today's FULL package (slate + pitcher/
   # batter regression articles + audio) and email it as one message, then grade
@@ -188,6 +290,12 @@ else
   # Arm a one-shot wake for TONIGHT's closing snapshot (same calendar day), so
   # the close daemon can fire even if the Mac would otherwise sleep by evening.
   pmset_ schedule wake "\$(date +%m/%d/%Y) $DAY_CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm afternoon wake" >&2
+
+  # 0) take whatever has been merged since yesterday.
+  pull_latest
+
+  # Arm the first of today's late re-pricing passes.
+  arm_next_late
 
   # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
   #    cache pkl). No --email here: the package email below owns delivery.
@@ -260,7 +368,13 @@ write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MI
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
 write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MIN"   close
 write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
-echo "Wrote daemons: $NIGHT_PLIST , $MORNING_PLIST , $CLOSE_PLIST , $DAY_CLOSE_PLIST"
+i=0
+for hm in $LATE_RUNS; do
+  write_plist "${LATE_PLISTS[$i]}" "${LATE_LABELS[$i]}" \
+    "$((10#${hm%%:*}))" "$((10#${hm##*:}))" late
+  i=$((i + 1))
+done
+echo "Wrote daemons: ${ALL_PLISTS[*]}"
 
 # The daemons run as $RUN_AS_USER, but /var/log is root-owned -- launchd can't
 # create the StandardOut/Err files there and the job dies with EX_CONFIG (78).
@@ -269,7 +383,7 @@ touch "$LOG_OUT" "$LOG_ERR"
 chown "$RUN_AS_USER" "$LOG_OUT" "$LOG_ERR"
 chmod 644 "$LOG_OUT" "$LOG_ERR"
 
-for p in "$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST"; do
+for p in "${ALL_PLISTS[@]}"; do
   launchctl bootout system "$p" 2>/dev/null || true
   launchctl bootstrap system "$p" 2>/dev/null || launchctl load "$p"
 done
@@ -292,6 +406,9 @@ echo "Test night run:    sudo launchctl start ${NIGHT_LABEL}"
 echo "Test morning run:  sudo launchctl start ${MORNING_LABEL}"
 echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}"
 echo "Test day close:    sudo launchctl start ${DAY_CLOSE_LABEL}"
+echo "Test a late pass:  sudo launchctl start ${LATE_LABELS[0]}   (re-prices the"
+echo "                   games inside ${LATE_WINDOW_HOURS}h and emails that card; the others are"
+echo "                   ${LATE_LABELS[*]:1})"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo
 echo "Reminders: keep it PLUGGED IN; use SLEEP (not Shut Down);"

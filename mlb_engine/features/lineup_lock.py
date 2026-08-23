@@ -13,16 +13,40 @@ turns the two facts the pipeline already knows (lineup provenance and hours to
 first pitch) into an auditable status stamped on every recommendation, plus an
 optional demotion of ``game_ml`` buys.
 
-The demotion ships **off** (``MLBE_ML_LINEUP_LOCK``): a projected lineup is the
-normal state for an early card, and hard-passing on it would empty most slates
-before the graded data says the passes were right. The status and note ship on,
-so the ledger can measure whether projected-lineup buys actually underperform
-posted-lineup ones before the gate is switched on.
+The moneyline demotion on lineup *provenance* still ships off
+(``MLBE_ML_LINEUP_LOCK``): a projected lineup is the normal state for an early
+card, and hard-passing on it would empty most slates before the graded data says
+the passes were right.
 
-That measurement needs the status to reach the *ledger*, not just the
-recommendation, which it did not until the columns were added: see
-:func:`mlb_engine.audit.analysis.lineup_findings` for the read, which reports an
-under-powered split as under-powered rather than as a verdict on this gate.
+The *clock* half is a different question, and the ledger has now answered it. On
+the 915 graded buys carrying a first-pitch stamp, ROI splits at almost exactly
+the three hours this module already called stale:
+
+=====================  =====  =========  =====================
+when it was priced         n        ROI  bootstrap 95%
+=====================  =====  =========  =====================
+inside 3h                369      +5.7%  [-4.5%, +16.0%]
+3h or more out           546     -14.9%  [-22.9%, -6.6%]
+=====================  =====  =========  =====================
+
+and the sign repeats market by market -- batter hits, RBI, hits+runs+RBI, total
+bases, pitcher strikeouts and pitcher hits are all positive inside the window and
+negative outside it. So the clock gate ships **on**
+(``MLBE_LINEUP_CLOCK_GATE``) and applies to every market, not just the
+moneyline: an early price is not a worse *edge*, it is a bet made before the
+information that resolves the game exists.
+
+That makes the morning card a preview rather than a bet slip, which is only
+honest if something re-prices the slate near lock. ``mlb-engine run
+--within-hours`` is that pass, and ``setup_engine_autorun.sh`` schedules it four
+times across the day so a split day/night slate is covered; the morning run
+still prices, grades and emails everything, with each early row carrying the
+reason it was refused.
+
+The measurement needs the status to reach the *ledger*, not just the
+recommendation: see :func:`mlb_engine.audit.analysis.lineup_findings` for the
+read, which reports an under-powered split as under-powered rather than as a
+verdict on this gate.
 """
 
 from __future__ import annotations
@@ -95,13 +119,26 @@ class LineupLockGate:
 
     demote: bool = False
     stale_hours: float = DEFAULT_STALE_HOURS
+    clock: bool = True
 
     @classmethod
     def from_env(cls) -> LineupLockGate:
         return cls(
             demote=_env_flag("MLBE_ML_LINEUP_LOCK", False),
             stale_hours=_env_float("MLBE_LINEUP_STALE_HOURS", DEFAULT_STALE_HOURS),
+            clock=_env_flag("MLBE_LINEUP_CLOCK_GATE", True),
         )
+
+    def in_window(self, hours: float | None) -> bool:
+        """Is this game close enough to first pitch to be bet?
+
+        A game with no start time is in the window: the clock cannot refuse what
+        it cannot read. A game already underway is not -- its pre-match board is
+        gone, so a price for it is a price for nothing.
+        """
+        if hours is None:
+            return True
+        return 0.0 <= hours < self.stale_hours
 
     def read(self, projected: bool, hours: float | None) -> LineupLock:
         """Classify a game from its lineup provenance and hours to first pitch."""
@@ -120,6 +157,25 @@ class LineupLockGate:
             hours_to_first_pitch=hours,
             stale=projected or early,
             note="; ".join(parts) if parts else None,
+        )
+
+    def clock_allows(self, lock: LineupLock | None) -> tuple[bool, str]:
+        """Return (keep_buy, reason) for a buy in *any* market, on the clock alone.
+
+        Neutral without a first-pitch stamp, which is the state of every
+        backtest and of a slate whose start times the feed has not published:
+        the gate refuses a measured distance from lock, never a missing one.
+        """
+        if not self.clock or lock is None:
+            return True, ""
+        hours = lock.hours_to_first_pitch
+        if hours is None or hours < self.stale_hours:
+            return True, ""
+        return False, (
+            f"lineup clock: PASS (priced {hours:.1f}h out, before the lineups, "
+            f"scratches and weather that resolve it; buys priced "
+            f"{self.stale_hours:.0f}h+ out returned -14.9% against +5.7% inside "
+            "it) -- the late pass re-prices this game near lock"
         )
 
     def allows(self, lock: LineupLock | None) -> tuple[bool, str]:

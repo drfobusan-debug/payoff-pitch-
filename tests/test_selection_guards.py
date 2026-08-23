@@ -7,7 +7,11 @@ simulated or calibrated probability, and each is independently switchable:
   * ``MLBE_MAX_BUY_ODDS[_<MARKET>]`` -- price ceiling (plus-money buys went 28.5%)
   * ``MLBE_NO_BUY_<MARKET>`` -- markets the ledger disqualified outright
   * ``MLBE_MARKET_ANCHOR[_<MARKET>]`` -- toll for disagreeing with the price
+  * ``MLBE_MIN_PROB[_<MARKET>]`` / ``MLBE_MAX_EV[_<MARKET>]`` -- conviction floor
+    and EV ceiling on the anchored number
   * ``MLBE_CLV_GATE`` -- pre-bet closing line value, off the opening board
+  * ``MLBE_MOMENTUM_GATE`` / ``MLBE_MOMENTUM_MAX_RUN_UP`` -- the other end of the
+    same move: a side the market has already come to
 """
 
 from __future__ import annotations
@@ -44,7 +48,9 @@ class _Identity:
 
 def _res(edge: float, american: float = -110.0) -> EVResult:
     q = MarketQuote(book="bk", american=american)
-    fair = 0.5
+    # A fair price the market itself calls a favourite, because that is the only
+    # place an edge can sit above the conviction floor and under the edge cap.
+    fair = 0.55
     prob = fair + edge
     return EVResult(
         model_prob=prob,
@@ -78,11 +84,12 @@ def _rec(
     model_prob: float,
     american: float = -110.0,
     selection: str = "MIA ML",
+    opposite: float = -110.0,
 ):
     game = SimpleNamespace(game_date="2026-08-08", game_pk=1)
     quotes = {
         (MATCHUP, market, selection): [
-            MarketQuote(book="dk", american=american, opposite_american=-110.0)
+            MarketQuote(book="dk", american=american, opposite_american=opposite)
         ]
     }
     return p._mk(
@@ -152,18 +159,21 @@ def test_any_market_can_be_disqualified(monkeypatch) -> None:
 def test_a_disqualified_market_is_still_priced_and_graded() -> None:
     """Shadow bets: the pass keeps the price, EV and edge for the ledger."""
     p = _pipeline()
-    rec = _rec(p, "batter_h", 0.56, selection="Some Batter o0.5 H")
+    # A level and a price that clear the conviction floor and the EV ceiling, so
+    # the disqualification is the screen that refuses the row.
+    rec = _rec(p, "batter_h", 0.60, selection="Some Batter o0.5 H", opposite=130.0)
     assert rec.tier is Tier.PASS
     assert rec.pass_gate == "no_buy"
     assert rec.market_american == -110.0
     assert rec.ev is not None and rec.edge is not None
-    assert rec.model_prob == 0.56
+    assert rec.model_prob == 0.60
 
 
 # ---- market anchoring ------------------------------------------------------
-def test_anchor_ships_off_and_totals_can_never_be_taxed(monkeypatch) -> None:
+def test_anchor_ships_on_and_totals_can_never_be_taxed(monkeypatch) -> None:
+    """The shipped weight is 0.3: the market beat the model at every band."""
     cfg = Config()
-    assert cfg.anchor_for("game_ml") == 0.0
+    assert cfg.anchor_for("game_ml") == 0.3
     monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.8")
     raised = Config()
     assert raised.anchor_for("game_ml") == 0.8
@@ -190,9 +200,10 @@ def test_anchoring_shrinks_the_bet_probability_not_the_model(monkeypatch) -> Non
     assert rec.edge is not None and abs(rec.edge - 0.05) < 1e-6
 
 
-def test_anchor_off_bets_the_model_itself() -> None:
+def test_a_zero_anchor_bets_the_model_itself() -> None:
+    """Totals ship pinned at zero, so there the bet is the model's own number."""
     p = _pipeline()
-    rec = _rec(p, "game_ml", 0.56)
+    rec = _rec(p, "game_total", 0.56, selection="Over 8.5")
     assert rec.bet_prob == 0.56
 
 
@@ -210,7 +221,7 @@ def test_a_fitted_anchor_file_overrides_the_packaged_default(tmp_path, monkeypat
     # Even the totals pin yields to a weight measured on this operator's ledger.
     assert cfg.anchor_for("game_total") == 0.4
     # A market the fit never named keeps shipping behaviour.
-    assert cfg.anchor_for("batter_hr") == 0.0
+    assert cfg.anchor_for("batter_hr") == 0.3
 
 
 def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
@@ -221,13 +232,13 @@ def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
 
 def test_a_corrupt_anchor_file_is_ignored_not_fatal(tmp_path, monkeypatch) -> None:
     _anchor_file(tmp_path, monkeypatch, "{not json")
-    assert Config().anchor_for("game_ml") == 0.0
+    assert Config().anchor_for("game_ml") == 0.3
 
 
-def test_no_anchor_file_means_no_anchoring(tmp_path, monkeypatch) -> None:
+def test_no_anchor_file_means_the_shipped_weight(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MARKET_ANCHOR_FILE", str(tmp_path / "absent.json"))
     _config._ANCHOR_CACHE.clear()
-    assert Config().anchor_for("game_ml") == 0.0
+    assert Config().anchor_for("game_ml") == 0.3
 
 
 # ---- pre-bet CLV -----------------------------------------------------------
@@ -266,10 +277,73 @@ def test_drift_tolerance_is_configurable(monkeypatch) -> None:
 
 def test_drift_gate_vetoes_a_buy_in_the_pipeline() -> None:
     p = _pipeline()
-    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.56}
-    rec = _rec(p, "game_ml", 0.56)
+    # A row that clears every other screen, so the drift is what refuses it: the
+    # side opened at 0.63 and the board has since left it at 0.573.
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.63}
+    rec = _rec(p, "game_ml", 0.65, opposite=130.0)
     assert rec.tier is Tier.PASS
     assert any("clv: PASS" in r for r in rec.reasons)
+
+
+# ---- pre-bet momentum ------------------------------------------------------
+def test_momentum_is_neutral_without_an_opening_board() -> None:
+    keep, reason = DriftGate().momentum_allows(None, 0.55)
+    assert keep and reason == ""
+
+
+def test_momentum_refuses_a_price_that_has_already_run_to_us() -> None:
+    """919 priced buys with an opening board split on the sign of the move.
+
+    The 451 the market had already come to won 43.7% for -11.2%; the 465 it had
+    moved away from won 52.7% for +4.3%. Buying after the move is the losing half.
+    """
+    keep, reason = DriftGate().momentum_allows(0.52, 0.56)
+    assert not keep
+    assert "momentum: PASS" in reason and "+4.0 pts" in reason
+
+
+def test_momentum_keeps_a_price_that_has_not_moved_to_us() -> None:
+    keep, reason = DriftGate().momentum_allows(0.56, 0.54)
+    assert keep
+    assert "momentum: OK" in reason
+
+
+def test_momentum_tolerance_is_configurable(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_MAX_RUN_UP", "0.05")
+    gate = DriftGate.from_env()
+    assert gate.momentum_allows(0.52, 0.56)[0]
+    assert not gate.momentum_allows(0.52, 0.58)[0]
+
+
+def test_momentum_kill_switch(monkeypatch) -> None:
+    monkeypatch.setenv("MLBE_MOMENTUM_GATE", "0")
+    gate = DriftGate.from_env()
+    assert not gate.momentum
+    assert gate.momentum_allows(0.40, 0.60) == (True, "")
+    # The other end of the same variable is a separate switch.
+    assert gate.enabled
+
+
+def test_momentum_vetoes_a_buy_in_the_pipeline() -> None:
+    """Same row the drift test uses, with the move pointing the other way."""
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.52}
+    rec = _rec(p, "game_ml", 0.65, opposite=130.0)
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "momentum_run_up"
+    assert any("momentum: PASS" in r for r in rec.reasons)
+
+
+def test_a_side_the_market_walked_away_from_keeps_the_drift_name() -> None:
+    """Both ends of the move are vetoes; the ledger has to tell them apart.
+
+    ``screen_probation`` grades a screen on the rows it removed, so the adverse
+    move and the run-up cannot share one gate name.
+    """
+    p = _pipeline()
+    p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.63}
+    rec = _rec(p, "game_ml", 0.65, opposite=130.0)
+    assert rec.pass_gate == "clv_drift"
 
 
 # ---- the opening board -----------------------------------------------------

@@ -201,7 +201,9 @@ def test_a_confirmed_moneyline_is_actually_buyable() -> None:
     """
     from mlb_engine.market.tiers import Tier
 
-    rec = _ml_rec(0.46, american=140.0, opposite=-160.0)
+    # A favourite, because the conviction floor only ever clears on one: at -140
+    # the anchored probability is 0.627 for a 5-point edge.
+    rec = _ml_rec(0.65, american=-140.0, opposite=130.0)
     assert (rec.ev or 0.0) > 0 and 0.02 <= (rec.edge or 0.0) <= 0.08
     assert rec.tier is Tier.STRONG
     assert any("ml-gate: OK" in r for r in rec.reasons)

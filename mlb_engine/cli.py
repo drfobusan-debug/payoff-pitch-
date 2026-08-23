@@ -54,6 +54,8 @@ from mlb_engine.calibration import (
     FEATURE_BASIS_SINCE,
     Calibrator,
     IsotonicMap,
+    StoredMaps,
+    read_stored,
 )
 from mlb_engine.config import Config, default_ros_prior_path, load_config
 from mlb_engine.data import ros_prior
@@ -112,7 +114,7 @@ from mlb_engine.output.report import (
     weekly_entries,
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
-from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
+from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
 from mlb_engine.preview import save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 from mlb_engine.state import (
@@ -487,7 +489,16 @@ def cmd_run(args: argparse.Namespace) -> int:
         fangraphs_csv = fg_dir
     else:
         fangraphs_csv = None
-    recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
+    late = args.within_hours is not None
+    pred_path = cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json"
+    recs = pipe.run(
+        slate_date,
+        vsin_csv=vsin_csv,
+        fangraphs_csv=fangraphs_csv,
+        within_hours=args.within_hours,
+    )
+    if late:
+        recs = _merge_late_pass(recs, pred_path)
     _annotate_opta(cfg, recs, slate_date)
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
@@ -496,12 +507,15 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
-    save_json(recs, cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json")
+    save_json(recs, pred_path)
     previews = pipe.previews
-    save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
+    # A late pass saw only the games near first pitch, so its previews and quote
+    # template would replace the whole slate's with a fragment of it.
+    if not late:
+        save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
-    if not vsin_csv:
+    if not vsin_csv and not late:
         _write_quotes_template(recs, cfg.output_dir / f"vsin_template_{slate_date.isoformat()}.csv")
 
     strong = sum(1 for r in recs if r.tier == Tier.STRONG)
@@ -537,6 +551,31 @@ def cmd_run(args: argparse.Namespace) -> int:
     # grades this slate grades what was actually sent.
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
     return 0
+
+
+def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendation]:
+    """Fold a late pass's re-priced games into the card the morning run wrote.
+
+    The pass prices only the games inside the clock window, so without this the
+    day's other games would vanish from the file the audit grades and the ledger
+    would lose the rows it needs to measure the refusals. A re-priced game is
+    replaced wholesale -- its prices, tiers and reasons all belong to the later
+    board -- and every other game is carried forward exactly as priced.
+    """
+    if not path.exists():
+        return recs
+    try:
+        prior = load_json(path)
+    except Exception:  # noqa: BLE001 - a stale card must not cost the late pass
+        logging.warning("Late pass: %s unreadable, keeping only re-priced games", path)
+        return recs
+    repriced = {r.game_pk for r in recs}
+    kept = [r for r in prior if r.game_pk not in repriced]
+    print(
+        f"Late pass: re-priced {len(repriced)} games ({len(recs)} rows), "
+        f"carried {len(kept)} earlier rows forward"
+    )
+    return [*kept, *recs]
 
 
 def _build_regression_article(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
@@ -1261,10 +1300,24 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     if not keep:
         print("\nNo market still improves on its raw probability; the map stays retired")
         return 1
-    cal = Calibrator(maps=dict(keep), default=Calibrator.identity().default)
-    cal.to_json(path)
+    # Re-stamping is the only edit. A market that failed here, or was too thin to
+    # measure, keeps its curve at the basis it was fitted on: that stamp *is* how
+    # the file says "retired", so deleting the curve instead would drop the market
+    # onto the pooled curve -- a correction nothing measured for it -- and would
+    # put it beyond the reach of the next revalidation. The pooled curve itself is
+    # not this command's to throw away either: a refit measured it when it adopted
+    # the markets that price off it.
+    stored = read_stored(path)
+    maps = stored.maps | keep
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in keep}
+    cal = Calibrator(maps=maps, default=stored.current_default())
+    cal.to_json(path, bases=bases, rows=stored.rows)
     print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
-    print(f"Wrote {path}; the pooled fallback and every other market stay retired")
+    retired = sorted(mk for mk, b in bases.items() if b != FEATURE_BASIS)
+    print(
+        f"Wrote {path}; {len(retired)} market(s) stay retired"
+        + (f" ({', '.join(retired)})" if retired else "")
+    )
     return 0
 
 
@@ -1323,6 +1376,7 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     test = rows_of([e for e in entries if e.date >= split])
 
     packaged = load_calibrator()
+    source = calibration_source(cfg.calibration_file)
     refit = Calibrator.fit(train)
 
     def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
@@ -1355,13 +1409,40 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
         return 1
 
     final = Calibrator.fit(rows)
-    merged = Calibrator(
-        maps={**packaged.maps, **{m: final.maps[m] for m in adopt if m in final.maps}},
-        default=packaged.default,
-    )
-    merged.to_json(cfg.calibration_file)
+    # Carry the curves this refit is not replacing, at the basis they were fitted
+    # on. Merging ``packaged.maps`` instead carries nothing once a basis bump has
+    # retired them -- ``load_calibrator`` has already dropped them -- so the
+    # refit would delete the very curves ``--revalidate`` exists to re-measure,
+    # and the live file wins over the packaged one, putting them out of reach.
+    stored = read_stored(source) if source else StoredMaps({}, {}, final.default)
+    maps = dict(stored.maps)
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in adopt}
+    for market in adopt:
+        # A market the fit left on the pooled curve was measured on that curve,
+        # so ship it: keeping its old own-map would price it off a curve the
+        # holdout never scored.
+        if market in final.maps:
+            maps[market] = final.maps[market]
+        else:
+            maps.pop(market, None)
+    merged = Calibrator(maps=maps, default=final.default)
+    merged.to_json(cfg.calibration_file, bases=bases, rows=len(rows))
     print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
-    print(f"Wrote {cfg.calibration_file} (other markets keep the packaged fit)")
+    pooled = sorted(m for m in adopt if m not in final.maps)
+    if pooled:
+        print(f"On the pooled curve (too thin for their own): {', '.join(pooled)}")
+    if bases:
+        stale_carried = sorted(m for m, b in bases.items() if b != FEATURE_BASIS)
+        print(
+            f"Carried {len(bases)} market(s) unchanged"
+            + (
+                f"; {len(stale_carried)} stay retired until `calibrate --revalidate` "
+                f"measures them ({', '.join(stale_carried)})"
+                if stale_carried
+                else ""
+            )
+        )
+    print(f"Wrote {cfg.calibration_file}")
     return 0
 
 
@@ -1400,6 +1481,12 @@ def main(argv: list[str] | None = None) -> int:
         "SIERA/Stuff+/wRC+/xSLG tails; defaults to ~/.mlb_engine/fangraphs/ if present",
     )
     r.add_argument("--sims", type=int, help="Monte Carlo sims per game")
+    r.add_argument(
+        "--within-hours",
+        type=float,
+        help="late pass: price only the games starting inside this many hours and "
+        "fold them into today's card (leaves the other games' morning prices alone)",
+    )
     r.add_argument("--out", help="output .xlsx path")
     r.add_argument("--card", action="store_true", help="also write the daily card (md + html)")
     r.add_argument("--email", action="store_true", help="email the daily card after the run")

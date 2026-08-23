@@ -502,6 +502,19 @@ this machine's rows for any date it graded, since that box is the one holding
 the results. A push that loses a race re-pulls and re-applies rather than
 overwriting the other run.
 
+**The hand-dropped exports travel too**, for the same reason and in the same
+place: the priced BAT X CSVs (`batx/`), the saved EV Analytics pages
+(`evanalytics/`) and the daily projection exports (`projections/`) are
+downloaded on a laptop onto one box, and the card is priced on another, so
+without this the BAT X and EVA columns are blank whatever you copy locally.
+Drop the files, then `mlb-engine state push`, and the next scheduled card reads
+them. They are stored gzipped, keeping the newest 14 of each dated feed.
+
+An export is one immutable download, so nothing here is merged: a pull only
+fills in files this machine does not have. That asymmetry is deliberate — a
+saved page is named after the page rather than the day, so a pull that
+overwrote would hand today's card yesterday's board.
+
 The pregame predictions matter as much as the closes. An audit that re-prices
 the slate at 2:30am grades a different set of picks, at prices that no longer
 exist, and the "bet price" the CLV is measured against becomes a post-game

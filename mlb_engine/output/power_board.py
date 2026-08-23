@@ -57,6 +57,17 @@ MARKET_LABEL = {
 
 BUY_TIERS = ("Strong buy", "Moderate buy")
 
+# Markets the note shows without holding a position in them. A home run is a ~7%
+# event for the best bat the screen can find against the softest arm on the
+# board, so books quote it one-way at +400 and up: there is no second side, the
+# edge measured against that number is mostly the hold, and graded the screen's
+# HR rows went 2-13 for -7.32u while every other market together was -3.06u over
+# the same two boards. Across 2288 graded HR overs the book loses 34.5% above
+# +300 and worsens monotonically with price, so no price filter rescues it. The
+# arsenal work is still the reason to watch a hitter, so the row stays on the
+# board -- it just is not quoted as a bet and is not recorded as a position.
+DISPLAY_ONLY = frozenset({"HR"})
+
 
 @dataclass(frozen=True)
 class BoardRow:
@@ -78,6 +89,23 @@ class BoardRow:
     # than re-matched by name against it (see audit.power_ledger).
     player_id: int | None = None
     game_pk: int | None = None
+    # The probability the card's own screens bet on: the model pulled toward the
+    # devigged price by ``Config.anchor_for``. ``None`` on a row priced before
+    # the anchor existed, or one the card never anchored.
+    bet_prob: float | None = None
+
+    @property
+    def shown_prob(self) -> float:
+        """The number the note prints, which is the one ``edge`` and ``ev`` use.
+
+        The board's edge and EV always came from the card's anchored evaluation
+        while the probability column showed the unanchored model, so the three
+        did not describe one bet. Graded over the screen's own 55 two-sided rows
+        the anchored probability scores better than the model both in and out of
+        sample (Brier .2269 vs .2304 on 8/18, .2364 vs .2534 on 8/19-20), so
+        printing it is both the consistent and the more accurate choice.
+        """
+        return self.model_prob if self.bet_prob is None else self.bet_prob
 
     @property
     def label(self) -> str:
@@ -115,8 +143,15 @@ class Board:
         return [r for r in self.rows if r.batter == name]
 
     def best_for_batter(self, name: str) -> BoardRow | None:
-        """His best row by EV -- what the note quotes beside his rating."""
-        rows = [r for r in self.for_batter(name) if r.ev is not None]
+        """His best held row by EV -- what the note quotes beside his rating.
+
+        A display-only market is skipped however good its EV looks, because EV on
+        a one-way longshot is computed against a price nobody stripped the hold
+        out of, and it would otherwise win this column on most of the board.
+        """
+        rows = [
+            r for r in self.for_batter(name) if r.ev is not None and r.stat not in DISPLAY_ONLY
+        ]
         return max(rows, key=lambda r: r.ev or 0.0) if rows else None
 
 
@@ -140,6 +175,7 @@ def _row(rec: Recommendation, name: str) -> BoardRow:
         devigged=rec.opposite_american is not None,
         player_id=rec.player_id,
         game_pk=rec.game_pk,
+        bet_prob=rec.bet_prob,
     )
 
 

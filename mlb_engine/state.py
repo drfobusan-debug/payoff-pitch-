@@ -12,6 +12,12 @@ repo instead: the pregame predictions (the picks actually sent, at the prices
 they were sent at), the closing snapshots, the ledger and the scorecard. Pull
 before a run, push after.
 
+The same problem in the other direction applies to the files a person drops in
+by hand -- the priced BAT X export, the saved EV Analytics pages, the daily
+projection CSVs. They are downloaded on a laptop onto one box, and the card is
+priced on another, which is why those benchmark columns come out blank. So they
+travel on the branch too.
+
 Only data goes on that branch, never code, and it is deliberately shallow:
 predictions are the bulk and are pruned to the most recent few weeks.
 """
@@ -22,18 +28,21 @@ import csv
 import gzip
 import json
 import logging
+import re
 import shutil
 import subprocess
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import (
     load_closing,
     merge_board,
     merge_closing,
     save_closing,
 )
+from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
 
@@ -46,6 +55,22 @@ PREDICTION_KEEP_DAYS = 35
 # with an after-the-fact re-price, so what the card actually sent is kept
 # under a name nothing else writes.
 PREGAME_SUFFIX = ".pregame.json"
+# The outside inputs someone downloads and drops in: a directory under the data
+# dir, the files worth carrying out of it, and how many copies the branch keeps.
+# ``None`` keeps every name, which is right for the saved pages -- they are named
+# after the page and not the day, so each push replaces yesterday's and the set
+# cannot grow. The dated exports are pruned like the predictions.
+#
+# Nothing here is merged: an export is one immutable download, so its name is its
+# whole identity and the only question is which copies exist where.
+_INPUT_DIRS: tuple[tuple[str, tuple[str, ...], int | None], ...] = (
+    ("batx", ("*.csv",), 14),
+    ("projections", ("*.csv",), 14),
+    ("evanalytics", ("*.html", "*.htm"), None),
+)
+# The fitted calibration map. It lives beside the audit rather than in it, and
+# the machine that refit it is not usually the machine pricing the next slate.
+CALIBRATION_NAME = "calibration_live.json"
 log = logging.getLogger(__name__)
 # A nightly run grades yesterday, so restoring more slates than that only
 # spends time expanding megabytes nothing will read.
@@ -65,7 +90,7 @@ class SyncReport:
         if self.pulled:
             return f"pulled {len(self.pulled)} state file(s): {', '.join(self.pulled)}"
         if self.pushed:
-            extra = f", pruned {self.pruned} stale prediction file(s)" if self.pruned else ""
+            extra = f", pruned {self.pruned} stale file(s)" if self.pruned else ""
             return f"pushed {len(self.pushed)} state file(s): {', '.join(self.pushed)}{extra}"
         return "nothing to sync"
 
@@ -297,10 +322,48 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
     ("scorecard.csv", ("date", "tier")),
-    # The morning screen and the night's audit run on different machines, so a
-    # receipt left on the screen's disk is gone before anything can grade it.
-    ("power_screen_ledger.csv", ("date", "batter", "stat", "line", "side")),
+    # The power screen's receipts. Left out, they never leave the machine that
+    # wrote the note, so the scorecard the next morning prints is that machine's
+    # record rather than the screen's -- and a screen run on the Mac reads as
+    # having no history at all anywhere else. The game keys the row too: a
+    # doubleheader can show the same bat, stat, line and side twice in a day.
+    (
+        power_ledger.LEDGER_NAME,
+        ("date", "batter", "game_pk", "stat", "line", "side"),
+    ),
 )
+
+
+def merge_calibration_files(remote: Path, local: Path) -> bool:
+    """Keep whichever of two fitted maps was trained on more of the ledger.
+
+    Nothing can be unioned here. The ledger is a growing record, so a merge
+    takes the dates each machine has; a map is one fit of that whole record, so
+    two copies are rival fits of it and one has to win. The ledger itself syncs,
+    which makes the row count the comparison worth making: the map fitted on
+    more rows was fitted on strictly more evidence, and once both machines have
+    pulled they fit the same rows and agree. Ties go to the map correcting more
+    markets on the current basis, then to the copy already here, so a pull that
+    learns nothing leaves the file alone.
+
+    Absent this, whichever machine last ran ``calibrate`` is the only one
+    pricing calibrated, and the other silently ships raw probability.
+    """
+    if not remote.exists():
+        return False
+    if not local.exists():
+        local.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(remote, local)
+        return True
+    try:
+        theirs, ours = read_stored(remote), read_stored(local)
+    except (OSError, ValueError, KeyError):
+        log.warning("unreadable calibration map in %s or %s; keeping ours", remote, local)
+        return False
+    better = (theirs.rows, theirs.current_markets()) > (ours.rows, ours.current_markets())
+    if better:
+        shutil.copyfile(remote, local)
+    return better
 
 
 def _audit_dir(data_dir: Path) -> Path:
@@ -341,6 +404,74 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
     return moved
 
 
+def _pull_inputs(state: Path, data_dir: Path) -> list[str]:
+    """Restore the hand-dropped exports, without overwriting a fresher drop.
+
+    Fill-in only, and that asymmetry is the point: a file sitting in the data dir
+    was put there by someone who had just downloaded it, and the branch is the
+    older side by construction. A saved page keeps its name from one day to the
+    next, so a pull that overwrote would hand today's card yesterday's board.
+    """
+    restored: list[str] = []
+    for name, _patterns, _keep in _INPUT_DIRS:
+        src_dir = state / "mlb" / "inputs" / name
+        if not src_dir.is_dir():
+            continue
+        for src in sorted(src_dir.glob("*.gz")):
+            dest = data_dir / name / src.name[: -len(".gz")]
+            if dest.exists():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
+            restored.append(dest.name)
+    return restored
+
+
+def _by_family(paths: Iterable[Path]) -> dict[str, list[Path]]:
+    """Group dated exports by what they are, oldest first within each group.
+
+    The date is in the name, and the names are not one convention: a slate's
+    priced BAT X export is ``2026-08-20.csv`` while the projections are
+    ``fg_atc_ros_2026-08-19.csv`` beside ``fg_batx_2026-08-19.csv``. Pruning a
+    flat sorted list would therefore drop a feed's newest file to keep another
+    feed's oldest, so each feed is kept to its own depth.
+    """
+    out: dict[str, list[Path]] = {}
+    for path in paths:
+        family = re.sub(r"\d+", "#", path.name)
+        out.setdefault(family, []).append(path)
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def _stage_inputs(state: Path, data_dir: Path) -> tuple[list[str], int]:
+    """Publish this machine's exports, gzipped, and prune the dated backlog.
+
+    Compressed because a saved prop board is ~900 KB of HTML and every push
+    writes a new blob: the branch has to stay clonable by a scheduled run.
+    """
+    staged: list[str] = []
+    pruned = 0
+    for name, patterns, keep in _INPUT_DIRS:
+        local = data_dir / name
+        out = state / "mlb" / "inputs" / name
+        found = sorted({p for pattern in patterns for p in local.glob(pattern)})
+        if not found:
+            continue
+        out.mkdir(parents=True, exist_ok=True)
+        for src in found:
+            with src.open("rb") as fin, gzip.open(out / f"{src.name}.gz", "wb", 6) as fout:
+                shutil.copyfileobj(fin, fout)
+            staged.append(src.name)
+        if keep is None:
+            continue
+        for family in _by_family(out.glob("*.gz")).values():
+            for path in family[:-keep]:
+                path.unlink()
+                pruned += 1
+    return staged, pruned
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -369,7 +500,10 @@ def pull_state(
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key):
             pulled.append(name)
+    if merge_calibration_files(state / "mlb" / CALIBRATION_NAME, data_dir / CALIBRATION_NAME):
+        pulled.append(CALIBRATION_NAME)
     pulled.extend(_pull_predictions(state, data_dir, dates))
+    pulled.extend(_pull_inputs(state, data_dir))
     return SyncReport(pulled=tuple(pulled))
 
 
@@ -503,8 +637,20 @@ def push_state(
                 merge_dated_csv(dest, src, key)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
+        cal = data_dir / CALIBRATION_NAME
+        if cal.exists():
+            dest = state / "mlb" / CALIBRATION_NAME
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            # Adopt the branch's map first if it is the better-evidenced one, so
+            # a machine that refit on fewer rows cannot publish over it.
+            merge_calibration_files(dest, cal)
+            shutil.copyfile(cal, dest)
+            pushed.append(CALIBRATION_NAME)
         staged, pruned = _stage_predictions(state, data_dir)
         pushed.extend(staged)
+        staged_inputs, pruned_inputs = _stage_inputs(state, data_dir)
+        pushed.extend(staged_inputs)
+        pruned += pruned_inputs
         if not pushed:
             return SyncReport()
 

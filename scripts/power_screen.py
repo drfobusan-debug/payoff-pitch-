@@ -40,6 +40,7 @@ from mlb_engine.audit import power_ledger
 from mlb_engine.config import Config, RollingWindows, load_config
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
@@ -48,7 +49,7 @@ from mlb_engine.features.efficiency import build_pitcher_efficiency, opponent_di
 from mlb_engine.features.rolling import build_bullpen_profile
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_board, power_report
+from mlb_engine.output import power_board, power_report, power_sim
 from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
@@ -58,6 +59,7 @@ from mlb_engine.output.power_screen import (
     HitterLine,
     HitterView,
     MatchupSection,
+    PoolBatter,
     ScreenResult,
     StarterCard,
     apply_cuts,
@@ -68,13 +70,13 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     contact_line,
     exposure,
+    hitter_pool,
     pa_vs_starter,
     rank_starters,
     starter_damage,
-    wrc_plus,
 )
 from mlb_engine.recommendations import load_json
-from mlb_engine.schemas import Slate, TeamGameInfo
+from mlb_engine.schemas import Game, Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
 
@@ -98,6 +100,17 @@ def _parse_args() -> argparse.Namespace:
         help="drop hitters the wRC+ cut removes even when their contact is elite",
     )
     p.add_argument("--refresh", action="store_true", help="re-download the Statcast window")
+    p.add_argument(
+        "--no-sim",
+        action="store_true",
+        help="skip the simulated market probabilities and print the sort alone",
+    )
+    p.add_argument(
+        "--sims",
+        type=int,
+        default=power_sim.N_SIMS,
+        help=f"simulations per matchup (default {power_sim.N_SIMS})",
+    )
     p.add_argument(
         "--predictions",
         default=None,
@@ -236,7 +249,8 @@ def main() -> None:
 
     # --- stage 1: rank the arms
     cards: list[StarterCard] = []
-    context: dict[int, tuple[TeamGameInfo, TeamGameInfo]] = {}  # starter id -> (lineup team, his own team)
+    # starter id -> (the lineup screened against him, his own team, his game)
+    context: dict[int, tuple[TeamGameInfo, TeamGameInfo, Game]] = {}
     for game in slate.games:
         for team, opp in ((game.home, game.away), (game.away, game.home)):
             pitcher = team.probable_pitcher
@@ -254,7 +268,7 @@ def main() -> None:
                     throws=str(throws),
                 )
             )
-            context[int(pitcher.mlbam_id)] = (opp, team)
+            context[int(pitcher.mlbam_id)] = (opp, team, game)
     ranked = rank_starters(cards, top_n=max(args.arms, args.keep))
     if not ranked:
         log.warning("no starter cleared the readability floor on %s", day)
@@ -270,7 +284,7 @@ def main() -> None:
     sections: list[MatchupSection] = []
     cut_log: list[HitterLine] = []
     for card in targets:
-        lineup_team, pen_team = context[card.mlbam_id]
+        lineup_team, pen_team, game = context[card.mlbam_id]
         section = _build_section(
             card=card,
             lineup_team=lineup_team,
@@ -288,8 +302,21 @@ def main() -> None:
             projected=projected,
             cut_log=cut_log,
         )
-        if section is not None:
-            sections.append(section)
+        if section is None:
+            continue
+        if not args.no_sim:
+            _attach_sim(
+                section,
+                lineup_team=lineup_team,
+                is_home=lineup_team is game.home,
+                park=get_park(game.venue.venue_id) if game.venue else None,
+                frame=frame,
+                as_of=day,
+                form=form,
+                pen_days=cfg.windows.bullpen_days,
+                n_sims=args.sims,
+            )
+        sections.append(section)
 
     result = ScreenResult(
         as_of=day,
@@ -360,45 +387,24 @@ def _build_section(
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
     lg_xwoba = league_xwoba.get(hand, league_xwoba.get("R", 0.305))
 
-    pool: list[HitterLine] = []
-    slots = getattr(lineup_team, "lineup", []) or []
-    for slot in slots:
-        player = slot.player
-        if not player.mlbam_id:
-            continue
-        rows = window[
-            (window["batter"] == player.mlbam_id) & (window["p_throws"] == hand)
-        ]
-        line = batter_window_line(rows)
-        if not line:
-            continue
-        pool.append(
-            HitterLine(
-                name=player.name,
-                mlbam_id=int(player.mlbam_id),
-                team=getattr(lineup_team, "abbrev", "UNK"),
+    slots = lineup_team.lineup or []
+    pool = hitter_pool(
+        window,
+        [
+            PoolBatter(
+                mlbam_id=int(slot.player.mlbam_id),
+                name=slot.player.name,
                 slot=slot.order,
-                bats=getattr(player.bats, "value", player.bats),
-                versus=card.name,
-                pa=int(line["pa"]),
-                wrc=wrc_plus(line["woba"], lg_woba),
-                woba=line["woba"],
-                obp=line["obp"],
-                slg=line["slg"],
-                ops=line["obp"] + line["slg"],
-                ba=line["ba"],
-                xba=line["xba"],
-                xslg=line["xslg"],
-                xwoba_pa=line["xwoba_pa"],
-                xwoba_con=line["xwoba_con"],
-                k=line["k"],
-                bb=line["bb"],
-                brl=line["brl"],
-                hh=line["hh"],
-                ev90=line["ev90"],
-                osw=line["osw"],
+                bats=getattr(slot.player.bats, "value", slot.player.bats),
             )
-        )
+            for slot in slots
+            if slot.player.mlbam_id
+        ],
+        hand=hand,
+        team=lineup_team.abbrev,
+        versus=card.name,
+        league_woba=lg_woba,
+    )
     if not pool:
         log.warning("no readable hitters vs %s", card.name)
         return None
@@ -470,6 +476,51 @@ def _build_section(
         discipline=disc,
         lineup_projected=projected,
     )
+
+
+def _attach_sim(
+    section: MatchupSection,
+    *,
+    lineup_team: TeamGameInfo,
+    is_home: bool,
+    park: Park | None,
+    frame: pd.DataFrame,
+    as_of: Date,
+    form: int,
+    pen_days: int,
+    n_sims: int,
+) -> None:
+    """Give each survivor the simulated distribution of his night.
+
+    The whole order goes to the simulator, not only the survivors: a four-hole
+    hitter's runs and RBI depend on the three men who bat in front of him. A
+    simulator failure costs the note its probabilities and nothing else, so it is
+    logged rather than raised -- the screen's own analysis stands without it.
+    """
+    lineup = [
+        (slot.order, int(slot.player.mlbam_id))
+        for slot in lineup_team.lineup
+        if slot.player.mlbam_id and slot.order
+    ]
+    if not lineup:
+        return
+    try:
+        sims = power_sim.simulate_section(
+            section,
+            lineup=lineup,
+            frame=frame,
+            as_of=as_of,
+            form_days=form,
+            pen_days=pen_days,
+            park=park,
+            is_home=is_home,
+            n_sims=n_sims,
+        )
+    except Exception as exc:  # pragma: no cover - the note must survive a sim failure
+        log.warning("simulation unavailable vs %s (%s)", section.starter.name, exc)
+        return
+    for view in section.hitters:
+        view.sim = sims.get(view.line.mlbam_id)
 
 
 def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
