@@ -268,8 +268,10 @@ def _swing_fields(prof: SwingProfile, dxwoba: float) -> dict[str, float | int | 
         "squared_up": prof.squared_up,
         "blast": prof.blast,
         "swing_length": prof.swing_length,
+        "attack_angle": prof.attack_angle,
         "power_z": prof.power_z,
         "contact_z": prof.contact_z,
+        "lift_z": prof.lift_z,
         "stage2": stage_two(-dxwoba, prof),
     }
 

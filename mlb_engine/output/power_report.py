@@ -643,10 +643,11 @@ def _pool_table(section: MatchupSection) -> str:
             _num(sw.bat_speed if sw else math.nan, 1),
             _pc(sw.blast if sw else math.nan),
             _pc(sw.squared_up if sw else math.nan),
+            _num(sw.attack_angle if sw else math.nan, 1),
         ])
     return _table(
         ["batter", "LP", "PA", "wRC+", "pts", "top5", "xwOBA", "xwOBAcon", "Brl%", "HH%", "EV90",
-         "O-Sw%", "BatSpd", "Blast%", "SqUp%"],
+         "O-Sw%", "BatSpd", "Blast%", "SqUp%", "AtkAng"],
         rows, numeric_from=1,
     )
 
@@ -794,9 +795,11 @@ def _swing_note(section: MatchupSection) -> str:
             f"{names}."
         )
     return (
-        f"<p class='caveat'>{lead} Bat speed, blast rate and squared-up rate are read over each "
-        f"measure's own window of tracked competitive swings &mdash; {WINDOW['bat_speed']} for bat "
-        f"speed, {WINDOW['blast']} for blast, {WINDOW['squared_up']} for squared-up, four times the "
+        f"<p class='caveat'>{lead} Bat speed, blast rate, squared-up rate and attack angle are "
+        f"read over each measure's own window of tracked competitive swings &mdash; "
+        f"{WINDOW['bat_speed']} for bat "
+        f"speed, {WINDOW['blast']} for blast, {WINDOW['squared_up']} for squared-up, "
+        f"{WINDOW['attack_angle']} for attack angle, four times the "
         "sample each first half-repeats at. Out of time on 3,175 "
         "batter-windows those levels add to total bases and home runs on top of wOBA and xwOBA "
         "(blast t +6.6, bat speed t +5.4), and of the windows the luck-gap cut removes the better "
@@ -806,8 +809,12 @@ def _swing_note(section: MatchupSection) -> str:
         "rates are reconstructed from the pitch-level collision model with their cuts calibrated to "
         "the league rate Savant publishes, since the leaderboard cannot be sliced by swing count "
         "(per hitter r +.86 and +.76 against the official figures). A blank column is a hitter with "
-        "too few tracked swings to read, not an average one. Attack angle is published by no "
-        "endpoint we can reach and is absent rather than estimated.</p>"
+        "too few tracked swings to read, not an average one. Attack angle is Savant's own "
+        "swing-path field, published from 2025 and matching FanGraphs' season figures at r +.996; "
+        "a steeper swing adds home runs and total bases and subtracts singles (t +6.3 and "
+        "t &minus;5.3 with bat speed and blast rate already in the model), so it is printed for "
+        "the market it points at and, like squared-up rate, does not rescue &mdash; inside the "
+        "rows this cut removes it does not sort the fortnight that follows.</p>"
     )
 
 

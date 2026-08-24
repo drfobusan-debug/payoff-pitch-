@@ -20,6 +20,7 @@ context that is explicitly labelled unproven.
 
 from __future__ import annotations
 
+import math
 from datetime import date as Date
 
 import pandas as pd
@@ -349,6 +350,30 @@ def _swing_sentence(p: dict, positive: bool) -> str:
     )
 
 
+def _lift_sentence(p: dict) -> str:
+    """Which market the swing's steepness points at, when it is readable.
+
+    Attack angle survives bat speed and blast rate on the home-run line (t +6.3)
+    and is signed against hits (t -5.3), so it says where a hitter's production
+    should land rather than how good he is.
+    """
+    lz = p.get("lift_z", math.nan)
+    if lz != lz:
+        return ""
+    angle = p["attack_angle"]
+    if lz >= 0.5:
+        return (
+            f" He swings up {angle:.1f}&deg;, {lz:+.2f} SD steeper than league, which is the "
+            "home-run and total-base side of the board rather than the hits one."
+        )
+    if lz <= -0.5:
+        return (
+            f" His attack angle is {angle:.1f}&deg;, {lz:+.2f} SD flatter than league: the "
+            "hits and H+R+RBI markets read better for him than the power ones."
+        )
+    return f" His attack angle is league-typical at {angle:.1f}&deg;, so it points at no market."
+
+
 def _swing_line(p: dict) -> str:
     """The swing levels themselves, each over the window its measure repeats at."""
     if p.get("stage2", UNMEASURED) == UNMEASURED and p.get("swings", 0) == 0:
@@ -363,19 +388,23 @@ def _swing_line(p: dict) -> str:
         f"SwLen {p['swing_length']:.2f}"
         if p["swing_length"] == p["swing_length"]
         else "SwLen &mdash;",
+        f"AtkAng {p['attack_angle']:.1f}&deg;"
+        if p.get("attack_angle", math.nan) == p.get("attack_angle", math.nan)
+        else "AtkAng &mdash;",
     ]
     lg = (
         f"league {LEAGUE['bat_speed'][0]:.1f} / {LEAGUE['fast'][0] * 100:.0f}% / "
         f"{LEAGUE['squared_up'][0] * 100:.0f}% / {LEAGUE['blast'][0] * 100:.0f}% / "
-        f"{LEAGUE['swing_length'][0]:.2f}"
+        f"{LEAGUE['swing_length'][0]:.2f} / {LEAGUE['attack_angle'][0]:.1f}&deg;"
     )
     return (
         f"<p class='trend'>Swing: {' &middot; '.join(cells)} "
         f"<span class='caption'>&mdash; {lg}; read over "
         f"{WINDOW['bat_speed']}/{WINDOW['fast']}/{WINDOW['squared_up']}/"
-        f"{WINDOW['blast']}/{WINDOW['swing_length']} tracked swings, four times the sample "
-        f"each first half-repeats at, off {p['swings']} in the window. Attack angle is "
-        "published by no available feed.</span></p>"
+        f"{WINDOW['blast']}/{WINDOW['swing_length']}/{WINDOW['attack_angle']} tracked swings, "
+        f"four times the sample each first half-repeats at, off {p['swings']} in the window. "
+        "Attack angle comes from Savant's swing-path feed, which starts in 2025, so a frame "
+        "cached before it reads as unmeasured.</span></p>"
     )
 
 
@@ -437,7 +466,7 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
         for x in (
             lead,
             verdict,
-            _swing_sentence(p, positive),
+            _swing_sentence(p, positive) + _lift_sentence(p),
             _bat_air_sentence(p, positive),
             heat,
             env,
@@ -477,13 +506,19 @@ LEAD = (
     "them, because it is what is due to move. But a gap is a residual of "
     "outcomes &mdash; it knows which balls fell in and nothing about the swing "
     "that hit them &mdash; so every hitter is then crossed against his bat "
-    "tracking: bat speed, fast-swing rate, squared-up rate and blast rate, each "
+    "tracking: bat speed, fast-swing rate, squared-up rate, blast rate and attack "
+    "angle, each "
     "read over its own window of tracked competitive swings rather than a round "
     "six weeks. Out of time on 3,175 batter-windows those levels add to the next "
     "fortnight&rsquo;s total bases and home runs on top of wOBA and xwOBA, blast "
     "rate contributing more than the two of them explain between them; "
     "squared-up rate predicts hits and is negatively signed on home runs, so it "
-    "is read on the contact markets and kept off the power ones. When the swing "
+    "is read on the contact markets and kept off the power ones. Attack angle "
+    "splits the same way and harder: a steeper swing adds home runs (t +6.3 with "
+    "bat speed and blast rate already in the model) and subtracts singles "
+    "(t &minus;5.3), monotonically from 2.6% to 4.6% HR/PA across its quintiles, "
+    "so it is read on the line in question rather than as a verdict on the bat. "
+    "When the swing "
     "disagrees with the gap the entry says so, and that disagreement is the "
     "report&rsquo;s answer to a hitter being written off for a fortnight of good "
     "luck.<br><br>"
@@ -547,7 +582,8 @@ FINE = (
     "tracked competitive swings &mdash; "
     f"{WINDOW['bat_speed']} for bat speed, {WINDOW['fast']} for fast-swing rate, "
     f"{WINDOW['swing_length']} for swing length, {WINDOW['blast']} for blast rate, "
-    f"{WINDOW['squared_up']} for squared-up rate, four times "
+    f"{WINDOW['squared_up']} for squared-up rate, {WINDOW['attack_angle']} for attack "
+    "angle, four times "
     "the sample at which each first reaches split-half r=.50 on 515,417 tracked "
     "swings &mdash; and are compared with league measured the same way. "
     "Squared-up and blast rate are reconstructed from the pitch-level collision "
@@ -555,8 +591,12 @@ FINE = (
     "hitter that reads r +.86 and +.76 against the official leaderboard over the "
     "same dates (bat speed +.996, swing length +.997), and the reconstruction is "
     "noisier than the official figure, which attenuates the coefficients rather "
-    "than inflating them. Attack angle is published by neither the leaderboard "
-    "nor the pitch-level feed and is absent rather than estimated. "
+    "than inflating them. Attack angle, attack direction and swing tilt are "
+    "Savant&rsquo;s own pitch-level swing-path fields, which begin in 2025; ours "
+    "reproduce FanGraphs&rsquo; published season figures at r +.996 and +.9995 "
+    "over 438 hitters, and a slice cached before the fields were ingested reads "
+    "as unmeasured rather than as league average. Direction and tilt add nothing "
+    "out of time and are not scored. "
     "Ranking is the luck term only: z(BABIP &minus; .290) + "
     "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats; the swing is a "
     "second stage that confirms or contradicts that ranking rather than "

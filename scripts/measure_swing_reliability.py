@@ -56,7 +56,7 @@ MIN_PAIRS = 30  # a correlation on fewer block pairs than this is not reported
 CAL_START, CAL_END = Date(2026, 7, 12), Date(2026, 8, 21)
 LEADERBOARD = "https://baseballsavant.mlb.com/leaderboard/bat-tracking"
 
-METRICS = ("bat_speed", "fast", "squared_up", "blast", "swing_length")
+METRICS = ("bat_speed", "fast", "squared_up", "blast", "swing_length", "attack_angle")
 
 
 def league_rates(start: Date, end: Date) -> tuple[float, float]:
@@ -128,13 +128,16 @@ def curves(sw: pd.DataFrame, sq_cut: float, bs_cut: float) -> dict[str, list[flo
     )
     groups = [g for _, g in sw.groupby("batter", sort=False) if len(g) >= MIN_SWINGS]
     log.info("%d hitters, %d tracked swings", len(groups), len(sw))
-    out: dict[str, list[float]] = {m: [] for m in METRICS}
+    present = [m for m in METRICS if m in sw.columns]
+    out: dict[str, list[float]] = {m: [] for m in present}
     for n in GRID:
-        for metric in METRICS:
+        for metric in present:
             a: list[float] = []
             b: list[float] = []
             for g in groups:
-                v = g[metric].to_numpy(dtype=float)
+                # Swing path is absent from frames cached before it was ingested,
+                # so the blocks count readings rather than rows.
+                v = g[metric].dropna().to_numpy(dtype=float)
                 k = len(v) // n
                 if k < 2:
                     continue
@@ -185,15 +188,16 @@ def main() -> None:
     )
 
     table = curves(sw, sq_cut, bs_cut)
-    print(f"{'n swings':>9s}" + "".join(f"{m:>14s}" for m in METRICS))
+    metrics = tuple(table)
+    print(f"{'n swings':>9s}" + "".join(f"{m:>14s}" for m in metrics))
     for i, n in enumerate(GRID):
         cells = "".join(
             f"{table[m][i]:>14.3f}" if table[m][i] == table[m][i] else f"{'-':>14s}"
-            for m in METRICS
+            for m in metrics
         )
         print(f"{n:>9d}{cells}")
     print(f"\nr={READABLE_R:.2f} crossing, in competitive swings")
-    for m in METRICS:
+    for m in metrics:
         print(f"  {m:14s} {crossing(GRID, table[m], READABLE_R):6.1f}")
 
 

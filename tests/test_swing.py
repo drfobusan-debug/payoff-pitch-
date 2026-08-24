@@ -28,9 +28,19 @@ from mlb_engine.features.swing import (
 
 
 def _swings(
-    n: int, *, bat: float, ev: float = 95.0, length: float = 7.3, day0: int = 0
+    n: int,
+    *,
+    bat: float,
+    ev: float = 95.0,
+    length: float = 7.3,
+    day0: int = 0,
+    angle: float | None = None,
 ) -> pd.DataFrame:
-    """``n`` tracked competitive swings at one bat speed, oldest first."""
+    """``n`` tracked competitive swings at one bat speed, oldest first.
+
+    ``angle`` is omitted by default, which is the shape of a slice cached before
+    Savant's swing-path fields were ingested.
+    """
     start = pd.Timestamp("2026-04-01") + pd.Timedelta(days=day0)
     return pd.DataFrame(
         [
@@ -42,6 +52,7 @@ def _swings(
                 "swing_length": length,
                 "launch_speed": ev,
                 "release_speed": 93.0,
+                **({} if angle is None else {"attack_angle": angle}),
             }
             for i in range(n)
         ]
@@ -62,6 +73,7 @@ def test_the_windows_are_the_measured_crossings_not_a_round_number() -> None:
     assert swing.SWINGS_FOR_READABLE["fast"] < 5
     assert 40 < swing.SWINGS_FOR_READABLE["blast"] < 60
     assert 55 < swing.SWINGS_FOR_READABLE["squared_up"] < 80
+    assert 5 < swing.SWINGS_FOR_READABLE["attack_angle"] < 15
     for metric, n in WINDOW.items():
         assert reliability(metric, n) >= 0.75, metric
 
@@ -70,7 +82,8 @@ def test_reliability_rises_with_the_sample_and_holds_outside_the_grid() -> None:
     assert reliability("blast", 10) < reliability("blast", 50) < reliability("blast", 250)
     assert reliability("blast", 5000) == reliability("blast", 250)
     assert reliability("blast", 1) == reliability("blast", 3)
-    assert reliability("attack_angle", 10) == 1.0  # unmeasured metrics are not scored
+    assert reliability("attack_direction", 10) == 1.0  # unmeasured metrics are not scored
+    assert reliability("attack_angle", 5) < reliability("attack_angle", 50)
     assert readable("bat_speed", 10)
     assert not readable("squared_up", 10)
 
@@ -133,7 +146,6 @@ def test_no_trend_is_exposed_at_all() -> None:
     """
     fields = set(SwingProfile(swings=0).__dict__)
     assert not any("delta" in f or f.startswith("d_") or f.endswith("_prior") for f in fields)
-    assert not hasattr(SwingProfile(swings=0), "attack_angle")
 
 
 # --- the cross ------------------------------------------------------------
@@ -156,6 +168,35 @@ def test_the_four_corners_of_the_cross() -> None:
     # results below it: a good swing says the rebound has a bat behind it
     assert stage_two(-0.080, good) == CONFIRMED
     assert stage_two(-0.080, bad) == CONTRADICTED
+
+
+def test_attack_angle_is_read_when_the_feed_carries_it() -> None:
+    prof = build_swing_profile(_swings(200, bat=75.0, angle=14.0))
+    assert prof.attack_angle == 14.0
+    mu, sd = LEAGUE["attack_angle"]
+    assert abs(prof.lift_z - (14.0 - mu) / sd) < 1e-9
+
+
+def test_a_slice_without_the_swing_path_columns_is_unmeasured_not_average() -> None:
+    """Frames cached before the fields were ingested must not read as league."""
+    prof = build_swing_profile(_swings(200, bat=75.0))
+    assert math.isnan(prof.attack_angle)
+    assert math.isnan(prof.lift_z)
+    assert prof.bat_speed == 75.0  # the rest of the swing still reads
+
+
+def test_attack_angle_is_kept_out_of_the_power_read_and_out_of_the_cross() -> None:
+    """It sorts the home-run line (t +6.3) and not the rows the cut removes.
+
+    Inside the stage-one flagged group its coefficient on the next fortnight's
+    total bases is t -0.07, so a steep swing describes a market and is not
+    allowed to overrule a cut on its own.
+    """
+    mu, sd = LEAGUE["attack_angle"]
+    prof = SwingProfile(swings=400, attack_angle=mu + 3 * sd)
+    assert prof.lift_z > 2.5
+    assert math.isnan(prof.power_z)
+    assert stage_two(0.080, prof) == UNMEASURED
 
 
 def test_squared_up_is_not_allowed_into_the_power_read() -> None:

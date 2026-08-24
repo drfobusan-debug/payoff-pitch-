@@ -87,3 +87,16 @@ def test_soft_air_contact_brake_no_longer_fires_on_league_average_contact() -> N
     soft = build_batter_regression(_slice(30, 0, bip_ev=80.0))
     assert soft.fb_ld_ev < FB_LD_EV_FLOOR
     assert soft.multipliers()["HR"] < median_bat.multipliers()["HR"]
+
+
+def test_a_slice_without_a_bat_speed_column_reads_the_baseline() -> None:
+    """Frames cached before bat tracking was ingested lack the column entirely.
+
+    Reading it unconditionally crashed the whole batter article on such a slice,
+    so an absent column falls back the same way an all-null one does.
+    """
+    df = _slice(20, 0).drop(columns="bat_speed")
+    reg = build_batter_regression(df)
+    nulled = build_batter_regression(_slice(20, 0).assign(bat_speed=None))
+    assert reg.bat_speed == nulled.bat_speed
+    assert reg.bbe == 20

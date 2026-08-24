@@ -99,20 +99,27 @@ def test_article_flags_that_the_trend_arrows_are_unproven() -> None:
     assert "Part one" in html and "Part two" in html
 
 
-def _swinging(power: float, **over) -> dict:
-    """A hitter dict carrying a readable swing ``power`` SD from league."""
+def _swinging(power: float, lift: float = float("nan"), **over) -> dict:
+    """A hitter dict carrying a readable swing ``power`` SD from league.
+
+    ``lift`` is the attack angle in SD from league, defaulting to unmeasured so
+    that a slice cached before Savant's swing-path fields reads as a blank.
+    """
     bmu, bsd = swing.LEAGUE["bat_speed"]
     zmu, zsd = swing.LEAGUE["blast"]
+    amu, asd = swing.LEAGUE["attack_angle"]
     prof = swing.SwingProfile(
         swings=500, bat_speed=bmu + power * bsd, blast=zmu + power * zsd,
         squared_up=swing.LEAGUE["squared_up"][0], fast=swing.LEAGUE["fast"][0],
         swing_length=swing.LEAGUE["swing_length"][0],
+        attack_angle=amu + lift * asd,
     )
     b = _batter(**over)
     b.update(
         swings=prof.swings, bat_speed=prof.bat_speed, fast=prof.fast,
         squared_up=prof.squared_up, blast=prof.blast, swing_length=prof.swing_length,
-        power_z=prof.power_z, contact_z=prof.contact_z,
+        attack_angle=prof.attack_angle,
+        power_z=prof.power_z, contact_z=prof.contact_z, lift_z=prof.lift_z,
         stage2=swing.stage_two(-b["dxwoba"], prof),
     )
     return b
@@ -142,15 +149,30 @@ def test_a_hitter_with_no_tracked_swings_is_unmeasured_not_average() -> None:
     assert "Swing: BatSpd" not in html  # nothing to print
 
 
-def test_the_swing_line_states_its_windows_and_that_attack_angle_is_absent() -> None:
-    html = art._swing_line(_swinging(0.5))
+def test_the_swing_line_states_its_windows_and_where_attack_angle_comes_from() -> None:
+    html = art._swing_line(_swinging(0.5, lift=1.0))
     windows = "/".join(
         str(swing.WINDOW[m])
-        for m in ("bat_speed", "fast", "squared_up", "blast", "swing_length")
+        for m in ("bat_speed", "fast", "squared_up", "blast", "swing_length", "attack_angle")
     )
     assert f"{windows} tracked swings" in html
     assert "off 500 in the window" in html  # the sample the levels came out of
-    assert "Attack angle is published by no available feed" in html
+    assert "AtkAng" in html and "swing-path feed" in html
+
+
+def test_an_unmeasured_attack_angle_prints_a_blank_rather_than_league() -> None:
+    """A slice cached before the swing-path fields is missing, not average."""
+    html = art._swing_line(_swinging(0.5))
+    assert "AtkAng &mdash;" in html
+    assert "points at no market" not in art._batter_entry(_swinging(0.5), None, None, True)
+
+
+def test_a_steep_swing_is_read_on_the_power_markets_and_a_flat_one_on_hits() -> None:
+    """Attack angle says where the production lands, not how good the bat is."""
+    steep = art._batter_entry(_swinging(0.5, lift=1.5), None, None, True)
+    assert "steeper than league" in steep and "home-run" in steep
+    flat = art._batter_entry(_swinging(0.5, lift=-1.5), None, None, True)
+    assert "flatter than league" in flat and "H+R+RBI" in flat
 
 
 def test_the_article_prices_no_swing_trend_and_says_why() -> None:
@@ -159,7 +181,9 @@ def test_the_article_prices_no_swing_trend_and_says_why() -> None:
     )
     assert "no swing trend is printed at all" in html
     assert "negatively signed on home runs" in html  # squared-up kept off power
-    assert "absent rather than estimated" in html  # attack angle, in the methodology
+    # attack angle: sourced, and read on the line rather than as a verdict
+    assert "swing-path fields" in html
+    assert "unmeasured rather than as league average" in html
 
 
 def test_a_fly_ball_arm_is_told_where_the_correction_lands() -> None:

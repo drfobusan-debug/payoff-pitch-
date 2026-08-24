@@ -83,7 +83,9 @@ for g in slate.games:
                 "squared_up": round(prof.squared_up, 3),
                 "blast": round(prof.blast, 3),
                 "swing_length": round(prof.swing_length, 2),
+                "attack_angle": round(prof.attack_angle, 1),
                 "power_z": round(prof.power_z, 2),
+                "lift_z": round(prof.lift_z, 2),
                 "contact_z": round(prof.contact_z, 2),
                 "stage2": stage_two(-reg.dxwoba, prof),
             })
