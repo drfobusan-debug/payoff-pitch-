@@ -980,9 +980,19 @@ def build_pitcher_profile(
     pitcher_id: int,
     as_of: Date,
     form_days: int,
+    baseline_days: int | None = None,
 ) -> PitcherProfile:
+    """A starter's outcome rates allowed per batter faced.
+
+    ``baseline_days`` (``None`` to keep ``form_days``) reads the rates over their
+    own, longer window: graded on four cutoffs against the next three weeks, the
+    six-week form read carries nothing the 90-day read does not (K +0.15 vs
+    +0.49 jointly, OUT +0.04 vs +0.38), so the rate profile and the "lately"
+    signals no longer share a window.
+    """
+    days = baseline_days if baseline_days is not None else form_days
     pdf = _pa_rows(df[df["pitcher"] == pitcher_id])
-    window = _slice_dates(pdf, as_of, form_days)
+    window = _slice_dates(pdf, as_of, days)
     return PitcherProfile(
         mlbam_id=pitcher_id,
         allowed=rates_from_events(window["events"]),
