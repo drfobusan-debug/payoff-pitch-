@@ -1425,6 +1425,10 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- batter props ----
+        # How hot the simulator priced this game, read off its own total rather
+        # than off the market's, so the correction is the engine marking down
+        # its own optimism (see models.run_env).
+        env_elev = self.cfg.run_env_tilt.elevation(float(total.mean()))
         for team_key, tinfo, flags, sels, regs, sunders, opp_sp in (
             ("home", game.home, home_rbi, home_sels, home_regs, home_su,
              game.away.probable_pitcher),
@@ -1435,7 +1439,7 @@ class Pipeline:
                 self._batter_props(
                     game, m, res, team_key, tinfo, flags, sels, regs, sunders,
                     opp_siera[team_key], opp_contact[team_key], quotes,
-                    park=park, weather_mult=weather_mult,
+                    park=park, weather_mult=weather_mult, env_elev=env_elev,
                     opp_throws=(
                         opp_sp.throws.value
                         if opp_sp is not None and opp_sp.throws
@@ -1738,7 +1742,8 @@ class Pipeline:
 
     def _batter_props(
         self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera,
-        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None
+        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None,
+        env_elev=None
     ):
         out = []
         bat = res.bat[team_key]
@@ -1786,7 +1791,7 @@ class Pipeline:
                             keys.batter_prop(name, stat, line, pside), po,
                             line=line, player_id=pid, stat=stat, side=pside, quotes=quotes,
                             selector=sel, gate_reason=gate if pside == "over" else None,
-                            **feat,
+                            env_elev=env_elev, **feat,
                         ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(
@@ -1803,7 +1808,7 @@ class Pipeline:
                         keys.batter_prop(name, "H+R+RBI", line, pside), po,
                         line=line, player_id=pid, stat="HRR", side=pside, quotes=quotes,
                         gate_reason=hrr_gate if pside == "over" else None,
-                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
+                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, env_elev=env_elev, **feat,
                     ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
@@ -1820,7 +1825,7 @@ class Pipeline:
                         keys.batter_prop(name, "TB", line, pside), po,
                         line=line, player_id=pid, stat="TB", side=pside, quotes=quotes,
                         selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
-                        **feat,
+                        env_elev=env_elev, **feat,
                     ))
         return out
 
@@ -1933,7 +1938,8 @@ class Pipeline:
             hrr_xslg: float | None = None,
             pen_fatigue: float | None = None,
             opp_pen_fatigue: float | None = None,
-            pen_availability: float | None = None) -> Recommendation:
+            pen_availability: float | None = None,
+            env_elev: float | None = None) -> Recommendation:
         under = side == "under"
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
@@ -1943,6 +1949,10 @@ class Pipeline:
             calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
+        if market.startswith("batter_"):
+            # Last thing before the two sides are split: the fit was measured on
+            # the probability the ledger recorded, which is everything above.
+            calibrated = self.cfg.run_env_tilt.apply(calibrated, env_elev)
         if side == "under":
             # Callers hand every prop its P(over), because that is the scale the
             # calibration map, the outs bias and the H+R+RBI shrink were all fit
