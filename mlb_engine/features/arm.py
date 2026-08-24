@@ -83,6 +83,36 @@ results (.3111 against .3339), neither (.3113 against .3337). Unlike the hitter
 blast-rate rescue, a good arm inside the flagged rows is not specifically what
 the flag gets wrong; a good arm is better everywhere. So the verdict here
 qualifies the luck read rather than overturning a cut.
+
+**What the verdict is worth, both signs of it.** The same panel, cells graded on
+the fortnight after the anchor, intervals from 3,000 bootstrap resamples
+clustered on the pitcher. Results ran hot means the report calls for a fade;
+ran cold with a high BABIP means it calls for a bounce-back:
+
+    cell                                   n    nxt wOBA   K/PA    TB/PA
+      ran hot, below-league arm  CONFIRMED  148    .3382   .1865   .4031
+      ran hot, above-league arm  CONTRAD.   177    .3155   .2359   .3653
+      ran cold, above-league arm CONFIRMED  188    .3141   .2398   .3473
+      ran cold, below-league arm CONTRAD.   196    .3361   .1977   .3923
+      no flag either way (base rate)       1505    .3218   .2229   .3694
+
+Within the fade rows the delivery is worth +.0225 of wOBA allowed
+[+.0048, +.0402], -.0493 of strikeouts [-.0675, -.0315] and +.0384 of total
+bases [+.0115, +.0654]; within the bounce-back rows an intact arm is worth
+-.0217 of wOBA [-.0366, -.0068]. Both hold in 2025 and 2026 separately. So a
+confirmed verdict is not decoration: a confirmed fade lands 16 points of wOBA
+*above* the unflagged base rate and a confirmed bounce-back 8 points below it,
+while a contradicted flag lands on the wrong side of the base rate in both
+directions -- which is the four-way read stage one cannot make on its own.
+
+**The confirmation has to be the level, and never the trend.** Read as a rising
+or falling delivery it evaporates: inside the fade rows, falling perceived
+velocity minus rising is +.0062 of wOBA [-.0112, +.0242], and once the level is
+already in the cell it adds +.0075 [-.0177, +.0332]; inside the bounce-back rows
+an intact *trend* is worth -.0105 [-.0247, +.0045]. Every one of those crosses
+zero, which is why no delta is exposed anywhere in this module and why a starter
+losing a mile off his fastball cannot flip a verdict here -- only where he sits
+against the league can. ``scripts/arm_stage_study.py --cells`` rebuilds all of it.
 """
 
 from __future__ import annotations
@@ -259,6 +289,12 @@ def stage_two(luck_gap: float, prof: ArmProfile | None, *, min_stuff_z: float = 
       a delivery behind it;
     * results ran cold and a below-league arm -> ``CONTRADICTED``, the ugly line
       is the level rather than the luck.
+
+    All four cells are graded in the module docstring: out of time the confirmed
+    pair lands on the far side of the unflagged base rate and the contradicted
+    pair on the wrong side of it, which is what makes the verdict worth printing.
+    The cut is where the arm sits against the league and never which way it is
+    moving -- the trend form of every cell crosses zero.
 
     Read on ``stuff_z`` alone. Ride is reported beside this and not folded in: it
     points at home runs and against hits, so it cannot vote on a single verdict.
