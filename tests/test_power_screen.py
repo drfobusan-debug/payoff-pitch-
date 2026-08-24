@@ -8,6 +8,7 @@ the power exception, and which turns a lineup slot actually gets.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from datetime import date as Date
 
 import pandas as pd
@@ -662,6 +663,38 @@ def test_a_contradicted_delivery_is_marked_in_the_row_and_the_prose() -> None:
     assert "The delivery disagrees" in html
     assert "\u2020" in html
     assert "less certain than the index reads" in html
+
+
+def _moving_arm(d_pvelo: float) -> arm_model.ArmProfile:
+    prof = _armed_card(93.0).arm
+    assert prof is not None
+    return replace(prof, d_pvelo=d_pvelo)
+
+
+def test_a_shedding_delivery_sharpens_the_selection_in_the_prose() -> None:
+    """The screen only ever selects the fade side, which is where the trend graded."""
+    result = _result()
+    moving = _moving_arm(-0.9)
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = moving
+    html = power_report.render_html(result)
+    assert "He is also shedding it: 0.9 mph" in html
+    assert "worth another .026 of wOBA inside a fade" in html
+
+
+def test_a_held_delivery_reads_as_the_softer_half_of_the_same_fade() -> None:
+    result = _result()
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = _moving_arm(+0.6)
+    html = power_report.render_html(result)
+    assert "He is holding the delivery, +0.6 mph" in html
+
+
+def test_an_unread_or_flat_trend_is_left_out_of_the_starter_paragraph() -> None:
+    for d_pvelo in (float("nan"), -0.01):
+        result = _result()
+        result.starters_ranked[0].arm = result.sections[0].starter.arm = _moving_arm(d_pvelo)
+        html = power_report.render_html(result)
+        assert "block before this one" not in html
+        assert "mph perceived" in html  # the level still prints
 
 
 def test_a_power_exception_is_disclosed_in_the_recommendation() -> None:

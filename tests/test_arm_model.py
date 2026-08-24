@@ -17,9 +17,12 @@ import pandas as pd
 from mlb_engine.features.arm import (
     CONFIRMED,
     CONTRADICTED,
+    DRIFT_SD,
+    HOLDING,
     LEAGUE,
     MIN_LEVEL_PITCHES,
     PITCHES_FOR_READABLE,
+    SHEDDING,
     UNMEASURED,
     WINDOW,
     ArmProfile,
@@ -27,6 +30,7 @@ from mlb_engine.features.arm import (
     fastballs_of,
     reliability,
     stage_two,
+    velo_trend,
 )
 
 DAY0 = Date(2026, 5, 1)
@@ -235,12 +239,46 @@ def test_ride_is_reported_beside_the_verdict_and_never_folded_into_it() -> None:
     assert math.isclose(flat.stuff_z, rides.stuff_z)
 
 
-def test_no_trend_or_delta_is_exposed_at_all() -> None:
-    """The panel refused every physical delta, so none of them can be read from here.
+def test_perceived_velocity_is_the_only_measure_with_a_trend() -> None:
+    """Every other delta earned nothing out of time, so none of them is readable.
 
-    Guards against a well-meaning revival: velocity t -1.0 and perceived velocity
-    t -0.9 on the next fortnight, the fourth trend this engine has tested and
-    declined.
+    Guards against a well-meaning revival of the spin, break, release-point and
+    scatter deltas (t -0.4 to +1.5 on the next fortnight's wOBA), which the panel
+    refused while it kept the velocity one.
     """
-    fields = set(ArmProfile(pitches=0).levels())
-    assert not any("d_" in f or "trend" in f or "delta" in f for f in fields)
+    prof = build_arm_profile(_pitches(2 * MIN_LEVEL_PITCHES))
+    assert not math.isnan(prof.d_pvelo)
+    assert not any("d_" in f or "trend" in f for f in prof.levels())
+    assert [f for f in vars(prof) if f.startswith("d_")] == ["d_pvelo"]
+
+
+def test_the_trend_is_the_last_block_against_the_one_before_it() -> None:
+    """An arm that has shed a mile reads as shedding exactly that mile."""
+    was = _pitches(WINDOW, velo=96.0)
+    now = _pitches(WINDOW, velo=95.0, day0=WINDOW)
+    prof = build_arm_profile(pd.concat([was, now]))
+    assert math.isclose(prof.d_pvelo, -1.0, abs_tol=1e-9)
+    assert velo_trend(prof) == SHEDDING
+    assert math.isclose(prof.trend_z, -1.0 / DRIFT_SD)
+
+
+def test_a_level_can_be_readable_while_the_trend_is_not() -> None:
+    """The trend needs two whole blocks; half of one is a different quantity."""
+    prof = build_arm_profile(_pitches(2 * MIN_LEVEL_PITCHES - 1))
+    assert not math.isnan(prof.pvelo)
+    assert math.isnan(prof.d_pvelo) and math.isnan(prof.trend_z)
+    assert velo_trend(prof) == UNMEASURED
+    assert velo_trend(None) == UNMEASURED
+    assert stage_two(0.03, prof) != UNMEASURED  # the verdict never needed the trend
+
+
+def test_the_trend_does_not_move_the_verdict() -> None:
+    """It graded on the fade side only, so it qualifies a verdict rather than casting one."""
+    mu = LEAGUE["pvelo"][0]
+    shedding = ArmProfile(pitches=WINDOW, pvelo=mu + 3.0, d_pvelo=-1.5)
+    holding = ArmProfile(pitches=WINDOW, pvelo=mu + 3.0, d_pvelo=+1.5)
+    assert velo_trend(shedding) == SHEDDING
+    assert velo_trend(holding) == HOLDING
+    assert stage_two(0.03, shedding) == stage_two(0.03, holding) == CONTRADICTED
+    assert stage_two(-0.03, shedding) == stage_two(-0.03, holding) == CONFIRMED
+    assert velo_trend(ArmProfile(pitches=WINDOW, pvelo=mu, d_pvelo=0.0)) == HOLDING

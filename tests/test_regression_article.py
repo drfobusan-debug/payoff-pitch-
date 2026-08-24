@@ -7,6 +7,8 @@ from datetime import date as Date
 import pytest
 
 art = pytest.importorskip("scripts.regression_article")
+arm = pytest.importorskip("mlb_engine.features.arm")
+mound = pytest.importorskip("mlb_engine.output.regression_article")
 swing = pytest.importorskip("mlb_engine.features.swing")
 
 
@@ -224,6 +226,67 @@ def test_the_pitcher_entry_carries_both_velocity_and_shape() -> None:
     assert "fastball at 95.2" in html  # vFA level
     assert "vFA +0.0 mph" in html  # vFA three-week trend
     assert "fly-ball arm" in html
+
+
+def _armed(pvelo_sd: float, d_pvelo: float, dxwoba: float, **over) -> dict:
+    """A starter with a readable delivery ``pvelo_sd`` from league, moving ``d_pvelo``."""
+    mu, sd = arm.LEAGUE["pvelo"]
+    prof = arm.ArmProfile(
+        pitches=arm.WINDOW, velo=94.0, pvelo=mu + pvelo_sd * sd, ext=6.6, d_pvelo=d_pvelo
+    )
+    p = _pitcher(dxwoba=dxwoba, **over)
+    p.update(
+        arm_pitches=prof.pitches,
+        arm_velo=prof.velo,
+        arm_pvelo=prof.pvelo,
+        arm_ext=prof.ext,
+        arm_ivb=prof.ivb,
+        arm_hb=prof.hb,
+        arm_spin=prof.spin,
+        arm_rel_x=prof.rel_x,
+        arm_rel_z=prof.rel_z,
+        arm_scatter=prof.scatter,
+        stuff_z=prof.stuff_z,
+        ride_z=prof.ride_z,
+        arm_d_pvelo=prof.d_pvelo,
+        trend_z=prof.trend_z,
+        arm_stage2=arm.stage_two(dxwoba, prof),
+        arm_trend=arm.velo_trend(prof),
+    )
+    return p
+
+
+def test_a_shedding_arm_asterisks_the_fade_it_is_already_confirming() -> None:
+    """The user's decreasing-velocity read, on the side of the flag it graded on."""
+    p = _armed(-1.0, d_pvelo=-0.8, dxwoba=+0.060)
+    assert p["arm_stage2"] == arm.CONFIRMED and p["arm_trend"] == arm.SHEDDING
+    text = mound._arm_sentence(p, positive=False)
+    assert "0.8 mph of perceived velocity off" in text
+    assert "worth another .026 of wOBA" in text
+
+
+def test_the_same_reading_is_absent_from_a_bounce_back() -> None:
+    """It is worth nothing on the correction side, so the entry does not quote it."""
+    p = _armed(+1.0, d_pvelo=-0.8, dxwoba=-0.060)
+    assert p["arm_trend"] == arm.SHEDDING
+    assert "mph of perceived velocity off" not in mound._arm_sentence(p, positive=True)
+
+
+def test_a_delivery_going_nowhere_is_not_announced_either_way() -> None:
+    flat = mound._arm_sentence(_armed(-1.0, d_pvelo=-0.01, dxwoba=+0.060), positive=False)
+    assert "wrong way" not in flat and "holding the delivery" not in flat
+    unread = _armed(-1.0, d_pvelo=float("nan"), dxwoba=+0.060)
+    assert unread["arm_trend"] == arm.UNMEASURED
+    assert "block before this one" not in mound._arm_sentence(unread, positive=False)
+
+
+def test_an_arm_with_one_side_of_the_split_missing_prints_no_nan() -> None:
+    """A starter with no prior three weeks has no move to report."""
+    line = mound._three_week_trend(_pitcher(d_vfa=float("nan"), d_siera=float("nan")))
+    assert "nan" not in line
+    assert "Stuff xK% +0.0" in line and "vFA" not in line
+    blank = _pitcher(d_vfa=float("nan"), d_siera=float("nan"), d_xk=float("nan"))
+    assert mound._three_week_trend(blank) == "3wk trend: not readable"
 
 
 def test_the_methodology_defines_fly_ball_rate() -> None:

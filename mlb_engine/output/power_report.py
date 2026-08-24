@@ -154,6 +154,14 @@ def _arm_prose(s: StarterCard) -> str:
     strikeouts on top of both the luck term and the CSW%/pitch-shape grade the
     engine already prices. It is printed and never gated: out of time the level
     sorts the fortnight ahead by the same margin whatever the batted balls did.
+
+    Which way that velocity is *moving* is added here and nowhere else in the
+    starter read, because the screen is only ever selecting the fade side of the
+    flag, and the fade side is the only side on which the trend graded: among
+    arms whose results ran hot, one shedding perceived velocity allowed +.026 of
+    wOBA more the fortnight after than one holding it [+.012, +.039], in both
+    halves of the level. On the correction side the same reading crosses zero and
+    the regression article leaves it out there.
     """
     prof = s.arm
     if prof is None or math.isnan(prof.pvelo):
@@ -184,6 +192,29 @@ def _arm_prose(s: StarterCard) -> str:
         "sharpest of the four: arms whose results ran hot on a below-league delivery allowed "
         ".338 wOBA the following fortnight and struck out .187 of batters, against .316 and "
         ".236 for the ones the delivery argued with and .322 for the unflagged league."
+        + _trend_clause(prof)
+    )
+
+
+def _trend_clause(prof: arm_model.ArmProfile) -> str:
+    """Whether the arm is shedding the velocity, once it has been read as a level.
+
+    Silent on a move that rounds to nothing, so a hundredth of a mile does not
+    get a sentence in either direction.
+    """
+    trend = arm_model.velo_trend(prof)
+    if trend == arm_model.UNMEASURED or abs(prof.d_pvelo) < 0.05:
+        return ""
+    if trend == arm_model.SHEDDING:
+        return (
+            f" He is also shedding it: {_num(abs(prof.d_pvelo), 1)} mph off the block before "
+            "this one, worth another .026 of wOBA inside a fade &mdash; the sharpest corner "
+            "of that pair."
+        )
+    return (
+        f" He is holding the delivery, {_num(prof.d_pvelo, 1, signed=True)} mph on the block "
+        "before this one, which is the softer half of the fade: arms holding velocity allowed "
+        ".026 less wOBA the fortnight after than the ones shedding it."
     )
 
 
