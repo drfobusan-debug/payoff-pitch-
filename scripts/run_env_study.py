@@ -1,309 +1,187 @@
-"""Set the simulator's run environment to the league's, and grade the move first.
+"""Fit and grade the batter-prop over correction that ``models.run_env`` ships.
 
-The shape study established what is *not* wrong: over the games in the ledger the
-model's implied mean total matches the final score to +0.04 runs. That is a
-statement about the games the model priced, not about the simulator -- the two only
-agree because the calibration map and the edge floors sit between them. Replayed
-with league-average lineups and staffs the simulator itself scores
-``run_env.BASELINE_TOTAL`` runs against a league playing 8.95 (season to date), so
-the raw run environment *is* hot, and every over in the book inherits it.
+Offline, ledger-only, no odds credits. Two terms are fitted in over-space by log
+loss on earlier slates and scored on later ones:
 
-This script does three things, in the order they have to be done in:
+    logit(p_over') = logit(p_over) - tilt - slope * elevation
 
-* re-measures the simulator's own baseline and its elasticity to the non-out scale,
-  which are the two constants ``models.run_env`` solves the correction from;
-* measures what a scale is worth to each market's probability, by repricing a
-  league-average game at both scales -- these are the deltas the grader applies,
-  so no market is patched with a number fitted to its own outcomes;
-* grades the correction **walk-forward** on the graded ledger: the scale is solved
-  from the league total on the training dates only, then applied to the later
-  dates' rows and scored against what happened (Brier and log loss per market,
-  against the model's own logged probability).
+``elevation`` is the simulator's implied game-total mean minus the league's run
+level. The ledger does not store the simulator's mean, so it is recovered per
+game from the four ``game_total`` over-probabilities by inverting a negative
+binomial whose dispersion is fitted globally -- the study's one real proxy, and
+the reason the shipped defaults sit at the conservative end of the fitted range.
 
-Nothing here writes a probability. The correction it grades is off by default
-(``MLBE_RUN_ENV``); this is the evidence for turning it on.
-
-    python scripts/run_env_study.py [--sims N] [--split DATE] [--target RUNS]
+    python -m scripts.run_env_study --ledger ~/.mlb_engine/audit/ledger.csv
 """
 
 from __future__ import annotations
 
 import argparse
-import logging
-from datetime import date as Date
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
+from scipy.optimize import brentq
+from scipy.stats import nbinom
 
-from mlb_engine.data.mlb_statsapi import MLBStatsClient
-from mlb_engine.features.removal import RemovalHazard
-from mlb_engine.features.rolling import LEAGUE_RATES
-from mlb_engine.models import run_env
-from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
-from mlb_engine.models.props import p_over
-from scripts.total_shape_study import LINES, fit_implied, join_finals, load_totals
+from mlb_engine.models.run_env import LEAGUE_TOTAL_BASELINE, MAX_ELEVATION
 
-log = logging.getLogger("run_env")
-
-# A league-average lineup has no handedness pattern worth inventing; alternating is
-# the neutral one and keeps the platoon machinery in the path being measured.
-HANDS = ("L", "R", "L", "R", "L", "R", "L", "R", "R")
-
-# Markets graded from the ledger, mapped to the (stat, line) the simulator reports.
-# H+R+RBI is a sum, so it is built the way props.py builds it.
-GRADED = {
-    "batter_tb": ("TB", (1.5, 2.5)),
-    "batter_rbi": ("RBI", (0.5,)),
-    "batter_hrr": ("HRR", (1.5, 2.5)),
-}
-
-# The grid ``--coeffs`` measures: every market and line the correction is allowed to
-# move, which is every counting market a book posts a number for. Wider than
-# ``GRADED`` on purpose -- the coefficient is a simulator measurement, so it is
-# taken for lines the ledger is too thin to grade rather than left to a guess.
-COEFF_GRID: dict[str, tuple[str, tuple[float, ...]]] = {
-    "game_total": ("total", (6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.5)),
-    "batter_h": ("H", (0.5, 1.5, 2.5)),
-    "batter_1b": ("1B", (0.5, 1.5)),
-    "batter_2b": ("2B", (0.5,)),
-    "batter_hr": ("HR", (0.5,)),
-    "batter_r": ("R", (0.5, 1.5)),
-    "batter_rbi": ("RBI", (0.5, 1.5)),
-    "batter_tb": ("TB", (0.5, 1.5, 2.5, 3.5)),
-    "batter_hrr": ("HRR", (0.5, 1.5, 2.5, 3.5)),
-}
+EPS = 1e-6
+DISPERSIONS = (3, 5, 8, 12, 20, 40, 80)
 
 
-def league_team(scale: float) -> TeamSimConfig:
-    """Nine league-average slots against a league-average staff, at one scale."""
-    rates = run_env.scale_rates(LEAGUE_RATES, scale)
-    nine = [dict(rates) for _ in range(9)]
-    return TeamSimConfig(
-        bat_vs_starter=nine,
-        bat_vs_pen=[dict(rates) for _ in range(9)],
-        bat_vs_pen_close=[dict(rates) for _ in range(9)],
-        bat_vs_pen_bridge=[dict(rates) for _ in range(9)],
-        bat_hands=HANDS,
-        starter_hand="R",
-        removal_hazard=RemovalHazard(),
-    )
+def _logit(p: np.ndarray) -> np.ndarray:
+    p = np.clip(p, EPS, 1 - EPS)
+    return np.log(p / (1 - p))
 
 
-def sim_at(scale: float, sims: int, seed: int = 7) -> dict[str, float]:
-    """A league-average game at one scale: the total, and each market's price.
-
-    The same seed at every scale, so a difference between two calls is the scale
-    and not the draw.
-    """
-    res = MonteCarlo(sims, seed=seed).simulate(league_team(scale), league_team(scale))
-    total = (res.home_runs_full + res.away_runs_full).astype(float)
-    out: dict[str, float] = {"total": float(total.mean())}
-    for line in LINES:
-        out[f"game_total|{line}"] = float((total > line).mean())
-    bat = res.bat["home"]
-    tb = (bat["1B"][:, :] + 2 * bat["2B"][:, :] + 3 * bat["3B"][:, :] + 4 * bat["HR"][:, :]).astype(
-        float
-    )
-    hrr = (bat["H"] + bat["R"] + bat["RBI"]).astype(float)
-    arrays = {"TB": tb, "RBI": bat["RBI"].astype(float), "HRR": hrr}
-    for market, (stat, lines) in GRADED.items():
-        arr = arrays[stat]
-        for line in lines:
-            # Averaged over the nine slots: the delta is a league-level number, and
-            # a per-slot one would be fitting the lineup this study invented.
-            out[f"{market}|{line}"] = float(
-                np.mean([p_over(arr[:, slot], line) for slot in range(9)])
-            )
-    return out
+def _sigmoid(x: np.ndarray) -> np.ndarray:
+    return 1.0 / (1.0 + np.exp(-x))
 
 
-def grid_prices(scale: float, sims: int, seed: int = 7) -> dict[str, float]:
-    """Every ``COEFF_GRID`` over-probability in a league-average game at one scale."""
-    res = MonteCarlo(sims, seed=seed).simulate(league_team(scale), league_team(scale))
-    total = (res.home_runs_full + res.away_runs_full).astype(float)
-    bat = res.bat["home"]
-    tb = (bat["1B"] + 2 * bat["2B"] + 3 * bat["3B"] + 4 * bat["HR"]).astype(float)
-    arrays: dict[str, np.ndarray] = {
-        "H": bat["H"].astype(float),
-        "1B": bat["1B"].astype(float),
-        "2B": bat["2B"].astype(float),
-        "HR": bat["HR"].astype(float),
-        "R": bat["R"].astype(float),
-        "RBI": bat["RBI"].astype(float),
-        "TB": tb,
-        "HRR": (bat["H"] + bat["R"] + bat["RBI"]).astype(float),
-    }
-    out: dict[str, float] = {}
-    for market, (stat, lines) in COEFF_GRID.items():
-        for line in lines:
-            if stat == "total":
-                out[f"{market}|{line}"] = float((total > line).mean())
+def log_loss(p: np.ndarray, y: np.ndarray) -> float:
+    p = np.clip(p, EPS, 1 - EPS)
+    return float(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
+
+
+def brier(p: np.ndarray, y: np.ndarray) -> float:
+    return float(np.mean((p - y) ** 2))
+
+
+def _nb_sf(mu: float, r: float, k: int) -> float:
+    return float(nbinom.sf(k - 1, r, r / (r + mu)))
+
+
+def _fit_mu(lines: list[float], probs: list[float], r: float) -> float:
+    def obj(mu: float) -> float:
+        return sum(_nb_sf(mu, r, int(np.ceil(ln))) - p for ln, p in zip(lines, probs, strict=True))
+
+    try:
+        return brentq(obj, 1.0, 30.0)
+    except ValueError:
+        return float("nan")
+
+
+def sim_means(led: pd.DataFrame) -> pd.DataFrame:
+    """Simulator game-total mean per (date, matchup), inverted from the card."""
+    g = led[led["market"] == "game_total"].copy()
+    g["prob"] = g["raw_prob"].fillna(g["model_prob"])
+    over = g[g["selection"].str.startswith("Over")]
+    over = over[(over["prob"] > 0.001) & (over["prob"] < 0.999)]
+    cards = [
+        (d, m, list(x["line"]), list(x["prob"]))
+        for (d, m), x in over.groupby(["date", "matchup"])
+        if len(x) >= 3
+    ]
+    best_r, best_sse = DISPERSIONS[0], None
+    for r in DISPERSIONS:
+        sse = 0.0
+        for _d, _m, lines, probs in cards:
+            mu = _fit_mu(lines, probs, r)
+            if np.isnan(mu):
+                sse += 1.0
                 continue
-            arr = arrays[stat]
-            # Averaged over the nine slots: the coefficient is a league-level
-            # number, and a per-slot one would be fitting the invented lineup.
-            out[f"{market}|{line}"] = float(
-                np.mean([p_over(arr[:, slot], line) for slot in range(9)])
-            )
-    return out
+            sse += sum((_nb_sf(mu, r, int(np.ceil(ln))) - p) ** 2 for ln, p in zip(lines, probs, strict=True))
+        if best_sse is None or sse < best_sse:
+            best_r, best_sse = r, sse
+    print(f"  dispersion r={best_r} (fit SSE {best_sse:.3f} over {len(cards)} cards)")
+    rows = [
+        {"date": d, "matchup": m, "sim_mu": _fit_mu(lines, probs, best_r)}
+        for d, m, lines, probs in cards
+    ]
+    return pd.DataFrame(rows).dropna()
 
 
-def coefficients(sims: int, lo: float, hi: float) -> None:
-    """Print ``run_env.LOGIT_PER_SCALE``: log odds of the over per unit of scale.
-
-    Measured as a central difference across the clamp on common random numbers (the
-    same seed at both scales), which is what makes a 1-2 point move readable at
-    this many games. Paste-ready, because these are the constants the correction is
-    applied from and they should be re-measured, not hand-adjusted.
-    """
-    low, high = grid_prices(lo, sims), grid_prices(hi, sims)
-    print(f"\nLOGIT_PER_SCALE, central difference {lo:.2f}..{hi:.2f}, {sims} games per point")
-    for market, (_, lines) in COEFF_GRID.items():
-        cells = []
-        for line in lines:
-            key = f"{market}|{line}"
-            p0, p1 = low[key], high[key]
-            if not (0.005 < p0 < 0.995 and 0.005 < p1 < 0.995):
-                continue
-            slope = (np.log(p1 / (1 - p1)) - np.log(p0 / (1 - p0))) / (hi - lo)
-            cells.append(f"{line}: {slope:.2f}")
-        print(f'    "{market}": {{{", ".join(cells)}}},')
+def batter_props(ledger: Path) -> pd.DataFrame:
+    led = pd.read_csv(ledger, low_memory=False)
+    mu = sim_means(led).set_index(["date", "matchup"])["sim_mu"]
+    p = led[led["market"].str.startswith("batter_", na=False)].copy()
+    p = p[p["result"].isin(["win", "loss"])].copy()
+    p["y"] = (p["result"] == "win").astype(int)
+    p["sim_mu"] = [mu.get(k, np.nan) for k in zip(p["date"], p["matchup"], strict=True)]
+    p = p[p["sim_mu"].notna()].copy()
+    p["e"] = (p["sim_mu"] - LEAGUE_TOTAL_BASELINE).clip(-MAX_ELEVATION, MAX_ELEVATION)
+    p["is_over"] = p["selection"].str.contains(r" o\d", regex=True)
+    p = p[p["is_over"] | p["selection"].str.contains(r" u\d", regex=True)].copy()
+    p["p_over"] = np.where(p["is_over"], p["model_prob"], 1 - p["model_prob"])
+    p["y_over"] = np.where(p["is_over"], p["y"], 1 - p["y"])
+    return p
 
 
-def elasticity(sims: int, lo: float, hi: float) -> tuple[float, dict[str, float]]:
-    """Runs per unit of scale, and the baseline total at scale 1.0."""
-    base = sim_at(1.0, sims)
-    low = sim_at(lo, sims)
-    high = sim_at(hi, sims)
-    slope = (high["total"] - low["total"]) / (hi - lo)
-    print(
-        f"\nsimulator, {sims} games per point"
-        f"\n  scale {lo:.2f}: {low['total']:.3f} runs"
-        f"\n  scale 1.00: {base['total']:.3f} runs   (run_env.BASELINE_TOTAL"
-        f" {run_env.BASELINE_TOTAL})"
-        f"\n  scale {hi:.2f}: {high['total']:.3f} runs"
-        f"\n  elasticity {slope:.1f} runs per unit scale   (run_env.RUNS_PER_SCALE"
-        f" {run_env.RUNS_PER_SCALE})"
-    )
-    return slope, base
+def apply_terms(p_over: np.ndarray, e: np.ndarray, tilt: float, slope: float) -> np.ndarray:
+    return _sigmoid(_logit(p_over) - tilt - slope * e)
 
 
-def logit_deltas(scale: float, sims: int, base: dict[str, float]) -> dict[str, float]:
-    """What the scale is worth to each market, in log odds of the over."""
-    moved = sim_at(scale, sims)
-    out: dict[str, float] = {}
-    print(f"\nwhat scale {scale:.4f} is worth per market (league-average game)")
-    for key, p0 in base.items():
-        if key == "total" or key not in moved:
-            continue
-        p1 = moved[key]
-        if not (0.01 < p0 < 0.99 and 0.01 < p1 < 0.99):
-            continue
-        out[key] = float(np.log(p1 / (1 - p1)) - np.log(p0 / (1 - p0)))
-        print(f"  {key:<18} {p0:.3f} -> {p1:.3f}  ({100 * (p1 - p0):+.1f} pts)")
-    return out
-
-
-def shift(prob: pd.Series, delta: float, over: pd.Series) -> pd.Series:
-    """Move a logged probability by the market's log-odds delta, sign by side."""
-    p = prob.clip(1e-4, 1 - 1e-4)
-    signed = np.where(over, delta, -delta)
-    z = np.log(p / (1 - p)) + signed
-    return pd.Series(1.0 / (1.0 + np.exp(-z)), index=prob.index)
-
-
-def score(name: str, prob: pd.Series, won: pd.Series) -> tuple[float, float]:
-    brier = float(np.mean((prob - won) ** 2))
-    p = prob.clip(1e-6, 1 - 1e-6)
-    ll = float(-np.mean(won * np.log(p) + (1 - won) * np.log(1 - p)))
-    print(f"  {name:<12} brier {brier:.4f}  log loss {ll:.4f}")
-    return brier, ll
-
-
-def graded_rows(ledger: Path) -> pd.DataFrame:
-    d = pd.read_csv(ledger, low_memory=False)
-    if "source" in d.columns:
-        d = d[(d["source"].isna()) | (d["source"] == "engine")]
-    d = d[d["market"].isin(GRADED) & d["result"].isin(["win", "loss"])].copy()
-    d["won"] = (d["result"] == "win").astype(float)
-    d["over"] = d["selection"].str.contains("Over| o", case=False, regex=True)
-    return d.dropna(subset=["model_prob", "line", "date"])
-
-
-def grade_props(rows: pd.DataFrame, deltas: dict[str, float], split: str) -> None:
-    test = rows[rows["date"] > split]
-    print(f"\nbatter markets after {split}: {len(test)} graded rows")
-    for market, (_, lines) in GRADED.items():
-        for line in lines:
-            key = f"{market}|{line}"
-            sub = test[(test["market"] == market) & (np.isclose(test["line"], line))]
-            if key not in deltas or len(sub) < 100:
-                continue
-            print(f"\n  {market} {line} ({len(sub)} rows, realized {sub['won'].mean():.3f})")
-            base = score("logged", sub["model_prob"], sub["won"])
-            corr = score(
-                "corrected", shift(sub["model_prob"], deltas[key], sub["over"]), sub["won"]
-            )
-            print(f"    brier {corr[0] - base[0]:+.4f}   log loss {corr[1] - base[1]:+.4f}")
-
-
-def grade_totals(games: pd.DataFrame, split: str, runs: float) -> None:
-    """Grade the same correction on game totals, where it is a mean shift in runs."""
-    test = games[games["date"] > split]
-    print(f"\ngame totals after {split}: {len(test)} games, shifting the mean {runs:+.3f} runs")
-    for line in LINES:
-        p0 = test[line]
-        p1 = pd.Series(norm.sf((line - (test["mu"] + runs)) / test["sd"]), index=test.index)
-        won = (test["total"] > line).astype(float)
-        print(f"\n  o{line} (realized {won.mean():.3f})")
-        base = score("logged", p0, won)
-        corr = score("corrected", p1, won)
-        print(f"    brier {corr[0] - base[0]:+.4f}   log loss {corr[1] - base[1]:+.4f}")
+def fit_terms(tr: pd.DataFrame) -> tuple[float, float]:
+    """Grid search both terms by log loss. Coarse on purpose: the fit is refit
+    weekly in the walk-forward and only its order of magnitude survives."""
+    po, e, y = tr["p_over"].to_numpy(), tr["e"].to_numpy(), tr["y_over"].to_numpy()
+    best = (0.0, 0.0, log_loss(po, y))
+    for tilt in np.arange(-0.05, 0.51, 0.01):
+        for slope in np.arange(-0.02, 0.16, 0.01):
+            ll = log_loss(apply_terms(po, e, tilt, slope), y)
+            if ll < best[2]:
+                best = (float(tilt), float(slope), ll)
+    return round(best[0], 2), round(best[1], 2)
 
 
 def main() -> None:
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--ledger", type=Path, default=Path.home() / ".mlb_engine/audit/ledger.csv")
-    ap.add_argument("--cache", type=Path, default=Path.home() / ".mlb_engine/cache/boxscores")
-    ap.add_argument("--sims", type=int, default=20000)
-    ap.add_argument("--split", default="2026-08-05", help="fit on or before, grade after")
-    ap.add_argument("--target", type=float, help="league runs per game (default: measured)")
-    ap.add_argument(
-        "--coeffs",
-        action="store_true",
-        help="re-measure run_env.LOGIT_PER_SCALE and print it, then stop",
-    )
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ledger", default="~/.mlb_engine/audit/ledger.csv")
+    ap.add_argument("--block-days", type=int, default=7)
     args = ap.parse_args()
 
-    if args.coeffs:
-        coefficients(args.sims, 0.96, 1.04)
-        return
+    p = batter_props(Path(args.ledger).expanduser())
+    dates = sorted(p["date"].unique())
+    print(f"{len(p)} graded batter prop rows over {len(dates)} slates, e sd {p['e'].std():.2f}")
 
-    games = fit_implied(join_finals(load_totals(args.ledger), args.cache))
-    train = games[games["date"] <= args.split]
-
-    # Walk-forward: the target is the league the *training* dates played, so no
-    # graded outcome the correction is scored on is inside the number that set it.
-    target = args.target
-    if target is None:
-        target = float(train["total"].mean())
-    season = MLBStatsClient().league_total_runs(Date.today().year)
+    rows = []
+    blocks = [dates[i : i + args.block_days] for i in range(args.block_days, len(dates), args.block_days)]
+    for blk in blocks:
+        tr, te = p[p["date"] < blk[0]], p[p["date"].isin(blk)]
+        if len(tr) < 5000 or len(te) < 500:
+            continue
+        tilt, slope = fit_terms(tr)
+        po, e, y = te["p_over"].to_numpy(), te["e"].to_numpy(), te["y_over"].to_numpy()
+        pc = apply_terms(po, e, tilt, slope)
+        rows.append(
+            {
+                "block": blk[0],
+                "n": len(te),
+                "tilt": tilt,
+                "slope": slope,
+                "ll_base": log_loss(po, y),
+                "ll_corr": log_loss(pc, y),
+                "br_base": brier(po, y),
+                "br_corr": brier(pc, y),
+            }
+        )
+    w = pd.DataFrame(rows)
+    print(w.round(4).to_string(index=False))
+    n = w["n"].to_numpy()
     print(
-        f"\nleague runs per game: target {target:.3f} from {len(train)} games"
-        f" on or before {args.split}"
-        + (f"   (season to date, standings: {season:.3f})" if season is not None else "")
+        f"  pooled logloss {np.average(w['ll_base'], weights=n):.4f} -> "
+        f"{np.average(w['ll_corr'], weights=n):.4f}, Brier "
+        f"{np.average(w['br_base'], weights=n):.4f} -> {np.average(w['br_corr'], weights=n):.4f}, "
+        f"better on {int((w['br_corr'] < w['br_base']).sum())}/{len(w)} blocks"
     )
 
-    _, base = elasticity(args.sims, 0.96, 1.04)
-    scale = run_env.scale_for_total(target)
-    print(f"scale that reproduces the target: {scale:.4f}")
-    deltas = logit_deltas(scale, args.sims, base)
-
-    grade_props(graded_rows(args.ledger), deltas, args.split)
-    grade_totals(games, args.split, (scale - 1.0) * run_env.RUNS_PER_SCALE)
+    # Calibration of the side the engine likes, on the second half of the window.
+    split = dates[len(dates) // 2]
+    tilt, slope = fit_terms(p[p["date"] < split])
+    te = p[p["date"] >= split]
+    po, e, y = te["p_over"].to_numpy(), te["e"].to_numpy(), te["y"].to_numpy()
+    print(f"\nholdout >= {split} (n={len(te)}), tilt={tilt} slope={slope}")
+    for name, arr in (("as priced", po), ("corrected", apply_terms(po, e, tilt, slope))):
+        row_p = np.where(te["is_over"], arr, 1 - arr)
+        for lab, mask in (
+            ("overs liked", (row_p >= 0.5) & te["is_over"].to_numpy()),
+            ("unders liked", (row_p >= 0.5) & ~te["is_over"].to_numpy()),
+        ):
+            print(
+                f"  {name:10} {lab:12} n={mask.sum():6} said {row_p[mask].mean() * 100:5.1f} "
+                f"hit {y[mask].mean() * 100:5.1f} err {(row_p[mask].mean() - y[mask].mean()) * 100:+5.2f}"
+            )
 
 
 if __name__ == "__main__":

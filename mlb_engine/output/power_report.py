@@ -20,6 +20,8 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.features import arm as arm_model
+from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
@@ -29,6 +31,7 @@ from mlb_engine.output.power_screen import (
     HitterView,
     MatchupSection,
     ScreenResult,
+    StarterCard,
 )
 
 CUT_LOG_ROWS = 12  # near misses printed in the appendix
@@ -140,6 +143,46 @@ def _best_pitch(section: MatchupSection) -> tuple[str, ContactLine, float] | Non
     return min(candidates, key=lambda t: t[1].xwoba)
 
 
+def _arm_prose(s: StarterCard) -> str:
+    """What Statcast measures of the delivery, beside the damage it allowed.
+
+    The ranking index above is a batted-ball read: it knows what hitters did and
+    nothing about the pitch they did it to. Perceived velocity -- release speed
+    plus 1.1 times extension, so a shorter stride costs a hitter's reaction time
+    what a slower arm does -- adds to the next fortnight's wOBA allowed, hits and
+    strikeouts on top of both the luck term and the CSW%/pitch-shape grade the
+    engine already prices. It is printed and never gated: out of time the level
+    sorts the fortnight ahead by the same margin whatever the batted balls did.
+    """
+    prof = s.arm
+    if prof is None or math.isnan(prof.pvelo):
+        return (
+            "His delivery is unreadable at this sample &mdash; too few tracked fastballs "
+            "&mdash; so the damage profile above stands alone."
+        )
+    verdict = s.arm_verdict
+    lead = (
+        f"He throws {_num(prof.pvelo, 1)} mph perceived "
+        f"({_num(prof.velo, 1)} off the hand at {_num(prof.ext, 1)} feet of extension, "
+        f"{_num(prof.stuff_z, 2, signed=True)} SD from league)"
+    )
+    if not math.isnan(prof.ivb):
+        lead += (
+            f" with {_num(prof.ivb, 1)}&Prime; of ride "
+            f"({_num(prof.ride_z, 2, signed=True)} SD), which is where the home runs live"
+        )
+    if verdict == arm_model.CONTRADICTED:
+        return (
+            f"<strong>The delivery disagrees: {lead}.</strong> The screen selected him on "
+            "batted balls and the arm underneath is above league, so treat the exposure as "
+            "less certain than the index reads."
+        )
+    return (
+        f"The delivery agrees with the selection: {lead}, so the damage has an arm behind "
+        "it rather than a fortnight of batted balls."
+    )
+
+
 def _starter_prose(section: MatchupSection) -> str:
     s = section.starter
     bits = [
@@ -149,6 +192,9 @@ def _starter_prose(section: MatchupSection) -> str:
         f"{_pc(s.hr_per_bf, 2)} of batters faced leaving the yard. "
         f"He misses bats at {_pc(s.k_bb_pct)} K-BB%."
     ]
+    arm_prose = _arm_prose(s)
+    if arm_prose:
+        bits.append(arm_prose)
     worst = _worst_pitch(section)
     best = _best_pitch(section)
     if worst:
@@ -218,6 +264,14 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
         bits.append(
             f"His wOBA outruns his expected mark by {h.luck_gap * 1000:+.0f} points, so some of "
             f"the line above is luck the market may already have taken back."
+        )
+    if h.swing_rescue and h.swing is not None:
+        bits.append(
+            f"<strong>The luck gap wanted him cut and the swing kept him</strong>: bat speed "
+            f"{_num(h.swing.bat_speed, 1)} mph and a {_pc(h.swing.blast)} blast rate put him "
+            f"{h.swing.power_z:+.2f} standard deviations above league on the two measures that "
+            f"predict total bases and home runs out of time. The results outran the contact; the "
+            f"swing underneath them did not."
         )
     return " ".join(bits)
 
@@ -585,29 +639,80 @@ def _provenance(result: ScreenResult, board: Board | None = None) -> str:
 def _starter_ranking(result: ScreenResult) -> str:
     rows = []
     for i, s in enumerate(result.starters_ranked, 1):
-        rows.append([
-            f"{i}. {html.escape(s.name)}",
-            f"{s.throws}HP",
-            html.escape(s.opponent),
-            str(s.bf),
-            _num(s.index, 2, signed=True),
-            _pc(s.brl_pct),
-            _pc(s.hh_pct),
-            _pc(s.fb_pct),
-            _f3(s.xwobacon),
-            _pc(s.hr_per_bf, 2),
-            _pc(s.k_bb_pct),
-        ])
+        rows.append(
+            [
+                f"{i}. {html.escape(s.name)}",
+                f"{s.throws}HP",
+                html.escape(s.opponent),
+                str(s.bf),
+                _num(s.index, 2, signed=True),
+                _pc(s.brl_pct),
+                _pc(s.hh_pct),
+                _pc(s.fb_pct),
+                _f3(s.xwobacon),
+                _pc(s.hr_per_bf, 2),
+                _pc(s.k_bb_pct),
+                _num(s.arm.pvelo if s.arm else math.nan, 1),
+                _num(s.arm.ext if s.arm else math.nan, 1),
+                _num(s.arm.ivb if s.arm else math.nan, 1),
+                "\u2020" if s.arm_verdict == arm_model.CONTRADICTED else "",
+            ]
+        )
     return (
         "<h2>Stage 1 &mdash; the arms, ranked by exposure</h2>"
         "<p class='sub'>Equal-weight z-sum of barrel, hard-hit, fly-ball, xwOBA-on-contact and "
         "home-run rates allowed, less K-BB% and called-plus-swinging strikes. Higher is softer. "
         "It sorts a slate; it does not price one.</p>"
         + _table(
-            ["starter", "hand", "vs", "BF", "index", "Brl%", "HH%", "FB%", "xwOBAcon", "HR/BF",
-             "K-BB%"],
-            rows, numeric_from=3,
+            [
+                "starter",
+                "hand",
+                "vs",
+                "BF",
+                "index",
+                "Brl%",
+                "HH%",
+                "FB%",
+                "xwOBAcon",
+                "HR/BF",
+                "K-BB%",
+                "pVelo",
+                "Ext",
+                "IVB",
+                "",
+            ],
+            rows,
+            numeric_from=3,
         )
+        + _arm_note()
+    )
+
+
+def _arm_note() -> str:
+    """What the delivery columns are, and why they qualify rather than gate.
+
+    A reader cannot judge a perceived-velocity figure without the window it was
+    read over, and the dagger has to say what it means: the index selected the
+    arm on batted balls and the delivery underneath disagrees.
+    """
+    return (
+        "<p class='caveat'><strong>&dagger; The index says soft and the delivery does not.</strong> "
+        "Perceived velocity (release speed + 1.1 &times; extension &minus; 6.0, the speed the "
+        "hitter has to react to), extension and induced vertical break are Statcast's own release "
+        f"measures, averaged over each starter's last {arm_model.WINDOW} four-seams, sinkers and "
+        f"two-seams, with a floor of {arm_model.MIN_LEVEL_PITCHES} readings below which the column "
+        "is blank rather than league average. Out of time on 2,214 pitcher-windows those levels add "
+        "to the next fortnight's wOBA allowed, hits and strikeouts on top of the luck term "
+        "<em>and</em> on top of the CSW% and pitch-shape grade the engine already prices (pVelo "
+        "t &minus;2.4, &minus;3.6 and +4.4); ride pays on home runs (t +5.0) and suppresses hits "
+        "(t &minus;3.0). That window is not a reliability window &mdash; on 1.44M fastballs every "
+        "one of these half-repeats inside a single pitch, since a radar reading is measured rather "
+        "than inferred from outcomes &mdash; so it comes from the panel, which held every sign at "
+        "12, 100 and 400 fastballs. Nothing here gates: a good arm sorts the fortnight ahead by the "
+        "same margin whatever the batted balls did, so it qualifies the ranking and does not "
+        "reorder it. Release scatter is a fatigue read for the removal model and is not printed as "
+        "a talent level; horizontal break was missing from our own ingestion until now, so a slice "
+        "cached earlier reads as unmeasured.</p>"
     )
 
 
@@ -615,8 +720,11 @@ def _pool_table(section: MatchupSection) -> str:
     rows = []
     for v in section.hitters:
         h = v.line
+        mark = " *" if h.power_exception else ""
+        mark += " \u2021" if h.swing_rescue else ""
+        sw = h.swing
         rows.append([
-            html.escape(h.name) + (" *" if h.power_exception else ""),
+            html.escape(h.name) + mark,
             str(h.slot or "&mdash;"),
             str(int(h.pa)),
             _num(h.wrc, 0),
@@ -628,10 +736,14 @@ def _pool_table(section: MatchupSection) -> str:
             _pc(h.hh),
             _num(h.ev90, 1),
             _pc(h.osw),
+            _num(sw.bat_speed if sw else math.nan, 1),
+            _pc(sw.blast if sw else math.nan),
+            _pc(sw.squared_up if sw else math.nan),
+            _num(sw.attack_angle if sw else math.nan, 1),
         ])
     return _table(
         ["batter", "LP", "PA", "wRC+", "pts", "top5", "xwOBA", "xwOBAcon", "Brl%", "HH%", "EV90",
-         "O-Sw%"],
+         "O-Sw%", "BatSpd", "Blast%", "SqUp%", "AtkAng"],
         rows, numeric_from=1,
     )
 
@@ -760,6 +872,48 @@ def _withheld_note(section: MatchupSection) -> str:
     )
 
 
+def _swing_note(section: MatchupSection) -> str:
+    """What the swing columns are, and which hitters the luck-gap cut lost on them.
+
+    The provenance half prints whenever the columns do, since a reader cannot
+    judge a bat-speed figure without the window it was read over. The rescue half
+    is added when a hitter is here on his swing, because that is a cut being
+    overruled and the row should not look clean.
+    """
+    if not any(v.line.swing is not None for v in section.hitters):
+        return ""
+    rescued = [v.line.name for v in section.hitters if v.line.swing_rescue]
+    lead = "<strong>The swing columns.</strong>"
+    if rescued:
+        names = ", ".join(html.escape(n) for n in rescued)
+        lead = (
+            "<strong>\u2021 Kept on the swing after the luck gap flagged them.</strong> "
+            f"{names}."
+        )
+    return (
+        f"<p class='caveat'>{lead} Bat speed, blast rate, squared-up rate and attack angle are "
+        f"read over each measure's own window of tracked competitive swings &mdash; "
+        f"{WINDOW['bat_speed']} for bat "
+        f"speed, {WINDOW['blast']} for blast, {WINDOW['squared_up']} for squared-up, "
+        f"{WINDOW['attack_angle']} for attack angle, four times the "
+        "sample each first half-repeats at. Out of time on 3,175 "
+        "batter-windows those levels add to total bases and home runs on top of wOBA and xwOBA "
+        "(blast t +6.6, bat speed t +5.4), and of the windows the luck-gap cut removes the better "
+        "half of swings went on to .3801 TB/PA against .3355 for the worse half &mdash; ahead of "
+        "the .3708 posted by the hitters the cut kept. Squared-up rate is a hits signal and is "
+        "negatively signed on home runs, so it is printed and does not rescue. The two contact "
+        "rates are reconstructed from the pitch-level collision model with their cuts calibrated to "
+        "the league rate Savant publishes, since the leaderboard cannot be sliced by swing count "
+        "(per hitter r +.86 and +.76 against the official figures). A blank column is a hitter with "
+        "too few tracked swings to read, not an average one. Attack angle is Savant's own "
+        "swing-path field, published from 2025 and matching FanGraphs' season figures at r +.996; "
+        "a steeper swing adds home runs and total bases and subtracts singles (t +6.3 and "
+        "t &minus;5.3 with bat speed and blast rate already in the model), so it is printed for "
+        "the market it points at and, like squared-up rate, does not rescue &mdash; inside the "
+        "rows this cut removes it does not sort the fortnight that follows.</p>"
+    )
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -803,6 +957,7 @@ def _section_html(section: MatchupSection, index: int) -> str:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
     out.append(_withheld_note(section))
+    out.append(_swing_note(section))
     out.append(_sim_table(section))
     return "".join(out)
 

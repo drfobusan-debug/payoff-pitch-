@@ -12,6 +12,8 @@ from datetime import date as Date
 
 import pandas as pd
 
+from mlb_engine.features import arm as arm_model
+from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
@@ -21,6 +23,7 @@ from mlb_engine.output.power_screen import (
     MatchupSection,
     PoolBatter,
     ScreenResult,
+    StarterCard,
     apply_cuts,
     arsenal,
     arsenal_fit,
@@ -244,15 +247,20 @@ def test_a_pool_is_built_from_the_rows_a_hitter_has_against_that_hand() -> None:
         [
             {**_pitch(events="single"), "batter": 10, "p_throws": "R"},
             {**_pitch(events="home_run"), "batter": 10, "p_throws": "R"},
-            {**_pitch(events="strikeout", description="swinging_strike"),
-             "batter": 11, "p_throws": "L"},
+            {
+                **_pitch(events="strikeout", description="swinging_strike"),
+                "batter": 11,
+                "p_throws": "L",
+            },
         ]
     )
     pool = hitter_pool(
         rows,
-        [PoolBatter(mlbam_id=10, name="Faces RHP", slot=2, bats="L"),
-         PoolBatter(mlbam_id=11, name="Faces LHP Only", slot=3, bats="R"),
-         PoolBatter(mlbam_id=12, name="No Rows", slot=4, bats="R")],
+        [
+            PoolBatter(mlbam_id=10, name="Faces RHP", slot=2, bats="L"),
+            PoolBatter(mlbam_id=11, name="Faces LHP Only", slot=3, bats="R"),
+            PoolBatter(mlbam_id=12, name="No Rows", slot=4, bats="R"),
+        ],
         hand="R",
         team="AAA",
         versus="Some Arm",
@@ -271,6 +279,69 @@ def test_a_power_bat_survives_the_wrc_cut_and_is_flagged() -> None:
     assert {h.name for h in kept} == {"Riley", "Olson"}
     assert riley.power_exception
     assert not olson.power_exception
+
+
+def _swing(power: float) -> SwingProfile:
+    """A readable swing whose bat speed and blast rate sit ``power`` SD from league."""
+    bmu, bsd = LEAGUE["bat_speed"]
+    zmu, zsd = LEAGUE["blast"]
+    return SwingProfile(swings=400, bat_speed=bmu + power * bsd, blast=zmu + power * zsd)
+
+
+def test_the_swing_keeps_a_hitter_the_luck_gap_wants_cut() -> None:
+    """Stage two: the gap says the results outran the contact, the swing disagrees.
+
+    Of the 471 windows this cut removes out of time, the better-swinging half went
+    on to .3801 TB/PA against .3355 for the worse half -- so a flagged hitter whose
+    power swing is above league is kept, and flagged as kept on the swing rather
+    than on the rate line.
+    """
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = _swing(1.0)
+    kept = apply_cuts([lucky], league_xwoba=0.305)
+    assert [h.name for h in kept] == ["Lucky"]
+    assert lucky.swing_rescue and lucky.kept and not lucky.cut_reason
+    assert not lucky.power_exception  # a different rescue, kept distinguishable
+
+
+def test_a_below_league_swing_confirms_the_cut() -> None:
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = _swing(-1.0)
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason and not lucky.swing_rescue
+
+
+def test_an_unreadable_swing_leaves_the_cut_standing() -> None:
+    """The default is stage one. Too few tracked swings must not become a rescue."""
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = SwingProfile(swings=8, bat_speed=80.0)  # blast rate unreadable
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason
+
+
+def test_the_swing_does_not_rescue_a_hitter_the_earlier_cuts_removed() -> None:
+    """The rescue answers the luck gap only; the sample and league floors stand."""
+    thin = _hitter("Thin", pa=MIN_BATTER_PA - 1, woba=0.470, xwoba_pa=0.360)
+    thin.swing = _swing(2.0)
+    at_league = _hitter("League", woba=0.390, xwoba_pa=0.310, xwoba_con=0.330)
+    at_league.swing = _swing(2.0)
+    assert apply_cuts([thin, at_league], league_xwoba=0.305) == []
+    assert thin.cut_reason and at_league.cut_reason
+    assert not (thin.swing_rescue or at_league.swing_rescue)
+
+
+def test_a_steep_attack_angle_does_not_rescue_on_its_own() -> None:
+    """Attack angle sorts the home-run line and not the rows this cut removes.
+
+    Inside the flagged group its coefficient on the next fortnight's total bases
+    is t -0.07 (steeper half .3684, flatter .3880), so it is printed for the
+    market it points at and left out of the rescue.
+    """
+    mu, sd = LEAGUE["attack_angle"]
+    lucky = _hitter("Steep", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = SwingProfile(swings=400, attack_angle=mu + 3 * sd)
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason and not lucky.swing_rescue
 
 
 def test_the_power_exception_can_be_switched_off() -> None:
@@ -457,6 +528,124 @@ def test_the_cut_appendix_prints_the_near_misses_only() -> None:
 def test_the_filename_is_dated() -> None:
     assert power_report.default_filename(Date(2026, 8, 17)) == "power_screen_2026-08-17.pdf"
     assert power_report.default_filename(Date(2026, 8, 17), "html").endswith(".html")
+
+
+def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
+    """A hitter here on his swing must not read as a clean survivor of the cuts."""
+    result = _result()
+    line = result.sections[0].hitters[0].line
+    line.swing_rescue = True
+    line.swing = _swing(1.0)
+    html = power_report.render_html(result)
+    assert "Kept on the swing after the luck gap flagged them" in html
+    assert "\u2021" in html  # the row is marked as well as footnoted
+    assert "does not rescue" in html  # squared-up rate is reported, not priced
+    assert "Attack angle" in html
+    assert f"{WINDOW['blast']} for blast" in html  # its own window, not a round six weeks
+
+
+def test_the_swing_columns_are_sourced_even_when_no_cut_was_overruled() -> None:
+    """A bat-speed figure without its window is unreadable, rescue or no rescue."""
+    result = _result()
+    result.sections[0].hitters[0].line.swing = _swing(0.0)
+    html = power_report.render_html(result)
+    assert "Kept on the swing" not in html  # nothing was overruled
+    assert "The swing columns" in html
+    assert "too few tracked swings to read, not an average one" in html
+
+
+def test_the_swing_note_is_absent_when_no_swing_was_read_at_all() -> None:
+    assert "The swing columns" not in power_report.render_html(_result())
+
+
+# --- the delivery behind the ranking -------------------------------------
+
+
+def _arm_rows(n: int, *, velo: float, throws: str = "R") -> pd.DataFrame:
+    """Tracked fastballs, on the columns the ingestion now keeps."""
+    return pd.DataFrame(
+        {
+            "pitcher": [2] * n,
+            "pitch_type": ["FF"] * n,
+            "p_throws": [throws] * n,
+            "game_date": [Date(2026, 8, 1)] * n,
+            "release_speed": [velo] * n,
+            "release_extension": [6.6] * n,
+            "release_pos_x": [-1.9] * n,
+            "release_pos_z": [5.9] * n,
+            "release_spin_rate": [2300.0] * n,
+            "pfx_z": [1.25] * n,
+            "pfx_x": [-0.85] * n,
+        }
+    )
+
+
+def _armed_card(velo: float) -> StarterCard:
+    rows = pd.concat([_starter_rows(130, brl=True), _arm_rows(60, velo=velo)], ignore_index=True)
+    return starter_damage(
+        rows, name="Bailey Ober", mlbam_id=641927, team="MIN", opponent="ATL", throws="R"
+    )
+
+
+def test_the_screen_reads_the_arm_off_the_same_slice_it_ranks_on() -> None:
+    card = _armed_card(97.0)
+    assert card.arm is not None
+    assert math.isclose(card.arm.velo, 97.0)
+
+
+def test_a_slice_with_no_tracked_delivery_leaves_the_arm_unmeasured() -> None:
+    """The screen's own fixtures carry no release columns, and must not raise."""
+    card = starter_damage(
+        _starter_rows(130, brl=True),
+        name="Thin",
+        mlbam_id=1,
+        team="A",
+        opponent="B",
+        throws="R",
+    )
+    assert card.arm is not None
+    assert all(v != v for v in card.arm.levels().values())  # counted, never guessed
+    assert card.arm_verdict == arm_model.UNMEASURED
+
+
+def test_the_arm_does_not_reorder_or_gate_the_screen() -> None:
+    """Out of time a good arm is better everywhere, not a rescue -- so it cannot cut.
+
+    A hard-throwing starter whose batted balls got hit still ranks on the damage:
+    the delivery is disclosure beside the index, never a filter on it.
+    """
+    soft, hard = _armed_card(89.0), _armed_card(99.0)
+    hard.name, hard.mlbam_id = "Hard", 2
+    ranked = rank_starters([soft, hard], top_n=2)
+    assert [c.mlbam_id for c in ranked] == [641927, 2]
+    assert math.isclose(soft.index, hard.index)
+    assert hard.arm_verdict == arm_model.CONTRADICTED  # disclosed, still ranked
+
+
+def test_the_delivery_reaches_the_note_with_its_window() -> None:
+    result = _result()
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = _armed_card(97.0).arm
+    html = power_report.render_html(result)
+    assert "mph perceived" in html
+    assert "pVelo" in html and "IVB" in html  # the starter table columns
+    assert f"last {arm_model.WINDOW} four-seams" in html
+    assert str(arm_model.MIN_LEVEL_PITCHES) in html
+    assert "Nothing here gates" in html
+
+
+def test_an_unreadable_delivery_is_stated_rather_than_left_blank() -> None:
+    html = power_report.render_html(_result())  # fixtures carry no release columns
+    assert "unreadable at this sample" in html
+    assert "\u2020" not in html  # nothing to disagree with
+
+
+def test_a_contradicted_delivery_is_marked_in_the_row_and_the_prose() -> None:
+    result = _result()
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = _armed_card(99.0).arm
+    html = power_report.render_html(result)
+    assert "The delivery disagrees" in html
+    assert "\u2020" in html
+    assert "less certain than the index reads" in html
 
 
 def test_a_power_exception_is_disclosed_in_the_recommendation() -> None:

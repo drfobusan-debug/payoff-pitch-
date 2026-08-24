@@ -44,7 +44,15 @@ from datetime import date as Date
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.reliability import readable, reliability
+from mlb_engine.features.swing import (
+    CONTRADICTED,
+    SwingProfile,
+    build_swing_profile,
+    stage_two,
+)
 
 # --- pitch classification -------------------------------------------------
 # Savant's codes collapsed to what a hitter actually distinguishes. Kept finer
@@ -82,6 +90,7 @@ MIN_WRC = 120  # window wRC+ floor, before the power exception
 MIN_XWOBA_EDGE = 0.020  # xwOBA/PA must clear league by this much
 MAX_LUCK_GAP = 0.050  # wOBA minus xwOBA/PA above this is unearned
 POWER_XWOBACON = 0.440  # contact good enough to keep a hitter the wRC+ cut drops
+RESCUE_POWER_Z = 0.0  # swing good enough to survive the luck-gap cut anyway
 MIN_PITCHER_PITCHES = 15  # per-pitch-type floor, pitcher side
 MIN_BATTER_PITCHES = 25  # per-pitch-type floor, hitter side
 TOP_K = 5  # a top-K finish in a scored metric earns the second point
@@ -203,6 +212,22 @@ class StarterCard:
     index: float = 0.0
     arsenal: dict[str, ContactLine] = field(default_factory=dict)
     usage: dict[str, float] = field(default_factory=dict)
+    #: What Statcast measures of the delivery over his last fastballs. The index
+    #: above is a batted-ball read and knows nothing about the pitch that was hit.
+    arm: ArmProfile | None = None
+
+    @property
+    def arm_verdict(self) -> str:
+        """Whether the delivery agrees this arm is as soft as the index says.
+
+        Read after :func:`rank_starters` has set ``index``: a high index is an
+        arm the screen wants to hunt, and an above-league perceived velocity
+        underneath it is the delivery disagreeing. Reported, never gated -- out
+        of time the arm sorts the fortnight ahead by the same margin whatever
+        the batted balls did, so it qualifies the ranking rather than rescuing
+        anyone from it.
+        """
+        return arm_stage_two(self.index, self.arm)
 
 
 def _pa_events(df: pd.DataFrame) -> pd.Series:
@@ -241,6 +266,7 @@ def starter_damage(
         hr_per_bf=float(ev.eq("home_run").sum()) / bf if bf else math.nan,
         k_bb_pct=k - bb if not (math.isnan(k) or math.isnan(bb)) else math.nan,
         csw_pct=called_or_swinging,
+        arm=build_arm_profile(rows),
     )
 
 
@@ -322,6 +348,8 @@ class HitterLine:
     kept: bool = False
     cut_reason: str = ""
     power_exception: bool = False
+    swing: SwingProfile | None = None
+    swing_rescue: bool = False
 
     @property
     def luck_gap(self) -> float:
@@ -405,10 +433,17 @@ def hitter_pool(
     A hitter with no readable rows against the hand is left out rather than
     carried at league average: the pool is what the cuts and the top-K bonuses
     are computed within, so a placeholder would move every other hitter's score.
+
+    The rate line is split by hand; the swing profile is not. Bat tracking needs
+    swings rather than plate appearances and the two contact-quality rates need
+    most of a season's worth, so halving the pool by hand would leave them
+    unreadable for everyone -- and the panel that validated the levels pooled
+    hands too.
     """
     pool: list[HitterLine] = []
     for batter in batters:
-        rows = window[(window["batter"] == batter.mlbam_id) & (window["p_throws"] == hand)]
+        both_hands = window[window["batter"] == batter.mlbam_id]
+        rows = both_hands[both_hands["p_throws"] == hand]
         line = batter_window_line(rows)
         if not line:
             continue
@@ -437,6 +472,7 @@ def hitter_pool(
                 hh=line["hh"],
                 ev90=line["ev90"],
                 osw=line["osw"],
+                swing=build_swing_profile(both_hands),
             )
         )
     return pool
@@ -564,11 +600,35 @@ def apply_cuts(
         if h.xwoba_pa < league_xwoba + MIN_XWOBA_EDGE and not h.power_exception:
             h.cut_reason = f"xwOBA {h.xwoba_pa:.3f} at league"
         elif h.luck_gap > MAX_LUCK_GAP and not h.power_exception:
-            h.cut_reason = f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"
+            if _swing_rescues(h):
+                h.swing_rescue = True
+                h.kept = True
+                final.append(h)
+            else:
+                h.cut_reason = f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"
         else:
             h.kept = True
             final.append(h)
     return sorted(final, key=lambda h: (-h.points, -h.xwoba_con))
+
+
+def _swing_rescues(h: HitterLine, min_power_z: float = RESCUE_POWER_Z) -> bool:
+    """Whether the swing keeps a hitter the luck gap wants cut.
+
+    The luck-gap cut is a residual: it says the results outran the contact, and
+    it cannot say whether the swing that produced them was any good. Out of time
+    on 3,175 batter-windows it is worth -.013 TB/PA at t -1.9, and it is wrong
+    about half of what it removes -- of the windows it cut, the half with the
+    better swing went on to .3801 TB/PA against .3355 for the worse half, and beat
+    the .3708 of every hitter it kept. So a flagged hitter whose bat speed and
+    blast rate are above league is kept and flagged rather than dropped; the swing
+    coefficient inside that group is t +3.2.
+
+    Read on ``power_z`` rather than the five-metric mean because squared-up rate
+    carries the opposite sign on the power markets this screen selects for. A
+    hitter whose swing is unmeasured is not rescued: the default stays the cut.
+    """
+    return stage_two(h.luck_gap, h.swing, min_power_z=min_power_z) == CONTRADICTED
 
 
 # --- stage 4: the arsenal ------------------------------------------------

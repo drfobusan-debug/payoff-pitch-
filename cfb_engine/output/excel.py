@@ -22,6 +22,8 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
+from cfb_engine.audit.priced import PricedStat
+from cfb_engine.audit.probation import Probation
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
 
@@ -135,14 +137,31 @@ _BET_COLUMNS = [
     "Model %", "Market %", "EV", "Close", "CLV", "CLV EV", "Result", "P/L",
 ]
 _CLV_COLUMNS = ["Market", "N", "Mean CLV", "Beat close %", "Mean CLV EV"]
+_MONEY_COLUMNS = [
+    "Market", "N", "Won", "Win%", "Needs", "Gap", "ROI", "Units",
+    "Two-sided", "One-way", "One-way units", "CLV", "Beat close", "Beat number",
+]
+_PROBATION_COLUMNS = [
+    "Verdict", "What", "Kind", "N", "ROI", "SE", "1st half", "2nd half", "Finding",
+]
 _CLV_FILL = {
     True: PatternFill("solid", fgColor="C6EFCE"),
     False: PatternFill("solid", fgColor="FFC7CE"),
+}
+_VERDICT_FILL = {
+    "SHUT": PatternFill("solid", fgColor="FFC7CE"),
+    "LIFT": PatternFill("solid", fgColor="FFC7CE"),
+    "SHIP": PatternFill("solid", fgColor="FFEB9C"),
 }
 
 
 def _pct(v: float) -> str:
     return f"{v * 100:.1f}%"
+
+
+def _nan_pct(v: float) -> str:
+    """Percent, or a dash where the sample is empty rather than zero."""
+    return "-" if v != v else f"{v * 100:.1f}%"
 
 
 def _american(odds: float | None) -> str:
@@ -197,6 +216,49 @@ def _write_clv_sheet(ws: Worksheet, rows: list[ClvSummary]) -> None:
     ws.freeze_panes = "A2"
 
 
+def _write_money_sheet(ws: Worksheet, rows: list[PricedStat]) -> None:
+    """The realized money record: only bets that were priced and bought.
+
+    Sits beside the PPV sheets because a win rate is not a return: ``Needs`` is
+    the rate the prices charged and ``Gap`` is what decides the sign of ROI.
+    """
+    _metric_header(ws, _MONEY_COLUMNS)
+    for r, s in enumerate(rows, start=2):
+        vals: list[object] = [
+            s.label, s.n, s.wins, _nan_pct(s.win_rate), _nan_pct(s.breakeven),
+            _nan_pct(s.shortfall), _nan_pct(s.roi), s.units,
+            s.two_sided, s.n_one_way, s.units_one_way,
+            "-" if s.clv != s.clv else f"{s.clv * 100:+.2f}",
+            _nan_pct(s.clv_rate), _nan_pct(s.number_rate),
+        ]
+        for c, v in enumerate(vals, start=1):
+            ws.cell(row=r, column=c, value=v)
+        if s.n:
+            ws.cell(row=r, column=7).fill = _CLV_FILL[s.roi >= 0]
+    for i, w in enumerate([16, 6, 6, 8, 8, 8, 8, 8, 10, 9, 13, 8, 11, 12], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.freeze_panes = "A2"
+
+
+def _write_probation_sheet(ws: Worksheet, rows: list[Probation]) -> None:
+    """Every verdict, including the WATCHING ones: an empty table would read as
+    a clean bill of health when it actually means too few graded bets."""
+    _metric_header(ws, _PROBATION_COLUMNS)
+    for r, p in enumerate(rows, start=2):
+        vals: list[object] = [
+            p.status, p.name, p.kind, p.n, _nan_pct(p.roi), f"{p.se * 100:.1f}",
+            _nan_pct(p.first_half), _nan_pct(p.second_half), p.finding,
+        ]
+        for c, v in enumerate(vals, start=1):
+            ws.cell(row=r, column=c, value=v)
+        fill = _VERDICT_FILL.get(p.status)
+        if fill:
+            ws.cell(row=r, column=1).fill = fill
+    for i, w in enumerate([10, 30, 11, 6, 8, 7, 9, 9, 90], start=1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.freeze_panes = "A2"
+
+
 def write_ledger_workbook(
     entries: list[LedgerEntry],
     overall: list[OverallMetrics],
@@ -205,12 +267,18 @@ def write_ledger_workbook(
     market_rows: list[OverallMetrics] | None = None,
     clv_rows: list[ClvSummary] | None = None,
     price_rows: list[OverallMetrics] | None = None,
+    money_rows: list[PricedStat] | None = None,
+    probation_rows: list[Probation] | None = None,
 ) -> Path:
     wb = Workbook()
     ws_overall = wb.active
     ws_overall.title = "Overall"
     _write_metric_sheet(ws_overall, overall)
 
+    if money_rows:
+        _write_money_sheet(wb.create_sheet("Money (priced buys)"), money_rows)
+    if probation_rows:
+        _write_probation_sheet(wb.create_sheet("Probation"), probation_rows)
     if market_rows:
         _write_metric_sheet(wb.create_sheet("By Market"), market_rows, "Market")
     if price_rows:

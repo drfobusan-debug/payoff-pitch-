@@ -657,8 +657,13 @@ def build_batter_profile(
     vs_lhp_days: int,
     split_prior: bool = True,
     ros_prior: Mapping[str, float] | None = None,
+    overall_days: int | None = None,
 ) -> BatterProfile:
     """Build a batter's context splits.
+
+    ``overall_days`` is the window for the hitter's own baseline, which the
+    splits regress toward. It defaults to the longest split window, which is
+    what the engine used before the baseline had a window of its own.
 
     ``split_prior`` regresses each split toward the batter's own overall rate;
     set it False to restore the flat league-average prior on every split.
@@ -682,7 +687,8 @@ def build_batter_profile(
     vs_lhp_pa = _slice_dates(bdf, as_of, vs_lhp_days)
     vs_lhp_pa = vs_lhp_pa[vs_lhp_pa["p_throws"] == "L"]["events"]
 
-    overall_pa = _slice_dates(bdf, as_of, max(home_away_days, vs_rhp_days))["events"]
+    base_days = overall_days if overall_days is not None else max(home_away_days, vs_rhp_days)
+    overall_pa = _slice_dates(bdf, as_of, base_days)["events"]
 
     # Hierarchical: the overall window regresses toward the league, then each
     # split regresses toward *this hitter's* overall rather than toward an
@@ -761,6 +767,15 @@ MIN_LEVERAGE_PA = 20  # need this many 8th+ relief PAs to trust a separate profi
 # 6th-inning hand-off the closer's rates overrates every pen -- most of all the
 # good ones, whose leverage-to-bridge gap is widest.
 MIN_BRIDGE_PA = 20
+# ``recent_load`` compares the last three days of relief work against a normal
+# three days, and "normal" is read over this window rather than over whatever
+# window the rate profile happens to use. The 1.15 fatigue tripwire downstream
+# was calibrated against a three-week baseline; deriving the denominator from
+# ``bullpen_days`` instead re-bases the ratio whenever that window moves (going
+# 21d -> 60d flipped four clubs' fatigue status on one slate with no change in
+# their actual workload), which makes a statistical window silently a workload
+# policy. Keep the two separate.
+LOAD_BASELINE_DAYS = 21
 
 
 @dataclass
@@ -940,7 +955,10 @@ def build_bullpen_profile(
     if len(relief):
         recent_start = (as_of - timedelta(days=1)) - timedelta(days=2)  # last 3 days
         recent = relief[relief["game_date"] >= recent_start]
-        expected_3d = len(relief) / days * 3.0
+        base_days = min(days, LOAD_BASELINE_DAYS)
+        base_start = (as_of - timedelta(days=1)) - timedelta(days=base_days - 1)
+        base = relief[relief["game_date"] >= base_start]
+        expected_3d = len(base) / base_days * 3.0
         recent_load = len(recent) / expected_3d if expected_3d > 0 else 0.0
 
     skill = (
@@ -974,9 +992,19 @@ def build_pitcher_profile(
     pitcher_id: int,
     as_of: Date,
     form_days: int,
+    baseline_days: int | None = None,
 ) -> PitcherProfile:
+    """A starter's outcome rates allowed per batter faced.
+
+    ``baseline_days`` (``None`` to keep ``form_days``) reads the rates over their
+    own, longer window: graded on four cutoffs against the next three weeks, the
+    six-week form read carries nothing the 90-day read does not (K +0.15 vs
+    +0.49 jointly, OUT +0.04 vs +0.38), so the rate profile and the "lately"
+    signals no longer share a window.
+    """
+    days = baseline_days if baseline_days is not None else form_days
     pdf = _pa_rows(df[df["pitcher"] == pitcher_id])
-    window = _slice_dates(pdf, as_of, form_days)
+    window = _slice_dates(pdf, as_of, days)
     return PitcherProfile(
         mlbam_id=pitcher_id,
         allowed=rates_from_events(window["events"]),

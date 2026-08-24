@@ -13,6 +13,7 @@ from pathlib import Path
 
 from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import OverallMetrics
+from cfb_engine.audit.priced import PricedStat, priced_findings
 from cfb_engine.config import Config
 from cfb_engine.output.render import to_mp3, to_pdf
 
@@ -72,6 +73,39 @@ def _price_table(rows: list[OverallMetrics]) -> str:
     return f"<table>{head}{body}</table>"
 
 
+def _money_table(rows: list[PricedStat]) -> str:
+    """Only the bets that were priced and bought, against the rate they charged."""
+    if not rows:
+        return "<p>No priced buys graded yet.</p>"
+    head = (
+        "<tr><th>Market</th><th>N</th><th>Win%</th><th>Needs</th><th>Gap</th>"
+        "<th>ROI</th><th>Units</th></tr>"
+    )
+    body = ""
+    for s in rows:
+        body += (
+            f"<tr><td>{s.label}</td><td>{s.n}</td><td>{s.win_rate * 100:.1f}%</td>"
+            f"<td>{s.breakeven * 100:.1f}%</td>"
+            f"<td class='{_cls(s.shortfall)}'>{s.shortfall * 100:+.1f}</td>"
+            f"<td class='{_cls(s.roi)}'>{s.roi * 100:+.1f}%</td>"
+            f"<td class='{_cls(s.units)}'>{s.units:+.1f}</td></tr>"
+        )
+    findings = "".join(f"<li>{f}</li>" for f in priced_findings(rows))
+    tail = f"<ul>{findings}</ul>" if findings else ""
+    return f"<table>{head}{body}</table>{tail}"
+
+
+def _probation_list(findings: list[str]) -> str:
+    """Silent unless something crossed the bar -- see audit/probation.py."""
+    if not findings:
+        return (
+            "<p>Nothing has crossed the volume, size and consistency bar; no market "
+            "or screen is on probation.</p>"
+        )
+    body = "".join(f"<li>{f}</li>" for f in findings)
+    return f"<ul>{body}</ul>"
+
+
 def _clv_table(rows: list[ClvSummary]) -> str:
     if not rows:
         return "<p>No closing snapshot captured for this slate.</p>"
@@ -91,6 +125,8 @@ def build_audit_article(
     clv_rows: list[ClvSummary],
     n_graded: int,
     price_rows: list[OverallMetrics] | None = None,
+    money_rows: list[PricedStat] | None = None,
+    probation: list[str] | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the graded slate."""
     nice = audit_date.strftime("%A, %B %-d, %Y")
@@ -112,15 +148,23 @@ def build_audit_article(
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_CSS}</style></head><body>"
         f"{masthead}<p>{lead}</p>"
         f"<h2>By segment</h2>{_metric_table(overall)}"
+        f"<h2>What the prices did</h2>{_money_table(money_rows or [])}"
         f"<h2>By price length</h2>{_price_table(price_rows or [])}"
         f"<h2>Closing line value</h2>{_clv_table(clv_rows)}"
+        f"<h2>Probation</h2>{_probation_list(probation or [])}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
     )
-    return html, _narration(nice, overall, n_graded)
+    return html, _narration(nice, overall, n_graded, money_rows or [], probation or [])
 
 
-def _narration(nice: str, overall: list[OverallMetrics], n_graded: int) -> str:
+def _narration(
+    nice: str,
+    overall: list[OverallMetrics],
+    n_graded: int,
+    money_rows: list[PricedStat],
+    probation: list[str],
+) -> str:
     buy = next((m for m in overall if m.tier == "Buy (S+M)"), None)
     parts = [f"Payoff Pitch Gridiron audit for {nice}. We graded {n_graded} markets. "]
     if buy and buy.n:
@@ -131,6 +175,19 @@ def _narration(nice: str, overall: list[OverallMetrics], n_graded: int) -> str:
         )
     else:
         parts.append("No plays cleared the buy threshold on this slate. ")
+    every = next((s for s in money_rows if s.key == "ALL"), None)
+    if every is not None and every.n:
+        # Read aloud because it is the sentence the ROI line cannot convey: a win
+        # rate under the rate the prices charged is a loss however good it sounds.
+        parts.append(
+            f"Against the prices, the buys won {every.win_rate * 100:.0f} percent "
+            f"where they needed {every.breakeven * 100:.0f}. "
+        )
+    if probation:
+        parts.append(
+            f"{len(probation)} probation verdict{'s' if len(probation) > 1 else ''} "
+            "crossed the bar today; the wording is in the report. "
+        )
     parts.append("Full breakdown by market and closing line value is in the attached ledger. ")
     parts.append("That's the audit. Payoff Pitch, out.")
     return "".join(parts)
@@ -147,10 +204,14 @@ def generate_audit_report(
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
     price_rows: list[OverallMetrics] | None = None,
+    money_rows: list[PricedStat] | None = None,
+    probation: list[str] | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
-    html, narr = build_audit_article(audit_date, overall, clv_rows, n_graded, price_rows)
+    html, narr = build_audit_article(
+        audit_date, overall, clv_rows, n_graded, price_rows, money_rows, probation
+    )
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_audit_{iso}.html"
