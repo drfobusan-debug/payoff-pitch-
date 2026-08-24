@@ -20,6 +20,7 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
@@ -218,6 +219,14 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
         bits.append(
             f"His wOBA outruns his expected mark by {h.luck_gap * 1000:+.0f} points, so some of "
             f"the line above is luck the market may already have taken back."
+        )
+    if h.swing_rescue and h.swing is not None:
+        bits.append(
+            f"<strong>The luck gap wanted him cut and the swing kept him</strong>: bat speed "
+            f"{_num(h.swing.bat_speed, 1)} mph and a {_pc(h.swing.blast)} blast rate put him "
+            f"{h.swing.power_z:+.2f} standard deviations above league on the two measures that "
+            f"predict total bases and home runs out of time. The results outran the contact; the "
+            f"swing underneath them did not."
         )
     return " ".join(bits)
 
@@ -615,8 +624,11 @@ def _pool_table(section: MatchupSection) -> str:
     rows = []
     for v in section.hitters:
         h = v.line
+        mark = " *" if h.power_exception else ""
+        mark += " \u2021" if h.swing_rescue else ""
+        sw = h.swing
         rows.append([
-            html.escape(h.name) + (" *" if h.power_exception else ""),
+            html.escape(h.name) + mark,
             str(h.slot or "&mdash;"),
             str(int(h.pa)),
             _num(h.wrc, 0),
@@ -628,10 +640,13 @@ def _pool_table(section: MatchupSection) -> str:
             _pc(h.hh),
             _num(h.ev90, 1),
             _pc(h.osw),
+            _num(sw.bat_speed if sw else math.nan, 1),
+            _pc(sw.blast if sw else math.nan),
+            _pc(sw.squared_up if sw else math.nan),
         ])
     return _table(
         ["batter", "LP", "PA", "wRC+", "pts", "top5", "xwOBA", "xwOBAcon", "Brl%", "HH%", "EV90",
-         "O-Sw%"],
+         "O-Sw%", "BatSpd", "Blast%", "SqUp%"],
         rows, numeric_from=1,
     )
 
@@ -760,6 +775,42 @@ def _withheld_note(section: MatchupSection) -> str:
     )
 
 
+def _swing_note(section: MatchupSection) -> str:
+    """What the swing columns are, and which hitters the luck-gap cut lost on them.
+
+    The provenance half prints whenever the columns do, since a reader cannot
+    judge a bat-speed figure without the window it was read over. The rescue half
+    is added when a hitter is here on his swing, because that is a cut being
+    overruled and the row should not look clean.
+    """
+    if not any(v.line.swing is not None for v in section.hitters):
+        return ""
+    rescued = [v.line.name for v in section.hitters if v.line.swing_rescue]
+    lead = "<strong>The swing columns.</strong>"
+    if rescued:
+        names = ", ".join(html.escape(n) for n in rescued)
+        lead = (
+            "<strong>\u2021 Kept on the swing after the luck gap flagged them.</strong> "
+            f"{names}."
+        )
+    return (
+        f"<p class='caveat'>{lead} Bat speed, blast rate and squared-up rate are read over each "
+        f"measure's own window of tracked competitive swings &mdash; {WINDOW['bat_speed']} for bat "
+        f"speed, {WINDOW['blast']} for blast, {WINDOW['squared_up']} for squared-up, four times the "
+        "sample each first half-repeats at. Out of time on 3,175 "
+        "batter-windows those levels add to total bases and home runs on top of wOBA and xwOBA "
+        "(blast t +6.6, bat speed t +5.4), and of the windows the luck-gap cut removes the better "
+        "half of swings went on to .3801 TB/PA against .3355 for the worse half &mdash; ahead of "
+        "the .3708 posted by the hitters the cut kept. Squared-up rate is a hits signal and is "
+        "negatively signed on home runs, so it is printed and does not rescue. The two contact "
+        "rates are reconstructed from the pitch-level collision model with their cuts calibrated to "
+        "the league rate Savant publishes, since the leaderboard cannot be sliced by swing count "
+        "(per hitter r +.86 and +.76 against the official figures). A blank column is a hitter with "
+        "too few tracked swings to read, not an average one. Attack angle is published by no "
+        "endpoint we can reach and is absent rather than estimated.</p>"
+    )
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -803,6 +854,7 @@ def _section_html(section: MatchupSection, index: int) -> str:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
     out.append(_withheld_note(section))
+    out.append(_swing_note(section))
     out.append(_sim_table(section))
     return "".join(out)
 

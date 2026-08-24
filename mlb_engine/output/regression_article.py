@@ -30,6 +30,13 @@ from mlb_engine.features.regression import (
     BL_K_PCT,
     BL_XSLG,
 )
+from mlb_engine.features.swing import (
+    CONFIRMED,
+    CONTRADICTED,
+    LEAGUE,
+    UNMEASURED,
+    WINDOW,
+)
 from mlb_engine.output.audit_insight import to_pdf
 from mlb_engine.output.regression_profiles import (
     _batter_ctx,
@@ -298,6 +305,80 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
     )
 
 
+def _swing_sentence(p: dict, positive: bool) -> str:
+    """Stage two: does the swing agree with what the gap says is coming?
+
+    The gap ranks the list and it is a residual of outcomes -- it knows which
+    balls fell in and nothing about the swing that hit them. Bat speed and blast
+    rate, read on their own windows of tracked swings, add to next-fortnight total
+    bases and home runs on top of wOBA and xwOBA (t +5.4 and t +6.6 on 3,175
+    batter-windows), so they are what confirms or contradicts the gap here.
+    """
+    stage2 = p.get("stage2", UNMEASURED)
+    if stage2 == UNMEASURED:
+        return (
+            "His swing is not readable at this sample &mdash; too few tracked competitive "
+            "swings for bat speed and blast rate to mean anything &mdash; so the gap above "
+            "stands on its own."
+        )
+    pz = p["power_z"]
+    strength = (
+        f"bat speed {p['bat_speed']:.1f} mph and a {p['blast'] * 100:.0f}% blast rate, "
+        f"{pz:+.2f} standard deviations from league"
+    )
+    if positive and stage2 == CONFIRMED:
+        return (
+            f"The swing underneath agrees: {strength}. The rebound has a bat behind it "
+            "rather than being a wish about batted balls."
+        )
+    if positive:
+        return (
+            f"The swing does not back it: {strength}. His results are below his contact and "
+            "his swing is below league too, so the low level is closer to what he is than "
+            "the shortfall suggests."
+        )
+    if stage2 == CONFIRMED:
+        return (
+            f"The swing agrees with the fade: {strength}. Nothing in how he is hitting the "
+            "ball is holding the production up."
+        )
+    return (
+        f"The swing argues against the fade: {strength}. He has been lucky and he is also "
+        "good, which is the case the gap on its own gets wrong &mdash; of the hitters this "
+        "cut flags, the better-swinging half went on to out-produce the ones it kept."
+    )
+
+
+def _swing_line(p: dict) -> str:
+    """The swing levels themselves, each over the window its measure repeats at."""
+    if p.get("stage2", UNMEASURED) == UNMEASURED and p.get("swings", 0) == 0:
+        return ""
+    cells = [
+        f"BatSpd {p['bat_speed']:.1f}" if p["bat_speed"] == p["bat_speed"] else "BatSpd &mdash;",
+        f"Fast {p['fast'] * 100:.0f}%" if p["fast"] == p["fast"] else "Fast &mdash;",
+        f"SqUp {p['squared_up'] * 100:.0f}%"
+        if p["squared_up"] == p["squared_up"]
+        else "SqUp &mdash;",
+        f"Blast {p['blast'] * 100:.0f}%" if p["blast"] == p["blast"] else "Blast &mdash;",
+        f"SwLen {p['swing_length']:.2f}"
+        if p["swing_length"] == p["swing_length"]
+        else "SwLen &mdash;",
+    ]
+    lg = (
+        f"league {LEAGUE['bat_speed'][0]:.1f} / {LEAGUE['fast'][0] * 100:.0f}% / "
+        f"{LEAGUE['squared_up'][0] * 100:.0f}% / {LEAGUE['blast'][0] * 100:.0f}% / "
+        f"{LEAGUE['swing_length'][0]:.2f}"
+    )
+    return (
+        f"<p class='trend'>Swing: {' &middot; '.join(cells)} "
+        f"<span class='caption'>&mdash; {lg}; read over "
+        f"{WINDOW['bat_speed']}/{WINDOW['fast']}/{WINDOW['squared_up']}/"
+        f"{WINDOW['blast']}/{WINDOW['swing_length']} tracked swings, four times the sample "
+        f"each first half-repeats at, off {p['swings']} in the window. Attack angle is "
+        "published by no available feed.</span></p>"
+    )
+
+
 def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -> str:
     gap = p["dxwoba"] * 1000
     power = (
@@ -333,12 +414,12 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
             "cold — the results are simply ahead of it, and that is the part "
             "that comes back."
         )
-    if trend_d > 0.020:
-        heat = f"He is hotter than his six-week line too ({_mil(p['woba3'])} over three weeks)."
-    elif trend_d < -0.020:
-        heat = f"He has cooled lately ({_mil(p['woba3'])} over the last three weeks)."
-    else:
-        heat = ""
+    heat = (
+        f"His three-week line reads {_mil(p['woba3'])} against the six-week "
+        f"{_mil(p['woba6'])}, which is context and not a forecast."
+        if abs(trend_d) > 0.020
+        else ""
+    )
     env = ""
     if ctx:
         bits = []
@@ -352,14 +433,27 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
         if bits:
             env = "Tonight: " + " and ".join(bits) + "."
     body = " ".join(
-        x for x in (lead, verdict, _bat_air_sentence(p, positive), heat, env) if x
+        x
+        for x in (
+            lead,
+            verdict,
+            _swing_sentence(p, positive),
+            _bat_air_sentence(p, positive),
+            heat,
+            env,
+        )
+        if x
     )
     bets = [bet] if bet else []
     cls = "up" if positive else "down"
+    flag = ""
+    if p.get("stage2") == CONTRADICTED:
+        flag = " <span class='mu'>swing disagrees</span>"
     return (
         f"<div class='entry {cls}'>"
-        f"<h3>{p['name']} <span class='mu'>{ctx['matchup'] if ctx else ''}</span></h3>"
+        f"<h3>{p['name']} <span class='mu'>{ctx['matchup'] if ctx else ''}</span>{flag}</h3>"
         f"<p class='prose'>{body}</p>"
+        f"{_swing_line(p)}"
         f"<p class='bet'>{_bet_sentence(bets, 'his')}</p>"
         "</div>"
     )
@@ -379,11 +473,28 @@ LEAD = (
     "at the same time: the runs come down, but they come down to a lower "
     "level. Those cases are flagged in the text rather than left for you to "
     "spot.<br><br>"
-    "One honest caveat on the arrows. Measured over 246 starts this season, "
+    "<b>The bats are read in two stages this month.</b> The gap still ranks "
+    "them, because it is what is due to move. But a gap is a residual of "
+    "outcomes &mdash; it knows which balls fell in and nothing about the swing "
+    "that hit them &mdash; so every hitter is then crossed against his bat "
+    "tracking: bat speed, fast-swing rate, squared-up rate and blast rate, each "
+    "read over its own window of tracked competitive swings rather than a round "
+    "six weeks. Out of time on 3,175 batter-windows those levels add to the next "
+    "fortnight&rsquo;s total bases and home runs on top of wOBA and xwOBA, blast "
+    "rate contributing more than the two of them explain between them; "
+    "squared-up rate predicts hits and is negatively signed on home runs, so it "
+    "is read on the contact markets and kept off the power ones. When the swing "
+    "disagrees with the gap the entry says so, and that disagreement is the "
+    "report&rsquo;s answer to a hitter being written off for a fortnight of good "
+    "luck.<br><br>"
+    "Two honest caveats on the arrows. Measured over 246 starts this season, "
     "the <i>level</i> of SIERA, Stuff and velocity predicts what a starter "
     "allows next time out; the <i>three-week direction</i> of those same "
     "metrics does not. The trend line is printed because it is worth seeing, "
-    "not because it has earned a bet."
+    "not because it has earned a bet. The same holds for the swing: the "
+    "<i>level</i> of bat speed and blast rate forecasts, the recent-versus-prior "
+    "<i>move</i> in them forecasts nothing (bat speed t +1.4, blast t &minus;0.3), "
+    "so no swing trend is printed at all."
 )
 
 CSS = """
@@ -432,8 +543,24 @@ FINE = (
     "a reason to expect one. Hitter "
     "wOBA, xwOBA and xSLG use a six-week batted-ball slice with a 25-event "
     "minimum, and the three-week figure is the same measure over the recent "
-    "window. Ranking is the luck term only: z(BABIP &minus; .290) + "
-    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats. Levels were "
+    "window. Swing levels are means over each measure&rsquo;s own window of "
+    "tracked competitive swings &mdash; "
+    f"{WINDOW['bat_speed']} for bat speed, {WINDOW['fast']} for fast-swing rate, "
+    f"{WINDOW['swing_length']} for swing length, {WINDOW['blast']} for blast rate, "
+    f"{WINDOW['squared_up']} for squared-up rate, four times "
+    "the sample at which each first reaches split-half r=.50 on 515,417 tracked "
+    "swings &mdash; and are compared with league measured the same way. "
+    "Squared-up and blast rate are reconstructed from the pitch-level collision "
+    "model with the cuts calibrated to Savant&rsquo;s published league rates; per "
+    "hitter that reads r +.86 and +.76 against the official leaderboard over the "
+    "same dates (bat speed +.996, swing length +.997), and the reconstruction is "
+    "noisier than the official figure, which attenuates the coefficients rather "
+    "than inflating them. Attack angle is published by neither the leaderboard "
+    "nor the pitch-level feed and is absent rather than estimated. "
+    "Ranking is the luck term only: z(BABIP &minus; .290) + "
+    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats; the swing is a "
+    "second stage that confirms or contradicts that ranking rather than "
+    "reordering it. Levels were "
     "validated against next-start xwOBA allowed on 246 starts (SIERA t +4.0, "
     "Stuff t &minus;3.8, vFA t &minus;2.4, each holding sign across a "
     "chronological split); the three-week trends were not significant in the "
@@ -505,13 +632,15 @@ def build_html(
         + "<h2 class='part'>Part two &mdash; the bats</h2>"
         + bats(
             "Due to heat up",
-            "Contact quality the results have not paid for yet.",
+            "Contact quality the results have not paid for yet &mdash; and, under each one, "
+            "whether the swing agrees.",
             bpos,
             True,
         )
         + bats(
             "Due to cool off",
-            "Results the contact has not earned.",
+            "Results the contact has not earned. Where the swing disagrees the fade is the "
+            "weaker read: half of what this cut flags out-produces what it keeps.",
             bneg,
             False,
         )

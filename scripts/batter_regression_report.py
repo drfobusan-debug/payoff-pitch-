@@ -13,6 +13,7 @@ from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.regression import build_batter_regression
+from mlb_engine.features.swing import build_swing_profile, stage_two
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.pipeline import Pipeline, PipelineDeps, load_sprint_speeds
 
@@ -57,6 +58,7 @@ for g in slate.games:
             reg = build_batter_regression(rows, sprint.get(p.mlbam_id, 27.0))
             if reg.bbe < 20:
                 continue
+            prof = build_swing_profile(rows)
             out.append({
                 "matchup": g.matchup(),
                 "team": team.abbrev,
@@ -75,6 +77,15 @@ for g in slate.games:
                 "sweet_spot": round(reg.sweet_spot, 3),
                 "whiff": round(reg.whiff, 3),
                 "mult": {k: round(v, 3) for k, v in reg.multipliers().items()},
+                "swings": prof.swings,
+                "bat_speed": round(prof.bat_speed, 1),
+                "fast": round(prof.fast, 3),
+                "squared_up": round(prof.squared_up, 3),
+                "blast": round(prof.blast, 3),
+                "swing_length": round(prof.swing_length, 2),
+                "power_z": round(prof.power_z, 2),
+                "contact_z": round(prof.contact_z, 2),
+                "stage2": stage_two(-reg.dxwoba, prof),
             })
 
 print(json.dumps({"date": day.isoformat(), "batters": out}, indent=2))
