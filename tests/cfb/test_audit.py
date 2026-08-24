@@ -92,15 +92,25 @@ def test_ledger_is_idempotent(tmp_path):
 def test_clv_positive_when_market_moves_to_us():
     closing = {"game_ml|Georgia ML": ClosingQuote(american=-150, no_vig_prob=0.60)}
     close_odds, close_prob, clv, clv_ev = compute_clv(
-        "game_ml", "Georgia ML", bet_american=-120, bet_fair_prob=0.55, closing=closing
-    )
+        "Georgia @ Alabama",
+        "game_ml",
+        "Georgia ML",
+        bet_american=-120,
+        bet_fair_prob=0.55,
+        closing=closing,
+    ).as_tuple()
     assert close_odds == -150
     assert clv is not None and clv > 0  # 0.60 - 0.55
     assert clv_ev is not None
 
 
 def test_clv_missing_selection_is_none():
-    assert compute_clv("game_ml", "Nobody ML", -120, 0.5, {}) == (None, None, None, None)
+    assert compute_clv("Georgia @ Alabama", "game_ml", "Nobody ML", -120, 0.5, {}).as_tuple() == (
+        None,
+        None,
+        None,
+        None,
+    )
 
 
 def test_merge_closing_keeps_earlier_kickoffs():

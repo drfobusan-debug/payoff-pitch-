@@ -21,6 +21,7 @@ from datetime import date as Date
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit import snapshot
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     closing_quotes,
@@ -120,6 +121,12 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
+    # Also seed the first-seen board, in case a capture beats the day's run to
+    # the market: it is written once and never overwritten, so whichever command
+    # sees the board first sets the baseline and the other is a no-op.
+    board_path = cfg.board_file(day)
+    baseline = snapshot.merge_first_wins(snapshot.load(board_path), fresh)
+    snapshot.save(baseline, board_path)
     kept = len(quotes) - len(fresh)
     detail = f", {kept} carried over from an earlier capture" if kept > 0 else ""
     print(
@@ -157,10 +164,23 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
     entries = entries_from_graded(graded, day)
     closing = load_closing(cfg.closing_file(day))
     if closing:
-        for e in entries:
-            e.close_odds, e.close_prob, e.clv, e.clv_ev = compute_clv(
-                e.market, e.selection, e.odds, e.fair_prob, closing
+        # entries_from_graded emits one entry per graded rec, in order, so the
+        # rec's side (cover/over/under) travels with its ledger row.
+        for e, (rec, _) in zip(entries, graded, strict=True):
+            res = compute_clv(
+                e.matchup,
+                e.market,
+                e.selection,
+                e.odds,
+                e.fair_prob,
+                closing,
+                bet_line=e.line,
+                side=rec.side,
+                margin_sd=cfg.model.margin_sd,
+                total_sd=cfg.model.total_sd,
             )
+            e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+            e.clv_pts = res.clv_pts
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 

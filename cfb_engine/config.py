@@ -465,6 +465,14 @@ class Config:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
 
+    def board_file(self, day: Date) -> Path:
+        """First board the engine saw for one slate: the baseline day-of movement
+        is measured from, and the only half of closing-line value that can be
+        known before the bet. Written once per slate and never overwritten, so it
+        cannot be reconstructed after the fact -- if it is missing for a slate,
+        that slate's pre-bet drift is simply unavailable."""
+        return self.audit_dir / f"board_{day.isoformat()}.json"
+
     @property
     def availability_file(self) -> Path:
         """Append-only log of absences, each stamped with the line at capture."""
