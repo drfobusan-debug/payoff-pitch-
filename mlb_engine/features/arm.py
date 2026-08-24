@@ -69,12 +69,12 @@ The release point, the arm angle, the horizontal break and the release scatter
 earn nothing anywhere. Scatter in particular is not a talent level -- within-game
 release variance is a fatigue read and belongs to the removal model, not here.
 
-**The deltas earn nothing, as on the hitter side.** Recent block against the
-immediately preceding one, on top of stage one, target wOBA/PA: velocity t -1.0,
-perceived velocity t -0.9, extension t +0.4, spin t -0.9, break t +1.3, arm angle
-t +0.9, scatter t -1.1. That is the fourth trend this engine has tested and
-refused, after the barrel trend (#109), the CSW trend (#147) and the swing
-trends. No trend is exposed here on purpose.
+**Most of the deltas earn nothing.** Recent block against the immediately
+preceding one, on top of stage one, target wOBA/PA: perceived velocity t -2.6,
+velocity t -2.5, extension t -2.2, release point t +1.5, spin t -0.4, ride
+t +0.8, horizontal break t -0.7. Only the velocity pair reaches the level's
+strength and it is worth a quarter of what the level is worth (dR2 +.006 against
++.019), so perceived velocity is the one trend read here and nothing else is.
 
 **And it is a level, not a rescue.** Crossing the luck flag with the arm read,
 the interaction is t -1.45 and the arm sorts the next fortnight by the same .022
@@ -105,14 +105,31 @@ confirmed verdict is not decoration: a confirmed fade lands 16 points of wOBA
 while a contradicted flag lands on the wrong side of the base rate in both
 directions -- which is the four-way read stage one cannot make on its own.
 
-**The confirmation has to be the level, and never the trend.** Read as a rising
-or falling delivery it evaporates: inside the fade rows, falling perceived
-velocity minus rising is +.0062 of wOBA [-.0112, +.0242], and once the level is
-already in the cell it adds +.0075 [-.0177, +.0332]; inside the bounce-back rows
-an intact *trend* is worth -.0105 [-.0247, +.0045]. Every one of those crosses
-zero, which is why no delta is exposed anywhere in this module and why a starter
-losing a mile off his fastball cannot flip a verdict here -- only where he sits
-against the league can. ``scripts/arm_stage_study.py --cells`` rebuilds all of it.
+**The verdict is the level. The trend is an asterisk on one side of it only.**
+Rebuilt reproducibly by ``scripts/arm_stage_study.py --cells`` -- 2,931
+pitcher-windows, 379 starters, 24 anchors, a delivery read only where the arm
+carried two adjacent blocks so that a level and a trend come off the same slice
+-- the trend of perceived velocity is nearly orthogonal to its level (r +.13)
+and adds on top of it inside the fade rows, where both survive jointly (level
+t -2.4, trend t -2.5). It sorts those rows in both level halves:
+
+    results ran hot          n    nxt wOBA   K/PA    TB/PA
+      weak arm, shedding    168     .3392   .1927   .3951
+      weak arm, holding     118     .3194   .1857   .3733
+      strong arm, shedding   91     .3283   .2341   .3761
+      strong arm, holding   131     .3007   .2360   .3381
+
+Falling minus rising is +.0237 of wOBA [+.0092, +.0381] inside the fade rows,
+same direction in 2025 and 2026 separately, and the two extreme cells sit
++.0169 [+.0048, +.0294] and -.0218 [-.0359, -.0082] against the unflagged base
+rate -- a spread the level alone does not reach.
+
+**Inside the bounce-back rows it is worth nothing**, which is why the trend is
+not symmetric here and is not a verdict: an arm that ran cold and is holding
+allowed .3167 against .3171 for one shedding velocity, and rising minus falling
+is -.0061 [-.0188, +.0067]. The reading only means something where the question
+is whether run prevention *holds*, so ``velo_trend`` is exposed for consumers to
+print beside a fade and ``stage_two`` still turns on the level alone.
 """
 
 from __future__ import annotations
@@ -167,6 +184,11 @@ WINDOW = 100
 #: rather than league average. Two of the smallest window the panel validated.
 MIN_LEVEL_PITCHES = 24
 
+#: League spread of the perceived-velocity trend -- the last block against the
+#: block before it -- over the same panel, whose drift is +0.02 mph. Kept apart
+#: from ``LEAGUE`` because it scales a change and not a level.
+DRIFT_SD = 0.55
+
 
 def _crossing(curve: tuple[tuple[int, float], ...], target: float) -> float:
     for (n0, r0), (n1, r1) in zip(curve, curve[1:], strict=False):
@@ -216,6 +238,7 @@ class ArmProfile:
     pitches: int
     velo: float = math.nan
     pvelo: float = math.nan
+    d_pvelo: float = math.nan
     ext: float = math.nan
     rel_x: float = math.nan
     rel_z: float = math.nan
@@ -267,11 +290,48 @@ class ArmProfile:
         """
         return self.z("ivb")
 
+    @property
+    def trend_z(self) -> float:
+        """The perceived-velocity change in league spreads of that change.
+
+        Read against ``DRIFT_SD`` rather than against the spread of the level:
+        an arm shedding half a mile has moved a league standard deviation of
+        *movement* while barely moving inside the distribution of arms.
+        """
+        if self.d_pvelo != self.d_pvelo or not DRIFT_SD:
+            return math.nan
+        return self.d_pvelo / DRIFT_SD
+
+
+#: Which way the delivery is moving. Sign only: the panel split these at zero
+#: and a wider cut (half a league spread of drift either side) bought nothing
+#: beyond it, +.0267 of wOBA against +.0257, so no dead band is invented here.
+SHEDDING = "shedding"  # perceived velocity below the block before it
+HOLDING = "holding"  # level or rising
 
 #: Verdicts of the second stage, once the first has read the luck term.
 CONFIRMED = "confirmed"  # the arm agrees with what the luck term says is coming
 CONTRADICTED = "contradicted"  # the arm says the luck read is about to be wrong
 UNMEASURED = "unmeasured"  # too few fastballs to read a level at all
+
+
+def velo_trend(prof: ArmProfile | None) -> str:
+    """Whether the arm is shedding perceived velocity, ``UNMEASURED`` when unread.
+
+    Graded only where the luck term calls for a fade, and deliberately not part
+    of ``stage_two``: inside the fade rows this sorts the fortnight ahead in both
+    halves of the level (+.0257 of wOBA, [+.0119, +.0389], and in both seasons
+    separately) and survives the level jointly (t -2.5 beside the level's -2.4,
+    r +.13 between them). Inside the bounce-back rows the same reading is worth
+    -.0085 [-.0216, +.0044]: the cell crosses zero, so nothing is quoted there.
+    So it qualifies a fade and never overturns a verdict.
+
+    Requires two adjacent blocks off the same slice, so an arm with a readable
+    level can still have an unreadable trend.
+    """
+    if prof is None or prof.d_pvelo != prof.d_pvelo:
+        return UNMEASURED
+    return SHEDDING if prof.d_pvelo < 0.0 else HOLDING
 
 
 def stage_two(luck_gap: float, prof: ArmProfile | None, *, min_stuff_z: float = 0.0) -> str:
@@ -294,7 +354,9 @@ def stage_two(luck_gap: float, prof: ArmProfile | None, *, min_stuff_z: float = 
     pair lands on the far side of the unflagged base rate and the contradicted
     pair on the wrong side of it, which is what makes the verdict worth printing.
     The cut is where the arm sits against the league and never which way it is
-    moving -- the trend form of every cell crosses zero.
+    moving: the trend earns nothing inside the bounce-back rows, so it cannot
+    carry a verdict that has to hold in both directions. Where it does earn
+    something -- beside a fade -- ``velo_trend`` reports it as a qualifier.
 
     Read on ``stuff_z`` alone. Ride is reported beside this and not folded in: it
     points at home runs and against hits, so it cannot vote on a single verdict.
@@ -343,6 +405,21 @@ def _level(values: pd.Series) -> float:
     return float(clean.tail(WINDOW).mean())
 
 
+def _trend(values: pd.Series) -> float:
+    """The last block minus the block before it, both the same size.
+
+    Sized as the panel sized it: half the slice, capped at ``WINDOW``, so the
+    two halves are always comparable, and ``nan`` until the slice carries two
+    whole floors -- a trend measured against a shorter block is a different
+    quantity from the one that was graded.
+    """
+    clean = values.dropna()
+    if len(clean) < 2 * MIN_LEVEL_PITCHES:
+        return math.nan
+    n = min(WINDOW, len(clean) // 2)
+    return float(clean.iloc[-n:].mean() - clean.iloc[-2 * n : -n].mean())
+
+
 def build_arm_profile(rows: pd.DataFrame) -> ArmProfile:
     """Read a starter's delivery off his pitch-level slice.
 
@@ -370,10 +447,12 @@ def build_arm_profile(rows: pd.DataFrame) -> ArmProfile:
         if len(rel_x.dropna()) >= MIN_LEVEL_PITCHES
         else math.nan
     )
+    pvelo = velo + 1.1 * ext - 6.0
     return ArmProfile(
         pitches=int(len(fb)),
         velo=_level(velo),
-        pvelo=_level(velo + 1.1 * ext - 6.0),
+        pvelo=_level(pvelo),
+        d_pvelo=_trend(pvelo),
         ext=_level(ext),
         rel_x=_level(rel_x),
         rel_z=_level(rel_z),

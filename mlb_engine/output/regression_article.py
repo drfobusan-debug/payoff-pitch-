@@ -117,8 +117,7 @@ def _air_sentence(p: dict, positive: bool) -> str:
             f"He keeps the ball down &mdash; {ground} on the ground, {fb:.0%} "
             "in the air &mdash; so "
             + (
-                "expect the correction in singles and double plays rather than "
-                "in home runs."
+                "expect the correction in singles and double plays rather than in home runs."
                 if positive
                 else "the damage that comes back is hits rather than homers."
             )
@@ -175,8 +174,7 @@ def _luck_sentence(p: dict, positive: bool) -> str:
         return "Where he has been unlucky: " + "; ".join(bits) + "."
     if p["unlucky_babip"] < -0.015:
         bits.append(
-            f"balls in play are finding gloves at {_mil(babip)} against a "
-            f"{_mil(BL_BABIP)} norm"
+            f"balls in play are finding gloves at {_mil(babip)} against a {_mil(BL_BABIP)} norm"
         )
     if gap > 10:
         bits.append(
@@ -287,8 +285,8 @@ def _arm_sentence(p: dict, positive: bool) -> str:
     fade the delivery argues with, and a confirmed correction allowed .314
     against .336, either side of a .322 base rate for the arms neither flag
     touches. The verdict turns on where the delivery sits against the league and
-    never on which way it is trending -- read as a rise or a fall, every one of
-    those gaps crosses zero.
+    never on which way it is trending; the trend is added to a fade only, since
+    that is the only side of the flag where it graded (``_trend_clause``).
     """
     stage2 = p.get("arm_stage2", arm.UNMEASURED)
     if stage2 == arm.UNMEASURED:
@@ -321,13 +319,48 @@ def _arm_sentence(p: dict, positive: bool) -> str:
             f"The arm agrees with the fade: {strength}. Nothing in how he is throwing is "
             "holding the run prevention up &mdash; arms in this cell allowed .338 the "
             "following fortnight and struck out .187 of batters against .236, the sharpest "
-            "of the four readings."
+            "of the four readings." + _trend_clause(p)
         )
     return (
         f"The arm argues against the fade: {strength}. He has been helped and he is also "
         "good, which is the case the luck term on its own gets wrong &mdash; though the arm "
         "sorts the fortnight ahead by the same margin whether the luck ran hot or cold, so "
-        "read it as a level rather than as a reprieve."
+        "read it as a level rather than as a reprieve." + _trend_clause(p)
+    )
+
+
+def _trend_clause(p: dict) -> str:
+    """The asterisk on a fade: is the delivery holding the results up or shedding?
+
+    Printed only where the results ran hot, because that is the only side of the
+    flag on which the trend graded. Inside those rows a shedding arm allowed
+    +.026 of wOBA more the fortnight after than one holding its velocity
+    [+.012, +.039], in both seasons and in both halves of the level, and the two
+    corners of the pair sit .339 and .301 either side of a .322 base rate. Inside
+    the correction rows the same reading is worth -.009 [-.022, +.004], so it is
+    absent there rather than printed as a null.
+
+    A move that rounds to nothing is left out rather than announced as a tenth of
+    a mile in either direction: the cells were split at zero and the prose is not
+    where a dead band would be invented, but neither is a hundredth of a mile
+    worth a sentence.
+    """
+    trend = p.get("arm_trend", arm.UNMEASURED)
+    if trend == arm.UNMEASURED:
+        return ""
+    d = p["arm_d_pvelo"]
+    if abs(d) < 0.05:
+        return ""
+    if trend == arm.SHEDDING:
+        return (
+            f" And it is going the wrong way for him: {abs(d):.1f} mph of perceived velocity "
+            "off the block before this one, which inside a fade is worth another .026 of "
+            "wOBA the fortnight after &mdash; the sharpest corner on the board."
+        )
+    return (
+        f" He is at least holding the delivery, {d:+.1f} mph on the block before this one; "
+        "arms fading on a steady or rising delivery allowed .026 less wOBA the fortnight "
+        "after than the ones shedding it, so this is the softer version of the fade."
     )
 
 
@@ -386,12 +419,27 @@ def _arm_line(p: dict) -> str:
     )
 
 
+def _three_week_trend(p: dict) -> str:
+    """The context line's three-week moves, with the unreadable ones left out.
+
+    An arm with no starts on one side of the split has no move to report, and a
+    reader is owed that rather than a printed ``nan``.
+    """
+    cells = [
+        f"{label} {value * scale:+.{digits}f}{unit}"
+        for label, value, scale, digits, unit in (
+            ("SIERA", p["d_siera"], 1.0, 2, ""),
+            ("Stuff xK%", p["d_xk"], 100.0, 1, ""),
+            ("vFA", p["d_vfa"], 1.0, 1, " mph"),
+        )
+        if value == value
+    ]
+    return "3wk trend: " + " · ".join(cells) if cells else "3wk trend: not readable"
+
+
 def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     matchup = ctx["matchup"] if ctx else ""
-    trend = (
-        f"3wk trend: SIERA {p['d_siera']:+.2f} · Stuff xK% {p['d_xk'] * 100:+.1f} · "
-        f"vFA {p['d_vfa']:+.1f} mph"
-    )
+    trend = _three_week_trend(p)
     opener = (
         f"{p['name']} is {_who_he_is(p)} — SIERA {p['siera']:.2f}, "
         f"{_stuff_phrase(p)} at {p['xk'] * 100:.0f}% expected strikeouts"

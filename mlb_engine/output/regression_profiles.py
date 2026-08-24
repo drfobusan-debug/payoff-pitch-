@@ -20,6 +20,7 @@ import pandas as pd
 from mlb_engine.audit.ledger import prop_subject
 from mlb_engine.features.arm import ArmProfile, build_arm_profile
 from mlb_engine.features.arm import stage_two as arm_stage_two
+from mlb_engine.features.arm import velo_trend as arm_velo_trend
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -114,9 +115,9 @@ def _arm_fields(prof: ArmProfile, dxwoba: float) -> dict[str, float | int | str]
     """The second stage of the starter read: the delivery, and whether it agrees.
 
     ``dxwoba`` is xwOBA-allowed minus wOBA-allowed, which is the luck term stage
-    two is crossed against directly. Levels only: the recent-versus-prior move in
-    these same measures adds nothing out of time (perceived velocity t -0.9 on
-    2,214 pitcher-windows), the fourth trend this engine has tested and refused.
+    two is crossed against directly. The verdict is a level; the trend rides
+    along beside it because it earns something on the fade side of the flag and
+    nothing on the other, so it qualifies a fade rather than voting on one.
     """
     return {
         "arm_pitches": prof.pitches,
@@ -131,7 +132,10 @@ def _arm_fields(prof: ArmProfile, dxwoba: float) -> dict[str, float | int | str]
         "arm_scatter": prof.scatter,
         "stuff_z": prof.stuff_z,
         "ride_z": prof.ride_z,
+        "arm_d_pvelo": prof.d_pvelo,
+        "trend_z": prof.trend_z,
         "arm_stage2": arm_stage_two(dxwoba, prof),
+        "arm_trend": arm_velo_trend(prof),
     }
 
 
@@ -332,16 +336,12 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
 
 
 def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
-    cands = [
-        r for r in preds
-        if r.get("player_id") == pid and r["market"].startswith("batter_")
-    ]
+    cands = [r for r in preds if r.get("player_id") == pid and r["market"].startswith("batter_")]
     if not cands:
         return None
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
     cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
     return cands[0]
-
 
     return cands[0]
 

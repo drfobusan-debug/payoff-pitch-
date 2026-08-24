@@ -17,10 +17,15 @@ rescue: what is being asked is whether the agreeing cells land further from the
 unflagged base rate than the flag does on its own, in both directions.
 
 Each cell is also run on the *trend* of perceived velocity beside its level,
-because a falling arm is the intuitive form of the same story and the intuition
-does not survive: those intervals cross zero, so nothing in ``features.arm`` is
-allowed to read a delta. Intervals are bootstrap resamples of pitchers, not of
-rows -- a starter appears at up to eighteen anchors.
+and the trend is only half a signal: inside the fade rows it sorts the fortnight
+ahead in both halves of the level and survives it jointly, while inside the
+bounce-back rows it is worth nothing. That asymmetry is why ``features.arm``
+exposes ``velo_trend`` for a fade to quote and keeps ``stage_two`` on the level.
+Intervals are bootstrap resamples of pitchers, not of rows -- a starter appears
+at up to two dozen anchors.
+
+``--panel`` writes the built panel out, or reads it back, which is the only way
+to iterate on the cells: building it re-reads two seasons of pitch-level cache.
 """
 
 from __future__ import annotations
@@ -29,6 +34,7 @@ import argparse
 import logging
 from datetime import date as Date
 from datetime import timedelta
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -293,23 +299,50 @@ def cells(p: pd.DataFrame, rng: np.random.Generator) -> None:
             if r is not None:
                 print(f"  {tag:34s} {label:8s} {r[0]:+.4f} [{r[1]:+.4f},{r[2]:+.4f}]")
 
-    print("\nthe same cells read as a trend -- the form that does not survive")
-    _line("ran hot + falling pVelo", p[hot & (p["dz"] <= 0)])
-    _line("ran hot + rising pVelo", p[hot & (p["dz"] > 0)])
-    _line("ran cold + rising pVelo", p[cold & (p["dz"] > 0)])
-    _line("ran cold + falling pVelo", p[cold & (p["dz"] <= 0)])
+    print("\nthe same cells read as a trend, which is half a signal")
+    falling = p["d_pvelo"] < 0
+    for tag, mask in (
+        ("ran hot + shedding pVelo", hot & falling),
+        ("ran hot + holding pVelo", hot & ~falling),
+        ("ran cold + holding pVelo", cold & ~falling),
+        ("ran cold + shedding pVelo", cold & falling),
+    ):
+        _line(tag, p[mask])
     for tag, side_a, side_b in (
-        ("hot: falling minus rising", hot & (p["dz"] <= 0), hot & (p["dz"] > 0)),
-        ("cold: rising minus falling", cold & (p["dz"] > 0), cold & (p["dz"] <= 0)),
-        (
-            "hot + weak level: falling minus rising",
-            hot & (p["pz"] <= 0) & (p["dz"] <= 0),
-            hot & (p["pz"] <= 0) & (p["dz"] > 0),
-        ),
+        ("hot: shedding minus holding", hot & falling, hot & ~falling),
+        ("cold: holding minus shedding", cold & ~falling, cold & falling),
     ):
         r = bootstrap(p[side_a], p[side_b], "nxt_woba", rng)
         if r is not None:
             print(f"  {tag:40s} wOBA/PA {r[0]:+.4f} [{r[1]:+.4f},{r[2]:+.4f}]")
+
+    print("\nlevel crossed with trend, and each jointly on top of stage one")
+    for tag, mask in (
+        ("hot: weak arm, shedding", hot & (p["pz"] <= 0) & falling),
+        ("hot: weak arm, holding", hot & (p["pz"] <= 0) & ~falling),
+        ("hot: strong arm, shedding", hot & (p["pz"] > 0) & falling),
+        ("hot: strong arm, holding", hot & (p["pz"] > 0) & ~falling),
+        ("cold: strong arm, holding", cold & (p["pz"] > 0) & ~falling),
+        ("cold: strong arm, shedding", cold & (p["pz"] > 0) & falling),
+    ):
+        _line(tag, p[mask])
+    print(f"  correlation of level and trend: r {p['pz'].corr(p['dz']):+.3f}")
+    for tag, mask in (("hot", hot), ("cold", cold)):
+        g = p[mask]
+        y = g["nxt_woba"].to_numpy(float)
+        base = np.column_stack([np.ones(len(g)), g["now_woba"], g["now_xwoba"], g["now_babip"]])
+        b, se, _ = ols(y, np.column_stack([base, g["pz"], g["dz"]]), g["pitcher"].to_numpy())
+        print(
+            f"  {tag:4s} n {len(g):>4} | level t {b[4] / se[4]:+.2f}  trend t {b[5] / se[5]:+.2f}"
+        )
+    for tag, mask in (("hot", hot), ("cold", cold)):
+        for season, g in p[mask].groupby("season"):
+            shed = g[g["d_pvelo"] < 0]["nxt_woba"]
+            hold = g[g["d_pvelo"] >= 0]["nxt_woba"]
+            print(
+                f"  {tag:4s} {season}: shedding {shed.mean():.4f} (n {len(shed)}) | "
+                f"holding {hold.mean():.4f} (n {len(hold)})"
+            )
 
     print("\nride (IVB) in the same cells, which is why it is not the verdict metric")
     _line("ran hot + low ride", p[hot & (p["iz"] <= 0)])
@@ -332,13 +365,19 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--seasons", type=int, nargs="+", default=[2025, 2026])
     ap.add_argument("--cells", action="store_true", help="the confirmatory 2x2")
+    ap.add_argument("--panel", type=Path, help="cache the built panel here, or read it back")
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING)
 
-    cfg = load_config()
-    p = panel(StatcastRepository(cfg.cache_dir), args.seasons)
+    if args.panel is not None and args.panel.exists():
+        p = pd.read_pickle(args.panel)
+    else:
+        cfg = load_config()
+        p = panel(StatcastRepository(cfg.cache_dir), args.seasons)
+        if args.panel is not None and not p.empty:
+            p.to_pickle(args.panel)
     if p.empty:
         raise SystemExit("no pitcher-windows: the cache does not cover these seasons")
     levels_and_deltas(p)
