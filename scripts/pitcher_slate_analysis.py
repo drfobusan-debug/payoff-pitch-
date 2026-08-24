@@ -22,6 +22,7 @@ This is a model preview, not betting advice.
 from __future__ import annotations
 
 import json
+import math
 from datetime import date as Date
 
 import pandas as pd
@@ -124,12 +125,17 @@ def _expect_today(p: dict, ctx: dict | None) -> str:
     )
 
 
+def _g(value: float, digits: int = 1) -> str:
+    """A measurement that was not readable prints as a dash, never as ``nan``."""
+    return "&mdash;" if value is None or math.isnan(value) else f"{value:.{digits}f}"
+
+
 def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     bm = p["biomech"]
     trends = (
         f"<span class='metric'>SIERA <b>{p['siera']:.2f}</b> {_arrow(p['d_siera'], good_up=False)}</span>"
         f"<span class='metric'>Stuff xK% <b>{p['xk'] * 100:.0f}</b> {_arrow(p['d_xk'], good_up=True)}</span>"
-        f"<span class='metric'>vFA <b>{p['vfa']:.1f}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
+        f"<span class='metric'>vFA <b>{_g(p['vfa'])}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
     )
     luck = (
         f"BABIP-against <b>.{int(round(p['babip'] * 1000)):03d}</b> "
@@ -137,8 +143,8 @@ def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
         f"barrel% {p['barrel'] * 100:.0f} · K% {p['k_pct'] * 100:.0f} / BB% {p['bb_pct'] * 100:.0f}"
     )
     biomech = (
-        f"Extension <b>{bm['ext']:.1f} ft</b> · IVB <b>{bm['ivb']:.1f} in</b> · "
-        f"FB spin <b>{bm['spin']:.0f} rpm</b> · release scatter {bm['scatter']:.1f} in"
+        f"Extension <b>{_g(bm['ext'])} ft</b> · IVB <b>{_g(bm['ivb'])} in</b> · "
+        f"FB spin <b>{_g(bm['spin'], 0)} rpm</b> · release scatter {_g(bm['scatter'])} in"
     )
     bet_html = (
         "<ul class='bets'>" + "".join(_bet_line(b) for b in bets[:4]) + "</ul>"

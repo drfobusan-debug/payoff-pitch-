@@ -1478,13 +1478,20 @@ def build_pitcher_regression(
     vfa, vfa_dev = _four_seam_velocity(pdf)
     grade = stuff.shape_plus(pdf)
 
-    ext = float(pdf["release_extension"].dropna().mean()) if pdf["release_extension"].notna().any() else float("nan")
-    rel_var = (
-        float(np.sqrt(pdf["release_pos_x"].dropna().var() + pdf["release_pos_z"].dropna().var()))
-        if pdf["release_pos_x"].notna().any()
-        else float("nan")
+    # A frame cached before a release column existed carries no column at all, so
+    # each of these is read as absent rather than raising out of the whole card.
+    def _col(name: str) -> pd.Series:
+        return pdf[name].dropna() if name in pdf else pd.Series(dtype=float)
+
+    ext_vals, rx, rz, spin_vals = (
+        _col("release_extension"),
+        _col("release_pos_x"),
+        _col("release_pos_z"),
+        _col("release_spin_rate"),
     )
-    spin = float(pdf["release_spin_rate"].dropna().mean()) if pdf["release_spin_rate"].notna().any() else float("nan")
+    ext = float(ext_vals.mean()) if len(ext_vals) else float("nan")
+    rel_var = float(np.sqrt(rx.var() + rz.var())) if len(rx) > 1 and len(rz) > 1 else float("nan")
+    spin = float(spin_vals.mean()) if len(spin_vals) else float("nan")
 
     # Contact quality is the least reliable thing a six-week starter sample
     # measures, and it drives the hit/HR multipliers, so it is the one group

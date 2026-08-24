@@ -12,6 +12,7 @@ from datetime import date as Date
 
 import pandas as pd
 
+from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
@@ -22,6 +23,7 @@ from mlb_engine.output.power_screen import (
     MatchupSection,
     PoolBatter,
     ScreenResult,
+    StarterCard,
     apply_cuts,
     arsenal,
     arsenal_fit,
@@ -245,15 +247,20 @@ def test_a_pool_is_built_from_the_rows_a_hitter_has_against_that_hand() -> None:
         [
             {**_pitch(events="single"), "batter": 10, "p_throws": "R"},
             {**_pitch(events="home_run"), "batter": 10, "p_throws": "R"},
-            {**_pitch(events="strikeout", description="swinging_strike"),
-             "batter": 11, "p_throws": "L"},
+            {
+                **_pitch(events="strikeout", description="swinging_strike"),
+                "batter": 11,
+                "p_throws": "L",
+            },
         ]
     )
     pool = hitter_pool(
         rows,
-        [PoolBatter(mlbam_id=10, name="Faces RHP", slot=2, bats="L"),
-         PoolBatter(mlbam_id=11, name="Faces LHP Only", slot=3, bats="R"),
-         PoolBatter(mlbam_id=12, name="No Rows", slot=4, bats="R")],
+        [
+            PoolBatter(mlbam_id=10, name="Faces RHP", slot=2, bats="L"),
+            PoolBatter(mlbam_id=11, name="Faces LHP Only", slot=3, bats="R"),
+            PoolBatter(mlbam_id=12, name="No Rows", slot=4, bats="R"),
+        ],
         hand="R",
         team="AAA",
         versus="Some Arm",
@@ -549,6 +556,96 @@ def test_the_swing_columns_are_sourced_even_when_no_cut_was_overruled() -> None:
 
 def test_the_swing_note_is_absent_when_no_swing_was_read_at_all() -> None:
     assert "The swing columns" not in power_report.render_html(_result())
+
+
+# --- the delivery behind the ranking -------------------------------------
+
+
+def _arm_rows(n: int, *, velo: float, throws: str = "R") -> pd.DataFrame:
+    """Tracked fastballs, on the columns the ingestion now keeps."""
+    return pd.DataFrame(
+        {
+            "pitcher": [2] * n,
+            "pitch_type": ["FF"] * n,
+            "p_throws": [throws] * n,
+            "game_date": [Date(2026, 8, 1)] * n,
+            "release_speed": [velo] * n,
+            "release_extension": [6.6] * n,
+            "release_pos_x": [-1.9] * n,
+            "release_pos_z": [5.9] * n,
+            "release_spin_rate": [2300.0] * n,
+            "pfx_z": [1.25] * n,
+            "pfx_x": [-0.85] * n,
+        }
+    )
+
+
+def _armed_card(velo: float) -> StarterCard:
+    rows = pd.concat([_starter_rows(130, brl=True), _arm_rows(60, velo=velo)], ignore_index=True)
+    return starter_damage(
+        rows, name="Bailey Ober", mlbam_id=641927, team="MIN", opponent="ATL", throws="R"
+    )
+
+
+def test_the_screen_reads_the_arm_off_the_same_slice_it_ranks_on() -> None:
+    card = _armed_card(97.0)
+    assert card.arm is not None
+    assert math.isclose(card.arm.velo, 97.0)
+
+
+def test_a_slice_with_no_tracked_delivery_leaves_the_arm_unmeasured() -> None:
+    """The screen's own fixtures carry no release columns, and must not raise."""
+    card = starter_damage(
+        _starter_rows(130, brl=True),
+        name="Thin",
+        mlbam_id=1,
+        team="A",
+        opponent="B",
+        throws="R",
+    )
+    assert card.arm is not None
+    assert all(v != v for v in card.arm.levels().values())  # counted, never guessed
+    assert card.arm_verdict == arm_model.UNMEASURED
+
+
+def test_the_arm_does_not_reorder_or_gate_the_screen() -> None:
+    """Out of time a good arm is better everywhere, not a rescue -- so it cannot cut.
+
+    A hard-throwing starter whose batted balls got hit still ranks on the damage:
+    the delivery is disclosure beside the index, never a filter on it.
+    """
+    soft, hard = _armed_card(89.0), _armed_card(99.0)
+    hard.name, hard.mlbam_id = "Hard", 2
+    ranked = rank_starters([soft, hard], top_n=2)
+    assert [c.mlbam_id for c in ranked] == [641927, 2]
+    assert math.isclose(soft.index, hard.index)
+    assert hard.arm_verdict == arm_model.CONTRADICTED  # disclosed, still ranked
+
+
+def test_the_delivery_reaches_the_note_with_its_window() -> None:
+    result = _result()
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = _armed_card(97.0).arm
+    html = power_report.render_html(result)
+    assert "mph perceived" in html
+    assert "pVelo" in html and "IVB" in html  # the starter table columns
+    assert f"last {arm_model.WINDOW} four-seams" in html
+    assert str(arm_model.MIN_LEVEL_PITCHES) in html
+    assert "Nothing here gates" in html
+
+
+def test_an_unreadable_delivery_is_stated_rather_than_left_blank() -> None:
+    html = power_report.render_html(_result())  # fixtures carry no release columns
+    assert "unreadable at this sample" in html
+    assert "\u2020" not in html  # nothing to disagree with
+
+
+def test_a_contradicted_delivery_is_marked_in_the_row_and_the_prose() -> None:
+    result = _result()
+    result.starters_ranked[0].arm = result.sections[0].starter.arm = _armed_card(99.0).arm
+    html = power_report.render_html(result)
+    assert "The delivery disagrees" in html
+    assert "\u2020" in html
+    assert "less certain than the index reads" in html
 
 
 def test_a_power_exception_is_disclosed_in_the_recommendation() -> None:

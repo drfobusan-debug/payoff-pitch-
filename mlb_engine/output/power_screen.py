@@ -44,6 +44,8 @@ from datetime import date as Date
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.reliability import readable, reliability
 from mlb_engine.features.swing import (
     CONTRADICTED,
@@ -210,6 +212,22 @@ class StarterCard:
     index: float = 0.0
     arsenal: dict[str, ContactLine] = field(default_factory=dict)
     usage: dict[str, float] = field(default_factory=dict)
+    #: What Statcast measures of the delivery over his last fastballs. The index
+    #: above is a batted-ball read and knows nothing about the pitch that was hit.
+    arm: ArmProfile | None = None
+
+    @property
+    def arm_verdict(self) -> str:
+        """Whether the delivery agrees this arm is as soft as the index says.
+
+        Read after :func:`rank_starters` has set ``index``: a high index is an
+        arm the screen wants to hunt, and an above-league perceived velocity
+        underneath it is the delivery disagreeing. Reported, never gated -- out
+        of time the arm sorts the fortnight ahead by the same margin whatever
+        the batted balls did, so it qualifies the ranking rather than rescuing
+        anyone from it.
+        """
+        return arm_stage_two(self.index, self.arm)
 
 
 def _pa_events(df: pd.DataFrame) -> pd.Series:
@@ -248,6 +266,7 @@ def starter_damage(
         hr_per_bf=float(ev.eq("home_run").sum()) / bf if bf else math.nan,
         k_bb_pct=k - bb if not (math.isnan(k) or math.isnan(bb)) else math.nan,
         csw_pct=called_or_swinging,
+        arm=build_arm_profile(rows),
     )
 
 

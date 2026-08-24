@@ -18,6 +18,8 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.audit.ledger import prop_subject
+from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -72,6 +74,8 @@ def _starter_games(previews: list[dict]) -> dict[str, dict]:
 
 
 def _vfa(slice_df: pd.DataFrame) -> float:
+    if "release_speed" not in slice_df:
+        return float("nan")
     fb = slice_df[slice_df["pitch_type"].isin(FB)]
     return _fmean(fb["release_speed"]) if len(fb) else float("nan")
 
@@ -95,24 +99,46 @@ def _fmean(s: pd.Series) -> float:
     return float(np.nanmean(a)) if np.isfinite(a).any() else float("nan")
 
 
-def _fstd(s: pd.Series) -> float:
-    a = _arr(s)
-    return float(np.nanstd(a)) if np.isfinite(a).any() else float("nan")
-
-
 def _biomech(slice_df: pd.DataFrame) -> dict[str, float]:
-    fb = slice_df[slice_df["pitch_type"].isin(FB)]
-    ext = _fmean(slice_df["release_extension"])
-    ivb = _fmean(fb["pfx_z"]) * 12 if len(fb) else float("nan")
-    spin = _fmean(fb["release_spin_rate"]) if len(fb) else float("nan")
-    # release scatter: how tightly the release point repeats (lower = more repeatable).
-    scatter = float(np.hypot(_fstd(slice_df["release_pos_x"]), _fstd(slice_df["release_pos_z"])) * 12)
-    return {"ext": ext, "ivb": ivb, "spin": spin, "scatter": scatter}
+    """The release biomechanics the stat cards print, off the shared arm model.
+
+    Read on the arm's last ``arm.WINDOW`` fastballs rather than over the whole
+    slice, so a level is the sample the measure was validated on and a thin arm
+    reads as unmeasured instead of averaging two starts with twenty.
+    """
+    prof = build_arm_profile(slice_df)
+    return {"ext": prof.ext, "ivb": prof.ivb, "spin": prof.spin, "scatter": prof.scatter}
+
+
+def _arm_fields(prof: ArmProfile, dxwoba: float) -> dict[str, float | int | str]:
+    """The second stage of the starter read: the delivery, and whether it agrees.
+
+    ``dxwoba`` is xwOBA-allowed minus wOBA-allowed, which is the luck term stage
+    two is crossed against directly. Levels only: the recent-versus-prior move in
+    these same measures adds nothing out of time (perceived velocity t -0.9 on
+    2,214 pitcher-windows), the fourth trend this engine has tested and refused.
+    """
+    return {
+        "arm_pitches": prof.pitches,
+        "arm_velo": prof.velo,
+        "arm_pvelo": prof.pvelo,
+        "arm_ext": prof.ext,
+        "arm_rel_x": prof.rel_x,
+        "arm_rel_z": prof.rel_z,
+        "arm_spin": prof.spin,
+        "arm_ivb": prof.ivb,
+        "arm_hb": prof.hb,
+        "arm_scatter": prof.scatter,
+        "stuff_z": prof.stuff_z,
+        "ride_z": prof.ride_z,
+        "arm_stage2": arm_stage_two(dxwoba, prof),
+    }
 
 
 def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["pitcher"] == pid]
     reg = build_pitcher_regression(sl)
+    prof = build_arm_profile(sl)
     sr = pitcher_siera(sl)
     recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
     prior = sl[pd.to_datetime(sl["game_date"]).dt.date <= cutoff]
@@ -135,7 +161,13 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "fb": reg.fb_allowed,
         "gb": reg.gb_allowed,
         "vfa": _vfa(sl),
-        "biomech": _biomech(sl),
+        "biomech": {
+            "ext": prof.ext,
+            "ivb": prof.ivb,
+            "spin": prof.spin,
+            "scatter": prof.scatter,
+        },
+        **_arm_fields(prof, reg.dxwoba),
         "unlucky_babip": unlucky_babip,
         "unlucky_xwoba": unlucky_xwoba,
         # recent-vs-prior trends (recent minus prior)

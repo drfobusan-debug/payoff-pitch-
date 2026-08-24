@@ -20,6 +20,7 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
@@ -30,6 +31,7 @@ from mlb_engine.output.power_screen import (
     HitterView,
     MatchupSection,
     ScreenResult,
+    StarterCard,
 )
 
 CUT_LOG_ROWS = 12  # near misses printed in the appendix
@@ -141,6 +143,46 @@ def _best_pitch(section: MatchupSection) -> tuple[str, ContactLine, float] | Non
     return min(candidates, key=lambda t: t[1].xwoba)
 
 
+def _arm_prose(s: StarterCard) -> str:
+    """What Statcast measures of the delivery, beside the damage it allowed.
+
+    The ranking index above is a batted-ball read: it knows what hitters did and
+    nothing about the pitch they did it to. Perceived velocity -- release speed
+    plus 1.1 times extension, so a shorter stride costs a hitter's reaction time
+    what a slower arm does -- adds to the next fortnight's wOBA allowed, hits and
+    strikeouts on top of both the luck term and the CSW%/pitch-shape grade the
+    engine already prices. It is printed and never gated: out of time the level
+    sorts the fortnight ahead by the same margin whatever the batted balls did.
+    """
+    prof = s.arm
+    if prof is None or math.isnan(prof.pvelo):
+        return (
+            "His delivery is unreadable at this sample &mdash; too few tracked fastballs "
+            "&mdash; so the damage profile above stands alone."
+        )
+    verdict = s.arm_verdict
+    lead = (
+        f"He throws {_num(prof.pvelo, 1)} mph perceived "
+        f"({_num(prof.velo, 1)} off the hand at {_num(prof.ext, 1)} feet of extension, "
+        f"{_num(prof.stuff_z, 2, signed=True)} SD from league)"
+    )
+    if not math.isnan(prof.ivb):
+        lead += (
+            f" with {_num(prof.ivb, 1)}&Prime; of ride "
+            f"({_num(prof.ride_z, 2, signed=True)} SD), which is where the home runs live"
+        )
+    if verdict == arm_model.CONTRADICTED:
+        return (
+            f"<strong>The delivery disagrees: {lead}.</strong> The screen selected him on "
+            "batted balls and the arm underneath is above league, so treat the exposure as "
+            "less certain than the index reads."
+        )
+    return (
+        f"The delivery agrees with the selection: {lead}, so the damage has an arm behind "
+        "it rather than a fortnight of batted balls."
+    )
+
+
 def _starter_prose(section: MatchupSection) -> str:
     s = section.starter
     bits = [
@@ -150,6 +192,9 @@ def _starter_prose(section: MatchupSection) -> str:
         f"{_pc(s.hr_per_bf, 2)} of batters faced leaving the yard. "
         f"He misses bats at {_pc(s.k_bb_pct)} K-BB%."
     ]
+    arm_prose = _arm_prose(s)
+    if arm_prose:
+        bits.append(arm_prose)
     worst = _worst_pitch(section)
     best = _best_pitch(section)
     if worst:
@@ -594,29 +639,80 @@ def _provenance(result: ScreenResult, board: Board | None = None) -> str:
 def _starter_ranking(result: ScreenResult) -> str:
     rows = []
     for i, s in enumerate(result.starters_ranked, 1):
-        rows.append([
-            f"{i}. {html.escape(s.name)}",
-            f"{s.throws}HP",
-            html.escape(s.opponent),
-            str(s.bf),
-            _num(s.index, 2, signed=True),
-            _pc(s.brl_pct),
-            _pc(s.hh_pct),
-            _pc(s.fb_pct),
-            _f3(s.xwobacon),
-            _pc(s.hr_per_bf, 2),
-            _pc(s.k_bb_pct),
-        ])
+        rows.append(
+            [
+                f"{i}. {html.escape(s.name)}",
+                f"{s.throws}HP",
+                html.escape(s.opponent),
+                str(s.bf),
+                _num(s.index, 2, signed=True),
+                _pc(s.brl_pct),
+                _pc(s.hh_pct),
+                _pc(s.fb_pct),
+                _f3(s.xwobacon),
+                _pc(s.hr_per_bf, 2),
+                _pc(s.k_bb_pct),
+                _num(s.arm.pvelo if s.arm else math.nan, 1),
+                _num(s.arm.ext if s.arm else math.nan, 1),
+                _num(s.arm.ivb if s.arm else math.nan, 1),
+                "\u2020" if s.arm_verdict == arm_model.CONTRADICTED else "",
+            ]
+        )
     return (
         "<h2>Stage 1 &mdash; the arms, ranked by exposure</h2>"
         "<p class='sub'>Equal-weight z-sum of barrel, hard-hit, fly-ball, xwOBA-on-contact and "
         "home-run rates allowed, less K-BB% and called-plus-swinging strikes. Higher is softer. "
         "It sorts a slate; it does not price one.</p>"
         + _table(
-            ["starter", "hand", "vs", "BF", "index", "Brl%", "HH%", "FB%", "xwOBAcon", "HR/BF",
-             "K-BB%"],
-            rows, numeric_from=3,
+            [
+                "starter",
+                "hand",
+                "vs",
+                "BF",
+                "index",
+                "Brl%",
+                "HH%",
+                "FB%",
+                "xwOBAcon",
+                "HR/BF",
+                "K-BB%",
+                "pVelo",
+                "Ext",
+                "IVB",
+                "",
+            ],
+            rows,
+            numeric_from=3,
         )
+        + _arm_note()
+    )
+
+
+def _arm_note() -> str:
+    """What the delivery columns are, and why they qualify rather than gate.
+
+    A reader cannot judge a perceived-velocity figure without the window it was
+    read over, and the dagger has to say what it means: the index selected the
+    arm on batted balls and the delivery underneath disagrees.
+    """
+    return (
+        "<p class='caveat'><strong>&dagger; The index says soft and the delivery does not.</strong> "
+        "Perceived velocity (release speed + 1.1 &times; extension &minus; 6.0, the speed the "
+        "hitter has to react to), extension and induced vertical break are Statcast's own release "
+        f"measures, averaged over each starter's last {arm_model.WINDOW} four-seams, sinkers and "
+        f"two-seams, with a floor of {arm_model.MIN_LEVEL_PITCHES} readings below which the column "
+        "is blank rather than league average. Out of time on 2,214 pitcher-windows those levels add "
+        "to the next fortnight's wOBA allowed, hits and strikeouts on top of the luck term "
+        "<em>and</em> on top of the CSW% and pitch-shape grade the engine already prices (pVelo "
+        "t &minus;2.4, &minus;3.6 and +4.4); ride pays on home runs (t +5.0) and suppresses hits "
+        "(t &minus;3.0). That window is not a reliability window &mdash; on 1.44M fastballs every "
+        "one of these half-repeats inside a single pitch, since a radar reading is measured rather "
+        "than inferred from outcomes &mdash; so it comes from the panel, which held every sign at "
+        "12, 100 and 400 fastballs. Nothing here gates: a good arm sorts the fortnight ahead by the "
+        "same margin whatever the batted balls did, so it qualifies the ranking and does not "
+        "reorder it. Release scatter is a fatigue read for the removal model and is not printed as "
+        "a talent level; horizontal break was missing from our own ingestion until now, so a slice "
+        "cached earlier reads as unmeasured.</p>"
     )
 
 
