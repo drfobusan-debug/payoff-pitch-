@@ -37,7 +37,9 @@ from pathlib import Path
 
 from nfl_engine import calibration, props
 from nfl_engine import replay as replay_mod
+from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
+    ENGINE,
     PAPER,
     LedgerEntry,
     apply_close,
@@ -53,7 +55,7 @@ from nfl_engine.audit.ledger import (
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config, output_dir
-from nfl_engine.data import capture, nflverse
+from nfl_engine.data import capture, espn, injuries, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.features import usage
@@ -363,6 +365,136 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_benchmark(args: argparse.Namespace) -> int:
+    """Capture ESPN's FPI call on a week and grade it into the ledger, beside ours.
+
+    Free and keyless, so it spends no Odds API credit. The rows are written
+    ``source=fpi``: they are graded against the same final score and read beside
+    our plays, and every measurement of the engine filters them out. Nothing here
+    is an input -- no probability, price, screen or tier of ours is touched, and a
+    week prices identically whether the benchmark was captured or not.
+    """
+    season = args.season
+    week = args.week
+    if season is None or week is None:
+        season, week, _ = current_week()
+    games = espn.projections(season, week)
+    if not games:
+        print(f"no FPI projections for {season} week {week}")
+        return 0
+    scores = _final_scores(season)
+    finals = {
+        game.matchup: scores[(game.matchup, game.date)]
+        for game in games
+        if (game.matchup, game.date) in scores
+    }
+    rows = outside.entries_from_fpi(games, finals, captured_at=capture.stamp())
+    graded = sum(1 for row in rows if row.result)
+    print(
+        f"FPI: {len(games)} games read, {len(rows)} calls written"
+        f" ({graded} already final) [benchmark: display only, never an input]"
+    )
+    for row in sorted(rows, key=lambda e: -e.model_prob):
+        print(f"  {row.matchup:14s} {row.side:4s} {row.model_prob:.3f} {row.tier:10s} {row.result}")
+    if args.write:
+        # Appended, never rewritten, exactly as our own prices are: the read of
+        # record is the first one taken, so a Sunday capture cannot replace the
+        # Wednesday projection it was supposed to be judged beside. Rows captured
+        # before the game settle later through `grade`, which is source-agnostic.
+        added = merge_ledger(ledger_path(), rows)
+        print(f"  {len(added)} new benchmark rows ({len(rows) - len(added)} already held)")
+    return 0
+
+
+def _week_matchups(season: int, week: int) -> list[tuple[str, str, str]]:
+    """``(matchup, away, home)`` for one week's schedule."""
+    games = nflverse.games()
+    games = games[(games.season == season) & (games.week == week)]
+    return [
+        (f"{row.away_team} @ {row.home_team}", str(row.away_team), str(row.home_team))
+        for row in games.itertuples()
+    ]
+
+
+def cmd_injuries(args: argparse.Namespace) -> int:
+    """Record who is out, and what the number did around the news.
+
+    Keyless and free. Every observation is stamped with the market at the last
+    archived capture before the item was posted and the first one after it, which
+    is the measurement the whole feature turns on: an absence the market has
+    already priced is worth nothing, and only our own timestamped archive can say
+    which kind we are looking at.
+
+    Nothing written here reaches a price. The card reports the absences and the
+    log accumulates the timing evidence; if that evidence ever justifies an input,
+    that is a separate change with the numbers attached.
+    """
+    season, week = args.season, args.week
+    if season is None or week is None:
+        current_season, current, _ = current_week()
+        season, week = season or current_season, week or current
+    book = injuries.fetch_report()
+    if not book:
+        print("no injury report available; nothing recorded")
+        return 0
+    news = injuries.fetch_news(cache=data_dir() / "cache" / "injury_news.json")
+    observed = capture.now_utc()
+    rows: list[availability.Observation] = []
+    for matchup, away, home in _week_matchups(season, week):
+        for team in (away, home):
+            for row in injuries.watched_for(book, team):
+                rows.append(
+                    availability.observe(
+                        row,
+                        season=season,
+                        week=week,
+                        matchup=matchup,
+                        news=news.get(row.player_id),
+                        observed=observed,
+                    )
+                )
+    print(
+        f"availability: {len(rows)} absences on {season} week {week}'s watched groups"
+        " [reported, never priced]"
+    )
+    for obs in rows:
+        move = "n/a" if obs.spread_move is None else f"{obs.spread_move:+.1f}"
+        print(
+            f"  {obs.matchup:14s} {obs.team:3s} {obs.group:5s} {obs.position:2s}"
+            f" {obs.player:22s} {obs.designation:12s} move {move:>5s} {obs.timing}"
+        )
+    if args.write and availability.append(availability.log_path(), rows):
+        counts = availability.timing_counts(availability.read_log(availability.log_path()))
+        totals = " ".join(f"{k}={v}" for k, v in sorted(counts.items()) if "/" not in k)
+        print(f"  log now holds {totals or 'nothing'}")
+    return 0
+
+
+def _injury_step(args: argparse.Namespace) -> int:
+    """The availability read inside the weekly job, where a free feed may not answer."""
+    try:
+        return cmd_injuries(args)
+    except Exception:
+        log.warning("injuries step failed; the rest of the week still ran", exc_info=True)
+        print("  injury report unavailable (see log); no engine output depends on it")
+        return 0
+
+
+def _benchmark_step(args: argparse.Namespace) -> int:
+    """The benchmark inside the weekly job, where a free outside feed may not answer.
+
+    ESPN being down, or slow, or having renamed a stat is not a reason to lose the
+    week's close, grade and card, so this step reports and moves on. It is the only
+    step allowed to: everything else in the job is ours and a failure there is real.
+    """
+    try:
+        return cmd_benchmark(args)
+    except Exception:
+        log.warning("benchmark step failed; the rest of the week still ran", exc_info=True)
+        print("  FPI unavailable (see log); no engine output depends on it")
+        return 0
+
+
 def cmd_props(args: argparse.Namespace) -> int:
     """Price the archived prop board, offline, and say what stopped every row.
 
@@ -470,6 +602,11 @@ def cmd_job(args: argparse.Namespace) -> int:
     steps = [
         ("capture", cmd_capture),
         ("price", cmd_price),
+        # After pricing, and best-effort: a benchmark that fails, or disagrees with
+        # every play, can neither stop the week nor reach anything that formed a
+        # price. It only writes its own rows.
+        ("benchmark", _benchmark_step),
+        ("injuries", _injury_step),
         ("close", cmd_close),
         ("grade", cmd_grade),
         ("report", cmd_report),
@@ -483,10 +620,14 @@ def cmd_job(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    entries = load_ledger(ledger_path())
-    if not entries:
+    held = load_ledger(ledger_path())
+    if not held:
         print("empty ledger")
         return 0
+    # Ours only. A benchmark's calls are graded in this same file so they can be
+    # measured, and counting them here would report an outside forecaster's record
+    # as the engine's -- in the ALL line, and as the negative class of every screen.
+    entries = [e for e in held if e.source == ENGINE]
     rows = [
         *tier_metrics(entries),
         *market_metrics(entries),
@@ -541,7 +682,14 @@ def cmd_card(args: argparse.Namespace) -> int:
         current_season, current, _ = current_week()
         season, week = season or current_season, week or current
     card = build_card(
-        entries, season=season, week=week, calibration=calibration.load().stamp()
+        entries,
+        season=season,
+        week=week,
+        calibration=calibration.load().stamp(),
+        # Read off disk, from what `injuries` already recorded: the card makes no
+        # network call, so a week's absences are shown exactly as they were known
+        # when they were captured.
+        absences=availability.read_log(availability.log_path(), season=season, week=week),
     )
     if not card.games:
         print(f"no priced rows for {season} week {week}")
@@ -662,6 +810,26 @@ def main(argv: list[str] | None = None) -> int:
     capture_cmd.add_argument("--props", action="store_true", help="also archive player-prop prices")
     capture_cmd.add_argument("--max-events", type=int, default=32)
     capture_cmd.set_defaults(func=cmd_capture)
+
+    bench_cmd = sub.add_parser(
+        "benchmark",
+        help="capture ESPN's FPI call beside ours (free; display only, never an input)",
+    )
+    bench_cmd.add_argument("--season", type=int, default=None)
+    bench_cmd.add_argument("--week", type=int, default=None)
+    bench_cmd.add_argument("--write", action="store_true", default=True)
+    bench_cmd.add_argument("--no-write", dest="write", action="store_false")
+    bench_cmd.set_defaults(func=cmd_benchmark)
+
+    inj_cmd = sub.add_parser(
+        "injuries",
+        help="record who is out and what the number did around the news (free; reported only)",
+    )
+    inj_cmd.add_argument("--season", type=int, default=None)
+    inj_cmd.add_argument("--week", type=int, default=None)
+    inj_cmd.add_argument("--write", action="store_true", default=True)
+    inj_cmd.add_argument("--no-write", dest="write", action="store_false")
+    inj_cmd.set_defaults(func=cmd_injuries)
 
     props_cmd = sub.add_parser(
         "props", help="price the archived prop board as research (offline, no credit)"

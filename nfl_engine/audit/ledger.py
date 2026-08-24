@@ -186,7 +186,11 @@ def grade(entry: LedgerEntry, home_score: int, away_score: int, *, home: str) ->
     entry.result = result
     entry.home_score = home_score
     entry.away_score = away_score
-    entry.pnl = pnl_units(result, entry.odds)
+    # A row with no price was staked at nothing. Only an outside forecast reaches
+    # here without one -- FPI publishes a probability and no number -- and paying
+    # its wins at an assumed -110 would credit it with an ROI off a price it never
+    # quoted, and off our shopping.
+    entry.pnl = pnl_units(result, entry.odds) if entry.odds is not None else 0.0
     return entry
 
 
