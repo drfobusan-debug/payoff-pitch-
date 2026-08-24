@@ -39,6 +39,7 @@ from nfl_engine import calibration
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
+    ENGINE,
     PAPER,
     LedgerEntry,
     apply_close,
@@ -580,10 +581,14 @@ def cmd_job(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
-    entries = load_ledger(ledger_path())
-    if not entries:
+    held = load_ledger(ledger_path())
+    if not held:
         print("empty ledger")
         return 0
+    # Ours only. A benchmark's calls are graded in this same file so they can be
+    # measured, and counting them here would report an outside forecaster's record
+    # as the engine's -- in the ALL line, and as the negative class of every screen.
+    entries = [e for e in held if e.source == ENGINE]
     rows = [
         *tier_metrics(entries),
         *market_metrics(entries),

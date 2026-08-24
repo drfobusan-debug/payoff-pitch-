@@ -449,3 +449,22 @@ def test_espn_being_down_costs_the_benchmark_not_the_week(
     monkeypatch.setattr(cli.espn, "projections", refused)
     assert cli._benchmark_step(_bench_args()) == 0
     assert "FPI unavailable" in capsys.readouterr().out
+
+
+def test_the_report_counts_our_record_not_the_benchmarks(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, capsys
+) -> None:
+    """The ALL line is ours. FPI's calls are in the same file to be measured."""
+    path = tmp_path / "nfl_ledger.csv"
+    ours = [engine_row(result="win"), engine_row(side="BAL", result="loss")]
+    theirs = entries_from_fpi([fpi_game()], {"BAL @ KC": (27, 20)})
+    save_ledger(path, ours)
+    monkeypatch.setattr(cli, "ledger_path", lambda: path)
+    assert cli.cmd_report(argparse.Namespace(all=True)) == 0
+    engine_only = capsys.readouterr().out
+
+    save_ledger(path, ours + theirs)
+    assert cli.cmd_report(argparse.Namespace(all=True)) == 0
+    # Every row, not only ALL: a benchmark row must not become the negative class
+    # a screen's NPV is measured against either.
+    assert capsys.readouterr().out == engine_only
