@@ -39,6 +39,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import date as Date
 
+from nfl_engine.calibration import Calibrator
 from nfl_engine.features.quarterback import StarterBook, margin_delta
 from nfl_engine.features.ratings import RatingBook
 from nfl_engine.market.board import GameOdds
@@ -87,8 +88,10 @@ def price_slate(
     thresholds: Thresholds | None = None,
     method: str = DEFAULT_METHOD,
     best_price_only: bool = True,
+    calibrator: Calibrator | None = None,
 ) -> list[GamePricing]:
     simulator = sim or DriveSim()
+    maps = calibrator or Calibrator()
     ratings = book or RatingBook()
     out: list[GamePricing] = []
     for game in games:
@@ -132,6 +135,12 @@ def price_slate(
             away=game.away.abbrev,
             method=method,
         )
+        # Before the screens, so a corrected probability is what the disagreement
+        # veto and the ledger both see. A market with no accepted map is untouched
+        # (see :mod:`nfl_engine.calibration`), so this is a no-op by default.
+        bets = [
+            replace(bet, model_prob=maps.apply(bet.market, bet.model_prob)) for bet in bets
+        ]
         if best_price_only:
             bets = best_by_line(bets)
         bets = apply_screens(bets, thresholds)

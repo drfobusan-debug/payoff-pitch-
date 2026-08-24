@@ -86,7 +86,7 @@ def build_workbook(card: WeekCard, entries: list[LedgerEntry]) -> bytes:
     book = Workbook()
     _plays_sheet(book, card)
     _selections_sheet(book, entries, season=card.season, week=card.week)
-    _record_sheet(book, card.record)
+    _record_sheet(book, card.record, calibration=card.calibration)
     _clv_sheet(book, entries)
     buffer = BytesIO()
     book.save(buffer)
@@ -192,7 +192,7 @@ def _selections_sheet(
         )
 
 
-def _record_sheet(book: Workbook, record: list[Metrics]) -> None:
+def _record_sheet(book: Workbook, record: list[Metrics], *, calibration: str = "") -> None:
     sheet = book.create_sheet("Record")
     _header(sheet, RECORD_HEADER)
     for row in record:
@@ -214,6 +214,9 @@ def _record_sheet(book: Workbook, record: list[Metrics]) -> None:
                 row.clv_beat_pct,
             ],
         )
+    if calibration:
+        sheet.append([])
+        _append(sheet, [calibration])
 
 
 def _clv_sheet(book: Workbook, entries: list[LedgerEntry]) -> None:
