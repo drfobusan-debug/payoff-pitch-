@@ -137,6 +137,39 @@ A second full run within 30 min is free and price-stable: the Odds API responses
   up narrow, `Opta %` 40 wide). Values are written by header name and stay correct; check whether the
   list has been extended before reporting it as new.
 
+## Bat-tracking / swing features (power screen, hitter regression article, batter report)
+- Entry points: `scripts/power_screen.py --date <d> [--predictions <saved pregame json>]` (0 credits
+  when a saved card/predictions file is passed), `scripts/batter_regression_report.py <date>` (prints
+  a log line then one JSON blob — strip everything before the first `{` before `json.loads`), and
+  `mlb_engine/output/regression_article.py::build_article_pdf(day, previews, preds, statcast)` for the
+  article the daily `run` embeds (`cli.py`), which can be built from saved `previews_*.json` +
+  `predictions_*.json` + `~/.mlb_engine/cache/statcast_*.pkl`.
+- Markers can differ from the PR prose: `power_report.py` renders `*` for `power_exception` and
+  Unicode **`‡` (`\u2021`)** for a swing rescue — grep the source for the literal before asserting on
+  a `†`. `_num/_pc/_f3` render NaN as `&mdash;`, so a "blank" cell is an em dash, never `0.0`.
+- Do not fabricate a rescue: search real dates instead. Import the production `hitter_pool` /
+  `score_pool` / `apply_cuts` in a loop over dates (run with
+  `PYTHONPATH=<repo>` so `import scripts...` resolves) and look for a hitter with
+  `luck_gap > MAX_LUCK_GAP` and `stage_two(...) == CONTRADICTED`; then re-render that date's screen
+  and assert the marked row's printed levels equal an independent recomputation of the same profile.
+- Prove the rescue is load-bearing by re-running the *same* date in a process that wraps
+  `StatcastRepository.max_window` to null (`pd.NA`) the `bat_speed` column: every swing cell must go
+  to `&mdash;`, the `‡` lead must disappear from the note, and the rescued hitter must reappear in the
+  cut appendix with his luck-gap reason.
+- Missing-column (not just null) coverage: dropping `bat_speed`/`swing_length` entirely is safe in
+  `features/swing.py` (`swings_of` returns an empty frame → all-NaN profile → `unmeasured`) and in the
+  power screen, but `features/regression.py::build_batter_regression` reads `bdf["bat_speed"]`
+  unguarded, so the **article / `regression_profiles` path raises `KeyError: 'bat_speed'`**. That read
+  predates the swing work; verify with `git log -S` before blaming a swing PR, and test the
+  null-values case separately from the dropped-column case.
+- Partial readability is the interesting middle case and rarely appears on a full-season cache: build
+  a profile from ~40 swings and expect `bat_speed` numeric with `blast`/`squared_up`/`power_z` NaN and
+  `stage2 == unmeasured` (never a league-average substitute).
+- Swing *trend* prohibition: a plain grep for `trend` gives false positives (CSS class `.trend`,
+  legitimate pitcher "3wk trend" prose). Instead split the rendered text into sentences and require
+  that the only sentence containing both a trend word and a swing word is the methodology's own
+  "so no swing trend is printed at all".
+
 ## Replaying a past slate off the odds cache (deterministic A/B for a pricing/gate change)
 When a change alters *pricing or tiering*, the in-process field-diff above does not apply and two
 live runs are not comparable. Replay one past slate instead: identical real prices, zero credits, and
