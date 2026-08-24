@@ -51,6 +51,8 @@ from cfb_engine.market.confidence import (
 from cfb_engine.market.drift import DriftGate
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
 from cfb_engine.market.linevalue import drift_probability
+from cfb_engine.market.ordering import order_recs
+from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
 from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
@@ -92,6 +94,7 @@ class Pipeline:
         self.news: dict[str, NewsItem] = {}
         self._roster: dict[int, RosterBook | None] = {}
         self.drift_gate = DriftGate.from_env()
+        self.price_band = PriceBand.from_env()
         self._first_board: dict[str, snapshot.SideQuote] = {}
 
     def _load_calibrator(self) -> Calibrator:
@@ -206,8 +209,7 @@ class Pipeline:
                     injuries, starters, season=season,
                 )
             )
-        recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
-        return recs
+        return order_recs(recs)
 
     # -- per game ---------------------------------------------------------
     def _price_game(
@@ -516,6 +518,13 @@ class Pipeline:
                 reasons = [*reasons, drift_reason]
             if not keep:
                 tier, pass_gate = Tier.PASS, gate
+        if tier != Tier.PASS:
+            band = self.price_band.for_market(market)
+            keep, band_reason, band_gate = band.verdict(result.best_quote.american)
+            if band_reason:
+                reasons = [*reasons, band_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, band_gate
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -643,6 +652,3 @@ class _GameCtx:
         self.away_ab = game.away.abbrev
         self.matchup = game.matchup()
 
-
-def _tier_rank(tier: Tier) -> int:
-    return {Tier.STRONG: 0, Tier.MODERATE: 1, Tier.PASS: 2}[tier]

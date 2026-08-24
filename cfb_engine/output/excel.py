@@ -1,7 +1,9 @@
 """Write daily recommendations to a formatted Excel workbook.
 
 Sheets:
-  * Strong Buys / Moderate Buys : the buys, brightest = highest EV.
+  * Strong Buys / Moderate Buys : the buys, brightest = highest conviction
+    (Kelly by default -- see ``cfb_engine.market.ordering``; it used to be EV,
+    which painted the longest prices brightest).
   * Fades                       : the sides the model is against.
   * Moneyline / ATS / Totals    : one tab per market family, every priced side.
   * All                         : every priced market.
@@ -24,6 +26,8 @@ from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from cfb_engine.audit.priced import PricedStat
 from cfb_engine.audit.probation import Probation
+from cfb_engine.market.ordering import conviction as _conviction
+from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
 
@@ -34,10 +38,12 @@ CENTER = Alignment(horizontal="center")
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
     "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
-    "EV", "Edge", "Tier", "Notes",
+    "EV", "Edge", "Kelly", "Tier", "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 12, 46]
-CENTER_COLS = {"Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Tier"}
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 12, 46]
+CENTER_COLS = {
+    "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly", "Tier",
+}
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 _MARKET_TABS = [("Moneyline", "game_ml"), ("ATS", "game_ats"), ("Totals", "game_total")]
@@ -55,14 +61,6 @@ def _interp(light: tuple[int, int, int], neon: tuple[int, int, int], t: float) -
     return f"{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
 
 
-def _conviction(rec: Recommendation) -> float:
-    if rec.tier == Tier.PASS:
-        if rec.fair_prob is not None:
-            return max(0.0, rec.fair_prob - rec.model_prob)
-        return max(0.0, -(rec.ev or 0.0))
-    return rec.ev if rec.ev is not None else 0.0
-
-
 def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None = None) -> None:
     header_fill = PatternFill("solid", fgColor=header) if header else HEADER_FILL
     for c, name in enumerate(COLUMNS, start=1):
@@ -71,9 +69,7 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         cell.font = HEADER_FONT
         cell.alignment = CENTER
 
-    ordered = sorted(
-        recs, key=lambda r: (TIER_ORDER.get(r.tier.value, 3), -_conviction(r))
-    )
+    ordered = order_recs(recs)
     # per-tier conviction range for the intra-tier gradient.
     ranges: dict[Tier, tuple[float, float]] = {}
     for r in ordered:
