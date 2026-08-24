@@ -36,6 +36,14 @@ class Recommendation:
     bet_prob: float | None = None
     tier: Tier = Tier.PASS
     reasons: list[str] = field(default_factory=list)
+    # No-vig probability points the market has moved *toward* this side since the
+    # first board the engine saw for the slate (negative: it walked away). The
+    # pre-kickoff half of closing-line value; see ``cfb_engine.market.drift``.
+    drift: float | None = None
+    # The screen that demoted this row to Pass, if one did. Attribution is what
+    # lets the audit grade a screen on the bets it refused rather than only on
+    # the ones it let through.
+    pass_gate: str | None = None
     # --- structured grading metadata (used by the nightly audit) ---
     team_side: str | None = None  # "home" | "away"
     side: str | None = None  # "win" | "cover" | "over" | "under"

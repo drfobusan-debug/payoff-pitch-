@@ -53,17 +53,26 @@ class LedgerEntry:
     close_prob: float | None = None
     clv: float | None = None
     clv_ev: float | None = None
+    # Points of line value against the close (ATS/totals; a football bet is
+    # shopped in points, and on a main line the number carries the movement the
+    # price does not).
+    clv_pts: float | None = None
+    # Market movement between the first board seen for the slate and the bet,
+    # positive toward the side bet, plus the screen that refused it (if any).
+    drift: float | None = None
+    pass_gate: str | None = None
 
 
 LEDGER_FIELDS = [
     "date", "matchup", "category", "market", "selection", "line", "book",
     "odds", "under_odds", "tier", "model_prob", "ev", "result", "pnl",
     "raw_prob", "fair_prob", "bet_prob",
-    "close_odds", "close_prob", "clv", "clv_ev",
+    "close_odds", "close_prob", "clv", "clv_ev", "clv_pts",
+    "drift", "pass_gate",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
-    "close_odds", "close_prob", "clv", "clv_ev",
+    "close_odds", "close_prob", "clv", "clv_ev", "clv_pts", "drift",
 )
 
 
@@ -100,6 +109,8 @@ def entries_from_graded(
                 raw_prob=round(rec.raw_prob, 4) if rec.raw_prob is not None else None,
                 fair_prob=round(rec.fair_prob, 4) if rec.fair_prob is not None else None,
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
+                drift=rec.drift,
+                pass_gate=rec.pass_gate,
             )
         )
     return entries
@@ -143,6 +154,9 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_to_float(row.get("close_prob", "")),
                     clv=_to_float(row.get("clv", "")),
                     clv_ev=_to_float(row.get("clv_ev", "")),
+                    clv_pts=_to_float(row.get("clv_pts", "")),
+                    drift=_to_float(row.get("drift", "")),
+                    pass_gate=row.get("pass_gate", "") or None,
                 )
             )
     return out
