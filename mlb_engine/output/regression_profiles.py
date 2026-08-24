@@ -25,6 +25,7 @@ from mlb_engine.features.regression import (
     build_pitcher_regression,
 )
 from mlb_engine.features.siera import pitcher_siera
+from mlb_engine.features.swing import SwingProfile, build_swing_profile, stage_two
 
 FB = ("FF", "SI")
 RECENT_DAYS = 21  # "3-week" window for vFA + trend split
@@ -251,6 +252,28 @@ def _fb_rate(reg: BatterRegression) -> float:
     return max(0.0, 1.0 - gb - ld)
 
 
+def _swing_fields(prof: SwingProfile, dxwoba: float) -> dict[str, float | int | str]:
+    """The second stage of the hitter read: the swing, and whether it agrees.
+
+    ``dxwoba`` is xwOBA minus wOBA, so the luck gap stage two is crossed against
+    is its negative. Levels only -- the recent-versus-prior move in these same
+    measures adds nothing out of time (bat speed t +1.4, blast t -0.3 on 3,175
+    batter-windows), the same verdict PR #109 reached on the barrel trend, so no
+    swing trend is computed for the article to print.
+    """
+    return {
+        "swings": prof.swings,
+        "bat_speed": prof.bat_speed,
+        "fast": prof.fast,
+        "squared_up": prof.squared_up,
+        "blast": prof.blast,
+        "swing_length": prof.swing_length,
+        "power_z": prof.power_z,
+        "contact_z": prof.contact_z,
+        "stage2": stage_two(-dxwoba, prof),
+    }
+
+
 def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["batter"] == pid]
     reg = build_batter_regression(sl)
@@ -270,6 +293,7 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "iffb": reg.iffb_pct,
         "woba6": reg.woba,
         "woba3": _woba(recent),
+        **_swing_fields(build_swing_profile(sl), reg.dxwoba),
     }
 
 

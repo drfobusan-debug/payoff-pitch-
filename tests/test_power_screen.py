@@ -12,6 +12,7 @@ from datetime import date as Date
 
 import pandas as pd
 
+from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
@@ -273,6 +274,55 @@ def test_a_power_bat_survives_the_wrc_cut_and_is_flagged() -> None:
     assert not olson.power_exception
 
 
+def _swing(power: float) -> SwingProfile:
+    """A readable swing whose bat speed and blast rate sit ``power`` SD from league."""
+    bmu, bsd = LEAGUE["bat_speed"]
+    zmu, zsd = LEAGUE["blast"]
+    return SwingProfile(swings=400, bat_speed=bmu + power * bsd, blast=zmu + power * zsd)
+
+
+def test_the_swing_keeps_a_hitter_the_luck_gap_wants_cut() -> None:
+    """Stage two: the gap says the results outran the contact, the swing disagrees.
+
+    Of the 471 windows this cut removes out of time, the better-swinging half went
+    on to .3801 TB/PA against .3355 for the worse half -- so a flagged hitter whose
+    power swing is above league is kept, and flagged as kept on the swing rather
+    than on the rate line.
+    """
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = _swing(1.0)
+    kept = apply_cuts([lucky], league_xwoba=0.305)
+    assert [h.name for h in kept] == ["Lucky"]
+    assert lucky.swing_rescue and lucky.kept and not lucky.cut_reason
+    assert not lucky.power_exception  # a different rescue, kept distinguishable
+
+
+def test_a_below_league_swing_confirms_the_cut() -> None:
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = _swing(-1.0)
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason and not lucky.swing_rescue
+
+
+def test_an_unreadable_swing_leaves_the_cut_standing() -> None:
+    """The default is stage one. Too few tracked swings must not become a rescue."""
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = SwingProfile(swings=8, bat_speed=80.0)  # blast rate unreadable
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason
+
+
+def test_the_swing_does_not_rescue_a_hitter_the_earlier_cuts_removed() -> None:
+    """The rescue answers the luck gap only; the sample and league floors stand."""
+    thin = _hitter("Thin", pa=MIN_BATTER_PA - 1, woba=0.470, xwoba_pa=0.360)
+    thin.swing = _swing(2.0)
+    at_league = _hitter("League", woba=0.390, xwoba_pa=0.310, xwoba_con=0.330)
+    at_league.swing = _swing(2.0)
+    assert apply_cuts([thin, at_league], league_xwoba=0.305) == []
+    assert thin.cut_reason and at_league.cut_reason
+    assert not (thin.swing_rescue or at_league.swing_rescue)
+
+
 def test_the_power_exception_can_be_switched_off() -> None:
     riley = _hitter("Riley", wrc=104.0, xwoba_pa=0.302, xwoba_con=POWER_XWOBACON + 0.02)
     kept = apply_cuts([riley, _hitter("Olson")], league_xwoba=0.305, keep_power=False)
@@ -457,6 +507,34 @@ def test_the_cut_appendix_prints_the_near_misses_only() -> None:
 def test_the_filename_is_dated() -> None:
     assert power_report.default_filename(Date(2026, 8, 17)) == "power_screen_2026-08-17.pdf"
     assert power_report.default_filename(Date(2026, 8, 17), "html").endswith(".html")
+
+
+def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
+    """A hitter here on his swing must not read as a clean survivor of the cuts."""
+    result = _result()
+    line = result.sections[0].hitters[0].line
+    line.swing_rescue = True
+    line.swing = _swing(1.0)
+    html = power_report.render_html(result)
+    assert "Kept on the swing after the luck gap flagged them" in html
+    assert "\u2021" in html  # the row is marked as well as footnoted
+    assert "does not rescue" in html  # squared-up rate is reported, not priced
+    assert "Attack angle" in html
+    assert f"{WINDOW['blast']} for blast" in html  # its own window, not a round six weeks
+
+
+def test_the_swing_columns_are_sourced_even_when_no_cut_was_overruled() -> None:
+    """A bat-speed figure without its window is unreadable, rescue or no rescue."""
+    result = _result()
+    result.sections[0].hitters[0].line.swing = _swing(0.0)
+    html = power_report.render_html(result)
+    assert "Kept on the swing" not in html  # nothing was overruled
+    assert "The swing columns" in html
+    assert "too few tracked swings to read, not an average one" in html
+
+
+def test_the_swing_note_is_absent_when_no_swing_was_read_at_all() -> None:
+    assert "The swing columns" not in power_report.render_html(_result())
 
 
 def test_a_power_exception_is_disclosed_in_the_recommendation() -> None:

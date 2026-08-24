@@ -7,6 +7,7 @@ from datetime import date as Date
 import pytest
 
 art = pytest.importorskip("scripts.regression_article")
+swing = pytest.importorskip("mlb_engine.features.swing")
 
 
 def _pitcher(**over) -> dict:
@@ -96,6 +97,69 @@ def test_article_flags_that_the_trend_arrows_are_unproven() -> None:
     assert "three-week direction</i> of those same" in html
     assert "does not predict the next start" in html
     assert "Part one" in html and "Part two" in html
+
+
+def _swinging(power: float, **over) -> dict:
+    """A hitter dict carrying a readable swing ``power`` SD from league."""
+    bmu, bsd = swing.LEAGUE["bat_speed"]
+    zmu, zsd = swing.LEAGUE["blast"]
+    prof = swing.SwingProfile(
+        swings=500, bat_speed=bmu + power * bsd, blast=zmu + power * zsd,
+        squared_up=swing.LEAGUE["squared_up"][0], fast=swing.LEAGUE["fast"][0],
+        swing_length=swing.LEAGUE["swing_length"][0],
+    )
+    b = _batter(**over)
+    b.update(
+        swings=prof.swings, bat_speed=prof.bat_speed, fast=prof.fast,
+        squared_up=prof.squared_up, blast=prof.blast, swing_length=prof.swing_length,
+        power_z=prof.power_z, contact_z=prof.contact_z,
+        stage2=swing.stage_two(-b["dxwoba"], prof),
+    )
+    return b
+
+
+def test_the_swing_confirms_a_hitter_the_gap_says_is_due() -> None:
+    """Stage two on a positive regressor: the swing agrees, so the rebound is real."""
+    html = art._batter_entry(_swinging(1.0), None, None, True)
+    assert "swing underneath agrees" in html
+    assert "blast rate" in html and "+1.00 standard deviations" in html
+    assert "Swing: BatSpd" in html
+
+
+def test_the_swing_argues_against_a_fade_and_the_entry_says_so() -> None:
+    """The false-negative case: lucky and good at once, which the gap alone misses."""
+    b = _swinging(1.0, dxwoba=-0.080, woba=0.400, xwoba=0.320)
+    assert b["stage2"] == swing.CONTRADICTED
+    html = art._batter_entry(b, None, None, False)
+    assert "argues against the fade" in html
+    assert "out-produce" in html
+    assert "swing disagrees" in html  # flagged in the headline, not buried
+
+
+def test_a_hitter_with_no_tracked_swings_is_unmeasured_not_average() -> None:
+    html = art._batter_entry(_batter(), None, None, True)
+    assert "not readable at this sample" in html
+    assert "Swing: BatSpd" not in html  # nothing to print
+
+
+def test_the_swing_line_states_its_windows_and_that_attack_angle_is_absent() -> None:
+    html = art._swing_line(_swinging(0.5))
+    windows = "/".join(
+        str(swing.WINDOW[m])
+        for m in ("bat_speed", "fast", "squared_up", "blast", "swing_length")
+    )
+    assert f"{windows} tracked swings" in html
+    assert "off 500 in the window" in html  # the sample the levels came out of
+    assert "Attack angle is published by no available feed" in html
+
+
+def test_the_article_prices_no_swing_trend_and_says_why() -> None:
+    html = art.build_html(
+        Date(2026, 8, 12), [_pitcher()], [], {}, [_swinging(1.0)], [], {}, []
+    )
+    assert "no swing trend is printed at all" in html
+    assert "negatively signed on home runs" in html  # squared-up kept off power
+    assert "absent rather than estimated" in html  # attack angle, in the methodology
 
 
 def test_a_fly_ball_arm_is_told_where_the_correction_lands() -> None:
