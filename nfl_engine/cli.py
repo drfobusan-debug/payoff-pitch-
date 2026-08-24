@@ -35,6 +35,7 @@ from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
+from nfl_engine import calibration
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit.ledger import (
     PAPER,
@@ -214,12 +215,15 @@ def cmd_price(args: argparse.Namespace) -> int:
     book = _books(fetched.season, fetched.week, ratings=args.ratings)
     named = books_mod.attach_qbs(fetched.games, fetched.season, fetched.week)
     print(f"  {named} of {2 * len(fetched.games)} starting quarterbacks named")
+    maps = calibration.load()
+    print(f"  {maps.stamp()}")
     pricings = price_slate(
         fetched.games,
         fetched.board,
         book=book.ratings,
         starters=book.starters,
         sim=DriveSim(n_sims=args.sims),
+        calibrator=maps,
     )
     entries = _ledger_rows(pricings, fetched.captured_at)
     added = merge_ledger(ledger_path(), entries) if args.write else []
@@ -338,6 +342,26 @@ def _final_scores(season: int | None) -> dict[tuple[str, str], tuple[int, int]]:
     return out
 
 
+def cmd_calibrate(args: argparse.Namespace) -> int:
+    """Fit the per-market maps on history and print what the holdout measured.
+
+    Fitted on seasons through ``--cutoff`` and scored on the seasons after it, so
+    the number that decides whether a map ships was never trained on. ``--write``
+    stores every market's measurement, applied or not, which is what makes the next
+    refit comparable to this one.
+    """
+    rows = calibration.observations(first=args.first, sims=args.sims)
+    fits = calibration.fit(rows, cutoff=args.cutoff)
+    for line in calibration.report_lines(fits):
+        print(line)
+    if args.write:
+        path = calibration.shipped_path()
+        calibration.write_maps(path, fits)
+        print(f"  wrote {path}")
+    print(f"  {calibration.Calibrator.from_fits(fits).stamp()}")
+    return 0
+
+
 def cmd_replay(args: argparse.Namespace) -> int:
     """Run played weeks at their closing prices through the live functions.
 
@@ -353,6 +377,8 @@ def cmd_replay(args: argparse.Namespace) -> int:
         return 0
     path = ledger_path()
     sim = DriveSim(n_sims=args.sims)
+    maps = calibration.load()
+    print(f"  {maps.stamp()}")
     priced = added = graded = closed = 0
     for week in weeks:
         taken = capture.stamp()
@@ -370,6 +396,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
             book=book.ratings,
             starters=book.starters,
             sim=sim,
+            calibrator=maps,
         )
         entries = _ledger_rows(pricings, taken)
         priced += len(entries)
@@ -474,7 +501,9 @@ def cmd_card(args: argparse.Namespace) -> int:
     if season is None or week is None:
         current_season, current, _ = current_week()
         season, week = season or current_season, week or current
-    card = build_card(entries, season=season, week=week)
+    card = build_card(
+        entries, season=season, week=week, calibration=calibration.load().stamp()
+    )
     if not card.games:
         print(f"no priced rows for {season} week {week}")
         return 0
@@ -571,6 +600,19 @@ def main(argv: list[str] | None = None) -> int:
     card_cmd.add_argument("--email", action="store_true")
     card_cmd.add_argument("--to", default=None, help="override the recipient")
     card_cmd.set_defaults(func=cmd_card)
+
+    calibrate = sub.add_parser(
+        "calibrate", help="fit and judge the per-market maps on historical closing lines"
+    )
+    calibrate.add_argument("--first", type=int, default=2007)
+    calibrate.add_argument("--cutoff", type=int, default=2019, help="last training season")
+    calibrate.add_argument("--sims", type=int, default=20000)
+    calibrate.add_argument(
+        "--write",
+        action="store_true",
+        help="replace the shipped map file with this fit and its measurements",
+    )
+    calibrate.set_defaults(func=cmd_calibrate)
 
     report = sub.add_parser("report", help="tier, market and screen records")
     report.add_argument("--all", action="store_true")

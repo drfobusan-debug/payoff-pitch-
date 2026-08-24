@@ -73,6 +73,10 @@ class WeekCard:
     games: list[GameSection]
     selections: int
     record: list[Metrics]
+    # What the prices on this card were calibrated through, printed so a reader can
+    # tell a corrected market from an uncorrected one. Display only: the card never
+    # calibrates anything, it says what pricing already did.
+    calibration: str = ""
 
     def plays(self) -> list[Play]:
         return [play for game in self.games for play in game.plays]
@@ -81,7 +85,9 @@ class WeekCard:
         return f"NFL {self.season} Week {self.week}"
 
 
-def build_card(entries: list[LedgerEntry], *, season: int, week: int) -> WeekCard:
+def build_card(
+    entries: list[LedgerEntry], *, season: int, week: int, calibration: str = ""
+) -> WeekCard:
     """Group one week's engine rows into game sections, best execution edge first.
 
     Outside sources are excluded: a benchmark's row is graded in the same ledger
@@ -122,6 +128,7 @@ def build_card(entries: list[LedgerEntry], *, season: int, week: int) -> WeekCar
         games=games,
         selections=len(scope),
         record=_record(entries),
+        calibration=calibration,
     )
 
 
@@ -143,6 +150,8 @@ def _record(entries: list[LedgerEntry]) -> list[Metrics]:
 
 def render_markdown(card: WeekCard) -> str:
     lines = [f"# {card.title()}", "", f"_{PAPER_NOTE}_", ""]
+    if card.calibration:
+        lines.extend([f"_{card.calibration}_", ""])
     bought = card.plays()
     lines.append(
         f"{card.selections} selections priced, {len(bought)} survive the screens"
@@ -202,6 +211,11 @@ def render_html(card: WeekCard) -> str:
         f"<style>{_STYLE}</style></head><body>",
         f"<h1>{html.escape(card.title())}</h1>",
         f"<p class='note'>{html.escape(PAPER_NOTE)}</p>",
+        *(
+            [f"<p class='note'>{html.escape(card.calibration)}</p>"]
+            if card.calibration
+            else []
+        ),
         f"<p>{card.selections} selections priced, {len(card.plays())} survive the screens.</p>",
     ]
     for game in card.games:
