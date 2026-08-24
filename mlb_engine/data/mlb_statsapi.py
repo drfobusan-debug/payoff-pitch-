@@ -29,6 +29,10 @@ log = logging.getLogger(__name__)
 BASE = "https://statsapi.mlb.com/api/v1"
 SPORT_ID = 1  # MLB
 
+# Finals a league-total read needs before it is a league rather than a week. A
+# month of the schedule is ~400 games, so this refuses only a genuinely thin window.
+MIN_LEAGUE_GAMES = 100
+
 
 def _utc_hour(iso: str | None) -> float | None:
     """Fractional UTC hour from an ISO game-start string (e.g. 2026-07-19T23:05:00Z)."""
@@ -363,6 +367,38 @@ class MLBStatsClient:
                 if pid and age is not None:
                     out[int(pid)] = float(age)
         return out
+
+    def league_runs_per_game(self, before: Date, days: int = 30) -> float | None:
+        """Runs per game the whole league has played over ``days`` before a date.
+
+        The run environment the simulator is supposed to be pricing in, read off
+        final scores rather than a rate model, so it is a measurement and not
+        another projection. ``None`` when the window is too thin to trust (a fresh
+        season, or a failed call), which leaves the correction off.
+        """
+        start = before - timedelta(days=days)
+        end = before - timedelta(days=1)
+        try:
+            data = self._get(
+                "schedule", sportId=SPORT_ID, startDate=start.isoformat(),
+                endDate=end.isoformat(), hydrate="linescore",
+            )
+        except requests.RequestException as exc:
+            log.warning("league runs per game failed for %s: %s", before, exc)
+            return None
+        totals: list[int] = []
+        for block in data.get("dates", []):
+            for g in block.get("games", []):
+                if (g.get("status", {}) or {}).get("abstractGameState") != "Final":
+                    continue
+                teams = ((g.get("linescore") or {}).get("teams") or {})
+                home, away = teams.get("home") or {}, teams.get("away") or {}
+                if "runs" in home and "runs" in away:
+                    totals.append(int(home["runs"]) + int(away["runs"]))
+        if len(totals) < MIN_LEAGUE_GAMES:
+            log.warning("league runs per game: only %d finals before %s", len(totals), before)
+            return None
+        return sum(totals) / len(totals)
 
     def team_run_differentials(self, season: int) -> dict[str, tuple[float, int]]:
         """Season {team_abbrev: (actual_rd_per_game, games_played)} from standings.
