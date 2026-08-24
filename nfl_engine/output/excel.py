@@ -127,9 +127,17 @@ def _plays_sheet(book: Workbook, card: WeekCard) -> None:
             "Tier",
             "CLV",
             "Result",
+            # The outside forecast, display only: whose side FPI has, at what
+            # probability and margin, and whether that is our side. Nothing here
+            # is read back by pricing, screening or grading.
+            "FPI",
+            "FPI %",
+            "FPI margin",
+            "Agrees",
         ),
     )
     for game in card.games:
+        bench = game.benchmark
         for play in game.plays:
             _append(
                 sheet,
@@ -145,6 +153,10 @@ def _plays_sheet(book: Workbook, card: WeekCard) -> None:
                     play.tier,
                     play.clv,
                     play.result,
+                    bench.theirs if bench else "",
+                    bench.their_prob if bench else None,
+                    bench.their_margin if bench else "",
+                    bench.mark() if bench else "",
                 ],
             )
     sheet.append([])

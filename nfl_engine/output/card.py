@@ -15,6 +15,8 @@ from __future__ import annotations
 import html
 from dataclasses import dataclass, field
 
+from nfl_engine.audit.availability import Observation
+from nfl_engine.audit.availability import note as absence_note
 from nfl_engine.audit.ledger import (
     ENGINE,
     LedgerEntry,
@@ -23,6 +25,7 @@ from nfl_engine.audit.ledger import (
     metrics,
     tier_metrics,
 )
+from nfl_engine.audit.outside import HeadToHead, benchmark_metrics, head_to_head
 from nfl_engine.market.screens import Tier
 
 BUY_TIERS = (Tier.STRONG.value, Tier.MODERATE.value)
@@ -64,6 +67,22 @@ class GameSection:
     plays: list[Play] = field(default_factory=list)
     # Vetoes fired on this game, and how many rows each one stopped.
     vetoes: dict[str, int] = field(default_factory=dict)
+    # The outside forecast on this game, read from its own ledger rows. Display
+    # only: it has moved no probability, no tier and no screen, and a game shows
+    # the same play whether the benchmark is present, absent or against us.
+    benchmark: HeadToHead | None = None
+    # Who is out on either side, read from the availability log on disk. Display
+    # only for the same reason the benchmark is: no screen, tier or probability
+    # has seen it, and the timing evidence that would justify pricing it is still
+    # being collected.
+    absences: str = ""
+
+    def benchmark_note(self) -> str:
+        if self.benchmark is None or not self.benchmark.theirs:
+            return ""
+        bench = self.benchmark
+        prob = f"{bench.their_prob * 100:.1f}%" if bench.their_prob is not None else "n/a"
+        return f"FPI: {bench.theirs} {prob} ({bench.their_margin}) -- {bench.mark()}"
 
 
 @dataclass
@@ -77,6 +96,9 @@ class WeekCard:
     # tell a corrected market from an uncorrected one. Display only: the card never
     # calibrates anything, it says what pricing already did.
     calibration: str = ""
+    # Games where the outside forecast backed the other side of one of our plays.
+    # Counted, not acted on: a disagreement is something to read afterwards.
+    contested: int = 0
 
     def plays(self) -> list[Play]:
         return [play for game in self.games for play in game.plays]
@@ -86,7 +108,12 @@ class WeekCard:
 
 
 def build_card(
-    entries: list[LedgerEntry], *, season: int, week: int, calibration: str = ""
+    entries: list[LedgerEntry],
+    *,
+    season: int,
+    week: int,
+    calibration: str = "",
+    absences: list[Observation] | None = None,
 ) -> WeekCard:
     """Group one week's engine rows into game sections, best execution edge first.
 
@@ -94,11 +121,17 @@ def build_card(
     so it can be measured, never so it can be presented as one of our plays.
     """
     scope = [e for e in entries if e.season == season and e.week == week and e.source == ENGINE]
+    outside = {h.matchup: h for h in head_to_head(entries, season=season, week=week)}
     sections: dict[str, GameSection] = {}
     for entry in sorted(scope, key=lambda e: -(e.ev_fair or 0.0)):
         section = sections.setdefault(
             entry.matchup,
-            GameSection(matchup=entry.matchup, kickoff=entry.kickoff_utc or entry.date),
+            GameSection(
+                matchup=entry.matchup,
+                kickoff=entry.kickoff_utc or entry.date,
+                benchmark=outside.get(entry.matchup),
+                absences=absence_note(absences or [], entry.matchup),
+            ),
         )
         if entry.screens:
             for name in entry.screens.split(";"):
@@ -129,6 +162,7 @@ def build_card(
         selections=len(scope),
         record=_record(entries),
         calibration=calibration,
+        contested=sum(1 for h in outside.values() if h.contested),
     )
 
 
@@ -141,10 +175,14 @@ def _record(entries: list[LedgerEntry]) -> list[Metrics]:
     graded = [e for e in entries if e.result]
     if not graded:
         return []
+    bench = benchmark_metrics(graded)
     return [
         *tier_metrics(graded),
         *market_metrics(graded),
         metrics([e for e in graded if e.source == ENGINE], lambda e: True, "ALL"),
+        # The benchmark's own hit rate, on its own row, last. Its units are 0 by
+        # construction: it publishes no price and stakes nothing.
+        *([bench] if bench is not None else []),
     ]
 
 
@@ -157,6 +195,11 @@ def render_markdown(card: WeekCard) -> str:
         f"{card.selections} selections priced, {len(bought)} survive the screens"
         f" across {sum(1 for g in card.games if g.plays)} games."
     )
+    if card.contested:
+        lines.append("")
+        lines.append(
+            f"_FPI backs the other side on {card.contested} of them. Shown, not acted on._"
+        )
     lines.append("")
     for game in card.games:
         lines.append(f"## {game.matchup}")
@@ -176,6 +219,10 @@ def render_markdown(card: WeekCard) -> str:
             named = ", ".join(f"{name} x{count}" for name, count in sorted(game.vetoes.items()))
             lines.append("")
             lines.append(f"Vetoed: {named}")
+        for note in (game.absences, game.benchmark_note()):
+            if note:
+                lines.append("")
+                lines.append(note)
         lines.append("")
     if card.record:
         lines.append("## Record to date")
@@ -211,12 +258,16 @@ def render_html(card: WeekCard) -> str:
         f"<style>{_STYLE}</style></head><body>",
         f"<h1>{html.escape(card.title())}</h1>",
         f"<p class='note'>{html.escape(PAPER_NOTE)}</p>",
+        *([f"<p class='note'>{html.escape(card.calibration)}</p>"] if card.calibration else []),
+        f"<p>{card.selections} selections priced, {len(card.plays())} survive the screens.</p>",
         *(
-            [f"<p class='note'>{html.escape(card.calibration)}</p>"]
-            if card.calibration
+            [
+                f"<p class='note'>FPI backs the other side on {card.contested} of them."
+                " Shown, not acted on.</p>"
+            ]
+            if card.contested
             else []
         ),
-        f"<p>{card.selections} selections priced, {len(card.plays())} survive the screens.</p>",
     ]
     for game in card.games:
         parts.append(f"<h2>{html.escape(game.matchup)}</h2>")
@@ -238,6 +289,9 @@ def render_html(card: WeekCard) -> str:
         if game.vetoes:
             named = ", ".join(f"{name} x{count}" for name, count in sorted(game.vetoes.items()))
             parts.append(f"<p class='veto'>Vetoed: {html.escape(named)}</p>")
+        for note in (game.absences, game.benchmark_note()):
+            if note:
+                parts.append(f"<p class='note'>{html.escape(note)}</p>")
     if card.record:
         parts.append("<h2>Record to date</h2>")
         parts.append(

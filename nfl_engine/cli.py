@@ -37,7 +37,7 @@ from pathlib import Path
 
 from nfl_engine import calibration
 from nfl_engine import replay as replay_mod
-from nfl_engine.audit import outside
+from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
     PAPER,
     LedgerEntry,
@@ -54,7 +54,7 @@ from nfl_engine.audit.ledger import (
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config, output_dir
-from nfl_engine.data import capture, espn, nflverse
+from nfl_engine.data import capture, espn, injuries, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.market.screens import tier_of
@@ -404,6 +404,80 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def _week_matchups(season: int, week: int) -> list[tuple[str, str, str]]:
+    """``(matchup, away, home)`` for one week's schedule."""
+    games = nflverse.games()
+    games = games[(games.season == season) & (games.week == week)]
+    return [
+        (f"{row.away_team} @ {row.home_team}", str(row.away_team), str(row.home_team))
+        for row in games.itertuples()
+    ]
+
+
+def cmd_injuries(args: argparse.Namespace) -> int:
+    """Record who is out, and what the number did around the news.
+
+    Keyless and free. Every observation is stamped with the market at the last
+    archived capture before the item was posted and the first one after it, which
+    is the measurement the whole feature turns on: an absence the market has
+    already priced is worth nothing, and only our own timestamped archive can say
+    which kind we are looking at.
+
+    Nothing written here reaches a price. The card reports the absences and the
+    log accumulates the timing evidence; if that evidence ever justifies an input,
+    that is a separate change with the numbers attached.
+    """
+    season, week = args.season, args.week
+    if season is None or week is None:
+        current_season, current, _ = current_week()
+        season, week = season or current_season, week or current
+    book = injuries.fetch_report()
+    if not book:
+        print("no injury report available; nothing recorded")
+        return 0
+    news = injuries.fetch_news(cache=data_dir() / "cache" / "injury_news.json")
+    observed = capture.now_utc()
+    rows: list[availability.Observation] = []
+    for matchup, away, home in _week_matchups(season, week):
+        for team in (away, home):
+            for row in injuries.watched_for(book, team):
+                rows.append(
+                    availability.observe(
+                        row,
+                        season=season,
+                        week=week,
+                        matchup=matchup,
+                        news=news.get(row.player_id),
+                        observed=observed,
+                    )
+                )
+    print(
+        f"availability: {len(rows)} absences on {season} week {week}'s watched groups"
+        " [reported, never priced]"
+    )
+    for obs in rows:
+        move = "n/a" if obs.spread_move is None else f"{obs.spread_move:+.1f}"
+        print(
+            f"  {obs.matchup:14s} {obs.team:3s} {obs.group:5s} {obs.position:2s}"
+            f" {obs.player:22s} {obs.designation:12s} move {move:>5s} {obs.timing}"
+        )
+    if args.write and availability.append(availability.log_path(), rows):
+        counts = availability.timing_counts(availability.read_log(availability.log_path()))
+        totals = " ".join(f"{k}={v}" for k, v in sorted(counts.items()) if "/" not in k)
+        print(f"  log now holds {totals or 'nothing'}")
+    return 0
+
+
+def _injury_step(args: argparse.Namespace) -> int:
+    """The availability read inside the weekly job, where a free feed may not answer."""
+    try:
+        return cmd_injuries(args)
+    except Exception:
+        log.warning("injuries step failed; the rest of the week still ran", exc_info=True)
+        print("  injury report unavailable (see log); no engine output depends on it")
+        return 0
+
+
 def _benchmark_step(args: argparse.Namespace) -> int:
     """The benchmark inside the weekly job, where a free outside feed may not answer.
 
@@ -492,6 +566,7 @@ def cmd_job(args: argparse.Namespace) -> int:
         # every play, can neither stop the week nor reach anything that formed a
         # price. It only writes its own rows.
         ("benchmark", _benchmark_step),
+        ("injuries", _injury_step),
         ("close", cmd_close),
         ("grade", cmd_grade),
         ("report", cmd_report),
@@ -563,7 +638,14 @@ def cmd_card(args: argparse.Namespace) -> int:
         current_season, current, _ = current_week()
         season, week = season or current_season, week or current
     card = build_card(
-        entries, season=season, week=week, calibration=calibration.load().stamp()
+        entries,
+        season=season,
+        week=week,
+        calibration=calibration.load().stamp(),
+        # Read off disk, from what `injuries` already recorded: the card makes no
+        # network call, so a week's absences are shown exactly as they were known
+        # when they were captured.
+        absences=availability.read_log(availability.log_path(), season=season, week=week),
     )
     if not card.games:
         print(f"no priced rows for {season} week {week}")
@@ -694,6 +776,16 @@ def main(argv: list[str] | None = None) -> int:
     bench_cmd.add_argument("--write", action="store_true", default=True)
     bench_cmd.add_argument("--no-write", dest="write", action="store_false")
     bench_cmd.set_defaults(func=cmd_benchmark)
+
+    inj_cmd = sub.add_parser(
+        "injuries",
+        help="record who is out and what the number did around the news (free; reported only)",
+    )
+    inj_cmd.add_argument("--season", type=int, default=None)
+    inj_cmd.add_argument("--week", type=int, default=None)
+    inj_cmd.add_argument("--write", action="store_true", default=True)
+    inj_cmd.add_argument("--no-write", dest="write", action="store_false")
+    inj_cmd.set_defaults(func=cmd_injuries)
 
     replay_cmd = sub.add_parser("replay", help="run played weeks at their closing prices")
     replay_cmd.add_argument("--season", type=int, required=True)
