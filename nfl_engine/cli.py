@@ -37,6 +37,7 @@ from pathlib import Path
 
 from nfl_engine import calibration
 from nfl_engine import replay as replay_mod
+from nfl_engine.audit import outside
 from nfl_engine.audit.ledger import (
     PAPER,
     LedgerEntry,
@@ -53,7 +54,7 @@ from nfl_engine.audit.ledger import (
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config, output_dir
-from nfl_engine.data import capture, nflverse
+from nfl_engine.data import capture, espn, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.market.screens import tier_of
@@ -362,6 +363,62 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_benchmark(args: argparse.Namespace) -> int:
+    """Capture ESPN's FPI call on a week and grade it into the ledger, beside ours.
+
+    Free and keyless, so it spends no Odds API credit. The rows are written
+    ``source=fpi``: they are graded against the same final score and read beside
+    our plays, and every measurement of the engine filters them out. Nothing here
+    is an input -- no probability, price, screen or tier of ours is touched, and a
+    week prices identically whether the benchmark was captured or not.
+    """
+    season = args.season
+    week = args.week
+    if season is None or week is None:
+        season, week, _ = current_week()
+    games = espn.projections(season, week)
+    if not games:
+        print(f"no FPI projections for {season} week {week}")
+        return 0
+    scores = _final_scores(season)
+    finals = {
+        game.matchup: scores[(game.matchup, game.date)]
+        for game in games
+        if (game.matchup, game.date) in scores
+    }
+    rows = outside.entries_from_fpi(games, finals, captured_at=capture.stamp())
+    graded = sum(1 for row in rows if row.result)
+    print(
+        f"FPI: {len(games)} games read, {len(rows)} calls written"
+        f" ({graded} already final) [benchmark: display only, never an input]"
+    )
+    for row in sorted(rows, key=lambda e: -e.model_prob):
+        print(f"  {row.matchup:14s} {row.side:4s} {row.model_prob:.3f} {row.tier:10s} {row.result}")
+    if args.write:
+        # Appended, never rewritten, exactly as our own prices are: the read of
+        # record is the first one taken, so a Sunday capture cannot replace the
+        # Wednesday projection it was supposed to be judged beside. Rows captured
+        # before the game settle later through `grade`, which is source-agnostic.
+        added = merge_ledger(ledger_path(), rows)
+        print(f"  {len(added)} new benchmark rows ({len(rows) - len(added)} already held)")
+    return 0
+
+
+def _benchmark_step(args: argparse.Namespace) -> int:
+    """The benchmark inside the weekly job, where a free outside feed may not answer.
+
+    ESPN being down, or slow, or having renamed a stat is not a reason to lose the
+    week's close, grade and card, so this step reports and moves on. It is the only
+    step allowed to: everything else in the job is ours and a failure there is real.
+    """
+    try:
+        return cmd_benchmark(args)
+    except Exception:
+        log.warning("benchmark step failed; the rest of the week still ran", exc_info=True)
+        print("  FPI unavailable (see log); no engine output depends on it")
+        return 0
+
+
 def cmd_replay(args: argparse.Namespace) -> int:
     """Run played weeks at their closing prices through the live functions.
 
@@ -431,6 +488,10 @@ def cmd_job(args: argparse.Namespace) -> int:
     steps = [
         ("capture", cmd_capture),
         ("price", cmd_price),
+        # After pricing, and best-effort: a benchmark that fails, or disagrees with
+        # every play, can neither stop the week nor reach anything that formed a
+        # price. It only writes its own rows.
+        ("benchmark", _benchmark_step),
         ("close", cmd_close),
         ("grade", cmd_grade),
         ("report", cmd_report),
@@ -623,6 +684,16 @@ def main(argv: list[str] | None = None) -> int:
     capture_cmd.add_argument("--props", action="store_true", help="also archive player-prop prices")
     capture_cmd.add_argument("--max-events", type=int, default=32)
     capture_cmd.set_defaults(func=cmd_capture)
+
+    bench_cmd = sub.add_parser(
+        "benchmark",
+        help="capture ESPN's FPI call beside ours (free; display only, never an input)",
+    )
+    bench_cmd.add_argument("--season", type=int, default=None)
+    bench_cmd.add_argument("--week", type=int, default=None)
+    bench_cmd.add_argument("--write", action="store_true", default=True)
+    bench_cmd.add_argument("--no-write", dest="write", action="store_false")
+    bench_cmd.set_defaults(func=cmd_benchmark)
 
     replay_cmd = sub.add_parser("replay", help="run played weeks at their closing prices")
     replay_cmd.add_argument("--season", type=int, required=True)
