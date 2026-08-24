@@ -48,7 +48,7 @@ from mlb_engine.output.power_screen import MAX_LUCK_GAP
 
 log = logging.getLogger("swing-stage")
 
-METRICS = ("bat_speed", "fast", "squared_up", "blast", "swing_length")
+METRICS = ("bat_speed", "fast", "squared_up", "blast", "swing_length", "attack_angle")
 TB_MAP = {"single": 1.0, "double": 2.0, "triple": 3.0, "home_run": 4.0}
 TARGETS = (("nxt_woba", "wOBA/PA"), ("nxt_tb", "TB/PA"), ("nxt_hit", "H/PA"), ("nxt_hr", "HR/PA"))
 HORIZON = 14  # days of the out-of-time target
@@ -96,7 +96,10 @@ def slices(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     sw["squared_up"] = sq.astype(float)
     sw["blast"] = (sq & (bat >= BLAST_BAT_SPEED)).astype(float)
     sw["fast"] = (bat >= FAST_SWING_MPH).astype(float)
-    sw = sw.sort_values(["batter", "game_date"])[["game_date", "batter", *METRICS]]
+    # Swing path is missing from slices cached before it was ingested, so the
+    # metric is carried when the feed has it and dropped when it does not.
+    have = [m for m in METRICS if m in sw.columns]
+    sw = sw.sort_values(["batter", "game_date"])[["game_date", "batter", *have]]
 
     pa = df[df["woba_denom"].notna()].copy()
     pa["tb"] = pa["events"].map(TB_MAP).fillna(0.0)
@@ -118,6 +121,7 @@ def panel(repo: StatcastRepository, seasons: list[int], scale: int) -> pd.DataFr
         start = Date(season, 3, 1)
         end = min(Date(season, 11, 15), Date.today())
         sw, pa = slices(repo.load_range(start, end))
+        metrics = [m for m in METRICS if m in sw.columns]
         sw_by = dict(tuple(sw.groupby("batter", sort=False)))
         pa_by = dict(tuple(pa.groupby("batter", sort=False)))
         anchor = start + timedelta(90)  # deep enough in that the windows can fill
@@ -141,11 +145,15 @@ def panel(repo: StatcastRepository, seasons: list[int], scale: int) -> pd.DataFr
                     "anchor": day.isoformat(),
                     "batter": int(pid),
                 }
-                if any(len(past) < 2 * window[m] for m in METRICS):
+                if any(len(past) < 2 * window[m] for m in metrics):
                     continue
-                for metric in METRICS:
+                for metric in metrics:
                     n = window[metric]
-                    v = past[metric].to_numpy(dtype=float)
+                    v = past[metric].dropna().to_numpy(dtype=float)
+                    if len(v) < 2 * n:
+                        row[f"lvl_{metric}"] = float("nan")
+                        row[f"d_{metric}"] = float("nan")
+                        continue
                     row[f"lvl_{metric}"] = float(v[-n:].mean())
                     row[f"d_{metric}"] = float(v[-n:].mean() - v[-2 * n : -n].mean())
                 now_woba = float(form["woba"].mean())
@@ -158,15 +166,30 @@ def panel(repo: StatcastRepository, seasons: list[int], scale: int) -> pd.DataFr
                 rows.append(row)
                 kept += 1
             log.info("%s anchor %s  n=%d", season, day, kept)
-    return pd.DataFrame(rows).dropna().reset_index(drop=True)
+    p = pd.DataFrame(rows)
+    if p.empty:
+        return p
+    # A hitter short of attack-angle readings still has a bat-speed row, so the
+    # swing-path columns are not allowed to empty the panel.
+    core = [c for c in p.columns if "attack_angle" not in c]
+    return p.dropna(subset=core).reset_index(drop=True)
 
 
 def report(p: pd.DataFrame, scale: int) -> None:
-    for m in METRICS:
+    metrics = [m for m in METRICS if f"lvl_{m}" in p.columns]
+    for m in metrics:
         p[f"zl_{m}"] = _z(p[f"lvl_{m}"])
         p[f"zd_{m}"] = _z(p[f"d_{m}"])
-    p["swing_l"] = p[[f"zl_{m}" for m in METRICS]].mean(axis=1)
-    p["swing_d"] = p[[f"zd_{m}" for m in METRICS]].mean(axis=1)
+    # Attack angle is a market read rather than a verdict on the bat -- steep is
+    # home runs and against singles -- so it stays out of the pooled composite.
+    pooled = [m for m in metrics if m != "attack_angle"]
+    p["swing_l"] = p[[f"zl_{m}" for m in pooled]].mean(axis=1)
+    p["swing_d"] = p[[f"zd_{m}" for m in pooled]].mean(axis=1)
+    if "attack_angle" in metrics:
+        print(
+            f"attack angle read on {int(p['lvl_attack_angle'].notna().sum())} of {len(p)} "
+            "batter-windows; its regressions use those rows"
+        )
     p["flagged"] = p["luck_gap"] > MAX_LUCK_GAP
     cl = p["batter"].to_numpy()
     one = np.ones(len(p))
@@ -192,11 +215,16 @@ def report(p: pd.DataFrame, scale: int) -> None:
             y = p[col].to_numpy(float)
             _, _, r2b = ols(y, base, cl)
             print(f"  target {label} (stage-one R2 {r2b:.4f})")
-            for m in METRICS:
-                x = np.column_stack([base, p[f"{prefix}{m}"]])
-                b, se, r2 = ols(y, x, cl)
+            for m in metrics:
+                col_v = p[f"{prefix}{m}"].to_numpy(float)
+                ok = np.isfinite(col_v)
+                # Refit stage one on the same rows, so the dR2 is a comparison.
+                _, _, r2m = ols(y[ok], base[ok], cl[ok])
+                x = np.column_stack([base[ok], col_v[ok]])
+                b, se, r2 = ols(y[ok], x, cl[ok])
                 print(
-                    f"    {m:14s} coef {b[3]:+.5f}  t {b[3] / se[3]:+.2f}  dR2 {r2 - r2b:+.5f}"
+                    f"    {m:14s} coef {b[3]:+.5f}  t {b[3] / se[3]:+.2f}  dR2 {r2 - r2m:+.5f}"
+                    + (f"  n {int(ok.sum())}" if not ok.all() else "")
                 )
 
     print("\ndoes the swing rescue a hitter stage one wants cut? (flagged rows only)")
@@ -211,6 +239,22 @@ def report(p: pd.DataFrame, scale: int) -> None:
             f"better half {q.loc[top, col].mean():.4f} vs worse {q.loc[~top, col].mean():.4f} | "
             f"the rows the cut keeps {p.loc[~p['flagged'], col].mean():.4f}"
         )
+    if "attack_angle" in metrics:
+        # The reason attack angle is printed and does not rescue: it sorts the
+        # home-run line league-wide and does not sort the rows this cut removes.
+        r = q[q["zl_attack_angle"].notna()]
+        for col, label in TARGETS[1:2]:
+            y = r[col].to_numpy(float)
+            x = np.column_stack([
+                np.ones(len(r)), r["now_woba"], r["now_xwoba"], r["zl_attack_angle"],
+            ])
+            b, se, _ = ols(y, x, r["batter"].to_numpy())
+            steep = r["zl_attack_angle"] > r["zl_attack_angle"].median()
+            print(
+                f"  {label:8s} attack angle coef {b[3]:+.5f} (t {b[3] / se[3]:+.2f}, "
+                f"n {len(r)}) | steeper half {r.loc[steep, col].mean():.4f} vs flatter "
+                f"{r.loc[~steep, col].mean():.4f}"
+            )
 
 
 def main() -> None:

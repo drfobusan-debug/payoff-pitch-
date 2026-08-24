@@ -15,6 +15,7 @@ hitters, split into adjacent equal blocks and correlated block to block:
     bat speed         .73     .91      .95      .95       3 swings
     fast-swing%       .69     .89      .94      .95       4
     swing length      .69     .91      .95      .96       4
+    attack angle      .54     .81      .89      .91       9
     blast%            .20     .53      .74      .80      48
     squared-up%       .15     .43      .71      .78      64
 
@@ -69,9 +70,31 @@ model with the cuts calibrated to the league rate. Per hitter that lands at
 r +.86 and +.76 against the official figures over the same dates (bat speed
 +.996, swing length +.997), and the reconstruction's spread is 40% too wide for
 blast -- so the coefficients above are attenuated and the true effects are larger
-than the t-statistics say, not smaller. And attack angle, the fifth measure
-Franz asked for, is published by neither the leaderboard endpoints nor the
-pitch-level feed; it is absent rather than approximated.
+than the t-statistics say, not smaller.
+
+**Attack angle is the fifth measure, and it is its own axis rather than more of
+the power one.** Savant publishes it on the pitch-level feed -- ``attack_angle``,
+with ``attack_direction`` and ``swing_path_tilt`` beside it, from 2025 -- and our
+own ingestion was dropping the three; against FanGraphs' published season figures
+the values reproduce at r +.996 for attack angle and +.9995 for tilt over 438
+hitters, so these are the official measures rather than a reconstruction. On the
+same out-of-time panel rebuilt with them (1,295 batter-windows, 266 hitters, both
+seasons), added on top of trailing wOBA and xwOBA *and* the power pair it would
+have joined:
+
+    added on top of wOBA, xwOBA, bat speed and blast   HR/PA     H/PA     TB/PA
+      attack angle level                              t +6.3   t -5.3   t +1.2
+      attack direction level                          t -0.6   t -1.8   t -1.5
+      swing tilt level                                t +0.7   t -1.3   t -0.4
+
+Steeper swings hit more home runs and fewer singles, monotonically across
+quintiles -- 2.6% to 4.6% HR/PA from 4.0 to 15.7 degrees, and .235 to .211 H/PA
+over the same span -- and the sign holds separately in 2025 (t +5.5 / -4.4) and
+2026 (t +3.1 / -3.1). It is therefore read as a market-specific level, steep for
+the home-run and total-base lines and against the hits ones, and it is *not* in
+``power_z``: inside the rows stage one cuts it does not sort the fortnight that
+follows (t -0.07 on TB/PA), so it earns no rescue. Attack direction and tilt earn
+nothing anywhere and are ingested only so the study need not re-pull.
 """
 
 from __future__ import annotations
@@ -111,6 +134,8 @@ CURVES: dict[str, tuple[tuple[int, float], ...]] = {
              (150, 0.94), (250, 0.95)),
     "swing_length": ((3, 0.46), (5, 0.56), (10, 0.69), (25, 0.84), (50, 0.91), (100, 0.94),
                      (150, 0.95), (250, 0.96)),
+    "attack_angle": ((3, 0.33), (5, 0.36), (10, 0.54), (25, 0.71), (50, 0.81), (100, 0.87),
+                     (150, 0.89), (250, 0.91)),
     "blast": ((3, 0.08), (5, 0.12), (10, 0.20), (25, 0.37), (50, 0.53), (100, 0.67),
               (150, 0.74), (250, 0.80)),
     "squared_up": ((3, 0.06), (5, 0.09), (10, 0.15), (25, 0.28), (50, 0.43), (100, 0.61),
@@ -126,6 +151,7 @@ LEAGUE: dict[str, tuple[float, float]] = {
     "squared_up": (0.246, 0.062),
     "blast": (0.100, 0.048),
     "swing_length": (7.27, 0.470),
+    "attack_angle": (9.76, 4.18),
 }
 
 #: How much of each window a level is read over, as a multiple of the r=.50
@@ -198,6 +224,7 @@ class SwingProfile:
     squared_up: float = math.nan
     blast: float = math.nan
     swing_length: float = math.nan
+    attack_angle: float = math.nan
 
     def levels(self) -> dict[str, float]:
         """Metric -> level, ``nan`` where the slice never reached its floor."""
@@ -207,6 +234,7 @@ class SwingProfile:
             "squared_up": self.squared_up,
             "blast": self.blast,
             "swing_length": self.swing_length,
+            "attack_angle": self.attack_angle,
         }
 
     def z(self, metric: str) -> float:
@@ -237,6 +265,18 @@ class SwingProfile:
     def contact_z(self) -> float:
         """Squared-up rate: the measure that predicts hits rather than bases."""
         return self.z("squared_up")
+
+    @property
+    def lift_z(self) -> float:
+        """Attack angle: steep is home runs and against hits, on the same swing.
+
+        Kept out of ``power_z`` on purpose. It survives bat speed and blast rate
+        on the home-run line (t +6.3) and is the sharpest single read there, but
+        inside the rows the luck gap cuts it does not sort the fortnight that
+        follows (t -0.07 on TB/PA), so it describes a market and does not rescue
+        a hitter.
+        """
+        return self.z("attack_angle")
 
 
 #: Verdicts of the second stage, once the first has read the luck gap.
@@ -340,6 +380,12 @@ def build_swing_profile(rows: pd.DataFrame) -> SwingProfile:
         "swing_length": (
             sw["swing_length"].astype(float) if "swing_length" in sw else pd.Series(dtype=float)
         ),
+        # Swing path arrived in the feed in 2025 and our own ingestion dropped it
+        # until now, so frames cached earlier carry no column at all: absent and
+        # unmeasured, never imputed.
+        "attack_angle": (
+            sw["attack_angle"].astype(float) if "attack_angle" in sw else pd.Series(dtype=float)
+        ),
     }
     lvl = {m: _level(m, v) for m, v in series.items()}
     return SwingProfile(
@@ -349,4 +395,5 @@ def build_swing_profile(rows: pd.DataFrame) -> SwingProfile:
         squared_up=lvl["squared_up"],
         blast=lvl["blast"],
         swing_length=lvl["swing_length"],
+        attack_angle=lvl["attack_angle"],
     )

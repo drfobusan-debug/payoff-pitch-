@@ -489,9 +489,8 @@ def build_batter_regression(
     sweet = float(la.between(8, 32).mean()) if len(la) else 0.0
     gb_pct = float((la < 10).mean()) if len(la) else float("nan")
     pull_air = _pull_air_rate(batted)
-    bat_speed = (
-        float(bdf["bat_speed"].dropna().mean()) if bdf["bat_speed"].notna().any() else BL_BAT_SPEED
-    )
+    bs = bdf["bat_speed"].dropna() if "bat_speed" in bdf else pd.Series(dtype=float)
+    bat_speed = float(bs.mean()) if len(bs) else BL_BAT_SPEED
     max_ev = _safe_float(batted["launch_speed"].max(), BL_MAX_EV) if n_bbe else BL_MAX_EV
     n_sw = int(len(swings))
     whiff = float(whiffs.sum() / n_sw) if n_sw else BL_WHIFF

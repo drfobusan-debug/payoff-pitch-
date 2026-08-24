@@ -323,6 +323,20 @@ def test_the_swing_does_not_rescue_a_hitter_the_earlier_cuts_removed() -> None:
     assert not (thin.swing_rescue or at_league.swing_rescue)
 
 
+def test_a_steep_attack_angle_does_not_rescue_on_its_own() -> None:
+    """Attack angle sorts the home-run line and not the rows this cut removes.
+
+    Inside the flagged group its coefficient on the next fortnight's total bases
+    is t -0.07 (steeper half .3684, flatter .3880), so it is printed for the
+    market it points at and left out of the rescue.
+    """
+    mu, sd = LEAGUE["attack_angle"]
+    lucky = _hitter("Steep", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    lucky.swing = SwingProfile(swings=400, attack_angle=mu + 3 * sd)
+    assert apply_cuts([lucky], league_xwoba=0.305) == []
+    assert "outruns" in lucky.cut_reason and not lucky.swing_rescue
+
+
 def test_the_power_exception_can_be_switched_off() -> None:
     riley = _hitter("Riley", wrc=104.0, xwoba_pa=0.302, xwoba_con=POWER_XWOBACON + 0.02)
     kept = apply_cuts([riley, _hitter("Olson")], league_xwoba=0.305, keep_power=False)

@@ -52,9 +52,14 @@ USE_COLS = [
     # pitch-type matchup read has to be built on. Frames cached before it was
     # requested do not carry it; callers must treat it as optional.
     "delta_run_exp",
-    # bat tracking (2024+)
+    # bat tracking (2024+) and swing path (2025+). The feed publishes all five on
+    # every tracked swing; frames cached before the swing-path three were
+    # requested do not carry them, so callers must treat them as optional.
     "bat_speed",
     "swing_length",
+    "attack_angle",
+    "attack_direction",
+    "swing_path_tilt",
     # pitch release / movement
     "release_pos_x",
     "release_pos_z",
