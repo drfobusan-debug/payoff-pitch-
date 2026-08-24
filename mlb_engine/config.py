@@ -20,6 +20,7 @@ from mlb_engine.features.regression import (
     SINGLES_LD_SLOPE,
 )
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
+from mlb_engine.models.run_env import RunEnvTilt
 
 logger = logging.getLogger(__name__)
 
@@ -1106,6 +1107,22 @@ class Config:
     # likes, and those are the buys that won.
     market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.3))
 
+    # Batter-prop over correction, in logit units (see models.run_env for the
+    # graded walk-forward). ``prop_over_tilt`` is the constant the simulator's
+    # batter overs run hot by; ``prop_env_slope`` is charged per run that the
+    # simulator's own game-total mean sits above the league's, so a game it
+    # prices at 10.5 gets four times the mark-down of one it prices at 9.4.
+    # Fitted values ranged 0.08-0.15 and 0.03-0.05 across the four weekly refits;
+    # these are the conservative end of each, because the study's proxy for the
+    # simulator's mean was reconstructed from calibrated total prices rather than
+    # read off the simulator as the engine now does.
+    prop_over_tilt: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_OVER_TILT", 0.08)
+    )
+    prop_env_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_ENV_SLOPE", 0.03)
+    )
+
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
     # sets the threshold.
@@ -1183,6 +1200,11 @@ class Config:
         if override:
             return Path(override).expanduser()
         return self.data_dir / "projections"
+
+    @property
+    def run_env_tilt(self) -> RunEnvTilt:
+        """The batter-prop over correction these settings describe."""
+        return RunEnvTilt(self.prop_over_tilt, self.prop_env_slope)
 
     @property
     def batx_dir(self) -> Path:
