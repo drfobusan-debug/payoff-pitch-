@@ -22,6 +22,14 @@ actually taken, and it is the primary measurement for this engine rather than a
 footnote: with the mean pinned to the market by phase 3, what is being tested is
 whether the *execution* is any good, and beating the close is the only clean read
 on that available before hundreds of graded bets exist.
+
+Which makes the *close* a number worth being pedantic about. A price seen days
+before kickoff is not a closing price, so the stamp is provisional until the game
+starts: :func:`apply_close` may be called repeatedly and each call replaces the
+previous number, while :func:`close_is_final` reports when kickoff has passed and
+the row must never be touched again. The MLB engine measured CLV against
+whichever price it happened to see first for months, which flattered every bet the
+market later moved toward and hid the ones it moved away from.
 """
 
 from __future__ import annotations
@@ -29,6 +37,8 @@ from __future__ import annotations
 import csv
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, fields
+from datetime import date as Date
+from datetime import datetime, timezone
 from pathlib import Path
 
 from nfl_engine.market.ev import MONEYLINE, SPREAD, TOTAL, PricedBet, ev
@@ -76,6 +86,10 @@ class LedgerEntry:
     close_prob: float | None = None
     clv: float | None = None
     clv_ev: float | None = None
+    # When the stamped closing price was seen. A close is only a close if it was
+    # taken near kickoff, so the stamp carries its own timestamp and can be
+    # audited -- and replaced, until the game starts.
+    close_captured_at: str = ""
     # Whose call this row is. An outside benchmark writes its own name so it can
     # sit in the same ledger, graded identically, and be excluded from every
     # measurement of us.
@@ -86,6 +100,11 @@ class LedgerEntry:
     # execution edge is a claim about a price that existed at a moment, and
     # without the moment the claim cannot be checked against the archive.
     captured_at: str = ""
+    # Kickoff, as the board states it. Needed rather than ``date`` alone because a
+    # Sunday holds a 13:00 and a 20:20 game: without the hour, re-stamping the
+    # close for the night game would overwrite the afternoon game's real close
+    # with an in-progress number, or freeze it hours early.
+    kickoff_utc: str = ""
 
 
 LEDGER_FIELDS = [f.name for f in fields(LedgerEntry)]
@@ -98,6 +117,7 @@ def entry_from_bet(
     week: int,
     date: str,
     captured_at: str = "",
+    kickoff_utc: str = "",
     mode: str = PAPER,
 ) -> LedgerEntry:
     return LedgerEntry(
@@ -120,6 +140,7 @@ def entry_from_bet(
         screens=";".join(bet.screens),
         mode=mode,
         captured_at=captured_at,
+        kickoff_utc=kickoff_utc,
     )
 
 
@@ -170,8 +191,14 @@ def apply_close(
     close_opposite: float | None,
     *,
     method: str = DEFAULT_METHOD,
+    captured_at: str = "",
 ) -> LedgerEntry:
     """Score the row against the closing number on the same side.
+
+    Overwrites whatever was stamped before, by design: every call before kickoff
+    is a better estimate of the close than the one it replaces. Callers must
+    consult :func:`close_is_final` first -- once the game has started the stamped
+    number is the close and a later price is an in-play quote.
 
     Without the closing price's *opposite* side there is no hold to remove, so
     the raw implied probability is used and flagged by leaving ``close_prob``
@@ -180,6 +207,7 @@ def apply_close(
     two-way market. Better to record the number that exists than to invent one.
     """
     entry.close_odds = close_american
+    entry.close_captured_at = captured_at
     implied = american_to_prob(close_american)
     if close_opposite is None:
         close_prob = implied
@@ -190,6 +218,35 @@ def apply_close(
     if entry.odds is not None:
         entry.clv_ev = round(ev(close_prob, american_to_decimal(entry.odds)), 6)
     return entry
+
+
+def kickoff_moment(entry: LedgerEntry) -> datetime | None:
+    """Kickoff as an aware UTC moment, or ``None`` when the row does not carry it."""
+    if not entry.kickoff_utc:
+        return None
+    try:
+        moment = datetime.fromisoformat(entry.kickoff_utc.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo else moment.replace(tzinfo=timezone.utc)
+
+
+def close_is_final(entry: LedgerEntry, *, now: datetime | None = None) -> bool:
+    """Is this row's closing stamp settled, and therefore untouchable?
+
+    True once the game has started. Rows priced before a board carried a kickoff
+    time fall back to the calendar date, which freezes them at midnight UTC after
+    the game rather than at the whistle -- late enough to be safe on the archive
+    and never early, since freezing early is what silently records a Wednesday
+    price as the close.
+    """
+    moment = now or datetime.now(tz=timezone.utc)
+    kickoff = kickoff_moment(entry)
+    if kickoff is not None:
+        return moment >= kickoff
+    if not entry.date:
+        return False
+    return moment.date() > Date.fromisoformat(entry.date)
 
 
 def taken_prob(entry: LedgerEntry, *, method: str = DEFAULT_METHOD) -> float:
@@ -252,9 +309,11 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_float(row.get("close_prob")),
                     clv=_float(row.get("clv")),
                     clv_ev=_float(row.get("clv_ev")),
+                    close_captured_at=row.get("close_captured_at", ""),
                     source=row.get("source", ENGINE),
                     mode=row.get("mode") or PAPER,
                     captured_at=row.get("captured_at", ""),
+                    kickoff_utc=row.get("kickoff_utc", ""),
                 )
             )
     return out
