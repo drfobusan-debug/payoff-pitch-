@@ -657,8 +657,13 @@ def build_batter_profile(
     vs_lhp_days: int,
     split_prior: bool = True,
     ros_prior: Mapping[str, float] | None = None,
+    overall_days: int | None = None,
 ) -> BatterProfile:
     """Build a batter's context splits.
+
+    ``overall_days`` is the window for the hitter's own baseline, which the
+    splits regress toward. It defaults to the longest split window, which is
+    what the engine used before the baseline had a window of its own.
 
     ``split_prior`` regresses each split toward the batter's own overall rate;
     set it False to restore the flat league-average prior on every split.
@@ -682,7 +687,8 @@ def build_batter_profile(
     vs_lhp_pa = _slice_dates(bdf, as_of, vs_lhp_days)
     vs_lhp_pa = vs_lhp_pa[vs_lhp_pa["p_throws"] == "L"]["events"]
 
-    overall_pa = _slice_dates(bdf, as_of, max(home_away_days, vs_rhp_days))["events"]
+    base_days = overall_days if overall_days is not None else max(home_away_days, vs_rhp_days)
+    overall_pa = _slice_dates(bdf, as_of, base_days)["events"]
 
     # Hierarchical: the overall window regresses toward the league, then each
     # split regresses toward *this hitter's* overall rather than toward an
