@@ -18,6 +18,7 @@ from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
     POWER_XWOBACON,
+    RESCUE_POWER_Z,
     HitterLine,
     HitterView,
     MatchupSection,
@@ -302,6 +303,21 @@ def test_the_swing_keeps_a_hitter_the_luck_gap_wants_cut() -> None:
     assert [h.name for h in kept] == ["Lucky"]
     assert lucky.swing_rescue and lucky.kept and not lucky.cut_reason
     assert not lucky.power_exception  # a different rescue, kept distinguishable
+
+
+def test_a_barely_above_league_swing_does_not_clear_the_fitted_bar() -> None:
+    """The rescue bar is fitted, not league average.
+
+    Scanning the threshold, relief peaks at +0.375 in both window sizes and that
+    is the lowest value whose rescued rows beat the kept ones in both seasons; at
+    league average the 2026 rescues went .3619 TB/PA against .3674 for the hitters
+    kept. So a swing this side of the bar leaves the cut standing.
+    """
+    assert RESCUE_POWER_Z > 0.0
+    marginal = _hitter("Marginal", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    marginal.swing = _swing(RESCUE_POWER_Z - 0.1)
+    assert apply_cuts([marginal], league_xwoba=0.305) == []
+    assert "outruns" in marginal.cut_reason and not marginal.swing_rescue
 
 
 def test_a_below_league_swing_confirms_the_cut() -> None:

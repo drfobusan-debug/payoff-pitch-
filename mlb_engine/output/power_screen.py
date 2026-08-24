@@ -90,7 +90,7 @@ MIN_WRC = 120  # window wRC+ floor, before the power exception
 MIN_XWOBA_EDGE = 0.020  # xwOBA/PA must clear league by this much
 MAX_LUCK_GAP = 0.050  # wOBA minus xwOBA/PA above this is unearned
 POWER_XWOBACON = 0.440  # contact good enough to keep a hitter the wRC+ cut drops
-RESCUE_POWER_Z = 0.0  # swing good enough to survive the luck-gap cut anyway
+RESCUE_POWER_Z = 0.375  # swing good enough to survive the luck-gap cut anyway
 MIN_PITCHER_PITCHES = 15  # per-pitch-type floor, pitcher side
 MIN_BATTER_PITCHES = 25  # per-pitch-type floor, hitter side
 TOP_K = 5  # a top-K finish in a scored metric earns the second point
@@ -621,12 +621,23 @@ def _swing_rescues(h: HitterLine, min_power_z: float = RESCUE_POWER_Z) -> bool:
     about half of what it removes -- of the windows it cut, the half with the
     better swing went on to .3801 TB/PA against .3355 for the worse half, and beat
     the .3708 of every hitter it kept. So a flagged hitter whose bat speed and
-    blast rate are above league is kept and flagged rather than dropped; the swing
-    coefficient inside that group is t +3.2.
+    blast rate clear ``RESCUE_POWER_Z`` is kept and flagged rather than dropped;
+    the swing coefficient inside that group is t +3.2.
 
     Read on ``power_z`` rather than the five-metric mean because squared-up rate
     carries the opposite sign on the power markets this screen selects for. A
     hitter whose swing is unmeasured is not rescued: the default stays the cut.
+
+    ``RESCUE_POWER_Z`` is fitted rather than assumed. Scanning it across both
+    window sizes, relief -- how many flagged rows the threshold admits times how
+    far they beat the hitters the screen kept -- peaks at +0.375 in each panel
+    independently, and +0.375 is also the lowest value at which the rescued rows
+    clear the kept baseline in 2025 *and* 2026. League average does not: at 0.0
+    the 2026 rescues went .3619 TB/PA against .3674 for the hitters kept, so the
+    original placeholder was admitting the wrong half of the flagged group. At
+    +0.375 the admitted rows run +.023 TB/PA and +.008 HR/PA on the hitters kept,
+    the home-run gap being the one whose cluster bootstrap excludes zero.
+    ``scripts/rescue_replay.py`` grades the buckets on real slates.
     """
     return stage_two(h.luck_gap, h.swing, min_power_z=min_power_z) == CONTRADICTED
 

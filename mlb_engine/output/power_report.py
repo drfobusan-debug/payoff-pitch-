@@ -25,6 +25,7 @@ from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
+    RESCUE_POWER_Z,
     SCORED,
     TOP_K,
     ContactLine,
@@ -900,7 +901,10 @@ def _swing_note(section: MatchupSection) -> str:
         "batter-windows those levels add to total bases and home runs on top of wOBA and xwOBA "
         "(blast t +6.6, bat speed t +5.4), and of the windows the luck-gap cut removes the better "
         "half of swings went on to .3801 TB/PA against .3355 for the worse half &mdash; ahead of "
-        "the .3708 posted by the hitters the cut kept. Squared-up rate is a hits signal and is "
+        "the .3708 posted by the hitters the cut kept. The bar a rescue has to clear "
+        f"({RESCUE_POWER_Z:+.3f} SD on bat speed and blast rate together) is the value at which "
+        "that relief peaks in both window sizes and the lowest at which the rescued rows beat the "
+        "kept ones in both seasons. Squared-up rate is a hits signal and is "
         "negatively signed on home runs, so it is printed and does not rescue. The two contact "
         "rates are reconstructed from the pitch-level collision model with their cuts calibrated to "
         "the league rate Savant publishes, since the leaderboard cannot be sliced by swing count "
