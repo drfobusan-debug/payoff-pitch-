@@ -89,6 +89,23 @@ def test_ledger_is_idempotent(tmp_path):
     assert rows[0].pnl > 0
 
 
+def test_auditing_a_later_day_keeps_an_earlier_row_whole(tmp_path):
+    """Every audit reloads the whole ledger and rewrites it, so a column that is
+    written but not read back is erased from history on the next run."""
+    path = tmp_path / "ledger.csv"
+    rec = _ml("home", "Georgia ML")
+    rec.drift, rec.pass_gate = -0.031, "clv_drift"
+    entries = entries_from_graded([(rec, "win")], DAY)
+    entries[0].clv_pts = 0.5
+    update_ledger(path, entries, DAY)
+
+    later = date(2025, 11, 8)
+    update_ledger(path, entries_from_graded([(_ml("home", "Georgia ML"), "win")], later), later)
+
+    old = next(r for r in load_ledger(path) if r.date == DAY.isoformat())
+    assert (old.drift, old.pass_gate, old.clv_pts) == (-0.031, "clv_drift", 0.5)
+
+
 def test_clv_positive_when_market_moves_to_us():
     closing = {"game_ml|Georgia ML": ClosingQuote(american=-150, no_vig_prob=0.60)}
     close_odds, close_prob, clv, clv_ev = compute_clv(

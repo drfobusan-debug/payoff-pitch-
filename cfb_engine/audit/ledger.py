@@ -154,6 +154,9 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_to_float(row.get("close_prob", "")),
                     clv=_to_float(row.get("clv", "")),
                     clv_ev=_to_float(row.get("clv_ev", "")),
+                    clv_pts=_to_float(row.get("clv_pts", "")),
+                    drift=_to_float(row.get("drift", "")),
+                    pass_gate=row.get("pass_gate", "") or None,
                 )
             )
     return out
