@@ -121,6 +121,49 @@ def test_defaults_read_the_pen_at_its_measured_reliability() -> None:
     assert w.bullpen_xwoba_shrink == 0.37
 
 
+def _steady_then_busy_frame() -> pd.DataFrame:
+    """NYY relief: two arms a day for three weeks, six a day before that."""
+    rows: list[tuple[date, int, int, str, str, float]] = []
+    for back in range(1, 60):
+        gd = AS_OF - pd.Timedelta(days=back).to_pytimedelta()
+        arms = 2 if back <= 21 else 6
+        for i in range(arms):
+            rows.append((gd, 200 + i, 7, "Top", "field_out", 0.150))
+    df = pd.DataFrame(
+        rows,
+        columns=[
+            "game_date",
+            "pitcher",
+            "inning",
+            "inning_topbot",
+            "events",
+            "estimated_woba_using_speedangle",
+        ],
+    )
+    df["batter"] = 1
+    df["home_team"] = "NYY"
+    df["away_team"] = "BOS"
+    return df
+
+
+def test_the_fatigue_read_does_not_move_with_the_rate_window() -> None:
+    """Widening the statistical window must not re-base the workload ratio.
+
+    ``recent_load`` feeds a 1.15 fatigue tripwire that was calibrated against a
+    three-week normal. Reading "normal" off ``bullpen_days`` instead made the
+    21d -> 60d change flip clubs' fatigue status without their workload moving.
+    """
+    df = _steady_then_busy_frame()
+    short = build_bullpen_profile(df, "NYY", AS_OF, 21, min_inning=6)
+    long = build_bullpen_profile(df, "NYY", AS_OF, 60, min_inning=6)
+
+    assert long.recent_load == short.recent_load
+    # Three normal days against a normal three weeks is exactly average.
+    assert short.recent_load == 1.0
+    # The longer window still reaches the busier rows for the rates themselves.
+    assert len(long.relief) > len(short.relief)
+
+
 def test_pen_rates_ship_shrunk_to_the_fitted_priors() -> None:
     """The pen vector the simulator receives is the empirical-Bayes one.
 

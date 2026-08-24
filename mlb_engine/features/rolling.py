@@ -767,6 +767,15 @@ MIN_LEVERAGE_PA = 20  # need this many 8th+ relief PAs to trust a separate profi
 # 6th-inning hand-off the closer's rates overrates every pen -- most of all the
 # good ones, whose leverage-to-bridge gap is widest.
 MIN_BRIDGE_PA = 20
+# ``recent_load`` compares the last three days of relief work against a normal
+# three days, and "normal" is read over this window rather than over whatever
+# window the rate profile happens to use. The 1.15 fatigue tripwire downstream
+# was calibrated against a three-week baseline; deriving the denominator from
+# ``bullpen_days`` instead re-bases the ratio whenever that window moves (going
+# 21d -> 60d flipped four clubs' fatigue status on one slate with no change in
+# their actual workload), which makes a statistical window silently a workload
+# policy. Keep the two separate.
+LOAD_BASELINE_DAYS = 21
 
 
 @dataclass
@@ -946,7 +955,10 @@ def build_bullpen_profile(
     if len(relief):
         recent_start = (as_of - timedelta(days=1)) - timedelta(days=2)  # last 3 days
         recent = relief[relief["game_date"] >= recent_start]
-        expected_3d = len(relief) / days * 3.0
+        base_days = min(days, LOAD_BASELINE_DAYS)
+        base_start = (as_of - timedelta(days=1)) - timedelta(days=base_days - 1)
+        base = relief[relief["game_date"] >= base_start]
+        expected_3d = len(base) / base_days * 3.0
         recent_load = len(recent) / expected_3d if expected_3d > 0 else 0.0
 
     skill = (
