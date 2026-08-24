@@ -60,11 +60,14 @@ USE_COLS = [
     "attack_angle",
     "attack_direction",
     "swing_path_tilt",
-    # pitch release / movement
+    # pitch release / movement. ``pfx_x`` is the horizontal half of the induced
+    # break and was dropped here while ``pfx_z`` was kept, so frames cached
+    # before it was requested carry no column; callers must treat it as optional.
     "release_pos_x",
     "release_pos_z",
     "release_extension",
     "release_spin_rate",
+    "pfx_x",
 ]
 
 

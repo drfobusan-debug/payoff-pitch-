@@ -25,6 +25,7 @@ from datetime import date as Date
 
 import pandas as pd
 
+from mlb_engine.features import arm
 from mlb_engine.features.regression import (
     BL_BABIP,
     BL_FB_ALLOWED,
@@ -270,6 +271,108 @@ def _bet_sentence(bets: list[dict], whose: str) -> str:
     return lead + "; ".join(parts) + "."
 
 
+def _arm_sentence(p: dict, positive: bool) -> str:
+    """Stage two: does the delivery agree with what the luck term says is coming?
+
+    The luck term ranks the list and it is a residual of outcomes -- it knows
+    which balls in play found grass and nothing about the pitch that was hit.
+    Perceived velocity, read over the arm's last hundred fastballs, adds to the
+    next fortnight's wOBA allowed, hits allowed and strikeouts on top of the luck
+    term *and* on top of the CSW% and pitch-shape grade already priced (t -2.4,
+    -3.6 and +4.4 on 2,214 pitcher-windows), so it is what confirms or
+    contradicts the luck read here.
+    """
+    stage2 = p.get("arm_stage2", arm.UNMEASURED)
+    if stage2 == arm.UNMEASURED:
+        return (
+            "The delivery is not readable at this sample &mdash; too few tracked fastballs "
+            "for perceived velocity to mean anything &mdash; so the luck term above stands "
+            "on its own."
+        )
+    sz = p["stuff_z"]
+    strength = (
+        f"{p['arm_pvelo']:.1f} mph perceived off {p['arm_velo']:.1f} at "
+        f"{p['arm_ext']:.1f} feet of extension, {sz:+.2f} standard deviations from league"
+    )
+    if positive and stage2 == arm.CONFIRMED:
+        return (
+            f"The arm underneath agrees: {strength}. The correction has a delivery behind "
+            "it rather than being a wish about batted balls."
+        )
+    if positive:
+        return (
+            f"The arm does not back it: {strength}. His results are worse than his contact "
+            "and the delivery is below league too, so the level he corrects back to is lower "
+            "than the shortfall suggests."
+        )
+    if stage2 == arm.CONFIRMED:
+        return (
+            f"The arm agrees with the fade: {strength}. Nothing in how he is throwing is "
+            "holding the run prevention up."
+        )
+    return (
+        f"The arm argues against the fade: {strength}. He has been helped and he is also "
+        "good, which is the case the luck term on its own gets wrong &mdash; though the arm "
+        "sorts the fortnight ahead by the same margin whether the luck ran hot or cold, so "
+        "read it as a level rather than as a reprieve."
+    )
+
+
+def _ride_sentence(p: dict) -> str:
+    """Which market the fastball's ride points at, when it is readable.
+
+    Induced vertical break survives perceived velocity, CSW% and the shape grade
+    on the home-run line (t +5.0) while subtracting hits (t -3.0), so it says
+    where the damage lands rather than how good the arm is.
+    """
+    rz = p.get("ride_z", math.nan)
+    if rz != rz:
+        return ""
+    ivb = p["arm_ivb"]
+    if rz >= 0.5:
+        return (
+            f" The fastball rides {ivb:.1f}&Prime;, {rz:+.2f} SD above league, which "
+            "suppresses hits and pays for it in home runs &mdash; the hits unders before "
+            "the home-run side."
+        )
+    if rz <= -0.5:
+        return (
+            f" The fastball is flat at {ivb:.1f}&Prime; of ride, {rz:+.2f} SD below league, "
+            "so the contact he allows comes as hits rather than over the fence."
+        )
+    return f" Ride is league-typical at {ivb:.1f}&Prime;, so it points at no market."
+
+
+def _arm_line(p: dict) -> str:
+    """The physical levels themselves, over the window the panel validated."""
+    if p.get("arm_pitches", 0) == 0:
+        return ""
+    cells = [
+        f"pVelo {p['arm_pvelo']:.1f}" if p["arm_pvelo"] == p["arm_pvelo"] else "pVelo &mdash;",
+        f"Velo {p['arm_velo']:.1f}" if p["arm_velo"] == p["arm_velo"] else "Velo &mdash;",
+        f"Ext {p['arm_ext']:.1f}" if p["arm_ext"] == p["arm_ext"] else "Ext &mdash;",
+        f"IVB {p['arm_ivb']:.1f}&Prime;" if p["arm_ivb"] == p["arm_ivb"] else "IVB &mdash;",
+        f"HB {p['arm_hb']:.1f}&Prime;" if p["arm_hb"] == p["arm_hb"] else "HB &mdash;",
+        f"Spin {p['arm_spin']:.0f}" if p["arm_spin"] == p["arm_spin"] else "Spin &mdash;",
+        f"RelPt {p['arm_rel_x']:.2f}/{p['arm_rel_z']:.2f}"
+        if p["arm_rel_x"] == p["arm_rel_x"] and p["arm_rel_z"] == p["arm_rel_z"]
+        else "RelPt &mdash;",
+    ]
+    lg = (
+        f"league {arm.LEAGUE['pvelo'][0]:.1f} / {arm.LEAGUE['velo'][0]:.1f} / "
+        f"{arm.LEAGUE['ext'][0]:.1f} / {arm.LEAGUE['ivb'][0]:.1f}&Prime; / "
+        f"{arm.LEAGUE['hb'][0]:.1f}&Prime; / {arm.LEAGUE['spin'][0]:.0f}"
+    )
+    return (
+        f"<p class='trend'>Arm: {' &middot; '.join(cells)} "
+        f"<span class='caption'>&mdash; {lg}; Statcast, read over his last {arm.WINDOW} "
+        f"fastballs off {p['arm_pitches']} in the window. Every one of these half-repeats "
+        "inside a single pitch, so the window comes from the out-of-time panel and not from "
+        "reliability; horizontal break was missing from our own ingestion until now, so a "
+        "slice cached before it reads as unmeasured.</span></p>"
+    )
+
+
 def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     matchup = ctx["matchup"] if ctx else ""
     trend = (
@@ -287,6 +390,7 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
         for x in (
             opener,
             _luck_sentence(p, positive),
+            _arm_sentence(p, positive) + _ride_sentence(p),
             _air_sentence(p, positive),
             _pitcher_verdict(p, positive),
             _today_sentence(ctx),
@@ -295,10 +399,14 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
     )
     whose = p["name"].split()[-1] + "&rsquo;s"
     cls = "up" if positive else "down"
+    flag = ""
+    if p.get("arm_stage2") == arm.CONTRADICTED:
+        flag = " <span class='mu'>arm disagrees</span>"
     return (
         f"<div class='entry {cls}'>"
-        f"<h3>{p['name']} <span class='mu'>{matchup}</span></h3>"
+        f"<h3>{p['name']} <span class='mu'>{matchup}</span>{flag}</h3>"
         f"<p class='prose'>{body}</p>"
+        f"{_arm_line(p)}"
         f"<p class='trend'>{trend} <span class='caption'>&mdash; shown for context; "
         "three-week direction does not predict the next start</span></p>"
         f"<p class='bet'>{_bet_sentence(bets, whose)}</p>"
@@ -502,7 +610,22 @@ LEAD = (
     "at the same time: the runs come down, but they come down to a lower "
     "level. Those cases are flagged in the text rather than left for you to "
     "spot.<br><br>"
-    "<b>The bats are read in two stages this month.</b> The gap still ranks "
+    "<b>Both halves are read in two stages this month.</b> For the arms the luck "
+    "term still ranks the list, and each starter is then crossed against what "
+    "Statcast measures of the delivery itself: perceived velocity &mdash; release "
+    "speed plus 1.1 times extension, the speed the hitter has to react to &mdash; "
+    "over his last hundred fastballs, with the fastball&rsquo;s induced ride "
+    "beside it. Out of time on 2,214 pitcher-windows those levels add to the next "
+    "fortnight on top of the luck term <i>and</i> on top of the CSW% and "
+    "pitch-shape grade the engine already prices, so this is not a second copy of "
+    "something it has: perceived velocity t &minus;2.4 on wOBA allowed and "
+    "t +4.4 on strikeouts, ride t +5.0 on home runs while subtracting hits. The "
+    "release point, the arm angle, the horizontal break and release scatter earn "
+    "nothing and are printed without being scored. Unlike the bats, the arm read "
+    "is a level everywhere rather than a rescue &mdash; a good arm sorts the "
+    "fortnight ahead by the same margin whether his luck ran hot or cold &mdash; "
+    "so it qualifies the ranking and does not reorder it.<br><br>"
+    "<b>The bats are read the same way.</b> The gap still ranks "
     "them, because it is what is due to move. But a gap is a residual of "
     "outcomes &mdash; it knows which balls fell in and nothing about the swing "
     "that hit them &mdash; so every hitter is then crossed against his bat "
@@ -529,7 +652,9 @@ LEAD = (
     "not because it has earned a bet. The same holds for the swing: the "
     "<i>level</i> of bat speed and blast rate forecasts, the recent-versus-prior "
     "<i>move</i> in them forecasts nothing (bat speed t +1.4, blast t &minus;0.3), "
-    "so no swing trend is printed at all."
+    "so no swing trend is printed at all &mdash; and the same for the delivery, "
+    "where the recent-versus-prior move in perceived velocity comes in at "
+    "t &minus;0.9 and in ride at t +1.3."
 )
 
 CSS = """
@@ -597,10 +722,25 @@ FINE = (
     "over 438 hitters, and a slice cached before the fields were ingested reads "
     "as unmeasured rather than as league average. Direction and tilt add nothing "
     "out of time and are not scored. "
+    "Arm levels are Statcast&rsquo;s own pitch-level release measures, averaged over "
+    f"each starter&rsquo;s last {arm.WINDOW} four-seams, sinkers and two-seams, with "
+    f"a floor of {arm.MIN_LEVEL_PITCHES} readings below which a measure prints as "
+    "unmeasured rather than as league average; the release point and horizontal "
+    "break are mirrored so the arm side is positive for either hand. That window is "
+    "not a reliability window: measured on 1.44M fastballs every one of these "
+    "half-repeats inside a single pitch, because a radar reading is measured rather "
+    "than estimated from outcomes, so the window was chosen from the out-of-time "
+    "panel, which reproduced every sign and significance at 12, 100 and 400 "
+    "fastballs. Perceived velocity is release speed + 1.1 &times; extension "
+    "&minus; 6.0. The horizontal-break column was absent from our own ingestion "
+    "until now, so a slice "
+    "cached earlier carries no horizontal break at all and reads as unmeasured. "
+    "Within-game release scatter is printed nowhere as a talent level: it is a "
+    "fatigue read and belongs to the removal model. "
     "Ranking is the luck term only: z(BABIP &minus; .290) + "
-    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats; the swing is a "
-    "second stage that confirms or contradicts that ranking rather than "
-    "reordering it. Levels were "
+    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats; the delivery and "
+    "the swing are a second stage that confirms or contradicts that ranking rather "
+    "than reordering it. Levels were "
     "validated against next-start xwOBA allowed on 246 starts (SIERA t +4.0, "
     "Stuff t &minus;3.8, vFA t &minus;2.4, each holding sign across a "
     "chronological split); the three-week trends were not significant in the "
