@@ -208,6 +208,78 @@ def test_the_email_carries_the_card_the_workbook_and_the_pdf(
     assert "paper" in str(sent["subject"]).lower()
 
 
+def test_the_workbook_is_written_before_the_files_that_could_fail(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry], capsys
+) -> None:
+    """A later artifact failing must not cost the workbook.
+
+    The regression this pins: md and html used to be written first, so a bad
+    ``.xlsx`` path took the only artifact that has to survive with it.
+    """
+    out = _configure(monkeypatch, tmp_path, entries)
+    monkeypatch.setattr(cli, "render_pdf", lambda _html: b"%PDF-1.7")
+    out.mkdir()
+    (out / f"NFL_{SEASON}_Week{WEEK:02d}.md").write_text("stale")
+    (out / f"NFL_{SEASON}_Week{WEEK:02d}.md").chmod(0o400)
+    assert cli.cmd_card(args()) == 0
+    book = load_workbook(out / f"NFL_{SEASON}_Week{WEEK:02d}.xlsx")
+    assert book.sheetnames == ["Plays", "Selections", "Record", "CLV"]
+    assert ".md not written" in capsys.readouterr().out
+
+
+def test_an_unwritable_output_directory_says_so_instead_of_raising(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry], capsys
+) -> None:
+    out = _configure(monkeypatch, tmp_path, entries)
+    out.parent.chmod(0o500)
+    try:
+        assert cli.cmd_card(args()) == 1
+    finally:
+        out.parent.chmod(0o700)
+    assert "not a writable directory" in capsys.readouterr().out
+
+
+def test_an_output_path_that_is_a_file_says_so_instead_of_raising(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry], capsys
+) -> None:
+    out = _configure(monkeypatch, tmp_path, entries)
+    out.write_text("not a directory")
+    assert cli.cmd_card(args()) == 1
+    assert "not a writable directory" in capsys.readouterr().out
+
+
+def test_a_control_character_in_a_team_name_costs_neither_the_ledger_nor_the_workbook(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry]
+) -> None:
+    """Excel rejects control characters and ``csv`` refuses to write them, so a
+    stray byte in a feed's team name could stop the engine persisting a row it had
+    already priced. Both ends scrub instead.
+    """
+    entries.append(row("BUF\x00 @ SEA\x07", "moneyline", "SEA", ev_fair=0.07))
+    out = _configure(monkeypatch, tmp_path, entries)
+    monkeypatch.setattr(cli, "render_pdf", lambda _html: b"%PDF-1.7")
+    assert cli.cmd_card(args()) == 0
+    book = load_workbook(out / f"NFL_{SEASON}_Week{WEEK:02d}.xlsx")
+    assert "BUF @ SEA" in {cell.value for cell in book["Plays"]["A"]}
+
+
+def test_one_corrupt_row_does_not_cost_the_rest_of_the_ledger(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry]
+) -> None:
+    out = _configure(monkeypatch, tmp_path, entries)
+    path = cli.ledger_path()
+    lines = path.read_text().splitlines()
+    # A NUL byte anywhere used to make csv refuse the whole file, and a
+    # non-numeric season used to raise out of load_ledger.
+    lines[1] = lines[1].replace("BUF @ KC", "BUF\x00 @ KC", 1)
+    lines.append(lines[-1].replace("2026,1,", "NOT_A_NUMBER,WEEK_ONE,", 1))
+    path.write_text("\n".join(lines) + "\n")
+    monkeypatch.setattr(cli, "render_pdf", lambda _html: b"%PDF-1.7")
+    assert cli.cmd_card(args()) == 0
+    book = load_workbook(out / f"NFL_{SEASON}_Week{WEEK:02d}.xlsx")
+    assert book["Selections"].max_row == 1 + len(entries)
+
+
 def test_a_week_that_was_never_priced_writes_nothing(
     monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry], capsys
 ) -> None:

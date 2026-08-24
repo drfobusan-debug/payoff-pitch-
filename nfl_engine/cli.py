@@ -442,6 +442,21 @@ def cmd_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def _write(path: Path, data: bytes) -> bool:
+    """Write one artifact, reporting failure instead of raising it.
+
+    Each file in the package stands alone: a read-only directory, a pre-existing
+    file owned by root, a full disk -- none of those may cost the caller the other
+    artifacts, and none may surface as a traceback.
+    """
+    try:
+        path.write_bytes(data)
+    except OSError as exc:
+        print(f"  {path.name} not written ({exc})")
+        return False
+    return True
+
+
 def cmd_card(args: argparse.Namespace) -> int:
     """Write the week's package -- card, workbook, PDF -- and optionally email it.
 
@@ -465,24 +480,40 @@ def cmd_card(args: argparse.Namespace) -> int:
         return 0
     text, page = render_markdown(card), render_html(card)
     out = output_dir()
-    out.mkdir(parents=True, exist_ok=True)
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        print(f"card not written ({exc}); {out} is not a writable directory")
+        return 1
     stem = f"NFL_{season}_Week{week:02d}"
-    (out / f"{stem}.md").write_text(text, encoding="utf-8")
-    (out / f"{stem}.html").write_text(page, encoding="utf-8")
-    attachments: list[tuple[str, bytes]] = [(f"{stem}.md", text.encode("utf-8"))]
+    attachments: list[tuple[str, bytes]] = []
 
-    workbook = build_workbook(card, entries)
-    (out / f"{stem}.xlsx").write_bytes(workbook)
-    attachments.append((f"{stem}.xlsx", workbook))
+    # The workbook is built and written first because it is the artifact that must
+    # survive: everything else is a rendering of what it already holds, and a
+    # failure on a later file must not be able to take it with it.
+    try:
+        workbook = build_workbook(card, entries)
+    except Exception as exc:  # noqa: BLE001 - report the failure, keep the card
+        print(f"  workbook not built ({exc})")
+    else:
+        if _write(out / f"{stem}.xlsx", workbook):
+            attachments.append((f"{stem}.xlsx", workbook))
+
+    if _write(out / f"{stem}.md", text.encode("utf-8")):
+        attachments.insert(0, (f"{stem}.md", text.encode("utf-8")))
+    _write(out / f"{stem}.html", page.encode("utf-8"))
 
     try:
         pdf = render_pdf(page)
     except Exception as exc:  # noqa: BLE001 - the PDF is the optional artifact
         print(f"  card PDF not rendered ({exc}); markdown attached instead")
     else:
-        (out / f"{stem}.pdf").write_bytes(pdf)
-        attachments.append((f"{stem}.pdf", pdf))
+        if _write(out / f"{stem}.pdf", pdf):
+            attachments.append((f"{stem}.pdf", pdf))
 
+    if not attachments:
+        print(f"card: nothing could be written to {out}")
+        return 1
     print(f"card: {len(card.plays())} plays over {len(card.games)} games -> {out / stem}.*")
     if not args.email:
         return 0

@@ -18,7 +18,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 
-from nfl_engine.audit.ledger import ENGINE, LedgerEntry, Metrics
+from nfl_engine.audit.ledger import ENGINE, LedgerEntry, Metrics, scrub
 from nfl_engine.output.card import PAPER_NOTE, WeekCard
 
 SELECTION_HEADER = (
@@ -93,6 +93,13 @@ def build_workbook(card: WeekCard, entries: list[LedgerEntry]) -> bytes:
     return buffer.getvalue()
 
 
+def _append(sheet, values: list[object]) -> None:
+    """Append a row, scrubbed. Excel rejects control characters outright, so one
+    stray byte in a team name would otherwise cost the whole workbook.
+    """
+    sheet.append([scrub(value) for value in values])
+
+
 def _header(sheet, names: tuple[str, ...]) -> None:
     sheet.append(list(names))
     for index, name in enumerate(names, start=1):
@@ -124,7 +131,8 @@ def _plays_sheet(book: Workbook, card: WeekCard) -> None:
     )
     for game in card.games:
         for play in game.plays:
-            sheet.append(
+            _append(
+                sheet,
                 [
                     game.matchup,
                     game.kickoff,
@@ -137,10 +145,10 @@ def _plays_sheet(book: Workbook, card: WeekCard) -> None:
                     play.tier,
                     play.clv,
                     play.result,
-                ]
+                ],
             )
     sheet.append([])
-    sheet.append([PAPER_NOTE])
+    _append(sheet, [PAPER_NOTE])
 
 
 def _selections_sheet(
@@ -150,7 +158,8 @@ def _selections_sheet(
     _header(sheet, SELECTION_HEADER)
     scope = [e for e in entries if e.season == season and e.week == week]
     for entry in sorted(scope, key=lambda e: (e.matchup, e.market, -(e.ev_fair or 0.0))):
-        sheet.append(
+        _append(
+            sheet,
             [
                 entry.season,
                 entry.week,
@@ -179,7 +188,7 @@ def _selections_sheet(
                 entry.captured_at,
                 entry.source,
                 entry.mode,
-            ]
+            ],
         )
 
 
@@ -187,7 +196,8 @@ def _record_sheet(book: Workbook, record: list[Metrics]) -> None:
     sheet = book.create_sheet("Record")
     _header(sheet, RECORD_HEADER)
     for row in record:
-        sheet.append(
+        _append(
+            sheet,
             [
                 row.label,
                 row.n,
@@ -202,7 +212,7 @@ def _record_sheet(book: Workbook, record: list[Metrics]) -> None:
                 row.units,
                 row.mean_clv,
                 row.clv_beat_pct,
-            ]
+            ],
         )
 
 
@@ -217,7 +227,8 @@ def _clv_sheet(book: Workbook, entries: list[LedgerEntry]) -> None:
     _header(sheet, CLV_HEADER)
     scored = [e for e in entries if e.clv is not None and e.source == ENGINE and not e.screens]
     for entry in sorted(scored, key=lambda e: e.clv or 0.0):
-        sheet.append(
+        _append(
+            sheet,
             [
                 entry.matchup,
                 entry.market,
@@ -230,5 +241,5 @@ def _clv_sheet(book: Workbook, entries: list[LedgerEntry]) -> None:
                 entry.clv,
                 entry.close_captured_at,
                 entry.result,
-            ]
+            ],
         )
