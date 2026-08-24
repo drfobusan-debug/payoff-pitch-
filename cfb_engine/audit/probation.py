@@ -318,6 +318,20 @@ def _run_up_over(ceiling: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
+def _shorter_than(ceiling: float) -> Callable[[LedgerEntry], bool]:
+    """Refuse buys priced shorter than ``ceiling`` (a negative American number).
+
+    The other half of the price band in :mod:`cfb_engine.market.priceband`. A
+    short favourite has to be right about a near-certainty to earn anything, so
+    most of the stake sits on the one outcome the price says will not happen.
+    """
+
+    def refuses(e: LedgerEntry) -> bool:
+        return e.odds is not None and e.odds < ceiling
+
+    return refuses
+
+
 def _ml_longer_than(floor: float) -> Callable[[LedgerEntry], bool]:
     """Refuse moneyline dogs priced longer than ``floor``.
 
@@ -354,6 +368,12 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         "ml_refuse_dogs_longer_than_+200",
         _ml_longer_than(200.0),
         "a long dog's EV is dominated by the tail we model worst",
+    ),
+    # The price band's short end, graded before it is allowed to refuse anything.
+    CandidateScreen(
+        "price_refuse_shorter_than_-250",
+        _shorter_than(-250.0),
+        "a short favourite risks most of the stake on the outcome the price denies",
     ),
 )
 

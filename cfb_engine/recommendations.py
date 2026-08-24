@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.market.odds import prob_to_american
+from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
 
 
@@ -62,6 +62,18 @@ class Recommendation:
         return prob_to_american(self.model_prob)
 
     @property
+    def kelly(self) -> float | None:
+        """Growth-optimal stake fraction at the price on the card.
+
+        The one conviction number that is neither price-blind like ``edge`` nor
+        price-flattered like ``ev``; see :mod:`cfb_engine.market.ordering`.
+        """
+        if self.market_american is None or self.ev is None:
+            return None
+        payout = american_to_decimal(self.market_american) - 1.0
+        return self.ev / payout if payout > 0 else None
+
+    @property
     def display_category(self) -> str:
         m = self.market
         if m == "game_ml":
@@ -86,6 +98,7 @@ class Recommendation:
             "Book Odds": round(self.market_american) if self.market_american is not None else "",
             "EV": round(self.ev, 3) if self.ev is not None else "",
             "Edge": round(self.edge, 3) if self.edge is not None else "",
+            "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
             "Tier": self.tier.value,
             "Notes": "; ".join(self.reasons),
         }
