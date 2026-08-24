@@ -20302,9 +20302,23 @@
   {
     "matchup": "PIT @ SD",
     "market": "batter_hrr",
+    "selection": "Xander Bogaerts H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.602452
+  },
+  {
+    "matchup": "PIT @ SD",
+    "market": "batter_hrr",
     "selection": "Xander Bogaerts H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.396599
+  },
+  {
+    "matchup": "PIT @ SD",
+    "market": "batter_hrr",
+    "selection": "Xander Bogaerts H+R+RBI u0.5",
+    "american": 136.0,
+    "no_vig_prob": 0.397548
   },
   {
     "matchup": "PIT @ SD",
