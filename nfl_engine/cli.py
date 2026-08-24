@@ -51,12 +51,15 @@ from nfl_engine.audit.ledger import (
     tier_metrics,
     update_ledger,
 )
-from nfl_engine.config import data_dir, load_config
+from nfl_engine.config import data_dir, load_config, output_dir
 from nfl_engine.data import capture, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
+from nfl_engine.output.card import build_card, render_html, render_markdown, render_pdf
+from nfl_engine.output.email import EmailNotConfigured, send_package
+from nfl_engine.output.excel import build_workbook
 from nfl_engine.pipeline import price_slate, slate_buys
 from nfl_engine.schemas import Game
 
@@ -398,13 +401,15 @@ def cmd_job(args: argparse.Namespace) -> int:
     function the individual command calls, and a step with nothing to do is not an
     error -- in the off-season the whole job is a no-op that still exits 0.
     """
-    steps = (
+    steps = [
         ("capture", cmd_capture),
         ("price", cmd_price),
         ("close", cmd_close),
         ("grade", cmd_grade),
         ("report", cmd_report),
-    )
+    ]
+    if args.card or args.email:
+        steps.append(("card", cmd_card))
     for name, func in steps:
         print(f"== {name}")
         func(args)
@@ -434,6 +439,66 @@ def cmd_report(args: argparse.Namespace) -> int:
             f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
             f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
         )
+    return 0
+
+
+def cmd_card(args: argparse.Namespace) -> int:
+    """Write the week's package -- card, workbook, PDF -- and optionally email it.
+
+    Built from the ledger, so it costs no Odds API credit and can be re-run for any
+    week already priced. Each artifact is guarded on its own: a box without
+    WeasyPrint's system libraries loses the PDF and still gets the workbook, and a
+    machine without SMTP credentials keeps everything on disk. Losing the whole
+    package to one optional attachment is the MLB failure mode this avoids.
+    """
+    entries = load_ledger(ledger_path())
+    if not entries:
+        print("empty ledger")
+        return 0
+    season, week = args.season, args.week
+    if season is None or week is None:
+        current_season, current, _ = current_week()
+        season, week = season or current_season, week or current
+    card = build_card(entries, season=season, week=week)
+    if not card.games:
+        print(f"no priced rows for {season} week {week}")
+        return 0
+    text, page = render_markdown(card), render_html(card)
+    out = output_dir()
+    out.mkdir(parents=True, exist_ok=True)
+    stem = f"NFL_{season}_Week{week:02d}"
+    (out / f"{stem}.md").write_text(text, encoding="utf-8")
+    (out / f"{stem}.html").write_text(page, encoding="utf-8")
+    attachments: list[tuple[str, bytes]] = [(f"{stem}.md", text.encode("utf-8"))]
+
+    workbook = build_workbook(card, entries)
+    (out / f"{stem}.xlsx").write_bytes(workbook)
+    attachments.append((f"{stem}.xlsx", workbook))
+
+    try:
+        pdf = render_pdf(page)
+    except Exception as exc:  # noqa: BLE001 - the PDF is the optional artifact
+        print(f"  card PDF not rendered ({exc}); markdown attached instead")
+    else:
+        (out / f"{stem}.pdf").write_bytes(pdf)
+        attachments.append((f"{stem}.pdf", pdf))
+
+    print(f"card: {len(card.plays())} plays over {len(card.games)} games -> {out / stem}.*")
+    if not args.email:
+        return 0
+    try:
+        recipient = send_package(
+            load_config(),
+            subject=f"{card.title()} -- {len(card.plays())} plays [paper]",
+            html_body=page,
+            text_body=text,
+            to=args.to,
+            attachments=attachments,
+        )
+    except EmailNotConfigured as exc:
+        print(f"  email not sent ({exc}); artifacts are in {out}")
+        return 0
+    print(f"  emailed {len(attachments)} attachments to {recipient}")
     return 0
 
 
@@ -469,6 +534,13 @@ def main(argv: list[str] | None = None) -> int:
     grade_cmd.add_argument("--no-write", dest="write", action="store_false")
     grade_cmd.set_defaults(func=cmd_grade)
 
+    card_cmd = sub.add_parser("card", help="write (and optionally email) the week's package")
+    card_cmd.add_argument("--season", type=int, default=None)
+    card_cmd.add_argument("--week", type=int, default=None)
+    card_cmd.add_argument("--email", action="store_true")
+    card_cmd.add_argument("--to", default=None, help="override the recipient")
+    card_cmd.set_defaults(func=cmd_card)
+
     report = sub.add_parser("report", help="tier, market and screen records")
     report.add_argument("--all", action="store_true")
     report.set_defaults(func=cmd_report)
@@ -496,7 +568,11 @@ def main(argv: list[str] | None = None) -> int:
     job.add_argument("--props", action="store_true")
     job.add_argument("--max-events", type=int, default=32)
     job.add_argument("--season", type=int, default=None)
+    job.add_argument("--week", type=int, default=None)
     job.add_argument("--all", action="store_true")
+    job.add_argument("--card", action="store_true", help="also write the reader-facing package")
+    job.add_argument("--email", action="store_true", help="email the package (implies --card)")
+    job.add_argument("--to", default=None)
     job.add_argument("--write", action="store_true", default=True)
     job.add_argument("--no-write", dest="write", action="store_false")
     job.add_argument("--no-ratings", dest="ratings", action="store_false", default=True)
