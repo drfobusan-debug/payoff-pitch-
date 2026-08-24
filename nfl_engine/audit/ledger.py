@@ -35,6 +35,9 @@ market later moved toward and hid the ones it moved away from.
 from __future__ import annotations
 
 import csv
+import io
+import logging
+import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, fields
 from datetime import date as Date
@@ -53,6 +56,18 @@ ENGINE = "engine"
 # LIVE: the dry run has no staking path at all, and the column exists so that the
 # day one is added, a paper record cannot be quoted as a real one by accident.
 PAPER, LIVE = "paper", "live"
+
+log = logging.getLogger(__name__)
+
+# Control characters a feed can carry into a team or player name. CSV refuses to
+# write them and Excel refuses to hold them, so a single stray byte in a name is
+# otherwise enough to stop the engine persisting a row it has already priced.
+CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+def scrub(value: object) -> object:
+    """Drop control characters from text, leave everything else alone."""
+    return CONTROL_CHARS.sub("", value) if isinstance(value, str) else value
 
 
 @dataclass
@@ -273,15 +288,20 @@ def save_ledger(path: Path, entries: list[LedgerEntry]) -> None:
         writer = csv.DictWriter(handle, fieldnames=LEDGER_FIELDS)
         writer.writeheader()
         for entry in entries:
-            writer.writerow(asdict(entry))
+            writer.writerow({key: scrub(value) for key, value in asdict(entry).items()})
 
 
 def load_ledger(path: Path) -> list[LedgerEntry]:
     if not path.exists():
         return []
     out: list[LedgerEntry] = []
-    with path.open(newline="", encoding="utf-8") as handle:
-        for row in csv.DictReader(handle):
+    # Read whole and scrub, rather than streaming the file: one NUL byte anywhere
+    # in the ledger makes ``csv`` refuse the entire read, and a season of graded
+    # rows is not something to lose to a corrupt character.
+    text = CONTROL_CHARS.sub("", path.read_text(encoding="utf-8", errors="replace"))
+    skipped = 0
+    for row in csv.DictReader(io.StringIO(text, newline="")):
+        try:
             out.append(
                 LedgerEntry(
                     season=int(row.get("season") or 0),
@@ -316,6 +336,12 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     kickoff_utc=row.get("kickoff_utc", ""),
                 )
             )
+        except ValueError:
+            # A row whose season or week is not a number is unreadable, not fatal:
+            # skip it and keep the rest of the record.
+            skipped += 1
+    if skipped:
+        log.warning("skipped %d unreadable ledger row(s) in %s", skipped, path)
     return out
 
 
