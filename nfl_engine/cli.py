@@ -32,6 +32,7 @@ import argparse
 import logging
 from dataclasses import dataclass
 from datetime import date as Date
+from datetime import datetime, timezone
 from pathlib import Path
 
 from nfl_engine import replay as replay_mod
@@ -39,6 +40,7 @@ from nfl_engine.audit.ledger import (
     PAPER,
     LedgerEntry,
     apply_close,
+    close_is_final,
     entry_from_bet,
     grade,
     load_ledger,
@@ -163,6 +165,7 @@ def _ledger_rows(pricings: list, captured_at: str) -> list[LedgerEntry]:
             week=pricing.game.week,
             date=pricing.game.game_date.isoformat(),
             captured_at=captured_at,
+            kickoff_utc=pricing.game.kickoff_utc or "",
             mode=PAPER,
         )
         for pricing in pricings
@@ -233,25 +236,46 @@ def cmd_price(args: argparse.Namespace) -> int:
 
 
 def cmd_close(args: argparse.Namespace) -> int:
-    """Re-fetch the board and stamp the closing number on ungraded rows."""
+    """Re-fetch the board and re-stamp the closing number until kickoff.
+
+    Run as often as convenient: while a game is unstarted the stamp is only the
+    best estimate of its close so far, and each run replaces it with a later
+    price. At kickoff the number in the ledger becomes the close and this command
+    stops touching the row -- an in-play price is not a closing price, and neither
+    is the Wednesday price that `job` used to freeze on its first run of the week.
+    """
     path = ledger_path()
     entries = load_ledger(path)
     if not entries:
         print("empty ledger")
         return 0
-    board = _fetch(args.days, kind=capture.CLOSE_KIND).board
-    stamped = 0
+    fetched = _fetch(args.days, kind=capture.CLOSE_KIND)
+    now = datetime.now(tz=timezone.utc)
+    stamped = restamped = frozen = missing = 0
     for entry in entries:
-        if entry.close_odds is not None or entry.result:
+        if entry.result:
             continue
-        quote = _closing_quote(board, entry)
+        if close_is_final(entry, now=now):
+            if entry.close_odds is None:
+                missing += 1
+            else:
+                frozen += 1
+            continue
+        quote = _closing_quote(fetched.board, entry)
         if quote is None:
             continue
-        apply_close(entry, quote[0], quote[1])
-        stamped += 1
+        had = entry.close_odds is not None
+        apply_close(entry, quote[0], quote[1], captured_at=fetched.captured_at)
+        restamped += 1 if had else 0
+        stamped += 0 if had else 1
     if args.write:
         update_ledger(path, entries)
-    print(f"closing prices stamped on {stamped} rows")
+    print(
+        f"closing prices stamped on {stamped} rows, {restamped} re-stamped nearer"
+        f" kickoff, {frozen} already final"
+    )
+    if missing:
+        print(f"  {missing} started rows never got a closing price: CLV unscorable")
     return 0
 
 
@@ -349,7 +373,7 @@ def cmd_replay(args: argparse.Namespace) -> int:
         for entry in entries:
             quote = _closing_quote(week.board, entry)
             if quote is not None:
-                apply_close(entry, quote[0], quote[1])
+                apply_close(entry, quote[0], quote[1], captured_at=taken)
                 closed += 1
             final = week.finals.get(entry.matchup)
             if final is not None:
