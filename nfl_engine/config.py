@@ -41,6 +41,12 @@ def cache_dir() -> Path:
     return data_dir() / "cache"
 
 
+def output_dir() -> Path:
+    """Where the reader-facing package is written (card, workbook, PDF)."""
+    raw = os.getenv("NFLE_OUTPUT_DIR")
+    return Path(raw).expanduser() if raw else data_dir() / "output"
+
+
 @dataclass(frozen=True)
 class ModelParams:
     """Score-simulation parameters.
@@ -103,9 +109,29 @@ class Credentials:
 
 
 @dataclass(frozen=True)
+class Delivery:
+    """Where the weekly package goes. Shares the MLB engine's SMTP variables so
+    one ``engine.env`` serves both, with ``NFLE_``-prefixed overrides.
+    """
+
+    email_to: str | None = field(
+        default_factory=lambda: os.getenv("NFLE_EMAIL_TO") or os.getenv("MLBE_EMAIL_TO")
+    )
+    smtp_host: str = field(
+        default_factory=lambda: os.getenv("NFLE_SMTP_HOST")
+        or os.getenv("SMTP_HOST")
+        or "smtp.gmail.com"
+    )
+    smtp_port: int = field(
+        default_factory=lambda: _env_int("NFLE_SMTP_PORT", _env_int("SMTP_PORT", 465))
+    )
+
+
+@dataclass(frozen=True)
 class Config:
     model: ModelParams = field(default_factory=ModelParams)
     creds: Credentials = field(default_factory=Credentials)
+    delivery: Delivery = field(default_factory=Delivery)
 
     # Score simulator: "drives" (possession-based, discrete) or "normal"
     # (bivariate-normal control). Both consume the same means.
