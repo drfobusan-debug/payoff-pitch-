@@ -132,6 +132,7 @@ from mlb_engine.market.runline import (
     runline_veto,
 )
 from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
+from mlb_engine.models import run_env
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
@@ -394,6 +395,9 @@ class Pipeline:
     # which the clock gate treats as neutral rather than as an early price.
     _lineup_gate: LineupLockGate = LineupLockGate()
     _lineup_lock: LineupLock | None = None
+    # And the league's run environment, read once a slate: 1.0 is the simulator's
+    # own run level, i.e. no correction, which is what an unread league gets.
+    _run_env_scale: float = 1.0
 
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
@@ -549,6 +553,7 @@ class Pipeline:
             if self.cfg.runline_luck_gap
             else {}
         )
+        self._run_env_scale = self._league_scale(slate_date)
 
         recs: list[Recommendation] = []
         self._previews = []
@@ -581,6 +586,29 @@ class Pipeline:
         if h is None:
             return True
         return 0.0 <= h < hours
+
+    def _league_scale(self, slate_date: Date) -> float:
+        """The non-out scale that would put the simulator in today's league.
+
+        Read off finals, once a slate, and never off the simulator's own output:
+        the whole point is an external check on the run level it prices at. A
+        league the read cannot measure leaves the totals uncorrected rather than
+        correcting them by a stale constant.
+        """
+        if not self.cfg.run_env_totals:
+            return 1.0
+        target = self.deps.stats.league_runs_per_game(
+            slate_date, days=self.cfg.run_env_target_days
+        )
+        if target is None:
+            log.warning("Run environment: league total unreadable, totals uncorrected")
+            return 1.0
+        scale = run_env.scale_for_total(target)
+        log.info(
+            "Run environment: league %.2f runs/game over %dd vs simulator %.2f -> scale %.4f",
+            target, self.cfg.run_env_target_days, run_env.BASELINE_TOTAL, scale,
+        )
+        return scale
 
     @property
     def previews(self) -> list[GamePreview]:
@@ -1953,6 +1981,10 @@ class Pipeline:
             # Last thing before the two sides are split: the fit was measured on
             # the probability the ledger recorded, which is everything above.
             calibrated = self.cfg.run_env_tilt.apply(calibrated, env_elev)
+        else:
+            # The league-level correction, on the markets the batter tilt leaves
+            # alone. Also after the map, and for the same reason.
+            calibrated = run_env.apply_shift(calibrated, market, line, self._run_env_scale)
         if side == "under":
             # Callers hand every prop its P(over), because that is the scale the
             # calibration map, the outs bias and the H+R+RBI shrink were all fit

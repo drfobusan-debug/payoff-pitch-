@@ -1123,6 +1123,30 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PROP_ENV_SLOPE", 0.03)
     )
 
+    # Correct the total markets for the league the simulator is actually pricing:
+    # two league-average teams score 9.27 runs in it against a league playing 8.58
+    # over the trailing month, and that gap lifts every over in the book at once.
+    # Applied after calibration, as the log odds the non-out scale is worth to that
+    # market's over (models.run_env.TOTALS) -- applied to the simulator's rates
+    # instead it is a wash, because the isotonic map is monotone and gives the
+    # correction back. Graded walk-forward on 4,996 graded total rows it improves
+    # Brier 0.2431 -> 0.2401 and log loss 0.6820 -> 0.6754, on all four game-total
+    # lines and both first-five lines, and it is the batter tilt's counterpart:
+    # each covers the markets the other leaves alone.
+    #
+    # ``run_env_target_days`` is the trailing window the league total is read over.
+    # A month is the middle of a monotone sweep -- against the uncorrected number
+    # 14 days grades better (-0.0042 Brier), 30 days -0.0030 and 60 days -0.0015 --
+    # so this is deliberately not the best cell:
+    # a shorter read tracks a cooling league faster but is a noisier measurement of
+    # it, and the correction should be a league number rather than a fitted one.
+    run_env_totals: bool = field(
+        default_factory=lambda: _env_bool("MLBE_RUN_ENV_TOTALS", True)
+    )
+    run_env_target_days: int = field(
+        default_factory=lambda: _env_int("MLBE_RUN_ENV_TARGET_DAYS", 30)
+    )
+
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
     # sets the threshold.
