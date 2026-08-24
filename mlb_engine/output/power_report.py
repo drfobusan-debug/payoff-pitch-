@@ -180,7 +180,10 @@ def _arm_prose(s: StarterCard) -> str:
         )
     return (
         f"The delivery agrees with the selection: {lead}, so the damage has an arm behind "
-        "it rather than a fortnight of batted balls."
+        "it rather than a fortnight of batted balls. Out of time that pairing is the "
+        "sharpest of the four: arms whose results ran hot on a below-league delivery allowed "
+        ".338 wOBA the following fortnight and struck out .187 of batters, against .316 and "
+        ".236 for the ones the delivery argued with and .322 for the unflagged league."
     )
 
 

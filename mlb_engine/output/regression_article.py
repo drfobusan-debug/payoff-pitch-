@@ -281,6 +281,14 @@ def _arm_sentence(p: dict, positive: bool) -> str:
     term *and* on top of the CSW% and pitch-shape grade already priced (t -2.4,
     -3.6 and +4.4 on 2,214 pitcher-windows), so it is what confirms or
     contradicts the luck read here.
+
+    The four cells are graded out of time, and the sentences quote what each is
+    worth: a confirmed fade allowed .338 the fortnight after against .316 for a
+    fade the delivery argues with, and a confirmed correction allowed .314
+    against .336, either side of a .322 base rate for the arms neither flag
+    touches. The verdict turns on where the delivery sits against the league and
+    never on which way it is trending -- read as a rise or a fall, every one of
+    those gaps crosses zero.
     """
     stage2 = p.get("arm_stage2", arm.UNMEASURED)
     if stage2 == arm.UNMEASURED:
@@ -297,18 +305,23 @@ def _arm_sentence(p: dict, positive: bool) -> str:
     if positive and stage2 == arm.CONFIRMED:
         return (
             f"The arm underneath agrees: {strength}. The correction has a delivery behind "
-            "it rather than being a wish about batted balls."
+            "it rather than being a wish about batted balls &mdash; arms in this cell allowed "
+            ".314 the following fortnight against .336 for a correction the delivery argues "
+            "with, either side of a .322 league fortnight."
         )
     if positive:
         return (
             f"The arm does not back it: {strength}. His results are worse than his contact "
             "and the delivery is below league too, so the level he corrects back to is lower "
-            "than the shortfall suggests."
+            "than the shortfall suggests: arms in this cell allowed .336 the following "
+            "fortnight, worse than the .322 the unflagged league allowed."
         )
     if stage2 == arm.CONFIRMED:
         return (
             f"The arm agrees with the fade: {strength}. Nothing in how he is throwing is "
-            "holding the run prevention up."
+            "holding the run prevention up &mdash; arms in this cell allowed .338 the "
+            "following fortnight and struck out .187 of batters against .236, the sharpest "
+            "of the four readings."
         )
     return (
         f"The arm argues against the fade: {strength}. He has been helped and he is also "
