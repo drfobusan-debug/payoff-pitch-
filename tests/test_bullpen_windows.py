@@ -113,9 +113,11 @@ def test_profile_keeps_the_raw_xwoba_alongside_the_shrunk_one() -> None:
 
 def test_defaults_read_the_pen_at_its_measured_reliability() -> None:
     w = Config().windows
-    assert w.bullpen_days == 21
+    assert w.bullpen_days == 60
+    # Subsumed by the 60-day read above; only applies when set longer than it.
     assert w.bullpen_skill_days == 0
-    # A three-week xwOBA repeats at 0.37, and is now used at 0.37.
+    # xwOBA-on-contact is the one pen signal the longer window does not improve
+    # (out-of-time r 0.33 at 21 days, 0.34 at 60), so the fitted weight stands.
     assert w.bullpen_xwoba_shrink == 0.37
 
 

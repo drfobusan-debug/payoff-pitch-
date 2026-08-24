@@ -489,6 +489,8 @@ class Pipeline:
             slate_date,
             [
                 w.pitcher_form_days,
+                w.pitcher_baseline_days,
+                w.bullpen_days,
                 w.batter_overall_days,
                 w.batter_home_away_days,
                 w.batter_vs_rhp_days,
@@ -729,7 +731,11 @@ class Pipeline:
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
 
         pit_prof = build_pitcher_profile(
-            statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
+            statcast,
+            opp.probable_pitcher.mlbam_id,
+            slate_date,
+            w.pitcher_form_days,
+            w.pitcher_baseline_days,
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
         pit_reg = build_pitcher_regression(
