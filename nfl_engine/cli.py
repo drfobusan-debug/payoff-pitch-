@@ -35,7 +35,7 @@ from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
-from nfl_engine import calibration
+from nfl_engine import calibration, props
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit.ledger import (
     PAPER,
@@ -56,6 +56,7 @@ from nfl_engine.config import data_dir, load_config, output_dir
 from nfl_engine.data import capture, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
+from nfl_engine.features import usage
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.output.card import build_card, render_html, render_markdown, render_pdf
@@ -362,6 +363,44 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_props(args: argparse.Namespace) -> int:
+    """Price the archived prop board, offline, and say what stopped every row.
+
+    Reads a snapshot the capture command already wrote -- it fetches nothing and
+    spends no credit -- projects usage from the weeks *before* the one being priced,
+    and writes the rows to their own research file. Every row carries
+    ``research_only``, so this command cannot produce a bet.
+    """
+    season = args.season
+    week = args.week
+    if season is None or week is None:
+        season, week, _ = current_week()
+    snapshot = capture.latest_snapshot(season, week, capture.PROP_KIND)
+    if snapshot is None:
+        print(f"no archived prop board for {season} week {week}: run `capture --props` first")
+        return 1
+    rows = capture.read_snapshot(snapshot)
+    print(f"props: read {len(rows)} archived quotes from {snapshot.name}")
+    projections = usage.projections(season, week)
+    print(f"  projections: {len(projections)} player-market pairs from weeks before {week}")
+    priced = props.price_props(rows, projections)
+    for line in props.summary(priced):
+        print(line)
+    if args.write:
+        path = props.write_research(priced, season=season, week=week)
+        print(f"  wrote {path}" if path else "  research rows not written (see log)")
+    for prop in sorted(priced, key=lambda p: -(p.ev_fair or 0.0))[: args.top]:
+        stops = ";".join(r for r in prop.screens if r != props.RESEARCH_ONLY) or "-"
+        print(
+            f"  {prop.label():44s} {prop.book:14s} {prop.american:+7.0f}"
+            f" proj {prop.projection if prop.projection is not None else float('nan'):7.2f}"
+            f" model {prop.model_prob:.3f} fair"
+            f" {prop.fair_prob if prop.fair_prob is not None else float('nan'):.3f}"
+            f" ev_fair {prop.ev_fair if prop.ev_fair is not None else float('nan'):+.3f}  {stops}"
+        )
+    return 0
+
+
 def cmd_replay(args: argparse.Namespace) -> int:
     """Run played weeks at their closing prices through the live functions.
 
@@ -623,6 +662,16 @@ def main(argv: list[str] | None = None) -> int:
     capture_cmd.add_argument("--props", action="store_true", help="also archive player-prop prices")
     capture_cmd.add_argument("--max-events", type=int, default=32)
     capture_cmd.set_defaults(func=cmd_capture)
+
+    props_cmd = sub.add_parser(
+        "props", help="price the archived prop board as research (offline, no credit)"
+    )
+    props_cmd.add_argument("--season", type=int, default=None)
+    props_cmd.add_argument("--week", type=int, default=None)
+    props_cmd.add_argument("--top", type=int, default=20)
+    props_cmd.add_argument("--write", action="store_true", default=True)
+    props_cmd.add_argument("--no-write", dest="write", action="store_false")
+    props_cmd.set_defaults(func=cmd_props)
 
     replay_cmd = sub.add_parser("replay", help="run played weeks at their closing prices")
     replay_cmd.add_argument("--season", type=int, required=True)

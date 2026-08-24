@@ -76,6 +76,32 @@ def test_snapshot_survives_the_csv(tmp_path):
     assert capture.fingerprint(capture.read_snapshot(path)) == capture.fingerprint(rows())
 
 
+def test_a_row_that_cannot_say_its_week_is_skipped_not_fatal(tmp_path):
+    """One corrupt cell must not cost the whole archive.
+
+    A snapshot is the only copy of prices that can never be fetched again, so a
+    season cell reading ``NOT_A_NUMBER`` loses its own row and nothing else.
+    """
+    path = capture.write_snapshot(rows(), season=2026, week=1, root=tmp_path)
+    assert path is not None
+    lines = path.read_text(encoding="utf-8").splitlines()
+    season = lines[0].split(",").index("season")
+    cells = lines[1].split(",")
+    cells[season] = "NOT_A_NUMBER"
+    lines[1] = ",".join(cells)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    read = capture.read_snapshot(path)
+    assert len(read) == len(rows()) - 1
+
+
+def test_one_nul_byte_does_not_lose_the_snapshot(tmp_path):
+    """``csv`` refuses a whole file over a single NUL, so it is stripped first."""
+    path = capture.write_snapshot(rows(), season=2026, week=1, root=tmp_path)
+    assert path is not None
+    path.write_bytes(path.read_bytes().replace(b"KC", b"K\x00C", 1))
+    assert len(capture.read_snapshot(path)) == len(rows())
+
+
 def test_captured_at_does_not_change_the_fingerprint():
     later = [capture.QuoteRow(**{**row.__dict__, "captured_at": "2026-09-11T00:00:00Z"}) for row in rows()]
     assert capture.fingerprint(later) == capture.fingerprint(rows())
