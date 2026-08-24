@@ -65,9 +65,13 @@ log = logging.getLogger(__name__)
 CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
+def scrub_text(value: str) -> str:
+    return CONTROL_CHARS.sub("", value)
+
+
 def scrub(value: object) -> object:
     """Drop control characters from text, leave everything else alone."""
-    return CONTROL_CHARS.sub("", value) if isinstance(value, str) else value
+    return scrub_text(value) if isinstance(value, str) else value
 
 
 @dataclass
@@ -366,17 +370,22 @@ def position_key(entry: LedgerEntry) -> tuple[str, ...]:
     bets, and the same rung at two books is two prices. The price itself is not,
     which is the whole point -- a re-run at a moved number must not silently
     become a second position.
+
+    Keyed on the scrubbed name, because that is the form the row is stored in: a
+    feed that puts a control character in a team name would otherwise make the
+    on-disk key differ from the in-memory one and append the same position again
+    on every capture.
     """
     line = "" if entry.line is None else f"{entry.line:g}"
     return (
         str(entry.season),
         str(entry.week),
-        entry.matchup,
-        entry.market,
-        entry.side,
+        scrub_text(entry.matchup),
+        scrub_text(entry.market),
+        scrub_text(entry.side),
         line,
-        entry.book,
-        entry.source,
+        scrub_text(entry.book),
+        scrub_text(entry.source),
     )
 
 
