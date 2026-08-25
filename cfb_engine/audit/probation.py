@@ -332,6 +332,26 @@ def _shorter_than(ceiling: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
+def _divergence_under(floor: float) -> Callable[[LedgerEntry], bool]:
+    """Refuse moneyline buys whose handle-minus-tickets split is under ``floor``.
+
+    The live gate in :mod:`cfb_engine.market.mlsharp` only asks the money to keep
+    pace with the tickets (divergence >= 0). MLB's winning moneyline buys averaged
+    +19.7 points of divergence against -2.6 for losers, which argues for a real
+    floor rather than a tie-break -- but that is MLB's number, so the stricter bar
+    accrues here and ships only if the CFB ledger says so.
+    """
+
+    def refuses(e: LedgerEntry) -> bool:
+        return (
+            e.market == "game_ml"
+            and e.sharp_div is not None
+            and e.sharp_div < floor
+        )
+
+    return refuses
+
+
 # The candidates asked of every audit, rather than settled once in a chat
 # message. Each is a screen someone has a good story for; the point of keeping
 # them here is that the three tests, not the story, decide whether it ships.
@@ -358,6 +378,13 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         "price_refuse_shorter_than_-250",
         _shorter_than(-250.0),
         "a short favourite risks most of the stake on the outcome the price denies",
+    ),
+    # The live sharp-money gate refuses at 0; this asks whether the bar belongs
+    # higher. Grading it needs slates whose saved card carries ``sharp_div``.
+    CandidateScreen(
+        "ml_refuse_divergence_under_+5",
+        _divergence_under(5.0),
+        "the money is on this side, but no harder than the ticket count is",
     ),
 )
 

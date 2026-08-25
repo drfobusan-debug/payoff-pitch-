@@ -38,6 +38,7 @@ from cfb_engine.data.roster import RosterBook
 from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
+from cfb_engine.data.vsin_splits import SplitBook, SplitsProvider, lookup
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -51,6 +52,7 @@ from cfb_engine.market.confidence import (
 from cfb_engine.market.drift import DriftGate
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
 from cfb_engine.market.linevalue import drift_probability
+from cfb_engine.market.mlsharp import SharpGate
 from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
@@ -95,6 +97,9 @@ class Pipeline:
         self._roster: dict[int, RosterBook | None] = {}
         self.drift_gate = DriftGate.from_env()
         self.price_band = PriceBand.from_env()
+        self.sharp_gate = SharpGate.from_env()
+        self.splits_provider = SplitsProvider(cfg.cache_dir)
+        self.splits: SplitBook = {}
         self._first_board: dict[str, snapshot.SideQuote] = {}
 
     def _load_calibrator(self) -> Calibrator:
@@ -194,6 +199,8 @@ class Pipeline:
             self.advanced = self.cfbd.fetch_advanced(season)
             if self.advanced.teams:
                 logger.info("advanced stats: %d teams", len(self.advanced.teams))
+        if self.cfg.vsin_splits:
+            self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
         mc = MonteCarlo(self.cfg.model)
         markov = MarkovSim(self.cfg.model) if self.cfg.sim_engine == "markov" else None
@@ -511,6 +518,7 @@ class Pipeline:
         reasons = [*reasons, *mark_reasons]
 
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
+        split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = None
         if tier != Tier.PASS:
             keep, drift_reason, gate = self.drift_gate.verdict(drift)
@@ -525,6 +533,14 @@ class Pipeline:
                 reasons = [*reasons, band_reason]
             if not keep:
                 tier, pass_gate = Tier.PASS, band_gate
+        # The moneyline is the market whose own EV signal graded inverted in the
+        # sibling engine, so it is the one asked to have the money on its side.
+        if tier != Tier.PASS and market == "game_ml":
+            keep, sharp_reason, sharp_gate = self.sharp_gate.verdict(split)
+            if sharp_reason:
+                reasons = [*reasons, sharp_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, sharp_gate
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -545,6 +561,7 @@ class Pipeline:
             reasons=reasons,
             drift=drift,
             pass_gate=pass_gate,
+            sharp_div=None if split is None else split.divergence,
             team_side=team_side,
             side=side,
             home_abbrev=ctx.home_ab,
