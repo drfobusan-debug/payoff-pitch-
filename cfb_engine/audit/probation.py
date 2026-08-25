@@ -332,21 +332,6 @@ def _shorter_than(ceiling: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
-def _ml_longer_than(floor: float) -> Callable[[LedgerEntry], bool]:
-    """Refuse moneyline dogs priced longer than ``floor``.
-
-    A long dog's edge is the hardest thing this engine measures: the price
-    demands little, so a small probability error is a large EV error, and the
-    Markov simulator's tails are exactly where a fitted distribution is least
-    trustworthy.
-    """
-
-    def refuses(e: LedgerEntry) -> bool:
-        return e.market == "game_ml" and e.odds is not None and e.odds >= floor
-
-    return refuses
-
-
 # The candidates asked of every audit, rather than settled once in a chat
 # message. Each is a screen someone has a good story for; the point of keeping
 # them here is that the three tests, not the story, decide whether it ships.
@@ -364,11 +349,10 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         _run_up_over(0.02),
         "the edge was already paid out to whoever moved the line",
     ),
-    CandidateScreen(
-        "ml_refuse_dogs_longer_than_+200",
-        _ml_longer_than(200.0),
-        "a long dog's EV is dominated by the tail we model worst",
-    ),
+    # The +200 moneyline ceiling is no longer a candidate: it is live in
+    # ``priceband.MARKET_DEFAULTS``, so it refuses rather than accrues, and
+    # ``screen_probation`` grades it under ``price_too_long``. Kept here as a
+    # candidate it would read ``n=0`` forever, which is not the same as CLEAR.
     # The price band's short end, graded before it is allowed to refuse anything.
     CandidateScreen(
         "price_refuse_shorter_than_-250",

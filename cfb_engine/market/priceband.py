@@ -20,13 +20,20 @@ In practice this is a **moneyline screen**: ATS and totals prices cluster inside
 moneyline, and a band drawn inside it would refuse the spread board wholesale.
 Hence a per-market override rather than one number for the engine.
 
-Defaults refuse nothing. ``enabled`` is off, and the band itself is MLB's
-(-250 to +200) because there is no graded CFB row to draw one from -- the same
-reason ``cfb_engine.market.drift`` measures without vetoing, and the same
-discipline that caught the VSiN home-field table and the marking bumps testing
-null. With the band off, a row outside it is still annotated on the card, so
-``screen_probation`` can grade what the veto would have cost before it is
-switched on.
+One tail refuses by default: **moneyline dogs longer than +200**. That is not a
+CFB measurement -- there is no graded CFB row yet -- it is the MLB engine's, where
+the Strong tier filled with plus-money dogs and inverted against Moderate, and
+where model EV on moneylines scored AUC 0.33 (worse than a coin) while market
+signal scored 0.80. A +260 dog priced off that input is the one bet built
+entirely from the weakest thing the engine knows, so it is refused ahead of the
+evidence rather than after it, and ``screen_probation`` grades the refusals
+(``price_too_long``) counterfactually -- a ``LIFT`` verdict is how it comes back.
+
+Everything else refuses nothing: the engine-wide band is off, the moneyline's
+short tail is disarmed (``min_american=None``), and the numbers are MLB's, so an
+out-of-band price elsewhere is only annotated on the card. Off-switch for the
+live tail is per-market -- ``CFBE_PRICE_BAND_GAME_ML=0`` -- because a market
+default is deliberately not something the engine-wide flag can silently undo.
 
 Sign convention: American odds, so ``-250`` is shorter than ``-150`` and ``+400``
 is longer than ``+200``. The band is *inclusive* -- a price exactly on the number
@@ -41,12 +48,21 @@ from dataclasses import dataclass
 
 # Shortest favourite worth a stake. MLB's number, unverified here.
 DEFAULT_MIN_AMERICAN = -250.0
-# Longest dog worth a stake, and the same +200 that
-# ``probation.CANDIDATE_SCREENS`` grades as a candidate.
+# Longest dog worth a stake. Live for the moneyline (see ``MARKET_DEFAULTS``),
+# and graded as a screen through ``probation.screen_probation``.
 DEFAULT_MAX_AMERICAN = 200.0
 
 SHORT_GATE = "price_too_short"
 LONG_GATE = "price_too_long"
+
+
+def _num_or_none(name: str, default: float | None) -> float | None:
+    raw = os.getenv(name)
+    if raw is None or raw == "":
+        return default
+    if raw.strip().lower() in ("none", "off"):
+        return None
+    return float(raw)
 
 
 def _flag(name: str, default: bool) -> bool:
@@ -54,11 +70,6 @@ def _flag(name: str, default: bool) -> bool:
     if raw in (None, ""):
         return default
     return raw not in ("0", "false", "False")
-
-
-def _num(name: str, default: float) -> float:
-    raw = os.getenv(name)
-    return float(raw) if raw not in (None, "") else default
 
 
 @dataclass(frozen=True)
@@ -71,15 +82,15 @@ class PriceBand:
     """
 
     enabled: bool = False
-    min_american: float = DEFAULT_MIN_AMERICAN
-    max_american: float = DEFAULT_MAX_AMERICAN
+    min_american: float | None = DEFAULT_MIN_AMERICAN
+    max_american: float | None = DEFAULT_MAX_AMERICAN
 
     @classmethod
     def from_env(cls) -> PriceBand:
         return cls(
             enabled=_flag("CFBE_PRICE_BAND", False),
-            min_american=_num("CFBE_PRICE_MIN", DEFAULT_MIN_AMERICAN),
-            max_american=_num("CFBE_PRICE_MAX", DEFAULT_MAX_AMERICAN),
+            min_american=_num_or_none("CFBE_PRICE_MIN", DEFAULT_MIN_AMERICAN),
+            max_american=_num_or_none("CFBE_PRICE_MAX", DEFAULT_MAX_AMERICAN),
         )
 
     def for_market(self, market: str) -> PriceBand:
@@ -87,12 +98,18 @@ class PriceBand:
 
         Per-market because one band cannot serve both boards: the moneyline runs
         from -3000 to +2500 while the spread barely leaves -110.
+
+        A market listed in :data:`MARKET_DEFAULTS` starts from its own band
+        rather than the engine-wide one, so switching the engine-wide flag on
+        cannot widen a live tail and leaving it off cannot disarm one. Only the
+        per-market variables move a market default.
         """
         suffix = market.upper()
+        base = MARKET_DEFAULTS.get(market.lower(), self)
         return PriceBand(
-            enabled=_flag(f"CFBE_PRICE_BAND_{suffix}", self.enabled),
-            min_american=_num(f"CFBE_PRICE_MIN_{suffix}", self.min_american),
-            max_american=_num(f"CFBE_PRICE_MAX_{suffix}", self.max_american),
+            enabled=_flag(f"CFBE_PRICE_BAND_{suffix}", base.enabled or self.enabled),
+            min_american=_num_or_none(f"CFBE_PRICE_MIN_{suffix}", base.min_american),
+            max_american=_num_or_none(f"CFBE_PRICE_MAX_{suffix}", base.max_american),
         )
 
     def verdict(self, american: float | None) -> tuple[bool, str, str | None]:
@@ -103,11 +120,11 @@ class PriceBand:
         """
         if american is None:
             return True, "", None
-        if american < self.min_american:
+        if self.min_american is not None and american < self.min_american:
             return self._refuse(
                 f"price {american:+.0f} shorter than {self.min_american:+.0f}", SHORT_GATE
             )
-        if american > self.max_american:
+        if self.max_american is not None and american > self.max_american:
             return self._refuse(
                 f"price {american:+.0f} longer than {self.max_american:+.0f}", LONG_GATE
             )
@@ -117,3 +134,14 @@ class PriceBand:
         if self.enabled:
             return False, f"{reason} -> PASS", gate
         return True, f"{reason} (band off, measuring)", None
+
+
+# The one live tail. The short end is ``None`` rather than -250 because a short
+# favourite loses money slowly and legibly, while a long dog is where this
+# engine's worst-measured input meets its largest EV error -- only the second is
+# worth refusing without a CFB number behind it.
+MARKET_DEFAULTS: dict[str, PriceBand] = {
+    "game_ml": PriceBand(
+        enabled=True, min_american=None, max_american=DEFAULT_MAX_AMERICAN
+    ),
+}
