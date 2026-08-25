@@ -63,9 +63,20 @@ def _short_favourite(pipe: Pipeline) -> Recommendation:
     return next(r for r in recs if r.selection.startswith("ALA"))
 
 
+def _arm_short_tail(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Put the moneyline's short tail back in play.
+
+    The shipped moneyline band is long-side only, so a test about short prices
+    has to say so rather than inherit it.
+    """
+    monkeypatch.setenv("CFBE_PRICE_MIN_GAME_ML", "-250")
+
+
 def test_a_short_price_is_only_annotated_while_the_band_is_off(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _arm_short_tail(monkeypatch)
+    monkeypatch.setenv("CFBE_PRICE_BAND_GAME_ML", "0")
     rec = _short_favourite(_pipeline(tmp_path, monkeypatch))
     assert rec.tier != Tier.PASS
     assert rec.pass_gate is None
@@ -76,6 +87,7 @@ def test_an_armed_band_passes_the_row_and_names_the_gate(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("CFBE_PRICE_BAND", "1")
+    _arm_short_tail(monkeypatch)
     rec = _short_favourite(_pipeline(tmp_path, monkeypatch))
     assert rec.tier == Tier.PASS
     assert rec.pass_gate == SHORT_GATE
@@ -85,6 +97,7 @@ def test_a_band_armed_for_the_moneyline_leaves_the_spread_alone(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("CFBE_PRICE_BAND_GAME_ML", "1")
+    _arm_short_tail(monkeypatch)
     pipe = _pipeline(tmp_path, monkeypatch)
     assert _short_favourite(pipe).pass_gate == SHORT_GATE
     assert pipe.price_band.for_market("game_ats").enabled is False
@@ -94,6 +107,7 @@ def test_the_long_end_bites_the_dog_not_the_favourite(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("CFBE_PRICE_BAND", "1")
+    _arm_short_tail(monkeypatch)
     pipe = _pipeline(tmp_path, monkeypatch)
     recs = pipe._price_ml(_ctx(0.71), _ml_board(-160.0, 400.0))
     dog = next(r for r in recs if r.selection.startswith("UGA"))
@@ -102,12 +116,43 @@ def test_the_long_end_bites_the_dog_not_the_favourite(
     assert fav.pass_gate is None
 
 
+def test_a_long_moneyline_dog_is_refused_with_nothing_configured(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The shipped default, and the row that prompted it: a +260 dog whose only
+    support is model-versus-price -- the input MLB measured at AUC 0.33."""
+    pipe = _pipeline(tmp_path, monkeypatch)
+    recs = pipe._price_ml(_ctx(0.68), _ml_board(-300.0, 260.0))
+    dog = next(r for r in recs if r.selection.startswith("UGA"))
+    fav = next(r for r in recs if r.selection.startswith("ALA"))
+    assert (dog.tier, dog.pass_gate) == (Tier.PASS, LONG_GATE)
+    # The short tail ships disarmed, so the favourite is neither refused nor
+    # annotated -- the ledger's own odds column is what grades that half.
+    assert fav.pass_gate is None
+    assert not any("shorter than" in r for r in fav.reasons)
+
+
+def test_the_shipped_moneyline_band_is_switched_off_per_market(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("CFBE_PRICE_BAND_GAME_ML", "0")
+    pipe = _pipeline(tmp_path, monkeypatch)
+    dog = next(
+        r
+        for r in pipe._price_ml(_ctx(0.68), _ml_board(-300.0, 260.0))
+        if r.selection.startswith("UGA")
+    )
+    assert dog.pass_gate is None
+    assert any("band off, measuring" in r for r in dog.reasons)
+
+
 def test_a_row_the_tiers_already_passed_is_not_reattributed_to_the_band(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Attribution has to stay honest: the band only owns rows it alone refused,
     or probation grades it on bets it never touched."""
     monkeypatch.setenv("CFBE_PRICE_BAND", "1")
+    _arm_short_tail(monkeypatch)
     pipe = _pipeline(tmp_path, monkeypatch)
     # Model agrees with a -400 price, so the EV screen passes it on its own.
     rec = next(

@@ -72,6 +72,48 @@ def test_engine_wide_settings_are_inherited_by_every_market(
     assert band.verdict(130.0)[2] == LONG_GATE
 
 
+def test_the_moneyline_ships_refusing_dogs_longer_than_plus_200() -> None:
+    """The one live tail, with nothing configured."""
+    ml = PriceBand.from_env().for_market("game_ml")
+    assert ml.enabled is True
+    keep, reason, gate = ml.verdict(260.0)
+    assert (keep, gate) == (False, LONG_GATE)
+    assert "longer than +200" in reason
+
+
+def test_the_moneylines_short_tail_ships_disarmed() -> None:
+    """Long-side only: a short favourite is graded off the ledger's odds column,
+    not refused on MLB's number."""
+    ml = PriceBand.from_env().for_market("game_ml")
+    assert ml.min_american is None
+    assert ml.verdict(-3000.0) == (True, "", None)
+
+
+def test_the_spread_and_total_boards_still_refuse_nothing() -> None:
+    band = PriceBand.from_env()
+    for market in ("game_ats", "game_total"):
+        assert band.for_market(market).enabled is False
+
+
+def test_the_engine_wide_flag_cannot_silently_disarm_a_market_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """``CFBE_PRICE_BAND=0`` is the engine-wide default, not an override of a
+    tail that ships live -- otherwise the off switch is one someone sets by
+    accident."""
+    monkeypatch.setenv("CFBE_PRICE_BAND", "0")
+    assert PriceBand.from_env().for_market("game_ml").enabled is True
+    monkeypatch.setenv("CFBE_PRICE_BAND_GAME_ML", "0")
+    assert PriceBand.from_env().for_market("game_ml").enabled is False
+
+
+def test_a_tail_can_be_disarmed_by_name(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CFBE_PRICE_MAX_GAME_ML", "off")
+    ml = PriceBand.from_env().for_market("game_ml")
+    assert ml.max_american is None
+    assert ml.verdict(2500.0) == (True, "", None)
+
+
 def test_a_market_override_can_disarm_a_band_armed_engine_wide(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
