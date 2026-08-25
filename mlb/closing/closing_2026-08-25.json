@@ -40287,6 +40287,13 @@
   {
     "matchup": "TEX @ CWS",
     "market": "batter_tb",
+    "selection": "Jake Burger TB u1.5",
+    "american": -179.0,
+    "no_vig_prob": 0.599178
+  },
+  {
+    "matchup": "TEX @ CWS",
+    "market": "batter_tb",
     "selection": "Justin Foscue TB o0.5",
     "american": -175.0,
     "no_vig_prob": 0.600826
