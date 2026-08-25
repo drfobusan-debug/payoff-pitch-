@@ -38,11 +38,12 @@ CENTER = Alignment(horizontal="center")
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
     "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
-    "EV", "Edge", "Kelly", "Tier", "Notes",
+    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 12, 46]
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 46]
 CENTER_COLS = {
-    "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly", "Tier",
+    "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly",
+    "Handle-Tickets", "Tier",
 }
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}

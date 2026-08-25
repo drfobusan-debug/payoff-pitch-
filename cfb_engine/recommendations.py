@@ -44,6 +44,11 @@ class Recommendation:
     # lets the audit grade a screen on the bets it refused rather than only on
     # the ones it let through.
     pass_gate: str | None = None
+    # Handle% minus tickets% on this side in VSiN's public splits: the share of
+    # the money the side took less the share of the bets. Recorded on every side
+    # that has one, whatever the market, so the signal can be graded on college
+    # football; only the moneyline acts on it (``cfb_engine.market.mlsharp``).
+    sharp_div: float | None = None
     # --- structured grading metadata (used by the nightly audit) ---
     team_side: str | None = None  # "home" | "away"
     side: str | None = None  # "win" | "cover" | "over" | "under"
@@ -99,6 +104,7 @@ class Recommendation:
             "EV": round(self.ev, 3) if self.ev is not None else "",
             "Edge": round(self.edge, 3) if self.edge is not None else "",
             "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
+            "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
             "Notes": "; ".join(self.reasons),
         }

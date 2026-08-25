@@ -354,6 +354,12 @@ class Config:
     # printed on the card; set the env var to price it again.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
 
+    # Read VSiN's public betting splits (handle% and tickets% per side). On by
+    # default: the moneyline screen in :mod:`cfb_engine.market.mlsharp` needs
+    # them, and every side that has one carries its divergence into the ledger so
+    # the signal can be graded on college football rather than on MLB's sample.
+    vsin_splits: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_SPLITS", True))
+
     # Read the injury feed and the box-score usage book. On by default because it
     # only reports and logs: an absence is printed on the card and appended to the
     # availability log with the line at that moment, which is what measures whether

@@ -61,6 +61,9 @@ class LedgerEntry:
     # positive toward the side bet, plus the screen that refused it (if any).
     drift: float | None = None
     pass_gate: str | None = None
+    # Handle% minus tickets% on the side bet (VSiN public splits), so the signal
+    # MLB measured at AUC 0.80 on moneylines can be graded on college football.
+    sharp_div: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -68,11 +71,12 @@ LEDGER_FIELDS = [
     "odds", "under_odds", "tier", "model_prob", "ev", "result", "pnl",
     "raw_prob", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts",
-    "drift", "pass_gate",
+    "drift", "pass_gate", "sharp_div",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts", "drift",
+    "sharp_div",
 )
 
 
@@ -111,6 +115,7 @@ def entries_from_graded(
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
                 drift=rec.drift,
                 pass_gate=rec.pass_gate,
+                sharp_div=rec.sharp_div,
             )
         )
     return entries
@@ -157,6 +162,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     clv_pts=_to_float(row.get("clv_pts", "")),
                     drift=_to_float(row.get("drift", "")),
                     pass_gate=row.get("pass_gate", "") or None,
+                    sharp_div=_to_float(row.get("sharp_div", "")),
                 )
             )
     return out

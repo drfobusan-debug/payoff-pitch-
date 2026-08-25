@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from cfb_engine.audit.ledger import LedgerEntry
 from cfb_engine.audit.probation import (
+    CANDIDATE_SCREENS,
     CLEAR,
     LIFT,
     SHIP,
@@ -27,6 +28,7 @@ def _entry(
     tier: str = Tier.MODERATE.value,
     drift: float | None = None,
     pass_gate: str | None = None,
+    sharp_div: float | None = None,
 ) -> LedgerEntry:
     pnl = {"win": 1.0, "loss": -1.0}.get(result, 0.0)
     return LedgerEntry(
@@ -46,6 +48,7 @@ def _entry(
         pnl=pnl,
         drift=drift,
         pass_gate=pass_gate,
+        sharp_div=sharp_div,
     )
 
 
@@ -156,6 +159,24 @@ def test_a_candidate_that_would_refuse_winners_is_not_shipped() -> None:
     rows = _run("w" * 40 + "l" * 20, odds=250.0)
     (verdict,) = candidate_probation(rows, (candidate,), min_n=50)
     assert verdict.status != SHIP
+
+
+def test_the_stricter_sharp_money_bar_accrues_as_a_candidate() -> None:
+    """The live gate refuses at 0; whether it belongs at +5 is the ledger's call,
+    and only moneyline rows carrying a split can answer it."""
+    (candidate,) = [c for c in CANDIDATE_SCREENS if c.name == "ml_refuse_divergence_under_+5"]
+    thin = _run("l" * 25 + "w" * 3 + "l" * 25 + "w" * 3, sharp_div=2.0)
+    backed = _run("w" * 40, sharp_div=19.0)
+    ats = _run("l" * 40, market="game_ats", sharp_div=2.0)
+    (verdict,) = candidate_probation(thin + backed + ats, (candidate,), min_n=50)
+    assert verdict.status == SHIP
+    assert verdict.n == 56
+
+
+def test_a_moneyline_row_with_no_split_is_not_evidence_about_the_bar() -> None:
+    (candidate,) = [c for c in CANDIDATE_SCREENS if c.name == "ml_refuse_divergence_under_+5"]
+    (verdict,) = candidate_probation(_run("l" * 60), (candidate,), min_n=10)
+    assert (verdict.status, verdict.n) == (WATCHING, 0)
 
 
 def test_the_window_can_start_at_the_day_a_screen_was_changed() -> None:
