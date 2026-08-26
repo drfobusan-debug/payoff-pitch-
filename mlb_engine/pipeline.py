@@ -767,7 +767,10 @@ class Pipeline:
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
         pit_reg = build_pitcher_regression(
-            pit_rows, shrink=w.starter_contact_shrink, vfa_k=w.vfa_k_weight
+            pit_rows,
+            shrink=w.starter_contact_shrink,
+            vfa_k=w.vfa_k_weight,
+            hr_flyball=w.hr_flyball_weight,
         )
         pit_allowed_mult = pit_reg.allowed_multipliers()
 
@@ -2435,6 +2438,7 @@ def _preview_half(
         siera_trend=trends.siera.delta,
         stuff_trend=trends.stuff.delta,
         vfa_trend=trends.vfa.delta,
+        fb_allowed_recent=_fnum(pit_reg.fb_allowed_recent),
         league_xwoba_allowed=league.pitcher,
     )
     split = splits.vs_hand(opp_throws) if splits is not None else None
