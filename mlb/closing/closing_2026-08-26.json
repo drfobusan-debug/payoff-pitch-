@@ -1,5 +1,117 @@
 [
   {
+    "matchup": "AZ @ SF",
+    "market": "f5_ml",
+    "selection": "AZ F5 ML",
+    "american": -114.0,
+    "no_vig_prob": 0.503079
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "f5_ml",
+    "selection": "SF F5 ML",
+    "american": -110.0,
+    "no_vig_prob": 0.496921
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "f5_rl",
+    "selection": "AZ F5 -0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.426036
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "f5_rl",
+    "selection": "SF F5 +0.5",
+    "american": -156.0,
+    "no_vig_prob": 0.573964
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "f5_total",
+    "selection": "F5 Over 4.5",
+    "american": -120.0,
+    "no_vig_prob": 0.511218
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "f5_total",
+    "selection": "F5 Under 4.5",
+    "american": -108.0,
+    "no_vig_prob": 0.488782
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_ml",
+    "selection": "AZ ML",
+    "american": -108.0,
+    "no_vig_prob": 0.509949
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_ml",
+    "selection": "SF ML",
+    "american": 101.0,
+    "no_vig_prob": 0.490051
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_rl",
+    "selection": "AZ +1.5",
+    "american": -209.0,
+    "no_vig_prob": 0.655208
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_rl",
+    "selection": "AZ -1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.388744
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_rl",
+    "selection": "SF +1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.611256
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_rl",
+    "selection": "SF -1.5",
+    "american": 182.0,
+    "no_vig_prob": 0.344792
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -102.0,
+    "no_vig_prob": 0.488864
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 100.0,
+    "no_vig_prob": 0.48565
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -113.0,
+    "no_vig_prob": 0.511136
+  },
+  {
+    "matchup": "AZ @ SF",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -114.0,
+    "no_vig_prob": 0.51435
+  },
+  {
     "matchup": "BAL @ STL",
     "market": "batter_1b",
     "selection": "Alec Burleson 1B o0.5",
