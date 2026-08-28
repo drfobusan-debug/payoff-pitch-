@@ -40,6 +40,20 @@ The chain is five stages behind two gates, each of which throws work away:
    engine's exit-point model and his slot, and who covers the rest of the game.
    A short starter in front of the league's softest bullpen is not the matchup
    the screen selected, and it can be better.
+6. **Score both halves of the game.** Innings 1-6 and 7+ are scored as separate
+   pools on nine stabilized metrics, each half shrunk toward the hitter's own
+   all-innings rate rather than toward the league. The screen is looking for
+   hitters who play all game, so a bat carried by one half is visible as such.
+7. **Adjust for context.** Eight signed terms: the luck gap between xwOBA and
+   wOBA, the three-week direction of bat speed, chase and EV90, the park, the
+   forecast, one point for facing a bottom-three arm, and the hitter's run value
+   on the starter's three most-thrown pitches. Each is ``+1`` toward the hitter
+   or ``-1`` toward the pitcher, and ``0`` inside the metric's own noise band --
+   missing evidence is neutral, not negative. The run-value term trebles past
+   two runs per 100, which is the only place the layer pays for size.
+8. **Score the arsenal edge.** The hitter's per-pitch run value, xwOBA, whiff,
+   hard-hit and barrel marks and the starter's allowed marks on the same
+   families, both weighted by the mix he will actually throw.
 
 Every figure is observed or modelled, never priced: this module reads no market.
 Run value is quoted **from the hitter's side throughout**, so both halves of a
@@ -1113,7 +1127,7 @@ class BullpenCard:
 
 @dataclass
 class HitterView:
-    """A surviving hitter with everything the last two stages added."""
+    """A surviving hitter with everything the last stages added."""
 
     line: HitterLine
     per_pitch: dict[str, ContactLine]
@@ -1122,6 +1136,13 @@ class HitterView:
     fit_xba: float
     fallback_share: float
     exposure: Exposure | None = None
+    #: Stages 6-8. Absent when the hitter's season rows were not loaded, in which
+    #: case the composite ranking simply does not include him.
+    early: HalfLine | None = None
+    late: HalfLine | None = None
+    context: ContextTerms | None = None
+    trends: TrendDeltas | None = None
+    edge: ArsenalEdge | None = None
 
     @property
     def fit_delta(self) -> float:
@@ -1161,6 +1182,10 @@ class ScreenResult:
     #: total and still be the worst on the slate the third time through the order,
     #: and a ranking that silently drops him is not that ranking.
     starters_scored: list[StarterCard] = field(default_factory=list)
+    #: Stages 6-8 pooled across the slate and ranked best first: the two game
+    #: halves, the context points and the arsenal fit. Empty when the season rows
+    #: the halves need were not loaded.
+    final: list[FinalScore] = field(default_factory=list)
     cut_log: list[HitterLine] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     has_run_value: bool = True
@@ -1231,4 +1256,540 @@ def exposure(
         pa_vs_pen=vs_pen,
         third_look=third_look_prob(slot, pmf),
         opponent_xwoba=weighted,
+    )
+
+
+# --- stage 6: both halves of the game ------------------------------------
+
+
+@dataclass(frozen=True)
+class HalfMetric:
+    """One metric in the game-half score, with the sample it stabilizes on.
+
+    ``k`` is the denominator at which the split rate is trusted half as much as
+    the hitter's own all-innings rate. It is the stabilization point of the
+    metric, not a floor: a thin cell is shrunk rather than dropped, because a
+    hitter who has only 40 late plate appearances still has a late half and the
+    honest estimate of it is what he does the rest of the game.
+    """
+
+    attr: str
+    label: str
+    higher_better: bool
+    k: float
+    denom: str
+
+
+#: Barrel rate is deliberately absent. It needs roughly 200 batted balls and a
+#: game-half is a third of a hitter's work, so a season of it does not reach the
+#: sample -- sweet-spot rate and exit velocity on air contact carry the same
+#: information at a fifth of the sample and are scored in its place.
+HALF_SCORED: tuple[HalfMetric, ...] = (
+    HalfMetric("k", "K%", False, 60, "pa"),
+    HalfMetric("swstr", "SwStr%", False, 250, "pitches"),
+    HalfMetric("zcon", "Z-Con%", True, 80, "z_swings"),
+    HalfMetric("bb", "BB%", True, 120, "pa"),
+    HalfMetric("osw", "O-Swing%", False, 80, "oz_pitches"),
+    HalfMetric("sweet", "Sweet%", True, 60, "bbe"),
+    HalfMetric("ev_fbld", "EV FB/LD", True, 40, "fbld"),
+    HalfMetric("hh", "HH%", True, 50, "bbe"),
+    HalfMetric("ev90", "EV90", True, 40, "bbe"),
+)
+
+#: The inning the bullpen's half begins. Innings 1-6 are the starter's half; the
+#: seventh is where the screen stops measuring the arm it faded and starts
+#: measuring the relief corps behind him.
+SPLIT_INNING = 7
+
+#: Launch angles that produce line drives and fly balls -- the sweet spot.
+SWEET_ANGLES = (8.0, 32.0)
+
+
+@dataclass
+class HalfLine:
+    """One hitter's line over one half of the game, shrunk toward himself."""
+
+    half: str  # "early" or "late"
+    values: dict[str, float] = field(default_factory=dict)
+    samples: dict[str, int] = field(default_factory=dict)
+    pa: int = 0
+    bbe: int = 0
+    points: int = 0
+    top_in: tuple[str, ...] = ()
+
+    def value(self, metric: HalfMetric) -> float:
+        return self.values.get(metric.attr, math.nan)
+
+    def sample(self, metric: HalfMetric) -> int:
+        return self.samples.get(metric.denom, 0)
+
+
+def half_rates(rows: pd.DataFrame) -> tuple[dict[str, float], dict[str, int]]:
+    """The nine half-score metrics and their denominators for one set of rows."""
+    if rows.empty:
+        return {}, {}
+    desc = rows["description"] if "description" in rows else pd.Series(dtype=object)
+    swings = desc.isin(SWING_DESC)
+    in_zone = rows["zone"] <= 9 if "zone" in rows else pd.Series(False, index=rows.index)
+    z_swings = int((swings & in_zone).sum())
+    oz = rows[~in_zone] if "zone" in rows else rows.iloc[0:0]
+    ev = _pa_events(rows)
+    pa = int(len(ev))
+    bip = batted_balls(rows)
+    ls = bip["launch_speed"].dropna() if len(bip) else pd.Series(dtype=float)
+    la = bip["launch_angle"].dropna() if len(bip) else pd.Series(dtype=float)
+    lo, hi = SWEET_ANGLES
+    air = bip[(bip["launch_angle"] >= lo)] if len(bip) else bip
+    air_ev = air["launch_speed"].dropna() if len(air) else pd.Series(dtype=float)
+    samples = {
+        "pa": pa,
+        "pitches": int(len(rows)),
+        "z_swings": z_swings,
+        "oz_pitches": int(len(oz)),
+        "bbe": int(len(bip)),
+        "fbld": int(len(air_ev)),
+    }
+    values = {
+        "k": float(ev.isin(K_EVENTS).mean()) if pa else math.nan,
+        "bb": float(ev.eq("walk").mean()) if pa else math.nan,
+        "swstr": float(desc.isin(WHIFF_DESC).mean()) if len(desc) else math.nan,
+        "zcon": (
+            float((desc.eq("hit_into_play") | desc.eq("foul"))[swings & in_zone].mean())
+            if z_swings else math.nan
+        ),
+        "osw": float(oz["description"].isin(SWING_DESC).mean()) if len(oz) else math.nan,
+        "sweet": float(((la >= lo) & (la <= hi)).mean()) if len(la) else math.nan,
+        "ev_fbld": float(air_ev.mean()) if len(air_ev) else math.nan,
+        "hh": float((ls >= 95).mean()) if len(ls) else math.nan,
+        "ev90": float(ls.quantile(0.90)) if len(ls) >= 10 else math.nan,
+    }
+    return values, samples
+
+
+def _shrink(split: float, whole: float, n: float, k: float) -> float:
+    """The split rate pulled toward the hitter's own all-innings rate."""
+    if math.isnan(split):
+        return math.nan
+    if math.isnan(whole):
+        return split
+    w = n / (n + k) if n + k else 0.0
+    return w * split + (1 - w) * whole
+
+
+def half_lines(rows: pd.DataFrame, *, split_at: int = SPLIT_INNING) -> tuple[HalfLine, HalfLine]:
+    """(innings 1-6, innings ``split_at``+) for one hitter, each shrunk to himself.
+
+    The two halves are measured against everyone, not against the starter's hand:
+    after the sixth a hitter is facing the bullpen, so a hand split of the late
+    half describes a matchup that will not happen.
+    """
+    whole, _ = half_rates(rows)
+    inning = rows["inning"] if "inning" in rows else pd.Series(dtype=float)
+    out: list[HalfLine] = []
+    for name, mask in (("early", inning < split_at), ("late", inning >= split_at)):
+        part = rows[mask] if len(inning) else rows.iloc[0:0]
+        values, samples = half_rates(part)
+        line = HalfLine(half=name, samples=samples, pa=samples.get("pa", 0),
+                        bbe=samples.get("bbe", 0))
+        for metric in HALF_SCORED:
+            line.values[metric.attr] = _shrink(
+                values.get(metric.attr, math.nan),
+                whole.get(metric.attr, math.nan),
+                samples.get(metric.denom, 0),
+                metric.k,
+            )
+        out.append(line)
+    return out[0], out[1]
+
+
+def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:
+    """One point per rated metric, two more for a top-``top_n`` finish.
+
+    Each half is scored as its own pool, so a hitter's late points are earned
+    against the other hitters' late lines rather than against his own early one.
+    """
+    for line in pool:
+        line.points = 0
+        line.top_in = ()
+    for metric in HALF_SCORED:
+        ranked = sorted(
+            (line for line in pool if not math.isnan(line.value(metric))),
+            key=lambda line: line.value(metric),
+            reverse=metric.higher_better,
+        )
+        for i, line in enumerate(ranked):
+            line.points += 1
+            if i < top_n:
+                line.points += 2
+                line.top_in = (*line.top_in, metric.label)
+
+
+# --- stage 7: regression, park and weather -------------------------------
+
+#: Noise bands. A term is zero inside its band, because the point of the layer is
+#: to catch a hitter who has changed and 0.2 mph of bat speed is not a change.
+LUCK_BAND = 0.015  # wOBA points between xwOBA and wOBA
+BAT_SPEED_BAND = 0.7  # mph, recent against season
+CHASE_BAND = 0.030  # 3 points of out-of-zone swing rate
+EV90_BAND = 1.0  # mph
+PARK_BAND = 1.5  # park-factor points either side of 100
+WEATHER_BAND = 0.02  # 2% on the forecast's home-run multiplier
+#: How many of the starter's families the run-value term reads, and the run value
+#: per 100 pitches at which it doubles. Three families is most of a start -- the
+#: fourth and fifth pitches are shown situationally -- and 2 runs per 100 is a
+#: large enough edge on them to be worth more than a sign.
+TOP_PITCHES = 3
+BIG_RV = 2.0
+TREND_DAYS = 21  # the recent window the trends are read over
+MIN_TREND_SWINGS = 60
+MIN_TREND_BBE = 25
+MIN_TREND_OZ = 40
+
+
+@dataclass(frozen=True)
+class ContextTerms:
+    """Six signed points of context, the worst-arm point and the run-value point.
+
+    Every term is ``+1`` when it favours the hitter, ``-1`` when it favours the
+    pitcher and ``0`` when the evidence does not clear the metric's noise band or
+    is missing altogether. Missing is neutral: a hitter whose bat speed was never
+    tracked has not slowed down. ``top_rv`` is the one term that can be worth
+    more than a point, because a hitter two runs per 100 to the good on the
+    pitches he will see most is not marginally better off.
+    """
+
+    luck: int = 0
+    bat_speed: int = 0
+    chase: int = 0
+    ev90: int = 0
+    park: int = 0
+    weather: int = 0
+    worst_arm: int = 0
+    top_rv: int = 0
+
+    @property
+    def regression(self) -> int:
+        """The four form terms, which is what 'positive regression' means here."""
+        return self.luck + self.bat_speed + self.chase + self.ev90
+
+    @property
+    def total(self) -> int:
+        return (
+            self.regression + self.park + self.weather + self.worst_arm + self.top_rv
+        )
+
+
+@dataclass(frozen=True)
+class TrendDeltas:
+    """Recent-window minus season, for the three metrics that carry direction."""
+
+    bat_speed: float = math.nan
+    chase: float = math.nan
+    ev90: float = math.nan
+    swings: int = 0
+    oz_pitches: int = 0
+    bbe: int = 0
+
+
+def rv_term(rv100: float, *, big: float = BIG_RV) -> int:
+    """The run-value point on the starter's most-thrown pitches: ``+-1`` or ``+-3``.
+
+    A hitter who is above water on the three pitches he will see most gets the
+    sign, and a hitter who is a long way above water gets two more -- the size of
+    the edge is information the sign throws away. Exactly zero run value, and an
+    unmeasured one, are both no point.
+    """
+    if math.isnan(rv100) or rv100 == 0:
+        return 0
+    point = 1 if rv100 > 0 else -1
+    return point * 3 if abs(rv100) >= big else point
+
+
+def signed_term(delta: float, band: float, *, higher_helps_hitter: bool) -> int:
+    """``+1``/``-1``/``0`` for a move, signed toward whoever it helps."""
+    if math.isnan(delta) or abs(delta) < band:
+        return 0
+    up = 1 if delta > 0 else -1
+    return up if higher_helps_hitter else -up
+
+
+def trend_deltas(recent: pd.DataFrame, season: pd.DataFrame) -> TrendDeltas:
+    """Bat speed, chase and EV90 over the last few weeks against the season.
+
+    A delta is reported only when the recent window carries enough of the
+    metric's own denominator to be a reading; otherwise it is unavailable, which
+    the terms treat as neutral rather than as a decline.
+    """
+
+    def _bat(df: pd.DataFrame) -> tuple[float, int]:
+        if "bat_speed" not in df or df.empty:
+            return math.nan, 0
+        swung = df[df["description"].isin(SWING_DESC)]["bat_speed"].dropna()
+        return (float(swung.mean()) if len(swung) else math.nan), int(len(swung))
+
+    def _chase(df: pd.DataFrame) -> tuple[float, int]:
+        if "zone" not in df or df.empty:
+            return math.nan, 0
+        oz = df[df["zone"] > 9]
+        return (
+            float(oz["description"].isin(SWING_DESC).mean()) if len(oz) else math.nan,
+            int(len(oz)),
+        )
+
+    def _ev90(df: pd.DataFrame) -> tuple[float, int]:
+        bip = batted_balls(df) if not df.empty else df
+        ls = bip["launch_speed"].dropna() if len(bip) else pd.Series(dtype=float)
+        return (float(ls.quantile(0.90)) if len(ls) >= 10 else math.nan), int(len(ls))
+
+    bat_now, swings = _bat(recent)
+    bat_szn, _ = _bat(season)
+    chase_now, oz = _chase(recent)
+    chase_szn, _ = _chase(season)
+    ev_now, bbe = _ev90(recent)
+    ev_szn, _ = _ev90(season)
+    return TrendDeltas(
+        bat_speed=bat_now - bat_szn if swings >= MIN_TREND_SWINGS else math.nan,
+        chase=chase_now - chase_szn if oz >= MIN_TREND_OZ else math.nan,
+        ev90=ev_now - ev_szn if bbe >= MIN_TREND_BBE else math.nan,
+        swings=swings,
+        oz_pitches=oz,
+        bbe=bbe,
+    )
+
+
+def build_context(
+    *,
+    woba: float,
+    xwoba: float,
+    trends: TrendDeltas,
+    park_factor: float = math.nan,
+    weather_hr_mult: float = math.nan,
+    worst_arm: bool = False,
+    top_pitch_rv: float = math.nan,
+) -> ContextTerms:
+    """The seven context points for one hitter in one game.
+
+    The luck term is signed on ``xwOBA - wOBA``: a hitter whose expected line is
+    above his actual one has been unlucky and regresses up, which is the only
+    direction the word "positive" can mean here. It is the opposite sign to the
+    stage-3 luck cut, which removes a hitter for the same gap in the other
+    direction, and the two are consistent: results ahead of contact quality are
+    not evidence.
+    """
+    return ContextTerms(
+        luck=signed_term(xwoba - woba, LUCK_BAND, higher_helps_hitter=True),
+        bat_speed=signed_term(trends.bat_speed, BAT_SPEED_BAND, higher_helps_hitter=True),
+        chase=signed_term(trends.chase, CHASE_BAND, higher_helps_hitter=False),
+        ev90=signed_term(trends.ev90, EV90_BAND, higher_helps_hitter=True),
+        park=signed_term(park_factor - 100.0, PARK_BAND, higher_helps_hitter=True),
+        weather=signed_term(weather_hr_mult - 1.0, WEATHER_BAND, higher_helps_hitter=True),
+        worst_arm=1 if worst_arm else 0,
+        top_rv=rv_term(top_pitch_rv),
+    )
+
+
+# --- stage 8: the arsenal edge -------------------------------------------
+
+
+@dataclass(frozen=True)
+class FitMetric:
+    attr: str
+    label: str
+    higher_better: bool  # for the hitter
+
+
+#: The five marks the fit is scored on, on both sides of the matchup. Run value
+#: is the summary and the other four are the mechanism, so all five are scored
+#: rather than collapsed: a hitter can beat an arsenal on contact quality and not
+#: on run value when the pitches he handles are not the ones thrown for strikes.
+FIT_SCORED: tuple[FitMetric, ...] = (
+    FitMetric("rv100", "RV/100", True),
+    FitMetric("xwoba", "xwOBA", True),
+    FitMetric("whiff", "Whiff%", False),
+    FitMetric("hh", "HH%", True),
+    FitMetric("brl", "Brl%", True),
+)
+
+
+@dataclass
+class ArsenalEdge:
+    """One hitter against one arsenal, usage-weighted on five marks.
+
+    ``hitter`` is what his own splits become when every pitch comes out of this
+    mix. ``allowed`` is what the starter has given up on the same pitches with
+    the same weights, so the two are on one axis and can be read together:
+    ``pair`` is their mean, the level of the matchup rather than either side of
+    it, which is what a fit is. Both sides carry the same direction on all five
+    marks -- a hitter who does not whiff meeting a pitcher who does not miss bats
+    is a low pair and good for the hitter -- so the mean needs no re-signing.
+    """
+
+    hitter: dict[str, float] = field(default_factory=dict)
+    allowed: dict[str, float] = field(default_factory=dict)
+    pair: dict[str, float] = field(default_factory=dict)
+    fallback_share: float = 1.0
+    points: int = 0
+    top_in: tuple[str, ...] = ()
+    #: The starter's most-thrown families, and the hitter's run value per 100
+    #: pitches on them alone. Kept apart from the weighted marks above because it
+    #: is scored as a context point rather than ranked against the slate: what it
+    #: says about a hitter does not depend on who else is playing.
+    top_families: tuple[str, ...] = ()
+    top_rv: float = math.nan
+
+    def value(self, metric: FitMetric) -> float:
+        return self.pair.get(metric.attr, math.nan)
+
+
+def contact_mark(line: ContactLine, attr: str) -> float:
+    """One named mark off a contact line, without reaching for the attribute."""
+    marks = {
+        "rv100": line.rv100, "xba": line.xba, "xwoba": line.xwoba,
+        "hh": line.hh, "brl": line.brl, "whiff": line.whiff,
+    }
+    return marks[attr]
+
+
+def _weighted(
+    lines: dict[str, ContactLine],
+    usage: dict[str, float],
+    attr: str,
+    fallback: float,
+) -> tuple[float, float]:
+    """(usage-weighted mark, share of the weight that fell back)."""
+    total = sum(usage.values())
+    if not total:
+        return math.nan, 1.0
+    value = covered = missing = 0.0
+    for name, share in usage.items():
+        weight = share / total
+        line = lines.get(name)
+        mark = contact_mark(line, attr) if line is not None else math.nan
+        if math.isnan(mark):
+            missing += weight
+            mark = fallback
+            if math.isnan(mark):
+                continue
+        value += weight * mark
+        covered += weight
+    if not covered:
+        return math.nan, 1.0
+    # Renormalized over the families that were readable, so a mark is an average
+    # of what is known rather than an average diluted toward zero by what is not.
+    return value / covered, missing
+
+
+def arsenal_edge(
+    hitter: dict[str, ContactLine],
+    overall: ContactLine,
+    starter: dict[str, ContactLine],
+    usage: dict[str, float],
+) -> ArsenalEdge:
+    """Weight both sides of the matchup by the mix the starter actually throws."""
+    edge = ArsenalEdge()
+    if not usage:
+        return edge
+    fallbacks = 0.0
+    for metric in FIT_SCORED:
+        own = contact_mark(overall, metric.attr)
+        h_val, missing = _weighted(hitter, usage, metric.attr, own)
+        a_val, _ = _weighted(starter, usage, metric.attr, math.nan)
+        edge.hitter[metric.attr] = h_val
+        edge.allowed[metric.attr] = a_val
+        if math.isnan(h_val) and math.isnan(a_val):
+            edge.pair[metric.attr] = math.nan
+        elif math.isnan(a_val):
+            edge.pair[metric.attr] = h_val
+        elif math.isnan(h_val):
+            edge.pair[metric.attr] = a_val
+        else:
+            edge.pair[metric.attr] = (h_val + a_val) / 2
+        fallbacks += missing
+    edge.fallback_share = fallbacks / len(FIT_SCORED)
+    edge.top_families, edge.top_rv = top_pitch_rv(hitter, usage)
+    return edge
+
+
+def top_pitch_rv(
+    hitter: dict[str, ContactLine],
+    usage: dict[str, float],
+    *,
+    top_n: int = TOP_PITCHES,
+) -> tuple[tuple[str, ...], float]:
+    """(the starter's ``top_n`` families, the hitter's run value per 100 on them).
+
+    Weighted by usage inside those families only, so the pitch he throws a third
+    of the time counts a third of the time. No fallback to the hitter's overall
+    line here: this term is about these pitches, and if he has not seen them the
+    honest answer is that it does not apply.
+    """
+    top = sorted(usage.items(), key=lambda kv: -kv[1])[:top_n]
+    families = tuple(name for name, _ in top)
+    rv, _ = _weighted(hitter, dict(top), "rv100", math.nan)
+    return families, rv
+
+
+def score_edges(pool: list[ArsenalEdge], *, top_n: int = STARTER_TOP_N) -> None:
+    """One point per rated mark, two more for a top-``top_n`` fit on the slate."""
+    for edge in pool:
+        edge.points = 0
+        edge.top_in = ()
+    for metric in FIT_SCORED:
+        ranked = sorted(
+            (e for e in pool if not math.isnan(e.value(metric))),
+            key=lambda e: e.value(metric),
+            reverse=metric.higher_better,
+        )
+        for i, edge in enumerate(ranked):
+            edge.points += 1
+            if i < top_n:
+                edge.points += 2
+                edge.top_in = (*edge.top_in, metric.label)
+
+
+# --- the composite ranking ----------------------------------------------
+
+
+@dataclass
+class FinalScore:
+    """What the whole chain says about one hitter, and where each point came from.
+
+    Kept as its own object rather than a single number because the stages are not
+    interchangeable: a hitter carried by the arsenal fit and a hitter carried by
+    the park are the same total and not the same bet.
+    """
+
+    name: str
+    team: str
+    versus: str
+    slot: int | None
+    early: HalfLine
+    late: HalfLine
+    context: ContextTerms
+    edge: ArsenalEdge
+    pen_rank: int | None = None
+
+    @property
+    def halves(self) -> int:
+        return self.early.points + self.late.points
+
+    @property
+    def total(self) -> int:
+        return self.halves + self.edge.points + self.context.total
+
+    @property
+    def weakest_half(self) -> int:
+        return min(self.early.points, self.late.points)
+
+
+def rank_final(scores: list[FinalScore]) -> list[FinalScore]:
+    """Worst-to-best is meaningless here, so: best total first.
+
+    Ties break on the weaker of the two halves rather than on the total again --
+    the screen is looking for hitters who play all game, so between two equal
+    totals the one with no bad half is the one it wants.
+    """
+    return sorted(
+        scores,
+        key=lambda s: (-s.total, -s.weakest_half, -s.halves, s.name),
     )

@@ -22,13 +22,21 @@ from datetime import date as Date
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
 from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
+    BIG_RV,
+    FIT_SCORED,
+    HALF_SCORED,
     MIN_STARTER_BF,
     MIN_STARTER_PITCHES,
     SCORED,
+    SPLIT_INNING,
     STARTER_TOP_N,
     TOP_K,
+    TOP_PITCHES,
+    TREND_DAYS,
     WORK_DAYS,
     ContactLine,
+    HalfLine,
+    HalfMetric,
     HitterView,
     MatchupSection,
     ScreenResult,
@@ -788,6 +796,117 @@ def _exposure_table(section: MatchupSection) -> str:
     )
 
 
+def _half_value(line: HalfLine, metric: HalfMetric) -> str:
+    """One cell of a half, formatted the way its own metric reads."""
+    value = line.values.get(metric.attr, math.nan)
+    if metric.attr.startswith("ev"):
+        return _num(value, 1)
+    return _pc(value)
+
+
+def _half_table(result: ScreenResult, *, late: bool) -> str:
+    """One half's nine metrics for every hitter, with the sample each rests on."""
+    rows = []
+    for s in result.final:
+        line = s.late if late else s.early
+        rows.append(
+            [html.escape(s.name), str(line.pa), str(line.bbe)]
+            + [_half_value(line, m) for m in HALF_SCORED]
+            + [str(line.points), ", ".join(line.top_in) or "&mdash;"]
+        )
+    return _table(
+        ["batter", "PA", "BBE"] + [m.label for m in HALF_SCORED] + ["pts", "top 3 in"],
+        rows, numeric_from=1,
+    )
+
+
+def _composite(result: ScreenResult) -> str:
+    """The composite: both halves, the seven context points, the arsenal fit."""
+    if not result.final:
+        return ""
+    rows = []
+    classes = []
+    for i, s in enumerate(result.final):
+        c = s.context
+        rows.append([
+            str(i + 1),
+            html.escape(s.name),
+            html.escape(s.team),
+            str(s.slot or "&mdash;"),
+            html.escape(s.versus),
+            str(s.early.points),
+            str(s.late.points),
+            str(s.halves),
+            str(s.edge.points),
+            f"{c.regression:+d}",
+            f"{c.park:+d}",
+            f"{c.weather:+d}",
+            f"{c.worst_arm:+d}",
+            f"{c.top_rv:+d}",
+            f"<b>{s.total}</b>",
+            str(s.pen_rank or "&mdash;"),
+        ])
+        classes.append("top" if i < STARTER_TOP_N else "")
+    table = _table(
+        ["#", "batter", "team", "LP", "vs", "1-6", f"{SPLIT_INNING}+", "halves", "fit",
+         "regr", "park", "wx", "arm", f"RV{TOP_PITCHES}", "total", "pen"],
+        rows, numeric_from=5, row_classes=classes,
+    )
+    fits = []
+    for s in result.final:
+        fits.append([
+            html.escape(s.name),
+            _num(s.edge.value(FIT_SCORED[0]), 2, signed=True),
+            _f3(s.edge.value(FIT_SCORED[1])),
+            _pc(s.edge.value(FIT_SCORED[2])),
+            _pc(s.edge.value(FIT_SCORED[3])),
+            _pc(s.edge.value(FIT_SCORED[4])),
+            _pc(s.edge.fallback_share, 0),
+            str(s.edge.points),
+            ", ".join(s.edge.top_in) or "&mdash;",
+            html.escape(", ".join(s.edge.top_families)) or "&mdash;",
+            _num(s.edge.top_rv, 2, signed=True),
+            f"{s.context.top_rv:+d}",
+        ])
+    fit_table = _table(
+        ["batter", "RV/100", "xwOBA", "whiff%", "HH%", "Brl%", "unread", "pts", "top 3 in",
+         f"his top {TOP_PITCHES}", f"RV/100 on {TOP_PITCHES}", "pts"],
+        fits, numeric_from=1,
+    )
+    return "".join([
+        "<h2>The composite &mdash; who hits all game, in this park, off this mix</h2>",
+        "<p>Every surviving hitter on the slate, scored in one pool. The two halves "
+        f"are innings 1-{SPLIT_INNING - 1} and {SPLIT_INNING}+ read season-to-date on "
+        f"{len(HALF_SCORED)} metrics apiece, each half shrunk toward the hitter's own "
+        "all-innings rate where the split is thin &mdash; toward himself, not toward the "
+        "league, because what he does earlier in the game is the better null. The "
+        "context columns are signed points: four regression reads (the xwOBA-wOBA luck "
+        f"gap, and the {TREND_DAYS}-day direction of bat speed, chase and EV90), the "
+        "park, the forecast, one for facing a bottom-three arm, and the hitter's run "
+        f"value on the starter's {TOP_PITCHES} most-thrown pitches. Each is +1 toward "
+        "the hitter, -1 toward the pitcher, and 0 inside the metric's own noise band, "
+        "so absent evidence costs nothing &mdash; except the run-value term, which is "
+        f"worth &plusmn;3 rather than &plusmn;1 past {BIG_RV:.0f} runs per 100, "
+        "because a hitter that far ahead on the pitches he will see most is not "
+        "marginally ahead.</p>",
+        table,
+        f"<h3>Innings 1-{SPLIT_INNING - 1} &mdash; the starter's half</h3>",
+        _half_table(result, late=False),
+        f"<h3>Innings {SPLIT_INNING}+ &mdash; the bullpen's half</h3>",
+        _half_table(result, late=True),
+        "<h3>The arsenal fit</h3>",
+        "<p>The matchup level on the mix he will actually see: the hitter's marks on "
+        "each pitch family and the starter's allowed marks on the same families, both "
+        "weighted by his usage and averaged. Run value is from the hitter's side. "
+        "<i>unread</i> is the share of the usage where the hitter's own split was too "
+        f"thin and his overall line stood in for it. The last columns are the {TOP_PITCHES} "
+        "families the starter throws most, the hitter's run value per 100 pitches on "
+        "those alone, and the context point it earns &mdash; no fallback there, because "
+        "a hitter who has not seen the pitch has no read on it.</p>",
+        fit_table,
+    ])
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -916,6 +1035,7 @@ def render_html(
     ]
     for i, section in enumerate(result.sections, 1):
         body.append(_section_html(section, i))
+    body.append(_composite(result))
     if result.cut_log:
         # Only the near misses are worth printing: a hitter cut on 14 plate
         # appearances says nothing, and a full cut list on a four-game screen runs
