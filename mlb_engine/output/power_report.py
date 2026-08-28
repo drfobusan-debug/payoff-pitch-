@@ -20,6 +20,12 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.output.power_bets import (
+    BATTER_STATS,
+    PITCHER_STATS,
+    PlayerBets,
+    PricedSide,
+)
 from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     BIG_RV,
@@ -907,6 +913,85 @@ def _composite(result: ScreenResult) -> str:
     ])
 
 
+def _odds(x: float) -> str:
+    if x is None or math.isnan(x):
+        return "&mdash;"
+    return f"{int(round(x)):+d}"
+
+
+def _bet_rows(buys: tuple[PricedSide, ...]) -> list[list[str]]:
+    return [
+        [
+            html.escape(str(b.tier.value)),
+            html.escape(b.selection),
+            html.escape(b.book) or "&mdash;",
+            _odds(b.odds),
+            _pc(b.prob),
+            _pc(b.fair),
+            _pc(b.ev),
+            _pc(b.edge),
+        ]
+        for b in buys
+    ]
+
+
+def _projection(player: PlayerBets, stat: str) -> str:
+    """His median on a stat, or the bound when the board's lines start above it."""
+    bound = player.under.get(stat)
+    if bound is not None:
+        return f"&lt;{bound:.0f}"
+    return _num(player.median.get(stat, math.nan), 0)
+
+
+def _bet_card(result: ScreenResult) -> str:
+    """Stage 9: the projection and the tickets, for the names the screen kept."""
+    card = result.bets
+    if card is None:
+        return ""
+    bats = [
+        [html.escape(p.name)]
+        + [_projection(p, s) for s in BATTER_STATS]
+        + [_pc(p.reach.get("H", math.nan), 0), _pc(p.reach.get("HR", math.nan), 0)]
+        for p in card.hitters
+    ]
+    arms = [
+        [html.escape(p.name)] + [_projection(p, s) for s in PITCHER_STATS]
+        for p in card.arms
+    ]
+    out = [
+        "<h2>The bets &mdash; what the engine projects, and what it will pay for</h2>",
+        "<p>The screen ranks; it does not price. These are the pipeline's own "
+        "simulated projections for the hitters the screen kept and the arms they "
+        "face, and every side of their props that survived the EV screen. The "
+        "projection columns are the highest threshold the model clears at even "
+        "money, so they read at the board's own resolution: outs are quoted at "
+        "15.5 and 17.5, and a median of 16.4 shows as 16. Where the lowest line "
+        "the board hangs is already above the median, the cell reads as a bound: "
+        "a starter quoted at 4.5 strikeouts who does not clear it is under five, "
+        "which is not the same claim as zero.</p>",
+        _table(
+            ["batter", *BATTER_STATS, "P(H)", "P(HR)"], bats, numeric_from=1
+        ),
+        "<h3>The arms</h3>",
+        _table(["pitcher", *PITCHER_STATS], arms, numeric_from=1),
+    ]
+    head = ["tier", "bet", "book", "odds", "model", "market", "EV", "edge"]
+    for label, buys in (
+        ("Batter props", card.batter_buys),
+        ("Pitcher props", card.pitcher_buys),
+    ):
+        out.append(f"<h3>{label}</h3>")
+        if buys:
+            out.append(_table(head, _bet_rows(buys), numeric_from=3))
+        else:
+            out.append(
+                "<p>No side survived the EV screen. That is a result rather than a "
+                "gap: a hitter the screen ranks first and the market has priced "
+                "correctly is not a bet.</p>"
+            )
+    return "".join(out)
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -1036,6 +1121,7 @@ def render_html(
     for i, section in enumerate(result.sections, 1):
         body.append(_section_html(section, i))
     body.append(_composite(result))
+    body.append(_bet_card(result))
     if result.cut_log:
         # Only the near misses are worth printing: a hitter cut on 14 plate
         # appearances says nothing, and a full cut list on a four-game screen runs

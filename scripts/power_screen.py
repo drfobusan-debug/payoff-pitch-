@@ -62,7 +62,7 @@ from mlb_engine.features.rolling import build_bullpen_profile
 from mlb_engine.features.siera import MIN_SIERA_PA
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_board, power_report
+from mlb_engine.output import power_bets, power_board, power_report
 from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
@@ -108,7 +108,7 @@ from mlb_engine.output.power_screen import (
     with_tto,
     wrc_plus,
 )
-from mlb_engine.recommendations import load_json
+from mlb_engine.recommendations import Recommendation, load_json
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
@@ -720,8 +720,10 @@ def _build_section(
     )
 
 
-def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
-    """The survivors' rows off the card's own run, if it has already priced today.
+def _priced(
+    result: ScreenResult, cfg: Config, args: argparse.Namespace
+) -> tuple[list[Recommendation], str] | None:
+    """The card's own priced slate for the day, if it has already run.
 
     Missing is the normal case in the morning -- the screen exists to run before
     the engine can price anything -- so a missing or unreadable file is a note,
@@ -738,11 +740,17 @@ def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board
         log.info("no priced board at %s; the note will carry no prices", path)
         return None
     try:
-        recs = load_json(path)
+        return load_json(path), path.name
     except Exception as exc:  # pragma: no cover - a malformed ledger must not kill the note
         log.warning("could not read %s (%s); the note will carry no prices", path, exc)
         return None
-    board = power_board.build(result, recs, source=path.name)
+
+
+def _board(
+    result: ScreenResult, recs: list[Recommendation], source: str
+) -> Board:
+    """The survivors' rows off the card's own run."""
+    board = power_board.build(result, recs, source=source)
     log.info(
         "board: %d priced rows on %d of %d survivors",
         len(board.rows),
@@ -826,7 +834,18 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
     out_dir = cfg.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    board = _board(result, cfg, args)
+    priced = _priced(result, cfg, args)
+    board: Board | None = None
+    if priced is not None:
+        recs, source = priced
+        board = _board(result, recs, source)
+        result.bets = power_bets.build(result, recs)
+        log.info(
+            "bets: %d priced sides, %d batter buys, %d pitcher buys",
+            result.bets.priced_sides,
+            len(result.bets.batter_buys),
+            len(result.bets.pitcher_buys),
+        )
     # Grade before recording: an earlier day is never this one, but a --grade-date
     # pointing at today should read what the ledger held when the note was asked.
     review = _review(cfg, args, result.as_of)

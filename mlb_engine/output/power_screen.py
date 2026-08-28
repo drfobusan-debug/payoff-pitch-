@@ -65,12 +65,16 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from datetime import date as Date
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features import stuff
 from mlb_engine.features.siera import MIN_SIERA_PA, SIERA_LEAGUE_ANCHOR, pitcher_siera
+
+if TYPE_CHECKING:  # the bet card reads a ScreenResult, so the import is one-way
+    from mlb_engine.output.power_bets import BetCard
 
 # --- pitch classification -------------------------------------------------
 # Savant's codes collapsed to what a hitter actually distinguishes. Kept finer
@@ -1193,6 +1197,10 @@ class ScreenResult:
     starter_cuts: list[StarterCut] = field(default_factory=list)
     splits: tuple[StarterSplit, ...] = STARTER_SPLITS
     has_xera: bool = True  # false when Savant's board could not be read
+    #: Stage 9: the engine's projection and surviving prices for the hitters the
+    #: screen kept and the arms they face. ``None`` when the screen ran without
+    #: pricing, which is the cheap path -- it costs a slate of odds credits.
+    bets: BetCard | None = None
 
 
 def bf_pmf(mean: float, sd: float, cap: int, limit: int = 45) -> list[float]:
