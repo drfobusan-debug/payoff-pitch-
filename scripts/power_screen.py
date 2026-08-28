@@ -9,8 +9,18 @@ after.
     python scripts/power_screen.py --date 2026-08-17 --email      # PDF to the audit inbox
 
 Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
-``mlb_engine/output/power_screen.py`` for the five stages and every threshold, and
+``mlb_engine/output/power_screen.py`` for the stages and every threshold, and
 ``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
+
+Before any of it, the slate is cut twice: to the starters with enough recent work
+for their numbers to be measurements (which is what removes a call-up, an opener
+and an arm just back from the injured list), and then to those whose SIERA is
+above 4.40 -- the engine's own scrub ceiling. The survivors are ranked on eleven
+metrics over ten perspectives (overall, innings 1-3 and 1-5, each time through
+the order, each batter hand, and home runs by hand), one point per metric and two
+more for a top-three finish in it, every metric read over the window it
+stabilizes in. ``--siera-min`` moves the SIERA gate (``0`` disables it) and
+``--min-work-bf`` / ``--min-work-pitches`` move the work floor.
 
 The screen fetches no market and spends no Odds API credit. It does read the
 card's own board when the nightly run has already written one for the same day
@@ -42,10 +52,12 @@ from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
+from mlb_engine.data.savant_expected import load_pitcher_xera
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.efficiency import build_pitcher_efficiency, opponent_discipline_factor
 from mlb_engine.features.rolling import build_bullpen_profile
+from mlb_engine.features.siera import MIN_SIERA_PA
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
 from mlb_engine.output import power_board, power_report
@@ -53,7 +65,12 @@ from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
+    MIN_STARTER_BF,
+    MIN_STARTER_PITCHES,
     MIN_WRC,
+    SIERA_FLOOR,
+    STARTER_WINDOWS,
+    WORK_DAYS,
     BullpenCard,
     HitterLine,
     HitterView,
@@ -68,9 +85,14 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     contact_line,
     exposure,
+    gate_starters,
+    league_arms,
     pa_vs_starter,
     rank_starters,
+    score_starters,
     starter_damage,
+    starter_lines,
+    with_tto,
     wrc_plus,
 )
 from mlb_engine.recommendations import load_json
@@ -90,6 +112,24 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--date", type=Date.fromisoformat, default=Date.today())
     p.add_argument("--arms", type=int, default=8, help="starters to rank (all are listed)")
     p.add_argument("--keep", type=int, default=4, help="softest arms whose lineups are screened")
+    p.add_argument(
+        "--siera-min",
+        type=float,
+        default=SIERA_FLOOR,
+        help="stage 0: only starters above this SIERA are eligible (0 disables the gate)",
+    )
+    p.add_argument(
+        "--min-work-bf",
+        type=int,
+        default=MIN_STARTER_BF,
+        help=f"stage 0: batters faced in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
+    p.add_argument(
+        "--min-work-pitches",
+        type=int,
+        default=MIN_STARTER_PITCHES,
+        help=f"stage 0: pitches in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
     p.add_argument("--min-pa", type=int, default=None, help="hand-split PA floor")
     p.add_argument("--min-wrc", type=float, default=None, help="window wRC+ floor")
     p.add_argument(
@@ -224,7 +264,7 @@ def main() -> None:
     frame = repo.max_window(
         day,
         [form, cfg.windows.batter_vs_rhp_days, cfg.windows.batter_vs_lhp_days,
-         cfg.windows.bullpen_skill_days],
+         cfg.windows.bullpen_skill_days, *STARTER_WINDOWS],
         refresh=args.refresh,
     )
     end = day - timedelta(days=1)
@@ -234,7 +274,23 @@ def main() -> None:
     team_pa = _team_pa_per_game(window)
     log.info("window %s..%s, %d pitches, %.1f PA per team-game", start, end, len(window), team_pa)
 
-    # --- stage 1: rank the arms
+    # --- stage 0 and 1: measure every arm, gate, then rank on the metric points
+    #
+    # Each stage-1 metric is read over its own stabilization window, so the
+    # per-window frames are sliced once here and the starter's own rows are taken
+    # out of each. Every window carries the time-through-order label, because a
+    # slow metric read inside a TTO split still has to be read over its own long
+    # window rather than the form one.
+    metric_frames: dict[int, pd.DataFrame] = {}
+    for days in STARTER_WINDOWS:
+        w_start = end - timedelta(days=days - 1)
+        w = frame[(frame["game_date"] >= w_start) & (frame["game_date"] <= end)]
+        metric_frames[days] = with_tto(w)
+    league = league_arms(metric_frames[WORK_DAYS])
+    xera_board = load_pitcher_xera(day.year)
+    if not xera_board:
+        log.warning("Savant xERA unavailable; the metric is unrated for every arm")
+
     cards: list[StarterCard] = []
     context: dict[int, tuple[TeamGameInfo, TeamGameInfo]] = {}  # starter id -> (lineup team, his own team)
     for game in slate.games:
@@ -242,22 +298,56 @@ def main() -> None:
             pitcher = team.probable_pitcher
             if pitcher is None or not pitcher.mlbam_id:
                 continue
-            rows = window[window["pitcher"] == pitcher.mlbam_id]
+            pid = int(pitcher.mlbam_id)
+            rows = window[window["pitcher"] == pid]
             throws = getattr(pitcher.throws, "value", pitcher.throws) or "R"
-            cards.append(
-                starter_damage(
-                    rows,
-                    name=pitcher.name,
-                    mlbam_id=int(pitcher.mlbam_id),
-                    team=team.abbrev,
-                    opponent=opp.abbrev,
-                    throws=str(throws),
-                )
+            card = starter_damage(
+                rows,
+                name=pitcher.name,
+                mlbam_id=pid,
+                team=team.abbrev,
+                opponent=opp.abbrev,
+                throws=str(throws),
             )
-            context[int(pitcher.mlbam_id)] = (opp, team)
-    ranked = rank_starters(cards, top_n=max(args.arms, args.keep))
+            xera, xera_pa = xera_board.get(pid, (None, 0))
+            card.lines = starter_lines(
+                {d: f[f["pitcher"] == pid] for d, f in metric_frames.items()},
+                league,
+                xera=xera,
+                xera_pa=xera_pa,
+            )
+            work = card.lines["overall"]
+            card.work_bf = work.sample_of("bf", WORK_DAYS)
+            card.work_pitches = work.sample_of("pitches", WORK_DAYS)
+            siera = work.values.get("siera", math.nan)
+            if work.sample_of("siera_pa", WORK_DAYS) >= MIN_SIERA_PA and not math.isnan(siera):
+                card.siera = siera
+            else:
+                card.siera = None
+            card.siera_pa = work.sample_of("siera_pa", WORK_DAYS)
+            cards.append(card)
+            context[pid] = (opp, team)
+
+    eligible, starter_cuts = gate_starters(
+        cards,
+        siera_floor=args.siera_min,
+        min_bf=args.min_work_bf,
+        min_pitches=args.min_work_pitches,
+    )
+    for cut in starter_cuts:
+        log.info("gated %s (%s: %s)", cut.card.name, cut.stage, cut.reason)
+    log.info(
+        "%d of %d starters cleared the work floor and the %.2f SIERA gate",
+        len(eligible), len(cards), args.siera_min,
+    )
+    score_starters(eligible)
+    scored = rank_starters(eligible, top_n=len(eligible))
+    ranked = scored[: max(args.arms, args.keep)]
     if not ranked:
-        log.warning("no starter cleared the readability floor on %s", day)
+        log.warning(
+            "no starter on %s is both above %.2f SIERA and worked enough to read",
+            day, args.siera_min,
+        )
     targets = ranked[: args.keep]
 
     pens = _bullpen_cards(
@@ -300,8 +390,12 @@ def main() -> None:
         league_xwoba=league_xwoba,
         starters_ranked=ranked,
         sections=sections,
+        starters_scored=scored,
         cut_log=cut_log,
         has_run_value="delta_run_exp" in window.columns,
+        siera_floor=args.siera_min,
+        starter_cuts=starter_cuts,
+        has_xera=bool(xera_board),
     )
     _write(result, cfg, args)
 

@@ -1,8 +1,9 @@
-"""The morning power screen: the five stages, and the note it writes.
+"""The morning power screen: the SIERA gate, the five stages, and the note.
 
 The screen's job is to reproduce a hand process, so the tests pin the parts of it
-that a refactor could quietly invert -- the run-value sign, the order of the cuts,
-the power exception, and which turns a lineup slot actually gets.
+that a refactor could quietly invert -- the SIERA gate, the run-value sign, the
+order of the cuts, the power exception, and which turns a lineup slot actually
+gets.
 """
 
 from __future__ import annotations
@@ -14,12 +15,22 @@ import pandas as pd
 
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
+    HR_METRIC,
     MIN_BATTER_PA,
+    MIN_STARTER_BF,
+    MIN_STARTER_PITCHES,
     POWER_XWOBACON,
+    SIERA_FLOOR,
+    STARTER_SCORED,
+    STARTER_SPLITS,
+    XFIP_LEAGUE_ANCHOR,
     HitterLine,
     HitterView,
     MatchupSection,
+    MetricLine,
     ScreenResult,
+    StarterCard,
+    StarterSplit,
     apply_cuts,
     arsenal,
     arsenal_fit,
@@ -28,13 +39,21 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     contact_line,
     exposure,
+    gate_starters,
+    league_arms,
     pa_vs_starter,
     pitch_family,
     rank_starters,
+    score_starters,
+    split_rows,
     starter_damage,
+    starter_lines,
     third_look_prob,
+    with_tto,
     wrc_plus,
 )
+
+OVERALL = STARTER_SPLITS[0]
 
 
 def _pitch(
@@ -103,7 +122,7 @@ def test_fouls_are_not_batted_balls_in_a_contact_line() -> None:
     assert line.hh == 1.0  # the 60 mph fouls would have halved this
 
 
-# --- stage 1 --------------------------------------------------------------
+# --- stage 0: the work floor and the SIERA gate ---------------------------
 
 
 def _starter_rows(n: int, *, brl: bool, k: bool = False) -> pd.DataFrame:
@@ -116,43 +135,258 @@ def _starter_rows(n: int, *, brl: bool, k: bool = False) -> pd.DataFrame:
     return _frame(rows)
 
 
-def test_the_softer_arm_ranks_first_and_a_thin_sample_is_unreadable() -> None:
-    soft = starter_damage(
-        _starter_rows(130, brl=True),
-        name="Soft",
-        mlbam_id=1,
+def _arm(name: str, rows: pd.DataFrame) -> StarterCard:
+    """A measured arm that has cleared the work floor, so the SIERA gate is next."""
+    card = starter_damage(
+        rows, name=name, mlbam_id=len(name), team="AAA", opponent="BBB", throws="R"
+    )
+    card.work_bf = MIN_STARTER_BF
+    card.work_pitches = MIN_STARTER_PITCHES
+    return card
+
+
+def test_the_work_floor_removes_an_arm_before_his_numbers_are_ranked() -> None:
+    """A call-up or a rehab start is eleven small samples, not eleven skills."""
+    scrub = _arm("Scrub", _starter_rows(130, brl=True))
+    green = _arm("Green", _starter_rows(130, brl=True))
+    green.name = "Green"
+    green.work_bf = MIN_STARTER_BF - 1
+    eligible, cuts = gate_starters([green, scrub])
+    assert [c.name for c in eligible] == ["Scrub"]
+    assert [(c.card.name, c.stage) for c in cuts] == [("Green", "work")]
+    assert str(MIN_STARTER_BF) in cuts[0].reason
+
+
+def test_only_the_arms_above_the_siera_floor_are_eligible() -> None:
+    """A soft-contact ace must not reach the ranking at all.
+
+    The contact index measures how loudly an arm is hit, which a good pitcher can
+    survive; SIERA measures whether he prevents runs. Ranking on contact alone
+    nominated sub-3.4 SIERA arms, so the gate runs before it.
+    """
+    scrub = _arm("Scrub", _starter_rows(130, brl=True))
+    ace = _arm("Ace", _starter_rows(130, brl=False, k=True))
+    assert scrub.siera is not None and scrub.siera > SIERA_FLOOR
+    assert ace.siera is not None and ace.siera < SIERA_FLOOR
+
+    eligible, cuts = gate_starters([ace, scrub])
+    assert [c.name for c in eligible] == ["Scrub"]
+    assert [(c.card.name, c.stage) for c in cuts] == [("Ace", "siera")]
+    assert f"{SIERA_FLOOR:.2f}" in cuts[0].reason
+
+
+def test_the_floor_itself_is_not_above_the_floor() -> None:
+    """``> 4.4`` is the instruction, so an arm sitting exactly on it is cut."""
+    on_it = _arm("On It", _starter_rows(130, brl=True))
+    on_it.siera = SIERA_FLOOR
+    eligible, cuts = gate_starters([on_it])
+    assert eligible == []
+    assert cuts[0].stage == "siera"
+    above = _arm("Above", _starter_rows(130, brl=True))
+    above.siera = SIERA_FLOOR + 0.01
+    assert [c.name for c in gate_starters([above])[0]] == ["Above"]
+
+
+def test_an_arm_without_a_trusted_siera_is_ineligible_not_assumed_soft() -> None:
+    thin = _arm("Thin", _starter_rows(30, brl=True))
+    assert thin.siera is None and thin.siera_pa == 30
+    eligible, cuts = gate_starters([thin])
+    assert eligible == []
+    assert "no SIERA" in cuts[0].reason
+
+
+def test_the_siera_gate_switches_off_but_the_work_floor_does_not() -> None:
+    ace = _arm("Ace", _starter_rows(130, brl=False, k=True))
+    eligible, cuts = gate_starters([ace], siera_floor=0.0)
+    assert [c.name for c in eligible] == ["Ace"]
+    assert cuts == []
+    ace.work_pitches = 0
+    assert gate_starters([ace], siera_floor=0.0)[0] == []
+
+
+# --- stage 1: the eleven metrics, ten rankings ----------------------------
+
+
+def _line(**values: float) -> MetricLine:
+    """A metric line whose samples clear every floor, so only the values rank."""
+    samples = {
+        f"{m.sample}:{m.days}": m.min_sample * 10 for m in (*STARTER_SCORED, HR_METRIC)
+    }
+    return MetricLine(dict(values), samples)
+
+
+def _card(name: str, *, lines: dict[str, MetricLine] | None = None, **values: float) -> StarterCard:
+    card = StarterCard(
+        name=name,
+        mlbam_id=abs(hash(name)) % 9999,
         team="AAA",
         opponent="BBB",
         throws="R",
+        bf=500,
+        fb_pct=0.30,
+        brl_pct=0.07,
+        hh_pct=0.40,
+        xwobacon=0.350,
+        hr_per_bf=0.030,
+        k_bb_pct=0.150,
+        csw_pct=0.280,
     )
-    tough = starter_damage(
-        _starter_rows(130, brl=False, k=True),
-        name="Tough",
-        mlbam_id=2,
-        team="BBB",
-        opponent="AAA",
-        throws="L",
-    )
-    thin = starter_damage(
-        _starter_rows(20, brl=True),
-        name="Thin",
-        mlbam_id=3,
-        team="CCC",
-        opponent="DDD",
-        throws="R",
-    )
-    ranked = rank_starters([tough, soft, thin])
-    assert [c.name for c in ranked] == ["Soft", "Tough"]
-    assert ranked[0].index > ranked[1].index
-    assert soft.brl_pct == 1.0
-    assert tough.k_bb_pct == 1.0
+    card.siera = 4.60
+    card.lines = lines if lines is not None else {"overall": _line(**values)}
+    return card
 
 
-def test_no_readable_arm_is_an_empty_ranking_not_a_guess() -> None:
-    thin = starter_damage(
-        _starter_rows(10, brl=True), name="Thin", mlbam_id=1, team="A", opponent="B", throws="R"
+def test_each_metric_ranks_in_the_direction_that_makes_an_arm_hittable() -> None:
+    """High xFIP is bad pitching; high strikeout rate is good, so it must invert.
+
+    A single sign error here would rank the slate's best arm as its most
+    vulnerable while every table still looked plausible.
+    """
+    for attr, hittable, sturdy in (
+        ("xfip", 5.40, 3.10),
+        ("xera", 5.60, 3.20),
+        ("siera", 5.10, 3.30),
+        ("fb_pct", 0.44, 0.24),
+        ("hh_pct", 0.48, 0.32),
+        ("k_pct", 0.14, 0.31),
+        ("csw_pct", 0.24, 0.33),
+        ("k_bb_pct", 0.05, 0.24),
+        ("stuff_plus", 88.0, 118.0),
+        ("osw_pct", 0.24, 0.36),
+        ("swstr_pct", 0.07, 0.15),
+    ):
+        soft = _card("Soft", **{attr: hittable})
+        tough = _card("Tough", **{attr: sturdy})
+        metric = next(m for m in STARTER_SCORED if m.attr == attr)
+        split = StarterSplit("overall", "overall", (metric,))
+        score_starters([tough, soft], splits=(split,), top_n=1)
+        assert soft.points > tough.points, attr
+        assert soft.scores["overall"].rank == 1, attr
+
+
+def test_a_top_three_metric_is_worth_three_points_and_the_rest_one() -> None:
+    cards = [_card(f"Arm {i}", xfip=5.5 - i * 0.1) for i in range(5)]
+    split = StarterSplit("overall", "overall", (next(
+        m for m in STARTER_SCORED if m.attr == "xfip"
+    ),))
+    score_starters(cards, splits=(split,), top_n=3)
+    assert [c.points for c in cards] == [3, 3, 3, 1, 1]
+    assert cards[0].scores["overall"].top_in == ("xFIP",)
+    assert cards[4].scores["overall"].top_in == ()
+
+
+def test_a_metric_short_of_sample_scores_nothing_and_says_so() -> None:
+    """An unrated metric must cost points, never be filled in at league average."""
+    metric = next(m for m in STARTER_SCORED if m.attr == "xfip")
+    split = StarterSplit("overall", "overall", (metric,))
+    thin = _card("Thin")
+    thin.lines = {"overall": MetricLine({"xfip": 6.20}, {f"{metric.sample}:{metric.days}": 1})}
+    fat = _card("Fat", xfip=4.10)
+    score_starters([thin, fat], splits=(split,), top_n=3)
+    assert thin.points == 0
+    assert thin.scores["overall"].unrated == ("xFIP",)
+    assert fat.points == 3  # the soft arm's 6.20 did not outrank him from nowhere
+
+
+def test_identical_lines_rank_in_a_stable_order() -> None:
+    a = _card("Aaron", xfip=4.50)
+    b = _card("Zeke", xfip=4.50)
+    split = StarterSplit("overall", "overall", (next(
+        m for m in STARTER_SCORED if m.attr == "xfip"
+    ),))
+    score_starters([b, a], splits=(split,), top_n=1)
+    first = (a.scores["overall"].rank, b.scores["overall"].rank)
+    score_starters([a, b], splits=(split,), top_n=1)
+    assert (a.scores["overall"].rank, b.scores["overall"].rank) == first == (1, 2)
+
+
+def test_the_final_order_is_the_sum_of_every_ranking() -> None:
+    """An arm worst in one split and mid in another must beat one mid in both."""
+    xfip = next(m for m in STARTER_SCORED if m.attr == "xfip")
+    splits = (
+        StarterSplit("overall", "overall", (xfip,)),
+        StarterSplit("vs_l", "vs LHH", (xfip,)),
     )
-    assert rank_starters([thin]) == []
+    both = _card("Both", lines={"overall": _line(xfip=5.90), "vs_l": _line(xfip=6.40)})
+    lefties_only = _card("Lefties", lines={"overall": _line(xfip=4.20), "vs_l": _line(xfip=6.30)})
+    neither = _card("Neither", lines={"overall": _line(xfip=4.10), "vs_l": _line(xfip=4.30)})
+    score_starters([neither, lefties_only, both], splits=splits, top_n=1)
+    assert both.points == 3 + 3
+    assert lefties_only.points == 1 + 1  # second in a split is not a top-three finish
+    assert neither.points == 1 + 1
+    assert both.scores["vs_l"].rank == 1 and lefties_only.scores["vs_l"].rank == 2
+    assert [c.name for c in rank_starters([neither, lefties_only, both], top_n=1)] == ["Both"]
+
+
+def test_the_time_through_the_order_follows_a_batters_own_meetings() -> None:
+    """TTO is a hitter's second look at the starter, not the game's second inning."""
+    rows = _frame([
+        {"game_date": Date(2026, 8, 1), "home_team": "AAA", "away_team": "BBB",
+         "pitcher": 2, "batter": batter, "inning": inning}
+        for batter, inning in ((10, 1), (11, 1), (10, 4), (11, 5), (10, 7))
+    ])
+    out = with_tto(rows)
+    assert list(out["tto"]) == [1.0, 1.0, 2.0, 2.0, 3.0]
+    assert list(split_rows(out, "tto3")["batter"]) == [10]
+    assert len(split_rows(out, "tto2")) == 2
+
+
+def test_a_split_reads_only_its_own_rows() -> None:
+    rows = _frame([
+        {"inning": 2, "stand": "L", "tto": 1.0},
+        {"inning": 4, "stand": "R", "tto": 2.0},
+        {"inning": 7, "stand": "L", "tto": 3.0},
+    ])
+    assert len(split_rows(rows, "overall")) == 3
+    assert list(split_rows(rows, "inn13")["inning"]) == [2]
+    assert list(split_rows(rows, "inn15")["inning"]) == [2, 4]
+    assert list(split_rows(rows, "vs_l")["inning"]) == [2, 7]
+    assert list(split_rows(rows, "hr_r")["inning"]) == [4]
+    # a frame without the column is empty, not everything
+    assert len(split_rows(rows.drop(columns=["stand"]), "vs_l")) == 0
+
+
+def test_the_home_run_splits_rank_on_one_rate_and_say_so() -> None:
+    split = next(s for s in STARTER_SPLITS if s.key == "hr_l")
+    assert [m.label for m in split.metrics] == ["HR/BF"]
+    homers = _card("Homers", lines={"overall": _line(), "hr_l": _line(hr_per_bf=0.055)})
+    grounders = _card("Worms", lines={"overall": _line(), "hr_l": _line(hr_per_bf=0.012)})
+    score_starters([grounders, homers], splits=(split,), top_n=1)
+    assert homers.scores["hr_l"].rank == 1
+    assert homers.points == 3 and grounders.points == 1
+
+
+def test_the_league_constant_puts_an_average_arm_on_the_anchor() -> None:
+    """xFIP is reconstructed here, so the recentring has to be pinned."""
+    rows = []
+    for _ in range(40):
+        rows.append(_pitch(events="field_out", la=28.0, lsa=3))
+    for _ in range(20):
+        rows.append(_pitch(description="swinging_strike", events="strikeout", lsa=None))
+    for _ in range(8):
+        rows.append(_pitch(description="ball", events="walk", lsa=None))
+    for _ in range(4):
+        rows.append(_pitch(events="home_run", la=28.0, lsa=6))
+    frame = _frame(rows)
+    frame["bb_type"] = ["fly_ball"] * 40 + [None] * 28 + ["fly_ball"] * 4
+    league = league_arms(frame)
+    assert league.hr_per_fb == 4 / 44
+    # an arm whose line *is* the league's reads the anchor back, which is what
+    # makes the reconstructed xFIP comparable to the SIERA in the same table
+    xfip = next(m for m in STARTER_SCORED if m.attr == "xfip")
+    lines = starter_lines(
+        {xfip.days: frame},
+        league,
+        splits=(StarterSplit("overall", "overall", (xfip,)),),
+    )
+    assert abs(lines["overall"].values["xfip"] - XFIP_LEAGUE_ANCHOR) < 1e-9
+
+
+def test_a_thin_league_window_leaves_xfip_unavailable_not_zero() -> None:
+    thin = _frame([_pitch(events="single", lsa=3)])
+    thin["bb_type"] = ["ground_ball"]
+    league = league_arms(thin)
+    assert math.isnan(league.hr_per_fb) and math.isnan(league.constant)
 
 
 # --- stage 2 and 3 --------------------------------------------------------
@@ -322,6 +556,25 @@ def test_an_unknown_pen_leaves_the_starters_mark_standing() -> None:
 # --- the note -------------------------------------------------------------
 
 
+def _split_lines(edge: float) -> dict[str, MetricLine]:
+    """A metric line for every ranking, ``edge`` worse than a neutral arm's."""
+    values = {
+        "xera": 4.00 + edge * 40,
+        "xfip": 4.10 + edge * 40,
+        "siera": 4.50 + edge * 40,
+        "k_pct": 0.22 - edge,
+        "csw_pct": 0.28 - edge,
+        "k_bb_pct": 0.14 - edge,
+        "fb_pct": 0.30 + edge,
+        "stuff_plus": 100.0 - edge * 100,
+        "osw_pct": 0.31 - edge,
+        "hh_pct": 0.38 + edge,
+        "swstr_pct": 0.11 - edge,
+        "hr_per_bf": 0.030 + edge,
+    }
+    return {split.key: _line(**values) for split in STARTER_SPLITS}
+
+
 def _result() -> ScreenResult:
     rows = [_pitch(pitch_type="FF") for _ in range(40)] + [
         _pitch(pitch_type="CH", xwoba=0.480) for _ in range(35)
@@ -338,7 +591,16 @@ def _result() -> ScreenResult:
     )
     card.arsenal = lines
     card.usage = usage
-    rank_starters([card], top_n=1)
+    card.work_bf = MIN_STARTER_BF
+    card.work_pitches = MIN_STARTER_PITCHES
+    others = [
+        _card("Arm Two", lines=_split_lines(0.02)),
+        _card("Arm Three", lines=_split_lines(0.01)),
+        _card("Arm Four", lines=_split_lines(0.00)),
+    ]
+    card.lines = _split_lines(0.03)
+    score_starters([card, *others])
+    ranked = rank_starters([card, *others], top_n=4)
 
     hitter = _hitter("Matt Olson")
     hitter.kept = True
@@ -375,9 +637,10 @@ def _result() -> ScreenResult:
         window_end=Date(2026, 8, 16),
         league_woba={"R": 0.313},
         league_xwoba={"R": 0.305},
-        starters_ranked=[card],
+        starters_ranked=ranked,
         sections=[section],
         cut_log=[cut],
+        starter_cuts=gate_starters([_arm("Ace", _starter_rows(130, brl=False, k=True))])[1],
     )
 
 
@@ -386,7 +649,9 @@ def test_the_note_carries_every_section_and_ends_on_the_recommendations() -> Non
     for heading in (
         "Thesis",
         "Data basis",
+        "who is eligible to be ranked",
         "the arms, ranked",
+        "Ace",
         "Bailey Ober",
         "Matt Olson",
         "Recommendations",
@@ -397,6 +662,35 @@ def test_the_note_carries_every_section_and_ends_on_the_recommendations() -> Non
     # a rating is not a price, and the note has to keep saying so
     assert "no price" in html
     assert "projections" in html
+
+
+def test_the_note_prints_every_ranking_and_highlights_the_worst_three() -> None:
+    """A points column hides the splits; the note has to show each one's own order.
+
+    The point of ranking a starter nine ways is that the answers differ, so every
+    ranking gets its own table and the three arms it says are worst are marked --
+    worst three against left-handed hitters, worst three the first time through,
+    and so on.
+    """
+    result = _result()
+    html = power_report.render_html(result)
+    for split in result.splits:
+        assert f"Worst 3 &mdash; {split.label}" in html
+    # one highlighted row per arm per ranking, plus the aggregate table's own three
+    assert html.count("<tr class='top'>") == 3 * (len(result.splits) + 1)
+    worst = result.starters_ranked[0]
+    assert worst.scores["vs_l"].rank == 1
+    assert "HR/BF" in html  # the home-run splits rank on one rate and say which
+
+
+def test_an_arm_outside_the_worst_three_of_a_split_is_not_highlighted() -> None:
+    result = _result()
+    fifth = _card("Arm Five", lines=_split_lines(-0.01))
+    score_starters([*result.starters_ranked, fifth])
+    result.starters_ranked = rank_starters([*result.starters_ranked, fifth], top_n=5)
+    html = power_report.render_html(result)
+    assert fifth.scores["overall"].rank == 5
+    assert html.count("<tr class='top'>") == 3 * (len(result.splits) + 1)
 
 
 def test_a_missing_run_value_column_is_disclosed_not_hidden() -> None:

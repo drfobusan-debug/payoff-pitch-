@@ -5,13 +5,25 @@ beside the nightly card rather than inside it, because it answers a narrower
 question than the engine does and it answers it before lineups are posted, when
 the engine declines to price a game at all.
 
-The chain is five stages, each of which throws work away:
+The chain is five stages behind two gates, each of which throws work away:
 
-1. **Rank the arms.** Every probable starter is scored on how much damage he
-   allows in the air -- barrel and hard-hit rates allowed, fly-ball rate,
-   xwOBA-on-contact, home runs per batter faced -- against how little he misses
-   bats (K-BB%) and how long he lasts. The top few are the only games that
-   proceed.
+0. **Gate the arms.** Two conditions, in order. An arm needs enough recent work
+   for his numbers to be measurements rather than a rounding of one outing --
+   which is what removes a call-up, an opener and an arm back from the injured
+   list -- and then his SIERA has to be above the scrub ceiling (4.40, the
+   engine's own ``singles_siera_bad``). A contact score alone will nominate an
+   ace who happens to give up loud air contact; the gate says the arm has to be
+   bad at run prevention *first*, and an arm with too little work to have a
+   trusted SIERA is not eligible rather than assumed soft.
+1. **Rank the arms.** The eligible starters are scored on eleven metrics --
+   xERA, xFIP, SIERA, K%, CSW%, K-BB%, FB%, Stuff+, O-Swing%, HH% and SwStr% --
+   one point apiece and two more for a top-three finish, the same shape as the
+   hitter pool score in stage 2. **Each metric is read over its own window**:
+   whiff and shape signals stabilize in a few hundred pitches and are read
+   short, batted-ball and run-prevention signals need months and are read long,
+   and a metric a starter lacks the sample for scores nothing for him rather
+   than scoring average. The old air-contact index is kept as the tiebreak, and
+   the top few games are the only ones that proceed.
 2. **Score the lineups.** The hitters facing those arms are ranked on eleven
    contact and discipline metrics, split against the hand they will face, one
    point apiece and a second for a top-five finish in the pool. Ties are broken
@@ -43,6 +55,8 @@ from datetime import date as Date
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features import stuff
+from mlb_engine.features.siera import MIN_SIERA_PA, SIERA_LEAGUE_ANCHOR, pitcher_siera
 
 # --- pitch classification -------------------------------------------------
 # Savant's codes collapsed to what a hitter actually distinguishes. Kept finer
@@ -73,8 +87,35 @@ NO_AB = {
     "sac_fly_double_play", "sac_bunt_double_play",
 }
 
+# Fly balls, on the FanGraphs definition xFIP's HR/FB is built on: infield flies
+# are a subset of fly balls, not a fourth batted-ball class.
+FB_TYPES = {"fly_ball", "popup"}
+
+#: Outs an event records, for the innings xFIP divides by. Absent events record
+#: none; a triple play is not folded into the double-play entry.
+OUT_EVENTS = {
+    "strikeout": 1, "field_out": 1, "force_out": 1, "fielders_choice_out": 1,
+    "sac_fly": 1, "sac_bunt": 1, "other_out": 1, "caught_stealing_2b": 1,
+    "caught_stealing_3b": 1, "caught_stealing_home": 1, "pickoff_1b": 1,
+    "pickoff_2b": 1, "pickoff_3b": 1, "pickoff_caught_stealing_2b": 1,
+    "pickoff_caught_stealing_3b": 1, "pickoff_caught_stealing_home": 1,
+    "strikeout_double_play": 2, "grounded_into_double_play": 2,
+    "double_play": 2, "sac_fly_double_play": 2, "sac_bunt_double_play": 2,
+    "triple_play": 3,
+}
+
+#: What identifies one starter's work in one game, for the time-through-order label.
+TTO_KEYS = ["game_date", "home_team", "away_team", "pitcher", "batter"]
+
+# xFIP is put on the same run scale SIERA is recentred to, so the two estimators
+# in the ranking cannot disagree about what an average arm costs.
+XFIP_LEAGUE_ANCHOR = SIERA_LEAGUE_ANCHOR
+
 # Screen thresholds. Defaults are the ones the 8/17 hand run settled on.
+SIERA_FLOOR = 4.4  # stage 0: a starter is eligible only above this SIERA
 MIN_STARTER_BF = 120  # batters faced in the window before an arm is readable
+MIN_STARTER_PITCHES = 400  # pitches in the same window before the shape reads mean anything
+STARTER_TOP_N = 3  # a top-three finish in a stage-1 metric earns two more points
 MIN_BATTER_PA = 60  # hand-split PA floor
 MIN_WRC = 120  # window wRC+ floor, before the power exception
 MIN_XWOBA_EDGE = 0.020  # xwOBA/PA must clear league by this much
@@ -83,6 +124,111 @@ POWER_XWOBACON = 0.440  # contact good enough to keep a hitter the wRC+ cut drop
 MIN_PITCHER_PITCHES = 15  # per-pitch-type floor, pitcher side
 MIN_BATTER_PITCHES = 25  # per-pitch-type floor, hitter side
 TOP_K = 5  # a top-K finish in a scored metric earns the second point
+
+
+@dataclass(frozen=True)
+class StarterMetric:
+    """One stage-1 metric: how it is measured, which way it points, and its sample.
+
+    ``days`` is the window the metric is read over and ``min_sample`` the
+    denominator it needs inside that window -- both set by how fast the metric
+    stabilizes rather than by whichever frame was already loaded. Reading a fast
+    signal long buries tonight's arm under June's; reading a slow one short
+    ranks noise. ``sample`` names the denominator (``bf``, ``pitches``,
+    ``oz_pitches``, ``bbe``, ``siera_pa`` or the external ``xera_pa``) so a
+    starter short of it is unrated *in that metric alone*, rather than dropped
+    from the ranking or handed a league-average stand-in.
+
+    ``soft_high`` is true when a *higher* number means an easier arm to hit,
+    which is why the directions are written down rather than assumed: xERA,
+    xFIP, SIERA, fly-ball rate, hard-hit rate and home runs allowed all rise as
+    an arm gets worse, while K%, CSW%, K-BB%, Stuff+, O-Swing% and SwStr% fall.
+    """
+
+    attr: str
+    label: str
+    soft_high: bool
+    days: int  # 0 = season to date
+    min_sample: int
+    sample: str
+
+
+#: The eleven metrics stage 1 ranks eligible starters on.
+#:
+#: Windows and floors follow how fast each metric settles. Pitch-level whiff and
+#: shape signals are the fast half -- swinging-strike and called-plus-swinging
+#: rates are near their season shape within a few hundred pitches, and the shape
+#: grade holds start to start at r=+0.99 (``features/stuff``) -- so they are read
+#: over three weeks, where they describe the arm taking the mound tonight. Plate
+#: appearance rates settle next (K% by ~70 batters faced, K-BB% by ~200) and are
+#: read over six. Batted-ball and run-prevention rates settle last: hard-hit rate
+#: by ~50 batted balls, fly-ball rate and the run estimators by months, so those
+#: are read over three months, SIERA keeps its own 80-PA floor, and xERA is taken
+#: season-to-date from Savant's own board rather than reconstructed here.
+STARTER_SCORED: tuple[StarterMetric, ...] = (
+    StarterMetric("xera", "xERA", True, 0, 150, "xera_pa"),
+    StarterMetric("xfip", "xFIP", True, 90, 200, "bf"),
+    StarterMetric("siera", "SIERA", True, 90, MIN_SIERA_PA, "siera_pa"),
+    StarterMetric("k_pct", "K%", False, 45, 150, "bf"),
+    StarterMetric("csw_pct", "CSW%", False, 21, 400, "pitches"),
+    StarterMetric("k_bb_pct", "K-BB%", False, 45, 200, "bf"),
+    StarterMetric("fb_pct", "FB%", True, 90, 80, "bbe"),
+    StarterMetric("stuff_plus", "Stuff+", False, 21, stuff.MIN_PITCHES, "pitches"),
+    StarterMetric("osw_pct", "O-Swing%", False, 21, 200, "oz_pitches"),
+    StarterMetric("hh_pct", "HH%", True, 90, 50, "bbe"),
+    StarterMetric("swstr_pct", "SwStr%", False, 21, 400, "pitches"),
+)
+
+#: Home runs allowed per batter faced: the one metric the two HR splits rank on.
+HR_METRIC = StarterMetric("hr_per_bf", "HR/BF", True, 90, 200, "bf")
+
+#: The metrics a *split* can be scored on. Savant's xERA is a season total for
+#: the whole arm and cannot be cut by inning, hand or time through the order, so
+#: it is absent here rather than repeated unchanged into nine rankings where it
+#: would quietly vote nine more times.
+SPLIT_SCORED: tuple[StarterMetric, ...] = tuple(
+    m for m in STARTER_SCORED if m.attr != "xera"
+)
+
+
+@dataclass(frozen=True)
+class StarterSplit:
+    """One perspective the arms are ranked from, and the metrics it ranks on.
+
+    The overall ranking answers "who is worst"; these answer "worst at what".
+    An arm who is average for five innings and collapses the third time through
+    the order is a different bet than one who is hit from the first pitch, and a
+    reverse-split arm is a different bet again -- the split rankings are what
+    separate them, and the final order is the sum of every ranking's points.
+    """
+
+    key: str
+    label: str
+    metrics: tuple[StarterMetric, ...]
+
+
+#: The overall ranking plus the nine split perspectives, in report order.
+STARTER_SPLITS: tuple[StarterSplit, ...] = (
+    StarterSplit("overall", "overall", STARTER_SCORED),
+    StarterSplit("inn13", "innings 1-3", SPLIT_SCORED),
+    StarterSplit("inn15", "innings 1-5", SPLIT_SCORED),
+    StarterSplit("tto1", "1st time through", SPLIT_SCORED),
+    StarterSplit("tto2", "2nd time through", SPLIT_SCORED),
+    StarterSplit("tto3", "3rd time through", SPLIT_SCORED),
+    StarterSplit("vs_l", "vs LHH", SPLIT_SCORED),
+    StarterSplit("vs_r", "vs RHH", SPLIT_SCORED),
+    StarterSplit("hr_l", "HR vs LHH", (HR_METRIC,)),
+    StarterSplit("hr_r", "HR vs RHH", (HR_METRIC,)),
+)
+
+#: The windows every metric above is measured over (season-to-date excluded).
+STARTER_WINDOWS: tuple[int, ...] = tuple(
+    sorted({m.days for m in (*STARTER_SCORED, HR_METRIC) if m.days})
+)
+
+#: The window the work gate reads, which is the longest any metric is read over:
+#: an arm is judged on his season's body of work, not on two good weeks.
+WORK_DAYS = max(STARTER_WINDOWS)
 
 #: Scored metrics: attribute, label, and whether more is better.
 SCORED: tuple[tuple[str, str, bool], ...] = (
@@ -199,6 +345,13 @@ class StarterCard:
     k_bb_pct: float
     csw_pct: float
     index: float = 0.0
+    siera: float | None = None  # None when the window is too thin to trust one
+    siera_pa: int = 0
+    work_bf: int = 0  # batters faced over ``WORK_DAYS``, for the work gate
+    work_pitches: int = 0
+    points: int = 0  # stage-1 points, summed over every ranking
+    lines: dict[str, MetricLine] = field(default_factory=dict)
+    scores: dict[str, SplitScore] = field(default_factory=dict)
     arsenal: dict[str, ContactLine] = field(default_factory=dict)
     usage: dict[str, float] = field(default_factory=dict)
 
@@ -225,6 +378,7 @@ def starter_damage(
         if "description" in rows and len(rows)
         else math.nan
     )
+    s = pitcher_siera(rows)
     return StarterCard(
         name=name,
         mlbam_id=mlbam_id,
@@ -239,7 +393,396 @@ def starter_damage(
         hr_per_bf=float(ev.eq("home_run").sum()) / bf if bf else math.nan,
         k_bb_pct=k - bb if not (math.isnan(k) or math.isnan(bb)) else math.nan,
         csw_pct=called_or_swinging,
+        siera=s.siera if s.has_data else None,
+        siera_pa=s.pa,
     )
+
+
+def with_tto(frame: pd.DataFrame) -> pd.DataFrame:
+    """Label every pitch with the time through the order it was thrown in.
+
+    A hitter's first meeting with a starter in a game is that starter's first
+    time through the order, his second meeting the second, and so on -- so the
+    label is the dense rank of the inning among the innings in which that batter
+    faced that pitcher in that game. Built that way it needs no pitch-sequence
+    column, which the cached frames do not carry. Two plate appearances in one
+    inning (a nine-run rally) collapse to a single number; the alternative is a
+    sequence the frame cannot supply.
+    """
+    if not set([*TTO_KEYS, "inning"]).issubset(frame.columns):
+        return frame
+    out = frame.copy()
+    out["tto"] = out.groupby(TTO_KEYS, sort=False)["inning"].rank(method="dense")
+    return out
+
+
+def split_rows(rows: pd.DataFrame, key: str) -> pd.DataFrame:
+    """The subset of a starter's pitches one split ranking is measured on."""
+    empty = rows.iloc[0:0]
+    if key == "overall":
+        return rows
+    if key in ("inn13", "inn15"):
+        if "inning" not in rows:
+            return empty
+        return rows[rows["inning"] <= (3 if key == "inn13" else 5)]
+    if key in ("tto1", "tto2", "tto3"):
+        if "tto" not in rows:
+            return empty
+        return rows[rows["tto"] == float(key[-1])]
+    if key in ("vs_l", "hr_l", "vs_r", "hr_r"):
+        if "stand" not in rows:
+            return empty
+        return rows[rows["stand"] == ("L" if key.endswith("_l") else "R")]
+    return empty
+
+
+@dataclass(frozen=True)
+class LeagueArms:
+    """The league numbers xFIP needs, measured over the frame it is scored on.
+
+    ``hr_per_fb`` is the rate xFIP substitutes for a pitcher's own home runs --
+    the whole point of the estimator -- and ``constant`` puts the result on the
+    league's run scale, fitted so a league-average arm reads ``anchor`` rather
+    than being carried over from another season's published constant.
+    """
+
+    hr_per_fb: float
+    constant: float
+
+
+def league_arms(window: pd.DataFrame, anchor: float = XFIP_LEAGUE_ANCHOR) -> LeagueArms:
+    """Fit the league's HR-per-fly-ball rate and xFIP constant on one window."""
+    ev = _pa_events(window)
+    bip = batted_balls(window)
+    fb = int(bip["bb_type"].isin(FB_TYPES).sum()) if len(bip) and "bb_type" in bip else 0
+    outs = _outs(ev)
+    if not fb or outs < 3:
+        return LeagueArms(math.nan, math.nan)
+    hr_per_fb = float(ev.eq("home_run").sum()) / fb
+    raw = _fip_core(ev, fb, hr_per_fb, outs)
+    return LeagueArms(hr_per_fb, anchor - raw)
+
+
+def _outs(events: pd.Series) -> int:
+    return int(sum(OUT_EVENTS.get(str(e), 0) for e in events))
+
+
+def _fip_core(events: pd.Series, fb: int, hr_per_fb: float, outs: int) -> float:
+    """The xFIP numerator over innings, before the league constant."""
+    k = float(events.isin(K_EVENTS).sum())
+    bb = float(events.eq("walk").sum())
+    hbp = float(events.eq("hit_by_pitch").sum())
+    return (13.0 * fb * hr_per_fb + 3.0 * (bb + hbp) - 2.0 * k) / (outs / 3.0)
+
+
+def _window_metrics(
+    rows: pd.DataFrame, league: LeagueArms
+) -> tuple[dict[str, float], dict[str, int]]:
+    """Every stage-1 metric and every denominator behind it, for one frame.
+
+    Computed for the whole frame at once rather than per metric because the
+    metrics that share a window share their samples, and a metric with nothing
+    behind it returns ``nan`` here and is refused by its sample floor later --
+    never zero, which would read as the softest arm on the slate.
+    """
+    ev = _pa_events(rows)
+    bf = int(len(ev))
+    bip = batted_balls(rows)
+    bbt = (
+        bip["bb_type"].dropna() if len(bip) and "bb_type" in bip else pd.Series(dtype=object)
+    )
+    ls = bip["launch_speed"].dropna() if len(bip) else pd.Series(dtype=float)
+    desc = rows["description"] if "description" in rows else pd.Series(dtype=object)
+    oz = rows[rows["zone"] > 9] if "zone" in rows else rows.iloc[0:0]
+    pitches = int(len(rows))
+    s = pitcher_siera(rows)
+    k = float(ev.isin(K_EVENTS).sum()) / bf if bf else math.nan
+    bb = float(ev.eq("walk").sum()) / bf if bf else math.nan
+    fb = int(bbt.isin(FB_TYPES).sum()) if len(bbt) else 0
+    outs = _outs(ev)
+    values = {
+        "k_pct": k,
+        "k_bb_pct": k - bb if not (math.isnan(k) or math.isnan(bb)) else math.nan,
+        "csw_pct": (
+            float(desc.isin(WHIFF_DESC | {"called_strike"}).mean()) if pitches else math.nan
+        ),
+        "swstr_pct": float(desc.isin(WHIFF_DESC).mean()) if pitches else math.nan,
+        "osw_pct": float(oz["description"].isin(SWING_DESC).mean()) if len(oz) else math.nan,
+        "fb_pct": float(bbt.isin(FB_TYPES).mean()) if len(bbt) else math.nan,
+        "hh_pct": float((ls >= 95).mean()) if len(ls) else math.nan,
+        "hr_per_bf": float(ev.eq("home_run").sum()) / bf if bf else math.nan,
+        "siera": s.siera,
+        "stuff_plus": (
+            stuff.shape_plus(rows) * 100.0 if pitches >= stuff.MIN_PITCHES else math.nan
+        ),
+        "xfip": (
+            _fip_core(ev, fb, league.hr_per_fb, outs) + league.constant
+            if fb and outs >= 3 and not math.isnan(league.hr_per_fb)
+            else math.nan
+        ),
+        "xera": math.nan,  # season-to-date and external; never derived here
+    }
+    samples = {
+        "bf": bf,
+        "pitches": pitches,
+        "oz_pitches": int(len(oz)),
+        "bbe": int(len(bip)),
+        "siera_pa": s.pa,
+        "xera_pa": 0,
+    }
+    return values, samples
+
+
+@dataclass(frozen=True)
+class MetricLine:
+    """One arm's stage-1 metrics for one split, and the sample behind each.
+
+    Samples are keyed by denominator *and* window, because the same arm has a
+    different number of batters faced in three weeks than in three months and
+    each metric is held to the sample of the window it was read over.
+    """
+
+    values: dict[str, float]
+    samples: dict[str, int]
+
+    def value(self, metric: StarterMetric) -> float:
+        return self.values.get(metric.attr, math.nan)
+
+    def sample(self, metric: StarterMetric) -> int:
+        return self.sample_of(metric.sample, metric.days)
+
+    def sample_of(self, kind: str, days: int) -> int:
+        return self.samples.get(f"{kind}:{days}", 0)
+
+
+def starter_lines(
+    frames: dict[int, pd.DataFrame],
+    league: LeagueArms,
+    *,
+    xera: float | None = None,
+    xera_pa: int = 0,
+    splits: tuple[StarterSplit, ...] = STARTER_SPLITS,
+) -> dict[str, MetricLine]:
+    """One arm's metric line for every ranking, each read over its own window.
+
+    ``frames`` maps a window in days to that starter's pitches over it, so a
+    fast metric is never read long and a slow one never short. ``xera`` is
+    Savant's season figure and its ``xera_pa`` the sample behind it; passing
+    ``None`` leaves xERA unavailable rather than substituting a number.
+    """
+    out: dict[str, MetricLine] = {}
+    for split in splits:
+        values: dict[str, float] = {}
+        samples: dict[str, int] = {}
+        cache: dict[int, tuple[dict[str, float], dict[str, int]]] = {}
+        for metric in split.metrics:
+            if metric.attr == "xera":
+                values["xera"] = math.nan if xera is None else xera
+                samples[f"xera_pa:{metric.days}"] = xera_pa
+                continue
+            rows = frames.get(metric.days)
+            if rows is None:
+                continue
+            if metric.days not in cache:
+                cache[metric.days] = _window_metrics(split_rows(rows, split.key), league)
+            window_values, window_samples = cache[metric.days]
+            values[metric.attr] = window_values[metric.attr]
+            for kind, n in window_samples.items():
+                samples[f"{kind}:{metric.days}"] = n
+        out[split.key] = MetricLine(values, samples)
+    return out
+
+
+@dataclass
+class SplitScore:
+    """What one ranking made of one arm: his place, his points, and what went unrated.
+
+    ``rank`` is his place *in that ranking alone* -- 1 is the arm the split says is
+    worst -- which is what the note highlights, so "worst three the third time
+    through the order" is a fact on the page and not something a reader has to
+    reconstruct from a points column.
+    """
+
+    key: str
+    label: str
+    points: int = 0
+    rank: int = 0
+    places: int = 0
+    top_in: tuple[str, ...] = ()
+    unrated: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class StarterCut:
+    """A starter a stage-0 gate removed, and the number that removed him."""
+
+    card: StarterCard
+    reason: str
+    stage: str  # "work" or "siera"
+
+
+def gate_starters(
+    cards: list[StarterCard],
+    *,
+    siera_floor: float = SIERA_FLOOR,
+    min_bf: int = MIN_STARTER_BF,
+    min_pitches: int = MIN_STARTER_PITCHES,
+) -> tuple[list[StarterCard], list[StarterCut]]:
+    """Stage 0: the arms whose numbers are trustworthy *and* bad, and who left.
+
+    Two conditions in order, because they fail for different reasons. The work
+    floor removes the arm nobody has seen enough of -- a call-up, an opener, a
+    starter three outings back from the injured list -- whose eleven metrics
+    would otherwise be eleven small samples ranked as if they were skills.
+    Then the SIERA floor removes the arms who prevent runs: a contact index says
+    how loudly an arm is hit, which a good pitcher survives, and on its own it
+    has repeatedly nominated sub-3.4 SIERA aces.
+
+    Both are measured over the longest stage-1 window rather than the form
+    window, so a starter is judged on his season's body of work and not on two
+    good weeks. ``siera_floor <= 0`` turns the second gate off, which is a
+    debugging switch and not a mode the note is written in.
+    """
+    kept: list[StarterCard] = []
+    cuts: list[StarterCut] = []
+    for card in cards:
+        bf = card.work_bf
+        pitches = card.work_pitches
+        if bf < min_bf or pitches < min_pitches:
+            cuts.append(
+                StarterCut(
+                    card,
+                    f"{bf} BF and {pitches} pitches in {WORK_DAYS}d "
+                    f"(needs {min_bf} and {min_pitches})",
+                    "work",
+                )
+            )
+        elif siera_floor <= 0:
+            kept.append(card)
+        elif card.siera is None:
+            cuts.append(
+                StarterCut(card, f"no SIERA ({card.siera_pa} PA < {MIN_SIERA_PA})", "siera")
+            )
+        elif card.siera <= siera_floor:
+            cuts.append(
+                StarterCut(card, f"SIERA {card.siera:.2f} \u2264 {siera_floor:.2f}", "siera")
+            )
+        else:
+            kept.append(card)
+    cuts.sort(key=lambda c: (c.stage != "work", c.card.siera is None, -(c.card.siera or 0.0)))
+    return kept, cuts
+
+
+def _split_scale(cards: list[StarterCard], split: StarterSplit, metric: StarterMetric) -> float:
+    """How much of a metric's sample a split holds, measured on the pool itself.
+
+    A third time through the order is a fifth of a start, so demanding the full
+    overall floor inside it would leave every arm unrated and the ranking empty.
+    The floor is scaled by the *pool's own median share* of that denominator in
+    that split -- as much of the split as a normal starter has -- so the
+    standard is still a sample standard rather than a guess, while staying
+    honest that a split ranking rests on less evidence than the overall one.
+    """
+    if split.key == "overall":
+        return 1.0
+    ratios = [
+        card.lines[split.key].sample(metric) / card.lines["overall"].sample_of(
+            metric.sample, metric.days
+        )
+        for card in cards
+        if split.key in card.lines
+        and "overall" in card.lines
+        and card.lines["overall"].sample_of(metric.sample, metric.days) > 0
+    ]
+    if not ratios:
+        return 1.0
+    ratios.sort()
+    mid = len(ratios) // 2
+    median = ratios[mid] if len(ratios) % 2 else (ratios[mid - 1] + ratios[mid]) / 2
+    return min(1.0, max(0.05, median))
+
+
+def score_starters(
+    cards: list[StarterCard],
+    *,
+    splits: tuple[StarterSplit, ...] = STARTER_SPLITS,
+    top_n: int = STARTER_TOP_N,
+) -> None:
+    """One point per rated metric in every ranking, two more for a top-``top_n``.
+
+    Ten rankings run: the overall one on all eleven metrics, seven splits on the
+    ten that can be cut (Savant's xERA cannot), and the two home-run splits on
+    HR/BF alone. Within each, every metric an arm has the sample for scores him a
+    point and a top-three finish in it scores two more, so a top-three metric is
+    worth three points and a metric he is short of sample for is worth none. His
+    stage-1 total is the sum across all ten, which is what the final order sorts
+    on.
+
+    The unconditional point is kept for the same reason stage 2 keeps it: it
+    makes the total readable next to the count of top-three finishes. It also
+    means the total can only be compared between arms rated in the same metrics,
+    which is why ``SplitScore.unrated`` is carried into the note instead of a
+    low total being left to look like a good pitcher.
+
+    Mutates the cards.
+    """
+    for card in cards:
+        card.scores = {s.key: SplitScore(s.key, s.label) for s in splits}
+        card.points = 0
+    for split in splits:
+        for metric in split.metrics:
+            scale = _split_scale(cards, split, metric)
+            floor = max(1, round(metric.min_sample * scale))
+            rated = [
+                card
+                for card in cards
+                if split.key in card.lines
+                and not math.isnan(card.lines[split.key].value(metric))
+                and card.lines[split.key].sample(metric) >= floor
+            ]
+            # Worst first in the metric's own direction, then by name, so a tie
+            # between two identical lines does not depend on the order the slate
+            # happened to arrive in.
+            rated.sort(
+                key=lambda c: (
+                    -c.lines[split.key].value(metric)
+                    if metric.soft_high
+                    else c.lines[split.key].value(metric),
+                    c.name,
+                )
+            )
+            rated_ids = {id(card) for card in rated}
+            for i, card in enumerate(rated):
+                score = card.scores[split.key]
+                score.points += 1
+                score.places += i + 1
+                if i < top_n:
+                    score.points += 2
+                    score.top_in = (*score.top_in, metric.label)
+            for card in cards:
+                if id(card) not in rated_ids:
+                    score = card.scores[split.key]
+                    score.unrated = (*score.unrated, metric.label)
+        # Place inside this ranking, worst arm first. Points come first, then the
+        # sum of his places in the split's metrics, so three arms who are all
+        # top-three everywhere -- and therefore hold the same points -- still print
+        # in the order the metrics put them rather than alphabetically. Then the
+        # count of metrics the split could not rate him in, so an arm scored on
+        # nine does not outrank one scored on four by having had more chances, and
+        # finally the name, so two identical lines always print the same way.
+        standing = sorted(
+            cards,
+            key=lambda c: (
+                -c.scores[split.key].points,
+                c.scores[split.key].places,
+                len(c.scores[split.key].unrated),
+                c.name,
+            ),
+        )
+        for place, card in enumerate(standing, 1):
+            card.scores[split.key].rank = place
+    for card in cards:
+        card.points = sum(score.points for score in card.scores.values())
 
 
 def _z(values: list[float]) -> list[float]:
@@ -256,13 +799,18 @@ def _z(values: list[float]) -> list[float]:
 
 
 def rank_starters(cards: list[StarterCard], top_n: int = 4) -> list[StarterCard]:
-    """Score every arm on home-run exposure and return the worst ``top_n``.
+    """Order the eligible arms by stage-1 points and return the worst ``top_n``.
 
-    The index is deliberately blunt -- an equal-weight z-sum of the five damage
-    signals minus the two that describe an arm that can defend itself. It sorts
-    a slate; it does not price one.
+    The sort key is the total across all ten rankings, which is the number Franz
+    asked for; the air-contact index below is computed on the same pool and kept
+    as the tiebreak, because two arms can hold the same points for different
+    reasons and the home-run screen should prefer the one hit harder in the air.
+
+    Arms are expected to have cleared ``gate_starters`` already -- that is where
+    a thin sample is refused. Cards that never went through it are ranked on
+    whatever they have, so the caller keeps the gate, not this function.
     """
-    readable = [c for c in cards if c.bf >= MIN_STARTER_BF]
+    readable = list(cards)
     if not readable:
         return []
     parts = {
@@ -280,7 +828,7 @@ def rank_starters(cards: list[StarterCard], top_n: int = 4) -> list[StarterCard]
             + parts["xwobacon"][i] + parts["hr"][i]
             - parts["kbb"][i] - parts["csw"][i]
         )
-    return sorted(readable, key=lambda c: -c.index)[:top_n]
+    return sorted(readable, key=lambda c: (-c.points, -c.index))[:top_n]
 
 
 # --- stage 2 and 3: score and cut the lineups ----------------------------
@@ -608,9 +1156,18 @@ class ScreenResult:
     league_xwoba: dict[str, float]
     starters_ranked: list[StarterCard]
     sections: list[MatchupSection]
+    #: Every eligible arm, scored, worst first. The per-split rankings read this
+    #: rather than ``starters_ranked``: an arm can miss the note's shortlist on his
+    #: total and still be the worst on the slate the third time through the order,
+    #: and a ranking that silently drops him is not that ranking.
+    starters_scored: list[StarterCard] = field(default_factory=list)
     cut_log: list[HitterLine] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     has_run_value: bool = True
+    siera_floor: float = SIERA_FLOOR
+    starter_cuts: list[StarterCut] = field(default_factory=list)
+    splits: tuple[StarterSplit, ...] = STARTER_SPLITS
+    has_xera: bool = True  # false when Savant's board could not be read
 
 
 def bf_pmf(mean: float, sd: float, cap: int, limit: int = 45) -> list[float]:
