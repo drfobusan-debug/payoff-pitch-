@@ -15,6 +15,9 @@ import pandas as pd
 
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
+    BAT_SPEED_BAND,
+    FIT_SCORED,
+    HALF_SCORED,
     HR_METRIC,
     MIN_BATTER_PA,
     MIN_STARTER_BF,
@@ -23,7 +26,13 @@ from mlb_engine.output.power_screen import (
     SIERA_FLOOR,
     STARTER_SCORED,
     STARTER_SPLITS,
+    TOP_PITCHES,
     XFIP_LEAGUE_ANCHOR,
+    ArsenalEdge,
+    ContactLine,
+    ContextTerms,
+    FinalScore,
+    HalfLine,
     HitterLine,
     HitterView,
     MatchupSection,
@@ -31,24 +40,35 @@ from mlb_engine.output.power_screen import (
     ScreenResult,
     StarterCard,
     StarterSplit,
+    TrendDeltas,
     apply_cuts,
     arsenal,
+    arsenal_edge,
     arsenal_fit,
     batter_arsenal,
     batter_window_line,
     bf_pmf,
+    build_context,
     contact_line,
     exposure,
     gate_starters,
+    half_lines,
     league_arms,
     pa_vs_starter,
     pitch_family,
+    rank_final,
     rank_starters,
+    rv_term,
+    score_edges,
+    score_halves,
     score_starters,
+    signed_term,
     split_rows,
     starter_damage,
     starter_lines,
     third_look_prob,
+    top_pitch_rv,
+    trend_deltas,
     with_tto,
     wrc_plus,
 )
@@ -722,3 +742,389 @@ def test_a_power_exception_is_disclosed_in_the_recommendation() -> None:
     result.sections[0].hitters[0].line.power_exception = True
     html = power_report.render_html(result)
     assert "home runs and total bases only" in html
+
+
+# --- stage 6: both halves of the game ------------------------------------
+
+
+def _half_pitch(inning: int, **kw: object) -> dict[str, object]:
+    """One pitch in a known inning, with the columns the half score reads."""
+    row = _pitch(**kw)  # type: ignore[arg-type]
+    row["inning"] = inning
+    return row
+
+
+def test_the_halves_split_on_the_seventh_inning() -> None:
+    """Innings 1-6 are the starter's half; the seventh is the bullpen's."""
+    rows = [_half_pitch(i) for i in (1, 3, 6, 6)] + [_half_pitch(i) for i in (7, 8, 9)]
+    early, late = half_lines(_frame(rows))
+    assert (early.half, late.half) == ("early", "late")
+    assert early.samples["pitches"] == 4
+    assert late.samples["pitches"] == 3
+
+
+def test_a_thin_half_is_shrunk_toward_the_hitter_himself_not_the_league() -> None:
+    """The null for a missing late sample is what he does earlier in the game.
+
+    A hitter with 200 early plate appearances at a 10% strikeout rate and four
+    late ones at 100% is not a 100% strikeout hitter after the sixth, and the
+    league's 22% is not the right prior either -- his own 10% is.
+    """
+    early_rows = [
+        _half_pitch(2, description="called_strike",
+                    events="strikeout" if i % 10 == 0 else "field_out")
+        for i in range(200)
+    ]
+    late_rows = [
+        _half_pitch(8, description="swinging_strike", events="strikeout") for _ in range(4)
+    ]
+    early, late = half_lines(_frame(early_rows + late_rows))
+    assert late.values["k"] < 0.5  # raw split is 1.00
+    assert late.values["k"] > early.values["k"]  # but still worse than his own half
+    assert late.samples["pa"] == 4
+
+
+def test_a_half_with_no_rows_at_all_is_unavailable_rather_than_zero() -> None:
+    early, late = half_lines(_frame([_half_pitch(i) for i in (1, 2, 3)]))
+    assert late.pa == 0
+    assert all(math.isnan(v) for v in late.values.values())
+    assert late.points == 0
+
+
+def _half(**values: float) -> HalfLine:
+    line = HalfLine(half="late")
+    for metric in HALF_SCORED:
+        line.values[metric.attr] = values.get(metric.attr, math.nan)
+    return line
+
+
+def test_a_half_scores_a_point_per_metric_and_three_for_a_top_three_finish() -> None:
+    best = _half(k=0.10)
+    rest = [_half(k=0.20 + i / 100) for i in range(5)]
+    score_halves([best, *rest])
+    assert best.points == 3  # one rated metric, and it is the best of six
+    assert rest[0].points == 3
+    assert rest[3].points == 1  # rated, outside the top three
+    assert best.top_in == ("K%",)
+
+
+def test_an_unrated_metric_in_a_half_scores_nothing_rather_than_last() -> None:
+    """A hitter with no late batted balls has no late exit velocity, not a bad one."""
+    measured = _half(k=0.20, ev90=108.0)
+    unmeasured = _half(k=0.20)
+    score_halves([measured, unmeasured])
+    assert measured.points > unmeasured.points
+    assert "EV90" in measured.top_in
+
+
+def test_the_strikeout_rate_is_scored_low_is_better() -> None:
+    quiet = _half(k=0.12)
+    loud = _half(k=0.34)
+    score_halves([quiet, loud], top_n=1)
+    assert quiet.points > loud.points
+
+
+# --- stage 7: regression, park and weather -------------------------------
+
+
+def test_a_term_is_zero_inside_its_noise_band() -> None:
+    assert signed_term(0.4, BAT_SPEED_BAND, higher_helps_hitter=True) == 0
+    assert signed_term(1.4, BAT_SPEED_BAND, higher_helps_hitter=True) == 1
+    assert signed_term(-1.4, BAT_SPEED_BAND, higher_helps_hitter=True) == -1
+
+
+def test_a_missing_reading_is_neutral_rather_than_negative() -> None:
+    """A hitter whose bat speed was never tracked has not slowed down."""
+    assert signed_term(math.nan, BAT_SPEED_BAND, higher_helps_hitter=True) == 0
+    terms = build_context(woba=math.nan, xwoba=math.nan, trends=TrendDeltas())
+    assert terms.total == 0
+
+
+def test_the_luck_term_pays_the_hitter_whose_contact_beats_his_results() -> None:
+    """xwOBA above wOBA is the only thing 'positive regression' can mean.
+
+    The same gap in the other direction is what the stage-3 luck cut removes, so
+    the sign here has to agree with it: results ahead of contact quality are not
+    evidence.
+    """
+    unlucky = build_context(woba=0.300, xwoba=0.340, trends=TrendDeltas())
+    lucky = build_context(woba=0.380, xwoba=0.330, trends=TrendDeltas())
+    assert unlucky.luck == 1
+    assert lucky.luck == -1
+    assert build_context(woba=0.330, xwoba=0.340, trends=TrendDeltas()).luck == 0
+
+
+def test_chasing_more_is_a_point_against_the_hitter() -> None:
+    """Bat speed and exit velocity go up for the hitter; chase goes up against him."""
+    chasing = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(chase=0.06, oz_pitches=100)
+    )
+    disciplined = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(chase=-0.06, oz_pitches=100)
+    )
+    assert chasing.chase == -1
+    assert disciplined.chase == 1
+
+
+def test_the_park_and_the_forecast_are_signed_toward_the_hitter() -> None:
+    hot = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(),
+        park_factor=108.0, weather_hr_mult=1.08,
+    )
+    cold = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(),
+        park_factor=92.0, weather_hr_mult=0.92,
+    )
+    neutral = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(),
+        park_factor=100.5, weather_hr_mult=1.005,
+    )
+    assert (hot.park, hot.weather) == (1, 1)
+    assert (cold.park, cold.weather) == (-1, -1)
+    assert (neutral.park, neutral.weather) == (0, 0)
+
+
+def test_facing_one_of_the_slates_worst_arms_is_worth_a_point() -> None:
+    terms = build_context(woba=0.330, xwoba=0.330, trends=TrendDeltas(), worst_arm=True)
+    assert terms.worst_arm == 1
+    assert terms.regression == 0  # the arm is context, not form
+    assert terms.total == 1
+
+
+def test_the_regression_property_is_the_four_form_terms_only() -> None:
+    terms = build_context(
+        woba=0.300, xwoba=0.340,
+        trends=TrendDeltas(bat_speed=1.5, chase=-0.06, ev90=2.0,
+                           swings=100, oz_pitches=100, bbe=50),
+        park_factor=108.0, weather_hr_mult=1.08, worst_arm=True,
+    )
+    assert terms.regression == 4
+    assert terms.total == 7
+
+
+def test_a_trend_needs_its_own_denominator_before_it_is_a_reading() -> None:
+    """Three weeks of a metric is a reading only if the sample got there."""
+    def rows(n: int, *, bat: float, ev: float) -> pd.DataFrame:
+        out = []
+        for _ in range(n):
+            row = _pitch(ev=ev)
+            row["bat_speed"] = bat
+            out.append(row)
+        return _frame(out)
+
+    season = rows(400, bat=72.0, ev=100.0)
+    thin = trend_deltas(rows(5, bat=68.0, ev=90.0), season)
+    assert math.isnan(thin.bat_speed)
+    assert math.isnan(thin.ev90)
+    assert thin.swings == 5
+
+    read = trend_deltas(rows(80, bat=68.0, ev=90.0), season)
+    assert read.bat_speed < -3
+    assert read.ev90 < -9
+    assert build_context(woba=0.330, xwoba=0.330, trends=read).regression == -2
+
+
+# --- stage 8: the arsenal edge -------------------------------------------
+
+
+def _mix(usage: dict[str, float], **marks: float) -> dict[str, ContactLine]:
+    return {
+        name: ContactLine(
+            pitches=200, bbe=60, rv100=marks.get(f"{name}_rv", 1.0), xba=0.260,
+            xwoba=marks.get(f"{name}_xwoba", 0.320), hh=0.400, brl=0.080,
+            whiff=marks.get(f"{name}_whiff", 0.250),
+        )
+        for name in usage
+    }
+
+
+def test_the_fit_is_weighted_by_the_mix_the_starter_actually_throws() -> None:
+    """A pitch he crushes counts as much as the starter throws it, and no more."""
+    usage = {"4-Seam": 0.90, "Curveball": 0.10}
+    hitter = _mix(usage, **{"4-Seam_xwoba": 0.200, "Curveball_xwoba": 0.900})
+    starter = _mix(usage)
+    overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
+    edge = arsenal_edge(hitter, overall, starter, usage)
+    # 0.9*.200 + 0.1*.900 = .270, not the .550 an unweighted mean would give
+    assert abs(edge.hitter["xwoba"] - 0.270) < 1e-9
+    assert edge.fallback_share == 0.0
+
+
+def test_a_pitch_the_hitter_has_not_seen_falls_back_and_says_how_much() -> None:
+    usage = {"4-Seam": 0.60, "Splitter": 0.40}
+    hitter = {"4-Seam": _mix({"4-Seam": 1.0})["4-Seam"]}
+    overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
+    edge = arsenal_edge(hitter, overall, _mix(usage), usage)
+    assert abs(edge.fallback_share - 0.40) < 1e-9
+    assert abs(edge.hitter["xwoba"] - (0.6 * 0.320 + 0.4 * 0.310)) < 1e-9
+
+
+def test_an_arsenal_with_no_usage_is_unrated_rather_than_scored() -> None:
+    edge = arsenal_edge({}, ContactLine(0, 0, math.nan, math.nan, math.nan,
+                                        math.nan, math.nan, math.nan), {}, {})
+    score_edges([edge])
+    assert edge.points == 0
+    assert edge.fallback_share == 1.0
+
+
+def test_the_fit_scores_whiff_low_is_better_and_the_rest_high() -> None:
+    usage = {"4-Seam": 1.0}
+    overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
+    contactful = arsenal_edge(
+        _mix(usage, **{"4-Seam_whiff": 0.15}), overall, _mix(usage), usage
+    )
+    swinging = arsenal_edge(
+        _mix(usage, **{"4-Seam_whiff": 0.40}), overall, _mix(usage), usage
+    )
+    score_edges([contactful, swinging], top_n=1)
+    assert contactful.points > swinging.points
+    assert "Whiff%" in contactful.top_in
+
+
+def test_the_five_scored_fit_marks_are_the_ones_asked_for() -> None:
+    assert [m.label for m in FIT_SCORED] == ["RV/100", "xwOBA", "Whiff%", "HH%", "Brl%"]
+
+
+# --- the composite ranking ----------------------------------------------
+
+
+def _final(name: str, *, early: int, late: int, fit: int = 0, ctx: int = 0) -> FinalScore:
+    e, latest = HalfLine(half="early", points=early), HalfLine(half="late", points=late)
+    return FinalScore(
+        name=name, team="AAA", versus="Some Arm", slot=3,
+        early=e, late=latest,
+        context=ContextTerms(luck=ctx),
+        edge=ArsenalEdge(points=fit),
+    )
+
+
+def test_the_total_adds_every_stage_and_keeps_them_apart() -> None:
+    score = _final("Both Halves", early=15, late=13, fit=7, ctx=1)
+    assert score.halves == 28
+    assert score.total == 36
+    assert score.weakest_half == 13
+
+
+def test_a_tie_breaks_toward_the_hitter_with_no_bad_half() -> None:
+    """The screen wants hitters who play all game, so the weaker half decides."""
+    steady = _final("Steady", early=14, late=14)
+    lopsided = _final("Lopsided", early=22, late=6)
+    order = rank_final([lopsided, steady])
+    assert [s.name for s in order] == ["Steady", "Lopsided"]
+
+
+def test_the_composite_prints_both_halves_the_context_and_the_fit() -> None:
+    result = _result()
+    view = result.sections[0].hitters[0]
+    early, late = half_lines(
+        _frame([_half_pitch(i % 9 + 1) for i in range(60)])
+    )
+    view.early, view.late = early, late
+    view.context = build_context(
+        woba=0.300, xwoba=0.340, trends=TrendDeltas(), park_factor=104.0, worst_arm=True
+    )
+    view.edge = arsenal_edge(
+        view.per_pitch, view.overall, result.sections[0].starter.arsenal,
+        result.sections[0].starter.usage,
+    )
+    score_halves([early])
+    score_halves([late])
+    score_edges([view.edge])
+    result.final = rank_final([
+        FinalScore(
+            name=view.line.name, team=view.line.team, versus=view.line.versus,
+            slot=view.line.slot, early=early, late=late,
+            context=view.context, edge=view.edge, pen_rank=None,
+        )
+    ])
+    html = power_report.render_html(result)
+    assert "The composite" in html
+    assert "The arsenal fit" in html
+    assert f"RV{TOP_PITCHES}" in html  # the run-value point has its own column
+    assert f"RV/100 on {TOP_PITCHES}" in html
+    assert "the bullpen&#x27;s half" in html or "bullpen&#39;s half" in html or (
+        "bullpen's half" in html
+    )
+    assert "Matt Olson" in html
+
+
+def test_the_composite_section_is_absent_when_the_season_rows_were_not_loaded() -> None:
+    result = _result()
+    assert not result.final
+    assert "The composite" not in power_report.render_html(result)
+
+
+# --- the run-value point on the pitches he will see most ------------------
+
+
+def test_the_run_value_point_reads_the_starters_three_most_thrown_pitches() -> None:
+    usage = {"4-Seam": 0.45, "Slider": 0.25, "Changeup": 0.20, "Curveball": 0.10}
+    hitter = _mix(usage, **{
+        "4-Seam_rv": 1.0, "Slider_rv": 1.0, "Changeup_rv": 1.0, "Curveball_rv": -50.0,
+    })
+    families, rv = top_pitch_rv(hitter, usage)
+    assert families == ("4-Seam", "Slider", "Changeup")
+    assert abs(rv - 1.0) < 1e-9  # the fourth pitch is not in the term
+
+
+def test_the_run_value_point_is_weighted_inside_the_top_three() -> None:
+    """The pitch thrown half the time counts half, not a third."""
+    usage = {"4-Seam": 0.50, "Slider": 0.25, "Changeup": 0.25}
+    hitter = _mix(usage, **{"4-Seam_rv": 4.0, "Slider_rv": 0.0, "Changeup_rv": 0.0})
+    _, rv = top_pitch_rv(hitter, usage)
+    assert abs(rv - 2.0) < 1e-9
+
+
+def test_a_pitch_he_has_never_seen_does_not_borrow_his_overall_run_value() -> None:
+    """This term is about these pitches; his line on other pitches is not a read."""
+    usage = {"4-Seam": 0.60, "Splitter": 0.40}
+    seen = _mix({"4-Seam": 1.0}, **{"4-Seam_rv": 3.0})
+    _, rv = top_pitch_rv(seen, usage)
+    assert abs(rv - 3.0) < 1e-9  # renormalized over what is readable
+    _, none = top_pitch_rv({}, usage)
+    assert math.isnan(none)
+    assert rv_term(none) == 0
+
+
+def test_the_run_value_point_signs_on_the_hitters_side_and_trebles_when_large() -> None:
+    assert rv_term(0.4) == 1
+    assert rv_term(-0.4) == -1
+    assert rv_term(2.0) == 3
+    assert rv_term(-2.5) == -3
+    assert rv_term(0.0) == 0
+    assert rv_term(math.nan) == 0
+
+
+def test_the_run_value_point_enters_the_total_without_becoming_regression() -> None:
+    """It is a matchup fact known before first pitch, not a form trend."""
+    ahead = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=2.4
+    )
+    behind = build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=-2.4
+    )
+    assert (ahead.top_rv, ahead.total, ahead.regression) == (3, 3, 0)
+    assert (behind.top_rv, behind.total) == (-3, -3)
+
+
+def test_the_edge_carries_the_top_three_run_value_for_the_context_layer() -> None:
+    usage = {"4-Seam": 0.50, "Slider": 0.30, "Changeup": 0.20}
+    overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
+    edge = arsenal_edge(_mix(usage, **{"4-Seam_rv": 3.0, "Slider_rv": 3.0,
+                                      "Changeup_rv": 3.0}), overall, _mix(usage), usage)
+    assert edge.top_families == ("4-Seam", "Slider", "Changeup")
+    assert abs(edge.top_rv - 3.0) < 1e-9
+    assert build_context(
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=edge.top_rv
+    ).top_rv == 3
+
+
+def test_the_run_value_point_reorders_the_composite() -> None:
+    """Two hitters level on skill are separated by the mix they are about to see."""
+    fits = _final("Fits The Mix", early=14, late=14)
+    fits.context = ContextTerms(top_rv=3)
+    misfits = _final("Wrong Mix", early=14, late=14)
+    misfits.context = ContextTerms(top_rv=-3)
+    order = rank_final([misfits, fits])
+    assert [s.name for s in order] == ["Fits The Mix", "Wrong Mix"]
+    assert order[0].total - order[1].total == 6

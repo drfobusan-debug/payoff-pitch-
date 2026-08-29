@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import logging
 import math
+from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
@@ -50,6 +51,7 @@ from mlb_engine.audit import power_ledger
 from mlb_engine.config import Config, RollingWindows, load_config
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.data.parks import get_park
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
 from mlb_engine.data.savant_expected import load_pitcher_xera
@@ -60,7 +62,7 @@ from mlb_engine.features.rolling import build_bullpen_profile
 from mlb_engine.features.siera import MIN_SIERA_PA
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_board, power_report
+from mlb_engine.output import power_bets, power_board, power_report
 from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
@@ -70,8 +72,12 @@ from mlb_engine.output.power_screen import (
     MIN_WRC,
     SIERA_FLOOR,
     STARTER_WINDOWS,
+    TREND_DAYS,
     WORK_DAYS,
+    ArsenalEdge,
     BullpenCard,
+    FinalScore,
+    HalfLine,
     HitterLine,
     HitterView,
     MatchupSection,
@@ -79,23 +85,30 @@ from mlb_engine.output.power_screen import (
     StarterCard,
     apply_cuts,
     arsenal,
+    arsenal_edge,
     arsenal_fit,
     batter_arsenal,
     batter_window_line,
     bf_pmf,
+    build_context,
     contact_line,
     exposure,
     gate_starters,
+    half_lines,
     league_arms,
     pa_vs_starter,
+    rank_final,
     rank_starters,
+    score_edges,
+    score_halves,
     score_starters,
     starter_damage,
     starter_lines,
+    trend_deltas,
     with_tto,
     wrc_plus,
 )
-from mlb_engine.recommendations import load_json
+from mlb_engine.recommendations import Recommendation, load_json
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
@@ -105,6 +118,16 @@ log = logging.getLogger("power_screen")
 # fallback when the frame carries no game keys.
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
+
+# The game-half split and the luck gap are read season-to-date rather than over
+# the form window: a game half is about a third of a hitter's work, so ninety
+# days of it cannot carry a batted-ball rate. March 1 is early enough to catch
+# any opener.
+SEASON_OPENING = (3, 1)
+
+#: How many of the ranked arms count as "bottom three on the slate" for the
+#: context point. The number is the screen's own top-N, not a new threshold.
+WORST_ARMS = 3
 
 
 def _parse_args() -> argparse.Namespace:
@@ -357,6 +380,13 @@ def main() -> None:
         day,
     )
 
+    # Stages 6-8 read the season rather than the form window, and the game rather
+    # than the arm: the halves need a season to carry a late batted-ball rate,
+    # and the park and the forecast belong to the venue.
+    season = repo.load_range(Date(day.year, *SEASON_OPENING), end, refresh=args.refresh)
+    environments = _environments(slate, cfg)
+    worst = {c.mlbam_id for c in scored[:WORST_ARMS]}
+
     sections: list[MatchupSection] = []
     cut_log: list[HitterLine] = []
     for card in targets:
@@ -367,6 +397,7 @@ def main() -> None:
             pen=pens.get(pen_team.abbrev),
             window=window,
             frame=frame,
+            season=season,
             as_of=day,
             form=form,
             league_woba=league_woba,
@@ -377,9 +408,12 @@ def main() -> None:
             keep_power=not args.no_power_exception,
             projected=projected,
             cut_log=cut_log,
+            env=environments.get(card.mlbam_id, _Environment()),
+            worst_arm=card.mlbam_id in worst,
         )
         if section is not None:
             sections.append(section)
+    final = _rank_everything(sections, pens)
 
     result = ScreenResult(
         as_of=day,
@@ -391,6 +425,7 @@ def main() -> None:
         starters_ranked=ranked,
         sections=sections,
         starters_scored=scored,
+        final=final,
         cut_log=cut_log,
         has_run_value="delta_run_exp" in window.columns,
         siera_floor=args.siera_min,
@@ -431,6 +466,103 @@ def _fill_expected_lineups(
     return True
 
 
+@dataclass(frozen=True)
+class _Environment:
+    """The venue's park factor and the forecast's home-run multiplier.
+
+    Both default to unavailable rather than to neutral, so a park the reference
+    table does not carry and a forecast that could not be fetched score zero
+    because the evidence is missing, which is not the same as a park that plays
+    neutral -- the term is the same either way, but the report can say which.
+    """
+
+    park: str = ""
+    park_factor: float = math.nan
+    weather_hr_mult: float = math.nan
+    weather_note: str = ""
+
+
+def _environments(slate: Slate, cfg: Config) -> dict[int, _Environment]:
+    """Park and forecast per probable starter, keyed by his MLBAM id.
+
+    Keyed on the pitcher rather than the game because that is what the sections
+    are keyed on, and both starters in a game share a venue.
+    """
+    weather = WeatherProvider(cache_dir=cfg.cache_dir)
+    out: dict[int, _Environment] = {}
+    for game in slate.games:
+        park = get_park(game.venue.venue_id)
+        if park is None:
+            env = _Environment(park=game.venue.name, weather_note="park unknown")
+        else:
+            effect = weather.fetch(park, game.game_datetime_utc)
+            env = _Environment(
+                park=park.name,
+                park_factor=park.park_factor,
+                weather_hr_mult=effect.hr_mult if effect.conditions else math.nan,
+                weather_note=effect.note,
+            )
+        for team in (game.home, game.away):
+            arm = team.probable_pitcher
+            if arm is not None and arm.mlbam_id:
+                out[int(arm.mlbam_id)] = env
+    return out
+
+
+def _rank_everything(
+    sections: list[MatchupSection], pens: dict[str, BullpenCard]
+) -> list[FinalScore]:
+    """Score the two halves and the arsenal fit across the slate, then rank.
+
+    The pools are slate-wide on purpose. A hitter's late points have to be earned
+    against the other hitters the screen kept, not against his own lineup: three
+    bats out of one lineup would otherwise all take a top-three bonus in a pool
+    of three.
+    """
+    ready = [
+        v for s in sections for v in s.hitters
+        if v.early and v.late and v.edge and v.context
+    ]
+    if not ready:
+        return []
+    early: list[HalfLine] = []
+    late: list[HalfLine] = []
+    edges: list[ArsenalEdge] = []
+    for view in ready:
+        if view.early and view.late and view.edge:
+            early.append(view.early)
+            late.append(view.late)
+            edges.append(view.edge)
+    score_halves(early)
+    score_halves(late)
+    score_edges(edges)
+    pen_rank = {c.team: c.rank for c in pens.values()}
+    scored_ids = {id(v) for v in ready}
+    scores: list[FinalScore] = []
+    for section in sections:
+        for view in section.hitters:
+            if id(view) not in scored_ids:
+                continue
+            if not (view.early and view.late and view.context and view.edge):
+                continue
+            scores.append(
+                FinalScore(
+                    name=view.line.name,
+                    team=view.line.team,
+                    versus=view.line.versus,
+                    slot=view.line.slot,
+                    early=view.early,
+                    late=view.late,
+                    context=view.context,
+                    edge=view.edge,
+                    pen_rank=(
+                        pen_rank.get(section.bullpen.team) if section.bullpen else None
+                    ),
+                )
+            )
+    return rank_final(scores)
+
+
 def _build_section(
     *,
     card: StarterCard,
@@ -438,6 +570,7 @@ def _build_section(
     pen: BullpenCard | None,
     window: pd.DataFrame,
     frame: pd.DataFrame,
+    season: pd.DataFrame,
     as_of: Date,
     form: int,
     league_woba: dict[str, float],
@@ -448,6 +581,8 @@ def _build_section(
     keep_power: bool,
     projected: bool,
     cut_log: list[HitterLine],
+    env: _Environment,
+    worst_arm: bool,
 ) -> MatchupSection | None:
     """Stages 2-5 for one starter: score, cut, read the arsenal, scale by exposure."""
     hand = card.throws
@@ -528,6 +663,7 @@ def _build_section(
     )
     pmf = bf_pmf(bf_mean, bf_sd, bf_cap)
 
+    trend_start = as_of - timedelta(days=TREND_DAYS)
     views: list[HitterView] = []
     for h in kept:
         rows = window[(window["batter"] == h.mlbam_id) & (window["p_throws"] == hand)]
@@ -542,6 +678,24 @@ def _build_section(
             fit_xba=fit_b,
             fallback_share=fallback,
         )
+        # Stages 6-8. The halves and the trends are read against every pitcher
+        # over the whole season: after the sixth he faces the bullpen, so a hand
+        # split of the late half describes a matchup that will not happen.
+        view.edge = arsenal_edge(per_pitch, overall, card.arsenal, usage)
+        own = season[season["batter"] == h.mlbam_id]
+        if not own.empty:
+            view.early, view.late = half_lines(own)
+            view.trends = trend_deltas(own[own["game_date"] >= trend_start], own)
+            szn = batter_window_line(own)
+            view.context = build_context(
+                woba=szn.get("woba", math.nan),
+                xwoba=szn.get("xwoba_pa", math.nan),
+                trends=view.trends,
+                park_factor=env.park_factor,
+                weather_hr_mult=env.weather_hr_mult,
+                worst_arm=worst_arm,
+                top_pitch_rv=view.edge.top_rv,
+            )
         if h.slot:
             view.exposure = exposure(
                 h.slot,
@@ -566,8 +720,10 @@ def _build_section(
     )
 
 
-def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
-    """The survivors' rows off the card's own run, if it has already priced today.
+def _priced(
+    result: ScreenResult, cfg: Config, args: argparse.Namespace
+) -> tuple[list[Recommendation], str] | None:
+    """The card's own priced slate for the day, if it has already run.
 
     Missing is the normal case in the morning -- the screen exists to run before
     the engine can price anything -- so a missing or unreadable file is a note,
@@ -584,11 +740,17 @@ def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board
         log.info("no priced board at %s; the note will carry no prices", path)
         return None
     try:
-        recs = load_json(path)
+        return load_json(path), path.name
     except Exception as exc:  # pragma: no cover - a malformed ledger must not kill the note
         log.warning("could not read %s (%s); the note will carry no prices", path, exc)
         return None
-    board = power_board.build(result, recs, source=path.name)
+
+
+def _board(
+    result: ScreenResult, recs: list[Recommendation], source: str
+) -> Board:
+    """The survivors' rows off the card's own run."""
+    board = power_board.build(result, recs, source=source)
     log.info(
         "board: %d priced rows on %d of %d survivors",
         len(board.rows),
@@ -672,7 +834,18 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
     out_dir = cfg.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    board = _board(result, cfg, args)
+    priced = _priced(result, cfg, args)
+    board: Board | None = None
+    if priced is not None:
+        recs, source = priced
+        board = _board(result, recs, source)
+        result.bets = power_bets.build(result, recs)
+        log.info(
+            "bets: %d priced sides, %d batter buys, %d pitcher buys",
+            result.bets.priced_sides,
+            len(result.bets.batter_buys),
+            len(result.bets.pitcher_buys),
+        )
     # Grade before recording: an earlier day is never this one, but a --grade-date
     # pointing at today should read what the ledger held when the note was asked.
     review = _review(cfg, args, result.as_of)
