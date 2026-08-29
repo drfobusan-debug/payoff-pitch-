@@ -23,16 +23,36 @@ from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
 from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
+from mlb_engine.output.power_bets import (
+    BATTER_STATS,
+    PITCHER_STATS,
+    PlayerBets,
+    PricedSide,
+)
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
+    BIG_RV,
+    FIT_SCORED,
+    HALF_SCORED,
+    MIN_STARTER_BF,
+    MIN_STARTER_PITCHES,
     RESCUE_POWER_Z,
     SCORED,
+    SPLIT_INNING,
+    STARTER_TOP_N,
     TOP_K,
+    TOP_PITCHES,
+    TREND_DAYS,
+    WORK_DAYS,
     ContactLine,
+    HalfLine,
+    HalfMetric,
     HitterView,
     MatchupSection,
     ScreenResult,
     StarterCard,
+    StarterMetric,
+    StarterSplit,
 )
 
 CUT_LOG_ROWS = 12  # near misses printed in the appendix
@@ -63,6 +83,9 @@ td.n,th.n{text-align:right}
 .caveat{background:#fbf6e8;border-left:2.5pt solid #b8860b;padding:2mm 3mm;margin:3mm 0}
 .buy{color:#0a6000;font-weight:bold}.hold{color:#8a6d00;font-weight:bold}
 .avoid{color:#8c0000;font-weight:bold}
+tbody tr.top,tbody tr.top:nth-child(even){background:#fdeeee}
+tbody tr.top td{font-weight:bold;border-bottom:.4pt solid #e8c9c9}
+tbody tr.top td:first-child{border-left:2.5pt solid #8c0000}
 """
 
 
@@ -85,17 +108,23 @@ def _num(x: float, digits: int = 1, signed: bool = False) -> str:
     return f"{x:+.{digits}f}" if signed else f"{x:.{digits}f}"
 
 
-def _table(headers: list[str], rows: list[list[str]], numeric_from: int = 1) -> str:
+def _table(
+    headers: list[str],
+    rows: list[list[str]],
+    numeric_from: int = 1,
+    row_classes: list[str] | None = None,
+) -> str:
     head = "".join(
         f"<th class='{'n' if i >= numeric_from else ''}'>{h}</th>" for i, h in enumerate(headers)
     )
+    classes = row_classes or [""] * len(rows)
     body = "".join(
-        "<tr>"
+        f"<tr class='{cls}'>"
         + "".join(
             f"<td class='{'n' if i >= numeric_from else ''}'>{c}</td>" for i, c in enumerate(r)
         )
         + "</tr>"
-        for r in rows
+        for r, cls in zip(rows, classes, strict=True)
     )
     return f"<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
 
@@ -671,53 +700,181 @@ def _provenance(result: ScreenResult, board: Board | None = None) -> str:
     return "".join(out)
 
 
-def _starter_ranking(result: ScreenResult) -> str:
-    rows = []
-    for i, s in enumerate(result.starters_ranked, 1):
-        rows.append(
+def _starter_gate(result: ScreenResult) -> str:
+    """Stage 0: which arms were eligible to be ranked at all, and why the rest were not."""
+    kept = len(result.starters_ranked)
+    work_cuts = [c for c in result.starter_cuts if c.stage == "work"]
+    siera_cuts = [c for c in result.starter_cuts if c.stage == "siera"]
+    if result.siera_floor <= 0:
+        out = [
+            "<h2>Stage 0 &mdash; the SIERA gate, disabled</h2>",
+            "<p class='sub'>This note was run with the gate off, so the ranking below "
+            "may contain arms that prevent runs perfectly well. The work floor still "
+            "applies: a metric measured on nothing is not a metric.</p>",
+        ]
+    else:
+        out = [
+            "<h2>Stage 0 &mdash; who is eligible to be ranked</h2>",
+            f"<p class='sub'>Two cuts, in order. First the work floor: an arm needs "
+            f"{MIN_STARTER_BF} batters faced and {MIN_STARTER_PITCHES} pitches in the last "
+            f"{WORK_DAYS} days before his numbers are measurements rather than small samples, "
+            "which is what removes a call-up, an opener and a starter two outings back from "
+            f"the injured list. Then SIERA: only arms above {result.siera_floor:.2f} are "
+            f"eligible. {kept} of {kept + len(result.starter_cuts)} probables cleared both. "
+            "The metrics below say how an arm is hit; SIERA says whether he prevents runs, "
+            "and screening on the former alone has repeatedly nominated aces. An arm without "
+            "enough work to carry a trusted SIERA is ineligible, not assumed soft.</p>",
+        ]
+    for label, cuts in (("too little work", work_cuts), ("prevents runs", siera_cuts)):
+        if not cuts:
+            continue
+        rows = [
             [
-                f"{i}. {html.escape(s.name)}",
-                f"{s.throws}HP",
-                html.escape(s.opponent),
-                str(s.bf),
-                _num(s.index, 2, signed=True),
-                _pc(s.brl_pct),
-                _pc(s.hh_pct),
-                _pc(s.fb_pct),
-                _f3(s.xwobacon),
-                _pc(s.hr_per_bf, 2),
-                _pc(s.k_bb_pct),
-                _num(s.arm.pvelo if s.arm else math.nan, 1),
-                _num(s.arm.ext if s.arm else math.nan, 1),
-                _num(s.arm.ivb if s.arm else math.nan, 1),
-                "\u2020" if s.arm_verdict == arm_model.CONTRADICTED else "",
+                html.escape(c.card.name),
+                f"{c.card.throws}HP",
+                html.escape(c.card.opponent),
+                _num(c.card.siera, 2) if c.card.siera is not None else "&mdash;",
+                str(c.card.siera_pa),
+                html.escape(c.reason),
             ]
+            for c in cuts
+        ]
+        out.append(
+            _table([f"gated out &mdash; {label}", "hand", "vs", "SIERA", "PA", "why"],
+                   rows, numeric_from=3)
         )
+    return "".join(out)
+
+
+def _metric_cell(metric: StarterMetric, card: StarterCard, split: str) -> str:
+    """One arm's number in one metric, or an em dash when he is unrated in it."""
+    line = card.lines.get(split)
+    if line is None:
+        return "&mdash;"
+    value = line.value(metric)
+    if math.isnan(value):
+        return "&mdash;"
+    if metric.attr in ("xera", "xfip", "siera"):
+        return _num(value, 2)
+    if metric.attr == "stuff_plus":
+        return _num(value, 0, signed=True)
+    if metric.attr == "hr_per_bf":
+        return _pc(value, 2)
+    return _pc(value)
+
+
+def _starter_ranking(result: ScreenResult) -> str:
+    """Stage 1: the point total, where each point came from, and the numbers behind it."""
+    ranked = result.starters_ranked
+    splits = result.splits
+    pool = result.starters_scored or ranked
+    out = [
+        "<h2>Stage 1 &mdash; the arms, ranked on eleven metrics from ten angles</h2>",
+        "<p class='sub'>Every eligible arm is ranked in each metric he has the sample for: "
+        f"one point for being rated in it and two more for a top-{STARTER_TOP_N} finish, so a "
+        f"top-{STARTER_TOP_N} metric is worth three points and "
+        "a metric he is short of sample for is worth none. That runs ten times &mdash; overall, "
+        "innings 1-3, innings 1-5, each time through the order, each batter hand, and home runs "
+        "allowed by hand &mdash; and the total is the sum. Each metric is read over the window it "
+        "stabilizes in, not one shared frame: whiff, shape and swing rates over three weeks, "
+        "strikeout and walk rates over six, batted-ball and run-estimator rates over three "
+        "months, xERA season-to-date from Savant. Split floors are scaled by the pool's own "
+        "median share of that split, so a third time through the order is judged on a third "
+        "time through the order's worth of evidence. The index is the old air-contact z-sum, "
+        "kept only to break ties.</p>",
+    ]
+    if not result.has_xera:
+        out.append(
+            "<p class='sub'>Savant's expected-statistics board did not answer this morning, so "
+            "xERA is unrated for every arm and the overall ranking ran on ten metrics.</p>"
+        )
+    out.extend(_split_table(sp, pool) for sp in splits)
+    out.append(_final_table(pool, splits))
+    unrated = [
+        (s, sorted({f"{sp.label}: {', '.join(s.scores[sp.key].unrated)}"
+                    for sp in splits if sp.key in s.scores and s.scores[sp.key].unrated}))
+        for s in pool
+    ]
+    lines = [f"<li>{html.escape(s.name)} &mdash; {'; '.join(u)}</li>" for s, u in unrated if u]
+
+    if lines:
+        out.append(
+            "<p class='sub'>Where an arm was unrated, so a low total is not read as a good "
+            "pitcher:</p><ul class='sub'>" + "".join(lines) + "</ul>"
+        )
+    return "".join(out)
+
+
+def _split_table(split: StarterSplit, pool: list[StarterCard]) -> str:
+    """One ranking, in its own order, with the worst ``STARTER_TOP_N`` arms highlighted.
+
+    The point column alone hides what the splits are for: an arm can be sixth
+    overall and the worst on the slate the third time through the order, and that
+    is the note's whole thesis for a fifth-inning bet. So every ranking prints in
+    its own order with its own numbers, and the top three are marked -- worst
+    three in the first three innings, worst three against left-handed hitters,
+    and so on.
+    """
+    scored = [s for s in pool if split.key in s.scores]
+    if not scored:
+        return ""
+    scored = sorted(scored, key=lambda s: s.scores[split.key].rank)
+    rows = []
+    classes = []
+    for s in scored:
+        score = s.scores[split.key]
+        rows.append([
+            f"{score.rank}. {html.escape(s.name)}",
+            f"{s.throws}HP",
+            html.escape(s.opponent),
+            str(score.points),
+            *[_metric_cell(m, s, split.key) for m in split.metrics],
+            ", ".join(score.top_in) or "&mdash;",
+        ])
+        classes.append("top" if score.rank <= STARTER_TOP_N else "")
     return (
-        "<h2>Stage 1 &mdash; the arms, ranked by exposure</h2>"
-        "<p class='sub'>Equal-weight z-sum of barrel, hard-hit, fly-ball, xwOBA-on-contact and "
-        "home-run rates allowed, less K-BB% and called-plus-swinging strikes. Higher is softer. "
-        "It sorts a slate; it does not price one.</p>"
+        f"<h3>Worst {STARTER_TOP_N} &mdash; {html.escape(split.label)}</h3>"
         + _table(
-            [
-                "starter",
-                "hand",
-                "vs",
-                "BF",
-                "index",
-                "Brl%",
-                "HH%",
-                "FB%",
-                "xwOBAcon",
-                "HR/BF",
-                "K-BB%",
-                "pVelo",
-                "Ext",
-                "IVB",
-                "",
-            ],
-            rows,
-            numeric_from=3,
+            ["starter", "hand", "vs", "pts", *[m.label for m in split.metrics],
+             f"top {STARTER_TOP_N} in"],
+            rows, numeric_from=3, row_classes=classes,
+        )
+    )
+
+
+def _final_table(pool: list[StarterCard], splits: tuple[StarterSplit, ...]) -> str:
+    """The one ranking the rest add up to: every eligible arm, worst first.
+
+    Each column is what a single ranking gave him, so an arm carried by one split
+    can be told apart from one the whole slate agrees is soft, and the total is
+    the order the screen actually acts on. The worst three are marked; the index
+    column is the old air-contact z-sum, printed because it breaks ties, and the
+    delivery columns are printed beside it because a lost mile an hour is the one
+    thing on the row that the metric ranks do not already say.
+    """
+    if not pool:
+        return ""
+    rows = []
+    for i, s in enumerate(pool, 1):
+        rows.append([
+            f"{i}. {html.escape(s.name)}",
+            f"{s.throws}HP",
+            html.escape(s.opponent),
+            f"<b>{s.points}</b>",
+            *[str(s.scores[sp.key].points) if sp.key in s.scores else "&mdash;" for sp in splits],
+            _num(s.index, 2, signed=True),
+            _num(s.arm.pvelo if s.arm else math.nan, 1),
+            _num(s.arm.ext if s.arm else math.nan, 1),
+            _num(s.arm.ivb if s.arm else math.nan, 1),
+            "\u2020" if s.arm_verdict == arm_model.CONTRADICTED else "",
+        ])
+    return (
+        f"<h3>Final ranking &mdash; every ranking added up, worst {STARTER_TOP_N} marked</h3>"
+        + _table(
+            ["starter", "hand", "vs", "pts", *[sp.label for sp in splits], "index",
+             "pVelo", "Ext", "IVB", ""],
+            rows, numeric_from=3,
+            row_classes=["top" if i <= STARTER_TOP_N else "" for i in range(1, len(rows) + 1)],
         )
         + _arm_note()
     )
@@ -808,6 +965,196 @@ def _exposure_table(section: MatchupSection) -> str:
          "fit &Delta;", "full-game opp"],
         rows, numeric_from=1,
     )
+
+
+def _half_value(line: HalfLine, metric: HalfMetric) -> str:
+    """One cell of a half, formatted the way its own metric reads."""
+    value = line.values.get(metric.attr, math.nan)
+    if metric.attr.startswith("ev"):
+        return _num(value, 1)
+    return _pc(value)
+
+
+def _half_table(result: ScreenResult, *, late: bool) -> str:
+    """One half's nine metrics for every hitter, with the sample each rests on."""
+    rows = []
+    for s in result.final:
+        line = s.late if late else s.early
+        rows.append(
+            [html.escape(s.name), str(line.pa), str(line.bbe)]
+            + [_half_value(line, m) for m in HALF_SCORED]
+            + [str(line.points), ", ".join(line.top_in) or "&mdash;"]
+        )
+    return _table(
+        ["batter", "PA", "BBE"] + [m.label for m in HALF_SCORED] + ["pts", "top 3 in"],
+        rows, numeric_from=1,
+    )
+
+
+def _composite(result: ScreenResult) -> str:
+    """The composite: both halves, the seven context points, the arsenal fit."""
+    if not result.final:
+        return ""
+    rows = []
+    classes = []
+    for i, s in enumerate(result.final):
+        c = s.context
+        rows.append([
+            str(i + 1),
+            html.escape(s.name),
+            html.escape(s.team),
+            str(s.slot or "&mdash;"),
+            html.escape(s.versus),
+            str(s.early.points),
+            str(s.late.points),
+            str(s.halves),
+            str(s.edge.points),
+            f"{c.regression:+d}",
+            f"{c.park:+d}",
+            f"{c.weather:+d}",
+            f"{c.worst_arm:+d}",
+            f"{c.top_rv:+d}",
+            f"<b>{s.total}</b>",
+            str(s.pen_rank or "&mdash;"),
+        ])
+        classes.append("top" if i < STARTER_TOP_N else "")
+    table = _table(
+        ["#", "batter", "team", "LP", "vs", "1-6", f"{SPLIT_INNING}+", "halves", "fit",
+         "regr", "park", "wx", "arm", f"RV{TOP_PITCHES}", "total", "pen"],
+        rows, numeric_from=5, row_classes=classes,
+    )
+    fits = []
+    for s in result.final:
+        fits.append([
+            html.escape(s.name),
+            _num(s.edge.value(FIT_SCORED[0]), 2, signed=True),
+            _f3(s.edge.value(FIT_SCORED[1])),
+            _pc(s.edge.value(FIT_SCORED[2])),
+            _pc(s.edge.value(FIT_SCORED[3])),
+            _pc(s.edge.value(FIT_SCORED[4])),
+            _pc(s.edge.fallback_share, 0),
+            str(s.edge.points),
+            ", ".join(s.edge.top_in) or "&mdash;",
+            html.escape(", ".join(s.edge.top_families)) or "&mdash;",
+            _num(s.edge.top_rv, 2, signed=True),
+            f"{s.context.top_rv:+d}",
+        ])
+    fit_table = _table(
+        ["batter", "RV/100", "xwOBA", "whiff%", "HH%", "Brl%", "unread", "pts", "top 3 in",
+         f"his top {TOP_PITCHES}", f"RV/100 on {TOP_PITCHES}", "pts"],
+        fits, numeric_from=1,
+    )
+    return "".join([
+        "<h2>The composite &mdash; who hits all game, in this park, off this mix</h2>",
+        "<p>Every surviving hitter on the slate, scored in one pool. The two halves "
+        f"are innings 1-{SPLIT_INNING - 1} and {SPLIT_INNING}+ read season-to-date on "
+        f"{len(HALF_SCORED)} metrics apiece, each half shrunk toward the hitter's own "
+        "all-innings rate where the split is thin &mdash; toward himself, not toward the "
+        "league, because what he does earlier in the game is the better null. The "
+        "context columns are signed points: four regression reads (the xwOBA-wOBA luck "
+        f"gap, and the {TREND_DAYS}-day direction of bat speed, chase and EV90), the "
+        "park, the forecast, one for facing a bottom-three arm, and the hitter's run "
+        f"value on the starter's {TOP_PITCHES} most-thrown pitches. Each is +1 toward "
+        "the hitter, -1 toward the pitcher, and 0 inside the metric's own noise band, "
+        "so absent evidence costs nothing &mdash; except the run-value term, which is "
+        f"worth &plusmn;3 rather than &plusmn;1 past {BIG_RV:.0f} runs per 100, "
+        "because a hitter that far ahead on the pitches he will see most is not "
+        "marginally ahead.</p>",
+        table,
+        f"<h3>Innings 1-{SPLIT_INNING - 1} &mdash; the starter's half</h3>",
+        _half_table(result, late=False),
+        f"<h3>Innings {SPLIT_INNING}+ &mdash; the bullpen's half</h3>",
+        _half_table(result, late=True),
+        "<h3>The arsenal fit</h3>",
+        "<p>The matchup level on the mix he will actually see: the hitter's marks on "
+        "each pitch family and the starter's allowed marks on the same families, both "
+        "weighted by his usage and averaged. Run value is from the hitter's side. "
+        "<i>unread</i> is the share of the usage where the hitter's own split was too "
+        f"thin and his overall line stood in for it. The last columns are the {TOP_PITCHES} "
+        "families the starter throws most, the hitter's run value per 100 pitches on "
+        "those alone, and the context point it earns &mdash; no fallback there, because "
+        "a hitter who has not seen the pitch has no read on it.</p>",
+        fit_table,
+    ])
+
+
+def _odds(x: float) -> str:
+    if x is None or math.isnan(x):
+        return "&mdash;"
+    return f"{int(round(x)):+d}"
+
+
+def _bet_rows(buys: tuple[PricedSide, ...]) -> list[list[str]]:
+    return [
+        [
+            html.escape(str(b.tier.value)),
+            html.escape(b.selection),
+            html.escape(b.book) or "&mdash;",
+            _odds(b.odds),
+            _pc(b.prob),
+            _pc(b.fair),
+            _pc(b.ev),
+            _pc(b.edge),
+        ]
+        for b in buys
+    ]
+
+
+def _projection(player: PlayerBets, stat: str) -> str:
+    """His median on a stat, or the bound when the board's lines start above it."""
+    bound = player.under.get(stat)
+    if bound is not None:
+        return f"&lt;{bound:.0f}"
+    return _num(player.median.get(stat, math.nan), 0)
+
+
+def _bet_card(result: ScreenResult) -> str:
+    """Stage 9: the projection and the tickets, for the names the screen kept."""
+    card = result.bets
+    if card is None:
+        return ""
+    bats = [
+        [html.escape(p.name)]
+        + [_projection(p, s) for s in BATTER_STATS]
+        + [_pc(p.reach.get("H", math.nan), 0), _pc(p.reach.get("HR", math.nan), 0)]
+        for p in card.hitters
+    ]
+    arms = [
+        [html.escape(p.name)] + [_projection(p, s) for s in PITCHER_STATS]
+        for p in card.arms
+    ]
+    out = [
+        "<h2>The bets &mdash; what the engine projects, and what it will pay for</h2>",
+        "<p>The screen ranks; it does not price. These are the pipeline's own "
+        "simulated projections for the hitters the screen kept and the arms they "
+        "face, and every side of their props that survived the EV screen. The "
+        "projection columns are the highest threshold the model clears at even "
+        "money, so they read at the board's own resolution: outs are quoted at "
+        "15.5 and 17.5, and a median of 16.4 shows as 16. Where the lowest line "
+        "the board hangs is already above the median, the cell reads as a bound: "
+        "a starter quoted at 4.5 strikeouts who does not clear it is under five, "
+        "which is not the same claim as zero.</p>",
+        _table(
+            ["batter", *BATTER_STATS, "P(H)", "P(HR)"], bats, numeric_from=1
+        ),
+        "<h3>The arms</h3>",
+        _table(["pitcher", *PITCHER_STATS], arms, numeric_from=1),
+    ]
+    head = ["tier", "bet", "book", "odds", "model", "market", "EV", "edge"]
+    for label, buys in (
+        ("Batter props", card.batter_buys),
+        ("Pitcher props", card.pitcher_buys),
+    ):
+        out.append(f"<h3>{label}</h3>")
+        if buys:
+            out.append(_table(head, _bet_rows(buys), numeric_from=3))
+        else:
+            out.append(
+                "<p>No side survived the EV screen. That is a result rather than a "
+                "gap: a hitter the screen ranks first and the market has priced "
+                "correctly is not a bet.</p>"
+            )
+    return "".join(out)
 
 
 #: Markets the simulated table prints, and how a book words each one.
@@ -1084,10 +1431,13 @@ def render_html(
         "<h2>Thesis</h2>",
         _thesis(result),
         _provenance(result, board),
+        _starter_gate(result),
         _starter_ranking(result),
     ]
     for i, section in enumerate(result.sections, 1):
         body.append(_section_html(section, i))
+    body.append(_composite(result))
+    body.append(_bet_card(result))
     if result.cut_log:
         # Only the near misses are worth printing: a hitter cut on 14 plate
         # appearances says nothing, and a full cut list on a four-game screen runs

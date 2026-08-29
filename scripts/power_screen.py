@@ -9,8 +9,18 @@ after.
     python scripts/power_screen.py --date 2026-08-17 --email      # PDF to the audit inbox
 
 Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
-``mlb_engine/output/power_screen.py`` for the five stages and every threshold, and
+``mlb_engine/output/power_screen.py`` for the stages and every threshold, and
 ``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
+
+Before any of it, the slate is cut twice: to the starters with enough recent work
+for their numbers to be measurements (which is what removes a call-up, an opener
+and an arm just back from the injured list), and then to those whose SIERA is
+above 4.40 -- the engine's own scrub ceiling. The survivors are ranked on eleven
+metrics over ten perspectives (overall, innings 1-3 and 1-5, each time through
+the order, each batter hand, and home runs by hand), one point per metric and two
+more for a top-three finish in it, every metric read over the window it
+stabilizes in. ``--siera-min`` moves the SIERA gate (``0`` disables it) and
+``--min-work-bf`` / ``--min-work-pitches`` move the work floor.
 
 The screen fetches no market and spends no Odds API credit. It does read the
 card's own board when the nightly run has already written one for the same day
@@ -30,6 +40,7 @@ from __future__ import annotations
 import argparse
 import logging
 import math
+from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
@@ -43,19 +54,30 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
+from mlb_engine.data.savant_expected import load_pitcher_xera
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.efficiency import build_pitcher_efficiency, opponent_discipline_factor
 from mlb_engine.features.rolling import build_bullpen_profile
+from mlb_engine.features.siera import MIN_SIERA_PA
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_board, power_report, power_sim
+from mlb_engine.output import power_bets, power_board, power_report, power_sim
 from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
+    MIN_STARTER_BF,
+    MIN_STARTER_PITCHES,
     MIN_WRC,
+    SIERA_FLOOR,
+    STARTER_WINDOWS,
+    TREND_DAYS,
+    WORK_DAYS,
+    ArsenalEdge,
     BullpenCard,
+    FinalScore,
+    HalfLine,
     HitterLine,
     HitterView,
     MatchupSection,
@@ -64,18 +86,30 @@ from mlb_engine.output.power_screen import (
     StarterCard,
     apply_cuts,
     arsenal,
+    arsenal_edge,
     arsenal_fit,
     batter_arsenal,
     batter_window_line,
     bf_pmf,
+    build_context,
     contact_line,
     exposure,
+    gate_starters,
+    half_lines,
     hitter_pool,
+    league_arms,
     pa_vs_starter,
+    rank_final,
     rank_starters,
+    score_edges,
+    score_halves,
+    score_starters,
     starter_damage,
+    starter_lines,
+    trend_deltas,
+    with_tto,
 )
-from mlb_engine.recommendations import load_json
+from mlb_engine.recommendations import Recommendation, load_json
 from mlb_engine.schemas import Game, Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
@@ -86,12 +120,40 @@ log = logging.getLogger("power_screen")
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
 
+# The game-half split and the luck gap are read season-to-date rather than over
+# the form window: a game half is about a third of a hitter's work, so ninety
+# days of it cannot carry a batted-ball rate. March 1 is early enough to catch
+# any opener.
+SEASON_OPENING = (3, 1)
+
+#: How many of the ranked arms count as "bottom three on the slate" for the
+#: context point. The number is the screen's own top-N, not a new threshold.
+WORST_ARMS = 3
+
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--date", type=Date.fromisoformat, default=Date.today())
     p.add_argument("--arms", type=int, default=8, help="starters to rank (all are listed)")
     p.add_argument("--keep", type=int, default=4, help="softest arms whose lineups are screened")
+    p.add_argument(
+        "--siera-min",
+        type=float,
+        default=SIERA_FLOOR,
+        help="stage 0: only starters above this SIERA are eligible (0 disables the gate)",
+    )
+    p.add_argument(
+        "--min-work-bf",
+        type=int,
+        default=MIN_STARTER_BF,
+        help=f"stage 0: batters faced in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
+    p.add_argument(
+        "--min-work-pitches",
+        type=int,
+        default=MIN_STARTER_PITCHES,
+        help=f"stage 0: pitches in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
     p.add_argument("--min-pa", type=int, default=None, help="hand-split PA floor")
     p.add_argument("--min-wrc", type=float, default=None, help="window wRC+ floor")
     p.add_argument(
@@ -237,7 +299,7 @@ def main() -> None:
     frame = repo.max_window(
         day,
         [form, cfg.windows.batter_vs_rhp_days, cfg.windows.batter_vs_lhp_days,
-         cfg.windows.bullpen_skill_days],
+         cfg.windows.bullpen_skill_days, *STARTER_WINDOWS],
         refresh=args.refresh,
     )
     end = day - timedelta(days=1)
@@ -247,7 +309,23 @@ def main() -> None:
     team_pa = _team_pa_per_game(window)
     log.info("window %s..%s, %d pitches, %.1f PA per team-game", start, end, len(window), team_pa)
 
-    # --- stage 1: rank the arms
+    # --- stage 0 and 1: measure every arm, gate, then rank on the metric points
+    #
+    # Each stage-1 metric is read over its own stabilization window, so the
+    # per-window frames are sliced once here and the starter's own rows are taken
+    # out of each. Every window carries the time-through-order label, because a
+    # slow metric read inside a TTO split still has to be read over its own long
+    # window rather than the form one.
+    metric_frames: dict[int, pd.DataFrame] = {}
+    for days in STARTER_WINDOWS:
+        w_start = end - timedelta(days=days - 1)
+        w = frame[(frame["game_date"] >= w_start) & (frame["game_date"] <= end)]
+        metric_frames[days] = with_tto(w)
+    league = league_arms(metric_frames[WORK_DAYS])
+    xera_board = load_pitcher_xera(day.year)
+    if not xera_board:
+        log.warning("Savant xERA unavailable; the metric is unrated for every arm")
+
     cards: list[StarterCard] = []
     # starter id -> (the lineup screened against him, his own team, his game)
     context: dict[int, tuple[TeamGameInfo, TeamGameInfo, Game]] = {}
@@ -256,22 +334,56 @@ def main() -> None:
             pitcher = team.probable_pitcher
             if pitcher is None or not pitcher.mlbam_id:
                 continue
-            rows = window[window["pitcher"] == pitcher.mlbam_id]
+            pid = int(pitcher.mlbam_id)
+            rows = window[window["pitcher"] == pid]
             throws = getattr(pitcher.throws, "value", pitcher.throws) or "R"
-            cards.append(
-                starter_damage(
-                    rows,
-                    name=pitcher.name,
-                    mlbam_id=int(pitcher.mlbam_id),
-                    team=team.abbrev,
-                    opponent=opp.abbrev,
-                    throws=str(throws),
-                )
+            card = starter_damage(
+                rows,
+                name=pitcher.name,
+                mlbam_id=pid,
+                team=team.abbrev,
+                opponent=opp.abbrev,
+                throws=str(throws),
             )
-            context[int(pitcher.mlbam_id)] = (opp, team, game)
-    ranked = rank_starters(cards, top_n=max(args.arms, args.keep))
+            xera, xera_pa = xera_board.get(pid, (None, 0))
+            card.lines = starter_lines(
+                {d: f[f["pitcher"] == pid] for d, f in metric_frames.items()},
+                league,
+                xera=xera,
+                xera_pa=xera_pa,
+            )
+            work = card.lines["overall"]
+            card.work_bf = work.sample_of("bf", WORK_DAYS)
+            card.work_pitches = work.sample_of("pitches", WORK_DAYS)
+            siera = work.values.get("siera", math.nan)
+            if work.sample_of("siera_pa", WORK_DAYS) >= MIN_SIERA_PA and not math.isnan(siera):
+                card.siera = siera
+            else:
+                card.siera = None
+            card.siera_pa = work.sample_of("siera_pa", WORK_DAYS)
+            cards.append(card)
+            context[pid] = (opp, team, game)
+
+    eligible, starter_cuts = gate_starters(
+        cards,
+        siera_floor=args.siera_min,
+        min_bf=args.min_work_bf,
+        min_pitches=args.min_work_pitches,
+    )
+    for cut in starter_cuts:
+        log.info("gated %s (%s: %s)", cut.card.name, cut.stage, cut.reason)
+    log.info(
+        "%d of %d starters cleared the work floor and the %.2f SIERA gate",
+        len(eligible), len(cards), args.siera_min,
+    )
+    score_starters(eligible)
+    scored = rank_starters(eligible, top_n=len(eligible))
+    ranked = scored[: max(args.arms, args.keep)]
     if not ranked:
-        log.warning("no starter cleared the readability floor on %s", day)
+        log.warning(
+            "no starter on %s is both above %.2f SIERA and worked enough to read",
+            day, args.siera_min,
+        )
     targets = ranked[: args.keep]
 
     pens = _bullpen_cards(
@@ -280,6 +392,13 @@ def main() -> None:
         cfg.windows,
         day,
     )
+
+    # Stages 6-8 read the season rather than the form window, and the game rather
+    # than the arm: the halves need a season to carry a late batted-ball rate,
+    # and the park and the forecast belong to the venue.
+    season = repo.load_range(Date(day.year, *SEASON_OPENING), end, refresh=args.refresh)
+    environments = _environments(slate, cfg)
+    worst = {c.mlbam_id for c in scored[:WORST_ARMS]}
 
     sections: list[MatchupSection] = []
     cut_log: list[HitterLine] = []
@@ -291,6 +410,7 @@ def main() -> None:
             pen=pens.get(pen_team.abbrev),
             window=window,
             frame=frame,
+            season=season,
             as_of=day,
             form=form,
             league_woba=league_woba,
@@ -301,6 +421,8 @@ def main() -> None:
             keep_power=not args.no_power_exception,
             projected=projected,
             cut_log=cut_log,
+            env=environments.get(card.mlbam_id, _Environment()),
+            worst_arm=card.mlbam_id in worst,
         )
         if section is None:
             continue
@@ -317,6 +439,7 @@ def main() -> None:
                 n_sims=args.sims,
             )
         sections.append(section)
+    final = _rank_everything(sections, pens)
 
     result = ScreenResult(
         as_of=day,
@@ -327,8 +450,13 @@ def main() -> None:
         league_xwoba=league_xwoba,
         starters_ranked=ranked,
         sections=sections,
+        starters_scored=scored,
+        final=final,
         cut_log=cut_log,
         has_run_value="delta_run_exp" in window.columns,
+        siera_floor=args.siera_min,
+        starter_cuts=starter_cuts,
+        has_xera=bool(xera_board),
     )
     _write(result, cfg, args)
 
@@ -364,6 +492,103 @@ def _fill_expected_lineups(
     return True
 
 
+@dataclass(frozen=True)
+class _Environment:
+    """The venue's park factor and the forecast's home-run multiplier.
+
+    Both default to unavailable rather than to neutral, so a park the reference
+    table does not carry and a forecast that could not be fetched score zero
+    because the evidence is missing, which is not the same as a park that plays
+    neutral -- the term is the same either way, but the report can say which.
+    """
+
+    park: str = ""
+    park_factor: float = math.nan
+    weather_hr_mult: float = math.nan
+    weather_note: str = ""
+
+
+def _environments(slate: Slate, cfg: Config) -> dict[int, _Environment]:
+    """Park and forecast per probable starter, keyed by his MLBAM id.
+
+    Keyed on the pitcher rather than the game because that is what the sections
+    are keyed on, and both starters in a game share a venue.
+    """
+    weather = WeatherProvider(cache_dir=cfg.cache_dir)
+    out: dict[int, _Environment] = {}
+    for game in slate.games:
+        park = get_park(game.venue.venue_id)
+        if park is None:
+            env = _Environment(park=game.venue.name, weather_note="park unknown")
+        else:
+            effect = weather.fetch(park, game.game_datetime_utc)
+            env = _Environment(
+                park=park.name,
+                park_factor=park.park_factor,
+                weather_hr_mult=effect.hr_mult if effect.conditions else math.nan,
+                weather_note=effect.note,
+            )
+        for team in (game.home, game.away):
+            arm = team.probable_pitcher
+            if arm is not None and arm.mlbam_id:
+                out[int(arm.mlbam_id)] = env
+    return out
+
+
+def _rank_everything(
+    sections: list[MatchupSection], pens: dict[str, BullpenCard]
+) -> list[FinalScore]:
+    """Score the two halves and the arsenal fit across the slate, then rank.
+
+    The pools are slate-wide on purpose. A hitter's late points have to be earned
+    against the other hitters the screen kept, not against his own lineup: three
+    bats out of one lineup would otherwise all take a top-three bonus in a pool
+    of three.
+    """
+    ready = [
+        v for s in sections for v in s.hitters
+        if v.early and v.late and v.edge and v.context
+    ]
+    if not ready:
+        return []
+    early: list[HalfLine] = []
+    late: list[HalfLine] = []
+    edges: list[ArsenalEdge] = []
+    for view in ready:
+        if view.early and view.late and view.edge:
+            early.append(view.early)
+            late.append(view.late)
+            edges.append(view.edge)
+    score_halves(early)
+    score_halves(late)
+    score_edges(edges)
+    pen_rank = {c.team: c.rank for c in pens.values()}
+    scored_ids = {id(v) for v in ready}
+    scores: list[FinalScore] = []
+    for section in sections:
+        for view in section.hitters:
+            if id(view) not in scored_ids:
+                continue
+            if not (view.early and view.late and view.context and view.edge):
+                continue
+            scores.append(
+                FinalScore(
+                    name=view.line.name,
+                    team=view.line.team,
+                    versus=view.line.versus,
+                    slot=view.line.slot,
+                    early=view.early,
+                    late=view.late,
+                    context=view.context,
+                    edge=view.edge,
+                    pen_rank=(
+                        pen_rank.get(section.bullpen.team) if section.bullpen else None
+                    ),
+                )
+            )
+    return rank_final(scores)
+
+
 def _build_section(
     *,
     card: StarterCard,
@@ -371,6 +596,7 @@ def _build_section(
     pen: BullpenCard | None,
     window: pd.DataFrame,
     frame: pd.DataFrame,
+    season: pd.DataFrame,
     as_of: Date,
     form: int,
     league_woba: dict[str, float],
@@ -381,6 +607,8 @@ def _build_section(
     keep_power: bool,
     projected: bool,
     cut_log: list[HitterLine],
+    env: _Environment,
+    worst_arm: bool,
 ) -> MatchupSection | None:
     """Stages 2-5 for one starter: score, cut, read the arsenal, scale by exposure."""
     hand = card.throws
@@ -440,6 +668,7 @@ def _build_section(
     )
     pmf = bf_pmf(bf_mean, bf_sd, bf_cap)
 
+    trend_start = as_of - timedelta(days=TREND_DAYS)
     views: list[HitterView] = []
     for h in kept:
         rows = window[(window["batter"] == h.mlbam_id) & (window["p_throws"] == hand)]
@@ -454,6 +683,24 @@ def _build_section(
             fit_xba=fit_b,
             fallback_share=fallback,
         )
+        # Stages 6-8. The halves and the trends are read against every pitcher
+        # over the whole season: after the sixth he faces the bullpen, so a hand
+        # split of the late half describes a matchup that will not happen.
+        view.edge = arsenal_edge(per_pitch, overall, card.arsenal, usage)
+        own = season[season["batter"] == h.mlbam_id]
+        if not own.empty:
+            view.early, view.late = half_lines(own)
+            view.trends = trend_deltas(own[own["game_date"] >= trend_start], own)
+            szn = batter_window_line(own)
+            view.context = build_context(
+                woba=szn.get("woba", math.nan),
+                xwoba=szn.get("xwoba_pa", math.nan),
+                trends=view.trends,
+                park_factor=env.park_factor,
+                weather_hr_mult=env.weather_hr_mult,
+                worst_arm=worst_arm,
+                top_pitch_rv=view.edge.top_rv,
+            )
         if h.slot:
             view.exposure = exposure(
                 h.slot,
@@ -523,8 +770,10 @@ def _attach_sim(
         view.sim = sims.get(view.line.mlbam_id)
 
 
-def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
-    """The survivors' rows off the card's own run, if it has already priced today.
+def _priced(
+    result: ScreenResult, cfg: Config, args: argparse.Namespace
+) -> tuple[list[Recommendation], str] | None:
+    """The card's own priced slate for the day, if it has already run.
 
     Missing is the normal case in the morning -- the screen exists to run before
     the engine can price anything -- so a missing or unreadable file is a note,
@@ -541,11 +790,17 @@ def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board
         log.info("no priced board at %s; the note will carry no prices", path)
         return None
     try:
-        recs = load_json(path)
+        return load_json(path), path.name
     except Exception as exc:  # pragma: no cover - a malformed ledger must not kill the note
         log.warning("could not read %s (%s); the note will carry no prices", path, exc)
         return None
-    board = power_board.build(result, recs, source=path.name)
+
+
+def _board(
+    result: ScreenResult, recs: list[Recommendation], source: str
+) -> Board:
+    """The survivors' rows off the card's own run."""
+    board = power_board.build(result, recs, source=source)
     log.info(
         "board: %d priced rows on %d of %d survivors",
         len(board.rows),
@@ -629,7 +884,18 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
     out_dir = cfg.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
-    board = _board(result, cfg, args)
+    priced = _priced(result, cfg, args)
+    board: Board | None = None
+    if priced is not None:
+        recs, source = priced
+        board = _board(result, recs, source)
+        result.bets = power_bets.build(result, recs)
+        log.info(
+            "bets: %d priced sides, %d batter buys, %d pitcher buys",
+            result.bets.priced_sides,
+            len(result.bets.batter_buys),
+            len(result.bets.pitcher_buys),
+        )
     # Grade before recording: an earlier day is never this one, but a --grade-date
     # pointing at today should read what the ledger held when the note was asked.
     review = _review(cfg, args, result.as_of)
