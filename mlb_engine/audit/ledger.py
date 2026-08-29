@@ -311,6 +311,17 @@ class OverallMetrics:
     # into an average break-even of 60.5%, so win% alone reads as a success and
     # loses money. Every reported win% now travels with the bar it had to clear.
     required_win_pct: float = 0.0
+    # The same row over the bets that carried a captured price. A row with no
+    # price is paid at an assumed -110 (``_DEFAULT_DECIMAL``), and those rows are
+    # neither rare nor random: over the season they are the majority of the
+    # favoured population and they win far more often than the priced ones,
+    # because the props a book never posted a beatable number on are the ones the
+    # model finds easy. Blending the two makes a losing book read as profitable,
+    # so the priced figures travel beside the blended ones and are the ones any
+    # claim about money has to be made from.
+    priced_n: int = 0
+    priced_roi: float = 0.0
+    priced_units: float = 0.0
 
 
 def _metrics(
@@ -322,6 +333,8 @@ def _metrics(
     stake = 0.0
     units = 0.0
     breakeven = 0.0
+    priced_stake = 0.0
+    priced_units = 0.0
     for e in entries:
         pred_pos = is_positive(e)
         if e.result == PUSH:
@@ -342,6 +355,9 @@ def _metrics(
             units += e.pnl
             dec = american_to_decimal(e.odds) if e.odds is not None else _DEFAULT_DECIMAL
             breakeven += 1.0 / dec
+            if e.odds is not None:
+                priced_stake += 1.0
+                priced_units += e.pnl
     return OverallMetrics(
         tier=label,
         n=tp + fp,
@@ -356,6 +372,9 @@ def _metrics(
         roi=_safe(units, stake),
         units=round(units, 3),
         required_win_pct=_safe(breakeven, stake),
+        priced_n=int(priced_stake),
+        priced_roi=_safe(priced_units, priced_stake),
+        priced_units=round(priced_units, 3),
     )
 
 

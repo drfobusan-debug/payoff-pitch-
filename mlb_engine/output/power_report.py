@@ -33,6 +33,7 @@ from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, 
 from mlb_engine.output.power_screen import (
     BIG_RV,
     FIT_SCORED,
+    HALF_FLOOR,
     HALF_SCORED,
     MIN_STARTER_BF,
     MIN_STARTER_PITCHES,
@@ -992,7 +993,7 @@ def _half_table(result: ScreenResult, *, late: bool) -> str:
 
 
 def _composite(result: ScreenResult) -> str:
-    """The composite: both halves, the seven context points, the arsenal fit."""
+    """The composite: both halves, the eight context points, the arsenal fit."""
     if not result.final:
         return ""
     rows = []
@@ -1015,12 +1016,13 @@ def _composite(result: ScreenResult) -> str:
             f"{c.worst_arm:+d}",
             f"{c.top_rv:+d}",
             f"<b>{s.total}</b>",
+            f"<b>{s.earned}</b>",
             str(s.pen_rank or "&mdash;"),
         ])
         classes.append("top" if i < STARTER_TOP_N else "")
     table = _table(
         ["#", "batter", "team", "LP", "vs", "1-6", f"{SPLIT_INNING}+", "halves", "fit",
-         "regr", "park", "wx", "arm", f"RV{TOP_PITCHES}", "total", "pen"],
+         "regr", "park", "wx", "arm", f"RV{TOP_PITCHES}", "total", "earned", "pen"],
         rows, numeric_from=5, row_classes=classes,
     )
     fits = []
@@ -1060,6 +1062,12 @@ def _composite(result: ScreenResult) -> str:
         f"worth &plusmn;3 rather than &plusmn;1 past {BIG_RV:.0f} runs per 100, "
         "because a hitter that far ahead on the pitches he will see most is not "
         "marginally ahead.</p>",
+        f"<p class='sub'><i>total</i> includes the {2 * HALF_FLOOR} points "
+        "(one per metric per half) that every hitter in the pool collects for being "
+        "measured at all, so a hitter cannot lose a point for a split too thin to "
+        "read. <i>earned</i> strips that floor out and is the number to read as a "
+        "spread: it is what separates these hitters, and it is roughly half the "
+        "total.</p>",
         table,
         f"<h3>Innings 1-{SPLIT_INNING - 1} &mdash; the starter's half</h3>",
         _half_table(result, late=False),
