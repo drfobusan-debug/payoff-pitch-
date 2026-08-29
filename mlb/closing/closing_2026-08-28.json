@@ -16522,9 +16522,23 @@
   {
     "matchup": "CWS @ MIN",
     "market": "batter_hrr",
+    "selection": "Brenton Doyle H+R+RBI o1.5",
+    "american": 127.0,
+    "no_vig_prob": 0.411648
+  },
+  {
+    "matchup": "CWS @ MIN",
+    "market": "batter_hrr",
     "selection": "Brenton Doyle H+R+RBI u0.5",
     "american": 122.0,
     "no_vig_prob": 0.423151
+  },
+  {
+    "matchup": "CWS @ MIN",
+    "market": "batter_hrr",
+    "selection": "Brenton Doyle H+R+RBI u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.588352
   },
   {
     "matchup": "CWS @ MIN",
@@ -25846,9 +25860,37 @@
   {
     "matchup": "LAD @ DET",
     "market": "batter_hr",
+    "selection": "Hunter Feduccia HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Hunter Feduccia HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
     "selection": "Javier Baez HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Javier Baez HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Javier Baez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "LAD @ DET",
@@ -25898,6 +25940,20 @@
     "selection": "Max Clark HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Max Clark HR o1.5",
+    "american": 12500.0,
+    "no_vig_prob": 0.007937
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Max Clark HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "LAD @ DET",
@@ -25989,6 +26045,20 @@
     "selection": "Teoscar Hernandez HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Teoscar Hernandez HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.013636
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_hr",
+    "selection": "Teoscar Hernandez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "LAD @ DET",
@@ -26217,9 +26287,23 @@
   {
     "matchup": "LAD @ DET",
     "market": "batter_h",
+    "selection": "Shohei Ohtani H o1.5",
+    "american": 204.0,
+    "no_vig_prob": 0.309046
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_h",
     "selection": "Shohei Ohtani H u0.5",
     "american": 186.0,
     "no_vig_prob": 0.331248
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_h",
+    "selection": "Shohei Ohtani H u1.5",
+    "american": -278.0,
+    "no_vig_prob": 0.690954
   },
   {
     "matchup": "LAD @ DET",
@@ -26917,6 +27001,13 @@
   {
     "matchup": "LAD @ DET",
     "market": "batter_tb",
+    "selection": "Hunter Feduccia TB o1.5",
+    "american": 240.0,
+    "no_vig_prob": 0.294118
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_tb",
     "selection": "Hunter Feduccia TB u0.5",
     "american": -114.0,
     "no_vig_prob": 0.507013
@@ -26927,6 +27018,13 @@
     "selection": "Javier Baez TB o0.5",
     "american": -116.0,
     "no_vig_prob": 0.507756
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_tb",
+    "selection": "Javier Baez TB o1.5",
+    "american": 245.0,
+    "no_vig_prob": 0.289855
   },
   {
     "matchup": "LAD @ DET",
@@ -26983,6 +27081,13 @@
     "selection": "Max Clark TB o0.5",
     "american": -115.0,
     "no_vig_prob": 0.516992
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_tb",
+    "selection": "Max Clark TB o1.5",
+    "american": 235.0,
+    "no_vig_prob": 0.298507
   },
   {
     "matchup": "LAD @ DET",
@@ -27074,6 +27179,13 @@
     "selection": "Teoscar Hernandez TB o0.5",
     "american": -152.0,
     "no_vig_prob": 0.566429
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB o1.5",
+    "american": 165.0,
+    "no_vig_prob": 0.377358
   },
   {
     "matchup": "LAD @ DET",
@@ -27176,9 +27288,23 @@
   {
     "matchup": "LAD @ DET",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": -117.0,
+    "no_vig_prob": 0.521609
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "game_total",
     "selection": "Over 7.5",
     "american": 103.0,
     "no_vig_prob": 0.477084
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": 102.0,
+    "no_vig_prob": 0.478391
   },
   {
     "matchup": "LAD @ DET",
@@ -27372,6 +27498,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_1b",
+    "selection": "Andr\u00e9s Chaparro 1B o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.304523
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
+    "selection": "Andr\u00e9s Chaparro 1B u0.5",
+    "american": -289.0,
+    "no_vig_prob": 0.695477
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
     "selection": "Brady House 1B o0.5",
     "american": 112.0,
     "no_vig_prob": 0.446176
@@ -27470,6 +27610,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_1b",
+    "selection": "Harry Ford 1B o0.5",
+    "american": 148.0,
+    "no_vig_prob": 0.395181
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
+    "selection": "Harry Ford 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.604819
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
     "selection": "Heriberto Hernandez 1B o0.5",
     "american": 104.0,
     "no_vig_prob": 0.472161
@@ -27526,6 +27680,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_1b",
+    "selection": "Joe Mack 1B o0.5",
+    "american": 139.0,
+    "no_vig_prob": 0.40227
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
+    "selection": "Joe Mack 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.59773
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
     "selection": "Jorbit Vivas 1B o0.5",
     "american": 138.0,
     "no_vig_prob": 0.4058
@@ -27564,6 +27732,20 @@
     "selection": "Kyle Stowers 1B u0.5",
     "american": -135.0,
     "no_vig_prob": 0.539496
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
+    "selection": "Leo Jimenez 1B o0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.480522
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_1b",
+    "selection": "Leo Jimenez 1B u0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.519478
   },
   {
     "matchup": "MIA @ WSH",
@@ -27634,6 +27816,20 @@
     "selection": "Agust\u00edn Ram\u00edrez 2B u0.5",
     "american": -600.0,
     "no_vig_prob": 0.807168
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Andr\u00e9s Chaparro 2B o0.5",
+    "american": 630.0,
+    "no_vig_prob": 0.140564
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Andr\u00e9s Chaparro 2B u0.5",
+    "american": -900.0,
+    "no_vig_prob": 0.859436
   },
   {
     "matchup": "MIA @ WSH",
@@ -27736,6 +27932,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_2b",
+    "selection": "Harry Ford 2B o0.5",
+    "american": 550.0,
+    "no_vig_prob": 0.148735
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Harry Ford 2B u0.5",
+    "american": -850.0,
+    "no_vig_prob": 0.851265
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
     "selection": "Heriberto Hernandez 2B o0.5",
     "american": 400.0,
     "no_vig_prob": 0.200782
@@ -27792,6 +28002,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_2b",
+    "selection": "Joe Mack 2B o0.5",
+    "american": 541.0,
+    "no_vig_prob": 0.149409
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Joe Mack 2B u0.5",
+    "american": -890.0,
+    "no_vig_prob": 0.850591
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
     "selection": "Jorbit Vivas 2B o0.5",
     "american": 575.0,
     "no_vig_prob": 0.148417
@@ -27830,6 +28054,20 @@
     "selection": "Kyle Stowers 2B u0.5",
     "american": -525.0,
     "no_vig_prob": 0.803445
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Leo Jimenez 2B o0.5",
+    "american": 434.0,
+    "no_vig_prob": 0.182567
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_2b",
+    "selection": "Leo Jimenez 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.817433
   },
   {
     "matchup": "MIA @ WSH",
@@ -27900,6 +28138,20 @@
     "selection": "Agust\u00edn Ram\u00edrez BB u0.5",
     "american": -200.0,
     "no_vig_prob": 0.622714
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
+    "selection": "Andr\u00e9s Chaparro BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.246784
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
+    "selection": "Andr\u00e9s Chaparro BB u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.753216
   },
   {
     "matchup": "MIA @ WSH",
@@ -28058,6 +28310,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_bb",
+    "selection": "Joe Mack BB o0.5",
+    "american": 217.0,
+    "no_vig_prob": 0.29633
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
+    "selection": "Joe Mack BB u0.5",
+    "american": -310.0,
+    "no_vig_prob": 0.70367
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
     "selection": "Jorbit Vivas BB o0.5",
     "american": 187.0,
     "no_vig_prob": 0.344868
@@ -28082,6 +28348,20 @@
     "selection": "Kyle Stowers BB u0.5",
     "american": -179.0,
     "no_vig_prob": 0.607225
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
+    "selection": "Leo Jimenez BB o0.5",
+    "american": 188.0,
+    "no_vig_prob": 0.338376
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_bb",
+    "selection": "Leo Jimenez BB u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.661624
   },
   {
     "matchup": "MIA @ WSH",
@@ -28152,6 +28432,20 @@
     "selection": "Agust\u00edn Ram\u00edrez H+R+RBI u1.5",
     "american": -114.0,
     "no_vig_prob": 0.500531
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Andr\u00e9s Chaparro H+R+RBI o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.556901
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Andr\u00e9s Chaparro H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.443099
   },
   {
     "matchup": "MIA @ WSH",
@@ -28324,6 +28618,34 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_hrr",
+    "selection": "Joe Mack H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.592306
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Joe Mack H+R+RBI o1.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417868
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Joe Mack H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.407694
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Joe Mack H+R+RBI u1.5",
+    "american": -164.0,
+    "no_vig_prob": 0.582132
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
     "selection": "Jorbit Vivas H+R+RBI o0.5",
     "american": -163.0,
     "no_vig_prob": 0.581488
@@ -28376,6 +28698,20 @@
     "selection": "Kyle Stowers H+R+RBI u1.5",
     "american": 100.0,
     "no_vig_prob": 0.487619
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Leo Jimenez H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.439896
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hrr",
+    "selection": "Leo Jimenez H+R+RBI u1.5",
+    "american": -135.0,
+    "no_vig_prob": 0.560104
   },
   {
     "matchup": "MIA @ WSH",
@@ -28472,6 +28808,27 @@
     "matchup": "MIA @ WSH",
     "market": "batter_hr",
     "selection": "Agust\u00edn Ram\u00edrez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Andr\u00e9s Chaparro HR o0.5",
+    "american": 425.0,
+    "no_vig_prob": 0.203983
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Andr\u00e9s Chaparro HR o1.5",
+    "american": 4500.0,
+    "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Andr\u00e9s Chaparro HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -28576,6 +28933,41 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_hr",
+    "selection": "Esteury Ruiz HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Esteury Ruiz HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Harry Ford HR o0.5",
+    "american": 900.0,
+    "no_vig_prob": 0.102632
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Harry Ford HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Harry Ford HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
     "selection": "Heriberto Hernandez HR o0.5",
     "american": 370.0,
     "no_vig_prob": 0.22569
@@ -28600,6 +28992,20 @@
     "selection": "Jacob Young HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Jacob Young HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Jacob Young HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "MIA @ WSH",
@@ -28646,9 +29052,44 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_hr",
+    "selection": "Joe Mack HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Joe Mack HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Joe Mack HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
     "selection": "Jorbit Vivas HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Jorbit Vivas HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Jorbit Vivas HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "MIA @ WSH",
@@ -28689,6 +29130,27 @@
     "matchup": "MIA @ WSH",
     "market": "batter_hr",
     "selection": "Kyle Stowers HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Leo Jimenez HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Leo Jimenez HR o1.5",
+    "american": 10000.0,
+    "no_vig_prob": 0.009901
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_hr",
+    "selection": "Leo Jimenez HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
   },
@@ -28782,6 +29244,20 @@
     "selection": "Agust\u00edn Ram\u00edrez H u0.5",
     "american": 153.0,
     "no_vig_prob": 0.389615
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Andr\u00e9s Chaparro H o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.4871
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Andr\u00e9s Chaparro H u0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.5129
   },
   {
     "matchup": "MIA @ WSH",
@@ -28884,6 +29360,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_h",
+    "selection": "Harry Ford H o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.518295
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Harry Ford H u0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.481705
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
     "selection": "Heriberto Hernandez H o0.5",
     "american": -227.0,
     "no_vig_prob": 0.657447
@@ -28933,9 +29423,37 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_h",
+    "selection": "Javier Sanoja H o1.5",
+    "american": 205.0,
+    "no_vig_prob": 0.328188
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
     "selection": "Javier Sanoja H u0.5",
     "american": 184.0,
     "no_vig_prob": 0.333697
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Javier Sanoja H u1.5",
+    "american": -250.0,
+    "no_vig_prob": 0.671812
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Joe Mack H o0.5",
+    "american": -121.0,
+    "no_vig_prob": 0.524831
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Joe Mack H u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.475169
   },
   {
     "matchup": "MIA @ WSH",
@@ -28978,6 +29496,20 @@
     "selection": "Kyle Stowers H u0.5",
     "american": 160.0,
     "no_vig_prob": 0.363411
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Leo Jimenez H o0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.600696
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_h",
+    "selection": "Leo Jimenez H u0.5",
+    "american": 138.0,
+    "no_vig_prob": 0.399304
   },
   {
     "matchup": "MIA @ WSH",
@@ -29048,6 +29580,20 @@
     "selection": "Agust\u00edn Ram\u00edrez RBI u0.5",
     "american": -235.0,
     "no_vig_prob": 0.663256
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Andr\u00e9s Chaparro RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.268868
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Andr\u00e9s Chaparro RBI u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.731132
   },
   {
     "matchup": "MIA @ WSH",
@@ -29150,6 +29696,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_rbi",
+    "selection": "Harry Ford RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.247587
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Harry Ford RBI u0.5",
+    "american": -377.0,
+    "no_vig_prob": 0.752413
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
     "selection": "Heriberto Hernandez RBI o0.5",
     "american": 157.0,
     "no_vig_prob": 0.368209
@@ -29206,6 +29766,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_rbi",
+    "selection": "Joe Mack RBI o0.5",
+    "american": 252.0,
+    "no_vig_prob": 0.290819
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Joe Mack RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.709181
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
     "selection": "Jorbit Vivas RBI o0.5",
     "american": 305.0,
     "no_vig_prob": 0.240769
@@ -29244,6 +29818,20 @@
     "selection": "Kyle Stowers RBI u0.5",
     "american": -210.0,
     "no_vig_prob": 0.643209
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Leo Jimenez RBI o0.5",
+    "american": 214.0,
+    "no_vig_prob": 0.309102
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_rbi",
+    "selection": "Leo Jimenez RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.690898
   },
   {
     "matchup": "MIA @ WSH",
@@ -29314,6 +29902,20 @@
     "selection": "Agust\u00edn Ram\u00edrez R u0.5",
     "american": -160.0,
     "no_vig_prob": 0.572919
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Andr\u00e9s Chaparro R o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.328351
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Andr\u00e9s Chaparro R u0.5",
+    "american": -226.0,
+    "no_vig_prob": 0.671649
   },
   {
     "matchup": "MIA @ WSH",
@@ -29416,6 +30018,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_r",
+    "selection": "Harry Ford R o0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.330126
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Harry Ford R u0.5",
+    "american": -240.0,
+    "no_vig_prob": 0.669874
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
     "selection": "Heriberto Hernandez R o0.5",
     "american": -110.0,
     "no_vig_prob": 0.493472
@@ -29472,6 +30088,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_r",
+    "selection": "Joe Mack R o0.5",
+    "american": 162.0,
+    "no_vig_prob": 0.356754
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Joe Mack R u0.5",
+    "american": -220.0,
+    "no_vig_prob": 0.643246
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
     "selection": "Jorbit Vivas R o0.5",
     "american": 219.0,
     "no_vig_prob": 0.302392
@@ -29510,6 +30140,20 @@
     "selection": "Kyle Stowers R u0.5",
     "american": -145.0,
     "no_vig_prob": 0.549128
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Leo Jimenez R o0.5",
+    "american": 157.0,
+    "no_vig_prob": 0.378695
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_r",
+    "selection": "Leo Jimenez R u0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.621305
   },
   {
     "matchup": "MIA @ WSH",
@@ -29605,6 +30249,27 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_tb",
+    "selection": "Andr\u00e9s Chaparro TB o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.464636
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Andr\u00e9s Chaparro TB o1.5",
+    "american": 163.0,
+    "no_vig_prob": 0.380228
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Andr\u00e9s Chaparro TB u0.5",
+    "american": -118.0,
+    "no_vig_prob": 0.535364
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
     "selection": "Brady House TB o0.5",
     "american": -160.0,
     "no_vig_prob": 0.583063
@@ -29689,6 +30354,13 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_tb",
+    "selection": "Dylan Crews TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626866
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
     "selection": "Esteury Ruiz TB o0.5",
     "american": -133.0,
     "no_vig_prob": 0.547146
@@ -29717,6 +30389,20 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_tb",
+    "selection": "Harry Ford TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.512595
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Harry Ford TB u0.5",
+    "american": -104.0,
+    "no_vig_prob": 0.487405
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
     "selection": "Heriberto Hernandez TB o1.5",
     "american": 118.0,
     "no_vig_prob": 0.439245
@@ -29734,6 +30420,13 @@
     "selection": "Jacob Young TB o0.5",
     "american": -141.0,
     "no_vig_prob": 0.550993
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Jacob Young TB o1.5",
+    "american": 225.0,
+    "no_vig_prob": 0.307692
   },
   {
     "matchup": "MIA @ WSH",
@@ -29780,9 +30473,37 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_tb",
+    "selection": "Joe Mack TB o0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.526421
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Joe Mack TB o1.5",
+    "american": 215.0,
+    "no_vig_prob": 0.31746
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Joe Mack TB u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.473579
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
     "selection": "Jorbit Vivas TB o0.5",
     "american": -115.0,
     "no_vig_prob": 0.504382
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Jorbit Vivas TB o1.5",
+    "american": 220.0,
+    "no_vig_prob": 0.3125
   },
   {
     "matchup": "MIA @ WSH",
@@ -29825,6 +30546,27 @@
     "selection": "Kyle Stowers TB u1.5",
     "american": -160.0,
     "no_vig_prob": 0.587408
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Leo Jimenez TB o0.5",
+    "american": -172.0,
+    "no_vig_prob": 0.599632
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Leo Jimenez TB o1.5",
+    "american": 170.0,
+    "no_vig_prob": 0.37037
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Leo Jimenez TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400368
   },
   {
     "matchup": "MIA @ WSH",
@@ -29976,9 +30718,23 @@
   {
     "matchup": "MIA @ WSH",
     "market": "pitcher_bb",
+    "selection": "Eury Perez Walks o1.5",
+    "american": -196.0,
+    "no_vig_prob": 0.622786
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "pitcher_bb",
     "selection": "Eury Perez Walks o2.5",
     "american": 152.0,
     "no_vig_prob": 0.373301
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "pitcher_bb",
+    "selection": "Eury Perez Walks u1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.377214
   },
   {
     "matchup": "MIA @ WSH",
@@ -29990,9 +30746,23 @@
   {
     "matchup": "MIA @ WSH",
     "market": "pitcher_bb",
+    "selection": "Jackson Kent Walks o1.5",
+    "american": -195.0,
+    "no_vig_prob": 0.622104
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "pitcher_bb",
     "selection": "Jackson Kent Walks o2.5",
     "american": 140.0,
     "no_vig_prob": 0.396526
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "pitcher_bb",
+    "selection": "Jackson Kent Walks u1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.377896
   },
   {
     "matchup": "MIA @ WSH",
@@ -35912,9 +36682,23 @@
   {
     "matchup": "PIT @ STL",
     "market": "batter_tb",
+    "selection": "Jordan Walker TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "batter_tb",
     "selection": "Jordan Walker TB o1.5",
     "american": 145.0,
     "no_vig_prob": 0.385081
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "batter_tb",
+    "selection": "Jordan Walker TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "PIT @ STL",
