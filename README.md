@@ -1028,6 +1028,31 @@ go to `~/.cfb_engine/schedule.log`.
 Remove the schedule with `launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist`
 (macOS) or `crontab -l | grep -vF '# payoff-pitch-cfb-schedule' | crontab -` (Linux).
 
+Both installers refuse a checkout inside `~/Documents`, `~/Desktop`, `~/Downloads`
+or iCloud Drive. macOS shields those directories from processes launchd starts
+without a foreground session, so an agent installed there loads and then dies at
+exec (`autorun.command: Operation not permitted`) -- the installer succeeds,
+because Terminal has access, and the only evidence is a line in an error log the
+morning the card fails to arrive. Clone to `~/payoff-pitch-` instead.
+
+### NFL weekly schedule
+
+`nfl-engine job --card --email` is the whole week in one command (capture, price,
+close, grade, report, workbook + PDF, email). To run it hands-off:
+
+- **macOS** (launchd): `scripts/nfl/macos/install_schedule.command`
+
+Two agents: `com.payoffpitch.nfl.week` at 09:00 daily (override with
+`NFL_RUN_HOUR`), and `com.payoffpitch.nfl.close` at 12:00/16:00/20:00. Daily, not
+weekly, because `job` appends only positions it has not already priced and keeps
+the price of record -- so a Friday-only buy still gets caught, and an off-season
+morning is a no-op. The close agent is the half that cannot be backfilled: CLV is
+measured against the number at kickoff, and Wednesday's price is not that number.
+Credentials come from `/etc/engine.env`, `~/.mlb_engine/engine.env` or
+`~/.nfl_engine/engine.env` (seeded from `scripts/nfl/engine.env.example`, chmod
+600, never overwritten). Logs go to `~/.nfl_engine/schedule.log`. Remove with
+`launchctl unload ~/Library/LaunchAgents/com.payoffpitch.nfl.*.plist`.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);

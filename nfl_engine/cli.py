@@ -55,12 +55,13 @@ from nfl_engine.audit.ledger import (
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config, output_dir
-from nfl_engine.data import capture, espn, injuries, nflverse
+from nfl_engine.data import capture, espn, injuries, nflverse, schedule
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.features import usage
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
+from nfl_engine.output import brief
 from nfl_engine.output.card import build_card, render_html, render_markdown, render_pdf
 from nfl_engine.output.email import EmailNotConfigured, send_package
 from nfl_engine.output.excel import build_workbook
@@ -123,7 +124,10 @@ def _fetch(days: int, *, kind: str = capture.GAME_KIND, archive: bool = True) ->
         log.warning("no Odds API key: nothing to fetch")
         return Fetched(season, week, taken, [], {})
     slate, board = client.fetch_board(season=season, week=week, first_day=first_day, days=days)
-    games = list(slate.games)
+    # The board is prices only. Roof, rest, neutral site and the divisional flag
+    # come from the schedule, and the kickoff wind from a forecast -- without them
+    # the two measured situational terms have nothing to read.
+    games = schedule.enrich(list(slate.games))
     rows = capture.rows_from_board(
         board,
         season=season,
@@ -690,6 +694,19 @@ def cmd_card(args: argparse.Namespace) -> int:
         # network call, so a week's absences are shown exactly as they were known
         # when they were captured.
         absences=availability.read_log(availability.log_path(), season=season, week=week),
+        # The brief's context: the divisional flag, roof, rest and kickoff weather.
+        # None of it is in the ledger -- a row records a price, not a forecast --
+        # so it is rebuilt from the schedule, and from Open-Meteo's archive for a
+        # week already played.
+        context=brief.context_for(
+            season,
+            week,
+            {
+                e.matchup: (e.kickoff_utc or e.date)
+                for e in entries
+                if e.season == season and e.week == week
+            },
+        ),
     )
     if not card.games:
         print(f"no priced rows for {season} week {week}")

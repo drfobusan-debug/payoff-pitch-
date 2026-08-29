@@ -19,8 +19,8 @@ from datetime import datetime, timezone
 
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.teamnames import school_key
-from cfb_engine.data.weather import fetch_venue_weather
 from cfb_engine.schemas import Slate
+from mlb_engine.data.openmeteo import fetch_venue_weather
 
 log = logging.getLogger(__name__)
 
