@@ -35,7 +35,7 @@ import pandas as pd
 
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.features.marcel import marcel_projection
-from mlb_engine.features.rolling import ros_rates_from_projection
+from mlb_engine.features.rolling import OUTCOMES_ORDER, ros_rates_from_projection
 
 log = logging.getLogger(__name__)
 
@@ -86,7 +86,30 @@ def newest_export(folder: Path | None, source: str = "") -> Path | None:
             len(files),
         )
         return None
-    return max(wanted, key=lambda f: f.stat().st_mtime)
+    chosen = max(wanted, key=lambda f: f.stat().st_mtime)
+    # A strict name match fails silently when an older export *does* match: this
+    # morning's ``fg_atcros_2026-08-19.csv`` is not an ``atc`` file by word, so
+    # yesterday's ``atc_ros_2026-08-18.csv`` wins and the lineup is anchored on
+    # stale rates with nothing said. Name the newer file that was passed over.
+    newest = max(files, key=lambda f: f.stat().st_mtime)
+    # Narrow on purpose: the newer file has to spell the system without the
+    # separator *and* read as a projection. Warning on any newer CSV fires on
+    # every bank statement, and warning on any newer export fires every day on
+    # the other system's file, which is not misnamed.
+    misnamed = (
+        newest != chosen
+        and source.lower() in newest.name.lower()
+        and _from_export(newest) is not None
+    )
+    if misnamed:
+        log.warning(
+            "using %s, though the newer %s is a projection export whose name does "
+            "not say %r as a word -- rename it if it is today's",
+            chosen.name,
+            newest.name,
+            source,
+        )
+    return chosen
 
 
 def _from_export(path: Path) -> pd.DataFrame | None:
@@ -112,6 +135,41 @@ def _from_export(path: Path) -> pd.DataFrame | None:
     except (OSError, ValueError, KeyError) as exc:
         log.warning("could not read the projection export %s (%s); using the Marcel", path, exc)
         return None
+
+
+def _fill_rounded_zeros(dropped: pd.DataFrame, marcel: pd.DataFrame) -> pd.DataFrame:
+    """Replace an export's exact-zero rates with the Marcel's, hitter by hitter.
+
+    An export that rounds its counting stats reports a rate of exactly zero for
+    anything it projects below half a hit, which is not a projection of
+    zero -- ATC's rest-of-season file rounds, and 74% of the hitters it lists
+    come out unable to hit a triple, which then reaches the simulator through
+    total bases. No major-league hitter has a true rate of zero for any of these
+    outcomes, so an exact zero is read as *unstated* and the Marcel behind the
+    export supplies it. The vector is renormalised, so the fill costs the OUT
+    rate rather than inventing plate appearances.
+    """
+    fillable = [oc for oc in OUTCOMES_ORDER if oc != "OUT"]
+    prior = marcel.set_index("mlbam_id")
+    out = dropped.set_index("mlbam_id").copy()
+    shared = out.index.intersection(prior.index)
+    if shared.empty:
+        return dropped
+    filled = 0
+    for oc in fillable:
+        zero = out.loc[shared, oc] == 0.0
+        if not bool(zero.any()):
+            continue
+        ids = shared[zero.to_numpy()]
+        out.loc[ids, oc] = prior.loc[ids, oc]
+        filled += len(ids)
+    if not filled:
+        return dropped
+    total = out[list(OUTCOMES_ORDER)].sum(axis=1)
+    for oc in OUTCOMES_ORDER:
+        out[oc] = out[oc] / total
+    log.info("filled %d rounded-to-zero export rates from the Marcel", filled)
+    return out.reset_index()
 
 
 def is_stale(
@@ -170,6 +228,7 @@ def build(
         ros = dropped
     else:
         if dropped is not None and not dropped.empty:
+            dropped = _fill_rounded_zeros(dropped, ros)
             filled = ros[~ros["mlbam_id"].isin(dropped["mlbam_id"])]
             log.info(
                 "projection export %s: %d hitters, %d more from the Marcel",

@@ -11,14 +11,27 @@ things the engine needs come from here:
 
 With no key the client is inert; the pipeline then falls back to
 market-implied ratings so it still runs.
+
+Every response is cached on disk, because CFBD bills by the call and the free
+key allows 1,000 a month: one season of box scores (``/games/players``, a call
+per week, re-walked on every run) was 44% of the 1,851 calls that exhausted the
+first key. A played week's box score never changes, so the cache is what makes a
+daily schedule affordable -- and when a call does fail (quota, revoked key,
+dropped connection) an expired entry is served rather than nothing, so a card
+still prices off yesterday's ratings instead of the market fallback.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import os
+import time
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import timedelta
+from pathlib import Path
 
 import requests
 
@@ -41,6 +54,74 @@ from mlb_engine.data import http
 log = logging.getLogger(__name__)
 
 BASE = "https://api.collegefootballdata.com"
+
+# How long a cached response stays fresh, per endpoint. Anything CFBD recomputes
+# through the week (ratings, season aggregates) takes the default; a payload that
+# is final once its games are played takes the long one. ``/games`` is the one
+# final payload that still has to expire inside a slate, because the nightly
+# audit reads scores out of it hours after a pre-game run cached it.
+DEFAULT_TTL = 6 * 3600
+LONG_TTL = 30 * 86400
+SHORT_TTL = 1800
+ENDPOINT_TTL: dict[str, int] = {
+    "/games": SHORT_TTL,
+    "/games/players": LONG_TTL,
+    "/ppa/games": LONG_TTL,
+    "/ppa/players/season": LONG_TTL,
+    "/lines": LONG_TTL,
+    "/venues": LONG_TTL,
+    "/teams/fbs": LONG_TTL,
+    "/player/portal": LONG_TTL,
+    "/player/returning": LONG_TTL,
+}
+
+
+def current_season(today: Date | None = None) -> int:
+    """The season CFBD is currently filling in.
+
+    A season is labelled by the year it kicks off in, so a January bowl still
+    belongs to the previous year's season.
+    """
+    today = today or Date.today()
+    return today.year if today.month >= 3 else today.year - 1
+
+
+def default_cache_dir() -> Path | None:
+    """``<data dir>/cache/cfbd``, or ``None`` when caching is switched off."""
+    if os.getenv("CFBE_CFBD_CACHE", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return None
+    root = os.getenv("CFBE_DATA_DIR") or str(Path.home() / ".cfb_engine")
+    return Path(root) / "cache" / "cfbd"
+
+
+def _read_cache(path: Path | None) -> tuple[object | None, float | None]:
+    """The cached payload and its age in seconds, or ``(None, None)``."""
+    if path is None or not path.exists():
+        return None, None
+    try:
+        return json.loads(path.read_text()), time.time() - path.stat().st_mtime
+    except (OSError, ValueError):
+        return None, None
+
+
+def _write_cache(path: Path | None, payload: object) -> None:
+    if path is None:
+        return
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(payload))
+        tmp.replace(path)
+    except (OSError, ValueError) as exc:
+        log.warning("could not cache CFBD response (%s)", exc)
+
+
+def _env_ttl() -> int:
+    raw = os.getenv("CFBE_CFBD_CACHE_TTL", "").strip()
+    try:
+        return int(raw) if raw else DEFAULT_TTL
+    except ValueError:
+        return DEFAULT_TTL
 
 
 @dataclass(frozen=True)
@@ -128,26 +209,74 @@ class GameWeather:
 
 
 class CFBDClient:
-    def __init__(self, api_key: str | None, timeout: int = 25) -> None:
+    def __init__(
+        self,
+        api_key: str | None,
+        timeout: int = 25,
+        *,
+        cache_dir: Path | None | str = "",
+        cache_ttl: int | None = None,
+    ) -> None:
         self.api_key = api_key
         self.timeout = timeout
+        # "" means "whatever the environment says"; None explicitly disables the
+        # disk cache, which is how the tests keep their calls observable.
+        self.cache_dir = default_cache_dir() if cache_dir == "" else cache_dir
+        self.cache_ttl = _env_ttl() if cache_ttl is None else cache_ttl
         # A full-season /games pull is reused across results + schedule filters.
         self._games_cache: dict[int, list[dict[str, object]]] = {}
+        # Billable calls this process made, so a run's spend is in the log.
+        self.calls = 0
 
     def available(self) -> bool:
         return bool(self.api_key)
 
+    def _ttl(self, path: str, params: dict[str, str | int]) -> int:
+        """Freshness window for one request.
+
+        A finished season is immutable, so anything asked about a past year is
+        cached for the long window whatever the endpoint's usual policy is --
+        that is what stops a backtest from re-buying the same history.
+        """
+        year = params.get("year")
+        if isinstance(year, (int, str)):
+            try:
+                if int(year) < current_season():
+                    return LONG_TTL
+            except ValueError:
+                pass
+        return ENDPOINT_TTL.get(path, self.cache_ttl)
+
+    def _cache_path(self, path: str, params: dict[str, str | int]) -> Path | None:
+        if self.cache_dir is None:
+            return None
+        stamp = json.dumps({"path": path, **{k: str(v) for k, v in params.items()}}, sort_keys=True)
+        slug = path.strip("/").replace("/", "-") or "root"
+        digest = hashlib.sha256(stamp.encode()).hexdigest()[:16]
+        return Path(self.cache_dir) / f"{slug}-{digest}.json"
+
     def _get(self, path: str, **params: str | int) -> object:
+        cache = self._cache_path(path, params)
+        cached, age = _read_cache(cache)
+        if cached is not None and age is not None and age < self._ttl(path, params):
+            return cached
+
         headers = {"Authorization": f"Bearer {self.api_key}", "Accept": "application/json"}
+        self.calls += 1
+        log.debug("CFBD call %d: %s", self.calls, path)
         try:
             resp = http.get(
                 f"{BASE}{path}", params=params, headers=headers, timeout=self.timeout
             )
             resp.raise_for_status()
-            return resp.json()
+            payload = resp.json()
         except (requests.RequestException, ValueError) as exc:
             log.warning("CFBD request failed (%s): %s", path, exc)
-            return None
+            if cached is not None:
+                log.warning("serving %s from cache %.1fh old", path, (age or 0) / 3600)
+            return cached
+        _write_cache(cache, payload)
+        return payload
 
     def fetch_ratings(self, season: int) -> RatingBook | None:
         """SP+ adjusted offense/defense per team for ``season``.

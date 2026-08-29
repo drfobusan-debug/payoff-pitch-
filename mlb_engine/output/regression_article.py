@@ -20,15 +20,24 @@ context that is explicitly labelled unproven.
 
 from __future__ import annotations
 
+import math
 from datetime import date as Date
 
 import pandas as pd
 
+from mlb_engine.features import arm
 from mlb_engine.features.regression import (
     BL_BABIP,
     BL_FB_ALLOWED,
     BL_K_PCT,
     BL_XSLG,
+)
+from mlb_engine.features.swing import (
+    CONFIRMED,
+    CONTRADICTED,
+    LEAGUE,
+    UNMEASURED,
+    WINDOW,
 )
 from mlb_engine.output.audit_insight import to_pdf
 from mlb_engine.output.regression_profiles import (
@@ -108,8 +117,7 @@ def _air_sentence(p: dict, positive: bool) -> str:
             f"He keeps the ball down &mdash; {ground} on the ground, {fb:.0%} "
             "in the air &mdash; so "
             + (
-                "expect the correction in singles and double plays rather than "
-                "in home runs."
+                "expect the correction in singles and double plays rather than in home runs."
                 if positive
                 else "the damage that comes back is hits rather than homers."
             )
@@ -166,8 +174,7 @@ def _luck_sentence(p: dict, positive: bool) -> str:
         return "Where he has been unlucky: " + "; ".join(bits) + "."
     if p["unlucky_babip"] < -0.015:
         bits.append(
-            f"balls in play are finding gloves at {_mil(babip)} against a "
-            f"{_mil(BL_BABIP)} norm"
+            f"balls in play are finding gloves at {_mil(babip)} against a {_mil(BL_BABIP)} norm"
         )
     if gap > 10:
         bits.append(
@@ -262,12 +269,177 @@ def _bet_sentence(bets: list[dict], whose: str) -> str:
     return lead + "; ".join(parts) + "."
 
 
+def _arm_sentence(p: dict, positive: bool) -> str:
+    """Stage two: does the delivery agree with what the luck term says is coming?
+
+    The luck term ranks the list and it is a residual of outcomes -- it knows
+    which balls in play found grass and nothing about the pitch that was hit.
+    Perceived velocity, read over the arm's last hundred fastballs, adds to the
+    next fortnight's wOBA allowed, hits allowed and strikeouts on top of the luck
+    term *and* on top of the CSW% and pitch-shape grade already priced (t -2.4,
+    -3.6 and +4.4 on 2,214 pitcher-windows), so it is what confirms or
+    contradicts the luck read here.
+
+    The four cells are graded out of time, and the sentences quote what each is
+    worth: a confirmed fade allowed .338 the fortnight after against .316 for a
+    fade the delivery argues with, and a confirmed correction allowed .314
+    against .336, either side of a .322 base rate for the arms neither flag
+    touches. The verdict turns on where the delivery sits against the league and
+    never on which way it is trending; the trend is added to a fade only, since
+    that is the only side of the flag where it graded (``_trend_clause``).
+    """
+    stage2 = p.get("arm_stage2", arm.UNMEASURED)
+    if stage2 == arm.UNMEASURED:
+        return (
+            "The delivery is not readable at this sample &mdash; too few tracked fastballs "
+            "for perceived velocity to mean anything &mdash; so the luck term above stands "
+            "on its own."
+        )
+    sz = p["stuff_z"]
+    strength = (
+        f"{p['arm_pvelo']:.1f} mph perceived off {p['arm_velo']:.1f} at "
+        f"{p['arm_ext']:.1f} feet of extension, {sz:+.2f} standard deviations from league"
+    )
+    if positive and stage2 == arm.CONFIRMED:
+        return (
+            f"The arm underneath agrees: {strength}. The correction has a delivery behind "
+            "it rather than being a wish about batted balls &mdash; arms in this cell allowed "
+            ".314 the following fortnight against .336 for a correction the delivery argues "
+            "with, either side of a .322 league fortnight."
+        )
+    if positive:
+        return (
+            f"The arm does not back it: {strength}. His results are worse than his contact "
+            "and the delivery is below league too, so the level he corrects back to is lower "
+            "than the shortfall suggests: arms in this cell allowed .336 the following "
+            "fortnight, worse than the .322 the unflagged league allowed."
+        )
+    if stage2 == arm.CONFIRMED:
+        return (
+            f"The arm agrees with the fade: {strength}. Nothing in how he is throwing is "
+            "holding the run prevention up &mdash; arms in this cell allowed .338 the "
+            "following fortnight and struck out .187 of batters against .236, the sharpest "
+            "of the four readings." + _trend_clause(p)
+        )
+    return (
+        f"The arm argues against the fade: {strength}. He has been helped and he is also "
+        "good, which is the case the luck term on its own gets wrong &mdash; though the arm "
+        "sorts the fortnight ahead by the same margin whether the luck ran hot or cold, so "
+        "read it as a level rather than as a reprieve." + _trend_clause(p)
+    )
+
+
+def _trend_clause(p: dict) -> str:
+    """The asterisk on a fade: is the delivery holding the results up or shedding?
+
+    Printed only where the results ran hot, because that is the only side of the
+    flag on which the trend graded. Inside those rows a shedding arm allowed
+    +.026 of wOBA more the fortnight after than one holding its velocity
+    [+.012, +.039], in both seasons and in both halves of the level, and the two
+    corners of the pair sit .339 and .301 either side of a .322 base rate. Inside
+    the correction rows the same reading is worth -.009 [-.022, +.004], so it is
+    absent there rather than printed as a null.
+
+    A move that rounds to nothing is left out rather than announced as a tenth of
+    a mile in either direction: the cells were split at zero and the prose is not
+    where a dead band would be invented, but neither is a hundredth of a mile
+    worth a sentence.
+    """
+    trend = p.get("arm_trend", arm.UNMEASURED)
+    if trend == arm.UNMEASURED:
+        return ""
+    d = p["arm_d_pvelo"]
+    if abs(d) < 0.05:
+        return ""
+    if trend == arm.SHEDDING:
+        return (
+            f" And it is going the wrong way for him: {abs(d):.1f} mph of perceived velocity "
+            "off the block before this one, which inside a fade is worth another .026 of "
+            "wOBA the fortnight after &mdash; the sharpest corner on the board."
+        )
+    return (
+        f" He is at least holding the delivery, {d:+.1f} mph on the block before this one; "
+        "arms fading on a steady or rising delivery allowed .026 less wOBA the fortnight "
+        "after than the ones shedding it, so this is the softer version of the fade."
+    )
+
+
+def _ride_sentence(p: dict) -> str:
+    """Which market the fastball's ride points at, when it is readable.
+
+    Induced vertical break survives perceived velocity, CSW% and the shape grade
+    on the home-run line (t +5.0) while subtracting hits (t -3.0), so it says
+    where the damage lands rather than how good the arm is.
+    """
+    rz = p.get("ride_z", math.nan)
+    if rz != rz:
+        return ""
+    ivb = p["arm_ivb"]
+    if rz >= 0.5:
+        return (
+            f" The fastball rides {ivb:.1f}&Prime;, {rz:+.2f} SD above league, which "
+            "suppresses hits and pays for it in home runs &mdash; the hits unders before "
+            "the home-run side."
+        )
+    if rz <= -0.5:
+        return (
+            f" The fastball is flat at {ivb:.1f}&Prime; of ride, {rz:+.2f} SD below league, "
+            "so the contact he allows comes as hits rather than over the fence."
+        )
+    return f" Ride is league-typical at {ivb:.1f}&Prime;, so it points at no market."
+
+
+def _arm_line(p: dict) -> str:
+    """The physical levels themselves, over the window the panel validated."""
+    if p.get("arm_pitches", 0) == 0:
+        return ""
+    cells = [
+        f"pVelo {p['arm_pvelo']:.1f}" if p["arm_pvelo"] == p["arm_pvelo"] else "pVelo &mdash;",
+        f"Velo {p['arm_velo']:.1f}" if p["arm_velo"] == p["arm_velo"] else "Velo &mdash;",
+        f"Ext {p['arm_ext']:.1f}" if p["arm_ext"] == p["arm_ext"] else "Ext &mdash;",
+        f"IVB {p['arm_ivb']:.1f}&Prime;" if p["arm_ivb"] == p["arm_ivb"] else "IVB &mdash;",
+        f"HB {p['arm_hb']:.1f}&Prime;" if p["arm_hb"] == p["arm_hb"] else "HB &mdash;",
+        f"Spin {p['arm_spin']:.0f}" if p["arm_spin"] == p["arm_spin"] else "Spin &mdash;",
+        f"RelPt {p['arm_rel_x']:.2f}/{p['arm_rel_z']:.2f}"
+        if p["arm_rel_x"] == p["arm_rel_x"] and p["arm_rel_z"] == p["arm_rel_z"]
+        else "RelPt &mdash;",
+    ]
+    lg = (
+        f"league {arm.LEAGUE['pvelo'][0]:.1f} / {arm.LEAGUE['velo'][0]:.1f} / "
+        f"{arm.LEAGUE['ext'][0]:.1f} / {arm.LEAGUE['ivb'][0]:.1f}&Prime; / "
+        f"{arm.LEAGUE['hb'][0]:.1f}&Prime; / {arm.LEAGUE['spin'][0]:.0f}"
+    )
+    return (
+        f"<p class='trend'>Arm: {' &middot; '.join(cells)} "
+        f"<span class='caption'>&mdash; {lg}; Statcast, read over his last {arm.WINDOW} "
+        f"fastballs off {p['arm_pitches']} in the window. Every one of these half-repeats "
+        "inside a single pitch, so the window comes from the out-of-time panel and not from "
+        "reliability; horizontal break was missing from our own ingestion until now, so a "
+        "slice cached before it reads as unmeasured.</span></p>"
+    )
+
+
+def _three_week_trend(p: dict) -> str:
+    """The context line's three-week moves, with the unreadable ones left out.
+
+    An arm with no starts on one side of the split has no move to report, and a
+    reader is owed that rather than a printed ``nan``.
+    """
+    cells = [
+        f"{label} {value * scale:+.{digits}f}{unit}"
+        for label, value, scale, digits, unit in (
+            ("SIERA", p["d_siera"], 1.0, 2, ""),
+            ("Stuff xK%", p["d_xk"], 100.0, 1, ""),
+            ("vFA", p["d_vfa"], 1.0, 1, " mph"),
+        )
+        if value == value
+    ]
+    return "3wk trend: " + " · ".join(cells) if cells else "3wk trend: not readable"
+
+
 def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     matchup = ctx["matchup"] if ctx else ""
-    trend = (
-        f"3wk trend: SIERA {p['d_siera']:+.2f} · Stuff xK% {p['d_xk'] * 100:+.1f} · "
-        f"vFA {p['d_vfa']:+.1f} mph"
-    )
+    trend = _three_week_trend(p)
     opener = (
         f"{p['name']} is {_who_he_is(p)} — SIERA {p['siera']:.2f}, "
         f"{_stuff_phrase(p)} at {p['xk'] * 100:.0f}% expected strikeouts"
@@ -279,6 +451,7 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
         for x in (
             opener,
             _luck_sentence(p, positive),
+            _arm_sentence(p, positive) + _ride_sentence(p),
             _air_sentence(p, positive),
             _pitcher_verdict(p, positive),
             _today_sentence(ctx),
@@ -287,14 +460,120 @@ def _pitcher_entry(p: dict, ctx: dict | None, bets: list[dict], positive: bool) 
     )
     whose = p["name"].split()[-1] + "&rsquo;s"
     cls = "up" if positive else "down"
+    flag = ""
+    if p.get("arm_stage2") == arm.CONTRADICTED:
+        flag = " <span class='mu'>arm disagrees</span>"
     return (
         f"<div class='entry {cls}'>"
-        f"<h3>{p['name']} <span class='mu'>{matchup}</span></h3>"
+        f"<h3>{p['name']} <span class='mu'>{matchup}</span>{flag}</h3>"
         f"<p class='prose'>{body}</p>"
+        f"{_arm_line(p)}"
         f"<p class='trend'>{trend} <span class='caption'>&mdash; shown for context; "
         "three-week direction does not predict the next start</span></p>"
         f"<p class='bet'>{_bet_sentence(bets, whose)}</p>"
         "</div>"
+    )
+
+
+def _swing_sentence(p: dict, positive: bool) -> str:
+    """Stage two: does the swing agree with what the gap says is coming?
+
+    The gap ranks the list and it is a residual of outcomes -- it knows which
+    balls fell in and nothing about the swing that hit them. Bat speed and blast
+    rate, read on their own windows of tracked swings, add to next-fortnight total
+    bases and home runs on top of wOBA and xwOBA (t +5.4 and t +6.6 on 3,175
+    batter-windows), so they are what confirms or contradicts the gap here.
+    """
+    stage2 = p.get("stage2", UNMEASURED)
+    if stage2 == UNMEASURED:
+        return (
+            "His swing is not readable at this sample &mdash; too few tracked competitive "
+            "swings for bat speed and blast rate to mean anything &mdash; so the gap above "
+            "stands on its own."
+        )
+    pz = p["power_z"]
+    strength = (
+        f"bat speed {p['bat_speed']:.1f} mph and a {p['blast'] * 100:.0f}% blast rate, "
+        f"{pz:+.2f} standard deviations from league"
+    )
+    if positive and stage2 == CONFIRMED:
+        return (
+            f"The swing underneath agrees: {strength}. The rebound has a bat behind it "
+            "rather than being a wish about batted balls."
+        )
+    if positive:
+        return (
+            f"The swing does not back it: {strength}. His results are below his contact and "
+            "his swing is below league too, so the low level is closer to what he is than "
+            "the shortfall suggests."
+        )
+    if stage2 == CONFIRMED:
+        return (
+            f"The swing agrees with the fade: {strength}. Nothing in how he is hitting the "
+            "ball is holding the production up."
+        )
+    return (
+        f"The swing argues against the fade: {strength}. He has been lucky and he is also "
+        "good, which is the case the gap on its own gets wrong &mdash; of the hitters this "
+        "cut flags, the better-swinging half went on to out-produce the ones it kept."
+    )
+
+
+def _lift_sentence(p: dict) -> str:
+    """Which market the swing's steepness points at, when it is readable.
+
+    Attack angle survives bat speed and blast rate on the home-run line (t +6.3)
+    and is signed against hits (t -5.3), so it says where a hitter's production
+    should land rather than how good he is.
+    """
+    lz = p.get("lift_z", math.nan)
+    if lz != lz:
+        return ""
+    angle = p["attack_angle"]
+    if lz >= 0.5:
+        return (
+            f" He swings up {angle:.1f}&deg;, {lz:+.2f} SD steeper than league, which is the "
+            "home-run and total-base side of the board rather than the hits one."
+        )
+    if lz <= -0.5:
+        return (
+            f" His attack angle is {angle:.1f}&deg;, {lz:+.2f} SD flatter than league: the "
+            "hits and H+R+RBI markets read better for him than the power ones."
+        )
+    return f" His attack angle is league-typical at {angle:.1f}&deg;, so it points at no market."
+
+
+def _swing_line(p: dict) -> str:
+    """The swing levels themselves, each over the window its measure repeats at."""
+    if p.get("stage2", UNMEASURED) == UNMEASURED and p.get("swings", 0) == 0:
+        return ""
+    cells = [
+        f"BatSpd {p['bat_speed']:.1f}" if p["bat_speed"] == p["bat_speed"] else "BatSpd &mdash;",
+        f"Fast {p['fast'] * 100:.0f}%" if p["fast"] == p["fast"] else "Fast &mdash;",
+        f"SqUp {p['squared_up'] * 100:.0f}%"
+        if p["squared_up"] == p["squared_up"]
+        else "SqUp &mdash;",
+        f"Blast {p['blast'] * 100:.0f}%" if p["blast"] == p["blast"] else "Blast &mdash;",
+        f"SwLen {p['swing_length']:.2f}"
+        if p["swing_length"] == p["swing_length"]
+        else "SwLen &mdash;",
+        f"AtkAng {p['attack_angle']:.1f}&deg;"
+        if p.get("attack_angle", math.nan) == p.get("attack_angle", math.nan)
+        else "AtkAng &mdash;",
+    ]
+    lg = (
+        f"league {LEAGUE['bat_speed'][0]:.1f} / {LEAGUE['fast'][0] * 100:.0f}% / "
+        f"{LEAGUE['squared_up'][0] * 100:.0f}% / {LEAGUE['blast'][0] * 100:.0f}% / "
+        f"{LEAGUE['swing_length'][0]:.2f} / {LEAGUE['attack_angle'][0]:.1f}&deg;"
+    )
+    return (
+        f"<p class='trend'>Swing: {' &middot; '.join(cells)} "
+        f"<span class='caption'>&mdash; {lg}; read over "
+        f"{WINDOW['bat_speed']}/{WINDOW['fast']}/{WINDOW['squared_up']}/"
+        f"{WINDOW['blast']}/{WINDOW['swing_length']}/{WINDOW['attack_angle']} tracked swings, "
+        f"four times the sample each first half-repeats at, off {p['swings']} in the window. "
+        "Attack angle comes from Savant's swing-path feed, which starts in 2025, so a frame "
+        "cached before it reads as unmeasured.</span></p>"
     )
 
 
@@ -333,12 +612,12 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
             "cold — the results are simply ahead of it, and that is the part "
             "that comes back."
         )
-    if trend_d > 0.020:
-        heat = f"He is hotter than his six-week line too ({_mil(p['woba3'])} over three weeks)."
-    elif trend_d < -0.020:
-        heat = f"He has cooled lately ({_mil(p['woba3'])} over the last three weeks)."
-    else:
-        heat = ""
+    heat = (
+        f"His three-week line reads {_mil(p['woba3'])} against the six-week "
+        f"{_mil(p['woba6'])}, which is context and not a forecast."
+        if abs(trend_d) > 0.020
+        else ""
+    )
     env = ""
     if ctx:
         bits = []
@@ -352,14 +631,27 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
         if bits:
             env = "Tonight: " + " and ".join(bits) + "."
     body = " ".join(
-        x for x in (lead, verdict, _bat_air_sentence(p, positive), heat, env) if x
+        x
+        for x in (
+            lead,
+            verdict,
+            _swing_sentence(p, positive) + _lift_sentence(p),
+            _bat_air_sentence(p, positive),
+            heat,
+            env,
+        )
+        if x
     )
     bets = [bet] if bet else []
     cls = "up" if positive else "down"
+    flag = ""
+    if p.get("stage2") == CONTRADICTED:
+        flag = " <span class='mu'>swing disagrees</span>"
     return (
         f"<div class='entry {cls}'>"
-        f"<h3>{p['name']} <span class='mu'>{ctx['matchup'] if ctx else ''}</span></h3>"
+        f"<h3>{p['name']} <span class='mu'>{ctx['matchup'] if ctx else ''}</span>{flag}</h3>"
         f"<p class='prose'>{body}</p>"
+        f"{_swing_line(p)}"
         f"<p class='bet'>{_bet_sentence(bets, 'his')}</p>"
         "</div>"
     )
@@ -379,11 +671,51 @@ LEAD = (
     "at the same time: the runs come down, but they come down to a lower "
     "level. Those cases are flagged in the text rather than left for you to "
     "spot.<br><br>"
-    "One honest caveat on the arrows. Measured over 246 starts this season, "
+    "<b>Both halves are read in two stages this month.</b> For the arms the luck "
+    "term still ranks the list, and each starter is then crossed against what "
+    "Statcast measures of the delivery itself: perceived velocity &mdash; release "
+    "speed plus 1.1 times extension, the speed the hitter has to react to &mdash; "
+    "over his last hundred fastballs, with the fastball&rsquo;s induced ride "
+    "beside it. Out of time on 2,214 pitcher-windows those levels add to the next "
+    "fortnight on top of the luck term <i>and</i> on top of the CSW% and "
+    "pitch-shape grade the engine already prices, so this is not a second copy of "
+    "something it has: perceived velocity t &minus;2.4 on wOBA allowed and "
+    "t +4.4 on strikeouts, ride t +5.0 on home runs while subtracting hits. The "
+    "release point, the arm angle, the horizontal break and release scatter earn "
+    "nothing and are printed without being scored. Unlike the bats, the arm read "
+    "is a level everywhere rather than a rescue &mdash; a good arm sorts the "
+    "fortnight ahead by the same margin whether his luck ran hot or cold &mdash; "
+    "so it qualifies the ranking and does not reorder it.<br><br>"
+    "<b>The bats are read the same way.</b> The gap still ranks "
+    "them, because it is what is due to move. But a gap is a residual of "
+    "outcomes &mdash; it knows which balls fell in and nothing about the swing "
+    "that hit them &mdash; so every hitter is then crossed against his bat "
+    "tracking: bat speed, fast-swing rate, squared-up rate, blast rate and attack "
+    "angle, each "
+    "read over its own window of tracked competitive swings rather than a round "
+    "six weeks. Out of time on 3,175 batter-windows those levels add to the next "
+    "fortnight&rsquo;s total bases and home runs on top of wOBA and xwOBA, blast "
+    "rate contributing more than the two of them explain between them; "
+    "squared-up rate predicts hits and is negatively signed on home runs, so it "
+    "is read on the contact markets and kept off the power ones. Attack angle "
+    "splits the same way and harder: a steeper swing adds home runs (t +6.3 with "
+    "bat speed and blast rate already in the model) and subtracts singles "
+    "(t &minus;5.3), monotonically from 2.6% to 4.6% HR/PA across its quintiles, "
+    "so it is read on the line in question rather than as a verdict on the bat. "
+    "When the swing "
+    "disagrees with the gap the entry says so, and that disagreement is the "
+    "report&rsquo;s answer to a hitter being written off for a fortnight of good "
+    "luck.<br><br>"
+    "Two honest caveats on the arrows. Measured over 246 starts this season, "
     "the <i>level</i> of SIERA, Stuff and velocity predicts what a starter "
     "allows next time out; the <i>three-week direction</i> of those same "
     "metrics does not. The trend line is printed because it is worth seeing, "
-    "not because it has earned a bet."
+    "not because it has earned a bet. The same holds for the swing: the "
+    "<i>level</i> of bat speed and blast rate forecasts, the recent-versus-prior "
+    "<i>move</i> in them forecasts nothing (bat speed t +1.4, blast t &minus;0.3), "
+    "so no swing trend is printed at all &mdash; and the same for the delivery, "
+    "where the recent-versus-prior move in perceived velocity comes in at "
+    "t &minus;0.9 and in ride at t +1.3."
 )
 
 CSS = """
@@ -432,8 +764,44 @@ FINE = (
     "a reason to expect one. Hitter "
     "wOBA, xwOBA and xSLG use a six-week batted-ball slice with a 25-event "
     "minimum, and the three-week figure is the same measure over the recent "
-    "window. Ranking is the luck term only: z(BABIP &minus; .290) + "
-    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats. Levels were "
+    "window. Swing levels are means over each measure&rsquo;s own window of "
+    "tracked competitive swings &mdash; "
+    f"{WINDOW['bat_speed']} for bat speed, {WINDOW['fast']} for fast-swing rate, "
+    f"{WINDOW['swing_length']} for swing length, {WINDOW['blast']} for blast rate, "
+    f"{WINDOW['squared_up']} for squared-up rate, {WINDOW['attack_angle']} for attack "
+    "angle, four times "
+    "the sample at which each first reaches split-half r=.50 on 515,417 tracked "
+    "swings &mdash; and are compared with league measured the same way. "
+    "Squared-up and blast rate are reconstructed from the pitch-level collision "
+    "model with the cuts calibrated to Savant&rsquo;s published league rates; per "
+    "hitter that reads r +.86 and +.76 against the official leaderboard over the "
+    "same dates (bat speed +.996, swing length +.997), and the reconstruction is "
+    "noisier than the official figure, which attenuates the coefficients rather "
+    "than inflating them. Attack angle, attack direction and swing tilt are "
+    "Savant&rsquo;s own pitch-level swing-path fields, which begin in 2025; ours "
+    "reproduce FanGraphs&rsquo; published season figures at r +.996 and +.9995 "
+    "over 438 hitters, and a slice cached before the fields were ingested reads "
+    "as unmeasured rather than as league average. Direction and tilt add nothing "
+    "out of time and are not scored. "
+    "Arm levels are Statcast&rsquo;s own pitch-level release measures, averaged over "
+    f"each starter&rsquo;s last {arm.WINDOW} four-seams, sinkers and two-seams, with "
+    f"a floor of {arm.MIN_LEVEL_PITCHES} readings below which a measure prints as "
+    "unmeasured rather than as league average; the release point and horizontal "
+    "break are mirrored so the arm side is positive for either hand. That window is "
+    "not a reliability window: measured on 1.44M fastballs every one of these "
+    "half-repeats inside a single pitch, because a radar reading is measured rather "
+    "than estimated from outcomes, so the window was chosen from the out-of-time "
+    "panel, which reproduced every sign and significance at 12, 100 and 400 "
+    "fastballs. Perceived velocity is release speed + 1.1 &times; extension "
+    "&minus; 6.0. The horizontal-break column was absent from our own ingestion "
+    "until now, so a slice "
+    "cached earlier carries no horizontal break at all and reads as unmeasured. "
+    "Within-game release scatter is printed nowhere as a talent level: it is a "
+    "fatigue read and belongs to the removal model. "
+    "Ranking is the luck term only: z(BABIP &minus; .290) + "
+    "z(wOBA &minus; xwOBA) for arms, xwOBA &minus; wOBA for bats; the delivery and "
+    "the swing are a second stage that confirms or contradicts that ranking rather "
+    "than reordering it. Levels were "
     "validated against next-start xwOBA allowed on 246 starts (SIERA t +4.0, "
     "Stuff t &minus;3.8, vFA t &minus;2.4, each holding sign across a "
     "chronological split); the three-week trends were not significant in the "
@@ -505,13 +873,15 @@ def build_html(
         + "<h2 class='part'>Part two &mdash; the bats</h2>"
         + bats(
             "Due to heat up",
-            "Contact quality the results have not paid for yet.",
+            "Contact quality the results have not paid for yet &mdash; and, under each one, "
+            "whether the swing agrees.",
             bpos,
             True,
         )
         + bats(
             "Due to cool off",
-            "Results the contact has not earned.",
+            "Results the contact has not earned. Where the swing disagrees the fade is the "
+            "weaker read: half of what this cut flags out-produces what it keeps.",
             bneg,
             False,
         )

@@ -631,6 +631,12 @@ def cmd_grade(args: argparse.Namespace) -> None:
     led = led[led.market.isin(MARKETS) & led.result.isin(["win", "loss"])].copy()
     led["player"] = led.selection.map(player_from_selection)
     led["y"] = (led.result == "win").astype(float)
+    # The ledger carries its own ``batx_prob``, stamped at pricing time from the
+    # same priced file. Merging without dropping it suffixes both to _x/_y and
+    # every later reference raises. The priced file is the one to keep: it holds
+    # every line, not only the side the engine recommended, and it is P(over)
+    # throughout, which is what the flip below assumes.
+    led = led.drop(columns=["batx_prob"], errors="ignore")
 
     df = led.merge(batx, on=["date", "player", "market", "line"], how="inner")
     if df.empty:

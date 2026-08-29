@@ -10,6 +10,7 @@ Commands mirror the MLB engine:
     cfb-engine calibrate refit the probability calibration from the ledger
     cfb-engine backtest  A/B the score engines (normal vs markov) on a season
     cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
+    cfb-engine probation grade markets, live screens and candidate screens
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from datetime import date as Date
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit import snapshot
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     closing_quotes,
@@ -33,6 +35,7 @@ from cfb_engine.audit.clv import (
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
+    OverallMetrics,
     daily_rollup,
     engine_metrics,
     entries_from_graded,
@@ -42,6 +45,14 @@ from cfb_engine.audit.ledger import (
     price_bucket_metrics,
     update_ledger,
 )
+from cfb_engine.audit.priced import (
+    PricedStat,
+    contradictions,
+    engine_priced_stat,
+    priced_findings,
+    priced_stats,
+)
+from cfb_engine.audit.probation import Probation, probation_rows
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
@@ -120,6 +131,12 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
+    # Also seed the first-seen board, in case a capture beats the day's run to
+    # the market: it is written once and never overwritten, so whichever command
+    # sees the board first sets the baseline and the other is a no-op.
+    board_path = cfg.board_file(day)
+    baseline = snapshot.merge_first_wins(snapshot.load(board_path), fresh)
+    snapshot.save(baseline, board_path)
     kept = len(quotes) - len(fresh)
     detail = f", {kept} carried over from an earlier capture" if kept > 0 else ""
     print(
@@ -157,10 +174,23 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
     entries = entries_from_graded(graded, day)
     closing = load_closing(cfg.closing_file(day))
     if closing:
-        for e in entries:
-            e.close_odds, e.close_prob, e.clv, e.clv_ev = compute_clv(
-                e.market, e.selection, e.odds, e.fair_prob, closing
+        # entries_from_graded emits one entry per graded rec, in order, so the
+        # rec's side (cover/over/under) travels with its ledger row.
+        for e, (rec, _) in zip(entries, graded, strict=True):
+            res = compute_clv(
+                e.matchup,
+                e.market,
+                e.selection,
+                e.odds,
+                e.fair_prob,
+                closing,
+                bet_line=e.line,
+                side=rec.side,
+                margin_sd=cfg.model.margin_sd,
+                total_sd=cfg.model.total_sd,
             )
+            e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+            e.clv_pts = res.clv_pts
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -259,9 +289,81 @@ def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_probation(cfg: Config, args: argparse.Namespace) -> int:
+    """Read the verdicts without grading a slate or sending anything."""
+    entries = load_ledger(cfg.ledger_file)
+    if not entries:
+        print("Ledger is empty; run `cfb-engine audit` on graded slates first.")
+        return 1
+    money = [
+        engine_priced_stat(entries),
+        *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
+    ]
+    _print_money(money, market_metrics(entries))
+    _print_probation(probation_rows(entries, args.since))
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 # helpers
 # --------------------------------------------------------------------------- #
+_MARKET_LABEL = {
+    "game_ml": "Moneyline",
+    "game_ats": "Spread (ATS)",
+    "game_total": "Totals",
+}
+
+
+def _print_money(money: list[PricedStat], markets: list[OverallMetrics]) -> None:
+    """The money record beside the PPV record, and the contradictions between them."""
+    printable = [s for s in money if s.n]
+    if not printable:
+        return
+    print("\nWhat the prices did (Needs = win rate the price demands):")
+    for s in printable:
+        print(
+            f"  {s.label:<14} n={s.n:<4} win%={s.win_rate * 100:5.1f} "
+            f"needs={s.breakeven * 100:5.1f} gap={s.shortfall * 100:+5.1f}pts "
+            f"ROI={s.roi * 100:+6.1f}% units={s.units:+.2f}"
+        )
+    for finding in priced_findings(money):
+        print(f"  - {finding}")
+    # PPV lift per market, keyed the way the money table is, so the two tables
+    # can be compared row for row.
+    label_to_key = {v: k for k, v in _MARKET_LABEL.items()}
+    lift = {
+        label_to_key[m.tier]: m.win_pct - m.required_win_pct
+        for m in markets
+        if m.tier in label_to_key and m.n
+    }
+    for s, gap in contradictions(money, lift):
+        print(
+            f"  - {s.label}: picked well and still lost "
+            f"({gap * 100:+.1f}pts of win-rate lift, {s.roi * 100:+.1f}% ROI) "
+            "-- the side is right and the price already knows"
+        )
+
+
+def _print_probation(verdicts: list[Probation]) -> None:
+    if not verdicts:
+        return
+    print(
+        "\nProbation: markets on their own buys, screens on what they refused, "
+        "candidates on what they would refuse"
+    )
+    print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
+    for p in verdicts:
+        flag = "->" if p.actionable else "  "
+        print(
+            f"  {flag} {p.status:<9} {p.name:<28} n={p.n:<5} "
+            f"ROI={p.roi * 100:+6.1f}% se={p.se * 100:4.1f} "
+            f"halves {p.first_half * 100:+6.1f}% / {p.second_half * 100:+6.1f}%"
+        )
+    for p in verdicts:
+        if p.actionable:
+            print(f"  - {p.finding}")
+
+
 def _emit_ledger(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -276,6 +378,11 @@ def _emit_ledger(
     markets = market_metrics(entries)
     clv_rows = clv_summary([(e.category, e.clv, e.clv_ev) for e in entries])
     price_rows = price_bucket_metrics(entries)
+    money = [
+        engine_priced_stat(entries),
+        *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
+    ]
+    verdicts = probation_rows(entries)
     xlsx = write_ledger_workbook(
         entries,
         overall,
@@ -284,8 +391,12 @@ def _emit_ledger(
         market_rows=markets,
         clv_rows=clv_rows,
         price_rows=price_rows,
+        money_rows=money,
+        probation_rows=verdicts,
     )
     print(f"Wrote ledger workbook -> {xlsx}")
+    _print_money(money, markets)
+    _print_probation(verdicts)
     extra = [(xlsx.name, xlsx.read_bytes())]
     generate_audit_report(
         day,
@@ -297,6 +408,8 @@ def _emit_ledger(
         to=to,
         extra_attachments=extra,
         price_rows=price_rows,
+        money_rows=money,
+        probation=[p.finding for p in verdicts if p.actionable],
     )
 
 
@@ -324,6 +437,12 @@ def _build_parser() -> argparse.ArgumentParser:
     bt.add_argument("--season", type=int, help="season year (default: inferred)")
     bt.add_argument("--date", help="slate date used to infer the season")
     add_common(sub.add_parser("scorecard", help="print the PPV/NPV-by-market scorecard"))
+    pb = sub.add_parser("probation", help="grade markets, screens and candidate screens")
+    pb.add_argument(
+        "--since",
+        help="ISO date to start the window at (default: all history); pass the date "
+        "a screen was last changed so its old regime cannot vouch for the new one",
+    )
     sub.add_parser("latency", help="how early the injury feed reaches us, vs the line")
     return p
 
@@ -337,6 +456,7 @@ _DISPATCH = {
     "calibrate": cmd_calibrate,
     "backtest": cmd_backtest,
     "scorecard": cmd_scorecard,
+    "probation": cmd_probation,
     "latency": cmd_latency,
 }
 

@@ -6,15 +6,19 @@ import csv
 import gzip
 import json
 import subprocess
+from datetime import date as Date
 from pathlib import Path
 
 import pytest
 
 import mlb_engine.state as engine_state
+from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
+from mlb_engine.calibration import FEATURE_BASIS, read_stored
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
 from mlb_engine.state import (
+    CALIBRATION_NAME,
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
     STATE_BRANCH,
@@ -24,6 +28,7 @@ from mlb_engine.state import (
     card_lead_hours,
     card_supersedes,
     merge_board_files,
+    merge_calibration_files,
     merge_closing_files,
     merge_dated_csv,
     pull_state,
@@ -101,6 +106,60 @@ def test_opening_boards_keep_the_earliest_price_across_machines(tmp_path: Path) 
 
     assert merge_board_files(remote, local)
     assert load_closing(local)["KC@DET|game_ml|DET"].no_vig_prob == 0.56
+
+
+def _map(path: Path, rows: int, markets: dict[str, str]) -> None:
+    """A calibration map fitted on ``rows`` rows, stamping each market's basis."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "basis": FEATURE_BASIS,
+                "rows": rows,
+                "markets": {
+                    mk: {"x": [0.0, 1.0], "y": [0.0, 0.9], "basis": basis}
+                    for mk, basis in markets.items()
+                },
+                "default": {"x": [0.0, 1.0], "y": [0.0, 0.8]},
+            }
+        )
+    )
+
+
+def test_the_map_fitted_on_more_of_the_ledger_wins(tmp_path: Path) -> None:
+    """Two rival fits of one record, so one has to win rather than be unioned."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    _map(remote, 13_433, {"batter_hr": FEATURE_BASIS})
+    _map(local, 400, {"batter_hr": FEATURE_BASIS})
+
+    assert merge_calibration_files(remote, local)
+    assert read_stored(local).rows == 13_433
+
+    # And the reverse: a machine that refit on less does not undo the better fit.
+    assert not merge_calibration_files(local, remote)
+    assert read_stored(remote).rows == 13_433
+
+
+def test_an_equally_fitted_map_wins_on_the_markets_it_can_price(tmp_path: Path) -> None:
+    """Same rows, so the tie goes to the map correcting more markets."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    _map(remote, 900, {"batter_hr": FEATURE_BASIS, "batter_tb": FEATURE_BASIS})
+    _map(local, 900, {"batter_hr": FEATURE_BASIS, "batter_tb": "pitch-shape-grade-2026.07"})
+
+    assert merge_calibration_files(remote, local)
+    assert read_stored(local).current_markets() == 2
+    # A dead heat leaves the file alone, so a pull that learns nothing is a no-op.
+    assert not merge_calibration_files(remote, local)
+
+
+def test_a_corrupt_published_map_never_replaces_a_working_one(tmp_path: Path) -> None:
+    """Half a JSON file on the branch is not evidence of a better fit."""
+    remote, local = tmp_path / "remote.json", tmp_path / "local.json"
+    remote.write_text('{"basis": "x", "markets": {"batter_hr": {"x": [0.0')
+    _map(local, 900, {"batter_hr": FEATURE_BASIS})
+
+    assert not merge_calibration_files(remote, local)
+    assert read_stored(local).rows == 900
 
 
 # --- git round trip ----------------------------------------------------------
@@ -181,6 +240,165 @@ def test_a_second_machine_cannot_erase_the_first(
     with (data_a / "audit" / "ledger.csv").open(newline="") as f:
         dates = [r["date"] for r in csv.DictReader(f)]
     assert dates == ["2026-08-03", "2026-08-04"]
+
+
+def test_the_power_screen_s_receipts_cross_machines(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The Mac writes the note; this box has to be able to grade it.
+
+    ``power_screen_ledger.csv`` is the only record of what the screen showed and
+    at what price, and the scorecard in the next morning's note is built from it.
+    Absent from the state map it stays on one machine, so the screen reads as
+    having no history anywhere else -- which is the failure the ledger exists to
+    prevent.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    receipts = data_a / "audit" / power_ledger.LEDGER_NAME
+    receipts.parent.mkdir(parents=True, exist_ok=True)
+    positions = [
+        power_ledger.Position(
+            date="2026-08-16",
+            batter="Gabriel Moreno",
+            player_id=672515,
+            game_pk=824880,
+            stat="HR",
+            line=0.5,
+            side="over",
+            book="williamhill_us",
+            odds=750.0,
+            model_prob=0.1675,
+            fair_prob=0.1213,
+            edge=0.0462,
+            ev=0.4238,
+            tier="Pass",
+            rating="HOLD",
+            devigged=False,
+        )
+    ]
+    power_ledger.record(receipts, positions, Date(2026, 8, 16))
+    assert power_ledger.LEDGER_NAME in push_state(
+        data_a, "screen 08-16", repo=repo_a, branch=STATE_BRANCH
+    ).pushed
+
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert power_ledger.LEDGER_NAME in report.pulled
+    pulled = power_ledger.load(data_b / "audit" / power_ledger.LEDGER_NAME)
+    assert [(p.batter, p.stat, p.odds) for p in pulled] == [("Gabriel Moreno", "HR", 750.0)]
+
+
+def test_the_power_screens_receipt_reaches_the_machine_that_grades_it(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The screen runs at 11:30am and the grade the next morning, on another box."""
+    repo_a, data_a, repo_b, data_b = machines
+    ledger = data_a / "audit" / "power_screen_ledger.csv"
+    ledger.parent.mkdir(parents=True, exist_ok=True)
+    with ledger.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=("date", "batter", "stat", "line", "side", "model_prob"))
+        w.writeheader()
+        w.writerow(
+            {
+                "date": "2026-08-19",
+                "batter": "Matt Olson",
+                "stat": "HR",
+                "line": "0.5",
+                "side": "over",
+                "model_prob": "0.18",
+            }
+        )
+    push_state(data_a, "screen 08-19", repo=repo_a, branch="engine-state")
+
+    report = pull_state(data_b, repo=repo_b, branch="engine-state")
+    assert "power_screen_ledger.csv" in report.pulled
+    with (data_b / "audit" / "power_screen_ledger.csv").open(newline="") as f:
+        rows = list(csv.DictReader(f))
+    assert [r["batter"] for r in rows] == ["Matt Olson"]
+
+
+def test_a_hand_dropped_export_reaches_the_machine_that_prices_the_card(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The blank benchmark columns: the download lands on a box that never prices.
+
+    BAT X and EV Analytics are downloaded by hand and copied into the data dir,
+    and the 11:30am card runs on a fresh box whose data dir starts empty -- so
+    the columns were structurally blank whatever the operator did locally.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    (data_a / "batx").mkdir(parents=True)
+    (data_a / "batx" / "2026-08-20.csv").write_text("date,player,market,prob\n")
+    (data_a / "evanalytics").mkdir(parents=True)
+    (data_a / "evanalytics" / "board.html").write_text("<html>1</html>")
+    (data_a / "projections").mkdir(parents=True)
+    (data_a / "projections" / "fg_atc_ros_2026-08-19.csv").write_text("Name,PA\n")
+
+    pushed = push_state(data_a, "drop 08-20", repo=repo_a, branch=STATE_BRANCH)
+    assert {"2026-08-20.csv", "board.html", "fg_atc_ros_2026-08-19.csv"} <= set(pushed.pushed)
+
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert "2026-08-20.csv" in report.pulled
+    assert (data_b / "batx" / "2026-08-20.csv").exists()
+    assert (data_b / "evanalytics" / "board.html").read_text() == "<html>1</html>"
+    assert (data_b / "projections" / "fg_atc_ros_2026-08-19.csv").exists()
+
+
+def test_a_pull_never_overwrites_todays_drop_with_the_branchs(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A saved page is named after the page, so yesterday's has today's name."""
+    repo_a, data_a, repo_b, data_b = machines
+    (data_a / "evanalytics").mkdir(parents=True)
+    (data_a / "evanalytics" / "board.html").write_text("yesterday")
+    push_state(data_a, "drop 08-19", repo=repo_a, branch=STATE_BRANCH)
+
+    (data_b / "evanalytics").mkdir(parents=True)
+    (data_b / "evanalytics" / "board.html").write_text("today")
+    report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    assert "board.html" not in report.pulled
+    assert (data_b / "evanalytics" / "board.html").read_text() == "today"
+
+
+def test_pruning_an_export_backlog_keeps_every_feeds_newest(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Each feed is kept to its own depth, so one cannot crowd out another."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    proj = data_a / "projections"
+    proj.mkdir(parents=True)
+    for day in range(1, 21):
+        (proj / f"fg_atc_ros_2026-08-{day:02d}.csv").write_text("Name,PA\n")
+    (proj / "fg_batx_2026-08-01.csv").write_text("Name,PA\n")
+
+    push_state(data_a, "projections", repo=repo_a, branch=STATE_BRANCH)
+    state = repo_a.parent / f".{repo_a.name}-{STATE_BRANCH}"
+    kept = sorted(p.name for p in (state / "mlb" / "inputs" / "projections").glob("*.gz"))
+    assert "fg_atc_ros_2026-08-20.csv.gz" in kept
+    # The lone BAT X file is the newest of its own feed, so it survives a
+    # backlog of twenty ATC files that a flat sort would have kept instead.
+    assert "fg_batx_2026-08-01.csv.gz" in kept
+    assert "fg_atc_ros_2026-08-01.csv.gz" not in kept
+
+
+def test_the_refit_map_reaches_the_machine_pricing_the_next_slate(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Only one box runs ``calibrate``; the other must not price raw because of it."""
+    repo_a, data_a, repo_b, data_b = machines
+    _map(data_a / CALIBRATION_NAME, 13_433, {"batter_hr": FEATURE_BASIS})
+    _map(data_b / CALIBRATION_NAME, 400, {"batter_hr": FEATURE_BASIS})
+
+    assert CALIBRATION_NAME in push_state(
+        data_a, "calibrate", repo=repo_a, branch=STATE_BRANCH
+    ).pushed
+    assert CALIBRATION_NAME in pull_state(data_b, repo=repo_b, branch=STATE_BRANCH).pulled
+    assert read_stored(data_b / CALIBRATION_NAME).rows == 13_433
+
+    # The box with the thinner fit then pushes: the branch keeps the better map,
+    # so publishing cannot undo the refit it just pulled.
+    push_state(data_b, "nightly", repo=repo_b, branch=STATE_BRANCH)
+    pull_state(data_a, repo=repo_a, branch=STATE_BRANCH)
+    assert read_stored(data_a / CALIBRATION_NAME).rows == 13_433
 
 
 def test_a_run_that_never_pulled_cannot_delete_last_night_s_audit(

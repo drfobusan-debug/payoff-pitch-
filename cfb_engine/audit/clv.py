@@ -1,105 +1,132 @@
 """Closing-line value: snapshot the closing market and score each bet against it.
 
-``cfb-engine close`` captures the board near kickoff and writes a per-selection
-closing snapshot (best American price + no-vig probability). The audit then
-compares each bet's entry price to the close:
+``cfb-engine close`` captures the board near kickoff, and the audit compares each
+bet's entry number to it:
 
-    clv     = closing no-vig prob - bet-time no-vig prob   (market moved our way)
+    clv     = closing no-vig prob of *our* number - the no-vig prob we bet at
     clv_ev  = EV of our bet price under the closing probability
 
-Positive CLV is the durable signal that a model is beating the market even
-before games are graded.
+Positive CLV is the durable signal that a model is beating the market before
+enough games have been graded to say so from results -- which in college football
+is the only signal available, at ~800 games a season.
+
+The subtlety is "our number". A football spread moves in points, not price: the
+market decides Alabama is half a point better and -7 becomes -7.5 while the price
+stays -110. So the closing quote for a side is generally a quote for a *different
+handicap* than the one that was bet, and the two have to be brought onto the same
+footing before they can be subtracted. Two steps:
+
+1. Look the side up by a key that does not contain the handicap. Filing closing
+   quotes under the full selection (``"ALA -7.0"``) meant a bet placed at -7 and a
+   close at -7.5 never met, and ``compute_clv`` returned ``None`` -- so CLV was
+   recorded only for bets whose number had not moved, i.e. precisely the rows with
+   no line movement in them. That was the sample this engine was going to judge
+   itself by.
+2. Convert the difference in handicap into probability at the local slope of the
+   scoring distribution (:mod:`cfb_engine.market.linevalue`) and add it to the
+   closing price's probability. ``clv_pts`` keeps the raw points as well, because
+   points are the unit a football bettor actually shops in.
 """
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from cfb_engine.market import keys
+from cfb_engine.audit import snapshot
+from cfb_engine.audit.snapshot import SideQuote as ClosingQuote
 from cfb_engine.market.board import GameOdds
-from cfb_engine.market.ev import MarketQuote, ev_per_dollar, evaluate
+from cfb_engine.market.ev import ev_per_dollar
+from cfb_engine.market.linevalue import prob_per_point, value_points
 from cfb_engine.schemas import Slate
 
-
-@dataclass(frozen=True)
-class ClosingQuote:
-    american: float
-    no_vig_prob: float
-
-
-def _side_close(quotes: list[MarketQuote]) -> ClosingQuote | None:
-    if not quotes:
-        return None
-    res = evaluate(0.5, quotes)
-    return ClosingQuote(res.best_quote.american, res.fair_prob)
+__all__ = [
+    "ClosingQuote",
+    "ClvResult",
+    "ClvSummary",
+    "closing_quotes",
+    "clv_summary",
+    "compute_clv",
+    "load_closing",
+    "merge_closing",
+    "save_closing",
+]
 
 
 def closing_quotes(slate: Slate, board: dict[str, GameOdds]) -> dict[str, ClosingQuote]:
-    """Map ``"<market>|<selection>"`` -> closing quote for every priced side."""
-    out: dict[str, ClosingQuote] = {}
-    for game in slate.games:
-        odds = board.get(game.matchup())
-        if odds is None:
-            continue
-        home, away = game.home.abbrev, game.away.abbrev
-        for ab in (home, away):
-            cq = _side_close(odds.ml.get(ab, []))
-            if cq is not None:
-                out[f"game_ml|{keys.game_ml(ab)}"] = cq
-        point = odds.main_spread()
-        if point is not None and point in odds.spreads:
-            for ab, pt in ((home, point), (away, -point)):
-                cq = _side_close(odds.spreads[point].get(ab, []))
-                if cq is not None:
-                    out[f"game_ats|{keys.game_ats(ab, pt)}"] = cq
-        line = odds.main_total()
-        if line is not None and line in odds.totals:
-            for is_over, key in ((True, "over"), (False, "under")):
-                cq = _side_close(odds.totals[line].get(key, []))
-                if cq is not None:
-                    out[f"game_total|{keys.game_total(is_over, line)}"] = cq
-    return out
+    """Map ``"<market>|<side>"`` -> closing quote (with its line) for every priced side."""
+    return snapshot.board_quotes(slate, board)
 
 
 def merge_closing(
     existing: dict[str, ClosingQuote], fresh: dict[str, ClosingQuote]
 ) -> dict[str, ClosingQuote]:
-    """Later capture wins per selection, but nothing already captured is dropped.
+    """Later capture wins per side, but nothing already captured is dropped.
 
     A Saturday runs from noon to past midnight, so any single capture sees the
     close of one kickoff window and the long-stale opener of the rest. Repeat
     captures therefore merge instead of replacing: an in-progress game has left
     the pre-match board, and its captured close must survive later snapshots.
     """
-    return {**existing, **fresh}
+    return snapshot.merge_last_wins(existing, fresh)
 
 
 def save_closing(quotes: dict[str, ClosingQuote], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {k: {"american": q.american, "no_vig_prob": q.no_vig_prob} for k, q in quotes.items()}
-    path.write_text(json.dumps(payload, indent=2))
+    snapshot.save(quotes, path)
 
 
 def load_closing(path: Path) -> dict[str, ClosingQuote]:
-    if not path.exists():
-        return {}
-    raw = json.loads(path.read_text())
-    return {k: ClosingQuote(v["american"], v["no_vig_prob"]) for k, v in raw.items()}
+    return snapshot.load(path)
+
+
+@dataclass(frozen=True)
+class ClvResult:
+    """What the close said about the number we took."""
+
+    close_odds: float | None = None
+    close_prob: float | None = None  # closing no-vig prob *at our line*
+    clv: float | None = None
+    clv_ev: float | None = None
+    clv_pts: float | None = None  # points of line value (ATS/totals only)
+
+    def as_tuple(self) -> tuple[float | None, float | None, float | None, float | None]:
+        return self.close_odds, self.close_prob, self.clv, self.clv_ev
 
 
 def compute_clv(
-    market: str, selection: str, bet_american: float | None, bet_fair_prob: float | None,
+    matchup: str,
+    market: str,
+    selection: str,
+    bet_american: float | None,
+    bet_fair_prob: float | None,
     closing: dict[str, ClosingQuote],
-) -> tuple[float | None, float | None, float | None, float | None]:
-    """Return ``(close_odds, close_prob, clv, clv_ev)`` for one bet."""
-    cq = closing.get(f"{market}|{selection}")
+    *,
+    bet_line: float | None = None,
+    side: str | None = None,
+    margin_sd: float = 16.0,
+    total_sd: float = 13.0,
+) -> ClvResult:
+    """Score one bet against the close, correcting for a line that moved.
+
+    Also tries the legacy selection-keyed lookup, so an audit directory written by
+    an older build still reads -- exactly, since a legacy key only matched when the
+    number had not moved.
+    """
+    cq = closing.get(snapshot.key(matchup, market, selection))
     if cq is None:
-        return None, None, None, None
-    clv = None if bet_fair_prob is None else round(cq.no_vig_prob - bet_fair_prob, 4)
-    clv_ev = None if bet_american is None else round(ev_per_dollar(cq.no_vig_prob, bet_american), 4)
-    return cq.american, cq.no_vig_prob, clv, clv_ev
+        cq = closing.get(f"{market}|{selection}")
+    if cq is None:
+        return ClvResult()
+
+    pts = value_points(market, side, bet_line, cq.line)
+    close_prob = cq.no_vig_prob
+    if pts:
+        sd = margin_sd if market == "game_ats" else total_sd
+        close_prob = min(max(close_prob + pts * prob_per_point(sd), 0.0), 1.0)
+    close_prob = round(close_prob, 4)
+    clv = None if bet_fair_prob is None else round(close_prob - bet_fair_prob, 4)
+    clv_ev = None if bet_american is None else round(ev_per_dollar(close_prob, bet_american), 4)
+    return ClvResult(cq.american, close_prob, clv, clv_ev, pts)
 
 
 @dataclass

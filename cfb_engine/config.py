@@ -354,6 +354,12 @@ class Config:
     # printed on the card; set the env var to price it again.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
 
+    # Read VSiN's public betting splits (handle% and tickets% per side). On by
+    # default: the moneyline screen in :mod:`cfb_engine.market.mlsharp` needs
+    # them, and every side that has one carries its divergence into the ledger so
+    # the signal can be graded on college football rather than on MLB's sample.
+    vsin_splits: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_SPLITS", True))
+
     # Read the injury feed and the box-score usage book. On by default because it
     # only reports and logs: an absence is printed on the card and appended to the
     # availability log with the line at that moment, which is what measures whether
@@ -464,6 +470,14 @@ class Config:
     def closing_file(self, day: Date) -> Path:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
+
+    def board_file(self, day: Date) -> Path:
+        """First board the engine saw for one slate: the baseline day-of movement
+        is measured from, and the only half of closing-line value that can be
+        known before the bet. Written once per slate and never overwritten, so it
+        cannot be reconstructed after the fact -- if it is missing for a slate,
+        that slate's pre-bet drift is simply unavailable."""
+        return self.audit_dir / f"board_{day.isoformat()}.json"
 
     @property
     def availability_file(self) -> Path:

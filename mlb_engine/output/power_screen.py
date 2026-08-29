@@ -63,6 +63,7 @@ matchup share an axis; Savant prints a pitcher's version with the opposite sign.
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 from typing import TYPE_CHECKING
@@ -71,7 +72,16 @@ import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features import stuff
+from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import stage_two as arm_stage_two
+from mlb_engine.features.reliability import readable, reliability
 from mlb_engine.features.siera import MIN_SIERA_PA, SIERA_LEAGUE_ANCHOR, pitcher_siera
+from mlb_engine.features.swing import (
+    CONTRADICTED,
+    SwingProfile,
+    build_swing_profile,
+    stage_two,
+)
 
 if TYPE_CHECKING:  # the bet card reads a ScreenResult, so the import is one-way
     from mlb_engine.output.power_bets import BetCard
@@ -139,6 +149,7 @@ MIN_WRC = 120  # window wRC+ floor, before the power exception
 MIN_XWOBA_EDGE = 0.020  # xwOBA/PA must clear league by this much
 MAX_LUCK_GAP = 0.050  # wOBA minus xwOBA/PA above this is unearned
 POWER_XWOBACON = 0.440  # contact good enough to keep a hitter the wRC+ cut drops
+RESCUE_POWER_Z = 0.375  # swing good enough to survive the luck-gap cut anyway
 MIN_PITCHER_PITCHES = 15  # per-pitch-type floor, pitcher side
 MIN_BATTER_PITCHES = 25  # per-pitch-type floor, hitter side
 TOP_K = 5  # a top-K finish in a scored metric earns the second point
@@ -372,6 +383,22 @@ class StarterCard:
     scores: dict[str, SplitScore] = field(default_factory=dict)
     arsenal: dict[str, ContactLine] = field(default_factory=dict)
     usage: dict[str, float] = field(default_factory=dict)
+    #: What Statcast measures of the delivery over his last fastballs. The index
+    #: above is a batted-ball read and knows nothing about the pitch that was hit.
+    arm: ArmProfile | None = None
+
+    @property
+    def arm_verdict(self) -> str:
+        """Whether the delivery agrees this arm is as soft as the index says.
+
+        Read after :func:`rank_starters` has set ``index``: a high index is an
+        arm the screen wants to hunt, and an above-league perceived velocity
+        underneath it is the delivery disagreeing. Reported, never gated -- out
+        of time the arm sorts the fortnight ahead by the same margin whatever
+        the batted balls did, so it qualifies the ranking rather than rescuing
+        anyone from it.
+        """
+        return arm_stage_two(self.index, self.arm)
 
 
 def _pa_events(df: pd.DataFrame) -> pd.Series:
@@ -413,6 +440,7 @@ def starter_damage(
         csw_pct=called_or_swinging,
         siera=s.siera if s.has_data else None,
         siera_pa=s.pa,
+        arm=build_arm_profile(rows),
     )
 
 
@@ -880,10 +908,14 @@ class HitterLine:
     ev90: float
     osw: float
     points: int = 0
+    score: float = 0.0
     top_in: tuple[str, ...] = ()
+    withheld: tuple[str, ...] = ()
     kept: bool = False
     cut_reason: str = ""
     power_exception: bool = False
+    swing: SwingProfile | None = None
+    swing_rescue: bool = False
 
     @property
     def luck_gap(self) -> float:
@@ -943,6 +975,75 @@ def batter_window_line(rows: pd.DataFrame) -> dict[str, float]:
     }
 
 
+@dataclass(frozen=True)
+class PoolBatter:
+    """The identity half of a lineup slot, independent of the slate's schema."""
+
+    mlbam_id: int
+    name: str
+    slot: int | None = None
+    bats: str | None = None
+
+
+def hitter_pool(
+    window: pd.DataFrame,
+    batters: Sequence[PoolBatter],
+    *,
+    hand: str,
+    team: str,
+    versus: str,
+    league_woba: float,
+) -> list[HitterLine]:
+    """Window lines for a lineup, against one pitching hand.
+
+    A hitter with no readable rows against the hand is left out rather than
+    carried at league average: the pool is what the cuts and the top-K bonuses
+    are computed within, so a placeholder would move every other hitter's score.
+
+    The rate line is split by hand; the swing profile is not. Bat tracking needs
+    swings rather than plate appearances and the two contact-quality rates need
+    most of a season's worth, so halving the pool by hand would leave them
+    unreadable for everyone -- and the panel that validated the levels pooled
+    hands too.
+    """
+    pool: list[HitterLine] = []
+    for batter in batters:
+        both_hands = window[window["batter"] == batter.mlbam_id]
+        rows = both_hands[both_hands["p_throws"] == hand]
+        line = batter_window_line(rows)
+        if not line:
+            continue
+        pool.append(
+            HitterLine(
+                name=batter.name,
+                mlbam_id=int(batter.mlbam_id),
+                team=team,
+                slot=batter.slot,
+                bats=batter.bats,
+                versus=versus,
+                pa=int(line["pa"]),
+                wrc=wrc_plus(line["woba"], league_woba),
+                woba=line["woba"],
+                obp=line["obp"],
+                slg=line["slg"],
+                ops=line["obp"] + line["slg"],
+                ba=line["ba"],
+                xba=line["xba"],
+                xslg=line["xslg"],
+                xwoba_pa=line["xwoba_pa"],
+                xwoba_con=line["xwoba_con"],
+                k=line["k"],
+                bb=line["bb"],
+                brl=line["brl"],
+                hh=line["hh"],
+                ev90=line["ev90"],
+                osw=line["osw"],
+                swing=build_swing_profile(both_hands),
+            )
+        )
+    return pool
+
+
 def wrc_plus(woba: float, league_woba: float) -> float:
     """Window wRC+ against the same window's league line for that hand.
 
@@ -954,28 +1055,64 @@ def wrc_plus(woba: float, league_woba: float) -> float:
     return 100.0 + (woba - league_woba) / WOBA_SCALE / LG_R_PER_PA * 100.0
 
 
-def score_pool(pool: list[HitterLine], top_k: int = TOP_K) -> None:
-    """One point per scored metric, two for a top-``top_k`` finish in the pool.
+#: How to read each scored metric off a hitter's line. A table of accessors
+#: rather than attribute lookup by name, so a metric that is renamed or dropped
+#: fails at type-check time instead of at 6am on a slate.
+METRIC: dict[str, Callable[[HitterLine], float]] = {
+    "wrc": lambda h: h.wrc,
+    "ops": lambda h: h.ops,
+    "ba": lambda h: h.ba,
+    "xba": lambda h: h.xba,
+    "slg": lambda h: h.slg,
+    "xslg": lambda h: h.xslg,
+    "xwoba_con": lambda h: h.xwoba_con,
+    "brl": lambda h: h.brl,
+    "hh": lambda h: h.hh,
+    "ev90": lambda h: h.ev90,
+    "osw": lambda h: h.osw,
+}
 
-    Mutates ``pool``. The base point is unconditional, so the score is really
-    ``len(SCORED) + top-K count``; the flat part is kept because it makes the
-    number readable next to the count of top finishes rather than because it
-    discriminates.
+
+def score_pool(pool: list[HitterLine], top_k: int = TOP_K) -> None:
+    """Score each metric by how much of it is signal at the hitter's own sample.
+
+    Mutates ``pool``. A metric contributes its measured split-half reliability at
+    the hitter's plate-appearance count rather than a flat point, and a top-``k``
+    finish is worth the same weight again. So bat speed (r=.89 at 60 PA) is worth
+    nine times what wRC+ is (r=.11), which is the ratio the measurement found --
+    see ``features.reliability``.
+
+    A finish only counts as a top-K finish, and can therefore only carry a
+    hitter through the ``no top-K finish`` cut, when the metric is readable at
+    his sample. The unreadable ones are recorded in ``withheld`` so the note can
+    print what was not allowed to vote instead of quietly dropping it.
+
+    ``points`` is the rounded weighted score, kept as an integer because it is a
+    display and ledger field; ``score`` carries the unrounded number.
     """
     for h in pool:
         h.points = 0
+        h.score = 0.0
         h.top_in = ()
+        h.withheld = ()
     for attr, label, higher_better in SCORED:
+        read = METRIC[attr]
         ranked = sorted(
-            (h for h in pool if not math.isnan(getattr(h, attr))),
-            key=lambda h: getattr(h, attr),
+            (h for h in pool if not math.isnan(read(h))),
+            key=read,
             reverse=higher_better,
         )
         for i, h in enumerate(ranked):
-            h.points += 1
+            weight = reliability(attr, h.pa)
+            h.score += weight
             if i < top_k:
-                h.points += 1
-                h.top_in = (*h.top_in, label)
+                h.score += weight
+                if readable(attr, h.pa):
+                    h.top_in = (*h.top_in, label)
+                else:
+                    h.withheld = (*h.withheld, label)
+    for h in pool:
+        h.points = int(round(h.score))
 
 
 def apply_cuts(
@@ -985,6 +1122,7 @@ def apply_cuts(
     min_pa: int = MIN_BATTER_PA,
     min_wrc: float = MIN_WRC,
     keep_power: bool = True,
+    scorer: Callable[[list[HitterLine]], None] = score_pool,
 ) -> list[HitterLine]:
     """Run the four cuts in order and return the survivors.
 
@@ -996,12 +1134,15 @@ def apply_cuts(
     ``keep_power`` restores a hitter the wRC+ cut drops when his contact quality
     is high enough to matter for home runs specifically -- the Riley case. He is
     flagged, not silently promoted.
+
+    ``scorer`` exists so a replay can run the screen's cuts under a scoring rule
+    the screen no longer uses; nothing in the engine passes anything else.
     """
     survivors = [h for h in pool if h.pa >= min_pa]
     for h in pool:
         if h.pa < min_pa:
             h.cut_reason = f"under {min_pa} PA"
-    score_pool(survivors)
+    scorer(survivors)
 
     stage = []
     for h in survivors:
@@ -1025,11 +1166,46 @@ def apply_cuts(
         if h.xwoba_pa < league_xwoba + MIN_XWOBA_EDGE and not h.power_exception:
             h.cut_reason = f"xwOBA {h.xwoba_pa:.3f} at league"
         elif h.luck_gap > MAX_LUCK_GAP and not h.power_exception:
-            h.cut_reason = f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"
+            if _swing_rescues(h):
+                h.swing_rescue = True
+                h.kept = True
+                final.append(h)
+            else:
+                h.cut_reason = f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"
         else:
             h.kept = True
             final.append(h)
     return sorted(final, key=lambda h: (-h.points, -h.xwoba_con))
+
+
+def _swing_rescues(h: HitterLine, min_power_z: float = RESCUE_POWER_Z) -> bool:
+    """Whether the swing keeps a hitter the luck gap wants cut.
+
+    The luck-gap cut is a residual: it says the results outran the contact, and
+    it cannot say whether the swing that produced them was any good. Out of time
+    on 3,175 batter-windows it is worth -.013 TB/PA at t -1.9, and it is wrong
+    about half of what it removes -- of the windows it cut, the half with the
+    better swing went on to .3801 TB/PA against .3355 for the worse half, and beat
+    the .3708 of every hitter it kept. So a flagged hitter whose bat speed and
+    blast rate clear ``RESCUE_POWER_Z`` is kept and flagged rather than dropped;
+    the swing coefficient inside that group is t +3.2.
+
+    Read on ``power_z`` rather than the five-metric mean because squared-up rate
+    carries the opposite sign on the power markets this screen selects for. A
+    hitter whose swing is unmeasured is not rescued: the default stays the cut.
+
+    ``RESCUE_POWER_Z`` is fitted rather than assumed. Scanning it across both
+    window sizes, relief -- how many flagged rows the threshold admits times how
+    far they beat the hitters the screen kept -- peaks at +0.375 in each panel
+    independently, and +0.375 is also the lowest value at which the rescued rows
+    clear the kept baseline in 2025 *and* 2026. League average does not: at 0.0
+    the 2026 rescues went .3619 TB/PA against .3674 for the hitters kept, so the
+    original placeholder was admitting the wrong half of the flagged group. At
+    +0.375 the admitted rows run +.023 TB/PA and +.008 HR/PA on the hitters kept,
+    the home-run gap being the one whose cluster bootstrap excludes zero.
+    ``scripts/rescue_replay.py`` grades the buckets on real slates.
+    """
+    return stage_two(h.luck_gap, h.swing, min_power_z=min_power_z) == CONTRADICTED
 
 
 # --- stage 4: the arsenal ------------------------------------------------
@@ -1129,6 +1305,44 @@ class BullpenCard:
     late_k_pct: float
 
 
+@dataclass(frozen=True)
+class Distribution:
+    """What a hitter's night looks like in one stat, over every simulation.
+
+    The mode is carried alongside the mean because they disagree in the way that
+    matters: a mean of 1.3 hits reads like a hitter who usually gets one and
+    sometimes two, and the modal night behind it is one hit and nothing else.
+    """
+
+    mean: float
+    median: float
+    mode: float
+    over: dict[float, float]  # line -> P(stat > line)
+
+    @property
+    def p_any(self) -> float:
+        """P(at least one), the .5 line, which is how a book words it."""
+        return self.over.get(0.5, math.nan)
+
+
+@dataclass(frozen=True)
+class SimLine:
+    """One hitter's simulated night: a distribution per market.
+
+    Built by ``power_sim`` off the engine's own simulator. Lives here so the
+    screen's vocabulary does not depend on the module that fills it in.
+    """
+
+    mlbam_id: int
+    slot: int
+    n_sims: int
+    pa_mean: float
+    stats: dict[str, Distribution]
+
+    def get(self, stat: str) -> Distribution | None:
+        return self.stats.get(stat)
+
+
 @dataclass
 class HitterView:
     """A surviving hitter with everything the last stages added."""
@@ -1140,6 +1354,7 @@ class HitterView:
     fit_xba: float
     fallback_share: float
     exposure: Exposure | None = None
+    sim: SimLine | None = None
     #: Stages 6-8. Absent when the hitter's season rows were not loaded, in which
     #: case the composite ranking simply does not include him.
     early: HalfLine | None = None

@@ -15,13 +15,12 @@ import logging
 from datetime import date as Date
 from pathlib import Path
 
+from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
-
-_TIER_RANK = {Tier.STRONG: 0, Tier.MODERATE: 1, Tier.PASS: 2}
 
 
 def _pct(x: float | None) -> str:
@@ -82,9 +81,7 @@ def _ml_line(recs: list[Recommendation]) -> str:
 
 
 def _best_bets(recs: list[Recommendation]) -> list[Recommendation]:
-    buys = [r for r in recs if r.tier in (Tier.STRONG, Tier.MODERATE)]
-    buys.sort(key=lambda r: (_TIER_RANK[r.tier], -(r.edge or 0.0)))
-    return buys
+    return order_buys(recs)
 
 
 def _game_best_block(recs: list[Recommendation]) -> str:
@@ -216,8 +213,7 @@ def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommen
             )
         else:
             parts.append("No bet here, the model passes. ")
-    strong = [r for r in recs if r.tier == Tier.STRONG]
-    strong.sort(key=lambda r: -(r.edge or 0.0))
+    strong = order_recs([r for r in recs if r.tier == Tier.STRONG])
     if strong:
         parts.append("Alright, the headline plays of the day. ")
         for b in strong[:5]:

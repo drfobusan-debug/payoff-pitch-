@@ -7,6 +7,9 @@ from datetime import date as Date
 import pytest
 
 art = pytest.importorskip("scripts.regression_article")
+arm = pytest.importorskip("mlb_engine.features.arm")
+mound = pytest.importorskip("mlb_engine.output.regression_article")
+swing = pytest.importorskip("mlb_engine.features.swing")
 
 
 def _pitcher(**over) -> dict:
@@ -98,6 +101,93 @@ def test_article_flags_that_the_trend_arrows_are_unproven() -> None:
     assert "Part one" in html and "Part two" in html
 
 
+def _swinging(power: float, lift: float = float("nan"), **over) -> dict:
+    """A hitter dict carrying a readable swing ``power`` SD from league.
+
+    ``lift`` is the attack angle in SD from league, defaulting to unmeasured so
+    that a slice cached before Savant's swing-path fields reads as a blank.
+    """
+    bmu, bsd = swing.LEAGUE["bat_speed"]
+    zmu, zsd = swing.LEAGUE["blast"]
+    amu, asd = swing.LEAGUE["attack_angle"]
+    prof = swing.SwingProfile(
+        swings=500, bat_speed=bmu + power * bsd, blast=zmu + power * zsd,
+        squared_up=swing.LEAGUE["squared_up"][0], fast=swing.LEAGUE["fast"][0],
+        swing_length=swing.LEAGUE["swing_length"][0],
+        attack_angle=amu + lift * asd,
+    )
+    b = _batter(**over)
+    b.update(
+        swings=prof.swings, bat_speed=prof.bat_speed, fast=prof.fast,
+        squared_up=prof.squared_up, blast=prof.blast, swing_length=prof.swing_length,
+        attack_angle=prof.attack_angle,
+        power_z=prof.power_z, contact_z=prof.contact_z, lift_z=prof.lift_z,
+        stage2=swing.stage_two(-b["dxwoba"], prof),
+    )
+    return b
+
+
+def test_the_swing_confirms_a_hitter_the_gap_says_is_due() -> None:
+    """Stage two on a positive regressor: the swing agrees, so the rebound is real."""
+    html = art._batter_entry(_swinging(1.0), None, None, True)
+    assert "swing underneath agrees" in html
+    assert "blast rate" in html and "+1.00 standard deviations" in html
+    assert "Swing: BatSpd" in html
+
+
+def test_the_swing_argues_against_a_fade_and_the_entry_says_so() -> None:
+    """The false-negative case: lucky and good at once, which the gap alone misses."""
+    b = _swinging(1.0, dxwoba=-0.080, woba=0.400, xwoba=0.320)
+    assert b["stage2"] == swing.CONTRADICTED
+    html = art._batter_entry(b, None, None, False)
+    assert "argues against the fade" in html
+    assert "out-produce" in html
+    assert "swing disagrees" in html  # flagged in the headline, not buried
+
+
+def test_a_hitter_with_no_tracked_swings_is_unmeasured_not_average() -> None:
+    html = art._batter_entry(_batter(), None, None, True)
+    assert "not readable at this sample" in html
+    assert "Swing: BatSpd" not in html  # nothing to print
+
+
+def test_the_swing_line_states_its_windows_and_where_attack_angle_comes_from() -> None:
+    html = art._swing_line(_swinging(0.5, lift=1.0))
+    windows = "/".join(
+        str(swing.WINDOW[m])
+        for m in ("bat_speed", "fast", "squared_up", "blast", "swing_length", "attack_angle")
+    )
+    assert f"{windows} tracked swings" in html
+    assert "off 500 in the window" in html  # the sample the levels came out of
+    assert "AtkAng" in html and "swing-path feed" in html
+
+
+def test_an_unmeasured_attack_angle_prints_a_blank_rather_than_league() -> None:
+    """A slice cached before the swing-path fields is missing, not average."""
+    html = art._swing_line(_swinging(0.5))
+    assert "AtkAng &mdash;" in html
+    assert "points at no market" not in art._batter_entry(_swinging(0.5), None, None, True)
+
+
+def test_a_steep_swing_is_read_on_the_power_markets_and_a_flat_one_on_hits() -> None:
+    """Attack angle says where the production lands, not how good the bat is."""
+    steep = art._batter_entry(_swinging(0.5, lift=1.5), None, None, True)
+    assert "steeper than league" in steep and "home-run" in steep
+    flat = art._batter_entry(_swinging(0.5, lift=-1.5), None, None, True)
+    assert "flatter than league" in flat and "H+R+RBI" in flat
+
+
+def test_the_article_prices_no_swing_trend_and_says_why() -> None:
+    html = art.build_html(
+        Date(2026, 8, 12), [_pitcher()], [], {}, [_swinging(1.0)], [], {}, []
+    )
+    assert "no swing trend is printed at all" in html
+    assert "negatively signed on home runs" in html  # squared-up kept off power
+    # attack angle: sourced, and read on the line rather than as a verdict
+    assert "swing-path fields" in html
+    assert "unmeasured rather than as league average" in html
+
+
 def test_a_fly_ball_arm_is_told_where_the_correction_lands() -> None:
     """Shape is prose about *what* the correction is, never about whether."""
     text = art._air_sentence(_pitcher(fb=0.44, gb=0.34), positive=True)
@@ -136,6 +226,67 @@ def test_the_pitcher_entry_carries_both_velocity_and_shape() -> None:
     assert "fastball at 95.2" in html  # vFA level
     assert "vFA +0.0 mph" in html  # vFA three-week trend
     assert "fly-ball arm" in html
+
+
+def _armed(pvelo_sd: float, d_pvelo: float, dxwoba: float, **over) -> dict:
+    """A starter with a readable delivery ``pvelo_sd`` from league, moving ``d_pvelo``."""
+    mu, sd = arm.LEAGUE["pvelo"]
+    prof = arm.ArmProfile(
+        pitches=arm.WINDOW, velo=94.0, pvelo=mu + pvelo_sd * sd, ext=6.6, d_pvelo=d_pvelo
+    )
+    p = _pitcher(dxwoba=dxwoba, **over)
+    p.update(
+        arm_pitches=prof.pitches,
+        arm_velo=prof.velo,
+        arm_pvelo=prof.pvelo,
+        arm_ext=prof.ext,
+        arm_ivb=prof.ivb,
+        arm_hb=prof.hb,
+        arm_spin=prof.spin,
+        arm_rel_x=prof.rel_x,
+        arm_rel_z=prof.rel_z,
+        arm_scatter=prof.scatter,
+        stuff_z=prof.stuff_z,
+        ride_z=prof.ride_z,
+        arm_d_pvelo=prof.d_pvelo,
+        trend_z=prof.trend_z,
+        arm_stage2=arm.stage_two(dxwoba, prof),
+        arm_trend=arm.velo_trend(prof),
+    )
+    return p
+
+
+def test_a_shedding_arm_asterisks_the_fade_it_is_already_confirming() -> None:
+    """The user's decreasing-velocity read, on the side of the flag it graded on."""
+    p = _armed(-1.0, d_pvelo=-0.8, dxwoba=+0.060)
+    assert p["arm_stage2"] == arm.CONFIRMED and p["arm_trend"] == arm.SHEDDING
+    text = mound._arm_sentence(p, positive=False)
+    assert "0.8 mph of perceived velocity off" in text
+    assert "worth another .026 of wOBA" in text
+
+
+def test_the_same_reading_is_absent_from_a_bounce_back() -> None:
+    """It is worth nothing on the correction side, so the entry does not quote it."""
+    p = _armed(+1.0, d_pvelo=-0.8, dxwoba=-0.060)
+    assert p["arm_trend"] == arm.SHEDDING
+    assert "mph of perceived velocity off" not in mound._arm_sentence(p, positive=True)
+
+
+def test_a_delivery_going_nowhere_is_not_announced_either_way() -> None:
+    flat = mound._arm_sentence(_armed(-1.0, d_pvelo=-0.01, dxwoba=+0.060), positive=False)
+    assert "wrong way" not in flat and "holding the delivery" not in flat
+    unread = _armed(-1.0, d_pvelo=float("nan"), dxwoba=+0.060)
+    assert unread["arm_trend"] == arm.UNMEASURED
+    assert "block before this one" not in mound._arm_sentence(unread, positive=False)
+
+
+def test_an_arm_with_one_side_of_the_split_missing_prints_no_nan() -> None:
+    """A starter with no prior three weeks has no move to report."""
+    line = mound._three_week_trend(_pitcher(d_vfa=float("nan"), d_siera=float("nan")))
+    assert "nan" not in line
+    assert "Stuff xK% +0.0" in line and "vFA" not in line
+    blank = _pitcher(d_vfa=float("nan"), d_siera=float("nan"), d_xk=float("nan"))
+    assert mound._three_week_trend(blank) == "3wk trend: not readable"
 
 
 def test_the_methodology_defines_fly_ball_rate() -> None:

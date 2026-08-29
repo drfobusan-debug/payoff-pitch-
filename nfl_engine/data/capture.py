@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import logging
 from collections import defaultdict
 from dataclasses import asdict, dataclass, fields
@@ -38,6 +39,7 @@ from datetime import datetime, timezone
 from functools import partial
 from pathlib import Path
 
+from nfl_engine.audit.ledger import CONTROL_CHARS
 from nfl_engine.config import data_dir
 from nfl_engine.market.board import OVER, GameOdds, MarketQuote
 
@@ -252,29 +254,44 @@ def read_snapshot(path: Path) -> list[QuoteRow]:
     if not path.exists():
         return []
     out: list[QuoteRow] = []
-    with path.open(newline="", encoding="utf-8") as handle:
-        for raw in csv.DictReader(handle):
-            american = _float(raw.get("american"))
-            if american is None:
-                continue
-            out.append(
-                QuoteRow(
-                    captured_at=raw.get("captured_at", ""),
-                    season=int(raw.get("season") or 0),
-                    week=int(raw.get("week") or 0),
-                    game_date=raw.get("game_date", ""),
-                    matchup=raw.get("matchup", ""),
-                    market=raw.get("market", ""),
-                    side=raw.get("side", ""),
-                    line=_float(raw.get("line")),
-                    book=raw.get("book", ""),
-                    american=american,
-                    opposite_american=_float(raw.get("opposite_american")),
-                    player=raw.get("player", ""),
-                    event_id=raw.get("event_id", ""),
-                    source=raw.get("source", ODDSAPI),
-                )
+    # Read whole and strip control characters, rather than streaming the file: one
+    # NUL byte anywhere makes ``csv`` refuse the entire read, and an archive is the
+    # only copy of prices that can never be fetched again.
+    text = CONTROL_CHARS.sub("", path.read_text(encoding="utf-8", errors="replace"))
+    skipped = 0
+    for raw in csv.DictReader(io.StringIO(text, newline="")):
+        american = _float(raw.get("american"))
+        if american is None:
+            skipped += 1
+            continue
+        try:
+            season = int(raw.get("season") or 0)
+            week = int(raw.get("week") or 0)
+        except ValueError:
+            # A row that cannot say which week it belongs to is unreadable, not
+            # fatal: skip it and keep the rest of the snapshot.
+            skipped += 1
+            continue
+        out.append(
+            QuoteRow(
+                captured_at=raw.get("captured_at", ""),
+                season=season,
+                week=week,
+                game_date=raw.get("game_date", ""),
+                matchup=raw.get("matchup", ""),
+                market=raw.get("market", ""),
+                side=raw.get("side", ""),
+                line=_float(raw.get("line")),
+                book=raw.get("book", ""),
+                american=american,
+                opposite_american=_float(raw.get("opposite_american")),
+                player=raw.get("player", ""),
+                event_id=raw.get("event_id", ""),
+                source=raw.get("source", ODDSAPI),
             )
+        )
+    if skipped:
+        log.warning("skipped %d unreadable quote row(s) in %s", skipped, path.name)
     return out
 
 

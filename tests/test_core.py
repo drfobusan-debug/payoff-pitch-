@@ -1080,8 +1080,10 @@ def test_ev_positive_when_underpriced():
 
 def test_classify_tiers():
     thr = EVThresholds()
-    q = [MarketQuote("draftkings", 120, opposite_american=-140, handle_pct=70, bets_pct=45)]
-    res = evaluate(0.50, q)
+    # Above the conviction floor and inside the edge ceiling: fair is 0.533 here,
+    # so a 0.60 model is a real but plausible disagreement.
+    q = [MarketQuote("draftkings", -125, opposite_american=105, handle_pct=70, bets_pct=45)]
+    res = evaluate(0.60, q)
     tier, reasons = classify(res, thr)
     assert tier in (Tier.STRONG, Tier.MODERATE)
     # negative edge -> pass
@@ -1669,9 +1671,10 @@ def test_strong_only_and_min_edge_selection():
     q = MarketQuote(book="bk", american=-110)
 
     def _res(ev, edge):
+        # Above the conviction floor, so the tier is what is under test.
         return EVResult(
-            model_prob=0.5, best_quote=q, decimal=1.91, ev=ev,
-            fair_prob=0.5 - edge, edge=edge, sharp_divergence=None,
+            model_prob=0.60, best_quote=q, decimal=1.91, ev=ev,
+            fair_prob=0.60 - edge, edge=edge, sharp_divergence=None,
         )
 
     moderate = _res(ev=0.05, edge=0.03)
@@ -1689,12 +1692,13 @@ def test_tier_does_not_reward_the_longer_price():
     from mlb_engine.market.tiers import classify
 
     thr = EVThresholds()
-    # A 5-point edge over the devigged price, quoted as a dog and as a favourite.
-    dog = evaluate(1 / 3 + 0.05, [MarketQuote("dk", 200, opposite_american=-200)])
-    fave = evaluate(5 / 7 + 0.05, [MarketQuote("dk", -250, opposite_american=250)])
-    assert abs(dog.edge - 0.05) < 1e-9 and abs(fave.edge - 0.05) < 1e-9
-    assert dog.ev > fave.ev  # EV = decimal odds x edge, so the dog looks bigger
-    assert classify(dog, thr)[0] is classify(fave, thr)[0] is Tier.STRONG
+    # A 5-point edge over the devigged price, quoted long and short. Both sides
+    # clear the conviction floor, which is a level test rather than a tier one.
+    long_price = evaluate(0.5833 + 0.05, [MarketQuote("dk", -140, opposite_american=140)])
+    short_price = evaluate(0.80 + 0.05, [MarketQuote("dk", -400, opposite_american=400)])
+    assert abs(long_price.edge - 0.05) < 1e-3 and abs(short_price.edge - 0.05) < 1e-9
+    assert long_price.ev > short_price.ev  # EV = decimal odds x edge
+    assert classify(long_price, thr)[0] is classify(short_price, thr)[0] is Tier.STRONG
 
 
 def test_implausible_edge_is_a_pass():
@@ -1710,8 +1714,9 @@ def test_implausible_edge_is_a_pass():
     )
     assert classify(huge, EVThresholds())[0] is Tier.PASS
     assert any("> 0.08" in r for r in classify(huge, EVThresholds())[1])
-    # The cap is what rejects it, not the EV or the thin-edge guard.
-    assert classify(huge, EVThresholds(max_edge=1.0))[0] is Tier.STRONG
+    # The cap is what rejects it, not the EV floor or the thin-edge guard. The EV
+    # ceiling is lifted with it because a 20-point edge is past that too.
+    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is Tier.STRONG
 
 
 def test_zero_ev_price_is_a_pass():

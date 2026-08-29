@@ -13,6 +13,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date as Date
 
+from cfb_engine.audit import snapshot
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
@@ -37,6 +38,7 @@ from cfb_engine.data.roster import RosterBook
 from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
+from cfb_engine.data.vsin_splits import SplitBook, SplitsProvider, lookup
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -47,7 +49,12 @@ from cfb_engine.market.confidence import (
     confidence_adjustment,
     market_veto,
 )
+from cfb_engine.market.drift import DriftGate
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
+from cfb_engine.market.linevalue import drift_probability
+from cfb_engine.market.mlsharp import SharpGate
+from cfb_engine.market.ordering import order_recs
+from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
 from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
@@ -88,6 +95,12 @@ class Pipeline:
         self.advanced: AdvancedBook = parse_advanced([], {})
         self.news: dict[str, NewsItem] = {}
         self._roster: dict[int, RosterBook | None] = {}
+        self.drift_gate = DriftGate.from_env()
+        self.price_band = PriceBand.from_env()
+        self.sharp_gate = SharpGate.from_env()
+        self.splits_provider = SplitsProvider(cfg.cache_dir)
+        self.splits: SplitBook = {}
+        self._first_board: dict[str, snapshot.SideQuote] = {}
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -186,6 +199,9 @@ class Pipeline:
             self.advanced = self.cfbd.fetch_advanced(season)
             if self.advanced.teams:
                 logger.info("advanced stats: %d teams", len(self.advanced.teams))
+        if self.cfg.vsin_splits:
+            self.splits = self.splits_provider.fetch(slate)
+        self._baseline_board(slate_date, slate, board)
         mc = MonteCarlo(self.cfg.model)
         markov = MarkovSim(self.cfg.model) if self.cfg.sim_engine == "markov" else None
 
@@ -200,8 +216,7 @@ class Pipeline:
                     injuries, starters, season=season,
                 )
             )
-        recs.sort(key=lambda r: (_tier_rank(r.tier), -(r.edge or -1.0)))
-        return recs
+        return order_recs(recs)
 
     # -- per game ---------------------------------------------------------
     def _price_game(
@@ -501,6 +516,31 @@ class Pipeline:
         reasons = [*reasons, *ctx.adj.reasons]
         tier, mark_reasons = self._mark(ctx.signal, market, team_side, side, line, tier)
         reasons = [*reasons, *mark_reasons]
+
+        drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
+        split = lookup(self.splits, ctx.matchup, market, selection)
+        pass_gate: str | None = None
+        if tier != Tier.PASS:
+            keep, drift_reason, gate = self.drift_gate.verdict(drift)
+            if drift_reason:
+                reasons = [*reasons, drift_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, gate
+        if tier != Tier.PASS:
+            band = self.price_band.for_market(market)
+            keep, band_reason, band_gate = band.verdict(result.best_quote.american)
+            if band_reason:
+                reasons = [*reasons, band_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, band_gate
+        # The moneyline is the market whose own EV signal graded inverted in the
+        # sibling engine, so it is the one asked to have the money on its side.
+        if tier != Tier.PASS and market == "game_ml":
+            keep, sharp_reason, sharp_gate = self.sharp_gate.verdict(split)
+            if sharp_reason:
+                reasons = [*reasons, sharp_reason]
+            if not keep:
+                tier, pass_gate = Tier.PASS, sharp_gate
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -519,6 +559,9 @@ class Pipeline:
             bet_prob=bet_prob,
             tier=tier,
             reasons=reasons,
+            drift=drift,
+            pass_gate=pass_gate,
+            sharp_div=None if split is None else split.divergence,
             team_side=team_side,
             side=side,
             home_abbrev=ctx.home_ab,
@@ -528,6 +571,62 @@ class Pipeline:
             exp_total=ctx.sim.exp_total,
             exp_total_sd=ctx.sim.exp_total_sd,
         )
+
+    # -- market movement since the first board ----------------------------
+    def _baseline_board(
+        self, slate_date: Date, slate: Slate, board: Board
+    ) -> dict[str, snapshot.SideQuote]:
+        """Load the slate's first-seen board, writing it on the first run.
+
+        Write-once, because the point of the file is to be the *earliest* board:
+        a second run must not quietly redefine its own board as the baseline and
+        report every side as unmoved. Sides that only appear later are added --
+        the market posts a mid-major weeknight game days after the marquee ones --
+        so a late arrival gets a baseline rather than nothing. A failed write is
+        logged and swallowed: a snapshot is bookkeeping, and losing it should not
+        cost the slate its card.
+        """
+        path = self.cfg.board_file(slate_date)
+        existing = snapshot.load(path)
+        fresh = snapshot.board_quotes(slate, board)
+        merged = snapshot.merge_first_wins(existing, fresh)
+        if merged != existing:
+            try:
+                snapshot.save(merged, path)
+            except OSError as exc:
+                logger.warning("could not write first-seen board (%s)", exc)
+        self._first_board = merged
+        return merged
+
+    def _drift(
+        self,
+        matchup: str,
+        market: str,
+        selection: str,
+        side: str | None,
+        line: float | None,
+        fair_prob: float,
+    ) -> float | None:
+        """No-vig probability points the market has moved toward this side.
+
+        On a spread or total most of the movement is in the number rather than
+        the price, so the handicap difference is converted to probability at the
+        distribution's local slope and the price difference added on top.
+        """
+        base = self._first_board.get(snapshot.key(matchup, market, selection))
+        if base is None:
+            return None
+        pts = drift_probability(
+            market,
+            side,
+            from_prob=base.no_vig_prob,
+            to_prob=fair_prob,
+            from_line=base.line,
+            to_line=line,
+            margin_sd=self.cfg.model.margin_sd,
+            total_sd=self.cfg.model.total_sd,
+        )
+        return None if pts is None else round(pts, 4)
 
     def _mark(
         self,
@@ -570,6 +669,3 @@ class _GameCtx:
         self.away_ab = game.away.abbrev
         self.matchup = game.matchup()
 
-
-def _tier_rank(tier: Tier) -> int:
-    return {Tier.STRONG: 0, Tier.MODERATE: 1, Tier.PASS: 2}[tier]

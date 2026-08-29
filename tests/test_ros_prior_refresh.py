@@ -199,6 +199,28 @@ def test_an_unrelated_download_never_becomes_the_batter_prior(tmp_path, caplog) 
     assert "using the Marcel" in caplog.text
 
 
+def test_a_misnamed_export_is_named_rather_than_silently_skipped(tmp_path, caplog) -> None:
+    """``fg_atcros_...`` is not an ``atc`` file, so yesterday's would win in silence."""
+    proj = tmp_path / "projections"
+    yesterday = _export(proj, "atc_ros_2026-08-18.csv", hr=40)
+    today = _export(proj, "fg_atcros_2026-08-19.csv", hr=10)
+    later = time.time() + 60
+    os.utime(today, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == yesterday
+    assert "fg_atcros_2026-08-19.csv" in caplog.text
+
+
+def test_the_other_systems_export_is_not_reported_as_misnamed(tmp_path, caplog) -> None:
+    """Both systems land in this folder daily; the one not asked for is not a mistake."""
+    proj = tmp_path / "projections"
+    wanted = _export(proj, "atc_ros.csv", hr=40)
+    newer = _export(proj, "batx_ros.csv", hr=10)
+    later = time.time() + 60
+    os.utime(newer, (later, later))
+    assert ros_prior.newest_export(proj, "atc") == wanted
+    assert "batx_ros.csv" not in caplog.text
+
+
 def test_a_download_that_merely_contains_the_letters_is_not_the_export(tmp_path) -> None:
     """``atc`` lives inside match, batch, dispatch, watchlist and Statcast."""
     proj = tmp_path / "Downloads"
@@ -233,6 +255,40 @@ def test_a_rounded_bench_line_is_left_to_the_marcel(tmp_path) -> None:
     priors = load_ros_priors(path)
     assert priors[2]["HR"] == pytest.approx(40 / 200)
     assert priors[1]["HR"] > 0.05  # the Marcel's slugger, not a .000 bench line
+
+
+def test_a_rounded_zero_is_filled_from_the_marcel_not_priced_as_zero(tmp_path) -> None:
+    """A rounding export projects no triples for most hitters; none of them is a zero."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    _export(proj, "atc_ros.csv", hr=20)
+    rows = pd.read_csv(proj / "atc_ros.csv")
+    rows.loc[0, "3B"] = 0
+    rows.to_csv(proj / "atc_ros.csv", index=False)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[1]["3B"] == pytest.approx(priors[900]["3B"], rel=0.02)
+    # The export's own numbers still price the outcomes it does state, and the
+    # fill comes out of the outs rather than adding a plate appearance.
+    assert priors[1]["HR"] == pytest.approx(20 / 200, rel=1e-2)
+    assert sum(priors[1].values()) == pytest.approx(1.0)
+
+
+def test_a_hitter_the_marcel_never_saw_keeps_the_export_as_it_stands(tmp_path) -> None:
+    """Nothing is invented for a rookie: the fill needs a Marcel line to read."""
+    path = tmp_path / "ros_hitters.csv"
+    proj = tmp_path / "projections"
+    proj.mkdir()
+    pd.DataFrame(
+        [
+            {"MLBAMID": 5000, "PA": 200, "H": 50, "2B": 10, "3B": 0, "HR": 40, "BB": 20,
+             "SO": 40, "HBP": 2},
+        ]
+    ).to_csv(proj / "atc_ros.csv", index=False)
+    ros_prior.refresh_if_stale(path, TODAY, _Client(), projections=proj)
+    priors = load_ros_priors(path)
+    assert priors[5000]["3B"] == 0.0
+    assert priors[5000]["HR"] == pytest.approx(40 / 200)
 
 
 def test_an_export_prices_the_slate_when_the_api_is_down(tmp_path) -> None:

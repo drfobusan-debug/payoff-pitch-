@@ -65,15 +65,16 @@ def _f5_ml_rec(cfg: Config, gate_reason: str | None):
     """
     p = _mk_pipeline(cfg)
     game = SimpleNamespace(game_date="2026-08-01", game_pk=822781)
-    # model 44% at +150 (devigged fair ~39%) is a Strong buy absent any gate: a
-    # 5-point edge, inside the implausible-edge cap.
+    # model 65% at -140 (devigged fair 57.3%) is a Strong buy absent any gate: the
+    # anchored probability is 0.627, which clears the conviction floor, for a
+    # 5-point edge inside the implausible-edge cap and an EV under the ceiling.
     quotes = {
         ("STL @ TOR", "f5_ml", "TOR F5 ML"): [
-            MarketQuote(book="draftkings", american=150.0, opposite_american=-170.0)
+            MarketQuote(book="draftkings", american=-140.0, opposite_american=130.0)
         ]
     }
     return p._mk(
-        game, "STL @ TOR", "f5", "f5_ml", "TOR F5 ML", 0.44,
+        game, "STL @ TOR", "f5", "f5_ml", "TOR F5 ML", 0.65,
         team_side="home", side="win", quotes=quotes, gate_reason=gate_reason,
     )
 

@@ -20,19 +20,23 @@ import math
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.features import arm as arm_model
+from mlb_engine.features.swing import WINDOW
+from mlb_engine.output import power_sim
 from mlb_engine.output.power_bets import (
     BATTER_STATS,
     PITCHER_STATS,
     PlayerBets,
     PricedSide,
 )
-from mlb_engine.output.power_board import ROWS_PER_BATTER, Board, BoardRow
+from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
     BIG_RV,
     FIT_SCORED,
     HALF_SCORED,
     MIN_STARTER_BF,
     MIN_STARTER_PITCHES,
+    RESCUE_POWER_Z,
     SCORED,
     SPLIT_INNING,
     STARTER_TOP_N,
@@ -169,6 +173,80 @@ def _best_pitch(section: MatchupSection) -> tuple[str, ContactLine, float] | Non
     return min(candidates, key=lambda t: t[1].xwoba)
 
 
+def _arm_prose(s: StarterCard) -> str:
+    """What Statcast measures of the delivery, beside the damage it allowed.
+
+    The ranking index above is a batted-ball read: it knows what hitters did and
+    nothing about the pitch they did it to. Perceived velocity -- release speed
+    plus 1.1 times extension, so a shorter stride costs a hitter's reaction time
+    what a slower arm does -- adds to the next fortnight's wOBA allowed, hits and
+    strikeouts on top of both the luck term and the CSW%/pitch-shape grade the
+    engine already prices. It is printed and never gated: out of time the level
+    sorts the fortnight ahead by the same margin whatever the batted balls did.
+
+    Which way that velocity is *moving* is added here and nowhere else in the
+    starter read, because the screen is only ever selecting the fade side of the
+    flag, and the fade side is the only side on which the trend graded: among
+    arms whose results ran hot, one shedding perceived velocity allowed +.026 of
+    wOBA more the fortnight after than one holding it [+.012, +.039], in both
+    halves of the level. On the correction side the same reading crosses zero and
+    the regression article leaves it out there.
+    """
+    prof = s.arm
+    if prof is None or math.isnan(prof.pvelo):
+        return (
+            "His delivery is unreadable at this sample &mdash; too few tracked fastballs "
+            "&mdash; so the damage profile above stands alone."
+        )
+    verdict = s.arm_verdict
+    lead = (
+        f"He throws {_num(prof.pvelo, 1)} mph perceived "
+        f"({_num(prof.velo, 1)} off the hand at {_num(prof.ext, 1)} feet of extension, "
+        f"{_num(prof.stuff_z, 2, signed=True)} SD from league)"
+    )
+    if not math.isnan(prof.ivb):
+        lead += (
+            f" with {_num(prof.ivb, 1)}&Prime; of ride "
+            f"({_num(prof.ride_z, 2, signed=True)} SD), which is where the home runs live"
+        )
+    if verdict == arm_model.CONTRADICTED:
+        return (
+            f"<strong>The delivery disagrees: {lead}.</strong> The screen selected him on "
+            "batted balls and the arm underneath is above league, so treat the exposure as "
+            "less certain than the index reads."
+        )
+    return (
+        f"The delivery agrees with the selection: {lead}, so the damage has an arm behind "
+        "it rather than a fortnight of batted balls. Out of time that pairing is the "
+        "sharpest of the four: arms whose results ran hot on a below-league delivery allowed "
+        ".338 wOBA the following fortnight and struck out .187 of batters, against .316 and "
+        ".236 for the ones the delivery argued with and .322 for the unflagged league."
+        + _trend_clause(prof)
+    )
+
+
+def _trend_clause(prof: arm_model.ArmProfile) -> str:
+    """Whether the arm is shedding the velocity, once it has been read as a level.
+
+    Silent on a move that rounds to nothing, so a hundredth of a mile does not
+    get a sentence in either direction.
+    """
+    trend = arm_model.velo_trend(prof)
+    if trend == arm_model.UNMEASURED or abs(prof.d_pvelo) < 0.05:
+        return ""
+    if trend == arm_model.SHEDDING:
+        return (
+            f" He is also shedding it: {_num(abs(prof.d_pvelo), 1)} mph off the block before "
+            "this one, worth another .026 of wOBA inside a fade &mdash; the sharpest corner "
+            "of that pair."
+        )
+    return (
+        f" He is holding the delivery, {_num(prof.d_pvelo, 1, signed=True)} mph on the block "
+        "before this one, which is the softer half of the fade: arms holding velocity allowed "
+        ".026 less wOBA the fortnight after than the ones shedding it."
+    )
+
+
 def _starter_prose(section: MatchupSection) -> str:
     s = section.starter
     bits = [
@@ -178,6 +256,9 @@ def _starter_prose(section: MatchupSection) -> str:
         f"{_pc(s.hr_per_bf, 2)} of batters faced leaving the yard. "
         f"He misses bats at {_pc(s.k_bb_pct)} K-BB%."
     ]
+    arm_prose = _arm_prose(s)
+    if arm_prose:
+        bits.append(arm_prose)
     worst = _worst_pitch(section)
     best = _best_pitch(section)
     if worst:
@@ -248,7 +329,23 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
             f"His wOBA outruns his expected mark by {h.luck_gap * 1000:+.0f} points, so some of "
             f"the line above is luck the market may already have taken back."
         )
+    if h.swing_rescue and h.swing is not None:
+        bits.append(
+            f"<strong>The luck gap wanted him cut and the swing kept him</strong>: bat speed "
+            f"{_num(h.swing.bat_speed, 1)} mph and a {_pc(h.swing.blast)} blast rate put him "
+            f"{h.swing.power_z:+.2f} standard deviations above league on the two measures that "
+            f"predict total bases and home runs out of time. The results outran the contact; the "
+            f"swing underneath them did not."
+        )
     return " ".join(bits)
+
+
+# The rating sorts matchups; it has never been shown to sort outcomes. Over the
+# 66 held rows the ledger has (8/18-8/20), BUY went 5-13 for -5.52 units against
+# HOLD's 20-25 for -0.26 -- ordered backwards, on a Fisher p of 0.199, so neither
+# a finding nor something to keep printing as conviction. Until it grades out it
+# is printed as a lettered matchup grade, which is all the evidence supports.
+RATING_DISPLAY = {"BUY": "MATCHUP A", "HOLD": "MATCHUP B", "AVOID": "MATCHUP C"}
 
 
 def _rating(view: HitterView) -> tuple[str, str]:
@@ -369,10 +466,10 @@ def _board_section(board: Board) -> str:
         fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
         rows.append([
             html.escape(r.batter),
-            r.label,
+            r.label + (" &dagger;" if r.stat in DISPLAY_ONLY else ""),
             _price(r.american),
             html.escape(r.book or "&mdash;"),
-            _pc(r.model_prob),
+            _pc(r.shown_prob),
             fair + ("" if r.devigged else "*"),
             _num((r.edge or 0.0) * 100, 1, signed=True) if r.edge is not None else "&mdash;",
             _pc(r.ev, 1) if r.ev is not None else "&mdash;",
@@ -385,25 +482,38 @@ def _board_section(board: Board) -> str:
         f"{len(board.buys)} of their rows cleared the card's buy tiers. Every figure below is "
         f"the nightly run's own: the model probability it simulated, the best price it found, "
         f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
-        f"re-simulated for this note, so a row here is the bet the engine actually made.</p>",
+        f"re-simulated for this note, so a row here is the number the engine actually saw.</p>",
     ]
     if rows:
         out.append(
             _table(
-                ["batter", "market", "price", "book", "model", "no-vig", "edge", "EV", "tier"],
+                ["batter", "market", "price", "book", "bet prob", "no-vig", "edge", "EV", "tier"],
                 rows,
                 numeric_from=2,
             )
         )
         out.append(
-            "<p class='sub'>Edge is model minus no-vig, in points. A no-vig mark starred is "
+            "<p class='sub'>The bet probability is the model pulled toward the no-vig line by "
+            "the card's own market anchor &mdash; the number its screens priced, so the edge "
+            "and EV beside it describe the same bet. On this screen's scored rows the anchored "
+            "number scored better than the raw model both in and out of sample (Brier .227 "
+            "against .230 on 8/18, .236 against .253 on 8/19-20), and the no-vig line beat them "
+            "both. Edge is that probability minus no-vig, in points. A no-vig mark starred is "
             "one-sided at the book, so its vig could not be stripped and the edge beside it is "
             "overstated by roughly half the hold.</p>"
+        )
+    if any(r.stat in DISPLAY_ONLY for r in board.rows):
+        out.append(
+            "<p class='sub'>&dagger; Shown, not held: the screen keeps no position in the homer "
+            "and does not quote it beside a rating. Graded, its HR rows went 2-13 for -7.3 units "
+            "while every other market together lost 3.1, and the wider ledger's home-run overs "
+            "lose 34.5% above +300 and more the longer the price. It is on the board because the "
+            "arsenal is the reason to watch the hitter, not because the number is buyable.</p>"
         )
     if board.dropped:
         out.append(
             f"<p class='sub'>{board.dropped} further priced rows on these hitters are not shown; "
-            f"each keeps his homer and his H+R+RBI where both were quoted, then fills to "
+            f"each shows his homer and his H+R+RBI where both were quoted, then fills to "
             f"{ROWS_PER_BATTER} rows by expected value, one quote per bet.</p>"
         )
     if board.unpriced:
@@ -422,7 +532,7 @@ def _board_section(board: Board) -> str:
         worst = min(against, key=lambda r: r.edge or 0.0)
         out.append(
             f"<p><strong>The market disagrees hardest on {html.escape(worst.batter)} "
-            f"{worst.label}</strong>: {_pc(worst.model_prob)} modelled against a "
+            f"{worst.label}</strong>: {_pc(worst.shown_prob)} bet against a "
             f"{_pc(worst.fair_prob) if worst.fair_prob is not None else 'one-way'} no-vig line. "
             f"The screen reads form and exposure; the price reads everything, including the "
             f"lineup card this note is guessing at.</p>"
@@ -460,7 +570,7 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
             html.escape(g.position.batter),
             g.position.label,
             _price(g.position.odds),
-            _pc(g.position.model_prob),
+            _pc(g.position.shown_prob),
             _pc(g.position.fair_prob) if g.position.fair_prob is not None else "one-way",
             str(g.actual),
             g.result,
@@ -477,31 +587,42 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         "flat one unit apiece at the price it was shown at &mdash; not at a better one found "
         "later, and not only on the rows that worked.</p>",
         _table(
-            ["batter", "market", "price", "model", "no-vig", "actual", "result", "units"],
+            ["batter", "market", "price", "shown", "no-vig", "actual", "result", "units"],
             rows,
             numeric_from=2,
         ),
     ]
-    if card.model_brier is not None and card.market_brier is not None:
-        verdict = "the model" if card.model_beat_market else "the price"
+    if card.shown_brier is not None and card.market_brier is not None:
+        verdict = "the note's number" if card.shown_beat_market else "the price"
+        model = (
+            f" The unanchored model scored {card.model_brier:.3f} on the same rows."
+            if card.model_brier is not None
+            else ""
+        )
         out.append(
             f"<p><strong>{verdict.capitalize()} was closer.</strong> Brier score "
-            f"{card.model_brier:.3f} for the model against {card.market_brier:.3f} for the "
-            f"two-sided no-vig line, over the {card.scored_probs} rows where the hold could be "
-            f"stripped; the model averaged "
-            f"{_pc(card.mean_model_prob) if card.mean_model_prob is not None else '&mdash;'} "
+            f"{card.shown_brier:.3f} for the probability the note printed against "
+            f"{card.market_brier:.3f} for the two-sided no-vig line, over the "
+            f"{card.scored_probs} rows where the hold could be stripped; the note averaged "
+            f"{_pc(card.mean_shown_prob) if card.mean_shown_prob is not None else '&mdash;'} "
             f"against the market's "
             f"{_pc(card.mean_market_prob) if card.mean_market_prob is not None else '&mdash;'} "
-            f"and the rows went {o.wins} of {o.decided}. One slate settles nothing; the column "
-            f"that matters is this line repeated, which is what the ledger accumulates.</p>"
+            f"and the rows went {o.wins} of {o.decided}.{model} One slate settles nothing; the "
+            f"column that matters is this line repeated, which is what the ledger "
+            f"accumulates.</p>"
         )
     splits = [
         ("card tier", card.by_tier),
-        ("screen rating", card.by_rating),
+        ("matchup grade", card.by_rating),
         ("market", card.by_market),
     ]
     split_rows = [
-        [html.escape(label), html.escape(rec.label), _wl(rec), _num(rec.units, 2, signed=True)]
+        [
+            html.escape(label),
+            html.escape(RATING_DISPLAY.get(rec.label, rec.label)),
+            _wl(rec),
+            _num(rec.units, 2, signed=True),
+        ]
         for label, recs in splits
         for rec in recs
     ]
@@ -509,9 +630,10 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         out.append(_table(["cut", "bucket", "W-L", "units"], split_rows, numeric_from=2))
         out.append(
             "<p class='sub'>The tier cut says whether the card's buys beat the rows it passed "
-            "on; the rating cut says whether the matchup read discriminated at all. They are "
-            "separate because a rating carries no price and can be right about the hitter while "
-            "the number was wrong.</p>"
+            "on; the grade cut says whether the matchup read discriminated at all, and so far it "
+            "has not &mdash; which is why the grade is lettered rather than called a buy. They "
+            "are separate cuts because a grade carries no price and can be right about the "
+            "hitter while the number was wrong.</p>"
         )
     return "".join(out)
 
@@ -726,7 +848,9 @@ def _final_table(pool: list[StarterCard], splits: tuple[StarterSplit, ...]) -> s
     Each column is what a single ranking gave him, so an arm carried by one split
     can be told apart from one the whole slate agrees is soft, and the total is
     the order the screen actually acts on. The worst three are marked; the index
-    column is the old air-contact z-sum, printed because it breaks ties.
+    column is the old air-contact z-sum, printed because it breaks ties, and the
+    delivery columns are printed beside it because a lost mile an hour is the one
+    thing on the row that the metric ranks do not already say.
     """
     if not pool:
         return ""
@@ -739,14 +863,48 @@ def _final_table(pool: list[StarterCard], splits: tuple[StarterSplit, ...]) -> s
             f"<b>{s.points}</b>",
             *[str(s.scores[sp.key].points) if sp.key in s.scores else "&mdash;" for sp in splits],
             _num(s.index, 2, signed=True),
+            _num(s.arm.pvelo if s.arm else math.nan, 1),
+            _num(s.arm.ext if s.arm else math.nan, 1),
+            _num(s.arm.ivb if s.arm else math.nan, 1),
+            "\u2020" if s.arm_verdict == arm_model.CONTRADICTED else "",
         ])
     return (
         f"<h3>Final ranking &mdash; every ranking added up, worst {STARTER_TOP_N} marked</h3>"
         + _table(
-            ["starter", "hand", "vs", "pts", *[sp.label for sp in splits], "index"],
+            ["starter", "hand", "vs", "pts", *[sp.label for sp in splits], "index",
+             "pVelo", "Ext", "IVB", ""],
             rows, numeric_from=3,
             row_classes=["top" if i <= STARTER_TOP_N else "" for i in range(1, len(rows) + 1)],
         )
+        + _arm_note()
+    )
+
+
+def _arm_note() -> str:
+    """What the delivery columns are, and why they qualify rather than gate.
+
+    A reader cannot judge a perceived-velocity figure without the window it was
+    read over, and the dagger has to say what it means: the index selected the
+    arm on batted balls and the delivery underneath disagrees.
+    """
+    return (
+        "<p class='caveat'><strong>&dagger; The index says soft and the delivery does not.</strong> "
+        "Perceived velocity (release speed + 1.1 &times; extension &minus; 6.0, the speed the "
+        "hitter has to react to), extension and induced vertical break are Statcast's own release "
+        f"measures, averaged over each starter's last {arm_model.WINDOW} four-seams, sinkers and "
+        f"two-seams, with a floor of {arm_model.MIN_LEVEL_PITCHES} readings below which the column "
+        "is blank rather than league average. Out of time on 2,214 pitcher-windows those levels add "
+        "to the next fortnight's wOBA allowed, hits and strikeouts on top of the luck term "
+        "<em>and</em> on top of the CSW% and pitch-shape grade the engine already prices (pVelo "
+        "t &minus;2.4, &minus;3.6 and +4.4); ride pays on home runs (t +5.0) and suppresses hits "
+        "(t &minus;3.0). That window is not a reliability window &mdash; on 1.44M fastballs every "
+        "one of these half-repeats inside a single pitch, since a radar reading is measured rather "
+        "than inferred from outcomes &mdash; so it comes from the panel, which held every sign at "
+        "12, 100 and 400 fastballs. Nothing here gates: a good arm sorts the fortnight ahead by the "
+        "same margin whatever the batted balls did, so it qualifies the ranking and does not "
+        "reorder it. Release scatter is a fatigue read for the removal model and is not printed as "
+        "a talent level; horizontal break was missing from our own ingestion until now, so a slice "
+        "cached earlier reads as unmeasured.</p>"
     )
 
 
@@ -754,8 +912,11 @@ def _pool_table(section: MatchupSection) -> str:
     rows = []
     for v in section.hitters:
         h = v.line
+        mark = " *" if h.power_exception else ""
+        mark += " \u2021" if h.swing_rescue else ""
+        sw = h.swing
         rows.append([
-            html.escape(h.name) + (" *" if h.power_exception else ""),
+            html.escape(h.name) + mark,
             str(h.slot or "&mdash;"),
             str(int(h.pa)),
             _num(h.wrc, 0),
@@ -767,10 +928,14 @@ def _pool_table(section: MatchupSection) -> str:
             _pc(h.hh),
             _num(h.ev90, 1),
             _pc(h.osw),
+            _num(sw.bat_speed if sw else math.nan, 1),
+            _pc(sw.blast if sw else math.nan),
+            _pc(sw.squared_up if sw else math.nan),
+            _num(sw.attack_angle if sw else math.nan, 1),
         ])
     return _table(
         ["batter", "LP", "PA", "wRC+", "pts", "top5", "xwOBA", "xwOBAcon", "Brl%", "HH%", "EV90",
-         "O-Sw%"],
+         "O-Sw%", "BatSpd", "Blast%", "SqUp%", "AtkAng"],
         rows, numeric_from=1,
     )
 
@@ -992,6 +1157,148 @@ def _bet_card(result: ScreenResult) -> str:
     return "".join(out)
 
 
+#: Markets the simulated table prints, and how a book words each one.
+_SIM_MARKETS: tuple[tuple[str, float, str], ...] = (
+    ("H", 0.5, "1+ hits"),
+    ("H", 1.5, "2+ hits"),
+    ("1B", 0.5, "1+ singles"),
+    ("2B", 0.5, "1+ doubles"),
+    ("HR", 0.5, "home run"),
+    ("TB", 1.5, "2+ TB"),
+    ("TB", 2.5, "3+ TB"),
+    ("R", 0.5, "1+ runs"),
+    ("RBI", 0.5, "1+ RBI"),
+)
+
+
+def _sim_table(section: MatchupSection) -> str:
+    """Each survivor's simulated night: the shape of it, then the market prices.
+
+    Two tables' worth in one, because the pair is the point. The mean is what a
+    projection would quote and the mode is what actually happens: a hitter with
+    1.3 expected hits most commonly gets exactly one, and never gets 1.3.
+    """
+    shape: list[list[str]] = []
+    market: list[list[str]] = []
+    for v in section.hitters:
+        sim = v.sim
+        if sim is None:
+            continue
+        name = html.escape(v.line.name)
+        cells = [name, str(sim.slot), _num(sim.pa_mean, 1)]
+        for stat in ("H", "TB", "2B", "HR", "R", "RBI"):
+            d = sim.get(stat)
+            cells.append(
+                "&mdash;" if d is None else f"{d.mean:.2f} / {d.median:.0f} / {d.mode:.0f}"
+            )
+        shape.append(cells)
+        row = [name]
+        for stat, line, _label in _SIM_MARKETS:
+            d = sim.get(stat)
+            prob = math.nan if d is None else d.over.get(line, math.nan)
+            row.append(
+                "&mdash;" if math.isnan(prob)
+                else f"{prob * 100:.1f}% / {power_sim.fair_price(prob)}"
+            )
+        market.append(row)
+    if not shape:
+        return ""
+    n_sims = next(v.sim.n_sims for v in section.hitters if v.sim is not None)
+    return (
+        "<h3>The simulated night</h3>"
+        f"<p class='sub'>{n_sims:,} simulations of this game, plate appearance by plate "
+        "appearance: each hitter's own outcome rates combined with the starter's by log5, then "
+        "with the bullpen's once he is hooked, scaled by the park's measured singles and "
+        "extra-base factors, the exit point drawn from the batters-faced and pitch-count caps in "
+        "the exposure table above. Cells are mean / median / mode.</p>"
+        + _table(
+            ["batter", "LP", "PA", "hits", "TB", "2B", "HR", "R", "RBI"], shape, numeric_from=1
+        )
+        + "<p class='sub'>The same distributions read as the markets a book hangs, each cell the "
+        "model's probability and the price that probability is worth. <strong>These are fair "
+        "values, not bets:</strong> the screen reads no market, and a position needs this number "
+        "compared with a real one &mdash; blended toward the devigged price, as the card does "
+        "&mdash; before it is worth staking.</p>"
+        + _table(
+            ["batter", *(label for _s, _l, label in _SIM_MARKETS)], market, numeric_from=1
+        )
+    )
+
+
+def _withheld_note(section: MatchupSection) -> str:
+    """Which metrics were not allowed to carry a cut, and why.
+
+    The screen scores eleven metrics; four of them (wRC+, OPS, BA, SLG) never
+    reach r=.50 with themselves at any sample it sees, and the rest reach it at
+    wildly different points. A metric below that bar still contributes its
+    measured reliability to the score but cannot promote a hitter through the
+    top-five cut, which is the decision that used to be carried by two weeks of
+    batted-ball luck.
+    """
+    withheld: dict[str, list[str]] = {}
+    for v in section.hitters:
+        if v.line.withheld:
+            withheld[v.line.name] = list(v.line.withheld)
+    if not withheld:
+        return ""
+    items = "; ".join(
+        f"{html.escape(name)}: {', '.join(html.escape(m) for m in metrics)}"
+        for name, metrics in withheld.items()
+    )
+    return (
+        "<p class='caveat'><strong>Top-five finishes withheld as unreadable.</strong> "
+        f"{items}. Each was a top-five finish in the pool on a metric that does not repeat at "
+        "that hitter's sample size (split-half r below 0.50, measured on 145,707 plate "
+        "appearances), so it counts toward his score in proportion to its reliability but is not "
+        "allowed to carry him through a cut on its own.</p>"
+    )
+
+
+def _swing_note(section: MatchupSection) -> str:
+    """What the swing columns are, and which hitters the luck-gap cut lost on them.
+
+    The provenance half prints whenever the columns do, since a reader cannot
+    judge a bat-speed figure without the window it was read over. The rescue half
+    is added when a hitter is here on his swing, because that is a cut being
+    overruled and the row should not look clean.
+    """
+    if not any(v.line.swing is not None for v in section.hitters):
+        return ""
+    rescued = [v.line.name for v in section.hitters if v.line.swing_rescue]
+    lead = "<strong>The swing columns.</strong>"
+    if rescued:
+        names = ", ".join(html.escape(n) for n in rescued)
+        lead = (
+            "<strong>\u2021 Kept on the swing after the luck gap flagged them.</strong> "
+            f"{names}."
+        )
+    return (
+        f"<p class='caveat'>{lead} Bat speed, blast rate, squared-up rate and attack angle are "
+        f"read over each measure's own window of tracked competitive swings &mdash; "
+        f"{WINDOW['bat_speed']} for bat "
+        f"speed, {WINDOW['blast']} for blast, {WINDOW['squared_up']} for squared-up, "
+        f"{WINDOW['attack_angle']} for attack angle, four times the "
+        "sample each first half-repeats at. Out of time on 3,175 "
+        "batter-windows those levels add to total bases and home runs on top of wOBA and xwOBA "
+        "(blast t +6.6, bat speed t +5.4), and of the windows the luck-gap cut removes the better "
+        "half of swings went on to .3801 TB/PA against .3355 for the worse half &mdash; ahead of "
+        "the .3708 posted by the hitters the cut kept. The bar a rescue has to clear "
+        f"({RESCUE_POWER_Z:+.3f} SD on bat speed and blast rate together) is the value at which "
+        "that relief peaks in both window sizes and the lowest at which the rescued rows beat the "
+        "kept ones in both seasons. Squared-up rate is a hits signal and is "
+        "negatively signed on home runs, so it is printed and does not rescue. The two contact "
+        "rates are reconstructed from the pitch-level collision model with their cuts calibrated to "
+        "the league rate Savant publishes, since the leaderboard cannot be sliced by swing count "
+        "(per hitter r +.86 and +.76 against the official figures). A blank column is a hitter with "
+        "too few tracked swings to read, not an average one. Attack angle is Savant's own "
+        "swing-path field, published from 2025 and matching FanGraphs' season figures at r +.996; "
+        "a steeper swing adds home runs and total bases and subtracts singles (t +6.3 and "
+        "t &minus;5.3 with bat speed and blast rate already in the model), so it is printed for "
+        "the market it points at and, like squared-up rate, does not rescue &mdash; inside the "
+        "rows this cut removes it does not sort the fortnight that follows.</p>"
+    )
+
+
 def _section_html(section: MatchupSection, index: int) -> str:
     s = section.starter
     out = [
@@ -1034,6 +1341,9 @@ def _section_html(section: MatchupSection, index: int) -> str:
     if exposure:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
+    out.append(_withheld_note(section))
+    out.append(_swing_note(section))
+    out.append(_sim_table(section))
     return "".join(out)
 
 
@@ -1055,7 +1365,7 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     for rating, reason, view, section in rated:
         css = rating.lower()
         row = [
-            f"<span class='{css}'>{rating}</span>",
+            f"<span class='{css}'>{RATING_DISPLAY.get(rating, rating)}</span>",
             html.escape(view.line.name),
             html.escape(section.starter.name),
         ]
@@ -1065,10 +1375,16 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         rows.append(row)
     buys = [r for r in rated if r[0] == "BUY"]
     lead = (
-        f"<p><strong>{len(buys)} of {len(rated)} survivors rate a buy on the matchup.</strong> "
-        f"Ratings weigh how much of the game is the matchup, whether the arsenal adds or "
+        f"<p><strong>{len(buys)} of {len(rated)} survivors grade A on the matchup.</strong> "
+        f"Grades weigh how much of the game is the matchup, whether the arsenal adds or "
         f"subtracts, contact quality, strikeout risk, and whether the bullpen gives the edge "
         f"back. They contain no price.</p>"
+        f"<p class='sub'><strong>The grade is a sort, and it has not been shown to sort "
+        f"outcomes.</strong> On the 66 held rows the ledger has scored, the A bucket went 5-13 "
+        f"for -5.52 units against the B bucket's 20-25 for -0.26 &mdash; the wrong order, though "
+        f"on three days and a Fisher p of 0.199 that is not a finding either. It is lettered "
+        f"rather than called a buy for that reason, and it will be named again when the ledger "
+        f"is large enough to say which way it points.</p>"
     )
     if board is not None:
         agreed = [
@@ -1087,7 +1403,7 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["rating", "batter", "vs"]
+    headers = ["grade", "batter", "vs"]
     if board is not None:
         headers.append("best price (EV)")
     headers.append("basis")

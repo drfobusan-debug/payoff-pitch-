@@ -12,12 +12,16 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from mlb_engine.config import Config
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.data.oddsapi import _opposite_prices
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
+
+# A 50/50 model against a plus-money price is refused by the shipped conviction
+# floor and EV ceiling; the K buy cap is what these tests are about.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
 
 
 class _ShrinkToHalf:
@@ -83,7 +87,7 @@ def test_the_under_complements_the_calibrated_over_not_the_raw_one() -> None:
 
 def test_the_over_buy_cap_does_not_gate_the_under() -> None:
     """The K cap is a screen on buying the over, not a view on the line."""
-    recs = _pitcher_recs(Config(pitcher_k_max_buy_line=5.5), 6.5)
+    recs = _pitcher_recs(Config(ev=LEVELS_OFF, pitcher_k_max_buy_line=5.5), 6.5)
     k = {r.side: r for r in recs if r.market == "pitcher_k" and r.line == 6.5}
     assert k["over"].tier is Tier.PASS
     assert any("buy cap" in r for r in k["over"].reasons)

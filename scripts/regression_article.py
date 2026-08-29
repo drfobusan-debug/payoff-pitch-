@@ -16,6 +16,8 @@ from mlb_engine.output.regression_article import (  # noqa: F401
     _luck_sentence,
     _pitcher_entry,
     _pitcher_verdict,
+    _swing_line,
+    _swing_sentence,
     build_article,
     build_article_pdf,
     build_html,

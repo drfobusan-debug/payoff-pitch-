@@ -22,13 +22,26 @@ actually taken, and it is the primary measurement for this engine rather than a
 footnote: with the mean pinned to the market by phase 3, what is being tested is
 whether the *execution* is any good, and beating the close is the only clean read
 on that available before hundreds of graded bets exist.
+
+Which makes the *close* a number worth being pedantic about. A price seen days
+before kickoff is not a closing price, so the stamp is provisional until the game
+starts: :func:`apply_close` may be called repeatedly and each call replaces the
+previous number, while :func:`close_is_final` reports when kickoff has passed and
+the row must never be touched again. The MLB engine measured CLV against
+whichever price it happened to see first for months, which flattered every bet the
+market later moved toward and hid the ones it moved away from.
 """
 
 from __future__ import annotations
 
 import csv
+import io
+import logging
+import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, fields
+from datetime import date as Date
+from datetime import datetime, timezone
 from pathlib import Path
 
 from nfl_engine.market.ev import MONEYLINE, SPREAD, TOTAL, PricedBet, ev
@@ -43,6 +56,18 @@ ENGINE = "engine"
 # LIVE: the dry run has no staking path at all, and the column exists so that the
 # day one is added, a paper record cannot be quoted as a real one by accident.
 PAPER, LIVE = "paper", "live"
+
+log = logging.getLogger(__name__)
+
+# Control characters a feed can carry into a team or player name. CSV refuses to
+# write them and Excel refuses to hold them, so a single stray byte in a name is
+# otherwise enough to stop the engine persisting a row it has already priced.
+CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
+
+
+def scrub(value: object) -> object:
+    """Drop control characters from text, leave everything else alone."""
+    return CONTROL_CHARS.sub("", value) if isinstance(value, str) else value
 
 
 @dataclass
@@ -76,6 +101,10 @@ class LedgerEntry:
     close_prob: float | None = None
     clv: float | None = None
     clv_ev: float | None = None
+    # When the stamped closing price was seen. A close is only a close if it was
+    # taken near kickoff, so the stamp carries its own timestamp and can be
+    # audited -- and replaced, until the game starts.
+    close_captured_at: str = ""
     # Whose call this row is. An outside benchmark writes its own name so it can
     # sit in the same ledger, graded identically, and be excluded from every
     # measurement of us.
@@ -86,6 +115,11 @@ class LedgerEntry:
     # execution edge is a claim about a price that existed at a moment, and
     # without the moment the claim cannot be checked against the archive.
     captured_at: str = ""
+    # Kickoff, as the board states it. Needed rather than ``date`` alone because a
+    # Sunday holds a 13:00 and a 20:20 game: without the hour, re-stamping the
+    # close for the night game would overwrite the afternoon game's real close
+    # with an in-progress number, or freeze it hours early.
+    kickoff_utc: str = ""
 
 
 LEDGER_FIELDS = [f.name for f in fields(LedgerEntry)]
@@ -98,6 +132,7 @@ def entry_from_bet(
     week: int,
     date: str,
     captured_at: str = "",
+    kickoff_utc: str = "",
     mode: str = PAPER,
 ) -> LedgerEntry:
     return LedgerEntry(
@@ -120,6 +155,7 @@ def entry_from_bet(
         screens=";".join(bet.screens),
         mode=mode,
         captured_at=captured_at,
+        kickoff_utc=kickoff_utc,
     )
 
 
@@ -150,7 +186,11 @@ def grade(entry: LedgerEntry, home_score: int, away_score: int, *, home: str) ->
     entry.result = result
     entry.home_score = home_score
     entry.away_score = away_score
-    entry.pnl = pnl_units(result, entry.odds)
+    # A row with no price was staked at nothing. Only an outside forecast reaches
+    # here without one -- FPI publishes a probability and no number -- and paying
+    # its wins at an assumed -110 would credit it with an ROI off a price it never
+    # quoted, and off our shopping.
+    entry.pnl = pnl_units(result, entry.odds) if entry.odds is not None else 0.0
     return entry
 
 
@@ -170,8 +210,14 @@ def apply_close(
     close_opposite: float | None,
     *,
     method: str = DEFAULT_METHOD,
+    captured_at: str = "",
 ) -> LedgerEntry:
     """Score the row against the closing number on the same side.
+
+    Overwrites whatever was stamped before, by design: every call before kickoff
+    is a better estimate of the close than the one it replaces. Callers must
+    consult :func:`close_is_final` first -- once the game has started the stamped
+    number is the close and a later price is an in-play quote.
 
     Without the closing price's *opposite* side there is no hold to remove, so
     the raw implied probability is used and flagged by leaving ``close_prob``
@@ -180,6 +226,7 @@ def apply_close(
     two-way market. Better to record the number that exists than to invent one.
     """
     entry.close_odds = close_american
+    entry.close_captured_at = captured_at
     implied = american_to_prob(close_american)
     if close_opposite is None:
         close_prob = implied
@@ -190,6 +237,35 @@ def apply_close(
     if entry.odds is not None:
         entry.clv_ev = round(ev(close_prob, american_to_decimal(entry.odds)), 6)
     return entry
+
+
+def kickoff_moment(entry: LedgerEntry) -> datetime | None:
+    """Kickoff as an aware UTC moment, or ``None`` when the row does not carry it."""
+    if not entry.kickoff_utc:
+        return None
+    try:
+        moment = datetime.fromisoformat(entry.kickoff_utc.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return moment if moment.tzinfo else moment.replace(tzinfo=timezone.utc)
+
+
+def close_is_final(entry: LedgerEntry, *, now: datetime | None = None) -> bool:
+    """Is this row's closing stamp settled, and therefore untouchable?
+
+    True once the game has started. Rows priced before a board carried a kickoff
+    time fall back to the calendar date, which freezes them at midnight UTC after
+    the game rather than at the whistle -- late enough to be safe on the archive
+    and never early, since freezing early is what silently records a Wednesday
+    price as the close.
+    """
+    moment = now or datetime.now(tz=timezone.utc)
+    kickoff = kickoff_moment(entry)
+    if kickoff is not None:
+        return moment >= kickoff
+    if not entry.date:
+        return False
+    return moment.date() > Date.fromisoformat(entry.date)
 
 
 def taken_prob(entry: LedgerEntry, *, method: str = DEFAULT_METHOD) -> float:
@@ -216,15 +292,20 @@ def save_ledger(path: Path, entries: list[LedgerEntry]) -> None:
         writer = csv.DictWriter(handle, fieldnames=LEDGER_FIELDS)
         writer.writeheader()
         for entry in entries:
-            writer.writerow(asdict(entry))
+            writer.writerow({key: scrub(value) for key, value in asdict(entry).items()})
 
 
 def load_ledger(path: Path) -> list[LedgerEntry]:
     if not path.exists():
         return []
     out: list[LedgerEntry] = []
-    with path.open(newline="", encoding="utf-8") as handle:
-        for row in csv.DictReader(handle):
+    # Read whole and scrub, rather than streaming the file: one NUL byte anywhere
+    # in the ledger makes ``csv`` refuse the entire read, and a season of graded
+    # rows is not something to lose to a corrupt character.
+    text = CONTROL_CHARS.sub("", path.read_text(encoding="utf-8", errors="replace"))
+    skipped = 0
+    for row in csv.DictReader(io.StringIO(text, newline="")):
+        try:
             out.append(
                 LedgerEntry(
                     season=int(row.get("season") or 0),
@@ -252,11 +333,19 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     close_prob=_float(row.get("close_prob")),
                     clv=_float(row.get("clv")),
                     clv_ev=_float(row.get("clv_ev")),
+                    close_captured_at=row.get("close_captured_at", ""),
                     source=row.get("source", ENGINE),
                     mode=row.get("mode") or PAPER,
                     captured_at=row.get("captured_at", ""),
+                    kickoff_utc=row.get("kickoff_utc", ""),
                 )
             )
+        except ValueError:
+            # A row whose season or week is not a number is unreadable, not fatal:
+            # skip it and keep the rest of the record.
+            skipped += 1
+    if skipped:
+        log.warning("skipped %d unreadable ledger row(s) in %s", skipped, path)
     return out
 
 
