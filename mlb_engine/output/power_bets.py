@@ -23,6 +23,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
 from mlb_engine.market.tiers import Tier
+from mlb_engine.output.power_board import DISPLAY_ONLY
 from mlb_engine.output.power_screen import ScreenResult
 from mlb_engine.recommendations import Recommendation
 
@@ -43,6 +44,12 @@ class PricedSide:
     stat: str
     side: str
     line: float
+    #: The probability the EV screen actually bet on: ``bet_prob`` when the
+    #: market anchor moved the model, ``model_prob`` when it did not. The tier
+    #: and the EV on this row were decided on that number, so printing the raw
+    #: model beside them would show a probability nothing on the row was priced
+    #: from -- and on the graded ledger the anchored number is the better of the
+    #: two (Brier 0.240 against 0.244 over the recorded screen rows).
     prob: float
     fair: float
     odds: float
@@ -54,7 +61,13 @@ class PricedSide:
 
     @property
     def is_buy(self) -> bool:
-        return self.tier in BUY_TIERS
+        """A buy, unless the market is one the card only displays.
+
+        Same rule as :mod:`mlb_engine.output.power_board`: a display-only market
+        is priced and shown and never bought, because the audit ledger does not
+        record it and a bet nothing grades cannot be judged.
+        """
+        return self.tier in BUY_TIERS and self.stat not in DISPLAY_ONLY
 
 
 @dataclass
@@ -180,7 +193,7 @@ def _side(rec: Recommendation) -> PricedSide | None:
         stat=rec.stat,
         side=rec.side,
         line=rec.line,
-        prob=rec.model_prob,
+        prob=rec.model_prob if rec.bet_prob is None else rec.bet_prob,
         fair=rec.fair_prob if rec.fair_prob is not None else math.nan,
         odds=rec.market_american if rec.market_american is not None else math.nan,
         book=rec.book or "",

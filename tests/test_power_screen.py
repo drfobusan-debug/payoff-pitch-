@@ -20,6 +20,7 @@ from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
     BAT_SPEED_BAND,
     FIT_SCORED,
+    HALF_FLOOR,
     HALF_SCORED,
     HR_METRIC,
     MIN_BATTER_PA,
@@ -1072,22 +1073,30 @@ def _half(**values: float) -> HalfLine:
     return line
 
 
-def test_a_half_scores_a_point_per_metric_and_three_for_a_top_three_finish() -> None:
+def test_a_half_carries_the_floor_and_earns_only_the_top_three_bonus() -> None:
     best = _half(k=0.10)
     rest = [_half(k=0.20 + i / 100) for i in range(5)]
     score_halves([best, *rest])
-    assert best.points == 3  # one rated metric, and it is the best of six
-    assert rest[0].points == 3
-    assert rest[3].points == 1  # rated, outside the top three
+    assert best.points == HALF_FLOOR + 2  # the floor, plus the best K% of six
+    assert best.earned == 2
+    assert rest[0].points == HALF_FLOOR + 2
+    assert rest[3].points == HALF_FLOOR  # rated, outside the top three
+    assert rest[3].earned == 0
     assert best.top_in == ("K%",)
 
 
-def test_an_unrated_metric_in_a_half_scores_nothing_rather_than_last() -> None:
-    """A hitter with no late batted balls has no late exit velocity, not a bad one."""
+def test_a_metric_that_could_not_be_read_costs_the_hitter_nothing() -> None:
+    """A hitter with no late batted balls has no late exit velocity, not a bad one.
+
+    The floor is the same for both, so the unmeasured hitter is level with the
+    measured one that finished outside the top three rather than behind him.
+    """
     measured = _half(k=0.20, ev90=108.0)
     unmeasured = _half(k=0.20)
-    score_halves([measured, unmeasured])
+    beaten = _half(k=0.20, ev90=88.0)
+    score_halves([measured, unmeasured, beaten], top_n=1)
     assert measured.points > unmeasured.points
+    assert unmeasured.points == beaten.points == HALF_FLOOR
     assert "EV90" in measured.top_in
 
 

@@ -350,19 +350,45 @@ def build_report_data(
     )
 
 
+def _priced_roi(m: OverallMetrics) -> str:
+    """The priced return, or the count of rows it would have to be read off."""
+    if not m.priced_n:
+        return "— (no priced rows)"
+    return f"{m.priced_roi * 100:+.1f}% (n={m.priced_n})"
+
+
+def _verdict(roi: float) -> str:
+    return "profitable" if roi > 0 else "roughly break-even" if roi > -0.02 else "in the red"
+
+
 def _summary_paragraph(d: ReportData) -> str:
+    """The headline, quoted on the money that was actually available.
+
+    The ROI over every favored row pays anything the board never priced at an
+    assumed -110, and those rows both outnumber and out-win the priced ones, so
+    the blended figure has read as profitable through stretches in which every
+    real price lost. The verdict is taken from the priced rows and the blended
+    one is named as the assumption it is.
+    """
     eng = d.engine
     strengths = ", ".join(d.play[:3]) if d.play else "its highest-probability picks"
     leaks = ", ".join(d.fade[:3]) if d.fade else "a few thin-edge markets"
-    verdict = "profitable" if eng.roi > 0 else "roughly break-even" if eng.roi > -0.02 else "in the red"
+    assumed = eng.n - eng.priced_n
+    priced = (
+        f"On the {eng.priced_n} of those that carried a real book price the return is "
+        f"**{eng.priced_roi * 100:+.1f}%** — {_verdict(eng.priced_roi)}, and the only "
+        f"figure that describes money. The other {assumed} were graded at an assumed "
+        f"-110 nobody offered"
+        if eng.priced_n
+        else "None of those rows carried a real book price, so there is no return to report"
+    )
     return (
         f"Across every graded market, the side the model favored won "
-        f"**{_pct(eng.ppv)}** of the time, for a **{eng.roi * 100:+.1f}% ROI** on the "
-        f"whole book — {verdict} overall. Its sharpest work is in {strengths}. "
-        f"The losses concentrate in {leaks}, and the pattern below is consistent: "
-        f"the engine is a solid handicapper whose leaks are a too-loose bet-selection "
-        f"filter and a slightly cold offensive model — both fixable without touching "
-        f"what already works."
+        f"**{_pct(eng.ppv)}** of the time. {priced}. Its sharpest work is in "
+        f"{strengths}. The losses concentrate in {leaks}, and the pattern below is "
+        f"consistent: the engine handicaps direction better than it prices it, and "
+        f"the leaks are a too-loose bet-selection filter and a slightly cold "
+        f"offensive model."
     )
 
 
@@ -378,18 +404,24 @@ def render_markdown_report(d: ReportData) -> str:
 
     L.append("---\n")
     L.append("## Core metrics\n")
-    L.append("| Scope | n | PPV (pick win%) | NPV | ROI |")
-    L.append("|---|---|---|---|---|")
+    L.append(
+        "**ROI (priced)** counts only the rows that carried a real book price. "
+        "**ROI (blended)** also pays the rows the board never priced, at an assumed "
+        "-110, and is reported for continuity rather than as a return.\n"
+    )
+    L.append("| Scope | n | PPV (pick win%) | NPV | ROI (priced) | ROI (blended) |")
+    L.append("|---|---|---|---|---|---|")
     eng = d.engine
     L.append(
         f"| **Whole engine** (favored side) | {eng.n} | **{_pct(eng.ppv)}** | "
-        f"{eng.npv:.2f} | **{eng.roi * 100:+.1f}%** |"
+        f"{eng.npv:.2f} | **{_priced_roi(eng)}** | {eng.roi * 100:+.1f}% |"
     )
     for name in ("Strong buy", "Moderate buy"):
         t = _tier_row(d.tiers, name)
         if t is not None:
             L.append(
-                f"| {name}s | {t.n} | {_pct(t.win_pct)} | — | {t.roi * 100:+.1f}% |"
+                f"| {name}s | {t.n} | {_pct(t.win_pct)} | — | {_priced_roi(t)} | "
+                f"{t.roi * 100:+.1f}% |"
             )
     L.append("")
 
@@ -591,17 +623,20 @@ def render_html_report(d: ReportData) -> str:
     b.append("<h2>Core metrics</h2>")
     eng = d.engine
     rows_html = [
-        "<tr><th>Scope</th><th>n</th><th>PPV (pick win%)</th><th>NPV</th><th>ROI</th></tr>",
+        "<tr><th>Scope</th><th>n</th><th>PPV (pick win%)</th><th>NPV</th>"
+        "<th>ROI (priced)</th><th>ROI (blended)</th></tr>",
         f"<tr><td><strong>Whole engine</strong> (favored side)</td><td>{eng.n}</td>"
         f"<td><strong>{_pct(eng.ppv)}</strong></td><td>{eng.npv:.2f}</td>"
-        f"<td><strong>{eng.roi * 100:+.1f}%</strong></td></tr>",
+        f"<td><strong>{html.escape(_priced_roi(eng))}</strong></td>"
+        f"<td>{eng.roi * 100:+.1f}%</td></tr>",
     ]
     for name in ("Strong buy", "Moderate buy"):
         t = _tier_row(d.tiers, name)
         if t is not None:
             rows_html.append(
                 f"<tr><td>{name}s</td><td>{t.n}</td><td>{_pct(t.win_pct)}</td>"
-                f"<td>—</td><td>{t.roi * 100:+.1f}%</td></tr>"
+                f"<td>—</td><td>{html.escape(_priced_roi(t))}</td>"
+                f"<td>{t.roi * 100:+.1f}%</td></tr>"
             )
     b.append("<table>" + "".join(rows_html) + "</table>")
 

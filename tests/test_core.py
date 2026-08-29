@@ -1784,6 +1784,27 @@ def test_ledger_overall_and_dedup(tmp_path):
     assert strong.win_pct > strong.required_win_pct
 
 
+def test_a_row_the_board_never_priced_is_kept_out_of_the_priced_return():
+    """An assumed -110 is not a return, so it travels in its own column.
+
+    The unpriced rows win more often than the priced ones over a season, which
+    makes the blended figure read as profit off prices nobody offered.
+    """
+    from mlb_engine.audit.ledger import entries_from_graded, overall_metrics
+
+    entries = entries_from_graded(
+        [
+            (_rec(tier=Tier.STRONG, market_american=-110), LOSS),
+            (_rec(tier=Tier.STRONG, market_american=None), WIN),
+        ],
+        date(2024, 7, 19),
+    )
+    strong = next(m for m in overall_metrics(entries) if m.tier == Tier.STRONG.value)
+    assert strong.n == 2 and strong.roi > strong.priced_roi  # the assumed win lifts it
+    assert strong.priced_n == 1
+    assert abs(strong.priced_roi + 1.0) < 1e-9
+
+
 # ---- backtest analytics ----
 def test_backtest_summarize_and_confusion():
     from mlb_engine.backtest import confidence_gap, confusion, sample_dates, summarize

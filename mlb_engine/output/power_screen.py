@@ -1519,6 +1519,10 @@ HALF_SCORED: tuple[HalfMetric, ...] = (
     HalfMetric("ev90", "EV90", True, 40, "bbe"),
 )
 
+#: The points every half line collects for existing: one per scored metric,
+#: measured or not. It is a constant, so it cannot order two hitters.
+HALF_FLOOR = len(HALF_SCORED)
+
 #: The inning the bullpen's half begins. Innings 1-6 are the starter's half; the
 #: seventh is where the screen stops measuring the arm it faded and starts
 #: measuring the relief corps behind him.
@@ -1539,6 +1543,16 @@ class HalfLine:
     bbe: int = 0
     points: int = 0
     top_in: tuple[str, ...] = ()
+
+    @property
+    def earned(self) -> int:
+        """The points that separate this half from another one.
+
+        ``points`` carries a fixed floor of one per scored metric, which every
+        line collects and which therefore says nothing about the hitter. The
+        earned total is the part a comparison can use.
+        """
+        return self.points - HALF_FLOOR
 
     def value(self, metric: HalfMetric) -> float:
         return self.values.get(metric.attr, math.nan)
@@ -1626,13 +1640,20 @@ def half_lines(rows: pd.DataFrame, *, split_at: int = SPLIT_INNING) -> tuple[Hal
 
 
 def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:
-    """One point per rated metric, two more for a top-``top_n`` finish.
+    """The floor, plus two points for a top-``top_n`` finish in a metric.
 
     Each half is scored as its own pool, so a hitter's late points are earned
     against the other hitters' late lines rather than against his own early one.
+
+    The floor is awarded per scored metric whether or not the metric could be
+    read, because a metric with no sample is unavailable and not bad: scoring it
+    as a missed point would rank a hitter the screen cannot measure below one it
+    has measured and found wanting, which is the opposite of what the shrinkage
+    in :func:`half_lines` exists to prevent. Only the top-``top_n`` bonus is
+    earned, so :attr:`HalfLine.earned` is the comparable number.
     """
     for line in pool:
-        line.points = 0
+        line.points = HALF_FLOOR
         line.top_in = ()
     for metric in HALF_SCORED:
         ranked = sorted(
@@ -1640,11 +1661,9 @@ def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:
             key=lambda line: line.value(metric),
             reverse=metric.higher_better,
         )
-        for i, line in enumerate(ranked):
-            line.points += 1
-            if i < top_n:
-                line.points += 2
-                line.top_in = (*line.top_in, metric.label)
+        for line in ranked[:top_n]:
+            line.points += 2
+            line.top_in = (*line.top_in, metric.label)
 
 
 # --- stage 7: regression, park and weather -------------------------------
@@ -1790,7 +1809,7 @@ def build_context(
     worst_arm: bool = False,
     top_pitch_rv: float = math.nan,
 ) -> ContextTerms:
-    """The seven context points for one hitter in one game.
+    """The eight context points for one hitter in one game.
 
     The luck term is signed on ``xwOBA - wOBA``: a hitter whose expected line is
     above his actual one has been unlucky and regresses up, which is the only
@@ -1995,6 +2014,16 @@ class FinalScore:
     @property
     def halves(self) -> int:
         return self.early.points + self.late.points
+
+    @property
+    def earned(self) -> int:
+        """The total less the two halves' floors: the part that discriminates.
+
+        ``total`` carries ``2 * HALF_FLOOR`` points that every hitter in the pool
+        collects, so a total of 34 is an earned 16 and reading the totals as a
+        spread overstates how far apart the top and the bottom of the screen are.
+        """
+        return self.total - 2 * HALF_FLOOR
 
     @property
     def total(self) -> int:
