@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import random
 from datetime import date as Date
 from datetime import timedelta
@@ -1321,13 +1322,26 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     return 0
 
 
+def _paired_se(diffs: list[float]) -> float:
+    """Standard error of the mean of ``diffs`` (0.0 below two observations)."""
+    n = len(diffs)
+    if n < 2:
+        return 0.0
+    mean = sum(diffs) / n
+    var = sum((d - mean) ** 2 for d in diffs) / (n - 1)
+    return math.sqrt(var / n)
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
     Trains on every graded row (pushes dropped) and holds out the most recent
     ``--holdout`` slates to check, market by market, whether the refit map
     actually beats the packaged 2024 fit out of sample. Only the markets that
-    win are adopted; the rest keep the packaged map.
+    win are adopted; the rest keep the packaged map. Winning means beating the
+    incumbent by more than one standard error of the paired per-row difference in
+    squared error, scored on one row per prop -- a smaller Brier on a holdout of
+    complements is not evidence.
 
     Rows priced before ``FEATURE_BASIS_SINCE`` are dropped: a map learns what
     this engine's probabilities mean, so rows produced by a materially different
@@ -1373,14 +1387,16 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
 
     rows = rows_of(entries)
     train = rows_of([e for e in entries if e.date < split])
-    test = rows_of([e for e in entries if e.date >= split])
+    # The fit sees both sides of every prop, which is the whole probability range
+    # and no double-counting: isotonic reads (p, won) pairs, not wagers. The
+    # holdout is scored on one row per prop, because the two rows of a prop are
+    # complements -- carrying both cannot add evidence about whether the refit is
+    # better, it only makes the standard error below look smaller by root two.
+    test = rows_of(one_side_per_prop([e for e in entries if e.date >= split]))
 
     packaged = load_calibrator()
     source = calibration_source(cfg.calibration_file)
     refit = Calibrator.fit(train)
-
-    def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
-        return sum((cal.apply(m, p) - w) ** 2 for m, p, w in subset) / len(subset)
 
     by_market: dict[str, list[tuple[str, float, int]]] = {}
     for row in test:
@@ -1390,22 +1406,35 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     # thin, and on the eight-slate ledger it beat the packaged 2024 fit exactly
     # where that fit was stale or absent (batter_tb had no map at all) while
     # losing on the low-volume game-level markets.
-    print(f"Holdout: {split}..{dates[-1]} ({len(test)} rows), trained on {len(train)}")
-    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}  adopt")
+    #
+    # "Better" is a paired test, not a comparison of two averages: the same row
+    # is scored by both maps, so the quantity with a standard error is the mean
+    # per-row difference in squared error. Adopting on any negative delta adopted
+    # -0.0001 on 1,106 rows, which is a coin flip dressed as a refit; a market
+    # now has to beat the incumbent by more than one standard error of its own
+    # difference to replace it.
+    print(f"Holdout: {split}..{dates[-1]} ({len(test)} props), trained on {len(train)} rows")
+    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}{'se':>9}  adopt")
     adopt: list[str] = []
     for market in sorted(by_market):
         subset = by_market[market]
-        b_old, b_new = brier(packaged, subset), brier(refit, subset)
-        take = len(subset) >= args.min_holdout and b_new < b_old
+        diffs = [
+            (refit.apply(m, p) - w) ** 2 - (packaged.apply(m, p) - w) ** 2 for m, p, w in subset
+        ]
+        n = len(subset)
+        b_old = sum((packaged.apply(m, p) - w) ** 2 for m, p, w in subset) / n
+        delta = sum(diffs) / n
+        se = _paired_se(diffs)
+        take = n >= args.min_holdout and delta < -se
         if take:
             adopt.append(market)
         print(
-            f"{market:<14}{len(subset):>7}{b_old:>11.4f}{b_new:>10.4f}"
-            f"{b_new - b_old:>+9.4f}  {'yes' if take else 'no'}"
+            f"{market:<14}{n:>7}{b_old:>11.4f}{b_old + delta:>10.4f}"
+            f"{delta:>+9.4f}{se:>9.4f}  {'yes' if take else 'no'}"
         )
 
     if not adopt and not args.force:
-        print("\nNo market improved out of sample; nothing written")
+        print("\nNo market beat its incumbent by more than one standard error; nothing written")
         return 1
 
     final = Calibrator.fit(rows)
