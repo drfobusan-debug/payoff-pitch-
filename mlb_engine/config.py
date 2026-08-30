@@ -188,6 +188,16 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def power_bonus_half_pool() -> bool:
+    """Whether the power screen's top-N bonus is capped at half the pool.
+
+    Read on every call rather than frozen at import so a replay can score a
+    slate both ways in one process. ``MLBE_POWER_BONUS_HALF=0`` restores the
+    flat cutoff the screen shipped with.
+    """
+    return _env_bool("MLBE_POWER_BONUS_HALF", True)
+
+
 def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
     """A comma-separated override, where an empty value means the empty set."""
     raw = os.getenv(name)
