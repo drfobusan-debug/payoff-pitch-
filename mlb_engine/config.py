@@ -224,13 +224,23 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 # is what the passed rows do anyway. They are screened by price rather than
 # listed here -- see ``doubles_max_buy_odds``.
 #
-# Home runs, singles and RBI lost money too and are deliberately *not* here:
-# each already has a price band or probability floor fitted to its own graded
-# rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
-# which is the sharper instrument. Disqualification is for the markets with no
-# surviving profitable pocket to screen for.
+# Home runs were screened by price band rather than disqualified, on the
+# argument that a fitted pocket beats a blanket refusal. The band has now been
+# graded and there is no pocket: 113 buys at -38.5% (-43.5u, 14% of the whole
+# book's loss in one market), an 8.8% win rate against a 13.9% breakeven, and
+# both fitted screens under water on their own rows (``hr_price_band`` -47.5%
+# on 28, ``hr_barrel_gate`` -100% on 24). A market missing its breakeven by a
+# third of its own probability is not mispriced in a pocket, so it joins the
+# list -- quoted and graded, never bought, which is where the power board
+# already holds it (``DISPLAY_ONLY``).
+#
+# Singles and RBI lost money too and are deliberately *not* here: each has a
+# price floor or probability floor fitted to its own graded rows
+# (``singles_min_buy_odds``, ``rbi_min_buy_prob``) that is still the sharper
+# instrument. Disqualification is for the markets with no surviving profitable
+# pocket to screen for.
 _NO_BUY_MARKETS: frozenset[str] = frozenset(
-    {"batter_h", "batter_hrr", "batter_r", "batter_tb"}
+    {"batter_h", "batter_hr", "batter_hrr", "batter_r", "batter_tb"}
 )
 
 # Longest price a buy may be taken at, per market, overriding the global

@@ -138,11 +138,15 @@ def test_losing_batter_markets_are_disqualified() -> None:
     base = EVThresholds()
     assert base.for_market("batter_h").no_buy
     assert base.for_market("batter_r").no_buy
-    # Doubles are the one batter market the ledger has in profit; home runs,
-    # singles and RBI keep their own fitted price band or probability floor,
-    # which is the sharper screen; game markets are graded on their own record.
+    # Home runs kept a fitted price band on the argument that a pocket beats a
+    # blanket refusal; 113 graded buys at -38.5% and an 8.8% win rate against a
+    # 13.9% breakeven say there is no pocket, so the band is no longer the
+    # instrument.
+    assert base.for_market("batter_hr").no_buy
+    # Doubles are screened by price; singles and RBI keep their own fitted floor,
+    # which is still the sharper screen; game markets are graded on their record.
     assert not base.for_market("batter_2b").no_buy
-    assert not base.for_market("batter_hr").no_buy
+    assert not base.for_market("batter_1b").no_buy
     assert not base.for_market("game_ml").no_buy
 
 
@@ -167,6 +171,19 @@ def test_a_disqualified_market_is_still_priced_and_graded() -> None:
     assert rec.market_american == -110.0
     assert rec.ev is not None and rec.edge is not None
     assert rec.model_prob == 0.60
+
+
+def test_a_home_run_over_is_quoted_and_never_bought() -> None:
+    """The one market the power board and the engine now agree on.
+
+    The ledger prices it, tiers it Pass and grades it, so a rebuilt HR model can
+    be measured before it is trusted with money -- but no ticket is written.
+    """
+    p = _pipeline()
+    rec = _rec(p, "batter_hr", 0.60, selection="Some Batter o0.5 HR", opposite=130.0)
+    assert rec.tier is Tier.PASS
+    assert rec.pass_gate == "no_buy"  # refused before the price band is consulted
+    assert rec.market_american == -110.0 and rec.ev is not None
 
 
 # ---- market anchoring ------------------------------------------------------
