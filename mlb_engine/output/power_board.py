@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
+from mlb_engine.market.ranking import price_rank
 from mlb_engine.output.power_screen import ScreenResult
 from mlb_engine.recommendations import Recommendation
 
@@ -150,16 +151,18 @@ class Board:
         return [r for r in self.rows if r.batter == name]
 
     def best_for_batter(self, name: str) -> BoardRow | None:
-        """His best held row by EV -- what the note quotes beside his rating.
+        """His best held row -- what the note quotes beside his rating.
 
-        A display-only market is skipped however good its EV looks, because EV on
-        a one-way longshot is computed against a price nobody stripped the hold
-        out of, and it would otherwise win this column on most of the board.
+        "Best" is the devigged price rather than our EV against it, for the
+        reason in :mod:`mlb_engine.market.ranking`: EV ordered these rows by
+        price length, which is how a longshot won the column. A display-only
+        market is skipped however good it looks, because its EV is computed
+        against a price nobody stripped the hold out of.
         """
         rows = [
             r for r in self.for_batter(name) if r.ev is not None and r.stat not in DISPLAY_ONLY
         ]
-        return max(rows, key=lambda r: r.ev or 0.0) if rows else None
+        return min(rows, key=lambda r: price_rank(r.american, r.fair_prob, r.ev)) if rows else None
 
 
 def default_predictions_path(audit_dir: Path, as_of: Date) -> Path:

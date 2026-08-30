@@ -1530,6 +1530,7 @@ class Pipeline:
                 strong=r.tier == Tier.STRONG,
                 american=_fnum(r.market_american),
                 edge=_fnum(r.edge),
+                fair_prob=_fnum(r.fair_prob),
             )
         )
         best_bets = [

@@ -20,6 +20,7 @@ from datetime import date as Date
 
 from mlb_engine.features.lineup_lock import DEFAULT_STALE_HOURS
 from mlb_engine.market.odds import american_to_prob
+from mlb_engine.market.ranking import price_rank
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -44,6 +45,8 @@ class Play:
     edge: float | None
     ev: float | None
     tier: Tier
+    # The devigged market probability, which is what the card is ordered on.
+    fair_prob: float | None = None
     # VSiN's VOLT/JOLT read on this same bet: their side, and whether it is ours.
     vsin_pick: str | None = None
     vsin_agrees: bool | None = None
@@ -279,7 +282,7 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
     # Prefer coherent game-level plays first, then best props; dedupe selections.
     def sort_key(r: Recommendation) -> tuple[int, float]:
         rank = _GAME_MARKETS.index(r.market) if r.market in _GAME_MARKETS else len(_GAME_MARKETS)
-        return (rank, -(r.ev or 0.0))
+        return (rank, price_rank(r.market_american, r.fair_prob, r.ev))
 
     buys.sort(key=sort_key)
 
@@ -298,6 +301,7 @@ def _plays(recs: list[Recommendation]) -> list[Play]:
                 odds=r.market_american,
                 model_prob=r.model_prob,
                 implied_prob=implied,
+                fair_prob=r.fair_prob,
                 edge=r.edge,
                 ev=r.ev,
                 tier=r.tier,
@@ -335,8 +339,9 @@ def build_cards(recs: list[Recommendation]) -> list[GameCard]:
                 lineup_note=_lineup_note(grp),
             )
         )
-    # Order games by their strongest edge, best first.
-    cards.sort(key=lambda c: max((p.ev or 0.0) for p in c.plays), reverse=True)
+    # Order games by their strongest play, best first -- "strongest" being the
+    # market's own devigged price on it, not our EV against it (see `ranking`).
+    cards.sort(key=lambda c: min(price_rank(p.odds, p.fair_prob, p.ev) for p in c.plays))
     return cards
 
 
