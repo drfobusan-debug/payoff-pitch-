@@ -697,6 +697,7 @@ def _slate_best_bets_block(
             strong=r.tier == Tier.STRONG,
             american=r.market_american,
             edge=r.edge,
+            fair_prob=r.fair_prob,
         )
     )
     if not rows:

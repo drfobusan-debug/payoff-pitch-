@@ -30,6 +30,7 @@ def _rec(
     model: float = 0.55,
     american: float | None = -115.0,
     ev: float | None = 0.04,
+    fair: float | None = 0.50,
     tier: Tier = Tier.MODERATE,
 ) -> Recommendation:
     return Recommendation(
@@ -46,7 +47,7 @@ def _rec(
         opposite_american=-105.0,
         ev=ev,
         edge=0.05,
-        fair_prob=0.50,
+        fair_prob=fair,
         tier=tier,
         player_id=player_id,
         stat=stat,
@@ -194,17 +195,23 @@ def test_a_pass_is_not_a_buy_however_large_its_expected_value() -> None:
     assert [b.selection for b in card.batter_buys] == ["Matt Olson TB o1.5"]
 
 
-def test_the_buys_are_ordered_by_expected_value() -> None:
+def test_the_buys_are_ordered_by_the_devigged_price_not_by_expected_value() -> None:
+    """The market's own probability ranks the card; our EV against it does not.
+
+    Graded buys carrying a devigged price lose 11.2% below .45 fair and 3.8% at
+    .60-.65, while return *falls* as the claimed edge grows -- so the row with
+    four times the EV goes second when the market thinks less of it.
+    """
     result = _result()
     pid = _pid(result)
     card = power_bets.build(
         result,
         [
-            _rec("Matt Olson", "H", 0.5, player_id=pid, ev=0.03, tier=Tier.MODERATE),
-            _rec("Matt Olson", "R", 0.5, player_id=pid, ev=0.12, tier=Tier.STRONG),
+            _rec("Matt Olson", "H", 0.5, player_id=pid, ev=0.03, fair=0.62, tier=Tier.MODERATE),
+            _rec("Matt Olson", "R", 0.5, player_id=pid, ev=0.12, fair=0.41, tier=Tier.STRONG),
         ],
     )
-    assert [b.stat for b in card.batter_buys] == ["R", "H"]
+    assert [b.stat for b in card.batter_buys] == ["H", "R"]
 
 
 def test_the_same_bet_at_two_books_is_one_recommendation_at_the_better_price() -> None:

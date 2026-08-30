@@ -29,6 +29,7 @@ from mlb_engine.features.regression import (
 )
 from mlb_engine.features.siera import pitcher_siera
 from mlb_engine.features.swing import SwingProfile, build_swing_profile, stage_two
+from mlb_engine.market.ranking import price_rank
 
 FB = ("FF", "SI")
 RECENT_DAYS = 21  # "3-week" window for vFA + trend split
@@ -181,14 +182,29 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     }
 
 
+def _rank_of(row: dict) -> float:
+    """Rank a persisted prediction row the way the card ranks a live one.
+
+    A stored row's ``fair_prob`` is absent or blank on a market nothing could be
+    devigged, which :func:`price_rank` reads as "raw price only" rather than as
+    a probability of zero.
+    """
+
+    def num(key: str) -> float | None:
+        v = row.get(key)
+        return float(v) if isinstance(v, int | float) else None
+
+    return price_rank(num("market_american"), num("fair_prob"), num("ev"))
+
+
 def _bets_for(pid: int, preds: list[dict]) -> list[dict]:
     out = []
     for r in preds:
         if r.get("player_id") == pid and r["market"].startswith("pitcher_"):
             out.append(r)
-    # buys first, then by EV
+    # buys first, then by the devigged price on them
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
+    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return out
 
 
@@ -340,9 +356,7 @@ def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
     if not cands:
         return None
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
-    return cands[0]
-
+    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return cands[0]
 
 

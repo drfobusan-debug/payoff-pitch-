@@ -112,6 +112,25 @@ def test_the_homer_never_wins_the_price_quoted_beside_a_rating() -> None:
     assert board.best_for_batter("Matt Olson").label == "TB o1.5"
 
 
+def test_the_market_picks_the_best_row_where_our_expected_value_would_not() -> None:
+    """A buy is quoted at the price the market believes, not the edge we claim.
+
+    Graded buys carrying a devigged price run 33.1% below .45 fair and 62.8% at
+    .60-.65, while return falls as the claimed edge widens -- so the row with
+    three times the EV is not the one to print beside the rating.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.03, fair=0.62),
+            _rec("Matt Olson", "H", 0.5, player_id=pid, ev=0.12, fair=0.41),
+        ],
+    )
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
 def test_another_players_row_is_not_priced_onto_this_one() -> None:
     """An id mismatch is a different hitter, whatever the book spells."""
     result = _result()

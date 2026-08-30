@@ -22,6 +22,7 @@ import math
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 
+from mlb_engine.market.ranking import price_rank
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.power_board import DISPLAY_ONLY
 from mlb_engine.output.power_screen import ScreenResult
@@ -103,20 +104,21 @@ class BetCard:
 
     @property
     def batter_buys(self) -> tuple[PricedSide, ...]:
-        return _by_ev(self.hitters)
+        return _by_conviction(self.hitters)
 
     @property
     def pitcher_buys(self) -> tuple[PricedSide, ...]:
-        return _by_ev(self.arms)
+        return _by_conviction(self.arms)
 
     @property
     def priced_sides(self) -> int:
         return sum(len(p.sides) for p in self.hitters + self.arms)
 
 
-def _by_ev(players: Iterable[PlayerBets]) -> tuple[PricedSide, ...]:
+def _by_conviction(players: Iterable[PlayerBets]) -> tuple[PricedSide, ...]:
+    """Best ticket first, "best" being the devigged price (see ``market.ranking``)."""
     buys = [s for p in players for s in p.buys]
-    buys.sort(key=lambda s: -s.ev)
+    buys.sort(key=lambda s: price_rank(s.odds, s.fair, s.ev))
     return tuple(buys)
 
 
