@@ -100,8 +100,14 @@ class Position:
 
     @property
     def is_buy(self) -> bool:
-        """Did the card bet it, as opposed to modelling it and passing?"""
-        return self.tier in ("Strong buy", "Moderate buy")
+        """Did the card bet it, as opposed to modelling it and passing?
+
+        A display-only market is shown and never held, so it is not a buy however
+        the pricer tiered it. New rows in one of those markets are not written at
+        all (``positions_from_board``), but rows recorded before that held do sit
+        in the ledger and must not roll up as tickets the card took.
+        """
+        return self.tier in ("Strong buy", "Moderate buy") and self.stat not in DISPLAY_ONLY
 
 
 def positions_from_board(
