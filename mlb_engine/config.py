@@ -919,6 +919,22 @@ class Config:
         default_factory=lambda: _env_float("MLBE_BATTER_MAX_BUY_PROB", 0.62)
     )
 
+    # The fade half of the same ceiling, held back at 40 rows and graded as a
+    # candidate screen since. It now has a sample, and it is the same sign:
+    #
+    #   basis            n    ROI    first half   second half   verdict
+    #   all graded     544  -6.3%        -0.6%        -11.9%    SHIP
+    #   since 08-18    445  -7.3%        +0.4%        -14.9%    halves disagree
+    #
+    # -7.3% at 3.6 se on the live basis, negative in both halves of the longer
+    # one, and the half that disagrees is +0.4% -- flat, not a pocket. It is a
+    # separate knob from the over ceiling because the fade earned its own record
+    # and should be retirable on it: ``MLBE_BATTER_UNDER_MAX_BUY_PROB=1``
+    # disables the fade side while leaving the over side screened.
+    batter_under_max_buy_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_BATTER_UNDER_MAX_BUY_PROB", 0.62)
+    )
+
     # The road moneyline underdog is the only sides cell the graded card
     # condemns twice. Split four ways by venue and role:
     #
