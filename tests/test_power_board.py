@@ -76,6 +76,22 @@ def test_a_survivor_keeps_his_own_rows_best_expected_value_first() -> None:
     assert board.best_for_batter("Matt Olson").label == "TB o1.5"
 
 
+def test_a_buy_tier_on_a_homer_is_not_a_position_the_card_holds() -> None:
+    """The pricer tiers the row without knowing the note only watches that market,
+    so the count the board reports has to match the card the reader can act on."""
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, tier=Tier.STRONG),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, tier=Tier.MODERATE),
+        ],
+    )
+    assert [r.label for r in board.buys] == ["TB o1.5"]
+    assert [r.is_buy for r in board.rows if r.stat == "HR"] == [False]
+
+
 def test_the_homer_never_wins_the_price_quoted_beside_a_rating() -> None:
     """EV on a one-way longshot is measured against a price nobody devigged.
 

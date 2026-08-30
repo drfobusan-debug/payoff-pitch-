@@ -391,6 +391,13 @@ def test_a_recorded_position_knows_whether_the_card_bet_it() -> None:
     assert _position(tier="Pass").is_buy is False
 
 
+def test_a_display_only_row_recorded_before_the_hold_is_not_a_ticket() -> None:
+    """Rows in a display-only market stopped being written, but the ones already
+    in the ledger carry a buy tier and must not roll up as bets the card took."""
+    assert _position("HR", 0.5, tier="Strong buy").is_buy is False
+    assert _position("HR", 0.5, tier="Moderate buy").is_buy is False
+
+
 def test_only_priced_rows_reach_the_ledger() -> None:
     result = _result()
     pid = _pid(result)

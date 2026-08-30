@@ -115,7 +115,14 @@ class BoardRow:
 
     @property
     def is_buy(self) -> bool:
-        return self.tier in BUY_TIERS
+        """Did the card hold it? A display-only market is never held.
+
+        The tier is assigned by the pricer, which knows nothing about which
+        markets the note only watches, so the market has to be checked here too
+        or a buy tier on an HR row counts as a position in every consumer that
+        did not remember to filter it itself.
+        """
+        return self.tier in BUY_TIERS and self.stat not in DISPLAY_ONLY
 
 
 @dataclass
