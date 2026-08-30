@@ -895,6 +895,17 @@ def test_a_slate_with_no_survivor_anywhere_claims_no_lead_position() -> None:
     assert "there is no position today" in html
 
 
+def test_the_prose_does_not_name_a_two_batted_ball_family_as_his_damage() -> None:
+    result = _result()
+    section = result.sections[0]
+    view = section.hitters[0]
+    view.per_pitch["Curveball"] = contact_line(
+        _frame([_pitch(pitch_type="CU", xwoba=1.342) for _ in range(2)])
+    )
+    prose = power_report._hitter_prose(view, section)
+    assert "curveball" not in prose
+
+
 def test_a_rate_at_or_above_one_keeps_its_leading_digit() -> None:
     """.1342 read as .134; the xwOBA it stood for was 1.342."""
     assert power_report._f3(0.447) == ".447"

@@ -54,6 +54,7 @@ from mlb_engine.output.power_screen import (
     StarterCard,
     StarterMetric,
     StarterSplit,
+    contact_mark,
 )
 
 CUT_LOG_ROWS = 12  # near misses printed in the appendix
@@ -302,7 +303,9 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
             f"against his overall {_f3(view.overall.xwoba)} &mdash; the arsenal {direction} "
             f"{abs(delta) * 1000:.0f} points."
         )
-    readable = {k: v for k, v in view.per_pitch.items() if not math.isnan(v.xwoba)}
+    readable = {
+        k: v for k, v in view.per_pitch.items() if not math.isnan(contact_mark(v, "xwoba"))
+    }
     if readable:
         best = max(readable.items(), key=lambda kv: kv[1].xwoba)
         worst = min(readable.items(), key=lambda kv: kv[1].xwoba)
