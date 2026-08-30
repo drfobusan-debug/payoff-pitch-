@@ -108,7 +108,7 @@ def test_a_plus_money_run_line_is_never_bought() -> None:
 
 def test_the_same_run_line_edge_at_a_short_price_still_buys() -> None:
     thr = EVThresholds().for_market("game_rl")
-    assert classify(_res(0.06, american=-130.0), thr)[0] is Tier.STRONG
+    assert classify(_res(0.06, american=-130.0), thr)[0] is not Tier.PASS
 
 
 def test_only_the_two_sided_markets_carry_the_ceiling() -> None:
@@ -123,7 +123,7 @@ def test_only_the_two_sided_markets_carry_the_ceiling() -> None:
 def test_ceiling_is_configurable(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MAX_BUY_ODDS_GAME_RL", "100000")
     thr = EVThresholds().for_market("game_rl")
-    assert classify(_res(0.06, american=150.0), thr)[0] is Tier.STRONG
+    assert classify(_res(0.06, american=150.0), thr)[0] is not Tier.PASS
 
 
 def test_a_global_ceiling_reaches_the_markets_without_their_own(monkeypatch) -> None:

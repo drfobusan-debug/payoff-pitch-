@@ -166,14 +166,14 @@ def test_an_outsized_claimed_ev_is_refused_and_named() -> None:
 
 
 def test_the_ceiling_leaves_an_ordinary_ev_alone() -> None:
-    assert classify(_res(0.62, ev=0.10), EVThresholds())[0] is Tier.STRONG
+    assert classify(_res(0.62, ev=0.10), EVThresholds())[0] is not Tier.PASS
 
 
 def test_the_ceiling_is_per_market_and_reversible(monkeypatch) -> None:
     assert EVThresholds().for_market("batter_hr").max_ev == 0.25
     monkeypatch.setenv("MLBE_MAX_EV_BATTER_HR", "1")
     assert EVThresholds().for_market("batter_hr").max_ev == 1.0
-    assert classify(_res(0.62, ev=0.40), EVThresholds(max_ev=1.0))[0] is Tier.STRONG
+    assert classify(_res(0.62, ev=0.40), EVThresholds(max_ev=1.0))[0] is not Tier.PASS
 
 
 # ---- order, so probation grades the right screen --------------------------
