@@ -2468,15 +2468,20 @@ def _ledger_entry(market, model_prob, result, *, odds=-110, ev=0.0, tier=Tier.PA
 
 
 def _report_ledger():
+    # Counts are past the report's priced-row floor: a verdict is only spent on a
+    # market with enough real quotes to have a return, so a ten-row toy market
+    # now reads as Neutral for want of a record rather than as Play.
     entries = []
     # A clean, profitable play market (pitcher_k): favored picks mostly win.
-    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(8)]
-    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(2)]
+    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(32)]
+    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(8)]
     # A losing pocket (f5_total): favored picks mostly lose big.
-    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(7)]
-    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(3)]
+    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(28)]
+    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(12)]
     # A market the model always fades -> abstain row.
-    entries += [_ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(6)]
+    entries += [
+        _ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(24)
+    ]
     return entries
 
 
@@ -2518,6 +2523,57 @@ def test_report_classifies_and_renders():
     html_body = render_html_report(data)
     assert html_body.startswith("<!DOCTYPE html>")
     assert "Market scorecard" in html_body and "<table>" in html_body
+
+
+def test_a_market_paid_at_a_price_nobody_offered_is_not_playable():
+    """The verdict is a betting instruction, so it reads the rows that had a bet.
+
+    Half the ledger carries no book price and is graded at an assumed -110, and
+    those rows both outnumber and out-win the priced ones -- which is how batter
+    total bases came to sit in the Play list at +44.4% on the same page as the
+    probation table shutting it.
+    """
+    from mlb_engine.output.report import PLAY, build_report_data
+
+    entries = [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=-200, pnl=0.5) for _ in range(24)
+    ]
+    entries += [_ledger_entry("batter_tb", 0.6, LOSS, odds=-200) for _ in range(16)]
+    entries += [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=None, pnl=0.91) for _ in range(40)
+    ]
+
+    data = build_report_data(entries, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_tb")
+    assert row.roi > 0 and row.priced_roi < 0  # the blended figure disagrees
+    assert row.verdict != PLAY and "Batter total bases" not in data.play
+
+
+def test_a_market_probation_shut_cannot_be_green(monkeypatch):
+    """Two measurements of one market, and the weaker one does not get the dot.
+
+    Probation grades a market on its own buys over both halves of its window;
+    the scorecard grades every side the model favored. When they disagree the
+    reader acts on the coloured dot, so the dot defers.
+    """
+    from mlb_engine.output.report import FADE, build_report_data
+
+    monkeypatch.setenv("MLBE_PROBATION_MIN_N", "4")
+    buys = [
+        _ledger_entry("batter_hrr", 0.6, LOSS, tier=Tier.MODERATE,
+                      date_str=f"2026-08-{18 + i}")
+        for i in range(6)
+    ]
+    passes = [
+        _ledger_entry("batter_hrr", 0.6, WIN, odds=-200, pnl=0.5,
+                      date_str="2026-08-20")
+        for _ in range(60)
+    ]
+
+    data = build_report_data(buys + passes, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_hrr")
+    assert row.priced_roi > 0  # the favored sides look fine
+    assert row.verdict == FADE and "probation" in row.reason
 
 
 def test_weekly_window_filters_to_seven_days():
