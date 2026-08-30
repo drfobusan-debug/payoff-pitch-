@@ -2113,8 +2113,8 @@ class Pipeline:
                 if rbi_reason:
                     reasons.append(rbi_reason)
             # Conviction ceiling: the batter model's surest overs are its
-            # worst bets (see ``batter_max_buy_prob``). Overs only -- the fade
-            # at the same conviction is 40 graded rows, too few to condemn.
+            # worst bets (see ``batter_max_buy_prob``). The fade carries the same
+            # ceiling off its own knob, below, once its own screens have spoken.
             if market.startswith("batter_") and tier != Tier.PASS and not under:
                 keep, ceil_reason = prob_ceiling_allows(
                     rec.model_prob, self.cfg.batter_max_buy_prob, "batter-conviction-ceiling"
@@ -2149,6 +2149,21 @@ class Pipeline:
                         f"singles-under profile {score:.1f} < "
                         f"{self.cfg.singles_under_buy_min:.1f}"
                     )
+            # The fade half of the conviction ceiling, graded as a candidate for
+            # 27 slates and shipped at 544 buys and -6.3%. Its own gate and its
+            # own knob, so it retires without taking the over half with it, and
+            # last of the fade screens so the cruder refusals keep their rows.
+            if market.startswith("batter_") and under and tier != Tier.PASS:
+                keep, fade_ceil = prob_ceiling_allows(
+                    rec.model_prob,
+                    self.cfg.batter_under_max_buy_prob,
+                    "batter-fade-conviction-ceiling",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "batter_under_prob_ceiling"
+                if fade_ceil:
+                    reasons.append(fade_ceil)
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS

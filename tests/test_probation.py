@@ -251,7 +251,6 @@ def test_every_screen_that_was_proposed_and_not_shipped_stays_registered() -> No
     assert [c.name for c in CANDIDATE_SCREENS] == [
         "home_ml_refuse_longer_than_-120",
         "game_ml_market_anchor_0.5",
-        "batter_under_prob_ceiling_0.62",
     ]
 
 
