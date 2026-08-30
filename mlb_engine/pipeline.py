@@ -2212,6 +2212,16 @@ class Pipeline:
                     gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
+            # A hitter who may not bat is a smaller bet, not a refused one: the
+            # cap runs on any surviving buy so a promoted row is capped too.
+            if tier == Tier.STRONG:
+                cap, prov_reason = self._lineup_gate.caps_at_moderate(
+                    self._lineup_lock, market
+                )
+                if cap:
+                    tier = Tier.MODERATE
+                if prov_reason:
+                    reasons.append(prov_reason)
             # Runs after the sharp-money upgrade, which it is entitled to
             # overrule: handle agreeing with us about a road dog is the market
             # agreeing about the side, not about the price we are paying for it.
