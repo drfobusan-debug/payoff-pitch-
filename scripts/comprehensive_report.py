@@ -13,10 +13,18 @@ Part 3 -- Batter regression (this file): the top-10 hitters due to heat up
 The three articles keep their own house styling; WeasyPrint renders each and the
 page lists are concatenated into one document, and the three narrations are joined
 into one MP3.  Model preview, not investment advice.
+
+Run it from the repository root, which is what puts ``scripts`` on the path::
+
+    python -m scripts.comprehensive_report [--date YYYY-MM-DD] [--statcast FRAME]
+
+Both arguments default off the state directory: the most recent slate it holds,
+and the widest cached Statcast window that ends on or before that slate.
 """
 
 from __future__ import annotations
 
+import argparse
 import dataclasses
 import json
 from datetime import date as Date
@@ -43,9 +51,8 @@ from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
 )
 from mlb_engine.preview import load_previews
 from mlb_engine.recommendations import Recommendation
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
-DAY = Date(2026, 7, 31)
-STATCAST_PKL = "statcast_2026-06-19_2026-07-30.pkl"
 BATTER_STATS = ("hr", "tb", "h", "1b", "r", "rbi", "hrr")
 
 
@@ -214,16 +221,27 @@ def merge_pdf(htmls: list[str]):
     return docs[0].copy(pages).write_pdf()
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="slate to write up; default the latest one in state")
+    p.add_argument("--statcast", help="cached frame to read form off; default the widest")
+    return p.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
-    day = DAY
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     pv_raw = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds_raw = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
+    preds_raw = json.loads(preds_path.read_text())
     pv_by_pk = {g["game_pk"]: g for g in pv_raw}
 
     previews = load_previews(cfg.audit_dir / f"previews_{day.isoformat()}.json")
-    recs = load_recs(cfg.audit_dir / f"predictions_{day.isoformat()}.json")
-    df = pd.read_pickle(cfg.cache_dir / STATCAST_PKL)
+    recs = load_recs(preds_path)
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
 
     # Part 1: daily slate previews
     slate_html, slate_narr = build_preview_report(day, previews, recs)
