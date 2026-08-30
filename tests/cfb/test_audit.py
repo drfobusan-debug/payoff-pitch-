@@ -56,6 +56,60 @@ def test_ml_grading_win_and_loss():
     assert grade(away_pick, result_for(away_pick, index)) == "loss"
 
 
+def test_a_truncated_card_label_still_finds_its_final_score():
+    """The label is capped at 14 characters, and the audit must survive that.
+
+    On the 2026-08-29 board this silently cost three of eight games their grade
+    -- ``New Mexico Sta`` never matched ``New Mexico State`` -- including the
+    largest bet on the card.
+    """
+    rec = _ml("away", "New Mexico Sta +31.5")
+    rec.market, rec.line = "game_ats", 31.5
+    rec.home_abbrev, rec.away_abbrev = "Florida State", "New Mexico Sta"
+    index = build_result_index(
+        [GameResult(home="Florida State", away="New Mexico State", home_points=34, away_points=17)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
+def test_a_truncated_label_does_not_grab_the_wrong_school():
+    """``North Dakota S`` is not North Dakota, and neither is graded on a guess."""
+    rec = _ml("away", "North Dakota S ML")
+    rec.home_abbrev, rec.away_abbrev = "North Dakota S", "Jacksonville S"
+    index = build_result_index(
+        [GameResult(home="North Dakota", away="Long Island", home_points=42, away_points=21)]
+    )
+
+    assert result_for(rec, index) is None
+
+
+def test_an_ambiguous_prefix_is_left_ungraded():
+    rec = _ml("home", "Miami ML")
+    rec.home_abbrev, rec.away_abbrev = "Miami", "Bethune"
+    index = build_result_index(
+        [
+            GameResult(home="Miami (FL)", away="Bethune-Cookman", home_points=30, away_points=10),
+            GameResult(home="Miami (OH)", away="Bethune", home_points=20, away_points=17),
+        ]
+    )
+
+    assert result_for(rec, index) is None
+
+
+def test_a_truncated_label_does_not_flip_home_and_away():
+    """The home/away alignment reads the same names, so it needs the same rule."""
+    rec = _ml("home", "Florida State -31.5")
+    rec.market, rec.line = "game_ats", -31.5
+    rec.home_abbrev, rec.away_abbrev = "Florida State", "New Mexico Sta"
+    res = GameResult(home="Florida State", away="New Mexico State", home_points=34, away_points=17)
+
+    assert grade(rec, res) == "loss"  # won by 17, needed 32
+
+
 def test_ats_push():
     rec = _ml("away", "Alabama +7.0")
     rec.market = "game_ats"
