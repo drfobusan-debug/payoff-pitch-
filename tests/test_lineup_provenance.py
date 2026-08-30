@@ -195,17 +195,19 @@ def _pipeline() -> Pipeline:
     return p
 
 
-def _rec(p: Pipeline, market: str, selection: str, model_prob: float = 0.61):
-    """A buy threading every batter screen: -130 at model .61 is Strong.
+def _rec(p: Pipeline, market: str, selection: str, model_prob: float = 0.618):
+    """A buy threading every batter screen: -150/+132 at model .618 is Strong.
 
     Above the conviction floor and the EV floor, under the edge ceiling and the
     .62 batter probability ceiling, so the provenance cap is the only thing that
-    can move the tier.
+    can move the tier. The price is one the market itself likes -- .582 devigged,
+    over ``strong_fair_prob`` -- because that, not the edge, is what Strong now
+    means.
     """
     game = SimpleNamespace(game_date="2026-08-08", game_pk=1)
     quotes = {
         (MATCHUP, market, selection): [
-            MarketQuote(book="dk", american=-130.0, opposite_american=110.0)
+            MarketQuote(book="dk", american=-150.0, opposite_american=132.0)
         ]
     }
     return p._mk(

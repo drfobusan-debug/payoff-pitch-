@@ -124,9 +124,11 @@ def test_the_confident_batter_fade_is_refused_too() -> None:
 
 
 def test_a_modest_batter_fade_still_buys() -> None:
+    """Which buy tier is a separate question: this price devigs to .543, under
+    ``strong_fair_prob``, so both sides are Moderate rather than Strong."""
     p = _pipeline()
-    assert _modest(p, "under").tier is Tier.STRONG
-    assert _modest(p, "over").tier is Tier.STRONG
+    assert _modest(p, "under").tier is Tier.MODERATE
+    assert _modest(p, "over").tier is Tier.MODERATE
 
 
 def test_the_two_halves_of_the_ceiling_are_retired_separately() -> None:
