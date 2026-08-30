@@ -1716,7 +1716,7 @@ def test_implausible_edge_is_a_pass():
     assert any("> 0.08" in r for r in classify(huge, EVThresholds())[1])
     # The cap is what rejects it, not the EV floor or the thin-edge guard. The EV
     # ceiling is lifted with it because a 20-point edge is past that too.
-    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is Tier.STRONG
+    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is not Tier.PASS
 
 
 def test_zero_ev_price_is_a_pass():

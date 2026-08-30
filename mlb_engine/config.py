@@ -326,6 +326,25 @@ class EVThresholds:
     strong_edge_gap: float = field(
         default_factory=lambda: _env_float("MLBE_EDGE_STRONG_GAP", 0.02)
     )
+    # Devigged market probability at which a buy is Strong instead of Moderate,
+    # which is now what separates the two tiers -- ``strong_edge_gap`` only still
+    # applies to a row whose vig could not be removed. Edge ranked them
+    # backwards: over 2,354 deduped graded buys its Strong tier went 47.7% for
+    # -9.9% ROI (n=1,435) against Moderate's 51.1% for -2.6% (n=919), because a
+    # bigger disagreement with the market is evidence against the model, not for
+    # the bet. Sorting the same buys by the market's own price is monotone the
+    # right way: 33.1% below .45, 46.8% at .45-.50, 51.4% at .50-.55, 56.5% at
+    # .55-.60, 62.8% at .60-.65, 65.9% at .65-.75.
+    #
+    # 0.58 for the same reason ``min_prob`` sits there -- it is where per-unit
+    # return crosses over, and the two now agree on where conviction starts: the
+    # anchored probability has to reach 0.58 to buy at all, and the market has to
+    # reach it independently to call the buy Strong. This re-sorts the two buy
+    # tiers; it does not add or remove buys, and every ROI cell in that ladder is
+    # still negative. ``MLBE_STRONG_FAIR_PROB=1`` restores the edge gap.
+    strong_fair_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_STRONG_FAIR_PROB", 0.58)
+    )
     # Disagreement with the devigged market beyond which the edge is treated as a
     # model error rather than a bet. Realized win rate falls as the model departs
     # from the price: over the real-priced rows, buys inside 8 points went 51.0%
