@@ -10600,9 +10600,23 @@
   {
     "matchup": "BOS @ NYY",
     "market": "pitcher_outs",
+    "selection": "Max Fried Outs o14.5",
+    "american": 130.0,
+    "no_vig_prob": 0.403704
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_outs",
     "selection": "Max Fried Outs u13.5",
     "american": -130.0,
     "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_outs",
+    "selection": "Max Fried Outs u14.5",
+    "american": -190.0,
+    "no_vig_prob": 0.596296
   },
   {
     "matchup": "CIN @ CHC",
@@ -32881,6 +32895,13 @@
   {
     "matchup": "PHI @ LAA",
     "market": "pitcher_outs",
+    "selection": "Ryan Johnson Outs u14.5",
+    "american": 140.0,
+    "no_vig_prob": 0.393258
+  },
+  {
+    "matchup": "PHI @ LAA",
+    "market": "pitcher_outs",
     "selection": "Ryan Johnson Outs u15.5",
     "american": -175.0,
     "no_vig_prob": 0.605269
@@ -36969,9 +36990,23 @@
   {
     "matchup": "SD @ TB",
     "market": "batter_h",
+    "selection": "Chandler Simpson H o1.5",
+    "american": 209.0,
+    "no_vig_prob": 0.303999
+  },
+  {
+    "matchup": "SD @ TB",
+    "market": "batter_h",
     "selection": "Chandler Simpson H u0.5",
     "american": 208.0,
     "no_vig_prob": 0.309351
+  },
+  {
+    "matchup": "SD @ TB",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u1.5",
+    "american": -286.0,
+    "no_vig_prob": 0.696001
   },
   {
     "matchup": "SD @ TB",
@@ -37847,6 +37882,13 @@
     "selection": "Jake Cronenworth TB o0.5",
     "american": -172.0,
     "no_vig_prob": 0.595978
+  },
+  {
+    "matchup": "SD @ TB",
+    "market": "batter_tb",
+    "selection": "Jake Cronenworth TB o1.5",
+    "american": 190.0,
+    "no_vig_prob": 0.344828
   },
   {
     "matchup": "SD @ TB",
