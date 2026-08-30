@@ -13,6 +13,7 @@ from dataclasses import replace
 from datetime import date as Date
 
 import pandas as pd
+import pytest
 
 from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
@@ -56,6 +57,7 @@ from mlb_engine.output.power_screen import (
     bf_pmf,
     build_context,
     contact_line,
+    contact_mark,
     exposure,
     gate_starters,
     half_lines,
@@ -292,14 +294,36 @@ def test_each_metric_ranks_in_the_direction_that_makes_an_arm_hittable() -> None
 
 
 def test_a_top_three_metric_is_worth_three_points_and_the_rest_one() -> None:
+    cards = [_card(f"Arm {i}", xfip=5.5 - i * 0.1) for i in range(6)]
+    split = StarterSplit("overall", "overall", (next(
+        m for m in STARTER_SCORED if m.attr == "xfip"
+    ),))
+    score_starters(cards, splits=(split,), top_n=3)
+    assert [c.points for c in cards] == [3, 3, 3, 1, 1, 1]
+    assert cards[0].scores["overall"].top_in == ("xFIP",)
+    assert cards[5].scores["overall"].top_in == ()
+
+
+def test_the_bonus_never_goes_to_more_than_half_the_field() -> None:
+    """Top three of five is a top three of nothing: five arms, two bonuses."""
+    cards = [_card(f"Arm {i}", xfip=5.5 - i * 0.1) for i in range(5)]
+    split = StarterSplit("overall", "overall", (next(
+        m for m in STARTER_SCORED if m.attr == "xfip"
+    ),))
+    score_starters(cards, splits=(split,), top_n=3)
+    assert [c.points for c in cards] == [3, 3, 1, 1, 1]
+
+
+def test_the_flat_cutoff_comes_back_when_the_cap_is_switched_off(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MLBE_POWER_BONUS_HALF", "0")
     cards = [_card(f"Arm {i}", xfip=5.5 - i * 0.1) for i in range(5)]
     split = StarterSplit("overall", "overall", (next(
         m for m in STARTER_SCORED if m.attr == "xfip"
     ),))
     score_starters(cards, splits=(split,), top_n=3)
     assert [c.points for c in cards] == [3, 3, 3, 1, 1]
-    assert cards[0].scores["overall"].top_in == ("xFIP",)
-    assert cards[4].scores["overall"].top_in == ()
 
 
 def test_a_metric_short_of_sample_scores_nothing_and_says_so() -> None:
@@ -312,7 +336,9 @@ def test_a_metric_short_of_sample_scores_nothing_and_says_so() -> None:
     score_starters([thin, fat], splits=(split,), top_n=3)
     assert thin.points == 0
     assert thin.scores["overall"].unrated == ("xFIP",)
-    assert fat.points == 3  # the soft arm's 6.20 did not outrank him from nowhere
+    # The soft arm's 6.20 did not outrank him from nowhere: he is the only rated
+    # arm, which is a point for the metric and no top-half finish in a field of one.
+    assert fat.points == 1
 
 
 def test_identical_lines_rank_in_a_stable_order() -> None:
@@ -654,6 +680,41 @@ def test_the_fit_weights_the_hitter_by_what_he_will_actually_see() -> None:
     assert fallback == 0.0
 
 
+def test_a_family_read_off_two_batted_balls_falls_back_to_the_overall_line() -> None:
+    """The per-family floor counts pitches; xwOBA is measured on balls in play.
+
+    Raleigh's curveball on 8/30 cleared the 25-pitch floor with two batted balls,
+    one of them a home run, and its 1.342 xwOBA carried his fit 115 points past
+    his own overall mark.
+    """
+    rows = [_pitch(pitch_type="FF", xwoba=0.400, xba=0.300) for _ in range(30)]
+    rows += [_pitch(pitch_type="CU", xwoba=1.342, xba=0.900) for _ in range(2)]
+    rows += [
+        _pitch(pitch_type="CU", description="called_strike", events=None) for _ in range(25)
+    ]
+    hitter = _frame(rows)
+    overall = contact_line(hitter)
+    per_pitch = batter_arsenal(hitter, ["4-Seam", "Curveball"])
+    assert per_pitch["Curveball"].pitches == 27 and per_pitch["Curveball"].bbe == 2
+
+    fit, _b, fallback = arsenal_fit(per_pitch, overall, {"4-Seam": 0.6, "Curveball": 0.4})
+    assert abs(fallback - 0.4) < 1e-9
+    assert fit < per_pitch["Curveball"].xwoba
+    assert abs(fit - (0.6 * 0.400 + 0.4 * overall.xwoba)) < 1e-9
+
+
+def test_run_value_survives_the_batted_ball_floor_because_it_is_per_pitch() -> None:
+    thin = contact_line(
+        _frame(
+            [_pitch(pitch_type="CU", xwoba=1.342) for _ in range(2)]
+            + [_pitch(pitch_type="CU", description="swinging_strike", events=None)]
+        )
+    )
+    assert math.isnan(contact_mark(thin, "xwoba")) and math.isnan(contact_mark(thin, "brl"))
+    assert not math.isnan(contact_mark(thin, "rv100"))
+    assert not math.isnan(contact_mark(thin, "whiff"))
+
+
 def test_a_family_the_hitter_has_not_seen_falls_back_and_says_so() -> None:
     rows = [_pitch(pitch_type="FF") for _ in range(30)]
     hitter = _frame(rows)
@@ -807,6 +868,50 @@ def test_the_note_carries_every_section_and_ends_on_the_recommendations() -> Non
     # a rating is not a price, and the note has to keep saying so
     assert "no price" in html
     assert "projections" in html
+
+
+def test_the_lead_position_is_the_worst_arm_a_hitter_survived_against() -> None:
+    """The softest arm on the board is not a position if nobody hunts him.
+
+    On 8/30 the note opened on Robbie Ray's four-seam as the pitch the surviving
+    bats were being asked to hunt, and neither survivor was facing him.
+    """
+    result = _result()
+    live = result.sections[0]
+    empty = replace(live, starter=_card("Robbie Ray", lines=_split_lines(0.04)), hitters=[])
+    result.sections = [empty, live]
+    html = power_report.render_html(result)
+    lead = html[html.index("The lead position is"):]
+    assert live.starter.name in lead[:200]
+    assert "Robbie Ray" not in lead[:200]
+    assert "the most exposed arm the screen kept a hitter against" in html
+
+
+def test_a_slate_with_no_survivor_anywhere_claims_no_lead_position() -> None:
+    result = _result()
+    result.sections = [replace(result.sections[0], hitters=[])]
+    html = power_report.render_html(result)
+    assert "The lead position is" not in html
+    assert "there is no position today" in html
+
+
+def test_the_prose_does_not_name_a_two_batted_ball_family_as_his_damage() -> None:
+    result = _result()
+    section = result.sections[0]
+    view = section.hitters[0]
+    view.per_pitch["Curveball"] = contact_line(
+        _frame([_pitch(pitch_type="CU", xwoba=1.342) for _ in range(2)])
+    )
+    prose = power_report._hitter_prose(view, section)
+    assert "curveball" not in prose
+
+
+def test_a_rate_at_or_above_one_keeps_its_leading_digit() -> None:
+    """.1342 read as .134; the xwOBA it stood for was 1.342."""
+    assert power_report._f3(0.447) == ".447"
+    assert power_report._f3(1.342) == "1.342"
+    assert power_report._f3(-0.031) == "-.031"
+    assert power_report._f3(math.nan) == "&mdash;"
 
 
 def test_the_note_prints_every_ranking_and_highlights_the_worst_three() -> None:
@@ -1098,6 +1203,16 @@ def test_a_metric_that_could_not_be_read_costs_the_hitter_nothing() -> None:
     assert measured.points > unmeasured.points
     assert unmeasured.points == beaten.points == HALF_FLOOR
     assert "EV90" in measured.top_in
+
+
+def test_two_hitters_do_not_both_finish_in_the_top_three() -> None:
+    """8/30 kept two bats and scored both 27 of 27, which separated neither."""
+    better = _half(k=0.12, ev90=108.0)
+    worse = _half(k=0.34, ev90=88.0)
+    score_halves([better, worse])
+    assert better.earned == 4  # two metrics, one bonus apiece
+    assert worse.earned == 0
+    assert worse.points == HALF_FLOOR
 
 
 def test_the_strikeout_rate_is_scored_low_is_better() -> None:

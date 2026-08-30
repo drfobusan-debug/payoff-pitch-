@@ -54,6 +54,7 @@ from mlb_engine.output.power_screen import (
     StarterCard,
     StarterMetric,
     StarterSplit,
+    contact_mark,
 )
 
 CUT_LOG_ROWS = 12  # near misses printed in the appendix
@@ -91,10 +92,17 @@ tbody tr.top td:first-child{border-left:2.5pt solid #8c0000}
 
 
 def _f3(x: float) -> str:
-    """A rate on the .300 scale, the way a baseball reader expects to see it."""
+    """A rate on the .300 scale, the way a baseball reader expects to see it.
+
+    A rate at or above 1.000 keeps its leading digit: an xwOBA of 1.342 on a
+    pitch a hitter has crushed is a real number and printing it as ``.1342``
+    read as .134, the opposite of what it says.
+    """
     if x is None or math.isnan(x):
         return "&mdash;"
-    return f".{round(x * 1000):03d}"
+    if abs(x) >= 1.0:
+        return f"{x:.3f}"
+    return f".{round(x * 1000):03d}" if x >= 0 else f"-.{round(-x * 1000):03d}"
 
 
 def _pc(x: float, digits: int = 1) -> str:
@@ -295,7 +303,9 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
             f"against his overall {_f3(view.overall.xwoba)} &mdash; the arsenal {direction} "
             f"{abs(delta) * 1000:.0f} points."
         )
-    readable = {k: v for k, v in view.per_pitch.items() if not math.isnan(v.xwoba)}
+    readable = {
+        k: v for k, v in view.per_pitch.items() if not math.isnan(contact_mark(v, "xwoba"))
+    }
     if readable:
         best = max(readable.items(), key=lambda kv: kv[1].xwoba)
         worst = min(readable.items(), key=lambda kv: kv[1].xwoba)
@@ -411,10 +421,13 @@ def _thesis(result: ScreenResult) -> str:
             "<p>No starter on the slate cleared the readability floor, so the screen has "
             "no position today.</p>"
         )
-    lead = result.sections[0]
     kept = sum(len(s.hitters) for s in result.sections)
     live = sum(1 for s in result.sections if s.hitters)
-    worst = _worst_pitch(lead)
+    # The worst arm on the board is not the lead position unless a hitter facing
+    # him survived the screen: on 8/30 the note opened on Robbie Ray's 4-seam as
+    # "the pitch the surviving bats are being asked to hunt" and both survivors
+    # were facing somebody else.
+    lead = next((s for s in result.sections if s.hitters), None)
     paras = [
         f"<p><strong>{kept} hitters survive the screen across "
         f"{live} of the day's matchups.</strong> The chain ranks every probable "
@@ -423,21 +436,34 @@ def _thesis(result: ScreenResult) -> str:
         f"appearances, then wRC+, then expected contact, and finally tests each survivor against "
         f"the arsenal he will actually see and the number of turns he will actually get.</p>"
     ]
-    lead_bit = (
-        f"<p><strong>The lead position is {html.escape(lead.starter.opponent)} against "
-        f"{html.escape(lead.starter.name)}</strong>, the most exposed arm on the board: "
-        f"{_pc(lead.starter.brl_pct)} barrels and {_pc(lead.starter.hh_pct)} hard contact allowed "
-        f"on a {_pc(lead.starter.fb_pct)} fly-ball rate."
-    )
-    if worst:
-        name, line, usage = worst
-        lead_bit += (
-            f" His {name.lower()} is {_pc(usage)} of the mix at {_f3(line.xwoba)} xwOBA allowed "
-            f"and {_num(line.rv100, 2, signed=True)} run value per 100, and it is the pitch the "
-            f"surviving bats are being asked to hunt."
+    if lead is None:
+        paras.append(
+            "<p><strong>No hitter survived the screen against any of the arms it kept</strong>, "
+            "so there is no position today: the starter tables below are a read on the slate "
+            "and not a card.</p>"
         )
-    lead_bit += "</p>"
-    paras.append(lead_bit)
+    else:
+        rank = (
+            "the most exposed arm on the board"
+            if lead is result.sections[0]
+            else "the most exposed arm the screen kept a hitter against"
+        )
+        lead_bit = (
+            f"<p><strong>The lead position is {html.escape(lead.starter.opponent)} against "
+            f"{html.escape(lead.starter.name)}</strong>, {rank}: "
+            f"{_pc(lead.starter.brl_pct)} barrels and {_pc(lead.starter.hh_pct)} hard contact "
+            f"allowed on a {_pc(lead.starter.fb_pct)} fly-ball rate."
+        )
+        worst = _worst_pitch(lead)
+        if worst:
+            name, line, usage = worst
+            lead_bit += (
+                f" His {name.lower()} is {_pc(usage)} of the mix at {_f3(line.xwoba)} xwOBA "
+                f"allowed and {_num(line.rv100, 2, signed=True)} run value per 100, and it is "
+                f"the pitch the surviving bats are being asked to hunt."
+            )
+        lead_bit += "</p>"
+        paras.append(lead_bit)
     downgrades = [
         (s, v) for s in result.sections for v in s.hitters
         if v.exposure and not math.isnan(v.exposure.opponent_xwoba)
