@@ -21,6 +21,7 @@ from mlb_engine.audit.ledger import prop_subject
 from mlb_engine.features.arm import ArmProfile, build_arm_profile
 from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.arm import velo_trend as arm_velo_trend
+from mlb_engine.features.power_change import PowerChange, build_power_change
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -328,6 +329,29 @@ def _swing_fields(prof: SwingProfile, dxwoba: float) -> dict[str, float | int | 
     }
 
 
+def _power_fields(pc: PowerChange) -> dict[str, float | int | bool]:
+    """Peak exit velocity and the fastball whiff, each over its own window.
+
+    Both levels forecast (t +8 to +16 on a held-out block); neither *move* does,
+    so the move is carried alongside the band a hitter who did not change would
+    still produce, and the article prints it as a diagnostic rather than reading
+    a direction off it. See :mod:`mlb_engine.features.power_change`.
+    """
+    return {
+        "max_ev": pc.max_ev,
+        "max_ev_pa": pc.max_ev_pa,
+        "d_max_ev": pc.d_max_ev,
+        "max_ev_moved": pc.moved("max_ev"),
+        "fb_whiff": pc.fb_whiff,
+        "fb_whiff_pa": pc.fb_whiff_pa,
+        "fb_swings": pc.fb_swings,
+        "d_fb_whiff": pc.d_fb_whiff,
+        "fb_whiff_moved": pc.moved("fb_whiff"),
+        "power_block_pa": pc.block_pa,
+        "power_pa": pc.pa,
+    }
+
+
 def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["batter"] == pid]
     reg = build_batter_regression(sl)
@@ -348,6 +372,7 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "woba6": reg.woba,
         "woba3": _woba(recent),
         **_swing_fields(build_swing_profile(sl), reg.dxwoba),
+        **_power_fields(build_power_change(sl)),
     }
 
 

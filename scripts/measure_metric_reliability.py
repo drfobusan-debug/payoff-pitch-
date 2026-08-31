@@ -38,6 +38,7 @@ import pandas as pd
 
 from mlb_engine.config import load_config
 from mlb_engine.data.statcast import StatcastRepository
+from mlb_engine.features.power_change import FASTBALL_CODES
 from mlb_engine.output.power_screen import (
     K_EVENTS,
     NO_AB,
@@ -66,11 +67,15 @@ def _pa_frame(df: pd.DataFrame) -> pd.DataFrame:
     them; swing aggregates are summed over the pitches of the group.
     """
     swing = df["description"].isin(SWING_DESC)
+    whiff = df["description"].isin(WHIFF_DESC)
+    fastball = df["pitch_type"].isin(FASTBALL_CODES)
     df = df.assign(
         _swing=swing,
-        _whiff=df["description"].isin(WHIFF_DESC),
+        _whiff=whiff,
         _ozone=df["zone"] > 9,
         _ozone_swing=swing & (df["zone"] > 9),
+        _fb_swing=swing & fastball,
+        _fb_whiff=whiff & fastball,
     )
     grouped = df.groupby(PA_KEY, sort=False)
     agg = grouped.agg(
@@ -80,6 +85,8 @@ def _pa_frame(df: pd.DataFrame) -> pd.DataFrame:
         whiffs=("_whiff", "sum"),
         ozone=("_ozone", "sum"),
         ozone_swings=("_ozone_swing", "sum"),
+        fb_swings=("_fb_swing", "sum"),
+        fb_whiffs=("_fb_whiff", "sum"),
         bat_speed=("bat_speed", "mean"),
         launch_speed=("launch_speed", "last"),
         launch_speed_angle=("launch_speed_angle", "last"),
@@ -88,7 +95,7 @@ def _pa_frame(df: pd.DataFrame) -> pd.DataFrame:
     ).reset_index()
     out = agg[agg["events"].notna() & agg["pa"].ge(1)].copy()
     share = out["pa"].clip(lower=1)
-    for col in ("swings", "whiffs", "ozone", "ozone_swings"):
+    for col in ("swings", "whiffs", "ozone", "ozone_swings", "fb_swings", "fb_whiffs"):
         out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0.0) / share
     for col in ("launch_speed", "launch_speed_angle", "xba", "xwoba", "bat_speed"):
         out[col] = pd.to_numeric(out[col], errors="coerce")
@@ -140,6 +147,13 @@ def _rate(pa: pd.DataFrame, metric: str) -> float:
         return float((ls >= 95).mean()) if len(ls) else math.nan
     if metric == "ev90":
         return float(ls.quantile(0.90)) if len(ls) >= 5 else math.nan
+    if metric == "max_ev":
+        # A maximum grows with the sample it is drawn from, so this is only
+        # comparable between buckets of the same size -- which split-half is.
+        return float(ls.max()) if len(ls) >= 5 else math.nan
+    if metric == "fb_whiff":
+        sw = float(pa["fb_swings"].sum())
+        return float(pa["fb_whiffs"].sum()) / sw if sw >= 5 else math.nan
     if metric == "osw":
         oz = float(pa["ozone"].sum())
         return float(pa["ozone_swings"].sum()) / oz if oz else math.nan
@@ -155,7 +169,7 @@ def _rate(pa: pd.DataFrame, metric: str) -> float:
 
 
 METRICS = (
-    "bat_speed", "contact", "k", "hh", "brl", "ev90", "osw",
+    "bat_speed", "contact", "fb_whiff", "k", "hh", "brl", "ev90", "max_ev", "osw",
     "xba", "xslg", "xwoba_con", "ba", "slg", "ops", "wrc",
 )
 
