@@ -34260,9 +34260,23 @@
   {
     "matchup": "PIT @ STL",
     "market": "pitcher_outs",
+    "selection": "Matthew Liberatore Outs o17.5",
+    "american": 105.0,
+    "no_vig_prob": 0.451821
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "pitcher_outs",
     "selection": "Matthew Liberatore Outs u16.5",
     "american": 100.0,
     "no_vig_prob": 0.501196
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "pitcher_outs",
+    "selection": "Matthew Liberatore Outs u17.5",
+    "american": -145.0,
+    "no_vig_prob": 0.548179
   },
   {
     "matchup": "SD @ CIN",

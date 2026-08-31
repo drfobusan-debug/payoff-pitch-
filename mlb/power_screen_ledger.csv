@@ -251,3 +251,12 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-08-29,Tristan Peters,671976,823665,2B,0.5,over,draftkings,406.0,0.2385,0.2275,0.2017,0.0258,0.151,Pass,HOLD,True
 2026-08-29,Tristan Peters,671976,823665,HRR,1.5,over,bovada,130.0,0.4909,0.4716,0.4265,0.0451,0.0847,Pass,HOLD,True
 2026-08-29,Tristan Peters,671976,823665,RBI,0.5,over,draftkings,268.0,0.3014,0.2964,0.2847,0.0117,0.0908,Pass,HOLD,True
+2026-08-30,Cal Raleigh,663728,822766,1B,0.5,under,betmgm,-250.0,0.7446,0.721,0.6661,0.0549,0.0095,Pass,HOLD,True
+2026-08-30,Cal Raleigh,663728,822766,H,0.5,under,betonlineag,114.0,0.5075,0.4876,0.441,0.0465,0.0434,Pass,HOLD,True
+2026-08-30,Cal Raleigh,663728,822766,HRR,1.5,under,bovada,-135.0,0.5573,0.5523,0.5405,0.0118,-0.0386,Pass,HOLD,True
+2026-08-30,Chase DeLauter,800050,824393,HRR,1.5,over,bovada,-130.0,0.581,0.5695,0.5427,0.0268,0.0077,Pass,HOLD,True
+2026-08-30,Chase DeLauter,800050,824393,R,0.5,over,draftkings,101.0,0.5276,0.5082,0.4628,0.0453,0.0214,Pass,HOLD,True
+2026-08-30,Chase DeLauter,800050,824393,TB,1.5,over,betrivers,140.0,0.539,0.504,0.4225,0.0815,0.2097,Pass,HOLD,False
+2026-08-30,Patrick Bailey,672275,824393,HRR,1.5,over,draftkings,120.0,0.4879,0.4694,0.426,0.0433,0.0326,Pass,HOLD,True
+2026-08-30,Patrick Bailey,672275,824393,R,0.5,over,betmgm,160.0,0.4052,0.3929,0.3644,0.0286,0.0216,Pass,HOLD,True
+2026-08-30,Patrick Bailey,672275,824393,RBI,0.5,over,draftkings,232.0,0.3129,0.3065,0.2915,0.015,0.0176,Pass,HOLD,True
