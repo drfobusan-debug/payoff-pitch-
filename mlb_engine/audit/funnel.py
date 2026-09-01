@@ -24,7 +24,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 
 from mlb_engine.config import EVThresholds
-from mlb_engine.features.lineup_lock import DEFAULT_STALE_HOURS
+from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -86,13 +86,20 @@ class Funnel:
     markets: list[MarketFunnel]
 
 
-def build(recs: list[Recommendation]) -> Funnel:
+def build(recs: list[Recommendation], thr: EVThresholds | None = None) -> Funnel:
     """Count a slate's rows through the stages, overall and by market.
 
     Rows carrying no price are counted as candidates and nothing else: an
     unquoted selection has not failed a screen, and counting it as one would
     charge the engine's own gates with the books' coverage.
+
+    The EV stage is read off ``rec.ev`` against the market's own ``min_ev``
+    rather than off the gate name. The two agree whenever the card is rendered
+    under the thresholds it was priced under, and when they do not -- a floor
+    moved between the run and the report, a later veto overwriting the gate --
+    the number the reader wants is the one the row's own EV supports.
     """
+    base = EVThresholds() if thr is None else thr
     per: dict[str, MarketFunnel] = {}
     overall = MarketFunnel("ALL")
     for rec in recs:
@@ -106,7 +113,7 @@ def build(recs: list[Recommendation]) -> Funnel:
         for f in (mf, overall):
             f.priced += 1
         gate = rec.pass_gate or ""
-        if gate == _EV_GATE:
+        if rec.ev is None or rec.ev <= base.for_market(rec.market).min_ev:
             for f in (mf, overall):
                 f.gates[_EV_GATE] += 1
             continue
@@ -139,15 +146,21 @@ def geometry_note(thr: EVThresholds) -> str:
     window from both ends at once. Silent arithmetic, so it is printed.
     """
     required = thr.min_prob - thr.max_edge
-    # At exactly .50 the window is already a single point wide on a -110/-110
-    # market, so the boundary is included rather than treated as clearance.
     if required < 0.5 - 1e-9:
         return ""
+    # Both screens are strict (``edge > max_edge``, ``model_prob < min_prob``),
+    # so at exactly .50 the window is not empty -- it is one point wide, at the
+    # edge ceiling itself. Worth the same warning and not the same sentence.
+    tail = (
+        "money the only row that clears both sits exactly on the ceiling"
+        if required <= 0.5 + 1e-9
+        else "money no row can clear both"
+    )
     return (
         f"geometry: the conviction floor ({thr.min_prob:.2f}) and the edge "
         f"ceiling ({thr.max_edge:.2f}) together require the market's own fair "
         f"probability to reach {required:.2f} -- on a market quoted near even "
-        "money no row can clear both"
+        f"{tail}"
     )
 
 
@@ -167,11 +180,14 @@ def clock_note(f: Funnel) -> str:
     refused = f.overall.gates.get(CLOCK_GATE, 0)
     if not refused:
         return ""
+    # The gate reads its window from the environment, so the advice has to read
+    # it from the same place or it will send the operator back outside it.
+    hours = LineupLockGate.from_env().stale_hours
     return (
         f"clock: {refused} rows were refused for being priced more than "
-        f"{DEFAULT_STALE_HOURS:.0f}h before first pitch, not for their price -- "
+        f"{hours:.0f}h before first pitch, not for their price -- "
         f"re-run inside the window (run --within-hours "
-        f"{DEFAULT_STALE_HOURS:.0f}) to price them off posted lineups"
+        f"{hours:.0f}) to price them off posted lineups"
     )
 
 
@@ -193,10 +209,7 @@ def summary_lines(f: Funnel, thr: EVThresholds | None = None) -> list[str]:
         f"price screen -> {o.buys} buys",
     ]
     if o.gates:
-        lines.append(
-            "  refused by: "
-            + ", ".join(f"{g} {n}" for g, n in o.gates.most_common(8))
-        )
+        lines.append("  refused by: " + ", ".join(f"{g} {n}" for g, n in o.gates.most_common(8)))
     for mf in f.markets:
         lines.append("  " + _fmt(mf))
     clock = clock_note(f)

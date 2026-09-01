@@ -346,29 +346,48 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
 # pinned to a zero anchor is being screened on the model's own number and needs
 # its own value if that changes.
 #
-# Deliberately still empty, and this is where the reason belongs, because the
-# geometry argues for relaxing it here and the ledger does not. The floor (0.58)
-# and ``max_edge`` (0.08) together require the market's own fair price to reach
-# 0.50, so on a total or run line quoted -110 both ways there is a single point
-# of room -- an exclusion by arithmetic rather than by evidence, which is the
-# shape of a threshold that ought to be market-specific. It is now printed
-# rather than left to be discovered (see ``audit.funnel.geometry_note``).
+# The global floor moved 0.58 -> 0.55 (see ``EVThresholds.min_prob``), and this
+# is where the exceptions live: the categories whose rows in the band being
+# opened are not flat but losing.
 #
-# The rows it excludes have been graded, and they lose in every category. The
-# floor's own refusals: batter -8.6% (n=2,961), pitcher -7.0% (n=284), game
-# -14.0% (n=93), F5 -19.7% (n=68). Restricted to the marginal band the geometry
-# complains about -- 0.50 to 0.58, i.e. the rows a two-sided relaxation would
-# admit -- batter -3.4% (n=839), pitcher -6.6% (n=186), game -11.8% (n=77), F5
-# -7.2% (n=51); by market, game_total -9.5% (n=57), f5_total -17.8% (n=23),
-# game_ml -23.1% (n=16). There is no pocket there to open.
+# Grading the floor's own refusals over the markets the engine would still buy
+# -- excluding the no-buy list and the probation SHUT markets, and excluding the
+# batter unders the conviction ceiling refuses anyway, because a row a second
+# live screen removes is not a row this floor is costing us -- the band from
+# 0.55 to 0.58 reads:
 #
-# So the arithmetic is real and a floor override is not the fix: it would buy
-# volume at a measured loss. What the geometry indicts is the *pair* -- an
-# absolute floor against a relative ceiling cannot both be tightened without
-# emptying the markets priced near even -- and the pair is a calibration
-# question (the model runs ~12pp hot in the .50-.60 band where every buy lives)
-# rather than a threshold one.
-_MIN_PROB_BY_MARKET: dict[str, float] = {}
+#     all             n=263  ROI  -4.0%  1se  5.8%  halves -4.6 / -3.4
+#     batter          n=131  ROI  -1.2%  1se  8.2%  halves +3.2 / -5.5
+#     game and F5     n= 60  ROI  +6.1%  1se 12.1%  halves +5.7 / +6.6
+#     pitcher         n= 72  ROI -17.6%  1se 11.3%  halves -27.0 / -8.2
+#
+# Three of those are inside a standard error of zero, which is the bar this
+# engine uses to lift a screen rather than to keep one. Pitcher props are not:
+# they lose by more than 1se with both halves agreeing, which is the same test
+# ``probation`` applies before it shuts a market. So the floor drops everywhere
+# except on the arm, where it holds at 0.58 and is movable per market by
+# ``MLBE_MIN_PROB_PITCHER_K`` and friends.
+#
+# What this does not claim is that the 0.55-0.58 band is profitable. It is not
+# measurably anything, and the honest reading of the whole refused set (-4.4%
+# from 0.50 up, n=584) is that the model runs ~12pp hot in exactly this band and
+# the floor was standing in for a calibration that is not finished. The floor is
+# the crude instrument: it is loosened to where the evidence stops objecting and
+# no further, and 0.50-0.55 stays refused because there the evidence does object
+# (-8.1% at 0.54, halves agreeing).
+#
+# These are per-market *defaults*, not raises: a caller or operator who names a
+# floor -- ``EVThresholds(min_prob=...)`` or ``MLBE_MIN_PROB`` -- has said what
+# they want on every market, and the table stands aside (see ``for_market``).
+DEFAULT_MIN_PROB = 0.55
+
+_MIN_PROB_BY_MARKET: dict[str, float] = {
+    "pitcher_k": 0.58,
+    "pitcher_outs": 0.58,
+    "pitcher_er": 0.58,
+    "pitcher_h": 0.58,
+    "pitcher_bb": 0.58,
+}
 
 # EV ceiling per market, overriding the global ``EVThresholds.max_ev``.
 _MAX_EV_BY_MARKET: dict[str, float] = {}
@@ -430,9 +449,22 @@ class EVThresholds:
     # of 1,619 and its interval is wide. Read this floor together with the anchor:
     # on the model's own probability the same floor is only -3.2%, and the anchor
     # alone is -7.8%. It is the pair that stops the bleeding, and it works by
-    # asking whether a selection is still above 0.58 *after* being pulled 30%
+    # asking whether a selection is still above the bar *after* being pulled 30%
     # toward the price -- i.e. whether the market likes it too.
-    min_prob: float = field(default_factory=lambda: _env_float("MLBE_MIN_PROB", 0.58))
+    #
+    # Lowered 0.58 -> 0.55 once the floor's own refusals had a sample. The
+    # crossing above was read off *admitted* buys; graded on what it refuses, the
+    # 0.55-0.58 band is -4.0% +/- 5.8 over 263 rows, inside a standard error of
+    # zero. The cost of holding it was not in that number: 0.58 against
+    # ``max_edge`` 0.08 requires the market's own fair price to reach 0.50, so
+    # every market quoted near even money had a window one point wide and the
+    # engine bought no totals, moneylines or run lines at all. At 0.55 the
+    # required fair probability is 0.47 and the window reopens. Pitcher props
+    # keep 0.58; their refused rows lose in both halves (see
+    # ``_MIN_PROB_BY_MARKET``).
+    min_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_MIN_PROB", DEFAULT_MIN_PROB)
+    )
     # EV ceiling, and the weakest-evidenced of the selection screens. ``max_edge``
     # caps disagreement in probability points, but a long price turns a capped
     # edge into an uncapped EV, and on unanchored EV realized return fell at every
@@ -442,10 +474,10 @@ class EVThresholds:
     # surviving buys, which went 40.0% for -16.6%, and lift the rule from +0.6% to
     # +1.0% per unit. Ten bets is not a finding, so this ships as a guard on a
     # tail too thin to price rather than as a screen with a record. 1.0 disables
-    # it. Note that with ``min_prob`` at 0.58 the pair implies a price ceiling
-    # near +115 (EV = p x decimal - 1), which is where the fitted run-line ceiling
-    # of +109 sat until its own refusals were graded (see
-    # ``_MAX_BUY_ODDS_BY_MARKET``).
+    # it. Note that the floor implies a price ceiling of its own (EV = p x
+    # decimal - 1): near +115 while it stood at 0.58, which is where the fitted
+    # run-line ceiling of +109 sat until its own refusals were graded, and near
+    # +130 at 0.55 (see ``_MAX_BUY_ODDS_BY_MARKET``).
     max_ev: float = field(default_factory=lambda: _env_float("MLBE_MAX_EV", 0.25))
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
@@ -484,9 +516,15 @@ class EVThresholds:
                 f"MLBE_MAX_EDGE_{suffix}",
                 _MAX_EDGE_BY_MARKET.get(market, self.max_edge),
             ),
+            # The per-market table is only a default: an explicitly chosen floor
+            # (a caller's, or ``MLBE_MIN_PROB``) means every market, or a run
+            # that turns the floor off would find it still on wherever the table
+            # names a value.
             min_prob=_env_float(
                 f"MLBE_MIN_PROB_{suffix}",
-                _MIN_PROB_BY_MARKET.get(market, self.min_prob),
+                _MIN_PROB_BY_MARKET.get(market, self.min_prob)
+                if self.min_prob == DEFAULT_MIN_PROB
+                else self.min_prob,
             ),
             max_ev=_env_float(
                 f"MLBE_MAX_EV_{suffix}",
