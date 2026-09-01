@@ -165,7 +165,7 @@ def _generate_card(
     when available, the master Excel bet sheet (``workbook``).
     """
     cards = build_cards(recs)
-    screen = funnel_report.build(recs)
+    screen = funnel_report.build(recs, cfg.ev)
     md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
     html_body = render_html(cards, slate_date, funnel=screen, thr=cfg.ev)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
@@ -526,7 +526,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     print(f"Priced {len(recs)} markets: {strong} strong buys, {mod} moderate buys")
     # A zero-buy slate is only readable with the funnel next to it: it says
     # whether the board was unquoted, unprofitable, or refused.
-    for line in funnel_report.summary_lines(funnel_report.build(recs), cfg.ev):
+    for line in funnel_report.summary_lines(funnel_report.build(recs, cfg.ev), cfg.ev):
         print(line)
     print(f"Excel: {xlsx}")
 

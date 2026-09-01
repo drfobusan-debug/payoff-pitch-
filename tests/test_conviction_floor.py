@@ -112,10 +112,10 @@ def test_totals_are_still_bet_on_the_model_itself() -> None:
 def test_a_low_conviction_buy_is_refused_and_named() -> None:
     """A positive-EV row under the floor is passed, with a gradeable gate name.
 
-    -110 against a +100 other side devigs to 0.5116, so 0.60 anchors to 0.5735:
-    a 6-point edge at a payable price, and a level the audit says not to buy.
+    -110 against a +100 other side devigs to 0.5116, so 0.56 anchors to 0.5435:
+    a 3-point edge at a payable price, and a level the audit says not to buy.
     """
-    rec = _rec(_pipeline(), "game_ml", 0.60, american=-110.0, opposite=100.0)
+    rec = _rec(_pipeline(), "game_ml", 0.56, american=-110.0, opposite=100.0)
     assert rec.ev is not None and rec.ev > 0
     assert rec.tier is Tier.PASS
     assert rec.pass_gate == "prob_floor"
@@ -128,23 +128,39 @@ def test_a_low_conviction_buy_is_refused_and_named() -> None:
 def test_the_floor_reads_the_blend_not_the_model() -> None:
     """A model above the floor whose blend is not is refused -- that is the point.
 
-    0.60 clears 0.58 on its own, but pulled 30% toward a 0.5116 fair price it is
-    0.5735: a selection the market does not join. Those are the rows that lost.
+    0.56 clears 0.55 on its own, but pulled 30% toward a 0.5116 fair price it is
+    0.5435: a selection the market does not join. Those are the rows that lost.
     """
-    rec = _rec(_pipeline(), "game_ml", 0.60, american=-110.0, opposite=100.0)
-    assert rec.model_prob == 0.60 > EVThresholds().min_prob
+    rec = _rec(_pipeline(), "game_ml", 0.56, american=-110.0, opposite=100.0)
+    assert rec.model_prob == 0.56 > EVThresholds().min_prob
     assert rec.bet_prob is not None and rec.bet_prob < EVThresholds().min_prob
     assert rec.pass_gate == "prob_floor"
 
 
 def test_the_floor_is_per_market_and_reversible(monkeypatch) -> None:
     base = EVThresholds()
-    assert base.min_prob == 0.58
-    assert base.for_market("batter_hr").min_prob == 0.58
+    assert base.min_prob == 0.55
+    assert base.for_market("batter_hr").min_prob == 0.55
     monkeypatch.setenv("MLBE_MIN_PROB_BATTER_HR", "0")
     assert EVThresholds().for_market("batter_hr").min_prob == 0.0
     monkeypatch.setenv("MLBE_MIN_PROB", "0")
     assert EVThresholds().for_market("game_ml").min_prob == 0.0
+
+
+def test_the_arm_keeps_the_floor_the_rest_of_the_board_lost() -> None:
+    """The 0.55-0.58 band is flat on bats and two-sided markets and -17.6% on
+    pitcher props, with both halves agreeing, so the arm holds at 0.58."""
+    base = EVThresholds()
+    assert base.for_market("pitcher_k").min_prob == 0.58
+    assert base.for_market("game_total").min_prob == 0.55
+
+
+def test_a_named_floor_beats_the_per_market_table(monkeypatch) -> None:
+    """The table is a default. An operator who names a floor means every market,
+    otherwise turning the screen off would leave it on where the table speaks."""
+    assert EVThresholds(min_prob=0.0).for_market("pitcher_k").min_prob == 0.0
+    monkeypatch.setenv("MLBE_MIN_PROB", "0.50")
+    assert EVThresholds().for_market("pitcher_k").min_prob == 0.50
 
 
 def test_the_floor_off_lets_the_same_row_through() -> None:
@@ -160,9 +176,7 @@ def test_an_outsized_claimed_ev_is_refused_and_named() -> None:
     tier, reasons = classify(_res(0.62, ev=0.40), thr)
     assert tier is Tier.PASS
     assert any("EV +0.400 > 0.25" in r for r in reasons)
-    assert price_screen(_res(0.62, ev=0.40), thr) == (
-        "ev_ceiling", "EV +0.400 > 0.25 -> pass"
-    )
+    assert price_screen(_res(0.62, ev=0.40), thr) == ("ev_ceiling", "EV +0.400 > 0.25 -> pass")
 
 
 def test_the_ceiling_leaves_an_ordinary_ev_alone() -> None:
