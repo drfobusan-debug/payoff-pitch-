@@ -11,6 +11,7 @@ from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
+from mlb_engine.audit import funnel as funnel_report
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -164,8 +165,9 @@ def _generate_card(
     when available, the master Excel bet sheet (``workbook``).
     """
     cards = build_cards(recs)
-    md = render_markdown(cards, slate_date)
-    html_body = render_html(cards, slate_date)
+    screen = funnel_report.build(recs)
+    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    html_body = render_html(cards, slate_date, funnel=screen, thr=cfg.ev)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
     pdf_path = cfg.output_dir / f"card_{slate_date.isoformat()}.pdf"
@@ -522,6 +524,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     strong = sum(1 for r in recs if r.tier == Tier.STRONG)
     mod = sum(1 for r in recs if r.tier == Tier.MODERATE)
     print(f"Priced {len(recs)} markets: {strong} strong buys, {mod} moderate buys")
+    # A zero-buy slate is only readable with the funnel next to it: it says
+    # whether the board was unquoted, unprofitable, or refused.
+    for line in funnel_report.summary_lines(funnel_report.build(recs), cfg.ev):
+        print(line)
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):

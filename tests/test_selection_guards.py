@@ -99,11 +99,18 @@ def _rec(
 
 
 # ---- price ceiling ---------------------------------------------------------
-def test_a_plus_money_run_line_is_never_bought() -> None:
+def test_a_long_run_line_is_never_bought() -> None:
     thr = EVThresholds().for_market("game_rl")
-    tier, reasons = classify(_res(0.06, american=150.0), thr)
+    tier, reasons = classify(_res(0.06, american=250.0), thr)
     assert tier is Tier.PASS
     assert any("longer than" in r for r in reasons)
+
+
+def test_the_band_the_ceiling_used_to_refuse_is_buyable() -> None:
+    """+110..+200 was refused at the old +109 bar; its rows graded better than
+    the buys the bar kept (+2.8% against -11.2%), so the bar moved to +200."""
+    thr = EVThresholds().for_market("game_rl")
+    assert classify(_res(0.06, american=150.0), thr)[0] is not Tier.PASS
 
 
 def test_the_same_run_line_edge_at_a_short_price_still_buys() -> None:
@@ -114,8 +121,8 @@ def test_the_same_run_line_edge_at_a_short_price_still_buys() -> None:
 def test_only_the_two_sided_markets_carry_the_ceiling() -> None:
     """A prop is honestly plus money; a run line's two sides are not."""
     base = EVThresholds()
-    assert base.for_market("game_rl").max_buy_odds == 109.0
-    assert base.for_market("f5_rl").max_buy_odds == 109.0
+    assert base.for_market("game_rl").max_buy_odds == 200.0
+    assert base.for_market("f5_rl").max_buy_odds == 200.0
     # Home runs are screened by their own +400..+700 band instead.
     assert base.for_market("batter_hr").max_buy_odds == math.inf
 
@@ -123,14 +130,15 @@ def test_only_the_two_sided_markets_carry_the_ceiling() -> None:
 def test_ceiling_is_configurable(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MAX_BUY_ODDS_GAME_RL", "100000")
     thr = EVThresholds().for_market("game_rl")
-    assert classify(_res(0.06, american=150.0), thr)[0] is not Tier.PASS
+    assert classify(_res(0.06, american=250.0), thr)[0] is not Tier.PASS
 
 
 def test_a_global_ceiling_reaches_the_markets_without_their_own(monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MAX_BUY_ODDS", "109")
     base = EVThresholds()
     assert base.for_market("batter_hr").max_buy_odds == 109.0
-    assert base.for_market("game_rl").max_buy_odds == 109.0
+    # ...and a market that has its own fitted bar keeps it.
+    assert base.for_market("game_rl").max_buy_odds == 200.0
 
 
 # ---- disqualified markets --------------------------------------------------

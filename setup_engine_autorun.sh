@@ -83,7 +83,13 @@ CLOSE_WAKE_HHMM="18:35"; DAY_CLOSE_WAKE_HHMM="12:45"
 CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
 DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
 # The late re-pricing passes. Spaced by the window itself, so every first pitch
-# from lunchtime to the last west-coast start falls inside one of them.
+# from lunchtime to the last west-coast start falls inside one of them: the
+# morning run (MORNING_RUN_HOUR above, 10:05) already sits inside the window
+# for anything starting before 13:05, and 11:45/14:45/17:45/20:45 chain
+# three-hour windows from there to 23:45, so no start is left priced outside
+# the clock gate that refuses it. Keep them spaced by LATE_WINDOW_HOURS: a
+# wider gap opens a band of games nothing re-prices, and those rows are
+# refused on the clock and never come back.
 LATE_WINDOW_HOURS=3
 LATE_RUNS="11:45 14:45 17:45 20:45"
 LATE_WAKES="11:40 14:40 17:40 20:40"
@@ -187,6 +193,13 @@ if [[ -n "\$_CERTS" ]]; then
   export SSL_CERT_FILE="\$_CERTS"
   export REQUESTS_CA_BUNDLE="\$_CERTS"
 fi
+
+# The clock gate and the late-pass window are the same number seen from two
+# sides: the gate refuses a row priced more than MLBE_LINEUP_STALE_HOURS before
+# first pitch, and the late pass re-prices exactly the games inside
+# LATE_WINDOW_HOURS. Tied here so raising one cannot leave the other behind,
+# refusing rows no pass ever comes back for.
+export MLBE_LINEUP_STALE_HOURS="\${MLBE_LINEUP_STALE_HOURS:-$LATE_WINDOW_HOURS}"
 
 # WeasyPrint (PDF export) loads pango/cairo/gdk-pixbuf via ctypes; on macOS
 # those live in the Homebrew lib dir, which is NOT on the default dyld search
