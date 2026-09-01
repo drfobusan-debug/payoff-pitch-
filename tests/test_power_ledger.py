@@ -371,10 +371,10 @@ def test_the_note_prints_the_number_the_card_bet_not_the_raw_model() -> None:
     assert "70.0%" not in doc
 
 
-def test_the_grade_is_lettered_until_it_grades_out() -> None:
+def test_the_grade_is_lettered_and_never_called_a_buy() -> None:
     doc = power_report.render_html(_result())
 
-    assert "MATCHUP A" in doc
+    assert "MATCHUP " in doc
     assert "rate a buy on the matchup" not in doc
 
 

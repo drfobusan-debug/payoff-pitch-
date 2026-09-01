@@ -6,7 +6,7 @@ analysis, and a rated recommendation table at the end. The prose that carries
 judgement is generated from the numbers -- what makes an arsenal dangerous is a
 comparison, and a comparison is a sentence, not a cell.
 
-Ratings describe conviction in the *matchup* and read no price. A priced board
+Grades describe the *matchup*'s power and read no price. A priced board
 is appended when one is supplied (see ``power_board``, which reads the card's own
 devigged rows off disk rather than fetching anything); it sits beside the ratings
 and feeds none of them, so a bet still has to clear the matchup and the number
@@ -340,20 +340,32 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
     return " ".join(bits)
 
 
-# The rating sorts matchups; it has never been shown to sort outcomes. Over the
-# 66 held rows the ledger has (8/18-8/20), BUY went 5-13 for -5.52 units against
-# HOLD's 20-25 for -0.26 -- ordered backwards, on a Fisher p of 0.199, so neither
-# a finding nor something to keep printing as conviction. Until it grades out it
-# is printed as a lettered matchup grade, which is all the evidence supports.
+# The grade now reads the one thing that graded. Its five-indicator predecessor
+# was scored out of time on 7,668 rated survivors over two seasons
+# (``scripts/power_rating_study.py``): its top bucket did not beat its middle one
+# (2026 A .3867 TB/PA vs B .3893, 2025 .3850 vs .4070), the arsenal fit ran
+# backwards in 2025 (-.0415 [-.0674,-.0157]), the strikeout penalty subtracted a
+# point from rows that produced more, and the opponent term's negative arm fired
+# on 96 of 3,141 rows. Terciles of xwOBA on contact, cut on 2025 and held out on
+# 2026, sort both seasons on total bases (+.0486 [+.0175,+.0762] and +.0488
+# [+.0056,+.0876]) and on home runs (+.0217 [+.0148,+.0284] and +.0160
+# [+.0072,+.0241]) -- and on nothing else: hits per plate appearance are flat
+# across all three, which is why the grade is a power read and says so.
+CONTACT_GRADE_A = 0.474
+CONTACT_GRADE_B = 0.429
+
 RATING_DISPLAY = {"BUY": "MATCHUP A", "HOLD": "MATCHUP B", "AVOID": "MATCHUP C"}
 
 
 def _rating(view: HitterView) -> tuple[str, str]:
-    """Conviction in the matchup, and the reason, from the assembled evidence.
+    """The matchup's grade, and the reasons, from the assembled evidence.
 
-    Deliberately mechanical: exposure to the starter, whether the arsenal adds or
-    subtracts, contact quality, and whether the bullpen gives it back. A rating
-    is about the matchup only -- there is no price in this module.
+    The grade itself is xwOBA on contact against two fixed cuts, because that is
+    the only one of the screen's reads that sorted the day that followed out of
+    time. Exposure, arsenal fit, the full-game opponent and the strikeout rate
+    are printed as reasons and score nothing: each was graded on the same panel
+    and none of them ordered production. A grade is about the matchup only --
+    there is no price in this module.
     """
     h = view.line
     e = view.exposure
@@ -361,44 +373,33 @@ def _rating(view: HitterView) -> tuple[str, str]:
     opp = e.opponent_xwoba if e else math.nan
     delta = view.fit_delta
     reasons: list[str] = []
-    score = 0
+    if h.xwoba_con >= CONTACT_GRADE_A:
+        grade = "BUY"
+    elif h.xwoba_con >= CONTACT_GRADE_B:
+        grade = "HOLD"
+    else:
+        grade = "AVOID"
+    reasons.append(f"{_f3(h.xwoba_con)} xwOBA on contact")
     if not math.isnan(share):
         if share >= 0.58:
-            score += 1
             reasons.append(f"{share * 100:.0f}% of his game is the matchup")
         elif share < 0.45:
-            score -= 1
             reasons.append(f"only {share * 100:.0f}% of his game is the matchup")
-    if not math.isnan(delta):
-        if delta >= 0.030:
-            score += 1
-            reasons.append(f"arsenal fit {delta * 1000:+.0f} points")
-        elif delta <= -0.020:
-            score -= 1
-            reasons.append(f"arsenal fit {delta * 1000:+.0f} points")
+    if not math.isnan(delta) and (delta >= 0.030 or delta <= -0.020):
+        reasons.append(f"arsenal fit {delta * 1000:+.0f} points")
     if not math.isnan(opp):
         if opp >= 0.340:
-            score += 1
             reasons.append(f"full-game opponent {_f3(opp)}")
         elif opp <= 0.300:
-            score -= 1
             reasons.append(f"bullpen pulls the full-game opponent to {_f3(opp)}")
-    if h.xwoba_con >= 0.440:
-        score += 1
-        reasons.append(f"{_f3(h.xwoba_con)} xwOBA on contact")
     if h.k >= 0.30:
-        score -= 1
         reasons.append(f"{_pc(h.k)} strikeout rate")
     if h.power_exception:
         # He is here on contact quality with a rate line the wRC+ cut rejected, so
         # the damage markets are the only ones the evidence covers -- a strikeout
         # that ends the plate appearance pays nothing on hits or on H+R+RBI.
         reasons.append("kept on power alone: home runs and total bases only")
-    if score >= 3:
-        return "BUY", "; ".join(reasons)
-    if score >= 1:
-        return "HOLD", "; ".join(reasons)
-    return "AVOID", "; ".join(reasons)
+    return grade, "; ".join(reasons)
 
 
 # --- sections ------------------------------------------------------------
@@ -630,9 +631,10 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         out.append(_table(["cut", "bucket", "W-L", "units"], split_rows, numeric_from=2))
         out.append(
             "<p class='sub'>The tier cut says whether the card's buys beat the rows it passed "
-            "on; the grade cut says whether the matchup read discriminated at all, and so far it "
-            "has not &mdash; which is why the grade is lettered rather than called a buy. They "
-            "are separate cuts because a grade carries no price and can be right about the "
+            "on; the grade cut says whether the matchup read discriminated. The grade is fitted "
+            "on production rather than on prices, so this cut is the harder test of it &mdash; "
+            "a grade that sorts total bases can still lose money at the number it was bet at. "
+            "They are separate cuts because a grade carries no price and can be right about the "
             "hitter while the number was wrong.</p>"
         )
     return "".join(out)
@@ -1376,15 +1378,16 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     buys = [r for r in rated if r[0] == "BUY"]
     lead = (
         f"<p><strong>{len(buys)} of {len(rated)} survivors grade A on the matchup.</strong> "
-        f"Grades weigh how much of the game is the matchup, whether the arsenal adds or "
-        f"subtracts, contact quality, strikeout risk, and whether the bullpen gives the edge "
-        f"back. They contain no price.</p>"
-        f"<p class='sub'><strong>The grade is a sort, and it has not been shown to sort "
-        f"outcomes.</strong> On the 66 held rows the ledger has scored, the A bucket went 5-13 "
-        f"for -5.52 units against the B bucket's 20-25 for -0.26 &mdash; the wrong order, though "
-        f"on three days and a Fisher p of 0.199 that is not a finding either. It is lettered "
-        f"rather than called a buy for that reason, and it will be named again when the ledger "
-        f"is large enough to say which way it points.</p>"
+        f"The grade is xwOBA on contact, cut at {CONTACT_GRADE_A:.3f} and "
+        f"{CONTACT_GRADE_B:.3f}. Exposure to the starter, arsenal fit, the full-game opponent "
+        f"and strikeout risk are printed beside it and count for nothing in it. It contains "
+        f"no price.</p>"
+        f"<p class='sub'><strong>It grades a power read, not a hitting one.</strong> Cut on "
+        f"2025 and held out on 2026, A out-produced C by 49 points of total bases per plate "
+        f"appearance in each season and by 22 and 16 points of home runs &mdash; but hits per "
+        f"plate appearance are flat across all three grades, so an A is a reason to look at "
+        f"total bases and home runs and no reason at all to buy a single. The five-indicator "
+        f"score this replaced did not separate its own A from its own B in either season.</p>"
     )
     if board is not None:
         agreed = [
