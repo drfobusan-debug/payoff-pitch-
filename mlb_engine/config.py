@@ -272,9 +272,34 @@ _NO_BUY_MARKETS: frozenset[str] = frozenset(
 # specifically. Run lines are what is left uncovered, and they split cleanly:
 # +11.8% at -110 or shorter against -21.2% at plus money, where taking +1.5
 # means paying a premium to need the fewest runs.
+#
+# That split was measured on the buys the ceiling kept; the rows it refused have
+# since been graded on their own, and they are the better half. Refused
+# ``game_rl`` went 41.3% for +2.8% (n=155, +4.4u) and refused ``f5_rl`` -0.3%
+# (n=77) -- flat, with the halves disagreeing (+8.0% then -1.6%), so no pocket
+# either way -- while the run-line buys the ceiling *admitted* returned -11.2%
+# (n=380, -42.6u). A screen whose refusals beat its admissions by fourteen
+# points has the sign backwards, so it is lifted to +200: the whole graded
+# sample sits between +110 and +200 (game_rl +4.2% then +1.4% across the two
+# bands), nothing past +200 has ever been refused, and the ceiling stays in
+# place there rather than being removed on evidence that does not reach it.
+#
+# This buys volume, not profit -- flat rows in a market that is negative
+# overall. What it stops is the engine holding its worst run lines and passing
+# its least bad ones; where the run-line damage actually lives is a separate
+# question for ``_NO_BUY_MARKETS``, and is not settled here.
+#
+# And on today's thresholds it buys no volume either, which is worth stating
+# plainly: replayed over the 09-01 board, all 19 rows this ceiling refused are
+# still refused, every one of them by ``EVThresholds.min_prob``. A plus-money
+# side is one the market makes an underdog, an underdog anchored 30% toward its
+# price cannot reach 0.58, and so the floor implies a price bar near +115 on
+# its own (see ``max_ev``). Lifting the fitted ceiling removes a screen whose
+# refusals beat its admissions; it does not open the band, because the floor
+# was standing behind it the whole time.
 _MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
-    "game_rl": 109.0,
-    "f5_rl": 109.0,
+    "game_rl": 200.0,
+    "f5_rl": 200.0,
 }
 
 # Weight given to the devigged market price per market, overriding the global
@@ -320,6 +345,29 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
 # The floor reads the *anchored* probability the EV screen bets on, so a market
 # pinned to a zero anchor is being screened on the model's own number and needs
 # its own value if that changes.
+#
+# Deliberately still empty, and this is where the reason belongs, because the
+# geometry argues for relaxing it here and the ledger does not. The floor (0.58)
+# and ``max_edge`` (0.08) together require the market's own fair price to reach
+# 0.50, so on a total or run line quoted -110 both ways there is a single point
+# of room -- an exclusion by arithmetic rather than by evidence, which is the
+# shape of a threshold that ought to be market-specific. It is now printed
+# rather than left to be discovered (see ``audit.funnel.geometry_note``).
+#
+# The rows it excludes have been graded, and they lose in every category. The
+# floor's own refusals: batter -8.6% (n=2,961), pitcher -7.0% (n=284), game
+# -14.0% (n=93), F5 -19.7% (n=68). Restricted to the marginal band the geometry
+# complains about -- 0.50 to 0.58, i.e. the rows a two-sided relaxation would
+# admit -- batter -3.4% (n=839), pitcher -6.6% (n=186), game -11.8% (n=77), F5
+# -7.2% (n=51); by market, game_total -9.5% (n=57), f5_total -17.8% (n=23),
+# game_ml -23.1% (n=16). There is no pocket there to open.
+#
+# So the arithmetic is real and a floor override is not the fix: it would buy
+# volume at a measured loss. What the geometry indicts is the *pair* -- an
+# absolute floor against a relative ceiling cannot both be tightened without
+# emptying the markets priced near even -- and the pair is a calibration
+# question (the model runs ~12pp hot in the .50-.60 band where every buy lives)
+# rather than a threshold one.
 _MIN_PROB_BY_MARKET: dict[str, float] = {}
 
 # EV ceiling per market, overriding the global ``EVThresholds.max_ev``.
@@ -396,7 +444,8 @@ class EVThresholds:
     # tail too thin to price rather than as a screen with a record. 1.0 disables
     # it. Note that with ``min_prob`` at 0.58 the pair implies a price ceiling
     # near +115 (EV = p x decimal - 1), which is where the fitted run-line ceiling
-    # of +109 already sat.
+    # of +109 sat until its own refusals were graded (see
+    # ``_MAX_BUY_ODDS_BY_MARKET``).
     max_ev: float = field(default_factory=lambda: _env_float("MLBE_MAX_EV", 0.25))
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
@@ -971,6 +1020,20 @@ class Config:
     # separate knob from the over ceiling because the fade earned its own record
     # and should be retirable on it: ``MLBE_BATTER_UNDER_MAX_BUY_PROB=1``
     # disables the fade side while leaving the over side screened.
+    #
+    # It has since been the largest single closer of a zero-buy slate (112 of
+    # the 239 rows that cleared the price screen on 09-01), because it composes
+    # with ``EVThresholds.min_prob``: the floor only admits high-probability
+    # sides, on props those are almost all fades, and this ceiling then refuses
+    # the fades from 0.62 up -- leaving a four-point buy window. Composed, the
+    # pair is close to a null set, and the obvious relief is to read this
+    # ceiling on the model's own probability while the floor reads the anchored
+    # one. Its live rows say no: the ceiling's own refusals went 63.3% for
+    # -2.1% (n=98), i.e. it is still deleting rows that lose slowly, and
+    # widening the window would restore volume in ``batter_rbi``/``batter_tb``/
+    # ``batter_hrr``, the three markets probation currently has SHUT. Left as
+    # it stands, and the composition is now reported rather than inferred (see
+    # ``audit.funnel``).
     batter_under_max_buy_prob: float = field(
         default_factory=lambda: _env_float("MLBE_BATTER_UNDER_MAX_BUY_PROB", 0.62)
     )

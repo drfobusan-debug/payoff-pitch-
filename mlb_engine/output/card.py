@@ -18,6 +18,9 @@ import html
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+from mlb_engine.audit.funnel import Funnel, clock_note, gate_label, geometry_note
+from mlb_engine.audit.funnel import markdown as funnel_markdown
+from mlb_engine.config import EVThresholds
 from mlb_engine.features.lineup_lock import DEFAULT_STALE_HOURS
 from mlb_engine.market.odds import american_to_prob
 from mlb_engine.market.ranking import price_rank
@@ -395,7 +398,13 @@ def _play_line_md(p: Play) -> str:
     return f"- **{p.selection} ({p._odds_str()})** — *{_play_bits(p)}*{tail}"
 
 
-def render_markdown(cards: list[GameCard], slate_date: Date) -> str:
+def render_markdown(
+    cards: list[GameCard],
+    slate_date: Date,
+    *,
+    funnel: Funnel | None = None,
+    thr: EVThresholds | None = None,
+) -> str:
     lines = [
         f"# PayoffPitch — Betting Card for {slate_date.isoformat()}",
         "",
@@ -421,6 +430,10 @@ def render_markdown(cards: list[GameCard], slate_date: Date) -> str:
         "high-variance longshots — bet small. " + _vsin_legend(cards)
         + "Prices move; shop the number.*",
     ]
+    # The screening funnel last: a card with no plays has to say whether the
+    # board went unquoted, paid nothing, or was refused, or it reads as a bug.
+    if funnel is not None:
+        lines += ["", *funnel_markdown(funnel, thr)]
     return "\n".join(lines)
 
 
@@ -430,7 +443,43 @@ def _play_line_html(p: Play) -> str:
     return f"<li><strong>{sel}</strong> — <em>{html.escape(_play_bits(p))}</em>{tail}</li>"
 
 
-def render_html(cards: list[GameCard], slate_date: Date) -> str:
+def _funnel_html(funnel: Funnel, thr: EVThresholds | None) -> str:
+    o = funnel.overall
+    rows = "".join(
+        "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>"
+        "<td>{}</td><td>{}</td></tr>".format(
+            html.escape(mf.market),
+            mf.candidates,
+            mf.priced,
+            mf.positive_ev,
+            mf.cleared_price_screen,
+            mf.buys,
+            html.escape(gate_label(mf.closing_gate) or "—"),
+        )
+        for mf in funnel.markets
+    )
+    notes = [clock_note(funnel)]
+    if thr is not None:
+        notes.append(geometry_note(thr))
+    tail = "".join(f"<p><em>{html.escape(n)}.</em></p>" for n in notes if n)
+    return (
+        "<hr><h2>How the slate was screened</h2>"
+        f"<p><em>{o.candidates} candidate rows, {o.priced} quoted by a book, "
+        f"{o.positive_ev} paying at the price offered, {o.cleared_price_screen} "
+        f"clearing the price screen, <strong>{o.buys} bought</strong>.</em></p>"
+        "<table><tr><th>market</th><th>cand</th><th>priced</th><th>+EV</th>"
+        f"<th>screened</th><th>buys</th><th>closed mostly by</th></tr>{rows}</table>"
+        f"{tail}"
+    )
+
+
+def render_html(
+    cards: list[GameCard],
+    slate_date: Date,
+    *,
+    funnel: Funnel | None = None,
+    thr: EVThresholds | None = None,
+) -> str:
     blocks = [
         "<h1>PayoffPitch — Betting Card for "
         f"{html.escape(slate_date.isoformat())}</h1>",
@@ -452,6 +501,8 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         "small. " + html.escape(_vsin_legend(cards))
         + "Prices move; shop the number.</em></p>"
     )
+    if funnel is not None:
+        blocks.append(_funnel_html(funnel, thr))
     style = (
         "body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;"
         "max-width:760px;margin:24px auto;padding:0 18px;color:#1a1a1a;line-height:1.55}"
@@ -461,6 +512,9 @@ def render_html(cards: list[GameCard], slate_date: Date) -> str:
         "strong{color:#0a5}"
         ".warn{background:#fff6e0;border-left:4px solid #e8a400;padding:8px 12px;"
         "border-radius:4px}.warn em{color:#8a5a00}"
+        "table{border-collapse:collapse;font-size:12px;width:100%}"
+        "th,td{border-bottom:1px solid #ddd;padding:4px 6px;text-align:right}"
+        "th:first-child,td:first-child,th:last-child,td:last-child{text-align:left}"
     )
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{style}</style></head>"
