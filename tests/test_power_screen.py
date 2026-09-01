@@ -62,6 +62,7 @@ from mlb_engine.output.power_screen import (
     gate_starters,
     half_lines,
     hitter_pool,
+    keep_arms,
     league_arms,
     pa_vs_starter,
     pitch_family,
@@ -440,6 +441,53 @@ def test_a_thin_league_window_leaves_xfip_unavailable_not_zero() -> None:
     thin["bb_type"] = ["ground_ball"]
     league = league_arms(thin)
     assert math.isnan(league.hr_per_fb) and math.isnan(league.constant)
+
+
+# --- which arms are screened ----------------------------------------------
+
+
+def _ranked(*points: int) -> list[StarterCard]:
+    """A ranked pool carrying nothing but its stage-1 points, worst first."""
+    cards = []
+    for i, pts in enumerate(points):
+        card = _card(f"Arm {i}")
+        card.points = pts
+        cards.append(card)
+    return cards
+
+
+def test_the_headcount_alone_screens_an_arm_the_ranking_already_disowned() -> None:
+    """8/30: the fourth arm held 46 points against 94 and kept his lineup in."""
+    assert [c.points for c in keep_arms(_ranked(94, 93, 83, 46), keep=4)] == [94, 93, 83, 46]
+
+
+def test_the_gap_keeps_the_close_arms_and_drops_the_one_off_the_pack() -> None:
+    kept = keep_arms(_ranked(94, 93, 83, 46), keep=4, gap=25)
+    assert [c.points for c in kept] == [94, 93, 83]
+
+
+def test_an_arm_exactly_on_the_bar_is_still_hunted() -> None:
+    assert [c.points for c in keep_arms(_ranked(94, 69), keep=4, gap=25)] == [94, 69]
+
+
+def test_the_gap_thins_a_screen_and_never_empties_one() -> None:
+    """Every arm behind a runaway leader is still one lineup worth screening."""
+    assert [c.points for c in keep_arms(_ranked(94, 10, 4), keep=4, gap=25)] == [94]
+    assert keep_arms([], keep=4, gap=25) == []
+
+
+def test_the_headcount_still_binds_under_the_gap() -> None:
+    kept = keep_arms(_ranked(94, 93, 92, 91, 90), keep=3, gap=25)
+    assert [c.points for c in kept] == [94, 93, 92]
+
+
+def test_a_pool_shorter_than_the_headcount_is_kept_whole() -> None:
+    assert [c.points for c in keep_arms(_ranked(94, 90), keep=4, gap=25)] == [94, 90]
+
+
+def test_tied_arms_keep_the_rankings_order() -> None:
+    kept = keep_arms(_ranked(94, 94, 94), keep=4, gap=25)
+    assert [c.name for c in kept] == ["Arm 0", "Arm 1", "Arm 2"]
 
 
 # --- stage 2 and 3 --------------------------------------------------------

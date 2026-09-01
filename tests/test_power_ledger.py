@@ -13,6 +13,8 @@ from datetime import date as Date
 
 from mlb_engine.audit import power_ledger
 from mlb_engine.data.results import GameResult, PlayerLine
+from mlb_engine.features import arm
+from mlb_engine.features.arm import ArmProfile
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output import power_board, power_report
 from mlb_engine.recommendations import Recommendation
@@ -37,6 +39,7 @@ def _position(
     tier: str = "Moderate buy",
     rating: str = "BUY",
     devigged: bool = True,
+    delivery: str = "",
 ) -> power_ledger.Position:
     return power_ledger.Position(
         date=DAY.isoformat(),
@@ -56,6 +59,7 @@ def _position(
         tier=tier,
         rating=rating,
         devigged=devigged,
+        delivery=delivery,
     )
 
 
@@ -384,6 +388,76 @@ def test_the_ratings_helper_names_every_survivor() -> None:
 
     assert set(rated) == {v.line.name for s in result.sections for v in s.hitters}
     assert set(rated.values()) <= {"BUY", "HOLD", "AVOID"}
+
+
+def _armed(pvelo: float) -> ArmProfile:
+    """A measured delivery, thrown at the perceived velocity asked for."""
+    return ArmProfile(pitches=500, pvelo=pvelo)
+
+
+def test_the_delivery_verdict_follows_the_arm_down_to_the_hitters_row() -> None:
+    """The flag is the starter's and the ledger's rows are hitters, so it rides
+    down to the bat that faces him -- otherwise it can never be graded."""
+    result = _result()
+    starter = result.sections[0].starter
+    starter.index = 1.0
+    starter.arm = _armed(99.0)  # above league under a soft read: the delivery argues
+    assert power_report.deliveries(result)[result.sections[0].hitters[0].line.name] == (
+        arm.CONTRADICTED
+    )
+
+    starter.arm = _armed(88.0)
+    board = power_board.build(result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))])
+    (p,) = power_ledger.positions_from_board(
+        board, DAY, power_report.ratings(result), power_report.deliveries(result)
+    )
+    assert p.delivery == arm.CONFIRMED
+
+
+def test_an_arm_nobody_measured_is_recorded_unmeasured_and_not_as_agreement() -> None:
+    result = _result()
+    result.sections[0].starter.arm = ArmProfile(pitches=0)
+    assert set(power_report.deliveries(result).values()) == {arm.UNMEASURED}
+
+
+def test_an_arm_with_no_profile_at_all_leaves_the_field_blank() -> None:
+    """No profile is no reading; the row says nothing rather than the common case."""
+    result = _result()
+    for section in result.sections:
+        section.starter.arm = None
+    assert power_report.deliveries(result) == {}
+
+    board = power_board.build(result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))])
+    (p,) = power_ledger.positions_from_board(board, DAY, deliveries={})
+    assert p.delivery == ""
+
+
+def test_the_delivery_verdict_survives_the_round_trip(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    power_ledger.record(path, [_position(delivery=arm.CONTRADICTED)], DAY)
+
+    (back,) = power_ledger.load(path)
+
+    assert back.delivery == arm.CONTRADICTED
+
+
+def test_a_row_recorded_before_the_flag_existed_still_loads(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    power_ledger.record(path, [_position()], DAY)
+    old = path.read_text().splitlines()
+    header = old[0].split(",")
+    drop = header.index("delivery")
+    path.write_text(
+        "\n".join(
+            ",".join(v for i, v in enumerate(row.split(",")) if i != drop) for row in old
+        )
+        + "\n"
+    )
+
+    (back,) = power_ledger.load(path)
+
+    assert back.delivery == ""
+    assert back == _position()
 
 
 def test_a_recorded_position_knows_whether_the_card_bet_it() -> None:

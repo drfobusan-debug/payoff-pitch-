@@ -900,6 +900,27 @@ def rank_starters(cards: list[StarterCard], top_n: int = 4) -> list[StarterCard]
     return sorted(readable, key=lambda c: (-c.points, -c.index))[:top_n]
 
 
+def keep_arms(ranked: list[StarterCard], *, keep: int, gap: int = 0) -> list[StarterCard]:
+    """The arms whose lineups are worth screening: a headcount, then a quality gap.
+
+    A headcount alone keeps the fourth arm however far he has fallen off the
+    pack. On 8/30 it kept Max Scherzer on 46 points against a leader's 94, so a
+    lineup spent the night hunting the best start on the board -- the ranking
+    had already said he did not belong and the count overruled it.
+
+    ``gap`` is how many stage-1 points behind the leader an arm may be and still
+    be screened; zero leaves the headcount alone. Points are pool-relative and
+    only comparable inside one slate, which is why the bar is measured from that
+    slate's own leader rather than set as an absolute score. The leader himself
+    is always kept, so the gap can thin a screen and never empty one.
+    """
+    shortlist = ranked[:keep]
+    if gap <= 0 or not shortlist:
+        return shortlist
+    floor = shortlist[0].points - gap
+    return [shortlist[0]] + [c for c in shortlist[1:] if c.points >= floor]
+
+
 # --- stage 2 and 3: score and cut the lineups ----------------------------
 
 

@@ -59,6 +59,7 @@ FIELDS = (
     "tier",
     "rating",
     "devigged",
+    "delivery",
 )
 
 
@@ -86,6 +87,16 @@ class Position:
     # Absent on rows recorded before the board carried it, which fall back to the
     # model so an old row still grades against the number it showed.
     bet_prob: float | None = None
+    #: What the opposing starter's delivery said about the batted-ball read the
+    #: note faded him on: ``confirmed``, ``contradicted`` or ``unmeasured`` (see
+    #: :mod:`mlb_engine.features.arm`). Empty on a row recorded before the field
+    #: existed, or one whose arm the note could not attribute -- an unknown read
+    #: is left unknown rather than filled with the common case.
+    #:
+    #: Recorded and never gated. Two graded slates have pointed the right way,
+    #: which is four arms and not a sample, so the flag has to sit in the ledger
+    #: before an audit can say whether it discriminates.
+    delivery: str = ""
 
     @property
     def shown_prob(self) -> float:
@@ -111,24 +122,29 @@ class Position:
 
 
 def positions_from_board(
-    board: Board, as_of: Date, ratings: dict[str, str] | None = None
+    board: Board,
+    as_of: Date,
+    ratings: dict[str, str] | None = None,
+    deliveries: dict[str, str] | None = None,
 ) -> list[Position]:
-    """The board's rows as ledger positions, tagged with the screen's rating.
+    """The board's rows as ledger positions, tagged with what the note said.
 
-    ``ratings`` maps batter name to the note's BUY/HOLD/AVOID; it is supplied by
-    the caller rather than computed here so this module never imports the report
-    that renders it. Rows in a ``DISPLAY_ONLY`` market are shown by the note but
+    ``ratings`` maps batter name to the note's BUY/HOLD/AVOID and ``deliveries``
+    to the opposing starter's delivery verdict; both are supplied by the caller
+    rather than computed here so this module never imports the report that
+    renders them. Rows in a ``DISPLAY_ONLY`` market are shown by the note but
     held by nobody, so they are not positions.
     """
     rated = ratings or {}
+    arms = deliveries or {}
     return [
-        _position(row, as_of, rated.get(row.batter, ""))
+        _position(row, as_of, rated.get(row.batter, ""), arms.get(row.batter, ""))
         for row in board.rows
         if row.stat not in DISPLAY_ONLY
     ]
 
 
-def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
+def _position(row: BoardRow, as_of: Date, rating: str, delivery: str = "") -> Position:
     return Position(
         date=as_of.isoformat(),
         batter=row.batter,
@@ -147,6 +163,7 @@ def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
         tier=row.tier,
         rating=rating,
         devigged=row.devigged,
+        delivery=delivery,
     )
 
 
@@ -193,6 +210,7 @@ def load(path: Path) -> list[Position]:
                     tier=r.get("tier", ""),
                     rating=r.get("rating", ""),
                     devigged=str(r.get("devigged", "")).lower() in ("true", "1", "yes"),
+                    delivery=r.get("delivery", "") or "",
                 )
             )
     return out

@@ -10,7 +10,8 @@ after.
 
 Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
 ``mlb_engine/output/power_screen.py`` for the stages and every threshold, and
-``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
+``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``,
+``--keep-gap``).
 
 Before any of it, the slate is cut twice: to the starters with enough recent work
 for their numbers to be measurements (which is what removes a call-up, an opener
@@ -48,7 +49,7 @@ from pathlib import Path
 import pandas as pd
 
 from mlb_engine.audit import power_ledger
-from mlb_engine.config import Config, RollingWindows, load_config
+from mlb_engine.config import Config, RollingWindows, load_config, power_keep_gap
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
@@ -97,6 +98,7 @@ from mlb_engine.output.power_screen import (
     gate_starters,
     half_lines,
     hitter_pool,
+    keep_arms,
     league_arms,
     pa_vs_starter,
     rank_final,
@@ -136,6 +138,13 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--date", type=Date.fromisoformat, default=Date.today())
     p.add_argument("--arms", type=int, default=8, help="starters to rank (all are listed)")
     p.add_argument("--keep", type=int, default=4, help="softest arms whose lineups are screened")
+    p.add_argument(
+        "--keep-gap",
+        type=int,
+        default=power_keep_gap(),
+        help="drop a kept arm more than this many stage-1 points behind the worst "
+        "arm on the slate (0 disables, keeping the headcount alone)",
+    )
     p.add_argument(
         "--siera-min",
         type=float,
@@ -384,7 +393,13 @@ def main() -> None:
             "no starter on %s is both above %.2f SIERA and worked enough to read",
             day, args.siera_min,
         )
-    targets = ranked[: args.keep]
+    targets = keep_arms(ranked, keep=args.keep, gap=args.keep_gap)
+    thinned = [c for c in ranked[: args.keep] if c not in targets]
+    for card in thinned:
+        log.info(
+            "%s is not screened: %d points, %d behind %s",
+            card.name, card.points, ranked[0].points - card.points, ranked[0].name,
+        )
 
     pens = _bullpen_cards(
         frame,
@@ -440,6 +455,12 @@ def main() -> None:
             )
         sections.append(section)
     final = _rank_everything(sections, pens)
+    notes = [
+        f"{card.name} ranked in the worst {args.keep} arms on the slate and was not "
+        f"screened: {card.points} stage-1 points, {ranked[0].points - card.points} "
+        f"behind {ranked[0].name}, against a {args.keep_gap}-point bar."
+        for card in thinned
+    ]
 
     result = ScreenResult(
         as_of=day,
@@ -453,6 +474,7 @@ def main() -> None:
         starters_scored=scored,
         final=final,
         cut_log=cut_log,
+        notes=notes,
         has_run_value="delta_run_exp" in window.columns,
         siera_floor=args.siera_min,
         starter_cuts=starter_cuts,
@@ -825,7 +847,10 @@ def _record(
     if args.no_grade or board is None or not board.rows:
         return
     positions = power_ledger.positions_from_board(
-        board, result.as_of, power_report.ratings(result)
+        board,
+        result.as_of,
+        power_report.ratings(result),
+        power_report.deliveries(result),
     )
     try:
         power_ledger.record(_ledger_path(cfg), positions, result.as_of)
