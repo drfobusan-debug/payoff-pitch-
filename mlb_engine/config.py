@@ -198,6 +198,17 @@ def power_bonus_half_pool() -> bool:
     return _env_bool("MLBE_POWER_BONUS_HALF", True)
 
 
+def power_keep_gap() -> int:
+    """How far behind the worst arm a starter may be and still be screened.
+
+    Zero -- the default -- keeps the fixed headcount the screen shipped with, so
+    the ledger's history stays comparable while the rule accrues slates.
+    ``MLBE_POWER_KEEP_GAP=25`` turns it on: on 8/30 the fourth arm held 46 points
+    against the leader's 94 and a lineup was screened against Max Scherzer.
+    """
+    return _env_int("MLBE_POWER_KEEP_GAP", 0)
+
+
 def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
     """A comma-separated override, where an empty value means the empty set."""
     raw = os.getenv(name)

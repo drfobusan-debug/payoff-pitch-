@@ -572,6 +572,22 @@ def ratings(result: ScreenResult) -> dict[str, str]:
     return {v.line.name: _rating(v)[0] for s in result.sections for v in s.hitters}
 
 
+def deliveries(result: ScreenResult) -> dict[str, str]:
+    """Each survivor's arm's delivery verdict, keyed by the hitter facing him.
+
+    The verdict belongs to the starter and the ledger's rows are hitters, so it
+    is carried down to the bat that faces him: the note's whole case against an
+    arm is what his lineup is being asked to hunt. ``unmeasured`` is a verdict
+    and recorded as one; an arm with no profile at all has none.
+    """
+    return {
+        v.line.name: s.starter.arm_verdict
+        for s in result.sections
+        for v in s.hitters
+        if s.starter.arm is not None
+    }
+
+
 def _wl(rec: Record) -> str:
     out = f"{rec.wins}-{rec.losses}"
     return out + (f"-{rec.pushes}" if rec.pushes else "")
