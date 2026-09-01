@@ -6358,9 +6358,23 @@
   {
     "matchup": "BOS @ NYY",
     "market": "batter_hrr",
+    "selection": "Nick Sogard H+R+RBI o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "batter_hrr",
     "selection": "Nick Sogard H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.415812
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "batter_hrr",
+    "selection": "Nick Sogard H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "BOS @ NYY",
@@ -8437,9 +8451,23 @@
   {
     "matchup": "BOS @ NYY",
     "market": "pitcher_h",
+    "selection": "Ranger Suarez Hits o5.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_h",
     "selection": "Ranger Suarez Hits u4.5",
     "american": 125.0,
     "no_vig_prob": 0.42067
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_h",
+    "selection": "Ranger Suarez Hits u5.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
   },
   {
     "matchup": "BOS @ NYY",
@@ -24726,9 +24754,23 @@
   {
     "matchup": "KC @ CLE",
     "market": "batter_h",
+    "selection": "Chase DeLauter H o1.5",
+    "american": 204.0,
+    "no_vig_prob": 0.309046
+  },
+  {
+    "matchup": "KC @ CLE",
+    "market": "batter_h",
     "selection": "Chase DeLauter H u0.5",
     "american": 197.0,
     "no_vig_prob": 0.320361
+  },
+  {
+    "matchup": "KC @ CLE",
+    "market": "batter_h",
+    "selection": "Chase DeLauter H u1.5",
+    "american": -278.0,
+    "no_vig_prob": 0.690954
   },
   {
     "matchup": "KC @ CLE",
@@ -29185,9 +29227,23 @@
   {
     "matchup": "LAD @ DET",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": -120.0,
+    "no_vig_prob": 0.521739
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "game_total",
     "selection": "Over 7.5",
     "american": 105.0,
     "no_vig_prob": 0.475914
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": 100.0,
+    "no_vig_prob": 0.478261
   },
   {
     "matchup": "LAD @ DET",
@@ -29332,9 +29388,23 @@
   {
     "matchup": "LAD @ DET",
     "market": "pitcher_outs",
+    "selection": "Framber Valdez Outs o18.5",
+    "american": 111.0,
+    "no_vig_prob": 0.442557
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "pitcher_outs",
     "selection": "Framber Valdez Outs u17.5",
     "american": 106.0,
     "no_vig_prob": 0.457407
+  },
+  {
+    "matchup": "LAD @ DET",
+    "market": "pitcher_outs",
+    "selection": "Framber Valdez Outs u18.5",
+    "american": -148.0,
+    "no_vig_prob": 0.557443
   },
   {
     "matchup": "LAD @ DET",
@@ -49576,9 +49646,23 @@
   {
     "matchup": "SEA @ TOR",
     "market": "batter_hrr",
+    "selection": "Andres Gimenez H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "SEA @ TOR",
+    "market": "batter_hrr",
     "selection": "Andres Gimenez H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.402287
+  },
+  {
+    "matchup": "SEA @ TOR",
+    "market": "batter_hrr",
+    "selection": "Andres Gimenez H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
   },
   {
     "matchup": "SEA @ TOR",

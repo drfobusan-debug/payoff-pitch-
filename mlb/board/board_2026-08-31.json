@@ -9956,6 +9956,13 @@
   {
     "matchup": "CWS @ HOU",
     "market": "batter_tb",
+    "selection": "Christian Walker TB u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "batter_tb",
     "selection": "Colson Montgomery TB o0.5",
     "american": -114.0,
     "no_vig_prob": 0.506036
@@ -10166,6 +10173,13 @@
   {
     "matchup": "CWS @ HOU",
     "market": "batter_tb",
+    "selection": "Tristan Peters TB o1.5",
+    "american": 200.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "batter_tb",
     "selection": "Tristan Peters TB u0.5",
     "american": 115.0,
     "no_vig_prob": 0.439192
@@ -10285,6 +10299,13 @@
   {
     "matchup": "CWS @ HOU",
     "market": "game_total",
+    "selection": "Over 9.0",
+    "american": 105.0,
+    "no_vig_prob": 0.47529
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "game_total",
     "selection": "Under 8.0",
     "american": -117.0,
     "no_vig_prob": 0.495233
@@ -10295,6 +10316,13 @@
     "selection": "Under 8.5",
     "american": -110.0,
     "no_vig_prob": 0.509031
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "game_total",
+    "selection": "Under 9.0",
+    "american": -120.0,
+    "no_vig_prob": 0.52471
   },
   {
     "matchup": "CWS @ HOU",
@@ -15913,9 +15941,23 @@
   {
     "matchup": "MIA @ WSH",
     "market": "batter_tb",
+    "selection": "Keibert Ruiz TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
     "selection": "Keibert Ruiz TB o1.5",
     "american": 160.0,
     "no_vig_prob": 0.377622
+  },
+  {
+    "matchup": "MIA @ WSH",
+    "market": "batter_tb",
+    "selection": "Keibert Ruiz TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "MIA @ WSH",
@@ -26343,9 +26385,23 @@
   {
     "matchup": "PHI @ AZ",
     "market": "batter_hrr",
+    "selection": "Luis Arraez H+R+RBI o2.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
+  },
+  {
+    "matchup": "PHI @ AZ",
+    "market": "batter_hrr",
     "selection": "Luis Arraez H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.433497
+  },
+  {
+    "matchup": "PHI @ AZ",
+    "market": "batter_hrr",
+    "selection": "Luis Arraez H+R+RBI u2.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
   },
   {
     "matchup": "PHI @ AZ",
@@ -35702,9 +35758,23 @@
   {
     "matchup": "SF @ ATL",
     "market": "batter_hrr",
+    "selection": "Mike Yastrzemski H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583774
+  },
+  {
+    "matchup": "SF @ ATL",
+    "market": "batter_hrr",
     "selection": "Mike Yastrzemski H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.414671
+  },
+  {
+    "matchup": "SF @ ATL",
+    "market": "batter_hrr",
+    "selection": "Mike Yastrzemski H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416226
   },
   {
     "matchup": "SF @ ATL",

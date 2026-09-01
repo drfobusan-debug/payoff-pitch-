@@ -4181,9 +4181,23 @@
   {
     "matchup": "BAL @ ATH",
     "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583232
+  },
+  {
+    "matchup": "BAL @ ATH",
+    "market": "batter_hrr",
     "selection": "Alika Williams H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.410324
+  },
+  {
+    "matchup": "BAL @ ATH",
+    "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416768
   },
   {
     "matchup": "BAL @ ATH",
@@ -7765,9 +7779,23 @@
   {
     "matchup": "BOS @ NYY",
     "market": "batter_hrr",
+    "selection": "Nick Sogard H+R+RBI o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.616148
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "batter_hrr",
     "selection": "Nick Sogard H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.39109
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "batter_hrr",
+    "selection": "Nick Sogard H+R+RBI u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.383852
   },
   {
     "matchup": "BOS @ NYY",
@@ -13442,9 +13470,23 @@
   {
     "matchup": "COL @ ATL",
     "market": "batter_hrr",
+    "selection": "Connor Norby H+R+RBI o0.5",
+    "american": -179.0,
+    "no_vig_prob": 0.600957
+  },
+  {
+    "matchup": "COL @ ATL",
+    "market": "batter_hrr",
     "selection": "Connor Norby H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.409552
+  },
+  {
+    "matchup": "COL @ ATL",
+    "market": "batter_hrr",
+    "selection": "Connor Norby H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.399043
   },
   {
     "matchup": "COL @ ATL",
@@ -36717,6 +36759,13 @@
   {
     "matchup": "PIT @ STL",
     "market": "batter_tb",
+    "selection": "Esmerlyn Valdez TB u1.5",
+    "american": -176.0,
+    "no_vig_prob": 0.599068
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "batter_tb",
     "selection": "Henry Davis TB o0.5",
     "american": -110.0,
     "no_vig_prob": 0.494929
@@ -37007,6 +37056,13 @@
     "selection": "Oneil Cruz TB u0.5",
     "american": 132.0,
     "no_vig_prob": 0.416471
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "batter_tb",
+    "selection": "Oneil Cruz TB u1.5",
+    "american": -184.0,
+    "no_vig_prob": 0.607326
   },
   {
     "matchup": "PIT @ STL",
@@ -37347,9 +37403,23 @@
   {
     "matchup": "PIT @ STL",
     "market": "pitcher_outs",
+    "selection": "Jared Jones Outs o15.5",
+    "american": 131.0,
+    "no_vig_prob": 0.406917
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "pitcher_outs",
     "selection": "Jared Jones Outs u14.5",
     "american": 135.0,
     "no_vig_prob": 0.413523
+  },
+  {
+    "matchup": "PIT @ STL",
+    "market": "pitcher_outs",
+    "selection": "Jared Jones Outs u15.5",
+    "american": -170.0,
+    "no_vig_prob": 0.593083
   },
   {
     "matchup": "PIT @ STL",
@@ -46072,6 +46142,13 @@
     "selection": "Joey Ortiz TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.422087
+  },
+  {
+    "matchup": "TEX @ MIL",
+    "market": "batter_tb",
+    "selection": "Joey Ortiz TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.627516
   },
   {
     "matchup": "TEX @ MIL",
