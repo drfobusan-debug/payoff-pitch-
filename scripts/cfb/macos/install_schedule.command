@@ -15,6 +15,10 @@ AUTORUN="$REPO/scripts/cfb/macos/autorun.command"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 LOG_DIR="$HOME/.cfb_engine"
 
+# shellcheck source=scripts/macos/protected_dir.sh
+. "$REPO/scripts/macos/protected_dir.sh"
+refuse_protected_dir "$REPO" || exit 1
+
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
 
@@ -82,4 +86,6 @@ echo "Done. The CFB card, CLV snapshots, and audit now run automatically every d
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env (launchd"
 echo "does not read your shell profile)."
+echo "Test it now with:"
+echo "  launchctl kickstart -k gui/\$(id -u)/com.payoffpitch.cfb.predictions"
 echo "Remove with: launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist"
