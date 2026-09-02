@@ -19,7 +19,7 @@ import html
 import math
 from datetime import date as Date
 
-from mlb_engine.audit.power_ledger import GradedPosition, Record, Scorecard
+from mlb_engine.audit.power_ledger import Composite, GradedPosition, Record, Scorecard
 from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
@@ -570,6 +570,26 @@ def _board_section(board: Board) -> str:
 def ratings(result: ScreenResult) -> dict[str, str]:
     """Each survivor's BUY/HOLD/AVOID, for anything recording what the note said."""
     return {v.line.name: _rating(v)[0] for s in result.sections for v in s.hitters}
+
+
+def composites(result: ScreenResult) -> dict[str, Composite]:
+    """Each ranked hitter's place in the composite, for the ledger to record.
+
+    The note printed the ordering and the ledger kept only the tier, so the
+    screen's whole claim -- that the composite picks the bat -- graded as a
+    single pooled number. Points are the earned total (the halves' floor is
+    collected by everyone and would flatten the spread), beside the arsenal-fit
+    points and the run value on the pitches he will see.
+    """
+    return {
+        s.name: Composite(
+            rank=i + 1,
+            points=s.earned,
+            fit_pts=s.edge.points,
+            fit_rv=s.edge.top_rv,
+        )
+        for i, s in enumerate(result.final)
+    }
 
 
 def deliveries(result: ScreenResult) -> dict[str, str]:
