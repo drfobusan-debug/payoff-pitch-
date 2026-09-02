@@ -1494,6 +1494,36 @@ def test_the_composite_prints_both_halves_the_context_and_the_fit() -> None:
     assert "Matt Olson" in html
 
 
+def test_the_composite_is_handed_to_the_ledger_in_the_order_it_printed() -> None:
+    """The note's ordering has to reach the recorder, or the claim stays ungraded."""
+    result = _result()
+    view = result.sections[0].hitters[0]
+    early, late = half_lines(_frame([_half_pitch(i % 9 + 1) for i in range(60)]))
+    view.context = build_context(
+        woba=0.300, xwoba=0.340, trends=TrendDeltas(), park_factor=104.0, worst_arm=True
+    )
+    view.edge = arsenal_edge(
+        view.per_pitch, view.overall, result.sections[0].starter.arsenal,
+        result.sections[0].starter.usage,
+    )
+    score_halves([early])
+    score_halves([late])
+    score_edges([view.edge])
+    score = FinalScore(
+        name=view.line.name, team=view.line.team, versus=view.line.versus,
+        slot=view.line.slot, early=early, late=late,
+        context=view.context, edge=view.edge, pen_rank=None,
+    )
+    result.final = rank_final([score])
+
+    (composite,) = power_report.composites(result).values()
+
+    assert composite.rank == 1
+    assert composite.points == score.earned
+    assert composite.fit_pts == score.edge.points
+    assert composite.fit_rv == score.edge.top_rv
+
+
 def test_the_composite_section_is_absent_when_the_season_rows_were_not_loaded() -> None:
     result = _result()
     assert not result.final

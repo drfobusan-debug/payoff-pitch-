@@ -9,6 +9,7 @@ vig could actually be stripped.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date as Date
 
 from mlb_engine.audit import power_ledger
@@ -482,3 +483,132 @@ def test_only_priced_rows_reach_the_ledger() -> None:
 
     assert power_ledger.positions_from_board(board, DAY) == []
     assert board.unpriced == ["Matt Olson"]
+
+
+# --- the run, and the ordering it captured --------------------------------
+
+
+def test_a_second_run_of_a_day_is_kept_beside_the_first(tmp_path) -> None:
+    """Two captures of a day are two boards, and the file loses neither.
+
+    The morning run and the re-run once lineups post showed different rows at
+    different prices, and replacing the day meant the record depended on which
+    ran last -- on this machine and, through the state branch, across machines.
+    """
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position()], DAY, run_id="20260817T1500Z")
+    power_ledger.record(path, [_position(odds=-110.0)], DAY, run_id="20260817T2200Z")
+
+    assert len(power_ledger.load(path)) == 2
+    assert power_ledger.runs_for(path, DAY) == ["20260817T1500Z", "20260817T2200Z"]
+
+
+def test_the_day_grades_its_last_board_and_can_be_pinned_to_an_earlier_one(tmp_path) -> None:
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position()], DAY, run_id="20260817T1500Z")
+    power_ledger.record(path, [_position(odds=-110.0)], DAY, run_id="20260817T2200Z")
+
+    (last,) = power_ledger.positions_for(path, DAY)
+    assert (last.run_id, last.odds) == ("20260817T2200Z", -110.0)
+
+    (pinned,) = power_ledger.positions_for(path, DAY, "20260817T1500Z")
+    assert (pinned.run_id, pinned.odds) == ("20260817T1500Z", 100.0)
+
+
+def test_rerunning_one_run_overwrites_itself_rather_than_doubling_it(tmp_path) -> None:
+    """Append-only across runs, idempotent within one."""
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position(), _position("TB", 1.5)], DAY, run_id="r1")
+    power_ledger.record(path, [_position(odds=-110.0)], DAY, run_id="r1")
+
+    kept = power_ledger.positions_for(path, DAY)
+    assert [p.odds for p in kept] == [-110.0]
+
+
+def test_the_scorecard_names_the_run_it_graded(tmp_path) -> None:
+    graded, voided = power_ledger.grade_positions(
+        [replace(_position(), run_id="20260817T2200Z")],
+        {1: _game({7: _line(H=2, **{"1B": 1, "2B": 1})})},
+    )
+    card = power_ledger.scorecard(DAY, graded, voided)
+    assert card.run_id == "20260817T2200Z"
+
+
+def _composite(rank: int = 1) -> power_ledger.Composite:
+    return power_ledger.Composite(rank=rank, points=18, fit_pts=11, fit_rv=3.6)
+
+
+def test_the_ordering_is_recorded_with_the_row_so_it_can_be_graded() -> None:
+    """The screen's claim is the order it put the bats in, and until now the only
+    thing surviving to the CSV was the tier, so the claim could not be scored."""
+    result = _result()
+    board = power_board.build(result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))])
+
+    (p,) = power_ledger.positions_from_board(
+        board, DAY, composites={"Matt Olson": _composite()}, run_id="r1"
+    )
+
+    assert (p.rank, p.points, p.fit_pts, p.fit_rv) == (1, 18, 11, 3.6)
+    assert p.run_id == "r1"
+
+
+def test_the_ordering_survives_the_round_trip(tmp_path) -> None:
+    path = tmp_path / power_ledger.LEDGER_NAME
+    written = replace(
+        _position(), run_id="r1", rank=3, points=12, fit_pts=5, fit_rv=-1.25
+    )
+    power_ledger.record(path, [written], DAY, run_id="r1")
+
+    (back,) = power_ledger.load(path)
+
+    assert back == written
+
+
+def test_a_row_recorded_before_the_run_and_the_ordering_existed_still_loads(tmp_path) -> None:
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position()], DAY)
+    old = path.read_text().splitlines()
+    header = old[0].split(",")
+    drop = {header.index(c) for c in ("run_id", "rank", "points", "fit_pts", "fit_rv")}
+    path.write_text(
+        "\n".join(
+            ",".join(v for i, v in enumerate(row.split(",")) if i not in drop) for row in old
+        )
+        + "\n"
+    )
+
+    (back,) = power_ledger.load(path)
+
+    assert (back.run_id, back.rank, back.points, back.fit_pts) == ("", None, None, None)
+    assert back.fit_rv is None
+    assert back == _position()
+
+
+# --- one hitter, one key --------------------------------------------------
+
+
+def test_an_accent_is_not_a_second_hitter() -> None:
+    assert power_ledger.name_key("Eugenio Suárez") == power_ledger.name_key("Eugenio Suarez")
+    assert power_ledger.name_key("Ronald Acuña Jr.") != power_ledger.name_key("Ronald Acuna")
+
+
+def test_a_rating_reaches_the_row_whichever_source_spelled_the_name() -> None:
+    """The lineup feed accents him and the box score does not, and the row must
+    still carry the note's rating rather than falling back to blank."""
+    result = _result()
+    board = power_board.build(result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))])
+
+    (p,) = power_ledger.positions_from_board(
+        board,
+        DAY,
+        ratings={"matt olson": "AVOID"},
+        composites={"MATT OLSON": _composite(rank=4)},
+    )
+
+    assert (p.rating, p.rank) == ("AVOID", 4)
+
+
+def test_a_row_is_keyed_by_the_hitter_and_not_by_the_spelling() -> None:
+    accented = replace(_position(), batter="Eugenio Suárez", player_id=None)
+    plain = replace(_position(), batter="Eugenio Suarez", player_id=None)
+    assert accented.key == plain.key

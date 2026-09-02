@@ -14,6 +14,12 @@ The three questions the ledger module keeps apart are kept apart here too:
   rows where the vig could actually be stripped.
 * **Did the buy decision discriminate?** PPV and NPV of "the card bet it" against
   the base rate, because a screen that passes on everything scores a free NPV.
+* **Did the ranking discriminate?** The composite's own order, in quartiles of
+  rank, which the ledger could not answer at all until it began recording it.
+
+A day can hold more than one recorded run of the screen -- a morning capture and
+the re-run once lineups post are two boards, both true -- so by default only the
+day's last run is graded and ``--all-runs`` grades every capture.
 
 Nothing here writes a price, a probability or a rating. It reads the receipt.
 """
@@ -53,6 +59,11 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--ledger", default=None, help="override the ledger path")
     p.add_argument("--no-daily", action="store_true", help="totals only")
     p.add_argument("--rows", action="store_true", help="print every graded position")
+    p.add_argument(
+        "--all-runs",
+        action="store_true",
+        help="grade every recorded run of each day, not only the day's last one",
+    )
     p.add_argument("-v", "--verbose", action="store_true")
     return p.parse_args()
 
@@ -138,6 +149,44 @@ def _print_probabilities(graded: list[GradedPosition]) -> None:
     print(f"  closest to the outcome: {closer[0]}")
 
 
+def _last_run(positions: list[Position]) -> list[Position]:
+    """One capture per day: the last run recorded for it.
+
+    Two runs of one day are two boards and not a duplicated one, so pooling them
+    counts the hitters they share twice and weights a re-run day double.
+    """
+    keep: dict[str, str] = {}
+    for p in positions:
+        keep[p.date] = max(keep.get(p.date, ""), p.run_id)
+    return [p for p in positions if p.run_id == keep[p.date]]
+
+
+def _print_ranking(graded: list[GradedPosition]) -> None:
+    """Did the composite's order pick the bat? Quartiles of rank, best first.
+
+    The screen's central claim is the ordering, and the ledger recorded the tier
+    and the rating and never the rank, so this cut is empty for every row written
+    before it was recorded -- said rather than silently skipped.
+    """
+    decided = [g for g in graded if g.result != PUSH and g.position.rank is not None]
+    if not decided:
+        print("  no row carries a rank: the ordering was not recorded")
+        return
+    ranks = sorted({g.position.rank for g in decided if g.position.rank is not None})
+    if len(ranks) < 4:
+        for r in ranks:
+            print(_line(f"rank {r}", [g for g in decided if g.position.rank == r]))
+        return
+    step = len(ranks) / 4
+    for q in range(4):
+        lo, hi = ranks[int(q * step)], ranks[min(int((q + 1) * step) - 1, len(ranks) - 1)]
+        bucket = [g for g in decided if g.position.rank is not None and lo <= g.position.rank <= hi]
+        print(_line(f"rank {lo}-{hi}", bucket))
+    missing = len([g for g in graded if g.result != PUSH]) - len(decided)
+    if missing:
+        print(f"  ({missing} decided rows carry no rank and are left out)")
+
+
 def _print_decision(graded: list[GradedPosition]) -> None:
     """PPV and NPV of the buy decision, against the base rate it has to beat."""
     decided = [g for g in graded if g.result != PUSH]
@@ -221,6 +270,8 @@ def main() -> None:
     # The note shows these but holds none of them, and its own scorecard leaves
     # them out; grading them here would score the screen on rows it never took.
     positions = [p for p in recorded if p.stat not in DISPLAY_ONLY]
+    if positions and not args.all_runs:
+        positions = _last_run(positions)
     if not positions:
         print(f"no recorded positions in {path}")
         return
@@ -260,6 +311,8 @@ def main() -> None:
     _print_probabilities(all_graded)
     print("\n--- did the buy decision discriminate? ---")
     _print_decision(all_graded)
+    print("\n--- did the composite's order discriminate? ---")
+    _print_ranking(all_graded)
     print(
         "\nUnits are at the recorded price, one unit a position, pushes at zero;"
         "\na hitter who never batted is voided rather than lost."

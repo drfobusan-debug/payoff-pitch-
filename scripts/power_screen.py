@@ -33,7 +33,9 @@ Every priced row it prints is recorded to ``power_screen_ledger.csv``, and the
 previous day's rows are graded off the box score at the top of the next note, so
 the screen carries its own record instead of reading the same each morning
 regardless of what happened. ``--no-grade`` skips both; ``--grade-date`` picks the
-day to grade.
+day to grade and ``--grade-run`` the capture within it -- the ledger keeps every
+run of the screen, so a day can hold more than one board and the scorecard names
+which it graded rather than meaning whichever run wrote last.
 """
 
 from __future__ import annotations
@@ -42,8 +44,8 @@ import argparse
 import logging
 import math
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from datetime import date as Date
-from datetime import timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -198,6 +200,11 @@ def _parse_args() -> argparse.Namespace:
         type=Date.fromisoformat,
         default=None,
         help="the recorded board to grade in this note (default: the day before --date)",
+    )
+    p.add_argument(
+        "--grade-run",
+        default=None,
+        help="the run id to grade within --grade-date (default: that day's last run)",
     )
     p.add_argument(
         "--no-grade",
@@ -836,6 +843,17 @@ def _ledger_path(cfg: Config) -> Path:
     return cfg.audit_dir / power_ledger.LEDGER_NAME
 
 
+def _run_id() -> str:
+    """This run's identifier: when the note was written, to the minute, in UTC.
+
+    A wall-clock stamp rather than a random id so the ledger's runs sort into the
+    order they were captured, which is what makes "the day's last board" a
+    meaningful default and a morning capture distinguishable from the re-run once
+    lineups post.
+    """
+    return datetime.now(UTC).strftime("%Y%m%dT%H%MZ")
+
+
 def _record(
     result: ScreenResult, board: Board | None, cfg: Config, args: argparse.Namespace
 ) -> None:
@@ -846,18 +864,23 @@ def _record(
     """
     if args.no_grade or board is None or not board.rows:
         return
+    run_id = _run_id()
     positions = power_ledger.positions_from_board(
         board,
         result.as_of,
         power_report.ratings(result),
         power_report.deliveries(result),
+        power_report.composites(result),
+        run_id,
     )
     try:
-        power_ledger.record(_ledger_path(cfg), positions, result.as_of)
+        power_ledger.record(_ledger_path(cfg), positions, result.as_of, run_id)
     except OSError as exc:  # pragma: no cover - a ledger write must not cost the note
         log.warning("could not record %d positions: %s", len(positions), exc)
         return
-    log.info("recorded %d positions to %s", len(positions), _ledger_path(cfg))
+    log.info(
+        "recorded %d positions as run %s to %s", len(positions), run_id, _ledger_path(cfg)
+    )
 
 
 def _review(
@@ -871,10 +894,19 @@ def _review(
     if args.no_grade:
         return None
     graded_day = args.grade_date or (day - timedelta(days=1))
-    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day)
+    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day, args.grade_run)
     if not positions:
         log.info("no recorded board for %s; the note carries no scorecard", graded_day)
         return None
+    runs = power_ledger.runs_for(_ledger_path(cfg), graded_day)
+    if len(runs) > 1:
+        log.info(
+            "%s holds %d runs (%s); grading %s",
+            graded_day,
+            len(runs),
+            ", ".join(runs),
+            positions[0].run_id or "the unidentified run",
+        )
     results: dict[int, GameResult] = {}
     for pk in {p.game_pk for p in positions if p.game_pk is not None}:
         try:
