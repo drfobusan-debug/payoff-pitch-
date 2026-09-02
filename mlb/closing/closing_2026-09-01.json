@@ -38782,6 +38782,20 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_hr",
+    "selection": "Alex Freeland HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
+    "selection": "Alex Freeland HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
     "selection": "Freddie Freeman HR o0.5",
     "american": 475.0,
     "no_vig_prob": 0.190908
@@ -38922,6 +38936,13 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_hr",
+    "selection": "Leonardo Bernal HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
     "selection": "Masyn Winn HR o0.5",
     "american": 575.0,
     "no_vig_prob": 0.164983
@@ -38985,6 +39006,20 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_hr",
+    "selection": "Nathan Church HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
+    "selection": "Nathan Church HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
     "selection": "Ramon Urias HR o0.5",
     "american": 575.0,
     "no_vig_prob": 0.163322
@@ -39041,6 +39076,13 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_hr",
+    "selection": "Teoscar Hernandez HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
     "selection": "Thomas Saggese HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.121324
@@ -39093,6 +39135,13 @@
     "selection": "Will Smith HR o1.5",
     "american": 4500.0,
     "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
+    "selection": "Will Smith HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "STL @ LAD",
@@ -40049,6 +40098,13 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_tb",
+    "selection": "Alex Freeland TB o1.5",
+    "american": 225.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_tb",
     "selection": "Alex Freeland TB u0.5",
     "american": -106.0,
     "no_vig_prob": 0.483389
@@ -40210,6 +40266,13 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_tb",
+    "selection": "Leonardo Bernal TB o1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.350877
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_tb",
     "selection": "Leonardo Bernal TB u0.5",
     "american": -105.0,
     "no_vig_prob": 0.479695
@@ -40266,6 +40329,13 @@
   {
     "matchup": "STL @ LAD",
     "market": "batter_tb",
+    "selection": "Nathan Church TB o1.5",
+    "american": 245.0,
+    "no_vig_prob": 0.289855
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_tb",
     "selection": "Nathan Church TB u0.5",
     "american": 111.0,
     "no_vig_prob": 0.444127
@@ -40311,6 +40381,13 @@
     "selection": "Teoscar Hernandez TB o0.5",
     "american": -179.0,
     "no_vig_prob": 0.602975
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB o1.5",
+    "american": 163.0,
+    "no_vig_prob": 0.380228
   },
   {
     "matchup": "STL @ LAD",
