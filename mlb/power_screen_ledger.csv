@@ -378,3 +378,6 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-02,Yordan Alvarez,670541,824147,H,1.5,over,betonlineag,204.0,0.3611,0.3479,0.3173,0.0307,0.0577,Pass,AVOID,True,confirmed,20260902T1958Z,1,43,11,0.82
 2026-09-02,Yordan Alvarez,670541,824147,HRR,2.5,over,bovada,120.0,0.5212,0.4927,0.4262,0.0665,0.0839,Pass,AVOID,True,confirmed,20260902T1958Z,1,43,11,0.82
 2026-09-02,Yordan Alvarez,670541,824147,TB,1.5,over,betonlineag,-102.0,0.5872,0.5546,0.4783,0.0762,0.0982,Pass,AVOID,True,confirmed,20260902T1958Z,1,43,11,0.82
+2026-09-03,Yordan Alvarez,670541,824144,H,1.5,over,betonlineag,190.0,0.4277,0.4002,0.3362,0.0641,0.1607,Pass,HOLD,True,confirmed,20260903T1410Z,1,6,5,1.2
+2026-09-03,Yordan Alvarez,670541,824144,HRR,2.5,over,betmgm,115.0,0.5983,0.5565,0.4588,0.0977,0.1964,Pass,HOLD,True,confirmed,20260903T1410Z,1,6,5,1.2
+2026-09-03,Yordan Alvarez,670541,824144,TB,1.5,over,betrivers,-104.0,0.6499,0.6093,0.5146,0.0947,0.1951,Pass,HOLD,False,confirmed,20260903T1410Z,1,6,5,1.2

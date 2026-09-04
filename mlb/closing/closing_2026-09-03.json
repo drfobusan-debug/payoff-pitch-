@@ -9690,9 +9690,23 @@
   {
     "matchup": "MIA @ KC",
     "market": "batter_hrr",
+    "selection": "Heriberto Hernandez H+R+RBI o2.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436681
+  },
+  {
+    "matchup": "MIA @ KC",
+    "market": "batter_hrr",
     "selection": "Heriberto Hernandez H+R+RBI u1.5",
     "american": 111.0,
     "no_vig_prob": 0.453527
+  },
+  {
+    "matchup": "MIA @ KC",
+    "market": "batter_hrr",
+    "selection": "Heriberto Hernandez H+R+RBI u2.5",
+    "american": -150.0,
+    "no_vig_prob": 0.563319
   },
   {
     "matchup": "MIA @ KC",
@@ -18972,9 +18986,23 @@
   {
     "matchup": "TB @ TEX",
     "market": "batter_hrr",
+    "selection": "Jorge Mateo H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.414236
+  },
+  {
+    "matchup": "TB @ TEX",
+    "market": "batter_hrr",
     "selection": "Jorge Mateo H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400781
+  },
+  {
+    "matchup": "TB @ TEX",
+    "market": "batter_hrr",
+    "selection": "Jorge Mateo H+R+RBI u1.5",
+    "american": -162.0,
+    "no_vig_prob": 0.585764
   },
   {
     "matchup": "TB @ TEX",
