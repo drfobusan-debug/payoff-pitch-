@@ -6167,6 +6167,34 @@
     "no_vig_prob": 0.510834
   },
   {
+    "matchup": "CHC @ MIA",
+    "market": "pitcher_k",
+    "selection": "Janson Junk Ks o3.5",
+    "american": 118.0,
+    "no_vig_prob": 0.434978
+  },
+  {
+    "matchup": "CHC @ MIA",
+    "market": "pitcher_k",
+    "selection": "Janson Junk Ks u3.5",
+    "american": -150.0,
+    "no_vig_prob": 0.565022
+  },
+  {
+    "matchup": "CHC @ MIA",
+    "market": "pitcher_k",
+    "selection": "Shota Imanaga Ks o5.5",
+    "american": 124.0,
+    "no_vig_prob": 0.42323
+  },
+  {
+    "matchup": "CHC @ MIA",
+    "market": "pitcher_k",
+    "selection": "Shota Imanaga Ks u5.5",
+    "american": -158.0,
+    "no_vig_prob": 0.57677
+  },
+  {
     "matchup": "CWS @ HOU",
     "market": "batter_1b",
     "selection": "Andrew Benintendi 1B o0.5",
@@ -16147,6 +16175,13 @@
     "selection": "Pedro Pages HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "STL @ LAD",
+    "market": "batter_hr",
+    "selection": "Pedro Pages HR o1.5",
+    "american": 30000.0,
+    "no_vig_prob": 0.003322
   },
   {
     "matchup": "STL @ LAD",
