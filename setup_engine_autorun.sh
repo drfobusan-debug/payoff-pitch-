@@ -13,6 +13,9 @@
 #                           where the bets are placed; see below.
 #   * Afternoon: wake 12:45 -> close 12:50 (snapshot the DAY games' close)
 #   * Evening:   wake 18:35 -> close 18:40 (snapshot the NIGHT games' close)
+#   * Saturday:  wake 09:00  ->  cfb 09:05  (price the college football board
+#                           and email its article PDF + MP3 + workbook). The
+#                           Friday night wake arms this one.
 #
 # Why the LATE passes exist, and why the morning card is now a preview: over the
 # ledger's 915 graded buys carrying a first-pitch stamp, the ones priced inside
@@ -94,6 +97,13 @@ LATE_WINDOW_HOURS=3
 LATE_RUNS="11:45 14:45 17:45 20:45"
 LATE_WAKES="11:40 14:40 17:40 20:40"
 
+# College football: one pass on Saturday morning, before the MLB job so the two
+# never share a machine hour. `cfb-engine run` prices the calendar day it runs
+# on, so this is the Saturday slate only; Thursday/Friday cards stay one-click
+# (scripts/macos/run_cfb_week.command --date ...).
+CFB_WAKE_HHMM="09:00"; CFB_RUN_HOUR=9; CFB_RUN_MIN=5
+CFB_WEEKDAY=6   # launchd: 0=Sunday .. 6=Saturday
+
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
 
@@ -106,10 +116,12 @@ NIGHT_LABEL="com.franz.engine.night"
 MORNING_LABEL="com.franz.engine.morning"
 CLOSE_LABEL="com.franz.engine.close"
 DAY_CLOSE_LABEL="com.franz.engine.dayclose"
+CFB_LABEL="com.franz.engine.cfb"
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
+CFB_PLIST="/Library/LaunchDaemons/${CFB_LABEL}.plist"
 
 # One daemon per late pass, labelled by its own clock time so a single pass can
 # be started, read in the log or removed on its own.
@@ -119,7 +131,7 @@ for hm in $LATE_RUNS; do
   LATE_LABELS+=("$label")
   LATE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "${LATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${LATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -182,6 +194,7 @@ pmset_() {
 # Also read the user-level env file (same one the manual shortcut uses), so
 # Gmail creds placed there work for the autorun too.
 [[ -f "\$HOME/.mlb_engine/engine.env" ]] && set -a && source "\$HOME/.mlb_engine/engine.env" && set +a
+[[ -f "\$HOME/.cfb_engine/engine.env" ]] && set -a && source "\$HOME/.cfb_engine/engine.env" && set +a
 cd "$REPO_DIR"
 [[ -d "$VENV_DIR" ]] && source "$VENV_DIR/bin/activate"
 
@@ -260,6 +273,12 @@ if [[ "\$MODE" == "night" ]]; then
   NEXT=\$(date -v+1d +"%m/%d/%Y")
   pmset_ schedule wake "\$NEXT $MORNING_WAKE_HHMM:00" || echo "[\$(date)] could not arm morning wake" >&2
   echo "[\$(date)] armed morning wake for \$NEXT $MORNING_WAKE_HHMM:00"
+  # Friday night also arms the Saturday college football pass, which runs
+  # before the MLB morning job.
+  if [[ "\$(date -v+1d +%u)" == "6" ]]; then
+    pmset_ schedule wake "\$NEXT $CFB_WAKE_HHMM:00" || echo "[\$(date)] could not arm CFB wake" >&2
+    echo "[\$(date)] armed CFB wake for \$NEXT $CFB_WAKE_HHMM:00"
+  fi
 elif [[ "\$MODE" == "close" ]]; then
   # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
   # line value (CLV) -- the fast way to tell whether a pick had real edge. Runs
@@ -268,6 +287,13 @@ elif [[ "\$MODE" == "close" ]]; then
   mlb-engine close || echo "[\$(date)] 'mlb-engine close' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
   pmset_ schedule wake "\$(date +%m/%d/%Y) $CLOSE_WAKE_HHMM:00" || echo "[\$(date)] could not arm evening wake" >&2
+elif [[ "\$MODE" == "cfb" ]]; then
+  # Saturday: price today's college football board and email the article PDF +
+  # MP3 + workbook as one message. Same caffeinate arrangement as the morning
+  # job so WeasyPrint keeps its DYLD path.
+  /usr/bin/caffeinate -i -w \$\$ &
+  pull_latest
+  cfb-engine run || echo "[\$(date)] 'cfb-engine run' exited non-zero" >&2
 elif [[ "\$MODE" == "late" ]]; then
   # Re-price the games starting inside the next $LATE_WINDOW_HOURS hours -- off
   # posted lineups, on the board as it stands -- and email the card that comes
@@ -360,7 +386,9 @@ chmod 755 "$RUNNER"
 echo "Wrote runner: $RUNNER"
 
 # --- 3. LaunchDaemons ---------------------------------------------
-write_plist() {  # <path> <label> <hour> <min> <mode>
+write_plist() {  # <path> <label> <hour> <min> <mode> [weekday 0-6]
+  local weekday=""
+  [[ -n "${6:-}" ]] && weekday="<key>Weekday</key><integer>$6</integer>"
   cat > "$1" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -370,7 +398,7 @@ write_plist() {  # <path> <label> <hour> <min> <mode>
   <key>ProgramArguments</key>
   <array><string>${RUNNER}</string><string>$5</string></array>
   <key>StartCalendarInterval</key>
-  <dict><key>Hour</key><integer>$3</integer><key>Minute</key><integer>$4</integer></dict>
+  <dict><key>Hour</key><integer>$3</integer><key>Minute</key><integer>$4</integer>${weekday}</dict>
   <key>StandardOutPath</key><string>${LOG_OUT}</string>
   <key>StandardErrorPath</key><string>${LOG_ERR}</string>
 </dict></plist>
@@ -381,6 +409,7 @@ write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MI
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
 write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MIN"   close
 write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
+write_plist "$CFB_PLIST" "$CFB_LABEL" "$CFB_RUN_HOUR" "$CFB_RUN_MIN" cfb "$CFB_WEEKDAY"
 i=0
 for hm in $LATE_RUNS; do
   write_plist "${LATE_PLISTS[$i]}" "${LATE_LABELS[$i]}" \
@@ -419,6 +448,8 @@ echo "Test night run:    sudo launchctl start ${NIGHT_LABEL}"
 echo "Test morning run:  sudo launchctl start ${MORNING_LABEL}"
 echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}"
 echo "Test day close:    sudo launchctl start ${DAY_CLOSE_LABEL}"
+echo "Test CFB Saturday: sudo launchctl start ${CFB_LABEL}   (prices today's board,"
+echo "                   spends Odds API credits and emails the slate)"
 echo "Test a late pass:  sudo launchctl start ${LATE_LABELS[0]}   (re-prices the"
 echo "                   games inside ${LATE_WINDOW_HOURS}h and emails that card; the others are"
 echo "                   ${LATE_LABELS[*]:1})"
