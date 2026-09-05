@@ -857,16 +857,18 @@ class Pipeline:
             bslice = statcast[statcast["batter"] == pid]
             # Observed HR/PA counts home runs; expected HR measures the contact
             # that produced them, against the actual walls it was hit toward.
+            xhr_prior = batter_xhr(bslice).xhr_per_pa if self.cfg.xhr_blend else float("nan")
             if self.cfg.xhr_blend:
-                ctx = blend_hr_rate(
-                    ctx, batter_xhr(bslice).xhr_per_pa, self.cfg.xhr_prior_weight
-                )
+                ctx = blend_hr_rate(ctx, xhr_prior, self.cfg.xhr_prior_weight)
             # ...which leaves the rate park-neutral, so put tonight's park back:
             # what his own batted balls would be worth against these fences.
+            park_hr = (
+                park_hr_multiplier(bslice, park.venue_id)
+                if self.cfg.xhr_park and park is not None
+                else float("nan")
+            )
             if self.cfg.xhr_park and park is not None:
-                ctx = scale_hr_rate(
-                    ctx, park_hr_multiplier(bslice, park.venue_id)
-                )
+                ctx = scale_hr_rate(ctx, park_hr)
             breg = build_batter_regression(
                 bslice, sprint.get(pid, 27.0), league_xtb=self._league_xtb
             )
@@ -935,6 +937,15 @@ class Pipeline:
                 late_ctx = build_batter_late_rates(
                     statcast, pid, slate_date, w.bullpen_days, w.bullpen_min_inning
                 )
+            # The same expected-HR prior the starter vector gets. Without it the
+            # bullpen vector was the one place a raw home-run rate reached the
+            # simulator -- and off the *smallest* sample in the engine, three
+            # weeks of late innings, where a hitter with two home runs in 46 plate
+            # appearances is handed a 4% rate as though it were talent. The blend
+            # is weighted by plate appearances, so a thin late sample leans almost
+            # entirely on the prior, which is what it should do.
+            late_ctx = blend_hr_rate(late_ctx, xhr_prior, self.cfg.xhr_prior_weight)
+            late_ctx = scale_hr_rate(late_ctx, park_hr)
             # Aggregate pen (used once the game is out of hand) vs the team's
             # high-leverage arms (used late in a still-close game).
             pen_args = (bmult, xbh_sel.outcome_multipliers, bpen_allowed, bpen_npv, bat_tail)
