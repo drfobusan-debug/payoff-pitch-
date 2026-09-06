@@ -1,0 +1,232 @@
+{
+  "Fresno State @ USC|game_ats|Fresno State": {
+    "american": -105.0,
+    "line": 21.5,
+    "no_vig_prob": 0.5006097814844711
+  },
+  "Fresno State @ USC|game_ats|USC": {
+    "american": -105.0,
+    "line": -21.5,
+    "no_vig_prob": 0.4993902185155289
+  },
+  "Fresno State @ USC|game_ml|Fresno State": {
+    "american": 1300.0,
+    "line": null,
+    "no_vig_prob": 0.07601013216460017
+  },
+  "Fresno State @ USC|game_ml|USC": {
+    "american": -1900.0,
+    "line": null,
+    "no_vig_prob": 0.9239898678353999
+  },
+  "Fresno State @ USC|game_total|Over": {
+    "american": -105.0,
+    "line": 51.0,
+    "no_vig_prob": 0.4980992568094124
+  },
+  "Fresno State @ USC|game_total|Under": {
+    "american": -108.0,
+    "line": 51.0,
+    "no_vig_prob": 0.5019007431905875
+  },
+  "Indiana State @ Purdue|game_ats|Indiana State": {
+    "american": -110.0,
+    "line": 35.5,
+    "no_vig_prob": 0.5184553037050434
+  },
+  "Indiana State @ Purdue|game_ats|Purdue": {
+    "american": -101.0,
+    "line": -35.5,
+    "no_vig_prob": 0.48154469629495666
+  },
+  "Indiana State @ Purdue|game_ml|Indiana State": {
+    "american": 1525.0,
+    "line": null,
+    "no_vig_prob": 0.058080222582888946
+  },
+  "Indiana State @ Purdue|game_ml|Purdue": {
+    "american": -50000.0,
+    "line": null,
+    "no_vig_prob": 0.9419197774171111
+  },
+  "Indiana State @ Purdue|game_total|Over": {
+    "american": -115.0,
+    "line": 55.5,
+    "no_vig_prob": 0.5177450192464134
+  },
+  "Indiana State @ Purdue|game_total|Under": {
+    "american": -105.0,
+    "line": 55.5,
+    "no_vig_prob": 0.4822549807535866
+  },
+  "LIU @ Kansas|game_ats|Kansas": {
+    "american": -110.0,
+    "line": -43.5,
+    "no_vig_prob": 0.4995730145175064
+  },
+  "LIU @ Kansas|game_ats|LIU": {
+    "american": -110.0,
+    "line": 43.5,
+    "no_vig_prob": 0.5004269854824936
+  },
+  "LIU @ Kansas|game_total|Over": {
+    "american": -109.0,
+    "line": 56.0,
+    "no_vig_prob": 0.49823266598801047
+  },
+  "LIU @ Kansas|game_total|Under": {
+    "american": -110.0,
+    "line": 56.0,
+    "no_vig_prob": 0.5017673340119896
+  },
+  "Miami @ Stanford|game_ats|Miami": {
+    "american": -105.0,
+    "line": -24.5,
+    "no_vig_prob": 0.5018098195862605
+  },
+  "Miami @ Stanford|game_ats|Stanford": {
+    "american": -105.0,
+    "line": 24.5,
+    "no_vig_prob": 0.4981901804137396
+  },
+  "Miami @ Stanford|game_ml|Miami": {
+    "american": -3000.0,
+    "line": null,
+    "no_vig_prob": 0.9388476657475007
+  },
+  "Miami @ Stanford|game_ml|Stanford": {
+    "american": 1700.0,
+    "line": null,
+    "no_vig_prob": 0.06115233425249946
+  },
+  "Miami @ Stanford|game_total|Over": {
+    "american": -108.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5023320728657445
+  },
+  "Miami @ Stanford|game_total|Under": {
+    "american": -105.0,
+    "line": 46.5,
+    "no_vig_prob": 0.49766792713425556
+  },
+  "North Carolina @ Georgia State|game_ats|Georgia State": {
+    "american": -104.0,
+    "line": -28.5,
+    "no_vig_prob": 0.4955200247227136
+  },
+  "North Carolina @ Georgia State|game_ats|North Carolina": {
+    "american": -110.0,
+    "line": 28.5,
+    "no_vig_prob": 0.5044799752772864
+  },
+  "North Carolina @ Georgia State|game_ml|Georgia State": {
+    "american": -4000.0,
+    "line": null,
+    "no_vig_prob": 0.943911572545098
+  },
+  "North Carolina @ Georgia State|game_ml|North Carolina": {
+    "american": 2200.0,
+    "line": null,
+    "no_vig_prob": 0.056088427454901946
+  },
+  "North Carolina @ Georgia State|game_total|Over": {
+    "american": -110.0,
+    "line": 58.5,
+    "no_vig_prob": 0.5042167225646016
+  },
+  "North Carolina @ Georgia State|game_total|Under": {
+    "american": -102.0,
+    "line": 58.5,
+    "no_vig_prob": 0.4957832774353983
+  },
+  "San Jose State @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -106.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5080587956988845
+  },
+  "San Jose State @ Eastern Michig|game_ats|San Jose State": {
+    "american": 100.0,
+    "line": 2.5,
+    "no_vig_prob": 0.49194120430111554
+  },
+  "San Jose State @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": -128.0,
+    "line": null,
+    "no_vig_prob": 0.5531533369783076
+  },
+  "San Jose State @ Eastern Michig|game_ml|San Jose State": {
+    "american": 122.0,
+    "line": null,
+    "no_vig_prob": 0.4468466630216924
+  },
+  "San Jose State @ Eastern Michig|game_total|Over": {
+    "american": -105.0,
+    "line": 55.0,
+    "no_vig_prob": 0.49729144095341277
+  },
+  "San Jose State @ Eastern Michig|game_total|Under": {
+    "american": -110.0,
+    "line": 55.0,
+    "no_vig_prob": 0.5027085590465872
+  },
+  "Toledo @ Michigan State|game_ats|Michigan State": {
+    "american": -110.0,
+    "line": -10.0,
+    "no_vig_prob": 0.5030534727921799
+  },
+  "Toledo @ Michigan State|game_ats|Toledo": {
+    "american": -105.0,
+    "line": 10.0,
+    "no_vig_prob": 0.49694652720782007
+  },
+  "Toledo @ Michigan State|game_ml|Michigan State": {
+    "american": -410.0,
+    "line": null,
+    "no_vig_prob": 0.7765369335936758
+  },
+  "Toledo @ Michigan State|game_ml|Toledo": {
+    "american": 350.0,
+    "line": null,
+    "no_vig_prob": 0.22346306640632427
+  },
+  "Toledo @ Michigan State|game_total|Over": {
+    "american": -110.0,
+    "line": 48.0,
+    "no_vig_prob": 0.5021839995935936
+  },
+  "Toledo @ Michigan State|game_total|Under": {
+    "american": -105.0,
+    "line": 48.0,
+    "no_vig_prob": 0.49781600040640633
+  },
+  "UTEP @ Oklahoma|game_ats|Oklahoma": {
+    "american": -106.0,
+    "line": -41.0,
+    "no_vig_prob": 0.5006462319507416
+  },
+  "UTEP @ Oklahoma|game_ats|UTEP": {
+    "american": -106.0,
+    "line": 41.0,
+    "no_vig_prob": 0.49935376804925835
+  },
+  "UTEP @ Oklahoma|game_ml|Oklahoma": {
+    "american": -30000.0,
+    "line": null,
+    "no_vig_prob": 0.9642243049853674
+  },
+  "UTEP @ Oklahoma|game_ml|UTEP": {
+    "american": 4000.0,
+    "line": null,
+    "no_vig_prob": 0.03577569501463271
+  },
+  "UTEP @ Oklahoma|game_total|Over": {
+    "american": -106.0,
+    "line": 51.0,
+    "no_vig_prob": 0.4979167992087782
+  },
+  "UTEP @ Oklahoma|game_total|Under": {
+    "american": -110.0,
+    "line": 51.0,
+    "no_vig_prob": 0.5020832007912218
+  }
+}

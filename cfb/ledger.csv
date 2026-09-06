@@ -1,49 +1,49 @@
 date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob,ev,result,pnl,raw_prob,fair_prob,bet_prob,close_odds,close_prob,clv,clv_ev,clv_pts,drift,pass_gate,sharp_div
-2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Stanford ML,,draftkings,-185.0,154.0,Pass,0.6245,-0.0379,win,0.5405,0.6282,0.6304,0.6245,-215.0,0.6605,0.0301,0.0175,,-0.0301,,21.0
 2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Hawaii ML,,betrivers,165.0,-210.0,Pass,0.3718,-0.0149,loss,-1.0,0.3718,0.3696,0.3718,189.0,0.3395,-0.0301,-0.1003,,0.0301,,-21.0
-2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,North Dakota S ML,,bovada,-245.0,205.0,Pass,0.6549,-0.0777,win,0.4082,0.6835,0.6945,0.6549,-250.0,0.6996,0.0051,-0.0148,,-0.0054,,-6.0
-2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,Jacksonville S ML,,betus,218.0,-260.0,Pass,0.3165,0.0064,loss,-1.0,0.3165,0.3055,0.3165,226.0,0.3004,-0.0051,-0.0447,,0.0054,,6.0
-2026-08-29,Memphis @ UNLV,Moneyline,game_ml,Memphis ML,,lowvig,165.0,-190.0,Pass,0.3529,-0.0648,win,1.65,0.3529,0.3714,0.3529,190.0,0.3378,-0.0336,-0.1048,,0.0343,,27.0
-2026-08-29,Memphis @ UNLV,Moneyline,game_ml,UNLV ML,,betus,-185.0,159.0,Pass,0.6349,-0.0219,loss,-1.0,0.6471,0.6286,0.6349,-210.0,0.6622,0.0336,0.0201,,-0.0343,,-27.0
-2026-08-29,NC State @ Virginia,Moneyline,game_ml,NC State ML,,betus,163.0,-190.0,Pass,0.3756,-0.0123,loss,-1.0,0.3756,0.3803,0.3756,190.0,0.3417,-0.0386,-0.1013,,0.0386,,7.0
-2026-08-29,NC State @ Virginia,Moneyline,game_ml,Virginia ML,,betonlineag,-175.0,153.0,Pass,0.6224,-0.0219,win,0.5714,0.6244,0.6197,0.6224,-210.0,0.6583,0.0386,0.0345,,-0.0386,,-7.0
-2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,-10000.0,3000.0,Pass,0.8105,-0.1814,win,0.01,0.9664,0.9633,0.8105,-6500.0,0.9533,-0.01,-0.0372,,0.01,,-9.0
-2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,New Mexico Sta ML,,draftkings,3000.0,-10000.0,Pass,0.0336,0.0424,loss,-1.0,0.0336,0.0367,0.0336,2800.0,0.0467,0.01,0.4477,,-0.01,,9.0
-2026-08-29,North Carolina @ TCU,Moneyline,game_ml,TCU ML,,betonlineag,-320.0,260.0,Pass,0.6584,-0.1358,loss,-1.0,0.6899,0.7378,0.6584,-300.0,0.7279,-0.0099,-0.0446,,0.0096,,5.0
-2026-08-29,North Carolina @ TCU,Moneyline,game_ml,North Carolina ML,,mybookieag,271.0,-356.0,Pass,0.3101,0.1505,win,2.71,0.3101,0.2622,0.3101,260.0,0.2721,0.0099,0.0095,,-0.0096,price_too_long,-5.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Eastern Michig ML,,betus,-340.0,275.0,Pass,0.6781,-0.1225,win,0.2941,0.7256,0.7464,0.6781,-325.0,0.7532,0.0068,-0.0253,,-0.0071,,
-2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Sacramento Sta ML,,betrivers,290.0,-385.0,Pass,0.2744,0.0703,loss,-1.0,0.2744,0.2536,0.2744,310.0,0.2468,-0.0068,-0.0375,,0.0071,price_too_long,-25.0
-2026-08-29,San Jose State @ USC,Moneyline,game_ml,USC ML,,mybookieag,-50000.0,1825.0,Pass,0.8226,-0.1758,win,0.002,0.9883,0.9505,0.8226,-20000.0,0.9629,0.0124,-0.0352,,-0.0124,,
-2026-08-29,San Jose State @ USC,Moneyline,game_ml,San Jose State ML,,mybookieag,1825.0,-50000.0,Pass,0.0117,-0.7748,loss,-1.0,0.0117,0.0495,0.0117,6000.0,0.0371,-0.0124,-0.2858,,0.0124,,
+2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Stanford ML,,draftkings,-185.0,154.0,Pass,0.6245,-0.0379,win,0.5405,0.6282,0.6304,0.6245,-215.0,0.6605,0.0301,0.0175,,-0.0301,,21.0
 2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Hawaii +4.0,4.0,lowvig,-106.0,-106.0,Pass,0.4702,-0.0863,loss,-1.0,0.4702,0.5003,0.4702,-104.0,0.4654,-0.0349,-0.0955,-1.5,0.0349,,17.0
 2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Stanford -4.0,-4.0,lowvig,-106.0,-106.0,Pass,0.5298,0.0297,win,0.9434,0.5298,0.4997,0.5298,-101.0,0.5346,0.0349,0.0389,1.5,-0.0349,,-17.0
-2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,Jacksonville S +6.5,6.5,lowvig,105.0,-117.0,Pass,0.4702,-0.036,loss,-1.0,0.4702,0.4854,0.4702,-110.0,0.4936,0.0082,0.0119,-0.5,-0.0083,,21.0
-2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,North Dakota S -6.5,-6.5,betus,-110.0,-110.0,Pass,0.5298,0.0113,win,0.9091,0.5298,0.5146,0.5298,100.0,0.5064,-0.0082,-0.0332,0.5,0.0083,,-21.0
-2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,UNLV -4.0,-4.0,lowvig,-108.0,-104.0,Strong buy,0.5508,0.0608,loss,-1.0,0.5508,0.5026,0.5508,-106.0,0.542,0.0394,0.0439,1.5,-0.0394,,-12.0
-2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,Memphis +4.0,4.0,lowvig,-104.0,-108.0,Pass,0.4492,-0.1189,win,0.9615,0.4492,0.4974,0.4492,100.0,0.458,-0.0394,-0.1016,-1.5,0.0394,,12.0
-2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,Virginia -4.0,-4.0,lowvig,101.0,-113.0,Moderate buy,0.5273,0.0599,win,1.01,0.5273,0.4939,0.5273,-106.0,0.5406,0.0467,0.0866,1.5,-0.0467,,-12.0
-2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,NC State +4.0,4.0,fanatics,-110.0,-110.0,Pass,0.4727,-0.0976,loss,-1.0,0.4727,0.5061,0.4727,-105.0,0.4594,-0.0467,-0.123,-1.5,0.0467,,12.0
-2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,New Mexico Sta +31.5,31.5,lowvig,-106.0,-106.0,Strong buy,0.5594,0.0872,win,0.9434,0.5594,0.5028,0.5594,-105.0,0.5163,0.0135,0.0034,0.5,-0.0135,,17.0
-2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,Florida State -31.5,-31.5,fanduel,-105.0,-115.0,Pass,0.4406,-0.1398,loss,-1.0,0.4406,0.4972,0.4406,-101.0,0.4837,-0.0135,-0.0556,-0.5,0.0135,,-17.0
-2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,TCU -8.5,-8.5,fanduel,-110.0,-110.0,Pass,0.486,-0.0722,loss,-1.0,0.486,0.5018,0.486,-106.0,0.4789,-0.0229,-0.0857,-1.0,0.0229,,4.0
-2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,North Carolina +8.5,8.5,williamhill_us,-107.0,-113.0,Pass,0.514,-0.0056,win,0.9346,0.514,0.4982,0.514,-105.0,0.5211,0.0229,0.0081,1.0,-0.0229,,-4.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Eastern Michig -9.5,-9.5,draftkings,-105.0,-115.0,Pass,0.5008,-0.0223,win,0.9524,0.5008,0.5008,0.5008,-110.0,0.5041,0.0033,-0.0158,0.0,-0.0033,,
-2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Sacramento Sta +9.5,9.5,williamhill_us,-107.0,-112.0,Pass,0.4992,-0.0342,loss,-1.0,0.4992,0.4992,0.4992,-105.0,0.4959,-0.0033,-0.0406,0.0,0.0033,,53.0
-2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,San Jose State +38.5,38.5,betmgm,-108.0,-110.0,Strong buy,0.5547,0.0684,win,0.9259,0.5547,0.502,0.5547,-110.0,0.5089,0.0069,-0.0199,0.0,-0.0069,,-14.0
-2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,USC -38.5,-38.5,bovada,-105.0,-115.0,Pass,0.4453,-0.1307,loss,-1.0,0.4453,0.498,0.4453,-102.0,0.4911,-0.0069,-0.0412,0.0,0.0069,,14.0
 2026-08-29,Hawaii @ Stanford,Totals,game_total,Over 48.5,48.5,lowvig,-103.0,-114.0,Moderate buy,0.53,0.0445,win,0.9709,0.53,0.4997,0.53,-110.0,0.5204,0.0207,0.0256,0.5,-0.0207,,-8.0
 2026-08-29,Hawaii @ Stanford,Totals,game_total,Under 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.47,-0.0823,loss,-1.0,0.47,0.5003,0.47,-103.0,0.4796,-0.0207,-0.0636,-0.5,0.0207,,8.0
-2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Under 46.5,46.5,draftkings,-108.0,-112.0,Pass,0.3349,-0.3551,win,0.9259,0.3349,0.4995,0.3349,-110.0,0.5011,0.0016,-0.0349,0.0,-0.0015,,53.0
+2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,Jacksonville S ML,,betus,218.0,-260.0,Pass,0.3165,0.0064,loss,-1.0,0.3165,0.3055,0.3165,226.0,0.3004,-0.0051,-0.0447,,0.0054,,6.0
+2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,North Dakota S ML,,bovada,-245.0,205.0,Pass,0.6549,-0.0777,win,0.4082,0.6835,0.6945,0.6549,-250.0,0.6996,0.0051,-0.0148,,-0.0054,,-6.0
+2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,Jacksonville S +6.5,6.5,lowvig,105.0,-117.0,Pass,0.4702,-0.036,loss,-1.0,0.4702,0.4854,0.4702,-110.0,0.4936,0.0082,0.0119,-0.5,-0.0083,,21.0
+2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,North Dakota S -6.5,-6.5,betus,-110.0,-110.0,Pass,0.5298,0.0113,win,0.9091,0.5298,0.5146,0.5298,100.0,0.5064,-0.0082,-0.0332,0.5,0.0083,,-21.0
 2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Over 46.5,46.5,lowvig,-108.0,-108.0,Pass,0.6448,0.2419,loss,-1.0,0.6651,0.5005,0.6448,-108.0,0.4989,-0.0016,-0.0392,0.0,0.0015,,-53.0
-2026-08-29,Memphis @ UNLV,Totals,game_total,Under 56.5,56.5,williamhill_us,-110.0,-109.0,Pass,0.2902,-0.4461,win,0.9091,0.2902,0.5019,0.2902,-103.0,0.491,-0.0109,-0.0626,0.0,0.0109,,33.0
+2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Under 46.5,46.5,draftkings,-108.0,-112.0,Pass,0.3349,-0.3551,win,0.9259,0.3349,0.4995,0.3349,-110.0,0.5011,0.0016,-0.0349,0.0,-0.0015,,53.0
+2026-08-29,Memphis @ UNLV,Moneyline,game_ml,Memphis ML,,lowvig,165.0,-190.0,Pass,0.3529,-0.0648,win,1.65,0.3529,0.3714,0.3529,190.0,0.3378,-0.0336,-0.1048,,0.0343,,27.0
+2026-08-29,Memphis @ UNLV,Moneyline,game_ml,UNLV ML,,betus,-185.0,159.0,Pass,0.6349,-0.0219,loss,-1.0,0.6471,0.6286,0.6349,-210.0,0.6622,0.0336,0.0201,,-0.0343,,-27.0
+2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,Memphis +4.0,4.0,lowvig,-104.0,-108.0,Pass,0.4492,-0.1189,win,0.9615,0.4492,0.4974,0.4492,100.0,0.458,-0.0394,-0.1016,-1.5,0.0394,,12.0
+2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,UNLV -4.0,-4.0,lowvig,-108.0,-104.0,Strong buy,0.5508,0.0608,loss,-1.0,0.5508,0.5026,0.5508,-106.0,0.542,0.0394,0.0439,1.5,-0.0394,,-12.0
 2026-08-29,Memphis @ UNLV,Totals,game_total,Over 56.5,56.5,bovada,-105.0,-115.0,Pass,0.6694,0.307,loss,-1.0,0.7098,0.4981,0.6694,-110.0,0.509,0.0109,-0.0062,0.0,-0.0109,,-33.0
+2026-08-29,Memphis @ UNLV,Totals,game_total,Under 56.5,56.5,williamhill_us,-110.0,-109.0,Pass,0.2902,-0.4461,win,0.9091,0.2902,0.5019,0.2902,-103.0,0.491,-0.0109,-0.0626,0.0,0.0109,,33.0
+2026-08-29,NC State @ Virginia,Moneyline,game_ml,NC State ML,,betus,163.0,-190.0,Pass,0.3756,-0.0123,loss,-1.0,0.3756,0.3803,0.3756,190.0,0.3417,-0.0386,-0.1013,,0.0386,,7.0
+2026-08-29,NC State @ Virginia,Moneyline,game_ml,Virginia ML,,betonlineag,-175.0,153.0,Pass,0.6224,-0.0219,win,0.5714,0.6244,0.6197,0.6224,-210.0,0.6583,0.0386,0.0345,,-0.0386,,-7.0
+2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,NC State +4.0,4.0,fanatics,-110.0,-110.0,Pass,0.4727,-0.0976,loss,-1.0,0.4727,0.5061,0.4727,-105.0,0.4594,-0.0467,-0.123,-1.5,0.0467,,12.0
+2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,Virginia -4.0,-4.0,lowvig,101.0,-113.0,Moderate buy,0.5273,0.0599,win,1.01,0.5273,0.4939,0.5273,-106.0,0.5406,0.0467,0.0866,1.5,-0.0467,,-12.0
 2026-08-29,NC State @ Virginia,Totals,game_total,Over 51.0,51.0,lowvig,-108.0,-108.0,Pass,0.4599,-0.1143,loss,-1.0,0.4599,0.501,0.4599,-103.0,0.5711,0.0701,0.0999,2.5,-0.0702,,-9.0
 2026-08-29,NC State @ Virginia,Totals,game_total,Under 51.0,51.0,betrivers,-108.0,-115.0,Pass,0.5401,0.0402,win,0.9259,0.5401,0.499,0.5401,-108.0,0.4289,-0.0701,-0.174,-2.5,0.0702,,9.0
-2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Under 53.5,53.5,bovada,-105.0,-115.0,Moderate buy,0.5215,0.0181,win,0.9524,0.5215,0.4949,0.5215,-108.0,0.5005,0.0056,-0.0228,0.0,-0.0056,,-1.0
+2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,-10000.0,3000.0,Pass,0.8105,-0.1814,win,0.01,0.9664,0.9633,0.8105,-6500.0,0.9533,-0.01,-0.0372,,0.01,,-9.0
+2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,New Mexico Sta ML,,draftkings,3000.0,-10000.0,Pass,0.0336,0.0424,loss,-1.0,0.0336,0.0367,0.0336,2800.0,0.0467,0.01,0.4477,,-0.01,,9.0
+2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,Florida State -31.5,-31.5,fanduel,-105.0,-115.0,Pass,0.4406,-0.1398,loss,-1.0,0.4406,0.4972,0.4406,-101.0,0.4837,-0.0135,-0.0556,-0.5,0.0135,,-17.0
+2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,New Mexico Sta +31.5,31.5,lowvig,-106.0,-106.0,Strong buy,0.5594,0.0872,win,0.9434,0.5594,0.5028,0.5594,-105.0,0.5163,0.0135,0.0034,0.5,-0.0135,,17.0
 2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Over 53.5,53.5,mybookieag,-110.0,-110.0,Pass,0.4785,-0.0865,loss,-1.0,0.4785,0.5051,0.4785,-108.0,0.4995,-0.0056,-0.0464,0.0,0.0056,,1.0
-2026-08-29,North Carolina @ TCU,Totals,game_total,Under 45.5,45.5,williamhill_us,-102.0,-120.0,Pass,0.4722,-0.0649,win,0.9804,0.4722,0.4925,0.4722,-108.0,0.4382,-0.0543,-0.1322,-2.0,0.0542,,2.0
+2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Under 53.5,53.5,bovada,-105.0,-115.0,Moderate buy,0.5215,0.0181,win,0.9524,0.5215,0.4949,0.5215,-108.0,0.5005,0.0056,-0.0228,0.0,-0.0056,,-1.0
+2026-08-29,North Carolina @ TCU,Moneyline,game_ml,North Carolina ML,,mybookieag,271.0,-356.0,Pass,0.3101,0.1505,win,2.71,0.3101,0.2622,0.3101,260.0,0.2721,0.0099,0.0095,,-0.0096,price_too_long,-5.0
+2026-08-29,North Carolina @ TCU,Moneyline,game_ml,TCU ML,,betonlineag,-320.0,260.0,Pass,0.6584,-0.1358,loss,-1.0,0.6899,0.7378,0.6584,-300.0,0.7279,-0.0099,-0.0446,,0.0096,,5.0
+2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,North Carolina +8.5,8.5,williamhill_us,-107.0,-113.0,Pass,0.514,-0.0056,win,0.9346,0.514,0.4982,0.514,-105.0,0.5211,0.0229,0.0081,1.0,-0.0229,,-4.0
+2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,TCU -8.5,-8.5,fanduel,-110.0,-110.0,Pass,0.486,-0.0722,loss,-1.0,0.486,0.5018,0.486,-106.0,0.4789,-0.0229,-0.0857,-1.0,0.0229,,4.0
 2026-08-29,North Carolina @ TCU,Totals,game_total,Over 45.5,45.5,betmgm,-110.0,-108.0,Pass,0.5278,0.0076,loss,-1.0,0.5278,0.5075,0.5278,-108.0,0.5618,0.0543,0.0725,2.0,-0.0542,,-2.0
+2026-08-29,North Carolina @ TCU,Totals,game_total,Under 45.5,45.5,williamhill_us,-102.0,-120.0,Pass,0.4722,-0.0649,win,0.9804,0.4722,0.4925,0.4722,-108.0,0.4382,-0.0543,-0.1322,-2.0,0.0542,,2.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Eastern Michig ML,,betus,-340.0,275.0,Pass,0.6781,-0.1225,win,0.2941,0.7256,0.7464,0.6781,-325.0,0.7532,0.0068,-0.0253,,-0.0071,,
+2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Sacramento Sta ML,,betrivers,290.0,-385.0,Pass,0.2744,0.0703,loss,-1.0,0.2744,0.2536,0.2744,310.0,0.2468,-0.0068,-0.0375,,0.0071,price_too_long,-25.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Eastern Michig -9.5,-9.5,draftkings,-105.0,-115.0,Pass,0.5008,-0.0223,win,0.9524,0.5008,0.5008,0.5008,-110.0,0.5041,0.0033,-0.0158,0.0,-0.0033,,
+2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Sacramento Sta +9.5,9.5,williamhill_us,-107.0,-112.0,Pass,0.4992,-0.0342,loss,-1.0,0.4992,0.4992,0.4992,-105.0,0.4959,-0.0033,-0.0406,0.0,0.0033,,53.0
 2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.3392,-0.3377,loss,-1.0,0.3392,0.5049,0.3392,-108.0,0.4696,-0.0353,-0.0832,-1.0,0.0353,,28.0
 2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Under 53.5,53.5,draftkings,-105.0,-115.0,Pass,0.6424,0.2542,win,0.9524,0.6607,0.4951,0.6424,-108.0,0.5304,0.0353,0.0355,1.0,-0.0353,,
+2026-08-29,San Jose State @ USC,Moneyline,game_ml,San Jose State ML,,mybookieag,1825.0,-50000.0,Pass,0.0117,-0.7748,loss,-1.0,0.0117,0.0495,0.0117,6000.0,0.0371,-0.0124,-0.2858,,0.0124,,
+2026-08-29,San Jose State @ USC,Moneyline,game_ml,USC ML,,mybookieag,-50000.0,1825.0,Pass,0.8226,-0.1758,win,0.002,0.9883,0.9505,0.8226,-20000.0,0.9629,0.0124,-0.0352,,-0.0124,,
+2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,San Jose State +38.5,38.5,betmgm,-108.0,-110.0,Strong buy,0.5547,0.0684,win,0.9259,0.5547,0.502,0.5547,-110.0,0.5089,0.0069,-0.0199,0.0,-0.0069,,-14.0
+2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,USC -38.5,-38.5,bovada,-105.0,-115.0,Pass,0.4453,-0.1307,loss,-1.0,0.4453,0.498,0.4453,-102.0,0.4911,-0.0069,-0.0412,0.0,0.0069,,14.0
 2026-08-29,San Jose State @ USC,Totals,game_total,Over 61.5,61.5,lowvig,-103.0,-114.0,Strong buy,0.5512,0.0862,win,0.9709,0.5512,0.495,0.5512,-106.0,0.468,-0.027,-0.0776,-1.0,0.027,,6.0
 2026-08-29,San Jose State @ USC,Totals,game_total,Under 61.5,61.5,bovada,-105.0,-115.0,Pass,0.4488,-0.1237,loss,-1.0,0.4488,0.505,0.4488,-108.0,0.532,0.027,0.0387,1.0,-0.027,,-6.0

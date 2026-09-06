@@ -1,0 +1,332 @@
+{
+  "Akron @ Wake Forest|game_ats|Akron": {
+    "american": -106.0,
+    "line": 28.0,
+    "no_vig_prob": 0.501553610636319
+  },
+  "Akron @ Wake Forest|game_ats|Wake Forest": {
+    "american": -106.0,
+    "line": -28.0,
+    "no_vig_prob": 0.49844638936368113
+  },
+  "Akron @ Wake Forest|game_ml|Akron": {
+    "american": 2000.0,
+    "line": null,
+    "no_vig_prob": 0.05982311058852209
+  },
+  "Akron @ Wake Forest|game_ml|Wake Forest": {
+    "american": -3000.0,
+    "line": null,
+    "no_vig_prob": 0.9401768894114779
+  },
+  "Akron @ Wake Forest|game_total|Over": {
+    "american": -110.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5064655822964331
+  },
+  "Akron @ Wake Forest|game_total|Under": {
+    "american": -103.0,
+    "line": 50.5,
+    "no_vig_prob": 0.4935344177035669
+  },
+  "Albany @ Buffalo|game_ats|Albany": {
+    "american": -120.0,
+    "line": 10.5,
+    "no_vig_prob": 0.5240143628301523
+  },
+  "Albany @ Buffalo|game_ats|Buffalo": {
+    "american": 102.0,
+    "line": -10.5,
+    "no_vig_prob": 0.47598563716984776
+  },
+  "Albany @ Buffalo|game_ml|Albany": {
+    "american": 650.0,
+    "line": null,
+    "no_vig_prob": 0.15950694836690513
+  },
+  "Albany @ Buffalo|game_ml|Buffalo": {
+    "american": -556.0,
+    "line": null,
+    "no_vig_prob": 0.840493051633095
+  },
+  "Albany @ Buffalo|game_total|Over": {
+    "american": -110.0,
+    "line": 42.5,
+    "no_vig_prob": 0.5062560824001855
+  },
+  "Albany @ Buffalo|game_total|Under": {
+    "american": -108.0,
+    "line": 42.5,
+    "no_vig_prob": 0.49374391759981445
+  },
+  "Arkansas Pine @ Missouri|game_ats|Arkansas Pine": {
+    "american": 132.0,
+    "line": 46.5,
+    "no_vig_prob": 0.46212804874898444
+  },
+  "Arkansas Pine @ Missouri|game_ats|Missouri": {
+    "american": -120.0,
+    "line": -46.5,
+    "no_vig_prob": 0.5378719512510157
+  },
+  "Arkansas Pine @ Missouri|game_ml|Arkansas Pine": {
+    "american": 1575.0,
+    "line": null,
+    "no_vig_prob": 0.05639118922877584
+  },
+  "Arkansas Pine @ Missouri|game_ml|Missouri": {
+    "american": -100000.0,
+    "line": null,
+    "no_vig_prob": 0.943608810771224
+  },
+  "Arkansas Pine @ Missouri|game_total|Over": {
+    "american": -175.0,
+    "line": 60.5,
+    "no_vig_prob": 0.6190046800334139
+  },
+  "Arkansas Pine @ Missouri|game_total|Under": {
+    "american": 152.0,
+    "line": 60.5,
+    "no_vig_prob": 0.38099531996658603
+  },
+  "Bethune-Cookma @ UCF|game_ats|Bethune-Cookma": {
+    "american": -110.0,
+    "line": 43.5,
+    "no_vig_prob": 0.4986900352919338
+  },
+  "Bethune-Cookma @ UCF|game_ats|UCF": {
+    "american": -105.0,
+    "line": -43.5,
+    "no_vig_prob": 0.5013099647080662
+  },
+  "Bethune-Cookma @ UCF|game_ml|Bethune-Cookma": {
+    "american": 1575.0,
+    "line": null,
+    "no_vig_prob": 0.05639118922877584
+  },
+  "Bethune-Cookma @ UCF|game_ml|UCF": {
+    "american": -100000.0,
+    "line": null,
+    "no_vig_prob": 0.943608810771224
+  },
+  "Bethune-Cookma @ UCF|game_total|Over": {
+    "american": -110.0,
+    "line": 58.5,
+    "no_vig_prob": 0.5134824139050257
+  },
+  "Bethune-Cookma @ UCF|game_total|Under": {
+    "american": 100.0,
+    "line": 58.5,
+    "no_vig_prob": 0.48651758609497436
+  },
+  "Colorado @ Georgia Tech|game_ats|Colorado": {
+    "american": 130.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4230359249346548
+  },
+  "Colorado @ Georgia Tech|game_ats|Georgia Tech": {
+    "american": -150.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5769640750653452
+  },
+  "Colorado @ Georgia Tech|game_ml|Colorado": {
+    "american": 165.0,
+    "line": null,
+    "no_vig_prob": 0.3838047930655476
+  },
+  "Colorado @ Georgia Tech|game_ml|Georgia Tech": {
+    "american": -170.0,
+    "line": null,
+    "no_vig_prob": 0.6161952069344524
+  },
+  "Colorado @ Georgia Tech|game_total|Over": {
+    "american": -115.0,
+    "line": 29.5,
+    "no_vig_prob": 0.5
+  },
+  "Colorado @ Georgia Tech|game_total|Under": {
+    "american": -115.0,
+    "line": 29.5,
+    "no_vig_prob": 0.5
+  },
+  "Eastern Illino @ Minnesota|game_ats|Eastern Illino": {
+    "american": 135.0,
+    "line": 51.5,
+    "no_vig_prob": 0.4301379301260675
+  },
+  "Eastern Illino @ Minnesota|game_ats|Minnesota": {
+    "american": -145.0,
+    "line": -51.5,
+    "no_vig_prob": 0.5698620698739325
+  },
+  "Eastern Illino @ Minnesota|game_ml|Eastern Illino": {
+    "american": 1575.0,
+    "line": null,
+    "no_vig_prob": 0.05639118922877584
+  },
+  "Eastern Illino @ Minnesota|game_ml|Minnesota": {
+    "american": -100000.0,
+    "line": null,
+    "no_vig_prob": 0.943608810771224
+  },
+  "Eastern Illino @ Minnesota|game_total|Over": {
+    "american": -165.0,
+    "line": 65.5,
+    "no_vig_prob": 0.6358069340354369
+  },
+  "Eastern Illino @ Minnesota|game_total|Under": {
+    "american": 185.0,
+    "line": 65.5,
+    "no_vig_prob": 0.36419306596456325
+  },
+  "Idaho @ Utah|game_ats|Idaho": {
+    "american": -110.0,
+    "line": 39.5,
+    "no_vig_prob": 0.49595239982885747
+  },
+  "Idaho @ Utah|game_ats|Utah": {
+    "american": -111.0,
+    "line": -39.5,
+    "no_vig_prob": 0.5040476001711426
+  },
+  "Idaho @ Utah|game_ml|Idaho": {
+    "american": 5500.0,
+    "line": null,
+    "no_vig_prob": 0.03075872247680521
+  },
+  "Idaho @ Utah|game_ml|Utah": {
+    "american": -10000.0,
+    "line": null,
+    "no_vig_prob": 0.9692412775231948
+  },
+  "Idaho @ Utah|game_total|Over": {
+    "american": 100.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5018477081282939
+  },
+  "Idaho @ Utah|game_total|Under": {
+    "american": 100.0,
+    "line": 65.5,
+    "no_vig_prob": 0.49815229187170607
+  },
+  "Merrimack @ Delaware|game_ats|Delaware": {
+    "american": -108.0,
+    "line": -31.5,
+    "no_vig_prob": 0.5001743025535852
+  },
+  "Merrimack @ Delaware|game_ats|Merrimack": {
+    "american": -108.0,
+    "line": 31.5,
+    "no_vig_prob": 0.4998256974464148
+  },
+  "Merrimack @ Delaware|game_ml|Delaware": {
+    "american": -8000.0,
+    "line": null,
+    "no_vig_prob": 0.9570208967983086
+  },
+  "Merrimack @ Delaware|game_ml|Merrimack": {
+    "american": 3000.0,
+    "line": null,
+    "no_vig_prob": 0.04297910320169132
+  },
+  "Merrimack @ Delaware|game_total|Over": {
+    "american": -105.0,
+    "line": 56.5,
+    "no_vig_prob": 0.4960340772697747
+  },
+  "Merrimack @ Delaware|game_total|Under": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5039659227302252
+  },
+  "UAB @ Illinois|game_ats|Illinois": {
+    "american": -110.0,
+    "line": -18.5,
+    "no_vig_prob": 0.4987126744382032
+  },
+  "UAB @ Illinois|game_ats|UAB": {
+    "american": -105.0,
+    "line": 18.5,
+    "no_vig_prob": 0.5012873255617968
+  },
+  "UAB @ Illinois|game_ml|Illinois": {
+    "american": -4800.0,
+    "line": null,
+    "no_vig_prob": 0.9411561732913369
+  },
+  "UAB @ Illinois|game_ml|UAB": {
+    "american": 1800.0,
+    "line": null,
+    "no_vig_prob": 0.058843826708663116
+  },
+  "UAB @ Illinois|game_total|Over": {
+    "american": 100.0,
+    "line": 58.5,
+    "no_vig_prob": 0.4837726701307968
+  },
+  "UAB @ Illinois|game_total|Under": {
+    "american": -110.0,
+    "line": 58.5,
+    "no_vig_prob": 0.5162273298692033
+  },
+  "UMass @ Rutgers|game_ats|Rutgers": {
+    "american": -106.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5092474398145557
+  },
+  "UMass @ Rutgers|game_ats|UMass": {
+    "american": 105.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4907525601854444
+  },
+  "UMass @ Rutgers|game_ml|Rutgers": {
+    "american": -115.0,
+    "line": null,
+    "no_vig_prob": 0.5407282605192953
+  },
+  "UMass @ Rutgers|game_ml|UMass": {
+    "american": 120.0,
+    "line": null,
+    "no_vig_prob": 0.4592717394807046
+  },
+  "UMass @ Rutgers|game_total|Over": {
+    "american": 102.0,
+    "line": 65.5,
+    "no_vig_prob": 0.49353305034056083
+  },
+  "UMass @ Rutgers|game_total|Under": {
+    "american": -110.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5064669496594392
+  },
+  "West Georgia @ Kennesaw State|game_ats|Kennesaw State": {
+    "american": 145.0,
+    "line": -54.5,
+    "no_vig_prob": 0.4244551427066381
+  },
+  "West Georgia @ Kennesaw State|game_ats|West Georgia": {
+    "american": -118.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5755448572933619
+  },
+  "West Georgia @ Kennesaw State|game_ml|Kennesaw State": {
+    "american": -2200.0,
+    "line": null,
+    "no_vig_prob": 0.9260893417357873
+  },
+  "West Georgia @ Kennesaw State|game_ml|West Georgia": {
+    "american": 1500.0,
+    "line": null,
+    "no_vig_prob": 0.07391065826421275
+  },
+  "West Georgia @ Kennesaw State|game_total|Over": {
+    "american": 105.0,
+    "line": 58.5,
+    "no_vig_prob": 0.4777039848197343
+  },
+  "West Georgia @ Kennesaw State|game_total|Under": {
+    "american": -115.0,
+    "line": 58.5,
+    "no_vig_prob": 0.5222960151802656
+  }
+}
