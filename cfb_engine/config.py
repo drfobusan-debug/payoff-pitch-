@@ -409,6 +409,14 @@ class Config:
         default_factory=lambda: _env_int("CFBE_SMTP_PORT", _env_int("SMTP_PORT", 465))
     )
 
+    # Shared state (see cfb_engine/state.py): the card is priced on one machine
+    # and audited on another, so the audit directory travels on a branch. Best
+    # effort -- no remote, branch or credentials just means local state.
+    state_sync: bool = field(default_factory=lambda: _env_bool("CFBE_STATE_SYNC", True))
+    state_branch: str = field(
+        default_factory=lambda: os.getenv("CFBE_STATE_BRANCH", "engine-state")
+    )
+
     # Directories.
     data_dir: Path = field(
         default_factory=lambda: Path(os.getenv("CFBE_DATA_DIR", str(Path.home() / ".cfb_engine")))

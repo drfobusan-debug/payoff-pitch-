@@ -62,6 +62,7 @@ from cfb_engine.output.card import generate_daily_card
 from cfb_engine.output.excel import write_ledger_workbook, write_workbook
 from cfb_engine.pipeline import Pipeline
 from cfb_engine.recommendations import Recommendation, load_json, save_json
+from cfb_engine.state import auto_pull, auto_push
 
 _EASTERN = ZoneInfo("America/New_York")
 
@@ -85,8 +86,29 @@ def _season(cfg: Config, day: Date) -> int:
 # --------------------------------------------------------------------------- #
 # commands
 # --------------------------------------------------------------------------- #
+def _state_pull(cfg: Config, day: Date | None = None) -> None:
+    """Recover state written by an earlier run, possibly on another machine."""
+    if not cfg.state_sync:
+        return
+    dates = (day.isoformat(),) if day is not None else None
+    report = auto_pull(cfg.data_dir, branch=cfg.state_branch, dates=dates)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
+def _state_push(cfg: Config, message: str) -> None:
+    if not cfg.state_sync:
+        return
+    report = auto_push(cfg.data_dir, message, branch=cfg.state_branch)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
 def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
+    # The first-seen board may already be on the branch from another machine's
+    # earlier capture; drift is measured from it, so it has to be here first.
+    _state_pull(cfg, day)
     pipe = Pipeline(cfg)
     recs = pipe.run(day)
     if not recs:
@@ -94,6 +116,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     save_json(recs, cfg.predictions_file(day))
+    _state_push(cfg, f"cfb run {day.isoformat()}: {len(recs)} markets priced")
     xlsx = write_workbook(recs, cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx", day)
     print(f"Wrote {len(recs)} recommendations -> {xlsx}")
 
@@ -107,6 +130,8 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
 def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
     path = cfg.predictions_file(day)
+    if not path.exists():
+        _state_pull(cfg, day)
     if not path.exists():
         print(f"No saved predictions for {day} ({path}); run `cfb-engine run` first.")
         return 1
@@ -128,6 +153,7 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     if not slate.games:
         print(f"No NCAAF games to snapshot for {day}.")
         return 0
+    _state_pull(cfg, day)
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
@@ -143,6 +169,7 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
         f"Captured {len(fresh)} closing quotes; {len(quotes)} total{detail} "
         f"-> {cfg.closing_file(day)}"
     )
+    _state_push(cfg, f"cfb close {day.isoformat()}: {len(quotes)} prices")
     return 0
 
 
@@ -163,6 +190,7 @@ def _grade_slate(cfg: Config, day: Date) -> list[tuple[Recommendation, str]]:
 
 def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
+    _state_pull(cfg, day)
     if not cfg.predictions_file(day).exists():
         print(f"No saved predictions for {day}; nothing to grade.")
         return 1
@@ -204,10 +232,12 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
         )
 
     _emit_ledger(cfg, merged, day, n_graded=len(entries), email=not args.no_email, to=args.to)
+    _state_push(cfg, f"cfb audit {day.isoformat()}: {len(entries)} graded")
     return 0
 
 
 def cmd_report(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
@@ -282,6 +312,7 @@ def cmd_latency(cfg: Config, args: argparse.Namespace) -> int:
 
 
 def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     if not cfg.scorecard_file.exists():
         print("No scorecard yet; run `cfb-engine audit` on graded slates first.")
         return 1
@@ -291,6 +322,7 @@ def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
 
 def cmd_probation(cfg: Config, args: argparse.Namespace) -> int:
     """Read the verdicts without grading a slate or sending anything."""
+    _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` on graded slates first.")
