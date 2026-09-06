@@ -16,6 +16,13 @@
 #   * Saturday:  wake 09:00  ->  cfb 09:05  (price the college football board
 #                           and email its article PDF + MP3 + workbook). The
 #                           Friday night wake arms this one.
+#   * Thu + Sun: wake 08:00  ->  nfl 08:05  (archive the NFL board, price the
+#                           week, re-stamp the close, grade what has finished,
+#                           email the card PDF + workbook). Thursday's pass is
+#                           the week's card and grades last Sunday/Monday;
+#                           Sunday's re-stamps the close before the early games
+#                           and grades Thursday night. The Wed/Sat night wakes
+#                           arm these.
 #
 # Why the LATE passes exist, and why the morning card is now a preview: over the
 # ledger's 915 graded buys carrying a first-pitch stamp, the ones priced inside
@@ -104,6 +111,13 @@ LATE_WAKES="11:40 14:40 17:40 20:40"
 CFB_WAKE_HHMM="09:00"; CFB_RUN_HOUR=9; CFB_RUN_MIN=5
 CFB_WEEKDAY=6   # launchd: 0=Sunday .. 6=Saturday
 
+# NFL: Thursday (the week's card) and Sunday (close re-stamp + Thursday grade),
+# an hour before anything else so no two engines share a machine hour. Both are
+# the same `nfl-engine job`, which appends only new positions, keeps the price of
+# record and re-stamps the close until kickoff -- so re-running is safe.
+NFL_WAKE_HHMM="08:00"; NFL_RUN_HOUR=8; NFL_RUN_MIN=5
+NFL_WEEKDAYS="4 0"   # launchd: Thursday, Sunday
+
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
 
@@ -117,6 +131,12 @@ MORNING_LABEL="com.franz.engine.morning"
 CLOSE_LABEL="com.franz.engine.close"
 DAY_CLOSE_LABEL="com.franz.engine.dayclose"
 CFB_LABEL="com.franz.engine.cfb"
+NFL_LABELS=(); NFL_PLISTS=()
+for wd in $NFL_WEEKDAYS; do
+  label="com.franz.engine.nfl${wd}"
+  NFL_LABELS+=("$label")
+  NFL_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+done
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
@@ -131,7 +151,7 @@ for hm in $LATE_RUNS; do
   LATE_LABELS+=("$label")
   LATE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${LATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${LATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -195,6 +215,7 @@ pmset_() {
 # Gmail creds placed there work for the autorun too.
 [[ -f "\$HOME/.mlb_engine/engine.env" ]] && set -a && source "\$HOME/.mlb_engine/engine.env" && set +a
 [[ -f "\$HOME/.cfb_engine/engine.env" ]] && set -a && source "\$HOME/.cfb_engine/engine.env" && set +a
+[[ -f "\$HOME/.nfl_engine/engine.env" ]] && set -a && source "\$HOME/.nfl_engine/engine.env" && set +a
 cd "$REPO_DIR"
 [[ -d "$VENV_DIR" ]] && source "$VENV_DIR/bin/activate"
 
@@ -279,6 +300,14 @@ if [[ "\$MODE" == "night" ]]; then
     pmset_ schedule wake "\$NEXT $CFB_WAKE_HHMM:00" || echo "[\$(date)] could not arm CFB wake" >&2
     echo "[\$(date)] armed CFB wake for \$NEXT $CFB_WAKE_HHMM:00"
   fi
+  # Wednesday and Saturday nights arm the NFL pass (Thursday card, Sunday
+  # close re-stamp). %u: 1=Mon .. 7=Sun.
+  case "\$(date -v+1d +%u)" in
+    4|7)
+      pmset_ schedule wake "\$NEXT $NFL_WAKE_HHMM:00" || echo "[\$(date)] could not arm NFL wake" >&2
+      echo "[\$(date)] armed NFL wake for \$NEXT $NFL_WAKE_HHMM:00"
+      ;;
+  esac
 elif [[ "\$MODE" == "close" ]]; then
   # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
   # line value (CLV) -- the fast way to tell whether a pick had real edge. Runs
@@ -294,6 +323,14 @@ elif [[ "\$MODE" == "cfb" ]]; then
   /usr/bin/caffeinate -i -w \$\$ &
   pull_latest
   cfb-engine run || echo "[\$(date)] 'cfb-engine run' exited non-zero" >&2
+elif [[ "\$MODE" == "nfl" ]]; then
+  # Thursday/Sunday: capture -> price -> close -> grade -> card, emailed as one
+  # message (card PDF + workbook). Same command as the one-click
+  # scripts/macos/run_nfl_week.command, minus opening Excel. Off-season the
+  # board is empty (--days 8), so nothing is priced and the job exits 0.
+  /usr/bin/caffeinate -i -w \$\$ &
+  pull_latest
+  nfl-engine job --card --email || echo "[\$(date)] 'nfl-engine job' exited non-zero" >&2
 elif [[ "\$MODE" == "late" ]]; then
   # Re-price the games starting inside the next $LATE_WINDOW_HOURS hours -- off
   # posted lineups, on the board as it stands -- and email the card that comes
@@ -411,6 +448,11 @@ write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MI
 write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
 write_plist "$CFB_PLIST" "$CFB_LABEL" "$CFB_RUN_HOUR" "$CFB_RUN_MIN" cfb "$CFB_WEEKDAY"
 i=0
+for wd in $NFL_WEEKDAYS; do
+  write_plist "${NFL_PLISTS[$i]}" "${NFL_LABELS[$i]}" "$NFL_RUN_HOUR" "$NFL_RUN_MIN" nfl "$wd"
+  i=$((i + 1))
+done
+i=0
 for hm in $LATE_RUNS; do
   write_plist "${LATE_PLISTS[$i]}" "${LATE_LABELS[$i]}" \
     "$((10#${hm%%:*}))" "$((10#${hm##*:}))" late
@@ -450,6 +492,8 @@ echo "Test close run:    sudo launchctl start ${CLOSE_LABEL}"
 echo "Test day close:    sudo launchctl start ${DAY_CLOSE_LABEL}"
 echo "Test CFB Saturday: sudo launchctl start ${CFB_LABEL}   (prices today's board,"
 echo "                   spends Odds API credits and emails the slate)"
+echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the week,"
+echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
 echo "Test a late pass:  sudo launchctl start ${LATE_LABELS[0]}   (re-prices the"
 echo "                   games inside ${LATE_WINDOW_HOURS}h and emails that card; the others are"
 echo "                   ${LATE_LABELS[*]:1})"
