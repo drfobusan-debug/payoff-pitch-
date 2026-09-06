@@ -1,0 +1,242 @@
+{
+  "Hawaii @ Stanford|game_ats|Hawaii": {
+    "american": -104.0,
+    "line": 5.5,
+    "no_vig_prob": 0.5028395373003812
+  },
+  "Hawaii @ Stanford|game_ats|Stanford": {
+    "american": -101.0,
+    "line": -5.5,
+    "no_vig_prob": 0.49716046269961883
+  },
+  "Hawaii @ Stanford|game_ml|Hawaii": {
+    "american": 189.0,
+    "line": null,
+    "no_vig_prob": 0.3395025296926726
+  },
+  "Hawaii @ Stanford|game_ml|Stanford": {
+    "american": -215.0,
+    "line": null,
+    "no_vig_prob": 0.6604974703073275
+  },
+  "Hawaii @ Stanford|game_total|Over": {
+    "american": -110.0,
+    "line": 49.0,
+    "no_vig_prob": 0.5050536796973705
+  },
+  "Hawaii @ Stanford|game_total|Under": {
+    "american": -103.0,
+    "line": 49.0,
+    "no_vig_prob": 0.49494632030262947
+  },
+  "Jacksonville S @ North Dakota S|game_ats|Jacksonville S": {
+    "american": -110.0,
+    "line": 7.0,
+    "no_vig_prob": 0.5061149583007938
+  },
+  "Jacksonville S @ North Dakota S|game_ats|North Dakota S": {
+    "american": 100.0,
+    "line": -7.0,
+    "no_vig_prob": 0.4938850416992062
+  },
+  "Jacksonville S @ North Dakota S|game_ml|Jacksonville S": {
+    "american": 230.0,
+    "line": null,
+    "no_vig_prob": 0.3000604117977639
+  },
+  "Jacksonville S @ North Dakota S|game_ml|North Dakota S": {
+    "american": -250.0,
+    "line": null,
+    "no_vig_prob": 0.6999395882022361
+  },
+  "Jacksonville S @ North Dakota S|game_total|Over": {
+    "american": -108.0,
+    "line": 46.5,
+    "no_vig_prob": 0.4989249161434592
+  },
+  "Jacksonville S @ North Dakota S|game_total|Under": {
+    "american": -110.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5010750838565408
+  },
+  "Memphis @ UNLV|game_ats|Memphis": {
+    "american": 100.0,
+    "line": 5.5,
+    "no_vig_prob": 0.4953916636939492
+  },
+  "Memphis @ UNLV|game_ats|UNLV": {
+    "american": -106.0,
+    "line": -5.5,
+    "no_vig_prob": 0.5046083363060507
+  },
+  "Memphis @ UNLV|game_ml|Memphis": {
+    "american": 190.0,
+    "line": null,
+    "no_vig_prob": 0.33716245373485115
+  },
+  "Memphis @ UNLV|game_ml|UNLV": {
+    "american": -215.0,
+    "line": null,
+    "no_vig_prob": 0.6628375462651489
+  },
+  "Memphis @ UNLV|game_total|Over": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5089561692015662
+  },
+  "Memphis @ UNLV|game_total|Under": {
+    "american": -103.0,
+    "line": 56.5,
+    "no_vig_prob": 0.4910438307984338
+  },
+  "NC State @ Virginia|game_ats|NC State": {
+    "american": -105.0,
+    "line": 5.5,
+    "no_vig_prob": 0.49675371323748924
+  },
+  "NC State @ Virginia|game_ats|Virginia": {
+    "american": -106.0,
+    "line": -5.5,
+    "no_vig_prob": 0.5032462867625107
+  },
+  "NC State @ Virginia|game_ml|NC State": {
+    "american": 190.0,
+    "line": null,
+    "no_vig_prob": 0.3416797330213182
+  },
+  "NC State @ Virginia|game_ml|Virginia": {
+    "american": -210.0,
+    "line": null,
+    "no_vig_prob": 0.6583202669786818
+  },
+  "NC State @ Virginia|game_total|Over": {
+    "american": -103.0,
+    "line": 53.5,
+    "no_vig_prob": 0.49440714602426483
+  },
+  "NC State @ Virginia|game_total|Under": {
+    "american": -108.0,
+    "line": 53.5,
+    "no_vig_prob": 0.5055928539757353
+  },
+  "New Mexico Sta @ Florida State|game_ats|Florida State": {
+    "american": -101.0,
+    "line": -31.0,
+    "no_vig_prob": 0.4961307700009284
+  },
+  "New Mexico Sta @ Florida State|game_ats|New Mexico Sta": {
+    "american": -105.0,
+    "line": 31.0,
+    "no_vig_prob": 0.5038692299990715
+  },
+  "New Mexico Sta @ Florida State|game_ml|Florida State": {
+    "american": -6500.0,
+    "line": null,
+    "no_vig_prob": 0.9533166718932682
+  },
+  "New Mexico Sta @ Florida State|game_ml|New Mexico Sta": {
+    "american": 2800.0,
+    "line": null,
+    "no_vig_prob": 0.04668332810673181
+  },
+  "New Mexico Sta @ Florida State|game_total|Over": {
+    "american": -108.0,
+    "line": 53.5,
+    "no_vig_prob": 0.49950232711839443
+  },
+  "New Mexico Sta @ Florida State|game_total|Under": {
+    "american": -108.0,
+    "line": 53.5,
+    "no_vig_prob": 0.5004976728816056
+  },
+  "North Carolina @ TCU|game_ats|North Carolina": {
+    "american": -105.0,
+    "line": 7.5,
+    "no_vig_prob": 0.4961540510269028
+  },
+  "North Carolina @ TCU|game_ats|TCU": {
+    "american": -106.0,
+    "line": -7.5,
+    "no_vig_prob": 0.5038459489730973
+  },
+  "North Carolina @ TCU|game_ml|North Carolina": {
+    "american": 265.0,
+    "line": null,
+    "no_vig_prob": 0.27179512983520043
+  },
+  "North Carolina @ TCU|game_ml|TCU": {
+    "american": -300.0,
+    "line": null,
+    "no_vig_prob": 0.7282048701647996
+  },
+  "North Carolina @ TCU|game_total|Over": {
+    "american": -108.0,
+    "line": 47.5,
+    "no_vig_prob": 0.5004046499130812
+  },
+  "North Carolina @ TCU|game_total|Under": {
+    "american": -108.0,
+    "line": 47.5,
+    "no_vig_prob": 0.49959535008691885
+  },
+  "Sacramento Sta @ Eastern Michig|game_ats|Eastern Michig": {
+    "american": -110.0,
+    "line": -9.5,
+    "no_vig_prob": 0.5041415223250509
+  },
+  "Sacramento Sta @ Eastern Michig|game_ats|Sacramento Sta": {
+    "american": -105.0,
+    "line": 9.5,
+    "no_vig_prob": 0.495858477674949
+  },
+  "Sacramento Sta @ Eastern Michig|game_ml|Eastern Michig": {
+    "american": -325.0,
+    "line": null,
+    "no_vig_prob": 0.7535111953322866
+  },
+  "Sacramento Sta @ Eastern Michig|game_ml|Sacramento Sta": {
+    "american": 310.0,
+    "line": null,
+    "no_vig_prob": 0.24648880466771364
+  },
+  "Sacramento Sta @ Eastern Michig|game_total|Over": {
+    "american": -108.0,
+    "line": 52.5,
+    "no_vig_prob": 0.5003013735400461
+  },
+  "Sacramento Sta @ Eastern Michig|game_total|Under": {
+    "american": -108.0,
+    "line": 52.5,
+    "no_vig_prob": 0.49969862645995394
+  },
+  "San Jose State @ USC|game_ats|San Jose State": {
+    "american": -110.0,
+    "line": 38.5,
+    "no_vig_prob": 0.5089314727881117
+  },
+  "San Jose State @ USC|game_ats|USC": {
+    "american": -102.0,
+    "line": -38.5,
+    "no_vig_prob": 0.49106852721188826
+  },
+  "San Jose State @ USC|game_ml|San Jose State": {
+    "american": 6000.0,
+    "line": null,
+    "no_vig_prob": 0.037116995997904
+  },
+  "San Jose State @ USC|game_ml|USC": {
+    "american": -20000.0,
+    "line": null,
+    "no_vig_prob": 0.9628830040020959
+  },
+  "San Jose State @ USC|game_total|Over": {
+    "american": -106.0,
+    "line": 60.5,
+    "no_vig_prob": 0.4987068642233297
+  },
+  "San Jose State @ USC|game_total|Under": {
+    "american": -108.0,
+    "line": 60.5,
+    "no_vig_prob": 0.5012931357766702
+  }
+}
