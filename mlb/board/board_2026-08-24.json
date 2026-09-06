@@ -5973,6 +5973,13 @@
   {
     "matchup": "CHC @ AZ",
     "market": "batter_tb",
+    "selection": "Michael Conforto TB u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.596251
+  },
+  {
+    "matchup": "CHC @ AZ",
+    "market": "batter_tb",
     "selection": "Nico Hoerner TB o1.5",
     "american": 127.0,
     "no_vig_prob": 0.411648
@@ -30385,6 +30392,13 @@
     "selection": "Joc Pederson TB u0.5",
     "american": 120.0,
     "no_vig_prob": 0.431552
+  },
+  {
+    "matchup": "TEX @ CWS",
+    "market": "batter_tb",
+    "selection": "Joc Pederson TB u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.585126
   },
   {
     "matchup": "TEX @ CWS",
