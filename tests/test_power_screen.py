@@ -1014,6 +1014,29 @@ def test_the_filename_is_dated() -> None:
     assert power_report.default_filename(Date(2026, 8, 17), "html").endswith(".html")
 
 
+def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
+    """The other four reads did not order production out of time, so they cannot grade.
+
+    Exposure, arsenal fit, the full-game opponent and the strikeout rate are still
+    printed as reasons; moving all four against a bat must leave its letter alone.
+    """
+    result = _result()
+    view = result.sections[0].hitters[0]
+
+    for con, grade in (
+        (power_report.CONTACT_GRADE_A, "BUY"),
+        (power_report.CONTACT_GRADE_B, "HOLD"),
+        (power_report.CONTACT_GRADE_B - 0.001, "AVOID"),
+    ):
+        view.line.xwoba_con = con
+        assert power_report.ratings(result)[view.line.name] == grade
+
+    view.line.xwoba_con = power_report.CONTACT_GRADE_A
+    view.line.k = 0.35
+    view.fit_xwoba = view.overall.xwoba - 0.05
+    assert power_report.ratings(result)[view.line.name] == "BUY"
+
+
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
     """A hitter here on his swing must not read as a clean survivor of the cuts."""
     result = _result()
