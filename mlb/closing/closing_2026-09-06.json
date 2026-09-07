@@ -22976,6 +22976,20 @@
   {
     "matchup": "NYY @ SD",
     "market": "batter_bb",
+    "selection": "Luis Campusano BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.226415
+  },
+  {
+    "matchup": "NYY @ SD",
+    "market": "batter_bb",
+    "selection": "Luis Campusano BB u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.773585
+  },
+  {
+    "matchup": "NYY @ SD",
+    "market": "batter_bb",
     "selection": "Luis Garcia Jr. BB o0.5",
     "american": 280.0,
     "no_vig_prob": 0.249747
@@ -23014,6 +23028,20 @@
     "selection": "Ryan McMahon BB u0.5",
     "american": -281.0,
     "no_vig_prob": 0.689784
+  },
+  {
+    "matchup": "NYY @ SD",
+    "market": "batter_bb",
+    "selection": "Samad Taylor BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.232323
+  },
+  {
+    "matchup": "NYY @ SD",
+    "market": "batter_bb",
+    "selection": "Samad Taylor BB u0.5",
+    "american": -475.0,
+    "no_vig_prob": 0.767677
   },
   {
     "matchup": "NYY @ SD",
