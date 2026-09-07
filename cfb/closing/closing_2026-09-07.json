@@ -1,0 +1,32 @@
+{
+  "SMU @ Florida State|game_ats|Florida State": {
+    "american": -112.0,
+    "line": 3.0,
+    "no_vig_prob": 0.5147922525363832
+  },
+  "SMU @ Florida State|game_ats|SMU": {
+    "american": 100.0,
+    "line": -3.0,
+    "no_vig_prob": 0.4852077474636169
+  },
+  "SMU @ Florida State|game_ml|Florida State": {
+    "american": 128.0,
+    "line": null,
+    "no_vig_prob": 0.4300755853037926
+  },
+  "SMU @ Florida State|game_ml|SMU": {
+    "american": -140.0,
+    "line": null,
+    "no_vig_prob": 0.5699244146962075
+  },
+  "SMU @ Florida State|game_total|Over": {
+    "american": -108.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5010785041279401
+  },
+  "SMU @ Florida State|game_total|Under": {
+    "american": -105.0,
+    "line": 54.5,
+    "no_vig_prob": 0.4989214958720599
+  }
+}
