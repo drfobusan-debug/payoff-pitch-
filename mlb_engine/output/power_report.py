@@ -329,6 +329,13 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
             f"({_pc(e.share_vs_starter, 0)}), a {_pc(e.third_look, 0)} chance of a third look, "
             f"and {e.pa_vs_pen:.2f} against the bullpen."
         )
+    if h.season_backed:
+        bits.append(
+            f"<strong>His line is the season's, not the window's</strong>: {h.window_pa} plate "
+            f"appearances against this hand in the form window is under the floor, so the "
+            f"{h.pa} on the year stand in. Read it as an established level with the recent "
+            f"weeks missing, not as form."
+        )
     if h.power_exception:
         bits.append(
             f"<strong>He is here as a power exception</strong>: a {h.wrc:.0f} wRC+ fails the "
@@ -1075,6 +1082,7 @@ def _pool_table(section: MatchupSection) -> str:
         h = v.line
         mark = " *" if h.power_exception else ""
         mark += " \u2021" if h.swing_rescue else ""
+        mark += " \u00a7" if h.season_backed else ""
         sw = h.swing
         rows.append([
             html.escape(h.name) + mark,
@@ -1510,9 +1518,28 @@ def _section_html(section: MatchupSection, index: int) -> str:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
     out.append(_withheld_note(section))
+    out.append(_season_backed_note(section))
     out.append(_swing_note(section))
     out.append(_sim_table(section))
     return "".join(out)
+
+
+def _season_backed_note(section: MatchupSection) -> str:
+    """Which hitters were read off the season because the window was under the floor."""
+    backed = [v.line for v in section.hitters if v.line.season_backed]
+    if not backed:
+        return ""
+    names = ", ".join(
+        f"{html.escape(h.name)} ({h.window_pa} in the window, {h.pa} on the year)"
+        for h in backed
+    )
+    return (
+        "<p class='caveat'><strong>\u00a7 Scored on the season split.</strong> "
+        f"{names}. The form window against this hand fell short of the plate-appearance "
+        "floor -- the injured-list case -- so the rate line, the points and the arsenal read "
+        "are the season's. The swing columns are unaffected; the trend columns still compare "
+        "the recent weeks with the season.</p>"
+    )
 
 
 def _best_price_cell(row: BoardRow | None) -> str:
