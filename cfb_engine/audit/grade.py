@@ -9,7 +9,7 @@ reads each market off it.
 from __future__ import annotations
 
 from cfb_engine.data.cfbd import GameResult
-from cfb_engine.data.teamnames import norm
+from cfb_engine.data.teamnames import norm, school_key
 from cfb_engine.recommendations import Recommendation
 
 WIN, LOSS, PUSH = "win", "loss", "push"
@@ -32,10 +32,14 @@ def same_team(rec_name: str, res_name: str) -> bool:
     characters (:func:`cfb_engine.data.teamnames.short_code`), so ``New Mexico
     State`` reaches the audit as ``New Mexico Sta``. An exact key comparison
     silently drops those games from grading, which is worse than a wrong grade
-    because nothing announces it -- hence the prefix.
+    because nothing announces it -- hence the prefix. Spelling differs too
+    (the board says ``UMass``, CFBD ``Massachusetts``), so both sides are also
+    compared on their canonical school key.
     """
     left, right = norm(rec_name), norm(res_name)
-    return left == right or right.startswith(left)
+    if left == right or right.startswith(left):
+        return True
+    return school_key(rec_name) == school_key(res_name)
 
 
 def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:
