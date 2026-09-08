@@ -47,3 +47,57 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,USC -38.5,-38.5,bovada,-105.0,-115.0,Pass,0.4453,-0.1307,loss,-1.0,0.4453,0.498,0.4453,-102.0,0.4911,-0.0069,-0.0412,0.0,0.0069,,14.0
 2026-08-29,San Jose State @ USC,Totals,game_total,Over 61.5,61.5,lowvig,-103.0,-114.0,Strong buy,0.5512,0.0862,win,0.9709,0.5512,0.495,0.5512,-106.0,0.468,-0.027,-0.0776,-1.0,0.027,,6.0
 2026-08-29,San Jose State @ USC,Totals,game_total,Under 61.5,61.5,bovada,-105.0,-115.0,Pass,0.4488,-0.1237,loss,-1.0,0.4488,0.505,0.4488,-108.0,0.532,0.027,0.0387,1.0,-0.027,,-6.0
+2026-09-03,Akron @ Wake Forest,Moneyline,game_ml,Akron ML,,betmgm,1500.0,-3000.0,Pass,0.0768,0.2296,loss,-1.0,0.0768,0.0688,0.0768,2000.0,0.0598,-0.009,-0.0432,,0.0,,54.0
+2026-09-03,Akron @ Wake Forest,Moneyline,game_ml,Wake Forest ML,,bovada,-2500.0,1000.0,Pass,0.7867,-0.1818,win,0.04,0.9232,0.9312,0.7867,-3000.0,0.9402,0.009,-0.0222,,0.0,,-54.0
+2026-09-03,Akron @ Wake Forest,Spread (ATS),game_ats,Akron +24.5,24.5,fanatics,-105.0,-115.0,Strong buy,0.5443,0.0627,win,0.9524,0.5443,0.4985,0.5443,-106.0,0.4143,-0.0842,-0.1911,-3.5,0.0,,-8.0
+2026-09-03,Akron @ Wake Forest,Spread (ATS),game_ats,Wake Forest -24.5,-24.5,williamhill_us,-109.0,-110.0,Pass,0.4557,-0.1263,loss,-1.0,0.4557,0.5015,0.4557,-106.0,0.5857,0.0842,0.123,3.5,0.0,,8.0
+2026-09-03,Akron @ Wake Forest,Totals,game_total,Over 48.5,48.5,betrivers,-109.0,-114.0,Pass,0.3505,-0.328,win,0.9174,0.3505,0.5017,0.3505,-110.0,0.5678,0.0661,0.0887,2.0,0.0,,-12.0
+2026-09-03,Akron @ Wake Forest,Totals,game_total,Under 48.5,48.5,williamhill_us,-105.0,-115.0,Pass,0.6362,0.2422,loss,-1.0,0.6495,0.4983,0.6362,-103.0,0.4322,-0.0661,-0.1562,-2.0,0.0,,12.0
+2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Arkansas Pine ML,,mybookieag,1575.0,-100000.0,Pass,0.0001,-0.9975,loss,-1.0,0.0001,0.0564,0.0001,1575.0,0.0564,0.0,-0.0553,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Missouri ML,,mybookieag,-100000.0,1575.0,Pass,0.8289,-0.1703,win,0.001,0.9999,0.9436,0.8289,-100000.0,0.9436,0.0,-0.0555,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Arkansas Pine +54.5,54.5,fanatics,-105.0,-115.0,Pass,0.5046,-0.0149,win,0.9524,0.5046,0.4974,0.5046,132.0,0.6616,0.1642,0.2917,8.0,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Missouri -54.5,-54.5,fanduel,-105.0,-115.0,Pass,0.4955,-0.0327,loss,-1.0,0.4955,0.5026,0.4955,-120.0,0.3384,-0.1642,-0.3393,-8.0,0.0,,-4.0
+2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Over 61.5,61.5,williamhill_us,-108.0,-114.0,Pass,0.5036,-0.0301,win,0.9259,0.5036,0.4994,0.5036,-175.0,0.5883,0.0889,0.133,-1.0,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Under 61.5,61.5,draftkings,-108.0,-112.0,Pass,0.4964,-0.044,loss,-1.0,0.4964,0.5006,0.4964,152.0,0.4117,-0.0889,-0.2071,1.0,0.0,,7.0
+2026-09-03,Bethune-Cookma @ UCF,Moneyline,game_ml,Bethune-Cookma ML,,mybookieag,1575.0,-100000.0,Pass,0.0039,-0.9351,loss,-1.0,0.0039,0.0564,0.0039,1575.0,0.0564,0.0,-0.0553,,0.0,,
+2026-09-03,Bethune-Cookma @ UCF,Moneyline,game_ml,UCF ML,,mybookieag,-100000.0,1575.0,Pass,0.8269,-0.1723,win,0.001,0.9961,0.9436,0.8269,-100000.0,0.9436,0.0,-0.0555,,0.0,,
+2026-09-03,Bethune-Cookma @ UCF,Spread (ATS),game_ats,Bethune-Cookma +42.5,42.5,fanduel,-110.0,-110.0,Pass,0.4958,-0.0535,loss,-1.0,0.4958,0.5045,0.4958,-110.0,0.4738,-0.0307,-0.0955,-1.0,0.0,,-28.0
+2026-09-03,Bethune-Cookma @ UCF,Spread (ATS),game_ats,UCF -42.5,-42.5,draftkings,-102.0,-118.0,Pass,0.5042,-0.0014,win,0.9804,0.5042,0.4955,0.5042,-105.0,0.5262,0.0307,0.0421,1.0,0.0,,28.0
+2026-09-03,Bethune-Cookma @ UCF,Totals,game_total,Over 58.5,58.5,mybookieag,-110.0,-110.0,Pass,0.5009,-0.0438,win,0.9091,0.5009,0.5063,0.5009,-110.0,0.5135,0.0072,-0.0197,0.0,0.0,,-8.0
+2026-09-03,Bethune-Cookma @ UCF,Totals,game_total,Under 58.5,58.5,fanatics,-105.0,-115.0,Pass,0.4991,-0.0255,loss,-1.0,0.4991,0.4937,0.4991,100.0,0.4865,-0.0072,-0.0502,0.0,0.0,,8.0
+2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Colorado ML,,fanatics,220.0,-270.0,Pass,0.316,0.0112,win,2.2,0.316,0.317,0.316,165.0,0.3838,0.0668,0.2282,,0.0,,28.0
+2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Georgia Tech ML,,draftkings,-238.0,195.0,Pass,0.6552,-0.0695,loss,-1.0,0.684,0.683,0.6552,-170.0,0.6162,-0.0668,-0.1249,,0.0,,-28.0
+2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Colorado +6.5,6.5,draftkings,-105.0,-115.0,Pass,0.4726,-0.0773,win,0.9524,0.4726,0.4946,0.4726,130.0,0.5228,0.0282,0.0207,4.0,0.0,,5.0
+2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Georgia Tech -6.5,-6.5,lowvig,-107.0,-105.0,Moderate buy,0.5274,0.0202,loss,-1.0,0.5274,0.5054,0.5274,-150.0,0.4772,-0.0282,-0.0768,-4.0,0.0,,-6.0
+2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Over 51.0,51.0,lowvig,-106.0,-110.0,Pass,0.5167,0.0042,loss,-1.0,0.5167,0.4982,0.5167,-115.0,0.0,-0.4982,-1.0,-21.5,0.0,,-14.0
+2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Under 51.0,51.0,lowvig,-110.0,-106.0,Pass,0.4833,-0.0773,win,0.9091,0.4833,0.5018,0.4833,-115.0,1.0,0.4982,0.9091,21.5,0.0,,14.0
+2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Eastern Illino ML,,mybookieag,1575.0,-100000.0,Pass,0.0038,-0.9359,loss,-1.0,0.0038,0.0564,0.0038,1575.0,0.0564,0.0,-0.0553,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Minnesota ML,,mybookieag,-100000.0,1575.0,Pass,0.8269,-0.1723,win,0.001,0.9962,0.9436,0.8269,-100000.0,0.9436,0.0,-0.0555,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Eastern Illino +42.5,42.5,betmgm,-108.0,-110.0,Pass,0.5008,-0.0356,loss,-1.0,0.5008,0.5022,0.5008,135.0,0.2057,-0.2965,-0.6038,-9.0,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Minnesota -42.5,-42.5,draftkings,-105.0,-115.0,Pass,0.4993,-0.0253,win,0.9524,0.4993,0.4978,0.4993,-145.0,0.7943,0.2965,0.5508,9.0,0.0,,-26.0
+2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Over 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.5,-0.0371,win,0.9259,0.5,0.4998,0.5,-165.0,1.0,0.5002,0.9259,14.0,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Under 51.5,51.5,betmgm,-105.0,-112.0,Pass,0.5,-0.0237,loss,-1.0,0.5,0.5002,0.5,185.0,0.0,-0.5002,-1.0,-14.0,0.0,,10.0
+2026-09-03,Idaho @ Utah,Moneyline,game_ml,Idaho ML,,draftkings,5000.0,-100000.0,Pass,0.0141,-0.2796,loss,-1.0,0.0141,0.0219,0.0141,5500.0,0.0308,0.0089,0.5708,,0.0,,52.0
+2026-09-03,Idaho @ Utah,Moneyline,game_ml,Utah ML,,fanatics,-10000.0,3500.0,Pass,0.8212,-0.1706,win,0.01,0.9859,0.9781,0.8212,-10000.0,0.9692,-0.0089,-0.0211,,0.0,,-52.0
+2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Idaho +35.0,35.0,fanatics,-105.0,-115.0,Pass,0.4976,-0.0284,loss,-1.0,0.4976,0.4937,0.4976,-110.0,0.3837,-0.11,-0.2509,-4.5,0.0,,-17.0
+2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Utah -35.0,-35.0,williamhill_us,-112.0,-110.0,Pass,0.5024,-0.0491,win,0.8929,0.5024,0.5063,0.5024,-111.0,0.6163,0.11,0.1666,4.5,0.0,,17.0
+2026-09-03,Idaho @ Utah,Totals,game_total,Over 57.5,57.5,fanduel,-110.0,-110.0,Pass,0.4986,-0.0482,win,0.9091,0.4986,0.503,0.4986,100.0,0.7474,0.2444,0.4269,8.0,0.0,,-1.0
+2026-09-03,Idaho @ Utah,Totals,game_total,Under 57.5,57.5,betmgm,-108.0,-110.0,Pass,0.5014,-0.0343,loss,-1.0,0.5014,0.497,0.5014,100.0,0.2526,-0.2444,-0.5135,-8.0,0.0,,1.0
+2026-09-03,Merrimack @ Delaware,Moneyline,game_ml,Delaware ML,,fanatics,-9000.0,2800.0,Pass,0.808,-0.183,win,0.0111,0.9619,0.9616,0.808,-8000.0,0.957,-0.0046,-0.0324,,0.0,,-56.0
+2026-09-03,Merrimack @ Delaware,Moneyline,game_ml,Merrimack ML,,draftkings,3500.0,-20000.0,Pass,0.0381,0.3725,loss,-1.0,0.0381,0.0384,0.0381,3000.0,0.043,0.0046,0.548,,0.0,,
+2026-09-03,Merrimack @ Delaware,Spread (ATS),game_ats,Delaware -28.5,-28.5,betrivers,-110.0,-113.0,Pass,0.4983,-0.0487,win,0.9091,0.4983,0.5047,0.4983,-108.0,0.575,0.0703,0.0977,3.0,0.0,,12.0
+2026-09-03,Merrimack @ Delaware,Spread (ATS),game_ats,Merrimack +28.5,28.5,draftkings,-102.0,-118.0,Pass,0.5017,-0.0065,loss,-1.0,0.5017,0.4953,0.5017,-108.0,0.425,-0.0703,-0.1583,-3.0,0.0,,
+2026-09-03,Merrimack @ Delaware,Totals,game_total,Over 55.5,55.5,draftkings,-108.0,-112.0,Pass,0.5006,-0.0358,loss,-1.0,0.5006,0.505,0.5006,-105.0,0.5267,0.0217,0.0144,1.0,0.0,,
+2026-09-03,Merrimack @ Delaware,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-115.0,Pass,0.4994,-0.0339,win,0.9346,0.4994,0.495,0.4994,-110.0,0.4733,-0.0217,-0.0844,-1.0,0.0,,-42.0
+2026-09-03,UAB @ Illinois,Moneyline,game_ml,Illinois ML,,mybookieag,-4000.0,1250.0,Pass,0.8091,-0.1707,win,0.025,0.9637,0.9434,0.8091,-4800.0,0.9412,-0.0022,-0.0353,,0.0,,-34.0
+2026-09-03,UAB @ Illinois,Moneyline,game_ml,UAB ML,,fanduel,2000.0,-7000.0,Pass,0.0363,-0.2387,loss,-1.0,0.0363,0.0566,0.0363,1800.0,0.0588,0.0022,0.2348,,0.0,,34.0
+2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,Illinois -27.5,-27.5,lowvig,-101.0,-111.0,Moderate buy,0.5237,0.0422,loss,-1.0,0.5237,0.4983,0.5237,-110.0,0.2743,-0.224,-0.4541,-9.0,0.0,,-35.0
+2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,UAB +27.5,27.5,draftkings,-108.0,-112.0,Pass,0.4763,-0.0826,win,0.9259,0.4763,0.5017,0.4763,-105.0,0.7257,0.224,0.3976,9.0,0.0,,34.0
+2026-09-03,UAB @ Illinois,Totals,game_total,Over 54.5,54.5,bovada,-110.0,-110.0,Pass,0.6614,0.2627,win,0.9091,0.6953,0.5084,0.6614,100.0,0.6065,0.0981,0.1579,4.0,0.0,,-26.0
+2026-09-03,UAB @ Illinois,Totals,game_total,Under 54.5,54.5,draftkings,-102.0,-118.0,Pass,0.3047,-0.3965,loss,-1.0,0.3047,0.4916,0.3047,-110.0,0.3935,-0.0981,-0.2207,-4.0,0.0,,26.0
+2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,Kennesaw State ML,,betmgm,-2500.0,1400.0,Pass,0.7855,-0.1831,win,0.04,0.9208,0.933,0.7855,-2200.0,0.9261,-0.0069,-0.0369,,0.0,,-50.0
+2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,West Georgia ML,,draftkings,1600.0,-4000.0,Pass,0.0792,0.346,loss,-1.0,0.0792,0.067,0.0792,1500.0,0.0739,0.0069,0.2563,,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,Kennesaw State -22.5,-22.5,fanduel,-108.0,-112.0,Pass,0.4986,-0.0397,win,0.9259,0.4986,0.5,0.4986,145.0,1.0,0.5,0.9259,32.0,0.0,,-32.0
+2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,West Georgia +22.5,22.5,draftkings,-108.0,-112.0,Pass,0.5014,-0.0344,loss,-1.0,0.5014,0.5,0.5014,-118.0,0.0,-0.5,-1.0,-32.0,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Over 51.5,51.5,betmgm,-105.0,-115.0,Pass,0.5028,-0.0183,loss,-1.0,0.5028,0.4955,0.5028,105.0,0.6925,0.197,0.352,7.0,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.4972,-0.0424,win,0.9259,0.4972,0.5045,0.4972,-115.0,0.3075,-0.197,-0.4078,-7.0,0.0,,13.0
