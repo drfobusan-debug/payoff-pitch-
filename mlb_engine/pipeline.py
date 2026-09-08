@@ -1530,6 +1530,7 @@ class Pipeline:
                 strong=r.tier == Tier.STRONG,
                 american=_fnum(r.market_american),
                 edge=_fnum(r.edge),
+                fair_prob=_fnum(r.fair_prob),
             )
         )
         best_bets = [
@@ -2113,8 +2114,8 @@ class Pipeline:
                 if rbi_reason:
                     reasons.append(rbi_reason)
             # Conviction ceiling: the batter model's surest overs are its
-            # worst bets (see ``batter_max_buy_prob``). Overs only -- the fade
-            # at the same conviction is 40 graded rows, too few to condemn.
+            # worst bets (see ``batter_max_buy_prob``). The fade carries the same
+            # ceiling off its own knob, below, once its own screens have spoken.
             if market.startswith("batter_") and tier != Tier.PASS and not under:
                 keep, ceil_reason = prob_ceiling_allows(
                     rec.model_prob, self.cfg.batter_max_buy_prob, "batter-conviction-ceiling"
@@ -2149,6 +2150,21 @@ class Pipeline:
                         f"singles-under profile {score:.1f} < "
                         f"{self.cfg.singles_under_buy_min:.1f}"
                     )
+            # The fade half of the conviction ceiling, graded as a candidate for
+            # 27 slates and shipped at 544 buys and -6.3%. Its own gate and its
+            # own knob, so it retires without taking the over half with it, and
+            # last of the fade screens so the cruder refusals keep their rows.
+            if market.startswith("batter_") and under and tier != Tier.PASS:
+                keep, fade_ceil = prob_ceiling_allows(
+                    rec.model_prob,
+                    self.cfg.batter_under_max_buy_prob,
+                    "batter-fade-conviction-ceiling",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "batter_under_prob_ceiling"
+                if fade_ceil:
+                    reasons.append(fade_ceil)
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS
@@ -2212,6 +2228,16 @@ class Pipeline:
                     gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
+            # A hitter who may not bat is a smaller bet, not a refused one: the
+            # cap runs on any surviving buy so a promoted row is capped too.
+            if tier == Tier.STRONG:
+                cap, prov_reason = self._lineup_gate.caps_at_moderate(
+                    self._lineup_lock, market
+                )
+                if cap:
+                    tier = Tier.MODERATE
+                if prov_reason:
+                    reasons.append(prov_reason)
             # Runs after the sharp-money upgrade, which it is entitled to
             # overrule: handle agreeing with us about a road dog is the market
             # agreeing about the side, not about the price we are paying for it.

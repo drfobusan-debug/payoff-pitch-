@@ -140,3 +140,15 @@ def test_report_handles_no_bets():
     html, narr = build_preview_report(dt.date(2026, 7, 28), [gp])
     assert "the model passes this game" in html
     assert "No bet here" in narr
+
+
+def test_a_block_article_says_which_games_it_covers():
+    html, narr = build_preview_report(dt.date(2026, 7, 28), [_preview()], block="night")
+    assert "Today's Night Games" in html and "Good evening" in html and "1-game night board" in html
+    assert "1 night games on the board" in narr
+    whole, whole_narr = build_preview_report(dt.date(2026, 7, 28), [_preview()])
+    assert (
+        "Today's Slate" in whole
+        and "Good morning" in whole
+        and "1 games on the board" in whole_narr
+    )

@@ -98,6 +98,9 @@ _SCHOOL_ALIASES: dict[str, str] = {
     "sam houston st": "sam houston",
     "st francis pa": "saint francis",
     "middle tennessee state": "middle tennessee",
+    "ualbany": "albany",
+    "liu": "long island university",
+    "long island": "long island university",
 }
 
 

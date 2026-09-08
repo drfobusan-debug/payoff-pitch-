@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import random
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
+from mlb_engine.audit import funnel as funnel_report
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -115,7 +117,7 @@ from mlb_engine.output.report import (
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
-from mlb_engine.preview import save_previews
+from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 from mlb_engine.state import (
     PREGAME_SUFFIX,
@@ -163,8 +165,9 @@ def _generate_card(
     when available, the master Excel bet sheet (``workbook``).
     """
     cards = build_cards(recs)
-    md = render_markdown(cards, slate_date)
-    html_body = render_html(cards, slate_date)
+    screen = funnel_report.build(recs, cfg.ev)
+    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    html_body = render_html(cards, slate_date, funnel=screen, thr=cfg.ev)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
     pdf_path = cfg.output_dir / f"card_{slate_date.isoformat()}.pdf"
@@ -510,9 +513,16 @@ def cmd_run(args: argparse.Namespace) -> int:
     save_json(recs, pred_path)
     previews = pipe.previews
     # A late pass saw only the games near first pitch, so its previews and quote
-    # template would replace the whole slate's with a fragment of it.
-    if not late:
-        save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
+    # template would replace the whole slate's with a fragment of it. The
+    # fragment is kept under its own name -- it is exactly the block the pass
+    # priced, which is what the block's slate article reads -- and folded into
+    # the slate's previews the way the rows are folded into the card.
+    all_previews_path = cfg.audit_dir / f"previews_{slate_date.isoformat()}.json"
+    if late:
+        save_previews(previews, late_previews_path(cfg, slate_date))
+        save_previews(_merge_late_previews(previews, all_previews_path), all_previews_path)
+    else:
+        save_previews(previews, all_previews_path)
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
     if not vsin_csv and not late:
@@ -521,6 +531,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     strong = sum(1 for r in recs if r.tier == Tier.STRONG)
     mod = sum(1 for r in recs if r.tier == Tier.MODERATE)
     print(f"Priced {len(recs)} markets: {strong} strong buys, {mod} moderate buys")
+    # A zero-buy slate is only readable with the funnel next to it: it says
+    # whether the board was unquoted, unprofitable, or refused.
+    for line in funnel_report.summary_lines(funnel_report.build(recs, cfg.ev), cfg.ev):
+        print(line)
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
@@ -553,6 +567,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def late_previews_path(cfg: Config, slate_date: Date) -> Path:
+    """Where a late pass leaves the previews of the games it priced."""
+    return cfg.audit_dir / f"previews_{slate_date.isoformat()}_late.json"
+
+
 def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendation]:
     """Fold a late pass's re-priced games into the card the morning run wrote.
 
@@ -576,6 +595,20 @@ def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendat
         f"carried {len(kept)} earlier rows forward"
     )
     return [*kept, *recs]
+
+
+def _merge_late_previews(previews: list[GamePreview], path: Path) -> list[GamePreview]:
+    """The previews' half of `_merge_late_pass`: this pass's games replace their
+    earlier previews, every other game's preview is carried forward."""
+    if not path.exists():
+        return previews
+    try:
+        prior = load_previews(path)
+    except Exception:  # noqa: BLE001 - a stale file must not cost the late pass
+        logging.warning("Late pass: %s unreadable, keeping only re-priced previews", path)
+        return previews
+    repriced = {p.game_pk for p in previews}
+    return [*(p for p in prior if p.game_pk not in repriced), *previews]
 
 
 def _build_regression_article(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
@@ -1321,13 +1354,26 @@ def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows:
     return 0
 
 
+def _paired_se(diffs: list[float]) -> float:
+    """Standard error of the mean of ``diffs`` (0.0 below two observations)."""
+    n = len(diffs)
+    if n < 2:
+        return 0.0
+    mean = sum(diffs) / n
+    var = sum((d - mean) ** 2 for d in diffs) / (n - 1)
+    return math.sqrt(var / n)
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
     Trains on every graded row (pushes dropped) and holds out the most recent
     ``--holdout`` slates to check, market by market, whether the refit map
     actually beats the packaged 2024 fit out of sample. Only the markets that
-    win are adopted; the rest keep the packaged map.
+    win are adopted; the rest keep the packaged map. Winning means beating the
+    incumbent by more than one standard error of the paired per-row difference in
+    squared error, scored on one row per prop -- a smaller Brier on a holdout of
+    complements is not evidence.
 
     Rows priced before ``FEATURE_BASIS_SINCE`` are dropped: a map learns what
     this engine's probabilities mean, so rows produced by a materially different
@@ -1373,14 +1419,16 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
 
     rows = rows_of(entries)
     train = rows_of([e for e in entries if e.date < split])
-    test = rows_of([e for e in entries if e.date >= split])
+    # The fit sees both sides of every prop, which is the whole probability range
+    # and no double-counting: isotonic reads (p, won) pairs, not wagers. The
+    # holdout is scored on one row per prop, because the two rows of a prop are
+    # complements -- carrying both cannot add evidence about whether the refit is
+    # better, it only makes the standard error below look smaller by root two.
+    test = rows_of(one_side_per_prop([e for e in entries if e.date >= split]))
 
     packaged = load_calibrator()
     source = calibration_source(cfg.calibration_file)
     refit = Calibrator.fit(train)
-
-    def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
-        return sum((cal.apply(m, p) - w) ** 2 for m, p, w in subset) / len(subset)
 
     by_market: dict[str, list[tuple[str, float, int]]] = {}
     for row in test:
@@ -1390,22 +1438,35 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     # thin, and on the eight-slate ledger it beat the packaged 2024 fit exactly
     # where that fit was stale or absent (batter_tb had no map at all) while
     # losing on the low-volume game-level markets.
-    print(f"Holdout: {split}..{dates[-1]} ({len(test)} rows), trained on {len(train)}")
-    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}  adopt")
+    #
+    # "Better" is a paired test, not a comparison of two averages: the same row
+    # is scored by both maps, so the quantity with a standard error is the mean
+    # per-row difference in squared error. Adopting on any negative delta adopted
+    # -0.0001 on 1,106 rows, which is a coin flip dressed as a refit; a market
+    # now has to beat the incumbent by more than one standard error of its own
+    # difference to replace it.
+    print(f"Holdout: {split}..{dates[-1]} ({len(test)} props), trained on {len(train)} rows")
+    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}{'se':>9}  adopt")
     adopt: list[str] = []
     for market in sorted(by_market):
         subset = by_market[market]
-        b_old, b_new = brier(packaged, subset), brier(refit, subset)
-        take = len(subset) >= args.min_holdout and b_new < b_old
+        diffs = [
+            (refit.apply(m, p) - w) ** 2 - (packaged.apply(m, p) - w) ** 2 for m, p, w in subset
+        ]
+        n = len(subset)
+        b_old = sum((packaged.apply(m, p) - w) ** 2 for m, p, w in subset) / n
+        delta = sum(diffs) / n
+        se = _paired_se(diffs)
+        take = n >= args.min_holdout and delta < -se
         if take:
             adopt.append(market)
         print(
-            f"{market:<14}{len(subset):>7}{b_old:>11.4f}{b_new:>10.4f}"
-            f"{b_new - b_old:>+9.4f}  {'yes' if take else 'no'}"
+            f"{market:<14}{n:>7}{b_old:>11.4f}{b_old + delta:>10.4f}"
+            f"{delta:>+9.4f}{se:>9.4f}  {'yes' if take else 'no'}"
         )
 
     if not adopt and not args.force:
-        print("\nNo market improved out of sample; nothing written")
+        print("\nNo market beat its incumbent by more than one standard error; nothing written")
         return 1
 
     final = Calibrator.fit(rows)

@@ -10,7 +10,8 @@ after.
 
 Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
 ``mlb_engine/output/power_screen.py`` for the stages and every threshold, and
-``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
+``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``,
+``--keep-gap``).
 
 Before any of it, the slate is cut twice: to the starters with enough recent work
 for their numbers to be measurements (which is what removes a call-up, an opener
@@ -32,7 +33,9 @@ Every priced row it prints is recorded to ``power_screen_ledger.csv``, and the
 previous day's rows are graded off the box score at the top of the next note, so
 the screen carries its own record instead of reading the same each morning
 regardless of what happened. ``--no-grade`` skips both; ``--grade-date`` picks the
-day to grade.
+day to grade and ``--grade-run`` the capture within it -- the ledger keeps every
+run of the screen, so a day can hold more than one board and the scorecard names
+which it graded rather than meaning whichever run wrote last.
 """
 
 from __future__ import annotations
@@ -42,13 +45,13 @@ import logging
 import math
 from dataclasses import dataclass
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
 
 from mlb_engine.audit import power_ledger
-from mlb_engine.config import Config, RollingWindows, load_config
+from mlb_engine.config import Config, RollingWindows, load_config, power_keep_gap
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
@@ -97,6 +100,7 @@ from mlb_engine.output.power_screen import (
     gate_starters,
     half_lines,
     hitter_pool,
+    keep_arms,
     league_arms,
     pa_vs_starter,
     rank_final,
@@ -136,6 +140,13 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--date", type=Date.fromisoformat, default=Date.today())
     p.add_argument("--arms", type=int, default=8, help="starters to rank (all are listed)")
     p.add_argument("--keep", type=int, default=4, help="softest arms whose lineups are screened")
+    p.add_argument(
+        "--keep-gap",
+        type=int,
+        default=power_keep_gap(),
+        help="drop a kept arm more than this many stage-1 points behind the worst "
+        "arm on the slate (0 disables, keeping the headcount alone)",
+    )
     p.add_argument(
         "--siera-min",
         type=float,
@@ -189,6 +200,11 @@ def _parse_args() -> argparse.Namespace:
         type=Date.fromisoformat,
         default=None,
         help="the recorded board to grade in this note (default: the day before --date)",
+    )
+    p.add_argument(
+        "--grade-run",
+        default=None,
+        help="the run id to grade within --grade-date (default: that day's last run)",
     )
     p.add_argument(
         "--no-grade",
@@ -384,7 +400,13 @@ def main() -> None:
             "no starter on %s is both above %.2f SIERA and worked enough to read",
             day, args.siera_min,
         )
-    targets = ranked[: args.keep]
+    targets = keep_arms(ranked, keep=args.keep, gap=args.keep_gap)
+    thinned = [c for c in ranked[: args.keep] if c not in targets]
+    for card in thinned:
+        log.info(
+            "%s is not screened: %d points, %d behind %s",
+            card.name, card.points, ranked[0].points - card.points, ranked[0].name,
+        )
 
     pens = _bullpen_cards(
         frame,
@@ -440,6 +462,12 @@ def main() -> None:
             )
         sections.append(section)
     final = _rank_everything(sections, pens)
+    notes = [
+        f"{card.name} ranked in the worst {args.keep} arms on the slate and was not "
+        f"screened: {card.points} stage-1 points, {ranked[0].points - card.points} "
+        f"behind {ranked[0].name}, against a {args.keep_gap}-point bar."
+        for card in thinned
+    ]
 
     result = ScreenResult(
         as_of=day,
@@ -453,6 +481,7 @@ def main() -> None:
         starters_scored=scored,
         final=final,
         cut_log=cut_log,
+        notes=notes,
         has_run_value="delta_run_exp" in window.columns,
         siera_floor=args.siera_min,
         starter_cuts=starter_cuts,
@@ -807,11 +836,29 @@ def _board(
         len(board.priced),
         len(board.priced) + len(board.unpriced),
     )
+    log.info(
+        "arm board: %d positions on %d of %d arms, %d bought",
+        len(board.arm_rows),
+        len(board.arms_priced),
+        len(board.arms_priced) + len(board.arms_unpriced),
+        sum(1 for r in board.arm_rows if r.is_buy),
+    )
     return board
 
 
 def _ledger_path(cfg: Config) -> Path:
     return cfg.audit_dir / power_ledger.LEDGER_NAME
+
+
+def _run_id() -> str:
+    """This run's identifier: when the note was written, to the minute, in UTC.
+
+    A wall-clock stamp rather than a random id so the ledger's runs sort into the
+    order they were captured, which is what makes "the day's last board" a
+    meaningful default and a morning capture distinguishable from the re-run once
+    lineups post.
+    """
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%MZ")
 
 
 def _record(
@@ -822,17 +869,25 @@ def _record(
     Only priced rows are recorded. A rating with no number beside it is not a
     position, and grading one would have to invent the price it never had.
     """
-    if args.no_grade or board is None or not board.rows:
+    if args.no_grade or board is None or not board.positions:
         return
+    run_id = _run_id()
     positions = power_ledger.positions_from_board(
-        board, result.as_of, power_report.ratings(result)
+        board,
+        result.as_of,
+        power_report.ratings(result),
+        {**power_report.deliveries(result), **power_report.arm_deliveries(result)},
+        power_report.composites(result),
+        run_id,
     )
     try:
-        power_ledger.record(_ledger_path(cfg), positions, result.as_of)
+        power_ledger.record(_ledger_path(cfg), positions, result.as_of, run_id)
     except OSError as exc:  # pragma: no cover - a ledger write must not cost the note
         log.warning("could not record %d positions: %s", len(positions), exc)
         return
-    log.info("recorded %d positions to %s", len(positions), _ledger_path(cfg))
+    log.info(
+        "recorded %d positions as run %s to %s", len(positions), run_id, _ledger_path(cfg)
+    )
 
 
 def _review(
@@ -846,10 +901,19 @@ def _review(
     if args.no_grade:
         return None
     graded_day = args.grade_date or (day - timedelta(days=1))
-    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day)
+    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day, args.grade_run)
     if not positions:
         log.info("no recorded board for %s; the note carries no scorecard", graded_day)
         return None
+    runs = power_ledger.runs_for(_ledger_path(cfg), graded_day)
+    if len(runs) > 1:
+        log.info(
+            "%s holds %d runs (%s); grading %s",
+            graded_day,
+            len(runs),
+            ", ".join(runs),
+            positions[0].run_id or "the unidentified run",
+        )
     results: dict[int, GameResult] = {}
     for pk in {p.game_pk for p in positions if p.game_pk is not None}:
         try:

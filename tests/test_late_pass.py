@@ -80,6 +80,14 @@ def test_a_price_near_lock_is_kept() -> None:
     assert reason == ""
 
 
+def test_the_three_hour_lock_is_the_default_and_closes_at_exactly_three() -> None:
+    gate = LineupLockGate.from_env()
+    assert gate.stale_hours == 3.0 and gate.clock is True
+    assert gate.clock_allows(gate.read(projected=False, hours=2.99))[0] is True
+    assert gate.clock_allows(gate.read(projected=False, hours=3.0))[0] is False
+    assert gate.clock_allows(gate.read(projected=False, hours=3.01))[0] is False
+
+
 def test_a_slate_with_no_start_times_is_never_refused_by_the_clock() -> None:
     """Every backtest and any slate the feed hasn't stamped lands here."""
     gate = LineupLockGate()
@@ -174,3 +182,34 @@ def test_the_merged_card_round_trips_for_the_audit(tmp_path: Path) -> None:
     merged = _merge_late_pass([_pred(2, "late 2")], path)
     save_json(merged, path)
     assert [r.selection for r in load_json(path)] == ["morning 1", "late 2"]
+
+
+# ---- the block's previews ---------------------------------------------------
+
+
+def _gp(game_pk: int, matchup: str):
+    from tests.test_preview import _preview
+
+    gp = _preview()
+    gp.game_pk = game_pk
+    gp.matchup = matchup
+    return gp
+
+
+def test_the_late_pass_keeps_its_own_previews_and_folds_them_into_the_slates(
+    tmp_path: Path,
+) -> None:
+    """The block's article reads the fragment; the regression articles read the whole."""
+    from mlb_engine.cli import _merge_late_previews
+    from mlb_engine.preview import load_previews, save_previews
+
+    path = tmp_path / "previews_2026-08-08.json"
+    save_previews([_gp(1, "morning 1"), _gp(2, "morning 2")], path)
+    late = [_gp(2, "late 2")]
+    merged = _merge_late_previews(late, path)
+    assert [(p.game_pk, p.matchup) for p in merged] == [(1, "morning 1"), (2, "late 2")]
+    save_previews(merged, path)
+    assert [p.matchup for p in load_previews(path)] == ["morning 1", "late 2"]
+    assert _merge_late_previews(late, tmp_path / "missing.json") == late
+    path.write_text("{not json")
+    assert _merge_late_previews(late, path) == late

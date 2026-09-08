@@ -129,6 +129,60 @@ def test_revalidate_re_stamps_without_discarding_the_rest(
     assert after["default"]["y"] == [0.2, 0.5], "the pooled curve was measured; keep it"
 
 
+def _paired_ledger(path: Path) -> None:
+    """Two slates of complementary prop pairs whose raw probability is honest.
+
+    The over is priced at 0.5 and wins half the time, so any refit curve is
+    fitting noise -- the holdout delta must land inside its own standard error.
+    """
+    day_one = FEATURE_BASIS_SINCE
+    day_two = day_one.replace(day=day_one.day + 1)
+    header = (
+        "date,matchup,category,market,selection,line,book,odds,tier,model_prob,ev,"
+        "result,pnl,raw_prob,fair_prob\n"
+    )
+    rows = []
+    for day in (day_one, day_two):
+        for i in range(300):
+            over_won = i % 2 == 1
+            for side, prob, won in (
+                ("o0.5", 0.5, over_won),
+                ("u0.5", 0.5, not over_won),
+            ):
+                rows.append(
+                    f"{day.isoformat()},AAA@BBB,batter,batter_hr,Bat {i} HR {side},0.5,dk,"
+                    f"-110,Pass,{prob},0.0,{'win' if won else 'loss'},0,{prob},0.5\n"
+                )
+    path.write_text(header + "".join(rows))
+
+
+def test_a_market_inside_its_own_noise_is_not_adopted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A smaller Brier is not a better map; it has to clear a standard error."""
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    (tmp_path / "audit").mkdir(parents=True, exist_ok=True)
+    _paired_ledger(tmp_path / "audit" / "ledger.csv")
+    live = tmp_path / "calibration_live.json"
+    args = argparse.Namespace(holdout=1, min_holdout=1, force=False, revalidate=None)
+    assert cli.cmd_calibrate(args) == 1
+    assert not live.exists(), "nothing beat its incumbent, so nothing is written"
+
+
+def test_the_holdout_counts_props_not_complements(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Both sides of a prop are one piece of evidence about the refit, not two."""
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    (tmp_path / "audit").mkdir(parents=True, exist_ok=True)
+    _paired_ledger(tmp_path / "audit" / "ledger.csv")
+    args = argparse.Namespace(holdout=1, min_holdout=1, force=True, revalidate=None)
+    assert cli.cmd_calibrate(args) == 0
+    out = capsys.readouterr().out
+    assert "(300 props)" in out, out
+    assert "trained on 600 rows" in out, "the fit still sees both sides"
+
+
 def test_calibration_source_prefers_the_local_refit(tmp_path: Path) -> None:
     from mlb_engine.pipeline import _CALIBRATION_FILE, calibration_source
 

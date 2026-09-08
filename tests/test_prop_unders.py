@@ -86,9 +86,17 @@ def test_a_deep_favourite_under_is_refused() -> None:
     sides = _sides(Config(), "batter_h", "H", 0.22, 260, -320)
     assert sides["under"].tier is Tier.PASS
     assert sides["under"].pass_gate == "under_price_floor"
-    # The same edge at a payable price is a buy, so the floor is what refused it.
+    # Lift the floor and the same row is refused by the conviction ceiling
+    # instead: a .78 fade is exactly what that screen was shipped to decline, so
+    # the floor is now the outer of two refusals rather than the only one.
     priced = _sides(Config(prop_under_min_price=-1000.0), "batter_h", "H", 0.22, 260, -320)
-    assert priced["under"].tier in (Tier.STRONG, Tier.MODERATE)
+    assert priced["under"].pass_gate == "batter_under_prob_ceiling"
+    # With both lifted it is a buy, so the price alone was never the objection.
+    both = _sides(
+        Config(prop_under_min_price=-1000.0, batter_under_max_buy_prob=1.0),
+        "batter_h", "H", 0.22, 260, -320,
+    )
+    assert both["under"].tier in (Tier.STRONG, Tier.MODERATE)
 
 
 def test_a_singles_under_needs_the_profile() -> None:

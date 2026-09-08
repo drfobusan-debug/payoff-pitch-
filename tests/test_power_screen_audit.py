@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date as Date
 
 import pytest
@@ -81,3 +82,32 @@ def test_only_a_two_sided_price_is_scored_against_the_market() -> None:
     one_way = _graded(_position(fair=None), WIN)
     two_sided = _graded(_position(fair=0.4), LOSS)
     assert audit._priced([one_way, two_sided]) == [(two_sided, 0)]
+
+
+def test_a_day_with_two_recorded_runs_is_graded_once() -> None:
+    """Pooling both captures counts the rows they share twice and weights the
+    re-run day double, which flatters or damns the screen for re-running."""
+    morning = replace(_position(), run_id="20260822T1530Z")
+    evening = replace(_position(odds=-115.0), run_id="20260822T2210Z")
+    other_day = replace(_position(day="2026-08-23"), run_id="20260823T1530Z")
+
+    kept = audit._last_run([morning, evening, other_day])
+
+    assert [(p.date, p.run_id) for p in kept] == [
+        ("2026-08-22", "20260822T2210Z"),
+        ("2026-08-23", "20260823T1530Z"),
+    ]
+
+
+def test_the_ranking_cut_says_so_when_no_row_carries_a_rank(capsys) -> None:
+    audit._print_ranking([_graded(_position(), WIN)])
+    assert "the ordering was not recorded" in capsys.readouterr().out
+
+
+def test_the_ranking_cut_splits_the_composite_into_quartiles(capsys) -> None:
+    graded = [
+        _graded(replace(_position(), rank=r), WIN if r <= 4 else LOSS) for r in range(1, 9)
+    ]
+    audit._print_ranking(graded)
+    out = capsys.readouterr().out
+    assert "rank 1-2" in out and "rank 7-8" in out

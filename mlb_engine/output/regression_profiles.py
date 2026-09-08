@@ -21,6 +21,7 @@ from mlb_engine.audit.ledger import prop_subject
 from mlb_engine.features.arm import ArmProfile, build_arm_profile
 from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.arm import velo_trend as arm_velo_trend
+from mlb_engine.features.power_change import PowerChange, build_power_change
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -29,6 +30,7 @@ from mlb_engine.features.regression import (
 )
 from mlb_engine.features.siera import pitcher_siera
 from mlb_engine.features.swing import SwingProfile, build_swing_profile, stage_two
+from mlb_engine.market.ranking import price_rank
 
 FB = ("FF", "SI")
 RECENT_DAYS = 21  # "3-week" window for vFA + trend split
@@ -181,14 +183,29 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     }
 
 
+def _rank_of(row: dict) -> float:
+    """Rank a persisted prediction row the way the card ranks a live one.
+
+    A stored row's ``fair_prob`` is absent or blank on a market nothing could be
+    devigged, which :func:`price_rank` reads as "raw price only" rather than as
+    a probability of zero.
+    """
+
+    def num(key: str) -> float | None:
+        v = row.get(key)
+        return float(v) if isinstance(v, int | float) else None
+
+    return price_rank(num("market_american"), num("fair_prob"), num("ev"))
+
+
 def _bets_for(pid: int, preds: list[dict]) -> list[dict]:
     out = []
     for r in preds:
         if r.get("player_id") == pid and r["market"].startswith("pitcher_"):
             out.append(r)
-    # buys first, then by EV
+    # buys first, then by the devigged price on them
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
+    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return out
 
 
@@ -312,6 +329,29 @@ def _swing_fields(prof: SwingProfile, dxwoba: float) -> dict[str, float | int | 
     }
 
 
+def _power_fields(pc: PowerChange) -> dict[str, float | int | bool]:
+    """Peak exit velocity and the fastball whiff, each over its own window.
+
+    Both levels forecast (t +8 to +16 on a held-out block); neither *move* does,
+    so the move is carried alongside the band a hitter who did not change would
+    still produce, and the article prints it as a diagnostic rather than reading
+    a direction off it. See :mod:`mlb_engine.features.power_change`.
+    """
+    return {
+        "max_ev": pc.max_ev,
+        "max_ev_pa": pc.max_ev_pa,
+        "d_max_ev": pc.d_max_ev,
+        "max_ev_moved": pc.moved("max_ev"),
+        "fb_whiff": pc.fb_whiff,
+        "fb_whiff_pa": pc.fb_whiff_pa,
+        "fb_swings": pc.fb_swings,
+        "d_fb_whiff": pc.d_fb_whiff,
+        "fb_whiff_moved": pc.moved("fb_whiff"),
+        "power_block_pa": pc.block_pa,
+        "power_pa": pc.pa,
+    }
+
+
 def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["batter"] == pid]
     reg = build_batter_regression(sl)
@@ -332,6 +372,7 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "woba6": reg.woba,
         "woba3": _woba(recent),
         **_swing_fields(build_swing_profile(sl), reg.dxwoba),
+        **_power_fields(build_power_change(sl)),
     }
 
 
@@ -340,9 +381,7 @@ def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
     if not cands:
         return None
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
-    return cands[0]
-
+    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return cands[0]
 
 

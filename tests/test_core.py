@@ -1668,7 +1668,7 @@ def test_strong_only_and_min_edge_selection():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import Tier, classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
 
     def _res(ev, edge):
         # Above the conviction floor, so the tier is what is under test.
@@ -1707,7 +1707,7 @@ def test_implausible_edge_is_a_pass():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
     huge = EVResult(
         model_prob=0.70, best_quote=q, decimal=1.91, ev=0.337,
         fair_prob=0.50, edge=0.20, sharp_divergence=None,
@@ -1716,7 +1716,7 @@ def test_implausible_edge_is_a_pass():
     assert any("> 0.08" in r for r in classify(huge, EVThresholds())[1])
     # The cap is what rejects it, not the EV floor or the thin-edge guard. The EV
     # ceiling is lifted with it because a 20-point edge is past that too.
-    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is Tier.STRONG
+    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is not Tier.PASS
 
 
 def test_zero_ev_price_is_a_pass():
@@ -1782,6 +1782,27 @@ def test_ledger_overall_and_dedup(tmp_path):
     # even, so a 66.7% win rate is genuinely ahead rather than assumed to be.
     assert abs(strong.required_win_pct - 0.5079) < 1e-3
     assert strong.win_pct > strong.required_win_pct
+
+
+def test_a_row_the_board_never_priced_is_kept_out_of_the_priced_return():
+    """An assumed -110 is not a return, so it travels in its own column.
+
+    The unpriced rows win more often than the priced ones over a season, which
+    makes the blended figure read as profit off prices nobody offered.
+    """
+    from mlb_engine.audit.ledger import entries_from_graded, overall_metrics
+
+    entries = entries_from_graded(
+        [
+            (_rec(tier=Tier.STRONG, market_american=-110), LOSS),
+            (_rec(tier=Tier.STRONG, market_american=None), WIN),
+        ],
+        date(2024, 7, 19),
+    )
+    strong = next(m for m in overall_metrics(entries) if m.tier == Tier.STRONG.value)
+    assert strong.n == 2 and strong.roi > strong.priced_roi  # the assumed win lifts it
+    assert strong.priced_n == 1
+    assert abs(strong.priced_roi + 1.0) < 1e-9
 
 
 # ---- backtest analytics ----
@@ -2447,15 +2468,20 @@ def _ledger_entry(market, model_prob, result, *, odds=-110, ev=0.0, tier=Tier.PA
 
 
 def _report_ledger():
+    # Counts are past the report's priced-row floor: a verdict is only spent on a
+    # market with enough real quotes to have a return, so a ten-row toy market
+    # now reads as Neutral for want of a record rather than as Play.
     entries = []
     # A clean, profitable play market (pitcher_k): favored picks mostly win.
-    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(8)]
-    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(2)]
+    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(32)]
+    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(8)]
     # A losing pocket (f5_total): favored picks mostly lose big.
-    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(7)]
-    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(3)]
+    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(28)]
+    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(12)]
     # A market the model always fades -> abstain row.
-    entries += [_ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(6)]
+    entries += [
+        _ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(24)
+    ]
     return entries
 
 
@@ -2497,6 +2523,57 @@ def test_report_classifies_and_renders():
     html_body = render_html_report(data)
     assert html_body.startswith("<!DOCTYPE html>")
     assert "Market scorecard" in html_body and "<table>" in html_body
+
+
+def test_a_market_paid_at_a_price_nobody_offered_is_not_playable():
+    """The verdict is a betting instruction, so it reads the rows that had a bet.
+
+    Half the ledger carries no book price and is graded at an assumed -110, and
+    those rows both outnumber and out-win the priced ones -- which is how batter
+    total bases came to sit in the Play list at +44.4% on the same page as the
+    probation table shutting it.
+    """
+    from mlb_engine.output.report import PLAY, build_report_data
+
+    entries = [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=-200, pnl=0.5) for _ in range(24)
+    ]
+    entries += [_ledger_entry("batter_tb", 0.6, LOSS, odds=-200) for _ in range(16)]
+    entries += [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=None, pnl=0.91) for _ in range(40)
+    ]
+
+    data = build_report_data(entries, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_tb")
+    assert row.roi > 0 and row.priced_roi < 0  # the blended figure disagrees
+    assert row.verdict != PLAY and "Batter total bases" not in data.play
+
+
+def test_a_market_probation_shut_cannot_be_green(monkeypatch):
+    """Two measurements of one market, and the weaker one does not get the dot.
+
+    Probation grades a market on its own buys over both halves of its window;
+    the scorecard grades every side the model favored. When they disagree the
+    reader acts on the coloured dot, so the dot defers.
+    """
+    from mlb_engine.output.report import FADE, build_report_data
+
+    monkeypatch.setenv("MLBE_PROBATION_MIN_N", "4")
+    buys = [
+        _ledger_entry("batter_hrr", 0.6, LOSS, tier=Tier.MODERATE,
+                      date_str=f"2026-08-{18 + i}")
+        for i in range(6)
+    ]
+    passes = [
+        _ledger_entry("batter_hrr", 0.6, WIN, odds=-200, pnl=0.5,
+                      date_str="2026-08-20")
+        for _ in range(60)
+    ]
+
+    data = build_report_data(buys + passes, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_hrr")
+    assert row.priced_roi > 0  # the favored sides look fine
+    assert row.verdict == FADE and "probation" in row.reason
 
 
 def test_weekly_window_filters_to_seven_days():

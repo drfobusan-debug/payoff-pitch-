@@ -28,14 +28,23 @@ from __future__ import annotations
 
 import csv
 import logging
-from dataclasses import asdict, dataclass, field
+import unicodedata
+from dataclasses import asdict, dataclass, field, replace
 from datetime import date as Date
 from pathlib import Path
 
-from mlb_engine.audit.grade import LOSS, PUSH, WIN, batter_actual, grade_batter
+from mlb_engine.audit.grade import (
+    LOSS,
+    PUSH,
+    WIN,
+    batter_actual,
+    grade_batter,
+    grade_pitcher,
+    pitcher_actual,
+)
 from mlb_engine.audit.ledger import pnl_units
 from mlb_engine.data.results import GameResult
-from mlb_engine.output.power_board import DISPLAY_ONLY, MARKET_LABEL, Board, BoardRow
+from mlb_engine.output.power_board import DISPLAY_ONLY, Board, BoardRow, market_label
 
 log = logging.getLogger(__name__)
 
@@ -59,7 +68,50 @@ FIELDS = (
     "tier",
     "rating",
     "devigged",
+    "delivery",
+    "run_id",
+    "rank",
+    "points",
+    "fit_pts",
+    "fit_rv",
+    "category",
+    "gate",
 )
+
+
+def name_key(name: str) -> str:
+    """One hitter's one key, whatever the source spelled his name.
+
+    ``Eugenio Suárez`` and ``Eugenio Suarez`` are both in the recorded ledger --
+    the lineup feed accents him and the box score does not -- so every per-hitter
+    cut counted him twice and neither half had his record. Compared on the
+    accent-stripped, case-folded name, which is what the two sources disagree
+    about; anything more aggressive would merge a father and a son.
+    """
+    stripped = unicodedata.normalize("NFKD", name)
+    return "".join(c for c in stripped if not unicodedata.combining(c)).casefold().strip()
+
+
+@dataclass(frozen=True)
+class Composite:
+    """Where the screen ranked one hitter, and what carried him there.
+
+    The ledger recorded the tier and the rating and never the ordering, so after
+    fifteen days and 275 graded rows the screen's central claim -- that its
+    composite picks the right bat -- was the one thing the receipts could not
+    grade. These four numbers are what the note's own table prints, carried down
+    to every row of that hitter so an audit can sort the results by the order the
+    screen put them in.
+    """
+
+    rank: int
+    #: The composite less the two halves' floors: the part that discriminates.
+    points: int
+    #: The arsenal-fit points, and the run value per 100 on the pitches he will
+    #: actually see. The fit is the term the note argues hardest from, so it is
+    #: gradeable on its own rather than only inside the total.
+    fit_pts: int
+    fit_rv: float | None = None
 
 
 @dataclass(frozen=True)
@@ -86,6 +138,40 @@ class Position:
     # Absent on rows recorded before the board carried it, which fall back to the
     # model so an old row still grades against the number it showed.
     bet_prob: float | None = None
+    #: What the opposing starter's delivery said about the batted-ball read the
+    #: note faded him on: ``confirmed``, ``contradicted`` or ``unmeasured`` (see
+    #: :mod:`mlb_engine.features.arm`). Empty on a row recorded before the field
+    #: existed, or one whose arm the note could not attribute -- an unknown read
+    #: is left unknown rather than filled with the common case.
+    #:
+    #: Recorded and never gated. Two graded slates have pointed the right way,
+    #: which is four arms and not a sample, so the flag has to sit in the ledger
+    #: before an audit can say whether it discriminates.
+    delivery: str = ""
+    #: Which run of the screen wrote this row. The screen runs more than once a
+    #: day on purpose -- a second look once lineups post is the point of the
+    #: morning job -- and until now the later run replaced the earlier one, here
+    #: and on the state branch, so the file could not say which board the reader
+    #: was shown and two machines could each delete the other's day. Empty on a
+    #: row recorded before the field existed.
+    run_id: str = ""
+    #: The composite's ordering, carried per row (see :class:`Composite`).
+    rank: int | None = None
+    points: int | None = None
+    fit_pts: int | None = None
+    fit_rv: float | None = None
+    #: ``batter`` or ``pitcher``. The ``batter`` column carries the name either
+    #: way; a starter's rows are told apart by this, and graded off his pitching
+    #: line. Rows recorded before the field existed are hitters.
+    category: str = "batter"
+    #: The card's screen that refused the row when it was passed rather than
+    #: bought, so a gate can be graded on the positions it cost the screen.
+    gate: str = ""
+
+    @property
+    def key(self) -> str:
+        """Who this row is about: the id where there is one, the name otherwise."""
+        return str(self.player_id) if self.player_id is not None else name_key(self.batter)
 
     @property
     def shown_prob(self) -> float:
@@ -93,36 +179,74 @@ class Position:
         return self.model_prob if self.bet_prob is None else self.bet_prob
 
     @property
+    def market(self) -> str:
+        """The bucket this row grades into: a starter's hits are not a hitter's."""
+        return market_label(self.stat, self.category)
+
+    @property
     def label(self) -> str:
-        stat = MARKET_LABEL.get(self.stat, self.stat)
         point = "" if self.line is None else f" {'o' if self.side == 'over' else 'u'}{self.line}"
-        return f"{stat}{point}"
+        return f"{self.market}{point}"
 
     @property
     def is_buy(self) -> bool:
-        """Did the card bet it, as opposed to modelling it and passing?"""
-        return self.tier in ("Strong buy", "Moderate buy")
+        """Did the card bet it, as opposed to modelling it and passing?
+
+        A display-only market is shown and never held, so it is not a buy however
+        the pricer tiered it. New rows in one of those markets are not written at
+        all (``positions_from_board``), but rows recorded before that held do sit
+        in the ledger and must not roll up as tickets the card took.
+        """
+        return self.tier in ("Strong buy", "Moderate buy") and self.stat not in DISPLAY_ONLY
 
 
 def positions_from_board(
-    board: Board, as_of: Date, ratings: dict[str, str] | None = None
+    board: Board,
+    as_of: Date,
+    ratings: dict[str, str] | None = None,
+    deliveries: dict[str, str] | None = None,
+    composites: dict[str, Composite] | None = None,
+    run_id: str = "",
 ) -> list[Position]:
-    """The board's rows as ledger positions, tagged with the screen's rating.
+    """The board's rows as ledger positions, tagged with what the note said.
 
-    ``ratings`` maps batter name to the note's BUY/HOLD/AVOID; it is supplied by
-    the caller rather than computed here so this module never imports the report
-    that renders it. Rows in a ``DISPLAY_ONLY`` market are shown by the note but
-    held by nobody, so they are not positions.
+    ``ratings`` maps batter name to the note's BUY/HOLD/AVOID, ``deliveries`` to
+    the opposing starter's delivery verdict and ``composites`` to where the
+    screen ranked him; all are supplied by the caller rather than computed here
+    so this module never imports the report that renders them, and all are looked
+    up on :func:`name_key` so an accent cannot lose a hitter his rating. Rows in a
+    ``DISPLAY_ONLY`` market are shown by the note but held by nobody, so they are
+    not positions.
+
+    The arms' rows follow the hitters'. A starter has no matchup grade -- the
+    grade is a read on the bat -- so his rating is blank, and ``deliveries`` is
+    looked up on his own name for the verdict on his own delivery.
     """
-    rated = ratings or {}
+    rated = {name_key(k): v for k, v in (ratings or {}).items()}
+    arms = {name_key(k): v for k, v in (deliveries or {}).items()}
+    ranked = {name_key(k): v for k, v in (composites or {}).items()}
     return [
-        _position(row, as_of, rated.get(row.batter, ""))
-        for row in board.rows
+        _position(
+            row,
+            as_of,
+            rated.get(name_key(row.batter), ""),
+            arms.get(name_key(row.batter), ""),
+            ranked.get(name_key(row.batter)),
+            run_id,
+        )
+        for row in board.positions
         if row.stat not in DISPLAY_ONLY
     ]
 
 
-def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
+def _position(
+    row: BoardRow,
+    as_of: Date,
+    rating: str,
+    delivery: str = "",
+    composite: Composite | None = None,
+    run_id: str = "",
+) -> Position:
     return Position(
         date=as_of.isoformat(),
         batter=row.batter,
@@ -141,6 +265,18 @@ def _position(row: BoardRow, as_of: Date, rating: str) -> Position:
         tier=row.tier,
         rating=rating,
         devigged=row.devigged,
+        delivery=delivery,
+        run_id=run_id,
+        rank=None if composite is None else composite.rank,
+        points=None if composite is None else composite.points,
+        fit_pts=None if composite is None else composite.fit_pts,
+        fit_rv=(
+            None
+            if composite is None or composite.fit_rv is None
+            else round(composite.fit_rv, 2)
+        ),
+        category=row.category,
+        gate=row.gate,
     )
 
 
@@ -187,21 +323,45 @@ def load(path: Path) -> list[Position]:
                     tier=r.get("tier", ""),
                     rating=r.get("rating", ""),
                     devigged=str(r.get("devigged", "")).lower() in ("true", "1", "yes"),
+                    delivery=r.get("delivery", "") or "",
+                    run_id=r.get("run_id", "") or "",
+                    rank=_to_int(r.get("rank", "")),
+                    points=_to_int(r.get("points", "")),
+                    fit_pts=_to_int(r.get("fit_pts", "")),
+                    fit_rv=_to_float(r.get("fit_rv", "")),
+                    category=r.get("category", "") or "batter",
+                    gate=r.get("gate", "") or "",
                 )
             )
     return out
 
 
-def record(path: Path, positions: list[Position], as_of: Date) -> list[Position]:
-    """Append today's positions, replacing any already recorded for the same day.
+def record(
+    path: Path, positions: list[Position], as_of: Date, run_id: str = ""
+) -> list[Position]:
+    """Append this run's positions, replacing only what this run wrote before.
 
     Re-running the screen is normal -- a second look once lineups post is the
-    point of the morning job -- and must overwrite the day rather than double it,
-    or a hitter shown twice counts twice in every rate below.
+    point of the morning job -- and used to overwrite the whole day, which cost
+    more than it saved: the day's rows then depended on which run wrote last, a
+    re-run months later silently rewrote graded history, and two machines each
+    deleted the other's board (8/26 held one screen's hitters here and a
+    different screen's on the state branch, and the same fifteen days graded
+    -3.9% or -8.6% depending on which copy was read).
+
+    So a run is the unit: rows are keyed by ``run_id`` and only the same run's
+    rows are replaced, which keeps re-running idempotent without making it
+    destructive. With no ``run_id`` the old whole-day replacement stands, so a
+    caller that has no notion of a run cannot accumulate duplicates.
     """
     day = as_of.isoformat()
-    kept = [p for p in load(path) if p.date != day]
-    rows = kept + positions
+    kept = [
+        p
+        for p in load(path)
+        if p.date != day or (run_id != "" and p.run_id != run_id)
+    ]
+    written = [p if p.run_id == run_id else replace(p, run_id=run_id) for p in positions]
+    rows = kept + written
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(FIELDS))
@@ -211,16 +371,31 @@ def record(path: Path, positions: list[Position], as_of: Date) -> list[Position]
     return rows
 
 
-def positions_for(path: Path, day: Date) -> list[Position]:
-    """That day's positions, less the markets the note only displays.
 
-    Filtered on the way out as well as in, so the boards already written with HR
-    rows grade the same way as the ones written after: a scorecard whose meaning
-    changed on the day of a code change is worse than no scorecard.
+def runs_for(path: Path, day: Date) -> list[str]:
+    """Every run of the screen recorded for that day, earliest identifier first."""
+    return sorted({p.run_id for p in load(path) if p.date == day.isoformat()})
+
+
+def positions_for(path: Path, day: Date, run_id: str | None = None) -> list[Position]:
+    """One run's positions for that day, less the markets the note only displays.
+
+    The file keeps every run, so a day can hold more than one board and the
+    scorecard has to say which it graded. Default is the day's last run -- the
+    board the reader ended the day with -- and ``run_id`` pins an earlier one,
+    which is what makes the grade reproducible: the rows behind a printed
+    scorecard can be named rather than inferred from whatever wrote last.
+
+    Markets are filtered on the way out as well as in, so the boards already
+    written with HR rows grade the same way as the ones written after: a
+    scorecard whose meaning changed on the day of a code change is worse than no
+    scorecard.
     """
-    return [
-        p for p in load(path) if p.date == day.isoformat() and p.stat not in DISPLAY_ONLY
-    ]
+    rows = [p for p in load(path) if p.date == day.isoformat() and p.stat not in DISPLAY_ONLY]
+    if not rows:
+        return []
+    want = max({p.run_id for p in rows}) if run_id is None else run_id
+    return [p for p in rows if p.run_id == want]
 
 
 @dataclass(frozen=True)
@@ -236,9 +411,10 @@ def grade_positions(
 ) -> tuple[list[GradedPosition], int]:
     """Grade what can be graded; return the rows and the count that could not be.
 
-    Ungradeable means the game never finished or the hitter never batted, and it
-    is returned as a count rather than folded into the record: a voided prop is
-    not evidence about the screen either way.
+    Ungradeable means the game never finished or the player never appeared, and
+    it is returned as a count rather than folded into the record: a voided prop
+    is not evidence about the screen either way. A starter's row is read off his
+    pitching line, a hitter's off his batting line.
     """
     graded: list[GradedPosition] = []
     voided = 0
@@ -247,7 +423,12 @@ def grade_positions(
         if res is None or not res.final or p.player_id is None or p.line is None:
             voided += 1
             continue
-        outcome = grade_batter(res, p.player_id, p.stat, p.line, p.side)
+        if p.category == "pitcher":
+            outcome = grade_pitcher(res, p.player_id, p.stat, p.line, p.side)
+            actual = pitcher_actual(res, p.player_id, p.stat)
+        else:
+            outcome = grade_batter(res, p.player_id, p.stat, p.line, p.side)
+            actual = batter_actual(res, p.player_id, p.stat)
         if outcome is None:
             voided += 1
             continue
@@ -255,7 +436,7 @@ def grade_positions(
             GradedPosition(
                 position=p,
                 result=outcome,
-                actual=batter_actual(res, p.player_id, p.stat),
+                actual=actual,
                 units=pnl_units(outcome, p.odds),
             )
         )
@@ -312,9 +493,14 @@ class Scorecard:
     day: str
     overall: Record
     voided: int = 0
+    #: Which recorded run of the screen these rows came from, so the printed
+    #: scorecard names its own evidence instead of meaning whatever wrote last.
+    run_id: str = ""
     by_tier: list[Record] = field(default_factory=list)
     by_rating: list[Record] = field(default_factory=list)
     by_market: list[Record] = field(default_factory=list)
+    #: Hitters against arms: the two halves of the screen's thesis, graded apart.
+    by_category: list[Record] = field(default_factory=list)
     model_brier: float | None = None
     market_brier: float | None = None
     scored_probs: int = 0
@@ -365,17 +551,30 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
     market = [(g.position.fair_prob or 0.0, o) for g, o in pairs]
     tiers = sorted({g.position.tier for g in graded})
     ratings = sorted({g.position.rating for g in graded if g.position.rating})
-    markets = sorted({g.position.stat for g in graded})
+    markets = sorted({g.position.market for g in graded})
+    categories = sorted({g.position.category for g in graded})
+    runs = sorted({g.position.run_id for g in graded})
     return Scorecard(
         day=day.isoformat(),
         overall=_record("all", graded),
         voided=voided,
+        run_id=runs[-1] if len(runs) == 1 else "",
         by_tier=[_record(t, [g for g in graded if g.position.tier == t]) for t in tiers],
         by_rating=[_record(r, [g for g in graded if g.position.rating == r]) for r in ratings],
         by_market=[
-            _record(MARKET_LABEL.get(m, m), [g for g in graded if g.position.stat == m])
-            for m in markets
+            _record(m, [g for g in graded if g.position.market == m]) for m in markets
         ],
+        by_category=(
+            [
+                _record(
+                    "arms" if c == "pitcher" else "hitters",
+                    [g for g in graded if g.position.category == c],
+                )
+                for c in categories
+            ]
+            if len(categories) > 1
+            else []
+        ),
         model_brier=_brier(model),
         market_brier=_brier(market),
         scored_probs=len(pairs),

@@ -70,6 +70,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from mlb_engine.config import power_bonus_half_pool
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features import stuff
 from mlb_engine.features.arm import ArmProfile, build_arm_profile
@@ -152,7 +153,28 @@ POWER_XWOBACON = 0.440  # contact good enough to keep a hitter the wRC+ cut drop
 RESCUE_POWER_Z = 0.375  # swing good enough to survive the luck-gap cut anyway
 MIN_PITCHER_PITCHES = 15  # per-pitch-type floor, pitcher side
 MIN_BATTER_PITCHES = 25  # per-pitch-type floor, hitter side
+MIN_FIT_BBE = 10  # balls in play before a per-pitch contact mark is a measurement
 TOP_K = 5  # a top-K finish in a scored metric earns the second point
+
+#: The marks measured on balls in play rather than on pitches, which is why they
+#: need their own floor: a family a hitter has seen the 25 pitches of
+#: ``MIN_BATTER_PITCHES`` he may have put in play twice.
+BIP_MARKS = frozenset({"xba", "xwoba", "hh", "brl"})
+
+
+def bonus_places(rated: int, top_n: int) -> int:
+    """How many places in a pool of ``rated`` earn the top-``top_n`` bonus.
+
+    A top-three finish in a pool of three is not a finish, and these pools are
+    small: five arms cleared stage 0 on 8/30 and the hitter pool has a median of
+    six, so the flat cutoff paid most of the pool in every metric and the metric
+    separated nobody -- both survivors of 8/30 scored 27 of 27 in each half and 15
+    of 15 on the fit, leaving the whole composite spread to the context terms.
+    Capped at half the field, a bonus is always a top-half finish.
+    """
+    if not power_bonus_half_pool():
+        return top_n
+    return max(0, min(top_n, rated // 2))
 
 
 @dataclass(frozen=True)
@@ -326,7 +348,7 @@ class ContactLine:
 
     @property
     def thin(self) -> bool:
-        return self.bbe < 10
+        return self.bbe < MIN_FIT_BBE
 
 
 def contact_line(df: pd.DataFrame) -> ContactLine:
@@ -798,11 +820,12 @@ def score_starters(
                 )
             )
             rated_ids = {id(card) for card in rated}
+            places = bonus_places(len(rated), top_n)
             for i, card in enumerate(rated):
                 score = card.scores[split.key]
                 score.points += 1
                 score.places += i + 1
-                if i < top_n:
+                if i < places:
                     score.points += 2
                     score.top_in = (*score.top_in, metric.label)
             for card in cards:
@@ -875,6 +898,27 @@ def rank_starters(cards: list[StarterCard], top_n: int = 4) -> list[StarterCard]
             - parts["kbb"][i] - parts["csw"][i]
         )
     return sorted(readable, key=lambda c: (-c.points, -c.index))[:top_n]
+
+
+def keep_arms(ranked: list[StarterCard], *, keep: int, gap: int = 0) -> list[StarterCard]:
+    """The arms whose lineups are worth screening: a headcount, then a quality gap.
+
+    A headcount alone keeps the fourth arm however far he has fallen off the
+    pack. On 8/30 it kept Max Scherzer on 46 points against a leader's 94, so a
+    lineup spent the night hunting the best start on the board -- the ranking
+    had already said he did not belong and the count overruled it.
+
+    ``gap`` is how many stage-1 points behind the leader an arm may be and still
+    be screened; zero leaves the headcount alone. Points are pool-relative and
+    only comparable inside one slate, which is why the bar is measured from that
+    slate's own leader rather than set as an absolute score. The leader himself
+    is always kept, so the gap can thin a screen and never empty one.
+    """
+    shortlist = ranked[:keep]
+    if gap <= 0 or not shortlist:
+        return shortlist
+    floor = shortlist[0].points - gap
+    return [shortlist[0]] + [c for c in shortlist[1:] if c.points >= floor]
 
 
 # --- stage 2 and 3: score and cut the lineups ----------------------------
@@ -1253,6 +1297,11 @@ def arsenal_fit(
     line becomes if every pitch he sees comes out of this arsenal. Families he
     has no readable sample against fall back to his overall mark, so the weights
     still sum to one and the fallback share is reported rather than hidden.
+
+    Readable is measured in balls in play here rather than in pitches -- see
+    :func:`contact_mark`. A family read off two batted balls, one of them a home
+    run, prices the arsenal at an xwOBA no hitter carries over a season and moves
+    the fit by more than the rest of the mix put together.
     """
     if not usage:
         return math.nan, math.nan, 1.0
@@ -1261,13 +1310,15 @@ def arsenal_fit(
     for name, share in usage.items():
         weight = share / total
         line = hitter.get(name)
-        if line is None or math.isnan(line.xwoba):
+        mark = contact_mark(line, "xwoba") if line is not None else math.nan
+        if math.isnan(mark):
             fallback += weight
             fit_w += weight * overall.xwoba
             fit_b += weight * overall.xba
         else:
-            fit_w += weight * line.xwoba
-            fit_b += weight * (line.xba if not math.isnan(line.xba) else overall.xba)
+            xba = contact_mark(line, "xba") if line is not None else math.nan
+            fit_w += weight * mark
+            fit_b += weight * (xba if not math.isnan(xba) else overall.xba)
     return fit_w, fit_b, fallback
 
 
@@ -1519,6 +1570,10 @@ HALF_SCORED: tuple[HalfMetric, ...] = (
     HalfMetric("ev90", "EV90", True, 40, "bbe"),
 )
 
+#: The points every half line collects for existing: one per scored metric,
+#: measured or not. It is a constant, so it cannot order two hitters.
+HALF_FLOOR = len(HALF_SCORED)
+
 #: The inning the bullpen's half begins. Innings 1-6 are the starter's half; the
 #: seventh is where the screen stops measuring the arm it faded and starts
 #: measuring the relief corps behind him.
@@ -1539,6 +1594,16 @@ class HalfLine:
     bbe: int = 0
     points: int = 0
     top_in: tuple[str, ...] = ()
+
+    @property
+    def earned(self) -> int:
+        """The points that separate this half from another one.
+
+        ``points`` carries a fixed floor of one per scored metric, which every
+        line collects and which therefore says nothing about the hitter. The
+        earned total is the part a comparison can use.
+        """
+        return self.points - HALF_FLOOR
 
     def value(self, metric: HalfMetric) -> float:
         return self.values.get(metric.attr, math.nan)
@@ -1626,13 +1691,20 @@ def half_lines(rows: pd.DataFrame, *, split_at: int = SPLIT_INNING) -> tuple[Hal
 
 
 def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:
-    """One point per rated metric, two more for a top-``top_n`` finish.
+    """The floor, plus two points for a top-``top_n`` finish in a metric.
 
     Each half is scored as its own pool, so a hitter's late points are earned
     against the other hitters' late lines rather than against his own early one.
+
+    The floor is awarded per scored metric whether or not the metric could be
+    read, because a metric with no sample is unavailable and not bad: scoring it
+    as a missed point would rank a hitter the screen cannot measure below one it
+    has measured and found wanting, which is the opposite of what the shrinkage
+    in :func:`half_lines` exists to prevent. Only the top-``top_n`` bonus is
+    earned, so :attr:`HalfLine.earned` is the comparable number.
     """
     for line in pool:
-        line.points = 0
+        line.points = HALF_FLOOR
         line.top_in = ()
     for metric in HALF_SCORED:
         ranked = sorted(
@@ -1640,11 +1712,9 @@ def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:
             key=lambda line: line.value(metric),
             reverse=metric.higher_better,
         )
-        for i, line in enumerate(ranked):
-            line.points += 1
-            if i < top_n:
-                line.points += 2
-                line.top_in = (*line.top_in, metric.label)
+        for line in ranked[:bonus_places(len(ranked), top_n)]:
+            line.points += 2
+            line.top_in = (*line.top_in, metric.label)
 
 
 # --- stage 7: regression, park and weather -------------------------------
@@ -1790,7 +1860,7 @@ def build_context(
     worst_arm: bool = False,
     top_pitch_rv: float = math.nan,
 ) -> ContextTerms:
-    """The seven context points for one hitter in one game.
+    """The eight context points for one hitter in one game.
 
     The luck term is signed on ``xwOBA - wOBA``: a hitter whose expected line is
     above his actual one has been unlucky and regresses up, which is the only
@@ -1865,7 +1935,17 @@ class ArsenalEdge:
 
 
 def contact_mark(line: ContactLine, attr: str) -> float:
-    """One named mark off a contact line, without reaching for the attribute."""
+    """One named mark off a contact line, without reaching for the attribute.
+
+    The four marks in :data:`BIP_MARKS` read as unavailable below
+    :data:`MIN_FIT_BBE` balls in play, because the per-family floors are counted
+    in pitches and xwOBA is not a per-pitch rate: Cal Raleigh's curveball on 8/30
+    cleared 25 pitches with two batted balls and a 1.342 xwOBA, which on its own
+    carried his fit 115 points above his overall line and ranked him first on the
+    slate. Run value and whiff are per pitch and stay readable.
+    """
+    if attr in BIP_MARKS and line.thin:
+        return math.nan
     marks = {
         "rv100": line.rv100, "xba": line.xba, "xwoba": line.xwoba,
         "hh": line.hh, "brl": line.brl, "whiff": line.whiff,
@@ -1963,9 +2043,10 @@ def score_edges(pool: list[ArsenalEdge], *, top_n: int = STARTER_TOP_N) -> None:
             key=lambda e: e.value(metric),
             reverse=metric.higher_better,
         )
+        places = bonus_places(len(ranked), top_n)
         for i, edge in enumerate(ranked):
             edge.points += 1
-            if i < top_n:
+            if i < places:
                 edge.points += 2
                 edge.top_in = (*edge.top_in, metric.label)
 
@@ -1995,6 +2076,16 @@ class FinalScore:
     @property
     def halves(self) -> int:
         return self.early.points + self.late.points
+
+    @property
+    def earned(self) -> int:
+        """The total less the two halves' floors: the part that discriminates.
+
+        ``total`` carries ``2 * HALF_FLOOR`` points that every hitter in the pool
+        collects, so a total of 34 is an earned 16 and reading the totals as a
+        spread overstates how far apart the top and the bottom of the screen are.
+        """
+        return self.total - 2 * HALF_FLOOR
 
     @property
     def total(self) -> int:

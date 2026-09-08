@@ -6,6 +6,7 @@ import csv
 import gzip
 import json
 import subprocess
+from dataclasses import replace
 from datetime import date as Date
 from pathlib import Path
 
@@ -742,3 +743,58 @@ def test_a_failed_git_call_says_what_git_said(tmp_path: Path) -> None:
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     with pytest.raises(RuntimeError, match="Needed a single revision"):
         engine_state._git(["rev-parse", "--verify", "refs/heads/nope"], tmp_path)
+
+
+def test_two_machines_boards_for_one_day_both_survive(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A screen is a capture, not an audit, so a date is not one machine's to own.
+
+    The ledger used to be merged by date with the local rows winning, which is
+    right for a graded audit and wrong here: the Mac's 11:30 board and this box's
+    re-run once lineups posted are two true records of one day, and the branch
+    ended up holding one screen's hitters where the box held another's -- the same
+    fifteen days grading -3.9% or -8.6% depending on which copy was read.
+    """
+    repo_a, data_a, repo_b, data_b = machines
+    day = Date(2026, 8, 21)
+    morning = power_ledger.Position(
+        date=day.isoformat(),
+        batter="Matt Olson",
+        player_id=621566,
+        game_pk=824880,
+        stat="TB",
+        line=1.5,
+        side="over",
+        book="draftkings",
+        odds=105.0,
+        model_prob=0.52,
+        fair_prob=0.49,
+        edge=0.03,
+        ev=0.06,
+        tier="Moderate buy",
+        rating="BUY",
+        devigged=True,
+    )
+    power_ledger.record(
+        data_a / "audit" / power_ledger.LEDGER_NAME, [morning], day, run_id="20260821T1530Z"
+    )
+    push_state(data_a, "morning screen", repo=repo_a, branch=STATE_BRANCH)
+
+    pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    evening = replace(morning, batter="Drake Baldwin", player_id=691523)
+    power_ledger.record(
+        data_b / "audit" / power_ledger.LEDGER_NAME, [evening], day, run_id="20260821T2210Z"
+    )
+    push_state(data_b, "posted-lineup screen", repo=repo_b, branch=STATE_BRANCH)
+
+    pull_state(data_a, repo=repo_a, branch=STATE_BRANCH)
+    both = power_ledger.load(data_a / "audit" / power_ledger.LEDGER_NAME)
+    assert {(p.batter, p.run_id) for p in both} == {
+        ("Matt Olson", "20260821T1530Z"),
+        ("Drake Baldwin", "20260821T2210Z"),
+    }
+    # And the day still grades one board rather than the pooled two.
+    assert [p.batter for p in power_ledger.positions_for(
+        data_a / "audit" / power_ledger.LEDGER_NAME, day
+    )] == ["Drake Baldwin"]

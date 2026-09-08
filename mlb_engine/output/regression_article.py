@@ -26,6 +26,15 @@ from datetime import date as Date
 import pandas as pd
 
 from mlb_engine.features import arm
+from mlb_engine.features.power_change import (
+    BL_FB_WHIFF,
+    BL_MAX_EV,
+    FLOOR,
+    MIN_FB_SWINGS,
+    MOVE_BLOCK,
+    band,
+)
+from mlb_engine.features.power_change import WINDOW as WINDOW_PA
 from mlb_engine.features.regression import (
     BL_BABIP,
     BL_FB_ALLOWED,
@@ -577,6 +586,70 @@ def _swing_line(p: dict) -> str:
     )
 
 
+def _short(read: int, metric: str) -> str:
+    """Mark a level the hitter has not yet played enough to stabilise.
+
+    Readable is not stable: a hitter past the floor gets his number printed, but a
+    number read over less than the r=.70 sample is labelled so that nobody treats
+    it as settled.
+    """
+    return "" if read >= WINDOW_PA[metric] else f" (provisional, {WINDOW_PA[metric]} PA to settle)"
+
+
+def _power_line(p: dict) -> str:
+    """Peak exit velocity and the fastball whiff, each over the window it earns.
+
+    The two windows are different on purpose: fastball whiff% reaches r=.70 at 108
+    plate appearances and max EV not until 192, so one shared look-back would
+    either throw away half the fastball evidence or print a ceiling the sample has
+    not earned. A hitter under the readability floor (49 PA, 52 PA) prints as
+    unmeasured rather than as the league.
+
+    The move beside each level is a diagnostic, not a signal. It is read over two
+    adjacent blocks of the narrowest sample the level half-repeats at, and quoted
+    against the band two no-change reads of the same hitter would produce -- for
+    max EV the measured true-change SD is zero at every block size tested, so the
+    band is the whole story and the line says so.
+    """
+    if not p.get("power_pa"):
+        return ""
+    ev, fbw = p.get("max_ev", math.nan), p.get("fb_whiff", math.nan)
+    cells = [
+        f"MaxEV {ev:.1f} mph over {p['max_ev_pa']} PA{_short(p['max_ev_pa'], 'max_ev')}"
+        if ev == ev
+        else f"MaxEV &mdash; ({p['power_pa']} PA, under the {FLOOR['max_ev']}-PA floor)",
+        f"FB whiff {fbw * 100:.0f}% over {p['fb_whiff_pa']} PA on {p['fb_swings']} fastball "
+        f"swings{_short(p['fb_whiff_pa'], 'fb_whiff')}"
+        if fbw == fbw
+        else f"FB whiff &mdash; (needs {FLOOR['fb_whiff']} PA and "
+        f"{MIN_FB_SWINGS} fastball swings)",
+    ]
+    moves = []
+    block = p.get("power_block_pa", 0)
+    for metric, delta, unit, scale in (
+        ("max_ev", p.get("d_max_ev", math.nan), " mph", 1.0),
+        ("fb_whiff", p.get("d_fb_whiff", math.nan), "pp", 100.0),
+    ):
+        label = "MaxEV" if metric == "max_ev" else "FB whiff"
+        if delta != delta or not block:
+            moves.append(f"{label} move unmeasured (needs {2 * MOVE_BLOCK[metric]} PA)")
+            continue
+        verdict = "clears" if p.get(f"{metric}_moved") else "inside"
+        moves.append(
+            f"{label} {delta * scale:+.1f}{unit} vs prior {block} PA "
+            f"({verdict} the &plusmn;{band(metric, block) * scale:.1f}{unit} noise band)"
+        )
+    return (
+        f"<p class='trend'>Peak &amp; fastball: {' &middot; '.join(cells)} "
+        f"<span class='caption'>&mdash; league {BL_MAX_EV:.1f} mph / "
+        f"{BL_FB_WHIFF * 100:.0f}%; each level read over the plate appearances it reaches "
+        f"r=.70 at ({WINDOW_PA['max_ev']} and {WINDOW_PA['fb_whiff']}), measured on 162,464 PA. "
+        f"Move: {'; '.join(moves)} &mdash; changes in both are printed as diagnostics, since "
+        "neither predicts the next block once the level is known (max EV t -2.0 to +0.8, "
+        "fastball whiff +0.1 to +0.6, against the levels' +8 to +16).</span></p>"
+    )
+
+
 def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -> str:
     gap = p["dxwoba"] * 1000
     power = (
@@ -652,6 +725,7 @@ def _batter_entry(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -
         f"<h3>{p['name']} <span class='mu'>{ctx['matchup'] if ctx else ''}</span>{flag}</h3>"
         f"<p class='prose'>{body}</p>"
         f"{_swing_line(p)}"
+        f"{_power_line(p)}"
         f"<p class='bet'>{_bet_sentence(bets, 'his')}</p>"
         "</div>"
     )

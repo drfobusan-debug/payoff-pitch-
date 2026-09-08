@@ -697,6 +697,7 @@ def _slate_best_bets_block(
             strong=r.tier == Tier.STRONG,
             american=r.market_american,
             edge=r.edge,
+            fair_prob=r.fair_prob,
         )
     )
     if not rows:
@@ -822,20 +823,29 @@ def _hr_by_game(recs: list[Recommendation]) -> dict[int, list[Recommendation]]:
 
 
 def build_preview_report(
-    day: Date, previews: list[GamePreview], recs: list[Recommendation] | None = None
+    day: Date,
+    previews: list[GamePreview],
+    recs: list[Recommendation] | None = None,
+    block: str | None = None,
 ) -> tuple[str, str]:
+    """``block`` names the part of the slate previewed ("day", "night") when the
+    article covers only the games a late pass priced, so the headline and the
+    lead say which games these are rather than calling a fragment the slate."""
     hr_map = _hr_by_game(recs or [])
     nice = day.strftime("%A, %B %-d, %Y")
+    title = f"Today's {block.title()} Games" if block else "Today's Slate"
+    board = f"{len(previews)}-game {block} board" if block else f"{len(previews)}-game board"
+    greeting = {"day": "Good afternoon", "night": "Good evening"}.get(block or "", "Good morning")
     masthead = (
         "<div class='masthead'>"
         "<div class='brand'><span class='pp'>Payoff</span> Pitch · Slate Preview</div>"
-        "<h1>Today's Slate</h1>"
+        f"<h1>{title}</h1>"
         "<p class='sub'>Arms vs. bats, who's regressing, the shape of the game, and where the edge is.</p>"
         f"<div class='dateline'>Slate previewed · {nice}</div></div>"
     )
     n_bets = sum(len(p.best_bets) for p in previews)
     lead = (
-        f"Good morning — here's the {len(previews)}-game board for {nice.split(',')[0]}. For every matchup "
+        f"{greeting} — here's the {board} for {nice.split(',')[0]}. For every matchup "
         "we call which side owns it — each lineup's expected offense against the arms it draws (starter first, "
         "then the bullpen it meets late), with where that offense ranks against the hand it faces and how it "
         "hits home versus away — read each starter's form direction on SIERA, stuff and velocity, "
@@ -876,7 +886,7 @@ def build_preview_report(
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{body}{fine}</body></html>"
     )
-    narr = _narration(day, previews, hr_map)
+    narr = _narration(day, previews, hr_map, block=block)
     return html, narr
 
 
@@ -936,13 +946,17 @@ def _narrate_matchup(gp: GamePreview) -> str:
 
 
 def _narration(
-    day: Date, previews: list[GamePreview], hr_map: dict[int, list[Recommendation]] | None = None
+    day: Date,
+    previews: list[GamePreview],
+    hr_map: dict[int, list[Recommendation]] | None = None,
+    block: str | None = None,
 ) -> str:
     hr_map = hr_map or {}
     nice = day.strftime("%A, %B %-d")
+    what = f"{block} games" if block else "games"
     parts = [
         f"What's up everybody, welcome into the Payoff Pitch Slate Preview for {nice}. "
-        f"We got {len(previews)} games on the board, so let's run the card. ",
+        f"We got {len(previews)} {what} on the board, so let's run the card. ",
     ]
     for gp in previews:
         shape_label, _ = game_shape(gp)

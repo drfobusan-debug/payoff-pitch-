@@ -17,10 +17,18 @@ negative-regression (most -> least likely to *decline*), where the luck index is
 z(BABIP above .290) + z(wOBA above xwOBA). Renders a house-style PDF + MP3.
 
 This is a model preview, not betting advice.
+
+Run it from the repository root::
+
+    python -m scripts.pitcher_slate_analysis [--date YYYY-MM-DD] [--statcast FRAME]
+
+Both default off the state directory: the most recent slate it holds, and the
+widest cached Statcast window ending on or before that slate.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from datetime import date as Date
@@ -45,6 +53,7 @@ from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
     analyze,
     build_profiles,
 )
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
 
 # --- rendering -------------------------------------------------------------
@@ -271,12 +280,23 @@ def build_narration(day: Date, pos: list, neg: list, ctxs: dict, preds: list[dic
 
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="slate to write up; default the latest one in state")
+    p.add_argument("--statcast", help="cached frame to read form off; default the widest")
+    return p.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
-    day = Date(2026, 7, 31)
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     previews = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
-    df = pd.read_pickle(cfg.cache_dir / "statcast_2026-06-19_2026-07-30.pkl")
+    preds = json.loads(preds_path.read_text())
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
     pos, neg, ctxs = build_profiles(previews, preds, df)
 
     html = build_html(day, pos, neg, ctxs, preds)

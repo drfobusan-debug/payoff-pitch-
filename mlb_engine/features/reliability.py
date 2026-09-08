@@ -31,6 +31,20 @@ Read the grid, because the spread is the whole point:
     OPS            .07     .08      .18      never
     wRC+           .10     .11      .23      never
 
+Two more were measured for the batter regression article, which reads them as
+levels rather than scoring them (2026 through 8/28, 162,464 PA over 1,397
+hitters):
+
+    metric        15 PA   60 PA   250 PA    r=.50 at   r=.70 at
+    fastball whiff .26     .56      .85       51 PA      108 PA
+    max EV         .18     .55      .75       49         195
+
+Max EV half-repeats as quickly as fastball whiff% and then stops improving: it
+is one batted ball out of the whole window, so the fifty-first plate appearance
+buys as much of it as the two-hundredth. That is why the article quotes it over
+the wider window and still calls a *move* in it unreadable -- see
+``features.power_change``.
+
 Four of the eleven scored metrics -- wRC+, OPS, BA and SLG -- never reach r=.50
 at any sample the screen ever sees. They are not weak signals, they are the same
 hitter disagreeing with himself, and the screen was paying a point for each.
@@ -89,7 +103,19 @@ CURVES: dict[str, tuple[tuple[int, float], ...]] = {
             (180, 0.15), (250, 0.18)),
     "wrc": ((15, 0.10), (25, 0.04), (40, 0.11), (60, 0.11), (90, 0.14), (130, 0.11),
             (180, 0.13), (250, 0.23)),
+    # Measured by the same method over 162,464 plate appearances and 1,397
+    # hitters, 2026 through 8/28. Neither is scored by the screen; both are read
+    # as levels by the batter regression article, which is why they are sized
+    # here rather than by eye.
+    "max_ev": ((15, 0.18), (25, 0.31), (40, 0.46), (60, 0.55), (90, 0.61), (130, 0.64),
+               (180, 0.69), (250, 0.75)),
+    "fb_whiff": ((15, 0.26), (25, 0.37), (40, 0.42), (60, 0.56), (90, 0.66), (130, 0.75),
+                 (180, 0.80), (250, 0.85)),
 }
+
+#: Reliability at which a level is quoted as stable rather than as a thin read:
+#: above it most of what separates two hitters is the hitters and not the sample.
+STABLE_R = 0.70
 
 
 def _monotone(curve: tuple[tuple[int, float], ...]) -> tuple[tuple[int, float], ...]:
@@ -115,6 +141,12 @@ CURVES = {metric: _monotone(curve) for metric, curve in CURVES.items()}
 #: Metric -> the sample at which it first reaches ``READABLE_R``, or ``inf``.
 PA_FOR_READABLE: dict[str, float] = {}
 
+#: Metric -> the sample at which it first reaches ``STABLE_R``, or ``inf``. This
+#: is the window a report should read the level over when it has the choice --
+#: the optimum in the only sense a reliability curve can define one, the point
+#: past which more plate appearances buy very little agreement.
+PA_FOR_STABLE: dict[str, float] = {}
+
 
 def _crossing(curve: tuple[tuple[int, float], ...], target: float) -> float:
     for (n0, r0), (n1, r1) in zip(curve, curve[1:], strict=False):
@@ -127,6 +159,7 @@ def _crossing(curve: tuple[tuple[int, float], ...], target: float) -> float:
 
 for _metric, _curve in CURVES.items():
     PA_FOR_READABLE[_metric] = _crossing(_curve, READABLE_R)
+    PA_FOR_STABLE[_metric] = _crossing(_curve, STABLE_R)
 
 
 def reliability(metric: str, pa: float) -> float:

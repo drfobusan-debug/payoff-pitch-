@@ -291,12 +291,20 @@ def _write_rows(path: Path, fields: list[str], rows: Iterable[dict[str, str]]) -
             writer.writerow({k: row.get(k, "") for k in fields})
 
 
-def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
+def merge_dated_csv(
+    remote: Path, local: Path, key: tuple[str, ...], by_date: bool = True
+) -> bool:
     """Union the ledger (or scorecard) by date, this machine's rows winning.
 
     A re-audit of a date is authoritative for that date -- it has the results
     and the closes -- so local rows replace the branch's for any date both
     hold, and the branch supplies every date this machine never graded.
+
+    ``by_date=False`` drops that rule and unions row by row instead, for a
+    record where a second file is not a better audit of the same day but a
+    different capture of it: the power screen writes what it showed, so two
+    machines' boards for one date are both true and replacing the date threw one
+    of them away.
     """
     if not remote.exists():
         return False
@@ -306,8 +314,10 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
         return True
     local_fields, local_rows = _rows(local)
     fields = local_fields if len(local_fields) >= len(fields) else fields
-    local_dates = {r.get("date", "") for r in local_rows}
-    kept = [r for r in remote_rows if r.get("date", "") not in local_dates]
+    kept = remote_rows
+    if by_date:
+        local_dates = {r.get("date", "") for r in local_rows}
+        kept = [r for r in remote_rows if r.get("date", "") not in local_dates]
     merged = {tuple(r.get(k, "") for k in key): r for r in [*kept, *local_rows]}
     _write_rows(local, fields, [merged[k] for k in sorted(merged)])
     return True
@@ -319,17 +329,23 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 # The accumulating records, and the columns identifying one row of each. Both
 # directions merge on these: a machine only ever contributes the dates it
 # graded, and never speaks for the ones it did not.
-_MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
-    ("scorecard.csv", ("date", "tier")),
+_MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool], ...] = (
+    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line"), True),
+    ("scorecard.csv", ("date", "tier"), True),
     # The power screen's receipts. Left out, they never leave the machine that
     # wrote the note, so the scorecard the next morning prints is that machine's
     # record rather than the screen's -- and a screen run on the Mac reads as
     # having no history at all anywhere else. The game keys the row too: a
     # doubleheader can show the same bat, stat, line and side twice in a day.
+    # Unioned row by row rather than by date: a screen is a capture and not an
+    # audit, so this machine's board for a date does not supersede another's, and
+    # replacing the date is how the two copies came to disagree on who was even
+    # screened on 8/26. The run identifies the capture, so re-recording a run
+    # still overwrites itself.
     (
         power_ledger.LEDGER_NAME,
-        ("date", "batter", "game_pk", "stat", "line", "side"),
+        ("date", "run_id", "batter", "game_pk", "stat", "line", "side"),
+        False,
     ),
 )
 
@@ -497,8 +513,8 @@ def pull_state(
     for src in sorted((state / "mlb" / "propicks").glob("propicks_*.json")):
         if merge_propick_files(src, audit / src.name):
             pulled.append(src.name)
-    for name, key in _MERGED_CSVS:
-        if merge_dated_csv(state / "mlb" / name, audit / name, key):
+    for name, key, by_date in _MERGED_CSVS:
+        if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
             pulled.append(name)
     if merge_calibration_files(state / "mlb" / CALIBRATION_NAME, data_dir / CALIBRATION_NAME):
         pulled.append(CALIBRATION_NAME)
@@ -622,7 +638,7 @@ def push_state(
             merge_propick_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
-        for name, key in _MERGED_CSVS:
+        for name, key, by_date in _MERGED_CSVS:
             src = audit / name
             if src.exists():
                 dest = state / "mlb" / name
@@ -634,7 +650,7 @@ def push_state(
                 # pulled before last night's audit landed will happily publish
                 # a ledger missing that slate, and the ledger is a growing
                 # record, not this machine's opinion.
-                merge_dated_csv(dest, src, key)
+                merge_dated_csv(dest, src, key, by_date)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
         cal = data_dir / CALIBRATION_NAME
