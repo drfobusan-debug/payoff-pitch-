@@ -33,19 +33,21 @@
 # ones priced earlier, and the sign repeats in every market with a sample. A
 # 10:05 card prices most of a slate six or more hours out, on projected lineups,
 # and the engine's clock gate (MLBE_LINEUP_CLOCK_GATE) refuses every buy priced
-# that early. So the morning run prices nothing, and the two slate passes each
-# price ONLY the games starting inside the next SLATE_WINDOW_HOURS -- the day
-# games at DAY_RUN, the night games at NIGHT_RUN -- off the posted lineups, then
-# email that block's slate article PDF + MP3 and the bet card. The night pass
-# folds its games into the card the day pass wrote, so the audit still grades
-# one card per slate.
+# that early. So the morning run prices nothing, and the two slate passes split
+# the slate by first pitch on the Mac's clock: the DAY pass prices every game
+# starting before $BLOCK_SPLIT (mlb-engine run --block day), the NIGHT pass
+# every game starting at or after it -- off the posted lineups, on the board
+# as it stands -- then each emails its slate article PDF + MP3 and the bet card.
+# The night pass folds its games into the card the day pass wrote, so the audit
+# still grades one card per slate.
 #
-# The two clock times are the trade for two emails instead of four: with a
-# three-hour window a pass at 11:35 covers first pitches from 11:35 to 14:35
-# (the 12:05-14:20 matinees) and one at 18:35 covers 18:35-21:35 (the eastern
-# and central night starts). A 15:05-16:10 start or a 21:40/22:10 west-coast
-# start falls between them and is refused on the clock rather than bought
-# early -- move DAY_RUN/NIGHT_RUN, or add a time to SLATE_RUNS, to cover them.
+# The clock gate still applies inside each pass: a game in the block whose
+# first pitch is more than LOCK_HOURS away is previewed in the article, and its
+# rows are on the sheet with their price and EV, but it is a PASS on the clock
+# rather than a buy. With DAY_RUN at 12:30 that buys the 12:35-15:29 starts and
+# refuses a 15:30+ matinee; NIGHT_RUN at 18:30 buys 18:35-21:29 and refuses the
+# 21:40/22:10 west-coast starts. A game already underway when its pass runs is
+# skipped (there is nothing pre-match left to price).
 #
 # The MORNING run (before noon) is the bookkeeping, in order:
 #   0) git pull --ff-only  -> run what has been MERGED, not whatever was on
@@ -94,13 +96,16 @@ MORNING_WAKE_HHMM="10:00"; MORNING_RUN_HOUR=10; MORNING_RUN_MIN=5
 CLOSE_WAKE_HHMM="18:35"; DAY_CLOSE_WAKE_HHMM="12:45"
 CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
 DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
-# The slate passes: each prices the games starting inside the next
-# SLATE_WINDOW_HOURS and emails that block's slate PDF + bet card. The window
-# is the clock gate's number (MLBE_LINEUP_STALE_HOURS) seen from the other
-# side, so a game is bought inside three hours of first pitch or not at all.
-# Times are "block=HH:MM"; the block names the article and the email.
-SLATE_WINDOW_HOURS=3
-DAY_RUN="11:35"; NIGHT_RUN="18:35"
+# The slate passes: the day pass prices the games starting before BLOCK_SPLIT
+# (local), the night pass the rest, and each emails its slate PDF + bet card.
+# LOCK_HOURS is the clock gate (MLBE_LINEUP_STALE_HOURS): a row is bought
+# inside that many hours of first pitch or not at all. The split hour itself
+# is the engine's (mlb_engine.pipeline.BLOCK_SPLIT_HOUR); it is repeated here
+# only for the messages. Times are "block=HH:MM"; the block names the article
+# and the email.
+LOCK_HOURS=3
+BLOCK_SPLIT="18:00"
+DAY_RUN="12:30"; NIGHT_RUN="18:30"
 SLATE_RUNS="day=$DAY_RUN night=$NIGHT_RUN"
 
 # College football: one pass on Saturday morning, before the MLB job so the two
@@ -230,12 +235,9 @@ if [[ -n "\$_CERTS" ]]; then
   export REQUESTS_CA_BUNDLE="\$_CERTS"
 fi
 
-# The clock gate and the slate-pass window are the same number seen from two
-# sides: the gate refuses a row priced more than MLBE_LINEUP_STALE_HOURS before
-# first pitch, and a slate pass prices exactly the games inside
-# SLATE_WINDOW_HOURS. Tied here so raising one cannot leave the other behind,
-# refusing rows no pass ever comes back for.
-export MLBE_LINEUP_STALE_HOURS="\${MLBE_LINEUP_STALE_HOURS:-$SLATE_WINDOW_HOURS}"
+# The clock gate: a row priced more than MLBE_LINEUP_STALE_HOURS before first
+# pitch is a PASS, whichever slate pass priced it.
+export MLBE_LINEUP_STALE_HOURS="\${MLBE_LINEUP_STALE_HOURS:-$LOCK_HOURS}"
 
 # WeasyPrint (PDF export) loads pango/cairo/gdk-pixbuf via ctypes; on macOS
 # those live in the Homebrew lib dir, which is NOT on the default dyld search
@@ -334,9 +336,9 @@ elif [[ "\$MODE" == "nfl" ]]; then
   pull_latest
   nfl-engine job --card --email || echo "[\$(date)] 'nfl-engine job' exited non-zero" >&2
 elif [[ "\$MODE" == slate-* ]]; then
-  # A slate pass: price the games starting inside the next $SLATE_WINDOW_HOURS
-  # hours -- off posted lineups, on the board as it stands -- then write that
-  # block's slate article and email it with the bet card. The run folds these
+  # A slate pass: price the block's games (day = first pitch before $BLOCK_SPLIT
+  # local, night = the rest) -- off posted lineups, on the board as it stands --
+  # then write that block's slate article and email it with the bet card. The run folds these
   # games into today's predictions/Excel and leaves every other game as it was,
   # so the audit still grades one card per slate and the refused early rows
   # keep their reasons. Same caffeinate arrangement as the morning job so
@@ -347,10 +349,10 @@ elif [[ "\$MODE" == slate-* ]]; then
   pull_latest
   VSIN="\$HOME/.mlb_engine/vsin_today.csv"
   if [[ -f "\$VSIN" ]]; then
-    mlb-engine run --within-hours $SLATE_WINDOW_HOURS --vsin-csv "\$VSIN" \\
+    mlb-engine run --block "\$BLOCK" --vsin-csv "\$VSIN" \\
       || echo "[\$(date)] \$BLOCK 'mlb-engine run' exited non-zero" >&2
   else
-    mlb-engine run --within-hours $SLATE_WINDOW_HOURS \\
+    mlb-engine run --block "\$BLOCK" \\
       || echo "[\$(date)] \$BLOCK 'mlb-engine run' exited non-zero" >&2
   fi
   # Today's card only. "newest on disk" would silently email yesterday's slate
@@ -495,8 +497,8 @@ echo "Test CFB Saturday: sudo launchctl start ${CFB_LABEL}   (prices today's boa
 echo "                   spends Odds API credits and emails the slate)"
 echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the week,"
 echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
-echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"
-echo "                   inside ${SLATE_WINDOW_HOURS}h, spends Odds API credits and emails that"
+echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games starting"
+echo "                   before ${BLOCK_SPLIT}, spends Odds API credits and emails that"
 echo "                   block's slate PDF + card; the night one is ${SLATE_LABELS[1]})"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo

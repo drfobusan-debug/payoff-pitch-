@@ -116,7 +116,14 @@ from mlb_engine.output.report import (
     weekly_entries,
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
-from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
+from mlb_engine.pipeline import (
+    BLOCK_SPLIT_HOUR,
+    BLOCKS,
+    Pipeline,
+    PipelineDeps,
+    calibration_source,
+    load_calibrator,
+)
 from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 from mlb_engine.state import (
@@ -492,13 +499,14 @@ def cmd_run(args: argparse.Namespace) -> int:
         fangraphs_csv = fg_dir
     else:
         fangraphs_csv = None
-    late = args.within_hours is not None
+    late = args.within_hours is not None or args.block is not None
     pred_path = cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json"
     recs = pipe.run(
         slate_date,
         vsin_csv=vsin_csv,
         fangraphs_csv=fangraphs_csv,
         within_hours=args.within_hours,
+        block=args.block,
     )
     if late:
         recs = _merge_late_pass(recs, pred_path)
@@ -1547,6 +1555,13 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         help="late pass: price only the games starting inside this many hours and "
         "fold them into today's card (leaves the other games' morning prices alone)",
+    )
+    r.add_argument(
+        "--block",
+        choices=BLOCKS,
+        help=f"slate pass: price only the day games (first pitch before {BLOCK_SPLIT_HOUR}:00 "
+        "local) or the night games (the rest), and fold them into today's card the "
+        "way --within-hours does",
     )
     r.add_argument("--out", help="output .xlsx path")
     r.add_argument("--card", action="store_true", help="also write the daily card (md + html)")

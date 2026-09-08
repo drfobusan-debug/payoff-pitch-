@@ -7,6 +7,7 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from datetime import date as Date
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TypeVar
 
@@ -159,6 +160,11 @@ from mlb_engine.recommendations import Recommendation, enforce_one_buy_per_group
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
+
+# The day block is every game whose first pitch, in the machine's local time, is
+# before this hour; the night block is the rest.
+BLOCK_SPLIT_HOUR = 18
+BLOCKS = ("day", "night")
 
 FATIGUE_DEPLETED = 60.0  # bullpen-fatigue score at/above which a pen is "depleted"
 SHARP_SPREAD_DIV = 15.0  # VSIN run-line handle%-bets% gap treated as sharp money
@@ -456,6 +462,7 @@ class Pipeline:
         seed: int | None = 7,
         enrich_leaderboards: bool = True,
         within_hours: float | None = None,
+        block: str | None = None,
     ) -> list[Recommendation]:
         """Price a slate.
 
@@ -469,6 +476,10 @@ class Pipeline:
         gate would refuse anyway cost nothing to skip, and each per-event prop
         request is a paid Odds API credit. Games already underway are skipped
         too, and a game with no published start time is always priced.
+
+        ``block`` restricts pricing to the day games (first pitch before
+        ``BLOCK_SPLIT_HOUR`` local) or the night games (at or after it), again
+        skipping games already underway and keeping games with no start time.
         """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
@@ -481,6 +492,14 @@ class Pipeline:
             log.info(
                 "Late pass: %d of %d games start inside %.1fh",
                 len(keep), len(slate.games), within_hours,
+            )
+            slate = slate.model_copy(update={"games": keep})
+        if block is not None:
+            keep = [g for g in slate.games if self._in_block(g.game_datetime_utc, block)]
+            log.info(
+                "%s pass: %d of %d games start %s %d:00 local",
+                block.title(), len(keep), len(slate.games),
+                "before" if block == "day" else "at or after", BLOCK_SPLIT_HOUR,
             )
             slate = slate.model_copy(update={"games": keep})
         self.slate = slate
@@ -586,6 +605,23 @@ class Pipeline:
         if h is None:
             return True
         return 0.0 <= h < hours
+
+    @staticmethod
+    def _in_block(game_datetime_utc: str | None, block: str) -> bool:
+        """Is this unstarted game in the day or the night block, by local first pitch?"""
+        if block not in BLOCKS:
+            raise ValueError(f"block must be one of {BLOCKS}, got {block!r}")
+        h = hours_to_first_pitch(game_datetime_utc)
+        if h is None:
+            return True
+        if h < 0.0:
+            return False
+        assert game_datetime_utc is not None
+        start = datetime.fromisoformat(game_datetime_utc.replace("Z", "+00:00"))
+        if start.tzinfo is None:
+            start = start.replace(tzinfo=timezone.utc)
+        is_day = start.astimezone().hour < BLOCK_SPLIT_HOUR
+        return is_day if block == "day" else not is_day
 
     def _league_scale(self, slate_date: Date) -> float:
         """The non-out scale that would put the simulator in today's league.

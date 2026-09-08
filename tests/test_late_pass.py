@@ -13,6 +13,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from mlb_engine.cli import _merge_late_pass
 from mlb_engine.config import Config
 from mlb_engine.features.drift_gate import DriftGate
@@ -20,7 +22,7 @@ from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
-from mlb_engine.pipeline import Pipeline
+from mlb_engine.pipeline import BLOCK_SPLIT_HOUR, Pipeline
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 
 MATCHUP = "MIA @ ATL"
@@ -56,8 +58,15 @@ def _rec(p: Pipeline, model_prob: float = 0.65) -> Recommendation:
         ]
     }
     return p._mk(
-        game, MATCHUP, "game", "game_ml", "MIA ML", model_prob,
-        team_side="away", side="win", quotes=quotes,
+        game,
+        MATCHUP,
+        "game",
+        "game_ml",
+        "MIA ML",
+        model_prob,
+        team_side="away",
+        side="win",
+        quotes=quotes,
     )
 
 
@@ -138,6 +147,33 @@ def test_a_late_pass_prices_only_the_games_it_can_still_bet() -> None:
     assert Pipeline._starts_within(_stamp(-0.5), 3.0) is False
     # No start time: priced, and left to the gate that can read it.
     assert Pipeline._starts_within(None, 3.0) is True
+
+
+def _local_stamp(hour: int, minute: int, days_ahead: int = 1) -> str:
+    """A first pitch at ``hour:minute`` on the machine's clock, tomorrow."""
+    local = datetime.now().astimezone()
+    start = (local + timedelta(days=days_ahead)).replace(
+        hour=hour, minute=minute, second=0, microsecond=0
+    )
+    return start.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def test_a_slate_pass_splits_the_day_from_the_night_at_six_local() -> None:
+    assert BLOCK_SPLIT_HOUR == 18
+    for hh, mm in ((12, 35), (16, 10), (17, 59)):
+        assert Pipeline._in_block(_local_stamp(hh, mm), "day") is True
+        assert Pipeline._in_block(_local_stamp(hh, mm), "night") is False
+    for hh, mm in ((18, 0), (18, 40), (22, 10)):
+        assert Pipeline._in_block(_local_stamp(hh, mm), "day") is False
+        assert Pipeline._in_block(_local_stamp(hh, mm), "night") is True
+    # Underway: skipped by both passes. No start time: priced by both, and
+    # left to the gate that can read it.
+    assert Pipeline._in_block(_stamp(-0.5), "day") is False
+    assert Pipeline._in_block(_stamp(-0.5), "night") is False
+    assert Pipeline._in_block(None, "day") is True
+    assert Pipeline._in_block(None, "night") is True
+    with pytest.raises(ValueError):
+        Pipeline._in_block(_stamp(2.0), "afternoon")
 
 
 # ---- folding the pass into the card --------------------------------------

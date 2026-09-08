@@ -113,13 +113,16 @@ def main(argv: list[str]) -> int:
     if block:
         greeting = "Good afternoon" if block == "day" else "Good evening"
         what = f"the {block} games"
+        when = "starting before 6pm" if block == "day" else "starting 6pm or later"
         subject = f"Payoff Pitch — {block} games {day.isoformat()}"
         intro = (
-            f"<p>{greeting} — here are the Payoff Pitch bets for <b>{what}</b> on <b>{nice}</b>, "
-            "priced inside three hours of first pitch off the posted lineups.</p>"
+            f"<p>{greeting} — here are the Payoff Pitch bets for <b>{what}</b> ({when}) on "
+            f"<b>{nice}</b>, off the posted lineups. A game more than three hours from first "
+            "pitch is previewed but not bought.</p>"
         )
         text_intro = (
-            f"Payoff Pitch {block} games for {nice}, priced inside three hours of first pitch."
+            f"Payoff Pitch {block} games ({when}) for {nice}. A game more than three hours "
+            "from first pitch is previewed but not bought."
         )
     else:
         subject = f"Payoff Pitch — daily package {day.isoformat()}"
