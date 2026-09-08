@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import datetime as dt
 
+import pytest
+
 from mlb_engine.output.daily_preview import build_preview_report, game_shape
 from mlb_engine.preview import (
     BestBet,
@@ -143,9 +145,17 @@ def test_report_handles_no_bets():
 
 
 def test_a_block_article_says_which_games_it_covers():
-    html, narr = build_preview_report(dt.date(2026, 7, 28), [_preview()], block="night")
-    assert "Today's Night Games" in html and "Good evening" in html and "1-game night board" in html
-    assert "1 night games on the board" in narr
+    html, narr = build_preview_report(dt.date(2026, 7, 28), [_preview()], block="evening")
+    assert (
+        "Today's Evening Games" in html
+        and "Good evening" in html
+        and "1-game evening board" in html
+    )
+    assert "1 evening games on the board" in narr
+    matinee, _ = build_preview_report(dt.date(2026, 7, 28), [_preview()], block="matinee")
+    assert "Good afternoon" in matinee
+    with pytest.raises(ValueError):
+        build_preview_report(dt.date(2026, 7, 28), [_preview()], block="night")
     whole, whole_narr = build_preview_report(dt.date(2026, 7, 28), [_preview()])
     assert (
         "Today's Slate" in whole

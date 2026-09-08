@@ -33,19 +33,20 @@
 # ones priced earlier, and the sign repeats in every market with a sample. A
 # 10:05 card prices most of a slate six or more hours out, on projected lineups,
 # and the engine's clock gate (MLBE_LINEUP_CLOCK_GATE) refuses every buy priced
-# that early. So the morning run prices nothing, and the two slate passes each
-# price ONLY the games starting inside the next SLATE_WINDOW_HOURS -- the day
-# games at DAY_RUN, the night games at NIGHT_RUN -- off the posted lineups, then
-# email that block's slate article PDF + MP3 and the bet card. The night pass
-# folds its games into the card the day pass wrote, so the audit still grades
-# one card per slate.
+# that early. So the morning run prices nothing, and the SLATE passes -- one
+# every SLATE_WINDOW_HOURS from 11:55 -- each price ONLY the games starting
+# inside the next SLATE_WINDOW_HOURS (mlb-engine run --within-hours), off the
+# posted lineups, on the board as it stands, then email that block's slate
+# article PDF + MP3 and the bet card. The windows tile every MLB first pitch
+# (12:05 through 22:10 local), so each game is bought by exactly one pass and
+# none is refused on the clock for want of a pass. Each pass folds its games
+# into the card the earlier passes wrote, so the audit still grades one card
+# per slate. A pass whose window holds no game writes and emails nothing. The
+# once-a-day pieces (regression articles, power screen) are written by the
+# first pass that has games and ride only with that pass's email.
 #
-# The two clock times are the trade for two emails instead of four: with a
-# three-hour window a pass at 11:35 covers first pitches from 11:35 to 14:35
-# (the 12:05-14:20 matinees) and one at 18:35 covers 18:35-21:35 (the eastern
-# and central night starts). A 15:05-16:10 start or a 21:40/22:10 west-coast
-# start falls between them and is refused on the clock rather than bought
-# early -- move DAY_RUN/NIGHT_RUN, or add a time to SLATE_RUNS, to cover them.
+# The block names and times live in mlb_engine/slate_blocks.py (the article
+# and the email read them from there); SLATE_RUNS below must match it.
 #
 # The MORNING run (before noon) is the bookkeeping, in order:
 #   0) git pull --ff-only  -> run what has been MERGED, not whatever was on
@@ -97,11 +98,13 @@ DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
 # The slate passes: each prices the games starting inside the next
 # SLATE_WINDOW_HOURS and emails that block's slate PDF + bet card. The window
 # is the clock gate's number (MLBE_LINEUP_STALE_HOURS) seen from the other
-# side, so a game is bought inside three hours of first pitch or not at all.
-# Times are "block=HH:MM"; the block names the article and the email.
+# side, so a game is bought inside three hours of first pitch or not at all,
+# and the passes are one window apart so every first pitch falls in exactly
+# one. Five minutes before the hour so a game starting on the hour is still
+# ahead of the pass that owns it. Entries are "block=HH:MM", matching
+# mlb_engine/slate_blocks.py.
 SLATE_WINDOW_HOURS=3
-DAY_RUN="11:35"; NIGHT_RUN="18:35"
-SLATE_RUNS="day=$DAY_RUN night=$NIGHT_RUN"
+SLATE_RUNS="matinee=11:55 afternoon=14:55 evening=17:55 late=20:55"
 
 # College football: one pass on Saturday morning, before the MLB job so the two
 # never share a machine hour. `cfb-engine run` prices the calendar day it runs
@@ -361,24 +364,39 @@ elif [[ "\$MODE" == slate-* ]]; then
     mlb-engine card || echo "[\$(date)] \$BLOCK card exited non-zero" >&2
     python -m scripts.regen_slate "\$day" --block "\$BLOCK" \\
       || echo "[\$(date)] \$BLOCK slate article failed" >&2
-    # The regression articles and the power screen read the day's Statcast and
-    # the card as priced so far; written once, by the first pass that has them,
-    # and carried by both emails.
-    if [[ ! -f "\$OUT/PayoffPitch_Regression_\$day.pdf" ]]; then
-      pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
-      if [[ -n "\$pkl" ]]; then
-        python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" \\
-          || echo "[\$(date)] regression articles failed" >&2
+    # A pass with no games in its window writes no article, and sends nothing.
+    if [[ ! -f "\$OUT/PayoffPitch_Slate_\${day}_\$BLOCK.pdf" ]]; then
+      echo "[\$(date)] no \$BLOCK games today; nothing to email" >&2
+    else
+      # The regression articles and the power screen read the day's Statcast
+      # and the card as priced so far; written once, by the first pass of the
+      # day that has games, and emailed once, with that pass. A pass finding
+      # the once-a-day stamp already on disk sends only its slate and the card.
+      DAILY_STAMP="\$OUT/.daily_sent_\$day"
+      WITH_DAILY=""
+      if [[ ! -f "\$DAILY_STAMP" ]]; then
+        if [[ ! -f "\$OUT/PayoffPitch_Regression_\$day.pdf" ]]; then
+          pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
+          if [[ -n "\$pkl" ]]; then
+            python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" \\
+              || echo "[\$(date)] regression articles failed" >&2
+          else
+            echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
+          fi
+        fi
+        if [[ ! -f "\$OUT/power_screen_\$day.pdf" ]]; then
+          python scripts/power_screen.py --date "\$day" \\
+            || echo "[\$(date)] power screen failed" >&2
+        fi
+        WITH_DAILY="--with-daily"
+      fi
+      # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
+      if python -m scripts.email_daily_package "\$day" --block "\$BLOCK" \$WITH_DAILY; then
+        [[ -n "\$WITH_DAILY" ]] && touch "\$DAILY_STAMP"
       else
-        echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
+        echo "[\$(date)] \$BLOCK package email failed" >&2
       fi
     fi
-    if [[ ! -f "\$OUT/power_screen_\$day.pdf" ]]; then
-      python scripts/power_screen.py --date "\$day" \\
-        || echo "[\$(date)] power screen failed" >&2
-    fi
-    python -m scripts.email_daily_package "\$day" --block "\$BLOCK" \\
-      || echo "[\$(date)] \$BLOCK package email failed" >&2
   else
     echo "[\$(date)] no workbook for \$day; skipping the \$BLOCK email" >&2
   fi
@@ -497,7 +515,7 @@ echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the wee
 echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
 echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"
 echo "                   inside ${SLATE_WINDOW_HOURS}h, spends Odds API credits and emails that"
-echo "                   block's slate PDF + card; the night one is ${SLATE_LABELS[1]})"
+echo "                   block's slate PDF + card; the others: ${SLATE_LABELS[*]:1})"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo
 echo "Reminders: keep it PLUGGED IN; use SLEEP (not Shut Down);"

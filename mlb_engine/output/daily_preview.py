@@ -30,6 +30,7 @@ from pathlib import Path
 
 import numpy as np
 
+from mlb_engine import slate_blocks
 from mlb_engine.features.regression import BL_BABIP, BL_IVB
 from mlb_engine.features.trend import FLAT_CSW, FLAT_SIERA, FLAT_VFA
 from mlb_engine.market.ranking import bet_sort_key
@@ -828,14 +829,15 @@ def build_preview_report(
     recs: list[Recommendation] | None = None,
     block: str | None = None,
 ) -> tuple[str, str]:
-    """``block`` names the part of the slate previewed ("day", "night") when the
-    article covers only the games a late pass priced, so the headline and the
-    lead say which games these are rather than calling a fragment the slate."""
+    """``block`` names the part of the slate previewed (a ``slate_blocks`` name,
+    e.g. "evening") when the article covers only the games a slate pass priced,
+    so the headline and the lead say which games these are rather than calling
+    a fragment the slate."""
     hr_map = _hr_by_game(recs or [])
     nice = day.strftime("%A, %B %-d, %Y")
     title = f"Today's {block.title()} Games" if block else "Today's Slate"
     board = f"{len(previews)}-game {block} board" if block else f"{len(previews)}-game board"
-    greeting = {"day": "Good afternoon", "night": "Good evening"}.get(block or "", "Good morning")
+    greeting = slate_blocks.block(block).greeting if block else "Good morning"
     masthead = (
         "<div class='masthead'>"
         "<div class='brand'><span class='pp'>Payoff</span> Pitch · Slate Preview</div>"
