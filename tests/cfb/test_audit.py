@@ -87,6 +87,28 @@ def test_a_truncated_label_does_not_grab_the_wrong_school():
     assert result_for(rec, index) is None
 
 
+@pytest.mark.parametrize(
+    ("board_home", "board_away", "cfbd_home", "cfbd_away"),
+    [
+        ("Rutgers", "UMass", "Rutgers", "Massachusetts"),
+        ("Buffalo", "Albany", "Buffalo", "UAlbany"),
+        ("Kansas", "LIU", "Kansas", "Long Island University"),
+    ],
+)
+def test_a_differently_spelled_school_still_grades(board_home, board_away, cfbd_home, cfbd_away):
+    """Week-1 2026 lost three games to spelling, not truncation."""
+    rec = _ml("away", f"{board_away} ML")
+    rec.home_abbrev, rec.away_abbrev = board_home, board_away
+    index = build_result_index(
+        [GameResult(home=cfbd_home, away=cfbd_away, home_points=21, away_points=37)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
 def test_an_ambiguous_prefix_is_left_ungraded():
     rec = _ml("home", "Miami ML")
     rec.home_abbrev, rec.away_abbrev = "Miami", "Bethune"
