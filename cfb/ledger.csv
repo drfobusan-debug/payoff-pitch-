@@ -141,3 +141,9 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-04,UTEP @ Oklahoma,Spread (ATS),game_ats,UTEP +41.5,41.5,lowvig,-106.0,-106.0,Pass,0.5966,0.1594,loss,-1.0,0.5966,0.5052,0.5966,-106.0,0.5118,0.0066,-0.0054,0.5,0.0,,5.0
 2026-09-04,UTEP @ Oklahoma,Totals,game_total,Over 51.5,51.5,draftkings,-110.0,-110.0,Pass,0.4998,-0.0459,loss,-1.0,0.4998,0.5055,0.4998,-106.0,0.4826,-0.0229,-0.0787,-0.5,0.0,,-6.0
 2026-09-04,UTEP @ Oklahoma,Totals,game_total,Under 51.5,51.5,williamhill_us,-102.0,-118.0,Pass,0.5002,-0.0093,win,0.9804,0.5002,0.4945,0.5002,-110.0,0.5174,0.0229,0.0247,0.5,0.0,,6.0
+2026-09-07,SMU @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,130.0,-155.0,Pass,0.4592,0.0563,loss,-1.0,0.4592,0.4234,0.4592,360.0,0.2155,-0.2079,-0.5044,,0.0,ml_no_sharp_money,-30.0
+2026-09-07,SMU @ Florida State,Moneyline,game_ml,SMU ML,,bovada,-145.0,125.0,Pass,0.5408,-0.0863,win,0.6897,0.5408,0.5766,0.5408,-455.0,0.7845,0.2079,0.3255,,0.0,,30.0
+2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,Florida State +3.0,3.0,lowvig,-112.0,100.0,Pass,0.5332,0.0093,push,0.0,0.5332,0.5135,0.5332,-118.0,0.4128,-0.1007,-0.2186,-4.5,0.0,,25.0
+2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,SMU -3.0,-3.0,mybookieag,100.0,-120.0,Pass,0.4668,-0.0664,push,0.0,0.4668,0.4865,0.4668,105.0,0.5872,0.1007,0.1744,4.5,0.0,,-25.0
+2026-09-07,SMU @ Florida State,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.4199,-0.1801,loss,-1.0,0.4199,0.5026,0.4199,-110.0,0.5356,0.033,0.0457,1.0,0.0,,-7.0
+2026-09-07,SMU @ Florida State,Totals,game_total,Under 53.5,53.5,lowvig,-103.0,-114.0,Pass,0.58,0.1432,win,0.9709,0.58,0.4974,0.58,-108.0,0.4644,-0.033,-0.0847,-1.0,0.0,,7.0
