@@ -7,10 +7,13 @@
 #
 #   * Night:   wake 23:00           (keep-awake only -- no engine work)
 #   * Forced sleep at 03:00
-#   * Morning: wake 10:00  ->  run 10:05  (before noon: THE daily job)
-#   * Late:    11:45 / 14:45 / 17:45 / 20:45 -> re-price the games inside three
-#                           hours of first pitch and email that card. This is
-#                           where the bets are placed; see below.
+#   * Morning: wake 10:00  ->  run 10:05  (grade yesterday, capture the Opta
+#                           benchmark, email the ledger/report; prices nothing)
+#   * Day:     wake 11:30  ->  run 11:35  (price the DAY games, inside three
+#                           hours of their first pitch, and email the day
+#                           slate PDF + bet card)
+#   * Night:   wake 18:30  ->  run 18:35  (the same for the NIGHT games)
+#                           These two passes are where the bets are placed.
 #   * Afternoon: wake 12:45 -> close 12:50 (snapshot the DAY games' close)
 #   * Evening:   wake 18:35 -> close 18:40 (snapshot the NIGHT games' close)
 #   * Saturday:  wake 09:00  ->  cfb 09:05  (price the college football board
@@ -24,33 +27,32 @@
 #                           and grades Thursday night. The Wed/Sat night wakes
 #                           arm these.
 #
-# Why the LATE passes exist, and why the morning card is now a preview: over the
+# Why the bets are priced in two SLATE passes and not in the morning: over the
 # ledger's 915 graded buys carrying a first-pitch stamp, the ones priced inside
 # three hours of the game returned +5.7% (n=369) against -14.9% (n=546) for the
 # ones priced earlier, and the sign repeats in every market with a sample. A
-# 10:05 card prices most of a slate six or more hours out, on projected lineups.
-# So the engine's clock gate (MLBE_LINEUP_CLOCK_GATE) now refuses a buy priced
-# that early, and these four passes re-price the slate as each block of games
-# comes inside the window: four, because a day/night slate spans twelve hours and
-# a single pass would be too late for the matinees or too early for the west
-# coast. Each pass prices ONLY the games in its window, so the day costs roughly
-# one extra slate's worth of Odds API credits, and folds them into the same
-# card/ledger the morning run wrote -- the other games keep their morning prices.
+# 10:05 card prices most of a slate six or more hours out, on projected lineups,
+# and the engine's clock gate (MLBE_LINEUP_CLOCK_GATE) refuses every buy priced
+# that early. So the morning run prices nothing, and the two slate passes each
+# price ONLY the games starting inside the next SLATE_WINDOW_HOURS -- the day
+# games at DAY_RUN, the night games at NIGHT_RUN -- off the posted lineups, then
+# email that block's slate article PDF + MP3 and the bet card. The night pass
+# folds its games into the card the day pass wrote, so the audit still grades
+# one card per slate.
 #
-# The MORNING run (before noon) is the real job and does all of it, in order:
-#   0) git pull --ff-only  -> price the slate with what has been MERGED, not with
-#                           whatever was on disk when the Mac was last touched.
+# The two clock times are the trade for two emails instead of four: with a
+# three-hour window a pass at 11:35 covers first pitches from 11:35 to 14:35
+# (the 12:05-14:20 matinees) and one at 18:35 covers 18:35-21:35 (the eastern
+# and central night starts). A 15:05-16:10 start or a 21:40/22:10 west-coast
+# start falls between them and is refused on the clock rather than bought
+# early -- move DAY_RUN/NIGHT_RUN, or add a time to SLATE_RUNS, to cover them.
+#
+# The MORNING run (before noon) is the bookkeeping, in order:
+#   0) git pull --ff-only  -> run what has been MERGED, not whatever was on
+#                           disk when the Mac was last touched.
 #                           Skipped on a dirty, diverged or non-main checkout,
 #                           and never fatal: see the runner for the guards.
-#   1) FULL PACKAGE -> today's slate priced (mlb-engine run), then the slate
-#                           preview article + audio, the pitcher/batter
-#                           regression articles + audio and the morning power
-#                           screen are generated and emailed as ONE message
-#                           (Excel bet sheet + all PDFs/MP3s).
-#                           By mid-morning the VSIN public handle/bets splits have
-#                           posted, so the picks use them -- that's why the slate
-#                           runs in the morning. This mirrors the one-click
-#                           PAYOFF PITCH.command shortcut, minus opening Excel.
+#   1) (no pricing)      -> the slate passes above own the card and the email.
 #   2) mlb-engine opta   -> capture the outside benchmark, yesterday's graded
 #                           calls then today's. VSIN's day offset clamps at
 #                           yesterday, so a slate not captured within a day is
@@ -75,10 +77,10 @@ REPO_DIR="/Users/jong/payoff-pitch-"          # NOT under ~/Desktop: macOS TCC b
 VENV_DIR="$REPO_DIR/.venv"
 
 # >>> Real engine commands (already baked in -- nothing to edit) <<<
-# The morning job builds today's full package (slate + regression articles,
-# emailed as one message via scripts.email_daily_package), then grades yesterday
-# and emails the ledger/report. The package steps are inlined in the runner
-# below so it stays a single source of truth with the one-click shortcut.
+# The slate passes price a block of games and email it (slate article + bet card
+# via scripts.email_daily_package --block); the morning job grades yesterday and
+# emails the ledger/report. The package steps are inlined in the runner below so
+# it stays a single source of truth with the one-click shortcut.
 AUDIT_CMD="mlb-engine audit --report --email"  # grade yesterday; defaults to yesterday
 
 # Schedule (24h). Change if you like.
@@ -92,17 +94,14 @@ MORNING_WAKE_HHMM="10:00"; MORNING_RUN_HOUR=10; MORNING_RUN_MIN=5
 CLOSE_WAKE_HHMM="18:35"; DAY_CLOSE_WAKE_HHMM="12:45"
 CLOSE_RUN_HOUR=18; CLOSE_RUN_MIN=40
 DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
-# The late re-pricing passes. Spaced by the window itself, so every first pitch
-# from lunchtime to the last west-coast start falls inside one of them: the
-# morning run (MORNING_RUN_HOUR above, 10:05) already sits inside the window
-# for anything starting before 13:05, and 11:45/14:45/17:45/20:45 chain
-# three-hour windows from there to 23:45, so no start is left priced outside
-# the clock gate that refuses it. Keep them spaced by LATE_WINDOW_HOURS: a
-# wider gap opens a band of games nothing re-prices, and those rows are
-# refused on the clock and never come back.
-LATE_WINDOW_HOURS=3
-LATE_RUNS="11:45 14:45 17:45 20:45"
-LATE_WAKES="11:40 14:40 17:40 20:40"
+# The slate passes: each prices the games starting inside the next
+# SLATE_WINDOW_HOURS and emails that block's slate PDF + bet card. The window
+# is the clock gate's number (MLBE_LINEUP_STALE_HOURS) seen from the other
+# side, so a game is bought inside three hours of first pitch or not at all.
+# Times are "block=HH:MM"; the block names the article and the email.
+SLATE_WINDOW_HOURS=3
+DAY_RUN="11:35"; NIGHT_RUN="18:35"
+SLATE_RUNS="day=$DAY_RUN night=$NIGHT_RUN"
 
 # College football: one pass on Saturday morning, before the MLB job so the two
 # never share a machine hour. `cfb-engine run` prices the calendar day it runs
@@ -143,15 +142,18 @@ CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
 CFB_PLIST="/Library/LaunchDaemons/${CFB_LABEL}.plist"
 
-# One daemon per late pass, labelled by its own clock time so a single pass can
-# be started, read in the log or removed on its own.
-LATE_LABELS=(); LATE_PLISTS=()
-for hm in $LATE_RUNS; do
-  label="com.franz.engine.late${hm/:/}"
-  LATE_LABELS+=("$label")
-  LATE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+# One daemon per slate pass, labelled by its block so a single pass can be
+# started, read in the log or removed on its own.
+SLATE_LABELS=(); SLATE_PLISTS=(); SLATE_WAKES=""
+for spec in $SLATE_RUNS; do
+  label="com.franz.engine.slate${spec%%=*}"
+  SLATE_LABELS+=("$label")
+  SLATE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+  hm="${spec##*=}"
+  # Wake five minutes ahead of the run so launchd finds the Mac up.
+  SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${LATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -228,12 +230,12 @@ if [[ -n "\$_CERTS" ]]; then
   export REQUESTS_CA_BUNDLE="\$_CERTS"
 fi
 
-# The clock gate and the late-pass window are the same number seen from two
+# The clock gate and the slate-pass window are the same number seen from two
 # sides: the gate refuses a row priced more than MLBE_LINEUP_STALE_HOURS before
-# first pitch, and the late pass re-prices exactly the games inside
-# LATE_WINDOW_HOURS. Tied here so raising one cannot leave the other behind,
+# first pitch, and a slate pass prices exactly the games inside
+# SLATE_WINDOW_HOURS. Tied here so raising one cannot leave the other behind,
 # refusing rows no pass ever comes back for.
-export MLBE_LINEUP_STALE_HOURS="\${MLBE_LINEUP_STALE_HOURS:-$LATE_WINDOW_HOURS}"
+export MLBE_LINEUP_STALE_HOURS="\${MLBE_LINEUP_STALE_HOURS:-$SLATE_WINDOW_HOURS}"
 
 # WeasyPrint (PDF export) loads pango/cairo/gdk-pixbuf via ctypes; on macOS
 # those live in the Homebrew lib dir, which is NOT on the default dyld search
@@ -276,13 +278,13 @@ pull_latest() {
   fi
 }
 
-# Arm the next of today's late passes, so the Mac is awake for it.
-arm_next_late() {
+# Arm the next of today's slate passes, so the Mac is awake for it.
+arm_next_slate() {
   local nowhm; nowhm=\$(date +%H:%M)
-  for hm in $LATE_WAKES; do
+  for hm in $SLATE_WAKES; do
     if [[ "\$nowhm" < "\$hm" ]]; then
       pmset_ schedule wake "\$(date +%m/%d/%Y) \$hm:00" \\
-        || echo "[\$(date)] could not arm the \$hm late wake" >&2
+        || echo "[\$(date)] could not arm the \$hm slate wake" >&2
       return 0
     fi
   done
@@ -331,29 +333,57 @@ elif [[ "\$MODE" == "nfl" ]]; then
   /usr/bin/caffeinate -i -w \$\$ &
   pull_latest
   nfl-engine job --card --email || echo "[\$(date)] 'nfl-engine job' exited non-zero" >&2
-elif [[ "\$MODE" == "late" ]]; then
-  # Re-price the games starting inside the next $LATE_WINDOW_HOURS hours -- off
-  # posted lineups, on the board as it stands -- and email the card that comes
-  # out of it. The run folds these games into today's predictions/Excel and
-  # leaves every other game at its morning price, so the audit still grades one
-  # card per slate and the refused early rows keep their reasons.
+elif [[ "\$MODE" == slate-* ]]; then
+  # A slate pass: price the games starting inside the next $SLATE_WINDOW_HOURS
+  # hours -- off posted lineups, on the board as it stands -- then write that
+  # block's slate article and email it with the bet card. The run folds these
+  # games into today's predictions/Excel and leaves every other game as it was,
+  # so the audit still grades one card per slate and the refused early rows
+  # keep their reasons. Same caffeinate arrangement as the morning job so
+  # WeasyPrint keeps its DYLD path.
+  BLOCK="\${MODE#slate-}"
   /usr/bin/caffeinate -i -w \$\$ &
-  arm_next_late
+  arm_next_slate
   pull_latest
   VSIN="\$HOME/.mlb_engine/vsin_today.csv"
   if [[ -f "\$VSIN" ]]; then
-    mlb-engine run --within-hours $LATE_WINDOW_HOURS --vsin-csv "\$VSIN" \\
-      || echo "[\$(date)] late 'mlb-engine run' exited non-zero" >&2
+    mlb-engine run --within-hours $SLATE_WINDOW_HOURS --vsin-csv "\$VSIN" \\
+      || echo "[\$(date)] \$BLOCK 'mlb-engine run' exited non-zero" >&2
   else
-    mlb-engine run --within-hours $LATE_WINDOW_HOURS \\
-      || echo "[\$(date)] late 'mlb-engine run' exited non-zero" >&2
+    mlb-engine run --within-hours $SLATE_WINDOW_HOURS \\
+      || echo "[\$(date)] \$BLOCK 'mlb-engine run' exited non-zero" >&2
   fi
-  # The card, not the package: the morning message already carried the articles,
-  # audio and screens, and what this pass adds is the bet slip.
-  mlb-engine card --email || echo "[\$(date)] late card email exited non-zero" >&2
+  # Today's card only. "newest on disk" would silently email yesterday's slate
+  # as today's on any day the run failed, which is exactly when it matters.
+  OUT="\$HOME/.mlb_engine/output"
+  day=\$(date +%Y-%m-%d)
+  if [[ -f "\$OUT/mlb_recommendations_\$day.xlsx" ]]; then
+    mlb-engine card || echo "[\$(date)] \$BLOCK card exited non-zero" >&2
+    python -m scripts.regen_slate "\$day" --block "\$BLOCK" \\
+      || echo "[\$(date)] \$BLOCK slate article failed" >&2
+    # The regression articles and the power screen read the day's Statcast and
+    # the card as priced so far; written once, by the first pass that has them,
+    # and carried by both emails.
+    if [[ ! -f "\$OUT/PayoffPitch_Regression_\$day.pdf" ]]; then
+      pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
+      if [[ -n "\$pkl" ]]; then
+        python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" \\
+          || echo "[\$(date)] regression articles failed" >&2
+      else
+        echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
+      fi
+    fi
+    if [[ ! -f "\$OUT/power_screen_\$day.pdf" ]]; then
+      python scripts/power_screen.py --date "\$day" \\
+        || echo "[\$(date)] power screen failed" >&2
+    fi
+    python -m scripts.email_daily_package "\$day" --block "\$BLOCK" \\
+      || echo "[\$(date)] \$BLOCK package email failed" >&2
+  else
+    echo "[\$(date)] no workbook for \$day; skipping the \$BLOCK email" >&2
+  fi
 else
-  # THE daily job (before noon): build today's FULL package (slate + pitcher/
-  # batter regression articles + audio) and email it as one message, then grade
+  # The morning job (before noon): capture the Opta benchmark, then grade
   # yesterday and email the ledger/report.
   #
   # Keep the Mac awake WITHOUT wrapping the engine in caffeinate: caffeinate is
@@ -370,42 +400,12 @@ else
   # 0) take whatever has been merged since yesterday.
   pull_latest
 
-  # Arm the first of today's late re-pricing passes.
-  arm_next_late
+  # Arm the first of today's slate passes.
+  arm_next_slate
 
-  # 1) price today's slate (writes Excel + previews/predictions JSON + Statcast
-  #    cache pkl). No --email here: the package email below owns delivery.
-  VSIN="\$HOME/.mlb_engine/vsin_today.csv"
-  if [[ -f "\$VSIN" ]]; then
-    mlb-engine run --vsin-csv "\$VSIN" || echo "[\$(date)] 'mlb-engine run' exited non-zero" >&2
-  else
-    mlb-engine run || echo "[\$(date)] 'mlb-engine run' exited non-zero" >&2
-  fi
-
-  # 2) slate + regression articles, then email the whole package as one message.
-  # Today's card only. "newest on disk" would silently email yesterday's slate
-  # as today's on any morning the run failed, which is exactly when it matters.
-  OUT="\$HOME/.mlb_engine/output"
-  today=\$(date +%Y-%m-%d)
-  xlsx="\$OUT/mlb_recommendations_\$today.xlsx"
-  if [[ -f "\$xlsx" ]]; then
-    day="\$today"
-    python -m scripts.regen_slate "\$day" || echo "[\$(date)] slate article failed" >&2
-    pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
-    if [[ -n "\$pkl" ]]; then
-      python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" || echo "[\$(date)] regression articles failed" >&2
-    else
-      echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
-    fi
-    # The power screen reads the slate that was just priced, so it runs after it
-    # and before delivery: its PDF rides in the package email instead of sending
-    # a second one. Not fatal -- a slate with no soft arm on it screens nobody.
-    python scripts/power_screen.py --date "\$day" \\
-      || echo "[\$(date)] power screen failed" >&2
-    python -m scripts.email_daily_package "\$day" || echo "[\$(date)] package email failed" >&2
-  else
-    echo "[\$(date)] no workbook for \$today; skipping package email" >&2
-  fi
+  # 1)-2) nothing is priced or emailed here: a card written now would sit six or
+  #       more hours out from most of the slate and be refused on the clock. The
+  #       slate passes own the card, the articles and the email.
 
   # 3) capture the Opta benchmark, both halves of it. VSIN's day offset clamps
   #    at yesterday, so a slate missed by a day is gone permanently -- which is
@@ -453,9 +453,10 @@ for wd in $NFL_WEEKDAYS; do
   i=$((i + 1))
 done
 i=0
-for hm in $LATE_RUNS; do
-  write_plist "${LATE_PLISTS[$i]}" "${LATE_LABELS[$i]}" \
-    "$((10#${hm%%:*}))" "$((10#${hm##*:}))" late
+for spec in $SLATE_RUNS; do
+  hm="${spec##*=}"
+  write_plist "${SLATE_PLISTS[$i]}" "${SLATE_LABELS[$i]}" \
+    "$((10#${hm%%:*}))" "$((10#${hm##*:}))" "slate-${spec%%=*}"
   i=$((i + 1))
 done
 echo "Wrote daemons: ${ALL_PLISTS[*]}"
@@ -494,9 +495,9 @@ echo "Test CFB Saturday: sudo launchctl start ${CFB_LABEL}   (prices today's boa
 echo "                   spends Odds API credits and emails the slate)"
 echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the week,"
 echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
-echo "Test a late pass:  sudo launchctl start ${LATE_LABELS[0]}   (re-prices the"
-echo "                   games inside ${LATE_WINDOW_HOURS}h and emails that card; the others are"
-echo "                   ${LATE_LABELS[*]:1})"
+echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"
+echo "                   inside ${SLATE_WINDOW_HOURS}h, spends Odds API credits and emails that"
+echo "                   block's slate PDF + card; the night one is ${SLATE_LABELS[1]})"
 echo "Logs:              tail -f ${LOG_OUT} ${LOG_ERR}"
 echo
 echo "Reminders: keep it PLUGGED IN; use SLEEP (not Shut Down);"
