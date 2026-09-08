@@ -30,12 +30,13 @@ from __future__ import annotations
 
 import argparse
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
-from nfl_engine import calibration, props
+from nfl_engine import calibration, props, props_grade
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
@@ -58,9 +59,10 @@ from nfl_engine.config import data_dir, load_config, output_dir
 from nfl_engine.data import capture, espn, injuries, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
-from nfl_engine.features import usage
+from nfl_engine.features import context, usage
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
+from nfl_engine.models.player import Projection
 from nfl_engine.output.card import build_card, render_html, render_markdown, render_pdf
 from nfl_engine.output.email import EmailNotConfigured, send_package
 from nfl_engine.output.excel import build_workbook
@@ -513,9 +515,11 @@ def cmd_props(args: argparse.Namespace) -> int:
         return 1
     rows = capture.read_snapshot(snapshot)
     print(f"props: read {len(rows)} archived quotes from {snapshot.name}")
-    projections = usage.projections(season, week)
-    print(f"  projections: {len(projections)} player-market pairs from weeks before {week}")
-    priced = props.price_props(rows, projections)
+    priced: list[props.PricedProp] = []
+    for basis, build in _prop_bases(args.basis).items():
+        projections = build(season, week)
+        print(f"  {basis}: {len(projections)} player-market pairs from weeks before {week}")
+        priced.extend(props.price_props(rows, projections, basis=basis))
     for line in props.summary(priced):
         print(line)
     if args.write:
@@ -531,6 +535,51 @@ def cmd_props(args: argparse.Namespace) -> int:
             f" ev_fair {prop.ev_fair if prop.ev_fair is not None else float('nan'):+.3f}  {stops}"
         )
     return 0
+
+
+# Every projection basis the props layer can price under. The research rows carry
+# the stamp, so pricing under both each week is two studies on one archive.
+ProjectionBuilder = Callable[[int, int], dict[tuple[str, str], Projection]]
+PROP_BASES: dict[str, tuple[str, ProjectionBuilder]] = {
+    "usage": (props.BASIS, lambda season, week: usage.projections(season, week)),
+    "context": (context.BASIS, lambda season, week: context.projections(season, week)),
+}
+
+
+def _prop_bases(choice: str) -> dict[str, ProjectionBuilder]:
+    """``basis stamp -> builder`` for the chosen basis, or every basis."""
+    names = list(PROP_BASES) if choice == "all" else [choice]
+    return {PROP_BASES[name][0]: PROP_BASES[name][1] for name in names}
+
+
+def cmd_props_grade(args: argparse.Namespace) -> int:
+    """Grade the research files against the box score.
+
+    With no week, every week of the season that has research rows and no graded
+    file is tried; a week whose games have not been played grades nothing and is
+    tried again next run. The season's accumulated summary is printed after.
+    """
+    season = args.season
+    if season is None:
+        season, _, _ = current_week()
+    weeks = [args.week] if args.week is not None else props_grade.pending_weeks(season)
+    if not weeks:
+        print(f"props grade: nothing pending for {season}")
+    for week in weeks:
+        graded = props_grade.grade_week(season, week, write=args.write)
+        settled = sum(1 for g in graded if g.result in (props_grade.WIN, props_grade.LOSS))
+        print(f"props grade: {season} week {week}: {len(graded)} rows, {settled} settled")
+    for line in props_grade.summary(props_grade.read_graded(season)):
+        print(line)
+    return 0
+
+
+def _props_step(args: argparse.Namespace) -> int:
+    """The job's prop leg: price the archived board, then grade what has played."""
+    if not args.props:
+        return 0
+    cmd_props(args)
+    return cmd_props_grade(args)
 
 
 def cmd_replay(args: argparse.Namespace) -> int:
@@ -609,6 +658,7 @@ def cmd_job(args: argparse.Namespace) -> int:
         ("injuries", _injury_step),
         ("close", cmd_close),
         ("grade", cmd_grade),
+        ("props", _props_step),
         ("report", cmd_report),
     ]
     if args.card or args.email:
@@ -839,6 +889,21 @@ def main(argv: list[str] | None = None) -> int:
     props_cmd.add_argument("--top", type=int, default=20)
     props_cmd.add_argument("--write", action="store_true", default=True)
     props_cmd.add_argument("--no-write", dest="write", action="store_false")
+    props_cmd.add_argument(
+        "--basis",
+        choices=[*PROP_BASES, "all"],
+        default="all",
+        help="projection basis to price under; all prices every basis, stamped per row",
+    )
+
+    grade_props_cmd = sub.add_parser(
+        "props-grade", help="grade the prop research rows against the box score"
+    )
+    grade_props_cmd.add_argument("--season", type=int, default=None)
+    grade_props_cmd.add_argument("--week", type=int, default=None)
+    grade_props_cmd.add_argument("--write", action="store_true", default=True)
+    grade_props_cmd.add_argument("--no-write", dest="write", action="store_false")
+    grade_props_cmd.set_defaults(func=cmd_props_grade)
     props_cmd.set_defaults(func=cmd_props)
 
     replay_cmd = sub.add_parser("replay", help="run played weeks at their closing prices")
@@ -855,7 +920,8 @@ def main(argv: list[str] | None = None) -> int:
     job.add_argument("--days", type=int, default=8)
     job.add_argument("--sims", type=int, default=40000)
     job.add_argument("--top", type=int, default=25)
-    job.add_argument("--props", action="store_true")
+    job.add_argument("--props", action="store_true", help="capture, price and grade props")
+    job.add_argument("--basis", choices=[*PROP_BASES, "all"], default="all")
     job.add_argument("--max-events", type=int, default=32)
     job.add_argument("--season", type=int, default=None)
     job.add_argument("--week", type=int, default=None)
