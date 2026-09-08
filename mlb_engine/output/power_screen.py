@@ -146,6 +146,9 @@ MIN_STARTER_BF = 120  # batters faced in the window before an arm is readable
 MIN_STARTER_PITCHES = 400  # pitches in the same window before the shape reads mean anything
 STARTER_TOP_N = 3  # a top-three finish in a stage-1 metric earns two more points
 MIN_BATTER_PA = 60  # hand-split PA floor
+#: A hitter who played fewer than this share of the window's game dates missed
+#: time; only then may his season split stand in for a window under the floor.
+ABSENT_GAMES_SHARE = 0.5
 MIN_WRC = 120  # window wRC+ floor, before the power exception
 MIN_XWOBA_EDGE = 0.020  # xwOBA/PA must clear league by this much
 MAX_LUCK_GAP = 0.050  # wOBA minus xwOBA/PA above this is unearned
@@ -960,6 +963,10 @@ class HitterLine:
     power_exception: bool = False
     swing: SwingProfile | None = None
     swing_rescue: bool = False
+    #: The rate line is the season's hand split, not the form window's, because the
+    #: window fell short of the PA floor -- a hitter back from the injured list.
+    season_backed: bool = False
+    window_pa: int = 0
 
     @property
     def luck_gap(self) -> float:
@@ -1037,12 +1044,26 @@ def hitter_pool(
     team: str,
     versus: str,
     league_woba: float,
+    season: pd.DataFrame | None = None,
+    season_league_woba: float | None = None,
+    min_pa: int = MIN_BATTER_PA,
 ) -> list[HitterLine]:
     """Window lines for a lineup, against one pitching hand.
 
     A hitter with no readable rows against the hand is left out rather than
     carried at league average: the pool is what the cuts and the top-K bonuses
     are computed within, so a placeholder would move every other hitter's score.
+
+    When ``season`` is given, a hitter who *missed time* -- played on fewer than
+    ``ABSENT_GAMES_SHARE`` of the window's game dates -- and whose window falls
+    short of ``min_pa`` against the hand, but whose season split clears it, is
+    read off the season instead and flagged ``season_backed``. That is the hitter
+    back from an injured-list stint: the PA floor exists to keep a two-week hot
+    streak from being scored as a talent level, and it is wrong about a hitter
+    with a full season behind him and three weeks missing from the window. The
+    absence test keeps the fallback from firing on every lineup facing a
+    left-hander, where a regular's 42 days seldom reach 60 PA against the hand
+    and the short window is the screen's deliberate choice, not a gap.
 
     The rate line is split by hand; the swing profile is not. Bat tracking needs
     swings rather than plate appearances and the two contact-quality rates need
@@ -1051,10 +1072,26 @@ def hitter_pool(
     hands too.
     """
     pool: list[HitterLine] = []
+    game_dates = window["game_date"].nunique() if "game_date" in window else 0
     for batter in batters:
         both_hands = window[window["batter"] == batter.mlbam_id]
         rows = both_hands[both_hands["p_throws"] == hand]
         line = batter_window_line(rows)
+        window_pa = int(line["pa"]) if line else 0
+        lg_woba = league_woba
+        season_backed = False
+        played = both_hands["game_date"].nunique() if "game_date" in both_hands else 0
+        absent = played < ABSENT_GAMES_SHARE * game_dates
+        if window_pa < min_pa and absent and season is not None:
+            szn_hands = season[season["batter"] == batter.mlbam_id]
+            szn_rows = szn_hands[szn_hands["p_throws"] == hand]
+            szn_line = batter_window_line(szn_rows)
+            if szn_line and int(szn_line["pa"]) >= min_pa:
+                line = szn_line
+                both_hands = szn_hands
+                season_backed = True
+                if season_league_woba is not None:
+                    lg_woba = season_league_woba
         if not line:
             continue
         pool.append(
@@ -1066,7 +1103,7 @@ def hitter_pool(
                 bats=batter.bats,
                 versus=versus,
                 pa=int(line["pa"]),
-                wrc=wrc_plus(line["woba"], league_woba),
+                wrc=wrc_plus(line["woba"], lg_woba),
                 woba=line["woba"],
                 obp=line["obp"],
                 slg=line["slg"],
@@ -1083,6 +1120,8 @@ def hitter_pool(
                 ev90=line["ev90"],
                 osw=line["osw"],
                 swing=build_swing_profile(both_hands),
+                season_backed=season_backed,
+                window_pa=window_pa,
             )
         )
     return pool

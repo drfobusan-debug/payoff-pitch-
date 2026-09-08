@@ -419,6 +419,7 @@ def main() -> None:
     # than the arm: the halves need a season to carry a late batted-ball rate,
     # and the park and the forecast belong to the venue.
     season = repo.load_range(Date(day.year, *SEASON_OPENING), end, refresh=args.refresh)
+    season_woba, _ = _league_lines(season)
     environments = _environments(slate, cfg)
     worst = {c.mlbam_id for c in scored[:WORST_ARMS]}
 
@@ -433,6 +434,7 @@ def main() -> None:
             window=window,
             frame=frame,
             season=season,
+            season_woba=season_woba,
             as_of=day,
             form=form,
             league_woba=league_woba,
@@ -626,6 +628,7 @@ def _build_section(
     window: pd.DataFrame,
     frame: pd.DataFrame,
     season: pd.DataFrame,
+    season_woba: dict[str, float],
     as_of: Date,
     form: int,
     league_woba: dict[str, float],
@@ -643,6 +646,7 @@ def _build_section(
     hand = card.throws
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
     lg_xwoba = league_xwoba.get(hand, league_xwoba.get("R", 0.305))
+    floor = min_pa if min_pa is not None else MIN_BATTER_PA
 
     slots = lineup_team.lineup or []
     pool = hitter_pool(
@@ -661,14 +665,23 @@ def _build_section(
         team=lineup_team.abbrev,
         versus=card.name,
         league_woba=lg_woba,
+        season=season,
+        season_league_woba=season_woba.get(hand, lg_woba),
+        min_pa=floor,
     )
+    for h in pool:
+        if h.season_backed:
+            log.info(
+                "%s read off the season vs %sHP: %d PA in the window, %d on the year",
+                h.name, hand, h.window_pa, h.pa,
+            )
     if not pool:
         log.warning("no readable hitters vs %s", card.name)
         return None
     kept = apply_cuts(
         pool,
         lg_xwoba,
-        min_pa=min_pa if min_pa is not None else MIN_BATTER_PA,
+        min_pa=floor,
         min_wrc=min_wrc if min_wrc is not None else MIN_WRC,
         keep_power=keep_power,
     )
@@ -700,7 +713,10 @@ def _build_section(
     trend_start = as_of - timedelta(days=TREND_DAYS)
     views: list[HitterView] = []
     for h in kept:
-        rows = window[(window["batter"] == h.mlbam_id) & (window["p_throws"] == hand)]
+        # The arsenal is read over the same rows the rate line was: a hitter
+        # carried on his season split has no window to read the pitches off.
+        source = season if h.season_backed else window
+        rows = source[(source["batter"] == h.mlbam_id) & (source["p_throws"] == hand)]
         per_pitch = batter_arsenal(rows, families)
         overall = contact_line(rows)
         fit_w, fit_b, fallback = arsenal_fit(per_pitch, overall, usage)
