@@ -24838,6 +24838,20 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_1b",
+    "selection": "Andres Gimenez 1B o0.5",
+    "american": -111.0,
+    "no_vig_prob": 0.486368
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_1b",
+    "selection": "Andres Gimenez 1B u0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.513632
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_1b",
     "selection": "Brett Bateman 1B o0.5",
     "american": -142.0,
     "no_vig_prob": 0.54362
@@ -25086,6 +25100,20 @@
     "selection": "Alika Williams 2B u0.5",
     "american": -1160.0,
     "no_vig_prob": 0.876374
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_2b",
+    "selection": "Andres Gimenez 2B o0.5",
+    "american": 460.0,
+    "no_vig_prob": 0.168768
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_2b",
+    "selection": "Andres Gimenez 2B u0.5",
+    "american": -730.0,
+    "no_vig_prob": 0.831232
   },
   {
     "matchup": "TOR @ ATH",
@@ -25342,6 +25370,20 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_bb",
+    "selection": "Andres Gimenez BB o0.5",
+    "american": 220.0,
+    "no_vig_prob": 0.29148
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_bb",
+    "selection": "Andres Gimenez BB u0.5",
+    "american": -316.0,
+    "no_vig_prob": 0.70852
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_bb",
     "selection": "Brett Bateman BB o0.5",
     "american": 150.0,
     "no_vig_prob": 0.377507
@@ -25594,6 +25636,20 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_hrr",
+    "selection": "Andres Gimenez H+R+RBI o1.5",
+    "american": 110.0,
+    "no_vig_prob": 0.448057
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
+    "selection": "Andres Gimenez H+R+RBI u1.5",
+    "american": -141.0,
+    "no_vig_prob": 0.551943
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
     "selection": "Brett Bateman H+R+RBI o1.5",
     "american": -118.0,
     "no_vig_prob": 0.511433
@@ -25671,9 +25727,23 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_hrr",
+    "selection": "George Springer H+R+RBI o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.419355
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
     "selection": "George Springer H+R+RBI u1.5",
     "american": 120.0,
     "no_vig_prob": 0.428891
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
+    "selection": "George Springer H+R+RBI u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.580645
   },
   {
     "matchup": "TOR @ ATH",
@@ -25832,9 +25902,23 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_hrr",
+    "selection": "Zack Gelof H+R+RBI o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
     "selection": "Zack Gelof H+R+RBI o1.5",
     "american": 127.0,
     "no_vig_prob": 0.415795
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hrr",
+    "selection": "Zack Gelof H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "TOR @ ATH",
@@ -25870,6 +25954,20 @@
     "selection": "Alika Williams HR o1.5",
     "american": 22500.0,
     "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hr",
+    "selection": "Andres Gimenez HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.100251
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_hr",
+    "selection": "Andres Gimenez HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
   },
   {
     "matchup": "TOR @ ATH",
@@ -26140,6 +26238,20 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_h",
+    "selection": "Andres Gimenez H o0.5",
+    "american": -157.0,
+    "no_vig_prob": 0.60463
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_h",
+    "selection": "Andres Gimenez H u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.39537
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_h",
     "selection": "Brett Bateman H o0.5",
     "american": -217.0,
     "no_vig_prob": 0.653128
@@ -26248,6 +26360,13 @@
     "selection": "George Springer H o1.5",
     "american": 195.0,
     "no_vig_prob": 0.318517
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_h",
+    "selection": "George Springer H u0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.324077
   },
   {
     "matchup": "TOR @ ATH",
@@ -26437,6 +26556,20 @@
     "selection": "Alika Williams RBI u0.5",
     "american": -595.0,
     "no_vig_prob": 0.806229
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_rbi",
+    "selection": "Andres Gimenez RBI o0.5",
+    "american": 222.0,
+    "no_vig_prob": 0.289575
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_rbi",
+    "selection": "Andres Gimenez RBI u0.5",
+    "american": -320.0,
+    "no_vig_prob": 0.710425
   },
   {
     "matchup": "TOR @ ATH",
@@ -26700,6 +26833,20 @@
   {
     "matchup": "TOR @ ATH",
     "market": "batter_r",
+    "selection": "Andres Gimenez R o0.5",
+    "american": 146.0,
+    "no_vig_prob": 0.377246
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_r",
+    "selection": "Andres Gimenez R u0.5",
+    "american": -204.0,
+    "no_vig_prob": 0.622754
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_r",
     "selection": "Brett Bateman R o0.5",
     "american": 107.0,
     "no_vig_prob": 0.447363
@@ -26948,6 +27095,27 @@
     "selection": "Alika Williams TB u0.5",
     "american": -141.0,
     "no_vig_prob": 0.550113
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_tb",
+    "selection": "Andres Gimenez TB o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.6139
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_tb",
+    "selection": "Andres Gimenez TB o1.5",
+    "american": 186.0,
+    "no_vig_prob": 0.328638
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "batter_tb",
+    "selection": "Andres Gimenez TB u1.5",
+    "american": -250.0,
+    "no_vig_prob": 0.671362
   },
   {
     "matchup": "TOR @ ATH",
@@ -27323,6 +27491,13 @@
   {
     "matchup": "TOR @ ATH",
     "market": "game_total",
+    "selection": "Over 7.5",
+    "american": -117.0,
+    "no_vig_prob": 0.518356
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "game_total",
     "selection": "Over 8.0",
     "american": -127.0,
     "no_vig_prob": 0.514327
@@ -27333,6 +27508,13 @@
     "selection": "Over 8.5",
     "american": 103.0,
     "no_vig_prob": 0.48378
+  },
+  {
+    "matchup": "TOR @ ATH",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": 100.0,
+    "no_vig_prob": 0.481644
   },
   {
     "matchup": "TOR @ ATH",
