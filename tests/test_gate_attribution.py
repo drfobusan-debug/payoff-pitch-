@@ -18,7 +18,7 @@ from mlb_engine.market.tiers import Tier, classify, price_screen
 def _res(ev: float, edge: float) -> EVResult:
     return EVResult(
         model_prob=0.6,
-        best_quote=MarketQuote(book="dk", american=-110),
+        best_quote=MarketQuote(book="dk", american=-110, opposite_american=-110),
         decimal=1.91,
         ev=ev,
         fair_prob=0.5,

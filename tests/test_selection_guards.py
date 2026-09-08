@@ -47,7 +47,7 @@ class _Identity:
 
 
 def _res(edge: float, american: float = -110.0) -> EVResult:
-    q = MarketQuote(book="bk", american=american)
+    q = MarketQuote(book="bk", american=american, opposite_american=-110.0)
     # A fair price the market itself calls a favourite, because that is the only
     # place an edge can sit above the conviction floor and under the edge cap.
     fair = 0.55
