@@ -117,7 +117,7 @@ from mlb_engine.output.report import (
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
-from mlb_engine.preview import save_previews
+from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
 from mlb_engine.state import (
     PREGAME_SUFFIX,
@@ -513,9 +513,16 @@ def cmd_run(args: argparse.Namespace) -> int:
     save_json(recs, pred_path)
     previews = pipe.previews
     # A late pass saw only the games near first pitch, so its previews and quote
-    # template would replace the whole slate's with a fragment of it.
-    if not late:
-        save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
+    # template would replace the whole slate's with a fragment of it. The
+    # fragment is kept under its own name -- it is exactly the block the pass
+    # priced, which is what the block's slate article reads -- and folded into
+    # the slate's previews the way the rows are folded into the card.
+    all_previews_path = cfg.audit_dir / f"previews_{slate_date.isoformat()}.json"
+    if late:
+        save_previews(previews, late_previews_path(cfg, slate_date))
+        save_previews(_merge_late_previews(previews, all_previews_path), all_previews_path)
+    else:
+        save_previews(previews, all_previews_path)
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
     if not vsin_csv and not late:
@@ -560,6 +567,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def late_previews_path(cfg: Config, slate_date: Date) -> Path:
+    """Where a late pass leaves the previews of the games it priced."""
+    return cfg.audit_dir / f"previews_{slate_date.isoformat()}_late.json"
+
+
 def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendation]:
     """Fold a late pass's re-priced games into the card the morning run wrote.
 
@@ -583,6 +595,20 @@ def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendat
         f"carried {len(kept)} earlier rows forward"
     )
     return [*kept, *recs]
+
+
+def _merge_late_previews(previews: list[GamePreview], path: Path) -> list[GamePreview]:
+    """The previews' half of `_merge_late_pass`: this pass's games replace their
+    earlier previews, every other game's preview is carried forward."""
+    if not path.exists():
+        return previews
+    try:
+        prior = load_previews(path)
+    except Exception:  # noqa: BLE001 - a stale file must not cost the late pass
+        logging.warning("Late pass: %s unreadable, keeping only re-priced previews", path)
+        return previews
+    repriced = {p.game_pk for p in previews}
+    return [*(p for p in prior if p.game_pk not in repriced), *previews]
 
 
 def _build_regression_article(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
