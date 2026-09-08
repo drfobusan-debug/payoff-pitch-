@@ -123,6 +123,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-04,Indiana State @ Purdue,Spread (ATS),game_ats,Purdue -35.5,-35.5,fanduel,-110.0,-110.0,Pass,0.5013,-0.0429,loss,-1.0,0.5013,0.5004,0.5013,-101.0,0.4815,-0.0189,-0.0808,0.0,0.0,,21.0
 2026-09-04,Indiana State @ Purdue,Totals,game_total,Over 56.5,56.5,fanduel,-108.0,-112.0,Pass,0.4923,-0.0518,win,0.9259,0.4923,0.4968,0.4923,-115.0,0.4871,-0.0097,-0.0619,-1.0,0.0,,
 2026-09-04,Indiana State @ Purdue,Totals,game_total,Under 56.5,56.5,fanatics,-110.0,-110.0,Pass,0.5077,-0.0308,loss,-1.0,0.5077,0.5032,0.5077,-105.0,0.5129,0.0097,-0.0208,1.0,0.0,,10.0
+2026-09-04,LIU @ Kansas,Spread (ATS),game_ats,Kansas -41.5,-41.5,williamhill_us,-124.0,101.0,Pass,0.5163,-0.0673,win,0.8065,0.5163,0.5286,0.5163,-110.0,0.5494,0.0208,-0.0075,2.0,0.0,,11.0
+2026-09-04,LIU @ Kansas,Spread (ATS),game_ats,LIU +41.5,41.5,williamhill_us,101.0,-124.0,Pass,0.4837,-0.0278,loss,-1.0,0.4837,0.4714,0.4837,-110.0,0.4506,-0.0208,-0.0943,-2.0,0.0,,
+2026-09-04,LIU @ Kansas,Totals,game_total,Over 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.5009,-0.0222,win,0.9524,0.5009,0.4986,0.5009,-109.0,0.5443,0.0457,0.0627,1.5,0.0,,
+2026-09-04,LIU @ Kansas,Totals,game_total,Under 54.5,54.5,draftkings,-108.0,-112.0,Pass,0.4991,-0.0387,loss,-1.0,0.4991,0.5014,0.4991,-110.0,0.4557,-0.0457,-0.1224,-1.5,0.0,,-12.0
 2026-09-04,Miami @ Stanford,Moneyline,game_ml,Miami ML,,betmgm,-2500.0,1400.0,Pass,0.7545,-0.2153,win,0.04,0.8646,0.9308,0.7545,-3000.0,0.9388,0.008,-0.0236,,0.0,,73.0
 2026-09-04,Miami @ Stanford,Moneyline,game_ml,Stanford ML,,draftkings,1400.0,-3200.0,Pass,0.1354,1.0306,loss,-1.0,0.1354,0.0692,0.1354,1700.0,0.0612,-0.008,-0.082,,0.0,price_too_long,-73.0
 2026-09-04,Miami @ Stanford,Spread (ATS),game_ats,Miami -23.5,-23.5,lowvig,-112.0,100.0,Pass,0.3594,-0.3197,win,0.8929,0.3594,0.5126,0.3594,-105.0,0.5267,0.0141,-0.003,1.0,0.0,,-11.0
