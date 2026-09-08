@@ -71,7 +71,7 @@ def test_raised_edge_floor_keeps_a_moderate_band() -> None:
 
 
 def test_raised_floor_flips_a_marginal_buy_to_pass() -> None:
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
     # A 4.5-point edge at a positive-EV price is a buy under the global floor...
     # The level sits above the conviction floor so the edge floor is what bites.
     res = EVResult(

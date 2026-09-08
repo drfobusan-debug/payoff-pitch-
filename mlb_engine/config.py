@@ -491,6 +491,14 @@ class EVThresholds:
     # Never buy this market's over, whatever the price (see
     # ``_NO_BUY_MARKETS``); the fade keeps its own screens.
     no_buy: bool = False
+    # Refuse a buy whose price could not be devigged: no book hung the other
+    # side, so the edge was measured against a number still carrying the hold.
+    # Graded 07-19..09-07, the 1,443 one-way buys returned -14.4% (-207u)
+    # against -5.8% on the 2,125 two-sided ones -- over 60% of the ledger's loss
+    # on 40% of its bets. ``MLBE_TWO_SIDED_ONLY=0`` restores them.
+    two_sided: bool = field(
+        default_factory=lambda: _env_bool("MLBE_TWO_SIDED_ONLY", True)
+    )
 
     def for_market(self, market: str) -> EVThresholds:
         """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
@@ -536,6 +544,7 @@ class EVThresholds:
                 _MAX_BUY_ODDS_BY_MARKET.get(market, self.max_buy_odds),
             ),
             no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
+            two_sided=_env_bool(f"MLBE_TWO_SIDED_ONLY_{suffix}", self.two_sided),
         )
 
 

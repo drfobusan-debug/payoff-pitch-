@@ -33,6 +33,7 @@ from mlb_engine.recommendations import Recommendation
 # after it, so the two stages can be told apart without the pipeline's help.
 PRICE_SCREEN_GATES: frozenset[str] = frozenset(
     {
+        "one_way_quote",
         "price_ceiling",
         "ev_floor",
         "thin_edge",

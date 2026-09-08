@@ -80,6 +80,14 @@ def test_a_price_near_lock_is_kept() -> None:
     assert reason == ""
 
 
+def test_the_three_hour_lock_is_the_default_and_closes_at_exactly_three() -> None:
+    gate = LineupLockGate.from_env()
+    assert gate.stale_hours == 3.0 and gate.clock is True
+    assert gate.clock_allows(gate.read(projected=False, hours=2.99))[0] is True
+    assert gate.clock_allows(gate.read(projected=False, hours=3.0))[0] is False
+    assert gate.clock_allows(gate.read(projected=False, hours=3.01))[0] is False
+
+
 def test_a_slate_with_no_start_times_is_never_refused_by_the_clock() -> None:
     """Every backtest and any slate the feed hasn't stamped lands here."""
     gate = LineupLockGate()

@@ -1668,7 +1668,7 @@ def test_strong_only_and_min_edge_selection():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import Tier, classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
 
     def _res(ev, edge):
         # Above the conviction floor, so the tier is what is under test.
@@ -1707,7 +1707,7 @@ def test_implausible_edge_is_a_pass():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
     huge = EVResult(
         model_prob=0.70, best_quote=q, decimal=1.91, ev=0.337,
         fair_prob=0.50, edge=0.20, sharp_divergence=None,
