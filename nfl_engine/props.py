@@ -235,6 +235,7 @@ def _price_one(
     stat: str,
     projection: Projection | None,
     fair: FairPrice | None,
+    basis: str = BASIS,
 ) -> PricedProp:
     line = row.line
     if projection is None or line is None:
@@ -271,6 +272,7 @@ def _price_one(
             None if fair_prob is None or projection is None else round(model_prob - fair_prob, 6)
         ),
         screens=(),
+        basis=basis,
         mode=RESEARCH,
     )
     return replace(prop, screens=screen_prop(prop, below_floor=below_floor))
@@ -282,8 +284,13 @@ def price_props(
     *,
     method: str = DEFAULT_METHOD,
     best_price_only: bool = True,
+    basis: str = BASIS,
 ) -> list[PricedProp]:
-    """Price every archived prop quote, screens and correlation guards applied."""
+    """Price every archived prop quote, screens and correlation guards applied.
+
+    ``basis`` names what ``projections`` were built on and is stamped on every
+    row; rows under two bases are two studies, never one sample.
+    """
     priced: list[PricedProp] = []
     for (_, market, name, _), quotes in _quotes_by_line(rows).items():
         stat = stat_for(market)
@@ -296,7 +303,8 @@ def price_props(
         for side_rows in by_side.values():
             fair = _fair(side_rows, method)
             priced.extend(
-                _price_one(row, stat=stat, projection=projection, fair=fair) for row in side_rows
+                _price_one(row, stat=stat, projection=projection, fair=fair, basis=basis)
+                for row in side_rows
             )
     if best_price_only:
         priced = best_by_position(priced)
@@ -385,8 +393,9 @@ def summary(props: list[PricedProp]) -> list[str]:
     """What the archive priced, and what stopped it -- the only output that ships."""
     if not props:
         return ["props: nothing priced (no archived quotes for this week)"]
+    bases = ",".join(sorted({p.basis for p in props}))
     lines = [
-        f"props: {len(props)} rows priced, basis {BASIS}, mode {RESEARCH} -- nothing bettable",
+        f"props: {len(props)} rows priced, basis {bases}, mode {RESEARCH} -- nothing bettable",
     ]
     counts: dict[str, int] = {}
     for prop in props:
