@@ -19,6 +19,16 @@ Two things the join makes visible, and both are information rather than noise:
   the market reads everything. Where the card's edge is negative on a hitter the
   screen rates a buy, the disagreement is the interesting cell on the page.
 
+The arms get the same treatment. The screen keeps a starter because his lineup
+is the one to hunt, and that read has a second half -- the starter's own props --
+which the card prices every night and the note used to print only when a side
+cleared the buy tiers, which on a soft arm is almost never. So the board now
+holds one position per stat on every arm the screen kept: the side of his
+strikeouts, walks, hits, earned runs and outs the card gave the best expected
+value, at the card's own price, with the gate that refused it where one did.
+Those rows are recorded and graded like the hitters', so the pitcher half of the
+screen's thesis gets a receipt rather than a projection table.
+
 Ratings stay where they are. Nothing here feeds :func:`power_report._rating`,
 which is scored on the matchup alone -- a price belongs next to a rating, not
 inside it.
@@ -43,6 +53,9 @@ ROWS_PER_BATTER = 4
 # name -- a long HR price inflates EV by construction -- so the instrument the
 # reader is comparing would be the one missing from the comparison.
 ANCHOR_MARKETS = ("HR", "HRR")
+
+# Stats the arm board holds, one position apiece, in the order the card reads them.
+PITCHER_STATS: tuple[str, ...] = ("K", "BB", "H", "ER", "outs")
 
 # Pretty names for the market keys the pipeline writes.
 MARKET_LABEL = {
@@ -70,6 +83,12 @@ BUY_TIERS = ("Strong buy", "Moderate buy")
 DISPLAY_ONLY = frozenset({"HR"})
 
 
+def market_label(stat: str, category: str = "batter") -> str:
+    """The bucket a stat rolls up into: a starter's hits are not a hitter's."""
+    label = MARKET_LABEL.get(stat, stat)
+    return f"SP {label}" if category == "pitcher" else label
+
+
 @dataclass(frozen=True)
 class BoardRow:
     """One priced market on one screened hitter, exactly as the card had it."""
@@ -94,6 +113,13 @@ class BoardRow:
     # devigged price by ``Config.anchor_for``. ``None`` on a row priced before
     # the anchor existed, or one the card never anchored.
     bet_prob: float | None = None
+    # ``batter`` or ``pitcher``. The name field is ``batter`` for every row because
+    # the ledger column is; a starter's rows carry his name there and this flag.
+    category: str = "batter"
+    # The card's screen that refused the row, when a side was passed rather than
+    # bought: the note prints why a row is not a bet, not only that it is not,
+    # and the ledger can then grade the gate.
+    gate: str = ""
 
     @property
     def shown_prob(self) -> float:
@@ -110,7 +136,7 @@ class BoardRow:
 
     @property
     def label(self) -> str:
-        stat = MARKET_LABEL.get(self.stat, self.stat)
+        stat = market_label(self.stat, self.category)
         point = "" if self.line is None else f" {'o' if self.side == 'over' else 'u'}{self.line}"
         return f"{stat}{point}"
 
@@ -134,6 +160,10 @@ class Board:
     unpriced: list[str] = field(default_factory=list)
     dropped: int = 0  # rows trimmed by ROWS_PER_BATTER, for the caption
     source: str | None = None
+    # The arms' half: one position per stat on each kept starter, and the
+    # starters the card had no priced prop on.
+    arm_rows: list[BoardRow] = field(default_factory=list)
+    arms_unpriced: list[str] = field(default_factory=list)
 
     @property
     def priced(self) -> list[str]:
@@ -144,11 +174,27 @@ class Board:
         return seen
 
     @property
+    def arms_priced(self) -> list[str]:
+        seen: list[str] = []
+        for row in self.arm_rows:
+            if row.batter not in seen:
+                seen.append(row.batter)
+        return seen
+
+    @property
+    def positions(self) -> list[BoardRow]:
+        """Every row the screen holds, hitters then arms."""
+        return [*self.rows, *self.arm_rows]
+
+    @property
     def buys(self) -> list[BoardRow]:
-        return [r for r in self.rows if r.is_buy]
+        return [r for r in self.positions if r.is_buy]
 
     def for_batter(self, name: str) -> list[BoardRow]:
         return [r for r in self.rows if r.batter == name]
+
+    def for_pitcher(self, name: str) -> list[BoardRow]:
+        return [r for r in self.arm_rows if r.batter == name]
 
     def best_for_batter(self, name: str) -> BoardRow | None:
         """His best held row -- what the note quotes beside his rating.
@@ -169,6 +215,16 @@ def default_predictions_path(audit_dir: Path, as_of: Date) -> Path:
     return audit_dir / f"predictions_{as_of.isoformat()}.json"
 
 
+def _gate(rec: Recommendation) -> str:
+    """Which of the card's screens refused the row, if one did.
+
+    A veto is recorded ahead of a pass: a vetoed row was refused on the matchup
+    and a passed one on the price, and when both fired the first is the reason
+    the second was never reached.
+    """
+    return rec.veto_gate or rec.pass_gate or ""
+
+
 def _row(rec: Recommendation, name: str) -> BoardRow:
     return BoardRow(
         batter=name,
@@ -186,6 +242,8 @@ def _row(rec: Recommendation, name: str) -> BoardRow:
         player_id=rec.player_id,
         game_pk=rec.game_pk,
         bet_prob=rec.bet_prob,
+        category=rec.category,
+        gate=_gate(rec),
     )
 
 
@@ -231,6 +289,22 @@ def _select(rows: list[BoardRow], limit: int, anchors: tuple[str, ...]) -> list[
     return sorted(kept, key=_ev, reverse=True)
 
 
+def _select_arm(rows: list[BoardRow], stats: tuple[str, ...]) -> list[BoardRow]:
+    """One position per stat: the side the card gave the best expected value.
+
+    Over against under is the whole question on a starter's line -- the screen's
+    case is that the arm is soft, and the card's number says whether the board
+    already knows it -- so the two sides of one stat are one decision, not two
+    rows. A stat the book never hung is simply absent.
+    """
+    kept: list[BoardRow] = []
+    for stat in stats:
+        of_stat = [r for r in rows if r.stat == stat]
+        if of_stat:
+            kept.append(max(of_stat, key=_ev))
+    return kept
+
+
 def build(
     result: ScreenResult,
     recs: list[Recommendation],
@@ -238,6 +312,7 @@ def build(
     rows_per_batter: int = ROWS_PER_BATTER,
     source: str | None = None,
     anchors: tuple[str, ...] = ANCHOR_MARKETS,
+    arm_stats: tuple[str, ...] = PITCHER_STATS,
 ) -> Board:
     """The screened hitters' priced rows, best EV first, and the ones with none.
 
@@ -248,6 +323,11 @@ def build(
     Every hitter shows his homer and his H+R+RBI where both were quoted, even
     when a third market prices better, because those two are what the page is
     for; ``rows_per_batter`` governs how much else comes with them.
+
+    Every arm the screen kept holds one side per stat in ``arm_stats``, chosen on
+    the card's expected value, whatever tier the card gave it: the position is
+    the screen's, the price and the verdict on it are the card's, and the gate
+    that refused it is carried so the two can be told apart when graded.
     """
     batters = [(v.line.name, v.line.mlbam_id) for s in result.sections for v in s.hitters]
     priced = [r for r in recs if r.category == "batter" and r.market_american is not None]
@@ -260,4 +340,12 @@ def build(
         kept = _select(mine, rows_per_batter, anchors)
         board.rows.extend(kept)
         board.dropped += len(mine) - len(kept)
+    arms = [(s.starter.name, s.starter.mlbam_id) for s in result.sections]
+    priced_arms = [r for r in recs if r.category == "pitcher" and r.market_american is not None]
+    for name, mlbam_id in arms:
+        mine = _best_per_quote([_row(r, name) for r in priced_arms if _matches(r, name, mlbam_id)])
+        if not mine:
+            board.arms_unpriced.append(name)
+            continue
+        board.arm_rows.extend(_select_arm(mine, arm_stats))
     return board

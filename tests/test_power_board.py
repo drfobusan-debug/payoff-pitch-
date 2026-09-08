@@ -351,3 +351,69 @@ def test_a_row_the_card_never_anchored_shows_its_model() -> None:
     )
 
     assert board.rows[0].shown_prob == 0.62
+
+
+# --- the arms' board -------------------------------------------------------
+
+
+def _arm_rec(stat: str, line: float, side: str = "over", **kw) -> Recommendation:
+    rec = _rec("Bailey Ober", stat, line, side, player_id=641927, **kw)
+    rec.category = "pitcher"
+    rec.market = f"pitcher_{stat.lower()}"
+    return rec
+
+
+def test_every_kept_arm_holds_one_side_per_stat_the_card_gave_the_best_ev() -> None:
+    result = _result()
+    recs = [
+        _arm_rec("K", 5.5, "over", ev=-0.02, tier=Tier.PASS),
+        _arm_rec("K", 5.5, "under", ev=0.03, tier=Tier.PASS),
+        _arm_rec("BB", 1.5, "over", ev=0.045, tier=Tier.MODERATE),
+        _arm_rec("outs", 15.5, "over", ev=0.12, tier=Tier.PASS),
+    ]
+    recs[3].pass_gate = "prob_floor"
+    board = power_board.build(result, recs)
+
+    assert [(r.stat, r.side) for r in board.arm_rows] == [
+        ("K", "under"),
+        ("BB", "over"),
+        ("outs", "over"),
+    ]
+    assert all(r.category == "pitcher" for r in board.arm_rows)
+    assert board.arms_priced == ["Bailey Ober"]
+    assert board.arms_unpriced == []
+    # the card's own verdict travels with the row, and so does the gate that refused it
+    assert [r.is_buy for r in board.arm_rows] == [False, True, False]
+    assert [r.gate for r in board.arm_rows] == ["", "", "prob_floor"]
+    assert board.arm_rows[2].label == "SP outs o15.5"
+    # the arm's buy is the board's buy; the hitter board is untouched
+    assert [r.stat for r in board.buys] == ["BB"]
+    assert board.rows == []
+
+
+def test_an_arm_the_card_never_priced_is_named_not_dropped() -> None:
+    board = power_board.build(_result(), [])
+    assert board.arm_rows == []
+    assert board.arms_unpriced == ["Bailey Ober"]
+
+
+def test_another_arms_row_is_not_priced_onto_this_one() -> None:
+    rec = _arm_rec("K", 5.5)
+    rec.player_id = 1
+    board = power_board.build(_result(), [rec])
+    assert board.arm_rows == []
+    assert board.arms_unpriced == ["Bailey Ober"]
+
+
+def test_the_note_prints_the_arms_board_with_the_gate_that_refused_each_row() -> None:
+    result = _result()
+    refused = _arm_rec("outs", 15.5, ev=0.12, tier=Tier.PASS)
+    refused.pass_gate = "prob_floor"
+    board = power_board.build(result, [_arm_rec("BB", 1.5, tier=Tier.MODERATE), refused])
+    html = power_report.render_html(result, board=board)
+    assert "The arms' board" in html
+    assert "BB o1.5" in html
+    assert "outs o15.5" in html
+    assert "probability floor" in html
+    assert "<strong>bought</strong>" in html
+    assert "2 positions on 1 of 1 arms" in html

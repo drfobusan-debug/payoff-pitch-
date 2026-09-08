@@ -33,10 +33,18 @@ from dataclasses import asdict, dataclass, field, replace
 from datetime import date as Date
 from pathlib import Path
 
-from mlb_engine.audit.grade import LOSS, PUSH, WIN, batter_actual, grade_batter
+from mlb_engine.audit.grade import (
+    LOSS,
+    PUSH,
+    WIN,
+    batter_actual,
+    grade_batter,
+    grade_pitcher,
+    pitcher_actual,
+)
 from mlb_engine.audit.ledger import pnl_units
 from mlb_engine.data.results import GameResult
-from mlb_engine.output.power_board import DISPLAY_ONLY, MARKET_LABEL, Board, BoardRow
+from mlb_engine.output.power_board import DISPLAY_ONLY, Board, BoardRow, market_label
 
 log = logging.getLogger(__name__)
 
@@ -66,6 +74,8 @@ FIELDS = (
     "points",
     "fit_pts",
     "fit_rv",
+    "category",
+    "gate",
 )
 
 
@@ -150,6 +160,13 @@ class Position:
     points: int | None = None
     fit_pts: int | None = None
     fit_rv: float | None = None
+    #: ``batter`` or ``pitcher``. The ``batter`` column carries the name either
+    #: way; a starter's rows are told apart by this, and graded off his pitching
+    #: line. Rows recorded before the field existed are hitters.
+    category: str = "batter"
+    #: The card's screen that refused the row when it was passed rather than
+    #: bought, so a gate can be graded on the positions it cost the screen.
+    gate: str = ""
 
     @property
     def key(self) -> str:
@@ -162,10 +179,14 @@ class Position:
         return self.model_prob if self.bet_prob is None else self.bet_prob
 
     @property
+    def market(self) -> str:
+        """The bucket this row grades into: a starter's hits are not a hitter's."""
+        return market_label(self.stat, self.category)
+
+    @property
     def label(self) -> str:
-        stat = MARKET_LABEL.get(self.stat, self.stat)
         point = "" if self.line is None else f" {'o' if self.side == 'over' else 'u'}{self.line}"
-        return f"{stat}{point}"
+        return f"{self.market}{point}"
 
     @property
     def is_buy(self) -> bool:
@@ -196,6 +217,10 @@ def positions_from_board(
     up on :func:`name_key` so an accent cannot lose a hitter his rating. Rows in a
     ``DISPLAY_ONLY`` market are shown by the note but held by nobody, so they are
     not positions.
+
+    The arms' rows follow the hitters'. A starter has no matchup grade -- the
+    grade is a read on the bat -- so his rating is blank, and ``deliveries`` is
+    looked up on his own name for the verdict on his own delivery.
     """
     rated = {name_key(k): v for k, v in (ratings or {}).items()}
     arms = {name_key(k): v for k, v in (deliveries or {}).items()}
@@ -209,7 +234,7 @@ def positions_from_board(
             ranked.get(name_key(row.batter)),
             run_id,
         )
-        for row in board.rows
+        for row in board.positions
         if row.stat not in DISPLAY_ONLY
     ]
 
@@ -250,6 +275,8 @@ def _position(
             if composite is None or composite.fit_rv is None
             else round(composite.fit_rv, 2)
         ),
+        category=row.category,
+        gate=row.gate,
     )
 
 
@@ -302,6 +329,8 @@ def load(path: Path) -> list[Position]:
                     points=_to_int(r.get("points", "")),
                     fit_pts=_to_int(r.get("fit_pts", "")),
                     fit_rv=_to_float(r.get("fit_rv", "")),
+                    category=r.get("category", "") or "batter",
+                    gate=r.get("gate", "") or "",
                 )
             )
     return out
@@ -382,9 +411,10 @@ def grade_positions(
 ) -> tuple[list[GradedPosition], int]:
     """Grade what can be graded; return the rows and the count that could not be.
 
-    Ungradeable means the game never finished or the hitter never batted, and it
-    is returned as a count rather than folded into the record: a voided prop is
-    not evidence about the screen either way.
+    Ungradeable means the game never finished or the player never appeared, and
+    it is returned as a count rather than folded into the record: a voided prop
+    is not evidence about the screen either way. A starter's row is read off his
+    pitching line, a hitter's off his batting line.
     """
     graded: list[GradedPosition] = []
     voided = 0
@@ -393,7 +423,12 @@ def grade_positions(
         if res is None or not res.final or p.player_id is None or p.line is None:
             voided += 1
             continue
-        outcome = grade_batter(res, p.player_id, p.stat, p.line, p.side)
+        if p.category == "pitcher":
+            outcome = grade_pitcher(res, p.player_id, p.stat, p.line, p.side)
+            actual = pitcher_actual(res, p.player_id, p.stat)
+        else:
+            outcome = grade_batter(res, p.player_id, p.stat, p.line, p.side)
+            actual = batter_actual(res, p.player_id, p.stat)
         if outcome is None:
             voided += 1
             continue
@@ -401,7 +436,7 @@ def grade_positions(
             GradedPosition(
                 position=p,
                 result=outcome,
-                actual=batter_actual(res, p.player_id, p.stat),
+                actual=actual,
                 units=pnl_units(outcome, p.odds),
             )
         )
@@ -464,6 +499,8 @@ class Scorecard:
     by_tier: list[Record] = field(default_factory=list)
     by_rating: list[Record] = field(default_factory=list)
     by_market: list[Record] = field(default_factory=list)
+    #: Hitters against arms: the two halves of the screen's thesis, graded apart.
+    by_category: list[Record] = field(default_factory=list)
     model_brier: float | None = None
     market_brier: float | None = None
     scored_probs: int = 0
@@ -514,7 +551,8 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
     market = [(g.position.fair_prob or 0.0, o) for g, o in pairs]
     tiers = sorted({g.position.tier for g in graded})
     ratings = sorted({g.position.rating for g in graded if g.position.rating})
-    markets = sorted({g.position.stat for g in graded})
+    markets = sorted({g.position.market for g in graded})
+    categories = sorted({g.position.category for g in graded})
     runs = sorted({g.position.run_id for g in graded})
     return Scorecard(
         day=day.isoformat(),
@@ -524,9 +562,19 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
         by_tier=[_record(t, [g for g in graded if g.position.tier == t]) for t in tiers],
         by_rating=[_record(r, [g for g in graded if g.position.rating == r]) for r in ratings],
         by_market=[
-            _record(MARKET_LABEL.get(m, m), [g for g in graded if g.position.stat == m])
-            for m in markets
+            _record(m, [g for g in graded if g.position.market == m]) for m in markets
         ],
+        by_category=(
+            [
+                _record(
+                    "arms" if c == "pitcher" else "hitters",
+                    [g for g in graded if g.position.category == c],
+                )
+                for c in categories
+            ]
+            if len(categories) > 1
+            else []
+        ),
         model_brier=_brier(model),
         market_brier=_brier(market),
         scored_probs=len(pairs),
