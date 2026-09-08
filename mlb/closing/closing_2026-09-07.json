@@ -9179,9 +9179,23 @@
   {
     "matchup": "CIN @ LAD",
     "market": "batter_hrr",
+    "selection": "Shohei Ohtani H+R+RBI o2.5",
+    "american": 120.0,
+    "no_vig_prob": 0.428027
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_hrr",
     "selection": "Shohei Ohtani H+R+RBI u1.5",
     "american": 105.0,
     "no_vig_prob": 0.457478
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_hrr",
+    "selection": "Shohei Ohtani H+R+RBI u2.5",
+    "american": -155.0,
+    "no_vig_prob": 0.571973
   },
   {
     "matchup": "CIN @ LAD",
