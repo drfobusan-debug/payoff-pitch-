@@ -9,7 +9,8 @@ vig could actually be stripped.
 
 from __future__ import annotations
 
-from dataclasses import replace
+import csv
+from dataclasses import asdict, replace
 from datetime import date as Date
 
 from mlb_engine.audit import power_ledger
@@ -612,3 +613,98 @@ def test_a_row_is_keyed_by_the_hitter_and_not_by_the_spelling() -> None:
     accented = replace(_position(), batter="Eugenio Suárez", player_id=None)
     plain = replace(_position(), batter="Eugenio Suarez", player_id=None)
     assert accented.key == plain.key
+
+
+# --- the arms' positions ---------------------------------------------------
+
+
+def _arm_position(stat: str = "BB", line: float = 1.5, *, side: str = "over", **kw):
+    return replace(
+        _position(stat, line, batter="Bailey Ober", player_id=641927, side=side, rating="", **kw),
+        category="pitcher",
+        gate="prob_floor",
+    )
+
+
+def _arm_line(**pitching: int) -> PlayerLine:
+    base = {"BF": 22, "outs": 15, "K": 4, "BB": 1, "H": 5, "ER": 2}
+    base.update(pitching)
+    return PlayerLine(pitching=base)
+
+
+def test_an_arms_row_is_graded_off_his_pitching_line() -> None:
+    res = _game({641927: _arm_line(BB=2)})
+    (g,), voided = power_ledger.grade_positions([_arm_position()], {1: res})
+    assert voided == 0
+    assert g.result == power_ledger.WIN
+    assert g.actual == 2
+    assert g.units == 1.0
+
+
+def test_an_arm_who_never_pitched_is_voided_not_lost() -> None:
+    res = _game({641927: PlayerLine()})
+    graded, voided = power_ledger.grade_positions([_arm_position()], {1: res})
+    assert graded == []
+    assert voided == 1
+
+
+def test_the_arm_and_the_gate_survive_the_round_trip(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    power_ledger.record(path, [_position(), _arm_position()], DAY)
+
+    hitter, arm = power_ledger.load(path)
+
+    assert hitter.category == "batter" and hitter.gate == ""
+    assert arm.category == "pitcher" and arm.gate == "prob_floor"
+    assert arm.market == "SP BB"
+    assert arm.label == "SP BB o1.5"
+
+
+def test_a_ledger_written_before_the_arms_reads_every_row_as_a_hitter(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    old = [f for f in power_ledger.FIELDS if f not in ("category", "gate")]
+    row = {k: v for k, v in asdict(_position()).items() if k in old}
+    row["devigged"] = "1"
+    with path.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=old)
+        w.writeheader()
+        w.writerow({k: "" if v is None else v for k, v in row.items()})
+
+    (back,) = power_ledger.load(path)
+    assert back.category == "batter"
+    assert back.gate == ""
+
+
+def test_the_scorecard_splits_the_two_halves_of_the_screen() -> None:
+    players = {7: _line(H=2, R=1), 641927: _arm_line(BB=0)}
+    graded, _ = power_ledger.grade_positions(
+        [_position(), _arm_position()], {1: _game(players)}
+    )
+    card = power_ledger.scorecard(DAY, graded)
+    assert [(r.label, r.wins, r.losses) for r in card.by_category] == [
+        ("hitters", 1, 0),
+        ("arms", 0, 1),
+    ]
+    assert [r.label for r in card.by_market] == ["H+R+RBI", "SP BB"]
+
+
+def test_the_arms_rows_are_recorded_beside_the_hitters() -> None:
+    result = _result()
+    hitter = _rec("Matt Olson", "HRR", 1.5, player_id=_pid(result))
+    arm = _rec("Bailey Ober", "K", 5.5, player_id=641927, tier=Tier.PASS, ev=0.02)
+    arm.category = "pitcher"
+    arm.pass_gate = "edge_ceiling"
+    board = power_board.build(result, [hitter, arm])
+    positions = power_ledger.positions_from_board(
+        board,
+        DAY,
+        power_report.ratings(result),
+        {**power_report.deliveries(result), **power_report.arm_deliveries(result)},
+        power_report.composites(result),
+        "run",
+    )
+    assert [(p.batter, p.category, p.gate) for p in positions] == [
+        ("Matt Olson", "batter", ""),
+        ("Bailey Ober", "pitcher", "edge_ceiling"),
+    ]
+    assert positions[1].rating == ""

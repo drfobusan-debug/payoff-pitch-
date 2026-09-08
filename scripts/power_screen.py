@@ -44,8 +44,8 @@ import argparse
 import logging
 import math
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
 from datetime import date as Date
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -836,6 +836,13 @@ def _board(
         len(board.priced),
         len(board.priced) + len(board.unpriced),
     )
+    log.info(
+        "arm board: %d positions on %d of %d arms, %d bought",
+        len(board.arm_rows),
+        len(board.arms_priced),
+        len(board.arms_priced) + len(board.arms_unpriced),
+        sum(1 for r in board.arm_rows if r.is_buy),
+    )
     return board
 
 
@@ -851,7 +858,7 @@ def _run_id() -> str:
     meaningful default and a morning capture distinguishable from the re-run once
     lineups post.
     """
-    return datetime.now(UTC).strftime("%Y%m%dT%H%MZ")
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%MZ")
 
 
 def _record(
@@ -862,14 +869,14 @@ def _record(
     Only priced rows are recorded. A rating with no number beside it is not a
     position, and grading one would have to invent the price it never had.
     """
-    if args.no_grade or board is None or not board.rows:
+    if args.no_grade or board is None or not board.positions:
         return
     run_id = _run_id()
     positions = power_ledger.positions_from_board(
         board,
         result.as_of,
         power_report.ratings(result),
-        power_report.deliveries(result),
+        {**power_report.deliveries(result), **power_report.arm_deliveries(result)},
         power_report.composites(result),
         run_id,
     )

@@ -44,7 +44,7 @@ from mlb_engine.audit.power_ledger import (  # noqa: E402
 )
 from mlb_engine.config import load_config  # noqa: E402
 from mlb_engine.data.results import GameResult, fetch_result  # noqa: E402
-from mlb_engine.output.power_board import DISPLAY_ONLY, MARKET_LABEL  # noqa: E402
+from mlb_engine.output.power_board import DISPLAY_ONLY  # noqa: E402
 
 log = logging.getLogger("power_screen_audit")
 
@@ -248,7 +248,11 @@ def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[Gra
     buckets: dict[str, list[GradedPosition]] = defaultdict(list)
     for g in graded:
         if key == "market":
-            buckets[MARKET_LABEL.get(g.position.stat, g.position.stat)].append(g)
+            buckets[g.position.market].append(g)
+        elif key == "half":
+            buckets["arms" if g.position.category == "pitcher" else "hitters"].append(g)
+        elif key == "gate":
+            buckets["bought" if g.position.is_buy else (g.position.gate or "(none)")].append(g)
         elif key == "tier":
             buckets[g.position.tier or "(none)"].append(g)
         else:
@@ -303,7 +307,13 @@ def main() -> None:
     print(_line("all positions", all_graded))
     print(_line("the card bet", [g for g in all_graded if g.position.is_buy]))
     print(_line("the card passed", [g for g in all_graded if not g.position.is_buy]))
-    for header, key in (("by market", "market"), ("by tier", "tier"), ("by rating", "rating")):
+    for header, key in (
+        ("by half", "half"),
+        ("by market", "market"),
+        ("by tier", "tier"),
+        ("by gate", "gate"),
+        ("by rating", "rating"),
+    ):
         print(f"\n--- {header} ---")
         for label, bucket in _grouped(all_graded, key):
             print(_line(label, bucket))
@@ -315,7 +325,8 @@ def main() -> None:
     _print_ranking(all_graded)
     print(
         "\nUnits are at the recorded price, one unit a position, pushes at zero;"
-        "\na hitter who never batted is voided rather than lost."
+
+        "\na hitter who never batted, or an arm who never pitched, is voided rather than lost."
     )
 
 

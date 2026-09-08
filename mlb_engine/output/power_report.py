@@ -490,6 +490,7 @@ def _price(american: float | None) -> str:
 def _board_section(board: Board) -> str:
     """The survivors on the card's own board, best expected value first."""
     rows = []
+    batter_buys = [r for r in board.rows if r.is_buy]
     for r in board.rows:
         fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
         rows.append([
@@ -507,7 +508,7 @@ def _board_section(board: Board) -> str:
         "<h2>The board</h2>",
         f"<p><strong>{len(board.priced)} of "
         f"{len(board.priced) + len(board.unpriced)} survivors have a price</strong>, and "
-        f"{len(board.buys)} of their rows cleared the card's buy tiers. Every figure below is "
+        f"{len(batter_buys)} of their rows cleared the card's buy tiers. Every figure below is "
         f"the nightly run's own: the model probability it simulated, the best price it found, "
         f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
         f"re-simulated for this note, so a row here is the number the engine actually saw.</p>",
@@ -565,6 +566,91 @@ def _board_section(board: Board) -> str:
             f"The screen reads form and exposure; the price reads everything, including the "
             f"lineup card this note is guessing at.</p>"
         )
+    out.append(_arm_board(board))
+    return "".join(out)
+
+
+#: How the card's screens are named on the arm board. Anything not here prints as
+#: the pipeline wrote it, so a new gate is legible before it has a pretty name.
+GATE_DISPLAY = {
+    "prob_floor": "probability floor",
+    "edge_ceiling": "edge ceiling",
+    "price_only": "market on probation",
+    "clv_drift": "CLV drift",
+    "momentum_run_up": "momentum run-up",
+    "thin_edge": "thin edge",
+    "ev_floor": "EV floor",
+    "no_buy": "market closed to buys",
+    "tier_downgrade": "tier downgrade",
+}
+
+
+def _gate_cell(row: BoardRow) -> str:
+    if row.is_buy:
+        return "<strong>bought</strong>"
+    if row.gate:
+        return html.escape(GATE_DISPLAY.get(row.gate, row.gate.replace("_", " ")))
+    if row.ev is not None and row.ev <= 0:
+        return "no edge"
+    return "passed"
+
+
+def _arm_board(board: Board) -> str:
+    """The arms' positions: one side per stat on each starter the screen kept."""
+    if not board.arm_rows and not board.arms_unpriced:
+        return ""
+    rows = []
+    for r in board.arm_rows:
+        fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
+        rows.append([
+            html.escape(r.batter),
+            r.label.removeprefix("SP "),
+            _price(r.american),
+            html.escape(r.book or "&mdash;"),
+            _pc(r.shown_prob),
+            fair + ("" if r.devigged else "*"),
+            _num((r.edge or 0.0) * 100, 1, signed=True) if r.edge is not None else "&mdash;",
+            _pc(r.ev, 1) if r.ev is not None else "&mdash;",
+            _gate_cell(r),
+        ])
+    bought = [r for r in board.arm_rows if r.is_buy]
+    positive = [r for r in board.arm_rows if r.ev is not None and r.ev > 0]
+    out = [
+        "<h3>The arms' board</h3>",
+        f"<p><strong>{len(board.arm_rows)} positions on {len(board.arms_priced)} of "
+        f"{len(board.arms_priced) + len(board.arms_unpriced)} arms</strong>: one side per "
+        f"stat, the one the card gave the best expected value, at the card's own price. "
+        f"{len(positive)} carry a positive expected value and the card bought "
+        f"{len(bought)}. The screen keeps an arm because his lineup is the one to hunt, "
+        f"and the other half of that read is the arm's own line: these rows are the "
+        f"screen's positions on it, recorded and graded tomorrow whatever the card's "
+        f"tier, so the pitcher half of the thesis gets a receipt.</p>",
+    ]
+    if rows:
+        out.append(
+            _table(
+                ["pitcher", "market", "price", "book", "bet prob", "no-vig", "edge", "EV",
+                 "card"],
+                rows,
+                numeric_from=2,
+            )
+        )
+        out.append(
+            "<p class='sub'>The card column is the card's own verdict on the row: "
+            "<strong>bought</strong> where it cleared the buy tiers, otherwise the screen "
+            "that refused it &mdash; a probability floor, an edge ceiling, a no-vig floor, "
+            "CLV drift or a momentum run-up &mdash; or <em>no edge</em> where the number "
+            "never favoured the side at all. A refused row is still a position here, "
+            "because whether the card's gates are costing the screen money on soft arms is "
+            "the question the ledger is being asked to answer; it is not a bet the card "
+            "made.</p>"
+        )
+    if board.arms_unpriced:
+        names = ", ".join(html.escape(n) for n in board.arms_unpriced)
+        out.append(
+            f"<p class='sub'>No priced prop on {names}: the card had no quote on the arm "
+            f"when it ran, so the screen holds nothing on him.</p>"
+        )
     return "".join(out)
 
 
@@ -605,6 +691,15 @@ def deliveries(result: ScreenResult) -> dict[str, str]:
         v.line.name: s.starter.arm_verdict
         for s in result.sections
         for v in s.hitters
+        if s.starter.arm is not None
+    }
+
+
+def arm_deliveries(result: ScreenResult) -> dict[str, str]:
+    """Each kept starter's own delivery verdict, keyed by his name, for his rows."""
+    return {
+        s.starter.name: s.starter.arm_verdict
+        for s in result.sections
         if s.starter.arm is not None
     }
 
@@ -651,7 +746,7 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         "flat one unit apiece at the price it was shown at &mdash; not at a better one found "
         "later, and not only on the rows that worked.</p>",
         _table(
-            ["batter", "market", "price", "shown", "no-vig", "actual", "result", "units"],
+            ["player", "market", "price", "shown", "no-vig", "actual", "result", "units"],
             rows,
             numeric_from=2,
         ),
@@ -676,6 +771,7 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
             f"accumulates.</p>"
         )
     splits = [
+        ("half", card.by_category),
         ("card tier", card.by_tier),
         ("matchup grade", card.by_rating),
         ("market", card.by_market),
