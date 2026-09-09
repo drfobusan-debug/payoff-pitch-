@@ -155,7 +155,11 @@ from mlb_engine.preview import (
     RegFlag,
     StarterLine,
 )
-from mlb_engine.recommendations import Recommendation, enforce_one_buy_per_group
+from mlb_engine.recommendations import (
+    Recommendation,
+    enforce_one_buy_per_group,
+    fade_disagreements,
+)
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -577,7 +581,13 @@ class Pipeline:
                 log.info("skip %s: probable pitcher missing", game.matchup())
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
-        return enforce_one_buy_per_group(recs)
+        # One buy per market first, so the fade moves a single buy to a single
+        # side; the fade last, so no screen above it can refuse the book's side.
+        return fade_disagreements(
+            enforce_one_buy_per_group(recs),
+            self.cfg.book_fade_max_fair,
+            self.cfg.book_fade_markets,
+        )
 
     @staticmethod
     def _starts_within(game_datetime_utc: str | None, hours: float) -> bool:
