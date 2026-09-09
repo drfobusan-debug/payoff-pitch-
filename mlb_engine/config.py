@@ -1110,6 +1110,22 @@ class Config:
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
     )
 
+    # Where the engine and the book back different sides, bet the book's side
+    # (see ``recommendations.fade_disagreements``). A buy whose devigged market
+    # probability is under this is faded: its row becomes a Pass under
+    # ``book_fade`` and the other side of the market takes its tier. 0 turns the
+    # rule off; 1.0 fades every buy. ``MLBE_BOOK_FADE_MARKETS`` is a comma list
+    # of engine markets to confine it to (empty: all of them). Graded to
+    # 2026-09-08 the fade paid only on batter_2b, batter_hrr and game_rl.
+    book_fade_max_fair: float = field(
+        default_factory=lambda: _env_float("MLBE_BOOK_FADE_MAX_FAIR", 0.5)
+    )
+    book_fade_markets: frozenset[str] = field(
+        default_factory=lambda: frozenset(
+            m.strip() for m in os.getenv("MLBE_BOOK_FADE_MARKETS", "").split(",") if m.strip()
+        )
+    )
+
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
     # the model under-projected outs in its meaty 0.45-0.60 band, which actually
     # cashed 53-70% (vs the 45-55% it priced), so profitable outs-overs were
