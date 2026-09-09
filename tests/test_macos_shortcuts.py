@@ -82,3 +82,40 @@ def test_the_guard_names_where_it_looked(tmp_path: Path) -> None:
     assert proc.returncode == 1
     assert str(repo) in proc.stderr
     assert "setup.command" in proc.stderr
+
+
+ROOT = Path(__file__).resolve().parent.parent
+CALLERS = (ROOT / "setup_engine_autorun.sh", ROOT / "scripts" / "macos" / "run_predictions.command")
+
+
+def _invocations(module: str) -> list[list[str]]:
+    """Every ``python -m <module> ...`` line in the shell callers, as argv.
+
+    The autorun script writes its job through a heredoc, so ``\\$day`` is the
+    escaped form there; both are read as one placeholder, then a plausible value.
+    """
+    found = []
+    for path in CALLERS:
+        for line in path.read_text().splitlines():
+            if f"python -m {module}" not in line:
+                continue
+            tail = line.split(f"python -m {module}", 1)[1].replace("\\", "").rstrip(" \\")
+            tail = tail.replace('"$(basename "$pkl")"', "statcast.pkl").replace('"$day"', "2026-09-09")
+            found.append(tail.split())
+    assert found, f"no call to {module} in {[p.name for p in CALLERS]}"
+    return found
+
+
+def test_the_shell_callers_pass_regen_regression_what_it_parses() -> None:
+    """The morning job calls the script the way the script reads its arguments.
+
+    #300 moved ``regen_regression`` to ``--date``/``--statcast`` and left both
+    callers on positionals, so the step exited with a usage error every morning
+    and no regression PDF went out. The parser is the contract; check it here.
+    """
+    import scripts.comprehensive_report as cr
+
+    for argv in _invocations("scripts.regen_regression"):
+        args = cr.parse_args(argv)
+        assert args.date == "2026-09-09"
+        assert args.statcast == "statcast.pkl"

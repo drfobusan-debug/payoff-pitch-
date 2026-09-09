@@ -420,6 +420,7 @@ def main() -> None:
     # and the park and the forecast belong to the venue.
     season = repo.load_range(Date(day.year, *SEASON_OPENING), end, refresh=args.refresh)
     season_line = batter_window_line(season)
+    season_woba, _ = _league_lines(season)
     environments = _environments(slate, cfg)
 
     shared = _Shared(
@@ -432,7 +433,8 @@ def main() -> None:
         frame=frame,
         window=window,
         season=season,
-        season_woba=season_line.get("woba", math.nan) if season_line else math.nan,
+        season_woba=season_woba,
+        season_all_woba=season_line.get("woba", math.nan) if season_line else math.nan,
         league_woba=league_woba,
         league_xwoba=league_xwoba,
         team_pa=team_pa,
@@ -461,7 +463,8 @@ class _Shared:
     frame: pd.DataFrame
     window: pd.DataFrame
     season: pd.DataFrame
-    season_woba: float
+    season_woba: dict[str, float]
+    season_all_woba: float
     league_woba: dict[str, float]
     league_xwoba: dict[str, float]
     team_pa: float
@@ -543,6 +546,7 @@ def _pass(shared: _Shared, args: argparse.Namespace, tier: str) -> ScreenResult:
             frame=shared.frame,
             season=shared.season,
             season_woba=shared.season_woba,
+            season_all_woba=shared.season_all_woba,
             as_of=day,
             form=shared.form,
             league_woba=shared.league_woba,
@@ -742,7 +746,8 @@ def _build_section(
     window: pd.DataFrame,
     frame: pd.DataFrame,
     season: pd.DataFrame,
-    season_woba: float,
+    season_woba: dict[str, float],
+    season_all_woba: float,
     as_of: Date,
     form: int,
     league_woba: dict[str, float],
@@ -768,6 +773,7 @@ def _build_section(
     hand = card.throws
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
     lg_xwoba = league_xwoba.get(hand, league_xwoba.get("R", 0.305))
+    floor = min_pa if min_pa is not None else MIN_BATTER_PA
 
     slots = lineup_team.lineup or []
     pool = hitter_pool(
@@ -786,14 +792,23 @@ def _build_section(
         team=lineup_team.abbrev,
         versus=card.name,
         league_woba=lg_woba,
+        season=season,
+        season_league_woba=season_woba.get(hand, lg_woba),
+        min_pa=floor,
     )
+    for h in pool:
+        if h.season_backed:
+            log.info(
+                "%s read off the season vs %sHP: %d PA in the window, %d on the year",
+                h.name, hand, h.window_pa, h.pa,
+            )
     if not pool:
         log.warning("no readable hitters vs %s", card.name)
         return None
     kept = apply_cuts(
         pool,
         lg_xwoba,
-        min_pa=min_pa if min_pa is not None else MIN_BATTER_PA,
+        min_pa=floor,
         min_wrc=min_wrc if min_wrc is not None else MIN_WRC,
         keep_power=keep_power,
     )
@@ -825,7 +840,10 @@ def _build_section(
     trend_start = as_of - timedelta(days=TREND_DAYS)
     views: list[HitterView] = []
     for h in kept:
-        rows = window[(window["batter"] == h.mlbam_id) & (window["p_throws"] == hand)]
+        # The arsenal is read over the same rows the rate line was: a hitter
+        # carried on his season split has no window to read the pitches off.
+        source = season if h.season_backed else window
+        rows = source[(source["batter"] == h.mlbam_id) & (source["p_throws"] == hand)]
         per_pitch = batter_arsenal(rows, families)
         overall = contact_line(rows)
         fit_w, fit_b, fallback = arsenal_fit(per_pitch, overall, usage)
@@ -842,7 +860,7 @@ def _build_section(
         # split of the late half describes a matchup that will not happen.
         view.edge = arsenal_edge(per_pitch, overall, card.arsenal, usage)
         own = season[season["batter"] == h.mlbam_id]
-        view.late_wrc = late_wrc_plus(own, season_woba)
+        view.late_wrc = late_wrc_plus(own, season_all_woba)
         if late_wrc_floor is not None and not view.late_wrc >= late_wrc_floor:
             h.kept = False
             h.cut_reason = (

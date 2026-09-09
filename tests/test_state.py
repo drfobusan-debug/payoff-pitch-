@@ -9,6 +9,7 @@ import subprocess
 from dataclasses import replace
 from datetime import date as Date
 from pathlib import Path
+from threading import Thread
 
 import pytest
 
@@ -798,3 +799,78 @@ def test_two_machines_boards_for_one_day_both_survive(
     assert [p.batter for p in power_ledger.positions_for(
         data_a / "audit" / power_ledger.LEDGER_NAME, day
     )] == ["Drake Baldwin"]
+
+
+def test_two_jobs_on_one_box_take_turns_at_the_worktree(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """Franz's Mac, 09-08: every slate pass's push was 'rejected after 3
+    attempts' while the close daemon's went through. The pass prices for an
+    hour and pushes at the minute the close job starts; both sync through the
+    same worktree, which each rebuilds on entry, so the close pulled the pass's
+    checkout out from under its commit. Two pushes racing from one checkout
+    must both land.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    data_close = data_a.parent / "data_close"
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-09-08", "DET")])
+    save_closing(
+        data_close / "audit" / "closing_2026-09-08.json",
+        [ClosingQuote("KC@DET", "game_ml", "DET", -150.0, 0.5901)],
+    )
+
+    errors: list[BaseException] = []
+
+    def _push(data: Path, msg: str) -> None:
+        try:
+            push_state(data, msg, repo=repo_a, branch="engine-state")
+        except BaseException as exc:  # noqa: BLE001 - collected for the assertion
+            errors.append(exc)
+
+    threads = [
+        Thread(target=_push, args=(data_a, "run 09-08")),
+        Thread(target=_push, args=(data_close, "close 09-08")),
+    ]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert not errors
+
+    other = data_a.parent / "data_check"
+    pull_state(other, repo=repo_a, branch="engine-state")
+    assert (other / "audit" / "ledger.csv").exists()
+    assert (other / "audit" / "closing_2026-09-08.json").exists()
+
+
+def test_a_rejected_push_says_why(machines: tuple[Path, Path, Path, Path]) -> None:
+    """'push to engine-state rejected' was the whole record of three lost
+    passes. Git's own words are what would have found the cause."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-09-08", "DET")])
+    push_state(data_a, "seed", repo=repo_a, branch="engine-state")
+    origin = repo_a.parent.parent / "origin.git"
+    # A hook that refuses is the shape of every server-side rejection.
+    hook = origin / "hooks" / "pre-receive"
+    hook.write_text("#!/bin/sh\necho 'no pushes today' >&2\nexit 1\n")
+    hook.chmod(0o755)
+    _ledger(data_a / "audit" / "ledger.csv", [_row("2026-09-09", "KC")])
+    with pytest.raises(RuntimeError, match="no pushes today"):
+        push_state(data_a, "audit 09-09", repo=repo_a, branch="engine-state")
+
+
+def test_an_unchanged_export_is_an_unchanged_blob(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A second push with nothing new used to commit every export again: gzip
+    stamps the clock into its header, so the same bytes made a different blob."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    (data_a / "batx").mkdir(parents=True)
+    (data_a / "batx" / "hitters.csv").write_text("a,b\n1,2\n")
+    push_state(data_a, "first", repo=repo_a, branch="engine-state")
+    push_state(data_a, "again", repo=repo_a, branch="engine-state")
+    origin = repo_a.parent.parent / "origin.git"
+    log = subprocess.run(
+        ["git", "log", "--format=%s", "engine-state"], cwd=origin, capture_output=True, text=True
+    ).stdout.split()
+    assert log == ["first"]

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from mlb_engine.config import EVThresholds
 from mlb_engine.market.ev import EVResult, MarketQuote
-from mlb_engine.market.tiers import Tier, classify
+from mlb_engine.market.tiers import Tier, classify, price_screen
 
 
 def _res(
@@ -63,17 +63,44 @@ def test_the_edge_gap_no_longer_promotes_anything_the_market_priced() -> None:
     assert classify(_res(fair=0.52, edge=0.07), thr)[0] is Tier.MODERATE
 
 
-def test_a_row_nothing_devigged_is_still_tiered_on_its_edge() -> None:
-    """A raw implied price overstates the market by about half the hold.
-
-    Read as a fair probability it would promote the one-sided longshots this is
-    meant to demote, so those rows keep the rule fitted without it.
-    """
+def test_a_one_way_quote_is_never_a_buy() -> None:
+    """The edge on a one-way price is measured against the hold, not a fair number."""
     thr = EVThresholds()
+    for edge in (0.07, 0.02):
+        tier, reasons = classify(_res(fair=0.62, edge=edge, devigged=False), thr)
+        assert tier is Tier.PASS
+        assert any("one-way quote: PASS" in r for r in reasons)
+    assert price_screen(_res(fair=0.62, edge=0.07, devigged=False), thr) is not None
+    assert price_screen(_res(fair=0.62, edge=0.07, devigged=False), thr)[0] == "one_way_quote"
+
+
+def test_the_two_sided_screen_runs_before_every_other_screen() -> None:
+    """Named first so a one-way row is attributed to its price, not its edge."""
+    res = _res(fair=0.62, edge=0.20, devigged=False)
+    assert price_screen(res, EVThresholds())[0] == "one_way_quote"
+    assert price_screen(res, EVThresholds(two_sided=False))[0] == "edge_ceiling"
+
+
+def test_the_two_sided_screen_is_reversible_and_per_market(monkeypatch) -> None:
+    """Off, the row keeps the rule fitted without a devigged price.
+
+    A raw implied price overstates the market by about half the hold, so read
+    as a fair probability it would promote one-sided longshots; the edge gap
+    tiers it instead.
+    """
+    thr = EVThresholds(two_sided=False)
     tier, reasons = classify(_res(fair=0.62, edge=0.07, devigged=False), thr)
     assert tier is Tier.STRONG
     assert any("no devigged price" in r for r in reasons)
     assert classify(_res(fair=0.62, edge=0.02, devigged=False), thr)[0] is Tier.MODERATE
+
+    monkeypatch.setenv("MLBE_TWO_SIDED_ONLY", "0")
+    assert EVThresholds().two_sided is False
+    monkeypatch.delenv("MLBE_TWO_SIDED_ONLY")
+    monkeypatch.setenv("MLBE_TWO_SIDED_ONLY_BATTER_1B", "0")
+    assert EVThresholds().two_sided is True
+    assert EVThresholds().for_market("batter_1b").two_sided is False
+    assert EVThresholds().for_market("game_ml").two_sided is True
 
 
 def test_the_basis_is_reversible() -> None:

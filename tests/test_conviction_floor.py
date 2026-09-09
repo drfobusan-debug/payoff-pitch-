@@ -37,7 +37,7 @@ class _Identity:
 def _res(prob: float, ev: float, edge: float = 0.05) -> EVResult:
     return EVResult(
         model_prob=prob,
-        best_quote=MarketQuote(book="bk", american=-110.0),
+        best_quote=MarketQuote(book="bk", american=-110.0, opposite_american=-110.0),
         decimal=1.91,
         ev=ev,
         fair_prob=prob - edge,

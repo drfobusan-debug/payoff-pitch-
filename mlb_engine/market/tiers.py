@@ -39,9 +39,17 @@ def price_screen(result: EVResult, thr: EVThresholds) -> tuple[str, str] | None:
     rejects picks the model likes *most*, so whether it removes losers or
     winners can only be settled by grading its own rows.
     """
+    # Two-sided quote. Without the other side the hold is still in the number,
+    # so the edge below is against the book's margin rather than its opinion.
+    price = result.best_quote.american
+    if thr.two_sided and not result.best_quote.devigged:
+        return (
+            "one_way_quote",
+            f"one-way quote: PASS ({price:+.0f} with no second side to strip the "
+            "vig; one-way buys returned -14.4% against -5.8% two-sided)",
+        )
     # Price ceiling. The engine's plus-money buys are its overconfidence being
     # cashed, so a long price is a veto rather than a bigger payout.
-    price = result.best_quote.american
     if price > thr.max_buy_odds:
         return (
             "price_ceiling",

@@ -19,7 +19,13 @@ import html
 import math
 from datetime import date as Date
 
-from mlb_engine.audit.power_ledger import Composite, GradedPosition, Record, Scorecard
+from mlb_engine.audit.power_ledger import (
+    Composite,
+    GradedPosition,
+    Record,
+    Scorecard,
+    name_key,
+)
 from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import WINDOW
 from mlb_engine.output import power_sim
@@ -86,6 +92,7 @@ td.n,th.n{text-align:right}
 .caveat{background:#fbf6e8;border-left:2.5pt solid #b8860b;padding:2mm 3mm;margin:3mm 0}
 .buy{color:#0a6000;font-weight:bold}.hold{color:#8a6d00;font-weight:bold}
 .avoid{color:#8c0000;font-weight:bold}
+.strong-buy{color:#0a6000;font-weight:bold;text-decoration:underline}
 tbody tr.top,tbody tr.top:nth-child(even){background:#fdeeee}
 tbody tr.top td{font-weight:bold;border-bottom:.4pt solid #e8c9c9}
 tbody tr.top td:first-child{border-left:2.5pt solid #8c0000}
@@ -330,6 +337,13 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
             f"({_pc(e.share_vs_starter, 0)}), a {_pc(e.third_look, 0)} chance of a third look, "
             f"and {e.pa_vs_pen:.2f} against the bullpen."
         )
+    if h.season_backed:
+        bits.append(
+            f"<strong>His line is the season's, not the window's</strong>: {h.window_pa} plate "
+            f"appearances against this hand in the form window is under the floor, so the "
+            f"{h.pa} on the year stand in. Read it as an established level with the recent "
+            f"weeks missing, not as form."
+        )
     if h.power_exception:
         bits.append(
             f"<strong>He is here as a power exception</strong>: a {h.wrc:.0f} wRC+ fails the "
@@ -366,18 +380,44 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
 CONTACT_GRADE_A = 0.474
 CONTACT_GRADE_B = 0.429
 
-RATING_DISPLAY = {"BUY": "MATCHUP A", "HOLD": "MATCHUP B", "AVOID": "MATCHUP C"}
+# The ledger's own record on the contact grade runs the other way from its
+# labels: on 8/18-9/2 the rows graded BUY (xwOBA on contact at or above the A
+# cut) won 40.7% (35-51, -5.5%) and the rows graded AVOID won 46.3% (19-22,
+# -2.1%), HOLD 45.5% between them. So the labels are swapped -- the low-contact
+# tercile is now the BUY and the high one the AVOID -- and the cuts are left where
+# the 2025/2026 study put them. The gap is 5.6 points on 127 rows and is inside
+# its own noise; this is the direction the receipt points, recorded so it can be
+# graded, not a finding.
+STRONG_BUY = "STRONG BUY"
+# The one ordering that has separated winners from losers is the composite's own:
+# the bats it ranked first or second are the Strong Buys, whatever their contact
+# grade. Recorded with the rank so the claim keeps grading against itself.
+STRONG_BUY_RANKS = 2
+
+RATING_DISPLAY = {
+    STRONG_BUY: "STRONG BUY",
+    "BUY": "MATCHUP A",
+    "HOLD": "MATCHUP B",
+    "AVOID": "MATCHUP C",
+}
+RATING_ORDER = {STRONG_BUY: 0, "BUY": 1, "HOLD": 2, "AVOID": 3}
 
 
-def _rating(view: HitterView) -> tuple[str, str]:
+def _ranks(result: ScreenResult) -> dict[str, int]:
+    """Composite rank by :func:`name_key`, first is 1."""
+    return {name_key(s.name): i + 1 for i, s in enumerate(result.final)}
+
+
+def _rating(view: HitterView, rank: int | None = None) -> tuple[str, str]:
     """The matchup's grade, and the reasons, from the assembled evidence.
 
-    The grade itself is xwOBA on contact against two fixed cuts, because that is
-    the only one of the screen's reads that sorted the day that followed out of
-    time. Exposure, arsenal fit, the full-game opponent and the strikeout rate
-    are printed as reasons and score nothing: each was graded on the same panel
-    and none of them ordered production. A grade is about the matchup only --
-    there is no price in this module.
+    A bat the composite ranked in its top ``STRONG_BUY_RANKS`` is a Strong Buy
+    outright. Otherwise the grade is xwOBA on contact against two fixed cuts,
+    labelled in the direction the ledger has graded (see ``STRONG_BUY`` above).
+    Exposure, arsenal fit, the full-game opponent and the strikeout rate are
+    printed as reasons and score nothing: each was graded on the same panel and
+    none of them ordered production. A grade is about the matchup only -- there
+    is no price in this module.
     """
     h = view.line
     e = view.exposure
@@ -385,12 +425,15 @@ def _rating(view: HitterView) -> tuple[str, str]:
     opp = e.opponent_xwoba if e else math.nan
     delta = view.fit_delta
     reasons: list[str] = []
-    if h.xwoba_con >= CONTACT_GRADE_A:
-        grade = "BUY"
+    if rank is not None and rank <= STRONG_BUY_RANKS:
+        grade = STRONG_BUY
+        reasons.append(f"ranked {rank} on the composite")
+    elif h.xwoba_con >= CONTACT_GRADE_A:
+        grade = "AVOID"
     elif h.xwoba_con >= CONTACT_GRADE_B:
         grade = "HOLD"
     else:
-        grade = "AVOID"
+        grade = "BUY"
     reasons.append(f"{_f3(h.xwoba_con)} xwOBA on contact")
     if not math.isnan(share):
         if share >= 0.58:
@@ -656,8 +699,13 @@ def _arm_board(board: Board) -> str:
 
 
 def ratings(result: ScreenResult) -> dict[str, str]:
-    """Each survivor's BUY/HOLD/AVOID, for anything recording what the note said."""
-    return {v.line.name: _rating(v)[0] for s in result.sections for v in s.hitters}
+    """Each survivor's STRONG BUY/BUY/HOLD/AVOID, for anything recording what the note said."""
+    ranks = _ranks(result)
+    return {
+        v.line.name: _rating(v, ranks.get(name_key(v.line.name)))[0]
+        for s in result.sections
+        for v in s.hitters
+    }
 
 
 def composites(result: ScreenResult) -> dict[str, Composite]:
@@ -1096,6 +1144,7 @@ def _pool_table(section: MatchupSection) -> str:
         h = v.line
         mark = " *" if h.power_exception else ""
         mark += " \u2021" if h.swing_rescue else ""
+        mark += " \u00a7" if h.season_backed else ""
         sw = h.swing
         rows.append([
             html.escape(h.name) + mark,
@@ -1531,9 +1580,28 @@ def _section_html(section: MatchupSection, index: int) -> str:
         out.append("<h3>Exposure</h3>")
         out.append(exposure)
     out.append(_withheld_note(section))
+    out.append(_season_backed_note(section))
     out.append(_swing_note(section))
     out.append(_sim_table(section))
     return "".join(out)
+
+
+def _season_backed_note(section: MatchupSection) -> str:
+    """Which hitters were read off the season because the window was under the floor."""
+    backed = [v.line for v in section.hitters if v.line.season_backed]
+    if not backed:
+        return ""
+    names = ", ".join(
+        f"{html.escape(h.name)} ({h.window_pa} in the window, {h.pa} on the year)"
+        for h in backed
+    )
+    return (
+        "<p class='caveat'><strong>\u00a7 Scored on the season split.</strong> "
+        f"{names}. The form window against this hand fell short of the plate-appearance "
+        "floor -- the injured-list case -- so the rate line, the points and the arsenal read "
+        "are the season's. The swing columns are unaffected; the trend columns still compare "
+        "the recent weeks with the season.</p>"
+    )
 
 
 def _best_price_cell(row: BoardRow | None) -> str:
@@ -1547,12 +1615,12 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     graded = [
         (v, s) for s in result.sections for v in s.hitters
     ]
-    order = {"BUY": 0, "HOLD": 1, "AVOID": 2}
-    rated = [(*_rating(v), v, s) for v, s in graded]
-    rated.sort(key=lambda t: (order[t[0]], -(t[2].line.points)))
+    ranks = _ranks(result)
+    rated = [(*_rating(v, ranks.get(name_key(v.line.name))), v, s) for v, s in graded]
+    rated.sort(key=lambda t: (RATING_ORDER[t[0]], -(t[2].line.points)))
     rows = []
     for rating, reason, view, section in rated:
-        css = rating.lower()
+        css = rating.lower().replace(" ", "-")
         row = [
             f"<span class='{css}'>{RATING_DISPLAY.get(rating, rating)}</span>",
             html.escape(view.line.name),
@@ -1562,24 +1630,27 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
             row.append(_best_price_cell(board.best_for_batter(view.line.name)))
         row.append(reason or "&mdash;")
         rows.append(row)
+    strong = [r for r in rated if r[0] == STRONG_BUY]
     buys = [r for r in rated if r[0] == "BUY"]
+    names = ", ".join(html.escape(t[2].line.name) for t in strong) or "nobody"
     lead = (
-        f"<p><strong>{len(buys)} of {len(rated)} survivors grade A on the matchup.</strong> "
-        f"The grade is xwOBA on contact, cut at {CONTACT_GRADE_A:.3f} and "
-        f"{CONTACT_GRADE_B:.3f}. Exposure to the starter, arsenal fit, the full-game opponent "
-        f"and strikeout risk are printed beside it and count for nothing in it. It contains "
-        f"no price.</p>"
-        f"<p class='sub'><strong>It grades a power read, not a hitting one.</strong> Cut on "
-        f"2025 and held out on 2026, A out-produced C by 49 points of total bases per plate "
-        f"appearance in each season and by 22 and 16 points of home runs &mdash; but hits per "
-        f"plate appearance are flat across all three grades, so an A is a reason to look at "
-        f"total bases and home runs and no reason at all to buy a single. The five-indicator "
-        f"score this replaced did not separate its own A from its own B in either season.</p>"
+        f"<p><strong>{len(strong)} Strong Buy{'s' if len(strong) != 1 else ''}: {names}.</strong> "
+        f"The Strong Buys are the bats the composite ranked first and second, and the rank is "
+        f"the only thing on this page that has ordered the outcomes on the ledger. Below them, "
+        f"{len(buys)} of {len(rated)} survivors grade A on the matchup.</p>"
+        f"<p class='sub'><strong>The matchup grade is xwOBA on contact with its labels turned "
+        f"round.</strong> Cut at {CONTACT_GRADE_A:.3f} and {CONTACT_GRADE_B:.3f}; on the "
+        f"ledger's own record the rows above the top cut won 40.7% and the rows below the "
+        f"bottom cut 46.3%, so A now marks the low-contact tercile and C the high one. The gap "
+        f"is inside its own noise, which is why the grade is a label and the rank is the call. "
+        f"Exposure to the starter, arsenal fit, the full-game opponent and strikeout risk are "
+        f"printed beside it and count for nothing in it. It contains no price.</p>"
     )
     if board is not None:
         agreed = [
             t for t in rated
-            if t[0] == "BUY" and (b := board.best_for_batter(t[2].line.name)) is not None
+            if t[0] in (STRONG_BUY, "BUY")
+            and (b := board.best_for_batter(t[2].line.name)) is not None
             and b.is_buy
         ]
         lead += (

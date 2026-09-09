@@ -604,6 +604,47 @@ def test_a_pool_is_built_from_the_rows_a_hitter_has_against_that_hand() -> None:
     assert pool[0].pa == 2 and pool[0].slot == 2 and pool[0].versus == "Some Arm"
 
 
+def test_a_hitter_under_the_window_floor_is_read_off_his_season_and_flagged() -> None:
+    """The injured-list case: a thin window, a full season, and the flag that says so."""
+    dates = [pd.Timestamp(2026, 8, d) for d in range(1, 11)]  # ten game dates
+    window = pd.DataFrame(
+        # back from the IL: three games of the ten
+        [{**_pitch(events="single"), "batter": 10, "p_throws": "R", "game_date": dates[i]}
+         for i in range(3)]
+        # a regular who saw little of this hand: played every game, 5 PA vs it
+        + [{**_pitch(events="single"), "batter": 12, "p_throws": "R", "game_date": dates[i]}
+           for i in range(5)]
+        + [{**_pitch(events="single"), "batter": 12, "p_throws": "L", "game_date": dates[i]}
+           for i in range(5, 10)]
+        # thin everywhere: absent, but the season is under the floor too
+        + [{**_pitch(events="single"), "batter": 11, "p_throws": "R", "game_date": dates[0]}] * 5
+    )
+    season = pd.DataFrame(
+        [{**_pitch(events="home_run"), "batter": 10, "p_throws": "R"}] * 8
+        + [{**_pitch(events="home_run"), "batter": 12, "p_throws": "R"}] * 8
+        + [{**_pitch(events="strikeout", description="swinging_strike"), "batter": 11,
+            "p_throws": "R"}] * 4
+    )
+    batters = [
+        PoolBatter(mlbam_id=10, name="Back From IL", slot=1, bats="L"),
+        PoolBatter(mlbam_id=11, name="Thin Everywhere", slot=2, bats="R"),
+        PoolBatter(mlbam_id=12, name="Regular", slot=3, bats="R"),
+    ]
+    common = dict(hand="R", team="AAA", versus="Some Arm", league_woba=0.315)
+
+    pool = hitter_pool(window, batters, season=season, season_league_woba=0.300,
+                       min_pa=6, **common)
+    back, thin, regular = pool
+    assert back.season_backed and back.pa == 8 and back.window_pa == 3
+    assert back.slg == 4.0  # the season's line, not the window's singles
+    assert not thin.season_backed and thin.pa == 5  # season is 4, under the floor too
+    assert not regular.season_backed and regular.pa == 5  # played; the window stands
+
+    # Without a season frame the pool is exactly what it was.
+    plain = hitter_pool(window, batters, min_pa=6, **common)
+    assert [(h.pa, h.season_backed) for h in plain] == [(3, False), (5, False), (5, False)]
+
+
 def test_a_power_bat_survives_the_wrc_cut_and_is_flagged() -> None:
     """The Riley case: elite contact, ordinary rate line, kept for home runs only."""
     riley = _hitter("Riley", wrc=104.0, xwoba_pa=0.302, xwoba_con=POWER_XWOBACON + 0.02)
@@ -1022,14 +1063,16 @@ def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
 
     Exposure, arsenal fit, the full-game opponent and the strikeout rate are still
     printed as reasons; moving all four against a bat must leave its letter alone.
+    The labels run the way the ledger graded: the high-contact tercile is the
+    AVOID and the low one the BUY.
     """
     result = _result()
     view = result.sections[0].hitters[0]
 
     for con, grade in (
-        (power_report.CONTACT_GRADE_A, "BUY"),
+        (power_report.CONTACT_GRADE_A, "AVOID"),
         (power_report.CONTACT_GRADE_B, "HOLD"),
-        (power_report.CONTACT_GRADE_B - 0.001, "AVOID"),
+        (power_report.CONTACT_GRADE_B - 0.001, "BUY"),
     ):
         view.line.xwoba_con = con
         assert power_report.ratings(result)[view.line.name] == grade
@@ -1037,7 +1080,43 @@ def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
     view.line.xwoba_con = power_report.CONTACT_GRADE_A
     view.line.k = 0.35
     view.fit_xwoba = view.overall.xwoba - 0.05
-    assert power_report.ratings(result)[view.line.name] == "BUY"
+    assert power_report.ratings(result)[view.line.name] == "AVOID"
+
+
+def test_the_composites_top_two_are_the_strong_buys_whatever_their_contact() -> None:
+    """Rank 1 and 2 are STRONG BUY; rank 3 falls back to the contact grade."""
+    result = _result()
+    view = result.sections[0].hitters[0]
+    view.line.xwoba_con = power_report.CONTACT_GRADE_A  # would grade AVOID on contact
+    name = view.line.name
+
+    result.final = rank_final([
+        _final("Someone Else", early=30, late=30),
+        _final(name, early=20, late=20),
+        _final("Third Bat", early=10, late=10),
+    ])
+    assert power_report.ratings(result)[name] == power_report.STRONG_BUY
+
+    result.final = rank_final([
+        _final("Someone Else", early=30, late=30),
+        _final("Second Bat", early=25, late=25),
+        _final(name, early=20, late=20),
+    ])
+    assert power_report.ratings(result)[name] == "AVOID"
+
+    result.final = rank_final([_final(name, early=20, late=20)])
+    html = power_report.render_html(result)
+    assert "STRONG BUY" in html
+    assert "ranked 1 on the composite" in html
+    assert "1 Strong Buy: " in html
+
+
+def test_the_strong_buy_survives_an_accent_on_the_composite_name() -> None:
+    result = _result()
+    view = result.sections[0].hitters[0]
+    view.line.name = "Ronald Acuña Jr."
+    result.final = rank_final([_final("Ronald Acuna Jr.", early=20, late=20)])
+    assert power_report.ratings(result)[view.line.name] == power_report.STRONG_BUY
 
 
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:

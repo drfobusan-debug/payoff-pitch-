@@ -491,6 +491,14 @@ class EVThresholds:
     # Never buy this market's over, whatever the price (see
     # ``_NO_BUY_MARKETS``); the fade keeps its own screens.
     no_buy: bool = False
+    # Refuse a buy whose price could not be devigged: no book hung the other
+    # side, so the edge was measured against a number still carrying the hold.
+    # Graded 07-19..09-07, the 1,443 one-way buys returned -14.4% (-207u)
+    # against -5.8% on the 2,125 two-sided ones -- over 60% of the ledger's loss
+    # on 40% of its bets. ``MLBE_TWO_SIDED_ONLY=0`` restores them.
+    two_sided: bool = field(
+        default_factory=lambda: _env_bool("MLBE_TWO_SIDED_ONLY", True)
+    )
 
     def for_market(self, market: str) -> EVThresholds:
         """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
@@ -536,6 +544,7 @@ class EVThresholds:
                 _MAX_BUY_ODDS_BY_MARKET.get(market, self.max_buy_odds),
             ),
             no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
+            two_sided=_env_bool(f"MLBE_TWO_SIDED_ONLY_{suffix}", self.two_sided),
         )
 
 
@@ -1099,6 +1108,22 @@ class Config:
     # and lost 11.9% in August.
     away_ml_refuse_odds: float = field(
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
+    )
+
+    # Where the engine and the book back different sides, bet the book's side
+    # (see ``recommendations.fade_disagreements``). A buy whose devigged market
+    # probability is under this is faded: its row becomes a Pass under
+    # ``book_fade`` and the other side of the market takes its tier. 0 turns the
+    # rule off; 1.0 fades every buy. ``MLBE_BOOK_FADE_MARKETS`` is a comma list
+    # of engine markets to confine it to (empty: all of them). Graded to
+    # 2026-09-08 the fade paid only on batter_2b, batter_hrr and game_rl.
+    book_fade_max_fair: float = field(
+        default_factory=lambda: _env_float("MLBE_BOOK_FADE_MAX_FAIR", 0.5)
+    )
+    book_fade_markets: frozenset[str] = field(
+        default_factory=lambda: frozenset(
+            m.strip() for m in os.getenv("MLBE_BOOK_FADE_MARKETS", "").split(",") if m.strip()
+        )
     )
 
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
