@@ -73,7 +73,7 @@ python -m scripts.regen_slate "$day" || echo "WARN: slate article failed" >&2
 # Pitcher + batter regression articles + narration (need the trailing Statcast pkl).
 pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1)
 if [ -n "$pkl" ]; then
-    python -m scripts.regen_regression "$day" "$(basename "$pkl")" \
+    python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
         || echo "WARN: regression articles failed" >&2
 else
     echo "WARN: no Statcast cache pkl found; skipping regression articles" >&2

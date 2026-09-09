@@ -378,7 +378,7 @@ elif [[ "\$MODE" == slate-* ]]; then
         if [[ ! -f "\$OUT/PayoffPitch_Regression_\$day.pdf" ]]; then
           pkl=\$(ls -t "\$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
           if [[ -n "\$pkl" ]]; then
-            python -m scripts.regen_regression "\$day" "\$(basename "\$pkl")" \\
+            python -m scripts.regen_regression --date "\$day" --statcast "\$(basename "\$pkl")" \\
               || echo "[\$(date)] regression articles failed" >&2
           else
             echo "[\$(date)] no Statcast cache pkl; skipping regression articles" >&2
