@@ -7079,6 +7079,20 @@
   {
     "matchup": "CIN @ LAD",
     "market": "batter_bb",
+    "selection": "Hector Rodriguez BB o0.5",
+    "american": 527.0,
+    "no_vig_prob": 0.151129
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_bb",
+    "selection": "Hector Rodriguez BB u0.5",
+    "american": -860.0,
+    "no_vig_prob": 0.848871
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_bb",
     "selection": "JJ Bleday BB o0.5",
     "american": 296.0,
     "no_vig_prob": 0.242084
@@ -7131,6 +7145,20 @@
     "selection": "Max Muncy BB u0.5",
     "american": -166.0,
     "no_vig_prob": 0.587887
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_bb",
+    "selection": "Miguel Rojas BB o0.5",
+    "american": 278.0,
+    "no_vig_prob": 0.247776
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_bb",
+    "selection": "Miguel Rojas BB u0.5",
+    "american": -408.0,
+    "no_vig_prob": 0.752224
   },
   {
     "matchup": "CIN @ LAD",
@@ -9270,9 +9298,23 @@
   {
     "matchup": "CIN @ LAD",
     "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 108.0,
+    "no_vig_prob": 0.457991
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "game_total",
     "selection": "Under 8.0",
     "american": -102.0,
     "no_vig_prob": 0.494685
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -132.0,
+    "no_vig_prob": 0.542009
   },
   {
     "matchup": "CIN @ LAD",
