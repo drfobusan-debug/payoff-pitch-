@@ -708,3 +708,44 @@ def test_the_arms_rows_are_recorded_beside_the_hitters() -> None:
         ("Bailey Ober", "pitcher", "edge_ceiling"),
     ]
     assert positions[1].rating == ""
+
+
+def test_the_arm_tier_survives_the_round_trip_and_old_rows_are_soft(tmp_path) -> None:
+    path = tmp_path / "power.csv"
+    elite = replace(_position(batter="Juan Soto"), arm_tier="elite")
+    power_ledger.record(path, [_position(), elite], DAY)
+    soft, back = power_ledger.load(path)
+    assert soft.arm_tier == "" and back.arm_tier == "elite"
+
+    old = [f for f in power_ledger.FIELDS if f != "arm_tier"]
+    row = {k: v for k, v in asdict(_position()).items() if k in old}
+    row["devigged"] = "1"
+    with path.open("w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=old)
+        w.writeheader()
+        w.writerow({k: "" if v is None else v for k, v in row.items()})
+    (legacy,) = power_ledger.load(path)
+    assert legacy.arm_tier == ""
+
+
+def test_the_scorecard_grades_soft_and_elite_arms_apart() -> None:
+    soft = _position()
+    elite = replace(_position(batter="Juan Soto", player_id=8), arm_tier="elite")
+    players = {7: _line(H=2, R=1), 8: _line(H=0, R=0)}
+    graded, _ = power_ledger.grade_positions([soft, elite], {1: _game(players)})
+    card = power_ledger.scorecard(DAY, graded)
+    assert [(r.label, r.wins, r.losses) for r in card.by_arm_tier] == [
+        ("elite arms", 0, 1),
+        ("soft arms", 1, 0),
+    ]
+    only_soft, _ = power_ledger.grade_positions([soft], {1: _game(players)})
+    assert power_ledger.scorecard(DAY, only_soft).by_arm_tier == []
+
+
+def test_positions_from_board_tag_the_tier_of_arm() -> None:
+    result = _result()
+    board = power_board.build(result, [_rec("Matt Olson", "HRR", 1.5, player_id=_pid(result))])
+    (pos,) = power_ledger.positions_from_board(
+        board, DAY, power_report.ratings(result), {}, None, "run", arm_tier="elite"
+    )
+    assert pos.arm_tier == "elite"

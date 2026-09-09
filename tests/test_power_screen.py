@@ -20,6 +20,8 @@ from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
 from mlb_engine.output import power_report
 from mlb_engine.output.power_screen import (
     BAT_SPEED_BAND,
+    ELITE_SIERA_MIN,
+    ELITE_TIER,
     FIT_SCORED,
     HALF_FLOOR,
     HALF_SCORED,
@@ -63,6 +65,7 @@ from mlb_engine.output.power_screen import (
     half_lines,
     hitter_pool,
     keep_arms,
+    late_wrc_plus,
     league_arms,
     pa_vs_starter,
     pitch_family,
@@ -1706,3 +1709,58 @@ def test_the_run_value_point_reorders_the_composite() -> None:
     order = rank_final([misfits, fits])
     assert [s.name for s in order] == ["Fits The Mix", "Wrong Mix"]
     assert order[0].total - order[1].total == 6
+
+
+# --- the elite-arm pass -----------------------------------------------------
+
+
+def test_the_elite_band_keeps_the_arms_the_soft_gate_refuses() -> None:
+    """The second pass is the soft pass's complement, down to an ace floor."""
+    scrub = _arm("Scrub", _starter_rows(130, brl=True))
+    ace = _arm("Ace", _starter_rows(130, brl=False, k=True))
+    ace.siera = ELITE_SIERA_MIN - 0.10
+    good = _arm("Good", _starter_rows(130, brl=False, k=True))
+    good.siera = 3.60
+    on_floor = _arm("On Floor", _starter_rows(130, brl=True))
+    on_floor.siera = SIERA_FLOOR
+
+    eligible, cuts = gate_starters(
+        [scrub, ace, good, on_floor], siera_floor=ELITE_SIERA_MIN, siera_ceiling=SIERA_FLOOR
+    )
+    # The soft pass keeps the scrub and cuts everyone else; the band is the reverse,
+    # except that the ace below the floor is nobody's arm.
+    assert [c.name for c in eligible] == ["Good", "On Floor"]
+    assert [(c.card.name, c.stage) for c in cuts] == [("Scrub", "siera"), ("Ace", "siera")]
+    assert f"> {SIERA_FLOOR:.2f}" in cuts[0].reason
+    soft, _ = gate_starters([scrub, ace, good, on_floor])
+    assert [c.name for c in soft] == ["Scrub"]
+
+
+def test_the_late_half_wrc_reads_the_seventh_inning_on_against_every_arm() -> None:
+    early = [_half_pitch(i, events="strikeout", description="swinging_strike") for i in (1, 3, 5)]
+    late = [_half_pitch(i, events="home_run", xwoba=1.9) for i in (7, 8, 9)]
+    frame = _frame(early + late)
+    late_only = late_wrc_plus(frame, 0.313)
+    whole = wrc_plus(batter_window_line(frame)["woba"], 0.313)
+    assert late_only > whole > 0
+    assert math.isnan(late_wrc_plus(_frame(early), 0.313))
+    assert math.isnan(late_wrc_plus(frame.iloc[0:0], 0.313))
+
+
+def test_the_elite_part_is_rendered_after_the_soft_screen_and_names_its_cut() -> None:
+    soft = _result()
+    elite = _result()
+    elite.arm_tier = ELITE_TIER
+    elite.siera_floor = ELITE_SIERA_MIN
+    elite.siera_ceiling = SIERA_FLOOR
+    dropped = _hitter("Late Fade", wrc=140.0)
+    dropped.cut_reason = "wRC+ 95 under 120 from the 7th on"
+    elite.late_cuts = [(dropped, 95.0)]
+    html = power_report.render_html(soft, elite=elite)
+    assert html.index("Part II") > html.index("Recommendations")
+    assert "average-to-elite arms" in html
+    assert f"({ELITE_SIERA_MIN:.2f}, {SIERA_FLOOR:.2f}]" in html
+    assert "Late Fade" in html and "wRC+ from 7th" in html
+    assert "nothing here assumes it" in html
+    # Without the second pass the note is unchanged.
+    assert "Part II" not in power_report.render_html(soft)
