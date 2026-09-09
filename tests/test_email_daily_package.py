@@ -21,6 +21,16 @@ def test_the_power_screen_rides_in_the_package(tmp_path: Path) -> None:
     ]
 
 
+def test_the_totals_sheet_rides_once_a_day_with_the_daily_package(tmp_path: Path) -> None:
+    day = Date(2026, 8, 17)
+    for name in ("mlb_recommendations_2026-08-17.xlsx", "totals_sheet_2026-08-17.xlsx"):
+        (tmp_path / name).write_bytes(b"x")
+    daily = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=True)]
+    assert "totals_sheet_2026-08-17.xlsx" in daily
+    block = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)]
+    assert "totals_sheet_2026-08-17.xlsx" not in block
+
+
 def test_yesterdays_screen_is_not_todays(tmp_path: Path) -> None:
     """Dated by slate, not newest on disk: a failed screen must send nothing."""
     (tmp_path / "power_screen_2026-08-16.pdf").write_bytes(b"x")
