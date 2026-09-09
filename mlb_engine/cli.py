@@ -523,6 +523,11 @@ def cmd_run(args: argparse.Namespace) -> int:
         save_previews(_merge_late_previews(previews, all_previews_path), all_previews_path)
     else:
         save_previews(previews, all_previews_path)
+    # Publish the card as soon as it is on disk. The workbook, PDFs and email
+    # below can each fail, and a card the audit will grade locally but the
+    # branch never saw is exactly the gap that hides a slate from every other
+    # machine.
+    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
     if not vsin_csv and not late:
@@ -561,9 +566,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             recs=recs,
             extra_attachments=attachments or None,
         )
-    # Publish the picks at the prices they were priced at, so whichever machine
-    # grades this slate grades what was actually sent.
-    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
+    # Anything the delivery steps added since the card was published.
+    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced, delivered")
     return 0
 
 

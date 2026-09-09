@@ -25,13 +25,15 @@ predictions are the bulk and are pruned to the most recent few weeks.
 from __future__ import annotations
 
 import csv
+import fcntl
 import gzip
 import json
 import logging
 import re
 import shutil
 import subprocess
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -112,6 +114,41 @@ def _git(args: list[str], cwd: Path) -> str:
 def _git_ok(args: list[str], cwd: Path) -> bool:
     proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300)
     return proc.returncode == 0
+
+
+def _git_try(args: list[str], cwd: Path) -> str | None:
+    """``None`` when git succeeded, otherwise what it said."""
+    proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300)
+    if proc.returncode == 0:
+        return None
+    return proc.stderr.strip() or proc.stdout.strip() or f"exit status {proc.returncode}"
+
+
+@contextmanager
+def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
+    """One sync at a time per repo and branch.
+
+    Every process syncs through the same worktree, which it discards and
+    recreates on entry. A slate pass that prices for an hour pushes at about
+    the minute the close daemon starts, and the close's rebuild of that
+    directory pulls the pass's checkout out from under its commit and push --
+    three times, since the retry rebuilds into the same collision. The lock
+    makes the second process wait its turn instead.
+    """
+    lock_path = repo / ".git" / f"state-sync-{branch}.lock"
+    try:
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = lock_path.open("w")
+    except OSError as exc:
+        log.warning("state sync lock unavailable (%s); syncing unlocked", exc)
+        yield
+        return
+    with fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _commit(state: Path, message: str) -> None:
@@ -496,6 +533,13 @@ def pull_state(
 ) -> SyncReport:
     """Bring the branch's memory onto this machine, merging rather than replacing."""
     repo = repo or repo_root()
+    with _sync_lock(repo, branch):
+        return _pull_state_locked(data_dir, repo, branch, dates)
+
+
+def _pull_state_locked(
+    data_dir: Path, repo: Path, branch: str, dates: tuple[str, ...] | None
+) -> SyncReport:
     state = _worktree(repo, branch)
     audit = _audit_dir(data_dir)
     audit.mkdir(parents=True, exist_ok=True)
@@ -605,6 +649,11 @@ def push_state(
 ) -> SyncReport:
     """Publish this machine's state, re-merging if the branch moved underneath."""
     repo = repo or repo_root()
+    with _sync_lock(repo, branch):
+        return _push_state_locked(data_dir, message, repo, branch)
+
+
+def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) -> SyncReport:
     audit = _audit_dir(data_dir)
     last_error = ""
     for attempt in range(_PUSH_ATTEMPTS):
@@ -612,7 +661,7 @@ def push_state(
         if attempt:
             # Someone else pushed between our read and our write: fold their
             # rows into ours and try again rather than overwrite them.
-            pull_state(data_dir, repo=repo, branch=branch)
+            _pull_state_locked(data_dir, repo, branch, None)
         pushed: list[str] = []
         for src in sorted(audit.glob("closing_*.json")):
             dest = state / "mlb" / "closing" / src.name
@@ -674,9 +723,11 @@ def push_state(
         if not _git(["status", "--porcelain"], state):
             return SyncReport(pushed=tuple(pushed), pruned=pruned)
         _commit(state, message)
-        if _git_ok(["push", "origin", f"HEAD:{branch}"], state):
+        error = _git_try(["push", "origin", f"HEAD:{branch}"], state)
+        if error is None:
             return SyncReport(pushed=tuple(pushed), pruned=pruned)
-        last_error = f"push to {branch} rejected"
+        last_error = f"push to {branch} rejected: {error}"
+        log.warning("state push attempt %d/%d: %s", attempt + 1, _PUSH_ATTEMPTS, last_error)
     raise RuntimeError(f"{last_error} after {_PUSH_ATTEMPTS} attempts")
 
 
