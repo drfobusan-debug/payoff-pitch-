@@ -368,7 +368,7 @@ elif [[ "\$MODE" == slate-* ]]; then
     if [[ ! -f "\$OUT/PayoffPitch_Slate_\${day}_\$BLOCK.pdf" ]]; then
       echo "[\$(date)] no \$BLOCK games today; nothing to email" >&2
     else
-      # The regression articles and the power screen read the day's Statcast
+      # The regression articles, the power screen and the totals sheet read the day's Statcast
       # and the card as priced so far; written once, by the first pass of the
       # day that has games, and emailed once, with that pass. A pass finding
       # the once-a-day stamp already on disk sends only its slate and the card.
@@ -387,6 +387,10 @@ elif [[ "\$MODE" == slate-* ]]; then
         if [[ ! -f "\$OUT/power_screen_\$day.pdf" ]]; then
           python scripts/power_screen.py --date "\$day" \\
             || echo "[\$(date)] power screen failed" >&2
+        fi
+        if [[ ! -f "\$OUT/totals_sheet_\$day.xlsx" ]]; then
+          python -m scripts.totals_sheet "\$day" \\
+            || echo "[\$(date)] totals sheet failed" >&2
         fi
         WITH_DAILY="--with-daily"
       fi

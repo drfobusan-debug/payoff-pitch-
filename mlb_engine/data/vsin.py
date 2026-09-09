@@ -67,6 +67,15 @@ class Split:
         return self.handle_pct - self.bets_pct
 
 
+@dataclass
+class TotalSplit:
+    """One book's total for a game with the handle/bets of each side."""
+
+    line: float
+    over: Split = Split()
+    under: Split = Split()
+
+
 def split_side(market: str, selection: str) -> str | None:
     """The line-independent side a selection takes: ``Over``/``Under``, or a team.
 
@@ -203,6 +212,33 @@ class VSINClient:
                     )
                 )
         return quotes, splits
+
+    TotalSplits = dict[tuple[str, str], TotalSplit]
+
+    def fetch_total_splits(self, slate: Slate) -> TotalSplits:
+        """{(matchup, book): TotalSplit} -- the total's handle/bets for both sides, per book.
+
+        ``fetch`` files one split per selection and lets the second book overwrite
+        the first; a sheet that scores DraftKings and Circa as separate columns
+        needs them kept apart, and needs the Over and Under of one game together.
+        """
+        name_to_team: dict[str, tuple[str, bool]] = {}
+        for g in slate.games:
+            for tm in (g.home, g.away):
+                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.is_home)
+        out: VSINClient.TotalSplits = {}
+        for src, book in _BOOKS.items():
+            for row in self._fetch_book(src):
+                match = name_to_team.get(_norm_name(row.name))
+                if match is None or row.total_line is None:
+                    continue
+                matchup, is_home = match
+                cur = out.setdefault((matchup, book), TotalSplit(row.total_line))
+                if is_home:
+                    cur.under = Split(row.total_handle, row.total_bets)
+                else:
+                    cur.over = Split(row.total_handle, row.total_bets)
+        return out
 
     def fetch_quotes(self, slate: Slate) -> Quotes:
         """Backwards-compatible accessor for just the priced moneyline quotes."""

@@ -12,6 +12,7 @@ sends them in one email (same Gmail App Password credentials the engine's
     * PayoffPitch_Regression_<day>.mp3 (combined regression narration)
     * regression_radar_<day>.pdf       (regression radar, if present)
     * power_screen_<day>.pdf           (morning power screen, if present)
+    * totals_sheet_<day>.xlsx          (hand-method totals sheet, if present)
 
 Usage:
     python -m scripts.email_daily_package 2026-08-02   # explicit slate date
@@ -89,6 +90,7 @@ def collect_attachments(
             f"PayoffPitch_Regression_{iso}.mp3",
             f"regression_radar_{iso}.pdf",
             f"power_screen_{iso}.pdf",
+            f"totals_sheet_{iso}.xlsx",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:
