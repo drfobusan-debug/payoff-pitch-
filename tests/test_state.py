@@ -857,3 +857,20 @@ def test_a_rejected_push_says_why(machines: tuple[Path, Path, Path, Path]) -> No
     _ledger(data_a / "audit" / "ledger.csv", [_row("2026-09-09", "KC")])
     with pytest.raises(RuntimeError, match="no pushes today"):
         push_state(data_a, "audit 09-09", repo=repo_a, branch="engine-state")
+
+
+def test_an_unchanged_export_is_an_unchanged_blob(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """A second push with nothing new used to commit every export again: gzip
+    stamps the clock into its header, so the same bytes made a different blob."""
+    repo_a, data_a, _repo_b, _data_b = machines
+    (data_a / "batx").mkdir(parents=True)
+    (data_a / "batx" / "hitters.csv").write_text("a,b\n1,2\n")
+    push_state(data_a, "first", repo=repo_a, branch="engine-state")
+    push_state(data_a, "again", repo=repo_a, branch="engine-state")
+    origin = repo_a.parent.parent / "origin.git"
+    log = subprocess.run(
+        ["git", "log", "--format=%s", "engine-state"], cwd=origin, capture_output=True, text=True
+    ).stdout.split()
+    assert log == ["first"]

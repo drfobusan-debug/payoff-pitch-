@@ -419,6 +419,18 @@ def merge_calibration_files(remote: Path, local: Path) -> bool:
     return better
 
 
+def _gzip_to(src: Path, dest: Path) -> None:
+    """Compress reproducibly: the same bytes in give the same bytes out.
+
+    gzip stamps the wall clock into its header, so a file re-staged on every
+    push reads as changed to git each time and every sync commits binary
+    noise. Pinning the stamp makes an unchanged export an unchanged blob.
+    """
+    with src.open("rb") as fin, dest.open("wb") as raw:
+        with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=6, mtime=0) as fout:
+            shutil.copyfileobj(fin, fout)
+
+
 def _audit_dir(data_dir: Path) -> Path:
     return data_dir / "audit"
 
@@ -513,8 +525,7 @@ def _stage_inputs(state: Path, data_dir: Path) -> tuple[list[str], int]:
             continue
         out.mkdir(parents=True, exist_ok=True)
         for src in found:
-            with src.open("rb") as fin, gzip.open(out / f"{src.name}.gz", "wb", 6) as fout:
-                shutil.copyfileobj(fin, fout)
+            _gzip_to(src, out / f"{src.name}.gz")
             staged.append(src.name)
         if keep is None:
             continue
@@ -629,8 +640,7 @@ def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
         dest = out / f"{src.name}.gz"
         if dest.exists() and not card_supersedes(src, dest):
             continue
-        with src.open("rb") as fin, gzip.open(dest, "wb", compresslevel=6) as fout:
-            shutil.copyfileobj(fin, fout)
+        _gzip_to(src, dest)
         staged.append(dest.name)
     keep = sorted(p.name for p in out.glob("predictions_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
     pruned = 0
