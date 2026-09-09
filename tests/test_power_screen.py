@@ -1060,14 +1060,16 @@ def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
 
     Exposure, arsenal fit, the full-game opponent and the strikeout rate are still
     printed as reasons; moving all four against a bat must leave its letter alone.
+    The labels run the way the ledger graded: the high-contact tercile is the
+    AVOID and the low one the BUY.
     """
     result = _result()
     view = result.sections[0].hitters[0]
 
     for con, grade in (
-        (power_report.CONTACT_GRADE_A, "BUY"),
+        (power_report.CONTACT_GRADE_A, "AVOID"),
         (power_report.CONTACT_GRADE_B, "HOLD"),
-        (power_report.CONTACT_GRADE_B - 0.001, "AVOID"),
+        (power_report.CONTACT_GRADE_B - 0.001, "BUY"),
     ):
         view.line.xwoba_con = con
         assert power_report.ratings(result)[view.line.name] == grade
@@ -1075,7 +1077,43 @@ def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
     view.line.xwoba_con = power_report.CONTACT_GRADE_A
     view.line.k = 0.35
     view.fit_xwoba = view.overall.xwoba - 0.05
-    assert power_report.ratings(result)[view.line.name] == "BUY"
+    assert power_report.ratings(result)[view.line.name] == "AVOID"
+
+
+def test_the_composites_top_two_are_the_strong_buys_whatever_their_contact() -> None:
+    """Rank 1 and 2 are STRONG BUY; rank 3 falls back to the contact grade."""
+    result = _result()
+    view = result.sections[0].hitters[0]
+    view.line.xwoba_con = power_report.CONTACT_GRADE_A  # would grade AVOID on contact
+    name = view.line.name
+
+    result.final = rank_final([
+        _final("Someone Else", early=30, late=30),
+        _final(name, early=20, late=20),
+        _final("Third Bat", early=10, late=10),
+    ])
+    assert power_report.ratings(result)[name] == power_report.STRONG_BUY
+
+    result.final = rank_final([
+        _final("Someone Else", early=30, late=30),
+        _final("Second Bat", early=25, late=25),
+        _final(name, early=20, late=20),
+    ])
+    assert power_report.ratings(result)[name] == "AVOID"
+
+    result.final = rank_final([_final(name, early=20, late=20)])
+    html = power_report.render_html(result)
+    assert "STRONG BUY" in html
+    assert "ranked 1 on the composite" in html
+    assert "1 Strong Buy: " in html
+
+
+def test_the_strong_buy_survives_an_accent_on_the_composite_name() -> None:
+    result = _result()
+    view = result.sections[0].hitters[0]
+    view.line.name = "Ronald Acuña Jr."
+    result.final = rank_final([_final("Ronald Acuna Jr.", early=20, late=20)])
+    assert power_report.ratings(result)[view.line.name] == power_report.STRONG_BUY
 
 
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
