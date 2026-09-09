@@ -68,6 +68,7 @@ body{font-family:Georgia,'Times New Roman',serif;font-size:9.5pt;line-height:1.4
   color:#151515;max-width:820px;margin:0 auto}
 h1{font-family:Helvetica,Arial,sans-serif;font-size:19pt;margin:0 0 2mm;
   border-bottom:2.5pt solid #8c0000;padding-bottom:2mm}
+h1.part{margin-top:12mm;break-before:page}
 h2{font-family:Helvetica,Arial,sans-serif;font-size:12pt;margin:7mm 0 2mm;color:#8c0000;
   border-bottom:.6pt solid #bbb;padding-bottom:1mm;break-after:avoid}
 h3{font-family:Helvetica,Arial,sans-serif;font-size:10pt;margin:5mm 0 1.5mm;break-after:avoid}
@@ -772,6 +773,7 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
         )
     splits = [
         ("half", card.by_category),
+        ("arm tier", card.by_arm_tier),
         ("card tier", card.by_tier),
         ("matchup grade", card.by_rating),
         ("market", card.by_market),
@@ -795,6 +797,14 @@ def _scorecard_section(card: Scorecard, graded: list[GradedPosition]) -> str:
             "a grade that sorts total bases can still lose money at the number it was bet at. "
             "They are separate cuts because a grade carries no price and can be right about the "
             "hitter while the number was wrong.</p>"
+        )
+    if card.by_arm_tier:
+        out.append(
+            "<p class='sub'>The arm-tier cut is the elite pass's question: the same hitter cuts "
+            "were run against soft arms and against average-to-elite ones. If the two rows "
+            "grade alike, the bat carried the screen and the arm did not matter; if the soft "
+            "row is the one that pays, the arm did. Neither is claimed until the column is "
+            "long enough to say so.</p>"
         )
     return "".join(out)
 
@@ -873,6 +883,16 @@ def _starter_gate(result: ScreenResult) -> str:
             "may contain arms that prevent runs perfectly well. The work floor still "
             "applies: a metric measured on nothing is not a metric.</p>",
         ]
+    elif result.siera_ceiling is not None:
+        out = [
+            "<h2>Stage 0 &mdash; who is eligible to be ranked</h2>",
+            f"<p class='sub'>The same work floor as the soft pass ({MIN_STARTER_BF} batters "
+            f"faced and {MIN_STARTER_PITCHES} pitches in {WORK_DAYS} days), then the band the "
+            f"soft pass refuses: SIERA above {result.siera_floor:.2f} and at or below "
+            f"{result.siera_ceiling:.2f}. {kept} of {kept + len(result.starter_cuts)} probables "
+            "are in it. Below the band is an ace nobody is screened against; above it is the "
+            "soft pass's own board, printed in the first part of this note.</p>",
+        ]
     else:
         out = [
             "<h2>Stage 0 &mdash; who is eligible to be ranked</h2>",
@@ -886,7 +906,8 @@ def _starter_gate(result: ScreenResult) -> str:
             "and screening on the former alone has repeatedly nominated aces. An arm without "
             "enough work to carry a trusted SIERA is ineligible, not assumed soft.</p>",
         ]
-    for label, cuts in (("too little work", work_cuts), ("prevents runs", siera_cuts)):
+    siera_label = "outside the SIERA band" if result.siera_ceiling is not None else "prevents runs"
+    for label, cuts in (("too little work", work_cuts), (siera_label, siera_cuts)):
         if not cuts:
             continue
         rows = [
@@ -1583,14 +1604,96 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     )
 
 
+def _elite_thesis(result: ScreenResult) -> str:
+    kept = sum(len(s.hitters) for s in result.sections)
+    arms = len(result.starters_ranked)
+    paras = [
+        "<p><strong>This part is the screen's own control.</strong> The first part keeps the "
+        "softest arms and asks which bats can hit them; this one takes the arms the SIERA gate "
+        f"refused &mdash; SIERA in ({result.siera_floor:.2f}, "
+        f"{(result.siera_ceiling or 0):.2f}], the average-to-elite starters &mdash; and runs "
+        "the identical hitter cuts against their lineups: plate appearances, wRC+ against the "
+        "hand, expected contact, the arsenal he will see, his turns, the halves, the luck gap "
+        "and the forecast. One cut is added: the bat must still carry a wRC+ above the floor "
+        "from the seventh inning on, because against a good arm the case is the whole game "
+        "and not his two or three turns against the starter.</p>",
+        f"<p><strong>{kept} hitters survive against {len(result.sections)} of {arms} arms in "
+        "the band.</strong> Every priced row below is recorded to the same ledger as the "
+        "first part's, tagged <code>elite</code>, so the scorecard can grade the two tiers of "
+        "arm apart. The hypothesis under test is that the bat is what matters and the arm "
+        "hardly does; the ledger is what will say so, or not, and nothing here assumes it. "
+        "The stage-1 points below rank these arms among themselves &mdash; the most hittable "
+        "of the good ones &mdash; and say nothing about how they compare with the soft board.</p>",
+    ]
+    if not result.sections and arms:
+        paras.append(
+            "<p><strong>No hitter survived the cuts against any arm in the band</strong>, which "
+            "is a result too: a lineup that cannot clear the bat-only cuts against an average "
+            "arm is not a position, and is recorded as none.</p>"
+        )
+    if not arms:
+        paras.append("<p>No probable starter on the slate is in the band with enough work to read.</p>")
+    return "".join(paras)
+
+
+def _late_cuts(result: ScreenResult) -> str:
+    if not result.late_cuts:
+        return ""
+    rows = [
+        [
+            html.escape(h.name),
+            html.escape(h.versus),
+            _num(h.wrc, 0),
+            _num(late, 0) if not math.isnan(late) else "&mdash;",
+        ]
+        for h, late in sorted(result.late_cuts, key=lambda t: -t[0].wrc)
+    ]
+    return (
+        "<h2>Cut on the late half</h2>"
+        f"<p>{len(rows)} hitters cleared every cut the soft pass runs and were dropped on "
+        "the one this pass adds: season wRC+ from the seventh inning on, against every arm, "
+        "under the floor. A dash is a hitter with no season rows to read the half from.</p>"
+        + _table(["batter", "vs", "window wRC+", "wRC+ from 7th"], rows, numeric_from=2)
+    )
+
+
+def _elite_part(result: ScreenResult, board: Board | None) -> list[str]:
+    """The elite-arm pass as the second part of the note, same stages, own tables."""
+    body = [
+        "<h1 class='part'>Part II &mdash; the same bats against average-to-elite arms</h1>",
+        "<h2>Why this part exists</h2>",
+        _elite_thesis(result),
+        _starter_gate(result),
+    ]
+    if result.starters_ranked:
+        body.append(_starter_ranking(result))
+    for i, section in enumerate(result.sections, 1):
+        body.append(_section_html(section, i))
+    body.append(_late_cuts(result))
+    if result.sections:
+        body.append(_composite(result))
+        body.append(_bet_card(result))
+    if board is not None:
+        body.append(_board_section(board))
+    if result.sections:
+        body.append(_recommendations(result, board))
+    return body
+
+
 def render_html(
     result: ScreenResult,
     *,
     prepared_for: str | None = None,
     board: Board | None = None,
     review: tuple[Scorecard, list[GradedPosition]] | None = None,
+    elite: ScreenResult | None = None,
+    elite_board: Board | None = None,
 ) -> str:
-    """The full note as a standalone HTML document."""
+    """The full note as a standalone HTML document.
+
+    With ``elite`` the same document carries the elite-arm pass as a second part
+    after the soft screen's recommendations, so one email and one PDF hold both.
+    """
     subtitle = f"Power screen &middot; {result.as_of:%A, %-d %B %Y}"
     if prepared_for:
         subtitle += f" &middot; prepared for {html.escape(prepared_for)}"
@@ -1635,6 +1738,8 @@ def render_html(
     if board is not None:
         body.append(_board_section(board))
     body.append(_recommendations(result, board))
+    if elite is not None:
+        body.extend(_elite_part(elite, elite_board))
     return (
         "<!DOCTYPE html><html><head><meta charset='utf-8'>"
         f"<title>Power screen {result.as_of.isoformat()}</title>"
@@ -1648,11 +1753,22 @@ def render_pdf(
     prepared_for: str | None = None,
     board: Board | None = None,
     review: tuple[Scorecard, list[GradedPosition]] | None = None,
+    elite: ScreenResult | None = None,
+    elite_board: Board | None = None,
 ) -> bytes:
     """The note as a PDF, through the same WeasyPrint path as the nightly card."""
     from mlb_engine.output.card import render_pdf as _pdf
 
-    return _pdf(render_html(result, prepared_for=prepared_for, board=board, review=review))
+    return _pdf(
+        render_html(
+            result,
+            prepared_for=prepared_for,
+            board=board,
+            review=review,
+            elite=elite,
+            elite_board=elite_board,
+        )
+    )
 
 
 def default_filename(as_of: Date, suffix: str = "pdf") -> str:

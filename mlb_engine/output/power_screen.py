@@ -142,6 +142,13 @@ XFIP_LEAGUE_ANCHOR = SIERA_LEAGUE_ANCHOR
 
 # Screen thresholds. Defaults are the ones the 8/17 hand run settled on.
 SIERA_FLOOR = 4.4  # stage 0: a starter is eligible only above this SIERA
+#: The elite-arm pass keeps the arms the soft pass gates out -- SIERA at or below
+#: the floor -- down to this, below which an arm is an ace the lineup has no case
+#: against. The pass exists to test whether the bat alone carries the screen: the
+#: same hitter cuts against arms who prevent runs, graded beside the soft pass.
+ELITE_SIERA_MIN = 3.25
+SOFT_TIER = "soft"
+ELITE_TIER = "elite"
 MIN_STARTER_BF = 120  # batters faced in the window before an arm is readable
 MIN_STARTER_PITCHES = 400  # pitches in the same window before the shape reads mean anything
 STARTER_TOP_N = 3  # a top-three finish in a stage-1 metric earns two more points
@@ -695,6 +702,7 @@ def gate_starters(
     siera_floor: float = SIERA_FLOOR,
     min_bf: int = MIN_STARTER_BF,
     min_pitches: int = MIN_STARTER_PITCHES,
+    siera_ceiling: float | None = None,
 ) -> tuple[list[StarterCard], list[StarterCut]]:
     """Stage 0: the arms whose numbers are trustworthy *and* bad, and who left.
 
@@ -710,6 +718,10 @@ def gate_starters(
     window, so a starter is judged on his season's body of work and not on two
     good weeks. ``siera_floor <= 0`` turns the second gate off, which is a
     debugging switch and not a mode the note is written in.
+
+    With ``siera_ceiling`` the gate keeps a band instead -- SIERA above the floor
+    and at or below the ceiling -- which is how the elite-arm pass selects the
+    average-to-elite starters the soft pass refused.
     """
     kept: list[StarterCard] = []
     cuts: list[StarterCut] = []
@@ -734,6 +746,10 @@ def gate_starters(
         elif card.siera <= siera_floor:
             cuts.append(
                 StarterCut(card, f"SIERA {card.siera:.2f} \u2264 {siera_floor:.2f}", "siera")
+            )
+        elif siera_ceiling is not None and card.siera > siera_ceiling:
+            cuts.append(
+                StarterCut(card, f"SIERA {card.siera:.2f} > {siera_ceiling:.2f}", "siera")
             )
         else:
             kept.append(card)
@@ -1413,6 +1429,9 @@ class HitterView:
     context: ContextTerms | None = None
     trends: TrendDeltas | None = None
     edge: ArsenalEdge | None = None
+    #: Season wRC+ from the seventh inning on, against every arm: the bullpen's
+    #: half. NaN when the season rows were not loaded.
+    late_wrc: float = math.nan
 
     @property
     def fit_delta(self) -> float:
@@ -1467,6 +1486,14 @@ class ScreenResult:
     #: screen kept and the arms they face. ``None`` when the screen ran without
     #: pricing, which is the cheap path -- it costs a slate of odds credits.
     bets: BetCard | None = None
+    #: Which arms this pass screened: ``soft`` (SIERA above the floor, the note's
+    #: original thesis) or ``elite`` (the band the soft pass gates out). Carried
+    #: to every ledger row so the two can be graded apart.
+    arm_tier: str = SOFT_TIER
+    siera_ceiling: float | None = None
+    #: Elite pass only: hitters the late-half wRC+ floor removed after every
+    #: other cut, listed so the note can say who it dropped and on what.
+    late_cuts: list[tuple[HitterLine, float]] = field(default_factory=list)
 
 
 def bf_pmf(mean: float, sd: float, cap: int, limit: int = 45) -> list[float]:
@@ -1688,6 +1715,23 @@ def half_lines(rows: pd.DataFrame, *, split_at: int = SPLIT_INNING) -> tuple[Hal
             )
         out.append(line)
     return out[0], out[1]
+
+
+def late_wrc_plus(
+    rows: pd.DataFrame, league_woba: float, *, split_at: int = SPLIT_INNING
+) -> float:
+    """Season wRC+ from inning ``split_at`` on, against every arm.
+
+    The elite-arm pass keeps a hitter for the whole game, not for his turns
+    against the starter, so the bat has to still produce once the good arm has
+    left. Read on the season because a game-half is a third of a hitter's work.
+    """
+    if rows.empty or "inning" not in rows:
+        return math.nan
+    line = batter_window_line(rows[rows["inning"] >= split_at])
+    if not line:
+        return math.nan
+    return wrc_plus(line.get("woba", math.nan), league_woba)
 
 
 def score_halves(pool: list[HalfLine], *, top_n: int = STARTER_TOP_N) -> None:

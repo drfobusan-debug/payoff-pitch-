@@ -76,6 +76,7 @@ FIELDS = (
     "fit_rv",
     "category",
     "gate",
+    "arm_tier",
 )
 
 
@@ -167,6 +168,12 @@ class Position:
     #: The card's screen that refused the row when it was passed rather than
     #: bought, so a gate can be graded on the positions it cost the screen.
     gate: str = ""
+    #: Which pass of the screen the row came from: ``soft`` (the starter it faded
+    #: has SIERA above the floor) or ``elite`` (an average-to-elite arm, kept on
+    #: the bat alone). The question the two passes exist to answer -- does the
+    #: arm matter, or only the hitter -- is graded on this column. Empty on rows
+    #: recorded before the elite pass existed, all of which were soft.
+    arm_tier: str = ""
 
     @property
     def key(self) -> str:
@@ -207,6 +214,7 @@ def positions_from_board(
     deliveries: dict[str, str] | None = None,
     composites: dict[str, Composite] | None = None,
     run_id: str = "",
+    arm_tier: str = "",
 ) -> list[Position]:
     """The board's rows as ledger positions, tagged with what the note said.
 
@@ -233,6 +241,7 @@ def positions_from_board(
             arms.get(name_key(row.batter), ""),
             ranked.get(name_key(row.batter)),
             run_id,
+            arm_tier,
         )
         for row in board.positions
         if row.stat not in DISPLAY_ONLY
@@ -246,6 +255,7 @@ def _position(
     delivery: str = "",
     composite: Composite | None = None,
     run_id: str = "",
+    arm_tier: str = "",
 ) -> Position:
     return Position(
         date=as_of.isoformat(),
@@ -277,6 +287,7 @@ def _position(
         ),
         category=row.category,
         gate=row.gate,
+        arm_tier=arm_tier,
     )
 
 
@@ -331,6 +342,7 @@ def load(path: Path) -> list[Position]:
                     fit_rv=_to_float(r.get("fit_rv", "")),
                     category=r.get("category", "") or "batter",
                     gate=r.get("gate", "") or "",
+                    arm_tier=r.get("arm_tier", "") or "",
                 )
             )
     return out
@@ -501,6 +513,9 @@ class Scorecard:
     by_market: list[Record] = field(default_factory=list)
     #: Hitters against arms: the two halves of the screen's thesis, graded apart.
     by_category: list[Record] = field(default_factory=list)
+    #: Soft arms against elite arms: whether the pitcher the bat faced changed
+    #: the record, or only the bat did. Empty until both passes have graded rows.
+    by_arm_tier: list[Record] = field(default_factory=list)
     model_brier: float | None = None
     market_brier: float | None = None
     scored_probs: int = 0
@@ -553,6 +568,7 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
     ratings = sorted({g.position.rating for g in graded if g.position.rating})
     markets = sorted({g.position.market for g in graded})
     categories = sorted({g.position.category for g in graded})
+    tiers_of_arm = sorted({g.position.arm_tier or "soft" for g in graded})
     runs = sorted({g.position.run_id for g in graded})
     return Scorecard(
         day=day.isoformat(),
@@ -573,6 +589,17 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
                 for c in categories
             ]
             if len(categories) > 1
+            else []
+        ),
+        by_arm_tier=(
+            [
+                _record(
+                    f"{t} arms",
+                    [g for g in graded if (g.position.arm_tier or "soft") == t],
+                )
+                for t in tiers_of_arm
+            ]
+            if len(tiers_of_arm) > 1
             else []
         ),
         model_brier=_brier(model),
