@@ -7520,6 +7520,13 @@
   {
     "matchup": "CIN @ LAD",
     "market": "batter_hr",
+    "selection": "Hunter Feduccia HR o1.5",
+    "american": 5500.0,
+    "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_hr",
     "selection": "JJ Bleday HR o0.5",
     "american": 600.0,
     "no_vig_prob": 0.163561
@@ -7537,6 +7544,13 @@
     "selection": "Juan Brito HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_hr",
+    "selection": "Juan Brito HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
   },
   {
     "matchup": "CIN @ LAD",
@@ -7642,6 +7656,13 @@
     "selection": "TJ Friedl HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_hr",
+    "selection": "TJ Friedl HR o1.5",
+    "american": 25000.0,
+    "no_vig_prob": 0.003984
   },
   {
     "matchup": "CIN @ LAD",
@@ -8059,9 +8080,23 @@
   {
     "matchup": "CIN @ LAD",
     "market": "batter_h",
+    "selection": "Will Smith H o1.5",
+    "american": 215.0,
+    "no_vig_prob": 0.308858
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_h",
     "selection": "Will Smith H u0.5",
     "american": 174.0,
     "no_vig_prob": 0.347779
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_h",
+    "selection": "Will Smith H u1.5",
+    "american": -264.0,
+    "no_vig_prob": 0.691142
   },
   {
     "matchup": "CIN @ LAD",
@@ -8731,6 +8766,13 @@
   {
     "matchup": "CIN @ LAD",
     "market": "batter_tb",
+    "selection": "Carlos Jorge TB o1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.350877
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "batter_tb",
     "selection": "Carlos Jorge TB u0.5",
     "american": -129.0,
     "no_vig_prob": 0.530067
@@ -9228,9 +9270,23 @@
   {
     "matchup": "CIN @ LAD",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -107.0,
+    "no_vig_prob": 0.502853
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "game_total",
     "selection": "Over 8.5",
     "american": -107.0,
     "no_vig_prob": 0.501179
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -105.0,
+    "no_vig_prob": 0.497147
   },
   {
     "matchup": "CIN @ LAD",
@@ -9368,9 +9424,23 @@
   {
     "matchup": "CIN @ LAD",
     "market": "pitcher_k",
+    "selection": "Yoshinobu Yamamoto Ks o6.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "pitcher_k",
     "selection": "Yoshinobu Yamamoto Ks o7.5",
     "american": -107.0,
     "no_vig_prob": 0.498909
+  },
+  {
+    "matchup": "CIN @ LAD",
+    "market": "pitcher_k",
+    "selection": "Yoshinobu Yamamoto Ks u6.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "CIN @ LAD",
