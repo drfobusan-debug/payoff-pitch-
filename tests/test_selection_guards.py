@@ -168,7 +168,7 @@ def test_any_market_can_be_disqualified(monkeypatch) -> None:
     assert EVThresholds().for_market("game_ml").no_buy
 
 
-def test_a_disqualified_market_is_still_priced_and_graded() -> None:
+def test_a_disqualified_market_is_still_priced_and_graded(legacy_anchor) -> None:
     """Shadow bets: the pass keeps the price, EV and edge for the ledger."""
     p = _pipeline()
     # A level and a price that clear the conviction floor and the EV ceiling, so
@@ -181,7 +181,7 @@ def test_a_disqualified_market_is_still_priced_and_graded() -> None:
     assert rec.model_prob == 0.60
 
 
-def test_a_home_run_over_is_quoted_and_never_bought() -> None:
+def test_a_home_run_over_is_quoted_and_never_bought(legacy_anchor) -> None:
     """The one market the power board and the engine now agree on.
 
     The ledger prices it, tiers it Pass and grades it, so a rebuilt HR model can
@@ -195,17 +195,60 @@ def test_a_home_run_over_is_quoted_and_never_bought() -> None:
 
 
 # ---- market anchoring ------------------------------------------------------
-def test_anchor_ships_on_and_totals_can_never_be_taxed(monkeypatch) -> None:
-    """The shipped weight is 0.3: the market beat the model at every band."""
+def test_every_market_ships_with_its_own_fitted_weight() -> None:
+    """The weight is per market and is the fit, not a toll.
+
+    On 79,984 graded two-sided rows the model's disagreement with the price
+    survives at 0-10% pooled, so the sides, the strikeouts and every batter
+    market but doubles and walks bet the price to within a point; the three
+    markets whose shrunk number beat the price out of sample keep a coefficient.
+    """
     cfg = Config()
-    assert cfg.anchor_for("game_ml") == 0.3
-    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.8")
+    assert cfg.anchor_for("game_ml") == 0.99
+    assert cfg.anchor_for("f5_ml") == 0.99
+    assert cfg.anchor_for("pitcher_k") == 1.0
+    assert cfg.anchor_for("batter_r") == 1.0
+    assert cfg.anchor_for("batter_tb") == 1.0
+    assert cfg.anchor_for("pitcher_h") == 0.81
+    assert cfg.anchor_for("pitcher_bb") == 0.90
+    assert cfg.anchor_for("game_total") == 0.78
+    # Totals used to be pinned at zero off a sample an eighth the size.
+    assert cfg.anchor_for("f5_total") == 0.99
+
+
+def test_a_market_the_study_never_fitted_bets_the_price(monkeypatch) -> None:
+    """The global is only for the unfitted, and it is the price itself."""
+    cfg = Config()
+    assert cfg.anchor_for("batter_hr") == 1.0
+    assert cfg.anchor_for("some_new_market") == 1.0
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR", "0.3")
     raised = Config()
-    assert raised.anchor_for("game_ml") == 0.8
-    # Totals are the only market where the model out-forecasts the price, and
-    # the only profitable buy bucket, so the global toll never reaches them.
-    assert raised.anchor_for("game_total") == 0.0
-    assert raised.anchor_for("f5_total") == 0.0
+    assert raised.anchor_for("some_new_market") == 0.3
+    # The global does not reach a market that carries its own fit.
+    assert raised.anchor_for("game_ml") == 0.99
+
+
+def test_the_price_cannot_be_bought() -> None:
+    """At a weight of 1.0 the bet probability is the devigged price, and no
+    quote pays above its own fair probability, so the market is off -- by
+    the fit, not by a list. The row is still priced and graded."""
+    p = _pipeline()
+    rec = _rec(p, "batter_tb", 0.62, selection="Some Batter o1.5 TB", opposite=-110.0)
+    assert rec.model_prob == 0.62
+    assert rec.fair_prob is not None and rec.bet_prob == rec.fair_prob
+    assert rec.edge is not None and abs(rec.edge) < 1e-12
+    assert rec.ev is not None and rec.ev < 0
+    assert rec.tier is Tier.PASS
+
+
+def test_a_fitted_coefficient_keeps_only_its_share_of_the_disagreement() -> None:
+    """pitcher_h at 0.81: 19% of a 12-point disagreement is 2.3 points."""
+    p = _pipeline()
+    rec = _rec(p, "pitcher_h", 0.62, selection="Some Arm u4.5 H", opposite=-110.0)
+    fair = rec.fair_prob
+    assert fair is not None and rec.bet_prob is not None
+    assert abs(rec.bet_prob - (0.19 * 0.62 + 0.81 * fair)) < 1e-9
+    assert rec.edge is not None and abs(rec.edge - 0.19 * (0.62 - fair)) < 1e-9
 
 
 def test_anchor_takes_a_per_market_override(monkeypatch) -> None:
@@ -225,8 +268,9 @@ def test_anchoring_shrinks_the_bet_probability_not_the_model(monkeypatch) -> Non
     assert rec.edge is not None and abs(rec.edge - 0.05) < 1e-6
 
 
-def test_a_zero_anchor_bets_the_model_itself() -> None:
-    """Totals ship pinned at zero, so there the bet is the model's own number."""
+def test_a_zero_anchor_bets_the_model_itself(monkeypatch) -> None:
+    """A weight of zero is the model's own number, for a market that earns it."""
+    monkeypatch.setenv("MLBE_MARKET_ANCHOR_GAME_TOTAL", "0")
     p = _pipeline()
     rec = _rec(p, "game_total", 0.56, selection="Over 8.5")
     assert rec.bet_prob == 0.56
@@ -243,10 +287,11 @@ def test_a_fitted_anchor_file_overrides_the_packaged_default(tmp_path, monkeypat
     _anchor_file(tmp_path, monkeypatch, '{"anchors": {"game_ml": 0.9, "game_total": 0.4}}')
     cfg = Config()
     assert cfg.anchor_for("game_ml") == 0.9
-    # Even the totals pin yields to a weight measured on this operator's ledger.
+    # The packaged fit yields to a weight measured on this operator's ledger.
     assert cfg.anchor_for("game_total") == 0.4
     # A market the fit never named keeps shipping behaviour.
-    assert cfg.anchor_for("batter_hr") == 0.3
+    assert cfg.anchor_for("pitcher_h") == 0.81
+    assert cfg.anchor_for("batter_hr") == 1.0
 
 
 def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
@@ -257,13 +302,13 @@ def test_an_env_var_still_beats_the_fitted_file(tmp_path, monkeypatch) -> None:
 
 def test_a_corrupt_anchor_file_is_ignored_not_fatal(tmp_path, monkeypatch) -> None:
     _anchor_file(tmp_path, monkeypatch, "{not json")
-    assert Config().anchor_for("game_ml") == 0.3
+    assert Config().anchor_for("game_ml") == 0.99
 
 
 def test_no_anchor_file_means_the_shipped_weight(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("MLBE_MARKET_ANCHOR_FILE", str(tmp_path / "absent.json"))
     _config._ANCHOR_CACHE.clear()
-    assert Config().anchor_for("game_ml") == 0.3
+    assert Config().anchor_for("game_ml") == 0.99
 
 
 # ---- pre-bet CLV -----------------------------------------------------------
@@ -300,7 +345,7 @@ def test_drift_tolerance_is_configurable(monkeypatch) -> None:
     assert DriftGate.from_env().allows(0.55, 0.52)[0]
 
 
-def test_drift_gate_vetoes_a_buy_in_the_pipeline() -> None:
+def test_drift_gate_vetoes_a_buy_in_the_pipeline(legacy_anchor) -> None:
     p = _pipeline()
     # A row that clears every other screen, so the drift is what refuses it: the
     # side opened at 0.63 and the board has since left it at 0.573.
@@ -349,7 +394,7 @@ def test_momentum_kill_switch(monkeypatch) -> None:
     assert gate.enabled
 
 
-def test_momentum_vetoes_a_buy_in_the_pipeline() -> None:
+def test_momentum_vetoes_a_buy_in_the_pipeline(legacy_anchor) -> None:
     """Same row the drift test uses, with the move pointing the other way."""
     p = _pipeline()
     p._open_board = {quote_key(MATCHUP, "game_ml", "MIA ML"): 0.52}
@@ -359,7 +404,7 @@ def test_momentum_vetoes_a_buy_in_the_pipeline() -> None:
     assert any("momentum: PASS" in r for r in rec.reasons)
 
 
-def test_a_side_the_market_walked_away_from_keeps_the_drift_name() -> None:
+def test_a_side_the_market_walked_away_from_keeps_the_drift_name(legacy_anchor) -> None:
     """Both ends of the move are vetoes; the ledger has to tell them apart.
 
     ``screen_probation`` grades a screen on the rows it removed, so the adverse
