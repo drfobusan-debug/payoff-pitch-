@@ -422,9 +422,15 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
 
 
 def record_sheet(cfg: Config, day: Date, sheet: Path, pks: dict[str, int]) -> None:
-    """Called by the sheet writer: file today's rows so the audit can grade them tomorrow."""
+    """Called by the sheet writer: file today's rows so the audit can grade them tomorrow.
+
+    A sheet rewritten before its games are graded replaces the day's ungraded
+    rows, so the ledger carries the scores that were actually delivered; rows
+    already graded are never touched.
+    """
     path = ledger_path(cfg)
     ledger = read_ledger(path)
-    if any(r.date == day.isoformat() for r in ledger):
+    if any(r.date == day.isoformat() and r.graded for r in ledger):
         return
+    ledger = [r for r in ledger if r.date != day.isoformat()]
     write_ledger(path, merge(ledger, rows_from_sheet(sheet, day, pks)))

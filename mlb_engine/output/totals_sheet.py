@@ -1,11 +1,11 @@
 """The hand-written totals sheet, built for the day and written as a workbook.
 
 Every column is a signed point score: positive leans Over, negative leans Under,
-and the row's sum is the read. The bands are the ones written by hand -- offense
+and the row's sum is the read. The columns are the hand-written ones -- offense
 on wRC+/wOBA (vs the opposing starter's hand) and barrel rate; each arm on
 SIERA, xERA, CSW% and K-BB%; DraftKings and Circa total handle-minus-bets signed
-by the side the money is on; temperature, wind speed and humidity at first pitch
-with a roof scored -1 and wind blowing in -2; park factor; BaseRuns per game;
+by the side the money is on; temperature, wind (signed by direction) and
+humidity at first pitch with a roof scored -1; park factor; BaseRuns per game;
 bullpen fatigue off the last two days' boxscores; and the home-plate umpire's
 runs per game against the league.
 
@@ -58,41 +58,51 @@ UMP_MIN_GAMES = 10
 UMP_BAND_RUNS = 1.0
 
 
-# --- the bands, as written -----------------------------------------------------
+# --- the bands, centred on the league ------------------------------------------
+# Every scale has a 0 window around the league median (roughly its middle half),
+# +/-1 for the next quartile out, +/-2 and +/-3 beyond. A league-average arm or
+# lineup therefore adds nothing, and +5 and -5 are the same strength of lean in
+# opposite directions. Windows come from the 2026 FanGraphs distributions: team
+# wRC+ 95-103 / wOBA .311-.319 / Barrel% 7.3-8.1 between the quartiles; starter
+# SIERA 3.84-4.57, xERA 3.75-4.88, CSW% 25.4-28.0, K-BB% 10.0-16.1; team pens
+# SIERA 3.71-4.02, CSW% 26.6-27.9, K-BB% 11.3-14.1.
 
 
 def wrc_pts(v: float) -> int:
-    return 3 if v > 150 else 2 if v > 125 else 1 if v > 100 else -1 if v >= 75 else -2 if v >= 50 else -3
+    return 3 if v > 130 else 2 if v > 115 else 1 if v > 105 else 0 if v >= 95 else -1 if v >= 85 else -2 if v >= 70 else -3
 
 
 def woba_pts(v: float) -> int:
     return (
-        3 if v > 0.365 else 2 if v > 0.340 else 1 if v > 0.315
-        else -1 if v > 0.290 else -2 if v >= 0.265 else -3
+        3 if v > 0.355 else 2 if v > 0.340 else 1 if v > 0.325 else 0 if v >= 0.305
+        else -1 if v >= 0.290 else -2 if v >= 0.275 else -3
     )
 
 
 def barrel_pts(v: float) -> int:
     """``v`` in percent."""
-    return 2 if v > 8.5 else 1 if v >= 7 else -1 if v >= 5 else -2
+    return 2 if v > 10 else 1 if v > 8.5 else 0 if v >= 6.5 else -1 if v >= 5 else -2
 
 
 def siera_pts(v: float) -> int:
-    return -3 if v < 2.75 else -2 if v < 3.25 else -1 if v < 3.75 else 1 if v < 4.25 else 2 if v < 4.75 else 3
+    return (
+        -3 if v < 2.75 else -2 if v < 3.25 else -1 if v < 3.75 else 0 if v <= 4.35
+        else 1 if v <= 4.75 else 2 if v <= 5.25 else 3
+    )
 
 
 def csw_pts(v: float) -> int:
     """``v`` in percent."""
-    return -2 if v > 31 else -1 if v > 29 else 0 if v > 24 else 1 if v >= 19 else 2
+    return -2 if v > 31 else -1 if v > 29 else 0 if v >= 25 else 1 if v >= 23 else 2
 
 
 def xera_pts(v: float) -> int:
-    return -2 if v < 3 else -1 if v <= 3.5 else 0 if v <= 4.2 else 1 if v <= 4.8 else 2
+    return -2 if v < 3.2 else -1 if v < 3.7 else 0 if v <= 4.5 else 1 if v <= 5.1 else 2
 
 
 def kbb_pts(v: float) -> int:
     """``v`` in percent."""
-    return -3 if v > 30 else -2 if v >= 19 else -1 if v >= 15 else 1 if v >= 11 else 2 if v >= 7 else 3
+    return -3 if v > 25 else -2 if v > 19 else -1 if v > 15 else 0 if v >= 10 else 1 if v >= 7 else 2 if v >= 4 else 3
 
 
 def temp_pts(t: float) -> int:
@@ -100,6 +110,7 @@ def temp_pts(t: float) -> int:
 
 
 def wind_pts(w: float) -> int:
+    """Speed points for a wind with a direction that matters; cross winds score 0."""
     return 3 if w > 15 else 2 if w >= 10 else 1 if w >= 5 else 0
 
 
@@ -119,8 +130,9 @@ def baseruns_pts(v: float) -> int:
 def book_pts(sp: TotalSplit | None) -> int:
     """Handle minus bets on the side the money is on, signed toward that side.
 
-    >=20 -> 2, 11-19 -> 1, else 0; a 100/100 split (one ticket) is 1. Over is
-    positive, Under negative; the two sides are one signal, never two.
+    >=20 -> 2, 11-19 -> 1, else 0; a 100/100 split is one ticket, not a market,
+    and scores 0. Over is positive, Under negative; the two sides are one
+    signal, never two.
     """
     if sp is None:
         return 0
@@ -129,10 +141,9 @@ def book_pts(sp: TotalSplit | None) -> int:
         if side.handle_pct is None or side.bets_pct is None:
             continue
         if side.handle_pct == 100 and side.bets_pct == 100:
-            pts = 1
-        else:
-            d = side.handle_pct - side.bets_pct
-            pts = 2 if d >= 20 else 1 if d >= 11 else 0
+            continue
+        d = side.handle_pct - side.bets_pct
+        pts = 2 if d >= 20 else 1 if d >= 11 else 0
         if pts > abs(best):
             best = sign * pts
     return best
@@ -143,10 +154,12 @@ def weather_pts(park: Park | None, cond: WeatherConditions | None) -> tuple[int,
         return -1, f"roof ({park.roof})"
     if cond is None:
         return 0, "n/a"
-    blowing_in = cond.out_to_cf_mph <= -cond.wind_mph * math.cos(math.radians(45)) and cond.wind_mph > 0
-    w = -2 if blowing_in else wind_pts(cond.wind_mph)
+    along = cond.wind_mph * math.cos(math.radians(45))
+    blowing_in = cond.wind_mph > 0 and cond.out_to_cf_mph <= -along
+    blowing_out = cond.wind_mph > 0 and cond.out_to_cf_mph >= along
+    w = wind_pts(cond.wind_mph) if blowing_out else -wind_pts(cond.wind_mph) if blowing_in else 0
     pts = temp_pts(cond.temp_f) + w + humidity_pts(cond.humidity_pct)
-    direction = "in" if blowing_in else "out" if cond.out_to_cf_mph >= cond.wind_mph * 0.7 else "cross"
+    direction = "in" if blowing_in else "out" if blowing_out else "cross"
     return pts, f"{cond.temp_f:.0f}F, {cond.wind_mph:.0f} mph {direction}, {cond.humidity_pct:.0f}%"
 
 
@@ -545,16 +558,17 @@ _COLUMNS = [
 _LEGEND = [
     ("Sign", "+ leans Over, - leans Under; SUM is every points column added. Bigger magnitude = stronger lean."),
     ("Off A / Off H", "Away / home offense: wRC+ pts + wOBA pts (team split vs the opposing starter's hand) + Barrel% pts (season)."),
-    ("wRC+", ">150 3 | 126-150 2 | 101-125 1 | 75-100 -1 | 50-74 -2 | <50 -3"),
-    ("wOBA", ">.365 3 | .341-.365 2 | .316-.340 1 | .291-.315 -1 | .265-.290 -2 | <.265 -3"),
-    ("Barrel%", ">8.5 2 | 7-8.5 1 | 5-7 -1 | <5 -2"),
-    ("SP / RP pts", "Starter and bullpen: SIERA pts + xERA pts + CSW% pts. Softer arm = positive. TBD starter = 0."),
-    ("SIERA", "<2.75 -3 | 2.75-3.25 -2 | 3.25-3.75 -1 | 3.75-4.25 1 | 4.25-4.75 2 | >4.75 3"),
-    ("xERA", "<3.00 -2 | 3.01-3.50 -1 | 3.51-4.20 0 | 4.21-4.80 1 | >4.80 2"),
-    ("CSW%", ">31 -2 | 29-31 -1 | 24-29 0 | 19-23 1 | <19 2"),
-    ("K-BB%", ">30 -3 | 19-30 -2 | 15-18 -1 | 11-14 1 | 7-10 2 | <7 3 (starter and pen, each team)"),
-    ("Circa / DK", "VSIN total handle% - bets% on the side the money is on: >=20 2, 11-19 1, else 0; 100/100 = 1. Signed + Over / - Under. Missing = 0."),
-    ("Weather", "First pitch, Open-Meteo: temp >90 2, >80 1, 60-79 0, 50-59 -1, <50 -2; wind >15 3, 10-14 2, 5-9 1, <5 0; humidity >65 1, 35-65 0, <35 -1. Wind blowing in (within 45 deg of home plate) = -2 instead of the speed points. Any roof (dome or retractable) = -1 total."),
+    ("Centre", "Every band's 0 window is the league's middle half (2026 FanGraphs), so an average arm or lineup adds nothing and +5 / -5 are equal leans in opposite directions."),
+    ("wRC+", ">130 3 | 116-130 2 | 106-115 1 | 95-105 0 | 85-94 -1 | 70-84 -2 | <70 -3"),
+    ("wOBA", ">.355 3 | .341-.355 2 | .326-.340 1 | .305-.325 0 | .290-.304 -1 | .275-.289 -2 | <.275 -3"),
+    ("Barrel%", ">10 2 | 8.6-10 1 | 6.5-8.5 0 | 5-6.4 -1 | <5 -2"),
+    ("SP / RP pts", "Starter and bullpen: SIERA pts + xERA pts + CSW% pts. Softer arm = positive, league-average arm = 0. TBD starter = 0."),
+    ("SIERA", "<2.75 -3 | 2.75-3.24 -2 | 3.25-3.74 -1 | 3.75-4.35 0 | 4.36-4.75 1 | 4.76-5.25 2 | >5.25 3"),
+    ("xERA", "<3.20 -2 | 3.20-3.69 -1 | 3.70-4.50 0 | 4.51-5.10 1 | >5.10 2"),
+    ("CSW%", ">31 -2 | 29-31 -1 | 25-29 0 | 23-25 1 | <23 2"),
+    ("K-BB%", ">25 -3 | 19-25 -2 | 15-19 -1 | 10-15 0 | 7-10 1 | 4-7 2 | <4 3 (starter and pen, each team)"),
+    ("Circa / DK", "VSIN total handle% - bets% on the side the money is on: >=20 2, 11-19 1, else 0; a 100/100 split is one ticket = 0. Signed + Over / - Under. Missing = 0."),
+    ("Weather", "First pitch, Open-Meteo: temp >90 2, >80 1, 60-79 0, 50-59 -1, <50 -2; humidity >65 1, 35-65 0, <35 -1; wind by direction (within 45 deg of the home plate-CF line): blowing out +1 (5-9 mph) / +2 (10-15) / +3 (>15), blowing in the same points negative, cross wind or <5 mph 0. Any roof (dome or retractable) = -1 total."),
     ("Park", "Engine park factor (runs): >102 1, <98 -1, else 0."),
     ("BsR", "PROVISIONAL bands (not hand-written): team BaseRuns/G >=4.65 1, <=4.25 -1, else 0; both teams summed."),
     ("Pen A / Pen H", "Bullpen fatigue: +1 per top-3 leverage arm (SV+HLD) used yesterday, +2 if used both of the last two days, +1 if the pen threw 120+ pitches over the last two days; capped at 4."),
