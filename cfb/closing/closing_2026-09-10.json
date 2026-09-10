@@ -1,22 +1,22 @@
 {
   "Florida A&M @ Miami|game_ats|Florida A&M": {
-    "american": -105.0,
-    "line": 58.5,
-    "no_vig_prob": 0.49323898955895557
+    "american": -110.0,
+    "line": 59.5,
+    "no_vig_prob": 0.5036959280247383
   },
   "Florida A&M @ Miami|game_ats|Miami": {
-    "american": -110.0,
-    "line": -58.5,
-    "no_vig_prob": 0.5067610104410444
+    "american": -105.0,
+    "line": -59.5,
+    "no_vig_prob": 0.4963040719752616
   },
   "Florida A&M @ Miami|game_total|Over": {
-    "american": -102.0,
+    "american": -108.0,
     "line": 65.5,
-    "no_vig_prob": 0.48481250412703686
+    "no_vig_prob": 0.5053708933892762
   },
   "Florida A&M @ Miami|game_total|Under": {
-    "american": -115.0,
+    "american": -104.0,
     "line": 65.5,
-    "no_vig_prob": 0.5151874958729631
+    "no_vig_prob": 0.49462910661072373
   }
 }
