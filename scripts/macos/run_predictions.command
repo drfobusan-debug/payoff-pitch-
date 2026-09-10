@@ -81,6 +81,7 @@ fi
 
 # Hand-method totals sheet (signed points per game; research, not a bet).
 python -m scripts.totals_sheet "$day" || echo "WARN: totals sheet failed" >&2
+python -m scripts.totals_audit "$day" || echo "WARN: totals audit failed" >&2
 
 # Email the whole package as one message (Gmail App Password from the engine env).
 python -m scripts.email_daily_package "$day" || echo "WARN: email step failed" >&2

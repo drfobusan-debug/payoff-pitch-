@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.email_daily_package import collect_attachments
+from scripts.email_daily_package import collect_attachments, totals_audit_note
 
 
 def test_the_power_screen_rides_in_the_package(tmp_path: Path) -> None:
@@ -29,6 +29,21 @@ def test_the_totals_sheet_rides_once_a_day_with_the_daily_package(tmp_path: Path
     assert "totals_sheet_2026-08-17.xlsx" in daily
     block = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)]
     assert "totals_sheet_2026-08-17.xlsx" not in block
+
+
+def test_the_totals_audit_and_its_summary_ride_only_with_the_daily_package(tmp_path: Path) -> None:
+    day = Date(2026, 8, 17)
+    (tmp_path / "mlb_recommendations_2026-08-17.xlsx").write_bytes(b"x")
+    (tmp_path / "totals_audit_2026-08-17.xlsx").write_bytes(b"x")
+    (tmp_path / "totals_audit_2026-08-17.txt").write_text("Totals sheet 2026-08-16: 12 graded\n")
+    daily = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=True)]
+    assert "totals_audit_2026-08-17.xlsx" in daily
+    assert "totals_audit_2026-08-17.xlsx" not in [
+        n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)
+    ]
+    assert totals_audit_note(tmp_path, day) == "Totals sheet 2026-08-16: 12 graded"
+    assert totals_audit_note(tmp_path, day, with_daily=False) == ""
+    assert totals_audit_note(tmp_path, Date(2026, 8, 18)) == ""
 
 
 def test_yesterdays_screen_is_not_todays(tmp_path: Path) -> None:

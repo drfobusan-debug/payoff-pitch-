@@ -392,6 +392,10 @@ elif [[ "\$MODE" == slate-* ]]; then
           python -m scripts.totals_sheet "\$day" \\
             || echo "[\$(date)] totals sheet failed" >&2
         fi
+        if [[ ! -f "\$OUT/totals_audit_\$day.xlsx" ]]; then
+          python -m scripts.totals_audit "\$day" \\
+            || echo "[\$(date)] totals audit failed" >&2
+        fi
         WITH_DAILY="--with-daily"
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
