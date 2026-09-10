@@ -5,8 +5,10 @@ from __future__ import annotations
 from datetime import date as Date
 from pathlib import Path
 
+import pytest
 from openpyxl import load_workbook
 
+from mlb_engine.output import totals_audit
 from mlb_engine.output.totals_audit import (
     LedgerRow,
     grade,
@@ -87,6 +89,27 @@ def test_ledger_round_trips_and_merge_never_duplicates(tmp_path: Path) -> None:
     assert len(again) == 7 and all(r.graded for r in again)
     fresh = merge(back, [LedgerRow("2026-09-10", "AZ @ KC", 9, 8.0, 4)])
     assert len(fresh) == 8
+
+
+def test_a_rewritten_sheet_replaces_its_ungraded_rows_but_never_graded_ones(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "totals_ledger.csv"
+    graded = _rows()
+    grade(graded, FINALS)
+    today = "2026-09-10"
+    write_ledger(path, graded + [LedgerRow(today, "AZ @ KC", 9, 8.0, 12)])
+    monkeypatch.setattr(totals_audit, "ledger_path", lambda cfg: path)
+    monkeypatch.setattr(
+        totals_audit, "rows_from_sheet", lambda sheet, day, pks: [LedgerRow(today, "AZ @ KC", 9, 8.0, 3)]
+    )
+    totals_audit.record_sheet(None, Date(2026, 9, 10), tmp_path / "x.xlsx", {})  # type: ignore[arg-type]
+    back = read_ledger(path)
+    assert [r.sum_pts for r in back if r.date == today] == [3]
+    assert len([r for r in back if r.date == D]) == 7
+    monkeypatch.setattr(totals_audit, "rows_from_sheet", lambda sheet, day, pks: [LedgerRow(D, "AZ @ KC", 1, 8.5, 0)])
+    totals_audit.record_sheet(None, Date(2026, 9, 9), tmp_path / "x.xlsx", {})  # type: ignore[arg-type]
+    assert {r.game: r.sum_pts for r in read_ledger(path) if r.date == D}["AZ @ KC"] == 30
 
 
 def test_workbook_has_yesterday_summary_and_ledger(tmp_path: Path) -> None:
