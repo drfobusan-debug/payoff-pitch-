@@ -3376,6 +3376,20 @@
   {
     "matchup": "HOU @ PHI",
     "market": "batter_bb",
+    "selection": "Christian Vazquez BB o0.5",
+    "american": 377.0,
+    "no_vig_prob": 0.197376
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "batter_bb",
+    "selection": "Christian Vazquez BB u0.5",
+    "american": -578.0,
+    "no_vig_prob": 0.802624
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "batter_bb",
     "selection": "Christian Walker BB o0.5",
     "american": 250.0,
     "no_vig_prob": 0.278134
@@ -3442,6 +3456,20 @@
     "selection": "Jose Altuve BB u0.5",
     "american": -371.0,
     "no_vig_prob": 0.747698
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "batter_bb",
+    "selection": "Justin Crawford BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.220887
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "batter_bb",
+    "selection": "Justin Crawford BB u0.5",
+    "american": -488.0,
+    "no_vig_prob": 0.779113
   },
   {
     "matchup": "HOU @ PHI",
@@ -5245,9 +5273,23 @@
   {
     "matchup": "HOU @ PHI",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -129.0,
+    "no_vig_prob": 0.516039
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "game_total",
     "selection": "Over 8.5",
     "american": -110.0,
     "no_vig_prob": 0.502793
+  },
+  {
+    "matchup": "HOU @ PHI",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -112.0,
+    "no_vig_prob": 0.483961
   },
   {
     "matchup": "HOU @ PHI",
