@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
+
 from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
@@ -20,6 +22,11 @@ from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 REFUSE_AT = -100.0
 MATCHUP = "CWS @ CHC"

@@ -32,6 +32,11 @@ from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.pipeline import Pipeline
 
 
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
+
+
 def _mean_walks(n_sims: int = 6000, p_bb: float = 0.30) -> float:
     """Mean walks charged to the starter, at an exaggerated rate for precision."""
     rates = {

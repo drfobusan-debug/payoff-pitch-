@@ -13,6 +13,8 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from mlb_engine.cli import _merge_late_pass
 from mlb_engine.config import Config
 from mlb_engine.features.drift_gate import DriftGate
@@ -22,6 +24,11 @@ from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
 from mlb_engine.recommendations import Recommendation, load_json, save_json
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 MATCHUP = "MIA @ ATL"
 

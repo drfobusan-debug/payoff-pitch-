@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
+import pytest
+
 from mlb_engine.features.ml_gate import MLSharpGate
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 
 def test_gate_keeps_sharp_confirmed_side() -> None:
