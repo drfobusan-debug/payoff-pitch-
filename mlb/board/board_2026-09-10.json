@@ -11118,6 +11118,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_1b",
+    "selection": "Nicky Lopez 1B o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.425018
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_1b",
+    "selection": "Nicky Lopez 1B u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.574982
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_1b",
     "selection": "Randy Arozarena 1B o0.5",
     "american": 130.0,
     "no_vig_prob": 0.414776
@@ -11398,6 +11412,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_2b",
+    "selection": "Nicky Lopez 2B o0.5",
+    "american": 675.0,
+    "no_vig_prob": 0.12333
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_2b",
+    "selection": "Nicky Lopez 2B u0.5",
+    "american": -1140.0,
+    "no_vig_prob": 0.87667
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_2b",
     "selection": "Randy Arozarena 2B o0.5",
     "american": 450.0,
     "no_vig_prob": 0.172497
@@ -11664,6 +11692,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_bb",
+    "selection": "Nicky Lopez BB o0.5",
+    "american": 369.0,
+    "no_vig_prob": 0.200655
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_bb",
+    "selection": "Nicky Lopez BB u0.5",
+    "american": -564.0,
+    "no_vig_prob": 0.799345
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_bb",
     "selection": "Randy Arozarena BB o0.5",
     "american": 139.0,
     "no_vig_prob": 0.395981
@@ -11867,9 +11909,23 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_hrr",
+    "selection": "J.P. Crawford H+R+RBI o1.5",
+    "american": 122.0,
+    "no_vig_prob": 0.42418
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
     "selection": "J.P. Crawford H+R+RBI u0.5",
     "american": 145.0,
     "no_vig_prob": 0.387382
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
+    "selection": "J.P. Crawford H+R+RBI u1.5",
+    "american": -155.0,
+    "no_vig_prob": 0.57582
   },
   {
     "matchup": "TEX @ SEA",
@@ -11881,9 +11937,23 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_hrr",
+    "selection": "Jake Burger H+R+RBI o1.5",
+    "american": 126.0,
+    "no_vig_prob": 0.415144
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
     "selection": "Jake Burger H+R+RBI u0.5",
     "american": 131.0,
     "no_vig_prob": 0.414617
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
+    "selection": "Jake Burger H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.584856
   },
   {
     "matchup": "TEX @ SEA",
@@ -11940,6 +12010,20 @@
     "selection": "Lazaro Montes H+R+RBI u0.5",
     "american": -104.0,
     "no_vig_prob": 0.482614
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
+    "selection": "Nicky Lopez H+R+RBI o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.525267
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hrr",
+    "selection": "Nicky Lopez H+R+RBI u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.474733
   },
   {
     "matchup": "TEX @ SEA",
@@ -12185,6 +12269,13 @@
     "selection": "Lazaro Montes HR o1.5",
     "american": 11000.0,
     "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_hr",
+    "selection": "Nicky Lopez HR o0.5",
+    "american": 2600.0,
+    "no_vig_prob": 0.037037
   },
   {
     "matchup": "TEX @ SEA",
@@ -12451,6 +12542,20 @@
     "selection": "Lazaro Montes H u0.5",
     "american": -128.0,
     "no_vig_prob": 0.531803
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_h",
+    "selection": "Nicky Lopez H o0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.49502
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_h",
+    "selection": "Nicky Lopez H u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.50498
   },
   {
     "matchup": "TEX @ SEA",
@@ -12735,6 +12840,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_rbi",
+    "selection": "Nicky Lopez RBI o0.5",
+    "american": 454.0,
+    "no_vig_prob": 0.183852
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_rbi",
+    "selection": "Nicky Lopez RBI u0.5",
+    "american": -600.0,
+    "no_vig_prob": 0.816148
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_rbi",
     "selection": "Randy Arozarena RBI o0.5",
     "american": 271.0,
     "no_vig_prob": 0.268054
@@ -13015,6 +13134,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_r",
+    "selection": "Nicky Lopez R o0.5",
+    "american": 298.0,
+    "no_vig_prob": 0.242729
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_r",
+    "selection": "Nicky Lopez R u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.757271
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_r",
     "selection": "Randy Arozarena R o0.5",
     "american": 135.0,
     "no_vig_prob": 0.3953
@@ -13162,6 +13295,20 @@
   {
     "matchup": "TEX @ SEA",
     "market": "batter_tb",
+    "selection": "Danny Jansen TB o0.5",
+    "american": 103.0,
+    "no_vig_prob": 0.462721
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_tb",
+    "selection": "Danny Jansen TB u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.537279
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_tb",
     "selection": "Dominic Canzone TB o0.5",
     "american": -159.0,
     "no_vig_prob": 0.577476
@@ -13235,6 +13382,13 @@
     "selection": "J.P. Crawford TB o0.5",
     "american": -115.0,
     "no_vig_prob": 0.51149
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_tb",
+    "selection": "J.P. Crawford TB o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.357143
   },
   {
     "matchup": "TEX @ SEA",
@@ -13333,6 +13487,20 @@
     "selection": "Lazaro Montes TB u0.5",
     "american": -150.0,
     "no_vig_prob": 0.561894
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_tb",
+    "selection": "Nicky Lopez TB o0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.488324
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "batter_tb",
+    "selection": "Nicky Lopez TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.511676
   },
   {
     "matchup": "TEX @ SEA",
@@ -13449,6 +13617,13 @@
   {
     "matchup": "TEX @ SEA",
     "market": "game_rl",
+    "selection": "SEA +1.5",
+    "american": -215.0,
+    "no_vig_prob": 0.65432
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "game_rl",
     "selection": "SEA -1.5",
     "american": 188.0,
     "no_vig_prob": 0.34746
@@ -13462,6 +13637,13 @@
   },
   {
     "matchup": "TEX @ SEA",
+    "market": "game_rl",
+    "selection": "TEX -1.5",
+    "american": 182.0,
+    "no_vig_prob": 0.34568
+  },
+  {
+    "matchup": "TEX @ SEA",
     "market": "game_total",
     "selection": "Over 6.5",
     "american": -107.0,
@@ -13470,9 +13652,23 @@
   {
     "matchup": "TEX @ SEA",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": 100.0,
+    "no_vig_prob": 0.482408
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "game_total",
     "selection": "Under 6.5",
     "american": -103.0,
     "no_vig_prob": 0.495615
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": -114.0,
+    "no_vig_prob": 0.517592
   },
   {
     "matchup": "TEX @ SEA",
@@ -13596,9 +13792,30 @@
   {
     "matchup": "TEX @ SEA",
     "market": "pitcher_k",
+    "selection": "Logan Gilbert Ks o7.5",
+    "american": 112.0,
+    "no_vig_prob": 0.444925
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "pitcher_k",
     "selection": "Logan Gilbert Ks u6.5",
     "american": 110.0,
     "no_vig_prob": 0.450681
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "pitcher_k",
+    "selection": "Logan Gilbert Ks u7.5",
+    "american": -143.0,
+    "no_vig_prob": 0.555075
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "pitcher_outs",
+    "selection": "Jacob deGrom Outs o15.5",
+    "american": -130.0,
+    "no_vig_prob": 0.524606
   },
   {
     "matchup": "TEX @ SEA",
@@ -13606,6 +13823,13 @@
     "selection": "Jacob deGrom Outs o16.5",
     "american": -110.0,
     "no_vig_prob": 0.498273
+  },
+  {
+    "matchup": "TEX @ SEA",
+    "market": "pitcher_outs",
+    "selection": "Jacob deGrom Outs u15.5",
+    "american": -105.0,
+    "no_vig_prob": 0.475394
   },
   {
     "matchup": "TEX @ SEA",
