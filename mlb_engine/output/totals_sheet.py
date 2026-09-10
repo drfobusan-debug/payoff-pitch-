@@ -36,6 +36,7 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.vsin import TotalSplit, VSINClient
 from mlb_engine.filters.weather import WeatherConditions, WeatherProvider
+from mlb_engine.output.totals_audit import record_sheet
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -644,5 +645,10 @@ def build_totals_sheet(cfg: Config, day: Date) -> Path | None:
         umps = {}
     weather = WeatherProvider(cache_dir=cfg.weather_cache_dir)
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps)
-    return write_workbook(rows, day, output_path(cfg, day))
+    path = write_workbook(rows, day, output_path(cfg, day))
+    try:
+        record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
+    except Exception as exc:  # the sheet is the deliverable; the ledger row is the receipt
+        log.warning("totals sheet: ledger not updated: %s", exc)
+    return path
 

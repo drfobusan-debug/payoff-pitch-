@@ -13,6 +13,8 @@ sends them in one email (same Gmail App Password credentials the engine's
     * regression_radar_<day>.pdf       (regression radar, if present)
     * power_screen_<day>.pdf           (morning power screen, if present)
     * totals_sheet_<day>.xlsx          (hand-method totals sheet, if present)
+    * totals_audit_<day>.xlsx          (yesterday's sheet graded + running ledger, if present;
+                                        its .txt summary is printed in the body)
 
 Usage:
     python -m scripts.email_daily_package 2026-08-02   # explicit slate date
@@ -91,6 +93,7 @@ def collect_attachments(
             f"regression_radar_{iso}.pdf",
             f"power_screen_{iso}.pdf",
             f"totals_sheet_{iso}.xlsx",
+            f"totals_audit_{iso}.xlsx",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:
@@ -98,6 +101,12 @@ def collect_attachments(
         if path.exists():
             attachments.append((name, path.read_bytes()))
     return attachments
+
+
+def totals_audit_note(out_dir: Path, day: Date, with_daily: bool = True) -> str:
+    """The audit's summary lines, when the day's package has them."""
+    path = out_dir / f"totals_audit_{day.isoformat()}.txt"
+    return path.read_text().strip() if with_daily and path.exists() else ""
 
 
 def main(argv: list[str]) -> int:
@@ -143,12 +152,16 @@ def main(argv: list[str]) -> int:
         subject = f"Payoff Pitch — daily package {day.isoformat()}"
         intro = f"<p>Good morning — here's the full Payoff Pitch package for <b>{nice}</b>.</p>"
         text_intro = f"Payoff Pitch daily package for {nice}."
+    note = totals_audit_note(out_dir, day, with_daily)
     html_body = (
         intro + "<p>Attached: the bet card (Excel), the slate preview article + audio, and "
         "whichever regression articles and stat cards were written today.</p>"
         "<ul>" + "".join(f"<li>{name}</li>" for name in names) + "</ul>"
+        + (f"<pre>{note}</pre>" if note else "")
     )
     text_body = text_intro + "\n\nAttached:\n" + "\n".join(f"  - {name}" for name in names) + "\n"
+    if note:
+        text_body += "\n" + note + "\n"
     try:
         recipient = send_card_email(
             cfg,
