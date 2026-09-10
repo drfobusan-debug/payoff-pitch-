@@ -85,14 +85,13 @@ def test_the_guard_names_where_it_looked(tmp_path: Path) -> None:
 
 
 ROOT = Path(__file__).resolve().parent.parent
-CALLERS = (ROOT / "setup_engine_autorun.sh", ROOT / "scripts" / "macos" / "run_predictions.command")
+CALLERS = (ROOT / "scripts" / "macos" / "run_engine.sh", ROOT / "scripts" / "macos" / "run_predictions.command")
 
 
 def _invocations(module: str) -> list[list[str]]:
     """Every ``python -m <module> ...`` line in the shell callers, as argv.
 
-    The autorun script writes its job through a heredoc, so ``\\$day`` is the
-    escaped form there; both are read as one placeholder, then a plausible value.
+    ``$day`` is read as a placeholder and given a plausible value.
     """
     found = []
     for path in CALLERS:
