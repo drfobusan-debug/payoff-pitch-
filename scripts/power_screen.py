@@ -1093,6 +1093,35 @@ def _review(
     return power_ledger.scorecard(graded_day, graded, voided), graded
 
 
+def _grade_records(
+    cfg: Config, args: argparse.Namespace, day: Date
+) -> dict[str, power_ledger.Record] | None:
+    """Every matchup grade's record over the whole ledger, for the note to print.
+
+    Grades every recorded hitter row from before ``day`` off the box scores (each
+    fetched once and cached), so the label beside a bat is never shown without
+    what that label has been worth. Best-effort like the scorecard: without a
+    ledger, or without the Stats API, the note prints the grades alone.
+    """
+    if args.no_grade:
+        return None
+    positions = [
+        p
+        for p in power_ledger.load(_ledger_path(cfg))
+        if p.rating and p.date and Date.fromisoformat(p.date) < day
+    ]
+    if not positions:
+        return None
+    results: dict[int, GameResult] = {}
+    for pk in sorted({p.game_pk for p in positions if p.game_pk is not None}):
+        try:
+            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
+        except Exception as exc:  # noqa: BLE001 - one missing box score voids one game
+            log.warning("could not fetch the box score for %s: %s", pk, exc)
+    graded, _voided = power_ledger.grade_positions(positions, results)
+    return power_ledger.records_by_rating(graded)
+
+
 def _print_review(card: power_ledger.Scorecard) -> None:
     o = card.overall
     if not o.n:
@@ -1171,6 +1200,7 @@ def _write(
     # Grade before recording: an earlier day is never this one, but a --grade-date
     # pointing at today should read what the ledger held when the note was asked.
     review = _review(cfg, args, result.as_of)
+    grade_records = _grade_records(cfg, args, result.as_of)
     _record([(result, board), (elite, elite_board)], cfg, args)
     html_path = out_dir / power_report.default_filename(result.as_of, "html")
     pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
@@ -1181,6 +1211,7 @@ def _write(
         review=review,
         elite=elite,
         elite_board=elite_board,
+        grade_records=grade_records,
     )
     html_path.write_text(html_doc, encoding="utf-8")
     pdf = power_report.render_pdf(
@@ -1190,6 +1221,7 @@ def _write(
         review=review,
         elite=elite,
         elite_board=elite_board,
+        grade_records=grade_records,
     )
     pdf_path.write_bytes(pdf)
     print(f"{html_path}\n{pdf_path}")

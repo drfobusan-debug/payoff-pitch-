@@ -384,6 +384,42 @@ def test_the_grade_is_lettered_and_never_called_a_buy() -> None:
     assert "rate a buy on the matchup" not in doc
 
 
+def test_each_grade_gets_its_whole_ledger_record() -> None:
+    """One record per grade string, hitters only, wins, losses and units."""
+    players = {7: _line(H=1, R=1, **{"1B": 1})}
+    graded = _graded(
+        _position("HRR", 1.5, rating="STRONG BUY", odds=100.0),
+        _position("HR", 0.5, rating="STRONG BUY", odds=300.0),
+        _position("TB", 0.5, rating="AVOID", odds=-110.0),
+        _position("H", 0.5, rating="", odds=-120.0),
+        players=players,
+    )
+    records = power_ledger.records_by_rating(graded)
+
+    assert set(records) == {"STRONG BUY", "AVOID"}
+    assert (records["STRONG BUY"].wins, records["STRONG BUY"].losses) == (1, 1)
+    assert records["STRONG BUY"].units == 0.0
+    assert (records["AVOID"].wins, records["AVOID"].losses) == (1, 0)
+    assert abs(records["AVOID"].units - 100 / 110) < 1e-3
+
+
+def test_the_note_prints_each_grades_record_beside_the_label() -> None:
+    """The labels stay; what each has been worth on the ledger sits next to them."""
+    result = _result()
+    grade = next(iter(power_report.ratings(result).values()))
+    records = {grade: power_ledger.Record(grade, wins=5, losses=16, units=-11.89)}
+
+    doc = power_report.render_html(result, grade_records=records)
+
+    assert "grade's ledger record" in doc
+    assert "5-16" in doc
+    assert "-11.89u" in doc
+    assert "-57% ROI" in doc
+    assert "What each grade has been worth" in doc
+    assert "no record yet" in doc or len(set(power_report.ratings(result).values())) == 1
+    assert "grade's ledger record" not in power_report.render_html(result)
+
+
 def test_the_ratings_helper_names_every_survivor() -> None:
     result = _result()
     rated = power_report.ratings(result)

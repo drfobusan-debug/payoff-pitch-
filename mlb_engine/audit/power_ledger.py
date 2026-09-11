@@ -492,6 +492,21 @@ def _record(label: str, graded: list[GradedPosition]) -> Record:
     )
 
 
+def records_by_rating(graded: list[GradedPosition]) -> dict[str, Record]:
+    """Each matchup grade's whole record, for the note to print beside the grade.
+
+    A grade is a word about the matchup; the ledger is what the word has been
+    worth. Hitter rows only -- a starter's rows carry no grade -- keyed by the
+    grade as recorded, so a label whose meaning changed keeps one record per
+    string and the reader sees the turn rather than a blend.
+    """
+    rated = [g for g in graded if g.position.rating]
+    return {
+        r: _record(r, [g for g in rated if g.position.rating == r])
+        for r in sorted({g.position.rating for g in rated})
+    }
+
+
 def _brier(pairs: list[tuple[float, int]]) -> float | None:
     if not pairs:
         return None
