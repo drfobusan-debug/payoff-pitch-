@@ -30480,6 +30480,20 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_bb",
+    "selection": "Henry Davis BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.232323
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Henry Davis BB u0.5",
+    "american": -475.0,
+    "no_vig_prob": 0.767677
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
     "selection": "Ian Happ BB o0.5",
     "american": -104.0,
     "no_vig_prob": 0.48071
@@ -30704,6 +30718,13 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_hrr",
+    "selection": "Esmerlyn Valdez H+R+RBI o0.5",
+    "american": -162.0,
+    "no_vig_prob": 0.578534
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
     "selection": "Esmerlyn Valdez H+R+RBI o1.5",
     "american": 121.0,
     "no_vig_prob": 0.424841
@@ -30711,9 +30732,30 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_hrr",
+    "selection": "Esmerlyn Valdez H+R+RBI u0.5",
+    "american": 122.0,
+    "no_vig_prob": 0.421466
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
     "selection": "Esmerlyn Valdez H+R+RBI u1.5",
     "american": -159.0,
     "no_vig_prob": 0.575159
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
+    "selection": "Henry Davis H+R+RBI o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.530715
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
+    "selection": "Henry Davis H+R+RBI u0.5",
+    "american": 104.0,
+    "no_vig_prob": 0.469285
   },
   {
     "matchup": "PIT @ CHC",
@@ -30844,9 +30886,23 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_hrr",
+    "selection": "Oneil Cruz H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.591528
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
     "selection": "Oneil Cruz H+R+RBI o1.5",
     "american": 126.0,
     "no_vig_prob": 0.420781
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
+    "selection": "Oneil Cruz H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.408472
   },
   {
     "matchup": "PIT @ CHC",
@@ -30907,9 +30963,23 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_hrr",
+    "selection": "Rafael Flores H+R+RBI o1.5",
+    "american": 129.0,
+    "no_vig_prob": 0.422325
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
     "selection": "Rafael Flores H+R+RBI u0.5",
     "american": 127.0,
     "no_vig_prob": 0.419604
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_hrr",
+    "selection": "Rafael Flores H+R+RBI u1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.577675
   },
   {
     "matchup": "PIT @ CHC",
@@ -32083,6 +32153,13 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_tb",
+    "selection": "Carson Kelly TB o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.338983
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_tb",
     "selection": "Carson Kelly TB u0.5",
     "american": 113.0,
     "no_vig_prob": 0.442761
@@ -32090,9 +32167,23 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_tb",
+    "selection": "Esmerlyn Valdez TB o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.540791
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_tb",
     "selection": "Esmerlyn Valdez TB o1.5",
     "american": 163.0,
     "no_vig_prob": 0.369729
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_tb",
+    "selection": "Esmerlyn Valdez TB u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.459209
   },
   {
     "matchup": "PIT @ CHC",
@@ -32261,6 +32352,13 @@
     "selection": "Oneil Cruz TB u0.5",
     "american": 110.0,
     "no_vig_prob": 0.449063
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_tb",
+    "selection": "Oneil Cruz TB u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.588352
   },
   {
     "matchup": "PIT @ CHC",
@@ -32524,9 +32622,23 @@
   {
     "matchup": "PIT @ CHC",
     "market": "pitcher_k",
+    "selection": "Shota Imanaga Ks o5.5",
+    "american": -155.0,
+    "no_vig_prob": 0.574362
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "pitcher_k",
     "selection": "Shota Imanaga Ks o6.5",
     "american": 122.0,
     "no_vig_prob": 0.441237
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "pitcher_k",
+    "selection": "Shota Imanaga Ks u5.5",
+    "american": 122.0,
+    "no_vig_prob": 0.425638
   },
   {
     "matchup": "PIT @ CHC",
