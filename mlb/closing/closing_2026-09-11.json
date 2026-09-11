@@ -1807,6 +1807,34 @@
   },
   {
     "matchup": "BAL @ TOR",
+    "market": "batter_k",
+    "selection": "Chris Bassitt K o3.5",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "BAL @ TOR",
+    "market": "batter_k",
+    "selection": "Chris Bassitt K u3.5",
+    "american": -120.0,
+    "no_vig_prob": 0.5
+  },
+  {
+    "matchup": "BAL @ TOR",
+    "market": "batter_k",
+    "selection": "Max Scherzer K o5.5",
+    "american": -106.0,
+    "no_vig_prob": 0.473287
+  },
+  {
+    "matchup": "BAL @ TOR",
+    "market": "batter_k",
+    "selection": "Max Scherzer K u5.5",
+    "american": -134.0,
+    "no_vig_prob": 0.526713
+  },
+  {
+    "matchup": "BAL @ TOR",
     "market": "batter_rbi",
     "selection": "Alejandro Kirk RBI o0.5",
     "american": 197.0,
@@ -19945,9 +19973,23 @@
   {
     "matchup": "KC @ BOS",
     "market": "batter_h",
+    "selection": "Roman Anthony H o1.5",
+    "american": 202.0,
+    "no_vig_prob": 0.311074
+  },
+  {
+    "matchup": "KC @ BOS",
+    "market": "batter_h",
     "selection": "Roman Anthony H u0.5",
     "american": 204.0,
     "no_vig_prob": 0.323673
+  },
+  {
+    "matchup": "KC @ BOS",
+    "market": "batter_h",
+    "selection": "Roman Anthony H u1.5",
+    "american": -275.0,
+    "no_vig_prob": 0.688926
   },
   {
     "matchup": "KC @ BOS",
@@ -42527,6 +42569,20 @@
   {
     "matchup": "TEX @ AZ",
     "market": "batter_bb",
+    "selection": "Danny Jansen BB o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.295399
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_bb",
+    "selection": "Danny Jansen BB u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.704601
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_bb",
     "selection": "Elias Diaz BB o0.5",
     "american": 374.0,
     "no_vig_prob": 0.204342
@@ -42831,6 +42887,34 @@
     "selection": "Corey Seager H+R+RBI u1.5",
     "american": 105.0,
     "no_vig_prob": 0.458915
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_hrr",
+    "selection": "Danny Jansen H+R+RBI o0.5",
+    "american": -163.0,
+    "no_vig_prob": 0.583302
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_hrr",
+    "selection": "Danny Jansen H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_hrr",
+    "selection": "Danny Jansen H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416698
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_hrr",
+    "selection": "Danny Jansen H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
   },
   {
     "matchup": "TEX @ AZ",
@@ -43160,6 +43244,13 @@
     "selection": "Corey Seager HR o2.5",
     "american": 19900.0,
     "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_hr",
+    "selection": "Danny Jansen HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
   },
   {
     "matchup": "TEX @ AZ",
