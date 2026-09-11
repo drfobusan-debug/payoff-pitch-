@@ -36,7 +36,7 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.vsin import TotalSplit, VSINClient
 from mlb_engine.filters.weather import WeatherConditions, WeatherProvider
-from mlb_engine.output.totals_audit import record_sheet
+from mlb_engine.output.totals_audit import BANDS, record_sheet, sheet_bands
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -556,6 +556,7 @@ _COLUMNS = [
 ]
 
 _LEGEND = [
+    ("Bands", BANDS),
     ("Sign", "+ leans Over, - leans Under; SUM is every points column added. Bigger magnitude = stronger lean."),
     ("Off A / Off H", "Away / home offense: wRC+ pts + wOBA pts (team split vs the opposing starter's hand) + Barrel% pts (season)."),
     ("Centre", "Every band's 0 window is the league's middle half (2026 FanGraphs), so an average arm or lineup adds nothing and +5 / -5 are equal leans in opposite directions."),
@@ -632,8 +633,27 @@ def output_path(cfg: Config, day: Date) -> Path:
     return cfg.output_dir / f"totals_sheet_{day.isoformat()}.xlsx"
 
 
-def build_totals_sheet(cfg: Config, day: Date) -> Path | None:
-    """Score the day's slate and write ``totals_sheet_<day>.xlsx``; None when no games."""
+def sheet_is_current(path: Path) -> bool:
+    """True when a sheet already on disk was scored by the bands this code carries."""
+    if not path.exists():
+        return False
+    try:
+        return sheet_bands(path) == BANDS
+    except Exception as exc:
+        log.warning("totals sheet: could not read %s: %s", path.name, exc)
+        return False
+
+
+def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Path | None:
+    """Score the day's slate and write ``totals_sheet_<day>.xlsx``; None when no games.
+
+    With ``if_stale`` a sheet already written by these bands is left as it is,
+    so a job can call this every pass and only rewrite when the bands moved on.
+    """
+    out = output_path(cfg, day)
+    if if_stale and sheet_is_current(out):
+        log.info("totals sheet: %s already on bands %s", out.name, BANDS)
+        return out
     stats = MLBStatsClient()
     slate = stats.get_slate(day)
     if not slate.games:
@@ -659,7 +679,7 @@ def build_totals_sheet(cfg: Config, day: Date) -> Path | None:
         umps = {}
     weather = WeatherProvider(cache_dir=cfg.weather_cache_dir)
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps)
-    path = write_workbook(rows, day, output_path(cfg, day))
+    path = write_workbook(rows, day, out)
     try:
         record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
     except Exception as exc:  # the sheet is the deliverable; the ledger row is the receipt

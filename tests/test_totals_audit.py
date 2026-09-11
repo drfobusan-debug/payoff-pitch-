@@ -6,14 +6,18 @@ from datetime import date as Date
 from pathlib import Path
 
 import pytest
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 
 from mlb_engine.output import totals_audit
 from mlb_engine.output.totals_audit import (
+    BANDS,
+    LEGACY,
     LedgerRow,
     grade,
     merge,
     read_ledger,
+    rows_from_sheet,
+    sheet_bands,
     summarize,
     summary_text,
     write_ledger,
@@ -23,15 +27,15 @@ from mlb_engine.output.totals_audit import (
 D = "2026-09-09"
 
 
-def _rows() -> list[LedgerRow]:
+def _rows(bands: str = BANDS) -> list[LedgerRow]:
     return [
-        LedgerRow(D, "AZ @ KC", 1, 8.5, 30),
-        LedgerRow(D, "WSH @ SD", 2, 8.5, 25),
-        LedgerRow(D, "MIN @ DET", 3, 8.5, 22),
-        LedgerRow(D, "TEX @ SEA", 4, 8.0, 12),
-        LedgerRow(D, "CLE @ BAL", 5, 8.5, 3),
-        LedgerRow(D, "TB @ ATL", 6, 9.0, 0),
-        LedgerRow(D, "HOU @ PHI", 7, 8.0, -4),
+        LedgerRow(D, "AZ @ KC", 1, 8.5, 30, bands=bands),
+        LedgerRow(D, "WSH @ SD", 2, 8.5, 25, bands=bands),
+        LedgerRow(D, "MIN @ DET", 3, 8.5, 22, bands=bands),
+        LedgerRow(D, "TEX @ SEA", 4, 8.0, 12, bands=bands),
+        LedgerRow(D, "CLE @ BAL", 5, 8.5, 3, bands=bands),
+        LedgerRow(D, "TB @ ATL", 6, 9.0, 0, bands=bands),
+        LedgerRow(D, "HOU @ PHI", 7, 8.0, -4, bands=bands),
     ]
 
 
@@ -71,11 +75,63 @@ def test_summary_counts_sign_rank_and_the_slates_own_over_rate() -> None:
     # leans: 5 positive + 1 negative graded (TB is 0 -> no lean, and a push)
     assert (s.sign.hits, s.sign.misses, s.sign.pushes) == (3, 3, 0)
     assert (s.rank_over.hits, s.rank_over.misses) == (2, 1)  # KC under, SD/DET over
-    assert (s.rank_under.hits, s.rank_under.misses, s.rank_under.pushes) == (0, 2, 1)  # BAL, PHI over; ATL push
+    # bottom three are BAL +3, ATL 0, PHI -4: only PHI leans Under, and it went over
+    assert (s.rank_under.hits, s.rank_under.misses, s.rank_under.pushes) == (0, 1, 0)
     assert (s.over_rate.hits, s.over_rate.misses, s.over_rate.pushes) == (4, 2, 1)
-    assert s.days == 1 and s.games == 7
+    assert s.days == 1 and s.games == 7 and s.legacy == 0
     text = summary_text(Date(2026, 9, 9), rows, s)
-    assert "sign 3-3 (50%)" in text and "top-3 overs 2-1 (67%)" in text
+    assert "sign 3-3 (50%)" in text and "top-3 overs 2-1 (67%)" in text and "bottom-3 unders 0-1" in text
+
+
+def test_rows_scored_by_older_bands_stay_on_record_but_are_not_counted() -> None:
+    old = _rows(LEGACY)
+    grade(old, FINALS)
+    s = summarize(old)
+    assert (s.games, s.legacy, s.sign.n, s.over_rate.n) == (0, 7, 0, 0)
+    text = summary_text(Date(2026, 9, 9), old, s)
+    assert "7 row(s) scored by older bands (legacy)" in text and "7 older-band rows not counted" in text
+    new = [LedgerRow("2026-09-10", "AZ @ KC", 9, 8.0, 4, 2, 7, "over", bands=BANDS)]
+    s2 = summarize(old + new)
+    assert (s2.games, s2.legacy, s2.sign.hits) == (1, 7, 1)
+
+
+def test_a_ledger_written_before_versioning_reads_back_as_legacy(tmp_path: Path) -> None:
+    path = tmp_path / "totals_ledger.csv"
+    path.write_text(
+        "date,game,game_pk,line,sum_pts,away_runs,home_runs,result\n"
+        f"{D},AZ @ KC,1,8.5,30,2,5,under\n"
+    )
+    (row,) = read_ledger(path)
+    assert row.bands == LEGACY and not row.current and row.hit is False
+    write_ledger(path, [row, LedgerRow("2026-09-10", "AZ @ KC", 9, 8.0, 4, bands=BANDS)])
+    back = read_ledger(path)
+    assert [r.bands for r in back] == [LEGACY, BANDS]
+
+
+def _sheet(path: Path, legend: list[tuple[str, str]], day: str = D) -> Path:
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Totals {day}"
+    ws.append(["Game", "Total", "SUM"])
+    ws.append(["AZ @ KC", "8.5 / dk 9", 6])
+    lg = wb.create_sheet("Legend")
+    lg.append(["Column", "Rule"])
+    for k, v in legend:
+        lg.append([k, v])
+    wb.save(path)
+    return path
+
+
+def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
+    stamped = _sheet(tmp_path / "a.xlsx", [("Bands", BANDS), ("Sign", "...")])
+    unstamped_centred = _sheet(tmp_path / "b.xlsx", [("Sign", "..."), ("Centre", "...")])
+    old = _sheet(tmp_path / "c.xlsx", [("Sign", "..."), ("wRC+", ">150 3 | 126-150 2")])
+    assert sheet_bands(stamped) == BANDS
+    assert sheet_bands(unstamped_centred) == BANDS
+    assert sheet_bands(old) == LEGACY
+    (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
+    assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
+    assert rows_from_sheet(stamped, Date(2026, 9, 9), {})[0].bands == BANDS
 
 
 def test_ledger_round_trips_and_merge_never_duplicates(tmp_path: Path) -> None:
@@ -112,12 +168,38 @@ def test_a_rewritten_sheet_replaces_its_ungraded_rows_but_never_graded_ones(
     assert {r.game: r.sum_pts for r in read_ledger(path) if r.date == D}["AZ @ KC"] == 30
 
 
+def test_the_audit_rereads_an_ungraded_day_from_its_sheet_before_grading(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Rows filed by an older sheet are replaced by the sheet on disk, then graded."""
+    ledger = tmp_path / "totals_ledger.csv"
+    write_ledger(ledger, [LedgerRow(D, "AZ @ KC", 1, 8.5, 30, bands=LEGACY)])
+    out = tmp_path / "out"
+    out.mkdir()
+    _sheet(out / f"totals_sheet_{D}.xlsx", [("Bands", BANDS)])
+
+    class Cfg:
+        output_dir = out
+        audit_dir = tmp_path
+
+    monkeypatch.setattr(totals_audit, "game_pks", lambda day: {"AZ @ KC": 1})
+    monkeypatch.setattr(totals_audit, "finals", lambda day: {1: ("AZ @ KC", 2, 5)})
+    path, text = totals_audit.run_audit(Cfg(), Date(2026, 9, 10))  # type: ignore[arg-type]
+    (row,) = read_ledger(ledger)
+    assert (row.sum_pts, row.bands, row.result, row.hit) == (6, BANDS, "under", False)
+    assert path is not None and "1 graded" in text
+    # a second pass never touches a graded day
+    _sheet(out / f"totals_sheet_{D}.xlsx", [("Bands", BANDS)])
+    totals_audit.run_audit(Cfg(), Date(2026, 9, 10))  # type: ignore[arg-type]
+    assert read_ledger(ledger) == [row]
+
+
 def test_workbook_has_yesterday_summary_and_ledger(tmp_path: Path) -> None:
     rows = _rows()
     grade(rows, FINALS)
     wb = load_workbook(write_workbook(tmp_path / "a.xlsx", Date(2026, 9, 9), rows, rows))
     assert wb.sheetnames == ["Graded 2026-09-09", "Summary", "Ledger"]
     graded = list(wb["Graded 2026-09-09"].iter_rows(values_only=True))
-    assert graded[0][:4] == ("Date", "Game", "Line", "SUM")
+    assert graded[0][:4] == ("Date", "Game", "Line", "SUM") and graded[0][-1] == "Bands"
     assert wb["Summary"]["A3"].value.startswith("Sign of SUM") and wb["Summary"]["B3"].value == "3-3"
-    assert graded[1][1] == "AZ @ KC" and graded[1][-1] == "miss"
+    assert graded[1][1] == "AZ @ KC" and graded[1][-2] == "miss" and graded[1][-1] == BANDS

@@ -208,10 +208,10 @@ elif [[ "$MODE" == slate-* ]]; then
           python scripts/power_screen.py --date "$day" \
             || echo "[$(date)] power screen failed" >&2
         fi
-        if [[ ! -f "$OUT/totals_sheet_$day.xlsx" ]]; then
-          python -m scripts.totals_sheet "$day" \
-            || echo "[$(date)] totals sheet failed" >&2
-        fi
+        # --if-stale: a sheet written by an older band version is rescored, one
+        # already on the current bands is kept.
+        python -m scripts.totals_sheet "$day" --if-stale \
+          || echo "[$(date)] totals sheet failed" >&2
         if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
           python -m scripts.totals_audit "$day" \
             || echo "[$(date)] totals audit failed" >&2
