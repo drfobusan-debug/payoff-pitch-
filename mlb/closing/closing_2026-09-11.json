@@ -17292,6 +17292,20 @@
   {
     "matchup": "KC @ BOS",
     "market": "batter_bb",
+    "selection": "Trevor Story BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.234335
+  },
+  {
+    "matchup": "KC @ BOS",
+    "market": "batter_bb",
+    "selection": "Trevor Story BB u0.5",
+    "american": -446.0,
+    "no_vig_prob": 0.765665
+  },
+  {
+    "matchup": "KC @ BOS",
+    "market": "batter_bb",
     "selection": "Vinnie Pasquantino BB o0.5",
     "american": 255.0,
     "no_vig_prob": 0.29168
