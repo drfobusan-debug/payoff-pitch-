@@ -1611,13 +1611,45 @@ def _best_price_cell(row: BoardRow | None) -> str:
     return f"{row.label} {_price(row.american)} ({ev})"
 
 
-def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
+def _grade_record_cell(rec: Record | None) -> str:
+    """What the grade has been worth on the ledger, or that it has no record yet."""
+    if rec is None or not rec.n:
+        return "no record yet"
+    roi = f", {rec.roi * 100:+.0f}% ROI" if rec.roi is not None else ""
+    return f"{_wl(rec)}, {rec.units:+.2f}u{roi}"
+
+
+def _grade_ledger_lead(records: dict[str, Record]) -> str:
+    """One paragraph putting every grade's whole record in front of the reader."""
+    rated = [(g, records[g]) for g in RATING_ORDER if g in records and records[g].n]
+    if not rated:
+        return ""
+    parts = ", ".join(
+        f"<span class='{g.lower().replace(' ', '-')}'>{RATING_DISPLAY.get(g, g)}</span> "
+        f"{_grade_record_cell(r)} on {r.n} rows"
+        for g, r in rated
+    )
+    total = sum(r.n for _g, r in rated)
+    return (
+        f"<p class='sub'><strong>What each grade has been worth, on every graded row the "
+        f"ledger holds ({total} rows).</strong> {parts}. The labels are the matchup read's "
+        f"and are left as they are; the record beside each is the honest part, and a grade "
+        f"that has lost money says so here in its own row.</p>"
+    )
+
+
+def _recommendations(
+    result: ScreenResult,
+    board: Board | None = None,
+    grade_records: dict[str, Record] | None = None,
+) -> str:
     graded = [
         (v, s) for s in result.sections for v in s.hitters
     ]
     ranks = _ranks(result)
     rated = [(*_rating(v, ranks.get(name_key(v.line.name))), v, s) for v, s in graded]
     rated.sort(key=lambda t: (RATING_ORDER[t[0]], -(t[2].line.points)))
+    records = grade_records or {}
     rows = []
     for rating, reason, view, section in rated:
         css = rating.lower().replace(" ", "-")
@@ -1628,6 +1660,8 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         ]
         if board is not None:
             row.append(_best_price_cell(board.best_for_batter(view.line.name)))
+        if grade_records is not None:
+            row.append(_grade_record_cell(records.get(rating)))
         row.append(reason or "&mdash;")
         rows.append(row)
     strong = [r for r in rated if r[0] == STRONG_BUY]
@@ -1646,6 +1680,8 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
         f"Exposure to the starter, arsenal fit, the full-game opponent and strikeout risk are "
         f"printed beside it and count for nothing in it. It contains no price.</p>"
     )
+    if grade_records is not None:
+        lead += _grade_ledger_lead(records)
     if board is not None:
         agreed = [
             t for t in rated
@@ -1667,6 +1703,8 @@ def _recommendations(result: ScreenResult, board: Board | None = None) -> str:
     headers = ["grade", "batter", "vs"]
     if board is not None:
         headers.append("best price (EV)")
+    if grade_records is not None:
+        headers.append("grade's ledger record")
     headers.append("basis")
     return (
         "<h2>Recommendations</h2>" + lead
@@ -1728,7 +1766,11 @@ def _late_cuts(result: ScreenResult) -> str:
     )
 
 
-def _elite_part(result: ScreenResult, board: Board | None) -> list[str]:
+def _elite_part(
+    result: ScreenResult,
+    board: Board | None,
+    grade_records: dict[str, Record] | None = None,
+) -> list[str]:
     """The elite-arm pass as the second part of the note, same stages, own tables."""
     body = [
         "<h1 class='part'>Part II &mdash; the same bats against average-to-elite arms</h1>",
@@ -1747,7 +1789,7 @@ def _elite_part(result: ScreenResult, board: Board | None) -> list[str]:
     if board is not None:
         body.append(_board_section(board))
     if result.sections:
-        body.append(_recommendations(result, board))
+        body.append(_recommendations(result, board, grade_records))
     return body
 
 
@@ -1759,11 +1801,16 @@ def render_html(
     review: tuple[Scorecard, list[GradedPosition]] | None = None,
     elite: ScreenResult | None = None,
     elite_board: Board | None = None,
+    grade_records: dict[str, Record] | None = None,
 ) -> str:
     """The full note as a standalone HTML document.
 
     With ``elite`` the same document carries the elite-arm pass as a second part
     after the soft screen's recommendations, so one email and one PDF hold both.
+    ``grade_records`` is each matchup grade's whole-ledger record
+    (:func:`mlb_engine.audit.power_ledger.records_by_rating`), printed beside every
+    grade in the recommendations so the label is never shown without what it has
+    been worth.
     """
     subtitle = f"Power screen &middot; {result.as_of:%A, %-d %B %Y}"
     if prepared_for:
@@ -1808,9 +1855,9 @@ def render_html(
         body.append(_scorecard_section(*review))
     if board is not None:
         body.append(_board_section(board))
-    body.append(_recommendations(result, board))
+    body.append(_recommendations(result, board, grade_records))
     if elite is not None:
-        body.extend(_elite_part(elite, elite_board))
+        body.extend(_elite_part(elite, elite_board, grade_records))
     return (
         "<!DOCTYPE html><html><head><meta charset='utf-8'>"
         f"<title>Power screen {result.as_of.isoformat()}</title>"
@@ -1826,6 +1873,7 @@ def render_pdf(
     review: tuple[Scorecard, list[GradedPosition]] | None = None,
     elite: ScreenResult | None = None,
     elite_board: Board | None = None,
+    grade_records: dict[str, Record] | None = None,
 ) -> bytes:
     """The note as a PDF, through the same WeasyPrint path as the nightly card."""
     from mlb_engine.output.card import render_pdf as _pdf
@@ -1838,6 +1886,7 @@ def render_pdf(
             review=review,
             elite=elite,
             elite_board=elite_board,
+            grade_records=grade_records,
         )
     )
 
