@@ -1,0 +1,142 @@
+{
+  "Missouri @ Kansas|game_ats|Kansas": {
+    "american": -108.0,
+    "line": 5.5,
+    "no_vig_prob": 0.5018515196776059
+  },
+  "Missouri @ Kansas|game_ats|Missouri": {
+    "american": -107.0,
+    "line": -5.5,
+    "no_vig_prob": 0.49814848032239406
+  },
+  "Missouri @ Kansas|game_ml|Kansas": {
+    "american": 186.0,
+    "line": null,
+    "no_vig_prob": 0.34487032168554926
+  },
+  "Missouri @ Kansas|game_ml|Missouri": {
+    "american": -210.0,
+    "line": null,
+    "no_vig_prob": 0.6551296783144509
+  },
+  "Missouri @ Kansas|game_total|Over": {
+    "american": -108.0,
+    "line": 51.5,
+    "no_vig_prob": 0.505099858030577
+  },
+  "Missouri @ Kansas|game_total|Under": {
+    "american": 102.0,
+    "line": 51.5,
+    "no_vig_prob": 0.49490014196942306
+  },
+  "Norfolk State @ Virginia|game_ats|Norfolk State": {
+    "american": -108.0,
+    "line": 45.5,
+    "no_vig_prob": 0.505882355431372
+  },
+  "Norfolk State @ Virginia|game_ats|Virginia": {
+    "american": -105.0,
+    "line": -45.5,
+    "no_vig_prob": 0.49411764456862795
+  },
+  "Norfolk State @ Virginia|game_total|Over": {
+    "american": -108.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5079296950353579
+  },
+  "Norfolk State @ Virginia|game_total|Under": {
+    "american": 105.0,
+    "line": 54.5,
+    "no_vig_prob": 0.49207030496464205
+  },
+  "Richmond @ NC State|game_ats|NC State": {
+    "american": -110.0,
+    "line": -32.5,
+    "no_vig_prob": 0.502135656928071
+  },
+  "Richmond @ NC State|game_ats|Richmond": {
+    "american": -108.0,
+    "line": 32.5,
+    "no_vig_prob": 0.49786434307192895
+  },
+  "Richmond @ NC State|game_ml|NC State": {
+    "american": -6500.0,
+    "line": null,
+    "no_vig_prob": 0.9661092339495531
+  },
+  "Richmond @ NC State|game_ml|Richmond": {
+    "american": 4000.0,
+    "line": null,
+    "no_vig_prob": 0.033890766050446906
+  },
+  "Richmond @ NC State|game_total|Over": {
+    "american": -109.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5028502767684315
+  },
+  "Richmond @ NC State|game_total|Under": {
+    "american": -102.0,
+    "line": 50.5,
+    "no_vig_prob": 0.4971497232315684
+  },
+  "Rutgers @ Boston College|game_ats|Boston College": {
+    "american": -106.0,
+    "line": -3.0,
+    "no_vig_prob": 0.5069813651047131
+  },
+  "Rutgers @ Boston College|game_ats|Rutgers": {
+    "american": 100.0,
+    "line": 3.0,
+    "no_vig_prob": 0.4930186348952868
+  },
+  "Rutgers @ Boston College|game_ml|Boston College": {
+    "american": -150.0,
+    "line": null,
+    "no_vig_prob": 0.5886186111739563
+  },
+  "Rutgers @ Boston College|game_ml|Rutgers": {
+    "american": 140.0,
+    "line": null,
+    "no_vig_prob": 0.41138138882604375
+  },
+  "Rutgers @ Boston College|game_total|Over": {
+    "american": -102.0,
+    "line": 54.5,
+    "no_vig_prob": 0.4889444797960302
+  },
+  "Rutgers @ Boston College|game_total|Under": {
+    "american": -114.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5110555202039698
+  },
+  "Villanova @ Louisville|game_ats|Louisville": {
+    "american": -110.0,
+    "line": -36.5,
+    "no_vig_prob": 0.50072163920439
+  },
+  "Villanova @ Louisville|game_ats|Villanova": {
+    "american": -108.0,
+    "line": 36.5,
+    "no_vig_prob": 0.49927836079561
+  },
+  "Villanova @ Louisville|game_ml|Louisville": {
+    "american": -10000.0,
+    "line": null,
+    "no_vig_prob": 0.9718038429093033
+  },
+  "Villanova @ Louisville|game_ml|Villanova": {
+    "american": 5500.0,
+    "line": null,
+    "no_vig_prob": 0.02819615709069661
+  },
+  "Villanova @ Louisville|game_total|Over": {
+    "american": -108.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5024220543763319
+  },
+  "Villanova @ Louisville|game_total|Under": {
+    "american": -105.0,
+    "line": 56.5,
+    "no_vig_prob": 0.4975779456236681
+  }
+}
