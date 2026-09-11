@@ -83,6 +83,24 @@ def test_summary_counts_sign_rank_and_the_slates_own_over_rate() -> None:
     assert "sign 3-3 (50%)" in text and "top-3 overs 2-1 (67%)" in text and "bottom-3 unders 0-1" in text
 
 
+def test_a_five_game_day_is_ranked_and_a_row_lands_on_one_side_only() -> None:
+    """9/10: +6 over, +4 under, -4 under, -7 under, -13 push. The top and bottom three
+    overlap on -4; its sign puts it in the Under bucket alone. Three games is too few."""
+    d = "2026-09-10"
+    rows = [
+        LedgerRow(d, "COL @ NYY", 1, 8.5, 6, 3, 10, "over", bands=BANDS),
+        LedgerRow(d, "TB @ ATL", 2, 8.0, 4, 1, 3, "under", bands=BANDS),
+        LedgerRow(d, "HOU @ PHI", 3, 8.5, -4, 2, 1, "under", bands=BANDS),
+        LedgerRow(d, "PIT @ CWS", 4, 7.5, -7, 2, 0, "under", bands=BANDS),
+        LedgerRow(d, "TEX @ SEA", 5, 7.0, -13, 3, 4, "push", bands=BANDS),
+    ]
+    s = summarize(rows)
+    assert (s.rank_over.hits, s.rank_over.misses) == (1, 1)
+    assert (s.rank_under.hits, s.rank_under.misses, s.rank_under.pushes) == (2, 0, 1)
+    small = summarize(rows[:3])
+    assert small.rank_over.n == small.rank_under.n == 0
+
+
 def test_rows_scored_by_older_bands_stay_on_record_but_are_not_counted() -> None:
     old = _rows(LEGACY)
     grade(old, FINALS)

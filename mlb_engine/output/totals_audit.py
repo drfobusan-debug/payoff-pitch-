@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 LEDGER_NAME = "totals_ledger.csv"
 OVER, UNDER, PUSH = "over", "under", "push"
 RANK_N = 3
+RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
 # Version of the scoring bands; bump when a band table changes so sheets and
 # ledger rows scored on the old scale can be told apart from the new.
 BANDS = "centred-2026.09"
@@ -320,7 +321,7 @@ def summarize(rows: list[LedgerRow]) -> Summary:
         by_bucket[bucket(r.sum_pts)].add(r.result == OVER if not pushed else None, pushed)
     for day in sorted({r.date for r in graded}):
         todays = sorted((r for r in graded if r.date == day), key=lambda r: -r.sum_pts)
-        if len(todays) < 2 * RANK_N:
+        if len(todays) < RANK_MIN_GAMES:
             continue
         for r in todays[:RANK_N]:
             if r.sum_pts > 0:
