@@ -16,6 +16,8 @@ from mlb_engine.output.totals_audit import (
     read_ledger,
     summarize,
     summary_text,
+    verdict,
+    wilson,
     write_ledger,
     write_workbook,
 )
@@ -76,6 +78,31 @@ def test_summary_counts_sign_rank_and_the_slates_own_over_rate() -> None:
     assert s.days == 1 and s.games == 7
     text = summary_text(Date(2026, 9, 9), rows, s)
     assert "sign 3-3 (50%)" in text and "top-3 overs 2-1 (67%)" in text
+
+
+def test_magnitude_bands_tally_the_sign_call_regardless_of_direction() -> None:
+    rows = _rows()
+    grade(rows, FINALS)
+    m = summarize(rows).by_mag
+    # +3 hit and -4 miss share the 1..4 band; +30 miss, +25/+22 hits fill >= 15; 0 is no call
+    assert (m["1..4"].hits, m["1..4"].misses) == (1, 1)
+    assert (m["5..9"].hits, m["5..9"].misses) == (0, 0)
+    assert (m["10..14"].hits, m["10..14"].misses) == (0, 1)
+    assert (m[">= 15"].hits, m[">= 15"].misses) == (2, 1)
+    assert sum(t.n for t in m.values()) == 6
+    text = summary_text(Date(2026, 9, 9), rows, summarize(rows))
+    assert "|SUM|  >= 15: 2-1 (67%) [21-94%] unproven (n<30)" in text
+    assert "|SUM|   5..9: 0-0 unproven (n<30)" in text
+
+
+def test_verdict_needs_the_whole_interval_past_break_even() -> None:
+    lo, hi = wilson(60, 100)
+    assert 0.50 < lo < 0.524 < 0.60 < hi < 0.70
+    assert verdict(totals_audit.Tally(60, 40)) == "unproven"
+    assert verdict(totals_audit.Tally(600, 400)) == "edge"
+    assert verdict(totals_audit.Tally(400, 600)) == "no edge"
+    assert verdict(totals_audit.Tally(20, 0)) == "unproven (n<30)"  # a hot streak is not a verdict
+    assert verdict(totals_audit.Tally()) == "unproven (n<30)"
 
 
 def test_ledger_round_trips_and_merge_never_duplicates(tmp_path: Path) -> None:
