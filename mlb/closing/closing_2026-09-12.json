@@ -40182,9 +40182,23 @@
   {
     "matchup": "TEX @ AZ",
     "market": "batter_h",
+    "selection": "Josh Jung H o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_h",
     "selection": "Josh Jung H u0.5",
     "american": 181.0,
     "no_vig_prob": 0.333571
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_h",
+    "selection": "Josh Jung H u1.5",
+    "american": -250.0,
+    "no_vig_prob": 0.666667
   },
   {
     "matchup": "TEX @ AZ",
@@ -41169,6 +41183,20 @@
   {
     "matchup": "TEX @ AZ",
     "market": "batter_tb",
+    "selection": "Pavin Smith TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.510121
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_tb",
+    "selection": "Pavin Smith TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.489879
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "batter_tb",
     "selection": "Ryan Waldschmidt TB o0.5",
     "american": -150.0,
     "no_vig_prob": 0.55992
@@ -41337,9 +41365,23 @@
   {
     "matchup": "TEX @ AZ",
     "market": "pitcher_bb",
+    "selection": "Kumar Rocker Walks o2.5",
+    "american": 152.0,
+    "no_vig_prob": 0.373301
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "pitcher_bb",
     "selection": "Kumar Rocker Walks u1.5",
     "american": 135.0,
     "no_vig_prob": 0.402793
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "pitcher_bb",
+    "selection": "Kumar Rocker Walks u2.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626699
   },
   {
     "matchup": "TEX @ AZ",
