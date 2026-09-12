@@ -377,11 +377,33 @@ def test_the_note_prints_the_number_the_card_bet_not_the_raw_model() -> None:
     assert "70.0%" not in doc
 
 
-def test_the_grade_is_lettered_and_never_called_a_buy() -> None:
-    doc = power_report.render_html(_result())
+def test_the_labels_follow_the_money() -> None:
+    """The bucket with the best ROI on enough rows is the Strong Buy; the rest are Buys."""
+    rec = power_ledger.Record
+    records = {
+        "STRONG BUY": rec("STRONG BUY", wins=2, losses=10, units=-8.83),
+        "BUY": rec("BUY", wins=50, losses=79, units=-17.64),
+        "HOLD": rec("HOLD", wins=127, losses=155, units=-15.80),
+        "AVOID": rec("AVOID", wins=39, losses=36, units=7.26),
+    }
+    assert power_report.strong_bucket(records) == "AVOID"
+    assert power_report.labels(records) == {
+        "STRONG BUY": "BUY", "BUY": "BUY", "HOLD": "BUY", "AVOID": "STRONG BUY",
+    }
 
-    assert "MATCHUP " in doc
-    assert "rate a buy on the matchup" not in doc
+    # Once HOLD's record is the best one, the word moves with it.
+    records["HOLD"] = rec("HOLD", wins=160, losses=122, units=30.0)
+    assert power_report.strong_bucket(records) == "HOLD"
+
+    # A bucket under LABEL_MIN_ROWS cannot take the label however good its ROI.
+    records["STRONG BUY"] = rec("STRONG BUY", wins=11, losses=1, units=9.5)
+    assert power_report.strong_bucket(records) == "HOLD"
+
+    # No record: the default bucket, and the note prints buckets beside the words.
+    assert power_report.strong_bucket(None) == power_report.DEFAULT_STRONG_BUCKET
+    doc = power_report.render_html(_result())
+    assert "MATCHUP " not in doc
+    assert "(contact " in doc or "(rank 1-2)" in doc
 
 
 def test_each_grade_gets_its_whole_ledger_record() -> None:
@@ -415,7 +437,7 @@ def test_the_note_prints_each_grades_record_beside_the_label() -> None:
     assert "5-16" in doc
     assert "-11.89u" in doc
     assert "-57% ROI" in doc
-    assert "What each grade has been worth" in doc
+    assert "What each bucket has been worth" in doc
     assert "no record yet" in doc or len(set(power_report.ratings(result).values())) == 1
     assert "grade's ledger record" not in power_report.render_html(result)
 
