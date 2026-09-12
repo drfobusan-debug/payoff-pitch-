@@ -36787,9 +36787,23 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hrr",
+    "selection": "Freddy Fermin H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.407314
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
     "selection": "Freddy Fermin H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.399766
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
+    "selection": "Freddy Fermin H+R+RBI u1.5",
+    "american": -164.0,
+    "no_vig_prob": 0.592686
   },
   {
     "matchup": "SD @ SF",
@@ -37053,9 +37067,37 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hr",
+    "selection": "Christian Koss HR o1.5",
+    "american": 15000.0,
+    "no_vig_prob": 0.006623
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Christian Koss HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
     "selection": "Dustin Harris HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Dustin Harris HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Dustin Harris HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "SD @ SF",
@@ -37091,6 +37133,20 @@
     "selection": "Freddy Fermin HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Freddy Fermin HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Freddy Fermin HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "SD @ SF",
@@ -37277,9 +37333,37 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hr",
+    "selection": "Samad Taylor HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.007092
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Samad Taylor HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
     "selection": "Shay Whitcomb HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Shay Whitcomb HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
+    "selection": "Shay Whitcomb HR o2.5",
+    "american": 19900.0,
+    "no_vig_prob": 0.005
   },
   {
     "matchup": "SD @ SF",
@@ -38313,6 +38397,13 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_tb",
+    "selection": "Christian Koss TB o1.5",
+    "american": 245.0,
+    "no_vig_prob": 0.289855
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
     "selection": "Christian Koss TB u0.5",
     "american": 102.0,
     "no_vig_prob": 0.473549
@@ -38323,6 +38414,13 @@
     "selection": "Dustin Harris TB o0.5",
     "american": -179.0,
     "no_vig_prob": 0.601094
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Dustin Harris TB o1.5",
+    "american": 210.0,
+    "no_vig_prob": 0.322581
   },
   {
     "matchup": "SD @ SF",
@@ -38365,6 +38463,13 @@
     "selection": "Freddy Fermin TB o0.5",
     "american": -149.0,
     "no_vig_prob": 0.562284
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Freddy Fermin TB o1.5",
+    "american": 205.0,
+    "no_vig_prob": 0.327869
   },
   {
     "matchup": "SD @ SF",
@@ -38544,6 +38649,13 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_tb",
+    "selection": "Samad Taylor TB o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.357143
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
     "selection": "Samad Taylor TB u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400532
@@ -38554,6 +38666,13 @@
     "selection": "Shay Whitcomb TB o0.5",
     "american": -109.0,
     "no_vig_prob": 0.491217
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Shay Whitcomb TB o1.5",
+    "american": 230.0,
+    "no_vig_prob": 0.30303
   },
   {
     "matchup": "SD @ SF",
