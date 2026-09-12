@@ -354,6 +354,11 @@ class Config:
     # printed on the card; set the env var to price it again.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
 
+    # Read ESPN's public game summaries (preview story, stat leaders, ATS records,
+    # venue, forecast) for the card's context box. Never priced; one keyless call
+    # per game.
+    espn_color: bool = field(default_factory=lambda: _env_bool("CFBE_ESPN_COLOR", True))
+
     # Read VSiN's public betting splits (handle% and tickets% per side). On by
     # default: the moneyline screen in :mod:`cfb_engine.market.mlsharp` needs
     # them, and every side that has one carries its divergence into the ledger so

@@ -19,7 +19,8 @@ from cfb_engine.config import Config
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
 from cfb_engine.data.cfbd import CFBDClient, RatingBook
 from cfb_engine.data.efficiency import EfficiencyProvider, blend_efficiency
-from cfb_engine.data.ensemble import EnsembleProvider, blend_ensemble
+from cfb_engine.data.ensemble import EnsembleProvider, ModelRatings, blend_ensemble
+from cfb_engine.data.espn import ESPNColor
 from cfb_engine.data.injuries import (
     InjuryBook,
     NewsItem,
@@ -58,6 +59,7 @@ from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
 from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
+from cfb_engine.output.brief import GameBrief, build_briefs
 from cfb_engine.recommendations import Recommendation
 from cfb_engine.schemas import Game, Slate
 
@@ -100,6 +102,8 @@ class Pipeline:
         self.sharp_gate = SharpGate.from_env()
         self.splits_provider = SplitsProvider(cfg.cache_dir)
         self.splits: SplitBook = {}
+        self.espn = ESPNColor(cfg.cache_dir / "espn")
+        self.briefs: dict[str, GameBrief] = {}
         self._first_board: dict[str, snapshot.SideQuote] = {}
 
     def _load_calibrator(self) -> Calibrator:
@@ -148,6 +152,7 @@ class Pipeline:
             self.cfg.pff_dir,
             self.cfg.ratings_file,
         )
+        models: list[ModelRatings] = []
         if self.cfg.ensemble:
             models = self.ensemble.collect(season)
             if models:
@@ -202,6 +207,25 @@ class Pipeline:
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
+        try:
+            self.briefs = build_briefs(
+                self.cfbd,
+                season,
+                slate,
+                ctx_book=ctx_book,
+                injuries=injuries,
+                hfa_default=self.cfg.model.home_field_pts,
+                hfa_enabled=self.cfg.vsin_hfa,
+                color=(
+                    self.espn.fetch(slate_date, [(g.home.name, g.away.name) for g in slate.games])
+                    if self.cfg.espn_color
+                    else None
+                ),
+                models=models,
+            )
+        except Exception as exc:  # context only; the card renders without it
+            logger.warning("game briefs unavailable: %s", exc)
+            self.briefs = {}
         mc = MonteCarlo(self.cfg.model)
         markov = MarkovSim(self.cfg.model) if self.cfg.sim_engine == "markov" else None
 
@@ -216,6 +240,8 @@ class Pipeline:
                     injuries, starters, season=season,
                 )
             )
+        for r in recs:
+            r.brief = self.briefs.get(r.game_id)
         return order_recs(recs)
 
     # -- per game ---------------------------------------------------------

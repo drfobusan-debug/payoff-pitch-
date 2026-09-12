@@ -13,10 +13,12 @@ from __future__ import annotations
 
 import logging
 from datetime import date as Date
+from html import escape
 from pathlib import Path
 
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
+from cfb_engine.output.brief import GameBrief, TeamBrief
 from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
@@ -96,11 +98,234 @@ def _game_best_block(recs: list[Recommendation]) -> str:
     return f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
 
 
+def _home_side(recs: list[Recommendation], market: str) -> Recommendation | None:
+    rows = [r for r in recs if r.market == market]
+    for r in rows:
+        if r.team_side == "home" or r.side == "over":
+            return r
+    return rows[0] if rows else None
+
+
+def _market_line(recs: list[Recommendation]) -> str:
+    """The market's no-vig probabilities beside the model's, one italic line."""
+    bits: list[str] = []
+    ml = _home_side(recs, "game_ml")
+    if ml is not None:
+        bits.append(
+            f"ML {escape(ml.selection)} market {_pct(ml.fair_prob)} · model {_pct(ml.model_prob)}"
+        )
+    ats = _home_side(recs, "game_ats")
+    if ats is not None:
+        bits.append(
+            f"ATS {escape(ats.selection)} market {_pct(ats.fair_prob)} · model {_pct(ats.model_prob)}"
+        )
+    tot = _home_side(recs, "game_total")
+    if tot is not None:
+        bits.append(
+            f"Total {escape(tot.selection)} market {_pct(tot.fair_prob)} · model {_pct(tot.model_prob)}"
+        )
+    if not bits:
+        return ""
+    return f"<p class='mkt'><i>{' &nbsp;|&nbsp; '.join(bits)}</i></p>"
+
+
+def _rank(n: int | None) -> str:
+    return "—" if n is None else f"#{n}"
+
+
+def _rating(x: float | None, rank: int | None) -> str:
+    if x is None:
+        return "—"
+    return f"{x:+.1f} <span class='rk'>{_rank(rank)}</span>"
+
+
+def _team_row(t: TeamBrief, *, ats: bool) -> str:
+    name = escape(t.name)
+    if t.poll_rank is not None:
+        name = f"<span class='ap'>No. {t.poll_rank}</span> {name}"
+    form = t.record
+    if t.streak:
+        form += f" <span class='streak'>{t.streak}</span>"
+    other = " / ".join(
+        s for s in (
+            f"TR {_rank(t.tr_rank)}" if t.tr_rank is not None else "",
+            f"FPI {_rank(t.fpi_rank)}" if t.fpi_rank is not None else "",
+        ) if s
+    ) or "—"
+    sp = _rank(t.sp_rank) if t.rated else "<span class='muted'>unrated</span>"
+    if t.rated and t.sp_rating is not None:
+        sp += f" <span class='rk'>({t.sp_rating:+.1f})</span>"
+    ats_cell = f"<td>{escape(t.ats or '—')}</td>" if ats else ""
+    return (
+        f"<tr><td class='tn'>{name}</td><td>{form}</td><td>{sp}</td>"
+        f"<td>{_rating(t.off_rating, t.off_rank)}</td><td>{_rating(t.def_rating, t.def_rank)}</td>"
+        f"<td>{other}</td>{ats_cell}</tr>"
+    )
+
+
+def _team_table(b: GameBrief) -> str:
+    ats = bool(b.away.ats or b.home.ats)
+    return (
+        "<table class='teams'><thead><tr><th></th><th>Record</th><th>SP+</th>"
+        f"<th>Offense</th><th>Defense</th><th>Other ranks</th>{'<th>ATS</th>' if ats else ''}</tr></thead><tbody>"
+        f"{_team_row(b.away, ats=ats)}{_team_row(b.home, ats=ats)}</tbody></table>"
+    )
+
+
+def _players_line(b: GameBrief) -> str:
+    parts = []
+    for t in (b.away, b.home):
+        names = t.leaders or t.key_players
+        if names:
+            parts.append(f"<b>{escape(t.name)}</b>: {escape('; '.join(names[:3]))}")
+    if not parts:
+        return ""
+    src = "ESPN leaders" if (b.away.leaders or b.home.leaders) else "season PPA, garbage time excluded"
+    return f"<p class='ctx'><b>Who matters</b> <span class='muted'>({src})</span> — {' · '.join(parts)}</p>"
+
+
+def _out_line(b: GameBrief) -> str:
+    parts = [f"<b>{escape(t.name)}</b>: {escape(', '.join(t.out))}" for t in (b.away, b.home) if t.out]
+    if not parts:
+        return ""
+    return f"<p class='ctx'><b>Out</b> <span class='muted'>(reported, not scored)</span> — {' · '.join(parts)}</p>"
+
+
+def _venue_line(b: GameBrief) -> str:
+    bits: list[str] = []
+    where = escape(b.venue) if b.venue else None
+    if where and b.city:
+        where += f", {escape(b.city)}"
+    if where:
+        if b.grass is True:
+            where += " (grass)"
+        elif b.grass is False:
+            where += " (turf)"
+        bits.append(where)
+    if b.neutral_site:
+        bits.append("neutral site — no home-field charge")
+    elif b.hfa_pts is not None:
+        src = "VSiN venue table" if b.hfa_listed else "flat league value"
+        bits.append(f"home edge priced at <b>{b.hfa_pts:.1f} pts</b> ({src})")
+    if b.dome:
+        bits.append("indoors")
+    else:
+        wx = []
+        if b.temperature_f is not None:
+            wx.append(f"{b.temperature_f:.0f}°F")
+        if b.wind_mph is not None:
+            wx.append(f"wind {b.wind_mph:.0f} mph")
+        elif b.gust_mph is not None:
+            wx.append(f"gusts to {b.gust_mph:.0f} mph")
+        if b.precipitation is not None and b.precipitation > 0:
+            wx.append(f"{b.precipitation:.2f}\" rain expected")
+        elif b.precip_pct is not None:
+            wx.append(f"{b.precip_pct:.0f}% rain chance")
+        if wx:
+            bits.append("kickoff forecast " + ", ".join(wx))
+    if b.rest_home is not None and b.rest_away is not None and b.rest_home != b.rest_away:
+        bits.append(f"rest {b.rest_home}d home vs {b.rest_away}d away")
+    if b.conference_game:
+        bits.append("conference game")
+    if not bits:
+        return ""
+    return f"<p class='ctx'><b>Venue &amp; weather</b> — {'; '.join(bits)}.</p>"
+
+
+def _story_line(b: GameBrief) -> str:
+    if not b.headline and not b.story and not b.tags:
+        return ""
+    chips = "".join(f"<span class='chip'>{escape(t)}</span>" for t in b.tags)
+    text = escape(b.headline or "")
+    if b.story:
+        text = f"<b>{text}</b> {escape(b.story)}" if text else escape(b.story)
+    return f"<p class='story'>{chips}{text} <span class='muted'>— ESPN/AP preview</span></p>"
+
+
+def _sharp_line(recs: list[Recommendation]) -> str:
+    rows = [r for r in recs if r.sharp_div is not None and r.market in ("game_ats", "game_ml")]
+    if not rows:
+        return ""
+    r = max(rows, key=lambda x: abs(x.sharp_div or 0.0))
+    div = r.sharp_div or 0.0
+    if abs(div) < 5:
+        return ""
+    lean = "money is heavier than tickets" if div > 0 else "tickets are heavier than money"
+    return (
+        f"<p class='ctx'><b>VSiN splits</b> — on {escape(r.selection)} the {lean} "
+        f"({div:+.0f} pts handle minus tickets); <span class='muted'>recorded, priced only on the moneyline</span>.</p>"
+    )
+
+
+def _take(b: GameBrief, recs: list[Recommendation]) -> str:
+    """The casual read, sentence by sentence, each one only if the data is there."""
+    r = recs[0]
+    margin = r.exp_margin or 0.0
+    fav, dog = (b.home, b.away) if margin >= 0 else (b.away, b.home)
+    parts: list[str] = []
+
+    def tag(t: TeamBrief) -> str:
+        s = f"{t.name} ({t.record}"
+        if t.streak and t.wins + t.losses > 0:
+            s += f", {t.streak}"
+        if t.rated:
+            s += f", SP+ {_rank(t.sp_rank)}"
+        return s + ")"
+
+    where = f"in {b.city.split(',')[0]}" if b.city else "on the road"
+    if b.neutral_site:
+        where = "at a neutral site"
+    parts.append(f"{tag(b.away)} visits {tag(b.home)} {where}.")
+    if b.away.last or b.home.last:
+        lasts = [f"{t.name} {t.last}" for t in (b.away, b.home) if t.last]
+        parts.append("Last time out: " + "; ".join(lasts) + ".")
+    if fav.off_rank is not None and dog.def_rank is not None:
+        parts.append(
+            f"The matchup to watch is {fav.name}'s {_ordinal(fav.off_rank)}-ranked offense "
+            f"against a {dog.name} defense SP+ has {_ordinal(dog.def_rank)}"
+            + (" — a mismatch on paper." if fav.off_rank + 30 < dog.def_rank else ".")
+        )
+    elif not fav.rated or not dog.rated:
+        unr = [t.name for t in (fav, dog) if not t.rated]
+        parts.append(
+            f"SP+ does not rate {' or '.join(unr)} (FCS), so the model leans on the market's number "
+            "more than usual here."
+        )
+    parts.append(
+        f"Our sim has {fav.name} by {abs(margin):.1f} with about {r.exp_total or 0:.0f} total points"
+        + (f"; ESPN's FPI gives the home side {b.fpi_home:.0f}%." if b.fpi_home is not None else ".")
+    )
+    ml = _home_side(recs, "game_ml")
+    if ml is not None and ml.fair_prob is not None:
+        gap = (ml.model_prob - ml.fair_prob) * 100
+        if gap >= 3:
+            parts.append(f"We like {ml.selection} more than the market does ({gap:+.1f} pts).")
+        elif gap <= -3:
+            parts.append(f"The market is higher on {ml.selection} than we are ({gap:+.1f} pts), so no moneyline play.")
+        else:
+            parts.append("Model and market are within a few points on the moneyline.")
+    return f"<p class='take'>{escape(' '.join(parts))}</p>"
+
+
+def _ordinal(n: int) -> str:
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
 def _game_section(recs: list[Recommendation]) -> str:
     matchup, headline, desc = _game_shape(recs)
+    b = recs[0].brief
+    context = ""
+    if b is not None:
+        context = (
+            f"{_team_table(b)}{_take(b, recs)}{_story_line(b)}{_players_line(b)}"
+            f"{_out_line(b)}{_venue_line(b)}{_sharp_line(recs)}"
+        )
     return (
-        f"<div class='game'><h2>{matchup}</h2>"
+        f"<div class='game'><h2>{escape(matchup)}</h2>"
+        f"{_market_line(recs)}"
         f"<div class='shape'><span class='tag'>{headline}</span> {desc}</div>"
+        f"{context}"
         f"{_ml_line(recs)}"
         f"{_game_best_block(recs)}</div>"
     )
@@ -143,6 +368,16 @@ p{margin:6px 0;}
 .shape{background:#eef2f6;border-left:4px solid #16324f;padding:6px 10px;margin:8px 0;font-size:9.8pt;}
 .shape .tag{display:inline-block;background:#16324f;color:#fff;padding:1px 8px;border-radius:10px;font-size:8.4pt;font-family:'DejaVu Sans',sans-serif;margin-right:6px;}
 .ml{font-size:10pt;margin:6px 0;}
+.mkt{margin:-2px 0 4px;font-size:9.4pt;color:#4b5563;}
+table.teams{width:100%;border-collapse:collapse;font-size:8.9pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
+table.teams th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 6px;font-size:7.8pt;text-transform:uppercase;letter-spacing:.5px;}
+table.teams td{padding:3px 6px;border-bottom:1px solid #eceef1;vertical-align:top;}
+table.teams td.tn{font-weight:bold;color:#16324f;}
+.rk{color:#6b7280;font-size:7.8pt;}.ap{color:#c8102e;font-weight:bold;}.streak{color:#16324f;font-weight:bold;}.muted{color:#6b7280;font-style:italic;font-size:8.6pt;}
+.take{font-size:10.3pt;margin:6px 0;}
+.ctx{font-size:9.2pt;margin:3px 0;color:#2b2f36;}
+.story{font-size:9.4pt;margin:6px 0;background:#fbf7ec;border-left:3px solid #c8a951;padding:4px 8px;}
+.chip{display:inline-block;background:#c8102e;color:#fff;padding:0 7px;border-radius:9px;font-size:7.6pt;font-family:'DejaVu Sans',sans-serif;margin-right:4px;text-transform:uppercase;letter-spacing:.4px;}
 .pos{color:#2e7d32;font-weight:bold;}.neg{color:#b23b3b;font-weight:bold;}
 p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
@@ -190,6 +425,32 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     return html, _narration(day, ordered_games, recs)
 
 
+def _spoken_context(b: GameBrief) -> str:
+    def say(t: TeamBrief) -> str:
+        s = t.name
+        if t.poll_rank is not None:
+            s = f"number {t.poll_rank} {s}"
+        if t.wins + t.losses > 0:
+            s += f", {t.wins} and {t.losses}"
+            if t.streak and int(t.streak[1:]) >= 2:
+                s += f", {'won' if t.streak[0] == 'W' else 'lost'} {t.streak[1:]} straight"
+        if t.rated:
+            s += f", SP plus number {t.sp_rank}"
+        return s
+
+    out = f"{say(b.away)} at {say(b.home)}. "
+    if b.tags:
+        out += "Storyline: " + ", ".join(b.tags) + ". "
+    outs = [f"{t.name} without {', '.join(o.split(' ', 1)[-1] for o in t.out[:2])}" for t in (b.away, b.home) if t.out]
+    if outs:
+        out += "Injuries: " + "; ".join(outs) + ". "
+    if not b.dome and b.precipitation and b.precipitation > 0:
+        out += "Rain in the forecast. "
+    elif not b.dome and b.wind_mph is not None and b.wind_mph >= 15:
+        out += f"Windy, about {b.wind_mph:.0f} miles an hour. "
+    return out
+
+
 def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommendation]) -> str:
     nice = day.strftime("%A, %B %-d")
     parts = [
@@ -200,8 +461,12 @@ def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommen
         matchup, headline, _ = _game_shape(group)
         r = group[0]
         fav = r.home_abbrev if (r.exp_margin or 0) >= 0 else r.away_abbrev
+        parts.append(f"{matchup}. ")
+        brief = r.brief
+        if brief is not None:
+            parts.append(_spoken_context(brief))
         parts.append(
-            f"{matchup}. The model likes a {headline.lower()} game, about "
+            f"The model likes a {headline.lower()} game, about "
             f"{r.exp_total or 0:.0f} points, leaning {fav}. "
         )
         buys = _best_bets(group)

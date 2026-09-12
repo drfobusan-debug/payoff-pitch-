@@ -9,6 +9,7 @@ from pathlib import Path
 
 from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
+from cfb_engine.output.brief import GameBrief
 
 
 @dataclass
@@ -61,6 +62,9 @@ class Recommendation:
     exp_margin_sd: float | None = None
     exp_total: float | None = None
     exp_total_sd: float | None = None
+    # Reader's context for the card (records, ranks, leaders, venue, weather,
+    # storyline); the same object on every rec of a game. Never priced.
+    brief: GameBrief | None = None
 
     @property
     def model_american(self) -> float:
@@ -117,6 +121,7 @@ def save_json(recs: list[Recommendation], path: Path) -> None:
         d = asdict(r)
         d["game_date"] = r.game_date.isoformat()
         d["tier"] = r.tier.value
+        d["brief"] = None if r.brief is None else r.brief.to_dict()
         payload.append(d)
     path.write_text(json.dumps(payload, indent=2))
 
@@ -128,5 +133,7 @@ def load_json(path: Path) -> list[Recommendation]:
         d = dict(d)
         d["game_date"] = Date.fromisoformat(d["game_date"])
         d["tier"] = Tier(d["tier"])
+        brief = d.get("brief")
+        d["brief"] = GameBrief.from_dict(brief) if isinstance(brief, dict) else None
         out.append(Recommendation(**d))
     return out
