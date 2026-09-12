@@ -7,8 +7,15 @@ package carries ``totals_audit_<day>.xlsx`` -- yesterday graded, the whole
 ledger, and the cumulative hit rates the sheet has actually earned:
 
 * **Sign**: did the Over hit when SUM > 0, the Under when SUM < 0?
-* **Rank**: each day's top-3 sums as Overs and bottom-3 as Unders.
+* **Rank**: each day's top-3 sums as Overs and bottom-3 as Unders, counted only
+  when the sum's sign agrees with the side (a +3 at the bottom of an all-Over
+  day is not an Under).
 * **Bucket**: Over rate by SUM band, so a strong lean can be told from a weak one.
+
+Every row carries the version of the bands that scored it. The tallies only
+count rows scored by the current bands: a sheet from an older band set is on a
+different scale (the pre-centred bands scored a league-average arm +1), so its
+rows stay in the ledger as history and are excluded from the rates.
 
 Nothing here feeds a price. It is a record.
 """
@@ -37,9 +44,15 @@ log = logging.getLogger(__name__)
 LEDGER_NAME = "totals_ledger.csv"
 OVER, UNDER, PUSH = "over", "under", "push"
 RANK_N = 3
+RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
+# Version of the scoring bands; bump when a band table changes so sheets and
+# ledger rows scored on the old scale can be told apart from the new.
+BANDS = "centred-2026.09"
+LEGACY = "legacy"
 
 # Sheet rows that reference the sheet's own columns, not the audit's.
 _GAME, _TOTAL, _SUM = "Game", "Total", "SUM"
+_LEGEND_SHEET, _BANDS_KEY = "Legend", "Bands"
 
 
 @dataclass
@@ -52,6 +65,11 @@ class LedgerRow:
     away_runs: int | None = None
     home_runs: int | None = None
     result: str = ""  # over | under | push | "" (ungraded)
+    bands: str = LEGACY  # BANDS version that scored sum_pts; LEGACY predates versioning
+
+    @property
+    def current(self) -> bool:
+        return self.bands == BANDS
 
     @property
     def graded(self) -> bool:
@@ -97,6 +115,7 @@ def read_ledger(path: Path) -> list[LedgerRow]:
                 away_runs=int(r["away_runs"]) if r["away_runs"] else None,
                 home_runs=int(r["home_runs"]) if r["home_runs"] else None,
                 result=r["result"],
+                bands=r.get("bands") or LEGACY,
             ))
     return out
 
@@ -119,9 +138,26 @@ def _first_line(total: str) -> float | None:
     return float(m.group()) if m else None
 
 
+def _bands_of(wb) -> str:
+    """The band version stamped on a sheet's Legend; LEGACY when it has none."""
+    if _LEGEND_SHEET not in wb.sheetnames:
+        return LEGACY
+    rules = {str(k): v for k, v, *_ in wb[_LEGEND_SHEET].iter_rows(values_only=True) if k is not None}
+    if rules.get(_BANDS_KEY):
+        return str(rules[_BANDS_KEY])
+    # The first centred sheets shipped before the stamp; only they carry the Centre rule.
+    return BANDS if "Centre" in rules else LEGACY
+
+
+def sheet_bands(sheet: Path) -> str:
+    return _bands_of(load_workbook(sheet, read_only=True))
+
+
 def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[LedgerRow]:
     """One ungraded ledger row per game on the day's sheet."""
-    ws = load_workbook(sheet, read_only=True)[f"Totals {day.isoformat()}"]
+    wb = load_workbook(sheet, read_only=True)
+    bands = _bands_of(wb)
+    ws = wb[f"Totals {day.isoformat()}"]
     it = ws.iter_rows(values_only=True)
     header = [str(c) for c in next(it)]
     gi, ti, si = header.index(_GAME), header.index(_TOTAL), header.index(_SUM)
@@ -130,7 +166,9 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
         if r[gi] is None or not isinstance(r[si], int):
             continue
         game = str(r[gi])
-        out.append(LedgerRow(day.isoformat(), game, game_pks.get(game, 0), _first_line(str(r[ti] or "")), r[si]))
+        out.append(LedgerRow(
+            day.isoformat(), game, game_pks.get(game, 0), _first_line(str(r[ti] or "")), r[si], bands=bands,
+        ))
     return out
 
 
@@ -312,10 +350,13 @@ class Summary:
     by_mag: dict[str, Tally]  # sign hit rate by |SUM| band: does a bigger number win more often?
     days: int
     games: int
+    legacy: int = 0  # graded rows scored by older bands, kept but not counted
 
 
 def summarize(rows: list[LedgerRow]) -> Summary:
-    graded = [r for r in rows if r.graded]
+    """Tallies over the graded rows scored by the current bands only."""
+    legacy = sum(1 for r in rows if r.graded and not r.current)
+    graded = [r for r in rows if r.graded and r.current]
     sign, rank_o, rank_u, base = Tally(), Tally(), Tally(), Tally()
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
     by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
@@ -330,13 +371,15 @@ def summarize(rows: list[LedgerRow]) -> Summary:
         by_bucket[bucket(r.sum_pts)].add(r.result == OVER if not pushed else None, pushed)
     for day in sorted({r.date for r in graded}):
         todays = sorted((r for r in graded if r.date == day), key=lambda r: -r.sum_pts)
-        if len(todays) < 2 * RANK_N:
+        if len(todays) < RANK_MIN_GAMES:
             continue
         for r in todays[:RANK_N]:
-            rank_o.add(r.result == OVER if r.result != PUSH else None, r.result == PUSH)
+            if r.sum_pts > 0:
+                rank_o.add(r.result == OVER if r.result != PUSH else None, r.result == PUSH)
         for r in todays[-RANK_N:]:
-            rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
-    return Summary(sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded))
+            if r.sum_pts < 0:
+                rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
+    return Summary(sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy)
 
 
 def mag_lines(total: Summary) -> list[str]:
@@ -353,6 +396,8 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
     """The lines the morning email prints; ``day`` is the sheet date being graded."""
     y = summarize(yesterday)
     lines = [f"Totals sheet {day.isoformat()}: {y.games} graded, slate went {y.over_rate.text()} over."]
+    if y.legacy:
+        lines.append(f"  {y.legacy} row(s) scored by older bands ({', '.join(sorted({r.bands for r in yesterday if not r.current}))}) are on record but not counted.")
     if y.games:
         lines.append(
             f"  sign {y.sign.text()} | top-{RANK_N} overs {y.rank_over.text()} | bottom-{RANK_N} unders {y.rank_under.text()}"
@@ -365,6 +410,7 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
         f"Ledger ({total.days} days, {total.games} games): sign {total.sign.text()} | "
         f"top-{RANK_N} overs {total.rank_over.text()} | bottom-{RANK_N} unders {total.rank_under.text()} | "
         f"slate over rate {total.over_rate.text()}"
+        + (f" | {total.legacy} older-band rows not counted" if total.legacy else "")
     )
     lines.append(f"Win rate by |SUM| band (sign as the call; break-even {100 * BREAK_EVEN:.1f}%):")
     lines.extend(mag_lines(total))
@@ -378,7 +424,7 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     bold = Font(bold=True)
     green = PatternFill("solid", fgColor="C6EFCE")
     red = PatternFill("solid", fgColor="FFC7CE")
-    cols = ["Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit"]
+    cols = ["Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Bands"]
 
     def fill(ws, rows: list[LedgerRow]) -> None:
         ws.append(cols)
@@ -388,9 +434,9 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
         for r in sorted(rows, key=lambda r: (r.date, -r.sum_pts)):
             ws.append([
                 r.date, r.game, r.line, r.sum_pts, r.lean, r.away_runs, r.home_runs, r.runs, r.result,
-                "" if r.hit is None else "hit" if r.hit else "miss",
+                "" if r.hit is None else "hit" if r.hit else "miss", r.bands,
             ])
-            cell = ws.cell(row=ws.max_row, column=len(cols))
+            cell = ws.cell(row=ws.max_row, column=cols.index("Hit") + 1)
             if r.hit is True:
                 cell.fill = green
             elif r.hit is False:
@@ -413,7 +459,9 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     def rec(label: str, t: Tally) -> None:
         s.append([label, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3)])
 
-    s.append([f"Ledger: {total.days} days, {total.games} graded games", None, None])
+    s.append([f"Ledger: {total.days} days, {total.games} graded games on bands {BANDS}", None, None])
+    if total.legacy:
+        s.append([f"{total.legacy} graded rows scored by older bands are in the Ledger tab and not counted here", None, None])
     rec("Sign of SUM (+ Over / - Under)", total.sign)
     rec(f"Top-{RANK_N} SUM each day as Overs", total.rank_over)
     rec(f"Bottom-{RANK_N} SUM each day as Unders", total.rank_under)
@@ -435,7 +483,11 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
             round(lo, 3) if t.n else None, round(hi, 3) if t.n else None, verdict(t),
         ])
     s.append([])
-    s.append(["Break-even at -110 is 52.4%. A band shows 'edge' only when its whole 95% range clears that, on 30+ decided games. Sign and rank rates are graded against the sheet's own line at write time."])
+    s.append([
+        "Break-even at -110 is 52.4%. A band shows 'edge' only when its whole 95% range clears that, on 30+ decided games. "
+        "Sign and rank rates are graded against the sheet's own line at write time; "
+        "a top-3 row counts as an Over only when its SUM is positive, a bottom-3 row as an Under only when negative."
+    ])
     s.column_dimensions["A"].width = 44
     s.column_dimensions["B"].width = 20
     s.column_dimensions["C"].width = 10
@@ -466,12 +518,14 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
     path = ledger_path(cfg)
     ledger = read_ledger(path)
 
-    # Yesterday's sheet may not have been recorded yet (first run after deploy, or a
-    # box that generated the sheet without the audit).
+    # Yesterday's sheet is the record of what was delivered: an ungraded day is
+    # re-read from it (a sheet rewritten after its rows were filed, or one a box
+    # generated without the audit) before the finals go in.
     sheet = cfg.output_dir / f"totals_sheet_{sheet_day.isoformat()}.xlsx"
-    if sheet.exists() and not any(r.date == sheet_day.isoformat() for r in ledger):
+    if sheet.exists() and not any(r.date == sheet_day.isoformat() and r.graded for r in ledger):
         try:
-            ledger = merge(ledger, rows_from_sheet(sheet, sheet_day, game_pks(sheet_day)))
+            fresh = rows_from_sheet(sheet, sheet_day, game_pks(sheet_day))
+            ledger = merge([r for r in ledger if r.date != sheet_day.isoformat()], fresh)
         except Exception as exc:
             log.warning("totals audit: could not read %s: %s", sheet.name, exc)
 

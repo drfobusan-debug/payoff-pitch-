@@ -15,12 +15,18 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from mlb_engine.config import Config, EVThresholds
 from mlb_engine.market import keys
 from mlb_engine.market.ev import EVResult, MarketQuote
 from mlb_engine.market.tiers import Tier, classify
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 
 class _IdentityCalibrator:

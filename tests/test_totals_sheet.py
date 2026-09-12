@@ -5,11 +5,14 @@ from __future__ import annotations
 from datetime import date as Date
 from pathlib import Path
 
+import pytest
 from openpyxl import load_workbook
 
 from mlb_engine.data.parks import PARKS
 from mlb_engine.data.vsin import Split, TotalSplit
 from mlb_engine.filters.weather import WeatherConditions
+from mlb_engine.output import totals_sheet
+from mlb_engine.output.totals_audit import BANDS, sheet_bands
 from mlb_engine.output.totals_sheet import (
     SheetRow,
     TeamSide,
@@ -17,6 +20,7 @@ from mlb_engine.output.totals_sheet import (
     book_pts,
     csw_pts,
     kbb_pts,
+    sheet_is_current,
     siera_pts,
     weather_pts,
     woba_pts,
@@ -113,3 +117,25 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
     assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1) + 1 + 2 - 1 - 1
     assert values[header.index("SUM")] == sum(pts) == row.total_pts
     assert "Legend" in load_workbook(path).sheetnames
+    assert sheet_bands(path) == BANDS and sheet_is_current(path)
+
+
+def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    day = Date(2026, 9, 10)
+    out = tmp_path / f"totals_sheet_{day.isoformat()}.xlsx"
+    monkeypatch.setattr(totals_sheet, "output_path", lambda cfg, d: out)
+    monkeypatch.setattr(totals_sheet, "MLBStatsClient", lambda: pytest.fail("rebuilt a current sheet"))
+    assert not sheet_is_current(out)
+    # Rewrite the Legend without the stamp or the Centre rule: an older band set.
+    write_workbook([], day, out)
+    wb = load_workbook(out)
+    for r in wb["Legend"].iter_rows(min_row=2):
+        if r[0].value in ("Bands", "Centre"):
+            r[0].value, r[1].value = None, None
+    wb.save(out)
+    assert not sheet_is_current(out)
+    write_workbook([], day, out)
+    assert sheet_is_current(out)
+    assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]

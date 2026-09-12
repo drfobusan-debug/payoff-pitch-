@@ -303,20 +303,60 @@ _MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
 }
 
 # Weight given to the devigged market price per market, overriding the global
-# ``Config.market_anchor``. Scoring both probability sources on the 10,497
-# real-priced graded rows, the market is the better forecaster everywhere the
-# engine bets (Brier: batter props .2180 vs .2210, F5 .2425 vs .2674, moneyline
-# .2470 vs .2597, pitcher props .2461 vs .2769, run lines .2414 vs .2567) --
-# except totals, where the model wins (.2446 vs .2480) and is also the only
-# profitable buy bucket (+16 units on n=93).
+# ``Config.market_anchor``. Each is ``1 - alpha`` from
+# ``scripts/market_shrink_study.py`` (``alphas_for`` on the whole ledger) over
+# the 79,984 graded two-sided rows through 2026-09-09, 35 slates: alpha is the
+# share of the model's disagreement with the price that survives, fitted on log
+# loss and shrunk toward the pooled alpha (0.05) by sample. Out of time the
+# pooled alpha is 0.00-0.10 across 21 walk-forward refits, and on the 33,685-row
+# holdout the price alone beats the model on every batter market (Brier .2422
+# vs .2461 singles, .2445 vs .2558 total bases, .2091 vs .2144 RBI), on every
+# game and F5 market, and on strikeouts, earned runs and outs. Wherever the
+# model claimed 5-14 points over the price, outcomes landed within one point of
+# the price.
 #
-# Totals are therefore pinned at zero rather than left to inherit the global
-# weight: anchoring scales the measured edge by ``1 - w``, so raising the global
-# toll to make the engine defer where it is beaten would silently double the
-# edge required in the one market it is not.
+# So a weight near 1.0 is not a switch, it is the measurement: on that market
+# the model's departure from the price carries nothing, and the bet probability
+# is the devigged price to within a point -- which the EV screen cannot buy,
+# since no quote pays above its own fair probability. A market where the model
+# was measurably *worse* than the book (moneylines, F5 sides, runs, strikeouts)
+# fits to the same weight rather than to a negative alpha, so the shut-off is
+# the fit, not a list.
+#
+# The markets keeping a coefficient are the ones whose shrunk number beat the
+# price out of sample: pitcher hits and walks (+4 points realized over the
+# price where the model disagreed by 3+, n=522 / 370) and game totals, the one
+# market the model out-forecasts alone. Doubles and batter walks keep one on
+# calibration grounds only; their buy records are losing.
+#
+# Home runs are absent on purpose: 175 two-sided rows fit alpha at the top of
+# the grid, and the 113 graded buys returned -38.5%, so the market inherits the
+# global weight rather than a coefficient a sample that size cannot own.
+#
+# A fitted ``market_anchor_file`` (``--write-anchors``) overrides these per
+# market; delete it to return here. Totals used to be pinned at 0.0 off a
+# 10,497-row read; the sample eight times larger says the model wins totals by
+# a coefficient, not outright.
 _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
-    "game_total": 0.0,
-    "f5_total": 0.0,
+    "batter_1b": 1.0,
+    "batter_2b": 0.61,
+    "batter_bb": 0.90,
+    "batter_h": 0.95,
+    "batter_hrr": 1.0,
+    "batter_r": 1.0,
+    "batter_rbi": 1.0,
+    "batter_tb": 1.0,
+    "pitcher_bb": 0.90,
+    "pitcher_er": 0.99,
+    "pitcher_h": 0.81,
+    "pitcher_k": 1.0,
+    "pitcher_outs": 0.99,
+    "game_ml": 0.99,
+    "game_rl": 0.99,
+    "game_total": 0.78,
+    "f5_ml": 0.99,
+    "f5_rl": 0.99,
+    "f5_total": 0.99,
 }
 
 # Parsed ``market_anchor_file`` contents, keyed by path. Read once per process:
@@ -1297,7 +1337,17 @@ class Config:
     # the floor is a level test the anchor makes meaningful -- a selection still
     # above 0.58 after being pulled 30% toward the market is one the market also
     # likes, and those are the buys that won.
-    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.3))
+    #
+    # That was the read on 1,619 buys. On 79,984 graded rows the 0.3 did not
+    # hold: the two-sided buy record since it shipped is -5.6% (2,149 bets) and
+    # -9.0% on the 165 since every other gate went live, mean CLV +0.003, and
+    # the model's disagreement with the price fits to a weight of 0.00-0.10 on
+    # every market it bets (see ``_MARKET_ANCHOR_BY_MARKET``, which now names
+    # every market). This global is therefore only the weight for a market the
+    # study has never fitted, and it is 1.0: a market with no measured residual
+    # bets the price, and the price cannot be bought. A departure from the
+    # market has to be earned with a coefficient, per market, on graded rows.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 1.0))
 
     # Batter-prop over correction, in logit units (see models.run_env for the
     # graded walk-forward). ``prop_over_tilt`` is the constant the simulator's

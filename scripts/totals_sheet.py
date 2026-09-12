@@ -2,6 +2,7 @@
 
     python -m scripts.totals_sheet                # today
     python -m scripts.totals_sheet 2026-09-10
+    python -m scripts.totals_sheet 2026-09-10 --if-stale   # keep a sheet already on the current bands
 
 Writes ``totals_sheet_<date>.xlsx`` to the engine's output directory, where the
 morning package (``scripts.email_daily_package --with-daily``) picks it up. Every
@@ -23,9 +24,13 @@ from mlb_engine.output.totals_sheet import build_totals_sheet
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("date", nargs="?", type=Date.fromisoformat, default=Date.today())
+    ap.add_argument(
+        "--if-stale", action="store_true",
+        help="only rewrite when the sheet on disk is missing or was scored by an older band version",
+    )
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    path = build_totals_sheet(load_config(), args.date)
+    path = build_totals_sheet(load_config(), args.date, if_stale=args.if_stale)
     if path is None:
         print(f"no games on {args.date}; no totals sheet written", file=sys.stderr)
         return 0

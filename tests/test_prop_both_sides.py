@@ -11,6 +11,7 @@ the first of those.
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from mlb_engine.config import Config, EVThresholds
 from mlb_engine.data.oddsapi import _opposite_prices
@@ -18,6 +19,11 @@ from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 # A 50/50 model against a plus-money price is refused by the shipped conviction
 # floor and EV ceiling; the K buy cap is what these tests are about.

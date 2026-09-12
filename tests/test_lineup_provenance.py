@@ -18,6 +18,8 @@ from datetime import date as Date
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from mlb_engine.audit.analysis import lineup_findings, lineup_splits
 from mlb_engine.audit.ledger import (
     LEDGER_FIELDS,
@@ -32,6 +34,11 @@ from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 
 def _row(

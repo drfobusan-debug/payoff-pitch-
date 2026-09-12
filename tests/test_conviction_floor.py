@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
+
 from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
@@ -25,6 +27,11 @@ from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.market.ev import EVResult, MarketQuote
 from mlb_engine.market.tiers import Tier, classify, price_screen
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 MATCHUP = "MIA @ ATL"
 
@@ -102,7 +109,11 @@ def test_the_bet_is_the_blend_and_the_model_keeps_its_own_number() -> None:
 
 
 def test_totals_are_still_bet_on_the_model_itself() -> None:
-    """The one family where the model out-forecast the price keeps its own number."""
+    """The one family where the model out-forecast the price keeps its own number.
+
+    Under the legacy pin that is the whole number; the fitted weight the engine
+    ships keeps only the fitted share of it (see ``_MARKET_ANCHOR_BY_MARKET``).
+    """
     rec = _rec(_pipeline(), "game_total", 0.65, selection="Over 8.5")
     assert rec.bet_prob == 0.65
     assert Config().anchor_for("game_total") == 0.0
