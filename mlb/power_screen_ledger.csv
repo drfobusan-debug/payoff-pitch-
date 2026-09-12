@@ -570,3 +570,31 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-11,Shota Imanaga,684007,824631,H,4.5,over,draftkings,-101.0,0.644,0.5096,0.4781,0.0315,0.0142,Pass,,True,confirmed,20260911T1559Z,,,,,pitcher,prob_floor,elite
 2026-09-11,Shota Imanaga,684007,824631,K,6.5,over,betonlineag,122.0,0.4375,0.4344,0.4344,0.0,-0.0356,Pass,,True,confirmed,20260911T1559Z,,,,,pitcher,ev_floor,elite
 2026-09-11,Shota Imanaga,684007,824631,outs,17.5,over,fanduel,-102.0,0.3714,0.4928,0.494,-0.0012,-0.024,Pass,,True,confirmed,20260911T1559Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Aaron Judge,592450,823496,HRR,1.5,under,bovada,110.0,0.5668,0.4527,0.4527,0.0,-0.0494,Pass,STRONG BUY,True,confirmed,20260912T1600Z,1,30,11,2.08,batter,ev_floor,elite
+2026-09-12,Aaron Judge,592450,823496,RBI,0.5,over,draftkings,133.0,0.1792,0.4158,0.4158,0.0,-0.0313,Pass,STRONG BUY,True,confirmed,20260912T1600Z,1,30,11,2.08,batter,ev_floor,elite
+2026-09-12,Aaron Judge,592450,823496,TB,1.5,under,betmgm,-115.0,0.7663,0.5193,0.5193,0.0,-0.0292,Pass,STRONG BUY,True,confirmed,20260912T1600Z,1,30,11,2.08,batter,ev_floor,elite
+2026-09-12,Bryan Reynolds,668804,824630,1B,0.5,under,fanatics,100.0,0.5899,0.4915,0.4915,0.0,-0.0169,Pass,HOLD,True,contradicted,20260912T1600Z,10,12,7,-2.51,batter,ev_floor,elite
+2026-09-12,Bryan Reynolds,668804,824630,HRR,1.5,under,betmgm,105.0,0.5292,0.4792,0.4792,0.0,-0.0176,Pass,HOLD,True,contradicted,20260912T1600Z,10,12,7,-2.51,batter,ev_floor,elite
+2026-09-12,Bryan Reynolds,668804,824630,RBI,0.5,over,betmgm,180.0,0.2733,0.3494,0.3494,0.0,-0.0217,Pass,HOLD,True,contradicted,20260912T1600Z,10,12,7,-2.51,batter,ev_floor,elite
+2026-09-12,Clay Holmes,605280,824630,BB,1.5,over,draftkings,-187.0,0.6407,0.6158,0.613,0.0028,-0.0549,Pass,,True,contradicted,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Clay Holmes,605280,824630,ER,2.5,under,draftkings,-140.0,0.6055,0.5537,0.5532,0.0005,-0.0507,Pass,,True,contradicted,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Clay Holmes,605280,824630,H,5.5,under,bovada,-165.0,0.6115,0.5899,0.5849,0.0051,-0.0526,Pass,,True,contradicted,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Clay Holmes,605280,824630,K,4.5,over,draftkings,108.0,0.562,0.4623,0.4623,0.0,-0.0383,Pass,,True,contradicted,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Clay Holmes,605280,824630,outs,15.5,over,betmgm,-125.0,0.6796,0.5336,0.5321,0.0015,-0.0395,Pass,,True,contradicted,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Michael Conforto,624424,824630,BB,0.5,over,williamhill_us,179.0,0.379,0.3415,0.3374,0.0042,-0.0471,Pass,BUY,True,confirmed,20260912T1600Z,8,13,7,1.4,batter,ev_floor,elite
+2026-09-12,Michael Conforto,624424,824630,R,0.5,over,betmgm,155.0,0.3632,0.3742,0.3742,0.0,-0.0459,Pass,BUY,True,confirmed,20260912T1600Z,8,13,7,1.4,batter,ev_floor,elite
+2026-09-12,Michael Conforto,624424,824630,TB,1.5,over,betrivers,220.0,0.3083,0.3125,0.3125,0.0,0.0,Pass,BUY,False,confirmed,20260912T1600Z,8,13,7,1.4,batter,one_way_quote,elite
+2026-09-12,Paul Skenes,694973,824630,BB,1.5,over,draftkings,-162.0,0.6407,0.587,0.581,0.006,-0.0507,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Paul Skenes,694973,824630,ER,2.5,over,betmgm,120.0,0.612,0.4426,0.4409,0.0017,-0.0263,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Paul Skenes,694973,824630,H,4.5,over,fanatics,100.0,0.6438,0.5347,0.5092,0.0256,0.0695,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-12,Paul Skenes,694973,824630,K,5.5,under,betmgm,-125.0,0.438,0.5396,0.5396,0.0,-0.0288,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Paul Skenes,694973,824630,outs,15.5,over,betmgm,140.0,0.4098,0.4083,0.4083,0.0,-0.0201,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Pete Crow-Armstrong,691718,824630,HRR,1.5,under,betmgm,120.0,0.3997,0.4398,0.4398,0.0,-0.0324,Pass,AVOID,True,confirmed,20260912T1600Z,7,15,9,1.3,batter,ev_floor,elite
+2026-09-12,Pete Crow-Armstrong,691718,824630,TB,1.5,over,betrivers,-108.0,0.6391,0.5082,0.5082,0.0,-0.0212,Pass,AVOID,False,confirmed,20260912T1600Z,7,15,9,1.3,batter,one_way_quote,elite
+2026-09-12,Pete Crow-Armstrong,691718,824630,TB,1.5,under,bovada,-105.0,0.3609,0.4918,0.4918,0.0,-0.0399,Pass,AVOID,True,confirmed,20260912T1600Z,7,15,9,1.3,batter,ev_floor,elite
+2026-09-12,Seiya Suzuki,673548,824630,BB,0.5,over,fanatics,115.0,0.4462,0.4457,0.4456,0.0001,-0.0418,Pass,BUY,True,confirmed,20260912T1600Z,4,21,7,0.43,batter,ev_floor,elite
+2026-09-12,Seiya Suzuki,673548,824630,HRR,1.5,over,betmgm,-115.0,0.5414,0.5076,0.5076,0.0,-0.051,Pass,BUY,True,confirmed,20260912T1600Z,4,21,7,0.43,batter,ev_floor,elite
+2026-09-12,Seiya Suzuki,673548,824630,TB,1.5,over,betrivers,133.0,0.4711,0.4113,0.4113,0.0,-0.0416,Pass,BUY,False,confirmed,20260912T1600Z,4,21,7,0.43,batter,one_way_quote,elite
+2026-09-12,Tanner Gordon,685299,824224,ER,2.5,under,draftkings,106.0,0.3441,0.4544,0.4556,-0.0011,-0.0638,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Tanner Gordon,685299,824224,H,5.5,over,fanatics,-140.0,0.6504,0.5684,0.5491,0.0192,-0.0257,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-12,Tanner Gordon,685299,824224,outs,15.5,under,draftkings,-113.0,0.3472,0.5072,0.5088,-0.0016,-0.044,Pass,,True,confirmed,20260912T1600Z,,,,,pitcher,ev_floor,elite
