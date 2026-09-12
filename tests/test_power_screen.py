@@ -15,6 +15,7 @@ from datetime import date as Date
 import pandas as pd
 import pytest
 
+from mlb_engine.audit.power_ledger import Record
 from mlb_engine.features import arm as arm_model
 from mlb_engine.features.swing import LEAGUE, WINDOW, SwingProfile
 from mlb_engine.output import power_report
@@ -1083,8 +1084,8 @@ def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
     assert power_report.ratings(result)[view.line.name] == "AVOID"
 
 
-def test_the_composites_top_two_are_the_strong_buys_whatever_their_contact() -> None:
-    """Rank 1 and 2 are STRONG BUY; rank 3 falls back to the contact grade."""
+def test_the_composites_top_two_are_their_own_bucket_whatever_their_contact() -> None:
+    """Rank 1 and 2 are the rank bucket; rank 3 falls back to the contact grade."""
     result = _result()
     view = result.sections[0].hitters[0]
     view.line.xwoba_con = power_report.CONTACT_GRADE_A  # would grade AVOID on contact
@@ -1106,8 +1107,13 @@ def test_the_composites_top_two_are_the_strong_buys_whatever_their_contact() -> 
 
     result.final = rank_final([_final(name, early=20, late=20)])
     html = power_report.render_html(result)
-    assert "STRONG BUY" in html
+    assert "(rank 1-2)" in html
     assert "ranked 1 on the composite" in html
+    # Without a record the rank bucket is a Buy; the word is the ledger's to give.
+    assert "<span class='buy'>BUY</span> <span class='sub'>(rank 1-2)</span>" in html
+    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, 40, 20, 18.0)}
+    html = power_report.render_html(result, grade_records=records)
+    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(rank 1-2)</span>" in html
     assert "1 Strong Buy: " in html
 
 

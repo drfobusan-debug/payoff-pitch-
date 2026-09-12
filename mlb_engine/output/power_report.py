@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import html
 import math
+from collections.abc import Mapping
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import (
@@ -380,27 +381,68 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
 CONTACT_GRADE_A = 0.474
 CONTACT_GRADE_B = 0.429
 
-# The ledger's own record on the contact grade runs the other way from its
-# labels: on 8/18-9/2 the rows graded BUY (xwOBA on contact at or above the A
-# cut) won 40.7% (35-51, -5.5%) and the rows graded AVOID won 46.3% (19-22,
-# -2.1%), HOLD 45.5% between them. So the labels are swapped -- the low-contact
-# tercile is now the BUY and the high one the AVOID -- and the cuts are left where
-# the 2025/2026 study put them. The gap is 5.6 points on 127 rows and is inside
-# its own noise; this is the direction the receipt points, recorded so it can be
-# graded, not a finding.
+# The bucket keys are historical: "AVOID" is the tercile at or above the A cut
+# (high contact, printed as contact C), "BUY" the one below the B cut (low
+# contact, contact A), "HOLD" between them. The keys stay because the ledger
+# records them and each must keep one record; what the note calls each bucket is
+# decided by that record (see ``labels``).
 STRONG_BUY = "STRONG BUY"
-# The one ordering that has separated winners from losers is the composite's own:
-# the bats it ranked first or second are the Strong Buys, whatever their contact
-# grade. Recorded with the rank so the claim keeps grading against itself.
+# The bats the composite ranked first or second are their own bucket, whatever
+# their contact grade. Recorded with the rank so the claim keeps grading against
+# itself.
 STRONG_BUY_RANKS = 2
 
+# The four grades are buckets, keyed by the strings the ledger has always
+# recorded them under so each keeps one record. What the note calls a bucket
+# follows the money: the bucket with the best ROI on the graded ledger is the
+# Strong Buy and every other bucket is a Buy (:func:`labels`). Until a bucket
+# has a record the note falls back to the last read, which put the Strong Buy on
+# the high-contact tercile (39-36, +10% on 8/18-9/10).
 RATING_DISPLAY = {
-    STRONG_BUY: "STRONG BUY",
-    "BUY": "MATCHUP A",
-    "HOLD": "MATCHUP B",
-    "AVOID": "MATCHUP C",
+    STRONG_BUY: "rank 1-2",
+    "BUY": "contact A",
+    "HOLD": "contact B",
+    "AVOID": "contact C",
 }
 RATING_ORDER = {STRONG_BUY: 0, "BUY": 1, "HOLD": 2, "AVOID": 3}
+LABEL_STRONG = "STRONG BUY"
+LABEL_BUY = "BUY"
+DEFAULT_STRONG_BUCKET = "AVOID"
+# Fewer graded rows than this and a bucket's ROI is not allowed to pick the label.
+LABEL_MIN_ROWS = 30
+
+
+def strong_bucket(records: Mapping[str, Record] | None) -> str:
+    """The bucket whose graded record earns the Strong Buy label today.
+
+    Highest ROI among buckets with at least ``LABEL_MIN_ROWS`` decided rows;
+    without one, ``DEFAULT_STRONG_BUCKET``.
+    """
+    if not records:
+        return DEFAULT_STRONG_BUCKET
+    eligible = [
+        (r.roi, -RATING_ORDER.get(g, 9), g)
+        for g, r in records.items()
+        if g in RATING_ORDER and r.n >= LABEL_MIN_ROWS and r.roi is not None
+    ]
+    if not eligible:
+        return DEFAULT_STRONG_BUCKET
+    return max(eligible)[2]
+
+
+def labels(records: Mapping[str, Record] | None) -> dict[str, str]:
+    """Bucket -> the word the note prints for it, from the ledger's record."""
+    strong = strong_bucket(records)
+    return {g: LABEL_STRONG if g == strong else LABEL_BUY for g in RATING_ORDER}
+
+
+def _label_cell(bucket: str, words: Mapping[str, str]) -> str:
+    word = words.get(bucket, LABEL_BUY)
+    css = word.lower().replace(" ", "-")
+    return (
+        f"<span class='{css}'>{word}</span> "
+        f"<span class='sub'>({RATING_DISPLAY.get(bucket, bucket)})</span>"
+    )
 
 
 def _ranks(result: ScreenResult) -> dict[str, int]:
@@ -411,9 +453,9 @@ def _ranks(result: ScreenResult) -> dict[str, int]:
 def _rating(view: HitterView, rank: int | None = None) -> tuple[str, str]:
     """The matchup's grade, and the reasons, from the assembled evidence.
 
-    A bat the composite ranked in its top ``STRONG_BUY_RANKS`` is a Strong Buy
-    outright. Otherwise the grade is xwOBA on contact against two fixed cuts,
-    labelled in the direction the ledger has graded (see ``STRONG_BUY`` above).
+    A bat the composite ranked in its top ``STRONG_BUY_RANKS`` is its own bucket.
+    Otherwise the bucket is xwOBA on contact against two fixed cuts. The bucket
+    key is what the ledger records; the word the note prints is :func:`labels`.
     Exposure, arsenal fit, the full-game opponent and the strikeout rate are
     printed as reasons and score nothing: each was graded on the same panel and
     none of them ordered production. A grade is about the matchup only -- there
@@ -699,7 +741,7 @@ def _arm_board(board: Board) -> str:
 
 
 def ratings(result: ScreenResult) -> dict[str, str]:
-    """Each survivor's STRONG BUY/BUY/HOLD/AVOID, for anything recording what the note said."""
+    """Each survivor's bucket key, for anything recording what the note said."""
     ranks = _ranks(result)
     return {
         v.line.name: _rating(v, ranks.get(name_key(v.line.name)))[0]
@@ -1619,22 +1661,20 @@ def _grade_record_cell(rec: Record | None) -> str:
     return f"{_wl(rec)}, {rec.units:+.2f}u{roi}"
 
 
-def _grade_ledger_lead(records: dict[str, Record]) -> str:
-    """One paragraph putting every grade's whole record in front of the reader."""
+def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> str:
+    """One paragraph putting every bucket's whole record in front of the reader."""
     rated = [(g, records[g]) for g in RATING_ORDER if g in records and records[g].n]
     if not rated:
         return ""
     parts = ", ".join(
-        f"<span class='{g.lower().replace(' ', '-')}'>{RATING_DISPLAY.get(g, g)}</span> "
-        f"{_grade_record_cell(r)} on {r.n} rows"
-        for g, r in rated
+        f"{_label_cell(g, words)} {_grade_record_cell(r)} on {r.n} rows" for g, r in rated
     )
     total = sum(r.n for _g, r in rated)
     return (
-        f"<p class='sub'><strong>What each grade has been worth, on every graded row the "
-        f"ledger holds ({total} rows).</strong> {parts}. The labels are the matchup read's "
-        f"and are left as they are; the record beside each is the honest part, and a grade "
-        f"that has lost money says so here in its own row.</p>"
+        f"<p class='sub'><strong>What each bucket has been worth, on every graded row the "
+        f"ledger holds ({total} rows).</strong> {parts}. The words follow the money: the "
+        f"bucket with the best ROI on at least {LABEL_MIN_ROWS} rows is the Strong Buy and "
+        f"the rest are Buys, so the label can move as the record does.</p>"
     )
 
 
@@ -1648,13 +1688,16 @@ def _recommendations(
     ]
     ranks = _ranks(result)
     rated = [(*_rating(v, ranks.get(name_key(v.line.name))), v, s) for v, s in graded]
-    rated.sort(key=lambda t: (RATING_ORDER[t[0]], -(t[2].line.points)))
     records = grade_records or {}
+    words = labels(grade_records)
+    strong_key = strong_bucket(grade_records)
+    rated.sort(
+        key=lambda t: (t[0] != strong_key, RATING_ORDER[t[0]], -(t[2].line.points))
+    )
     rows = []
     for rating, reason, view, section in rated:
-        css = rating.lower().replace(" ", "-")
         row = [
-            f"<span class='{css}'>{RATING_DISPLAY.get(rating, rating)}</span>",
+            _label_cell(rating, words),
             html.escape(view.line.name),
             html.escape(section.starter.name),
         ]
@@ -1664,30 +1707,33 @@ def _recommendations(
             row.append(_grade_record_cell(records.get(rating)))
         row.append(reason or "&mdash;")
         rows.append(row)
-    strong = [r for r in rated if r[0] == STRONG_BUY]
-    buys = [r for r in rated if r[0] == "BUY"]
+    strong = [r for r in rated if r[0] == strong_key]
     names = ", ".join(html.escape(t[2].line.name) for t in strong) or "nobody"
+    strong_rec = records.get(strong_key)
+    basis = (
+        f"its {_grade_record_cell(strong_rec)} on {strong_rec.n} rows is the best record of "
+        f"the four buckets"
+        if strong_rec is not None and strong_rec.n
+        else "no bucket has a record long enough to say otherwise"
+    )
     lead = (
         f"<p><strong>{len(strong)} Strong Buy{'s' if len(strong) != 1 else ''}: {names}.</strong> "
-        f"The Strong Buys are the bats the composite ranked first and second, and the rank is "
-        f"the only thing on this page that has ordered the outcomes on the ledger. Below them, "
-        f"{len(buys)} of {len(rated)} survivors grade A on the matchup.</p>"
-        f"<p class='sub'><strong>The matchup grade is xwOBA on contact with its labels turned "
-        f"round.</strong> Cut at {CONTACT_GRADE_A:.3f} and {CONTACT_GRADE_B:.3f}; on the "
-        f"ledger's own record the rows above the top cut won 40.7% and the rows below the "
-        f"bottom cut 46.3%, so A now marks the low-contact tercile and C the high one. The gap "
-        f"is inside its own noise, which is why the grade is a label and the rank is the call. "
-        f"Exposure to the starter, arsenal fit, the full-game opponent and strikeout risk are "
-        f"printed beside it and count for nothing in it. It contains no price.</p>"
+        f"The Strong Buys are the {RATING_DISPLAY[strong_key]} bucket, because {basis}; the "
+        f"other {len(rated) - len(strong)} survivors are Buys.</p>"
+        f"<p class='sub'><strong>The buckets are the composite's top two and xwOBA on "
+        f"contact in terciles.</strong> Cut at {CONTACT_GRADE_A:.3f} and "
+        f"{CONTACT_GRADE_B:.3f}: C is the high-contact tercile, A the low one, and a bat "
+        f"the composite ranked first or second is its own bucket whatever his contact. The "
+        f"words on the buckets are not fixed -- they follow the ledger's record, and move when it "
+        f"does. Exposure to the starter, arsenal fit, the full-game opponent and strikeout "
+        f"risk are printed beside it and count for nothing in it. It contains no price.</p>"
     )
     if grade_records is not None:
-        lead += _grade_ledger_lead(records)
+        lead += _grade_ledger_lead(records, words)
     if board is not None:
         agreed = [
             t for t in rated
-            if t[0] in (STRONG_BUY, "BUY")
-            and (b := board.best_for_batter(t[2].line.name)) is not None
-            and b.is_buy
+            if (b := board.best_for_batter(t[2].line.name)) is not None and b.is_buy
         ]
         lead += (
             f"<p><strong>{len(agreed)} of those the card also bought at a price.</strong> The "
