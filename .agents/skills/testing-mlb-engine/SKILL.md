@@ -243,3 +243,27 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
+
+## Testing state-sync concurrency / push ordering (`push_state`, `_sync_lock`) offline
+- A full offline `run` on a cached slate works with **only** the Odds API blocked: patch
+  `requests.adapters.HTTPAdapter.send` to raise for `the-odds-api.com`. Blocking every socket is
+  too much -- `statsapi.mlb.com`, weather and the VSiN splits are free feeds the slate needs.
+  Run with all `*ODDS_API_KEY*` and `GMAIL_*` vars unset; the runner should refuse if any is set.
+- Prove commit-before-delivery with clocks, not stdout: add a `post-receive` hook on the scratch
+  bare origin that appends `date +%s.%N old new ref`, then compare to `stat -c %.Y` of
+  `card_<date>.md` / the slate PDF. Both pushes of `run` print the same `State: pushed ...`
+  prefix, so the message alone does not tell which is which.
+- The trailing `..., delivered` push is **never a no-op**: `_stage_inputs` re-gzips every export
+  and the gzip header carries the current mtime, so the same CSVs produce different bytes and a
+  second commit each run. Compare decompressed content, not the `.gz` blobs, when asking
+  "did delivery add anything".
+- Concurrency test: two `python -c push_state(...)` from the same cwd with different data dirs
+  holding distinct `closing_<date>.json`. Always run the **control** with `state._sync_lock`
+  monkeypatched to `nullcontext()`: on this box it failed 3/3 (`worktree add ... already
+  exists` / `missing but locked worktree`, one process exit 1, 0 commits landed), which is what
+  makes the locked 4/4 result meaningful. `push_state` returns `SyncReport()` (nothing pushed)
+  when the data dir has no state files, so seed each dir first.
+- Forced rejection: a `pre-receive` hook `echo MSG >&2; exit 1` on the bare origin. Expect three
+  `state push attempt i/3: push to <branch> rejected: remote: MSG` warnings, then a
+  `RuntimeError(... after 3 attempts)` from `push_state` or a `state push skipped:` warning from
+  `auto_push`. Remove the hook afterwards or every later leg fails.
