@@ -20,6 +20,8 @@ from mlb_engine.output.totals_audit import (
     sheet_bands,
     summarize,
     summary_text,
+    verdict,
+    wilson,
     write_ledger,
     write_workbook,
 )
@@ -150,6 +152,31 @@ def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
     (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
     assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
     assert rows_from_sheet(stamped, Date(2026, 9, 9), {})[0].bands == BANDS
+
+
+def test_magnitude_bands_tally_the_sign_call_regardless_of_direction() -> None:
+    rows = _rows()
+    grade(rows, FINALS)
+    m = summarize(rows).by_mag
+    # +3 hit and -4 miss share the 1..4 band; +30 miss, +25/+22 hits fill >= 15; 0 is no call
+    assert (m["1..4"].hits, m["1..4"].misses) == (1, 1)
+    assert (m["5..9"].hits, m["5..9"].misses) == (0, 0)
+    assert (m["10..14"].hits, m["10..14"].misses) == (0, 1)
+    assert (m[">= 15"].hits, m[">= 15"].misses) == (2, 1)
+    assert sum(t.n for t in m.values()) == 6
+    text = summary_text(Date(2026, 9, 9), rows, summarize(rows))
+    assert "|SUM|  >= 15: 2-1 (67%) [21-94%] unproven (n<30)" in text
+    assert "|SUM|   5..9: 0-0 unproven (n<30)" in text
+
+
+def test_verdict_needs_the_whole_interval_past_break_even() -> None:
+    lo, hi = wilson(60, 100)
+    assert 0.50 < lo < 0.524 < 0.60 < hi < 0.70
+    assert verdict(totals_audit.Tally(60, 40)) == "unproven"
+    assert verdict(totals_audit.Tally(600, 400)) == "edge"
+    assert verdict(totals_audit.Tally(400, 600)) == "no edge"
+    assert verdict(totals_audit.Tally(20, 0)) == "unproven (n<30)"  # a hot streak is not a verdict
+    assert verdict(totals_audit.Tally()) == "unproven (n<30)"
 
 
 def test_ledger_round_trips_and_merge_never_duplicates(tmp_path: Path) -> None:

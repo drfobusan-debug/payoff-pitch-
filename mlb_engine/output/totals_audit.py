@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import csv
 import logging
+import math
 import re
 from dataclasses import asdict, dataclass, fields
 from datetime import date as Date
@@ -295,6 +296,50 @@ def bucket(sum_pts: int) -> str:
     return "?"
 
 
+# |SUM| bands: the sheet's confidence scale, sign-agnostic (+10 and -10 are the same strength).
+_MAG_BANDS: tuple[tuple[str, int, int | None], ...] = (
+    ("1..4", 1, 4),
+    ("5..9", 5, 9),
+    ("10..14", 10, 14),
+    (">= 15", 15, None),
+)
+
+BREAK_EVEN = 0.524  # -110 both ways
+MIN_GRADED = 30  # no verdict on a band before this many decided games
+
+
+def mag_band(sum_pts: int) -> str | None:
+    m = abs(sum_pts)
+    for name, lo, hi in _MAG_BANDS:
+        if m >= lo and (hi is None or m <= hi):
+            return name
+    return None
+
+
+def wilson(hits: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """95% Wilson score interval for a hit rate; (0, 1) when nothing is graded."""
+    if n == 0:
+        return 0.0, 1.0
+    p = hits / n
+    denom = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / denom
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
+    return max(0.0, centre - half), min(1.0, centre + half)
+
+
+def verdict(t: Tally) -> str:
+    """What the band's sample supports: 'edge' when its whole 95% range clears break-even,
+    'no edge' when the whole range sits below it, else 'unproven' (always, under MIN_GRADED)."""
+    if t.n < MIN_GRADED:
+        return f"unproven (n<{MIN_GRADED})"
+    lo, hi = wilson(t.hits, t.n)
+    if lo > BREAK_EVEN:
+        return "edge"
+    if hi < BREAK_EVEN:
+        return "no edge"
+    return "unproven"
+
+
 @dataclass
 class Summary:
     sign: Tally
@@ -302,6 +347,7 @@ class Summary:
     rank_under: Tally
     over_rate: Tally  # hits = overs, misses = unders: the slate's own base rate
     by_bucket: dict[str, Tally]
+    by_mag: dict[str, Tally]  # sign hit rate by |SUM| band: does a bigger number win more often?
     days: int
     games: int
     legacy: int = 0  # graded rows scored by older bands, kept but not counted
@@ -313,11 +359,15 @@ def summarize(rows: list[LedgerRow]) -> Summary:
     graded = [r for r in rows if r.graded and r.current]
     sign, rank_o, rank_u, base = Tally(), Tally(), Tally(), Tally()
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
+    by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
     for r in graded:
         pushed = r.result == PUSH
         base.add(r.result == OVER if not pushed else None, pushed)
         if r.lean:
             sign.add(r.hit, pushed)
+            band = mag_band(r.sum_pts)
+            if band is not None:
+                by_mag[band].add(r.hit, pushed)
         by_bucket[bucket(r.sum_pts)].add(r.result == OVER if not pushed else None, pushed)
     for day in sorted({r.date for r in graded}):
         todays = sorted((r for r in graded if r.date == day), key=lambda r: -r.sum_pts)
@@ -329,7 +379,17 @@ def summarize(rows: list[LedgerRow]) -> Summary:
         for r in todays[-RANK_N:]:
             if r.sum_pts < 0:
                 rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
-    return Summary(sign, rank_o, rank_u, base, by_bucket, len({r.date for r in graded}), len(graded), legacy)
+    return Summary(sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy)
+
+
+def mag_lines(total: Summary) -> list[str]:
+    """One line per |SUM| band: record, win rate, 95% range, verdict vs break-even."""
+    out = []
+    for name, t in total.by_mag.items():
+        lo, hi = wilson(t.hits, t.n)
+        rng = f" [{100 * lo:.0f}-{100 * hi:.0f}%]" if t.n else ""
+        out.append(f"  |SUM| {name:>6}: {t.text()}{rng} {verdict(t)}")
+    return out
 
 
 def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
@@ -352,6 +412,8 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
         f"slate over rate {total.over_rate.text()}"
         + (f" | {total.legacy} older-band rows not counted" if total.legacy else "")
     )
+    lines.append(f"Win rate by |SUM| band (sign as the call; break-even {100 * BREAK_EVEN:.1f}%):")
+    lines.extend(mag_lines(total))
     return "\n".join(lines)
 
 
@@ -411,13 +473,26 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     for name, t in total.by_bucket.items():
         rec(name, t)
     s.append([])
+    s.append(["Win rate by |SUM| band (sign as the call)", "hits-misses(-pushes)", "win rate", "95% low", "95% high", "verdict"])
+    for c in s[s.max_row]:
+        c.font = bold
+    for name, t in total.by_mag.items():
+        lo, hi = wilson(t.hits, t.n)
+        s.append([
+            name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
+            round(lo, 3) if t.n else None, round(hi, 3) if t.n else None, verdict(t),
+        ])
+    s.append([])
     s.append([
-        "Break-even at -110 is 52.4%. Sign and rank rates are graded against the sheet's own line at write time; "
+        "Break-even at -110 is 52.4%. A band shows 'edge' only when its whole 95% range clears that, on 30+ decided games. "
+        "Sign and rank rates are graded against the sheet's own line at write time; "
         "a top-3 row counts as an Over only when its SUM is positive, a bottom-3 row as an Under only when negative."
     ])
     s.column_dimensions["A"].width = 44
     s.column_dimensions["B"].width = 20
     s.column_dimensions["C"].width = 10
+    for col in "DEF":
+        s.column_dimensions[col].width = 10
 
     fill(wb.create_sheet("Ledger"), ledger)
 
