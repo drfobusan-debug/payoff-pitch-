@@ -1437,6 +1437,13 @@
   {
     "matchup": "BAL @ TOR",
     "market": "batter_h",
+    "selection": "Vladimir Guerrero Jr. H u0.5",
+    "american": 201.0,
+    "no_vig_prob": 0.311994
+  },
+  {
+    "matchup": "BAL @ TOR",
+    "market": "batter_h",
     "selection": "Vladimir Guerrero Jr. H u1.5",
     "american": -270.0,
     "no_vig_prob": 0.685829
@@ -11783,9 +11790,23 @@
   {
     "matchup": "CWS @ STL",
     "market": "batter_h",
+    "selection": "Sam Antonacci H o1.5",
+    "american": 198.0,
+    "no_vig_prob": 0.315218
+  },
+  {
+    "matchup": "CWS @ STL",
+    "market": "batter_h",
     "selection": "Sam Antonacci H u0.5",
     "american": 197.0,
     "no_vig_prob": 0.338394
+  },
+  {
+    "matchup": "CWS @ STL",
+    "market": "batter_h",
+    "selection": "Sam Antonacci H u1.5",
+    "american": -269.0,
+    "no_vig_prob": 0.684782
   },
   {
     "matchup": "CWS @ STL",
@@ -39996,5 +40017,12 @@
     "selection": "Kumar Rocker Outs u14.5",
     "american": 136.0,
     "no_vig_prob": 0.408716
+  },
+  {
+    "matchup": "TEX @ AZ",
+    "market": "pitcher_outs",
+    "selection": "Kumar Rocker Outs u15.5",
+    "american": -168.0,
+    "no_vig_prob": 0.586215
   }
 ]
