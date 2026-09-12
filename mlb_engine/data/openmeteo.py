@@ -1,10 +1,11 @@
-"""Kickoff weather from Open-Meteo, for the games CFBD will not report on.
+"""Weather at a venue at kickoff, from Open-Meteo. Keyless, and shared.
 
-CFBD's ``/games/weather`` sits behind a Patreon tier, so on a free key it
-answers 401 and the weather fields have always come back ``None`` -- the totals
-nudges keyed on them never fired at all. Open-Meteo needs no key and takes a
-venue's coordinates plus a kickoff hour, both of which the context book already
-has, so it fills the gap for whatever CFBD does not cover.
+Written for college football, where CFBD's ``/games/weather`` sits behind a
+Patreon tier and answered 401 on a free key -- the totals nudges keyed on it
+never fired at all. The NFL has the same hole for a different reason: nflverse
+reports wind and temperature only *after* a game is played, so a Sunday-morning
+slate has neither. Both need the same thing -- coordinates plus a kickoff hour,
+no key -- so the client lives here rather than in either sport.
 
 Requests are batched by date: the archive/forecast endpoints accept parallel
 coordinate lists, so a full Saturday board is one call rather than sixty. Every

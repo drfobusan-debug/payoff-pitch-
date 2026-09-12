@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from cfb_engine.data import weather
+from mlb_engine.data import openmeteo as weather
 
 
 class _Resp:

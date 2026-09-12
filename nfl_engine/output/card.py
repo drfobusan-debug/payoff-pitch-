@@ -27,6 +27,7 @@ from nfl_engine.audit.ledger import (
 )
 from nfl_engine.audit.outside import HeadToHead, benchmark_metrics, head_to_head
 from nfl_engine.market.screens import Tier
+from nfl_engine.output.brief import GameBrief, GameContext, write_brief
 
 BUY_TIERS = (Tier.STRONG.value, Tier.MODERATE.value)
 PAPER_NOTE = "Paper only: no stake is placed and no bankroll exists in this engine."
@@ -76,6 +77,19 @@ class GameSection:
     # has seen it, and the timing evidence that would justify pricing it is still
     # being collected.
     absences: str = ""
+    # The game written out in prose: importance, division, the market's implied
+    # win, the metrics behind the edge, CLV, weather, travel and availability.
+    # Generated from these same rows, so it can state nothing they do not.
+    brief: GameBrief | None = None
+
+    def notes(self) -> list[str]:
+        """The footnotes under the table, without repeating the brief.
+
+        Absences are in both places otherwise: the brief says who is out in
+        prose, and this line existed before the brief did.
+        """
+        absences = "" if self.brief is not None else self.absences
+        return [note for note in (absences, self.benchmark_note()) if note]
 
     def benchmark_note(self) -> str:
         if self.benchmark is None or not self.benchmark.theirs:
@@ -114,6 +128,7 @@ def build_card(
     week: int,
     calibration: str = "",
     absences: list[Observation] | None = None,
+    context: dict[str, GameContext] | None = None,
 ) -> WeekCard:
     """Group one week's engine rows into game sections, best execution edge first.
 
@@ -153,6 +168,17 @@ def build_card(
                 clv=entry.clv,
                 result=entry.result,
             )
+        )
+    rows_by_game: dict[str, list[LedgerEntry]] = {}
+    for entry in scope:
+        rows_by_game.setdefault(entry.matchup, []).append(entry)
+    for matchup, section in sections.items():
+        section.brief = write_brief(
+            matchup,
+            rows_by_game.get(matchup, []),
+            week=week,
+            context=(context or {}).get(matchup),
+            absences=section.absences,
         )
     games = sorted(sections.values(), key=lambda s: (not s.plays, s.kickoff, s.matchup))
     return WeekCard(
@@ -204,6 +230,11 @@ def render_markdown(card: WeekCard) -> str:
     for game in card.games:
         lines.append(f"## {game.matchup}")
         lines.append("")
+        if game.brief is not None:
+            if game.brief.headline:
+                lines.extend([f"**{game.brief.headline}**", ""])
+            for para in game.brief.paragraphs:
+                lines.extend([para, ""])
         if game.plays:
             lines.append("| Play | Price | Book | Model | Fair | Exec EV | Tier |")
             lines.append("| --- | --- | --- | --- | --- | --- | --- |")
@@ -219,10 +250,9 @@ def render_markdown(card: WeekCard) -> str:
             named = ", ".join(f"{name} x{count}" for name, count in sorted(game.vetoes.items()))
             lines.append("")
             lines.append(f"Vetoed: {named}")
-        for note in (game.absences, game.benchmark_note()):
-            if note:
-                lines.append("")
-                lines.append(note)
+        for note in game.notes():
+            lines.append("")
+            lines.append(note)
         lines.append("")
     if card.record:
         lines.append("## Record to date")
@@ -249,6 +279,8 @@ th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid #e6e8eb; }
 th { background: #f4f5f7; font-weight: 600; }
 .note { color: #6b7280; font-size: 11px; }
 .veto { color: #6b7280; font-size: 11px; margin: 0 0 8px; }
+.lede { font-weight: 600; margin: 6px 0; }
+p { margin: 6px 0; line-height: 1.45; }
 """
 
 
@@ -271,6 +303,11 @@ def render_html(card: WeekCard) -> str:
     ]
     for game in card.games:
         parts.append(f"<h2>{html.escape(game.matchup)}</h2>")
+        if game.brief is not None:
+            if game.brief.headline:
+                parts.append(f"<p class='lede'>{html.escape(game.brief.headline)}</p>")
+            for para in game.brief.paragraphs:
+                parts.append(f"<p>{html.escape(para)}</p>")
         if game.plays:
             parts.append(
                 "<table><tr><th>Play</th><th>Price</th><th>Book</th><th>Model</th>"
@@ -289,9 +326,8 @@ def render_html(card: WeekCard) -> str:
         if game.vetoes:
             named = ", ".join(f"{name} x{count}" for name, count in sorted(game.vetoes.items()))
             parts.append(f"<p class='veto'>Vetoed: {html.escape(named)}</p>")
-        for note in (game.absences, game.benchmark_note()):
-            if note:
-                parts.append(f"<p class='note'>{html.escape(note)}</p>")
+        for note in game.notes():
+            parts.append(f"<p class='note'>{html.escape(note)}</p>")
     if card.record:
         parts.append("<h2>Record to date</h2>")
         parts.append(
