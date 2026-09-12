@@ -29696,6 +29696,34 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_bb",
+    "selection": "Carson Kelly BB o0.5",
+    "american": 222.0,
+    "no_vig_prob": 0.289575
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Carson Kelly BB u0.5",
+    "american": -320.0,
+    "no_vig_prob": 0.710425
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Esmerlyn Valdez BB o0.5",
+    "american": 158.0,
+    "no_vig_prob": 0.359873
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Esmerlyn Valdez BB u0.5",
+    "american": -222.0,
+    "no_vig_prob": 0.640127
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
     "selection": "Henry Davis BB o0.5",
     "american": 275.0,
     "no_vig_prob": 0.247788
@@ -29808,6 +29836,20 @@
   {
     "matchup": "PIT @ CHC",
     "market": "batter_bb",
+    "selection": "Nico Hoerner BB o0.5",
+    "american": 288.0,
+    "no_vig_prob": 0.241408
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Nico Hoerner BB u0.5",
+    "american": -426.0,
+    "no_vig_prob": 0.758592
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
     "selection": "Oneil Cruz BB o0.5",
     "american": 107.0,
     "no_vig_prob": 0.459828
@@ -29846,6 +29888,20 @@
     "selection": "Pete Crow-Armstrong BB u0.5",
     "american": -189.0,
     "no_vig_prob": 0.622829
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Rafael Flores BB o0.5",
+    "american": 242.0,
+    "no_vig_prob": 0.273098
+  },
+  {
+    "matchup": "PIT @ CHC",
+    "market": "batter_bb",
+    "selection": "Rafael Flores BB u0.5",
+    "american": -351.0,
+    "no_vig_prob": 0.726902
   },
   {
     "matchup": "PIT @ CHC",
