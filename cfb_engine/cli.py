@@ -19,7 +19,7 @@ import argparse
 import logging
 import sys
 from datetime import date as Date
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit import snapshot
@@ -75,6 +75,17 @@ def _day(args: argparse.Namespace) -> Date:
     if args.date:
         return Date.fromisoformat(args.date)
     return _today()
+
+
+def _audit_day(args: argparse.Namespace) -> Date:
+    """The slate an audit grades: yesterday's, since the audit runs after midnight.
+
+    The scheduled audit fires at 03:00 with no ``--date``; today's slate has
+    no predictions yet, so defaulting to today grades nothing, every night.
+    """
+    if args.date:
+        return Date.fromisoformat(args.date)
+    return _today() - timedelta(days=1)
 
 
 def _season(cfg: Config, day: Date) -> int:
@@ -189,7 +200,7 @@ def _grade_slate(cfg: Config, day: Date) -> list[tuple[Recommendation, str]]:
 
 
 def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
-    day = _day(args)
+    day = _audit_day(args)
     _state_pull(cfg, day)
     if not cfg.predictions_file(day).exists():
         print(f"No saved predictions for {day}; nothing to grade.")
@@ -454,7 +465,10 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     def add_common(sp: argparse.ArgumentParser, *, email: bool = False) -> None:
-        sp.add_argument("--date", help="slate date YYYY-MM-DD (default: today, US/Eastern)")
+        sp.add_argument(
+            "--date",
+            help="slate date YYYY-MM-DD (default: today, US/Eastern; audit: yesterday)",
+        )
         if email:
             sp.add_argument("--no-email", action="store_true", help="write files but do not email")
             sp.add_argument("--to", help="override the email recipient")
