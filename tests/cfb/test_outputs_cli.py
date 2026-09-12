@@ -126,3 +126,17 @@ def test_cli_parser_has_all_commands():
     for cmd in ("card", "close", "audit", "report", "calibrate", "probation"):
         assert parser.parse_args([cmd]).command == cmd
     assert parser.parse_args(["probation", "--since", "2025-09-01"]).since == "2025-09-01"
+
+
+def test_the_scheduled_audit_grades_yesterday_not_today(monkeypatch):
+    """At 03:00 with no --date, today's slate has no predictions; yesterday's does."""
+    from datetime import date
+
+    from cfb_engine import cli
+
+    monkeypatch.setattr(cli, "_today", lambda: date(2026, 9, 12))
+    args = _build_parser().parse_args(["audit"])
+    assert cli._audit_day(args) == date(2026, 9, 11)
+    assert cli._day(args) == date(2026, 9, 12)
+    explicit = _build_parser().parse_args(["audit", "--date", "2026-09-04"])
+    assert cli._audit_day(explicit) == date(2026, 9, 4)
