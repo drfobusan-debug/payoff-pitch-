@@ -154,6 +154,23 @@ class GameResult:
     away: str
     home_points: int
     away_points: int
+    start_date: str = ""  # CFBD kickoff stamp (UTC ISO); "" when the caller has none
+
+
+@dataclass(frozen=True)
+class SPLine:
+    """One team's SP+ line as CFBD publishes it: overall, offense, defense, with ranks."""
+
+    rating: float
+    rank: int | None
+    off_rating: float | None
+    off_rank: int | None
+    def_rating: float | None
+    def_rank: int | None
+
+
+def _int_or_none(x: object) -> int | None:
+    return int(x) if isinstance(x, (int, float)) and not isinstance(x, bool) else None
 
 
 @dataclass(frozen=True)
@@ -417,7 +434,81 @@ class CFBDClient:
                 continue
             if not home or not away:
                 continue
-            out.append(GameResult(str(home), str(away), int(hp), int(ap)))
+            start = str(row.get("start_date") or row.get("startDate") or "")
+            out.append(GameResult(str(home), str(away), int(hp), int(ap), start))
+        return out
+
+    def fetch_sp_table(self, season: int) -> dict[str, SPLine]:
+        """SP+ overall/offense/defense ratings and ranks, keyed by :func:`school_key`.
+
+        Same request as :meth:`fetch_ratings` (so the cache serves it), read for
+        the ranks the card prints rather than the numbers the model prices.
+        """
+        if not self.available():
+            return {}
+        data = self._get("/ratings/sp", year=season)
+        if not isinstance(data, list) or not data:
+            return {}
+        out: dict[str, SPLine] = {}
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            team = row.get("team")
+            rating = row.get("rating")
+            if not isinstance(team, str) or not isinstance(rating, (int, float)):
+                continue
+            out[school_key(team)] = SPLine(
+                rating=float(rating),
+                rank=_int_or_none(row.get("ranking")),
+                off_rating=_nested(row, "offense", "rating"),
+                off_rank=_int_or_none(_nested(row, "offense", "ranking")),
+                def_rating=_nested(row, "defense", "rating"),
+                def_rank=_int_or_none(_nested(row, "defense", "ranking")),
+            )
+        return out
+
+    def fetch_ap_poll(self, season: int) -> dict[str, int]:
+        """Latest AP Top 25 of ``season``: :func:`school_key` -> rank."""
+        if not self.available():
+            return {}
+        data = self._get("/rankings", year=season, seasonType="regular")
+        if not isinstance(data, list) or not data:
+            return {}
+        weeks = [w for w in data if isinstance(w, dict) and isinstance(w.get("week"), int)]
+        if not weeks:
+            return {}
+        latest = max(weeks, key=lambda w: int(w["week"]))
+        for poll in latest.get("polls") or []:
+            if not isinstance(poll, dict) or poll.get("poll") != "AP Top 25":
+                continue
+            out: dict[str, int] = {}
+            for r in poll.get("ranks") or []:
+                if isinstance(r, dict) and isinstance(r.get("school"), str) and isinstance(r.get("rank"), int):
+                    out[school_key(r["school"])] = int(r["rank"])
+            return out
+        return {}
+
+    def fetch_player_ppa_rows(self, season: int) -> list[tuple[str, str, str, float]]:
+        """``(name, position, team, total PPA)`` per player; same request as the roster join."""
+        if not self.available():
+            return []
+        data = self._get("/ppa/players/season", year=season, excludeGarbageTime="true")
+        if not isinstance(data, list):
+            return []
+        out: list[tuple[str, str, str, float]] = []
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            name, pos, team = row.get("name"), row.get("position"), row.get("team")
+            totals = row.get("totalPPA")
+            total = totals.get("all") if isinstance(totals, dict) else None
+            if (
+                isinstance(name, str)
+                and isinstance(pos, str)
+                and isinstance(team, str)
+                and isinstance(total, (int, float))
+            ):
+                out.append((name, pos, team, float(total)))
         return out
 
     def fetch_schedule(self, season: int) -> list[GameMeta]:
