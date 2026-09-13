@@ -2155,15 +2155,15 @@
   "player_id": 31066,
   "stat": "2B",
   "line": 0.5,
-  "projection": 0.18,
-  "over_odds": 540.0,
-  "under_odds": -890.0,
-  "over_prob": 0.163934,
-  "edge": 0.008,
+  "projection": 0.19,
+  "over_odds": 477.0,
+  "under_odds": -760.0,
+  "over_prob": 0.173913,
+  "edge": 0.001,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -2390,8 +2390,8 @@
   "edge": -0.006,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -2687,15 +2687,15 @@
   "player_id": 31487,
   "stat": "H+R+RBI",
   "line": 2.5,
-  "projection": 2.37,
-  "over_odds": 126.0,
-  "under_odds": null,
-  "over_prob": 0.421941,
+  "projection": 2.43,
+  "over_odds": 119.0,
+  "under_odds": -158.0,
+  "over_prob": 0.436681,
   "edge": -0.02,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -2706,15 +2706,15 @@
   "player_id": 29490,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.1,
+  "projection": 2.11,
   "over_odds": -120.0,
   "under_odds": -110.0,
-  "over_prob": 0.619772,
-  "edge": 0.074,
+  "over_prob": 0.621212,
+  "edge": 0.076,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-09-12",
@@ -2858,15 +2858,15 @@
   "player_id": 31907,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.03,
-  "over_odds": -101.0,
-  "under_odds": -131.0,
-  "over_prob": 0.603175,
-  "edge": 0.101,
+  "projection": 2.0,
+  "over_odds": 102.0,
+  "under_odds": -135.0,
+  "over_prob": 0.593496,
+  "edge": 0.098,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -3695,14 +3695,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 1.04,
-  "over_odds": -199.0,
+  "over_odds": -198.0,
   "under_odds": 148.0,
-  "over_prob": 0.646643,
+  "over_prob": 0.64539,
   "edge": -0.019,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -3713,15 +3713,15 @@
   "player_id": 30345,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.91,
-  "over_odds": -145.0,
-  "under_odds": 109.0,
-  "over_prob": 0.595142,
-  "edge": 0.004,
-  "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "projection": 0.9,
+  "over_odds": -152.0,
+  "under_odds": 114.0,
+  "over_prob": 0.593496,
+  "edge": -0.009,
+  "bet": null,
+  "confidence": 0,
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -3789,15 +3789,15 @@
   "player_id": 28264,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.53,
-  "over_odds": 147.0,
-  "under_odds": -197.0,
-  "over_prob": 0.452489,
+  "projection": 1.58,
+  "over_odds": 138.0,
+  "under_odds": -184.0,
+  "over_prob": 0.46729,
   "edge": 0.048,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -4132,14 +4132,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.48,
-  "over_odds": 177.0,
+  "over_odds": 173.0,
   "under_odds": null,
-  "over_prob": 0.434783,
-  "edge": 0.074,
+  "over_prob": 0.4329,
+  "edge": 0.068,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -9584,15 +9584,15 @@
   "player_id": 31029,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.94,
-  "over_odds": -131.0,
-  "under_odds": -101.0,
-  "over_prob": 0.578059,
-  "edge": 0.011,
+  "projection": 1.91,
+  "over_odds": -125.0,
+  "under_odds": -106.0,
+  "over_prob": 0.568966,
+  "edge": 0.013,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -9603,15 +9603,15 @@
   "player_id": 32027,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.0,
+  "projection": 2.01,
   "over_odds": 104.0,
   "under_odds": -138.0,
-  "over_prob": 0.593496,
-  "edge": 0.103,
+  "over_prob": 0.595142,
+  "edge": 0.106,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -9622,15 +9622,15 @@
   "player_id": 31893,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.69,
-  "over_odds": 125.0,
-  "under_odds": -167.0,
-  "over_prob": 0.502488,
-  "edge": 0.059,
+  "projection": 1.68,
+  "over_odds": 124.0,
+  "under_odds": -166.0,
+  "over_prob": 0.5,
+  "edge": 0.054,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -9717,15 +9717,15 @@
   "player_id": 31885,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.79,
-  "over_odds": 110.0,
-  "under_odds": -146.0,
-  "over_prob": 0.53271,
-  "edge": 0.057,
+  "projection": 1.87,
+  "over_odds": 115.0,
+  "under_odds": -153.0,
+  "over_prob": 0.559471,
+  "edge": 0.094,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -10534,15 +10534,15 @@
   "player_id": 31885,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.94,
-  "over_odds": -184.0,
-  "under_odds": 138.0,
-  "over_prob": 0.607843,
-  "edge": -0.028,
+  "projection": 1.0,
+  "over_odds": -175.0,
+  "under_odds": 131.0,
+  "over_prob": 0.630996,
+  "edge": -0.005,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -10801,14 +10801,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.3,
-  "over_odds": 196.0,
+  "over_odds": 192.0,
   "under_odds": null,
   "over_prob": 0.374532,
-  "edge": 0.036,
+  "edge": 0.031,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -10990,15 +10990,15 @@
   "player_id": 31761,
   "stat": "2B",
   "line": 0.5,
-  "projection": 0.15,
-  "over_odds": 620.0,
-  "under_odds": -1060.0,
-  "over_prob": 0.142653,
-  "edge": 0.004,
-  "bet": "over",
-  "confidence": 1,
-  "result": null,
-  "actual": null
+  "projection": 0.16,
+  "over_odds": 552.0,
+  "under_odds": -910.0,
+  "over_prob": 0.147059,
+  "edge": -0.006,
+  "bet": null,
+  "confidence": 0,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11016,8 +11016,8 @@
   "edge": -0.002,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11029,14 +11029,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.16,
-  "over_odds": 456.0,
-  "under_odds": -720.0,
+  "over_odds": 441.0,
+  "under_odds": -700.0,
   "over_prob": 0.143678,
-  "edge": -0.022,
+  "edge": -0.019,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11048,14 +11048,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.15,
-  "over_odds": 710.0,
-  "under_odds": -1240.0,
+  "over_odds": 680.0,
+  "under_odds": -1180.0,
   "over_prob": 0.139276,
-  "edge": 0.016,
+  "edge": 0.011,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11067,14 +11067,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.18,
-  "over_odds": 497.0,
-  "under_odds": -800.0,
+  "over_odds": 484.0,
+  "under_odds": -780.0,
   "over_prob": 0.162075,
-  "edge": -0.005,
+  "edge": -0.009,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11085,15 +11085,15 @@
   "player_id": 30437,
   "stat": "2B",
   "line": 0.5,
-  "projection": 0.15,
-  "over_odds": 427.0,
-  "under_odds": -670.0,
-  "over_prob": 0.140252,
-  "edge": -0.01,
+  "projection": 0.16,
+  "over_odds": 416.0,
+  "under_odds": -650.0,
+  "over_prob": 0.147929,
+  "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11107,12 +11107,12 @@
   "projection": 0.2,
   "over_odds": 419.0,
   "under_odds": -660.0,
-  "over_prob": 0.180505,
-  "edge": -0.012,
+  "over_prob": 0.184502,
+  "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11124,14 +11124,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.22,
-  "over_odds": 447.0,
-  "under_odds": -710.0,
+  "over_odds": 436.0,
+  "under_odds": -690.0,
   "over_prob": 0.196078,
-  "edge": 0.013,
+  "edge": 0.009,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11149,8 +11149,8 @@
   "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11181,14 +11181,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.17,
-  "over_odds": 551.0,
-  "under_odds": -910.0,
+  "over_odds": 569.0,
+  "under_odds": -940.0,
   "over_prob": 0.159744,
-  "edge": 0.006,
+  "edge": 0.01,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11219,14 +11219,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.18,
-  "over_odds": 409.0,
+  "over_odds": 411.0,
   "under_odds": -640.0,
   "over_prob": 0.163934,
   "edge": -0.029,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11257,14 +11257,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.16,
-  "over_odds": 546.0,
-  "under_odds": -900.0,
+  "over_odds": 527.0,
+  "under_odds": -860.0,
   "over_prob": 0.143678,
-  "edge": -0.011,
+  "edge": -0.016,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11282,8 +11282,8 @@
   "edge": 0.012,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11295,14 +11295,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.18,
-  "over_odds": 465.0,
-  "under_odds": -740.0,
+  "over_odds": 447.0,
+  "under_odds": -710.0,
   "over_prob": 0.160514,
-  "edge": -0.017,
+  "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11313,15 +11313,15 @@
   "player_id": 31078,
   "stat": "2B",
   "line": 0.5,
-  "projection": 0.2,
-  "over_odds": 461.0,
-  "under_odds": -730.0,
-  "over_prob": 0.184502,
-  "edge": 0.006,
+  "projection": 0.21,
+  "over_odds": 437.0,
+  "under_odds": -690.0,
+  "over_prob": 0.188679,
+  "edge": 0.002,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11333,14 +11333,14 @@
   "stat": "2B",
   "line": 0.5,
   "projection": 0.23,
-  "over_odds": 348.0,
-  "under_odds": -527.0,
+  "over_odds": 345.0,
+  "under_odds": -523.0,
   "over_prob": 0.204082,
-  "edge": -0.019,
+  "edge": -0.021,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11370,15 +11370,15 @@
   "player_id": 31761,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.49,
-  "over_odds": -139.0,
-  "under_odds": 105.0,
-  "over_prob": 0.773756,
-  "edge": 0.192,
+  "projection": 1.51,
+  "over_odds": -167.0,
+  "under_odds": 125.0,
+  "over_prob": 0.778761,
+  "edge": 0.153,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11396,8 +11396,8 @@
   "edge": 0.02,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11409,14 +11409,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.62,
-  "over_odds": 122.0,
-  "under_odds": -162.0,
+  "over_odds": 128.0,
+  "under_odds": -170.0,
   "over_prob": 0.480769,
-  "edge": 0.03,
+  "edge": 0.042,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11447,14 +11447,14 @@
   "stat": "H+R+RBI",
   "line": 0.5,
   "projection": 1.4,
-  "over_odds": -106.0,
-  "under_odds": -125.0,
+  "over_odds": -110.0,
+  "under_odds": -121.0,
   "over_prob": 0.753086,
-  "edge": 0.238,
+  "edge": 0.229,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11466,14 +11466,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.68,
-  "over_odds": 123.0,
-  "under_odds": -164.0,
+  "over_odds": 119.0,
+  "under_odds": -159.0,
   "over_prob": 0.5,
-  "edge": 0.052,
+  "edge": 0.043,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11484,15 +11484,15 @@
   "player_id": 30437,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.47,
-  "over_odds": 127.0,
-  "under_odds": -170.0,
-  "over_prob": 0.431034,
-  "edge": -0.01,
+  "projection": 1.55,
+  "over_odds": 114.0,
+  "under_odds": -151.0,
+  "over_prob": 0.460829,
+  "edge": -0.008,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11523,14 +11523,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.99,
-  "over_odds": -107.0,
-  "under_odds": -124.0,
+  "over_odds": -104.0,
+  "under_odds": -128.0,
   "over_prob": 0.591837,
-  "edge": 0.074,
+  "edge": 0.082,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11542,14 +11542,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 2.12,
-  "over_odds": -105.0,
-  "under_odds": -126.0,
+  "over_odds": -102.0,
+  "under_odds": -130.0,
   "over_prob": 0.625468,
-  "edge": 0.114,
+  "edge": 0.121,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -11586,8 +11586,8 @@
   "edge": 0.176,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11618,14 +11618,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 2.27,
-  "over_odds": -145.0,
-  "under_odds": 109.0,
+  "over_odds": -140.0,
+  "under_odds": 106.0,
   "over_prob": 0.6633,
-  "edge": 0.071,
+  "edge": 0.08,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -11656,14 +11656,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 1.95,
-  "over_odds": 101.0,
-  "under_odds": -134.0,
+  "over_odds": 108.0,
+  "under_odds": -143.0,
   "over_prob": 0.579832,
-  "edge": 0.083,
+  "edge": 0.099,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -11719,8 +11719,8 @@
   "edge": 0.205,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11770,14 +11770,14 @@
   "stat": "H+R+RBI",
   "line": 1.5,
   "projection": 2.22,
-  "over_odds": -153.0,
-  "under_odds": 115.0,
+  "over_odds": -159.0,
+  "under_odds": 119.0,
   "over_prob": 0.65035,
-  "edge": 0.045,
+  "edge": 0.036,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -11921,15 +11921,15 @@
   "player_id": 30437,
   "stat": "HR",
   "line": 0.5,
-  "projection": 0.15,
-  "over_odds": 710.0,
+  "projection": 0.16,
+  "over_odds": 700.0,
   "under_odds": null,
-  "over_prob": 0.137552,
-  "edge": 0.014,
+  "over_prob": 0.1443,
+  "edge": 0.019,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12074,14 +12074,14 @@
   "stat": "HR",
   "line": 0.5,
   "projection": 0.09,
-  "over_odds": 1040.0,
+  "over_odds": 1120.0,
   "under_odds": null,
   "over_prob": 0.085179,
-  "edge": -0.003,
-  "bet": null,
-  "confidence": 0,
-  "result": null,
-  "actual": null
+  "edge": 0.003,
+  "bet": "over",
+  "confidence": 1,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12206,15 +12206,15 @@
   "player_id": 31761,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.81,
-  "over_odds": -115.0,
-  "under_odds": -116.0,
-  "over_prob": 0.553571,
-  "edge": 0.019,
-  "bet": "over",
-  "confidence": 2,
-  "result": null,
-  "actual": null
+  "projection": 0.83,
+  "over_odds": -133.0,
+  "under_odds": 100.0,
+  "over_prob": 0.565217,
+  "edge": -0.006,
+  "bet": null,
+  "confidence": 0,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12226,14 +12226,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.82,
-  "over_odds": -139.0,
-  "under_odds": 105.0,
+  "over_odds": -134.0,
+  "under_odds": 101.0,
   "over_prob": 0.557522,
-  "edge": -0.024,
+  "edge": -0.015,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12269,9 +12269,9 @@
   "over_prob": 0.545455,
   "edge": 0.076,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12283,14 +12283,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.88,
-  "over_odds": -154.0,
-  "under_odds": 116.0,
+  "over_odds": -160.0,
+  "under_odds": 120.0,
   "over_prob": 0.583333,
-  "edge": -0.022,
+  "edge": -0.031,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12301,15 +12301,15 @@
   "player_id": 30437,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.78,
-  "over_odds": -168.0,
-  "under_odds": 126.0,
-  "over_prob": 0.541284,
-  "edge": 0.017,
+  "projection": 0.82,
+  "over_odds": -183.0,
+  "under_odds": 137.0,
+  "over_prob": 0.559471,
+  "edge": 0.018,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12340,14 +12340,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 1.13,
-  "over_odds": -210.0,
-  "under_odds": 156.0,
+  "over_odds": -219.0,
+  "under_odds": 163.0,
   "over_prob": 0.676375,
-  "edge": -0.001,
+  "edge": -0.01,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12397,14 +12397,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 0.78,
-  "over_odds": -118.0,
-  "under_odds": -112.0,
+  "over_odds": -114.0,
+  "under_odds": -116.0,
   "over_prob": 0.541284,
-  "edge": 0.001,
+  "edge": 0.009,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12435,14 +12435,14 @@
   "stat": "H",
   "line": 0.5,
   "projection": 1.08,
-  "over_odds": -269.0,
-  "under_odds": 197.0,
+  "over_odds": -277.0,
+  "under_odds": 203.0,
   "over_prob": 0.659864,
-  "edge": 0.003,
+  "edge": 0.01,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12517,8 +12517,8 @@
   "edge": 0.012,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12568,14 +12568,14 @@
   "stat": "H",
   "line": 1.5,
   "projection": 1.17,
-  "over_odds": 176.0,
-  "under_odds": -237.0,
+  "over_odds": 175.0,
+  "under_odds": -236.0,
   "over_prob": 0.326797,
-  "edge": -0.03,
+  "edge": -0.029,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12624,15 +12624,15 @@
   "player_id": 31761,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.36,
-  "over_odds": 208.0,
+  "projection": 1.4,
+  "over_odds": 180.0,
   "under_odds": null,
-  "over_prob": 0.393701,
-  "edge": 0.07,
+  "over_prob": 0.409836,
+  "edge": 0.052,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12644,14 +12644,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.35,
-  "over_odds": 192.0,
+  "over_odds": 202.0,
   "under_odds": null,
   "over_prob": 0.392157,
-  "edge": 0.049,
+  "edge": 0.06,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12669,8 +12669,8 @@
   "edge": 0.046,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12688,8 +12688,8 @@
   "edge": 0.081,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12701,14 +12701,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.6,
-  "over_odds": 166.0,
+  "over_odds": 158.0,
   "under_odds": null,
   "over_prob": 0.473934,
-  "edge": 0.099,
+  "edge": 0.087,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12719,15 +12719,15 @@
   "player_id": 30437,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.42,
-  "over_odds": 171.0,
+  "projection": 1.5,
+  "over_odds": 158.0,
   "under_odds": null,
-  "over_prob": 0.413223,
-  "edge": 0.045,
+  "over_prob": 0.440529,
+  "edge": 0.053,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12758,14 +12758,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.8,
-  "over_odds": 134.0,
-  "under_odds": -179.0,
+  "over_odds": 137.0,
+  "under_odds": -183.0,
   "over_prob": 0.537037,
-  "edge": 0.11,
+  "edge": 0.115,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12783,8 +12783,8 @@
   "edge": 0.091,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12815,14 +12815,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.22,
-  "over_odds": 235.0,
+  "over_odds": 237.0,
   "under_odds": null,
   "over_prob": 0.343643,
-  "edge": 0.045,
+  "edge": 0.047,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12853,14 +12853,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 2.0,
-  "over_odds": 100.0,
-  "under_odds": -133.0,
+  "over_odds": 101.0,
+  "under_odds": -134.0,
   "over_prob": 0.593496,
-  "edge": 0.094,
+  "edge": 0.097,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12872,14 +12872,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.47,
-  "over_odds": 177.0,
+  "over_odds": 184.0,
   "under_odds": null,
   "over_prob": 0.4329,
-  "edge": 0.072,
+  "edge": 0.081,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -12891,14 +12891,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.18,
-  "over_odds": 245.0,
+  "over_odds": 248.0,
   "under_odds": null,
   "over_prob": 0.331126,
-  "edge": 0.041,
+  "edge": 0.044,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12916,8 +12916,8 @@
   "edge": 0.078,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -12929,14 +12929,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.6,
-  "over_odds": 162.0,
+  "over_odds": 163.0,
   "under_odds": null,
   "over_prob": 0.47619,
-  "edge": 0.094,
+  "edge": 0.095,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -12967,14 +12967,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.76,
-  "over_odds": 107.0,
-  "under_odds": -143.0,
+  "over_odds": 104.0,
+  "under_odds": -138.0,
   "over_prob": 0.526066,
-  "edge": 0.043,
+  "edge": 0.036,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "miss",
+  "actual": 0.0
  },
  {
   "date": "2026-09-12",
@@ -13024,14 +13024,14 @@
   "stat": "ER",
   "line": 2.5,
   "projection": 2.5,
-  "over_odds": -117.0,
-  "under_odds": -113.0,
+  "over_odds": -122.0,
+  "under_odds": -109.0,
   "over_prob": 0.454545,
-  "edge": 0.014,
+  "edge": 0.023,
   "bet": "under",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -13042,15 +13042,15 @@
   "player_id": 31738,
   "stat": "Hits",
   "line": 4.5,
-  "projection": 4.61,
-  "over_odds": -108.0,
-  "under_odds": -122.0,
-  "over_prob": 0.487805,
-  "edge": -0.031,
+  "projection": 4.51,
+  "over_odds": -101.0,
+  "under_odds": -132.0,
+  "over_prob": 0.471698,
+  "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 4.0
  },
  {
   "date": "2026-09-12",
@@ -13062,14 +13062,14 @@
   "stat": "Hits",
   "line": 5.5,
   "projection": 5.35,
-  "over_odds": 105.0,
-  "under_odds": -139.0,
+  "over_odds": 101.0,
+  "under_odds": -134.0,
   "over_prob": 0.444444,
-  "edge": -0.027,
+  "edge": -0.018,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 6.0
  },
  {
   "date": "2026-09-12",
@@ -13080,15 +13080,15 @@
   "player_id": 31738,
   "stat": "Ks",
   "line": 5.5,
-  "projection": 5.26,
-  "over_odds": -122.0,
-  "under_odds": -104.0,
-  "over_prob": 0.429185,
-  "edge": 0.06,
+  "projection": 5.4,
+  "over_odds": -123.0,
+  "under_odds": -103.0,
+  "over_prob": 0.454545,
+  "edge": 0.038,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 10.0
  },
  {
   "date": "2026-09-12",
@@ -13119,14 +13119,14 @@
   "stat": "Ks",
   "line": 4.5,
   "projection": 4.09,
-  "over_odds": 117.0,
-  "under_odds": -150.0,
+  "over_odds": 122.0,
+  "under_odds": -156.0,
   "over_prob": 0.389105,
-  "edge": 0.011,
+  "edge": 0.002,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-09-12",
@@ -13138,14 +13138,14 @@
   "stat": "Outs",
   "line": 16.5,
   "projection": 14.73,
-  "over_odds": -127.0,
-  "under_odds": -104.0,
+  "over_odds": -105.0,
+  "under_odds": -126.0,
   "over_prob": 0.310559,
-  "edge": 0.18,
+  "edge": 0.132,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 18.0
  },
  {
   "date": "2026-09-12",
@@ -13157,14 +13157,14 @@
   "stat": "Outs",
   "line": 16.5,
   "projection": 16.3,
-  "over_odds": -128.0,
-  "under_odds": -104.0,
+  "over_odds": -123.0,
+  "under_odds": -108.0,
   "over_prob": 0.462963,
-  "edge": 0.027,
+  "edge": 0.018,
   "bet": "under",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "miss",
+  "actual": 18.0
  },
  {
   "date": "2026-09-12",
@@ -22032,12 +22032,12 @@
   "projection": 0.17,
   "over_odds": 562.0,
   "under_odds": -930.0,
-  "over_prob": 0.158983,
-  "edge": 0.008,
+  "over_prob": 0.157978,
+  "edge": 0.007,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -22067,15 +22067,15 @@
   "player_id": 30456,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.85,
-  "over_odds": -112.0,
-  "under_odds": -118.0,
-  "over_prob": 0.54955,
-  "edge": 0.022,
+  "projection": 1.89,
+  "over_odds": -108.0,
+  "under_odds": -123.0,
+  "over_prob": 0.563319,
+  "edge": 0.044,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -22238,15 +22238,15 @@
   "player_id": 28442,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.68,
+  "projection": 1.67,
   "over_odds": 126.0,
   "under_odds": -168.0,
-  "over_prob": 0.5,
-  "edge": 0.057,
+  "over_prob": 0.497512,
+  "edge": 0.056,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -22371,15 +22371,15 @@
   "player_id": 29301,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.92,
-  "over_odds": 104.0,
-  "under_odds": -138.0,
-  "over_prob": 0.570815,
-  "edge": 0.081,
+  "projection": 2.15,
+  "over_odds": -122.0,
+  "under_odds": -108.0,
+  "over_prob": 0.632353,
+  "edge": 0.083,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -23229,12 +23229,12 @@
   "projection": 0.82,
   "over_odds": -116.0,
   "under_odds": -114.0,
-  "over_prob": 0.559471,
-  "edge": 0.022,
+  "over_prob": 0.557522,
+  "edge": 0.021,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -23284,14 +23284,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.57,
-  "over_odds": 143.0,
-  "under_odds": -191.0,
-  "over_prob": 0.462963,
-  "edge": 0.053,
+  "over_odds": 153.0,
+  "under_odds": -205.0,
+  "over_prob": 0.465116,
+  "edge": 0.071,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -23417,14 +23417,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.39,
-  "over_odds": 187.0,
+  "over_odds": 182.0,
   "under_odds": null,
   "over_prob": 0.406504,
-  "edge": 0.058,
+  "edge": 0.051,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -23588,14 +23588,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.45,
-  "over_odds": 224.0,
+  "over_odds": 223.0,
   "under_odds": null,
   "over_prob": 0.423729,
-  "edge": 0.115,
+  "edge": 0.114,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -30902,15 +30902,15 @@
   "player_id": 28984,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 2.02,
-  "over_odds": -126.0,
-  "under_odds": -105.0,
-  "over_prob": 0.598394,
-  "edge": 0.041,
+  "projection": 1.94,
+  "over_odds": -117.0,
+  "under_odds": -113.0,
+  "over_prob": 0.576271,
+  "edge": 0.037,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -30959,15 +30959,15 @@
   "player_id": 28812,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.45,
+  "projection": 1.44,
   "over_odds": -138.0,
   "under_odds": 104.0,
-  "over_prob": 0.764706,
-  "edge": 0.185,
+  "over_prob": 0.763033,
+  "edge": 0.183,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -31016,15 +31016,15 @@
   "player_id": 30868,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.95,
-  "over_odds": -112.0,
-  "under_odds": -119.0,
-  "over_prob": 0.579832,
-  "edge": 0.051,
+  "projection": 1.78,
+  "over_odds": -104.0,
+  "under_odds": -128.0,
+  "over_prob": 0.530516,
+  "edge": 0.022,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -31092,15 +31092,15 @@
   "player_id": 30581,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.78,
-  "over_odds": 113.0,
-  "under_odds": -150.0,
-  "over_prob": 0.530516,
-  "edge": 0.06,
+  "projection": 1.7,
+  "over_odds": 114.0,
+  "under_odds": -151.0,
+  "over_prob": 0.507389,
+  "edge": 0.04,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -31130,15 +31130,15 @@
   "player_id": 31089,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.87,
-  "over_odds": 100.0,
-  "under_odds": -132.0,
-  "over_prob": 0.557522,
-  "edge": 0.057,
+  "projection": 1.86,
+  "over_odds": -117.0,
+  "under_odds": -113.0,
+  "over_prob": 0.553571,
+  "edge": 0.015,
   "bet": "over",
-  "confidence": 3,
-  "result": null,
-  "actual": null
+  "confidence": 2,
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-09-12",
@@ -31263,15 +31263,15 @@
   "player_id": 30492,
   "stat": "H+R+RBI",
   "line": 0.5,
-  "projection": 1.63,
-  "over_odds": -175.0,
-  "under_odds": 131.0,
-  "over_prob": 0.803922,
-  "edge": 0.168,
+  "projection": 1.64,
+  "over_odds": -169.0,
+  "under_odds": 127.0,
+  "over_prob": 0.805825,
+  "edge": 0.178,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -31282,15 +31282,15 @@
   "player_id": 30492,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.63,
-  "over_odds": 132.0,
+  "projection": 1.64,
+  "over_odds": 141.0,
   "under_odds": null,
-  "over_prob": 0.485437,
-  "edge": 0.054,
+  "over_prob": 0.487805,
+  "edge": 0.073,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -31320,15 +31320,15 @@
   "player_id": 31742,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.69,
-  "over_odds": 110.0,
-  "under_odds": -147.0,
-  "over_prob": 0.502488,
-  "edge": 0.027,
+  "projection": 1.64,
+  "over_odds": 118.0,
+  "under_odds": -157.0,
+  "over_prob": 0.487805,
+  "edge": 0.03,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -31339,15 +31339,15 @@
   "player_id": 31500,
   "stat": "H+R+RBI",
   "line": 1.5,
-  "projection": 1.86,
-  "over_odds": -102.0,
-  "under_odds": -130.0,
-  "over_prob": 0.553571,
-  "edge": 0.048,
+  "projection": 1.73,
+  "over_odds": 106.0,
+  "under_odds": -141.0,
+  "over_prob": 0.514563,
+  "edge": 0.029,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 4.0
  },
  {
   "date": "2026-09-12",
@@ -31719,15 +31719,15 @@
   "player_id": 31500,
   "stat": "HR",
   "line": 0.5,
-  "projection": 0.14,
-  "over_odds": 507.0,
+  "projection": 0.13,
+  "over_odds": 546.0,
   "under_odds": null,
-  "over_prob": 0.126263,
-  "edge": -0.038,
+  "over_prob": 0.12285,
+  "edge": -0.032,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -31836,12 +31836,12 @@
   "projection": 0.8,
   "over_odds": -112.0,
   "under_odds": -119.0,
-  "over_prob": 0.55157,
+  "over_prob": 0.54955,
   "edge": 0.022,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -32137,15 +32137,15 @@
   "player_id": 30492,
   "stat": "H",
   "line": 0.5,
-  "projection": 0.77,
-  "over_odds": -134.0,
-  "under_odds": 101.0,
+  "projection": 0.78,
+  "over_odds": -128.0,
+  "under_odds": -103.0,
   "over_prob": 0.539171,
-  "edge": -0.034,
+  "edge": -0.022,
   "bet": null,
   "confidence": 0,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 1.0
  },
  {
   "date": "2026-09-12",
@@ -32213,15 +32213,15 @@
   "player_id": 28984,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.66,
-  "over_odds": 117.0,
-  "under_odds": -155.0,
-  "over_prob": 0.492611,
-  "edge": 0.033,
+  "projection": 1.65,
+  "over_odds": 125.0,
+  "under_odds": -167.0,
+  "over_prob": 0.490196,
+  "edge": 0.045,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -32423,14 +32423,14 @@
   "stat": "TB",
   "line": 1.5,
   "projection": 1.62,
-  "over_odds": 138.0,
-  "under_odds": -185.0,
-  "over_prob": 0.483092,
-  "edge": 0.062,
+  "over_odds": 119.0,
+  "under_odds": -158.0,
+  "over_prob": 0.480769,
+  "edge": 0.025,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 2.0
  },
  {
   "date": "2026-09-12",
@@ -32555,15 +32555,15 @@
   "player_id": 31742,
   "stat": "TB",
   "line": 1.5,
-  "projection": 1.38,
-  "over_odds": 173.0,
+  "projection": 1.37,
+  "over_odds": 181.0,
   "under_odds": null,
-  "over_prob": 0.4,
-  "edge": 0.033,
+  "over_prob": 0.396825,
+  "edge": 0.042,
   "bet": "over",
   "confidence": 1,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 3.0
  },
  {
   "date": "2026-09-12",
@@ -32669,15 +32669,15 @@
   "player_id": 31273,
   "stat": "Ks",
   "line": 4.5,
-  "projection": 5.05,
-  "over_odds": 113.0,
-  "under_odds": -145.0,
-  "over_prob": 0.5671,
-  "edge": 0.098,
+  "projection": 5.21,
+  "over_odds": 109.0,
+  "under_odds": -139.0,
+  "over_prob": 0.595142,
+  "edge": 0.117,
   "bet": "over",
   "confidence": 2,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-09-12",
@@ -32688,15 +32688,15 @@
   "player_id": 31661,
   "stat": "Ks",
   "line": 3.5,
-  "projection": 4.15,
-  "over_odds": -117.0,
-  "under_odds": -109.0,
-  "over_prob": 0.595142,
-  "edge": 0.056,
+  "projection": 4.38,
+  "over_odds": -129.0,
+  "under_odds": 101.0,
+  "over_prob": 0.637681,
+  "edge": 0.074,
   "bet": "over",
   "confidence": 3,
-  "result": null,
-  "actual": null
+  "result": "hit",
+  "actual": 5.0
  },
  {
   "date": "2026-09-12",
