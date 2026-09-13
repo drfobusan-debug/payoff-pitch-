@@ -11,6 +11,12 @@ ledger, and the cumulative hit rates the sheet has actually earned:
   when the sum's sign agrees with the side (a +3 at the bottom of an all-Over
   day is not an Under).
 * **Bucket**: Over rate by SUM band, so a strong lean can be told from a weak one.
+* **Engine**: the simulator's own total for the same game, read off the engine
+  ledger's ``game_total`` rows (its calibrated over probability at each posted
+  line), graded the same way and split by whether it agreed with the sheet. The
+  sheet's backtest says SUM tracks the closing number and not the result; what
+  the engine's *disagreement* with that number is worth is the open question
+  this column exists to answer.
 
 Every row carries the version of the bands that scored it. The tallies only
 count rows scored by the current bands: a sheet from an older band set is on a
@@ -26,7 +32,7 @@ import csv
 import logging
 import math
 import re
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
@@ -35,6 +41,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from mlb_engine.audit.ledger import ENGINE, LedgerEntry, load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
 from mlb_engine.data.mlb_statsapi import BASE as STATSAPI
@@ -42,6 +49,8 @@ from mlb_engine.data.mlb_statsapi import BASE as STATSAPI
 log = logging.getLogger(__name__)
 
 LEDGER_NAME = "totals_ledger.csv"
+ENGINE_LEDGER_NAME = "ledger.csv"
+GAME_TOTAL = "game_total"
 OVER, UNDER, PUSH = "over", "under", "push"
 RANK_N = 3
 RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
@@ -66,6 +75,12 @@ class LedgerRow:
     home_runs: int | None = None
     result: str = ""  # over | under | push | "" (ungraded)
     bands: str = LEGACY  # BANDS version that scored sum_pts; LEGACY predates versioning
+    # The engine's read of the same game: its median total, its calibrated over
+    # probability at the sheet's line, and the devigged market over at that line
+    # when a book posted it. None when the engine ledger has no rows for the game.
+    engine_total: float | None = None
+    engine_p_over: float | None = None
+    market_p_over: float | None = None
 
     @property
     def current(self) -> bool:
@@ -92,6 +107,41 @@ class LedgerRow:
             return None
         return self.lean == self.result
 
+    @property
+    def engine_lean(self) -> str:
+        """Which side of the sheet's line the engine's own total sits on."""
+        p = self.engine_p_over
+        if p is None:
+            return ""
+        return OVER if p > 0.5 else UNDER if p < 0.5 else ""
+
+    @property
+    def engine_hit(self) -> bool | None:
+        if not self.graded or self.result == PUSH or not self.engine_lean:
+            return None
+        return self.engine_lean == self.result
+
+    @property
+    def edge_lean(self) -> str:
+        """The side the engine likes more than the market does, at the sheet's line."""
+        p, m = self.engine_p_over, self.market_p_over
+        if p is None or m is None:
+            return ""
+        return OVER if p > m else UNDER if p < m else ""
+
+    @property
+    def edge_hit(self) -> bool | None:
+        if not self.graded or self.result == PUSH or not self.edge_lean:
+            return None
+        return self.edge_lean == self.result
+
+    @property
+    def agreement(self) -> str:
+        """'agree' when sheet and engine lean the same way, 'split' when opposite, '' when either is silent."""
+        if not self.lean or not self.engine_lean:
+            return ""
+        return "agree" if self.lean == self.engine_lean else "split"
+
 
 _FIELDS = tuple(f.name for f in fields(LedgerRow))
 
@@ -116,8 +166,15 @@ def read_ledger(path: Path) -> list[LedgerRow]:
                 home_runs=int(r["home_runs"]) if r["home_runs"] else None,
                 result=r["result"],
                 bands=r.get("bands") or LEGACY,
+                engine_total=_opt_float(r.get("engine_total")),
+                engine_p_over=_opt_float(r.get("engine_p_over")),
+                market_p_over=_opt_float(r.get("market_p_over")),
             ))
     return out
+
+
+def _opt_float(v: str | None) -> float | None:
+    return float(v) if v else None
 
 
 def write_ledger(path: Path, rows: list[LedgerRow]) -> None:
@@ -132,7 +189,7 @@ def write_ledger(path: Path, rows: list[LedgerRow]) -> None:
     tmp.replace(path)
 
 
-def _first_line(total: str) -> float | None:
+def first_line(total: str) -> float | None:
     """'8.5 / dk 8' -> 8.5 (the Circa number leads; DK when it is the only one)."""
     m = re.search(r"\d+(\.\d+)?", str(total or ""))
     return float(m.group()) if m else None
@@ -167,9 +224,112 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
             continue
         game = str(r[gi])
         out.append(LedgerRow(
-            day.isoformat(), game, game_pks.get(game, 0), _first_line(str(r[ti] or "")), r[si], bands=bands,
+            day.isoformat(), game, game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
         ))
     return out
+
+
+# --- the engine's total -------------------------------------------------------------
+
+
+OverCurve = dict[float, tuple[float, float | None]]  # line -> (engine p_over, market p_over)
+
+
+def over_curves(entries: list[LedgerEntry], day: Date) -> dict[str, OverCurve]:
+    """Matchup -> the engine's calibrated over probability at every game-total line it posted that day.
+
+    ``model_prob`` is the number the engine actually stood behind: calibrated,
+    corrected into the league's run environment, before the market anchor. The
+    market side is the devigged over where a book priced that line; an under-only
+    quote is read as one minus its fair probability.
+    """
+    iso = day.isoformat()
+    p: dict[str, dict[float, list[float]]] = {}
+    m: dict[str, dict[float, list[float]]] = {}
+    for e in entries:
+        if e.source != ENGINE or e.market != GAME_TOTAL or e.date != iso or e.line is None:
+            continue
+        side = e.selection.split()[0].lower() if e.selection else ""
+        if side not in (OVER, UNDER):
+            continue
+        over = side == OVER
+        line = float(e.line)
+        if over:
+            p.setdefault(e.matchup, {}).setdefault(line, []).append(e.model_prob)
+        if e.fair_prob is not None:
+            m.setdefault(e.matchup, {}).setdefault(line, []).append(e.fair_prob if over else 1.0 - e.fair_prob)
+    out: dict[str, OverCurve] = {}
+    for matchup, lines in p.items():
+        out[matchup] = {
+            line: (sum(v) / len(v), (sum(m[matchup][line]) / len(m[matchup][line])) if m.get(matchup, {}).get(line) else None)
+            for line, v in sorted(lines.items())
+        }
+    return out
+
+
+def _interp(xs: list[float], ys: list[float], x: float) -> float | None:
+    """Linear read of ``ys`` at ``x``; None outside the posted lines (no extrapolation)."""
+    if not xs or x < xs[0] or x > xs[-1]:
+        return None
+    for i in range(len(xs) - 1):
+        x0, x1 = xs[i], xs[i + 1]
+        if x0 <= x <= x1:
+            return ys[i] if x1 == x0 else ys[i] + (ys[i + 1] - ys[i]) * (x - x0) / (x1 - x0)
+    return ys[-1]
+
+
+def engine_median(curve: OverCurve) -> float | None:
+    """The total at which the engine's over probability crosses one half.
+
+    Read between the posted lines only. When every line sits on one side of .5
+    the engine's total is off the board and the median is None -- extending a
+    near-flat curve past its ends invented totals of 17 runs -- and the row
+    still carries the engine's over probability at the sheet's line.
+    """
+    xs = sorted(curve)
+    ys = [curve[x][0] for x in xs]
+    for i in range(len(xs) - 1):
+        y0, y1 = ys[i], ys[i + 1]
+        if (y0 - 0.5) * (y1 - 0.5) <= 0 and y0 != y1:
+            return round(xs[i] + (xs[i + 1] - xs[i]) * (0.5 - y0) / (y1 - y0), 2)
+    return None
+
+
+def engine_at(curve: OverCurve, line: float | None) -> tuple[float | None, float | None]:
+    """(engine over probability, market over probability) at the sheet's line.
+
+    The engine's read is interpolated between posted lines; the market's is only
+    taken where a book actually priced that line.
+    """
+    if line is None or not curve:
+        return None, None
+    xs = sorted(curve)
+    p = _interp(xs, [curve[x][0] for x in xs], float(line))
+    mk = curve.get(float(line), (None, None))[1]
+    return (round(p, 4) if p is not None else None), (round(mk, 4) if mk is not None else None)
+
+
+def attach_engine(rows: list[LedgerRow], entries: list[LedgerEntry]) -> int:
+    """Fill the engine's read into rows that lack one; returns how many were filled."""
+    curves: dict[str, dict[str, OverCurve]] = {}
+    n = 0
+    for r in rows:
+        if r.engine_p_over is not None:
+            continue
+        if r.date not in curves:
+            curves[r.date] = over_curves(entries, Date.fromisoformat(r.date))
+        curve = curves[r.date].get(r.game)
+        if not curve:
+            continue
+        r.engine_total = engine_median(curve)
+        r.engine_p_over, r.market_p_over = engine_at(curve, r.line)
+        if r.engine_p_over is not None:
+            n += 1
+    return n
+
+
+def engine_ledger_path(cfg: Config) -> Path:
+    return cfg.audit_dir / ENGINE_LEDGER_NAME
 
 
 def merge(ledger: list[LedgerRow], fresh: list[LedgerRow]) -> list[LedgerRow]:
@@ -351,6 +511,18 @@ class Summary:
     days: int
     games: int
     legacy: int = 0  # graded rows scored by older bands, kept but not counted
+    # The engine's side of the line, the side it likes more than the market, and
+    # the sheet's call split by whether the engine agreed with it.
+    engine: Tally = field(default_factory=Tally)
+    edge: Tally = field(default_factory=Tally)
+    agree: Tally = field(default_factory=Tally)
+    split_sheet: Tally = field(default_factory=Tally)  # the sheet's call where the engine leaned the other way
+
+    @property
+    def split_engine(self) -> Tally:
+        """The engine's call on the split games: the sheet's misses are its hits."""
+        s = self.split_sheet
+        return Tally(hits=s.misses, misses=s.hits, pushes=s.pushes)
 
 
 def summarize(rows: list[LedgerRow]) -> Summary:
@@ -360,6 +532,7 @@ def summarize(rows: list[LedgerRow]) -> Summary:
     sign, rank_o, rank_u, base = Tally(), Tally(), Tally(), Tally()
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
     by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
+    engine, edge, agree, split = Tally(), Tally(), Tally(), Tally()
     for r in graded:
         pushed = r.result == PUSH
         base.add(r.result == OVER if not pushed else None, pushed)
@@ -369,6 +542,14 @@ def summarize(rows: list[LedgerRow]) -> Summary:
             if band is not None:
                 by_mag[band].add(r.hit, pushed)
         by_bucket[bucket(r.sum_pts)].add(r.result == OVER if not pushed else None, pushed)
+        if r.engine_lean:
+            engine.add(r.engine_hit, pushed)
+        if r.edge_lean:
+            edge.add(r.edge_hit, pushed)
+        if r.agreement == "agree":
+            agree.add(r.hit, pushed)
+        elif r.agreement == "split":
+            split.add(r.hit, pushed)
     for day in sorted({r.date for r in graded}):
         todays = sorted((r for r in graded if r.date == day), key=lambda r: -r.sum_pts)
         if len(todays) < RANK_MIN_GAMES:
@@ -379,7 +560,18 @@ def summarize(rows: list[LedgerRow]) -> Summary:
         for r in todays[-RANK_N:]:
             if r.sum_pts < 0:
                 rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
-    return Summary(sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy)
+    return Summary(
+        sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy,
+        engine=engine, edge=edge, agree=agree, split_sheet=split,
+    )
+
+
+def engine_lines(total: Summary) -> list[str]:
+    """The engine's record on the same games, and who was right when the two disagreed."""
+    return [
+        f"Engine on the same lines: side of line {total.engine.text()} | vs market {total.edge.text()}",
+        f"  sheet & engine agree {total.agree.text()} | split: sheet {total.split_sheet.text()}, engine {total.split_engine.text()}",
+    ]
 
 
 def mag_lines(total: Summary) -> list[str]:
@@ -405,7 +597,8 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
         for r in sorted(yesterday, key=lambda r: -r.sum_pts):
             mark = "" if r.hit is None else "hit" if r.hit else "miss"
             runs = "" if r.runs is None else f" {r.away_runs}-{r.home_runs} ({r.runs})"
-            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{runs} {r.result} {mark}".rstrip())
+            eng = "" if r.engine_total is None else f" eng {r.engine_total:.1f}"
+            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}".rstrip())
     lines.append(
         f"Ledger ({total.days} days, {total.games} games): sign {total.sign.text()} | "
         f"top-{RANK_N} overs {total.rank_over.text()} | bottom-{RANK_N} unders {total.rank_under.text()} | "
@@ -414,6 +607,7 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
     )
     lines.append(f"Win rate by |SUM| band (sign as the call; break-even {100 * BREAK_EVEN:.1f}%):")
     lines.extend(mag_lines(total))
+    lines.extend(engine_lines(total))
     return "\n".join(lines)
 
 
@@ -424,7 +618,13 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     bold = Font(bold=True)
     green = PatternFill("solid", fgColor="C6EFCE")
     red = PatternFill("solid", fgColor="FFC7CE")
-    cols = ["Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Bands"]
+    cols = [
+        "Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Bands",
+        "Engine", "Eng O%", "Mkt O%", "Eng lean", "Eng hit", "Agree",
+    ]
+
+    def mark(hit: bool | None) -> str:
+        return "" if hit is None else "hit" if hit else "miss"
 
     def fill(ws, rows: list[LedgerRow]) -> None:
         ws.append(cols)
@@ -434,13 +634,15 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
         for r in sorted(rows, key=lambda r: (r.date, -r.sum_pts)):
             ws.append([
                 r.date, r.game, r.line, r.sum_pts, r.lean, r.away_runs, r.home_runs, r.runs, r.result,
-                "" if r.hit is None else "hit" if r.hit else "miss", r.bands,
+                mark(r.hit), r.bands,
+                r.engine_total, r.engine_p_over, r.market_p_over, r.engine_lean, mark(r.engine_hit), r.agreement,
             ])
-            cell = ws.cell(row=ws.max_row, column=cols.index("Hit") + 1)
-            if r.hit is True:
-                cell.fill = green
-            elif r.hit is False:
-                cell.fill = red
+            for name, hit in (("Hit", r.hit), ("Eng hit", r.engine_hit)):
+                cell = ws.cell(row=ws.max_row, column=cols.index(name) + 1)
+                if hit is True:
+                    cell.fill = green
+                elif hit is False:
+                    cell.fill = red
         for i, name in enumerate(cols, start=1):
             ws.column_dimensions[get_column_letter(i)].width = 12 if name != "Game" else 16
         ws.freeze_panes = "A2"
@@ -483,10 +685,22 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
             round(lo, 3) if t.n else None, round(hi, 3) if t.n else None, verdict(t),
         ])
     s.append([])
+    s.append(["Engine on the same lines", "hits-misses(-pushes)", "win rate"])
+    for c in s[s.max_row]:
+        c.font = bold
+    rec("Engine's side of the sheet's line", total.engine)
+    rec("Side the engine likes more than the market (priced lines only)", total.edge)
+    rec("Sheet's call when the engine agreed", total.agree)
+    rec("Sheet's call when the engine leaned the other way", total.split_sheet)
+    rec("Engine's call on those same split games", total.split_engine)
+    s.append([])
     s.append([
         "Break-even at -110 is 52.4%. A band shows 'edge' only when its whole 95% range clears that, on 30+ decided games. "
         "Sign and rank rates are graded against the sheet's own line at write time; "
-        "a top-3 row counts as an Over only when its SUM is positive, a bottom-3 row as an Under only when negative."
+        "a top-3 row counts as an Over only when its SUM is positive, a bottom-3 row as an Under only when negative. "
+        "Engine = the simulator's median total read off its game_total rows in the engine ledger (calibrated, run-environment "
+        "corrected, before the market anchor); Eng O% its over probability at the sheet's line, Mkt O% the devigged over where "
+        "a book priced that exact line."
     ])
     s.column_dimensions["A"].width = 44
     s.column_dimensions["B"].width = 20
@@ -529,6 +743,14 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
         except Exception as exc:
             log.warning("totals audit: could not read %s: %s", sheet.name, exc)
 
+    if any(r.engine_p_over is None for r in ledger):
+        try:
+            n = attach_engine(ledger, load_ledger(engine_ledger_path(cfg)))
+            if n:
+                log.info("totals audit: engine read attached to %d rows", n)
+        except Exception as exc:
+            log.warning("totals audit: engine ledger unreadable: %s", exc)
+
     for d in sorted({r.date for r in ledger if not r.graded}):
         if Date.fromisoformat(d) >= day:
             continue
@@ -560,5 +782,10 @@ def record_sheet(cfg: Config, day: Date, sheet: Path, pks: dict[str, int]) -> No
     ledger = read_ledger(path)
     if any(r.date == day.isoformat() and r.graded for r in ledger):
         return
+    fresh = rows_from_sheet(sheet, day, pks)
+    try:
+        attach_engine(fresh, load_ledger(engine_ledger_path(cfg)))
+    except Exception as exc:
+        log.warning("totals sheet: engine ledger unreadable: %s", exc)
     ledger = [r for r in ledger if r.date != day.isoformat()]
-    write_ledger(path, merge(ledger, rows_from_sheet(sheet, day, pks)))
+    write_ledger(path, merge(ledger, fresh))

@@ -108,14 +108,24 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         ump_name="Ump",
         ump_status="posted",
         ump_detail="",
+        engine_total=9.0,
+        engine_p_over=0.5678,
     )
     path = write_workbook([row], Date(2026, 9, 9), tmp_path / "t.xlsx")
     ws = load_workbook(path)["Totals 2026-09-09"]
     header = [c.value for c in ws[1]]
     values = [c.value for c in ws[2]]
-    pts = [v for h, v in zip(header, values, strict=True) if isinstance(v, int) and h != "SUM"]
+    engine_cols = {"Engine", "Eng vs line", "Eng O%"}
+    pts = [
+        v for h, v in zip(header, values, strict=True)
+        if isinstance(v, int) and h != "SUM" and h not in engine_cols
+    ]
     assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1) + 1 + 2 - 1 - 1
     assert values[header.index("SUM")] == sum(pts) == row.total_pts
+    # the engine's read sits beside SUM and is never added to it
+    assert header.index("Engine") == header.index("SUM") + 1
+    assert values[header.index("Engine")] == 9.0 and values[header.index("Eng vs line")] == 0.5
+    assert values[header.index("Eng O%")] == 0.568 and row.engine_delta == 0.5
     assert "Legend" in load_workbook(path).sheetnames
     assert sheet_bands(path) == BANDS and sheet_is_current(path)
 

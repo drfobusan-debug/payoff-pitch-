@@ -19,6 +19,7 @@ from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
 from mlb_engine.calibration import FEATURE_BASIS, read_stored
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
+from mlb_engine.output import totals_audit
 from mlb_engine.state import (
     CALIBRATION_NAME,
     PREDICTION_KEEP_DAYS,
@@ -874,3 +875,30 @@ def test_an_unchanged_export_is_an_unchanged_blob(
         ["git", "log", "--format=%s", "engine-state"], cwd=origin, capture_output=True, text=True
     ).stdout.split()
     assert log == ["first"]
+
+
+def test_the_totals_sheets_receipt_crosses_machines(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The Mac records the sheet at 10am and grades it the next morning; another
+    box must be able to read the whole record, engine columns included, and the
+    graded copy of a day wins over a stale ungraded one it read earlier."""
+    repo_a, data_a, repo_b, data_b = machines
+    name = totals_audit.LEDGER_NAME
+    path_a = data_a / "audit" / name
+    path_a.parent.mkdir(parents=True, exist_ok=True)
+    rows = [totals_audit.LedgerRow("2026-09-11", "AZ @ KC", 1, 8.5, 6, engine_total=8.75, engine_p_over=0.53)]
+    totals_audit.write_ledger(path_a, rows)
+    assert name in push_state(data_a, "sheet 09-11", repo=repo_a, branch=STATE_BRANCH).pushed
+    assert name in pull_state(data_b, repo=repo_b, branch=STATE_BRANCH).pulled
+    assert totals_audit.read_ledger(data_b / "audit" / name) == rows
+
+    totals_audit.grade(rows, {1: ("AZ @ KC", 2, 9)})
+    rows.append(totals_audit.LedgerRow("2026-09-12", "TB @ ATL", 2, 9.0, -3))
+    totals_audit.write_ledger(path_a, rows)
+    push_state(data_a, "graded 09-11", repo=repo_a, branch=STATE_BRANCH)
+    pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
+    back = totals_audit.read_ledger(data_b / "audit" / name)
+    assert [(r.date, r.result, r.engine_total) for r in back] == [
+        ("2026-09-11", "over", 8.75), ("2026-09-12", "", None),
+    ]
