@@ -147,6 +147,9 @@ def _configure(monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEn
     save_ledger(path, entries)
     monkeypatch.setattr(cli, "ledger_path", lambda: path)
     monkeypatch.setattr(cli, "output_dir", lambda: out)
+    # The colour beside each game is fetched from the network; these tests are
+    # about the package, so it is stubbed out here and tested in test_brief.
+    monkeypatch.setattr(cli, "gather_briefs", lambda *_args, **_kwargs: {})
     return out
 
 

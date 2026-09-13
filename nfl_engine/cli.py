@@ -63,6 +63,7 @@ from nfl_engine.features import context, usage
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.models.player import Projection
+from nfl_engine.output.brief import gather as gather_briefs
 from nfl_engine.output.card import build_card, render_html, render_markdown, render_pdf
 from nfl_engine.output.email import EmailNotConfigured, send_package
 from nfl_engine.output.excel import build_workbook
@@ -731,15 +732,26 @@ def cmd_card(args: argparse.Namespace) -> int:
     if season is None or week is None:
         current_season, current, _ = current_week()
         season, week = season or current_season, week or current
+    # Records, ratings, starters, injuries, venue, forecast and previews for the
+    # read beside each game. Gathered after pricing and shown only: a source that
+    # is down costs the reader that colour and changes nothing on the card.
+    briefs = (
+        {}
+        if getattr(args, "no_context", False)
+        else gather_briefs(
+            entries, season=season, week=week, cache_dir=data_dir() / "cache" / "espn"
+        )
+    )
     card = build_card(
         entries,
         season=season,
         week=week,
         calibration=calibration.load().stamp(),
-        # Read off disk, from what `injuries` already recorded: the card makes no
-        # network call, so a week's absences are shown exactly as they were known
-        # when they were captured.
+        # Read off disk, from what `injuries` already recorded: the ledger side of
+        # the card makes no network call, so a week's absences are shown exactly
+        # as they were known when they were captured.
         absences=availability.read_log(availability.log_path(), season=season, week=week),
+        briefs=briefs,
     )
     if not card.games:
         print(f"no priced rows for {season} week {week}")
@@ -836,6 +848,11 @@ def main(argv: list[str] | None = None) -> int:
     card_cmd.add_argument("--week", type=int, default=None)
     card_cmd.add_argument("--email", action="store_true")
     card_cmd.add_argument("--to", default=None, help="override the recipient")
+    card_cmd.add_argument(
+        "--no-context",
+        action="store_true",
+        help="skip the records/ratings/ESPN colour; plays and vetoes only",
+    )
     card_cmd.set_defaults(func=cmd_card)
 
     calibrate = sub.add_parser(
