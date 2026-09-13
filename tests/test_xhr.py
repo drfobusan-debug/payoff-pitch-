@@ -23,6 +23,9 @@ from mlb_engine.features.rolling import LEAGUE_RATES, OutcomeRates, blend_hr_rat
 from mlb_engine.features.xhr import (
     HOME_X,
     HOME_Y,
+    MIN_MEASURED_SHARE,
+    PARK_CARRY_SIGMA,
+    WALL_OFFSET,
     batter_xhr,
     hr_probability,
     park_hr_multiplier,
@@ -78,12 +81,47 @@ def test_the_short_porch_is_shorter_than_the_gap() -> None:
 # --- per-ball scoring --------------------------------------------------------
 
 
-def test_hr_probability_is_a_soft_call_at_the_wall() -> None:
-    assert hr_probability(380.0, 380.0) == 0.5
+def test_a_ball_landing_on_the_wall_is_an_out_not_a_coin_flip() -> None:
+    """The fitted curve sits ``WALL_OFFSET`` feet past the wall: it has height."""
+    assert hr_probability(380.0 + WALL_OFFSET, 380.0) == pytest.approx(0.5)
+    assert hr_probability(380.0, 380.0) < 0.25
     assert hr_probability(430.0, 380.0) > 0.95
-    assert hr_probability(330.0, 380.0) < 0.05
-    # Monotone in distance.
+    assert hr_probability(330.0, 380.0) < 0.01
+    # Monotone in distance, and the counterfactual sigma only softens it.
     assert hr_probability(390.0, 380.0) > hr_probability(385.0, 380.0)
+    assert hr_probability(360.0, 380.0, PARK_CARRY_SIGMA) > hr_probability(360.0, 380.0)
+
+
+def test_unmeasured_contact_is_imputed_rather_than_counted_as_zero() -> None:
+    """Half a window without Statcast distance halved the prior, not the sample.
+
+    The expected-HR sum can only see the balls that were tracked, but the
+    denominator is every plate appearance, so a hitter whose cache is missing
+    distance on half his contact used to have his home-run prior halved -- and
+    the blend then pulled his rate toward a number the data never said.
+    """
+    measured = [_ball(430.0, la=28.0) for _ in range(10)]
+    missing = [_ball(430.0, la=28.0) for _ in range(10)]
+    frame = pd.DataFrame(measured + missing)
+    frame.loc[10:, ["hit_distance_sc", "hc_x", "hc_y"]] = float("nan")
+
+    full = batter_xhr(pd.DataFrame(measured))
+    half = batter_xhr(frame)
+    assert half.measured_share == pytest.approx(0.5)
+    # Twenty plate appearances, ten of them scored: the same rate, not half of it.
+    assert half.xhr == pytest.approx(2 * full.xhr)
+    assert half.xhr_per_pa == pytest.approx(full.xhr_per_pa)
+
+
+def test_a_mostly_unmeasured_window_reports_no_data() -> None:
+    """Imputing from a tenth of the contact is fabrication, not a prior."""
+    rows = [_ball(430.0, la=28.0) for _ in range(20)]
+    frame = pd.DataFrame(rows)
+    frame.loc[2:, ["hit_distance_sc", "hc_x", "hc_y"]] = float("nan")
+    prof = batter_xhr(frame)
+    assert prof.measured_share < MIN_MEASURED_SHARE
+    assert not prof.has_data
+    assert prof.xhr_per_pa != prof.xhr_per_pa  # NaN: callers read it as no prior
 
 
 def test_spray_angle_orients_left_negative_right_positive() -> None:
@@ -221,6 +259,19 @@ def test_blend_is_a_no_op_without_a_prior() -> None:
     src = _rates(0.060, pa=150)
     assert blend_hr_rate(src, xhr_prior=float("nan")) is src
     assert blend_hr_rate(src, xhr_prior=0.030, prior_weight=0.0) is src
+
+
+def test_a_late_inning_sample_leans_almost_entirely_on_the_prior() -> None:
+    """The bullpen vector's sample is three weeks, not six -- so it must shrink.
+
+    46 plate appearances with four home runs is not an 8.7% home-run hitter, and
+    that vector is what the simulator uses for every plate appearance after the
+    starter leaves.
+    """
+    late = blend_hr_rate(_rates(0.087, pa=46), xhr_prior=0.045)
+    assert late.p_hr < 0.055
+    # And it still moves with the hitter: better contact, higher rate.
+    assert late.p_hr > blend_hr_rate(_rates(0.087, pa=46), xhr_prior=0.025).p_hr
 
 
 def test_blend_is_switchable_and_weighted_from_config() -> None:

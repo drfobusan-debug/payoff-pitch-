@@ -314,34 +314,50 @@ class BatterRegression:
             return {}
 
         # --- Home runs ---
-        # Barrel rate and max exit velocity are the two metrics that actually
-        # separate true HRs from false positives in the graded backtest; max EV
-        # was the single strongest separator yet historically carried one of the
-        # smallest weights, so it is up-weighted here.
+        # No contact-quality *lift*. There were four terms -- barrel rate, bat
+        # speed, max exit velocity on air contact and pulled-air share, together
+        # worth up to +32% on a hitter's home-run rate -- and none of them adds
+        # anything to the rate they multiply, because that rate is already
+        # blended toward xHR/PA at 200 PA and xHR is scored from these same
+        # batted balls. Contact quality was priced twice, the shape #195 found on
+        # the strikeout side.
+        #
+        # Measured over 1,579 batter-games (features from the engine's 42-day
+        # window, outcome the next game, weighted by plate appearances,
+        # ``scripts.hr_multiplier_study``): the blended rate alone beats the
+        # blended rate times the multiplier out of sample (wRMSE .08022 against
+        # .08050), dropping any single term improves the product, and the dose
+        # search over the exponent picks 0.0 in every window. The multiplier
+        # ranks hitters correctly and then overshoots -- it stretches a spread
+        # the blend already has right:
+        #
+        #     multiplier   blended   priced   realised
+        #        0.59       .0161    .0096     .0168
+        #        0.80       .0236    .0191     .0279
+        #        0.92       .0270    .0247     .0294
+        #        1.04       .0361    .0378     .0285
+        #        1.21       .0500    .0605     .0423
+        #
+        # and refitting it gives the barrel term a *negative* slope (-6.77,
+        # t -4.79) against the shipped +2.5. The brakes below survive: they are
+        # not a re-reading of power but a statement that certain contact cannot
+        # leave the park at all, and they are the half that protects NPV.
         hr = 1.0
-        hr *= 1.0 + _clip((self.barrel_rate - BL_BARREL) * 2.5, -0.12, 0.15)  # PPV
-        hr *= 1.0 + _clip((self.bat_speed - BL_BAT_SPEED) * 0.010, -0.06, 0.06)  # sensitive
-        # Max EV over air contact only: an unfiltered max is often set by a
-        # scorched ground ball, which cannot leave the park.
-        hr *= 1.0 + _clip((self.air_max_ev - BL_MAX_EV) * 0.009, -0.06, 0.09)  # PPV
-        # Pulled air contact has the shortest distance to the fence and the
-        # highest HR conversion per batted ball.
-        if self.pull_air_pct == self.pull_air_pct:  # not NaN
-            hr *= 1.0 + _clip((self.pull_air_pct - BL_PULL_AIR) * 0.50, -0.05, 0.08)  # PPV
         if self.air_hard_hit < 0.30:  # NPV
             hr *= 0.80
 
         # --- Home-run NPV brakes ---
-        # These describe contact that cannot become a home run, so they are
-        # deliberately stronger than the PPV terms above: soft air contact and
-        # ground balls are near-absolute negatives, not gentle tilts.
+        # These describe contact that cannot become a home run: soft air contact
+        # and ground balls are near-absolute negatives, not gentle tilts. They
+        # are the only home-run terms left, so the product can brake a hitter
+        # but never lift one.
         if self.fb_ld_ev == self.fb_ld_ev and self.fb_ld_ev < FB_LD_EV_FLOOR:
             hr *= _clip(1.0 - (FB_LD_EV_FLOOR - self.fb_ld_ev) * 0.06, 0.70, 1.0)
         if self.gb_rate > GB_RATE_CEILING:
             hr *= _clip(1.0 - (self.gb_rate - GB_RATE_CEILING) * 2.0, 0.80, 1.0)
         if self.iffb_pct == self.iffb_pct and self.iffb_pct > IFFB_CEILING:
             hr *= _clip(1.0 - (self.iffb_pct - IFFB_CEILING) * 1.5, 0.85, 1.0)
-        hr = _clip(hr, 0.50, 1.32)
+        hr = _clip(hr, 0.50, 1.0)
 
         # --- Extra-base hits (2B/3B) ---
         # No contact-quality terms. There were three -- xSLG, sweet-spot rate and
