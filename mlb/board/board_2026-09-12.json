@@ -37809,6 +37809,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_1b",
+    "selection": "Michael Arroyo 1B o0.5",
+    "american": 104.0,
+    "no_vig_prob": 0.459895
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_1b",
+    "selection": "Michael Arroyo 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.540105
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_1b",
     "selection": "Randy Arozarena 1B o0.5",
     "american": -125.0,
     "no_vig_prob": 0.536132
@@ -37819,6 +37833,20 @@
     "selection": "Randy Arozarena 1B u0.5",
     "american": 107.0,
     "no_vig_prob": 0.463868
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_1b",
+    "selection": "Shea Langeliers 1B o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.425372
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_1b",
+    "selection": "Shea Langeliers 1B u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.574628
   },
   {
     "matchup": "SEA @ ATH",
@@ -38089,6 +38117,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_2b",
+    "selection": "Michael Arroyo 2B o0.5",
+    "american": 404.0,
+    "no_vig_prob": 0.189175
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_2b",
+    "selection": "Michael Arroyo 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.810825
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_2b",
     "selection": "Randy Arozarena 2B o0.5",
     "american": 350.0,
     "no_vig_prob": 0.22599
@@ -38099,6 +38141,20 @@
     "selection": "Randy Arozarena 2B u0.5",
     "american": -418.0,
     "no_vig_prob": 0.77401
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_2b",
+    "selection": "Shea Langeliers 2B o0.5",
+    "american": 439.0,
+    "no_vig_prob": 0.18331
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_2b",
+    "selection": "Shea Langeliers 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.81669
   },
   {
     "matchup": "SEA @ ATH",
@@ -38341,6 +38397,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_bb",
+    "selection": "Michael Arroyo BB o0.5",
+    "american": 285.0,
+    "no_vig_prob": 0.269397
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_bb",
+    "selection": "Michael Arroyo BB u0.5",
+    "american": -312.0,
+    "no_vig_prob": 0.730603
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_bb",
     "selection": "Randy Arozarena BB o0.5",
     "american": 117.0,
     "no_vig_prob": 0.433745
@@ -38351,6 +38421,20 @@
     "selection": "Randy Arozarena BB u0.5",
     "american": -150.0,
     "no_vig_prob": 0.566255
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_bb",
+    "selection": "Shea Langeliers BB o0.5",
+    "american": 285.0,
+    "no_vig_prob": 0.255064
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_bb",
+    "selection": "Shea Langeliers BB u0.5",
+    "american": -367.0,
+    "no_vig_prob": 0.744936
   },
   {
     "matchup": "SEA @ ATH",
@@ -38397,9 +38481,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI o0.5",
+    "american": -158.0,
+    "no_vig_prob": 0.574013
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
     "selection": "Alika Williams H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.407188
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.425987
   },
   {
     "matchup": "SEA @ ATH",
@@ -38565,9 +38663,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_hrr",
+    "selection": "Julio Rodriguez H+R+RBI o1.5",
+    "american": -155.0,
+    "no_vig_prob": 0.571973
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
     "selection": "Julio Rodriguez H+R+RBI o2.5",
     "american": 116.0,
     "no_vig_prob": 0.434276
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
+    "selection": "Julio Rodriguez H+R+RBI u1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.428027
   },
   {
     "matchup": "SEA @ ATH",
@@ -38607,6 +38719,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI o1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.472355
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI u1.5",
+    "american": -125.0,
+    "no_vig_prob": 0.527645
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
     "selection": "Randy Arozarena H+R+RBI o2.5",
     "american": 115.0,
     "no_vig_prob": 0.450512
@@ -38617,6 +38743,20 @@
     "selection": "Randy Arozarena H+R+RBI u2.5",
     "american": -135.0,
     "no_vig_prob": 0.549488
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
+    "selection": "Shea Langeliers H+R+RBI o1.5",
+    "american": -115.0,
+    "no_vig_prob": 0.514442
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hrr",
+    "selection": "Shea Langeliers H+R+RBI u1.5",
+    "american": -105.0,
+    "no_vig_prob": 0.485558
   },
   {
     "matchup": "SEA @ ATH",
@@ -38768,6 +38908,13 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_hr",
+    "selection": "Donovan Walton HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.009009
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
     "selection": "Henry Bolte HR o0.5",
     "american": 650.0,
     "no_vig_prob": 0.135632
@@ -38880,6 +39027,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_hr",
+    "selection": "Michael Arroyo HR o0.5",
+    "american": 800.0,
+    "no_vig_prob": 0.118056
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
+    "selection": "Michael Arroyo HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
     "selection": "Randy Arozarena HR o0.5",
     "american": 410.0,
     "no_vig_prob": 0.201414
@@ -38890,6 +39051,20 @@
     "selection": "Randy Arozarena HR o1.5",
     "american": 4000.0,
     "no_vig_prob": 0.026084
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
+    "selection": "Shea Langeliers HR o0.5",
+    "american": 330.0,
+    "no_vig_prob": 0.24846
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
+    "selection": "Shea Langeliers HR o1.5",
+    "american": 2800.0,
+    "no_vig_prob": 0.038075
   },
   {
     "matchup": "SEA @ ATH",
@@ -38918,6 +39093,13 @@
     "selection": "Weston Wilson HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_hr",
+    "selection": "Weston Wilson HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
   },
   {
     "matchup": "SEA @ ATH",
@@ -39083,9 +39265,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_h",
+    "selection": "J.P. Crawford H o1.5",
+    "american": 209.0,
+    "no_vig_prob": 0.303999
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
     "selection": "J.P. Crawford H u0.5",
     "american": 181.0,
     "no_vig_prob": 0.334551
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "J.P. Crawford H u1.5",
+    "american": -286.0,
+    "no_vig_prob": 0.696001
   },
   {
     "matchup": "SEA @ ATH",
@@ -39160,9 +39356,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_h",
+    "selection": "Julio Rodriguez H o0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.683878
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
     "selection": "Julio Rodriguez H o1.5",
     "american": 185.0,
     "no_vig_prob": 0.342027
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "Julio Rodriguez H u0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.316122
   },
   {
     "matchup": "SEA @ ATH",
@@ -39216,6 +39426,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_h",
+    "selection": "Michael Arroyo H o0.5",
+    "american": -164.0,
+    "no_vig_prob": 0.596225
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "Michael Arroyo H u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.403775
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
     "selection": "Randy Arozarena H o1.5",
     "american": 175.0,
     "no_vig_prob": 0.354155
@@ -39226,6 +39450,20 @@
     "selection": "Randy Arozarena H u1.5",
     "american": -210.0,
     "no_vig_prob": 0.645845
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "Shea Langeliers H o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.636475
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "Shea Langeliers H u0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.363525
   },
   {
     "matchup": "SEA @ ATH",
@@ -39251,9 +39489,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_h",
+    "selection": "Tommy White H o1.5",
+    "american": 233.0,
+    "no_vig_prob": 0.282265
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
     "selection": "Tommy White H u0.5",
     "american": 177.0,
     "no_vig_prob": 0.338929
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_h",
+    "selection": "Tommy White H u1.5",
+    "american": -323.0,
+    "no_vig_prob": 0.717735
   },
   {
     "matchup": "SEA @ ATH",
@@ -39510,6 +39762,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_rbi",
+    "selection": "Michael Arroyo RBI o0.5",
+    "american": 199.0,
+    "no_vig_prob": 0.326497
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_rbi",
+    "selection": "Michael Arroyo RBI u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.673503
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_rbi",
     "selection": "Randy Arozarena RBI o0.5",
     "american": 134.0,
     "no_vig_prob": 0.400998
@@ -39520,6 +39786,20 @@
     "selection": "Randy Arozarena RBI u0.5",
     "american": -175.0,
     "no_vig_prob": 0.599002
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_rbi",
+    "selection": "Shea Langeliers RBI o0.5",
+    "american": 143.0,
+    "no_vig_prob": 0.385407
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_rbi",
+    "selection": "Shea Langeliers RBI u0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.614593
   },
   {
     "matchup": "SEA @ ATH",
@@ -39790,6 +40070,20 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_r",
+    "selection": "Michael Arroyo R o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.399477
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_r",
+    "selection": "Michael Arroyo R u0.5",
+    "american": -181.0,
+    "no_vig_prob": 0.600523
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_r",
     "selection": "Randy Arozarena R o0.5",
     "american": -135.0,
     "no_vig_prob": 0.542365
@@ -39800,6 +40094,20 @@
     "selection": "Randy Arozarena R u0.5",
     "american": 106.0,
     "no_vig_prob": 0.457635
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_r",
+    "selection": "Shea Langeliers R o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.441706
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_r",
+    "selection": "Shea Langeliers R u0.5",
+    "american": -146.0,
+    "no_vig_prob": 0.558294
   },
   {
     "matchup": "SEA @ ATH",
@@ -39954,6 +40262,13 @@
     "selection": "Donovan Walton TB o0.5",
     "american": -159.0,
     "no_vig_prob": 0.575043
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Donovan Walton TB o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.357143
   },
   {
     "matchup": "SEA @ ATH",
@@ -40119,6 +40434,34 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_tb",
+    "selection": "Michael Arroyo TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Michael Arroyo TB o1.5",
+    "american": 170.0,
+    "no_vig_prob": 0.369729
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Michael Arroyo TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Michael Arroyo TB u1.5",
+    "american": -208.0,
+    "no_vig_prob": 0.630271
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
     "selection": "Randy Arozarena TB o1.5",
     "american": -105.0,
     "no_vig_prob": 0.491109
@@ -40133,9 +40476,37 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_tb",
+    "selection": "Shea Langeliers TB o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.43516
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Shea Langeliers TB u1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.56484
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Taylor Ward TB o0.5",
+    "american": -191.0,
+    "no_vig_prob": 0.612344
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
     "selection": "Taylor Ward TB o1.5",
     "american": 148.0,
     "no_vig_prob": 0.402675
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Taylor Ward TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.387656
   },
   {
     "matchup": "SEA @ ATH",
@@ -40161,9 +40532,44 @@
   {
     "matchup": "SEA @ ATH",
     "market": "batter_tb",
+    "selection": "Weston Wilson TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.52132
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Weston Wilson TB o1.5",
+    "american": 215.0,
+    "no_vig_prob": 0.31746
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Weston Wilson TB u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.47868
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Zack Gelof TB o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
     "selection": "Zack Gelof TB o1.5",
     "american": 150.0,
     "no_vig_prob": 0.403838
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "batter_tb",
+    "selection": "Zack Gelof TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
   },
   {
     "matchup": "SEA @ ATH",
@@ -40286,6 +40692,34 @@
   },
   {
     "matchup": "SEA @ ATH",
+    "market": "pitcher_bb",
+    "selection": "Bryan Woo Walks o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.363227
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "pitcher_bb",
+    "selection": "Bryan Woo Walks u1.5",
+    "american": -212.0,
+    "no_vig_prob": 0.636773
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "pitcher_bb",
+    "selection": "Gage Jump Walks o1.5",
+    "american": -179.0,
+    "no_vig_prob": 0.603474
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "pitcher_bb",
+    "selection": "Gage Jump Walks u1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.396526
+  },
+  {
+    "matchup": "SEA @ ATH",
     "market": "pitcher_er",
     "selection": "Bryan Woo ER o2.5",
     "american": 100.0,
@@ -40371,9 +40805,23 @@
   {
     "matchup": "SEA @ ATH",
     "market": "pitcher_k",
+    "selection": "Gage Jump Ks o4.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "pitcher_k",
     "selection": "Gage Jump Ks o5.5",
     "american": 116.0,
     "no_vig_prob": 0.440504
+  },
+  {
+    "matchup": "SEA @ ATH",
+    "market": "pitcher_k",
+    "selection": "Gage Jump Ks u4.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
   },
   {
     "matchup": "SEA @ ATH",
