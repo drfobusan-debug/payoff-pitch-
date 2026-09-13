@@ -88,6 +88,18 @@ def test_pricing_twice_adds_no_positions(tmp_path):
     assert len(load_ledger(path)) == len(first)
 
 
+def test_a_control_character_in_a_name_does_not_double_the_position(tmp_path):
+    """The row is stored scrubbed, so the key has to be computed scrubbed too."""
+    path = tmp_path / "ledger.csv"
+    dirty = entries()
+    for row in dirty:
+        row.matchup = f"{MATCHUP}\x00"
+        row.book = "dk\x01"
+    merge_ledger(path, dirty)
+    assert merge_ledger(path, dirty) == []
+    assert len(load_ledger(path)) == len(dirty)
+
+
 def test_a_moved_price_does_not_become_a_second_position(tmp_path):
     path = tmp_path / "ledger.csv"
     merge_ledger(path, entries())
