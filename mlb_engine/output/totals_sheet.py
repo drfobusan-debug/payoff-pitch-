@@ -29,6 +29,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from mlb_engine.audit.ledger import load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
 from mlb_engine.data.mlb_statsapi import BASE as STATSAPI
@@ -36,7 +37,17 @@ from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.vsin import TotalSplit, VSINClient
 from mlb_engine.filters.weather import WeatherConditions, WeatherProvider
-from mlb_engine.output.totals_audit import BANDS, record_sheet, sheet_bands
+from mlb_engine.output.totals_audit import (
+    BANDS,
+    OverCurve,
+    engine_at,
+    engine_ledger_path,
+    engine_median,
+    first_line,
+    over_curves,
+    record_sheet,
+    sheet_bands,
+)
 from mlb_engine.schemas import Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -448,6 +459,20 @@ class SheetRow:
     ump_name: str
     ump_status: str
     ump_detail: str
+    # The simulator's own median total and its over probability at the sheet's
+    # line, from the engine ledger; None when the engine did not price the game.
+    # Shown beside SUM and never added to it: the sheet is the hand method, and
+    # the column is there so the ledger can grade the two against each other.
+    engine_total: float | None = None
+    engine_p_over: float | None = None
+
+    @property
+    def engine_delta(self) -> float | None:
+        """Engine median minus the sheet's leading line; + when the engine sits over it."""
+        line = first_line(self.total)
+        if self.engine_total is None or line is None:
+            return None
+        return round(self.engine_total - line, 1)
 
     @property
     def total_pts(self) -> int:
@@ -516,6 +541,7 @@ def _total_label(splits: VSINClient.TotalSplits, matchup: str) -> str:
 def build_rows(
     day: Date, slate: Slate, fg: FanGraphsTables, box: BoxscoreCache, gp: dict[int, int],
     splits: VSINClient.TotalSplits, weather: WeatherProvider, umps: dict[int, tuple[str | None, str]],
+    engine: dict[str, OverCurve] | None = None,
 ) -> list[SheetRow]:
     rows: list[SheetRow] = []
     for g in slate.games:
@@ -529,10 +555,15 @@ def build_rows(
         ump_name, status = umps.get(g.game_pk, (None, "unknown"))
         ump, ump_detail = umpire_pts(box, ump_name, day)
         matchup = g.matchup()
+        total = _total_label(splits, matchup)
+        curve = (engine or {}).get(matchup) or {}
+        p_over, _ = engine_at(curve, first_line(total))
         rows.append(SheetRow(
             game=matchup,
             first_pitch_utc=g.game_datetime_utc,
-            total=_total_label(splits, matchup),
+            total=total,
+            engine_total=engine_median(curve) if curve else None,
+            engine_p_over=p_over,
             away=away, home=home,
             circa=book_pts(splits.get((matchup, "circa"))),
             dk=book_pts(splits.get((matchup, "draftkings"))),
@@ -551,6 +582,7 @@ _COLUMNS = [
     "Game", "Total", "SP A", "SP H", "Off A", "Off H", "SP A pts", "SP H pts", "RP A pts", "RP H pts",
     "K-BB SP A", "K-BB RP A", "K-BB SP H", "K-BB RP H", "Circa", "DK", "Weather", "Park", "BsR",
     "Pen A", "Pen H", "Ump", "SUM",
+    "Engine", "Eng vs line", "Eng O%",
     "Weather detail", "Park", "BsR/G A", "BsR/G H", "Pen A detail", "Pen H detail",
     "HP umpire", "Ump status", "Ump detail",
 ]
@@ -558,6 +590,8 @@ _COLUMNS = [
 _LEGEND = [
     ("Bands", BANDS),
     ("Sign", "+ leans Over, - leans Under; SUM is every points column added. Bigger magnitude = stronger lean."),
+    ("Engine", "The simulator's median total for the game, read off the engine ledger's game_total rows (calibrated, run-environment corrected, before the market anchor). "
+               "Eng vs line = Engine minus the leading Total; Eng O% = the engine's over probability at that line. Not part of SUM; the audit grades the sheet and the engine side by side and splits the record by whether they agreed."),
     ("Off A / Off H", "Away / home offense: wRC+ pts + wOBA pts (team split vs the opposing starter's hand) + Barrel% pts (season)."),
     ("Centre", "Every band's 0 window is the league's middle half (2026 FanGraphs), so an average arm or lineup adds nothing and +5 / -5 are equal leans in opposite directions."),
     ("wRC+", ">130 3 | 116-130 2 | 106-115 1 | 95-105 0 | 85-94 -1 | 70-84 -2 | <70 -3"),
@@ -589,6 +623,7 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
             r.game, r.total, a.starter, h.starter, a.off, h.off, a.sp, h.sp, a.rp, h.rp,
             a.kbb_sp, a.kbb_rp, h.kbb_sp, h.kbb_rp, r.circa, r.dk, r.weather, r.park, r.bsr,
             a.fatigue, h.fatigue, r.ump, r.total_pts,
+            r.engine_total, r.engine_delta, None if r.engine_p_over is None else round(r.engine_p_over, 3),
             r.weather_detail, r.park_detail,
             round(a.bsr_pg, 2) if a.bsr_pg is not None else None,
             round(h.bsr_pg, 2) if h.bsr_pg is not None else None,
@@ -609,7 +644,7 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
         elif isinstance(cell.value, int) and cell.value < 0:
             cell.fill = under
     for i, name in enumerate(_COLUMNS, start=1):
-        width = 14 if i <= 4 else 7 if i <= sum_col else 22
+        width = 14 if i <= 4 else 7 if i <= sum_col else 9 if i <= sum_col + 3 else 22
         ws.column_dimensions[get_column_letter(i)].width = max(width, min(len(name) + 2, 14))
     ws.freeze_panes = "C2"
 
@@ -678,7 +713,14 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         log.warning("totals sheet: umpire feed unavailable: %s", exc)
         umps = {}
     weather = WeatherProvider(cache_dir=cfg.weather_cache_dir)
-    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps)
+    engine: dict[str, OverCurve] = {}
+    try:
+        engine = over_curves(load_ledger(engine_ledger_path(cfg)), day)
+    except Exception as exc:
+        log.warning("totals sheet: engine ledger unreadable: %s", exc)
+    if not engine:
+        log.info("totals sheet: no engine game totals for %s; Engine columns left blank", day)
+    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine)
     path = write_workbook(rows, day, out)
     try:
         record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})

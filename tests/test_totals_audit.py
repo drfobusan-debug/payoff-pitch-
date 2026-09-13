@@ -8,13 +8,18 @@ from pathlib import Path
 import pytest
 from openpyxl import Workbook, load_workbook
 
+from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.output import totals_audit
 from mlb_engine.output.totals_audit import (
     BANDS,
     LEGACY,
     LedgerRow,
+    attach_engine,
+    engine_at,
+    engine_median,
     grade,
     merge,
+    over_curves,
     read_ledger,
     rows_from_sheet,
     sheet_bands,
@@ -245,6 +250,56 @@ def test_workbook_has_yesterday_summary_and_ledger(tmp_path: Path) -> None:
     wb = load_workbook(write_workbook(tmp_path / "a.xlsx", Date(2026, 9, 9), rows, rows))
     assert wb.sheetnames == ["Graded 2026-09-09", "Summary", "Ledger"]
     graded = list(wb["Graded 2026-09-09"].iter_rows(values_only=True))
-    assert graded[0][:4] == ("Date", "Game", "Line", "SUM") and graded[0][-1] == "Bands"
+    header = list(graded[0])
+    assert header[:4] == ["Date", "Game", "Line", "SUM"] and header[-1] == "Agree"
     assert wb["Summary"]["A3"].value.startswith("Sign of SUM") and wb["Summary"]["B3"].value == "3-3"
-    assert graded[1][1] == "AZ @ KC" and graded[1][-2] == "miss" and graded[1][-1] == BANDS
+    hit, bands = header.index("Hit"), header.index("Bands")
+    assert graded[1][1] == "AZ @ KC" and graded[1][hit] == "miss" and graded[1][bands] == BANDS
+    assert graded[1][header.index("Engine")] is None and graded[1][header.index("Eng hit")] is None
+
+
+def _entry(matchup: str, side: str, line: float, p: float, fair: float | None = None) -> LedgerEntry:
+    return LedgerEntry(
+        date=D, matchup=matchup, category="game", market="game_total", selection=f"{side} {line}",
+        line=line, book="fanduel" if fair is not None else "", odds=-110 if fair is not None else None,
+        tier="Pass", model_prob=p, ev=None, result="", pnl=0.0, fair_prob=fair,
+    )
+
+
+def test_the_engines_total_is_read_off_its_over_curve_and_graded_beside_the_sheet() -> None:
+    entries = [
+        _entry("AZ @ KC", "Over", 7.5, 0.62), _entry("AZ @ KC", "Over", 8.5, 0.53, fair=0.48),
+        _entry("AZ @ KC", "Over", 9.5, 0.41), _entry("AZ @ KC", "Under", 8.5, 0.47, fair=0.52),
+        # every posted line under .5: the engine is off the board, no median
+        _entry("HOU @ PHI", "Over", 7.5, 0.45), _entry("HOU @ PHI", "Over", 8.5, 0.35),
+        # an outside model's rows are not the engine's
+        _entry("WSH @ SD", "Over", 8.5, 0.9),
+    ]
+    entries[-1].source = "teamrankings"
+    curves = over_curves(entries, Date(2026, 9, 9))
+    assert set(curves) == {"AZ @ KC", "HOU @ PHI"}
+    assert curves["AZ @ KC"][8.5] == (0.53, 0.48)  # the under's fair reads as 1 - .52
+    assert engine_median(curves["AZ @ KC"]) == 8.75
+    assert engine_at(curves["AZ @ KC"], 9.0) == (0.47, None)
+    assert engine_median(curves["HOU @ PHI"]) is None
+
+    rows = _rows()
+    assert attach_engine(rows, entries) == 2
+    az, hou = rows[0], rows[-1]
+    assert (az.engine_total, az.engine_p_over, az.market_p_over) == (8.75, 0.53, 0.48)
+    assert hou.engine_total is None and hou.engine_p_over == 0.4
+    assert az.engine_lean == "over" and az.edge_lean == "over" and az.agreement == "agree"
+    assert hou.engine_lean == "under" and hou.edge_lean == "" and hou.agreement == "agree"
+    assert attach_engine(rows, entries) == 0  # already filled; never re-read
+    grade(rows, FINALS)
+    s = summarize(rows)
+    # AZ @ KC went 7 (under): the sheet, the engine and its edge all missed; HOU @ PHI went 18: both missed
+    assert s.engine.text() == "0-2 (0%)" and s.edge.text() == "0-1 (0%)"
+    assert s.agree.text() == "0-2 (0%)" and s.split_sheet.n == 0 and s.split_engine.n == 0
+    assert "Engine on the same lines: side of line 0-2 (0%)" in summary_text(Date(2026, 9, 9), rows, s)
+
+
+def test_engine_columns_round_trip_through_the_ledger(tmp_path: Path) -> None:
+    row = LedgerRow(D, "AZ @ KC", 1, 8.5, 3, engine_total=8.75, engine_p_over=0.53, market_p_over=0.48)
+    write_ledger(tmp_path / "l.csv", [row])
+    assert read_ledger(tmp_path / "l.csv") == [row]

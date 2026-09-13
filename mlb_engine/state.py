@@ -47,6 +47,7 @@ from mlb_engine.audit.clv import (
 from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
+from mlb_engine.output import totals_audit
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -329,7 +330,7 @@ def _write_rows(path: Path, fields: list[str], rows: Iterable[dict[str, str]]) -
 
 
 def merge_dated_csv(
-    remote: Path, local: Path, key: tuple[str, ...], by_date: bool = True
+    remote: Path, local: Path, key: tuple[str, ...], by_date: bool | str = True
 ) -> bool:
     """Union the ledger (or scorecard) by date, this machine's rows winning.
 
@@ -342,6 +343,10 @@ def merge_dated_csv(
     different capture of it: the power screen writes what it showed, so two
     machines' boards for one date are both true and replacing the date threw one
     of them away.
+
+    ``by_date=GRADED`` unions row by row too, but a row that carries a result
+    beats one that does not: a receipt read on this machine before the machine
+    that wrote it graded it must not keep the day ungraded here forever.
     """
     if not remote.exists():
         return False
@@ -352,10 +357,16 @@ def merge_dated_csv(
     local_fields, local_rows = _rows(local)
     fields = local_fields if len(local_fields) >= len(fields) else fields
     kept = remote_rows
-    if by_date:
+    if by_date is True:
         local_dates = {r.get("date", "") for r in local_rows}
         kept = [r for r in remote_rows if r.get("date", "") not in local_dates]
-    merged = {tuple(r.get(k, "") for k in key): r for r in [*kept, *local_rows]}
+    merged: dict[tuple[str, ...], dict[str, str]] = {}
+    for r in [*kept, *local_rows]:
+        k = tuple(r.get(k_, "") for k_ in key)
+        held = merged.get(k)
+        if by_date == GRADED and held is not None and held.get("result") and not r.get("result"):
+            continue
+        merged[k] = r
     _write_rows(local, fields, [merged[k] for k in sorted(merged)])
     return True
 
@@ -366,7 +377,9 @@ def merge_dated_csv(
 # The accumulating records, and the columns identifying one row of each. Both
 # directions merge on these: a machine only ever contributes the dates it
 # graded, and never speaks for the ones it did not.
-_MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool], ...] = (
+GRADED = "graded"
+
+_MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line"), True),
     ("scorecard.csv", ("date", "tier"), True),
     # The power screen's receipts. Left out, they never leave the machine that
@@ -384,6 +397,11 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool], ...] = (
         ("date", "run_id", "batter", "game_pk", "stat", "line", "side"),
         False,
     ),
+    # The hand totals sheet's receipt. The Mac writes and grades it; without
+    # this line its record never left that machine and could not be audited
+    # anywhere else. One row per game; the copy that has the final wins, so a
+    # box that only read the sheet cannot hold the day ungraded.
+    (totals_audit.LEDGER_NAME, ("date", "game", "game_pk"), GRADED),
 )
 
 
