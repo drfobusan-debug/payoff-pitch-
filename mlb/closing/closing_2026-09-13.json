@@ -18950,6 +18950,496 @@
   },
   {
     "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Alex Call 1B o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Alex Call 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Dane Myers 1B o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Dane Myers 1B u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Elly De La Cruz 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.44843
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Elly De La Cruz 1B u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.55157
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Enrique Hernandez 1B o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.361613
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Enrique Hernandez 1B u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.638387
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Eugenio Suarez 1B o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.336095
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Eugenio Suarez 1B u0.5",
+    "american": -255.0,
+    "no_vig_prob": 0.663905
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Freddie Freeman 1B o0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.55157
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Freddie Freeman 1B u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.44843
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Hector Rodriguez 1B o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.391636
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Hector Rodriguez 1B u0.5",
+    "american": -195.0,
+    "no_vig_prob": 0.608364
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Bleday 1B o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.361613
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "JJ Bleday 1B u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.638387
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Juan Brito 1B o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.391636
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Juan Brito 1B u0.5",
+    "american": -195.0,
+    "no_vig_prob": 0.608364
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Ke'Bryan Hayes 1B o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.419255
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Ke'Bryan Hayes 1B u0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.580745
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Max Muncy 1B o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.375985
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Max Muncy 1B u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.624015
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Miguel Rojas 1B o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Miguel Rojas 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Mookie Betts 1B o0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Mookie Betts 1B u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Sal Stewart 1B o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Sal Stewart 1B u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Teoscar Hernandez 1B o0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.471347
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Teoscar Hernandez 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.528653
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Tommy Edman 1B o0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Tommy Edman 1B u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Tyler Stephenson 1B o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Tyler Stephenson 1B u0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Will Smith 1B o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_1b",
+    "selection": "Will Smith 1B u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Alex Call BB o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.384615
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Alex Call BB u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.615385
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Dane Myers BB o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Dane Myers BB u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.692308
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Elly De La Cruz BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.355603
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Elly De La Cruz BB u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Enrique Hernandez BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.265734
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Enrique Hernandez BB u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.734266
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Eugenio Suarez BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.355603
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Eugenio Suarez BB u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Freddie Freeman BB o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.401126
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Freddie Freeman BB u0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.598874
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "JJ Bleday BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.257732
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "JJ Bleday BB u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.742268
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Juan Brito BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.257732
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Juan Brito BB u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.742268
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Ke'Bryan Hayes BB o0.5",
+    "american": 340.0,
+    "no_vig_prob": 0.211726
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Ke'Bryan Hayes BB u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.788274
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Max Muncy BB o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Max Muncy BB u0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Mookie Betts BB o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Mookie Betts BB u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Sal Stewart BB o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.280374
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Sal Stewart BB u0.5",
+    "american": -350.0,
+    "no_vig_prob": 0.719626
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Teoscar Hernandez BB o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.361613
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Teoscar Hernandez BB u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.638387
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Tommy Edman BB o0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.342772
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Tommy Edman BB u0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.657228
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Tyler Stephenson BB o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.361613
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Tyler Stephenson BB u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.638387
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Will Smith BB o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_bb",
+    "selection": "Will Smith BB u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_hrr",
+    "selection": "JJ Bleday H+R+RBI o0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_hrr",
+    "selection": "JJ Bleday H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
+  },
+  {
+    "matchup": "LAD @ CIN",
     "market": "f5_ml",
     "selection": "CIN F5 ML",
     "american": 190.0,
@@ -19059,6 +19549,62 @@
     "selection": "Under 8.5",
     "american": -118.0,
     "no_vig_prob": 0.520106
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_er",
+    "selection": "Tarik Skubal ER o1.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_er",
+    "selection": "Tarik Skubal ER u1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_h",
+    "selection": "Tarik Skubal Hits o4.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_h",
+    "selection": "Tarik Skubal Hits u4.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Nick Lodolo Outs o15.5",
+    "american": 125.0,
+    "no_vig_prob": 0.408759
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Nick Lodolo Outs u15.5",
+    "american": -180.0,
+    "no_vig_prob": 0.591241
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Tarik Skubal Outs o18.5",
+    "american": 150.0,
+    "no_vig_prob": 0.369501
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Tarik Skubal Outs u18.5",
+    "american": -215.0,
+    "no_vig_prob": 0.630499
   },
   {
     "matchup": "LAD @ MIA",
