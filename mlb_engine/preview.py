@@ -50,8 +50,13 @@ class StarterLine:
     vfa_dev: float | None = None
     babip_allowed: float | None = None
     siera: float | None = None
-    # Form direction inside the same window: recent half minus earlier half.
-    # SIERA and CSW% in rate points, velocity in mph. None => too thin to read.
+    # Fly-ball share of the batted balls in his last four starts: the one
+    # batted-ball read a starter repeats, and the one that forecasts his home
+    # runs. Short on purpose -- six weeks of it forecasts a third as well.
+    fb_allowed_recent: float | None = None
+    # Form direction inside the same window: recent half minus earlier half for
+    # SIERA and CSW%, last start against the whole window for velocity, in rate
+    # points and mph. None => too thin to read.
     siera_trend: float | None = None
     stuff_trend: float | None = None  # CSW%
     vfa_trend: float | None = None  # mph
