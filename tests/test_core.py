@@ -1026,6 +1026,46 @@ def test_arsenal_matchup_high_whiff_vs_slider():
     assert arsenal_matchup_multiplier(build_arsenal(pd.DataFrame()), bpp) == {}
 
 
+def test_the_arsenal_no_longer_prices_contact_only_whiffs():
+    """Per-class xwOBA is the contact the batter's own rates already carry.
+
+    Multiplying it in again failed the holdout on singles, hits and home runs at
+    every dose (scripts/arsenal_matchup_study.py), so the term is whiffs only.
+    """
+    import pandas as pd
+
+    from mlb_engine.features.pitch_mix import (
+        arsenal_matchup_multiplier,
+        build_arsenal,
+        build_batter_pitch_profile,
+    )
+
+    arsenal = build_arsenal(
+        pd.DataFrame(
+            {
+                "pitch_type": ["FF"] * 60,
+                "description": ["hit_into_play"] * 60,
+                "estimated_woba_using_speedangle": [None] * 60,
+            }
+        )
+    )
+    # A hitter who crushes the four-seamer: .600 xwOBA on contact against a .350
+    # league class -- the largest lift the old term could have given him.
+    slugger = build_batter_pitch_profile(
+        pd.DataFrame(
+            {
+                "pitch_type": ["FF"] * 40,
+                "description": ["hit_into_play"] * 40,
+                "estimated_woba_using_speedangle": [0.600] * 40,
+            }
+        )
+    )
+    mult = arsenal_matchup_multiplier(arsenal, slugger)
+    assert set(mult) <= {"K"}
+    # Still read, just not priced: the reports quote it.
+    assert slugger.xwoba["FB"] == pytest.approx(0.600)
+
+
 # ---- schedule pacing (DGANG) ----
 def test_dgang_tax_only_night_then_day():
     from mlb_engine.filters.schedule import dgang_multipliers, is_day, is_night
