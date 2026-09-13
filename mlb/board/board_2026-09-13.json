@@ -32804,6 +32804,20 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_1b",
+    "selection": "Andrew Knizner 1B o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.378969
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_1b",
+    "selection": "Andrew Knizner 1B u0.5",
+    "american": -202.0,
+    "no_vig_prob": 0.621031
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_1b",
     "selection": "Bryce Eldridge 1B o0.5",
     "american": 140.0,
     "no_vig_prob": 0.401362
@@ -33066,6 +33080,20 @@
     "selection": "Xander Bogaerts 1B u0.5",
     "american": -105.0,
     "no_vig_prob": 0.47812
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_2b",
+    "selection": "Andrew Knizner 2B o0.5",
+    "american": 650.0,
+    "no_vig_prob": 0.126819
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_2b",
+    "selection": "Andrew Knizner 2B u0.5",
+    "american": -1120.0,
+    "no_vig_prob": 0.873181
   },
   {
     "matchup": "SD @ SF",
@@ -33336,6 +33364,20 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_bb",
+    "selection": "Andrew Knizner BB o0.5",
+    "american": 315.0,
+    "no_vig_prob": 0.226146
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_bb",
+    "selection": "Andrew Knizner BB u0.5",
+    "american": -470.0,
+    "no_vig_prob": 0.773854
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_bb",
     "selection": "Bryce Eldridge BB o0.5",
     "american": 149.0,
     "no_vig_prob": 0.378918
@@ -33388,6 +33430,20 @@
     "selection": "Dustin Harris BB u0.5",
     "american": -475.0,
     "no_vig_prob": 0.771534
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_bb",
+    "selection": "Ethan Salas BB o0.5",
+    "american": 285.0,
+    "no_vig_prob": 0.240964
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_bb",
+    "selection": "Ethan Salas BB u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.759036
   },
   {
     "matchup": "SD @ SF",
@@ -33574,6 +33630,20 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hrr",
+    "selection": "Andrew Knizner H+R+RBI o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.536122
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
+    "selection": "Andrew Knizner H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.463878
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
     "selection": "Bryce Eldridge H+R+RBI o1.5",
     "american": 126.0,
     "no_vig_prob": 0.421553
@@ -33623,9 +33693,23 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hrr",
+    "selection": "Drew Gilbert H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.406138
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
     "selection": "Drew Gilbert H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.413367
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hrr",
+    "selection": "Drew Gilbert H+R+RBI u1.5",
+    "american": -164.0,
+    "no_vig_prob": 0.593862
   },
   {
     "matchup": "SD @ SF",
@@ -33840,6 +33924,13 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hr",
+    "selection": "Andrew Knizner HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
     "selection": "Bryce Eldridge HR o0.5",
     "american": 550.0,
     "no_vig_prob": 0.162393
@@ -33952,6 +34043,13 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_hr",
+    "selection": "Manny Machado HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_hr",
     "selection": "Rafael Devers HR o0.5",
     "american": 360.0,
     "no_vig_prob": 0.227503
@@ -33990,6 +34088,20 @@
     "selection": "Xander Bogaerts HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.100251
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_h",
+    "selection": "Andrew Knizner H o0.5",
+    "american": -109.0,
+    "no_vig_prob": 0.49088
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_h",
+    "selection": "Andrew Knizner H u0.5",
+    "american": -116.0,
+    "no_vig_prob": 0.50912
   },
   {
     "matchup": "SD @ SF",
@@ -34120,9 +34232,23 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_h",
+    "selection": "Jackson Merrill H o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.317432
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_h",
     "selection": "Jackson Merrill H u0.5",
     "american": 195.0,
     "no_vig_prob": 0.323222
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_h",
+    "selection": "Jackson Merrill H u1.5",
+    "american": -263.0,
+    "no_vig_prob": 0.682568
   },
   {
     "matchup": "SD @ SF",
@@ -34263,6 +34389,20 @@
     "selection": "Xander Bogaerts H u0.5",
     "american": 155.0,
     "no_vig_prob": 0.380332
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_rbi",
+    "selection": "Andrew Knizner RBI o0.5",
+    "american": 351.0,
+    "no_vig_prob": 0.208441
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_rbi",
+    "selection": "Andrew Knizner RBI u0.5",
+    "american": -533.0,
+    "no_vig_prob": 0.791559
   },
   {
     "matchup": "SD @ SF",
@@ -34533,6 +34673,20 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_r",
+    "selection": "Andrew Knizner R o0.5",
+    "american": 248.0,
+    "no_vig_prob": 0.268566
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_r",
+    "selection": "Andrew Knizner R u0.5",
+    "american": -360.0,
+    "no_vig_prob": 0.731434
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_r",
     "selection": "Bryce Eldridge R o0.5",
     "american": 146.0,
     "no_vig_prob": 0.378496
@@ -34799,6 +34953,20 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_tb",
+    "selection": "Andrew Knizner TB o0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.487962
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Andrew Knizner TB u0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.512038
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
     "selection": "Bryce Eldridge TB o0.5",
     "american": -154.0,
     "no_vig_prob": 0.573473
@@ -34900,6 +35068,13 @@
     "selection": "Dustin Harris TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.423897
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Dustin Harris TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.617879
   },
   {
     "matchup": "SD @ SF",
@@ -35030,6 +35205,13 @@
   {
     "matchup": "SD @ SF",
     "market": "batter_tb",
+    "selection": "Jung Hoo Lee TB u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.604368
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
     "selection": "Luis Campusano TB o0.5",
     "american": -190.0,
     "no_vig_prob": 0.615827
@@ -35047,6 +35229,13 @@
     "selection": "Luis Campusano TB u0.5",
     "american": 150.0,
     "no_vig_prob": 0.384173
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "batter_tb",
+    "selection": "Luis Campusano TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.634703
   },
   {
     "matchup": "SD @ SF",
@@ -35366,9 +35555,23 @@
   {
     "matchup": "SD @ SF",
     "market": "pitcher_h",
+    "selection": "Nick Pivetta Hits o4.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410325
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "pitcher_h",
     "selection": "Nick Pivetta Hits u3.5",
     "american": 120.0,
     "no_vig_prob": 0.432644
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "pitcher_h",
+    "selection": "Nick Pivetta Hits u4.5",
+    "american": -169.0,
+    "no_vig_prob": 0.589675
   },
   {
     "matchup": "SD @ SF",
@@ -35436,9 +35639,23 @@
   {
     "matchup": "SD @ SF",
     "market": "pitcher_outs",
+    "selection": "Nick Pivetta Outs o15.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416226
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "pitcher_outs",
     "selection": "Nick Pivetta Outs u14.5",
     "american": 124.0,
     "no_vig_prob": 0.434776
+  },
+  {
+    "matchup": "SD @ SF",
+    "market": "pitcher_outs",
+    "selection": "Nick Pivetta Outs u15.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583774
   },
   {
     "matchup": "SEA @ ATH",
