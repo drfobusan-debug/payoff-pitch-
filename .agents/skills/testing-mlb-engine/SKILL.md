@@ -197,6 +197,40 @@ a **zero** noise floor (verified: `main` vs the branch with the new screen lifte
   `no market price` note — parse defensively. Audit md/HTML/PDF label them `First-5 moneyline` /
   `First-5 run line` / `First-5 total`, and only `audit --report` writes those files.
 
+## Testing a new pricing *term* that is already merged into main
+When the PR adds a term to a model (e.g. `XK_SHAPE_COEF * shape_plus` in `expected_k_pct`) and is
+already on `main`, you do not need a merge-base worktree. Neutralise the term in-process instead and
+run the same slate twice off one frozen board — it reproduces the pre-PR arithmetic exactly:
+
+    from mlb_engine.features import stuff
+    stuff.shape_plus = lambda pdf: 0.0        # also patch the alias the caller holds:
+    import mlb_engine.features.regression as R; R.stuff.shape_plus = lambda pdf: 0.0
+    from mlb_engine.cli import main; main(["run", "--date", ..., "--sims", "800"])
+
+Always run all legs with `MLBE_ODDS_CACHE_TTL=86400` **and** `MLBE_WEATHER_CACHE_TTL=86400`; with
+both frozen the noise floor is exactly 0 rows, so any diff is the term.
+
+To prove the feature is populating rather than silently returning its "no opinion" value, wrap the
+builder during the real run rather than trusting an offline snippet — `build_pitcher_regression` is
+imported by name into `pipeline`, so patch **both** `regression.build_pitcher_regression` and
+`pipeline.build_pitcher_regression`. Record per call: `pdf["pitcher"]` ids (1 id = starter,
+many = the bullpen frame, which is graded too), `len(pdf)`, the feature value, and the target metric
+recomputed with the new term removed. Then assert the arithmetic exactly
+(`xk - xk_no_term == coef * clip(value)` to 1e-12) and that the value is non-default for every arm
+above the feature's own floor (`stuff.MIN_PITCHES = 100` graded pitches). Statcast caches have no
+`player_name` column: map ids via `MLBStatsClient().get_slate(date)` probables, falling back to
+`https://statsapi.mlb.com/api/v1/people/<id>` for arms swapped after the run.
+
+A data-file-backed feature gives you a free third leg: move the JSON aside
+(`mlb_engine/data/*.json`), re-run, and assert the output is **byte-identical to the neutralised
+leg** — that proves the fallback is genuinely "no opinion" and not merely non-crashing. Restore the
+file and check its sha256 afterwards.
+
+**Check `FEATURE_BASIS` on any pricing PR.** `mlb_engine/calibration.py` keys the calibration map to
+that string; if a PR moves prices (e.g. 3,906 of 4,023 rows) without bumping it, a map refit on the
+older engine still matches the basis and would be applied to prices it was not fit on. Report it —
+the run-time stale-basis warning will *not* fire in that case.
+
 ## Where a `pass_gate` shows up (and where it does not)
 - Predictions JSON: yes, `rec.pass_gate` verbatim. This is the primary evidence.
 - Excel: there is **no** `pass_gate` column. The evidence is `Tier == "Pass"` plus the reason string
