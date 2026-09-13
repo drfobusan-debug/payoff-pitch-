@@ -240,6 +240,72 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
    the branch), push a card with `hours_to_first_pitch` stripped (untimed → must not change it), and
    write an earlier card onto the branch directly and pull (a box must not regress to it).
 
+## Auditing the priced ("money") section of the Audit Desk report
+The money section (`mlb_engine/audit/priced.py` + `output/audit_insight.py`) is the only part of the
+report that claims betting P/L; everything else (PPV/NPV, discriminants) is classification. Test them
+separately, and never let a good PPV number stand in as evidence the money math is right.
+- It is driven by `history=all_entries` (the **cumulative** ledger) passed from `cli.py:cmd_audit`,
+  not by the graded slate, so a single-day ledger produces an almost empty money table while the PPV
+  tables look full. Seed the scratch data dir with a **multi-slate** `audit/ledger.csv` or the section
+  is untested.
+- The filter is `source == engine` **and** `tier in {"Strong buy", "Moderate buy"}` **and**
+  `odds is not None` **and** `result != "push"`. The tier strings come from `market/tiers.py:Tier` and
+  are `"Strong buy"`/`"Moderate buy"` — filtering on `"Strong"`/`"Moderate"` silently yields **zero**
+  rows and a false pass. Check the enum values before writing any independent recomputation.
+- Recompute independently straight off the CSV: `n`, wins, `mean(1/american_to_decimal(odds))` for the
+  price-implied breakeven, `sum(pnl)` for units, one-way count (`under_odds` empty), and CLV /
+  beat-close counts. Compare at the rendered precision (0.1 pt / 0.1u); the HTML is the easiest
+  source to diff (`output/audit_insight_<date>.html`) and the PDF is the same content.
+- Cheapest contamination proof, no fixtures needed: load the real ledger, `dataclasses.replace` one
+  priced buy into four poison rows (`tier="Pass"`, `odds=None`, `result="push"`,
+  `source="teamrankings"`) each with an absurd `pnl`, append them, and assert
+  `engine_priced_stat(...)` returns an identical `n` and `units`. That catches an accidental widening
+  of the filter far more directly than comparing pool sums.
+- Beware two rounding traps when cross-checking probabilities: `ledger.csv` stores 4 dp and the Excel
+  `Model %` column 3 dp, so exact equality fails on a few rows legitimately. Use a tolerance of half
+  the last digit and, better, assert the value is **nearer the raw model prob than the shrunk one** —
+  that is the assertion that actually distinguishes the two.
+- Degenerate case to always run: a scratch data dir with **no** `ledger.csv` and a
+  `predictions_<date>.json` whose `market_american`/`opposite_american` are all `null`. The section
+  must print the "no graded row … carries both a buy tier and a real price" callout, exit 0 and emit
+  no `nan`. When grepping the rendered text for `nan`, anchor the pattern — `correlations` contains
+  `nan` and produces a false failure.
+
+## Fitted market anchors (`Config.market_anchor_file`, `MLBE_MARKET_ANCHOR_*`)
+- Precedence is env `MLBE_MARKET_ANCHOR_<MARKET>` > fitted JSON file > packaged
+  `_MARKET_ANCHOR_BY_MARKET` (only `game_total`/`f5_total` are pinned) > global `market_anchor`.
+  Test one **subprocess per case** — `Config` reads env at construction. A corrupt file must log
+  `ignoring <path>: ...` at WARNING and fall back, never raise.
+- The file default is `<data_dir>/market_anchor_live.json`, i.e. the real `~/.mlb_engine` in a default
+  session. Always point `MLBE_MARKET_ANCHOR_FILE` at a temp path before running anything with
+  `--write-anchors`, and assert the real one still does not exist afterwards.
+- The anchor is applied in `pipeline.py` as `bet_prob = anchor_to_market(model_prob, fair_prob,
+  anchor)`; `rec.model_prob` is deliberately left as the **raw** model number. So the correct
+  assertions are: `model_prob` bit-identical across variants, `bet_prob` equal to
+  `fair + (1-anchor)*(model - fair)`, and no non-target market moving at all. Anchoring `game_ml`
+  moved `bet_prob`/`ev`/`edge` on all 30 game_ml rows, `pass_gate` on 10 and `tier` on 2, and nothing
+  else, on a 15-game slate.
+- Always include the env-override-to-0.0 variant: its diff against baseline must be **empty**, which
+  is simultaneously the noise floor of the harness and proof the feature is inert when disabled.
+- Replays of a cached slate cost 0 credits — verify with `x-requests-remaining` before and after
+  rather than trusting the log line, which prints an estimate (`~240 credits`) even on a pure cache
+  hit and looks alarming.
+
+## `scripts/market_shrink_study.py`
+- Its `frame()` filter (engine, win/loss, two-sided, `fair_prob` present) is much narrower than the
+  raw ledger: a 109k-row / 31-slate CSV reduced to 20,853 rows / **21** slates / 12 markets. Expect
+  the slate count in the output to be lower than the ledger's date count; that is the filter, not a
+  bug.
+- To prove there is no lookahead, import the script as a module and wrap `fit_alpha`, `alphas_for`
+  and `apply_alphas`, recording `max(train.date)` against the day being graded; assert strict `<` on
+  every call, and that the number of refits equals `len(dates) - max(5, int(0.4*len(dates)))` minus
+  days with <20 rows. When importing by path, register the module in `sys.modules` **before**
+  `exec_module` or its `@dataclass` definitions fail with `'NoneType' object has no attribute
+  '__dict__'`.
+- `--write-anchors` writes `1 - alpha`; cross-check each entry against the alphas printed in the
+  single-split table (alpha 0.23 → 0.767, alpha 0 → 1.0). Pass `--no-walk-forward` to keep the run
+  to about a minute.
+
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
