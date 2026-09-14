@@ -202,9 +202,12 @@ def _apply_color(brief: TeamBrief, color: TeamColor) -> None:
 
 
 def _game_color(brief: GameBrief, color: GameColor) -> None:
-    brief.venue = color.venue
-    brief.city = color.city
-    brief.grass = color.grass
+    if color.venue is not None:
+        brief.venue = color.venue
+    if color.city is not None:
+        brief.city = color.city
+    if color.grass is not None:
+        brief.grass = color.grass
     if color.indoor is True and brief.roof is None:
         brief.roof = "dome"
     brief.neutral_site = color.neutral_site
@@ -337,7 +340,10 @@ def gather(
     ratings: RatingBook | None = None
     color: ColorBook | None = None
     try:
-        schedule = nflverse.games()
+        games = nflverse.games()
+        # The loader returns an empty, schema-less frame when both the network and
+        # the cache are out; that is "no schedule", not a schedule of no games.
+        schedule = games if not games.empty else None
     except Exception as exc:  # noqa: BLE001 - colour is optional
         log.warning("brief: schedule unavailable (%s)", exc)
     try:

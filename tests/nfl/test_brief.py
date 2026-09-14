@@ -15,7 +15,7 @@ import pandas as pd
 import pytest
 
 from nfl_engine.audit.ledger import LedgerEntry
-from nfl_engine.data.color import parse_summary
+from nfl_engine.data.color import GameColor, parse_summary, scoreboard_url
 from nfl_engine.features.ratings import RatingBook, TeamRating
 from nfl_engine.output.brief import GameBrief, TeamBrief, build_briefs
 from nfl_engine.output.card import build_card, market_reads, render_html, render_markdown
@@ -324,3 +324,28 @@ def test_parse_summary_reads_the_espn_payload_and_only_the_payload() -> None:
     empty = parse_summary({}, home="CHI", away="GB")
     assert empty.venue is None and empty.home.record is None and empty.tags == []
     assert empty.home.leaders == [] and empty.home.out == [] and empty.fpi_home is None
+
+
+def test_an_empty_espn_summary_keeps_the_schedule_venue(rows: list[LedgerEntry]) -> None:
+    color = {"GB @ CHI": GameColor()}
+    briefs = build_briefs(rows, season=SEASON, week=WEEK, schedule=_schedule(), color=color)
+    assert briefs["GB @ CHI"].venue == "Soldier Field"
+
+
+def test_an_empty_schedule_frame_is_no_schedule(
+    rows: list[LedgerEntry], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nfl_engine.output import brief as brief_mod
+
+    monkeypatch.setattr(brief_mod.nflverse, "games", lambda: pd.DataFrame())
+    monkeypatch.setattr(
+        brief_mod.books_mod, "as_of", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("off"))
+    )
+    monkeypatch.setattr(brief_mod.ESPNColor, "fetch", lambda self, *a, **k: {})
+    briefs = brief_mod.gather(rows, season=SEASON, week=WEEK)
+    assert briefs["GB @ CHI"].home.record == ""
+
+
+def test_the_scoreboard_url_switches_to_the_postseason_after_week_18() -> None:
+    assert "seasontype=2&week=18" in scoreboard_url(2025, 18)
+    assert "seasontype=3&week=1" in scoreboard_url(2025, 19)
