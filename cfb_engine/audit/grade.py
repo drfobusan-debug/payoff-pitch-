@@ -9,7 +9,7 @@ reads each market off it.
 from __future__ import annotations
 
 from cfb_engine.data.cfbd import GameResult
-from cfb_engine.data.teamnames import norm, school_key
+from cfb_engine.data.teamnames import LABEL_SUFFIX_WORDS, norm, school_key
 from cfb_engine.recommendations import Recommendation
 
 WIN, LOSS, PUSH = "win", "loss", "push"
@@ -34,12 +34,21 @@ def same_team(rec_name: str, res_name: str) -> bool:
     silently drops those games from grading, which is worse than a wrong grade
     because nothing announces it -- hence the prefix. Spelling differs too
     (the board says ``UMass``, CFBD ``Massachusetts``), so both sides are also
-    compared on their canonical school key.
+    compared on their canonical school key, and a label that kept a piece of
+    its mascot or a ``State``/``University`` suffix the result dropped
+    (``Penn State Nit`` vs ``Penn State``, ``Grambling Stat`` vs ``Grambling``)
+    matches when that leftover is the start of such a word.
     """
     left, right = norm(rec_name), norm(res_name)
     if left == right or right.startswith(left):
         return True
-    return school_key(rec_name) == school_key(res_name)
+    left_key, right_key = school_key(rec_name), school_key(res_name)
+    if left_key == right_key or right_key.startswith(left_key):
+        return True
+    if not left_key.startswith(right_key + " "):
+        return False
+    leftover = left_key[len(right_key) + 1 :]
+    return any(word.startswith(leftover) for word in LABEL_SUFFIX_WORDS)
 
 
 def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:

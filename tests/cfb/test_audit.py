@@ -96,6 +96,13 @@ def test_a_truncated_label_does_not_grab_the_wrong_school():
         ("Rutgers", "UMass", "Rutgers", "Massachusetts"),
         ("Buffalo", "Albany", "Buffalo", "UAlbany"),
         ("Kansas", "LIU", "Kansas", "Long Island University"),
+        ("Temple", "Penn State Nit", "Temple", "Penn State"),
+        ("Florida", "Campbell Fight", "Florida", "Campbell"),
+        ("Liberty", "Gardner-Webb R", "Liberty", "Gardner-Webb"),
+        ("TCU", "Grambling Stat", "TCU", "Grambling"),
+        ("Houston", "Southern Unive", "Houston", "Southern"),
+        ("Auburn", "Southern Missi", "Auburn", "Southern Miss"),
+        ("Sam Houston St", "Tulsa", "Sam Houston", "Tulsa"),
     ],
 )
 def test_a_differently_spelled_school_still_grades(board_home, board_away, cfbd_home, cfbd_away):
