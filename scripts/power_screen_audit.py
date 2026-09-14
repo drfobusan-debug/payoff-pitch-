@@ -8,7 +8,10 @@ whatever range is asked for off the box scores.
 The three questions the ledger module keeps apart are kept apart here too:
 
 * **Did the positions win?** Wins, losses and units at the recorded price, split
-  by market, by tier and by the note's own BUY/HOLD/AVOID rating.
+  by market, by tier and by the note's own matchup-grade bucket. The ledger
+  keys the buckets under their historical words (BUY/HOLD/AVOID/STRONG BUY);
+  they are printed here by what they measure (contact A/B/C, rank 1-2), since
+  the word the note prints for a bucket follows its record and can move.
 * **Was the number better than the price?** Brier of the model probability and of
   the printed (anchored) probability against the two-sided no-vig mark, on the
   rows where the vig could actually be stripped.
@@ -45,6 +48,7 @@ from mlb_engine.audit.power_ledger import (  # noqa: E402
 from mlb_engine.config import load_config  # noqa: E402
 from mlb_engine.data.results import GameResult, fetch_result  # noqa: E402
 from mlb_engine.output.power_board import DISPLAY_ONLY  # noqa: E402
+from mlb_engine.output.power_report import RATING_DISPLAY  # noqa: E402
 
 log = logging.getLogger("power_screen_audit")
 
@@ -239,9 +243,13 @@ def _print_rows(graded: list[GradedPosition]) -> None:
             f"    {p.batter:<22} {p.label:<10} {price:>6} {p.book:<14}"
             f" p={p.shown_prob:.3f} mkt="
             + ("    -" if p.fair_prob is None else f"{p.fair_prob:.3f}")
-            + f"  {p.tier:<13} {p.rating:<6} actual {g.actual:>2}"
+            + f"  {p.tier:<13} {_bucket(p.rating):<9} actual {g.actual:>2}"
             f"  {g.result:<5} {g.units:+.2f}u"
         )
+
+
+def _bucket(rating: str) -> str:
+    return RATING_DISPLAY.get(rating, rating) if rating else "(none)"
 
 
 def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[GradedPosition]]]:
@@ -256,7 +264,7 @@ def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[Gra
         elif key == "tier":
             buckets[g.position.tier or "(none)"].append(g)
         else:
-            buckets[g.position.rating or "(none)"].append(g)
+            buckets[_bucket(g.position.rating)].append(g)
     return sorted(buckets.items(), key=lambda kv: -len(kv[1]))
 
 
