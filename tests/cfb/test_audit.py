@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 
 import pytest
 
-from cfb_engine.audit.clv import ClosingQuote, compute_clv, merge_closing
+from cfb_engine.audit.clv import ClosingQuote, closing_quotes, compute_clv, merge_closing
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
@@ -16,9 +16,12 @@ from cfb_engine.audit.ledger import (
     update_ledger,
 )
 from cfb_engine.data.cfbd import GameResult
+from cfb_engine.market.board import GameOdds
+from cfb_engine.market.ev import MarketQuote
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
+from cfb_engine.schemas import Game, Slate, TeamGameInfo
 
 DAY = date(2025, 11, 1)
 
@@ -266,3 +269,41 @@ def test_price_buckets_ignore_rows_that_never_carried_a_price() -> None:
     unpriced.odds = None
     rows = price_bucket_metrics([priced, unpriced])
     assert sum(m.n for m in rows if m.tier.startswith(("Heavy", "Favorite", "Pick"))) == 1
+
+
+def _kickoff_slate() -> tuple[Slate, dict[str, GameOdds]]:
+    def game(gid: str, home: str, away: str, start: str) -> Game:
+        return Game(
+            game_id=gid,
+            game_date=date(2026, 9, 12),
+            commence_time_utc=start,
+            home=TeamGameInfo(name=home, abbrev=home[:3].upper(), is_home=True),
+            away=TeamGameInfo(name=away, abbrev=away[:3].upper(), is_home=False),
+        )
+
+    early = game("1", "Illinois", "Duke", "2026-09-12T16:00:00Z")
+    late = game("2", "Washington", "Utah State", "2026-09-12T23:00:00Z")
+    unknown = game("3", "Purdue", "Wake Forest", None)
+    board: dict[str, GameOdds] = {}
+    for g in (early, late, unknown):
+        odds = GameOdds(matchup=g.matchup())
+        quote = MarketQuote(book="b", american=-110, opposite_american=-110)
+        odds.add_spread(-7.0, g.home.abbrev, quote)
+        odds.add_spread(-7.0, g.away.abbrev, quote)
+        board[g.matchup()] = odds
+    return Slate(slate_date=date(2026, 9, 12), games=[early, late, unknown]), board
+
+
+def test_closing_quotes_skip_games_already_in_play():
+    slate, board = _kickoff_slate()
+    now = datetime(2026, 9, 12, 19, 0, tzinfo=timezone.utc)
+    quotes = closing_quotes(slate, board, now=now)
+    matchups = {k.split("|")[0] for k in quotes}
+    assert matchups == {"UTA @ WAS", "WAK @ PUR"}
+
+
+def test_closing_quotes_keep_everything_before_kickoff():
+    slate, board = _kickoff_slate()
+    now = datetime(2026, 9, 12, 12, 0, tzinfo=timezone.utc)
+    quotes = closing_quotes(slate, board, now=now)
+    assert {k.split("|")[0] for k in quotes} == {g.matchup() for g in slate.games}
