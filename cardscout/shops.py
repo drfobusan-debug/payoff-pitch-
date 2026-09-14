@@ -33,7 +33,7 @@ JUNK_RE = re.compile(
     r"sleeve|deck box|playmat|binder(?! collection)|toploader|storage|figure|plush|"
     r"funko|t-shirt|hoodie|poster(?! collection)|keychain|pin\b|mug|sticker(?! collection)|"
     r"dice|token|event|tournament|entry|ticket|gift card|grading|submission|"
-    r"acrylic|magnetic|display case|protector|"
+    r"acrylic|magnetic|display case|protector|nanoblock|lego|building (?:kit|set)|puzzle|"
     r"digimon|yu-?gi-?oh|one piece|magic: the gathering|\bmtg\b|lorcana|dragon ball|"
     r"weiss|union arena|flesh and blood|star wars|riftbound",
     re.I,
@@ -151,8 +151,11 @@ def jsonld_listing(
             data = json.loads(m.group(1))
         except json.JSONDecodeError:
             continue
+        nodes: list[object] = []
         for node in data if isinstance(data, list) else [data]:
-            node = node.get("@graph", [node])[0] if isinstance(node, dict) else node
+            graph = node.get("@graph") if isinstance(node, dict) else None
+            nodes.extend(graph if isinstance(graph, list) else [node])
+        for node in nodes:
             if not isinstance(node, dict) or node.get("@type") not in ("Product", ["Product"]):
                 continue
             offer = node.get("offers") or {}
@@ -172,3 +175,12 @@ def jsonld_listing(
                 available="instock" in avail.replace(" ", ""),
             )
     return None
+
+
+def listings_for(shop: Shop, session: requests.Session | None = None) -> list[Listing]:
+    if shop.kind == "shopify":
+        return shopify_listings(shop, session)
+    if shop.kind == "jsonld":
+        one = jsonld_listing(shop.name, shop.url, session)
+        return [one] if one is not None else []
+    raise ValueError(f"unsupported shop kind: {shop.kind}")

@@ -134,6 +134,24 @@ DESCRIPTORS = {
 }
 
 _WORD = re.compile(r"[a-z0-9é&']+")
+# Graded slabs trade on the grade, not the raw-card market.
+GRADED_RE = re.compile(
+    r"\b(psa|cgc|bgs|beckett|sgc|ace)\s*-?\s*(10|[1-9](?:\.5)?)\b|\bgraded\b", re.I
+)
+# Series a title or a set name belongs to; two products from different
+# series never match ("Scarlet & Violet Booster Pack" is not a SWSH one).
+SERIES_RE = {
+    "sv": re.compile(r"\bsv\d*\b|scarlet", re.I),
+    "swsh": re.compile(r"\bswsh\d*\b|sword", re.I),
+    "me": re.compile(r"\bme\d*\b|mega evolution", re.I),
+    "sm": re.compile(r"\bsm\d*\b|sun\s*(?:&|and)\s*moon", re.I),
+    "xy": re.compile(r"\bxy\d*\b", re.I),
+}
+
+
+def series_of(text: str) -> str | None:
+    hits = [k for k, rx in SERIES_RE.items() if rx.search(text)]
+    return hits[0] if len(hits) == 1 else None
 
 
 def tokens(text: str) -> list[str]:
@@ -194,6 +212,9 @@ class Matcher:
         self.by_number: dict[str, list[Candidate]] = defaultdict(list)
         self.sealed: list[tuple[Candidate, frozenset[str], frozenset[str]]] = []
         self.set_tokens: dict[int, frozenset[str]] = {}
+        self.set_series: dict[int, str | None] = {
+            gid: series_of(name.split(":", 1)[0]) for gid, name in group_names.items()
+        }
         # Every word that names a set, so a title carrying another set's name
         # ("Pitch Black ETB") cannot match a product from this one.
         self.set_vocab: set[str] = set()
@@ -222,6 +243,8 @@ class Matcher:
 
     def match(self, title: str, variant: str = "") -> tuple[Candidate | None, str | None, float]:
         """Return (candidate, printing, confidence in [0, 1])."""
+        if GRADED_RE.search(f"{title} {variant}"):
+            return None, None, 0.0
         m = NUMBER_RE.search(title)
         if m:
             cand, conf = self._match_card(title, m)
@@ -270,6 +293,7 @@ class Matcher:
             order = tokens(title)
             last = {gid: max(order.index(t) for t in self.set_tokens[gid]) for gid in named}
             named = {gid for gid, pos in last.items() if pos == max(last.values())}
+        series = series_of(title)
         for c, pt, own in self.sealed:
             if not pt:
                 continue
@@ -279,8 +303,15 @@ class Matcher:
                 continue
             if not named and (tt & self.set_vocab) - own:
                 continue
+            if series and self.set_series.get(c.group_id) not in (None, series):
+                continue
+            # "Mini Tin [Vaporeon]": the bracket names the variant; a title
+            # that does not say which one cannot be priced as one.
+            variant = set(tokens(" ".join(BRACKET_RE.findall(c.name)))) - TYPE_WORDS
+            if variant and not variant & tt:
+                continue
             covered = len(pt & tt) / len(pt)
-            if covered < 0.75:
+            if covered < 0.75 or (len(pt & tt) < 2 and tt != pt):
                 continue
             extra = len(tt - pt) / max(len(tt), 1)
             score = covered - 0.5 * extra

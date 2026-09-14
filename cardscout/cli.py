@@ -72,7 +72,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
         if not shop.enabled or (args.shop and shop.name != args.shop):
             continue
         try:
-            listings = shops_mod.shopify_listings(shop, session)
+            listings = shops_mod.listings_for(shop, session)
         except (requests.RequestException, ValueError) as exc:
             print(f"  {shop.name}: {exc}", file=sys.stderr)
             continue
@@ -321,7 +321,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except (FileNotFoundError, PermissionError, NotADirectoryError) as exc:
+        print(f"cardscout: {exc} (check CARDSCOUT_DATA_DIR)", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
