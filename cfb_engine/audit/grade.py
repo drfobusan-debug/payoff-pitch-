@@ -70,13 +70,29 @@ def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:
     return found[0] if len(found) == 1 else None
 
 
+def _exact_team(rec_name: str, res_name: str) -> bool:
+    return norm(rec_name) == norm(res_name) or school_key(rec_name) == school_key(res_name)
+
+
 def _team_points(rec: Recommendation, res: GameResult) -> tuple[int, int] | None:
     """(picked-team points, opponent points) resolving home/away by name."""
     if rec.team_side is None:
         return None
     home_is_pick = rec.team_side == "home"
     # The rec's home/away may be labeled opposite to CFBD's; align by name.
-    if same_team(rec.home_abbrev or "", res.home):
+    # Both orientations are checked because fuzzy matching can pair a school
+    # with its suffixed namesake (``Georgia`` / ``Georgia State``): when the
+    # two teams are indistinguishable the market is left ungraded.
+    rec_home, rec_away = rec.home_abbrev or "", rec.away_abbrev or ""
+    aligned = flipped = False
+    for match in (_exact_team, same_team):
+        aligned = match(rec_home, res.home) and match(rec_away, res.away)
+        flipped = match(rec_home, res.away) and match(rec_away, res.home)
+        if aligned != flipped:
+            break
+    if aligned == flipped:
+        return None
+    if aligned:
         home_pts, away_pts = res.home_points, res.away_points
     else:
         home_pts, away_pts = res.away_points, res.home_points

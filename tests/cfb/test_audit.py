@@ -142,6 +142,25 @@ def test_a_truncated_label_does_not_flip_home_and_away():
     assert grade(rec, res) == "loss"  # won by 17, needed 32
 
 
+def test_a_school_playing_its_suffixed_namesake_keeps_the_right_scores():
+    """``Georgia`` also fuzzy-matches ``Georgia State``; exact names must decide."""
+    rec = _ml("home", "Georgia ML")
+    rec.home_abbrev, rec.away_abbrev = "Georgia", "Georgia State"
+    straight = GameResult(home="Georgia", away="Georgia State", home_points=45, away_points=3)
+    reversed_sides = GameResult(home="Georgia State", away="Georgia", home_points=3, away_points=45)
+
+    assert grade(rec, straight) == "win"
+    assert grade(rec, reversed_sides) == "win"
+
+
+def test_fragment_labels_still_orient_when_only_one_pairing_fits():
+    rec = _ml("home", "Southern ML")
+    rec.home_abbrev, rec.away_abbrev = "Southern Unive", "Southern Missi"
+    res = GameResult(home="Southern Miss", away="Southern", home_points=20, away_points=10)
+
+    assert grade(rec, res) == "loss"  # Southern scored 10
+
+
 def test_ats_push():
     rec = _ml("away", "Alabama +7.0")
     rec.market = "game_ats"
