@@ -492,18 +492,39 @@ def _record(label: str, graded: list[GradedPosition]) -> Record:
     )
 
 
+# The day the contact terciles swapped words (#333): before it a recorded "BUY"
+# was the high-contact tercile and "AVOID" the low one; from it on the reverse.
+# The rank bucket first appears the same day. Rows are read back to the bucket
+# they were in, so a bucket's record is one thing across the turn.
+CONTACT_LABEL_FLIP = "2026-09-09"
+_PRE_FLIP_BUCKET = {"BUY": "AVOID", "AVOID": "BUY"}
+
+
+def bucket(position: Position) -> str:
+    """The stable bucket a recorded rating string belongs to.
+
+    Current keys: ``STRONG BUY`` = composite rank 1-2, ``BUY`` = low-contact
+    tercile, ``HOLD`` = middle, ``AVOID`` = high-contact tercile. A row written
+    before :data:`CONTACT_LABEL_FLIP` had BUY and AVOID the other way round.
+    """
+    r = position.rating
+    if position.date and position.date < CONTACT_LABEL_FLIP:
+        return _PRE_FLIP_BUCKET.get(r, r)
+    return r
+
+
 def records_by_rating(graded: list[GradedPosition]) -> dict[str, Record]:
-    """Each matchup grade's whole record, for the note to print beside the grade.
+    """Each matchup bucket's whole record, for the note to print beside the word.
 
     A grade is a word about the matchup; the ledger is what the word has been
     worth. Hitter rows only -- a starter's rows carry no grade -- keyed by the
-    grade as recorded, so a label whose meaning changed keeps one record per
-    string and the reader sees the turn rather than a blend.
+    bucket the row was in (:func:`bucket`), not the string as recorded, so the
+    9/09 swap of the contact words does not blend opposite terciles.
     """
-    rated = [g for g in graded if g.position.rating]
+    rated = [(bucket(g.position), g) for g in graded if g.position.rating]
     return {
-        r: _record(r, [g for g in rated if g.position.rating == r])
-        for r in sorted({g.position.rating for g in rated})
+        b: _record(b, [g for bb, g in rated if bb == b])
+        for b in sorted({bb for bb, _g in rated})
     }
 
 
@@ -580,7 +601,7 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
     shown = [(g.position.shown_prob, o) for g, o in pairs]
     market = [(g.position.fair_prob or 0.0, o) for g, o in pairs]
     tiers = sorted({g.position.tier for g in graded})
-    ratings = sorted({g.position.rating for g in graded if g.position.rating})
+    ratings = sorted({bucket(g.position) for g in graded if g.position.rating})
     markets = sorted({g.position.market for g in graded})
     categories = sorted({g.position.category for g in graded})
     tiers_of_arm = sorted({g.position.arm_tier or "soft" for g in graded})
@@ -591,7 +612,10 @@ def scorecard(day: Date, graded: list[GradedPosition], voided: int = 0) -> Score
         voided=voided,
         run_id=runs[-1] if len(runs) == 1 else "",
         by_tier=[_record(t, [g for g in graded if g.position.tier == t]) for t in tiers],
-        by_rating=[_record(r, [g for g in graded if g.position.rating == r]) for r in ratings],
+        by_rating=[
+            _record(r, [g for g in graded if g.position.rating and bucket(g.position) == r])
+            for r in ratings
+        ],
         by_market=[
             _record(m, [g for g in graded if g.position.market == m]) for m in markets
         ],
