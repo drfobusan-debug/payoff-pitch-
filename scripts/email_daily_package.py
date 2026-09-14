@@ -13,6 +13,7 @@ sends them in one email (same Gmail App Password credentials the engine's
     * regression_radar_<day>.pdf       (regression radar, if present)
     * power_screen_<day>.pdf           (morning power screen, if present)
     * totals_sheet_<day>.xlsx          (hand-method totals sheet, if present)
+    * worksheet_<day>.xlsx             (daily MLB worksheet: weighted matchup gaps, prices, gap-band audit)
     * totals_audit_<day>.xlsx          (yesterday's sheet graded + running ledger, if present;
                                         its .txt summary is printed in the body)
 
@@ -94,6 +95,7 @@ def collect_attachments(
             f"power_screen_{iso}.pdf",
             f"totals_sheet_{iso}.xlsx",
             f"totals_audit_{iso}.xlsx",
+            f"worksheet_{iso}.xlsx",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:
@@ -105,8 +107,14 @@ def collect_attachments(
 
 def totals_audit_note(out_dir: Path, day: Date, with_daily: bool = True) -> str:
     """The audit's summary lines, when the day's package has them."""
-    path = out_dir / f"totals_audit_{day.isoformat()}.txt"
-    return path.read_text().strip() if with_daily and path.exists() else ""
+    if not with_daily:
+        return ""
+    notes = []
+    for stem in ("totals_audit", "worksheet"):
+        path = out_dir / f"{stem}_{day.isoformat()}.txt"
+        if path.exists() and path.read_text().strip():
+            notes.append(path.read_text().strip())
+    return "\n\n".join(notes)
 
 
 def main(argv: list[str]) -> int:

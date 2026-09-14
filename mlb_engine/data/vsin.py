@@ -76,6 +76,16 @@ class TotalSplit:
     under: Split = Split()
 
 
+@dataclass
+class SideSplit:
+    """One book's moneyline and run-line read on one team."""
+
+    ml_american: float | None = None
+    ml: Split = Split()
+    rl_line: float | None = None
+    rl: Split = Split()
+
+
 def split_side(market: str, selection: str) -> str | None:
     """The line-independent side a selection takes: ``Over``/``Under``, or a team.
 
@@ -238,6 +248,29 @@ class VSINClient:
                     cur.under = Split(row.total_handle, row.total_bets)
                 else:
                     cur.over = Split(row.total_handle, row.total_bets)
+        return out
+
+    SideSplits = dict[tuple[str, str, str], SideSplit]
+
+    def fetch_side_splits(self, slate: Slate) -> SideSplits:
+        """{(matchup, abbrev, book): SideSplit} -- each team's ML and run-line split, per book."""
+        name_to_team: dict[str, tuple[str, str]] = {}
+        for g in slate.games:
+            for tm in (g.home, g.away):
+                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.abbrev)
+        out: VSINClient.SideSplits = {}
+        for src, book in _BOOKS.items():
+            for row in self._fetch_book(src):
+                match = name_to_team.get(_norm_name(row.name))
+                if match is None:
+                    continue
+                matchup, abbrev = match
+                out[(matchup, abbrev, book)] = SideSplit(
+                    row.ml_american,
+                    Split(row.ml_handle, row.ml_bets),
+                    row.spread_line,
+                    Split(row.spread_handle, row.spread_bets),
+                )
         return out
 
     def fetch_quotes(self, slate: Slate) -> Quotes:

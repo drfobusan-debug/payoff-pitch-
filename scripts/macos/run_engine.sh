@@ -218,6 +218,12 @@ elif [[ "$MODE" == slate-* ]]; then
           python -m scripts.totals_audit "$day" \
             || echo "[$(date)] totals audit failed" >&2
         fi
+        # The daily worksheet: matchup gaps + the prices they were written at,
+        # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
+        if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
+          python -m scripts.daily_worksheet "$day" \
+            || echo "[$(date)] daily worksheet failed" >&2
+        fi
         WITH_DAILY="--with-daily"
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
