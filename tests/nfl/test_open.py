@@ -108,9 +108,47 @@ def test_the_opening_board_is_the_earliest_snapshot_and_never_moves(tmp_path) ->
     assert capture.write_snapshot(first, season=2026, week=1, root=tmp_path) is not None
     assert capture.write_snapshot(later, season=2026, week=1, root=tmp_path) is not None
     opened, taken = capture.opening_board(2026, 1, root=tmp_path)
-    assert taken == OPENED
+    assert taken == {MATCHUP: OPENED}
     assert opened[MATCHUP].main_spread() == -6.5
     assert opened[MATCHUP].main_total() == 47.5
+
+
+def test_a_game_posted_late_opens_on_the_first_board_that_carries_it(tmp_path) -> None:
+    late = "DEN @ LV"
+    first = capture.rows_from_board(
+        board(home_spread=-6.5, total=47.5), season=2026, week=1, captured_at=OPENED
+    )
+    posted = GameOdds(matchup=late)
+    posted.add_spread(-3.0, "LV", MarketQuote("dk", -110, -110))
+    second = capture.rows_from_board(
+        {**board(home_spread=-7.5, total=49.5), late: posted},
+        season=2026,
+        week=1,
+        captured_at=BET,
+    )
+    capture.write_snapshot(first, season=2026, week=1, root=tmp_path)
+    capture.write_snapshot(second, season=2026, week=1, root=tmp_path)
+    opened, taken = capture.opening_board(2026, 1, root=tmp_path)
+    assert taken == {MATCHUP: OPENED, late: BET}
+    assert opened[MATCHUP].main_spread() == -6.5  # not moved by the later file
+    assert opened[late].main_spread() == -3.0
+
+
+def test_two_snapshots_in_one_second_keep_their_order(tmp_path) -> None:
+    first = capture.rows_from_board(
+        board(home_spread=-6.5, total=47.5), season=2026, week=1, captured_at=OPENED
+    )
+    second = capture.rows_from_board(
+        board(home_spread=-7.5, total=47.5), season=2026, week=1, captured_at=OPENED
+    )
+    capture.write_snapshot(first, season=2026, week=1, root=tmp_path)
+    capture.write_snapshot(second, season=2026, week=1, root=tmp_path)
+    paths = capture.snapshot_paths(2026, 1, root=tmp_path)
+    assert [p.name for p in paths] == [
+        "game-2026-09-08T120500Z.csv",
+        "game-2026-09-08T120500Z-1.csv",
+    ]
+    assert capture.opening_board(2026, 1, root=tmp_path)[0][MATCHUP].main_spread() == -6.5
 
 
 def test_the_opening_quote_uses_the_open_main_line_not_the_bet_line() -> None:
@@ -136,7 +174,7 @@ def test_price_stamps_the_open_from_the_archive_and_the_csv_keeps_it(
     monkeypatch.setattr(cli.capture, "capture_dir", lambda root=None: tmp_path / "captures")
 
     entries = [row(), row(market="total", side="over", line=49.5)]
-    note = cli._stamp_open(entries, 2026, 1)
+    note = cli._stamp_open(entries, 2026, 1, board(home_spread=-7.5, total=49.5))
     assert note.startswith(f"opening board {OPENED}: 2 of 2 rows stamped")
     assert "own board" not in note
     assert entries[0].open_line == -6.5 and entries[0].drift is not None
@@ -161,15 +199,29 @@ def test_pricing_off_the_first_board_of_the_week_says_so(
     capture.write_snapshot(own, season=2026, week=1, root=tmp_path)
     monkeypatch.setattr(cli.capture, "capture_dir", lambda root=None: tmp_path / "captures")
     entries = [row()]
-    note = cli._stamp_open(entries, 2026, 1)
+    note = cli._stamp_open(entries, 2026, 1, board(home_spread=-7.5, total=49.5))
     assert "nothing archived earlier" in note
+    assert entries[0].drift == 0.0
+
+
+def test_buying_an_alternate_rung_is_not_a_line_move(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    unmoved = board(home_spread=-7.5, total=49.5)
+    unmoved[MATCHUP].add_spread(-6.5, HOME, MarketQuote("dk", -130, 110))
+    opened = capture.rows_from_board(unmoved, season=2026, week=1, captured_at=OPENED)
+    capture.write_snapshot(opened, season=2026, week=1, root=tmp_path)
+    monkeypatch.setattr(cli.capture, "capture_dir", lambda root=None: tmp_path / "captures")
+    entries = [row(line=-6.5, odds=-130.0, opposite_odds=110.0, captured_at=BET)]
+    cli._stamp_open(entries, 2026, 1, unmoved)
+    assert entries[0].open_line == -7.5
     assert entries[0].drift == 0.0
 
 
 def test_nothing_archived_leaves_the_open_empty(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     monkeypatch.setattr(cli.capture, "capture_dir", lambda root=None: tmp_path / "captures")
     entries = [row()]
-    assert "none archived" in cli._stamp_open(entries, 2026, 1)
+    assert "none archived" in cli._stamp_open(entries, 2026, 1, board(home_spread=-7.5, total=49.5))
     assert entries[0].open_odds is None and entries[0].drift is None
 
 
@@ -191,7 +243,7 @@ def test_open_command_archives_and_prices_nothing(
     monkeypatch.setattr(cli, "merge_ledger", lambda *a, **k: pytest.fail("open must not price"))
     assert cli.cmd_open(argparse.Namespace(days=8)) == 0
     assert calls == [(8, capture.GAME_KIND)]
-    assert capture.opening_board(2026, 1)[1] == OPENED
+    assert capture.opening_board(2026, 1)[1] == {MATCHUP: OPENED}
 
 
 def test_the_parser_knows_open(monkeypatch: pytest.MonkeyPatch) -> None:

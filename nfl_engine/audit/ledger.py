@@ -278,6 +278,7 @@ def apply_open(
     open_opposite: float | None,
     open_line: float | None,
     *,
+    now: tuple[float, float | None, float | None] | None = None,
     captured_at: str = "",
     method: str = DEFAULT_METHOD,
     margin_sd: float = 13.2,
@@ -285,10 +286,14 @@ def apply_open(
 ) -> LedgerEntry:
     """Stamp the opening number and how far the market ran toward us before the bet.
 
-    Set once, at pricing, from the earliest board archived for the week. When that
-    board *is* the one being priced the stamp is honest and empty of information:
-    ``drift`` reads 0.0 and ``open_captured_at`` equals ``captured_at``, which is
-    how an audit tells "the market did not move" from "nobody looked earlier".
+    Set once, at pricing, from the earliest board archived for the week. ``now`` is
+    the current ``(american, opposite, line)`` on the same rung of the ladder the
+    open was read from -- the main line, so that buying an alternate rung is not
+    mistaken for the market moving; it defaults to the row's own price. When the
+    opening board *is* the one being priced the stamp is honest and empty of
+    information: ``drift`` reads 0.0 and ``open_captured_at`` equals
+    ``captured_at``, which is how an audit tells "the market did not move" from
+    "nobody looked earlier".
     """
     entry.open_odds = open_american
     entry.open_line = open_line
@@ -299,10 +304,19 @@ def apply_open(
     else:
         open_prob = devig([implied, american_to_prob(open_opposite)], method)[0]
     entry.open_prob = round(open_prob, 6)
-    drift = taken_prob(entry, method=method) - open_prob
-    if entry.line is not None and open_line is not None and entry.market in (SPREAD, TOTAL):
+    if now is None:
+        now_prob, now_line = taken_prob(entry, method=method), entry.line
+    else:
+        now_american, now_opposite, now_line = now
+        now_implied = american_to_prob(now_american)
+        if now_opposite is None:
+            now_prob = now_implied
+        else:
+            now_prob = devig([now_implied, american_to_prob(now_opposite)], method)[0]
+    drift = now_prob - open_prob
+    if now_line is not None and open_line is not None and entry.market in (SPREAD, TOTAL):
         sd = margin_sd if entry.market == SPREAD else total_sd
-        moved = line_move_toward(entry.market, entry.side, open_line, entry.line)
+        moved = line_move_toward(entry.market, entry.side, open_line, now_line)
         drift += moved * prob_per_point(sd)
     entry.drift = round(drift, 6)
     return entry

@@ -61,6 +61,7 @@ from nfl_engine.data import capture, espn, injuries, nflverse
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.features import context, usage
+from nfl_engine.market.board import GameOdds
 from nfl_engine.market.screens import tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.models.player import Projection
@@ -233,7 +234,7 @@ def cmd_price(args: argparse.Namespace) -> int:
         calibrator=maps,
     )
     entries = _ledger_rows(pricings, fetched.captured_at)
-    opened = _stamp_open(entries, fetched.season, fetched.week)
+    opened = _stamp_open(entries, fetched.season, fetched.week, fetched.board)
     added = merge_ledger(ledger_path(), entries) if args.write else []
     _print_rating_notes(pricings)
     buys = slate_buys(pricings)
@@ -310,13 +311,16 @@ def cmd_close(args: argparse.Namespace) -> int:
     return 0
 
 
-def _stamp_open(entries: list[LedgerEntry], season: int, week: int) -> str:
+def _stamp_open(
+    entries: list[LedgerEntry], season: int, week: int, current: dict[str, GameOdds]
+) -> str:
     """Stamp every row with the week's opening number and its drift since.
 
-    Reads the earliest archived board for the week (``nfl-engine open``, Tuesday
-    morning, or the night-before capture) rather than the board being priced, so
-    the card can state how far the market ran before the bet. Returns the line the
-    run prints, so a card with ``drift 0.0`` everywhere says why.
+    Reads each game's earliest archived board (``nfl-engine open``, Tuesday
+    morning, or the night-before capture) and compares it with the main line on
+    the board being priced -- main line to main line, so a bet struck on an
+    alternate rung is not read as the market moving. Returns the line the run
+    prints, so a card with ``drift 0.0`` everywhere says why.
     """
     board, taken = capture.opening_board(season, week)
     if not board:
@@ -332,18 +336,20 @@ def _stamp_open(entries: list[LedgerEntry], season: int, week: int) -> str:
             quote[0],
             quote[1],
             quote[2],
-            captured_at=taken,
+            now=_opening_quote(current, entry),
+            captured_at=taken.get(entry.matchup, ""),
             margin_sd=model.margin_sd,
             total_sd=model.total_sd,
         )
         stamped += 1
-    same = entries and all(e.captured_at == taken for e in entries)
+    first = min(taken.values())
+    same = all(e.captured_at in taken.values() for e in entries) if entries else False
     note = " (this run's own board: nothing archived earlier)" if same else ""
-    return f"opening board {taken}: {stamped} of {len(entries)} rows stamped{note}"
+    return f"opening board {first}: {stamped} of {len(entries)} rows stamped{note}"
 
 
 def _opening_quote(
-    board: dict, entry: LedgerEntry
+    board: dict[str, GameOdds], entry: LedgerEntry
 ) -> tuple[float, float | None, float | None] | None:
     """The opening main line on the row's side and its price there, best book first.
 
