@@ -163,6 +163,10 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,SMU -3.0,-3.0,mybookieag,100.0,-120.0,Pass,0.4668,-0.0664,push,0.0,0.4668,0.4865,0.4668,105.0,0.5872,0.1007,0.1744,4.5,0.0,,-25.0
 2026-09-07,SMU @ Florida State,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.4199,-0.1801,loss,-1.0,0.4199,0.5026,0.4199,-110.0,0.5356,0.033,0.0457,1.0,0.0,,-7.0
 2026-09-07,SMU @ Florida State,Totals,game_total,Under 53.5,53.5,lowvig,-103.0,-114.0,Pass,0.58,0.1432,win,0.9709,0.58,0.4974,0.58,-108.0,0.4644,-0.033,-0.0847,-1.0,0.0,,7.0
+2026-09-10,Florida A&M @ Miami,Spread (ATS),game_ats,Florida A&M +57.5,57.5,draftkings,-105.0,-115.0,Pass,0.4984,-0.0269,loss,-1.0,0.4984,0.4964,0.4984,-110.0,0.4538,-0.0426,-0.114,-2.0,0.0,,
+2026-09-10,Florida A&M @ Miami,Spread (ATS),game_ats,Miami -57.5,-57.5,fanduel,-110.0,-110.0,Pass,0.5016,-0.0424,win,0.9091,0.5016,0.5036,0.5016,-105.0,0.5462,0.0426,0.0427,2.0,0.0,,-16.0
+2026-09-10,Florida A&M @ Miami,Totals,game_total,Over 62.5,62.5,betmgm,-110.0,-108.0,Moderate buy,0.5294,0.0108,win,0.9091,0.5294,0.5087,0.5294,-108.0,0.5974,0.0887,0.1405,3.0,0.0,,
+2026-09-10,Florida A&M @ Miami,Totals,game_total,Under 62.5,62.5,williamhill_us,-103.0,-117.0,Pass,0.4706,-0.0726,loss,-1.0,0.4706,0.4913,0.4706,-104.0,0.4026,-0.0887,-0.2065,-3.0,0.0,,-18.0
 2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Kansas ML,,mybookieag,186.0,-234.0,Pass,0.3877,0.1089,loss,-1.0,0.3877,0.3449,0.3877,900.0,0.1393,-0.2056,-0.6016,,0.0,ml_no_sharp_money,-69.0
 2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Missouri ML,,betonlineag,-210.0,180.0,Pass,0.6123,-0.0962,win,0.4762,0.6123,0.6551,0.6123,-700.0,0.8607,0.2056,0.2706,,0.0,,69.0
 2026-09-11,Missouri @ Kansas,Spread (ATS),game_ats,Kansas +5.5,5.5,betmgm,-108.0,-110.0,Pass,0.5203,0.0022,loss,-1.0,0.5203,0.5019,0.5203,-125.0,0.4814,-0.0205,-0.0729,-2.0,0.0,,20.0
