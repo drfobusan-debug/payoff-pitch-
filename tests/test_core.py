@@ -469,6 +469,13 @@ def test_vsin_fetch_quotes_maps_to_slate():
     assert splits[("MIN @ CLE", "game_total", "Under 7.5")].handle_pct == 87.0
     assert client.fetch_quotes(slate).keys() == quotes.keys()
 
+    # Per-book, per-team ML and run-line splits kept apart for the worksheet.
+    sides = client.fetch_side_splits(slate)
+    assert set(sides) == {("MIN @ CLE", t, b) for t in ("MIN", "CLE") for b in ("draftkings", "circa")}
+    s = sides[("MIN @ CLE", "CLE", "circa")]
+    assert s.ml_american == 109.0 and s.ml.handle_pct == 16.0 and s.ml.bets_pct == 38.0
+    assert s.rl_line == 1.5 and s.rl.handle_pct == 4.0 and s.rl.bets_pct == 58.0
+
     # An alternate line is the same public money: VSIN posts the split against
     # its own line, but the engine routinely picks 8.5 or 9.5 on the same game,
     # and keying on the full selection dropped the split on every one of them.

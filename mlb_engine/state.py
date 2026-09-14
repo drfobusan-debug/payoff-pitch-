@@ -47,7 +47,7 @@ from mlb_engine.audit.clv import (
 from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
-from mlb_engine.output import totals_audit
+from mlb_engine.output import daily_worksheet, totals_audit
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -402,6 +402,9 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     # anywhere else. One row per game; the copy that has the final wins, so a
     # box that only read the sheet cannot hold the day ungraded.
     (totals_audit.LEDGER_NAME, ("date", "game", "game_pk"), GRADED),
+    # The daily worksheet's receipt: each game's weighted gap and the prices it
+    # was written at, graded the next morning. Same rule -- the graded copy wins.
+    (daily_worksheet.LEDGER_NAME, ("date", "game_pk"), GRADED),
 )
 
 
