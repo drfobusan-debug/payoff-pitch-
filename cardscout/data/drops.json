@@ -1,0 +1,18 @@
+{
+  "home": {"zip": "23229", "area_code": "804", "city": "Richmond, VA", "tz": "America/New_York"},
+  "stores": [
+    {"retailer": "target", "name": "Target Willow Lawn", "address": "1601 Willow Lawn Dr, Richmond VA 23230", "miles": 3},
+    {"retailer": "target", "name": "Target Short Pump", "address": "11290 W Broad St, Glen Allen VA 23060", "miles": 8},
+    {"retailer": "target", "name": "Target Glen Allen (Virginia Center)", "address": "10001 Brook Rd, Glen Allen VA 23059", "miles": 10},
+    {"retailer": "walmart", "name": "Walmart Supercenter Short Pump", "address": "11400 W Broad St, Glen Allen VA 23060", "miles": 8},
+    {"retailer": "walmart", "name": "Walmart Supercenter Brook Rd", "address": "7901 Brook Rd, Richmond VA 23227", "miles": 8},
+    {"retailer": "walmart", "name": "Walmart Supercenter Midlothian", "address": "12000 Iron Bridge Rd / Midlothian Tpke area, Chesterfield VA", "miles": 12},
+    {"retailer": "costco", "name": "Costco West Broad", "address": "9650 W Broad St, Henrico VA 23294", "miles": 5},
+    {"retailer": "samsclub", "name": "Sam's Club Glen Allen", "address": "10110 W Broad St area, Glen Allen VA", "miles": 8},
+    {"retailer": "bestbuy", "name": "Best Buy Short Pump", "address": "W Broad St, Glen Allen VA 23060", "miles": 8},
+    {"retailer": "dollartree", "name": "Dollar Tree Patterson Ave", "address": "Patterson Ave, Richmond VA 23229", "miles": 2},
+    {"retailer": "dollartree", "name": "Dollar Tree Quioccasin Rd", "address": "Quioccasin Rd, Henrico VA 23229", "miles": 2},
+    {"retailer": "gamestop", "name": "GameStop Regency / Short Pump", "address": "Henrico VA", "miles": 6}
+  ],
+  "note": "Store list seeded for ZIP 23229; addresses are approximate -- edit this file or ~/.cardscout/drops.json to correct them or add your own."
+}
