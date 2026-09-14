@@ -50,6 +50,21 @@ class Play:
     tier: str
     clv: float | None
     result: str
+    open_line: float | None = None
+    open_odds: float | None = None
+    drift: float | None = None
+
+    def opened(self) -> str:
+        """How the week opened on this side and how far it ran before the bet."""
+        if self.open_odds is None or self.drift is None:
+            return ""
+        if self.open_line is None or self.line is None:
+            at = f"{self.open_odds:+.0f}"
+        elif self.market == "total":
+            at = f"{self.open_line:g} ({self.open_odds:+.0f})"
+        else:
+            at = f"{self.open_line:+g} ({self.open_odds:+.0f})"
+        return f"opened {at}, drift {self.drift * 100:+.1f}%"
 
     def label(self) -> str:
         if self.line is None:
@@ -184,6 +199,9 @@ def build_card(
                 tier=entry.tier,
                 clv=entry.clv,
                 result=entry.result,
+                open_line=entry.open_line,
+                open_odds=entry.open_odds,
+                drift=entry.drift,
             )
         )
     games = sorted(sections.values(), key=lambda s: (not s.plays, s.kickoff, s.matchup))
@@ -616,11 +634,12 @@ def _shape(game: GameSection) -> str:
 def _play_item(play: Play, *, with_matchup: bool = False) -> str:
     where = f" ({html.escape(play.matchup)})" if with_matchup else ""
     clv = f", CLV {play.clv * 100:+.1f}%" if play.clv is not None else ""
+    opened = f", {play.opened()}" if play.opened() else ""
     res = f" · {html.escape(play.result)}" if play.result else ""
     return (
         f"<li><b>{html.escape(play.label())} ({play.price()}, {html.escape(play.book)})</b> —"
         f" {_market_word(play.market)}{where}, model {play.model_prob * 100:.0f}%,"
-        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{clv}"
+        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{opened}{clv}"
         f" · <i>{html.escape(_tier_word(play.tier))}</i>{res}</li>"
     )
 

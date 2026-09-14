@@ -250,6 +250,24 @@ def latest_snapshot(
     return paths[-1] if paths else None
 
 
+def opening_board(
+    season: int, week: int, *, root: Path | None = None
+) -> tuple[dict[str, GameOdds], str]:
+    """The week's earliest archived game board, and the moment it was taken.
+
+    "Opening" here means the first board this machine archived -- Tuesday morning
+    once the night-before captures are scheduled, the pricing run's own board when
+    nothing ran earlier. The archive is write-once per snapshot, so re-running a
+    capture never moves the open.
+    """
+    paths = snapshot_paths(season, week, GAME_KIND, root=root)
+    if not paths:
+        return {}, ""
+    rows = read_snapshot(paths[0])
+    taken = rows[0].captured_at if rows else ""
+    return board_from_rows(rows), taken
+
+
 def read_snapshot(path: Path) -> list[QuoteRow]:
     if not path.exists():
         return []

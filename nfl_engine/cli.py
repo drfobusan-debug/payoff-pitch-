@@ -44,6 +44,7 @@ from nfl_engine.audit.ledger import (
     PAPER,
     LedgerEntry,
     apply_close,
+    apply_open,
     close_is_final,
     entry_from_bet,
     grade,
@@ -232,12 +233,14 @@ def cmd_price(args: argparse.Namespace) -> int:
         calibrator=maps,
     )
     entries = _ledger_rows(pricings, fetched.captured_at)
+    opened = _stamp_open(entries, fetched.season, fetched.week)
     added = merge_ledger(ledger_path(), entries) if args.write else []
     _print_rating_notes(pricings)
     buys = slate_buys(pricings)
     print(f"{len(entries)} selections, {len(buys)} survive the screens [{PAPER_BANNER}]")
     if args.write:
         print(f"  {len(added)} new ledger rows ({len(entries) - len(added)} already held)")
+    print(f"  {opened}")
     for bet in buys[: args.top]:
         fair_ev = bet.ev_fair or 0.0
         print(
@@ -245,6 +248,21 @@ def cmd_price(args: argparse.Namespace) -> int:
             f" model {bet.model_prob:.3f} fair {bet.fair_prob or 0.0:.3f}"
             f" exec EV {fair_ev:+.3f} [{tier_of(bet).value}]"
         )
+    return 0
+
+
+def cmd_open(args: argparse.Namespace) -> int:
+    """Archive the board before anything bets off it, so drift has a start.
+
+    The same archive as ``capture`` (the week's earliest snapshot *is* the open),
+    named for when it runs: Tuesday morning once the books post the week, and
+    the night before each game day. Pricing reads the earliest one back and
+    stamps every row with the open and how far the market moved before the bet.
+    """
+    fetched = _fetch(args.days)
+    board, taken = capture.opening_board(fetched.season, fetched.week)
+    if board:
+        print(f"week {fetched.week} opening board: {len(board)} games, first archived {taken}")
     return 0
 
 
@@ -290,6 +308,74 @@ def cmd_close(args: argparse.Namespace) -> int:
     if missing:
         print(f"  {missing} started rows never got a closing price: CLV unscorable")
     return 0
+
+
+def _stamp_open(entries: list[LedgerEntry], season: int, week: int) -> str:
+    """Stamp every row with the week's opening number and its drift since.
+
+    Reads the earliest archived board for the week (``nfl-engine open``, Tuesday
+    morning, or the night-before capture) rather than the board being priced, so
+    the card can state how far the market ran before the bet. Returns the line the
+    run prints, so a card with ``drift 0.0`` everywhere says why.
+    """
+    board, taken = capture.opening_board(season, week)
+    if not board:
+        return "opening board: none archived, drift unmeasured"
+    model = load_config().model
+    stamped = 0
+    for entry in entries:
+        quote = _opening_quote(board, entry)
+        if quote is None:
+            continue
+        apply_open(
+            entry,
+            quote[0],
+            quote[1],
+            quote[2],
+            captured_at=taken,
+            margin_sd=model.margin_sd,
+            total_sd=model.total_sd,
+        )
+        stamped += 1
+    same = entries and all(e.captured_at == taken for e in entries)
+    note = " (this run's own board: nothing archived earlier)" if same else ""
+    return f"opening board {taken}: {stamped} of {len(entries)} rows stamped{note}"
+
+
+def _opening_quote(
+    board: dict, entry: LedgerEntry
+) -> tuple[float, float | None, float | None] | None:
+    """The opening main line on the row's side and its price there, best book first.
+
+    Unlike :func:`_closing_quote` this does not demand the row's own handicap: the
+    point of the open is that the number may have moved, so the main line the
+    market opened at is the comparison, and the handicap gap is part of the drift.
+    """
+    odds = board.get(entry.matchup)
+    if odds is None:
+        return None
+    line: float | None = None
+    if entry.market == "moneyline":
+        quotes = odds.ml.get(entry.side, [])
+    elif entry.market == "spread":
+        home_point = odds.main_spread()
+        if home_point is None:
+            return None
+        home = entry.matchup.split(" @ ")[-1]
+        line = home_point if entry.side == home else -home_point
+        quotes = odds.spreads.get(home_point, {}).get(entry.side, [])
+    elif entry.market == "total":
+        line = odds.main_total()
+        if line is None:
+            return None
+        quotes = odds.totals.get(line, {}).get(entry.side, [])
+    else:
+        return None
+    same_book = [q for q in quotes if q.book == entry.book] or quotes
+    if not same_book:
+        return None
+    quote = same_book[0]
+    return (quote.american, quote.opposite_american, line)
 
 
 def _closing_quote(board: dict, entry: LedgerEntry) -> tuple[float, float | None] | None:
@@ -830,6 +916,10 @@ def main(argv: list[str] | None = None) -> int:
         help="price on the market alone, without reading the play-by-play panel",
     )
     price.set_defaults(func=cmd_price)
+
+    open_cmd = sub.add_parser("open", help="archive the opening / night-before board")
+    open_cmd.add_argument("--days", type=int, default=8)
+    open_cmd.set_defaults(func=cmd_open)
 
     close = sub.add_parser("close", help="stamp the closing number for CLV")
     close.add_argument("--days", type=int, default=2)
