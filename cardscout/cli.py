@@ -9,6 +9,8 @@
     cardscout drops observe target "Target Willow Lawn" "Prismatic ETB"
     cardscout drops watch URL [URL ...]  # poll product pages, log stock changes
     cardscout drops stores
+    cardscout newsletter                 # sync, then write this week's PDF brief
+    cardscout newsletter --schedule      # cron / launchd lines to run it weekly
 
 Market is TCGplayer via tcgcsv.com. Shops are the Shopify stores listed in
 cardscout/data/shops.json (add your own with --shops FILE). Everything is
@@ -19,6 +21,7 @@ history, so they get better the longer sync has been running.
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -30,6 +33,7 @@ from cardscout import deals as deals_mod
 from cardscout import drops as drops_mod
 from cardscout import forecast as fc
 from cardscout import market as market_mod
+from cardscout import newsletter as news_mod
 from cardscout import shops as shops_mod
 from cardscout.match import Matcher, attach
 from cardscout.store import Ledger, now_snapshot
@@ -72,7 +76,7 @@ def cmd_sync(args: argparse.Namespace) -> int:
         if not shop.enabled or (args.shop and shop.name != args.shop):
             continue
         try:
-            listings = shops_mod.shopify_listings(shop, session)
+            listings = shops_mod.listings_for(shop, session)
         except (requests.RequestException, ValueError) as exc:
             print(f"  {shop.name}: {exc}", file=sys.stderr)
             continue
@@ -253,6 +257,33 @@ def cmd_drops_watch(args: argparse.Namespace) -> int:
         time.sleep(args.every)
 
 
+# -- newsletter ------------------------------------------------------------------
+
+
+def cmd_newsletter(args: argparse.Namespace) -> int:
+    if args.schedule:
+        print(
+            news_mod.schedule_text(
+                str(Path(shutil.which("cardscout") or sys.argv[0]).resolve()),
+                weekday=args.weekday,
+                hour=args.hour,
+            )
+        )
+        return 0
+    if not args.no_sync:
+        cmd_sync(argparse.Namespace(since_days=None, shops=args.shops, shop=None, no_shops=False))
+    ledger = Ledger()
+    cfg = news_mod.load_watchlist()
+    if args.max_card is not None:
+        cfg["max_card_price"] = args.max_card
+    if args.max_box is not None:
+        cfg["max_box_price"] = args.max_box
+    pdf, html = news_mod.build(ledger, Path(args.out) if args.out else None, cfg)
+    print(pdf)
+    print(html, file=sys.stderr)
+    return 0
+
+
 # -- parser ---------------------------------------------------------------------
 
 
@@ -316,12 +347,27 @@ def build_parser() -> argparse.ArgumentParser:
     wa.add_argument("--every", type=int, default=300, help="seconds between polls")
     wa.add_argument("--once", action="store_true")
     wa.set_defaults(func=cmd_drops_watch)
+
+    nl = sub.add_parser("newsletter", help="weekly PDF brief: deals, cards/boxes to watch, drops")
+    nl.add_argument("--out", help="directory for the PDF (default: ~/.cardscout/newsletters)")
+    nl.add_argument("--no-sync", action="store_true", help="use the ledger as is")
+    nl.add_argument("--shops", help="JSON file of shops (default: packaged list)")
+    nl.add_argument("--max-card", type=float, help="card price cap (default from watchlist.json)")
+    nl.add_argument("--max-box", type=float, help="sealed price cap (default from watchlist.json)")
+    nl.add_argument("--schedule", action="store_true", help="print cron/launchd lines and exit")
+    nl.add_argument("--weekday", type=int, default=1, help="0=Sun..6=Sat for --schedule")
+    nl.add_argument("--hour", type=int, default=7, help="local hour for --schedule")
+    nl.set_defaults(func=cmd_newsletter)
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except (FileNotFoundError, PermissionError, NotADirectoryError) as exc:
+        print(f"cardscout: {exc} (check CARDSCOUT_DATA_DIR)", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":

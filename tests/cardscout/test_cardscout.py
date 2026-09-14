@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from cardscout import deals, drops, forecast
+from cardscout import deals, drops, forecast, newsletter
 from cardscout.market import Group, Product, Tcgcsv
 from cardscout.match import Matcher, attach, pick_printing
 from cardscout.shops import JUNK_RE, _is_pokemon
@@ -39,6 +39,8 @@ def ledger(tmp_path: Path) -> Ledger:
             Group(3, "ME02: Pitch Black", "ME02", "2025-11-14"),
             Group(4, "Fossil", "FO", "1999-10-10"),
             Group(5, "SV: Prismatic Evolutions", "PRE", "2025-01-17"),
+            Group(6, "SWSH01: Sword & Shield Base Set", "SSH", "2020-02-07"),
+            Group(7, "My First Battle", "MFB", "2023-11-03"),
         ]
     )
     led.upsert_products(
@@ -57,6 +59,10 @@ def ledger(tmp_path: Path) -> Ledger:
             _sealed(22, 3, "Pitch Black Elite Trainer Box", 80.0),
             _sealed(23, 2, "Mega Evolution Booster Box", 250.0),
             _sealed(24, 5, "Prismatic Evolutions Booster Bundle", 70.0),
+            _sealed(25, 5, "Prismatic Evolutions Mini Tin [Vaporeon]", 25.0),
+            _sealed(26, 6, "Sword & Shield Booster Pack", 10.78),
+            _sealed(27, 7, "Pikachu", 17.56),
+            _card(13, 5, "Umbreon ex - 161/131", "161/131", {"Holofoil": 1400.0}),
         ],
         snapshot="2026-09-01T00:00:00Z",
     )
@@ -167,6 +173,23 @@ def test_sealed_other_set_and_language_are_rejected(matcher: Matcher):
     assert c is None, "a Japanese box must not be priced against the English one"
     c, _, _ = matcher.match("Pokemon Mega Evolution Booster Bundle")
     assert c is None, "no Mega Evolution bundle exists in this catalog"
+
+
+def test_sealed_series_variant_and_toy_titles(matcher: Matcher):
+    # a Scarlet & Violet pack is not a Sword & Shield one, even with identical tokens
+    assert matcher.match("Pokemon Scarlet & Violet Booster Pack")[0] is None
+    assert matcher.match("Sword & Shield Booster Pack")[0].product_id == 26
+    # the bracket names the variant; an unqualified title cannot be priced as one
+    assert matcher.match("Prismatic Evolutions Mini Tin")[0] is None
+    assert matcher.match("Prismatic Evolutions Mini Tin - Vaporeon")[0].product_id == 25
+    # one shared word ("Pikachu") is not a sealed match
+    assert matcher.match("Nanoblock Pokemon Series Pikachu")[0] is None
+
+
+def test_graded_slabs_are_not_priced_off_raw_market(matcher: Matcher):
+    assert matcher.match("Umbreon ex 161/131 Prismatic Evolutions")[0].product_id == 13
+    assert matcher.match("Umbreon ex 161/131 Prismatic Evolutions PSA 10")[0] is None
+    assert matcher.match("Umbreon ex 161/131 CGC 9.5 Graded")[0] is None
 
 
 def test_junk_and_non_pokemon_filters():
@@ -284,3 +307,60 @@ def test_check_url_classifies_blocked_out_and_in_stock():
     body = '{"offers": {"availability": "https://schema.org/InStock"}}'
     live = drops.check_url("https://x", _WatchSession(_Page(200, body)))  # type: ignore[arg-type]
     assert live.in_stock is True
+
+
+def test_stock_signal_prefers_button_state_over_loose_text():
+    # Target: reviews say "sold out", the JS bundle says "Add to cart"; the
+    # disabled button is the truth
+    page = '<p>usually sold out</p><button type="button" disabled="">Add to cart</button>'
+    assert drops.stock_signal(page)[0] is False
+    page = '<p>usually sold out</p><button type="button" class="x">Add to cart</button>'
+    assert drops.stock_signal(page)[0] is True
+    page = '<button disabled>Add to cart</button>{"availability":"http://schema.org/InStock"}'
+    assert drops.stock_signal(page)[0] is True
+    assert drops.stock_signal("<p>hello</p>")[0] is None
+
+
+# -- newsletter -------------------------------------------------------------
+
+
+def test_scenario_horizons_soften_in_print_and_widen():
+    o = newsletter.scenario(100.0, age_months=2, kind="card")
+    assert o.months[-1] == 36 and len(o.base) == 37
+    assert o.at(6)[0] < 100.0 and o.at(12)[0] < o.at(24)[0] < o.at(36)[0]  # dip, then recover
+    assert o.at(36)[2] - o.at(36)[1] > o.at(6)[2] - o.at(6)[1]
+    assert all(lo < b < hi for b, lo, hi in (o.at(m) for m in (6, 12, 24, 36)))
+    fitted = newsletter.scenario(100.0, 2, "card", fitted_daily_trend=0.01)
+    assert fitted.fitted and fitted.at(12)[0] > o.at(12)[0]
+
+
+def test_watch_picks_respect_caps_and_skip_promos_and_cases(ledger: Ledger):
+    cfg = dict(newsletter.DEFAULT_WATCHLIST, max_card_price=300, max_box_price=500)
+    today = datetime(2026, 9, 14, tzinfo=ET).date()
+    cards = newsletter.select_cards(ledger, cfg, today=today)
+    assert cards[0].name == "Charmander - 038" and cards[0].outlook.kind == "promo"
+    assert all(p.market <= 300 for p in cards)
+    assert not any(p.name.startswith("Umbreon") for p in cards)  # $1400
+    boxes = newsletter.select_sealed(ledger, cfg, today=today)
+    names = [p.name for p in boxes]
+    assert "Mega Evolution Booster Box" in names and "Mega Evolution Elite Trainer Box" in names
+    assert "Mega Evolution Elite Trainer Box Case" not in names
+    assert "Prismatic Evolutions Booster Bundle" not in names
+    assert all(p.market <= 500 for p in boxes)
+
+
+def test_newsletter_builds_pdf_and_html(ledger: Ledger, tmp_path: Path):
+    cfg = dict(newsletter.DEFAULT_WATCHLIST)
+    issue = datetime(2026, 9, 14, tzinfo=ET).date()
+    pdf, html = newsletter.build(ledger, tmp_path / "out", cfg, issue=issue)
+    assert pdf.name == "cardscout-2026-W38.pdf" and pdf.read_bytes()[:4] == b"%PDF"
+    text = html.read_text()
+    assert "Top 1 cards to watch" not in text  # pins + expansion cards
+    assert "Charmander - 038" in text and "Richmond restock windows" in text
+    assert "scenarios" in text
+
+
+def test_schedule_text_has_cron_and_launchd():
+    s = newsletter.schedule_text("/usr/local/bin/cardscout", weekday=1, hour=7)
+    assert "0 7 * * 1 /usr/local/bin/cardscout newsletter" in s
+    assert "<key>Weekday</key><integer>1</integer>" in s

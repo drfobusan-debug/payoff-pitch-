@@ -183,14 +183,40 @@ def forecast_windows(
 
 # -- URL watcher -----------------------------------------------------------
 
-IN_STOCK_RE = re.compile(
-    r'"availability"\s*:\s*"[^"]*InStock|add to cart|"instock"|ship it|pick it up', re.I
+SCHEMA_IN_RE = re.compile(r'"availability"\s*:\s*"[^"]*InStock', re.I)
+SCHEMA_OUT_RE = re.compile(
+    r'"availability"\s*:\s*"[^"]*(OutOfStock|SoldOut|Discontinued|PreOrder)', re.I
 )
+# an add-to-cart <button>; the tag attributes tell us whether it is disabled
+CART_BUTTON_RE = re.compile(
+    r"<button\b([^>]*)>(?:(?!</button>).){0,200}?add to (?:cart|bag)", re.I | re.S
+)
+IN_STOCK_RE = re.compile(r'add to cart|"instock"|ship it|pick it up', re.I)
 OUT_RE = re.compile(
-    r'"availability"\s*:\s*"[^"]*OutOfStock|out of stock|sold out|currently unavailable|coming soon',
+    r"out of stock|sold out|currently unavailable|coming soon",
     re.I,
 )
 BLOCK_RE = re.compile(r"captcha|perimeterx|px-cdn|access denied|robot", re.I)
+
+
+def stock_signal(body: str) -> tuple[bool | None, str]:
+    """Read a product page. Structured data beats button state beats loose text:
+    review text says 'sold out' on pages that are in stock, and JS bundles
+    contain 'Add to cart' on pages that are not."""
+    if SCHEMA_IN_RE.search(body):
+        return True, "in stock (schema.org availability)"
+    if SCHEMA_OUT_RE.search(body):
+        return False, "out of stock (schema.org availability)"
+    buttons = [m.group(1) for m in CART_BUTTON_RE.finditer(body)]
+    if buttons:
+        if all(re.search(r"\bdisabled\b", attrs, re.I) for attrs in buttons):
+            return False, "out of stock (add-to-cart button disabled)"
+        return True, "in stock (add-to-cart button enabled)"
+    if OUT_RE.search(body) and not IN_STOCK_RE.search(body):
+        return False, "out of stock"
+    if IN_STOCK_RE.search(body) and not OUT_RE.search(body):
+        return True, "in stock"
+    return None, "no stock signal on page (rendered by JavaScript?)"
 
 
 @dataclass
@@ -216,11 +242,8 @@ def check_url(url: str, session: requests.Session | None = None) -> Check:
             None,
             "blocked (bot wall) -- log sightings by hand or run from a residential IP",
         )
-    if OUT_RE.search(body) and not IN_STOCK_RE.search(body):
-        return Check(url, r.status_code, False, "out of stock")
-    if IN_STOCK_RE.search(body):
-        return Check(url, r.status_code, True, "in stock")
-    return Check(url, r.status_code, None, "no stock signal on page (rendered by JavaScript?)")
+    in_stock, reason = stock_signal(body)
+    return Check(url, r.status_code, in_stock, reason)
 
 
 def retailer_of(url: str) -> str:
