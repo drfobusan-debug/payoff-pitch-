@@ -589,7 +589,7 @@ def _take(game: GameSection) -> str:
             )
         elif gap <= -3:
             parts.append(
-                f"The market is higher on {team_name(ml.side)} than we are ({gap:+.1f} pts), so no moneyline play."
+                f"The market is higher on {team_name(ml.side)} than we are ({gap:+.1f} pts)."
             )
         else:
             parts.append("Model and market are within a few points on the moneyline.")
