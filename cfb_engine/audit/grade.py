@@ -9,7 +9,7 @@ reads each market off it.
 from __future__ import annotations
 
 from cfb_engine.data.cfbd import GameResult
-from cfb_engine.data.teamnames import norm, school_key
+from cfb_engine.data.teamnames import LABEL_SUFFIX_WORDS, norm, school_key
 from cfb_engine.recommendations import Recommendation
 
 WIN, LOSS, PUSH = "win", "loss", "push"
@@ -34,12 +34,21 @@ def same_team(rec_name: str, res_name: str) -> bool:
     silently drops those games from grading, which is worse than a wrong grade
     because nothing announces it -- hence the prefix. Spelling differs too
     (the board says ``UMass``, CFBD ``Massachusetts``), so both sides are also
-    compared on their canonical school key.
+    compared on their canonical school key, and a label that kept a piece of
+    its mascot or a ``State``/``University`` suffix the result dropped
+    (``Penn State Nit`` vs ``Penn State``, ``Grambling Stat`` vs ``Grambling``)
+    matches when that leftover is the start of such a word.
     """
     left, right = norm(rec_name), norm(res_name)
     if left == right or right.startswith(left):
         return True
-    return school_key(rec_name) == school_key(res_name)
+    left_key, right_key = school_key(rec_name), school_key(res_name)
+    if left_key == right_key or right_key.startswith(left_key):
+        return True
+    if not left_key.startswith(right_key + " "):
+        return False
+    leftover = left_key[len(right_key) + 1 :]
+    return any(word.startswith(leftover) for word in LABEL_SUFFIX_WORDS)
 
 
 def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:
@@ -61,13 +70,29 @@ def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:
     return found[0] if len(found) == 1 else None
 
 
+def _exact_team(rec_name: str, res_name: str) -> bool:
+    return norm(rec_name) == norm(res_name) or school_key(rec_name) == school_key(res_name)
+
+
 def _team_points(rec: Recommendation, res: GameResult) -> tuple[int, int] | None:
     """(picked-team points, opponent points) resolving home/away by name."""
     if rec.team_side is None:
         return None
     home_is_pick = rec.team_side == "home"
     # The rec's home/away may be labeled opposite to CFBD's; align by name.
-    if same_team(rec.home_abbrev or "", res.home):
+    # Both orientations are checked because fuzzy matching can pair a school
+    # with its suffixed namesake (``Georgia`` / ``Georgia State``): when the
+    # two teams are indistinguishable the market is left ungraded.
+    rec_home, rec_away = rec.home_abbrev or "", rec.away_abbrev or ""
+    aligned = flipped = False
+    for match in (_exact_team, same_team):
+        aligned = match(rec_home, res.home) and match(rec_away, res.away)
+        flipped = match(rec_home, res.away) and match(rec_away, res.home)
+        if aligned != flipped:
+            break
+    if aligned == flipped:
+        return None
+    if aligned:
         home_pts, away_pts = res.home_points, res.away_points
     else:
         home_pts, away_pts = res.away_points, res.home_points
