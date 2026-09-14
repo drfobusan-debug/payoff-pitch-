@@ -9591,6 +9591,34 @@
   },
   {
     "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Jose Soriano K o5.5",
+    "american": 102.0,
+    "no_vig_prob": 0.453415
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Jose Soriano K u5.5",
+    "american": -148.0,
+    "no_vig_prob": 0.546585
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Troy Melton K o3.5",
+    "american": -143.0,
+    "no_vig_prob": 0.540643
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Troy Melton K u3.5",
+    "american": 100.0,
+    "no_vig_prob": 0.459357
+  },
+  {
+    "matchup": "DET @ TOR",
     "market": "batter_rbi",
     "selection": "Alejandro Kirk RBI o0.5",
     "american": 167.0,
