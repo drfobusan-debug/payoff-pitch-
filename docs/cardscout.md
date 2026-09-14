@@ -85,6 +85,34 @@ The store list (`cardscout drops stores`) is approximate. Edit
 `~/.cardscout/drops.json` (written the first time you run `drops stores`) to add,
 remove or correct stores.
 
+## Weekly newsletter
+
+```bash
+cardscout newsletter                 # sync everything, then write this week's PDF
+cardscout newsletter --no-sync       # reuse the ledger as is
+cardscout newsletter --max-card 300 --max-box 500 --out ~/Desktop
+cardscout newsletter --schedule      # cron line (Linux) + launchd plist (macOS)
+```
+
+The issue lands in `~/.cardscout/newsletters/cardscout-YYYY-Www.pdf` (with the
+HTML and chart PNGs beside it) and has four sections: shop listings under
+market this week, the top 10 cards to watch under the card cap, the top sealed
+boxes / ETBs under the box cap, and the Richmond restock windows for the next
+seven days. Caps, how far back sets count as "current" and any pinned cards
+live in `~/.cardscout/watchlist.json` (written on first run; defaults are cards
+<= $300, boxes <= $500, sets from the last 24 months, Charmander 038/MEP pinned).
+
+The 6 mo / 1 yr / 2 yr / 3 yr columns and charts are scenarios, not fitted
+forecasts: today's market price projected along the usual release cycle
+(prices soften while a set is in print, recover once it is out of print) with a
+band that widens with the square root of time. Once the ledger holds 7+ days of
+history for a product, the fitted Holt trend tilts the first year and the row
+is tagged "fitted" -- which is the point of running it weekly.
+
+To run it every week, `cardscout newsletter --schedule` prints a crontab line
+(default Monday 07:00 local) and an equivalent launchd plist; paste whichever
+fits your machine. The job writes to `~/.cardscout/weekly.log`.
+
 ## Development
 
 ```bash
