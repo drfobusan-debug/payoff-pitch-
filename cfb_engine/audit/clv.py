@@ -31,6 +31,7 @@ footing before they can be subtracted. Two steps:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from cfb_engine.audit import snapshot
@@ -53,9 +54,31 @@ __all__ = [
 ]
 
 
-def closing_quotes(slate: Slate, board: dict[str, GameOdds]) -> dict[str, ClosingQuote]:
-    """Map ``"<market>|<side>"`` -> closing quote (with its line) for every priced side."""
-    return snapshot.board_quotes(slate, board)
+def closing_quotes(
+    slate: Slate, board: dict[str, GameOdds], now: datetime | None = None
+) -> dict[str, ClosingQuote]:
+    """Map ``"<market>|<side>"`` -> closing quote (with its line) for every priced side.
+
+    Only games that have not kicked off are quoted. The odds feed keeps pricing a
+    game in play, and an in-play number (a +27.5 dog at +475 in the fourth
+    quarter) is not a close; merged over the real one it would credit or debit
+    the bet with line value the market never offered pre-match.
+    """
+    now = now or datetime.now(timezone.utc)
+    pregame = [g for g in slate.games if not _has_started(g.commence_time_utc, now)]
+    return snapshot.board_quotes(slate.model_copy(update={"games": pregame}), board)
+
+
+def _has_started(commence_time_utc: str | None, now: datetime) -> bool:
+    if not commence_time_utc:
+        return False
+    try:
+        start = datetime.fromisoformat(commence_time_utc.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    return start <= now
 
 
 def merge_closing(
@@ -65,8 +88,8 @@ def merge_closing(
 
     A Saturday runs from noon to past midnight, so any single capture sees the
     close of one kickoff window and the long-stale opener of the rest. Repeat
-    captures therefore merge instead of replacing: an in-progress game has left
-    the pre-match board, and its captured close must survive later snapshots.
+    captures therefore merge instead of replacing: an in-progress game is dropped
+    by :func:`closing_quotes`, and its captured close must survive later snapshots.
     """
     return snapshot.merge_last_wins(existing, fresh)
 
