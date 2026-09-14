@@ -701,3 +701,61 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-13,Tanner Bibee,676440,823658,ER,2.5,over,draftkings,109.0,0.579,0.4674,0.4663,0.0011,-0.0231,Pass,,True,confirmed,20260913T1604Z,,,,,pitcher,ev_floor,soft
 2026-09-13,Tanner Bibee,676440,823658,H,5.5,over,fanatics,115.0,0.4873,0.4502,0.4415,0.0087,-0.0321,Pass,,True,confirmed,20260913T1604Z,,,,,pitcher,ev_floor,soft
 2026-09-13,Tanner Bibee,676440,823658,K,4.5,under,draftkings,-162.0,0.7019,0.5895,0.5895,0.0,-0.0466,Pass,,True,confirmed,20260913T1604Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Alec Burleson,676475,823006,BB,0.5,over,fanatics,155.0,0.3865,0.3859,0.3859,0.0001,-0.0159,Pass,HOLD,True,contradicted,20260914T2201Z,4,27,5,1.72,batter,ev_floor,soft
+2026-09-14,Alec Burleson,676475,823006,HRR,1.5,under,betmgm,110.0,0.4716,0.4552,0.4552,0.0,-0.044,Pass,HOLD,True,contradicted,20260914T2201Z,4,27,5,1.72,batter,ev_floor,soft
+2026-09-14,Alec Burleson,676475,823006,TB,1.5,over,betonlineag,128.0,0.3647,0.4251,0.4251,0.0,-0.0308,Pass,HOLD,True,contradicted,20260914T2201Z,4,27,5,1.72,batter,ev_floor,soft
+2026-09-14,Casey Mize,663554,824308,BB,1.5,under,draftkings,-224.0,0.6685,0.6516,0.6497,0.0019,-0.0575,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Casey Mize,663554,824308,ER,2.5,over,draftkings,-139.0,0.6835,0.5469,0.5455,0.0014,-0.0596,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Casey Mize,663554,824308,H,5.5,over,fanatics,-135.0,0.6538,0.5621,0.5406,0.0215,-0.0215,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Casey Mize,663554,824308,outs,15.5,over,betmgm,-110.0,0.6406,0.4974,0.496,0.0014,-0.0504,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Fernando Tatis Jr.,665487,824308,1B,0.5,under,draftkings,156.0,0.5383,0.3757,0.3757,0.0,-0.0382,Pass,STRONG BUY,True,confirmed,20260914T2201Z,1,51,15,0.6,batter,ev_floor,soft
+2026-09-14,Fernando Tatis Jr.,665487,824308,BB,0.5,over,draftkings,197.0,0.2496,0.3228,0.3309,-0.0081,-0.0414,Pass,STRONG BUY,True,confirmed,20260914T2201Z,1,51,15,0.6,batter,ev_floor,soft
+2026-09-14,Fernando Tatis Jr.,665487,824308,HRR,2.5,over,bovada,-150.0,0.6794,0.5655,0.5655,0.0,-0.0575,Pass,STRONG BUY,True,confirmed,20260914T2201Z,1,51,15,0.6,batter,ev_floor,soft
+2026-09-14,Hao-Yu Lee,701678,822765,BB,0.5,over,draftkings,239.0,0.3458,0.3029,0.2981,0.0048,0.0267,Pass,BUY,True,confirmed,20260914T2201Z,4,13,5,3.07,batter,thin_edge,elite
+2026-09-14,Hao-Yu Lee,701678,822765,H,0.5,over,draftkings,-138.0,0.5411,0.5493,0.5497,-0.0004,-0.0527,Pass,BUY,True,confirmed,20260914T2201Z,4,13,5,3.07,batter,ev_floor,elite
+2026-09-14,Hao-Yu Lee,701678,822765,RBI,0.5,over,draftkings,259.0,0.1858,0.2646,0.2646,0.0,-0.05,Pass,BUY,True,confirmed,20260914T2201Z,4,13,5,3.07,batter,ev_floor,elite
+2026-09-14,Jackson Merrill,701538,824308,H,1.5,over,draftkings,131.0,0.5006,0.4232,0.4191,0.0041,-0.0224,Pass,AVOID,True,confirmed,20260914T2201Z,3,29,15,1.5,batter,ev_floor,soft
+2026-09-14,Jackson Merrill,701538,824308,HRR,2.5,under,betmgm,100.0,0.37,0.4915,0.4915,0.0,-0.0171,Pass,AVOID,True,confirmed,20260914T2201Z,3,29,15,1.5,batter,ev_floor,soft
+2026-09-14,Jackson Merrill,701538,824308,RBI,0.5,under,betmgm,-120.0,0.4012,0.5192,0.5192,0.0,-0.0482,Pass,AVOID,True,confirmed,20260914T2201Z,3,29,15,1.5,batter,ev_floor,soft
+2026-09-14,José Soriano,667755,822765,BB,1.5,over,bovada,-175.0,0.6407,0.6016,0.5972,0.0043,-0.0547,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,José Soriano,667755,822765,H,4.5,over,fanatics,-130.0,0.6196,0.5618,0.5482,0.0136,-0.0061,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,José Soriano,667755,822765,K,5.5,over,betonlineag,128.0,0.4375,0.4341,0.4341,0.0,-0.0104,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,José Soriano,667755,822765,outs,17.5,over,betonlineag,115.0,0.3585,0.4537,0.4547,-0.001,-0.0246,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Landen Roupp,694738,823006,BB,2.5,under,draftkings,-169.0,0.6685,0.5976,0.5897,0.0079,-0.0489,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Landen Roupp,694738,823006,ER,2.5,over,bovada,135.0,0.4522,0.4012,0.4007,0.0005,-0.0571,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Landen Roupp,694738,823006,H,4.5,over,bovada,-105.0,0.6048,0.513,0.4915,0.0215,0.0016,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,prob_floor,soft
+2026-09-14,Landen Roupp,694738,823006,K,4.5,over,draftkings,101.0,0.562,0.4729,0.4729,0.0,-0.0496,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Landen Roupp,694738,823006,outs,15.5,over,betrivers,118.0,0.6816,0.4609,0.4587,0.0022,0.0049,Pass,,False,contradicted,20260914T2201Z,,,,,pitcher,one_way_quote,soft
+2026-09-14,Michael Conforto,624424,824629,HRR,1.5,under,williamhill_us,-143.0,0.5259,0.554,0.554,0.0,-0.0587,Pass,STRONG BUY,True,contradicted,20260914T2201Z,2,37,11,3.45,batter,ev_floor,elite
+2026-09-14,Michael Conforto,624424,824629,R,0.5,over,betmgm,155.0,0.3496,0.3886,0.3886,0.0,-0.009,Pass,STRONG BUY,True,contradicted,20260914T2201Z,2,37,11,3.45,batter,ev_floor,elite
+2026-09-14,Michael Conforto,624424,824629,TB,1.5,over,betrivers,170.0,0.2889,0.3704,0.3704,0.0,0.0,Pass,STRONG BUY,False,contradicted,20260914T2201Z,2,37,11,3.45,batter,one_way_quote,elite
+2026-09-14,Nick Lodolo,666157,824465,BB,2.5,over,bovada,150.0,0.4187,0.3812,0.377,0.0042,-0.0471,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Nick Lodolo,666157,824465,ER,2.5,under,draftkings,-118.0,0.3598,0.5149,0.5165,-0.0016,-0.0487,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Nick Lodolo,666157,824465,H,5.5,over,betmgm,120.0,0.4753,0.4344,0.4248,0.0096,-0.0443,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Nick Lodolo,666157,824465,K,4.5,over,fanduel,120.0,0.2981,0.4538,0.4538,0.0,-0.0016,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Nick Lodolo,666157,824465,outs,15.5,under,fanatics,-120.0,0.7133,0.532,0.5302,0.0018,-0.0247,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Pete Crow-Armstrong,691718,824629,H,0.5,over,betrivers,-265.0,0.6588,0.7227,0.726,-0.0034,-0.0046,Pass,STRONG BUY,False,contradicted,20260914T2201Z,1,41,13,1.27,batter,one_way_quote,elite
+2026-09-14,Pete Crow-Armstrong,691718,824629,HRR,2.5,over,betonlineag,115.0,0.5853,0.4435,0.4435,0.0,-0.0465,Pass,STRONG BUY,True,contradicted,20260914T2201Z,1,41,13,1.27,batter,ev_floor,elite
+2026-09-14,Pete Crow-Armstrong,691718,824629,TB,1.5,over,betrivers,-103.0,0.6121,0.5103,0.5103,0.0,0.0057,Pass,STRONG BUY,False,contradicted,20260914T2201Z,1,41,13,1.27,batter,one_way_quote,elite
+2026-09-14,Reynaldo López,625643,824629,BB,1.5,over,bovada,-190.0,0.6407,0.6187,0.6163,0.0024,-0.0556,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Reynaldo López,625643,824629,ER,2.5,under,draftkings,-116.0,0.4064,0.5172,0.5183,-0.0011,-0.0369,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Reynaldo López,625643,824629,H,4.5,over,betmgm,-105.0,0.6393,0.5329,0.508,0.0249,0.0405,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,prob_floor,elite
+2026-09-14,Reynaldo López,625643,824629,K,4.5,over,betmgm,125.0,0.4375,0.4354,0.4354,0.0,-0.0204,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Seiya Suzuki,673548,824629,H,0.5,over,betrivers,-200.0,0.623,0.656,0.6577,-0.0017,-0.016,Pass,BUY,False,contradicted,20260914T2201Z,3,35,11,1.14,batter,one_way_quote,elite
+2026-09-14,Seiya Suzuki,673548,824629,HRR,1.5,under,bovada,100.0,0.464,0.4746,0.4746,0.0,-0.0508,Pass,BUY,True,contradicted,20260914T2201Z,3,35,11,1.14,batter,ev_floor,elite
+2026-09-14,Seiya Suzuki,673548,824629,TB,1.5,over,betrivers,132.0,0.4511,0.427,0.427,0.0,-0.0094,Pass,BUY,False,contradicted,20260914T2201Z,3,35,11,1.14,batter,one_way_quote,elite
+2026-09-14,Tomoyuki Sugano,608372,824308,BB,1.5,over,draftkings,138.0,0.3626,0.4166,0.4226,-0.006,-0.0085,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Tomoyuki Sugano,608372,824308,ER,3.5,over,draftkings,-114.0,0.6894,0.5193,0.5176,0.0017,-0.0252,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Tomoyuki Sugano,608372,824308,outs,15.5,over,draftkings,102.0,0.4262,0.4744,0.4749,-0.0005,-0.0416,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,soft
+2026-09-14,Troy Melton,675512,822765,BB,1.5,under,draftkings,-130.0,0.5791,0.5335,0.5284,0.0051,-0.0562,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Troy Melton,675512,822765,ER,2.5,over,draftkings,111.0,0.3853,0.4548,0.4555,-0.0007,-0.0405,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Troy Melton,675512,822765,H,5.5,under,draftkings,-124.0,0.5904,0.5363,0.5236,0.0127,-0.0312,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Troy Melton,675512,822765,outs,17.5,over,betmgm,-110.0,0.5769,0.5027,0.502,0.0007,-0.0403,Pass,,True,confirmed,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Ty France,664034,824308,BB,0.5,over,draftkings,264.0,0.3461,0.2674,0.2587,0.0087,-0.0266,Pass,BUY,True,confirmed,20260914T2201Z,5,20,9,2.25,batter,ev_floor,soft
+2026-09-14,Ty France,664034,824308,H,1.5,over,betonlineag,164.0,0.4741,0.3626,0.3568,0.0059,-0.0426,Pass,BUY,True,confirmed,20260914T2201Z,5,20,9,2.25,batter,ev_floor,soft
+2026-09-14,Ty France,664034,824308,HRR,2.5,over,bovada,110.0,0.6158,0.4529,0.4529,0.0,-0.0489,Pass,BUY,True,confirmed,20260914T2201Z,5,20,9,2.25,batter,ev_floor,soft
+2026-09-14,Will Warren,701542,823656,BB,1.5,over,draftkings,-155.0,0.5955,0.5743,0.572,0.0024,-0.0551,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Will Warren,701542,823656,ER,2.5,over,bovada,140.0,0.6878,0.4075,0.4046,0.0028,-0.0221,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Will Warren,701542,823656,H,4.5,over,draftkings,-136.0,0.7013,0.5692,0.5382,0.031,-0.0123,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Will Warren,701542,823656,K,4.5,over,betonlineag,115.0,0.4375,0.4453,0.4453,0.0,-0.0427,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
+2026-09-14,Will Warren,701542,823656,outs,15.5,over,betmgm,105.0,0.5511,0.4778,0.4771,0.0007,-0.0205,Pass,,True,contradicted,20260914T2201Z,,,,,pitcher,ev_floor,elite
