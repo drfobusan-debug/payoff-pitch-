@@ -1,9 +1,10 @@
 #!/bin/bash
 # Install the hands-off daily college-football schedule on Linux (cron).
-# Adds three cron jobs that run by themselves every day:
+# Adds four cron jobs that run by themselves every day:
 #   * 09:00              price + email today's card   (cfb-engine run)
 #   * 11/15/19/23:00     CLV closing-line snapshots   (cfb-engine close)
 #   * 03:00              grade yesterday + email recap (cfb-engine audit)
+#   * 21:00              baseline the opening board a week out (cfb-engine open)
 #
 # Times are local to the machine's crontab. Override with CFB_RUN_HOUR /
 # CFB_AUDIT_HOUR before running. Re-running is idempotent: the previous CFB
@@ -32,9 +33,10 @@ existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
     echo "0 $RUN_HOUR * * * $AUTORUN run >> $LOG 2>&1 $MARKER"
     echo "0 11,15,19,23 * * * $AUTORUN close >> $LOG 2>&1 $MARKER"
     echo "0 $AUDIT_HOUR * * * $AUTORUN audit >> $LOG 2>&1 $MARKER"
+    echo "0 21 * * * $AUTORUN open --days 7 >> $LOG 2>&1 $MARKER"
 } | crontab -
 
-echo "Done. Installed the daily CFB cron jobs (run/close/audit)."
+echo "Done. Installed the daily CFB cron jobs (run/close/audit/open)."
 echo "Verify with: crontab -l | grep cfb"
 echo "Logs: $LOG"
 echo "Credentials must live in /etc/engine.env or $HOME/.cfb_engine/engine.env"
