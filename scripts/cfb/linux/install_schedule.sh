@@ -7,7 +7,7 @@
 #   * 21:00              baseline the opening board a week out (cfb-engine open)
 #
 # Times are local to the machine's crontab. Override with CFB_RUN_HOUR /
-# CFB_AUDIT_HOUR before running. Re-running is idempotent: the previous CFB
+# CFB_AUDIT_HOUR / CFB_OPEN_HOUR before running. Re-running is idempotent: the previous CFB
 # block (tagged with the marker below) is replaced, not duplicated.
 set -e
 cd "$(dirname "$0")/../../.." || exit 1
@@ -33,7 +33,7 @@ existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
     echo "0 $RUN_HOUR * * * $AUTORUN run >> $LOG 2>&1 $MARKER"
     echo "0 11,15,19,23 * * * $AUTORUN close >> $LOG 2>&1 $MARKER"
     echo "0 $AUDIT_HOUR * * * $AUTORUN audit >> $LOG 2>&1 $MARKER"
-    echo "0 21 * * * $AUTORUN open --days 7 >> $LOG 2>&1 $MARKER"
+    echo "0 ${CFB_OPEN_HOUR:-21} * * * $AUTORUN open --days 7 >> $LOG 2>&1 $MARKER"
 } | crontab -
 
 echo "Done. Installed the daily CFB cron jobs (run/close/audit/open)."
