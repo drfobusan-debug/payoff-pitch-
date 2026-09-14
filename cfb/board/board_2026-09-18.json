@@ -1,0 +1,82 @@
+{
+  "Houston @ Texas Tech|game_ats|Houston": {
+    "american": -102.0,
+    "line": 7.5,
+    "no_vig_prob": 0.5029529678310305
+  },
+  "Houston @ Texas Tech|game_ats|Texas Tech": {
+    "american": -101.0,
+    "line": -7.5,
+    "no_vig_prob": 0.49704703216896945
+  },
+  "Houston @ Texas Tech|game_ml|Houston": {
+    "american": 255.0,
+    "line": null,
+    "no_vig_prob": 0.27918526450789993
+  },
+  "Houston @ Texas Tech|game_ml|Texas Tech": {
+    "american": -285.0,
+    "line": null,
+    "no_vig_prob": 0.7208147354921001
+  },
+  "Houston @ Texas Tech|game_total|Over": {
+    "american": -109.0,
+    "line": 53.5,
+    "no_vig_prob": 0.5009058104011574
+  },
+  "Houston @ Texas Tech|game_total|Under": {
+    "american": -108.0,
+    "line": 53.5,
+    "no_vig_prob": 0.49909418959884255
+  },
+  "Miami @ Wake Forest|game_ats|Miami": {
+    "american": -106.0,
+    "line": -21.0,
+    "no_vig_prob": 0.500972676806385
+  },
+  "Miami @ Wake Forest|game_ats|Wake Forest": {
+    "american": -106.0,
+    "line": 21.0,
+    "no_vig_prob": 0.49902732319361504
+  },
+  "Miami @ Wake Forest|game_ml|Miami": {
+    "american": -1600.0,
+    "line": null,
+    "no_vig_prob": 0.9111924407534867
+  },
+  "Miami @ Wake Forest|game_ml|Wake Forest": {
+    "american": 1150.0,
+    "line": null,
+    "no_vig_prob": 0.0888075592465134
+  },
+  "Miami @ Wake Forest|game_total|Over": {
+    "american": -105.0,
+    "line": 55.5,
+    "no_vig_prob": 0.49659102726569654
+  },
+  "Miami @ Wake Forest|game_total|Under": {
+    "american": -110.0,
+    "line": 55.5,
+    "no_vig_prob": 0.5034089727343035
+  },
+  "Portland State @ Oregon|game_ats|Oregon": {
+    "american": -110.0,
+    "line": -56.5,
+    "no_vig_prob": 0.5
+  },
+  "Portland State @ Oregon|game_ats|Portland State": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5
+  },
+  "Portland State @ Oregon|game_total|Over": {
+    "american": -110.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5
+  },
+  "Portland State @ Oregon|game_total|Under": {
+    "american": -110.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5
+  }
+}

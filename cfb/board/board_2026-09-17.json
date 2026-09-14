@@ -1,0 +1,32 @@
+{
+  "Syracuse @ Pittsburgh|game_ats|Pittsburgh": {
+    "american": -108.0,
+    "line": -10.5,
+    "no_vig_prob": 0.5018490701624521
+  },
+  "Syracuse @ Pittsburgh|game_ats|Syracuse": {
+    "american": -104.0,
+    "line": 10.5,
+    "no_vig_prob": 0.498150929837548
+  },
+  "Syracuse @ Pittsburgh|game_ml|Pittsburgh": {
+    "american": -400.0,
+    "line": null,
+    "no_vig_prob": 0.7757964914662424
+  },
+  "Syracuse @ Pittsburgh|game_ml|Syracuse": {
+    "american": 340.0,
+    "line": null,
+    "no_vig_prob": 0.2242035085337576
+  },
+  "Syracuse @ Pittsburgh|game_total|Over": {
+    "american": -102.0,
+    "line": 51.5,
+    "no_vig_prob": 0.49576294579237823
+  },
+  "Syracuse @ Pittsburgh|game_total|Under": {
+    "american": -108.0,
+    "line": 51.5,
+    "no_vig_prob": 0.5042370542076218
+  }
+}
