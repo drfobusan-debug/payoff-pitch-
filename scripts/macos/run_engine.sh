@@ -149,13 +149,15 @@ elif [[ "$MODE" == "cfb" ]]; then
   pull_latest
   cfb-engine run || echo "[$(date)] 'cfb-engine run' exited non-zero" >&2
 elif [[ "$MODE" == "nfl" ]]; then
-  # Thursday/Sunday: capture -> price -> close -> grade -> card, emailed as one
-  # message (card PDF + workbook). Same command as the one-click
-  # scripts/macos/run_nfl_week.command, minus opening Excel. Off-season the
-  # board is empty (--days 8), so nothing is priced and the job exits 0.
+  # Thursday/Sunday: capture (board + player props) -> price -> close -> grade
+  # -> props research -> card, emailed as one message (card PDF + workbook).
+  # Same command as the one-click scripts/macos/run_nfl_week.command, minus
+  # opening Excel. Prop prices exist nowhere for free after kickoff, so the
+  # daemon must archive them. Off-season the board is empty (--days 8), so
+  # nothing is priced and the job exits 0.
   /usr/bin/caffeinate -i -w $$ &
   pull_latest
-  nfl-engine job --card --email || echo "[$(date)] 'nfl-engine job' exited non-zero" >&2
+  nfl-engine job --props --card --email || echo "[$(date)] 'nfl-engine job' exited non-zero" >&2
 elif [[ "$MODE" == slate-* ]]; then
   # A slate pass: price the games starting inside the next ${SLATE_WINDOW_HOURS}
   # hours -- off posted lineups, on the board as it stands -- then write that
