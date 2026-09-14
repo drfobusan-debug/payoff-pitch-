@@ -1,12 +1,14 @@
 #!/bin/bash
 # Install the hands-off daily college-football schedule on macOS (launchd).
-# Creates three LaunchAgents that run by themselves every day:
+# Creates four LaunchAgents that run by themselves every day:
 #   * com.payoffpitch.cfb.predictions -> 09:00  price + email today's card
 #   * com.payoffpitch.cfb.close       -> 11:00/15:00/19:00/23:00  CLV snapshots
 #   * com.payoffpitch.cfb.audit       -> 03:00  grade yesterday + email recap
+#   * com.payoffpitch.cfb.open        -> 21:00  baseline the opening board a week out
 #
 # Times are local. Override the hours with CFB_RUN_HOUR / CFB_AUDIT_HOUR before
-# running (minute is fixed at :00 for run/audit, close uses a fixed spread).
+# running (minute is fixed at :00 for run/audit/open, close uses a fixed spread).
+# CFB_OPEN_HOUR moves the nightly opening-board capture.
 # Re-running is idempotent: each agent is unloaded before being reloaded.
 set -e
 cd "$(dirname "$0")/../../.." || exit 1
@@ -17,6 +19,7 @@ LOG_DIR="$HOME/.cfb_engine"
 
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
+OPEN_HOUR="${CFB_OPEN_HOUR:-21}"
 
 chmod +x "$AUTORUN"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
@@ -66,6 +69,9 @@ single_time() {
 
 install_agent "com.payoffpitch.cfb.predictions" "$(single_time "$RUN_HOUR")" run
 install_agent "com.payoffpitch.cfb.audit" "$(single_time "$AUDIT_HOUR")" audit
+# Opening-board baseline for the week ahead: books post Saturday on Sunday, and
+# the 09:00 run can only measure drift from a board captured before it bets.
+install_agent "com.payoffpitch.cfb.open" "$(single_time "$OPEN_HOUR")" open --days 7
 
 # Closing-line snapshots throughout the game day (repeat-safe since PR #69).
 CLOSE_CAL='    <key>StartCalendarInterval</key>
@@ -78,7 +84,7 @@ CLOSE_CAL='    <key>StartCalendarInterval</key>
 install_agent "com.payoffpitch.cfb.close" "$CLOSE_CAL" close
 
 echo
-echo "Done. The CFB card, CLV snapshots, and audit now run automatically every day."
+echo "Done. The CFB card, opening board, CLV snapshots, and audit now run automatically every day."
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env (launchd"
 echo "does not read your shell profile)."
