@@ -192,6 +192,9 @@ def test_the_walks_over_is_bought_at_the_low_line_only() -> None:
     assert recs[(1.5, "over")].tier is not Tier.PASS
     assert recs[(2.5, "over")].tier is Tier.PASS
     assert any("buy cap" in r for r in recs[(2.5, "over")].reasons)
+    # Its own gate name, so probation grades the cap apart from the contact floor.
+    assert recs[(2.5, "over")].pass_gate == "bb_line_cap"
+    assert recs[(1.5, "over")].pass_gate is None
     # A screen on buying the over says nothing about the under.
     assert not any("buy cap" in r for r in recs[(2.5, "under")].reasons)
 
