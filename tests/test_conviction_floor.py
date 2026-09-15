@@ -163,7 +163,24 @@ def test_the_arm_keeps_the_floor_the_rest_of_the_board_lost() -> None:
     pitcher props, with both halves agreeing, so the arm holds at 0.58."""
     base = EVThresholds()
     assert base.for_market("pitcher_k").min_prob == 0.58
-    assert base.for_market("game_total").min_prob == 0.55
+    assert base.for_market("game_ml").min_prob == 0.55
+
+
+def test_a_game_total_may_be_bought_at_a_coin_flip_price(monkeypatch) -> None:
+    """A total is -110 both ways, so the engine's side anchored 78% toward the
+    price cannot reach 0.55; the floor, not the edge floor, refused every small
+    totals lean (replayed at 0.50: n=119, 57.1% vs 51.4% needed, +11.2%).
+    Only totals move; the edge floor stays at 0.02 on them."""
+    base = EVThresholds()
+    thr = base.for_market("game_total")
+    assert thr.min_prob == 0.50
+    assert thr.min_edge == 0.02
+    assert base.for_market("f5_total").min_prob == 0.55
+    assert base.for_market("game_ml").min_prob == 0.55
+    # A named global floor still means every market, totals included.
+    assert EVThresholds(min_prob=0.6).for_market("game_total").min_prob == 0.6
+    monkeypatch.setenv("MLBE_MIN_PROB_GAME_TOTAL", "0.55")
+    assert EVThresholds().for_market("game_total").min_prob == 0.55
 
 
 def test_a_named_floor_beats_the_per_market_table(monkeypatch) -> None:
