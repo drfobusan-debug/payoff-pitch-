@@ -170,6 +170,15 @@ a **zero** noise floor (verified: `main` vs the branch with the new screen lifte
    buys at +485, +500 and +502) — that tests an exclusive bound on live data rather than in a unit
    test.
 
+8. **Keep a key in the env or nothing is priced.** `data/oddsapi.py` returns `{}` before it touches the disk
+   cache when no `THE_ODDS_API_KEY`/`ODDS_API_KEY` is set, so unsetting the real keys to stop spending makes the
+   replay price ~10 rows. Set a bogus `THE_ODDS_API_KEY=replay-dummy-key` instead: cache hits serve normally, a
+   miss can only 401 (cannot spend). Prove nothing was fetched with zero `request failed` lines and an unchanged
+   file count in `~/.mlb_engine/cache/oddsapi`.
+9. A frozen replay is priced several hours before lock, so the lineup clock and other gates pass most rows and the
+   baseline can carry a single buy where the live run had 200+. For a pricing change, compare the edge/EV
+   distributions and per-row `bet_prob` arithmetic across variants, not only buy counts. Verified 2026-08-26
+   replay: 7,785 rows / 3,276 priced, identical key sets across variants, 0-diff noise floor.
 ## First-five (F5) markets, and testing an opt-in model swap (`MLBE_F5_FROM_SIM`)
 - Structure is fixed at **9 F5 rows per game** (`pipeline.py`): 3 `f5_ml` (home/away/tie), 4
   `f5_total` (4.5/5.5 x over/under), 2 `f5_rl` (+/-0.5). A slate of 15 games therefore has exactly
