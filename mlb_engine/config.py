@@ -179,6 +179,17 @@ class RollingWindows:
     vfa_k_weight: float = field(
         default_factory=lambda: _env_float("MLBE_VFA_K_WEIGHT", 0.0)
     )
+    # How much of the starter's home-run contact read to take from his recent
+    # fly-ball rate instead of his barrel rate allowed. Barrel describes him only
+    # weakly (split-half r=.24 across his own starts, against fly-ball rate's
+    # .52) and it does not forecast: added to the next start's home runs it fits
+    # at t=+3.3 with the right sign and moves held-out deviance +.00009, the
+    # wrong way. Fly-ball rate over four starts moves it -.00033, and beside
+    # fly-ball rate barrel makes the pair worse. 0.0 keeps the shipped barrel
+    # term; 1.0 replaces it entirely. ``scripts.hr_contact_study`` reproduces it.
+    hr_flyball_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_HR_FLYBALL_WEIGHT", 0.0)
+    )
 
 
 def _env_bool(name: str, default: bool) -> bool:
