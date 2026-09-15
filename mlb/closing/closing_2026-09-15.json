@@ -9452,6 +9452,20 @@
   {
     "matchup": "BOS @ TEX",
     "market": "batter_h",
+    "selection": "Danny Jansen H o0.5",
+    "american": -118.0,
+    "no_vig_prob": 0.508203
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_h",
+    "selection": "Danny Jansen H u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.491797
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_h",
     "selection": "Elias Diaz H o0.5",
     "american": -123.0,
     "no_vig_prob": 0.529846
