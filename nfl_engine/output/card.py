@@ -13,6 +13,7 @@ only listed the bets would hide the rejections the record is diagnosed with.
 from __future__ import annotations
 
 import html
+import re
 from dataclasses import dataclass, field
 
 from nfl_engine.audit.availability import Observation
@@ -27,6 +28,7 @@ from nfl_engine.audit.ledger import (
 )
 from nfl_engine.audit.outside import HeadToHead, benchmark_metrics, head_to_head
 from nfl_engine.data.teamnames import canonical
+from nfl_engine.features.adjustments import adjust, unpriced_notes
 from nfl_engine.market.screens import Tier
 from nfl_engine.output.brief import GameBrief, TeamBrief, team_name
 
@@ -310,6 +312,10 @@ def render_markdown(card: WeekCard) -> str:
                 if team.out:
                     bits.append("out: " + ", ".join(team.out[:6]))
                 lines.append("- " + " · ".join(bits))
+            stakes = _stakes_line(game)
+            if stakes:
+                lines.append("")
+                lines.append(html.unescape(re.sub(r"<[^>]+>", "", stakes)))
             lines.append("")
         if game.plays:
             lines.append("| Play | Price | Book | Model | Fair | Exec EV | Tier |")
@@ -616,6 +622,43 @@ def _take(game: GameSection) -> str:
     return f"<p class='take'>{html.escape(' '.join(parts))}</p>"
 
 
+def _stakes_line(game: GameSection) -> str:
+    """Why the game matters and what the market makes of it, then what the
+    conditions were allowed to move -- and what was measured and left alone."""
+    b = game.brief
+    if b is None:
+        return ""
+    bits: list[str] = []
+    if b.div_game is True:
+        bits.append("division game, so the tiebreaker rides on it as well as the win")
+    elif b.div_game is False:
+        bits.append("out of division, no tiebreaker attached")
+    ml = next((r for r in game.reads if r.market == "moneyline"), None)
+    if ml is not None and ml.fair_prob is not None:
+        side, other = (b.home, b.away) if canonical(ml.side) == b.home.code else (b.away, b.home)
+        bits.append(
+            f"market-implied win {side.name} {ml.fair_prob * 100:.0f}% / "
+            f"{other.name} {(1 - ml.fair_prob) * 100:.0f}% with the hold taken out"
+        )
+    situation = b.situation()
+    priced = adjust(situation)
+    if priced.notes:
+        bits.append("priced: " + ", ".join(priced.notes))
+    elif b.indoors():
+        bits.append("indoors, so the weather never enters it")
+    elif b.wind_mph is None and b.roof is not None:
+        bits.append("no kickoff forecast, so nothing weather-related touched the total")
+    reported = list(unpriced_notes(situation))
+    if b.home.rest is not None and b.away.rest is not None and b.home.rest != b.away.rest:
+        edge = b.home if b.home.rest > b.away.rest else b.away
+        reported.insert(0, f"{abs(b.home.rest - b.away.rest)}-day rest edge to {edge.name}")
+    if reported:
+        bits.append("reported, not priced: " + "; ".join(reported))
+    if not bits:
+        return ""
+    return f"<p class='ctx'><b>Stakes &amp; conditions</b> — {html.escape('. '.join(bits))}.</p>"
+
+
 def _shape(game: GameSection) -> str:
     n = len(game.plays)
     if n == 0:
@@ -672,7 +715,7 @@ def _game_section(game: GameSection) -> str:
     context = ""
     if b is not None:
         context = (
-            f"{_team_table(b)}{_take(game)}{_story_line(b)}{_players_line(b)}"
+            f"{_team_table(b)}{_take(game)}{_stakes_line(game)}{_story_line(b)}{_players_line(b)}"
             f"{_out_line(b, game.absences)}{_venue_line(b)}"
         )
     elif game.absences:
