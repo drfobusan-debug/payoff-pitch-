@@ -56,7 +56,8 @@ RANK_N = 3
 RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
 # Version of the scoring bands; bump when a band table changes so sheets and
 # ledger rows scored on the old scale can be told apart from the new.
-BANDS = "centred-2026.09"
+BANDS = "centred-2026.09-mid"
+CENTRED = "centred-2026.09"  # the first centred bands, before the middle-relief column
 LEGACY = "legacy"
 
 # Sheet rows that reference the sheet's own columns, not the audit's.
@@ -203,7 +204,7 @@ def _bands_of(wb) -> str:
     if rules.get(_BANDS_KEY):
         return str(rules[_BANDS_KEY])
     # The first centred sheets shipped before the stamp; only they carry the Centre rule.
-    return BANDS if "Centre" in rules else LEGACY
+    return CENTRED if "Centre" in rules else LEGACY
 
 
 def sheet_bands(sheet: Path) -> str:

@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date as Date
@@ -64,6 +65,12 @@ _FG_MONTH_VS_L, _FG_MONTH_VS_R = 13, 14
 
 SEASON_START = (3, 20)
 FATIGUE_CAP = 4
+# Middle relief: every arm on the staff's relief table that is not one of its
+# top-three leverage arms (SV+HLD) and not a closer by saves, with enough innings
+# to be a bulk contributor rather than a cup of coffee.
+MID_RELIEF_MIN_IP = 10.0
+CLOSER_SAVES = 10
+LEVERAGE_ARMS = 3
 PEN_PITCHES_TIRED = 120
 UMP_MIN_GAMES = 10
 UMP_BAND_RUNS = 1.0
@@ -114,6 +121,11 @@ def xera_pts(v: float) -> int:
 def kbb_pts(v: float) -> int:
     """``v`` in percent."""
     return -3 if v > 25 else -2 if v > 19 else -1 if v > 15 else 0 if v >= 10 else 1 if v >= 7 else 2 if v >= 4 else 3
+
+
+def mid_relief_pts(siera: float) -> int:
+    """IP-weighted SIERA of the middle relievers; 2026 team quartiles 3.83 / 4.02 / 4.29."""
+    return -2 if siera < 3.60 else -1 if siera < 3.83 else 0 if siera <= 4.29 else 1 if siera <= 4.55 else 2
 
 
 def temp_pts(t: float) -> int:
@@ -193,6 +205,25 @@ def baseruns_per_game(r: dict[str, float], games: int) -> float | None:
 
 
 @dataclass
+class MiddleRelief:
+    """A team's bulk, non-closer, non-setup relief corps, IP-weighted."""
+
+    team: str
+    siera: float
+    xfip: float
+    ip: float
+    arms: list[str]
+
+    @property
+    def pts(self) -> int:
+        return mid_relief_pts(self.siera)
+
+    @property
+    def detail(self) -> str:
+        return f"SIERA {self.siera:.2f}, xFIP {self.xfip:.2f}, {self.ip:.0f} IP, {len(self.arms)} arms"
+
+
+@dataclass
 class FanGraphsTables:
     bat_all: dict[str, dict] = field(default_factory=dict)
     bat_vs_l: dict[str, dict] = field(default_factory=dict)
@@ -200,6 +231,48 @@ class FanGraphsTables:
     rel: dict[str, dict] = field(default_factory=dict)
     pit: dict[int, dict] = field(default_factory=dict)
     leverage: dict[str, list[int]] = field(default_factory=dict)
+    mid: dict[str, MiddleRelief] = field(default_factory=dict)
+
+
+_TAG = re.compile(r"<[^>]+>")
+
+
+def _fg_team_code(cell: str | None) -> str:
+    """FanGraphs wraps team and name cells in anchor tags on player tables; '- - -' is a traded arm."""
+    return _TAG.sub("", str(cell or "")).strip()
+
+
+def middle_relief(rel_rows: list[dict]) -> tuple[dict[str, list[int]], dict[str, MiddleRelief]]:
+    """Per team: its top leverage arms, and the IP-weighted read of everyone else with bulk innings."""
+    by_team: dict[str, list[dict]] = {}
+    for r in rel_rows:
+        team = _fg_team_code(r.get("Team"))
+        if r.get("xMLBAMID") and team and "-" not in team:
+            by_team.setdefault(team, []).append(r)
+    leverage: dict[str, list[int]] = {}
+    mid: dict[str, MiddleRelief] = {}
+    for team, rows in by_team.items():
+        ranked = sorted(rows, key=lambda r: -((r.get("SV") or 0) + (r.get("HLD") or 0)))
+        top = [r["xMLBAMID"] for r in ranked[:LEVERAGE_ARMS]]
+        leverage[team] = top
+        bulk = [
+            r for r in rows
+            if r["xMLBAMID"] not in top
+            and (r.get("SV") or 0) < CLOSER_SAVES
+            and (r.get("IP") or 0) >= MID_RELIEF_MIN_IP
+            and r.get("SIERA") is not None
+        ]
+        ip = sum(r["IP"] for r in bulk)
+        if not ip:
+            continue
+        mid[team] = MiddleRelief(
+            team=team,
+            siera=sum(r["SIERA"] * r["IP"] for r in bulk) / ip,
+            xfip=sum((r.get("xFIP") or r["SIERA"]) * r["IP"] for r in bulk) / ip,
+            ip=ip,
+            arms=[_fg_team_code(r["Name"]) for r in sorted(bulk, key=lambda r: -r["IP"])],
+        )
+    return leverage, mid
 
 
 def _fg(stats: str, season: int, month: int = 0, team: str = "0,ts") -> list[dict]:
@@ -216,13 +289,7 @@ def fetch_fangraphs(season: int) -> FanGraphsTables:
     t.bat_vs_r = {r["TeamName"]: r for r in _fg("bat", season, _FG_MONTH_VS_R)}
     t.rel = {r["TeamName"]: r for r in _fg("rel", season)}
     t.pit = {r["xMLBAMID"]: r for r in _fg("pit", season, team="0") if r.get("xMLBAMID")}
-    by_team: dict[str, list[tuple[float, int]]] = {}
-    for r in _fg("rel", season, team="0"):
-        if r.get("xMLBAMID"):
-            by_team.setdefault(r["Team"], []).append(
-                ((r.get("SV") or 0) + (r.get("HLD") or 0), r["xMLBAMID"])
-            )
-    t.leverage = {tm: [pid for _, pid in sorted(v, reverse=True)[:3]] for tm, v in by_team.items()}
+    t.leverage, t.mid = middle_relief(_fg("rel", season, team="0"))
     return t
 
 
@@ -439,6 +506,8 @@ class TeamSide:
     bsr_pg: float | None
     fatigue: int
     fatigue_detail: str
+    mid: int = 0
+    mid_detail: str = ""
 
 
 @dataclass
@@ -481,7 +550,7 @@ class SheetRow:
             a.off + h.off + a.sp + h.sp + a.rp + h.rp
             + a.kbb_sp + a.kbb_rp + h.kbb_sp + h.kbb_rp
             + self.circa + self.dk + self.weather + self.park + self.bsr
-            + a.fatigue + h.fatigue + self.ump
+            + a.fatigue + h.fatigue + a.mid + h.mid + self.ump
         )
 
 
@@ -520,12 +589,14 @@ def _side(
     allb = fg.bat_all.get(key)
     bsr = baseruns_per_game(allb, gp.get(team.team_id, 0)) if allb else None
     fat, fat_detail = fatigue_pts(box, team, fg.leverage.get(key, []), day)
+    mid = fg.mid.get(key)
     return TeamSide(
         abbrev=team.abbrev,
         starter=f"{pp.name} ({pp.throws or '?'})" if pp else "TBD",
         off=_offense(fg, team, opp),
         sp=sp, rp=rp, kbb_sp=kbb_sp, kbb_rp=kbb_rp,
         bsr_pg=bsr, fatigue=fat, fatigue_detail=fat_detail,
+        mid=mid.pts if mid else 0, mid_detail=mid.detail if mid else "",
     )
 
 
@@ -581,11 +652,13 @@ def build_rows(
 _COLUMNS = [
     "Game", "Total", "SP A", "SP H", "Off A", "Off H", "SP A pts", "SP H pts", "RP A pts", "RP H pts",
     "K-BB SP A", "K-BB RP A", "K-BB SP H", "K-BB RP H", "Circa", "DK", "Weather", "Park", "BsR",
-    "Pen A", "Pen H", "Ump", "SUM",
+    "Pen A", "Pen H", "Mid A", "Mid H", "Ump", "SUM",
     "Engine", "Eng vs line", "Eng O%",
     "Weather detail", "Park", "BsR/G A", "BsR/G H", "Pen A detail", "Pen H detail",
-    "HP umpire", "Ump status", "Ump detail",
+    "Mid A detail", "Mid H detail", "HP umpire", "Ump status", "Ump detail",
 ]
+
+_MID_COLUMNS = ["Rank", "Team", "Mid pts", "SIERA", "xFIP", "IP", "Arms", "Middle relievers (by IP)"]
 
 _LEGEND = [
     ("Bands", BANDS),
@@ -607,12 +680,16 @@ _LEGEND = [
     ("Park", "Engine park factor (runs): >102 1, <98 -1, else 0."),
     ("BsR", "PROVISIONAL bands (not hand-written): team BaseRuns/G >=4.65 1, <=4.25 -1, else 0; both teams summed."),
     ("Pen A / Pen H", "Bullpen fatigue: +1 per top-3 leverage arm (SV+HLD) used yesterday, +2 if used both of the last two days, +1 if the pen threw 120+ pitches over the last two days; capped at 4."),
+    ("Mid A / Mid H", "Middle relief: IP-weighted SIERA of the relievers who are not one of the team's top-3 leverage arms (SV+HLD) and not a closer (10+ SV), 10+ IP each. "
+                      "<3.60 -2 | 3.60-3.82 -1 | 3.83-4.29 0 | 4.30-4.55 1 | >4.55 2 (2026 team quartiles). The full ranking is on the 'Middle relief' sheet."),
     ("Ump", "Home-plate umpire's 2026 runs/game vs league on finals before today: >= +1.0 run 1, <= -1.0 -1, else 0; needs 10+ games. 'projected' = crew not posted yet; yesterday's 1B umpire assumed by rotation."),
     ("Backtest", "Aug 4 - Sep 8 2026, 452 games: SUM correlates 0.49 with the closing total and ~0.03 with the result vs the close; top-3 overs / bottom-3 unders per day hit 50% / 47%. Read it as what the market already knows."),
 ]
 
 
-def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
+def write_workbook(
+    rows: list[SheetRow], day: Date, path: Path, mid: dict[str, MiddleRelief] | None = None,
+) -> Path:
     wb = Workbook()
     ws = wb.active
     ws.title = f"Totals {day.isoformat()}"
@@ -622,12 +699,13 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
         ws.append([
             r.game, r.total, a.starter, h.starter, a.off, h.off, a.sp, h.sp, a.rp, h.rp,
             a.kbb_sp, a.kbb_rp, h.kbb_sp, h.kbb_rp, r.circa, r.dk, r.weather, r.park, r.bsr,
-            a.fatigue, h.fatigue, r.ump, r.total_pts,
+            a.fatigue, h.fatigue, a.mid, h.mid, r.ump, r.total_pts,
             r.engine_total, r.engine_delta, None if r.engine_p_over is None else round(r.engine_p_over, 3),
             r.weather_detail, r.park_detail,
             round(a.bsr_pg, 2) if a.bsr_pg is not None else None,
             round(h.bsr_pg, 2) if h.bsr_pg is not None else None,
-            a.fatigue_detail, h.fatigue_detail, r.ump_name, r.ump_status, r.ump_detail,
+            a.fatigue_detail, h.fatigue_detail, a.mid_detail, h.mid_detail,
+            r.ump_name, r.ump_status, r.ump_detail,
         ])
     bold = Font(bold=True)
     for c in ws[1]:
@@ -658,6 +736,16 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
     legend.column_dimensions["B"].width = 140
     for row in legend.iter_rows(min_row=2):
         row[1].alignment = Alignment(wrap_text=True, vertical="top")
+
+    if mid:
+        ms = wb.create_sheet("Middle relief")
+        ms.append(_MID_COLUMNS)
+        for c in ms[1]:
+            c.font = bold
+        for i, m in enumerate(sorted(mid.values(), key=lambda m: m.siera), start=1):
+            ms.append([i, m.team, m.pts, round(m.siera, 2), round(m.xfip, 2), round(m.ip), len(m.arms), ", ".join(m.arms)])
+        for col, width in zip("ABCDEFGH", (6, 7, 8, 7, 7, 6, 6, 120), strict=True):
+            ms.column_dimensions[col].width = width
 
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
@@ -721,7 +809,7 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     if not engine:
         log.info("totals sheet: no engine game totals for %s; Engine columns left blank", day)
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine)
-    path = write_workbook(rows, day, out)
+    path = write_workbook(rows, day, out, fg.mid)
     try:
         record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
     except Exception as exc:  # the sheet is the deliverable; the ledger row is the receipt

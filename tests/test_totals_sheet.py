@@ -20,6 +20,8 @@ from mlb_engine.output.totals_sheet import (
     book_pts,
     csw_pts,
     kbb_pts,
+    mid_relief_pts,
+    middle_relief,
     sheet_is_current,
     siera_pts,
     weather_pts,
@@ -90,6 +92,8 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         bsr_pg=4.4,
         fatigue=1,
         fatigue_detail="pen",
+        mid=2,
+        mid_detail="SIERA 4.70",
     )
     row = SheetRow(
         "AZ @ KC",
@@ -120,7 +124,7 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         v for h, v in zip(header, values, strict=True)
         if isinstance(v, int) and h != "SUM" and h not in engine_cols
     ]
-    assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1) + 1 + 2 - 1 - 1
+    assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1 + 2) + 1 + 2 - 1 - 1
     assert values[header.index("SUM")] == sum(pts) == row.total_pts
     # the engine's read sits beside SUM and is never added to it
     assert header.index("Engine") == header.index("SUM") + 1
@@ -128,6 +132,51 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
     assert values[header.index("Eng O%")] == 0.568 and row.engine_delta == 0.5
     assert "Legend" in load_workbook(path).sheetnames
     assert sheet_bands(path) == BANDS and sheet_is_current(path)
+
+
+def _rel(name: str, team: str, ip: float, siera: float, sv: int = 0, hld: int = 0, pid: int = 0) -> dict:
+    return {
+        "Name": name, "Team": f'<a href="x">{team}</a>', "IP": ip, "SIERA": siera, "xFIP": siera + 0.3,
+        "SV": sv, "HLD": hld, "xMLBAMID": pid or hash(name) % 10_000,
+    }
+
+
+def test_middle_relief_leaves_out_the_closer_the_setup_arms_and_the_cups_of_coffee() -> None:
+    rows = [
+        _rel("Closer", "ATH", 60, 2.5, sv=30, pid=1),
+        _rel("Setup1", "ATH", 55, 3.0, hld=25, pid=2),
+        _rel("Setup2", "ATH", 50, 3.2, hld=20, pid=3),
+        _rel("Bulk1", "ATH", 40, 4.8, pid=4),
+        _rel("Bulk2", "ATH", 20, 5.4, pid=5),
+        _rel("Cup", "ATH", 4, 1.0, pid=6),
+        _rel("Traded", "- - -", 30, 6.0, pid=7),
+        _rel("Ace", "PHI", 30, 3.3, pid=8),
+    ]
+    leverage, mid = middle_relief(rows)
+    assert leverage["ATH"] == [1, 2, 3]
+    ath = mid["ATH"]
+    assert ath.arms == ["Bulk1", "Bulk2"] and ath.ip == 60
+    assert ath.siera == pytest.approx((4.8 * 40 + 5.4 * 20) / 60)
+    assert ath.pts == 2 and "SIERA 5.00" in ath.detail
+    assert "- - -" not in mid and "PHI" in leverage
+    # PHI's only arm is a leverage arm, so it has no middle relief read
+    assert "PHI" not in mid
+
+
+def test_middle_relief_bands_centre_on_the_2026_team_quartiles() -> None:
+    assert mid_relief_pts(4.02) == 0 and mid_relief_pts(3.83) == 0 and mid_relief_pts(4.29) == 0
+    assert mid_relief_pts(3.7) == -1 and mid_relief_pts(4.4) == 1
+    assert mid_relief_pts(3.3) == -2 and mid_relief_pts(4.6) == 2
+
+
+def test_the_middle_relief_ranking_is_written_as_its_own_sheet(tmp_path: Path) -> None:
+    rows = [_rel(f"L{i}", team, 40, 3.0, hld=10, pid=10 * i + k) for k, team in enumerate(("SFG", "PHI")) for i in (1, 2, 3)]
+    rows += [_rel("A", "SFG", 30, 4.6, pid=101), _rel("B", "PHI", 30, 3.3, pid=102)]
+    _, mid = middle_relief(rows)
+    path = write_workbook([], Date(2026, 9, 15), tmp_path / "t.xlsx", mid)
+    ws = load_workbook(path)["Middle relief"]
+    ranked = [r[1] for r in ws.iter_rows(min_row=2, values_only=True)]
+    assert ranked == ["PHI", "SFG"]
 
 
 def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
