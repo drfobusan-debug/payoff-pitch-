@@ -210,7 +210,9 @@ def test_every_market_ships_with_its_own_fitted_weight() -> None:
     assert cfg.anchor_for("batter_r") == 1.0
     assert cfg.anchor_for("batter_tb") == 1.0
     assert cfg.anchor_for("pitcher_h") == 0.81
-    assert cfg.anchor_for("pitcher_bb") == 0.90
+    # Walks are the one arm market whose direction beat the price (59.4% vs 48.4%
+    # either side of it, n=593), so they keep half the model's read.
+    assert cfg.anchor_for("pitcher_bb") == 0.50
     assert cfg.anchor_for("game_total") == 0.78
     # Totals used to be pinned at zero off a sample an eighth the size.
     assert cfg.anchor_for("f5_total") == 0.99

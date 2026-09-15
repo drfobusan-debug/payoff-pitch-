@@ -333,6 +333,14 @@ _MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
 # the grid, and the 113 graded buys returned -38.5%, so the market inherits the
 # global weight rather than a coefficient a sample that size cannot own.
 #
+# Pitcher walks carry the lightest toll on the card. On 593 graded o1.5/o2.5
+# rows (Aug 18 - Sep 14, best price, one per prop) the over won 54.1% against a
+# 49.1% fair, and the model's direction sorted it: overs the model rated at or
+# above the price went 59.4% (+11.0% on 308) while the ones it rated below went
+# 48.4% (-6.1% on 285). The 0.90 toll had let 22 of those 308 through (18-4)
+# and refused the rest on the EV floor, so the weight is set where the model's
+# half of the read is kept.
+#
 # A fitted ``market_anchor_file`` (``--write-anchors``) overrides these per
 # market; delete it to return here. Totals used to be pinned at 0.0 off a
 # 10,497-row read; the sample eight times larger says the model wins totals by
@@ -346,7 +354,7 @@ _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "batter_r": 1.0,
     "batter_rbi": 1.0,
     "batter_tb": 1.0,
-    "pitcher_bb": 0.90,
+    "pitcher_bb": 0.50,
     "pitcher_er": 0.99,
     "pitcher_h": 0.81,
     "pitcher_k": 1.0,
@@ -406,7 +414,10 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
 # they lose by more than 1se with both halves agreeing, which is the same test
 # ``probation`` applies before it shuts a market. So the floor drops everywhere
 # except on the arm, where it holds at 0.58 and is movable per market by
-# ``MLBE_MIN_PROB_PITCHER_K`` and friends.
+# ``MLBE_MIN_PROB_PITCHER_K`` and friends. Pitcher walks are the one arm market
+# left on the board floor: the o1.5 rows the model rated at or above the price
+# were positive at plus money as well as short (52.2%, +9.8% on 184 rows above
+# -130), so the band this floor refuses is not losing there.
 #
 # What this does not claim is that the 0.55-0.58 band is profitable. It is not
 # measurably anything, and the honest reading of the whole refused set (-4.4%
@@ -426,7 +437,6 @@ _MIN_PROB_BY_MARKET: dict[str, float] = {
     "pitcher_outs": 0.58,
     "pitcher_er": 0.58,
     "pitcher_h": 0.58,
-    "pitcher_bb": 0.58,
 }
 
 # EV ceiling per market, overriding the global ``EVThresholds.max_ev``.
@@ -904,6 +914,14 @@ class Config:
     # so only the reliable low lines (o4.5/o5.5) can be bought.
     pitcher_k_max_buy_line: float = field(
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
+    )
+
+    # Walks-allowed overs are bought at the 1.5 line only. The o1.5 rows the
+    # model rated at or above the price went 61.1% (+12.7% on 285); the o2.5 rows
+    # on the same read went 9-14 (-6.4%), and the 2.5 line is where a walk prior
+    # a fraction high turns into a long price the model cannot own.
+    pitcher_bb_max_buy_line: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_BB_MAX_LINE", 1.5)
     )
 
     # Walks-allowed unders are vetoed while the model's walk level is unvalidated.
