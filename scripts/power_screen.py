@@ -1100,8 +1100,9 @@ def _grade_records(
 
     Grades every recorded hitter row from before ``day`` off the box scores (each
     fetched once and cached), so the label beside a bat is never shown without
-    what that label has been worth. Best-effort like the scorecard: without a
-    ledger, or without the Stats API, the note prints the grades alone.
+    what that label has been worth. Without a ledger, or with any box score
+    missing, the note prints no records: the record decides which bucket is the
+    Strong Buy, and a record with a game's rows dropped is not the record.
     """
     if args.no_grade:
         return None
@@ -1116,8 +1117,11 @@ def _grade_records(
     for pk in sorted({p.game_pk for p in positions if p.game_pk is not None}):
         try:
             results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
-        except Exception as exc:  # noqa: BLE001 - one missing box score voids one game
-            log.warning("could not fetch the box score for %s: %s", pk, exc)
+        except Exception as exc:  # noqa: BLE001 - one missing box score fails the whole read
+            log.warning(
+                "could not fetch the box score for %s: %s; bucket records withheld", pk, exc
+            )
+            return None
     graded, _voided = power_ledger.grade_positions(positions, results)
     return power_ledger.records_by_rating(graded)
 
