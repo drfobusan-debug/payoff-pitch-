@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from openpyxl import load_workbook
 
+from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.data.parks import PARKS
 from mlb_engine.data.vsin import Split, TotalSplit
 from mlb_engine.filters.weather import WeatherConditions
@@ -20,9 +21,10 @@ from mlb_engine.output.totals_sheet import (
     book_pts,
     csw_pts,
     kbb_pts,
-    mid_relief_pts,
     middle_relief,
+    outs_under,
     sheet_is_current,
+    short_start,
     siera_pts,
     weather_pts,
     woba_pts,
@@ -30,6 +32,7 @@ from mlb_engine.output.totals_sheet import (
     write_workbook,
     xera_pts,
 )
+from mlb_engine.schemas import Pitcher
 
 
 def test_a_league_average_arm_and_lineup_score_zero() -> None:
@@ -92,8 +95,7 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         bsr_pg=4.4,
         fatigue=1,
         fatigue_detail="pen",
-        mid=2,
-        mid_detail="SIERA 4.70",
+        pen_detail="full pen",
     )
     row = SheetRow(
         "AZ @ KC",
@@ -124,7 +126,7 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         v for h, v in zip(header, values, strict=True)
         if isinstance(v, int) and h != "SUM" and h not in engine_cols
     ]
-    assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1 + 2) + 1 + 2 - 1 - 1
+    assert row.total_pts == 2 * (3 + 5 + 1 + 3 + 1 + 1) + 1 + 2 - 1 - 1
     assert values[header.index("SUM")] == sum(pts) == row.total_pts
     # the engine's read sits beside SUM and is never added to it
     assert header.index("Engine") == header.index("SUM") + 1
@@ -136,7 +138,8 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
 
 def _rel(name: str, team: str, ip: float, siera: float, sv: int = 0, hld: int = 0, pid: int = 0) -> dict:
     return {
-        "Name": name, "Team": f'<a href="x">{team}</a>', "IP": ip, "SIERA": siera, "xFIP": siera + 0.3,
+        "Name": f'<a href="p">{name}</a>', "Team": f'<a href="x">{team}</a>', "IP": ip, "SIERA": siera,
+        "xERA": siera + 0.1, "xFIP": siera + 0.3, "C+SwStr%": 0.27, "K-BB%": 0.13,
         "SV": sv, "HLD": hld, "xMLBAMID": pid or hash(name) % 10_000,
     }
 
@@ -157,16 +160,40 @@ def test_middle_relief_leaves_out_the_closer_the_setup_arms_and_the_cups_of_coff
     ath = mid["ATH"]
     assert ath.arms == ["Bulk1", "Bulk2"] and ath.ip == 60
     assert ath.siera == pytest.approx((4.8 * 40 + 5.4 * 20) / 60)
-    assert ath.pts == 2 and "SIERA 5.00" in ath.detail
+    assert ath.row["xERA"] == pytest.approx(ath.siera + 0.1) and "SIERA 5.00" in ath.detail
     assert "- - -" not in mid and "PHI" in leverage
     # PHI's only arm is a leverage arm, so it has no middle relief read
     assert "PHI" not in mid
 
 
-def test_middle_relief_bands_centre_on_the_2026_team_quartiles() -> None:
-    assert mid_relief_pts(4.02) == 0 and mid_relief_pts(3.83) == 0 and mid_relief_pts(4.29) == 0
-    assert mid_relief_pts(3.7) == -1 and mid_relief_pts(4.4) == 1
-    assert mid_relief_pts(3.3) == -2 and mid_relief_pts(4.6) == 2
+def _outs(selection: str, line: float, fair: float, day: str = "2026-09-15") -> LedgerEntry:
+    return LedgerEntry(
+        day, "SF @ STL", "prop", "pitcher_outs", selection, line, "dk", -110, "Pass", 0.5, None, "", 0.0,
+        fair_prob=fair,
+    )
+
+
+def test_the_outs_prop_is_read_as_the_chance_the_starter_leaves_before_the_sixth() -> None:
+    entries = [
+        _outs("Logan Webb Outs u17.5", 17.5, 0.42),
+        _outs("Logan Webb Outs o15.5", 15.5, 0.80),
+        _outs("Sonny Gray Outs u15.5", 15.5, 0.55),
+        _outs("Sonny Gray Outs u18.5", 18.5, 0.70),  # a rung at 6+ innings says nothing about a short start
+        _outs("Sonny Gray Outs u17.5", 17.5, 0.60, day="2026-09-14"),
+    ]
+    outs = outs_under(entries, Date(2026, 9, 15))
+    assert outs[("SF @ STL", "Logan Webb")] == pytest.approx(0.42)
+    assert outs[("SF @ STL", "Sonny Gray")] == pytest.approx(0.55)
+
+
+def test_a_short_start_is_the_market_first_then_the_season_line() -> None:
+    webb = Pitcher(mlbam_id=1, name="Logan Webb")
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, 0.62).startswith("market 62%")
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, 0.45) == ""
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, None) == "5.0 IP/GS this season"
+    assert short_start(webb, {"IP": 130.0, "Start-IP": 126.0, "GS": 20.0}, None) == ""
+    assert short_start(webb, {"IP": 20.0, "GS": 0.0}, None) == "no starts this season"
+    assert short_start(None, None, None) == "TBD starter"
 
 
 def test_the_middle_relief_ranking_is_written_as_its_own_sheet(tmp_path: Path) -> None:
@@ -175,8 +202,8 @@ def test_the_middle_relief_ranking_is_written_as_its_own_sheet(tmp_path: Path) -
     _, mid = middle_relief(rows)
     path = write_workbook([], Date(2026, 9, 15), tmp_path / "t.xlsx", mid)
     ws = load_workbook(path)["Middle relief"]
-    ranked = [r[1] for r in ws.iter_rows(min_row=2, values_only=True)]
-    assert ranked == ["PHI", "SFG"]
+    ranked = [(r[1], r[2], r[10]) for r in ws.iter_rows(min_row=2, values_only=True)]
+    assert ranked == [("PHI", -2, "B"), ("SFG", 2, "A")]
 
 
 def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(

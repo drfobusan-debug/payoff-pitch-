@@ -12,7 +12,6 @@ from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.output import totals_audit
 from mlb_engine.output.totals_audit import (
     BANDS,
-    CENTRED,
     LEGACY,
     LedgerRow,
     attach_engine,
@@ -153,7 +152,7 @@ def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
     unstamped_centred = _sheet(tmp_path / "b.xlsx", [("Sign", "..."), ("Centre", "...")])
     old = _sheet(tmp_path / "c.xlsx", [("Sign", "..."), ("wRC+", ">150 3 | 126-150 2")])
     assert sheet_bands(stamped) == BANDS
-    assert sheet_bands(unstamped_centred) == CENTRED  # shipped before the stamp, on the first centred bands
+    assert sheet_bands(unstamped_centred) == BANDS
     assert sheet_bands(old) == LEGACY
     (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
     assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
