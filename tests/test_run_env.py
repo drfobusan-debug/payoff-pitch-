@@ -234,3 +234,28 @@ def test_the_slate_reads_the_league_over_the_configured_window() -> None:
     p.deps = SimpleNamespace(stats=SimpleNamespace(league_runs_per_game=read))
     assert p._league_scale(Date(2026, 8, 24)) == scale_for_total(8.58)
     assert seen == {"before": Date(2026, 8, 24), "days": 30}
+
+
+def test_the_league_read_counts_regular_season_finals_only() -> None:
+    """Spring Training and postseason finals sit in the same schedule feed and
+    would set the run environment off exhibitions in March or off eight clubs in
+    October; the read asks the API for regular-season games only."""
+    from mlb_engine.data import mlb_statsapi
+
+    seen: dict[str, str | int] = {}
+
+    class _Stats(mlb_statsapi.MLBStatsClient):
+        def _get(self, path: str, **params: str | int) -> dict:
+            seen.update(params)
+            game = {
+                "status": {"abstractGameState": "Final"},
+                "linescore": {"teams": {"home": {"runs": 5}, "away": {"runs": 4}}},
+            }
+            return {"dates": [{"games": [game] * mlb_statsapi.MIN_LEAGUE_GAMES}]}
+
+    rpg = _Stats().league_runs_per_game(Date(2026, 3, 28), days=30)
+
+    assert rpg == 9.0
+    assert seen["gameType"] == "R"
+    assert seen["startDate"] == "2026-02-26"
+    assert seen["endDate"] == "2026-03-27"

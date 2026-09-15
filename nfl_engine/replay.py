@@ -98,9 +98,11 @@ def _week(frame: pd.DataFrame, season: int, week: int) -> ReplayWeek:
                     surface=_text(row.get("surface")),
                     temp_f=_number(row.get("temp")),
                     wind_mph=_number(row.get("wind")),
+                    neutral_site=str(row.get("location", "")).lower() == "neutral",
                 ),
                 home_rest=_int(row.get("home_rest")),
                 away_rest=_int(row.get("away_rest")),
+                div_game=_div(row.get("div_game")),
                 # Named on the schedule, and announced before kickoff in life, so
                 # a replay may read them without seeing the future.
                 home_qb_id=_text(row.get("home_qb_id")),
@@ -111,6 +113,11 @@ def _week(frame: pd.DataFrame, season: int, week: int) -> ReplayWeek:
         finals[matchup] = (int(row["home_score"]), int(row["away_score"]))
     first = min((game.game_date for game in games), default=Date.today())
     return ReplayWeek(season, week, first, games, board, finals)
+
+
+def _div(value: object) -> bool | None:
+    number = _int(value)
+    return None if number is None else bool(number)
 
 
 def _odds(row: dict[str, object], matchup: str, home: str, away: str) -> GameOdds:

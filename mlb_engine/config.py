@@ -367,6 +367,32 @@ _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
     "f5_total": 0.99,
 }
 
+# Ceiling on any anchor weight that was not set by hand. At 1.0 the bet
+# probability *is* the price, the edge is exactly zero on every row, and the
+# card cannot even order the market's rows by the model's lean -- 64% of the
+# two-sided board sat at edge 0.000 on 2026-09-14 and the engine bought nothing
+# for four days. The cap keeps a tenth of the model's disagreement alive so the
+# lean is visible and rankable; it does not reopen the shut markets, because
+# the edge floor still stands: ``edge = (1 - w) * (model - fair)``, so at 0.90
+# a row needs a 20-point raw disagreement to reach ``min_edge`` 0.02.
+#
+# Graded by replaying today's screens over the 98,838 two-sided graded rows
+# since 2026-07-01 with every weight capped:
+#
+#     cap 0.95   adds   0 buys
+#     cap 0.90   adds  15 buys  (0.3/day)  10-5   +12.1%  1se 21%
+#     cap 0.85   adds 107 buys  (3.3/day)  60.7%   -1.8%  1se  8%
+#     cap 0.80   adds 384 buys  (10/day)   58.1%   -5.7%  1se  4%
+#
+# Below 0.85 the volume comes back and so does the loss, from the same prop
+# families the fit shut. 0.90 is the loosest cap the evidence does not object
+# to; what it adds is too few bets to be a record either way, and what it buys
+# is the model's largest departures from the price, which the fit says are the
+# least trustworthy -- so this is a voice on the card, not a reopening.
+# ``MLBE_MARKET_ANCHOR_CAP=1.0`` removes it; an explicit
+# ``MLBE_MARKET_ANCHOR_<MARKET>`` is the operator's number and is not capped.
+MARKET_ANCHOR_CAP = 0.90
+
 # Parsed ``market_anchor_file`` contents, keyed by path. Read once per process:
 # ``anchor_for`` is called per candidate row, and the file only changes when the
 # study is re-run, which is never mid-slate.
@@ -432,7 +458,27 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
 # they want on every market, and the table stands aside (see ``for_market``).
 DEFAULT_MIN_PROB = 0.55
 
+#
+# Game totals go the other way, to 0.50. A total is quoted -110 both ways, so
+# the engine's side has a fair probability near 0.50 and, anchored 78% toward
+# it, cannot reach 0.55 without a 23-point raw disagreement: the floor, not the
+# edge floor, is what refused every small totals lean (lowering ``min_edge`` on
+# totals to 0.015 or 0.01 with the floor at 0.55 adds zero buys). Replayed over
+# the graded two-sided totals since 2026-07-01, edge >= 0.02 throughout:
+#
+#     prob >= 0.55   n= 17  52.9%  need 54.0%   -2.3%  1se 23%
+#     prob >= 0.52   n= 68  52.9%  need 52.7%   +0.4%  1se 12%
+#     prob >= 0.50   n=119  57.1%  need 51.4%  +11.2%  1se  9%   5 of 7 weeks positive
+#
+# and under the 08-24 rules alone 21 buys at +21%. Dropping the edge floor as
+# well dilutes it (0.015: n=162, +7.9%; 0.01: n=177, +5.4%), so the edge floor
+# stays at 0.02 and the 0.02-0.03 band (n=75, +14%) is where the record lives.
+# One standard error from zero and 119 bets: a lean the ledger supports, not a
+# proven edge. The 0.5 floor means a total the market calls a coin flip may be
+# bought on the engine's side; that is the only market where its side has a
+# graded record above the price (54.3% on 429 rows).
 _MIN_PROB_BY_MARKET: dict[str, float] = {
+    "game_total": 0.50,
     "pitcher_k": 0.58,
     "pitcher_outs": 0.58,
     "pitcher_er": 0.58,
@@ -1547,12 +1593,17 @@ class Config:
         packaged default for the markets it names, and is itself overridden by an
         explicit env var, so a measurement can be adopted per market without
         editing code and still be argued with from the command line.
+
+        Fitted and packaged weights are capped at ``MARKET_ANCHOR_CAP`` so no
+        market is priced with the model's voice at exactly zero; the env var,
+        being the operator's own number, is not.
         """
+        default = self._fitted_anchors().get(
+            market, _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor)
+        )
+        cap = _env_float("MLBE_MARKET_ANCHOR_CAP", MARKET_ANCHOR_CAP)
         return _env_float(
-            f"MLBE_MARKET_ANCHOR_{market.upper()}",
-            self._fitted_anchors().get(
-                market, _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor)
-            ),
+            f"MLBE_MARKET_ANCHOR_{market.upper()}", min(default, cap)
         )
 
     def ensure_dirs(self) -> None:

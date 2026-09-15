@@ -19,15 +19,17 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
 
 from nfl_engine.audit.ledger import ENGINE, LedgerEntry
-from nfl_engine.data import nflverse
+from nfl_engine.data import nflverse, weather
 from nfl_engine.data.color import ColorBook, ESPNColor, GameColor, TeamColor
 from nfl_engine.data.teamnames import BY_NAME, canonical, franchise
 from nfl_engine.features import books as books_mod
+from nfl_engine.features.adjustments import Situation
 from nfl_engine.features.ratings import RatingBook
 
 log = logging.getLogger(__name__)
@@ -72,7 +74,8 @@ class GameBrief:
     surface: str | None = None
     grass: bool | None = None
     neutral_site: bool = False
-    div_game: bool = False
+    # ``None`` is unknown: only a stated flag lets the divisional total term speak.
+    div_game: bool | None = None
     broadcast: str | None = None
     kickoff_local: str | None = None
     headline: str | None = None
@@ -83,6 +86,9 @@ class GameBrief:
     temperature_f: float | None = None
     precip_pct: float | None = None
     gust_mph: float | None = None
+    # Sustained kickoff wind from the Open-Meteo forecast, the reading the wind
+    # term prices; ESPN's gust above is colour only.
+    wind_mph: float | None = None
     # Read back from the ledger's rungs: the home handicap and total the model
     # priced nearest even money, beside the market's consensus rung.
     model_spread: float | None = None
@@ -92,6 +98,18 @@ class GameBrief:
 
     def indoors(self) -> bool:
         return self.roof in ("dome", "closed")
+
+    def situation(self) -> Situation:
+        """The game's context in the shape the adjustment layer reads."""
+        return Situation(
+            roof=self.roof,
+            wind_mph=self.wind_mph,
+            temp_f=self.temperature_f,
+            home_rest=self.home.rest,
+            away_rest=self.away.rest,
+            neutral_site=self.neutral_site,
+            div_game=self.div_game,
+        )
 
 
 def _text(value: object) -> str | None:
@@ -202,9 +220,12 @@ def _apply_color(brief: TeamBrief, color: TeamColor) -> None:
 
 
 def _game_color(brief: GameBrief, color: GameColor) -> None:
-    brief.venue = color.venue
-    brief.city = color.city
-    brief.grass = color.grass
+    if color.venue is not None:
+        brief.venue = color.venue
+    if color.city is not None:
+        brief.city = color.city
+    if color.grass is not None:
+        brief.grass = color.grass
     if color.indoor is True and brief.roof is None:
         brief.roof = "dome"
     brief.neutral_site = color.neutral_site
@@ -276,10 +297,12 @@ def build_briefs(
     schedule: pd.DataFrame | None = None,
     ratings: RatingBook | None = None,
     color: ColorBook | None = None,
+    forecast: bool = False,
 ) -> dict[str, GameBrief]:
     """A brief per matchup priced in ``season`` week ``week``.
 
-    Pure given its inputs; :func:`gather` is the one that goes and fetches them.
+    Pure given its inputs unless ``forecast`` is set, which asks Open-Meteo for
+    the kickoff wind; :func:`gather` is the one that goes and fetches the rest.
     """
     scope = [e for e in entries if e.season == season and e.week == week and e.source == ENGINE]
     by_game: dict[str, list[LedgerEntry]] = {}
@@ -288,6 +311,7 @@ def build_briefs(
     played = _played(schedule, season, week) if schedule is not None else None
     ranks = _ranks(ratings) if ratings is not None else {}
     out: dict[str, GameBrief] = {}
+    stadium_ids: dict[str, str | None] = {}
     for matchup, rows in by_game.items():
         away_code, _, home_code = matchup.partition(" @ ")
         home_code, away_code = canonical(home_code.strip()), canonical(away_code.strip())
@@ -304,7 +328,10 @@ def build_briefs(
                 brief.roof = _text(row.get("roof"))
                 brief.surface = _text(row.get("surface"))
                 brief.venue = _text(row.get("stadium"))
-                brief.div_game = bool(_int(row.get("div_game")) or 0)
+                div_flag = _int(row.get("div_game"))
+                brief.div_game = None if div_flag is None else bool(div_flag)
+                brief.neutral_site = bool(_int(row.get("neutral_site")) or 0)
+                stadium_ids[matchup] = _text(row.get("stadium_id"))
                 brief.kickoff_local = _kickoff_local(row)
                 brief.home.qb = _text(row.get("home_qb_name"))
                 brief.away.qb = _text(row.get("away_qb_name"))
@@ -317,7 +344,32 @@ def build_briefs(
             _game_color(brief, color[matchup])
         _lines_from_ledger(brief, rows)
         out[matchup] = brief
+    if forecast:
+        _attach_wind(out, stadium_ids, scope)
     return out
+
+
+def _attach_wind(
+    briefs: dict[str, GameBrief],
+    stadium_ids: dict[str, str | None],
+    entries: list[LedgerEntry],
+) -> None:
+    """Kickoff wind and temperature for the outdoor games whose venue is known."""
+    kickoffs = {e.matchup: e.kickoff_utc for e in entries if e.kickoff_utc}
+    points: dict[str, tuple[str, datetime]] = {}
+    for matchup, brief in briefs.items():
+        stadium = stadium_ids.get(matchup)
+        when = weather.parse_kickoff(kickoffs.get(matchup, ""))
+        if stadium is None or when is None or not weather.is_outdoors(brief.roof):
+            continue
+        points[matchup] = (stadium, when)
+    for matchup, reading in weather.readings(points).items():
+        brief = briefs[matchup]
+        brief.wind_mph = reading.wind_mph
+        if brief.temperature_f is None:
+            brief.temperature_f = reading.temperature_f
+        if brief.gust_mph is None:
+            brief.gust_mph = reading.gust_mph
 
 
 def gather(
@@ -337,7 +389,10 @@ def gather(
     ratings: RatingBook | None = None
     color: ColorBook | None = None
     try:
-        schedule = nflverse.games()
+        games = nflverse.games()
+        # The loader returns an empty, schema-less frame when both the network and
+        # the cache are out; that is "no schedule", not a schedule of no games.
+        schedule = games if not games.empty else None
     except Exception as exc:  # noqa: BLE001 - colour is optional
         log.warning("brief: schedule unavailable (%s)", exc)
     try:
@@ -355,4 +410,5 @@ def gather(
         schedule=schedule,
         ratings=ratings,
         color=color,
+        forecast=True,
     )
