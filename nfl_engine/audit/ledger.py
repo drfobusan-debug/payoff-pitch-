@@ -37,6 +37,7 @@ from __future__ import annotations
 import csv
 import io
 import logging
+import math
 import re
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, fields
@@ -120,6 +121,17 @@ class LedgerEntry:
     # close for the night game would overwrite the afternoon game's real close
     # with an in-progress number, or freeze it hours early.
     kickoff_utc: str = ""
+    # The week's opening number on this side: the main line and its price on the
+    # earliest archived board, the no-vig probability of that price, and ``drift``
+    # -- the probability points the market moved *toward* this side between the
+    # open and the price taken (handicap converted at the distribution's centre,
+    # plus the price move). Positive means the side got dearer before we bought:
+    # the run-up whoever moved the line already got paid for.
+    open_odds: float | None = None
+    open_line: float | None = None
+    open_prob: float | None = None
+    open_captured_at: str = ""
+    drift: float | None = None
 
 
 LEDGER_FIELDS = [f.name for f in fields(LedgerEntry)]
@@ -239,6 +251,77 @@ def apply_close(
     return entry
 
 
+def prob_per_point(sd: float) -> float:
+    """No-vig probability points per point of line at the distribution's centre."""
+    if sd <= 0:
+        return 0.0
+    return 1.0 / (sd * math.sqrt(2.0 * math.pi))
+
+
+def line_move_toward(market: str, side: str, from_line: float, to_line: float) -> float:
+    """Points the line moved toward ``side`` going ``from_line`` -> ``to_line``.
+
+    Spread lines are the side's own handicap (``-7.5`` for a favourite), so a
+    favourite going -6.5 -> -7.5 moved one point toward it, and a dog going +7.5 ->
+    +6.5 likewise. A total moving up moved toward the over.
+    """
+    if market == SPREAD:
+        return round(from_line - to_line, 2)
+    if market == TOTAL:
+        return round((to_line - from_line) if side == OVER else (from_line - to_line), 2)
+    return 0.0
+
+
+def apply_open(
+    entry: LedgerEntry,
+    open_american: float,
+    open_opposite: float | None,
+    open_line: float | None,
+    *,
+    now: tuple[float, float | None, float | None] | None = None,
+    captured_at: str = "",
+    method: str = DEFAULT_METHOD,
+    margin_sd: float = 13.2,
+    total_sd: float = 13.4,
+) -> LedgerEntry:
+    """Stamp the opening number and how far the market ran toward us before the bet.
+
+    Set once, at pricing, from the earliest board archived for the week. ``now`` is
+    the current ``(american, opposite, line)`` on the same rung of the ladder the
+    open was read from -- the main line, so that buying an alternate rung is not
+    mistaken for the market moving; it defaults to the row's own price. When the
+    opening board *is* the one being priced the stamp is honest and empty of
+    information: ``drift`` reads 0.0 and ``open_captured_at`` equals
+    ``captured_at``, which is how an audit tells "the market did not move" from
+    "nobody looked earlier".
+    """
+    entry.open_odds = open_american
+    entry.open_line = open_line
+    entry.open_captured_at = captured_at
+    implied = american_to_prob(open_american)
+    if open_opposite is None:
+        open_prob = implied
+    else:
+        open_prob = devig([implied, american_to_prob(open_opposite)], method)[0]
+    entry.open_prob = round(open_prob, 6)
+    if now is None:
+        now_prob, now_line = taken_prob(entry, method=method), entry.line
+    else:
+        now_american, now_opposite, now_line = now
+        now_implied = american_to_prob(now_american)
+        if now_opposite is None:
+            now_prob = now_implied
+        else:
+            now_prob = devig([now_implied, american_to_prob(now_opposite)], method)[0]
+    drift = now_prob - open_prob
+    if now_line is not None and open_line is not None and entry.market in (SPREAD, TOTAL):
+        sd = margin_sd if entry.market == SPREAD else total_sd
+        moved = line_move_toward(entry.market, entry.side, open_line, now_line)
+        drift += moved * prob_per_point(sd)
+    entry.drift = round(drift, 6)
+    return entry
+
+
 def kickoff_moment(entry: LedgerEntry) -> datetime | None:
     """Kickoff as an aware UTC moment, or ``None`` when the row does not carry it."""
     if not entry.kickoff_utc:
@@ -338,6 +421,11 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     mode=row.get("mode") or PAPER,
                     captured_at=row.get("captured_at", ""),
                     kickoff_utc=row.get("kickoff_utc", ""),
+                    open_odds=_float(row.get("open_odds")),
+                    open_line=_float(row.get("open_line")),
+                    open_prob=_float(row.get("open_prob")),
+                    open_captured_at=row.get("open_captured_at", ""),
+                    drift=_float(row.get("drift")),
                 )
             )
         except ValueError:
