@@ -57,7 +57,7 @@ from nfl_engine.audit.ledger import (
     update_ledger,
 )
 from nfl_engine.config import data_dir, load_config, output_dir
-from nfl_engine.data import capture, espn, injuries, nflverse
+from nfl_engine.data import capture, espn, injuries, nflverse, schedule
 from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.features import context, usage
@@ -128,7 +128,10 @@ def _fetch(days: int, *, kind: str = capture.GAME_KIND, archive: bool = True) ->
         log.warning("no Odds API key: nothing to fetch")
         return Fetched(season, week, taken, [], {})
     slate, board = client.fetch_board(season=season, week=week, first_day=first_day, days=days)
-    games = list(slate.games)
+    # The board is prices only. Roof, rest, neutral site and the divisional flag
+    # come from the schedule, and the kickoff wind from a forecast -- without them
+    # the two measured situational terms have nothing to read.
+    games = schedule.enrich(list(slate.games))
     rows = capture.rows_from_board(
         board,
         season=season,

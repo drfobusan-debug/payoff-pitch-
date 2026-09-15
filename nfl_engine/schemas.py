@@ -50,6 +50,10 @@ class Game(BaseModel):
     # nothing rather than assuming the incumbent is upright.
     home_qb_id: str | None = None
     away_qb_id: str | None = None
+    # Same-division meeting. ``None`` is unknown, which is not the same as False:
+    # an unknown flag must leave the total alone rather than push it up the way
+    # "non-divisional" legitimately does.
+    div_game: bool | None = None
 
     def matchup(self) -> str:
         return f"{self.away.abbrev} @ {self.home.abbrev}"
