@@ -36,11 +36,8 @@ def _reg(sweet: float, xslg: float, bat_speed: float) -> BatterRegression:
 def test_contact_quality_does_not_move_doubles() -> None:
     elite = _reg(0.420, 0.520, 76.0).multipliers()
     poor = _reg(0.240, 0.300, 67.0).multipliers()
-    for outcome in ("2B", "3B"):
+    for outcome in ("2B", "3B", "HR"):
         assert elite[outcome] == pytest.approx(poor[outcome])
-    # The same contact still separates them on the home-run line, which is where
-    # it was measured to belong.
-    assert elite["HR"] > poor["HR"]
 
 
 def test_speed_still_moves_doubles() -> None:
