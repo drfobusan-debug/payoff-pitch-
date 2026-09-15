@@ -1895,6 +1895,10 @@ class Pipeline:
                     # there, and the over is left alone.
                     side_gate = gate or gate_reason if pside == "over" else None
                     gate_name = "contact_floor"
+                    if pside == "over" and stat == "BB" and gate is not None:
+                        # The cap's own bucket, so probation does not read walk
+                        # lines as contact-floor evidence.
+                        gate_name = "bb_line_cap"
                     if (
                         pside == "under"
                         and stat == "BB"
