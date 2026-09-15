@@ -164,6 +164,9 @@ def test_the_arm_keeps_the_floor_the_rest_of_the_board_lost() -> None:
     base = EVThresholds()
     assert base.for_market("pitcher_k").min_prob == 0.58
     assert base.for_market("game_ml").min_prob == 0.55
+    # Walks are the exception on the arm: the model's read on o1.5 held at plus
+    # money too (52.2%, +9.8% on 184 rows above -130), so the board floor applies.
+    assert base.for_market("pitcher_bb").min_prob == 0.55
 
 
 def test_a_game_total_may_be_bought_at_a_coin_flip_price(monkeypatch) -> None:

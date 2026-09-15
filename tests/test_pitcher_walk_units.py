@@ -161,6 +161,47 @@ def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
     return {(r.market, r.side): r for r in recs if r.line in (1.5, 4.5, 15.5)}
 
 
+def _bb_recs_by_line(cfg: Config, p_over: float) -> dict[tuple[float, str], object]:
+    p = Pipeline.__new__(Pipeline)
+    p.cfg = cfg
+    p._calibrator = SimpleNamespace(apply=lambda market, prob: prob)
+    p._shrink = None
+    p._splits = {}
+    game = SimpleNamespace(game_date="2026-08-01", game_pk=1)
+    pitcher = SimpleNamespace(name="Some Pitcher", mlbam_id=42)
+    n = 1000
+    arr = np.zeros(n)
+    arr[: int(n * p_over)] = 8.0
+    res = SimpleNamespace(
+        pit={"home": {k: arr.copy() for k in ("K", "outs", "H", "BB", "ER")}}
+    )
+    quotes = {
+        ("MATCH", "pitcher_bb", keys.pitcher_prop(pitcher.name, "Walks", ln, side)): [
+            MarketQuote(book="dk", american=100.0, opposite_american=-110.0)
+        ]
+        for ln in (1.5, 2.5)
+        for side in ("over", "under")
+    }
+    recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)
+    return {(r.line, r.side): r for r in recs if r.market == "pitcher_bb"}
+
+
+def test_the_walks_over_is_bought_at_the_low_line_only() -> None:
+    """o1.5 on the model's read went 61.1% (+12.7%, n=285); o2.5 went 9-14."""
+    recs = _bb_recs_by_line(Config(ev=LEVELS_OFF), p_over=0.55)
+    assert recs[(1.5, "over")].tier is not Tier.PASS
+    assert recs[(2.5, "over")].tier is Tier.PASS
+    assert any("buy cap" in r for r in recs[(2.5, "over")].reasons)
+    # A screen on buying the over says nothing about the under.
+    assert not any("buy cap" in r for r in recs[(2.5, "under")].reasons)
+
+
+def test_the_walks_line_cap_is_movable() -> None:
+    cfg = replace(Config(ev=LEVELS_OFF), pitcher_bb_max_buy_line=2.5)
+    recs = _bb_recs_by_line(cfg, p_over=0.55)
+    assert recs[(2.5, "over")].tier is not Tier.PASS
+
+
 def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
     """pitcher_bb is the one market whose over was the profitable side.
 
