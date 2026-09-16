@@ -23795,6 +23795,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_1b",
+    "selection": "Agust\u00edn Ram\u00edrez 1B o0.5",
+    "american": 114.0,
+    "no_vig_prob": 0.432799
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Agust\u00edn Ram\u00edrez 1B u0.5",
+    "american": -158.0,
+    "no_vig_prob": 0.567201
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
     "selection": "Corbin Carroll 1B o0.5",
     "american": 125.0,
     "no_vig_prob": 0.436082
@@ -23805,6 +23819,20 @@
     "selection": "Corbin Carroll 1B u0.5",
     "american": -143.0,
     "no_vig_prob": 0.563918
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Deyvison De Los Santos 1B o0.5",
+    "american": 169.0,
+    "no_vig_prob": 0.352135
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Deyvison De Los Santos 1B u0.5",
+    "american": -220.0,
+    "no_vig_prob": 0.647865
   },
   {
     "matchup": "MIA @ AZ",
@@ -23847,6 +23875,20 @@
     "selection": "Geraldo Perdomo 1B u0.5",
     "american": -105.0,
     "no_vig_prob": 0.474428
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Graham Pauley 1B o0.5",
+    "american": 149.0,
+    "no_vig_prob": 0.384444
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Graham Pauley 1B u0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.615556
   },
   {
     "matchup": "MIA @ AZ",
@@ -24047,6 +24089,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_2b",
+    "selection": "Agust\u00edn Ram\u00edrez 2B o0.5",
+    "american": 414.0,
+    "no_vig_prob": 0.183329
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Agust\u00edn Ram\u00edrez 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.816671
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
     "selection": "Corbin Carroll 2B o0.5",
     "american": 299.0,
     "no_vig_prob": 0.247603
@@ -24057,6 +24113,20 @@
     "selection": "Corbin Carroll 2B u0.5",
     "american": -375.0,
     "no_vig_prob": 0.752397
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Deyvison De Los Santos 2B o0.5",
+    "american": 595.0,
+    "no_vig_prob": 0.150141
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Deyvison De Los Santos 2B u0.5",
+    "american": -800.0,
+    "no_vig_prob": 0.849859
   },
   {
     "matchup": "MIA @ AZ",
@@ -24099,6 +24169,20 @@
     "selection": "Geraldo Perdomo 2B u0.5",
     "american": -450.0,
     "no_vig_prob": 0.7807
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Graham Pauley 2B o0.5",
+    "american": 472.0,
+    "no_vig_prob": 0.184886
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Graham Pauley 2B u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.815114
   },
   {
     "matchup": "MIA @ AZ",
@@ -24327,6 +24411,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_bb",
+    "selection": "Deyvison De Los Santos BB o0.5",
+    "american": 384.0,
+    "no_vig_prob": 0.194607
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Deyvison De Los Santos BB u0.5",
+    "american": -590.0,
+    "no_vig_prob": 0.805393
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
     "selection": "Gabriel Moreno BB o0.5",
     "american": 184.0,
     "no_vig_prob": 0.329084
@@ -24351,6 +24449,20 @@
     "selection": "Geraldo Perdomo BB u0.5",
     "american": -201.0,
     "no_vig_prob": 0.626807
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Graham Pauley BB o0.5",
+    "american": 402.0,
+    "no_vig_prob": 0.187872
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Graham Pauley BB u0.5",
+    "american": -620.0,
+    "no_vig_prob": 0.812128
   },
   {
     "matchup": "MIA @ AZ",
@@ -24393,6 +24505,20 @@
     "selection": "Jakob Marsee BB u0.5",
     "american": -215.0,
     "no_vig_prob": 0.641387
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Javier Sanoja BB o0.5",
+    "american": 323.0,
+    "no_vig_prob": 0.221881
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Javier Sanoja BB u0.5",
+    "american": -485.0,
+    "no_vig_prob": 0.778119
   },
   {
     "matchup": "MIA @ AZ",
@@ -24544,9 +24670,23 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_hrr",
+    "selection": "Agust\u00edn Ram\u00edrez H+R+RBI o1.5",
+    "american": 126.0,
+    "no_vig_prob": 0.415144
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
     "selection": "Agust\u00edn Ram\u00edrez H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Agust\u00edn Ram\u00edrez H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.584856
   },
   {
     "matchup": "MIA @ AZ",
@@ -24558,9 +24698,37 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_hrr",
+    "selection": "Corbin Carroll H+R+RBI o2.5",
+    "american": 120.0,
+    "no_vig_prob": 0.427852
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
     "selection": "Corbin Carroll H+R+RBI u1.5",
     "american": 120.0,
     "no_vig_prob": 0.450515
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Corbin Carroll H+R+RBI u2.5",
+    "american": -155.0,
+    "no_vig_prob": 0.572148
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Deyvison De Los Santos H+R+RBI o0.5",
+    "american": -119.0,
+    "no_vig_prob": 0.508578
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Deyvison De Los Santos H+R+RBI u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.491422
   },
   {
     "matchup": "MIA @ AZ",
@@ -24603,6 +24771,20 @@
     "selection": "Geraldo Perdomo H+R+RBI u1.5",
     "american": 100.0,
     "no_vig_prob": 0.48026
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Graham Pauley H+R+RBI o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.554486
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Graham Pauley H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.445514
   },
   {
     "matchup": "MIA @ AZ",
@@ -24831,6 +25013,13 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_hr",
+    "selection": "Agust\u00edn Ram\u00edrez HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hr",
     "selection": "Corbin Carroll HR o0.5",
     "american": 500.0,
     "no_vig_prob": 0.168582
@@ -24841,6 +25030,13 @@
     "selection": "Corbin Carroll HR o1.5",
     "american": 5500.0,
     "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hr",
+    "selection": "Deyvison De Los Santos HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
   },
   {
     "matchup": "MIA @ AZ",
@@ -24999,6 +25195,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_h",
+    "selection": "Agust\u00edn Ram\u00edrez H o0.5",
+    "american": -152.0,
+    "no_vig_prob": 0.566391
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
+    "selection": "Agust\u00edn Ram\u00edrez H u0.5",
+    "american": 116.0,
+    "no_vig_prob": 0.433609
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
     "selection": "Corbin Carroll H o0.5",
     "american": -210.0,
     "no_vig_prob": 0.654072
@@ -25009,6 +25219,20 @@
     "selection": "Corbin Carroll H u0.5",
     "american": 185.0,
     "no_vig_prob": 0.345928
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
+    "selection": "Deyvison De Los Santos H o0.5",
+    "american": 107.0,
+    "no_vig_prob": 0.470711
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
+    "selection": "Deyvison De Los Santos H u0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.529289
   },
   {
     "matchup": "MIA @ AZ",
@@ -25058,6 +25282,20 @@
     "selection": "Geraldo Perdomo H u0.5",
     "american": 173.0,
     "no_vig_prob": 0.347902
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
+    "selection": "Graham Pauley H o0.5",
+    "american": -121.0,
+    "no_vig_prob": 0.52962
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_h",
+    "selection": "Graham Pauley H u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.47038
   },
   {
     "matchup": "MIA @ AZ",
@@ -25286,6 +25524,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_rbi",
+    "selection": "Agust\u00edn Ram\u00edrez RBI o0.5",
+    "american": 239.0,
+    "no_vig_prob": 0.275489
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Agust\u00edn Ram\u00edrez RBI u0.5",
+    "american": -346.0,
+    "no_vig_prob": 0.724511
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
     "selection": "Corbin Carroll RBI o0.5",
     "american": 140.0,
     "no_vig_prob": 0.391301
@@ -25296,6 +25548,20 @@
     "selection": "Corbin Carroll RBI u0.5",
     "american": -185.0,
     "no_vig_prob": 0.608699
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Deyvison De Los Santos RBI o0.5",
+    "american": 379.0,
+    "no_vig_prob": 0.223297
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Deyvison De Los Santos RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.776703
   },
   {
     "matchup": "MIA @ AZ",
@@ -25338,6 +25604,20 @@
     "selection": "Geraldo Perdomo RBI u0.5",
     "american": -220.0,
     "no_vig_prob": 0.651329
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Graham Pauley RBI o0.5",
+    "american": 272.0,
+    "no_vig_prob": 0.269262
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Graham Pauley RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.730738
   },
   {
     "matchup": "MIA @ AZ",
@@ -25538,6 +25818,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_r",
+    "selection": "Agust\u00edn Ram\u00edrez R o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.326277
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Agust\u00edn Ram\u00edrez R u0.5",
+    "american": -263.0,
+    "no_vig_prob": 0.673723
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
     "selection": "Corbin Carroll R o0.5",
     "american": 110.0,
     "no_vig_prob": 0.44492
@@ -25548,6 +25842,20 @@
     "selection": "Corbin Carroll R u0.5",
     "american": -148.0,
     "no_vig_prob": 0.55508
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Deyvison De Los Santos R o0.5",
+    "american": 227.0,
+    "no_vig_prob": 0.293062
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Deyvison De Los Santos R u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.706938
   },
   {
     "matchup": "MIA @ AZ",
@@ -25590,6 +25898,20 @@
     "selection": "Geraldo Perdomo R u0.5",
     "american": -160.0,
     "no_vig_prob": 0.576039
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Graham Pauley R o0.5",
+    "american": 221.0,
+    "no_vig_prob": 0.303323
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Graham Pauley R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.696677
   },
   {
     "matchup": "MIA @ AZ",
@@ -25790,6 +26112,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_tb",
+    "selection": "Agust\u00edn Ram\u00edrez TB o0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.550456
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Agust\u00edn Ram\u00edrez TB u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.449544
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
     "selection": "Corbin Carroll TB o1.5",
     "american": 120.0,
     "no_vig_prob": 0.455677
@@ -25800,6 +26136,20 @@
     "selection": "Corbin Carroll TB u1.5",
     "american": -134.0,
     "no_vig_prob": 0.544323
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Deyvison De Los Santos TB o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.489879
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Deyvison De Los Santos TB u0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.510121
   },
   {
     "matchup": "MIA @ AZ",
@@ -25842,6 +26192,20 @@
     "selection": "Geraldo Perdomo TB u1.5",
     "american": -190.0,
     "no_vig_prob": 0.613971
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Graham Pauley TB o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.548179
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Graham Pauley TB u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.451821
   },
   {
     "matchup": "MIA @ AZ",
@@ -26105,9 +26469,23 @@
   {
     "matchup": "MIA @ AZ",
     "market": "f5_total",
+    "selection": "F5 Over 5.0",
+    "american": -105.0,
+    "no_vig_prob": 0.479695
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "f5_total",
     "selection": "F5 Under 4.5",
     "american": 100.0,
     "no_vig_prob": 0.480695
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "f5_total",
+    "selection": "F5 Under 5.0",
+    "american": -125.0,
+    "no_vig_prob": 0.520305
   },
   {
     "matchup": "MIA @ AZ",
@@ -38775,6 +39153,20 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_1b",
+    "selection": "Tyler Heineman 1B o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.371758
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_1b",
+    "selection": "Tyler Heineman 1B u0.5",
+    "american": -205.0,
+    "no_vig_prob": 0.628242
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_1b",
     "selection": "Vaughn Grissom 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.467567
@@ -39027,6 +39419,20 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_2b",
+    "selection": "Tyler Heineman 2B o0.5",
+    "american": 660.0,
+    "no_vig_prob": 0.134969
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_2b",
+    "selection": "Tyler Heineman 2B u0.5",
+    "american": -1000.0,
+    "no_vig_prob": 0.865031
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_2b",
     "selection": "Vaughn Grissom 2B o0.5",
     "american": 441.0,
     "no_vig_prob": 0.176588
@@ -39265,6 +39671,20 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_bb",
+    "selection": "Tyler Heineman BB o0.5",
+    "american": 328.0,
+    "no_vig_prob": 0.219441
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
+    "selection": "Tyler Heineman BB u0.5",
+    "american": -492.0,
+    "no_vig_prob": 0.780559
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
     "selection": "Vaughn Grissom BB o0.5",
     "american": 300.0,
     "no_vig_prob": 0.235244
@@ -39489,9 +39909,23 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_hrr",
+    "selection": "Lazaro Montes H+R+RBI o0.5",
+    "american": -157.0,
+    "no_vig_prob": 0.573151
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
     "selection": "Lazaro Montes H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.413544
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
+    "selection": "Lazaro Montes H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.426849
   },
   {
     "matchup": "SEA @ LAA",
@@ -39555,6 +39989,20 @@
     "selection": "Randy Arozarena H+R+RBI u1.5",
     "american": 110.0,
     "no_vig_prob": 0.468439
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
+    "selection": "Tyler Heineman H+R+RBI o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.521227
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
+    "selection": "Tyler Heineman H+R+RBI u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.478773
   },
   {
     "matchup": "SEA @ LAA",
@@ -39751,6 +40199,13 @@
     "selection": "Randy Arozarena HR o1.5",
     "american": 4500.0,
     "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hr",
+    "selection": "Tyler Heineman HR o0.5",
+    "american": 1400.0,
+    "no_vig_prob": 0.075
   },
   {
     "matchup": "SEA @ LAA",
@@ -39989,6 +40444,20 @@
     "selection": "Randy Arozarena H u0.5",
     "american": 172.0,
     "no_vig_prob": 0.348296
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_h",
+    "selection": "Tyler Heineman H o0.5",
+    "american": 102.0,
+    "no_vig_prob": 0.4804
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_h",
+    "selection": "Tyler Heineman H u0.5",
+    "american": -122.0,
+    "no_vig_prob": 0.5196
   },
   {
     "matchup": "SEA @ LAA",
@@ -40245,6 +40714,20 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_rbi",
+    "selection": "Tyler Heineman RBI o0.5",
+    "american": 381.0,
+    "no_vig_prob": 0.201889
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_rbi",
+    "selection": "Tyler Heineman RBI u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.798111
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_rbi",
     "selection": "Vaughn Grissom RBI o0.5",
     "american": 240.0,
     "no_vig_prob": 0.295447
@@ -40497,6 +40980,20 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_r",
+    "selection": "Tyler Heineman R o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.272498
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_r",
+    "selection": "Tyler Heineman R u0.5",
+    "american": -344.0,
+    "no_vig_prob": 0.727502
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_r",
     "selection": "Vaughn Grissom R o0.5",
     "american": 185.0,
     "no_vig_prob": 0.33953
@@ -40644,6 +41141,13 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_tb",
+    "selection": "Denzer Guzman TB o1.5",
+    "american": 200.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
     "selection": "Denzer Guzman TB u0.5",
     "american": 109.0,
     "no_vig_prob": 0.451224
@@ -40784,6 +41288,13 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_tb",
+    "selection": "Mike Trout TB u1.5",
+    "american": -192.0,
+    "no_vig_prob": 0.613543
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
     "selection": "Moises Ballesteros TB o0.5",
     "american": -133.0,
     "no_vig_prob": 0.539171
@@ -40815,6 +41326,27 @@
     "selection": "Randy Arozarena TB u1.5",
     "american": -157.0,
     "no_vig_prob": 0.576634
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Tyler Heineman TB o0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.481122
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Tyler Heineman TB o1.5",
+    "american": 340.0,
+    "no_vig_prob": 0.227273
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Tyler Heineman TB u0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.518878
   },
   {
     "matchup": "SEA @ LAA",
@@ -41001,9 +41533,23 @@
   {
     "matchup": "SEA @ LAA",
     "market": "pitcher_bb",
+    "selection": "Ryan Johnson Walks o1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.597207
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "pitcher_bb",
     "selection": "Ryan Johnson Walks o2.5",
     "american": 145.0,
     "no_vig_prob": 0.3837
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "pitcher_bb",
+    "selection": "Ryan Johnson Walks u1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.402793
   },
   {
     "matchup": "SEA @ LAA",
