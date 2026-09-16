@@ -10929,9 +10929,23 @@
   {
     "matchup": "BOS @ TEX",
     "market": "batter_tb",
+    "selection": "Jahmai Jones TB o1.5",
+    "american": 171.0,
+    "no_vig_prob": 0.347071
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_tb",
     "selection": "Jahmai Jones TB u0.5",
     "american": 105.0,
     "no_vig_prob": 0.459132
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_tb",
+    "selection": "Jahmai Jones TB u1.5",
+    "american": -227.0,
+    "no_vig_prob": 0.652929
   },
   {
     "matchup": "BOS @ TEX",
@@ -11114,6 +11128,13 @@
     "selection": "Wyatt Langford TB u0.5",
     "american": 132.0,
     "no_vig_prob": 0.412208
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_tb",
+    "selection": "Wyatt Langford TB u1.5",
+    "american": -227.0,
+    "no_vig_prob": 0.652929
   },
   {
     "matchup": "BOS @ TEX",
@@ -17677,9 +17698,23 @@
   {
     "matchup": "KC @ HOU",
     "market": "batter_hrr",
+    "selection": "Jeremy Pena H+R+RBI o2.5",
+    "american": 130.0,
+    "no_vig_prob": 0.41006
+  },
+  {
+    "matchup": "KC @ HOU",
+    "market": "batter_hrr",
     "selection": "Jeremy Pena H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.424869
+  },
+  {
+    "matchup": "KC @ HOU",
+    "market": "batter_hrr",
+    "selection": "Jeremy Pena H+R+RBI u2.5",
+    "american": -170.0,
+    "no_vig_prob": 0.58994
   },
   {
     "matchup": "KC @ HOU",
@@ -40192,6 +40227,13 @@
     "selection": "Taylor Ward TB u0.5",
     "american": 105.0,
     "no_vig_prob": 0.461122
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Taylor Ward TB u1.5",
+    "american": -234.0,
+    "no_vig_prob": 0.655475
   },
   {
     "matchup": "SEA @ LAA",
