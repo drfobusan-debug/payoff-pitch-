@@ -12987,6 +12987,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_1b",
+    "selection": "Brandon Valenzuela 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.395861
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_1b",
+    "selection": "Brandon Valenzuela 1B u0.5",
+    "american": -181.0,
+    "no_vig_prob": 0.604139
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_1b",
     "selection": "Brett Bateman 1B o0.5",
     "american": -155.0,
     "no_vig_prob": 0.570027
@@ -13169,6 +13183,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_1b",
+    "selection": "Myles Straw 1B o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.437333
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_1b",
+    "selection": "Myles Straw 1B u0.5",
+    "american": -152.0,
+    "no_vig_prob": 0.562667
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_1b",
     "selection": "Nathan Lukes 1B o0.5",
     "american": -117.0,
     "no_vig_prob": 0.504572
@@ -13263,6 +13291,20 @@
     "selection": "Andres Gimenez 2B u0.5",
     "american": -700.0,
     "no_vig_prob": 0.826966
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_2b",
+    "selection": "Brandon Valenzuela 2B o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.15769
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_2b",
+    "selection": "Brandon Valenzuela 2B u0.5",
+    "american": -760.0,
+    "no_vig_prob": 0.84231
   },
   {
     "matchup": "DET @ TOR",
@@ -13449,6 +13491,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_2b",
+    "selection": "Myles Straw 2B o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.153224
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_2b",
+    "selection": "Myles Straw 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.846776
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_2b",
     "selection": "Nathan Lukes 2B o0.5",
     "american": 413.0,
     "no_vig_prob": 0.18752
@@ -13561,6 +13617,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_bb",
+    "selection": "Brett Callahan BB o0.5",
+    "american": 251.0,
+    "no_vig_prob": 0.266185
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_bb",
+    "selection": "Brett Callahan BB u0.5",
+    "american": -366.0,
+    "no_vig_prob": 0.733815
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_bb",
     "selection": "Colt Keith BB o0.5",
     "american": 230.0,
     "no_vig_prob": 0.280374
@@ -13585,6 +13655,20 @@
     "selection": "Dillon Dingler BB u0.5",
     "american": -290.0,
     "no_vig_prob": 0.721572
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_bb",
+    "selection": "Ernie Clement BB o0.5",
+    "american": 363.0,
+    "no_vig_prob": 0.203212
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_bb",
+    "selection": "Ernie Clement BB u0.5",
+    "american": -553.0,
+    "no_vig_prob": 0.796788
   },
   {
     "matchup": "DET @ TOR",
@@ -13785,9 +13869,23 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_hrr",
+    "selection": "Brandon Valenzuela H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.593335
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
     "selection": "Brandon Valenzuela H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.405904
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
+    "selection": "Brandon Valenzuela H+R+RBI u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.406665
   },
   {
     "matchup": "DET @ TOR",
@@ -13911,9 +14009,37 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_hrr",
+    "selection": "John Peck H+R+RBI o0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.569259
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
+    "selection": "John Peck H+R+RBI u0.5",
+    "american": 121.0,
+    "no_vig_prob": 0.430741
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
+    "selection": "Josh Smith H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
     "selection": "Josh Smith H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.415447
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hrr",
+    "selection": "Josh Smith H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
   },
   {
     "matchup": "DET @ TOR",
@@ -14065,6 +14191,13 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_hr",
+    "selection": "Brandon Valenzuela HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hr",
     "selection": "Brett Bateman HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.075714
@@ -14080,6 +14213,20 @@
     "matchup": "DET @ TOR",
     "market": "batter_hr",
     "selection": "Brett Callahan HR o1.5",
+    "american": 6000.0,
+    "no_vig_prob": 0.016393
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hr",
+    "selection": "Colt Keith HR o0.5",
+    "american": 500.0,
+    "no_vig_prob": 0.166667
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hr",
+    "selection": "Colt Keith HR o1.5",
     "american": 6000.0,
     "no_vig_prob": 0.016393
   },
@@ -14135,6 +14282,13 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_hr",
+    "selection": "Hao-Yu Lee HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.014085
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hr",
     "selection": "John Peck HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
@@ -14180,6 +14334,13 @@
     "selection": "Max Clark HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.100251
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_hr",
+    "selection": "Myles Straw HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
   },
   {
     "matchup": "DET @ TOR",
@@ -14264,6 +14425,20 @@
     "selection": "Andres Gimenez H u0.5",
     "american": 133.0,
     "no_vig_prob": 0.408923
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
+    "selection": "Brandon Valenzuela H o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.530522
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
+    "selection": "Brandon Valenzuela H u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.469478
   },
   {
     "matchup": "DET @ TOR",
@@ -14464,6 +14639,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_h",
+    "selection": "Myles Straw H o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.542476
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
+    "selection": "Myles Straw H u0.5",
+    "american": 108.0,
+    "no_vig_prob": 0.457524
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
     "selection": "Nathan Lukes H o0.5",
     "american": -204.0,
     "no_vig_prob": 0.636163
@@ -14513,9 +14702,23 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_h",
+    "selection": "Vladimir Guerrero Jr. H o1.5",
+    "american": 209.0,
+    "no_vig_prob": 0.303999
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
     "selection": "Vladimir Guerrero Jr. H u0.5",
     "american": 186.0,
     "no_vig_prob": 0.330212
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_h",
+    "selection": "Vladimir Guerrero Jr. H u1.5",
+    "american": -286.0,
+    "no_vig_prob": 0.696001
   },
   {
     "matchup": "DET @ TOR",
@@ -14530,6 +14733,34 @@
     "selection": "Zach McKinstry H u0.5",
     "american": 106.0,
     "no_vig_prob": 0.460889
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Keider Montero K o3.5",
+    "american": 105.0,
+    "no_vig_prob": 0.44843
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Keider Montero K u3.5",
+    "american": -150.0,
+    "no_vig_prob": 0.55157
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Max Scherzer K o4.5",
+    "american": -150.0,
+    "no_vig_prob": 0.55157
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_k",
+    "selection": "Max Scherzer K u4.5",
+    "american": 105.0,
+    "no_vig_prob": 0.44843
   },
   {
     "matchup": "DET @ TOR",
@@ -14558,6 +14789,20 @@
     "selection": "Andres Gimenez RBI u0.5",
     "american": -325.0,
     "no_vig_prob": 0.72461
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_rbi",
+    "selection": "Brandon Valenzuela RBI o0.5",
+    "american": 266.0,
+    "no_vig_prob": 0.26973
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_rbi",
+    "selection": "Brandon Valenzuela RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.73027
   },
   {
     "matchup": "DET @ TOR",
@@ -14744,6 +14989,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_rbi",
+    "selection": "Myles Straw RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.234487
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_rbi",
+    "selection": "Myles Straw RBI u0.5",
+    "american": -444.0,
+    "no_vig_prob": 0.765513
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_rbi",
     "selection": "Nathan Lukes RBI o0.5",
     "american": 222.0,
     "no_vig_prob": 0.30957
@@ -14838,6 +15097,20 @@
     "selection": "Andres Gimenez R u0.5",
     "american": -220.0,
     "no_vig_prob": 0.642104
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_r",
+    "selection": "Brandon Valenzuela R o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.345323
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_r",
+    "selection": "Brandon Valenzuela R u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.654677
   },
   {
     "matchup": "DET @ TOR",
@@ -15024,6 +15297,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_r",
+    "selection": "Myles Straw R o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.314103
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_r",
+    "selection": "Myles Straw R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.685897
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_r",
     "selection": "Nathan Lukes R o0.5",
     "american": 142.0,
     "no_vig_prob": 0.386094
@@ -15129,6 +15416,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_tb",
+    "selection": "Brandon Valenzuela TB o0.5",
+    "american": -128.0,
+    "no_vig_prob": 0.526172
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
+    "selection": "Brandon Valenzuela TB u0.5",
+    "american": -101.0,
+    "no_vig_prob": 0.473828
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
     "selection": "Brett Bateman TB o1.5",
     "american": 140.0,
     "no_vig_prob": 0.40864
@@ -15206,6 +15507,13 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_tb",
+    "selection": "Ernie Clement TB u1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.614478
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
     "selection": "George Springer TB o1.5",
     "american": 123.0,
     "no_vig_prob": 0.428491
@@ -15269,6 +15577,13 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_tb",
+    "selection": "Hao-Yu Lee TB u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.609784
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
     "selection": "John Peck TB o0.5",
     "american": -135.0,
     "no_vig_prob": 0.543179
@@ -15300,6 +15615,13 @@
     "selection": "Josh Smith TB u0.5",
     "american": 105.0,
     "no_vig_prob": 0.463431
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
+    "selection": "Josh Smith TB u1.5",
+    "american": -246.0,
+    "no_vig_prob": 0.664428
   },
   {
     "matchup": "DET @ TOR",
@@ -15353,6 +15675,20 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_tb",
+    "selection": "Myles Straw TB o0.5",
+    "american": -132.0,
+    "no_vig_prob": 0.534874
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
+    "selection": "Myles Straw TB u0.5",
+    "american": 102.0,
+    "no_vig_prob": 0.465126
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
     "selection": "Nathan Lukes TB o1.5",
     "american": 170.0,
     "no_vig_prob": 0.378172
@@ -15381,9 +15717,23 @@
   {
     "matchup": "DET @ TOR",
     "market": "batter_tb",
+    "selection": "Spencer Torkelson TB o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.524082
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
     "selection": "Spencer Torkelson TB o1.5",
     "american": 204.0,
     "no_vig_prob": 0.316875
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "batter_tb",
+    "selection": "Spencer Torkelson TB u0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.475918
   },
   {
     "matchup": "DET @ TOR",
@@ -15500,9 +15850,23 @@
   {
     "matchup": "DET @ TOR",
     "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -115.0,
+    "no_vig_prob": 0.506847
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "game_total",
     "selection": "Over 8.5",
     "american": -101.0,
     "no_vig_prob": 0.488335
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -105.0,
+    "no_vig_prob": 0.493153
   },
   {
     "matchup": "DET @ TOR",
@@ -15668,9 +16032,23 @@
   {
     "matchup": "DET @ TOR",
     "market": "pitcher_outs",
+    "selection": "Max Scherzer Outs o15.0",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "pitcher_outs",
     "selection": "Max Scherzer Outs o15.5",
     "american": 140.0,
     "no_vig_prob": 0.423916
+  },
+  {
+    "matchup": "DET @ TOR",
+    "market": "pitcher_outs",
+    "selection": "Max Scherzer Outs u15.0",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
   },
   {
     "matchup": "DET @ TOR",
