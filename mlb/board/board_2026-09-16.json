@@ -11209,9 +11209,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "David Fry H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "David Fry H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.402454
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "David Fry H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
   },
   {
     "matchup": "CWS @ CLE",
@@ -27694,6 +27708,13 @@
   {
     "matchup": "NYY @ MIN",
     "market": "batter_hr",
+    "selection": "Josh Bell HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "NYY @ MIN",
+    "market": "batter_hr",
     "selection": "Kody Clemens HR o0.5",
     "american": 575.0,
     "no_vig_prob": 0.148148
@@ -39692,9 +39713,23 @@
   {
     "matchup": "SF @ STL",
     "market": "batter_tb",
+    "selection": "Thomas Saggese TB o1.5",
+    "american": 138.0,
+    "no_vig_prob": 0.39073
+  },
+  {
+    "matchup": "SF @ STL",
+    "market": "batter_tb",
     "selection": "Thomas Saggese TB u0.5",
     "american": 142.0,
     "no_vig_prob": 0.390007
+  },
+  {
+    "matchup": "SF @ STL",
+    "market": "batter_tb",
+    "selection": "Thomas Saggese TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.60927
   },
   {
     "matchup": "SF @ STL",
