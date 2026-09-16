@@ -854,3 +854,33 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-15,Zack Gelof,680869,822925,HRR,1.5,over,betmgm,140.0,0.4379,0.4026,0.3987,0.0039,-0.0337,Pass,HOLD,True,contradicted,20260915T2204Z,6,16,11,0.57,batter,ev_floor,elite
 2026-09-15,Zack Gelof,680869,822925,RBI,0.5,over,draftkings,249.0,0.2892,0.2849,0.2844,0.0005,-0.0058,Pass,HOLD,True,contradicted,20260915T2204Z,6,16,11,0.57,batter,ev_floor,elite
 2026-09-15,Zack Gelof,680869,822925,TB,1.5,over,betrivers,165.0,0.3306,0.3727,0.3774,-0.0047,-0.0124,Pass,HOLD,False,contradicted,20260915T2204Z,6,16,11,0.57,batter,one_way_quote,elite
+2026-09-16,Aaron Judge,592450,823655,H,0.5,under,betonlineag,164.0,0.3951,0.3649,0.3615,0.0034,-0.0368,Pass,AVOID,True,contradicted,20260916T1600Z,3,28,11,-0.31,batter,ev_floor,elite
+2026-09-16,Aaron Judge,592450,823655,HRR,1.5,under,betmgm,105.0,0.5069,0.4709,0.4668,0.004,-0.0347,Pass,AVOID,True,contradicted,20260916T1600Z,3,28,11,-0.31,batter,ev_floor,elite
+2026-09-16,Aaron Judge,592450,823655,TB,1.5,over,betrivers,128.0,0.3529,0.4309,0.4395,-0.0087,-0.0176,Pass,AVOID,False,contradicted,20260916T1600Z,3,28,11,-0.31,batter,one_way_quote,elite
+2026-09-16,Anthony Kay,641743,824382,BB,1.5,over,draftkings,-119.0,0.6407,0.5745,0.5083,0.0662,0.0572,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,momentum_run_up,elite
+2026-09-16,Anthony Kay,641743,824382,ER,2.5,over,bovada,130.0,0.4236,0.4109,0.4095,0.0014,-0.0548,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Anthony Kay,641743,824382,H,4.5,over,draftkings,-143.0,0.593,0.5622,0.555,0.0072,-0.0446,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Ben Rice,700250,823655,HRR,1.5,over,betmgm,-140.0,0.5869,0.5548,0.5513,0.0036,-0.0488,Pass,BUY,True,contradicted,20260916T1600Z,4,26,9,1.74,batter,ev_floor,elite
+2026-09-16,Ben Rice,700250,823655,RBI,0.5,over,draftkings,177.0,0.473,0.3672,0.3555,0.0117,0.0173,Pass,BUY,True,contradicted,20260916T1600Z,4,26,9,1.74,batter,thin_edge,elite
+2026-09-16,Ben Rice,700250,823655,TB,1.5,over,betrivers,115.0,0.5457,0.4617,0.4524,0.0093,-0.0073,Pass,BUY,False,contradicted,20260916T1600Z,4,26,9,1.74,batter,one_way_quote,elite
+2026-09-16,Bryce Eldridge,805811,823004,H,0.5,over,betonlineag,-172.0,0.6407,0.6234,0.6215,0.0019,-0.0141,Pass,STRONG BUY,True,confirmed,20260916T1600Z,2,32,11,5.27,batter,ev_floor,elite
+2026-09-16,Bryce Eldridge,805811,823004,HRR,1.5,over,betonlineag,-105.0,0.5566,0.4927,0.4856,0.0071,-0.0381,Pass,STRONG BUY,True,confirmed,20260916T1600Z,2,32,11,5.27,batter,ev_floor,elite
+2026-09-16,Bryce Eldridge,805811,823004,TB,1.5,over,betrivers,143.0,0.4691,0.406,0.399,0.007,-0.0133,Pass,STRONG BUY,False,confirmed,20260916T1600Z,2,32,11,5.27,batter,one_way_quote,elite
+2026-09-16,Carlos Rodón,607074,823655,BB,2.5,under,draftkings,-189.0,0.6756,0.6448,0.614,0.0308,-0.014,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Carlos Rodón,607074,823655,K,5.5,under,draftkings,-131.0,0.6084,0.5625,0.5575,0.0051,-0.008,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Carlos Rodón,607074,823655,outs,15.5,over,betmgm,105.0,0.619,0.4811,0.4657,0.0153,-0.0138,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Luis García Jr.,671277,823655,H,0.5,over,betrivers,-245.0,0.7081,0.7099,0.7101,-0.0002,-0.0003,Pass,BUY,False,contradicted,20260916T1600Z,5,24,11,-2.2,batter,one_way_quote,elite
+2026-09-16,Luis García Jr.,671277,823655,HRR,1.5,over,betmgm,-135.0,0.6191,0.558,0.5512,0.0068,-0.0286,Pass,BUY,True,contradicted,20260916T1600Z,5,24,11,-2.2,batter,ev_floor,elite
+2026-09-16,Luis García Jr.,671277,823655,TB,1.5,over,betrivers,123.0,0.6444,0.4891,0.4718,0.0173,0.0907,Pass,BUY,False,contradicted,20260916T1600Z,5,24,11,-2.2,batter,one_way_quote,elite
+2026-09-16,Matthew Liberatore,669461,823004,BB,1.5,over,draftkings,111.0,0.5484,0.4956,0.4429,0.0527,0.0458,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-16,Matthew Liberatore,669461,823004,H,4.5,over,betmgm,-125.0,0.6688,0.5649,0.5405,0.0244,0.0168,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-16,Matthew Liberatore,669461,823004,K,5.5,over,fanduel,128.0,0.562,0.4335,0.4192,0.0143,-0.0117,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Parker Messick,800048,824382,BB,1.5,under,draftkings,-101.0,0.6,0.5353,0.4706,0.0647,0.0653,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-16,Parker Messick,800048,824382,H,4.5,under,draftkings,101.0,0.5935,0.4956,0.4726,0.023,-0.0039,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Parker Messick,800048,824382,K,6.5,over,betonlineag,107.0,0.562,0.4899,0.4819,0.008,0.0142,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,thin_edge,elite
+2026-09-16,Parker Messick,800048,824382,outs,17.5,under,draftkings,121.0,0.4747,0.4301,0.4252,0.005,-0.0494,Pass,,True,confirmed,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Zebby Matthews,805673,823655,BB,1.5,over,draftkings,-143.0,0.5568,0.553,0.5493,0.0038,-0.0602,Pass,,True,contradicted,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Zebby Matthews,805673,823655,ER,2.5,over,draftkings,100.0,0.6563,0.4897,0.4712,0.0185,-0.0205,Pass,,True,contradicted,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Zebby Matthews,805673,823655,H,5.5,over,betmgm,120.0,0.5688,0.4522,0.4248,0.0274,-0.0052,Pass,,True,contradicted,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Zebby Matthews,805673,823655,K,4.5,over,fanatics,-125.0,0.655,0.5469,0.5349,0.012,-0.0156,Pass,,True,contradicted,20260916T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-16,Zebby Matthews,805673,823655,outs,15.5,over,betmgm,120.0,0.6212,0.4445,0.4248,0.0196,-0.0222,Pass,,True,contradicted,20260916T1600Z,,,,,pitcher,ev_floor,elite
