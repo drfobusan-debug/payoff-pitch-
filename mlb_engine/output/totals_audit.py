@@ -32,6 +32,7 @@ import csv
 import logging
 import math
 import re
+from collections import Counter
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from datetime import timedelta
@@ -258,11 +259,14 @@ def attach_lines(rows: list[LedgerRow], lines: dict[str, float]) -> int:
 
     A sheet written before the books posted a total carries no line, and a row
     without one can never be graded; the closing snapshot the slate pass
-    captures is the same number the sheet would have shown, read later.
+    captures is the same number the sheet would have shown, read later. The
+    snapshot is keyed by matchup label alone, so both games of a doubleheader
+    are left as they are: one close cannot be told from the other.
     """
+    doubled = {g for g, k in Counter(r.game for r in rows).items() if k > 1}
     n = 0
     for r in rows:
-        if r.line is None and not r.graded and r.game in lines:
+        if r.line is None and not r.graded and r.game in lines and r.game not in doubled:
             r.line = lines[r.game]
             n += 1
     return n
