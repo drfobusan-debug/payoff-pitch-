@@ -13,6 +13,8 @@ import csv
 from dataclasses import asdict, replace
 from datetime import date as Date
 
+import pytest
+
 from mlb_engine.audit import power_ledger
 from mlb_engine.data.results import GameResult, PlayerLine
 from mlb_engine.features import arm
@@ -377,26 +379,50 @@ def test_the_note_prints_the_number_the_card_bet_not_the_raw_model() -> None:
     assert "70.0%" not in doc
 
 
+def _even(label: str, wins: int, losses: int, units: float) -> power_ledger.Record:
+    """A record whose rows were all even-money one-unit bets, squares included."""
+    return power_ledger.Record(
+        label, wins=wins, losses=losses, units=units, units_sq=float(wins + losses)
+    )
+
+
 def test_the_labels_follow_the_money() -> None:
-    """The bucket with the best ROI on enough rows is the Strong Buy; the rest are Buys."""
-    rec = power_ledger.Record
+    """The best record leads the table; a buy word is earned, not handed out."""
     records = {
-        "STRONG BUY": rec("STRONG BUY", wins=2, losses=10, units=-8.83),
-        "BUY": rec("BUY", wins=50, losses=79, units=-17.64),
-        "HOLD": rec("HOLD", wins=127, losses=155, units=-15.80),
-        "AVOID": rec("AVOID", wins=39, losses=36, units=7.26),
+        "STRONG BUY": _even("STRONG BUY", 2, 10, -8.0),
+        "BUY": _even("BUY", 50, 79, -29.0),
+        "HOLD": _even("HOLD", 127, 155, -28.0),
+        "AVOID": _even("AVOID", 53, 51, 2.0),
     }
+    # AVOID is still the best-record bucket (+2% on 104), but +2% is 0.2 s.e.
+    # from zero: it earns no buy word, and neither does a losing bucket.
     assert power_report.strong_bucket(records) == "AVOID"
     assert power_report.labels(records) == {
-        "STRONG BUY": "BUY", "BUY": "BUY", "HOLD": "BUY", "AVOID": "STRONG BUY",
+        "STRONG BUY": "WATCH", "BUY": "WATCH", "HOLD": "WATCH", "AVOID": "WATCH",
     }
 
-    # Once HOLD's record is the best one, the word moves with it.
-    records["HOLD"] = rec("HOLD", wins=160, losses=122, units=30.0)
+    # Positive by about one standard error (+10% on 100, se ~10%): a Buy.
+    records["AVOID"] = _even("AVOID", 55, 45, 10.0)
+    assert power_report.labels(records)["AVOID"] == "BUY"
+
+    # Positive by two standard errors (+20% on 100): a Strong Buy.
+    records["AVOID"] = _even("AVOID", 60, 40, 20.0)
+    assert power_report.labels(records)["AVOID"] == "STRONG BUY"
+
+    # The same 2-s.e. ROI on fewer than LABEL_EARN_ROWS rows is only a Watch.
+    records["AVOID"] = _even("AVOID", 59, 40, 19.8)
+    assert power_report.labels(records)["AVOID"] == "WATCH"
+
+    # A record built without its squares cannot say, so it cannot earn.
+    plain = power_ledger.Record("HOLD", wins=160, losses=122, units=60.0)
+    assert power_report.earned_label(plain) == "WATCH"
+
+    # Once HOLD's record is the best one, the lead moves with it.
+    records["HOLD"] = _even("HOLD", 180, 102, 70.0)
     assert power_report.strong_bucket(records) == "HOLD"
 
-    # A bucket under LABEL_MIN_ROWS cannot take the label however good its ROI.
-    records["STRONG BUY"] = rec("STRONG BUY", wins=11, losses=1, units=9.5)
+    # A bucket under LABEL_MIN_ROWS cannot lead however good its ROI.
+    records["STRONG BUY"] = _even("STRONG BUY", 11, 1, 9.5)
     assert power_report.strong_bucket(records) == "HOLD"
 
     # No record: the default bucket, and the note prints buckets beside the words.
@@ -404,6 +430,20 @@ def test_the_labels_follow_the_money() -> None:
     doc = power_report.render_html(_result())
     assert "MATCHUP " not in doc
     assert "(contact " in doc or "(rank 1-2)" in doc
+    assert ">BUY<" not in doc and ">STRONG BUY<" not in doc
+    assert ">WATCH<" in doc
+
+
+def test_the_record_carries_its_own_standard_error() -> None:
+    """records_by_rating sums the squares, so the note can print +/- one s.e."""
+    graded = _graded(
+        _position("HRR", 1.5, rating="AVOID", odds=100.0),
+        _position("HR", 0.5, rating="AVOID", odds=300.0),
+        players={7: _line(H=1, R=1, **{"1B": 1})},
+    )
+    rec = power_ledger.records_by_rating(graded)["AVOID"]
+    assert rec.units_sq == pytest.approx(sum(g.units**2 for g in graded))
+    assert rec.roi_se is not None and rec.roi_se > 0
 
 
 def test_each_grade_gets_its_whole_ledger_record() -> None:
