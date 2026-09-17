@@ -12146,6 +12146,48 @@
   },
   {
     "matchup": "KC @ PIT",
+    "market": "f5_ml",
+    "selection": "KC F5 ML",
+    "american": 150.0,
+    "no_vig_prob": 0.375
+  },
+  {
+    "matchup": "KC @ PIT",
+    "market": "f5_ml",
+    "selection": "PIT F5 ML",
+    "american": -200.0,
+    "no_vig_prob": 0.625
+  },
+  {
+    "matchup": "KC @ PIT",
+    "market": "f5_rl",
+    "selection": "KC F5 +0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469388
+  },
+  {
+    "matchup": "KC @ PIT",
+    "market": "f5_rl",
+    "selection": "PIT F5 -0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.530612
+  },
+  {
+    "matchup": "KC @ PIT",
+    "market": "f5_total",
+    "selection": "F5 Over 4.5",
+    "american": -105.0,
+    "no_vig_prob": 0.479695
+  },
+  {
+    "matchup": "KC @ PIT",
+    "market": "f5_total",
+    "selection": "F5 Under 4.5",
+    "american": -125.0,
+    "no_vig_prob": 0.520305
+  },
+  {
+    "matchup": "KC @ PIT",
     "market": "game_ml",
     "selection": "KC ML",
     "american": 158.0,
