@@ -1219,14 +1219,19 @@ class Config:
     # probability is under this is faded: its row becomes a Pass under
     # ``book_fade`` and the other side of the market takes its tier. 0 turns the
     # rule off; 1.0 fades every buy. ``MLBE_BOOK_FADE_MARKETS`` is a comma list
-    # of engine markets to confine it to (empty: all of them). Graded to
-    # 2026-09-08 the fade paid only on batter_2b, batter_hrr and game_rl.
+    # of engine markets to confine it to; it defaults to the three the fade
+    # paid on when graded to 2026-09-08 (doubles -26.3% -> -0.2%, H+R+RBI
+    # -33.4% -> +18.0%, run lines -15.0% -> +4.9%). Everywhere else the vig
+    # was paid on both sides of the disagreement: applied to every market it
+    # went -7.8%, and its first week live (2026-09-09..16) bought game ML and
+    # totals it had never been graded on, 1-4 while the engine's sides went
+    # 4-1. Setting the variable empty applies it to every market.
     book_fade_max_fair: float = field(
         default_factory=lambda: _env_float("MLBE_BOOK_FADE_MAX_FAIR", 0.5)
     )
     book_fade_markets: frozenset[str] = field(
-        default_factory=lambda: frozenset(
-            m.strip() for m in os.getenv("MLBE_BOOK_FADE_MARKETS", "").split(",") if m.strip()
+        default_factory=lambda: _env_set(
+            "MLBE_BOOK_FADE_MARKETS", ("batter_2b", "batter_hrr", "game_rl")
         )
     )
 
