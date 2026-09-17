@@ -42,6 +42,7 @@ from mlb_engine.audit.grade import LOSS, PUSH, WIN  # noqa: E402
 from mlb_engine.audit.power_ledger import (  # noqa: E402
     GradedPosition,
     Position,
+    bucket,
     grade_positions,
     load,
 )
@@ -243,13 +244,17 @@ def _print_rows(graded: list[GradedPosition]) -> None:
             f"    {p.batter:<22} {p.label:<10} {price:>6} {p.book:<14}"
             f" p={p.shown_prob:.3f} mkt="
             + ("    -" if p.fair_prob is None else f"{p.fair_prob:.3f}")
-            + f"  {p.tier:<13} {_bucket(p.rating):<9} actual {g.actual:>2}"
+            + f"  {p.tier:<13} {_bucket(p):<9} actual {g.actual:>2}"
             f"  {g.result:<5} {g.units:+.2f}u"
         )
 
 
-def _bucket(rating: str) -> str:
-    return RATING_DISPLAY.get(rating, rating) if rating else "(none)"
+def _bucket(position: Position) -> str:
+    """The display name of the bucket the row was in, read back across the 9/09 swap."""
+    if not position.rating:
+        return "(none)"
+    b = bucket(position)
+    return RATING_DISPLAY.get(b, b)
 
 
 def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[GradedPosition]]]:
@@ -264,7 +269,7 @@ def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[Gra
         elif key == "tier":
             buckets[g.position.tier or "(none)"].append(g)
         else:
-            buckets[_bucket(g.position.rating)].append(g)
+            buckets[_bucket(g.position)].append(g)
     return sorted(buckets.items(), key=lambda kv: -len(kv[1]))
 
 
@@ -323,8 +328,8 @@ def main() -> None:
         ("by rating", "rating"),
     ):
         print(f"\n--- {header} ---")
-        for label, bucket in _grouped(all_graded, key):
-            print(_line(label, bucket))
+        for label, group in _grouped(all_graded, key):
+            print(_line(label, group))
     print("\n--- was the number better than the price? ---")
     _print_probabilities(all_graded)
     print("\n--- did the buy decision discriminate? ---")

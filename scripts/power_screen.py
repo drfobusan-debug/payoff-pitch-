@@ -1116,12 +1116,16 @@ def _grade_records(
     results: dict[int, GameResult] = {}
     for pk in sorted({p.game_pk for p in positions if p.game_pk is not None}):
         try:
-            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
+            result = fetch_result(pk, cache_dir=cfg.cache_dir)
         except Exception as exc:  # noqa: BLE001 - one missing box score fails the whole read
             log.warning(
                 "could not fetch the box score for %s: %s; bucket records withheld", pk, exc
             )
             return None
+        if not result.final:
+            log.warning("game %s is not final; bucket records withheld", pk)
+            return None
+        results[pk] = result
     graded, _voided = power_ledger.grade_positions(positions, results)
     return power_ledger.records_by_rating(graded)
 

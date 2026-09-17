@@ -907,3 +907,8 @@ def test_a_missing_box_score_withholds_the_bucket_records(tmp_path, monkeypatch)
 
     monkeypatch.setattr(ps, "fetch_result", boom)
     assert ps._grade_records(cfg, args, Date(2026, 9, 1)) is None
+
+    # A box score that arrives but is not final (suspended, in progress) is the
+    # same short record: withheld, not graded on the games that did finish.
+    monkeypatch.setattr(ps, "fetch_result", lambda pk, cache_dir: _game(players, final=False))
+    assert ps._grade_records(cfg, args, Date(2026, 9, 1)) is None
