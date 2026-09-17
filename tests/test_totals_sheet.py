@@ -25,6 +25,7 @@ from mlb_engine.output.totals_sheet import (
     middle_relief,
     outs_under,
     sheet_is_current,
+    sheet_legend_keys,
     short_start,
     siera_pts,
     weather_pts,
@@ -290,3 +291,36 @@ def test_a_sheet_with_a_game_missing_its_line_is_rebuilt_on_the_next_pass(tmp_pa
     assert not sheet_is_current(out)
     write_workbook([row("7.0"), row("8.5")], day, out)
     assert sheet_is_current(out)
+
+
+def test_a_watch_row_is_written_bold_italic_and_the_legend_carries_the_study(tmp_path: Path) -> None:
+    def row(game: str, total: str, sp: int) -> SheetRow:
+        side = TeamSide("AZ", "X (R)", off=0, sp=sp, rp=0, kbb_sp=0, kbb_rp=0, bsr_pg=None, fatigue=0, fatigue_detail="")
+        return SheetRow(game, None, total, side, side, 0, 0, 0, "", 0, "", 0, 0, "", "", "")
+
+    watched, high_line, weak = row("A @ B", "8.5", 4), row("C @ D", "9.0", 4), row("E @ F", "8.0", 1)
+    assert (watched.flag, high_line.flag, weak.flag) == ("over", "", "")
+    path = write_workbook([watched, high_line, weak], Date(2026, 9, 17), tmp_path / "t.xlsx")
+    wb = load_workbook(path)
+    ws = wb["Totals 2026-09-17"]
+    header = [c.value for c in ws[1]]
+    sum_col = header.index("SUM") + 1
+    assert ws.cell(row=2, column=1).font.italic and ws.cell(row=2, column=sum_col).font.bold
+    assert ws.cell(row=2, column=sum_col).font.italic
+    assert not ws.cell(row=3, column=1).font.italic and not ws.cell(row=3, column=sum_col).font.italic
+    assert not ws.cell(row=4, column=1).font.italic
+    keys = sheet_legend_keys(path)
+    assert "Factor study" in keys and "Over band" in keys and "Watch" in keys
+    assert sheet_is_current(path)
+
+
+def test_a_sheet_whose_legend_predates_the_study_is_rebuilt(tmp_path: Path) -> None:
+    day = Date(2026, 9, 17)
+    out = tmp_path / "t.xlsx"
+    write_workbook([], day, out)
+    assert sheet_is_current(out)
+    wb = load_workbook(out)
+    legend = wb["Legend"]
+    legend.delete_rows(legend.max_row)
+    wb.save(out)
+    assert not sheet_is_current(out)

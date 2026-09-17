@@ -40,11 +40,16 @@ from mlb_engine.data.vsin import TotalSplit, VSINClient
 from mlb_engine.filters.weather import WeatherConditions, WeatherProvider
 from mlb_engine.output.totals_audit import (
     BANDS,
+    FLAG_OVER_MAX_LINE,
+    FLAG_OVER_SUM,
+    FLAG_UNDER_MAX_LINE,
+    FLAG_UNDER_SUM,
     OverCurve,
     engine_at,
     engine_ledger_path,
     engine_median,
     first_line,
+    flag,
     over_curves,
     record_sheet,
     sheet_bands,
@@ -565,6 +570,11 @@ class SheetRow:
         return round(self.engine_total - line, 1)
 
     @property
+    def flag(self) -> str:
+        """'over' / 'under' when the row sits in one of the study's watch buckets."""
+        return flag(self.total_pts, first_line(self.total))
+
+    @property
     def total_pts(self) -> int:
         a, h = self.away, self.home
         return (
@@ -777,6 +787,16 @@ _LEGEND = [
                   "Same bands either way, so SUM's scale is unchanged. The team ranking is on the 'Middle relief' sheet."),
     ("Ump", "Home-plate umpire's 2026 runs/game vs league on finals before today: >= +1.0 run 1, <= -1.0 -1, else 0; needs 10+ games. 'projected' = crew not posted yet; yesterday's 1B umpire assumed by rotation."),
     ("Backtest", "Aug 4 - Sep 8 2026, 452 games: SUM correlates 0.49 with the closing total and ~0.03 with the result vs the close; top-3 overs / bottom-3 unders per day hit 50% / 47%. Read it as what the market already knows."),
+    ("Factor study", "Aug 4 - Sep 16 2026, 582 games, each column rebuilt as of the day and tested against runs minus the closing total. "
+                     "No factor predicts the result once the number is known: starter SIERA / xERA / K-BB correlate 0.34 / 0.33 / -0.37 with the closing total and 0.00 / 0.01 / 0.01 with the result vs it; "
+                     "lineup wRC+ / wOBA -0.02 / -0.03; pen SIERA 0.02; temperature 0.02; park -0.01; roof 0.02; plate umpire -0.09 (wrong sign). "
+                     "Starter CSW% was the lone p<0.05 out of 16 tests and is not monotonic (Under 41/42/61/50% by quartile; top-quartile Under 69-69). "
+                     "Wind out is an Over effect (>= 10 mph out went 23-12 Over, n=35). Both starters SIERA > 4.6 went Under 61% (n=35)."),
+    ("Over band", "SUM +5..14 (148 games) = two soft starters (SIERA 4.58, xERA 4.84, K-BB 10.3%) and a mediocre pen (4.09) in an open-air park; lineups are league average (wRC+ 99.2), the same as the Under band's (99.4). "
+                  "The closing total is 1.1 runs higher (8.80 vs 7.71) for exactly those reasons. As Overs 72-66-10 (52%, -0.4% at -110); the Under band (-5..-14, 152 games) as Unders 77-69 (53%, +0.7%). "
+                  "Inside the band the Over-hits and Under-hits have the same inputs; only the line separates them: total <= 8.5 went Over 39-26 (60%), total > 8.5 went 33-40 (45%). Under band on a total <= 7.5 went Under 41-32 (56%)."),
+    ("Watch", f"Bold italic rows: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g} (Over lean the book has not priced up), or SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}. "
+              "65 / 73 games behind each; +-12 pts, not an edge. The totals audit grades both buckets as bets on their side under 'Watch buckets'."),
 ]
 
 
@@ -801,15 +821,19 @@ def write_workbook(
             r.ump_name, r.ump_status, r.ump_detail,
         ])
     bold = Font(bold=True)
+    watch = Font(bold=True, italic=True)
     for c in ws[1]:
         c.font = bold
         c.alignment = Alignment(horizontal="center", wrap_text=True)
     sum_col = _COLUMNS.index("SUM") + 1
     over = PatternFill("solid", fgColor="C6EFCE")
     under = PatternFill("solid", fgColor="FFC7CE")
-    for row in ws.iter_rows(min_row=2):
+    for r, row in zip(rows, ws.iter_rows(min_row=2), strict=True):
+        if r.flag:
+            for cell in row:
+                cell.font = watch
         cell = row[sum_col - 1]
-        cell.font = bold
+        cell.font = watch if r.flag else bold
         if isinstance(cell.value, int) and cell.value > 0:
             cell.fill = over
         elif isinstance(cell.value, int) and cell.value < 0:
@@ -861,6 +885,16 @@ def sheet_columns(path: Path) -> list[str]:
     return [str(c) for c in next(ws.iter_rows(values_only=True))]
 
 
+def sheet_legend_keys(path: Path) -> list[str]:
+    """The Legend tab's rule names, in order."""
+    wb = load_workbook(path, read_only=True)
+    if "Legend" not in wb.sheetnames:
+        return []
+    it = wb["Legend"].iter_rows(values_only=True)
+    next(it, None)
+    return [str(r[0]) for r in it if r and r[0] is not None]
+
+
 def sheet_has_lines(path: Path) -> bool:
     """True when every game on the sheet carries a posted total."""
     wb = load_workbook(path, read_only=True)
@@ -872,8 +906,8 @@ def sheet_has_lines(path: Path) -> bool:
 
 
 def sheet_is_current(path: Path) -> bool:
-    """True when a sheet on disk was scored by these bands, carries the columns this
-    code writes, and had lines to score against.
+    """True when a sheet on disk was scored by these bands, carries the columns and
+    Legend rules this code writes, and had lines to score against.
 
     A sheet written before the books posted a game's total is rewritten on the
     next pass: without a line that row can never be graded.
@@ -881,7 +915,12 @@ def sheet_is_current(path: Path) -> bool:
     if not path.exists():
         return False
     try:
-        return sheet_bands(path) == BANDS and sheet_columns(path) == _COLUMNS and sheet_has_lines(path)
+        return (
+            sheet_bands(path) == BANDS
+            and sheet_columns(path) == _COLUMNS
+            and sheet_legend_keys(path) == [k for k, _ in _LEGEND]
+            and sheet_has_lines(path)
+        )
     except Exception as exc:
         log.warning("totals sheet: could not read %s: %s", path.name, exc)
         return False
