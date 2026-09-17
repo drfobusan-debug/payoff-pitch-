@@ -2158,9 +2158,23 @@
   {
     "matchup": "ATH @ TB",
     "market": "batter_tb",
+    "selection": "Jonny Deluca TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "ATH @ TB",
+    "market": "batter_tb",
     "selection": "Jonny Deluca TB o1.5",
     "american": 155.0,
     "no_vig_prob": 0.381059
+  },
+  {
+    "matchup": "ATH @ TB",
+    "market": "batter_tb",
+    "selection": "Jonny Deluca TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "ATH @ TB",
@@ -11713,9 +11727,23 @@
   {
     "matchup": "LAD @ CIN",
     "market": "batter_hrr",
+    "selection": "Ke'Bryan Hayes H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.582956
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_hrr",
     "selection": "Ke'Bryan Hayes H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.409425
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_hrr",
+    "selection": "Ke'Bryan Hayes H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417044
   },
   {
     "matchup": "LAD @ CIN",
@@ -11884,6 +11912,13 @@
     "selection": "Alex Freeland HR o0.5",
     "american": 650.0,
     "no_vig_prob": 0.135632
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_hr",
+    "selection": "Alex Freeland HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
   },
   {
     "matchup": "LAD @ CIN",
@@ -12164,6 +12199,13 @@
     "selection": "Elly De La Cruz H u0.5",
     "american": 171.0,
     "no_vig_prob": 0.349332
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "batter_h",
+    "selection": "Freddie Freeman H o0.5",
+    "american": -315.0,
+    "no_vig_prob": 0.759036
   },
   {
     "matchup": "LAD @ CIN",
@@ -13407,9 +13449,23 @@
   {
     "matchup": "LAD @ CIN",
     "market": "pitcher_h",
+    "selection": "Justin Wrobleski Hits o2.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_h",
     "selection": "Justin Wrobleski Hits o3.5",
     "american": 120.0,
     "no_vig_prob": 0.426849
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_h",
+    "selection": "Justin Wrobleski Hits u2.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
   },
   {
     "matchup": "LAD @ CIN",
@@ -13498,9 +13554,23 @@
   {
     "matchup": "LAD @ CIN",
     "market": "pitcher_outs",
+    "selection": "Justin Wrobleski Outs o8.5",
+    "american": -125.0,
+    "no_vig_prob": 0.551509
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
     "selection": "Justin Wrobleski Outs o9.5",
     "american": -105.0,
     "no_vig_prob": 0.491839
+  },
+  {
+    "matchup": "LAD @ CIN",
+    "market": "pitcher_outs",
+    "selection": "Justin Wrobleski Outs u8.5",
+    "american": 130.0,
+    "no_vig_prob": 0.448491
   },
   {
     "matchup": "LAD @ CIN",
