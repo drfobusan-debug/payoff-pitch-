@@ -32,6 +32,7 @@ import csv
 import logging
 import math
 import re
+from collections import Counter
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from datetime import timedelta
@@ -41,6 +42,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from mlb_engine.audit.clv import ClosingQuote, load_closing
 from mlb_engine.audit.ledger import ENGINE, LedgerEntry, load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
@@ -227,6 +229,47 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
             day.isoformat(), game, game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
         ))
     return out
+
+
+# --- the market's line --------------------------------------------------------------
+
+
+def closing_lines(quotes: dict[str, ClosingQuote]) -> dict[str, float]:
+    """Matchup -> the game-total line the market closed nearest to even money."""
+    best: dict[str, tuple[float, float]] = {}
+    for q in quotes.values():
+        if q.market != GAME_TOTAL or not q.selection.startswith("Over "):
+            continue
+        try:
+            line = float(q.selection.split()[1])
+        except (IndexError, ValueError):
+            continue
+        d = abs(q.no_vig_prob - 0.5)
+        if q.matchup not in best or d < best[q.matchup][0]:
+            best[q.matchup] = (d, line)
+    return {m: line for m, (_, line) in best.items()}
+
+
+def closing_path(cfg: Config, day: Date) -> Path:
+    return cfg.audit_dir / f"closing_{day.isoformat()}.json"
+
+
+def attach_lines(rows: list[LedgerRow], lines: dict[str, float]) -> int:
+    """Give an ungraded row that was filed without a line the market's closing line.
+
+    A sheet written before the books posted a total carries no line, and a row
+    without one can never be graded; the closing snapshot the slate pass
+    captures is the same number the sheet would have shown, read later. The
+    snapshot is keyed by matchup label alone, so both games of a doubleheader
+    are left as they are: one close cannot be told from the other.
+    """
+    doubled = {g for g, k in Counter(r.game for r in rows).items() if k > 1}
+    n = 0
+    for r in rows:
+        if r.line is None and not r.graded and r.game in lines and r.game not in doubled:
+            r.line = lines[r.game]
+            n += 1
+    return n
 
 
 # --- the engine's total -------------------------------------------------------------
@@ -742,6 +785,18 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
             ledger = merge([r for r in ledger if r.date != sheet_day.isoformat()], fresh)
         except Exception as exc:
             log.warning("totals audit: could not read %s: %s", sheet.name, exc)
+
+    for d in sorted({r.date for r in ledger if not r.graded and r.line is None}):
+        try:
+            n = attach_lines(
+                [r for r in ledger if r.date == d],
+                closing_lines(load_closing(closing_path(cfg, Date.fromisoformat(d)))),
+            )
+        except Exception as exc:
+            log.warning("totals audit: closing lines for %s unreadable: %s", d, exc)
+            continue
+        if n:
+            log.info("totals audit: closing line filled on %d rows for %s", n, d)
 
     if any(r.engine_p_over is None for r in ledger):
         try:

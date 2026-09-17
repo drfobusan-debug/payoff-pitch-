@@ -19,13 +19,14 @@ from __future__ import annotations
 import json
 import logging
 import math
+import re
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -48,7 +49,8 @@ from mlb_engine.output.totals_audit import (
     record_sheet,
     sheet_bands,
 )
-from mlb_engine.schemas import Slate, TeamGameInfo
+from mlb_engine.recommendations import Recommendation, load_json
+from mlb_engine.schemas import Pitcher, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
 
@@ -64,6 +66,17 @@ _FG_MONTH_VS_L, _FG_MONTH_VS_R = 13, 14
 
 SEASON_START = (3, 20)
 FATIGUE_CAP = 4
+# Middle relief: every arm on the staff's relief table that is not one of its
+# top-three leverage arms (SV+HLD) and not a closer by saves, with enough innings
+# to be a bulk contributor rather than a cup of coffee.
+MID_RELIEF_MIN_IP = 10.0
+CLOSER_SAVES = 10
+LEVERAGE_ARMS = 3
+# A starter the market (pitcher-outs prop) or his season line expects to leave
+# before the 6th hands the middle innings to the middle relief, so the pen
+# columns describe those arms instead of the whole staff.
+SHORT_START_OUTS = 18
+SHORT_START_IP_PER_GS = 6.0
 PEN_PITCHES_TIRED = 120
 UMP_MIN_GAMES = 10
 UMP_BAND_RUNS = 1.0
@@ -192,6 +205,37 @@ def baseruns_per_game(r: dict[str, float], games: int) -> float | None:
 # --- sources -------------------------------------------------------------------
 
 
+_WEIGHTED = ("SIERA", "xERA", "C+SwStr%", "K-BB%", "xFIP")
+
+
+@dataclass
+class MiddleRelief:
+    """A team's bulk, non-closer, non-setup relief corps; ``row`` is its IP-weighted
+    FanGraphs line, scored by the same bands as any other arm."""
+
+    team: str
+    row: dict[str, float | None]
+    ip: float
+    arms: list[str]
+
+    @property
+    def siera(self) -> float:
+        siera = self.row["SIERA"]
+        assert siera is not None  # every arm in the corps reports one
+        return siera
+
+    def stat(self, key: str, scale: float = 1.0) -> float | None:
+        v = self.row[key]
+        return None if v is None else round(v * scale, 2 if scale == 1.0 else 1)
+
+    @property
+    def detail(self) -> str:
+        return (
+            f"SIERA {self.siera:.2f}, K-BB% {self.stat('K-BB%', 100)}, "
+            f"{self.ip:.0f} IP, {len(self.arms)} arms"
+        )
+
+
 @dataclass
 class FanGraphsTables:
     bat_all: dict[str, dict] = field(default_factory=dict)
@@ -200,6 +244,57 @@ class FanGraphsTables:
     rel: dict[str, dict] = field(default_factory=dict)
     pit: dict[int, dict] = field(default_factory=dict)
     leverage: dict[str, list[int]] = field(default_factory=dict)
+    mid: dict[str, MiddleRelief] = field(default_factory=dict)
+
+
+_TAG = re.compile(r"<[^>]+>")
+
+
+def _fg_team_code(cell: str | None) -> str:
+    """FanGraphs wraps team and name cells in anchor tags on player tables; '- - -' is a traded arm."""
+    return _TAG.sub("", str(cell or "")).strip()
+
+
+def _weighted(bulk: list[dict]) -> dict[str, float | None]:
+    """IP-weighted mean of each stat over the arms that report it; None when none do."""
+    out: dict[str, float | None] = {}
+    for stat in _WEIGHTED:
+        have = [r for r in bulk if r.get(stat) is not None]
+        ip = sum(r["IP"] for r in have)
+        out[stat] = sum(r[stat] * r["IP"] for r in have) / ip if ip else None
+    return out
+
+
+def middle_relief(rel_rows: list[dict]) -> tuple[dict[str, list[int]], dict[str, MiddleRelief]]:
+    """Per team: its top leverage arms, and the IP-weighted read of everyone else with bulk innings."""
+    by_team: dict[str, list[dict]] = {}
+    for r in rel_rows:
+        team = _fg_team_code(r.get("Team"))
+        if r.get("xMLBAMID") and team and "-" not in team:
+            by_team.setdefault(team, []).append(r)
+    leverage: dict[str, list[int]] = {}
+    mid: dict[str, MiddleRelief] = {}
+    for team, rows in by_team.items():
+        ranked = sorted(rows, key=lambda r: -((r.get("SV") or 0) + (r.get("HLD") or 0)))
+        top = [r["xMLBAMID"] for r in ranked[:LEVERAGE_ARMS]]
+        leverage[team] = top
+        bulk = [
+            r for r in rows
+            if r["xMLBAMID"] not in top
+            and (r.get("SV") or 0) < CLOSER_SAVES
+            and (r.get("IP") or 0) >= MID_RELIEF_MIN_IP
+            and r.get("SIERA") is not None
+        ]
+        ip = sum(r["IP"] for r in bulk)
+        if not ip:
+            continue
+        mid[team] = MiddleRelief(
+            team=team,
+            row=_weighted(bulk),
+            ip=ip,
+            arms=[_fg_team_code(r["Name"]) for r in sorted(bulk, key=lambda r: -r["IP"])],
+        )
+    return leverage, mid
 
 
 def _fg(stats: str, season: int, month: int = 0, team: str = "0,ts") -> list[dict]:
@@ -216,13 +311,7 @@ def fetch_fangraphs(season: int) -> FanGraphsTables:
     t.bat_vs_r = {r["TeamName"]: r for r in _fg("bat", season, _FG_MONTH_VS_R)}
     t.rel = {r["TeamName"]: r for r in _fg("rel", season)}
     t.pit = {r["xMLBAMID"]: r for r in _fg("pit", season, team="0") if r.get("xMLBAMID")}
-    by_team: dict[str, list[tuple[float, int]]] = {}
-    for r in _fg("rel", season, team="0"):
-        if r.get("xMLBAMID"):
-            by_team.setdefault(r["Team"], []).append(
-                ((r.get("SV") or 0) + (r.get("HLD") or 0), r["xMLBAMID"])
-            )
-    t.leverage = {tm: [pid for _, pid in sorted(v, reverse=True)[:3]] for tm, v in by_team.items()}
+    t.leverage, t.mid = middle_relief(_fg("rel", season, team="0"))
     return t
 
 
@@ -439,6 +528,7 @@ class TeamSide:
     bsr_pg: float | None
     fatigue: int
     fatigue_detail: str
+    pen_detail: str = ""
 
 
 @dataclass
@@ -503,20 +593,88 @@ def _arm(row: dict | None) -> tuple[int, int]:
     """(SIERA + xERA + CSW points, K-BB points); an unknown arm scores 0."""
     if not row:
         return 0, 0
-    pts = siera_pts(row["SIERA"]) + csw_pts(row["C+SwStr%"] * 100)
+    pts = siera_pts(row["SIERA"])
+    if row.get("C+SwStr%") is not None:
+        pts += csw_pts(row["C+SwStr%"] * 100)
     if row.get("xERA") is not None:
         pts += xera_pts(row["xERA"])
-    return pts, kbb_pts(row["K-BB%"] * 100)
+    kbb = row.get("K-BB%")
+    return pts, kbb_pts(kbb * 100) if kbb is not None else 0
+
+
+OutsUnder = dict[int, float]
+"""Starter MLBAM id -> the market's devigged probability he records fewer than 18 outs."""
+
+
+def outs_under(recs: list[Recommendation]) -> OutsUnder:
+    """Read the pitcher-outs prop off the day's priced recommendations: the highest
+    no-vig under probability quoted at any rung below :data:`SHORT_START_OUTS`."""
+    out: OutsUnder = {}
+    for r in recs:
+        if r.market != "pitcher_outs" or r.fair_prob is None or r.line is None or r.player_id is None:
+            continue
+        if r.line > SHORT_START_OUTS - 0.5 or r.side not in ("over", "under"):
+            continue
+        p = r.fair_prob if r.side == "under" else 1.0 - r.fair_prob
+        out[r.player_id] = max(out.get(r.player_id, 0.0), p)
+    return out
+
+
+def _card_lead(recs: list[Recommendation]) -> float | None:
+    """Hours from when the card was priced to its first pitch; None when unstamped."""
+    leads = [r.hours_to_first_pitch for r in recs if r.hours_to_first_pitch is not None]
+    return min(leads) if leads else None
+
+
+def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
+    """The outs props off the card the audit grades for the day.
+
+    Same rule as ``cmd_audit``: the pregame copy is the record; the local
+    ``predictions_<day>.json`` only outranks it when it was priced later and
+    still ahead of first pitch. Whichever loses is still consulted when the
+    winner carries no outs props at all.
+    """
+    stem = cfg.audit_dir / f"predictions_{day.isoformat()}"
+    cards = [load_json(p) for p in (stem.with_suffix(".json"), stem.with_suffix(".pregame.json")) if p.exists()]
+    if len(cards) == 2:
+        local, pregame = cards
+        lead, prior = _card_lead(local), _card_lead(pregame)
+        if not (lead is not None and lead > 0 and prior is not None and lead < prior):
+            cards = [pregame, local]
+    for recs in cards:
+        if outs := outs_under(recs):
+            return outs
+    return {}
+
+
+def short_start(pp: Pitcher | None, row: dict | None, p_under: float | None) -> str:
+    """Why the middle relief, not the whole pen, is the game's bullpen; '' for a full-length starter."""
+    if pp is None:
+        return "TBD starter"
+    if p_under is not None:
+        return f"market {p_under:.0%} under {SHORT_START_OUTS} outs" if p_under > 0.5 else ""
+    if row and row.get("GS"):
+        ip_gs = (row.get("Start-IP") or row["IP"]) / row["GS"]
+        return f"{ip_gs:.1f} IP/GS this season" if ip_gs < SHORT_START_IP_PER_GS else ""
+    return "no starts this season"
 
 
 def _side(
     fg: FanGraphsTables, box: BoxscoreCache, gp: dict[int, int],
-    team: TeamGameInfo, opp: TeamGameInfo, day: Date,
+    team: TeamGameInfo, opp: TeamGameInfo, day: Date, p_under: float | None = None,
 ) -> TeamSide:
     key = _fg_team(team.abbrev)
     pp = team.probable_pitcher
-    sp, kbb_sp = _arm(fg.pit.get(pp.mlbam_id) if pp else None)
-    rp, kbb_rp = _arm(fg.rel.get(key))
+    sp_row = fg.pit.get(pp.mlbam_id) if pp else None
+    sp, kbb_sp = _arm(sp_row)
+    mid = fg.mid.get(key)
+    short = short_start(pp, sp_row, p_under)
+    if short and mid:
+        rp, kbb_rp = _arm(mid.row)
+        pen_detail = f"middle relief ({short}): {mid.detail}"
+    else:
+        rp, kbb_rp = _arm(fg.rel.get(key))
+        pen_detail = "full pen"
     allb = fg.bat_all.get(key)
     bsr = baseruns_per_game(allb, gp.get(team.team_id, 0)) if allb else None
     fat, fat_detail = fatigue_pts(box, team, fg.leverage.get(key, []), day)
@@ -525,7 +683,7 @@ def _side(
         starter=f"{pp.name} ({pp.throws or '?'})" if pp else "TBD",
         off=_offense(fg, team, opp),
         sp=sp, rp=rp, kbb_sp=kbb_sp, kbb_rp=kbb_rp,
-        bsr_pg=bsr, fatigue=fat, fatigue_detail=fat_detail,
+        bsr_pg=bsr, fatigue=fat, fatigue_detail=fat_detail, pen_detail=pen_detail,
     )
 
 
@@ -538,15 +696,21 @@ def _total_label(splits: VSINClient.TotalSplits, matchup: str) -> str:
     return f"{src.line:g}" if src else ""
 
 
+def _p_under(outs: OutsUnder | None, team: TeamGameInfo) -> float | None:
+    pp = team.probable_pitcher
+    return (outs or {}).get(pp.mlbam_id) if pp else None
+
+
 def build_rows(
     day: Date, slate: Slate, fg: FanGraphsTables, box: BoxscoreCache, gp: dict[int, int],
     splits: VSINClient.TotalSplits, weather: WeatherProvider, umps: dict[int, tuple[str | None, str]],
-    engine: dict[str, OverCurve] | None = None,
+    engine: dict[str, OverCurve] | None = None, outs: OutsUnder | None = None,
 ) -> list[SheetRow]:
     rows: list[SheetRow] = []
     for g in slate.games:
-        away = _side(fg, box, gp, g.away, g.home, day)
-        home = _side(fg, box, gp, g.home, g.away, day)
+        matchup = g.matchup()
+        away = _side(fg, box, gp, g.away, g.home, day, _p_under(outs, g.away))
+        home = _side(fg, box, gp, g.home, g.away, day, _p_under(outs, g.home))
         park = get_park(g.venue.venue_id)
         cond = weather.fetch(park, g.game_datetime_utc).conditions if park else None
         wx, wx_detail = weather_pts(park, cond)
@@ -554,7 +718,6 @@ def build_rows(
         bsr = sum(baseruns_pts(s.bsr_pg) for s in (away, home) if s.bsr_pg is not None)
         ump_name, status = umps.get(g.game_pk, (None, "unknown"))
         ump, ump_detail = umpire_pts(box, ump_name, day)
-        matchup = g.matchup()
         total = _total_label(splits, matchup)
         curve = (engine or {}).get(matchup) or {}
         p_over, _ = engine_at(curve, first_line(total))
@@ -584,8 +747,10 @@ _COLUMNS = [
     "Pen A", "Pen H", "Ump", "SUM",
     "Engine", "Eng vs line", "Eng O%",
     "Weather detail", "Park", "BsR/G A", "BsR/G H", "Pen A detail", "Pen H detail",
-    "HP umpire", "Ump status", "Ump detail",
+    "RP A source", "RP H source", "HP umpire", "Ump status", "Ump detail",
 ]
+
+_MID_COLUMNS = ["Rank", "Team", "RP pts", "K-BB pts", "SIERA", "xERA", "CSW%", "K-BB%", "IP", "Arms", "Middle relievers (by IP)"]
 
 _LEGEND = [
     ("Bands", BANDS),
@@ -607,12 +772,17 @@ _LEGEND = [
     ("Park", "Engine park factor (runs): >102 1, <98 -1, else 0."),
     ("BsR", "PROVISIONAL bands (not hand-written): team BaseRuns/G >=4.65 1, <=4.25 -1, else 0; both teams summed."),
     ("Pen A / Pen H", "Bullpen fatigue: +1 per top-3 leverage arm (SV+HLD) used yesterday, +2 if used both of the last two days, +1 if the pen threw 120+ pitches over the last two days; capped at 4."),
+    ("RP source", "Which arms the RP pts / RP K-BB columns describe. 'full pen' = the team relief line. 'middle relief' = the IP-weighted line of the relievers who are not one of the top-3 leverage arms (SV+HLD) "
+                  "and not a closer (10+ SV), 10+ IP each, used when the starter is expected short: the pitcher-outs prop prices under 18 outs above 50%, or without a prop his season IP/GS is below 6.0, or the starter is TBD. "
+                  "Same bands either way, so SUM's scale is unchanged. The team ranking is on the 'Middle relief' sheet."),
     ("Ump", "Home-plate umpire's 2026 runs/game vs league on finals before today: >= +1.0 run 1, <= -1.0 -1, else 0; needs 10+ games. 'projected' = crew not posted yet; yesterday's 1B umpire assumed by rotation."),
     ("Backtest", "Aug 4 - Sep 8 2026, 452 games: SUM correlates 0.49 with the closing total and ~0.03 with the result vs the close; top-3 overs / bottom-3 unders per day hit 50% / 47%. Read it as what the market already knows."),
 ]
 
 
-def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
+def write_workbook(
+    rows: list[SheetRow], day: Date, path: Path, mid: dict[str, MiddleRelief] | None = None,
+) -> Path:
     wb = Workbook()
     ws = wb.active
     ws.title = f"Totals {day.isoformat()}"
@@ -627,7 +797,8 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
             r.weather_detail, r.park_detail,
             round(a.bsr_pg, 2) if a.bsr_pg is not None else None,
             round(h.bsr_pg, 2) if h.bsr_pg is not None else None,
-            a.fatigue_detail, h.fatigue_detail, r.ump_name, r.ump_status, r.ump_detail,
+            a.fatigue_detail, h.fatigue_detail, a.pen_detail, h.pen_detail,
+            r.ump_name, r.ump_status, r.ump_detail,
         ])
     bold = Font(bold=True)
     for c in ws[1]:
@@ -659,6 +830,21 @@ def write_workbook(rows: list[SheetRow], day: Date, path: Path) -> Path:
     for row in legend.iter_rows(min_row=2):
         row[1].alignment = Alignment(wrap_text=True, vertical="top")
 
+    if mid:
+        ms = wb.create_sheet("Middle relief")
+        ms.append(_MID_COLUMNS)
+        for c in ms[1]:
+            c.font = bold
+        for i, m in enumerate(sorted(mid.values(), key=lambda m: m.siera), start=1):
+            pts, kbb = _arm(m.row)
+            ms.append([
+                i, m.team, pts, kbb, round(m.siera, 2), m.stat("xERA"),
+                m.stat("C+SwStr%", 100), m.stat("K-BB%", 100),
+                round(m.ip), len(m.arms), ", ".join(m.arms),
+            ])
+        for col, width in zip("ABCDEFGHIJK", (6, 7, 7, 9, 7, 7, 7, 7, 6, 6, 120), strict=True):
+            ms.column_dimensions[col].width = width
+
     path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(path)
     return path
@@ -668,12 +854,34 @@ def output_path(cfg: Config, day: Date) -> Path:
     return cfg.output_dir / f"totals_sheet_{day.isoformat()}.xlsx"
 
 
+def sheet_columns(path: Path) -> list[str]:
+    """The header row of the sheet's Totals tab."""
+    wb = load_workbook(path, read_only=True)
+    ws = next(wb[n] for n in wb.sheetnames if n.startswith("Totals "))
+    return [str(c) for c in next(ws.iter_rows(values_only=True))]
+
+
+def sheet_has_lines(path: Path) -> bool:
+    """True when every game on the sheet carries a posted total."""
+    wb = load_workbook(path, read_only=True)
+    ws = wb[next(n for n in wb.sheetnames if n.startswith("Totals "))]
+    it = ws.iter_rows(values_only=True)
+    header = [str(c) for c in next(it)]
+    gi, ti = header.index("Game"), header.index("Total")
+    return all(first_line(str(r[ti] or "")) is not None for r in it if r[gi] is not None)
+
+
 def sheet_is_current(path: Path) -> bool:
-    """True when a sheet already on disk was scored by the bands this code carries."""
+    """True when a sheet on disk was scored by these bands, carries the columns this
+    code writes, and had lines to score against.
+
+    A sheet written before the books posted a game's total is rewritten on the
+    next pass: without a line that row can never be graded.
+    """
     if not path.exists():
         return False
     try:
-        return sheet_bands(path) == BANDS
+        return sheet_bands(path) == BANDS and sheet_columns(path) == _COLUMNS and sheet_has_lines(path)
     except Exception as exc:
         log.warning("totals sheet: could not read %s: %s", path.name, exc)
         return False
@@ -718,10 +926,17 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         engine = over_curves(load_ledger(engine_ledger_path(cfg)), day)
     except Exception as exc:
         log.warning("totals sheet: engine ledger unreadable: %s", exc)
+    outs: OutsUnder = {}
+    try:
+        outs = day_outs_under(cfg, day)
+    except Exception as exc:
+        log.warning("totals sheet: day's predictions unreadable: %s", exc)
+    if not outs:
+        log.info("totals sheet: no pitcher-outs props for %s; short starts read off season IP/GS", day)
     if not engine:
         log.info("totals sheet: no engine game totals for %s; Engine columns left blank", day)
-    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine)
-    path = write_workbook(rows, day, out)
+    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs)
+    path = write_workbook(rows, day, out, fg.mid)
     try:
         record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
     except Exception as exc:  # the sheet is the deliverable; the ledger row is the receipt

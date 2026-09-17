@@ -380,8 +380,9 @@ class MLBStatsClient:
         end = before - timedelta(days=1)
         try:
             data = self._get(
-                "schedule", sportId=SPORT_ID, startDate=start.isoformat(),
-                endDate=end.isoformat(), hydrate="linescore",
+                "schedule", sportId=SPORT_ID, gameType="R",
+                startDate=start.isoformat(), endDate=end.isoformat(),
+                hydrate="linescore",
             )
         except requests.RequestException as exc:
             log.warning("league runs per game failed for %s: %s", before, exc)

@@ -464,6 +464,10 @@ class Record:
     losses: int = 0
     pushes: int = 0
     units: float = 0.0
+    # Sum of squared per-row units; what the standard error of the ROI is
+    # built from. Left at 0 by callers that only know the totals, which reads
+    # as "no error known" rather than "no error".
+    units_sq: float = 0.0
 
     @property
     def n(self) -> int:
@@ -481,6 +485,15 @@ class Record:
     def roi(self) -> float | None:
         return self.units / self.n if self.n else None
 
+    @property
+    def roi_se(self) -> float | None:
+        """One standard error of ``roi``; None until the squares were recorded."""
+        if self.n < 2 or not self.units_sq:
+            return None
+        mean = self.units / self.n
+        var = max(self.units_sq / self.n - mean * mean, 0.0)
+        return (var / self.n) ** 0.5
+
 
 def _record(label: str, graded: list[GradedPosition]) -> Record:
     return Record(
@@ -489,6 +502,7 @@ def _record(label: str, graded: list[GradedPosition]) -> Record:
         losses=sum(1 for g in graded if g.result == LOSS),
         pushes=sum(1 for g in graded if g.result == PUSH),
         units=round(sum(g.units for g in graded), 4),
+        units_sq=round(sum(g.units * g.units for g in graded), 4),
     )
 
 

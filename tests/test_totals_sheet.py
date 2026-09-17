@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date as Date
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from openpyxl import load_workbook
@@ -19,8 +20,12 @@ from mlb_engine.output.totals_sheet import (
     barrel_pts,
     book_pts,
     csw_pts,
+    day_outs_under,
     kbb_pts,
+    middle_relief,
+    outs_under,
     sheet_is_current,
+    short_start,
     siera_pts,
     weather_pts,
     woba_pts,
@@ -28,6 +33,8 @@ from mlb_engine.output.totals_sheet import (
     write_workbook,
     xera_pts,
 )
+from mlb_engine.recommendations import Recommendation, save_json
+from mlb_engine.schemas import Pitcher
 
 
 def test_a_league_average_arm_and_lineup_score_zero() -> None:
@@ -90,6 +97,7 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
         bsr_pg=4.4,
         fatigue=1,
         fatigue_detail="pen",
+        pen_detail="full pen",
     )
     row = SheetRow(
         "AZ @ KC",
@@ -130,6 +138,114 @@ def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -
     assert sheet_bands(path) == BANDS and sheet_is_current(path)
 
 
+def _rel(name: str, team: str, ip: float, siera: float, sv: int = 0, hld: int = 0, pid: int = 0) -> dict:
+    return {
+        "Name": f'<a href="p">{name}</a>', "Team": f'<a href="x">{team}</a>', "IP": ip, "SIERA": siera,
+        "xERA": siera + 0.1, "xFIP": siera + 0.3, "C+SwStr%": 0.27, "K-BB%": 0.13,
+        "SV": sv, "HLD": hld, "xMLBAMID": pid or hash(name) % 10_000,
+    }
+
+
+def test_middle_relief_leaves_out_the_closer_the_setup_arms_and_the_cups_of_coffee() -> None:
+    rows = [
+        _rel("Closer", "ATH", 60, 2.5, sv=30, pid=1),
+        _rel("Setup1", "ATH", 55, 3.0, hld=25, pid=2),
+        _rel("Setup2", "ATH", 50, 3.2, hld=20, pid=3),
+        _rel("Bulk1", "ATH", 40, 4.8, pid=4),
+        _rel("Bulk2", "ATH", 20, 5.4, pid=5),
+        _rel("Cup", "ATH", 4, 1.0, pid=6),
+        _rel("Traded", "- - -", 30, 6.0, pid=7),
+        _rel("Ace", "PHI", 30, 3.3, pid=8),
+    ]
+    leverage, mid = middle_relief(rows)
+    assert leverage["ATH"] == [1, 2, 3]
+    ath = mid["ATH"]
+    assert ath.arms == ["Bulk1", "Bulk2"] and ath.ip == 60
+    assert ath.siera == pytest.approx((4.8 * 40 + 5.4 * 20) / 60)
+    assert ath.row["xERA"] == pytest.approx(ath.siera + 0.1) and "SIERA 5.00" in ath.detail
+    assert "- - -" not in mid and "PHI" in leverage
+    # PHI's only arm is a leverage arm, so it has no middle relief read
+    assert "PHI" not in mid
+
+
+def _outs(pid: int, side: str, line: float, fair: float, market: str = "pitcher_outs") -> Recommendation:
+    return Recommendation(
+        Date(2026, 9, 15), 1, "SF @ STL", "pitcher", market, f"P{pid} Outs {side[0]}{line}", 0.5,
+        line=line, fair_prob=fair, player_id=pid, side=side,
+    )
+
+
+def test_the_outs_prop_is_read_as_the_chance_the_starter_leaves_before_the_sixth() -> None:
+    recs = [
+        _outs(1, "under", 17.5, 0.42),
+        _outs(1, "over", 15.5, 0.80),
+        _outs(2, "under", 15.5, 0.55),
+        _outs(2, "under", 18.5, 0.70),  # a rung at 6+ innings says nothing about a short start
+        _outs(2, "under", 17.5, 0.90, market="pitcher_strikeouts"),
+    ]
+    outs = outs_under(recs)
+    assert outs == {1: pytest.approx(0.42), 2: pytest.approx(0.55)}
+
+
+def _card(pid: int, fair: float, lead: float | None) -> list[Recommendation]:
+    r = _outs(pid, "under", 17.5, fair)
+    r.hours_to_first_pitch = lead
+    return [r]
+
+
+def test_the_outs_prop_comes_off_the_card_the_audit_grades(tmp_path: Path) -> None:
+    cfg = SimpleNamespace(audit_dir=tmp_path)
+    day = Date(2026, 9, 14)
+    local, pregame = tmp_path / "predictions_2026-09-14.json", tmp_path / "predictions_2026-09-14.pregame.json"
+    assert day_outs_under(cfg, day) == {}
+
+    # the pregame copy is the record when the local card is older (08:00 vs 11:00)
+    save_json(_card(1, 0.40, lead=5.0), local)
+    save_json(_card(1, 0.60, lead=2.0), pregame)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
+    # ...or was re-priced after first pitch
+    save_json(_card(1, 0.40, lead=-1.0), local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
+    # a later, still-pregame local card outranks it
+    save_json(_card(1, 0.40, lead=1.0), local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.40)}
+    # a winner with no outs props defers to the other copy
+    save_json([_outs(1, "under", 17.5, 0.40, market="pitcher_strikeouts")], local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
+
+
+def test_a_stat_one_arm_lacks_is_averaged_over_the_arms_that_have_it() -> None:
+    rows = [_rel(f"L{i}", "ATH", 40, 3.0, hld=10, pid=10 + i) for i in (1, 2, 3)]
+    rows += [_rel("A", "ATH", 30, 4.0, pid=1), _rel("B", "ATH", 30, 4.0, pid=2)]
+    rows[4]["K-BB%"] = None
+    rows[4]["xERA"] = None
+    rows[3]["xERA"] = None
+    _, mid = middle_relief(rows)
+    ath = mid["ATH"]
+    assert ath.row["K-BB%"] == pytest.approx(0.13) and ath.row["xERA"] is None
+    assert ath.stat("xERA") is None and ath.stat("K-BB%", 100) == 13.0
+
+
+def test_a_short_start_is_the_market_first_then_the_season_line() -> None:
+    webb = Pitcher(mlbam_id=1, name="Logan Webb")
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, 0.62).startswith("market 62%")
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, 0.45) == ""
+    assert short_start(webb, {"IP": 100.0, "GS": 20.0}, None) == "5.0 IP/GS this season"
+    assert short_start(webb, {"IP": 130.0, "Start-IP": 126.0, "GS": 20.0}, None) == ""
+    assert short_start(webb, {"IP": 20.0, "GS": 0.0}, None) == "no starts this season"
+    assert short_start(None, None, None) == "TBD starter"
+
+
+def test_the_middle_relief_ranking_is_written_as_its_own_sheet(tmp_path: Path) -> None:
+    rows = [_rel(f"L{i}", team, 40, 3.0, hld=10, pid=10 * i + k) for k, team in enumerate(("SFG", "PHI")) for i in (1, 2, 3)]
+    rows += [_rel("A", "SFG", 30, 4.6, pid=101), _rel("B", "PHI", 30, 3.3, pid=102)]
+    _, mid = middle_relief(rows)
+    path = write_workbook([], Date(2026, 9, 15), tmp_path / "t.xlsx", mid)
+    ws = load_workbook(path)["Middle relief"]
+    ranked = [(r[1], r[2], r[10]) for r in ws.iter_rows(min_row=2, values_only=True)]
+    assert ranked == [("PHI", -2, "B"), ("SFG", 2, "A")]
+
+
 def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -146,6 +262,31 @@ def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
             r[0].value, r[1].value = None, None
     wb.save(out)
     assert not sheet_is_current(out)
+    # A sheet from before a column was added is rebuilt even on the same bands.
+    write_workbook([], day, out)
+    wb = load_workbook(out)
+    wb[f"Totals {day.isoformat()}"].delete_cols(1)
+    wb.save(out)
+    assert not sheet_is_current(out)
     write_workbook([], day, out)
     assert sheet_is_current(out)
     assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]
+
+
+def test_a_sheet_with_a_game_missing_its_line_is_rebuilt_on_the_next_pass(tmp_path: Path) -> None:
+    day = Date(2026, 9, 16)
+    out = tmp_path / f"totals_sheet_{day.isoformat()}.xlsx"
+    side = TeamSide(
+        "AZ", "Zac Gallen (R)", off=0, sp=0, rp=0, kbb_sp=0, kbb_rp=0, bsr_pg=4.4,
+        fatigue=0, fatigue_detail="", pen_detail="",
+    )
+    def row(total: str) -> SheetRow:
+        return SheetRow(
+            "AZ @ KC", None, total, side, side, circa=0, dk=0, weather=0, weather_detail="", park=0,
+            park_detail="", bsr=0, ump=0, ump_name="", ump_status="", ump_detail="",
+        )
+
+    write_workbook([row("7.0"), row("")], day, out)
+    assert not sheet_is_current(out)
+    write_workbook([row("7.0"), row("8.5")], day, out)
+    assert sheet_is_current(out)

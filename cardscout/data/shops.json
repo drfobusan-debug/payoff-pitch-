@@ -1,0 +1,48 @@
+{
+  "shops": [
+    {
+      "name": "The Nerd Merchant",
+      "kind": "shopify",
+      "url": "https://www.thenerdmerchant.com",
+      "currency": "USD",
+      "pokemon_filter": true
+    },
+    {
+      "name": "The Card Vault",
+      "kind": "shopify",
+      "url": "https://www.thecardvault.com",
+      "currency": "USD",
+      "pokemon_filter": true
+    },
+    {
+      "name": "Trading Card Market",
+      "kind": "shopify",
+      "url": "https://www.tradingcardmarket.com",
+      "currency": "USD",
+      "pokemon_filter": true
+    },
+    {
+      "name": "Collectors Avenue",
+      "kind": "shopify",
+      "url": "https://www.collectorsavenue.com",
+      "currency": "USD",
+      "pokemon_filter": true
+    },
+    {
+      "name": "PokeOrder",
+      "kind": "shopify",
+      "url": "https://www.pokeorder.com",
+      "currency": "USD",
+      "pokemon_filter": true
+    },
+    {
+      "name": "Hobbiesville",
+      "kind": "shopify",
+      "url": "https://www.hobbiesville.com",
+      "currency": "CAD",
+      "fx_to_usd": 0.73,
+      "pokemon_filter": true,
+      "enabled": false
+    }
+  ]
+}

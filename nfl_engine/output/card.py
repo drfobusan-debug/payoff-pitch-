@@ -13,6 +13,7 @@ only listed the bets would hide the rejections the record is diagnosed with.
 from __future__ import annotations
 
 import html
+import re
 from dataclasses import dataclass, field
 
 from nfl_engine.audit.availability import Observation
@@ -27,6 +28,7 @@ from nfl_engine.audit.ledger import (
 )
 from nfl_engine.audit.outside import HeadToHead, benchmark_metrics, head_to_head
 from nfl_engine.data.teamnames import canonical
+from nfl_engine.features.adjustments import adjust, unpriced_notes
 from nfl_engine.market.screens import Tier
 from nfl_engine.output.brief import GameBrief, TeamBrief, team_name
 
@@ -50,6 +52,21 @@ class Play:
     tier: str
     clv: float | None
     result: str
+    open_line: float | None = None
+    open_odds: float | None = None
+    drift: float | None = None
+
+    def opened(self) -> str:
+        """How the week opened on this side and how far it ran before the bet."""
+        if self.open_odds is None or self.drift is None:
+            return ""
+        if self.open_line is None or self.line is None:
+            at = f"{self.open_odds:+.0f}"
+        elif self.market == "total":
+            at = f"{self.open_line:g} ({self.open_odds:+.0f})"
+        else:
+            at = f"{self.open_line:+g} ({self.open_odds:+.0f})"
+        return f"opened {at}, drift {self.drift * 100:+.1f}%"
 
     def label(self) -> str:
         if self.line is None:
@@ -184,6 +201,9 @@ def build_card(
                 tier=entry.tier,
                 clv=entry.clv,
                 result=entry.result,
+                open_line=entry.open_line,
+                open_odds=entry.open_odds,
+                drift=entry.drift,
             )
         )
     games = sorted(sections.values(), key=lambda s: (not s.plays, s.kickoff, s.matchup))
@@ -292,6 +312,10 @@ def render_markdown(card: WeekCard) -> str:
                 if team.out:
                     bits.append("out: " + ", ".join(team.out[:6]))
                 lines.append("- " + " · ".join(bits))
+            stakes = _stakes_line(game)
+            if stakes:
+                lines.append("")
+                lines.append(html.unescape(re.sub(r"<[^>]+>", "", stakes)))
             lines.append("")
         if game.plays:
             lines.append("| Play | Price | Book | Model | Fair | Exec EV | Tier |")
@@ -589,13 +613,50 @@ def _take(game: GameSection) -> str:
             )
         elif gap <= -3:
             parts.append(
-                f"The market is higher on {team_name(ml.side)} than we are ({gap:+.1f} pts), so no moneyline play."
+                f"The market is higher on {team_name(ml.side)} than we are ({gap:+.1f} pts)."
             )
         else:
             parts.append("Model and market are within a few points on the moneyline.")
     if b.away.qb and b.home.qb:
         parts.append(f"Under center: {b.away.qb} for {b.away.name}, {b.home.qb} for {b.home.name}.")
     return f"<p class='take'>{html.escape(' '.join(parts))}</p>"
+
+
+def _stakes_line(game: GameSection) -> str:
+    """Why the game matters and what the market makes of it, then what the
+    conditions were allowed to move -- and what was measured and left alone."""
+    b = game.brief
+    if b is None:
+        return ""
+    bits: list[str] = []
+    if b.div_game is True:
+        bits.append("division game, so the tiebreaker rides on it as well as the win")
+    elif b.div_game is False:
+        bits.append("out of division, no tiebreaker attached")
+    ml = next((r for r in game.reads if r.market == "moneyline"), None)
+    if ml is not None and ml.fair_prob is not None:
+        side, other = (b.home, b.away) if canonical(ml.side) == b.home.code else (b.away, b.home)
+        bits.append(
+            f"market-implied win {side.name} {ml.fair_prob * 100:.0f}% / "
+            f"{other.name} {(1 - ml.fair_prob) * 100:.0f}% with the hold taken out"
+        )
+    situation = b.situation()
+    priced = adjust(situation)
+    if priced.notes:
+        bits.append("priced: " + ", ".join(priced.notes))
+    elif b.indoors():
+        bits.append("indoors, so the weather never enters it")
+    elif b.wind_mph is None and b.roof is not None:
+        bits.append("no kickoff forecast, so nothing weather-related touched the total")
+    reported = list(unpriced_notes(situation))
+    if b.home.rest is not None and b.away.rest is not None and b.home.rest != b.away.rest:
+        edge = b.home if b.home.rest > b.away.rest else b.away
+        reported.insert(0, f"{abs(b.home.rest - b.away.rest)}-day rest edge to {edge.name}")
+    if reported:
+        bits.append("reported, not priced: " + "; ".join(reported))
+    if not bits:
+        return ""
+    return f"<p class='ctx'><b>Stakes &amp; conditions</b> — {html.escape('. '.join(bits))}.</p>"
 
 
 def _shape(game: GameSection) -> str:
@@ -616,11 +677,12 @@ def _shape(game: GameSection) -> str:
 def _play_item(play: Play, *, with_matchup: bool = False) -> str:
     where = f" ({html.escape(play.matchup)})" if with_matchup else ""
     clv = f", CLV {play.clv * 100:+.1f}%" if play.clv is not None else ""
+    opened = f", {play.opened()}" if play.opened() else ""
     res = f" · {html.escape(play.result)}" if play.result else ""
     return (
         f"<li><b>{html.escape(play.label())} ({play.price()}, {html.escape(play.book)})</b> —"
         f" {_market_word(play.market)}{where}, model {play.model_prob * 100:.0f}%,"
-        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{clv}"
+        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{opened}{clv}"
         f" · <i>{html.escape(_tier_word(play.tier))}</i>{res}</li>"
     )
 
@@ -653,7 +715,7 @@ def _game_section(game: GameSection) -> str:
     context = ""
     if b is not None:
         context = (
-            f"{_team_table(b)}{_take(game)}{_story_line(b)}{_players_line(b)}"
+            f"{_team_table(b)}{_take(game)}{_stakes_line(game)}{_story_line(b)}{_players_line(b)}"
             f"{_out_line(b, game.absences)}{_venue_line(b)}"
         )
     elif game.absences:

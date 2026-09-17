@@ -28,8 +28,19 @@ log = logging.getLogger(__name__)
 
 SCOREBOARD_URL = (
     "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-    "?dates={season}&seasontype=2&week={week}"
+    "?dates={season}&seasontype={seasontype}&week={week}"
 )
+# nflverse numbers the season straight through (week 19 is the wild card round);
+# ESPN restarts the count under season type 3 for the postseason.
+REGULAR_SEASON_WEEKS = 18
+
+
+def scoreboard_url(season: int, week: int) -> str:
+    if week > REGULAR_SEASON_WEEKS:
+        return SCOREBOARD_URL.format(season=season, seasontype=3, week=week - REGULAR_SEASON_WEEKS)
+    return SCOREBOARD_URL.format(season=season, seasontype=2, week=week)
+
+
 SUMMARY_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event={event_id}"
 # ESPN's site API answers a browser-shaped agent and refuses the engine's default one.
 _UA = "Mozilla/5.0 (X11; Linux x86_64)"
@@ -344,7 +355,7 @@ class ESPNColor:
 
     def events(self, season: int, week: int) -> dict[str, str]:
         """ESPN event id per ``AWAY @ HOME`` matchup in the week."""
-        data = self._get(f"nfl_sb_{season}_{week}", SCOREBOARD_URL.format(season=season, week=week))
+        data = self._get(f"nfl_sb_{season}_{week}", scoreboard_url(season, week))
         out: dict[str, str] = {}
         if not isinstance(data, dict):
             return out

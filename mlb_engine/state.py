@@ -480,12 +480,16 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
         if not src.exists():
             continue
         # A copy pulled this morning is the morning's card. If the branch has
-        # since taken a later one, that is now the slate's record.
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
-            shutil.copyfileobj(fin, fout)
+        # since taken a later one, its later games join the slate's record.
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
         moved.append(dest.name)
     return moved
 
@@ -642,6 +646,95 @@ def card_supersedes(candidate: Path, published: Path) -> bool:
     return prior is not None and lead < prior
 
 
+CardRow = dict[str, object]
+
+
+def _read_card(path: Path) -> list[CardRow] | None:
+    try:
+        if path.suffix == ".gz":
+            with gzip.open(path, "rt") as fz:
+                rows = json.load(fz)
+        else:
+            with path.open() as fp:
+                rows = json.load(fp)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _by_game(rows: list[CardRow]) -> dict[object, list[CardRow]]:
+    games: dict[object, list[CardRow]] = {}
+    for row in rows:
+        games.setdefault(row.get("game_pk"), []).append(row)
+    return games
+
+
+def _game_lead(rows: list[CardRow]) -> float | None:
+    leads = [
+        float(lead)
+        for lead in (row.get("hours_to_first_pitch") for row in rows)
+        if isinstance(lead, (int, float))
+    ]
+    return min(leads) if leads else None
+
+
+def merge_cards(candidate: list[CardRow], published: list[CardRow]) -> tuple[list[CardRow], int]:
+    """Fold a later card into the slate's record one game at a time.
+
+    A game the candidate priced while it was still ahead, and closer to first
+    pitch than the record has it, takes the candidate's rows; every other game
+    on the record stays as it was, whether the candidate re-priced it after it
+    began or never saw it at all. The slate's passes price in clock windows --
+    a 14:55 pass sees the 15:00-18:00 games and nothing else -- so a card that
+    could only replace the record whole either threw the morning's other
+    eleven games away (the window pass won) or was refused once any of them
+    had started (the evening pass lost). On 2026-09-16 that left four of
+    fifteen games in the ledger. Returns the merged rows and how many games
+    the candidate re-priced.
+    """
+    have = _by_game(published)
+    merged: dict[object, list[CardRow]] = dict(have)
+    taken = 0
+    for pk, rows in _by_game(candidate).items():
+        lead = _game_lead(rows)
+        if lead is None or lead <= 0:
+            continue
+        prior = have.get(pk)
+        if prior is not None:
+            prior_lead = _game_lead(prior)
+            if prior_lead is None or lead >= prior_lead:
+                continue
+        merged[pk] = rows
+        taken += 1
+    out: list[CardRow] = []
+    for rows in merged.values():
+        out.extend(rows)
+    return out, taken
+
+
+def merged_card(candidate: Path, published: Path) -> list[CardRow] | None:
+    """The record ``published`` becomes once ``candidate`` is folded in, or
+    ``None`` when the candidate adds no game to it."""
+    new = _read_card(candidate)
+    if new is None:
+        return None
+    rows, taken = merge_cards(new, _read_card(published) or [])
+    return rows if taken else None
+
+
+def write_card(rows: list[CardRow], dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(rows, indent=2).encode()
+    if dest.suffix == ".gz":
+        with dest.open("wb") as raw:
+            with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=6, mtime=0) as fout:
+                fout.write(payload)
+    else:
+        dest.write_bytes(payload)
+
+
 def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
     """Publish the last card priced before the slate began.
 
@@ -659,9 +752,13 @@ def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
         if src.name.endswith(PREGAME_SUFFIX):
             continue
         dest = out / f"{src.name}.gz"
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        _gzip_to(src, dest)
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            _gzip_to(src, dest)
         staged.append(dest.name)
     keep = sorted(p.name for p in out.glob("predictions_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
     pruned = 0

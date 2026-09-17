@@ -32,6 +32,7 @@ from mlb_engine.state import (
     card_supersedes,
     merge_board_files,
     merge_calibration_files,
+    merge_cards,
     merge_closing_files,
     merge_dated_csv,
     pull_state,
@@ -280,9 +281,10 @@ def test_the_power_screen_s_receipts_cross_machines(
         )
     ]
     power_ledger.record(receipts, positions, Date(2026, 8, 16))
-    assert power_ledger.LEDGER_NAME in push_state(
-        data_a, "screen 08-16", repo=repo_a, branch=STATE_BRANCH
-    ).pushed
+    assert (
+        power_ledger.LEDGER_NAME
+        in push_state(data_a, "screen 08-16", repo=repo_a, branch=STATE_BRANCH).pushed
+    )
 
     report = pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
     assert power_ledger.LEDGER_NAME in report.pulled
@@ -391,9 +393,9 @@ def test_the_refit_map_reaches_the_machine_pricing_the_next_slate(
     _map(data_a / CALIBRATION_NAME, 13_433, {"batter_hr": FEATURE_BASIS})
     _map(data_b / CALIBRATION_NAME, 400, {"batter_hr": FEATURE_BASIS})
 
-    assert CALIBRATION_NAME in push_state(
-        data_a, "calibrate", repo=repo_a, branch=STATE_BRANCH
-    ).pushed
+    assert (
+        CALIBRATION_NAME in push_state(data_a, "calibrate", repo=repo_a, branch=STATE_BRANCH).pushed
+    )
     assert CALIBRATION_NAME in pull_state(data_b, repo=repo_b, branch=STATE_BRANCH).pulled
     assert read_stored(data_b / CALIBRATION_NAME).rows == 13_433
 
@@ -543,6 +545,84 @@ def test_a_reprice_made_after_first_pitch_still_cannot_publish(
     push_state(data_b, "audit", repo=repo_b, branch="engine-state")
 
     assert _published(repo_a)[0]["selection"] == "card"
+
+
+def _slate(path: Path, games: dict[int, tuple[str, float]]) -> None:
+    """A card of several games: ``{game_pk: (selection, hours_to_first_pitch)}``."""
+    rows = [
+        {"game_pk": pk, "selection": sel, "hours_to_first_pitch": lead}
+        for pk, (sel, lead) in games.items()
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(rows))
+
+
+def _record(repo: Path) -> dict[int, str]:
+    return {int(str(r["game_pk"])): str(r["selection"]) for r in _published(repo)}
+
+
+def test_a_window_pass_joins_the_record_game_by_game(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The 2026-08-04 loss: four of fifteen games made the ledger.
+
+    The 14:55 pass saw only the games inside its window, and a card that could
+    only replace the record whole either won and threw the morning's other
+    games away, or lost once any game on it had begun. Here the morning card
+    has three games; the afternoon pass re-prices one and the evening pass,
+    made after the first game began, re-prices the other two.
+    """
+    repo_a, data_a, _repo_b, _data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _slate(card, {1: ("A morning", 5.0), 2: ("B morning", 8.0), 3: ("C morning", 9.0)})
+    push_state(data_a, "morning", repo=repo_a, branch="engine-state")
+
+    _slate(card, {1: ("A lock", 0.4)})
+    push_state(data_a, "afternoon pass", repo=repo_a, branch="engine-state")
+    assert _record(repo_a) == {1: "A lock", 2: "B morning", 3: "C morning"}
+
+    _slate(card, {1: ("A stale", -2.5), 2: ("B lock", 0.5), 3: ("C lock", 1.5)})
+    push_state(data_a, "evening pass", repo=repo_a, branch="engine-state")
+    assert _record(repo_a) == {1: "A lock", 2: "B lock", 3: "C lock"}
+
+    # A later re-price that is no closer to first pitch changes nothing.
+    _slate(card, {2: ("B early", 6.0)})
+    pushed = push_state(data_a, "stale", repo=repo_a, branch="engine-state")
+    assert "predictions_2026-08-04.json.gz" not in pushed.pushed
+    assert _record(repo_a)[2] == "B lock"
+
+
+def test_a_pull_folds_the_branch_s_later_games_into_the_pregame_copy(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    repo_a, data_a, repo_b, data_b = machines
+    card = data_a / "audit" / "predictions_2026-08-04.json"
+    _slate(card, {1: ("A morning", 5.0), 2: ("B morning", 8.0)})
+    push_state(data_a, "morning", repo=repo_a, branch="engine-state")
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+
+    _slate(card, {2: ("B lock", 0.5)})
+    push_state(data_a, "pass", repo=repo_a, branch="engine-state")
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+
+    pregame = data_b / "audit" / f"predictions_2026-08-04{PREGAME_SUFFIX}"
+    got = {r["game_pk"]: r["selection"] for r in json.loads(pregame.read_text())}
+    assert got == {1: "A morning", 2: "B lock"}
+
+
+def test_merge_cards_keeps_untimed_and_started_games_as_the_record_has_them() -> None:
+    published = [
+        {"game_pk": 1, "selection": "old", "hours_to_first_pitch": 3.0},
+        {"game_pk": 2, "selection": "old"},
+    ]
+    candidate = [
+        {"game_pk": 1, "selection": "started", "hours_to_first_pitch": -1.0},
+        {"game_pk": 2, "selection": "untimed"},
+        {"game_pk": 3, "selection": "new", "hours_to_first_pitch": 2.0},
+    ]
+    rows, taken = merge_cards(candidate, published)
+    assert taken == 1
+    assert {r["game_pk"]: r["selection"] for r in rows} == {1: "old", 2: "old", 3: "new"}
 
 
 def test_a_card_of_unknown_vintage_is_left_where_it_is(
@@ -707,9 +787,9 @@ def test_a_first_push_survives_a_leftover_branch_name(
     _git(["branch", "engine-state"], repo_a)
     _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-19", "KC")])
 
-    assert "ledger.csv" in push_state(
-        data_a, "first push", repo=repo_a, branch="engine-state"
-    ).pushed
+    assert (
+        "ledger.csv" in push_state(data_a, "first push", repo=repo_a, branch="engine-state").pushed
+    )
     assert _remote_has_branch(repo_a, "engine-state")
 
 
@@ -730,9 +810,9 @@ def test_a_branch_name_git_will_not_hand_over_still_publishes(
     _git(["checkout", "-q", "-B", "engine-state"], repo_a)
 
     _ledger(data_a / "audit" / "ledger.csv", [_row("2026-08-19", "KC")])
-    assert "ledger.csv" in push_state(
-        data_a, "audit 08-19", repo=repo_a, branch="engine-state"
-    ).pushed
+    assert (
+        "ledger.csv" in push_state(data_a, "audit 08-19", repo=repo_a, branch="engine-state").pushed
+    )
 
     pull_state(_data_b, repo=_repo_b, branch="engine-state")
     with (_data_b / "audit" / "ledger.csv").open(newline="") as f:
@@ -797,9 +877,10 @@ def test_two_machines_boards_for_one_day_both_survive(
         ("Drake Baldwin", "20260821T2210Z"),
     }
     # And the day still grades one board rather than the pooled two.
-    assert [p.batter for p in power_ledger.positions_for(
-        data_a / "audit" / power_ledger.LEDGER_NAME, day
-    )] == ["Drake Baldwin"]
+    assert [
+        p.batter
+        for p in power_ledger.positions_for(data_a / "audit" / power_ledger.LEDGER_NAME, day)
+    ] == ["Drake Baldwin"]
 
 
 def test_two_jobs_on_one_box_take_turns_at_the_worktree(
@@ -887,7 +968,11 @@ def test_the_totals_sheets_receipt_crosses_machines(
     name = totals_audit.LEDGER_NAME
     path_a = data_a / "audit" / name
     path_a.parent.mkdir(parents=True, exist_ok=True)
-    rows = [totals_audit.LedgerRow("2026-09-11", "AZ @ KC", 1, 8.5, 6, engine_total=8.75, engine_p_over=0.53)]
+    rows = [
+        totals_audit.LedgerRow(
+            "2026-09-11", "AZ @ KC", 1, 8.5, 6, engine_total=8.75, engine_p_over=0.53
+        )
+    ]
     totals_audit.write_ledger(path_a, rows)
     assert name in push_state(data_a, "sheet 09-11", repo=repo_a, branch=STATE_BRANCH).pushed
     assert name in pull_state(data_b, repo=repo_b, branch=STATE_BRANCH).pulled
@@ -900,5 +985,6 @@ def test_the_totals_sheets_receipt_crosses_machines(
     pull_state(data_b, repo=repo_b, branch=STATE_BRANCH)
     back = totals_audit.read_ledger(data_b / "audit" / name)
     assert [(r.date, r.result, r.engine_total) for r in back] == [
-        ("2026-09-11", "over", 8.75), ("2026-09-12", "", None),
+        ("2026-09-11", "over", 8.75),
+        ("2026-09-12", "", None),
     ]

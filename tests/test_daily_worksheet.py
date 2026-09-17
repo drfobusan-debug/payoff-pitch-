@@ -230,6 +230,22 @@ def test_workbook_layout_and_ranked_block(tmp_path: Path) -> None:
     assert wb["Ledger"]["A2"].value == "2026-09-14"
 
 
+def test_pdf_pages_are_the_worksheet_first_then_the_tables_in_the_same_fills(tmp_path: Path) -> None:
+    slate, bats, pens, sps, prices = _fixture()
+    rows = build_rows(slate, bats, pens, sps, prices)
+    ledger = [r for _, _, _, r in rows]
+    out = write_workbook(tmp_path / "worksheet_2026-09-14.xlsx", Date(2026, 9, 14), Date(2026, 9, 13),
+                         rows, prices, pens, bats, sps, ledger, None)
+    page = dw.worksheet_html(out, Date(2026, 9, 14))
+    titles = [t for _, t in dw.PDF_SHEETS]
+    positions = [page.index(t) for t in titles]
+    assert positions == sorted(positions) and positions[0] < page.index("Matchups ranked by weighted gap")
+    assert "Audit - 2026" not in page and "Ledger - 2026" not in page
+    assert "SD @ COL" in page and "background:#" in page
+    pdf = dw.write_pdf(out, Date(2026, 9, 14))
+    assert pdf == tmp_path / "worksheet_2026-09-14.pdf" and pdf.read_bytes()[:4] == b"%PDF"
+
+
 def test_summary_text_reports_yesterday_and_bands() -> None:
     ledger = [_row(1, 30.5, result="fav", day="2026-09-13"), _row(2, 3.0, result="dog", day="2026-09-13")]
     text = dw.summary_text(ledger, Date(2026, 9, 13))

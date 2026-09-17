@@ -33,6 +33,7 @@ Nothing here feeds a price. It is a record.
 from __future__ import annotations
 
 import csv
+import html
 import logging
 import math
 from collections.abc import Callable
@@ -43,7 +44,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.cell.cell import Cell
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
@@ -1057,6 +1059,112 @@ def apply_starter_overrides(slate: Slate) -> Slate:
     return slate
 
 
+# The PDF's page order: the worksheet first, then the tables it was scored from.
+# Audit and Ledger stay workbook-only.
+PDF_SHEETS: tuple[tuple[str, str], ...] = (
+    ("Matchups", "Daily MLB Worksheet"),
+    ("Bat Overall", "Team Batting: Overall"),
+    ("Bat vs LHP", "Team Batting: vs LHP"),
+    ("Bat vs RHP", "Team Batting: vs RHP"),
+    ("Bat Innings 6+", "Team Batting: Innings 6+"),
+    ("Bullpens", "Bullpens"),
+    ("Starters", "Starting Pitchers"),
+)
+
+_PDF_CSS = """
+@page { size: 17in 11in; margin: 0.4in; }
+body { font-family: Helvetica, Arial, sans-serif; color: #111; }
+section { page-break-after: always; }
+h1 { font-size: 15pt; margin: 0 0 6pt 0; }
+table { border-collapse: collapse; width: 100%; }
+td { border: 0.4pt solid #bbb; padding: 1.5pt 3pt; white-space: nowrap; text-align: center; }
+table.mx td { font-size: 10.5pt; padding: 4pt 6pt; }
+table.tm td { font-size: 10pt; padding: 3.5pt 5pt; }
+table.rk td { font-size: 7.2pt; }
+p.note { font-size: 9pt; color: #444; margin-top: 6pt; }
+"""
+
+
+def _cell_style(c: Cell) -> str:
+    style = ""
+    f = c.fill
+    if f is not None and f.fill_type == "solid":
+        rgb = f.fgColor.rgb
+        if isinstance(rgb, str) and rgb != "00000000":
+            style += f"background:#{rgb[-6:]};"
+    if c.font is not None and c.font.bold:
+        style += "font-weight:bold;"
+    return style
+
+
+def _html_table(rows: list[tuple[Cell, ...]], c0: int, c1: int, cls: str) -> str:
+    """Columns [c0, c1) of the sheet as an HTML table, with the workbook's fills.
+    A long text alone in its row is a footnote, printed under the table."""
+    body: list[str] = []
+    notes: list[str] = []
+    for r in rows:
+        cells = r[c0:c1]
+        if all(c.value in (None, "") for c in cells):
+            continue
+        first = cells[0].value
+        if (
+            isinstance(first, str) and len(first) > 60
+            and all(c.value in (None, "") for c in cells[1:])
+        ):
+            notes.append(first)
+            continue
+        tds = []
+        for c in cells:
+            v = c.value
+            if v is None:
+                text = ""
+            elif isinstance(v, float):
+                text = f"{int(v)}" if v == int(v) else f"{v:.1f}"
+            else:
+                text = str(v)
+            tds.append(f'<td style="{_cell_style(c)}">{html.escape(text)}</td>')
+        body.append("<tr>" + "".join(tds) + "</tr>")
+    out = f'<table class="{cls}">{"".join(body)}</table>'
+    if notes:
+        out += "<p class=note>" + "<br/>".join(html.escape(n) for n in notes) + "</p>"
+    return out
+
+
+def worksheet_html(xlsx: Path, day: Date) -> str:
+    """The saved workbook as landscape pages: the matchup sheet, then its
+    ranking block, then each ranking table, in the workbook's own gradient."""
+    wb = load_workbook(xlsx)
+    parts: list[str] = []
+    for sheet, title in PDF_SHEETS:
+        if sheet not in wb.sheetnames:
+            continue
+        rows = list(wb[sheet].iter_rows())
+        if not rows:
+            continue
+        head = f"<h1>{html.escape(title)} - {day.isoformat()}</h1>"
+        hdr = [c.value for c in rows[0]]
+        if sheet == "Matchups" and None in hdr:
+            split = hdr.index(None)
+            parts.append(f"<section>{head}{_html_table(rows, 0, split, 'mx')}</section>")
+            parts.append(
+                f"<section><h1>Matchups ranked by weighted gap - {day.isoformat()}</h1>"
+                f"{_html_table(rows, split + 1, len(hdr), 'mx')}</section>"
+            )
+            continue
+        ncols = max((i for i, v in enumerate(hdr) if v not in (None, "")), default=-1) + 1
+        cls = "rk" if sheet == "Starters" else ("mx" if sheet == "Matchups" else "tm")
+        parts.append(f"<section>{head}{_html_table(rows, 0, ncols, cls)}</section>")
+    return f"<html><head><style>{_PDF_CSS}</style></head><body>{''.join(parts)}</body></html>"
+
+
+def write_pdf(xlsx: Path, day: Date) -> Path:
+    from weasyprint import HTML
+
+    out = xlsx.with_suffix(".pdf")
+    HTML(string=worksheet_html(xlsx, day)).write_pdf(str(out))
+    return out
+
+
 def run_worksheet(cfg: Config, day: Date, slate: Slate) -> tuple[Path, str]:
     """Build the day's worksheet, record it, grade what is pending, write the workbook and note."""
     slate = apply_starter_overrides(slate)
@@ -1080,6 +1188,11 @@ def run_worksheet(cfg: Config, day: Date, slate: Slate) -> tuple[Path, str]:
 
     out = cfg.output_dir / f"worksheet_{day.isoformat()}.xlsx"
     write_workbook(out, day, as_of, rows, prices, pens, bats, sps, ledger, graded_day)
+    try:
+        write_pdf(out, day)
+    except Exception:
+        # The workbook and ledger are the record; a missing renderer costs the PDF only.
+        log.exception("worksheet: PDF render failed; workbook kept")
     text = summary_text(ledger, graded_day, day)
     (cfg.output_dir / f"worksheet_{day.isoformat()}.txt").write_text(text + ("\n" if text else ""))
     return out, text

@@ -25,6 +25,8 @@ CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
 DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 NFL_WAKE_HHMM="${NFL_WAKE_HHMM:-08:00}"
+NFL_OPEN_WAKE_HHMM="${NFL_OPEN_WAKE_HHMM:-08:00}"
+NFL_EVE_WAKE_HHMM="${NFL_EVE_WAKE_HHMM:-20:00}"
 SLATE_WINDOW_HOURS="${SLATE_WINDOW_HOURS:-3}"
 # Wake times five minutes ahead of each slate pass (matinee 11:55 .. late 20:55).
 SLATE_WAKES="${SLATE_WAKES:- 11:50 14:50 17:50 20:50}"
@@ -132,6 +134,11 @@ if [[ "$MODE" == "night" ]]; then
       pmset_ schedule wake "$NEXT ${NFL_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL wake" >&2
       echo "[$(date)] armed NFL wake for $NEXT ${NFL_WAKE_HHMM}:00"
       ;;
+    2)
+      # Monday night arms Tuesday's opening-board capture.
+      pmset_ schedule wake "$NEXT ${NFL_OPEN_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL open wake" >&2
+      echo "[$(date)] armed NFL open wake for $NEXT ${NFL_OPEN_WAKE_HHMM}:00"
+      ;;
   esac
 elif [[ "$MODE" == "close" ]]; then
   # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
@@ -141,6 +148,12 @@ elif [[ "$MODE" == "close" ]]; then
   mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
   pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
+  # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
+  case "$(date +%u)" in
+    3|6|7)
+      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
+      ;;
+  esac
 elif [[ "$MODE" == "cfb" ]]; then
   # Saturday: price today's college football board and email the article PDF +
   # MP3 + workbook as one message. Same caffeinate arrangement as the morning
@@ -158,6 +171,13 @@ elif [[ "$MODE" == "nfl" ]]; then
   /usr/bin/caffeinate -i -w $$ &
   pull_latest
   nfl-engine job --props --card --email || echo "[$(date)] 'nfl-engine job' exited non-zero" >&2
+elif [[ "$MODE" == "nfl-open" ]]; then
+  # Tue 08:05 (the week's open) and Wed/Sat/Sun 20:05 (the night before a game
+  # day): archive the game board, price nothing, email nothing. Thursday's card
+  # reads the earliest snapshot back as the open and stamps each row's drift;
+  # the CLV sheet then shows open -> taken -> close. ~3 Odds API credits.
+  pull_latest
+  nfl-engine open || echo "[$(date)] 'nfl-engine open' exited non-zero" >&2
 elif [[ "$MODE" == slate-* ]]; then
   # A slate pass: price the games starting inside the next ${SLATE_WINDOW_HOURS}
   # hours -- off posted lineups, on the board as it stands -- then write that
