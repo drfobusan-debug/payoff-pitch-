@@ -26,7 +26,7 @@ from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
@@ -812,12 +812,26 @@ def output_path(cfg: Config, day: Date) -> Path:
     return cfg.output_dir / f"totals_sheet_{day.isoformat()}.xlsx"
 
 
+def sheet_has_lines(path: Path) -> bool:
+    """True when every game on the sheet carries a posted total."""
+    wb = load_workbook(path, read_only=True)
+    ws = wb[next(n for n in wb.sheetnames if n.startswith("Totals "))]
+    it = ws.iter_rows(values_only=True)
+    header = [str(c) for c in next(it)]
+    gi, ti = header.index("Game"), header.index("Total")
+    return all(first_line(str(r[ti] or "")) is not None for r in it if r[gi] is not None)
+
+
 def sheet_is_current(path: Path) -> bool:
-    """True when a sheet already on disk was scored by the bands this code carries."""
+    """True when a sheet on disk was scored by these bands and had lines to score against.
+
+    A sheet written before the books posted a game's total is rewritten on the
+    next pass: without a line that row can never be graded.
+    """
     if not path.exists():
         return False
     try:
-        return sheet_bands(path) == BANDS
+        return sheet_bands(path) == BANDS and sheet_has_lines(path)
     except Exception as exc:
         log.warning("totals sheet: could not read %s: %s", path.name, exc)
         return False

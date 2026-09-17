@@ -303,3 +303,43 @@ def test_engine_columns_round_trip_through_the_ledger(tmp_path: Path) -> None:
     row = LedgerRow(D, "AZ @ KC", 1, 8.5, 3, engine_total=8.75, engine_p_over=0.53, market_p_over=0.48)
     write_ledger(tmp_path / "l.csv", [row])
     assert read_ledger(tmp_path / "l.csv") == [row]
+
+
+def test_a_row_filed_without_a_line_takes_the_closing_total_and_is_graded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A sheet written before the books posted a total is graded off the closing snapshot."""
+    import json
+
+    ledger = tmp_path / "totals_ledger.csv"
+    write_ledger(ledger, [LedgerRow(D, "AZ @ KC", 1, None, 6, bands=BANDS)])
+    (tmp_path / f"closing_{D}.json").write_text(json.dumps([
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Over 7.5", "american": -140, "no_vig_prob": 0.58},
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Over 8.0", "american": -105, "no_vig_prob": 0.51},
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Under 8.0", "american": -115, "no_vig_prob": 0.49},
+        {"matchup": "AZ @ KC", "market": "game_ml", "selection": "AZ", "american": 120, "no_vig_prob": 0.45},
+    ]))
+    out = tmp_path / "out"
+    out.mkdir()
+
+    class Cfg:
+        output_dir = out
+        audit_dir = tmp_path
+
+    monkeypatch.setattr(totals_audit, "finals", lambda day: {1: ("AZ @ KC", 2, 5)})
+    totals_audit.run_audit(Cfg(), Date(2026, 9, 10))  # type: ignore[arg-type]
+    (row,) = read_ledger(ledger)
+    assert (row.line, row.result, row.hit) == (8.0, "under", False)
+
+
+def test_closing_lines_pick_the_total_nearest_even_money_and_skip_other_markets() -> None:
+    from mlb_engine.audit.clv import ClosingQuote
+    from mlb_engine.output.totals_audit import closing_lines
+
+    quotes = [
+        ClosingQuote("AZ @ KC", "game_total", "Over 8.5", -130, 0.56),
+        ClosingQuote("AZ @ KC", "game_total", "Over 9.0", -102, 0.495),
+        ClosingQuote("AZ @ KC", "game_total", "Under 9.0", -110, 0.505),
+        ClosingQuote("WSH @ SD", "f5_total", "Over 4.5", -110, 0.5),
+    ]
+    assert closing_lines({q.key: q for q in quotes}) == {"AZ @ KC": 9.0}
