@@ -343,3 +343,15 @@ def test_closing_lines_pick_the_total_nearest_even_money_and_skip_other_markets(
         ClosingQuote("WSH @ SD", "f5_total", "Over 4.5", -110, 0.5),
     ]
     assert closing_lines({q.key: q for q in quotes}) == {"AZ @ KC": 9.0}
+
+
+def test_a_doubleheader_is_left_lineless_because_the_close_cannot_tell_the_games_apart() -> None:
+    from mlb_engine.output.totals_audit import attach_lines
+
+    rows = [
+        LedgerRow(D, "NYY @ BOS", 1, None, 4),
+        LedgerRow(D, "NYY @ BOS", 2, None, -2),
+        LedgerRow(D, "AZ @ KC", 3, None, 6),
+    ]
+    assert attach_lines(rows, {"NYY @ BOS": 8.0, "AZ @ KC": 8.5}) == 1
+    assert [r.line for r in rows] == [None, None, 8.5]
