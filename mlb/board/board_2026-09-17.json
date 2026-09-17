@@ -21779,6 +21779,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_1b",
+    "selection": "Samad Taylor 1B o0.5",
+    "american": -129.0,
+    "no_vig_prob": 0.528068
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
+    "selection": "Samad Taylor 1B u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.471932
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
     "selection": "TJ Rumfield 1B o0.5",
     "american": -135.0,
     "no_vig_prob": 0.535809
@@ -21789,6 +21803,20 @@
     "selection": "TJ Rumfield 1B u0.5",
     "american": 100.0,
     "no_vig_prob": 0.464191
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
+    "selection": "Troy Johnston 1B o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.487079
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
+    "selection": "Troy Johnston 1B u0.5",
+    "american": -113.0,
+    "no_vig_prob": 0.512921
   },
   {
     "matchup": "SD @ COL",
@@ -21817,6 +21845,20 @@
     "selection": "Xander Bogaerts 1B u0.5",
     "american": 122.0,
     "no_vig_prob": 0.425537
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
+    "selection": "Zac Veen 1B o0.5",
+    "american": 144.0,
+    "no_vig_prob": 0.380319
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_1b",
+    "selection": "Zac Veen 1B u0.5",
+    "american": -201.0,
+    "no_vig_prob": 0.619681
   },
   {
     "matchup": "SD @ COL",
@@ -22045,6 +22087,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_2b",
+    "selection": "Samad Taylor 2B o0.5",
+    "american": 343.0,
+    "no_vig_prob": 0.217171
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
+    "selection": "Samad Taylor 2B u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.782829
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
     "selection": "TJ Rumfield 2B o0.5",
     "american": 351.0,
     "no_vig_prob": 0.210719
@@ -22055,6 +22111,20 @@
     "selection": "TJ Rumfield 2B u0.5",
     "american": -525.0,
     "no_vig_prob": 0.789281
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
+    "selection": "Troy Johnston 2B o0.5",
+    "american": 420.0,
+    "no_vig_prob": 0.194649
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
+    "selection": "Troy Johnston 2B u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.805351
   },
   {
     "matchup": "SD @ COL",
@@ -22083,6 +22153,20 @@
     "selection": "Xander Bogaerts 2B u0.5",
     "american": -445.0,
     "no_vig_prob": 0.772704
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
+    "selection": "Zac Veen 2B o0.5",
+    "american": 520.0,
+    "no_vig_prob": 0.152733
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_2b",
+    "selection": "Zac Veen 2B u0.5",
+    "american": -850.0,
+    "no_vig_prob": 0.847267
   },
   {
     "matchup": "SD @ COL",
@@ -22283,6 +22367,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_bb",
+    "selection": "Troy Johnston BB o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.256196
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_bb",
+    "selection": "Troy Johnston BB u0.5",
+    "american": -380.0,
+    "no_vig_prob": 0.743804
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_bb",
     "selection": "Ty France BB o0.5",
     "american": 325.0,
     "no_vig_prob": 0.241575
@@ -22307,6 +22405,20 @@
     "selection": "Xander Bogaerts BB u0.5",
     "american": -244.0,
     "no_vig_prob": 0.666871
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_bb",
+    "selection": "Zac Veen BB o0.5",
+    "american": 384.0,
+    "no_vig_prob": 0.217888
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_bb",
+    "selection": "Zac Veen BB u0.5",
+    "american": -425.0,
+    "no_vig_prob": 0.782112
   },
   {
     "matchup": "SD @ COL",
@@ -22577,6 +22689,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_hrr",
+    "selection": "Troy Johnston H+R+RBI o1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.478744
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hrr",
+    "selection": "Troy Johnston H+R+RBI u1.5",
+    "american": -118.0,
+    "no_vig_prob": 0.521256
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hrr",
     "selection": "Ty France H+R+RBI o2.5",
     "american": -105.0,
     "no_vig_prob": 0.481386
@@ -22601,6 +22727,20 @@
     "selection": "Xander Bogaerts H+R+RBI u2.5",
     "american": -150.0,
     "no_vig_prob": 0.570068
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hrr",
+    "selection": "Zac Veen H+R+RBI o0.5",
+    "american": -157.0,
+    "no_vig_prob": 0.584401
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hrr",
+    "selection": "Zac Veen H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.415599
   },
   {
     "matchup": "SD @ COL",
@@ -22759,9 +22899,23 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_hr",
+    "selection": "Samad Taylor HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hr",
     "selection": "TJ Rumfield HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.097619
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hr",
+    "selection": "Troy Johnston HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
   },
   {
     "matchup": "SD @ COL",
@@ -22790,6 +22944,13 @@
     "selection": "Xander Bogaerts HR o1.5",
     "american": 6000.0,
     "no_vig_prob": 0.016393
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_hr",
+    "selection": "Zac Veen HR o0.5",
+    "american": 900.0,
+    "no_vig_prob": 0.118966
   },
   {
     "matchup": "SD @ COL",
@@ -22990,6 +23151,13 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_h",
+    "selection": "Luis Campusano H u0.5",
+    "american": 184.0,
+    "no_vig_prob": 0.330442
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
     "selection": "Luis Campusano H u1.5",
     "american": -225.0,
     "no_vig_prob": 0.663995
@@ -23025,6 +23193,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_h",
+    "selection": "Samad Taylor H o0.5",
+    "american": -227.0,
+    "no_vig_prob": 0.655947
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
+    "selection": "Samad Taylor H u0.5",
+    "american": 176.0,
+    "no_vig_prob": 0.344053
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
     "selection": "TJ Rumfield H o0.5",
     "american": -244.0,
     "no_vig_prob": 0.66799
@@ -23035,6 +23217,20 @@
     "selection": "TJ Rumfield H u0.5",
     "american": 185.0,
     "no_vig_prob": 0.33201
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
+    "selection": "Troy Johnston H o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.622767
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
+    "selection": "Troy Johnston H u0.5",
+    "american": 157.0,
+    "no_vig_prob": 0.377233
   },
   {
     "matchup": "SD @ COL",
@@ -23063,6 +23259,48 @@
     "selection": "Xander Bogaerts H u1.5",
     "american": -196.0,
     "no_vig_prob": 0.645075
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
+    "selection": "Zac Veen H o0.5",
+    "american": -129.0,
+    "no_vig_prob": 0.534055
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_h",
+    "selection": "Zac Veen H u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.465945
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_k",
+    "selection": "Michael King K o4.5",
+    "american": 106.0,
+    "no_vig_prob": 0.445923
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_k",
+    "selection": "Michael King K u4.5",
+    "american": -152.0,
+    "no_vig_prob": 0.554077
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_k",
+    "selection": "Tanner Gordon K o3.5",
+    "american": -105.0,
+    "no_vig_prob": 0.469794
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_k",
+    "selection": "Tanner Gordon K u3.5",
+    "american": -137.0,
+    "no_vig_prob": 0.530206
   },
   {
     "matchup": "SD @ COL",
@@ -23291,6 +23529,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_rbi",
+    "selection": "Samad Taylor RBI o0.5",
+    "american": 192.0,
+    "no_vig_prob": 0.332149
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
+    "selection": "Samad Taylor RBI u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.667851
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
     "selection": "TJ Rumfield RBI o0.5",
     "american": 181.0,
     "no_vig_prob": 0.35047
@@ -23301,6 +23553,20 @@
     "selection": "TJ Rumfield RBI u0.5",
     "american": -220.0,
     "no_vig_prob": 0.64953
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
+    "selection": "Troy Johnston RBI o0.5",
+    "american": 228.0,
+    "no_vig_prob": 0.306936
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
+    "selection": "Troy Johnston RBI u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.693064
   },
   {
     "matchup": "SD @ COL",
@@ -23329,6 +23595,20 @@
     "selection": "Xander Bogaerts RBI u0.5",
     "american": -190.0,
     "no_vig_prob": 0.609259
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
+    "selection": "Zac Veen RBI o0.5",
+    "american": 249.0,
+    "no_vig_prob": 0.26765
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_rbi",
+    "selection": "Zac Veen RBI u0.5",
+    "american": -363.0,
+    "no_vig_prob": 0.73235
   },
   {
     "matchup": "SD @ COL",
@@ -23557,6 +23837,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_r",
+    "selection": "Samad Taylor R o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.447972
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_r",
+    "selection": "Samad Taylor R u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.552028
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_r",
     "selection": "TJ Rumfield R o0.5",
     "american": 117.0,
     "no_vig_prob": 0.440932
@@ -23567,6 +23861,20 @@
     "selection": "TJ Rumfield R u0.5",
     "american": -140.0,
     "no_vig_prob": 0.559068
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_r",
+    "selection": "Troy Johnston R o0.5",
+    "american": 153.0,
+    "no_vig_prob": 0.373409
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_r",
+    "selection": "Troy Johnston R u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626591
   },
   {
     "matchup": "SD @ COL",
@@ -23598,6 +23906,20 @@
   },
   {
     "matchup": "SD @ COL",
+    "market": "batter_r",
+    "selection": "Zac Veen R o0.5",
+    "american": 177.0,
+    "no_vig_prob": 0.335731
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_r",
+    "selection": "Zac Veen R u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.664269
+  },
+  {
+    "matchup": "SD @ COL",
     "market": "batter_tb",
     "selection": "Adael Amador TB o0.5",
     "american": -165.0,
@@ -23620,9 +23942,23 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_tb",
+    "selection": "Brett Sullivan TB o0.5",
+    "american": -164.0,
+    "no_vig_prob": 0.587431
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
     "selection": "Brett Sullivan TB o1.5",
     "american": 180.0,
     "no_vig_prob": 0.341479
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Brett Sullivan TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.412569
   },
   {
     "matchup": "SD @ COL",
@@ -23844,6 +24180,20 @@
   {
     "matchup": "SD @ COL",
     "market": "batter_tb",
+    "selection": "Samad Taylor TB o1.5",
+    "american": 136.0,
+    "no_vig_prob": 0.40113
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Samad Taylor TB u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.59887
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
     "selection": "TJ Rumfield TB o1.5",
     "american": 150.0,
     "no_vig_prob": 0.408427
@@ -23854,6 +24204,34 @@
     "selection": "TJ Rumfield TB u1.5",
     "american": -160.0,
     "no_vig_prob": 0.591573
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Troy Johnston TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Troy Johnston TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.373279
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Troy Johnston TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Troy Johnston TB u1.5",
+    "american": -197.0,
+    "no_vig_prob": 0.626721
   },
   {
     "matchup": "SD @ COL",
@@ -23885,6 +24263,20 @@
   },
   {
     "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Zac Veen TB o0.5",
+    "american": -128.0,
+    "no_vig_prob": 0.530777
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "batter_tb",
+    "selection": "Zac Veen TB u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469223
+  },
+  {
+    "matchup": "SD @ COL",
     "market": "f5_ml",
     "selection": "COL F5 ML",
     "american": 148.0,
@@ -23907,9 +24299,23 @@
   {
     "matchup": "SD @ COL",
     "market": "f5_rl",
+    "selection": "COL F5 +1.0",
+    "american": -130.0,
+    "no_vig_prob": 0.530612
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "f5_rl",
     "selection": "SD F5 -0.5",
     "american": -120.0,
     "no_vig_prob": 0.521811
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "f5_rl",
+    "selection": "SD F5 -1.0",
+    "american": 100.0,
+    "no_vig_prob": 0.469388
   },
   {
     "matchup": "SD @ COL",
@@ -23963,9 +24369,37 @@
   {
     "matchup": "SD @ COL",
     "market": "game_rl",
+    "selection": "COL +2.0",
+    "american": -118.0,
+    "no_vig_prob": 0.519824
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "game_rl",
+    "selection": "COL +2.5",
+    "american": -145.0,
+    "no_vig_prob": 0.55414
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "game_rl",
     "selection": "SD -1.5",
     "american": -120.0,
     "no_vig_prob": 0.53225
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "game_rl",
+    "selection": "SD -2.0",
+    "american": 100.0,
+    "no_vig_prob": 0.480176
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "game_rl",
+    "selection": "SD -2.5",
+    "american": 110.0,
+    "no_vig_prob": 0.44586
   },
   {
     "matchup": "SD @ COL",
@@ -24082,6 +24516,13 @@
   {
     "matchup": "SD @ COL",
     "market": "pitcher_outs",
+    "selection": "Michael King Outs u16.5",
+    "american": -105.0,
+    "no_vig_prob": 0.482477
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "pitcher_outs",
     "selection": "Michael King Outs u17.5",
     "american": -118.0,
     "no_vig_prob": 0.532051
@@ -24099,6 +24540,13 @@
     "selection": "Tanner Gordon Outs o15.5",
     "american": 135.0,
     "no_vig_prob": 0.411024
+  },
+  {
+    "matchup": "SD @ COL",
+    "market": "pitcher_outs",
+    "selection": "Tanner Gordon Outs u14.5",
+    "american": 130.0,
+    "no_vig_prob": 0.419244
   },
   {
     "matchup": "SD @ COL",
