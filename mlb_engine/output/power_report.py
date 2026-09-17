@@ -394,8 +394,10 @@ STRONG_BUY = "STRONG BUY"
 # itself.
 STRONG_BUY_RANKS = 2
 
-# The four grades are buckets, keyed by the strings the ledger has always
-# recorded them under so each keeps one record. What the note calls a bucket
+# The four grades are buckets, keyed by the strings the ledger records them
+# under today; rows from before the 9/09 swap of the contact words are read back
+# to their bucket by ``power_ledger.bucket`` so each keeps one record. What the
+# note calls a bucket
 # follows the money, and a buy word has to be earned (:func:`labels`): on at
 # least LABEL_EARN_ROWS graded rows, a bucket is a Strong Buy when its ROI
 # clears zero by two standard errors, a Buy when it clears one, and otherwise a
@@ -414,7 +416,7 @@ LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
 LABEL_WATCH = "WATCH"
 DEFAULT_STRONG_BUCKET = "AVOID"
-# Fewer graded rows than this and a bucket's ROI is not allowed to pick the
+# Fewer decided rows than this and a bucket's ROI is not allowed to pick the
 # best-record bucket (the one the table leads with).
 LABEL_MIN_ROWS = 30
 # Fewer graded rows than this and no bucket can carry a buy word at all.
@@ -435,7 +437,7 @@ def strong_bucket(records: Mapping[str, Record] | None) -> str:
     eligible = [
         (r.roi, -RATING_ORDER.get(g, 9), g)
         for g, r in records.items()
-        if g in RATING_ORDER and r.n >= LABEL_MIN_ROWS and r.roi is not None
+        if g in RATING_ORDER and r.decided >= LABEL_MIN_ROWS and r.roi is not None
     ]
     if not eligible:
         return DEFAULT_STRONG_BUCKET
