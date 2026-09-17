@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import html
 import math
+from collections import Counter
 from collections.abc import Mapping
 from datetime import date as Date
 
@@ -94,6 +95,7 @@ td.n,th.n{text-align:right}
 .buy{color:#0a6000;font-weight:bold}.hold{color:#8a6d00;font-weight:bold}
 .avoid{color:#8c0000;font-weight:bold}
 .strong-buy{color:#0a6000;font-weight:bold;text-decoration:underline}
+.watch{color:#555;font-weight:bold}
 tbody tr.top,tbody tr.top:nth-child(even){background:#fdeeee}
 tbody tr.top td{font-weight:bold;border-bottom:.4pt solid #e8c9c9}
 tbody tr.top td:first-child{border-left:2.5pt solid #8c0000}
@@ -394,10 +396,13 @@ STRONG_BUY_RANKS = 2
 
 # The four grades are buckets, keyed by the strings the ledger has always
 # recorded them under so each keeps one record. What the note calls a bucket
-# follows the money: the bucket with the best ROI on the graded ledger is the
-# Strong Buy and every other bucket is a Buy (:func:`labels`). Until a bucket
-# has a record the note falls back to the last read, which put the Strong Buy on
-# the high-contact tercile (39-36, +10% on 8/18-9/10).
+# follows the money, and a buy word has to be earned (:func:`labels`): on at
+# least LABEL_EARN_ROWS graded rows, a bucket is a Strong Buy when its ROI
+# clears zero by two standard errors, a Buy when it clears one, and otherwise a
+# Watch -- a matchup opinion the ledger has not paid for. On 9/16 no bucket
+# qualified: the best of the four was the high-contact tercile at 53-51, +8%
+# on 104 rows, 0.8 standard errors from zero; the other three were losing
+# money.
 RATING_DISPLAY = {
     STRONG_BUY: "rank 1-2",
     "BUY": "contact A",
@@ -407,9 +412,16 @@ RATING_DISPLAY = {
 RATING_ORDER = {STRONG_BUY: 0, "BUY": 1, "HOLD": 2, "AVOID": 3}
 LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
+LABEL_WATCH = "WATCH"
 DEFAULT_STRONG_BUCKET = "AVOID"
-# Fewer graded rows than this and a bucket's ROI is not allowed to pick the label.
+# Fewer graded rows than this and a bucket's ROI is not allowed to pick the
+# best-record bucket (the one the table leads with).
 LABEL_MIN_ROWS = 30
+# Fewer graded rows than this and no bucket can carry a buy word at all.
+LABEL_EARN_ROWS = 100
+# Standard errors above zero the ROI must sit for each word.
+LABEL_STRONG_Z = 2.0
+LABEL_BUY_Z = 1.0
 
 
 def strong_bucket(records: Mapping[str, Record] | None) -> str:
@@ -430,14 +442,32 @@ def strong_bucket(records: Mapping[str, Record] | None) -> str:
     return max(eligible)[2]
 
 
+def earned_label(rec: Record | None) -> str:
+    """The word a bucket's own record has paid for.
+
+    Strong Buy at ``LABEL_STRONG_Z`` standard errors above zero ROI, Buy at
+    ``LABEL_BUY_Z``, on at least ``LABEL_EARN_ROWS`` rows; Watch otherwise,
+    including whenever the record cannot say (too short, or no error known).
+    """
+    if rec is None or rec.n < LABEL_EARN_ROWS:
+        return LABEL_WATCH
+    roi, se = rec.roi, rec.roi_se
+    if roi is None or se is None or se <= 0:
+        return LABEL_WATCH
+    if roi >= LABEL_STRONG_Z * se:
+        return LABEL_STRONG
+    if roi >= LABEL_BUY_Z * se:
+        return LABEL_BUY
+    return LABEL_WATCH
+
+
 def labels(records: Mapping[str, Record] | None) -> dict[str, str]:
     """Bucket -> the word the note prints for it, from the ledger's record."""
-    strong = strong_bucket(records)
-    return {g: LABEL_STRONG if g == strong else LABEL_BUY for g in RATING_ORDER}
+    return {g: earned_label((records or {}).get(g)) for g in RATING_ORDER}
 
 
 def _label_cell(bucket: str, words: Mapping[str, str]) -> str:
-    word = words.get(bucket, LABEL_BUY)
+    word = words.get(bucket, LABEL_WATCH)
     css = word.lower().replace(" ", "-")
     return (
         f"<span class='{css}'>{word}</span> "
@@ -1658,7 +1688,8 @@ def _grade_record_cell(rec: Record | None) -> str:
     if rec is None or not rec.n:
         return "no record yet"
     roi = f", {rec.roi * 100:+.0f}% ROI" if rec.roi is not None else ""
-    return f"{_wl(rec)}, {rec.units:+.2f}u{roi}"
+    se = f" (&plusmn;{rec.roi_se * 100:.0f})" if rec.roi_se is not None and roi else ""
+    return f"{_wl(rec)}, {rec.units:+.2f}u{roi}{se}"
 
 
 def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> str:
@@ -1672,9 +1703,11 @@ def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> 
     total = sum(r.n for _g, r in rated)
     return (
         f"<p class='sub'><strong>What each bucket has been worth, on every graded row the "
-        f"ledger holds ({total} rows).</strong> {parts}. The words follow the money: the "
-        f"bucket with the best ROI on at least {LABEL_MIN_ROWS} rows is the Strong Buy and "
-        f"the rest are Buys, so the label can move as the record does.</p>"
+        f"ledger holds ({total} rows).</strong> {parts}. The words follow the money and "
+        f"have to be earned: on at least {LABEL_EARN_ROWS} rows a bucket is a Strong Buy when "
+        f"its ROI clears zero by {LABEL_STRONG_Z:.0f} standard errors, a Buy when it clears "
+        f"{LABEL_BUY_Z:.0f}, and a Watch otherwise (&plusmn; is one standard error), so the "
+        f"label moves as the record does.</p>"
     )
 
 
@@ -1708,7 +1741,7 @@ def _recommendations(
         row.append(reason or "&mdash;")
         rows.append(row)
     strong = [r for r in rated if r[0] == strong_key]
-    names = ", ".join(html.escape(t[2].line.name) for t in strong) or "nobody"
+    names = ", ".join(html.escape(t[2].line.name) for t in strong)
     strong_rec = records.get(strong_key)
     basis = (
         f"its {_grade_record_cell(strong_rec)} on {strong_rec.n} rows is the best record of "
@@ -1716,10 +1749,23 @@ def _recommendations(
         if strong_rec is not None and strong_rec.n
         else "no bucket has a record long enough to say otherwise"
     )
+    by_word = Counter(words[t[0]] for t in rated)
+    bought = [w for w in (LABEL_STRONG, LABEL_BUY) if by_word.get(w)]
+    if bought:
+        earned = "; ".join(
+            f"{by_word[w]} {w.title()}{'s' if by_word[w] != 1 else ''}" for w in bought
+        )
+        verdict = f"the ledger has paid for {earned} here"
+    else:
+        count = (
+            f"all {len(rated)} survivors are Watches" if len(rated) != 1
+            else "the one survivor is a Watch"
+        )
+        verdict = f"no bucket has earned a buy word on {LABEL_EARN_ROWS}+ rows, so {count}"
+    who = f" ({names})" if strong else " (no survivor in it today)"
     lead = (
-        f"<p><strong>{len(strong)} Strong Buy{'s' if len(strong) != 1 else ''}: {names}.</strong> "
-        f"The Strong Buys are the {RATING_DISPLAY[strong_key]} bucket, because {basis}; the "
-        f"other {len(rated) - len(strong)} survivors are Buys.</p>"
+        f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]}{who}.</strong> "
+        f"It leads the table because {basis}; {verdict}.</p>"
         f"<p class='sub'><strong>The buckets are the composite's top two and xwOBA on "
         f"contact in terciles.</strong> Cut at {CONTACT_GRADE_A:.3f} and "
         f"{CONTACT_GRADE_B:.3f}: C is the high-contact tercile, A the low one, and a bat "

@@ -1109,12 +1109,18 @@ def test_the_composites_top_two_are_their_own_bucket_whatever_their_contact() ->
     html = power_report.render_html(result)
     assert "(rank 1-2)" in html
     assert "ranked 1 on the composite" in html
-    # Without a record the rank bucket is a Buy; the word is the ledger's to give.
-    assert "<span class='buy'>BUY</span> <span class='sub'>(rank 1-2)</span>" in html
-    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, 40, 20, 18.0)}
+    # Without a record the rank bucket is a Watch; the word is the ledger's to give.
+    assert "<span class='watch'>WATCH</span> <span class='sub'>(rank 1-2)</span>" in html
+    # 40-20 on 60 rows is too short to earn a word, however good.
+    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, wins=40, losses=20, units=18.0, units_sq=60.0)}
+    html = power_report.render_html(result, grade_records=records)
+    assert "<span class='watch'>WATCH</span> <span class='sub'>(rank 1-2)</span>" in html
+    assert "no bucket has earned a buy word" in html
+    # +20% on 100 even-money rows is two standard errors clear of zero.
+    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, wins=60, losses=40, units=20.0, units_sq=100.0)}
     html = power_report.render_html(result, grade_records=records)
     assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(rank 1-2)</span>" in html
-    assert "1 Strong Buy: " in html
+    assert "1 Strong Buy" in html
 
 
 def test_the_strong_buy_survives_an_accent_on_the_composite_name() -> None:
