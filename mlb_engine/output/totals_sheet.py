@@ -843,12 +843,27 @@ def sheet_columns(path: Path) -> list[str]:
     return [str(c) for c in next(ws.iter_rows(values_only=True))]
 
 
+def sheet_has_lines(path: Path) -> bool:
+    """True when every game on the sheet carries a posted total."""
+    wb = load_workbook(path, read_only=True)
+    ws = wb[next(n for n in wb.sheetnames if n.startswith("Totals "))]
+    it = ws.iter_rows(values_only=True)
+    header = [str(c) for c in next(it)]
+    gi, ti = header.index("Game"), header.index("Total")
+    return all(first_line(str(r[ti] or "")) is not None for r in it if r[gi] is not None)
+
+
 def sheet_is_current(path: Path) -> bool:
-    """True when a sheet already on disk was scored by the bands, and carries the columns, this code writes."""
+    """True when a sheet on disk was scored by these bands, carries the columns this
+    code writes, and had lines to score against.
+
+    A sheet written before the books posted a game's total is rewritten on the
+    next pass: without a line that row can never be graded.
+    """
     if not path.exists():
         return False
     try:
-        return sheet_bands(path) == BANDS and sheet_columns(path) == _COLUMNS
+        return sheet_bands(path) == BANDS and sheet_columns(path) == _COLUMNS and sheet_has_lines(path)
     except Exception as exc:
         log.warning("totals sheet: could not read %s: %s", path.name, exc)
         return False

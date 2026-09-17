@@ -242,3 +242,22 @@ def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
     write_workbook([], day, out)
     assert sheet_is_current(out)
     assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]
+
+
+def test_a_sheet_with_a_game_missing_its_line_is_rebuilt_on_the_next_pass(tmp_path: Path) -> None:
+    day = Date(2026, 9, 16)
+    out = tmp_path / f"totals_sheet_{day.isoformat()}.xlsx"
+    side = TeamSide(
+        "AZ", "Zac Gallen (R)", off=0, sp=0, rp=0, kbb_sp=0, kbb_rp=0, bsr_pg=4.4,
+        fatigue=0, fatigue_detail="", pen_detail="",
+    )
+    def row(total: str) -> SheetRow:
+        return SheetRow(
+            "AZ @ KC", None, total, side, side, circa=0, dk=0, weather=0, weather_detail="", park=0,
+            park_detail="", bsr=0, ump=0, ump_name="", ump_status="", ump_detail="",
+        )
+
+    write_workbook([row("7.0"), row("")], day, out)
+    assert not sheet_is_current(out)
+    write_workbook([row("7.0"), row("8.5")], day, out)
+    assert sheet_is_current(out)
