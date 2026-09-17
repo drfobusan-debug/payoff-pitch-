@@ -3551,9 +3551,23 @@
   {
     "matchup": "BOS @ TEX",
     "market": "batter_hrr",
+    "selection": "Jahmai Jones H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.588829
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_hrr",
     "selection": "Jahmai Jones H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.423278
+  },
+  {
+    "matchup": "BOS @ TEX",
+    "market": "batter_hrr",
+    "selection": "Jahmai Jones H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411171
   },
   {
     "matchup": "BOS @ TEX",
