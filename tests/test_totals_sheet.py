@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from openpyxl import load_workbook
 
-from mlb_engine.audit.ledger import LedgerEntry
 from mlb_engine.data.parks import PARKS
 from mlb_engine.data.vsin import Split, TotalSplit
 from mlb_engine.filters.weather import WeatherConditions
@@ -32,6 +31,7 @@ from mlb_engine.output.totals_sheet import (
     write_workbook,
     xera_pts,
 )
+from mlb_engine.recommendations import Recommendation
 from mlb_engine.schemas import Pitcher
 
 
@@ -166,24 +166,35 @@ def test_middle_relief_leaves_out_the_closer_the_setup_arms_and_the_cups_of_coff
     assert "PHI" not in mid
 
 
-def _outs(selection: str, line: float, fair: float, day: str = "2026-09-15") -> LedgerEntry:
-    return LedgerEntry(
-        day, "SF @ STL", "prop", "pitcher_outs", selection, line, "dk", -110, "Pass", 0.5, None, "", 0.0,
-        fair_prob=fair,
+def _outs(pid: int, side: str, line: float, fair: float, market: str = "pitcher_outs") -> Recommendation:
+    return Recommendation(
+        Date(2026, 9, 15), 1, "SF @ STL", "pitcher", market, f"P{pid} Outs {side[0]}{line}", 0.5,
+        line=line, fair_prob=fair, player_id=pid, side=side,
     )
 
 
 def test_the_outs_prop_is_read_as_the_chance_the_starter_leaves_before_the_sixth() -> None:
-    entries = [
-        _outs("Logan Webb Outs u17.5", 17.5, 0.42),
-        _outs("Logan Webb Outs o15.5", 15.5, 0.80),
-        _outs("Sonny Gray Outs u15.5", 15.5, 0.55),
-        _outs("Sonny Gray Outs u18.5", 18.5, 0.70),  # a rung at 6+ innings says nothing about a short start
-        _outs("Sonny Gray Outs u17.5", 17.5, 0.60, day="2026-09-14"),
+    recs = [
+        _outs(1, "under", 17.5, 0.42),
+        _outs(1, "over", 15.5, 0.80),
+        _outs(2, "under", 15.5, 0.55),
+        _outs(2, "under", 18.5, 0.70),  # a rung at 6+ innings says nothing about a short start
+        _outs(2, "under", 17.5, 0.90, market="pitcher_strikeouts"),
     ]
-    outs = outs_under(entries, Date(2026, 9, 15))
-    assert outs[("SF @ STL", "Logan Webb")] == pytest.approx(0.42)
-    assert outs[("SF @ STL", "Sonny Gray")] == pytest.approx(0.55)
+    outs = outs_under(recs)
+    assert outs == {1: pytest.approx(0.42), 2: pytest.approx(0.55)}
+
+
+def test_a_stat_one_arm_lacks_is_averaged_over_the_arms_that_have_it() -> None:
+    rows = [_rel(f"L{i}", "ATH", 40, 3.0, hld=10, pid=10 + i) for i in (1, 2, 3)]
+    rows += [_rel("A", "ATH", 30, 4.0, pid=1), _rel("B", "ATH", 30, 4.0, pid=2)]
+    rows[4]["K-BB%"] = None
+    rows[4]["xERA"] = None
+    rows[3]["xERA"] = None
+    _, mid = middle_relief(rows)
+    ath = mid["ATH"]
+    assert ath.row["K-BB%"] == pytest.approx(0.13) and ath.row["xERA"] is None
+    assert ath.stat("xERA") is None and ath.stat("K-BB%", 100) == 13.0
 
 
 def test_a_short_start_is_the_market_first_then_the_season_line() -> None:
@@ -220,6 +231,12 @@ def test_a_sheet_on_the_current_bands_is_kept_and_an_older_one_is_rebuilt(
     for r in wb["Legend"].iter_rows(min_row=2):
         if r[0].value in ("Bands", "Centre"):
             r[0].value, r[1].value = None, None
+    wb.save(out)
+    assert not sheet_is_current(out)
+    # A sheet from before a column was added is rebuilt even on the same bands.
+    write_workbook([], day, out)
+    wb = load_workbook(out)
+    wb[f"Totals {day.isoformat()}"].delete_cols(1)
     wb.save(out)
     assert not sheet_is_current(out)
     write_workbook([], day, out)
