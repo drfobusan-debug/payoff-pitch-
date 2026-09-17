@@ -1741,7 +1741,7 @@ def _recommendations(
         row.append(reason or "&mdash;")
         rows.append(row)
     strong = [r for r in rated if r[0] == strong_key]
-    names = ", ".join(html.escape(t[2].line.name) for t in strong) or "nobody"
+    names = ", ".join(html.escape(t[2].line.name) for t in strong)
     strong_rec = records.get(strong_key)
     basis = (
         f"its {_grade_record_cell(strong_rec)} on {strong_rec.n} rows is the best record of "
@@ -1757,12 +1757,14 @@ def _recommendations(
         )
         verdict = f"the ledger has paid for {earned} here"
     else:
-        verdict = (
-            f"no bucket has earned a buy word on {LABEL_EARN_ROWS}+ rows, so all "
-            f"{len(rated)} survivors are Watches"
+        count = (
+            f"all {len(rated)} survivors are Watches" if len(rated) != 1
+            else "the one survivor is a Watch"
         )
+        verdict = f"no bucket has earned a buy word on {LABEL_EARN_ROWS}+ rows, so {count}"
+    who = f" ({names})" if strong else " (no survivor in it today)"
     lead = (
-        f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]} ({names}).</strong> "
+        f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]}{who}.</strong> "
         f"It leads the table because {basis}; {verdict}.</p>"
         f"<p class='sub'><strong>The buckets are the composite's top two and xwOBA on "
         f"contact in terciles.</strong> Cut at {CONTACT_GRADE_A:.3f} and "
