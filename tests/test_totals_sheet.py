@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date as Date
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from openpyxl import load_workbook
@@ -19,6 +20,7 @@ from mlb_engine.output.totals_sheet import (
     barrel_pts,
     book_pts,
     csw_pts,
+    day_outs_under,
     kbb_pts,
     middle_relief,
     outs_under,
@@ -31,7 +33,7 @@ from mlb_engine.output.totals_sheet import (
     write_workbook,
     xera_pts,
 )
-from mlb_engine.recommendations import Recommendation
+from mlb_engine.recommendations import Recommendation, save_json
 from mlb_engine.schemas import Pitcher
 
 
@@ -183,6 +185,33 @@ def test_the_outs_prop_is_read_as_the_chance_the_starter_leaves_before_the_sixth
     ]
     outs = outs_under(recs)
     assert outs == {1: pytest.approx(0.42), 2: pytest.approx(0.55)}
+
+
+def _card(pid: int, fair: float, lead: float | None) -> list[Recommendation]:
+    r = _outs(pid, "under", 17.5, fair)
+    r.hours_to_first_pitch = lead
+    return [r]
+
+
+def test_the_outs_prop_comes_off_the_card_the_audit_grades(tmp_path: Path) -> None:
+    cfg = SimpleNamespace(audit_dir=tmp_path)
+    day = Date(2026, 9, 14)
+    local, pregame = tmp_path / "predictions_2026-09-14.json", tmp_path / "predictions_2026-09-14.pregame.json"
+    assert day_outs_under(cfg, day) == {}
+
+    # the pregame copy is the record when the local card is older (08:00 vs 11:00)
+    save_json(_card(1, 0.40, lead=5.0), local)
+    save_json(_card(1, 0.60, lead=2.0), pregame)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
+    # ...or was re-priced after first pitch
+    save_json(_card(1, 0.40, lead=-1.0), local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
+    # a later, still-pregame local card outranks it
+    save_json(_card(1, 0.40, lead=1.0), local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.40)}
+    # a winner with no outs props defers to the other copy
+    save_json([_outs(1, "under", 17.5, 0.40, market="pitcher_strikeouts")], local)
+    assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
 
 
 def test_a_stat_one_arm_lacks_is_averaged_over_the_arms_that_have_it() -> None:

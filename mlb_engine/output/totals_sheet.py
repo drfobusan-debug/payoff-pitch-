@@ -620,12 +620,30 @@ def outs_under(recs: list[Recommendation]) -> OutsUnder:
     return out
 
 
+def _card_lead(recs: list[Recommendation]) -> float | None:
+    """Hours from when the card was priced to its first pitch; None when unstamped."""
+    leads = [r.hours_to_first_pitch for r in recs if r.hours_to_first_pitch is not None]
+    return min(leads) if leads else None
+
+
 def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
-    """The outs props ``mlb-engine run`` saved for the day (or the audit's pregame copy of them)."""
+    """The outs props off the card the audit grades for the day.
+
+    Same rule as ``cmd_audit``: the pregame copy is the record; the local
+    ``predictions_<day>.json`` only outranks it when it was priced later and
+    still ahead of first pitch. Whichever loses is still consulted when the
+    winner carries no outs props at all.
+    """
     stem = cfg.audit_dir / f"predictions_{day.isoformat()}"
-    for path in (stem.with_suffix(".json"), stem.with_suffix(".pregame.json")):
-        if path.exists():
-            return outs_under(load_json(path))
+    cards = [load_json(p) for p in (stem.with_suffix(".json"), stem.with_suffix(".pregame.json")) if p.exists()]
+    if len(cards) == 2:
+        local, pregame = cards
+        lead, prior = _card_lead(local), _card_lead(pregame)
+        if not (lead is not None and lead > 0 and prior is not None and lead < prior):
+            cards = [pregame, local]
+    for recs in cards:
+        if outs := outs_under(recs):
+            return outs
     return {}
 
 
