@@ -23228,6 +23228,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_1b",
+    "selection": "Nolan Arenado 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.458584
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Nolan Arenado 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.541416
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
     "selection": "Otto Lopez 1B o0.5",
     "american": -143.0,
     "no_vig_prob": 0.555424
@@ -23266,6 +23280,20 @@
     "selection": "Ryan Waldschmidt 1B u0.5",
     "american": -154.0,
     "no_vig_prob": 0.562431
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Tim Tawa 1B o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410932
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_1b",
+    "selection": "Tim Tawa 1B u0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.589068
   },
   {
     "matchup": "MIA @ AZ",
@@ -23522,6 +23550,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_2b",
+    "selection": "Nolan Arenado 2B o0.5",
+    "american": 413.0,
+    "no_vig_prob": 0.185561
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Nolan Arenado 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.814439
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
     "selection": "Otto Lopez 2B o0.5",
     "american": 397.0,
     "no_vig_prob": 0.211723
@@ -23564,6 +23606,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_2b",
+    "selection": "Tim Tawa 2B o0.5",
+    "american": 462.0,
+    "no_vig_prob": 0.17352
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
+    "selection": "Tim Tawa 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.82648
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_2b",
     "selection": "Xavier Edwards 2B o0.5",
     "american": 369.0,
     "no_vig_prob": 0.210419
@@ -23602,6 +23658,20 @@
     "selection": "Corbin Carroll BB u0.5",
     "american": -215.0,
     "no_vig_prob": 0.637812
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Esteury Ruiz BB o0.5",
+    "american": 340.0,
+    "no_vig_prob": 0.211726
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Esteury Ruiz BB u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.788274
   },
   {
     "matchup": "MIA @ AZ",
@@ -23672,6 +23742,20 @@
     "selection": "Jakob Marsee BB u0.5",
     "american": -200.0,
     "no_vig_prob": 0.62991
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Jesus Sanchez BB o0.5",
+    "american": 314.0,
+    "no_vig_prob": 0.232486
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Jesus Sanchez BB u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.767514
   },
   {
     "matchup": "MIA @ AZ",
@@ -23788,6 +23872,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_bb",
+    "selection": "Tim Tawa BB o0.5",
+    "american": 296.0,
+    "no_vig_prob": 0.237741
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
+    "selection": "Tim Tawa BB u0.5",
+    "american": -439.0,
+    "no_vig_prob": 0.762259
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_bb",
     "selection": "Xavier Edwards BB o0.5",
     "american": 166.0,
     "no_vig_prob": 0.365003
@@ -23823,9 +23921,37 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_hrr",
+    "selection": "Corbin Carroll H+R+RBI o2.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
     "selection": "Corbin Carroll H+R+RBI u1.5",
     "american": 120.0,
     "no_vig_prob": 0.452433
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Corbin Carroll H+R+RBI u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Esteury Ruiz H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.584852
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Esteury Ruiz H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.415148
   },
   {
     "matchup": "MIA @ AZ",
@@ -23924,6 +24050,20 @@
     "selection": "Javier Sanoja H+R+RBI u1.5",
     "american": 105.0,
     "no_vig_prob": 0.490374
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Jesus Sanchez H+R+RBI o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.437165
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Jesus Sanchez H+R+RBI u1.5",
+    "american": -143.0,
+    "no_vig_prob": 0.562835
   },
   {
     "matchup": "MIA @ AZ",
@@ -24054,6 +24194,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_hrr",
+    "selection": "Tim Tawa H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.427543
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
+    "selection": "Tim Tawa H+R+RBI u1.5",
+    "american": -140.0,
+    "no_vig_prob": 0.572457
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hrr",
     "selection": "Xavier Edwards H+R+RBI o1.5",
     "american": -120.0,
     "no_vig_prob": 0.517054
@@ -24155,6 +24309,13 @@
     "selection": "Javier Sanoja HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_hr",
+    "selection": "Jesus Sanchez HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
   },
   {
     "matchup": "MIA @ AZ",
@@ -24873,6 +25034,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_rbi",
+    "selection": "Nolan Arenado RBI o0.5",
+    "american": 179.0,
+    "no_vig_prob": 0.346059
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Nolan Arenado RBI u0.5",
+    "american": -220.0,
+    "no_vig_prob": 0.653941
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
     "selection": "Otto Lopez RBI o0.5",
     "american": 200.0,
     "no_vig_prob": 0.334614
@@ -24911,6 +25086,20 @@
     "selection": "Ryan Waldschmidt RBI u0.5",
     "american": -374.0,
     "no_vig_prob": 0.738003
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Tim Tawa RBI o0.5",
+    "american": 267.0,
+    "no_vig_prob": 0.277844
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_rbi",
+    "selection": "Tim Tawa RBI u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.722156
   },
   {
     "matchup": "MIA @ AZ",
@@ -25167,6 +25356,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_r",
+    "selection": "Nolan Arenado R o0.5",
+    "american": 144.0,
+    "no_vig_prob": 0.388145
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Nolan Arenado R u0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.611855
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
     "selection": "Otto Lopez R o0.5",
     "american": 130.0,
     "no_vig_prob": 0.405206
@@ -25209,6 +25412,20 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_r",
+    "selection": "Tim Tawa R o0.5",
+    "american": 153.0,
+    "no_vig_prob": 0.377906
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
+    "selection": "Tim Tawa R u0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.622094
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_r",
     "selection": "Xavier Edwards R o0.5",
     "american": 130.0,
     "no_vig_prob": 0.407239
@@ -25240,6 +25457,13 @@
     "selection": "Esteury Ruiz TB o0.5",
     "american": -115.0,
     "no_vig_prob": 0.50201
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Esteury Ruiz TB o1.5",
+    "american": 205.0,
+    "no_vig_prob": 0.327869
   },
   {
     "matchup": "MIA @ AZ",
@@ -25461,9 +25685,23 @@
   {
     "matchup": "MIA @ AZ",
     "market": "batter_tb",
+    "selection": "Nolan Arenado TB o1.5",
+    "american": 158.0,
+    "no_vig_prob": 0.369729
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
     "selection": "Nolan Arenado TB u0.5",
     "american": 150.0,
     "no_vig_prob": 0.381901
+  },
+  {
+    "matchup": "MIA @ AZ",
+    "market": "batter_tb",
+    "selection": "Nolan Arenado TB u1.5",
+    "american": -208.0,
+    "no_vig_prob": 0.630271
   },
   {
     "matchup": "MIA @ AZ",
@@ -38607,6 +38845,34 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_bb",
+    "selection": "Taylor Ward BB o0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.427592
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
+    "selection": "Taylor Ward BB u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.572408
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
+    "selection": "Vaughn Grissom BB o0.5",
+    "american": 350.0,
+    "no_vig_prob": 0.206897
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
+    "selection": "Vaughn Grissom BB u0.5",
+    "american": -575.0,
+    "no_vig_prob": 0.793103
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_bb",
     "selection": "Wade Meckler BB o0.5",
     "american": 207.0,
     "no_vig_prob": 0.305488
@@ -38684,9 +38950,23 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_hrr",
+    "selection": "Christian Moore H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
     "selection": "Christian Moore H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.39872
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_hrr",
+    "selection": "Christian Moore H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
   },
   {
     "matchup": "SEA @ LAA",
@@ -40091,9 +40371,23 @@
   {
     "matchup": "SEA @ LAA",
     "market": "batter_tb",
+    "selection": "Denzer Guzman TB o1.5",
+    "american": 156.0,
+    "no_vig_prob": 0.366372
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
     "selection": "Denzer Guzman TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.418884
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Denzer Guzman TB u1.5",
+    "american": -209.0,
+    "no_vig_prob": 0.633628
   },
   {
     "matchup": "SEA @ LAA",
@@ -40283,6 +40577,13 @@
     "selection": "Taylor Ward TB u0.5",
     "american": 115.0,
     "no_vig_prob": 0.439847
+  },
+  {
+    "matchup": "SEA @ LAA",
+    "market": "batter_tb",
+    "selection": "Taylor Ward TB u1.5",
+    "american": -234.0,
+    "no_vig_prob": 0.655475
   },
   {
     "matchup": "SEA @ LAA",
