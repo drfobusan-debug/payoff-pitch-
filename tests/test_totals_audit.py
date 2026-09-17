@@ -17,6 +17,7 @@ from mlb_engine.output.totals_audit import (
     attach_engine,
     engine_at,
     engine_median,
+    flag,
     grade,
     merge,
     over_curves,
@@ -355,3 +356,29 @@ def test_a_doubleheader_is_left_lineless_because_the_close_cannot_tell_the_games
     ]
     assert attach_lines(rows, {"NYY @ BOS": 8.0, "AZ @ KC": 8.5}) == 1
     assert [r.line for r in rows] == [None, None, 8.5]
+
+
+def test_the_watch_buckets_take_a_moderate_lean_only_on_a_total_the_book_left_low() -> None:
+    assert flag(8, 8.5) == "over" and flag(5, 7.0) == "over" and flag(14, 8.5) == "over"
+    assert flag(8, 9.0) == "" and flag(4, 8.0) == "" and flag(15, 8.0) == "" and flag(8, None) == ""
+    assert flag(-8, 7.5) == "under" and flag(-5, 6.5) == "under" and flag(-14, 7.5) == "under"
+    assert flag(-8, 8.0) == "" and flag(-4, 7.0) == "" and flag(-15, 7.0) == ""
+
+
+def test_the_watch_buckets_are_graded_as_bets_on_their_own_side() -> None:
+    d = "2026-09-12"
+    rows = [
+        LedgerRow(d, "COL @ NYY", 1, 8.5, 8, 6, 5, "over", bands=BANDS),  # watch over, hit
+        LedgerRow(d, "TB @ ATL", 2, 8.0, 6, 1, 3, "under", bands=BANDS),  # watch over, miss
+        LedgerRow(d, "SD @ SF", 3, 9.5, 9, 6, 5, "over", bands=BANDS),  # over lean, line too high: not watched
+        LedgerRow(d, "PIT @ CWS", 4, 7.5, -7, 2, 0, "under", bands=BANDS),  # watch under, hit
+        LedgerRow(d, "TEX @ SEA", 5, 7.0, -13, 3, 4, "push", bands=BANDS),  # watch under, push
+        LedgerRow(d, "CLE @ DET", 6, 8.0, -9, 2, 1, "under", bands=BANDS),  # under lean, line too high
+    ]
+    s = summarize(rows)
+    assert (s.flag_over.hits, s.flag_over.misses, s.flag_over.pushes) == (1, 1, 0)
+    assert (s.flag_under.hits, s.flag_under.misses, s.flag_under.pushes) == (1, 0, 1)
+    text = summary_text(Date(2026, 9, 12), rows, s)
+    assert "Watch buckets" in text and "total <= 8.5: 1-1 (50%)" in text and "total <= 7.5: 1-0-1 (100%)" in text
+    assert "+8 COL @ NYY 8.5 6-5 (11) over hit [watch over]" in text
+    assert "+9 SD @ SF 9.5 6-5 (11) over hit\n" in text

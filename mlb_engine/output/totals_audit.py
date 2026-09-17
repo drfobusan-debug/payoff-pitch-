@@ -61,6 +61,27 @@ RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ra
 BANDS = "centred-2026.09"
 LEGACY = "legacy"
 
+# The two watch buckets from the Aug 4 - Sep 16 factor study: a moderate lean the
+# book has not already priced into the number. Neither is a proven edge; the
+# tracker exists to find out.
+FLAG_OVER_SUM = (5, 14)
+FLAG_OVER_MAX_LINE = 8.5
+FLAG_UNDER_SUM = (-14, -5)
+FLAG_UNDER_MAX_LINE = 7.5
+
+
+def flag(sum_pts: int, line: float | None) -> str:
+    """OVER when SUM sits in the +5..14 band on a total of 8.5 or lower, UNDER for
+    the -5..-14 band on 7.5 or lower, '' otherwise (including an unposted line)."""
+    if line is None:
+        return ""
+    if FLAG_OVER_SUM[0] <= sum_pts <= FLAG_OVER_SUM[1] and line <= FLAG_OVER_MAX_LINE:
+        return OVER
+    if FLAG_UNDER_SUM[0] <= sum_pts <= FLAG_UNDER_SUM[1] and line <= FLAG_UNDER_MAX_LINE:
+        return UNDER
+    return ""
+
+
 # Sheet rows that reference the sheet's own columns, not the audit's.
 _GAME, _TOTAL, _SUM = "Game", "Total", "SUM"
 _LEGEND_SHEET, _BANDS_KEY = "Legend", "Bands"
@@ -108,6 +129,16 @@ class LedgerRow:
         if not self.graded or self.result == PUSH or not self.lean:
             return None
         return self.lean == self.result
+
+    @property
+    def flag(self) -> str:
+        return flag(self.sum_pts, self.line)
+
+    @property
+    def flag_hit(self) -> bool | None:
+        if not self.graded or self.result == PUSH or not self.flag:
+            return None
+        return self.flag == self.result
 
     @property
     def engine_lean(self) -> str:
@@ -560,6 +591,9 @@ class Summary:
     edge: Tally = field(default_factory=Tally)
     agree: Tally = field(default_factory=Tally)
     split_sheet: Tally = field(default_factory=Tally)  # the sheet's call where the engine leaned the other way
+    # The study's watch buckets, graded as bets on their own side.
+    flag_over: Tally = field(default_factory=Tally)
+    flag_under: Tally = field(default_factory=Tally)
 
     @property
     def split_engine(self) -> Tally:
@@ -576,9 +610,14 @@ def summarize(rows: list[LedgerRow]) -> Summary:
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
     by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
     engine, edge, agree, split = Tally(), Tally(), Tally(), Tally()
+    flag_o, flag_u = Tally(), Tally()
     for r in graded:
         pushed = r.result == PUSH
         base.add(r.result == OVER if not pushed else None, pushed)
+        if r.flag == OVER:
+            flag_o.add(r.flag_hit, pushed)
+        elif r.flag == UNDER:
+            flag_u.add(r.flag_hit, pushed)
         if r.lean:
             sign.add(r.hit, pushed)
             band = mag_band(r.sum_pts)
@@ -605,7 +644,7 @@ def summarize(rows: list[LedgerRow]) -> Summary:
                 rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
     return Summary(
         sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy,
-        engine=engine, edge=edge, agree=agree, split_sheet=split,
+        engine=engine, edge=edge, agree=agree, split_sheet=split, flag_over=flag_o, flag_under=flag_u,
     )
 
 
@@ -615,6 +654,19 @@ def engine_lines(total: Summary) -> list[str]:
         f"Engine on the same lines: side of line {total.engine.text()} | vs market {total.edge.text()}",
         f"  sheet & engine agree {total.agree.text()} | split: sheet {total.split_sheet.text()}, engine {total.split_engine.text()}",
     ]
+
+
+def flag_lines(total: Summary) -> list[str]:
+    """The two watch buckets: record, 95% range, verdict vs break-even."""
+    out = ["Watch buckets (study leans, not proven; graded as bets on their side):"]
+    for name, t in (
+        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]}, total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
+        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]}, total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
+    ):
+        lo, hi = wilson(t.hits, t.n)
+        rng = f" [{100 * lo:.0f}-{100 * hi:.0f}%]" if t.n else ""
+        out.append(f"  {name}: {t.text()}{rng} {verdict(t)}")
+    return out
 
 
 def mag_lines(total: Summary) -> list[str]:
@@ -641,7 +693,8 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
             mark = "" if r.hit is None else "hit" if r.hit else "miss"
             runs = "" if r.runs is None else f" {r.away_runs}-{r.home_runs} ({r.runs})"
             eng = "" if r.engine_total is None else f" eng {r.engine_total:.1f}"
-            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}".rstrip())
+            flagged = f" [watch {r.flag}]" if r.flag else ""
+            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}{flagged}".rstrip())
     lines.append(
         f"Ledger ({total.days} days, {total.games} games): sign {total.sign.text()} | "
         f"top-{RANK_N} overs {total.rank_over.text()} | bottom-{RANK_N} unders {total.rank_under.text()} | "
@@ -650,6 +703,7 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
     )
     lines.append(f"Win rate by |SUM| band (sign as the call; break-even {100 * BREAK_EVEN:.1f}%):")
     lines.extend(mag_lines(total))
+    lines.extend(flag_lines(total))
     lines.extend(engine_lines(total))
     return "\n".join(lines)
 
@@ -662,7 +716,7 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     green = PatternFill("solid", fgColor="C6EFCE")
     red = PatternFill("solid", fgColor="FFC7CE")
     cols = [
-        "Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Bands",
+        "Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Watch", "Watch hit", "Bands",
         "Engine", "Eng O%", "Mkt O%", "Eng lean", "Eng hit", "Agree",
     ]
 
@@ -677,10 +731,10 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
         for r in sorted(rows, key=lambda r: (r.date, -r.sum_pts)):
             ws.append([
                 r.date, r.game, r.line, r.sum_pts, r.lean, r.away_runs, r.home_runs, r.runs, r.result,
-                mark(r.hit), r.bands,
+                mark(r.hit), r.flag, mark(r.flag_hit), r.bands,
                 r.engine_total, r.engine_p_over, r.market_p_over, r.engine_lean, mark(r.engine_hit), r.agreement,
             ])
-            for name, hit in (("Hit", r.hit), ("Eng hit", r.engine_hit)):
+            for name, hit in (("Hit", r.hit), ("Watch hit", r.flag_hit), ("Eng hit", r.engine_hit)):
                 cell = ws.cell(row=ws.max_row, column=cols.index(name) + 1)
                 if hit is True:
                     cell.fill = green
@@ -722,6 +776,19 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     for c in s[s.max_row]:
         c.font = bold
     for name, t in total.by_mag.items():
+        lo, hi = wilson(t.hits, t.n)
+        s.append([
+            name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
+            round(lo, 3) if t.n else None, round(hi, 3) if t.n else None, verdict(t),
+        ])
+    s.append([])
+    s.append(["Watch buckets (study leans, graded as bets on their side)", "hits-misses(-pushes)", "win rate", "95% low", "95% high", "verdict"])
+    for c in s[s.max_row]:
+        c.font = bold
+    for name, t in (
+        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
+        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
+    ):
         lo, hi = wilson(t.hits, t.n)
         s.append([
             name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
