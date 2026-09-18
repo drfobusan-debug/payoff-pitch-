@@ -25,6 +25,14 @@ description: How to run and verify the payoff-pitch MLB engine end-to-end (live 
 - `python -m mlb_engine.cli audit --date YYYY-MM-DD` only prints metrics and refreshes
   `ledger.xlsx`. **The md/HTML/PDF audit report is only written when you pass `--report`**
   (`--email` also triggers it). Do not conclude the PDF is broken because timestamps did not change.
+- Audit report on its own, no grading: `python -m mlb_engine.cli report --period daily|weekly --date YYYY-MM-DD`
+  (`cmd_report`) reads `$MLBE_DATA_DIR/audit/ledger.csv` and writes `audit_report_<date>.{md,html,pdf}`
+  (weekly: `audit_report_week_<date>`) to `$MLBE_DATA_DIR/output/`. To test against the real
+  record without touching production, seed an isolated dir with
+  `git show origin/engine-state:mlb/ledger.csv > $MLBE_DATA_DIR/audit/ledger.csv` and set
+  `MLBE_STATE_SYNC=0` so it skips the state pull. When spot-checking a scorecard/NPV/ROI figure by hand,
+  apply `one_side_per_prop` to the ledger rows first — the report measures one row per wager, so raw
+  ledger tallies will not match.
 - Gates: `python -m pytest -q`, `ruff check mlb_engine cfb_engine tests`, `mypy mlb_engine cfb_engine`.
 
 ## Verifying tier / threshold behaviour
