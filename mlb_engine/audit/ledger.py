@@ -322,6 +322,8 @@ class OverallMetrics:
     priced_n: int = 0
     priced_roi: float = 0.0
     priced_units: float = 0.0
+    # Sides the model faded (TN + FN); NPV is undefined over none of them.
+    faded_n: int = 0
 
 
 def _metrics(
@@ -373,6 +375,7 @@ def _metrics(
         units=round(units, 3),
         required_win_pct=_safe(breakeven, stake),
         priced_n=int(priced_stake),
+        faded_n=tn + fn,
         priced_roi=_safe(priced_units, priced_stake),
         priced_units=round(priced_units, 3),
     )

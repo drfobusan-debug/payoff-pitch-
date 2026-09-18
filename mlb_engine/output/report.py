@@ -6,8 +6,7 @@ The report mirrors the layout the engine's owner settled on:
 2. Core metrics (whole-engine + tier rows)
 3. Market scorecard (per-market PPV / NPV / ROI / min-p-to-play / verdict)
 4. Most common errors (detected from the ledger)
-5. Recommendations (each mapped to a goal: PPV / NPV / FP / FN)
-6. What to play and fade right now
+5. What to play and fade right now
 
 The same renderer produces the **daily** report (one graded slate) and the
 **weekly** report (trailing seven days), differing only in the period label and
@@ -66,6 +65,9 @@ MIN_PRICED = 30
 
 PLAY_FLOOR = "0.58"  # conviction floor for a green market
 NEUTRAL_FLOOR = "0.62"  # higher bar before betting a yellow market
+# Backed run lines a miss matrix needs before it is printed: a two-row table on
+# five losses was writing a finding about game scripts off one week of variance.
+RL_MIN_N = 50
 
 _DOT = {PLAY: "🟢", NEUTRAL: "🟡", FADE: "🔴"}
 
@@ -113,6 +115,12 @@ class MarketRow:
     reason: str
     priced_n: int = 0
     priced_roi: float = 0.0
+    faded_n: int = 0
+
+
+def _npv(r: MarketRow | OverallMetrics) -> str:
+    """NPV over the sides the model faded; a market it never faded has none."""
+    return "—" if r.faded_n == 0 else f"{r.npv:.2f}"
 
 
 def _classify(m: OverallMetrics, *, shut: frozenset[str] = frozenset()) -> MarketRow:
@@ -137,7 +145,7 @@ def _classify(m: OverallMetrics, *, shut: frozenset[str] = frozenset()) -> Marke
     ) -> MarketRow:
         return MarketRow(
             m.tier, label, m.n, m.ppv, m.npv, m.roi, verdict, min_p, abstained,
-            reason, m.priced_n, m.priced_roi,
+            reason, m.priced_n, m.priced_roi, m.faded_n,
         )
 
     if m.n == 0:
@@ -165,6 +173,10 @@ def _classify(m: OverallMetrics, *, shut: frozenset[str] = frozenset()) -> Marke
     return row(NEUTRAL, NEUTRAL_FLOOR, "no proven edge — coin-flip")
 
 
+def _rl_printable(m: RunLineMissMatrix) -> bool:
+    return m.fav_n + m.dog_n >= RL_MIN_N
+
+
 @dataclass
 class ReportData:
     period_label: str
@@ -174,7 +186,6 @@ class ReportData:
     tiers: list[OverallMetrics]
     rows: list[MarketRow]
     errors: list[str]
-    recommendations: list[str]  # each: "text || goal-tag"
     play: list[str]
     neutral: list[str]
     fade: list[str]
@@ -268,7 +279,6 @@ def build_report_data(
     fade = [r.label for r in rows if r.verdict == FADE]
 
     errors: list[str] = []
-    recs: list[str] = []
 
     # 1 — thin-edge / EV-chasing buys
     buy = _tier_row(tiers, "Buy (S+M)")
@@ -277,11 +287,6 @@ def build_report_data(
             f"**Coin-flips dressed as strong bets.** Strong/Moderate buys won only "
             f"{_pct(buy.win_pct)} (n={buy.n}) — below the {_pct(BREAKEVEN)} breakeven. "
             f"Plus-money prices are promoting near-toss-ups to 'buys' on EV alone."
-        )
-        recs.append(
-            "Add a conviction floor to bet selection — require model probability "
-            f"≥ ~{PLAY_FLOOR} *in addition to* positive EV before tagging any play a "
-            "Moderate/Strong buy.||✕ eliminate false positives · ↑ PPV"
         )
 
     # 2 — systematic Under bias
@@ -292,25 +297,18 @@ def build_report_data(
             f"(n={n}) — the run/offense model is under-projecting scoring and getting "
             f"burned when games go over."
         )
-        recs.append(
-            "Recalibrate the offense/run model upward — re-check the run-total mean "
-            "and the park + weather scoring multipliers so projected totals aren't low."
-            "||✕ eliminate false positives · ↓ reduce false negatives · ↑ PPV & NPV"
-        )
 
-    # 3 — under-rated offensive upside (false negatives on props)
+    # 3 — under-rated offensive upside (false negatives on props). Only a market
+    # the book has quoted can be under-rated in a way that costs money; a fade
+    # that keeps winning on an unpriced market is a classification note, not a leak.
+    quoted = {r.market for r in rows if r.priced_n > 0}
     fns = false_negative_insights(entries)
-    fn_markets = sorted({_label(i.market) for i in fns})
+    fn_markets = sorted({_label(i.market) for i in fns if i.market in quoted})
     if fn_markets:
         shown = ", ".join(fn_markets[:4])
         errors.append(
             f"**Underrating offensive upside.** Faded picks kept winning in {shown} "
             "— the model treats the ceiling of good hitters as lower than reality."
-        )
-        recs.append(
-            "Fatten the offensive upside tail — give quality hitters more weight on "
-            "the multi-hit (o1.5) and combo (o2.5) lines where faded picks keep hitting."
-            "||↓ reduce false negatives · ↑ NPV & PPV"
         )
 
     # 4 — starter length sold short
@@ -320,49 +318,19 @@ def build_report_data(
             f"**Selling starters short.** Faded 'outs' overs still won {_pct(owr)} "
             f"(n={on}) — efficient starters are pitching deeper than the model expects."
         )
-        recs.append(
-            "Loosen starter-length limits for efficient arms — raise the outs "
-            "projection for low-pitch-per-batter starters."
-            "||↓ reduce false negatives · ↑ NPV"
-        )
 
     # 5 — fade pockets
     fade_labels = ", ".join(fade)
     if fade:
         errors.append(
             f"**Money-losing pockets.** {fade_labels} are currently below breakeven "
-            "and should be sat out until the fixes above ship."
-        )
-        recs.append(
-            f"Gate or drop the red markets ({fade_labels}) — do not bet them until "
-            "their PPV recovers."
-            "||✕ eliminate false positives · ↑ PPV"
-        )
-
-    # 6 — fading moderate market favorites (NPV leak on moneylines)
-    ml_faded_won = [
-        e for e in entries
-        if e.market == "game_ml" and e.model_prob < 0.5 and e.result == "win"
-    ]
-    if ml_faded_won:
-        recs.append(
-            "Shrink thin edges toward the market — when the market prices a side "
-            "≥ ~.57 but the model is under .50, blend toward the market instead of "
-            "fully fading it.||↓ reduce false negatives · ↑ NPV"
-        )
-
-    # always: protect what works
-    if play:
-        recs.append(
-            "Leave the green markets alone — " + ", ".join(play) + " are the model's "
-            "strengths; keep them and size up where conviction is real."
-            "||protects existing PPV"
+            "and should be sat out."
         )
 
     # run-line miss matrix: where backed run-line picks lose (one-run-win vs
     # blowout). Rendered in its own report section.
     rl_matrix = run_line_miss_matrix(entries)
-    rl_findings = run_line_miss_findings(entries)
+    rl_findings = run_line_miss_findings(entries) if _rl_printable(rl_matrix) else []
 
     return ReportData(
         period_label=period_label,
@@ -372,7 +340,6 @@ def build_report_data(
         tiers=tiers,
         rows=rows,
         errors=errors,
-        recommendations=recs,
         play=play,
         neutral=neutral,
         fade=fade,
@@ -466,7 +433,7 @@ def render_markdown_report(d: ReportData) -> str:
     eng = d.engine
     L.append(
         f"| **Whole engine** (favored side) | {eng.n} | **{_pct(eng.ppv)}** | "
-        f"{eng.npv:.2f} | **{_priced_roi(eng)}** | {eng.roi * 100:+.1f}% |"
+        f"{_npv(eng)} | **{_priced_roi(eng)}** | {eng.roi * 100:+.1f}% |"
     )
     for name in ("Strong buy", "Moderate buy"):
         t = _tier_row(d.tiers, name)
@@ -496,7 +463,7 @@ def render_markdown_report(d: ReportData) -> str:
     for r in d.rows:
         ppv = "—" if r.abstained else f"{r.ppv:.2f}"
         L.append(
-            f"| {r.label} | {ppv} | {r.npv:.2f} | {_row_roi(r)} | {r.min_p} | "
+            f"| {r.label} | {ppv} | {_npv(r)} | {_row_roi(r)} | {r.min_p} | "
             f"{_DOT[r.verdict]} {r.verdict} |"
         )
     L.append("")
@@ -567,7 +534,7 @@ def render_markdown_report(d: ReportData) -> str:
                 L.append(f"- {p.finding}")
         L.append("")
 
-    if d.rl_matrix.has_data:
+    if _rl_printable(d.rl_matrix):
         m = d.rl_matrix
         L.append("---\n")
         L.append("## Run-line miss matrix\n")
@@ -606,19 +573,8 @@ def render_markdown_report(d: ReportData) -> str:
     L.append("")
 
     L.append("---\n")
-    L.append("## Recommendations\n")
-    L.append(
-        "*Each action is mapped to the goal it serves:* **↑ PPV · ↑ NPV · "
-        "✕ eliminate false positives · ↓ reduce false negatives.**\n"
-    )
-    for i, rec in enumerate(d.recommendations, 1):
-        text, _, goal = rec.partition("||")
-        L.append(f"> **{i} — {text.strip()}**")
-        L.append(f"> → **{goal.strip()}**\n")
-
     L.append("### What to play and fade right now\n")
-    L.append("Based on this audit, until the fixes above ship *(verdicts match the "
-             "scorecard)*:\n")
+    L.append("Based on this audit *(verdicts match the scorecard)*:\n")
     L.append(
         f"- **🟢 Play:** {', '.join(d.play) if d.play else '—'} — each only when the "
         f"selection clears the **{PLAY_FLOOR}** conviction floor."
@@ -681,7 +637,7 @@ def render_html_report(d: ReportData) -> str:
         "<tr><th>Scope</th><th>n</th><th>PPV (pick win%)</th><th>NPV</th>"
         "<th>ROI (priced)</th><th>ROI (blended)</th></tr>",
         f"<tr><td><strong>Whole engine</strong> (favored side)</td><td>{eng.n}</td>"
-        f"<td><strong>{_pct(eng.ppv)}</strong></td><td>{eng.npv:.2f}</td>"
+        f"<td><strong>{_pct(eng.ppv)}</strong></td><td>{_npv(eng)}</td>"
         f"<td><strong>{html.escape(_priced_roi(eng))}</strong></td>"
         f"<td>{eng.roi * 100:+.1f}%</td></tr>",
     ]
@@ -713,7 +669,7 @@ def render_html_report(d: ReportData) -> str:
     for r in d.rows:
         ppv = "—" if r.abstained else f"{r.ppv:.2f}"
         sc.append(
-            f"<tr><td>{html.escape(r.label)}</td><td>{ppv}</td><td>{r.npv:.2f}</td>"
+            f"<tr><td>{html.escape(r.label)}</td><td>{ppv}</td><td>{_npv(r)}</td>"
             f"<td>{html.escape(_row_roi(r))}</td><td>{html.escape(r.min_p)}</td>"
             f"<td>{_DOT[r.verdict]} {r.verdict}</td></tr>"
         )
@@ -790,7 +746,7 @@ def render_html_report(d: ReportData) -> str:
                 b.append(f"<li>{_md_inline_to_html(p.finding)}</li>")
             b.append("</ul>")
 
-    if d.rl_matrix.has_data:
+    if _rl_printable(d.rl_matrix):
         m = d.rl_matrix
         b.append("<h2>Run-line miss matrix</h2>")
         b.append(
@@ -830,16 +786,6 @@ def render_html_report(d: ReportData) -> str:
         b.append("<li>No systematic error pattern cleared the detection thresholds "
                  "this period.</li>")
     b.append("</ul>")
-
-    b.append("<h2>Recommendations</h2>")
-    b.append("<p><em>Each action is mapped to the goal it serves: ↑ PPV · ↑ NPV · "
-             "✕ eliminate false positives · ↓ reduce false negatives.</em></p>")
-    for i, rec in enumerate(d.recommendations, 1):
-        text, _, goal = rec.partition("||")
-        b.append(
-            f"<blockquote><strong>{i} — {_md_inline_to_html(text.strip())}</strong>"
-            f"<br>→ <strong>{html.escape(goal.strip())}</strong></blockquote>"
-        )
 
     b.append("<h3>What to play and fade right now</h3><ul>")
     b.append(f"<li><strong>🟢 Play:</strong> {html.escape(', '.join(d.play) or '—')} — "
