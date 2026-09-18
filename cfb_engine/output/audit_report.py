@@ -109,7 +109,7 @@ def _probation_list(findings: list[str]) -> str:
 def _clv_table(rows: list[ClvSummary]) -> str:
     if not rows:
         return "<p>No closing snapshot captured for this slate.</p>"
-    head = "<tr><th>Market</th><th>N</th><th>Mean CLV</th><th>Beat close</th></tr>"
+    head = "<tr><th>Population</th><th>N</th><th>Mean CLV</th><th>Beat close</th></tr>"
     body = "".join(
         f"<tr><td>{c.label}</td><td>{c.n}</td>"
         f"<td class='{_cls(c.mean_clv)}'>{c.mean_clv * 100:+.2f}</td>"
@@ -150,7 +150,7 @@ def build_audit_article(
         f"<h2>By segment</h2>{_metric_table(overall)}"
         f"<h2>What the prices did</h2>{_money_table(money_rows or [])}"
         f"<h2>By price length</h2>{_price_table(price_rows or [])}"
-        f"<h2>Closing line value</h2>{_clv_table(clv_rows)}"
+        f"<h2>Closing line value &mdash; bets</h2>{_clv_table(clv_rows)}"
         f"<h2>Probation</h2>{_probation_list(probation or [])}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"

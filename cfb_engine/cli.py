@@ -25,9 +25,11 @@ from zoneinfo import ZoneInfo
 from cfb_engine.audit import snapshot
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
+    ClosingQuote,
+    bet_clv_summary,
     closing_quotes,
-    clv_summary,
     compute_clv,
+    drop_in_play,
     load_closing,
     merge_closing,
     save_closing,
@@ -57,6 +59,7 @@ from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
+from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
 from cfb_engine.output.excel import write_ledger_workbook, write_workbook
@@ -211,7 +214,13 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     entries = entries_from_graded(graded, day)
-    closing = load_closing(cfg.closing_file(day))
+    closing, in_play = drop_in_play(
+        load_closing(cfg.closing_file(day)), snapshot.load(cfg.board_file(day))
+    )
+    if in_play:
+        print(
+            f"Close ignored for {len(in_play)} game(s) quoted in play: {', '.join(sorted(in_play))}"
+        )
     if closing:
         # entries_from_graded emits one entry per graded rec, in order, so the
         # rec's side (cover/over/under) travels with its ledger row.
@@ -407,6 +416,75 @@ def _print_probation(verdicts: list[Probation]) -> None:
             print(f"  - {p.finding}")
 
 
+_BUY_TIERS = {Tier.STRONG.value, Tier.MODERATE.value}
+
+
+def _favors_fair(e: LedgerEntry) -> bool:
+    return e.fair_prob is not None and e.model_prob > e.fair_prob
+
+
+def _side_of(market: str, selection: str) -> str | None:
+    if market != "game_total":
+        return None
+    head = selection.split(" ", 1)[0].lower()
+    return head if head in ("over", "under") else None
+
+
+def _restamp_clv(cfg: Config, entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> None:
+    for e in entries:
+        res = compute_clv(
+            e.matchup,
+            e.market,
+            e.selection,
+            e.odds,
+            e.fair_prob,
+            closing,
+            bet_line=e.line,
+            side=_side_of(e.market, e.selection),
+            margin_sd=cfg.model.margin_sd,
+            total_sd=cfg.model.total_sd,
+        )
+        e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+        e.clv_pts = res.clv_pts
+
+
+def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
+    """Purge in-play quotes from every saved close and re-stamp the ledger's CLV.
+
+    Closes captured before ``close`` learned to skip games in play hold live
+    prices for whichever games were on the field at capture time. Nothing
+    recorded when each quote was taken, so the quote is judged against the
+    first-seen board (:func:`cfb_engine.audit.clv.in_play_games`); a rejected
+    game's CLV goes blank rather than wrong. Ledger rows are re-stamped from the
+    cleaned files, results and prices untouched.
+    """
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    dates = sorted({e.date for e in entries})
+    dropped_total = 0
+    for iso in dates:
+        day = Date.fromisoformat(iso)
+        closing = load_closing(cfg.closing_file(day))
+        if not closing:
+            continue
+        kept, bad = drop_in_play(closing, snapshot.load(cfg.board_file(day)))
+        if bad:
+            save_closing(kept, cfg.closing_file(day))
+            dropped_total += len(bad)
+            print(f"{iso}: dropped in-play close for {len(bad)} game(s): {', '.join(sorted(bad))}")
+        day_rows = [e for e in entries if e.date == iso]
+        _restamp_clv(cfg, day_rows, kept)
+        update_ledger(cfg.ledger_file, day_rows, day)
+    merged = load_ledger(cfg.ledger_file)
+    stamped = sum(1 for e in merged if e.clv is not None)
+    print(
+        f"Ledger {len(merged)} rows; {stamped} carry a pregame close, {dropped_total} game closes purged."
+    )
+    if dropped_total:
+        _state_push(cfg, f"cfb repair-closes: {dropped_total} in-play closes purged")
+    return 0
+
+
 def _emit_ledger(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -419,7 +497,9 @@ def _emit_ledger(
     overall = [engine_metrics(entries), *overall_metrics(entries)]
     daily = daily_rollup(entries)
     markets = market_metrics(entries)
-    clv_rows = clv_summary([(e.category, e.clv, e.clv_ev) for e in entries])
+    clv_rows = bet_clv_summary(
+        [(e.category, e.tier in _BUY_TIERS, _favors_fair(e), e.clv, e.clv_ev) for e in entries]
+    )
     price_rows = price_bucket_metrics(entries)
     money = [
         engine_priced_stat(entries),
@@ -474,9 +554,12 @@ def _build_parser() -> argparse.ArgumentParser:
             sp.add_argument("--to", help="override the email recipient")
 
     add_common(sub.add_parser("run", help="price today's slate"), email=True)
-    add_common(sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True)
+    add_common(
+        sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True
+    )
     add_common(sub.add_parser("close", help="snapshot the closing market"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
+    sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(sub.add_parser("calibrate", help="refit probability calibration"))
     bt = sub.add_parser("backtest", help="A/B the score engines (normal vs markov)")
@@ -498,6 +581,7 @@ _DISPATCH = {
     "card": cmd_card,
     "close": cmd_close,
     "audit": cmd_audit,
+    "repair-closes": cmd_repair_closes,
     "report": cmd_report,
     "calibrate": cmd_calibrate,
     "backtest": cmd_backtest,
