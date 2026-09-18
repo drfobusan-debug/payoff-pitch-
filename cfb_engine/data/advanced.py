@@ -15,6 +15,7 @@ back to the ratings-only path when a team's stats are absent.
 from __future__ import annotations
 
 import statistics
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from cfb_engine.data.teamnames import school_key
@@ -40,6 +41,16 @@ class TeamAdvanced:
     plays_per_game: float  # offensive tempo proxy (pace)
     drives_per_game: float
     turnover_margin_pg: float  # (takeaways - giveaways) per game
+    # Unit splits for the matchup read (not priced). PPA per play by play type;
+    # defensive values are allowed (lower is better). ``front_havoc`` is the
+    # front-seven share of havoc plays, the pass-rush proxy CFBD publishes;
+    # ``sacks_pg`` comes from ``/stats/season`` when the team has one.
+    off_rush_ppa: float = 0.0
+    off_pass_ppa: float = 0.0
+    def_rush_ppa: float = 0.0
+    def_pass_ppa: float = 0.0
+    front_havoc: float = 0.0
+    sacks_pg: float = 0.0
 
     @property
     def net_ppa(self) -> float:
@@ -66,6 +77,33 @@ class AdvancedBook:
 
     def get(self, team_name: str) -> TeamAdvanced | None:
         return self.teams.get(school_key(team_name))
+
+    def unit_ranks(self, team_name: str) -> dict[str, int]:
+        """National rank (1 = best) of each unit in :data:`UNITS` for ``team_name``.
+
+        Empty when the team has no advanced row. Ties share the better rank.
+        """
+        mine = self.get(team_name)
+        if mine is None:
+            return {}
+        out: dict[str, int] = {}
+        for unit, (pick, higher_better) in UNITS.items():
+            value = pick(mine)
+            others = [pick(t) for t in self.teams.values()]
+            better = sum(1 for v in others if (v > value if higher_better else v < value))
+            out[unit] = 1 + better
+        return out
+
+
+# unit -> (accessor, higher-is-better). Pass rush blends front-seven havoc with
+# sacks per game so a team without ``/stats/season`` coverage still ranks.
+UNITS: dict[str, tuple[Callable[[TeamAdvanced], float], bool]] = {
+    "rush_off": (lambda t: t.off_rush_ppa, True),
+    "pass_off": (lambda t: t.off_pass_ppa, True),
+    "run_def": (lambda t: t.def_rush_ppa, False),
+    "pass_def": (lambda t: t.def_pass_ppa, False),
+    "pass_rush": (lambda t: t.front_havoc + t.sacks_pg / 10.0, True),
+}
 
 
 def _num(row: object, *path: str) -> float | None:
@@ -134,6 +172,12 @@ def parse_advanced(
             plays_per_game=(off_plays / per_game) if (off_plays and per_game) else 0.0,
             drives_per_game=(off_drives / per_game) if (off_drives and per_game) else 0.0,
             turnover_margin_pg=to_margin,
+            off_rush_ppa=_num(row, "offense", "rushingPlays", "ppa") or 0.0,
+            off_pass_ppa=_num(row, "offense", "passingPlays", "ppa") or 0.0,
+            def_rush_ppa=_num(row, "defense", "rushingPlays", "ppa") or 0.0,
+            def_pass_ppa=_num(row, "defense", "passingPlays", "ppa") or 0.0,
+            front_havoc=_num(row, "defense", "havoc", "frontSeven") or 0.0,
+            sacks_pg=(season_stats.get(key, {}).get("sacks", 0.0) / per_game) if per_game else 0.0,
         )
     return _finalize(teams)
 
