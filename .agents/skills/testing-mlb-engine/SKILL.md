@@ -240,6 +240,33 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
    the branch), push a card with `hours_to_first_pitch` stripped (untimed → must not change it), and
    write an earlier card onto the branch directly and pull (a box must not regress to it).
 
+## The power screen (`scripts/power_screen.py`) and its own ledger
+- The screen **prices off an existing `~/.mlb_engine/audit/predictions_<date>.json`** (`_priced`), so a
+  screen run costs **zero Odds API credits** as long as that day's card exists. Check for the file
+  first instead of paying for a fresh `run`.
+- Isolate it the same way as a replay: `MLBE_STATE_SYNC=0 MLBE_DATA_DIR=/tmp/mlbe_ps` with
+  `cache`/`projections`/`batx`/`evanalytics`/`fangraphs` symlinked and
+  `predictions_<date>.json`, `board_<date>.json` and `audit/power_screen_ledger.csv` **copied** in.
+  A full screen there takes ~100 s. Never let a screen record into `~/.mlb_engine`.
+- `--no-grade` skips the record/grade cycle; drop it when you need the ledger written. The log line
+  `recorded N positions to <path>` is the cheapest proof the write happened.
+- `MonteCarlo` fixes its seed (`power_sim.py`), so **branch-vs-`main` A/B of the same screen date is
+  deterministic and comparable** — unlike full `run` diffs. `git worktree add /tmp/main_wt main` and
+  run both into pristine copies of the same scratch dir, then diff the recorded rows column by column.
+- Arm selection is `keep_arms(ranked, keep=…, gap=…)` behind `--keep`/`--keep-gap`
+  (`MLBE_POWER_KEEP_GAP`, default 0/off). The gap bar is measured from the **slate leader's** stage-1
+  points and is **inclusive** (`points >= leader - gap`), and the leader is always kept, so pick gap
+  values off the *rendered* stage-1 points of the day to test the boundary both ways (e.g. leader 107,
+  4th arm 77: gap 30 keeps him, gap 29 drops him). Dropped arms surface as log lines and as caveats in
+  the note's "Carried forward, unresolved" block — assert the caveat text, not just the section count.
+- A pathological gap thins the screen to the leader alone; that is legitimate, but the note can then
+  read "0 hitters survive … no position today" because stage-3 also has to clear. Don't read that as
+  a crash or an empty screen.
+- `power_ledger.load()` tolerates the old header via `r.get("delivery", "")`, and `record()` rewrites
+  the whole file with the current `FIELDS`, so a record cycle **migrates** an old ledger in place.
+  When testing that, keep a copy of the pre-migration file and assert historical rows are preserved,
+  unshifted and blank in the new column.
+
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
