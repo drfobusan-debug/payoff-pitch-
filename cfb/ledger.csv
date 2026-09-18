@@ -607,3 +607,9 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Wofford @ Kent State,Spread (ATS),game_ats,Wofford +10.5,10.5,betrivers,-110.0,-113.0,Pass,0.5008,-0.044,loss,-1.0,0.5008,0.4999,0.5008,-102.0,0.3326,-0.1673,-0.365,-6.0,0.0041,,
 2026-09-12,Wofford @ Kent State,Totals,game_total,Over 47.0,47.0,fanatics,-110.0,-110.0,Pass,0.5,-0.0455,win,0.9091,0.5,0.5021,0.5,-115.0,0.6418,0.1397,0.2253,3.5,-0.0175,,
 2026-09-12,Wofford @ Kent State,Totals,game_total,Under 47.0,47.0,williamhill_us,-108.0,-114.0,Pass,0.5,-0.0369,loss,-1.0,0.5,0.4979,0.5,120.0,0.3582,-0.1397,-0.3101,-3.5,0.0175,,45.0
+2026-09-17,Syracuse @ Pittsburgh,Moneyline,game_ml,Pittsburgh ML,,fanduel,-410.0,315.0,Pass,0.6812,-0.1526,win,0.2439,0.7313,0.7783,0.6812,-400.0,0.777,-0.0013,-0.0335,,0.0025,,17.0
+2026-09-17,Syracuse @ Pittsburgh,Moneyline,game_ml,Syracuse ML,,mybookieag,340.0,-461.0,Pass,0.2687,0.1821,loss,-1.0,0.2687,0.2217,0.2687,340.0,0.223,0.0013,-0.0188,,-0.0025,,-17.0
+2026-09-17,Syracuse @ Pittsburgh,Spread (ATS),game_ats,Pittsburgh -10.5,-10.5,draftkings,-105.0,-115.0,Pass,0.4852,-0.0528,win,0.9524,0.4852,0.4986,0.4852,-108.0,0.5013,0.0027,-0.0213,0.0,-0.0032,,45.0
+2026-09-17,Syracuse @ Pittsburgh,Spread (ATS),game_ats,Syracuse +10.5,10.5,lowvig,-104.0,-108.0,Pass,0.5148,0.0098,loss,-1.0,0.5148,0.5014,0.5148,-108.0,0.4987,-0.0027,-0.0218,0.0,0.0032,,-45.0
+2026-09-17,Syracuse @ Pittsburgh,Totals,game_total,Over 51.5,51.5,lowvig,-105.0,-112.0,Pass,0.4274,-0.1657,loss,-1.0,0.4274,0.4977,0.4274,-103.0,0.4924,-0.0053,-0.0386,0.0,0.0019,,16.0
+2026-09-17,Syracuse @ Pittsburgh,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Strong buy,0.5726,0.1029,win,0.9259,0.5726,0.5023,0.5726,-110.0,0.5076,0.0053,-0.0224,0.0,-0.0019,,-16.0
