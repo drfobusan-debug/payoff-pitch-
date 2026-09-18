@@ -245,3 +245,30 @@ def test_watch_line_and_narration_use_the_brief() -> None:
     assert "Matchup to watch: Texas' passing game (#12)" in spoken
     assert "Texas without starter Ny Carr, Big Man" in spoken
     assert "Names to know: Arch Manning." in spoken
+
+
+def test_spoken_context_keeps_full_names_without_a_position_prefix() -> None:
+    b = _brief()
+    b.away.watch = ["Anthony Hill — Butkus watch list"]
+    b.home.watch = ["EDGE Colin Simmons — 1st-round draft stock (#3 big board)"]
+    b.away.out = ["Some Lineman (starter)", "Ny Carr"]
+    spoken = _spoken_context(b)
+    assert "Names to know: Anthony Hill and Colin Simmons." in spoken
+    assert "Texas without starter Some Lineman, Ny Carr" in spoken
+
+
+def test_unit_ranks_skip_missing_splits_instead_of_ranking_zero() -> None:
+    partial = _adv("P", 0.0, 0.0, 0.0, 0.0, 0.0)
+    offense = partial["offense"]
+    assert isinstance(offense, dict)
+    del offense["passingPlays"]
+    defense = partial["defense"]
+    assert isinstance(defense, dict)
+    del defense["havoc"]
+    book = parse_advanced([_adv("A", 0.3, -0.1, 0.10, 0.30, 0.10), partial], {})
+    assert "pass_off" not in book.unit_ranks("P") and "pass_rush" not in book.unit_ranks("P")
+    assert (
+        book.unit_ranks("A")["pass_off"] == 1
+    )  # P's missing split is not a 0.0 that outranks -0.1
+    assert book.unit_ranks("A")["pass_rush"] == 1
+    assert book.unit_ranks("P")["rush_off"] == 2
