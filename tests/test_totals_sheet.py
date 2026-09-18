@@ -324,3 +324,15 @@ def test_a_sheet_whose_legend_predates_the_study_is_rebuilt(tmp_path: Path) -> N
     legend.delete_rows(legend.max_row)
     wb.save(out)
     assert not sheet_is_current(out)
+
+
+def test_a_game_vsin_has_not_posted_reads_its_total_off_the_card_board() -> None:
+    """9/18 morning: VSIN listed the 12:35 game alone, so fourteen rows had no total
+    while the slate pass had already priced every game's. VSIN's number still wins
+    where it has one; the board fills the rest; a game neither holds stays blank."""
+    splits = {("CHC @ CIN", "draftkings"): TotalSplit(8.5), ("CHC @ CIN", "circa"): TotalSplit(9.0)}
+    board = {"CHC @ CIN": 8.5, "KC @ PIT": 8.0}
+    assert totals_sheet._total_label(splits, "CHC @ CIN", board) == "9 / dk 8.5"
+    assert totals_sheet._total_label(splits, "KC @ PIT", board) == "8"
+    assert totals_sheet._total_label(splits, "SF @ LAD", board) == ""
+    assert totals_sheet._total_label(splits, "KC @ PIT") == ""
