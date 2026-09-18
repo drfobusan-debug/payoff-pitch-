@@ -30,6 +30,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from mlb_engine.audit.clv import board_path, load_closing
 from mlb_engine.audit.ledger import load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
@@ -45,6 +46,7 @@ from mlb_engine.output.totals_audit import (
     FLAG_UNDER_MAX_LINE,
     FLAG_UNDER_SUM,
     OverCurve,
+    closing_lines,
     engine_at,
     engine_ledger_path,
     engine_median,
@@ -697,13 +699,24 @@ def _side(
     )
 
 
-def _total_label(splits: VSINClient.TotalSplits, matchup: str) -> str:
+def _total_label(
+    splits: VSINClient.TotalSplits, matchup: str, board: dict[str, float] | None = None
+) -> str:
+    """The total as VSIN's splits page posts it; the card's own board when VSIN has not.
+
+    VSIN lists a game's total only once its splits are moving, so a morning sheet
+    saw a line on the early game alone. The slate pass has already priced every
+    game's total by then, and its board holds the line nearest even money.
+    """
     dk = splits.get((matchup, "draftkings"))
     circa = splits.get((matchup, "circa"))
     if dk and circa and dk.line != circa.line:
         return f"{circa.line:g} / dk {dk.line:g}"
     src = dk or circa
-    return f"{src.line:g}" if src else ""
+    if src:
+        return f"{src.line:g}"
+    line = (board or {}).get(matchup)
+    return f"{line:g}" if line is not None else ""
 
 
 def _p_under(outs: OutsUnder | None, team: TeamGameInfo) -> float | None:
@@ -715,6 +728,7 @@ def build_rows(
     day: Date, slate: Slate, fg: FanGraphsTables, box: BoxscoreCache, gp: dict[int, int],
     splits: VSINClient.TotalSplits, weather: WeatherProvider, umps: dict[int, tuple[str | None, str]],
     engine: dict[str, OverCurve] | None = None, outs: OutsUnder | None = None,
+    board: dict[str, float] | None = None,
 ) -> list[SheetRow]:
     rows: list[SheetRow] = []
     for g in slate.games:
@@ -728,7 +742,7 @@ def build_rows(
         bsr = sum(baseruns_pts(s.bsr_pg) for s in (away, home) if s.bsr_pg is not None)
         ump_name, status = umps.get(g.game_pk, (None, "unknown"))
         ump, ump_detail = umpire_pts(box, ump_name, day)
-        total = _total_label(splits, matchup)
+        total = _total_label(splits, matchup, board)
         curve = (engine or {}).get(matchup) or {}
         p_over, _ = engine_at(curve, first_line(total))
         rows.append(SheetRow(
@@ -974,7 +988,12 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         log.info("totals sheet: no pitcher-outs props for %s; short starts read off season IP/GS", day)
     if not engine:
         log.info("totals sheet: no engine game totals for %s; Engine columns left blank", day)
-    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs)
+    board: dict[str, float] = {}
+    try:
+        board = closing_lines(load_closing(board_path(cfg.audit_dir, day)))
+    except Exception as exc:
+        log.warning("totals sheet: day's board unreadable: %s", exc)
+    rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs, board)
     path = write_workbook(rows, day, out, fg.mid)
     try:
         record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
