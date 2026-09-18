@@ -53,6 +53,7 @@ def _pipeline(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Pipeline:
     monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("CFBE_MARKET_ANCHOR", "0")  # price the model, not the market
     monkeypatch.setenv("CFBE_SHRINK_TAILS", "0")  # isolate the band from tail shrink
+    monkeypatch.setenv("CFBE_ML_MARKET_SD", "0")  # read the ML off the fixture sim
     return Pipeline(Config(), cfbd=CFBDClient(None))
 
 
