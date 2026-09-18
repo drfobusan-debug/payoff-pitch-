@@ -2,10 +2,11 @@
 
 Two ingestion paths are supported:
 
-1. Live public fetch (default). VSIN's betting-splits page is served publicly at
-   ``data.vsin.com/betting-splits/`` and carries, per game, each team's
-   moneyline price plus handle%/bets% for the spread, total, and moneyline. No
-   login is required for this page; ``fetch_quotes`` scrapes it and returns
+1. Live fetch (default). VSIN's betting-splits page at
+   ``data.vsin.com/betting-splits/`` carries, per game, each team's moneyline
+   price plus handle%/bets% for the spread, total, and moneyline. Signed out it
+   now serves a one-game teaser, so the request carries the subscriber cookie
+   (``VSIN_UTP``) when there is one; ``fetch_quotes`` scrapes it and returns
    moneyline quotes keyed to the engine's selections. VSIN's public splits do
    **not** expose run-line or total prices, so only moneyline EV is derived from
    it -- run-line/total prices must come from the CSV drop-in.
@@ -42,6 +43,11 @@ SPLITS_URL = "https://data.vsin.com/betting-splits/?source={book}&sport=MLB"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 # VSIN "source" code -> engine book label.
 _BOOKS = {"DK": "draftkings", "circa": "circa"}
+# The Piano ID cookie that means *subscriber*: alone it turns the one-game
+# teaser into the full board, and none of the other two dozen cookies do.
+SUBSCRIBER_COOKIE = "__utp"
+# Two rows a game: a board this short is the signed-out teaser, not a slate.
+_TEASER_ROWS = 2
 
 
 class _MoneyLine(NamedTuple):
@@ -280,7 +286,9 @@ class VSINClient:
     def _fetch_book(self, src: str) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
-            resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
+            resp = http.get(
+                url, headers=_HEADERS, cookies=self._cookies(), timeout=self.timeout
+            )
             resp.raise_for_status()
             tables = pd.read_html(io.StringIO(resp.text))
         except (requests.RequestException, ValueError) as exc:
@@ -288,8 +296,23 @@ class VSINClient:
             return []
         if not tables:
             return []
+        rows = self._rows(tables[0])
+        if self.creds.vsin_token and len(rows) <= _TEASER_ROWS:
+            log.warning(
+                "VSIN served the signed-out teaser for %s despite VSIN_UTP: the "
+                "subscriber cookie has expired or been revoked; sign in again in a "
+                "browser and copy the new %s cookie",
+                src, SUBSCRIBER_COOKIE,
+            )
+        return rows
+
+    def _cookies(self) -> dict[str, str]:
+        return {SUBSCRIBER_COOKIE: self.creds.vsin_token} if self.creds.vsin_token else {}
+
+    @staticmethod
+    def _rows(table: pd.DataFrame) -> list[_RawRow]:
         rows: list[_RawRow] = []
-        for _, r in tables[0].iterrows():
+        for _, r in table.iterrows():
             name = str(r.iloc[1]).strip()
             if not name or name.lower() == "nan":
                 continue
