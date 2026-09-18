@@ -40,6 +40,7 @@ from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
 from cfb_engine.data.vsin_splits import SplitBook, SplitsProvider, lookup
+from cfb_engine.data.watch import fetch_watch_book
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -98,7 +99,9 @@ class Pipeline:
         self.ensemble = EnsembleProvider(cfg.cache_dir, cfg.models_dir)
         self.efficiency = EfficiencyProvider(self.cfbd)
         self.calibrator = calibrator or self._load_calibrator()
-        self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
+        self.shrink = (
+            ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
+        )
         self.advanced: AdvancedBook = parse_advanced([], {})
         self.news: dict[str, NewsItem] = {}
         self._roster: dict[int, RosterBook | None] = {}
@@ -161,9 +164,7 @@ class Pipeline:
         if self.cfg.ensemble:
             models = self.ensemble.collect(season)
             if models:
-                logger.info(
-                    "ensemble: %s", ", ".join(f"{m.source}({len(m.net)})" for m in models)
-                )
+                logger.info("ensemble: %s", ", ".join(f"{m.source}({len(m.net)})" for m in models))
                 ratings = blend_ensemble(
                     ratings,
                     models,
@@ -186,9 +187,7 @@ class Pipeline:
                     blend=self.cfg.efficiency_blend,
                     league_avg=self.cfg.model.avg_team_points,
                 )
-        returning = (
-            build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
-        )
+        returning = build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
         ctx_book = build_context_book(self.cfbd, season, slate)
         portal = self.cfbd.fetch_portal(season)
         if portal:
@@ -213,6 +212,8 @@ class Pipeline:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
         try:
+            if not self.advanced.teams:
+                self.advanced = self.cfbd.fetch_advanced(season)
             self.briefs = build_briefs(
                 self.cfbd,
                 season,
@@ -227,6 +228,8 @@ class Pipeline:
                     else None
                 ),
                 models=models,
+                advanced=self.advanced,
+                watch=fetch_watch_book(awards_file=self.cfg.cache_dir / "awards_watch.json"),
             )
         except Exception as exc:  # context only; the card renders without it
             logger.warning("game briefs unavailable: %s", exc)
@@ -241,8 +244,17 @@ class Pipeline:
                 continue
             recs.extend(
                 self._price_game(
-                    game, odds, ratings, ctx_book, mc, markov, returning, portal,
-                    injuries, starters, season=season,
+                    game,
+                    odds,
+                    ratings,
+                    ctx_book,
+                    mc,
+                    markov,
+                    returning,
+                    portal,
+                    injuries,
+                    starters,
+                    season=season,
                 )
             )
         for r in recs:
@@ -264,9 +276,7 @@ class Pipeline:
         starters: StarterBook | None = None,
         season: int = 0,
     ) -> list[Recommendation]:
-        home_hfa = hfa_for(
-            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
-        )
+        home_hfa = hfa_for(game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa)
         means = self._means(game, odds, ratings, home_hfa)
         if means is None:
             return []
@@ -294,9 +304,7 @@ class Pipeline:
             note = portal_note(portal, game.home.name, game.away.name)
             if note is not None:
                 adj.reasons.append(note)
-        vsin = hfa_note(
-            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
-        )
+        vsin = hfa_note(game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa)
         if vsin is not None:
             adj.reasons.append(vsin)
         if injuries:
@@ -473,8 +481,13 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_ml", keys.game_ml(ab), prob, quotes,
-                    team_side=side, side="win",
+                    ctx,
+                    "game_ml",
+                    keys.game_ml(ab),
+                    prob,
+                    quotes,
+                    team_side=side,
+                    side="win",
                 )
             )
         return out
@@ -495,8 +508,14 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_ats", keys.game_ats(ab, pt), prob, quotes,
-                    line=pt, team_side=team_side, side="cover",
+                    ctx,
+                    "game_ats",
+                    keys.game_ats(ab, pt),
+                    prob,
+                    quotes,
+                    line=pt,
+                    team_side=team_side,
+                    side="cover",
                 )
             )
         return out
@@ -517,8 +536,13 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_total", keys.game_total(is_over, line), prob, quotes,
-                    line=line, side=key,
+                    ctx,
+                    "game_total",
+                    keys.game_total(is_over, line),
+                    prob,
+                    quotes,
+                    line=line,
+                    side=key,
                 )
             )
         return out
@@ -706,4 +730,3 @@ class _GameCtx:
         self.home_ab = game.home.abbrev
         self.away_ab = game.away.abbrev
         self.matchup = game.matchup()
-
