@@ -1,82 +1,82 @@
 {
   "Houston @ Texas Tech|game_ats|Houston": {
-    "american": -105.0,
+    "american": -108.0,
     "line": 7.5,
-    "no_vig_prob": 0.4986978611486691
+    "no_vig_prob": 0.5010413806651723
   },
   "Houston @ Texas Tech|game_ats|Texas Tech": {
-    "american": -105.0,
+    "american": -104.0,
     "line": -7.5,
-    "no_vig_prob": 0.501302138851331
+    "no_vig_prob": 0.49895861933482777
   },
   "Houston @ Texas Tech|game_ml|Houston": {
-    "american": 265.0,
+    "american": 267.0,
     "line": null,
-    "no_vig_prob": 0.2684415881953524
+    "no_vig_prob": 0.26845640381068975
   },
   "Houston @ Texas Tech|game_ml|Texas Tech": {
     "american": -310.0,
     "line": null,
-    "no_vig_prob": 0.7315584118046476
+    "no_vig_prob": 0.7315435961893103
   },
   "Houston @ Texas Tech|game_total|Over": {
     "american": -108.0,
     "line": 52.5,
-    "no_vig_prob": 0.49932735444496495
+    "no_vig_prob": 0.5013890613029695
   },
   "Houston @ Texas Tech|game_total|Under": {
-    "american": -108.0,
+    "american": -104.0,
     "line": 52.5,
-    "no_vig_prob": 0.5006726455550351
+    "no_vig_prob": 0.4986109386970305
   },
   "Miami @ Wake Forest|game_ats|Miami": {
-    "american": -104.0,
-    "line": -20.5,
-    "no_vig_prob": 0.4993065655240159
+    "american": -108.0,
+    "line": -20.0,
+    "no_vig_prob": 0.5076728267016517
   },
   "Miami @ Wake Forest|game_ats|Wake Forest": {
-    "american": -106.0,
-    "line": 20.5,
-    "no_vig_prob": 0.5006934344759841
+    "american": -104.0,
+    "line": 20.0,
+    "no_vig_prob": 0.49232717329834824
   },
   "Miami @ Wake Forest|game_ml|Miami": {
     "american": -1400.0,
     "line": null,
-    "no_vig_prob": 0.9059218977819143
+    "no_vig_prob": 0.905515573504954
   },
   "Miami @ Wake Forest|game_ml|Wake Forest": {
     "american": 950.0,
     "line": null,
-    "no_vig_prob": 0.09407810221808575
+    "no_vig_prob": 0.09448442649504603
   },
   "Miami @ Wake Forest|game_total|Over": {
-    "american": -106.0,
-    "line": 55.5,
-    "no_vig_prob": 0.5009357798353216
+    "american": -105.0,
+    "line": 56.0,
+    "no_vig_prob": 0.49952527439140176
   },
   "Miami @ Wake Forest|game_total|Under": {
-    "american": 100.0,
-    "line": 55.5,
-    "no_vig_prob": 0.4990642201646784
+    "american": -105.0,
+    "line": 56.0,
+    "no_vig_prob": 0.5004747256085982
   },
   "Portland State @ Oregon|game_ats|Oregon": {
-    "american": -110.0,
-    "line": -58.5,
-    "no_vig_prob": 0.5078955552686757
+    "american": -105.0,
+    "line": -59.0,
+    "no_vig_prob": 0.5048828562345453
   },
   "Portland State @ Oregon|game_ats|Portland State": {
     "american": -105.0,
-    "line": 58.5,
-    "no_vig_prob": 0.49210444473132425
+    "line": 59.0,
+    "no_vig_prob": 0.49511714376545474
   },
   "Portland State @ Oregon|game_total|Over": {
-    "american": -106.0,
-    "line": 70.5,
-    "no_vig_prob": 0.4982253255357767
+    "american": -109.0,
+    "line": 71.5,
+    "no_vig_prob": 0.5061852245971092
   },
   "Portland State @ Oregon|game_total|Under": {
-    "american": -110.0,
-    "line": 70.5,
-    "no_vig_prob": 0.5017746744642232
+    "american": -103.0,
+    "line": 71.5,
+    "no_vig_prob": 0.4938147754028907
   }
 }
