@@ -204,16 +204,16 @@ class Pipeline:
                 logger.info(
                     "injury feed: %d teams, usage book %d teams", len(injuries), len(starters)
                 )
-        if self.cfg.marking.enabled or self.cfg.sim_engine == "markov":
-            self.advanced = self.cfbd.fetch_advanced(season)
-            if self.advanced.teams:
-                logger.info("advanced stats: %d teams", len(self.advanced.teams))
+        # Fetched every run (disk-cached): priced by marking/Markov when enabled,
+        # and always read by the card's unit matchups, so a reused pipeline never
+        # carries another season's book forward.
+        self.advanced = self.cfbd.fetch_advanced(season)
+        if self.advanced.teams:
+            logger.info("advanced stats: %d teams", len(self.advanced.teams))
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
         try:
-            if not self.advanced.teams:
-                self.advanced = self.cfbd.fetch_advanced(season)
             self.briefs = build_briefs(
                 self.cfbd,
                 season,

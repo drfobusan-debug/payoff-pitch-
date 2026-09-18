@@ -569,7 +569,7 @@ def _spoken_context(b: GameBrief) -> str:
     ]
     if outs:
         out += "Injuries: " + "; ".join(outs) + ". "
-    stars = [w.split(" — ", 1)[0].split(" ", 1)[-1] for t in (b.away, b.home) for w in t.watch[:1]]
+    stars = [_drop_pos(w.split(" — ", 1)[0]) for t in (b.away, b.home) for w in t.watch[:1]]
     if stars:
         out += "Names to know: " + " and ".join(stars) + ". "
     if not b.dome and b.precipitation and b.precipitation > 0:
@@ -579,10 +579,18 @@ def _spoken_context(b: GameBrief) -> str:
     return out
 
 
+def _drop_pos(label: str) -> str:
+    """``"WR Ny Carr"`` -> ``"Ny Carr"``; a label with no position prefix is unchanged."""
+    head, _, rest = label.partition(" ")
+    if rest and head.isupper() and len(head) <= 4:
+        return rest
+    return label
+
+
 def _spoken_out(entry: str) -> str:
     """``"WR Ny Carr (starter)"`` -> ``"starter Ny Carr"``; no role -> the name alone."""
     name, _, role = entry.partition(" (")
-    name = name.split(" ", 1)[-1]
+    name = _drop_pos(name)
     return f"{role.rstrip(')')} {name}" if role else name
 
 
