@@ -58,7 +58,12 @@ from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
-from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
+from cfb_engine.models.montecarlo import (
+    ExpectedGame,
+    GameSimResult,
+    MonteCarlo,
+    market_win_prob,
+)
 from cfb_engine.output.brief import GameBrief, build_briefs
 from cfb_engine.recommendations import Recommendation
 from cfb_engine.schemas import Game, Slate
@@ -453,7 +458,11 @@ class Pipeline:
 
     # -- markets ----------------------------------------------------------
     def _price_ml(self, ctx: _GameCtx, odds: GameOdds) -> list[Recommendation]:
-        home_p = ctx.sim.home_win_prob()
+        home_p = (
+            market_win_prob(ctx.sim.exp_margin, self.cfg.model)
+            if self.cfg.model.ml_market_sd
+            else ctx.sim.home_win_prob()
+        )
         out = []
         for side, ab, prob in (
             ("home", ctx.home_ab, home_p),
@@ -528,7 +537,10 @@ class Pipeline:
         side: str | None = None,
     ) -> Recommendation:
         model_prob = self.calibrator.apply(market, raw_prob)
-        if self.shrink is not None:
+        # The tail shrink is one-sided, so on a two-sided moneyline it takes
+        # probability off the favourite and hands the dog the difference: the
+        # sides summed to .90 and the dog read as value in every game.
+        if self.shrink is not None and market != "game_ml":
             model_prob = self.shrink.apply(model_prob)
 
         result: EVResult = evaluate(model_prob, quotes)

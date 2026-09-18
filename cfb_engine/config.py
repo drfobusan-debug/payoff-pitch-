@@ -79,6 +79,17 @@ class ModelParams:
     # priors so a thin/absent rating never manufactures a phantom edge; the
     # model still departs from the market by ``1 - blend`` of its own view.
     market_blend: float = field(default_factory=lambda: _env_float("CFBE_MARKET_BLEND", 0.35))
+    # Moneyline win probability read off a normal whose SD is the one the market
+    # itself uses to turn a spread into a price, rather than the 16-pt margin SD.
+    # College margins are not normal: on 159 boards (2026 wk 1-3) the no-vig ML
+    # implied SD 13.3 for 3.5-10.5 pt favourites, rising ~0.2/pt past 8 to 16-18
+    # in blowouts. A flat 16 handed every 3-20 pt dog more probability than its
+    # price (ML leans 51 of 59 dogs, 7-52). Fit: sd = base + slope*max(0, |m|-knee),
+    # RMSE vs market 0.011 (0.022 at a flat 16). 0 disables and uses the sim.
+    ml_market_sd: bool = field(default_factory=lambda: _env_bool("CFBE_ML_MARKET_SD", True))
+    ml_sd_base: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_BASE", 13.25))
+    ml_sd_knee: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_KNEE", 8.0))
+    ml_sd_slope: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_SLOPE", 0.20))
 
 
 @dataclass(frozen=True)
