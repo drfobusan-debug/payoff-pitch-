@@ -13,7 +13,7 @@ from mlb_engine.data.parks import PARKS
 from mlb_engine.data.vsin import Split, TotalSplit
 from mlb_engine.filters.weather import WeatherConditions
 from mlb_engine.output import totals_sheet
-from mlb_engine.output.totals_audit import BANDS, sheet_bands
+from mlb_engine.output.totals_audit import BANDS, first_line, sheet_bands
 from mlb_engine.output.totals_sheet import (
     SheetRow,
     TeamSide,
@@ -324,3 +324,23 @@ def test_a_sheet_whose_legend_predates_the_study_is_rebuilt(tmp_path: Path) -> N
     legend.delete_rows(legend.max_row)
     wb.save(out)
     assert not sheet_is_current(out)
+
+
+def test_a_game_vsin_did_not_list_takes_the_line_the_books_priced_nearest_even_money() -> None:
+    from mlb_engine.output.totals_sheet import _total_label, engine_line
+
+    curve = {7.5: (0.68, 0.61), 8.5: (0.55, 0.49), 9.5: (0.41, None)}
+    assert engine_line(curve) == 8.5
+    assert _total_label({}, "AZ @ KC", curve) == "8.5 (mkt)"
+    assert first_line(_total_label({}, "AZ @ KC", curve)) == 8.5
+    # VSIN's number still leads when it has one
+    splits = {("AZ @ KC", "circa"): TotalSplit(8.0)}
+    assert _total_label(splits, "AZ @ KC", curve) == "8"
+
+
+def test_an_unpriced_ladder_reads_the_rung_nearest_the_engine_median_and_no_board_stays_blank() -> None:
+    from mlb_engine.output.totals_sheet import _total_label, engine_line
+
+    assert engine_line({7.5: (0.62, None), 8.5: (0.48, None), 9.5: (0.35, None)}) == 8.5
+    assert engine_line({8.5: (0.7, None), 9.5: (0.6, None)}) is None
+    assert _total_label({}, "AZ @ KC", {}) == ""

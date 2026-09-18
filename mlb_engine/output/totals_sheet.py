@@ -697,13 +697,32 @@ def _side(
     )
 
 
-def _total_label(splits: VSINClient.TotalSplits, matchup: str) -> str:
+def engine_line(curve: OverCurve) -> float | None:
+    """The game total the books priced nearest even money among the lines the engine posted.
+
+    A line no book priced is only the engine's own ladder; it stands in when
+    nothing was priced, taken at the rung nearest the engine's median.
+    """
+    priced = [(abs(mk - 0.5), line) for line, (_, mk) in curve.items() if mk is not None]
+    if priced:
+        return min(priced)[1]
+    med = engine_median(curve)
+    if med is None or not curve:
+        return None
+    return min(curve, key=lambda line: abs(line - med))
+
+
+def _total_label(splits: VSINClient.TotalSplits, matchup: str, curve: OverCurve) -> str:
+    """The sheet's posted total: the books' splits when VSIN has them, else the engine's priced line."""
     dk = splits.get((matchup, "draftkings"))
     circa = splits.get((matchup, "circa"))
     if dk and circa and dk.line != circa.line:
         return f"{circa.line:g} / dk {dk.line:g}"
     src = dk or circa
-    return f"{src.line:g}" if src else ""
+    if src:
+        return f"{src.line:g}"
+    line = engine_line(curve)
+    return f"{line:g} (mkt)" if line is not None else ""
 
 
 def _p_under(outs: OutsUnder | None, team: TeamGameInfo) -> float | None:
@@ -728,8 +747,8 @@ def build_rows(
         bsr = sum(baseruns_pts(s.bsr_pg) for s in (away, home) if s.bsr_pg is not None)
         ump_name, status = umps.get(g.game_pk, (None, "unknown"))
         ump, ump_detail = umpire_pts(box, ump_name, day)
-        total = _total_label(splits, matchup)
         curve = (engine or {}).get(matchup) or {}
+        total = _total_label(splits, matchup, curve)
         p_over, _ = engine_at(curve, first_line(total))
         rows.append(SheetRow(
             game=matchup,
@@ -765,6 +784,7 @@ _MID_COLUMNS = ["Rank", "Team", "RP pts", "K-BB pts", "SIERA", "xERA", "CSW%", "
 _LEGEND = [
     ("Bands", BANDS),
     ("Sign", "+ leans Over, - leans Under; SUM is every points column added. Bigger magnitude = stronger lean."),
+    ("Total", "Circa's posted total, with DK's beside it when they differ. '(mkt)' = VSIN had no splits for the game, so the Total is the line the books priced nearest even money on the engine's board; Circa / DK columns are 0 for that row."),
     ("Engine", "The simulator's median total for the game, read off the engine ledger's game_total rows (calibrated, run-environment corrected, before the market anchor). "
                "Eng vs line = Engine minus the leading Total; Eng O% = the engine's over probability at that line. Not part of SUM; the audit grades the sheet and the engine side by side and splits the record by whether they agreed."),
     ("Off A / Off H", "Away / home offense: wRC+ pts + wOBA pts (team split vs the opposing starter's hand) + Barrel% pts (season)."),
