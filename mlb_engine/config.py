@@ -698,6 +698,10 @@ class Credentials:
     rotowire_pass: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_PASS"))
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
+    # VSIN's subscriber cookie (``__utp``, the Piano ID user token). The login
+    # itself sits behind a Cloudflare challenge, so the engine carries the
+    # cookie a browser earned rather than signing in; it lives about a year.
+    vsin_token: str | None = field(default_factory=lambda: os.getenv("VSIN_UTP"))
     # TeamRankings subscriber login. Their free grid only publishes a slate once
     # it has been played, so tonight's picks need the account.
     teamrankings_user: str | None = field(

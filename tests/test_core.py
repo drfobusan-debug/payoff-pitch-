@@ -410,6 +410,47 @@ def test_the_third_time_through_window_reads_measured_depth() -> None:
 
 
 # ---- VSIN public splits -> moneyline quotes ----
+def _splits_table(*teams: str) -> str:
+    row = "<tr><td>x</td><td>{}</td><td>-1.5</td><td>50%</td><td>50%</td><td>8.5</td><td>50%</td><td>50%</td><td>-120</td><td>50%</td><td>50%</td></tr>"
+    return "<table>" + "".join(row.format(t) for t in teams) + "</table>"
+
+
+def test_vsin_sends_the_subscriber_cookie_and_names_a_teaser_board(monkeypatch, caplog):
+    import logging
+    from types import SimpleNamespace
+
+    from mlb_engine.config import Credentials
+    from mlb_engine.data import vsin
+    from mlb_engine.data.vsin import SUBSCRIBER_COOKIE, VSINClient
+
+    seen: list[dict[str, str]] = []
+    body = {"html": _splits_table("Milwaukee Brewers", "Pittsburgh Pirates")}
+
+    def fake_get(url, **kw):
+        seen.append(dict(kw.get("cookies") or {}))
+        return SimpleNamespace(text=body["html"], raise_for_status=lambda: None)
+
+    monkeypatch.setattr(vsin.http, "get", fake_get)
+
+    # Signed out: no cookie, and a two-row board is just what the public gets.
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token=None))._fetch_book("circa")
+    assert len(rows) == 2 and seen[-1] == {} and "teaser" not in caplog.text
+
+    # A token rides as the one cookie that matters; a teaser back means it died.
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token="tok"))._fetch_book("circa")
+    assert seen[-1] == {SUBSCRIBER_COOKIE: "tok"}
+    assert len(rows) == 2 and "teaser" in caplog.text and "tok" not in caplog.text
+
+    # The full board with the token: no complaint.
+    caplog.clear()
+    body["html"] = _splits_table("Milwaukee Brewers", "Pittsburgh Pirates", "Athletics", "Tampa Bay Rays")
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token="tok"))._fetch_book("circa")
+    assert len(rows) == 4 and caplog.text == ""
+
+
 def test_vsin_fetch_quotes_maps_to_slate():
     import datetime
 
