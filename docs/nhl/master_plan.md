@@ -292,7 +292,7 @@ lineup rebuild on 2023–25 games where a top-6 forward or top-pair D was out.
 
 ## 6. Phased plan (sessions = Devin work sessions; calendar waits called out)
 
-**Phase 0 — Capture first (1 session).** `nhl_engine/data/oddsapi.py` + `capture.py` + `state.py` + `nhlapi.py` schedule/scores; `nhl-engine capture` on a schedule (every 30 min on game days, idempotent). Verify Odds API NHL market keys and per-event credit cost with one real call. Archive opens *before* the model exists. **Start this before the season's first slate** — the archive is the only thing that cannot be back-filled.
+**Phase 0 — Capture first (1 session).** `nhl_engine/data/oddsapi.py` + `capture.py` + `state.py` + `nhlapi.py` schedule/scores; `nhl-engine capture` on a schedule (every 30 min on game days, idempotent). Verify Odds API NHL market keys and per-event credit cost with one real call. Archive opens *before* the model exists. **Start this before the season's first slate** — the archive is the only thing that cannot be back-filled. **Mac desktop shortcuts ship in Phase 0** (user request): `scripts/nhl/macos/` with `run_predictions.command`, `run_audit.command`, `nhl_capture.command`, `open_ledger.command`, `install_shortcuts.command` and `install_schedule.command` (launchd), mirroring `scripts/cfb/macos/` and sourcing `scripts/macos/_repo.sh`, so every pipeline step can be run manually by double-click.
 
 **Phase 1 — Data + studies (2 sessions).** MoneyPuck/NHL API clients with as-of slicing; team-strength and goalie reliability studies; dispersion/market-relationship fit; schedule-effect study vs the close; decide on historical odds purchase. Deliverable: numbers in docstrings and a `config.py` whose defaults quote them.
 
