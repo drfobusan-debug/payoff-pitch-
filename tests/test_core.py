@@ -2009,20 +2009,69 @@ def test_run_line_miss_matrix_persists_across_ledger_io(tmp_path):
     assert run_line_miss_matrix(reloaded).fav_one_run == 1
 
 
-def test_report_renders_run_line_miss_matrix():
+def _rl_report(n_rows: int):
     from mlb_engine.audit.ledger import entries_from_graded
-    from mlb_engine.output.report import build_report_data, render_markdown_report
+    from mlb_engine.output.report import build_report_data
 
-    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, 6)}
+    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, n_rows + 1)}
     graded = [
         (_rec(game_pk=i, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
-        for i in range(1, 6)
+        for i in range(1, n_rows + 1)
     ]
     entries = entries_from_graded(graded, date(2026, 7, 23), results)
-    data = build_report_data(entries, period_label="Daily", subtitle="x")
+    return build_report_data(entries, period_label="Daily", subtitle="x")
+
+
+def test_report_renders_run_line_miss_matrix_once_it_has_a_sample():
+    from mlb_engine.output.report import RL_MIN_N, render_html_report, render_markdown_report
+
+    data = _rl_report(RL_MIN_N)
     assert data.rl_matrix.has_data
+    assert data.rl_findings
     md = render_markdown_report(data)
     assert "Run-line miss matrix" in md
+    assert "Run-line miss matrix" in render_html_report(data)
+
+
+def test_report_withholds_run_line_miss_matrix_under_the_floor():
+    # Five losses is a week of variance, not a game-script finding: the matrix
+    # is still measured but neither it nor its findings are printed.
+    from mlb_engine.output.report import RL_MIN_N, render_html_report, render_markdown_report
+
+    data = _rl_report(RL_MIN_N - 1)
+    assert data.rl_matrix.has_data
+    assert data.rl_findings == []
+    md = render_markdown_report(data)
+    assert "Run-line miss matrix" not in md
+    assert "one-run" not in md
+    assert "Run-line miss matrix" not in render_html_report(data)
+
+
+def test_report_has_no_boilerplate_recommendations_block():
+    from mlb_engine.output.report import render_html_report, render_markdown_report
+
+    data = _rl_report(3)
+    md = render_markdown_report(data)
+    assert "## Recommendations" not in md
+    assert "What to play and fade right now" in md
+    assert "<h2>Recommendations</h2>" not in render_html_report(data)
+
+
+def test_report_npv_is_blank_on_a_market_the_model_never_faded():
+    # Every game_rl row is favored (model_prob 0.6): TN + FN = 0, so NPV has no
+    # denominator and must print as unavailable, not as 0.00.
+    from mlb_engine.output.report import render_html_report, render_markdown_report
+
+    data = _rl_report(3)
+    row = next(r for r in data.rows if r.market == "game_rl")
+    assert row.faded_n == 0
+    md = render_markdown_report(data)
+    line = next(ln for ln in md.splitlines() if ln.startswith(f"| {row.label} |"))
+    assert line.split("|")[3].strip() == "—"
+    assert f"<td>{row.label}</td><td>0.00</td><td>\u2014</td>" in render_html_report(data)
+    # the whole-engine row too: everything favored, nothing to score NPV on
+    assert data.engine.faded_n == 0
+    assert "| **Whole engine** (favored side) | 3 | **0.0%** | \u2014 |" in md
 
 
 def test_ledger_workbook_with_analysis(tmp_path):
@@ -2524,7 +2573,8 @@ def test_report_classifies_and_renders():
     assert "## Executive summary" in md
     assert "## Market scorecard" in md
     assert "Min p to Play" in md
-    assert "Recommendations" in md
+    assert "## Recommendations" not in md
+    assert "What to play and fade right now" in md
     assert "Pitcher strikeouts" in md
 
     html_body = render_html_report(data)
