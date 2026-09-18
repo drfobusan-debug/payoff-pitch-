@@ -883,6 +883,56 @@ def test_two_machines_boards_for_one_day_both_survive(
     ] == ["Drake Baldwin"]
 
 
+def test_a_selection_written_before_runs_were_stamped_yields_to_its_stamped_copy(
+    tmp_path: Path,
+) -> None:
+    """engine-state, 9/02: fifteen rows with no run beside a 19:58Z run of the same
+    board, nine of them the same selection twice; 8/31: Suárez held twice because
+    one copy spelt him without the accent. A run's row is the receipt for that
+    selection; the unstamped twin is the same receipt written earlier and goes.
+    A no-run row of a bat the run never showed is still a capture and stays."""
+    fields = ["date", "run_id", "player_id", "batter", "game_pk", "stat", "line", "side", "odds"]
+
+    def row(run: str, pid: str, name: str, stat: str, odds: str) -> dict[str, str]:
+        return dict(
+            zip(
+                fields,
+                ["2026-09-02", run, pid, name, "824990", stat, "1.5", "over", odds],
+                strict=True,
+            )
+        )
+
+    remote, local = tmp_path / "remote.csv", tmp_path / "local.csv"
+    engine_state._write_rows(
+        remote,
+        fields,
+        [
+            row("", "670541", "Ryan Ritter", "TB", "100"),
+            row("", "670541", "Ryan Ritter", "H", "204"),
+            row("", "553993", "Eugenio Suarez", "HRR", "-145"),
+            row("", "681297", "Chase Meidroth", "RBI", "148"),
+        ],
+    )
+    engine_state._write_rows(
+        local,
+        fields,
+        [
+            row("20260902T1958Z", "670541", "Ryan Ritter", "TB", "-102"),
+            row("20260902T1958Z", "670541", "Ryan Ritter", "H", "204"),
+            row("", "553993", "Eugenio Suárez", "HRR", "-160"),
+        ],
+    )
+    key = ("date", "run_id", "player_id", "game_pk", "stat", "line", "side")
+    assert merge_dated_csv(remote, local, key, by_date=False)
+    _fields, merged = engine_state._rows(local)
+    assert sorted((r["run_id"], r["player_id"], r["stat"], r["odds"]) for r in merged) == [
+        ("", "553993", "HRR", "-160"),
+        ("", "681297", "RBI", "148"),
+        ("20260902T1958Z", "670541", "H", "204"),
+        ("20260902T1958Z", "670541", "TB", "-102"),
+    ]
+
+
 def test_two_jobs_on_one_box_take_turns_at_the_worktree(
     machines: tuple[Path, Path, Path, Path],
 ) -> None:
