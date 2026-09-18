@@ -347,6 +347,10 @@ def merge_dated_csv(
     ``by_date=GRADED`` unions row by row too, but a row that carries a result
     beats one that does not: a receipt read on this machine before the machine
     that wrote it graded it must not keep the day ungraded here forever.
+
+    When ``run_id`` is part of the key, a row with no run is the same selection
+    written before runs were stamped, so it yields to a stamped copy that matches
+    on every other key field rather than surviving as a second row.
     """
     if not remote.exists():
         return False
@@ -367,8 +371,18 @@ def merge_dated_csv(
         if by_date == GRADED and held is not None and held.get("result") and not r.get("result"):
             continue
         merged[k] = r
+    if "run_id" in key:
+        merged = _drop_unstamped_twins(merged, key)
     _write_rows(local, fields, [merged[k] for k in sorted(merged)])
     return True
+
+
+def _drop_unstamped_twins(
+    merged: dict[tuple[str, ...], dict[str, str]], key: tuple[str, ...]
+) -> dict[tuple[str, ...], dict[str, str]]:
+    i = key.index("run_id")
+    stamped = {k[:i] + k[i + 1 :] for k in merged if k[i]}
+    return {k: r for k, r in merged.items() if k[i] or k[:i] + k[i + 1 :] not in stamped}
 
 
 # --- the state map -----------------------------------------------------------
@@ -391,10 +405,11 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     # audit, so this machine's board for a date does not supersede another's, and
     # replacing the date is how the two copies came to disagree on who was even
     # screened on 8/26. The run identifies the capture, so re-recording a run
-    # still overwrites itself.
+    # still overwrites itself. The bat is keyed by id, not name: the two copies
+    # spelt Suárez with and without the accent and held him twice for 8/31.
     (
         power_ledger.LEDGER_NAME,
-        ("date", "run_id", "batter", "game_pk", "stat", "line", "side"),
+        ("date", "run_id", "player_id", "game_pk", "stat", "line", "side"),
         False,
     ),
     # The hand totals sheet's receipt. The Mac writes and grades it; without
