@@ -35023,6 +35023,20 @@
   {
     "matchup": "SF @ LAD",
     "market": "batter_1b",
+    "selection": "Brett Harris 1B o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.355508
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_1b",
+    "selection": "Brett Harris 1B u0.5",
+    "american": -212.0,
+    "no_vig_prob": 0.644492
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_1b",
     "selection": "Bryce Eldridge 1B o0.5",
     "american": 160.0,
     "no_vig_prob": 0.370958
@@ -35299,6 +35313,20 @@
     "selection": "Alex Call 2B u0.5",
     "american": -850.0,
     "no_vig_prob": 0.847683
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_2b",
+    "selection": "Brett Harris 2B o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.143856
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_2b",
+    "selection": "Brett Harris 2B u0.5",
+    "american": -810.0,
+    "no_vig_prob": 0.856144
   },
   {
     "matchup": "SF @ LAD",
@@ -35583,6 +35611,20 @@
   {
     "matchup": "SF @ LAD",
     "market": "batter_bb",
+    "selection": "Brett Harris BB o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.358561
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_bb",
+    "selection": "Brett Harris BB u0.5",
+    "american": -191.0,
+    "no_vig_prob": 0.641439
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_bb",
     "selection": "Bryce Eldridge BB o0.5",
     "american": 135.0,
     "no_vig_prob": 0.396164
@@ -35845,6 +35887,20 @@
     "selection": "Alex Call H+R+RBI u1.5",
     "american": -150.0,
     "no_vig_prob": 0.579439
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.541978
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.458022
   },
   {
     "matchup": "SF @ LAD",
@@ -36136,9 +36192,23 @@
   {
     "matchup": "SF @ LAD",
     "market": "batter_hrr",
+    "selection": "Turner Hill H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.395599
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_hrr",
     "selection": "Turner Hill H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.408631
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_hrr",
+    "selection": "Turner Hill H+R+RBI u1.5",
+    "american": -176.0,
+    "no_vig_prob": 0.604401
   },
   {
     "matchup": "SF @ LAD",
@@ -36160,6 +36230,13 @@
     "selection": "Alex Call HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.103175
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_hr",
+    "selection": "Brett Harris HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
   },
   {
     "matchup": "SF @ LAD",
@@ -36370,6 +36447,20 @@
     "selection": "Alex Call H u0.5",
     "american": 115.0,
     "no_vig_prob": 0.437258
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_h",
+    "selection": "Brett Harris H o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.482615
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_h",
+    "selection": "Brett Harris H u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.517385
   },
   {
     "matchup": "SF @ LAD",
@@ -36682,6 +36773,20 @@
   {
     "matchup": "SF @ LAD",
     "market": "batter_rbi",
+    "selection": "Brett Harris RBI o0.5",
+    "american": 327.0,
+    "no_vig_prob": 0.226972
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_rbi",
+    "selection": "Brett Harris RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.773028
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_rbi",
     "selection": "Bryce Eldridge RBI o0.5",
     "american": 247.0,
     "no_vig_prob": 0.276469
@@ -36958,6 +37063,20 @@
     "selection": "Alex Call R u0.5",
     "american": -198.0,
     "no_vig_prob": 0.616553
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_r",
+    "selection": "Brett Harris R o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.290839
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_r",
+    "selection": "Brett Harris R u0.5",
+    "american": -305.0,
+    "no_vig_prob": 0.709161
   },
   {
     "matchup": "SF @ LAD",
@@ -37245,6 +37364,20 @@
     "selection": "Alex Call TB u0.5",
     "american": 120.0,
     "no_vig_prob": 0.427236
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_tb",
+    "selection": "Brett Harris TB o0.5",
+    "american": 103.0,
+    "no_vig_prob": 0.464288
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "batter_tb",
+    "selection": "Brett Harris TB u0.5",
+    "american": -133.0,
+    "no_vig_prob": 0.535712
   },
   {
     "matchup": "SF @ LAD",
@@ -37690,6 +37823,13 @@
   {
     "matchup": "SF @ LAD",
     "market": "game_rl",
+    "selection": "LAD -2.5",
+    "american": 117.0,
+    "no_vig_prob": 0.443579
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "game_rl",
     "selection": "SF +1.5",
     "american": 119.0,
     "no_vig_prob": 0.445694
@@ -37700,6 +37840,13 @@
     "selection": "SF +2.0",
     "american": -109.0,
     "no_vig_prob": 0.49891
+  },
+  {
+    "matchup": "SF @ LAD",
+    "market": "game_rl",
+    "selection": "SF +2.5",
+    "american": -137.0,
+    "no_vig_prob": 0.556421
   },
   {
     "matchup": "SF @ LAD",
