@@ -638,13 +638,51 @@ def _card_lead(recs: list[Recommendation]) -> float | None:
     return min(leads) if leads else None
 
 
-def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
-    """The outs props off the card the audit grades for the day.
+def card_lines(recs: list[Recommendation]) -> dict[str, float]:
+    """Matchup -> the game-total line the card priced nearest to even money."""
+    best: dict[str, tuple[float, float]] = {}
+    for r in recs:
+        if r.market != "game_total" or r.line is None or r.fair_prob is None or not r.matchup:
+            continue
+        d = abs(r.fair_prob - 0.5)
+        if r.matchup not in best or d < best[r.matchup][0]:
+            best[r.matchup] = (d, float(r.line))
+    return {m: line for m, (_, line) in best.items()}
+
+
+def card_curves(recs: list[Recommendation]) -> dict[str, OverCurve]:
+    """Matchup -> the engine's over probability at every game-total line the card priced.
+
+    The same read :func:`over_curves` takes off the audit ledger, off the day's
+    card instead: the ledger is only filled the morning after, the card is on
+    disk when the sheet is written.
+    """
+    p: dict[str, dict[float, list[float]]] = {}
+    m: dict[str, dict[float, list[float]]] = {}
+    for r in recs:
+        if r.market != "game_total" or r.line is None or not r.matchup or r.side not in ("over", "under"):
+            continue
+        over = r.side == "over"
+        line = float(r.line)
+        if over:
+            p.setdefault(r.matchup, {}).setdefault(line, []).append(r.model_prob)
+        if r.fair_prob is not None:
+            m.setdefault(r.matchup, {}).setdefault(line, []).append(r.fair_prob if over else 1.0 - r.fair_prob)
+    out: dict[str, OverCurve] = {}
+    for matchup, lines in p.items():
+        out[matchup] = {
+            line: (sum(v) / len(v), (sum(m[matchup][line]) / len(m[matchup][line])) if m.get(matchup, {}).get(line) else None)
+            for line, v in sorted(lines.items())
+        }
+    return out
+
+
+def day_cards(cfg: Config, day: Date) -> list[list[Recommendation]]:
+    """The day's saved cards, the one the audit grades first.
 
     Same rule as ``cmd_audit``: the pregame copy is the record; the local
     ``predictions_<day>.json`` only outranks it when it was priced later and
-    still ahead of first pitch. Whichever loses is still consulted when the
-    winner carries no outs props at all.
+    still ahead of first pitch.
     """
     stem = cfg.audit_dir / f"predictions_{day.isoformat()}"
     cards = [load_json(p) for p in (stem.with_suffix(".json"), stem.with_suffix(".pregame.json")) if p.exists()]
@@ -653,9 +691,31 @@ def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
         lead, prior = _card_lead(local), _card_lead(pregame)
         if not (lead is not None and lead > 0 and prior is not None and lead < prior):
             cards = [pregame, local]
-    for recs in cards:
+    return cards
+
+
+def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
+    """The outs props off the card the audit grades for the day; the other copy
+    is still consulted when the first carries no outs props at all."""
+    for recs in day_cards(cfg, day):
         if outs := outs_under(recs):
             return outs
+    return {}
+
+
+def day_card_lines(cards: list[list[Recommendation]]) -> dict[str, float]:
+    """Game-total lines off the first card that priced any."""
+    for recs in cards:
+        if lines := card_lines(recs):
+            return lines
+    return {}
+
+
+def day_card_curves(cards: list[list[Recommendation]]) -> dict[str, OverCurve]:
+    """Engine over curves off the first card that priced any game total."""
+    for recs in cards:
+        if curves := card_curves(recs):
+            return curves
     return {}
 
 
@@ -779,7 +839,8 @@ _MID_COLUMNS = ["Rank", "Team", "RP pts", "K-BB pts", "SIERA", "xERA", "CSW%", "
 _LEGEND = [
     ("Bands", BANDS),
     ("Sign", "+ leans Over, - leans Under; SUM is every points column added. Bigger magnitude = stronger lean."),
-    ("Engine", "The simulator's median total for the game, read off the engine ledger's game_total rows (calibrated, run-environment corrected, before the market anchor). "
+    ("Total", "The posted game total: VSIN's Circa line (and DK when it differs), else the line the day's card priced nearest to even money."),
+    ("Engine", "The simulator's median total for the game, read off the day's game_total rows (calibrated, run-environment corrected, before the market anchor). "
                "Eng vs line = Engine minus the leading Total; Eng O% = the engine's over probability at that line. Not part of SUM; the audit grades the sheet and the engine side by side and splits the record by whether they agreed."),
     ("Off A / Off H", "Away / home offense: wRC+ pts + wOBA pts (team split vs the opposing starter's hand) + Barrel% pts (season)."),
     ("Centre", "Every band's 0 window is the league's middle half (2026 FanGraphs), so an average arm or lineup adds nothing and +5 / -5 are equal leans in opposite directions."),
@@ -979,9 +1040,15 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         engine = over_curves(load_ledger(engine_ledger_path(cfg)), day)
     except Exception as exc:
         log.warning("totals sheet: engine ledger unreadable: %s", exc)
+    cards: list[list[Recommendation]] = []
     outs: OutsUnder = {}
+    card_totals: dict[str, float] = {}
     try:
+        cards = day_cards(cfg, day)
         outs = day_outs_under(cfg, day)
+        card_totals = day_card_lines(cards)
+        if not engine:
+            engine = day_card_curves(cards)
     except Exception as exc:
         log.warning("totals sheet: day's predictions unreadable: %s", exc)
     if not outs:
@@ -993,6 +1060,11 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         board = closing_lines(load_closing(board_path(cfg.audit_dir, day)))
     except Exception as exc:
         log.warning("totals sheet: day's board unreadable: %s", exc)
+    # the pass's board snapshot first, the card's priced line where the board has none
+    board = {**card_totals, **board}
+    missing = [g.matchup() for g in slate.games if not _total_label(splits, g.matchup(), board)]
+    if missing:
+        log.info("totals sheet: no posted total for %s", ", ".join(missing))
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs, board)
     path = write_workbook(rows, day, out, fg.mid)
     try:

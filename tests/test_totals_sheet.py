@@ -215,6 +215,54 @@ def test_the_outs_prop_comes_off_the_card_the_audit_grades(tmp_path: Path) -> No
     assert day_outs_under(cfg, day) == {1: pytest.approx(0.60)}
 
 
+def _total(matchup: str, side: str, line: float, model: float, fair: float | None) -> Recommendation:
+    return Recommendation(
+        Date(2026, 9, 19), 1, matchup, "game", "game_total", f"{side.title()} {line}", model,
+        line=line, fair_prob=fair, side=side,
+    )
+
+
+def test_the_posted_total_falls_back_to_the_line_the_card_priced() -> None:
+    recs = [
+        _total("DET @ CWS", "over", 7.5, 0.64, 0.53),
+        _total("DET @ CWS", "under", 7.5, 0.36, 0.47),
+        _total("DET @ CWS", "over", 8.5, 0.50, 0.41),
+        _total("DET @ CWS", "over", 8.0, 0.58, None),  # unpriced rung: no market read
+        _total("SF @ LAD", "over", 8.5, 0.55, 0.50),
+        _outs(1, "under", 17.5, 0.60),
+    ]
+    lines = totals_sheet.card_lines(recs)
+    assert lines == {"DET @ CWS": 7.5, "SF @ LAD": 8.5}
+    curves = totals_sheet.card_curves(recs)
+    assert curves["DET @ CWS"][7.5] == (pytest.approx(0.64), pytest.approx(0.53))
+    assert curves["DET @ CWS"][8.0] == (pytest.approx(0.58), None)
+    assert sorted(curves["DET @ CWS"]) == [7.5, 8.0, 8.5]
+    # VSIN wins when it has the game; the card fills the rest; neither leaves it blank
+    circa = TotalSplit(8.0, over=Split(50, 50), under=Split(50, 50))
+    splits = {("SF @ LAD", "circa"): circa}
+    assert totals_sheet._total_label(splits, "SF @ LAD", lines) == "8"
+    assert totals_sheet._total_label(splits, "DET @ CWS", lines) == "7.5"
+    assert totals_sheet._total_label(splits, "NYY @ AZ", lines) == ""
+    assert totals_sheet._total_label({}, "DET @ CWS") == ""
+
+
+def test_the_card_lines_come_off_the_card_the_audit_grades(tmp_path: Path) -> None:
+    cfg = SimpleNamespace(audit_dir=tmp_path)
+    day = Date(2026, 9, 19)
+    local, pregame = tmp_path / "predictions_2026-09-19.json", tmp_path / "predictions_2026-09-19.pregame.json"
+    assert totals_sheet.day_card_lines(totals_sheet.day_cards(cfg, day)) == {}
+    a, b = _total("DET @ CWS", "over", 7.5, 0.6, 0.5), _total("DET @ CWS", "over", 8.5, 0.5, 0.5)
+    a.hours_to_first_pitch, b.hours_to_first_pitch = 5.0, 2.0
+    save_json([a], local)
+    save_json([b], pregame)
+    cards = totals_sheet.day_cards(cfg, day)
+    assert totals_sheet.day_card_lines(cards) == {"DET @ CWS": 8.5}
+    assert list(totals_sheet.day_card_curves(cards)["DET @ CWS"]) == [8.5]
+    # a card with no game totals defers to the other copy
+    save_json([_outs(1, "under", 17.5, 0.6)], pregame)
+    assert totals_sheet.day_card_lines(totals_sheet.day_cards(cfg, day)) == {"DET @ CWS": 7.5}
+
+
 def test_a_stat_one_arm_lacks_is_averaged_over_the_arms_that_have_it() -> None:
     rows = [_rel(f"L{i}", "ATH", 40, 3.0, hld=10, pid=10 + i) for i in (1, 2, 3)]
     rows += [_rel("A", "ATH", 30, 4.0, pid=1), _rel("B", "ATH", 30, 4.0, pid=2)]
