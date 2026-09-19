@@ -3,6 +3,7 @@
 # Usage: autorun.command <cfb-engine subcommand> [args...]
 #   autorun.command run     -> price today's slate and email the card
 #   autorun.command close   -> snapshot the closing market for CLV
+#   autorun.command open    -> baseline the opening board for the week ahead
 #   autorun.command audit   -> grade yesterday, update the ledger, email recap
 #
 # Unlike the double-click shortcuts this never opens a workbook, so it is safe
@@ -32,7 +33,7 @@ for _libdir in /opt/homebrew/lib /usr/local/lib; do
 done
 
 if [ "$#" -eq 0 ]; then
-    echo "usage: autorun.command <run|close|audit> [args...]" >&2
+    echo "usage: autorun.command <run|open|close|audit> [args...]" >&2
     exit 2
 fi
 
