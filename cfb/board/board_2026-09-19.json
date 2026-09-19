@@ -1519,6 +1519,16 @@
     "line": -33.5,
     "no_vig_prob": 0.5
   },
+  "Stonehill @ UMass|game_ml|Stonehill": {
+    "american": 4000.0,
+    "line": null,
+    "no_vig_prob": 0.02556147109147524
+  },
+  "Stonehill @ UMass|game_ml|UMass": {
+    "american": -15000.0,
+    "line": null,
+    "no_vig_prob": 0.9744385289085247
+  },
   "Stonehill @ UMass|game_total|Over": {
     "american": -110.0,
     "line": 48.5,
@@ -1748,6 +1758,16 @@
     "american": -106.0,
     "line": 35.0,
     "no_vig_prob": 0.5023051566353933
+  },
+  "UTEP @ Michigan|game_ml|Michigan": {
+    "american": -35000.0,
+    "line": null,
+    "no_vig_prob": 0.9807153453106972
+  },
+  "UTEP @ Michigan|game_ml|UTEP": {
+    "american": 5000.0,
+    "line": null,
+    "no_vig_prob": 0.019284654689302783
   },
   "UTEP @ Michigan|game_total|Over": {
     "american": -108.0,
