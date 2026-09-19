@@ -1,7 +1,10 @@
 """Batted-ball profile terms on the home-run line.
 
-Covers the air-contact split (EV filtered to fly balls/line drives), the pulled-
-air PPV term, and the ground-ball / pop-up / soft-air NPV brakes.
+Covers the air-contact split (EV filtered to fly balls/line drives) and the
+ground-ball / pop-up / soft-air NPV brakes. There is no contact-quality *lift*
+left: the rate the brakes apply to is already blended toward xHR, which is scored
+from these same batted balls, and the lift terms measured worse than not having
+them (``scripts.hr_multiplier_study``).
 """
 
 from __future__ import annotations
@@ -40,11 +43,12 @@ def _reg(**kw: float | int) -> BatterRegression:
 # --- air-contact split -------------------------------------------------------
 
 
-def test_hr_reads_max_ev_on_air_contact_not_ground_balls() -> None:
-    """A 115 mph ground ball must not credit the home-run line."""
+def test_air_max_ev_no_longer_lifts_the_home_run_line() -> None:
+    """Max EV is read for the reports; it does not price a home run."""
     grounder = _reg(max_ev=115.0, fb_ld_max_ev=104.0, fb_ld_ev=93.0)
     flyball = _reg(max_ev=115.0, fb_ld_max_ev=115.0, fb_ld_ev=93.0)
-    assert grounder.multipliers()["HR"] < flyball.multipliers()["HR"]
+    assert grounder.air_max_ev < flyball.air_max_ev
+    assert grounder.multipliers()["HR"] == flyball.multipliers()["HR"] == 1.0
 
 
 def test_air_metrics_fall_back_to_all_batted_balls() -> None:
@@ -63,11 +67,11 @@ def test_soft_air_hard_hit_still_brakes() -> None:
 # --- pulled air (PPV) --------------------------------------------------------
 
 
-def test_pulled_air_lifts_home_runs() -> None:
+def test_pulled_air_does_not_lift_home_runs() -> None:
+    """Pulled air is inside xHR already -- the spray chart is what xHR scores."""
     puller = _reg(pull_air_pct=0.34)
     oppo = _reg(pull_air_pct=0.10)
-    assert puller.multipliers()["HR"] > oppo.multipliers()["HR"]
-    # League-average pull-air is neutral, and a missing value changes nothing.
+    assert puller.multipliers()["HR"] == oppo.multipliers()["HR"] == 1.0
     assert _reg(pull_air_pct=BL_PULL_AIR).multipliers()["HR"] == _reg().multipliers()["HR"]
 
 
@@ -94,9 +98,9 @@ def test_brakes_are_bounded_and_stack() -> None:
     worst = _reg(gb_rate=0.70, iffb_pct=0.40, fb_ld_ev=80.0, fb_ld_hard_hit=0.10)
     hr = worst.multipliers()["HR"]
     assert 0.50 <= hr < 0.75
-    # Elite power is still capped at the same ceiling as before.
+    # Nothing lifts: the best profile on the board is neutral, not a boost.
     best = _reg(barrel_rate=0.20, bat_speed=78.0, fb_ld_max_ev=118.0, pull_air_pct=0.40)
-    assert best.multipliers()["HR"] <= 1.32
+    assert best.multipliers()["HR"] == 1.0
 
 
 def test_missing_batted_ball_data_is_neutral() -> None:
