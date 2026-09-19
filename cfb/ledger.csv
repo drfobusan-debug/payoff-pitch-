@@ -1,118 +1,118 @@
 date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob,ev,result,pnl,raw_prob,fair_prob,bet_prob,close_odds,close_prob,clv,clv_ev,clv_pts,drift,pass_gate,sharp_div
-2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Hawaii ML,,betrivers,165.0,-210.0,Pass,0.3718,-0.0149,loss,-1.0,0.3718,0.3696,0.3718,189.0,0.3395,-0.0301,-0.1003,,0.0301,,-21.0
-2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Stanford ML,,draftkings,-185.0,154.0,Pass,0.6245,-0.0379,win,0.5405,0.6282,0.6304,0.6245,-215.0,0.6605,0.0301,0.0175,,-0.0301,,21.0
-2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Hawaii +4.0,4.0,lowvig,-106.0,-106.0,Pass,0.4702,-0.0863,loss,-1.0,0.4702,0.5003,0.4702,-104.0,0.4654,-0.0349,-0.0955,-1.5,0.0349,,17.0
-2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Stanford -4.0,-4.0,lowvig,-106.0,-106.0,Pass,0.5298,0.0297,win,0.9434,0.5298,0.4997,0.5298,-101.0,0.5346,0.0349,0.0389,1.5,-0.0349,,-17.0
-2026-08-29,Hawaii @ Stanford,Totals,game_total,Over 48.5,48.5,lowvig,-103.0,-114.0,Moderate buy,0.53,0.0445,win,0.9709,0.53,0.4997,0.53,-110.0,0.5204,0.0207,0.0256,0.5,-0.0207,,-8.0
-2026-08-29,Hawaii @ Stanford,Totals,game_total,Under 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.47,-0.0823,loss,-1.0,0.47,0.5003,0.47,-103.0,0.4796,-0.0207,-0.0636,-0.5,0.0207,,8.0
-2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,Jacksonville S ML,,betus,218.0,-260.0,Pass,0.3165,0.0064,loss,-1.0,0.3165,0.3055,0.3165,226.0,0.3004,-0.0051,-0.0447,,0.0054,,6.0
-2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,North Dakota S ML,,bovada,-245.0,205.0,Pass,0.6549,-0.0777,win,0.4082,0.6835,0.6945,0.6549,-250.0,0.6996,0.0051,-0.0148,,-0.0054,,-6.0
-2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,Jacksonville S +6.5,6.5,lowvig,105.0,-117.0,Pass,0.4702,-0.036,loss,-1.0,0.4702,0.4854,0.4702,-110.0,0.4936,0.0082,0.0119,-0.5,-0.0083,,21.0
-2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,North Dakota S -6.5,-6.5,betus,-110.0,-110.0,Pass,0.5298,0.0113,win,0.9091,0.5298,0.5146,0.5298,100.0,0.5064,-0.0082,-0.0332,0.5,0.0083,,-21.0
-2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Over 46.5,46.5,lowvig,-108.0,-108.0,Pass,0.6448,0.2419,loss,-1.0,0.6651,0.5005,0.6448,-108.0,0.4989,-0.0016,-0.0392,0.0,0.0015,,-53.0
-2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Under 46.5,46.5,draftkings,-108.0,-112.0,Pass,0.3349,-0.3551,win,0.9259,0.3349,0.4995,0.3349,-110.0,0.5011,0.0016,-0.0349,0.0,-0.0015,,53.0
-2026-08-29,Memphis @ UNLV,Moneyline,game_ml,Memphis ML,,lowvig,165.0,-190.0,Pass,0.3529,-0.0648,win,1.65,0.3529,0.3714,0.3529,190.0,0.3378,-0.0336,-0.1048,,0.0343,,27.0
-2026-08-29,Memphis @ UNLV,Moneyline,game_ml,UNLV ML,,betus,-185.0,159.0,Pass,0.6349,-0.0219,loss,-1.0,0.6471,0.6286,0.6349,-210.0,0.6622,0.0336,0.0201,,-0.0343,,-27.0
-2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,Memphis +4.0,4.0,lowvig,-104.0,-108.0,Pass,0.4492,-0.1189,win,0.9615,0.4492,0.4974,0.4492,100.0,0.458,-0.0394,-0.1016,-1.5,0.0394,,12.0
-2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,UNLV -4.0,-4.0,lowvig,-108.0,-104.0,Strong buy,0.5508,0.0608,loss,-1.0,0.5508,0.5026,0.5508,-106.0,0.542,0.0394,0.0439,1.5,-0.0394,,-12.0
-2026-08-29,Memphis @ UNLV,Totals,game_total,Over 56.5,56.5,bovada,-105.0,-115.0,Pass,0.6694,0.307,loss,-1.0,0.7098,0.4981,0.6694,-110.0,0.509,0.0109,-0.0062,0.0,-0.0109,,-33.0
-2026-08-29,Memphis @ UNLV,Totals,game_total,Under 56.5,56.5,williamhill_us,-110.0,-109.0,Pass,0.2902,-0.4461,win,0.9091,0.2902,0.5019,0.2902,-103.0,0.491,-0.0109,-0.0626,0.0,0.0109,,33.0
-2026-08-29,NC State @ Virginia,Moneyline,game_ml,NC State ML,,betus,163.0,-190.0,Pass,0.3756,-0.0123,loss,-1.0,0.3756,0.3803,0.3756,190.0,0.3417,-0.0386,-0.1013,,0.0386,,7.0
-2026-08-29,NC State @ Virginia,Moneyline,game_ml,Virginia ML,,betonlineag,-175.0,153.0,Pass,0.6224,-0.0219,win,0.5714,0.6244,0.6197,0.6224,-210.0,0.6583,0.0386,0.0345,,-0.0386,,-7.0
-2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,NC State +4.0,4.0,fanatics,-110.0,-110.0,Pass,0.4727,-0.0976,loss,-1.0,0.4727,0.5061,0.4727,-105.0,0.4594,-0.0467,-0.123,-1.5,0.0467,,12.0
-2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,Virginia -4.0,-4.0,lowvig,101.0,-113.0,Moderate buy,0.5273,0.0599,win,1.01,0.5273,0.4939,0.5273,-106.0,0.5406,0.0467,0.0866,1.5,-0.0467,,-12.0
-2026-08-29,NC State @ Virginia,Totals,game_total,Over 51.0,51.0,lowvig,-108.0,-108.0,Pass,0.4599,-0.1143,loss,-1.0,0.4599,0.501,0.4599,-103.0,0.5711,0.0701,0.0999,2.5,-0.0702,,-9.0
-2026-08-29,NC State @ Virginia,Totals,game_total,Under 51.0,51.0,betrivers,-108.0,-115.0,Pass,0.5401,0.0402,win,0.9259,0.5401,0.499,0.5401,-108.0,0.4289,-0.0701,-0.174,-2.5,0.0702,,9.0
-2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,-10000.0,3000.0,Pass,0.8105,-0.1814,win,0.01,0.9664,0.9633,0.8105,-6500.0,0.9533,-0.01,-0.0372,,0.01,,-9.0
-2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,New Mexico Sta ML,,draftkings,3000.0,-10000.0,Pass,0.0336,0.0424,loss,-1.0,0.0336,0.0367,0.0336,2800.0,0.0467,0.01,0.4477,,-0.01,,9.0
-2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,Florida State -31.5,-31.5,fanduel,-105.0,-115.0,Pass,0.4406,-0.1398,loss,-1.0,0.4406,0.4972,0.4406,-101.0,0.4837,-0.0135,-0.0556,-0.5,0.0135,,-17.0
-2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,New Mexico Sta +31.5,31.5,lowvig,-106.0,-106.0,Strong buy,0.5594,0.0872,win,0.9434,0.5594,0.5028,0.5594,-105.0,0.5163,0.0135,0.0034,0.5,-0.0135,,17.0
-2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Over 53.5,53.5,mybookieag,-110.0,-110.0,Pass,0.4785,-0.0865,loss,-1.0,0.4785,0.5051,0.4785,-108.0,0.4995,-0.0056,-0.0464,0.0,0.0056,,1.0
-2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Under 53.5,53.5,bovada,-105.0,-115.0,Moderate buy,0.5215,0.0181,win,0.9524,0.5215,0.4949,0.5215,-108.0,0.5005,0.0056,-0.0228,0.0,-0.0056,,-1.0
-2026-08-29,North Carolina @ TCU,Moneyline,game_ml,North Carolina ML,,mybookieag,271.0,-356.0,Pass,0.3101,0.1505,win,2.71,0.3101,0.2622,0.3101,260.0,0.2721,0.0099,0.0095,,-0.0096,price_too_long,-5.0
-2026-08-29,North Carolina @ TCU,Moneyline,game_ml,TCU ML,,betonlineag,-320.0,260.0,Pass,0.6584,-0.1358,loss,-1.0,0.6899,0.7378,0.6584,-300.0,0.7279,-0.0099,-0.0446,,0.0096,,5.0
-2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,North Carolina +8.5,8.5,williamhill_us,-107.0,-113.0,Pass,0.514,-0.0056,win,0.9346,0.514,0.4982,0.514,-105.0,0.5211,0.0229,0.0081,1.0,-0.0229,,-4.0
-2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,TCU -8.5,-8.5,fanduel,-110.0,-110.0,Pass,0.486,-0.0722,loss,-1.0,0.486,0.5018,0.486,-106.0,0.4789,-0.0229,-0.0857,-1.0,0.0229,,4.0
-2026-08-29,North Carolina @ TCU,Totals,game_total,Over 45.5,45.5,betmgm,-110.0,-108.0,Pass,0.5278,0.0076,loss,-1.0,0.5278,0.5075,0.5278,-108.0,0.5618,0.0543,0.0725,2.0,-0.0542,,-2.0
-2026-08-29,North Carolina @ TCU,Totals,game_total,Under 45.5,45.5,williamhill_us,-102.0,-120.0,Pass,0.4722,-0.0649,win,0.9804,0.4722,0.4925,0.4722,-108.0,0.4382,-0.0543,-0.1322,-2.0,0.0542,,2.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Eastern Michig ML,,betus,-340.0,275.0,Pass,0.6781,-0.1225,win,0.2941,0.7256,0.7464,0.6781,-325.0,0.7532,0.0068,-0.0253,,-0.0071,,
-2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Sacramento Sta ML,,betrivers,290.0,-385.0,Pass,0.2744,0.0703,loss,-1.0,0.2744,0.2536,0.2744,310.0,0.2468,-0.0068,-0.0375,,0.0071,price_too_long,-25.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Eastern Michig -9.5,-9.5,draftkings,-105.0,-115.0,Pass,0.5008,-0.0223,win,0.9524,0.5008,0.5008,0.5008,-110.0,0.5041,0.0033,-0.0158,0.0,-0.0033,,
-2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Sacramento Sta +9.5,9.5,williamhill_us,-107.0,-112.0,Pass,0.4992,-0.0342,loss,-1.0,0.4992,0.4992,0.4992,-105.0,0.4959,-0.0033,-0.0406,0.0,0.0033,,53.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.3392,-0.3377,loss,-1.0,0.3392,0.5049,0.3392,-108.0,0.4696,-0.0353,-0.0832,-1.0,0.0353,,28.0
-2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Under 53.5,53.5,draftkings,-105.0,-115.0,Pass,0.6424,0.2542,win,0.9524,0.6607,0.4951,0.6424,-108.0,0.5304,0.0353,0.0355,1.0,-0.0353,,
-2026-08-29,San Jose State @ USC,Moneyline,game_ml,San Jose State ML,,mybookieag,1825.0,-50000.0,Pass,0.0117,-0.7748,loss,-1.0,0.0117,0.0495,0.0117,6000.0,0.0371,-0.0124,-0.2858,,0.0124,,
-2026-08-29,San Jose State @ USC,Moneyline,game_ml,USC ML,,mybookieag,-50000.0,1825.0,Pass,0.8226,-0.1758,win,0.002,0.9883,0.9505,0.8226,-20000.0,0.9629,0.0124,-0.0352,,-0.0124,,
-2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,San Jose State +38.5,38.5,betmgm,-108.0,-110.0,Strong buy,0.5547,0.0684,win,0.9259,0.5547,0.502,0.5547,-110.0,0.5089,0.0069,-0.0199,0.0,-0.0069,,-14.0
-2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,USC -38.5,-38.5,bovada,-105.0,-115.0,Pass,0.4453,-0.1307,loss,-1.0,0.4453,0.498,0.4453,-102.0,0.4911,-0.0069,-0.0412,0.0,0.0069,,14.0
-2026-08-29,San Jose State @ USC,Totals,game_total,Over 61.5,61.5,lowvig,-103.0,-114.0,Strong buy,0.5512,0.0862,win,0.9709,0.5512,0.495,0.5512,-106.0,0.468,-0.027,-0.0776,-1.0,0.027,,6.0
-2026-08-29,San Jose State @ USC,Totals,game_total,Under 61.5,61.5,bovada,-105.0,-115.0,Pass,0.4488,-0.1237,loss,-1.0,0.4488,0.505,0.4488,-108.0,0.532,0.027,0.0387,1.0,-0.027,,-6.0
+2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Hawaii ML,,betrivers,165.0,-210.0,Pass,0.3718,-0.0149,loss,-1.0,0.3718,0.3696,0.3718,178.0,0.3582,-0.0114,-0.0508,,0.0301,,-21.0
+2026-08-29,Hawaii @ Stanford,Moneyline,game_ml,Stanford ML,,draftkings,-185.0,154.0,Pass,0.6245,-0.0379,win,0.5405,0.6282,0.6304,0.6245,-185.0,0.6418,0.0114,-0.0113,,-0.0301,,21.0
+2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Hawaii +4.0,4.0,lowvig,-106.0,-106.0,Pass,0.4702,-0.0863,loss,-1.0,0.4702,0.5003,0.4702,-101.0,0.484,-0.0163,-0.0594,-0.5,0.0349,,17.0
+2026-08-29,Hawaii @ Stanford,Spread (ATS),game_ats,Stanford -4.0,-4.0,lowvig,-106.0,-106.0,Pass,0.5298,0.0297,win,0.9434,0.5298,0.4997,0.5298,-110.0,0.516,0.0163,0.0028,0.5,-0.0349,,-17.0
+2026-08-29,Hawaii @ Stanford,Totals,game_total,Over 48.5,48.5,lowvig,-103.0,-114.0,Moderate buy,0.53,0.0445,win,0.9709,0.53,0.4997,0.53,-108.0,0.5012,0.0015,-0.0122,0.0,-0.0207,,-8.0
+2026-08-29,Hawaii @ Stanford,Totals,game_total,Under 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.47,-0.0823,loss,-1.0,0.47,0.5003,0.47,-105.0,0.4988,-0.0015,-0.0262,0.0,0.0207,,8.0
+2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,Jacksonville S ML,,betus,218.0,-260.0,Pass,0.3165,0.0064,loss,-1.0,0.3165,0.3055,0.3165,650.0,0.2201,-0.0854,-0.3001,,0.0054,,6.0
+2026-08-29,Jacksonville S @ North Dakota S,Moneyline,game_ml,North Dakota S ML,,bovada,-245.0,205.0,Pass,0.6549,-0.0777,win,0.4082,0.6835,0.6945,0.6549,-286.0,0.7799,0.0854,0.0982,,-0.0054,,-6.0
+2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,Jacksonville S +6.5,6.5,lowvig,105.0,-117.0,Pass,0.4702,-0.036,loss,-1.0,0.4702,0.4854,0.4702,-108.0,0.5114,0.026,0.0484,1.0,-0.0083,,21.0
+2026-08-29,Jacksonville S @ North Dakota S,Spread (ATS),game_ats,North Dakota S -6.5,-6.5,betus,-110.0,-110.0,Pass,0.5298,0.0113,win,0.9091,0.5298,0.5146,0.5298,-120.0,0.4886,-0.026,-0.0672,-1.0,0.0083,,-21.0
+2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Over 46.5,46.5,lowvig,-108.0,-108.0,Pass,0.6448,0.2419,loss,-1.0,0.6651,0.5005,0.6448,-118.0,0.3334,-0.1671,-0.3579,-6.0,0.0015,,-53.0
+2026-08-29,Jacksonville S @ North Dakota S,Totals,game_total,Under 46.5,46.5,draftkings,-108.0,-112.0,Pass,0.3349,-0.3551,win,0.9259,0.3349,0.4995,0.3349,-105.0,0.6666,0.1671,0.2838,6.0,-0.0015,,53.0
+2026-08-29,Memphis @ UNLV,Moneyline,game_ml,Memphis ML,,lowvig,165.0,-190.0,Pass,0.3529,-0.0648,win,1.65,0.3529,0.3714,0.3529,,,,,,0.0343,,27.0
+2026-08-29,Memphis @ UNLV,Moneyline,game_ml,UNLV ML,,betus,-185.0,159.0,Pass,0.6349,-0.0219,loss,-1.0,0.6471,0.6286,0.6349,,,,,,-0.0343,,-27.0
+2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,Memphis +4.0,4.0,lowvig,-104.0,-108.0,Pass,0.4492,-0.1189,win,0.9615,0.4492,0.4974,0.4492,,,,,,0.0394,,12.0
+2026-08-29,Memphis @ UNLV,Spread (ATS),game_ats,UNLV -4.0,-4.0,lowvig,-108.0,-104.0,Strong buy,0.5508,0.0608,loss,-1.0,0.5508,0.5026,0.5508,,,,,,-0.0394,,-12.0
+2026-08-29,Memphis @ UNLV,Totals,game_total,Over 56.5,56.5,bovada,-105.0,-115.0,Pass,0.6694,0.307,loss,-1.0,0.7098,0.4981,0.6694,,,,,,-0.0109,,-33.0
+2026-08-29,Memphis @ UNLV,Totals,game_total,Under 56.5,56.5,williamhill_us,-110.0,-109.0,Pass,0.2902,-0.4461,win,0.9091,0.2902,0.5019,0.2902,,,,,,0.0109,,33.0
+2026-08-29,NC State @ Virginia,Moneyline,game_ml,NC State ML,,betus,163.0,-190.0,Pass,0.3756,-0.0123,loss,-1.0,0.3756,0.3803,0.3756,164.0,0.3738,-0.0065,-0.0169,,0.0386,,7.0
+2026-08-29,NC State @ Virginia,Moneyline,game_ml,Virginia ML,,betonlineag,-175.0,153.0,Pass,0.6224,-0.0219,win,0.5714,0.6244,0.6197,0.6224,-178.0,0.6262,0.0065,-0.016,,-0.0386,,-7.0
+2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,NC State +4.0,4.0,fanatics,-110.0,-110.0,Pass,0.4727,-0.0976,loss,-1.0,0.4727,0.5061,0.4727,-105.0,0.4978,-0.0083,-0.0497,0.0,0.0467,,12.0
+2026-08-29,NC State @ Virginia,Spread (ATS),game_ats,Virginia -4.0,-4.0,lowvig,101.0,-113.0,Moderate buy,0.5273,0.0599,win,1.01,0.5273,0.4939,0.5273,-106.0,0.5022,0.0083,0.0094,0.0,-0.0467,,-12.0
+2026-08-29,NC State @ Virginia,Totals,game_total,Over 51.0,51.0,lowvig,-108.0,-108.0,Pass,0.4599,-0.1143,loss,-1.0,0.4599,0.501,0.4599,-108.0,0.4894,-0.0116,-0.0575,-0.5,-0.0702,,-9.0
+2026-08-29,NC State @ Virginia,Totals,game_total,Under 51.0,51.0,betrivers,-108.0,-115.0,Pass,0.5401,0.0402,win,0.9259,0.5401,0.499,0.5401,-102.0,0.5106,0.0116,-0.0166,0.5,0.0702,,9.0
+2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,-10000.0,3000.0,Pass,0.8105,-0.1814,win,0.01,0.9664,0.9633,0.8105,-8000.0,0.9583,-0.005,-0.0321,,0.01,,-9.0
+2026-08-29,New Mexico Sta @ Florida State,Moneyline,game_ml,New Mexico Sta ML,,draftkings,3000.0,-10000.0,Pass,0.0336,0.0424,loss,-1.0,0.0336,0.0367,0.0336,3000.0,0.0417,0.005,0.2927,,-0.01,,9.0
+2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,Florida State -31.5,-31.5,fanduel,-105.0,-115.0,Pass,0.4406,-0.1398,loss,-1.0,0.4406,0.4972,0.4406,-106.0,0.487,-0.0102,-0.0492,-0.5,0.0135,,-17.0
+2026-08-29,New Mexico Sta @ Florida State,Spread (ATS),game_ats,New Mexico Sta +31.5,31.5,lowvig,-106.0,-106.0,Strong buy,0.5594,0.0872,win,0.9434,0.5594,0.5028,0.5594,-106.0,0.513,0.0102,-0.003,0.5,-0.0135,,17.0
+2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Over 53.5,53.5,mybookieag,-110.0,-110.0,Pass,0.4785,-0.0865,loss,-1.0,0.4785,0.5051,0.4785,-108.0,0.5027,-0.0024,-0.0403,0.0,0.0056,,1.0
+2026-08-29,New Mexico Sta @ Florida State,Totals,game_total,Under 53.5,53.5,bovada,-105.0,-115.0,Moderate buy,0.5215,0.0181,win,0.9524,0.5215,0.4949,0.5215,-105.0,0.4973,0.0024,-0.0291,0.0,-0.0056,,-1.0
+2026-08-29,North Carolina @ TCU,Moneyline,game_ml,North Carolina ML,,mybookieag,271.0,-356.0,Pass,0.3101,0.1505,win,2.71,0.3101,0.2622,0.3101,,,,,,-0.0096,price_too_long,-5.0
+2026-08-29,North Carolina @ TCU,Moneyline,game_ml,TCU ML,,betonlineag,-320.0,260.0,Pass,0.6584,-0.1358,loss,-1.0,0.6899,0.7378,0.6584,,,,,,0.0096,,5.0
+2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,North Carolina +8.5,8.5,williamhill_us,-107.0,-113.0,Pass,0.514,-0.0056,win,0.9346,0.514,0.4982,0.514,,,,,,-0.0229,,-4.0
+2026-08-29,North Carolina @ TCU,Spread (ATS),game_ats,TCU -8.5,-8.5,fanduel,-110.0,-110.0,Pass,0.486,-0.0722,loss,-1.0,0.486,0.5018,0.486,,,,,,0.0229,,4.0
+2026-08-29,North Carolina @ TCU,Totals,game_total,Over 45.5,45.5,betmgm,-110.0,-108.0,Pass,0.5278,0.0076,loss,-1.0,0.5278,0.5075,0.5278,,,,,,-0.0542,,-2.0
+2026-08-29,North Carolina @ TCU,Totals,game_total,Under 45.5,45.5,williamhill_us,-102.0,-120.0,Pass,0.4722,-0.0649,win,0.9804,0.4722,0.4925,0.4722,,,,,,0.0542,,2.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Eastern Michig ML,,betus,-340.0,275.0,Pass,0.6781,-0.1225,win,0.2941,0.7256,0.7464,0.6781,,,,,,-0.0071,,
+2026-08-29,Sacramento Sta @ Eastern Michig,Moneyline,game_ml,Sacramento Sta ML,,betrivers,290.0,-385.0,Pass,0.2744,0.0703,loss,-1.0,0.2744,0.2536,0.2744,,,,,,0.0071,price_too_long,-25.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Eastern Michig -9.5,-9.5,draftkings,-105.0,-115.0,Pass,0.5008,-0.0223,win,0.9524,0.5008,0.5008,0.5008,,,,,,-0.0033,,
+2026-08-29,Sacramento Sta @ Eastern Michig,Spread (ATS),game_ats,Sacramento Sta +9.5,9.5,williamhill_us,-107.0,-112.0,Pass,0.4992,-0.0342,loss,-1.0,0.4992,0.4992,0.4992,,,,,,0.0033,,53.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.3392,-0.3377,loss,-1.0,0.3392,0.5049,0.3392,,,,,,0.0353,,28.0
+2026-08-29,Sacramento Sta @ Eastern Michig,Totals,game_total,Under 53.5,53.5,draftkings,-105.0,-115.0,Pass,0.6424,0.2542,win,0.9524,0.6607,0.4951,0.6424,,,,,,-0.0353,,
+2026-08-29,San Jose State @ USC,Moneyline,game_ml,San Jose State ML,,mybookieag,1825.0,-50000.0,Pass,0.0117,-0.7748,loss,-1.0,0.0117,0.0495,0.0117,1825.0,0.0495,0.0,-0.0471,,0.0124,,
+2026-08-29,San Jose State @ USC,Moneyline,game_ml,USC ML,,mybookieag,-50000.0,1825.0,Pass,0.8226,-0.1758,win,0.002,0.9883,0.9505,0.8226,-50000.0,0.9505,0.0,-0.0476,,-0.0124,,
+2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,San Jose State +38.5,38.5,betmgm,-108.0,-110.0,Strong buy,0.5547,0.0684,win,0.9259,0.5547,0.502,0.5547,-108.0,0.5386,0.0366,0.0373,1.5,-0.0069,,-14.0
+2026-08-29,San Jose State @ USC,Spread (ATS),game_ats,USC -38.5,-38.5,bovada,-105.0,-115.0,Pass,0.4453,-0.1307,loss,-1.0,0.4453,0.498,0.4453,-104.0,0.4614,-0.0366,-0.0992,-1.5,0.0069,,14.0
+2026-08-29,San Jose State @ USC,Totals,game_total,Over 61.5,61.5,lowvig,-103.0,-114.0,Strong buy,0.5512,0.0862,win,0.9709,0.5512,0.495,0.5512,-105.0,0.4957,0.0007,-0.023,0.0,0.027,,6.0
+2026-08-29,San Jose State @ USC,Totals,game_total,Under 61.5,61.5,bovada,-105.0,-115.0,Pass,0.4488,-0.1237,loss,-1.0,0.4488,0.505,0.4488,-110.0,0.5043,-0.0007,-0.0154,0.0,-0.027,,-6.0
 2026-09-03,Akron @ Wake Forest,Moneyline,game_ml,Akron ML,,betmgm,1500.0,-3000.0,Pass,0.0768,0.2296,loss,-1.0,0.0768,0.0688,0.0768,2000.0,0.0598,-0.009,-0.0432,,0.0,,54.0
 2026-09-03,Akron @ Wake Forest,Moneyline,game_ml,Wake Forest ML,,bovada,-2500.0,1000.0,Pass,0.7867,-0.1818,win,0.04,0.9232,0.9312,0.7867,-3000.0,0.9402,0.009,-0.0222,,0.0,,-54.0
 2026-09-03,Akron @ Wake Forest,Spread (ATS),game_ats,Akron +24.5,24.5,fanatics,-105.0,-115.0,Strong buy,0.5443,0.0627,win,0.9524,0.5443,0.4985,0.5443,-106.0,0.4143,-0.0842,-0.1911,-3.5,0.0,,-8.0
 2026-09-03,Akron @ Wake Forest,Spread (ATS),game_ats,Wake Forest -24.5,-24.5,williamhill_us,-109.0,-110.0,Pass,0.4557,-0.1263,loss,-1.0,0.4557,0.5015,0.4557,-106.0,0.5857,0.0842,0.123,3.5,0.0,,8.0
 2026-09-03,Akron @ Wake Forest,Totals,game_total,Over 48.5,48.5,betrivers,-109.0,-114.0,Pass,0.3505,-0.328,win,0.9174,0.3505,0.5017,0.3505,-110.0,0.5678,0.0661,0.0887,2.0,0.0,,-12.0
 2026-09-03,Akron @ Wake Forest,Totals,game_total,Under 48.5,48.5,williamhill_us,-105.0,-115.0,Pass,0.6362,0.2422,loss,-1.0,0.6495,0.4983,0.6362,-103.0,0.4322,-0.0661,-0.1562,-2.0,0.0,,12.0
-2026-09-03,Albany @ Buffalo,Moneyline,game_ml,Albany ML,,fanduel,890.0,-1700.0,Pass,0.1251,0.2382,loss,-1.0,0.1251,0.1088,0.1251,650.0,0.1595,0.0507,0.5791,,0.0,,11.0
-2026-09-03,Albany @ Buffalo,Moneyline,game_ml,Buffalo ML,,fanatics,-1200.0,750.0,Pass,0.7602,-0.1764,win,0.0833,0.8749,0.8912,0.7602,-556.0,0.8405,-0.0507,-0.0895,,0.0,,-11.0
-2026-09-03,Albany @ Buffalo,Spread (ATS),game_ats,Albany +18.5,18.5,fanduel,-108.0,-112.0,Pass,0.4987,-0.0396,win,0.9259,0.4987,0.5142,0.4987,-120.0,0.7235,0.2093,0.3934,8.0,0.0,,27.0
-2026-09-03,Albany @ Buffalo,Spread (ATS),game_ats,Buffalo -18.5,-18.5,lowvig,-101.0,-130.0,Pass,0.5013,-0.0023,loss,-1.0,0.5013,0.4858,0.5013,102.0,0.2765,-0.2093,-0.4497,-8.0,0.0,,-27.0
-2026-09-03,Albany @ Buffalo,Totals,game_total,Over 48.5,48.5,fanduel,-110.0,-110.0,Pass,0.5012,-0.0431,loss,-1.0,0.5012,0.5007,0.5012,-110.0,0.3221,-0.1786,-0.3851,-6.0,0.0,,
-2026-09-03,Albany @ Buffalo,Totals,game_total,Under 48.5,48.5,betmgm,-108.0,-110.0,Pass,0.4988,-0.0394,win,0.9259,0.4988,0.4993,0.4988,-108.0,0.6779,0.1786,0.3056,6.0,0.0,,
-2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Arkansas Pine ML,,mybookieag,1575.0,-100000.0,Pass,0.0001,-0.9975,loss,-1.0,0.0001,0.0564,0.0001,1575.0,0.0564,0.0,-0.0553,,0.0,,
-2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Missouri ML,,mybookieag,-100000.0,1575.0,Pass,0.8289,-0.1703,win,0.001,0.9999,0.9436,0.8289,-100000.0,0.9436,0.0,-0.0555,,0.0,,
-2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Arkansas Pine +54.5,54.5,fanatics,-105.0,-115.0,Pass,0.5046,-0.0149,win,0.9524,0.5046,0.4974,0.5046,132.0,0.6616,0.1642,0.2917,8.0,0.0,,
-2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Missouri -54.5,-54.5,fanduel,-105.0,-115.0,Pass,0.4955,-0.0327,loss,-1.0,0.4955,0.5026,0.4955,-120.0,0.3384,-0.1642,-0.3393,-8.0,0.0,,-4.0
-2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Over 61.5,61.5,williamhill_us,-108.0,-114.0,Pass,0.5036,-0.0301,win,0.9259,0.5036,0.4994,0.5036,-175.0,0.5883,0.0889,0.133,-1.0,0.0,,
-2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Under 61.5,61.5,draftkings,-108.0,-112.0,Pass,0.4964,-0.044,loss,-1.0,0.4964,0.5006,0.4964,152.0,0.4117,-0.0889,-0.2071,1.0,0.0,,7.0
+2026-09-03,Albany @ Buffalo,Moneyline,game_ml,Albany ML,,fanduel,890.0,-1700.0,Pass,0.1251,0.2382,loss,-1.0,0.1251,0.1088,0.1251,,,,,,0.0,,11.0
+2026-09-03,Albany @ Buffalo,Moneyline,game_ml,Buffalo ML,,fanatics,-1200.0,750.0,Pass,0.7602,-0.1764,win,0.0833,0.8749,0.8912,0.7602,,,,,,0.0,,-11.0
+2026-09-03,Albany @ Buffalo,Spread (ATS),game_ats,Albany +18.5,18.5,fanduel,-108.0,-112.0,Pass,0.4987,-0.0396,win,0.9259,0.4987,0.5142,0.4987,,,,,,0.0,,27.0
+2026-09-03,Albany @ Buffalo,Spread (ATS),game_ats,Buffalo -18.5,-18.5,lowvig,-101.0,-130.0,Pass,0.5013,-0.0023,loss,-1.0,0.5013,0.4858,0.5013,,,,,,0.0,,-27.0
+2026-09-03,Albany @ Buffalo,Totals,game_total,Over 48.5,48.5,fanduel,-110.0,-110.0,Pass,0.5012,-0.0431,loss,-1.0,0.5012,0.5007,0.5012,,,,,,0.0,,
+2026-09-03,Albany @ Buffalo,Totals,game_total,Under 48.5,48.5,betmgm,-108.0,-110.0,Pass,0.4988,-0.0394,win,0.9259,0.4988,0.4993,0.4988,,,,,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Arkansas Pine ML,,mybookieag,1575.0,-100000.0,Pass,0.0001,-0.9975,loss,-1.0,0.0001,0.0564,0.0001,,,,,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Moneyline,game_ml,Missouri ML,,mybookieag,-100000.0,1575.0,Pass,0.8289,-0.1703,win,0.001,0.9999,0.9436,0.8289,,,,,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Arkansas Pine +54.5,54.5,fanatics,-105.0,-115.0,Pass,0.5046,-0.0149,win,0.9524,0.5046,0.4974,0.5046,,,,,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Spread (ATS),game_ats,Missouri -54.5,-54.5,fanduel,-105.0,-115.0,Pass,0.4955,-0.0327,loss,-1.0,0.4955,0.5026,0.4955,,,,,,0.0,,-4.0
+2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Over 61.5,61.5,williamhill_us,-108.0,-114.0,Pass,0.5036,-0.0301,win,0.9259,0.5036,0.4994,0.5036,,,,,,0.0,,
+2026-09-03,Arkansas Pine @ Missouri,Totals,game_total,Under 61.5,61.5,draftkings,-108.0,-112.0,Pass,0.4964,-0.044,loss,-1.0,0.4964,0.5006,0.4964,,,,,,0.0,,7.0
 2026-09-03,Bethune-Cookma @ UCF,Moneyline,game_ml,Bethune-Cookma ML,,mybookieag,1575.0,-100000.0,Pass,0.0039,-0.9351,loss,-1.0,0.0039,0.0564,0.0039,1575.0,0.0564,0.0,-0.0553,,0.0,,
 2026-09-03,Bethune-Cookma @ UCF,Moneyline,game_ml,UCF ML,,mybookieag,-100000.0,1575.0,Pass,0.8269,-0.1723,win,0.001,0.9961,0.9436,0.8269,-100000.0,0.9436,0.0,-0.0555,,0.0,,
 2026-09-03,Bethune-Cookma @ UCF,Spread (ATS),game_ats,Bethune-Cookma +42.5,42.5,fanduel,-110.0,-110.0,Pass,0.4958,-0.0535,loss,-1.0,0.4958,0.5045,0.4958,-110.0,0.4738,-0.0307,-0.0955,-1.0,0.0,,-28.0
 2026-09-03,Bethune-Cookma @ UCF,Spread (ATS),game_ats,UCF -42.5,-42.5,draftkings,-102.0,-118.0,Pass,0.5042,-0.0014,win,0.9804,0.5042,0.4955,0.5042,-105.0,0.5262,0.0307,0.0421,1.0,0.0,,28.0
 2026-09-03,Bethune-Cookma @ UCF,Totals,game_total,Over 58.5,58.5,mybookieag,-110.0,-110.0,Pass,0.5009,-0.0438,win,0.9091,0.5009,0.5063,0.5009,-110.0,0.5135,0.0072,-0.0197,0.0,0.0,,-8.0
 2026-09-03,Bethune-Cookma @ UCF,Totals,game_total,Under 58.5,58.5,fanatics,-105.0,-115.0,Pass,0.4991,-0.0255,loss,-1.0,0.4991,0.4937,0.4991,100.0,0.4865,-0.0072,-0.0502,0.0,0.0,,8.0
-2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Colorado ML,,fanatics,220.0,-270.0,Pass,0.316,0.0112,win,2.2,0.316,0.317,0.316,165.0,0.3838,0.0668,0.2282,,0.0,,28.0
-2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Georgia Tech ML,,draftkings,-238.0,195.0,Pass,0.6552,-0.0695,loss,-1.0,0.684,0.683,0.6552,-170.0,0.6162,-0.0668,-0.1249,,0.0,,-28.0
-2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Colorado +6.5,6.5,draftkings,-105.0,-115.0,Pass,0.4726,-0.0773,win,0.9524,0.4726,0.4946,0.4726,130.0,0.5228,0.0282,0.0207,4.0,0.0,,5.0
-2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Georgia Tech -6.5,-6.5,lowvig,-107.0,-105.0,Moderate buy,0.5274,0.0202,loss,-1.0,0.5274,0.5054,0.5274,-150.0,0.4772,-0.0282,-0.0768,-4.0,0.0,,-6.0
-2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Over 51.0,51.0,lowvig,-106.0,-110.0,Pass,0.5167,0.0042,loss,-1.0,0.5167,0.4982,0.5167,-115.0,0.0,-0.4982,-1.0,-21.5,0.0,,-14.0
-2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Under 51.0,51.0,lowvig,-110.0,-106.0,Pass,0.4833,-0.0773,win,0.9091,0.4833,0.5018,0.4833,-115.0,1.0,0.4982,0.9091,21.5,0.0,,14.0
-2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Eastern Illino ML,,mybookieag,1575.0,-100000.0,Pass,0.0038,-0.9359,loss,-1.0,0.0038,0.0564,0.0038,1575.0,0.0564,0.0,-0.0553,,0.0,,
-2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Minnesota ML,,mybookieag,-100000.0,1575.0,Pass,0.8269,-0.1723,win,0.001,0.9962,0.9436,0.8269,-100000.0,0.9436,0.0,-0.0555,,0.0,,
-2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Eastern Illino +42.5,42.5,betmgm,-108.0,-110.0,Pass,0.5008,-0.0356,loss,-1.0,0.5008,0.5022,0.5008,135.0,0.2057,-0.2965,-0.6038,-9.0,0.0,,
-2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Minnesota -42.5,-42.5,draftkings,-105.0,-115.0,Pass,0.4993,-0.0253,win,0.9524,0.4993,0.4978,0.4993,-145.0,0.7943,0.2965,0.5508,9.0,0.0,,-26.0
-2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Over 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.5,-0.0371,win,0.9259,0.5,0.4998,0.5,-165.0,1.0,0.5002,0.9259,14.0,0.0,,
-2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Under 51.5,51.5,betmgm,-105.0,-112.0,Pass,0.5,-0.0237,loss,-1.0,0.5,0.5002,0.5,185.0,0.0,-0.5002,-1.0,-14.0,0.0,,10.0
-2026-09-03,Idaho @ Utah,Moneyline,game_ml,Idaho ML,,draftkings,5000.0,-100000.0,Pass,0.0141,-0.2796,loss,-1.0,0.0141,0.0219,0.0141,5500.0,0.0308,0.0089,0.5708,,0.0,,52.0
-2026-09-03,Idaho @ Utah,Moneyline,game_ml,Utah ML,,fanatics,-10000.0,3500.0,Pass,0.8212,-0.1706,win,0.01,0.9859,0.9781,0.8212,-10000.0,0.9692,-0.0089,-0.0211,,0.0,,-52.0
-2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Idaho +35.0,35.0,fanatics,-105.0,-115.0,Pass,0.4976,-0.0284,loss,-1.0,0.4976,0.4937,0.4976,-110.0,0.3837,-0.11,-0.2509,-4.5,0.0,,-17.0
-2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Utah -35.0,-35.0,williamhill_us,-112.0,-110.0,Pass,0.5024,-0.0491,win,0.8929,0.5024,0.5063,0.5024,-111.0,0.6163,0.11,0.1666,4.5,0.0,,17.0
-2026-09-03,Idaho @ Utah,Totals,game_total,Over 57.5,57.5,fanduel,-110.0,-110.0,Pass,0.4986,-0.0482,win,0.9091,0.4986,0.503,0.4986,100.0,0.7474,0.2444,0.4269,8.0,0.0,,-1.0
-2026-09-03,Idaho @ Utah,Totals,game_total,Under 57.5,57.5,betmgm,-108.0,-110.0,Pass,0.5014,-0.0343,loss,-1.0,0.5014,0.497,0.5014,100.0,0.2526,-0.2444,-0.5135,-8.0,0.0,,1.0
+2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Colorado ML,,fanatics,220.0,-270.0,Pass,0.316,0.0112,win,2.2,0.316,0.317,0.316,,,,,,0.0,,28.0
+2026-09-03,Colorado @ Georgia Tech,Moneyline,game_ml,Georgia Tech ML,,draftkings,-238.0,195.0,Pass,0.6552,-0.0695,loss,-1.0,0.684,0.683,0.6552,,,,,,0.0,,-28.0
+2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Colorado +6.5,6.5,draftkings,-105.0,-115.0,Pass,0.4726,-0.0773,win,0.9524,0.4726,0.4946,0.4726,,,,,,0.0,,5.0
+2026-09-03,Colorado @ Georgia Tech,Spread (ATS),game_ats,Georgia Tech -6.5,-6.5,lowvig,-107.0,-105.0,Moderate buy,0.5274,0.0202,loss,-1.0,0.5274,0.5054,0.5274,,,,,,0.0,,-6.0
+2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Over 51.0,51.0,lowvig,-106.0,-110.0,Pass,0.5167,0.0042,loss,-1.0,0.5167,0.4982,0.5167,,,,,,0.0,,-14.0
+2026-09-03,Colorado @ Georgia Tech,Totals,game_total,Under 51.0,51.0,lowvig,-110.0,-106.0,Pass,0.4833,-0.0773,win,0.9091,0.4833,0.5018,0.4833,,,,,,0.0,,14.0
+2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Eastern Illino ML,,mybookieag,1575.0,-100000.0,Pass,0.0038,-0.9359,loss,-1.0,0.0038,0.0564,0.0038,,,,,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Moneyline,game_ml,Minnesota ML,,mybookieag,-100000.0,1575.0,Pass,0.8269,-0.1723,win,0.001,0.9962,0.9436,0.8269,,,,,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Eastern Illino +42.5,42.5,betmgm,-108.0,-110.0,Pass,0.5008,-0.0356,loss,-1.0,0.5008,0.5022,0.5008,,,,,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Spread (ATS),game_ats,Minnesota -42.5,-42.5,draftkings,-105.0,-115.0,Pass,0.4993,-0.0253,win,0.9524,0.4993,0.4978,0.4993,,,,,,0.0,,-26.0
+2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Over 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.5,-0.0371,win,0.9259,0.5,0.4998,0.5,,,,,,0.0,,
+2026-09-03,Eastern Illino @ Minnesota,Totals,game_total,Under 51.5,51.5,betmgm,-105.0,-112.0,Pass,0.5,-0.0237,loss,-1.0,0.5,0.5002,0.5,,,,,,0.0,,10.0
+2026-09-03,Idaho @ Utah,Moneyline,game_ml,Idaho ML,,draftkings,5000.0,-100000.0,Pass,0.0141,-0.2796,loss,-1.0,0.0141,0.0219,0.0141,,,,,,0.0,,52.0
+2026-09-03,Idaho @ Utah,Moneyline,game_ml,Utah ML,,fanatics,-10000.0,3500.0,Pass,0.8212,-0.1706,win,0.01,0.9859,0.9781,0.8212,,,,,,0.0,,-52.0
+2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Idaho +35.0,35.0,fanatics,-105.0,-115.0,Pass,0.4976,-0.0284,loss,-1.0,0.4976,0.4937,0.4976,,,,,,0.0,,-17.0
+2026-09-03,Idaho @ Utah,Spread (ATS),game_ats,Utah -35.0,-35.0,williamhill_us,-112.0,-110.0,Pass,0.5024,-0.0491,win,0.8929,0.5024,0.5063,0.5024,,,,,,0.0,,17.0
+2026-09-03,Idaho @ Utah,Totals,game_total,Over 57.5,57.5,fanduel,-110.0,-110.0,Pass,0.4986,-0.0482,win,0.9091,0.4986,0.503,0.4986,,,,,,0.0,,-1.0
+2026-09-03,Idaho @ Utah,Totals,game_total,Under 57.5,57.5,betmgm,-108.0,-110.0,Pass,0.5014,-0.0343,loss,-1.0,0.5014,0.497,0.5014,,,,,,0.0,,1.0
 2026-09-03,Merrimack @ Delaware,Moneyline,game_ml,Delaware ML,,fanatics,-9000.0,2800.0,Pass,0.808,-0.183,win,0.0111,0.9619,0.9616,0.808,-8000.0,0.957,-0.0046,-0.0324,,0.0,,-56.0
 2026-09-03,Merrimack @ Delaware,Moneyline,game_ml,Merrimack ML,,draftkings,3500.0,-20000.0,Pass,0.0381,0.3725,loss,-1.0,0.0381,0.0384,0.0381,3000.0,0.043,0.0046,0.548,,0.0,,
 2026-09-03,Merrimack @ Delaware,Spread (ATS),game_ats,Delaware -28.5,-28.5,betrivers,-110.0,-113.0,Pass,0.4983,-0.0487,win,0.9091,0.4983,0.5047,0.4983,-108.0,0.575,0.0703,0.0977,3.0,0.0,,12.0
 2026-09-03,Merrimack @ Delaware,Spread (ATS),game_ats,Merrimack +28.5,28.5,draftkings,-102.0,-118.0,Pass,0.5017,-0.0065,loss,-1.0,0.5017,0.4953,0.5017,-108.0,0.425,-0.0703,-0.1583,-3.0,0.0,,
 2026-09-03,Merrimack @ Delaware,Totals,game_total,Over 55.5,55.5,draftkings,-108.0,-112.0,Pass,0.5006,-0.0358,loss,-1.0,0.5006,0.505,0.5006,-105.0,0.5267,0.0217,0.0144,1.0,0.0,,
 2026-09-03,Merrimack @ Delaware,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-115.0,Pass,0.4994,-0.0339,win,0.9346,0.4994,0.495,0.4994,-110.0,0.4733,-0.0217,-0.0844,-1.0,0.0,,-42.0
-2026-09-03,UAB @ Illinois,Moneyline,game_ml,Illinois ML,,mybookieag,-4000.0,1250.0,Pass,0.8091,-0.1707,win,0.025,0.9637,0.9434,0.8091,-4800.0,0.9412,-0.0022,-0.0353,,0.0,,-34.0
-2026-09-03,UAB @ Illinois,Moneyline,game_ml,UAB ML,,fanduel,2000.0,-7000.0,Pass,0.0363,-0.2387,loss,-1.0,0.0363,0.0566,0.0363,1800.0,0.0588,0.0022,0.2348,,0.0,,34.0
-2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,Illinois -27.5,-27.5,lowvig,-101.0,-111.0,Moderate buy,0.5237,0.0422,loss,-1.0,0.5237,0.4983,0.5237,-110.0,0.2743,-0.224,-0.4541,-9.0,0.0,,-35.0
-2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,UAB +27.5,27.5,draftkings,-108.0,-112.0,Pass,0.4763,-0.0826,win,0.9259,0.4763,0.5017,0.4763,-105.0,0.7257,0.224,0.3976,9.0,0.0,,34.0
-2026-09-03,UAB @ Illinois,Totals,game_total,Over 54.5,54.5,bovada,-110.0,-110.0,Pass,0.6614,0.2627,win,0.9091,0.6953,0.5084,0.6614,100.0,0.6065,0.0981,0.1579,4.0,0.0,,-26.0
-2026-09-03,UAB @ Illinois,Totals,game_total,Under 54.5,54.5,draftkings,-102.0,-118.0,Pass,0.3047,-0.3965,loss,-1.0,0.3047,0.4916,0.3047,-110.0,0.3935,-0.0981,-0.2207,-4.0,0.0,,26.0
-2026-09-03,UMass @ Rutgers,Moneyline,game_ml,Rutgers ML,,fanatics,-4000.0,1800.0,Pass,0.8186,-0.161,loss,-1.0,0.981,0.9568,0.8186,-115.0,0.5407,-0.4161,-0.4458,,0.0,,-11.0
-2026-09-03,UMass @ Rutgers,Moneyline,game_ml,UMass ML,,betmgm,2500.0,-10000.0,Pass,0.019,-0.5073,win,25.0,0.019,0.0432,0.019,120.0,0.4593,0.4161,10.9418,,0.0,,11.0
-2026-09-03,UMass @ Rutgers,Spread (ATS),game_ats,Rutgers -29.0,-29.0,bovada,-105.0,-115.0,Pass,0.6095,0.19,loss,-1.0,0.6095,0.4977,0.6095,-106.0,0.0,-0.4977,-1.0,-26.5,0.0,,-16.0
-2026-09-03,UMass @ Rutgers,Spread (ATS),game_ats,UMass +29.0,29.0,lowvig,-106.0,-106.0,Pass,0.3905,-0.2412,win,0.9434,0.3905,0.5023,0.3905,105.0,1.0,0.4977,0.9434,26.5,0.0,,16.0
-2026-09-03,UMass @ Rutgers,Totals,game_total,Over 52.5,52.5,betmgm,-102.0,-118.0,Pass,0.6213,0.2305,win,0.9804,0.6224,0.4887,0.6213,102.0,0.8925,0.4038,0.7675,13.0,0.0,,49.0
-2026-09-03,UMass @ Rutgers,Totals,game_total,Under 52.5,52.5,betonlineag,-115.0,-105.0,Pass,0.3776,-0.2941,loss,-1.0,0.3776,0.5113,0.3776,-110.0,0.1075,-0.4038,-0.799,-13.0,0.0,,-49.0
-2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,Kennesaw State ML,,betmgm,-2500.0,1400.0,Pass,0.7855,-0.1831,win,0.04,0.9208,0.933,0.7855,-2200.0,0.9261,-0.0069,-0.0369,,0.0,,-50.0
-2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,West Georgia ML,,draftkings,1600.0,-4000.0,Pass,0.0792,0.346,loss,-1.0,0.0792,0.067,0.0792,1500.0,0.0739,0.0069,0.2563,,0.0,,
-2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,Kennesaw State -22.5,-22.5,fanduel,-108.0,-112.0,Pass,0.4986,-0.0397,win,0.9259,0.4986,0.5,0.4986,145.0,1.0,0.5,0.9259,32.0,0.0,,-32.0
-2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,West Georgia +22.5,22.5,draftkings,-108.0,-112.0,Pass,0.5014,-0.0344,loss,-1.0,0.5014,0.5,0.5014,-118.0,0.0,-0.5,-1.0,-32.0,0.0,,
-2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Over 51.5,51.5,betmgm,-105.0,-115.0,Pass,0.5028,-0.0183,loss,-1.0,0.5028,0.4955,0.5028,105.0,0.6925,0.197,0.352,7.0,0.0,,
-2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.4972,-0.0424,win,0.9259,0.4972,0.5045,0.4972,-115.0,0.3075,-0.197,-0.4078,-7.0,0.0,,13.0
+2026-09-03,UAB @ Illinois,Moneyline,game_ml,Illinois ML,,mybookieag,-4000.0,1250.0,Pass,0.8091,-0.1707,win,0.025,0.9637,0.9434,0.8091,,,,,,0.0,,-34.0
+2026-09-03,UAB @ Illinois,Moneyline,game_ml,UAB ML,,fanduel,2000.0,-7000.0,Pass,0.0363,-0.2387,loss,-1.0,0.0363,0.0566,0.0363,,,,,,0.0,,34.0
+2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,Illinois -27.5,-27.5,lowvig,-101.0,-111.0,Moderate buy,0.5237,0.0422,loss,-1.0,0.5237,0.4983,0.5237,,,,,,0.0,,-35.0
+2026-09-03,UAB @ Illinois,Spread (ATS),game_ats,UAB +27.5,27.5,draftkings,-108.0,-112.0,Pass,0.4763,-0.0826,win,0.9259,0.4763,0.5017,0.4763,,,,,,0.0,,34.0
+2026-09-03,UAB @ Illinois,Totals,game_total,Over 54.5,54.5,bovada,-110.0,-110.0,Pass,0.6614,0.2627,win,0.9091,0.6953,0.5084,0.6614,,,,,,0.0,,-26.0
+2026-09-03,UAB @ Illinois,Totals,game_total,Under 54.5,54.5,draftkings,-102.0,-118.0,Pass,0.3047,-0.3965,loss,-1.0,0.3047,0.4916,0.3047,,,,,,0.0,,26.0
+2026-09-03,UMass @ Rutgers,Moneyline,game_ml,Rutgers ML,,fanatics,-4000.0,1800.0,Pass,0.8186,-0.161,loss,-1.0,0.981,0.9568,0.8186,,,,,,0.0,,-11.0
+2026-09-03,UMass @ Rutgers,Moneyline,game_ml,UMass ML,,betmgm,2500.0,-10000.0,Pass,0.019,-0.5073,win,25.0,0.019,0.0432,0.019,,,,,,0.0,,11.0
+2026-09-03,UMass @ Rutgers,Spread (ATS),game_ats,Rutgers -29.0,-29.0,bovada,-105.0,-115.0,Pass,0.6095,0.19,loss,-1.0,0.6095,0.4977,0.6095,,,,,,0.0,,-16.0
+2026-09-03,UMass @ Rutgers,Spread (ATS),game_ats,UMass +29.0,29.0,lowvig,-106.0,-106.0,Pass,0.3905,-0.2412,win,0.9434,0.3905,0.5023,0.3905,,,,,,0.0,,16.0
+2026-09-03,UMass @ Rutgers,Totals,game_total,Over 52.5,52.5,betmgm,-102.0,-118.0,Pass,0.6213,0.2305,win,0.9804,0.6224,0.4887,0.6213,,,,,,0.0,,49.0
+2026-09-03,UMass @ Rutgers,Totals,game_total,Under 52.5,52.5,betonlineag,-115.0,-105.0,Pass,0.3776,-0.2941,loss,-1.0,0.3776,0.5113,0.3776,,,,,,0.0,,-49.0
+2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,Kennesaw State ML,,betmgm,-2500.0,1400.0,Pass,0.7855,-0.1831,win,0.04,0.9208,0.933,0.7855,,,,,,0.0,,-50.0
+2026-09-03,West Georgia @ Kennesaw State,Moneyline,game_ml,West Georgia ML,,draftkings,1600.0,-4000.0,Pass,0.0792,0.346,loss,-1.0,0.0792,0.067,0.0792,,,,,,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,Kennesaw State -22.5,-22.5,fanduel,-108.0,-112.0,Pass,0.4986,-0.0397,win,0.9259,0.4986,0.5,0.4986,,,,,,0.0,,-32.0
+2026-09-03,West Georgia @ Kennesaw State,Spread (ATS),game_ats,West Georgia +22.5,22.5,draftkings,-108.0,-112.0,Pass,0.5014,-0.0344,loss,-1.0,0.5014,0.5,0.5014,,,,,,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Over 51.5,51.5,betmgm,-105.0,-115.0,Pass,0.5028,-0.0183,loss,-1.0,0.5028,0.4955,0.5028,,,,,,0.0,,
+2026-09-03,West Georgia @ Kennesaw State,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.4972,-0.0424,win,0.9259,0.4972,0.5045,0.4972,,,,,,0.0,,13.0
 2026-09-04,Fresno State @ USC,Moneyline,game_ml,Fresno State ML,,betrivers,1400.0,-5000.0,Pass,0.1407,1.1105,loss,-1.0,0.1407,0.0764,0.1407,1300.0,0.076,-0.0004,0.14,,0.0,price_too_long,62.0
 2026-09-04,Fresno State @ USC,Moneyline,game_ml,USC ML,,bovada,-2000.0,950.0,Pass,0.7516,-0.2108,win,0.05,0.8593,0.9236,0.7516,-1900.0,0.924,0.0004,-0.0298,,0.0,,-62.0
 2026-09-04,Fresno State @ USC,Spread (ATS),game_ats,Fresno State +21.5,21.5,lowvig,-106.0,-106.0,Pass,0.6026,0.1711,loss,-1.0,0.6026,0.5016,0.6026,-105.0,0.5006,-0.001,-0.0271,0.0,0.0,,-7.0
@@ -157,74 +157,74 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-04,UTEP @ Oklahoma,Spread (ATS),game_ats,UTEP +41.5,41.5,lowvig,-106.0,-106.0,Pass,0.5966,0.1594,loss,-1.0,0.5966,0.5052,0.5966,-106.0,0.5118,0.0066,-0.0054,0.5,0.0,,5.0
 2026-09-04,UTEP @ Oklahoma,Totals,game_total,Over 51.5,51.5,draftkings,-110.0,-110.0,Pass,0.4998,-0.0459,loss,-1.0,0.4998,0.5055,0.4998,-106.0,0.4826,-0.0229,-0.0787,-0.5,0.0,,-6.0
 2026-09-04,UTEP @ Oklahoma,Totals,game_total,Under 51.5,51.5,williamhill_us,-102.0,-118.0,Pass,0.5002,-0.0093,win,0.9804,0.5002,0.4945,0.5002,-110.0,0.5174,0.0229,0.0247,0.5,0.0,,6.0
-2026-09-07,SMU @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,130.0,-155.0,Pass,0.4592,0.0563,loss,-1.0,0.4592,0.4234,0.4592,360.0,0.2155,-0.2079,-0.5044,,0.0,ml_no_sharp_money,-30.0
-2026-09-07,SMU @ Florida State,Moneyline,game_ml,SMU ML,,bovada,-145.0,125.0,Pass,0.5408,-0.0863,win,0.6897,0.5408,0.5766,0.5408,-455.0,0.7845,0.2079,0.3255,,0.0,,30.0
-2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,Florida State +3.0,3.0,lowvig,-112.0,100.0,Pass,0.5332,0.0093,push,0.0,0.5332,0.5135,0.5332,-118.0,0.4128,-0.1007,-0.2186,-4.5,0.0,,25.0
-2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,SMU -3.0,-3.0,mybookieag,100.0,-120.0,Pass,0.4668,-0.0664,push,0.0,0.4668,0.4865,0.4668,105.0,0.5872,0.1007,0.1744,4.5,0.0,,-25.0
-2026-09-07,SMU @ Florida State,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.4199,-0.1801,loss,-1.0,0.4199,0.5026,0.4199,-110.0,0.5356,0.033,0.0457,1.0,0.0,,-7.0
-2026-09-07,SMU @ Florida State,Totals,game_total,Under 53.5,53.5,lowvig,-103.0,-114.0,Pass,0.58,0.1432,win,0.9709,0.58,0.4974,0.58,-108.0,0.4644,-0.033,-0.0847,-1.0,0.0,,7.0
+2026-09-07,SMU @ Florida State,Moneyline,game_ml,Florida State ML,,draftkings,130.0,-155.0,Pass,0.4592,0.0563,loss,-1.0,0.4592,0.4234,0.4592,,,,,,0.0,ml_no_sharp_money,-30.0
+2026-09-07,SMU @ Florida State,Moneyline,game_ml,SMU ML,,bovada,-145.0,125.0,Pass,0.5408,-0.0863,win,0.6897,0.5408,0.5766,0.5408,,,,,,0.0,,30.0
+2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,Florida State +3.0,3.0,lowvig,-112.0,100.0,Pass,0.5332,0.0093,push,0.0,0.5332,0.5135,0.5332,,,,,,0.0,,25.0
+2026-09-07,SMU @ Florida State,Spread (ATS),game_ats,SMU -3.0,-3.0,mybookieag,100.0,-120.0,Pass,0.4668,-0.0664,push,0.0,0.4668,0.4865,0.4668,,,,,,0.0,,-25.0
+2026-09-07,SMU @ Florida State,Totals,game_total,Over 53.5,53.5,bovada,-105.0,-115.0,Pass,0.4199,-0.1801,loss,-1.0,0.4199,0.5026,0.4199,,,,,,0.0,,-7.0
+2026-09-07,SMU @ Florida State,Totals,game_total,Under 53.5,53.5,lowvig,-103.0,-114.0,Pass,0.58,0.1432,win,0.9709,0.58,0.4974,0.58,,,,,,0.0,,7.0
 2026-09-10,Florida A&M @ Miami,Spread (ATS),game_ats,Florida A&M +57.5,57.5,draftkings,-105.0,-115.0,Pass,0.4984,-0.0269,loss,-1.0,0.4984,0.4964,0.4984,-110.0,0.4538,-0.0426,-0.114,-2.0,0.0,,
 2026-09-10,Florida A&M @ Miami,Spread (ATS),game_ats,Miami -57.5,-57.5,fanduel,-110.0,-110.0,Pass,0.5016,-0.0424,win,0.9091,0.5016,0.5036,0.5016,-105.0,0.5462,0.0426,0.0427,2.0,0.0,,-16.0
 2026-09-10,Florida A&M @ Miami,Totals,game_total,Over 62.5,62.5,betmgm,-110.0,-108.0,Moderate buy,0.5294,0.0108,win,0.9091,0.5294,0.5087,0.5294,-108.0,0.5974,0.0887,0.1405,3.0,0.0,,
 2026-09-10,Florida A&M @ Miami,Totals,game_total,Under 62.5,62.5,williamhill_us,-103.0,-117.0,Pass,0.4706,-0.0726,loss,-1.0,0.4706,0.4913,0.4706,-104.0,0.4026,-0.0887,-0.2065,-3.0,0.0,,-18.0
-2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Kansas ML,,mybookieag,186.0,-234.0,Pass,0.3877,0.1089,loss,-1.0,0.3877,0.3449,0.3877,900.0,0.1393,-0.2056,-0.6016,,0.0,ml_no_sharp_money,-69.0
-2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Missouri ML,,betonlineag,-210.0,180.0,Pass,0.6123,-0.0962,win,0.4762,0.6123,0.6551,0.6123,-700.0,0.8607,0.2056,0.2706,,0.0,,69.0
-2026-09-11,Missouri @ Kansas,Spread (ATS),game_ats,Kansas +5.5,5.5,betmgm,-108.0,-110.0,Pass,0.5203,0.0022,loss,-1.0,0.5203,0.5019,0.5203,-125.0,0.4814,-0.0205,-0.0729,-2.0,0.0,,20.0
-2026-09-11,Missouri @ Kansas,Spread (ATS),game_ats,Missouri -5.5,-5.5,williamhill_us,-107.0,-113.0,Pass,0.4797,-0.0721,win,0.9346,0.4797,0.4981,0.4797,104.0,0.5186,0.0205,0.0033,2.0,0.0,,-20.0
-2026-09-11,Missouri @ Kansas,Totals,game_total,Over 51.5,51.5,lowvig,-108.0,-108.0,Pass,0.4798,-0.076,win,0.9259,0.4798,0.5051,0.4798,100.0,0.8505,0.3454,0.638,12.0,0.0,,-13.0
-2026-09-11,Missouri @ Kansas,Totals,game_total,Under 51.5,51.5,williamhill_us,102.0,-121.0,Pass,0.5202,0.0509,loss,-1.0,0.5202,0.4949,0.5202,-118.0,0.1495,-0.3454,-0.698,-12.0,0.0,,13.0
+2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Kansas ML,,mybookieag,186.0,-234.0,Pass,0.3877,0.1089,loss,-1.0,0.3877,0.3449,0.3877,,,,,,0.0,ml_no_sharp_money,-69.0
+2026-09-11,Missouri @ Kansas,Moneyline,game_ml,Missouri ML,,betonlineag,-210.0,180.0,Pass,0.6123,-0.0962,win,0.4762,0.6123,0.6551,0.6123,,,,,,0.0,,69.0
+2026-09-11,Missouri @ Kansas,Spread (ATS),game_ats,Kansas +5.5,5.5,betmgm,-108.0,-110.0,Pass,0.5203,0.0022,loss,-1.0,0.5203,0.5019,0.5203,,,,,,0.0,,20.0
+2026-09-11,Missouri @ Kansas,Spread (ATS),game_ats,Missouri -5.5,-5.5,williamhill_us,-107.0,-113.0,Pass,0.4797,-0.0721,win,0.9346,0.4797,0.4981,0.4797,,,,,,0.0,,-20.0
+2026-09-11,Missouri @ Kansas,Totals,game_total,Over 51.5,51.5,lowvig,-108.0,-108.0,Pass,0.4798,-0.076,win,0.9259,0.4798,0.5051,0.4798,,,,,,0.0,,-13.0
+2026-09-11,Missouri @ Kansas,Totals,game_total,Under 51.5,51.5,williamhill_us,102.0,-121.0,Pass,0.5202,0.0509,loss,-1.0,0.5202,0.4949,0.5202,,,,,,0.0,,13.0
 2026-09-11,Norfolk State @ Virginia,Spread (ATS),game_ats,Norfolk State +45.5,45.5,betmgm,-108.0,-110.0,Pass,0.4428,-0.1472,loss,-1.0,0.4428,0.5059,0.4428,-108.0,0.4743,-0.0316,-0.0865,-1.0,0.0,,21.0
 2026-09-11,Norfolk State @ Virginia,Spread (ATS),game_ats,Virginia -45.5,-45.5,fanduel,-105.0,-115.0,Strong buy,0.5572,0.0879,win,0.9524,0.5572,0.4941,0.5572,-110.0,0.5257,0.0316,0.0264,1.0,0.0,,-21.0
 2026-09-11,Norfolk State @ Virginia,Totals,game_total,Over 54.5,54.5,betmgm,-108.0,-110.0,Pass,0.5012,-0.0347,win,0.9259,0.5012,0.5079,0.5012,-105.0,0.5673,0.0594,0.0926,2.0,0.0,,1.0
 2026-09-11,Norfolk State @ Virginia,Totals,game_total,Under 54.5,54.5,draftkings,105.0,-125.0,Pass,0.4988,0.0225,loss,-1.0,0.4988,0.4921,0.4988,105.0,0.4327,-0.0594,-0.113,-2.0,0.0,,-1.0
-2026-09-11,Richmond @ NC State,Moneyline,game_ml,NC State ML,,draftkings,-6500.0,2000.0,Pass,0.818,-0.1694,win,0.0154,0.98,0.9661,0.818,-6500.0,0.9673,0.0012,-0.0178,,0.0,,-38.0
-2026-09-11,Richmond @ NC State,Moneyline,game_ml,Richmond ML,,betmgm,4000.0,-15000.0,Pass,0.02,-0.18,loss,-1.0,0.02,0.0339,0.02,4000.0,0.0327,-0.0012,0.3407,,0.0,,
-2026-09-11,Richmond @ NC State,Spread (ATS),game_ats,NC State -32.5,-32.5,fanatics,-110.0,-110.0,Pass,0.5106,-0.0252,win,0.9091,0.5106,0.5021,0.5106,-155.0,1.0,0.4979,0.9091,37.0,0.0,,19.0
-2026-09-11,Richmond @ NC State,Spread (ATS),game_ats,Richmond +32.5,32.5,williamhill_us,-108.0,-114.0,Pass,0.4894,-0.0575,loss,-1.0,0.4894,0.4979,0.4894,250.0,0.0,-0.4979,-1.0,-37.0,0.0,,
-2026-09-11,Richmond @ NC State,Totals,game_total,Over 50.5,50.5,betrivers,-109.0,-114.0,Pass,0.501,-0.0393,win,0.9174,0.501,0.5029,0.501,250.0,0.9291,0.4262,0.7815,20.0,0.0,,
-2026-09-11,Richmond @ NC State,Totals,game_total,Under 50.5,50.5,draftkings,-102.0,-118.0,Pass,0.499,-0.0119,loss,-1.0,0.499,0.4971,0.499,-225.0,0.0709,-0.4262,-0.8596,-20.0,0.0,,-22.0
-2026-09-11,Rutgers @ Boston College,Moneyline,game_ml,Boston College ML,,betus,-150.0,129.0,Pass,0.5243,-0.1262,win,0.6667,0.5243,0.5886,0.5243,-1360.0,0.9038,0.3152,0.5063,,0.0,,49.0
-2026-09-11,Rutgers @ Boston College,Moneyline,game_ml,Rutgers ML,,bovada,140.0,-165.0,Pass,0.4757,0.1417,loss,-1.0,0.4757,0.4114,0.4757,1200.0,0.0962,-0.3152,-0.7691,,0.0,,-49.0
-2026-09-11,Rutgers @ Boston College,Spread (ATS),game_ats,Boston College -3.0,-3.0,lowvig,-106.0,-106.0,Pass,0.4487,-0.1279,win,0.9434,0.4487,0.507,0.4487,210.0,0.4531,-0.0539,-0.1194,4.5,0.0,,13.0
-2026-09-11,Rutgers @ Boston College,Spread (ATS),game_ats,Rutgers +3.0,3.0,bovada,100.0,-120.0,Strong buy,0.5513,0.1025,loss,-1.0,0.5513,0.493,0.5513,-188.0,0.5469,0.0539,0.0938,-4.5,0.0,,-13.0
-2026-09-11,Rutgers @ Boston College,Totals,game_total,Over 54.5,54.5,lowvig,-102.0,-115.0,Pass,0.5713,0.1313,loss,-1.0,0.5713,0.4889,0.5713,-102.0,0.4403,-0.0486,-0.128,-2.0,0.0,,47.0
-2026-09-11,Rutgers @ Boston College,Totals,game_total,Under 54.5,54.5,betrivers,-114.0,-109.0,Pass,0.4287,-0.1952,win,0.8772,0.4287,0.5111,0.4287,102.0,0.5597,0.0486,0.0507,2.0,0.0,,-47.0
+2026-09-11,Richmond @ NC State,Moneyline,game_ml,NC State ML,,draftkings,-6500.0,2000.0,Pass,0.818,-0.1694,win,0.0154,0.98,0.9661,0.818,,,,,,0.0,,-38.0
+2026-09-11,Richmond @ NC State,Moneyline,game_ml,Richmond ML,,betmgm,4000.0,-15000.0,Pass,0.02,-0.18,loss,-1.0,0.02,0.0339,0.02,,,,,,0.0,,
+2026-09-11,Richmond @ NC State,Spread (ATS),game_ats,NC State -32.5,-32.5,fanatics,-110.0,-110.0,Pass,0.5106,-0.0252,win,0.9091,0.5106,0.5021,0.5106,,,,,,0.0,,19.0
+2026-09-11,Richmond @ NC State,Spread (ATS),game_ats,Richmond +32.5,32.5,williamhill_us,-108.0,-114.0,Pass,0.4894,-0.0575,loss,-1.0,0.4894,0.4979,0.4894,,,,,,0.0,,
+2026-09-11,Richmond @ NC State,Totals,game_total,Over 50.5,50.5,betrivers,-109.0,-114.0,Pass,0.501,-0.0393,win,0.9174,0.501,0.5029,0.501,,,,,,0.0,,
+2026-09-11,Richmond @ NC State,Totals,game_total,Under 50.5,50.5,draftkings,-102.0,-118.0,Pass,0.499,-0.0119,loss,-1.0,0.499,0.4971,0.499,,,,,,0.0,,-22.0
+2026-09-11,Rutgers @ Boston College,Moneyline,game_ml,Boston College ML,,betus,-150.0,129.0,Pass,0.5243,-0.1262,win,0.6667,0.5243,0.5886,0.5243,,,,,,0.0,,49.0
+2026-09-11,Rutgers @ Boston College,Moneyline,game_ml,Rutgers ML,,bovada,140.0,-165.0,Pass,0.4757,0.1417,loss,-1.0,0.4757,0.4114,0.4757,,,,,,0.0,,-49.0
+2026-09-11,Rutgers @ Boston College,Spread (ATS),game_ats,Boston College -3.0,-3.0,lowvig,-106.0,-106.0,Pass,0.4487,-0.1279,win,0.9434,0.4487,0.507,0.4487,,,,,,0.0,,13.0
+2026-09-11,Rutgers @ Boston College,Spread (ATS),game_ats,Rutgers +3.0,3.0,bovada,100.0,-120.0,Strong buy,0.5513,0.1025,loss,-1.0,0.5513,0.493,0.5513,,,,,,0.0,,-13.0
+2026-09-11,Rutgers @ Boston College,Totals,game_total,Over 54.5,54.5,lowvig,-102.0,-115.0,Pass,0.5713,0.1313,loss,-1.0,0.5713,0.4889,0.5713,,,,,,0.0,,47.0
+2026-09-11,Rutgers @ Boston College,Totals,game_total,Under 54.5,54.5,betrivers,-114.0,-109.0,Pass,0.4287,-0.1952,win,0.8772,0.4287,0.5111,0.4287,,,,,,0.0,,-47.0
 2026-09-11,Villanova @ Louisville,Moneyline,game_ml,Louisville ML,,fanduel,-10000.0,2400.0,Pass,0.8225,-0.1692,win,0.01,0.9882,0.9718,0.8225,-100000.0,0.9824,0.0106,-0.0078,,0.0,,
 2026-09-11,Villanova @ Louisville,Moneyline,game_ml,Villanova ML,,betmgm,5500.0,-100000.0,Pass,0.0118,-0.342,loss,-1.0,0.0118,0.0282,0.0118,5500.0,0.0176,-0.0106,-0.0144,,0.0,,
 2026-09-11,Villanova @ Louisville,Spread (ATS),game_ats,Louisville -36.5,-36.5,fanduel,-110.0,-110.0,Pass,0.4974,-0.0505,win,0.9091,0.4974,0.5007,0.4974,-105.0,0.5743,0.0736,0.0964,3.0,0.0,,-3.0
 2026-09-11,Villanova @ Louisville,Spread (ATS),game_ats,Villanova +36.5,36.5,betmgm,-108.0,-110.0,Pass,0.5026,-0.032,loss,-1.0,0.5026,0.4993,0.5026,100.0,0.4257,-0.0736,-0.1801,-3.0,0.0,,3.0
 2026-09-11,Villanova @ Louisville,Totals,game_total,Over 56.5,56.5,draftkings,-108.0,-112.0,Pass,0.4989,-0.0393,win,0.9259,0.4989,0.5024,0.4989,-108.0,0.5067,0.0043,-0.0241,0.0,0.0,,3.0
 2026-09-11,Villanova @ Louisville,Totals,game_total,Under 56.5,56.5,bovada,-105.0,-115.0,Pass,0.5011,-0.0216,loss,-1.0,0.5011,0.4976,0.5011,-102.0,0.4933,-0.0043,-0.0369,0.0,0.0,,-3.0
-2026-09-12,Alabama @ Kentucky,Moneyline,game_ml,Alabama ML,,fanduel,-375.0,290.0,Pass,0.674,-0.1463,win,0.2667,0.7181,0.7652,0.674,-350.0,0.7553,-0.0099,-0.0433,,-0.0007,,-27.0
-2026-09-12,Alabama @ Kentucky,Moneyline,game_ml,Kentucky ML,,draftkings,320.0,-410.0,Pass,0.2819,0.1839,loss,-1.0,0.2819,0.2348,0.2819,300.0,0.2447,0.0099,0.0277,,0.0007,,27.0
-2026-09-12,Alabama @ Kentucky,Spread (ATS),game_ats,Alabama -10.0,-10.0,lowvig,-103.0,-109.0,Pass,0.4809,-0.0522,win,0.9709,0.4809,0.4973,0.4809,110.0,0.9669,0.4696,0.9056,17.5,-0.0022,,-14.0
-2026-09-12,Alabama @ Kentucky,Spread (ATS),game_ats,Kentucky +10.0,10.0,lowvig,-109.0,-103.0,Pass,0.5191,-0.0047,loss,-1.0,0.5191,0.5027,0.5191,154.0,0.0331,-0.4696,-0.9365,-17.5,0.0022,,14.0
-2026-09-12,Alabama @ Kentucky,Totals,game_total,Over 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.3352,-0.3455,win,0.9524,0.3352,0.4953,0.3352,-145.0,1.0,0.5047,0.9524,13.0,-0.0012,,-74.0
-2026-09-12,Alabama @ Kentucky,Totals,game_total,Under 48.5,48.5,lowvig,-108.0,-108.0,Pass,0.6446,0.2415,loss,-1.0,0.6647,0.5047,0.6446,270.0,0.0,-0.5047,-1.0,-13.0,0.0012,,74.0
-2026-09-12,Alabama State @ Troy,Moneyline,game_ml,Alabama State ML,,fanatics,1050.0,-1800.0,Pass,0.0755,-0.1323,loss,-1.0,0.0755,0.0867,0.0755,1200.0,0.0844,-0.0023,-0.0294,,-0.001,,36.0
-2026-09-12,Alabama State @ Troy,Moneyline,game_ml,Troy ML,,betmgm,-1600.0,1050.0,Pass,0.7875,-0.1633,win,0.0625,0.9245,0.9133,0.7875,-2000.0,0.9156,0.0023,-0.0272,,0.001,,-36.0
-2026-09-12,Alabama State @ Troy,Spread (ATS),game_ats,Alabama State +22.5,22.5,draftkings,-108.0,-112.0,Pass,0.4831,-0.0695,win,0.9259,0.4831,0.4977,0.4831,-110.0,0.6568,0.1591,0.2649,5.0,-0.0007,,-21.0
-2026-09-12,Alabama State @ Troy,Spread (ATS),game_ats,Troy -22.5,-22.5,betonlineag,-110.0,-110.0,Pass,0.5169,-0.0132,loss,-1.0,0.5169,0.5023,0.5169,110.0,0.3432,-0.1591,-0.3448,-5.0,0.0007,,21.0
-2026-09-12,Alabama State @ Troy,Totals,game_total,Over 51.5,51.5,fanduel,-110.0,-110.0,Pass,0.5012,-0.0432,loss,-1.0,0.5012,0.5022,0.5012,175.0,0.6232,0.121,0.1897,7.0,0.0003,,11.0
-2026-09-12,Alabama State @ Troy,Totals,game_total,Under 51.5,51.5,draftkings,-105.0,-115.0,Pass,0.4988,-0.0261,win,0.9524,0.4988,0.4978,0.4988,-121.0,0.3768,-0.121,-0.2643,-7.0,-0.0003,,-11.0
-2026-09-12,Appalachian St @ East Carolina,Moneyline,game_ml,Appalachian St ML,,draftkings,215.0,-265.0,Pass,0.3419,0.0769,win,2.15,0.3419,0.3182,0.3419,-500.0,0.8491,0.5309,1.6747,,0.0012,price_too_long,12.0
-2026-09-12,Appalachian St @ East Carolina,Moneyline,game_ml,East Carolina ML,,betmgm,-235.0,200.0,Pass,0.641,-0.0863,loss,-1.0,0.6581,0.6818,0.641,700.0,0.1509,-0.5309,-0.7849,,-0.0012,,-12.0
-2026-09-12,Appalachian St @ East Carolina,Spread (ATS),game_ats,Appalachian St +6.5,6.5,lowvig,-106.0,-106.0,Pass,0.4984,-0.0314,win,0.9434,0.4984,0.4988,0.4984,-113.0,0.8999,0.4011,0.7489,16.0,0.0022,,-2.0
-2026-09-12,Appalachian St @ East Carolina,Spread (ATS),game_ats,East Carolina -6.5,-6.5,lowvig,-106.0,-106.0,Pass,0.5016,-0.0252,loss,-1.0,0.5016,0.5012,0.5016,-113.0,0.1001,-0.4011,-0.8055,-16.0,-0.0022,,2.0
-2026-09-12,Appalachian St @ East Carolina,Totals,game_total,Over 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.4989,-0.0393,loss,-1.0,0.4989,0.5,0.4989,108.0,0.4266,-0.0734,-0.1784,-1.5,0.0,,9.0
-2026-09-12,Appalachian St @ East Carolina,Totals,game_total,Under 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.5011,-0.0348,win,0.9259,0.5011,0.5,0.5011,-107.0,0.5734,0.0734,0.1043,1.5,0.0,,-9.0
-2026-09-12,Arizona @ BYU,Moneyline,game_ml,Arizona ML,,betrivers,250.0,-335.0,Pass,0.3034,0.0618,loss,-1.0,0.3034,0.283,0.3034,225.0,0.3001,0.0171,0.0504,,-0.0002,price_too_long,8.0
-2026-09-12,Arizona @ BYU,Moneyline,game_ml,BYU ML,,lowvig,-280.0,230.0,Pass,0.6621,-0.1014,win,0.3571,0.6966,0.717,0.6621,-263.0,0.6999,-0.0171,-0.0501,,0.0002,,-8.0
-2026-09-12,Arizona @ BYU,Spread (ATS),game_ats,Arizona +7.5,7.5,betmgm,-108.0,-110.0,Pass,0.4819,-0.0718,loss,-1.0,0.4819,0.5038,0.4819,-155.0,0.5424,0.0386,0.0446,-4.0,-0.0015,,48.0
-2026-09-12,Arizona @ BYU,Spread (ATS),game_ats,BYU -7.5,-7.5,lowvig,-103.0,-109.0,Moderate buy,0.5181,0.0211,win,0.9709,0.5181,0.4962,0.5181,225.0,0.4576,-0.0386,-0.0981,4.0,0.0015,,-48.0
-2026-09-12,Arizona @ BYU,Totals,game_total,Over 48.5,48.5,fanduel,-106.0,-114.0,Pass,0.4981,-0.032,loss,-1.0,0.4981,0.4998,0.4981,140.0,0.3317,-0.1681,-0.3554,-3.0,-0.0033,,2.0
-2026-09-12,Arizona @ BYU,Totals,game_total,Under 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.5019,-0.0201,win,0.9524,0.5019,0.5002,0.5019,-136.0,0.6683,0.1681,0.3048,3.0,0.0033,,-2.0
-2026-09-12,Arizona State @ Texas A&M,Moneyline,game_ml,Arizona State ML,,betmgm,550.0,-700.0,Pass,0.1906,0.2389,loss,-1.0,0.1906,0.1588,0.1906,5000.0,0.0749,-0.0839,-0.5131,,0.0,price_too_long,11.0
-2026-09-12,Arizona State @ Texas A&M,Moneyline,game_ml,Texas A&M ML,,draftkings,-675.0,490.0,Pass,0.7242,-0.1685,win,0.1481,0.8094,0.8412,0.7242,-1600.0,0.9251,0.0839,0.0622,,-0.0,,
-2026-09-12,Arizona State @ Texas A&M,Spread (ATS),game_ats,Arizona State +14.5,14.5,lowvig,-104.0,-108.0,Pass,0.5137,0.0076,loss,-1.0,0.5137,0.5002,0.5137,160.0,0.2916,-0.2086,-0.428,-3.0,-0.0014,,-13.0
-2026-09-12,Arizona State @ Texas A&M,Spread (ATS),game_ats,Texas A&M -14.5,-14.5,draftkings,-108.0,-112.0,Pass,0.4863,-0.0634,win,0.9259,0.4863,0.4998,0.4863,-205.0,0.7084,0.2086,0.3643,3.0,0.0014,,
-2026-09-12,Arizona State @ Texas A&M,Totals,game_total,Over 50.5,50.5,mybookieag,-110.0,-110.0,Pass,0.4355,-0.1686,win,0.9091,0.4355,0.5062,0.4355,-148.0,1.0,0.4938,0.9091,14.0,-0.0015,,-6.0
-2026-09-12,Arizona State @ Texas A&M,Totals,game_total,Under 50.5,50.5,fanatics,-105.0,-115.0,Pass,0.5645,0.1021,loss,-1.0,0.5645,0.4938,0.5645,146.0,0.0,-0.4938,-1.0,-14.0,0.0015,,
+2026-09-12,Alabama @ Kentucky,Moneyline,game_ml,Alabama ML,,fanduel,-375.0,290.0,Pass,0.674,-0.1463,win,0.2667,0.7181,0.7652,0.674,,,,,,-0.0007,,-27.0
+2026-09-12,Alabama @ Kentucky,Moneyline,game_ml,Kentucky ML,,draftkings,320.0,-410.0,Pass,0.2819,0.1839,loss,-1.0,0.2819,0.2348,0.2819,,,,,,0.0007,,27.0
+2026-09-12,Alabama @ Kentucky,Spread (ATS),game_ats,Alabama -10.0,-10.0,lowvig,-103.0,-109.0,Pass,0.4809,-0.0522,win,0.9709,0.4809,0.4973,0.4809,,,,,,-0.0022,,-14.0
+2026-09-12,Alabama @ Kentucky,Spread (ATS),game_ats,Kentucky +10.0,10.0,lowvig,-109.0,-103.0,Pass,0.5191,-0.0047,loss,-1.0,0.5191,0.5027,0.5191,,,,,,0.0022,,14.0
+2026-09-12,Alabama @ Kentucky,Totals,game_total,Over 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.3352,-0.3455,win,0.9524,0.3352,0.4953,0.3352,,,,,,-0.0012,,-74.0
+2026-09-12,Alabama @ Kentucky,Totals,game_total,Under 48.5,48.5,lowvig,-108.0,-108.0,Pass,0.6446,0.2415,loss,-1.0,0.6647,0.5047,0.6446,,,,,,0.0012,,74.0
+2026-09-12,Alabama State @ Troy,Moneyline,game_ml,Alabama State ML,,fanatics,1050.0,-1800.0,Pass,0.0755,-0.1323,loss,-1.0,0.0755,0.0867,0.0755,,,,,,-0.001,,36.0
+2026-09-12,Alabama State @ Troy,Moneyline,game_ml,Troy ML,,betmgm,-1600.0,1050.0,Pass,0.7875,-0.1633,win,0.0625,0.9245,0.9133,0.7875,,,,,,0.001,,-36.0
+2026-09-12,Alabama State @ Troy,Spread (ATS),game_ats,Alabama State +22.5,22.5,draftkings,-108.0,-112.0,Pass,0.4831,-0.0695,win,0.9259,0.4831,0.4977,0.4831,,,,,,-0.0007,,-21.0
+2026-09-12,Alabama State @ Troy,Spread (ATS),game_ats,Troy -22.5,-22.5,betonlineag,-110.0,-110.0,Pass,0.5169,-0.0132,loss,-1.0,0.5169,0.5023,0.5169,,,,,,0.0007,,21.0
+2026-09-12,Alabama State @ Troy,Totals,game_total,Over 51.5,51.5,fanduel,-110.0,-110.0,Pass,0.5012,-0.0432,loss,-1.0,0.5012,0.5022,0.5012,,,,,,0.0003,,11.0
+2026-09-12,Alabama State @ Troy,Totals,game_total,Under 51.5,51.5,draftkings,-105.0,-115.0,Pass,0.4988,-0.0261,win,0.9524,0.4988,0.4978,0.4988,,,,,,-0.0003,,-11.0
+2026-09-12,Appalachian St @ East Carolina,Moneyline,game_ml,Appalachian St ML,,draftkings,215.0,-265.0,Pass,0.3419,0.0769,win,2.15,0.3419,0.3182,0.3419,,,,,,0.0012,price_too_long,12.0
+2026-09-12,Appalachian St @ East Carolina,Moneyline,game_ml,East Carolina ML,,betmgm,-235.0,200.0,Pass,0.641,-0.0863,loss,-1.0,0.6581,0.6818,0.641,,,,,,-0.0012,,-12.0
+2026-09-12,Appalachian St @ East Carolina,Spread (ATS),game_ats,Appalachian St +6.5,6.5,lowvig,-106.0,-106.0,Pass,0.4984,-0.0314,win,0.9434,0.4984,0.4988,0.4984,,,,,,0.0022,,-2.0
+2026-09-12,Appalachian St @ East Carolina,Spread (ATS),game_ats,East Carolina -6.5,-6.5,lowvig,-106.0,-106.0,Pass,0.5016,-0.0252,loss,-1.0,0.5016,0.5012,0.5016,,,,,,-0.0022,,2.0
+2026-09-12,Appalachian St @ East Carolina,Totals,game_total,Over 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.4989,-0.0393,loss,-1.0,0.4989,0.5,0.4989,,,,,,0.0,,9.0
+2026-09-12,Appalachian St @ East Carolina,Totals,game_total,Under 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.5011,-0.0348,win,0.9259,0.5011,0.5,0.5011,,,,,,0.0,,-9.0
+2026-09-12,Arizona @ BYU,Moneyline,game_ml,Arizona ML,,betrivers,250.0,-335.0,Pass,0.3034,0.0618,loss,-1.0,0.3034,0.283,0.3034,,,,,,-0.0002,price_too_long,8.0
+2026-09-12,Arizona @ BYU,Moneyline,game_ml,BYU ML,,lowvig,-280.0,230.0,Pass,0.6621,-0.1014,win,0.3571,0.6966,0.717,0.6621,,,,,,0.0002,,-8.0
+2026-09-12,Arizona @ BYU,Spread (ATS),game_ats,Arizona +7.5,7.5,betmgm,-108.0,-110.0,Pass,0.4819,-0.0718,loss,-1.0,0.4819,0.5038,0.4819,,,,,,-0.0015,,48.0
+2026-09-12,Arizona @ BYU,Spread (ATS),game_ats,BYU -7.5,-7.5,lowvig,-103.0,-109.0,Moderate buy,0.5181,0.0211,win,0.9709,0.5181,0.4962,0.5181,,,,,,0.0015,,-48.0
+2026-09-12,Arizona @ BYU,Totals,game_total,Over 48.5,48.5,fanduel,-106.0,-114.0,Pass,0.4981,-0.032,loss,-1.0,0.4981,0.4998,0.4981,,,,,,-0.0033,,2.0
+2026-09-12,Arizona @ BYU,Totals,game_total,Under 48.5,48.5,draftkings,-105.0,-115.0,Pass,0.5019,-0.0201,win,0.9524,0.5019,0.5002,0.5019,,,,,,0.0033,,-2.0
+2026-09-12,Arizona State @ Texas A&M,Moneyline,game_ml,Arizona State ML,,betmgm,550.0,-700.0,Pass,0.1906,0.2389,loss,-1.0,0.1906,0.1588,0.1906,,,,,,0.0,price_too_long,11.0
+2026-09-12,Arizona State @ Texas A&M,Moneyline,game_ml,Texas A&M ML,,draftkings,-675.0,490.0,Pass,0.7242,-0.1685,win,0.1481,0.8094,0.8412,0.7242,,,,,,-0.0,,
+2026-09-12,Arizona State @ Texas A&M,Spread (ATS),game_ats,Arizona State +14.5,14.5,lowvig,-104.0,-108.0,Pass,0.5137,0.0076,loss,-1.0,0.5137,0.5002,0.5137,,,,,,-0.0014,,-13.0
+2026-09-12,Arizona State @ Texas A&M,Spread (ATS),game_ats,Texas A&M -14.5,-14.5,draftkings,-108.0,-112.0,Pass,0.4863,-0.0634,win,0.9259,0.4863,0.4998,0.4863,,,,,,0.0014,,
+2026-09-12,Arizona State @ Texas A&M,Totals,game_total,Over 50.5,50.5,mybookieag,-110.0,-110.0,Pass,0.4355,-0.1686,win,0.9091,0.4355,0.5062,0.4355,,,,,,-0.0015,,-6.0
+2026-09-12,Arizona State @ Texas A&M,Totals,game_total,Under 50.5,50.5,fanatics,-105.0,-115.0,Pass,0.5645,0.1021,loss,-1.0,0.5645,0.4938,0.5645,,,,,,0.0015,,
 2026-09-12,Arkansas @ Utah,Moneyline,game_ml,Arkansas ML,,betrivers,400.0,-590.0,Pass,0.1726,-0.1368,loss,-1.0,0.1726,0.2,0.1726,700.0,0.1345,-0.0655,-0.3275,,-0.0008,,33.0
 2026-09-12,Arkansas @ Utah,Moneyline,game_ml,Utah ML,,betonlineag,-470.0,364.0,Pass,0.734,-0.1098,win,0.2128,0.8274,0.8,0.734,-800.0,0.8655,0.0655,0.0496,,0.0008,,-33.0
 2026-09-12,Arkansas @ Utah,Spread (ATS),game_ats,Arkansas +12.5,12.5,bovada,-105.0,-115.0,Pass,0.437,-0.1469,loss,-1.0,0.437,0.4994,0.437,-110.0,0.3905,-0.1089,-0.2376,-5.0,0.0016,,31.0
@@ -237,106 +237,92 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Bowling Green @ Nebraska,Spread (ATS),game_ats,Nebraska -30.5,-30.5,lowvig,-106.0,-106.0,Pass,0.4247,-0.1747,win,0.9434,0.4247,0.499,0.4247,-109.0,0.5041,0.0051,-0.0203,0.0,0.0004,,8.0
 2026-09-12,Bowling Green @ Nebraska,Totals,game_total,Over 49.5,49.5,betmgm,-110.0,-108.0,Pass,0.4606,-0.1206,win,0.9091,0.4606,0.5035,0.4606,-108.0,0.4863,-0.0172,-0.0716,-0.5,0.0,,-32.0
 2026-09-12,Bowling Green @ Nebraska,Totals,game_total,Under 49.5,49.5,williamhill_us,-105.0,-115.0,Strong buy,0.5394,0.0531,loss,-1.0,0.5394,0.4965,0.5394,-105.0,0.5137,0.0172,0.0029,0.5,0.0,,32.0
-2026-09-12,Buffalo @ Florida Intern,Moneyline,game_ml,Buffalo ML,,draftkings,320.0,-410.0,Pass,0.3202,0.3449,loss,-1.0,0.3202,0.2325,0.3202,2800.0,0.0443,-0.1882,-0.8139,,0.0014,,48.0
-2026-09-12,Buffalo @ Florida Intern,Moneyline,game_ml,Florida Intern ML,,betus,-370.0,295.0,Pass,0.6529,-0.1707,win,0.2703,0.6798,0.7675,0.6529,-10000.0,0.9557,0.1882,0.214,,-0.0014,,-48.0
-2026-09-12,Buffalo @ Florida Intern,Spread (ATS),game_ats,Buffalo +10.0,10.0,lowvig,-101.0,-111.0,Strong buy,0.5615,0.1175,loss,-1.0,0.5615,0.4954,0.5615,-108.0,0.1537,-0.3417,-0.6941,-13.5,-0.0031,,10.0
-2026-09-12,Buffalo @ Florida Intern,Spread (ATS),game_ats,Florida Intern -10.0,-10.0,betrivers,-110.0,-113.0,Pass,0.4385,-0.1629,win,0.9091,0.4385,0.5046,0.4385,-118.0,0.8463,0.3417,0.6157,13.5,0.0031,,-10.0
-2026-09-12,Buffalo @ Florida Intern,Totals,game_total,Over 47.5,47.5,draftkings,-105.0,-115.0,Pass,0.3752,-0.2674,win,0.9524,0.3752,0.4966,0.3752,-105.0,0.6793,0.1827,0.3263,6.0,0.0032,,-9.0
-2026-09-12,Buffalo @ Florida Intern,Totals,game_total,Under 47.5,47.5,mybookieag,-110.0,-110.0,Pass,0.6226,0.1887,loss,-1.0,0.6248,0.5034,0.6226,-114.0,0.3207,-0.1827,-0.3878,-6.0,-0.0032,,9.0
-2026-09-12,Cal Poly @ San Jose State,Moneyline,game_ml,Cal Poly ML,,betrivers,1100.0,-3335.0,Pass,0.097,0.164,loss,-1.0,0.097,0.0923,0.097,544.0,0.1839,0.0916,1.2068,,-0.0,,66.0
-2026-09-12,Cal Poly @ San Jose State,Moneyline,game_ml,San Jose State ML,,fanatics,-1500.0,900.0,Pass,0.7757,-0.1726,win,0.0667,0.903,0.9077,0.7757,-400.0,0.8161,-0.0916,-0.1295,,0.0,,-66.0
-2026-09-12,Cal Poly @ San Jose State,Spread (ATS),game_ats,Cal Poly +20.5,20.5,fanduel,-102.0,-120.0,Pass,0.4932,-0.0232,win,0.9804,0.4932,0.4909,0.4932,-110.0,0.8368,0.3459,0.6572,13.0,-0.0061,,19.0
-2026-09-12,Cal Poly @ San Jose State,Spread (ATS),game_ats,San Jose State -20.5,-20.5,fanatics,-110.0,-110.0,Pass,0.5068,-0.0326,loss,-1.0,0.5068,0.5091,0.5068,110.0,0.1632,-0.3459,-0.6884,-13.0,0.0061,,-19.0
-2026-09-12,Cal Poly @ San Jose State,Totals,game_total,Over 56.5,56.5,fanatics,-110.0,-110.0,Pass,0.4979,-0.0494,loss,-1.0,0.4979,0.5024,0.4979,-110.0,0.2246,-0.2778,-0.5712,-9.0,-0.0,,-27.0
-2026-09-12,Cal Poly @ San Jose State,Totals,game_total,Under 56.5,56.5,williamhill_us,-106.0,-117.0,Pass,0.5021,-0.0243,win,0.9434,0.5021,0.4976,0.5021,-105.0,0.7754,0.2778,0.5069,9.0,0.0,,27.0
-2026-09-12,California @ Syracuse,Moneyline,game_ml,California ML,,draftkings,160.0,-192.0,Pass,0.291,-0.2434,win,1.6,0.291,0.3786,0.291,-140.0,0.6189,0.2403,0.6091,,-0.0014,,28.0
-2026-09-12,California @ Syracuse,Moneyline,game_ml,Syracuse ML,,fanduel,-178.0,146.0,Pass,0.6689,0.0448,loss,-1.0,0.709,0.6214,0.6689,185.0,0.3811,-0.2403,-0.4048,,0.0014,,-28.0
-2026-09-12,California @ Syracuse,Spread (ATS),game_ats,California +3.5,3.5,draftkings,-105.0,-115.0,Pass,0.3705,-0.2766,win,0.9524,0.3705,0.4969,0.3705,-130.0,0.7471,0.2502,0.4586,6.0,-0.0025,,-6.0
-2026-09-12,California @ Syracuse,Spread (ATS),game_ats,Syracuse -3.5,-3.5,lowvig,-106.0,-106.0,Pass,0.6252,0.2151,loss,-1.0,0.6295,0.5031,0.6252,160.0,0.2529,-0.2502,-0.5085,-6.0,0.0025,,6.0
-2026-09-12,California @ Syracuse,Totals,game_total,Over 56.5,56.5,betmgm,-112.0,-105.0,Pass,0.4406,-0.166,loss,-1.0,0.4406,0.5108,0.4406,-138.0,0.2178,-0.293,-0.5877,-11.0,0.0012,,15.0
-2026-09-12,California @ Syracuse,Totals,game_total,Under 56.5,56.5,lowvig,-103.0,-114.0,Pass,0.5594,0.1025,win,0.9709,0.5594,0.4892,0.5594,125.0,0.7822,0.293,0.5416,11.0,-0.0012,,-15.0
-2026-09-12,Campbell Fight @ Florida,Spread (ATS),game_ats,Campbell Fight +50.5,50.5,fanduel,-105.0,-115.0,Pass,0.5,-0.0239,win,0.9524,0.5,0.4975,0.5,-107.0,0.1889,-0.3086,-0.6312,-12.0,0.0018,,
-2026-09-12,Campbell Fight @ Florida,Spread (ATS),game_ats,Florida -50.5,-50.5,fanatics,-110.0,-110.0,Pass,0.5,-0.0454,loss,-1.0,0.5,0.5025,0.5,-118.0,0.8111,0.3086,0.5485,12.0,-0.0018,,-25.0
-2026-09-12,Campbell Fight @ Florida,Totals,game_total,Over 65.5,65.5,fanduel,-110.0,-110.0,Pass,0.4979,-0.0495,loss,-1.0,0.4979,0.5112,0.4979,-120.0,0.8388,0.3276,0.6013,10.0,-0.0191,,
-2026-09-12,Campbell Fight @ Florida,Totals,game_total,Under 65.5,65.5,draftkings,-102.0,-118.0,Pass,0.5021,-0.0056,win,0.9804,0.5021,0.4888,0.5021,108.0,0.1612,-0.3276,-0.6808,-10.0,0.0191,,-24.0
+2026-09-12,Buffalo @ Florida Intern,Moneyline,game_ml,Buffalo ML,,draftkings,320.0,-410.0,Pass,0.3202,0.3449,loss,-1.0,0.3202,0.2325,0.3202,,,,,,0.0014,,48.0
+2026-09-12,Buffalo @ Florida Intern,Moneyline,game_ml,Florida Intern ML,,betus,-370.0,295.0,Pass,0.6529,-0.1707,win,0.2703,0.6798,0.7675,0.6529,,,,,,-0.0014,,-48.0
+2026-09-12,Buffalo @ Florida Intern,Spread (ATS),game_ats,Buffalo +10.0,10.0,lowvig,-101.0,-111.0,Strong buy,0.5615,0.1175,loss,-1.0,0.5615,0.4954,0.5615,,,,,,-0.0031,,10.0
+2026-09-12,Buffalo @ Florida Intern,Spread (ATS),game_ats,Florida Intern -10.0,-10.0,betrivers,-110.0,-113.0,Pass,0.4385,-0.1629,win,0.9091,0.4385,0.5046,0.4385,,,,,,0.0031,,-10.0
+2026-09-12,Buffalo @ Florida Intern,Totals,game_total,Over 47.5,47.5,draftkings,-105.0,-115.0,Pass,0.3752,-0.2674,win,0.9524,0.3752,0.4966,0.3752,,,,,,0.0032,,-9.0
+2026-09-12,Buffalo @ Florida Intern,Totals,game_total,Under 47.5,47.5,mybookieag,-110.0,-110.0,Pass,0.6226,0.1887,loss,-1.0,0.6248,0.5034,0.6226,,,,,,-0.0032,,9.0
+2026-09-12,Cal Poly @ San Jose State,Moneyline,game_ml,Cal Poly ML,,betrivers,1100.0,-3335.0,Pass,0.097,0.164,loss,-1.0,0.097,0.0923,0.097,,,,,,-0.0,,66.0
+2026-09-12,Cal Poly @ San Jose State,Moneyline,game_ml,San Jose State ML,,fanatics,-1500.0,900.0,Pass,0.7757,-0.1726,win,0.0667,0.903,0.9077,0.7757,,,,,,0.0,,-66.0
+2026-09-12,Cal Poly @ San Jose State,Spread (ATS),game_ats,Cal Poly +20.5,20.5,fanduel,-102.0,-120.0,Pass,0.4932,-0.0232,win,0.9804,0.4932,0.4909,0.4932,,,,,,-0.0061,,19.0
+2026-09-12,Cal Poly @ San Jose State,Spread (ATS),game_ats,San Jose State -20.5,-20.5,fanatics,-110.0,-110.0,Pass,0.5068,-0.0326,loss,-1.0,0.5068,0.5091,0.5068,,,,,,0.0061,,-19.0
+2026-09-12,Cal Poly @ San Jose State,Totals,game_total,Over 56.5,56.5,fanatics,-110.0,-110.0,Pass,0.4979,-0.0494,loss,-1.0,0.4979,0.5024,0.4979,,,,,,-0.0,,-27.0
+2026-09-12,Cal Poly @ San Jose State,Totals,game_total,Under 56.5,56.5,williamhill_us,-106.0,-117.0,Pass,0.5021,-0.0243,win,0.9434,0.5021,0.4976,0.5021,,,,,,0.0,,27.0
+2026-09-12,California @ Syracuse,Moneyline,game_ml,California ML,,draftkings,160.0,-192.0,Pass,0.291,-0.2434,win,1.6,0.291,0.3786,0.291,,,,,,-0.0014,,28.0
+2026-09-12,California @ Syracuse,Moneyline,game_ml,Syracuse ML,,fanduel,-178.0,146.0,Pass,0.6689,0.0448,loss,-1.0,0.709,0.6214,0.6689,,,,,,0.0014,,-28.0
+2026-09-12,California @ Syracuse,Spread (ATS),game_ats,California +3.5,3.5,draftkings,-105.0,-115.0,Pass,0.3705,-0.2766,win,0.9524,0.3705,0.4969,0.3705,,,,,,-0.0025,,-6.0
+2026-09-12,California @ Syracuse,Spread (ATS),game_ats,Syracuse -3.5,-3.5,lowvig,-106.0,-106.0,Pass,0.6252,0.2151,loss,-1.0,0.6295,0.5031,0.6252,,,,,,0.0025,,6.0
+2026-09-12,California @ Syracuse,Totals,game_total,Over 56.5,56.5,betmgm,-112.0,-105.0,Pass,0.4406,-0.166,loss,-1.0,0.4406,0.5108,0.4406,,,,,,0.0012,,15.0
+2026-09-12,California @ Syracuse,Totals,game_total,Under 56.5,56.5,lowvig,-103.0,-114.0,Pass,0.5594,0.1025,win,0.9709,0.5594,0.4892,0.5594,,,,,,-0.0012,,-15.0
 2026-09-12,Central Connec @ Toledo,Moneyline,game_ml,Central Connec ML,,betmgm,5500.0,-50000.0,Pass,0.0194,0.0892,loss,-1.0,0.0194,0.0224,0.0194,3500.0,0.0272,0.0048,0.5232,,-0.0048,,
 2026-09-12,Central Connec @ Toledo,Moneyline,game_ml,Toledo ML,,draftkings,-20000.0,3500.0,Pass,0.8183,-0.1776,win,0.005,0.9806,0.9776,0.8183,-20000.0,0.9728,-0.0048,-0.0223,,0.0048,,-90.0
 2026-09-12,Central Connec @ Toledo,Spread (ATS),game_ats,Central Connec +35.5,35.5,fanduel,-108.0,-112.0,Strong buy,0.5575,0.0738,loss,-1.0,0.5575,0.4994,0.5575,-108.0,0.4993,-0.0001,-0.0384,0.0,-0.0018,,
 2026-09-12,Central Connec @ Toledo,Spread (ATS),game_ats,Toledo -35.5,-35.5,betrivers,-108.0,-115.0,Pass,0.4425,-0.1479,win,0.9259,0.4425,0.5006,0.4425,-110.0,0.5007,0.0001,-0.0357,0.0,0.0018,,16.0
 2026-09-12,Central Connec @ Toledo,Totals,game_total,Over 54.5,54.5,draftkings,-108.0,-112.0,Pass,0.5047,-0.028,win,0.9259,0.5047,0.5073,0.5047,-108.0,0.4388,-0.0685,-0.1549,-2.0,0.0019,,
 2026-09-12,Central Connec @ Toledo,Totals,game_total,Under 54.5,54.5,fanduel,-104.0,-118.0,Pass,0.4953,-0.0284,loss,-1.0,0.4953,0.4927,0.4953,-107.0,0.5612,0.0685,0.1008,2.0,-0.0019,,-24.0
-2026-09-12,Charlotte @ Ole Miss,Spread (ATS),game_ats,Charlotte +45.5,45.5,betmgm,-110.0,-108.0,Pass,0.4986,-0.0481,win,0.9091,0.4986,0.5127,0.4986,-950.0,1.0,0.4873,0.9091,13.0,0.0,,26.0
-2026-09-12,Charlotte @ Ole Miss,Spread (ATS),game_ats,Ole Miss -45.5,-45.5,bovada,100.0,-120.0,Pass,0.5014,0.0028,loss,-1.0,0.5014,0.4873,0.5014,880.0,0.0,-0.4873,-1.0,-13.0,0.0,,-26.0
-2026-09-12,Charlotte @ Ole Miss,Totals,game_total,Over 59.5,59.5,fanduel,-105.0,-115.0,Pass,0.5003,-0.0232,loss,-1.0,0.5003,0.5007,0.5003,475.0,0.0,-0.5007,-1.0,-7.0,-0.0012,,-31.0
-2026-09-12,Charlotte @ Ole Miss,Totals,game_total,Under 59.5,59.5,williamhill_us,-103.0,-118.0,Pass,0.4997,-0.0152,win,0.9709,0.4997,0.4993,0.4997,-950.0,1.0,0.5007,0.9709,7.0,0.0012,,31.0
-2026-09-12,Colgate @ Central Michig,Moneyline,game_ml,Central Michig ML,,betmgm,-1400.0,950.0,Pass,0.7779,-0.1665,win,0.0714,0.9072,0.9124,0.7779,165.0,0.3961,-0.5163,-0.5756,,-0.003,,-42.0
-2026-09-12,Colgate @ Central Michig,Moneyline,game_ml,Colgate ML,,fanduel,1280.0,-3500.0,Pass,0.0928,0.281,loss,-1.0,0.0928,0.0876,0.0928,-120.0,0.6039,0.5163,7.3338,,0.003,,42.0
-2026-09-12,Colgate @ Central Michig,Spread (ATS),game_ats,Central Michig -21.0,-21.0,betonlineag,-110.0,-110.0,Pass,0.5084,-0.0294,loss,-1.0,0.5084,0.5029,0.5084,-118.0,0.0,-0.5029,-1.0,-24.5,-0.0143,,-61.0
-2026-09-12,Colgate @ Central Michig,Spread (ATS),game_ats,Colgate +21.0,21.0,bovada,-105.0,-115.0,Pass,0.4916,-0.0403,win,0.9524,0.4916,0.4971,0.4916,125.0,1.0,0.5029,0.9524,24.5,0.0143,,61.0
-2026-09-12,Colgate @ Central Michig,Totals,game_total,Over 48.5,48.5,betonlineag,-115.0,-105.0,Pass,0.5135,-0.0399,loss,-1.0,0.5135,0.5107,0.5135,-120.0,0.0,-0.5107,-1.0,-22.0,0.005,,19.0
-2026-09-12,Colgate @ Central Michig,Totals,game_total,Under 48.5,48.5,betonlineag,-105.0,-115.0,Pass,0.4865,-0.0503,win,0.9524,0.4865,0.4893,0.4865,105.0,1.0,0.5107,0.9524,22.0,-0.005,,-19.0
-2026-09-12,Delaware @ Vanderbilt,Moneyline,game_ml,Delaware ML,,betmgm,950.0,-1400.0,Pass,0.1165,0.223,loss,-1.0,0.1165,0.1017,0.1165,4000.0,0.0239,-0.0778,-0.749,,0.0005,,50.0
-2026-09-12,Delaware @ Vanderbilt,Moneyline,game_ml,Vanderbilt ML,,draftkings,-1350.0,800.0,Pass,0.7649,-0.1784,win,0.0741,0.8835,0.8983,0.7649,-20000.0,0.9761,0.0778,0.0484,,-0.0005,,-50.0
-2026-09-12,Delaware @ Vanderbilt,Spread (ATS),game_ats,Delaware +21.0,21.0,lowvig,-109.0,-103.0,Strong buy,0.5447,0.0444,win,0.9174,0.5447,0.501,0.5447,-125.0,0.5365,0.0355,0.0287,-0.5,-0.0001,,-45.0
-2026-09-12,Delaware @ Vanderbilt,Spread (ATS),game_ats,Vanderbilt -21.0,-21.0,lowvig,-103.0,-109.0,Pass,0.4553,-0.1027,loss,-1.0,0.4553,0.499,0.4553,115.0,0.4635,-0.0355,-0.0865,0.5,0.0001,,45.0
-2026-09-12,Delaware @ Vanderbilt,Totals,game_total,Over 54.5,54.5,betrivers,-112.0,-112.0,Pass,0.6514,0.233,win,0.8929,0.6771,0.5084,0.6514,107.0,0.8338,0.3254,0.5783,11.0,0.0,,-17.0
-2026-09-12,Delaware @ Vanderbilt,Totals,game_total,Under 54.5,54.5,draftkings,-105.0,-115.0,Pass,0.3229,-0.3696,loss,-1.0,0.3229,0.4916,0.3229,-105.0,0.1662,-0.3254,-0.6755,-11.0,-0.0,,17.0
-2026-09-12,Duke @ Illinois,Moneyline,game_ml,Duke ML,,betonlineag,203.0,-245.0,Pass,0.3851,0.1669,win,2.03,0.3851,0.3279,0.3851,-1220.0,0.8934,0.5655,1.707,,0.0015,price_too_long,-35.0
-2026-09-12,Duke @ Illinois,Moneyline,game_ml,Illinois ML,,betrivers,-215.0,165.0,Pass,0.6149,-0.0991,loss,-1.0,0.6149,0.6721,0.6149,950.0,0.1066,-0.5655,-0.8438,,-0.0015,,35.0
-2026-09-12,Duke @ Illinois,Spread (ATS),game_ats,Duke +6.0,6.0,lowvig,-106.0,-106.0,Moderate buy,0.5353,0.0403,win,0.9434,0.5353,0.5006,0.5353,450.0,0.4593,-0.0413,-0.1074,10.5,0.0015,,22.0
-2026-09-12,Duke @ Illinois,Spread (ATS),game_ats,Illinois -6.0,-6.0,lowvig,-106.0,-106.0,Pass,0.4647,-0.0969,loss,-1.0,0.4647,0.4994,0.4647,-435.0,0.5407,0.0413,0.0508,-10.5,-0.0015,,-22.0
-2026-09-12,Duke @ Illinois,Totals,game_total,Over 51.5,51.5,fanduel,-110.0,-110.0,Pass,0.6413,0.2243,win,0.9091,0.6587,0.5012,0.6413,210.0,0.5178,0.0166,-0.0115,7.0,0.0,,-14.0
-2026-09-12,Duke @ Illinois,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.3413,-0.3427,loss,-1.0,0.3413,0.4988,0.3413,-288.0,0.4822,-0.0166,-0.0713,-7.0,0.0,,14.0
-2026-09-12,East Tennessee @ North Carolina,Moneyline,game_ml,East Tennessee ML,,betmgm,5000.0,-50000.0,Pass,0.0138,-0.2949,loss,-1.0,0.0138,0.0216,0.0138,5000.0,0.0216,0.0,0.1016,,0.0,,
-2026-09-12,East Tennessee @ North Carolina,Moneyline,game_ml,North Carolina ML,,fanduel,-30000.0,4000.0,Pass,0.8214,-0.1759,win,0.0033,0.9862,0.9784,0.8214,-30000.0,0.9784,0.0,-0.0183,,0.0,,
-2026-09-12,East Tennessee @ North Carolina,Spread (ATS),game_ats,East Tennessee +35.5,35.5,betrivers,-109.0,-114.0,Pass,0.4958,-0.0494,win,0.9174,0.4958,0.4988,0.4958,-123.0,0.3464,-0.1524,-0.3358,-7.0,0.0,,
-2026-09-12,East Tennessee @ North Carolina,Spread (ATS),game_ats,North Carolina -35.5,-35.5,betmgm,-108.0,-110.0,Pass,0.5042,-0.0289,loss,-1.0,0.5042,0.5012,0.5042,-102.0,0.6536,0.1524,0.2588,7.0,0.0,,1.0
-2026-09-12,East Tennessee @ North Carolina,Totals,game_total,Over 54.5,54.5,betmgm,-110.0,-110.0,Pass,0.5009,-0.0438,loss,-1.0,0.5009,0.5078,0.5009,-105.0,0.3075,-0.2003,-0.413,-6.0,0.0021,,
-2026-09-12,East Tennessee @ North Carolina,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.4991,-0.0255,win,0.9524,0.4991,0.4922,0.4991,-110.0,0.6925,0.2003,0.352,6.0,-0.0021,,-10.0
+2026-09-12,Charlotte @ Ole Miss,Spread (ATS),game_ats,Charlotte +45.5,45.5,betmgm,-110.0,-108.0,Pass,0.4986,-0.0481,win,0.9091,0.4986,0.5127,0.4986,,,,,,0.0,,26.0
+2026-09-12,Charlotte @ Ole Miss,Spread (ATS),game_ats,Ole Miss -45.5,-45.5,bovada,100.0,-120.0,Pass,0.5014,0.0028,loss,-1.0,0.5014,0.4873,0.5014,,,,,,0.0,,-26.0
+2026-09-12,Charlotte @ Ole Miss,Totals,game_total,Over 59.5,59.5,fanduel,-105.0,-115.0,Pass,0.5003,-0.0232,loss,-1.0,0.5003,0.5007,0.5003,,,,,,-0.0012,,-31.0
+2026-09-12,Charlotte @ Ole Miss,Totals,game_total,Under 59.5,59.5,williamhill_us,-103.0,-118.0,Pass,0.4997,-0.0152,win,0.9709,0.4997,0.4993,0.4997,,,,,,0.0012,,31.0
+2026-09-12,Colgate @ Central Michig,Moneyline,game_ml,Central Michig ML,,betmgm,-1400.0,950.0,Pass,0.7779,-0.1665,win,0.0714,0.9072,0.9124,0.7779,,,,,,-0.003,,-42.0
+2026-09-12,Colgate @ Central Michig,Moneyline,game_ml,Colgate ML,,fanduel,1280.0,-3500.0,Pass,0.0928,0.281,loss,-1.0,0.0928,0.0876,0.0928,,,,,,0.003,,42.0
+2026-09-12,Colgate @ Central Michig,Spread (ATS),game_ats,Central Michig -21.0,-21.0,betonlineag,-110.0,-110.0,Pass,0.5084,-0.0294,loss,-1.0,0.5084,0.5029,0.5084,,,,,,-0.0143,,-61.0
+2026-09-12,Colgate @ Central Michig,Spread (ATS),game_ats,Colgate +21.0,21.0,bovada,-105.0,-115.0,Pass,0.4916,-0.0403,win,0.9524,0.4916,0.4971,0.4916,,,,,,0.0143,,61.0
+2026-09-12,Colgate @ Central Michig,Totals,game_total,Over 48.5,48.5,betonlineag,-115.0,-105.0,Pass,0.5135,-0.0399,loss,-1.0,0.5135,0.5107,0.5135,,,,,,0.005,,19.0
+2026-09-12,Colgate @ Central Michig,Totals,game_total,Under 48.5,48.5,betonlineag,-105.0,-115.0,Pass,0.4865,-0.0503,win,0.9524,0.4865,0.4893,0.4865,,,,,,-0.005,,-19.0
+2026-09-12,Delaware @ Vanderbilt,Moneyline,game_ml,Delaware ML,,betmgm,950.0,-1400.0,Pass,0.1165,0.223,loss,-1.0,0.1165,0.1017,0.1165,,,,,,0.0005,,50.0
+2026-09-12,Delaware @ Vanderbilt,Moneyline,game_ml,Vanderbilt ML,,draftkings,-1350.0,800.0,Pass,0.7649,-0.1784,win,0.0741,0.8835,0.8983,0.7649,,,,,,-0.0005,,-50.0
+2026-09-12,Delaware @ Vanderbilt,Spread (ATS),game_ats,Delaware +21.0,21.0,lowvig,-109.0,-103.0,Strong buy,0.5447,0.0444,win,0.9174,0.5447,0.501,0.5447,,,,,,-0.0001,,-45.0
+2026-09-12,Delaware @ Vanderbilt,Spread (ATS),game_ats,Vanderbilt -21.0,-21.0,lowvig,-103.0,-109.0,Pass,0.4553,-0.1027,loss,-1.0,0.4553,0.499,0.4553,,,,,,0.0001,,45.0
+2026-09-12,Delaware @ Vanderbilt,Totals,game_total,Over 54.5,54.5,betrivers,-112.0,-112.0,Pass,0.6514,0.233,win,0.8929,0.6771,0.5084,0.6514,,,,,,0.0,,-17.0
+2026-09-12,Delaware @ Vanderbilt,Totals,game_total,Under 54.5,54.5,draftkings,-105.0,-115.0,Pass,0.3229,-0.3696,loss,-1.0,0.3229,0.4916,0.3229,,,,,,-0.0,,17.0
+2026-09-12,Duke @ Illinois,Moneyline,game_ml,Duke ML,,betonlineag,203.0,-245.0,Pass,0.3851,0.1669,win,2.03,0.3851,0.3279,0.3851,,,,,,0.0015,price_too_long,-35.0
+2026-09-12,Duke @ Illinois,Moneyline,game_ml,Illinois ML,,betrivers,-215.0,165.0,Pass,0.6149,-0.0991,loss,-1.0,0.6149,0.6721,0.6149,,,,,,-0.0015,,35.0
+2026-09-12,Duke @ Illinois,Spread (ATS),game_ats,Duke +6.0,6.0,lowvig,-106.0,-106.0,Moderate buy,0.5353,0.0403,win,0.9434,0.5353,0.5006,0.5353,,,,,,0.0015,,22.0
+2026-09-12,Duke @ Illinois,Spread (ATS),game_ats,Illinois -6.0,-6.0,lowvig,-106.0,-106.0,Pass,0.4647,-0.0969,loss,-1.0,0.4647,0.4994,0.4647,,,,,,-0.0015,,-22.0
+2026-09-12,Duke @ Illinois,Totals,game_total,Over 51.5,51.5,fanduel,-110.0,-110.0,Pass,0.6413,0.2243,win,0.9091,0.6587,0.5012,0.6413,,,,,,0.0,,-14.0
+2026-09-12,Duke @ Illinois,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Pass,0.3413,-0.3427,loss,-1.0,0.3413,0.4988,0.3413,,,,,,0.0,,14.0
+2026-09-12,East Tennessee @ North Carolina,Moneyline,game_ml,East Tennessee ML,,betmgm,5000.0,-50000.0,Pass,0.0138,-0.2949,loss,-1.0,0.0138,0.0216,0.0138,,,,,,0.0,,
+2026-09-12,East Tennessee @ North Carolina,Moneyline,game_ml,North Carolina ML,,fanduel,-30000.0,4000.0,Pass,0.8214,-0.1759,win,0.0033,0.9862,0.9784,0.8214,,,,,,0.0,,
+2026-09-12,East Tennessee @ North Carolina,Spread (ATS),game_ats,East Tennessee +35.5,35.5,betrivers,-109.0,-114.0,Pass,0.4958,-0.0494,win,0.9174,0.4958,0.4988,0.4958,,,,,,0.0,,
+2026-09-12,East Tennessee @ North Carolina,Spread (ATS),game_ats,North Carolina -35.5,-35.5,betmgm,-108.0,-110.0,Pass,0.5042,-0.0289,loss,-1.0,0.5042,0.5012,0.5042,,,,,,0.0,,1.0
+2026-09-12,East Tennessee @ North Carolina,Totals,game_total,Over 54.5,54.5,betmgm,-110.0,-110.0,Pass,0.5009,-0.0438,loss,-1.0,0.5009,0.5078,0.5009,,,,,,0.0021,,
+2026-09-12,East Tennessee @ North Carolina,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.4991,-0.0255,win,0.9524,0.4991,0.4922,0.4991,,,,,,-0.0021,,-10.0
 2026-09-12,Eastern Michig @ Michigan State,Moneyline,game_ml,Eastern Michig ML,,betmgm,650.0,-900.0,Pass,0.1422,0.0663,loss,-1.0,0.1422,0.1313,0.1422,650.0,0.1315,0.0002,-0.0138,,0.0024,,
 2026-09-12,Eastern Michig @ Michigan State,Moneyline,game_ml,Michigan State ML,,draftkings,-900.0,600.0,Pass,0.7508,-0.1658,win,0.1111,0.8578,0.8687,0.7508,-900.0,0.8685,-0.0002,-0.035,,-0.0024,,-12.0
 2026-09-12,Eastern Michig @ Michigan State,Spread (ATS),game_ats,Eastern Michig +17.5,17.5,draftkings,-110.0,-110.0,Pass,0.5148,-0.0173,loss,-1.0,0.5148,0.5062,0.5148,-110.0,0.5093,0.0031,-0.0277,0.0,0.0006,,
 2026-09-12,Eastern Michig @ Michigan State,Spread (ATS),game_ats,Michigan State -17.5,-17.5,lowvig,100.0,-112.0,Pass,0.4853,-0.0295,win,1.0,0.4853,0.4938,0.4853,100.0,0.4907,-0.0031,-0.0186,0.0,-0.0006,,7.0
 2026-09-12,Eastern Michig @ Michigan State,Totals,game_total,Over 50.0,50.0,lowvig,-103.0,-114.0,Pass,0.5139,0.0129,loss,-1.0,0.5139,0.4953,0.5139,-110.0,0.4892,-0.0061,-0.0358,-0.5,0.0,,
 2026-09-12,Eastern Michig @ Michigan State,Totals,game_total,Under 50.0,50.0,fanatics,-110.0,-110.0,Pass,0.4861,-0.072,win,0.9091,0.4861,0.5047,0.4861,-105.0,0.5108,0.0061,-0.0248,0.5,0.0,,-17.0
-2026-09-12,Fordham @ Coastal Caroli,Moneyline,game_ml,Coastal Caroli ML,,fanatics,-9000.0,3000.0,Pass,0.8213,-0.1696,win,0.0111,0.9859,0.9684,0.8213,-10000.0,0.9745,0.0061,-0.0147,,0.0,,
-2026-09-12,Fordham @ Coastal Caroli,Moneyline,game_ml,Fordham ML,,fanduel,3000.0,-10000.0,Pass,0.0141,-0.5644,loss,-1.0,0.0141,0.0316,0.0141,5500.0,0.0255,-0.0061,-0.2095,,0.0,,
-2026-09-12,Fordham @ Coastal Caroli,Spread (ATS),game_ats,Coastal Caroli -34.5,-34.5,bovada,-110.0,-110.0,Pass,0.5055,-0.035,win,0.9091,0.5055,0.5048,0.5055,2600.0,0.1851,-0.3197,-0.6466,4.0,-0.0012,,27.0
-2026-09-12,Fordham @ Coastal Caroli,Spread (ATS),game_ats,Fordham +34.5,34.5,draftkings,-105.0,-115.0,Pass,0.4945,-0.0345,loss,-1.0,0.4945,0.4952,0.4945,-2000.0,0.8149,0.3197,0.591,-4.0,0.0012,,-27.0
-2026-09-12,Fordham @ Coastal Caroli,Totals,game_total,Over 53.5,53.5,williamhill_us,-108.0,-114.0,Pass,0.4936,-0.0494,loss,-1.0,0.4936,0.4995,0.4936,2500.0,0.0067,-0.4928,-0.9871,-1.0,0.0,,-58.0
-2026-09-12,Fordham @ Coastal Caroli,Totals,game_total,Under 53.5,53.5,betrivers,-109.0,-113.0,Pass,0.5064,-0.029,win,0.9174,0.5064,0.5005,0.5064,-10000.0,0.9933,0.4928,0.9046,1.0,-0.0,,58.0
-2026-09-12,Gardner-Webb R @ Liberty,Moneyline,game_ml,Gardner-Webb R ML,,fanatics,1800.0,-4000.0,Pass,0.0429,-0.1844,loss,-1.0,0.0429,0.059,0.0429,120.0,0.4516,0.3926,7.5804,,-0.0036,,
-2026-09-12,Gardner-Webb R @ Liberty,Moneyline,game_ml,Liberty ML,,draftkings,-3600.0,1500.0,Pass,0.8054,-0.1722,win,0.0278,0.9571,0.941,0.8054,-115.0,0.5484,-0.3926,-0.4364,,0.0036,,-57.0
-2026-09-12,Gardner-Webb R @ Liberty,Spread (ATS),game_ats,Gardner-Webb R +27.5,27.5,fanduel,-104.0,-118.0,Pass,0.5017,-0.0159,win,0.9615,0.5017,0.4927,0.5017,-280.0,1.0,0.5073,0.9615,26.0,-0.0009,,
-2026-09-12,Gardner-Webb R @ Liberty,Spread (ATS),game_ats,Liberty -27.5,-27.5,bovada,-110.0,-110.0,Pass,0.4983,-0.0487,loss,-1.0,0.4983,0.5073,0.4983,220.0,0.0,-0.5073,-1.0,-26.0,0.0009,,14.0
-2026-09-12,Gardner-Webb R @ Liberty,Totals,game_total,Over 55.5,55.5,williamhill_us,-106.0,-117.0,Pass,0.4926,-0.0427,loss,-1.0,0.4926,0.4966,0.4926,116.0,0.3145,-0.1821,-0.3888,-5.0,0.0,,
-2026-09-12,Gardner-Webb R @ Liberty,Totals,game_total,Under 55.5,55.5,betonlineag,-110.0,-110.0,Pass,0.5074,-0.0313,win,0.9091,0.5074,0.5034,0.5074,-112.0,0.6855,0.1821,0.3087,5.0,0.0,,2.0
-2026-09-12,Georgia Southe @ Clemson,Moneyline,game_ml,Clemson ML,,draftkings,-1200.0,750.0,Pass,0.7339,-0.205,win,0.0833,0.8271,0.8949,0.7339,-2000.0,0.9129,0.018,-0.011,,-0.0003,,-36.0
-2026-09-12,Georgia Southe @ Clemson,Moneyline,game_ml,Georgia Southe ML,,betrivers,950.0,-2500.0,Pass,0.1729,0.8157,loss,-1.0,0.1729,0.1051,0.1729,1200.0,0.0871,-0.018,-0.0855,,0.0003,price_too_long,36.0
-2026-09-12,Georgia Southe @ Clemson,Spread (ATS),game_ats,Clemson -20.0,-20.0,lowvig,-106.0,-106.0,Pass,0.3806,-0.2603,loss,-1.0,0.3806,0.4992,0.3806,-109.0,0.4033,-0.0959,-0.2162,-3.5,0.0041,,-42.0
-2026-09-12,Georgia Southe @ Clemson,Spread (ATS),game_ats,Georgia Southe +20.0,20.0,lowvig,-106.0,-106.0,Pass,0.6194,0.2037,win,0.9434,0.6194,0.5008,0.6194,-118.0,0.5967,0.0959,0.1596,3.5,-0.0041,,42.0
-2026-09-12,Georgia Southe @ Clemson,Totals,game_total,Over 55.5,55.5,draftkings,-102.0,-118.0,Pass,0.4229,-0.1624,loss,-1.0,0.4229,0.4884,0.4229,-112.0,0.258,-0.2304,-0.4891,-8.0,0.0099,,17.0
-2026-09-12,Georgia Southe @ Clemson,Totals,game_total,Under 55.5,55.5,betrivers,-113.0,-110.0,Strong buy,0.5771,0.0878,win,0.885,0.5771,0.5116,0.5771,-110.0,0.742,0.2304,0.3986,8.0,-0.0099,,-17.0
+2026-09-12,Fordham @ Coastal Caroli,Moneyline,game_ml,Coastal Caroli ML,,fanatics,-9000.0,3000.0,Pass,0.8213,-0.1696,win,0.0111,0.9859,0.9684,0.8213,,,,,,0.0,,
+2026-09-12,Fordham @ Coastal Caroli,Moneyline,game_ml,Fordham ML,,fanduel,3000.0,-10000.0,Pass,0.0141,-0.5644,loss,-1.0,0.0141,0.0316,0.0141,,,,,,0.0,,
+2026-09-12,Fordham @ Coastal Caroli,Spread (ATS),game_ats,Coastal Caroli -34.5,-34.5,bovada,-110.0,-110.0,Pass,0.5055,-0.035,win,0.9091,0.5055,0.5048,0.5055,,,,,,-0.0012,,27.0
+2026-09-12,Fordham @ Coastal Caroli,Spread (ATS),game_ats,Fordham +34.5,34.5,draftkings,-105.0,-115.0,Pass,0.4945,-0.0345,loss,-1.0,0.4945,0.4952,0.4945,,,,,,0.0012,,-27.0
+2026-09-12,Fordham @ Coastal Caroli,Totals,game_total,Over 53.5,53.5,williamhill_us,-108.0,-114.0,Pass,0.4936,-0.0494,loss,-1.0,0.4936,0.4995,0.4936,,,,,,0.0,,-58.0
+2026-09-12,Fordham @ Coastal Caroli,Totals,game_total,Under 53.5,53.5,betrivers,-109.0,-113.0,Pass,0.5064,-0.029,win,0.9174,0.5064,0.5005,0.5064,,,,,,-0.0,,58.0
+2026-09-12,Georgia Southe @ Clemson,Moneyline,game_ml,Clemson ML,,draftkings,-1200.0,750.0,Pass,0.7339,-0.205,win,0.0833,0.8271,0.8949,0.7339,,,,,,-0.0003,,-36.0
+2026-09-12,Georgia Southe @ Clemson,Moneyline,game_ml,Georgia Southe ML,,betrivers,950.0,-2500.0,Pass,0.1729,0.8157,loss,-1.0,0.1729,0.1051,0.1729,,,,,,0.0003,price_too_long,36.0
+2026-09-12,Georgia Southe @ Clemson,Spread (ATS),game_ats,Clemson -20.0,-20.0,lowvig,-106.0,-106.0,Pass,0.3806,-0.2603,loss,-1.0,0.3806,0.4992,0.3806,,,,,,0.0041,,-42.0
+2026-09-12,Georgia Southe @ Clemson,Spread (ATS),game_ats,Georgia Southe +20.0,20.0,lowvig,-106.0,-106.0,Pass,0.6194,0.2037,win,0.9434,0.6194,0.5008,0.6194,,,,,,-0.0041,,42.0
+2026-09-12,Georgia Southe @ Clemson,Totals,game_total,Over 55.5,55.5,draftkings,-102.0,-118.0,Pass,0.4229,-0.1624,loss,-1.0,0.4229,0.4884,0.4229,,,,,,0.0099,,17.0
+2026-09-12,Georgia Southe @ Clemson,Totals,game_total,Under 55.5,55.5,betrivers,-113.0,-110.0,Strong buy,0.5771,0.0878,win,0.885,0.5771,0.5116,0.5771,,,,,,-0.0099,,-17.0
 2026-09-12,Georgia State @ Kennesaw State,Moneyline,game_ml,Georgia State ML,,draftkings,270.0,-340.0,Pass,0.2479,-0.083,win,2.7,0.2479,0.2662,0.2479,255.0,0.2774,0.0112,0.0264,,0.0076,,11.0
 2026-09-12,Georgia State @ Kennesaw State,Moneyline,game_ml,Kennesaw State ML,,betonlineag,-315.0,256.0,Pass,0.6927,-0.0874,loss,-1.0,0.7521,0.7338,0.6927,-295.0,0.7226,-0.0112,-0.048,,-0.0076,,-11.0
 2026-09-12,Georgia State @ Kennesaw State,Spread (ATS),game_ats,Georgia State +8.5,8.5,draftkings,-108.0,-112.0,Pass,0.4421,-0.1486,win,0.9259,0.4421,0.5063,0.4421,102.0,0.5231,0.0168,0.0075,1.5,0.0051,,24.0
 2026-09-12,Georgia State @ Kennesaw State,Spread (ATS),game_ats,Kennesaw State -8.5,-8.5,lowvig,-101.0,-111.0,Pass,0.5579,0.1103,loss,-1.0,0.5579,0.4937,0.5579,-114.0,0.4769,-0.0168,-0.0509,-1.5,-0.0051,,-24.0
 2026-09-12,Georgia State @ Kennesaw State,Totals,game_total,Over 54.5,54.5,draftkings,-108.0,-112.0,Moderate buy,0.5404,0.0409,loss,-1.0,0.5404,0.5028,0.5404,-106.0,0.5305,0.0277,0.0217,1.0,0.0009,,-12.0
 2026-09-12,Georgia State @ Kennesaw State,Totals,game_total,Under 54.5,54.5,lowvig,-103.0,-114.0,Pass,0.4596,-0.0943,win,0.9709,0.4596,0.4972,0.4596,-106.0,0.4695,-0.0277,-0.0747,-1.0,-0.0009,,12.0
-2026-09-12,Grambling Stat @ TCU,Spread (ATS),game_ats,Grambling Stat +43.5,43.5,draftkings,-108.0,-112.0,Pass,0.5001,-0.0368,loss,-1.0,0.5001,0.4979,0.5001,-114.0,0.3005,-0.1974,-0.4213,-8.0,-0.0,,-8.0
-2026-09-12,Grambling Stat @ TCU,Spread (ATS),game_ats,TCU -43.5,-43.5,fanatics,-110.0,-110.0,Pass,0.4999,-0.0456,win,0.9091,0.4999,0.5021,0.4999,-114.0,0.6995,0.1974,0.3354,8.0,0.0,,8.0
-2026-09-12,Grambling Stat @ TCU,Totals,game_total,Over 55.5,55.5,draftkings,100.0,-120.0,Pass,0.4879,-0.0242,win,1.0,0.4879,0.4886,0.4879,-115.0,0.9918,0.5032,0.9836,14.0,0.0,,21.0
-2026-09-12,Grambling Stat @ TCU,Totals,game_total,Under 55.5,55.5,fanduel,-112.0,-108.0,Pass,0.5121,-0.0306,loss,-1.0,0.5121,0.5114,0.5121,143.0,0.0082,-0.5032,-0.9845,-14.0,0.0,,-21.0
-2026-09-12,Holy Cross @ Miami (OH),Moneyline,game_ml,Holy Cross ML,,betmgm,3000.0,-10000.0,Pass,0.0246,-0.2359,loss,-1.0,0.0246,0.0406,0.0246,3500.0,0.0383,-0.0023,0.1873,,-0.0046,,
-2026-09-12,Holy Cross @ Miami (OH),Moneyline,game_ml,Miami (OH) ML,,draftkings,-5000.0,1800.0,Pass,0.8154,-0.1682,win,0.02,0.9754,0.9594,0.8154,-6500.0,0.9617,0.0023,-0.0191,,0.0046,,-69.0
-2026-09-12,Holy Cross @ Miami (OH),Spread (ATS),game_ats,Holy Cross +30.5,30.5,draftkings,-108.0,-112.0,Pass,0.4862,-0.0637,loss,-1.0,0.4862,0.5007,0.4862,100.0,0.0,-0.5007,-1.0,-25.0,0.0029,,
-2026-09-12,Holy Cross @ Miami (OH),Spread (ATS),game_ats,Miami (OH) -30.5,-30.5,bovada,-105.0,-115.0,Pass,0.5138,0.0032,win,0.9524,0.5138,0.4993,0.5138,-120.0,1.0,0.5007,0.9524,25.0,-0.0029,,19.0
-2026-09-12,Holy Cross @ Miami (OH),Totals,game_total,Over 50.5,50.5,betmgm,-108.0,-110.0,Pass,0.5009,-0.0353,win,0.9259,0.5009,0.5002,0.5009,-105.0,0.8541,0.3539,0.6449,12.0,-0.006,,
-2026-09-12,Holy Cross @ Miami (OH),Totals,game_total,Under 50.5,50.5,fanduel,-110.0,-110.0,Pass,0.4991,-0.0472,loss,-1.0,0.4991,0.4998,0.4991,-118.0,0.1459,-0.3539,-0.7215,-12.0,0.006,,50.0
-2026-09-12,Howard @ Indiana,Spread (ATS),game_ats,Howard +57.5,57.5,fanduel,-110.0,-110.0,Pass,0.5014,-0.0428,win,0.9091,0.5014,0.5001,0.5014,-2500.0,0.9629,0.4628,0.8383,2.0,-0.0005,,-8.0
-2026-09-12,Howard @ Indiana,Spread (ATS),game_ats,Indiana -57.5,-57.5,williamhill_us,-109.0,-113.0,Pass,0.4986,-0.0439,loss,-1.0,0.4986,0.4999,0.4986,1120.0,0.0371,-0.4628,-0.9289,-2.0,0.0005,,8.0
-2026-09-12,Howard @ Indiana,Totals,game_total,Over 66.5,66.5,draftkings,-102.0,-118.0,Pass,0.5028,-0.0043,loss,-1.0,0.5028,0.5048,0.5028,1100.0,0.0,-0.5048,-1.0,-11.0,0.0083,,20.0
-2026-09-12,Howard @ Indiana,Totals,game_total,Under 66.5,66.5,betonlineag,-102.0,-118.0,Pass,0.4972,-0.0153,win,0.9804,0.4972,0.4952,0.4972,-2400.0,1.0,0.5048,0.9804,11.0,-0.0083,,-20.0
+2026-09-12,Holy Cross @ Miami (OH),Moneyline,game_ml,Holy Cross ML,,betmgm,3000.0,-10000.0,Pass,0.0246,-0.2359,loss,-1.0,0.0246,0.0406,0.0246,,,,,,-0.0046,,
+2026-09-12,Holy Cross @ Miami (OH),Moneyline,game_ml,Miami (OH) ML,,draftkings,-5000.0,1800.0,Pass,0.8154,-0.1682,win,0.02,0.9754,0.9594,0.8154,,,,,,0.0046,,-69.0
+2026-09-12,Holy Cross @ Miami (OH),Spread (ATS),game_ats,Holy Cross +30.5,30.5,draftkings,-108.0,-112.0,Pass,0.4862,-0.0637,loss,-1.0,0.4862,0.5007,0.4862,,,,,,0.0029,,
+2026-09-12,Holy Cross @ Miami (OH),Spread (ATS),game_ats,Miami (OH) -30.5,-30.5,bovada,-105.0,-115.0,Pass,0.5138,0.0032,win,0.9524,0.5138,0.4993,0.5138,,,,,,-0.0029,,19.0
+2026-09-12,Holy Cross @ Miami (OH),Totals,game_total,Over 50.5,50.5,betmgm,-108.0,-110.0,Pass,0.5009,-0.0353,win,0.9259,0.5009,0.5002,0.5009,,,,,,-0.006,,
+2026-09-12,Holy Cross @ Miami (OH),Totals,game_total,Under 50.5,50.5,fanduel,-110.0,-110.0,Pass,0.4991,-0.0472,loss,-1.0,0.4991,0.4998,0.4991,,,,,,0.006,,50.0
+2026-09-12,Howard @ Indiana,Spread (ATS),game_ats,Howard +57.5,57.5,fanduel,-110.0,-110.0,Pass,0.5014,-0.0428,win,0.9091,0.5014,0.5001,0.5014,,,,,,-0.0005,,-8.0
+2026-09-12,Howard @ Indiana,Spread (ATS),game_ats,Indiana -57.5,-57.5,williamhill_us,-109.0,-113.0,Pass,0.4986,-0.0439,loss,-1.0,0.4986,0.4999,0.4986,,,,,,0.0005,,8.0
+2026-09-12,Howard @ Indiana,Totals,game_total,Over 66.5,66.5,draftkings,-102.0,-118.0,Pass,0.5028,-0.0043,loss,-1.0,0.5028,0.5048,0.5028,,,,,,0.0083,,20.0
+2026-09-12,Howard @ Indiana,Totals,game_total,Under 66.5,66.5,betonlineag,-102.0,-118.0,Pass,0.4972,-0.0153,win,0.9804,0.4972,0.4952,0.4972,,,,,,-0.0083,,-20.0
 2026-09-12,Illinois State @ Northern Illin,Moneyline,game_ml,Illinois State ML,,fanduel,-194.0,160.0,Pass,0.6245,-0.0535,win,0.5155,0.6282,0.6375,0.6245,-140.0,0.5679,-0.0696,-0.1394,,-0.0023,,
 2026-09-12,Illinois State @ Northern Illin,Moneyline,game_ml,Northern Illin ML,,bovada,170.0,-200.0,Pass,0.3718,0.0037,loss,-1.0,0.3718,0.3625,0.3718,124.0,0.4321,0.0696,0.1667,,0.0023,,
 2026-09-12,Illinois State @ Northern Illin,Spread (ATS),game_ats,Illinois State -4.5,-4.5,fanduel,-110.0,-110.0,Pass,0.5175,-0.012,loss,-1.0,0.5175,0.5036,0.5175,-112.0,0.4624,-0.0412,-0.1172,-2.0,-0.0098,,
@@ -349,12 +335,12 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Iowa State @ Iowa,Spread (ATS),game_ats,Iowa State +14.0,14.0,bovada,-105.0,-115.0,Pass,0.4999,-0.0241,win,0.9524,0.4999,0.4997,0.4999,-106.0,0.5013,0.0016,-0.0213,0.0,0.0,,36.0
 2026-09-12,Iowa State @ Iowa,Totals,game_total,Over 41.5,41.5,draftkings,-102.0,-118.0,Pass,0.4904,-0.0289,loss,-1.0,0.4904,0.4893,0.4904,-110.0,0.5358,0.0465,0.0611,1.0,0.0,,66.0
 2026-09-12,Iowa State @ Iowa,Totals,game_total,Under 41.5,41.5,mybookieag,-110.0,-110.0,Pass,0.5096,-0.027,win,0.9091,0.5096,0.5107,0.5096,-103.0,0.4642,-0.0465,-0.1138,-1.0,0.0,,
-2026-09-12,Jacksonville S @ Ohio,Moneyline,game_ml,Jacksonville S ML,,lowvig,115.0,-135.0,Pass,0.5783,0.2433,loss,-1.0,0.5783,0.4528,0.5783,-350.0,0.7777,0.3249,0.6721,,-0.0009,,-8.0
-2026-09-12,Jacksonville S @ Ohio,Moneyline,game_ml,Ohio ML,,draftkings,-130.0,110.0,Pass,0.4217,-0.2539,win,0.7692,0.4217,0.5472,0.4217,425.0,0.2223,-0.3249,-0.6067,,0.0009,,8.0
-2026-09-12,Jacksonville S @ Ohio,Spread (ATS),game_ats,Jacksonville S +2.5,2.5,lowvig,-106.0,-106.0,Pass,0.6304,0.225,win,0.9434,0.6388,0.501,0.6304,100.0,0.725,0.224,0.409,10.0,0.0,,10.0
-2026-09-12,Jacksonville S @ Ohio,Spread (ATS),game_ats,Ohio -2.5,-2.5,bovada,-105.0,-115.0,Pass,0.3612,-0.2948,loss,-1.0,0.3612,0.499,0.3612,-115.0,0.275,-0.224,-0.4631,-10.0,0.0,,-10.0
-2026-09-12,Jacksonville S @ Ohio,Totals,game_total,Over 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.3893,-0.2503,win,0.9259,0.3893,0.5022,0.3893,-106.0,0.5806,0.0784,0.1182,3.0,-0.0021,,-50.0
-2026-09-12,Jacksonville S @ Ohio,Totals,game_total,Under 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.6107,0.1762,loss,-1.0,0.6107,0.4978,0.6107,-118.0,0.4194,-0.0784,-0.1923,-3.0,0.0021,,50.0
+2026-09-12,Jacksonville S @ Ohio,Moneyline,game_ml,Jacksonville S ML,,lowvig,115.0,-135.0,Pass,0.5783,0.2433,loss,-1.0,0.5783,0.4528,0.5783,,,,,,-0.0009,,-8.0
+2026-09-12,Jacksonville S @ Ohio,Moneyline,game_ml,Ohio ML,,draftkings,-130.0,110.0,Pass,0.4217,-0.2539,win,0.7692,0.4217,0.5472,0.4217,,,,,,0.0009,,8.0
+2026-09-12,Jacksonville S @ Ohio,Spread (ATS),game_ats,Jacksonville S +2.5,2.5,lowvig,-106.0,-106.0,Pass,0.6304,0.225,win,0.9434,0.6388,0.501,0.6304,,,,,,0.0,,10.0
+2026-09-12,Jacksonville S @ Ohio,Spread (ATS),game_ats,Ohio -2.5,-2.5,bovada,-105.0,-115.0,Pass,0.3612,-0.2948,loss,-1.0,0.3612,0.499,0.3612,,,,,,0.0,,-10.0
+2026-09-12,Jacksonville S @ Ohio,Totals,game_total,Over 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.3893,-0.2503,win,0.9259,0.3893,0.5022,0.3893,,,,,,-0.0021,,-50.0
+2026-09-12,Jacksonville S @ Ohio,Totals,game_total,Under 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.6107,0.1762,loss,-1.0,0.6107,0.4978,0.6107,,,,,,0.0021,,50.0
 2026-09-12,Lindenwood @ Missouri State,Moneyline,game_ml,Lindenwood ML,,betrivers,750.0,-1430.0,Pass,0.1551,0.3184,loss,-1.0,0.1551,0.1362,0.1551,640.0,0.1408,0.0046,0.1968,,0.0008,,-2.0
 2026-09-12,Lindenwood @ Missouri State,Moneyline,game_ml,Missouri State ML,,fanatics,-850.0,575.0,Pass,0.7437,-0.1688,win,0.1176,0.8449,0.8638,0.7437,-800.0,0.8592,-0.0046,-0.0397,,-0.0008,,2.0
 2026-09-12,Lindenwood @ Missouri State,Spread (ATS),game_ats,Lindenwood +16.5,16.5,fanatics,-105.0,-115.0,Pass,0.5071,-0.0099,loss,-1.0,0.5071,0.5,0.5071,-108.0,0.5021,0.0021,-0.0197,0.0,-0.0038,,74.0
@@ -367,110 +353,98 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Louisiana @ USC,Spread (ATS),game_ats,USC -31.0,-31.0,lowvig,-101.0,-111.0,Pass,0.4521,-0.1003,loss,-1.0,0.4521,0.496,0.4521,-110.0,0.5021,0.0061,-0.0008,0.0,0.0007,,16.0
 2026-09-12,Louisiana @ USC,Totals,game_total,Over 59.5,59.5,lowvig,-103.0,-114.0,Pass,0.6442,0.2696,win,0.9709,0.664,0.4926,0.6442,-110.0,0.4774,-0.0152,-0.0591,-1.0,0.0,,15.0
 2026-09-12,Louisiana @ USC,Totals,game_total,Under 59.5,59.5,betmgm,-108.0,-110.0,Pass,0.336,-0.3528,loss,-1.0,0.336,0.5074,0.336,-105.0,0.5226,0.0152,0.0065,1.0,0.0,,-15.0
-2026-09-12,Louisiana Tech @ LSU,Moneyline,game_ml,LSU ML,,draftkings,-20000.0,3500.0,Pass,0.8078,-0.1882,win,0.005,0.9614,0.9768,0.8078,-15000.0,0.9739,-0.0029,-0.0212,,0.0,,-68.0
-2026-09-12,Louisiana Tech @ LSU,Moneyline,game_ml,Louisiana Tech ML,,betmgm,5000.0,-50000.0,Pass,0.0386,0.9673,loss,-1.0,0.0386,0.0232,0.0386,4000.0,0.0261,0.0029,0.3311,,0.0,,68.0
-2026-09-12,Louisiana Tech @ LSU,Spread (ATS),game_ats,LSU -35.0,-35.0,lowvig,-106.0,-106.0,Pass,0.3449,-0.3297,loss,-1.0,0.3449,0.5015,0.3449,260.0,0.0765,-0.425,-0.8513,-10.5,0.0024,,-20.0
-2026-09-12,Louisiana Tech @ LSU,Spread (ATS),game_ats,Louisiana Tech +35.0,35.0,fanatics,-105.0,-115.0,Pass,0.6393,0.2482,win,0.9524,0.6551,0.4985,0.6393,-140.0,0.9235,0.425,0.803,10.5,-0.0024,,20.0
-2026-09-12,Louisiana Tech @ LSU,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.3456,-0.3344,win,0.9259,0.3456,0.5037,0.3456,-115.0,0.6065,0.1028,0.1681,3.0,0.0,,9.0
-2026-09-12,Louisiana Tech @ LSU,Totals,game_total,Under 55.5,55.5,betmgm,-102.0,-115.0,Pass,0.6389,0.2653,loss,-1.0,0.6544,0.4963,0.6389,-102.0,0.3935,-0.1028,-0.2207,-3.0,0.0,,-9.0
+2026-09-12,Louisiana Tech @ LSU,Moneyline,game_ml,LSU ML,,draftkings,-20000.0,3500.0,Pass,0.8078,-0.1882,win,0.005,0.9614,0.9768,0.8078,,,,,,0.0,,-68.0
+2026-09-12,Louisiana Tech @ LSU,Moneyline,game_ml,Louisiana Tech ML,,betmgm,5000.0,-50000.0,Pass,0.0386,0.9673,loss,-1.0,0.0386,0.0232,0.0386,,,,,,0.0,,68.0
+2026-09-12,Louisiana Tech @ LSU,Spread (ATS),game_ats,LSU -35.0,-35.0,lowvig,-106.0,-106.0,Pass,0.3449,-0.3297,loss,-1.0,0.3449,0.5015,0.3449,,,,,,0.0024,,-20.0
+2026-09-12,Louisiana Tech @ LSU,Spread (ATS),game_ats,Louisiana Tech +35.0,35.0,fanatics,-105.0,-115.0,Pass,0.6393,0.2482,win,0.9524,0.6551,0.4985,0.6393,,,,,,-0.0024,,20.0
+2026-09-12,Louisiana Tech @ LSU,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.3456,-0.3344,win,0.9259,0.3456,0.5037,0.3456,,,,,,0.0,,9.0
+2026-09-12,Louisiana Tech @ LSU,Totals,game_total,Under 55.5,55.5,betmgm,-102.0,-115.0,Pass,0.6389,0.2653,loss,-1.0,0.6544,0.4963,0.6389,,,,,,0.0,,-9.0
 2026-09-12,Maryland @ UConn,Moneyline,game_ml,Maryland ML,,lowvig,-450.0,350.0,Pass,0.691,-0.1555,win,0.2222,0.749,0.7884,0.691,-450.0,0.79,0.0016,-0.0344,,-0.0008,,-32.0
 2026-09-12,Maryland @ UConn,Moneyline,game_ml,UConn ML,,betrivers,390.0,-560.0,Pass,0.251,0.2297,loss,-1.0,0.251,0.2116,0.251,410.0,0.21,-0.0016,0.029,,0.0008,,32.0
 2026-09-12,Maryland @ UConn,Spread (ATS),game_ats,Maryland -11.5,-11.5,draftkings,-108.0,-112.0,Pass,0.4817,-0.0723,win,0.9259,0.4817,0.4993,0.4817,-108.0,0.4993,0.0,-0.0384,0.0,-0.0005,,-38.0
 2026-09-12,Maryland @ UConn,Spread (ATS),game_ats,UConn +11.5,11.5,williamhill_us,-109.0,-110.0,Pass,0.5183,-0.0061,loss,-1.0,0.5183,0.5007,0.5183,-109.0,0.5007,0.0,-0.0399,0.0,0.0005,,38.0
 2026-09-12,Maryland @ UConn,Totals,game_total,Over 52.0,52.0,lowvig,-103.0,-114.0,Pass,0.4681,-0.0774,push,0.0,0.4681,0.4961,0.4681,-108.0,0.5209,0.0248,0.0266,0.5,0.0001,,-55.0
 2026-09-12,Maryland @ UConn,Totals,game_total,Under 52.0,52.0,williamhill_us,-109.0,-110.0,Pass,0.5319,0.0198,push,0.0,0.5319,0.5039,0.5319,-103.0,0.4791,-0.0248,-0.0814,-0.5,-0.0001,,55.0
-2026-09-12,Memphis @ Boise State,Moneyline,game_ml,Boise State ML,,draftkings,-325.0,260.0,Pass,0.68,-0.1107,win,0.3077,0.7291,0.7429,0.68,-120.0,0.5563,-0.1866,-0.2725,,0.0023,,22.0
-2026-09-12,Memphis @ Boise State,Moneyline,game_ml,Memphis ML,,betonlineag,280.0,-350.0,Pass,0.2709,0.0293,loss,-1.0,0.2709,0.2571,0.2709,136.0,0.4437,0.1866,0.6861,,-0.0023,,-22.0
-2026-09-12,Memphis @ Boise State,Spread (ATS),game_ats,Boise State -8.5,-8.5,draftkings,-105.0,-115.0,Pass,0.5289,0.0327,win,0.9524,0.5289,0.498,0.5289,-120.0,0.3776,-0.1204,-0.2628,-6.0,0.0006,,19.0
-2026-09-12,Memphis @ Boise State,Spread (ATS),game_ats,Memphis +8.5,8.5,lowvig,-106.0,-106.0,Pass,0.4711,-0.0845,loss,-1.0,0.4711,0.502,0.4711,108.0,0.6224,0.1204,0.2096,6.0,-0.0006,,-19.0
-2026-09-12,Memphis @ Boise State,Totals,game_total,Over 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.6008,0.1572,win,0.9259,0.6008,0.5024,0.6008,-108.0,0.2637,-0.2387,-0.4921,-7.5,0.0,,24.0
-2026-09-12,Memphis @ Boise State,Totals,game_total,Under 56.0,56.0,bovada,-105.0,-115.0,Pass,0.3992,-0.2207,loss,-1.0,0.3992,0.4976,0.3992,-114.0,0.7363,0.2387,0.4375,7.5,-0.0,,-24.0
-2026-09-12,Mercyhurst @ New Mexico,Spread (ATS),game_ats,Mercyhurst +41.5,41.5,bovada,100.0,-120.0,Pass,0.4979,-0.0043,loss,-1.0,0.4979,0.4942,0.4979,200.0,0.0,-0.4942,-1.0,-21.0,-0.0008,,
-2026-09-12,Mercyhurst @ New Mexico,Spread (ATS),game_ats,New Mexico -41.5,-41.5,betonlineag,-110.0,-110.0,Pass,0.5021,-0.0414,win,0.9091,0.5021,0.5058,0.5021,-205.0,1.0,0.4942,0.9091,21.0,0.0008,,8.0
-2026-09-12,Mercyhurst @ New Mexico,Totals,game_total,Over 53.5,53.5,draftkings,-108.0,-112.0,Pass,0.4994,-0.0382,win,0.9259,0.4994,0.5013,0.4994,-310.0,1.0,0.4987,0.9259,23.0,0.0024,,
-2026-09-12,Mercyhurst @ New Mexico,Totals,game_total,Under 53.5,53.5,williamhill_us,-109.0,-113.0,Pass,0.5006,-0.0401,loss,-1.0,0.5006,0.4987,0.5006,320.0,0.0,-0.4987,-1.0,-23.0,-0.0024,,-15.0
+2026-09-12,Memphis @ Boise State,Moneyline,game_ml,Boise State ML,,draftkings,-325.0,260.0,Pass,0.68,-0.1107,win,0.3077,0.7291,0.7429,0.68,,,,,,0.0023,,22.0
+2026-09-12,Memphis @ Boise State,Moneyline,game_ml,Memphis ML,,betonlineag,280.0,-350.0,Pass,0.2709,0.0293,loss,-1.0,0.2709,0.2571,0.2709,,,,,,-0.0023,,-22.0
+2026-09-12,Memphis @ Boise State,Spread (ATS),game_ats,Boise State -8.5,-8.5,draftkings,-105.0,-115.0,Pass,0.5289,0.0327,win,0.9524,0.5289,0.498,0.5289,,,,,,0.0006,,19.0
+2026-09-12,Memphis @ Boise State,Spread (ATS),game_ats,Memphis +8.5,8.5,lowvig,-106.0,-106.0,Pass,0.4711,-0.0845,loss,-1.0,0.4711,0.502,0.4711,,,,,,-0.0006,,-19.0
+2026-09-12,Memphis @ Boise State,Totals,game_total,Over 56.0,56.0,lowvig,-108.0,-108.0,Pass,0.6008,0.1572,win,0.9259,0.6008,0.5024,0.6008,,,,,,0.0,,24.0
+2026-09-12,Memphis @ Boise State,Totals,game_total,Under 56.0,56.0,bovada,-105.0,-115.0,Pass,0.3992,-0.2207,loss,-1.0,0.3992,0.4976,0.3992,,,,,,-0.0,,-24.0
+2026-09-12,Mercyhurst @ New Mexico,Spread (ATS),game_ats,Mercyhurst +41.5,41.5,bovada,100.0,-120.0,Pass,0.4979,-0.0043,loss,-1.0,0.4979,0.4942,0.4979,,,,,,-0.0008,,
+2026-09-12,Mercyhurst @ New Mexico,Spread (ATS),game_ats,New Mexico -41.5,-41.5,betonlineag,-110.0,-110.0,Pass,0.5021,-0.0414,win,0.9091,0.5021,0.5058,0.5021,,,,,,0.0008,,8.0
+2026-09-12,Mercyhurst @ New Mexico,Totals,game_total,Over 53.5,53.5,draftkings,-108.0,-112.0,Pass,0.4994,-0.0382,win,0.9259,0.4994,0.5013,0.4994,,,,,,0.0024,,
+2026-09-12,Mercyhurst @ New Mexico,Totals,game_total,Under 53.5,53.5,williamhill_us,-109.0,-113.0,Pass,0.5006,-0.0401,loss,-1.0,0.5006,0.4987,0.5006,,,,,,-0.0024,,-15.0
 2026-09-12,Middle Tenness @ Marshall,Moneyline,game_ml,Marshall ML,,lowvig,-500.0,383.0,Pass,0.7103,-0.1477,win,0.2,0.7841,0.808,0.7103,-430.0,0.793,-0.015,-0.0484,,-0.0021,,-16.0
 2026-09-12,Middle Tenness @ Marshall,Moneyline,game_ml,Middle Tenness ML,,bovada,425.0,-600.0,Pass,0.2159,0.1333,loss,-1.0,0.2159,0.192,0.2159,390.0,0.207,0.015,0.0867,,0.0021,,
 2026-09-12,Middle Tenness @ Marshall,Spread (ATS),game_ats,Marshall -13.0,-13.0,lowvig,-106.0,-106.0,Pass,0.4906,-0.0466,loss,-1.0,0.4906,0.4997,0.4906,-106.0,0.4611,-0.0386,-0.1039,-1.5,-0.0005,,-8.0
 2026-09-12,Middle Tenness @ Marshall,Spread (ATS),game_ats,Middle Tenness +13.0,13.0,lowvig,-106.0,-106.0,Pass,0.5094,-0.01,win,0.9434,0.5094,0.5003,0.5094,-106.0,0.5389,0.0386,0.0473,1.5,0.0005,,
 2026-09-12,Middle Tenness @ Marshall,Totals,game_total,Over 57.0,57.0,lowvig,-103.0,-114.0,Pass,0.5638,0.1111,loss,-1.0,0.5638,0.495,0.5638,-105.0,0.4527,-0.0423,-0.1078,-1.5,-0.0,,
 2026-09-12,Middle Tenness @ Marshall,Totals,game_total,Under 57.0,57.0,williamhill_us,-106.0,-114.0,Pass,0.4362,-0.1522,win,0.9434,0.4362,0.505,0.4362,-108.0,0.5473,0.0423,0.0636,1.5,0.0,,28.0
-2026-09-12,Mississippi St @ Minnesota,Moneyline,game_ml,Minnesota ML,,draftkings,-105.0,-115.0,Pass,0.5986,0.1686,loss,-1.0,0.5986,0.4993,0.5986,100.0,0.496,-0.0033,-0.0316,,0.0,,-27.0
-2026-09-12,Mississippi St @ Minnesota,Moneyline,game_ml,Mississippi St ML,,fanduel,-105.0,-114.0,Pass,0.4014,-0.2162,win,0.9524,0.4014,0.5007,0.4014,-109.0,0.504,0.0033,-0.016,,-0.0,,27.0
-2026-09-12,Mississippi St @ Minnesota,Spread (ATS),game_ats,Minnesota +1.5,1.5,mybookieag,-110.0,-110.0,Pass,0.628,0.1989,loss,-1.0,0.6345,0.5113,0.628,235.0,0.0,-0.5113,-1.0,-30.0,-0.0261,,8.0
-2026-09-12,Mississippi St @ Minnesota,Spread (ATS),game_ats,Mississippi St -1.5,-1.5,fanduel,100.0,-122.0,Pass,0.3655,-0.2691,win,1.0,0.3655,0.4887,0.3655,-157.0,1.0,0.5113,1.0,30.0,0.0261,,-8.0
-2026-09-12,Mississippi St @ Minnesota,Totals,game_total,Over 54.5,54.5,lowvig,-108.0,-108.0,Pass,0.4013,-0.2271,loss,-1.0,0.4013,0.5036,0.4013,-179.0,0.72,0.2164,0.3867,3.0,-0.0004,,-16.0
-2026-09-12,Mississippi St @ Minnesota,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.5987,0.1689,win,0.9524,0.5987,0.4964,0.5987,165.0,0.28,-0.2164,-0.4533,-3.0,0.0004,,16.0
+2026-09-12,Mississippi St @ Minnesota,Moneyline,game_ml,Minnesota ML,,draftkings,-105.0,-115.0,Pass,0.5986,0.1686,loss,-1.0,0.5986,0.4993,0.5986,,,,,,0.0,,-27.0
+2026-09-12,Mississippi St @ Minnesota,Moneyline,game_ml,Mississippi St ML,,fanduel,-105.0,-114.0,Pass,0.4014,-0.2162,win,0.9524,0.4014,0.5007,0.4014,,,,,,-0.0,,27.0
+2026-09-12,Mississippi St @ Minnesota,Spread (ATS),game_ats,Minnesota +1.5,1.5,mybookieag,-110.0,-110.0,Pass,0.628,0.1989,loss,-1.0,0.6345,0.5113,0.628,,,,,,-0.0261,,8.0
+2026-09-12,Mississippi St @ Minnesota,Spread (ATS),game_ats,Mississippi St -1.5,-1.5,fanduel,100.0,-122.0,Pass,0.3655,-0.2691,win,1.0,0.3655,0.4887,0.3655,,,,,,0.0261,,-8.0
+2026-09-12,Mississippi St @ Minnesota,Totals,game_total,Over 54.5,54.5,lowvig,-108.0,-108.0,Pass,0.4013,-0.2271,loss,-1.0,0.4013,0.5036,0.4013,,,,,,-0.0004,,-16.0
+2026-09-12,Mississippi St @ Minnesota,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.5987,0.1689,win,0.9524,0.5987,0.4964,0.5987,,,,,,0.0004,,16.0
 2026-09-12,Monmouth @ Western Michig,Moneyline,game_ml,Monmouth ML,,fanduel,2000.0,-7000.0,Pass,0.0434,-0.0876,loss,-1.0,0.0434,0.0606,0.0434,3500.0,0.0272,-0.0334,-0.4288,,-0.0009,,
 2026-09-12,Monmouth @ Western Michig,Moneyline,game_ml,Western Michig ML,,fanatics,-3000.0,1500.0,Pass,0.8051,-0.1681,win,0.0333,0.9566,0.9394,0.8051,-20000.0,0.9728,0.0334,0.0052,,0.0009,,
 2026-09-12,Monmouth @ Western Michig,Spread (ATS),game_ats,Monmouth +27.5,27.5,draftkings,-105.0,-115.0,Pass,0.4991,-0.0256,loss,-1.0,0.4991,0.4955,0.4991,-114.0,0.3504,-0.1451,-0.3159,-6.0,-0.002,,
 2026-09-12,Monmouth @ Western Michig,Spread (ATS),game_ats,Western Michig -27.5,-27.5,fanduel,-110.0,-110.0,Pass,0.5009,-0.0437,win,0.9091,0.5009,0.5045,0.5009,-114.0,0.6496,0.1451,0.2401,6.0,0.002,,
 2026-09-12,Monmouth @ Western Michig,Totals,game_total,Over 52.5,52.5,fanatics,-110.0,-110.0,Pass,0.5007,-0.0441,win,0.9091,0.5007,0.5027,0.5007,-105.0,0.4934,-0.0093,-0.0581,0.0,0.0027,,
 2026-09-12,Monmouth @ Western Michig,Totals,game_total,Under 52.5,52.5,williamhill_us,-105.0,-118.0,Pass,0.4993,-0.0252,loss,-1.0,0.4993,0.4973,0.4993,-113.0,0.5066,0.0093,-0.0109,0.0,-0.0027,,
-2026-09-12,Montana State @ Nevada,Moneyline,game_ml,Montana State ML,,fanduel,-162.0,134.0,Pass,0.5841,-0.0553,win,0.6173,0.5841,0.6012,0.5841,-500.0,0.8154,0.2142,0.3187,,0.0026,,-29.0
-2026-09-12,Montana State @ Nevada,Moneyline,game_ml,Nevada ML,,bovada,150.0,-175.0,Pass,0.4158,0.0396,loss,-1.0,0.4158,0.3988,0.4158,514.0,0.1846,-0.2142,-0.5385,,-0.0026,,29.0
-2026-09-12,Montana State @ Nevada,Spread (ATS),game_ats,Montana State -3.5,-3.5,fanduel,100.0,-122.0,Pass,0.4991,-0.0018,win,1.0,0.4991,0.4855,0.4991,-111.0,0.7271,0.2416,0.4542,9.0,0.0006,,-8.0
-2026-09-12,Montana State @ Nevada,Spread (ATS),game_ats,Nevada +3.5,3.5,draftkings,-112.0,-108.0,Pass,0.5009,-0.0519,loss,-1.0,0.5009,0.5145,0.5009,-106.0,0.2729,-0.2416,-0.4834,-9.0,-0.0006,,8.0
-2026-09-12,Montana State @ Nevada,Totals,game_total,Over 50.5,50.5,williamhill_us,-102.0,-120.0,Pass,0.499,-0.0118,loss,-1.0,0.499,0.4898,0.499,-112.0,0.6316,0.1418,0.2508,4.0,0.02,,13.0
-2026-09-12,Montana State @ Nevada,Totals,game_total,Under 50.5,50.5,fanduel,-112.0,-108.0,Pass,0.501,-0.0516,win,0.8929,0.501,0.5102,0.501,-102.0,0.3684,-0.1418,-0.3027,-4.0,-0.02,,-13.0
-2026-09-12,Navy @ Florida Atlant,Moneyline,game_ml,Florida Atlant ML,,betonlineag,165.0,-190.0,Pass,0.2962,-0.2152,win,1.65,0.2962,0.3664,0.2962,164.0,0.3703,0.0039,-0.0187,,-0.0,,
-2026-09-12,Navy @ Florida Atlant,Moneyline,game_ml,Navy ML,,betonlineag,-190.0,165.0,Pass,0.6661,0.0167,loss,-1.0,0.7038,0.6336,0.6661,-185.0,0.6297,-0.0039,-0.0389,,0.0,ml_no_sharp_money,-45.0
-2026-09-12,Navy @ Florida Atlant,Spread (ATS),game_ats,Florida Atlant +4.0,4.0,bovada,-105.0,-115.0,Pass,0.3856,-0.2473,win,0.9524,0.3856,0.4987,0.3856,850.0,0.4304,-0.0683,-0.1597,12.5,0.0015,,
-2026-09-12,Navy @ Florida Atlant,Spread (ATS),game_ats,Navy -4.0,-4.0,lowvig,-106.0,-106.0,Pass,0.6144,0.1941,loss,-1.0,0.6144,0.5013,0.6144,-1100.0,0.5696,0.0683,0.107,-12.5,-0.0015,,-46.0
-2026-09-12,Navy @ Florida Atlant,Totals,game_total,Over 58.5,58.5,lowvig,-105.0,-112.0,Pass,0.6639,0.2962,win,0.9524,0.6998,0.5024,0.6639,550.0,0.4595,-0.0429,-0.1029,10.0,0.0,,29.0
-2026-09-12,Navy @ Florida Atlant,Totals,game_total,Under 58.5,58.5,draftkings,-105.0,-115.0,Pass,0.3002,-0.4139,loss,-1.0,0.3002,0.4976,0.3002,-770.0,0.5405,0.0429,0.0553,-10.0,-0.0,,
-2026-09-12,New Mexico Sta @ Hawaii,Moneyline,game_ml,Hawaii ML,,betrivers,-295.0,220.0,Pass,0.6833,-0.0851,win,0.339,0.735,0.724,0.6833,-285.0,0.7234,-0.0006,-0.0314,,0.0029,,-60.0
-2026-09-12,New Mexico Sta @ Hawaii,Moneyline,game_ml,New Mexico Sta ML,,draftkings,260.0,-325.0,Pass,0.265,-0.0462,loss,-1.0,0.265,0.276,0.265,255.0,0.2766,0.0006,-0.0042,,-0.0029,,60.0
-2026-09-12,New Mexico Sta @ Hawaii,Spread (ATS),game_ats,Hawaii -7.0,-7.0,betus,-110.0,-110.0,Pass,0.5752,0.098,win,0.9091,0.5752,0.5107,0.5752,104.0,0.4972,-0.0135,-0.0508,0.5,0.0034,,21.0
-2026-09-12,New Mexico Sta @ Hawaii,Spread (ATS),game_ats,New Mexico Sta +7.0,7.0,draftkings,100.0,-120.0,Pass,0.4248,-0.1503,loss,-1.0,0.4248,0.4893,0.4248,-110.0,0.5028,0.0135,0.0056,-0.5,-0.0034,,-21.0
-2026-09-12,New Mexico Sta @ Hawaii,Totals,game_total,Over 50.0,50.0,betus,-110.0,-110.0,Pass,0.5184,-0.0103,loss,-1.0,0.5184,0.5074,0.5184,-108.0,0.5148,0.0074,-0.0172,0.5,0.0025,,-13.0
-2026-09-12,New Mexico Sta @ Hawaii,Totals,game_total,Under 50.0,50.0,lowvig,-103.0,-114.0,Pass,0.4816,-0.0509,win,0.9709,0.4816,0.4926,0.4816,-110.0,0.4852,-0.0074,-0.0437,-0.5,-0.0025,,13.0
-2026-09-12,North Dakota S @ Air Force,Moneyline,game_ml,Air Force ML,,betus,110.0,-130.0,Moderate buy,0.4922,0.0336,loss,-1.0,0.4922,0.4635,0.4922,650.0,0.1774,-0.2861,-0.6275,,-0.0004,,37.0
-2026-09-12,North Dakota S @ Air Force,Moneyline,game_ml,North Dakota S ML,,bovada,-120.0,100.0,Pass,0.5078,-0.069,win,0.8333,0.5078,0.5365,0.5078,-330.0,0.8226,0.2861,0.5081,,0.0004,,-37.0
-2026-09-12,North Dakota S @ Air Force,Spread (ATS),game_ats,Air Force +2.0,2.0,lowvig,-106.0,-106.0,Strong buy,0.5432,0.0556,loss,-1.0,0.5432,0.5017,0.5432,-108.0,0.2091,-0.2926,-0.5936,-11.5,-0.0003,,25.0
-2026-09-12,North Dakota S @ Air Force,Spread (ATS),game_ats,North Dakota S -2.0,-2.0,bovada,-105.0,-115.0,Pass,0.4568,-0.1081,win,0.9524,0.4568,0.4983,0.4568,-110.0,0.7909,0.2926,0.5441,11.5,0.0003,,-25.0
-2026-09-12,North Dakota S @ Air Force,Totals,game_total,Over 47.0,47.0,lowvig,-108.0,-108.0,Strong buy,0.5471,0.0536,win,0.9259,0.5471,0.5008,0.5471,-108.0,0.577,0.0762,0.1113,2.5,-0.0135,,15.0
-2026-09-12,North Dakota S @ Air Force,Totals,game_total,Under 47.0,47.0,williamhill_us,-107.0,-113.0,Pass,0.4529,-0.1238,loss,-1.0,0.4529,0.4992,0.4529,-110.0,0.423,-0.0762,-0.1817,-2.5,0.0135,,-15.0
-2026-09-12,Northern Color @ Wyoming,Moneyline,game_ml,Northern Color ML,,fanduel,1280.0,-3500.0,Pass,0.0792,0.093,loss,-1.0,0.0792,0.0813,0.0792,-330.0,0.7476,0.6663,9.3169,,-0.0011,,
-2026-09-12,Northern Color @ Wyoming,Moneyline,game_ml,Wyoming ML,,draftkings,-1650.0,950.0,Pass,0.7854,-0.167,win,0.0606,0.9208,0.9187,0.7854,303.0,0.2524,-0.6663,-0.7323,,0.0011,,-41.0
-2026-09-12,Northern Color @ Wyoming,Spread (ATS),game_ats,Northern Color +23.5,23.5,fanduel,-110.0,-110.0,Pass,0.522,-0.0034,win,0.9091,0.522,0.5143,0.522,-122.0,1.0,0.4857,0.9091,29.0,0.0098,,
-2026-09-12,Northern Color @ Wyoming,Spread (ATS),game_ats,Wyoming -23.5,-23.5,betonlineag,100.0,-120.0,Pass,0.478,-0.044,loss,-1.0,0.478,0.4857,0.478,115.0,0.0,-0.4857,-1.0,-29.0,-0.0098,,-31.0
-2026-09-12,Northern Color @ Wyoming,Totals,game_total,Over 47.5,47.5,draftkings,-105.0,-115.0,Pass,0.5004,-0.023,loss,-1.0,0.5004,0.4962,0.5004,-111.0,0.0,-0.4962,-1.0,-18.0,-0.0009,,
-2026-09-12,Northern Color @ Wyoming,Totals,game_total,Under 47.5,47.5,fanatics,-110.0,-110.0,Pass,0.4996,-0.0462,win,0.9091,0.4996,0.5038,0.4996,115.0,1.0,0.4962,0.9091,18.0,0.0009,,45.0
+2026-09-12,Montana State @ Nevada,Moneyline,game_ml,Montana State ML,,fanduel,-162.0,134.0,Pass,0.5841,-0.0553,win,0.6173,0.5841,0.6012,0.5841,,,,,,0.0026,,-29.0
+2026-09-12,Montana State @ Nevada,Moneyline,game_ml,Nevada ML,,bovada,150.0,-175.0,Pass,0.4158,0.0396,loss,-1.0,0.4158,0.3988,0.4158,,,,,,-0.0026,,29.0
+2026-09-12,Montana State @ Nevada,Spread (ATS),game_ats,Montana State -3.5,-3.5,fanduel,100.0,-122.0,Pass,0.4991,-0.0018,win,1.0,0.4991,0.4855,0.4991,,,,,,0.0006,,-8.0
+2026-09-12,Montana State @ Nevada,Spread (ATS),game_ats,Nevada +3.5,3.5,draftkings,-112.0,-108.0,Pass,0.5009,-0.0519,loss,-1.0,0.5009,0.5145,0.5009,,,,,,-0.0006,,8.0
+2026-09-12,Montana State @ Nevada,Totals,game_total,Over 50.5,50.5,williamhill_us,-102.0,-120.0,Pass,0.499,-0.0118,loss,-1.0,0.499,0.4898,0.499,,,,,,0.02,,13.0
+2026-09-12,Montana State @ Nevada,Totals,game_total,Under 50.5,50.5,fanduel,-112.0,-108.0,Pass,0.501,-0.0516,win,0.8929,0.501,0.5102,0.501,,,,,,-0.02,,-13.0
+2026-09-12,Navy @ Florida Atlant,Moneyline,game_ml,Florida Atlant ML,,betonlineag,165.0,-190.0,Pass,0.2962,-0.2152,win,1.65,0.2962,0.3664,0.2962,,,,,,-0.0,,
+2026-09-12,Navy @ Florida Atlant,Moneyline,game_ml,Navy ML,,betonlineag,-190.0,165.0,Pass,0.6661,0.0167,loss,-1.0,0.7038,0.6336,0.6661,,,,,,0.0,ml_no_sharp_money,-45.0
+2026-09-12,Navy @ Florida Atlant,Spread (ATS),game_ats,Florida Atlant +4.0,4.0,bovada,-105.0,-115.0,Pass,0.3856,-0.2473,win,0.9524,0.3856,0.4987,0.3856,,,,,,0.0015,,
+2026-09-12,Navy @ Florida Atlant,Spread (ATS),game_ats,Navy -4.0,-4.0,lowvig,-106.0,-106.0,Pass,0.6144,0.1941,loss,-1.0,0.6144,0.5013,0.6144,,,,,,-0.0015,,-46.0
+2026-09-12,Navy @ Florida Atlant,Totals,game_total,Over 58.5,58.5,lowvig,-105.0,-112.0,Pass,0.6639,0.2962,win,0.9524,0.6998,0.5024,0.6639,,,,,,0.0,,29.0
+2026-09-12,Navy @ Florida Atlant,Totals,game_total,Under 58.5,58.5,draftkings,-105.0,-115.0,Pass,0.3002,-0.4139,loss,-1.0,0.3002,0.4976,0.3002,,,,,,-0.0,,
+2026-09-12,North Dakota S @ Air Force,Moneyline,game_ml,Air Force ML,,betus,110.0,-130.0,Moderate buy,0.4922,0.0336,loss,-1.0,0.4922,0.4635,0.4922,,,,,,-0.0004,,37.0
+2026-09-12,North Dakota S @ Air Force,Moneyline,game_ml,North Dakota S ML,,bovada,-120.0,100.0,Pass,0.5078,-0.069,win,0.8333,0.5078,0.5365,0.5078,,,,,,0.0004,,-37.0
+2026-09-12,North Dakota S @ Air Force,Spread (ATS),game_ats,Air Force +2.0,2.0,lowvig,-106.0,-106.0,Strong buy,0.5432,0.0556,loss,-1.0,0.5432,0.5017,0.5432,,,,,,-0.0003,,25.0
+2026-09-12,North Dakota S @ Air Force,Spread (ATS),game_ats,North Dakota S -2.0,-2.0,bovada,-105.0,-115.0,Pass,0.4568,-0.1081,win,0.9524,0.4568,0.4983,0.4568,,,,,,0.0003,,-25.0
+2026-09-12,North Dakota S @ Air Force,Totals,game_total,Over 47.0,47.0,lowvig,-108.0,-108.0,Strong buy,0.5471,0.0536,win,0.9259,0.5471,0.5008,0.5471,,,,,,-0.0135,,15.0
+2026-09-12,North Dakota S @ Air Force,Totals,game_total,Under 47.0,47.0,williamhill_us,-107.0,-113.0,Pass,0.4529,-0.1238,loss,-1.0,0.4529,0.4992,0.4529,,,,,,0.0135,,-15.0
+2026-09-12,Northern Color @ Wyoming,Moneyline,game_ml,Northern Color ML,,fanduel,1280.0,-3500.0,Pass,0.0792,0.093,loss,-1.0,0.0792,0.0813,0.0792,,,,,,-0.0011,,
+2026-09-12,Northern Color @ Wyoming,Moneyline,game_ml,Wyoming ML,,draftkings,-1650.0,950.0,Pass,0.7854,-0.167,win,0.0606,0.9208,0.9187,0.7854,,,,,,0.0011,,-41.0
+2026-09-12,Northern Color @ Wyoming,Spread (ATS),game_ats,Northern Color +23.5,23.5,fanduel,-110.0,-110.0,Pass,0.522,-0.0034,win,0.9091,0.522,0.5143,0.522,,,,,,0.0098,,
+2026-09-12,Northern Color @ Wyoming,Spread (ATS),game_ats,Wyoming -23.5,-23.5,betonlineag,100.0,-120.0,Pass,0.478,-0.044,loss,-1.0,0.478,0.4857,0.478,,,,,,-0.0098,,-31.0
+2026-09-12,Northern Color @ Wyoming,Totals,game_total,Over 47.5,47.5,draftkings,-105.0,-115.0,Pass,0.5004,-0.023,loss,-1.0,0.5004,0.4962,0.5004,,,,,,-0.0009,,
+2026-09-12,Northern Color @ Wyoming,Totals,game_total,Under 47.5,47.5,fanatics,-110.0,-110.0,Pass,0.4996,-0.0462,win,0.9091,0.4996,0.5038,0.4996,,,,,,0.0009,,45.0
 2026-09-12,Ohio State @ Texas,Moneyline,game_ml,Ohio State ML,,lowvig,110.0,-130.0,Pass,0.4873,0.0233,loss,-1.0,0.4873,0.4697,0.4873,126.0,0.5016,0.0319,0.0534,,-0.0007,,-7.0
 2026-09-12,Ohio State @ Texas,Moneyline,game_ml,Texas ML,,fanduel,-118.0,100.0,Pass,0.5127,-0.0528,win,0.8475,0.5127,0.5303,0.5127,102.0,0.4984,-0.0319,-0.0792,,0.0007,,7.0
 2026-09-12,Ohio State @ Texas,Spread (ATS),game_ats,Ohio State +1.5,1.5,fanduel,-108.0,-112.0,Moderate buy,0.525,0.0111,win,0.9259,0.525,0.4984,0.525,110.0,0.5173,0.0189,-0.0037,3.0,0.0,,-9.0
 2026-09-12,Ohio State @ Texas,Spread (ATS),game_ats,Texas -1.5,-1.5,fanatics,-110.0,-110.0,Pass,0.475,-0.0931,loss,-1.0,0.475,0.5016,0.475,-150.0,0.4827,-0.0189,-0.0785,-3.0,-0.0,,9.0
 2026-09-12,Ohio State @ Texas,Totals,game_total,Over 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.2663,-0.487,loss,-1.0,0.2663,0.5029,0.2663,-150.0,0.3734,-0.1295,-0.2809,-6.0,0.0004,,27.0
 2026-09-12,Ohio State @ Texas,Totals,game_total,Under 49.5,49.5,fanduel,-105.0,-115.0,Pass,0.6825,0.3325,win,0.9524,0.7337,0.4971,0.6825,110.0,0.6266,0.1295,0.2234,6.0,-0.0004,,-27.0
-2026-09-12,Oklahoma @ Michigan,Moneyline,game_ml,Michigan ML,,betonlineag,183.0,-215.0,Pass,0.3911,0.1067,win,1.83,0.3911,0.3476,0.3911,140.0,0.4248,0.0772,0.2022,,-0.0023,ml_no_sharp_money,-39.0
-2026-09-12,Oklahoma @ Michigan,Moneyline,game_ml,Oklahoma ML,,fanduel,-200.0,172.0,Pass,0.6089,-0.0866,loss,-1.0,0.6089,0.6524,0.6089,-135.0,0.5752,-0.0772,-0.1372,,0.0023,,39.0
-2026-09-12,Oklahoma @ Michigan,Spread (ATS),game_ats,Michigan +4.5,4.5,fanatics,-105.0,-115.0,Pass,0.5022,-0.0195,win,0.9524,0.5022,0.4963,0.5022,108.0,0.5224,0.0261,0.0199,2.0,-0.0049,,40.0
-2026-09-12,Oklahoma @ Michigan,Spread (ATS),game_ats,Oklahoma -4.5,-4.5,lowvig,-106.0,-106.0,Pass,0.4978,-0.0326,loss,-1.0,0.4978,0.5037,0.4978,-120.0,0.4776,-0.0261,-0.0718,-2.0,0.0049,,-40.0
-2026-09-12,Oklahoma @ Michigan,Totals,game_total,Over 43.5,43.5,fanduel,-108.0,-112.0,Pass,0.3797,-0.2687,loss,-1.0,0.3797,0.502,0.3797,120.0,0.0,-0.502,-1.0,-16.0,-0.0002,,9.0
-2026-09-12,Oklahoma @ Michigan,Totals,game_total,Under 43.5,43.5,lowvig,-103.0,-114.0,Pass,0.6202,0.2222,win,0.9709,0.6203,0.498,0.6202,-112.0,1.0,0.502,0.9709,16.0,0.0002,,-9.0
-2026-09-12,Old Dominion @ Virginia Tech,Moneyline,game_ml,Old Dominion ML,,betrivers,850.0,-2000.0,Pass,0.1119,0.0635,loss,-1.0,0.1119,0.1087,0.1119,850.0,0.1094,0.0007,0.0393,,0.0,,-49.0
-2026-09-12,Old Dominion @ Virginia Tech,Moneyline,game_ml,Virginia Tech ML,,draftkings,-1200.0,750.0,Pass,0.7674,-0.1686,win,0.0833,0.8881,0.8913,0.7674,-1200.0,0.8906,-0.0007,-0.0352,,-0.0,,49.0
-2026-09-12,Old Dominion @ Virginia Tech,Spread (ATS),game_ats,Old Dominion +19.5,19.5,lowvig,-101.0,-111.0,Pass,0.4988,-0.0073,loss,-1.0,0.4988,0.4949,0.4988,136.0,0.1491,-0.3458,-0.7033,-11.0,0.0,,19.0
-2026-09-12,Old Dominion @ Virginia Tech,Spread (ATS),game_ats,Virginia Tech -19.5,-19.5,draftkings,-108.0,-112.0,Pass,0.5012,-0.0347,win,0.9259,0.5012,0.5051,0.5012,-141.0,0.8509,0.3458,0.6388,11.0,0.0,,-19.0
-2026-09-12,Old Dominion @ Virginia Tech,Totals,game_total,Over 47.5,47.5,fanduel,-110.0,-110.0,Pass,0.5015,-0.0425,win,0.9091,0.5015,0.5111,0.5015,-123.0,0.8948,0.3837,0.7083,12.0,-0.0009,,-8.0
-2026-09-12,Old Dominion @ Virginia Tech,Totals,game_total,Under 47.5,47.5,draftkings,100.0,-120.0,Pass,0.4985,-0.003,loss,-1.0,0.4985,0.4889,0.4985,102.0,0.1052,-0.3837,-0.7896,-12.0,0.0009,,8.0
-2026-09-12,Oregon @ Oklahoma State,Moneyline,game_ml,Oklahoma State ML,,betus,1250.0,-2800.0,Pass,0.1137,0.5349,win,12.5,0.1137,0.0785,0.1137,185.0,0.4565,0.378,5.1627,,-0.0008,price_too_long,-49.0
-2026-09-12,Oregon @ Oklahoma State,Moneyline,game_ml,Oregon ML,,betmgm,-2000.0,1200.0,Pass,0.7665,-0.1952,loss,-1.0,0.8863,0.9215,0.7665,-118.0,0.5435,-0.378,-0.4293,,0.0008,,49.0
-2026-09-12,Oregon @ Oklahoma State,Spread (ATS),game_ats,Oklahoma State +23.5,23.5,lowvig,-103.0,-109.0,Pass,0.6062,0.1948,win,0.9709,0.6062,0.4996,0.6062,-120.0,1.0,0.5004,0.9709,22.0,-0.0017,,-10.0
-2026-09-12,Oregon @ Oklahoma State,Spread (ATS),game_ats,Oregon -23.5,-23.5,fanduel,-105.0,-115.0,Pass,0.3938,-0.2312,loss,-1.0,0.3938,0.5004,0.3938,106.0,0.0,-0.5004,-1.0,-22.0,0.0017,,10.0
-2026-09-12,Oregon @ Oklahoma State,Totals,game_total,Over 54.5,54.5,bovada,-105.0,-115.0,Pass,0.4908,-0.0417,win,0.9524,0.4908,0.5038,0.4908,-105.0,0.9555,0.4517,0.8655,15.0,-0.0065,,-31.0
-2026-09-12,Oregon @ Oklahoma State,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.5092,-0.0059,loss,-1.0,0.5092,0.4962,0.5092,-112.0,0.0445,-0.4517,-0.9131,-15.0,0.0065,,31.0
-2026-09-12,Penn State Nit @ Temple,Moneyline,game_ml,Penn State Nit ML,,williamhill_us,-2500.0,1200.0,Pass,0.7921,-0.1762,win,0.04,0.933,0.9293,0.7921,-2500.0,0.9305,0.0012,-0.0323,,0.0005,,-12.0
-2026-09-12,Penn State Nit @ Temple,Moneyline,game_ml,Temple ML,,fanduel,1400.0,-4000.0,Pass,0.067,0.0054,loss,-1.0,0.067,0.0707,0.067,1450.0,0.0695,-0.0012,0.0425,,-0.0005,,12.0
-2026-09-12,Penn State Nit @ Temple,Spread (ATS),game_ats,Penn State Nit -24.0,-24.0,lowvig,-106.0,-106.0,Pass,0.4983,-0.0317,loss,-1.0,0.4983,0.499,0.4983,1720.0,0.0937,-0.4053,-0.8179,-5.5,-0.0005,,-29.0
-2026-09-12,Penn State Nit @ Temple,Spread (ATS),game_ats,Temple +24.0,24.0,lowvig,-106.0,-106.0,Pass,0.5017,-0.0249,win,0.9434,0.5017,0.501,0.5017,-124.0,0.9063,0.4053,0.7613,5.5,0.0005,,29.0
-2026-09-12,Penn State Nit @ Temple,Totals,game_total,Over 51.0,51.0,lowvig,-108.0,-108.0,Pass,0.4951,-0.0464,loss,-1.0,0.4951,0.4992,0.4951,1060.0,0.0,-0.4992,-1.0,-14.5,0.0,,-25.0
-2026-09-12,Penn State Nit @ Temple,Totals,game_total,Under 51.0,51.0,lowvig,-108.0,-108.0,Pass,0.5049,-0.0276,win,0.9259,0.5049,0.5008,0.5049,-2100.0,1.0,0.4992,0.9259,14.5,0.0,,25.0
-2026-09-12,Prairie View A @ Baylor,Spread (ATS),game_ats,Baylor -37.5,-37.5,draftkings,-105.0,-115.0,Pass,0.5031,-0.0177,win,0.9524,0.5031,0.497,0.5031,-143.0,0.7564,0.2594,0.4768,7.0,-0.0002,,-12.0
-2026-09-12,Prairie View A @ Baylor,Spread (ATS),game_ats,Prairie View A +37.5,37.5,fanduel,-104.0,-118.0,Pass,0.4969,-0.0254,loss,-1.0,0.4969,0.503,0.4969,134.0,0.2436,-0.2594,-0.5222,-7.0,0.0002,,
-2026-09-12,Prairie View A @ Baylor,Totals,game_total,Over 55.5,55.5,fanatics,-110.0,-110.0,Pass,0.5014,-0.0427,loss,-1.0,0.5014,0.5017,0.5014,-115.0,0.4596,-0.0421,-0.1226,-2.0,0.0,,
-2026-09-12,Prairie View A @ Baylor,Totals,game_total,Under 55.5,55.5,fanduel,-105.0,-115.0,Pass,0.4986,-0.0266,win,0.9524,0.4986,0.4983,0.4986,102.0,0.5404,0.0421,0.0551,2.0,0.0,,21.0
+2026-09-12,Oklahoma @ Michigan,Moneyline,game_ml,Michigan ML,,betonlineag,183.0,-215.0,Pass,0.3911,0.1067,win,1.83,0.3911,0.3476,0.3911,,,,,,-0.0023,ml_no_sharp_money,-39.0
+2026-09-12,Oklahoma @ Michigan,Moneyline,game_ml,Oklahoma ML,,fanduel,-200.0,172.0,Pass,0.6089,-0.0866,loss,-1.0,0.6089,0.6524,0.6089,,,,,,0.0023,,39.0
+2026-09-12,Oklahoma @ Michigan,Spread (ATS),game_ats,Michigan +4.5,4.5,fanatics,-105.0,-115.0,Pass,0.5022,-0.0195,win,0.9524,0.5022,0.4963,0.5022,,,,,,-0.0049,,40.0
+2026-09-12,Oklahoma @ Michigan,Spread (ATS),game_ats,Oklahoma -4.5,-4.5,lowvig,-106.0,-106.0,Pass,0.4978,-0.0326,loss,-1.0,0.4978,0.5037,0.4978,,,,,,0.0049,,-40.0
+2026-09-12,Oklahoma @ Michigan,Totals,game_total,Over 43.5,43.5,fanduel,-108.0,-112.0,Pass,0.3797,-0.2687,loss,-1.0,0.3797,0.502,0.3797,,,,,,-0.0002,,9.0
+2026-09-12,Oklahoma @ Michigan,Totals,game_total,Under 43.5,43.5,lowvig,-103.0,-114.0,Pass,0.6202,0.2222,win,0.9709,0.6203,0.498,0.6202,,,,,,0.0002,,-9.0
+2026-09-12,Old Dominion @ Virginia Tech,Moneyline,game_ml,Old Dominion ML,,betrivers,850.0,-2000.0,Pass,0.1119,0.0635,loss,-1.0,0.1119,0.1087,0.1119,,,,,,0.0,,-49.0
+2026-09-12,Old Dominion @ Virginia Tech,Moneyline,game_ml,Virginia Tech ML,,draftkings,-1200.0,750.0,Pass,0.7674,-0.1686,win,0.0833,0.8881,0.8913,0.7674,,,,,,-0.0,,49.0
+2026-09-12,Old Dominion @ Virginia Tech,Spread (ATS),game_ats,Old Dominion +19.5,19.5,lowvig,-101.0,-111.0,Pass,0.4988,-0.0073,loss,-1.0,0.4988,0.4949,0.4988,,,,,,0.0,,19.0
+2026-09-12,Old Dominion @ Virginia Tech,Spread (ATS),game_ats,Virginia Tech -19.5,-19.5,draftkings,-108.0,-112.0,Pass,0.5012,-0.0347,win,0.9259,0.5012,0.5051,0.5012,,,,,,0.0,,-19.0
+2026-09-12,Old Dominion @ Virginia Tech,Totals,game_total,Over 47.5,47.5,fanduel,-110.0,-110.0,Pass,0.5015,-0.0425,win,0.9091,0.5015,0.5111,0.5015,,,,,,-0.0009,,-8.0
+2026-09-12,Old Dominion @ Virginia Tech,Totals,game_total,Under 47.5,47.5,draftkings,100.0,-120.0,Pass,0.4985,-0.003,loss,-1.0,0.4985,0.4889,0.4985,,,,,,0.0009,,8.0
+2026-09-12,Oregon @ Oklahoma State,Moneyline,game_ml,Oklahoma State ML,,betus,1250.0,-2800.0,Pass,0.1137,0.5349,win,12.5,0.1137,0.0785,0.1137,,,,,,-0.0008,price_too_long,-49.0
+2026-09-12,Oregon @ Oklahoma State,Moneyline,game_ml,Oregon ML,,betmgm,-2000.0,1200.0,Pass,0.7665,-0.1952,loss,-1.0,0.8863,0.9215,0.7665,,,,,,0.0008,,49.0
+2026-09-12,Oregon @ Oklahoma State,Spread (ATS),game_ats,Oklahoma State +23.5,23.5,lowvig,-103.0,-109.0,Pass,0.6062,0.1948,win,0.9709,0.6062,0.4996,0.6062,,,,,,-0.0017,,-10.0
+2026-09-12,Oregon @ Oklahoma State,Spread (ATS),game_ats,Oregon -23.5,-23.5,fanduel,-105.0,-115.0,Pass,0.3938,-0.2312,loss,-1.0,0.3938,0.5004,0.3938,,,,,,0.0017,,10.0
+2026-09-12,Oregon @ Oklahoma State,Totals,game_total,Over 54.5,54.5,bovada,-105.0,-115.0,Pass,0.4908,-0.0417,win,0.9524,0.4908,0.5038,0.4908,,,,,,-0.0065,,-31.0
+2026-09-12,Oregon @ Oklahoma State,Totals,game_total,Under 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.5092,-0.0059,loss,-1.0,0.5092,0.4962,0.5092,,,,,,0.0065,,31.0
+2026-09-12,Prairie View A @ Baylor,Spread (ATS),game_ats,Baylor -37.5,-37.5,draftkings,-105.0,-115.0,Pass,0.5031,-0.0177,win,0.9524,0.5031,0.497,0.5031,,,,,,-0.0002,,-12.0
+2026-09-12,Prairie View A @ Baylor,Spread (ATS),game_ats,Prairie View A +37.5,37.5,fanduel,-104.0,-118.0,Pass,0.4969,-0.0254,loss,-1.0,0.4969,0.503,0.4969,,,,,,0.0002,,
+2026-09-12,Prairie View A @ Baylor,Totals,game_total,Over 55.5,55.5,fanatics,-110.0,-110.0,Pass,0.5014,-0.0427,loss,-1.0,0.5014,0.5017,0.5014,,,,,,0.0,,
+2026-09-12,Prairie View A @ Baylor,Totals,game_total,Under 55.5,55.5,fanduel,-105.0,-115.0,Pass,0.4986,-0.0266,win,0.9524,0.4986,0.4983,0.4986,,,,,,0.0,,21.0
 2026-09-12,Rice @ Notre Dame,Spread (ATS),game_ats,Notre Dame -44.5,-44.5,betmgm,-108.0,-110.0,Pass,0.3683,-0.2907,win,0.9259,0.3683,0.5132,0.3683,-104.0,0.5023,-0.0109,-0.0326,0.0,0.0013,,56.0
 2026-09-12,Rice @ Notre Dame,Spread (ATS),game_ats,Rice +44.5,44.5,draftkings,100.0,-120.0,Pass,0.6264,0.2529,loss,-1.0,0.6317,0.4868,0.6264,-102.0,0.4977,0.0109,-0.0046,0.0,-0.0013,,-56.0
 2026-09-12,Rice @ Notre Dame,Totals,game_total,Over 55.0,55.0,lowvig,-108.0,-108.0,Moderate buy,0.5382,0.0365,loss,-1.0,0.5382,0.5005,0.5382,-108.0,0.4851,-0.0154,-0.0657,-0.5,0.0013,,20.0
@@ -481,12 +455,12 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Robert Morris @ Akron,Spread (ATS),game_ats,Robert Morris +27.5,27.5,fanatics,-105.0,-115.0,Pass,0.4946,-0.0344,loss,-1.0,0.4946,0.4995,0.4946,-105.0,0.5216,0.0221,0.0184,1.0,0.0003,,
 2026-09-12,Robert Morris @ Akron,Totals,game_total,Over 44.5,44.5,draftkings,-102.0,-118.0,Pass,0.4846,-0.0403,win,0.9804,0.4846,0.4902,0.4846,-110.0,0.5313,0.0411,0.0522,1.0,0.0096,,
 2026-09-12,Robert Morris @ Akron,Totals,game_total,Under 44.5,44.5,bovada,-110.0,-110.0,Pass,0.5154,-0.0161,loss,-1.0,0.5154,0.5098,0.5154,-108.0,0.4687,-0.0411,-0.1052,-1.0,-0.0096,,-16.0
-2026-09-12,Sacramento Sta @ Fresno State,Moneyline,game_ml,Fresno State ML,,draftkings,-950.0,625.0,Pass,0.706,-0.2197,win,0.1053,0.7764,0.8778,0.706,-833.0,0.8692,-0.0086,-0.0393,,0.0,,-5.0
-2026-09-12,Sacramento Sta @ Fresno State,Moneyline,game_ml,Sacramento Sta ML,,lowvig,709.0,-1100.0,Pass,0.2236,0.8089,loss,-1.0,0.2236,0.1222,0.2236,700.0,0.1308,0.0086,0.0582,,0.0,,5.0
-2026-09-12,Sacramento Sta @ Fresno State,Spread (ATS),game_ats,Fresno State -17.5,-17.5,lowvig,-106.0,-106.0,Pass,0.3715,-0.278,win,0.9434,0.3715,0.5002,0.3715,-114.0,0.4812,-0.019,-0.0648,-1.0,-0.0023,,-67.0
-2026-09-12,Sacramento Sta @ Fresno State,Spread (ATS),game_ats,Sacramento Sta +17.5,17.5,lowvig,-106.0,-106.0,Pass,0.6247,0.214,loss,-1.0,0.6285,0.4998,0.6247,-110.0,0.5188,0.019,0.0082,1.0,0.0023,,67.0
-2026-09-12,Sacramento Sta @ Fresno State,Totals,game_total,Over 44.5,44.5,lowvig,-108.0,-108.0,Pass,0.4482,-0.1368,win,0.9259,0.4482,0.5057,0.4482,100.0,0.2721,-0.2336,-0.476,-7.0,-0.0019,,-17.0
-2026-09-12,Sacramento Sta @ Fresno State,Totals,game_total,Under 44.5,44.5,draftkings,-102.0,-118.0,Strong buy,0.5518,0.0928,loss,-1.0,0.5518,0.4943,0.5518,-114.0,0.7279,0.2336,0.4415,7.0,0.0019,,17.0
+2026-09-12,Sacramento Sta @ Fresno State,Moneyline,game_ml,Fresno State ML,,draftkings,-950.0,625.0,Pass,0.706,-0.2197,win,0.1053,0.7764,0.8778,0.706,,,,,,0.0,,-5.0
+2026-09-12,Sacramento Sta @ Fresno State,Moneyline,game_ml,Sacramento Sta ML,,lowvig,709.0,-1100.0,Pass,0.2236,0.8089,loss,-1.0,0.2236,0.1222,0.2236,,,,,,0.0,,5.0
+2026-09-12,Sacramento Sta @ Fresno State,Spread (ATS),game_ats,Fresno State -17.5,-17.5,lowvig,-106.0,-106.0,Pass,0.3715,-0.278,win,0.9434,0.3715,0.5002,0.3715,,,,,,-0.0023,,-67.0
+2026-09-12,Sacramento Sta @ Fresno State,Spread (ATS),game_ats,Sacramento Sta +17.5,17.5,lowvig,-106.0,-106.0,Pass,0.6247,0.214,loss,-1.0,0.6285,0.4998,0.6247,,,,,,0.0023,,67.0
+2026-09-12,Sacramento Sta @ Fresno State,Totals,game_total,Over 44.5,44.5,lowvig,-108.0,-108.0,Pass,0.4482,-0.1368,win,0.9259,0.4482,0.5057,0.4482,,,,,,-0.0019,,-17.0
+2026-09-12,Sacramento Sta @ Fresno State,Totals,game_total,Under 44.5,44.5,draftkings,-102.0,-118.0,Strong buy,0.5518,0.0928,loss,-1.0,0.5518,0.4943,0.5518,,,,,,0.0019,,17.0
 2026-09-12,Sacred Heart @ UMass,Moneyline,game_ml,Sacred Heart ML,,betrivers,1400.0,-10000.0,Pass,0.0706,0.0594,loss,-1.0,0.0706,0.0749,0.0706,1400.0,0.0754,0.0005,0.131,,-0.0006,,
 2026-09-12,Sacred Heart @ UMass,Moneyline,game_ml,UMass ML,,fanatics,-2200.0,1200.0,Pass,0.7902,-0.1739,win,0.0455,0.9294,0.9251,0.7902,-2000.0,0.9246,-0.0005,-0.0334,,0.0006,,-16.0
 2026-09-12,Sacred Heart @ UMass,Spread (ATS),game_ats,Sacred Heart +23.5,23.5,fanduel,-108.0,-112.0,Pass,0.5022,-0.0327,loss,-1.0,0.5022,0.4981,0.5022,-108.0,0.5014,0.0033,-0.0343,0.0,0.0019,,
@@ -505,124 +479,108 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,South Alabama @ Tulane,Spread (ATS),game_ats,Tulane -9.5,-9.5,lowvig,-101.0,-111.0,Pass,0.5009,-0.0033,loss,-1.0,0.5009,0.5025,0.5009,-110.0,0.501,-0.0015,-0.003,0.0,-0.0042,,-2.0
 2026-09-12,South Alabama @ Tulane,Totals,game_total,Over 49.5,49.5,lowvig,-103.0,-114.0,Pass,0.501,-0.0127,win,0.9709,0.501,0.4947,0.501,-105.0,0.4478,-0.0469,-0.1174,-1.5,-0.001,,5.0
 2026-09-12,South Alabama @ Tulane,Totals,game_total,Under 49.5,49.5,draftkings,-108.0,-112.0,Pass,0.499,-0.0389,loss,-1.0,0.499,0.5053,0.499,-110.0,0.5522,0.0469,0.0635,1.5,0.001,,-5.0
-2026-09-12,South Florida @ Army,Moneyline,game_ml,Army ML,,fanduel,-164.0,136.0,Strong buy,0.6448,0.0379,loss,-1.0,0.665,0.602,0.6448,-790.0,0.8654,0.2634,0.3931,,-0.0022,,
-2026-09-12,South Florida @ Army,Moneyline,game_ml,South Florida ML,,lowvig,145.0,-165.0,Pass,0.335,-0.1793,win,1.45,0.335,0.398,0.335,875.0,0.1346,-0.2634,-0.6702,,0.0022,,44.0
-2026-09-12,South Florida @ Army,Spread (ATS),game_ats,Army -3.5,-3.5,lowvig,-101.0,-111.0,Pass,0.5817,0.1575,loss,-1.0,0.5817,0.4866,0.5817,-670.0,0.8007,0.3141,0.5935,-1.0,0.0024,,
-2026-09-12,South Florida @ Army,Spread (ATS),game_ats,South Florida +3.5,3.5,lowvig,-111.0,-101.0,Pass,0.4183,-0.2048,win,0.9009,0.4183,0.5134,0.4183,444.0,0.1993,-0.3141,-0.6212,1.0,-0.0024,,18.0
-2026-09-12,South Florida @ Army,Totals,game_total,Over 45.5,45.5,fanduel,-110.0,-110.0,Pass,0.6591,0.2583,win,0.9091,0.6911,0.5035,0.6591,200.0,0.3129,-0.1906,-0.4026,0.0,-0.0034,,-7.0
-2026-09-12,South Florida @ Army,Totals,game_total,Under 45.5,45.5,williamhill_us,-103.0,-117.0,Pass,0.3089,-0.3912,loss,-1.0,0.3089,0.4965,0.3089,-273.0,0.6871,0.1906,0.3542,0.0,0.0034,,
-2026-09-12,Southern Missi @ Auburn,Moneyline,game_ml,Auburn ML,,draftkings,-8000.0,2200.0,Pass,0.7925,-0.1976,win,0.0125,0.9335,0.9599,0.7925,-9000.0,0.9627,0.0028,-0.0253,,-0.0006,,-57.0
-2026-09-12,Southern Missi @ Auburn,Moneyline,game_ml,Southern Missi ML,,betmgm,3300.0,-12500.0,Pass,0.0665,1.2593,loss,-1.0,0.0665,0.0401,0.0665,3300.0,0.0373,-0.0028,0.2682,,0.0006,price_too_long,57.0
-2026-09-12,Southern Missi @ Auburn,Spread (ATS),game_ats,Auburn -33.0,-33.0,lowvig,-101.0,-111.0,Pass,0.2854,-0.4321,win,0.9901,0.2854,0.4921,0.2854,-114.0,0.4639,-0.0282,-0.0768,-1.5,-0.0,,1.0
-2026-09-12,Southern Missi @ Auburn,Spread (ATS),game_ats,Southern Missi +33.0,33.0,williamhill_us,-110.0,-109.0,Pass,0.672,0.283,loss,-1.0,0.7146,0.5079,0.672,-113.0,0.5361,0.0282,0.0235,1.5,0.0,,-1.0
-2026-09-12,Southern Missi @ Auburn,Totals,game_total,Over 57.0,57.0,betus,-110.0,-110.0,Pass,0.3425,-0.3461,loss,-1.0,0.3425,0.5047,0.3425,-114.0,0.5497,0.045,0.0494,1.5,0.0029,,34.0
-2026-09-12,Southern Missi @ Auburn,Totals,game_total,Under 57.0,57.0,lowvig,-103.0,-114.0,Pass,0.6406,0.2626,win,0.9709,0.6575,0.4953,0.6406,-110.0,0.4503,-0.045,-0.1125,-1.5,-0.0029,,-34.0
-2026-09-12,Southern Unive @ Houston,Spread (ATS),game_ats,Houston -51.5,-51.5,draftkings,100.0,-120.0,Pass,0.4996,-0.0007,win,1.0,0.4996,0.4874,0.4996,-115.0,0.5119,0.0245,0.0238,0.0,-0.0003,,-29.0
-2026-09-12,Southern Unive @ Houston,Spread (ATS),game_ats,Southern Unive +51.5,51.5,fanduel,-112.0,-108.0,Pass,0.5004,-0.0529,loss,-1.0,0.5004,0.5126,0.5004,-102.0,0.4881,-0.0245,-0.0761,0.0,0.0003,,
-2026-09-12,Southern Unive @ Houston,Totals,game_total,Over 61.5,61.5,williamhill_us,-107.0,-115.0,Pass,0.4928,-0.0467,win,0.9346,0.4928,0.4982,0.4928,-110.0,0.5076,0.0094,-0.018,0.0,0.0,,
-2026-09-12,Southern Unive @ Houston,Totals,game_total,Under 61.5,61.5,fanduel,-110.0,-110.0,Pass,0.5072,-0.0317,loss,-1.0,0.5072,0.5018,0.5072,-102.0,0.4924,-0.0094,-0.06,0.0,0.0,,-20.0
+2026-09-12,South Florida @ Army,Moneyline,game_ml,Army ML,,fanduel,-164.0,136.0,Strong buy,0.6448,0.0379,loss,-1.0,0.665,0.602,0.6448,,,,,,-0.0022,,
+2026-09-12,South Florida @ Army,Moneyline,game_ml,South Florida ML,,lowvig,145.0,-165.0,Pass,0.335,-0.1793,win,1.45,0.335,0.398,0.335,,,,,,0.0022,,44.0
+2026-09-12,South Florida @ Army,Spread (ATS),game_ats,Army -3.5,-3.5,lowvig,-101.0,-111.0,Pass,0.5817,0.1575,loss,-1.0,0.5817,0.4866,0.5817,,,,,,0.0024,,
+2026-09-12,South Florida @ Army,Spread (ATS),game_ats,South Florida +3.5,3.5,lowvig,-111.0,-101.0,Pass,0.4183,-0.2048,win,0.9009,0.4183,0.5134,0.4183,,,,,,-0.0024,,18.0
+2026-09-12,South Florida @ Army,Totals,game_total,Over 45.5,45.5,fanduel,-110.0,-110.0,Pass,0.6591,0.2583,win,0.9091,0.6911,0.5035,0.6591,,,,,,-0.0034,,-7.0
+2026-09-12,South Florida @ Army,Totals,game_total,Under 45.5,45.5,williamhill_us,-103.0,-117.0,Pass,0.3089,-0.3912,loss,-1.0,0.3089,0.4965,0.3089,,,,,,0.0034,,
 2026-09-12,Southern Utah @ Colorado State,Moneyline,game_ml,Colorado State ML,,fanatics,-1400.0,850.0,Pass,0.7737,-0.1711,win,0.0714,0.8994,0.902,0.7737,-1350.0,0.8959,-0.0061,-0.0401,,0.0009,,-52.0
 2026-09-12,Southern Utah @ Colorado State,Moneyline,game_ml,Southern Utah ML,,betrivers,1000.0,-3335.0,Pass,0.1006,0.1069,loss,-1.0,0.1006,0.098,0.1006,900.0,0.1041,0.0061,0.1451,,-0.0009,,
 2026-09-12,Southern Utah @ Colorado State,Spread (ATS),game_ats,Colorado State -20.5,-20.5,draftkings,-108.0,-112.0,Pass,0.4987,-0.0395,win,0.9259,0.4987,0.5001,0.4987,-108.0,0.4871,-0.013,-0.0619,-0.5,0.0,,27.0
 2026-09-12,Southern Utah @ Colorado State,Spread (ATS),game_ats,Southern Utah +20.5,20.5,fanduel,-108.0,-112.0,Pass,0.5013,-0.0345,loss,-1.0,0.5013,0.4999,0.5013,-110.0,0.5129,0.013,-0.0122,0.5,0.0,,
 2026-09-12,Southern Utah @ Colorado State,Totals,game_total,Over 56.5,56.5,draftkings,-108.0,-112.0,Pass,0.5018,-0.0336,win,0.9259,0.5018,0.4996,0.5018,-105.0,0.5313,0.0317,0.0232,1.0,-0.0013,,
 2026-09-12,Southern Utah @ Colorado State,Totals,game_total,Under 56.5,56.5,williamhill_us,-109.0,-113.0,Pass,0.4982,-0.0447,loss,-1.0,0.4982,0.5004,0.4982,-108.0,0.4687,-0.0317,-0.1013,-1.0,0.0013,,-29.0
-2026-09-12,Stony Brook @ Ball State,Moneyline,game_ml,Ball State ML,,fanatics,-600.0,440.0,Pass,0.7243,-0.1549,win,0.1667,0.8097,0.8313,0.7243,-3333.0,0.9361,0.1048,0.0921,,0.0006,,-1.0
-2026-09-12,Stony Brook @ Ball State,Moneyline,game_ml,Stony Brook ML,,betrivers,525.0,-835.0,Pass,0.1903,0.1892,loss,-1.0,0.1903,0.1687,0.1903,1800.0,0.0639,-0.1048,-0.6006,,-0.0006,price_too_long,
-2026-09-12,Stony Brook @ Ball State,Spread (ATS),game_ats,Ball State -14.0,-14.0,draftkings,-108.0,-112.0,Pass,0.5003,-0.0365,win,0.9259,0.5003,0.4993,0.5003,-102.0,0.6746,0.1753,0.2992,7.5,-0.0111,,-52.0
-2026-09-12,Stony Brook @ Ball State,Spread (ATS),game_ats,Stony Brook +14.0,14.0,fanatics,-110.0,-110.0,Pass,0.4997,-0.046,loss,-1.0,0.4997,0.5007,0.4997,-115.0,0.3254,-0.1753,-0.3788,-7.5,0.0111,,
-2026-09-12,Stony Brook @ Ball State,Totals,game_total,Over 54.5,54.5,bovada,-110.0,-110.0,Pass,0.5023,-0.0411,win,0.9091,0.5023,0.5081,0.5023,-110.0,0.2892,-0.2189,-0.4479,-7.0,0.0016,,
-2026-09-12,Stony Brook @ Ball State,Totals,game_total,Under 54.5,54.5,draftkings,-102.0,-118.0,Pass,0.4977,-0.0144,loss,-1.0,0.4977,0.4919,0.4977,-107.0,0.7108,0.2189,0.4077,7.0,-0.0016,,52.0
-2026-09-12,Tennessee @ Georgia Tech,Moneyline,game_ml,Georgia Tech ML,,betrivers,390.0,-560.0,Pass,0.2412,0.1818,loss,-1.0,0.2412,0.2032,0.2412,390.0,0.2002,-0.003,-0.019,,-0.0001,price_too_long,13.0
-2026-09-12,Tennessee @ Georgia Tech,Moneyline,game_ml,Tennessee ML,,draftkings,-470.0,360.0,Pass,0.6964,-0.1555,win,0.2128,0.7588,0.7968,0.6964,-485.0,0.7998,0.003,-0.03,,0.0001,,-13.0
-2026-09-12,Tennessee @ Georgia Tech,Spread (ATS),game_ats,Georgia Tech +12.0,12.0,lowvig,-106.0,-106.0,Moderate buy,0.5212,0.013,loss,-1.0,0.5212,0.5003,0.5212,240.0,0.097,-0.4033,-0.8115,-8.5,-0.0011,,57.0
-2026-09-12,Tennessee @ Georgia Tech,Spread (ATS),game_ats,Tennessee -12.0,-12.0,lowvig,-106.0,-106.0,Pass,0.4788,-0.0696,win,0.9434,0.4788,0.4997,0.4788,-193.0,0.903,0.4033,0.7549,8.5,0.0011,,-57.0
-2026-09-12,Tennessee @ Georgia Tech,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Strong buy,0.5444,0.0484,win,0.9259,0.5444,0.5003,0.5444,238.0,0.7142,0.2139,0.3755,14.0,0.0008,,29.0
-2026-09-12,Tennessee @ Georgia Tech,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-113.0,Pass,0.4556,-0.1185,loss,-1.0,0.4556,0.4997,0.4556,-300.0,0.2858,-0.2139,-0.4471,-14.0,-0.0008,,-29.0
+2026-09-12,Stony Brook @ Ball State,Moneyline,game_ml,Ball State ML,,fanatics,-600.0,440.0,Pass,0.7243,-0.1549,win,0.1667,0.8097,0.8313,0.7243,,,,,,0.0006,,-1.0
+2026-09-12,Stony Brook @ Ball State,Moneyline,game_ml,Stony Brook ML,,betrivers,525.0,-835.0,Pass,0.1903,0.1892,loss,-1.0,0.1903,0.1687,0.1903,,,,,,-0.0006,price_too_long,
+2026-09-12,Stony Brook @ Ball State,Spread (ATS),game_ats,Ball State -14.0,-14.0,draftkings,-108.0,-112.0,Pass,0.5003,-0.0365,win,0.9259,0.5003,0.4993,0.5003,,,,,,-0.0111,,-52.0
+2026-09-12,Stony Brook @ Ball State,Spread (ATS),game_ats,Stony Brook +14.0,14.0,fanatics,-110.0,-110.0,Pass,0.4997,-0.046,loss,-1.0,0.4997,0.5007,0.4997,,,,,,0.0111,,
+2026-09-12,Stony Brook @ Ball State,Totals,game_total,Over 54.5,54.5,bovada,-110.0,-110.0,Pass,0.5023,-0.0411,win,0.9091,0.5023,0.5081,0.5023,,,,,,0.0016,,
+2026-09-12,Stony Brook @ Ball State,Totals,game_total,Under 54.5,54.5,draftkings,-102.0,-118.0,Pass,0.4977,-0.0144,loss,-1.0,0.4977,0.4919,0.4977,,,,,,-0.0016,,52.0
+2026-09-12,Tennessee @ Georgia Tech,Moneyline,game_ml,Georgia Tech ML,,betrivers,390.0,-560.0,Pass,0.2412,0.1818,loss,-1.0,0.2412,0.2032,0.2412,,,,,,-0.0001,price_too_long,13.0
+2026-09-12,Tennessee @ Georgia Tech,Moneyline,game_ml,Tennessee ML,,draftkings,-470.0,360.0,Pass,0.6964,-0.1555,win,0.2128,0.7588,0.7968,0.6964,,,,,,0.0001,,-13.0
+2026-09-12,Tennessee @ Georgia Tech,Spread (ATS),game_ats,Georgia Tech +12.0,12.0,lowvig,-106.0,-106.0,Moderate buy,0.5212,0.013,loss,-1.0,0.5212,0.5003,0.5212,,,,,,-0.0011,,57.0
+2026-09-12,Tennessee @ Georgia Tech,Spread (ATS),game_ats,Tennessee -12.0,-12.0,lowvig,-106.0,-106.0,Pass,0.4788,-0.0696,win,0.9434,0.4788,0.4997,0.4788,,,,,,0.0011,,-57.0
+2026-09-12,Tennessee @ Georgia Tech,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Strong buy,0.5444,0.0484,win,0.9259,0.5444,0.5003,0.5444,,,,,,0.0008,,29.0
+2026-09-12,Tennessee @ Georgia Tech,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-113.0,Pass,0.4556,-0.1185,loss,-1.0,0.4556,0.4997,0.4556,,,,,,-0.0008,,-29.0
 2026-09-12,Texas Southern @ UTEP,Moneyline,game_ml,Texas Southern ML,,fanduel,2000.0,-7000.0,Pass,0.0521,0.0941,loss,-1.0,0.0521,0.0593,0.0521,3500.0,0.0294,-0.0299,-0.3826,,0.0,,78.0
 2026-09-12,Texas Southern @ UTEP,Moneyline,game_ml,UTEP ML,,fanatics,-3000.0,1500.0,Pass,0.8003,-0.173,win,0.0333,0.9479,0.9407,0.8003,-10000.0,0.9706,0.0299,0.003,,0.0,,-78.0
 2026-09-12,Texas Southern @ UTEP,Spread (ATS),game_ats,Texas Southern +25.5,25.5,fanduel,-106.0,-114.0,Pass,0.4955,-0.037,loss,-1.0,0.4955,0.4987,0.4955,-114.0,0.5778,0.0791,0.1229,3.0,-0.0001,,-41.0
 2026-09-12,Texas Southern @ UTEP,Spread (ATS),game_ats,UTEP -25.5,-25.5,draftkings,-108.0,-112.0,Pass,0.5045,-0.0284,win,0.9259,0.5045,0.5013,0.5045,-110.0,0.4222,-0.0791,-0.1869,-3.0,0.0001,,41.0
 2026-09-12,Texas Southern @ UTEP,Totals,game_total,Over 52.5,52.5,draftkings,-110.0,-110.0,Pass,0.511,-0.0245,win,0.9091,0.511,0.5029,0.511,104.0,0.5728,0.0699,0.0935,3.0,0.0,,20.0
 2026-09-12,Texas Southern @ UTEP,Totals,game_total,Under 52.5,52.5,williamhill_us,-105.0,-118.0,Pass,0.489,-0.0453,loss,-1.0,0.489,0.4971,0.489,-114.0,0.4272,-0.0699,-0.1659,-3.0,0.0,,-20.0
-2026-09-12,Texas Tech @ Oregon State,Moneyline,game_ml,Oregon State ML,,betrivers,1700.0,-10000.0,Pass,0.1171,1.1078,loss,-1.0,0.1171,0.0655,0.1171,1260.0,0.1168,0.0513,1.1024,,0.0003,price_too_long,59.0
-2026-09-12,Texas Tech @ Oregon State,Moneyline,game_ml,Texas Tech ML,,lowvig,-3000.0,1256.0,Pass,0.7646,-0.2099,win,0.0333,0.8829,0.9345,0.7646,-325.0,0.8832,-0.0513,-0.0874,,-0.0003,,-59.0
-2026-09-12,Texas Tech @ Oregon State,Spread (ATS),game_ats,Oregon State +25.5,25.5,lowvig,-106.0,-106.0,Pass,0.6405,0.2448,win,0.9434,0.6573,0.4993,0.6405,-197.0,1.0,0.5007,0.9434,21.0,0.0,,16.0
-2026-09-12,Texas Tech @ Oregon State,Spread (ATS),game_ats,Texas Tech -25.5,-25.5,lowvig,-106.0,-106.0,Pass,0.3427,-0.334,loss,-1.0,0.3427,0.5007,0.3427,182.0,0.0,-0.5007,-1.0,-21.0,0.0,,-16.0
-2026-09-12,Texas Tech @ Oregon State,Totals,game_total,Over 53.5,53.5,williamhill_us,-105.0,-115.0,Pass,0.4269,-0.1665,win,0.9524,0.4269,0.4948,0.4269,105.0,0.4295,-0.0653,-0.1615,-1.0,0.0101,,20.0
-2026-09-12,Texas Tech @ Oregon State,Totals,game_total,Under 53.5,53.5,fanduel,-110.0,-110.0,Strong buy,0.5731,0.0941,loss,-1.0,0.5731,0.5052,0.5731,-134.0,0.5705,0.0653,0.0891,1.0,-0.0101,,-21.0
-2026-09-12,Towson @ South Carolina,Spread (ATS),game_ats,South Carolina -44.5,-44.5,draftkings,-108.0,-112.0,Pass,0.4861,-0.0639,loss,-1.0,0.4861,0.4982,0.4861,130.0,0.0618,-0.4364,-0.881,-15.0,0.0228,,-4.0
-2026-09-12,Towson @ South Carolina,Spread (ATS),game_ats,Towson +44.5,44.5,lowvig,-110.0,-110.0,Pass,0.5139,-0.0189,win,0.9091,0.5139,0.5018,0.5139,-125.0,0.9382,0.4364,0.7911,15.0,-0.0228,,4.0
-2026-09-12,Towson @ South Carolina,Totals,game_total,Over 56.0,56.0,fanatics,-110.0,-110.0,Pass,0.5005,-0.0445,loss,-1.0,0.5005,0.5062,0.5005,-126.0,0.3295,-0.1767,-0.371,-6.5,0.0087,,15.0
-2026-09-12,Towson @ South Carolina,Totals,game_total,Under 56.0,56.0,lowvig,-105.0,-115.0,Pass,0.4995,-0.0247,win,0.9524,0.4995,0.4938,0.4995,102.0,0.6705,0.1767,0.3091,6.5,-0.0087,,-15.0
-2026-09-12,Tulsa @ Sam Houston St,Moneyline,game_ml,Sam Houston St ML,,betrivers,460.0,-715.0,Pass,0.203,0.1369,loss,-1.0,0.203,0.19,0.203,420.0,0.1966,0.0066,0.101,,0.0029,,2.0
-2026-09-12,Tulsa @ Sam Houston St,Moneyline,game_ml,Tulsa ML,,draftkings,-520.0,390.0,Pass,0.7173,-0.1447,win,0.1923,0.797,0.81,0.7173,-500.0,0.8034,-0.0066,-0.0421,,-0.0029,,-2.0
-2026-09-12,Tulsa @ Sam Houston St,Spread (ATS),game_ats,Sam Houston St +13.5,13.5,fanduel,-110.0,-110.0,Pass,0.4994,-0.0466,win,0.9091,0.4994,0.505,0.4994,-105.0,0.5238,0.0188,-0.0,1.0,0.0009,,4.0
-2026-09-12,Tulsa @ Sam Houston St,Spread (ATS),game_ats,Tulsa -13.5,-13.5,lowvig,-101.0,-111.0,Pass,0.5006,-0.0038,loss,-1.0,0.5006,0.495,0.5006,-108.0,0.4762,-0.0188,-0.0523,-1.0,-0.0009,,-4.0
-2026-09-12,Tulsa @ Sam Houston St,Totals,game_total,Over 51.5,51.5,betmgm,-102.0,-115.0,Pass,0.5,-0.0098,loss,-1.0,0.5,0.4938,0.5,-110.0,0.5076,0.0138,0.0052,0.0,0.0006,,-25.0
-2026-09-12,Tulsa @ Sam Houston St,Totals,game_total,Under 51.5,51.5,bovada,-110.0,-110.0,Pass,0.5,-0.0455,win,0.9091,0.5,0.5062,0.5,-102.0,0.4924,-0.0138,-0.06,0.0,-0.0006,,25.0
-2026-09-12,UC Davis @ SMU,Moneyline,game_ml,SMU ML,,draftkings,-4000.0,1600.0,Pass,0.8133,-0.1664,win,0.025,0.9714,0.9463,0.8133,-4000.0,0.9523,0.006,-0.0239,,0.0008,,
-2026-09-12,UC Davis @ SMU,Moneyline,game_ml,UC Davis ML,,fanduel,2400.0,-10000.0,Pass,0.0286,-0.2844,loss,-1.0,0.0286,0.0537,0.0286,2800.0,0.0477,-0.006,0.1925,,-0.0008,,
-2026-09-12,UC Davis @ SMU,Spread (ATS),game_ats,SMU -30.5,-30.5,draftkings,-108.0,-112.0,Pass,0.4975,-0.0419,win,0.9259,0.4975,0.4981,0.4975,270.0,0.8303,0.3322,0.5991,19.0,0.0224,,-10.0
-2026-09-12,UC Davis @ SMU,Spread (ATS),game_ats,UC Davis +30.5,30.5,fanduel,-110.0,-110.0,Pass,0.5026,-0.0406,loss,-1.0,0.5026,0.5019,0.5026,-125.0,0.1697,-0.3322,-0.676,-19.0,-0.0224,,10.0
-2026-09-12,UC Davis @ SMU,Totals,game_total,Over 58.5,58.5,fanatics,-110.0,-110.0,Pass,0.5016,-0.0424,win,0.9091,0.5016,0.5018,0.5016,-150.0,0.9214,0.4196,0.759,11.0,-0.0007,,18.0
-2026-09-12,UC Davis @ SMU,Totals,game_total,Under 58.5,58.5,draftkings,-108.0,-112.0,Pass,0.4984,-0.0401,loss,-1.0,0.4984,0.4982,0.4984,140.0,0.0786,-0.4196,-0.8486,-11.0,0.0007,,-18.0
-2026-09-12,UCF @ Pittsburgh,Moneyline,game_ml,Pittsburgh ML,,fanduel,-275.0,220.0,Pass,0.6273,-0.1446,win,0.3636,0.6333,0.7085,0.6273,-5000.0,0.947,0.2385,0.2914,,0.0002,,42.0
-2026-09-12,UCF @ Pittsburgh,Moneyline,game_ml,UCF ML,,betrivers,235.0,-315.0,Pass,0.3667,0.2285,loss,-1.0,0.3667,0.2915,0.3667,2500.0,0.053,-0.2385,-0.8224,,-0.0002,,-42.0
-2026-09-12,UCF @ Pittsburgh,Spread (ATS),game_ats,Pittsburgh -7.0,-7.0,mybookieag,-110.0,-110.0,Pass,0.462,-0.118,loss,-1.0,0.462,0.5081,0.462,-115.0,0.7068,0.1987,0.3493,7.5,0.0011,,-31.0
-2026-09-12,UCF @ Pittsburgh,Spread (ATS),game_ats,UCF +7.0,7.0,lowvig,-101.0,-111.0,Strong buy,0.538,0.0707,win,0.9901,0.538,0.4919,0.538,101.0,0.2932,-0.1987,-0.4165,-7.5,-0.0011,,31.0
-2026-09-12,UCF @ Pittsburgh,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.3741,-0.2796,loss,-1.0,0.3741,0.5015,0.3741,100.0,0.0,-0.5015,-1.0,-30.0,0.0002,,-36.0
-2026-09-12,UCF @ Pittsburgh,Totals,game_total,Under 55.5,55.5,williamhill_us,-106.0,-114.0,Pass,0.6233,0.2112,win,0.9434,0.6259,0.4985,0.6233,-110.0,1.0,0.5015,0.9434,30.0,-0.0002,,36.0
+2026-09-12,Texas Tech @ Oregon State,Moneyline,game_ml,Oregon State ML,,betrivers,1700.0,-10000.0,Pass,0.1171,1.1078,loss,-1.0,0.1171,0.0655,0.1171,,,,,,0.0003,price_too_long,59.0
+2026-09-12,Texas Tech @ Oregon State,Moneyline,game_ml,Texas Tech ML,,lowvig,-3000.0,1256.0,Pass,0.7646,-0.2099,win,0.0333,0.8829,0.9345,0.7646,,,,,,-0.0003,,-59.0
+2026-09-12,Texas Tech @ Oregon State,Spread (ATS),game_ats,Oregon State +25.5,25.5,lowvig,-106.0,-106.0,Pass,0.6405,0.2448,win,0.9434,0.6573,0.4993,0.6405,,,,,,0.0,,16.0
+2026-09-12,Texas Tech @ Oregon State,Spread (ATS),game_ats,Texas Tech -25.5,-25.5,lowvig,-106.0,-106.0,Pass,0.3427,-0.334,loss,-1.0,0.3427,0.5007,0.3427,,,,,,0.0,,-16.0
+2026-09-12,Texas Tech @ Oregon State,Totals,game_total,Over 53.5,53.5,williamhill_us,-105.0,-115.0,Pass,0.4269,-0.1665,win,0.9524,0.4269,0.4948,0.4269,,,,,,0.0101,,20.0
+2026-09-12,Texas Tech @ Oregon State,Totals,game_total,Under 53.5,53.5,fanduel,-110.0,-110.0,Strong buy,0.5731,0.0941,loss,-1.0,0.5731,0.5052,0.5731,,,,,,-0.0101,,-21.0
+2026-09-12,Towson @ South Carolina,Spread (ATS),game_ats,South Carolina -44.5,-44.5,draftkings,-108.0,-112.0,Pass,0.4861,-0.0639,loss,-1.0,0.4861,0.4982,0.4861,,,,,,0.0228,,-4.0
+2026-09-12,Towson @ South Carolina,Spread (ATS),game_ats,Towson +44.5,44.5,lowvig,-110.0,-110.0,Pass,0.5139,-0.0189,win,0.9091,0.5139,0.5018,0.5139,,,,,,-0.0228,,4.0
+2026-09-12,Towson @ South Carolina,Totals,game_total,Over 56.0,56.0,fanatics,-110.0,-110.0,Pass,0.5005,-0.0445,loss,-1.0,0.5005,0.5062,0.5005,,,,,,0.0087,,15.0
+2026-09-12,Towson @ South Carolina,Totals,game_total,Under 56.0,56.0,lowvig,-105.0,-115.0,Pass,0.4995,-0.0247,win,0.9524,0.4995,0.4938,0.4995,,,,,,-0.0087,,-15.0
+2026-09-12,UC Davis @ SMU,Moneyline,game_ml,SMU ML,,draftkings,-4000.0,1600.0,Pass,0.8133,-0.1664,win,0.025,0.9714,0.9463,0.8133,,,,,,0.0008,,
+2026-09-12,UC Davis @ SMU,Moneyline,game_ml,UC Davis ML,,fanduel,2400.0,-10000.0,Pass,0.0286,-0.2844,loss,-1.0,0.0286,0.0537,0.0286,,,,,,-0.0008,,
+2026-09-12,UC Davis @ SMU,Spread (ATS),game_ats,SMU -30.5,-30.5,draftkings,-108.0,-112.0,Pass,0.4975,-0.0419,win,0.9259,0.4975,0.4981,0.4975,,,,,,0.0224,,-10.0
+2026-09-12,UC Davis @ SMU,Spread (ATS),game_ats,UC Davis +30.5,30.5,fanduel,-110.0,-110.0,Pass,0.5026,-0.0406,loss,-1.0,0.5026,0.5019,0.5026,,,,,,-0.0224,,10.0
+2026-09-12,UC Davis @ SMU,Totals,game_total,Over 58.5,58.5,fanatics,-110.0,-110.0,Pass,0.5016,-0.0424,win,0.9091,0.5016,0.5018,0.5016,,,,,,-0.0007,,18.0
+2026-09-12,UC Davis @ SMU,Totals,game_total,Under 58.5,58.5,draftkings,-108.0,-112.0,Pass,0.4984,-0.0401,loss,-1.0,0.4984,0.4982,0.4984,,,,,,0.0007,,-18.0
+2026-09-12,UCF @ Pittsburgh,Moneyline,game_ml,Pittsburgh ML,,fanduel,-275.0,220.0,Pass,0.6273,-0.1446,win,0.3636,0.6333,0.7085,0.6273,,,,,,0.0002,,42.0
+2026-09-12,UCF @ Pittsburgh,Moneyline,game_ml,UCF ML,,betrivers,235.0,-315.0,Pass,0.3667,0.2285,loss,-1.0,0.3667,0.2915,0.3667,,,,,,-0.0002,,-42.0
+2026-09-12,UCF @ Pittsburgh,Spread (ATS),game_ats,Pittsburgh -7.0,-7.0,mybookieag,-110.0,-110.0,Pass,0.462,-0.118,loss,-1.0,0.462,0.5081,0.462,,,,,,0.0011,,-31.0
+2026-09-12,UCF @ Pittsburgh,Spread (ATS),game_ats,UCF +7.0,7.0,lowvig,-101.0,-111.0,Strong buy,0.538,0.0707,win,0.9901,0.538,0.4919,0.538,,,,,,-0.0011,,31.0
+2026-09-12,UCF @ Pittsburgh,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.3741,-0.2796,loss,-1.0,0.3741,0.5015,0.3741,,,,,,0.0002,,-36.0
+2026-09-12,UCF @ Pittsburgh,Totals,game_total,Under 55.5,55.5,williamhill_us,-106.0,-114.0,Pass,0.6233,0.2112,win,0.9434,0.6259,0.4985,0.6233,,,,,,-0.0002,,36.0
 2026-09-12,UL Monroe @ UAB,Moneyline,game_ml,UAB ML,,betrivers,-335.0,245.0,Pass,0.7403,-0.0387,win,0.2985,0.8387,0.7487,0.7403,-335.0,0.7486,-0.0001,-0.0279,,0.0,,-32.0
 2026-09-12,UL Monroe @ UAB,Moneyline,game_ml,UL Monroe ML,,bovada,295.0,-390.0,Pass,0.1613,-0.3631,loss,-1.0,0.1613,0.2513,0.1613,290.0,0.2514,0.0001,-0.007,,0.0,,
 2026-09-12,UL Monroe @ UAB,Spread (ATS),game_ats,UAB -9.5,-9.5,fanduel,-110.0,-110.0,Pass,0.6411,0.2239,loss,-1.0,0.6583,0.501,0.6411,-110.0,0.5013,0.0003,-0.043,0.0,0.0006,,-57.0
 2026-09-12,UL Monroe @ UAB,Spread (ATS),game_ats,UL Monroe +9.5,9.5,draftkings,-108.0,-112.0,Pass,0.3417,-0.342,win,0.9259,0.3417,0.499,0.3417,-108.0,0.4987,-0.0003,-0.0395,0.0,-0.0006,,
 2026-09-12,UL Monroe @ UAB,Totals,game_total,Over 54.5,54.5,fanduel,-105.0,-115.0,Pass,0.4618,-0.0983,loss,-1.0,0.4618,0.4939,0.4618,-103.0,0.4473,-0.0466,-0.1267,-1.5,0.0,,
 2026-09-12,UL Monroe @ UAB,Totals,game_total,Under 54.5,54.5,draftkings,-110.0,-110.0,Moderate buy,0.5382,0.0274,win,0.9091,0.5382,0.5061,0.5382,-110.0,0.5527,0.0466,0.0552,1.5,0.0,,41.0
-2026-09-12,UNLV @ North Texas,Moneyline,game_ml,North Texas ML,,draftkings,136.0,-162.0,Pass,0.3373,-0.204,win,1.36,0.3373,0.4093,0.3373,136.0,0.4169,0.0076,-0.0161,,0.0,,36.0
-2026-09-12,UNLV @ North Texas,Moneyline,game_ml,UNLV ML,,betonlineag,-155.0,135.0,Pass,0.6435,0.0587,loss,-1.0,0.6627,0.5907,0.6435,-145.0,0.5831,-0.0076,-0.0407,,0.0,ml_no_sharp_money,-36.0
-2026-09-12,UNLV @ North Texas,Spread (ATS),game_ats,North Texas +3.0,3.0,draftkings,-105.0,-115.0,Pass,0.4078,-0.2038,win,0.9524,0.4078,0.4942,0.4078,-123.0,1.0,0.5058,0.9524,37.5,0.0011,,30.0
-2026-09-12,UNLV @ North Texas,Spread (ATS),game_ats,UNLV -3.0,-3.0,lowvig,-106.0,-106.0,Pass,0.5922,0.1509,loss,-1.0,0.5922,0.5058,0.5922,120.0,0.0,-0.5058,-1.0,-37.5,-0.0011,,-30.0
-2026-09-12,UNLV @ North Texas,Totals,game_total,Over 58.5,58.5,fanduel,-105.0,-115.0,Pass,0.6387,0.247,loss,-1.0,0.654,0.49,0.6387,-118.0,0.4356,-0.0544,-0.1495,-5.0,0.0054,,30.0
-2026-09-12,UNLV @ North Texas,Totals,game_total,Under 58.5,58.5,williamhill_us,-113.0,-107.0,Pass,0.346,-0.3479,win,0.885,0.346,0.51,0.346,164.0,0.5644,0.0544,0.0639,5.0,-0.0054,,-31.0
+2026-09-12,UNLV @ North Texas,Moneyline,game_ml,North Texas ML,,draftkings,136.0,-162.0,Pass,0.3373,-0.204,win,1.36,0.3373,0.4093,0.3373,,,,,,0.0,,36.0
+2026-09-12,UNLV @ North Texas,Moneyline,game_ml,UNLV ML,,betonlineag,-155.0,135.0,Pass,0.6435,0.0587,loss,-1.0,0.6627,0.5907,0.6435,,,,,,0.0,ml_no_sharp_money,-36.0
+2026-09-12,UNLV @ North Texas,Spread (ATS),game_ats,North Texas +3.0,3.0,draftkings,-105.0,-115.0,Pass,0.4078,-0.2038,win,0.9524,0.4078,0.4942,0.4078,,,,,,0.0011,,30.0
+2026-09-12,UNLV @ North Texas,Spread (ATS),game_ats,UNLV -3.0,-3.0,lowvig,-106.0,-106.0,Pass,0.5922,0.1509,loss,-1.0,0.5922,0.5058,0.5922,,,,,,-0.0011,,-30.0
+2026-09-12,UNLV @ North Texas,Totals,game_total,Over 58.5,58.5,fanduel,-105.0,-115.0,Pass,0.6387,0.247,loss,-1.0,0.654,0.49,0.6387,,,,,,0.0054,,30.0
+2026-09-12,UNLV @ North Texas,Totals,game_total,Under 58.5,58.5,williamhill_us,-113.0,-107.0,Pass,0.346,-0.3479,win,0.885,0.346,0.51,0.346,,,,,,-0.0054,,-31.0
 2026-09-12,UT Martin @ West Virginia,Spread (ATS),game_ats,UT Martin +41.5,41.5,fanduel,-104.0,-118.0,Pass,0.4988,-0.0215,loss,-1.0,0.4988,0.4982,0.4988,110.0,0.2944,-0.2038,-0.4225,-7.0,0.0035,,
 2026-09-12,UT Martin @ West Virginia,Spread (ATS),game_ats,West Virginia -41.5,-41.5,betonlineag,-105.0,-115.0,Pass,0.5012,-0.0215,win,0.9524,0.5012,0.5018,0.5012,-118.0,0.7056,0.2038,0.3776,7.0,-0.0035,,12.0
 2026-09-12,UT Martin @ West Virginia,Totals,game_total,Over 55.5,55.5,betonlineag,-110.0,-110.0,Pass,0.5019,-0.0418,win,0.9091,0.5019,0.5071,0.5019,-120.0,0.5327,0.0256,0.017,0.0,0.0055,,
 2026-09-12,UT Martin @ West Virginia,Totals,game_total,Under 55.5,55.5,williamhill_us,-104.0,-120.0,Pass,0.4981,-0.023,loss,-1.0,0.4981,0.4929,0.4981,110.0,0.4673,-0.0256,-0.0834,0.0,-0.0055,,-18.0
-2026-09-12,UTSA @ Texas State,Moneyline,game_ml,Texas State ML,,draftkings,-122.0,102.0,Pass,0.5552,0.0103,loss,-1.0,0.5552,0.5352,0.5552,-162.0,0.6432,0.108,0.1704,,0.003,,8.0
-2026-09-12,UTSA @ Texas State,Moneyline,game_ml,UTSA ML,,lowvig,110.0,-130.0,Pass,0.4448,-0.0659,win,1.1,0.4448,0.4648,0.4448,230.0,0.3568,-0.108,-0.2507,,-0.003,,
-2026-09-12,UTSA @ Texas State,Spread (ATS),game_ats,Texas State -2.0,-2.0,lowvig,-106.0,-106.0,Pass,0.5059,-0.0169,loss,-1.0,0.5059,0.5005,0.5059,-145.0,0.6083,0.1078,0.1822,-0.5,0.01,,18.0
-2026-09-12,UTSA @ Texas State,Spread (ATS),game_ats,UTSA +2.0,2.0,lowvig,-106.0,-106.0,Pass,0.4941,-0.0397,win,0.9434,0.4941,0.4995,0.4941,205.0,0.3917,-0.1078,-0.2388,0.5,-0.01,,
-2026-09-12,UTSA @ Texas State,Totals,game_total,Over 66.0,66.0,lowvig,-108.0,-108.0,Pass,0.5031,-0.031,loss,-1.0,0.5031,0.5,0.5031,105.0,0.0785,-0.4215,-0.8488,-12.5,0.0,,
-2026-09-12,UTSA @ Texas State,Totals,game_total,Under 66.0,66.0,lowvig,-108.0,-108.0,Pass,0.4969,-0.0431,win,0.9259,0.4969,0.5,0.4969,-130.0,0.9215,0.4215,0.7747,12.5,0.0,,-13.0
-2026-09-12,Utah State @ Washington,Moneyline,game_ml,Utah State ML,,fanduel,2000.0,-7000.0,Pass,0.0554,0.1634,loss,-1.0,0.0554,0.057,0.0554,3500.0,0.1756,0.1186,2.6876,,-0.0002,,-34.0
-2026-09-12,Utah State @ Washington,Moneyline,game_ml,Washington ML,,betmgm,-3000.0,1750.0,Pass,0.7985,-0.1749,win,0.0333,0.9446,0.943,0.7985,-165.0,0.8244,-0.1186,-0.1481,,0.0002,,34.0
-2026-09-12,Utah State @ Washington,Spread (ATS),game_ats,Utah State +27.5,27.5,fanduel,-105.0,-115.0,Strong buy,0.5497,0.0732,win,0.9524,0.5497,0.4984,0.5497,475.0,0.9389,0.4405,0.8331,26.0,-0.0053,,57.0
-2026-09-12,Utah State @ Washington,Spread (ATS),game_ats,Washington -27.5,-27.5,lowvig,-106.0,-106.0,Pass,0.4503,-0.1249,loss,-1.0,0.4503,0.5016,0.4503,-165.0,0.0611,-0.4405,-0.8813,-26.0,0.0053,,-57.0
-2026-09-12,Utah State @ Washington,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.4381,-0.1562,loss,-1.0,0.4381,0.5007,0.4381,400.0,0.0,-0.5007,-1.0,-25.0,0.0,,18.0
-2026-09-12,Utah State @ Washington,Totals,game_total,Under 55.5,55.5,draftkings,-108.0,-112.0,Strong buy,0.5619,0.0821,win,0.9259,0.5619,0.4993,0.5619,-164.0,1.0,0.5007,0.9259,25.0,0.0,,-18.0
-2026-09-12,Wagner @ James Madison,Spread (ATS),game_ats,James Madison -46.5,-46.5,draftkings,-108.0,-112.0,Pass,0.4955,-0.0458,win,0.9259,0.4955,0.4983,0.4955,-148.0,1.0,0.5017,0.9259,25.0,0.028,,
-2026-09-12,Wagner @ James Madison,Spread (ATS),game_ats,Wagner +46.5,46.5,fanduel,-110.0,-110.0,Pass,0.5046,-0.0368,loss,-1.0,0.5046,0.5017,0.5046,113.0,0.0,-0.5017,-1.0,-25.0,-0.028,,
-2026-09-12,Wagner @ James Madison,Totals,game_total,Over 56.5,56.5,betmgm,-108.0,-110.0,Pass,0.5036,-0.0301,win,0.9259,0.5036,0.5005,0.5036,-133.0,1.0,0.4995,0.9259,26.0,0.0035,,
-2026-09-12,Wagner @ James Madison,Totals,game_total,Under 56.5,56.5,bovada,-105.0,-115.0,Pass,0.4964,-0.0308,loss,-1.0,0.4964,0.4995,0.4964,146.0,0.0,-0.4995,-1.0,-26.0,-0.0035,,
-2026-09-12,Wake Forest @ Purdue,Moneyline,game_ml,Purdue ML,,draftkings,130.0,-155.0,Pass,0.4818,0.1082,loss,-1.0,0.4818,0.4258,0.4818,170.0,0.5312,0.1054,0.2218,,0.0015,ml_no_sharp_money,-26.0
-2026-09-12,Wake Forest @ Purdue,Moneyline,game_ml,Wake Forest ML,,betrivers,-143.0,115.0,Pass,0.5182,-0.1195,win,0.6993,0.5182,0.5742,0.5182,134.0,0.4688,-0.1054,-0.2034,,-0.0015,,26.0
-2026-09-12,Wake Forest @ Purdue,Spread (ATS),game_ats,Purdue +3.0,3.0,mybookieag,-110.0,-110.0,Strong buy,0.5572,0.0637,win,0.9091,0.5572,0.5074,0.5572,100.0,0.6377,0.1303,0.2174,6.5,0.0001,,-6.0
-2026-09-12,Wake Forest @ Purdue,Spread (ATS),game_ats,Wake Forest -3.0,-3.0,lowvig,100.0,-112.0,Pass,0.4428,-0.1144,loss,-1.0,0.4428,0.4926,0.4428,-122.0,0.3623,-0.1303,-0.2754,-6.5,-0.0001,,6.0
-2026-09-12,Wake Forest @ Purdue,Totals,game_total,Over 50.5,50.5,williamhill_us,-107.0,-113.0,Pass,0.4131,-0.2008,win,0.9346,0.4131,0.4989,0.4131,185.0,0.3876,-0.1113,-0.2502,0.0,0.0011,,-24.0
-2026-09-12,Wake Forest @ Purdue,Totals,game_total,Under 50.5,50.5,lowvig,-108.0,-108.0,Pass,0.5869,0.1303,loss,-1.0,0.5869,0.5011,0.5869,-142.0,0.6124,0.1113,0.1794,0.0,-0.0011,,24.0
-2026-09-12,Washington Sta @ Kansas State,Moneyline,game_ml,Kansas State ML,,betonlineag,-900.0,613.0,Pass,0.7516,-0.1649,win,0.1111,0.8592,0.8713,0.7516,-50000.0,0.9807,0.1094,0.0897,,0.0005,,19.0
-2026-09-12,Washington Sta @ Kansas State,Moneyline,game_ml,Washington Sta ML,,fanduel,740.0,-1250.0,Pass,0.1408,0.1823,loss,-1.0,0.1408,0.1287,0.1408,5000.0,0.0193,-0.1094,-0.8379,,-0.0005,,-19.0
-2026-09-12,Washington Sta @ Kansas State,Spread (ATS),game_ats,Kansas State -17.5,-17.5,lowvig,-106.0,-106.0,Pass,0.4922,-0.0435,win,0.9434,0.4922,0.4995,0.4922,-111.0,0.7438,0.2443,0.4455,9.0,0.0,,-33.0
-2026-09-12,Washington Sta @ Kansas State,Spread (ATS),game_ats,Washington Sta +17.5,17.5,lowvig,-106.0,-106.0,Pass,0.5078,-0.0131,loss,-1.0,0.5078,0.5005,0.5078,102.0,0.2562,-0.2443,-0.5021,-9.0,0.0,,33.0
-2026-09-12,Washington Sta @ Kansas State,Totals,game_total,Over 49.0,49.0,bovada,-105.0,-115.0,Pass,0.4987,-0.0263,loss,-1.0,0.4987,0.4986,0.4987,-105.0,0.6026,0.104,0.1765,3.5,-0.0014,,35.0
-2026-09-12,Washington Sta @ Kansas State,Totals,game_total,Under 49.0,49.0,lowvig,-108.0,-108.0,Pass,0.5013,-0.0346,win,0.9259,0.5013,0.5014,0.5013,-114.0,0.3974,-0.104,-0.2346,-3.5,0.0014,,-35.0
-2026-09-12,Weber State @ Colorado,Moneyline,game_ml,Colorado ML,,draftkings,-6500.0,2000.0,Pass,0.8207,-0.1666,win,0.0154,0.985,0.9695,0.8207,-6500.0,0.9539,-0.0156,-0.0314,,0.0046,,-36.0
-2026-09-12,Weber State @ Colorado,Moneyline,game_ml,Weber State ML,,betmgm,4500.0,-25000.0,Pass,0.015,-0.3089,loss,-1.0,0.015,0.0305,0.015,2000.0,0.0461,0.0156,1.1206,,-0.0046,,36.0
-2026-09-12,Weber State @ Colorado,Spread (ATS),game_ats,Colorado -34.5,-34.5,fanduel,-105.0,-115.0,Pass,0.5082,-0.0077,loss,-1.0,0.5082,0.4964,0.5082,360.0,0.1609,-0.3355,-0.6859,-3.0,-0.0017,,20.0
-2026-09-12,Weber State @ Colorado,Spread (ATS),game_ats,Weber State +34.5,34.5,lowvig,-110.0,-110.0,Pass,0.4918,-0.0612,win,0.9091,0.4918,0.5036,0.4918,-360.0,0.8391,0.3355,0.6019,3.0,0.0017,,-20.0
-2026-09-12,Weber State @ Colorado,Totals,game_total,Over 55.5,55.5,fanatics,-105.0,-115.0,Pass,0.4988,-0.0262,win,0.9524,0.4988,0.4931,0.4988,-150.0,1.0,0.5069,0.9524,24.0,0.0002,,29.0
-2026-09-12,Weber State @ Colorado,Totals,game_total,Under 55.5,55.5,fanduel,-108.0,-112.0,Pass,0.5012,-0.0347,loss,-1.0,0.5012,0.5069,0.5012,143.0,0.0,-0.5069,-1.0,-24.0,-0.0002,,-29.0
+2026-09-12,UTSA @ Texas State,Moneyline,game_ml,Texas State ML,,draftkings,-122.0,102.0,Pass,0.5552,0.0103,loss,-1.0,0.5552,0.5352,0.5552,,,,,,0.003,,8.0
+2026-09-12,UTSA @ Texas State,Moneyline,game_ml,UTSA ML,,lowvig,110.0,-130.0,Pass,0.4448,-0.0659,win,1.1,0.4448,0.4648,0.4448,,,,,,-0.003,,
+2026-09-12,UTSA @ Texas State,Spread (ATS),game_ats,Texas State -2.0,-2.0,lowvig,-106.0,-106.0,Pass,0.5059,-0.0169,loss,-1.0,0.5059,0.5005,0.5059,,,,,,0.01,,18.0
+2026-09-12,UTSA @ Texas State,Spread (ATS),game_ats,UTSA +2.0,2.0,lowvig,-106.0,-106.0,Pass,0.4941,-0.0397,win,0.9434,0.4941,0.4995,0.4941,,,,,,-0.01,,
+2026-09-12,UTSA @ Texas State,Totals,game_total,Over 66.0,66.0,lowvig,-108.0,-108.0,Pass,0.5031,-0.031,loss,-1.0,0.5031,0.5,0.5031,,,,,,0.0,,
+2026-09-12,UTSA @ Texas State,Totals,game_total,Under 66.0,66.0,lowvig,-108.0,-108.0,Pass,0.4969,-0.0431,win,0.9259,0.4969,0.5,0.4969,,,,,,0.0,,-13.0
+2026-09-12,Utah State @ Washington,Moneyline,game_ml,Utah State ML,,fanduel,2000.0,-7000.0,Pass,0.0554,0.1634,loss,-1.0,0.0554,0.057,0.0554,,,,,,-0.0002,,-34.0
+2026-09-12,Utah State @ Washington,Moneyline,game_ml,Washington ML,,betmgm,-3000.0,1750.0,Pass,0.7985,-0.1749,win,0.0333,0.9446,0.943,0.7985,,,,,,0.0002,,34.0
+2026-09-12,Utah State @ Washington,Spread (ATS),game_ats,Utah State +27.5,27.5,fanduel,-105.0,-115.0,Strong buy,0.5497,0.0732,win,0.9524,0.5497,0.4984,0.5497,,,,,,-0.0053,,57.0
+2026-09-12,Utah State @ Washington,Spread (ATS),game_ats,Washington -27.5,-27.5,lowvig,-106.0,-106.0,Pass,0.4503,-0.1249,loss,-1.0,0.4503,0.5016,0.4503,,,,,,0.0053,,-57.0
+2026-09-12,Utah State @ Washington,Totals,game_total,Over 55.5,55.5,lowvig,-108.0,-108.0,Pass,0.4381,-0.1562,loss,-1.0,0.4381,0.5007,0.4381,,,,,,0.0,,18.0
+2026-09-12,Utah State @ Washington,Totals,game_total,Under 55.5,55.5,draftkings,-108.0,-112.0,Strong buy,0.5619,0.0821,win,0.9259,0.5619,0.4993,0.5619,,,,,,0.0,,-18.0
+2026-09-12,Wagner @ James Madison,Spread (ATS),game_ats,James Madison -46.5,-46.5,draftkings,-108.0,-112.0,Pass,0.4955,-0.0458,win,0.9259,0.4955,0.4983,0.4955,,,,,,0.028,,
+2026-09-12,Wagner @ James Madison,Spread (ATS),game_ats,Wagner +46.5,46.5,fanduel,-110.0,-110.0,Pass,0.5046,-0.0368,loss,-1.0,0.5046,0.5017,0.5046,,,,,,-0.028,,
+2026-09-12,Wagner @ James Madison,Totals,game_total,Over 56.5,56.5,betmgm,-108.0,-110.0,Pass,0.5036,-0.0301,win,0.9259,0.5036,0.5005,0.5036,,,,,,0.0035,,
+2026-09-12,Wagner @ James Madison,Totals,game_total,Under 56.5,56.5,bovada,-105.0,-115.0,Pass,0.4964,-0.0308,loss,-1.0,0.4964,0.4995,0.4964,,,,,,-0.0035,,
+2026-09-12,Wake Forest @ Purdue,Moneyline,game_ml,Purdue ML,,draftkings,130.0,-155.0,Pass,0.4818,0.1082,loss,-1.0,0.4818,0.4258,0.4818,,,,,,0.0015,ml_no_sharp_money,-26.0
+2026-09-12,Wake Forest @ Purdue,Moneyline,game_ml,Wake Forest ML,,betrivers,-143.0,115.0,Pass,0.5182,-0.1195,win,0.6993,0.5182,0.5742,0.5182,,,,,,-0.0015,,26.0
+2026-09-12,Wake Forest @ Purdue,Spread (ATS),game_ats,Purdue +3.0,3.0,mybookieag,-110.0,-110.0,Strong buy,0.5572,0.0637,win,0.9091,0.5572,0.5074,0.5572,,,,,,0.0001,,-6.0
+2026-09-12,Wake Forest @ Purdue,Spread (ATS),game_ats,Wake Forest -3.0,-3.0,lowvig,100.0,-112.0,Pass,0.4428,-0.1144,loss,-1.0,0.4428,0.4926,0.4428,,,,,,-0.0001,,6.0
+2026-09-12,Wake Forest @ Purdue,Totals,game_total,Over 50.5,50.5,williamhill_us,-107.0,-113.0,Pass,0.4131,-0.2008,win,0.9346,0.4131,0.4989,0.4131,,,,,,0.0011,,-24.0
+2026-09-12,Wake Forest @ Purdue,Totals,game_total,Under 50.5,50.5,lowvig,-108.0,-108.0,Pass,0.5869,0.1303,loss,-1.0,0.5869,0.5011,0.5869,,,,,,-0.0011,,24.0
+2026-09-12,Washington Sta @ Kansas State,Moneyline,game_ml,Kansas State ML,,betonlineag,-900.0,613.0,Pass,0.7516,-0.1649,win,0.1111,0.8592,0.8713,0.7516,,,,,,0.0005,,19.0
+2026-09-12,Washington Sta @ Kansas State,Moneyline,game_ml,Washington Sta ML,,fanduel,740.0,-1250.0,Pass,0.1408,0.1823,loss,-1.0,0.1408,0.1287,0.1408,,,,,,-0.0005,,-19.0
+2026-09-12,Washington Sta @ Kansas State,Spread (ATS),game_ats,Kansas State -17.5,-17.5,lowvig,-106.0,-106.0,Pass,0.4922,-0.0435,win,0.9434,0.4922,0.4995,0.4922,,,,,,0.0,,-33.0
+2026-09-12,Washington Sta @ Kansas State,Spread (ATS),game_ats,Washington Sta +17.5,17.5,lowvig,-106.0,-106.0,Pass,0.5078,-0.0131,loss,-1.0,0.5078,0.5005,0.5078,,,,,,0.0,,33.0
+2026-09-12,Washington Sta @ Kansas State,Totals,game_total,Over 49.0,49.0,bovada,-105.0,-115.0,Pass,0.4987,-0.0263,loss,-1.0,0.4987,0.4986,0.4987,,,,,,-0.0014,,35.0
+2026-09-12,Washington Sta @ Kansas State,Totals,game_total,Under 49.0,49.0,lowvig,-108.0,-108.0,Pass,0.5013,-0.0346,win,0.9259,0.5013,0.5014,0.5013,,,,,,0.0014,,-35.0
+2026-09-12,Weber State @ Colorado,Moneyline,game_ml,Colorado ML,,draftkings,-6500.0,2000.0,Pass,0.8207,-0.1666,win,0.0154,0.985,0.9695,0.8207,,,,,,0.0046,,-36.0
+2026-09-12,Weber State @ Colorado,Moneyline,game_ml,Weber State ML,,betmgm,4500.0,-25000.0,Pass,0.015,-0.3089,loss,-1.0,0.015,0.0305,0.015,,,,,,-0.0046,,36.0
+2026-09-12,Weber State @ Colorado,Spread (ATS),game_ats,Colorado -34.5,-34.5,fanduel,-105.0,-115.0,Pass,0.5082,-0.0077,loss,-1.0,0.5082,0.4964,0.5082,,,,,,-0.0017,,20.0
+2026-09-12,Weber State @ Colorado,Spread (ATS),game_ats,Weber State +34.5,34.5,lowvig,-110.0,-110.0,Pass,0.4918,-0.0612,win,0.9091,0.4918,0.5036,0.4918,,,,,,0.0017,,-20.0
+2026-09-12,Weber State @ Colorado,Totals,game_total,Over 55.5,55.5,fanatics,-105.0,-115.0,Pass,0.4988,-0.0262,win,0.9524,0.4988,0.4931,0.4988,,,,,,0.0002,,29.0
+2026-09-12,Weber State @ Colorado,Totals,game_total,Under 55.5,55.5,fanduel,-108.0,-112.0,Pass,0.5012,-0.0347,loss,-1.0,0.5012,0.5069,0.5012,,,,,,-0.0002,,-29.0
 2026-09-12,West Georgia @ Arkansas State,Moneyline,game_ml,Arkansas State ML,,fanatics,-9000.0,3000.0,Pass,0.8156,-0.1753,win,0.0111,0.9757,0.9634,0.8156,-8000.0,0.9692,0.0058,-0.02,,0.0,,-92.0
 2026-09-12,West Georgia @ Arkansas State,Moneyline,game_ml,West Georgia ML,,fanduel,3500.0,-20000.0,Pass,0.0243,-0.1243,loss,-1.0,0.0243,0.0366,0.0243,3500.0,0.0308,-0.0058,0.1088,,0.0,,
 2026-09-12,West Georgia @ Arkansas State,Spread (ATS),game_ats,Arkansas State -31.5,-31.5,bovada,-110.0,-110.0,Pass,0.5005,-0.0445,win,0.9091,0.5005,0.5037,0.5005,-112.0,0.5081,0.0044,-0.03,0.0,0.0017,,-3.0
@@ -639,31 +597,35 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-12,Western Illino @ Wisconsin,Spread (ATS),game_ats,Wisconsin -41.5,-41.5,williamhill_us,102.0,-125.0,Pass,0.4896,-0.0109,loss,-1.0,0.4896,0.4922,0.4896,-108.0,0.5552,0.063,0.1215,2.0,0.0269,,15.0
 2026-09-12,Western Illino @ Wisconsin,Totals,game_total,Over 50.5,50.5,draftkings,-105.0,-115.0,Pass,0.498,-0.0278,loss,-1.0,0.498,0.5004,0.498,-108.0,0.5974,0.097,0.1664,3.0,-0.002,,
 2026-09-12,Western Illino @ Wisconsin,Totals,game_total,Under 50.5,50.5,betonlineag,-105.0,-115.0,Pass,0.502,-0.0199,win,0.9524,0.502,0.4996,0.502,-105.0,0.4026,-0.097,-0.214,-3.0,0.002,,-10.0
-2026-09-12,Western Kentuc @ Georgia,Spread (ATS),game_ats,Georgia -40.5,-40.5,lowvig,-106.0,-106.0,Pass,0.4859,-0.0556,win,0.9434,0.4859,0.5002,0.4859,102.0,1.0,0.4998,0.9434,30.0,-0.0003,,6.0
-2026-09-12,Western Kentuc @ Georgia,Spread (ATS),game_ats,Western Kentuc +40.5,40.5,lowvig,-106.0,-106.0,Pass,0.5141,-0.001,loss,-1.0,0.5141,0.4998,0.5141,-105.0,0.0,-0.4998,-1.0,-30.0,0.0003,,
-2026-09-12,Western Kentuc @ Georgia,Totals,game_total,Over 55.5,55.5,fanatics,-105.0,-115.0,Pass,0.6388,0.2471,win,0.9524,0.6541,0.5004,0.6388,124.0,1.0,0.4996,0.9524,28.0,0.0003,,
-2026-09-12,Western Kentuc @ Georgia,Totals,game_total,Under 55.5,55.5,draftkings,-108.0,-112.0,Pass,0.3459,-0.3339,loss,-1.0,0.3459,0.4996,0.3459,-127.0,0.0,-0.4996,-1.0,-28.0,-0.0003,,-8.0
-2026-09-12,Wofford @ Kent State,Moneyline,game_ml,Kent State ML,,draftkings,-470.0,360.0,Pass,0.6881,-0.1655,win,0.2128,0.7438,0.7949,0.6881,-50000.0,0.9807,0.1858,0.1894,,-0.0031,,-16.0
-2026-09-12,Wofford @ Kent State,Moneyline,game_ml,Wofford ML,,betrivers,375.0,-530.0,Pass,0.2562,0.2168,loss,-1.0,0.2562,0.2051,0.2562,5000.0,0.0193,-0.1858,-0.9083,,0.0031,price_too_long,
-2026-09-12,Wofford @ Kent State,Spread (ATS),game_ats,Kent State -10.5,-10.5,draftkings,-108.0,-112.0,Pass,0.4993,-0.0385,win,0.9259,0.4993,0.5001,0.4993,-120.0,0.6674,0.1673,0.2854,6.0,-0.0041,,-20.0
-2026-09-12,Wofford @ Kent State,Spread (ATS),game_ats,Wofford +10.5,10.5,betrivers,-110.0,-113.0,Pass,0.5008,-0.044,loss,-1.0,0.5008,0.4999,0.5008,-102.0,0.3326,-0.1673,-0.365,-6.0,0.0041,,
-2026-09-12,Wofford @ Kent State,Totals,game_total,Over 47.0,47.0,fanatics,-110.0,-110.0,Pass,0.5,-0.0455,win,0.9091,0.5,0.5021,0.5,-115.0,0.6418,0.1397,0.2253,3.5,-0.0175,,
-2026-09-12,Wofford @ Kent State,Totals,game_total,Under 47.0,47.0,williamhill_us,-108.0,-114.0,Pass,0.5,-0.0369,loss,-1.0,0.5,0.4979,0.5,120.0,0.3582,-0.1397,-0.3101,-3.5,0.0175,,45.0
+2026-09-12,Western Kentuc @ Georgia,Spread (ATS),game_ats,Georgia -40.5,-40.5,lowvig,-106.0,-106.0,Pass,0.4859,-0.0556,win,0.9434,0.4859,0.5002,0.4859,,,,,,-0.0003,,6.0
+2026-09-12,Western Kentuc @ Georgia,Spread (ATS),game_ats,Western Kentuc +40.5,40.5,lowvig,-106.0,-106.0,Pass,0.5141,-0.001,loss,-1.0,0.5141,0.4998,0.5141,,,,,,0.0003,,
+2026-09-12,Western Kentuc @ Georgia,Totals,game_total,Over 55.5,55.5,fanatics,-105.0,-115.0,Pass,0.6388,0.2471,win,0.9524,0.6541,0.5004,0.6388,,,,,,0.0003,,
+2026-09-12,Western Kentuc @ Georgia,Totals,game_total,Under 55.5,55.5,draftkings,-108.0,-112.0,Pass,0.3459,-0.3339,loss,-1.0,0.3459,0.4996,0.3459,,,,,,-0.0003,,-8.0
+2026-09-12,Wofford @ Kent State,Moneyline,game_ml,Kent State ML,,draftkings,-470.0,360.0,Pass,0.6881,-0.1655,win,0.2128,0.7438,0.7949,0.6881,,,,,,-0.0031,,-16.0
+2026-09-12,Wofford @ Kent State,Moneyline,game_ml,Wofford ML,,betrivers,375.0,-530.0,Pass,0.2562,0.2168,loss,-1.0,0.2562,0.2051,0.2562,,,,,,0.0031,price_too_long,
+2026-09-12,Wofford @ Kent State,Spread (ATS),game_ats,Kent State -10.5,-10.5,draftkings,-108.0,-112.0,Pass,0.4993,-0.0385,win,0.9259,0.4993,0.5001,0.4993,,,,,,-0.0041,,-20.0
+2026-09-12,Wofford @ Kent State,Spread (ATS),game_ats,Wofford +10.5,10.5,betrivers,-110.0,-113.0,Pass,0.5008,-0.044,loss,-1.0,0.5008,0.4999,0.5008,,,,,,0.0041,,
+2026-09-12,Wofford @ Kent State,Totals,game_total,Over 47.0,47.0,fanatics,-110.0,-110.0,Pass,0.5,-0.0455,win,0.9091,0.5,0.5021,0.5,,,,,,-0.0175,,
+2026-09-12,Wofford @ Kent State,Totals,game_total,Under 47.0,47.0,williamhill_us,-108.0,-114.0,Pass,0.5,-0.0369,loss,-1.0,0.5,0.4979,0.5,,,,,,0.0175,,45.0
 2026-09-17,Syracuse @ Pittsburgh,Moneyline,game_ml,Pittsburgh ML,,fanduel,-410.0,315.0,Pass,0.6812,-0.1526,win,0.2439,0.7313,0.7783,0.6812,-400.0,0.777,-0.0013,-0.0335,,0.0025,,17.0
 2026-09-17,Syracuse @ Pittsburgh,Moneyline,game_ml,Syracuse ML,,mybookieag,340.0,-461.0,Pass,0.2687,0.1821,loss,-1.0,0.2687,0.2217,0.2687,340.0,0.223,0.0013,-0.0188,,-0.0025,,-17.0
 2026-09-17,Syracuse @ Pittsburgh,Spread (ATS),game_ats,Pittsburgh -10.5,-10.5,draftkings,-105.0,-115.0,Pass,0.4852,-0.0528,win,0.9524,0.4852,0.4986,0.4852,-108.0,0.5013,0.0027,-0.0213,0.0,-0.0032,,45.0
 2026-09-17,Syracuse @ Pittsburgh,Spread (ATS),game_ats,Syracuse +10.5,10.5,lowvig,-104.0,-108.0,Pass,0.5148,0.0098,loss,-1.0,0.5148,0.5014,0.5148,-108.0,0.4987,-0.0027,-0.0218,0.0,0.0032,,-45.0
 2026-09-17,Syracuse @ Pittsburgh,Totals,game_total,Over 51.5,51.5,lowvig,-105.0,-112.0,Pass,0.4274,-0.1657,loss,-1.0,0.4274,0.4977,0.4274,-103.0,0.4924,-0.0053,-0.0386,0.0,0.0019,,16.0
 2026-09-17,Syracuse @ Pittsburgh,Totals,game_total,Under 51.5,51.5,draftkings,-108.0,-112.0,Strong buy,0.5726,0.1029,win,0.9259,0.5726,0.5023,0.5726,-110.0,0.5076,0.0053,-0.0224,0.0,-0.0019,,-16.0
-2026-09-18,Houston @ Texas Tech,Moneyline,game_ml,Houston ML,,lowvig,260.0,-320.0,Pass,0.2918,0.0505,loss,-1.0,0.2918,0.272,0.2918,267.0,0.2685,-0.0035,-0.0334,,-0.0071,,
-2026-09-18,Houston @ Texas Tech,Moneyline,game_ml,Texas Tech ML,,betmgm,-300.0,250.0,Pass,0.7082,-0.0557,win,0.3333,0.7082,0.728,0.7082,-310.0,0.7315,0.0035,-0.0247,,0.0071,,
-2026-09-18,Houston @ Texas Tech,Spread (ATS),game_ats,Houston +7.5,7.5,fanduel,-105.0,-115.0,Pass,0.5065,-0.0112,win,0.9524,0.5065,0.4993,0.5065,-108.0,0.501,0.0017,-0.0219,0.0,-0.0037,,
-2026-09-18,Houston @ Texas Tech,Spread (ATS),game_ats,Texas Tech -7.5,-7.5,fanatics,-105.0,-115.0,Pass,0.4935,-0.0365,loss,-1.0,0.4935,0.5007,0.4935,-104.0,0.499,-0.0017,-0.0258,0.0,0.0037,,
-2026-09-18,Houston @ Texas Tech,Totals,game_total,Over 52.5,52.5,draftkings,-108.0,-112.0,Pass,0.4435,-0.1458,win,0.9259,0.4435,0.4994,0.4435,-108.0,0.5014,0.002,-0.0343,0.0,-0.0322,,
-2026-09-18,Houston @ Texas Tech,Totals,game_total,Under 52.5,52.5,lowvig,-108.0,-108.0,Strong buy,0.5565,0.0717,loss,-1.0,0.5565,0.5006,0.5565,-104.0,0.4986,-0.002,-0.0397,0.0,0.0322,,
-2026-09-18,Miami @ Wake Forest,Moneyline,game_ml,Miami ML,,betmgm,-1400.0,950.0,Pass,0.871,-0.0668,win,0.0714,0.871,0.9055,0.871,-1400.0,0.9055,0.0,-0.0298,,-0.0057,,25.0
-2026-09-18,Miami @ Wake Forest,Moneyline,game_ml,Wake Forest ML,,draftkings,950.0,-1650.0,Pass,0.129,0.3548,loss,-1.0,0.129,0.0945,0.129,950.0,0.0945,0.0,-0.0077,,0.0057,price_too_long,-25.0
-2026-09-18,Miami @ Wake Forest,Spread (ATS),game_ats,Miami -20.5,-20.5,lowvig,-104.0,-108.0,Pass,0.4126,-0.1906,loss,-1.0,0.4126,0.5007,0.4126,-108.0,0.4952,-0.0055,-0.0286,-0.5,-0.0128,,-26.0
-2026-09-18,Miami @ Wake Forest,Spread (ATS),game_ats,Wake Forest +20.5,20.5,draftkings,-108.0,-112.0,Pass,0.5874,0.1312,win,0.9259,0.5874,0.4993,0.5874,-104.0,0.5048,0.0055,-0.0278,0.5,0.0128,,26.0
-2026-09-18,Miami @ Wake Forest,Totals,game_total,Over 55.5,55.5,bovada,-105.0,-115.0,Pass,0.2574,-0.4974,loss,-1.0,0.2574,0.4963,0.2574,-105.0,0.5149,0.0186,0.0053,0.5,-0.0003,,-40.0
-2026-09-18,Miami @ Wake Forest,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-113.0,Pass,0.6874,0.3299,win,0.9346,0.7426,0.5037,0.6874,-105.0,0.4851,-0.0186,-0.0615,-0.5,0.0003,,40.0
+2026-09-18,Houston @ Texas Tech,Moneyline,game_ml,Houston ML,,draftkings,260.0,-325.0,Pass,0.3229,0.1626,loss,-1.0,0.3229,0.2713,0.3229,267.0,0.2685,-0.0028,-0.0334,,-0.0079,price_too_long,
+2026-09-18,Houston @ Texas Tech,Moneyline,game_ml,Texas Tech ML,,betmgm,-300.0,250.0,Pass,0.6514,-0.1315,win,0.3333,0.6771,0.7287,0.6514,-310.0,0.7315,0.0028,-0.0247,,0.0079,,
+2026-09-18,Houston @ Texas Tech,Spread (ATS),game_ats,Houston +7.5,7.5,fanduel,-105.0,-115.0,Pass,0.5065,-0.0112,win,0.9524,0.5065,0.4994,0.5065,-108.0,0.501,0.0016,-0.0219,0.0,-0.0035,,
+2026-09-18,Houston @ Texas Tech,Spread (ATS),game_ats,Texas Tech -7.5,-7.5,fanatics,-105.0,-115.0,Pass,0.4935,-0.0365,loss,-1.0,0.4935,0.5006,0.4935,-104.0,0.499,-0.0016,-0.0258,0.0,0.0035,,
+2026-09-18,Houston @ Texas Tech,Totals,game_total,Over 52.5,52.5,draftkings,-108.0,-112.0,Pass,0.4435,-0.1458,win,0.9259,0.4435,0.5026,0.4435,-108.0,0.5014,-0.0012,-0.0343,0.0,-0.029,,
+2026-09-18,Houston @ Texas Tech,Totals,game_total,Under 52.5,52.5,lowvig,-103.0,-114.0,Strong buy,0.5565,0.0967,loss,-1.0,0.5565,0.4974,0.5565,-104.0,0.4986,0.0012,-0.0173,0.0,0.029,,
+2026-09-18,Miami @ Wake Forest,Moneyline,game_ml,Miami ML,,betmgm,-1400.0,950.0,Pass,0.7503,-0.1961,win,0.0714,0.8569,0.9051,0.7503,-1400.0,0.9055,0.0004,-0.0298,,-0.0061,,25.0
+2026-09-18,Miami @ Wake Forest,Moneyline,game_ml,Wake Forest ML,,betmgm,950.0,-1400.0,Pass,0.1431,0.5023,loss,-1.0,0.1431,0.0949,0.1431,950.0,0.0945,-0.0004,-0.0077,,0.0061,price_too_long,-25.0
+2026-09-18,Miami @ Wake Forest,Spread (ATS),game_ats,Miami -20.5,-20.5,lowvig,-104.0,-108.0,Pass,0.4126,-0.1906,loss,-1.0,0.4126,0.5004,0.4126,-108.0,0.4952,-0.0052,-0.0286,-0.5,-0.0131,,-27.0
+2026-09-18,Miami @ Wake Forest,Spread (ATS),game_ats,Wake Forest +20.5,20.5,betrivers,-107.0,-115.0,Pass,0.5874,0.1363,win,0.9346,0.5874,0.4996,0.5874,-104.0,0.5048,0.0052,-0.0234,0.5,0.0131,,27.0
+2026-09-18,Miami @ Wake Forest,Totals,game_total,Over 55.5,55.5,betmgm,-105.0,-112.0,Pass,0.2574,-0.4974,loss,-1.0,0.2574,0.4949,0.2574,-105.0,0.5149,0.02,0.0053,0.5,-0.0017,,-40.0
+2026-09-18,Miami @ Wake Forest,Totals,game_total,Under 55.5,55.5,williamhill_us,-107.0,-113.0,Pass,0.6874,0.3299,win,0.9346,0.7426,0.5051,0.6874,-105.0,0.4851,-0.02,-0.0615,-0.5,0.0017,,40.0
+2026-09-18,Portland State @ Oregon,Spread (ATS),game_ats,Oregon -57.5,-57.5,draftkings,-108.0,-112.0,Pass,0.5013,-0.0344,win,0.9259,0.5013,0.5013,0.5013,-105.0,0.5423,0.041,0.0444,1.5,0.0262,,
+2026-09-18,Portland State @ Oregon,Spread (ATS),game_ats,Portland State +57.5,57.5,fanduel,-105.0,-115.0,Pass,0.4987,-0.0264,loss,-1.0,0.4987,0.4987,0.4987,-105.0,0.4577,-0.041,-0.1064,-1.5,-0.0262,,
+2026-09-18,Portland State @ Oregon,Totals,game_total,Over 68.5,68.5,betonlineag,-110.0,-110.0,Pass,0.5012,-0.0431,win,0.9091,0.5012,0.5031,0.5012,-109.0,0.5982,0.0951,0.142,3.0,0.0951,,
+2026-09-18,Portland State @ Oregon,Totals,game_total,Under 68.5,68.5,betmgm,-105.0,-112.0,Pass,0.4988,-0.0262,loss,-1.0,0.4988,0.4969,0.4988,-103.0,0.4018,-0.0951,-0.2155,-3.0,-0.0951,,
