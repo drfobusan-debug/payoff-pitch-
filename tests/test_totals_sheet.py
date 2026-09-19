@@ -384,3 +384,47 @@ def test_a_game_vsin_has_not_posted_reads_its_total_off_the_card_board() -> None
     assert totals_sheet._total_label(splits, "KC @ PIT", board) == "8"
     assert totals_sheet._total_label(splits, "SF @ LAD", board) == ""
     assert totals_sheet._total_label(splits, "KC @ PIT") == ""
+
+
+def test_the_sheet_asks_the_public_boards_only_for_games_still_blank(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """9/19 on the Mac: no VSIN line, no local card, no board -- fourteen blanks.
+    The public boards fill them; a game VSIN or the card already priced is not asked for."""
+    asked: list[set[str]] = []
+
+    def fake(cfg: object, slate: object, missing: set[str]) -> dict[str, float]:
+        asked.append(set(missing))
+        return {m: 8.0 for m in missing}
+
+    monkeypatch.setattr(totals_sheet, "posted_totals", fake)
+    splits = {("DET @ CWS", "draftkings"): TotalSplit(8.0)}
+    board = {"CHC @ CIN": 9.5}
+    games = ["DET @ CWS", "CHC @ CIN", "KC @ PIT"]
+    missing = {m for m in games if not totals_sheet._total_label(splits, m, board)}
+    board = {**fake(None, None, missing), **board}
+    assert asked == [{"KC @ PIT"}]
+    assert totals_sheet._total_label(splits, "KC @ PIT", board) == "8"
+    assert totals_sheet._total_label(splits, "CHC @ CIN", board) == "9.5"
+
+
+def test_a_day_with_no_local_card_is_pulled_off_the_state_branch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from mlb_engine import state
+
+    pulled: list[tuple[Path, str, tuple[str, ...] | None]] = []
+
+    def fake_pull(data_dir: Path, branch: str = "x", dates: tuple[str, ...] | None = None) -> None:
+        pulled.append((data_dir, branch, dates))
+        return None
+
+    monkeypatch.setattr(state, "auto_pull", fake_pull)
+    cfg = SimpleNamespace(
+        data_dir=tmp_path, audit_dir=tmp_path / "audit", state_sync=True, state_branch="engine-state"
+    )
+    totals_sheet.pull_day_state(cfg, Date(2026, 9, 19))  # type: ignore[arg-type]
+    assert pulled == [(tmp_path, "engine-state", ("2026-09-19",))]
+    cfg.state_sync = False
+    totals_sheet.pull_day_state(cfg, Date(2026, 9, 19))  # type: ignore[arg-type]
+    assert len(pulled) == 1
