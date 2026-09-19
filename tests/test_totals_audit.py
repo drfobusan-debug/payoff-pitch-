@@ -382,3 +382,26 @@ def test_the_watch_buckets_are_graded_as_bets_on_their_own_side() -> None:
     assert "Watch buckets" in text and "total <= 8.5: 1-1 (50%)" in text and "total <= 7.5: 1-0-1 (100%)" in text
     assert "+8 COL @ NYY 8.5 6-5 (11) over hit [watch over]" in text
     assert "+9 SD @ SF 9.5 6-5 (11) over hit\n" in text
+
+
+def test_the_morning_grade_pushes_the_totals_ledger_to_engine_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import scripts.totals_audit as cli
+
+    class Cfg:
+        state_sync = True
+        state_branch = "engine-state"
+        data_dir = tmp_path
+
+    pushed: list[tuple[Path, str, str]] = []
+    monkeypatch.setattr(cli, "load_config", lambda: Cfg())
+    monkeypatch.setattr(cli, "run_audit", lambda cfg, day, sheet: (tmp_path / "totals_audit.xlsx", "graded"))
+    monkeypatch.setattr(cli, "auto_push", lambda d, m, branch: pushed.append((d, m, branch)) or None)
+    assert cli.main(["2026-09-18"]) == 0
+    assert pushed == [(tmp_path, "totals audit 2026-09-17 graded", "engine-state")]
+
+    pushed.clear()
+    monkeypatch.setattr(cli, "run_audit", lambda cfg, day, sheet: (None, "no ledger"))
+    assert cli.main(["2026-09-18"]) == 0
+    assert pushed == []
