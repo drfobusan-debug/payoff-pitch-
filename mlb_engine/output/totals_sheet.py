@@ -34,6 +34,7 @@ from mlb_engine.audit.clv import board_path, load_closing
 from mlb_engine.audit.ledger import load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
+from mlb_engine.data.game_totals import posted_totals
 from mlb_engine.data.mlb_statsapi import BASE as STATSAPI
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.parks import Park, get_park
@@ -694,6 +695,19 @@ def day_cards(cfg: Config, day: Date) -> list[list[Recommendation]]:
     return cards
 
 
+def pull_day_state(cfg: Config, day: Date) -> None:
+    """Fetch the day's card and board off the state branch when this machine
+    has neither: the slate may have been priced elsewhere, or under another
+    data dir, and the branch is where every pass publishes as soon as it prices."""
+    if not cfg.state_sync:
+        return
+    from mlb_engine.state import auto_pull  # state imports this module's constants
+
+    report = auto_pull(cfg.data_dir, branch=cfg.state_branch, dates=(day.isoformat(),))
+    if report is not None and report.pulled:
+        log.info("totals sheet: pulled %s from %s", ", ".join(report.pulled), cfg.state_branch)
+
+
 def day_outs_under(cfg: Config, day: Date) -> OutsUnder:
     """The outs props off the card the audit grades for the day; the other copy
     is still consulted when the first carries no outs props at all."""
@@ -1044,6 +1058,8 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     outs: OutsUnder = {}
     card_totals: dict[str, float] = {}
     try:
+        if not day_cards(cfg, day) or not board_path(cfg.audit_dir, day).exists():
+            pull_day_state(cfg, day)
         cards = day_cards(cfg, day)
         outs = day_outs_under(cfg, day)
         card_totals = day_card_lines(cards)
@@ -1062,9 +1078,13 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
         log.warning("totals sheet: day's board unreadable: %s", exc)
     # the pass's board snapshot first, the card's priced line where the board has none
     board = {**card_totals, **board}
-    missing = [g.matchup() for g in slate.games if not _total_label(splits, g.matchup(), board)]
+    missing = {g.matchup() for g in slate.games if not _total_label(splits, g.matchup(), board)}
     if missing:
-        log.info("totals sheet: no posted total for %s", ", ".join(missing))
+        # neither VSIN nor anything this machine priced: ask the public boards
+        board = {**posted_totals(cfg, slate, missing), **board}
+        missing = {m for m in missing if not _total_label(splits, m, board)}
+    if missing:
+        log.info("totals sheet: no posted total for %s", ", ".join(sorted(missing)))
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs, board)
     path = write_workbook(rows, day, out, fg.mid)
     try:
