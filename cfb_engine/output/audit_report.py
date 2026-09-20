@@ -119,6 +119,14 @@ def _clv_table(rows: list[ClvSummary]) -> str:
     return f"<table>{head}{body}</table>"
 
 
+def _placed(m: OverallMetrics) -> bool:
+    return bool(m.n or m.pushes)
+
+
+def _record(m: OverallMetrics) -> str:
+    return f"{m.wins}-{m.losses}-{m.pushes}" if m.pushes else f"{m.wins}-{m.losses}"
+
+
 def build_audit_article(
     audit_date: Date,
     overall: list[OverallMetrics],
@@ -141,9 +149,9 @@ def build_audit_article(
         f"<h1>Slate Report — {nice}</h1></div>"
     )
     lead = f"Graded <b>{n_graded}</b> markets"
-    if slate_buy is not None and slate_buy.n:
+    if slate_buy is not None and _placed(slate_buy):
         lead += (
-            f"; the slate's buys went <b>{slate_buy.wins}-{slate_buy.losses}</b> "
+            f"; the slate's buys went <b>{_record(slate_buy)}</b> "
             f"(<span class='{_cls(slate_buy.units)}'>{slate_buy.units:+.1f} units</span>)."
         )
     elif n_graded:
@@ -180,10 +188,11 @@ def _narration(
 ) -> str:
     buy = next((m for m in overall if m.tier == "Buy (S+M)"), None)
     parts = [f"Payoff Pitch Gridiron audit for {nice}. We graded {n_graded} markets. "]
-    if slate_buy is not None and slate_buy.n:
+    if slate_buy is not None and _placed(slate_buy):
         verb = "up" if slate_buy.units >= 0 else "down"
+        pushes = f" and {slate_buy.pushes} pushed" if slate_buy.pushes else ""
         parts.append(
-            f"The slate's buys went {slate_buy.wins} and {slate_buy.losses}, "
+            f"The slate's buys went {slate_buy.wins} and {slate_buy.losses}{pushes}, "
             f"{verb} {abs(slate_buy.units):.1f} units. "
         )
     elif n_graded:
