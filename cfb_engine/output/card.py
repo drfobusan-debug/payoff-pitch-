@@ -13,9 +13,12 @@ from __future__ import annotations
 
 import logging
 from datetime import date as Date
+from datetime import datetime
 from html import escape
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
+from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief, TeamBrief
@@ -23,6 +26,71 @@ from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
+
+EASTERN = ZoneInfo("America/New_York")
+
+
+def _kickoff(recs: list[Recommendation]) -> datetime | None:
+    stamp = recs[0].kickoff_utc
+    if not stamp:
+        return None
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(EASTERN)
+    except ValueError:
+        return None
+
+
+def _kick_label(recs: list[Recommendation]) -> str:
+    dt = _kickoff(recs)
+    if dt is None:
+        return ""
+    return dt.strftime("%-I:%M %p ET")
+
+
+def _slate_order(groups: dict[str, list[Recommendation]]) -> list[list[Recommendation]]:
+    """Games early to late; a game with no kickoff stamp sorts after the rest."""
+
+    def order(g: list[Recommendation]) -> tuple[bool, str, str]:
+        dt = _kickoff(g)
+        return dt is None, dt.isoformat() if dt else "", g[0].matchup
+
+    return sorted(groups.values(), key=order)
+
+
+def _spread(x: float | None) -> str:
+    if x is None:
+        return ""
+    return f"{x:+g}" if x else "pk"
+
+
+def _move(open_: str, now: str) -> str:
+    if not open_ or open_ == now:
+        return f"{now} <span class='muted'>(unmoved)</span>" if open_ else now
+    return f"{open_} → <b>{now}</b>"
+
+
+def _movement_line(recs: list[Recommendation]) -> str:
+    """Where each market opened (first board the engine saw) beside where it sits now."""
+    bits: list[str] = []
+    mls = [r for r in recs if r.market == "game_ml" and r.market_american is not None]
+    if mls:
+        fav = min(mls, key=lambda r: r.market_american or 0)
+        bits.append(
+            f"ML {escape(side_of(fav.selection))} {_move(_odds(fav.open_american), _odds(fav.market_american))}"
+        )
+    ats = _home_side(recs, "game_ats")
+    if ats is not None and ats.line is not None:
+        bits.append(
+            f"Spread {escape(side_of(ats.selection))} {_move(_spread(ats.open_line), _spread(ats.line))}"
+        )
+    tot = _home_side(recs, "game_total")
+    if tot is not None and tot.line is not None:
+        bits.append(
+            f"Total {_move('' if tot.open_line is None else f'{tot.open_line:g}', f'{tot.line:g}')}"
+        )
+    if not bits or all(r.open_line is None and r.open_american is None for r in recs):
+        return ""
+    return f"<p class='mkt'><b>Line movement</b> (open → now): {' &nbsp;|&nbsp; '.join(bits)}</p>"
 
 
 def _pct(x: float | None) -> str:
@@ -432,6 +500,8 @@ def _ordinal(n: int) -> str:
 
 def _game_section(recs: list[Recommendation]) -> str:
     matchup, headline, desc = _game_shape(recs)
+    when = _kick_label(recs)
+    kick = f" <span class='kick'>{when}</span>" if when else ""
     b = recs[0].brief
     context = ""
     if b is not None:
@@ -440,8 +510,8 @@ def _game_section(recs: list[Recommendation]) -> str:
             f"{_watch_line(b)}{_out_line(b)}{_venue_line(b)}{_sharp_line(recs)}"
         )
     return (
-        f"<div class='game'><h2>{escape(matchup)}</h2>"
-        f"{_market_line(recs)}"
+        f"<div class='game'><h2>{escape(matchup)}{kick}</h2>"
+        f"{_market_line(recs)}{_movement_line(recs)}"
         f"<div class='shape'><span class='tag'>{headline}</span> {desc}</div>"
         f"{context}"
         f"{_ml_line(recs)}"
@@ -487,6 +557,7 @@ p{margin:6px 0;}
 .shape .tag{display:inline-block;background:#16324f;color:#fff;padding:1px 8px;border-radius:10px;font-size:8.4pt;font-family:'DejaVu Sans',sans-serif;margin-right:6px;}
 .ml{font-size:10pt;margin:6px 0;}
 .mkt{margin:-2px 0 4px;font-size:9.4pt;color:#4b5563;}
+.kick{float:right;font-family:'DejaVu Sans',sans-serif;font-size:9pt;color:#6b7280;font-weight:normal;padding-top:4px;}
 table.teams{width:100%;border-collapse:collapse;font-size:8.9pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
 table.teams th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 6px;font-size:7.8pt;text-transform:uppercase;letter-spacing:.5px;}
 table.teams td{padding:3px 6px;border-bottom:1px solid #eceef1;vertical-align:top;}
@@ -511,7 +582,7 @@ ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd7
 def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
-    ordered_games = sorted(groups.values(), key=lambda g: g[0].matchup)
+    ordered_games = _slate_order(groups)
     nice = day.strftime("%A, %B %-d, %Y")
     n_bets = len(_best_bets(recs))
     masthead = (
@@ -523,7 +594,7 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     )
     lead = (
         f"Good morning — here's the {len(ordered_games)}-game college football board for "
-        f"{nice.split(',')[0]}. For every matchup we project the expected margin and total "
+        f"{nice.split(',')[0]}, listed by kickoff, early games first. For every matchup we project the expected margin and total "
         "from team power ratings, set the model's number next to the market's, and read the "
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
@@ -579,6 +650,33 @@ def _spoken_context(b: GameBrief) -> str:
     return out
 
 
+def _spoken_movement(recs: list[Recommendation]) -> str:
+    """Only the numbers that actually moved since the open; silence otherwise."""
+    bits: list[str] = []
+    when = _kick_label(recs)
+    if when:
+        bits.append(f"Kickoff {when.replace(' ET', ' Eastern')}.")
+    mls = [r for r in recs if r.market == "game_ml" and r.market_american is not None]
+    if mls:
+        fav = min(mls, key=lambda r: r.market_american or 0)
+        if fav.open_american is not None and round(fav.open_american) != round(
+            fav.market_american or 0
+        ):
+            bits.append(
+                f"{side_of(fav.selection)} moneyline opened {_odds(fav.open_american)}, "
+                f"now {_odds(fav.market_american)}."
+            )
+    tot = _home_side(recs, "game_total")
+    if (
+        tot is not None
+        and tot.line is not None
+        and tot.open_line is not None
+        and tot.open_line != tot.line
+    ):
+        bits.append(f"The total opened {tot.open_line:g} and sits at {tot.line:g}.")
+    return " ".join(bits) + " " if bits else ""
+
+
 def _drop_pos(label: str) -> str:
     """``"WR Ny Carr"`` -> ``"Ny Carr"``; a label with no position prefix is unchanged."""
     head, _, rest = label.partition(" ")
@@ -608,6 +706,7 @@ def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommen
         brief = r.brief
         if brief is not None:
             parts.append(_spoken_context(brief))
+        parts.append(_spoken_movement(group))
         parts.append(
             f"The model likes a {headline.lower()} game, about "
             f"{r.exp_total or 0:.0f} points, leaning {fav}. "
