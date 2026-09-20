@@ -18601,6 +18601,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_1b",
+    "selection": "Carlos Narvaez 1B o0.5",
+    "american": 228.0,
+    "no_vig_prob": 0.28446
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_1b",
+    "selection": "Carlos Narvaez 1B u0.5",
+    "american": -329.0,
+    "no_vig_prob": 0.71554
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_1b",
     "selection": "Christian Encarnacion-Strand 1B o0.5",
     "american": 133.0,
     "no_vig_prob": 0.407034
@@ -18811,6 +18825,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_1b",
+    "selection": "Sal Frelick 1B o0.5",
+    "american": -107.0,
+    "no_vig_prob": 0.478518
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_1b",
+    "selection": "Sal Frelick 1B u0.5",
+    "american": -129.0,
+    "no_vig_prob": 0.521482
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_1b",
     "selection": "Samuel Basallo 1B o0.5",
     "american": 174.0,
     "no_vig_prob": 0.345992
@@ -18849,6 +18877,20 @@
     "selection": "Brice Turang 2B u0.5",
     "american": -576.0,
     "no_vig_prob": 0.805395
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_2b",
+    "selection": "Carlos Narvaez 2B o0.5",
+    "american": 860.0,
+    "no_vig_prob": 0.099648
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_2b",
+    "selection": "Carlos Narvaez 2B u0.5",
+    "american": -1600.0,
+    "no_vig_prob": 0.900352
   },
   {
     "matchup": "MIL @ BAL",
@@ -19063,6 +19105,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_2b",
+    "selection": "Sal Frelick 2B o0.5",
+    "american": 478.0,
+    "no_vig_prob": 0.163515
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_2b",
+    "selection": "Sal Frelick 2B u0.5",
+    "american": -770.0,
+    "no_vig_prob": 0.836485
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_2b",
     "selection": "Samuel Basallo 2B o0.5",
     "american": 740.0,
     "no_vig_prob": 0.121818
@@ -19115,6 +19171,20 @@
     "selection": "Brice Turang BB u0.5",
     "american": -115.0,
     "no_vig_prob": 0.504774
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_bb",
+    "selection": "Carlos Narvaez BB o0.5",
+    "american": 382.0,
+    "no_vig_prob": 0.195413
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_bb",
+    "selection": "Carlos Narvaez BB u0.5",
+    "american": -586.0,
+    "no_vig_prob": 0.804587
   },
   {
     "matchup": "MIL @ BAL",
@@ -19329,6 +19399,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_bb",
+    "selection": "Sal Frelick BB o0.5",
+    "american": 296.0,
+    "no_vig_prob": 0.254973
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_bb",
+    "selection": "Sal Frelick BB u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.745027
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_bb",
     "selection": "Samuel Basallo BB o0.5",
     "american": 260.0,
     "no_vig_prob": 0.265523
@@ -19381,6 +19465,20 @@
     "selection": "Brice Turang H+R+RBI u1.5",
     "american": 110.0,
     "no_vig_prob": 0.472869
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
+    "selection": "Carlos Narvaez H+R+RBI o0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.432409
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
+    "selection": "Carlos Narvaez H+R+RBI u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.567591
   },
   {
     "matchup": "MIL @ BAL",
@@ -19490,9 +19588,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hrr",
+    "selection": "Gunnar Henderson H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
     "selection": "Gunnar Henderson H+R+RBI u0.5",
     "american": 145.0,
     "no_vig_prob": 0.397148
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
+    "selection": "Gunnar Henderson H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
   },
   {
     "matchup": "MIL @ BAL",
@@ -19504,9 +19616,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hrr",
+    "selection": "Jackson Chourio H+R+RBI o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.420271
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
     "selection": "Jackson Chourio H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.422586
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
+    "selection": "Jackson Chourio H+R+RBI u2.5",
+    "american": -159.0,
+    "no_vig_prob": 0.579729
   },
   {
     "matchup": "MIL @ BAL",
@@ -19595,6 +19721,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hrr",
+    "selection": "Sal Frelick H+R+RBI o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.43289
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
+    "selection": "Sal Frelick H+R+RBI u1.5",
+    "american": -148.0,
+    "no_vig_prob": 0.56711
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hrr",
     "selection": "Samuel Basallo H+R+RBI o0.5",
     "american": -130.0,
     "no_vig_prob": 0.537414
@@ -19626,6 +19766,20 @@
     "selection": "Brice Turang HR o0.5",
     "american": 650.0,
     "no_vig_prob": 0.135632
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Brice Turang HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.011667
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Carlos Narvaez HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
   },
   {
     "matchup": "MIL @ BAL",
@@ -19679,6 +19833,13 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hr",
+    "selection": "Colton Cowser HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.007092
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
     "selection": "Cooper Pratt HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
@@ -19686,9 +19847,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hr",
+    "selection": "Cooper Pratt HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
     "selection": "Dylan Beavers HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Dylan Beavers HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
   },
   {
     "matchup": "MIL @ BAL",
@@ -19756,6 +19931,13 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hr",
+    "selection": "Jeremiah Jackson HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
     "selection": "Joey Ortiz HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.097619
@@ -19763,9 +19945,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_hr",
+    "selection": "Joey Ortiz HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.007092
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
     "selection": "Leody Taveras HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.085145
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Leody Taveras HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
   },
   {
     "matchup": "MIL @ BAL",
@@ -19787,6 +19983,20 @@
     "selection": "Pete Alonso HR o1.5",
     "american": 3500.0,
     "no_vig_prob": 0.027778
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Sal Frelick HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.079193
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_hr",
+    "selection": "Sal Frelick HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
   },
   {
     "matchup": "MIL @ BAL",
@@ -19829,6 +20039,20 @@
     "selection": "Brice Turang H u0.5",
     "american": 180.0,
     "no_vig_prob": 0.351169
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
+    "selection": "Carlos Narvaez H o0.5",
+    "american": 147.0,
+    "no_vig_prob": 0.390389
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
+    "selection": "Carlos Narvaez H u0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.609611
   },
   {
     "matchup": "MIL @ BAL",
@@ -20050,6 +20274,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_h",
+    "selection": "Sal Frelick H o0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.589675
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
+    "selection": "Sal Frelick H u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410325
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
     "selection": "Samuel Basallo H o0.5",
     "american": -105.0,
     "no_vig_prob": 0.482065
@@ -20071,9 +20309,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_h",
+    "selection": "William Contreras H o1.5",
+    "american": 204.0,
+    "no_vig_prob": 0.314438
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
     "selection": "William Contreras H u0.5",
     "american": 195.0,
     "no_vig_prob": 0.329191
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_h",
+    "selection": "William Contreras H u1.5",
+    "american": -275.0,
+    "no_vig_prob": 0.685562
   },
   {
     "matchup": "MIL @ BAL",
@@ -20088,6 +20340,20 @@
     "selection": "Brice Turang RBI u0.5",
     "american": -235.0,
     "no_vig_prob": 0.664591
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_rbi",
+    "selection": "Carlos Narvaez RBI o0.5",
+    "american": 522.0,
+    "no_vig_prob": 0.152317
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_rbi",
+    "selection": "Carlos Narvaez RBI u0.5",
+    "american": -850.0,
+    "no_vig_prob": 0.847683
   },
   {
     "matchup": "MIL @ BAL",
@@ -20302,6 +20568,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_rbi",
+    "selection": "Sal Frelick RBI o0.5",
+    "american": 251.0,
+    "no_vig_prob": 0.2663
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_rbi",
+    "selection": "Sal Frelick RBI u0.5",
+    "american": -365.0,
+    "no_vig_prob": 0.7337
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_rbi",
     "selection": "Samuel Basallo RBI o0.5",
     "american": 290.0,
     "no_vig_prob": 0.249872
@@ -20340,6 +20620,20 @@
     "selection": "Brice Turang R u0.5",
     "american": -110.0,
     "no_vig_prob": 0.52032
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_r",
+    "selection": "Carlos Narvaez R o0.5",
+    "american": 338.0,
+    "no_vig_prob": 0.214502
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_r",
+    "selection": "Carlos Narvaez R u0.5",
+    "american": -510.0,
+    "no_vig_prob": 0.785498
   },
   {
     "matchup": "MIL @ BAL",
@@ -20554,6 +20848,20 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_r",
+    "selection": "Sal Frelick R o0.5",
+    "american": 174.0,
+    "no_vig_prob": 0.339202
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_r",
+    "selection": "Sal Frelick R u0.5",
+    "american": -246.0,
+    "no_vig_prob": 0.660798
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_r",
     "selection": "Samuel Basallo R o0.5",
     "american": 230.0,
     "no_vig_prob": 0.28853
@@ -20592,6 +20900,20 @@
     "selection": "Brice Turang TB u1.5",
     "american": -165.0,
     "no_vig_prob": 0.595188
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_tb",
+    "selection": "Carlos Narvaez TB o0.5",
+    "american": 152.0,
+    "no_vig_prob": 0.378091
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_tb",
+    "selection": "Carlos Narvaez TB u0.5",
+    "american": -199.0,
+    "no_vig_prob": 0.621909
   },
   {
     "matchup": "MIL @ BAL",
@@ -20918,6 +21240,27 @@
   {
     "matchup": "MIL @ BAL",
     "market": "batter_tb",
+    "selection": "Sal Frelick TB o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583956
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_tb",
+    "selection": "Sal Frelick TB o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.338983
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_tb",
+    "selection": "Sal Frelick TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.416044
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "batter_tb",
     "selection": "Samuel Basallo TB o0.5",
     "american": -103.0,
     "no_vig_prob": 0.481336
@@ -20981,6 +21324,13 @@
   {
     "matchup": "MIL @ BAL",
     "market": "f5_rl",
+    "selection": "BAL F5 +1.5",
+    "american": -155.0,
+    "no_vig_prob": 0.573642
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "f5_rl",
     "selection": "MIL F5 -0.5",
     "american": -148.0,
     "no_vig_prob": 0.575187
@@ -20991,6 +21341,13 @@
     "selection": "MIL F5 -1.0",
     "american": -110.0,
     "no_vig_prob": 0.489879
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "f5_rl",
+    "selection": "MIL F5 -1.5",
+    "american": 122.0,
+    "no_vig_prob": 0.426358
   },
   {
     "matchup": "MIL @ BAL",
@@ -21149,9 +21506,23 @@
   {
     "matchup": "MIL @ BAL",
     "market": "pitcher_h",
+    "selection": "Jacob Misiorowski Hits o2.5",
+    "american": -155.0,
+    "no_vig_prob": 0.567647
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "pitcher_h",
     "selection": "Jacob Misiorowski Hits o3.5",
     "american": 135.0,
     "no_vig_prob": 0.403598
+  },
+  {
+    "matchup": "MIL @ BAL",
+    "market": "pitcher_h",
+    "selection": "Jacob Misiorowski Hits u2.5",
+    "american": 117.0,
+    "no_vig_prob": 0.432353
   },
   {
     "matchup": "MIL @ BAL",
@@ -23952,6 +24323,76 @@
     "selection": "Ryan Johnson Outs u16.5",
     "american": 100.0,
     "no_vig_prob": 0.47976
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_ml",
+    "selection": "MIN ML",
+    "american": -116.0,
+    "no_vig_prob": 0.526015
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_ml",
+    "selection": "SF ML",
+    "american": 106.0,
+    "no_vig_prob": 0.473985
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_rl",
+    "selection": "MIN -1.5",
+    "american": 141.0,
+    "no_vig_prob": 0.399937
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_rl",
+    "selection": "SF +1.5",
+    "american": -164.0,
+    "no_vig_prob": 0.600063
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": -140.0,
+    "no_vig_prob": 0.560509
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": -118.0,
+    "no_vig_prob": 0.520881
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 102.0,
+    "no_vig_prob": 0.47702
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": 120.0,
+    "no_vig_prob": 0.439491
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": 103.0,
+    "no_vig_prob": 0.479119
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -120.0,
+    "no_vig_prob": 0.52298
   },
   {
     "matchup": "NYY @ AZ",
@@ -34256,6 +34697,62 @@
     "selection": "Matt Wilkinson Outs u11.5",
     "american": -114.0,
     "no_vig_prob": 0.498493
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_ml",
+    "selection": "BAL ML",
+    "american": -105.0,
+    "no_vig_prob": 0.503603
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_ml",
+    "selection": "TOR ML",
+    "american": -104.0,
+    "no_vig_prob": 0.496397
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_rl",
+    "selection": "BAL +1.5",
+    "american": -193.0,
+    "no_vig_prob": 0.634155
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_rl",
+    "selection": "TOR -1.5",
+    "american": 165.0,
+    "no_vig_prob": 0.365845
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": -110.0,
+    "no_vig_prob": 0.50435
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_total",
+    "selection": "Over 8.0",
+    "american": 103.0,
+    "no_vig_prob": 0.477361
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -105.0,
+    "no_vig_prob": 0.49565
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "game_total",
+    "selection": "Under 8.0",
+    "american": -118.0,
+    "no_vig_prob": 0.522639
   },
   {
     "matchup": "TOR @ TEX",
