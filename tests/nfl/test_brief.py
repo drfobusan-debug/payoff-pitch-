@@ -18,7 +18,13 @@ from nfl_engine.audit.ledger import LedgerEntry
 from nfl_engine.data.color import GameColor, parse_summary, scoreboard_url
 from nfl_engine.features.ratings import RatingBook, TeamRating
 from nfl_engine.output.brief import GameBrief, TeamBrief, build_briefs
-from nfl_engine.output.card import build_card, market_reads, render_html, render_markdown
+from nfl_engine.output.card import (
+    build_card,
+    market_moves,
+    market_reads,
+    render_html,
+    render_markdown,
+)
 
 SEASON, WEEK = 2026, 3
 
@@ -87,6 +93,37 @@ def test_the_market_line_reads_the_consensus_rung_off_the_ledger(
     assert "Total over 44.5 market 50.0% · model 48.0%" in page
     assert "ML CHI market 44.0% · model 47.0%" in page
     assert "_moneyline CHI market 44.0% · model 47.0%" in render_markdown(card)
+
+
+def test_the_line_move_reads_open_to_now_on_each_market_main_number(
+    rows: list[LedgerEntry],
+) -> None:
+    assert market_moves(rows) == []  # nothing stamped: no opening board archived
+    stamp = {
+        ("moneyline", "GB"): (None, -135.0),
+        ("moneyline", "CHI"): (None, 115.0),
+        ("spread", "CHI", 2.5): (3.0, -110.0),
+        ("total", "over", 44.5): (45.5, -105.0),
+    }
+    for e in rows:
+        key = (e.market, e.side) if e.market == "moneyline" else (e.market, e.side, e.line)
+        if key in stamp:
+            e.open_line, e.open_odds = stamp[key]
+            e.open_captured_at = "2026-09-22T12:05:00Z"
+    rows[0].odds = 120.0  # CHI ML now +120, GB unchanged at -110 -> compare to its open -135
+    moves = [m.text() for m in market_moves(rows)]
+    assert moves == [
+        "ML GB -135 → -110",
+        "ML CHI +115 → +120",
+        "ATS CHI +3 (-110) → +2.5 (-110)",
+        "Total 45.5 (o -105) → 44.5 (o -110)",
+    ]
+    rows[0].odds = 115.0
+    assert market_moves(rows)[1].text() == "ML CHI +115 unch."
+    card = build_card(rows, season=SEASON, week=WEEK)
+    page = render_html(card)
+    assert "Line move since 2026-09-22: ML GB -135 → -110 · ML CHI +115 unch. · ATS CHI +3" in page
+    assert "_Line move since 2026-09-22: ML GB" in render_markdown(card)
 
 
 def test_a_card_without_briefs_renders_as_before(rows: list[LedgerEntry]) -> None:

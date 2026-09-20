@@ -97,6 +97,39 @@ class MarketRead:
         return f"{self.side} {self.line:+g}"
 
 
+@dataclass(frozen=True)
+class MarketMove:
+    """One market's main number at the week's open and on the board priced.
+
+    Moneyline carries no line; a spread is the named side's handicap; a total
+    is the number with the over's price.
+    """
+
+    market: str
+    side: str
+    open_line: float | None
+    open_odds: float
+    line: float | None
+    odds: float
+
+    def moved(self) -> bool:
+        return self.open_line != self.line or self.open_odds != self.odds
+
+    def text(self) -> str:
+        def at(line: float | None, odds: float) -> str:
+            if self.market == "moneyline" or line is None:
+                return f"{odds:+.0f}"
+            if self.market == "total":
+                return f"{line:g} (o {odds:+.0f})"
+            return f"{line:+g} ({odds:+.0f})"
+
+        label = {"moneyline": "ML", "spread": "ATS", "total": "Total"}.get(self.market, self.market)
+        who = "" if self.market == "total" else f"{self.side} "
+        if not self.moved():
+            return f"{label} {who}{at(self.line, self.odds)} unch."
+        return f"{label} {who}{at(self.open_line, self.open_odds)} → {at(self.line, self.odds)}"
+
+
 @dataclass
 class GameSection:
     matchup: str
@@ -105,6 +138,10 @@ class GameSection:
     # The market's no-vig number beside ours on the consensus rung of each market,
     # read from the same ledger rows. Display only.
     reads: list[MarketRead] = field(default_factory=list)
+    # How each market's main number ran from the week's archived open to the board
+    # priced, read from the same rows' open stamps. Display only.
+    moves: list[MarketMove] = field(default_factory=list)
+    opened_at: str = ""
     # Records, ratings, starters, injuries, venue, forecast, storylines: the context
     # a reader wants, gathered after pricing and never fed back into it.
     brief: GameBrief | None = None
@@ -177,6 +214,8 @@ def build_card(
                 matchup=entry.matchup,
                 kickoff=entry.kickoff_utc or entry.date,
                 reads=market_reads(by_game[entry.matchup]),
+                moves=market_moves(by_game[entry.matchup]),
+                opened_at=_opened_at(by_game[entry.matchup]),
                 brief=(briefs or {}).get(entry.matchup),
                 benchmark=outside.get(entry.matchup),
                 absences=absence_note(absences or [], entry.matchup),
@@ -255,6 +294,51 @@ def market_reads(rows: list[LedgerEntry]) -> list[MarketRead]:
     return out
 
 
+def market_moves(rows: list[LedgerEntry]) -> list[MarketMove]:
+    """Both moneylines, the home spread and the total: open -> priced, main line each.
+
+    A row's open stamp is the market's main number at the earliest archived
+    board, so the row on today's consensus rung is the one whose own line and
+    price compare with it main-to-main. Rows never stamped (no board archived
+    before the run) contribute nothing.
+    """
+    if not rows:
+        return []
+    away, _, home = (canonical(t.strip()) for t in rows[0].matchup.partition(" @ "))
+    picks: list[tuple[str, list[LedgerEntry]]] = [
+        ("moneyline", [e for e in rows if e.market == "moneyline" and canonical(e.side) == away]),
+        ("moneyline", [e for e in rows if e.market == "moneyline" and canonical(e.side) == home]),
+        ("spread", [e for e in rows if e.market == "spread" and canonical(e.side) == home]),
+        ("total", [e for e in rows if e.market == "total" and e.side == "over"]),
+    ]
+    out: list[MarketMove] = []
+    for market, candidates in picks:
+        stamped = [
+            e
+            for e in candidates
+            if e.fair_prob is not None and e.odds is not None and e.open_odds is not None
+        ]
+        if not stamped:
+            continue
+        row = min(stamped, key=lambda e: abs((e.fair_prob or 0.5) - 0.5))
+        out.append(
+            MarketMove(
+                market=market,
+                side=row.side,
+                open_line=row.open_line,
+                open_odds=float(row.open_odds or 0.0),
+                line=row.line,
+                odds=float(row.odds or 0.0),
+            )
+        )
+    return out
+
+
+def _opened_at(rows: list[LedgerEntry]) -> str:
+    stamps = sorted(e.open_captured_at for e in rows if e.open_captured_at)
+    return stamps[0][:10] if stamps else ""
+
+
 def _record(entries: list[LedgerEntry]) -> list[Metrics]:
     """The record to date, over every graded row in the ledger.
 
@@ -299,6 +383,9 @@ def render_markdown(card: WeekCard) -> str:
         )
         if reads:
             lines.append(f"_{reads}_")
+            lines.append("")
+        if game.moves:
+            lines.append(f"_{_moves_text(game)}_")
             lines.append("")
         if game.brief is not None:
             for team in (game.brief.away, game.brief.home):
@@ -430,6 +517,18 @@ def _market_line(game: GameSection) -> str:
     if not bits:
         return ""
     return f"<p class='mkt'><i>{' &nbsp;|&nbsp; '.join(bits)}</i></p>"
+
+
+def _moves_text(game: GameSection) -> str:
+    since = f" since {game.opened_at}" if game.opened_at else ""
+    return f"Line move{since}: " + " · ".join(m.text() for m in game.moves)
+
+
+def _moves_line(game: GameSection) -> str:
+    """Each market's main number, open to now, one italic line under the market read."""
+    if not game.moves:
+        return ""
+    return f"<p class='mkt'><i>{html.escape(_moves_text(game))}</i></p>"
 
 
 def _epa(x: float | None, rank: int | None) -> str:
@@ -726,7 +825,7 @@ def _game_section(game: GameSection) -> str:
     )
     return (
         f"<div class='game'><h2>{html.escape(title)}<span class='kick'>{_kickoff(game)}</span></h2>"
-        f"{_market_line(game)}"
+        f"{_market_line(game)}{_moves_line(game)}"
         f"{_shape(game)}"
         f"{context}{bench_html}"
         f"{_game_best_block(game)}{_veto_line(game)}</div>"
