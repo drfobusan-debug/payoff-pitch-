@@ -50,9 +50,9 @@ def _kick_label(recs: list[Recommendation]) -> str:
 def _slate_order(groups: dict[str, list[Recommendation]]) -> list[list[Recommendation]]:
     """Games early to late; a game with no kickoff stamp sorts after the rest."""
 
-    def order(g: list[Recommendation]) -> tuple[bool, str, str]:
+    def order(g: list[Recommendation]) -> tuple[bool, float, str]:
         dt = _kickoff(g)
-        return dt is None, dt.isoformat() if dt else "", g[0].matchup
+        return dt is None, dt.timestamp() if dt else 0.0, g[0].matchup
 
     return sorted(groups.values(), key=order)
 
