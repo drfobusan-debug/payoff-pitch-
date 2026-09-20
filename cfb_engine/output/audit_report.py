@@ -127,23 +127,35 @@ def build_audit_article(
     price_rows: list[OverallMetrics] | None = None,
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
+    slate_buy: OverallMetrics | None = None,
 ) -> tuple[str, str]:
-    """Return ``(html, narration_text)`` for the graded slate."""
+    """Return ``(html, narration_text)`` for the graded slate.
+
+    ``overall`` is cumulative; ``slate_buy`` is the buy record of the day's
+    own graded markets, so the lead never passes the ledger off as the slate.
+    """
     nice = audit_date.strftime("%A, %B %-d, %Y")
     buy = next((m for m in overall if m.tier == "Buy (S+M)"), None)
     masthead = (
         "<div class='masthead'><div class='brand'>Payoff Pitch · Gridiron Audit</div>"
         f"<h1>Slate Report — {nice}</h1></div>"
     )
+    lead = f"Graded <b>{n_graded}</b> markets"
+    if slate_buy is not None and slate_buy.n:
+        lead += (
+            f"; the slate's buys went <b>{slate_buy.wins}-{slate_buy.losses}</b> "
+            f"(<span class='{_cls(slate_buy.units)}'>{slate_buy.units:+.1f} units</span>)."
+        )
+    elif n_graded:
+        lead += "; no buys cleared the threshold on this slate."
+    else:
+        lead += "."
     if buy and buy.n:
-        lead = (
-            f"Graded <b>{n_graded}</b> markets. The engine's buys went "
-            f"<b>{buy.wins}-{buy.losses}</b> "
+        lead += (
+            f" Ledger to date: buys <b>{buy.wins}-{buy.losses}</b> "
             f"(<span class='{_cls(buy.roi)}'>{buy.roi * 100:+.1f}% ROI</span>, "
             f"{buy.units:+.1f} units)."
         )
-    else:
-        lead = f"Graded <b>{n_graded}</b> markets; no buys cleared the threshold on this slate."
     html = (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_CSS}</style></head><body>"
         f"{masthead}<p>{lead}</p>"
@@ -155,7 +167,7 @@ def build_audit_article(
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
     )
-    return html, _narration(nice, overall, n_graded, money_rows or [], probation or [])
+    return html, _narration(nice, overall, n_graded, money_rows or [], probation or [], slate_buy)
 
 
 def _narration(
@@ -164,17 +176,24 @@ def _narration(
     n_graded: int,
     money_rows: list[PricedStat],
     probation: list[str],
+    slate_buy: OverallMetrics | None = None,
 ) -> str:
     buy = next((m for m in overall if m.tier == "Buy (S+M)"), None)
     parts = [f"Payoff Pitch Gridiron audit for {nice}. We graded {n_graded} markets. "]
+    if slate_buy is not None and slate_buy.n:
+        verb = "up" if slate_buy.units >= 0 else "down"
+        parts.append(
+            f"The slate's buys went {slate_buy.wins} and {slate_buy.losses}, "
+            f"{verb} {abs(slate_buy.units):.1f} units. "
+        )
+    elif n_graded:
+        parts.append("No plays cleared the buy threshold on this slate. ")
     if buy and buy.n:
         verb = "up" if buy.units >= 0 else "down"
         parts.append(
-            f"The model's buys went {buy.wins} and {buy.losses}, "
+            f"Ledger to date, the model's buys are {buy.wins} and {buy.losses}, "
             f"{verb} {abs(buy.units):.1f} units, an ROI of {buy.roi * 100:.0f} percent. "
         )
-    else:
-        parts.append("No plays cleared the buy threshold on this slate. ")
     every = next((s for s in money_rows if s.key == "ALL"), None)
     if every is not None and every.n:
         # Read aloud because it is the sentence the ROI line cannot convey: a win
@@ -206,11 +225,12 @@ def generate_audit_report(
     price_rows: list[OverallMetrics] | None = None,
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
+    slate_buy: OverallMetrics | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
     html, narr = build_audit_article(
-        audit_date, overall, clv_rows, n_graded, price_rows, money_rows, probation
+        audit_date, overall, clv_rows, n_graded, price_rows, money_rows, probation, slate_buy
     )
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
