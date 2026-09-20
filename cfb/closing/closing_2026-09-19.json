@@ -1342,32 +1342,32 @@
   "Purdue @ UCLA|game_ats|Purdue": {
     "american": 100.0,
     "line": 13.5,
-    "no_vig_prob": 0.48871627793271183
+    "no_vig_prob": 0.48684899456569847
   },
   "Purdue @ UCLA|game_ats|UCLA": {
-    "american": -107.0,
+    "american": -112.0,
     "line": -13.5,
-    "no_vig_prob": 0.511283722067288
+    "no_vig_prob": 0.5131510054343014
   },
   "Purdue @ UCLA|game_ml|Purdue": {
-    "american": 500.0,
+    "american": 475.0,
     "line": null,
-    "no_vig_prob": 0.1687787631595765
+    "no_vig_prob": 0.17415373311188867
   },
   "Purdue @ UCLA|game_ml|UCLA": {
-    "american": -625.0,
+    "american": -550.0,
     "line": null,
-    "no_vig_prob": 0.8312212368404236
+    "no_vig_prob": 0.8258462668881115
   },
   "Purdue @ UCLA|game_total|Over": {
     "american": -110.0,
-    "line": 52.5,
-    "no_vig_prob": 0.5076988991456758
+    "line": 53.0,
+    "no_vig_prob": 0.5080573332034637
   },
   "Purdue @ UCLA|game_total|Under": {
-    "american": -103.0,
-    "line": 52.5,
-    "no_vig_prob": 0.4923011008543243
+    "american": 100.0,
+    "line": 53.0,
+    "no_vig_prob": 0.49194266679653625
   },
   "SMU @ Louisville|game_ats|Louisville": {
     "american": -103.0,
