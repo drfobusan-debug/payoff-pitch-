@@ -116,6 +116,16 @@ def test_the_audit_lead_keeps_the_slate_apart_from_the_ledger():
     assert "No plays cleared" not in narration
 
 
+def test_the_audit_lead_counts_a_pushed_buy_as_placed():
+    graded = [(_rec(Tier.STRONG), "push"), (_rec(Tier.MODERATE), "push")]
+    slate = entries_from_graded(graded, DAY)
+    slate_buy = next(m for m in overall_metrics(slate) if m.tier == "Buy (S+M)")
+    html, narration = build_audit_article(DAY, overall_metrics(slate), [], 2, slate_buy=slate_buy)
+    assert "the slate's buys went <b>0-0-2</b>" in html
+    assert "no buys cleared" not in html
+    assert "0 and 0 and 2 pushed" in narration
+
+
 def test_the_audit_article_says_so_when_nothing_crossed_the_bar():
     html, _ = build_audit_article(DAY, [], [], 0)
     assert "no market or screen is on probation" in html
