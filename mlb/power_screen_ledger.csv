@@ -1,9 +1,9 @@
 date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_prob,edge,ev,tier,rating,devigged,delivery,run_id,rank,points,fit_pts,fit_rv,category,gate,arm_tier
-2026-08-18,Salvador Perez,521692,824075,HR,0.5,over,williamhill_us,425.0,0.1988,,0.1994,-0.0007,0.0434,Pass,HOLD,False,,,,,,,,,
-2026-08-18,Salvador Perez,521692,824075,HRR,1.5,over,draftkings,-119.0,0.5684,,0.5118,0.0566,0.046,Pass,HOLD,True,,,,,,,,,
-2026-08-18,Salvador Perez,521692,824075,RBI,0.5,over,draftkings,163.0,0.435,,0.3713,0.0637,0.1441,Strong buy,HOLD,True,,,,,,,,,
-2026-08-18,Salvador Perez,521692,824075,TB,1.5,over,betonlineag,130.0,0.4688,,0.4224,0.0463,0.0781,Pass,HOLD,True,,,,,,,,,
-2026-08-18,Max Muncy,571970,824319,H,1.5,over,draftkings,186.0,0.4387,,0.3331,0.1056,0.2548,Pass,BUY,True,,,,,,,,,
+2026-08-18,Salvador Perez,521692,824075,HR,0.5,over,williamhill_us,425.0,0.1988,,0.1994,-0.0007,0.0434,Pass,HOLD,False,,,,,,,batter,,
+2026-08-18,Salvador Perez,521692,824075,HRR,1.5,over,draftkings,-119.0,0.5684,,0.5118,0.0566,0.046,Pass,HOLD,True,,,,,,,batter,,
+2026-08-18,Salvador Perez,521692,824075,RBI,0.5,over,draftkings,163.0,0.435,,0.3713,0.0637,0.1441,Strong buy,HOLD,True,,,,,,,batter,,
+2026-08-18,Salvador Perez,521692,824075,TB,1.5,over,betonlineag,130.0,0.4688,,0.4224,0.0463,0.0781,Pass,HOLD,True,,,,,,,batter,,
+2026-08-18,Max Muncy,571970,824319,H,1.5,over,draftkings,186.0,0.4387,,0.3331,0.1056,0.2548,Pass,BUY,True,,,,,,,batter,,
 2026-08-18,Max Muncy,571970,824319,HR,0.5,over,betrivers,285.0,0.4358,,0.2805,0.1553,0.6776,Pass,BUY,False,,,,,,,batter,,
 2026-08-18,Max Muncy,571970,824319,HRR,2.5,over,betmgm,110.0,0.6105,,0.4734,0.137,0.282,Pass,BUY,True,,,,,,,batter,,
 2026-08-18,Max Muncy,571970,824319,RBI,0.5,over,draftkings,-106.0,0.5968,,0.4767,0.1201,0.1599,Pass,BUY,True,,,,,,,batter,,
@@ -44,11 +44,11 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-08-18,Drake Baldwin,686948,823667,H,1.5,over,betrivers,180.0,0.4636,,0.3419,0.1216,0.2979,Pass,HOLD,False,,,,,,,batter,,
 2026-08-18,Drake Baldwin,686948,823667,HR,0.5,over,williamhill_us,370.0,0.1998,,0.2257,-0.0258,-0.0607,Pass,HOLD,False,,,,,,,batter,,
 2026-08-18,Drake Baldwin,686948,823667,HRR,2.5,over,betonlineag,125.0,0.5379,,0.4266,0.1113,0.2102,Pass,HOLD,True,,,,,,,batter,,
-2026-08-18,Drake Baldwin,686948,823667,TB,1.5,over,betonlineag,104.0,0.595,,0.4675,0.1275,0.2138,Pass,HOLD,True,,,,,,,,,
-2026-08-18,Jac Caglianone,695506,824075,H,1.5,over,betrivers,200.0,0.54,,0.3333,0.2067,0.62,Pass,AVOID,False,,,,,,,,,
-2026-08-18,Jac Caglianone,695506,824075,HR,0.5,over,williamhill_us,370.0,0.4075,,0.2345,0.173,0.9152,Pass,AVOID,False,,,,,,,,,
-2026-08-18,Jac Caglianone,695506,824075,HRR,2.5,over,betmgm,115.0,0.6623,,0.4367,0.2256,0.424,Pass,AVOID,True,,,,,,,,,
-2026-08-18,Jac Caglianone,695506,824075,RBI,0.5,over,draftkings,140.0,0.6124,,0.4014,0.2109,0.4697,Pass,AVOID,True,,,,,,,,,
+2026-08-18,Drake Baldwin,686948,823667,TB,1.5,over,betonlineag,104.0,0.595,,0.4675,0.1275,0.2138,Pass,HOLD,True,,,,,,,batter,,
+2026-08-18,Jac Caglianone,695506,824075,H,1.5,over,betrivers,200.0,0.54,,0.3333,0.2067,0.62,Pass,AVOID,False,,,,,,,batter,,
+2026-08-18,Jac Caglianone,695506,824075,HR,0.5,over,williamhill_us,370.0,0.4075,,0.2345,0.173,0.9152,Pass,AVOID,False,,,,,,,batter,,
+2026-08-18,Jac Caglianone,695506,824075,HRR,2.5,over,betmgm,115.0,0.6623,,0.4367,0.2256,0.424,Pass,AVOID,True,,,,,,,batter,,
+2026-08-18,Jac Caglianone,695506,824075,RBI,0.5,over,draftkings,140.0,0.6124,,0.4014,0.2109,0.4697,Pass,AVOID,True,,,,,,,batter,,
 2026-08-19,Mike Yastrzemski,573262,823664,2B,0.5,over,draftkings,438.0,0.23,,0.1815,0.0485,0.2374,Pass,AVOID,True,,,,,,,batter,,
 2026-08-19,Mike Yastrzemski,573262,823664,HR,0.5,over,williamhill_us,575.0,0.2295,,0.1675,0.062,0.5491,Pass,AVOID,False,,,,,,,batter,,
 2026-08-19,Mike Yastrzemski,573262,823664,RBI,0.5,over,draftkings,253.0,0.376,,0.2681,0.1079,0.3273,Pass,AVOID,True,,,,,,,batter,,
@@ -905,3 +905,24 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-17,Lawrence Butler,671732,822924,RBI,0.5,over,draftkings,266.0,0.2541,0.2681,0.2697,-0.0016,-0.0187,Pass,HOLD,True,confirmed,20260917T1600Z,11,7,7,-1.39,batter,ev_floor,elite
 2026-09-17,Lawrence Butler,671732,822924,TB,1.5,over,betrivers,215.0,0.2754,0.3133,0.3175,-0.0042,-0.0132,Pass,HOLD,False,confirmed,20260917T1600Z,11,7,7,-1.39,batter,one_way_quote,elite
 2026-09-17,Kyle Harrison,690986,823334,K,5.5,over,betmgm,125.0,0.4416,0.4381,0.4377,0.0004,-0.0143,Pass,,True,confirmed,20260917T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Michael Wacha,608379,823329,ER,2.5,over,betmgm,-118.0,0.5706,0.5108,0.5042,0.0066,-0.0563,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Michael Wacha,608379,823329,H,5.5,over,betmgm,100.0,0.5098,0.4917,0.4874,0.0042,-0.0167,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Michael Wacha,608379,823329,K,4.5,over,fanatics,-115.0,0.6077,0.524,0.5147,0.0093,-0.0203,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Michael Wacha,608379,823329,outs,17.5,under,draftkings,116.0,0.5491,0.4448,0.4332,0.0116,-0.0392,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Patrick Sandoval,663776,822922,BB,1.5,under,bovada,140.0,0.4516,0.4232,0.3948,0.0284,0.0157,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,prob_floor,elite
+2026-09-20,Patrick Sandoval,663776,822922,ER,2.5,over,betmgm,105.0,0.6467,0.4743,0.4551,0.0192,-0.0277,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Patrick Sandoval,663776,822922,H,5.5,over,bovada,120.0,0.7094,0.4943,0.4439,0.0505,0.0876,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,prob_floor,elite
+2026-09-20,Patrick Sandoval,663776,822922,K,4.5,over,draftkings,125.0,0.4375,0.4251,0.4237,0.0014,-0.0436,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Patrick Sandoval,663776,822922,outs,15.5,over,betmgm,130.0,0.4553,0.4333,0.4309,0.0024,-0.0033,Pass,,True,confirmed,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Brandon Lowe,664040,823329,BB,0.5,over,draftkings,218.0,0.2637,0.3151,0.3208,-0.0057,0.002,Pass,HOLD,True,confirmed,20260920T1409Z,8,8,5,3.91,batter,thin_edge,elite
+2026-09-20,Brandon Lowe,664040,823329,HRR,1.5,under,betmgm,-105.0,0.4765,0.4985,0.501,-0.0024,-0.0267,Pass,HOLD,True,confirmed,20260920T1409Z,8,8,5,3.91,batter,ev_floor,elite
+2026-09-20,Brandon Lowe,664040,823329,TB,1.5,over,betrivers,138.0,0.4673,0.4176,0.4121,0.0055,-0.0061,Pass,HOLD,False,confirmed,20260920T1409Z,8,8,5,3.91,batter,one_way_quote,elite
+2026-09-20,Bryan Reynolds,668804,823329,1B,0.5,under,betmgm,-125.0,0.6635,0.5583,0.5466,0.0117,0.005,Pass,HOLD,True,confirmed,20260920T1409Z,4,29,11,0.84,batter,thin_edge,elite
+2026-09-20,Bryan Reynolds,668804,823329,HRR,1.5,over,bovada,-105.0,0.5015,0.4977,0.4973,0.0004,-0.0283,Pass,HOLD,True,confirmed,20260920T1409Z,4,29,11,0.84,batter,ev_floor,elite
+2026-09-20,Bryan Reynolds,668804,823329,HRR,1.5,under,betmgm,100.0,0.4985,0.5023,0.5027,-0.0004,0.0046,Pass,HOLD,True,confirmed,20260920T1409Z,4,29,11,0.84,batter,thin_edge,elite
+2026-09-20,Jack Perkins,678022,824381,ER,2.5,over,fanatics,105.0,0.617,0.4673,0.4507,0.0166,-0.042,Pass,,True,contradicted,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Jack Perkins,678022,824381,H,4.5,over,betmgm,-150.0,0.6755,0.5799,0.5575,0.0224,-0.0334,Pass,,True,contradicted,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Jack Perkins,678022,824381,K,4.5,over,draftkings,129.0,0.4375,0.4215,0.4197,0.0018,-0.0347,Pass,,True,contradicted,20260920T1409Z,,,,,pitcher,ev_floor,elite
+2026-09-20,Nick Gonzales,693304,823329,BB,0.5,over,draftkings,340.0,0.2983,0.2344,0.2273,0.0071,0.0313,Pass,BUY,True,confirmed,20260920T1409Z,7,12,7,-2.05,batter,thin_edge,elite
+2026-09-20,Nick Gonzales,693304,823329,HRR,1.5,under,betmgm,105.0,0.488,0.4827,0.4821,0.0006,-0.0104,Pass,BUY,True,confirmed,20260920T1409Z,7,12,7,-2.05,batter,ev_floor,elite
+2026-09-20,Nick Gonzales,693304,823329,RBI,0.5,over,draftkings,227.0,0.2544,0.3075,0.3134,-0.0059,0.0055,Pass,BUY,True,confirmed,20260920T1409Z,7,12,7,-2.05,batter,thin_edge,elite
