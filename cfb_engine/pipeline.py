@@ -579,6 +579,7 @@ class Pipeline:
         tier, mark_reasons = self._mark(ctx.signal, market, team_side, side, line, tier)
         reasons = [*reasons, *mark_reasons]
 
+        opened = self._first_board.get(snapshot.key(ctx.matchup, market, selection))
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = None
@@ -622,12 +623,15 @@ class Pipeline:
             tier=tier,
             reasons=reasons,
             drift=drift,
+            open_line=None if opened is None else opened.line,
+            open_american=None if opened is None else opened.american,
             pass_gate=pass_gate,
             sharp_div=None if split is None else split.divergence,
             team_side=team_side,
             side=side,
             home_abbrev=ctx.home_ab,
             away_abbrev=ctx.away_ab,
+            kickoff_utc=ctx.game.commence_time_utc,
             exp_margin=ctx.sim.exp_margin,
             exp_margin_sd=ctx.sim.exp_margin_sd,
             exp_total=ctx.sim.exp_total,

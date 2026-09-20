@@ -41,6 +41,10 @@ class Recommendation:
     # first board the engine saw for the slate (negative: it walked away). The
     # pre-kickoff half of closing-line value; see ``cfb_engine.market.drift``.
     drift: float | None = None
+    # The number and price on this side in that first board, so the card can
+    # print where the line opened next to where it sits now.
+    open_line: float | None = None
+    open_american: float | None = None
     # The screen that demoted this row to Pass, if one did. Attribution is what
     # lets the audit grade a screen on the bets it refused rather than only on
     # the ones it let through.
@@ -56,6 +60,7 @@ class Recommendation:
     # --- game context (same for every rec in a game; for the card/preview) ---
     home_abbrev: str | None = None
     away_abbrev: str | None = None
+    kickoff_utc: str | None = None  # ISO8601; orders the card early-to-late
     # Expected point differential (home perspective) = mean simulated margin,
     # and the total the sim expects, with their spreads.
     exp_margin: float | None = None
