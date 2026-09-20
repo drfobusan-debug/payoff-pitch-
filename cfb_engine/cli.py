@@ -506,6 +506,10 @@ def _emit_ledger(
         *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
     ]
     verdicts = probation_rows(entries)
+    slate_buy = None
+    if n_graded:
+        today = [e for e in entries if e.date == day.isoformat()]
+        slate_buy = next((m for m in overall_metrics(today) if m.tier == "Buy (S+M)"), None)
     xlsx = write_ledger_workbook(
         entries,
         overall,
@@ -533,6 +537,7 @@ def _emit_ledger(
         price_rows=price_rows,
         money_rows=money,
         probation=[p.finding for p in verdicts if p.actionable],
+        slate_buy=slate_buy,
     )
 
 

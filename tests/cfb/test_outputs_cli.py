@@ -98,6 +98,24 @@ def test_the_audit_article_says_what_the_prices_demanded():
     assert "where they needed" in narration
 
 
+def test_the_audit_lead_keeps_the_slate_apart_from_the_ledger():
+    """Cumulative buys must not be read out as what tonight's slate did."""
+    graded = [(_rec(Tier.STRONG), "win"), (_rec(Tier.MODERATE), "loss")]
+    ledger = entries_from_graded(graded, date(2025, 10, 25)) + entries_from_graded(graded, DAY)
+    slate = [e for e in ledger if e.date == DAY.isoformat()]
+    slate[1].result, slate[1].pnl = "win", 0.9
+    slate_buy = next(m for m in overall_metrics(slate) if m.tier == "Buy (S+M)")
+    html, narration = build_audit_article(DAY, overall_metrics(ledger), [], 2, slate_buy=slate_buy)
+    assert "the slate's buys went <b>2-0</b>" in html
+    assert "Ledger to date: buys <b>3-1</b>" in html
+    assert "The slate's buys went 2 and 0" in narration
+    assert "Ledger to date, the model's buys are 3 and 1" in narration
+
+    html, narration = build_audit_article(DAY, overall_metrics(ledger), [], 0)
+    assert "slate's buys" not in html and "Ledger to date: buys <b>3-1</b>" in html
+    assert "No plays cleared" not in narration
+
+
 def test_the_audit_article_says_so_when_nothing_crossed_the_bar():
     html, _ = build_audit_article(DAY, [], [], 0)
     assert "no market or screen is on probation" in html
