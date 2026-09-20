@@ -25034,6 +25034,13 @@
   {
     "matchup": "NYY @ AZ",
     "market": "batter_hr",
+    "selection": "Austin Wells HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "NYY @ AZ",
+    "market": "batter_hr",
     "selection": "Ben Rice HR o0.5",
     "american": 500.0,
     "no_vig_prob": 0.168582
@@ -28061,6 +28068,34 @@
     "selection": "Trea Turner H u0.5",
     "american": 184.0,
     "no_vig_prob": 0.331321
+  },
+  {
+    "matchup": "PHI @ NYM",
+    "market": "batter_k",
+    "selection": "Cristopher Sanchez K o6.5",
+    "american": 100.0,
+    "no_vig_prob": 0.459357
+  },
+  {
+    "matchup": "PHI @ NYM",
+    "market": "batter_k",
+    "selection": "Cristopher Sanchez K u6.5",
+    "american": -143.0,
+    "no_vig_prob": 0.540643
+  },
+  {
+    "matchup": "PHI @ NYM",
+    "market": "batter_k",
+    "selection": "Jonah Tong K o4.5",
+    "american": 115.0,
+    "no_vig_prob": 0.426484
+  },
+  {
+    "matchup": "PHI @ NYM",
+    "market": "batter_k",
+    "selection": "Jonah Tong K u4.5",
+    "american": -167.0,
+    "no_vig_prob": 0.573516
   },
   {
     "matchup": "PHI @ NYM",
