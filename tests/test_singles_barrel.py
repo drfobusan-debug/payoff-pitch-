@@ -31,11 +31,13 @@ def _reg(barrel: float) -> BatterRegression:
     )
 
 
-def test_power_hitters_lose_singles_and_gain_homers() -> None:
+def test_power_hitters_lose_singles_and_the_barrel_rate_stops_there() -> None:
     slugger = _reg(0.16).multipliers()
     slap = _reg(0.02).multipliers()
     assert slugger["1B"] < 1.0 < slap["1B"]
-    assert slugger["HR"] > 1.0 > slap["HR"]
+    # The home-run line is not re-read off the same barrels: the rate the
+    # simulator holds is already blended toward xHR.
+    assert slugger["HR"] == slap["HR"] == 1.0
     # The average batter is untouched on the singles line.
     assert _reg(BL_BARREL).multipliers()["1B"] == 1.0
 
