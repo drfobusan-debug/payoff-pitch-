@@ -16,6 +16,7 @@ import pytest
 import mlb_engine.state as engine_state
 from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import ClosingQuote, load_closing, save_closing
+from mlb_engine.audit.lineups import LineupCapture, LineupPlayer, load_lineups, save_lineups
 from mlb_engine.calibration import FEATURE_BASIS, read_stored
 from mlb_engine.config import load_config
 from mlb_engine.data.opta import OptaRow, load_rows, save_rows
@@ -732,6 +733,46 @@ def _opta(result: str | None, player: str = "Alan Roden") -> OptaRow:
         result=result,
         actual=None if result is None else 0.0,
     )
+
+
+def _lineup(ids: list[int], at: str) -> LineupCapture:
+    return LineupCapture(
+        game_pk=700,
+        side="home",
+        team="CLE",
+        opponent="MIN",
+        first_pitch_utc="2026-08-08T23:10:00Z",
+        captured_at=at,
+        lead_hours=None,
+        starter="Ace",
+        starter_id=99,
+        starter_throws="R",
+        players=[LineupPlayer(order=i, mlbam_id=p, name=f"P{p}") for i, p in enumerate(ids, 1)],
+    )
+
+
+def test_the_earliest_sighting_of_a_lineup_survives_whichever_machine_saw_it(
+    machines: tuple[Path, Path, Path, Path],
+) -> None:
+    """The afternoon pass on one box sees a lineup; the evening close on another
+    sees the scratched version. The record keeps the first and the change."""
+    repo_a, data_a, repo_b, data_b = machines
+    nine = list(range(1, 10))
+    early = _lineup(nine, "2026-08-08T19:00:00+00:00")
+    late = _lineup([*nine[:8], 10], "2026-08-08T22:40:00+00:00")
+
+    save_lineups(data_b / "audit" / "lineups_2026-08-08.json", {late.key: late})
+    push_state(data_b, "close", repo=repo_b, branch="engine-state")
+
+    save_lineups(data_a / "audit" / "lineups_2026-08-08.json", {early.key: early})
+    pushed = push_state(data_a, "slate pass", repo=repo_a, branch="engine-state")
+    assert "lineups_2026-08-08.json" in pushed.pushed
+
+    pull_state(data_b, repo=repo_b, branch="engine-state")
+    cap = load_lineups(data_b / "audit" / "lineups_2026-08-08.json")[early.key]
+    assert cap.captured_at == early.captured_at
+    assert cap.player_ids == tuple(nine)
+    assert [r.captured_at for r in cap.revisions] == [late.captured_at]
 
 
 def test_the_morning_s_projections_meet_the_evening_s_results(

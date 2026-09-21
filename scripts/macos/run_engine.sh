@@ -146,6 +146,10 @@ elif [[ "$MODE" == "close" ]]; then
   # twice a day (afternoon + evening) and merges, because a started game leaves
   # the pre-match board. Cheap (~3 credits + one per event for props).
   mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
+  # Lineups posted since the last slate pass, stamped with when they were seen.
+  # Free (StatsAPI); the close's own slate fetch records them too, but a close
+  # that finds no pre-match board exits before it writes anything.
+  mlb-engine lineups || echo "[$(date)] 'mlb-engine lineups' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
   pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
   # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
@@ -190,6 +194,10 @@ elif [[ "$MODE" == slate-* ]]; then
   /usr/bin/caffeinate -i -w $$ &
   arm_next_slate
   pull_latest
+  # Posted lineups, stamped now: a study of who a team sent out (and when that
+  # was known) needs the nine as posted, not the box score's. The run records
+  # them too; this catches a pass whose pricing fails before it gets there.
+  mlb-engine lineups || echo "[$(date)] $BLOCK 'mlb-engine lineups' exited non-zero" >&2
   VSIN="$HOME/.mlb_engine/vsin_today.csv"
   if [[ -f "$VSIN" ]]; then
     mlb-engine run --within-hours ${SLATE_WINDOW_HOURS} --vsin-csv "$VSIN" \

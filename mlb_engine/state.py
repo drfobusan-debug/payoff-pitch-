@@ -44,6 +44,7 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
 from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
@@ -299,6 +300,19 @@ def merge_opta_files(remote: Path, local: Path) -> bool:
     if not remote.exists():
         return False
     save_rows(local, merge_rows(load_rows(local), load_rows(remote)))
+    return True
+
+
+def merge_lineup_files(remote: Path, local: Path) -> bool:
+    """Union two lineup captures, the earliest sighting of each lineup winning.
+
+    The slate passes run on whichever machine is awake, so the first view of a
+    lineup is as likely to be on the branch as on this disk.
+    """
+    if not remote.exists():
+        return False
+    merged = merge_lineups(load_lineups(local), list(load_lineups(remote).values()))
+    save_lineups(local, merged)
     return True
 
 
@@ -608,6 +622,9 @@ def _pull_state_locked(
     for src in sorted((state / "mlb" / "propicks").glob("propicks_*.json")):
         if merge_propick_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "lineups").glob("lineups_*.json")):
+        if merge_lineup_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key, by_date in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
             pulled.append(name)
@@ -830,6 +847,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             merge_propick_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
+        for src in sorted(audit.glob("lineups_*.json")):
+            dest = state / "mlb" / "lineups" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_lineup_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
         for name, key, by_date in _MERGED_CSVS:
             src = audit / name
             if src.exists():
@@ -906,6 +929,7 @@ __all__ = [
     "SyncReport",
     "merge_board_files",
     "merge_closing_files",
+    "merge_lineup_files",
     "merge_opta_files",
     "merge_propick_files",
     "merge_dated_csv",
