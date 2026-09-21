@@ -1,0 +1,470 @@
+[
+ {
+  "game_pk": 823169,
+  "side": "away",
+  "team": "MIN",
+  "opponent": "SF",
+  "first_pitch_utc": "2026-09-22T01:45:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 11.64,
+  "starter": "Blade Tidwell",
+  "starter_id": 694918,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 807712,
+    "name": "Luke Keaschall",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 686797,
+    "name": "Brooks Lee",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 665019,
+    "name": "Kody Clemens",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 680777,
+    "name": "Ryan Jeffers",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 605137,
+    "name": "Josh Bell",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 668904,
+    "name": "Royce Lewis",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 691181,
+    "name": "Emmanuel Rodriguez",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 805805,
+    "name": "Walker Jenkins",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 805346,
+    "name": "Ben Ross",
+    "bats": "R",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 823169,
+  "side": "home",
+  "team": "SF",
+  "opponent": "MIN",
+  "first_pitch_utc": "2026-09-22T01:45:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 11.64,
+  "starter": "Zebby Matthews",
+  "starter_id": 805673,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 687551,
+    "name": "Drew Gilbert",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 805811,
+    "name": "Bryce Eldridge",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 813841,
+    "name": "Jonah Cox",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 808982,
+    "name": "Jung Hoo Lee",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 806367,
+    "name": "Turner Hill",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 694376,
+    "name": "Shay Whitcomb",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 701852,
+    "name": "Drew Cavanaugh",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 687529,
+    "name": "Grant McCray",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 683766,
+    "name": "Christian Koss",
+    "bats": "R",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 824221,
+  "side": "away",
+  "team": "WSH",
+  "opponent": "DET",
+  "first_pitch_utc": "2026-09-21T22:40:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 8.56,
+  "starter": "River Ryan",
+  "starter_id": 689981,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 695578,
+    "name": "James Wood",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 695734,
+    "name": "Daylen Lile",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 694673,
+    "name": "Abimelec Ortiz",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 682928,
+    "name": "CJ Abrams",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 691781,
+    "name": "Brady House",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 686611,
+    "name": "Dylan Crews",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 660688,
+    "name": "Keibert Ruiz",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 678391,
+    "name": "Jorbit Vivas",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 696285,
+    "name": "Jacob Young",
+    "bats": "R",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 824221,
+  "side": "home",
+  "team": "DET",
+  "opponent": "WSH",
+  "first_pitch_utc": "2026-09-21T22:40:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 8.56,
+  "starter": "DJ Herz",
+  "starter_id": 687792,
+  "starter_throws": "L",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 650402,
+    "name": "Gleyber Torres",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 805808,
+    "name": "Kevin McGonigle",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 701678,
+    "name": "Hao-Yu Lee",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 693307,
+    "name": "Dillon Dingler",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 682985,
+    "name": "Riley Greene",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 701162,
+    "name": "Ben Malgeri",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 679529,
+    "name": "Spencer Torkelson",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 703601,
+    "name": "Max Clark",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 807726,
+    "name": "John Peck",
+    "bats": "R",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 824787,
+  "side": "away",
+  "team": "TOR",
+  "opponent": "BAL",
+  "first_pitch_utc": "2026-09-21T22:35:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 8.47,
+  "starter": "Shane Baz",
+  "starter_id": 669358,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 703520,
+    "name": "Brett Bateman",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 543807,
+    "name": "George Springer",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 665489,
+    "name": "Vladimir Guerrero",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 672386,
+    "name": "Alejandro Kirk",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 664770,
+    "name": "Nathan Lukes",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 672960,
+    "name": "Kazuma Okamoto",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 665926,
+    "name": "Andres Gimenez",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 669701,
+    "name": "Josh Smith",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 676391,
+    "name": "Ernie Clement",
+    "bats": "R",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 824787,
+  "side": "home",
+  "team": "BAL",
+  "opponent": "TOR",
+  "first_pitch_utc": "2026-09-21T22:35:00Z",
+  "captured_at": "2026-09-21T14:06:36+00:00",
+  "lead_hours": 8.47,
+  "starter": "Trey Yesavage",
+  "starter_id": 702056,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 687637,
+    "name": "Dylan Beavers",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 624413,
+    "name": "Pete Alonso",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 683002,
+    "name": "Gunnar Henderson",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 691723,
+    "name": "Coby Mayo",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 687952,
+    "name": "Christian Encarnacion-Strand",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 694212,
+    "name": "Samuel Basallo",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 669236,
+    "name": "Jeremiah Jackson",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 665750,
+    "name": "Leody Taveras",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 681297,
+    "name": "Colton Cowser",
+    "bats": "L",
+    "position": null
+   }
+  ],
+  "revisions": []
+ }
+]
