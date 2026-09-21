@@ -18,7 +18,8 @@ from __future__ import annotations
 import html
 import math
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import (
@@ -47,6 +48,7 @@ from mlb_engine.output.power_screen import (
     MIN_STARTER_PITCHES,
     RESCUE_POWER_Z,
     SCORED,
+    SOFT_TIER,
     SPLIT_INNING,
     STARTER_TOP_N,
     TOP_K,
@@ -56,12 +58,14 @@ from mlb_engine.output.power_screen import (
     ContactLine,
     HalfLine,
     HalfMetric,
+    HitterLine,
     HitterView,
     MatchupSection,
     ScreenResult,
     StarterCard,
     StarterMetric,
     StarterSplit,
+    bonus_places,
     contact_mark,
 )
 
@@ -369,53 +373,81 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
     return " ".join(bits)
 
 
-# The grade now reads the one thing that graded. Its five-indicator predecessor
-# was scored out of time on 7,668 rated survivors over two seasons
-# (``scripts/power_rating_study.py``): its top bucket did not beat its middle one
-# (2026 A .3867 TB/PA vs B .3893, 2025 .3850 vs .4070), the arsenal fit ran
-# backwards in 2025 (-.0415 [-.0674,-.0157]), the strikeout penalty subtracted a
-# point from rows that produced more, and the opponent term's negative arm fired
-# on 96 of 3,141 rows. Terciles of xwOBA on contact, cut on 2025 and held out on
-# 2026, sort both seasons on total bases (+.0486 [+.0175,+.0762] and +.0488
-# [+.0056,+.0876]) and on home runs (+.0217 [+.0148,+.0284] and +.0160
-# [+.0072,+.0241]) -- and on nothing else: hits per plate appearance are flat
-# across all three, which is why the grade is a power read and says so.
-CONTACT_GRADE_A = 0.474
-CONTACT_GRADE_B = 0.429
+# The grade is three gates read in order, each fitted on the screen's own graded
+# ledger (436 priced hitter overs, 8/18-9/20) rather than on production:
+#
+# 1. The hitter's run value per 100 pitches on the starter's three most-thrown
+#    families. Below zero his over went 24-95 (-51% ROI, -19 points against the
+#    no-vig price) in every arm tier and at every level of every other metric --
+#    high contact quality made it worse (xwOBAcon top tercile 5-28), high
+#    production did not rescue it (top tercile on 3 of 4 rate stats 2-8) -- while
+#    his under went 34-14 (+29%). So a negative read is the position: the under.
+#    The size of a positive read carried nothing (>+2 vs +1..2 vs 0..1 all within
+#    a standard error of the price), so the gate is the sign alone.
+# 2. Production, inside the pool that cleared gate 1: wRC+, BA and OPS scored the
+#    screen's way, a point above the pool median and one more for a top-five
+#    finish. 0-1 points lost 58% (5-21); 2-3 sat 20% under the price; 4 and up
+#    beat it (87-82, +20%, +9 points, 2.1 s.e.). xwOBAcon, Brl%, HH%, EV90 and
+#    O-Swing% added nothing once these three were read and are printed only.
+# 3. The arm. A cleared bat against a soft arm (SIERA above the floor) went
+#    38-21 on the over (+47%, +21 points, 3 s.e., and 10-6 since 9/09); against
+#    the average-to-elite band the same bat's over was exactly the price (+4%,
+#    beat 0.0) and his under a lean (33-20, +17%). So the arm picks the side.
+#
+# The composite's rank, the ±3 run-value term and the contact terciles it used to
+# grade on are no longer buckets: rank 1-2 was 27-21 on 48 rows, the terciles
+# never cleared one standard error, and the ±3 term's >+2 cell was 22-26, flat.
 
-# The bucket keys are historical: "AVOID" is the tercile at or above the A cut
-# (high contact, printed as contact C), "BUY" the one below the B cut (low
-# contact, contact A), "HOLD" between them. The keys stay because the ledger
-# records them and each must keep one record; what the note calls each bucket is
-# decided by that record (see ``labels``).
-STRONG_BUY = "STRONG BUY"
-# The bats the composite ranked first or second are their own bucket, whatever
-# their contact grade. Recorded with the rank so the claim keeps grading against
-# itself.
-STRONG_BUY_RANKS = 2
+#: Gate-1 threshold on run value per 100 pitches on the starter's top families.
+RV_GATE = 0.0
+#: Gate-2 thresholds on the production points (0-6).
+PRODUCTION_DROP = 1  # at or below: dropped, no row printed or recorded
+PRODUCTION_HOLD = 4  # at or above: a position; between: a watch
+#: The three rate stats gate 2 reads, and how each is taken off a hitter's line.
+PRODUCTION_METRICS: dict[str, Callable[[HitterLine], float]] = {
+    "wRC+": lambda h: h.wrc,
+    "BA": lambda h: h.ba,
+    "OPS": lambda h: h.ops,
+}
+#: Places in the pool that earn the second point on each metric.
+PRODUCTION_TOP_N = 5
+#: Fewest hitters a pool needs before a median and a top-five mean anything. A
+#: smaller pool is not scored: everyone in it is a watch, not a drop, because
+#: the gate would be reading the size of the slate and not the bat.
+PRODUCTION_MIN_POOL = 4
 
-# The four grades are buckets, keyed by the strings the ledger records them
-# under today; rows from before the 9/09 swap of the contact words are read back
-# to their bucket by ``power_ledger.bucket`` so each keeps one record. What the
-# note calls a bucket
-# follows the money, and a buy word has to be earned (:func:`labels`): on at
-# least LABEL_EARN_ROWS graded rows, a bucket is a Strong Buy when its ROI
+# The buckets, keyed by the strings the ledger records them under. Each keeps
+# one record, and what the note calls a bucket follows the money (:func:`labels`):
+# on at least LABEL_EARN_ROWS graded rows a bucket is a Strong Buy when its ROI
 # clears zero by two standard errors, a Buy when it clears one, and otherwise a
-# Watch -- a matchup opinion the ledger has not paid for. On 9/16 no bucket
-# qualified: the best of the four was the high-contact tercile at 53-51, +8%
-# on 104 rows, 0.8 standard errors from zero; the other three were losing
-# money.
+# Watch -- a matchup opinion the ledger has not paid for. Every bucket starts
+# at Watch: the records above were read in-sample and the ledger has to repeat
+# them out of it before a word is printed.
+RV_UNDER = "RV NEG UNDER"
+SOFT_OVER = "SOFT OVER"
+ELITE_UNDER = "ELITE UNDER"
+PROD_WATCH = "PROD WATCH"
+PROD_DROP = "PROD DROP"
+
+# Retired keys, kept so rows recorded under them still print a name in the
+# scorecard: the composite's top two and the xwOBA-on-contact terciles.
+STRONG_BUY = "STRONG BUY"
 RATING_DISPLAY = {
+    RV_UNDER: "RV<0: under",
+    SOFT_OVER: "soft arm: over",
+    ELITE_UNDER: "good arm: under",
+    PROD_WATCH: "production 2-3: watch",
+    PROD_DROP: "production 0-1: dropped",
     STRONG_BUY: "rank 1-2",
     "BUY": "contact A",
     "HOLD": "contact B",
     "AVOID": "contact C",
 }
-RATING_ORDER = {STRONG_BUY: 0, "BUY": 1, "HOLD": 2, "AVOID": 3}
+RATING_ORDER = {SOFT_OVER: 0, RV_UNDER: 1, ELITE_UNDER: 2, PROD_WATCH: 3, PROD_DROP: 4}
 LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
 LABEL_WATCH = "WATCH"
-DEFAULT_STRONG_BUCKET = "AVOID"
+DEFAULT_STRONG_BUCKET = SOFT_OVER
 # Fewer decided rows than this and a bucket's ROI is not allowed to pick the
 # best-record bucket (the one the table leads with).
 LABEL_MIN_ROWS = 30
@@ -482,32 +514,116 @@ def _ranks(result: ScreenResult) -> dict[str, int]:
     return {name_key(s.name): i + 1 for i, s in enumerate(result.final)}
 
 
-def _rating(view: HitterView, rank: int | None = None) -> tuple[str, str]:
+@dataclass(frozen=True)
+class Verdict:
+    """What the three gates said about one survivor.
+
+    ``side`` is the position the screen holds -- ``over`` or ``under`` -- or
+    ``None`` for a watch or a drop; ``held`` is whether any row is recorded at
+    all. ``rv`` is the gate-1 read and ``points`` the gate-2 score, both kept so
+    the note can print what the bucket was decided on.
+    """
+
+    bucket: str
+    side: str | None
+    rv: float
+    points: int | None
+
+    @property
+    def held(self) -> bool:
+        return self.bucket != PROD_DROP
+
+
+def _top_rv(view: HitterView) -> float:
+    return view.edge.top_rv if view.edge is not None else math.nan
+
+
+def production_points(
+    pool: list[HitterLine], *, top_n: int = PRODUCTION_TOP_N
+) -> dict[int, int]:
+    """Gate-2 points by ``mlbam_id`` for a pool: one above the pool median on each
+    of :data:`PRODUCTION_METRICS`, one more for a top-``top_n`` finish, with the
+    finishes capped at half the pool by :func:`bonus_places`."""
+    points = {h.mlbam_id: 0 for h in pool}
+    for read in PRODUCTION_METRICS.values():
+        rated = sorted(
+            (h for h in pool if not math.isnan(read(h))), key=read, reverse=True
+        )
+        if not rated:
+            continue
+        values = [read(h) for h in rated]
+        mid = len(values) // 2
+        median = values[mid] if len(values) % 2 else (values[mid - 1] + values[mid]) / 2
+        places = bonus_places(len(rated), top_n)
+        for i, h in enumerate(rated):
+            if read(h) > median:
+                points[h.mlbam_id] += 1
+            if i < places:
+                points[h.mlbam_id] += 1
+    return points
+
+
+def gate_views(views: list[HitterView], arm_tier: str) -> dict[str, Verdict]:
+    """The three gates over one pass's survivors, keyed by hitter name.
+
+    Gate 1 is read per hitter; gate 2 is scored inside the pool that cleared it,
+    so a bat is above the median of the bats he is actually competing with for
+    the note's attention. Gate 3 is the pass's arm tier: the pass screened
+    either the soft arms or the band above them, and the side follows. An
+    unmeasured run value is read as zero -- not negative, so he is not faded on
+    nothing, and not a pass either, since he still has to clear production.
+    """
+    negative = {v.line.mlbam_id for v in views if _top_rv(v) < RV_GATE}
+    pool = [v.line for v in views if v.line.mlbam_id not in negative]
+    scorable = len(pool) >= PRODUCTION_MIN_POOL
+    points = production_points(pool) if scorable else {}
+    over_side = SOFT_OVER if arm_tier == SOFT_TIER else ELITE_UNDER
+    out: dict[str, Verdict] = {}
+    for v in views:
+        rv = _top_rv(v)
+        if v.line.mlbam_id in negative:
+            out[v.line.name] = Verdict(RV_UNDER, "under", rv, None)
+            continue
+        if not scorable:
+            out[v.line.name] = Verdict(PROD_WATCH, None, rv, None)
+            continue
+        pts = points.get(v.line.mlbam_id, 0)
+        if pts <= PRODUCTION_DROP:
+            out[v.line.name] = Verdict(PROD_DROP, None, rv, pts)
+        elif pts < PRODUCTION_HOLD:
+            out[v.line.name] = Verdict(PROD_WATCH, None, rv, pts)
+        else:
+            side = "over" if over_side == SOFT_OVER else "under"
+            out[v.line.name] = Verdict(over_side, side, rv, pts)
+    return out
+
+
+def verdicts(result: ScreenResult) -> dict[str, Verdict]:
+    """Each survivor's bucket, side and the reads that decided them, by name."""
+    return gate_views([v for s in result.sections for v in s.hitters], result.arm_tier)
+
+
+def _rating(view: HitterView, verdict: Verdict) -> tuple[str, str]:
     """The matchup's grade, and the reasons, from the assembled evidence.
 
-    A bat the composite ranked in its top ``STRONG_BUY_RANKS`` is its own bucket.
-    Otherwise the bucket is xwOBA on contact against two fixed cuts. The bucket
-    key is what the ledger records; the word the note prints is :func:`labels`.
-    Exposure, arsenal fit, the full-game opponent and the strikeout rate are
-    printed as reasons and score nothing: each was graded on the same panel and
-    none of them ordered production. A grade is about the matchup only -- there
-    is no price in this module.
+    The bucket key is what the ledger records; the word the note prints is
+    :func:`labels`. Exposure, arsenal fit, the full-game opponent, contact
+    quality and the strikeout rate are printed as reasons and score nothing.
+    A grade is about the matchup only -- there is no price in this module.
     """
     h = view.line
     e = view.exposure
     share = e.share_vs_starter if e else math.nan
     opp = e.opponent_xwoba if e else math.nan
     delta = view.fit_delta
+    grade = verdict.bucket
     reasons: list[str] = []
-    if rank is not None and rank <= STRONG_BUY_RANKS:
-        grade = STRONG_BUY
-        reasons.append(f"ranked {rank} on the composite")
-    elif h.xwoba_con >= CONTACT_GRADE_A:
-        grade = "AVOID"
-    elif h.xwoba_con >= CONTACT_GRADE_B:
-        grade = "HOLD"
+    if math.isnan(verdict.rv):
+        reasons.append("run value on his top pitches unmeasured, read as zero")
     else:
-        grade = "BUY"
+        reasons.append(f"{verdict.rv:+.1f} RV/100 on the starter's top pitches")
+    if verdict.points is not None:
+        reasons.append(f"{verdict.points} of 6 production points")
     reasons.append(f"{_f3(h.xwoba_con)} xwOBA on contact")
     if not math.isnan(share):
         if share >= 0.58:
@@ -774,12 +890,17 @@ def _arm_board(board: Board) -> str:
 
 def ratings(result: ScreenResult) -> dict[str, str]:
     """Each survivor's bucket key, for anything recording what the note said."""
-    ranks = _ranks(result)
-    return {
-        v.line.name: _rating(v, ranks.get(name_key(v.line.name)))[0]
-        for s in result.sections
-        for v in s.hitters
-    }
+    return {name: v.bucket for name, v in verdicts(result).items()}
+
+
+def sides(result: ScreenResult) -> dict[str, str | None]:
+    """The side the screen holds on each survivor, ``None`` where it holds none."""
+    return {name: v.side for name, v in verdicts(result).items()}
+
+
+def dropped(result: ScreenResult) -> list[str]:
+    """Survivors gate 2 removed: no row is printed or recorded for them."""
+    return [name for name, v in verdicts(result).items() if not v.held]
 
 
 def composites(result: ScreenResult) -> dict[str, Composite]:
@@ -1721,8 +1842,13 @@ def _recommendations(
     graded = [
         (v, s) for s in result.sections for v in s.hitters
     ]
-    ranks = _ranks(result)
-    rated = [(*_rating(v, ranks.get(name_key(v.line.name))), v, s) for v, s in graded]
+    said = verdicts(result)
+    rated = [
+        (*_rating(v, said[v.line.name]), v, s)
+        for v, s in graded
+        if said[v.line.name].held
+    ]
+    gone = [(v, s) for v, s in graded if not said[v.line.name].held]
     records = grade_records or {}
     words = labels(grade_records)
     strong_key = strong_bucket(grade_records)
@@ -1733,6 +1859,7 @@ def _recommendations(
     for rating, reason, view, section in rated:
         row = [
             _label_cell(rating, words),
+            (said[view.line.name].side or "none"),
             html.escape(view.line.name),
             html.escape(section.starter.name),
         ]
@@ -1747,7 +1874,7 @@ def _recommendations(
     strong_rec = records.get(strong_key)
     basis = (
         f"its {_grade_record_cell(strong_rec)} on {strong_rec.n} rows is the best record of "
-        f"the four buckets"
+        f"the buckets"
         if strong_rec is not None and strong_rec.n
         else "no bucket has a record long enough to say otherwise"
     )
@@ -1768,14 +1895,32 @@ def _recommendations(
     lead = (
         f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]}{who}.</strong> "
         f"It leads the table because {basis}; {verdict}.</p>"
-        f"<p class='sub'><strong>The buckets are the composite's top two and xwOBA on "
-        f"contact in terciles.</strong> Cut at {CONTACT_GRADE_A:.3f} and "
-        f"{CONTACT_GRADE_B:.3f}: C is the high-contact tercile, A the low one, and a bat "
-        f"the composite ranked first or second is its own bucket whatever his contact. The "
-        f"words on the buckets are not fixed -- they follow the ledger's record, and move when it "
-        f"does. Exposure to the starter, arsenal fit, the full-game opponent and strikeout "
-        f"risk are printed beside it and count for nothing in it. It contains no price.</p>"
+        f"<p class='sub'><strong>The buckets are three gates read in order.</strong> First "
+        f"the bat's run value per 100 pitches on the starter's {TOP_PITCHES} most-thrown "
+        f"pitches: below zero the position is his under, whatever else he shows, because on "
+        f"the ledger that hitter's over lost to the price in every tier and his under beat it. "
+        f"Second, inside the pool that cleared zero, production &mdash; wRC+, BA and OPS, a point "
+        f"above the pool median on each and one more for a top-{PRODUCTION_TOP_N} finish, "
+        f"0-6: at most {PRODUCTION_DROP} and he is dropped, {PRODUCTION_DROP + 1}-"
+        f"{PRODUCTION_HOLD - 1} is a watch with no side, {PRODUCTION_HOLD}+ is a position. "
+        f"Third the arm: a soft arm makes it the over, an average-to-elite arm the under, "
+        f"where the same bat's over has been priced fairly. Contact quality, exposure, "
+        f"arsenal fit, the full-game opponent and strikeout risk are printed beside it and "
+        f"count for nothing in it. The words on the buckets follow the ledger's record and "
+        f"move when it does. It contains no price.</p>"
     )
+    if gone:
+        lead += (
+            f"<p class='sub'><strong>Dropped on production ({len(gone)}):</strong> "
+            + ", ".join(
+                f"{html.escape(v.line.name)} vs {html.escape(s.starter.name)} "
+                f"({said[v.line.name].points} pts)"
+                for v, s in gone
+            )
+            + ". Above water on the arm's pitches but at or below "
+            f"{PRODUCTION_DROP} of 6 production points, which on the ledger is the worst "
+            "thing the screen prices; no row is printed or recorded.</p>"
+        )
     if grade_records is not None:
         lead += _grade_ledger_lead(records, words)
     if board is not None:
@@ -1794,7 +1939,7 @@ def _recommendations(
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["grade", "batter", "vs"]
+    headers = ["grade", "side", "batter", "vs"]
     if board is not None:
         headers.append("best price (EV)")
     if grade_records is not None:

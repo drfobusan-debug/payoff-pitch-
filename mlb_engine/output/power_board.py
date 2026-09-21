@@ -36,6 +36,7 @@ inside it.
 
 from __future__ import annotations
 
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
 from pathlib import Path
@@ -159,6 +160,10 @@ class Board:
     rows: list[BoardRow] = field(default_factory=list)
     unpriced: list[str] = field(default_factory=list)
     dropped: int = 0  # rows trimmed by ROWS_PER_BATTER, for the caption
+    # Survivors the report's gates removed before pricing: no row is looked up.
+    excluded: list[str] = field(default_factory=list)
+    # Priced rows on the side the screen does not hold, set aside for the caption.
+    off_side: int = 0
     source: str | None = None
     # The arms' half: one position per stat on each kept starter, and the
     # starters the card had no priced prop on.
@@ -313,12 +318,21 @@ def build(
     source: str | None = None,
     anchors: tuple[str, ...] = ANCHOR_MARKETS,
     arm_stats: tuple[str, ...] = PITCHER_STATS,
+    sides: Mapping[str, str | None] | None = None,
+    exclude: Collection[str] = (),
 ) -> Board:
     """The screened hitters' priced rows, best EV first, and the ones with none.
 
     Only priced rows survive: a market the pipeline modelled but never got a
     quote for has no bet in it, and the note already carries the model's view of
     the matchup in every other table.
+
+    ``sides`` is the side the report's gates hold on each hitter, by name: a
+    hitter with one gets rows on that side only, so an under position is never
+    printed beside an over price; a hitter with ``None`` is a watch and shows
+    both. Names in ``exclude`` were dropped by the gates and get no row at all.
+    The gates decide the side and nothing about the price, so this is a filter
+    on which rows are looked up, not a change to any number on them.
 
     Every hitter shows his homer and his H+R+RBI where both were quoted, even
     when a third market prices better, because those two are what the page is
@@ -331,9 +345,19 @@ def build(
     """
     batters = [(v.line.name, v.line.mlbam_id) for s in result.sections for v in s.hitters]
     priced = [r for r in recs if r.category == "batter" and r.market_american is not None]
+    held = dict(sides or {})
+    gone = set(exclude)
     board = Board(source=source)
     for name, mlbam_id in batters:
+        if name in gone:
+            board.excluded.append(name)
+            continue
         mine = _best_per_quote([_row(r, name) for r in priced if _matches(r, name, mlbam_id)])
+        side = held.get(name)
+        if side is not None:
+            on_side = [r for r in mine if r.side == side]
+            board.off_side += len(mine) - len(on_side)
+            mine = on_side
         if not mine:
             board.unpriced.append(name)
             continue

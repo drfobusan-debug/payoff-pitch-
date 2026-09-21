@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from datetime import date as Date
 
+from mlb_engine.audit import power_ledger
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output import power_board, power_report
 from mlb_engine.recommendations import Recommendation, save_json
@@ -417,3 +418,59 @@ def test_the_note_prints_the_arms_board_with_the_gate_that_refused_each_row() ->
     assert "probability floor" in html
     assert "<strong>bought</strong>" in html
     assert "2 positions on 1 of 1 arms" in html
+
+
+# --- the gates' side --------------------------------------------------------
+
+
+def test_a_held_side_keeps_only_that_sides_rows() -> None:
+    result = _result()
+    pid = _pid(result)
+    recs = [
+        _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.09),
+        _rec("Matt Olson", "TB", 1.5, "under", player_id=pid, ev=0.01),
+        _rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.05),
+    ]
+    board = power_board.build(result, recs, sides={"Matt Olson": "under"})
+    assert [r.label for r in board.rows] == ["TB u1.5"]
+    assert board.off_side == 2
+    assert board.unpriced == []
+    # A watch (no side) still shows both sides, as the board always did.
+    both = power_board.build(result, recs, sides={"Matt Olson": None})
+    assert len(both.rows) == 3 and both.off_side == 0
+
+
+def test_a_hitter_priced_only_on_the_other_side_is_unpriced() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=pid)], sides={"Matt Olson": "under"}
+    )
+    assert board.rows == [] and board.unpriced == ["Matt Olson"] and board.off_side == 1
+
+
+def test_a_dropped_hitter_gets_no_row_and_no_ledger_position() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=pid)], exclude=["Matt Olson"]
+    )
+    assert board.rows == [] and board.excluded == ["Matt Olson"] and board.unpriced == []
+    assert power_ledger.positions_from_board(board, Date(2026, 8, 17), {"Matt Olson": "PROD DROP"}) == []
+
+
+def test_the_ledger_row_carries_the_gate_bucket_and_the_side() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [_rec("Matt Olson", "TB", 1.5, "under", player_id=pid, ev=0.02)],
+        sides={"Matt Olson": "under"},
+    )
+    positions = power_ledger.positions_from_board(
+        board, Date(2026, 8, 17), {"Matt Olson": "RV NEG UNDER"}, arm_tier="soft"
+    )
+    assert [(p.rating, p.side, p.stat, p.arm_tier) for p in positions] == [
+        ("RV NEG UNDER", "under", "TB", "soft")
+    ]
+    assert power_ledger.bucket(positions[0]) == "RV NEG UNDER"

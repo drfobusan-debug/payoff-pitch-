@@ -983,13 +983,22 @@ def _priced(
 def _board(
     result: ScreenResult, recs: list[Recommendation], source: str
 ) -> Board:
-    """The survivors' rows off the card's own run."""
-    board = power_board.build(result, recs, source=source)
+    """The survivors' rows off the card's own run, on the side the gates hold."""
+    board = power_board.build(
+        result,
+        recs,
+        source=source,
+        sides=power_report.sides(result),
+        exclude=power_report.dropped(result),
+    )
     log.info(
-        "board: %d priced rows on %d of %d survivors",
+        "board: %d priced rows on %d of %d survivors (%d dropped on production, "
+        "%d rows on the side not held)",
         len(board.rows),
         len(board.priced),
         len(board.priced) + len(board.unpriced),
+        len(board.excluded),
+        board.off_side,
     )
     log.info(
         "arm board: %d positions on %d of %d arms, %d bought",

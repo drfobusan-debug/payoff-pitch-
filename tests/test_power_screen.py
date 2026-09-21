@@ -33,6 +33,7 @@ from mlb_engine.output.power_screen import (
     POWER_XWOBACON,
     RESCUE_POWER_Z,
     SIERA_FLOOR,
+    SOFT_TIER,
     STARTER_SCORED,
     STARTER_SPLITS,
     TOP_PITCHES,
@@ -1059,76 +1060,120 @@ def test_the_filename_is_dated() -> None:
     assert power_report.default_filename(Date(2026, 8, 17), "html").endswith(".html")
 
 
-def test_the_grade_is_the_contact_quality_and_nothing_else() -> None:
-    """The other four reads did not order production out of time, so they cannot grade.
+def _gated(names_rv_prod: list[tuple[str, float, float]], arm_tier: str = SOFT_TIER) -> ScreenResult:
+    """A slate of survivors, each with a top-pitch run value and one production level.
 
-    Exposure, arsenal fit, the full-game opponent and the strikeout rate are still
-    printed as reasons; moving all four against a bat must leave its letter alone.
-    The labels run the way the ledger graded: the high-contact tercile is the
-    AVOID and the low one the BUY.
+    ``prod`` moves wRC+, BA and OPS together, so a hitter's three metrics rank
+    the same way and the point total reads cleanly off his place in the pool.
     """
     result = _result()
-    view = result.sections[0].hitters[0]
+    template = result.sections[0].hitters[0]
+    views = []
+    for name, rv, prod in names_rv_prod:
+        line = _hitter(name, wrc=100 + prod * 10, ba=0.200 + prod / 100, ops=0.600 + prod / 20)
+        line.kept = True
+        views.append(
+            HitterView(
+                line=line,
+                per_pitch=template.per_pitch,
+                overall=template.overall,
+                fit_xwoba=template.fit_xwoba,
+                fit_xba=template.fit_xba,
+                fallback_share=template.fallback_share,
+                edge=ArsenalEdge(top_families=("FF", "SL", "CH"), top_rv=rv),
+            )
+        )
+    result.sections[0].hitters = views
+    result.arm_tier = arm_tier
+    return result
 
-    for con, grade in (
-        (power_report.CONTACT_GRADE_A, "AVOID"),
-        (power_report.CONTACT_GRADE_B, "HOLD"),
-        (power_report.CONTACT_GRADE_B - 0.001, "BUY"),
-    ):
-        view.line.xwoba_con = con
-        assert power_report.ratings(result)[view.line.name] == grade
 
-    view.line.xwoba_con = power_report.CONTACT_GRADE_A
-    view.line.k = 0.35
-    view.fit_xwoba = view.overall.xwoba - 0.05
-    assert power_report.ratings(result)[view.line.name] == "AVOID"
+def test_a_negative_run_value_is_an_under_before_anything_else_is_read() -> None:
+    """Gate 1: RV<0 on the arm's top pitches is faded, however good the bat looks."""
+    result = _gated([("Fade Me", -0.5, 9), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
+    said = power_report.verdicts(result)
+    assert said["Fade Me"].bucket == power_report.RV_UNDER
+    assert said["Fade Me"].side == "under"
+    assert said["Fade Me"].points is None
+    assert said["Fade Me"].held
+    # He is not in the production pool either: the pool median is read without him.
+    assert "Fade Me" not in power_report.dropped(result)
+    assert power_report.sides(result)["Fade Me"] == "under"
 
 
-def test_the_composites_top_two_are_their_own_bucket_whatever_their_contact() -> None:
-    """Rank 1 and 2 are the rank bucket; rank 3 falls back to the contact grade."""
-    result = _result()
-    view = result.sections[0].hitters[0]
-    view.line.xwoba_con = power_report.CONTACT_GRADE_A  # would grade AVOID on contact
-    name = view.line.name
+def test_production_points_are_scored_inside_the_positive_pool() -> None:
+    """Gate 2: 0-1 points drops, 2-3 watches, 4+ takes a side from the arm tier."""
+    result = _gated(
+        [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5)]
+    )
+    # "High" is a one-metric bat: top on wRC+, below the pool on BA and OPS.
+    high = next(v.line for v in result.sections[0].hitters if v.line.name == "High")
+    high.ba, high.ops = 0.100, 0.500
+    said = power_report.verdicts(result)
+    # Pool of five, bonus places capped at half the pool (2): the median bat and
+    # everyone under him earn nothing and are dropped.
+    assert said["Bottom"].points == 0 and said["Bottom"].bucket == power_report.PROD_DROP
+    assert not said["Bottom"].held
+    assert said["Low"].points == 0
+    # Mid is second on BA and OPS once High fell under him: above median and in
+    # the bonus places on both, and 4 points is a position.
+    assert said["Mid"].points == 4 and said["Mid"].bucket == power_report.SOFT_OVER
+    assert said["High"].points == 2 and said["High"].bucket == power_report.PROD_WATCH
+    assert said["High"].side is None
+    assert said["Top"].points == 6 and said["Top"].bucket == power_report.SOFT_OVER
+    assert said["Top"].side == "over"
+    assert set(power_report.dropped(result)) == {"Bottom", "Low"}
 
-    result.final = rank_final([
-        _final("Someone Else", early=30, late=30),
-        _final(name, early=20, late=20),
-        _final("Third Bat", early=10, late=10),
-    ])
-    assert power_report.ratings(result)[name] == power_report.STRONG_BUY
 
-    result.final = rank_final([
-        _final("Someone Else", early=30, late=30),
-        _final("Second Bat", early=25, late=25),
-        _final(name, early=20, late=20),
-    ])
-    assert power_report.ratings(result)[name] == "AVOID"
+def test_the_arm_tier_decides_the_side_of_a_qualified_bat() -> None:
+    """Gate 3: the same 4+ point bat is an over against a soft arm, an under otherwise."""
+    rows = [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5)]
+    soft = power_report.verdicts(_gated(rows, SOFT_TIER))
+    elite = power_report.verdicts(_gated(rows, ELITE_TIER))
+    assert (soft["Top"].bucket, soft["Top"].side) == (power_report.SOFT_OVER, "over")
+    assert (elite["Top"].bucket, elite["Top"].side) == (power_report.ELITE_UNDER, "under")
+    # The RV gate does not care about the arm.
+    assert elite["Bottom"].bucket == soft["Bottom"].bucket == power_report.PROD_DROP
 
-    result.final = rank_final([_final(name, early=20, late=20)])
+
+def test_an_unmeasured_run_value_is_neither_faded_nor_passed() -> None:
+    """No pitches on the arm's families reads as zero: he has to clear production."""
+    result = _gated([("Unread", math.nan, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
+    said = power_report.verdicts(result)
+    assert said["Unread"].bucket == power_report.SOFT_OVER
+    assert math.isnan(said["Unread"].rv)
+    result.sections[0].hitters[0].edge = None
+    assert power_report.verdicts(result)["Unread"].bucket == power_report.SOFT_OVER
+
+
+def test_a_pool_too_small_to_rank_is_a_watch_not_a_drop() -> None:
+    result = _gated([("Alone", 0.5, 1), ("Other", 0.5, 5)])
+    said = power_report.verdicts(result)
+    assert {v.bucket for v in said.values()} == {power_report.PROD_WATCH}
+    assert all(v.points is None for v in said.values())
+    assert power_report.dropped(result) == []
+
+
+def test_the_note_prints_the_gates_and_names_the_dropped() -> None:
+    result = _gated(
+        [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5), ("Fade", -1.0, 5)]
+    )
     html = power_report.render_html(result)
-    assert "(rank 1-2)" in html
-    assert "ranked 1 on the composite" in html
-    # Without a record the rank bucket is a Watch; the word is the ledger's to give.
-    assert "<span class='watch'>WATCH</span> <span class='sub'>(rank 1-2)</span>" in html
-    # 40-20 on 60 rows is too short to earn a word, however good.
-    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, wins=40, losses=20, units=18.0, units_sq=60.0)}
+    assert "(soft arm: over)" in html
+    assert "(RV&lt;0: under)" in html or "(RV<0: under)" in html
+    assert "Bottom" in html and "Dropped on production" in html
+    # Every bucket starts at Watch; the ledger has to pay for a word.
+    assert "<span class='watch'>WATCH</span> <span class='sub'>(soft arm: over)</span>" in html
+    records = {
+        power_report.SOFT_OVER: Record(power_report.SOFT_OVER, wins=60, losses=40, units=20.0, units_sq=100.0)
+    }
     html = power_report.render_html(result, grade_records=records)
-    assert "<span class='watch'>WATCH</span> <span class='sub'>(rank 1-2)</span>" in html
-    assert "no bucket has earned a buy word" in html
-    # +20% on 100 even-money rows is two standard errors clear of zero.
-    records = {power_report.STRONG_BUY: Record(power_report.STRONG_BUY, wins=60, losses=40, units=20.0, units_sq=100.0)}
-    html = power_report.render_html(result, grade_records=records)
-    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(rank 1-2)</span>" in html
-    assert "1 Strong Buy" in html
+    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(soft arm: over)</span>" in html
 
 
-def test_the_strong_buy_survives_an_accent_on_the_composite_name() -> None:
-    result = _result()
-    view = result.sections[0].hitters[0]
-    view.line.name = "Ronald Acuña Jr."
-    result.final = rank_final([_final("Ronald Acuna Jr.", early=20, late=20)])
-    assert power_report.ratings(result)[view.line.name] == power_report.STRONG_BUY
+def test_the_verdict_survives_an_accent_on_the_name() -> None:
+    result = _gated([("Ronald Acuña Jr.", -1.0, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
+    assert power_report.ratings(result)["Ronald Acuña Jr."] == power_report.RV_UNDER
 
 
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
