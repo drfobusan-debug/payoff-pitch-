@@ -100,7 +100,7 @@ def test_the_board_is_recorded_with_the_price_it_was_shown_at(tmp_path) -> None:
     assert [p.batter for p in positions] == ["Matt Olson"]
     p = positions[0]
     assert (p.odds, p.stat, p.line, p.player_id, p.game_pk) == (255.0, "TB", 1.5, pid, 1)
-    assert p.rating in ("BUY", "HOLD", "AVOID")
+    assert p.rating == power_report.PROD_WATCH  # a pool of one cannot be scored
 
     path = tmp_path / power_ledger.LEDGER_NAME
     power_ledger.record(path, positions, DAY)
@@ -391,58 +391,61 @@ def _even(label: str, wins: int, losses: int, units: float) -> power_ledger.Reco
 def test_the_labels_follow_the_money() -> None:
     """The best record leads the table; a buy word is earned, not handed out."""
     records = {
-        "STRONG BUY": _even("STRONG BUY", 2, 10, -8.0),
-        "BUY": _even("BUY", 50, 79, -29.0),
-        "HOLD": _even("HOLD", 127, 155, -28.0),
-        "AVOID": _even("AVOID", 53, 51, 2.0),
+        "SOFT OVER": _even("SOFT OVER", 2, 10, -8.0),
+        "RV NEG UNDER": _even("RV NEG UNDER", 50, 79, -29.0),
+        "PROD WATCH": _even("PROD WATCH", 127, 155, -28.0),
+        "ELITE UNDER": _even("ELITE UNDER", 53, 51, 2.0),
     }
-    # AVOID is still the best-record bucket (+2% on 104), but +2% is 0.2 s.e.
-    # from zero: it earns no buy word, and neither does a losing bucket.
-    assert power_report.strong_bucket(records) == "AVOID"
+    # ELITE UNDER is still the best-record bucket (+2% on 104), but +2% is 0.2
+    # s.e. from zero: it earns no buy word, and neither does a losing bucket.
+    assert power_report.strong_bucket(records) == "ELITE UNDER"
     assert power_report.labels(records) == {
-        "STRONG BUY": "WATCH", "BUY": "WATCH", "HOLD": "WATCH", "AVOID": "WATCH",
+        "SOFT OVER": "WATCH", "RV NEG UNDER": "WATCH", "ELITE UNDER": "WATCH",
+        "PROD WATCH": "WATCH", "PROD DROP": "WATCH",
     }
 
     # Positive by about one standard error (+10% on 100, se ~10%): a Buy.
-    records["AVOID"] = _even("AVOID", 55, 45, 10.0)
-    assert power_report.labels(records)["AVOID"] == "BUY"
+    records["ELITE UNDER"] = _even("ELITE UNDER", 55, 45, 10.0)
+    assert power_report.labels(records)["ELITE UNDER"] == "BUY"
 
     # Positive by two standard errors (+20% on 100): a Strong Buy.
-    records["AVOID"] = _even("AVOID", 60, 40, 20.0)
-    assert power_report.labels(records)["AVOID"] == "STRONG BUY"
+    records["ELITE UNDER"] = _even("ELITE UNDER", 60, 40, 20.0)
+    assert power_report.labels(records)["ELITE UNDER"] == "STRONG BUY"
 
     # The same 2-s.e. ROI on fewer than LABEL_EARN_ROWS rows is only a Watch.
-    records["AVOID"] = _even("AVOID", 59, 40, 19.8)
-    assert power_report.labels(records)["AVOID"] == "WATCH"
+    records["ELITE UNDER"] = _even("ELITE UNDER", 59, 40, 19.8)
+    assert power_report.labels(records)["ELITE UNDER"] == "WATCH"
 
     # A record built without its squares cannot say, so it cannot earn.
     plain = power_ledger.Record("HOLD", wins=160, losses=122, units=60.0)
     assert power_report.earned_label(plain) == "WATCH"
 
-    # Once HOLD's record is the best one, the lead moves with it.
-    records["HOLD"] = _even("HOLD", 180, 102, 70.0)
-    assert power_report.strong_bucket(records) == "HOLD"
+    # Once another bucket's record is the best one, the lead moves with it; a
+    # retired key's record is read but cannot lead, since nothing lands in it.
+    records["PROD WATCH"] = _even("PROD WATCH", 180, 102, 70.0)
+    records["HOLD"] = _even("HOLD", 200, 82, 110.0)
+    assert power_report.strong_bucket(records) == "PROD WATCH"
 
     # A bucket under LABEL_MIN_ROWS cannot lead however good its ROI.
-    records["STRONG BUY"] = _even("STRONG BUY", 11, 1, 9.5)
-    assert power_report.strong_bucket(records) == "HOLD"
+    records["SOFT OVER"] = _even("SOFT OVER", 11, 1, 9.5)
+    assert power_report.strong_bucket(records) == "PROD WATCH"
 
     # Pushes do not count toward the floor: 29 decided and a push is still under it.
-    records["STRONG BUY"] = power_ledger.Record(
-        "STRONG BUY", wins=25, losses=4, pushes=1, units=20.0, units_sq=29.0
+    records["SOFT OVER"] = power_ledger.Record(
+        "SOFT OVER", wins=25, losses=4, pushes=1, units=20.0, units_sq=29.0
     )
-    assert records["STRONG BUY"].n == 30
-    assert power_report.strong_bucket(records) == "HOLD"
-    records["STRONG BUY"] = power_ledger.Record(
-        "STRONG BUY", wins=26, losses=4, pushes=1, units=21.0, units_sq=30.0
+    assert records["SOFT OVER"].n == 30
+    assert power_report.strong_bucket(records) == "PROD WATCH"
+    records["SOFT OVER"] = power_ledger.Record(
+        "SOFT OVER", wins=26, losses=4, pushes=1, units=21.0, units_sq=30.0
     )
-    assert power_report.strong_bucket(records) == "STRONG BUY"
+    assert power_report.strong_bucket(records) == "SOFT OVER"
 
     # No record: the default bucket, and the note prints buckets beside the words.
     assert power_report.strong_bucket(None) == power_report.DEFAULT_STRONG_BUCKET
     doc = power_report.render_html(_result())
     assert "MATCHUP " not in doc
-    assert "(contact " in doc or "(rank 1-2)" in doc
+    assert "(production 2-3: watch)" in doc
     assert ">BUY<" not in doc and ">STRONG BUY<" not in doc
     assert ">WATCH<" in doc
 
@@ -524,7 +527,7 @@ def test_the_ratings_helper_names_every_survivor() -> None:
     rated = power_report.ratings(result)
 
     assert set(rated) == {v.line.name for s in result.sections for v in s.hitters}
-    assert set(rated.values()) <= {"BUY", "HOLD", "AVOID"}
+    assert set(rated.values()) <= set(power_report.RATING_ORDER)
 
 
 def _armed(pvelo: float) -> ArmProfile:
