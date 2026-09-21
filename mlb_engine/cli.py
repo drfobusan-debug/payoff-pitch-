@@ -43,6 +43,12 @@ from mlb_engine.audit.ledger import (
     runline_metrics,
     update_ledger,
 )
+from mlb_engine.audit.lineups import (
+    captures_from_slate,
+    load_lineups,
+    merge_lineups,
+    save_lineups,
+)
 from mlb_engine.audit.outside import entries_from_picks, head_to_head
 from mlb_engine.audit.probation import (
     WATCHING,
@@ -119,6 +125,7 @@ from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
 from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
+from mlb_engine.schemas import Slate
 from mlb_engine.state import (
     PREGAME_SUFFIX,
     STATE_BRANCH,
@@ -503,6 +510,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     )
     if late:
         recs = _merge_late_pass(recs, pred_path)
+    if pipe.slate is not None:
+        _record_lineups(cfg, pipe.slate, slate_date)
     _annotate_opta(cfg, recs, slate_date)
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
@@ -711,6 +720,27 @@ def _closing_path(cfg: Config, slate_date: Date) -> Path:
     return cfg.audit_dir / f"closing_{slate_date.isoformat()}.json"
 
 
+def _lineups_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"lineups_{slate_date.isoformat()}.json"
+
+
+def _record_lineups(cfg: Config, slate: Slate, slate_date: Date) -> int:
+    """Write down every posted lineup the first time this slate is seen with it.
+
+    Free: the slate is already fetched. Returns how many lineups were new.
+    """
+    path = _lineups_path(cfg, slate_date)
+    already = load_lineups(path)
+    fresh = captures_from_slate(slate)
+    if not fresh:
+        return 0
+    merged = merge_lineups(already, fresh)
+    new = len(merged) - len(already)
+    save_lineups(path, merged)
+    print(f"Lineups: {len(fresh)} posted, {new} first seen now -> {path}")
+    return new
+
+
 def _state_pull(cfg: Config, slate_date: Date | None = None) -> None:
     """Recover state written by an earlier run, possibly on another machine."""
     if not cfg.state_sync:
@@ -752,6 +782,7 @@ def cmd_close(args: argparse.Namespace) -> int:
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
+    _record_lineups(cfg, slate, slate_date)
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
         print(
@@ -772,6 +803,31 @@ def cmd_close(args: argparse.Namespace) -> int:
         f"{markets} markets{detail} -> {path}"
     )
     _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
+    return 0
+
+
+def cmd_lineups(args: argparse.Namespace) -> int:
+    """Record the slate's posted lineups, stamped with when they were first seen.
+
+    The box score keeps who batted, not when it was known; a study of lineup
+    intent (a clinched team resting regulars, an eliminated team auditioning
+    call-ups) needs the nine as posted before first pitch. Free -- one StatsAPI
+    call -- and safe to repeat: a lineup already on file keeps its first stamp,
+    and a changed one is appended as a revision.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    slate_date = _parse_date(args.date, Date.today())
+    _state_pull(cfg, slate_date)
+    slate = MLBStatsClient().get_slate(slate_date)
+    posted = sum(1 for g in slate.games for t in (g.away, g.home) if t.lineup_confirmed())
+    if not posted:
+        print(f"No lineups posted yet for {slate_date}; nothing recorded.")
+        return 0
+    new = _record_lineups(cfg, slate, slate_date)
+    if new:
+        total = len(load_lineups(_lineups_path(cfg, slate_date)))
+        _state_push(cfg, f"lineups {slate_date.isoformat()}: {total} posted")
     return 0
 
 
@@ -1579,6 +1635,12 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    lu = sub.add_parser(
+        "lineups", help="record today's posted lineups with the time they were first seen"
+    )
+    lu.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    lu.set_defaults(func=cmd_lineups)
 
     op = sub.add_parser("opta", help="capture VSIN's Opta prop projections as an outside benchmark")
     op.add_argument(
