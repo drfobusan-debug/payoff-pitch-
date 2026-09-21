@@ -41,12 +41,17 @@ from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.vsin import TotalSplit, VSINClient
 from mlb_engine.filters.weather import WeatherConditions, WeatherProvider
 from mlb_engine.output.totals_audit import (
+    ACE_MAX_LINE,
+    ACE_OFF_MAX,
+    ACE_OTHER_SP_MAX,
+    ACE_SP_MAX,
     BANDS,
     FLAG_OVER_MAX_LINE,
     FLAG_OVER_SUM,
     FLAG_UNDER_MAX_LINE,
     FLAG_UNDER_SUM,
     OverCurve,
+    ace_under,
     closing_lines,
     engine_at,
     engine_ledger_path,
@@ -578,6 +583,15 @@ class SheetRow:
         return flag(self.total_pts, first_line(self.total))
 
     @property
+    def ace(self) -> bool:
+        """The ace-under watch: one starter <= -4, the other <= 0, |Off| <= 1, total <= 8."""
+        return ace_under(self.away.sp, self.home.sp, self.away.off + self.home.off, first_line(self.total))
+
+    @property
+    def watched(self) -> bool:
+        return bool(self.flag) or self.ace
+
+    @property
     def total_pts(self) -> int:
         a, h = self.away, self.home
         return (
@@ -886,6 +900,9 @@ _LEGEND = [
                   "Inside the band the Over-hits and Under-hits have the same inputs; only the line separates them: total <= 8.5 went Over 39-26 (60%), total > 8.5 went 33-40 (45%). Under band on a total <= 7.5 went Under 41-32 (56%)."),
     ("Watch", f"Bold italic rows: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g} (Over lean the book has not priced up), or SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}. "
               "65 / 73 games behind each; +-12 pts, not an edge. The totals audit grades both buckets as bets on their side under 'Watch buckets'."),
+    ("Ace under", f"Also bold italic: one starter's SP pts <= {ACE_SP_MAX} with the other's <= {ACE_OTHER_SP_MAX}, |Off A + Off H| <= {ACE_OFF_MAX}, total <= {ACE_MAX_LINE:g}. "
+                  "The only under cut the study found above break-even (one starter <= -4 on a total <= 8: 60-49, 55%, inside noise); the live under leans that missed were built on Off points, not on the arms. "
+                  "Tracked by the audit as an Under on its own tally; no points."),
 ]
 
 
@@ -918,11 +935,11 @@ def write_workbook(
     over = PatternFill("solid", fgColor="C6EFCE")
     under = PatternFill("solid", fgColor="FFC7CE")
     for r, row in zip(rows, ws.iter_rows(min_row=2), strict=True):
-        if r.flag:
+        if r.watched:
             for cell in row:
                 cell.font = watch
         cell = row[sum_col - 1]
-        cell.font = watch if r.flag else bold
+        cell.font = watch if r.watched else bold
         if isinstance(cell.value, int) and cell.value > 0:
             cell.fill = over
         elif isinstance(cell.value, int) and cell.value < 0:

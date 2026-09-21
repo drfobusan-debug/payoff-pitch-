@@ -158,6 +158,27 @@ def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
     (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
     assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
     assert rows_from_sheet(stamped, Date(2026, 9, 9), {})[0].bands == BANDS
+    assert (row.sp_away, row.sp_home, row.off_pts, row.ace) == (None, None, None, False)
+
+
+def test_the_starter_and_offense_columns_ride_along_into_the_ledger(tmp_path: Path) -> None:
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Totals {D}"
+    ws.append(["Game", "Total", "SP A pts", "SP H pts", "Off A", "Off H", "SUM"])
+    ws.append(["TOR @ TEX", "7.5", -1, -5, 1, -1, -12])
+    ws.append(["ATH @ CLE", "7", 2, -6, 0, 0, -9])
+    lg = wb.create_sheet("Legend")
+    lg.append(["Bands", BANDS])
+    wb.save(tmp_path / "s.xlsx")
+    path = tmp_path / "l.csv"
+    rows = rows_from_sheet(tmp_path / "s.xlsx", Date(2026, 9, 9), {})
+    assert [(r.sp_away, r.sp_home, r.off_pts) for r in rows] == [(-1, -5, 0), (2, -6, 0)]
+    assert [r.ace for r in rows] == [True, False]  # the second: the other starter is soft (+2)
+    write_ledger(path, rows)
+    assert {r.game: (r.sp_away, r.off_pts, r.ace) for r in read_ledger(path)} == {
+        "TOR @ TEX": (-1, 0, True), "ATH @ CLE": (2, 0, False),
+    }
 
 
 def test_magnitude_bands_tally_the_sign_call_regardless_of_direction() -> None:
@@ -363,6 +384,37 @@ def test_the_watch_buckets_take_a_moderate_lean_only_on_a_total_the_book_left_lo
     assert flag(8, 9.0) == "" and flag(4, 8.0) == "" and flag(15, 8.0) == "" and flag(8, None) == ""
     assert flag(-8, 7.5) == "under" and flag(-5, 6.5) == "under" and flag(-14, 7.5) == "under"
     assert flag(-8, 8.0) == "" and flag(-4, 7.0) == "" and flag(-15, 7.0) == ""
+
+
+def test_the_ace_under_wants_one_ace_a_fair_partner_a_quiet_offense_and_a_low_total() -> None:
+    from mlb_engine.output.totals_audit import ace_under
+
+    assert ace_under(-4, 0, 1, 8.0) and ace_under(0, -6, -1, 7.0)
+    assert not ace_under(-3, 0, 0, 8.0)  # no ace
+    assert not ace_under(-4, 1, 0, 8.0)  # partner softer than average
+    assert ace_under(-4, -4, 0, 8.0)  # two aces still qualify; the partner only has to be no worse than average
+    assert not ace_under(-4, 0, 2, 8.0) and not ace_under(-4, 0, -2, 8.0)  # offense doing the work
+    assert not ace_under(-4, 0, 0, 8.5)  # total too high
+    assert not ace_under(None, 0, 0, 8.0) and not ace_under(-4, 0, None, 8.0) and not ace_under(-4, 0, 0, None)
+
+
+def test_the_ace_under_is_tallied_as_an_under_beside_the_other_watch_buckets() -> None:
+    d = "2026-09-12"
+    rows = [
+        LedgerRow(d, "TOR @ TEX", 1, 7.5, -12, 2, 1, "under", bands=BANDS, sp_away=-1, sp_home=-5, off_pts=0),  # both watches, hit
+        LedgerRow(d, "ATH @ CLE", 2, 8.0, -3, 5, 4, "over", bands=BANDS, sp_away=0, sp_home=-6, off_pts=1),  # ace only, miss
+        LedgerRow(d, "SD @ SF", 3, 8.0, -4, 4, 4, "push", bands=BANDS, sp_away=-4, sp_home=0, off_pts=-1),  # ace, push
+        LedgerRow(d, "PIT @ CWS", 4, 8.0, -5, 2, 0, "under", bands=BANDS, sp_away=-4, sp_home=0, off_pts=-3),  # Off carried it
+        LedgerRow(d, "CLE @ DET", 5, 7.0, -9, 2, 1, "under", bands=BANDS),  # older row, columns unknown
+    ]
+    assert [r.watch for r in rows] == ["under, ace", "ace", "ace", "", "under"]
+    s = summarize(rows)
+    assert (s.flag_ace.hits, s.flag_ace.misses, s.flag_ace.pushes) == (1, 1, 1)
+    assert (s.flag_under.hits, s.flag_under.misses) == (2, 0)
+    text = summary_text(Date(2026, 9, 12), rows, s)
+    assert "Ace under: one SP <= -4, other <= 0, |Off| <= 1, total <= 8: 1-1-1 (50%)" in text
+    assert "-12 TOR @ TEX 7.5 2-1 (3) under hit [watch under, ace]" in text
+    assert "-3 ATH @ CLE 8.0 5-4 (9) over miss [watch ace]" in text
 
 
 def test_the_watch_buckets_are_graded_as_bets_on_their_own_side() -> None:

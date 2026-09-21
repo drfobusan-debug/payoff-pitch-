@@ -82,8 +82,32 @@ def flag(sum_pts: int, line: float | None) -> str:
     return ""
 
 
+# The ace under: the one under cut the Aug 4 - Sep 8 study found above break-even
+# (60-49, 55%, inside noise). One starter read as an ace, the other no worse than
+# average, a low total, and an offense column that is not doing the work -- the
+# false unders were built on Off points or on two good arms. Tracked, never scored.
+ACE = "ace"
+ACE_SP_MAX = -4  # the ace: his SP pts at or below this
+ACE_OTHER_SP_MAX = 0  # the other starter: no softer than league average
+ACE_MAX_LINE = 8.0
+ACE_OFF_MAX = 1  # |Off A + Off H| at most this
+
+
+def ace_under(sp_away: int | None, sp_home: int | None, off: int | None, line: float | None) -> bool:
+    """True when the row is an ace-under watch: graded as an Under on its own tally."""
+    if line is None or sp_away is None or sp_home is None or off is None:
+        return False
+    return (
+        min(sp_away, sp_home) <= ACE_SP_MAX
+        and max(sp_away, sp_home) <= ACE_OTHER_SP_MAX
+        and abs(off) <= ACE_OFF_MAX
+        and line <= ACE_MAX_LINE
+    )
+
+
 # Sheet rows that reference the sheet's own columns, not the audit's.
 _GAME, _TOTAL, _SUM = "Game", "Total", "SUM"
+_SP_A, _SP_H, _OFF_A, _OFF_H = "SP A pts", "SP H pts", "Off A", "Off H"
 _LEGEND_SHEET, _BANDS_KEY = "Legend", "Bands"
 
 
@@ -104,6 +128,11 @@ class LedgerRow:
     engine_total: float | None = None
     engine_p_over: float | None = None
     market_p_over: float | None = None
+    # The sheet's starter and offense columns, kept so the ace-under watch can be
+    # tallied; None on rows filed before they were carried.
+    sp_away: int | None = None
+    sp_home: int | None = None
+    off_pts: int | None = None
 
     @property
     def current(self) -> bool:
@@ -139,6 +168,21 @@ class LedgerRow:
         if not self.graded or self.result == PUSH or not self.flag:
             return None
         return self.flag == self.result
+
+    @property
+    def ace(self) -> bool:
+        return ace_under(self.sp_away, self.sp_home, self.off_pts, self.line)
+
+    @property
+    def ace_hit(self) -> bool | None:
+        if not self.graded or self.result == PUSH or not self.ace:
+            return None
+        return self.result == UNDER
+
+    @property
+    def watch(self) -> str:
+        """Every watch bucket the row sits in, for display: 'over', 'under', 'ace', 'under, ace' or ''."""
+        return ", ".join(x for x in (self.flag, ACE if self.ace else "") if x)
 
     @property
     def engine_lean(self) -> str:
@@ -202,12 +246,26 @@ def read_ledger(path: Path) -> list[LedgerRow]:
                 engine_total=_opt_float(r.get("engine_total")),
                 engine_p_over=_opt_float(r.get("engine_p_over")),
                 market_p_over=_opt_float(r.get("market_p_over")),
+                sp_away=_opt_int(r.get("sp_away")),
+                sp_home=_opt_int(r.get("sp_home")),
+                off_pts=_opt_int(r.get("off_pts")),
             ))
     return out
 
 
 def _opt_float(v: str | None) -> float | None:
     return float(v) if v else None
+
+
+def _opt_int(v: str | None) -> int | None:
+    return int(v) if v else None
+
+
+def _cell_int(row: tuple, idx: int | None) -> int | None:
+    if idx is None:
+        return None
+    v = row[idx]
+    return v if isinstance(v, int) else None
 
 
 def write_ledger(path: Path, rows: list[LedgerRow]) -> None:
@@ -251,13 +309,17 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
     it = ws.iter_rows(values_only=True)
     header = [str(c) for c in next(it)]
     gi, ti, si = header.index(_GAME), header.index(_TOTAL), header.index(_SUM)
+    idx = {c: header.index(c) if c in header else None for c in (_SP_A, _SP_H, _OFF_A, _OFF_H)}
     out: list[LedgerRow] = []
     for r in it:
         if r[gi] is None or not isinstance(r[si], int):
             continue
         game = str(r[gi])
+        off_a, off_h = _cell_int(r, idx[_OFF_A]), _cell_int(r, idx[_OFF_H])
         out.append(LedgerRow(
             day.isoformat(), game, game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
+            sp_away=_cell_int(r, idx[_SP_A]), sp_home=_cell_int(r, idx[_SP_H]),
+            off_pts=None if off_a is None or off_h is None else off_a + off_h,
         ))
     return out
 
@@ -594,6 +656,7 @@ class Summary:
     # The study's watch buckets, graded as bets on their own side.
     flag_over: Tally = field(default_factory=Tally)
     flag_under: Tally = field(default_factory=Tally)
+    flag_ace: Tally = field(default_factory=Tally)  # the ace under, graded as an Under
 
     @property
     def split_engine(self) -> Tally:
@@ -610,7 +673,7 @@ def summarize(rows: list[LedgerRow]) -> Summary:
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
     by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
     engine, edge, agree, split = Tally(), Tally(), Tally(), Tally()
-    flag_o, flag_u = Tally(), Tally()
+    flag_o, flag_u, flag_a = Tally(), Tally(), Tally()
     for r in graded:
         pushed = r.result == PUSH
         base.add(r.result == OVER if not pushed else None, pushed)
@@ -618,6 +681,8 @@ def summarize(rows: list[LedgerRow]) -> Summary:
             flag_o.add(r.flag_hit, pushed)
         elif r.flag == UNDER:
             flag_u.add(r.flag_hit, pushed)
+        if r.ace:
+            flag_a.add(r.ace_hit, pushed)
         if r.lean:
             sign.add(r.hit, pushed)
             band = mag_band(r.sum_pts)
@@ -644,7 +709,8 @@ def summarize(rows: list[LedgerRow]) -> Summary:
                 rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
     return Summary(
         sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy,
-        engine=engine, edge=edge, agree=agree, split_sheet=split, flag_over=flag_o, flag_under=flag_u,
+        engine=engine, edge=edge, agree=agree, split_sheet=split,
+        flag_over=flag_o, flag_under=flag_u, flag_ace=flag_a,
     )
 
 
@@ -656,13 +722,22 @@ def engine_lines(total: Summary) -> list[str]:
     ]
 
 
+def watch_buckets(total: Summary) -> list[tuple[str, Tally]]:
+    """(label, tally) for every watch bucket, in the order they are reported."""
+    return [
+        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
+        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
+        (
+            f"Ace under: one SP <= {ACE_SP_MAX}, other <= {ACE_OTHER_SP_MAX}, |Off| <= {ACE_OFF_MAX}, total <= {ACE_MAX_LINE:g}",
+            total.flag_ace,
+        ),
+    ]
+
+
 def flag_lines(total: Summary) -> list[str]:
-    """The two watch buckets: record, 95% range, verdict vs break-even."""
+    """The watch buckets: record, 95% range, verdict vs break-even."""
     out = ["Watch buckets (study leans, not proven; graded as bets on their side):"]
-    for name, t in (
-        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]}, total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
-        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]}, total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
-    ):
+    for name, t in watch_buckets(total):
         lo, hi = wilson(t.hits, t.n)
         rng = f" [{100 * lo:.0f}-{100 * hi:.0f}%]" if t.n else ""
         out.append(f"  {name}: {t.text()}{rng} {verdict(t)}")
@@ -693,7 +768,7 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
             mark = "" if r.hit is None else "hit" if r.hit else "miss"
             runs = "" if r.runs is None else f" {r.away_runs}-{r.home_runs} ({r.runs})"
             eng = "" if r.engine_total is None else f" eng {r.engine_total:.1f}"
-            flagged = f" [watch {r.flag}]" if r.flag else ""
+            flagged = f" [watch {r.watch}]" if r.watch else ""
             lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}{flagged}".rstrip())
     lines.append(
         f"Ledger ({total.days} days, {total.games} games): sign {total.sign.text()} | "
@@ -731,10 +806,10 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
         for r in sorted(rows, key=lambda r: (r.date, -r.sum_pts)):
             ws.append([
                 r.date, r.game, r.line, r.sum_pts, r.lean, r.away_runs, r.home_runs, r.runs, r.result,
-                mark(r.hit), r.flag, mark(r.flag_hit), r.bands,
+                mark(r.hit), r.watch, mark(r.flag_hit if r.flag else r.ace_hit), r.bands,
                 r.engine_total, r.engine_p_over, r.market_p_over, r.engine_lean, mark(r.engine_hit), r.agreement,
             ])
-            for name, hit in (("Hit", r.hit), ("Watch hit", r.flag_hit), ("Eng hit", r.engine_hit)):
+            for name, hit in (("Hit", r.hit), ("Watch hit", r.flag_hit if r.flag else r.ace_hit), ("Eng hit", r.engine_hit)):
                 cell = ws.cell(row=ws.max_row, column=cols.index(name) + 1)
                 if hit is True:
                     cell.fill = green
@@ -785,10 +860,7 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     s.append(["Watch buckets (study leans, graded as bets on their side)", "hits-misses(-pushes)", "win rate", "95% low", "95% high", "verdict"])
     for c in s[s.max_row]:
         c.font = bold
-    for name, t in (
-        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
-        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
-    ):
+    for name, t in watch_buckets(total):
         lo, hi = wilson(t.hits, t.n)
         s.append([
             name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
