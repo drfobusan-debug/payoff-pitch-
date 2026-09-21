@@ -440,13 +440,18 @@ def test_a_held_side_keeps_only_that_sides_rows() -> None:
     assert len(both.rows) == 3 and both.off_side == 0
 
 
-def test_a_hitter_priced_only_on_the_other_side_is_unpriced() -> None:
+def test_a_hitter_priced_only_on_the_other_side_is_not_called_unpriced() -> None:
+    """He was priced; it is the side that is missing, and the note says which."""
     result = _result()
     pid = _pid(result)
     board = power_board.build(
         result, [_rec("Matt Olson", "TB", 1.5, player_id=pid)], sides={"Matt Olson": "under"}
     )
-    assert board.rows == [] and board.unpriced == ["Matt Olson"] and board.off_side == 1
+    assert board.rows == [] and board.off_side == 1
+    assert board.off_side_only == ["Matt Olson"] and board.unpriced == []
+    doc = power_report.render_html(result, board=board)
+    assert "Priced only on the side not held: Matt Olson" in doc
+    assert "Priced by nobody" not in doc
 
 
 def test_a_dropped_hitter_gets_no_row_and_no_ledger_position() -> None:

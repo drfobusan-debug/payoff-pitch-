@@ -164,6 +164,8 @@ class Board:
     excluded: list[str] = field(default_factory=list)
     # Priced rows on the side the screen does not hold, set aside for the caption.
     off_side: int = 0
+    #: Survivors the card priced, but only on the side the gates do not hold.
+    off_side_only: list[str] = field(default_factory=list)
     source: str | None = None
     # The arms' half: one position per stat on each kept starter, and the
     # starters the card had no priced prop on.
@@ -357,6 +359,9 @@ def build(
         if side is not None:
             on_side = [r for r in mine if r.side == side]
             board.off_side += len(mine) - len(on_side)
+            if mine and not on_side:
+                board.off_side_only.append(name)
+                continue
             mine = on_side
         if not mine:
             board.unpriced.append(name)

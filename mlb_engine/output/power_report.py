@@ -572,7 +572,14 @@ def gate_views(views: list[HitterView], arm_tier: str) -> dict[str, Verdict]:
     either the soft arms or the band above them, and the side follows. An
     unmeasured run value is read as zero -- not negative, so he is not faded on
     nothing, and not a pass either, since he still has to clear production.
+    A hitter the pass kept twice (a doubleheader) is gated once, on the first
+    matchup the pass ranked: the note, the board and the ledger all know him by
+    name, so one verdict is what they can carry.
     """
+    once: dict[int, HitterView] = {}
+    for v in views:
+        once.setdefault(v.line.mlbam_id, v)
+    views = list(once.values())
     negative = {v.line.mlbam_id for v in views if _top_rv(v) < RV_GATE}
     pool = [v.line for v in views if v.line.mlbam_id not in negative]
     scorable = len(pool) >= PRODUCTION_MIN_POOL
@@ -741,7 +748,8 @@ def _board_section(board: Board) -> str:
     out = [
         "<h2>The board</h2>",
         f"<p><strong>{len(board.priced)} of "
-        f"{len(board.priced) + len(board.unpriced)} survivors have a price</strong>, and "
+        f"{len(board.priced) + len(board.unpriced) + len(board.off_side_only)} survivors have "
+        f"a price on the side held</strong>, and "
         f"{len(batter_buys)} of their rows cleared the card's buy tiers. Every figure below is "
         f"the nightly run's own: the model probability it simulated, the best price it found, "
         f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
@@ -778,6 +786,13 @@ def _board_section(board: Board) -> str:
             f"<p class='sub'>{board.dropped} further priced rows on these hitters are not shown; "
             f"each shows his homer and his H+R+RBI where both were quoted, then fills to "
             f"{ROWS_PER_BATTER} rows by expected value, one quote per bet.</p>"
+        )
+    if board.off_side_only:
+        names = ", ".join(html.escape(n) for n in board.off_side_only)
+        out.append(
+            f"<div class='caveat'><strong>Priced only on the side not held: {names}.</strong> "
+            f"The card quoted the hitter, but every quote was on the side the gates read "
+            f"against; the position is the other side, and it has no number yet.</div>"
         )
     if board.unpriced:
         names = ", ".join(html.escape(n) for n in board.unpriced)

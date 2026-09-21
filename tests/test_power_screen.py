@@ -1125,6 +1125,29 @@ def test_production_points_are_scored_inside_the_positive_pool() -> None:
     assert set(power_report.dropped(result)) == {"Bottom", "Low"}
 
 
+def test_a_doubleheader_bat_is_gated_once_on_his_first_matchup() -> None:
+    """Kept in both games, he is one hitter to the note and the ledger: one read,
+    one production entry, not two rows sharing one points total."""
+    slate = [("Twice", 1.0, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)]
+    result = _gated(slate)
+    first = result.sections[0].hitters[0]
+    again = HitterView(
+        line=first.line,
+        per_pitch=first.per_pitch,
+        overall=first.overall,
+        fit_xwoba=first.fit_xwoba,
+        fit_xba=first.fit_xba,
+        fallback_share=first.fallback_share,
+        edge=ArsenalEdge(top_families=("FF", "SL", "CH"), top_rv=-0.7),
+    )
+    result.sections[0].hitters.append(again)
+    said = power_report.verdicts(result)
+    once = power_report.verdicts(_gated(slate))
+    assert said["Twice"] == once["Twice"]
+    assert said["Twice"].bucket == power_report.SOFT_OVER and said["Twice"].points == 6
+    assert {k: v.points for k, v in said.items()} == {k: v.points for k, v in once.items()}
+
+
 def test_the_arm_tier_decides_the_side_of_a_qualified_bat() -> None:
     """Gate 3: the same 4+ point bat is an over against a soft arm, an under otherwise."""
     rows = [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5)]
