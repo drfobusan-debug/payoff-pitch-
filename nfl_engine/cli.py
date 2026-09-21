@@ -36,7 +36,7 @@ from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
-from nfl_engine import calibration, props, props_grade
+from nfl_engine import calibration, props, props_grade, state
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
@@ -611,6 +611,10 @@ def cmd_props(args: argparse.Namespace) -> int:
         return 1
     rows = capture.read_snapshot(snapshot)
     print(f"props: read {len(rows)} archived quotes from {snapshot.name}")
+    if args.write:
+        # Another machine may have priced this week already; its rows are folded
+        # into the file before ours are appended, so neither copy is lost.
+        _state_pull()
     priced: list[props.PricedProp] = []
     for basis, build in _prop_bases(args.basis).items():
         projections = build(season, week)
@@ -621,6 +625,8 @@ def cmd_props(args: argparse.Namespace) -> int:
     if args.write:
         path = props.write_research(priced, season=season, week=week)
         print(f"  wrote {path}" if path else "  research rows not written (see log)")
+        if path is not None:
+            _state_push(f"nfl props: {season} week {week} research")
     for prop in sorted(priced, key=lambda p: -(p.ev_fair or 0.0))[: args.top]:
         stops = ";".join(r for r in prop.screens if r != props.RESEARCH_ONLY) or "-"
         print(
@@ -658,16 +664,40 @@ def cmd_props_grade(args: argparse.Namespace) -> int:
     season = args.season
     if season is None:
         season, _, _ = current_week()
+    # A week graded on another machine is pending here only until its file is
+    # pulled; grading it again would be the same rows with a later stamp.
+    _state_pull()
     weeks = [args.week] if args.week is not None else props_grade.pending_weeks(season)
     if not weeks:
         print(f"props grade: nothing pending for {season}")
+    wrote = False
     for week in weeks:
         graded = props_grade.grade_week(season, week, write=args.write)
         settled = sum(1 for g in graded if g.result in (props_grade.WIN, props_grade.LOSS))
         print(f"props grade: {season} week {week}: {len(graded)} rows, {settled} settled")
+        wrote = wrote or (args.write and bool(graded))
+    if wrote:
+        _state_push(f"nfl props: {season} graded through week {max(weeks)}")
     for line in props_grade.summary(props_grade.read_graded(season)):
         print(line)
     return 0
+
+
+def _state_pull() -> None:
+    """Recover prop files written by an earlier run, possibly on another machine."""
+    if not load_config().state_sync:
+        return
+    report = state.auto_pull(data_dir())
+    if report is not None and report.pulled:
+        print(f"  state: {report.describe()}")
+
+
+def _state_push(message: str) -> None:
+    if not load_config().state_sync:
+        return
+    report = state.auto_push(data_dir(), message)
+    if report is not None and report.pushed:
+        print(f"  state: {report.describe()}")
 
 
 def _props_step(args: argparse.Namespace) -> int:
@@ -847,6 +877,9 @@ def cmd_card(args: argparse.Namespace) -> int:
         # as they were known when they were captured.
         absences=availability.read_log(availability.log_path(), season=season, week=week),
         briefs=briefs,
+        # The season's graded prop research, read off disk. Shown so the audit is
+        # read every week; nothing in it forms a price or a play.
+        props=props_grade.tallies(props_grade.read_graded(season)),
     )
     if not card.games:
         print(f"no priced rows for {season} week {week}")

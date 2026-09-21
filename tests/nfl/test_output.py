@@ -11,16 +11,18 @@ The contracts worth holding, both learned on the MLB side:
 from __future__ import annotations
 
 import argparse
+import csv
 from io import BytesIO
 
 import pytest
 from openpyxl import load_workbook
 
-from nfl_engine import cli
+from nfl_engine import cli, props_grade
 from nfl_engine.audit.ledger import LedgerEntry, save_ledger
 from nfl_engine.output.card import build_card, render_html, render_markdown
 from nfl_engine.output.email import EmailNotConfigured
 from nfl_engine.output.excel import build_workbook
+from nfl_engine.props_grade import PropTally
 
 SEASON, WEEK = 2026, 1
 
@@ -290,3 +292,85 @@ def test_a_week_that_was_never_priced_writes_nothing(
     assert cli.cmd_card(args(week=9)) == 0
     assert not out.exists()
     assert "no priced rows" in capsys.readouterr().out
+
+
+def _tally(market: str, wins: int, losses: int, shadow_units: float) -> PropTally:
+    return PropTally(
+        basis="usage-shrunk-2016-2021",
+        market=market,
+        n=wins + losses,
+        wins=wins,
+        losses=losses,
+        brier_model=0.2400,
+        brier_fair=0.2450,
+        brier_base=0.2500,
+        shadow_n=wins + losses,
+        shadow_units=shadow_units,
+    )
+
+
+def test_the_prop_audit_is_on_the_card_and_marked_as_research(
+    entries: list[LedgerEntry],
+) -> None:
+    tallies = [_tally("player_pass_yds", 6, 4, 1.46), _tally("player_rush_yds", 2, 5, -3.18)]
+    card = build_card(entries, season=SEASON, week=WEEK, props=tallies)
+    text, page = render_markdown(card), render_html(card)
+    assert "## Prop research to date" in text
+    assert (
+        "| usage-shrunk-2016-2021 | player_pass_yds | 10 | 6-4 | 0.2400 | 0.2450 | 0.2500 | 10 | +1.46 |"
+        in text
+    )
+    assert "<h2>Prop research to date</h2>" in page
+    assert "<td>2-5</td>" in page and "<td>-3.18</td>" in page
+    # Nothing in the table is a play: the bought rows are unchanged by it.
+    assert len(card.plays()) == 2
+    assert "stopped before it can be a play" in text and "stopped before it can be a play" in page
+
+
+def test_a_season_with_nothing_graded_prints_no_prop_section(
+    entries: list[LedgerEntry],
+) -> None:
+    card = build_card(entries, season=SEASON, week=WEEK)
+    assert "Prop research" not in render_markdown(card)
+    assert "Prop research" not in render_html(card)
+
+
+def test_the_card_reads_the_graded_prop_files_off_disk(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry]
+) -> None:
+    out = _configure(monkeypatch, tmp_path, entries)
+    monkeypatch.setenv("NFLE_DATA_DIR", str(tmp_path / "state"))
+    monkeypatch.setattr(cli, "render_pdf", lambda _html: b"%PDF-1.7")
+    graded = props_grade.graded_path(SEASON, WEEK, root=tmp_path / "state")
+    graded.parent.mkdir(parents=True)
+    fields = props_grade.GRADED_FIELDS
+    base = dict.fromkeys(fields, "")
+    base.update(
+        captured_at="2026-09-09T18:00:00Z",
+        season=str(SEASON),
+        week=str(WEEK),
+        matchup="BUF @ KC",
+        market="player_pass_yds",
+        side="over",
+        line="250.5",
+        book="dk",
+        american="-110",
+        model_prob="0.55",
+        fair_prob="0.52",
+        screens="research_only",
+        basis="usage",
+        graded_at="x",
+    )
+    rows = [
+        {**base, "player": "Allen", "result": "win", "pnl": "0.91"},
+        {**base, "player": "Mahomes", "result": "loss", "pnl": "-1"},
+    ]
+    with graded.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    assert cli.cmd_card(args()) == 0
+    text = (out / f"NFL_{SEASON}_Week{WEEK:02d}.md").read_text()
+    assert "## Prop research to date" in text
+    assert "| usage | player_pass_yds | 2 | 1-1 |" in text
