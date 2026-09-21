@@ -877,9 +877,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI o1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.382018
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Brett Harris H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.406495
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.617982
   },
   {
     "matchup": "MIN @ SF",
