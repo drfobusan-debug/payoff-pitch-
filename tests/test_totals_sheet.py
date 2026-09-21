@@ -362,6 +362,23 @@ def test_a_watch_row_is_written_bold_italic_and_the_legend_carries_the_study(tmp
     assert sheet_is_current(path)
 
 
+def test_an_ace_under_row_is_written_bold_italic_without_touching_sum(tmp_path: Path) -> None:
+    def row(game: str, total: str, sp_a: int, sp_h: int, off: int) -> SheetRow:
+        def side(sp: int, off: int) -> TeamSide:
+            return TeamSide("AZ", "X (R)", off=off, sp=sp, rp=0, kbb_sp=0, kbb_rp=0, bsr_pg=None, fatigue=0, fatigue_detail="")
+        return SheetRow(game, None, total, side(sp_a, off), side(sp_h, 0), 0, 0, 0, "", 0, "", 0, 0, "", "", "")
+
+    ace, hot_bats, high_line = row("A @ B", "7.5", -5, 0, 1), row("C @ D", "8.0", -5, 0, -2), row("E @ F", "8.5", -5, 0, 0)
+    assert (ace.ace, hot_bats.ace, high_line.ace) == (True, False, False)
+    assert (hot_bats.flag, high_line.flag) == ("", "")
+    assert (ace.flag, ace.watched, ace.total_pts) == ("", True, -4)  # SUM -4 is outside the under band; only the ace flags it
+    path = write_workbook([ace, hot_bats, high_line], Date(2026, 9, 21), tmp_path / "t.xlsx")
+    ws = load_workbook(path)["Totals 2026-09-21"]
+    assert ws.cell(row=2, column=1).font.italic and not ws.cell(row=3, column=1).font.italic
+    assert not ws.cell(row=4, column=1).font.italic
+    assert "Ace under" in sheet_legend_keys(path) and sheet_is_current(path)
+
+
 def test_a_sheet_whose_legend_predates_the_study_is_rebuilt(tmp_path: Path) -> None:
     day = Date(2026, 9, 17)
     out = tmp_path / "t.xlsx"
