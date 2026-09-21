@@ -31,9 +31,15 @@ from nfl_engine.data.teamnames import canonical
 from nfl_engine.features.adjustments import adjust, unpriced_notes
 from nfl_engine.market.screens import Tier
 from nfl_engine.output.brief import GameBrief, TeamBrief, team_name
+from nfl_engine.props_grade import PropTally
 
 BUY_TIERS = (Tier.STRONG.value, Tier.MODERATE.value)
 PAPER_NOTE = "Paper only: no stake is placed and no bankroll exists in this engine."
+PROPS_NOTE = (
+    "Prop rows are priced as research and every one is stopped before it can be a play. "
+    "Brier: lower is closer; the model must beat the de-vigged book, not the base rate. "
+    "Shadow is a flat unit on the rows only the research stamp stopped."
+)
 
 
 @dataclass
@@ -179,6 +185,10 @@ class WeekCard:
     # Games where the outside forecast backed the other side of one of our plays.
     # Counted, not acted on: a disagreement is something to read afterwards.
     contested: int = 0
+    # The season's graded prop research, per basis and market. Every prop row was
+    # stopped by ``research_only`` before it could be a play, so this is an audit
+    # of the pricing, not a record -- and it is on the card so the audit is read.
+    props: list[PropTally] = field(default_factory=list)
 
     def plays(self) -> list[Play]:
         return [play for game in self.games for play in game.plays]
@@ -195,6 +205,7 @@ def build_card(
     calibration: str = "",
     absences: list[Observation] | None = None,
     briefs: dict[str, GameBrief] | None = None,
+    props: list[PropTally] | None = None,
 ) -> WeekCard:
     """Group one week's engine rows into game sections, best execution edge first.
 
@@ -254,6 +265,7 @@ def build_card(
         record=_record(entries),
         calibration=calibration,
         contested=sum(1 for h in outside.values() if h.contested),
+        props=list(props or []),
     )
 
 
@@ -435,7 +447,27 @@ def render_markdown(card: WeekCard) -> str:
                 f" {row.roi:+.4f} | {row.units:+.2f} | {row.mean_clv:+.4f} |"
             )
         lines.append("")
+    if card.props:
+        lines.append("## Prop research to date")
+        lines.append("")
+        lines.append(f"_{PROPS_NOTE}_")
+        lines.append("")
+        lines.append(
+            "| Basis | Market | n | W-L | Brier model | Brier book | Brier base | Shadow n | Shadow units |"
+        )
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        for t in card.props:
+            lines.append(
+                f"| {t.basis} | {t.market} | {t.n} | {t.wins}-{t.losses} |"
+                f" {_brier(t.brier_model)} | {_brier(t.brier_fair)} | {_brier(t.brier_base)} |"
+                f" {t.shadow_n} | {t.shadow_units:+.2f} |"
+            )
+        lines.append("")
     return "\n".join(lines)
+
+
+def _brier(x: float | None) -> str:
+    return "n/a" if x is None else f"{x:.4f}"
 
 
 _STYLE = """
@@ -864,6 +896,25 @@ def _record_table(card: WeekCard) -> str:
     )
 
 
+def _props_table(card: WeekCard) -> str:
+    if not card.props:
+        return ""
+    rows = "".join(
+        f"<tr><td>{html.escape(t.basis)}</td><td>{html.escape(t.market)}</td><td>{t.n}</td>"
+        f"<td>{t.wins}-{t.losses}</td><td>{_brier(t.brier_model)}</td>"
+        f"<td>{_brier(t.brier_fair)}</td><td>{_brier(t.brier_base)}</td>"
+        f"<td>{t.shadow_n}</td><td>{t.shadow_units:+.2f}</td></tr>"
+        for t in card.props
+    )
+    return (
+        "<h2>Prop research to date</h2>"
+        f"<p class='muted'>{html.escape(PROPS_NOTE)}</p>"
+        "<table class='record'><thead><tr><th>Basis</th><th>Market</th><th>n</th><th>W-L</th>"
+        "<th>Brier model</th><th>Brier book</th><th>Brier base</th><th>Shadow n</th>"
+        f"<th>Shadow units</th></tr></thead><tbody>{rows}</tbody></table>"
+    )
+
+
 def render_html(card: WeekCard) -> str:
     n_games = len(card.games)
     n_plays = len(card.plays())
@@ -905,7 +956,7 @@ def render_html(card: WeekCard) -> str:
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_STYLE}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
-        f"{_slate_best_block(card)}{_record_table(card)}{fine}</body></html>"
+        f"{_slate_best_block(card)}{_record_table(card)}{_props_table(card)}{fine}</body></html>"
     )
 
 

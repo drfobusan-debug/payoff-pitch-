@@ -97,9 +97,7 @@ class Credentials:
     gmail_user: str | None = field(
         default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
     )
-    gmail_app_password: str | None = field(
-        default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD")
-    )
+    gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
 
     def has_odds_api(self) -> bool:
         return bool(self.odds_api_key)
@@ -118,9 +116,9 @@ class Delivery:
         default_factory=lambda: os.getenv("NFLE_EMAIL_TO") or os.getenv("MLBE_EMAIL_TO")
     )
     smtp_host: str = field(
-        default_factory=lambda: os.getenv("NFLE_SMTP_HOST")
-        or os.getenv("SMTP_HOST")
-        or "smtp.gmail.com"
+        default_factory=lambda: (
+            os.getenv("NFLE_SMTP_HOST") or os.getenv("SMTP_HOST") or "smtp.gmail.com"
+        )
     )
     smtp_port: int = field(
         default_factory=lambda: _env_int("NFLE_SMTP_PORT", _env_int("SMTP_PORT", 465))
@@ -136,6 +134,9 @@ class Config:
     # Score simulator: "drives" (possession-based, discrete) or "normal"
     # (bivariate-normal control). Both consume the same means.
     sim_engine: str = field(default_factory=lambda: os.getenv("NFLE_SIM_ENGINE", "drives"))
+    # Carry the prop research and its grades on the shared engine-state branch, so
+    # the audit can be read on a machine that did not price the board.
+    state_sync: bool = field(default_factory=lambda: _env_bool("NFLE_STATE_SYNC", True))
 
 
 def load_config() -> Config:
