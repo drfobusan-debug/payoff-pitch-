@@ -18,14 +18,18 @@ from mlb_engine.features.arm import (
     CONFIRMED,
     CONTRADICTED,
     DRIFT_SD,
+    FADING,
     HOLDING,
     LEAGUE,
     MIN_LEVEL_PITCHES,
+    MIXED,
     PITCHES_FOR_READABLE,
+    SHARPENING,
     SHEDDING,
     UNMEASURED,
     WINDOW,
     ArmProfile,
+    build_arm_form,
     build_arm_profile,
     fastballs_of,
     reliability,
@@ -282,3 +286,55 @@ def test_the_trend_does_not_move_the_verdict() -> None:
     assert stage_two(0.03, shedding) == stage_two(0.03, holding) == CONTRADICTED
     assert stage_two(-0.03, shedding) == stage_two(-0.03, holding) == CONFIRMED
     assert velo_trend(ArmProfile(pitches=WINDOW, pvelo=mu, d_pvelo=0.0)) == HOLDING
+
+
+# --- form: the last three starts against the window ------------------------
+
+
+def _starts(
+    per_start: list[tuple[float, float]], *, pitches: int = 80, first_day: int = 0
+) -> pd.DataFrame:
+    """One start per entry, every ``pitches`` a fastball at ``velo`` whiffed at ``whiff``."""
+    frames = []
+    for i, (velo, whiff) in enumerate(per_start):
+        n_whiff = int(round(pitches * whiff))
+        frames.append(
+            pd.DataFrame(
+                {
+                    "pitcher": [10] * pitches,
+                    "pitch_type": ["FF"] * pitches,
+                    "game_date": [DAY0 + timedelta(days=first_day + 5 * i)] * pitches,
+                    "release_speed": [velo] * pitches,
+                    "description": ["swinging_strike"] * n_whiff
+                    + ["hit_into_play"] * (pitches - n_whiff),
+                }
+            )
+        )
+    return pd.concat(frames, ignore_index=True)
+
+
+def test_form_reads_the_last_three_starts_against_the_whole_window() -> None:
+    rows = _starts([(95.0, 0.30)] * 4 + [(93.0, 0.20)] * 3)
+    form = build_arm_form(rows)
+    assert form.starts == 7
+    assert math.isclose(form.velo_recent, 93.0)
+    assert math.isclose(form.whiff_recent, 0.20)
+    assert form.d_velo < 0 and form.d_whiff < 0
+    assert form.state == FADING
+
+
+def test_form_is_sharpening_only_when_both_moves_rise_and_mixed_otherwise() -> None:
+    up = build_arm_form(_starts([(93.0, 0.20)] * 4 + [(95.0, 0.30)] * 3))
+    assert up.state == SHARPENING
+    split = build_arm_form(_starts([(93.0, 0.30)] * 4 + [(95.0, 0.20)] * 3))
+    assert split.state == MIXED
+    flat = build_arm_form(_starts([(94.0, 0.25)] * 7))
+    assert flat.state == MIXED
+
+
+def test_form_is_unmeasured_on_too_few_starts_or_too_few_pitches() -> None:
+    """Four starts is not a trend against a window; nor is a block of relief outings."""
+    assert build_arm_form(_starts([(95.0, 0.30)] * 4)).state == UNMEASURED
+    thin = build_arm_form(_starts([(95.0, 0.30)] * 6, pitches=20))
+    assert thin.starts == 6 and thin.state == UNMEASURED
+    assert build_arm_form(pd.DataFrame()).state == UNMEASURED

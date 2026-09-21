@@ -1844,3 +1844,27 @@ def test_the_elite_part_is_rendered_after_the_soft_screen_and_names_its_cut() ->
     assert "nothing here assumes it" in html
     # Without the second pass the note is unchanged.
     assert "Part II" not in power_report.render_html(soft)
+
+
+def test_a_fading_arm_is_printed_beside_the_gates_and_moves_no_side() -> None:
+    """The last-three read is an insight column and a paragraph, never a gate."""
+    from mlb_engine.features.arm import ArmForm
+
+    slate = [("Hot", 1.0, 5), ("Cold", -1.0, 4), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3)]
+    result = _gated(slate)
+    before = power_report.verdicts(result)
+    result.sections[0].starter.form = ArmForm(
+        starts=7, whiff_recent=0.20, whiff_window=0.26, velo_recent=93.1, velo_window=94.4
+    )
+    assert power_report.verdicts(result) == before
+    doc = power_report.render_html(result)
+    assert "arm's last 3" in doc
+    assert "<b>fading</b> (whiff -6.0pp, velo -1.3)" in doc
+    assert "starts are fading" in doc
+    assert "Cleared bats against a fading arm:" in doc and "Hot vs" in doc
+    assert "RV-negative unders against a fading arm:" in doc and "Cold vs" in doc
+
+    result.sections[0].starter.form = ArmForm(starts=3)
+    doc = power_report.render_html(result)
+    assert "fading" not in doc.split("Recommendations")[1].split("Insights")[0]
+    assert "No rated bat faces a fading arm today" in doc

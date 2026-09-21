@@ -73,7 +73,7 @@ import pandas as pd
 from mlb_engine.config import power_bonus_half_pool
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features import stuff
-from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import ArmForm, ArmProfile, build_arm_form, build_arm_profile
 from mlb_engine.features.arm import stage_two as arm_stage_two
 from mlb_engine.features.reliability import readable, reliability
 from mlb_engine.features.siera import MIN_SIERA_PA, SIERA_LEAGUE_ANCHOR, pitcher_siera
@@ -418,6 +418,9 @@ class StarterCard:
     #: What Statcast measures of the delivery over his last fastballs. The index
     #: above is a batted-ball read and knows nothing about the pitch that was hit.
     arm: ArmProfile | None = None
+    #: His last few starts against the window: whiff rate and velocity direction.
+    #: Printed beside the hitter gates and the arm rows; never a gate.
+    form: ArmForm | None = None
 
     @property
     def arm_verdict(self) -> str:
@@ -473,6 +476,7 @@ def starter_damage(
         siera=s.siera if s.has_data else None,
         siera_pa=s.pa,
         arm=build_arm_profile(rows),
+        form=build_arm_form(rows),
     )
 
 

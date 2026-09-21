@@ -271,6 +271,55 @@ def _trend_clause(prof: arm_model.ArmProfile) -> str:
     )
 
 
+FORM_DISPLAY = {
+    arm_model.FADING: "fading",
+    arm_model.SHARPENING: "sharpening",
+    arm_model.MIXED: "mixed",
+    arm_model.UNMEASURED: "&mdash;",
+}
+
+
+def _form_cell(s: StarterCard) -> str:
+    """The arm's last-three direction as a table cell: state, then the two moves."""
+    f = s.form
+    if f is None or f.state == arm_model.UNMEASURED:
+        return "&mdash;"
+    word = FORM_DISPLAY[f.state]
+    if f.state == arm_model.FADING:
+        word = f"<b>{word}</b>"
+    return (
+        f"{word} (whiff {f.d_whiff * 100:+.1f}pp, velo {f.d_velo:+.1f})"
+    )
+
+
+def _form_prose(s: StarterCard) -> str:
+    """Which way his last three starts ran, and what the ledger says that was worth."""
+    f = s.form
+    if f is None or f.state == arm_model.UNMEASURED:
+        return ""
+    moves = (
+        f"whiffs per swing {_pc(f.whiff_recent)} against {_pc(f.whiff_window)} over the "
+        f"window ({f.d_whiff * 100:+.1f} points), fastball {_num(f.velo_recent, 1)} mph "
+        f"against {_num(f.velo_window, 1)} ({f.d_velo:+.1f})"
+    )
+    if f.state == arm_model.FADING:
+        return (
+            f"<strong>His last {arm_model.FORM_STARTS} starts are fading: {moves}.</strong> On "
+            "the ledger that is the one arm read with a sign: arms with both falling went "
+            "8-21 on their own side (K and outs over, hits and runs under; the K/outs overs "
+            "3-12), and a bat that clears the gates against one went 22-17 on his over, 15-16 "
+            "of it against the average-to-elite band. A cold bat's under against a fading arm "
+            "went 4-7. Small cells, all in-sample; context, not a gate."
+        )
+    if f.state == arm_model.SHARPENING:
+        return (
+            f"His last {arm_model.FORM_STARTS} starts are sharpening: {moves}. Arms with whiff "
+            "rate rising went 25-17 on their own side on the ledger; the bats that cleared the "
+            "gates against them were still priced fairly on the over (14-12). Context only."
+        )
+    return f"His last {arm_model.FORM_STARTS} starts are mixed: {moves}."
+
+
 def _starter_prose(section: MatchupSection) -> str:
     s = section.starter
     bits = [
@@ -283,6 +332,9 @@ def _starter_prose(section: MatchupSection) -> str:
     arm_prose = _arm_prose(s)
     if arm_prose:
         bits.append(arm_prose)
+    form_prose = _form_prose(s)
+    if form_prose:
+        bits.append(form_prose)
     worst = _worst_pitch(section)
     best = _best_pitch(section)
     if worst:
@@ -728,7 +780,12 @@ def _price(american: float | None) -> str:
     return f"{american:+.0f}"
 
 
-def _board_section(board: Board) -> str:
+def _form_by_arm(result: ScreenResult) -> dict[str, str]:
+    """Starter name -> his last-three form cell, for the arms' board."""
+    return {s.starter.name: _form_cell(s.starter) for s in result.sections}
+
+
+def _board_section(board: Board, forms: Mapping[str, str] | None = None) -> str:
     """The survivors on the card's own board, best expected value first."""
     rows = []
     batter_buys = [r for r in board.rows if r.is_buy]
@@ -815,7 +872,7 @@ def _board_section(board: Board) -> str:
             f"The screen reads form and exposure; the price reads everything, including the "
             f"lineup card this note is guessing at.</p>"
         )
-    out.append(_arm_board(board))
+    out.append(_arm_board(board, forms or {}))
     return "".join(out)
 
 
@@ -844,7 +901,7 @@ def _gate_cell(row: BoardRow) -> str:
     return "passed"
 
 
-def _arm_board(board: Board) -> str:
+def _arm_board(board: Board, forms: Mapping[str, str]) -> str:
     """The arms' positions: one side per stat on each starter the screen kept."""
     if not board.arm_rows and not board.arms_unpriced:
         return ""
@@ -853,6 +910,7 @@ def _arm_board(board: Board) -> str:
         fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
         rows.append([
             html.escape(r.batter),
+            forms.get(r.batter, "&mdash;"),
             r.label.removeprefix("SP "),
             _price(r.american),
             html.escape(r.book or "&mdash;"),
@@ -878,10 +936,10 @@ def _arm_board(board: Board) -> str:
     if rows:
         out.append(
             _table(
-                ["pitcher", "market", "price", "book", "bet prob", "no-vig", "edge", "EV",
-                 "card"],
+                ["pitcher", "last 3", "market", "price", "book", "bet prob", "no-vig",
+                 "edge", "EV", "card"],
                 rows,
-                numeric_from=2,
+                numeric_from=3,
             )
         )
         out.append(
@@ -893,6 +951,18 @@ def _arm_board(board: Board) -> str:
             "because whether the card's gates are costing the screen money on soft arms is "
             "the question the ledger is being asked to answer; it is not a bet the card "
             "made.</p>"
+        )
+        out.append(
+            "<p class='sub'><strong>Insight &mdash; last 3</strong> is the arm's last three "
+            "starts against his window on whiffs per swing and fastball velocity. On the "
+            "ledger the level of every arm metric sat at the price on these rows; the "
+            "direction is the one read with a sign. Whiff rate rising: the arm's own side "
+            "(K and outs over, hits/runs/walks under) 25-17, +14%; falling, 20-35, "
+            "&minus;26%; both whiff and velocity falling, 8-21, &minus;48%, the K and outs "
+            "overs 3-12. Betting the under on a fading arm's K and outs was 7-4 and no better "
+            "than the same under on any other arm (29-19 overall), so a fade is a reason not "
+            "to hold his over, not yet a reason to hold his under. 64 arm-days, in-sample; "
+            "printed, not gated.</p>"
         )
     if board.arms_unpriced:
         names = ", ".join(html.escape(n) for n in board.arms_unpriced)
@@ -1877,6 +1947,7 @@ def _recommendations(
             (said[view.line.name].side or "none"),
             html.escape(view.line.name),
             html.escape(section.starter.name),
+            _form_cell(section.starter),
         ]
         if board is not None:
             row.append(_best_price_cell(board.best_for_batter(view.line.name)))
@@ -1936,6 +2007,7 @@ def _recommendations(
             f"{PRODUCTION_DROP} of 6 production points, which on the ledger is the worst "
             "thing the screen prices; no row is printed or recorded.</p>"
         )
+    lead += _form_insights(rated, said)
     if grade_records is not None:
         lead += _grade_ledger_lead(records, words)
     if board is not None:
@@ -1954,7 +2026,7 @@ def _recommendations(
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["grade", "side", "batter", "vs"]
+    headers = ["grade", "side", "batter", "vs", "arm's last 3"]
     if board is not None:
         headers.append("best price (EV)")
     if grade_records is not None:
@@ -1965,6 +2037,72 @@ def _recommendations(
         + _table(headers, rows, numeric_from=len(headers) - 1)
         + tail
     )
+
+
+def _form_insights(
+    rated: list[tuple[str, str, HitterView, MatchupSection]], said: Mapping[str, Verdict]
+) -> str:
+    """What the arm's recent direction says about the positions held, beside the gates.
+
+    Two reads off the ledger, neither strong enough to move a side: a cleared bat's
+    over against a fading arm has been the one place the average-to-elite over was
+    positive, and a cold bat's under against a fading arm has been the one place the
+    RV-negative under was not.
+    """
+    fading = [t for t in rated if _state(t[3]) == arm_model.FADING]
+    sharp = [t for t in rated if _state(t[3]) == arm_model.SHARPENING]
+    unread = sum(1 for t in rated if _state(t[3]) == arm_model.UNMEASURED)
+    lines = [
+        "<p class='sub'><strong>Insights &mdash; the arm's last three starts.</strong> "
+        f"The column reads each starter's last {arm_model.FORM_STARTS} starts against his "
+        "window on whiffs per swing and fastball velocity. On the ledger the level of every "
+        "arm metric sat at the price; the direction is the only arm read with a sign, and it "
+        "is small (no cell over 40 rows) and in-sample, so it is printed and gates nothing. "
+    ]
+    if fading:
+        cleared = [t for t in fading if t[0] in (SOFT_OVER, ELITE_UNDER)]
+        unders = [t for t in fading if t[0] == RV_UNDER]
+        if cleared:
+            lines.append(
+                "<strong>Cleared bats against a fading arm:</strong> "
+                + ", ".join(
+                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
+                    for t in cleared
+                )
+                + ". That bat's over went 22-17 (+41%) on the ledger, 15-16 of it against the "
+                "average-to-elite band whose under the gate otherwise holds &mdash; the one "
+                "cell where that band's over has been positive. "
+            )
+        if unders:
+            lines.append(
+                "<strong>RV-negative unders against a fading arm:</strong> "
+                + ", ".join(
+                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
+                    for t in unders
+                )
+                + ". That under went 4-7 (&minus;36%) against 27-5 when the arm was not "
+                "fading: the one place the RV gate's under has lost. Eleven rows. "
+            )
+    else:
+        lines.append("No rated bat faces a fading arm today. ")
+    if sharp:
+        lines.append(
+            "<strong>Sharpening arms:</strong> "
+            + ", ".join(sorted({html.escape(t[3].starter.name) for t in sharp}))
+            + " &mdash; their own K and outs overs went 25-17 on the ledger; the bats against "
+            "them were priced fairly. "
+        )
+    if unread:
+        lines.append(
+            f"{unread} of the rated bats face an arm with fewer than "
+            f"{arm_model.FORM_MIN_STARTS} starts in the window, unread."
+        )
+    return "".join(lines).rstrip() + "</p>"
+
+
+def _state(section: MatchupSection) -> str:
+    f = section.starter.form
+    return arm_model.UNMEASURED if f is None else f.state
 
 
 def _elite_thesis(result: ScreenResult) -> str:
@@ -2041,7 +2179,7 @@ def _elite_part(
         body.append(_composite(result))
         body.append(_bet_card(result))
     if board is not None:
-        body.append(_board_section(board))
+        body.append(_board_section(board, _form_by_arm(result)))
     if result.sections:
         body.append(_recommendations(result, board, grade_records))
     return body
@@ -2108,7 +2246,7 @@ def render_html(
     if review is not None:
         body.append(_scorecard_section(*review))
     if board is not None:
-        body.append(_board_section(board))
+        body.append(_board_section(board, _form_by_arm(result)))
     body.append(_recommendations(result, board, grade_records))
     if elite is not None:
         body.extend(_elite_part(elite, elite_board, grade_records))
