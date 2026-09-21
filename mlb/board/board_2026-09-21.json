@@ -3558,9 +3558,23 @@
   {
     "matchup": "TOR @ BAL",
     "market": "batter_hrr",
+    "selection": "Jeremiah Jackson H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "batter_hrr",
     "selection": "Jeremiah Jackson H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.409098
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "batter_hrr",
+    "selection": "Jeremiah Jackson H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
   },
   {
     "matchup": "TOR @ BAL",
@@ -4972,9 +4986,23 @@
   {
     "matchup": "TOR @ BAL",
     "market": "batter_tb",
+    "selection": "Pete Alonso TB o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "batter_tb",
     "selection": "Pete Alonso TB o1.5",
     "american": 144.0,
     "no_vig_prob": 0.392872
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "batter_tb",
+    "selection": "Pete Alonso TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
   },
   {
     "matchup": "TOR @ BAL",
@@ -5129,6 +5157,20 @@
     "selection": "Under 7.5",
     "american": -102.0,
     "no_vig_prob": 0.490015
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "pitcher_bb",
+    "selection": "Shane Baz Walks o1.5",
+    "american": 110.0,
+    "no_vig_prob": 0.445109
+  },
+  {
+    "matchup": "TOR @ BAL",
+    "market": "pitcher_bb",
+    "selection": "Shane Baz Walks u1.5",
+    "american": -144.0,
+    "no_vig_prob": 0.554891
   },
   {
     "matchup": "TOR @ BAL",
@@ -6204,9 +6246,23 @@
   {
     "matchup": "WSH @ DET",
     "market": "batter_hrr",
+    "selection": "John Peck H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "WSH @ DET",
+    "market": "batter_hrr",
     "selection": "John Peck H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.403268
+  },
+  {
+    "matchup": "WSH @ DET",
+    "market": "batter_hrr",
+    "selection": "John Peck H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
   },
   {
     "matchup": "WSH @ DET",
