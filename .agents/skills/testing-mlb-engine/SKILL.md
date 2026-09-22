@@ -145,6 +145,110 @@ A second full run within 30 min is free and price-stable: the Odds API responses
   up narrow, `Opta %` 40 wide). Values are written by header name and stay correct; check whether the
   list has been extended before reporting it as new.
 
+## Matchup grade / letter ratings on the power screen (`output/power_report.py`)
+- The grade lives in `power_report._rating(view)`; the visible letters come from
+  `RATING_DISPLAY = {BUY: "MATCHUP A", HOLD: "MATCHUP B", AVOID: "MATCHUP C"}`, while the ledger
+  (`audit/power_ledger.Position.rating`, fed by `power_report.ratings(result)`) stores the internal
+  `BUY/HOLD/AVOID`. Always translate through `RATING_DISPLAY` before comparing HTML to CSV.
+- To recompute a letter independently, parse the pool table's `xwOBAcon` cell (`_pool_table` prints
+  `_f3(h.xwoba_con)`) and the Recommendations table's `basis` cell — the basis repeats the same
+  number, so the two must agree. Cuts may change; read them from the module
+  (`CONTACT_GRADE_A`/`CONTACT_GRADE_B`) rather than hard-coding.
+- Proving a factor is *inert*: rebuild a real `ScreenResult` once, pickle it, then sweep the
+  candidate inputs and re-call `power_report.ratings(result)`. Gotchas: `Exposure` is a **frozen**
+  dataclass with no `share` field — mutate via `dataclasses.replace(exp, pa_vs_starter=...)` and the
+  derived `share_vs_starter`. Always run the identical sweep against an `origin/main` worktree as a
+  sensitivity gate; if main's letters do not move either, the harness is not biting.
+- `PYTHONPATH=/tmp/mainXXX` only wins for scripts stored **outside** the repo. Running
+  `python - <<EOF` from the repo root puts `''` (cwd) first in `sys.path` and silently imports the
+  branch module — write the A/B harness to `/tmp/x.py` and print `module.__file__` to confirm.
+- The scorecard grade cut and its caption only render when an earlier graded date is available:
+  pass `--grade-date <earlier date>` and a copied audit dir. Grading writes/replaces the day's rows
+  in `audit/power_screen_ledger.csv`, so copy (do not symlink) `~/.mlb_engine/audit` into the scratch
+  `MLBE_DATA_DIR` and md5 the production ledger before/after as a guard.
+- Marker literals: `*` = power exception, `‡` (`\u2021`) = swing rescue, `†` (`\u2020`) = contradicted
+  delivery. A power-exception row may not occur naturally; set `power_exception = True` on one real
+  survivor in-process and re-render rather than fabricating a report. When scanning pool tables for
+  markers, iterate **all** tables — survivors are split across per-starter sections.
+- Price-independence is cheap to prove: re-render the same result with `--no-prices` / `board=None`
+  and assert the grade/batter/vs/basis cells are byte-identical (only the `best price (EV)` column
+  disappears). Beware a naive `[+-]\d{3}` price regex — it false-positives on `arsenal fit +126
+  points`.
+- `nan` scans must be token-level (`\bnan\b`); the report legitimately contains "unanchored". Compare
+  em-dash counts against a main-built render of the same date so pre-existing blanks are not reported
+  as new.
+
+## Bat-tracking / swing features (power screen, hitter regression article, batter report)
+- Entry points: `scripts/power_screen.py --date <d> [--predictions <saved pregame json>]` (0 credits
+  when a saved card/predictions file is passed), `scripts/batter_regression_report.py <date>` (prints
+  a log line then one JSON blob — strip everything before the first `{` before `json.loads`), and
+  `mlb_engine/output/regression_article.py::build_article_pdf(day, previews, preds, statcast)` for the
+  article the daily `run` embeds (`cli.py`), which can be built from saved `previews_*.json` +
+  `predictions_*.json` + `~/.mlb_engine/cache/statcast_*.pkl`.
+- Markers can differ from the PR prose: `power_report.py` renders `*` for `power_exception` and
+  Unicode **`‡` (`\u2021`)** for a swing rescue — grep the source for the literal before asserting on
+  a `†`. `_num/_pc/_f3` render NaN as `&mdash;`, so a "blank" cell is an em dash, never `0.0`.
+- Do not fabricate a rescue: search real dates instead. Import the production `hitter_pool` /
+  `score_pool` / `apply_cuts` in a loop over dates (run with
+  `PYTHONPATH=<repo>` so `import scripts...` resolves) and look for a hitter with
+  `luck_gap > MAX_LUCK_GAP` and `stage_two(...) == CONTRADICTED`; then re-render that date's screen
+  and assert the marked row's printed levels equal an independent recomputation of the same profile.
+- Prove the rescue is load-bearing by re-running the *same* date in a process that wraps
+  `StatcastRepository.max_window` to null (`pd.NA`) the `bat_speed` column: every swing cell must go
+  to `&mdash;`, the `‡` lead must disappear from the note, and the rescued hitter must reappear in the
+  cut appendix with his luck-gap reason.
+- Missing-column (not just null) coverage: dropping `bat_speed`/`swing_length` entirely is safe in
+  `features/swing.py` (`swings_of` returns an empty frame → all-NaN profile → `unmeasured`) and in the
+  power screen, but `features/regression.py::build_batter_regression` reads `bdf["bat_speed"]`
+  unguarded, so the **article / `regression_profiles` path raises `KeyError: 'bat_speed'`**. That read
+  predates the swing work; verify with `git log -S` before blaming a swing PR, and test the
+  null-values case separately from the dropped-column case.
+- Partial readability is the interesting middle case and rarely appears on a full-season cache: build
+  a profile from ~40 swings and expect `bat_speed` numeric with `blast`/`squared_up`/`power_z` NaN and
+  `stage2 == unmeasured` (never a league-average substitute).
+- Swing *trend* prohibition: a plain grep for `trend` gives false positives (CSS class `.trend`,
+  legitimate pitcher "3wk trend" prose). Instead split the rendered text into sentences and require
+  that the only sentence containing both a trend word and a swing word is the methodology's own
+  "so no swing trend is printed at all".
+
+## Pitcher delivery / arm features (power screen, Mound card, regression article)
+- `mlb_engine/features/arm.py` mirrors the swing model: levels are the last `WINDOW=100` valid
+  *fastball* (`FF/FA/SI/FT`) readings and stay NaN under `MIN_LEVEL_PITCHES=24`;
+  `pvelo = release_speed + 1.1*release_extension - 6.0`; `ivb = pfx_z*12`, `hb = pfx_x*12` mirrored by
+  handedness. `power_report.py` prints pVelo/Ext/IVB plus **`†` (`\u2020`)** for a CONTRADICTED
+  delivery (the swing side uses `‡` — always grep the literal). NaN renders as `&mdash;`.
+- 0-credit rebuild of both consumers: `MLBE_DATA_DIR=<scratch> MLBE_STATE_SYNC=0
+  scripts/power_screen.py --date <d> --no-grade` and `PYTHONPATH=. python -m scripts.regen_regression
+  <date> <statcast_pkl>` (needs both `previews_<date>.json` and `predictions_<date>.json` in
+  `audit_dir`; it raises `FileNotFoundError` otherwise — that is harness misuse, not a bug). Symlink
+  `cache`/`audit` into the scratch data dir so today's real `output/` is untouched.
+- Pick the cache pickle deliberately: `pfx_x` was only added to `USE_COLS` recently, so
+  `statcast_2026-07-13_2026-08-23.pkl` has HB while older/wider pickles do not — the "old cache" test
+  needs no monkeypatching, just the older file (expect `HB —` with every other level numeric).
+- Truncating a starter's *rows* to force a thin sample also changes his damage stats and therefore the
+  ranking, which destroys the "nothing is gated" comparison. Instead **null the physical columns on
+  all but his last N fastball rows**: the row count (and every rate stat) is unchanged and only the
+  number of valid readings moves. 40 readings must reproduce the mean of exactly those 40 rows
+  (e.g. IVB 11.3 vs the full-sample 12.6); 10 readings must give em dashes, no marker, `unmeasured`
+  prose, other starters' cells byte-identical, and never a league-average substitute.
+- Natural UNMEASURED starters are rare but real: map priced starter names to ids with
+  `regression_profiles._pitcher_id_map(predictions_json)` and build a profile per name over the
+  window; on 2026-08 caches ~91 of 590 in-window pitchers are unmeasured, but they are usually
+  swing-men who never clear the screen's readability floor, so expect to fall back to the
+  null-readings recipe above for a *rendered* unmeasured row.
+- Degraded-mode cosmetics to check, since the arm model widens the NaN surface: the Mound card
+  (`scripts/pitcher_slate_analysis.py`) formats biomech with `:.1f` and prints literal
+  `Extension nan ft · IVB nan in` when levels are unmeasured (same on main under nulled data), and the
+  pre-existing 3wk-trend line prints `vFA +nan mph` when `release_speed` is dropped. Assert on
+  `grep -c nan` in the rendered HTML, not just on absence of tracebacks.
+- Dropping `release_speed`/`release_extension` entirely is the leg that separates the guards from
+  main: main dies with `KeyError: 'release_extension'` inside `regression_profiles._biomech`/`_vfa`,
+  so run the same harness in a `git worktree` of `origin/main` to show the guard is load-bearing.
+- Trend prohibition: same sentence-level method as the swing side; the legitimate hits are the
+  methodology's own refusal ("the recent-versus-prior move in perceived velocity comes in at t …"),
+  the pre-existing per-starter `3wk trend: SIERA … vFA …` line and the Mound intro's "3-week fastball
+  velocity … arrow". Confirm each by grepping the identical string in a main-built article.
+
 ## Replaying a past slate off the odds cache (deterministic A/B for a pricing/gate change)
 When a change alters *pricing or tiering*, the in-process field-diff above does not apply and two
 live runs are not comparable. Replay one past slate instead: identical real prices, zero credits, and
@@ -251,3 +355,42 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.
 - `GMAIL_USER` / `GMAIL_APP_PASSWORD` — only needed for `--email`; do not send email while testing.
+
+## Testing game-by-game card merges (`state.merge_cards`, PR #371 onward)
+- The record is folded **per `game_pk`**: a candidate game replaces the record's game only when its
+  min `hours_to_first_pitch` is > 0 and smaller than the record's for that game; games it doesn't
+  carry stay. Build fixtures from a real card (`~/.mlb_engine/audit/predictions_2026-09-09.json`,
+  15 games × 519 rows) by copying rows per game and shifting leads; tag provenance in an inert
+  string field such as `book` (`MORNING`/`WINDOW`/`EVENING`) so the merged record shows which pass
+  each game came from. `mlb-engine state push` from a clone whose `origin` is a local bare repo,
+  then `git clone --branch engine-state` the bare repo and count tags per game.
+- **First publish is still whole-card**: if the branch has no `predictions_<date>.json.gz` at all,
+  `_stage_predictions` gzips the local card regardless of lead — so an audit run against an empty
+  origin publishes its own post-start re-price as the record. Seed the fake origin with the
+  morning card before an audit leg if you want to test the merge path rather than this.
+- `ledger.csv` has no `game_pk`; map ledger coverage via `matchup` (join on the card's rows).
+- `Config.book_fade_markets` defaults to `{batter_2b, batter_hrr, game_rl}`; `MLBE_BOOK_FADE_MARKETS=""`
+  = all markets. To test without a live run, replay `fade_disagreements(enforce_one_buy_per_group(
+  load_json(card)), cfg.book_fade_max_fair, cfg.book_fade_markets)` on a card that still carries
+  game_ml/game_total underdog buys (fair_prob < 0.5) — 2026-07-28/29/31 do; cards from 09-04 on have
+  none, so default vs "" is indistinguishable on them. Tier names are `STRONG/MODERATE/PASS`.
+
+## Testing the totals-audit push offline (scripts/totals_audit.py)
+
+- Seed `MLBE_DATA_DIR/audit/totals_ledger.csv` with `LedgerRow(...)` + `write_ledger()` from
+  `mlb_engine.output.totals_audit` (ungraded rows for D-1). No sheet workbook is needed: `run_audit`
+  only re-reads `output/totals_sheet_<D-1>.xlsx` when it exists.
+- Grade offline by patching the module-level names in a driver: `ta.finals = lambda day: {pk: (label, away, home)}`
+  and `ta.game_pks = lambda day: {...}`, then `scripts.totals_audit.main(["<D>"])`.
+- Any `closing_<day>.json` in `audit/` must be the real schema: a **list** of `{matchup, market,
+  selection, american, no_vig_prob}` dicts. A hand-written dict-shaped file makes the *second*
+  push die inside `merge_closing_files` (`string indices must be integers`), silently swallowed by
+  `auto_push` as `WARNING state push skipped`. Also, `merge_closing` rewrites the json with its own
+  indentation, so the first rerun after seeding produces one extra formatting-only commit.
+- `SyncReport.describe()` says `pushed N state file(s)` whenever files were *staged*, even when
+  `git status --porcelain` was clean and no commit was made — judge idempotence by
+  `git -C origin.git log engine-state`, not by the `State:` line.
+- To simulate an unreachable origin: `git remote set-url origin /tmp/x/nonexistent.git`; expect
+  `state push skipped: origin did not answer whether engine-state exists`, exit 0.
+- GUI terminal for recordings on this box: `DISPLAY=:0 setsid nohup konsole -e bash -c '...' &`
+  (`x-terminal-emulator` under `DISPLAY=:1` aborts).
