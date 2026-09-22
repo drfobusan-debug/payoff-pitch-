@@ -566,6 +566,25 @@ def test_the_cuts_run_in_order_and_say_why_each_hitter_left() -> None:
     assert strong.kept and strong.points > 0
 
 
+def test_without_hard_cuts_only_the_pa_floor_removes_and_the_rest_become_flags() -> None:
+    """The screen's own setting: every readable bat reaches the gates, flagged."""
+    strong = _hitter("Strong")
+    thin = _hitter("Thin", pa=MIN_BATTER_PA - 1, wrc=300.0)
+    weak = _hitter("Weak", wrc=90.0, xwoba_con=0.300)
+    lucky = _hitter("Lucky", woba=0.470, xwoba_pa=0.360, xwoba_con=0.400)
+    at_league = _hitter("League", wrc=130.0, woba=0.330, xwoba_pa=0.310, xwoba_con=0.330)
+
+    kept = apply_cuts([strong, thin, weak, lucky, at_league], league_xwoba=0.305, hard_cuts=False)
+
+    assert {h.name for h in kept} == {"Strong", "Weak", "Lucky", "League"}
+    assert thin.cut_reason == f"under {MIN_BATTER_PA} PA" and not thin.kept
+    assert all(h.kept and not h.cut_reason for h in kept)
+    assert strong.flags == ()
+    assert any("under 120" in f for f in weak.flags)
+    assert any("outruns" in f for f in lucky.flags)
+    assert any("at league" in f for f in at_league.flags)
+
+
 def test_the_cuts_can_be_run_under_a_scoring_rule_the_screen_no_longer_uses() -> None:
     """The replay's seam: whoever scores, the cuts read that scorer's own top-K."""
 

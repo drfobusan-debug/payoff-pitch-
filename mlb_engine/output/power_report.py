@@ -703,6 +703,7 @@ def _rating(view: HitterView, verdict: Verdict) -> tuple[str, str]:
         # the damage markets are the only ones the evidence covers -- a strikeout
         # that ends the plate appearance pays nothing on hits or on H+R+RBI.
         reasons.append("kept on power alone: home runs and total bases only")
+    reasons.extend(h.flags)
     return grade, "; ".join(reasons)
 
 
@@ -727,8 +728,10 @@ def _thesis(result: ScreenResult) -> str:
         f"{live} of the day's matchups.</strong> The chain ranks every probable "
         f"starter on the damage he allows in the air, keeps the softest few, scores the lineups "
         f"facing them on eleven contact and discipline metrics split by hand, cuts on plate "
-        f"appearances, then wRC+, then expected contact, and finally tests each survivor against "
-        f"the arsenal he will actually see and the number of turns he will actually get.</p>"
+        f"appearances alone, and tests each hitter with the sample against the arsenal he will "
+        f"actually see and the number of turns he will actually get. The wRC+, expected-contact "
+        f"and luck-gap reads that used to cut are printed beside him as flags; the run-value, "
+        f"production and arm gates in the recommendations decide him.</p>"
     ]
     if lead is None:
         paras.append(
@@ -2113,11 +2116,12 @@ def _elite_thesis(result: ScreenResult) -> str:
         "softest arms and asks which bats can hit them; this one takes the arms the SIERA gate "
         f"refused &mdash; SIERA in ({result.siera_floor:.2f}, "
         f"{(result.siera_ceiling or 0):.2f}], the average-to-elite starters &mdash; and runs "
-        "the identical hitter cuts against their lineups: plate appearances, wRC+ against the "
-        "hand, expected contact, the arsenal he will see, his turns, the halves, the luck gap "
-        "and the forecast. One cut is added: the bat must still carry a wRC+ above the floor "
-        "from the seventh inning on, because against a good arm the case is the whole game "
-        "and not his two or three turns against the starter.</p>",
+        "the identical hitter reads against their lineups: the plate-appearance floor, then "
+        "wRC+ against the hand, expected contact, the arsenal he will see, his turns, the "
+        "halves, the luck gap and the forecast as context. One flag is added: whether the bat "
+        "still carries a wRC+ above the floor from the seventh inning on, because against a "
+        "good arm the case is the whole game and not his two or three turns against the "
+        "starter.</p>",
         f"<p><strong>{kept} hitters survive against {len(result.sections)} of {arms} arms in "
         "the band.</strong> Every priced row below is recorded to the same ledger as the "
         "first part's, tagged <code>elite</code>, so the scorecard can grade the two tiers of "
@@ -2150,10 +2154,10 @@ def _late_cuts(result: ScreenResult) -> str:
         for h, late in sorted(result.late_cuts, key=lambda t: -t[0].wrc)
     ]
     return (
-        "<h2>Cut on the late half</h2>"
-        f"<p>{len(rows)} hitters cleared every cut the soft pass runs and were dropped on "
-        "the one this pass adds: season wRC+ from the seventh inning on, against every arm, "
-        "under the floor. A dash is a hitter with no season rows to read the half from.</p>"
+        "<h2>Flagged on the late half</h2>"
+        f"<p>{len(rows)} hitters carry the flag this pass adds: season wRC+ from the seventh "
+        "inning on, against every arm, under the floor. It is printed beside the gates and "
+        "does not decide them. A dash is a hitter with no season rows to read the half from.</p>"
         + _table(["batter", "vs", "window wRC+", "wRC+ from 7th"], rows, numeric_from=2)
     )
 

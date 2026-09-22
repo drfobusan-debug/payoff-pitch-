@@ -980,6 +980,10 @@ class HitterLine:
     withheld: tuple[str, ...] = ()
     kept: bool = False
     cut_reason: str = ""
+    #: The cuts a hitter would have left on when they were cuts -- no top-K
+    #: finish, wRC+ under the floor, xwOBA at league, wOBA outrunning xwOBA --
+    #: kept as context beside a hitter the gates decide on instead.
+    flags: tuple[str, ...] = ()
     power_exception: bool = False
     swing: SwingProfile | None = None
     swing_rescue: bool = False
@@ -1226,8 +1230,15 @@ def apply_cuts(
     min_wrc: float = MIN_WRC,
     keep_power: bool = True,
     scorer: Callable[[list[HitterLine]], None] = score_pool,
+    hard_cuts: bool = True,
 ) -> list[HitterLine]:
     """Run the four cuts in order and return the survivors.
+
+    With ``hard_cuts`` false only the PA floor removes a hitter; the other three
+    cuts (and the top-K finish) are written to ``flags`` and he is kept, so the
+    run-value, production and arm gates decide him on the whole pool that has
+    the sample to be read. The luck gap in particular was signed the wrong way
+    on the ledger, and the wRC+ floor is what gate 2 already scores.
 
     Order matters: the PA floor comes first so the top-K bonuses are recomputed
     within a pool that no longer contains a two-week hot streak, and the
@@ -1247,12 +1258,19 @@ def apply_cuts(
             h.cut_reason = f"under {min_pa} PA"
     scorer(survivors)
 
+    def cut(h: HitterLine, reason: str) -> bool:
+        if hard_cuts:
+            h.cut_reason = reason
+            return True
+        h.flags = (*h.flags, reason)
+        return False
+
     stage = []
     for h in survivors:
-        if not h.top_in:
-            h.cut_reason = f"no top-{TOP_K} finish"
-        else:
-            stage.append(h)
+        h.flags = ()
+        if not h.top_in and cut(h, f"no top-{TOP_K} finish"):
+            continue
+        stage.append(h)
 
     kept = []
     for h in stage:
@@ -1261,23 +1279,21 @@ def apply_cuts(
         elif keep_power and h.xwoba_con >= POWER_XWOBACON:
             h.power_exception = True
             kept.append(h)
-        else:
-            h.cut_reason = f"wRC+ {h.wrc:.0f} under {min_wrc:.0f}"
+        elif not cut(h, f"wRC+ {h.wrc:.0f} under {min_wrc:.0f}"):
+            kept.append(h)
 
     final = []
     for h in kept:
         if h.xwoba_pa < league_xwoba + MIN_XWOBA_EDGE and not h.power_exception:
-            h.cut_reason = f"xwOBA {h.xwoba_pa:.3f} at league"
+            if cut(h, f"xwOBA {h.xwoba_pa:.3f} at league"):
+                continue
         elif h.luck_gap > MAX_LUCK_GAP and not h.power_exception:
             if _swing_rescues(h):
                 h.swing_rescue = True
-                h.kept = True
-                final.append(h)
-            else:
-                h.cut_reason = f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"
-        else:
-            h.kept = True
-            final.append(h)
+            elif cut(h, f"wOBA outruns xwOBA by {h.luck_gap:+.3f}"):
+                continue
+        h.kept = True
+        final.append(h)
     return sorted(final, key=lambda h: (-h.points, -h.xwoba_con))
 
 
