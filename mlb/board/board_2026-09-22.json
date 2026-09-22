@@ -35226,9 +35226,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_tb",
+    "selection": "Junior Caminero TB o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
     "selection": "Junior Caminero TB o1.5",
     "american": 145.0,
     "no_vig_prob": 0.415529
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
+    "selection": "Junior Caminero TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
   },
   {
     "matchup": "TB @ NYY",
@@ -35590,9 +35604,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "pitcher_k",
+    "selection": "Carlos Rodon Ks o5.5",
+    "american": 121.0,
+    "no_vig_prob": 0.427365
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_k",
     "selection": "Carlos Rodon Ks u4.5",
     "american": 127.0,
     "no_vig_prob": 0.449896
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_k",
+    "selection": "Carlos Rodon Ks u5.5",
+    "american": -154.0,
+    "no_vig_prob": 0.572635
   },
   {
     "matchup": "TB @ NYY",
