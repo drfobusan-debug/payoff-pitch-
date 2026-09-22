@@ -115,6 +115,13 @@ DAY_CLOSE_RUN_HOUR=12; DAY_CLOSE_RUN_MIN=50
 SLATE_WINDOW_HOURS=3
 SLATE_RUNS="matinee=11:55 afternoon=14:55 evening=17:55 late=20:55"
 
+# Price-reaction watcher: from mid-afternoon, poll the slate for lineups as they
+# post and snapshot the posted game's props on a clock from the posting (a
+# study of how fast the books re-price; nothing is bought off it). Four hours
+# covers the evening slate's postings. ~250 Odds API credits a day at the
+# defaults (6 games, prop markets only).
+REACT_RUN_HOUR=15; REACT_RUN_MIN=0   # the 14:50 slate wake has the Mac up already
+
 # College football: one pass on Saturday morning, before the MLB job so the two
 # never share a machine hour. `cfb-engine run` prices the calendar day it runs
 # on, so this is the Saturday slate only; Thursday/Friday cards stay one-click
@@ -151,6 +158,7 @@ NIGHT_LABEL="com.franz.engine.night"
 MORNING_LABEL="com.franz.engine.morning"
 CLOSE_LABEL="com.franz.engine.close"
 DAY_CLOSE_LABEL="com.franz.engine.dayclose"
+REACT_LABEL="com.franz.engine.react"
 CFB_LABEL="com.franz.engine.cfb"
 NFL_LABELS=(); NFL_PLISTS=()
 for wd in $NFL_WEEKDAYS; do
@@ -168,6 +176,7 @@ NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
+REACT_PLIST="/Library/LaunchDaemons/${REACT_LABEL}.plist"
 CFB_PLIST="/Library/LaunchDaemons/${CFB_LABEL}.plist"
 
 # One daemon per slate pass, labelled by its block so a single pass can be
@@ -181,7 +190,7 @@ for spec in $SLATE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${SLATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -278,6 +287,7 @@ write_plist "$NIGHT_PLIST"   "$NIGHT_LABEL"   "$NIGHT_RUN_HOUR"   "$NIGHT_RUN_MI
 write_plist "$MORNING_PLIST" "$MORNING_LABEL" "$MORNING_RUN_HOUR" "$MORNING_RUN_MIN" morning
 write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MIN"   close
 write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
+write_plist "$REACT_PLIST" "$REACT_LABEL" "$REACT_RUN_HOUR" "$REACT_RUN_MIN" react
 write_plist "$CFB_PLIST" "$CFB_LABEL" "$CFB_RUN_HOUR" "$CFB_RUN_MIN" cfb "$CFB_WEEKDAY"
 i=0
 for wd in $NFL_WEEKDAYS; do

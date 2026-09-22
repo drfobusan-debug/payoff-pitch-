@@ -158,6 +158,15 @@ elif [[ "$MODE" == "close" ]]; then
       pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
       ;;
   esac
+elif [[ "$MODE" == "react" ]]; then
+  # Price-reaction watcher: poll the slate for lineups as they post and snapshot
+  # the posted game's props at +0/+5/+15/+30 min, with an hourly before-price.
+  # A measurement of how fast the books re-price a posted lineup -- nothing is
+  # bought off it. Stays up four hours; caffeinate holds the Mac awake across
+  # the slate passes it overlaps (they read the same lineups file, safely).
+  /usr/bin/caffeinate -i -w $$ &
+  pull_latest
+  mlb-engine react --hours 4 || echo "[$(date)] 'mlb-engine react' exited non-zero" >&2
 elif [[ "$MODE" == "cfb" ]]; then
   # Saturday: price today's college football board and email the article PDF +
   # MP3 + workbook as one message. Same caffeinate arrangement as the morning
