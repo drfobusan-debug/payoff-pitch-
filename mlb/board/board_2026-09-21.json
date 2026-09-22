@@ -2,6 +2,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_1b",
+    "selection": "Alan Roden 1B o0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.480521
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Alan Roden 1B u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.519479
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
     "selection": "Ben Ross 1B o0.5",
     "american": 155.0,
     "no_vig_prob": 0.366687
@@ -170,6 +184,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_1b",
+    "selection": "Osleivis Basabe 1B o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.453262
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Osleivis Basabe 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.546738
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
     "selection": "Royce Lewis 1B o0.5",
     "american": 119.0,
     "no_vig_prob": 0.439247
@@ -194,6 +222,20 @@
     "selection": "Ryan Jeffers 1B u0.5",
     "american": -122.0,
     "no_vig_prob": 0.521732
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Ryan Kreidler 1B o0.5",
+    "american": 128.0,
+    "no_vig_prob": 0.411515
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Ryan Kreidler 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.588485
   },
   {
     "matchup": "MIN @ SF",
@@ -250,6 +292,20 @@
     "selection": "Walker Jenkins 1B u0.5",
     "american": -153.0,
     "no_vig_prob": 0.562987
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Alan Roden 2B o0.5",
+    "american": 463.0,
+    "no_vig_prob": 0.179606
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Alan Roden 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.820394
   },
   {
     "matchup": "MIN @ SF",
@@ -422,6 +478,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_2b",
+    "selection": "Osleivis Basabe 2B o0.5",
+    "american": 540.0,
+    "no_vig_prob": 0.15216
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Osleivis Basabe 2B u0.5",
+    "american": -890.0,
+    "no_vig_prob": 0.84784
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
     "selection": "Royce Lewis 2B o0.5",
     "american": 455.0,
     "no_vig_prob": 0.180842
@@ -446,6 +516,20 @@
     "selection": "Ryan Jeffers 2B u0.5",
     "american": -525.0,
     "no_vig_prob": 0.798339
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Ryan Kreidler 2B o0.5",
+    "american": 561.0,
+    "no_vig_prob": 0.149879
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Ryan Kreidler 2B u0.5",
+    "american": -900.0,
+    "no_vig_prob": 0.850121
   },
   {
     "matchup": "MIN @ SF",
@@ -502,6 +586,20 @@
     "selection": "Walker Jenkins 2B u0.5",
     "american": -625.0,
     "no_vig_prob": 0.819428
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Alan Roden BB o0.5",
+    "american": 232.0,
+    "no_vig_prob": 0.300038
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Alan Roden BB u0.5",
+    "american": -270.0,
+    "no_vig_prob": 0.699962
   },
   {
     "matchup": "MIN @ SF",
@@ -674,6 +772,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_bb",
+    "selection": "Osleivis Basabe BB o0.5",
+    "american": 291.0,
+    "no_vig_prob": 0.240698
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Osleivis Basabe BB u0.5",
+    "american": -430.0,
+    "no_vig_prob": 0.759302
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
     "selection": "Royce Lewis BB o0.5",
     "american": 250.0,
     "no_vig_prob": 0.27131
@@ -698,6 +810,20 @@
     "selection": "Ryan Jeffers BB u0.5",
     "american": -218.0,
     "no_vig_prob": 0.652016
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Ryan Kreidler BB o0.5",
+    "american": 306.0,
+    "no_vig_prob": 0.24438
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Ryan Kreidler BB u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.75562
   },
   {
     "matchup": "MIN @ SF",
@@ -758,6 +884,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Alan Roden H+R+RBI o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.439471
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Alan Roden H+R+RBI u1.5",
+    "american": -140.0,
+    "no_vig_prob": 0.560529
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Ben Ross H+R+RBI o0.5",
     "american": -144.0,
     "no_vig_prob": 0.556468
@@ -779,9 +919,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI o1.5",
+    "american": 131.0,
+    "no_vig_prob": 0.408978
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Brett Harris H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.402575
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI u1.5",
+    "american": -160.0,
+    "no_vig_prob": 0.591022
   },
   {
     "matchup": "MIN @ SF",
@@ -940,6 +1094,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Osleivis Basabe H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411475
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Osleivis Basabe H+R+RBI u1.5",
+    "american": -162.0,
+    "no_vig_prob": 0.588525
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Royce Lewis H+R+RBI o1.5",
     "american": 115.0,
     "no_vig_prob": 0.444668
@@ -964,6 +1132,20 @@
     "selection": "Ryan Jeffers H+R+RBI u1.5",
     "american": -110.0,
     "no_vig_prob": 0.496481
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Ryan Kreidler H+R+RBI o0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.582233
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Ryan Kreidler H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.417767
   },
   {
     "matchup": "MIN @ SF",
@@ -1038,6 +1220,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hr",
+    "selection": "Alan Roden HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.100251
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Alan Roden HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
     "selection": "Ben Ross HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.097619
@@ -1055,6 +1251,13 @@
     "selection": "Brett Harris HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Brett Harris HR o1.5",
+    "american": 25000.0,
+    "no_vig_prob": 0.003984
   },
   {
     "matchup": "MIN @ SF",
@@ -1199,6 +1402,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hr",
+    "selection": "Osleivis Basabe HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.108187
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Osleivis Basabe HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
     "selection": "Royce Lewis HR o0.5",
     "american": 540.0,
     "no_vig_prob": 0.15875
@@ -1227,9 +1444,30 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hr",
+    "selection": "Ryan Kreidler HR o0.5",
+    "american": 1000.0,
+    "no_vig_prob": 0.098086
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Ryan Kreidler HR o1.5",
+    "american": 35000.0,
+    "no_vig_prob": 0.002849
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
     "selection": "Scott Bandura HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Scott Bandura HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
   },
   {
     "matchup": "MIN @ SF",
@@ -1272,6 +1510,20 @@
     "selection": "Walker Jenkins HR o1.5",
     "american": 16000.0,
     "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Alan Roden H o0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.596699
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Alan Roden H u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.403301
   },
   {
     "matchup": "MIN @ SF",
@@ -1486,6 +1738,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_h",
+    "selection": "Osleivis Basabe H o0.5",
+    "american": -152.0,
+    "no_vig_prob": 0.57811
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Osleivis Basabe H u0.5",
+    "american": 133.0,
+    "no_vig_prob": 0.42189
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
     "selection": "Royce Lewis H o0.5",
     "american": -168.0,
     "no_vig_prob": 0.590086
@@ -1510,6 +1776,20 @@
     "selection": "Ryan Jeffers H u0.5",
     "american": 168.0,
     "no_vig_prob": 0.362892
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Ryan Kreidler H o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.530433
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Ryan Kreidler H u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.469567
   },
   {
     "matchup": "MIN @ SF",
@@ -1566,6 +1846,20 @@
     "selection": "Walker Jenkins H u0.5",
     "american": 123.0,
     "no_vig_prob": 0.430997
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Alan Roden RBI o0.5",
+    "american": 240.0,
+    "no_vig_prob": 0.288143
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Alan Roden RBI u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.711857
   },
   {
     "matchup": "MIN @ SF",
@@ -1738,6 +2032,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_rbi",
+    "selection": "Osleivis Basabe RBI o0.5",
+    "american": 254.0,
+    "no_vig_prob": 0.27394
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Osleivis Basabe RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.72606
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
     "selection": "Royce Lewis RBI o0.5",
     "american": 199.0,
     "no_vig_prob": 0.313857
@@ -1762,6 +2070,20 @@
     "selection": "Ryan Jeffers RBI u0.5",
     "american": -220.0,
     "no_vig_prob": 0.650351
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Ryan Kreidler RBI o0.5",
+    "american": 269.0,
+    "no_vig_prob": 0.256894
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Ryan Kreidler RBI u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.743106
   },
   {
     "matchup": "MIN @ SF",
@@ -1818,6 +2140,20 @@
     "selection": "Walker Jenkins RBI u0.5",
     "american": -275.0,
     "no_vig_prob": 0.699825
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Alan Roden R o0.5",
+    "american": 168.0,
+    "no_vig_prob": 0.356649
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Alan Roden R u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.643351
   },
   {
     "matchup": "MIN @ SF",
@@ -1990,6 +2326,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_r",
+    "selection": "Osleivis Basabe R o0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.327123
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Osleivis Basabe R u0.5",
+    "american": -247.0,
+    "no_vig_prob": 0.672877
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
     "selection": "Royce Lewis R o0.5",
     "american": 150.0,
     "no_vig_prob": 0.379224
@@ -2014,6 +2364,20 @@
     "selection": "Ryan Jeffers R u0.5",
     "american": -160.0,
     "no_vig_prob": 0.575758
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Ryan Kreidler R o0.5",
+    "american": 181.0,
+    "no_vig_prob": 0.336227
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Ryan Kreidler R u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.663773
   },
   {
     "matchup": "MIN @ SF",
@@ -2074,6 +2438,27 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_tb",
+    "selection": "Alan Roden TB o0.5",
+    "american": -172.0,
+    "no_vig_prob": 0.596171
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Alan Roden TB o1.5",
+    "american": 200.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Alan Roden TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.403829
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
     "selection": "Ben Ross TB o0.5",
     "american": -105.0,
     "no_vig_prob": 0.483144
@@ -2098,6 +2483,13 @@
     "selection": "Brett Harris TB o0.5",
     "american": -129.0,
     "no_vig_prob": 0.531631
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Brett Harris TB o1.5",
+    "american": 250.0,
+    "no_vig_prob": 0.285714
   },
   {
     "matchup": "MIN @ SF",
@@ -2270,6 +2662,27 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_tb",
+    "selection": "Osleivis Basabe TB o0.5",
+    "american": -148.0,
+    "no_vig_prob": 0.564865
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Osleivis Basabe TB o1.5",
+    "american": 200.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Osleivis Basabe TB u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.435135
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
     "selection": "Royce Lewis TB o0.5",
     "american": -164.0,
     "no_vig_prob": 0.58473
@@ -2305,9 +2718,37 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_tb",
+    "selection": "Ryan Kreidler TB o0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.519317
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Ryan Kreidler TB o1.5",
+    "american": 250.0,
+    "no_vig_prob": 0.285714
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Ryan Kreidler TB u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.480683
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
     "selection": "Scott Bandura TB o0.5",
     "american": -112.0,
     "no_vig_prob": 0.49799
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Scott Bandura TB o1.5",
+    "american": 235.0,
+    "no_vig_prob": 0.298507
   },
   {
     "matchup": "MIN @ SF",
@@ -2371,6 +2812,13 @@
     "selection": "Walker Jenkins TB u0.5",
     "american": 117.0,
     "no_vig_prob": 0.444801
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Walker Jenkins TB u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.593136
   },
   {
     "matchup": "MIN @ SF",
