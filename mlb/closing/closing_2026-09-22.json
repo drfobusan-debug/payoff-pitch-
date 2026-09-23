@@ -31544,9 +31544,23 @@
   {
     "matchup": "SD @ LAD",
     "market": "batter_hrr",
+    "selection": "Austin Hays H+R+RBI o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.553362
+  },
+  {
+    "matchup": "SD @ LAD",
+    "market": "batter_hrr",
     "selection": "Austin Hays H+R+RBI o1.5",
     "american": 120.0,
     "no_vig_prob": 0.426849
+  },
+  {
+    "matchup": "SD @ LAD",
+    "market": "batter_hrr",
+    "selection": "Austin Hays H+R+RBI u0.5",
+    "american": 128.0,
+    "no_vig_prob": 0.446638
   },
   {
     "matchup": "SD @ LAD",
