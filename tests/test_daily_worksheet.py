@@ -24,6 +24,7 @@ from mlb_engine.output.daily_worksheet import (
     merge,
     save_ledger,
     score,
+    score_z,
     tally,
     write_workbook,
 )
@@ -47,6 +48,26 @@ def test_score_higher_is_better_and_percent_display() -> None:
     rk = score(list(vals), [("k", 1, True, False)], lambda e, _l: vals[e], 1, lambda e: 0.0)
     assert rk.pts["B"]["k"] == 2 and rk.pts["A"]["k"] == -2
     assert rk.vals["B"]["k"] == 30.0
+
+
+def test_score_z_standardises_signs_clips_and_fills_nan_with_worst() -> None:
+    vals = {"A": 1.0, "B": 2.0, "C": 3.0, "D": math.nan, "E": 100.0}
+    rk = score_z(list(vals), [("m", 1, False, True)], lambda e, _l: vals[e], lambda e: 0.0)
+    assert rk.pts["A"]["m"] >= rk.pts["B"]["m"] >= rk.pts["C"]["m"] > rk.pts["E"]["m"]  # lower is better
+    assert rk.pts["E"]["m"] >= -dw.Z_CLIP and rk.pts["A"]["m"] <= dw.Z_CLIP
+    assert rk.pts["D"]["m"] == rk.pts["E"]["m"]  # missing takes the table worst
+    assert rk.ranked[0] == "A" and set(rk.ranked[-2:]) == {"D", "E"}
+    assert rk.k == 0 and math.isnan(rk.vals["D"]["m"])
+
+
+def test_score_z_higher_is_better_sums_metrics_and_handles_constant_column() -> None:
+    vals = {"A": {"k": 0.10, "c": 5.0}, "B": {"k": 0.30, "c": 5.0}, "C": {"k": 0.20, "c": 5.0}}
+    rk = score_z(list(vals), [("k", 1, True, False), ("c", 1, False, False)],
+                 lambda e, label: vals[e][label], lambda e: 0.0)
+    assert rk.pts["B"]["k"] > 0 > rk.pts["A"]["k"] and abs(rk.pts["C"]["k"]) < 1e-9
+    assert all(rk.pts[e]["c"] == 0.0 for e in vals)  # zero spread -> no points
+    assert rk.total("B") == round(rk.pts["B"]["k"] + rk.pts["B"]["c"], 1)
+    assert rk.ranked == ["B", "C", "A"] and rk.vals["B"]["k"] == 30.0
 
 
 # --- weights -----------------------------------------------------------------------

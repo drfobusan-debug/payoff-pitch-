@@ -64,6 +64,7 @@ log = logging.getLogger(__name__)
 
 LEDGER_NAME = "worksheet_ledger.csv"
 TOP, BOT, MID, K_TEAMS = 2, -2, 1, 3
+Z_CLIP = 3.0  # starter points are per-metric standard scores clipped to +-3
 SP_SKILL_DAYS = 42
 SP_MIN_PITCHES = 150
 SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
@@ -71,7 +72,7 @@ SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
 # ~20%, and the lineup is the other side of both. Batting is counted once per
 # phase, not five ways like the hand sheet did.
 WEIGHTS = {"bat vs hand": 1.0, "bat 6+": 1.0, "bp": 1.5, "sp": 3.0}
-WEIGHTS_VERSION = "w1-1-1.5-3"
+WEIGHTS_VERSION = "w1-1-1.5-3-spz"
 GAP_BANDS: tuple[tuple[str, float, float], ...] = (
     ("0-9", 0, 10), ("10-19", 10, 20), ("20-34", 20, 35), ("35+", 35, math.inf)
 )
@@ -151,15 +152,15 @@ LIGHT_PINK, NEON_PINK = (1.00, 0.85, 0.92), (1.00, 0.08, 0.58)
 class Ranking:
     """One scored table: per-entity points by metric, raw values, and the order."""
 
-    pts: dict[str, dict[str, int]]
+    pts: dict[str, dict[str, float]]
     vals: dict[str, dict[str, float]]
     stars: dict[str, set[str]]
     ranked: list[str]
     k: int
 
-    def total(self, key: str) -> int | None:
+    def total(self, key: str) -> float | None:
         p = self.pts.get(key)
-        return sum(p.values()) if p else None
+        return round(sum(p.values()), 1) if p else None
 
 
 def score(
@@ -171,7 +172,7 @@ def score(
     stars: dict[str, set[str]] | None = None,
 ) -> Ranking:
     """Best ``k`` per metric +2, worst ``k`` -2, rest +1; NaN sorts last (worst)."""
-    pts: dict[str, dict[str, int]] = {e: {} for e in entities}
+    pts: dict[str, dict[str, float]] = {e: {} for e in entities}
     vals: dict[str, dict[str, float]] = {e: {} for e in entities}
     for label, nd, pct, lower in cols:
         scored = {e: float(value(e, label)) for e in entities}
@@ -186,6 +187,33 @@ def score(
     total = {e: sum(pts[e].values()) for e in entities}
     ranked = sorted(entities, key=lambda e: (-total[e], tiebreak(e)))
     return Ranking(pts, vals, stars or {e: set() for e in entities}, ranked, k)
+
+
+def score_z(
+    entities: list[str],
+    cols: list[tuple[str, int, bool, bool]],
+    value: Callable[[str, str], float],  # (entity, label) -> value, nan allowed
+    tiebreak: Callable[[str], float],
+    stars: dict[str, set[str]] | None = None,
+) -> Ranking:
+    """Per metric the standard score of the value (signed so higher is better), clipped to
+    +-``Z_CLIP`` and rounded to 0.1; NaN takes the worst score in the table. Total = sum."""
+    pts: dict[str, dict[str, float]] = {e: {} for e in entities}
+    vals: dict[str, dict[str, float]] = {e: {} for e in entities}
+    for label, nd, pct, lower in cols:
+        scored = {e: float(value(e, label)) for e in entities}
+        signed = {e: (-v if lower else v) for e, v in scored.items() if not math.isnan(v)}
+        mean = sum(signed.values()) / len(signed) if signed else 0.0
+        sd = math.sqrt(sum((v - mean) ** 2 for v in signed.values()) / len(signed)) if signed else 0.0
+        z = {e: max(-Z_CLIP, min(Z_CLIP, (v - mean) / sd)) if sd else 0.0 for e, v in signed.items()}
+        worst = min(z.values()) if z else 0.0
+        for e in entities:
+            v = scored[e]
+            vals[e][label] = round(v * (100 if pct else 1), nd) if not math.isnan(v) else math.nan
+            pts[e][label] = round(z.get(e, worst), 1)
+    total = {e: sum(pts[e].values()) for e in entities}
+    ranked = sorted(entities, key=lambda e: (-total[e], tiebreak(e)))
+    return Ranking(pts, vals, stars or {e: set() for e in entities}, ranked, 0)
 
 
 # --- bullpens (FanGraphs) -----------------------------------------------------------
@@ -375,7 +403,7 @@ class StarterTable:
     ip: dict[int, float]
     by_name: dict[str, int]  # normalized name -> mlbam id
 
-    def pts_for(self, name: str) -> int | None:
+    def pts_for(self, name: str) -> float | None:
         pid = self.by_name.get(_norm_name(name))
         return self.ranking.total(str(pid)) if pid is not None else None
 
@@ -423,7 +451,6 @@ def starter_table(df: pd.DataFrame, as_of: Date) -> StarterTable:
                if len(g) >= SP_MIN_PITCHES}
     pitchers = [p for p, m in season_m.items()
                 if m.get("IP", 0) >= SP_MIN_IP and m["pitches"] >= SP_MIN_PITCHES_SEASON]
-    k = max(3, round(len(pitchers) * 0.10))
     stars: dict[str, set[str]] = {str(p): set() for p in pitchers}
     win_of = {c[0]: c[4] for c in SP_COLS}
 
@@ -442,8 +469,8 @@ def starter_table(df: pd.DataFrame, as_of: Date) -> StarterTable:
             return season_m[p].get(label, math.nan)
         return skill_m[p].get(label, math.nan)
 
-    ranking = score([str(p) for p in pitchers], [(c[0], c[1], c[2], c[3]) for c in SP_COLS],
-                    value, k, lambda key: season_m[int(key)].get("SIERA", 9.0), stars)
+    ranking = score_z([str(p) for p in pitchers], [(c[0], c[1], c[2], c[3]) for c in SP_COLS],
+                      value, lambda key: season_m[int(key)].get("SIERA", 9.0), stars)
     name = {p: str(fg_season[p]["PlayerName"]) for p in pitchers}
     team = {p: _FG_TO_MLB.get(str(fg_season[p].get("TeamName", "")), str(fg_season[p].get("TeamName", "")))
             for p in pitchers}
@@ -566,16 +593,16 @@ class TeamLine:
     abbrev: str
     starter: str
     hand: str
-    bat_vs_hand: int | None
-    bat_6: int | None
-    bp: int | None
-    sp: int | None
+    bat_vs_hand: float | None
+    bat_6: float | None
+    bp: float | None
+    sp: float | None
 
-    def cells(self) -> list[int | None]:
+    def cells(self) -> list[float | None]:
         return [self.bat_vs_hand, self.bat_6, self.bp, self.sp]
 
-    def raw_total(self) -> int:
-        return sum(v for v in self.cells() if v is not None)
+    def raw_total(self) -> float:
+        return round(sum(v for v in self.cells() if v is not None), 1)
 
     def weighted(self) -> float:
         w = [WEIGHTS[k] for k in WEIGHTS]
@@ -607,14 +634,14 @@ class LedgerRow:
     home: str
     away_sp: str
     home_sp: str
-    away_bat: int | None
-    away_bat6: int | None
-    away_bp: int | None
-    away_sp_pts: int | None
-    home_bat: int | None
-    home_bat6: int | None
-    home_bp: int | None
-    home_sp_pts: int | None
+    away_bat: float | None
+    away_bat6: float | None
+    away_bp: float | None
+    away_sp_pts: float | None
+    home_bat: float | None
+    home_bat6: float | None
+    home_bp: float | None
+    home_sp_pts: float | None
     away_w: float
     home_w: float
     gap: float  # away_w - home_w
@@ -892,7 +919,8 @@ def _ranking_sheet(
             v = rk.vals[e].get(c, math.nan)
             s = "n/a" if isinstance(v, float) and math.isnan(v) else (f"{v:.0f}" if c == "Stuff+" else f"{v}")
             p = rk.pts[e].get(c)
-            vals.append(s + ("*" if c in rk.stars.get(e, set()) else "") + (f" ({p:+d})" if p is not None else ""))
+            ptxt = "" if p is None else f" ({p:+d})" if isinstance(p, int) else f" ({p:+.1f})"
+            vals.append(s + ("*" if c in rk.stars.get(e, set()) else "") + ptxt)
         ws.append([i, name_of(e) if name_of else e, rk.total(e)] + vals)
         fill = PatternFill("solid", fgColor=_row_colour(i, len(rk.ranked)))
         for j in range(1, len(hdr) + 1):
@@ -1025,8 +1053,9 @@ def write_workbook(
         wb.create_sheet("Starters"), sps.ranking, [c[0] for c in SP_COLS],
         name_of=lambda key: f"{sps.name[int(key)]} ({sps.team[int(key)]}, {sps.ip[int(key)]} IP)",
         notes=(
-            f"{len(sps.ranking.ranked)} FanGraphs starters with {SP_MIN_IP:.0f}+ IP through {as_of}. Per metric best "
-            f"{sps.ranking.k} +{TOP}, worst {sps.ranking.k} {BOT}, others +{MID}. Windows: K%, K-BB%, CSW%, O-Swing%, "
+            f"{len(sps.ranking.ranked)} FanGraphs starters with {SP_MIN_IP:.0f}+ IP through {as_of}. Per metric points = "
+            f"z-score of the value vs this table (signed so higher is better), clipped to +-{Z_CLIP:.0f}; missing "
+            "= table worst. PTS = sum over the 11 metrics. Windows: K%, K-BB%, CSW%, O-Swing%, "
             f"Stuff+ {SP_SKILL_DAYS}d (* = under {SP_MIN_PITCHES} pitches, season used); xERA, xFIP, SIERA, HardHit%, "
             "FB%, Barrel% season. Lower is better on xERA, xFIP, SIERA, HardHit%, FB%, Barrel%. Statcast pitch level; "
             "Stuff+ FanGraphs; xERA fitted to FanGraphs' season xERA, SIERA/xFIP centred on FanGraphs.",
