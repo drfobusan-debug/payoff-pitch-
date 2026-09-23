@@ -182,7 +182,8 @@ def fetch_games(start: Date, end: Date, out: Path) -> pd.DataFrame:
 def _fg_range(stats: str, season: int, start: Date, end: Date, team: str = "0") -> list[dict]:
     url = _FG_URL.format(stats=stats, season=season, month=1000, team=team)
     url += f"&startdate={start.isoformat()}&enddate={end.isoformat()}"
-    for i in range(4):
+    tries = 7
+    for i in range(tries):
         try:
             resp = http.get(url, headers=_FG_HEADERS, timeout=90)
             resp.raise_for_status()
@@ -191,10 +192,10 @@ def _fg_range(stats: str, season: int, start: Date, end: Date, team: str = "0") 
                 return data
             raise ValueError("no data")
         except Exception as exc:  # noqa: BLE001
-            if i == 3:
+            if i == tries - 1:
                 raise
             log.warning("fg retry %s %s..%s: %s", stats, start, end, exc)
-            time.sleep(5 * (i + 1))
+            time.sleep(min(15 * 2**i, 300))  # FanGraphs 429s on bursts; back off up to 5 min
     raise RuntimeError("unreachable")
 
 
@@ -218,7 +219,7 @@ def fetch_fg(dates: list[Date], out: Path) -> None:
                 continue
             data = _fg_range(stats, day.year, start, asof, team)
             path.write_text(json.dumps(data))
-            time.sleep(0.5)
+            time.sleep(1.0)
         log.info("fg %s done", day)
 
 
@@ -279,8 +280,21 @@ ESPN_ODDS = "https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/eve
 ESPN_UA = "Mozilla/5.0 (X11; Linux x86_64) sp_scoring_backtest"  # ESPN 403s non-browser agents
 
 
+ESPN_PROVIDERS = ("DraftKings", "ESPN BET")  # 2026 books DK; 2024-25 history is ESPN BET only
+
+
+def _pick_provider(items: list[dict]) -> dict | None:
+    """Preferred pre-game book; never a ``- Live Odds`` feed."""
+    by_name = {str((i.get("provider") or {}).get("name", "")): i for i in items}
+    for name in ESPN_PROVIDERS:
+        if name in by_name:
+            return by_name[name]
+    rest = [i for n, i in by_name.items() if "Live" not in n]
+    return rest[0] if rest else None
+
+
 def fetch_espn(dates: list[Date], out: Path) -> None:
-    """Cache ESPN's DraftKings closing ML / RL / total per date as ``prices/espn/espn_YYYY-MM-DD.json``."""
+    """Cache ESPN's closing ML / RL / total per date as ``prices/espn/espn_YYYY-MM-DD.json``."""
     d = out / "prices" / "espn"
     d.mkdir(parents=True, exist_ok=True)
     for day in dates:
@@ -297,9 +311,9 @@ def fetch_espn(dates: list[Date], out: Path) -> None:
             away, home = (ESPN_ABBR.get(sides[s], sides[s]) for s in ("away", "home"))
             odds = _get(ESPN_ODDS.format(eid=ev["id"]), user_agent=ESPN_UA)
             items = odds.get("items") or []
-            dk = [i for i in items if (i.get("provider") or {}).get("name") == "DraftKings"] or items[:1]
-            if dk:
-                entries += espn_entries(away, home, dk[0])
+            pick = _pick_provider(items)
+            if pick is not None:
+                entries += espn_entries(away, home, pick)
             time.sleep(0.2)
         p.write_text(json.dumps(entries))
         log.info("espn %s: %d games, %d entries", day, len(sb.get("events", [])), len(entries))

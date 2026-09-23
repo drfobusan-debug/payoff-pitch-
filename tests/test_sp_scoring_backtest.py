@@ -221,3 +221,18 @@ def test_write_report_runs_offline(tmp_path: Path) -> None:
     assert (tmp_path / "sp_scoring_backtest.md").exists()
     assert (tmp_path / "metric_table_sp.csv").exists()
     assert (tmp_path / "h5_schemes.csv").exists()
+
+
+def test_espn_provider_preference_skips_live_feeds() -> None:
+    cli = pytest.importorskip("scripts.sp_scoring_backtest")
+    items = [
+        {"provider": {"name": "ESPN BET - Live Odds"}},
+        {"provider": {"name": "Caesars Sportsbook (New Jersey)"}},
+        {"provider": {"name": "ESPN BET"}},
+    ]
+    assert cli._pick_provider(items)["provider"]["name"] == "ESPN BET"
+    items.append({"provider": {"name": "DraftKings"}})
+    assert cli._pick_provider(items)["provider"]["name"] == "DraftKings"
+    assert cli._pick_provider(items[:2])["provider"]["name"].startswith("Caesars")
+    assert cli._pick_provider(items[:1]) is None
+    assert cli._pick_provider([]) is None
