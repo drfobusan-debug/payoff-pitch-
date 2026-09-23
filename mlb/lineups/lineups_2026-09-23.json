@@ -447,7 +447,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T22:40:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 641487,
+      "name": "J.P. Crawford",
+      "bats": "L",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 668227,
+      "name": "Randy Arozarena",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 686527,
+      "name": "Dominic Canzone",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 663728,
+      "name": "Cal Raleigh",
+      "bats": "S",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 677594,
+      "name": "Julio Rodr\u00edguez",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 647304,
+      "name": "Josh Naylor",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 702284,
+      "name": "Cole Young",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 703155,
+      "name": "Lazaro Montes",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 642215,
+      "name": "Weston Wilson",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823168,
@@ -1847,7 +1916,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T22:40:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 605141,
+      "name": "Mookie Betts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 660271,
+      "name": "Shohei Ohtani",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 669257,
+      "name": "Will Smith",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 518692,
+      "name": "Freddie Freeman",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 606192,
+      "name": "Teoscar Hern\u00e1ndez",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663656,
+      "name": "Kyle Tucker",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 681624,
+      "name": "Andy Pages",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 571970,
+      "name": "Max Muncy",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 669242,
+      "name": "Tommy Edman",
+      "bats": "S",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824060,
@@ -4070,7 +4208,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T22:40:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 687263,
+      "name": "Zach Neto",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 545361,
+      "name": "Mike Trout",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 687093,
+      "name": "Vaughn Grissom",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 694203,
+      "name": "Denzer Guzman",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 685133,
+      "name": "Wade Meckler",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 642350,
+      "name": "Jose Siri",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 695681,
+      "name": "Christian Moore",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 669326,
+      "name": "Bryce Teodosio",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 623168,
+      "name": "Tyler Heineman",
+      "bats": "S",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824951,
