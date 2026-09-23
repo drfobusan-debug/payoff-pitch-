@@ -387,7 +387,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T16:50:16+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 807712,
+      "name": "Luke Keaschall",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 668885,
+      "name": "Austin Martin",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 605137,
+      "name": "Josh Bell",
+      "bats": "S",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 680777,
+      "name": "Ryan Jeffers",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 686797,
+      "name": "Brooks Lee",
+      "bats": "S",
+      "position": "3B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 668904,
+      "name": "Royce Lewis",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 691181,
+      "name": "Emmanuel Rodriguez",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 693306,
+      "name": "Aaron Sabato",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 805346,
+      "name": "Ben Ross",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823168,
@@ -465,7 +534,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T16:50:16+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 813841,
+      "name": "Jonah Cox",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 806367,
+      "name": "Turner Hill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 682674,
+      "name": "Victor Bericoto",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 815589,
+      "name": "Bo Davidson",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 668800,
+      "name": "Andrew Knizner",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 695391,
+      "name": "Brett Harris",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 691785,
+      "name": "Marcelo Mayer",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 694376,
+      "name": "Shay Whitcomb",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 683766,
+      "name": "Christian Koss",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823327,
