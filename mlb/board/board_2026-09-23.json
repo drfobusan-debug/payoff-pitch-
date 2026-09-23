@@ -21583,6 +21583,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_1b",
+    "selection": "Alan Roden 1B o0.5",
+    "american": -107.0,
+    "no_vig_prob": 0.488839
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Alan Roden 1B u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.511161
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
     "selection": "Andrew Knizner 1B o0.5",
     "american": 125.0,
     "no_vig_prob": 0.424954
@@ -21607,6 +21621,20 @@
     "selection": "Austin Martin 1B u0.5",
     "american": 100.0,
     "no_vig_prob": 0.473899
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Ben Ross 1B o0.5",
+    "american": 127.0,
+    "no_vig_prob": 0.412539
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_1b",
+    "selection": "Ben Ross 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.587461
   },
   {
     "matchup": "MIN @ SF",
@@ -21877,6 +21905,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_2b",
+    "selection": "Alan Roden 2B o0.5",
+    "american": 454.0,
+    "no_vig_prob": 0.179416
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Alan Roden 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.820584
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
     "selection": "Andrew Knizner 2B o0.5",
     "american": 500.0,
     "no_vig_prob": 0.16613
@@ -21901,6 +21943,20 @@
     "selection": "Austin Martin 2B u0.5",
     "american": -500.0,
     "no_vig_prob": 0.791152
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Ben Ross 2B o0.5",
+    "american": 534.0,
+    "no_vig_prob": 0.164164
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_2b",
+    "selection": "Ben Ross 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.835836
   },
   {
     "matchup": "MIN @ SF",
@@ -22157,6 +22213,34 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_bb",
+    "selection": "Aaron Sabato BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.253343
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Aaron Sabato BB u0.5",
+    "american": -337.0,
+    "no_vig_prob": 0.746657
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Alan Roden BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.296844
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Alan Roden BB u0.5",
+    "american": -272.0,
+    "no_vig_prob": 0.703156
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
     "selection": "Andrew Knizner BB o0.5",
     "american": 307.0,
     "no_vig_prob": 0.230382
@@ -22181,6 +22265,20 @@
     "selection": "Austin Martin BB u0.5",
     "american": -242.0,
     "no_vig_prob": 0.672426
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Ben Ross BB o0.5",
+    "american": 285.0,
+    "no_vig_prob": 0.247964
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_bb",
+    "selection": "Ben Ross BB u0.5",
+    "american": -398.0,
+    "no_vig_prob": 0.752036
   },
   {
     "matchup": "MIN @ SF",
@@ -22423,9 +22521,51 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Aaron Sabato H+R+RBI o1.5",
+    "american": 116.0,
+    "no_vig_prob": 0.438914
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Aaron Sabato H+R+RBI u1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.561086
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Alan Roden H+R+RBI o1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.471781
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Alan Roden H+R+RBI u1.5",
+    "american": -120.0,
+    "no_vig_prob": 0.528219
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Andrew Knizner H+R+RBI o0.5",
+    "american": -179.0,
+    "no_vig_prob": 0.600957
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Andrew Knizner H+R+RBI o1.5",
     "american": 125.0,
     "no_vig_prob": 0.426517
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Andrew Knizner H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.399043
   },
   {
     "matchup": "MIN @ SF",
@@ -22451,6 +22591,34 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Ben Ross H+R+RBI o0.5",
+    "american": -179.0,
+    "no_vig_prob": 0.600364
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Ben Ross H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Ben Ross H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.399636
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Ben Ross H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Bo Davidson H+R+RBI o1.5",
     "american": 110.0,
     "no_vig_prob": 0.447747
@@ -22472,9 +22640,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI o1.5",
+    "american": 129.0,
+    "no_vig_prob": 0.408482
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Brett Harris H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.406951
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI u1.5",
+    "american": -172.0,
+    "no_vig_prob": 0.591518
   },
   {
     "matchup": "MIN @ SF",
@@ -22689,6 +22871,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hr",
+    "selection": "Aaron Sabato HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Alan Roden HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
     "selection": "Andrew Knizner HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.12549
@@ -22713,6 +22909,13 @@
     "selection": "Austin Martin HR o1.5",
     "american": 25000.0,
     "no_vig_prob": 0.003984
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Ben Ross HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
   },
   {
     "matchup": "MIN @ SF",
@@ -22969,6 +23172,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_h",
+    "selection": "Alan Roden H o0.5",
+    "american": -177.0,
+    "no_vig_prob": 0.608822
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Alan Roden H u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.391178
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
     "selection": "Andrew Knizner H o0.5",
     "american": -130.0,
     "no_vig_prob": 0.559143
@@ -22993,6 +23210,20 @@
     "selection": "Austin Martin H u0.5",
     "american": 165.0,
     "no_vig_prob": 0.356485
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Ben Ross H o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.537442
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Ben Ross H u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.462558
   },
   {
     "matchup": "MIN @ SF",
@@ -23032,9 +23263,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_h",
+    "selection": "Brooks Lee H o1.5",
+    "american": 180.0,
+    "no_vig_prob": 0.334112
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
     "selection": "Brooks Lee H u0.5",
     "american": 165.0,
     "no_vig_prob": 0.356072
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_h",
+    "selection": "Brooks Lee H u1.5",
+    "american": -244.0,
+    "no_vig_prob": 0.665888
   },
   {
     "matchup": "MIN @ SF",
@@ -23284,6 +23529,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_rbi",
+    "selection": "Alan Roden RBI o0.5",
+    "american": 214.0,
+    "no_vig_prob": 0.304768
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Alan Roden RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.695232
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
     "selection": "Andrew Knizner RBI o0.5",
     "american": 275.0,
     "no_vig_prob": 0.265204
@@ -23308,6 +23567,20 @@
     "selection": "Austin Martin RBI u0.5",
     "american": -300.0,
     "no_vig_prob": 0.715619
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Ben Ross RBI o0.5",
+    "american": 270.0,
+    "no_vig_prob": 0.256133
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_rbi",
+    "selection": "Ben Ross RBI u0.5",
+    "american": -380.0,
+    "no_vig_prob": 0.743867
   },
   {
     "matchup": "MIN @ SF",
@@ -23578,6 +23851,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_r",
+    "selection": "Alan Roden R o0.5",
+    "american": 150.0,
+    "no_vig_prob": 0.376792
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Alan Roden R u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.623208
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
     "selection": "Andrew Knizner R o0.5",
     "american": 210.0,
     "no_vig_prob": 0.323444
@@ -23602,6 +23889,20 @@
     "selection": "Austin Martin R u0.5",
     "american": -162.0,
     "no_vig_prob": 0.583533
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Ben Ross R o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.341847
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_r",
+    "selection": "Ben Ross R u0.5",
+    "american": -233.0,
+    "no_vig_prob": 0.658153
   },
   {
     "matchup": "MIN @ SF",
@@ -23872,6 +24173,20 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_tb",
+    "selection": "Alan Roden TB o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599523
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Alan Roden TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.400477
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
     "selection": "Andrew Knizner TB o0.5",
     "american": -130.0,
     "no_vig_prob": 0.531858
@@ -23907,9 +24222,37 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_tb",
+    "selection": "Ben Ross TB o0.5",
+    "american": -133.0,
+    "no_vig_prob": 0.537356
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Ben Ross TB u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.462644
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Bo Davidson TB o0.5",
+    "american": -173.0,
+    "no_vig_prob": 0.598237
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
     "selection": "Bo Davidson TB o1.5",
     "american": 171.0,
     "no_vig_prob": 0.353152
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Bo Davidson TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.401763
   },
   {
     "matchup": "MIN @ SF",
@@ -24050,6 +24393,20 @@
     "selection": "Luke Keaschall TB u1.5",
     "american": -149.0,
     "no_vig_prob": 0.564578
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Marcelo Mayer TB o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.535774
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_tb",
+    "selection": "Marcelo Mayer TB u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.464226
   },
   {
     "matchup": "MIN @ SF",
@@ -24390,9 +24747,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "pitcher_k",
+    "selection": "Cesar Perdomo Ks o2.5",
+    "american": -275.0,
+    "no_vig_prob": 0.6875
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_k",
     "selection": "Cesar Perdomo Ks o3.5",
     "american": 101.0,
     "no_vig_prob": 0.47369
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_k",
+    "selection": "Cesar Perdomo Ks u2.5",
+    "american": 200.0,
+    "no_vig_prob": 0.3125
   },
   {
     "matchup": "MIN @ SF",
@@ -24425,9 +24796,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "pitcher_outs",
+    "selection": "Cesar Perdomo Outs o15.5",
+    "american": 122.0,
+    "no_vig_prob": 0.420519
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
     "selection": "Cesar Perdomo Outs u14.5",
     "american": 131.0,
     "no_vig_prob": 0.408111
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
+    "selection": "Cesar Perdomo Outs u15.5",
+    "american": -164.0,
+    "no_vig_prob": 0.579481
   },
   {
     "matchup": "MIN @ SF",
@@ -24439,9 +24824,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "pitcher_outs",
+    "selection": "Connor Prielipp Outs o15.5",
+    "american": 120.0,
+    "no_vig_prob": 0.421975
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
     "selection": "Connor Prielipp Outs u14.5",
     "american": 150.0,
     "no_vig_prob": 0.396073
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
+    "selection": "Connor Prielipp Outs u15.5",
+    "american": -165.0,
+    "no_vig_prob": 0.578025
   },
   {
     "matchup": "NYM @ TEX",
