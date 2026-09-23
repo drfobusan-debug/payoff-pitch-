@@ -1,12 +1,18 @@
 """Backtest of the daily worksheet's starter and bullpen scoring (hypotheses H1-H6).
 
 Analysis only: nothing here touches production scoring, pricing, tiers or gates.
-Re-runnable in four stages, each cached under ``~/.mlb_engine/audit/sp_study``::
+Re-runnable in four stages, each cached per season under
+``~/.mlb_engine/audit/sp_study/<season>``::
 
-    python scripts/sp_scoring_backtest.py games   --start 2026-04-15 --end 2026-09-22
-    python scripts/sp_scoring_backtest.py fg                       # FanGraphs as-of tables
-    python scripts/sp_scoring_backtest.py build                    # game-level frame
-    python scripts/sp_scoring_backtest.py analyze                  # report + CSVs
+    python scripts/sp_scoring_backtest.py games   --season 2025      # whole regular season
+    python scripts/sp_scoring_backtest.py fg      --season 2025      # FanGraphs as-of tables
+    python scripts/sp_scoring_backtest.py espn    --season 2025      # ESPN closing lines
+    python scripts/sp_scoring_backtest.py build   --season 2025      # game-level frame
+    python scripts/sp_scoring_backtest.py analyze --season 2025      # report + CSVs
+    python scripts/sp_scoring_backtest.py pool    --seasons 2023 2024 2025 2026
+
+``--start`` / ``--end`` override the season's default window; ``pool`` reads each
+season's built frame and writes the pooled + per-season multi-year report.
 
 ``games`` pulls every final regular-season game from statsapi with the actual
 starters, innings 1-5 runs, the starters' and relievers' runs allowed.  ``fg``
@@ -16,7 +22,15 @@ metric is what the sheet could have known that morning.  ``build`` re-scores the
 starters and pens the way ``daily_worksheet.score`` does (+2/+1/-2) and under two
 alternatives (decile and z-score points), joins the closing prices from the
 ``engine-state`` branch (``prices/closing/closing_*.json``, keyed by matchup with
-doubleheaders excluded) and writes ``games_scored.csv``.  ``analyze`` runs the
+doubleheaders excluded) and writes ``games_scored.csv``.  ``espn`` fills dates
+the engine never priced (all of 2023-2025, 2026 before 2026-07-19) with the
+book's moneyline, run line and full-game total from ESPN's public odds API
+(DraftKings, else ESPN BET, ...), written in the same closing-file format under
+``prices/espn`` with the raw provider items cached alongside; ESPN has no F5
+lines, so F5 market tests stay on the engine-state window.  Each market uses
+the book's ``close`` snapshot where it is coherent and otherwise the last
+recorded line (``current``); moneylines from ``current`` are tagged and reported
+as ``espn_last`` (mostly 2023).  ``analyze`` runs the
 pre-registered tests and writes ``sp_scoring_backtest.md`` plus one CSV per table.
 
 Every statistical routine lives in :mod:`scripts.sp_backtest_lib`, which is pure
@@ -51,10 +65,14 @@ from mlb_engine.output.daily_worksheet import (  # noqa: E402
 from mlb_engine.output.totals_sheet import _FG_ABBR, _FG_HEADERS, _FG_URL  # noqa: E402
 from scripts.sp_backtest_lib import (  # noqa: E402
     BP_KEY,
+    ESPN_ABBR,
     build_frame,
+    espn_entries,
     load_prices,
+    pick_espn_item,
     score_bullpens,
     score_starters,
+    write_multiyear_report,
     write_report,
 )
 
@@ -63,15 +81,23 @@ STATS = "https://statsapi.mlb.com/api/v1"
 STUDY_DIR = Path.home() / ".mlb_engine" / "audit" / "sp_study"
 _FG_TO_MLB = {v: k for k, v in _FG_ABBR.items()}
 BP_WINDOWS = sorted({c[5] for c in BP_COLS if c[5] is not None})
+# Regular-season windows (opening day .. last scheduled day); the schedule stage
+# only keeps final gameType=R games so a wide window is harmless.
+SEASON_WINDOWS: dict[int, tuple[Date, Date]] = {
+    2023: (Date(2023, 3, 30), Date(2023, 10, 1)),
+    2024: (Date(2024, 3, 20), Date(2024, 9, 30)),
+    2025: (Date(2025, 3, 18), Date(2025, 9, 28)),
+    2026: (Date(2026, 3, 25), Date(2026, 9, 22)),
+}
 
 
 # --- statsapi ---------------------------------------------------------------------------
 
 
-def _get(url: str, tries: int = 4) -> dict:
+def _get(url: str, tries: int = 4, user_agent: str | None = None) -> dict:
     for i in range(tries):
         try:
-            r = http.get(url, timeout=60)
+            r = http.get(url, timeout=60, **({"user_agent": user_agent} if user_agent else {}))
             r.raise_for_status()
             return r.json()
         except Exception as exc:  # noqa: BLE001
@@ -172,10 +198,13 @@ def fetch_games(start: Date, end: Date, out: Path) -> pd.DataFrame:
 # --- FanGraphs as-of leaderboards -------------------------------------------------------
 
 
+FG_RETRIES, FG_BACKOFF_S, FG_PAUSE_S = 8, 15.0, 1.0
+
+
 def _fg_range(stats: str, season: int, start: Date, end: Date, team: str = "0") -> list[dict]:
     url = _FG_URL.format(stats=stats, season=season, month=1000, team=team)
     url += f"&startdate={start.isoformat()}&enddate={end.isoformat()}"
-    for i in range(4):
+    for i in range(FG_RETRIES):
         try:
             resp = http.get(url, headers=_FG_HEADERS, timeout=90)
             resp.raise_for_status()
@@ -184,10 +213,10 @@ def _fg_range(stats: str, season: int, start: Date, end: Date, team: str = "0") 
                 return data
             raise ValueError("no data")
         except Exception as exc:  # noqa: BLE001
-            if i == 3:
+            if i == FG_RETRIES - 1:
                 raise
             log.warning("fg retry %s %s..%s: %s", stats, start, end, exc)
-            time.sleep(5 * (i + 1))
+            time.sleep(min(FG_BACKOFF_S * (i + 1), 120.0))
     raise RuntimeError("unreachable")
 
 
@@ -211,7 +240,7 @@ def fetch_fg(dates: list[Date], out: Path) -> None:
                 continue
             data = _fg_range(stats, day.year, start, asof, team)
             path.write_text(json.dumps(data))
-            time.sleep(0.5)
+            time.sleep(FG_PAUSE_S)
         log.info("fg %s done", day)
 
 
@@ -265,6 +294,49 @@ def _bp_value_tables(day: Date, fg_dir: Path) -> pd.DataFrame | None:
     return pd.DataFrame(rows)
 
 
+# --- espn odds ------------------------------------------------------------------------
+
+ESPN_SB = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+ESPN_ODDS = "https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/events/{eid}/competitions/{eid}/odds"
+ESPN_UA = "Mozilla/5.0 (X11; Linux x86_64) sp_scoring_backtest"  # ESPN 403s non-browser agents
+
+
+def fetch_espn(dates: list[Date], out: Path) -> None:
+    """Cache the chosen book's ML / RL / total per date as ``prices/espn/espn_YYYY-MM-DD.json``.
+
+    The raw provider items are kept alongside (``espn_raw_YYYY-MM-DD.json``) so the
+    flattening can be redone offline without re-hitting ESPN.
+    """
+    d = out / "prices" / "espn"
+    d.mkdir(parents=True, exist_ok=True)
+    for day in dates:
+        p, raw_p = d / f"espn_{day.isoformat()}.json", d / f"espn_raw_{day.isoformat()}.json"
+        if p.exists():
+            continue
+        if raw_p.exists():
+            raw = json.loads(raw_p.read_text())
+        else:
+            sb = _get(f"{ESPN_SB}?dates={day.strftime('%Y%m%d')}", user_agent=ESPN_UA)
+            raw = []
+            for ev in sb.get("events", []):
+                if (ev.get("season") or {}).get("type") != 2:
+                    continue
+                comp = ev["competitions"][0]
+                sides = {c["homeAway"]: c["team"]["abbreviation"] for c in comp["competitors"]}
+                away, home = (ESPN_ABBR.get(sides[s], sides[s]) for s in ("away", "home"))
+                odds = _get(ESPN_ODDS.format(eid=ev["id"]), user_agent=ESPN_UA)
+                raw.append({"away": away, "home": home, "items": odds.get("items") or []})
+                time.sleep(0.2)
+            raw_p.write_text(json.dumps(raw))
+        entries: list[dict] = []
+        for g in raw:
+            item = pick_espn_item(g["items"])
+            if item is not None:
+                entries += espn_entries(g["away"], g["home"], item)
+        p.write_text(json.dumps(entries))
+        log.info("espn %s: %d games, %d entries", day, len(raw), len(entries))
+
+
 # --- stages ---------------------------------------------------------------------------
 
 
@@ -287,35 +359,65 @@ def stage_build(out: Path) -> pd.DataFrame:
     bp_all = pd.concat(bp_frames, ignore_index=True)
     sp_all.to_csv(out / "starter_scores.csv", index=False)
     bp_all.to_csv(out / "bullpen_scores.csv", index=False)
-    prices = load_prices(out / "prices" / "closing", out / "prices" / "board")
+    prices = load_prices(out / "prices" / "closing", out / "prices" / "board", out / "prices" / "espn")
     frame = build_frame(games, sp_all, bp_all, prices)
     frame.to_csv(out / "games_scored.csv", index=False)
     log.info("built %d games (%d priced)", len(frame), int(frame["ml_prob_away"].notna().sum()))
     return frame
 
 
+def stage_pool(seasons: list[int], root: Path, boot: int) -> int:
+    frames, starters = {}, {}
+    for s in seasons:
+        d = root / str(s)
+        if not (d / "games_scored.csv").exists():
+            log.warning("season %s not built under %s; skipped", s, d)
+            continue
+        frames[s] = pd.read_csv(d / "games_scored.csv")
+        starters[s] = pd.read_csv(d / "starter_scores.csv")
+    if not frames:
+        log.error("nothing to pool")
+        return 1
+    write_multiyear_report(frames, starters, root, boot=boot)
+    log.info("report: %s", root / "sp_scoring_backtest_multiyear.md")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("stage", choices=["games", "fg", "build", "analyze", "all"])
-    ap.add_argument("--start", type=Date.fromisoformat, default=Date(2026, 4, 15))
-    ap.add_argument("--end", type=Date.fromisoformat, default=Date(2026, 9, 22))
-    ap.add_argument("--out", type=Path, default=STUDY_DIR)
+    ap.add_argument("stage", choices=["games", "fg", "espn", "build", "analyze", "all", "pool"])
+    ap.add_argument("--season", type=int, default=2026)
+    ap.add_argument("--seasons", type=int, nargs="+", default=[2023, 2024, 2025, 2026],
+                    help="seasons to pool (stage `pool`)")
+    ap.add_argument("--start", type=Date.fromisoformat, default=None, help="default: season opening day")
+    ap.add_argument("--end", type=Date.fromisoformat, default=None, help="default: season's last day")
+    ap.add_argument("--out", type=Path, default=None, help=f"default: {STUDY_DIR}/<season>")
     ap.add_argument("--boot", type=int, default=2000, help="bootstrap resamples")
+    ap.add_argument("--report", default="sp_scoring_backtest.md", help="report filename under --out")
     a = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    if a.stage == "pool":
+        return stage_pool(a.seasons, a.out or STUDY_DIR, a.boot)
+    if a.out is None:
+        a.out = STUDY_DIR / str(a.season)
+    win = SEASON_WINDOWS.get(a.season, (Date(a.season, 3, 15), Date(a.season, 10, 5)))
+    start, end = a.start or win[0], a.end or win[1]
     a.out.mkdir(parents=True, exist_ok=True)
     if a.stage in ("games", "all"):
-        fetch_games(a.start, a.end, a.out)
+        fetch_games(start, end, a.out)
     if a.stage in ("fg", "all"):
         games = pd.read_csv(a.out / "games.csv")
         fetch_fg(_study_dates(games), a.out)
+    if a.stage in ("espn", "all"):
+        games = pd.read_csv(a.out / "games.csv")
+        fetch_espn(_study_dates(games), a.out)
     if a.stage in ("build", "all"):
         stage_build(a.out)
     if a.stage in ("analyze", "all"):
         frame = pd.read_csv(a.out / "games_scored.csv")
         sp_all = pd.read_csv(a.out / "starter_scores.csv")
-        write_report(frame, sp_all, a.out, boot=a.boot, bp_key=BP_KEY)
-        log.info("report: %s", a.out / "sp_scoring_backtest.md")
+        write_report(frame, sp_all, a.out, boot=a.boot, bp_key=BP_KEY, report_name=a.report)
+        log.info("report: %s", a.out / a.report)
     return 0
 
 
