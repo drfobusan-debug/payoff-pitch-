@@ -133,6 +133,8 @@ def _parse_day(entries: list[dict]) -> dict[str, dict]:
         if m not in ("game_ml", "game_rl", "game_total", "f5_ml", "f5_total"):
             continue
         g = out.setdefault(e["matchup"], {"ml": {}, "rl": {}, "total": {}, "f5_ml": {}, "f5_total": {}})
+        if e.get("snapshot") and m == "game_ml":
+            g["snapshot"] = e["snapshot"]
         sel, am, nv = str(e["selection"]), float(e["american"]), e.get("no_vig_prob")
         nv = float(nv) if nv is not None else american_to_prob(am)
         team = sel.split()[0]
@@ -166,10 +168,139 @@ def _main_total(tbl: dict[float, dict]) -> tuple[float, float, float, float, flo
     return None if best is None else best[1:]
 
 
-def load_prices(closing_dir: Path, board_dir: Path | None = None) -> dict[tuple[str, str], dict]:
-    """(date, matchup) -> parsed prices; closing preferred, opening board as fallback."""
+ESPN_ABBR = {"ARI": "AZ", "CHW": "CWS"}
+
+
+def _devig(a: float, b: float) -> tuple[float, float]:
+    pa, pb = american_to_prob(a), american_to_prob(b)
+    return pa / (pa + pb), pb / (pa + pb)
+
+
+def _am(node: dict | None) -> float | None:
+    """American price out of an ESPN odds leaf ({'american': '-175', ...})."""
+    if not node:
+        return None
+    raw = str(node.get("american", "")).replace("EVEN", "+100").strip()
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def _line(node: dict | None) -> float | None:
+    """Line (total / run line) out of an ESPN leaf; ESPN puts it in ``american`` or ``alternateDisplayValue``."""
+    if not node:
+        return None
+    for key in ("american", "alternateDisplayValue", "value"):
+        try:
+            return float(str(node.get(key, "")).strip())
+        except ValueError:
+            continue
+    return None
+
+
+ESPN_PROVIDERS = ("DraftKings", "ESPN BET", "DraftKings (old)", "Caesars Sportsbook", "consensus")
+
+
+def pick_espn_item(items: list[dict]) -> dict | None:
+    """The provider to price a game off, in ``ESPN_PROVIDERS`` order; else the first pre-game book (never a ``Live Odds`` feed)."""
+    by_name = {str((i.get("provider") or {}).get("name", "")): i for i in items}
+    for name in ESPN_PROVIDERS:
+        if name in by_name:
+            return by_name[name]
+    rest = [i for n, i in by_name.items() if "Live" not in n]
+    return rest[0] if rest else None
+
+
+def _rl_node(ao: dict, ho: dict, snap: str, ml_a: float, ml_h: float) -> tuple[float, float, float, float] | None:
+    """(away price, home price, away line, home line) from one snapshot if it is a coherent run line.
+
+    Coherent = the two lines are opposite, the side laying runs is the ML favourite
+    (or a pick'em), and laying runs is priced longer than that side's ML.  ESPN's
+    2023 feeds sometimes hold a price where the line should be, or the run-line
+    prices on the wrong sides; those games are left without a run line.
+    """
+    ac, hc = ao.get(snap) or {}, ho.get(snap) or {}
+    rl_a, rl_h = _am(ac.get("spread")), _am(hc.get("spread"))
+    ln_a, ln_h = _line(ac.get("pointSpread")), _line(hc.get("pointSpread"))
+    if rl_a is None or rl_h is None or ln_a is None or ln_h is None:
+        return None
+    if ln_a != -ln_h or ln_a == 0 or abs(ln_a) > 5:
+        return None
+    lay_rl, lay_ml, take_ml = (rl_a, ml_a, ml_h) if ln_a < 0 else (rl_h, ml_h, ml_a)
+    if american_to_prob(lay_ml) < american_to_prob(take_ml) - 0.02:
+        return None
+    if american_to_prob(lay_rl) >= american_to_prob(lay_ml):
+        return None
+    return rl_a, rl_h, ln_a, ln_h
+
+
+def _total_node(item: dict, snap: str) -> tuple[float, float, float] | None:
+    """(line, over price, under price) from one snapshot if the line is a plausible total."""
+    node = item.get(snap) or {}
+    ov, un = _am(node.get("over")), _am(node.get("under"))
+    tot = _line(node.get("total"))
+    if ov is None or un is None or tot is None or not 3 <= tot <= 20:
+        return None
+    return tot, ov, un
+
+
+def espn_entries(away: str, home: str, item: dict) -> list[dict]:
+    """Flatten one ESPN competition-odds item into engine-state closing-file entries.
+
+    Each market uses the provider's ``close`` snapshot when it is coherent there
+    (2025-2026), else the ``current`` snapshot -- the last line ESPN recorded
+    before the game went final (2023-2024, where ``close`` is missing or holds
+    prices in the line fields).  Rows are tagged ``snapshot`` accordingly so the
+    report can separate the two.  Games with neither are skipped rather than
+    priced off the opener.  Returns ``game_ml`` / ``game_rl`` / ``game_total``
+    rows with no-vig probabilities.
+    """
+    matchup = f"{away} @ {home}"
+    rows: list[dict] = []
+    ao, ho = item.get("awayTeamOdds") or {}, item.get("homeTeamOdds") or {}
+    ml_a = ml_h = 0.0
+    for snap in ("close", "current"):
+        ac, hc = ao.get(snap) or {}, ho.get(snap) or {}
+        ml_a_, ml_h_ = _am(ac.get("moneyLine")), _am(hc.get("moneyLine"))
+        if ml_a_ is not None and ml_h_ is not None:
+            ml_a, ml_h = ml_a_, ml_h_
+            pa, ph = _devig(ml_a, ml_h)
+            rows += [{"matchup": matchup, "market": "game_ml", "selection": f"{away} ML", "american": ml_a,
+                      "no_vig_prob": pa, "snapshot": snap},
+                     {"matchup": matchup, "market": "game_ml", "selection": f"{home} ML", "american": ml_h,
+                      "no_vig_prob": ph, "snapshot": snap}]
+            break
+    if not rows:
+        return rows
+    for snap in ("close", "current"):
+        rl = _rl_node(ao, ho, snap, ml_a, ml_h)
+        if rl is not None:
+            rl_a, rl_h, ln_a, ln_h = rl
+            pa, ph = _devig(rl_a, rl_h)
+            rows += [{"matchup": matchup, "market": "game_rl", "selection": f"{away} {ln_a:+.1f}", "american": rl_a,
+                      "no_vig_prob": pa, "snapshot": snap},
+                     {"matchup": matchup, "market": "game_rl", "selection": f"{home} {ln_h:+.1f}", "american": rl_h,
+                      "no_vig_prob": ph, "snapshot": snap}]
+            break
+    for snap in ("close", "current"):
+        tot = _total_node(item, snap)
+        if tot is not None:
+            line, ov, un = tot
+            po, pu = _devig(ov, un)
+            rows += [{"matchup": matchup, "market": "game_total", "selection": f"Over {line}", "american": ov,
+                      "no_vig_prob": po, "snapshot": snap},
+                     {"matchup": matchup, "market": "game_total", "selection": f"Under {line}", "american": un,
+                      "no_vig_prob": pu, "snapshot": snap}]
+            break
+    return rows
+
+
+def load_prices(closing_dir: Path, board_dir: Path | None = None,
+                espn_dir: Path | None = None) -> dict[tuple[str, str], dict]:
+    """(date, matchup) -> parsed prices; engine-state closing > opening board > ESPN close."""
     out: dict[tuple[str, str], dict] = {}
-    sources = [("board", board_dir), ("closing", closing_dir)]
+    sources = [("espn", espn_dir), ("board", board_dir), ("closing", closing_dir)]
     for src, d in sources:
         if d is None or not d.exists():
             continue
@@ -177,7 +308,7 @@ def load_prices(closing_dir: Path, board_dir: Path | None = None) -> dict[tuple[
             day = p.stem.split("_")[-1]
             entries = json.loads(p.read_text())
             for matchup, g in _parse_day(entries).items():
-                g["src"] = src
+                g["src"] = "espn_last" if src == "espn" and g.get("snapshot") == "current" else src
                 out[(day, matchup)] = g  # closing overwrites board
     return out
 
@@ -494,7 +625,8 @@ def starter_level(df: pd.DataFrame) -> pd.DataFrame:
             cols[f"{side}_sp_cmp_{label}"] = f"cmp_{label}"
             cols[f"{side}_sp_dec_{label}"] = f"dec_{label}"
         have = [c for c in cols if c in df]
-        part = df[["date", "game_pk", *have]].rename(columns=cols)
+        keys = ["date", "game_pk", *(["season"] if "season" in df else [])]
+        part = df[[*keys, *have]].rename(columns=cols)
         part["side"] = side
         rows.append(part)
     out = pd.concat(rows, ignore_index=True)
@@ -515,6 +647,120 @@ def bullpen_level(df: pd.DataFrame) -> pd.DataFrame:
     out = pd.concat(rows, ignore_index=True)
     out = out[out["cmp_total"].notna() & (out["bp_outs"] > 0)]
     out["bp_ra9"] = out["bp_runs"] / out["bp_outs"] * 27
+    return out
+
+
+# --- candidate strategies ------------------------------------------------------------------
+
+LOPSIDED_GAP = 10
+MIN_UNDER = 0.55
+MIN_RESIDUAL = 0.03
+
+
+def strategy_verdict(effect: float, lo: float, hi: float, n: int, need: int) -> str:
+    """supported: CI excludes 0 on the predicted side; rejected: powered null or CI on the wrong side."""
+    if math.isnan(effect) or n == 0:
+        return "not observed"
+    if _ci_excludes_zero(lo, hi):
+        return "supported" if effect > 0 else "rejected"
+    return "rejected" if n >= need else "underpowered"
+
+
+def _under_row(g: pd.DataFrame, boot: int) -> dict:
+    """Blind F5 Under on ``g`` at the recorded line: hit rate, residual vs market, units."""
+    under = (g["f5_runs"] < g["f5_line"]).astype(float)
+    under[g["f5_runs"] == g["f5_line"]] = np.nan
+    resid = under - g["f5_under_prob"]
+    units = [
+        math.nan if math.isnan(u) else (profit(a) if u == 1 else -1.0)
+        for u, a in zip(under, g["f5_under_am"], strict=True)
+    ]
+    m, lo, hi = boot_mean_ci(resid.to_numpy(), boot)
+    return {"n": int(under.notna().sum()), "hit": float(under.mean()) if under.notna().any() else math.nan,
+            "market": float(g["f5_under_prob"].mean()) if len(g) else math.nan,
+            "effect": m, "lo": lo, "hi": hi, "p": mean_test_p(resid.to_numpy()),
+            "units": float(np.nansum(units)) if len(units) else math.nan}
+
+
+def f5_contact_split(df: pd.DataFrame, boot: int) -> pd.DataFrame:
+    """Raw F5 runs by (away, home) Contact-tercile pairing against the season F5 mean (no price)."""
+    d = df[df["both_scored"]]
+    season = float(d["f5_runs"].mean())
+    if "season" in d and d["season"].nunique() > 1:  # pooled frame: de-mean each season separately
+        d = d.assign(f5_runs=d["f5_runs"] - d.groupby("season")["f5_runs"].transform("mean") + season)
+    rows = []
+    cells = [("both top", (d["away_sp_contact_tercile"] == 2) & (d["home_sp_contact_tercile"] == 2)),
+             ("one top", (d["away_sp_contact_tercile"] == 2) ^ (d["home_sp_contact_tercile"] == 2)),
+             ("neither top", (d["away_sp_contact_tercile"] != 2) & (d["home_sp_contact_tercile"] != 2)),
+             ("both bottom", (d["away_sp_contact_tercile"] == 0) & (d["home_sp_contact_tercile"] == 0))]
+    for name, mask in cells:
+        g = d[mask]
+        m, lo, hi = boot_mean_ci((g["f5_runs"] - season).to_numpy(), boot)
+        lined = g[g["f5_line"].notna()]
+        rows.append({"cell": name, "n": len(g), "f5_mean": float(g["f5_runs"].mean()) if len(g) else math.nan,
+                     "season_mean": season, "diff": m, "lo": lo, "hi": hi,
+                     "p": mean_test_p((g["f5_runs"] - season).to_numpy()),
+                     "n_lined": len(lined), "line_mean": float(lined["f5_line"].mean()) if len(lined) else math.nan,
+                     "under_pct": float((lined["f5_runs"] < lined["f5_line"]).mean()) if len(lined) else math.nan})
+    return pd.DataFrame(rows)
+
+
+def strategy_table(priced: pd.DataFrame, boot: int) -> pd.DataFrame:
+    """The five candidate strategies from the first study, graded against the recorded price.
+
+    ``priced`` is every game with both starters scored and a closing/opening
+    moneyline.  Effects are residuals (hit - market prob) so 0 is
+    the price; ``need_n`` is the sample needed to detect the pre-registered
+    effect at 80% power, ``need_n_obs`` the sample the observed effect would need.
+    """
+    rows: list[dict] = []
+    need = n_for_mean(MIN_RESIDUAL)
+
+    f5 = priced[priced["f5_line"].notna()]
+    both = f5[(f5["away_sp_contact_tercile"] == 2) & (f5["home_sp_contact_tercile"] == 2)]
+    u = _under_row(both, boot)
+    need_u = n_for_mean(MIN_UNDER - 0.5)
+    rows.append({"strategy": "S1 F5 Under, both starters top-tercile Contact", "market": "F5 total",
+                 "n": u["n"], "hit": u["hit"], "market_prob": u["market"], "effect": u["effect"],
+                 "lo": u["lo"], "hi": u["hi"], "p": u["p"], "units": u["units"], "need_n": need_u,
+                 "threshold": f"Under >= {MIN_UNDER:.0%} and residual CI > 0",
+                 "verdict": strategy_verdict(u["effect"], u["lo"], u["hi"], u["n"], need_u)})
+
+    for name, col in (("S2 ML on the larger K-BB% gap (42d)", "gap_sp_K-BB%"),
+                      ("S3 ML on the z-score SP total favourite", "sp_gap_z")):
+        s = signal_summary(priced, priced[col], boot)
+        rows.append({"strategy": name, "market": "ML", "n": s["n_priced"], "hit": s["side_win_pct_priced"],
+                     "market_prob": s["market_prob"], "effect": s["residual"], "lo": s["residual_lo"],
+                     "hi": s["residual_hi"], "p": s["p_residual"], "units": s["ml_units"], "need_n": need,
+                     "threshold": f"residual >= +{MIN_RESIDUAL:.0%} with CI > 0",
+                     "verdict": strategy_verdict(s["residual"], s["residual_lo"], s["residual_hi"], s["n_priced"], need)})
+
+    lop = priced[priced["sp_gap_cmp"].abs() >= LOPSIDED_GAP]
+    fade = side_outcomes(lop, -lop["sp_gap_cmp"])
+    fade = fade[fade["decided"] & fade["mkt"].notna()]
+    m, lo, hi = boot_mean_ci(fade["residual"].to_numpy(), boot)
+    rows.append({"strategy": f"S4 fade the SP-favoured side when |compressed gap| >= {LOPSIDED_GAP}",
+                 "market": "ML", "n": len(fade), "hit": float(fade["won"].mean()) if len(fade) else math.nan,
+                 "market_prob": float(fade["mkt"].mean()) if len(fade) else math.nan, "effect": m, "lo": lo,
+                 "hi": hi, "p": mean_test_p(fade["residual"].to_numpy()),
+                 "units": float(fade["ml_units"].sum()) if len(fade) else math.nan, "need_n": need,
+                 "threshold": f"fade residual >= +{MIN_RESIDUAL:.0%} with CI > 0",
+                 "verdict": strategy_verdict(m, lo, hi, len(fade), need)})
+
+    o = side_outcomes(priced, priced["sp_gap_contact"])
+    favs = o[o["decided"] & (o["mkt"] >= 0.5) & o["rl_units"].notna()]
+    be = favs["rl_price"].map(lambda a: 1 / (1 + profit(a)))
+    short = be - favs["rl_cover"]  # > 0 when laying -1.5 loses to its own break-even
+    m, lo, hi = boot_mean_ci(short.to_numpy(), boot)
+    need_rl = n_for_mean(0.05)
+    rows.append({"strategy": "S5 Contact-edge favourites laying -1.5 lose to break-even (RL < ML)",
+                 "market": "RL -1.5", "n": len(favs), "hit": float(favs["rl_cover"].mean()) if len(favs) else math.nan,
+                 "market_prob": float(be.mean()) if len(favs) else math.nan, "effect": m, "lo": lo, "hi": hi,
+                 "p": mean_test_p(short.to_numpy()), "units": float(favs["rl_units"].sum()) if len(favs) else math.nan,
+                 "need_n": need_rl, "threshold": "break-even - cover >= +5pt with CI > 0",
+                 "verdict": strategy_verdict(m, lo, hi, len(favs), need_rl)})
+    out = pd.DataFrame(rows)
+    out["need_n_obs"] = [n_for_mean(abs(e)) if not math.isnan(e) and e else 0 for e in out["effect"]]
     return out
 
 
@@ -569,7 +815,7 @@ def _ci_excludes_zero(lo: float, hi: float) -> bool:
 
 
 def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int = 2000,
-                 bp_key: str = BP_KEY) -> str:
+                 bp_key: str = BP_KEY, report_name: str = "sp_scoring_backtest.md") -> str:
     out.mkdir(parents=True, exist_ok=True)
     df = frame[frame["both_scored"]].copy()
     priced = df[df["ml_prob_away"].notna()].copy()
@@ -584,6 +830,26 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
               f"Starter appearances scored: {len(starters)}; bullpen appearances: {len(pens)}. "
               f"Doubleheader matchups are unpriced (label collision). Bootstrap resamples: {boot}.\n")
     src = priced["price_src"].value_counts() if len(priced) else pd.Series(dtype=int)
+    strat = strategy_table(priced, boot)
+    strat.to_csv(out / "strategies.csv", index=False)
+    split = f5_contact_split(frame, boot)
+    split.to_csv(out / "f5_contact_split.csv", index=False)
+    md.append("## Candidate strategies (priced window; effect = hit - market prob, 0 = the price)\n")
+    md.append(_md_table(strat, [("strategy", "strategy", 0), ("market", "market", 0), ("n", "n", -1),
+                                ("hit", "hit", None), ("market_prob", "mkt", None), ("effect", "effect", 4),
+                                ("lo", "lo", 4), ("hi", "hi", 4), ("p", "p", 3), ("units", "units", 2),
+                                ("need_n", "n needed", -1), ("need_n_obs", "n for obs.", -1),
+                                ("verdict", "verdict", 0)]))
+    md.append("\n`n needed` = priced games to detect the pre-registered effect at alpha .05 / 80% power "
+              "(residual +3pt; F5 Under 55% vs 50%; RL 5pt short of break-even); `n for obs.` = games the "
+              "observed effect would need. S5's `hit` is the -1.5 cover rate and `mkt` its break-even.\n")
+    md.append("\nF5 runs by Contact-tercile pairing, **all scored games** (no price): diff = cell mean - season mean; "
+              "`under` is the share below the recorded F5 line where one exists.\n")
+    md.append(_md_table(split, [("cell", "cell", 0), ("n", "n", -1), ("f5_mean", "F5 runs", 3),
+                                ("season_mean", "season", 3), ("diff", "diff", 3), ("lo", "lo", 3),
+                                ("hi", "hi", 3), ("p", "p", 3), ("n_lined", "n lined", -1),
+                                ("line_mean", "line", 2), ("under_pct", "under", None)]))
+    md.append("")
     md.append(
         "**Data / method.** Starters identified from the Stats API boxscore (first pitcher listed); "
         "innings 1-5 runs from the linescore; bullpen runs/outs = team pitching line minus the starter. "
@@ -594,9 +860,13 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
         "20 IP / 300 pitches, mirroring `daily_worksheet.starter_table`; bullpens use team relief lines with "
         "the per-column season/trailing windows of `BP_COLS`. Points: `compressed` = worksheet rule (+2 top-k, -2 bottom-k, +1 "
         "otherwise; k = 10% of qualifying starters, k = 3 of 30 pens), `decile` = 0-9 percentile rank, "
-        "`z` = standardized value, all signed so higher is better. Gap = away - home. Prices are the "
-        "`engine-state` no-vig closing lines (" + ", ".join(f"{k}: {v}" for k, v in src.items()) +
-        ") with the opening board used only when no closing file exists for that date. "
+        "`z` = standardized value, all signed so higher is better. Gap = away - home. Price-source mix (games): "
+        + ", ".join(f"{k}: {v}" for k, v in src.items()) +
+        ". `closing` = `engine-state` no-vig closing lines, `board` = its opening board when no closing "
+        "file exists for that date, `espn` = the book's closing-snapshot ML / RL / full-game total from ESPN's "
+        "public odds API (DraftKings, else ESPN BET; used only for dates the engine never priced), `espn_last` = "
+        "ESPN's last recorded pre-game line where the book has no closing snapshot (a recorded price, not "
+        "verified as the close). ESPN carries no F5 lines, so F5 market tests are confined to the engine-state window. "
         "Side accuracy / residual / units are for the side favoured by the gap (gap = 0 games skipped); "
         "RL = -1.5 for the favoured side when it is the ML favourite, +1.5 when it is the dog; units are "
         "one-unit stakes at the recorded American price.\n"
@@ -879,5 +1149,195 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
     md.append(_md_table(bpr, [("metric", "metric", 0), ("n", "n", -1), ("r_raw_ra9", "r raw vs RA/27", 3),
                               ("p", "p", 3), ("r_cmp_pts_ra9", "r +2/-2 pts", 3)]))
     text = "\n".join(md) + "\n"
-    (out / "sp_scoring_backtest.md").write_text(text)
+    (out / report_name).write_text(text)
+    return text
+
+
+# --- multi-season --------------------------------------------------------------------------
+
+STRAT_COLS: list[tuple[str, str, int | None]] = [
+    ("strategy", "strategy", 0), ("market", "market", 0), ("n", "n", -1), ("hit", "hit", None),
+    ("market_prob", "mkt", None), ("effect", "effect", 4), ("lo", "lo", 4), ("hi", "hi", 4), ("p", "p", 3),
+    ("units", "units", 2), ("need_n", "n needed", -1), ("need_n_obs", "n for obs.", -1), ("verdict", "verdict", 0),
+]
+H1_SIGNALS = (("SP total (compressed)", "sp_gap_cmp"), ("Contact gap", "sp_gap_contact"),
+              ("Whiff gap", "sp_gap_whiff"), ("SP total (decile)", "sp_gap_dec"), ("SP total (z)", "sp_gap_z"),
+              ("BP total (compressed)", "bp_gap_cmp"))
+SCHEME_LABELS = (("cmp", "compressed (+2/+1/-2)"), ("dec", "decile 0-9"), ("z", "z-score"))
+
+
+def _sign(x: float) -> str:
+    return "" if math.isnan(x) else "+" if x > 0 else "-" if x < 0 else "0"
+
+
+def scheme_table(df: pd.DataFrame, starters: pd.DataFrame) -> pd.DataFrame:
+    """r(win), r(run diff), r(RA innings 1-5) per scoring scheme with large-sample SEs (1/sqrt(n-3))."""
+    rows = []
+    for scheme, lbl in SCHEME_LABELS:
+        r_w, p_w, n_w = corr(df[f"sp_gap_{scheme}"], df["away_win"])
+        r_rd, _, _ = corr(df[f"sp_gap_{scheme}"], df["run_diff"])
+        r_ra, p_ra, n_ra = corr(starters[f"{scheme}_total"], starters["ra_f5"])
+        rows.append({"scheme": lbl, "n_games": n_w, "r_win": r_w, "se_games": 1 / math.sqrt(max(n_w - 3, 1)),
+                     "p_win": p_w, "r_run_diff": r_rd, "n_starts": n_ra, "r_ra_1_5": r_ra,
+                     "se_starts": 1 / math.sqrt(max(n_ra - 3, 1)), "p_ra": p_ra})
+    return pd.DataFrame(rows)
+
+
+def pooled_verdict(row: pd.Series, per_season: pd.DataFrame) -> str:
+    """One line: the pooled verdict plus whether the sign held in every season."""
+    signs = [_sign(e) for e in per_season["effect"]]
+    stable = len(set(s for s in signs if s)) <= 1 and len(signs) > 1
+    if row["verdict"] == "supported":
+        return "SUPPORTED" + (" (sign stable across seasons)" if stable else " (sign flips by season -- treat with caution)")
+    if row["verdict"] == "rejected":
+        return ("REJECTED (CI on the wrong side)" if _ci_excludes_zero(row["lo"], row["hi"])
+                else "REJECTED (powered null: CI includes 0 at n >= n needed)")
+    if row["verdict"] == "underpowered":
+        return f"STILL UNDERPOWERED (n={int(row['n'])} < {int(row['need_n'])} needed)"
+    return row["verdict"]
+
+
+def write_multiyear_report(frames: dict[int, pd.DataFrame], starters: dict[int, pd.DataFrame], out: Path,
+                           boot: int = 2000, report_name: str = "sp_scoring_backtest_multiyear.md") -> str:
+    """Pooled + per-season report; the pooled H1-H6 detail is the single-season report on the pooled frame."""
+    out.mkdir(parents=True, exist_ok=True)
+    seasons = sorted(frames)
+    pooled = pd.concat([frames[s].assign(season=s) for s in seasons], ignore_index=True)
+    sp_pooled = pd.concat([starters[s].assign(season=s) for s in seasons], ignore_index=True)
+    both = pooled[pooled["both_scored"]]
+    priced = both[both["ml_prob_away"].notna()]
+    md: list[str] = ["# SP / bullpen scoring backtest, multi-season (" + ", ".join(map(str, seasons)) + ")\n"]
+
+    # coverage --------------------------------------------------------------------------
+    cov_rows = []
+    for s in seasons:
+        f = frames[s]
+        b = f[f["both_scored"]]
+        p = b[b["ml_prob_away"].notna()]
+        src = p["price_src"].value_counts()
+        cov_rows.append({"season": str(s), "games": len(f), "both_scored": len(b), "priced": len(p),
+                         "f5_lined": int(p["f5_line"].notna().sum()), "rl_priced": int(p["rl_away_m15"].notna().sum() + p["rl_home_m15"].notna().sum()),
+                         "src": ", ".join(f"{k}: {v}" for k, v in src.items()) or "-",
+                         "dates": f"{f['date'].min()}..{f['date'].max()}"})
+    cov_rows.append({"season": "pooled", "games": len(pooled), "both_scored": len(both), "priced": len(priced),
+                     "f5_lined": int(priced["f5_line"].notna().sum()),
+                     "rl_priced": int(priced["rl_away_m15"].notna().sum() + priced["rl_home_m15"].notna().sum()),
+                     "src": ", ".join(f"{k}: {v}" for k, v in priced["price_src"].value_counts().items()), "dates": ""})
+    cov = pd.DataFrame(cov_rows)
+    cov.to_csv(out / "multiyear_coverage.csv", index=False)
+    md.append("## Coverage\n")
+    md.append(_md_table(cov, [("season", "season", 0), ("games", "final games", -1), ("both_scored", "both SP scored", -1),
+                              ("priced", "priced (ML)", -1), ("rl_priced", "RL -1.5 priced", -1), ("f5_lined", "F5 lined", -1),
+                              ("src", "price sources", 0), ("dates", "dates", 0)]))
+    md.append("\n`closing` / `board` = engine-state no-vig closing / opening board (2026 only); `espn` = the book's "
+              "`close` snapshot from ESPN's public odds API (provider order DraftKings, ESPN BET, DraftKings (old), "
+              "Caesars, consensus); `espn_last` = ESPN's `current` snapshot -- the last line ESPN recorded before the game "
+              "went final -- used for the moneyline where the book has no coherent `close` (mostly 2023). It is a recorded "
+              "book price, not a synthetic one, but is not verified as the close. Run lines and totals are taken from "
+              "`close` when coherent there and from `current` otherwise, per market; a run line is kept only if the -1.5 "
+              "side is the ML favourite (or a pick'em) and is priced longer than that side's ML, which drops most 2023 "
+              "ESPN run lines (the feed puts a price where the line should be, or the prices on the wrong sides). "
+              "F5 lines exist only in engine-state (2026); no price is ever imputed or proxied.\n")
+    md.append("\n**No-look-ahead check on FanGraphs for past seasons.** Every metric for a game on date D is the FanGraphs "
+              "leaderboard for that season with `startdate`/`enddate` ending on D-1 (trailing-42-day skill window with a "
+              "150-pitch minimum; season-to-date window with 20 IP / 300 pitches), cached per date under "
+              "`~/.mlb_engine/audit/sp_study/<season>/fg/`. Before pulling, the endpoint was probed for a past date "
+              "(2024-06-15): the trailing-42-day request (2024-05-04..06-14) returned HTTP 200 with 556 pitchers, "
+              "season-to-date (03-20..06-14) 656, the full 2024 season 855, and one starter's line grew with the window "
+              "(Zack Wheeler: 45.1 / 87.2 / 200.0 IP, K-BB% 16.2 / 19.8 / 21.9), which it could not if the endpoint ignored "
+              "the date range; every required column (xERA, xFIP, SIERA, K%, K-BB%, C+SwStr%, HardHit%, Barrel%, FB%, "
+              "O-Swing%, Stuff+, Pitches, IP) was present. Per-date pulls that returned no rows "
+              "(early season, before anyone qualifies) leave those starters unscored rather than falling back to a "
+              "later window.\n")
+
+    # strategies pooled + per season ----------------------------------------------------
+    strat_pooled = strategy_table(priced, boot)
+    per: dict[int, pd.DataFrame] = {}
+    for s in seasons:
+        f = frames[s]
+        p = f[f["both_scored"] & f["ml_prob_away"].notna()]
+        if len(p):
+            per[s] = strategy_table(p, boot).assign(season=s)
+    per_df = pd.concat(per.values(), ignore_index=True) if per else pd.DataFrame()
+    strat_pooled["seasons_sign"] = [
+        "".join(_sign(e) or "?" for e in per_df[per_df["strategy"] == st].sort_values("season")["effect"])
+        if len(per_df) else "" for st in strat_pooled["strategy"]]
+    strat_pooled["definitive"] = [
+        pooled_verdict(r, per_df[per_df["strategy"] == r["strategy"]] if len(per_df) else pd.DataFrame({"effect": []}))
+        for _, r in strat_pooled.iterrows()]
+    strat_pooled.to_csv(out / "multiyear_strategies_pooled.csv", index=False)
+    per_df.to_csv(out / "multiyear_strategies_by_season.csv", index=False)
+    md.append("## Definitive verdicts, pooled (effect = hit - market prob; 0 = the recorded price)\n")
+    md.append(_md_table(strat_pooled, [*STRAT_COLS[:-1], ("seasons_sign", "sign by season", 0), ("definitive", "verdict", 0)]))
+    md.append("\n`n needed` = games to detect the pre-registered effect at alpha .05 / 80% power (ML residual +3pt; "
+              "F5 Under 55% vs 50%; RL 5pt short of break-even); `n for obs.` = games the observed effect would need. "
+              "`sign by season` lists the sign of the effect in each season in order (" + ", ".join(map(str, seasons)) + "). "
+              "S1 uses only F5-lined games (engine-state window); S5's `hit` is the -1.5 cover rate, `mkt` its break-even and "
+              "its effect = break-even - cover (positive = laying -1.5 loses money at the recorded price). SUPPORTED = the "
+              "95% CI excludes 0 in the predicted direction at n >= n needed; compare the effect with the pre-registered size "
+              "(+3pt ML residual, +5pt F5 / RL) before acting on it.\n")
+    s4 = strat_pooled[strat_pooled["strategy"].str.startswith("S4")].iloc[0]
+    n_f5 = int(priced["f5_line"].notna().sum())
+    fire = float(s4["n"]) / max(len(priced), 1)
+    s4_games = float(s4["need_n"]) / max(fire, 1e-9)
+    s4_seasons = s4_games / max(len(priced) / len(seasons), 1)
+    md.append(f"\nS1 is only testable on the {n_f5} F5-lined games: neither ESPN's odds API nor any other reachable free "
+              "source carries historical first-5 lines, so the 2023-2025 F5 market question is **not answerable with "
+              "available data** (an archive of F5 closes -- e.g. a paid odds-history API -- would unblock it); the F5 "
+              f"*runs* question is answered below without prices. S4 fires on {int(s4['n'])} of {len(priced)} priced games "
+              f"({fire:.1%}), so at this firing rate the pre-registered +3pt effect would need ~{int(round(s4_games)):,} "
+              f"priced games (~{s4_seasons:.0f} seasons); the pooled point estimate is reported as the best available answer.\n")
+    md.append("\n## Per-season strategy table\n")
+    if len(per_df):
+        md.append(_md_table(per_df, [("season", "season", -1), *STRAT_COLS]))
+
+    # H1 signals per season ---------------------------------------------------------------
+    md.append("\n## H1 signals by season (side favoured by the gap; residual vs the recorded moneyline)\n")
+    h1_rows = []
+    for label, gap in H1_SIGNALS:
+        for tag in [*(str(x) for x in seasons), "pooled"]:
+            p = priced if tag == "pooled" else priced[priced["season"] == int(tag)]
+            if not len(p):
+                continue
+            sm = signal_summary(p, p[gap], boot)
+            h1_rows.append({"signal": label, "season": tag, **sm})
+    h1 = pd.DataFrame(h1_rows)
+    h1.to_csv(out / "multiyear_h1_by_season.csv", index=False)
+    md.append(_md_table(h1, [("signal", "signal", 0), ("season", "season", 0), ("n_priced", "n", -1), ("r_win", "r win", 3),
+                             ("r_market", "r mkt", 3), ("side_win_pct_priced", "side acc", None), ("market_prob", "mkt prob", None),
+                             ("residual", "resid", 4), ("residual_lo", "lo", 4), ("residual_hi", "hi", 4), ("p_residual", "p", 3),
+                             ("ml_units", "ML u", 2), ("n_rl", "n RL", -1), ("rl_cover_pct", "RL cover", None), ("rl_units", "RL u", 2)]))
+
+    # schemes pooled + per season -----------------------------------------------------------
+    md.append("\n## Scoring scheme comparison (z vs decile vs compressed), per season and pooled, with SEs\n")
+    sch_rows = []
+    st_all = starter_level(pooled)
+    for tag in [*(str(x) for x in seasons), "pooled"]:
+        d = both if tag == "pooled" else both[both["season"] == int(tag)]
+        st = st_all if tag == "pooled" else st_all[st_all["season"] == int(tag)]
+        if not len(d):
+            continue
+        t = scheme_table(d, st)
+        t.insert(0, "season", tag)
+        sch_rows.append(t)
+    sch = pd.concat(sch_rows, ignore_index=True)
+    sch.to_csv(out / "multiyear_schemes.csv", index=False)
+    md.append("All games with both starters scored (no price needed). SE of r ~ 1/sqrt(n-3).\n")
+    md.append(_md_table(sch, [("season", "season", 0), ("scheme", "scheme", 0), ("n_games", "games", -1), ("r_win", "r win", 3),
+                              ("se_games", "SE", 3), ("r_run_diff", "r run diff", 3), ("n_starts", "starts", -1),
+                              ("r_ra_1_5", "r RA 1-5", 3), ("se_starts", "SE", 3), ("p_ra", "p", 3)]))
+    pooled_sch = sch[sch["season"] == "pooled"].set_index("scheme")
+    z, c = pooled_sch.loc["z-score"], pooled_sch.loc["compressed (+2/+1/-2)"]
+    diff = z["r_ra_1_5"] - c["r_ra_1_5"]
+    md.append(f"\nPooled z minus compressed on r(RA 1-5): {diff:+.3f} (each SE ~{z['se_starts']:.3f}; a difference beyond "
+              f"~{2 * z['se_starts'] * math.sqrt(2):.3f} would be distinguishable if the two were independent -- they are "
+              f"computed on the same starts, so this is conservative). On r(win): {z['r_win'] - c['r_win']:+.3f} "
+              f"(SE ~{z['se_games']:.3f}).\n")
+
+    # full pooled H1-H6 detail -----------------------------------------------------------
+    md.append("\n---\n\n# Pooled H1-H6 detail and per-metric tables\n")
+    detail = write_report(pooled, sp_pooled, out / "pooled", boot=boot, report_name="sp_scoring_backtest_pooled.md")
+    md.append(detail.split("\n", 1)[1])
+    text = "\n".join(md) + "\n"
+    (out / report_name).write_text(text)
     return text
