@@ -80,6 +80,33 @@ def test_prices_parse_main_lines(tmp_path: Path) -> None:
     assert cols["f5_line"] == 4.5 and cols["f5_under_am"] == -105
 
 
+def test_espn_close_fills_unpriced_dates_only(tmp_path: Path) -> None:
+    item = {
+        "awayTeamOdds": {"close": {"moneyLine": {"american": "+119"}, "spread": {"american": "-175"},
+                                   "pointSpread": {"american": "+1.5"}}},
+        "homeTeamOdds": {"close": {"moneyLine": {"american": "-143"}, "spread": {"american": "+144"},
+                                   "pointSpread": {"american": "-1.5"}}},
+        "close": {"over": {"american": "-118"}, "under": {"american": "-102"},
+                  "total": {"alternateDisplayValue": "9"}},
+    }
+    rows = lib.espn_entries("AZ", "BAL", item)
+    assert [r["market"] for r in rows] == ["game_ml"] * 2 + ["game_rl"] * 2 + ["game_total"] * 2
+    assert rows[0]["selection"] == "AZ ML" and rows[3]["selection"] == "BAL -1.5" and rows[4]["selection"] == "Over 9.0"
+    assert abs(rows[0]["no_vig_prob"] + rows[1]["no_vig_prob"] - 1) < 1e-9
+    assert lib.espn_entries("AZ", "BAL", {"awayTeamOdds": {"open": {"moneyLine": {"american": "+135"}}}}) == []
+    espn, closing = tmp_path / "espn", tmp_path / "closing"
+    espn.mkdir()
+    closing.mkdir()
+    (espn / "espn_2026-04-15.json").write_text(json.dumps(rows))
+    (espn / "espn_2026-08-01.json").write_text(json.dumps(rows))
+    (closing / "closing_2026-08-01.json").write_text(json.dumps(
+        [{"matchup": "AZ @ BAL", "market": "game_ml", "selection": "AZ ML", "american": 100, "no_vig_prob": 0.5}]))
+    prices = lib.load_prices(closing, None, espn)
+    assert prices[("2026-04-15", "AZ @ BAL")]["src"] == "espn"
+    assert prices[("2026-08-01", "AZ @ BAL")]["src"] == "closing"
+    assert prices[("2026-08-01", "AZ @ BAL")]["ml"]["AZ"] == (100.0, 0.5)
+
+
 def _frame() -> pd.DataFrame:
     """Two dates, four games; away starter clearly better in game 1, worse in game 2."""
     sp = pd.concat([lib.score_starters(_starters(seed=s)) for s in (1, 2)], ignore_index=True)
@@ -168,11 +195,44 @@ def test_boot_ci_and_power_helpers() -> None:
     assert reg.loc["x", "coef"] == pytest.approx(1.03, abs=0.01)
 
 
+def test_strategy_table_grades_five_candidates() -> None:
+    df = _frame()
+    priced = df[df["both_scored"] & df["ml_prob_away"].notna()]
+    strat = lib.strategy_table(priced, boot=50)
+    assert len(strat) == 5 and strat["strategy"].str.match(r"S[1-5] ").all()
+    assert set(strat["verdict"]) <= {"supported", "rejected", "underpowered", "not observed"}
+    assert (strat["need_n"] > 0).all()
+    split = lib.f5_contact_split(df, boot=50)
+    assert list(split["cell"]) == ["both top", "one top", "neither top", "both bottom"]
+    assert split["n"].sum() >= len(df[df["both_scored"]]) - split.loc[3, "n"]
+    assert lib.strategy_verdict(0.05, 0.01, 0.09, 100, 2000) == "supported"
+    assert lib.strategy_verdict(-0.05, -0.09, -0.01, 100, 2000) == "rejected"
+    assert lib.strategy_verdict(0.01, -0.02, 0.04, 100, 2000) == "underpowered"
+    assert lib.strategy_verdict(0.01, -0.02, 0.04, 2500, 2000) == "rejected"
+    assert lib.strategy_verdict(float("nan"), float("nan"), float("nan"), 0, 2000) == "not observed"
+
+
 def test_write_report_runs_offline(tmp_path: Path) -> None:
     df = _frame()
     sp = pd.DataFrame()
     text = lib.write_report(df, sp, tmp_path, boot=50)
-    assert "## H1" in text and "## H6" in text
+    assert "## Candidate strategies" in text and "## H1" in text and "## H6" in text
+    assert (tmp_path / "strategies.csv").exists() and (tmp_path / "f5_contact_split.csv").exists()
     assert (tmp_path / "sp_scoring_backtest.md").exists()
     assert (tmp_path / "metric_table_sp.csv").exists()
     assert (tmp_path / "h5_schemes.csv").exists()
+
+
+def test_espn_provider_preference_skips_live_feeds() -> None:
+    cli = pytest.importorskip("scripts.sp_scoring_backtest")
+    items = [
+        {"provider": {"name": "ESPN BET - Live Odds"}},
+        {"provider": {"name": "Caesars Sportsbook (New Jersey)"}},
+        {"provider": {"name": "ESPN BET"}},
+    ]
+    assert cli._pick_provider(items)["provider"]["name"] == "ESPN BET"
+    items.append({"provider": {"name": "DraftKings"}})
+    assert cli._pick_provider(items)["provider"]["name"] == "DraftKings"
+    assert cli._pick_provider(items[:2])["provider"]["name"].startswith("Caesars")
+    assert cli._pick_provider(items[:1]) is None
+    assert cli._pick_provider([]) is None

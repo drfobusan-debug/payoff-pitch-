@@ -166,10 +166,63 @@ def _main_total(tbl: dict[float, dict]) -> tuple[float, float, float, float, flo
     return None if best is None else best[1:]
 
 
-def load_prices(closing_dir: Path, board_dir: Path | None = None) -> dict[tuple[str, str], dict]:
-    """(date, matchup) -> parsed prices; closing preferred, opening board as fallback."""
+ESPN_ABBR = {"ARI": "AZ", "CHW": "CWS"}
+
+
+def _devig(a: float, b: float) -> tuple[float, float]:
+    pa, pb = american_to_prob(a), american_to_prob(b)
+    return pa / (pa + pb), pb / (pa + pb)
+
+
+def _am(node: dict | None) -> float | None:
+    """American price out of an ESPN odds leaf ({'american': '-175', ...})."""
+    if not node:
+        return None
+    raw = str(node.get("american", "")).replace("EVEN", "+100").strip()
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def espn_entries(away: str, home: str, item: dict) -> list[dict]:
+    """Flatten one ESPN competition-odds item into engine-state closing-file entries.
+
+    Uses the provider's ``close`` snapshot (moneyline, run line, total); games
+    without a closing snapshot are skipped rather than priced off the opener.
+    Returns ``game_ml`` / ``game_rl`` / ``game_total`` rows with no-vig probabilities.
+    """
+    matchup = f"{away} @ {home}"
+    rows: list[dict] = []
+    ao, ho = item.get("awayTeamOdds") or {}, item.get("homeTeamOdds") or {}
+    ac, hc = ao.get("close") or {}, ho.get("close") or {}
+    ml_a, ml_h = _am(ac.get("moneyLine")), _am(hc.get("moneyLine"))
+    if ml_a is not None and ml_h is not None:
+        pa, ph = _devig(ml_a, ml_h)
+        rows += [{"matchup": matchup, "market": "game_ml", "selection": f"{away} ML", "american": ml_a, "no_vig_prob": pa},
+                 {"matchup": matchup, "market": "game_ml", "selection": f"{home} ML", "american": ml_h, "no_vig_prob": ph}]
+    rl_a, rl_h = _am(ac.get("spread")), _am(hc.get("spread"))
+    ln_a, ln_h = _am(ac.get("pointSpread")), _am(hc.get("pointSpread"))
+    if rl_a is not None and rl_h is not None and ln_a is not None and ln_h is not None and ln_a == -ln_h:
+        pa, ph = _devig(rl_a, rl_h)
+        rows += [{"matchup": matchup, "market": "game_rl", "selection": f"{away} {ln_a:+.1f}", "american": rl_a, "no_vig_prob": pa},
+                 {"matchup": matchup, "market": "game_rl", "selection": f"{home} {ln_h:+.1f}", "american": rl_h, "no_vig_prob": ph}]
+    close = item.get("close") or {}
+    ov, un = _am(close.get("over")), _am(close.get("under"))
+    tot = (close.get("total") or {}).get("alternateDisplayValue")
+    if ov is not None and un is not None and tot not in (None, "", "0"):
+        line = float(tot)
+        po, pu = _devig(ov, un)
+        rows += [{"matchup": matchup, "market": "game_total", "selection": f"Over {line}", "american": ov, "no_vig_prob": po},
+                 {"matchup": matchup, "market": "game_total", "selection": f"Under {line}", "american": un, "no_vig_prob": pu}]
+    return rows
+
+
+def load_prices(closing_dir: Path, board_dir: Path | None = None,
+                espn_dir: Path | None = None) -> dict[tuple[str, str], dict]:
+    """(date, matchup) -> parsed prices; engine-state closing > opening board > ESPN close."""
     out: dict[tuple[str, str], dict] = {}
-    sources = [("board", board_dir), ("closing", closing_dir)]
+    sources = [("espn", espn_dir), ("board", board_dir), ("closing", closing_dir)]
     for src, d in sources:
         if d is None or not d.exists():
             continue
@@ -518,6 +571,118 @@ def bullpen_level(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+# --- candidate strategies ------------------------------------------------------------------
+
+LOPSIDED_GAP = 10
+MIN_UNDER = 0.55
+MIN_RESIDUAL = 0.03
+
+
+def strategy_verdict(effect: float, lo: float, hi: float, n: int, need: int) -> str:
+    """supported: CI excludes 0 on the predicted side; rejected: powered null or CI on the wrong side."""
+    if math.isnan(effect) or n == 0:
+        return "not observed"
+    if _ci_excludes_zero(lo, hi):
+        return "supported" if effect > 0 else "rejected"
+    return "rejected" if n >= need else "underpowered"
+
+
+def _under_row(g: pd.DataFrame, boot: int) -> dict:
+    """Blind F5 Under on ``g`` at the recorded line: hit rate, residual vs market, units."""
+    under = (g["f5_runs"] < g["f5_line"]).astype(float)
+    under[g["f5_runs"] == g["f5_line"]] = np.nan
+    resid = under - g["f5_under_prob"]
+    units = [
+        math.nan if math.isnan(u) else (profit(a) if u == 1 else -1.0)
+        for u, a in zip(under, g["f5_under_am"], strict=True)
+    ]
+    m, lo, hi = boot_mean_ci(resid.to_numpy(), boot)
+    return {"n": int(under.notna().sum()), "hit": float(under.mean()) if under.notna().any() else math.nan,
+            "market": float(g["f5_under_prob"].mean()) if len(g) else math.nan,
+            "effect": m, "lo": lo, "hi": hi, "p": mean_test_p(resid.to_numpy()),
+            "units": float(np.nansum(units)) if len(units) else math.nan}
+
+
+def f5_contact_split(df: pd.DataFrame, boot: int) -> pd.DataFrame:
+    """Raw F5 runs by (away, home) Contact-tercile pairing against the season F5 mean (no price)."""
+    d = df[df["both_scored"]]
+    season = float(d["f5_runs"].mean())
+    rows = []
+    cells = [("both top", (d["away_sp_contact_tercile"] == 2) & (d["home_sp_contact_tercile"] == 2)),
+             ("one top", (d["away_sp_contact_tercile"] == 2) ^ (d["home_sp_contact_tercile"] == 2)),
+             ("neither top", (d["away_sp_contact_tercile"] != 2) & (d["home_sp_contact_tercile"] != 2)),
+             ("both bottom", (d["away_sp_contact_tercile"] == 0) & (d["home_sp_contact_tercile"] == 0))]
+    for name, mask in cells:
+        g = d[mask]
+        m, lo, hi = boot_mean_ci((g["f5_runs"] - season).to_numpy(), boot)
+        lined = g[g["f5_line"].notna()]
+        rows.append({"cell": name, "n": len(g), "f5_mean": float(g["f5_runs"].mean()) if len(g) else math.nan,
+                     "season_mean": season, "diff": m, "lo": lo, "hi": hi,
+                     "p": mean_test_p((g["f5_runs"] - season).to_numpy()),
+                     "n_lined": len(lined), "line_mean": float(lined["f5_line"].mean()) if len(lined) else math.nan,
+                     "under_pct": float((lined["f5_runs"] < lined["f5_line"]).mean()) if len(lined) else math.nan})
+    return pd.DataFrame(rows)
+
+
+def strategy_table(priced: pd.DataFrame, boot: int) -> pd.DataFrame:
+    """The five candidate strategies from the first study, graded against the recorded price.
+
+    ``priced`` is every game with both starters scored and a closing/opening
+    moneyline.  Effects are residuals (hit - market prob) so 0 is
+    the price; ``need_n`` is the sample needed to detect the pre-registered
+    effect at 80% power, ``need_n_obs`` the sample the observed effect would need.
+    """
+    rows: list[dict] = []
+    need = n_for_mean(MIN_RESIDUAL)
+
+    f5 = priced[priced["f5_line"].notna()]
+    both = f5[(f5["away_sp_contact_tercile"] == 2) & (f5["home_sp_contact_tercile"] == 2)]
+    u = _under_row(both, boot)
+    need_u = n_for_mean(MIN_UNDER - 0.5)
+    rows.append({"strategy": "S1 F5 Under, both starters top-tercile Contact", "market": "F5 total",
+                 "n": u["n"], "hit": u["hit"], "market_prob": u["market"], "effect": u["effect"],
+                 "lo": u["lo"], "hi": u["hi"], "p": u["p"], "units": u["units"], "need_n": need_u,
+                 "threshold": f"Under >= {MIN_UNDER:.0%} and residual CI > 0",
+                 "verdict": strategy_verdict(u["effect"], u["lo"], u["hi"], u["n"], need_u)})
+
+    for name, col in (("S2 ML on the larger K-BB% gap (42d)", "gap_sp_K-BB%"),
+                      ("S3 ML on the z-score SP total favourite", "sp_gap_z")):
+        s = signal_summary(priced, priced[col], boot)
+        rows.append({"strategy": name, "market": "ML", "n": s["n_priced"], "hit": s["side_win_pct_priced"],
+                     "market_prob": s["market_prob"], "effect": s["residual"], "lo": s["residual_lo"],
+                     "hi": s["residual_hi"], "p": s["p_residual"], "units": s["ml_units"], "need_n": need,
+                     "threshold": f"residual >= +{MIN_RESIDUAL:.0%} with CI > 0",
+                     "verdict": strategy_verdict(s["residual"], s["residual_lo"], s["residual_hi"], s["n_priced"], need)})
+
+    lop = priced[priced["sp_gap_cmp"].abs() >= LOPSIDED_GAP]
+    fade = side_outcomes(lop, -lop["sp_gap_cmp"])
+    fade = fade[fade["decided"] & fade["mkt"].notna()]
+    m, lo, hi = boot_mean_ci(fade["residual"].to_numpy(), boot)
+    rows.append({"strategy": f"S4 fade the SP-favoured side when |compressed gap| >= {LOPSIDED_GAP}",
+                 "market": "ML", "n": len(fade), "hit": float(fade["won"].mean()) if len(fade) else math.nan,
+                 "market_prob": float(fade["mkt"].mean()) if len(fade) else math.nan, "effect": m, "lo": lo,
+                 "hi": hi, "p": mean_test_p(fade["residual"].to_numpy()),
+                 "units": float(fade["ml_units"].sum()) if len(fade) else math.nan, "need_n": need,
+                 "threshold": f"fade residual >= +{MIN_RESIDUAL:.0%} with CI > 0",
+                 "verdict": strategy_verdict(m, lo, hi, len(fade), need)})
+
+    o = side_outcomes(priced, priced["sp_gap_contact"])
+    favs = o[o["decided"] & (o["mkt"] >= 0.5) & o["rl_units"].notna()]
+    be = favs["rl_price"].map(lambda a: 1 / (1 + profit(a)))
+    short = be - favs["rl_cover"]  # > 0 when laying -1.5 loses to its own break-even
+    m, lo, hi = boot_mean_ci(short.to_numpy(), boot)
+    need_rl = n_for_mean(0.05)
+    rows.append({"strategy": "S5 Contact-edge favourites laying -1.5 lose to break-even (RL < ML)",
+                 "market": "RL -1.5", "n": len(favs), "hit": float(favs["rl_cover"].mean()) if len(favs) else math.nan,
+                 "market_prob": float(be.mean()) if len(favs) else math.nan, "effect": m, "lo": lo, "hi": hi,
+                 "p": mean_test_p(short.to_numpy()), "units": float(favs["rl_units"].sum()) if len(favs) else math.nan,
+                 "need_n": need_rl, "threshold": "break-even - cover >= +5pt with CI > 0",
+                 "verdict": strategy_verdict(m, lo, hi, len(favs), need_rl)})
+    out = pd.DataFrame(rows)
+    out["need_n_obs"] = [n_for_mean(abs(e)) if not math.isnan(e) and e else 0 for e in out["effect"]]
+    return out
+
+
 # --- report --------------------------------------------------------------------------------
 
 
@@ -569,7 +734,7 @@ def _ci_excludes_zero(lo: float, hi: float) -> bool:
 
 
 def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int = 2000,
-                 bp_key: str = BP_KEY) -> str:
+                 bp_key: str = BP_KEY, report_name: str = "sp_scoring_backtest.md") -> str:
     out.mkdir(parents=True, exist_ok=True)
     df = frame[frame["both_scored"]].copy()
     priced = df[df["ml_prob_away"].notna()].copy()
@@ -584,6 +749,26 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
               f"Starter appearances scored: {len(starters)}; bullpen appearances: {len(pens)}. "
               f"Doubleheader matchups are unpriced (label collision). Bootstrap resamples: {boot}.\n")
     src = priced["price_src"].value_counts() if len(priced) else pd.Series(dtype=int)
+    strat = strategy_table(priced, boot)
+    strat.to_csv(out / "strategies.csv", index=False)
+    split = f5_contact_split(frame, boot)
+    split.to_csv(out / "f5_contact_split.csv", index=False)
+    md.append("## Candidate strategies (priced window; effect = hit - market prob, 0 = the price)\n")
+    md.append(_md_table(strat, [("strategy", "strategy", 0), ("market", "market", 0), ("n", "n", -1),
+                                ("hit", "hit", None), ("market_prob", "mkt", None), ("effect", "effect", 4),
+                                ("lo", "lo", 4), ("hi", "hi", 4), ("p", "p", 3), ("units", "units", 2),
+                                ("need_n", "n needed", -1), ("need_n_obs", "n for obs.", -1),
+                                ("verdict", "verdict", 0)]))
+    md.append("\n`n needed` = priced games to detect the pre-registered effect at alpha .05 / 80% power "
+              "(residual +3pt; F5 Under 55% vs 50%; RL 5pt short of break-even); `n for obs.` = games the "
+              "observed effect would need. S5's `hit` is the -1.5 cover rate and `mkt` its break-even.\n")
+    md.append("\nF5 runs by Contact-tercile pairing, **all scored games** (no price): diff = cell mean - season mean; "
+              "`under` is the share below the recorded F5 line where one exists.\n")
+    md.append(_md_table(split, [("cell", "cell", 0), ("n", "n", -1), ("f5_mean", "F5 runs", 3),
+                                ("season_mean", "season", 3), ("diff", "diff", 3), ("lo", "lo", 3),
+                                ("hi", "hi", 3), ("p", "p", 3), ("n_lined", "n lined", -1),
+                                ("line_mean", "line", 2), ("under_pct", "under", None)]))
+    md.append("")
     md.append(
         "**Data / method.** Starters identified from the Stats API boxscore (first pitcher listed); "
         "innings 1-5 runs from the linescore; bullpen runs/outs = team pitching line minus the starter. "
@@ -594,9 +779,12 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
         "20 IP / 300 pitches, mirroring `daily_worksheet.starter_table`; bullpens use team relief lines with "
         "the per-column season/trailing windows of `BP_COLS`. Points: `compressed` = worksheet rule (+2 top-k, -2 bottom-k, +1 "
         "otherwise; k = 10% of qualifying starters, k = 3 of 30 pens), `decile` = 0-9 percentile rank, "
-        "`z` = standardized value, all signed so higher is better. Gap = away - home. Prices are the "
-        "`engine-state` no-vig closing lines (" + ", ".join(f"{k}: {v}" for k, v in src.items()) +
-        ") with the opening board used only when no closing file exists for that date. "
+        "`z` = standardized value, all signed so higher is better. Gap = away - home. Price-source mix (games): "
+        + ", ".join(f"{k}: {v}" for k, v in src.items()) +
+        ". `closing` = `engine-state` no-vig closing lines, `board` = its opening board when no closing "
+        "file exists for that date, `espn` = DraftKings closing ML / RL / full-game total from ESPN's "
+        "public odds API (used only for dates the engine never priced; ESPN carries no F5 lines, so F5 "
+        "market tests are confined to the engine-state window). "
         "Side accuracy / residual / units are for the side favoured by the gap (gap = 0 games skipped); "
         "RL = -1.5 for the favoured side when it is the ML favourite, +1.5 when it is the dog; units are "
         "one-unit stakes at the recorded American price.\n"
@@ -879,5 +1067,5 @@ def write_report(frame: pd.DataFrame, sp_all: pd.DataFrame, out: Path, boot: int
     md.append(_md_table(bpr, [("metric", "metric", 0), ("n", "n", -1), ("r_raw_ra9", "r raw vs RA/27", 3),
                               ("p", "p", 3), ("r_cmp_pts_ra9", "r +2/-2 pts", 3)]))
     text = "\n".join(md) + "\n"
-    (out / "sp_scoring_backtest.md").write_text(text)
+    (out / report_name).write_text(text)
     return text
