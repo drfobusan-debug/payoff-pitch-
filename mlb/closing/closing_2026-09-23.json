@@ -3740,9 +3740,23 @@
   {
     "matchup": "CIN @ ATL",
     "market": "batter_hrr",
+    "selection": "Sean Murphy H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601944
+  },
+  {
+    "matchup": "CIN @ ATL",
+    "market": "batter_hrr",
     "selection": "Sean Murphy H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.416253
+  },
+  {
+    "matchup": "CIN @ ATL",
+    "market": "batter_hrr",
+    "selection": "Sean Murphy H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398056
   },
   {
     "matchup": "CIN @ ATL",
@@ -22584,9 +22598,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
     "selection": "Brett Harris H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.41664
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hrr",
+    "selection": "Brett Harris H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
   },
   {
     "matchup": "MIN @ SF",
@@ -22780,6 +22808,13 @@
   {
     "matchup": "MIN @ SF",
     "market": "batter_hr",
+    "selection": "Aaron Sabato HR o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.142857
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
     "selection": "Andrew Knizner HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.121324
@@ -22804,6 +22839,13 @@
     "selection": "Austin Martin HR o1.5",
     "american": 25000.0,
     "no_vig_prob": 0.003984
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "batter_hr",
+    "selection": "Ben Ross HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
   },
   {
     "matchup": "MIN @ SF",
@@ -24215,9 +24257,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "pitcher_bb",
+    "selection": "Connor Prielipp Walks o0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.666167
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_bb",
     "selection": "Connor Prielipp Walks o1.5",
     "american": 182.0,
     "no_vig_prob": 0.333703
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_bb",
+    "selection": "Connor Prielipp Walks u0.5",
+    "american": 181.0,
+    "no_vig_prob": 0.333833
   },
   {
     "matchup": "MIN @ SF",
@@ -24334,9 +24390,23 @@
   {
     "matchup": "MIN @ SF",
     "market": "pitcher_outs",
+    "selection": "Connor Prielipp Outs o15.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
     "selection": "Connor Prielipp Outs u14.5",
     "american": 155.0,
     "no_vig_prob": 0.390562
+  },
+  {
+    "matchup": "MIN @ SF",
+    "market": "pitcher_outs",
+    "selection": "Connor Prielipp Outs u15.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
   },
   {
     "matchup": "NYM @ TEX",
@@ -33504,9 +33574,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o0.5",
+    "american": -188.0,
+    "no_vig_prob": 0.611378
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
     "selection": "Liam Hicks H+R+RBI o1.5",
     "american": 145.0,
     "no_vig_prob": 0.389939
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u0.5",
+    "american": 141.0,
+    "no_vig_prob": 0.388622
   },
   {
     "matchup": "TB @ NYY",
