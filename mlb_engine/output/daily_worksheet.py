@@ -1,22 +1,24 @@
 """The daily MLB worksheet: the hand matchup sheet, its prices, and its receipt.
 
-Three ranking tables are rebuilt every morning on the rule the sheet has always
-used -- per metric the best three teams score +2, the worst three -2, everyone
-else +1 -- each metric read on the window where it is most reliable:
+Three ranking tables are rebuilt every morning, each metric read on the window
+where it is most reliable:
 
 * **Bullpens** (FanGraphs team relievers): xERA, xFIP, SIERA, K%, CSW%, HardHit%,
-  K-BB%, Stuff+, squared-up contact%, O-Swing%, FB%.
+  K-BB%, Stuff+, squared-up contact%, O-Swing%, FB%. Per metric the best three
+  teams score +2, the worst three -2, everyone else +1.
 * **Offenses** (Statcast pitch level, so the split can be cut): ISO, Barrel%,
   EV90, Z-Contact%, Whiff%, O-Swing%, squared-up%, wRC, xwOBA, HardHit%, blast%
-  -- overall, vs LHP, vs RHP and innings 6+.
+  -- overall, vs LHP and vs RHP. Per metric each team scores its decile among
+  the 30 (10 = best, 1 = worst); the 11-metric sum is rescaled to the old
+  +2/-2/+1 range (``rescale_batting``) so the weighted total keeps its bands.
 * **Starters** (Statcast pitch level, FanGraphs' starter list and Stuff+): xERA,
-  xFIP, SIERA, K%, K-BB%, CSW%, HardHit%, Stuff+, FB%, O-Swing%, Barrel%. With
-  ~170 arms the ends are the best and worst 10%, not three.
+  xFIP, SIERA, K%, K-BB%, CSW%, HardHit%, Stuff+, FB%, O-Swing%, Barrel%. Same
+  +2/-2/+1 rule as the pens; with ~170 arms the ends are the best and worst
+  10%, not three.
 
-Each game then gets a row per team -- the offense vs the opposing starter's hand
-(the starter's innings), the offense from the 6th on (the bullpen's), the pen
-and the starter -- and a weighted total that gives the starter the share of a
-game he actually pitches: bat x1 + bat 6+ x1 + pen x1.5 + starter x3. The
+Each game then gets a row per team -- the offense vs the opposing starter's hand,
+the pen and the starter -- and a weighted total that gives the starter the share
+of a game he actually pitches: bat x1 + pen x1.5 + starter x3. The
 away-minus-home row is the disparity; the right-hand block ranks the slate by
 it, biggest mismatch first.
 
@@ -69,10 +71,17 @@ SP_SKILL_DAYS = 42
 SP_MIN_PITCHES = 150
 SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
 # Weighted total: the starter pitches ~40% of a game's defensive innings, the pen
-# ~20%, and the lineup is the other side of both. Batting is counted once per
-# phase, not five ways like the hand sheet did.
-WEIGHTS = {"bat vs hand": 1.0, "bat 6+": 1.0, "bp": 1.5, "sp": 3.0}
-WEIGHTS_VERSION = "w1-1-1.5-3-spz"
+# ~20%, and the lineup is the other side of both. Batting is counted once, on
+# the split vs the opposing starter's hand.
+WEIGHTS = {"bat vs hand": 1.0, "bp": 1.5, "sp": 3.0}
+WEIGHTS_VERSION = "w1-1.5-3-dec-spz"
+N_DECILES = 10
+# Batting rescale: an 11-metric decile sum runs 11..110 with mean 60.5; the
+# +2/-2/+1 sum it replaces had mean 11 * (3*2 + 3*-2 + 24*1) / 30 = 8.8 and a
+# spread of ~5.7 across the ledger's teams. The decile sum's own spread across
+# 30 teams is ~19, so bat = 8.8 + (D - 60.5) * 0.3 keeps the mean and the
+# spread of the group the weighted total was banded on.
+BAT_DECILE_MEAN, BAT_OLD_MEAN, BAT_SCALE = 60.5, 8.8, 0.3
 GAP_BANDS: tuple[tuple[str, float, float], ...] = (
     ("0-9", 0, 10), ("10-19", 10, 20), ("20-34", 20, 35), ("35+", 35, math.inf)
 )
@@ -120,7 +129,7 @@ SP_COLS: tuple[tuple[str, int, bool, bool, int | None], ...] = (
     ("O-Swing%", 1, True, False, SP_SKILL_DAYS),
     ("Barrel%", 1, True, True, None),
 )
-BAT_SPLITS = ("Overall", "vs LHP", "vs RHP", "Innings 6+")
+BAT_SPLITS = ("Overall", "vs LHP", "vs RHP")
 
 _SWINGS = [
     "swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play",
@@ -157,10 +166,57 @@ class Ranking:
     stars: dict[str, set[str]]
     ranked: list[str]
     k: int
+    deciles: bool = False  # pts are 1..10 deciles; total() is the rescaled sum
 
-    def total(self, key: str) -> float | None:
+    def raw_total(self, key: str) -> float | None:
         p = self.pts.get(key)
         return round(sum(p.values()), 1) if p else None
+
+    def total(self, key: str) -> float | None:
+        raw = self.raw_total(key)
+        if raw is None:
+            return None
+        return rescale_batting(raw) if self.deciles else float(raw)
+
+
+def rescale_batting(decile_sum: float) -> float:
+    """Decile sum (11..110) onto the old +2/-2/+1 scale: 8.8 + (D - 60.5) * 0.3."""
+    return round(BAT_OLD_MEAN + (decile_sum - BAT_DECILE_MEAN) * BAT_SCALE, 2)
+
+
+def decile_points(scored: dict[str, float], lower: bool) -> dict[str, int]:
+    """Each entity's decile among ``scored`` (10 = best, 1 = worst).
+
+    Ties share the best rank of their group, so equal values land in the same
+    decile; NaN is the bottom decile. Direction follows ``lower`` (lower is
+    better). With 30 teams each decile is three teams.
+    """
+    s = pd.Series(scored, dtype=float)
+    rank = s.rank(ascending=lower, method="min")  # 1 = best
+    n = int(s.notna().sum())
+    dec = (N_DECILES - np.floor((rank - 1) * N_DECILES / max(n, 1))).clip(1, N_DECILES)
+    return {e: int(dec[e]) if not math.isnan(s[e]) else 1 for e in scored}
+
+
+def score_deciles(
+    entities: list[str],
+    cols: list[tuple[str, int, bool, bool]],
+    value: Callable[[str, str], float],
+    tiebreak: Callable[[str], float],
+) -> Ranking:
+    """Per metric decile points 1..10; ranked by the rescaled sum."""
+    pts: dict[str, dict[str, float]] = {e: {} for e in entities}
+    vals: dict[str, dict[str, float]] = {e: {} for e in entities}
+    for label, nd, pct, lower in cols:
+        scored = {e: float(value(e, label)) for e in entities}
+        dec = decile_points(scored, lower)
+        for e in entities:
+            v = scored[e]
+            vals[e][label] = round(v * (100 if pct else 1), nd) if not math.isnan(v) else math.nan
+            pts[e][label] = float(dec[e])
+    total = {e: sum(pts[e].values()) for e in entities}
+    ranked = sorted(entities, key=lambda e: (-total[e], tiebreak(e)))
+    return Ranking(pts, vals, {e: set() for e in entities}, ranked, 0, deciles=True)
 
 
 def score(
@@ -328,14 +384,13 @@ def _bat_metrics(g: pd.DataFrame, lg_woba: float) -> dict[str, float]:
 
 
 def offense_rankings(df: pd.DataFrame, as_of: Date) -> dict[str, Ranking]:
-    """Overall, vs LHP, vs RHP and innings 6+ offense tables."""
+    """Overall, vs LHP and vs RHP offense tables, scored in deciles."""
     lg = df[df["pa_end"]]
     lg_woba = lg["woba_value"].sum() / lg["woba_denom"].sum()
     masks = {
         "Overall": df["pitcher"].notna(),
         "vs LHP": df["p_throws"].eq("L"),
         "vs RHP": df["p_throws"].eq("R"),
-        "Innings 6+": df["inning"] >= 6,
     }
     last = max(df["game_date"])
     out: dict[str, Ranking] = {}
@@ -351,10 +406,10 @@ def offense_rankings(df: pd.DataFrame, as_of: Date) -> dict[str, Ranking]:
 
 def _score_offense(tables: dict[int, dict[str, dict[str, float]]]) -> Ranking:
     win_of = {c[0]: c[4] for c in BAT_COLS}
-    return score(
+    return score_deciles(
         sorted(tables[90]), [(c[0], c[1], c[2], c[3]) for c in BAT_COLS],
         lambda t, label: tables[win_of[label]].get(t, {}).get(label, math.nan),
-        K_TEAMS, lambda t: -tables[90][t]["xwOBA"],
+        lambda t: -tables[90][t]["xwOBA"],
     )
 
 
@@ -405,7 +460,7 @@ class StarterTable:
 
     def pts_for(self, name: str) -> float | None:
         pid = self.by_name.get(_norm_name(name))
-        return self.ranking.total(str(pid)) if pid is not None else None
+        return self.ranking.raw_total(str(pid)) if pid is not None else None
 
 
 def starter_table(df: pd.DataFrame, as_of: Date) -> StarterTable:
@@ -594,12 +649,11 @@ class TeamLine:
     starter: str
     hand: str
     bat_vs_hand: float | None
-    bat_6: float | None
     bp: float | None
     sp: float | None
 
     def cells(self) -> list[float | None]:
-        return [self.bat_vs_hand, self.bat_6, self.bp, self.sp]
+        return [self.bat_vs_hand, self.bp, self.sp]
 
     def raw_total(self) -> float:
         return round(sum(v for v in self.cells() if v is not None), 1)
@@ -620,8 +674,8 @@ def team_line(
     split = {"L": "vs LHP", "R": "vs RHP"}.get(opp_hand, "Overall")
     return TeamLine(
         team.abbrev, pp.name if pp else "", pp.throws.value if pp and pp.throws else "",
-        bats[split].total(team.abbrev), bats["Innings 6+"].total(team.abbrev),
-        pens.total(team.abbrev), sps.pts_for(pp.name) if pp else None,
+        bats[split].total(team.abbrev),
+        pens.raw_total(team.abbrev), sps.pts_for(pp.name) if pp else None,
     )
 
 
@@ -635,11 +689,9 @@ class LedgerRow:
     away_sp: str
     home_sp: str
     away_bat: float | None
-    away_bat6: float | None
     away_bp: float | None
     away_sp_pts: float | None
     home_bat: float | None
-    home_bat6: float | None
     home_bp: float | None
     home_sp_pts: float | None
     away_w: float
@@ -698,7 +750,7 @@ def build_rows(
         fav_ml, dog_ml = (pa.ml, ph.ml) if fav == g.away.abbrev else (ph.ml, pa.ml)
         row = LedgerRow(
             slate.slate_date.isoformat(), g.matchup(), _pk(g), g.away.abbrev, g.home.abbrev,
-            a.starter, h.starter, a.bat_vs_hand, a.bat_6, a.bp, a.sp, h.bat_vs_hand, h.bat_6, h.bp, h.sp,
+            a.starter, h.starter, a.bat_vs_hand, a.bp, a.sp, h.bat_vs_hand, h.bp, h.sp,
             a.weighted(), h.weighted(), gap, fav, a.sp is not None and h.sp is not None,
             pa.ml, ph.ml, pa.rl_line, pa.rl, ph.rl, implied(fav_ml, dog_ml),
             pa.dk_ml_handle, pa.dk_ml_bets, pa.dk_rl_handle, pa.dk_rl_bets,
@@ -734,6 +786,8 @@ def _parse(name: str, v: str) -> object:
 
 
 def load_ledger(path: Path) -> list[LedgerRow]:
+    """Columns the row no longer has (``away_bat6``/``home_bat6`` from the
+    innings-6+ era) are skipped; those rows keep their old ``weights`` tag."""
     if not path.exists():
         return []
     with path.open(newline="") as fh:
@@ -911,7 +965,7 @@ def _ranking_sheet(
     ws: Worksheet, rk: Ranking, cols: list[str],
     name_of: Callable[[str], str] | None = None, notes: tuple[str, ...] = (),
 ) -> None:
-    hdr = ["Rk", "Team" if name_of is None else "Pitcher", "PTS"] + cols
+    hdr = ["Rk", "Team" if name_of is None else "Pitcher", "PTS"] + (["dec sum"] if rk.deciles else []) + cols
     _hdr(ws, 1, hdr)
     for i, e in enumerate(rk.ranked, 1):
         vals = []
@@ -919,9 +973,9 @@ def _ranking_sheet(
             v = rk.vals[e].get(c, math.nan)
             s = "n/a" if isinstance(v, float) and math.isnan(v) else (f"{v:.0f}" if c == "Stuff+" else f"{v}")
             p = rk.pts[e].get(c)
-            ptxt = "" if p is None else f" ({p:+d})" if isinstance(p, int) else f" ({p:+.1f})"
+            ptxt = "" if p is None else f" (d{p:.0f})" if rk.deciles else f" ({p:+d})" if isinstance(p, int) else f" ({p:+.1f})"
             vals.append(s + ("*" if c in rk.stars.get(e, set()) else "") + ptxt)
-        ws.append([i, name_of(e) if name_of else e, rk.total(e)] + vals)
+        ws.append([i, name_of(e) if name_of else e, rk.total(e)] + ([rk.raw_total(e)] if rk.deciles else []) + vals)
         fill = PatternFill("solid", fgColor=_row_colour(i, len(rk.ranked)))
         for j in range(1, len(hdr) + 1):
             ws.cell(row=i + 1, column=j).fill = fill
@@ -968,11 +1022,11 @@ def write_workbook(
         r += 4
         ws.append([])
     ws.append([
-        "bat vs hand = offense split vs the opposing starter's hand (overall table if no probable) -- the lineup's "
-        "read for the starter's innings; bat 6+ = innings 6+ offense split -- the read against the bullpen; bp = "
-        "bullpen table; sp = starter's PTS in the Starters tab (blank = not a FanGraphs starter or under "
+        "bat vs hand = offense split vs the opposing starter's hand (overall table if no probable): the 11-metric "
+        f"decile sum rescaled to the old +2/-2/+1 range ({BAT_OLD_MEAN} + (sum - {BAT_DECILE_MEAN}) x {BAT_SCALE}); "
+        "bp = bullpen table; sp = starter's PTS in the Starters tab (blank = not a FanGraphs starter or under "
         f"{SP_MIN_IP:.0f} IP; * = a starter is missing so the total is incomplete and the game is not audited). "
-        f"raw TOTAL = plain sum. wTOTAL = bat x{WEIGHTS['bat vs hand']} + bat 6+ x{WEIGHTS['bat 6+']} + "
+        f"raw TOTAL = plain sum. wTOTAL = bat x{WEIGHTS['bat vs hand']} + "
         f"bp x{WEIGHTS['bp']} + sp x{WEIGHTS['sp']}. away - home row = disparity; the wTOTAL gap is the sheet's "
         "call. ML/RL best = best price across books at write time; h/b = VSIN handle% / bets% at Circa and DK."
     ])
@@ -1045,7 +1099,10 @@ def write_workbook(
     ))
     for split in BAT_SPLITS:
         _ranking_sheet(wb.create_sheet(f"Bat {split}"), bats[split], [c[0] for c in BAT_COLS], notes=(
-            f"Offense, {split}, through {as_of}. Per metric best {K_TEAMS} +{TOP}, worst {K_TEAMS} {BOT}, others +{MID}. "
+            f"Offense, {split}, through {as_of}. Per metric each team's decile among the 30 (d10 = best, d1 = "
+            f"worst; ties share a decile, missing = d1). dec sum = the {len(BAT_COLS)}-metric sum (11..110); PTS = "
+            f"{BAT_OLD_MEAN} + (dec sum - {BAT_DECILE_MEAN}) x {BAT_SCALE}, the old +2/-2/+1 scale, and is what "
+            "the Matchups tab uses. "
             "Windows: Z-Contact%, Whiff%, O-Swing% 30d; ISO, Barrel%, EV90, HardHit%, SqUp Con%, Blast Con% 60d; "
             "wRC, xwOBA 90d. Lower is better on Whiff%, O-Swing%. Source: Statcast pitch level.",
         ))
@@ -1095,7 +1152,6 @@ PDF_SHEETS: tuple[tuple[str, str], ...] = (
     ("Bat Overall", "Team Batting: Overall"),
     ("Bat vs LHP", "Team Batting: vs LHP"),
     ("Bat vs RHP", "Team Batting: vs RHP"),
-    ("Bat Innings 6+", "Team Batting: Innings 6+"),
     ("Bullpens", "Bullpens"),
     ("Starters", "Starting Pitchers"),
 )

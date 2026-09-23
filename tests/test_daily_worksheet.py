@@ -18,12 +18,15 @@ from mlb_engine.output.daily_worksheet import (
     TeamLine,
     band_of,
     build_rows,
+    decile_points,
     grade,
     implied,
     load_ledger,
     merge,
+    rescale_batting,
     save_ledger,
     score,
+    score_deciles,
     score_z,
     tally,
     write_workbook,
@@ -70,16 +73,45 @@ def test_score_z_higher_is_better_sums_metrics_and_handles_constant_column() -> 
     assert rk.ranked == ["B", "C", "A"] and rk.vals["B"]["k"] == 30.0
 
 
+def test_decile_points_ties_nan_and_direction() -> None:
+    vals = {f"T{i}": float(i) for i in range(1, 31)}  # 30 teams, 1..30
+    hi = decile_points(vals, lower=False)
+    assert hi["T30"] == 10 and hi["T28"] == 10 and hi["T27"] == 9 and hi["T1"] == 1 and hi["T3"] == 1
+    assert sorted(hi.values()) == sorted([d for d in range(1, 11) for _ in range(3)])
+    lo = decile_points(vals, lower=True)
+    assert lo["T1"] == 10 and lo["T30"] == 1 and all(lo[t] == 11 - hi[t] for t in vals)
+    # NaN is the bottom decile; ties share one decile.
+    vals["T30"] = math.nan
+    vals["T28"] = vals["T29"]
+    hi = decile_points(vals, lower=False)
+    assert hi["T30"] == 1 and hi["T28"] == hi["T29"] == 10
+    assert decile_points({"A": 1.0, "B": 1.0}, lower=False) == {"A": 10, "B": 10}
+
+
+def test_score_deciles_is_uncompressed_and_ranked_by_sum() -> None:
+    ents = [f"T{i}" for i in range(1, 31)]
+    vals = {e: {"a": float(i), "b": 31.0 - i} for i, e in enumerate(ents, 1)}
+    rk = score_deciles(ents, [("a", 1, False, False), ("b", 1, False, True)], lambda e, m: vals[e][m], lambda e: -vals[e]["a"])
+    assert rk.deciles and rk.pts["T30"] == {"a": 10, "b": 10} and rk.pts["T1"] == {"a": 1, "b": 1}
+    assert len({rk.raw_total(e) for e in ents}) == 10  # ten distinct sums, not three
+    assert rk.ranked[0] == "T30" and rk.total("T30") == rescale_batting(20)
+
+
+def test_rescale_batting_keeps_the_old_mean_and_range() -> None:
+    assert rescale_batting(60) + rescale_batting(61) == 2 * dw.BAT_OLD_MEAN
+    assert rescale_batting(11) == -6.05 and rescale_batting(110) == 23.65  # ~ old 5..22 plus the tails
+
+
 # --- weights -----------------------------------------------------------------------
 
 
 def test_weighted_total_uses_run_share_weights_and_skips_missing() -> None:
-    t = TeamLine("SD", "X", "R", 10, 4, 6, 8)
-    assert t.raw_total() == 28
-    assert t.weighted() == 10 + 4 + 6 * 1.5 + 8 * 3
-    assert WEIGHTS["sp"] == 3.0 and WEIGHTS["bp"] == 1.5
-    missing = TeamLine("SD", "", "", 10, 4, 6, None)
-    assert missing.weighted() == 10 + 4 + 9  # nothing counted for the absent starter, not zero
+    t = TeamLine("SD", "X", "R", 10.5, 6, 8)
+    assert t.raw_total() == 24.5
+    assert t.weighted() == 10.5 + 6 * 1.5 + 8 * 3
+    assert WEIGHTS == {"bat vs hand": 1.0, "bp": 1.5, "sp": 3.0}
+    missing = TeamLine("SD", "", "", 10.5, 6, None)
+    assert missing.weighted() == 10.5 + 9  # nothing counted for the absent starter, not zero
     assert missing.label() == "sd (TBD)"
 
 
@@ -89,6 +121,12 @@ def test_weighted_total_uses_run_share_weights_and_skips_missing() -> None:
 def _rank(pts: dict[str, int]) -> Ranking:
     return Ranking({t: {"m": v} for t, v in pts.items()}, {t: {"m": 0.0} for t in pts},
                    {t: set() for t in pts}, sorted(pts, key=lambda t: -pts[t]), 3)
+
+
+def _dec(sums: dict[str, int]) -> Ranking:
+    """A decile batting table whose single metric carries the 11-metric sum."""
+    return Ranking({t: {"m": v} for t, v in sums.items()}, {t: {"m": 0.0} for t in sums},
+                   {t: set() for t in sums}, sorted(sums, key=lambda t: -sums[t]), 0, deciles=True)
 
 
 def _team(abbrev: str, home: bool, sp: str | None, hand: Hand = Hand.R) -> TeamGameInfo:
@@ -103,10 +141,9 @@ def _game(pk: int, away: TeamGameInfo, home: TeamGameInfo) -> Game:
 
 def _fixture() -> tuple[Slate, dict[str, Ranking], Ranking, StarterTable, dict[tuple[str, str], Prices]]:
     bats = {
-        "Overall": _rank({"SD": 10, "COL": -5, "NYY": 8, "MIN": 8}),
-        "vs LHP": _rank({"SD": 12, "COL": -8, "NYY": 3, "MIN": 3}),
-        "vs RHP": _rank({"SD": 9, "COL": -4, "NYY": 6, "MIN": 7}),
-        "Innings 6+": _rank({"SD": 8, "COL": -6, "NYY": 5, "MIN": 5}),
+        "Overall": _dec({"SD": 90, "COL": 30, "NYY": 70, "MIN": 70}),
+        "vs LHP": _dec({"SD": 95, "COL": 25, "NYY": 60, "MIN": 60}),
+        "vs RHP": _dec({"SD": 90, "COL": 35, "NYY": 65, "MIN": 70}),
     }
     pens = _rank({"SD": 14, "COL": -10, "NYY": 10, "MIN": 10})
     sps = StarterTable(_rank({"1": 15, "2": -7, "3": 9}), {1: "Ace", 2: "Scrub", 3: "Arm"},
@@ -127,9 +164,10 @@ def test_build_rows_reads_the_split_by_opposing_hand_and_flags_missing_starter()
     slate, bats, pens, sps, prices = _fixture()
     rows = build_rows(slate, bats, pens, sps, prices)
     (_, a, h, r1), (_, a2, h2, r2) = rows
-    # COL faces the lefty Ace -> vs LHP; SD faces the righty Scrub -> vs RHP.
-    assert h.bat_vs_hand == -8 and a.bat_vs_hand == 9
+    # COL faces the lefty Ace -> vs LHP; SD faces the righty Scrub -> vs RHP; both rescaled from the decile sum.
+    assert h.bat_vs_hand == rescale_batting(25) == -1.85 and a.bat_vs_hand == rescale_batting(90) == 17.65
     assert a.sp == 15 and h.sp == -7 and r1.complete
+    assert a.weighted() == round(17.65 + 14 * 1.5 + 15 * 3, 1) and r1.away_bat == 17.65
     assert r1.gap == round(a.weighted() - h.weighted(), 1) and r1.fav == "SD"
     assert r1.away_ml == -175 and r1.home_ml == 160 and r1.away_rl_line == -1.5
     assert r1.fav_implied is not None and 0.6 < r1.fav_implied < 0.65
@@ -154,7 +192,7 @@ def test_implied_strips_the_vig() -> None:
 
 
 def _row(pk: int, gap: float, fav: str = "SD", result: str = "", complete: bool = True, day: str = "2026-09-14") -> LedgerRow:
-    return LedgerRow(day, "SD @ COL", pk, "SD", "COL", "Ace", "Scrub", 9, 8, 14, 15, -8, -6, -10, -7,
+    return LedgerRow(day, "SD @ COL", pk, "SD", "COL", "Ace", "Scrub", 9, 14, 15, -8, -10, -7,
                      80.0, 80.0 - gap, gap, fav, complete, away_ml=-175, home_ml=160,
                      away_rl_line=-1.5, fav_implied=0.62, result=result)
 
@@ -167,6 +205,28 @@ def test_ledger_round_trips_with_none_and_bool(tmp_path: Path) -> None:
     back = load_ledger(path)
     assert back == rows
     assert back[1].away_ml is None and back[1].complete is False and back[0].complete is True
+
+
+def test_old_ledger_rows_with_bat6_columns_still_load_and_stay_graded(tmp_path: Path) -> None:
+    path = tmp_path / "old.csv"
+    path.write_text(
+        "date,game,game_pk,away,home,away_sp,home_sp,away_bat,away_bat6,away_bp,away_sp_pts,home_bat,home_bat6,"
+        "home_bp,home_sp_pts,away_w,home_w,gap,fav,complete,away_ml,home_ml,away_rl_line,away_rl,home_rl,"
+        "fav_implied,weights,away_runs,home_runs,result,rl_result\n"
+        "2026-09-01,SD @ COL,7,SD,COL,Ace,Scrub,9,8,14,15,-8,-6,-10,-7,83.0,-52.0,135.0,SD,True,-175,160,-1.5,105,"
+        "-125,0.62,w1-1-1.5-3,5,3,fav,away\n"
+    )
+    (r,) = load_ledger(path)
+    assert r.game_pk == 7 and r.away_bat == 9 and r.home_bat == -8 and r.complete
+    assert r.graded and r.result == "fav" and r.rl_result == "away" and r.away_runs == 5
+    assert r.weights == "w1-1-1.5-3" != dw.WEIGHTS_VERSION
+    assert not hasattr(r, "away_bat6")
+    # The old weights tag keeps the row out of the band tally; a fresh row is counted.
+    assert all(t.n == 0 for t in tally([r]))
+    assert {t.band: t.n for t in tally([r, _row(8, 30.5, result="fav")])}["all"] == 1
+    # Re-saving writes the current header and the row round-trips.
+    save_ledger(path, [r])
+    assert "bat6" not in path.read_text().splitlines()[0] and load_ledger(path) == [r]
 
 
 def test_merge_rewrites_ungraded_rows_and_keeps_graded_ones() -> None:
@@ -230,15 +290,24 @@ def test_workbook_layout_and_ranked_block(tmp_path: Path) -> None:
                          pens, bats, sps, ledger, Date(2026, 9, 13))
     wb = load_workbook(out)
     assert wb.sheetnames == ["Matchups", "Audit", "Ledger", "Bullpens", "Bat Overall", "Bat vs LHP",
-                             "Bat vs RHP", "Bat Innings 6+", "Starters"]
+                             "Bat vs RHP", "Starters"]
     ws = wb["Matchups"]
     hdr = [c.value for c in ws[1]]
-    assert hdr[:8] == ["game", "team", "bat vs hand", "bat 6+", "bp", "sp", "raw TOTAL", "wTOTAL"]
-    assert "sp k-bb%" not in hdr and "BES rp" not in hdr
+    assert hdr[:7] == ["game", "team", "bat vs hand", "bp", "sp", "raw TOTAL", "wTOTAL"]
+    assert "bat 6+" not in hdr and "sp k-bb%" not in hdr and "BES rp" not in hdr
     assert ws["A2"].value == "SD @ COL" and ws["B2"].value == "sd (Ace, L)"
-    assert ws["I2"].value == "-175 lowvig" and ws["J2"].value == "-1.5 +105 dk" and ws["M2"].value == "70/60"
+    assert ws["C2"].value == 17.65 and ws["G2"].value == round(17.65 + 14 * 1.5 + 15 * 3, 1)  # rescaled bat in wTOTAL
+    assert ws["H2"].value == "-175 lowvig" and ws["I2"].value == "-1.5 +105 dk" and ws["L2"].value == "70/60"
     assert ws["B4"].value == "away - home"
-    assert ws["H4"].value == round(ws["H2"].value - ws["H3"].value, 1)
+    assert ws["G4"].value == round(ws["G2"].value - ws["G3"].value, 1)
+    legend = " ".join(str(c.value) for row in ws.iter_rows() for c in row if isinstance(c.value, str))
+    assert "decile sum rescaled" in legend and "bat 6+" not in legend and "Innings 6+" not in legend
+    assert "wTOTAL = bat x1.0 + bp x1.5 + sp x3.0" in legend
+    bo = wb["Bat Overall"]
+    assert [c.value for c in bo[1]][:4] == ["Rk", "Team", "PTS", "dec sum"]
+    assert bo["B2"].value == "SD" and bo["C2"].value == 17.65 and bo["D2"].value == 90
+    notes = " ".join(str(c.value) for row in bo.iter_rows() for c in row if isinstance(c.value, str))
+    assert "decile among the 30" in notes and "d10 = best" in notes and "best 3 +2" not in notes
     assert ws["B8"].value == "away - home *"  # MIN's starter missing
     # Ranked block: biggest |gap| first.
     c0 = hdr.index("rank") + 1
