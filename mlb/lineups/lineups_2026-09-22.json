@@ -75,7 +75,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T00:55:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 596019,
+      "name": "Francisco Lindor",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 665742,
+      "name": "Juan Soto",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 666182,
+      "name": "Bo Bichette",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 668901,
+      "name": "Mark Vientos",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 701807,
+      "name": "Carson Benge",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 543760,
+      "name": "Marcus Semien",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 682626,
+      "name": "Francisco Alvarez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 805999,
+      "name": "A.J. Ewing",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 620443,
+      "name": "Luis Torrens",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 822840,
@@ -300,7 +369,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T00:55:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665161,
+      "name": "Jeremy Pe\u00f1a",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 670541,
+      "name": "Yordan Alvarez",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 670623,
+      "name": "Isaac Paredes",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 514888,
+      "name": "Jose Altuve",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 673237,
+      "name": "Yainer Diaz",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 572233,
+      "name": "Christian Walker",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 666211,
+      "name": "Taylor Trammell",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 701358,
+      "name": "Cam Smith",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 694728,
+      "name": "Brice Matthews",
+      "bats": "R",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823089,
@@ -1788,7 +1926,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T00:55:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665487,
+      "name": "Fernando Tatis Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 687957,
+      "name": "Dustin Harris",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 592518,
+      "name": "Manny Machado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664034,
+      "name": "Ty France",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 701538,
+      "name": "Jackson Merrill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 669720,
+      "name": "Austin Hays",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 593428,
+      "name": "Xander Bogaerts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 669134,
+      "name": "Luis Campusano",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 630105,
+      "name": "Jake Cronenworth",
+      "bats": "L",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823897,
