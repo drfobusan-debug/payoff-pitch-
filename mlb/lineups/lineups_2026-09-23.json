@@ -75,7 +75,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 596019,
+      "name": "Francisco Lindor",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 665742,
+      "name": "Juan Soto",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 666182,
+      "name": "Bo Bichette",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 668901,
+      "name": "Mark Vientos",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 701807,
+      "name": "Carson Benge",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 543760,
+      "name": "Marcus Semien",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 682626,
+      "name": "Francisco Alvarez",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 805999,
+      "name": "A.J. Ewing",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 703492,
+      "name": "Nick Morabito",
+      "bats": "R",
+      "position": "LF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 822841,
@@ -153,7 +222,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 694671,
+      "name": "Wyatt Langford",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 608369,
+      "name": "Corey Seager",
+      "bats": "L",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 673962,
+      "name": "Josh Jung",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 607043,
+      "name": "Brandon Nimmo",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 677649,
+      "name": "Ezequiel Duran",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 669394,
+      "name": "Jake Burger",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 670032,
+      "name": "Nicky Lopez",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 643376,
+      "name": "Danny Jansen",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 694497,
+      "name": "Evan Carter",
+      "bats": "L",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823086,
@@ -749,7 +887,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 802139,
+      "name": "JJ Wetherholt",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 671056,
+      "name": "Iv\u00e1n Herrera",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 676475,
+      "name": "Alec Burleson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 691023,
+      "name": "Jordan Walker",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 699024,
+      "name": "Leo Bernal",
+      "bats": "S",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 669357,
+      "name": "Nolan Gorman",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 665877,
+      "name": "Jos\u00e9 Ferm\u00edn",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 701675,
+      "name": "Nathan Church",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 691026,
+      "name": "Masyn Winn",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823327,
@@ -974,7 +1181,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 669003,
+      "name": "Garrett Mitchell",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 694192,
+      "name": "Jackson Chourio",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 668930,
+      "name": "Brice Turang",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 661388,
+      "name": "William Contreras",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 641343,
+      "name": "Jake Bauers",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 687401,
+      "name": "Joey Ortiz",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 592885,
+      "name": "Christian Yelich",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 686217,
+      "name": "Sal Frelick",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 666152,
+      "name": "David Hamilton",
+      "bats": "L",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823410,
@@ -1052,7 +1328,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 656941,
+      "name": "Kyle Schwarber",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 607208,
+      "name": "Trea Turner",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 547180,
+      "name": "Bryce Harper",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 650333,
+      "name": "Luis Arraez",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 664761,
+      "name": "Alec Bohm",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 681082,
+      "name": "Bryson Stott",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 669016,
+      "name": "Brandon Marsh",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 592663,
+      "name": "J.T. Realmuto",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 702222,
+      "name": "Justin Crawford",
+      "bats": "L",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823492,
@@ -1130,7 +1475,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 683748,
+      "name": "Victor Mesa Jr.",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 666018,
+      "name": "Jonathan Aranda",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 691406,
+      "name": "Junior Caminero",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 689414,
+      "name": "Liam Hicks",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 676356,
+      "name": "Jonny DeLuca",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 680700,
+      "name": "Richie Palacios",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 668723,
+      "name": "Ryan Vilade",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 656775,
+      "name": "Cedric Mullins",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 622761,
+      "name": "Jorge Mateo",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823492,
@@ -1208,7 +1622,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 700250,
+      "name": "Ben Rice",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 806146,
+      "name": "George Lombard Jr.",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 671277,
+      "name": "Luis Garc\u00eda Jr.",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 671218,
+      "name": "Heliot Ramos",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 682987,
+      "name": "Spencer Jones",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 665862,
+      "name": "Jazz Chisholm Jr.",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 676609,
+      "name": "Jos\u00e9 Caballero",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 641857,
+      "name": "Ryan McMahon",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 645305,
+      "name": "Ali S\u00e1nchez",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823894,
@@ -1442,7 +1925,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 803011,
+      "name": "Sam Antonacci",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 691019,
+      "name": "Kyle Teel",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 678246,
+      "name": "Miguel Vargas",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 808959,
+      "name": "Munetaka Murakami",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 643217,
+      "name": "Andrew Benintendi",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 671976,
+      "name": "Tristan Peters",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 805367,
+      "name": "Chase Meidroth",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 695657,
+      "name": "Colson Montgomery",
+      "bats": "L",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 695731,
+      "name": "Braden Montgomery",
+      "bats": "S",
+      "position": "RF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824060,
@@ -1520,7 +2072,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 695600,
+      "name": "Carter Jensen",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 677951,
+      "name": "Bobby Witt Jr.",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 695506,
+      "name": "Jac Caglianone",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 672580,
+      "name": "Maikel Garcia",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 686469,
+      "name": "Vinnie Pasquantino",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 521692,
+      "name": "Salvador Perez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 686681,
+      "name": "Michael Massey",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 670231,
+      "name": "John Rave",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 686555,
+      "name": "Isaac Collins",
+      "bats": "S",
+      "position": "LF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824223,
@@ -1754,7 +2375,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 663457,
+      "name": "Lars Nootbaar",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 606466,
+      "name": "Ketel Marte",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 672515,
+      "name": "Gabriel Moreno",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 672695,
+      "name": "Geraldo Perdomo",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 656976,
+      "name": "Pavin Smith",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 571448,
+      "name": "Nolan Arenado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 682998,
+      "name": "Corbin Carroll",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 660821,
+      "name": "Jes\u00fas S\u00e1nchez",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 694374,
+      "name": "Tim Tawa",
+      "bats": "R",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824301,
@@ -1979,7 +2669,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 672640,
+      "name": "Otto Lopez",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 669065,
+      "name": "Kyle Stowers",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 681715,
+      "name": "Heriberto Hern\u00e1ndez",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 665052,
+      "name": "Griffin Conine",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 691594,
+      "name": "Javier Sanoja",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 805300,
+      "name": "Jakob Marsee",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 682663,
+      "name": "Agust\u00edn Ram\u00edrez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 688363,
+      "name": "Graham Pauley",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 691788,
+      "name": "Joe Mack",
+      "bats": "L",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824625,
@@ -2057,7 +2816,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 691718,
+      "name": "Pete Crow-Armstrong",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 673548,
+      "name": "Seiya Suzuki",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 683737,
+      "name": "Michael Busch",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 624424,
+      "name": "Michael Conforto",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 664023,
+      "name": "Ian Happ",
+      "bats": "S",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663538,
+      "name": "Nico Hoerner",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 699393,
+      "name": "Pedro Ram\u00edrez",
+      "bats": "S",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 621020,
+      "name": "Dansby Swanson",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 665804,
+      "name": "Miguel Amaya",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824710,
@@ -2135,7 +2963,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 680757,
+      "name": "Steven Kwan",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 608070,
+      "name": "Jos\u00e9 Ram\u00edrez",
+      "bats": "S",
+      "position": "3B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 800050,
+      "name": "Chase DeLauter",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 666176,
+      "name": "Jo Adell",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 683953,
+      "name": "Travis Bazzana",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663993,
+      "name": "Nathaniel Lowe",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 672275,
+      "name": "Patrick Bailey",
+      "bats": "S",
+      "position": "C"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 690984,
+      "name": "Petey Halpin",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 677587,
+      "name": "Brayan Rocchio",
+      "bats": "S",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824710,
@@ -2213,7 +3110,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 701350,
+      "name": "Roman Anthony",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 686765,
+      "name": "Nick Sogard",
+      "bats": "S",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 663330,
+      "name": "Jahmai Jones",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 677800,
+      "name": "Wilyer Abreu",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 668939,
+      "name": "Adley Rutschman",
+      "bats": "S",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 678882,
+      "name": "Ceddanne Rafaela",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 702332,
+      "name": "Caleb Durbin",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 596115,
+      "name": "Trevor Story",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 655316,
+      "name": "Andruw Monasterio",
+      "bats": "R",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824784,
@@ -2291,7 +3257,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 664770,
+      "name": "Nathan Lukes",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 669701,
+      "name": "Josh Smith",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 672386,
+      "name": "Alejandro Kirk",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 672960,
+      "name": "Kazuma Okamoto",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 815873,
+      "name": "Sean Keys",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 676914,
+      "name": "Davis Schneider",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 807727,
+      "name": "Charles McAdoo",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 664702,
+      "name": "Myles Straw",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 676391,
+      "name": "Ernie Clement",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824784,
@@ -2369,7 +3404,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 687637,
+      "name": "Dylan Beavers",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 624413,
+      "name": "Pete Alonso",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 683002,
+      "name": "Gunnar Henderson",
+      "bats": "L",
+      "position": "SS"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 691723,
+      "name": "Coby Mayo",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 687952,
+      "name": "Christian Encarnacion-Strand",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 681297,
+      "name": "Colton Cowser",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 669236,
+      "name": "Jeremiah Jackson",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 681047,
+      "name": "Christian Franklin",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 650968,
+      "name": "Yohel Pozo",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824785,
@@ -2672,7 +3776,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 682877,
+      "name": "Juan Brito",
+      "bats": "S",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 682829,
+      "name": "Elly De La Cruz",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 701398,
+      "name": "Sal Stewart",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 667472,
+      "name": "Dane Myers",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 553993,
+      "name": "Eugenio Su\u00e1rez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 680574,
+      "name": "Matt McLain",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 665828,
+      "name": "Oswaldo Cabrera",
+      "bats": "S",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 677943,
+      "name": "Will Banfield",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 663647,
+      "name": "Ke'Bryan Hayes",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824868,
@@ -2750,7 +3923,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 686948,
+      "name": "Drake Baldwin",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 643289,
+      "name": "Mauricio Dub\u00f3n",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 621566,
+      "name": "Matt Olson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 645277,
+      "name": "Ozzie Albies",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 671739,
+      "name": "Michael Harris II",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663586,
+      "name": "Austin Riley",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 669221,
+      "name": "Sean Murphy",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 676551,
+      "name": "Brewer Hicklen",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 673490,
+      "name": "Ha-Seong Kim",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824951,
@@ -2906,6 +4148,75 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-23T21:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 703607,
+      "name": "Henry Bolte",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 671732,
+      "name": "Lawrence Butler",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 669127,
+      "name": "Shea Langeliers",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 643446,
+      "name": "Jeff McNeil",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 680869,
+      "name": "Zack Gelof",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 622268,
+      "name": "Donovan Walton",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 666126,
+      "name": "Carlos Cortes",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 675961,
+      "name": "Alika Williams",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 661531,
+      "name": "Brian Serven",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  }
 ]
