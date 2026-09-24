@@ -1346,6 +1346,13 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_h",
+    "selection": "Corbin Carroll H o0.5",
+    "american": -305.0,
+    "no_vig_prob": 0.753086
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
     "selection": "Corbin Carroll H o1.5",
     "american": 186.0,
     "no_vig_prob": 0.334039
@@ -11468,9 +11475,23 @@
   {
     "matchup": "HOU @ ATH",
     "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI o0.5",
+    "american": -176.0,
+    "no_vig_prob": 0.599193
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
     "selection": "Alika Williams H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.42219
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
+    "selection": "Alika Williams H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400807
   },
   {
     "matchup": "HOU @ ATH",
@@ -13372,9 +13393,23 @@
   {
     "matchup": "HOU @ ATH",
     "market": "pitcher_er",
+    "selection": "Mason Barnett ER o3.5",
+    "american": 123.0,
+    "no_vig_prob": 0.419799
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "pitcher_er",
     "selection": "Mason Barnett ER u2.5",
     "american": 123.0,
     "no_vig_prob": 0.420887
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "pitcher_er",
+    "selection": "Mason Barnett ER u3.5",
+    "american": -163.0,
+    "no_vig_prob": 0.580201
   },
   {
     "matchup": "HOU @ ATH",
