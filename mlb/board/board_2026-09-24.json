@@ -18860,9 +18860,23 @@
   {
     "matchup": "MIA @ CHC",
     "market": "pitcher_outs",
+    "selection": "Tyler Phillips Outs o12.5",
+    "american": 110.0,
+    "no_vig_prob": 0.444759
+  },
+  {
+    "matchup": "MIA @ CHC",
+    "market": "pitcher_outs",
     "selection": "Tyler Phillips Outs u11.5",
     "american": 110.0,
     "no_vig_prob": 0.450352
+  },
+  {
+    "matchup": "MIA @ CHC",
+    "market": "pitcher_outs",
+    "selection": "Tyler Phillips Outs u12.5",
+    "american": -145.0,
+    "no_vig_prob": 0.555241
   },
   {
     "matchup": "MIL @ PHI",
@@ -22304,9 +22318,23 @@
   {
     "matchup": "NYM @ TEX",
     "market": "batter_hrr",
+    "selection": "Justin Foscue H+R+RBI o1.5",
+    "american": -108.0,
+    "no_vig_prob": 0.486931
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "batter_hrr",
     "selection": "Justin Foscue H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400977
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "batter_hrr",
+    "selection": "Justin Foscue H+R+RBI u1.5",
+    "american": -120.0,
+    "no_vig_prob": 0.513069
   },
   {
     "matchup": "NYM @ TEX",
@@ -23662,6 +23690,13 @@
   {
     "matchup": "NYM @ TEX",
     "market": "batter_tb",
+    "selection": "Justin Foscue TB u1.5",
+    "american": -171.0,
+    "no_vig_prob": 0.603901
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "batter_tb",
     "selection": "Marcus Semien TB o0.5",
     "american": -147.0,
     "no_vig_prob": 0.566527
@@ -23711,9 +23746,23 @@
   {
     "matchup": "NYM @ TEX",
     "market": "batter_tb",
+    "selection": "Wyatt Langford TB o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "batter_tb",
     "selection": "Wyatt Langford TB o1.5",
     "american": 135.0,
     "no_vig_prob": 0.426784
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "batter_tb",
+    "selection": "Wyatt Langford TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
   },
   {
     "matchup": "NYM @ TEX",
@@ -23739,9 +23788,23 @@
   {
     "matchup": "NYM @ TEX",
     "market": "f5_rl",
+    "selection": "NYM F5 +0.0",
+    "american": 105.0,
+    "no_vig_prob": 0.464927
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "f5_rl",
     "selection": "NYM F5 +0.5",
     "american": -130.0,
     "no_vig_prob": 0.541997
+  },
+  {
+    "matchup": "NYM @ TEX",
+    "market": "f5_rl",
+    "selection": "TEX F5 +0.0",
+    "american": -128.0,
+    "no_vig_prob": 0.535073
   },
   {
     "matchup": "NYM @ TEX",

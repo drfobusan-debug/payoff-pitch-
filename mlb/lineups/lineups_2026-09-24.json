@@ -1245,7 +1245,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T15:55:15+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 664983,
+      "name": "Jake McCarthy",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 681393,
+      "name": "Connor Norby",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 696100,
+      "name": "Hunter Goodman",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 681198,
+      "name": "TJ Rumfield",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 694249,
+      "name": "Cole Carrigg",
+      "bats": "S",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 691720,
+      "name": "Kyle Karros",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 664954,
+      "name": "Brett Sullivan",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 687597,
+      "name": "Jordan Beck",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 678662,
+      "name": "Ezequiel Tovar",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824623,
