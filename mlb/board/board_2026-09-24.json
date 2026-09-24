@@ -16,6 +16,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_1b",
+    "selection": "Brett Sullivan 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.468378
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_1b",
+    "selection": "Brett Sullivan 1B u0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.531622
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_1b",
     "selection": "Cole Carrigg 1B o0.5",
     "american": -105.0,
     "no_vig_prob": 0.476721
@@ -124,6 +138,20 @@
     "selection": "Jake McCarthy 1B u0.5",
     "american": 140.0,
     "no_vig_prob": 0.405529
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_1b",
+    "selection": "James McCann 1B o0.5",
+    "american": -107.0,
+    "no_vig_prob": 0.49432
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_1b",
+    "selection": "James McCann 1B u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.50568
   },
   {
     "matchup": "AZ @ COL",
@@ -268,6 +296,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_2b",
+    "selection": "Brett Sullivan 2B o0.5",
+    "american": 433.0,
+    "no_vig_prob": 0.190749
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_2b",
+    "selection": "Brett Sullivan 2B u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.809251
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_2b",
     "selection": "Cole Carrigg 2B o0.5",
     "american": 377.0,
     "no_vig_prob": 0.21573
@@ -376,6 +418,20 @@
     "selection": "Jake McCarthy 2B u0.5",
     "american": -350.0,
     "no_vig_prob": 0.743724
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_2b",
+    "selection": "James McCann 2B o0.5",
+    "american": 400.0,
+    "no_vig_prob": 0.196442
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_2b",
+    "selection": "James McCann 2B u0.5",
+    "american": -550.0,
+    "no_vig_prob": 0.803558
   },
   {
     "matchup": "AZ @ COL",
@@ -520,6 +576,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_bb",
+    "selection": "Brett Sullivan BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.237976
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
+    "selection": "Brett Sullivan BB u0.5",
+    "american": -405.0,
+    "no_vig_prob": 0.762024
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
     "selection": "Cole Carrigg BB o0.5",
     "american": 260.0,
     "no_vig_prob": 0.264147
@@ -558,6 +628,20 @@
     "selection": "Corbin Carroll BB u0.5",
     "american": -197.0,
     "no_vig_prob": 0.62217
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
+    "selection": "Ezequiel Tovar BB o0.5",
+    "american": 343.0,
+    "no_vig_prob": 0.212119
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
+    "selection": "Ezequiel Tovar BB u0.5",
+    "american": -519.0,
+    "no_vig_prob": 0.787881
   },
   {
     "matchup": "AZ @ COL",
@@ -614,6 +698,20 @@
     "selection": "Jake McCarthy BB u0.5",
     "american": -475.0,
     "no_vig_prob": 0.775607
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
+    "selection": "James McCann BB o0.5",
+    "american": 350.0,
+    "no_vig_prob": 0.235206
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_bb",
+    "selection": "James McCann BB u0.5",
+    "american": -386.0,
+    "no_vig_prob": 0.764794
   },
   {
     "matchup": "AZ @ COL",
@@ -758,6 +856,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_hrr",
+    "selection": "Brett Sullivan H+R+RBI o1.5",
+    "american": 106.0,
+    "no_vig_prob": 0.456059
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hrr",
+    "selection": "Brett Sullivan H+R+RBI u1.5",
+    "american": -135.0,
+    "no_vig_prob": 0.543941
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hrr",
     "selection": "Cole Carrigg H+R+RBI o1.5",
     "american": -105.0,
     "no_vig_prob": 0.49482
@@ -880,6 +992,20 @@
     "selection": "Jake McCarthy H+R+RBI u1.5",
     "american": 135.0,
     "no_vig_prob": 0.403979
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hrr",
+    "selection": "James McCann H+R+RBI o1.5",
+    "american": -118.0,
+    "no_vig_prob": 0.518527
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hrr",
+    "selection": "James McCann H+R+RBI u1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.481473
   },
   {
     "matchup": "AZ @ COL",
@@ -1052,6 +1178,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_hr",
+    "selection": "Brett Sullivan HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.108187
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hr",
+    "selection": "Brett Sullivan HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hr",
     "selection": "Cole Carrigg HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.129167
@@ -1160,6 +1300,20 @@
     "selection": "Jake McCarthy HR o1.5",
     "american": 16000.0,
     "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hr",
+    "selection": "James McCann HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.16
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_hr",
+    "selection": "James McCann HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.014085
   },
   {
     "matchup": "AZ @ COL",
@@ -1304,6 +1458,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_h",
+    "selection": "Brett Sullivan H o0.5",
+    "american": -189.0,
+    "no_vig_prob": 0.613358
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
+    "selection": "Brett Sullivan H u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.386642
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
     "selection": "Cole Carrigg H o0.5",
     "american": -200.0,
     "no_vig_prob": 0.63835
@@ -1328,6 +1496,13 @@
     "selection": "Connor Norby H u0.5",
     "american": 180.0,
     "no_vig_prob": 0.341997
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
+    "selection": "Corbin Carroll H o0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.746835
   },
   {
     "matchup": "AZ @ COL",
@@ -1419,6 +1594,20 @@
     "selection": "Jake McCarthy H u1.5",
     "american": -184.0,
     "no_vig_prob": 0.6179
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
+    "selection": "James McCann H o0.5",
+    "american": -206.0,
+    "no_vig_prob": 0.641473
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_h",
+    "selection": "James McCann H u0.5",
+    "american": 166.0,
+    "no_vig_prob": 0.358527
   },
   {
     "matchup": "AZ @ COL",
@@ -1562,6 +1751,34 @@
   },
   {
     "matchup": "AZ @ COL",
+    "market": "batter_k",
+    "selection": "Eduardo Rodriguez K o4.5",
+    "american": -136.0,
+    "no_vig_prob": 0.528285
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_k",
+    "selection": "Eduardo Rodriguez K u4.5",
+    "american": -106.0,
+    "no_vig_prob": 0.471715
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_k",
+    "selection": "Tanner Gordon K o3.5",
+    "american": -122.0,
+    "no_vig_prob": 0.504767
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_k",
+    "selection": "Tanner Gordon K u3.5",
+    "american": -117.0,
+    "no_vig_prob": 0.495233
+  },
+  {
+    "matchup": "AZ @ COL",
     "market": "batter_rbi",
     "selection": "Adael Amador RBI o0.5",
     "american": 231.0,
@@ -1573,6 +1790,20 @@
     "selection": "Adael Amador RBI u0.5",
     "american": -250.0,
     "no_vig_prob": 0.694343
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_rbi",
+    "selection": "Brett Sullivan RBI o0.5",
+    "american": 197.0,
+    "no_vig_prob": 0.327518
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_rbi",
+    "selection": "Brett Sullivan RBI u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.672482
   },
   {
     "matchup": "AZ @ COL",
@@ -1685,6 +1916,20 @@
     "selection": "Jake McCarthy RBI u0.5",
     "american": -250.0,
     "no_vig_prob": 0.68826
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_rbi",
+    "selection": "James McCann RBI o0.5",
+    "american": 169.0,
+    "no_vig_prob": 0.356086
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_rbi",
+    "selection": "James McCann RBI u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.643914
   },
   {
     "matchup": "AZ @ COL",
@@ -1829,6 +2074,20 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_r",
+    "selection": "Brett Sullivan R o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.359309
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_r",
+    "selection": "Brett Sullivan R u0.5",
+    "american": -220.0,
+    "no_vig_prob": 0.640691
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_r",
     "selection": "Cole Carrigg R o0.5",
     "american": 141.0,
     "no_vig_prob": 0.40087
@@ -1937,6 +2196,20 @@
     "selection": "Jake McCarthy R u0.5",
     "american": -132.0,
     "no_vig_prob": 0.530454
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_r",
+    "selection": "James McCann R o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.421424
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_r",
+    "selection": "James McCann R u0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.578576
   },
   {
     "matchup": "AZ @ COL",
@@ -2088,6 +2361,27 @@
   {
     "matchup": "AZ @ COL",
     "market": "batter_tb",
+    "selection": "Brett Sullivan TB o0.5",
+    "american": -182.0,
+    "no_vig_prob": 0.60692
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_tb",
+    "selection": "Brett Sullivan TB o1.5",
+    "american": 170.0,
+    "no_vig_prob": 0.37037
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_tb",
+    "selection": "Brett Sullivan TB u0.5",
+    "american": 141.0,
+    "no_vig_prob": 0.39308
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_tb",
     "selection": "Cole Carrigg TB o1.5",
     "american": 155.0,
     "no_vig_prob": 0.405557
@@ -2203,6 +2497,20 @@
     "selection": "Jake McCarthy TB u1.5",
     "american": -113.0,
     "no_vig_prob": 0.506543
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_tb",
+    "selection": "James McCann TB o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.402099
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "batter_tb",
+    "selection": "James McCann TB u1.5",
+    "american": -173.0,
+    "no_vig_prob": 0.597901
   },
   {
     "matchup": "AZ @ COL",
@@ -2465,6 +2773,34 @@
   },
   {
     "matchup": "AZ @ COL",
+    "market": "pitcher_bb",
+    "selection": "Eduardo Rodriguez Walks o1.5",
+    "american": -106.0,
+    "no_vig_prob": 0.480918
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_bb",
+    "selection": "Eduardo Rodriguez Walks u1.5",
+    "american": -125.0,
+    "no_vig_prob": 0.519082
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_bb",
+    "selection": "Tanner Gordon Walks o1.5",
+    "american": 112.0,
+    "no_vig_prob": 0.44164
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_bb",
+    "selection": "Tanner Gordon Walks u1.5",
+    "american": -149.0,
+    "no_vig_prob": 0.55836
+  },
+  {
+    "matchup": "AZ @ COL",
     "market": "pitcher_er",
     "selection": "Eduardo Rodriguez ER o2.5",
     "american": -110.0,
@@ -2480,6 +2816,13 @@
   {
     "matchup": "AZ @ COL",
     "market": "pitcher_er",
+    "selection": "Tanner Gordon ER o2.5",
+    "american": -164.0,
+    "no_vig_prob": 0.580766
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_er",
     "selection": "Tanner Gordon ER o3.5",
     "american": 110.0,
     "no_vig_prob": 0.442478
@@ -2487,9 +2830,30 @@
   {
     "matchup": "AZ @ COL",
     "market": "pitcher_er",
+    "selection": "Tanner Gordon ER u2.5",
+    "american": 123.0,
+    "no_vig_prob": 0.419234
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_er",
     "selection": "Tanner Gordon ER u3.5",
     "american": -150.0,
     "no_vig_prob": 0.557522
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_h",
+    "selection": "Eduardo Rodriguez Hits o5.5",
+    "american": -119.0,
+    "no_vig_prob": 0.508257
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_h",
+    "selection": "Eduardo Rodriguez Hits u5.5",
+    "american": -112.0,
+    "no_vig_prob": 0.491743
   },
   {
     "matchup": "AZ @ COL",
@@ -2543,9 +2907,23 @@
   {
     "matchup": "AZ @ COL",
     "market": "pitcher_outs",
+    "selection": "Eduardo Rodriguez Outs o17.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_outs",
     "selection": "Eduardo Rodriguez Outs u16.5",
     "american": 100.0,
     "no_vig_prob": 0.472021
+  },
+  {
+    "matchup": "AZ @ COL",
+    "market": "pitcher_outs",
+    "selection": "Eduardo Rodriguez Outs u17.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
   },
   {
     "matchup": "AZ @ COL",

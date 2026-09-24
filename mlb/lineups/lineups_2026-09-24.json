@@ -690,7 +690,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T18:55:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 656941,
+      "name": "Kyle Schwarber",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 607208,
+      "name": "Trea Turner",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 547180,
+      "name": "Bryce Harper",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 650333,
+      "name": "Luis Arraez",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 664761,
+      "name": "Alec Bohm",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 650559,
+      "name": "Bryan De La Cruz",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 681082,
+      "name": "Bryson Stott",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 592663,
+      "name": "J.T. Realmuto",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 702222,
+      "name": "Justin Crawford",
+      "bats": "L",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823493,
@@ -1833,7 +1902,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T18:55:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 686765,
+      "name": "Nick Sogard",
+      "bats": "S",
+      "position": "1B"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 681508,
+      "name": "Mickey Gasper",
+      "bats": "S",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 668939,
+      "name": "Adley Rutschman",
+      "bats": "S",
+      "position": "C"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 677800,
+      "name": "Wilyer Abreu",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 702332,
+      "name": "Caleb Durbin",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 678882,
+      "name": "Ceddanne Rafaela",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 680776,
+      "name": "Jarren Duran",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 596115,
+      "name": "Trevor Story",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 643396,
+      "name": "Isiah Kiner-Falefa",
+      "bats": "R",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824866,
