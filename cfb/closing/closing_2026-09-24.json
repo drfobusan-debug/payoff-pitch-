@@ -1,32 +1,32 @@
 {
   "Liberty @ Coastal Caroli|game_ats|Coastal Caroli": {
-    "american": -108.0,
+    "american": -109.0,
     "line": 2.5,
-    "no_vig_prob": 0.49909673255127246
+    "no_vig_prob": 0.49985288727648264
   },
   "Liberty @ Coastal Caroli|game_ats|Liberty": {
-    "american": -110.0,
+    "american": -108.0,
     "line": -2.5,
-    "no_vig_prob": 0.5009032674487276
+    "no_vig_prob": 0.5001471127235174
   },
   "Liberty @ Coastal Caroli|game_ml|Coastal Caroli": {
     "american": 113.0,
     "line": null,
-    "no_vig_prob": 0.4567639325850457
+    "no_vig_prob": 0.45960076805737377
   },
   "Liberty @ Coastal Caroli|game_ml|Liberty": {
-    "american": -130.0,
+    "american": -125.0,
     "line": null,
-    "no_vig_prob": 0.5432360674149543
+    "no_vig_prob": 0.5403992319426263
   },
   "Liberty @ Coastal Caroli|game_total|Over": {
-    "american": -105.0,
-    "line": 50.5,
-    "no_vig_prob": 0.49618267861053117
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.5012167889221104
   },
   "Liberty @ Coastal Caroli|game_total|Under": {
-    "american": -110.0,
-    "line": 50.5,
-    "no_vig_prob": 0.5038173213894689
+    "american": -104.0,
+    "line": 49.5,
+    "no_vig_prob": 0.4987832110778896
   }
 }
