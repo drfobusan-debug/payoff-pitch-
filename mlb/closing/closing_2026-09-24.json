@@ -17355,9 +17355,23 @@
   {
     "matchup": "LAA @ SEA",
     "market": "pitcher_k",
+    "selection": "Bryan Woo Ks o7.5",
+    "american": 124.0,
+    "no_vig_prob": 0.421029
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_k",
     "selection": "Bryan Woo Ks u6.5",
     "american": 118.0,
     "no_vig_prob": 0.446853
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_k",
+    "selection": "Bryan Woo Ks u7.5",
+    "american": -159.0,
+    "no_vig_prob": 0.578971
   },
   {
     "matchup": "LAA @ SEA",
@@ -26350,6 +26364,13 @@
   {
     "matchup": "SD @ LAD",
     "market": "batter_hr",
+    "selection": "Ethan Salas HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "SD @ LAD",
+    "market": "batter_hr",
     "selection": "Fernando Tatis Jr. HR o0.5",
     "american": 410.0,
     "no_vig_prob": 0.198693
@@ -28044,9 +28065,23 @@
   {
     "matchup": "SD @ LAD",
     "market": "pitcher_k",
+    "selection": "Tyler Glasnow Ks o7.5",
+    "american": 121.0,
+    "no_vig_prob": 0.427365
+  },
+  {
+    "matchup": "SD @ LAD",
+    "market": "pitcher_k",
     "selection": "Tyler Glasnow Ks u6.5",
     "american": 113.0,
     "no_vig_prob": 0.447441
+  },
+  {
+    "matchup": "SD @ LAD",
+    "market": "pitcher_k",
+    "selection": "Tyler Glasnow Ks u7.5",
+    "american": -154.0,
+    "no_vig_prob": 0.572635
   },
   {
     "matchup": "SD @ LAD",
@@ -28177,6 +28212,13 @@
   {
     "matchup": "STL @ MIL",
     "market": "game_total",
+    "selection": "Over 8.5",
+    "american": 102.0,
+    "no_vig_prob": 0.47484
+  },
+  {
+    "matchup": "STL @ MIL",
+    "market": "game_total",
     "selection": "Under 7.5",
     "american": 116.0,
     "no_vig_prob": 0.441026
@@ -28187,6 +28229,13 @@
     "selection": "Under 8.0",
     "american": -102.0,
     "no_vig_prob": 0.488864
+  },
+  {
+    "matchup": "STL @ MIL",
+    "market": "game_total",
+    "selection": "Under 8.5",
+    "american": -121.0,
+    "no_vig_prob": 0.52516
   },
   {
     "matchup": "TB @ NYY",
@@ -30017,6 +30066,34 @@
   },
   {
     "matchup": "TB @ NYY",
+    "market": "batter_k",
+    "selection": "Cam Schlittler K o5.5",
+    "american": -186.0,
+    "no_vig_prob": 0.599328
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_k",
+    "selection": "Cam Schlittler K u5.5",
+    "american": 130.0,
+    "no_vig_prob": 0.400672
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_k",
+    "selection": "Ian Seymour K o5.5",
+    "american": -167.0,
+    "no_vig_prob": 0.573516
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_k",
+    "selection": "Ian Seymour K u5.5",
+    "american": 115.0,
+    "no_vig_prob": 0.426484
+  },
+  {
+    "matchup": "TB @ NYY",
     "market": "batter_rbi",
     "selection": "Amed Rosario RBI o0.5",
     "american": 275.0,
@@ -31110,6 +31187,13 @@
   {
     "matchup": "TB @ NYY",
     "market": "game_total",
+    "selection": "Over 5.5",
+    "american": -118.0,
+    "no_vig_prob": 0.514975
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "game_total",
     "selection": "Over 6.0",
     "american": -107.0,
     "no_vig_prob": 0.503642
@@ -31120,6 +31204,13 @@
     "selection": "Over 6.5",
     "american": 114.0,
     "no_vig_prob": 0.444774
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "game_total",
+    "selection": "Under 5.5",
+    "american": -104.0,
+    "no_vig_prob": 0.485025
   },
   {
     "matchup": "TB @ NYY",
@@ -31180,9 +31271,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "pitcher_er",
+    "selection": "Cam Schlittler ER o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_er",
     "selection": "Cam Schlittler ER o1.5",
     "american": 120.0,
     "no_vig_prob": 0.427474
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_er",
+    "selection": "Cam Schlittler ER u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "TB @ NYY",
