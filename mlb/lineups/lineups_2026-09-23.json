@@ -369,7 +369,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T00:55:13+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 514888,
+      "name": "Jose Altuve",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 670541,
+      "name": "Yordan Alvarez",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 670623,
+      "name": "Isaac Paredes",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 673237,
+      "name": "Yainer Diaz",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 572233,
+      "name": "Christian Walker",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 666211,
+      "name": "Taylor Trammell",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 701358,
+      "name": "Cam Smith",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 828599,
+      "name": "Lucas Spence",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 669397,
+      "name": "Nick Allen",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823086,
@@ -1838,7 +1907,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T00:55:13+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665487,
+      "name": "Fernando Tatis Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 687957,
+      "name": "Dustin Harris",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 592518,
+      "name": "Manny Machado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664034,
+      "name": "Ty France",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 701538,
+      "name": "Jackson Merrill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 593428,
+      "name": "Xander Bogaerts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 630105,
+      "name": "Jake Cronenworth",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 669392,
+      "name": "Samad Taylor",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 806956,
+      "name": "Ethan Salas",
+      "bats": "L",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823894,
