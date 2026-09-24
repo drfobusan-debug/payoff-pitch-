@@ -75,7 +75,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T16:50:14+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 596019,
+      "name": "Francisco Lindor",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 665742,
+      "name": "Juan Soto",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 666182,
+      "name": "Bo Bichette",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 701807,
+      "name": "Carson Benge",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 683146,
+      "name": "Brett Baty",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 543760,
+      "name": "Marcus Semien",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 805999,
+      "name": "A.J. Ewing",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 620443,
+      "name": "Luis Torrens",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 703492,
+      "name": "Nick Morabito",
+      "bats": "R",
+      "position": "LF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 822842,
@@ -1167,7 +1236,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T16:50:14+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 663457,
+      "name": "Lars Nootbaar",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 606466,
+      "name": "Ketel Marte",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 672515,
+      "name": "Gabriel Moreno",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 672695,
+      "name": "Geraldo Perdomo",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 656976,
+      "name": "Pavin Smith",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 571448,
+      "name": "Nolan Arenado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 682998,
+      "name": "Corbin Carroll",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 543510,
+      "name": "James McCann",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 694374,
+      "name": "Tim Tawa",
+      "bats": "R",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824298,
@@ -1392,7 +1530,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-24T16:50:14+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 672640,
+      "name": "Otto Lopez",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 681715,
+      "name": "Heriberto Hern\u00e1ndez",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 805300,
+      "name": "Jakob Marsee",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 691594,
+      "name": "Javier Sanoja",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 682663,
+      "name": "Agust\u00edn Ram\u00edrez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 665923,
+      "name": "Esteury Ruiz",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 691277,
+      "name": "Deyvison De Los Santos",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 691858,
+      "name": "Jared Serna",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 640459,
+      "name": "Brian Navarreto",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824623,
