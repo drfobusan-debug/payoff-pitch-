@@ -1026,3 +1026,105 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-23,James Wood,695578,824223,HRR,1.5,under,betmgm,-125.0,0.459,0.5206,0.5274,-0.0068,-0.0629,Pass,RV NEG UNDER,True,contradicted,20260923T1600Z,2,18,7,-0.21,batter,ev_floor,elite
 2026-09-23,James Wood,695578,824223,RBI,0.5,under,betmgm,-275.0,0.7549,0.7069,0.7015,0.0053,-0.0361,Pass,RV NEG UNDER,True,contradicted,20260923T1600Z,2,18,7,-0.21,batter,ev_floor,elite
 2026-09-23,James Wood,695578,824223,TB,1.5,under,mybookieag,-204.0,0.6198,0.6254,0.626,-0.0006,-0.0681,Pass,RV NEG UNDER,True,contradicted,20260923T1600Z,2,18,7,-0.21,batter,ev_floor,elite
+2026-09-24,Matthew Boyd,571510,824623,BB,1.5,over,bovada,150.0,0.5955,0.4859,0.3763,0.1096,0.2148,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,edge_ceiling,soft
+2026-09-24,Matthew Boyd,571510,824623,H,4.5,over,betmgm,115.0,0.5851,0.4623,0.4335,0.0288,-0.006,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Matthew Boyd,571510,824623,K,4.5,under,fanduel,-115.0,0.5625,0.5114,0.5058,0.0057,-0.0438,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Matthew Boyd,571510,824623,outs,15.5,over,fanduel,100.0,0.6996,0.4922,0.4692,0.023,-0.0156,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Francisco Lindor,596019,822842,1B,0.5,under,betmgm,-135.0,0.6197,0.5578,0.5509,0.0069,-0.029,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,43,5,5,-1.74,batter,ev_floor,elite
+2026-09-24,Francisco Lindor,596019,822842,H,0.5,under,betonlineag,157.0,0.3811,0.3692,0.3679,0.0013,-0.051,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,43,5,5,-1.74,batter,ev_floor,elite
+2026-09-24,Francisco Lindor,596019,822842,HRR,1.5,under,betmgm,-110.0,0.4671,0.4934,0.4964,-0.0029,-0.058,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,43,5,5,-1.74,batter,ev_floor,elite
+2026-09-24,Francisco Lindor,596019,822842,RBI,0.5,under,betmgm,-235.0,0.6823,0.6753,0.6745,0.0008,-0.0373,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,43,5,5,-1.74,batter,ev_floor,elite
+2026-09-24,Brandon Nimmo,607043,822842,1B,0.5,under,draftkings,-119.0,0.5162,0.5185,0.5188,-0.0003,-0.0457,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,66,2,5,-0.04,batter,ev_floor,elite
+2026-09-24,Brandon Nimmo,607043,822842,H,0.5,under,draftkings,169.0,0.359,0.3711,0.3724,-0.0013,-0.0018,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,66,2,5,-0.04,batter,ev_floor,elite
+2026-09-24,Brandon Nimmo,607043,822842,HRR,1.5,under,bovada,-110.0,0.4956,0.4917,0.4912,0.0004,-0.0614,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,66,2,5,-0.04,batter,ev_floor,elite
+2026-09-24,Brandon Nimmo,607043,822842,RBI,0.5,under,draftkings,-265.0,0.7177,0.6852,0.6816,0.0036,-0.0562,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,66,2,5,-0.04,batter,ev_floor,elite
+2026-09-24,Corey Seager,608369,822842,HRR,1.5,under,bovada,100.0,0.4613,0.4708,0.4718,-0.0011,-0.0585,Pass,PROD WATCH,True,confirmed,20260924T1600Z,38,6,5,0.14,batter,ev_floor,elite
+2026-09-24,Corey Seager,608369,822842,RBI,0.5,over,draftkings,181.0,0.3018,0.3441,0.3488,-0.0047,-0.0329,Pass,PROD WATCH,True,confirmed,20260924T1600Z,38,6,5,0.14,batter,ev_floor,elite
+2026-09-24,Corey Seager,608369,822842,RBI,0.5,under,betmgm,-210.0,0.6982,0.6559,0.6512,0.0047,-0.0318,Pass,PROD WATCH,True,confirmed,20260924T1600Z,38,6,5,0.14,batter,ev_floor,elite
+2026-09-24,Andrew Benintendi,643217,824059,1B,0.5,under,betmgm,-120.0,0.5726,0.5355,0.5314,0.0041,-0.0182,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,16,4,5,-1.52,batter,ev_floor,soft
+2026-09-24,Andrew Benintendi,643217,824059,HRR,1.5,under,betmgm,-115.0,0.5153,0.5083,0.5075,0.0008,-0.0498,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,16,4,5,-1.52,batter,ev_floor,soft
+2026-09-24,Andrew Benintendi,643217,824059,RBI,0.5,under,betmgm,-220.0,0.6911,0.6555,0.6516,0.004,-0.0465,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,16,4,5,-1.52,batter,ev_floor,soft
+2026-09-24,Andrew Benintendi,643217,824059,TB,1.5,under,bovada,-185.0,0.6799,0.6182,0.6114,0.0069,-0.0476,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,16,4,5,-1.52,batter,ev_floor,soft
+2026-09-24,Bryan Torres,663494,823326,1B,0.5,under,betmgm,-155.0,0.5329,0.5688,0.5728,-0.004,-0.0642,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,67,2,5,-0.38,batter,ev_floor,elite
+2026-09-24,Bryan Torres,663494,823326,H,0.5,under,betmgm,105.0,0.4037,0.4578,0.4638,-0.006,-0.0616,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,67,2,5,-0.38,batter,ev_floor,elite
+2026-09-24,Bryan Torres,663494,823326,RBI,0.5,under,betmgm,-450.0,0.8183,0.7819,0.7778,0.004,-0.0443,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,67,2,5,-0.38,batter,ev_floor,elite
+2026-09-24,Juan Soto,665742,822842,H,0.5,over,betrivers,-182.0,0.6199,0.6361,0.6379,-0.0018,-0.0144,Pass,PROD WATCH,False,contradicted,20260924T1600Z,4,16,7,8.28,batter,one_way_quote,elite
+2026-09-24,Juan Soto,665742,822842,HRR,1.5,over,bovada,-115.0,0.5577,0.5137,0.5088,0.0049,-0.0395,Pass,PROD WATCH,True,contradicted,20260924T1600Z,4,16,7,8.28,batter,ev_floor,elite
+2026-09-24,Juan Soto,665742,822842,TB,1.5,over,betrivers,143.0,0.4903,0.4321,0.4257,0.0065,0.0501,Pass,PROD WATCH,False,contradicted,20260924T1600Z,4,16,7,8.28,batter,one_way_quote,elite
+2026-09-24,Mark Vientos,668901,822842,H,0.5,under,betonlineag,155.0,0.4489,0.3768,0.3688,0.008,-0.039,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,45,5,5,-0.85,batter,ev_floor,elite
+2026-09-24,Iván Herrera,671056,823326,1B,0.5,under,betmgm,-110.0,0.5324,0.4938,0.4896,0.0043,-0.0572,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,69,2,5,-1.0,batter,ev_floor,elite
+2026-09-24,Iván Herrera,671056,823326,H,0.5,under,draftkings,149.0,0.3712,0.3775,0.3782,-0.0007,-0.0601,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,69,2,5,-1.0,batter,ev_floor,elite
+2026-09-24,Iván Herrera,671056,823326,HRR,1.5,under,draftkings,-149.0,0.5061,0.5559,0.5614,-0.0055,-0.071,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,69,2,5,-1.0,batter,ev_floor,elite
+2026-09-24,Iván Herrera,671056,823326,RBI,0.5,under,betmgm,-325.0,0.7118,0.7359,0.7386,-0.0027,-0.0377,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,69,2,5,-1.0,batter,ev_floor,elite
+2026-09-24,Tristan Peters,671976,824059,1B,0.5,under,betmgm,-115.0,0.6085,0.5253,0.5161,0.0092,-0.0178,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,1,5,-2.94,batter,ev_floor,soft
+2026-09-24,Tristan Peters,671976,824059,HRR,1.5,under,betmgm,-105.0,0.5419,0.506,0.502,0.004,-0.0121,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,1,5,-2.94,batter,ev_floor,soft
+2026-09-24,Tristan Peters,671976,824059,RBI,0.5,under,betmgm,-235.0,0.7261,0.6721,0.6661,0.006,-0.0419,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,1,5,-2.94,batter,ev_floor,soft
+2026-09-24,Tristan Peters,671976,824059,TB,1.5,under,bovada,-180.0,0.6918,0.6158,0.6074,0.0084,-0.042,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,1,5,-2.94,batter,ev_floor,soft
+2026-09-24,Josh Jung,673962,822842,1B,0.5,under,draftkings,102.0,0.565,0.4786,0.469,0.0096,-0.0332,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,61,3,5,1.47,batter,ev_floor,elite
+2026-09-24,Josh Jung,673962,822842,HRR,1.5,under,betmgm,105.0,0.4498,0.4755,0.4783,-0.0029,-0.0253,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,61,3,5,1.47,batter,ev_floor,elite
+2026-09-24,Josh Jung,673962,822842,RBI,0.5,under,betmgm,-225.0,0.6982,0.6775,0.6752,0.0023,-0.0214,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,61,3,5,1.47,batter,ev_floor,elite
+2026-09-24,Josh Jung,673962,822842,TB,1.5,under,betmgm,-140.0,0.5321,0.5705,0.5748,-0.0043,-0.0219,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,61,3,5,1.47,batter,ev_floor,elite
+2026-09-24,Ezequiel Duran,677649,822842,H,0.5,under,betmgm,150.0,0.3976,0.3862,0.385,0.0013,-0.0344,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,25,7,7,1.69,batter,ev_floor,elite
+2026-09-24,Ezequiel Duran,677649,822842,HRR,1.5,under,betmgm,-135.0,0.527,0.5492,0.5517,-0.0025,-0.044,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,25,7,7,1.69,batter,ev_floor,elite
+2026-09-24,Ezequiel Duran,677649,822842,RBI,0.5,under,betmgm,-250.0,0.715,0.6946,0.6923,0.0023,-0.0276,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,25,7,7,1.69,batter,ev_floor,elite
+2026-09-24,Ezequiel Duran,677649,822842,TB,1.5,under,williamhill_us,-197.0,0.6561,0.6273,0.6241,0.0032,-0.0542,Pass,ELITE UNDER,True,confirmed,20260924T1600Z,25,7,7,1.69,batter,ev_floor,elite
+2026-09-24,Kumar Rocker,677958,822842,BB,1.5,over,draftkings,-105.0,0.6245,0.5522,0.4799,0.0723,0.0781,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,momentum_run_up,elite
+2026-09-24,Kumar Rocker,677958,822842,K,4.5,over,fanduel,124.0,0.562,0.4454,0.4324,0.013,-0.0024,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-24,Randy Dobnak,677976,824059,BB,1.5,over,bovada,-180.0,0.6521,0.629,0.6059,0.0231,-0.0215,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Randy Dobnak,677976,824059,ER,2.5,under,draftkings,-126.0,0.5392,0.5234,0.5216,0.0018,-0.0613,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Randy Dobnak,677976,824059,H,5.5,under,betmgm,-150.0,0.6271,0.5768,0.565,0.0118,-0.0387,Pass,,True,contradicted,20260924T1600Z,,,,,pitcher,ev_floor,soft
+2026-09-24,Miguel Vargas,678246,824059,BB,0.5,over,fanatics,110.0,0.4552,0.4563,0.4564,-0.0001,-0.0418,Pass,SOFT OVER,True,contradicted,20260924T1600Z,7,16,5,1.46,batter,ev_floor,soft
+2026-09-24,Miguel Vargas,678246,824059,HRR,1.5,over,bovada,-135.0,0.5224,0.5479,0.5507,-0.0028,-0.0463,Pass,SOFT OVER,True,contradicted,20260924T1600Z,7,16,5,1.46,batter,ev_floor,soft
+2026-09-24,Miguel Vargas,678246,824059,TB,1.5,over,betonlineag,118.0,0.385,0.4346,0.4401,-0.0055,-0.0526,Pass,SOFT OVER,True,contradicted,20260924T1600Z,7,16,5,1.46,batter,ev_floor,soft
+2026-09-24,Justin Foscue,679822,822842,1B,0.5,under,betmgm,-140.0,0.5998,0.5592,0.5547,0.0045,-0.0413,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,75,1,5,-0.7,batter,ev_floor,elite
+2026-09-24,Justin Foscue,679822,822842,H,0.5,under,betmgm,155.0,0.3745,0.3728,0.3726,0.0002,-0.0494,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,75,1,5,-0.7,batter,ev_floor,elite
+2026-09-24,Justin Foscue,679822,822842,HRR,1.5,under,bovada,-120.0,0.4733,0.5091,0.5131,-0.004,-0.0667,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,75,1,5,-0.7,batter,ev_floor,elite
+2026-09-24,Justin Foscue,679822,822842,RBI,0.5,under,betmgm,-275.0,0.6982,0.7011,0.7014,-0.0003,-0.0439,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,75,1,5,-0.7,batter,ev_floor,elite
+2026-09-24,Francisco Alvarez,682626,822842,1B,0.5,under,betmgm,-210.0,0.7074,0.6411,0.6338,0.0074,-0.0536,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,7,5,-1.05,batter,ev_floor,elite
+2026-09-24,Francisco Alvarez,682626,822842,H,0.5,under,draftkings,-103.0,0.5377,0.4864,0.4807,0.0057,-0.0414,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,7,5,-1.05,batter,ev_floor,elite
+2026-09-24,Francisco Alvarez,682626,822842,RBI,0.5,under,betmgm,-325.0,0.7931,0.7258,0.7183,0.0075,-0.0509,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,26,7,5,-1.05,batter,ev_floor,elite
+2026-09-24,Brett Baty,683146,822842,1B,0.5,under,betmgm,-185.0,0.6292,0.6264,0.6261,0.0003,-0.035,Pass,ELITE UNDER,True,contradicted,20260924T1600Z,8,12,7,5.24,batter,ev_floor,elite
+2026-09-24,Brett Baty,683146,822842,H,0.5,under,betonlineag,-106.0,0.3917,0.4818,0.4918,-0.01,-0.0637,Pass,ELITE UNDER,True,contradicted,20260924T1600Z,8,12,7,5.24,batter,ev_floor,elite
+2026-09-24,Brett Baty,683146,822842,RBI,0.5,under,betmgm,-350.0,0.6982,0.7365,0.7408,-0.0043,-0.053,Pass,ELITE UNDER,True,contradicted,20260924T1600Z,8,12,7,5.24,batter,ev_floor,elite
+2026-09-24,Jordan Walker,691023,823326,1B,0.5,under,betmgm,-125.0,0.5775,0.5335,0.5286,0.0049,-0.0397,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,32,6,5,-1.61,batter,ev_floor,elite
+2026-09-24,Jordan Walker,691023,823326,H,0.5,under,draftkings,141.0,0.3812,0.3924,0.3936,-0.0012,-0.0543,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,32,6,5,-1.61,batter,ev_floor,elite
+2026-09-24,Jordan Walker,691023,823326,HRR,1.5,under,bovada,-145.0,0.4989,0.5534,0.5595,-0.0061,-0.0649,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,32,6,5,-1.61,batter,ev_floor,elite
+2026-09-24,Jordan Walker,691023,823326,RBI,0.5,under,betmgm,-275.0,0.6869,0.6962,0.6972,-0.001,-0.0507,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,32,6,5,-1.61,batter,ev_floor,elite
+2026-09-24,Masyn Winn,691026,823326,1B,0.5,under,draftkings,-137.0,0.5775,0.5534,0.5507,0.0027,-0.0426,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,76,1,5,-1.43,batter,ev_floor,elite
+2026-09-24,Masyn Winn,691026,823326,H,0.5,under,draftkings,107.0,0.4267,0.4555,0.4587,-0.0032,-0.0571,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,76,1,5,-1.43,batter,ev_floor,elite
+2026-09-24,Masyn Winn,691026,823326,RBI,0.5,under,betmgm,-450.0,0.8183,0.7733,0.7683,0.005,-0.0548,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,76,1,5,-1.43,batter,ev_floor,elite
+2026-09-24,Wyatt Langford,694671,822842,H,0.5,under,betonlineag,148.0,0.4312,0.3965,0.3926,0.0039,-0.0168,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,59,4,5,-1.13,batter,ev_floor,elite
+2026-09-24,Wyatt Langford,694671,822842,HRR,1.5,under,bovada,-135.0,0.5544,0.5403,0.5387,0.0016,-0.0595,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,59,4,5,-1.13,batter,ev_floor,elite
+2026-09-24,Wyatt Langford,694671,822842,RBI,0.5,under,betmgm,-235.0,0.7112,0.6764,0.6725,0.0039,-0.0358,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,59,4,5,-1.13,batter,ev_floor,elite
+2026-09-24,Wyatt Langford,694671,822842,TB,1.5,under,mybookieag,-185.0,0.6707,0.6156,0.6095,0.0061,-0.0517,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,59,4,5,-1.13,batter,ev_floor,elite
+2026-09-24,Paul Skenes,694973,823326,BB,1.5,over,bovada,120.0,0.5484,0.4872,0.426,0.0612,0.0718,Pass,,True,confirmed,20260924T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-24,Paul Skenes,694973,823326,H,4.5,over,bovada,125.0,0.6945,0.4843,0.435,0.0493,0.0898,Pass,,True,confirmed,20260924T1600Z,,,,,pitcher,prob_floor,elite
+2026-09-24,Paul Skenes,694973,823326,K,5.5,over,betmgm,-110.0,0.562,0.5225,0.5181,0.0044,-0.0025,Pass,,True,confirmed,20260924T1600Z,,,,,pitcher,ev_floor,elite
+2026-09-24,Paul Skenes,694973,823326,outs,15.5,over,betrivers,-122.0,0.6542,0.5408,0.5282,0.0126,-0.016,Pass,,False,confirmed,20260924T1600Z,,,,,pitcher,one_way_quote,elite
+2026-09-24,Colson Montgomery,695657,824059,1B,0.5,under,fanatics,-200.0,0.7779,0.6482,0.6337,0.0144,-0.0278,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,19,4,5,-2.33,batter,ev_floor,soft
+2026-09-24,Colson Montgomery,695657,824059,H,0.5,under,fanatics,115.0,0.6069,0.4576,0.441,0.0166,-0.0161,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,19,4,5,-2.33,batter,ev_floor,soft
+2026-09-24,Colson Montgomery,695657,824059,HRR,1.5,under,betmgm,-130.0,0.712,0.5631,0.5465,0.0165,-0.0038,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,19,4,5,-2.33,batter,ev_floor,soft
+2026-09-24,Colson Montgomery,695657,824059,RBI,0.5,under,betmgm,-225.0,0.8172,0.6714,0.6552,0.0162,-0.0302,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,19,4,5,-2.33,batter,ev_floor,soft
+2026-09-24,Braden Montgomery,695731,824059,1B,0.5,under,draftkings,-133.0,0.5664,0.5452,0.5429,0.0024,-0.0448,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,13,6,5,-1.08,batter,ev_floor,soft
+2026-09-24,Braden Montgomery,695731,824059,H,0.5,under,draftkings,135.0,0.4252,0.4043,0.402,0.0023,-0.0499,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,13,6,5,-1.08,batter,ev_floor,soft
+2026-09-24,Braden Montgomery,695731,824059,HRR,1.5,under,betmgm,-130.0,0.5998,0.5405,0.534,0.0066,-0.0437,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,13,6,5,-1.08,batter,ev_floor,soft
+2026-09-24,Braden Montgomery,695731,824059,RBI,0.5,under,betmgm,-275.0,0.8172,0.7133,0.7018,0.0115,-0.0273,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,13,6,5,-1.08,batter,ev_floor,soft
+2026-09-24,Nathan Church,701675,823326,1B,0.5,under,betmgm,-140.0,0.5266,0.5537,0.5568,-0.003,-0.0507,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,77,1,5,-0.75,batter,ev_floor,elite
+2026-09-24,Nathan Church,701675,823326,H,0.5,under,draftkings,109.0,0.3688,0.4427,0.4509,-0.0082,-0.0748,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,77,1,5,-0.75,batter,ev_floor,elite
+2026-09-24,Nathan Church,701675,823326,HRR,1.5,under,betmgm,-185.0,0.5125,0.5994,0.6091,-0.0097,-0.0766,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,77,1,5,-0.75,batter,ev_floor,elite
+2026-09-24,Nathan Church,701675,823326,RBI,0.5,under,betmgm,-400.0,0.7254,0.7595,0.7633,-0.0038,-0.0506,Pass,RV NEG UNDER,True,confirmed,20260924T1600Z,77,1,5,-0.75,batter,ev_floor,elite
+2026-09-24,Carson Benge,701807,822842,BB,0.5,over,draftkings,188.0,0.3618,0.3399,0.3375,0.0024,-0.021,Pass,PROD WATCH,True,contradicted,20260924T1600Z,13,9,5,2.63,batter,ev_floor,elite
+2026-09-24,Carson Benge,701807,822842,HRR,1.5,over,bovada,-105.0,0.5646,0.4983,0.4909,0.0074,-0.0271,Pass,PROD WATCH,True,contradicted,20260924T1600Z,13,9,5,2.63,batter,ev_floor,elite
+2026-09-24,Carson Benge,701807,822842,TB,1.5,over,betrivers,160.0,0.4655,0.3917,0.3835,0.0082,0.0184,Pass,PROD WATCH,False,contradicted,20260924T1600Z,13,9,5,2.63,batter,one_way_quote,elite
+2026-09-24,Sam Antonacci,803011,824059,1B,0.5,under,draftkings,114.0,0.5009,0.444,0.4376,0.0063,-0.0499,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,6,16,5,-0.63,batter,ev_floor,soft
+2026-09-24,Sam Antonacci,803011,824059,HRR,2.5,under,betmgm,-165.0,0.6065,0.5906,0.5888,0.0018,-0.0515,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,6,16,5,-0.63,batter,ev_floor,soft
+2026-09-24,Sam Antonacci,803011,824059,RBI,0.5,under,betmgm,-275.0,0.7787,0.6972,0.6881,0.0091,-0.0493,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,6,16,5,-0.63,batter,ev_floor,soft
+2026-09-24,Sam Antonacci,803011,824059,TB,1.5,under,fanatics,-150.0,0.5762,0.568,0.5671,0.0009,-0.0534,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,6,16,5,-0.63,batter,ev_floor,soft
+2026-09-24,Chase Meidroth,805367,824059,1B,0.5,under,betmgm,105.0,0.5318,0.4754,0.4691,0.0063,-0.0255,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,22,2,5,-2.2,batter,ev_floor,soft
+2026-09-24,Chase Meidroth,805367,824059,H,0.5,under,betmgm,165.0,0.3882,0.3694,0.3673,0.0021,-0.021,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,22,2,5,-2.2,batter,ev_floor,soft
+2026-09-24,Chase Meidroth,805367,824059,HRR,1.5,under,betmgm,-120.0,0.5282,0.5322,0.5327,-0.0004,-0.0242,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,22,2,5,-2.2,batter,ev_floor,soft
+2026-09-24,Chase Meidroth,805367,824059,RBI,0.5,under,betmgm,-250.0,0.7413,0.7009,0.6964,0.0045,-0.0187,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,22,2,5,-2.2,batter,ev_floor,soft
+2026-09-24,Munetaka Murakami,808959,824059,1B,0.5,under,betmgm,-175.0,0.8971,0.6373,0.6084,0.0289,0.0015,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,3,23,5,-1.65,batter,thin_edge,soft
+2026-09-24,Munetaka Murakami,808959,824059,H,0.5,under,draftkings,127.0,0.5021,0.4253,0.4168,0.0085,-0.0346,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,3,23,5,-1.65,batter,ev_floor,soft
+2026-09-24,Munetaka Murakami,808959,824059,HRR,1.5,under,betmgm,100.0,0.5747,0.5035,0.4956,0.0079,0.007,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,3,23,5,-1.65,batter,thin_edge,soft
+2026-09-24,Munetaka Murakami,808959,824059,RBI,0.5,under,betmgm,-190.0,0.6852,0.6264,0.6198,0.0065,-0.044,Pass,RV NEG UNDER,True,contradicted,20260924T1600Z,3,23,5,-1.65,batter,ev_floor,soft
