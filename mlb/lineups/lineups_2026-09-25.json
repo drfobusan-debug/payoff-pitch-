@@ -3381,7 +3381,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T20:34:46+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 691718,
+      "name": "Pete Crow-Armstrong",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 673548,
+      "name": "Seiya Suzuki",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 683737,
+      "name": "Michael Busch",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 624424,
+      "name": "Michael Conforto",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 664023,
+      "name": "Ian Happ",
+      "bats": "S",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663538,
+      "name": "Nico Hoerner",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 699393,
+      "name": "Pedro Ram\u00edrez",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 608348,
+      "name": "Carson Kelly",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 807713,
+      "name": "Matt Shaw",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824706,
@@ -3459,7 +3528,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T20:34:46+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 701350,
+      "name": "Roman Anthony",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 663330,
+      "name": "Jahmai Jones",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 677800,
+      "name": "Wilyer Abreu",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 596115,
+      "name": "Trevor Story",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 686765,
+      "name": "Nick Sogard",
+      "bats": "S",
+      "position": "1B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 655316,
+      "name": "Andruw Monasterio",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 680776,
+      "name": "Jarren Duran",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 643396,
+      "name": "Isiah Kiner-Falefa",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 657136,
+      "name": "Connor Wong",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824947,
