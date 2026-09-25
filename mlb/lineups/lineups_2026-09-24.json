@@ -1338,7 +1338,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T00:55:16+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665487,
+      "name": "Fernando Tatis Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 687957,
+      "name": "Dustin Harris",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 592518,
+      "name": "Manny Machado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664034,
+      "name": "Ty France",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 701538,
+      "name": "Jackson Merrill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 593428,
+      "name": "Xander Bogaerts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 630105,
+      "name": "Jake Cronenworth",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 669392,
+      "name": "Samad Taylor",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 806956,
+      "name": "Ethan Salas",
+      "bats": "L",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823895,
@@ -2826,7 +2895,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T00:55:16+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665161,
+      "name": "Jeremy Pe\u00f1a",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 670541,
+      "name": "Yordan Alvarez",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 670623,
+      "name": "Isaac Paredes",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 514888,
+      "name": "Jose Altuve",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 673237,
+      "name": "Yainer Diaz",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 572233,
+      "name": "Christian Walker",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 701358,
+      "name": "Cam Smith",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 828599,
+      "name": "Lucas Spence",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 543877,
+      "name": "Christian V\u00e1zquez",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824950,
@@ -2961,6 +3099,74 @@
       "order": 8,
       "mlbam_id": 675961,
       "name": "Alika Williams",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 641680,
+      "name": "Jonah Heim",
+      "bats": "S",
+      "position": "C"
+     }
+    ]
+   },
+   {
+    "captured_at": "2026-09-25T00:55:16+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 703607,
+      "name": "Henry Bolte",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 671732,
+      "name": "Lawrence Butler",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 669127,
+      "name": "Shea Langeliers",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 643446,
+      "name": "Jeff McNeil",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 680869,
+      "name": "Zack Gelof",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 622268,
+      "name": "Donovan Walton",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 666126,
+      "name": "Carlos Cortes",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 811965,
+      "name": "Joshua Kuroda-Grauer",
       "bats": "R",
       "position": "SS"
      },
