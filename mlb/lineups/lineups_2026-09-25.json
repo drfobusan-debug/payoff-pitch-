@@ -741,7 +741,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T22:40:12+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 668227,
+      "name": "Randy Arozarena",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 686527,
+      "name": "Dominic Canzone",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 677594,
+      "name": "Julio Rodr\u00edguez",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 647304,
+      "name": "Josh Naylor",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 703197,
+      "name": "Michael Arroyo",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 702284,
+      "name": "Cole Young",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 640902,
+      "name": "Jhonny Pereda",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 642215,
+      "name": "Weston Wilson",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 660844,
+      "name": "Leo Rivas",
+      "bats": "S",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823167,
@@ -819,7 +888,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T22:40:12+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 660271,
+      "name": "Shohei Ohtani",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 605141,
+      "name": "Mookie Betts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 518692,
+      "name": "Freddie Freeman",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 669257,
+      "name": "Will Smith",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 663656,
+      "name": "Kyle Tucker",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 606192,
+      "name": "Teoscar Hern\u00e1ndez",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 571970,
+      "name": "Max Muncy",
+      "bats": "L",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 681624,
+      "name": "Andy Pages",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 571771,
+      "name": "Enrique Hern\u00e1ndez",
+      "bats": "R",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823167,
@@ -897,7 +1035,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-25T22:40:12+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 813841,
+      "name": "Jonah Cox",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 695391,
+      "name": "Brett Harris",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 682674,
+      "name": "Victor Bericoto",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 815589,
+      "name": "Bo Davidson",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 668800,
+      "name": "Andrew Knizner",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 691785,
+      "name": "Marcelo Mayer",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 694376,
+      "name": "Shay Whitcomb",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 814154,
+      "name": "Scott Bandura",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 683766,
+      "name": "Christian Koss",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 823248,
