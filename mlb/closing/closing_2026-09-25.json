@@ -2844,6 +2844,20 @@
   {
     "matchup": "AZ @ SD",
     "market": "batter_1b",
+    "selection": "Jordan Lawlar 1B o0.5",
+    "american": 203.0,
+    "no_vig_prob": 0.307401
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_1b",
+    "selection": "Jordan Lawlar 1B u0.5",
+    "american": -290.0,
+    "no_vig_prob": 0.692599
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_1b",
     "selection": "Ketel Marte 1B o0.5",
     "american": 105.0,
     "no_vig_prob": 0.465412
@@ -3110,6 +3124,20 @@
   {
     "matchup": "AZ @ SD",
     "market": "batter_2b",
+    "selection": "Jordan Lawlar 2B o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.135593
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_2b",
+    "selection": "Jordan Lawlar 2B u0.5",
+    "american": -1020.0,
+    "no_vig_prob": 0.864407
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_2b",
     "selection": "Ketel Marte 2B o0.5",
     "american": 446.0,
     "no_vig_prob": 0.19289
@@ -3372,6 +3400,20 @@
     "selection": "Jesus Sanchez BB u0.5",
     "american": -550.0,
     "no_vig_prob": 0.788274
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_bb",
+    "selection": "Jordan Lawlar BB o0.5",
+    "american": 335.0,
+    "no_vig_prob": 0.215992
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_bb",
+    "selection": "Jordan Lawlar BB u0.5",
+    "american": -504.0,
+    "no_vig_prob": 0.784008
   },
   {
     "matchup": "AZ @ SD",
@@ -3652,6 +3694,20 @@
     "selection": "Jesus Sanchez H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.429498
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_hrr",
+    "selection": "Jordan Lawlar H+R+RBI o0.5",
+    "american": -114.0,
+    "no_vig_prob": 0.498989
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_hrr",
+    "selection": "Jordan Lawlar H+R+RBI u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.501011
   },
   {
     "matchup": "AZ @ SD",
@@ -4202,6 +4258,20 @@
   {
     "matchup": "AZ @ SD",
     "market": "batter_h",
+    "selection": "Jordan Lawlar H o0.5",
+    "american": 108.0,
+    "no_vig_prob": 0.449634
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_h",
+    "selection": "Jordan Lawlar H u0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.550366
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_h",
     "selection": "Ketel Marte H o0.5",
     "american": -205.0,
     "no_vig_prob": 0.639939
@@ -4464,6 +4534,20 @@
     "selection": "Jesus Sanchez RBI u0.5",
     "american": -300.0,
     "no_vig_prob": 0.716392
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_rbi",
+    "selection": "Jordan Lawlar RBI o0.5",
+    "american": 358.0,
+    "no_vig_prob": 0.205389
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_rbi",
+    "selection": "Jordan Lawlar RBI u0.5",
+    "american": -544.0,
+    "no_vig_prob": 0.794611
   },
   {
     "matchup": "AZ @ SD",
@@ -4734,6 +4818,20 @@
   {
     "matchup": "AZ @ SD",
     "market": "batter_r",
+    "selection": "Jordan Lawlar R o0.5",
+    "american": 218.0,
+    "no_vig_prob": 0.293253
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_r",
+    "selection": "Jordan Lawlar R u0.5",
+    "american": -313.0,
+    "no_vig_prob": 0.706747
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_r",
     "selection": "Ketel Marte R o0.5",
     "american": 120.0,
     "no_vig_prob": 0.42718
@@ -4891,6 +4989,13 @@
     "selection": "Corbin Carroll TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.427663
+  },
+  {
+    "matchup": "AZ @ SD",
+    "market": "batter_tb",
+    "selection": "Corbin Carroll TB u1.5",
+    "american": -179.0,
+    "no_vig_prob": 0.602247
   },
   {
     "matchup": "AZ @ SD",
@@ -5427,6 +5532,20 @@
   {
     "matchup": "BAL @ NYY",
     "market": "batter_1b",
+    "selection": "Anthony Volpe 1B o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.355603
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_1b",
+    "selection": "Anthony Volpe 1B u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_1b",
     "selection": "Austin Wells 1B o0.5",
     "american": 224.0,
     "no_vig_prob": 0.288
@@ -5930,6 +6049,146 @@
   },
   {
     "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Anthony Volpe BB o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.280374
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Anthony Volpe BB u0.5",
+    "american": -350.0,
+    "no_vig_prob": 0.719626
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Austin Wells BB o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.336095
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Austin Wells BB u0.5",
+    "american": -255.0,
+    "no_vig_prob": 0.663905
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Ben Rice BB o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Ben Rice BB u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Cody Bellinger BB o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.324704
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Cody Bellinger BB u0.5",
+    "american": -270.0,
+    "no_vig_prob": 0.675296
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "George Lombard Jr. BB o0.5",
+    "american": 225.0,
+    "no_vig_prob": 0.28479
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "George Lombard Jr. BB u0.5",
+    "american": -340.0,
+    "no_vig_prob": 0.71521
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Heliot Ramos BB o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Heliot Ramos BB u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.692308
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Jazz Chisholm Jr. BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.355603
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Jazz Chisholm Jr. BB u0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Luis Garcia Jr. BB o0.5",
+    "american": 225.0,
+    "no_vig_prob": 0.28479
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Luis Garcia Jr. BB u0.5",
+    "american": -340.0,
+    "no_vig_prob": 0.71521
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Spencer Jones BB o0.5",
+    "american": 165.0,
+    "no_vig_prob": 0.348361
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_bb",
+    "selection": "Spencer Jones BB u0.5",
+    "american": -240.0,
+    "no_vig_prob": 0.651639
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_hrr",
+    "selection": "Anthony Volpe H+R+RBI o0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.544592
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_hrr",
+    "selection": "Anthony Volpe H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.455408
+  },
+  {
+    "matchup": "BAL @ NYY",
     "market": "batter_hrr",
     "selection": "Austin Wells H+R+RBI o0.5",
     "american": -108.0,
@@ -6064,9 +6323,23 @@
   {
     "matchup": "BAL @ NYY",
     "market": "batter_hrr",
+    "selection": "Heliot Ramos H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_hrr",
     "selection": "Heliot Ramos H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.408737
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "batter_hrr",
+    "selection": "Heliot Ramos H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
   },
   {
     "matchup": "BAL @ NYY",
@@ -7415,6 +7688,20 @@
   {
     "matchup": "BAL @ NYY",
     "market": "f5_rl",
+    "selection": "BAL F5 -0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.419355
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "f5_rl",
+    "selection": "NYY F5 +0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.580645
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "f5_rl",
     "selection": "NYY F5 -0.5",
     "american": 121.0,
     "no_vig_prob": 0.433075
@@ -7502,6 +7789,48 @@
     "selection": "Under 7.0",
     "american": -117.0,
     "no_vig_prob": 0.522345
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_er",
+    "selection": "Brandon Young ER o1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.552855
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_er",
+    "selection": "Brandon Young ER u1.5",
+    "american": 110.0,
+    "no_vig_prob": 0.447145
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_h",
+    "selection": "Brandon Young Hits o3.5",
+    "american": -155.0,
+    "no_vig_prob": 0.560724
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_h",
+    "selection": "Brandon Young Hits u3.5",
+    "american": 110.0,
+    "no_vig_prob": 0.439276
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_outs",
+    "selection": "Brandon Young Outs o15.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436383
+  },
+  {
+    "matchup": "BAL @ NYY",
+    "market": "pitcher_outs",
+    "selection": "Brandon Young Outs u15.5",
+    "american": -155.0,
+    "no_vig_prob": 0.563617
   },
   {
     "matchup": "CHC @ BOS",
@@ -12161,9 +12490,23 @@
   {
     "matchup": "CIN @ TOR",
     "market": "pitcher_k",
+    "selection": "Nick Lodolo Ks o3.5",
+    "american": -165.0,
+    "no_vig_prob": 0.587513
+  },
+  {
+    "matchup": "CIN @ TOR",
+    "market": "pitcher_k",
     "selection": "Nick Lodolo Ks o4.5",
     "american": 127.0,
     "no_vig_prob": 0.41632
+  },
+  {
+    "matchup": "CIN @ TOR",
+    "market": "pitcher_k",
+    "selection": "Nick Lodolo Ks u3.5",
+    "american": 130.0,
+    "no_vig_prob": 0.412487
   },
   {
     "matchup": "CIN @ TOR",
@@ -14597,9 +14940,23 @@
   {
     "matchup": "CLE @ KC",
     "market": "f5_rl",
+    "selection": "CLE F5 +0.0",
+    "american": -142.0,
+    "no_vig_prob": 0.558974
+  },
+  {
+    "matchup": "CLE @ KC",
+    "market": "f5_rl",
     "selection": "CLE F5 -0.5",
     "american": 116.0,
     "no_vig_prob": 0.446257
+  },
+  {
+    "matchup": "CLE @ KC",
+    "market": "f5_rl",
+    "selection": "KC F5 +0.0",
+    "american": 116.0,
+    "no_vig_prob": 0.441026
   },
   {
     "matchup": "CLE @ KC",
@@ -18811,9 +19168,23 @@
   {
     "matchup": "HOU @ ATH",
     "market": "batter_hrr",
+    "selection": "Jeremy Pena H+R+RBI o2.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417044
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
     "selection": "Jeremy Pena H+R+RBI u1.5",
     "american": 120.0,
     "no_vig_prob": 0.429063
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
+    "selection": "Jeremy Pena H+R+RBI u2.5",
+    "american": -165.0,
+    "no_vig_prob": 0.582956
   },
   {
     "matchup": "HOU @ ATH",
