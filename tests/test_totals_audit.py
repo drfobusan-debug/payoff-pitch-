@@ -26,6 +26,7 @@ from mlb_engine.output.totals_audit import (
     sheet_bands,
     summarize,
     summary_text,
+    unique_pks,
     verdict,
     wilson,
     write_ledger,
@@ -158,6 +159,37 @@ def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
     (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
     assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
     assert rows_from_sheet(stamped, Date(2026, 9, 9), {})[0].bands == BANDS
+
+
+def test_a_doubleheader_is_filed_and_graded_by_its_own_game_pk(tmp_path: Path) -> None:
+    pks = unique_pks([("TOR @ BAL", 11), ("TOR @ BAL", 12), ("AZ @ KC", 1)])
+    assert pks == {"AZ @ KC": 1}  # the shared label names neither game
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Totals {D}"
+    ws.append(["Game", "Total", "SUM", "GamePk"])
+    ws.append(["TOR @ BAL", "7.5", 3, 11])
+    ws.append(["TOR @ BAL", "7.5", -5, 12])
+    ws.append(["AZ @ KC", "8.5", 6, None])  # an older sheet without the column falls back to the label
+    path = tmp_path / "dh.xlsx"
+    wb.save(path)
+    rows = rows_from_sheet(path, Date(2026, 9, 9), pks)
+    assert [(r.game, r.game_pk, r.sum_pts) for r in rows] == [("TOR @ BAL", 11, 3), ("TOR @ BAL", 12, -5), ("AZ @ KC", 1, 6)]
+    assert len(merge([], rows)) == 3
+
+    finals = {11: ("TOR @ BAL", 2, 4), 12: ("TOR @ BAL", 6, 5), 1: ("AZ @ KC", 2, 5)}
+    assert grade(rows, finals) == 3
+    assert [(r.runs, r.result) for r in rows] == [(6, "under"), (11, "over"), (7, "under")]
+
+    # a label-only row cannot be told which of the day's two finals is its own
+    unfiled = [LedgerRow(D, "TOR @ BAL", 0, 7.5, 3), LedgerRow(D, "AZ @ KC", 0, 8.5, 6)]
+    assert grade(unfiled, finals) == 1 and not unfiled[0].graded
+
+    # the engine ledger is keyed by label too: neither doubleheader row takes its curve
+    entries = [_entry("TOR @ BAL", "Over", 7.5, 0.6), _entry("AZ @ KC", "Over", 8.5, 0.55)]
+    assert attach_engine(rows, entries) == 1
+    assert rows[0].engine_p_over is None and rows[1].engine_p_over is None and rows[2].engine_p_over == 0.55
 
 
 def test_magnitude_bands_tally_the_sign_call_regardless_of_direction() -> None:

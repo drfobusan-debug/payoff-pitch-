@@ -20,6 +20,7 @@ import json
 import logging
 import math
 import re
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date as Date
@@ -46,6 +47,7 @@ from mlb_engine.output.totals_audit import (
     FLAG_OVER_SUM,
     FLAG_UNDER_MAX_LINE,
     FLAG_UNDER_SUM,
+    GAME_PK_COLUMN,
     OverCurve,
     closing_lines,
     engine_at,
@@ -56,6 +58,7 @@ from mlb_engine.output.totals_audit import (
     over_curves,
     record_sheet,
     sheet_bands,
+    unique_pks,
 )
 from mlb_engine.recommendations import Recommendation, load_json
 from mlb_engine.schemas import Pitcher, Slate, TeamGameInfo
@@ -192,7 +195,7 @@ def weather_pts(park: Park | None, cond: WeatherConditions | None) -> tuple[int,
     w = wind_pts(cond.wind_mph) if blowing_out else -wind_pts(cond.wind_mph) if blowing_in else 0
     pts = temp_pts(cond.temp_f) + w + humidity_pts(cond.humidity_pct)
     direction = "in" if blowing_in else "out" if blowing_out else "cross"
-    return pts, f"{cond.temp_f:.0f}F, {cond.wind_mph:.0f} mph {direction}, {cond.humidity_pct:.0f}%"
+    return pts, f"{cond.temp_f:.0f}F, {math.floor(cond.wind_mph)} mph {direction}, {cond.humidity_pct:.0f}%"
 
 
 def baseruns_per_game(r: dict[str, float], games: int) -> float | None:
@@ -563,6 +566,9 @@ class SheetRow:
     # the column is there so the ledger can grade the two against each other.
     engine_total: float | None = None
     engine_p_over: float | None = None
+    # statsapi gamePk: the audit grades on it, so both games of a doubleheader
+    # (same ``game`` label) each get their own final.
+    game_pk: int = 0
 
     @property
     def engine_delta(self) -> float | None:
@@ -805,6 +811,9 @@ def build_rows(
     board: dict[str, float] | None = None,
 ) -> list[SheetRow]:
     rows: list[SheetRow] = []
+    # The engine's totals are keyed by matchup label, which a doubleheader
+    # shares between two games: neither row can be told its own curve.
+    doubled = {m for m, k in Counter(g.matchup() for g in slate.games).items() if k > 1}
     for g in slate.games:
         matchup = g.matchup()
         away = _side(fg, box, gp, g.away, g.home, day, _p_under(outs, g.away))
@@ -817,10 +826,11 @@ def build_rows(
         ump_name, status = umps.get(g.game_pk, (None, "unknown"))
         ump, ump_detail = umpire_pts(box, ump_name, day)
         total = _total_label(splits, matchup, board)
-        curve = (engine or {}).get(matchup) or {}
+        curve = {} if matchup in doubled else (engine or {}).get(matchup) or {}
         p_over, _ = engine_at(curve, first_line(total))
         rows.append(SheetRow(
             game=matchup,
+            game_pk=g.game_pk,
             first_pitch_utc=g.game_datetime_utc,
             total=total,
             engine_total=engine_median(curve) if curve else None,
@@ -845,7 +855,7 @@ _COLUMNS = [
     "Pen A", "Pen H", "Ump", "SUM",
     "Engine", "Eng vs line", "Eng O%",
     "Weather detail", "Park", "BsR/G A", "BsR/G H", "Pen A detail", "Pen H detail",
-    "RP A source", "RP H source", "HP umpire", "Ump status", "Ump detail",
+    "RP A source", "RP H source", "HP umpire", "Ump status", "Ump detail", GAME_PK_COLUMN,
 ]
 
 _MID_COLUMNS = ["Rank", "Team", "RP pts", "K-BB pts", "SIERA", "xERA", "CSW%", "K-BB%", "IP", "Arms", "Middle relievers (by IP)"]
@@ -875,6 +885,7 @@ _LEGEND = [
                   "and not a closer (10+ SV), 10+ IP each, used when the starter is expected short: the pitcher-outs prop prices under 18 outs above 50%, or without a prop his season IP/GS is below 6.0, or the starter is TBD. "
                   "Same bands either way, so SUM's scale is unchanged. The team ranking is on the 'Middle relief' sheet."),
     ("Ump", "Home-plate umpire's 2026 runs/game vs league on finals before today: >= +1.0 run 1, <= -1.0 -1, else 0; needs 10+ games. 'projected' = crew not posted yet; yesterday's 1B umpire assumed by rotation."),
+    (GAME_PK_COLUMN, "statsapi gamePk. The audit grades each row on it, so both games of a doubleheader get their own final; the Engine columns are blank on a doubleheader because the engine ledger is keyed by matchup only."),
     ("Backtest", "Aug 4 - Sep 8 2026, 452 games: SUM correlates 0.49 with the closing total and ~0.03 with the result vs the close; top-3 overs / bottom-3 unders per day hit 50% / 47%. Read it as what the market already knows."),
     ("Factor study", "Aug 4 - Sep 16 2026, 582 games, each column rebuilt as of the day and tested against runs minus the closing total. "
                      "No factor predicts the result once the number is known: starter SIERA / xERA / K-BB correlate 0.34 / 0.33 / -0.37 with the closing total and 0.00 / 0.01 / 0.01 with the result vs it; "
@@ -907,7 +918,7 @@ def write_workbook(
             round(a.bsr_pg, 2) if a.bsr_pg is not None else None,
             round(h.bsr_pg, 2) if h.bsr_pg is not None else None,
             a.fatigue_detail, h.fatigue_detail, a.pen_detail, h.pen_detail,
-            r.ump_name, r.ump_status, r.ump_detail,
+            r.ump_name, r.ump_status, r.ump_detail, r.game_pk or None,
         ])
     bold = Font(bold=True)
     watch = Font(bold=True, italic=True)
@@ -1088,7 +1099,7 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     rows = build_rows(day, slate, fg, box, gp, splits, weather, umps, engine, outs, board)
     path = write_workbook(rows, day, out, fg.mid)
     try:
-        record_sheet(cfg, day, path, {g.matchup(): g.game_pk for g in slate.games})
+        record_sheet(cfg, day, path, unique_pks((g.matchup(), g.game_pk) for g in slate.games))
     except Exception as exc:  # the sheet is the deliverable; the ledger row is the receipt
         log.warning("totals sheet: ledger not updated: %s", exc)
     return path
