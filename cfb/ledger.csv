@@ -997,3 +997,9 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-19,Wyoming @ Central Michig,Spread (ATS),game_ats,Wyoming -0.0,-0.0,betus,-110.0,-110.0,Pass,0.4427,-0.1548,loss,-1.0,0.4427,0.5082,0.4427,-110.0,0.5082,0.0,-0.0298,0.0,0.0408,,
 2026-09-19,Wyoming @ Central Michig,Totals,game_total,Over 38.5,38.5,lowvig,-108.0,-108.0,Pass,0.3619,-0.3031,loss,-1.0,0.3619,0.4998,0.3619,-112.0,0.5372,0.0374,0.0346,1.0,-0.0329,,
 2026-09-19,Wyoming @ Central Michig,Totals,game_total,Under 38.5,38.5,draftkings,-108.0,-112.0,Pass,0.63,0.2133,win,0.9259,0.6381,0.5002,0.63,-105.0,0.4628,-0.0374,-0.1087,-1.0,0.0329,,
+2026-09-24,Liberty @ Coastal Caroli,Moneyline,game_ml,Coastal Caroli ML,,williamhill_us,117.0,-137.0,Pass,0.4257,-0.0762,loss,-1.0,0.4257,0.4517,0.4257,120.0,0.4441,-0.0076,-0.0363,,0.0,,-14.0
+2026-09-24,Liberty @ Coastal Caroli,Moneyline,game_ml,Liberty ML,,betrivers,-130.0,105.0,Moderate buy,0.5743,0.016,win,0.7692,0.5743,0.5483,0.5743,-129.0,0.5559,0.0076,-0.0165,,0.0,,14.0
+2026-09-24,Liberty @ Coastal Caroli,Spread (ATS),game_ats,Coastal Caroli +2.5,2.5,fanduel,-108.0,-112.0,Pass,0.5016,-0.034,loss,-1.0,0.5016,0.5028,0.5016,-105.0,0.4989,-0.0039,-0.0392,0.0,0.0,,28.0
+2026-09-24,Liberty @ Coastal Caroli,Spread (ATS),game_ats,Liberty -2.5,-2.5,lowvig,-103.0,-109.0,Pass,0.4984,-0.0177,win,0.9709,0.4984,0.4972,0.4984,-106.0,0.5011,0.0039,-0.0124,0.0,0.0,,-28.0
+2026-09-24,Liberty @ Coastal Caroli,Totals,game_total,Over 50.5,50.5,draftkings,-105.0,-115.0,Pass,0.4989,-0.0261,win,0.9524,0.4989,0.4977,0.4989,-112.0,0.4779,-0.0198,-0.067,-1.0,0.0,,5.0
+2026-09-24,Liberty @ Coastal Caroli,Totals,game_total,Under 50.5,50.5,fanduel,-110.0,-110.0,Pass,0.5011,-0.0433,loss,-1.0,0.5011,0.5023,0.5011,-103.0,0.5221,0.0198,-0.0033,1.0,0.0,,-5.0
