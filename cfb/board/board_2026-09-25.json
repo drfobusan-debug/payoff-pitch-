@@ -1,0 +1,142 @@
+{
+  "Army @ Temple|game_ats|Army": {
+    "american": -111.0,
+    "line": -3.0,
+    "no_vig_prob": 0.5108550548138099
+  },
+  "Army @ Temple|game_ats|Temple": {
+    "american": 100.0,
+    "line": 3.0,
+    "no_vig_prob": 0.4891449451861902
+  },
+  "Army @ Temple|game_ml|Army": {
+    "american": -152.0,
+    "line": null,
+    "no_vig_prob": 0.5876265025719212
+  },
+  "Army @ Temple|game_ml|Temple": {
+    "american": 136.0,
+    "line": null,
+    "no_vig_prob": 0.4123734974280789
+  },
+  "Army @ Temple|game_total|Over": {
+    "american": -105.0,
+    "line": 48.0,
+    "no_vig_prob": 0.49917429341039105
+  },
+  "Army @ Temple|game_total|Under": {
+    "american": -108.0,
+    "line": 48.0,
+    "no_vig_prob": 0.500825706589609
+  },
+  "Clemson @ California|game_ats|California": {
+    "american": -108.0,
+    "line": 1.5,
+    "no_vig_prob": 0.5017998093266313
+  },
+  "Clemson @ California|game_ats|Clemson": {
+    "american": -106.0,
+    "line": -1.5,
+    "no_vig_prob": 0.4982001906733687
+  },
+  "Clemson @ California|game_ml|California": {
+    "american": 100.0,
+    "line": null,
+    "no_vig_prob": 0.48384945717005623
+  },
+  "Clemson @ California|game_ml|Clemson": {
+    "american": -114.0,
+    "line": null,
+    "no_vig_prob": 0.5161505428299438
+  },
+  "Clemson @ California|game_total|Over": {
+    "american": -105.0,
+    "line": 50.5,
+    "no_vig_prob": 0.4986567892783278
+  },
+  "Clemson @ California|game_total|Under": {
+    "american": -108.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5013432107216723
+  },
+  "Howard @ Rutgers|game_ats|Howard": {
+    "american": -108.0,
+    "line": 43.5,
+    "no_vig_prob": 0.49962545133114594
+  },
+  "Howard @ Rutgers|game_ats|Rutgers": {
+    "american": -108.0,
+    "line": -43.5,
+    "no_vig_prob": 0.500374548668854
+  },
+  "Howard @ Rutgers|game_total|Over": {
+    "american": -108.0,
+    "line": 56.5,
+    "no_vig_prob": 0.49775826146259444
+  },
+  "Howard @ Rutgers|game_total|Under": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5022417385374055
+  },
+  "Navy @ UAB|game_ats|Navy": {
+    "american": -110.0,
+    "line": -6.5,
+    "no_vig_prob": 0.5018562519676657
+  },
+  "Navy @ UAB|game_ats|UAB": {
+    "american": -106.0,
+    "line": 6.5,
+    "no_vig_prob": 0.49814374803233435
+  },
+  "Navy @ UAB|game_ml|Navy": {
+    "american": -245.0,
+    "line": null,
+    "no_vig_prob": 0.6922582288870909
+  },
+  "Navy @ UAB|game_ml|UAB": {
+    "american": 230.0,
+    "line": null,
+    "no_vig_prob": 0.30774177111290923
+  },
+  "Navy @ UAB|game_total|Over": {
+    "american": -103.0,
+    "line": 51.5,
+    "no_vig_prob": 0.49168968636338306
+  },
+  "Navy @ UAB|game_total|Under": {
+    "american": -110.0,
+    "line": 51.5,
+    "no_vig_prob": 0.5083103136366169
+  },
+  "Northwestern @ Indiana|game_ats|Indiana": {
+    "american": -110.0,
+    "line": -20.5,
+    "no_vig_prob": 0.5048602917691101
+  },
+  "Northwestern @ Indiana|game_ats|Northwestern": {
+    "american": -104.0,
+    "line": 20.5,
+    "no_vig_prob": 0.49513970823088993
+  },
+  "Northwestern @ Indiana|game_ml|Indiana": {
+    "american": -1500.0,
+    "line": null,
+    "no_vig_prob": 0.908549273201596
+  },
+  "Northwestern @ Indiana|game_ml|Northwestern": {
+    "american": 1100.0,
+    "line": null,
+    "no_vig_prob": 0.09145072679840409
+  },
+  "Northwestern @ Indiana|game_total|Over": {
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.5008006634138251
+  },
+  "Northwestern @ Indiana|game_total|Under": {
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.4991993365861748
+  }
+}
