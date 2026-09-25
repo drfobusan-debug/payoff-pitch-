@@ -33,6 +33,7 @@ import logging
 import math
 import re
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from datetime import timedelta
@@ -84,6 +85,7 @@ def flag(sum_pts: int, line: float | None) -> str:
 
 # Sheet rows that reference the sheet's own columns, not the audit's.
 _GAME, _TOTAL, _SUM = "Game", "Total", "SUM"
+GAME_PK_COLUMN = "GamePk"
 _LEGEND_SHEET, _BANDS_KEY = "Legend", "Bands"
 
 
@@ -251,13 +253,15 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
     it = ws.iter_rows(values_only=True)
     header = [str(c) for c in next(it)]
     gi, ti, si = header.index(_GAME), header.index(_TOTAL), header.index(_SUM)
+    pi = header.index(GAME_PK_COLUMN) if GAME_PK_COLUMN in header else None
     out: list[LedgerRow] = []
     for r in it:
         if r[gi] is None or not isinstance(r[si], int):
             continue
         game = str(r[gi])
+        pk = r[pi] if pi is not None and isinstance(r[pi], int) else 0
         out.append(LedgerRow(
-            day.isoformat(), game, game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
+            day.isoformat(), game, pk or game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
         ))
     return out
 
@@ -384,11 +388,16 @@ def engine_at(curve: OverCurve, line: float | None) -> tuple[float | None, float
 
 
 def attach_engine(rows: list[LedgerRow], entries: list[LedgerEntry]) -> int:
-    """Fill the engine's read into rows that lack one; returns how many were filled."""
+    """Fill the engine's read into rows that lack one; returns how many were filled.
+
+    The engine ledger is keyed by matchup label, so both games of a doubleheader
+    share one curve; neither row is given it.
+    """
+    doubled = {k for k, c in Counter((r.date, r.game) for r in rows).items() if c > 1}
     curves: dict[str, dict[str, OverCurve]] = {}
     n = 0
     for r in rows:
-        if r.engine_p_over is not None:
+        if r.engine_p_over is not None or (r.date, r.game) in doubled:
             continue
         if r.date not in curves:
             curves[r.date] = over_curves(entries, Date.fromisoformat(r.date))
@@ -446,8 +455,20 @@ def finals(day: Date) -> dict[int, Final]:
     return out
 
 
+def unique_pks(pairs: Iterable[tuple[str, int]]) -> dict[str, int]:
+    """Matchup -> gamePk for the labels a day has exactly one game behind.
+
+    A doubleheader's label is left out: filing either pk on both sheet rows
+    would grade both against one final.
+    """
+    by_label: dict[str, list[int]] = {}
+    for label, pk in pairs:
+        by_label.setdefault(label, []).append(pk)
+    return {label: pks[0] for label, pks in by_label.items() if len(pks) == 1}
+
+
 def game_pks(day: Date) -> dict[str, int]:
-    return {_matchup(g): g["gamePk"] for g in _schedule(day)}
+    return unique_pks((_matchup(g), g["gamePk"]) for g in _schedule(day))
 
 
 def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:

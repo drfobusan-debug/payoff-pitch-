@@ -13,7 +13,7 @@ from mlb_engine.data.parks import PARKS
 from mlb_engine.data.vsin import Split, TotalSplit
 from mlb_engine.filters.weather import WeatherConditions
 from mlb_engine.output import totals_sheet
-from mlb_engine.output.totals_audit import BANDS, sheet_bands
+from mlb_engine.output.totals_audit import BANDS, rows_from_sheet, sheet_bands
 from mlb_engine.output.totals_sheet import (
     SheetRow,
     TeamSide,
@@ -84,6 +84,23 @@ def test_wind_is_signed_by_direction_and_a_cross_wind_is_nothing() -> None:
     assert weather_pts(open_park, blowing_out)[0] == 2
     assert weather_pts(open_park, cross)[0] == 0
     assert weather_pts(open_park, WeatherConditions(75, 50, 3, 90, 0))[0] == 0
+    # the label names the speed the band scored: 9.6 mph is the 5-9 band, not "10 mph"
+    pts, label = weather_pts(open_park, WeatherConditions(70, 50, 9.6, 0, -9.6))
+    assert pts == -1 and label == "70F, 9 mph in, 50%"
+
+
+def test_the_sheet_files_each_games_pk_so_a_doubleheader_grades_on_its_own_final(tmp_path: Path) -> None:
+    side = TeamSide("TOR", "X (R)", off=0, sp=0, rp=0, kbb_sp=0, kbb_rp=0, bsr_pg=None, fatigue=0, fatigue_detail="")
+
+    def row(pk: int) -> SheetRow:
+        return SheetRow("TOR @ BAL", None, "7.5", side, side, 0, 0, 0, "", 0, "", 0, 0, "", "", "", game_pk=pk)
+
+    path = write_workbook([row(11), row(12)], Date(2026, 9, 23), tmp_path / "t.xlsx")
+    ws = load_workbook(path)["Totals 2026-09-23"]
+    header = [c.value for c in ws[1]]
+    assert header[-1] == "GamePk" and [ws.cell(row=i, column=len(header)).value for i in (2, 3)] == [11, 12]
+    filed = rows_from_sheet(path, Date(2026, 9, 23), {})
+    assert [(r.game_pk, r.sum_pts) for r in filed] == [(11, 0), (12, 0)]
 
 
 def test_the_workbook_row_sum_is_the_sum_of_its_signed_columns(tmp_path: Path) -> None:
