@@ -1,0 +1,82 @@
+{
+  "Clemson @ California|game_ats|California": {
+    "american": -106.0,
+    "line": 2.5,
+    "no_vig_prob": 0.502957607884373
+  },
+  "Clemson @ California|game_ats|Clemson": {
+    "american": -105.0,
+    "line": -2.5,
+    "no_vig_prob": 0.4970423921156268
+  },
+  "Clemson @ California|game_ml|California": {
+    "american": 115.0,
+    "line": null,
+    "no_vig_prob": 0.45491085021818345
+  },
+  "Clemson @ California|game_ml|Clemson": {
+    "american": -125.0,
+    "line": null,
+    "no_vig_prob": 0.5450891497818167
+  },
+  "Clemson @ California|game_total|Over": {
+    "american": -104.0,
+    "line": 51.5,
+    "no_vig_prob": 0.4966441511513141
+  },
+  "Clemson @ California|game_total|Under": {
+    "american": -110.0,
+    "line": 51.5,
+    "no_vig_prob": 0.5033558488486859
+  },
+  "Howard @ Rutgers|game_ats|Howard": {
+    "american": -105.0,
+    "line": 41.5,
+    "no_vig_prob": 0.4895608942577446
+  },
+  "Howard @ Rutgers|game_ats|Rutgers": {
+    "american": -112.0,
+    "line": -41.5,
+    "no_vig_prob": 0.5104391057422554
+  },
+  "Howard @ Rutgers|game_total|Over": {
+    "american": -110.0,
+    "line": 57.5,
+    "no_vig_prob": 0.5058385042071359
+  },
+  "Howard @ Rutgers|game_total|Under": {
+    "american": -105.0,
+    "line": 57.5,
+    "no_vig_prob": 0.49416149579286406
+  },
+  "Northwestern @ Indiana|game_ats|Indiana": {
+    "american": -106.0,
+    "line": -20.5,
+    "no_vig_prob": 0.5047017308340581
+  },
+  "Northwestern @ Indiana|game_ats|Northwestern": {
+    "american": -101.0,
+    "line": 20.5,
+    "no_vig_prob": 0.4952982691659419
+  },
+  "Northwestern @ Indiana|game_ml|Indiana": {
+    "american": -1500.0,
+    "line": null,
+    "no_vig_prob": 0.9091892549693811
+  },
+  "Northwestern @ Indiana|game_ml|Northwestern": {
+    "american": 1050.0,
+    "line": null,
+    "no_vig_prob": 0.09081074503061896
+  },
+  "Northwestern @ Indiana|game_total|Over": {
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.5046590355433251
+  },
+  "Northwestern @ Indiana|game_total|Under": {
+    "american": -103.0,
+    "line": 49.5,
+    "no_vig_prob": 0.4953409644566749
+  }
+}
