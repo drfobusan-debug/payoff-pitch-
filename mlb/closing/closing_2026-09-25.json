@@ -21163,6 +21163,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_1b",
+    "selection": "Bryce Teodosio 1B o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.321262
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
+    "selection": "Bryce Teodosio 1B u0.5",
+    "american": -257.0,
+    "no_vig_prob": 0.678738
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
     "selection": "Cal Raleigh 1B o0.5",
     "american": 210.0,
     "no_vig_prob": 0.326728
@@ -21401,6 +21415,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_1b",
+    "selection": "Travis d'Arnaud 1B o0.5",
+    "american": 144.0,
+    "no_vig_prob": 0.380319
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
+    "selection": "Travis d'Arnaud 1B u0.5",
+    "american": -201.0,
+    "no_vig_prob": 0.619681
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
     "selection": "Vaughn Grissom 1B o0.5",
     "american": 105.0,
     "no_vig_prob": 0.464591
@@ -21453,6 +21481,20 @@
     "selection": "Zach Neto 1B u0.5",
     "american": -174.0,
     "no_vig_prob": 0.596154
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
+    "selection": "Bryce Teodosio 2B o0.5",
+    "american": 800.0,
+    "no_vig_prob": 0.110108
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
+    "selection": "Bryce Teodosio 2B u0.5",
+    "american": -1460.0,
+    "no_vig_prob": 0.889892
   },
   {
     "matchup": "LAA @ SEA",
@@ -21695,6 +21737,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_2b",
+    "selection": "Travis d'Arnaud 2B o0.5",
+    "american": 620.0,
+    "no_vig_prob": 0.131938
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
+    "selection": "Travis d'Arnaud 2B u0.5",
+    "american": -1060.0,
+    "no_vig_prob": 0.868062
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
     "selection": "Vaughn Grissom 2B o0.5",
     "american": 475.0,
     "no_vig_prob": 0.167974
@@ -21747,6 +21803,20 @@
     "selection": "Zach Neto 2B u0.5",
     "american": -720.0,
     "no_vig_prob": 0.829185
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
+    "selection": "Bryce Teodosio BB o0.5",
+    "american": 369.0,
+    "no_vig_prob": 0.200655
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
+    "selection": "Bryce Teodosio BB u0.5",
+    "american": -564.0,
+    "no_vig_prob": 0.799345
   },
   {
     "matchup": "LAA @ SEA",
@@ -21989,6 +22059,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_bb",
+    "selection": "Travis d'Arnaud BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.228809
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
+    "selection": "Travis d'Arnaud BB u0.5",
+    "american": -462.0,
+    "no_vig_prob": 0.771191
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
     "selection": "Vaughn Grissom BB o0.5",
     "american": 285.0,
     "no_vig_prob": 0.256617
@@ -22041,6 +22125,20 @@
     "selection": "Zach Neto BB u0.5",
     "american": -223.0,
     "no_vig_prob": 0.657038
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Bryce Teodosio H+R+RBI o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.470705
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Bryce Teodosio H+R+RBI u0.5",
+    "american": -129.0,
+    "no_vig_prob": 0.529295
   },
   {
     "matchup": "LAA @ SEA",
@@ -22311,6 +22409,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_hrr",
+    "selection": "Travis d'Arnaud H+R+RBI o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.536931
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Travis d'Arnaud H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.463069
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
     "selection": "Vaughn Grissom H+R+RBI o1.5",
     "american": 120.0,
     "no_vig_prob": 0.431132
@@ -22363,6 +22475,13 @@
     "selection": "Zach Neto H+R+RBI u1.5",
     "american": -140.0,
     "no_vig_prob": 0.554749
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hr",
+    "selection": "Bryce Teodosio HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
   },
   {
     "matchup": "LAA @ SEA",
@@ -22584,6 +22703,13 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_hr",
+    "selection": "Travis d'Arnaud HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hr",
     "selection": "Vaughn Grissom HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
@@ -22636,6 +22762,20 @@
     "selection": "Zach Neto HR o1.5",
     "american": 5500.0,
     "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
+    "selection": "Bryce Teodosio H o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.41661
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
+    "selection": "Bryce Teodosio H u0.5",
+    "american": -154.0,
+    "no_vig_prob": 0.58339
   },
   {
     "matchup": "LAA @ SEA",
@@ -22878,6 +23018,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_h",
+    "selection": "Travis d'Arnaud H o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.506158
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
+    "selection": "Travis d'Arnaud H u0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.493842
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
     "selection": "Vaughn Grissom H o0.5",
     "american": -160.0,
     "no_vig_prob": 0.584086
@@ -22930,6 +23084,20 @@
     "selection": "Zach Neto H u0.5",
     "american": 125.0,
     "no_vig_prob": 0.428555
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
+    "selection": "Bryce Teodosio RBI o0.5",
+    "american": 466.0,
+    "no_vig_prob": 0.168953
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
+    "selection": "Bryce Teodosio RBI u0.5",
+    "american": -740.0,
+    "no_vig_prob": 0.831047
   },
   {
     "matchup": "LAA @ SEA",
@@ -23172,6 +23340,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_rbi",
+    "selection": "Travis d'Arnaud RBI o0.5",
+    "american": 351.0,
+    "no_vig_prob": 0.20849
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
+    "selection": "Travis d'Arnaud RBI u0.5",
+    "american": -532.0,
+    "no_vig_prob": 0.79151
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
     "selection": "Vaughn Grissom RBI o0.5",
     "american": 255.0,
     "no_vig_prob": 0.292301
@@ -23224,6 +23406,20 @@
     "selection": "Zach Neto RBI u0.5",
     "american": -325.0,
     "no_vig_prob": 0.725339
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
+    "selection": "Bryce Teodosio R o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.24179
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
+    "selection": "Bryce Teodosio R u0.5",
+    "american": -405.0,
+    "no_vig_prob": 0.75821
   },
   {
     "matchup": "LAA @ SEA",
@@ -23466,6 +23662,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_r",
+    "selection": "Travis d'Arnaud R o0.5",
+    "american": 238.0,
+    "no_vig_prob": 0.276209
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
+    "selection": "Travis d'Arnaud R u0.5",
+    "american": -345.0,
+    "no_vig_prob": 0.723791
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
     "selection": "Vaughn Grissom R o0.5",
     "american": 182.0,
     "no_vig_prob": 0.331559
@@ -23518,6 +23728,20 @@
     "selection": "Zach Neto R u0.5",
     "american": -170.0,
     "no_vig_prob": 0.588522
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
+    "selection": "Bryce Teodosio TB o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.404874
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
+    "selection": "Bryce Teodosio TB u0.5",
+    "american": -172.0,
+    "no_vig_prob": 0.595126
   },
   {
     "matchup": "LAA @ SEA",
@@ -23886,6 +24110,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_tb",
+    "selection": "Travis d'Arnaud TB o0.5",
+    "american": -118.0,
+    "no_vig_prob": 0.507527
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
+    "selection": "Travis d'Arnaud TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.492473
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
     "selection": "Vaughn Grissom TB o0.5",
     "american": -159.0,
     "no_vig_prob": 0.575847
@@ -23984,9 +24222,23 @@
   {
     "matchup": "LAA @ SEA",
     "market": "f5_rl",
+    "selection": "LAA F5 +0.0",
+    "american": -104.0,
+    "no_vig_prob": 0.486002
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "f5_rl",
     "selection": "LAA F5 +0.5",
     "american": -140.0,
     "no_vig_prob": 0.56646
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "f5_rl",
+    "selection": "SEA F5 +0.0",
+    "american": -117.0,
+    "no_vig_prob": 0.513998
   },
   {
     "matchup": "LAA @ SEA",
@@ -24124,9 +24376,23 @@
   {
     "matchup": "LAA @ SEA",
     "market": "pitcher_h",
+    "selection": "Bryce Miller Hits o3.5",
+    "american": -155.0,
+    "no_vig_prob": 0.566511
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_h",
     "selection": "Bryce Miller Hits o4.5",
     "american": 117.0,
     "no_vig_prob": 0.43056
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_h",
+    "selection": "Bryce Miller Hits u3.5",
+    "american": 115.0,
+    "no_vig_prob": 0.433489
   },
   {
     "matchup": "LAA @ SEA",
@@ -25237,9 +25503,23 @@
   {
     "matchup": "LAD @ SF",
     "market": "batter_hrr",
+    "selection": "Mookie Betts H+R+RBI o2.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411171
+  },
+  {
+    "matchup": "LAD @ SF",
+    "market": "batter_hrr",
     "selection": "Mookie Betts H+R+RBI u1.5",
     "american": 130.0,
     "no_vig_prob": 0.426304
+  },
+  {
+    "matchup": "LAD @ SF",
+    "market": "batter_hrr",
+    "selection": "Mookie Betts H+R+RBI u2.5",
+    "american": -165.0,
+    "no_vig_prob": 0.588829
   },
   {
     "matchup": "LAD @ SF",
@@ -27169,9 +27449,23 @@
   {
     "matchup": "LAD @ SF",
     "market": "pitcher_er",
+    "selection": "Tarik Skubal ER o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.617819
+  },
+  {
+    "matchup": "LAD @ SF",
+    "market": "pitcher_er",
     "selection": "Tarik Skubal ER o1.5",
     "american": 140.0,
     "no_vig_prob": 0.407939
+  },
+  {
+    "matchup": "LAD @ SF",
+    "market": "pitcher_er",
+    "selection": "Tarik Skubal ER u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.382181
   },
   {
     "matchup": "LAD @ SF",
