@@ -227,41 +227,59 @@ elif [[ "$MODE" == slate-* ]]; then
     if [[ ! -f "$OUT/PayoffPitch_Slate_${day}_$BLOCK.pdf" ]]; then
       echo "[$(date)] no $BLOCK games today; nothing to email" >&2
     else
-      # The regression articles, the power screen and the totals sheet read the day's Statcast
-      # and the card as priced so far; written once, by the first pass of the
-      # day that has games, and emailed once, with that pass. A pass finding
-      # the once-a-day stamp already on disk sends only its slate and the card.
+      # The regression articles, the power screen, the totals sheet and the
+      # worksheet read the day's Statcast and the card as priced so far. Each is
+      # written once, by the first pass of the day that can, and the once-a-day
+      # pieces ride with the first pass that sends them. A piece whose generator
+      # failed is retried by every later pass, and a pass that writes one after
+      # the stamp is down sends the daily set again so it reaches the inbox.
       DAILY_STAMP="$OUT/.daily_sent_$day"
       WITH_DAILY=""
-      if [[ ! -f "$DAILY_STAMP" ]]; then
-        if [[ ! -f "$OUT/PayoffPitch_Regression_$day.pdf" ]]; then
-          pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
-          if [[ -n "$pkl" ]]; then
-            python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
-              || echo "[$(date)] regression articles failed" >&2
+      [[ -f "$DAILY_STAMP" ]] || WITH_DAILY="--with-daily"
+      if [[ ! -f "$OUT/PayoffPitch_Regression_$day.pdf" ]]; then
+        pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
+        if [[ -n "$pkl" ]]; then
+          if python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")"; then
+            WITH_DAILY="--with-daily"
           else
-            echo "[$(date)] no Statcast cache pkl; skipping regression articles" >&2
+            echo "[$(date)] regression articles failed" >&2
           fi
+        else
+          echo "[$(date)] no Statcast cache pkl; skipping regression articles" >&2
         fi
-        if [[ ! -f "$OUT/power_screen_$day.pdf" ]]; then
-          python scripts/power_screen.py --date "$day" \
-            || echo "[$(date)] power screen failed" >&2
+      fi
+      if [[ ! -f "$OUT/power_screen_$day.pdf" ]]; then
+        if python scripts/power_screen.py --date "$day"; then
+          WITH_DAILY="--with-daily"
+        else
+          echo "[$(date)] power screen failed" >&2
         fi
-        # --if-stale: a sheet written by an older band version is rescored, one
-        # already on the current bands is kept.
-        python -m scripts.totals_sheet "$day" --if-stale \
-          || echo "[$(date)] totals sheet failed" >&2
-        if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
-          python -m scripts.totals_audit "$day" \
-            || echo "[$(date)] totals audit failed" >&2
+      fi
+      # --if-stale: a sheet written by an older band version is rescored, one
+      # already on the current bands is kept. Checked on the first pass only;
+      # later passes fill in a missing sheet.
+      if [[ -n "$WITH_DAILY" || ! -f "$OUT/totals_sheet_$day.xlsx" ]]; then
+        if python -m scripts.totals_sheet "$day" --if-stale; then
+          [[ -f "$OUT/totals_sheet_$day.xlsx" ]] && WITH_DAILY="--with-daily"
+        else
+          echo "[$(date)] totals sheet failed" >&2
         fi
-        # The daily worksheet: matchup gaps + the prices they were written at,
-        # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
-        if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
-          python -m scripts.daily_worksheet "$day" \
-            || echo "[$(date)] daily worksheet failed" >&2
+      fi
+      if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
+        if python -m scripts.totals_audit "$day"; then
+          WITH_DAILY="--with-daily"
+        else
+          echo "[$(date)] totals audit failed" >&2
         fi
-        WITH_DAILY="--with-daily"
+      fi
+      # The daily worksheet: matchup gaps + the prices they were written at,
+      # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
+      if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
+        if python -m scripts.daily_worksheet "$day"; then
+          WITH_DAILY="--with-daily"
+        else
+          echo "[$(date)] daily worksheet failed" >&2
+        fi
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
       if python -m scripts.email_daily_package "$day" --block "$BLOCK" $WITH_DAILY; then
