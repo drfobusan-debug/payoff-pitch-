@@ -145,8 +145,12 @@ def temp_pts(t: float) -> int:
 
 
 def wind_pts(w: float) -> int:
-    """Speed points for a wind with a direction that matters; cross winds score 0."""
-    return 3 if w > 15 else 2 if w >= 10 else 1 if w >= 5 else 0
+    """Speed points for a wind with a direction that matters; cross winds score 0.
+
+    Bands are on the whole mph the label prints (5-9, 10-15, 16+), so a 15.4 mph
+    wind reads "15 mph" and scores the 10-15 band it is shown in.
+    """
+    return 3 if w >= 16 else 2 if w >= 10 else 1 if w >= 5 else 0
 
 
 def humidity_pts(h: float) -> int:
@@ -877,7 +881,7 @@ _LEGEND = [
     ("CSW%", ">31 -2 | 29-31 -1 | 25-29 0 | 23-25 1 | <23 2"),
     ("K-BB%", ">25 -3 | 19-25 -2 | 15-19 -1 | 10-15 0 | 7-10 1 | 4-7 2 | <4 3 (starter and pen, each team)"),
     ("Circa / DK", "VSIN total handle% - bets% on the side the money is on: >=20 2, 11-19 1, else 0; a 100/100 split is one ticket = 0. Signed + Over / - Under. Missing = 0."),
-    ("Weather", "First pitch, Open-Meteo: temp >90 2, >80 1, 60-79 0, 50-59 -1, <50 -2; humidity >65 1, 35-65 0, <35 -1; wind by direction (within 45 deg of the home plate-CF line): blowing out +1 (5-9 mph) / +2 (10-15) / +3 (>15), blowing in the same points negative, cross wind or <5 mph 0. Any roof (dome or retractable) = -1 total."),
+    ("Weather", "First pitch, Open-Meteo: temp >90 2, >80 1, 60-79 0, 50-59 -1, <50 -2; humidity >65 1, 35-65 0, <35 -1; wind by direction (within 45 deg of the home plate-CF line): blowing out +1 (5-9 mph) / +2 (10-15) / +3 (16+), blowing in the same points negative, cross wind or <5 mph 0. Any roof (dome or retractable) = -1 total."),
     ("Park", "Engine park factor (runs): >102 1, <98 -1, else 0."),
     ("BsR", "PROVISIONAL bands (not hand-written): team BaseRuns/G >=4.65 1, <=4.25 -1, else 0; both teams summed."),
     ("Pen A / Pen H", "Bullpen fatigue: +1 per top-3 leverage arm (SV+HLD) used yesterday, +2 if used both of the last two days, +1 if the pen threw 120+ pitches over the last two days; capped at 4."),

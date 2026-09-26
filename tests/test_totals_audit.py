@@ -70,6 +70,23 @@ def test_grading_signs_the_result_against_the_line_and_the_sum() -> None:
     assert grade(rows, FINALS) == 0  # never regraded
 
 
+def test_a_postponed_game_is_voided_and_kept_out_of_every_tally() -> None:
+    rows = _rows()
+    finals = dict(FINALS)
+    finals[1] = ("AZ @ KC", None, None)  # postponed off the day: no action on the total
+    assert grade(rows, finals) == 7
+    void = rows[0]
+    assert void.result == "void" and void.runs is None
+    assert not void.graded and not void.pending and void.hit is None
+    assert grade(rows, finals) == 0  # not asked for again
+    s = summarize(rows)
+    assert s.games == 6 and s.over_rate.n == 5 and s.sign.n == 5
+    assert s.by_mag[">= 15"].n == 2
+    # the workbook and text render it as its own result, not as an ungraded row
+    text = summary_text(Date(2026, 9, 9), rows, s)
+    assert "AZ @ KC 8.5" in text and "void" in text
+
+
 def test_a_label_match_is_refused_for_a_doubleheader_without_a_game_pk() -> None:
     twice = {11: ("NYY @ BOS", 3, 4), 12: ("NYY @ BOS", 8, 9)}
     assert grade([LedgerRow(D, "NYY @ BOS", 0, 9.0, 5)], twice) == 0

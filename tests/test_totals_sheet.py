@@ -87,6 +87,10 @@ def test_wind_is_signed_by_direction_and_a_cross_wind_is_nothing() -> None:
     # the label names the speed the band scored: 9.6 mph is the 5-9 band, not "10 mph"
     pts, label = weather_pts(open_park, WeatherConditions(70, 50, 9.6, 0, -9.6))
     assert pts == -1 and label == "70F, 9 mph in, 50%"
+    # 15.4 mph prints as "15 mph" and scores the 10-15 band it is shown in; 16 is the top band
+    pts, label = weather_pts(open_park, WeatherConditions(70, 50, 15.4, 0, -15.4))
+    assert pts == -2 and label == "70F, 15 mph in, 50%"
+    assert weather_pts(open_park, WeatherConditions(70, 50, 16.0, 0, -16.0))[0] == -3
 
 
 def test_the_sheet_files_each_games_pk_so_a_doubleheader_grades_on_its_own_final(tmp_path: Path) -> None:
