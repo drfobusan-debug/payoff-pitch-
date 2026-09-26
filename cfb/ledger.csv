@@ -1003,3 +1003,31 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-24,Liberty @ Coastal Caroli,Spread (ATS),game_ats,Liberty -2.5,-2.5,lowvig,-103.0,-109.0,Pass,0.4984,-0.0177,win,0.9709,0.4984,0.4972,0.4984,-106.0,0.5011,0.0039,-0.0124,0.0,0.0,,-28.0
 2026-09-24,Liberty @ Coastal Caroli,Totals,game_total,Over 50.5,50.5,draftkings,-105.0,-115.0,Pass,0.4989,-0.0261,win,0.9524,0.4989,0.4977,0.4989,-112.0,0.4779,-0.0198,-0.067,-1.0,0.0,,5.0
 2026-09-24,Liberty @ Coastal Caroli,Totals,game_total,Under 50.5,50.5,fanduel,-110.0,-110.0,Pass,0.5011,-0.0433,loss,-1.0,0.5011,0.5023,0.5011,-103.0,0.5221,0.0198,-0.0033,1.0,0.0,,-5.0
+2026-09-25,Army @ Temple,Moneyline,game_ml,Army ML,,betrivers,-152.0,118.0,Pass,0.6763,0.1213,win,0.6579,0.6763,0.5876,0.6763,,,,,,0.0,,
+2026-09-25,Army @ Temple,Moneyline,game_ml,Temple ML,,draftkings,136.0,-162.0,Pass,0.3237,-0.2361,loss,-1.0,0.3237,0.4124,0.3237,,,,,,0.0,,14.0
+2026-09-25,Army @ Temple,Spread (ATS),game_ats,Army -3.0,-3.0,lowvig,-111.0,-101.0,Strong buy,0.574,0.0911,win,0.9009,0.574,0.5109,0.574,,,,,,0.0,,
+2026-09-25,Army @ Temple,Spread (ATS),game_ats,Temple +3.0,3.0,betus,100.0,-120.0,Pass,0.426,-0.148,loss,-1.0,0.426,0.4891,0.426,,,,,,0.0,,-35.0
+2026-09-25,Army @ Temple,Totals,game_total,Over 48.0,48.0,bovada,-105.0,-115.0,Pass,0.6797,0.327,loss,-1.0,0.7286,0.4992,0.6797,,,,,,0.0,,
+2026-09-25,Army @ Temple,Totals,game_total,Under 48.0,48.0,lowvig,-108.0,-108.0,Pass,0.2714,-0.4772,win,0.9259,0.2714,0.5008,0.2714,,,,,,0.0,,46.0
+2026-09-25,Clemson @ California,Moneyline,game_ml,California ML,,betmgm,100.0,-118.0,Pass,0.4812,-0.0375,loss,-1.0,0.4812,0.4838,0.4812,115.0,0.4549,-0.0289,-0.0902,,0.0,,
+2026-09-25,Clemson @ California,Moneyline,game_ml,Clemson ML,,williamhill_us,-114.0,-104.0,Pass,0.5188,-0.0262,win,0.8772,0.5188,0.5162,0.5188,-125.0,0.5451,0.0289,0.0233,,0.0,,
+2026-09-25,Clemson @ California,Spread (ATS),game_ats,California +1.5,1.5,betmgm,-108.0,-110.0,Pass,0.5194,0.0003,loss,-1.0,0.5194,0.5018,0.5194,-106.0,0.478,-0.0238,-0.0794,-1.0,0.0,,
+2026-09-25,Clemson @ California,Spread (ATS),game_ats,Clemson -1.5,-1.5,williamhill_us,-106.0,-114.0,Pass,0.4806,-0.066,win,0.9434,0.4806,0.4982,0.4806,-105.0,0.522,0.0238,0.0145,1.0,0.0,,
+2026-09-25,Clemson @ California,Totals,game_total,Over 50.5,50.5,williamhill_us,-105.0,-115.0,Pass,0.4312,-0.1581,loss,-1.0,0.4312,0.4987,0.4312,-104.0,0.5273,0.0286,0.0295,1.0,0.0,,
+2026-09-25,Clemson @ California,Totals,game_total,Under 50.5,50.5,lowvig,-108.0,-108.0,Strong buy,0.5688,0.0955,win,0.9259,0.5688,0.5013,0.5688,-110.0,0.4727,-0.0286,-0.0896,-1.0,0.0,,
+2026-09-25,Howard @ Rutgers,Spread (ATS),game_ats,Howard +43.5,43.5,fanduel,-108.0,-112.0,Strong buy,0.5593,0.0771,loss,-1.0,0.5593,0.4996,0.5593,-105.0,0.5394,0.0398,0.0388,2.0,0.0,,
+2026-09-25,Howard @ Rutgers,Spread (ATS),game_ats,Rutgers -43.5,-43.5,draftkings,-108.0,-112.0,Pass,0.4407,-0.1512,win,0.9259,0.4407,0.5004,0.4407,-112.0,0.4606,-0.0398,-0.1129,-2.0,0.0,,
+2026-09-25,Howard @ Rutgers,Totals,game_total,Over 56.5,56.5,fanduel,-108.0,-112.0,Pass,0.501,-0.035,win,0.9259,0.501,0.4978,0.501,-110.0,0.5365,0.0387,0.0333,1.0,0.0,,
+2026-09-25,Howard @ Rutgers,Totals,game_total,Under 56.5,56.5,lowvig,-110.0,-110.0,Pass,0.499,-0.0475,loss,-1.0,0.499,0.5022,0.499,-105.0,0.4635,-0.0387,-0.1151,-1.0,0.0,,
+2026-09-25,Navy @ UAB,Moneyline,game_ml,Navy ML,,fanduel,-245.0,198.0,Pass,0.7883,0.1101,loss,-1.0,0.7883,0.6923,0.7883,,,,,,0.0,,
+2026-09-25,Navy @ UAB,Moneyline,game_ml,UAB ML,,betrivers,230.0,-305.0,Pass,0.2117,-0.3014,win,2.3,0.2117,0.3077,0.2117,,,,,,0.0,,
+2026-09-25,Navy @ UAB,Spread (ATS),game_ats,Navy -6.5,-6.5,mybookieag,-110.0,-110.0,Pass,0.6112,0.1668,loss,-1.0,0.6112,0.5019,0.6112,,,,,,0.0,,
+2026-09-25,Navy @ UAB,Spread (ATS),game_ats,UAB +6.5,6.5,fanduel,-106.0,-114.0,Pass,0.3888,-0.2444,win,0.9434,0.3888,0.4981,0.3888,,,,,,0.0,,
+2026-09-25,Navy @ UAB,Totals,game_total,Over 51.5,51.5,lowvig,-103.0,-114.0,Pass,0.6211,0.2241,loss,-1.0,0.622,0.4917,0.6211,,,,,,0.0,,
+2026-09-25,Navy @ UAB,Totals,game_total,Under 51.5,51.5,betus,-110.0,-110.0,Pass,0.378,-0.2784,win,0.9091,0.378,0.5083,0.378,,,,,,0.0,,
+2026-09-25,Northwestern @ Indiana,Moneyline,game_ml,Indiana ML,,fanatics,-1500.0,900.0,Pass,0.8804,-0.061,win,0.0667,0.8804,0.9085,0.8804,-1500.0,0.9092,0.0007,-0.0302,,0.0,,
+2026-09-25,Northwestern @ Indiana,Moneyline,game_ml,Northwestern ML,,betrivers,1100.0,-3335.0,Pass,0.1196,0.4358,loss,-1.0,0.1196,0.0915,0.1196,1050.0,0.0908,-0.0007,0.0896,,0.0,price_too_long,
+2026-09-25,Northwestern @ Indiana,Spread (ATS),game_ats,Indiana -20.5,-20.5,mybookieag,-110.0,-110.0,Pass,0.4365,-0.1666,loss,-1.0,0.4365,0.5049,0.4365,-106.0,0.5047,-0.0002,-0.0365,0.0,0.0,,
+2026-09-25,Northwestern @ Indiana,Spread (ATS),game_ats,Northwestern +20.5,20.5,williamhill_us,-104.0,-117.0,Strong buy,0.5635,0.1053,win,0.9615,0.5635,0.4951,0.5635,-101.0,0.4953,0.0002,-0.0284,0.0,0.0,,
+2026-09-25,Northwestern @ Indiana,Totals,game_total,Over 49.5,49.5,betmgm,-108.0,-110.0,Pass,0.3675,-0.2921,win,0.9259,0.3675,0.5008,0.3675,-108.0,0.5047,0.0039,-0.028,0.0,0.0,,
+2026-09-25,Northwestern @ Indiana,Totals,game_total,Under 49.5,49.5,draftkings,-108.0,-112.0,Pass,0.6268,0.2073,loss,-1.0,0.6324,0.4992,0.6268,-103.0,0.4953,-0.0039,-0.0461,0.0,0.0,,
