@@ -1182,76 +1182,7 @@
     "position": null
    }
   ],
-  "revisions": [
-   {
-    "captured_at": "2026-09-25T22:51:50+00:00",
-    "players": [
-     {
-      "order": 1,
-      "mlbam_id": 663457,
-      "name": "Lars Nootbaar",
-      "bats": "L",
-      "position": "LF"
-     },
-     {
-      "order": 2,
-      "mlbam_id": 606466,
-      "name": "Ketel Marte",
-      "bats": "S",
-      "position": "2B"
-     },
-     {
-      "order": 3,
-      "mlbam_id": 672515,
-      "name": "Gabriel Moreno",
-      "bats": "R",
-      "position": "C"
-     },
-     {
-      "order": 4,
-      "mlbam_id": 672695,
-      "name": "Geraldo Perdomo",
-      "bats": "S",
-      "position": "SS"
-     },
-     {
-      "order": 5,
-      "mlbam_id": 682998,
-      "name": "Corbin Carroll",
-      "bats": "L",
-      "position": "RF"
-     },
-     {
-      "order": 6,
-      "mlbam_id": 571448,
-      "name": "Nolan Arenado",
-      "bats": "R",
-      "position": "3B"
-     },
-     {
-      "order": 7,
-      "mlbam_id": 694374,
-      "name": "Tim Tawa",
-      "bats": "R",
-      "position": "1B"
-     },
-     {
-      "order": 8,
-      "mlbam_id": 656976,
-      "name": "Pavin Smith",
-      "bats": "L",
-      "position": "DH"
-     },
-     {
-      "order": 9,
-      "mlbam_id": 691783,
-      "name": "Jordan Lawlar",
-      "bats": "R",
-      "position": "CF"
-     }
-    ]
-   }
-  ]
+  "revisions": []
  },
  {
   "game_pk": 823248,
