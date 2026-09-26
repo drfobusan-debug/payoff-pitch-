@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 LEDGER_NAME = "totals_ledger.csv"
 ENGINE_LEDGER_NAME = "ledger.csv"
 GAME_TOTAL = "game_total"
-OVER, UNDER, PUSH = "over", "under", "push"
+OVER, UNDER, PUSH, VOID = "over", "under", "push", "void"
 RANK_N = 3
 RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
 # Version of the scoring bands; bump when a band table changes so sheets and
@@ -98,7 +98,7 @@ class LedgerRow:
     sum_pts: int
     away_runs: int | None = None
     home_runs: int | None = None
-    result: str = ""  # over | under | push | "" (ungraded)
+    result: str = ""  # over | under | push | void (postponed, no action) | "" (ungraded)
     bands: str = LEGACY  # BANDS version that scored sum_pts; LEGACY predates versioning
     # The engine's read of the same game: its median total, its calibrated over
     # probability at the sheet's line, and the devigged market over at that line
@@ -113,7 +113,11 @@ class LedgerRow:
 
     @property
     def graded(self) -> bool:
-        return self.result != ""
+        return self.result in (OVER, UNDER, PUSH)
+
+    @property
+    def pending(self) -> bool:
+        return self.result == ""
 
     @property
     def runs(self) -> int | None:
@@ -439,14 +443,25 @@ def _matchup(g: dict) -> str:
     return f"{g['teams']['away']['team'].get('abbreviation', '')} @ {g['teams']['home']['team'].get('abbreviation', '')}"
 
 
-Final = tuple[str, int, int]  # (matchup label, away runs, home runs)
+# (matchup label, away runs, home runs); runs are None for a game the day never played
+Final = tuple[str, int | None, int | None]
+_NO_ACTION = ("Postponed", "Cancelled")
 
 
 def finals(day: Date) -> dict[int, Final]:
-    """game_pk -> (matchup, away runs, home runs) for every game that reached Final."""
+    """game_pk -> (matchup, away runs, home runs) for every game that reached Final.
+
+    A game postponed or cancelled off the day is listed with no runs: the total
+    on it is no action, and the row is voided rather than left waiting for a
+    final that the day's schedule will never carry.
+    """
     out: dict[int, Final] = {}
     for g in _schedule(day):
-        if g.get("status", {}).get("abstractGameState") != "Final":
+        status = g.get("status", {})
+        if status.get("detailedState") in _NO_ACTION:
+            out[int(g["gamePk"])] = (_matchup(g), None, None)
+            continue
+        if status.get("abstractGameState") != "Final":
             continue
         a, h = g["teams"]["away"], g["teams"]["home"]
         if "score" not in a or "score" not in h:
@@ -478,23 +493,30 @@ def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
     A doubleheader's two games share a label, so the label match is only trusted
     when the day has one final between those clubs.
     """
-    by_label: dict[str, list[tuple[int, int]]] = {}
+    by_label: dict[str, list[tuple[int | None, int | None]]] = {}
     for label, a, h in results.values():
         by_label.setdefault(label, []).append((a, h))
     n = 0
     for r in rows:
-        if r.graded:
+        if not r.pending:
             continue
-        hit: tuple[int, int] | None = None
+        hit: tuple[int | None, int | None] | None = None
         if r.game_pk and r.game_pk in results:
             _, a, h = results[r.game_pk]
             hit = (a, h)
         elif not r.game_pk and len(by_label.get(r.game, [])) == 1:
             hit = by_label[r.game][0]
-        if hit is None or r.line is None:
+        if hit is None:
             continue
-        r.away_runs, r.home_runs = hit
-        total = hit[0] + hit[1]
+        a, h = hit
+        if a is None or h is None:
+            r.result = VOID
+            n += 1
+            continue
+        if r.line is None:
+            continue
+        r.away_runs, r.home_runs = a, h
+        total = a + h
         r.result = OVER if total > r.line else UNDER if total < r.line else PUSH
         n += 1
     return n
@@ -874,7 +896,7 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
         except Exception as exc:
             log.warning("totals audit: could not read %s: %s", sheet.name, exc)
 
-    for d in sorted({r.date for r in ledger if not r.graded and r.line is None}):
+    for d in sorted({r.date for r in ledger if r.pending and r.line is None}):
         try:
             n = attach_lines(
                 [r for r in ledger if r.date == d],
@@ -894,7 +916,7 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
         except Exception as exc:
             log.warning("totals audit: engine ledger unreadable: %s", exc)
 
-    for d in sorted({r.date for r in ledger if not r.graded}):
+    for d in sorted({r.date for r in ledger if r.pending}):
         if Date.fromisoformat(d) >= day:
             continue
         try:

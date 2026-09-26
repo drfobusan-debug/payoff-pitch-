@@ -724,7 +724,7 @@ class LedgerRow:
     weights: str = WEIGHTS_VERSION
     away_runs: int | None = None
     home_runs: int | None = None
-    result: str = ""  # fav | dog | tie | "" (ungraded)
+    result: str = ""  # fav | dog | tie | void (postponed, no action) | "" (ungraded)
     rl_result: str = ""  # away | home | push | ""
 
     @property
@@ -825,6 +825,10 @@ def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
         if r.graded or not r.complete or r.game_pk not in results:
             continue
         _, ar, hr = results[r.game_pk]
+        if ar is None or hr is None:
+            r.result = "void"
+            n += 1
+            continue
         r.away_runs, r.home_runs = ar, hr
         if ar == hr:
             r.result = "tie"
