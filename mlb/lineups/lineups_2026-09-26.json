@@ -231,7 +231,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-26T15:55:14+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 699115,
+      "name": "Carlos Jorge",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 682829,
+      "name": "Elly De La Cruz",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 701398,
+      "name": "Sal Stewart",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 553993,
+      "name": "Eugenio Su\u00e1rez",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 668709,
+      "name": "JJ Bleday",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 663886,
+      "name": "Tyler Stephenson",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 699302,
+      "name": "H\u00e9ctor Rodr\u00edguez",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 682877,
+      "name": "Juan Brito",
+      "bats": "S",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 680574,
+      "name": "Matt McLain",
+      "bats": "R",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 822759,

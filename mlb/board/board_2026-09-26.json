@@ -21891,6 +21891,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_1b",
+    "selection": "Nasim Nunez 1B o0.5",
+    "american": 122.0,
+    "no_vig_prob": 0.421211
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_1b",
+    "selection": "Nasim Nunez 1B u0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.578789
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_1b",
     "selection": "Ronny Mauricio 1B o0.5",
     "american": 120.0,
     "no_vig_prob": 0.429696
@@ -21901,6 +21915,20 @@
     "selection": "Ronny Mauricio 1B u0.5",
     "american": -157.0,
     "no_vig_prob": 0.570304
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_1b",
+    "selection": "Yohandy Morales 1B o0.5",
+    "american": 112.0,
+    "no_vig_prob": 0.43971
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_1b",
+    "selection": "Yohandy Morales 1B u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.56029
   },
   {
     "matchup": "NYM @ WSH",
@@ -22143,6 +22171,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_2b",
+    "selection": "Nasim Nunez 2B o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.141157
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_2b",
+    "selection": "Nasim Nunez 2B u0.5",
+    "american": -890.0,
+    "no_vig_prob": 0.858843
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_2b",
     "selection": "Ronny Mauricio 2B o0.5",
     "american": 525.0,
     "no_vig_prob": 0.158997
@@ -22153,6 +22195,20 @@
     "selection": "Ronny Mauricio 2B u0.5",
     "american": -740.0,
     "no_vig_prob": 0.841003
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_2b",
+    "selection": "Yohandy Morales 2B o0.5",
+    "american": 540.0,
+    "no_vig_prob": 0.163421
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_2b",
+    "selection": "Yohandy Morales 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.836579
   },
   {
     "matchup": "NYM @ WSH",
@@ -22716,6 +22772,20 @@
   },
   {
     "matchup": "NYM @ WSH",
+    "market": "batter_hrr",
+    "selection": "Yohandy Morales H+R+RBI o1.5",
+    "american": 115.0,
+    "no_vig_prob": 0.442338
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_hrr",
+    "selection": "Yohandy Morales H+R+RBI u1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.557662
+  },
+  {
+    "matchup": "NYM @ WSH",
     "market": "batter_hr",
     "selection": "A.J. Ewing HR o0.5",
     "american": 950.0,
@@ -22969,6 +23039,13 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_hr",
+    "selection": "Nasim Nunez HR o0.5",
+    "american": 1500.0,
+    "no_vig_prob": 0.0625
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_hr",
     "selection": "Ronny Mauricio HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.130511
@@ -22979,6 +23056,13 @@
     "selection": "Ronny Mauricio HR o1.5",
     "american": 8000.0,
     "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_hr",
+    "selection": "Yohandy Morales HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
   },
   {
     "matchup": "NYM @ WSH",
@@ -23235,6 +23319,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_h",
+    "selection": "Nasim Nunez H o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.510897
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_h",
+    "selection": "Nasim Nunez H u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.489103
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_h",
     "selection": "Ronny Mauricio H o0.5",
     "american": -140.0,
     "no_vig_prob": 0.565521
@@ -23245,6 +23343,20 @@
     "selection": "Ronny Mauricio H u0.5",
     "american": 126.0,
     "no_vig_prob": 0.434479
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_h",
+    "selection": "Yohandy Morales H o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.568087
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_h",
+    "selection": "Yohandy Morales H u0.5",
+    "american": 126.0,
+    "no_vig_prob": 0.431913
   },
   {
     "matchup": "NYM @ WSH",
@@ -23487,6 +23599,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_rbi",
+    "selection": "Nasim Nunez RBI o0.5",
+    "american": 360.0,
+    "no_vig_prob": 0.208771
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_rbi",
+    "selection": "Nasim Nunez RBI u0.5",
+    "american": -514.0,
+    "no_vig_prob": 0.791229
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_rbi",
     "selection": "Ronny Mauricio RBI o0.5",
     "american": 210.0,
     "no_vig_prob": 0.30161
@@ -23497,6 +23623,20 @@
     "selection": "Ronny Mauricio RBI u0.5",
     "american": -298.0,
     "no_vig_prob": 0.69839
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_rbi",
+    "selection": "Yohandy Morales RBI o0.5",
+    "american": 240.0,
+    "no_vig_prob": 0.299835
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_rbi",
+    "selection": "Yohandy Morales RBI u0.5",
+    "american": -264.0,
+    "no_vig_prob": 0.700165
   },
   {
     "matchup": "NYM @ WSH",
@@ -23739,6 +23879,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_r",
+    "selection": "Nasim Nunez R o0.5",
+    "american": 214.0,
+    "no_vig_prob": 0.299172
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_r",
+    "selection": "Nasim Nunez R u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.700828
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_r",
     "selection": "Ronny Mauricio R o0.5",
     "american": 145.0,
     "no_vig_prob": 0.388143
@@ -23749,6 +23903,20 @@
     "selection": "Ronny Mauricio R u0.5",
     "american": -186.0,
     "no_vig_prob": 0.611857
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_r",
+    "selection": "Yohandy Morales R o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.369443
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_r",
+    "selection": "Yohandy Morales R u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.630557
   },
   {
     "matchup": "NYM @ WSH",
@@ -23826,6 +23994,13 @@
     "selection": "Brady House TB u0.5",
     "american": 137.0,
     "no_vig_prob": 0.401389
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
+    "selection": "Brady House TB u1.5",
+    "american": -199.0,
+    "no_vig_prob": 0.624334
   },
   {
     "matchup": "NYM @ WSH",
@@ -23931,6 +24106,13 @@
     "selection": "Dylan Crews TB u0.5",
     "american": 132.0,
     "no_vig_prob": 0.408131
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
+    "selection": "Dylan Crews TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.614417
   },
   {
     "matchup": "NYM @ WSH",
@@ -24075,6 +24257,20 @@
   {
     "matchup": "NYM @ WSH",
     "market": "batter_tb",
+    "selection": "Nasim Nunez TB o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.504273
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
+    "selection": "Nasim Nunez TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.495727
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
     "selection": "Ronny Mauricio TB o0.5",
     "american": -140.0,
     "no_vig_prob": 0.548776
@@ -24099,6 +24295,20 @@
     "selection": "Ronny Mauricio TB u1.5",
     "american": -234.0,
     "no_vig_prob": 0.655475
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
+    "selection": "Yohandy Morales TB o1.5",
+    "american": 174.0,
+    "no_vig_prob": 0.353273
+  },
+  {
+    "matchup": "NYM @ WSH",
+    "market": "batter_tb",
+    "selection": "Yohandy Morales TB u1.5",
+    "american": -212.0,
+    "no_vig_prob": 0.646727
   },
   {
     "matchup": "NYM @ WSH",
