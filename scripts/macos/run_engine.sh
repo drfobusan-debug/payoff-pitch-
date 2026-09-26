@@ -239,47 +239,37 @@ elif [[ "$MODE" == slate-* ]]; then
       if [[ ! -f "$OUT/PayoffPitch_Regression_$day.pdf" ]]; then
         pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
         if [[ -n "$pkl" ]]; then
-          if python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")"; then
-            WITH_DAILY="--with-daily"
-          else
-            echo "[$(date)] regression articles failed" >&2
-          fi
+          python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
+            && WITH_DAILY="--with-daily" \
+            || echo "[$(date)] regression articles failed" >&2
         else
           echo "[$(date)] no Statcast cache pkl; skipping regression articles" >&2
         fi
       fi
       if [[ ! -f "$OUT/power_screen_$day.pdf" ]]; then
-        if python scripts/power_screen.py --date "$day"; then
-          WITH_DAILY="--with-daily"
-        else
-          echo "[$(date)] power screen failed" >&2
-        fi
+        python scripts/power_screen.py --date "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] power screen failed" >&2
       fi
       # --if-stale: a sheet written by an older band version is rescored, one
       # already on the current bands is kept. Checked on the first pass only;
       # later passes fill in a missing sheet.
       if [[ -n "$WITH_DAILY" || ! -f "$OUT/totals_sheet_$day.xlsx" ]]; then
-        if python -m scripts.totals_sheet "$day" --if-stale; then
-          [[ -f "$OUT/totals_sheet_$day.xlsx" ]] && WITH_DAILY="--with-daily"
-        else
-          echo "[$(date)] totals sheet failed" >&2
-        fi
+        python -m scripts.totals_sheet "$day" --if-stale \
+          && { [[ ! -f "$OUT/totals_sheet_$day.xlsx" ]] || WITH_DAILY="--with-daily"; } \
+          || echo "[$(date)] totals sheet failed" >&2
       fi
       if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
-        if python -m scripts.totals_audit "$day"; then
-          WITH_DAILY="--with-daily"
-        else
-          echo "[$(date)] totals audit failed" >&2
-        fi
+        python -m scripts.totals_audit "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] totals audit failed" >&2
       fi
       # The daily worksheet: matchup gaps + the prices they were written at,
       # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
       if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
-        if python -m scripts.daily_worksheet "$day"; then
-          WITH_DAILY="--with-daily"
-        else
-          echo "[$(date)] daily worksheet failed" >&2
-        fi
+        python -m scripts.daily_worksheet "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] daily worksheet failed" >&2
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
       if python -m scripts.email_daily_package "$day" --block "$BLOCK" $WITH_DAILY; then
