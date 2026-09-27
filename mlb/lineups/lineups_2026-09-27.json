@@ -1181,6 +1181,74 @@
       "position": "CF"
      }
     ]
+   },
+   {
+    "captured_at": "2026-09-27T22:51:52+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 663457,
+      "name": "Lars Nootbaar",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 606466,
+      "name": "Ketel Marte",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 672695,
+      "name": "Geraldo Perdomo",
+      "bats": "S",
+      "position": "SS"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 571448,
+      "name": "Nolan Arenado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 682998,
+      "name": "Corbin Carroll",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 656976,
+      "name": "Pavin Smith",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 694374,
+      "name": "Tim Tawa",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 543510,
+      "name": "James McCann",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 691783,
+      "name": "Jordan Lawlar",
+      "bats": "R",
+      "position": "CF"
+     }
+    ]
    }
   ]
  },
@@ -3777,7 +3845,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-09-27T22:51:52+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665161,
+      "name": "Jeremy Pe\u00f1a",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 670541,
+      "name": "Yordan Alvarez",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 670623,
+      "name": "Isaac Paredes",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 514888,
+      "name": "Jose Altuve",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 673237,
+      "name": "Yainer Diaz",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 572233,
+      "name": "Christian Walker",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 828599,
+      "name": "Lucas Spence",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 701358,
+      "name": "Cam Smith",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 666211,
+      "name": "Taylor Trammell",
+      "bats": "L",
+      "position": "LF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 824948,
