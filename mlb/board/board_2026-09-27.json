@@ -35324,9 +35324,23 @@
   {
     "matchup": "TB @ PHI",
     "market": "batter_hrr",
+    "selection": "Edmundo Sosa H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410087
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
     "selection": "Edmundo Sosa H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400043
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Edmundo Sosa H+R+RBI u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.589913
   },
   {
     "matchup": "TB @ PHI",
@@ -35359,9 +35373,23 @@
   {
     "matchup": "TB @ PHI",
     "market": "batter_hrr",
+    "selection": "Jonathan Aranda H+R+RBI o0.5",
+    "american": -186.0,
+    "no_vig_prob": 0.608509
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
     "selection": "Jonathan Aranda H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.405668
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Jonathan Aranda H+R+RBI u0.5",
+    "american": 139.0,
+    "no_vig_prob": 0.391491
   },
   {
     "matchup": "TB @ PHI",
@@ -35387,6 +35415,20 @@
   {
     "matchup": "TB @ PHI",
     "market": "batter_hrr",
+    "selection": "Jorge Mateo H+R+RBI o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.465347
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Jorge Mateo H+R+RBI u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.534653
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
     "selection": "Junior Caminero H+R+RBI o1.5",
     "american": 115.0,
     "no_vig_prob": 0.44437
@@ -35401,9 +35443,23 @@
   {
     "matchup": "TB @ PHI",
     "market": "batter_hrr",
+    "selection": "Justin Crawford H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.584585
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
     "selection": "Justin Crawford H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.40633
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Justin Crawford H+R+RBI u0.5",
+    "american": 126.0,
+    "no_vig_prob": 0.415415
   },
   {
     "matchup": "TB @ PHI",
@@ -35453,6 +35509,20 @@
     "selection": "Liam Hicks H+R+RBI u1.5",
     "american": -185.0,
     "no_vig_prob": 0.609162
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.534653
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.465347
   },
   {
     "matchup": "TB @ PHI",
@@ -36591,9 +36661,23 @@
   {
     "matchup": "TB @ PHI",
     "market": "batter_tb",
+    "selection": "Alec Bohm TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.625
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_tb",
     "selection": "Alec Bohm TB o1.5",
     "american": 160.0,
     "no_vig_prob": 0.368081
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "batter_tb",
+    "selection": "Alec Bohm TB u0.5",
+    "american": 150.0,
+    "no_vig_prob": 0.375
   },
   {
     "matchup": "TB @ PHI",
@@ -37186,6 +37270,13 @@
   {
     "matchup": "TB @ PHI",
     "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs u15.5",
+    "american": -194.0,
+    "no_vig_prob": 0.616868
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "pitcher_outs",
     "selection": "Zack Wheeler Outs o17.5",
     "american": -136.0,
     "no_vig_prob": 0.54032
@@ -37193,9 +37284,23 @@
   {
     "matchup": "TB @ PHI",
     "market": "pitcher_outs",
+    "selection": "Zack Wheeler Outs o18.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436235
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "pitcher_outs",
     "selection": "Zack Wheeler Outs u17.5",
     "american": 105.0,
     "no_vig_prob": 0.45968
+  },
+  {
+    "matchup": "TB @ PHI",
+    "market": "pitcher_outs",
+    "selection": "Zack Wheeler Outs u18.5",
+    "american": -150.0,
+    "no_vig_prob": 0.563765
   },
   {
     "matchup": "TEX @ MIN",
