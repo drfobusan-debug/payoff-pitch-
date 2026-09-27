@@ -15794,6 +15794,20 @@
   {
     "matchup": "HOU @ ATH",
     "market": "batter_bb",
+    "selection": "Jonah Heim BB o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.264234
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_bb",
+    "selection": "Jonah Heim BB u0.5",
+    "american": -348.0,
+    "no_vig_prob": 0.735766
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_bb",
     "selection": "Jose Altuve BB o0.5",
     "american": 230.0,
     "no_vig_prob": 0.284743
@@ -16053,9 +16067,23 @@
   {
     "matchup": "HOU @ ATH",
     "market": "batter_hrr",
+    "selection": "Jose Altuve H+R+RBI o2.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436681
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
     "selection": "Jose Altuve H+R+RBI u1.5",
     "american": 125.0,
     "no_vig_prob": 0.433261
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "batter_hrr",
+    "selection": "Jose Altuve H+R+RBI u2.5",
+    "american": -150.0,
+    "no_vig_prob": 0.563319
   },
   {
     "matchup": "HOU @ ATH",
@@ -17768,9 +17796,23 @@
   {
     "matchup": "HOU @ ATH",
     "market": "pitcher_outs",
+    "selection": "Hayden Wesneski Outs o14.5",
+    "american": -125.0,
+    "no_vig_prob": 0.53268
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "pitcher_outs",
     "selection": "Hayden Wesneski Outs o15.5",
     "american": 130.0,
     "no_vig_prob": 0.405327
+  },
+  {
+    "matchup": "HOU @ ATH",
+    "market": "pitcher_outs",
+    "selection": "Hayden Wesneski Outs u14.5",
+    "american": 107.0,
+    "no_vig_prob": 0.46732
   },
   {
     "matchup": "HOU @ ATH",
@@ -17974,6 +18016,20 @@
     "selection": "Leo Rivas 1B u0.5",
     "american": -210.0,
     "no_vig_prob": 0.641925
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
+    "selection": "Michael Arroyo 1B o0.5",
+    "american": 127.0,
+    "no_vig_prob": 0.412291
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_1b",
+    "selection": "Michael Arroyo 1B u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.587709
   },
   {
     "matchup": "LAA @ SEA",
@@ -18230,6 +18286,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_2b",
+    "selection": "Michael Arroyo 2B o0.5",
+    "american": 600.0,
+    "no_vig_prob": 0.153224
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
+    "selection": "Michael Arroyo 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.846776
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_2b",
     "selection": "Mike Trout 2B o0.5",
     "american": 476.0,
     "no_vig_prob": 0.163917
@@ -18468,6 +18538,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_bb",
+    "selection": "Michael Arroyo BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.266368
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
+    "selection": "Michael Arroyo BB u0.5",
+    "american": -321.0,
+    "no_vig_prob": 0.733632
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_bb",
     "selection": "Mike Trout BB o0.5",
     "american": 105.0,
     "no_vig_prob": 0.461088
@@ -18702,6 +18786,34 @@
     "selection": "Leo Rivas H+R+RBI u0.5",
     "american": 110.0,
     "no_vig_prob": 0.454765
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.602452
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI o1.5",
+    "american": 125.0,
+    "no_vig_prob": 0.422683
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI u0.5",
+    "american": 136.0,
+    "no_vig_prob": 0.397548
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hrr",
+    "selection": "Michael Arroyo H+R+RBI u1.5",
+    "american": -157.0,
+    "no_vig_prob": 0.577317
   },
   {
     "matchup": "LAA @ SEA",
@@ -18965,6 +19077,13 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_hr",
+    "selection": "Michael Arroyo HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_hr",
     "selection": "Mike Trout HR o0.5",
     "american": 425.0,
     "no_vig_prob": 0.196429
@@ -19199,6 +19318,20 @@
     "selection": "Leo Rivas H u0.5",
     "american": -135.0,
     "no_vig_prob": 0.53936
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
+    "selection": "Michael Arroyo H o0.5",
+    "american": -137.0,
+    "no_vig_prob": 0.552147
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_h",
+    "selection": "Michael Arroyo H u0.5",
+    "american": 113.0,
+    "no_vig_prob": 0.447853
   },
   {
     "matchup": "LAA @ SEA",
@@ -19462,6 +19595,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_rbi",
+    "selection": "Michael Arroyo RBI o0.5",
+    "american": 247.0,
+    "no_vig_prob": 0.278145
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
+    "selection": "Michael Arroyo RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.721855
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_rbi",
     "selection": "Mike Trout RBI o0.5",
     "american": 250.0,
     "no_vig_prob": 0.27959
@@ -19717,6 +19864,20 @@
     "selection": "Leo Rivas R u0.5",
     "american": -276.0,
     "no_vig_prob": 0.690855
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
+    "selection": "Michael Arroyo R o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.333354
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_r",
+    "selection": "Michael Arroyo R u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.666646
   },
   {
     "matchup": "LAA @ SEA",
@@ -20064,6 +20225,20 @@
   {
     "matchup": "LAA @ SEA",
     "market": "batter_tb",
+    "selection": "Michael Arroyo TB o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.546411
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
+    "selection": "Michael Arroyo TB u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.453589
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "batter_tb",
     "selection": "Mike Trout TB o0.5",
     "american": -154.0,
     "no_vig_prob": 0.569227
@@ -20347,6 +20522,20 @@
     "selection": "Ryan Johnson ER u2.5",
     "american": -135.0,
     "no_vig_prob": 0.55084
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_h",
+    "selection": "Kade Anderson Hits o4.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
+  },
+  {
+    "matchup": "LAA @ SEA",
+    "market": "pitcher_h",
+    "selection": "Kade Anderson Hits u4.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
   },
   {
     "matchup": "LAA @ SEA",
