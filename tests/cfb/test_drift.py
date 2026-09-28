@@ -267,9 +267,15 @@ def test_snapshot_load_of_a_missing_file_is_empty(tmp_path: Path) -> None:
 # -- the gate ------------------------------------------------------------
 
 
-def test_the_gate_measures_but_refuses_nothing_by_default() -> None:
-    gate = DriftGate()
-    keep, reason, which = gate.verdict(-0.05)
+def test_the_adverse_tail_refuses_by_default_and_env_turns_it_off(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keep, reason, which = DriftGate().verdict(-0.05)
+    assert keep is False
+    assert which == "clv_drift"
+
+    monkeypatch.setenv("CFBE_DRIFT_GATE", "0")
+    keep, reason, which = DriftGate.from_env().verdict(-0.05)
     assert keep is True
     assert which is None
     assert "moved" in reason

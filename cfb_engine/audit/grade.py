@@ -9,7 +9,7 @@ reads each market off it.
 from __future__ import annotations
 
 from cfb_engine.data.cfbd import GameResult
-from cfb_engine.data.teamnames import norm, school_key
+from cfb_engine.data.teamnames import label_matches, norm
 from cfb_engine.recommendations import Recommendation
 
 WIN, LOSS, PUSH = "win", "loss", "push"
@@ -36,10 +36,7 @@ def same_team(rec_name: str, res_name: str) -> bool:
     (the board says ``UMass``, CFBD ``Massachusetts``), so both sides are also
     compared on their canonical school key.
     """
-    left, right = norm(rec_name), norm(res_name)
-    if left == right or right.startswith(left):
-        return True
-    return school_key(rec_name) == school_key(res_name)
+    return label_matches(rec_name, res_name)
 
 
 def result_for(rec: Recommendation, index: ResultIndex) -> GameResult | None:

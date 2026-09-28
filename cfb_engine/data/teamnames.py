@@ -45,6 +45,8 @@ _MULTIWORD_MASCOTS = (
     "golden panthers",
     "golden eagles",
     "thundering herd",
+    "black bears",
+    "fighting camels",
 )
 
 
@@ -87,6 +89,9 @@ _SCHOOL_ALIASES: dict[str, str] = {
     "la lafayette": "louisiana",
     "southern miss": "southern mississippi",
     "san jose st": "san jose state",
+    "houston baptist": "houston christian",
+    "william and mary": "william mary",
+    "penn st": "penn state",
     "app state": "appalachian state",
     "fla atlantic": "florida atlantic",
     "fla international": "florida international",
@@ -96,6 +101,7 @@ _SCHOOL_ALIASES: dict[str, str] = {
     "n c state": "north carolina state",
     "texas am": "texas am",
     "sam houston st": "sam houston",
+    "sam houston state": "sam houston",
     "st francis pa": "saint francis",
     "middle tennessee state": "middle tennessee",
     "ualbany": "albany",
@@ -147,6 +153,36 @@ def school_key(name: str) -> str:
     school = re.sub(r"\bu\b", "", school).strip()
     school = re.sub(r"\s+", " ", school)
     return _SCHOOL_ALIASES.get(school, school)
+
+
+def _mascot_prefix(fragment: str) -> bool:
+    """Whether ``fragment`` is the start of a known mascot (``black`` -> Black Bears)."""
+    return bool(fragment) and any(m.startswith(fragment) for m in (*_MULTIWORD_MASCOTS, *_MASCOTS))
+
+
+def label_matches(label: str, full: str) -> bool:
+    """Whether a length-capped display label names the same school as ``full``.
+
+    ``short_code`` cuts "School Mascot" at 14 characters, so the label may be a
+    prefix of the school (``New Mexico Sta``), the school plus the start of its
+    mascot (``Penn State Nit``, ``Gardner-Webb R``), or a prefix of an alias
+    spelling (``Houston Baptis`` for Houston Christian). Compared against the
+    full name, its school key, and every alias that resolves to that key.
+    """
+    left = norm(label)
+    if not left:
+        return False
+    capped = len(label.strip()) >= 14
+    right, key = norm(full), school_key(full)
+    candidates = {right, key} | {a for a, c in _SCHOOL_ALIASES.items() if c == key}
+    for cand in candidates:
+        if left == cand or cand.startswith(left):
+            return True
+        if left.startswith(cand + " "):
+            rest = left[len(cand) + 1 :]
+            if capped or _mascot_prefix(rest):
+                return True
+    return school_key(label) == key
 
 
 def _strip_mascot(name: str) -> str:
