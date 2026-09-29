@@ -8,8 +8,20 @@ Keyless. Three endpoints carry everything Phase 0 needs:
 * ``/v1/gamecenter/<id>/boxscore`` -- ``playerByGameStats`` with a ``starter``
   flag on goalies; the roster of record for grading and the goalie audit.
 
-Field shapes were confirmed against game 2025021301 (BUF-DAL, SO) on 2026-09-28.
-Parsers are pure functions over the JSON so fixtures can drive the tests.
+Phase 1 lineup work adds the shift-level inputs for the isolated-impact fit
+(master plan section 5.7):
+
+* ``/v1/gamecenter/<id>/play-by-play`` -- ``rosterSpots`` (who dressed, with
+  position, so goalies can be told from skaters) and the event stream.
+* ``https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId=<id>`` --
+  every shift with period, start/end clock and player id (typeCode 517 = shift;
+  goal rows carry other codes and are dropped).
+
+Finished games are immutable, so those two are cached without expiry.
+
+Field shapes were confirmed against games 2025021301 (BUF-DAL, SO) on 2026-09-28
+and 2024020500 (CAR home) on 2026-09-29. Parsers are pure functions over the
+JSON so fixtures can drive the tests.
 """
 
 from __future__ import annotations
@@ -17,6 +29,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
 
@@ -29,8 +42,33 @@ from nhl_engine.schemas import Game, GameResult, PeriodScore
 log = logging.getLogger(__name__)
 
 BASE = "https://api-web.nhle.com/v1"
+STATS_BASE = "https://api.nhle.com/stats/rest/en"
 REGULAR_SEASON = 2
 PLAYOFFS = 3
+SHIFT_TYPE = 517
+FOREVER = 10 * 365 * 24 * 3600
+
+
+@dataclass(frozen=True)
+class RosterSpot:
+    player_id: int
+    team: str
+    position: str  # C/L/R/D/G
+    name: str
+
+
+@dataclass(frozen=True)
+class Shift:
+    player_id: int
+    team: str
+    period: int
+    start: int  # seconds into the period
+    end: int
+
+
+def regular_season_game_ids(season: int, games: int = 1312) -> list[int]:
+    """NHL regular-season ids are ``<season>02<0001..N>``; 1312 games for 32 teams."""
+    return [int(f"{season}02{n:04d}") for n in range(1, games + 1)]
 
 
 class NHLAPIClient:
@@ -52,11 +90,32 @@ class NHLAPIClient:
             return None
         return parse_result(box, rail if isinstance(rail, dict) else {}, game)
 
-    def _get_json(self, url: str) -> object:
+    def play_by_play(self, game_id: int, *, final: bool = True) -> dict | None:
+        data = self._get_json(
+            f"{BASE}/gamecenter/{game_id}/play-by-play", ttl=FOREVER if final else None
+        )
+        return data if isinstance(data, dict) else None
+
+    def shifts(self, game_id: int, *, final: bool = True) -> list[Shift]:
+        data = self._get_json(
+            f"{STATS_BASE}/shiftcharts?cayenneExp=gameId={game_id}",
+            ttl=FOREVER if final else None,
+        )
+        return parse_shifts(data) if isinstance(data, dict) else []
+
+    def roster(self, game_id: int, *, final: bool = True) -> list[RosterSpot]:
+        pbp = self.play_by_play(game_id, final=final)
+        return parse_roster_spots(pbp) if pbp else []
+
+    def _get_json(self, url: str, *, ttl: int | None = None) -> object:
         cache = None
+        ttl = self.cache_ttl if ttl is None else ttl
         if self.cache_dir is not None:
-            cache = self.cache_dir / (url.replace(BASE + "/", "").replace("/", "_") + ".json")
-            if cache.exists() and time.time() - cache.stat().st_mtime < self.cache_ttl:
+            name = url.replace(BASE + "/", "").replace(STATS_BASE + "/", "stats_")
+            for ch in "/?=":
+                name = name.replace(ch, "_")
+            cache = self.cache_dir / (name + ".json")
+            if cache.exists() and time.time() - cache.stat().st_mtime < ttl:
                 try:
                     return json.loads(cache.read_text())
                 except ValueError:
@@ -144,4 +203,61 @@ def _starter(box: dict, side: str) -> str:
     return ""
 
 
-__all__ = ["BASE", "NHLAPIClient", "parse_result", "parse_schedule"]
+def _clock(text: object) -> int | None:
+    try:
+        mm, ss = str(text).split(":")
+        return int(mm) * 60 + int(ss)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_shifts(data: dict) -> list[Shift]:
+    """Shift rows only (typeCode 517), zero-length shifts dropped."""
+    out: list[Shift] = []
+    for raw in data.get("data", []):
+        if not isinstance(raw, dict) or raw.get("typeCode") != SHIFT_TYPE:
+            continue
+        start, end = _clock(raw.get("startTime")), _clock(raw.get("endTime"))
+        pid, team, period = raw.get("playerId"), raw.get("teamAbbrev"), raw.get("period")
+        if start is None or end is None or end <= start:
+            continue
+        if not (isinstance(pid, int) and team and isinstance(period, int)):
+            continue
+        out.append(Shift(pid, canonical(str(team)), period, start, end))
+    out.sort(key=lambda s: (s.period, s.start, s.player_id))
+    return out
+
+
+def parse_roster_spots(pbp: dict) -> list[RosterSpot]:
+    teams = {}
+    for side in ("homeTeam", "awayTeam"):
+        t = pbp.get(side, {})
+        if isinstance(t, dict) and "id" in t and "abbrev" in t:
+            teams[t["id"]] = canonical(str(t["abbrev"]))
+    out: list[RosterSpot] = []
+    for raw in pbp.get("rosterSpots", []):
+        if not isinstance(raw, dict):
+            continue
+        pid, tid = raw.get("playerId"), raw.get("teamId")
+        if not isinstance(pid, int) or tid not in teams:
+            continue
+        first = raw.get("firstName", {})
+        last = raw.get("lastName", {})
+        name = " ".join(
+            str(x.get("default", "")) if isinstance(x, dict) else str(x) for x in (first, last)
+        ).strip()
+        out.append(RosterSpot(pid, teams[tid], str(raw.get("positionCode", "")), name))
+    return out
+
+
+__all__ = [
+    "BASE",
+    "NHLAPIClient",
+    "RosterSpot",
+    "Shift",
+    "parse_result",
+    "parse_roster_spots",
+    "parse_schedule",
+    "parse_shifts",
+    "regular_season_game_ids",
+]

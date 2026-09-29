@@ -31,9 +31,10 @@ from __future__ import annotations
 
 import logging
 import time
+import zipfile
 from collections.abc import Iterable
 from datetime import date as Date
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import pandas as pd
@@ -45,6 +46,25 @@ from nhl_engine.data.teamnames import canonical
 log = logging.getLogger(__name__)
 
 BASE = "https://moneypuck.com/moneypuck/playerData"
+SHOTS_BASE = "https://peter-tanner.com/moneypuck/downloads"
+
+SHOT_COLUMNS: tuple[str, ...] = (
+    "game_id",
+    "period",
+    "time",
+    "event",
+    "xGoal",
+    "goal",
+    "isHomeTeam",
+    "homeSkatersOnIce",
+    "awaySkatersOnIce",
+    "homeTeamCode",
+    "awayTeamCode",
+    "shooterPlayerId",
+    "shotDistance",
+    "arenaAdjustedShotDistance",
+    "isPlayoffGame",
+)
 SITUATIONS = ("all", "5on5", "5on4", "4on5", "other")
 
 # File names MoneyPuck uses for each franchise, oldest era last.
@@ -131,6 +151,36 @@ class MoneyPuckClient:
         raw = self._get(f"{BASE}/seasonSummary/{season}/regular/skaters.csv")
         return pd.read_csv(StringIO(raw)) if raw is not None else pd.DataFrame()
 
+    # -- shot log (isolated-impact fit + arena-bias study) -------------------
+
+    def shots(self, season: int) -> pd.DataFrame:
+        """MoneyPuck's per-shot log for a season (unblocked attempts with xGoal).
+
+        Served as a zip from ``peter-tanner.com``; unpacked once into the cache.
+        Only the columns the engine uses are kept (see ``SHOT_COLUMNS``).
+        """
+        cache = None
+        if self.cache_dir is not None:
+            cache = self.cache_dir / "moneypuck" / f"shots_{season}.csv"
+            if cache.exists():
+                return _trim_shots(pd.read_csv(cache, usecols=list(SHOT_COLUMNS)))
+        url = f"{SHOTS_BASE}/shots_{season}.zip"
+        try:
+            resp = http.get(url, timeout=max(self.timeout, 300))
+            if resp.status_code == 404:
+                return pd.DataFrame(columns=list(SHOT_COLUMNS))
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            log.warning("MoneyPuck shots download failed (%s): %s", url, exc)
+            return pd.DataFrame(columns=list(SHOT_COLUMNS))
+        with zipfile.ZipFile(BytesIO(resp.content)) as zf:
+            name = next(n for n in zf.namelist() if n.endswith(".csv"))
+            raw = zf.read(name)
+        if cache is not None:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_bytes(raw)
+        return _trim_shots(pd.read_csv(BytesIO(raw), usecols=list(SHOT_COLUMNS)))
+
     def goalie_ids(self, seasons: Iterable[int]) -> list[int]:
         ids: set[int] = set()
         for season in seasons:
@@ -165,6 +215,24 @@ class MoneyPuckClient:
 
 
 # -- pure parsers ---------------------------------------------------------------
+
+
+def _trim_shots(df: pd.DataFrame) -> pd.DataFrame:
+    """Regular-season rows with canonical team codes and integer period/clock."""
+    if df.empty:
+        return df
+    df = df[df["isPlayoffGame"].fillna(0).astype(int) == 0].copy()
+    df["game_id"] = df["game_id"].astype(int)  # short form: 20500 for 2024020500
+    for col in ("homeTeamCode", "awayTeamCode"):
+        df[col] = df[col].map(mp_code)
+    df["period"] = df["period"].astype(int)
+    df["time"] = df["time"].astype(int)
+    return df[list(SHOT_COLUMNS)].reset_index(drop=True)
+
+
+def full_game_id(season: int, short_id: int) -> int:
+    """``(2024, 20500) -> 2024020500`` -- MoneyPuck's short id to the NHL id."""
+    return season * 1_000_000 + int(short_id)
 
 
 def _parse_dates(df: pd.DataFrame) -> pd.DataFrame:
