@@ -1,5 +1,7 @@
 #!/bin/bash
-# Create Desktop .app launchers for the NHL engine:
+# Create .app launchers for the NHL engine in $NHLE_SHORTCUT_DIR
+# (default ~/Desktop/engines, created if missing; older copies on the bare
+# Desktop are removed):
 #   * "NHL Capture.app"     -> nhl_capture.command   (archive today's board)
 #   * "NHL Predictions.app" -> run_predictions.command
 #   * "NHL Audit.app"       -> run_audit.command
@@ -23,10 +25,13 @@ fi
 chmod +x "$SCRIPTS"/*.command
 bash "$REPO/scripts/nhl/ensure_env.sh"
 
+DEST="${NHLE_SHORTCUT_DIR:-$HOME/Desktop/engines}"
+mkdir -p "$DEST"
+
 make_app() {
     local name="$1" ident="$2" target="$3"
-    local app="$HOME/Desktop/$name.app"
-    rm -rf "$app"
+    local app="$DEST/$name.app"
+    rm -rf "$app" "$HOME/Desktop/$name.app"
     mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
     cp "$ICON" "$app/Contents/Resources/ledger.icns"
     cat > "$app/Contents/Info.plist" <<PLIST
@@ -59,4 +64,4 @@ make_app "NHL Audit" "com.payoffpitch.nhl.audit" "$SCRIPTS/run_audit.command"
 make_app "NHL Results" "com.payoffpitch.nhl.results" "$SCRIPTS/run_results.command"
 make_app "NHL Ledger" "com.payoffpitch.nhl.ledger" "$SCRIPTS/open_ledger.command"
 
-echo "Done — five NHL launchers are on your Desktop."
+echo "Done — five NHL launchers are in $DEST."
