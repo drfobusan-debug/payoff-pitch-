@@ -210,7 +210,9 @@ class GoalieParams:
 
     # Below this many NHL minutes a goalie is a call-up: his anchor is the
     # call-up distribution, not the league rate. The bucket edge the study used.
-    min_minutes: float = field(default_factory=lambda: float(_env_int("NHLE_GOALIE_MIN_MINUTES", 180)))
+    min_minutes: float = field(
+        default_factory=lambda: float(_env_int("NHLE_GOALIE_MIN_MINUTES", 180))
+    )
     # Pooled GSAx/60 of appearances under the floor (study, bucket 0-180 min).
     callup_prior_gsax60: float | None = -0.229
     # Measured, not significant, ship at 0 (see GOALIE_STUDY): per-season GSAx/60
@@ -224,6 +226,88 @@ class GoalieParams:
     study: str = GOALIE_STUDY
 
 
+# scripts/nhl/sim_params_study.py 2026-09-29, seasons 2022-2024, 3,936 games.
+# All-situation xG/sec by the shooting team's score state, relative to tied
+# (SE in parentheses; exact exposure from the goal timeline, nets in):
+#   trail 2+ 1.027 (.018)  trail 1 1.036 (.016)  lead 1 0.965 (.015)  lead 2+ 0.924 (.016)
+# Tied-state xG/sec by period vs the mean: P1 0.983  P2 1.081  P3 0.939.
+# Home share of tied xG 0.530; league goals per xG 0.983.
+# Penalties taken 3.46 per team-60; 5v4 seconds per penalty 78.8 (majors,
+# coincidentals and 5v3 fold into an *effective* clean-minor rate below).
+# Goalie pulls (shift charts, 3,879 games, deficit at the pull): time left at the
+# pull, quantiles 10/25/50/75/90 (s), pooled over the three seasons:
+#   down 1: 71 94 117 142 175   down 2: 100 141 176 220 275   down 3: 160 206 293 386 666
+# Pulls per team-game trailing by d with 5:00 left: down 1 or 2 ~1.0 (every
+# team pulls), down 3 0.29 (287 of 1,000). While pulled: 6.8 goals/60 for the attacking side
+# (xG says 11.5 -- 6v5 xG overstates, so goals are used) and 19.3/60 into the
+# empty net.
+# OT (840 tied-after-60 games): decided in OT 69.3%; P(home wins OT) =
+# sigmoid(0.181 (.084) + 3.37 (1.60) x [home 5v5 xG share - away 5v5 xG share])
+# -- both terms ~2.1 SE, shipped at the measured value. Shootout home share
+# 0.512 ± 0.031 (n=258): not distinguishable from a coin, ships at 0.500.
+SIM_STUDY = "scripts/nhl/sim_params_study.py 2026-09-29, seasons 2022-2024"
+
+
+@dataclass(frozen=True)
+class SimParams:
+    """Game-simulation parameters (master plan §5.3); every number from SIM_STUDY."""
+
+    draws: int = field(default_factory=lambda: _env_int("NHLE_SIM_DRAWS", 20000))
+    step_seconds: int = 20
+    score_mult: dict[str, float] = field(
+        default_factory=lambda: {
+            "trail2": 1.027,
+            "trail1": 1.036,
+            "tied": 1.0,
+            "lead1": 0.965,
+            "lead2": 0.924,
+        }
+    )
+    period_mult: tuple[float, float, float] = (0.983, 1.081, 0.939)
+    home_xg_share: float = 0.530
+    goals_per_xg: float = 0.983
+    # effective clean minors per team-60: 3.46 penalties x 78.8 / 120 s
+    minors_per_60: float = 2.27
+    minor_seconds: int = 120
+    # P(pull | trailing by d with 5:00 left) and time-left-at-pull quantiles (s)
+    pull_prob: dict[int, float] = field(default_factory=lambda: {1: 1.0, 2: 1.0, 3: 0.29})
+    pull_quantiles: dict[int, tuple[float, ...]] = field(
+        default_factory=lambda: {
+            1: (71.0, 94.0, 117.0, 142.0, 175.0),
+            2: (100.0, 141.0, 176.0, 220.0, 275.0),
+            3: (160.0, 206.0, 293.0, 386.0, 666.0),
+        }
+    )
+    en_goals60_for: float = 6.8  # 6v5 attacking side, per pulled 60
+    en_goals60_against: float = 19.3  # into the empty net, per pulled 60
+    p_ot_goal: float = 0.693
+    ot_home_intercept: float = 0.181
+    ot_strength_slope: float = 3.37
+    so_home: float = 0.5
+    study: str = SIM_STUDY
+
+
+# Selection gates for the first card (master plan §5.9). Edge is model minus the
+# devigged consensus; the ceiling treats a large disagreement as a model error.
+# Every gate stamps ``pass_gate`` -- nothing is filtered -- and is graded in
+# probation before it may open.
+@dataclass(frozen=True)
+class GateParams:
+    min_edge: float = 0.02
+    strong_edge_gap: float = 0.02
+    max_edge: float = 0.06
+    min_ev: float = 0.0
+    # Longest price we will buy, per market family (American odds).
+    max_buy_odds: dict[str, float] = field(
+        default_factory=lambda: {"ml": 160.0, "pl": 200.0, "total": 125.0, "period": 150.0}
+    )
+    # A quote older than this is stale; the card prices only a live board.
+    max_quote_age_minutes: int = 90
+    # Period markets and team totals are archived and priced but not yet buys
+    # (probation, master plan §6 Phase 2); ML/PL/totals are the live markets.
+    live_markets: tuple[str, ...] = ("game_ml", "game_pl", "game_total")
+
+
 @dataclass(frozen=True)
 class Config:
     creds: Credentials = field(default_factory=Credentials)
@@ -231,6 +315,8 @@ class Config:
     shrink: ShrinkParams = field(default_factory=ShrinkParams)
     prior: PriorParams = field(default_factory=PriorParams)
     goalie: GoalieParams = field(default_factory=GoalieParams)
+    sim: SimParams = field(default_factory=SimParams)
+    gates: GateParams = field(default_factory=GateParams)
     # Carry the archive on the shared engine-state branch so a second machine
     # (or a rebuilt one) has every price this one ever saw.
     state_sync: bool = field(default_factory=lambda: _env_bool("NHLE_STATE_SYNC", True))
