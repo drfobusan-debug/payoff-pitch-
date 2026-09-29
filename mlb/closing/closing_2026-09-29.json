@@ -2529,9 +2529,23 @@
   {
     "matchup": "BOS @ NYY",
     "market": "pitcher_k",
+    "selection": "Payton Tolle Ks o7.5",
+    "american": 120.0,
+    "no_vig_prob": 0.429104
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_k",
     "selection": "Payton Tolle Ks u6.5",
     "american": 121.0,
     "no_vig_prob": 0.44785
+  },
+  {
+    "matchup": "BOS @ NYY",
+    "market": "pitcher_k",
+    "selection": "Payton Tolle Ks u7.5",
+    "american": -153.0,
+    "no_vig_prob": 0.570896
   },
   {
     "matchup": "BOS @ NYY",
@@ -5073,6 +5087,20 @@
     "selection": "CHC +1.5",
     "american": -177.0,
     "no_vig_prob": 0.63774
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
+    "selection": "CHC -1.5",
+    "american": 175.0,
+    "no_vig_prob": 0.347922
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
+    "selection": "SD +1.5",
+    "american": -214.0,
+    "no_vig_prob": 0.652078
   },
   {
     "matchup": "CHC @ SD",
@@ -7831,6 +7859,20 @@
     "selection": "AJ Blubaugh Ks u1.5",
     "american": 130.0,
     "no_vig_prob": 0.408472
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "pitcher_k",
+    "selection": "Hagen Smith Ks o1.5",
+    "american": -135.0,
+    "no_vig_prob": 0.539577
+  },
+  {
+    "matchup": "CWS @ HOU",
+    "market": "pitcher_k",
+    "selection": "Hagen Smith Ks u1.5",
+    "american": 104.0,
+    "no_vig_prob": 0.460423
   },
   {
     "matchup": "CWS @ HOU",
