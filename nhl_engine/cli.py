@@ -14,6 +14,15 @@ Phase 1 commands (features, no prices):
   season's MoneyPuck logs (+ Cup futures recorded, weight 0).
 * ``strength`` -- every team's as-of EB posterior for each §5.1 metric, with
   the prior weight still in it.
+
+Phase 2 commands (priced card, ledger, grading):
+
+* ``card`` -- price the archived board from one joint sim per game; writes
+  the write-once ledger (``--tag initial``) plus txt/md/xlsx outputs.
+* ``starter`` -- record a confirmed/probable goalie for a team on a date.
+* ``audit`` -- grade a date's ledger against official finals (CLV, dual-rule
+  flag) and print the running scorecard.
+* ``calibrate`` -- refit per-market isotonic maps from every graded ledger.
 """
 
 from __future__ import annotations
@@ -24,18 +33,21 @@ import logging
 import sys
 from dataclasses import asdict
 from datetime import date as Date
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from nhl_engine import state
-from nhl_engine.config import cache_dir, data_dir, load_config, priors_dir
+from nhl_engine import outputs, pipeline, state
+from nhl_engine.audit import ledger, scorecard
+from nhl_engine.calibration import Calibrator, calibration_path
+from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import capture, preseason
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
 from nhl_engine.data.oddsapi import OddsAPIClient
-from nhl_engine.data.teamnames import CODES
-from nhl_engine.features import strength
+from nhl_engine.data.teamnames import CODES, canonical
+from nhl_engine.features import starters, strength
+from nhl_engine.schemas import GameResult
 
 log = logging.getLogger("nhl_engine")
 SLATE_TZ = ZoneInfo("America/New_York")
@@ -260,6 +272,95 @@ def cmd_strength(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_card(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    slate = _parse_date(args.date)
+    season = args.season or season_of(slate)
+    root = data_dir()
+    quotes = capture.read_day(root, slate)
+    if not quotes:
+        print(f"no archived prices for {slate}; run `nhl-engine capture` first", file=sys.stderr)
+        return 2
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    prior = _prior_for(season, mp, slate)
+    card = pipeline.run_slate(
+        quotes,
+        slate=slate,
+        season=season,
+        cfg=cfg,
+        mp=mp,
+        prior=prior,
+        rules=BookRules.load(rules_path(root)),
+        calib=Calibrator.load(calibration_path(root)),
+        data_dir=root,
+        tag=args.tag,
+        seed=args.seed,
+    )
+    paths = outputs.write_all(card, output_dir())
+    ledger.save_rows(card.rows, ledger.card_path(root, slate, args.tag))
+    written = ""
+    if args.tag == "initial" or args.ledger:
+        path, wrote = ledger.write_once(
+            card.rows, ledger.predictions_path(root, slate), force=args.force
+        )
+        written = f"\nledger: {path} ({'written' if wrote else 'already existed, kept'})"
+    print(outputs.render_card(card), end="")
+    print("outputs: " + ", ".join(str(p) for p in paths.values()) + written)
+    if cfg.state_sync and not args.no_sync:
+        state.auto_push(root, f"nhl card {slate} {args.tag}")
+    return 0
+
+
+def cmd_starter(args: argparse.Namespace) -> int:
+    slate = _parse_date(args.date)
+    path = starters.overrides_path(data_dir(), slate)
+    starters.save_override(path, canonical(args.team), args.player_id, args.status, args.source)
+    print(f"{canonical(args.team)} {slate}: goalie {args.player_id} {args.status} -> {path}")
+    return 0
+
+
+def _results_for(day: Date) -> dict[str, GameResult]:
+    client = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    out: dict[str, GameResult] = {}
+    for game in client.schedule(day):
+        res = client.result(game)
+        if res is not None:
+            out[game.matchup] = res
+    return out
+
+
+def cmd_audit(args: argparse.Namespace) -> int:
+    root = data_dir()
+    day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
+    rows = ledger.load_rows(ledger.predictions_path(root, day))
+    if rows:
+        graded = ledger.grade_rows(
+            rows, _results_for(day), capture.read_day(root, day), graded_at=capture.now_utc()
+        )
+        ledger.save_rows(graded, ledger.graded_path(root, day))
+        done = sum(1 for r in graded if r.outcome is not None)
+        print(f"{day}: graded {done}/{len(graded)} rows -> {ledger.graded_path(root, day)}")
+    else:
+        print(f"{day}: no ledger to grade")
+    all_rows = [
+        r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
+    ]
+    print()
+    print(scorecard.scorecard(all_rows).render(), end="")
+    return 0
+
+
+def cmd_calibrate(args: argparse.Namespace) -> int:
+    root = data_dir()
+    all_rows = [
+        r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
+    ]
+    cal = Calibrator.fit(all_rows, min_samples=args.min_samples)
+    cal.save(calibration_path(root))
+    print(json.dumps({"graded": cal.counts, "fitted": sorted(cal.maps)}, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nhl-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -301,6 +402,34 @@ def build_parser() -> argparse.ArgumentParser:
     st.add_argument("--metrics", help="comma-separated metric keys (default all)")
     st.add_argument("--json", action="store_true")
     st.set_defaults(func=cmd_strength)
+
+    cd = sub.add_parser("card", help="price the archived board (joint sim) and write the card")
+    cd.add_argument("--date", help="slate date, default today")
+    cd.add_argument("--season", type=int)
+    cd.add_argument("--tag", default="initial", help="initial | goalie | predrop | close")
+    cd.add_argument("--ledger", action="store_true", help="also write the write-once ledger")
+    cd.add_argument(
+        "--force", action="store_true", help="write a versioned ledger beside an existing one"
+    )
+    cd.add_argument("--seed", type=int, help="sim seed (default derived from the date)")
+    cd.add_argument("--no-sync", action="store_true")
+    cd.set_defaults(func=cmd_card)
+
+    sr = sub.add_parser("starter", help="record tonight's goalie for a team")
+    sr.add_argument("team")
+    sr.add_argument("player_id", type=int, help="NHL player id")
+    sr.add_argument("--status", default="confirmed", choices=["confirmed", "probable", "projected"])
+    sr.add_argument("--source", default="manual")
+    sr.add_argument("--date")
+    sr.set_defaults(func=cmd_starter)
+
+    au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
+    au.add_argument("--date", help="default yesterday")
+    au.set_defaults(func=cmd_audit)
+
+    ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
+    ca.add_argument("--min-samples", type=int, default=200)
+    ca.set_defaults(func=cmd_calibrate)
     return parser
 
 
