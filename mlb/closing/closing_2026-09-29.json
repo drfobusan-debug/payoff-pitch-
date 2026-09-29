@@ -5161,9 +5161,23 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_tb",
+    "selection": "Pedro Ramirez TB o0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.550456
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_tb",
     "selection": "Pedro Ramirez TB o1.5",
     "american": 199.0,
     "no_vig_prob": 0.321605
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_tb",
+    "selection": "Pedro Ramirez TB u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.449544
   },
   {
     "matchup": "CHC @ SD",
