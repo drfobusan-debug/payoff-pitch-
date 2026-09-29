@@ -6,8 +6,12 @@ import math
 from datetime import date as Date
 from pathlib import Path
 
+import pytest
 from openpyxl import load_workbook
 
+from mlb_engine.config import Config
+from mlb_engine.data.vsin import SideSplit, Split
+from mlb_engine.market.ev import MarketQuote
 from mlb_engine.output import daily_worksheet as dw
 from mlb_engine.output.daily_worksheet import (
     WEIGHTS,
@@ -139,7 +143,7 @@ def _game(pk: int, away: TeamGameInfo, home: TeamGameInfo) -> Game:
                 venue=Venue(venue_id=1, name="v"), home=home, away=away)
 
 
-def _fixture() -> tuple[Slate, dict[str, Ranking], Ranking, StarterTable, dict[tuple[str, str], Prices]]:
+def _fixture() -> tuple[Slate, dict[str, Ranking], Ranking, StarterTable, dict[tuple[int, str], Prices]]:
     bats = {
         "Overall": _dec({"SD": 90, "COL": 30, "NYY": 70, "MIN": 70}),
         "vs LHP": _dec({"SD": 95, "COL": 25, "NYY": 60, "MIN": 60}),
@@ -153,10 +157,10 @@ def _fixture() -> tuple[Slate, dict[str, Ranking], Ranking, StarterTable, dict[t
         _game(1, _team("SD", False, "Ace", Hand.L), _team("COL", True, "Scrub")),
         _game(2, _team("NYY", False, "Arm"), _team("MIN", True, "Unknown Guy")),
     ])
-    prices = {(g.matchup(), t.abbrev): Prices() for g in slate.games for t in (g.away, g.home)}
-    prices[("SD @ COL", "SD")] = Prices(ml=-175, ml_book="lowvig", rl_line=-1.5, rl=+105, rl_book="dk",
-                                        dk_ml_handle=70, dk_ml_bets=60)
-    prices[("SD @ COL", "COL")] = Prices(ml=+160, ml_book="dk", rl_line=1.5, rl=-125, rl_book="dk")
+    prices = {(g.game_pk, t.abbrev): Prices() for g in slate.games for t in (g.away, g.home)}
+    prices[(1, "SD")] = Prices(ml=-175, ml_book="lowvig", rl_line=-1.5, rl=+105, rl_book="dk",
+                               dk_ml_handle=70, dk_ml_bets=60)
+    prices[(1, "COL")] = Prices(ml=+160, ml_book="dk", rl_line=1.5, rl=-125, rl_book="dk")
     return slate, bats, pens, sps, prices
 
 
@@ -172,13 +176,94 @@ def test_build_rows_reads_the_split_by_opposing_hand_and_flags_missing_starter()
     assert r1.away_ml == -175 and r1.home_ml == 160 and r1.away_rl_line == -1.5
     assert r1.fav_implied is not None and 0.6 < r1.fav_implied < 0.65
     assert r1.dk_ml_handle_away == 70 and r1.dk_ml_handle_home is None
-    prices[("SD @ COL", "COL")].circa_rl_handle = 33
-    prices[("SD @ COL", "COL")].circa_rl_bets = 44
+    prices[(1, "COL")].circa_rl_handle = 33
+    prices[(1, "COL")].circa_rl_bets = 44
     (_, _, _, r1b), _ = build_rows(slate, bats, pens, sps, prices)
     assert r1b.circa_rl_handle_home == 33 and r1b.circa_rl_bets_home == 44
     # MIN's probable is not in the starter table: no points, row marked incomplete.
     assert h2.sp is None and a2.sp == 9 and not r2.complete
     assert r2.home_sp_pts is None
+
+
+class _Board:
+    def __init__(self, quotes: dict, fail: bool = False) -> None:
+        self.quotes, self.fail = quotes, fail
+
+    def fetch(self, slate: Slate, **_: object) -> dict:
+        if self.fail:
+            raise RuntimeError("401")
+        return self.quotes
+
+
+class _VSIN:
+    def __init__(self, sides: dict) -> None:
+        self.sides = sides
+
+    def fetch_side_splits(self, slate: Slate) -> dict:
+        return self.sides
+
+
+def _patch_feeds(monkeypatch: pytest.MonkeyPatch, board: _Board, vsin: _VSIN) -> None:
+    monkeypatch.setattr(dw, "OddsAPIClient", lambda *a, **k: board)
+    monkeypatch.setattr(dw, "VSINClient", lambda *a, **k: vsin)
+
+
+_STALE_VSIN = {
+    ("SD @ COL", "SD", "draftkings"): SideSplit(ml_american=-205, ml=Split(62, 72), rl_line=-1.5, rl=Split(24, 65)),
+}
+
+
+def test_fetch_prices_keys_by_game_pk_and_reads_board_and_splits(monkeypatch: pytest.MonkeyPatch) -> None:
+    slate, *_ = _fixture()
+    board = {
+        ("SD @ COL", "game_ml", "SD ML"): [MarketQuote("dk", -170), MarketQuote("lowvig", -165)],
+        ("SD @ COL", "game_ml", "COL ML"): [MarketQuote("dk", 150)],
+        ("SD @ COL", "game_rl", "SD -1.5"): [MarketQuote("dk", 110)],
+    }
+    _patch_feeds(monkeypatch, _Board(board), _VSIN(_STALE_VSIN))
+    book = dw.fetch_prices(Config(), slate)
+    assert book.board_ok and book.doubleheaders == [] and book.note() == ""
+    sd = book.prices[(1, "SD")]
+    assert (sd.ml, sd.ml_book, sd.rl_line, sd.rl) == (-165, "lowvig", -1.5, 110)
+    assert (sd.dk_ml_handle, sd.dk_ml_bets, sd.dk_rl_handle) == (62, 72, 24)
+    assert book.prices[(1, "COL")].ml == 150 and book.prices[(2, "NYY")].ml is None
+    assert set(book.prices) == {(1, "SD"), (1, "COL"), (2, "NYY"), (2, "MIN")}
+
+
+def test_no_board_means_no_price_not_a_vsin_carry_over(monkeypatch: pytest.MonkeyPatch) -> None:
+    slate, bats, pens, sps, _ = _fixture()
+    for board in (_Board({}), _Board({}, fail=True)):
+        _patch_feeds(monkeypatch, board, _VSIN(_STALE_VSIN))
+        book = dw.fetch_prices(Config(), slate)
+        assert not book.board_ok and book.note().startswith("NO BOARD")
+        sd = book.prices[(1, "SD")]
+        assert sd.ml is None and sd.rl_line is None and sd.ml_text() == ""
+        assert sd.dk_ml_handle == 62  # the splits are still VSIN's to give
+        (_, _, _, r1), _ = build_rows(slate, bats, pens, sps, book.prices)
+        assert r1.away_ml is None and r1.fav_implied is None and r1.away_rl_line is None
+
+
+def test_doubleheader_games_are_not_priced_off_a_shared_matchup_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    slate, bats, pens, sps, _ = _fixture()
+    g1 = slate.games[0]
+    g2 = _game(3, _team("SD", False, "Arm"), _team("COL", True, "Scrub"))
+    slate = Slate(slate_date=slate.slate_date, games=[g1, g2, slate.games[1]])
+    board = {
+        ("SD @ COL", "game_ml", "SD ML"): [MarketQuote("dk", -170)],
+        ("SD @ COL", "game_ml", "COL ML"): [MarketQuote("dk", 150)],
+        ("NYY @ MIN", "game_ml", "NYY ML"): [MarketQuote("dk", -120)],
+        ("NYY @ MIN", "game_ml", "MIN ML"): [MarketQuote("dk", 105)],
+    }
+    _patch_feeds(monkeypatch, _Board(board), _VSIN(_STALE_VSIN))
+    book = dw.fetch_prices(Config(), slate)
+    assert book.board_ok and book.doubleheaders == ["SD @ COL"]
+    assert "DOUBLEHEADER: the board quotes SD @ COL once" in book.note()
+    assert all(book.prices[(pk, t)].ml is None for pk in (1, 3) for t in ("SD", "COL"))
+    assert book.prices[(1, "SD")].dk_ml_handle is None
+    assert book.prices[(2, "NYY")].ml == -120
+    rows = build_rows(slate, bats, pens, sps, book.prices)
+    by = {r.game_pk: r for _, _, _, r in rows}
+    assert by[1].fav_implied is None and by[3].fav_implied is None and by[2].fav_implied is not None
 
 
 def test_implied_strips_the_vig() -> None:
@@ -285,8 +370,26 @@ def test_tally_by_gap_band_excludes_incomplete_and_compares_to_market() -> None:
     assert t["20-34"].n == 2 and t["20-34"].fav_wins == 1 and t["20-34"].win_rate == 0.5
     assert t["0-9"].n == 1 and t["35+"].n == 0 and t["10-19"].n == 0  # incomplete and ungraded skipped
     assert t["all"].n == 3 and t["all"].market_rate is not None and abs(t["all"].market_rate - 0.62) < 1e-9
+    assert t["all"].implied_n == 3 and t["all"].priced_win_rate == t["all"].win_rate
     assert t["all"].edge is not None and abs(t["all"].edge - (2 / 3 - 0.62)) < 1e-9
     assert band_of(-9.9) == "0-9" and band_of(35) == "35+"
+
+
+def test_edge_compares_the_priced_games_only() -> None:
+    # Two unpriced wins (a no-board day) must not inflate the edge over the one priced loss.
+    unpriced = [_row(1, 30.5, result="fav"), _row(2, 22.0, result="fav")]
+    for r in unpriced:
+        r.fav_implied = r.away_ml = r.home_ml = None
+    priced = _row(3, 25.0, result="dog")
+    t = {b.band: b for b in tally(unpriced + [priced])}["20-34"]
+    assert (t.n, t.fav_wins, t.implied_n, t.priced_fav_wins) == (3, 2, 1, 0)
+    assert t.win_rate is not None and abs(t.win_rate - 2 / 3) < 1e-9
+    assert t.priced_win_rate == 0.0 and t.edge is not None and abs(t.edge - (0.0 - 0.62)) < 1e-9
+    text = dw.summary_text(unpriced + [priced], None)
+    assert "20-34: 2-1 (67% vs mkt 62% on 0-1 priced)" in text
+    # With no priced game at all there is no market and no edge.
+    t0 = {b.band: b for b in tally(unpriced)}["20-34"]
+    assert t0.market_rate is None and t0.edge is None and t0.priced_win_rate is None
 
 
 # --- workbook ----------------------------------------------------------------------
@@ -326,8 +429,26 @@ def test_workbook_layout_and_ranked_block(tmp_path: Path) -> None:
     assert ws.cell(row=2, column=c0 + 1).value == "SD @ COL"
     assert ws.cell(row=3, column=c0 + 1).value == "NYY @ MIN *"
     wa = wb["Audit"]
-    assert [c.value for c in wa[1]][:3] == ["gap band", "games", "fav W"]
+    assert [c.value for c in wa[1]] == ["gap band", "games", "fav W", "fav L", "fav win %", "priced",
+                                        "priced fav win %", "market implied %", "edge (pts)", "fav RL cover %"]
+    assert [c.value for c in wa[6]][:9] == ["all", 1, 1, 0, 100.0, 1, 100.0, 62.0, 38.0]
     assert wb["Ledger"]["A2"].value == "2026-09-14"
+    assert "NO BOARD" not in legend
+
+
+def test_workbook_and_note_carry_the_no_board_stamp(tmp_path: Path) -> None:
+    slate, bats, pens, sps, _ = _fixture()
+    book = dw.PriceBook({(g.game_pk, t.abbrev): Prices() for g in slate.games for t in (g.away, g.home)},
+                        board_ok=False, doubleheaders=[])
+    rows = build_rows(slate, bats, pens, sps, book.prices)
+    out = write_workbook(tmp_path / "w.xlsx", Date(2026, 9, 14), Date(2026, 9, 13), rows, book.prices,
+                         pens, bats, sps, [r for _, _, _, r in rows], None, book.note())
+    ws = load_workbook(out)["Matchups"]
+    assert ws["H2"].value in (None, "") and ws["I2"].value in (None, "")
+    legend = " ".join(str(c.value) for row in ws.iter_rows() for c in row if isinstance(c.value, str))
+    assert dw.NO_BOARD_NOTE in legend
+    page = dw.worksheet_html(out, Date(2026, 9, 14))
+    assert "NO BOARD" in page
 
 
 def test_pdf_pages_are_the_worksheet_first_then_the_tables_in_the_same_fills(tmp_path: Path) -> None:

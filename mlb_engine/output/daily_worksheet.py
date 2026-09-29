@@ -577,9 +577,54 @@ def _best(quotes: list[MarketQuote]) -> MarketQuote | None:
     return max(quotes, key=lambda q: q.american) if quotes else None
 
 
-def fetch_prices(cfg: Config, slate: Slate) -> dict[tuple[str, str], Prices]:
-    """(matchup, abbrev) -> Prices. Board from the Odds API (one credit), splits from VSIN."""
-    out = {(g.matchup(), tm.abbrev): Prices() for g in slate.games for tm in (g.away, g.home)}
+PriceKey = tuple[int, str]  # (game_pk, abbrev)
+
+NO_BOARD_NOTE = "NO BOARD: the Odds API returned no game prices, so ML/RL best and mkt % are blank and none of today's games will be priced in the Audit tab."
+
+
+@dataclass
+class PriceBook:
+    """The slate's prices and where they came from.
+
+    ``board_ok`` is False when the Odds API gave nothing. The sheet then carries
+    no moneyline at all: VSIN's splits page is not a price feed, and the line
+    it shows is whatever the page last rendered -- two sheets in a row printed
+    the same +168 for a team whose starter, and price, had changed.
+    """
+
+    prices: dict[PriceKey, Prices]
+    board_ok: bool
+    doubleheaders: list[str]  # matchups the board cannot tell apart, left unpriced
+
+    def note(self) -> str:
+        parts = []
+        if not self.board_ok:
+            parts.append(NO_BOARD_NOTE)
+        if self.doubleheaders:
+            parts.append(
+                "DOUBLEHEADER: the board quotes " + ", ".join(self.doubleheaders)
+                + " once for both games, so neither game is priced."
+            )
+        return " ".join(parts)
+
+
+def fetch_prices(cfg: Config, slate: Slate) -> PriceBook:
+    """Board from the Odds API (one credit), handle/bets splits from VSIN.
+
+    Board and splits are keyed by matchup, so a doubleheader's two games are
+    indistinguishable on either feed: those matchups are left blank rather than
+    game 2 inheriting game 1's line and splits.
+    """
+    by_matchup: dict[str, list[Game]] = {}
+    for g in slate.games:
+        by_matchup.setdefault(g.matchup(), []).append(g)
+    doubleheaders = sorted(m for m, gs in by_matchup.items() if len(gs) > 1)
+    out = {(g.game_pk, tm.abbrev): Prices() for g in slate.games for tm in (g.away, g.home)}
+
+    def target(matchup: str, abbrev: str) -> Prices | None:
+        games = by_matchup.get(matchup, [])
+        return out.get((games[0].game_pk, abbrev)) if len(games) == 1 else None
+
     try:
         board = OddsAPIClient(cfg.creds.odds_api_key, cache_dir=cfg.odds_cache_dir).fetch(
             slate, include_props=False
@@ -587,9 +632,11 @@ def fetch_prices(cfg: Config, slate: Slate) -> dict[tuple[str, str], Prices]:
     except Exception as exc:  # noqa: BLE001 -- the sheet still goes out without a board
         log.warning("worksheet: odds board unavailable: %s", exc)
         board = {}
+    if not board:
+        log.warning("worksheet: no board -- the sheet goes out unpriced")
     for (matchup, market, selection), quotes in board.items():
         abbrev = selection.split()[0] if selection else ""
-        p = out.get((matchup, abbrev))
+        p = target(matchup, abbrev)
         if p is None:
             continue
         q = _best(quotes)
@@ -609,20 +656,16 @@ def fetch_prices(cfg: Config, slate: Slate) -> dict[tuple[str, str], Prices]:
         log.warning("worksheet: VSIN splits unavailable: %s", exc)
         sides = {}
     for (matchup, abbrev, book), s in sides.items():
-        p = out.get((matchup, abbrev))
+        p = target(matchup, abbrev)
         if p is None:
             continue
-        if p.ml is None and s.ml_american is not None:
-            p.ml, p.ml_book = s.ml_american, f"vsin {book}"
-        if p.rl_line is None and s.rl_line is not None:
-            p.rl_line = s.rl_line
         if book == "draftkings":
             p.dk_ml_handle, p.dk_ml_bets = s.ml.handle_pct, s.ml.bets_pct
             p.dk_rl_handle, p.dk_rl_bets = s.rl.handle_pct, s.rl.bets_pct
         elif book == "circa":
             p.circa_ml_handle, p.circa_ml_bets = s.ml.handle_pct, s.ml.bets_pct
             p.circa_rl_handle, p.circa_rl_bets = s.rl.handle_pct, s.rl.bets_pct
-    return out
+    return PriceBook(out, bool(board), doubleheaders)
 
 
 def implied(american: float | None, opposite: float | None) -> float | None:
@@ -735,7 +778,7 @@ def _pk(g: Game) -> int:
 
 def build_rows(
     slate: Slate, bats: dict[str, Ranking], pens: Ranking, sps: StarterTable,
-    prices: dict[tuple[str, str], Prices],
+    prices: dict[PriceKey, Prices],
 ) -> list[tuple[Game, TeamLine, TeamLine, LedgerRow]]:
     out = []
     for g in sorted(slate.games, key=lambda x: x.game_datetime_utc or ""):
@@ -743,7 +786,7 @@ def build_rows(
         h = team_line(g.home, g.away, bats, pens, sps)
         gap = round(a.weighted() - h.weighted(), 1)
         fav = g.away.abbrev if gap >= 0 else g.home.abbrev
-        pa, ph = prices[(g.matchup(), g.away.abbrev)], prices[(g.matchup(), g.home.abbrev)]
+        pa, ph = prices[(g.game_pk, g.away.abbrev)], prices[(g.game_pk, g.home.abbrev)]
         fav_ml, dog_ml = (pa.ml, ph.ml) if fav == g.away.abbrev else (ph.ml, pa.ml)
         row = LedgerRow(
             slate.slate_date.isoformat(), g.matchup(), _pk(g), g.away.abbrev, g.home.abbrev,
@@ -862,7 +905,8 @@ class BandTally:
     n: int = 0
     fav_wins: int = 0
     implied_sum: float = 0.0
-    implied_n: int = 0
+    implied_n: int = 0  # games that carried a price
+    priced_fav_wins: int = 0
     rl_n: int = 0
     rl_fav_covers: int = 0
 
@@ -875,8 +919,13 @@ class BandTally:
         return self.implied_sum / self.implied_n if self.implied_n else None
 
     @property
+    def priced_win_rate(self) -> float | None:
+        return self.priced_fav_wins / self.implied_n if self.implied_n else None
+
+    @property
     def edge(self) -> float | None:
-        w, m = self.win_rate, self.market_rate
+        """Favoured win rate minus market rate, both over the priced games only."""
+        w, m = self.priced_win_rate, self.market_rate
         return None if w is None or m is None else w - m
 
     @property
@@ -903,6 +952,7 @@ def tally(rows: list[LedgerRow]) -> list[BandTally]:
             if r.fav_implied is not None:
                 t.implied_sum += r.fav_implied
                 t.implied_n += 1
+                t.priced_fav_wins += r.result == "fav"
             if r.rl_result in ("away", "home"):
                 t.rl_n += 1
                 t.rl_fav_covers += (r.rl_result == "away") == (r.fav == r.away)
@@ -936,7 +986,11 @@ def summary_text(rows: list[LedgerRow], graded_day: Date | None, today: Date | N
         for b in t:
             if not b.n:
                 continue
-            m = f" vs mkt {b.market_rate * 100:.0f}%" if b.market_rate is not None else ""
+            m = ""
+            if b.market_rate is not None:
+                m = f" vs mkt {b.market_rate * 100:.0f}%"
+                if b.implied_n < b.n:
+                    m += f" on {b.priced_fav_wins}-{b.implied_n - b.priced_fav_wins} priced"
             parts.append(f"{b.band}: {b.fav_wins}-{b.n - b.fav_wins} ({b.fav_wins / b.n * 100:.0f}%{m})")
         lines.append("Worksheet gap bands (fav record vs market implied): " + "; ".join(parts))
     return "\n".join(lines)
@@ -996,9 +1050,9 @@ def _ranking_sheet(
 def write_workbook(
     path: Path, day: Date, as_of: Date,
     rows: list[tuple[Game, TeamLine, TeamLine, LedgerRow]],
-    prices: dict[tuple[str, str], Prices],
+    prices: dict[PriceKey, Prices],
     pens: Ranking, bats: dict[str, Ranking], sps: StarterTable,
-    ledger: list[LedgerRow], graded_day: Date | None,
+    ledger: list[LedgerRow], graded_day: Date | None, price_note: str = "",
 ) -> Path:
     wb = Workbook()
     ws = wb.active
@@ -1009,7 +1063,7 @@ def write_workbook(
     nc = 2 + len(cols) + 2 + len(odds_cols)
     r = 2
     for g, a, h, lr in rows:
-        pa, ph = prices[(g.matchup(), g.away.abbrev)], prices[(g.matchup(), g.home.abbrev)]
+        pa, ph = prices[(g.game_pk, g.away.abbrev)], prices[(g.game_pk, g.home.abbrev)]
         flag = "" if lr.complete else " *"
         ws.append([g.matchup(), a.label()] + a.cells() + [a.raw_total(), a.weighted(), pa.ml_text(), pa.rl_text()] + pa.split_cells())
         ws.append(["", h.label()] + h.cells() + [h.raw_total(), h.weighted(), ph.ml_text(), ph.rl_text()] + ph.split_cells())
@@ -1034,12 +1088,14 @@ def write_workbook(
         f"bp x{WEIGHTS['bp']} + sp x{WEIGHTS['sp']}. away - home row = disparity; the wTOTAL gap is the sheet's "
         "call. ML/RL best = best price across books at write time; h/b = VSIN handle% / bets% at Circa and DK."
     ])
+    if price_note:
+        ws.append([price_note])
     # Ranked block to the right.
     c0 = nc + 2
     _hdr(ws, 1, ["rank", "game", "favored", "underdog", "away wTOTAL", "home wTOTAL", "w gap", "favored ML", "mkt %"], c0)
     ranked = sorted(rows, key=lambda t: -abs(t[3].gap))
     for i, (g, _a, _h, lr) in enumerate(ranked):
-        fav_p = prices[(g.matchup(), lr.fav)]
+        fav_p = prices[(g.game_pk, lr.fav)]
         dog = g.home.abbrev if lr.fav == g.away.abbrev else g.away.abbrev
         vals = [i + 1, g.matchup() + ("" if lr.complete else " *"), lr.fav.lower(), dog.lower(),
                 lr.away_w, lr.home_w, abs(lr.gap), fav_p.ml_text(),
@@ -1058,11 +1114,14 @@ def write_workbook(
 
     # Audit tab.
     wa = wb.create_sheet("Audit")
-    _hdr(wa, 1, ["gap band", "games", "fav W", "fav L", "fav win %", "market implied %", "edge (pts)", "fav RL cover %"])
+    _hdr(wa, 1, ["gap band", "games", "fav W", "fav L", "fav win %", "priced", "priced fav win %",
+                 "market implied %", "edge (pts)", "fav RL cover %"])
     for b in tally(ledger):
         wa.append([
             b.band, b.n, b.fav_wins, b.n - b.fav_wins,
             round(b.win_rate * 100, 1) if b.win_rate is not None else None,
+            b.implied_n,
+            round(b.priced_win_rate * 100, 1) if b.priced_win_rate is not None else None,
             round(b.market_rate * 100, 1) if b.market_rate is not None else None,
             round(b.edge * 100, 1) if b.edge is not None else None,
             round(b.rl_rate * 100, 1) if b.rl_rate is not None else None,
@@ -1070,8 +1129,10 @@ def write_workbook(
     wa.append([])
     wa.append([
         "Favoured side = the team with the higher wTOTAL. Market implied = the no-vig win probability its best "
-        "moneyline gave it when the sheet was written; edge = fav win % minus that. Only games with both starters "
-        f"scored and weights {WEIGHTS_VERSION} count. Under ~50 games a band the numbers are noise."
+        "moneyline gave it when the sheet was written, averaged over the priced games only; edge = priced fav "
+        "win % minus that, so a day the board was down drops out of the edge, not just the market column. Only "
+        f"games with both starters scored and weights {WEIGHTS_VERSION} count. Under ~50 games a band the "
+        "numbers are noise."
     ])
     if graded_day is not None:
         wa.append([])
@@ -1084,7 +1145,7 @@ def write_workbook(
                 f"{lr.away_runs}-{lr.home_runs}" if lr.graded else "",
                 lr.result, lr.rl_result,
             ])
-    for j in range(1, 10):
+    for j in range(1, 11):
         wa.column_dimensions[get_column_letter(j)].width = 14
 
     # Ledger tab.
@@ -1264,8 +1325,8 @@ def run_worksheet(cfg: Config, day: Date, slate: Slate) -> tuple[Path, str]:
     pens = bullpen_ranking(as_of)
     bats = offense_rankings(df, as_of)
     sps = starter_table(df, as_of)
-    prices = fetch_prices(cfg, slate)
-    rows = build_rows(slate, bats, pens, sps, prices)
+    book = fetch_prices(cfg, slate)
+    rows = build_rows(slate, bats, pens, sps, book.prices)
 
     path = ledger_path(cfg)
     ledger = merge(load_ledger(path), [r for _, _, _, r in rows])
@@ -1276,12 +1337,14 @@ def run_worksheet(cfg: Config, day: Date, slate: Slate) -> tuple[Path, str]:
     log.info("worksheet: %d games written, %d graded", len(rows), graded)
 
     out = cfg.output_dir / f"worksheet_{day.isoformat()}.xlsx"
-    write_workbook(out, day, as_of, rows, prices, pens, bats, sps, ledger, graded_day)
+    write_workbook(out, day, as_of, rows, book.prices, pens, bats, sps, ledger, graded_day, book.note())
     try:
         write_pdf(out, day)
     except Exception:
         # The workbook and ledger are the record; a missing renderer costs the PDF only.
         log.exception("worksheet: PDF render failed; workbook kept")
     text = summary_text(ledger, graded_day, day)
+    if book.note():
+        text = book.note() + ("\n" + text if text else "")
     (cfg.output_dir / f"worksheet_{day.isoformat()}.txt").write_text(text + ("\n" if text else ""))
     return out, text
