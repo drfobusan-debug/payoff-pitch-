@@ -53,13 +53,13 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from mlb_engine.config import Config
-from mlb_engine.data import http
+from mlb_engine.data.fangraphs import leaderboard
 from mlb_engine.data.oddsapi import OddsAPIClient
 from mlb_engine.data.statcast import StatcastRepository, dedupe_pitches
 from mlb_engine.data.vsin import VSINClient, _norm_name
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.output.totals_audit import Final, finals
-from mlb_engine.output.totals_sheet import _FG_ABBR, _FG_HEADERS, _FG_URL
+from mlb_engine.output.totals_sheet import _FG_ABBR, _FG_URL
 from mlb_engine.schemas import Game, Hand, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -279,12 +279,9 @@ def _fg(stats: str, season: int, window: int | None, as_of: Date, team: str = "0
     url = _FG_URL.format(stats=stats, season=season, month=0 if window is None else 1000, team=team)
     if window is not None:
         url += f"&startdate={(as_of - timedelta(days=window)).isoformat()}&enddate={as_of.isoformat()}"
-    resp = http.get(url, headers=_FG_HEADERS, timeout=60)
-    resp.raise_for_status()
-    data = resp.json().get("data")
-    if not isinstance(data, list):
-        raise ValueError(f"FanGraphs {stats} leaderboard returned no data")
-    return data
+    # The window's dates are not in the key, so a stale copy of the same
+    # window stands in when FanGraphs is down.
+    return leaderboard(url, f"{stats}_{season}_w{window or 0}_t{team.replace('%2C', '-')}")
 
 
 def bullpen_ranking(as_of: Date) -> Ranking:

@@ -35,6 +35,7 @@ from mlb_engine.audit.clv import board_path, load_closing
 from mlb_engine.audit.ledger import load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
+from mlb_engine.data.fangraphs import leaderboard
 from mlb_engine.data.game_totals import posted_totals
 from mlb_engine.data.mlb_statsapi import BASE as STATSAPI
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
@@ -70,7 +71,6 @@ _FG_URL = (
     "&lg=all&qual=0&season={season}&season1={season}&month={month}&hand=&team={team}"
     "&pageitems=3000&pagenum=1&ind=0&rost=0&players=0&type=8&sortdir=default&sortstat=WAR"
 )
-_FG_HEADERS = {"User-Agent": "curl/8.5.0", "Accept": "*/*"}
 # FanGraphs' team codes where they differ from StatsAPI's.
 _FG_ABBR = {"AZ": "ARI", "CWS": "CHW", "KC": "KCR", "SD": "SDP", "SF": "SFG", "TB": "TBR", "WSH": "WSN"}
 _FG_MONTH_VS_L, _FG_MONTH_VS_R = 13, 14
@@ -314,9 +314,7 @@ def middle_relief(rel_rows: list[dict]) -> tuple[dict[str, list[int]], dict[str,
 
 def _fg(stats: str, season: int, month: int = 0, team: str = "0,ts") -> list[dict]:
     url = _FG_URL.format(stats=stats, season=season, month=month, team=team.replace(",", "%2C"))
-    resp = http.get(url, headers=_FG_HEADERS, timeout=60)
-    resp.raise_for_status()
-    return list(resp.json().get("data", []))
+    return leaderboard(url, f"{stats}_{season}_m{month}_t{team.replace(',', '-')}")
 
 
 def fetch_fangraphs(season: int) -> FanGraphsTables:
