@@ -46,7 +46,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "lineshop*", "cardscout*", "live_edge*"]
+include = ["engine_common*", "mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "lineshop*", "cardscout*", "live_edge*"]
 
 [tool.setuptools.package-data]
 lineshop = ["data/*.json"]

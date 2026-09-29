@@ -7,6 +7,13 @@ Phase 0 commands:
 * ``results`` -- pull official finals (per-period, OT/SO, starters) for a date.
 * ``archive`` -- summarise what has been captured for a date.
 * ``book-rules`` -- list, add or check per-book settlement rules.
+
+Phase 1 commands (features, no prices):
+
+* ``prior`` -- build/refresh ``preseason_prior_<season>.json`` from last
+  season's MoneyPuck logs (+ Cup futures recorded, weight 0).
+* ``strength`` -- every team's as-of EB posterior for each §5.1 metric, with
+  the prior weight still in it.
 """
 
 from __future__ import annotations
@@ -21,11 +28,14 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from nhl_engine import state
-from nhl_engine.config import cache_dir, data_dir, load_config
-from nhl_engine.data import capture
+from nhl_engine.config import cache_dir, data_dir, load_config, priors_dir
+from nhl_engine.data import capture, preseason
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
+from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
 from nhl_engine.data.oddsapi import OddsAPIClient
+from nhl_engine.data.teamnames import CODES
+from nhl_engine.features import strength
 
 log = logging.getLogger("nhl_engine")
 SLATE_TZ = ZoneInfo("America/New_York")
@@ -152,6 +162,104 @@ def cmd_book_rules(args: argparse.Namespace) -> int:
     return 0
 
 
+def _prior_for(season: int, mp: MoneyPuckClient, today: Date) -> preseason.PreseasonPrior:
+    """Load the asset, rebuilding on the weekly schedule until the freeze date."""
+    cfg = load_config()
+    prior = preseason.load(priors_dir(), season)
+    freeze = Date(season, *cfg.prior.freeze_month_day)
+    if preseason.is_stale(prior, today, freeze_after=freeze, max_age_days=cfg.prior.refresh_days):
+        futures = None
+        if cfg.creds.has_odds_api():
+            client = OddsAPIClient(
+                cfg.creds.odds_api_key, cache_dir=cache_dir() / "oddsapi", cache_ttl=6 * 3600
+            )
+            futures = client.fetch_outrights()
+        prior = preseason.build(mp, season, r_yy=cfg.prior.r_yy, futures=futures, today=today)
+        path = preseason.save(prior, priors_dir())
+        log.info("preseason prior %d rebuilt -> %s (version %s)", season, path, prior.version)
+    assert prior is not None
+    return prior
+
+
+def cmd_prior(args: argparse.Namespace) -> int:
+    today = _parse_date(args.date)
+    season = args.season or season_of(today)
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    if args.force:
+        cfg = load_config()
+        futures = None
+        if cfg.creds.has_odds_api() and not args.no_futures:
+            client = OddsAPIClient(
+                cfg.creds.odds_api_key, cache_dir=cache_dir() / "oddsapi", cache_ttl=6 * 3600
+            )
+            futures = client.fetch_outrights()
+        prior = preseason.build(mp, season, r_yy=cfg.prior.r_yy, futures=futures, today=today)
+        preseason.save(prior, priors_dir())
+    else:
+        prior = _prior_for(season, mp, today)
+    print(
+        json.dumps(
+            {
+                "season": prior.season,
+                "version": prior.version,
+                "built_on": prior.built_on,
+                "teams": len(prior.teams),
+                "components": prior.components,
+                "futures_books": prior.futures_books,
+                "path": str(preseason.asset_path(priors_dir(), season)),
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
+def cmd_strength(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    slate = _parse_date(args.date)
+    season = args.season or season_of(slate)
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    prior = _prior_for(season, mp, slate)
+    keys = args.metrics.split(",") if args.metrics else [m.key for m in strength.METRICS]
+    rows = []
+    for code in sorted(CODES):
+        est = strength.team_strength(
+            mp.team_games(code),
+            slate,
+            season=season,
+            priors=prior.rates_for(code),
+            ks=cfg.shrink.team_k,
+        )
+        rows.append((code, est))
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "slate": slate.isoformat(),
+                    "season": season,
+                    "prior_version": prior.version,
+                    "teams": {
+                        code: {k: asdict(e) for k, e in est.items() if k in keys}
+                        for code, est in rows
+                    },
+                },
+                default=float,
+            )
+        )
+        return 0
+    print(f"as of {slate}  season {season}  prior {prior.version}  (posterior [prior→data weight])")
+    head = "team  gp  " + "  ".join(f"{k:>16s}" for k in keys)
+    print(head)
+    for code, est in rows:
+        gp = next(iter(est.values())).games if est else 0
+        cells = []
+        for k in keys:
+            e = est[k]
+            cells.append(f"{e.posterior:9.3f} [{e.reliability:4.2f}]")
+        print(f"{code:4s} {gp:3d}  " + "  ".join(f"{c:>16s}" for c in cells))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nhl-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -179,6 +287,20 @@ def build_parser() -> argparse.ArgumentParser:
     br.add_argument("--source", default="")
     br.add_argument("--check", nargs=2, metavar=("BOOK", "MARKET"))
     br.set_defaults(func=cmd_book_rules)
+
+    pr = sub.add_parser("prior", help="build or refresh the preseason prior asset")
+    pr.add_argument("--season", type=int, help="season start year, default from --date")
+    pr.add_argument("--date", help="as-of date for the refresh schedule, default today")
+    pr.add_argument("--force", action="store_true", help="rebuild even if fresh or frozen")
+    pr.add_argument("--no-futures", action="store_true", help="skip the 1-credit outrights call")
+    pr.set_defaults(func=cmd_prior)
+
+    st = sub.add_parser("strength", help="as-of team-strength posteriors (no prices)")
+    st.add_argument("--date", help="slate date, default today")
+    st.add_argument("--season", type=int)
+    st.add_argument("--metrics", help="comma-separated metric keys (default all)")
+    st.add_argument("--json", action="store_true")
+    st.set_defaults(func=cmd_strength)
     return parser
 
 

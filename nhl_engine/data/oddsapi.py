@@ -33,6 +33,9 @@ log = logging.getLogger(__name__)
 
 SPORT_KEY = "icehockey_nhl"
 BASE = f"https://api.the-odds-api.com/v4/sports/{SPORT_KEY}"
+# Stanley Cup futures; one bulk call, 1 credit (measured 2026-09-29).
+FUTURES_KEY = "icehockey_nhl_championship_winner"
+FUTURES_BASE = f"https://api.the-odds-api.com/v4/sports/{FUTURES_KEY}"
 
 # A 10pm ET puck drop is a 02:00 UTC start; the slate date is the Eastern one.
 SLATE_TZ = ZoneInfo("America/New_York")
@@ -141,6 +144,15 @@ class OddsAPIClient:
             out.extend(event_rows(data, game, taken))
         return out
 
+    def fetch_outrights(self) -> dict[str, dict[str, float]]:
+        """Cup-winner prices by team code: ``{code: {book: american}}``.
+
+        Recorded by ``data/preseason.py`` as a prior component. Teams the name
+        map does not know are dropped rather than guessed.
+        """
+        data = self._get_json(f"{FUTURES_BASE}/odds", markets="outrights")
+        return outright_prices(data) if isinstance(data, list) else {}
+
     # -- transport --------------------------------------------------------
     def _cache_path(self, url: str, params: dict[str, str]) -> Path | None:
         if self.cache_dir is None:
@@ -184,6 +196,22 @@ class OddsAPIClient:
 
 
 # -- parsing ----------------------------------------------------------------
+def outright_prices(payload: list) -> dict[str, dict[str, float]]:
+    out: dict[str, dict[str, float]] = {}
+    for event in payload:
+        for bm in event.get("bookmakers", []):
+            for mk in bm.get("markets", []):
+                if mk.get("key") != "outrights":
+                    continue
+                for oc in mk.get("outcomes", []):
+                    code = teamnames.code_for(str(oc.get("name", "")))
+                    price = oc.get("price")
+                    if code is None or not isinstance(price, (int, float)):
+                        continue
+                    out.setdefault(code, {})[str(bm.get("key"))] = float(price)
+    return out
+
+
 def _window(slate_date: Date, horizon_hours: int) -> tuple[datetime, datetime]:
     start = datetime.combine(slate_date, datetime.min.time(), tzinfo=SLATE_TZ)
     return start.astimezone(timezone.utc), (start + timedelta(hours=horizon_hours)).astimezone(
@@ -353,4 +381,4 @@ def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9 ]", "", text.lower()).strip()
 
 
-__all__ = ["BASE", "SPORT_KEY", "OddsAPIClient", "event_rows"]
+__all__ = ["BASE", "FUTURES_KEY", "SPORT_KEY", "OddsAPIClient", "event_rows", "outright_prices"]
