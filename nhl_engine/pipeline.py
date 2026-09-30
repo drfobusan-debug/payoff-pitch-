@@ -125,9 +125,14 @@ class SlateCard:
 def _apply_thin_fallback(
     rates: dict[str, float], rel: dict[str, float], league: dict[str, float], floor: float
 ) -> dict[str, float]:
-    """Special-teams sub-states below the reliability floor ship at the league rate."""
+    """Shorthanded sub-states below the reliability floor ship at the league rate.
+
+    Only the two thin SH-scoring states (§5.3) are floored. PP xGF and PK xGA
+    keep their EB posterior at any reliability: at 0 GP that posterior *is* the
+    preseason prior, which is exactly what the sim should run on.
+    """
     out = dict(rates)
-    for key in ("pp_xgf60", "pp_xga60", "pk_xga60", "sh_xgf60"):
+    for key in ("pp_xga60", "sh_xgf60"):
         if rel.get(key, 0.0) < floor and key in league:
             out[key] = league[key]
     return out
