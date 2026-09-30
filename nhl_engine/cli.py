@@ -36,7 +36,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from nhl_engine import outputs, pipeline, state
+from nhl_engine import email, outputs, pipeline, state
 from nhl_engine.audit import ledger, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
@@ -306,6 +306,12 @@ def cmd_card(args: argparse.Namespace) -> int:
         written = f"\nledger: {path} ({'written' if wrote else 'already existed, kept'})"
     print(outputs.render_card(card), end="")
     print("outputs: " + ", ".join(str(p) for p in paths.values()) + written)
+    if args.email:
+        try:
+            to = email.send_card(cfg, card, paths, to=args.to)
+            print(f"emailed {len(paths)} attachment(s) for {slate} -> {to}")
+        except email.EmailNotConfigured as exc:
+            print(f"email skipped: {exc}", file=sys.stderr)
     if cfg.state_sync and not args.no_sync:
         state.auto_push(root, f"nhl card {slate} {args.tag}")
     return 0
@@ -413,6 +419,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cd.add_argument("--seed", type=int, help="sim seed (default derived from the date)")
     cd.add_argument("--no-sync", action="store_true")
+    cd.add_argument("--email", action="store_true", help="send the card (txt/md/xlsx attached)")
+    cd.add_argument("--to", help="recipient (default NHLE_EMAIL_TO / MLBE_EMAIL_TO)")
     cd.set_defaults(func=cmd_card)
 
     sr = sub.add_parser("starter", help="record tonight's goalie for a team")
