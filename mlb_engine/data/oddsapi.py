@@ -40,7 +40,7 @@ import requests
 from mlb_engine.data import http
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
-from mlb_engine.schemas import Slate
+from mlb_engine.schemas import Game, Slate
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +57,8 @@ _BATTER_MARKETS = {
     "batter_rbis": ("batter_rbi", "RBI"),
     "batter_total_bases": ("batter_tb", "TB"),
     "batter_hits_runs_rbis": ("batter_hrr", "H+R+RBI"),
+    "batter_walks": ("batter_bb", "BB"),
+    "batter_strikeouts": ("batter_k", "K"),
 }
 _PITCHER_MARKETS = {
     "pitcher_strikeouts": ("pitcher_k", "Ks"),
@@ -86,6 +88,8 @@ DEFAULT_PROP_MARKETS = (
     "batter_rbis",
     "batter_total_bases",
     "batter_hits_runs_rbis",
+    "batter_walks",
+    "batter_strikeouts",
     "pitcher_strikeouts",
     "pitcher_outs",
     "pitcher_hits_allowed",
@@ -128,10 +132,18 @@ DEFAULT_PROP_MARKETS = (
 # ``batter_r`` stays shut: no probability band and no price bucket of it has
 # ever paid (-41.4u, -31.8%), so there is no rule to reopen it behind. Pitcher
 # ER stays shut for want of anyone having looked.
+# A batter's own walks and strikeouts are new to the fetch list and have never
+# been graded here, so they are quoted and never bought -- the order every other
+# market was reopened in: buy the price, let the ledger earn the bet. They are
+# priced at all because an outside prop board carries them heavily (two of EV
+# Analytics' largest sections) and a market the engine does not price cannot be
+# compared against anybody.
 PRICE_ONLY_MARKETS = frozenset(
     {
         "batter_r",
         "pitcher_er",
+        "batter_bb",
+        "batter_k",
     }
 )
 _PROP_MARKETS = list(_BATTER_MARKETS) + list(_PITCHER_MARKETS)
@@ -313,6 +325,34 @@ class OddsAPIClient:
                     "Odds API: priced %d of %d events; the rest have no prop quotes",
                     priced, len(events),
                 )
+        return out
+
+    def fetch_game_props(self, slate: Slate, game: Game) -> Quotes | None:
+        """Props for one game of the slate, on the board as it stands.
+
+        Event ids are free; the one per-event call costs a credit per prop
+        market. Returns ``None`` when the vendor has no pre-match event for the
+        game (started, or not yet listed) or the credit reserve is reached, so
+        the caller can tell "not looked at" from "priced nothing".
+        """
+        if not self.available() or not self.prop_markets:
+            return None
+        index = _SlateIndex(slate)
+        pair = (game.home.abbrev, game.away.abbrev)
+        events = [
+            ev for ev in self._list_events(index, pregame_only=True)
+            if (ev.home_ab, ev.away_ab) == pair
+        ]
+        if not events:
+            return None
+        markets = list(self.prop_markets)
+        if not self._afford(len(markets)):
+            return None
+        out: Quotes = {}
+        raw = self._get_json(f"{BASE}/events/{events[0].event_id}/odds", markets=",".join(markets))
+        if not isinstance(raw, dict):
+            return None
+        self._parse_props(raw, events[0], out)
         return out
 
     # -- events -----------------------------------------------------------

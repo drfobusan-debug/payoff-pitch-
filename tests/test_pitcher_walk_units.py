@@ -20,7 +20,7 @@ import numpy as np
 import pytest
 
 import mlb_engine.models.montecarlo as mc
-from mlb_engine.config import Config
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.rolling import (
     LEAGUE_WALK_SHARE_OF_FREE_PASS,
     WALK_EVENTS,
@@ -30,6 +30,11 @@ from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.models.montecarlo import MonteCarlo, TeamSimConfig
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 
 def _mean_walks(n_sims: int = 6000, p_bb: float = 0.30) -> float:
@@ -109,6 +114,11 @@ def test_the_walk_share_matches_the_measured_event_split() -> None:
     assert abs(LEAGUE_WALK_SHARE_OF_FREE_PASS - league) < 3e-3
 
 
+# A 0.55 side at +100 / -110 does not clear the shipped conviction floor once the
+# probability is anchored to the market, and the walks veto is what is under test.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
+
+
 def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
     """Price every pitcher prop at ``p_over``, both sides quoted +100 / -110.
 
@@ -151,6 +161,50 @@ def _bb_recs(cfg: Config, p_over: float) -> dict[tuple[str, str], object]:
     return {(r.market, r.side): r for r in recs if r.line in (1.5, 4.5, 15.5)}
 
 
+def _bb_recs_by_line(cfg: Config, p_over: float) -> dict[tuple[float, str], object]:
+    p = Pipeline.__new__(Pipeline)
+    p.cfg = cfg
+    p._calibrator = SimpleNamespace(apply=lambda market, prob: prob)
+    p._shrink = None
+    p._splits = {}
+    game = SimpleNamespace(game_date="2026-08-01", game_pk=1)
+    pitcher = SimpleNamespace(name="Some Pitcher", mlbam_id=42)
+    n = 1000
+    arr = np.zeros(n)
+    arr[: int(n * p_over)] = 8.0
+    res = SimpleNamespace(
+        pit={"home": {k: arr.copy() for k in ("K", "outs", "H", "BB", "ER")}}
+    )
+    quotes = {
+        ("MATCH", "pitcher_bb", keys.pitcher_prop(pitcher.name, "Walks", ln, side)): [
+            MarketQuote(book="dk", american=100.0, opposite_american=-110.0)
+        ]
+        for ln in (1.5, 2.5)
+        for side in ("over", "under")
+    }
+    recs = p._pitcher_props(game, "MATCH", res, "home", pitcher, quotes)
+    return {(r.line, r.side): r for r in recs if r.market == "pitcher_bb"}
+
+
+def test_the_walks_over_is_bought_at_the_low_line_only() -> None:
+    """o1.5 on the model's read went 61.1% (+12.7%, n=285); o2.5 went 9-14."""
+    recs = _bb_recs_by_line(Config(ev=LEVELS_OFF), p_over=0.55)
+    assert recs[(1.5, "over")].tier is not Tier.PASS
+    assert recs[(2.5, "over")].tier is Tier.PASS
+    assert any("buy cap" in r for r in recs[(2.5, "over")].reasons)
+    # Its own gate name, so probation grades the cap apart from the contact floor.
+    assert recs[(2.5, "over")].pass_gate == "bb_line_cap"
+    assert recs[(1.5, "over")].pass_gate is None
+    # A screen on buying the over says nothing about the under.
+    assert not any("buy cap" in r for r in recs[(2.5, "under")].reasons)
+
+
+def test_the_walks_line_cap_is_movable() -> None:
+    cfg = replace(Config(ev=LEVELS_OFF), pitcher_bb_max_buy_line=2.5)
+    recs = _bb_recs_by_line(cfg, p_over=0.55)
+    assert recs[(2.5, "over")].tier is not Tier.PASS
+
+
 def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
     """pitcher_bb is the one market whose over was the profitable side.
 
@@ -158,7 +212,7 @@ def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
     graded rows say not to take -- so the veto has to bite on a row that would
     otherwise be bought, not merely on one the EV screens already declined.
     """
-    recs = _bb_recs(Config(), p_over=0.45)
+    recs = _bb_recs(Config(ev=LEVELS_OFF), p_over=0.45)
     under = recs[("pitcher_bb", "under")]
     assert under.tier is Tier.PASS
     assert under.pass_gate == "bb_under"
@@ -176,14 +230,14 @@ def test_the_walks_under_is_vetoed_even_when_it_is_the_value_side() -> None:
 
 def test_the_walks_over_is_left_alone() -> None:
     """The veto is directional; the over is the side that made money."""
-    over = _bb_recs(Config(), p_over=0.55)[("pitcher_bb", "over")]
+    over = _bb_recs(Config(ev=LEVELS_OFF), p_over=0.55)[("pitcher_bb", "over")]
     assert over.tier is not Tier.PASS
     assert over.pass_gate is None
 
 
 def test_the_walks_under_can_be_re_enabled() -> None:
     """The veto is a stance on an unvalidated level, so it has to be reversible."""
-    cfg = replace(Config(), pitcher_bb_under_gate=False)
+    cfg = replace(Config(ev=LEVELS_OFF), pitcher_bb_under_gate=False)
     under = _bb_recs(cfg, p_over=0.45)[("pitcher_bb", "under")]
     assert under.tier is not Tier.PASS
     assert under.pass_gate is None

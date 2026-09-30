@@ -2,10 +2,11 @@
 
 Two ingestion paths are supported:
 
-1. Live public fetch (default). VSIN's betting-splits page is served publicly at
-   ``data.vsin.com/betting-splits/`` and carries, per game, each team's
-   moneyline price plus handle%/bets% for the spread, total, and moneyline. No
-   login is required for this page; ``fetch_quotes`` scrapes it and returns
+1. Live fetch (default). VSIN's betting-splits page at
+   ``data.vsin.com/betting-splits/`` carries, per game, each team's moneyline
+   price plus handle%/bets% for the spread, total, and moneyline. Signed out it
+   now serves a one-game teaser, so the request carries the subscriber cookie
+   (``VSIN_UTP``) when there is one; ``fetch_quotes`` scrapes it and returns
    moneyline quotes keyed to the engine's selections. VSIN's public splits do
    **not** expose run-line or total prices, so only moneyline EV is derived from
    it -- run-line/total prices must come from the CSV drop-in.
@@ -42,6 +43,11 @@ SPLITS_URL = "https://data.vsin.com/betting-splits/?source={book}&sport=MLB"
 _HEADERS = {"User-Agent": "Mozilla/5.0 (mlb-prediction-engine)"}
 # VSIN "source" code -> engine book label.
 _BOOKS = {"DK": "draftkings", "circa": "circa"}
+# The Piano ID cookie that means *subscriber*: alone it turns the one-game
+# teaser into the full board, and none of the other two dozen cookies do.
+SUBSCRIBER_COOKIE = "__utp"
+# Two rows a game: a board this short is the signed-out teaser, not a slate.
+_TEASER_ROWS = 2
 
 
 class _MoneyLine(NamedTuple):
@@ -65,6 +71,25 @@ class Split:
         if self.handle_pct is None or self.bets_pct is None:
             return None
         return self.handle_pct - self.bets_pct
+
+
+@dataclass
+class TotalSplit:
+    """One book's total for a game with the handle/bets of each side."""
+
+    line: float
+    over: Split = Split()
+    under: Split = Split()
+
+
+@dataclass
+class SideSplit:
+    """One book's moneyline and run-line read on one team."""
+
+    ml_american: float | None = None
+    ml: Split = Split()
+    rl_line: float | None = None
+    rl: Split = Split()
 
 
 def split_side(market: str, selection: str) -> str | None:
@@ -204,6 +229,56 @@ class VSINClient:
                 )
         return quotes, splits
 
+    TotalSplits = dict[tuple[str, str], TotalSplit]
+
+    def fetch_total_splits(self, slate: Slate) -> TotalSplits:
+        """{(matchup, book): TotalSplit} -- the total's handle/bets for both sides, per book.
+
+        ``fetch`` files one split per selection and lets the second book overwrite
+        the first; a sheet that scores DraftKings and Circa as separate columns
+        needs them kept apart, and needs the Over and Under of one game together.
+        """
+        name_to_team: dict[str, tuple[str, bool]] = {}
+        for g in slate.games:
+            for tm in (g.home, g.away):
+                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.is_home)
+        out: VSINClient.TotalSplits = {}
+        for src, book in _BOOKS.items():
+            for row in self._fetch_book(src):
+                match = name_to_team.get(_norm_name(row.name))
+                if match is None or row.total_line is None:
+                    continue
+                matchup, is_home = match
+                cur = out.setdefault((matchup, book), TotalSplit(row.total_line))
+                if is_home:
+                    cur.under = Split(row.total_handle, row.total_bets)
+                else:
+                    cur.over = Split(row.total_handle, row.total_bets)
+        return out
+
+    SideSplits = dict[tuple[str, str, str], SideSplit]
+
+    def fetch_side_splits(self, slate: Slate) -> SideSplits:
+        """{(matchup, abbrev, book): SideSplit} -- each team's ML and run-line split, per book."""
+        name_to_team: dict[str, tuple[str, str]] = {}
+        for g in slate.games:
+            for tm in (g.home, g.away):
+                name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.abbrev)
+        out: VSINClient.SideSplits = {}
+        for src, book in _BOOKS.items():
+            for row in self._fetch_book(src):
+                match = name_to_team.get(_norm_name(row.name))
+                if match is None:
+                    continue
+                matchup, abbrev = match
+                out[(matchup, abbrev, book)] = SideSplit(
+                    row.ml_american,
+                    Split(row.ml_handle, row.ml_bets),
+                    row.spread_line,
+                    Split(row.spread_handle, row.spread_bets),
+                )
+        return out
+
     def fetch_quotes(self, slate: Slate) -> Quotes:
         """Backwards-compatible accessor for just the priced moneyline quotes."""
         return self.fetch(slate)[0]
@@ -211,7 +286,9 @@ class VSINClient:
     def _fetch_book(self, src: str) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
-            resp = http.get(url, headers=_HEADERS, timeout=self.timeout)
+            resp = http.get(
+                url, headers=_HEADERS, cookies=self._cookies(), timeout=self.timeout
+            )
             resp.raise_for_status()
             tables = pd.read_html(io.StringIO(resp.text))
         except (requests.RequestException, ValueError) as exc:
@@ -219,8 +296,23 @@ class VSINClient:
             return []
         if not tables:
             return []
+        rows = self._rows(tables[0])
+        if self.creds.vsin_token and len(rows) <= _TEASER_ROWS:
+            log.warning(
+                "VSIN served the signed-out teaser for %s despite VSIN_UTP: the "
+                "subscriber cookie has expired or been revoked; sign in again in a "
+                "browser and copy the new %s cookie",
+                src, SUBSCRIBER_COOKIE,
+            )
+        return rows
+
+    def _cookies(self) -> dict[str, str]:
+        return {SUBSCRIBER_COOKIE: self.creds.vsin_token} if self.creds.vsin_token else {}
+
+    @staticmethod
+    def _rows(table: pd.DataFrame) -> list[_RawRow]:
         rows: list[_RawRow] = []
-        for _, r in tables[0].iterrows():
+        for _, r in table.iterrows():
             name = str(r.iloc[1]).strip()
             if not name or name.lower() == "nan":
                 continue

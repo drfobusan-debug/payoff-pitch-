@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timezone
 
 import pytest
 
-from cfb_engine.audit.clv import ClosingQuote, compute_clv, merge_closing
+from cfb_engine.audit.clv import (
+    ClosingQuote,
+    bet_clv_summary,
+    closing_quotes,
+    compute_clv,
+    drop_in_play,
+    in_play_games,
+    merge_closing,
+)
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
@@ -16,9 +24,12 @@ from cfb_engine.audit.ledger import (
     update_ledger,
 )
 from cfb_engine.data.cfbd import GameResult
+from cfb_engine.market.board import GameOdds
+from cfb_engine.market.ev import MarketQuote
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
+from cfb_engine.schemas import Game, Slate, TeamGameInfo
 
 DAY = date(2025, 11, 1)
 
@@ -56,6 +67,125 @@ def test_ml_grading_win_and_loss():
     assert grade(away_pick, result_for(away_pick, index)) == "loss"
 
 
+def test_a_truncated_card_label_still_finds_its_final_score():
+    """The label is capped at 14 characters, and the audit must survive that.
+
+    On the 2026-08-29 board this silently cost three of eight games their grade
+    -- ``New Mexico Sta`` never matched ``New Mexico State`` -- including the
+    largest bet on the card.
+    """
+    rec = _ml("away", "New Mexico Sta +31.5")
+    rec.market, rec.line = "game_ats", 31.5
+    rec.home_abbrev, rec.away_abbrev = "Florida State", "New Mexico Sta"
+    index = build_result_index(
+        [GameResult(home="Florida State", away="New Mexico State", home_points=34, away_points=17)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
+def test_a_truncated_label_does_not_grab_the_wrong_school():
+    """``North Dakota S`` is not North Dakota, and neither is graded on a guess."""
+    rec = _ml("away", "North Dakota S ML")
+    rec.home_abbrev, rec.away_abbrev = "North Dakota S", "Jacksonville S"
+    index = build_result_index(
+        [GameResult(home="North Dakota", away="Long Island", home_points=42, away_points=21)]
+    )
+
+    assert result_for(rec, index) is None
+
+
+@pytest.mark.parametrize(
+    ("board_home", "board_away", "cfbd_home", "cfbd_away"),
+    [
+        ("Rutgers", "UMass", "Rutgers", "Massachusetts"),
+        ("Buffalo", "Albany", "Buffalo", "UAlbany"),
+        ("Kansas", "LIU", "Kansas", "Long Island University"),
+    ],
+)
+def test_a_differently_spelled_school_still_grades(board_home, board_away, cfbd_home, cfbd_away):
+    """Week-1 2026 lost three games to spelling, not truncation."""
+    rec = _ml("away", f"{board_away} ML")
+    rec.home_abbrev, rec.away_abbrev = board_home, board_away
+    index = build_result_index(
+        [GameResult(home=cfbd_home, away=cfbd_away, home_points=21, away_points=37)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
+@pytest.mark.parametrize(
+    ("board_home", "board_away", "cfbd_home", "cfbd_away"),
+    [
+        ("Penn State Nit", "Wisconsin", "Penn State", "Wisconsin"),
+        ("Marshall", "Gardner-Webb R", "Marshall", "Gardner-Webb"),
+        ("Tulane", "Southern Missi", "Tulane", "Southern Miss"),
+        ("North Texas", "Houston Baptis", "North Texas", "Houston Christian"),
+        ("Duke", "William and Ma", "Duke", "William & Mary"),
+        ("Texas Tech", "Sam Houston St", "Texas Tech", "Sam Houston"),
+        ("Boston College", "Maine Black", "Boston College", "Maine"),
+        ("Florida", "Campbell Fight", "Florida", "Campbell"),
+    ],
+)
+def test_a_label_cut_inside_its_mascot_still_grades(board_home, board_away, cfbd_home, cfbd_away):
+    """Six games on 2026-09-26 (and 106 rows over three Saturdays) went ungraded.
+
+    A short school keeps part of its mascot inside the 14-character label
+    (``Penn State Nit``), or is the board's spelling of a CFBD alias cut short
+    (``Houston Baptis``); neither is a prefix of the CFBD name.
+    """
+    rec = _ml("away", f"{board_away} ML")
+    rec.home_abbrev, rec.away_abbrev = board_home, board_away
+    index = build_result_index(
+        [GameResult(home=cfbd_home, away=cfbd_away, home_points=21, away_points=37)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
+def test_a_mascot_fragment_does_not_grab_a_longer_school():
+    """``Miami Ohio`` is not Miami; ``ohio`` is no mascot and the label is not capped."""
+    rec = _ml("home", "Miami Ohio ML")
+    rec.home_abbrev, rec.away_abbrev = "Miami Ohio", "Akron"
+    index = build_result_index(
+        [GameResult(home="Miami", away="Akron", home_points=30, away_points=10)]
+    )
+
+    assert result_for(rec, index) is None
+
+
+def test_an_ambiguous_prefix_is_left_ungraded():
+    rec = _ml("home", "Miami ML")
+    rec.home_abbrev, rec.away_abbrev = "Miami", "Bethune"
+    index = build_result_index(
+        [
+            GameResult(home="Miami (FL)", away="Bethune-Cookman", home_points=30, away_points=10),
+            GameResult(home="Miami (OH)", away="Bethune", home_points=20, away_points=17),
+        ]
+    )
+
+    assert result_for(rec, index) is None
+
+
+def test_a_truncated_label_does_not_flip_home_and_away():
+    """The home/away alignment reads the same names, so it needs the same rule."""
+    rec = _ml("home", "Florida State -31.5")
+    rec.market, rec.line = "game_ats", -31.5
+    rec.home_abbrev, rec.away_abbrev = "Florida State", "New Mexico Sta"
+    res = GameResult(home="Florida State", away="New Mexico State", home_points=34, away_points=17)
+
+    assert grade(rec, res) == "loss"  # won by 17, needed 32
+
+
 def test_ats_push():
     rec = _ml("away", "Alabama +7.0")
     rec.market = "game_ats"
@@ -89,18 +219,45 @@ def test_ledger_is_idempotent(tmp_path):
     assert rows[0].pnl > 0
 
 
+def test_auditing_a_later_day_keeps_an_earlier_row_whole(tmp_path):
+    """Every audit reloads the whole ledger and rewrites it, so a column that is
+    written but not read back is erased from history on the next run."""
+    path = tmp_path / "ledger.csv"
+    rec = _ml("home", "Georgia ML")
+    rec.drift, rec.pass_gate = -0.031, "clv_drift"
+    entries = entries_from_graded([(rec, "win")], DAY)
+    entries[0].clv_pts = 0.5
+    update_ledger(path, entries, DAY)
+
+    later = date(2025, 11, 8)
+    update_ledger(path, entries_from_graded([(_ml("home", "Georgia ML"), "win")], later), later)
+
+    old = next(r for r in load_ledger(path) if r.date == DAY.isoformat())
+    assert (old.drift, old.pass_gate, old.clv_pts) == (-0.031, "clv_drift", 0.5)
+
+
 def test_clv_positive_when_market_moves_to_us():
     closing = {"game_ml|Georgia ML": ClosingQuote(american=-150, no_vig_prob=0.60)}
     close_odds, close_prob, clv, clv_ev = compute_clv(
-        "game_ml", "Georgia ML", bet_american=-120, bet_fair_prob=0.55, closing=closing
-    )
+        "Georgia @ Alabama",
+        "game_ml",
+        "Georgia ML",
+        bet_american=-120,
+        bet_fair_prob=0.55,
+        closing=closing,
+    ).as_tuple()
     assert close_odds == -150
     assert clv is not None and clv > 0  # 0.60 - 0.55
     assert clv_ev is not None
 
 
 def test_clv_missing_selection_is_none():
-    assert compute_clv("game_ml", "Nobody ML", -120, 0.5, {}) == (None, None, None, None)
+    assert compute_clv("Georgia @ Alabama", "game_ml", "Nobody ML", -120, 0.5, {}).as_tuple() == (
+        None,
+        None,
+        None,
+        None,
+    )
 
 
 def test_merge_closing_keeps_earlier_kickoffs():
@@ -163,3 +320,85 @@ def test_price_buckets_ignore_rows_that_never_carried_a_price() -> None:
     unpriced.odds = None
     rows = price_bucket_metrics([priced, unpriced])
     assert sum(m.n for m in rows if m.tier.startswith(("Heavy", "Favorite", "Pick"))) == 1
+
+
+def _kickoff_slate() -> tuple[Slate, dict[str, GameOdds]]:
+    def game(gid: str, home: str, away: str, start: str) -> Game:
+        return Game(
+            game_id=gid,
+            game_date=date(2026, 9, 12),
+            commence_time_utc=start,
+            home=TeamGameInfo(name=home, abbrev=home[:3].upper(), is_home=True),
+            away=TeamGameInfo(name=away, abbrev=away[:3].upper(), is_home=False),
+        )
+
+    early = game("1", "Illinois", "Duke", "2026-09-12T16:00:00Z")
+    late = game("2", "Washington", "Utah State", "2026-09-12T23:00:00Z")
+    unknown = game("3", "Purdue", "Wake Forest", None)
+    board: dict[str, GameOdds] = {}
+    for g in (early, late, unknown):
+        odds = GameOdds(matchup=g.matchup())
+        quote = MarketQuote(book="b", american=-110, opposite_american=-110)
+        odds.add_spread(-7.0, g.home.abbrev, quote)
+        odds.add_spread(-7.0, g.away.abbrev, quote)
+        board[g.matchup()] = odds
+    return Slate(slate_date=date(2026, 9, 12), games=[early, late, unknown]), board
+
+
+def test_closing_quotes_skip_games_already_in_play():
+    slate, board = _kickoff_slate()
+    now = datetime(2026, 9, 12, 19, 0, tzinfo=timezone.utc)
+    quotes = closing_quotes(slate, board, now=now)
+    matchups = {k.split("|")[0] for k in quotes}
+    assert matchups == {"UTA @ WAS", "WAK @ PUR"}
+
+
+def test_closing_quotes_keep_everything_before_kickoff():
+    slate, board = _kickoff_slate()
+    now = datetime(2026, 9, 12, 12, 0, tzinfo=timezone.utc)
+    quotes = closing_quotes(slate, board, now=now)
+    assert {k.split("|")[0] for k in quotes} == {g.matchup() for g in slate.games}
+
+
+def test_bet_clv_summary_ignores_the_cancelling_pass_side():
+    """Both sides of a market carry equal-and-opposite CLV; only the bets count."""
+    rows = [
+        ("Total", True, True, 0.04, 0.05),
+        ("Total", False, False, -0.04, -0.05),
+        ("Spread", False, True, 0.02, 0.01),
+        ("Spread", False, False, -0.02, -0.01),
+        ("Spread", False, False, None, None),
+    ]
+    out = {s.label: s for s in bet_clv_summary(rows)}
+    assert set(out) == {"Buys · Total", "Buys · ALL", "Model-favoured (p > fair)"}
+    assert out["Buys · ALL"].n == 1 and out["Buys · ALL"].mean_clv == pytest.approx(0.04)
+    lean = out["Model-favoured (p > fair)"]
+    assert lean.n == 2 and lean.mean_clv == pytest.approx(0.03)
+    assert bet_clv_summary([("Total", False, False, -0.04, -0.05)]) == []
+
+
+_G = "Syracuse @ Pittsburgh"
+_H = "Army @ Kansas State"
+
+
+def _quotes(game: str, ml: float, ml_p: float, ats: float, ats_line: float) -> dict:
+    return {
+        f"{game}|game_ml|Pittsburgh": ClosingQuote(american=ml, no_vig_prob=ml_p),
+        f"{game}|game_ats|Pittsburgh": ClosingQuote(american=ats, line=ats_line, no_vig_prob=0.5),
+    }
+
+
+def test_in_play_games_flags_live_prices_and_moves_by_whole_game():
+    board = {**_quotes(_G, -400, 0.78, -105, -10.5), **_quotes(_H, -164, 0.60, -110, -3.5)}
+    closing = {**_quotes(_G, -410, 0.775, -108, -10.0), **_quotes(_H, -790, 0.87, +240, -3.5)}
+    assert in_play_games(closing, board) == {_H}
+    kept, bad = drop_in_play(closing, board)
+    assert bad == {_H}
+    assert set(kept) == set(_quotes(_G, 0, 0, 0, 0))
+
+    # a main number that moved a touchdown is a game on the field
+    moved = {**_quotes(_G, -400, 0.78, -110, -17.5)}
+    assert in_play_games(moved, board) == {_G}
+    # no board at all: only the price rule can fire
+    assert in_play_games(_quotes(_G, -100000, 0.999, -105, -10.5), {}) == set()
+    assert in_play_games(_quotes(_G, -400, 0.78, +6000, -10.5), {}) == {_G}

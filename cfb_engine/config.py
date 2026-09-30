@@ -79,6 +79,17 @@ class ModelParams:
     # priors so a thin/absent rating never manufactures a phantom edge; the
     # model still departs from the market by ``1 - blend`` of its own view.
     market_blend: float = field(default_factory=lambda: _env_float("CFBE_MARKET_BLEND", 0.35))
+    # Moneyline win probability read off a normal whose SD is the one the market
+    # itself uses to turn a spread into a price, rather than the 16-pt margin SD.
+    # College margins are not normal: on 159 boards (2026 wk 1-3) the no-vig ML
+    # implied SD 13.3 for 3.5-10.5 pt favourites, rising ~0.2/pt past 8 to 16-18
+    # in blowouts. A flat 16 handed every 3-20 pt dog more probability than its
+    # price (ML leans 51 of 59 dogs, 7-52). Fit: sd = base + slope*max(0, |m|-knee),
+    # RMSE vs market 0.011 (0.022 at a flat 16). 0 disables and uses the sim.
+    ml_market_sd: bool = field(default_factory=lambda: _env_bool("CFBE_ML_MARKET_SD", True))
+    ml_sd_base: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_BASE", 13.25))
+    ml_sd_knee: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_KNEE", 8.0))
+    ml_sd_slope: float = field(default_factory=lambda: _env_float("CFBE_ML_SD_SLOPE", 0.20))
 
 
 @dataclass(frozen=True)
@@ -354,6 +365,17 @@ class Config:
     # printed on the card; set the env var to price it again.
     vsin_hfa: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_HFA", False))
 
+    # Read ESPN's public game summaries (preview story, stat leaders, ATS records,
+    # venue, forecast) for the card's context box. Never priced; one keyless call
+    # per game.
+    espn_color: bool = field(default_factory=lambda: _env_bool("CFBE_ESPN_COLOR", True))
+
+    # Read VSiN's public betting splits (handle% and tickets% per side). On by
+    # default: the moneyline screen in :mod:`cfb_engine.market.mlsharp` needs
+    # them, and every side that has one carries its divergence into the ledger so
+    # the signal can be graded on college football rather than on MLB's sample.
+    vsin_splits: bool = field(default_factory=lambda: _env_bool("CFBE_VSIN_SPLITS", True))
+
     # Read the injury feed and the box-score usage book. On by default because it
     # only reports and logs: an absence is printed on the card and appended to the
     # availability log with the line at that moment, which is what measures whether
@@ -401,6 +423,14 @@ class Config:
     )
     smtp_port: int = field(
         default_factory=lambda: _env_int("CFBE_SMTP_PORT", _env_int("SMTP_PORT", 465))
+    )
+
+    # Shared state (see cfb_engine/state.py): the card is priced on one machine
+    # and audited on another, so the audit directory travels on a branch. Best
+    # effort -- no remote, branch or credentials just means local state.
+    state_sync: bool = field(default_factory=lambda: _env_bool("CFBE_STATE_SYNC", True))
+    state_branch: str = field(
+        default_factory=lambda: os.getenv("CFBE_STATE_BRANCH", "engine-state")
     )
 
     # Directories.
@@ -464,6 +494,14 @@ class Config:
     def closing_file(self, day: Date) -> Path:
         """Closing-line snapshot captured near kickoff for one slate."""
         return self.audit_dir / f"closing_{day.isoformat()}.json"
+
+    def board_file(self, day: Date) -> Path:
+        """First board the engine saw for one slate: the baseline day-of movement
+        is measured from, and the only half of closing-line value that can be
+        known before the bet. Written once per slate and never overwritten, so it
+        cannot be reconstructed after the fact -- if it is missing for a slate,
+        that slate's pre-bet drift is simply unavailable."""
+        return self.audit_dir / f"board_{day.isoformat()}.json"
 
     @property
     def availability_file(self) -> Path:

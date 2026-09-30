@@ -16,6 +16,7 @@ the book grades and refunds pushes.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -31,6 +32,17 @@ class ExpectedGame:
     exp_total: float
     margin_sd: float
     total_sd: float
+
+
+def ml_margin_sd(exp_margin: float, params: ModelParams) -> float:
+    """Margin SD the market implies for a moneyline at this expected margin."""
+    return params.ml_sd_base + params.ml_sd_slope * max(0.0, abs(exp_margin) - params.ml_sd_knee)
+
+
+def market_win_prob(exp_margin: float, params: ModelParams) -> float:
+    """P(home wins) from a normal on the market-implied moneyline SD."""
+    z = exp_margin / ml_margin_sd(exp_margin, params)
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
 
 
 @dataclass

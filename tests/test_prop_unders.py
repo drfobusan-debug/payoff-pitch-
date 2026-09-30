@@ -10,10 +10,21 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from mlb_engine.config import Config
+import pytest
+
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
+
+# A 0.55 fade at -110 does not clear the shipped conviction floor once the
+# probability is anchored, and the screens under test here are the fade's own.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
 
 
 def _pipeline(cfg: Config) -> Pipeline:
@@ -82,9 +93,17 @@ def test_a_deep_favourite_under_is_refused() -> None:
     sides = _sides(Config(), "batter_h", "H", 0.22, 260, -320)
     assert sides["under"].tier is Tier.PASS
     assert sides["under"].pass_gate == "under_price_floor"
-    # The same edge at a payable price is a buy, so the floor is what refused it.
+    # Lift the floor and the same row is refused by the conviction ceiling
+    # instead: a .78 fade is exactly what that screen was shipped to decline, so
+    # the floor is now the outer of two refusals rather than the only one.
     priced = _sides(Config(prop_under_min_price=-1000.0), "batter_h", "H", 0.22, 260, -320)
-    assert priced["under"].tier in (Tier.STRONG, Tier.MODERATE)
+    assert priced["under"].pass_gate == "batter_under_prob_ceiling"
+    # With both lifted it is a buy, so the price alone was never the objection.
+    both = _sides(
+        Config(prop_under_min_price=-1000.0, batter_under_max_buy_prob=1.0),
+        "batter_h", "H", 0.22, 260, -320,
+    )
+    assert both["under"].tier in (Tier.STRONG, Tier.MODERATE)
 
 
 def test_a_singles_under_needs_the_profile() -> None:
@@ -96,7 +115,10 @@ def test_a_singles_under_needs_the_profile() -> None:
 
     def under(score: float | None):
         return _sides(
-            Config(), "batter_1b", "1B", 0.45, -110, -110, bat_singles_under=score
+            # 0.60 on the fade, which anchors to 0.57 and keeps a 7-point edge:
+            # singles carry a raised edge floor of their own.
+            Config(ev=LEVELS_OFF), "batter_1b", "1B", 0.40, -110, -110,
+            bat_singles_under=score,
         )["under"]
 
     for score in (3.0, 2.0):
@@ -112,5 +134,7 @@ def test_the_hits_under_carries_no_singles_screen() -> None:
     A strikeout-prone bat still doubles and homers, and either clears a hits
     line, so the hits fade runs on price and EV alone.
     """
-    sides = _sides(Config(), "batter_h", "H", 0.45, -110, -110, bat_singles_under=0.0)
+    sides = _sides(
+        Config(ev=LEVELS_OFF), "batter_h", "H", 0.45, -110, -110, bat_singles_under=0.0
+    )
     assert sides["under"].tier in (Tier.STRONG, Tier.MODERATE)

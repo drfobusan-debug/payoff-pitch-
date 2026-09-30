@@ -247,8 +247,18 @@ class Calibrator:
 
     maps: dict[str, IsotonicMap]
     default: IsotonicMap
+    retired: frozenset[str] = frozenset()
 
     def apply(self, market: str, prob: float) -> float:
+        """Calibrate, unless this market's own map has been retired.
+
+        A retired market takes no correction at all, not the pooled one: the
+        pooled curve is the average of every market's over-confidence, so
+        falling back to it would apply a correction fitted mostly elsewhere to
+        the one market known to have changed.
+        """
+        if market in self.retired:
+            return prob
         m = self.maps.get(market, self.default)
         return m.apply(prob)
 
@@ -267,36 +277,119 @@ class Calibrator:
         }
         return cls(maps=maps, default=IsotonicMap.fit(allp))
 
-    def to_json(self, path: Path) -> None:
+    def to_json(self, path: Path, bases: dict[str, str] | None = None, rows: int = 0) -> None:
+        """Write the map, stamping each market with the basis it is valid for.
+
+        ``bases`` writes a market's stamp as some older basis, which is how a
+        caller records that a curve predates the current features. No shipping
+        path does that: ``calibrate --revalidate`` stamps every survivor
+        current, having just measured it as still helping.
+
+        ``rows`` records how many graded rows the fit was trained on. Nothing
+        prices off it; it is what lets two machines' maps be compared when the
+        state sync meets both of them.
+        """
+        carried = bases or {}
         payload = {
             "basis": FEATURE_BASIS,
-            "markets": {mk: {"x": m.x, "y": m.y} for mk, m in self.maps.items()},
+            "rows": rows,
+            "markets": {
+                mk: {"x": m.x, "y": m.y, "basis": carried.get(mk, FEATURE_BASIS)}
+                for mk, m in self.maps.items()
+            },
             "default": {"x": self.default.x, "y": self.default.y},
         }
         path.write_text(json.dumps(payload, indent=2))
 
     @classmethod
     def from_json(cls, path: Path) -> Calibrator:
+        """Load the map, dropping only the markets whose basis is stale.
+
+        A basis bump used to retire the whole file, which is stricter than the
+        evidence: measured out of time on 32,716 graded rows priced after the
+        bumps of 2026-08, the retired map still beat the uncalibrated
+        probability on most markets (``pitcher_h`` +.0177 Brier, ``pitcher_k``
+        +.0165) and lost on three (``batter_tb`` -.0237, whose total-bases
+        weighting had genuinely changed). Retiring per market keeps the
+        first group priced and drops the second, and a map with no stamp at all
+        is still refused everywhere -- an unlabelled fit could have been trained
+        on anything.
+        """
         data = json.loads(path.read_text())
-        basis = data.get("basis")
-        if basis != FEATURE_BASIS:
+        pooled = data.get("basis")
+        maps: dict[str, IsotonicMap] = {}
+        stale: list[str] = []
+        for mk, v in data.get("markets", {}).items():
+            if v.get("basis", pooled) == FEATURE_BASIS:
+                maps[mk] = IsotonicMap(v["x"], v["y"])
+            else:
+                stale.append(mk)
+        if stale:
             log.warning(
-                "calibration map %s was fit on feature basis %r, engine is on %r: "
-                "ignoring it until it is refit on graded slates from this engine",
+                "calibration map %s: %d of %d markets were fit on a feature basis "
+                "other than %r and are ignored until refit (%s)",
                 path.name,
-                basis,
+                len(stale),
+                len(stale) + len(maps),
                 FEATURE_BASIS,
+                ", ".join(sorted(stale)),
             )
-            return cls.identity()
-        maps = {
-            mk: IsotonicMap(v["x"], v["y"]) for mk, v in data.get("markets", {}).items()
-        }
-        d = data.get("default", {"x": [], "y": []})
-        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]))
+        d = (
+            data.get("default", {"x": [], "y": []})
+            if pooled == FEATURE_BASIS
+            else {"x": [], "y": []}
+        )
+        return cls(maps=maps, default=IsotonicMap(d["x"], d["y"]), retired=frozenset(stale))
 
     @classmethod
     def identity(cls) -> Calibrator:
         return cls(maps={}, default=IsotonicMap([], []))
+
+
+@dataclass(frozen=True)
+class StoredMaps:
+    """Every curve in a map file, with the basis each one was fitted on.
+
+    ``from_json`` is the pricing view: it drops the stale markets, which is what
+    a slate wants. A refit needs the other view -- the file as written -- because
+    the curves it is not replacing have to survive into the new file for
+    ``calibrate --revalidate`` to measure them later.
+    """
+
+    maps: dict[str, IsotonicMap]
+    bases: dict[str, str]
+    default: IsotonicMap
+    default_basis: str = ""
+    rows: int = 0
+
+    def current_markets(self) -> int:
+        """How many curves this file would actually price off."""
+        return sum(1 for b in self.bases.values() if b == FEATURE_BASIS)
+
+    def current_default(self) -> IsotonicMap:
+        """The pooled curve if it was fitted on the current basis, else none."""
+        if self.default_basis == FEATURE_BASIS:
+            return self.default
+        return IsotonicMap([], [])
+
+
+def read_stored(path: Path) -> StoredMaps:
+    """Read a map file without filtering on basis."""
+    data = json.loads(path.read_text())
+    pooled = str(data.get("basis", ""))
+    maps: dict[str, IsotonicMap] = {}
+    bases: dict[str, str] = {}
+    for mk, v in data.get("markets", {}).items():
+        maps[mk] = IsotonicMap(v["x"], v["y"])
+        bases[mk] = str(v.get("basis", pooled))
+    d = data.get("default", {"x": [], "y": []})
+    return StoredMaps(
+        maps=maps,
+        bases=bases,
+        default=IsotonicMap(d["x"], d["y"]),
+        default_basis=pooled,
+        rows=int(data.get("rows", 0)),
+    )
 
 
 @dataclass(frozen=True)
