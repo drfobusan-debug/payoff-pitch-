@@ -19,13 +19,16 @@ from datetime import date as Date
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
+from cfb_engine.data.depth import DepthBook, depth_for, merge_depth
 from cfb_engine.data.espn import ColorBook, GameColor, color_for
 from cfb_engine.data.injuries import InjuryBook, unavailable_for
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import VSIN_HFA
+from cfb_engine.data.watch import WatchBook, watch_for
 from cfb_engine.features.context import ContextBook, context_for
 
 if TYPE_CHECKING:
+    from cfb_engine.data.advanced import AdvancedBook
     from cfb_engine.data.cfbd import CFBDClient, GameResult, SPLine
     from cfb_engine.data.ensemble import ModelRatings
     from cfb_engine.schemas import Game, Slate
@@ -55,7 +58,10 @@ class TeamBrief:
     ats: str | None = None  # ESPN season ATS record
     key_players: list[str] = field(default_factory=list)  # "QB Name (+12.3 PPA)"
     leaders: list[str] = field(default_factory=list)  # ESPN stat leaders, "QB Name — 233 YDS, 2 TD"
-    out: list[str] = field(default_factory=list)  # "RB Name"
+    out: list[str] = field(default_factory=list)  # "RB Name (starter)"
+    # national rank per unit (see advanced.UNITS) and "QB Name — Heisman +600, ..." watch lines
+    units: dict[str, int] = field(default_factory=dict)
+    watch: list[str] = field(default_factory=list)
 
     @property
     def record(self) -> str:
@@ -122,9 +128,13 @@ def _form(results: list[GameResult], team: str, before: Date) -> TeamBrief:
         if _local_day(r.start_date) >= before.isoformat():
             continue
         if school_key(r.home) == key:
-            played.append((r.start_date, r.home_points - r.away_points, r.away, r.home_points, r.away_points))
+            played.append(
+                (r.start_date, r.home_points - r.away_points, r.away, r.home_points, r.away_points)
+            )
         elif school_key(r.away) == key:
-            played.append((r.start_date, r.away_points - r.home_points, r.home, r.away_points, r.home_points))
+            played.append(
+                (r.start_date, r.away_points - r.home_points, r.home, r.away_points, r.home_points)
+            )
     played.sort()
     brief = TeamBrief(name=team)
     if not played:
@@ -176,9 +186,23 @@ def _rank_in(model: ModelRatings | None, team: str) -> int | None:
     return 1 + sum(1 for v in model.net.values() if v > model.net[key])
 
 
-def _apply_out(brief: TeamBrief, injuries: InjuryBook) -> None:
+def _apply_out(brief: TeamBrief, injuries: InjuryBook, depth: DepthBook) -> None:
     rows = unavailable_for(injuries, brief.name)
-    brief.out = [f"{r.position} {r.player}".strip() for r in rows][:6]
+    out: list[str] = []
+    for r in rows:
+        slot = depth_for(depth, brief.name, r.player)
+        role = f" ({slot.role})" if slot is not None else ""
+        out.append(f"{r.position} {r.player}".strip() + role)
+    brief.out = out[:6]
+
+
+def _apply_watch(brief: TeamBrief, watch: WatchBook, depth: DepthBook) -> None:
+    lines: list[str] = []
+    for p in watch_for(watch, brief.name):
+        slot = depth_for(depth, brief.name, p.name)
+        pos = p.position or (slot.position if slot is not None else "")
+        lines.append(f"{pos} {p.name}".strip() + " — " + ", ".join(p.tags()))
+    brief.watch = lines
 
 
 def build_briefs(
@@ -192,6 +216,8 @@ def build_briefs(
     hfa_enabled: bool,
     color: ColorBook | None = None,
     models: list[ModelRatings] | None = None,
+    advanced: AdvancedBook | None = None,
+    watch: WatchBook | None = None,
 ) -> dict[str, GameBrief]:
     """One :class:`GameBrief` per game id. Every feed failure leaves fields ``None``."""
     if not slate.games:
@@ -200,11 +226,14 @@ def build_briefs(
     sp: dict[str, SPLine] = {}
     polls: dict[str, int] = {}
     players: list[tuple[str, str, str, float]] = []
+    depth: DepthBook = {}
     if cfbd.available():
         results = cfbd.fetch_all_results(season)
         sp = cfbd.fetch_sp_table(season)
         polls = cfbd.fetch_ap_poll(season)
         players = cfbd.fetch_player_ppa_rows(season)
+        if injuries or watch:
+            depth = merge_depth(cfbd.fetch_depth_book(season), cfbd.fetch_depth_book(season - 1))
 
     by_source = {m.source: m for m in models or []}
     out: dict[str, GameBrief] = {}
@@ -217,12 +246,17 @@ def build_briefs(
             players=players,
             ctx_book=ctx_book,
             injuries=injuries,
+            depth=depth,
             hfa_default=hfa_default,
             hfa_enabled=hfa_enabled,
         )
         for tb in (brief.home, brief.away):
             tb.tr_rank = _rank_in(by_source.get("teamrankings"), tb.name)
             tb.fpi_rank = _rank_in(by_source.get("fpi"), tb.name)
+            if advanced is not None:
+                tb.units = advanced.unit_ranks(tb.name)
+            if watch:
+                _apply_watch(tb, watch, depth)
         if color:
             gc = color_for(color, game.home.name, game.away.name)
             if gc is not None:
@@ -267,6 +301,7 @@ def _brief_for(
     injuries: InjuryBook,
     hfa_default: float,
     hfa_enabled: bool,
+    depth: DepthBook | None = None,
 ) -> GameBrief:
     teams = []
     for info in (game.home, game.away):
@@ -275,7 +310,7 @@ def _brief_for(
         t.poll_rank = polls.get(school_key(info.name))
         _apply_players(t, players)
         if injuries:
-            _apply_out(t, injuries)
+            _apply_out(t, injuries, depth or {})
         teams.append(t)
     home, away = teams
     ctx = context_for(ctx_book, game.home.name, game.away.name)

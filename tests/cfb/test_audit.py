@@ -6,7 +6,15 @@ from datetime import date, datetime, timezone
 
 import pytest
 
-from cfb_engine.audit.clv import ClosingQuote, closing_quotes, compute_clv, merge_closing
+from cfb_engine.audit.clv import (
+    ClosingQuote,
+    bet_clv_summary,
+    closing_quotes,
+    compute_clv,
+    drop_in_play,
+    in_play_games,
+    merge_closing,
+)
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
@@ -117,6 +125,49 @@ def test_a_differently_spelled_school_still_grades(board_home, board_away, cfbd_
 
     assert found is not None
     assert grade(rec, found) == "win"
+
+
+@pytest.mark.parametrize(
+    ("board_home", "board_away", "cfbd_home", "cfbd_away"),
+    [
+        ("Penn State Nit", "Wisconsin", "Penn State", "Wisconsin"),
+        ("Marshall", "Gardner-Webb R", "Marshall", "Gardner-Webb"),
+        ("Tulane", "Southern Missi", "Tulane", "Southern Miss"),
+        ("North Texas", "Houston Baptis", "North Texas", "Houston Christian"),
+        ("Duke", "William and Ma", "Duke", "William & Mary"),
+        ("Texas Tech", "Sam Houston St", "Texas Tech", "Sam Houston"),
+        ("Boston College", "Maine Black", "Boston College", "Maine"),
+        ("Florida", "Campbell Fight", "Florida", "Campbell"),
+    ],
+)
+def test_a_label_cut_inside_its_mascot_still_grades(board_home, board_away, cfbd_home, cfbd_away):
+    """Six games on 2026-09-26 (and 106 rows over three Saturdays) went ungraded.
+
+    A short school keeps part of its mascot inside the 14-character label
+    (``Penn State Nit``), or is the board's spelling of a CFBD alias cut short
+    (``Houston Baptis``); neither is a prefix of the CFBD name.
+    """
+    rec = _ml("away", f"{board_away} ML")
+    rec.home_abbrev, rec.away_abbrev = board_home, board_away
+    index = build_result_index(
+        [GameResult(home=cfbd_home, away=cfbd_away, home_points=21, away_points=37)]
+    )
+
+    found = result_for(rec, index)
+
+    assert found is not None
+    assert grade(rec, found) == "win"
+
+
+def test_a_mascot_fragment_does_not_grab_a_longer_school():
+    """``Miami Ohio`` is not Miami; ``ohio`` is no mascot and the label is not capped."""
+    rec = _ml("home", "Miami Ohio ML")
+    rec.home_abbrev, rec.away_abbrev = "Miami Ohio", "Akron"
+    index = build_result_index(
+        [GameResult(home="Miami", away="Akron", home_points=30, away_points=10)]
+    )
+
+    assert result_for(rec, index) is None
 
 
 def test_an_ambiguous_prefix_is_left_ungraded():
@@ -333,3 +384,47 @@ def test_closing_quotes_keep_everything_before_kickoff():
     now = datetime(2026, 9, 12, 12, 0, tzinfo=timezone.utc)
     quotes = closing_quotes(slate, board, now=now)
     assert {k.split("|")[0] for k in quotes} == {g.matchup() for g in slate.games}
+
+
+def test_bet_clv_summary_ignores_the_cancelling_pass_side():
+    """Both sides of a market carry equal-and-opposite CLV; only the bets count."""
+    rows = [
+        ("Total", True, True, 0.04, 0.05),
+        ("Total", False, False, -0.04, -0.05),
+        ("Spread", False, True, 0.02, 0.01),
+        ("Spread", False, False, -0.02, -0.01),
+        ("Spread", False, False, None, None),
+    ]
+    out = {s.label: s for s in bet_clv_summary(rows)}
+    assert set(out) == {"Buys · Total", "Buys · ALL", "Model-favoured (p > fair)"}
+    assert out["Buys · ALL"].n == 1 and out["Buys · ALL"].mean_clv == pytest.approx(0.04)
+    lean = out["Model-favoured (p > fair)"]
+    assert lean.n == 2 and lean.mean_clv == pytest.approx(0.03)
+    assert bet_clv_summary([("Total", False, False, -0.04, -0.05)]) == []
+
+
+_G = "Syracuse @ Pittsburgh"
+_H = "Army @ Kansas State"
+
+
+def _quotes(game: str, ml: float, ml_p: float, ats: float, ats_line: float) -> dict:
+    return {
+        f"{game}|game_ml|Pittsburgh": ClosingQuote(american=ml, no_vig_prob=ml_p),
+        f"{game}|game_ats|Pittsburgh": ClosingQuote(american=ats, line=ats_line, no_vig_prob=0.5),
+    }
+
+
+def test_in_play_games_flags_live_prices_and_moves_by_whole_game():
+    board = {**_quotes(_G, -400, 0.78, -105, -10.5), **_quotes(_H, -164, 0.60, -110, -3.5)}
+    closing = {**_quotes(_G, -410, 0.775, -108, -10.0), **_quotes(_H, -790, 0.87, +240, -3.5)}
+    assert in_play_games(closing, board) == {_H}
+    kept, bad = drop_in_play(closing, board)
+    assert bad == {_H}
+    assert set(kept) == set(_quotes(_G, 0, 0, 0, 0))
+
+    # a main number that moved a touchdown is a game on the field
+    moved = {**_quotes(_G, -400, 0.78, -110, -17.5)}
+    assert in_play_games(moved, board) == {_G}
+    # no board at all: only the price rule can fire
+    assert in_play_games(_quotes(_G, -100000, 0.999, -105, -10.5), {}) == set()
+    assert in_play_games(_quotes(_G, -400, 0.78, +6000, -10.5), {}) == {_G}

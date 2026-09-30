@@ -375,6 +375,111 @@ def stage_two(luck_gap: float, prof: ArmProfile | None, *, min_stuff_z: float = 
     return CONFIRMED if good else CONTRADICTED
 
 
+#: Which way the arm's last few starts ran against the window they sit in.
+FADING = "fading"  # whiff rate and fastball velocity both below the window
+SHARPENING = "sharpening"  # both above it
+MIXED = "mixed"  # one up, one down, or either rounding to nothing
+
+#: How many starts make the recent block, and the fewest before the block can be
+#: compared with the window it came from.
+FORM_STARTS = 3
+FORM_MIN_STARTS = 5
+FORM_MIN_PITCHES = 150
+_SWING_DESC = frozenset({
+    "swinging_strike", "swinging_strike_blocked", "foul", "foul_tip", "hit_into_play",
+    "missed_bunt",
+})
+_WHIFF_DESC = frozenset({"swinging_strike", "swinging_strike_blocked", "missed_bunt"})
+_FORM_DEAD_WHIFF = 0.0005
+_FORM_DEAD_VELO = 0.05
+
+
+@dataclass(frozen=True)
+class ArmForm:
+    """A starter's last ``FORM_STARTS`` starts against the whole window they end.
+
+    Read on the screen's own ledger (253 graded arm rows, 64 arm-days, 9/08-9/20,
+    and the 582 hitter rows joined to the arm they faced): the level of every
+    arm metric -- K-BB%, whiff%, CSW%, chase, velocity, contact allowed -- sat
+    inside a standard error of the price on the arm's props, and the only reads
+    with a sign were the two directions here. Whiff% rising over the last three
+    starts: the arm's own side (K and outs over, hits/runs/walks under) went
+    25-17, +14%, ten points over the no-vig price; falling, 20-35, -26%; both
+    whiff and velocity falling, 8-21, -48%, with the K and outs overs 3-12. On
+    the bats: a hitter clearing the run-value and production gates against an
+    arm with both falling went 22-17 on his over (+41%, +15 points), 15-16 of it
+    against the average-to-elite band where the same bat is otherwise priced
+    fairly; a cold bat's under against that arm went 4-7 against 27-5 elsewhere.
+    All in-sample and none of it on more than 40 rows a cell, so it is printed
+    beside the gates and gates nothing.
+    """
+
+    starts: int
+    whiff_recent: float = math.nan
+    whiff_window: float = math.nan
+    velo_recent: float = math.nan
+    velo_window: float = math.nan
+
+    @property
+    def d_whiff(self) -> float:
+        return self.whiff_recent - self.whiff_window
+
+    @property
+    def d_velo(self) -> float:
+        return self.velo_recent - self.velo_window
+
+    @property
+    def state(self) -> str:
+        """``FADING``, ``SHARPENING``, ``MIXED``, or ``UNMEASURED`` when unread."""
+        dw, dv = self.d_whiff, self.d_velo
+        if dw != dw or dv != dv:
+            return UNMEASURED
+        if dw < -_FORM_DEAD_WHIFF and dv < -_FORM_DEAD_VELO:
+            return FADING
+        if dw > _FORM_DEAD_WHIFF and dv > _FORM_DEAD_VELO:
+            return SHARPENING
+        return MIXED
+
+
+def _whiff_rate(rows: pd.DataFrame) -> float:
+    if "description" not in rows:
+        return math.nan
+    swings = rows["description"].isin(_SWING_DESC)
+    if int(swings.sum()) == 0:
+        return math.nan
+    return float(rows.loc[swings, "description"].isin(_WHIFF_DESC).mean())
+
+
+def build_arm_form(rows: pd.DataFrame) -> ArmForm:
+    """Read a starter's recent direction off his pitch-level window.
+
+    ``rows`` is every pitch he threw inside the window, any hand at the plate.
+    The recent block is his last ``FORM_STARTS`` distinct game dates; whiff rate
+    is whiffs per swing on every pitch, velocity the mean release speed of his
+    fastballs. Unmeasured below ``FORM_MIN_STARTS`` dates or ``FORM_MIN_PITCHES``
+    in the block, so a fortnight's worth of starts is never read as a trend.
+    """
+    if rows.empty or "game_date" not in rows:
+        return ArmForm(starts=0)
+    dates = sorted(pd.to_datetime(rows["game_date"]).dt.normalize().unique())
+    starts = len(dates)
+    if starts < FORM_MIN_STARTS:
+        return ArmForm(starts=starts)
+    day = pd.to_datetime(rows["game_date"]).dt.normalize()
+    recent = rows[day.isin(dates[-FORM_STARTS:])]
+    if len(recent) < FORM_MIN_PITCHES:
+        return ArmForm(starts=starts)
+    fb_recent = _series(fastballs_of(recent), "release_speed").dropna()
+    fb_window = _series(fastballs_of(rows), "release_speed").dropna()
+    return ArmForm(
+        starts=starts,
+        whiff_recent=_whiff_rate(recent),
+        whiff_window=_whiff_rate(rows),
+        velo_recent=float(fb_recent.mean()) if len(fb_recent) >= MIN_LEVEL_PITCHES else math.nan,
+        velo_window=float(fb_window.mean()) if len(fb_window) >= MIN_LEVEL_PITCHES else math.nan,
+    )
+
+
 def fastballs_of(rows: pd.DataFrame) -> pd.DataFrame:
     """The fastballs in a pitch-level slice, oldest first.
 

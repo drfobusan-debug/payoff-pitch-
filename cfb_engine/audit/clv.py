@@ -45,9 +45,12 @@ __all__ = [
     "ClosingQuote",
     "ClvResult",
     "ClvSummary",
+    "bet_clv_summary",
     "closing_quotes",
     "clv_summary",
     "compute_clv",
+    "drop_in_play",
+    "in_play_games",
     "load_closing",
     "merge_closing",
     "save_closing",
@@ -152,6 +155,55 @@ def compute_clv(
     return ClvResult(cq.american, close_prob, clv, clv_ev, pts)
 
 
+IN_PLAY_ML_PROB_MOVE = 0.15
+IN_PLAY_LINE_MOVE = 7.0
+IN_PLAY_MAIN_PRICE = (-170.0, 150.0)
+
+
+def in_play_games(closing: dict[str, ClosingQuote], board: dict[str, ClosingQuote]) -> set[str]:
+    """Matchups whose stored close can only have been captured after kickoff.
+
+    Closes captured before the pregame-only rule carry whatever the feed quoted
+    at the time, including a game in its fourth quarter. No timestamp was kept,
+    so the tell is the quote itself against the first-seen board: a moneyline
+    that moved 15+ points of no-vig probability, a main spread or total that
+    moved 7+ points, or a main-line price outside -170/+150 -- the book re-sets
+    the main number to keep that price near -110 pregame, so such a price is a
+    live one. One capture covers every market of a game, so the whole game goes.
+    """
+    lo, hi = IN_PLAY_MAIN_PRICE
+    out: set[str] = set()
+    for k, cq in closing.items():
+        parts = k.split("|")
+        if len(parts) < 3:
+            continue
+        matchup, market = parts[0], parts[1]
+        if market != "game_ml" and not lo <= cq.american <= hi:
+            out.add(matchup)
+            continue
+        bq = board.get(k)
+        if bq is None:
+            continue
+        if market == "game_ml" and abs(cq.no_vig_prob - bq.no_vig_prob) >= IN_PLAY_ML_PROB_MOVE:
+            out.add(matchup)
+        elif (
+            cq.line is not None
+            and bq.line is not None
+            and abs(cq.line - bq.line) >= IN_PLAY_LINE_MOVE
+        ):
+            out.add(matchup)
+    return out
+
+
+def drop_in_play(
+    closing: dict[str, ClosingQuote], board: dict[str, ClosingQuote]
+) -> tuple[dict[str, ClosingQuote], set[str]]:
+    """The close without the games :func:`in_play_games` rejects, and those games."""
+    bad = in_play_games(closing, board)
+    kept = {k: q for k, q in closing.items() if k.split("|")[0] not in bad}
+    return kept, bad
+
+
 @dataclass
 class ClvSummary:
     label: str
@@ -186,4 +238,29 @@ def clv_summary(rows: list[tuple[str, float | None, float | None]]) -> list[ClvS
     out = [summarize(cat, by_cat[cat]) for cat in sorted(by_cat)]
     if allrows:
         out.append(summarize("ALL", allrows))
+    return out
+
+
+def bet_clv_summary(
+    rows: list[tuple[str, bool, bool, float | None, float | None]],
+) -> list[ClvSummary]:
+    """CLV of the bets, from ``(category, is_buy, model_favors, clv, clv_ev)`` rows.
+
+    The ledger carries both sides of every market, and the two sides' CLV are
+    equal and opposite, so a summary over every row averages to zero by
+    construction and says nothing. The rows that mean something are the buys
+    (per market and in all) and the side the model favoured over the fair
+    price, which is the bet a gate-less engine would have made.
+    """
+    buys = [(cat, clv, ev) for cat, buy, _, clv, ev in rows if buy]
+    out = [
+        ClvSummary(f"Buys · {s.label}", s.n, s.mean_clv, s.beat_close_pct, s.mean_clv_ev)
+        for s in clv_summary(buys)
+    ]
+    leans = [("ALL", clv, ev) for _, _, fav, clv, ev in rows if fav]
+    out += [
+        ClvSummary("Model-favoured (p > fair)", s.n, s.mean_clv, s.beat_close_pct, s.mean_clv_ev)
+        for s in clv_summary(leans)
+        if s.label == "ALL"
+    ]
     return out

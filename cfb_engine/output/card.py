@@ -13,9 +13,12 @@ from __future__ import annotations
 
 import logging
 from datetime import date as Date
+from datetime import datetime
 from html import escape
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
+from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief, TeamBrief
@@ -23,6 +26,71 @@ from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
+
+EASTERN = ZoneInfo("America/New_York")
+
+
+def _kickoff(recs: list[Recommendation]) -> datetime | None:
+    stamp = recs[0].kickoff_utc
+    if not stamp:
+        return None
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(EASTERN)
+    except ValueError:
+        return None
+
+
+def _kick_label(recs: list[Recommendation]) -> str:
+    dt = _kickoff(recs)
+    if dt is None:
+        return ""
+    return dt.strftime("%-I:%M %p ET")
+
+
+def _slate_order(groups: dict[str, list[Recommendation]]) -> list[list[Recommendation]]:
+    """Games early to late; a game with no kickoff stamp sorts after the rest."""
+
+    def order(g: list[Recommendation]) -> tuple[bool, float, str]:
+        dt = _kickoff(g)
+        return dt is None, dt.timestamp() if dt else 0.0, g[0].matchup
+
+    return sorted(groups.values(), key=order)
+
+
+def _spread(x: float | None) -> str:
+    if x is None:
+        return ""
+    return f"{x:+g}" if x else "pk"
+
+
+def _move(open_: str, now: str) -> str:
+    if not open_ or open_ == now:
+        return f"{now} <span class='muted'>(unmoved)</span>" if open_ else now
+    return f"{open_} → <b>{now}</b>"
+
+
+def _movement_line(recs: list[Recommendation]) -> str:
+    """Where each market opened (first board the engine saw) beside where it sits now."""
+    bits: list[str] = []
+    mls = [r for r in recs if r.market == "game_ml" and r.market_american is not None]
+    if mls:
+        fav = min(mls, key=lambda r: r.market_american or 0)
+        bits.append(
+            f"ML {escape(side_of(fav.selection))} {_move(_odds(fav.open_american), _odds(fav.market_american))}"
+        )
+    ats = _home_side(recs, "game_ats")
+    if ats is not None and ats.line is not None:
+        bits.append(
+            f"Spread {escape(side_of(ats.selection))} {_move(_spread(ats.open_line), _spread(ats.line))}"
+        )
+    tot = _home_side(recs, "game_total")
+    if tot is not None and tot.line is not None:
+        bits.append(
+            f"Total {_move('' if tot.open_line is None else f'{tot.open_line:g}', f'{tot.line:g}')}"
+        )
+    if not bits or all(r.open_line is None and r.open_american is None for r in recs):
+        return ""
+    return f"<p class='mkt'><b>Line movement</b> (open → now): {' &nbsp;|&nbsp; '.join(bits)}</p>"
 
 
 def _pct(x: float | None) -> str:
@@ -63,10 +131,7 @@ def _game_shape(recs: list[Recommendation]) -> tuple[str, str, str]:
     else:
         shape = "one-score"
     headline = f"{env}, {shape}"
-    desc = (
-        f"Model projects ~{total:.0f} total points and a {abs(margin):.1f}-point "
-        f"lean to {fav}."
-    )
+    desc = f"Model projects ~{total:.0f} total points and a {abs(margin):.1f}-point lean to {fav}."
     return matchup, headline, desc
 
 
@@ -146,12 +211,17 @@ def _team_row(t: TeamBrief, *, ats: bool) -> str:
     form = t.record
     if t.streak:
         form += f" <span class='streak'>{t.streak}</span>"
-    other = " / ".join(
-        s for s in (
-            f"TR {_rank(t.tr_rank)}" if t.tr_rank is not None else "",
-            f"FPI {_rank(t.fpi_rank)}" if t.fpi_rank is not None else "",
-        ) if s
-    ) or "—"
+    other = (
+        " / ".join(
+            s
+            for s in (
+                f"TR {_rank(t.tr_rank)}" if t.tr_rank is not None else "",
+                f"FPI {_rank(t.fpi_rank)}" if t.fpi_rank is not None else "",
+            )
+            if s
+        )
+        or "—"
+    )
     sp = _rank(t.sp_rank) if t.rated else "<span class='muted'>unrated</span>"
     if t.rated and t.sp_rating is not None:
         sp += f" <span class='rk'>({t.sp_rating:+.1f})</span>"
@@ -180,15 +250,119 @@ def _players_line(b: GameBrief) -> str:
             parts.append(f"<b>{escape(t.name)}</b>: {escape('; '.join(names[:3]))}")
     if not parts:
         return ""
-    src = "ESPN leaders" if (b.away.leaders or b.home.leaders) else "season PPA, garbage time excluded"
+    src = (
+        "ESPN leaders"
+        if (b.away.leaders or b.home.leaders)
+        else "season PPA, garbage time excluded"
+    )
     return f"<p class='ctx'><b>Who matters</b> <span class='muted'>({src})</span> — {' · '.join(parts)}</p>"
 
 
 def _out_line(b: GameBrief) -> str:
-    parts = [f"<b>{escape(t.name)}</b>: {escape(', '.join(t.out))}" for t in (b.away, b.home) if t.out]
+    parts = [
+        f"<b>{escape(t.name)}</b>: {escape(', '.join(t.out))}" for t in (b.away, b.home) if t.out
+    ]
     if not parts:
         return ""
-    return f"<p class='ctx'><b>Out</b> <span class='muted'>(reported, not scored)</span> — {' · '.join(parts)}</p>"
+    return (
+        "<p class='ctx'><b>Out</b> <span class='muted'>(RotoWire designations; role from this "
+        f"season's snaps/tackles)</span> — {' · '.join(parts)}</p>"
+    )
+
+
+def _watch_line(b: GameBrief) -> str:
+    parts = [
+        f"<b>{escape(t.name)}</b>: {escape('; '.join(t.watch))}"
+        for t in (b.away, b.home)
+        if t.watch
+    ]
+    if not parts:
+        return ""
+    return (
+        "<p class='ctx'><b>Player watch</b> <span class='muted'>(Heisman best price, Tankathon "
+        f"big board)</span> — {' · '.join(parts)}</p>"
+    )
+
+
+_UNIT_GAP = 25  # rank gap before a unit matchup is called an edge
+
+
+def _grade(rank: int) -> str:
+    if rank <= 15:
+        return "elite"
+    if rank <= 40:
+        return "good"
+    if rank <= 90:
+        return "middling"
+    return "poor"
+
+
+def _poss(name: str) -> str:
+    return name + ("'" if name.endswith("s") else "'s")
+
+
+def _an(word: str) -> str:
+    return ("an " if word[0] in "aeiou" else "a ") + word
+
+
+def _unit_sentences(b: GameBrief) -> list[str]:
+    """Each offense's run and pass game against the other side's defense, then the pass rush."""
+    out: list[str] = []
+    for off, dfn in ((b.away, b.home), (b.home, b.away)):
+        for label, o_key, d_key in (
+            ("pass", "pass_off", "pass_def"),
+            ("run", "rush_off", "run_def"),
+        ):
+            o, d = off.units.get(o_key), dfn.units.get(d_key)
+            if o is None or d is None:
+                continue
+            gap = d - o
+            if gap >= _UNIT_GAP:
+                verdict = f"edge {off.name}"
+            elif gap <= -_UNIT_GAP:
+                verdict = f"edge {dfn.name}"
+            else:
+                verdict = "even"
+            out.append(
+                f"{_poss(off.name)} {_grade(o)} {label} offense (#{o}) meets {_an(_grade(d))} "
+                f"{dfn.name} {label} defense (#{d}) — {verdict}"
+            )
+    rush = [f"{t.name} #{t.units['pass_rush']}" for t in (b.away, b.home) if "pass_rush" in t.units]
+    if rush:
+        out.append("Pass rush (front-seven havoc + sacks): " + ", ".join(rush))
+    return out
+
+
+def _units_line(b: GameBrief) -> str:
+    sentences = _unit_sentences(b)
+    if not sentences:
+        return ""
+    return (
+        "<p class='ctx'><b>Unit matchups</b> <span class='muted'>(CFBD PPA/play by play type, "
+        f"FBS rank, garbage time excluded)</span> — {escape('. '.join(sentences))}.</p>"
+    )
+
+
+def _unit_edge(b: GameBrief) -> str | None:
+    """The single widest unit mismatch, for the take and the narration."""
+    best: tuple[int, str] | None = None
+    for off, dfn in ((b.away, b.home), (b.home, b.away)):
+        for label, short, o_key, d_key in (
+            ("passing", "pass", "pass_off", "pass_def"),
+            ("running", "run", "rush_off", "run_def"),
+        ):
+            o, d = off.units.get(o_key), dfn.units.get(d_key)
+            if o is None or d is None:
+                continue
+            gap = d - o
+            if abs(gap) < _UNIT_GAP or (best is not None and abs(gap) <= best[0]):
+                continue
+            if gap > 0:
+                text = f"{_poss(off.name)} {label} game (#{o}) against a {dfn.name} {short} defense ranked #{d}"
+            else:
+                text = f"{_poss(dfn.name)} #{d} {short} defense against {_poss(off.name)} #{o} {label} game"
+            best = (abs(gap), text)
+    return best[1] if best else None
 
 
 def _venue_line(b: GameBrief) -> str:
@@ -218,7 +392,7 @@ def _venue_line(b: GameBrief) -> str:
         elif b.gust_mph is not None:
             wx.append(f"gusts to {b.gust_mph:.0f} mph")
         if b.precipitation is not None and b.precipitation > 0:
-            wx.append(f"{b.precipitation:.2f}\" rain expected")
+            wx.append(f'{b.precipitation:.2f}" rain expected')
         elif b.precip_pct is not None:
             wx.append(f"{b.precip_pct:.0f}% rain chance")
         if wx:
@@ -291,9 +465,19 @@ def _take(b: GameBrief, recs: list[Recommendation]) -> str:
             f"SP+ does not rate {' or '.join(unr)} (FCS), so the model leans on the market's number "
             "more than usual here."
         )
+    edge = _unit_edge(b)
+    if edge:
+        parts.append(f"The widest unit mismatch is {edge}.")
+    outs = [f"{t.name} is without {', '.join(t.out[:3])}" for t in (b.away, b.home) if t.out]
+    if outs:
+        parts.append("Injuries: " + "; ".join(outs) + ".")
     parts.append(
         f"Our sim has {fav.name} by {abs(margin):.1f} with about {r.exp_total or 0:.0f} total points"
-        + (f"; ESPN's FPI gives the home side {b.fpi_home:.0f}%." if b.fpi_home is not None else ".")
+        + (
+            f"; ESPN's FPI gives the home side {b.fpi_home:.0f}%."
+            if b.fpi_home is not None
+            else "."
+        )
     )
     ml = _home_side(recs, "game_ml")
     if ml is not None and ml.fair_prob is not None:
@@ -301,7 +485,9 @@ def _take(b: GameBrief, recs: list[Recommendation]) -> str:
         if gap >= 3:
             parts.append(f"We like {ml.selection} more than the market does ({gap:+.1f} pts).")
         elif gap <= -3:
-            parts.append(f"The market is higher on {ml.selection} than we are ({gap:+.1f} pts), so no moneyline play.")
+            parts.append(
+                f"The market is higher on {ml.selection} than we are ({gap:+.1f} pts), so no moneyline play."
+            )
         else:
             parts.append("Model and market are within a few points on the moneyline.")
     return f"<p class='take'>{escape(' '.join(parts))}</p>"
@@ -314,16 +500,18 @@ def _ordinal(n: int) -> str:
 
 def _game_section(recs: list[Recommendation]) -> str:
     matchup, headline, desc = _game_shape(recs)
+    when = _kick_label(recs)
+    kick = f" <span class='kick'>{when}</span>" if when else ""
     b = recs[0].brief
     context = ""
     if b is not None:
         context = (
-            f"{_team_table(b)}{_take(b, recs)}{_story_line(b)}{_players_line(b)}"
-            f"{_out_line(b)}{_venue_line(b)}{_sharp_line(recs)}"
+            f"{_team_table(b)}{_take(b, recs)}{_story_line(b)}{_units_line(b)}{_players_line(b)}"
+            f"{_watch_line(b)}{_out_line(b)}{_venue_line(b)}{_sharp_line(recs)}"
         )
     return (
-        f"<div class='game'><h2>{escape(matchup)}</h2>"
-        f"{_market_line(recs)}"
+        f"<div class='game'><h2>{escape(matchup)}{kick}</h2>"
+        f"{_market_line(recs)}{_movement_line(recs)}"
         f"<div class='shape'><span class='tag'>{headline}</span> {desc}</div>"
         f"{context}"
         f"{_ml_line(recs)}"
@@ -369,6 +557,7 @@ p{margin:6px 0;}
 .shape .tag{display:inline-block;background:#16324f;color:#fff;padding:1px 8px;border-radius:10px;font-size:8.4pt;font-family:'DejaVu Sans',sans-serif;margin-right:6px;}
 .ml{font-size:10pt;margin:6px 0;}
 .mkt{margin:-2px 0 4px;font-size:9.4pt;color:#4b5563;}
+.kick{float:right;font-family:'DejaVu Sans',sans-serif;font-size:9pt;color:#6b7280;font-weight:normal;padding-top:4px;}
 table.teams{width:100%;border-collapse:collapse;font-size:8.9pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
 table.teams th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 6px;font-size:7.8pt;text-transform:uppercase;letter-spacing:.5px;}
 table.teams td{padding:3px 6px;border-bottom:1px solid #eceef1;vertical-align:top;}
@@ -393,7 +582,7 @@ ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd7
 def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
-    ordered_games = sorted(groups.values(), key=lambda g: g[0].matchup)
+    ordered_games = _slate_order(groups)
     nice = day.strftime("%A, %B %-d, %Y")
     n_bets = len(_best_bets(recs))
     masthead = (
@@ -405,7 +594,7 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     )
     lead = (
         f"Good morning — here's the {len(ordered_games)}-game college football board for "
-        f"{nice.split(',')[0]}. For every matchup we project the expected margin and total "
+        f"{nice.split(',')[0]}, listed by kickoff, early games first. For every matchup we project the expected margin and total "
         "from team power ratings, set the model's number next to the market's, and read the "
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
@@ -441,14 +630,66 @@ def _spoken_context(b: GameBrief) -> str:
     out = f"{say(b.away)} at {say(b.home)}. "
     if b.tags:
         out += "Storyline: " + ", ".join(b.tags) + ". "
-    outs = [f"{t.name} without {', '.join(o.split(' ', 1)[-1] for o in t.out[:2])}" for t in (b.away, b.home) if t.out]
+    edge = _unit_edge(b)
+    if edge:
+        out += f"Matchup to watch: {edge}. "
+    outs = [
+        f"{t.name} without {', '.join(_spoken_out(o) for o in t.out[:2])}"
+        for t in (b.away, b.home)
+        if t.out
+    ]
     if outs:
         out += "Injuries: " + "; ".join(outs) + ". "
+    stars = [_drop_pos(w.split(" — ", 1)[0]) for t in (b.away, b.home) for w in t.watch[:1]]
+    if stars:
+        out += "Names to know: " + " and ".join(stars) + ". "
     if not b.dome and b.precipitation and b.precipitation > 0:
         out += "Rain in the forecast. "
     elif not b.dome and b.wind_mph is not None and b.wind_mph >= 15:
         out += f"Windy, about {b.wind_mph:.0f} miles an hour. "
     return out
+
+
+def _spoken_movement(recs: list[Recommendation]) -> str:
+    """Only the numbers that actually moved since the open; silence otherwise."""
+    bits: list[str] = []
+    when = _kick_label(recs)
+    if when:
+        bits.append(f"Kickoff {when.replace(' ET', ' Eastern')}.")
+    mls = [r for r in recs if r.market == "game_ml" and r.market_american is not None]
+    if mls:
+        fav = min(mls, key=lambda r: r.market_american or 0)
+        if fav.open_american is not None and round(fav.open_american) != round(
+            fav.market_american or 0
+        ):
+            bits.append(
+                f"{side_of(fav.selection)} moneyline opened {_odds(fav.open_american)}, "
+                f"now {_odds(fav.market_american)}."
+            )
+    tot = _home_side(recs, "game_total")
+    if (
+        tot is not None
+        and tot.line is not None
+        and tot.open_line is not None
+        and tot.open_line != tot.line
+    ):
+        bits.append(f"The total opened {tot.open_line:g} and sits at {tot.line:g}.")
+    return " ".join(bits) + " " if bits else ""
+
+
+def _drop_pos(label: str) -> str:
+    """``"WR Ny Carr"`` -> ``"Ny Carr"``; a label with no position prefix is unchanged."""
+    head, _, rest = label.partition(" ")
+    if rest and head.isupper() and len(head) <= 4:
+        return rest
+    return label
+
+
+def _spoken_out(entry: str) -> str:
+    """``"WR Ny Carr (starter)"`` -> ``"starter Ny Carr"``; no role -> the name alone."""
+    name, _, role = entry.partition(" (")
+    name = _drop_pos(name)
+    return f"{role.rstrip(')')} {name}" if role else name
 
 
 def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommendation]) -> str:
@@ -465,6 +706,7 @@ def _narration(day: Date, games: list[list[Recommendation]], recs: list[Recommen
         brief = r.brief
         if brief is not None:
             parts.append(_spoken_context(brief))
+        parts.append(_spoken_movement(group))
         parts.append(
             f"The model likes a {headline.lower()} game, about "
             f"{r.exp_total or 0:.0f} points, leaning {fav}. "

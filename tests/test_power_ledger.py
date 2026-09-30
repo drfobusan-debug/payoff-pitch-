@@ -13,6 +13,8 @@ import csv
 from dataclasses import asdict, replace
 from datetime import date as Date
 
+import pytest
+
 from mlb_engine.audit import power_ledger
 from mlb_engine.data.results import GameResult, PlayerLine
 from mlb_engine.features import arm
@@ -42,9 +44,10 @@ def _position(
     rating: str = "BUY",
     devigged: bool = True,
     delivery: str = "",
+    date: str = DAY.isoformat(),
 ) -> power_ledger.Position:
     return power_ledger.Position(
-        date=DAY.isoformat(),
+        date=date,
         batter=batter,
         player_id=player_id,
         game_pk=game_pk,
@@ -97,7 +100,7 @@ def test_the_board_is_recorded_with_the_price_it_was_shown_at(tmp_path) -> None:
     assert [p.batter for p in positions] == ["Matt Olson"]
     p = positions[0]
     assert (p.odds, p.stat, p.line, p.player_id, p.game_pk) == (255.0, "TB", 1.5, pid, 1)
-    assert p.rating in ("BUY", "HOLD", "AVOID")
+    assert p.rating == power_report.PROD_WATCH  # a pool of one cannot be scored
 
     path = tmp_path / power_ledger.LEDGER_NAME
     power_ledger.record(path, positions, DAY)
@@ -292,7 +295,8 @@ def test_the_tier_and_rating_cuts_are_reported_separately() -> None:
     ratings = {r.label: (r.wins, r.losses) for r in card.by_rating}
     markets = {r.label: (r.wins, r.losses) for r in card.by_market}
     assert tiers == {"Moderate buy": (1, 0), "Pass": (0, 1)}
-    assert ratings == {"BUY": (1, 0), "AVOID": (0, 1)}
+    # DAY is before the contact swap, so the words are read back to their buckets.
+    assert ratings == {"AVOID": (1, 0), "BUY": (0, 1)}
     assert markets == {"H+R+RBI": (1, 0), "HR": (0, 1)}
 
 
@@ -377,42 +381,95 @@ def test_the_note_prints_the_number_the_card_bet_not_the_raw_model() -> None:
     assert "70.0%" not in doc
 
 
+def _even(label: str, wins: int, losses: int, units: float) -> power_ledger.Record:
+    """A record whose rows were all even-money one-unit bets, squares included."""
+    return power_ledger.Record(
+        label, wins=wins, losses=losses, units=units, units_sq=float(wins + losses)
+    )
+
+
 def test_the_labels_follow_the_money() -> None:
-    """The bucket with the best ROI on enough rows is the Strong Buy; the rest are Buys."""
-    rec = power_ledger.Record
+    """The best record leads the table; a buy word is earned, not handed out."""
     records = {
-        "STRONG BUY": rec("STRONG BUY", wins=2, losses=10, units=-8.83),
-        "BUY": rec("BUY", wins=50, losses=79, units=-17.64),
-        "HOLD": rec("HOLD", wins=127, losses=155, units=-15.80),
-        "AVOID": rec("AVOID", wins=39, losses=36, units=7.26),
+        "SOFT OVER": _even("SOFT OVER", 2, 10, -8.0),
+        "RV NEG UNDER": _even("RV NEG UNDER", 50, 79, -29.0),
+        "PROD WATCH": _even("PROD WATCH", 127, 155, -28.0),
+        "ELITE UNDER": _even("ELITE UNDER", 53, 51, 2.0),
     }
-    assert power_report.strong_bucket(records) == "AVOID"
+    # ELITE UNDER is still the best-record bucket (+2% on 104), but +2% is 0.2
+    # s.e. from zero: it earns no buy word, and neither does a losing bucket.
+    assert power_report.strong_bucket(records) == "ELITE UNDER"
     assert power_report.labels(records) == {
-        "STRONG BUY": "BUY", "BUY": "BUY", "HOLD": "BUY", "AVOID": "STRONG BUY",
+        "SOFT OVER": "WATCH", "RV NEG UNDER": "WATCH", "ELITE UNDER": "WATCH",
+        "PROD WATCH": "WATCH", "PROD DROP": "WATCH",
     }
 
-    # Once HOLD's record is the best one, the word moves with it.
-    records["HOLD"] = rec("HOLD", wins=160, losses=122, units=30.0)
-    assert power_report.strong_bucket(records) == "HOLD"
+    # Positive by about one standard error (+10% on 100, se ~10%): a Buy.
+    records["ELITE UNDER"] = _even("ELITE UNDER", 55, 45, 10.0)
+    assert power_report.labels(records)["ELITE UNDER"] == "BUY"
 
-    # A bucket under LABEL_MIN_ROWS cannot take the label however good its ROI.
-    records["STRONG BUY"] = rec("STRONG BUY", wins=11, losses=1, units=9.5)
-    assert power_report.strong_bucket(records) == "HOLD"
+    # Positive by two standard errors (+20% on 100): a Strong Buy.
+    records["ELITE UNDER"] = _even("ELITE UNDER", 60, 40, 20.0)
+    assert power_report.labels(records)["ELITE UNDER"] == "STRONG BUY"
+
+    # The same 2-s.e. ROI on fewer than LABEL_EARN_ROWS rows is only a Watch.
+    records["ELITE UNDER"] = _even("ELITE UNDER", 59, 40, 19.8)
+    assert power_report.labels(records)["ELITE UNDER"] == "WATCH"
+
+    # A record built without its squares cannot say, so it cannot earn.
+    plain = power_ledger.Record("HOLD", wins=160, losses=122, units=60.0)
+    assert power_report.earned_label(plain) == "WATCH"
+
+    # Once another bucket's record is the best one, the lead moves with it; a
+    # retired key's record is read but cannot lead, since nothing lands in it.
+    records["PROD WATCH"] = _even("PROD WATCH", 180, 102, 70.0)
+    records["HOLD"] = _even("HOLD", 200, 82, 110.0)
+    assert power_report.strong_bucket(records) == "PROD WATCH"
+
+    # A bucket under LABEL_MIN_ROWS cannot lead however good its ROI.
+    records["SOFT OVER"] = _even("SOFT OVER", 11, 1, 9.5)
+    assert power_report.strong_bucket(records) == "PROD WATCH"
+
+    # Pushes do not count toward the floor: 29 decided and a push is still under it.
+    records["SOFT OVER"] = power_ledger.Record(
+        "SOFT OVER", wins=25, losses=4, pushes=1, units=20.0, units_sq=29.0
+    )
+    assert records["SOFT OVER"].n == 30
+    assert power_report.strong_bucket(records) == "PROD WATCH"
+    records["SOFT OVER"] = power_ledger.Record(
+        "SOFT OVER", wins=26, losses=4, pushes=1, units=21.0, units_sq=30.0
+    )
+    assert power_report.strong_bucket(records) == "SOFT OVER"
 
     # No record: the default bucket, and the note prints buckets beside the words.
     assert power_report.strong_bucket(None) == power_report.DEFAULT_STRONG_BUCKET
     doc = power_report.render_html(_result())
     assert "MATCHUP " not in doc
-    assert "(contact " in doc or "(rank 1-2)" in doc
+    assert "(production 2-3: watch)" in doc
+    assert ">BUY<" not in doc and ">STRONG BUY<" not in doc
+    assert ">WATCH<" in doc
+
+
+def test_the_record_carries_its_own_standard_error() -> None:
+    """records_by_rating sums the squares, so the note can print +/- one s.e."""
+    graded = _graded(
+        _position("HRR", 1.5, rating="AVOID", odds=100.0, date=power_ledger.CONTACT_LABEL_FLIP),
+        _position("HR", 0.5, rating="AVOID", odds=300.0, date=power_ledger.CONTACT_LABEL_FLIP),
+        players={7: _line(H=1, R=1, **{"1B": 1})},
+    )
+    rec = power_ledger.records_by_rating(graded)["AVOID"]
+    assert rec.units_sq == pytest.approx(sum(g.units**2 for g in graded))
+    assert rec.roi_se is not None and rec.roi_se > 0
 
 
 def test_each_grade_gets_its_whole_ledger_record() -> None:
-    """One record per grade string, hitters only, wins, losses and units."""
+    """One record per bucket, hitters only, wins, losses and units."""
     players = {7: _line(H=1, R=1, **{"1B": 1})}
+    flipped = power_ledger.CONTACT_LABEL_FLIP
     graded = _graded(
         _position("HRR", 1.5, rating="STRONG BUY", odds=100.0),
         _position("HR", 0.5, rating="STRONG BUY", odds=300.0),
-        _position("TB", 0.5, rating="AVOID", odds=-110.0),
+        _position("TB", 0.5, rating="AVOID", odds=-110.0, date=flipped),
         _position("H", 0.5, rating="", odds=-120.0),
         players=players,
     )
@@ -423,6 +480,29 @@ def test_each_grade_gets_its_whole_ledger_record() -> None:
     assert records["STRONG BUY"].units == 0.0
     assert (records["AVOID"].wins, records["AVOID"].losses) == (1, 0)
     assert abs(records["AVOID"].units - 100 / 110) < 1e-3
+
+
+def test_a_contact_word_written_before_the_swap_is_read_back_to_its_bucket() -> None:
+    """Before 9/09 "BUY" was the high-contact tercile; it pools with today's "AVOID"."""
+    players = {7: _line(H=1, R=1, **{"1B": 1})}
+    before = "2026-09-08"
+    after = power_ledger.CONTACT_LABEL_FLIP
+    graded = _graded(
+        _position("TB", 0.5, rating="BUY", odds=100.0, date=before),
+        _position("HRR", 1.5, rating="AVOID", odds=100.0, date=after),
+        _position("HR", 0.5, rating="AVOID", odds=100.0, date=before),
+        _position("H", 1.5, rating="HOLD", odds=100.0, date=before),
+        players=players,
+    )
+    records = power_ledger.records_by_rating(graded)
+
+    assert set(records) == {"AVOID", "BUY", "HOLD"}
+    assert (records["AVOID"].wins, records["AVOID"].losses) == (2, 0)
+    assert (records["BUY"].wins, records["BUY"].losses) == (0, 1)
+    assert (records["HOLD"].wins, records["HOLD"].losses) == (0, 1)
+    assert [power_ledger.bucket(g.position) for g in graded] == [
+        "AVOID", "AVOID", "BUY", "HOLD"
+    ]
 
 
 def test_the_note_prints_each_grades_record_beside_the_label() -> None:
@@ -447,7 +527,7 @@ def test_the_ratings_helper_names_every_survivor() -> None:
     rated = power_report.ratings(result)
 
     assert set(rated) == {v.line.name for s in result.sections for v in s.hitters}
-    assert set(rated.values()) <= {"BUY", "HOLD", "AVOID"}
+    assert set(rated.values()) <= set(power_report.RATING_ORDER)
 
 
 def _armed(pvelo: float) -> ArmProfile:
@@ -807,3 +887,31 @@ def test_positions_from_board_tag_the_tier_of_arm() -> None:
         board, DAY, power_report.ratings(result), {}, None, "run", arm_tier="elite"
     )
     assert pos.arm_tier == "elite"
+
+
+def test_a_missing_box_score_withholds_the_bucket_records(tmp_path, monkeypatch) -> None:
+    """The record picks the Strong Buy, so a record short one game is not printed."""
+    import argparse
+    from types import SimpleNamespace
+
+    ps = pytest.importorskip("scripts.power_screen")
+    path = tmp_path / power_ledger.LEDGER_NAME
+    power_ledger.record(path, [_position("TB", 0.5, odds=100.0)], DAY)
+    cfg = SimpleNamespace(audit_dir=tmp_path, cache_dir=tmp_path)
+    args = argparse.Namespace(no_grade=False)
+    players = {7: _line(H=1, **{"1B": 1})}
+
+    monkeypatch.setattr(ps, "fetch_result", lambda pk, cache_dir: _game(players))
+    records = ps._grade_records(cfg, args, Date(2026, 9, 1))
+    assert records is not None and records["AVOID"].wins == 1
+
+    def boom(pk, cache_dir):
+        raise OSError("stats api down")
+
+    monkeypatch.setattr(ps, "fetch_result", boom)
+    assert ps._grade_records(cfg, args, Date(2026, 9, 1)) is None
+
+    # A box score that arrives but is not final (suspended, in progress) is the
+    # same short record: withheld, not graded on the games that did finish.
+    monkeypatch.setattr(ps, "fetch_result", lambda pk, cache_dir: _game(players, final=False))
+    assert ps._grade_records(cfg, args, Date(2026, 9, 1)) is None

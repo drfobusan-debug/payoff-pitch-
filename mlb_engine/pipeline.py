@@ -1882,14 +1882,23 @@ class Pipeline:
                         f"pitcher_k o{line} above buy cap "
                         f"{self.cfg.pitcher_k_max_buy_line}"
                     )
+                elif stat == "BB" and line > self.cfg.pitcher_bb_max_buy_line:
+                    gate = (
+                        f"pitcher_bb o{line} above buy cap "
+                        f"{self.cfg.pitcher_bb_max_buy_line}"
+                    )
                 po = p_over(arr, line)
                 for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
-                    # The K buy cap and the thin-starter gate are screens on
+                    # The K and BB buy caps and the thin-starter gate are screens on
                     # buying the over; neither is a reason to decline an under.
                     # Walks are the exception: it is the under that is vetoed
                     # there, and the over is left alone.
                     side_gate = gate or gate_reason if pside == "over" else None
                     gate_name = "contact_floor"
+                    if pside == "over" and stat == "BB" and gate is not None:
+                        # The cap's own bucket, so probation does not read walk
+                        # lines as contact-floor evidence.
+                        gate_name = "bb_line_cap"
                     if (
                         pside == "under"
                         and stat == "BB"

@@ -18,7 +18,13 @@ from nfl_engine.audit.ledger import LedgerEntry
 from nfl_engine.data.color import GameColor, parse_summary, scoreboard_url
 from nfl_engine.features.ratings import RatingBook, TeamRating
 from nfl_engine.output.brief import GameBrief, TeamBrief, build_briefs
-from nfl_engine.output.card import build_card, market_reads, render_html, render_markdown
+from nfl_engine.output.card import (
+    build_card,
+    market_moves,
+    market_reads,
+    render_html,
+    render_markdown,
+)
 
 SEASON, WEEK = 2026, 3
 
@@ -87,6 +93,37 @@ def test_the_market_line_reads_the_consensus_rung_off_the_ledger(
     assert "Total over 44.5 market 50.0% · model 48.0%" in page
     assert "ML CHI market 44.0% · model 47.0%" in page
     assert "_moneyline CHI market 44.0% · model 47.0%" in render_markdown(card)
+
+
+def test_the_line_move_reads_open_to_now_on_each_market_main_number(
+    rows: list[LedgerEntry],
+) -> None:
+    assert market_moves(rows) == []  # nothing stamped: no opening board archived
+    stamp = {
+        ("moneyline", "GB"): (None, -135.0),
+        ("moneyline", "CHI"): (None, 115.0),
+        ("spread", "CHI", 2.5): (3.0, -110.0),
+        ("total", "over", 44.5): (45.5, -105.0),
+    }
+    for e in rows:
+        key = (e.market, e.side) if e.market == "moneyline" else (e.market, e.side, e.line)
+        if key in stamp:
+            e.open_line, e.open_odds = stamp[key]
+            e.open_captured_at = "2026-09-22T12:05:00Z"
+    rows[0].odds = 120.0  # CHI ML now +120, GB unchanged at -110 -> compare to its open -135
+    moves = [m.text() for m in market_moves(rows)]
+    assert moves == [
+        "ML GB -135 → -110",
+        "ML CHI +115 → +120",
+        "ATS CHI +3 (-110) → +2.5 (-110)",
+        "Total 45.5 (o -105) → 44.5 (o -110)",
+    ]
+    rows[0].odds = 115.0
+    assert market_moves(rows)[1].text() == "ML CHI +115 unch."
+    card = build_card(rows, season=SEASON, week=WEEK)
+    page = render_html(card)
+    assert "Line move since 2026-09-22: ML GB -135 → -110 · ML CHI +115 unch. · ATS CHI +3" in page
+    assert "_Line move since 2026-09-22: ML GB" in render_markdown(card)
 
 
 def test_a_card_without_briefs_renders_as_before(rows: list[LedgerEntry]) -> None:
@@ -349,3 +386,40 @@ def test_an_empty_schedule_frame_is_no_schedule(
 def test_the_scoreboard_url_switches_to_the_postseason_after_week_18() -> None:
     assert "seasontype=2&week=18" in scoreboard_url(2025, 18)
     assert "seasontype=3&week=1" in scoreboard_url(2025, 19)
+
+
+def test_the_stakes_line_prices_wind_and_division_and_reports_the_rest(
+    rows: list[LedgerEntry],
+) -> None:
+    brief = GameBrief(
+        matchup="GB @ CHI",
+        home=TeamBrief("CHI", "Chicago Bears", rest=10),
+        away=TeamBrief("GB", "Green Bay Packers", rest=4),
+        roof="outdoors",
+        wind_mph=18.0,
+        div_game=True,
+    )
+    page = render_html(build_card(rows, season=SEASON, week=WEEK, briefs={"GB @ CHI": brief}))
+    assert "division game, so the tiebreaker rides on it" in page
+    assert "market-implied win Chicago Bears 44% / Green Bay Packers 56%" in page
+    assert "priced: wind 18mph -1.9 total, divisional -0.7 total" in page
+    assert "6-day rest edge to Chicago Bears" in page
+    assert "away on a short week" in page
+
+    unknown = GameBrief(
+        matchup="GB @ CHI",
+        home=TeamBrief("CHI", "Chicago Bears"),
+        away=TeamBrief("GB", "Green Bay Packers"),
+        roof="outdoors",
+    )
+    page = render_html(build_card(rows, season=SEASON, week=WEEK, briefs={"GB @ CHI": unknown}))
+    assert "no kickoff forecast, so nothing weather-related touched the total" in page
+    assert "priced:" not in page and "out of division" not in page
+
+
+def test_an_unknown_divisional_flag_stays_unknown(rows: list[LedgerEntry]) -> None:
+    schedule = _schedule()
+    schedule["div_game"] = None
+    brief = build_briefs(rows, season=SEASON, week=WEEK, schedule=schedule)["GB @ CHI"]
+    assert brief.div_game is None
+    assert brief.situation().div_game is None

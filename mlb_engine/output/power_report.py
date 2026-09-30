@@ -17,7 +17,9 @@ from __future__ import annotations
 
 import html
 import math
-from collections.abc import Mapping
+from collections import Counter
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from datetime import date as Date
 
 from mlb_engine.audit.power_ledger import (
@@ -46,6 +48,7 @@ from mlb_engine.output.power_screen import (
     MIN_STARTER_PITCHES,
     RESCUE_POWER_Z,
     SCORED,
+    SOFT_TIER,
     SPLIT_INNING,
     STARTER_TOP_N,
     TOP_K,
@@ -55,12 +58,14 @@ from mlb_engine.output.power_screen import (
     ContactLine,
     HalfLine,
     HalfMetric,
+    HitterLine,
     HitterView,
     MatchupSection,
     ScreenResult,
     StarterCard,
     StarterMetric,
     StarterSplit,
+    bonus_places,
     contact_mark,
 )
 
@@ -94,6 +99,7 @@ td.n,th.n{text-align:right}
 .buy{color:#0a6000;font-weight:bold}.hold{color:#8a6d00;font-weight:bold}
 .avoid{color:#8c0000;font-weight:bold}
 .strong-buy{color:#0a6000;font-weight:bold;text-decoration:underline}
+.watch{color:#555;font-weight:bold}
 tbody tr.top,tbody tr.top:nth-child(even){background:#fdeeee}
 tbody tr.top td{font-weight:bold;border-bottom:.4pt solid #e8c9c9}
 tbody tr.top td:first-child{border-left:2.5pt solid #8c0000}
@@ -265,6 +271,55 @@ def _trend_clause(prof: arm_model.ArmProfile) -> str:
     )
 
 
+FORM_DISPLAY = {
+    arm_model.FADING: "fading",
+    arm_model.SHARPENING: "sharpening",
+    arm_model.MIXED: "mixed",
+    arm_model.UNMEASURED: "&mdash;",
+}
+
+
+def _form_cell(s: StarterCard) -> str:
+    """The arm's last-three direction as a table cell: state, then the two moves."""
+    f = s.form
+    if f is None or f.state == arm_model.UNMEASURED:
+        return "&mdash;"
+    word = FORM_DISPLAY[f.state]
+    if f.state == arm_model.FADING:
+        word = f"<b>{word}</b>"
+    return (
+        f"{word} (whiff {f.d_whiff * 100:+.1f}pp, velo {f.d_velo:+.1f})"
+    )
+
+
+def _form_prose(s: StarterCard) -> str:
+    """Which way his last three starts ran, and what the ledger says that was worth."""
+    f = s.form
+    if f is None or f.state == arm_model.UNMEASURED:
+        return ""
+    moves = (
+        f"whiffs per swing {_pc(f.whiff_recent)} against {_pc(f.whiff_window)} over the "
+        f"window ({f.d_whiff * 100:+.1f} points), fastball {_num(f.velo_recent, 1)} mph "
+        f"against {_num(f.velo_window, 1)} ({f.d_velo:+.1f})"
+    )
+    if f.state == arm_model.FADING:
+        return (
+            f"<strong>His last {arm_model.FORM_STARTS} starts are fading: {moves}.</strong> On "
+            "the ledger that is the one arm read with a sign: arms with both falling went "
+            "8-21 on their own side (K and outs over, hits and runs under; the K/outs overs "
+            "3-12), and a bat that clears the gates against one went 22-17 on his over, 15-16 "
+            "of it against the average-to-elite band. A cold bat's under against a fading arm "
+            "went 4-7. Small cells, all in-sample; context, not a gate."
+        )
+    if f.state == arm_model.SHARPENING:
+        return (
+            f"His last {arm_model.FORM_STARTS} starts are sharpening: {moves}. Arms with whiff "
+            "rate rising went 25-17 on their own side on the ledger; the bats that cleared the "
+            "gates against them were still priced fairly on the over (14-12). Context only."
+        )
+    return f"His last {arm_model.FORM_STARTS} starts are mixed: {moves}."
+
+
 def _starter_prose(section: MatchupSection) -> str:
     s = section.starter
     bits = [
@@ -277,6 +332,9 @@ def _starter_prose(section: MatchupSection) -> str:
     arm_prose = _arm_prose(s)
     if arm_prose:
         bits.append(arm_prose)
+    form_prose = _form_prose(s)
+    if form_prose:
+        bits.append(form_prose)
     worst = _worst_pitch(section)
     best = _best_pitch(section)
     if worst:
@@ -367,49 +425,89 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
     return " ".join(bits)
 
 
-# The grade now reads the one thing that graded. Its five-indicator predecessor
-# was scored out of time on 7,668 rated survivors over two seasons
-# (``scripts/power_rating_study.py``): its top bucket did not beat its middle one
-# (2026 A .3867 TB/PA vs B .3893, 2025 .3850 vs .4070), the arsenal fit ran
-# backwards in 2025 (-.0415 [-.0674,-.0157]), the strikeout penalty subtracted a
-# point from rows that produced more, and the opponent term's negative arm fired
-# on 96 of 3,141 rows. Terciles of xwOBA on contact, cut on 2025 and held out on
-# 2026, sort both seasons on total bases (+.0486 [+.0175,+.0762] and +.0488
-# [+.0056,+.0876]) and on home runs (+.0217 [+.0148,+.0284] and +.0160
-# [+.0072,+.0241]) -- and on nothing else: hits per plate appearance are flat
-# across all three, which is why the grade is a power read and says so.
-CONTACT_GRADE_A = 0.474
-CONTACT_GRADE_B = 0.429
+# The grade is three gates read in order, each fitted on the screen's own graded
+# ledger (436 priced hitter overs, 8/18-9/20) rather than on production:
+#
+# 1. The hitter's run value per 100 pitches on the starter's three most-thrown
+#    families. Below zero his over went 24-95 (-51% ROI, -19 points against the
+#    no-vig price) in every arm tier and at every level of every other metric --
+#    high contact quality made it worse (xwOBAcon top tercile 5-28), high
+#    production did not rescue it (top tercile on 3 of 4 rate stats 2-8) -- while
+#    his under went 34-14 (+29%). So a negative read is the position: the under.
+#    The size of a positive read carried nothing (>+2 vs +1..2 vs 0..1 all within
+#    a standard error of the price), so the gate is the sign alone.
+# 2. Production, inside the pool that cleared gate 1: wRC+, BA and OPS scored the
+#    screen's way, a point above the pool median and one more for a top-five
+#    finish. 0-1 points lost 58% (5-21); 2-3 sat 20% under the price; 4 and up
+#    beat it (87-82, +20%, +9 points, 2.1 s.e.). xwOBAcon, Brl%, HH%, EV90 and
+#    O-Swing% added nothing once these three were read and are printed only.
+# 3. The arm. A cleared bat against a soft arm (SIERA above the floor) went
+#    38-21 on the over (+47%, +21 points, 3 s.e., and 10-6 since 9/09); against
+#    the average-to-elite band the same bat's over was exactly the price (+4%,
+#    beat 0.0) and his under a lean (33-20, +17%). So the arm picks the side.
+#
+# The composite's rank, the ±3 run-value term and the contact terciles it used to
+# grade on are no longer buckets: rank 1-2 was 27-21 on 48 rows, the terciles
+# never cleared one standard error, and the ±3 term's >+2 cell was 22-26, flat.
 
-# The bucket keys are historical: "AVOID" is the tercile at or above the A cut
-# (high contact, printed as contact C), "BUY" the one below the B cut (low
-# contact, contact A), "HOLD" between them. The keys stay because the ledger
-# records them and each must keep one record; what the note calls each bucket is
-# decided by that record (see ``labels``).
+#: Gate-1 threshold on run value per 100 pitches on the starter's top families.
+RV_GATE = 0.0
+#: Gate-2 thresholds on the production points (0-6).
+PRODUCTION_DROP = 1  # at or below: dropped, no row printed or recorded
+PRODUCTION_HOLD = 4  # at or above: a position; between: a watch
+#: The three rate stats gate 2 reads, and how each is taken off a hitter's line.
+PRODUCTION_METRICS: dict[str, Callable[[HitterLine], float]] = {
+    "wRC+": lambda h: h.wrc,
+    "BA": lambda h: h.ba,
+    "OPS": lambda h: h.ops,
+}
+#: Places in the pool that earn the second point on each metric.
+PRODUCTION_TOP_N = 5
+#: Fewest hitters a pool needs before a median and a top-five mean anything. A
+#: smaller pool is not scored: everyone in it is a watch, not a drop, because
+#: the gate would be reading the size of the slate and not the bat.
+PRODUCTION_MIN_POOL = 4
+
+# The buckets, keyed by the strings the ledger records them under. Each keeps
+# one record, and what the note calls a bucket follows the money (:func:`labels`):
+# on at least LABEL_EARN_ROWS graded rows a bucket is a Strong Buy when its ROI
+# clears zero by two standard errors, a Buy when it clears one, and otherwise a
+# Watch -- a matchup opinion the ledger has not paid for. Every bucket starts
+# at Watch: the records above were read in-sample and the ledger has to repeat
+# them out of it before a word is printed.
+RV_UNDER = "RV NEG UNDER"
+SOFT_OVER = "SOFT OVER"
+ELITE_UNDER = "ELITE UNDER"
+PROD_WATCH = "PROD WATCH"
+PROD_DROP = "PROD DROP"
+
+# Retired keys, kept so rows recorded under them still print a name in the
+# scorecard: the composite's top two and the xwOBA-on-contact terciles.
 STRONG_BUY = "STRONG BUY"
-# The bats the composite ranked first or second are their own bucket, whatever
-# their contact grade. Recorded with the rank so the claim keeps grading against
-# itself.
-STRONG_BUY_RANKS = 2
-
-# The four grades are buckets, keyed by the strings the ledger has always
-# recorded them under so each keeps one record. What the note calls a bucket
-# follows the money: the bucket with the best ROI on the graded ledger is the
-# Strong Buy and every other bucket is a Buy (:func:`labels`). Until a bucket
-# has a record the note falls back to the last read, which put the Strong Buy on
-# the high-contact tercile (39-36, +10% on 8/18-9/10).
 RATING_DISPLAY = {
+    RV_UNDER: "RV<0: under",
+    SOFT_OVER: "soft arm: over",
+    ELITE_UNDER: "good arm: under",
+    PROD_WATCH: "production 2-3: watch",
+    PROD_DROP: "production 0-1: dropped",
     STRONG_BUY: "rank 1-2",
     "BUY": "contact A",
     "HOLD": "contact B",
     "AVOID": "contact C",
 }
-RATING_ORDER = {STRONG_BUY: 0, "BUY": 1, "HOLD": 2, "AVOID": 3}
+RATING_ORDER = {SOFT_OVER: 0, RV_UNDER: 1, ELITE_UNDER: 2, PROD_WATCH: 3, PROD_DROP: 4}
 LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
-DEFAULT_STRONG_BUCKET = "AVOID"
-# Fewer graded rows than this and a bucket's ROI is not allowed to pick the label.
+LABEL_WATCH = "WATCH"
+DEFAULT_STRONG_BUCKET = SOFT_OVER
+# Fewer decided rows than this and a bucket's ROI is not allowed to pick the
+# best-record bucket (the one the table leads with).
 LABEL_MIN_ROWS = 30
+# Fewer graded rows than this and no bucket can carry a buy word at all.
+LABEL_EARN_ROWS = 100
+# Standard errors above zero the ROI must sit for each word.
+LABEL_STRONG_Z = 2.0
+LABEL_BUY_Z = 1.0
 
 
 def strong_bucket(records: Mapping[str, Record] | None) -> str:
@@ -423,21 +521,39 @@ def strong_bucket(records: Mapping[str, Record] | None) -> str:
     eligible = [
         (r.roi, -RATING_ORDER.get(g, 9), g)
         for g, r in records.items()
-        if g in RATING_ORDER and r.n >= LABEL_MIN_ROWS and r.roi is not None
+        if g in RATING_ORDER and r.decided >= LABEL_MIN_ROWS and r.roi is not None
     ]
     if not eligible:
         return DEFAULT_STRONG_BUCKET
     return max(eligible)[2]
 
 
+def earned_label(rec: Record | None) -> str:
+    """The word a bucket's own record has paid for.
+
+    Strong Buy at ``LABEL_STRONG_Z`` standard errors above zero ROI, Buy at
+    ``LABEL_BUY_Z``, on at least ``LABEL_EARN_ROWS`` rows; Watch otherwise,
+    including whenever the record cannot say (too short, or no error known).
+    """
+    if rec is None or rec.n < LABEL_EARN_ROWS:
+        return LABEL_WATCH
+    roi, se = rec.roi, rec.roi_se
+    if roi is None or se is None or se <= 0:
+        return LABEL_WATCH
+    if roi >= LABEL_STRONG_Z * se:
+        return LABEL_STRONG
+    if roi >= LABEL_BUY_Z * se:
+        return LABEL_BUY
+    return LABEL_WATCH
+
+
 def labels(records: Mapping[str, Record] | None) -> dict[str, str]:
     """Bucket -> the word the note prints for it, from the ledger's record."""
-    strong = strong_bucket(records)
-    return {g: LABEL_STRONG if g == strong else LABEL_BUY for g in RATING_ORDER}
+    return {g: earned_label((records or {}).get(g)) for g in RATING_ORDER}
 
 
 def _label_cell(bucket: str, words: Mapping[str, str]) -> str:
-    word = words.get(bucket, LABEL_BUY)
+    word = words.get(bucket, LABEL_WATCH)
     css = word.lower().replace(" ", "-")
     return (
         f"<span class='{css}'>{word}</span> "
@@ -450,32 +566,123 @@ def _ranks(result: ScreenResult) -> dict[str, int]:
     return {name_key(s.name): i + 1 for i, s in enumerate(result.final)}
 
 
-def _rating(view: HitterView, rank: int | None = None) -> tuple[str, str]:
+@dataclass(frozen=True)
+class Verdict:
+    """What the three gates said about one survivor.
+
+    ``side`` is the position the screen holds -- ``over`` or ``under`` -- or
+    ``None`` for a watch or a drop; ``held`` is whether any row is recorded at
+    all. ``rv`` is the gate-1 read and ``points`` the gate-2 score, both kept so
+    the note can print what the bucket was decided on.
+    """
+
+    bucket: str
+    side: str | None
+    rv: float
+    points: int | None
+
+    @property
+    def held(self) -> bool:
+        return self.bucket != PROD_DROP
+
+
+def _top_rv(view: HitterView) -> float:
+    return view.edge.top_rv if view.edge is not None else math.nan
+
+
+def production_points(
+    pool: list[HitterLine], *, top_n: int = PRODUCTION_TOP_N
+) -> dict[int, int]:
+    """Gate-2 points by ``mlbam_id`` for a pool: one above the pool median on each
+    of :data:`PRODUCTION_METRICS`, one more for a top-``top_n`` finish, with the
+    finishes capped at half the pool by :func:`bonus_places`."""
+    points = {h.mlbam_id: 0 for h in pool}
+    for read in PRODUCTION_METRICS.values():
+        rated = sorted(
+            (h for h in pool if not math.isnan(read(h))), key=read, reverse=True
+        )
+        if not rated:
+            continue
+        values = [read(h) for h in rated]
+        mid = len(values) // 2
+        median = values[mid] if len(values) % 2 else (values[mid - 1] + values[mid]) / 2
+        places = bonus_places(len(rated), top_n)
+        for i, h in enumerate(rated):
+            if read(h) > median:
+                points[h.mlbam_id] += 1
+            if i < places:
+                points[h.mlbam_id] += 1
+    return points
+
+
+def gate_views(views: list[HitterView], arm_tier: str) -> dict[str, Verdict]:
+    """The three gates over one pass's survivors, keyed by hitter name.
+
+    Gate 1 is read per hitter; gate 2 is scored inside the pool that cleared it,
+    so a bat is above the median of the bats he is actually competing with for
+    the note's attention. Gate 3 is the pass's arm tier: the pass screened
+    either the soft arms or the band above them, and the side follows. An
+    unmeasured run value is read as zero -- not negative, so he is not faded on
+    nothing, and not a pass either, since he still has to clear production.
+    A hitter the pass kept twice (a doubleheader) is gated once, on the first
+    matchup the pass ranked: the note, the board and the ledger all know him by
+    name, so one verdict is what they can carry.
+    """
+    once: dict[int, HitterView] = {}
+    for v in views:
+        once.setdefault(v.line.mlbam_id, v)
+    views = list(once.values())
+    negative = {v.line.mlbam_id for v in views if _top_rv(v) < RV_GATE}
+    pool = [v.line for v in views if v.line.mlbam_id not in negative]
+    scorable = len(pool) >= PRODUCTION_MIN_POOL
+    points = production_points(pool) if scorable else {}
+    over_side = SOFT_OVER if arm_tier == SOFT_TIER else ELITE_UNDER
+    out: dict[str, Verdict] = {}
+    for v in views:
+        rv = _top_rv(v)
+        if v.line.mlbam_id in negative:
+            out[v.line.name] = Verdict(RV_UNDER, "under", rv, None)
+            continue
+        if not scorable:
+            out[v.line.name] = Verdict(PROD_WATCH, None, rv, None)
+            continue
+        pts = points.get(v.line.mlbam_id, 0)
+        if pts <= PRODUCTION_DROP:
+            out[v.line.name] = Verdict(PROD_DROP, None, rv, pts)
+        elif pts < PRODUCTION_HOLD:
+            out[v.line.name] = Verdict(PROD_WATCH, None, rv, pts)
+        else:
+            side = "over" if over_side == SOFT_OVER else "under"
+            out[v.line.name] = Verdict(over_side, side, rv, pts)
+    return out
+
+
+def verdicts(result: ScreenResult) -> dict[str, Verdict]:
+    """Each survivor's bucket, side and the reads that decided them, by name."""
+    return gate_views([v for s in result.sections for v in s.hitters], result.arm_tier)
+
+
+def _rating(view: HitterView, verdict: Verdict) -> tuple[str, str]:
     """The matchup's grade, and the reasons, from the assembled evidence.
 
-    A bat the composite ranked in its top ``STRONG_BUY_RANKS`` is its own bucket.
-    Otherwise the bucket is xwOBA on contact against two fixed cuts. The bucket
-    key is what the ledger records; the word the note prints is :func:`labels`.
-    Exposure, arsenal fit, the full-game opponent and the strikeout rate are
-    printed as reasons and score nothing: each was graded on the same panel and
-    none of them ordered production. A grade is about the matchup only -- there
-    is no price in this module.
+    The bucket key is what the ledger records; the word the note prints is
+    :func:`labels`. Exposure, arsenal fit, the full-game opponent, contact
+    quality and the strikeout rate are printed as reasons and score nothing.
+    A grade is about the matchup only -- there is no price in this module.
     """
     h = view.line
     e = view.exposure
     share = e.share_vs_starter if e else math.nan
     opp = e.opponent_xwoba if e else math.nan
     delta = view.fit_delta
+    grade = verdict.bucket
     reasons: list[str] = []
-    if rank is not None and rank <= STRONG_BUY_RANKS:
-        grade = STRONG_BUY
-        reasons.append(f"ranked {rank} on the composite")
-    elif h.xwoba_con >= CONTACT_GRADE_A:
-        grade = "AVOID"
-    elif h.xwoba_con >= CONTACT_GRADE_B:
-        grade = "HOLD"
+    if math.isnan(verdict.rv):
+        reasons.append("run value on his top pitches unmeasured, read as zero")
     else:
-        grade = "BUY"
+        reasons.append(f"{verdict.rv:+.1f} RV/100 on the starter's top pitches")
+    if verdict.points is not None:
+        reasons.append(f"{verdict.points} of 6 production points")
     reasons.append(f"{_f3(h.xwoba_con)} xwOBA on contact")
     if not math.isnan(share):
         if share >= 0.58:
@@ -496,6 +703,7 @@ def _rating(view: HitterView, rank: int | None = None) -> tuple[str, str]:
         # the damage markets are the only ones the evidence covers -- a strikeout
         # that ends the plate appearance pays nothing on hits or on H+R+RBI.
         reasons.append("kept on power alone: home runs and total bases only")
+    reasons.extend(h.flags)
     return grade, "; ".join(reasons)
 
 
@@ -520,8 +728,10 @@ def _thesis(result: ScreenResult) -> str:
         f"{live} of the day's matchups.</strong> The chain ranks every probable "
         f"starter on the damage he allows in the air, keeps the softest few, scores the lineups "
         f"facing them on eleven contact and discipline metrics split by hand, cuts on plate "
-        f"appearances, then wRC+, then expected contact, and finally tests each survivor against "
-        f"the arsenal he will actually see and the number of turns he will actually get.</p>"
+        f"appearances alone, and tests each hitter with the sample against the arsenal he will "
+        f"actually see and the number of turns he will actually get. The wRC+, expected-contact "
+        f"and luck-gap reads that used to cut are printed beside him as flags; the run-value, "
+        f"production and arm gates in the recommendations decide him.</p>"
     ]
     if lead is None:
         paras.append(
@@ -573,7 +783,12 @@ def _price(american: float | None) -> str:
     return f"{american:+.0f}"
 
 
-def _board_section(board: Board) -> str:
+def _form_by_arm(result: ScreenResult) -> dict[str, str]:
+    """Starter name -> his last-three form cell, for the arms' board."""
+    return {s.starter.name: _form_cell(s.starter) for s in result.sections}
+
+
+def _board_section(board: Board, forms: Mapping[str, str] | None = None) -> str:
     """The survivors on the card's own board, best expected value first."""
     rows = []
     batter_buys = [r for r in board.rows if r.is_buy]
@@ -593,7 +808,8 @@ def _board_section(board: Board) -> str:
     out = [
         "<h2>The board</h2>",
         f"<p><strong>{len(board.priced)} of "
-        f"{len(board.priced) + len(board.unpriced)} survivors have a price</strong>, and "
+        f"{len(board.priced) + len(board.unpriced) + len(board.off_side_only)} survivors have "
+        f"a price on the side held</strong>, and "
         f"{len(batter_buys)} of their rows cleared the card's buy tiers. Every figure below is "
         f"the nightly run's own: the model probability it simulated, the best price it found, "
         f"and the two-sided no-vig mark it measured the edge against. Nothing was re-priced or "
@@ -631,6 +847,13 @@ def _board_section(board: Board) -> str:
             f"each shows his homer and his H+R+RBI where both were quoted, then fills to "
             f"{ROWS_PER_BATTER} rows by expected value, one quote per bet.</p>"
         )
+    if board.off_side_only:
+        names = ", ".join(html.escape(n) for n in board.off_side_only)
+        out.append(
+            f"<div class='caveat'><strong>Priced only on the side not held: {names}.</strong> "
+            f"The card quoted the hitter, but every quote was on the side the gates read "
+            f"against; the position is the other side, and it has no number yet.</div>"
+        )
     if board.unpriced:
         names = ", ".join(html.escape(n) for n in board.unpriced)
         out.append(
@@ -652,7 +875,7 @@ def _board_section(board: Board) -> str:
             f"The screen reads form and exposure; the price reads everything, including the "
             f"lineup card this note is guessing at.</p>"
         )
-    out.append(_arm_board(board))
+    out.append(_arm_board(board, forms or {}))
     return "".join(out)
 
 
@@ -681,7 +904,7 @@ def _gate_cell(row: BoardRow) -> str:
     return "passed"
 
 
-def _arm_board(board: Board) -> str:
+def _arm_board(board: Board, forms: Mapping[str, str]) -> str:
     """The arms' positions: one side per stat on each starter the screen kept."""
     if not board.arm_rows and not board.arms_unpriced:
         return ""
@@ -690,6 +913,7 @@ def _arm_board(board: Board) -> str:
         fair = _pc(r.fair_prob) if r.fair_prob is not None else "one-way"
         rows.append([
             html.escape(r.batter),
+            forms.get(r.batter, "&mdash;"),
             r.label.removeprefix("SP "),
             _price(r.american),
             html.escape(r.book or "&mdash;"),
@@ -715,10 +939,10 @@ def _arm_board(board: Board) -> str:
     if rows:
         out.append(
             _table(
-                ["pitcher", "market", "price", "book", "bet prob", "no-vig", "edge", "EV",
-                 "card"],
+                ["pitcher", "last 3", "market", "price", "book", "bet prob", "no-vig",
+                 "edge", "EV", "card"],
                 rows,
-                numeric_from=2,
+                numeric_from=3,
             )
         )
         out.append(
@@ -731,6 +955,18 @@ def _arm_board(board: Board) -> str:
             "the question the ledger is being asked to answer; it is not a bet the card "
             "made.</p>"
         )
+        out.append(
+            "<p class='sub'><strong>Insight &mdash; last 3</strong> is the arm's last three "
+            "starts against his window on whiffs per swing and fastball velocity. On the "
+            "ledger the level of every arm metric sat at the price on these rows; the "
+            "direction is the one read with a sign. Whiff rate rising: the arm's own side "
+            "(K and outs over, hits/runs/walks under) 25-17, +14%; falling, 20-35, "
+            "&minus;26%; both whiff and velocity falling, 8-21, &minus;48%, the K and outs "
+            "overs 3-12. Betting the under on a fading arm's K and outs was 7-4 and no better "
+            "than the same under on any other arm (29-19 overall), so a fade is a reason not "
+            "to hold his over, not yet a reason to hold his under. 64 arm-days, in-sample; "
+            "printed, not gated.</p>"
+        )
     if board.arms_unpriced:
         names = ", ".join(html.escape(n) for n in board.arms_unpriced)
         out.append(
@@ -742,12 +978,17 @@ def _arm_board(board: Board) -> str:
 
 def ratings(result: ScreenResult) -> dict[str, str]:
     """Each survivor's bucket key, for anything recording what the note said."""
-    ranks = _ranks(result)
-    return {
-        v.line.name: _rating(v, ranks.get(name_key(v.line.name)))[0]
-        for s in result.sections
-        for v in s.hitters
-    }
+    return {name: v.bucket for name, v in verdicts(result).items()}
+
+
+def sides(result: ScreenResult) -> dict[str, str | None]:
+    """The side the screen holds on each survivor, ``None`` where it holds none."""
+    return {name: v.side for name, v in verdicts(result).items()}
+
+
+def dropped(result: ScreenResult) -> list[str]:
+    """Survivors gate 2 removed: no row is printed or recorded for them."""
+    return [name for name, v in verdicts(result).items() if not v.held]
 
 
 def composites(result: ScreenResult) -> dict[str, Composite]:
@@ -1658,7 +1899,8 @@ def _grade_record_cell(rec: Record | None) -> str:
     if rec is None or not rec.n:
         return "no record yet"
     roi = f", {rec.roi * 100:+.0f}% ROI" if rec.roi is not None else ""
-    return f"{_wl(rec)}, {rec.units:+.2f}u{roi}"
+    se = f" (&plusmn;{rec.roi_se * 100:.0f})" if rec.roi_se is not None and roi else ""
+    return f"{_wl(rec)}, {rec.units:+.2f}u{roi}{se}"
 
 
 def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> str:
@@ -1672,9 +1914,11 @@ def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> 
     total = sum(r.n for _g, r in rated)
     return (
         f"<p class='sub'><strong>What each bucket has been worth, on every graded row the "
-        f"ledger holds ({total} rows).</strong> {parts}. The words follow the money: the "
-        f"bucket with the best ROI on at least {LABEL_MIN_ROWS} rows is the Strong Buy and "
-        f"the rest are Buys, so the label can move as the record does.</p>"
+        f"ledger holds ({total} rows).</strong> {parts}. The words follow the money and "
+        f"have to be earned: on at least {LABEL_EARN_ROWS} rows a bucket is a Strong Buy when "
+        f"its ROI clears zero by {LABEL_STRONG_Z:.0f} standard errors, a Buy when it clears "
+        f"{LABEL_BUY_Z:.0f}, and a Watch otherwise (&plusmn; is one standard error), so the "
+        f"label moves as the record does.</p>"
     )
 
 
@@ -1686,8 +1930,13 @@ def _recommendations(
     graded = [
         (v, s) for s in result.sections for v in s.hitters
     ]
-    ranks = _ranks(result)
-    rated = [(*_rating(v, ranks.get(name_key(v.line.name))), v, s) for v, s in graded]
+    said = verdicts(result)
+    rated = [
+        (*_rating(v, said[v.line.name]), v, s)
+        for v, s in graded
+        if said[v.line.name].held
+    ]
+    gone = [(v, s) for v, s in graded if not said[v.line.name].held]
     records = grade_records or {}
     words = labels(grade_records)
     strong_key = strong_bucket(grade_records)
@@ -1698,8 +1947,10 @@ def _recommendations(
     for rating, reason, view, section in rated:
         row = [
             _label_cell(rating, words),
+            (said[view.line.name].side or "none"),
             html.escape(view.line.name),
             html.escape(section.starter.name),
+            _form_cell(section.starter),
         ]
         if board is not None:
             row.append(_best_price_cell(board.best_for_batter(view.line.name)))
@@ -1708,26 +1959,58 @@ def _recommendations(
         row.append(reason or "&mdash;")
         rows.append(row)
     strong = [r for r in rated if r[0] == strong_key]
-    names = ", ".join(html.escape(t[2].line.name) for t in strong) or "nobody"
+    names = ", ".join(html.escape(t[2].line.name) for t in strong)
     strong_rec = records.get(strong_key)
     basis = (
         f"its {_grade_record_cell(strong_rec)} on {strong_rec.n} rows is the best record of "
-        f"the four buckets"
+        f"the buckets"
         if strong_rec is not None and strong_rec.n
         else "no bucket has a record long enough to say otherwise"
     )
+    by_word = Counter(words[t[0]] for t in rated)
+    bought = [w for w in (LABEL_STRONG, LABEL_BUY) if by_word.get(w)]
+    if bought:
+        earned = "; ".join(
+            f"{by_word[w]} {w.title()}{'s' if by_word[w] != 1 else ''}" for w in bought
+        )
+        verdict = f"the ledger has paid for {earned} here"
+    else:
+        count = (
+            f"all {len(rated)} survivors are Watches" if len(rated) != 1
+            else "the one survivor is a Watch"
+        )
+        verdict = f"no bucket has earned a buy word on {LABEL_EARN_ROWS}+ rows, so {count}"
+    who = f" ({names})" if strong else " (no survivor in it today)"
     lead = (
-        f"<p><strong>{len(strong)} Strong Buy{'s' if len(strong) != 1 else ''}: {names}.</strong> "
-        f"The Strong Buys are the {RATING_DISPLAY[strong_key]} bucket, because {basis}; the "
-        f"other {len(rated) - len(strong)} survivors are Buys.</p>"
-        f"<p class='sub'><strong>The buckets are the composite's top two and xwOBA on "
-        f"contact in terciles.</strong> Cut at {CONTACT_GRADE_A:.3f} and "
-        f"{CONTACT_GRADE_B:.3f}: C is the high-contact tercile, A the low one, and a bat "
-        f"the composite ranked first or second is its own bucket whatever his contact. The "
-        f"words on the buckets are not fixed -- they follow the ledger's record, and move when it "
-        f"does. Exposure to the starter, arsenal fit, the full-game opponent and strikeout "
-        f"risk are printed beside it and count for nothing in it. It contains no price.</p>"
+        f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]}{who}.</strong> "
+        f"It leads the table because {basis}; {verdict}.</p>"
+        f"<p class='sub'><strong>The buckets are three gates read in order.</strong> First "
+        f"the bat's run value per 100 pitches on the starter's {TOP_PITCHES} most-thrown "
+        f"pitches: below zero the position is his under, whatever else he shows, because on "
+        f"the ledger that hitter's over lost to the price in every tier and his under beat it. "
+        f"Second, inside the pool that cleared zero, production &mdash; wRC+, BA and OPS, a point "
+        f"above the pool median on each and one more for a top-{PRODUCTION_TOP_N} finish, "
+        f"0-6: at most {PRODUCTION_DROP} and he is dropped, {PRODUCTION_DROP + 1}-"
+        f"{PRODUCTION_HOLD - 1} is a watch with no side, {PRODUCTION_HOLD}+ is a position. "
+        f"Third the arm: a soft arm makes it the over, an average-to-elite arm the under, "
+        f"where the same bat's over has been priced fairly. Contact quality, exposure, "
+        f"arsenal fit, the full-game opponent and strikeout risk are printed beside it and "
+        f"count for nothing in it. The words on the buckets follow the ledger's record and "
+        f"move when it does. It contains no price.</p>"
     )
+    if gone:
+        lead += (
+            f"<p class='sub'><strong>Dropped on production ({len(gone)}):</strong> "
+            + ", ".join(
+                f"{html.escape(v.line.name)} vs {html.escape(s.starter.name)} "
+                f"({said[v.line.name].points} pts)"
+                for v, s in gone
+            )
+            + ". Above water on the arm's pitches but at or below "
+            f"{PRODUCTION_DROP} of 6 production points, which on the ledger is the worst "
+            "thing the screen prices; no row is printed or recorded.</p>"
+        )
+    lead += _form_insights(rated, said)
     if grade_records is not None:
         lead += _grade_ledger_lead(records, words)
     if board is not None:
@@ -1746,7 +2029,7 @@ def _recommendations(
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["grade", "batter", "vs"]
+    headers = ["grade", "side", "batter", "vs", "arm's last 3"]
     if board is not None:
         headers.append("best price (EV)")
     if grade_records is not None:
@@ -1759,6 +2042,72 @@ def _recommendations(
     )
 
 
+def _form_insights(
+    rated: list[tuple[str, str, HitterView, MatchupSection]], said: Mapping[str, Verdict]
+) -> str:
+    """What the arm's recent direction says about the positions held, beside the gates.
+
+    Two reads off the ledger, neither strong enough to move a side: a cleared bat's
+    over against a fading arm has been the one place the average-to-elite over was
+    positive, and a cold bat's under against a fading arm has been the one place the
+    RV-negative under was not.
+    """
+    fading = [t for t in rated if _state(t[3]) == arm_model.FADING]
+    sharp = [t for t in rated if _state(t[3]) == arm_model.SHARPENING]
+    unread = sum(1 for t in rated if _state(t[3]) == arm_model.UNMEASURED)
+    lines = [
+        "<p class='sub'><strong>Insights &mdash; the arm's last three starts.</strong> "
+        f"The column reads each starter's last {arm_model.FORM_STARTS} starts against his "
+        "window on whiffs per swing and fastball velocity. On the ledger the level of every "
+        "arm metric sat at the price; the direction is the only arm read with a sign, and it "
+        "is small (no cell over 40 rows) and in-sample, so it is printed and gates nothing. "
+    ]
+    if fading:
+        cleared = [t for t in fading if t[0] in (SOFT_OVER, ELITE_UNDER)]
+        unders = [t for t in fading if t[0] == RV_UNDER]
+        if cleared:
+            lines.append(
+                "<strong>Cleared bats against a fading arm:</strong> "
+                + ", ".join(
+                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
+                    for t in cleared
+                )
+                + ". That bat's over went 22-17 (+41%) on the ledger, 15-16 of it against the "
+                "average-to-elite band whose under the gate otherwise holds &mdash; the one "
+                "cell where that band's over has been positive. "
+            )
+        if unders:
+            lines.append(
+                "<strong>RV-negative unders against a fading arm:</strong> "
+                + ", ".join(
+                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
+                    for t in unders
+                )
+                + ". That under went 4-7 (&minus;36%) against 27-5 when the arm was not "
+                "fading: the one place the RV gate's under has lost. Eleven rows. "
+            )
+    else:
+        lines.append("No rated bat faces a fading arm today. ")
+    if sharp:
+        lines.append(
+            "<strong>Sharpening arms:</strong> "
+            + ", ".join(sorted({html.escape(t[3].starter.name) for t in sharp}))
+            + " &mdash; their own K and outs overs went 25-17 on the ledger; the bats against "
+            "them were priced fairly. "
+        )
+    if unread:
+        lines.append(
+            f"{unread} of the rated bats face an arm with fewer than "
+            f"{arm_model.FORM_MIN_STARTS} starts in the window, unread."
+        )
+    return "".join(lines).rstrip() + "</p>"
+
+
+def _state(section: MatchupSection) -> str:
+    f = section.starter.form
+    return arm_model.UNMEASURED if f is None else f.state
+
+
 def _elite_thesis(result: ScreenResult) -> str:
     kept = sum(len(s.hitters) for s in result.sections)
     arms = len(result.starters_ranked)
@@ -1767,11 +2116,12 @@ def _elite_thesis(result: ScreenResult) -> str:
         "softest arms and asks which bats can hit them; this one takes the arms the SIERA gate "
         f"refused &mdash; SIERA in ({result.siera_floor:.2f}, "
         f"{(result.siera_ceiling or 0):.2f}], the average-to-elite starters &mdash; and runs "
-        "the identical hitter cuts against their lineups: plate appearances, wRC+ against the "
-        "hand, expected contact, the arsenal he will see, his turns, the halves, the luck gap "
-        "and the forecast. One cut is added: the bat must still carry a wRC+ above the floor "
-        "from the seventh inning on, because against a good arm the case is the whole game "
-        "and not his two or three turns against the starter.</p>",
+        "the identical hitter reads against their lineups: the plate-appearance floor, then "
+        "wRC+ against the hand, expected contact, the arsenal he will see, his turns, the "
+        "halves, the luck gap and the forecast as context. One flag is added: whether the bat "
+        "still carries a wRC+ above the floor from the seventh inning on, because against a "
+        "good arm the case is the whole game and not his two or three turns against the "
+        "starter.</p>",
         f"<p><strong>{kept} hitters survive against {len(result.sections)} of {arms} arms in "
         "the band.</strong> Every priced row below is recorded to the same ledger as the "
         "first part's, tagged <code>elite</code>, so the scorecard can grade the two tiers of "
@@ -1804,10 +2154,10 @@ def _late_cuts(result: ScreenResult) -> str:
         for h, late in sorted(result.late_cuts, key=lambda t: -t[0].wrc)
     ]
     return (
-        "<h2>Cut on the late half</h2>"
-        f"<p>{len(rows)} hitters cleared every cut the soft pass runs and were dropped on "
-        "the one this pass adds: season wRC+ from the seventh inning on, against every arm, "
-        "under the floor. A dash is a hitter with no season rows to read the half from.</p>"
+        "<h2>Flagged on the late half</h2>"
+        f"<p>{len(rows)} hitters carry the flag this pass adds: season wRC+ from the seventh "
+        "inning on, against every arm, under the floor. It is printed beside the gates and "
+        "does not decide them. A dash is a hitter with no season rows to read the half from.</p>"
         + _table(["batter", "vs", "window wRC+", "wRC+ from 7th"], rows, numeric_from=2)
     )
 
@@ -1833,7 +2183,7 @@ def _elite_part(
         body.append(_composite(result))
         body.append(_bet_card(result))
     if board is not None:
-        body.append(_board_section(board))
+        body.append(_board_section(board, _form_by_arm(result)))
     if result.sections:
         body.append(_recommendations(result, board, grade_records))
     return body
@@ -1900,7 +2250,7 @@ def render_html(
     if review is not None:
         body.append(_scorecard_section(*review))
     if board is not None:
-        body.append(_board_section(board))
+        body.append(_board_section(board, _form_by_arm(result)))
     body.append(_recommendations(result, board, grade_records))
     if elite is not None:
         body.extend(_elite_part(elite, elite_board, grade_records))

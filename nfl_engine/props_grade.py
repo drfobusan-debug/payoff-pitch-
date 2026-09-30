@@ -267,38 +267,90 @@ def _brier(pairs: list[tuple[float, int]]) -> float | None:
     return sum((p - hit) ** 2 for p, hit in pairs) / len(pairs)
 
 
+@dataclass(frozen=True)
+class PropTally:
+    """One basis-and-market line of the accumulated audit.
+
+    ``wins``/``losses`` are the record as the row was priced; the Brier scores
+    say whose probability was closer -- the model's, the de-vigged book's, or the
+    bucket's own hit rate -- and the shadow columns are the flat one-unit return
+    on the rows only ``research_only`` stopped. None of it is a bet.
+    """
+
+    basis: str
+    market: str
+    n: int
+    wins: int
+    losses: int
+    brier_model: float | None
+    brier_fair: float | None
+    brier_base: float | None
+    shadow_n: int
+    shadow_units: float
+
+    @property
+    def shadow_roi(self) -> float | None:
+        return self.shadow_units / self.shadow_n if self.shadow_n else None
+
+
+def tallies(graded: list[GradedProp]) -> list[PropTally]:
+    """The accumulated audit per basis and market, settled rows only."""
+    settled = [g for g in graded if g.result in (WIN, LOSS)]
+    out: list[PropTally] = []
+    for basis, market in sorted({(g.basis, g.market) for g in settled}):
+        rows = [g for g in settled if g.basis == basis and g.market == market]
+        hits = [1 if g.result == WIN else 0 for g in rows]
+        base = sum(hits) / len(hits)
+        shadow = [g for g in rows if g.shadow_bet]
+        out.append(
+            PropTally(
+                basis=basis,
+                market=market,
+                n=len(rows),
+                wins=sum(hits),
+                losses=len(hits) - sum(hits),
+                brier_model=_brier(
+                    [
+                        (g.model_prob, h)
+                        for g, h in zip(rows, hits, strict=True)
+                        if g.projection is not None
+                    ]
+                ),
+                brier_fair=_brier(
+                    [
+                        (g.fair_prob, h)
+                        for g, h in zip(rows, hits, strict=True)
+                        if g.fair_prob is not None
+                    ]
+                ),
+                brier_base=_brier([(base, h) for h in hits]),
+                shadow_n=len(shadow),
+                shadow_units=sum(g.pnl for g in shadow),
+            )
+        )
+    return out
+
+
 def summary(graded: list[GradedProp]) -> list[str]:
     """Per basis and market: settled count, Brier of model / fair / base rate, and
     the shadow return on the rows only ``research_only`` stopped."""
-    settled = [g for g in graded if g.result in (WIN, LOSS)]
+    settled = sum(1 for g in graded if g.result in (WIN, LOSS))
     voids = sum(1 for g in graded if g.result == VOID)
     if not settled:
         return [f"props grade: nothing settled ({len(graded)} rows, {voids} void)"]
     lines = [
-        f"props grade: {len(settled)} settled, {sum(1 for g in graded if g.result == PUSH)} push,"
+        f"props grade: {settled} settled, {sum(1 for g in graded if g.result == PUSH)} push,"
         f" {voids} void -- research, not a record"
     ]
-    keys = sorted({(g.basis, g.market) for g in settled})
-    for basis, market in keys:
-        rows = [g for g in settled if g.basis == basis and g.market == market]
-        hits = [1 if g.result == WIN else 0 for g in rows]
-        base = sum(hits) / len(hits)
-        model = _brier(
-            [(g.model_prob, h) for g, h in zip(rows, hits, strict=True) if g.projection is not None]
-        )
-        fair = _brier(
-            [(g.fair_prob, h) for g, h in zip(rows, hits, strict=True) if g.fair_prob is not None]
-        )
-        base_brier = _brier([(base, h) for h in hits])
-        shadow = [g for g in rows if g.shadow_bet]
-        roi = sum(g.pnl for g in shadow) / len(shadow) if shadow else None
+    nan = float("nan")
+    for t in tallies(graded):
         lines.append(
-            f"  {basis:44s} {market:26s} n={len(rows):4d}"
-            f" brier model {model if model is not None else float('nan'):.4f}"
-            f" fair {fair if fair is not None else float('nan'):.4f}"
-            f" base {base_brier if base_brier is not None else float('nan'):.4f}"
-            f" | shadow n={len(shadow):3d}"
-            f" roi {roi if roi is not None else float('nan'):+.3f}"
+            f"  {t.basis:44s} {t.market:26s} n={t.n:4d}"
+            f" brier model {t.brier_model if t.brier_model is not None else nan:.4f}"
+            f" fair {t.brier_fair if t.brier_fair is not None else nan:.4f}"
+            f" base {t.brier_base if t.brier_base is not None else nan:.4f}"
+            f" | shadow n={t.shadow_n:3d}"
+            f" roi {t.shadow_roi if t.shadow_roi is not None else nan:+.3f}"
         )
     return lines
 
@@ -311,6 +363,7 @@ __all__ = [
     "VOID",
     "WIN",
     "GradedProp",
+    "PropTally",
     "box_scores",
     "grade_row",
     "grade_week",
@@ -319,4 +372,5 @@ __all__ = [
     "read_graded",
     "read_research",
     "summary",
+    "tallies",
 ]

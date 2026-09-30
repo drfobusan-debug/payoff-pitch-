@@ -13,6 +13,7 @@ only listed the bets would hide the rejections the record is diagnosed with.
 from __future__ import annotations
 
 import html
+import re
 from dataclasses import dataclass, field
 
 from nfl_engine.audit.availability import Observation
@@ -27,11 +28,18 @@ from nfl_engine.audit.ledger import (
 )
 from nfl_engine.audit.outside import HeadToHead, benchmark_metrics, head_to_head
 from nfl_engine.data.teamnames import canonical
+from nfl_engine.features.adjustments import adjust, unpriced_notes
 from nfl_engine.market.screens import Tier
 from nfl_engine.output.brief import GameBrief, TeamBrief, team_name
+from nfl_engine.props_grade import PropTally
 
 BUY_TIERS = (Tier.STRONG.value, Tier.MODERATE.value)
 PAPER_NOTE = "Paper only: no stake is placed and no bankroll exists in this engine."
+PROPS_NOTE = (
+    "Prop rows are priced as research and every one is stopped before it can be a play. "
+    "Brier: lower is closer; the model must beat the de-vigged book, not the base rate. "
+    "Shadow is a flat unit on the rows only the research stamp stopped."
+)
 
 
 @dataclass
@@ -50,6 +58,21 @@ class Play:
     tier: str
     clv: float | None
     result: str
+    open_line: float | None = None
+    open_odds: float | None = None
+    drift: float | None = None
+
+    def opened(self) -> str:
+        """How the week opened on this side and how far it ran before the bet."""
+        if self.open_odds is None or self.drift is None:
+            return ""
+        if self.open_line is None or self.line is None:
+            at = f"{self.open_odds:+.0f}"
+        elif self.market == "total":
+            at = f"{self.open_line:g} ({self.open_odds:+.0f})"
+        else:
+            at = f"{self.open_line:+g} ({self.open_odds:+.0f})"
+        return f"opened {at}, drift {self.drift * 100:+.1f}%"
 
     def label(self) -> str:
         if self.line is None:
@@ -80,6 +103,39 @@ class MarketRead:
         return f"{self.side} {self.line:+g}"
 
 
+@dataclass(frozen=True)
+class MarketMove:
+    """One market's main number at the week's open and on the board priced.
+
+    Moneyline carries no line; a spread is the named side's handicap; a total
+    is the number with the over's price.
+    """
+
+    market: str
+    side: str
+    open_line: float | None
+    open_odds: float
+    line: float | None
+    odds: float
+
+    def moved(self) -> bool:
+        return self.open_line != self.line or self.open_odds != self.odds
+
+    def text(self) -> str:
+        def at(line: float | None, odds: float) -> str:
+            if self.market == "moneyline" or line is None:
+                return f"{odds:+.0f}"
+            if self.market == "total":
+                return f"{line:g} (o {odds:+.0f})"
+            return f"{line:+g} ({odds:+.0f})"
+
+        label = {"moneyline": "ML", "spread": "ATS", "total": "Total"}.get(self.market, self.market)
+        who = "" if self.market == "total" else f"{self.side} "
+        if not self.moved():
+            return f"{label} {who}{at(self.line, self.odds)} unch."
+        return f"{label} {who}{at(self.open_line, self.open_odds)} → {at(self.line, self.odds)}"
+
+
 @dataclass
 class GameSection:
     matchup: str
@@ -88,6 +144,10 @@ class GameSection:
     # The market's no-vig number beside ours on the consensus rung of each market,
     # read from the same ledger rows. Display only.
     reads: list[MarketRead] = field(default_factory=list)
+    # How each market's main number ran from the week's archived open to the board
+    # priced, read from the same rows' open stamps. Display only.
+    moves: list[MarketMove] = field(default_factory=list)
+    opened_at: str = ""
     # Records, ratings, starters, injuries, venue, forecast, storylines: the context
     # a reader wants, gathered after pricing and never fed back into it.
     brief: GameBrief | None = None
@@ -125,6 +185,10 @@ class WeekCard:
     # Games where the outside forecast backed the other side of one of our plays.
     # Counted, not acted on: a disagreement is something to read afterwards.
     contested: int = 0
+    # The season's graded prop research, per basis and market. Every prop row was
+    # stopped by ``research_only`` before it could be a play, so this is an audit
+    # of the pricing, not a record -- and it is on the card so the audit is read.
+    props: list[PropTally] = field(default_factory=list)
 
     def plays(self) -> list[Play]:
         return [play for game in self.games for play in game.plays]
@@ -141,6 +205,7 @@ def build_card(
     calibration: str = "",
     absences: list[Observation] | None = None,
     briefs: dict[str, GameBrief] | None = None,
+    props: list[PropTally] | None = None,
 ) -> WeekCard:
     """Group one week's engine rows into game sections, best execution edge first.
 
@@ -160,6 +225,8 @@ def build_card(
                 matchup=entry.matchup,
                 kickoff=entry.kickoff_utc or entry.date,
                 reads=market_reads(by_game[entry.matchup]),
+                moves=market_moves(by_game[entry.matchup]),
+                opened_at=_opened_at(by_game[entry.matchup]),
                 brief=(briefs or {}).get(entry.matchup),
                 benchmark=outside.get(entry.matchup),
                 absences=absence_note(absences or [], entry.matchup),
@@ -184,6 +251,9 @@ def build_card(
                 tier=entry.tier,
                 clv=entry.clv,
                 result=entry.result,
+                open_line=entry.open_line,
+                open_odds=entry.open_odds,
+                drift=entry.drift,
             )
         )
     games = sorted(sections.values(), key=lambda s: (not s.plays, s.kickoff, s.matchup))
@@ -195,6 +265,7 @@ def build_card(
         record=_record(entries),
         calibration=calibration,
         contested=sum(1 for h in outside.values() if h.contested),
+        props=list(props or []),
     )
 
 
@@ -233,6 +304,51 @@ def market_reads(rows: list[LedgerEntry]) -> list[MarketRead]:
             )
         )
     return out
+
+
+def market_moves(rows: list[LedgerEntry]) -> list[MarketMove]:
+    """Both moneylines, the home spread and the total: open -> priced, main line each.
+
+    A row's open stamp is the market's main number at the earliest archived
+    board, so the row on today's consensus rung is the one whose own line and
+    price compare with it main-to-main. Rows never stamped (no board archived
+    before the run) contribute nothing.
+    """
+    if not rows:
+        return []
+    away, _, home = (canonical(t.strip()) for t in rows[0].matchup.partition(" @ "))
+    picks: list[tuple[str, list[LedgerEntry]]] = [
+        ("moneyline", [e for e in rows if e.market == "moneyline" and canonical(e.side) == away]),
+        ("moneyline", [e for e in rows if e.market == "moneyline" and canonical(e.side) == home]),
+        ("spread", [e for e in rows if e.market == "spread" and canonical(e.side) == home]),
+        ("total", [e for e in rows if e.market == "total" and e.side == "over"]),
+    ]
+    out: list[MarketMove] = []
+    for market, candidates in picks:
+        stamped = [
+            e
+            for e in candidates
+            if e.fair_prob is not None and e.odds is not None and e.open_odds is not None
+        ]
+        if not stamped:
+            continue
+        row = min(stamped, key=lambda e: abs((e.fair_prob or 0.5) - 0.5))
+        out.append(
+            MarketMove(
+                market=market,
+                side=row.side,
+                open_line=row.open_line,
+                open_odds=float(row.open_odds or 0.0),
+                line=row.line,
+                odds=float(row.odds or 0.0),
+            )
+        )
+    return out
+
+
+def _opened_at(rows: list[LedgerEntry]) -> str:
+    stamps = sorted(e.open_captured_at for e in rows if e.open_captured_at)
+    return stamps[0][:10] if stamps else ""
 
 
 def _record(entries: list[LedgerEntry]) -> list[Metrics]:
@@ -280,6 +396,9 @@ def render_markdown(card: WeekCard) -> str:
         if reads:
             lines.append(f"_{reads}_")
             lines.append("")
+        if game.moves:
+            lines.append(f"_{_moves_text(game)}_")
+            lines.append("")
         if game.brief is not None:
             for team in (game.brief.away, game.brief.home):
                 bits = [team.name, team.record or "n/a"]
@@ -292,6 +411,10 @@ def render_markdown(card: WeekCard) -> str:
                 if team.out:
                     bits.append("out: " + ", ".join(team.out[:6]))
                 lines.append("- " + " · ".join(bits))
+            stakes = _stakes_line(game)
+            if stakes:
+                lines.append("")
+                lines.append(html.unescape(re.sub(r"<[^>]+>", "", stakes)))
             lines.append("")
         if game.plays:
             lines.append("| Play | Price | Book | Model | Fair | Exec EV | Tier |")
@@ -324,7 +447,27 @@ def render_markdown(card: WeekCard) -> str:
                 f" {row.roi:+.4f} | {row.units:+.2f} | {row.mean_clv:+.4f} |"
             )
         lines.append("")
+    if card.props:
+        lines.append("## Prop research to date")
+        lines.append("")
+        lines.append(f"_{PROPS_NOTE}_")
+        lines.append("")
+        lines.append(
+            "| Basis | Market | n | W-L | Brier model | Brier book | Brier base | Shadow n | Shadow units |"
+        )
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        for t in card.props:
+            lines.append(
+                f"| {t.basis} | {t.market} | {t.n} | {t.wins}-{t.losses} |"
+                f" {_brier(t.brier_model)} | {_brier(t.brier_fair)} | {_brier(t.brier_base)} |"
+                f" {t.shadow_n} | {t.shadow_units:+.2f} |"
+            )
+        lines.append("")
     return "\n".join(lines)
+
+
+def _brier(x: float | None) -> str:
+    return "n/a" if x is None else f"{x:.4f}"
 
 
 _STYLE = """
@@ -406,6 +549,18 @@ def _market_line(game: GameSection) -> str:
     if not bits:
         return ""
     return f"<p class='mkt'><i>{' &nbsp;|&nbsp; '.join(bits)}</i></p>"
+
+
+def _moves_text(game: GameSection) -> str:
+    since = f" since {game.opened_at}" if game.opened_at else ""
+    return f"Line move{since}: " + " · ".join(m.text() for m in game.moves)
+
+
+def _moves_line(game: GameSection) -> str:
+    """Each market's main number, open to now, one italic line under the market read."""
+    if not game.moves:
+        return ""
+    return f"<p class='mkt'><i>{html.escape(_moves_text(game))}</i></p>"
 
 
 def _epa(x: float | None, rank: int | None) -> str:
@@ -598,6 +753,43 @@ def _take(game: GameSection) -> str:
     return f"<p class='take'>{html.escape(' '.join(parts))}</p>"
 
 
+def _stakes_line(game: GameSection) -> str:
+    """Why the game matters and what the market makes of it, then what the
+    conditions were allowed to move -- and what was measured and left alone."""
+    b = game.brief
+    if b is None:
+        return ""
+    bits: list[str] = []
+    if b.div_game is True:
+        bits.append("division game, so the tiebreaker rides on it as well as the win")
+    elif b.div_game is False:
+        bits.append("out of division, no tiebreaker attached")
+    ml = next((r for r in game.reads if r.market == "moneyline"), None)
+    if ml is not None and ml.fair_prob is not None:
+        side, other = (b.home, b.away) if canonical(ml.side) == b.home.code else (b.away, b.home)
+        bits.append(
+            f"market-implied win {side.name} {ml.fair_prob * 100:.0f}% / "
+            f"{other.name} {(1 - ml.fair_prob) * 100:.0f}% with the hold taken out"
+        )
+    situation = b.situation()
+    priced = adjust(situation)
+    if priced.notes:
+        bits.append("priced: " + ", ".join(priced.notes))
+    elif b.indoors():
+        bits.append("indoors, so the weather never enters it")
+    elif b.wind_mph is None and b.roof is not None:
+        bits.append("no kickoff forecast, so nothing weather-related touched the total")
+    reported = list(unpriced_notes(situation))
+    if b.home.rest is not None and b.away.rest is not None and b.home.rest != b.away.rest:
+        edge = b.home if b.home.rest > b.away.rest else b.away
+        reported.insert(0, f"{abs(b.home.rest - b.away.rest)}-day rest edge to {edge.name}")
+    if reported:
+        bits.append("reported, not priced: " + "; ".join(reported))
+    if not bits:
+        return ""
+    return f"<p class='ctx'><b>Stakes &amp; conditions</b> — {html.escape('. '.join(bits))}.</p>"
+
+
 def _shape(game: GameSection) -> str:
     n = len(game.plays)
     if n == 0:
@@ -616,11 +808,12 @@ def _shape(game: GameSection) -> str:
 def _play_item(play: Play, *, with_matchup: bool = False) -> str:
     where = f" ({html.escape(play.matchup)})" if with_matchup else ""
     clv = f", CLV {play.clv * 100:+.1f}%" if play.clv is not None else ""
+    opened = f", {play.opened()}" if play.opened() else ""
     res = f" · {html.escape(play.result)}" if play.result else ""
     return (
         f"<li><b>{html.escape(play.label())} ({play.price()}, {html.escape(play.book)})</b> —"
         f" {_market_word(play.market)}{where}, model {play.model_prob * 100:.0f}%,"
-        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{clv}"
+        f" fair {_pct(play.fair_prob)}, exec EV {(play.ev_fair or 0.0) * 100:+.1f}%{opened}{clv}"
         f" · <i>{html.escape(_tier_word(play.tier))}</i>{res}</li>"
     )
 
@@ -653,7 +846,7 @@ def _game_section(game: GameSection) -> str:
     context = ""
     if b is not None:
         context = (
-            f"{_team_table(b)}{_take(game)}{_story_line(b)}{_players_line(b)}"
+            f"{_team_table(b)}{_take(game)}{_stakes_line(game)}{_story_line(b)}{_players_line(b)}"
             f"{_out_line(b, game.absences)}{_venue_line(b)}"
         )
     elif game.absences:
@@ -664,7 +857,7 @@ def _game_section(game: GameSection) -> str:
     )
     return (
         f"<div class='game'><h2>{html.escape(title)}<span class='kick'>{_kickoff(game)}</span></h2>"
-        f"{_market_line(game)}"
+        f"{_market_line(game)}{_moves_line(game)}"
         f"{_shape(game)}"
         f"{context}{bench_html}"
         f"{_game_best_block(game)}{_veto_line(game)}</div>"
@@ -700,6 +893,25 @@ def _record_table(card: WeekCard) -> str:
         "<h2>Record to date</h2>"
         "<table class='record'><thead><tr><th>Split</th><th>n</th><th>Win%</th><th>Need</th>"
         f"<th>ROI</th><th>Units</th><th>CLV</th></tr></thead><tbody>{rows}</tbody></table>"
+    )
+
+
+def _props_table(card: WeekCard) -> str:
+    if not card.props:
+        return ""
+    rows = "".join(
+        f"<tr><td>{html.escape(t.basis)}</td><td>{html.escape(t.market)}</td><td>{t.n}</td>"
+        f"<td>{t.wins}-{t.losses}</td><td>{_brier(t.brier_model)}</td>"
+        f"<td>{_brier(t.brier_fair)}</td><td>{_brier(t.brier_base)}</td>"
+        f"<td>{t.shadow_n}</td><td>{t.shadow_units:+.2f}</td></tr>"
+        for t in card.props
+    )
+    return (
+        "<h2>Prop research to date</h2>"
+        f"<p class='muted'>{html.escape(PROPS_NOTE)}</p>"
+        "<table class='record'><thead><tr><th>Basis</th><th>Market</th><th>n</th><th>W-L</th>"
+        "<th>Brier model</th><th>Brier book</th><th>Brier base</th><th>Shadow n</th>"
+        f"<th>Shadow units</th></tr></thead><tbody>{rows}</tbody></table>"
     )
 
 
@@ -744,7 +956,7 @@ def render_html(card: WeekCard) -> str:
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_STYLE}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
-        f"{_slate_best_block(card)}{_record_table(card)}{fine}</body></html>"
+        f"{_slate_best_block(card)}{_record_table(card)}{_props_table(card)}{fine}</body></html>"
     )
 
 

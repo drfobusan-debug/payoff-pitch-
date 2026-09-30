@@ -18,15 +18,20 @@ were fitted on baseball prices, where the number never moves and all movement is
 price.
 
 Football's movement is mostly in the handicap instead (see
-:mod:`cfb_engine.market.linevalue`), the CFB ledger currently has **zero** graded
-bets, and this engine's own history is a warning about porting a fitted number:
-the VSiN home-field table and the efficiency marking bumps both looked
-convincing and both tested null once they were measured against the closing
-spread. So the drift is computed for every priced side, recorded on the
-recommendation and in the ledger, and refuses nothing unless
-``CFBE_DRIFT_GATE=1`` is set. When a graded season exists,
-``screen_probation`` can grade the rows this would have removed and the veto can
-be switched on -- or not -- on evidence rather than on baseball's.
+:mod:`cfb_engine.market.linevalue`), and this engine's own history is a warning
+about porting a fitted number: the VSiN home-field table and the efficiency
+marking bumps both looked convincing and both tested null once they were
+measured against the closing spread. So the drift was computed for every priced
+side and recorded, and the veto stayed off through the first month.
+
+The adverse tail is on now, on the CFB ledger's own rows rather than baseball's:
+through 2026-09-26, spread and total sides the market had moved 2+ points away
+from since the first board won 43.8% (n=137, -15% ROI) against 50.0% for the
+middle (n=674) and 56.2% for sides it had moved toward (n=137, +9%); the
+engine's own buys in that tail went 10-10, -1.2u. That is two full Saturdays of
+evidence and a 1.5-sigma gap, so it is a default that ``CFBE_DRIFT_GATE=0``
+turns straight back off, and ``screen_probation`` keeps grading the rows it
+refuses. The momentum tail stays off: the run-up side is the one that won.
 
 Sign convention: **positive drift means the market moved toward the side we are
 betting.** ``adverse`` is the tail where it walked away, ``run_up`` the tail where
@@ -38,7 +43,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-# No-vig probability points the market may move against a side before the (opt-in)
+# No-vig probability points the market may move against a side before the
 # veto fires. MLB's value, kept as the starting point because there is no CFB
 # number yet; 2 points is ~0.8 of a point of spread at the engine's margin SD.
 DEFAULT_MAX_ADVERSE = 0.02
@@ -64,13 +69,13 @@ def _num(name: str, default: float) -> float:
 class DriftGate:
     """Report market movement on a priced side, and optionally refuse it.
 
-    ``enabled`` governs *acting*, not measuring: with it off (the default) the
+    ``enabled`` governs *acting*, not measuring: with it off the
     drift is still computed and returned as a reason string, so the season
     accumulates the evidence needed to decide whether it should ever have been a
     veto. ``gate`` names which tail fired, for per-screen probation grading.
     """
 
-    enabled: bool = False
+    enabled: bool = True
     adverse: bool = True
     momentum: bool = False
     max_adverse: float = DEFAULT_MAX_ADVERSE
@@ -79,7 +84,7 @@ class DriftGate:
     @classmethod
     def from_env(cls) -> DriftGate:
         return cls(
-            enabled=_flag("CFBE_DRIFT_GATE", False),
+            enabled=_flag("CFBE_DRIFT_GATE", True),
             adverse=_flag("CFBE_DRIFT_ADVERSE", True),
             momentum=_flag("CFBE_DRIFT_MOMENTUM", False),
             max_adverse=_num("CFBE_DRIFT_MAX_ADVERSE", DEFAULT_MAX_ADVERSE),

@@ -52,10 +52,12 @@ from mlb_engine.features.efficiency import (
 )
 from mlb_engine.features.rolling import build_bullpen_profile
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
-from mlb_engine.output.power_report import _rating
+from mlb_engine.output.power_report import gate_views
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
     MIN_WRC,
+    SOFT_TIER,
+    ArsenalEdge,
     BullpenCard,
     HitterView,
     PoolBatter,
@@ -71,6 +73,7 @@ from mlb_engine.output.power_screen import (
     pa_vs_starter,
     rank_starters,
     starter_damage,
+    top_pitch_rv,
 )
 
 log = logging.getLogger("power_rating_study")
@@ -78,7 +81,7 @@ log = logging.getLogger("power_rating_study")
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
 MARKETS = ("H", "TB", "XBH", "HR", "R", "RBI", "HRR")
-RATINGS = ("BUY", "HOLD", "AVOID")
+RATINGS = ("SOFT OVER", "RV NEG UNDER", "PROD WATCH", "PROD DROP")
 
 
 @dataclass
@@ -254,6 +257,8 @@ def _study_day(
     )
 
     rows: list[Row] = []
+    views: list[HitterView] = []
+    pending: list[tuple[HitterView, Row]] = []
     for card in targets:
         lineup_team, pen_team, game = context[card.mlbam_id]
         batters = [
@@ -317,6 +322,7 @@ def _study_day(
             per_pitch = batter_arsenal(batter_rows, families)
             overall = contact_line(batter_rows)
             fit_w, fit_b, fallback = arsenal_fit(per_pitch, overall, usage)
+            top_families, top_rv = top_pitch_rv(per_pitch, usage)
             view = HitterView(
                 line=h,
                 per_pitch=per_pitch,
@@ -324,6 +330,7 @@ def _study_day(
                 fit_xwoba=fit_w,
                 fit_xba=fit_b,
                 fallback_share=fallback,
+                edge=ArsenalEdge(top_families=top_families, top_rv=top_rv),
             )
             if h.slot:
                 view.exposure = exposure(
@@ -333,9 +340,9 @@ def _study_day(
                     card.xwobacon,
                     pens[pen_team.abbrev].xwoba if pen_team.abbrev in pens else None,
                 )
-            rating, _ = _rating(view)
             e = view.exposure
-            rows.append(
+            views.append(view)
+            row = (
                 Row(
                     day=day,
                     name=h.name,
@@ -343,7 +350,7 @@ def _study_day(
                     versus=card.name,
                     game_pk=game.game_pk,
                     slot=h.slot or 0,
-                    rating=rating,
+                    rating="",
                     score=_rating_score(view),
                     share=e.share_vs_starter if e else math.nan,
                     fit_delta=view.fit_delta,
@@ -355,6 +362,13 @@ def _study_day(
                     result=_result_line(result.batter(h.mlbam_id)),
                 )
             )
+            pending.append((view, row))
+    # The gates are pooled over the day's survivors, so they are read once every
+    # matchup on the slate has been assembled.
+    said = gate_views(views, SOFT_TIER)
+    for view, row in pending:
+        row.rating = said[view.line.name].bucket
+        rows.append(row)
     return rows
 
 

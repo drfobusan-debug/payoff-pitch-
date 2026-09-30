@@ -17,6 +17,7 @@ from mlb_engine.output.totals_audit import (
     attach_engine,
     engine_at,
     engine_median,
+    flag,
     grade,
     merge,
     over_curves,
@@ -25,6 +26,7 @@ from mlb_engine.output.totals_audit import (
     sheet_bands,
     summarize,
     summary_text,
+    unique_pks,
     verdict,
     wilson,
     write_ledger,
@@ -66,6 +68,23 @@ def test_grading_signs_the_result_against_the_line_and_the_sum() -> None:
     assert by["TB @ ATL"].result == "push" and by["TB @ ATL"].hit is None
     assert by["HOU @ PHI"].result == "over" and by["HOU @ PHI"].hit is False
     assert grade(rows, FINALS) == 0  # never regraded
+
+
+def test_a_postponed_game_is_voided_and_kept_out_of_every_tally() -> None:
+    rows = _rows()
+    finals = dict(FINALS)
+    finals[1] = ("AZ @ KC", None, None)  # postponed off the day: no action on the total
+    assert grade(rows, finals) == 7
+    void = rows[0]
+    assert void.result == "void" and void.runs is None
+    assert not void.graded and not void.pending and void.hit is None
+    assert grade(rows, finals) == 0  # not asked for again
+    s = summarize(rows)
+    assert s.games == 6 and s.over_rate.n == 5 and s.sign.n == 5
+    assert s.by_mag[">= 15"].n == 2
+    # the workbook and text render it as its own result, not as an ungraded row
+    text = summary_text(Date(2026, 9, 9), rows, s)
+    assert "AZ @ KC 8.5" in text and "void" in text
 
 
 def test_a_label_match_is_refused_for_a_doubleheader_without_a_game_pk() -> None:
@@ -157,6 +176,37 @@ def test_the_sheet_band_version_is_read_from_its_legend(tmp_path: Path) -> None:
     (row,) = rows_from_sheet(old, Date(2026, 9, 9), {"AZ @ KC": 1})
     assert (row.game_pk, row.line, row.sum_pts, row.bands) == (1, 8.5, 6, LEGACY)
     assert rows_from_sheet(stamped, Date(2026, 9, 9), {})[0].bands == BANDS
+
+
+def test_a_doubleheader_is_filed_and_graded_by_its_own_game_pk(tmp_path: Path) -> None:
+    pks = unique_pks([("TOR @ BAL", 11), ("TOR @ BAL", 12), ("AZ @ KC", 1)])
+    assert pks == {"AZ @ KC": 1}  # the shared label names neither game
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Totals {D}"
+    ws.append(["Game", "Total", "SUM", "GamePk"])
+    ws.append(["TOR @ BAL", "7.5", 3, 11])
+    ws.append(["TOR @ BAL", "7.5", -5, 12])
+    ws.append(["AZ @ KC", "8.5", 6, None])  # an older sheet without the column falls back to the label
+    path = tmp_path / "dh.xlsx"
+    wb.save(path)
+    rows = rows_from_sheet(path, Date(2026, 9, 9), pks)
+    assert [(r.game, r.game_pk, r.sum_pts) for r in rows] == [("TOR @ BAL", 11, 3), ("TOR @ BAL", 12, -5), ("AZ @ KC", 1, 6)]
+    assert len(merge([], rows)) == 3
+
+    finals = {11: ("TOR @ BAL", 2, 4), 12: ("TOR @ BAL", 6, 5), 1: ("AZ @ KC", 2, 5)}
+    assert grade(rows, finals) == 3
+    assert [(r.runs, r.result) for r in rows] == [(6, "under"), (11, "over"), (7, "under")]
+
+    # a label-only row cannot be told which of the day's two finals is its own
+    unfiled = [LedgerRow(D, "TOR @ BAL", 0, 7.5, 3), LedgerRow(D, "AZ @ KC", 0, 8.5, 6)]
+    assert grade(unfiled, finals) == 1 and not unfiled[0].graded
+
+    # the engine ledger is keyed by label too: neither doubleheader row takes its curve
+    entries = [_entry("TOR @ BAL", "Over", 7.5, 0.6), _entry("AZ @ KC", "Over", 8.5, 0.55)]
+    assert attach_engine(rows, entries) == 1
+    assert rows[0].engine_p_over is None and rows[1].engine_p_over is None and rows[2].engine_p_over == 0.55
 
 
 def test_magnitude_bands_tally_the_sign_call_regardless_of_direction() -> None:
@@ -303,3 +353,104 @@ def test_engine_columns_round_trip_through_the_ledger(tmp_path: Path) -> None:
     row = LedgerRow(D, "AZ @ KC", 1, 8.5, 3, engine_total=8.75, engine_p_over=0.53, market_p_over=0.48)
     write_ledger(tmp_path / "l.csv", [row])
     assert read_ledger(tmp_path / "l.csv") == [row]
+
+
+def test_a_row_filed_without_a_line_takes_the_closing_total_and_is_graded(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A sheet written before the books posted a total is graded off the closing snapshot."""
+    import json
+
+    ledger = tmp_path / "totals_ledger.csv"
+    write_ledger(ledger, [LedgerRow(D, "AZ @ KC", 1, None, 6, bands=BANDS)])
+    (tmp_path / f"closing_{D}.json").write_text(json.dumps([
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Over 7.5", "american": -140, "no_vig_prob": 0.58},
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Over 8.0", "american": -105, "no_vig_prob": 0.51},
+        {"matchup": "AZ @ KC", "market": "game_total", "selection": "Under 8.0", "american": -115, "no_vig_prob": 0.49},
+        {"matchup": "AZ @ KC", "market": "game_ml", "selection": "AZ", "american": 120, "no_vig_prob": 0.45},
+    ]))
+    out = tmp_path / "out"
+    out.mkdir()
+
+    class Cfg:
+        output_dir = out
+        audit_dir = tmp_path
+
+    monkeypatch.setattr(totals_audit, "finals", lambda day: {1: ("AZ @ KC", 2, 5)})
+    totals_audit.run_audit(Cfg(), Date(2026, 9, 10))  # type: ignore[arg-type]
+    (row,) = read_ledger(ledger)
+    assert (row.line, row.result, row.hit) == (8.0, "under", False)
+
+
+def test_closing_lines_pick_the_total_nearest_even_money_and_skip_other_markets() -> None:
+    from mlb_engine.audit.clv import ClosingQuote
+    from mlb_engine.output.totals_audit import closing_lines
+
+    quotes = [
+        ClosingQuote("AZ @ KC", "game_total", "Over 8.5", -130, 0.56),
+        ClosingQuote("AZ @ KC", "game_total", "Over 9.0", -102, 0.495),
+        ClosingQuote("AZ @ KC", "game_total", "Under 9.0", -110, 0.505),
+        ClosingQuote("WSH @ SD", "f5_total", "Over 4.5", -110, 0.5),
+    ]
+    assert closing_lines({q.key: q for q in quotes}) == {"AZ @ KC": 9.0}
+
+
+def test_a_doubleheader_is_left_lineless_because_the_close_cannot_tell_the_games_apart() -> None:
+    from mlb_engine.output.totals_audit import attach_lines
+
+    rows = [
+        LedgerRow(D, "NYY @ BOS", 1, None, 4),
+        LedgerRow(D, "NYY @ BOS", 2, None, -2),
+        LedgerRow(D, "AZ @ KC", 3, None, 6),
+    ]
+    assert attach_lines(rows, {"NYY @ BOS": 8.0, "AZ @ KC": 8.5}) == 1
+    assert [r.line for r in rows] == [None, None, 8.5]
+
+
+def test_the_watch_buckets_take_a_moderate_lean_only_on_a_total_the_book_left_low() -> None:
+    assert flag(8, 8.5) == "over" and flag(5, 7.0) == "over" and flag(14, 8.5) == "over"
+    assert flag(8, 9.0) == "" and flag(4, 8.0) == "" and flag(15, 8.0) == "" and flag(8, None) == ""
+    assert flag(-8, 7.5) == "under" and flag(-5, 6.5) == "under" and flag(-14, 7.5) == "under"
+    assert flag(-8, 8.0) == "" and flag(-4, 7.0) == "" and flag(-15, 7.0) == ""
+
+
+def test_the_watch_buckets_are_graded_as_bets_on_their_own_side() -> None:
+    d = "2026-09-12"
+    rows = [
+        LedgerRow(d, "COL @ NYY", 1, 8.5, 8, 6, 5, "over", bands=BANDS),  # watch over, hit
+        LedgerRow(d, "TB @ ATL", 2, 8.0, 6, 1, 3, "under", bands=BANDS),  # watch over, miss
+        LedgerRow(d, "SD @ SF", 3, 9.5, 9, 6, 5, "over", bands=BANDS),  # over lean, line too high: not watched
+        LedgerRow(d, "PIT @ CWS", 4, 7.5, -7, 2, 0, "under", bands=BANDS),  # watch under, hit
+        LedgerRow(d, "TEX @ SEA", 5, 7.0, -13, 3, 4, "push", bands=BANDS),  # watch under, push
+        LedgerRow(d, "CLE @ DET", 6, 8.0, -9, 2, 1, "under", bands=BANDS),  # under lean, line too high
+    ]
+    s = summarize(rows)
+    assert (s.flag_over.hits, s.flag_over.misses, s.flag_over.pushes) == (1, 1, 0)
+    assert (s.flag_under.hits, s.flag_under.misses, s.flag_under.pushes) == (1, 0, 1)
+    text = summary_text(Date(2026, 9, 12), rows, s)
+    assert "Watch buckets" in text and "total <= 8.5: 1-1 (50%)" in text and "total <= 7.5: 1-0-1 (100%)" in text
+    assert "+8 COL @ NYY 8.5 6-5 (11) over hit [watch over]" in text
+    assert "+9 SD @ SF 9.5 6-5 (11) over hit\n" in text
+
+
+def test_the_morning_grade_pushes_the_totals_ledger_to_engine_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import scripts.totals_audit as cli
+
+    class Cfg:
+        state_sync = True
+        state_branch = "engine-state"
+        data_dir = tmp_path
+
+    pushed: list[tuple[Path, str, str]] = []
+    monkeypatch.setattr(cli, "load_config", lambda: Cfg())
+    monkeypatch.setattr(cli, "run_audit", lambda cfg, day, sheet: (tmp_path / "totals_audit.xlsx", "graded"))
+    monkeypatch.setattr(cli, "auto_push", lambda d, m, branch: pushed.append((d, m, branch)) or None)
+    assert cli.main(["2026-09-18"]) == 0
+    assert pushed == [(tmp_path, "totals audit 2026-09-17 graded", "engine-state")]
+
+    pushed.clear()
+    monkeypatch.setattr(cli, "run_audit", lambda cfg, day, sheet: (None, "no ledger"))
+    assert cli.main(["2026-09-18"]) == 0
+    assert pushed == []

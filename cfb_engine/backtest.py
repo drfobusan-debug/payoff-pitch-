@@ -25,7 +25,12 @@ from dataclasses import dataclass
 from cfb_engine.config import Config
 from cfb_engine.data.cfbd import CFBDClient, GameResult, RatingBook
 from cfb_engine.models.markov import DriveShape, MarkovSim
-from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
+from cfb_engine.models.montecarlo import (
+    ExpectedGame,
+    GameSimResult,
+    MonteCarlo,
+    market_win_prob,
+)
 
 
 @dataclass
@@ -98,7 +103,12 @@ def run_backtest(cfg: Config, season: int, *, engines: tuple[str, ...] = ("norma
         home_won = 1.0 if actual_margin > 0 else 0.0
         for engine in engines:
             sim = _sim(engine, exp, mc, markov, shape)
-            p = min(max(sim.home_win_prob(), 1e-6), 1 - 1e-6)
+            hp = (
+                market_win_prob(sim.exp_margin, cfg.model)
+                if cfg.model.ml_market_sd
+                else sim.home_win_prob()
+            )
+            p = min(max(hp, 1e-6), 1 - 1e-6)
             a = acc[engine]
             a["n"] += 1
             a["brier"] += (p - home_won) ** 2

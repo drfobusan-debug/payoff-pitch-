@@ -133,7 +133,7 @@ _BET_COLUMNS = [
     "Date", "Category", "Selection", "Matchup", "Book", "Odds", "Tier",
     "Model %", "Market %", "EV", "Close", "CLV", "CLV EV", "Result", "P/L",
 ]
-_CLV_COLUMNS = ["Market", "N", "Mean CLV", "Beat close %", "Mean CLV EV"]
+_CLV_COLUMNS = ["Population", "N", "Mean CLV", "Beat close %", "Mean CLV EV"]
 _MONEY_COLUMNS = [
     "Market", "N", "Won", "Win%", "Needs", "Gap", "ROI", "Units",
     "Two-sided", "One-way", "One-way units", "CLV", "Beat close", "Beat number",

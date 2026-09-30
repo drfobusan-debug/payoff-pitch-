@@ -13,7 +13,8 @@ sends them in one email (same Gmail App Password credentials the engine's
     * regression_radar_<day>.pdf       (regression radar, if present)
     * power_screen_<day>.pdf           (morning power screen, if present)
     * totals_sheet_<day>.xlsx          (hand-method totals sheet, if present)
-    * worksheet_<day>.xlsx             (daily MLB worksheet: weighted matchup gaps, prices, gap-band audit)
+    * worksheet_<day>.xlsx / .pdf      (daily MLB worksheet: weighted matchup gaps, prices, gap-band audit,
+                                        then the batting / bullpen / starter tables in the PDF)
     * totals_audit_<day>.xlsx          (yesterday's sheet graded + running ledger, if present;
                                         its .txt summary is printed in the body)
 
@@ -96,6 +97,7 @@ def collect_attachments(
             f"totals_sheet_{iso}.xlsx",
             f"totals_audit_{iso}.xlsx",
             f"worksheet_{iso}.xlsx",
+            f"worksheet_{iso}.pdf",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:

@@ -33,6 +33,7 @@ import csv
 import hashlib
 import io
 import logging
+import re
 from collections import defaultdict
 from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timezone
@@ -240,7 +241,16 @@ def snapshot_paths(
     folder = week_dir(season, week, root=root)
     if not folder.exists():
         return []
-    return sorted(folder.glob(f"{kind}-*.csv"))
+    return sorted(folder.glob(f"{kind}-*.csv"), key=_snapshot_order)
+
+
+def _snapshot_order(path: Path) -> tuple[str, int]:
+    """Chronological key: ``kind-<stamp>.csv`` precedes ``kind-<stamp>-1.csv``."""
+    stem = path.stem
+    match = re.fullmatch(r"(.*Z)-(\d+)", stem)
+    if match:
+        return match.group(1), int(match.group(2))
+    return stem, 0
 
 
 def latest_snapshot(
@@ -248,6 +258,30 @@ def latest_snapshot(
 ) -> Path | None:
     paths = snapshot_paths(season, week, kind, root=root)
     return paths[-1] if paths else None
+
+
+def opening_board(
+    season: int, week: int, *, root: Path | None = None
+) -> tuple[dict[str, GameOdds], dict[str, str]]:
+    """Each game's earliest archived board, and the moment that game was first seen.
+
+    "Opening" here means the first board this machine archived for the game --
+    Tuesday morning once the night-before captures are scheduled, the pricing
+    run's own board when nothing ran earlier. A game the book posts late takes
+    its open from the first later snapshot that carries it. The archive is
+    write-once per snapshot, so re-running a capture never moves the open.
+    """
+    board: dict[str, GameOdds] = {}
+    taken: dict[str, str] = {}
+    for path in snapshot_paths(season, week, GAME_KIND, root=root):
+        rows = read_snapshot(path)
+        fresh = [r for r in rows if r.matchup not in taken]
+        if not fresh:
+            continue
+        for matchup, odds in board_from_rows(fresh).items():
+            board[matchup] = odds
+            taken[matchup] = next(r.captured_at for r in fresh if r.matchup == matchup)
+    return board, taken
 
 
 def read_snapshot(path: Path) -> list[QuoteRow]:

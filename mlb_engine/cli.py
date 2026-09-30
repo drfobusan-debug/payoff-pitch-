@@ -7,11 +7,13 @@ import json
 import logging
 import math
 import random
+import time
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from mlb_engine.audit import funnel as funnel_report
+from mlb_engine.audit import reaction
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -42,6 +44,12 @@ from mlb_engine.audit.ledger import (
     prop_metrics,
     runline_metrics,
     update_ledger,
+)
+from mlb_engine.audit.lineups import (
+    captures_from_slate,
+    load_lineups,
+    merge_lineups,
+    save_lineups,
 )
 from mlb_engine.audit.outside import entries_from_picks, head_to_head
 from mlb_engine.audit.probation import (
@@ -119,14 +127,16 @@ from mlb_engine.output.report import render_pdf as render_report_pdf
 from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
 from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
+from mlb_engine.schemas import Slate
 from mlb_engine.state import (
     PREGAME_SUFFIX,
     STATE_BRANCH,
     auto_pull,
     auto_push,
-    card_supersedes,
+    merged_card,
     pull_state,
     push_state,
+    write_card,
 )
 
 
@@ -502,6 +512,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     )
     if late:
         recs = _merge_late_pass(recs, pred_path)
+    if pipe.slate is not None:
+        _record_lineups(cfg, pipe.slate, slate_date)
     _annotate_opta(cfg, recs, slate_date)
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
@@ -710,6 +722,27 @@ def _closing_path(cfg: Config, slate_date: Date) -> Path:
     return cfg.audit_dir / f"closing_{slate_date.isoformat()}.json"
 
 
+def _lineups_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"lineups_{slate_date.isoformat()}.json"
+
+
+def _record_lineups(cfg: Config, slate: Slate, slate_date: Date) -> int:
+    """Write down every posted lineup the first time this slate is seen with it.
+
+    Free: the slate is already fetched. Returns how many lineups were new.
+    """
+    path = _lineups_path(cfg, slate_date)
+    already = load_lineups(path)
+    fresh = captures_from_slate(slate)
+    if not fresh:
+        return 0
+    merged = merge_lineups(already, fresh)
+    new = len(merged) - len(already)
+    save_lineups(path, merged)
+    print(f"Lineups: {len(fresh)} posted, {new} first seen now -> {path}")
+    return new
+
+
 def _state_pull(cfg: Config, slate_date: Date | None = None) -> None:
     """Recover state written by an earlier run, possibly on another machine."""
     if not cfg.state_sync:
@@ -751,6 +784,7 @@ def cmd_close(args: argparse.Namespace) -> int:
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
+    _record_lineups(cfg, slate, slate_date)
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
         print(
@@ -772,6 +806,155 @@ def cmd_close(args: argparse.Namespace) -> int:
     )
     _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
     return 0
+
+
+def cmd_lineups(args: argparse.Namespace) -> int:
+    """Record the slate's posted lineups, stamped with when they were first seen.
+
+    The box score keeps who batted, not when it was known; a study of lineup
+    intent (a clinched team resting regulars, an eliminated team auditioning
+    call-ups) needs the nine as posted before first pitch. Free -- one StatsAPI
+    call -- and safe to repeat: a lineup already on file keeps its first stamp,
+    and a changed one is appended as a revision.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    slate_date = _parse_date(args.date, Date.today())
+    _state_pull(cfg, slate_date)
+    slate = MLBStatsClient().get_slate(slate_date)
+    posted = sum(1 for g in slate.games for t in (g.away, g.home) if t.lineup_confirmed())
+    if not posted:
+        print(f"No lineups posted yet for {slate_date}; nothing recorded.")
+        return 0
+    new = _record_lineups(cfg, slate, slate_date)
+    if new:
+        total = len(load_lineups(_lineups_path(cfg, slate_date)))
+        _state_push(cfg, f"lineups {slate_date.isoformat()}: {total} posted")
+    return 0
+
+
+def _reaction_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"price_reaction_{slate_date.isoformat()}.csv"
+
+
+def cmd_react(args: argparse.Namespace) -> int:
+    """Watch the slate and snapshot a game's props on a clock from its lineup posting.
+
+    Every ``--poll`` minutes the slate is re-read (free). A game whose lineup
+    is on file for the first time starts a clock: its props are captured now
+    and at each later mark in ``reaction.MARKS``. A game not yet posted is
+    captured once per ``--baseline`` minutes so a before-price exists. At most
+    ``--max-games`` games are followed, earliest first pitch first, so the day's
+    cost is bounded: roughly ``(baselines + marks) x prop markets`` credits per
+    game. Stops after ``--hours`` or once every followed game has started.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    slate_date = _parse_date(args.date, Date.today())
+    client = _odds_client(cfg, cache_ttl=0)
+    if not client.available():
+        print("No Odds API key configured; cannot watch prices")
+        return 1
+    stats = MLBStatsClient()
+    path = _reaction_path(cfg, slate_date)
+    lineups_path = _lineups_path(cfg, slate_date)
+    started_at = _now_utc()
+    followed: list[int] = []
+    last_baseline: dict[int, datetime] = {}
+    clocks: dict[tuple[int, str], tuple[str, set[int]]] = {}  # (game, side) -> (posted, marks done)
+    while (_now_utc() - started_at) < timedelta(hours=args.hours):
+        slate = stats.get_slate(slate_date)
+        _record_lineups(cfg, slate, slate_date)
+        on_file = load_lineups(lineups_path)
+        now = _now_utc()
+        live = [
+            g for g in sorted(slate.games, key=lambda g: g.game_datetime_utc or "")
+            if g.game_datetime_utc and _parse_iso(g.game_datetime_utc) > now
+        ]
+        for g in live:
+            if g.game_pk not in followed and len(followed) < args.max_games:
+                followed.append(g.game_pk)
+        active = [g for g in live if g.game_pk in followed]
+        if not active:
+            print("Every followed game has started; done.")
+            break
+        rows: list[reaction.ReactionRow] = []
+        for g in active:
+            due: list[tuple[str, str, int]] = []  # side, posted, mark
+            for side in ("away", "home"):
+                cap = on_file.get(f"{g.game_pk}:{side}")
+                if cap is None:
+                    continue
+                key = (g.game_pk, side)
+                posted, done = clocks.setdefault(key, (cap.captured_at, set()))
+                since = (now - _parse_iso(posted)).total_seconds() / 60
+                for mark in reaction.MARKS:
+                    if mark in done or since < mark - reaction.MARK_SLACK:
+                        continue
+                    if since <= mark + reaction.MARK_SLACK:
+                        due.append((side, posted, mark))
+                    else:
+                        done.add(mark)  # missed; a late capture is not that mark
+            posted_sides = {s for s in ("away", "home") if f"{g.game_pk}:{s}" in on_file}
+            baseline_due = (
+                len(posted_sides) < 2
+                and (now - last_baseline.get(g.game_pk, started_at - timedelta(days=1)))
+                >= timedelta(minutes=args.baseline)
+            )
+            if not due and not baseline_due:
+                continue
+            quotes = client.fetch_game_props(slate, g)
+            if quotes is None:
+                continue
+            matchup = f"{g.away.abbrev} @ {g.home.abbrev}"
+            if baseline_due:
+                last_baseline[g.game_pk] = now
+                rows += reaction.rows_from_quotes(
+                    quotes, slate_date=slate_date.isoformat(), game_pk=g.game_pk,
+                    event=reaction.BASELINE, now=now,
+                )
+            for side, posted, mark in due:
+                clocks[(g.game_pk, side)][1].add(mark)
+                rows += reaction.rows_from_quotes(
+                    quotes, slate_date=slate_date.isoformat(), game_pk=g.game_pk,
+                    event=reaction.LINEUP, side=side, event_at=posted, now=now,
+                )
+            print(
+                f"{_iso_minute(now)} {matchup}: {len(quotes)} lines"
+                + (" baseline" if baseline_due else "")
+                + "".join(f" {s}+{m}m" for s, _, m in due)
+            )
+        reaction.append_rows(path, rows)
+        time.sleep(args.poll * 60)
+    if path.exists():
+        _state_push(cfg, f"price reaction {slate_date.isoformat()}")
+    return 0
+
+
+def cmd_react_report(args: argparse.Namespace) -> int:
+    """Summarise the price-reaction captures on file (one date or all of them)."""
+    cfg = load_config()
+    rows: list[reaction.ReactionRow] = []
+    if args.date:
+        rows = reaction.load_rows(_reaction_path(cfg, _parse_date(args.date, Date.today())))
+    else:
+        for p in sorted(cfg.audit_dir.glob("price_reaction_*.csv")):
+            rows += reaction.load_rows(p)
+    stats = reaction.summarize(rows, threshold_pts=args.threshold)
+    print(reaction.render_summary(stats, threshold_pts=args.threshold))
+    return 0
+
+
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _parse_iso(stamp: str) -> datetime:
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+
+
+def _iso_minute(dt: datetime) -> str:
+    return dt.strftime("%H:%MZ")
 
 
 def _opta_path(cfg: Config, slate_date: str) -> Path:
@@ -945,14 +1128,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # against quotes that no longer exist, so it loses to the real thing.
     pregame = cfg.audit_dir / f"predictions_{audit_date.isoformat()}{PREGAME_SUFFIX}"
     if pregame.exists():
-        if pred_path.exists() and card_supersedes(pred_path, pregame):
-            print(f"Grading {pred_path.name}: priced later than {pregame.name}, still pregame")
-        else:
-            if pred_path.exists():
+        if pred_path.exists():
+            card_rows = merged_card(pred_path, pregame)
+            if card_rows is None:
                 print(
                     f"Grading the pregame predictions from {pregame.name}, not the local re-price"
                 )
-            pred_path = pregame
+            else:
+                write_card(card_rows, pregame)
+                print(
+                    f"Grading {pregame.name} with the games {pred_path.name} priced later, pregame"
+                )
+        pred_path = pregame
     if not pred_path.exists():
         print(f"No predictions found for {audit_date} at {pred_path}")
         return 1
@@ -1574,6 +1761,34 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    lu = sub.add_parser(
+        "lineups", help="record today's posted lineups with the time they were first seen"
+    )
+    lu.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    lu.set_defaults(func=cmd_lineups)
+
+    rx = sub.add_parser(
+        "react",
+        help="watch today's slate and snapshot a game's props on a clock from its lineup posting",
+    )
+    rx.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    rx.add_argument("--hours", type=float, default=4.0, help="how long to watch (default 4)")
+    rx.add_argument("--poll", type=float, default=3.0, help="minutes between slate polls (default 3)")
+    rx.add_argument(
+        "--baseline", type=float, default=60.0,
+        help="minutes between before-posting snapshots of a game (default 60)",
+    )
+    rx.add_argument("--max-games", type=int, default=6, help="games followed per day (default 6)")
+    rx.set_defaults(func=cmd_react)
+
+    rr = sub.add_parser("react-report", help="summarise price moves after lineup postings")
+    rr.add_argument("--date", help="one slate date YYYY-MM-DD (default: every file on disk)")
+    rr.add_argument(
+        "--threshold", type=float, default=1.0,
+        help="probability points a line must move to count as moved (default 1.0)",
+    )
+    rr.set_defaults(func=cmd_react_report)
 
     op = sub.add_parser("opta", help="capture VSIN's Opta prop projections as an outside benchmark")
     op.add_argument(

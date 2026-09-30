@@ -40,6 +40,7 @@ from dataclasses import dataclass, replace
 from datetime import date as Date
 
 from nfl_engine.calibration import Calibrator
+from nfl_engine.features.adjustments import Situation
 from nfl_engine.features.quarterback import StarterBook, margin_delta
 from nfl_engine.features.ratings import RatingBook
 from nfl_engine.market.board import GameOdds
@@ -122,6 +123,7 @@ def price_slate(
             ratings,
             game.home.abbrev,
             game.away.abbrev,
+            situation=situation_of(game),
             market_margin=market_margin,
             market_total=market_total,
             qb_margin_points=qb_points,
@@ -148,6 +150,23 @@ def price_slate(
             bets = [replace(bet, screens=(*bet.screens, *notes)) for bet in bets]
         out.append(GamePricing(game, shot, distribution, bets, notes))
     return out
+
+
+def situation_of(game: Game) -> Situation:
+    """The game's own context, in the shape the adjustment layer reads.
+
+    Every field is optional and unknown means no adjustment, so a game the
+    schedule join missed is priced exactly as it was before there was one.
+    """
+    return Situation(
+        roof=game.env.roof,
+        wind_mph=game.env.wind_mph,
+        temp_f=game.env.temp_f,
+        home_rest=game.home_rest,
+        away_rest=game.away_rest,
+        neutral_site=game.env.neutral_site,
+        div_game=game.div_game,
+    )
 
 
 def _expected(shot: Forecast) -> ExpectedGame:

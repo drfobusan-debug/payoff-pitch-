@@ -36,6 +36,7 @@ from pathlib import Path
 import requests
 
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
+from cfb_engine.data.depth import DepthBook, build_depth_book
 from cfb_engine.data.portal import PortalBook, build_portal_book
 from cfb_engine.data.roster import (
     ProductionBook,
@@ -282,9 +283,7 @@ class CFBDClient:
         self.calls += 1
         log.debug("CFBD call %d: %s", self.calls, path)
         try:
-            resp = http.get(
-                f"{BASE}{path}", params=params, headers=headers, timeout=self.timeout
-            )
+            resp = http.get(f"{BASE}{path}", params=params, headers=headers, timeout=self.timeout)
             resp.raise_for_status()
             payload = resp.json()
         except (requests.RequestException, ValueError) as exc:
@@ -403,9 +402,7 @@ class CFBDClient:
         one-day window on each side and matching by team name absorbs that
         boundary without mis-dropping a game.
         """
-        allowed = {
-            (day + timedelta(days=offset)).isoformat() for offset in (-1, 0, 1)
-        }
+        allowed = {(day + timedelta(days=offset)).isoformat() for offset in (-1, 0, 1)}
         out: list[GameResult] = []
         for row in self._games(season):
             start = str(row.get("start_date") or row.get("startDate") or "")
@@ -483,7 +480,11 @@ class CFBDClient:
                 continue
             out: dict[str, int] = {}
             for r in poll.get("ranks") or []:
-                if isinstance(r, dict) and isinstance(r.get("school"), str) and isinstance(r.get("rank"), int):
+                if (
+                    isinstance(r, dict)
+                    and isinstance(r.get("school"), str)
+                    and isinstance(r.get("rank"), int)
+                ):
                     out[school_key(r["school"])] = int(r["rank"])
             return out
         return {}
@@ -666,6 +667,14 @@ class CFBDClient:
         if not rows:
             return {}
         return build_starter_book(rows, through_week=through_week)
+
+    def fetch_depth_book(self, season: int) -> DepthBook:
+        """Usage-ranked depth per team and position; empty without a key."""
+        if not self.available():
+            return {}
+        usage = self._get("/player/usage", year=season)
+        defensive = self._get("/stats/player/season", year=season, category="defensive")
+        return build_depth_book(usage, defensive)
 
     def fetch_venues(self) -> dict[int, Venue]:
         """Venue geo + dome flag, keyed by venue id."""

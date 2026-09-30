@@ -765,10 +765,12 @@ def _build_section(
 ) -> MatchupSection | None:
     """Stages 2-5 for one starter: score, cut, read the arsenal, scale by exposure.
 
-    With ``late_wrc_floor`` a survivor is also dropped when his season wRC+ from
-    the seventh inning on is under it (the elite pass); ``late_cuts`` collects
-    who, with the number that dropped him. A hitter with no season rows cannot be
-    measured and is dropped with NaN rather than kept on a floor he never met.
+    Only the PA floor removes a hitter here: the wRC+, expected-contact and
+    luck-gap cuts are written to his ``flags`` and he goes on to the run-value,
+    production and arm gates with the rest of the pool. With ``late_wrc_floor``
+    a survivor whose season wRC+ from the seventh inning on is under it (the
+    elite pass) is flagged the same way; ``late_cuts`` collects who, with the
+    number, for the note's own table.
     """
     hand = card.throws
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
@@ -811,6 +813,7 @@ def _build_section(
         min_pa=floor,
         min_wrc=min_wrc if min_wrc is not None else MIN_WRC,
         keep_power=keep_power,
+        hard_cuts=False,
     )
     cut_log.extend(h for h in pool if not h.kept and h.cut_reason)
 
@@ -862,16 +865,14 @@ def _build_section(
         own = season[season["batter"] == h.mlbam_id]
         view.late_wrc = late_wrc_plus(own, season_all_woba)
         if late_wrc_floor is not None and not view.late_wrc >= late_wrc_floor:
-            h.kept = False
-            h.cut_reason = (
+            h.flags = (
+                *h.flags,
                 f"wRC+ {view.late_wrc:.0f} under {late_wrc_floor:.0f} from the 7th on"
                 if not math.isnan(view.late_wrc)
-                else "no season rows for the late half"
+                else "no season rows for the late half",
             )
             if late_cuts is not None:
                 late_cuts.append((h, view.late_wrc))
-            cut_log.append(h)
-            continue
         if not own.empty:
             view.early, view.late = half_lines(own)
             view.trends = trend_deltas(own[own["game_date"] >= trend_start], own)
@@ -983,13 +984,22 @@ def _priced(
 def _board(
     result: ScreenResult, recs: list[Recommendation], source: str
 ) -> Board:
-    """The survivors' rows off the card's own run."""
-    board = power_board.build(result, recs, source=source)
+    """The survivors' rows off the card's own run, on the side the gates hold."""
+    board = power_board.build(
+        result,
+        recs,
+        source=source,
+        sides=power_report.sides(result),
+        exclude=power_report.dropped(result),
+    )
     log.info(
-        "board: %d priced rows on %d of %d survivors",
+        "board: %d priced rows on %d of %d survivors (%d dropped on production, "
+        "%d rows on the side not held)",
         len(board.rows),
         len(board.priced),
         len(board.priced) + len(board.unpriced),
+        len(board.excluded),
+        board.off_side,
     )
     log.info(
         "arm board: %d positions on %d of %d arms, %d bought",
@@ -1100,8 +1110,9 @@ def _grade_records(
 
     Grades every recorded hitter row from before ``day`` off the box scores (each
     fetched once and cached), so the label beside a bat is never shown without
-    what that label has been worth. Best-effort like the scorecard: without a
-    ledger, or without the Stats API, the note prints the grades alone.
+    what that label has been worth. Without a ledger, or with any box score
+    missing, the note prints no records: the record decides which bucket is the
+    Strong Buy, and a record with a game's rows dropped is not the record.
     """
     if args.no_grade:
         return None
@@ -1115,9 +1126,16 @@ def _grade_records(
     results: dict[int, GameResult] = {}
     for pk in sorted({p.game_pk for p in positions if p.game_pk is not None}):
         try:
-            results[pk] = fetch_result(pk, cache_dir=cfg.cache_dir)
-        except Exception as exc:  # noqa: BLE001 - one missing box score voids one game
-            log.warning("could not fetch the box score for %s: %s", pk, exc)
+            result = fetch_result(pk, cache_dir=cfg.cache_dir)
+        except Exception as exc:  # noqa: BLE001 - one missing box score fails the whole read
+            log.warning(
+                "could not fetch the box score for %s: %s; bucket records withheld", pk, exc
+            )
+            return None
+        if not result.final:
+            log.warning("game %s is not final; bucket records withheld", pk)
+            return None
+        results[pk] = result
     graded, _voided = power_ledger.grade_positions(positions, results)
     return power_ledger.records_by_rating(graded)
 

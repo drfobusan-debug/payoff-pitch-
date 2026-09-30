@@ -15,9 +15,11 @@ import argparse
 import logging
 import sys
 from datetime import date as Date
+from datetime import timedelta
 
 from mlb_engine.config import load_config
 from mlb_engine.output.totals_audit import run_audit
+from mlb_engine.state import auto_push
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -26,12 +28,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sheet", type=Date.fromisoformat, default=None, help="sheet date to grade (default: day before)")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    path, text = run_audit(load_config(), args.date, args.sheet)
+    cfg = load_config()
+    path, text = run_audit(cfg, args.date, args.sheet)
     print(text)
     if path is None:
         print("no totals ledger yet; nothing written", file=sys.stderr)
-    else:
-        print(path)
+        return 0
+    print(path)
+    # The grade lands on the shared branch now rather than with whichever
+    # capture next happens to push, so the record is readable the same morning.
+    if cfg.state_sync:
+        sheet_day = args.sheet or (args.date - timedelta(days=1))
+        report = auto_push(cfg.data_dir, f"totals audit {sheet_day.isoformat()} graded", branch=cfg.state_branch)
+        if report is not None:
+            print(f"State: {report.describe()}")
     return 0
 
 

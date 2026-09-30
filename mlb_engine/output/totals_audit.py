@@ -32,6 +32,8 @@ import csv
 import logging
 import math
 import re
+from collections import Counter
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from datetime import timedelta
@@ -41,6 +43,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from mlb_engine.audit.clv import ClosingQuote, load_closing
 from mlb_engine.audit.ledger import ENGINE, LedgerEntry, load_ledger
 from mlb_engine.config import Config
 from mlb_engine.data import http
@@ -51,7 +54,7 @@ log = logging.getLogger(__name__)
 LEDGER_NAME = "totals_ledger.csv"
 ENGINE_LEDGER_NAME = "ledger.csv"
 GAME_TOTAL = "game_total"
-OVER, UNDER, PUSH = "over", "under", "push"
+OVER, UNDER, PUSH, VOID = "over", "under", "push", "void"
 RANK_N = 3
 RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ranked
 # Version of the scoring bands; bump when a band table changes so sheets and
@@ -59,8 +62,30 @@ RANK_MIN_GAMES = 4  # fewer graded games than this and the day's ends are not ra
 BANDS = "centred-2026.09"
 LEGACY = "legacy"
 
+# The two watch buckets from the Aug 4 - Sep 16 factor study: a moderate lean the
+# book has not already priced into the number. Neither is a proven edge; the
+# tracker exists to find out.
+FLAG_OVER_SUM = (5, 14)
+FLAG_OVER_MAX_LINE = 8.5
+FLAG_UNDER_SUM = (-14, -5)
+FLAG_UNDER_MAX_LINE = 7.5
+
+
+def flag(sum_pts: int, line: float | None) -> str:
+    """OVER when SUM sits in the +5..14 band on a total of 8.5 or lower, UNDER for
+    the -5..-14 band on 7.5 or lower, '' otherwise (including an unposted line)."""
+    if line is None:
+        return ""
+    if FLAG_OVER_SUM[0] <= sum_pts <= FLAG_OVER_SUM[1] and line <= FLAG_OVER_MAX_LINE:
+        return OVER
+    if FLAG_UNDER_SUM[0] <= sum_pts <= FLAG_UNDER_SUM[1] and line <= FLAG_UNDER_MAX_LINE:
+        return UNDER
+    return ""
+
+
 # Sheet rows that reference the sheet's own columns, not the audit's.
 _GAME, _TOTAL, _SUM = "Game", "Total", "SUM"
+GAME_PK_COLUMN = "GamePk"
 _LEGEND_SHEET, _BANDS_KEY = "Legend", "Bands"
 
 
@@ -73,7 +98,7 @@ class LedgerRow:
     sum_pts: int
     away_runs: int | None = None
     home_runs: int | None = None
-    result: str = ""  # over | under | push | "" (ungraded)
+    result: str = ""  # over | under | push | void (postponed, no action) | "" (ungraded)
     bands: str = LEGACY  # BANDS version that scored sum_pts; LEGACY predates versioning
     # The engine's read of the same game: its median total, its calibrated over
     # probability at the sheet's line, and the devigged market over at that line
@@ -88,7 +113,11 @@ class LedgerRow:
 
     @property
     def graded(self) -> bool:
-        return self.result != ""
+        return self.result in (OVER, UNDER, PUSH)
+
+    @property
+    def pending(self) -> bool:
+        return self.result == ""
 
     @property
     def runs(self) -> int | None:
@@ -106,6 +135,16 @@ class LedgerRow:
         if not self.graded or self.result == PUSH or not self.lean:
             return None
         return self.lean == self.result
+
+    @property
+    def flag(self) -> str:
+        return flag(self.sum_pts, self.line)
+
+    @property
+    def flag_hit(self) -> bool | None:
+        if not self.graded or self.result == PUSH or not self.flag:
+            return None
+        return self.flag == self.result
 
     @property
     def engine_lean(self) -> str:
@@ -218,15 +257,58 @@ def rows_from_sheet(sheet: Path, day: Date, game_pks: dict[str, int]) -> list[Le
     it = ws.iter_rows(values_only=True)
     header = [str(c) for c in next(it)]
     gi, ti, si = header.index(_GAME), header.index(_TOTAL), header.index(_SUM)
+    pi = header.index(GAME_PK_COLUMN) if GAME_PK_COLUMN in header else None
     out: list[LedgerRow] = []
     for r in it:
         if r[gi] is None or not isinstance(r[si], int):
             continue
         game = str(r[gi])
+        pk = r[pi] if pi is not None and isinstance(r[pi], int) else 0
         out.append(LedgerRow(
-            day.isoformat(), game, game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
+            day.isoformat(), game, pk or game_pks.get(game, 0), first_line(str(r[ti] or "")), r[si], bands=bands,
         ))
     return out
+
+
+# --- the market's line --------------------------------------------------------------
+
+
+def closing_lines(quotes: dict[str, ClosingQuote]) -> dict[str, float]:
+    """Matchup -> the game-total line the market closed nearest to even money."""
+    best: dict[str, tuple[float, float]] = {}
+    for q in quotes.values():
+        if q.market != GAME_TOTAL or not q.selection.startswith("Over "):
+            continue
+        try:
+            line = float(q.selection.split()[1])
+        except (IndexError, ValueError):
+            continue
+        d = abs(q.no_vig_prob - 0.5)
+        if q.matchup not in best or d < best[q.matchup][0]:
+            best[q.matchup] = (d, line)
+    return {m: line for m, (_, line) in best.items()}
+
+
+def closing_path(cfg: Config, day: Date) -> Path:
+    return cfg.audit_dir / f"closing_{day.isoformat()}.json"
+
+
+def attach_lines(rows: list[LedgerRow], lines: dict[str, float]) -> int:
+    """Give an ungraded row that was filed without a line the market's closing line.
+
+    A sheet written before the books posted a total carries no line, and a row
+    without one can never be graded; the closing snapshot the slate pass
+    captures is the same number the sheet would have shown, read later. The
+    snapshot is keyed by matchup label alone, so both games of a doubleheader
+    are left as they are: one close cannot be told from the other.
+    """
+    doubled = {g for g, k in Counter(r.game for r in rows).items() if k > 1}
+    n = 0
+    for r in rows:
+        if r.line is None and not r.graded and r.game in lines and r.game not in doubled:
+            r.line = lines[r.game]
+            n += 1
+    return n
 
 
 # --- the engine's total -------------------------------------------------------------
@@ -310,11 +392,16 @@ def engine_at(curve: OverCurve, line: float | None) -> tuple[float | None, float
 
 
 def attach_engine(rows: list[LedgerRow], entries: list[LedgerEntry]) -> int:
-    """Fill the engine's read into rows that lack one; returns how many were filled."""
+    """Fill the engine's read into rows that lack one; returns how many were filled.
+
+    The engine ledger is keyed by matchup label, so both games of a doubleheader
+    share one curve; neither row is given it.
+    """
+    doubled = {k for k, c in Counter((r.date, r.game) for r in rows).items() if c > 1}
     curves: dict[str, dict[str, OverCurve]] = {}
     n = 0
     for r in rows:
-        if r.engine_p_over is not None:
+        if r.engine_p_over is not None or (r.date, r.game) in doubled:
             continue
         if r.date not in curves:
             curves[r.date] = over_curves(entries, Date.fromisoformat(r.date))
@@ -356,14 +443,25 @@ def _matchup(g: dict) -> str:
     return f"{g['teams']['away']['team'].get('abbreviation', '')} @ {g['teams']['home']['team'].get('abbreviation', '')}"
 
 
-Final = tuple[str, int, int]  # (matchup label, away runs, home runs)
+# (matchup label, away runs, home runs); runs are None for a game the day never played
+Final = tuple[str, int | None, int | None]
+_NO_ACTION = ("Postponed", "Cancelled")
 
 
 def finals(day: Date) -> dict[int, Final]:
-    """game_pk -> (matchup, away runs, home runs) for every game that reached Final."""
+    """game_pk -> (matchup, away runs, home runs) for every game that reached Final.
+
+    A game postponed or cancelled off the day is listed with no runs: the total
+    on it is no action, and the row is voided rather than left waiting for a
+    final that the day's schedule will never carry.
+    """
     out: dict[int, Final] = {}
     for g in _schedule(day):
-        if g.get("status", {}).get("abstractGameState") != "Final":
+        status = g.get("status", {})
+        if status.get("detailedState") in _NO_ACTION:
+            out[int(g["gamePk"])] = (_matchup(g), None, None)
+            continue
+        if status.get("abstractGameState") != "Final":
             continue
         a, h = g["teams"]["away"], g["teams"]["home"]
         if "score" not in a or "score" not in h:
@@ -372,8 +470,20 @@ def finals(day: Date) -> dict[int, Final]:
     return out
 
 
+def unique_pks(pairs: Iterable[tuple[str, int]]) -> dict[str, int]:
+    """Matchup -> gamePk for the labels a day has exactly one game behind.
+
+    A doubleheader's label is left out: filing either pk on both sheet rows
+    would grade both against one final.
+    """
+    by_label: dict[str, list[int]] = {}
+    for label, pk in pairs:
+        by_label.setdefault(label, []).append(pk)
+    return {label: pks[0] for label, pks in by_label.items() if len(pks) == 1}
+
+
 def game_pks(day: Date) -> dict[str, int]:
-    return {_matchup(g): g["gamePk"] for g in _schedule(day)}
+    return unique_pks((_matchup(g), g["gamePk"]) for g in _schedule(day))
 
 
 def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
@@ -383,23 +493,30 @@ def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
     A doubleheader's two games share a label, so the label match is only trusted
     when the day has one final between those clubs.
     """
-    by_label: dict[str, list[tuple[int, int]]] = {}
+    by_label: dict[str, list[tuple[int | None, int | None]]] = {}
     for label, a, h in results.values():
         by_label.setdefault(label, []).append((a, h))
     n = 0
     for r in rows:
-        if r.graded:
+        if not r.pending:
             continue
-        hit: tuple[int, int] | None = None
+        hit: tuple[int | None, int | None] | None = None
         if r.game_pk and r.game_pk in results:
             _, a, h = results[r.game_pk]
             hit = (a, h)
         elif not r.game_pk and len(by_label.get(r.game, [])) == 1:
             hit = by_label[r.game][0]
-        if hit is None or r.line is None:
+        if hit is None:
             continue
-        r.away_runs, r.home_runs = hit
-        total = hit[0] + hit[1]
+        a, h = hit
+        if a is None or h is None:
+            r.result = VOID
+            n += 1
+            continue
+        if r.line is None:
+            continue
+        r.away_runs, r.home_runs = a, h
+        total = a + h
         r.result = OVER if total > r.line else UNDER if total < r.line else PUSH
         n += 1
     return n
@@ -517,6 +634,9 @@ class Summary:
     edge: Tally = field(default_factory=Tally)
     agree: Tally = field(default_factory=Tally)
     split_sheet: Tally = field(default_factory=Tally)  # the sheet's call where the engine leaned the other way
+    # The study's watch buckets, graded as bets on their own side.
+    flag_over: Tally = field(default_factory=Tally)
+    flag_under: Tally = field(default_factory=Tally)
 
     @property
     def split_engine(self) -> Tally:
@@ -533,9 +653,14 @@ def summarize(rows: list[LedgerRow]) -> Summary:
     by_bucket = {name: Tally() for name, _, _ in _BUCKETS}
     by_mag = {name: Tally() for name, _, _ in _MAG_BANDS}
     engine, edge, agree, split = Tally(), Tally(), Tally(), Tally()
+    flag_o, flag_u = Tally(), Tally()
     for r in graded:
         pushed = r.result == PUSH
         base.add(r.result == OVER if not pushed else None, pushed)
+        if r.flag == OVER:
+            flag_o.add(r.flag_hit, pushed)
+        elif r.flag == UNDER:
+            flag_u.add(r.flag_hit, pushed)
         if r.lean:
             sign.add(r.hit, pushed)
             band = mag_band(r.sum_pts)
@@ -562,7 +687,7 @@ def summarize(rows: list[LedgerRow]) -> Summary:
                 rank_u.add(r.result == UNDER if r.result != PUSH else None, r.result == PUSH)
     return Summary(
         sign, rank_o, rank_u, base, by_bucket, by_mag, len({r.date for r in graded}), len(graded), legacy,
-        engine=engine, edge=edge, agree=agree, split_sheet=split,
+        engine=engine, edge=edge, agree=agree, split_sheet=split, flag_over=flag_o, flag_under=flag_u,
     )
 
 
@@ -572,6 +697,19 @@ def engine_lines(total: Summary) -> list[str]:
         f"Engine on the same lines: side of line {total.engine.text()} | vs market {total.edge.text()}",
         f"  sheet & engine agree {total.agree.text()} | split: sheet {total.split_sheet.text()}, engine {total.split_engine.text()}",
     ]
+
+
+def flag_lines(total: Summary) -> list[str]:
+    """The two watch buckets: record, 95% range, verdict vs break-even."""
+    out = ["Watch buckets (study leans, not proven; graded as bets on their side):"]
+    for name, t in (
+        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]}, total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
+        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]}, total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
+    ):
+        lo, hi = wilson(t.hits, t.n)
+        rng = f" [{100 * lo:.0f}-{100 * hi:.0f}%]" if t.n else ""
+        out.append(f"  {name}: {t.text()}{rng} {verdict(t)}")
+    return out
 
 
 def mag_lines(total: Summary) -> list[str]:
@@ -598,7 +736,8 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
             mark = "" if r.hit is None else "hit" if r.hit else "miss"
             runs = "" if r.runs is None else f" {r.away_runs}-{r.home_runs} ({r.runs})"
             eng = "" if r.engine_total is None else f" eng {r.engine_total:.1f}"
-            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}".rstrip())
+            flagged = f" [watch {r.flag}]" if r.flag else ""
+            lines.append(f"  {r.sum_pts:+d} {r.game} {r.line if r.line is not None else '?'}{eng}{runs} {r.result} {mark}{flagged}".rstrip())
     lines.append(
         f"Ledger ({total.days} days, {total.games} games): sign {total.sign.text()} | "
         f"top-{RANK_N} overs {total.rank_over.text()} | bottom-{RANK_N} unders {total.rank_under.text()} | "
@@ -607,6 +746,7 @@ def summary_text(day: Date, yesterday: list[LedgerRow], total: Summary) -> str:
     )
     lines.append(f"Win rate by |SUM| band (sign as the call; break-even {100 * BREAK_EVEN:.1f}%):")
     lines.extend(mag_lines(total))
+    lines.extend(flag_lines(total))
     lines.extend(engine_lines(total))
     return "\n".join(lines)
 
@@ -619,7 +759,7 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     green = PatternFill("solid", fgColor="C6EFCE")
     red = PatternFill("solid", fgColor="FFC7CE")
     cols = [
-        "Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Bands",
+        "Date", "Game", "Line", "SUM", "Lean", "Away", "Home", "Runs", "Result", "Hit", "Watch", "Watch hit", "Bands",
         "Engine", "Eng O%", "Mkt O%", "Eng lean", "Eng hit", "Agree",
     ]
 
@@ -634,10 +774,10 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
         for r in sorted(rows, key=lambda r: (r.date, -r.sum_pts)):
             ws.append([
                 r.date, r.game, r.line, r.sum_pts, r.lean, r.away_runs, r.home_runs, r.runs, r.result,
-                mark(r.hit), r.bands,
+                mark(r.hit), r.flag, mark(r.flag_hit), r.bands,
                 r.engine_total, r.engine_p_over, r.market_p_over, r.engine_lean, mark(r.engine_hit), r.agreement,
             ])
-            for name, hit in (("Hit", r.hit), ("Eng hit", r.engine_hit)):
+            for name, hit in (("Hit", r.hit), ("Watch hit", r.flag_hit), ("Eng hit", r.engine_hit)):
                 cell = ws.cell(row=ws.max_row, column=cols.index(name) + 1)
                 if hit is True:
                     cell.fill = green
@@ -679,6 +819,19 @@ def write_workbook(path: Path, sheet_day: Date, yesterday: list[LedgerRow], ledg
     for c in s[s.max_row]:
         c.font = bold
     for name, t in total.by_mag.items():
+        lo, hi = wilson(t.hits, t.n)
+        s.append([
+            name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
+            round(lo, 3) if t.n else None, round(hi, 3) if t.n else None, verdict(t),
+        ])
+    s.append([])
+    s.append(["Watch buckets (study leans, graded as bets on their side)", "hits-misses(-pushes)", "win rate", "95% low", "95% high", "verdict"])
+    for c in s[s.max_row]:
+        c.font = bold
+    for name, t in (
+        (f"Over: SUM +{FLAG_OVER_SUM[0]}..{FLAG_OVER_SUM[1]} on a total <= {FLAG_OVER_MAX_LINE:g}", total.flag_over),
+        (f"Under: SUM {FLAG_UNDER_SUM[0]}..{FLAG_UNDER_SUM[1]} on a total <= {FLAG_UNDER_MAX_LINE:g}", total.flag_under),
+    ):
         lo, hi = wilson(t.hits, t.n)
         s.append([
             name, t.text().split(" (")[0], None if t.rate is None else round(t.rate, 3),
@@ -743,6 +896,18 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
         except Exception as exc:
             log.warning("totals audit: could not read %s: %s", sheet.name, exc)
 
+    for d in sorted({r.date for r in ledger if r.pending and r.line is None}):
+        try:
+            n = attach_lines(
+                [r for r in ledger if r.date == d],
+                closing_lines(load_closing(closing_path(cfg, Date.fromisoformat(d)))),
+            )
+        except Exception as exc:
+            log.warning("totals audit: closing lines for %s unreadable: %s", d, exc)
+            continue
+        if n:
+            log.info("totals audit: closing line filled on %d rows for %s", n, d)
+
     if any(r.engine_p_over is None for r in ledger):
         try:
             n = attach_engine(ledger, load_ledger(engine_ledger_path(cfg)))
@@ -751,7 +916,7 @@ def run_audit(cfg: Config, day: Date, sheet_day: Date | None = None) -> tuple[Pa
         except Exception as exc:
             log.warning("totals audit: engine ledger unreadable: %s", exc)
 
-    for d in sorted({r.date for r in ledger if not r.graded}):
+    for d in sorted({r.date for r in ledger if r.pending}):
         if Date.fromisoformat(d) >= day:
             continue
         try:

@@ -44,6 +44,7 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
 from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
@@ -302,6 +303,19 @@ def merge_opta_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_lineup_files(remote: Path, local: Path) -> bool:
+    """Union two lineup captures, the earliest sighting of each lineup winning.
+
+    The slate passes run on whichever machine is awake, so the first view of a
+    lineup is as likely to be on the branch as on this disk.
+    """
+    if not remote.exists():
+        return False
+    merged = merge_lineups(load_lineups(local), list(load_lineups(remote).values()))
+    save_lineups(local, merged)
+    return True
+
+
 def merge_propick_files(remote: Path, local: Path) -> bool:
     """Union two captures of a day's VSiN model picks.
 
@@ -347,6 +361,10 @@ def merge_dated_csv(
     ``by_date=GRADED`` unions row by row too, but a row that carries a result
     beats one that does not: a receipt read on this machine before the machine
     that wrote it graded it must not keep the day ungraded here forever.
+
+    When ``run_id`` is part of the key, a row with no run is the same selection
+    written before runs were stamped, so it yields to a stamped copy that matches
+    on every other key field rather than surviving as a second row.
     """
     if not remote.exists():
         return False
@@ -367,8 +385,18 @@ def merge_dated_csv(
         if by_date == GRADED and held is not None and held.get("result") and not r.get("result"):
             continue
         merged[k] = r
+    if "run_id" in key:
+        merged = _drop_unstamped_twins(merged, key)
     _write_rows(local, fields, [merged[k] for k in sorted(merged)])
     return True
+
+
+def _drop_unstamped_twins(
+    merged: dict[tuple[str, ...], dict[str, str]], key: tuple[str, ...]
+) -> dict[tuple[str, ...], dict[str, str]]:
+    i = key.index("run_id")
+    stamped = {k[:i] + k[i + 1 :] for k in merged if k[i]}
+    return {k: r for k, r in merged.items() if k[i] or k[:i] + k[i + 1 :] not in stamped}
 
 
 # --- the state map -----------------------------------------------------------
@@ -391,10 +419,11 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     # audit, so this machine's board for a date does not supersede another's, and
     # replacing the date is how the two copies came to disagree on who was even
     # screened on 8/26. The run identifies the capture, so re-recording a run
-    # still overwrites itself.
+    # still overwrites itself. The bat is keyed by id, not name: the two copies
+    # spelt Suárez with and without the accent and held him twice for 8/31.
     (
         power_ledger.LEDGER_NAME,
-        ("date", "run_id", "batter", "game_pk", "stat", "line", "side"),
+        ("date", "run_id", "player_id", "game_pk", "stat", "line", "side"),
         False,
     ),
     # The hand totals sheet's receipt. The Mac writes and grades it; without
@@ -480,12 +509,16 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
         if not src.exists():
             continue
         # A copy pulled this morning is the morning's card. If the branch has
-        # since taken a later one, that is now the slate's record.
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
-            shutil.copyfileobj(fin, fout)
+        # since taken a later one, its later games join the slate's record.
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
         moved.append(dest.name)
     return moved
 
@@ -589,6 +622,9 @@ def _pull_state_locked(
     for src in sorted((state / "mlb" / "propicks").glob("propicks_*.json")):
         if merge_propick_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "lineups").glob("lineups_*.json")):
+        if merge_lineup_files(src, audit / src.name):
+            pulled.append(src.name)
     for name, key, by_date in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
             pulled.append(name)
@@ -642,6 +678,95 @@ def card_supersedes(candidate: Path, published: Path) -> bool:
     return prior is not None and lead < prior
 
 
+CardRow = dict[str, object]
+
+
+def _read_card(path: Path) -> list[CardRow] | None:
+    try:
+        if path.suffix == ".gz":
+            with gzip.open(path, "rt") as fz:
+                rows = json.load(fz)
+        else:
+            with path.open() as fp:
+                rows = json.load(fp)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _by_game(rows: list[CardRow]) -> dict[object, list[CardRow]]:
+    games: dict[object, list[CardRow]] = {}
+    for row in rows:
+        games.setdefault(row.get("game_pk"), []).append(row)
+    return games
+
+
+def _game_lead(rows: list[CardRow]) -> float | None:
+    leads = [
+        float(lead)
+        for lead in (row.get("hours_to_first_pitch") for row in rows)
+        if isinstance(lead, (int, float))
+    ]
+    return min(leads) if leads else None
+
+
+def merge_cards(candidate: list[CardRow], published: list[CardRow]) -> tuple[list[CardRow], int]:
+    """Fold a later card into the slate's record one game at a time.
+
+    A game the candidate priced while it was still ahead, and closer to first
+    pitch than the record has it, takes the candidate's rows; every other game
+    on the record stays as it was, whether the candidate re-priced it after it
+    began or never saw it at all. The slate's passes price in clock windows --
+    a 14:55 pass sees the 15:00-18:00 games and nothing else -- so a card that
+    could only replace the record whole either threw the morning's other
+    eleven games away (the window pass won) or was refused once any of them
+    had started (the evening pass lost). On 2026-09-16 that left four of
+    fifteen games in the ledger. Returns the merged rows and how many games
+    the candidate re-priced.
+    """
+    have = _by_game(published)
+    merged: dict[object, list[CardRow]] = dict(have)
+    taken = 0
+    for pk, rows in _by_game(candidate).items():
+        lead = _game_lead(rows)
+        if lead is None or lead <= 0:
+            continue
+        prior = have.get(pk)
+        if prior is not None:
+            prior_lead = _game_lead(prior)
+            if prior_lead is None or lead >= prior_lead:
+                continue
+        merged[pk] = rows
+        taken += 1
+    out: list[CardRow] = []
+    for rows in merged.values():
+        out.extend(rows)
+    return out, taken
+
+
+def merged_card(candidate: Path, published: Path) -> list[CardRow] | None:
+    """The record ``published`` becomes once ``candidate`` is folded in, or
+    ``None`` when the candidate adds no game to it."""
+    new = _read_card(candidate)
+    if new is None:
+        return None
+    rows, taken = merge_cards(new, _read_card(published) or [])
+    return rows if taken else None
+
+
+def write_card(rows: list[CardRow], dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(rows, indent=2).encode()
+    if dest.suffix == ".gz":
+        with dest.open("wb") as raw:
+            with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=6, mtime=0) as fout:
+                fout.write(payload)
+    else:
+        dest.write_bytes(payload)
+
+
 def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
     """Publish the last card priced before the slate began.
 
@@ -659,9 +784,13 @@ def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
         if src.name.endswith(PREGAME_SUFFIX):
             continue
         dest = out / f"{src.name}.gz"
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        _gzip_to(src, dest)
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            _gzip_to(src, dest)
         staged.append(dest.name)
     keep = sorted(p.name for p in out.glob("predictions_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
     pruned = 0
@@ -716,6 +845,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             dest = state / "mlb" / "propicks" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_propick_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("lineups_*.json")):
+            dest = state / "mlb" / "lineups" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_lineup_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for name, key, by_date in _MERGED_CSVS:
@@ -794,6 +929,7 @@ __all__ = [
     "SyncReport",
     "merge_board_files",
     "merge_closing_files",
+    "merge_lineup_files",
     "merge_opta_files",
     "merge_propick_files",
     "merge_dated_csv",

@@ -25,6 +25,8 @@ CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
 DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 NFL_WAKE_HHMM="${NFL_WAKE_HHMM:-08:00}"
+NFL_OPEN_WAKE_HHMM="${NFL_OPEN_WAKE_HHMM:-08:00}"
+NFL_EVE_WAKE_HHMM="${NFL_EVE_WAKE_HHMM:-20:00}"
 SLATE_WINDOW_HOURS="${SLATE_WINDOW_HOURS:-3}"
 # Wake times five minutes ahead of each slate pass (matinee 11:55 .. late 20:55).
 SLATE_WAKES="${SLATE_WAKES:- 11:50 14:50 17:50 20:50}"
@@ -132,6 +134,11 @@ if [[ "$MODE" == "night" ]]; then
       pmset_ schedule wake "$NEXT ${NFL_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL wake" >&2
       echo "[$(date)] armed NFL wake for $NEXT ${NFL_WAKE_HHMM}:00"
       ;;
+    2)
+      # Monday night arms Tuesday's opening-board capture.
+      pmset_ schedule wake "$NEXT ${NFL_OPEN_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL open wake" >&2
+      echo "[$(date)] armed NFL open wake for $NEXT ${NFL_OPEN_WAKE_HHMM}:00"
+      ;;
   esac
 elif [[ "$MODE" == "close" ]]; then
   # Snapshot today's CLOSING market so tomorrow morning's audit can score closing
@@ -139,8 +146,27 @@ elif [[ "$MODE" == "close" ]]; then
   # twice a day (afternoon + evening) and merges, because a started game leaves
   # the pre-match board. Cheap (~3 credits + one per event for props).
   mlb-engine close || echo "[$(date)] 'mlb-engine close' exited non-zero" >&2
+  # Lineups posted since the last slate pass, stamped with when they were seen.
+  # Free (StatsAPI); the close's own slate fetch records them too, but a close
+  # that finds no pre-match board exits before it writes anything.
+  mlb-engine lineups || echo "[$(date)] 'mlb-engine lineups' exited non-zero" >&2
   # Re-arm tonight's evening capture in case the Mac would sleep before it.
   pmset_ schedule wake "$(date +%m/%d/%Y) ${CLOSE_WAKE_HHMM}:00" || echo "[$(date)] could not arm evening wake" >&2
+  # Wed/Sat/Sun evenings also arm the NFL night-before board capture. %u: 1=Mon .. 7=Sun.
+  case "$(date +%u)" in
+    3|6|7)
+      pmset_ schedule wake "$(date +%m/%d/%Y) ${NFL_EVE_WAKE_HHMM}:00" || echo "[$(date)] could not arm NFL night-before wake" >&2
+      ;;
+  esac
+elif [[ "$MODE" == "react" ]]; then
+  # Price-reaction watcher: poll the slate for lineups as they post and snapshot
+  # the posted game's props at +0/+5/+15/+30 min, with an hourly before-price.
+  # A measurement of how fast the books re-price a posted lineup -- nothing is
+  # bought off it. Stays up four hours; caffeinate holds the Mac awake across
+  # the slate passes it overlaps (they read the same lineups file, safely).
+  /usr/bin/caffeinate -i -w $$ &
+  pull_latest
+  mlb-engine react --hours 4 || echo "[$(date)] 'mlb-engine react' exited non-zero" >&2
 elif [[ "$MODE" == "cfb" ]]; then
   # Saturday: price today's college football board and email the article PDF +
   # MP3 + workbook as one message. Same caffeinate arrangement as the morning
@@ -158,6 +184,13 @@ elif [[ "$MODE" == "nfl" ]]; then
   /usr/bin/caffeinate -i -w $$ &
   pull_latest
   nfl-engine job --props --card --email || echo "[$(date)] 'nfl-engine job' exited non-zero" >&2
+elif [[ "$MODE" == "nfl-open" ]]; then
+  # Tue 08:05 (the week's open) and Wed/Sat/Sun 20:05 (the night before a game
+  # day): archive the game board, price nothing, email nothing. Thursday's card
+  # reads the earliest snapshot back as the open and stamps each row's drift;
+  # the CLV sheet then shows open -> taken -> close. ~3 Odds API credits.
+  pull_latest
+  nfl-engine open || echo "[$(date)] 'nfl-engine open' exited non-zero" >&2
 elif [[ "$MODE" == slate-* ]]; then
   # A slate pass: price the games starting inside the next ${SLATE_WINDOW_HOURS}
   # hours -- off posted lineups, on the board as it stands -- then write that
@@ -170,6 +203,10 @@ elif [[ "$MODE" == slate-* ]]; then
   /usr/bin/caffeinate -i -w $$ &
   arm_next_slate
   pull_latest
+  # Posted lineups, stamped now: a study of who a team sent out (and when that
+  # was known) needs the nine as posted, not the box score's. The run records
+  # them too; this catches a pass whose pricing fails before it gets there.
+  mlb-engine lineups || echo "[$(date)] $BLOCK 'mlb-engine lineups' exited non-zero" >&2
   VSIN="$HOME/.mlb_engine/vsin_today.csv"
   if [[ -f "$VSIN" ]]; then
     mlb-engine run --within-hours ${SLATE_WINDOW_HOURS} --vsin-csv "$VSIN" \
@@ -190,41 +227,49 @@ elif [[ "$MODE" == slate-* ]]; then
     if [[ ! -f "$OUT/PayoffPitch_Slate_${day}_$BLOCK.pdf" ]]; then
       echo "[$(date)] no $BLOCK games today; nothing to email" >&2
     else
-      # The regression articles, the power screen and the totals sheet read the day's Statcast
-      # and the card as priced so far; written once, by the first pass of the
-      # day that has games, and emailed once, with that pass. A pass finding
-      # the once-a-day stamp already on disk sends only its slate and the card.
+      # The regression articles, the power screen, the totals sheet and the
+      # worksheet read the day's Statcast and the card as priced so far. Each is
+      # written once, by the first pass of the day that can, and the once-a-day
+      # pieces ride with the first pass that sends them. A piece whose generator
+      # failed is retried by every later pass, and a pass that writes one after
+      # the stamp is down sends the daily set again so it reaches the inbox.
       DAILY_STAMP="$OUT/.daily_sent_$day"
       WITH_DAILY=""
-      if [[ ! -f "$DAILY_STAMP" ]]; then
-        if [[ ! -f "$OUT/PayoffPitch_Regression_$day.pdf" ]]; then
-          pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
-          if [[ -n "$pkl" ]]; then
-            python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
-              || echo "[$(date)] regression articles failed" >&2
-          else
-            echo "[$(date)] no Statcast cache pkl; skipping regression articles" >&2
-          fi
+      [[ -f "$DAILY_STAMP" ]] || WITH_DAILY="--with-daily"
+      if [[ ! -f "$OUT/PayoffPitch_Regression_$day.pdf" ]]; then
+        pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1) || true
+        if [[ -n "$pkl" ]]; then
+          python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
+            && WITH_DAILY="--with-daily" \
+            || echo "[$(date)] regression articles failed" >&2
+        else
+          echo "[$(date)] no Statcast cache pkl; skipping regression articles" >&2
         fi
-        if [[ ! -f "$OUT/power_screen_$day.pdf" ]]; then
-          python scripts/power_screen.py --date "$day" \
-            || echo "[$(date)] power screen failed" >&2
-        fi
-        # --if-stale: a sheet written by an older band version is rescored, one
-        # already on the current bands is kept.
+      fi
+      if [[ ! -f "$OUT/power_screen_$day.pdf" ]]; then
+        python scripts/power_screen.py --date "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] power screen failed" >&2
+      fi
+      # --if-stale: a sheet written by an older band version is rescored, one
+      # already on the current bands is kept. Checked on the first pass only;
+      # later passes fill in a missing sheet.
+      if [[ -n "$WITH_DAILY" || ! -f "$OUT/totals_sheet_$day.xlsx" ]]; then
         python -m scripts.totals_sheet "$day" --if-stale \
+          && { [[ ! -f "$OUT/totals_sheet_$day.xlsx" ]] || WITH_DAILY="--with-daily"; } \
           || echo "[$(date)] totals sheet failed" >&2
-        if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
-          python -m scripts.totals_audit "$day" \
-            || echo "[$(date)] totals audit failed" >&2
-        fi
-        # The daily worksheet: matchup gaps + the prices they were written at,
-        # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
-        if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
-          python -m scripts.daily_worksheet "$day" \
-            || echo "[$(date)] daily worksheet failed" >&2
-        fi
-        WITH_DAILY="--with-daily"
+      fi
+      if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
+        python -m scripts.totals_audit "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] totals audit failed" >&2
+      fi
+      # The daily worksheet: matchup gaps + the prices they were written at,
+      # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
+      if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
+        python -m scripts.daily_worksheet "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] daily worksheet failed" >&2
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
       if python -m scripts.email_daily_package "$day" --block "$BLOCK" $WITH_DAILY; then

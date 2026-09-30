@@ -40,6 +40,7 @@ from cfb_engine.data.starters import StarterBook, starter_absent
 from cfb_engine.data.teamnames import school_key
 from cfb_engine.data.vsin import hfa_for, hfa_note
 from cfb_engine.data.vsin_splits import SplitBook, SplitsProvider, lookup
+from cfb_engine.data.watch import fetch_watch_book
 from cfb_engine.features.adjustments import Adjustment, compute_adjustment
 from cfb_engine.features.context import ContextBook, build_context_book, context_for
 from cfb_engine.market import keys
@@ -58,7 +59,12 @@ from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.priceband import PriceBand
 from cfb_engine.market.tiers import Tier, bump_tier, classify
 from cfb_engine.models.markov import DriveShape, MarkovSim
-from cfb_engine.models.montecarlo import ExpectedGame, GameSimResult, MonteCarlo
+from cfb_engine.models.montecarlo import (
+    ExpectedGame,
+    GameSimResult,
+    MonteCarlo,
+    market_win_prob,
+)
 from cfb_engine.output.brief import GameBrief, build_briefs
 from cfb_engine.recommendations import Recommendation
 from cfb_engine.schemas import Game, Slate
@@ -93,7 +99,9 @@ class Pipeline:
         self.ensemble = EnsembleProvider(cfg.cache_dir, cfg.models_dir)
         self.efficiency = EfficiencyProvider(self.cfbd)
         self.calibrator = calibrator or self._load_calibrator()
-        self.shrink = ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
+        self.shrink = (
+            ConfidenceShrink(cfg.shrink_pivot, cfg.shrink_slope) if cfg.shrink_tails else None
+        )
         self.advanced: AdvancedBook = parse_advanced([], {})
         self.news: dict[str, NewsItem] = {}
         self._roster: dict[int, RosterBook | None] = {}
@@ -156,9 +164,7 @@ class Pipeline:
         if self.cfg.ensemble:
             models = self.ensemble.collect(season)
             if models:
-                logger.info(
-                    "ensemble: %s", ", ".join(f"{m.source}({len(m.net)})" for m in models)
-                )
+                logger.info("ensemble: %s", ", ".join(f"{m.source}({len(m.net)})" for m in models))
                 ratings = blend_ensemble(
                     ratings,
                     models,
@@ -181,9 +187,7 @@ class Pipeline:
                     blend=self.cfg.efficiency_blend,
                     league_avg=self.cfg.model.avg_team_points,
                 )
-        returning = (
-            build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
-        )
+        returning = build_returning_book(self.cfbd, season) if self.cfg.returning_pts > 0 else None
         ctx_book = build_context_book(self.cfbd, season, slate)
         portal = self.cfbd.fetch_portal(season)
         if portal:
@@ -200,10 +204,12 @@ class Pipeline:
                 logger.info(
                     "injury feed: %d teams, usage book %d teams", len(injuries), len(starters)
                 )
-        if self.cfg.marking.enabled or self.cfg.sim_engine == "markov":
-            self.advanced = self.cfbd.fetch_advanced(season)
-            if self.advanced.teams:
-                logger.info("advanced stats: %d teams", len(self.advanced.teams))
+        # Fetched every run (disk-cached): priced by marking/Markov when enabled,
+        # and always read by the card's unit matchups, so a reused pipeline never
+        # carries another season's book forward.
+        self.advanced = self.cfbd.fetch_advanced(season)
+        if self.advanced.teams:
+            logger.info("advanced stats: %d teams", len(self.advanced.teams))
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
@@ -222,6 +228,8 @@ class Pipeline:
                     else None
                 ),
                 models=models,
+                advanced=self.advanced,
+                watch=fetch_watch_book(awards_file=self.cfg.cache_dir / "awards_watch.json"),
             )
         except Exception as exc:  # context only; the card renders without it
             logger.warning("game briefs unavailable: %s", exc)
@@ -236,8 +244,17 @@ class Pipeline:
                 continue
             recs.extend(
                 self._price_game(
-                    game, odds, ratings, ctx_book, mc, markov, returning, portal,
-                    injuries, starters, season=season,
+                    game,
+                    odds,
+                    ratings,
+                    ctx_book,
+                    mc,
+                    markov,
+                    returning,
+                    portal,
+                    injuries,
+                    starters,
+                    season=season,
                 )
             )
         for r in recs:
@@ -259,9 +276,7 @@ class Pipeline:
         starters: StarterBook | None = None,
         season: int = 0,
     ) -> list[Recommendation]:
-        home_hfa = hfa_for(
-            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
-        )
+        home_hfa = hfa_for(game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa)
         means = self._means(game, odds, ratings, home_hfa)
         if means is None:
             return []
@@ -289,9 +304,7 @@ class Pipeline:
             note = portal_note(portal, game.home.name, game.away.name)
             if note is not None:
                 adj.reasons.append(note)
-        vsin = hfa_note(
-            game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa
-        )
+        vsin = hfa_note(game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa)
         if vsin is not None:
             adj.reasons.append(vsin)
         if injuries:
@@ -453,7 +466,11 @@ class Pipeline:
 
     # -- markets ----------------------------------------------------------
     def _price_ml(self, ctx: _GameCtx, odds: GameOdds) -> list[Recommendation]:
-        home_p = ctx.sim.home_win_prob()
+        home_p = (
+            market_win_prob(ctx.sim.exp_margin, self.cfg.model)
+            if self.cfg.model.ml_market_sd
+            else ctx.sim.home_win_prob()
+        )
         out = []
         for side, ab, prob in (
             ("home", ctx.home_ab, home_p),
@@ -464,8 +481,13 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_ml", keys.game_ml(ab), prob, quotes,
-                    team_side=side, side="win",
+                    ctx,
+                    "game_ml",
+                    keys.game_ml(ab),
+                    prob,
+                    quotes,
+                    team_side=side,
+                    side="win",
                 )
             )
         return out
@@ -486,8 +508,14 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_ats", keys.game_ats(ab, pt), prob, quotes,
-                    line=pt, team_side=team_side, side="cover",
+                    ctx,
+                    "game_ats",
+                    keys.game_ats(ab, pt),
+                    prob,
+                    quotes,
+                    line=pt,
+                    team_side=team_side,
+                    side="cover",
                 )
             )
         return out
@@ -508,8 +536,13 @@ class Pipeline:
                 continue
             out.append(
                 self._make_rec(
-                    ctx, "game_total", keys.game_total(is_over, line), prob, quotes,
-                    line=line, side=key,
+                    ctx,
+                    "game_total",
+                    keys.game_total(is_over, line),
+                    prob,
+                    quotes,
+                    line=line,
+                    side=key,
                 )
             )
         return out
@@ -528,7 +561,10 @@ class Pipeline:
         side: str | None = None,
     ) -> Recommendation:
         model_prob = self.calibrator.apply(market, raw_prob)
-        if self.shrink is not None:
+        # The tail shrink is one-sided, so on a two-sided moneyline it takes
+        # probability off the favourite and hands the dog the difference: the
+        # sides summed to .90 and the dog read as value in every game.
+        if self.shrink is not None and market != "game_ml":
             model_prob = self.shrink.apply(model_prob)
 
         result: EVResult = evaluate(model_prob, quotes)
@@ -543,6 +579,7 @@ class Pipeline:
         tier, mark_reasons = self._mark(ctx.signal, market, team_side, side, line, tier)
         reasons = [*reasons, *mark_reasons]
 
+        opened = self._first_board.get(snapshot.key(ctx.matchup, market, selection))
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
         pass_gate: str | None = None
@@ -586,12 +623,15 @@ class Pipeline:
             tier=tier,
             reasons=reasons,
             drift=drift,
+            open_line=None if opened is None else opened.line,
+            open_american=None if opened is None else opened.american,
             pass_gate=pass_gate,
             sharp_div=None if split is None else split.divergence,
             team_side=team_side,
             side=side,
             home_abbrev=ctx.home_ab,
             away_abbrev=ctx.away_ab,
+            kickoff_utc=ctx.game.commence_time_utc,
             exp_margin=ctx.sim.exp_margin,
             exp_margin_sd=ctx.sim.exp_margin_sd,
             exp_total=ctx.sim.exp_total,
@@ -694,4 +734,3 @@ class _GameCtx:
         self.home_ab = game.home.abbrev
         self.away_ab = game.away.abbrev
         self.matchup = game.matchup()
-

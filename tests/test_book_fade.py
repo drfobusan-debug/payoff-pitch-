@@ -11,6 +11,9 @@ import json
 from datetime import date
 from pathlib import Path
 
+import pytest
+
+from mlb_engine.config import Config
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import (
     BOOK_FADE_GATE,
@@ -244,3 +247,15 @@ def test_fade_of_round_trips_through_json_and_old_files_load(tmp_path: Path) -> 
     del old[0]["fade_of"]
     p.write_text(json.dumps(old))
     assert load_json(p)[0].fade_of is None
+
+
+def test_default_markets_are_the_three_the_fade_graded_on(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Live 9/9-9/16 the fade bought game ML and totals it was never graded on."""
+    monkeypatch.delenv("MLBE_BOOK_FADE_MARKETS", raising=False)
+    assert Config().book_fade_markets == {"batter_2b", "batter_hrr", "game_rl"}
+    monkeypatch.setenv("MLBE_BOOK_FADE_MARKETS", "game_ml, batter_hr")
+    assert Config().book_fade_markets == {"game_ml", "batter_hr"}
+    monkeypatch.setenv("MLBE_BOOK_FADE_MARKETS", "")
+    assert Config().book_fade_markets == frozenset()
