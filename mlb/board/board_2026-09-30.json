@@ -1,0 +1,16 @@
+[
+  {
+    "matchup": "PHI @ ATL",
+    "market": "game_ml",
+    "selection": "ATL ML",
+    "american": 100.0,
+    "no_vig_prob": 0.488637
+  },
+  {
+    "matchup": "PHI @ ATL",
+    "market": "game_ml",
+    "selection": "PHI ML",
+    "american": -110.0,
+    "no_vig_prob": 0.511363
+  }
+]
