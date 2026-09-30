@@ -3852,6 +3852,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_hr",
+    "selection": "Austin Hays HR o1.5",
+    "american": 20000.0,
+    "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_hr",
     "selection": "Carson Kelly HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.103175
@@ -3925,6 +3932,13 @@
     "selection": "Jake Cronenworth HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_hr",
+    "selection": "Jake Cronenworth HR o1.5",
+    "american": 32500.0,
+    "no_vig_prob": 0.003067
   },
   {
     "matchup": "CHC @ SD",
@@ -4006,6 +4020,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_hr",
+    "selection": "Pedro Ramirez HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_hr",
     "selection": "Pete Crow-Armstrong HR o0.5",
     "american": 330.0,
     "no_vig_prob": 0.23347
@@ -4023,6 +4044,13 @@
     "selection": "Samad Taylor HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_hr",
+    "selection": "Samad Taylor HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
   },
   {
     "matchup": "CHC @ SD",
@@ -4345,6 +4373,20 @@
     "selection": "Xander Bogaerts H u0.5",
     "american": 161.0,
     "no_vig_prob": 0.386869
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Michael King K o4.5",
+    "american": -125.0,
+    "no_vig_prob": 0.510496
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Michael King K u4.5",
+    "american": -114.0,
+    "no_vig_prob": 0.489504
   },
   {
     "matchup": "CHC @ SD",
@@ -5049,6 +5091,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_tb",
+    "selection": "Jake Cronenworth TB o1.5",
+    "american": 230.0,
+    "no_vig_prob": 0.30303
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_tb",
     "selection": "Jake Cronenworth TB u0.5",
     "american": -117.0,
     "no_vig_prob": 0.511495
@@ -5210,6 +5259,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_tb",
+    "selection": "Samad Taylor TB o1.5",
+    "american": 175.0,
+    "no_vig_prob": 0.363636
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_tb",
     "selection": "Samad Taylor TB u0.5",
     "american": -103.0,
     "no_vig_prob": 0.479353
@@ -5350,6 +5406,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "game_rl",
+    "selection": "CHC +1.0",
+    "american": -127.0,
+    "no_vig_prob": 0.534216
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
     "selection": "CHC +1.5",
     "american": -177.0,
     "no_vig_prob": 0.63774
@@ -5367,6 +5430,13 @@
     "selection": "SD +1.5",
     "american": -214.0,
     "no_vig_prob": 0.652078
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
+    "selection": "SD -1.0",
+    "american": 105.0,
+    "no_vig_prob": 0.465784
   },
   {
     "matchup": "CHC @ SD",
