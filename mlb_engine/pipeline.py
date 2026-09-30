@@ -10,6 +10,8 @@ from datetime import date as Date
 from pathlib import Path
 from typing import TypeVar
 
+import pandas as pd
+
 from mlb_engine.audit.clv import (
     board_path,
     closing_quotes,
@@ -130,6 +132,7 @@ from mlb_engine.market.runline import (
     runline_veto,
 )
 from mlb_engine.market.tiers import Tier, bump_tier, classify, price_screen
+from mlb_engine.models import run_env
 from mlb_engine.models.comeback import ComebackSignal
 from mlb_engine.models.comeback import evaluate as evaluate_comeback
 from mlb_engine.models.markov_f5 import f5_from_lineups, f5_from_sim
@@ -152,7 +155,11 @@ from mlb_engine.preview import (
     RegFlag,
     StarterLine,
 )
-from mlb_engine.recommendations import Recommendation, enforce_one_buy_per_group
+from mlb_engine.recommendations import (
+    Recommendation,
+    enforce_one_buy_per_group,
+    fade_disagreements,
+)
 from mlb_engine.schemas import BatterSlot, Game, Hand, Pitcher, Player, Slate, TeamGameInfo
 
 log = logging.getLogger(__name__)
@@ -354,6 +361,13 @@ def load_sprint_speeds(year: int) -> dict[int, float]:
 _CALIBRATION_FILE = Path(__file__).parent / "data" / "calibration_2024.json"
 
 
+def calibration_source(live: Path | None = None) -> Path | None:
+    """The map file the engine would price off, or None if there is none."""
+    if live is not None and live.exists():
+        return live
+    return _CALIBRATION_FILE if _CALIBRATION_FILE.exists() else None
+
+
 def load_calibrator(live: Path | None = None) -> Calibrator:
     """Load the isotonic calibration map.
 
@@ -362,13 +376,15 @@ def load_calibrator(live: Path | None = None) -> Calibrator:
     markets the packaged file never saw (``batter_tb`` among them, which is why
     total bases was pricing off the flatter pooled curve).
     """
-    if live is not None and live.exists():
-        log.info("using locally refit calibration map %s", live)
-        return Calibrator.from_json(live)
-    if _CALIBRATION_FILE.exists():
-        return Calibrator.from_json(_CALIBRATION_FILE)
-    log.warning("calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE)
-    return Calibrator.identity()
+    src = calibration_source(live)
+    if src is None:
+        log.warning(
+            "calibration map %s missing; probabilities left uncalibrated", _CALIBRATION_FILE
+        )
+        return Calibrator.identity()
+    if src == live:
+        log.info("using locally refit calibration map %s", src)
+    return Calibrator.from_json(src)
 
 
 class Pipeline:
@@ -379,6 +395,13 @@ class Pipeline:
     # slate's first run, where nothing can have drifted yet.
     _open_board: dict[str, float] = {}
     _drift_gate: DriftGate = DriftGate()
+    # And the lineup read, for the same reason: no lock is no first-pitch stamp,
+    # which the clock gate treats as neutral rather than as an early price.
+    _lineup_gate: LineupLockGate = LineupLockGate()
+    _lineup_lock: LineupLock | None = None
+    # And the league's run environment, read once a slate: 1.0 is the simulator's
+    # own run level, i.e. no correction, which is what an unread league gets.
+    _run_env_scale: float = 1.0
 
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
         self.cfg = cfg
@@ -425,6 +448,9 @@ class Pipeline:
         self._league_contact = LeagueContact(batter=None, pitcher=None)
         self._league_xtb: LeagueXTB | None = None
         self.slate: Slate | None = None
+        # The frame the slate was priced off, kept so the reports built after the
+        # run read the same Statcast window rather than loading a second one.
+        self.statcast: pd.DataFrame | None = None
 
     def run(
         self,
@@ -433,6 +459,7 @@ class Pipeline:
         fangraphs_csv: Path | None = None,
         seed: int | None = 7,
         enrich_leaderboards: bool = True,
+        within_hours: float | None = None,
     ) -> list[Recommendation]:
         """Price a slate.
 
@@ -440,11 +467,27 @@ class Pipeline:
         leaderboards (sprint speed, team defense, xSLG tails). It is left on for
         live runs and turned off by the historical backtester, where those
         full-season leaderboards would leak future information (look-ahead bias).
+
+        ``within_hours`` restricts pricing to the games starting inside that many
+        hours, which is what makes the late pass affordable: the games the clock
+        gate would refuse anyway cost nothing to skip, and each per-event prop
+        request is a paid Odds API credit. Games already underway are skipped
+        too, and a game with no published start time is always priced.
         """
         w = self.cfg.windows
         slate = self.deps.stats.get_slate(slate_date)
-        self.slate = slate
         log.info("Slate %s: %d games", slate_date, len(slate.games))
+        if within_hours is not None:
+            keep = [
+                g for g in slate.games
+                if self._starts_within(g.game_datetime_utc, within_hours)
+            ]
+            log.info(
+                "Late pass: %d of %d games start inside %.1fh",
+                len(keep), len(slate.games), within_hours,
+            )
+            slate = slate.model_copy(update={"games": keep})
+        self.slate = slate
         self._projected_lineups = set()
         self._pen_avail = {}
         if self.deps.rotowire is not None:
@@ -454,12 +497,16 @@ class Pipeline:
             slate_date,
             [
                 w.pitcher_form_days,
+                w.pitcher_baseline_days,
+                w.bullpen_days,
+                w.batter_overall_days,
                 w.batter_home_away_days,
                 w.batter_vs_rhp_days,
                 w.batter_vs_lhp_days,
                 w.team_split_days,
             ],
         )
+        self.statcast = statcast
         self._ros_priors = (
             load_ros_priors(self.cfg.ros_prior_path) if self.cfg.ros_prior_path else {}
         )
@@ -510,6 +557,7 @@ class Pipeline:
             if self.cfg.runline_luck_gap
             else {}
         )
+        self._run_env_scale = self._league_scale(slate_date)
 
         recs: list[Recommendation] = []
         self._previews = []
@@ -533,7 +581,44 @@ class Pipeline:
                 log.info("skip %s: probable pitcher missing", game.matchup())
                 continue
             recs.extend(self._price_game(game, statcast, slate_date, sprint, mc, quotes))
-        return enforce_one_buy_per_group(recs)
+        # One buy per market first, so the fade moves a single buy to a single
+        # side; the fade last, so no screen above it can refuse the book's side.
+        return fade_disagreements(
+            enforce_one_buy_per_group(recs),
+            self.cfg.book_fade_max_fair,
+            self.cfg.book_fade_markets,
+        )
+
+    @staticmethod
+    def _starts_within(game_datetime_utc: str | None, hours: float) -> bool:
+        """Does this game start inside ``hours``, and has it not started yet?"""
+        h = hours_to_first_pitch(game_datetime_utc)
+        if h is None:
+            return True
+        return 0.0 <= h < hours
+
+    def _league_scale(self, slate_date: Date) -> float:
+        """The non-out scale that would put the simulator in today's league.
+
+        Read off finals, once a slate, and never off the simulator's own output:
+        the whole point is an external check on the run level it prices at. A
+        league the read cannot measure leaves the totals uncorrected rather than
+        correcting them by a stale constant.
+        """
+        if not self.cfg.run_env_totals:
+            return 1.0
+        target = self.deps.stats.league_runs_per_game(
+            slate_date, days=self.cfg.run_env_target_days
+        )
+        if target is None:
+            log.warning("Run environment: league total unreadable, totals uncorrected")
+            return 1.0
+        scale = run_env.scale_for_total(target)
+        log.info(
+            "Run environment: league %.2f runs/game over %dd vs simulator %.2f -> scale %.4f",
+            target, self.cfg.run_env_target_days, run_env.BASELINE_TOTAL, scale,
+        )
+        return scale
 
     @property
     def previews(self) -> list[GamePreview]:
@@ -684,7 +769,11 @@ class Pipeline:
         opp_throws = opp.probable_pitcher.throws.value if opp.probable_pitcher.throws else None
 
         pit_prof = build_pitcher_profile(
-            statcast, opp.probable_pitcher.mlbam_id, slate_date, w.pitcher_form_days
+            statcast,
+            opp.probable_pitcher.mlbam_id,
+            slate_date,
+            w.pitcher_form_days,
+            w.pitcher_baseline_days,
         )
         pit_rows = statcast[statcast["pitcher"] == opp.probable_pitcher.mlbam_id]
         pit_reg = build_pitcher_regression(
@@ -770,6 +859,7 @@ class Pipeline:
                 statcast, pid, slate_date, w.batter_home_away_days, w.batter_vs_rhp_days,
                 w.batter_vs_lhp_days, self.cfg.batter_split_prior,
                 self._ros_priors.get(int(pid)) if pid else None,
+                w.batter_overall_days,
             )
             profiles.append(bprof)
             ctx = bprof.for_context(team.is_home, opp_throws)
@@ -1373,6 +1463,10 @@ class Pipeline:
                              line=0.5, team_side="away", side="cover", quotes=quotes, gate_reason=game_sp_thin))
 
         # ---- batter props ----
+        # How hot the simulator priced this game, read off its own total rather
+        # than off the market's, so the correction is the engine marking down
+        # its own optimism (see models.run_env).
+        env_elev = self.cfg.run_env_tilt.elevation(float(total.mean()))
         for team_key, tinfo, flags, sels, regs, sunders, opp_sp in (
             ("home", game.home, home_rbi, home_sels, home_regs, home_su,
              game.away.probable_pitcher),
@@ -1383,7 +1477,7 @@ class Pipeline:
                 self._batter_props(
                     game, m, res, team_key, tinfo, flags, sels, regs, sunders,
                     opp_siera[team_key], opp_contact[team_key], quotes,
-                    park=park, weather_mult=weather_mult,
+                    park=park, weather_mult=weather_mult, env_elev=env_elev,
                     opp_throws=(
                         opp_sp.throws.value
                         if opp_sp is not None and opp_sp.throws
@@ -1446,6 +1540,7 @@ class Pipeline:
                 strong=r.tier == Tier.STRONG,
                 american=_fnum(r.market_american),
                 edge=_fnum(r.edge),
+                fair_prob=_fnum(r.fair_prob),
             )
         )
         best_bets = [
@@ -1686,12 +1781,18 @@ class Pipeline:
 
     def _batter_props(
         self, game, m, res, team_key, tinfo, flags, sels, regs, sunders, opp_siera,
-        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None
+        opp_contact, quotes, park=None, weather_mult=None, opp_throws=None,
+        env_elev=None
     ):
         out = []
         bat = res.bat[team_key]
         context = self._hits_context(park)
-        lines = {"H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5], "RBI": [0.5]}
+        lines = {
+            "H": [0.5, 1.5], "1B": [0.5], "2B": [0.5], "HR": [0.5], "R": [0.5],
+            "RBI": [0.5],
+            # Price-only (see oddsapi.PRICE_ONLY_MARKETS): quoted, never bought.
+            "BB": [0.5, 1.5], "K": [0.5, 1.5],
+        }
         for i, slot in enumerate(tinfo.lineup):
             name = slot.player.name
             pid = slot.player.mlbam_id
@@ -1729,7 +1830,7 @@ class Pipeline:
                             keys.batter_prop(name, stat, line, pside), po,
                             line=line, player_id=pid, stat=stat, side=pside, quotes=quotes,
                             selector=sel, gate_reason=gate if pside == "over" else None,
-                            **feat,
+                            env_elev=env_elev, **feat,
                         ))
             hrr = (bat["H"][:, i] + bat["R"][:, i] + bat["RBI"][:, i]).astype(float)
             hrr_gate = self._batter_gate(
@@ -1746,7 +1847,7 @@ class Pipeline:
                         keys.batter_prop(name, "H+R+RBI", line, pside), po,
                         line=line, player_id=pid, stat="HRR", side=pside, quotes=quotes,
                         gate_reason=hrr_gate if pside == "over" else None,
-                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, **feat,
+                        hrr_sweet=hrr_sweet, hrr_xslg=hrr_xslg, env_elev=env_elev, **feat,
                     ))
             tb = (
                 bat["1B"][:, i] + 2 * bat["2B"][:, i] + 3 * bat["3B"][:, i] + 4 * bat["HR"][:, i]
@@ -1763,7 +1864,7 @@ class Pipeline:
                         keys.batter_prop(name, "TB", line, pside), po,
                         line=line, player_id=pid, stat="TB", side=pside, quotes=quotes,
                         selector=tb_sel_out, gate_reason=tb_gate if pside == "over" else None,
-                        **feat,
+                        env_elev=env_elev, **feat,
                     ))
         return out
 
@@ -1781,14 +1882,23 @@ class Pipeline:
                         f"pitcher_k o{line} above buy cap "
                         f"{self.cfg.pitcher_k_max_buy_line}"
                     )
+                elif stat == "BB" and line > self.cfg.pitcher_bb_max_buy_line:
+                    gate = (
+                        f"pitcher_bb o{line} above buy cap "
+                        f"{self.cfg.pitcher_bb_max_buy_line}"
+                    )
                 po = p_over(arr, line)
                 for pside in self._prop_sides(f"pitcher_{stat.lower()}"):
-                    # The K buy cap and the thin-starter gate are screens on
+                    # The K and BB buy caps and the thin-starter gate are screens on
                     # buying the over; neither is a reason to decline an under.
                     # Walks are the exception: it is the under that is vetoed
                     # there, and the over is left alone.
                     side_gate = gate or gate_reason if pside == "over" else None
                     gate_name = "contact_floor"
+                    if pside == "over" and stat == "BB" and gate is not None:
+                        # The cap's own bucket, so probation does not read walk
+                        # lines as contact-floor evidence.
+                        gate_name = "bb_line_cap"
                     if (
                         pside == "under"
                         and stat == "BB"
@@ -1876,7 +1986,8 @@ class Pipeline:
             hrr_xslg: float | None = None,
             pen_fatigue: float | None = None,
             opp_pen_fatigue: float | None = None,
-            pen_availability: float | None = None) -> Recommendation:
+            pen_availability: float | None = None,
+            env_elev: float | None = None) -> Recommendation:
         under = side == "under"
         raw = float(min(max(prob, 1e-6), 1 - 1e-6))
         calibrated = self._calibrator.apply(market, raw)
@@ -1886,6 +1997,14 @@ class Pipeline:
             calibrated = self._apply_outs_bias(calibrated)
         if market == "batter_hrr":
             calibrated = self._hrr_adjust.apply(calibrated, line, hrr_sweet, hrr_xslg)
+        if market.startswith("batter_"):
+            # Last thing before the two sides are split: the fit was measured on
+            # the probability the ledger recorded, which is everything above.
+            calibrated = self.cfg.run_env_tilt.apply(calibrated, env_elev)
+        else:
+            # The league-level correction, on the markets the batter tilt leaves
+            # alone. Also after the map, and for the same reason.
+            calibrated = run_env.apply_shift(calibrated, market, line, self._run_env_scale)
         if side == "under":
             # Callers hand every prop its P(over), because that is the scale the
             # calibration map, the outs bias and the H+R+RBI shrink were all fit
@@ -2014,8 +2133,8 @@ class Pipeline:
                 if rbi_reason:
                     reasons.append(rbi_reason)
             # Conviction ceiling: the batter model's surest overs are its
-            # worst bets (see ``batter_max_buy_prob``). Overs only -- the fade
-            # at the same conviction is 40 graded rows, too few to condemn.
+            # worst bets (see ``batter_max_buy_prob``). The fade carries the same
+            # ceiling off its own knob, below, once its own screens have spoken.
             if market.startswith("batter_") and tier != Tier.PASS and not under:
                 keep, ceil_reason = prob_ceiling_allows(
                     rec.model_prob, self.cfg.batter_max_buy_prob, "batter-conviction-ceiling"
@@ -2050,6 +2169,21 @@ class Pipeline:
                         f"singles-under profile {score:.1f} < "
                         f"{self.cfg.singles_under_buy_min:.1f}"
                     )
+            # The fade half of the conviction ceiling, graded as a candidate for
+            # 27 slates and shipped at 544 buys and -6.3%. Its own gate and its
+            # own knob, so it retires without taking the over half with it, and
+            # last of the fade screens so the cruder refusals keep their rows.
+            if market.startswith("batter_") and under and tier != Tier.PASS:
+                keep, fade_ceil = prob_ceiling_allows(
+                    rec.model_prob,
+                    self.cfg.batter_under_max_buy_prob,
+                    "batter-fade-conviction-ceiling",
+                )
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "batter_under_prob_ceiling"
+                if fade_ceil:
+                    reasons.append(fade_ceil)
             if (
                 market == "batter_hr"
                 and tier != Tier.PASS
@@ -2113,6 +2247,16 @@ class Pipeline:
                     gate = "lineup_lock"
                 if lock_reason:
                     reasons.append(lock_reason)
+            # A hitter who may not bat is a smaller bet, not a refused one: the
+            # cap runs on any surviving buy so a promoted row is capped too.
+            if tier == Tier.STRONG:
+                cap, prov_reason = self._lineup_gate.caps_at_moderate(
+                    self._lineup_lock, market
+                )
+                if cap:
+                    tier = Tier.MODERATE
+                if prov_reason:
+                    reasons.append(prov_reason)
             # Runs after the sharp-money upgrade, which it is entitled to
             # overrule: handle agreeing with us about a road dog is the market
             # agreeing about the side, not about the price we are paying for it.
@@ -2131,18 +2275,41 @@ class Pipeline:
                     gate = "away_ml_dog"
                 if dog_reason:
                     reasons.append(dog_reason)
+            # The clock runs across every market, and before drift, so an early
+            # row is attributed to the hour it was priced at rather than to a
+            # board it was too early to have moved yet. It is a fact about the
+            # information the bet was made on, not about this selection: whatever
+            # promoted the row, nothing on it was knowable hours before lock.
+            if tier != Tier.PASS:
+                keep, clock_reason = self._lineup_gate.clock_allows(self._lineup_lock)
+                if not keep:
+                    tier = Tier.PASS
+                    gate = "lineup_clock"
+                if clock_reason:
+                    reasons.append(clock_reason)
             # Drift runs after everything, across every market: a side the
             # market has moved away from all day is one whose CLV is already
             # negative, whatever promoted it.
             if tier != Tier.PASS:
-                keep, drift_reason = self._drift_gate.allows(
-                    self._open_board.get(quote_key(*key)), evres.fair_prob
-                )
+                open_prob = self._open_board.get(quote_key(*key))
+                keep, drift_reason = self._drift_gate.allows(open_prob, evres.fair_prob)
                 if not keep:
                     tier = Tier.PASS
                     gate = "clv_drift"
                 if drift_reason:
                     reasons.append(drift_reason)
+                # And the other end of the same move: a side the market has
+                # already come to is one whose price we are paying after the
+                # money that made it.
+                if tier != Tier.PASS:
+                    keep, mom_reason = self._drift_gate.momentum_allows(
+                        open_prob, evres.fair_prob
+                    )
+                    if not keep:
+                        tier = Tier.PASS
+                        gate = "momentum_run_up"
+                    if mom_reason:
+                        reasons.append(mom_reason)
             rec.tier = tier
             rec.reasons = reasons
             # A Pass with no named screen was demoted by a tier adjustment

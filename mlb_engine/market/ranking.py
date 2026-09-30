@@ -32,6 +32,24 @@ So buys are listed by conviction tier, then shortest price first, and edge is
 shown as data rather than used as the ranking. None of this is a claim that
 short prices are profitable -- every cell above loses -- only that the order a
 reader's eye takes should not be the one the ledger says is worst.
+
+The price a row is ranked at is the *devigged* one wherever the board hung both
+sides, because the hold is not the same on every market and a posted price
+therefore orders two markets against each other badly. On 2,354 graded buys
+carrying a devigged price the market's own probability is the only ordering that
+tracks the money:
+
+    fair < .45     n=682   win 33.1%   ROI -11.2%
+    fair .45-.50   n=293   win 46.8%   ROI  -5.4%
+    fair .50-.55   n=414   win 51.4%   ROI  -5.9%
+    fair .55-.60   n=503   win 56.5%   ROI  -5.7%
+    fair .60-.65   n=298   win 62.8%   ROI  -3.8%
+
+and inside a fixed fair-probability band the claimed edge orders nothing
+(-7.3% / -5.6% / -6.6% across three edge buckets), which is why it stays a
+tiebreak. A row nothing could be devigged keeps its raw price as its rank: an
+unknown hold is not a zero hold, but the posted price is still the best read of
+the market available on that row.
 """
 
 from __future__ import annotations
@@ -39,6 +57,9 @@ from __future__ import annotations
 # Beyond this the price cells are too thin to order on (15 graded bets), so
 # everything longer sorts together at the end.
 LONGSHOT_AMERICAN = 300.0
+# Rank of a row carrying no price at all: behind every priced row, and ordered
+# among its own kind rather than arbitrarily.
+_UNPRICED = 1e9
 
 
 def decimal_odds(american: float | None) -> float:
@@ -50,8 +71,42 @@ def decimal_odds(american: float | None) -> float:
     return 1.0 + american / 100.0 if american > 0 else 1.0 + 100.0 / -american
 
 
+def fair_decimal(american: float | None, fair_prob: float | None = None) -> float:
+    """The price a row is ranked at, shortest first: devigged where we can.
+
+    ``fair_prob`` is the book-weighted no-vig probability, so ``1 / fair_prob``
+    is the same quantity ``decimal_odds`` returns with the hold taken out --
+    which makes a devigged row and a raw one comparable on one scale, and two
+    markets with different holds comparable at all. Longshots share the one
+    bucket the raw scale gives them.
+    """
+    if fair_prob is None or fair_prob <= 0.0:
+        return decimal_odds(american)
+    return min(1.0 / fair_prob, 1.0 + LONGSHOT_AMERICAN / 100.0)
+
+
+def price_rank(
+    american: float | None = None,
+    fair_prob: float | None = None,
+    ev: float | None = None,
+) -> float:
+    """Ordering value for any priced row, lowest first, unpriced rows last.
+
+    The ranking key every ordered display shares. ``ev`` is a last resort for a
+    row that carries no price at all: it keeps such rows in a stable order
+    behind every priced one rather than silently ranking them as even money.
+    """
+    if american is None and fair_prob is None:
+        return _UNPRICED - min(max(ev or 0.0, -1.0), 1.0)
+    return fair_decimal(american, fair_prob)
+
+
 def bet_sort_key(
-    *, strong: bool, american: float | None, edge: float | None
+    *,
+    strong: bool,
+    american: float | None,
+    edge: float | None,
+    fair_prob: float | None = None,
 ) -> tuple[int, float, float]:
-    """Conviction first, then the shortest price, then the edge as a tiebreak."""
-    return (0 if strong else 1, decimal_odds(american), -(edge or 0.0))
+    """Conviction first, then the shortest devigged price, then edge as a tiebreak."""
+    return (0 if strong else 1, fair_decimal(american, fair_prob), -(edge or 0.0))

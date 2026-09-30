@@ -53,7 +53,6 @@ gap in the data, not a clean bill of health for the screens.
 from __future__ import annotations
 
 import os
-import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from statistics import fmean, stdev
@@ -303,24 +302,6 @@ def _home_ml_short_of(floor: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
-def _batter_under_over_conviction(ceiling: float) -> Callable[[LedgerEntry], bool]:
-    """The half of the conviction ceiling that was not shipped.
-
-    ``batter_prob_ceiling`` refuses the model's surest batter *overs*. The fade
-    at the same conviction is 40 graded rows at -9.3%, which is the right sign
-    and nowhere near enough rows, so it is graded here instead of guessed at.
-    """
-
-    def refuses(e: LedgerEntry) -> bool:
-        return (
-            e.market.startswith("batter_")
-            and bool(re.search(r" u\d", e.selection))
-            and e.model_prob >= ceiling
-        )
-
-    return refuses
-
-
 def _anchored_ev_negative(weight: float) -> Callable[[LedgerEntry], bool]:
     """Would a market-anchored probability have priced this ML buy at EV <= 0?
 
@@ -363,13 +344,10 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         _anchored_ev_negative(0.5),
         "defer to the price where it out-forecasts the model",
     ),
-    # The fade side of the shipped conviction ceiling, held back for sample
-    # rather than for evidence: same direction, a tenth of the rows.
-    CandidateScreen(
-        "batter_under_prob_ceiling_0.62",
-        _batter_under_over_conviction(0.62),
-        "extend batter_prob_ceiling to the fade",
-    ),
+    # Shipped, so no longer graded here: the fade side of the conviction ceiling
+    # reached 544 graded buys at -6.3%, negative in both halves, and is now the
+    # live ``batter_under_prob_ceiling`` gate. Its record continues under
+    # :func:`screen_probation`, which can lift it if the refusals start paying.
 )
 
 

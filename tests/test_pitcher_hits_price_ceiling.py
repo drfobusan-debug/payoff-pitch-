@@ -12,7 +12,9 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from mlb_engine.config import Config
+import pytest
+
+from mlb_engine.config import Config, EVThresholds
 from mlb_engine.features.drift_gate import DriftGate
 from mlb_engine.features.lineup_lock import LineupLockGate
 from mlb_engine.features.market_gates import price_ceiling_allows
@@ -21,10 +23,20 @@ from mlb_engine.market.ev import MarketQuote
 from mlb_engine.market.tiers import Tier
 from mlb_engine.pipeline import Pipeline
 
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
+
 REFUSE_AT = -100.0
 MATCHUP = "CWS @ CHC"
 OVER = "Shota Imanaga Hits o5.5"
 UNDER = "Shota Imanaga Hits u5.5"
+
+# These rows are a 50% model against a plus-money price, which the shipped
+# conviction floor and EV ceiling refuse on their own. The screen under test here
+# is the price ceiling, so the level screens are lifted while it is exercised.
+LEVELS_OFF = EVThresholds(min_prob=0.0, max_ev=1.0)
 
 
 class _Identity:
@@ -41,7 +53,7 @@ def _hits_rec(
 ):
     """A priced ``pitcher_h`` selection, run through the real selection chain."""
     p = Pipeline.__new__(Pipeline)
-    p.cfg = Config()
+    p.cfg = Config(ev=LEVELS_OFF)
     p._calibrator = _Identity()
     p._shrink = None
     p._splits = {}

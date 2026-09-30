@@ -410,6 +410,47 @@ def test_the_third_time_through_window_reads_measured_depth() -> None:
 
 
 # ---- VSIN public splits -> moneyline quotes ----
+def _splits_table(*teams: str) -> str:
+    row = "<tr><td>x</td><td>{}</td><td>-1.5</td><td>50%</td><td>50%</td><td>8.5</td><td>50%</td><td>50%</td><td>-120</td><td>50%</td><td>50%</td></tr>"
+    return "<table>" + "".join(row.format(t) for t in teams) + "</table>"
+
+
+def test_vsin_sends_the_subscriber_cookie_and_names_a_teaser_board(monkeypatch, caplog):
+    import logging
+    from types import SimpleNamespace
+
+    from mlb_engine.config import Credentials
+    from mlb_engine.data import vsin
+    from mlb_engine.data.vsin import SUBSCRIBER_COOKIE, VSINClient
+
+    seen: list[dict[str, str]] = []
+    body = {"html": _splits_table("Milwaukee Brewers", "Pittsburgh Pirates")}
+
+    def fake_get(url, **kw):
+        seen.append(dict(kw.get("cookies") or {}))
+        return SimpleNamespace(text=body["html"], raise_for_status=lambda: None)
+
+    monkeypatch.setattr(vsin.http, "get", fake_get)
+
+    # Signed out: no cookie, and a two-row board is just what the public gets.
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token=None))._fetch_book("circa")
+    assert len(rows) == 2 and seen[-1] == {} and "teaser" not in caplog.text
+
+    # A token rides as the one cookie that matters; a teaser back means it died.
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token="tok"))._fetch_book("circa")
+    assert seen[-1] == {SUBSCRIBER_COOKIE: "tok"}
+    assert len(rows) == 2 and "teaser" in caplog.text and "tok" not in caplog.text
+
+    # The full board with the token: no complaint.
+    caplog.clear()
+    body["html"] = _splits_table("Milwaukee Brewers", "Pittsburgh Pirates", "Athletics", "Tampa Bay Rays")
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        rows = VSINClient(Credentials(vsin_token="tok"))._fetch_book("circa")
+    assert len(rows) == 4 and caplog.text == ""
+
+
 def test_vsin_fetch_quotes_maps_to_slate():
     import datetime
 
@@ -468,6 +509,13 @@ def test_vsin_fetch_quotes_maps_to_slate():
     assert splits[("MIN @ CLE", "game_total", "Over 7.5")].handle_pct == 13.0
     assert splits[("MIN @ CLE", "game_total", "Under 7.5")].handle_pct == 87.0
     assert client.fetch_quotes(slate).keys() == quotes.keys()
+
+    # Per-book, per-team ML and run-line splits kept apart for the worksheet.
+    sides = client.fetch_side_splits(slate)
+    assert set(sides) == {("MIN @ CLE", t, b) for t in ("MIN", "CLE") for b in ("draftkings", "circa")}
+    s = sides[("MIN @ CLE", "CLE", "circa")]
+    assert s.ml_american == 109.0 and s.ml.handle_pct == 16.0 and s.ml.bets_pct == 38.0
+    assert s.rl_line == 1.5 and s.rl.handle_pct == 4.0 and s.rl.bets_pct == 58.0
 
     # An alternate line is the same public money: VSIN posts the split against
     # its own line, but the engine routinely picks 8.5 or 9.5 on the same game,
@@ -1080,8 +1128,10 @@ def test_ev_positive_when_underpriced():
 
 def test_classify_tiers():
     thr = EVThresholds()
-    q = [MarketQuote("draftkings", 120, opposite_american=-140, handle_pct=70, bets_pct=45)]
-    res = evaluate(0.50, q)
+    # Above the conviction floor and inside the edge ceiling: fair is 0.533 here,
+    # so a 0.60 model is a real but plausible disagreement.
+    q = [MarketQuote("draftkings", -125, opposite_american=105, handle_pct=70, bets_pct=45)]
+    res = evaluate(0.60, q)
     tier, reasons = classify(res, thr)
     assert tier in (Tier.STRONG, Tier.MODERATE)
     # negative edge -> pass
@@ -1191,7 +1241,7 @@ def test_props_total_bases_market():
     from mlb_engine.models.props import batter_markets
 
     z = np.zeros((4, 9), dtype=np.int16)
-    bat = {s: z.copy() for s in ("H", "1B", "2B", "3B", "HR", "R", "RBI")}
+    bat = {s: z.copy() for s in ("H", "1B", "2B", "3B", "HR", "R", "RBI", "BB", "K")}
     # slot 0 across 4 sims: TB = 1B + 2*2B + 3*3B + 4*HR
     bat["1B"][:, 0] = [1, 0, 0, 2]
     bat["2B"][:, 0] = [0, 1, 0, 0]
@@ -1666,12 +1716,13 @@ def test_strong_only_and_min_edge_selection():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import Tier, classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
 
     def _res(ev, edge):
+        # Above the conviction floor, so the tier is what is under test.
         return EVResult(
-            model_prob=0.5, best_quote=q, decimal=1.91, ev=ev,
-            fair_prob=0.5 - edge, edge=edge, sharp_divergence=None,
+            model_prob=0.60, best_quote=q, decimal=1.91, ev=ev,
+            fair_prob=0.60 - edge, edge=edge, sharp_divergence=None,
         )
 
     moderate = _res(ev=0.05, edge=0.03)
@@ -1689,12 +1740,13 @@ def test_tier_does_not_reward_the_longer_price():
     from mlb_engine.market.tiers import classify
 
     thr = EVThresholds()
-    # A 5-point edge over the devigged price, quoted as a dog and as a favourite.
-    dog = evaluate(1 / 3 + 0.05, [MarketQuote("dk", 200, opposite_american=-200)])
-    fave = evaluate(5 / 7 + 0.05, [MarketQuote("dk", -250, opposite_american=250)])
-    assert abs(dog.edge - 0.05) < 1e-9 and abs(fave.edge - 0.05) < 1e-9
-    assert dog.ev > fave.ev  # EV = decimal odds x edge, so the dog looks bigger
-    assert classify(dog, thr)[0] is classify(fave, thr)[0] is Tier.STRONG
+    # A 5-point edge over the devigged price, quoted long and short. Both sides
+    # clear the conviction floor, which is a level test rather than a tier one.
+    long_price = evaluate(0.5833 + 0.05, [MarketQuote("dk", -140, opposite_american=140)])
+    short_price = evaluate(0.80 + 0.05, [MarketQuote("dk", -400, opposite_american=400)])
+    assert abs(long_price.edge - 0.05) < 1e-3 and abs(short_price.edge - 0.05) < 1e-9
+    assert long_price.ev > short_price.ev  # EV = decimal odds x edge
+    assert classify(long_price, thr)[0] is classify(short_price, thr)[0] is Tier.STRONG
 
 
 def test_implausible_edge_is_a_pass():
@@ -1703,15 +1755,16 @@ def test_implausible_edge_is_a_pass():
     from mlb_engine.market.ev import EVResult, MarketQuote
     from mlb_engine.market.tiers import classify
 
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
     huge = EVResult(
         model_prob=0.70, best_quote=q, decimal=1.91, ev=0.337,
         fair_prob=0.50, edge=0.20, sharp_divergence=None,
     )
     assert classify(huge, EVThresholds())[0] is Tier.PASS
     assert any("> 0.08" in r for r in classify(huge, EVThresholds())[1])
-    # The cap is what rejects it, not the EV or the thin-edge guard.
-    assert classify(huge, EVThresholds(max_edge=1.0))[0] is Tier.STRONG
+    # The cap is what rejects it, not the EV floor or the thin-edge guard. The EV
+    # ceiling is lifted with it because a 20-point edge is past that too.
+    assert classify(huge, EVThresholds(max_edge=1.0, max_ev=1.0))[0] is not Tier.PASS
 
 
 def test_zero_ev_price_is_a_pass():
@@ -1777,6 +1830,27 @@ def test_ledger_overall_and_dedup(tmp_path):
     # even, so a 66.7% win rate is genuinely ahead rather than assumed to be.
     assert abs(strong.required_win_pct - 0.5079) < 1e-3
     assert strong.win_pct > strong.required_win_pct
+
+
+def test_a_row_the_board_never_priced_is_kept_out_of_the_priced_return():
+    """An assumed -110 is not a return, so it travels in its own column.
+
+    The unpriced rows win more often than the priced ones over a season, which
+    makes the blended figure read as profit off prices nobody offered.
+    """
+    from mlb_engine.audit.ledger import entries_from_graded, overall_metrics
+
+    entries = entries_from_graded(
+        [
+            (_rec(tier=Tier.STRONG, market_american=-110), LOSS),
+            (_rec(tier=Tier.STRONG, market_american=None), WIN),
+        ],
+        date(2024, 7, 19),
+    )
+    strong = next(m for m in overall_metrics(entries) if m.tier == Tier.STRONG.value)
+    assert strong.n == 2 and strong.roi > strong.priced_roi  # the assumed win lifts it
+    assert strong.priced_n == 1
+    assert abs(strong.priced_roi + 1.0) < 1e-9
 
 
 # ---- backtest analytics ----
@@ -1976,20 +2050,69 @@ def test_run_line_miss_matrix_persists_across_ledger_io(tmp_path):
     assert run_line_miss_matrix(reloaded).fav_one_run == 1
 
 
-def test_report_renders_run_line_miss_matrix():
+def _rl_report(n_rows: int):
     from mlb_engine.audit.ledger import entries_from_graded
-    from mlb_engine.output.report import build_report_data, render_markdown_report
+    from mlb_engine.output.report import build_report_data
 
-    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, 6)}
+    results = {i: GameResult(i, True, 4, 3, 0, 0) for i in range(1, n_rows + 1)}
     graded = [
         (_rec(game_pk=i, market="game_rl", team_side="home", line=-1.5, model_prob=0.6), LOSS)
-        for i in range(1, 6)
+        for i in range(1, n_rows + 1)
     ]
     entries = entries_from_graded(graded, date(2026, 7, 23), results)
-    data = build_report_data(entries, period_label="Daily", subtitle="x")
+    return build_report_data(entries, period_label="Daily", subtitle="x")
+
+
+def test_report_renders_run_line_miss_matrix_once_it_has_a_sample():
+    from mlb_engine.output.report import RL_MIN_N, render_html_report, render_markdown_report
+
+    data = _rl_report(RL_MIN_N)
     assert data.rl_matrix.has_data
+    assert data.rl_findings
     md = render_markdown_report(data)
     assert "Run-line miss matrix" in md
+    assert "Run-line miss matrix" in render_html_report(data)
+
+
+def test_report_withholds_run_line_miss_matrix_under_the_floor():
+    # Five losses is a week of variance, not a game-script finding: the matrix
+    # is still measured but neither it nor its findings are printed.
+    from mlb_engine.output.report import RL_MIN_N, render_html_report, render_markdown_report
+
+    data = _rl_report(RL_MIN_N - 1)
+    assert data.rl_matrix.has_data
+    assert data.rl_findings == []
+    md = render_markdown_report(data)
+    assert "Run-line miss matrix" not in md
+    assert "one-run" not in md
+    assert "Run-line miss matrix" not in render_html_report(data)
+
+
+def test_report_has_no_boilerplate_recommendations_block():
+    from mlb_engine.output.report import render_html_report, render_markdown_report
+
+    data = _rl_report(3)
+    md = render_markdown_report(data)
+    assert "## Recommendations" not in md
+    assert "What to play and fade right now" in md
+    assert "<h2>Recommendations</h2>" not in render_html_report(data)
+
+
+def test_report_npv_is_blank_on_a_market_the_model_never_faded():
+    # Every game_rl row is favored (model_prob 0.6): TN + FN = 0, so NPV has no
+    # denominator and must print as unavailable, not as 0.00.
+    from mlb_engine.output.report import render_html_report, render_markdown_report
+
+    data = _rl_report(3)
+    row = next(r for r in data.rows if r.market == "game_rl")
+    assert row.faded_n == 0
+    md = render_markdown_report(data)
+    line = next(ln for ln in md.splitlines() if ln.startswith(f"| {row.label} |"))
+    assert line.split("|")[3].strip() == "—"
+    assert f"<td>{row.label}</td><td>0.00</td><td>\u2014</td>" in render_html_report(data)
+    # the whole-engine row too: everything favored, nothing to score NPV on
+    assert data.engine.faded_n == 0
+    assert "| **Whole engine** (favored side) | 3 | **0.0%** | \u2014 |" in md
 
 
 def test_ledger_workbook_with_analysis(tmp_path):
@@ -2442,15 +2565,20 @@ def _ledger_entry(market, model_prob, result, *, odds=-110, ev=0.0, tier=Tier.PA
 
 
 def _report_ledger():
+    # Counts are past the report's priced-row floor: a verdict is only spent on a
+    # market with enough real quotes to have a return, so a ten-row toy market
+    # now reads as Neutral for want of a record rather than as Play.
     entries = []
     # A clean, profitable play market (pitcher_k): favored picks mostly win.
-    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(8)]
-    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(2)]
+    entries += [_ledger_entry("pitcher_k", 0.7, WIN) for _ in range(32)]
+    entries += [_ledger_entry("pitcher_k", 0.7, LOSS) for _ in range(8)]
     # A losing pocket (f5_total): favored picks mostly lose big.
-    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(7)]
-    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(3)]
+    entries += [_ledger_entry("f5_total", 0.6, LOSS, odds=100) for _ in range(28)]
+    entries += [_ledger_entry("f5_total", 0.6, WIN, odds=100) for _ in range(12)]
     # A market the model always fades -> abstain row.
-    entries += [_ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(6)]
+    entries += [
+        _ledger_entry("batter_hr", 0.2, LOSS, selection="Over 0.5") for _ in range(24)
+    ]
     return entries
 
 
@@ -2486,12 +2614,64 @@ def test_report_classifies_and_renders():
     assert "## Executive summary" in md
     assert "## Market scorecard" in md
     assert "Min p to Play" in md
-    assert "Recommendations" in md
+    assert "## Recommendations" not in md
+    assert "What to play and fade right now" in md
     assert "Pitcher strikeouts" in md
 
     html_body = render_html_report(data)
     assert html_body.startswith("<!DOCTYPE html>")
     assert "Market scorecard" in html_body and "<table>" in html_body
+
+
+def test_a_market_paid_at_a_price_nobody_offered_is_not_playable():
+    """The verdict is a betting instruction, so it reads the rows that had a bet.
+
+    Half the ledger carries no book price and is graded at an assumed -110, and
+    those rows both outnumber and out-win the priced ones -- which is how batter
+    total bases came to sit in the Play list at +44.4% on the same page as the
+    probation table shutting it.
+    """
+    from mlb_engine.output.report import PLAY, build_report_data
+
+    entries = [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=-200, pnl=0.5) for _ in range(24)
+    ]
+    entries += [_ledger_entry("batter_tb", 0.6, LOSS, odds=-200) for _ in range(16)]
+    entries += [
+        _ledger_entry("batter_tb", 0.6, WIN, odds=None, pnl=0.91) for _ in range(40)
+    ]
+
+    data = build_report_data(entries, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_tb")
+    assert row.roi > 0 and row.priced_roi < 0  # the blended figure disagrees
+    assert row.verdict != PLAY and "Batter total bases" not in data.play
+
+
+def test_a_market_probation_shut_cannot_be_green(monkeypatch):
+    """Two measurements of one market, and the weaker one does not get the dot.
+
+    Probation grades a market on its own buys over both halves of its window;
+    the scorecard grades every side the model favored. When they disagree the
+    reader acts on the coloured dot, so the dot defers.
+    """
+    from mlb_engine.output.report import FADE, build_report_data
+
+    monkeypatch.setenv("MLBE_PROBATION_MIN_N", "4")
+    buys = [
+        _ledger_entry("batter_hrr", 0.6, LOSS, tier=Tier.MODERATE,
+                      date_str=f"2026-08-{18 + i}")
+        for i in range(6)
+    ]
+    passes = [
+        _ledger_entry("batter_hrr", 0.6, WIN, odds=-200, pnl=0.5,
+                      date_str="2026-08-20")
+        for _ in range(60)
+    ]
+
+    data = build_report_data(buys + passes, period_label="Daily", subtitle="s")
+    row = next(r for r in data.rows if r.market == "batter_hrr")
+    assert row.priced_roi > 0  # the favored sides look fine
+    assert row.verdict == FADE and "probation" in row.reason
 
 
 def test_weekly_window_filters_to_seven_days():

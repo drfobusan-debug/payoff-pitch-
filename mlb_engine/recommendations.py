@@ -104,10 +104,31 @@ class Recommendation:
     vsin_pick: str | None = None
     vsin_edge: float | None = None
     vsin_agrees: bool | None = None
+    # TeamRankings' call on this same game market, see data.teamrankings. Their
+    # grid covers the moneyline, run line and total only, so props stay empty.
+    # tr_stars is their published rating for their own side, so it is shown only
+    # alongside tr_agrees -- two stars against us are never two stars for us.
+    tr_pick: str | None = None
+    tr_stars: int | None = None
+    tr_agrees: bool | None = None
+    # Their projected winner, which is a projection and not a bet: it names a
+    # side on every game, including the ones where their value columns decline
+    # to play, so it is carried on all three game markets as context.
+    tr_winner: str | None = None
     # THE BAT X's probability for the side we are backing (see data.batx). It is
     # displayed and persisted to the ledger, and it is an input to nothing: the
     # head-to-head that would justify weighting it is itself run off this column.
     batx_prob: float | None = None
+    # EV Analytics' board (see data.evanalytics), which publishes THE BAT X's
+    # projected *mean* for the stat next to the book's line. ev_agrees compares
+    # that mean to our own line, so the same forecast is a star on over 0.5 and
+    # a cross on over 1.5. Display only, like every other outside model here.
+    ev_proj: float | None = None
+    ev_pick: str | None = None
+    ev_agrees: bool | None = None
+    # The engine's own selection this row is the fade of, when the buy was
+    # moved to the book's side of the market (see :func:`fade_disagreements`).
+    fade_of: str | None = None
 
     @property
     def bet_group(self) -> tuple[int, str, int | None]:
@@ -134,6 +155,20 @@ class Recommendation:
         if self.vsin_agrees is None:
             return ""
         return "\u2605" if self.vsin_agrees else "\u2717"
+
+    @property
+    def tr_mark(self) -> str:
+        """A star when TeamRankings' model is on our side of this bet, else a cross."""
+        if self.tr_agrees is None:
+            return ""
+        return "\u2605" if self.tr_agrees else "\u2717"
+
+    @property
+    def ev_mark(self) -> str:
+        """A star when THE BAT X's projection clears our line on our side."""
+        if self.ev_agrees is None:
+            return ""
+        return "\u2605" if self.ev_agrees else "\u2717"
 
     @property
     def model_american(self) -> float:
@@ -187,6 +222,13 @@ class Recommendation:
             "VSiN Pick": self.vsin_pick or "",
             "VSiN Edge": round(self.vsin_edge * 100, 1) if self.vsin_edge is not None else "",
             "BAT X %": round(self.batx_prob * 100, 1) if self.batx_prob is not None else "",
+            "TR": self.tr_mark,
+            "TR Pick": self.tr_pick or "",
+            "TR Stars": self.tr_stars if self.tr_stars is not None else "",
+            "TR Winner": self.tr_winner or "",
+            "EVA": self.ev_mark,
+            "EVA Proj": round(self.ev_proj, 2) if self.ev_proj is not None else "",
+            "EVA Pick": self.ev_pick or "",
             "Notes": "; ".join(self.reasons),
         }
 
@@ -233,6 +275,78 @@ def enforce_one_buy_per_group(recs: list[Recommendation]) -> list[Recommendation
 
 def _is_buy(r: Recommendation) -> bool:
     return r.tier is not Tier.PASS and r.market_american is not None
+
+
+BOOK_FADE_GATE = "book_fade"
+
+
+def fade_disagreements(
+    recs: list[Recommendation], max_fair: float, markets: frozenset[str] = frozenset()
+) -> list[Recommendation]:
+    """Where the engine and the book back different sides, bet the book's side.
+
+    A buy whose devigged market probability is under ``max_fair`` is one where
+    the engine is backing the side the book calls the underdog. The buy is
+    turned into a Pass under :data:`BOOK_FADE_GATE`, and the other side of the
+    same market -- the row the pipeline already priced, at the price it was
+    quoted -- inherits its tier. ``markets`` restricts the rule to those
+    markets; empty means every market. ``max_fair <= 0`` disables it.
+
+    The engine's row keeps its ``pass_gate`` and the fade carries ``fade_of``,
+    so the ledger grades both sides of the decision. Graded 2026-08-18 to
+    2026-09-08, buys the book called dogs went 39.1% for -5.8% (n=713); taking
+    the other side at its quoted price went -7.8% overall, because the vig is
+    paid whichever way the disagreement is resolved, and paid off only on
+    doubles (-26.3% -> -0.2%), H+R+RBI (-33.4% -> +18.0%) and run lines
+    (-15.0% -> +4.9%). A buy with no priced other side is left as it was.
+    """
+    if max_fair <= 0:
+        return recs
+    by_key: dict[tuple[int, str, int | None, float | None], list[Recommendation]] = {}
+    for r in recs:
+        if r.market_american is not None and r.side != "tie":
+            by_key.setdefault(_side_key(r), []).append(r)
+    for r in recs:
+        if not _is_buy(r) or r.fair_prob is None or r.fair_prob >= max_fair:
+            continue
+        if markets and r.market not in markets:
+            continue
+        other = [o for o in by_key.get(_side_key(r), []) if o is not r and _opposes(r, o)]
+        if len(other) != 1:
+            continue
+        fade = other[0]
+        fade.tier = r.tier
+        fade.pass_gate = None
+        fade.fade_of = r.selection
+        fade.reasons = [
+            f"book fade: engine backed {r.selection} at fair {r.fair_prob:.3f}; "
+            f"the book favors this side -> buy",
+            *fade.reasons,
+        ]
+        r.tier = Tier.PASS
+        r.pass_gate = BOOK_FADE_GATE
+        r.reasons.append(
+            f"book fade: fair {r.fair_prob:.3f} < {max_fair}; bet moved to {fade.selection}"
+        )
+    return recs
+
+
+def _side_key(r: Recommendation) -> tuple[int, str, int | None, float | None]:
+    """One two-way market: a run line's two sides carry opposite-signed lines."""
+    line = abs(r.line) if r.line is not None else None
+    return (r.game_pk, r.market, r.player_id, line)
+
+
+def _opposes(a: Recommendation, b: Recommendation) -> bool:
+    """The other side of ``a``'s market: a prop's or total's other direction, the
+    other team on a moneyline, or the other team at the mirrored run line."""
+    if a.player_id is not None or a.team_side is None:
+        return a.side != b.side
+    if a.team_side == b.team_side:
+        return False
+    if a.line is None or b.line is None:
+        return a.line is None and b.line is None
+    return b.line == -a.line
 
 
 def _buy_rank(r: Recommendation) -> tuple[int, float, float]:

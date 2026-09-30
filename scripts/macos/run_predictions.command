@@ -4,9 +4,23 @@
 # all in a single message, then opens the Excel bet card.
 # Individual report/email steps only warn on failure so the rest still runs.
 set -uo pipefail
-cd "$(dirname "$0")/../.." || exit 1
-# shellcheck disable=SC1091
-source .venv/bin/activate
+# Enter the checkout, following symlinks: the Desktop icon should be a link to
+# this file, not a copy of it. _repo.sh refuses to run outside a checkout.
+_src=$0
+while [ -L "$_src" ]; do
+    _link=$(readlink "$_src")
+    case $_link in
+        /*) _src=$_link ;;
+        *) _src=$(dirname "$_src")/$_link ;;
+    esac
+done
+if [ ! -f "$(dirname "$_src")/_repo.sh" ]; then
+    echo "A copy of this script cannot find the engine. Link to it instead:" >&2
+    echo "  rm \"$0\" && ln -s \"\$HOME/payoff-pitch-/scripts/macos/$(basename "$_src")\" \"$0\"" >&2
+    exit 1
+fi
+# shellcheck source=scripts/macos/_repo.sh
+. "$(dirname "$_src")/_repo.sh"
 
 # Load engine credentials (Gmail app password, Odds API key, etc.) from the same
 # env file(s) the scheduled autorun uses, so a manual double-click can email too.
@@ -59,11 +73,15 @@ python -m scripts.regen_slate "$day" || echo "WARN: slate article failed" >&2
 # Pitcher + batter regression articles + narration (need the trailing Statcast pkl).
 pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1)
 if [ -n "$pkl" ]; then
-    python -m scripts.regen_regression "$day" "$(basename "$pkl")" \
+    python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
         || echo "WARN: regression articles failed" >&2
 else
     echo "WARN: no Statcast cache pkl found; skipping regression articles" >&2
 fi
+
+# Hand-method totals sheet (signed points per game; research, not a bet).
+python -m scripts.totals_sheet "$day" || echo "WARN: totals sheet failed" >&2
+python -m scripts.totals_audit "$day" || echo "WARN: totals audit failed" >&2
 
 # Email the whole package as one message (Gmail App Password from the engine env).
 python -m scripts.email_daily_package "$day" || echo "WARN: email step failed" >&2

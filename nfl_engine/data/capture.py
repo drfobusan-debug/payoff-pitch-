@@ -31,13 +31,16 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import logging
+import re
 from collections import defaultdict
 from dataclasses import asdict, dataclass, fields
 from datetime import datetime, timezone
 from functools import partial
 from pathlib import Path
 
+from nfl_engine.audit.ledger import CONTROL_CHARS
 from nfl_engine.config import data_dir
 from nfl_engine.market.board import OVER, GameOdds, MarketQuote
 
@@ -238,7 +241,16 @@ def snapshot_paths(
     folder = week_dir(season, week, root=root)
     if not folder.exists():
         return []
-    return sorted(folder.glob(f"{kind}-*.csv"))
+    return sorted(folder.glob(f"{kind}-*.csv"), key=_snapshot_order)
+
+
+def _snapshot_order(path: Path) -> tuple[str, int]:
+    """Chronological key: ``kind-<stamp>.csv`` precedes ``kind-<stamp>-1.csv``."""
+    stem = path.stem
+    match = re.fullmatch(r"(.*Z)-(\d+)", stem)
+    if match:
+        return match.group(1), int(match.group(2))
+    return stem, 0
 
 
 def latest_snapshot(
@@ -248,33 +260,72 @@ def latest_snapshot(
     return paths[-1] if paths else None
 
 
+def opening_board(
+    season: int, week: int, *, root: Path | None = None
+) -> tuple[dict[str, GameOdds], dict[str, str]]:
+    """Each game's earliest archived board, and the moment that game was first seen.
+
+    "Opening" here means the first board this machine archived for the game --
+    Tuesday morning once the night-before captures are scheduled, the pricing
+    run's own board when nothing ran earlier. A game the book posts late takes
+    its open from the first later snapshot that carries it. The archive is
+    write-once per snapshot, so re-running a capture never moves the open.
+    """
+    board: dict[str, GameOdds] = {}
+    taken: dict[str, str] = {}
+    for path in snapshot_paths(season, week, GAME_KIND, root=root):
+        rows = read_snapshot(path)
+        fresh = [r for r in rows if r.matchup not in taken]
+        if not fresh:
+            continue
+        for matchup, odds in board_from_rows(fresh).items():
+            board[matchup] = odds
+            taken[matchup] = next(r.captured_at for r in fresh if r.matchup == matchup)
+    return board, taken
+
+
 def read_snapshot(path: Path) -> list[QuoteRow]:
     if not path.exists():
         return []
     out: list[QuoteRow] = []
-    with path.open(newline="", encoding="utf-8") as handle:
-        for raw in csv.DictReader(handle):
-            american = _float(raw.get("american"))
-            if american is None:
-                continue
-            out.append(
-                QuoteRow(
-                    captured_at=raw.get("captured_at", ""),
-                    season=int(raw.get("season") or 0),
-                    week=int(raw.get("week") or 0),
-                    game_date=raw.get("game_date", ""),
-                    matchup=raw.get("matchup", ""),
-                    market=raw.get("market", ""),
-                    side=raw.get("side", ""),
-                    line=_float(raw.get("line")),
-                    book=raw.get("book", ""),
-                    american=american,
-                    opposite_american=_float(raw.get("opposite_american")),
-                    player=raw.get("player", ""),
-                    event_id=raw.get("event_id", ""),
-                    source=raw.get("source", ODDSAPI),
-                )
+    # Read whole and strip control characters, rather than streaming the file: one
+    # NUL byte anywhere makes ``csv`` refuse the entire read, and an archive is the
+    # only copy of prices that can never be fetched again.
+    text = CONTROL_CHARS.sub("", path.read_text(encoding="utf-8", errors="replace"))
+    skipped = 0
+    for raw in csv.DictReader(io.StringIO(text, newline="")):
+        american = _float(raw.get("american"))
+        if american is None:
+            skipped += 1
+            continue
+        try:
+            season = int(raw.get("season") or 0)
+            week = int(raw.get("week") or 0)
+        except ValueError:
+            # A row that cannot say which week it belongs to is unreadable, not
+            # fatal: skip it and keep the rest of the snapshot.
+            skipped += 1
+            continue
+        out.append(
+            QuoteRow(
+                captured_at=raw.get("captured_at", ""),
+                season=season,
+                week=week,
+                game_date=raw.get("game_date", ""),
+                matchup=raw.get("matchup", ""),
+                market=raw.get("market", ""),
+                side=raw.get("side", ""),
+                line=_float(raw.get("line")),
+                book=raw.get("book", ""),
+                american=american,
+                opposite_american=_float(raw.get("opposite_american")),
+                player=raw.get("player", ""),
+                event_id=raw.get("event_id", ""),
+                source=raw.get("source", ODDSAPI),
             )
+        )
+    if skipped:
+        log.warning("skipped %d unreadable quote row(s) in %s", skipped, path.name)
     return out
 
 

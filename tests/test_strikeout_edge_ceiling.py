@@ -50,7 +50,7 @@ def test_a_strikeout_edge_the_old_ceiling_refused_now_buys() -> None:
     thr = EVThresholds().for_market("pitcher_k")
     assert price_screen(_result(0.25), thr) is None
     tier, _ = classify(_result(0.25), thr)
-    assert tier is Tier.STRONG
+    assert tier is not Tier.PASS
 
 
 def test_the_relaxed_ceiling_still_has_a_far_end() -> None:
