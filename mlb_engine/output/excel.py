@@ -36,6 +36,8 @@ from mlb_engine.audit.analysis import (
 from mlb_engine.audit.clv import ClvSummary
 from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from mlb_engine.config import EVThresholds
+from mlb_engine.market.odds import american_to_prob
+from mlb_engine.market.ranking import price_rank
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -69,6 +71,13 @@ COLUMNS = [
     "VSiN Pick",
     "VSiN Edge",
     "BAT X %",
+    "TR",
+    "TR Pick",
+    "TR Stars",
+    "TR Winner",
+    "EVA",
+    "EVA Proj",
+    "EVA Pick",
     "Notes",
 ]
 
@@ -102,6 +111,13 @@ COLUMN_WIDTHS = {
     "VSiN Pick": 20,
     "VSiN Edge": 9,
     "BAT X %": 9,
+    "TR": 5,
+    "TR Pick": 20,
+    "TR Stars": 8,
+    "TR Winner": 16,
+    "EVA": 5,
+    "EVA Proj": 9,
+    "EVA Pick": 22,
     "Notes": 40,
 }
 
@@ -148,6 +164,11 @@ GRID_COLUMNS = [
     "VSiN",
     "VSiN Pick",
     "BAT X %",
+    "TR",
+    "TR Pick",
+    "TR Winner",
+    "EVA",
+    "EVA Pick",
     "Edge",
     "Handle %",
     "Bets %",
@@ -157,12 +178,20 @@ GRID_COLUMNS = [
     "Profile",
     "Notes",
 ]
-GRID_WIDTHS = [
-    7, 13, 15, 8, 30, 13, 12, 12, 8, 8, 8, 7, 8, 6, 20, 9, 8, 9, 8, 8, 7, 7, 26, 40
-]
+# Keyed by name for the same reason as COLUMN_WIDTHS: a positional list silently
+# mis-sizes every column after an inserted one.
+GRID_WIDTHS = {
+    "Best": 7, "Tier": 13, "Category": 15, "EV": 8, "Selection": 30,
+    "Matchup": 13, "Date": 12, "Book": 12, "Odds": 8, "Model %": 8,
+    "Market %": 8, "AI": 7, "Opta %": 8, "VSiN": 6, "VSiN Pick": 20,
+    "BAT X %": 9, "TR": 5, "TR Pick": 20, "TR Winner": 16, "EVA": 5,
+    "EVA Pick": 22, "Edge": 8,
+    "Handle %": 9, "Bets %": 8, "Signal": 8, "Factor": 7, "Score": 7,
+    "Profile": 26, "Notes": 40,
+}
 GRID_CENTER = {
     "Best", "Tier", "EV", "Date", "Odds", "Model %", "Market %", "AI", "Opta %",
-    "VSiN", "BAT X %", "Edge", "Handle %", "Bets %",
+    "VSiN", "BAT X %", "TR", "EVA", "Edge", "Handle %", "Bets %",
 }
 
 # Scheme keys.
@@ -221,10 +250,13 @@ def _scheme_key(rec: Recommendation) -> str:
 
 
 def _conviction(rec: Recommendation, key: str) -> float:
-    """Sort/shade magnitude: distance from the no-vig price, in either direction.
+    """Sort/shade magnitude: the no-vig price on a buy, distance from it on a fade.
 
-    Both ends are probability points, so a shade means the same thing on a dog and
-    on chalk; EV would make the gradient a function of price length.
+    A fade is still shaded by how far the model sits *under* the price, because
+    that is the whole content of a fade. A buy is shaded by the devigged price
+    itself rather than by the edge over it: the edge orders our buys backwards
+    (see :mod:`mlb_engine.market.ranking`), so a darker green used to mean a
+    worse bet. A buy nothing could be devigged keeps its raw implied price.
     """
     if key == _FADE:
         if rec.fair_prob is not None:
@@ -234,9 +266,11 @@ def _conviction(rec: Recommendation, key: str) -> float:
         else:
             v = 0.0
         return max(0.0, v)
-    if rec.edge is not None:
-        return rec.edge
-    return rec.ev if rec.ev is not None else 0.0
+    if rec.fair_prob is not None:
+        return rec.fair_prob
+    if rec.market_american is not None:
+        return american_to_prob(rec.market_american)
+    return 0.0
 
 
 def _is_best(rec: Recommendation, category: str) -> bool:
@@ -290,6 +324,11 @@ def _grid_values(rec: Recommendation, cat: str, best: bool) -> dict[str, object]
         "VSiN": rec.vsin_mark,
         "VSiN Pick": rec.vsin_pick or "",
         "BAT X %": round(rec.batx_prob * 100, 1) if rec.batx_prob is not None else "",
+        "TR": rec.tr_mark,
+        "TR Pick": rec.tr_pick or "",
+        "TR Winner": rec.tr_winner or "",
+        "EVA": rec.ev_mark,
+        "EVA Pick": rec.ev_pick or "",
         "Edge": round(rec.edge, 3) if rec.edge is not None else "",
         "Handle %": rec.handle_pct if rec.handle_pct is not None else "",
         "Bets %": rec.bets_pct if rec.bets_pct is not None else "",
@@ -368,8 +407,8 @@ def _write_grid(
             if name in GRID_CENTER:
                 cell.alignment = center
 
-    for i, w in enumerate(GRID_WIDTHS, start=1):
-        ws.column_dimensions[get_column_letter(i)].width = w
+    for i, name in enumerate(GRID_COLUMNS, start=1):
+        ws.column_dimensions[get_column_letter(i)].width = GRID_WIDTHS.get(name, 12)
     if tagged:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(GRID_COLUMNS))}{len(tagged) + 1}"
     ws.freeze_panes = "A2"
@@ -412,7 +451,7 @@ def _write_all_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
 
 def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date) -> Path:
     def sort_key(r: Recommendation) -> tuple[int, float]:
-        return (TIER_ORDER.get(r.tier.value, 3), -(r.ev if r.ev is not None else -99))
+        return (TIER_ORDER.get(r.tier.value, 3), price_rank(r.market_american, r.fair_prob, r.ev))
 
     wb = Workbook()
     strong = [r for r in recs if r.tier == Tier.STRONG]

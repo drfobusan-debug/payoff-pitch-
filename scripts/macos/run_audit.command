@@ -3,9 +3,23 @@
 # (Morningstar article + audio + Excel ledger), email it all in one message,
 # then open the ledger workbook locally.
 set -uo pipefail
-cd "$(dirname "$0")/../.." || exit 1
-# shellcheck disable=SC1091
-source .venv/bin/activate
+# Enter the checkout, following symlinks: the Desktop icon should be a link to
+# this file, not a copy of it. _repo.sh refuses to run outside a checkout.
+_src=$0
+while [ -L "$_src" ]; do
+    _link=$(readlink "$_src")
+    case $_link in
+        /*) _src=$_link ;;
+        *) _src=$(dirname "$_src")/$_link ;;
+    esac
+done
+if [ ! -f "$(dirname "$_src")/_repo.sh" ]; then
+    echo "A copy of this script cannot find the engine. Link to it instead:" >&2
+    echo "  rm \"$0\" && ln -s \"\$HOME/payoff-pitch-/scripts/macos/$(basename "$_src")\" \"$0\"" >&2
+    exit 1
+fi
+# shellcheck source=scripts/macos/_repo.sh
+. "$(dirname "$_src")/_repo.sh"
 
 # Load engine credentials (Gmail app password, Odds API key, etc.) from the same
 # env file(s) the scheduled autorun uses, so a manual double-click can email too.

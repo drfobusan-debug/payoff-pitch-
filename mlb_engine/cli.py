@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
+import math
+import random
+import time
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from mlb_engine.audit import funnel as funnel_report
+from mlb_engine.audit import reaction
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -39,6 +45,12 @@ from mlb_engine.audit.ledger import (
     runline_metrics,
     update_ledger,
 )
+from mlb_engine.audit.lineups import (
+    captures_from_slate,
+    load_lineups,
+    merge_lineups,
+    save_lineups,
+)
 from mlb_engine.audit.outside import entries_from_picks, head_to_head
 from mlb_engine.audit.probation import (
     WATCHING,
@@ -47,12 +59,21 @@ from mlb_engine.audit.probation import (
     screen_probation,
 )
 from mlb_engine.audit.scorecard import append_scorecard, build_scorecard
-from mlb_engine.calibration import FEATURE_BASIS, FEATURE_BASIS_SINCE, Calibrator
+from mlb_engine.calibration import (
+    FEATURE_BASIS,
+    FEATURE_BASIS_SINCE,
+    Calibrator,
+    IsotonicMap,
+    StoredMaps,
+    read_stored,
+)
 from mlb_engine.config import Config, default_ros_prior_path, load_config
 from mlb_engine.data import ros_prior
 from mlb_engine.data.batx import annotate as annotate_batx
 from mlb_engine.data.batx import load_rows as load_batx_rows
 from mlb_engine.data.collapse import capture_slate
+from mlb_engine.data.evanalytics import annotate as annotate_eva
+from mlb_engine.data.evanalytics import load_board
 from mlb_engine.data.fangraphs import FanGraphsClient
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
 from mlb_engine.data.oddsapi import DEFAULT_PROP_MARKETS, OddsAPIClient
@@ -80,6 +101,7 @@ from mlb_engine.data.teamrankings import (
     save_picks,
     save_ratings,
 )
+from mlb_engine.data.teamrankings import annotate as annotate_tr
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.team_form import build_team_forms, compute_luck_gaps, save_team_forms
 from mlb_engine.filters.weather import WeatherProvider
@@ -89,6 +111,7 @@ from mlb_engine.output.card import build_cards, render_html, render_markdown, re
 from mlb_engine.output.daily_preview import generate_daily_preview
 from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.regression_article import build_article_pdf
 from mlb_engine.output.regression_radar import generate_radar_pdf
 from mlb_engine.output.regression_radar import render_html as render_radar_html
 from mlb_engine.output.regression_radar import render_markdown as render_radar_markdown
@@ -101,17 +124,19 @@ from mlb_engine.output.report import (
     weekly_entries,
 )
 from mlb_engine.output.report import render_pdf as render_report_pdf
-from mlb_engine.pipeline import Pipeline, PipelineDeps, load_calibrator
-from mlb_engine.preview import save_previews
+from mlb_engine.pipeline import Pipeline, PipelineDeps, calibration_source, load_calibrator
+from mlb_engine.preview import GamePreview, load_previews, save_previews
 from mlb_engine.recommendations import Recommendation, load_json, save_json
+from mlb_engine.schemas import Slate
 from mlb_engine.state import (
     PREGAME_SUFFIX,
     STATE_BRANCH,
     auto_pull,
     auto_push,
-    card_supersedes,
+    merged_card,
     pull_state,
     push_state,
+    write_card,
 )
 
 
@@ -150,8 +175,9 @@ def _generate_card(
     when available, the master Excel bet sheet (``workbook``).
     """
     cards = build_cards(recs)
-    md = render_markdown(cards, slate_date)
-    html_body = render_html(cards, slate_date)
+    screen = funnel_report.build(recs, cfg.ev)
+    md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    html_body = render_html(cards, slate_date, funnel=screen, thr=cfg.ev)
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
     pdf_path = cfg.output_dir / f"card_{slate_date.isoformat()}.pdf"
@@ -222,9 +248,7 @@ def _generate_report(
     history: list[LedgerEntry] | None = None,
 ) -> tuple[Path, Path, Path | None]:
     """Build the audit report (md + html + pdf) and optionally email it."""
-    data = build_report_data(
-        entries, period_label=period_label, subtitle=subtitle, history=history
-    )
+    data = build_report_data(entries, period_label=period_label, subtitle=subtitle, history=history)
     md = render_markdown_report(data)
     html_body = render_html_report(data)
     md_path = cfg.output_dir / f"audit_report_{slug}.md"
@@ -335,8 +359,7 @@ def cmd_propicks(args: argparse.Namespace) -> int:
     stamped = {p.date for p in picks if p.date}
     if stamped and stamped != {slate_date}:
         print(
-            f"VSiN is publishing {', '.join(sorted(stamped))}, not {slate_date}; "
-            "nothing captured."
+            f"VSiN is publishing {', '.join(sorted(stamped))}, not {slate_date}; nothing captured."
         )
         return 1
     _state_pull(cfg)
@@ -360,37 +383,83 @@ def _annotate_batx(cfg: Config, recs: list, slate_date: Date) -> None:
     there is nothing to fetch -- and, like the Opta benchmark, is worth less
     than the card and must never be able to stop it being written.
     """
+    path = cfg.batx_dir / f"{slate_date.isoformat()}.csv"
     try:
-        rows = load_batx_rows(cfg.batx_dir / f"{slate_date.isoformat()}.csv")
+        rows = load_batx_rows(path)
         if not rows:
+            # Silence here reads as "BAT X had nothing to say", when in fact the
+            # export is a manual download nobody made. Say which it is.
+            print(f"BAT X benchmark: no priced export at {path}; column left blank")
             return
         matched = annotate_batx(recs, rows)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("BAT X benchmark unavailable; card written without it", exc_info=True)
         return
-    if matched:
-        print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
+    print(f"BAT X benchmark: {matched} of {len(recs)} selections carry an outside projection")
 
 
-def _capture_teamrankings(cfg: Config, slate_date: Date) -> None:
-    """Store the outside model's picks for tonight, so the audit can grade them.
+def _annotate_evanalytics(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Put THE BAT X's projection, as EV Analytics publishes it, beside our props.
+
+    A saved page rather than a fetch: signed out their board returns placeholder
+    text in place of every number. Best-effort, like every other benchmark.
+    """
+    try:
+        props = load_board(cfg.evanalytics_dir, date=slate_date.isoformat())
+        if not props:
+            print(
+                "EV Analytics: no saved board for "
+                f"{slate_date.isoformat()} in {cfg.evanalytics_dir}; column left blank"
+            )
+            return
+        matched = annotate_eva(recs, props)
+    except Exception:  # noqa: BLE001 - a benchmark must not break the slate
+        logging.warning("EV Analytics board unavailable", exc_info=True)
+        return
+    agree = sum(1 for r in recs if r.ev_agrees is True)
+    print(f"EV Analytics: {len(props)} props read, {matched} joined, {agree} on our side")
+
+
+def _capture_teamrankings(cfg: Config, recs: list, slate_date: Date) -> None:
+    """Store tonight's TeamRankings picks and put them beside ours on the card.
 
     Runs as part of the slate because their grid keeps no archive: a pick not
     captured before the games is not recoverable afterwards, and a benchmark with
     holes in it cannot be compared over a season. Best-effort, like Opta.
+
+    Signed out their grid publishes a slate only once it has been played, so a
+    run without the subscriber login captures nothing rather than filing
+    yesterday's board against tonight's bets.
     """
     try:
         iso = slate_date.isoformat()
-        picks = TeamRankingsClient().fetch(date=iso)
-        if not picks:
-            return
         path = _tr_path(cfg, iso)
-        save_picks(path, merge_picks(load_picks(path), picks))
+        picks = [p for p in load_picks(path) if p.date == iso]
+        fetched = TeamRankingsClient(cfg.creds).fetch(date=iso)
+        if fetched:
+            picks = merge_picks(picks, fetched)
+            save_picks(path, picks)
+        # Their team ratings, captured whether or not tonight's picks arrived:
+        # the luck and consistency numbers are as-of-today with no archive, and
+        # nothing reads them at pricing time.
         _capture_tr_ratings(cfg)
+        if not picks:
+            if not cfg.creds.has_teamrankings():
+                print(
+                    "TeamRankings: no picks for "
+                    f"{iso} (their free grid only publishes a slate after it is played; "
+                    "set TEAMRANKINGS_EMAIL/TEAMRANKINGS_PASSWORD for tonight's)."
+                )
+            return
+        matched = annotate_tr(recs, picks)
     except Exception:  # noqa: BLE001 - a benchmark must not break the slate
         logging.warning("TeamRankings benchmark unavailable", exc_info=True)
         return
-    print(f"TeamRankings benchmark: {len(picks)} picks captured for {iso}")
+    agree = sum(1 for r in recs if r.tr_agrees is True)
+    print(
+        f"TeamRankings benchmark: {len(picks)} picks captured for {iso}, "
+        f"{matched} shared bets, {agree} on our side"
+    )
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -398,9 +467,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     deps = PipelineDeps(
         stats=MLBStatsClient(),
         statcast=StatcastRepository(cfg.cache_dir),
-        weather=WeatherProvider(
-            cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl
-        ),
+        weather=WeatherProvider(cache_dir=cfg.weather_cache_dir, cache_ttl=cfg.weather_cache_ttl),
         vsin=VSINClient(cfg.creds),
         oddsapi=_odds_client(cfg),
         rotowire=RotowireClient(cfg.creds),
@@ -435,45 +502,73 @@ def cmd_run(args: argparse.Namespace) -> int:
         fangraphs_csv = fg_dir
     else:
         fangraphs_csv = None
-    recs = pipe.run(slate_date, vsin_csv=vsin_csv, fangraphs_csv=fangraphs_csv)
+    late = args.within_hours is not None
+    pred_path = cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json"
+    recs = pipe.run(
+        slate_date,
+        vsin_csv=vsin_csv,
+        fangraphs_csv=fangraphs_csv,
+        within_hours=args.within_hours,
+    )
+    if late:
+        recs = _merge_late_pass(recs, pred_path)
+    if pipe.slate is not None:
+        _record_lineups(cfg, pipe.slate, slate_date)
     _annotate_opta(cfg, recs, slate_date)
     _annotate_propicks(cfg, recs, slate_date)
     _annotate_batx(cfg, recs, slate_date)
-    _capture_teamrankings(cfg, slate_date)
+    _capture_teamrankings(cfg, recs, slate_date)
+    _annotate_evanalytics(cfg, recs, slate_date)
 
     xlsx = args.out or str(cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx")
     write_workbook(recs, Path(xlsx), slate_date)
-    save_json(recs, cfg.audit_dir / f"predictions_{slate_date.isoformat()}.json")
+    save_json(recs, pred_path)
     previews = pipe.previews
-    save_previews(previews, cfg.audit_dir / f"previews_{slate_date.isoformat()}.json")
+    # A late pass saw only the games near first pitch, so its previews and quote
+    # template would replace the whole slate's with a fragment of it. The
+    # fragment is kept under its own name -- it is exactly the block the pass
+    # priced, which is what the block's slate article reads -- and folded into
+    # the slate's previews the way the rows are folded into the card.
+    all_previews_path = cfg.audit_dir / f"previews_{slate_date.isoformat()}.json"
+    if late:
+        save_previews(previews, late_previews_path(cfg, slate_date))
+        save_previews(_merge_late_previews(previews, all_previews_path), all_previews_path)
+    else:
+        save_previews(previews, all_previews_path)
+    # Publish the card as soon as it is on disk. The workbook, PDFs and email
+    # below can each fail, and a card the audit will grade locally but the
+    # branch never saw is exactly the gap that hides a slate from every other
+    # machine.
+    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
-    if not vsin_csv:
-        _write_quotes_template(
-            recs, cfg.output_dir / f"vsin_template_{slate_date.isoformat()}.csv"
-        )
+    if not vsin_csv and not late:
+        _write_quotes_template(recs, cfg.output_dir / f"vsin_template_{slate_date.isoformat()}.csv")
 
     strong = sum(1 for r in recs if r.tier == Tier.STRONG)
     mod = sum(1 for r in recs if r.tier == Tier.MODERATE)
     print(f"Priced {len(recs)} markets: {strong} strong buys, {mod} moderate buys")
+    # A zero-buy slate is only readable with the funnel next to it: it says
+    # whether the board was unquoted, unprofitable, or refused.
+    for line in funnel_report.summary_lines(funnel_report.build(recs, cfg.ev), cfg.ev):
+        print(line)
     print(f"Excel: {xlsx}")
 
     if getattr(args, "card", False) or getattr(args, "email", False):
         # Write the card (md/html/pdf) for the record, but do NOT email it here:
         # the slate preview below owns email delivery so a single message carries
         # the Morningstar article + audio + Excel bet sheet (mirrors the audit).
-        _generate_card(
-            recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx)
-        )
+        _generate_card(recs, slate_date, cfg, email=False, to=args.to, workbook=Path(xlsx))
         attachments: list[tuple[str, bytes]] = []
         if Path(xlsx).exists():
             attachments.append((Path(xlsx).name, Path(xlsx).read_bytes()))
+        article = _build_regression_article(pipe, slate_date, cfg)
+        if article is not None and args.email:
+            attachments.append((f"PayoffPitch_Regression_{slate_date.isoformat()}.pdf", article))
         if args.email:
             radar_pdf = _build_radar_pdf(pipe, slate_date, cfg)
             if radar_pdf is not None:
-                attachments.append(
-                    (f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf)
-                )
+                attachments.append((f"regression_radar_{slate_date.isoformat()}.pdf", radar_pdf))
         generate_daily_preview(
             previews,
             slate_date,
@@ -483,10 +578,83 @@ def cmd_run(args: argparse.Namespace) -> int:
             recs=recs,
             extra_attachments=attachments or None,
         )
-    # Publish the picks at the prices they were priced at, so whichever machine
-    # grades this slate grades what was actually sent.
-    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
+    # Anything the delivery steps added since the card was published.
+    _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced, delivered")
     return 0
+
+
+def late_previews_path(cfg: Config, slate_date: Date) -> Path:
+    """Where a late pass leaves the previews of the games it priced."""
+    return cfg.audit_dir / f"previews_{slate_date.isoformat()}_late.json"
+
+
+def _merge_late_pass(recs: list[Recommendation], path: Path) -> list[Recommendation]:
+    """Fold a late pass's re-priced games into the card the morning run wrote.
+
+    The pass prices only the games inside the clock window, so without this the
+    day's other games would vanish from the file the audit grades and the ledger
+    would lose the rows it needs to measure the refusals. A re-priced game is
+    replaced wholesale -- its prices, tiers and reasons all belong to the later
+    board -- and every other game is carried forward exactly as priced.
+    """
+    if not path.exists():
+        return recs
+    try:
+        prior = load_json(path)
+    except Exception:  # noqa: BLE001 - a stale card must not cost the late pass
+        logging.warning("Late pass: %s unreadable, keeping only re-priced games", path)
+        return recs
+    repriced = {r.game_pk for r in recs}
+    kept = [r for r in prior if r.game_pk not in repriced]
+    print(
+        f"Late pass: re-priced {len(repriced)} games ({len(recs)} rows), "
+        f"carried {len(kept)} earlier rows forward"
+    )
+    return [*kept, *recs]
+
+
+def _merge_late_previews(previews: list[GamePreview], path: Path) -> list[GamePreview]:
+    """The previews' half of `_merge_late_pass`: this pass's games replace their
+    earlier previews, every other game's preview is carried forward."""
+    if not path.exists():
+        return previews
+    try:
+        prior = load_previews(path)
+    except Exception:  # noqa: BLE001 - a stale file must not cost the late pass
+        logging.warning("Late pass: %s unreadable, keeping only re-priced previews", path)
+        return previews
+    repriced = {p.game_pk for p in previews}
+    return [*(p for p in prior if p.game_pk not in repriced), *previews]
+
+
+def _build_regression_article(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
+    """Write the prose regression report for the slate; return its PDF bytes.
+
+    Reads the previews and predictions the run has just saved, so the article
+    ranks the same arms and bats the card was priced from, off the same Statcast
+    frame the pricing used. ``None`` when the slate has nothing rankable or the
+    render fails -- a missing article must not cost the email its bet sheet.
+    """
+    if pipe.statcast is None:
+        return None
+    iso = slate_date.isoformat()
+    try:
+        previews = json.loads((cfg.audit_dir / f"previews_{iso}.json").read_text())
+        preds = json.loads((cfg.audit_dir / f"predictions_{iso}.json").read_text())
+        built = build_article_pdf(slate_date, previews, preds, pipe.statcast)
+    except Exception:
+        logging.warning("Regression article unavailable", exc_info=True)
+        return None
+    if built is None:
+        print("Regression article: no starter or hitter cleared the sample floor")
+        return None
+    pdf, html = built
+    cfg.output_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"PayoffPitch_Regression_{iso}"
+    (cfg.output_dir / f"{stem}.pdf").write_bytes(pdf)
+    (cfg.output_dir / f"{stem}.html").write_text(html)
+    print(f"Regression article: {cfg.output_dir / f'{stem}.pdf'}")
+    return pdf
 
 
 def _build_radar_pdf(pipe: Pipeline, slate_date: Date, cfg: Config) -> bytes | None:
@@ -528,9 +696,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         return 1
     recs = load_json(pred_path)
     workbook = cfg.output_dir / f"mlb_recommendations_{slate_date.isoformat()}.xlsx"
-    _generate_card(
-        recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook
-    )
+    _generate_card(recs, slate_date, cfg, email=args.email, to=args.to, workbook=workbook)
     return 0
 
 
@@ -554,6 +720,27 @@ def cmd_team_form(args: argparse.Namespace) -> int:
 
 def _closing_path(cfg: Config, slate_date: Date) -> Path:
     return cfg.audit_dir / f"closing_{slate_date.isoformat()}.json"
+
+
+def _lineups_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"lineups_{slate_date.isoformat()}.json"
+
+
+def _record_lineups(cfg: Config, slate: Slate, slate_date: Date) -> int:
+    """Write down every posted lineup the first time this slate is seen with it.
+
+    Free: the slate is already fetched. Returns how many lineups were new.
+    """
+    path = _lineups_path(cfg, slate_date)
+    already = load_lineups(path)
+    fresh = captures_from_slate(slate)
+    if not fresh:
+        return 0
+    merged = merge_lineups(already, fresh)
+    new = len(merged) - len(already)
+    save_lineups(path, merged)
+    print(f"Lineups: {len(fresh)} posted, {new} first seen now -> {path}")
+    return new
 
 
 def _state_pull(cfg: Config, slate_date: Date | None = None) -> None:
@@ -597,6 +784,7 @@ def cmd_close(args: argparse.Namespace) -> int:
     # An earlier capture of this slate may live on another machine entirely.
     _state_pull(cfg, slate_date)
     slate = MLBStatsClient().get_slate(slate_date)
+    _record_lineups(cfg, slate, slate_date)
     quotes = client.fetch(slate, include_props=not args.game_only, pregame_only=True)
     if not quotes:
         print(
@@ -618,6 +806,155 @@ def cmd_close(args: argparse.Namespace) -> int:
     )
     _state_push(cfg, f"close {slate_date.isoformat()}: {len(closing)} prices")
     return 0
+
+
+def cmd_lineups(args: argparse.Namespace) -> int:
+    """Record the slate's posted lineups, stamped with when they were first seen.
+
+    The box score keeps who batted, not when it was known; a study of lineup
+    intent (a clinched team resting regulars, an eliminated team auditioning
+    call-ups) needs the nine as posted before first pitch. Free -- one StatsAPI
+    call -- and safe to repeat: a lineup already on file keeps its first stamp,
+    and a changed one is appended as a revision.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    slate_date = _parse_date(args.date, Date.today())
+    _state_pull(cfg, slate_date)
+    slate = MLBStatsClient().get_slate(slate_date)
+    posted = sum(1 for g in slate.games for t in (g.away, g.home) if t.lineup_confirmed())
+    if not posted:
+        print(f"No lineups posted yet for {slate_date}; nothing recorded.")
+        return 0
+    new = _record_lineups(cfg, slate, slate_date)
+    if new:
+        total = len(load_lineups(_lineups_path(cfg, slate_date)))
+        _state_push(cfg, f"lineups {slate_date.isoformat()}: {total} posted")
+    return 0
+
+
+def _reaction_path(cfg: Config, slate_date: Date) -> Path:
+    return cfg.audit_dir / f"price_reaction_{slate_date.isoformat()}.csv"
+
+
+def cmd_react(args: argparse.Namespace) -> int:
+    """Watch the slate and snapshot a game's props on a clock from its lineup posting.
+
+    Every ``--poll`` minutes the slate is re-read (free). A game whose lineup
+    is on file for the first time starts a clock: its props are captured now
+    and at each later mark in ``reaction.MARKS``. A game not yet posted is
+    captured once per ``--baseline`` minutes so a before-price exists. At most
+    ``--max-games`` games are followed, earliest first pitch first, so the day's
+    cost is bounded: roughly ``(baselines + marks) x prop markets`` credits per
+    game. Stops after ``--hours`` or once every followed game has started.
+    """
+    cfg = load_config()
+    cfg.ensure_dirs()
+    slate_date = _parse_date(args.date, Date.today())
+    client = _odds_client(cfg, cache_ttl=0)
+    if not client.available():
+        print("No Odds API key configured; cannot watch prices")
+        return 1
+    stats = MLBStatsClient()
+    path = _reaction_path(cfg, slate_date)
+    lineups_path = _lineups_path(cfg, slate_date)
+    started_at = _now_utc()
+    followed: list[int] = []
+    last_baseline: dict[int, datetime] = {}
+    clocks: dict[tuple[int, str], tuple[str, set[int]]] = {}  # (game, side) -> (posted, marks done)
+    while (_now_utc() - started_at) < timedelta(hours=args.hours):
+        slate = stats.get_slate(slate_date)
+        _record_lineups(cfg, slate, slate_date)
+        on_file = load_lineups(lineups_path)
+        now = _now_utc()
+        live = [
+            g for g in sorted(slate.games, key=lambda g: g.game_datetime_utc or "")
+            if g.game_datetime_utc and _parse_iso(g.game_datetime_utc) > now
+        ]
+        for g in live:
+            if g.game_pk not in followed and len(followed) < args.max_games:
+                followed.append(g.game_pk)
+        active = [g for g in live if g.game_pk in followed]
+        if not active:
+            print("Every followed game has started; done.")
+            break
+        rows: list[reaction.ReactionRow] = []
+        for g in active:
+            due: list[tuple[str, str, int]] = []  # side, posted, mark
+            for side in ("away", "home"):
+                cap = on_file.get(f"{g.game_pk}:{side}")
+                if cap is None:
+                    continue
+                key = (g.game_pk, side)
+                posted, done = clocks.setdefault(key, (cap.captured_at, set()))
+                since = (now - _parse_iso(posted)).total_seconds() / 60
+                for mark in reaction.MARKS:
+                    if mark in done or since < mark - reaction.MARK_SLACK:
+                        continue
+                    if since <= mark + reaction.MARK_SLACK:
+                        due.append((side, posted, mark))
+                    else:
+                        done.add(mark)  # missed; a late capture is not that mark
+            posted_sides = {s for s in ("away", "home") if f"{g.game_pk}:{s}" in on_file}
+            baseline_due = (
+                len(posted_sides) < 2
+                and (now - last_baseline.get(g.game_pk, started_at - timedelta(days=1)))
+                >= timedelta(minutes=args.baseline)
+            )
+            if not due and not baseline_due:
+                continue
+            quotes = client.fetch_game_props(slate, g)
+            if quotes is None:
+                continue
+            matchup = f"{g.away.abbrev} @ {g.home.abbrev}"
+            if baseline_due:
+                last_baseline[g.game_pk] = now
+                rows += reaction.rows_from_quotes(
+                    quotes, slate_date=slate_date.isoformat(), game_pk=g.game_pk,
+                    event=reaction.BASELINE, now=now,
+                )
+            for side, posted, mark in due:
+                clocks[(g.game_pk, side)][1].add(mark)
+                rows += reaction.rows_from_quotes(
+                    quotes, slate_date=slate_date.isoformat(), game_pk=g.game_pk,
+                    event=reaction.LINEUP, side=side, event_at=posted, now=now,
+                )
+            print(
+                f"{_iso_minute(now)} {matchup}: {len(quotes)} lines"
+                + (" baseline" if baseline_due else "")
+                + "".join(f" {s}+{m}m" for s, _, m in due)
+            )
+        reaction.append_rows(path, rows)
+        time.sleep(args.poll * 60)
+    if path.exists():
+        _state_push(cfg, f"price reaction {slate_date.isoformat()}")
+    return 0
+
+
+def cmd_react_report(args: argparse.Namespace) -> int:
+    """Summarise the price-reaction captures on file (one date or all of them)."""
+    cfg = load_config()
+    rows: list[reaction.ReactionRow] = []
+    if args.date:
+        rows = reaction.load_rows(_reaction_path(cfg, _parse_date(args.date, Date.today())))
+    else:
+        for p in sorted(cfg.audit_dir.glob("price_reaction_*.csv")):
+            rows += reaction.load_rows(p)
+    stats = reaction.summarize(rows, threshold_pts=args.threshold)
+    print(reaction.render_summary(stats, threshold_pts=args.threshold))
+    return 0
+
+
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _parse_iso(stamp: str) -> datetime:
+    return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+
+
+def _iso_minute(dt: datetime) -> str:
+    return dt.strftime("%H:%MZ")
 
 
 def _opta_path(cfg: Config, slate_date: str) -> Path:
@@ -652,7 +989,7 @@ def _capture_tr_ratings(cfg: Config) -> int:
     """
     today = Date.today().isoformat()
     try:
-        ratings = TeamRankingsClient().fetch_ratings(today)
+        ratings = TeamRankingsClient(cfg.creds).fetch_ratings(today)
         if not ratings:
             return 0
         path = _tr_ratings_path(cfg, today)
@@ -680,7 +1017,7 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     # of them missed is a day that cannot be recovered.
     clubs = _capture_tr_ratings(cfg)
     print(f"Captured TeamRankings luck/consistency ratings for {clubs} clubs")
-    picks = TeamRankingsClient().fetch()
+    picks = TeamRankingsClient(cfg.creds).fetch()
     if not picks:
         print("TeamRankings' picks grid returned nothing; captured no benchmark.")
         return 1
@@ -695,6 +1032,14 @@ def cmd_teamrankings(args: argparse.Namespace) -> int:
     save_picks(path, merged)
     games = len({p.matchup for p in merged})
     print(f"Captured {len(slate)} TeamRankings picks over {games} games for {wanted} -> {path}")
+    if args.date is None and wanted < Date.today().isoformat():
+        # The free grid publishes a slate only once it has been played, so the
+        # newest date on the page being older than today is what a rejected
+        # login looks like from here: picks captured, benchmark useless.
+        print(
+            f"Note: {wanted} is not today. Signed out, the grid only publishes slates "
+            "already played -- check TEAMRANKINGS_EMAIL/TEAMRANKINGS_PASSWORD."
+        )
     _state_push(cfg, f"teamrankings {wanted}: {len(merged)} picks, {games} games")
     return 0
 
@@ -783,14 +1128,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # against quotes that no longer exist, so it loses to the real thing.
     pregame = cfg.audit_dir / f"predictions_{audit_date.isoformat()}{PREGAME_SUFFIX}"
     if pregame.exists():
-        if pred_path.exists() and card_supersedes(pred_path, pregame):
-            print(f"Grading {pred_path.name}: priced later than {pregame.name}, still pregame")
-        else:
-            if pred_path.exists():
+        if pred_path.exists():
+            card_rows = merged_card(pred_path, pregame)
+            if card_rows is None:
                 print(
                     f"Grading the pregame predictions from {pregame.name}, not the local re-price"
                 )
-            pred_path = pregame
+            else:
+                write_card(card_rows, pregame)
+                print(
+                    f"Grading {pregame.name} with the games {pred_path.name} priced later, pregame"
+                )
+        pred_path = pregame
     if not pred_path.exists():
         print(f"No predictions found for {audit_date} at {pred_path}")
         return 1
@@ -808,9 +1157,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # credit) so pitcher collapse/volatility can be measured. No effect on grading.
     final_pks = [pk for pk, res in results.items() if res is not None and res.final]
     try:
-        collapse_lines = capture_slate(final_pks, audit_date.isoformat(), cfg.cache_dir, cfg.audit_dir)
+        collapse_lines = capture_slate(
+            final_pks, audit_date.isoformat(), cfg.cache_dir, cfg.audit_dir
+        )
         if collapse_lines:
-            print(f"Captured {len(collapse_lines)} pitcher-inning rows -> {cfg.audit_dir / 'collapse_ledger.csv'}")
+            print(
+                f"Captured {len(collapse_lines)} pitcher-inning rows -> {cfg.audit_dir / 'collapse_ledger.csv'}"
+            )
     except Exception as exc:  # noqa: BLE001 -- capture must never break the audit
         logging.warning("collapse capture failed: %s", exc)
 
@@ -833,9 +1186,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     # beside ours, on their own rows, in the same `update_ledger` call: a second
     # write for the same date would be treated as a re-audit and drop them.
     outside = _outside_entries(cfg, audit_date, recs, results)
-    all_entries = update_ledger(
-        cfg.audit_dir / "ledger.csv", entries + outside, audit_date
-    )
+    all_entries = update_ledger(cfg.audit_dir / "ledger.csv", entries + outside, audit_date)
     # The ledger keeps both sides of every prop so the fade stays graded, and
     # the outside model's picks beside ours; a measurement of the engine takes
     # one row per wager of ours (see `one_side_per_prop`, `engine_rows`).
@@ -993,6 +1344,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
                 email=getattr(args, "email", False),
                 to=getattr(args, "to", None),
                 extra_attachments=extra,
+                history=all_entries,
             )
         except Exception as exc:  # noqa: BLE001
             logging.warning("audit insight report failed: %s", exc)
@@ -1086,13 +1438,133 @@ def cmd_ros_prior(args: argparse.Namespace) -> int:
     return 0
 
 
+# Brier a stale market's map may cost before it is retired. Set at half the
+# smallest gain the surviving markets showed, so a market is dropped on measured
+# harm rather than on an interval too wide to say anything.
+_HARM_TOLERANCE = 0.005
+_GAIN_DRAWS = 2000
+
+
+def _gain_interval(
+    pairs: list[tuple[float, int, str]], m: IsotonicMap, draws: int = _GAIN_DRAWS
+) -> tuple[float, float]:
+    """Bootstrap interval for the map's Brier gain, resampling whole games."""
+    games: dict[str, list[tuple[float, int]]] = {}
+    for prob, won, game in pairs:
+        games.setdefault(game, []).append((prob, won))
+    keys = list(games)
+    rng = random.Random(11)
+    gains: list[float] = []
+    for _ in range(draws):
+        sample = [row for k in rng.choices(keys, k=len(keys)) for row in games[k]]
+        raw = sum((p - w) ** 2 for p, w in sample) / len(sample)
+        mapped = sum((m.apply(p) - w) ** 2 for p, w in sample) / len(sample)
+        gains.append(raw - mapped)
+    gains.sort()
+    return gains[int(0.025 * draws)], gains[int(0.975 * draws)]
+
+
+def _revalidate_map(path: Path, graded: list[LedgerEntry], since: str, min_rows: int) -> int:
+    """Keep the markets of a stale map that still measure as an improvement.
+
+    A basis bump retires every market at once, on the argument that changed
+    features make the old map correct a bias that has moved. That is right for
+    the markets the change touched and wrong for the rest, and which is which is
+    measurable: score the map against the raw probability it would replace, on
+    graded rows priced *after* it was fitted, and keep the markets it does not
+    demonstrably harm. Survivors are re-stamped onto the current basis;
+    everything else stays retired until a refit.
+
+    The test is deliberately asymmetric. Retiring a market is not a neutral
+    default -- it prices that market off a probability measured to be worse on
+    average -- so a positive point estimate with a wide interval is kept, while
+    a market is dropped once the interval shows real harm. Whole games are
+    resampled rather than rows: a slate's props share a lineup, a park and a
+    starter, so rows are nowhere near independent and resampling them would
+    shrink every interval by roughly the square root of the props per game.
+    """
+    if not path.exists():
+        print(f"No calibration map at {path}")
+        return 1
+    data = json.loads(path.read_text())
+    rows = [e for e in graded if e.date >= since and e.raw_prob is not None]
+    if not rows:
+        print(f"No graded rows priced on or after {since} in the ledger")
+        return 1
+
+    by_market: dict[str, list[tuple[float, int, str]]] = {}
+    for e in rows:
+        if e.raw_prob is None:
+            continue
+        by_market.setdefault(e.market, []).append(
+            (e.raw_prob, 1 if e.result == WIN else 0, f"{e.date} {e.matchup}")
+        )
+
+    print(f"{len(rows)} graded row(s) priced on or after {since}")
+    print(f"{'market':<14}{'n':>7}{'raw':>10}{'mapped':>10}{'gain':>9}{'95% CI':>22}  keep")
+    keep: dict[str, IsotonicMap] = {}
+    for market, entry in sorted(data.get("markets", {}).items()):
+        pairs = by_market.get(market, [])
+        m = IsotonicMap([float(v) for v in entry["x"]], [float(v) for v in entry["y"]])
+        if len(pairs) < min_rows:
+            print(f"{market:<14}{len(pairs):>7}{'-':>10}{'-':>10}{'-':>9}{'-':>22}  no (thin)")
+            continue
+        b_raw = sum((p - w) ** 2 for p, w, _ in pairs) / len(pairs)
+        b_map = sum((m.apply(p) - w) ** 2 for p, w, _ in pairs) / len(pairs)
+        gain = b_raw - b_map
+        lo, hi = _gain_interval(pairs, m)
+        take = gain > 0 and lo > -_HARM_TOLERANCE
+        if take:
+            keep[market] = m
+        print(
+            f"{market:<14}{len(pairs):>7}{b_raw:>10.4f}{b_map:>10.4f}"
+            f"{gain:>+9.4f}   {lo:>+8.4f}..{hi:<+8.4f} {'yes' if take else 'no'}"
+        )
+
+    if not keep:
+        print("\nNo market still improves on its raw probability; the map stays retired")
+        return 1
+    # Re-stamping is the only edit. A market that failed here, or was too thin to
+    # measure, keeps its curve at the basis it was fitted on: that stamp *is* how
+    # the file says "retired", so deleting the curve instead would drop the market
+    # onto the pooled curve -- a correction nothing measured for it -- and would
+    # put it beyond the reach of the next revalidation. The pooled curve itself is
+    # not this command's to throw away either: a refit measured it when it adopted
+    # the markets that price off it.
+    stored = read_stored(path)
+    maps = stored.maps | keep
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in keep}
+    cal = Calibrator(maps=maps, default=stored.current_default())
+    cal.to_json(path, bases=bases, rows=stored.rows)
+    print(f"\nRe-stamped {len(keep)} market(s) onto {FEATURE_BASIS}: {', '.join(sorted(keep))}")
+    retired = sorted(mk for mk, b in bases.items() if b != FEATURE_BASIS)
+    print(
+        f"Wrote {path}; {len(retired)} market(s) stay retired"
+        + (f" ({', '.join(retired)})" if retired else "")
+    )
+    return 0
+
+
+def _paired_se(diffs: list[float]) -> float:
+    """Standard error of the mean of ``diffs`` (0.0 below two observations)."""
+    n = len(diffs)
+    if n < 2:
+        return 0.0
+    mean = sum(diffs) / n
+    var = sum((d - mean) ** 2 for d in diffs) / (n - 1)
+    return math.sqrt(var / n)
+
+
 def cmd_calibrate(args: argparse.Namespace) -> int:
     """Refit the isotonic calibration map from the audit ledger.
 
     Trains on every graded row (pushes dropped) and holds out the most recent
     ``--holdout`` slates to check, market by market, whether the refit map
     actually beats the packaged 2024 fit out of sample. Only the markets that
-    win are adopted; the rest keep the packaged map.
+    win are adopted; the rest keep the packaged map. Winning means beating the
+    incumbent by more than one standard error of the paired per-row difference in
+    squared error, scored on one row per prop -- a smaller Brier on a holdout of
+    complements is not evidence.
 
     Rows priced before ``FEATURE_BASIS_SINCE`` are dropped: a map learns what
     this engine's probabilities mean, so rows produced by a materially different
@@ -1105,6 +1577,8 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
         for e in engine_rows(load_ledger(ledger_path))
         if e.result in (WIN, LOSS) and e.raw_prob is not None
     ]
+    if args.revalidate:
+        return _revalidate_map(cfg.calibration_file, graded, args.revalidate, args.min_holdout)
     since = FEATURE_BASIS_SINCE.isoformat()
     entries = [e for e in graded if e.date >= since]
     if not entries and graded:
@@ -1136,13 +1610,16 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
 
     rows = rows_of(entries)
     train = rows_of([e for e in entries if e.date < split])
-    test = rows_of([e for e in entries if e.date >= split])
+    # The fit sees both sides of every prop, which is the whole probability range
+    # and no double-counting: isotonic reads (p, won) pairs, not wagers. The
+    # holdout is scored on one row per prop, because the two rows of a prop are
+    # complements -- carrying both cannot add evidence about whether the refit is
+    # better, it only makes the standard error below look smaller by root two.
+    test = rows_of(one_side_per_prop([e for e in entries if e.date >= split]))
 
     packaged = load_calibrator()
+    source = calibration_source(cfg.calibration_file)
     refit = Calibrator.fit(train)
-
-    def brier(cal: Calibrator, subset: list[tuple[str, float, int]]) -> float:
-        return sum((cal.apply(m, p) - w) ** 2 for m, p, w in subset) / len(subset)
 
     by_market: dict[str, list[tuple[str, float, int]]] = {}
     for row in test:
@@ -1152,32 +1629,72 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     # thin, and on the eight-slate ledger it beat the packaged 2024 fit exactly
     # where that fit was stale or absent (batter_tb had no map at all) while
     # losing on the low-volume game-level markets.
-    print(f"Holdout: {split}..{dates[-1]} ({len(test)} rows), trained on {len(train)}")
-    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}  adopt")
+    #
+    # "Better" is a paired test, not a comparison of two averages: the same row
+    # is scored by both maps, so the quantity with a standard error is the mean
+    # per-row difference in squared error. Adopting on any negative delta adopted
+    # -0.0001 on 1,106 rows, which is a coin flip dressed as a refit; a market
+    # now has to beat the incumbent by more than one standard error of its own
+    # difference to replace it.
+    print(f"Holdout: {split}..{dates[-1]} ({len(test)} props), trained on {len(train)} rows")
+    print(f"{'market':<14}{'n':>7}{'packaged':>11}{'refit':>10}{'delta':>9}{'se':>9}  adopt")
     adopt: list[str] = []
     for market in sorted(by_market):
         subset = by_market[market]
-        b_old, b_new = brier(packaged, subset), brier(refit, subset)
-        take = len(subset) >= args.min_holdout and b_new < b_old
+        diffs = [
+            (refit.apply(m, p) - w) ** 2 - (packaged.apply(m, p) - w) ** 2 for m, p, w in subset
+        ]
+        n = len(subset)
+        b_old = sum((packaged.apply(m, p) - w) ** 2 for m, p, w in subset) / n
+        delta = sum(diffs) / n
+        se = _paired_se(diffs)
+        take = n >= args.min_holdout and delta < -se
         if take:
             adopt.append(market)
         print(
-            f"{market:<14}{len(subset):>7}{b_old:>11.4f}{b_new:>10.4f}"
-            f"{b_new - b_old:>+9.4f}  {'yes' if take else 'no'}"
+            f"{market:<14}{n:>7}{b_old:>11.4f}{b_old + delta:>10.4f}"
+            f"{delta:>+9.4f}{se:>9.4f}  {'yes' if take else 'no'}"
         )
 
     if not adopt and not args.force:
-        print("\nNo market improved out of sample; nothing written")
+        print("\nNo market beat its incumbent by more than one standard error; nothing written")
         return 1
 
     final = Calibrator.fit(rows)
-    merged = Calibrator(
-        maps={**packaged.maps, **{m: final.maps[m] for m in adopt if m in final.maps}},
-        default=packaged.default,
-    )
-    merged.to_json(cfg.calibration_file)
+    # Carry the curves this refit is not replacing, at the basis they were fitted
+    # on. Merging ``packaged.maps`` instead carries nothing once a basis bump has
+    # retired them -- ``load_calibrator`` has already dropped them -- so the
+    # refit would delete the very curves ``--revalidate`` exists to re-measure,
+    # and the live file wins over the packaged one, putting them out of reach.
+    stored = read_stored(source) if source else StoredMaps({}, {}, final.default)
+    maps = dict(stored.maps)
+    bases = {mk: b for mk, b in stored.bases.items() if mk not in adopt}
+    for market in adopt:
+        # A market the fit left on the pooled curve was measured on that curve,
+        # so ship it: keeping its old own-map would price it off a curve the
+        # holdout never scored.
+        if market in final.maps:
+            maps[market] = final.maps[market]
+        else:
+            maps.pop(market, None)
+    merged = Calibrator(maps=maps, default=final.default)
+    merged.to_json(cfg.calibration_file, bases=bases, rows=len(rows))
     print(f"\nAdopted refit maps for {len(adopt)}: {', '.join(adopt) or 'none'}")
-    print(f"Wrote {cfg.calibration_file} (other markets keep the packaged fit)")
+    pooled = sorted(m for m in adopt if m not in final.maps)
+    if pooled:
+        print(f"On the pooled curve (too thin for their own): {', '.join(pooled)}")
+    if bases:
+        stale_carried = sorted(m for m, b in bases.items() if b != FEATURE_BASIS)
+        print(
+            f"Carried {len(bases)} market(s) unchanged"
+            + (
+                f"; {len(stale_carried)} stay retired until `calibrate --revalidate` "
+                f"measures them ({', '.join(stale_carried)})"
+                if stale_carried
+                else ""
+            )
+        )
+    print(f"Wrote {cfg.calibration_file}")
     return 0
 
 
@@ -1216,6 +1733,12 @@ def main(argv: list[str] | None = None) -> int:
         "SIERA/Stuff+/wRC+/xSLG tails; defaults to ~/.mlb_engine/fangraphs/ if present",
     )
     r.add_argument("--sims", type=int, help="Monte Carlo sims per game")
+    r.add_argument(
+        "--within-hours",
+        type=float,
+        help="late pass: price only the games starting inside this many hours and "
+        "fold them into today's card (leaves the other games' morning prices alone)",
+    )
     r.add_argument("--out", help="output .xlsx path")
     r.add_argument("--card", action="store_true", help="also write the daily card (md + html)")
     r.add_argument("--email", action="store_true", help="email the daily card after the run")
@@ -1239,9 +1762,35 @@ def main(argv: list[str] | None = None) -> int:
     )
     cl.set_defaults(func=cmd_close)
 
-    op = sub.add_parser(
-        "opta", help="capture VSIN's Opta prop projections as an outside benchmark"
+    lu = sub.add_parser(
+        "lineups", help="record today's posted lineups with the time they were first seen"
     )
+    lu.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    lu.set_defaults(func=cmd_lineups)
+
+    rx = sub.add_parser(
+        "react",
+        help="watch today's slate and snapshot a game's props on a clock from its lineup posting",
+    )
+    rx.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    rx.add_argument("--hours", type=float, default=4.0, help="how long to watch (default 4)")
+    rx.add_argument("--poll", type=float, default=3.0, help="minutes between slate polls (default 3)")
+    rx.add_argument(
+        "--baseline", type=float, default=60.0,
+        help="minutes between before-posting snapshots of a game (default 60)",
+    )
+    rx.add_argument("--max-games", type=int, default=6, help="games followed per day (default 6)")
+    rx.set_defaults(func=cmd_react)
+
+    rr = sub.add_parser("react-report", help="summarise price moves after lineup postings")
+    rr.add_argument("--date", help="one slate date YYYY-MM-DD (default: every file on disk)")
+    rr.add_argument(
+        "--threshold", type=float, default=1.0,
+        help="probability points a line must move to count as moved (default 1.0)",
+    )
+    rr.set_defaults(func=cmd_react_report)
+
+    op = sub.add_parser("opta", help="capture VSIN's Opta prop projections as an outside benchmark")
     op.add_argument(
         "--day",
         type=int,
@@ -1272,7 +1821,6 @@ def main(argv: list[str] | None = None) -> int:
     )
     tr.set_defaults(func=cmd_teamrankings)
 
-
     a = sub.add_parser("audit", help="grade a prior slate and update scorecard")
     a.add_argument("--date", help="slate date to audit YYYY-MM-DD (default: yesterday)")
     a.add_argument(
@@ -1285,17 +1833,13 @@ def main(argv: list[str] | None = None) -> int:
     a.set_defaults(func=cmd_audit)
 
     rp = sub.add_parser("report", help="render a daily/weekly audit report from the ledger")
-    rp.add_argument(
-        "--period", choices=("daily", "weekly"), default="daily", help="report window"
-    )
+    rp.add_argument("--period", choices=("daily", "weekly"), default="daily", help="report window")
     rp.add_argument("--date", help="end date YYYY-MM-DD (default: yesterday)")
     rp.add_argument("--email", action="store_true", help="email the report")
     rp.add_argument("--to", help="email recipient (default: MLBE_EMAIL_TO)")
     rp.set_defaults(func=cmd_report)
 
-    tf = sub.add_parser(
-        "team-form", help="build the season team-form (luck-gap) baseline cache"
-    )
+    tf = sub.add_parser("team-form", help="build the season team-form (luck-gap) baseline cache")
     tf.add_argument("--date", help="as-of date YYYY-MM-DD (default: today)")
     tf.add_argument("--days", type=int, default=180, help="season look-back window (days)")
     tf.add_argument("--refresh", action="store_true", help="re-download Statcast for the window")
@@ -1314,6 +1858,12 @@ def main(argv: list[str] | None = None) -> int:
         "--min-holdout", type=int, default=200, help="holdout rows a market needs to be adopted"
     )
     cal.add_argument("--force", action="store_true", help="write even if no market improves")
+    cal.add_argument(
+        "--revalidate",
+        metavar="DATE",
+        help="instead of refitting: re-stamp the markets of the existing map that still "
+        "beat the uncalibrated probability on graded rows priced on or after DATE",
+    )
     cal.set_defaults(func=cmd_calibrate)
 
     st = sub.add_parser(
@@ -1321,7 +1871,9 @@ def main(argv: list[str] | None = None) -> int:
         help="sync the audit's memory (predictions, closes, ledger) with the engine-state branch",
     )
     st.add_argument("direction", choices=("pull", "push"))
-    st.add_argument("--branch", default=STATE_BRANCH, help=f"state branch (default: {STATE_BRANCH})")
+    st.add_argument(
+        "--branch", default=STATE_BRANCH, help=f"state branch (default: {STATE_BRANCH})"
+    )
     st.add_argument(
         "--date",
         help="on a pull, restore the pregame predictions for this slate date "

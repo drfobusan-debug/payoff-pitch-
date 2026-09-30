@@ -15,12 +15,18 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from mlb_engine.config import Config, EVThresholds
 from mlb_engine.market import keys
 from mlb_engine.market.ev import EVResult, MarketQuote
 from mlb_engine.market.tiers import Tier, classify
 from mlb_engine.pipeline import Pipeline
+
+
+@pytest.fixture(autouse=True)
+def _under_the_legacy_anchor(legacy_anchor: None) -> None:
+    """These screens are exercised by flipping a buy; see tests/conftest.py."""
 
 
 class _IdentityCalibrator:
@@ -71,11 +77,12 @@ def test_raised_edge_floor_keeps_a_moderate_band() -> None:
 
 
 def test_raised_floor_flips_a_marginal_buy_to_pass() -> None:
-    q = MarketQuote(book="bk", american=-110)
+    q = MarketQuote(book="bk", american=-110, opposite_american=-110)
     # A 4.5-point edge at a positive-EV price is a buy under the global floor...
+    # The level sits above the conviction floor so the edge floor is what bites.
     res = EVResult(
-        model_prob=0.545, best_quote=q, decimal=1.91, ev=0.041,
-        fair_prob=0.50, edge=0.045, sharp_divergence=None,
+        model_prob=0.625, best_quote=q, decimal=1.91, ev=0.194,
+        fair_prob=0.58, edge=0.045, sharp_divergence=None,
     )
     base = EVThresholds()
     assert classify(res, base.for_market("game_ml"))[0] is Tier.STRONG
@@ -106,14 +113,16 @@ def _pitcher_props(cfg: Config, quote_line: float):
 
 
 def test_high_k_line_is_gated_to_pass() -> None:
-    cfg = Config(pitcher_k_max_buy_line=5.5)
+    # A 50% model at +120 is refused by the conviction floor and the EV ceiling
+    # on shipped settings; the line cap is the screen under test.
+    cfg = Config(ev=EVThresholds(min_prob=0.0, max_ev=1.0), pitcher_k_max_buy_line=5.5)
     rec = _pitcher_props(cfg, 6.5)  # o6.5 > cap
     assert rec.tier is Tier.PASS
     assert any("buy cap" in r for r in rec.reasons)
 
 
 def test_low_k_line_is_not_gated() -> None:
-    cfg = Config(pitcher_k_max_buy_line=5.5)
+    cfg = Config(ev=EVThresholds(min_prob=0.0, max_ev=1.0), pitcher_k_max_buy_line=5.5)
     rec = _pitcher_props(cfg, 5.5)  # o5.5 == cap, allowed
     assert rec.tier in (Tier.STRONG, Tier.MODERATE)
     assert not any("buy cap" in r for r in rec.reasons)

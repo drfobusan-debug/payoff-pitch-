@@ -13,18 +13,59 @@ downstream; unmatched rows stay neutral.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
 
-from mlb_engine.config import Credentials
+from mlb_engine.config import Credentials, _data_dir
+from mlb_engine.data import http
 from mlb_engine.data.rotowire import norm_person
 from mlb_engine.features.rolling import OutcomeRates
 
 log = logging.getLogger(__name__)
+
+LEADERBOARD_HEADERS = {"User-Agent": "curl/8.5.0", "Accept": "*/*"}
+
+
+def leaderboard_cache_dir() -> Path:
+    return _data_dir() / "cache" / "fangraphs"
+
+
+def leaderboard(url: str, key: str, *, cache_dir: Path | None = None, timeout: float = 60) -> list[dict]:
+    """Rows of a FanGraphs leaderboard API call, falling back to the last good copy.
+
+    A successful fetch is written to ``<cache_dir>/<key>.json`` (with the day it
+    was taken). When FanGraphs cannot be reached -- or answers with something
+    that is not a leaderboard -- the most recent cached copy under the same key
+    is returned with a warning naming its age, so a FanGraphs outage costs
+    freshness rather than the whole sheet. Raises only when no copy exists.
+    """
+    cache_dir = cache_dir or leaderboard_cache_dir()
+    path = cache_dir / f"{key}.json"
+    try:
+        resp = http.get(url, headers=LEADERBOARD_HEADERS, timeout=timeout)
+        resp.raise_for_status()
+        data = resp.json().get("data")
+        if not isinstance(data, list) or not data:
+            raise ValueError(f"FanGraphs leaderboard {key} returned no data")
+    except Exception as exc:
+        if not path.exists():
+            raise
+        saved = json.loads(path.read_text())
+        log.warning(
+            "FanGraphs %s unavailable (%s); using copy fetched %s", key, exc, saved.get("fetched", "?")
+        )
+        return list(saved["data"])
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"fetched": date.today().isoformat(), "url": url, "data": data}))
+    tmp.replace(path)
+    return data
 
 
 # Metric -> candidate FanGraphs CSV header spellings (lower-cased, punctuation-free).

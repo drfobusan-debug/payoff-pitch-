@@ -1,5 +1,10 @@
 """Regenerate the regression reports: the combined prose article (arms + bats
-in one PDF), the two stat-card PDFs it was written from, and one MP3."""
+in one PDF), the two stat-card PDFs it was written from, and one MP3.
+
+Run it from the repository root::
+
+    python -m scripts.regen_regression [--date YYYY-MM-DD] [--statcast FRAME]
+"""
 
 from __future__ import annotations
 
@@ -12,22 +17,20 @@ import scripts.pitcher_slate_analysis as psa
 import scripts.regression_article as art
 from mlb_engine.config import load_config
 from mlb_engine.output.audit_insight import to_mp3
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
 
-def main() -> None:
-    import sys
-    from datetime import date as Date
-
-    if len(sys.argv) > 1:
-        cr.DAY = Date.fromisoformat(sys.argv[1])
-    if len(sys.argv) > 2:
-        cr.STATCAST_PKL = sys.argv[2]
+def main(argv: list[str] | None = None) -> None:
+    args = cr.parse_args(argv)
     cfg = load_config()
-    day = cr.DAY
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     pv_raw = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds_raw = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
+    preds_raw = json.loads(preds_path.read_text())
     pv_by_pk = {g["game_pk"]: g for g in pv_raw}
-    df = pd.read_pickle(cfg.cache_dir / cr.STATCAST_PKL)
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
 
     ppos, pneg, pctxs = psa.build_profiles(pv_raw, preds_raw, df)
     pitcher_html = psa.build_html(day, ppos, pneg, pctxs, preds_raw)

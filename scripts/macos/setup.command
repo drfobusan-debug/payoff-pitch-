@@ -7,5 +7,7 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -e .
 echo
-echo "Setup complete. Right-click run_predictions.command -> make an alias on your Desktop."
+echo "Setup complete. Put the daily run on your Desktop as a LINK, never a copy --"
+echo "a copy stops tracking git pull and prices with whatever build it finds:"
+echo "  ln -s \"$(pwd)/scripts/macos/run_predictions.command\" \"\$HOME/Desktop/PAYOFF PITCH.command\""
 echo "For a ledger shortcut with the ledger icon, run: scripts/macos/install_ledger_shortcut.command"

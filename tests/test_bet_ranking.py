@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from mlb_engine.market.ranking import LONGSHOT_AMERICAN, bet_sort_key, decimal_odds
+from mlb_engine.market.ranking import (
+    LONGSHOT_AMERICAN,
+    bet_sort_key,
+    decimal_odds,
+    fair_decimal,
+    price_rank,
+)
 
 
 def test_decimal_odds_reads_both_sides_of_even_money() -> None:
@@ -58,3 +64,49 @@ def test_ordering_a_slate_puts_the_longest_prices_last() -> None:
         )
     ]
     assert order == ["chalk", "even", "longshot", "moderate chalk"]
+
+
+# --- the devigged price, which is the one the ledger orders on -------------
+
+
+def test_the_hold_comes_out_before_two_markets_are_compared() -> None:
+    """Two -140s are not the same bet when one book keeps twice the hold.
+
+    A raw price cannot order a 3% prop market against a 9% one, and it is the
+    market's true probability that tracks the money (33.1% wins below .45 fair,
+    62.8% at .60-.65), so the ranking reads the devigged number.
+    """
+    tight = fair_decimal(-140, 0.573)  # -140/+120: hold comes out at .573
+    fat = fair_decimal(-140, 0.535)  # -140/+105: the same price, more juice
+    assert tight < fat
+
+
+def test_a_row_nothing_devigged_keeps_its_posted_price() -> None:
+    """An unknown hold is not a zero hold, but the posted price still ranks."""
+    assert fair_decimal(-140, None) == decimal_odds(-140)
+    assert fair_decimal(-140, 0.0) == decimal_odds(-140)
+
+
+def test_the_devigged_scale_shares_the_longshot_bucket() -> None:
+    assert fair_decimal(None, 0.05) == fair_decimal(None, 0.10)
+    assert fair_decimal(None, 0.05) == decimal_odds(LONGSHOT_AMERICAN)
+
+
+def test_the_devigged_price_beats_the_posted_one_at_ordering_a_pair() -> None:
+    """The row the market thinks more of leads, whichever row we price higher."""
+    market_likes_it = price_rank(-120, 0.60, 0.01)
+    we_like_it = price_rank(-120, 0.44, 0.30)
+    assert market_likes_it < we_like_it
+
+
+def test_a_row_with_no_price_at_all_sorts_behind_every_priced_row() -> None:
+    """And behind them in its own order rather than as if it were even money."""
+    unpriced_good = price_rank(None, None, 0.30)
+    unpriced_bad = price_rank(None, None, 0.01)
+    assert price_rank(400, None, 0.9) < unpriced_good < unpriced_bad
+
+
+def test_the_sort_key_reads_the_devigged_price_when_it_has_one() -> None:
+    juiced = bet_sort_key(strong=True, american=-140, edge=0.05, fair_prob=0.52)
+    clean = bet_sort_key(strong=True, american=-140, edge=0.02, fair_prob=0.60)
+    assert clean < juiced, "the wider edge does not lead the shorter true price"

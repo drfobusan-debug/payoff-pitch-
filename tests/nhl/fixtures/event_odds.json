@@ -1,0 +1,1448 @@
+{
+"id": "485b295347cb22f002e014cb87813ed7",
+"sport_key": "icehockey_nhl",
+"sport_title": "NHL",
+"commence_time": "2026-09-29T23:10:00Z",
+"home_team": "Toronto Maple Leafs",
+"away_team": "Montr\u00e9al Canadiens",
+"bookmakers": [
+{
+"key": "draftkings",
+"title": "DraftKings",
+"markets": [
+{
+"key": "h2h",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -102
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -118
+}
+]
+},
+{
+"key": "spreads",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -258,
+"point": 1.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 210,
+"point": -1.5
+}
+]
+},
+{
+"key": "totals",
+"outcomes": [
+{
+"name": "Over",
+"price": 102,
+"point": 6.5
+},
+{
+"name": "Under",
+"price": -122,
+"point": 6.5
+}
+]
+},
+{
+"key": "alternate_spreads",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 800,
+"point": -3.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 330,
+"point": -2.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 200,
+"point": -1.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -505,
+"point": 2.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -1600,
+"point": 3.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -1800,
+"point": 3.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -505,
+"point": 2.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -280,
+"point": 1.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 330,
+"point": -2.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 750,
+"point": -3.5
+}
+]
+},
+{
+"key": "alternate_team_totals",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -3500,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 1100,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -550,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 350,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -180,
+"point": 2.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 140,
+"point": 2.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 130,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -170,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 290,
+"point": 4.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -430,
+"point": 4.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 675,
+"point": 5.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -1350,
+"point": 5.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -4500,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 1200,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -550,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 350,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -190,
+"point": 2.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 145,
+"point": 2.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 125,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -165,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 275,
+"point": 4.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -410,
+"point": 4.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 650,
+"point": 5.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -1300,
+"point": 5.5
+}
+]
+},
+{
+"key": "alternate_totals",
+"outcomes": [
+{
+"name": "Over",
+"price": -935,
+"point": 3.5
+},
+{
+"name": "Over",
+"price": -485,
+"point": 4.5
+},
+{
+"name": "Over",
+"price": -165,
+"point": 5.5
+},
+{
+"name": "Over",
+"price": 225,
+"point": 7.5
+},
+{
+"name": "Over",
+"price": 340,
+"point": 8.5
+},
+{
+"name": "Over",
+"price": 750,
+"point": 9.5
+},
+{
+"name": "Under",
+"price": 520,
+"point": 3.5
+},
+{
+"name": "Under",
+"price": 320,
+"point": 4.5
+},
+{
+"name": "Under",
+"price": 125,
+"point": 5.5
+},
+{
+"name": "Under",
+"price": -320,
+"point": 7.5
+},
+{
+"name": "Under",
+"price": -525,
+"point": 8.5
+},
+{
+"name": "Under",
+"price": -1600,
+"point": 9.5
+}
+]
+},
+{
+"key": "h2h_3_way",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 145
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 135
+},
+{
+"name": "Draw",
+"price": 310
+}
+]
+},
+{
+"key": "h2h_3_way_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 180
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 175
+},
+{
+"name": "Draw",
+"price": 180
+}
+]
+},
+{
+"key": "h2h_3_way_p2",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 170
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 160
+},
+{
+"name": "Draw",
+"price": 205
+}
+]
+},
+{
+"key": "spreads_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -220,
+"point": 0.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 170,
+"point": -0.5
+}
+]
+},
+{
+"key": "spreads_p2",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -210,
+"point": 0.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 160,
+"point": -0.5
+}
+]
+},
+{
+"key": "team_totals_p1",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -175,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 135,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -170,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 130,
+"point": 0.5
+}
+]
+},
+{
+"key": "totals_p1",
+"outcomes": [
+{
+"name": "Over",
+"price": -140,
+"point": 1.5
+},
+{
+"name": "Under",
+"price": 110,
+"point": 1.5
+}
+]
+},
+{
+"key": "totals_p2",
+"outcomes": [
+{
+"name": "Over",
+"price": -180,
+"point": 1.5
+},
+{
+"name": "Under",
+"price": 140,
+"point": 1.5
+}
+]
+}
+]
+},
+{
+"key": "williamhill_us",
+"title": "Caesars",
+"markets": [
+{
+"key": "h2h",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -104
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -114
+}
+]
+},
+{
+"key": "totals",
+"outcomes": [
+{
+"name": "Over",
+"price": 106,
+"point": 6.5
+},
+{
+"name": "Under",
+"price": -130,
+"point": 6.5
+}
+]
+},
+{
+"key": "h2h_3_way",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 122
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 134
+},
+{
+"name": "Draw",
+"price": 275
+}
+]
+},
+{
+"key": "h2h_3_way_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 174
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 176
+},
+{
+"name": "Draw",
+"price": 147
+}
+]
+},
+{
+"key": "player_goal_scorer_anytime",
+"outcomes": [
+{
+"name": "Yes",
+"description": "Cole Caufield",
+"price": 134
+},
+{
+"name": "Yes",
+"description": "Auston Matthews",
+"price": 139
+},
+{
+"name": "Yes",
+"description": "William Nylander",
+"price": 176
+},
+{
+"name": "Yes",
+"description": "John Tavares",
+"price": 205
+},
+{
+"name": "Yes",
+"description": "Nick Suzuki",
+"price": 210
+},
+{
+"name": "Yes",
+"description": "Juraj Slafkovsky",
+"price": 215
+}
+]
+},
+{
+"key": "player_goal_scorer_first",
+"outcomes": [
+{
+"name": "Yes",
+"description": "Cole Caufield",
+"price": 900
+},
+{
+"name": "Yes",
+"description": "Auston Matthews",
+"price": 1000
+},
+{
+"name": "Yes",
+"description": "William Nylander",
+"price": 1100
+},
+{
+"name": "Yes",
+"description": "Nick Suzuki",
+"price": 1200
+},
+{
+"name": "Yes",
+"description": "John Tavares",
+"price": 1300
+},
+{
+"name": "Yes",
+"description": "Juraj Slafkovsky",
+"price": 1300
+}
+]
+},
+{
+"key": "player_shots_on_goal",
+"outcomes": [
+{
+"name": "Over",
+"description": "Chris Kreider",
+"price": -176,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Chris Kreider",
+"price": 130,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Lane Hutson",
+"price": -170,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Lane Hutson",
+"price": 124,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Juraj Slafkovsky",
+"price": 116,
+"point": 2.5
+},
+{
+"name": "Under",
+"description": "Juraj Slafkovsky",
+"price": -154,
+"point": 2.5
+}
+]
+},
+{
+"key": "team_totals",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 126,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -176,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 128,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -179,
+"point": 3.5
+}
+]
+}
+]
+},
+{
+"key": "fanduel",
+"title": "FanDuel",
+"markets": [
+{
+"key": "h2h",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -114
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -105
+}
+]
+},
+{
+"key": "spreads",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 205,
+"point": -1.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -265,
+"point": 1.5
+}
+]
+},
+{
+"key": "totals",
+"outcomes": [
+{
+"name": "Over",
+"price": 104,
+"point": 6.5
+},
+{
+"name": "Under",
+"price": -128,
+"point": 6.5
+}
+]
+},
+{
+"key": "alternate_spreads",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -310,
+"point": 1.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -600,
+"point": 2.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -2000,
+"point": 3.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -6000,
+"point": 4.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -20000,
+"point": 5.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -50000,
+"point": 6.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 184,
+"point": -1.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 340,
+"point": -2.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 920,
+"point": -3.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 2300,
+"point": -4.5
+},
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 6000,
+"point": -5.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -240,
+"point": 1.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -550,
+"point": 2.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -1800,
+"point": 3.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -6000,
+"point": 4.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -20000,
+"point": 5.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -50000,
+"point": 6.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 220,
+"point": -1.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 380,
+"point": -2.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 1040,
+"point": -3.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 2400,
+"point": -4.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 6000,
+"point": -5.5
+}
+]
+},
+{
+"key": "alternate_team_totals",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -3500,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -650,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -192,
+"point": 2.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 128,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 300,
+"point": 4.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 760,
+"point": 5.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 1750,
+"point": 6.5
+},
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": 5000,
+"point": 7.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 1480,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 400,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -164,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -430,
+"point": 4.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -1450,
+"point": 5.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -4500,
+"point": 6.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -3500,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -600,
+"point": 1.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -174,
+"point": 2.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 134,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 320,
+"point": 4.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 810,
+"point": 5.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 1950,
+"point": 6.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": 6000,
+"point": 7.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 1460,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 380,
+"point": 1.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -172,
+"point": 3.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -480,
+"point": 4.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -1600,
+"point": 5.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -5000,
+"point": 6.5
+}
+]
+},
+{
+"key": "alternate_totals",
+"outcomes": [
+{
+"name": "Over",
+"price": -6000,
+"point": 2.5
+},
+{
+"name": "Over",
+"price": -1100,
+"point": 3.5
+},
+{
+"name": "Over",
+"price": -550,
+"point": 4.5
+},
+{
+"name": "Over",
+"price": -158,
+"point": 5.5
+},
+{
+"name": "Over",
+"price": 102,
+"point": 6.5
+},
+{
+"name": "Over",
+"price": 240,
+"point": 7.5
+},
+{
+"name": "Over",
+"price": 380,
+"point": 8.5
+},
+{
+"name": "Over",
+"price": 870,
+"point": 9.5
+},
+{
+"name": "Over",
+"price": 1340,
+"point": 10.5
+},
+{
+"name": "Over",
+"price": 3400,
+"point": 11.5
+},
+{
+"name": "Over",
+"price": 6000,
+"point": 12.5
+},
+{
+"name": "Under",
+"price": 2300,
+"point": 2.5
+},
+{
+"name": "Under",
+"price": 610,
+"point": 3.5
+},
+{
+"name": "Under",
+"price": 350,
+"point": 4.5
+},
+{
+"name": "Under",
+"price": 124,
+"point": 5.5
+},
+{
+"name": "Under",
+"price": -130,
+"point": 6.5
+},
+{
+"name": "Under",
+"price": -340,
+"point": 7.5
+},
+{
+"name": "Under",
+"price": -600,
+"point": 8.5
+},
+{
+"name": "Under",
+"price": -1600,
+"point": 9.5
+},
+{
+"name": "Under",
+"price": -3000,
+"point": 10.5
+},
+{
+"name": "Under",
+"price": -8000,
+"point": 11.5
+}
+]
+},
+{
+"key": "h2h_3_way",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 135
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 145
+},
+{
+"name": "Draw",
+"price": 340
+}
+]
+},
+{
+"key": "h2h_3_way_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 180
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 180
+},
+{
+"name": "Draw",
+"price": 185
+}
+]
+},
+{
+"key": "h2h_3_way_p2",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 170
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 170
+},
+{
+"name": "Draw",
+"price": 210
+}
+]
+},
+{
+"key": "h2h_3_way_p3",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 145
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 160
+},
+{
+"name": "Draw",
+"price": 270
+}
+]
+},
+{
+"key": "h2h_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -116
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -110
+}
+]
+},
+{
+"key": "h2h_p2",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -112
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -112
+}
+]
+},
+{
+"key": "h2h_p3",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -122
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -104
+}
+]
+},
+{
+"key": "player_goal_scorer_anytime",
+"outcomes": [
+{
+"name": "Yes",
+"description": "Cole Caufield",
+"price": 135
+},
+{
+"name": "Yes",
+"description": "Auston Matthews",
+"price": 150
+},
+{
+"name": "Yes",
+"description": "William Nylander",
+"price": 175
+},
+{
+"name": "Yes",
+"description": "John Tavares",
+"price": 200
+},
+{
+"name": "Yes",
+"description": "Nick Suzuki",
+"price": 210
+},
+{
+"name": "Yes",
+"description": "Juraj Slafkovsky",
+"price": 230
+}
+]
+},
+{
+"key": "player_goal_scorer_first",
+"outcomes": [
+{
+"name": "Yes",
+"description": "Cole Caufield",
+"price": 950
+},
+{
+"name": "Yes",
+"description": "Auston Matthews",
+"price": 1000
+},
+{
+"name": "Yes",
+"description": "William Nylander",
+"price": 1100
+},
+{
+"name": "Yes",
+"description": "John Tavares",
+"price": 1300
+},
+{
+"name": "Yes",
+"description": "Nick Suzuki",
+"price": 1400
+},
+{
+"name": "Yes",
+"description": "Jack Roslovic",
+"price": 1500
+}
+]
+},
+{
+"key": "spreads_p1",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 176,
+"point": -0.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -230,
+"point": 0.5
+}
+]
+},
+{
+"key": "spreads_p2",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": -215,
+"point": 0.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": 168,
+"point": -0.5
+}
+]
+},
+{
+"key": "spreads_p3",
+"outcomes": [
+{
+"name": "Montr\u00e9al Canadiens",
+"price": 142,
+"point": -0.5
+},
+{
+"name": "Toronto Maple Leafs",
+"price": -182,
+"point": 0.5
+}
+]
+},
+{
+"key": "team_totals",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -192,
+"point": 2.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": -164,
+"point": 3.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -174,
+"point": 2.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": -172,
+"point": 3.5
+}
+]
+},
+{
+"key": "team_totals_p1",
+"outcomes": [
+{
+"name": "Over",
+"description": "Montr\u00e9al Canadiens",
+"price": -168,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Montr\u00e9al Canadiens",
+"price": 130,
+"point": 0.5
+},
+{
+"name": "Over",
+"description": "Toronto Maple Leafs",
+"price": -166,
+"point": 0.5
+},
+{
+"name": "Under",
+"description": "Toronto Maple Leafs",
+"price": 130,
+"point": 0.5
+}
+]
+},
+{
+"key": "totals_p1",
+"outcomes": [
+{
+"name": "Over",
+"price": -122,
+"point": 1.5
+},
+{
+"name": "Under",
+"price": -104,
+"point": 1.5
+}
+]
+},
+{
+"key": "totals_p2",
+"outcomes": [
+{
+"name": "Over",
+"price": -186,
+"point": 1.5
+},
+{
+"name": "Under",
+"price": 144,
+"point": 1.5
+}
+]
+},
+{
+"key": "totals_p3",
+"outcomes": [
+{
+"name": "Over",
+"price": 140,
+"point": 2.5
+},
+{
+"name": "Under",
+"price": -180,
+"point": 2.5
+}
+]
+}
+]
+}
+]
+}

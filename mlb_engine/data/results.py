@@ -170,6 +170,11 @@ def fetch_result(
                     "HR": hr,
                     "RBI": int(bat.get("rbi", 0) or 0),
                     "R": int(bat.get("runs", 0) or 0),
+                    # The batter's own walks and strikeouts, which are markets in
+                    # their own right: without them here every such prop grades
+                    # off a zero and its overs read as losses.
+                    "BB": int(bat.get("baseOnBalls", 0) or 0),
+                    "K": int(bat.get("strikeOuts", 0) or 0),
                 }
             if pit:
                 line.pitching = {
