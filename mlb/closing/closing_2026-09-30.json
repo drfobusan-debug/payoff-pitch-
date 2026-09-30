@@ -4020,6 +4020,13 @@
   {
     "matchup": "CHC @ SD",
     "market": "batter_hr",
+    "selection": "Matt Shaw HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_hr",
     "selection": "Michael Busch HR o0.5",
     "american": 650.0,
     "no_vig_prob": 0.14321
