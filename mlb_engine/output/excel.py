@@ -36,6 +36,8 @@ from mlb_engine.audit.analysis import (
 from mlb_engine.audit.clv import ClvSummary
 from mlb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from mlb_engine.config import EVThresholds
+from mlb_engine.market.odds import american_to_prob
+from mlb_engine.market.ranking import price_rank
 from mlb_engine.market.tiers import Tier
 from mlb_engine.recommendations import Recommendation
 
@@ -248,10 +250,13 @@ def _scheme_key(rec: Recommendation) -> str:
 
 
 def _conviction(rec: Recommendation, key: str) -> float:
-    """Sort/shade magnitude: distance from the no-vig price, in either direction.
+    """Sort/shade magnitude: the no-vig price on a buy, distance from it on a fade.
 
-    Both ends are probability points, so a shade means the same thing on a dog and
-    on chalk; EV would make the gradient a function of price length.
+    A fade is still shaded by how far the model sits *under* the price, because
+    that is the whole content of a fade. A buy is shaded by the devigged price
+    itself rather than by the edge over it: the edge orders our buys backwards
+    (see :mod:`mlb_engine.market.ranking`), so a darker green used to mean a
+    worse bet. A buy nothing could be devigged keeps its raw implied price.
     """
     if key == _FADE:
         if rec.fair_prob is not None:
@@ -261,9 +266,11 @@ def _conviction(rec: Recommendation, key: str) -> float:
         else:
             v = 0.0
         return max(0.0, v)
-    if rec.edge is not None:
-        return rec.edge
-    return rec.ev if rec.ev is not None else 0.0
+    if rec.fair_prob is not None:
+        return rec.fair_prob
+    if rec.market_american is not None:
+        return american_to_prob(rec.market_american)
+    return 0.0
 
 
 def _is_best(rec: Recommendation, category: str) -> bool:
@@ -444,7 +451,7 @@ def _write_all_sheet(ws: Worksheet, recs: list[Recommendation]) -> None:
 
 def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date) -> Path:
     def sort_key(r: Recommendation) -> tuple[int, float]:
-        return (TIER_ORDER.get(r.tier.value, 3), -(r.ev if r.ev is not None else -99))
+        return (TIER_ORDER.get(r.tier.value, 3), price_rank(r.market_american, r.fair_prob, r.ev))
 
     wb = Workbook()
     strong = [r for r in recs if r.tier == Tier.STRONG]

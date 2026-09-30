@@ -140,6 +140,23 @@ def test_positive_lift_with_negative_roi_is_flagged():
     assert ok == []
 
 
+def test_an_unmapped_market_key_is_prettified_not_printed_raw():
+    assert ai.market_label("batter_h") == "Batter hits"
+    assert ai.market_label("batter_hrrbi") == "Batter hrrbi"
+    assert "_" not in ai.market_label("pitcher_props")
+
+
+def test_the_one_way_sentence_counts_every_market_the_total_does():
+    """The prose is read against the total row, so thin markets can't drop out."""
+    rows = [_entry(market="batter_h", under_odds=None) for _ in range(20)] + [
+        _entry(market="pitcher_outs", under_odds=None) for _ in range(2)
+    ]
+    stats = priced.priced_stats(rows, ai.market_label)
+    total = priced.engine_priced_stat(rows)
+    said = [f for f in priced.priced_findings(stats) if "one-way quotes" in f]
+    assert said and f"{total.n_one_way} of these bets" in said[0]
+
+
 def test_report_carries_the_priced_section_and_leads_with_units():
     df = ai.classify(ai.graded_to_frame(_graded_frame_rows(), date(2026, 8, 18)))
     rows = [_entry(odds=-250, result="win", pnl=0.4)] * 10 + [

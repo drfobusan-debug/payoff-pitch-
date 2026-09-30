@@ -17,11 +17,20 @@ negative-regression (most -> least likely to *decline*), where the luck index is
 z(BABIP above .290) + z(wOBA above xwOBA). Renders a house-style PDF + MP3.
 
 This is a model preview, not betting advice.
+
+Run it from the repository root::
+
+    python -m scripts.pitcher_slate_analysis [--date YYYY-MM-DD] [--statcast FRAME]
+
+Both default off the state directory: the most recent slate it holds, and the
+widest cached Statcast window ending on or before that slate.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import math
 from datetime import date as Date
 
 import pandas as pd
@@ -44,6 +53,7 @@ from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
     analyze,
     build_profiles,
 )
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
 
 # --- rendering -------------------------------------------------------------
@@ -124,12 +134,17 @@ def _expect_today(p: dict, ctx: dict | None) -> str:
     )
 
 
+def _g(value: float, digits: int = 1) -> str:
+    """A measurement that was not readable prints as a dash, never as ``nan``."""
+    return "&mdash;" if value is None or math.isnan(value) else f"{value:.{digits}f}"
+
+
 def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     bm = p["biomech"]
     trends = (
         f"<span class='metric'>SIERA <b>{p['siera']:.2f}</b> {_arrow(p['d_siera'], good_up=False)}</span>"
         f"<span class='metric'>Stuff xK% <b>{p['xk'] * 100:.0f}</b> {_arrow(p['d_xk'], good_up=True)}</span>"
-        f"<span class='metric'>vFA <b>{p['vfa']:.1f}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
+        f"<span class='metric'>vFA <b>{_g(p['vfa'])}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
     )
     luck = (
         f"BABIP-against <b>.{int(round(p['babip'] * 1000)):03d}</b> "
@@ -137,8 +152,8 @@ def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
         f"barrel% {p['barrel'] * 100:.0f} · K% {p['k_pct'] * 100:.0f} / BB% {p['bb_pct'] * 100:.0f}"
     )
     biomech = (
-        f"Extension <b>{bm['ext']:.1f} ft</b> · IVB <b>{bm['ivb']:.1f} in</b> · "
-        f"FB spin <b>{bm['spin']:.0f} rpm</b> · release scatter {bm['scatter']:.1f} in"
+        f"Extension <b>{_g(bm['ext'])} ft</b> · IVB <b>{_g(bm['ivb'])} in</b> · "
+        f"FB spin <b>{_g(bm['spin'], 0)} rpm</b> · release scatter {_g(bm['scatter'])} in"
     )
     bet_html = (
         "<ul class='bets'>" + "".join(_bet_line(b) for b in bets[:4]) + "</ul>"
@@ -265,12 +280,23 @@ def build_narration(day: Date, pos: list, neg: list, ctxs: dict, preds: list[dic
 
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="slate to write up; default the latest one in state")
+    p.add_argument("--statcast", help="cached frame to read form off; default the widest")
+    return p.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
-    day = Date(2026, 7, 31)
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     previews = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
-    df = pd.read_pickle(cfg.cache_dir / "statcast_2026-06-19_2026-07-30.pkl")
+    preds = json.loads(preds_path.read_text())
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
     pos, neg, ctxs = build_profiles(previews, preds, df)
 
     html = build_html(day, pos, neg, ctxs, preds)

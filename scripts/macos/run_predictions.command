@@ -73,11 +73,15 @@ python -m scripts.regen_slate "$day" || echo "WARN: slate article failed" >&2
 # Pitcher + batter regression articles + narration (need the trailing Statcast pkl).
 pkl=$(ls -t "$HOME/.mlb_engine/cache/"statcast_*.pkl 2>/dev/null | head -1)
 if [ -n "$pkl" ]; then
-    python -m scripts.regen_regression "$day" "$(basename "$pkl")" \
+    python -m scripts.regen_regression --date "$day" --statcast "$(basename "$pkl")" \
         || echo "WARN: regression articles failed" >&2
 else
     echo "WARN: no Statcast cache pkl found; skipping regression articles" >&2
 fi
+
+# Hand-method totals sheet (signed points per game; research, not a bet).
+python -m scripts.totals_sheet "$day" || echo "WARN: totals sheet failed" >&2
+python -m scripts.totals_audit "$day" || echo "WARN: totals audit failed" >&2
 
 # Email the whole package as one message (Gmail App Password from the engine env).
 python -m scripts.email_daily_package "$day" || echo "WARN: email step failed" >&2

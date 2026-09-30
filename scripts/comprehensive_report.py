@@ -13,10 +13,18 @@ Part 3 -- Batter regression (this file): the top-10 hitters due to heat up
 The three articles keep their own house styling; WeasyPrint renders each and the
 page lists are concatenated into one document, and the three narrations are joined
 into one MP3.  Model preview, not investment advice.
+
+Run it from the repository root, which is what puts ``scripts`` on the path::
+
+    python -m scripts.comprehensive_report [--date YYYY-MM-DD] [--statcast FRAME]
+
+Both arguments default off the state directory: the most recent slate it holds,
+and the widest cached Statcast window that ends on or before that slate.
 """
 
 from __future__ import annotations
 
+import argparse
 import dataclasses
 import json
 from datetime import date as Date
@@ -25,6 +33,15 @@ import pandas as pd
 
 import scripts.pitcher_slate_analysis as psa
 from mlb_engine.config import load_config
+from mlb_engine.features.power_change import (
+    BL_FB_WHIFF,
+    BL_MAX_EV,
+    FLOOR,
+    MIN_FB_SWINGS,
+    MOVE_BLOCK,
+    band,
+)
+from mlb_engine.features.power_change import WINDOW as WINDOW_PA
 from mlb_engine.features.regression import BL_XSLG
 from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import to_mp3
@@ -43,9 +60,8 @@ from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
 )
 from mlb_engine.preview import load_previews
 from mlb_engine.recommendations import Recommendation
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
-DAY = Date(2026, 7, 31)
-STATCAST_PKL = "statcast_2026-06-19_2026-07-30.pkl"
 BATTER_STATS = ("hr", "tb", "h", "1b", "r", "rbi", "hrr")
 
 
@@ -60,6 +76,53 @@ def load_recs(path) -> list[Recommendation]:
         out.append(Recommendation(**d))
     return out
 
+
+
+def _prov(read: int, metric: str) -> str:
+    """Flag a level read over less than the sample it stabilises on."""
+    return "" if read >= WINDOW_PA[metric] else ", provisional"
+
+
+def _power_cells(p: dict) -> str:
+    """Peak exit velocity and fastball whiff%, each over the window it stabilises on.
+
+    Same numbers and same windows as the article's line -- ``WINDOW`` plate
+    appearances each, the sample each metric reaches r=.70 at
+    -- with the move quoted against the noise band of a hitter who did not change,
+    because neither move forecasts anything on its own.
+    """
+    if not p.get("power_pa"):
+        return ""
+    ev = p.get("max_ev", float("nan"))
+    fbw = p.get("fb_whiff", float("nan"))
+    block = p.get("power_block_pa", 0)
+    cells = [
+        f"max EV <b>{ev:.1f}</b> ({p['max_ev_pa']} PA{_prov(p['max_ev_pa'], 'max_ev')})"
+        if ev == ev
+        else f"max EV &mdash; (&lt;{FLOOR['max_ev']} PA)",
+        f"FB whiff <b>{fbw * 100:.0f}%</b> ({p['fb_whiff_pa']} PA"
+        f"{_prov(p['fb_whiff_pa'], 'fb_whiff')}, {p['fb_swings']} FB swings)"
+        if fbw == fbw
+        else f"FB whiff &mdash; (needs {FLOOR['fb_whiff']} PA, {MIN_FB_SWINGS} FB swings)",
+    ]
+    for metric, delta, unit, scale in (
+        ("max_ev", p.get("d_max_ev", float("nan")), " mph", 1.0),
+        ("fb_whiff", p.get("d_fb_whiff", float("nan")), "pp", 100.0),
+    ):
+        label = "&Delta;max EV" if metric == "max_ev" else "&Delta;FB whiff"
+        if delta != delta or not block:
+            cells.append(f"{label} &mdash; (needs {2 * MOVE_BLOCK[metric]} PA)")
+            continue
+        verdict = "clears" if p.get(f"{metric}_moved") else "noise"
+        cells.append(
+            f"{label} {delta * scale:+.1f}{unit} vs prior {block} PA "
+            f"({verdict}, band &plusmn;{band(metric, block) * scale:.1f}{unit})"
+        )
+    league = f"league {BL_MAX_EV:.1f} / {BL_FB_WHIFF * 100:.0f}%"
+    return (
+        f"<div class='bmetrics'>{' &middot; '.join(cells)} "
+        f"<span class='tr'>{league}</span></div>"
+    )
 
 
 def _bat_card(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -> str:
@@ -103,6 +166,7 @@ def _bat_card(p: dict, ctx: dict | None, bet: dict | None, positive: bool) -> st
         f"<div class='bmetrics'>wOBA <b>.{int(round(p['woba'] * 1000)):03d}</b> "
         f"<span class='tr'>6wk&#8594;3wk {trend}</span> · xwOBA .{int(round(p['xwoba'] * 1000)):03d} · "
         f"gap <b>{gap:+.0f}</b> · barrel% {p['barrel'] * 100:.0f} · BABIP .{int(round(p['babip'] * 1000)):03d}</div>"
+        f"{_power_cells(p)}"
         f"<div class='bverdict'>{verdict}</div>"
         f"<div class='bbet'><b>Bet:</b> {bet_html}</div></div>"
     )
@@ -173,7 +237,13 @@ def build_batter_html(day: Date, pos: list, neg: list, ctxs: dict, preds: list[d
         "<p class='fine'>Methodology: each hitter's wOBA, xwOBA and xSLG come from his trailing 6-week (42-day) "
         "Statcast batted-ball slice; the trend arrow compares that 6-week wOBA to the last 3 weeks. Regression rank "
         "is the xwOBA-minus-wOBA gap (positive = underperforming contact, due to improve). Minimum 25 batted-ball "
-        "events to qualify. Model preview, not investment advice.</p>"
+        "events to qualify. Max exit velocity and fastball whiff% are read over the plate appearances each "
+        f"stabilises at rather than over the same window as everything else &mdash; {FLOOR['max_ev']} PA before "
+        f"either is quoted at all, then {WINDOW_PA['max_ev']} PA and {WINDOW_PA['fb_whiff']} PA respectively, "
+        "the samples at which split-half reliability "
+        "reaches .70 over 162,464 measured plate appearances. Their game-to-game moves are printed against the "
+        "band a hitter who did not change would still produce, because on the same data neither move predicts the "
+        "next block once the level is known. Model preview, not investment advice.</p>"
     )
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{BATTER_CSS}</style></head>"
@@ -214,16 +284,27 @@ def merge_pdf(htmls: list[str]):
     return docs[0].copy(pages).write_pdf()
 
 
-def main() -> None:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="slate to write up; default the latest one in state")
+    p.add_argument("--statcast", help="cached frame to read form off; default the widest")
+    return p.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
-    day = DAY
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     pv_raw = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds_raw = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
+    preds_raw = json.loads(preds_path.read_text())
     pv_by_pk = {g["game_pk"]: g for g in pv_raw}
 
     previews = load_previews(cfg.audit_dir / f"previews_{day.isoformat()}.json")
-    recs = load_recs(cfg.audit_dir / f"predictions_{day.isoformat()}.json")
-    df = pd.read_pickle(cfg.cache_dir / STATCAST_PKL)
+    recs = load_recs(preds_path)
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
 
     # Part 1: daily slate previews
     slate_html, slate_narr = build_preview_report(day, previews, recs)

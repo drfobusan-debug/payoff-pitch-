@@ -18,7 +18,7 @@ from mlb_engine.data.fences import (
     wall_distance,
 )
 from mlb_engine.data.parks import PARKS
-from mlb_engine.data.statcast import StatcastRepository
+from mlb_engine.data.statcast import USE_COLS, StatcastRepository
 from mlb_engine.features.rolling import LEAGUE_RATES, OutcomeRates, blend_hr_rate
 from mlb_engine.features.xhr import (
     HOME_X,
@@ -326,3 +326,25 @@ def test_the_loader_renumbers_a_duplicated_index(tmp_path: Path) -> None:
     loaded = repo.load_range(Date(2026, 8, 1), Date(2026, 8, 2))
     assert loaded.index.is_unique
     assert len(loaded) == 2
+
+
+def test_the_ingest_asks_the_feed_for_the_swing_path_fields() -> None:
+    """The feed publishes them per swing; the narrowing list dropped them.
+
+    Attack angle was read as unavailable for months because ``USE_COLS`` kept bat
+    speed and swing length and nothing else, so the cached frames genuinely did
+    not have it while the search response did.
+    """
+    for col in ("bat_speed", "swing_length", "attack_angle", "attack_direction",
+                "swing_path_tilt"):
+        assert col in USE_COLS
+
+
+def test_a_frame_cached_before_the_swing_path_fields_still_loads(tmp_path: Path) -> None:
+    """Old caches are narrower, and must be read rather than refetched blindly."""
+    repo = StatcastRepository(tmp_path)
+    frame = pd.DataFrame({"bat_speed": [72.0], "launch_speed": [95.0]})
+    frame.to_pickle(repo._cache_path(Date(2026, 8, 1), Date(2026, 8, 2)))
+    loaded = repo.load_range(Date(2026, 8, 1), Date(2026, 8, 2))
+    assert "attack_angle" not in loaded.columns
+    assert len(loaded) == 1

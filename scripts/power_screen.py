@@ -9,8 +9,29 @@ after.
     python scripts/power_screen.py --date 2026-08-17 --email      # PDF to the audit inbox
 
 Writes ``power_screen_<date>.{html,pdf}`` to the engine's output directory. See
-``mlb_engine/output/power_screen.py`` for the five stages and every threshold, and
-``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``).
+``mlb_engine/output/power_screen.py`` for the stages and every threshold, and
+``--help`` for the knobs worth moving (``--min-pa``, ``--min-wrc``, ``--arms``,
+``--keep-gap``).
+
+Before any of it, the slate is cut twice: to the starters with enough recent work
+for their numbers to be measurements (which is what removes a call-up, an opener
+and an arm just back from the injured list), and then to those whose SIERA is
+above 4.40 -- the engine's own scrub ceiling. The survivors are ranked on eleven
+metrics over ten perspectives (overall, innings 1-3 and 1-5, each time through
+the order, each batter hand, and home runs by hand), one point per metric and two
+more for a top-three finish in it, every metric read over the window it
+stabilizes in. ``--siera-min`` moves the SIERA gate (``0`` disables it) and
+``--min-work-bf`` / ``--min-work-pitches`` move the work floor.
+
+The soft pass is then run a second time as the *elite-arm pass*: the same lineup
+cuts against the average-to-elite starters the SIERA gate refused (SIERA in
+``(--elite-siera-min, --siera-min]``), plus one cut the soft pass has no need of --
+the bat must still carry a wRC+ above the floor from the seventh inning on, since
+against a good arm the case is the whole game and not his turns. It exists to
+test the screen's own thesis: if the elite-pass rows grade like the soft-pass
+rows, it was the bat that mattered and not the arm he faced. Every ledger row
+carries ``arm_tier`` so the scorecard grades the two apart. ``--no-elite`` skips
+it.
 
 The screen fetches no market and spends no Odds API credit. It does read the
 card's own board when the nightly run has already written one for the same day
@@ -22,59 +43,93 @@ Every priced row it prints is recorded to ``power_screen_ledger.csv``, and the
 previous day's rows are graded off the box score at the top of the next note, so
 the screen carries its own record instead of reading the same each morning
 regardless of what happened. ``--no-grade`` skips both; ``--grade-date`` picks the
-day to grade.
+day to grade and ``--grade-run`` the capture within it -- the ledger keeps every
+run of the screen, so a day can hold more than one board and the scorecard names
+which it graded rather than meaning whichever run wrote last.
 """
 
 from __future__ import annotations
 
 import argparse
+import copy
 import logging
 import math
+from dataclasses import dataclass
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
 
 from mlb_engine.audit import power_ledger
-from mlb_engine.config import Config, RollingWindows, load_config
+from mlb_engine.config import Config, RollingWindows, load_config, power_keep_gap
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
+from mlb_engine.data.parks import Park, get_park
 from mlb_engine.data.results import GameResult, fetch_result
 from mlb_engine.data.rotowire import RotowireClient
+from mlb_engine.data.savant_expected import load_pitcher_xera
 from mlb_engine.data.statcast import StatcastRepository
 from mlb_engine.data.vsin import VSINClient
 from mlb_engine.features.efficiency import build_pitcher_efficiency, opponent_discipline_factor
 from mlb_engine.features.rolling import build_bullpen_profile
+from mlb_engine.features.siera import MIN_SIERA_PA
 from mlb_engine.features.workload import _bf_per_start, expected_bf_cap
 from mlb_engine.filters.weather import WeatherProvider
-from mlb_engine.output import power_board, power_report
+from mlb_engine.output import power_bets, power_board, power_report, power_sim
 from mlb_engine.output.email import send_card_email
 from mlb_engine.output.power_board import Board
 from mlb_engine.output.power_screen import (
+    ELITE_SIERA_MIN,
+    ELITE_TIER,
     MIN_BATTER_PA,
+    MIN_STARTER_BF,
+    MIN_STARTER_PITCHES,
     MIN_WRC,
+    SIERA_FLOOR,
+    SOFT_TIER,
+    STARTER_WINDOWS,
+    TREND_DAYS,
+    WORK_DAYS,
+    ArsenalEdge,
     BullpenCard,
+    FinalScore,
+    HalfLine,
     HitterLine,
     HitterView,
     MatchupSection,
+    PoolBatter,
     ScreenResult,
     StarterCard,
     apply_cuts,
     arsenal,
+    arsenal_edge,
     arsenal_fit,
     batter_arsenal,
     batter_window_line,
     bf_pmf,
+    build_context,
     contact_line,
     exposure,
+    gate_starters,
+    half_lines,
+    hitter_pool,
+    keep_arms,
+    late_wrc_plus,
+    league_arms,
     pa_vs_starter,
+    rank_final,
     rank_starters,
+    score_edges,
+    score_halves,
+    score_starters,
     starter_damage,
-    wrc_plus,
+    starter_lines,
+    trend_deltas,
+    with_tto,
 )
-from mlb_engine.recommendations import load_json
-from mlb_engine.schemas import Slate, TeamGameInfo
+from mlb_engine.recommendations import Recommendation, load_json
+from mlb_engine.schemas import Game, Slate, TeamGameInfo
 
 log = logging.getLogger("power_screen")
 
@@ -84,12 +139,60 @@ log = logging.getLogger("power_screen")
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
 
+# The game-half split and the luck gap are read season-to-date rather than over
+# the form window: a game half is about a third of a hitter's work, so ninety
+# days of it cannot carry a batted-ball rate. March 1 is early enough to catch
+# any opener.
+SEASON_OPENING = (3, 1)
+
+#: How many of the ranked arms count as "bottom three on the slate" for the
+#: context point. The number is the screen's own top-N, not a new threshold.
+WORST_ARMS = 3
+
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--date", type=Date.fromisoformat, default=Date.today())
     p.add_argument("--arms", type=int, default=8, help="starters to rank (all are listed)")
     p.add_argument("--keep", type=int, default=4, help="softest arms whose lineups are screened")
+    p.add_argument(
+        "--keep-gap",
+        type=int,
+        default=power_keep_gap(),
+        help="drop a kept arm more than this many stage-1 points behind the worst "
+        "arm on the slate (0 disables, keeping the headcount alone)",
+    )
+    p.add_argument(
+        "--siera-min",
+        type=float,
+        default=SIERA_FLOOR,
+        help="stage 0: only starters above this SIERA are eligible (0 disables the gate)",
+    )
+    p.add_argument(
+        "--elite-siera-min",
+        type=float,
+        default=ELITE_SIERA_MIN,
+        help="elite pass: arms with SIERA above this and at or below --siera-min",
+    )
+    p.add_argument(
+        "--elite-keep",
+        type=int,
+        default=None,
+        help="elite pass: how many arms' lineups to screen (default: all eligible)",
+    )
+    p.add_argument("--no-elite", action="store_true", help="skip the elite-arm pass")
+    p.add_argument(
+        "--min-work-bf",
+        type=int,
+        default=MIN_STARTER_BF,
+        help=f"stage 0: batters faced in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
+    p.add_argument(
+        "--min-work-pitches",
+        type=int,
+        default=MIN_STARTER_PITCHES,
+        help=f"stage 0: pitches in {WORK_DAYS}d before an arm's metrics are trusted",
+    )
     p.add_argument("--min-pa", type=int, default=None, help="hand-split PA floor")
     p.add_argument("--min-wrc", type=float, default=None, help="window wRC+ floor")
     p.add_argument(
@@ -98,6 +201,17 @@ def _parse_args() -> argparse.Namespace:
         help="drop hitters the wRC+ cut removes even when their contact is elite",
     )
     p.add_argument("--refresh", action="store_true", help="re-download the Statcast window")
+    p.add_argument(
+        "--no-sim",
+        action="store_true",
+        help="skip the simulated market probabilities and print the sort alone",
+    )
+    p.add_argument(
+        "--sims",
+        type=int,
+        default=power_sim.N_SIMS,
+        help=f"simulations per matchup (default {power_sim.N_SIMS})",
+    )
     p.add_argument(
         "--predictions",
         default=None,
@@ -114,6 +228,11 @@ def _parse_args() -> argparse.Namespace:
         type=Date.fromisoformat,
         default=None,
         help="the recorded board to grade in this note (default: the day before --date)",
+    )
+    p.add_argument(
+        "--grade-run",
+        default=None,
+        help="the run id to grade within --grade-date (default: that day's last run)",
     )
     p.add_argument(
         "--no-grade",
@@ -224,7 +343,7 @@ def main() -> None:
     frame = repo.max_window(
         day,
         [form, cfg.windows.batter_vs_rhp_days, cfg.windows.batter_vs_lhp_days,
-         cfg.windows.bullpen_skill_days],
+         cfg.windows.bullpen_skill_days, *STARTER_WINDOWS],
         refresh=args.refresh,
     )
     end = day - timedelta(days=1)
@@ -234,31 +353,60 @@ def main() -> None:
     team_pa = _team_pa_per_game(window)
     log.info("window %s..%s, %d pitches, %.1f PA per team-game", start, end, len(window), team_pa)
 
-    # --- stage 1: rank the arms
+    # --- stage 0 and 1: measure every arm, gate, then rank on the metric points
+    #
+    # Each stage-1 metric is read over its own stabilization window, so the
+    # per-window frames are sliced once here and the starter's own rows are taken
+    # out of each. Every window carries the time-through-order label, because a
+    # slow metric read inside a TTO split still has to be read over its own long
+    # window rather than the form one.
+    metric_frames: dict[int, pd.DataFrame] = {}
+    for days in STARTER_WINDOWS:
+        w_start = end - timedelta(days=days - 1)
+        w = frame[(frame["game_date"] >= w_start) & (frame["game_date"] <= end)]
+        metric_frames[days] = with_tto(w)
+    league = league_arms(metric_frames[WORK_DAYS])
+    xera_board = load_pitcher_xera(day.year)
+    if not xera_board:
+        log.warning("Savant xERA unavailable; the metric is unrated for every arm")
+
     cards: list[StarterCard] = []
-    context: dict[int, tuple[TeamGameInfo, TeamGameInfo]] = {}  # starter id -> (lineup team, his own team)
+    # starter id -> (the lineup screened against him, his own team, his game)
+    context: dict[int, tuple[TeamGameInfo, TeamGameInfo, Game]] = {}
     for game in slate.games:
         for team, opp in ((game.home, game.away), (game.away, game.home)):
             pitcher = team.probable_pitcher
             if pitcher is None or not pitcher.mlbam_id:
                 continue
-            rows = window[window["pitcher"] == pitcher.mlbam_id]
+            pid = int(pitcher.mlbam_id)
+            rows = window[window["pitcher"] == pid]
             throws = getattr(pitcher.throws, "value", pitcher.throws) or "R"
-            cards.append(
-                starter_damage(
-                    rows,
-                    name=pitcher.name,
-                    mlbam_id=int(pitcher.mlbam_id),
-                    team=team.abbrev,
-                    opponent=opp.abbrev,
-                    throws=str(throws),
-                )
+            card = starter_damage(
+                rows,
+                name=pitcher.name,
+                mlbam_id=pid,
+                team=team.abbrev,
+                opponent=opp.abbrev,
+                throws=str(throws),
             )
-            context[int(pitcher.mlbam_id)] = (opp, team)
-    ranked = rank_starters(cards, top_n=max(args.arms, args.keep))
-    if not ranked:
-        log.warning("no starter cleared the readability floor on %s", day)
-    targets = ranked[: args.keep]
+            xera, xera_pa = xera_board.get(pid, (None, 0))
+            card.lines = starter_lines(
+                {d: f[f["pitcher"] == pid] for d, f in metric_frames.items()},
+                league,
+                xera=xera,
+                xera_pa=xera_pa,
+            )
+            work = card.lines["overall"]
+            card.work_bf = work.sample_of("bf", WORK_DAYS)
+            card.work_pitches = work.sample_of("pitches", WORK_DAYS)
+            siera = work.values.get("siera", math.nan)
+            if work.sample_of("siera_pa", WORK_DAYS) >= MIN_SIERA_PA and not math.isnan(siera):
+                card.siera = siera
+            else:
+                card.siera = None
+            card.siera_pa = work.sample_of("siera_pa", WORK_DAYS)
+            cards.append(card)
+            context[pid] = (opp, team, game)
 
     pens = _bullpen_cards(
         frame,
@@ -267,43 +415,199 @@ def main() -> None:
         day,
     )
 
+    # Stages 6-8 read the season rather than the form window, and the game rather
+    # than the arm: the halves need a season to carry a late batted-ball rate,
+    # and the park and the forecast belong to the venue.
+    season = repo.load_range(Date(day.year, *SEASON_OPENING), end, refresh=args.refresh)
+    season_line = batter_window_line(season)
+    season_woba, _ = _league_lines(season)
+    environments = _environments(slate, cfg)
+
+    shared = _Shared(
+        cfg=cfg,
+        slate=slate,
+        day=day,
+        form=form,
+        start=start,
+        end=end,
+        frame=frame,
+        window=window,
+        season=season,
+        season_woba=season_woba,
+        season_all_woba=season_line.get("woba", math.nan) if season_line else math.nan,
+        league_woba=league_woba,
+        league_xwoba=league_xwoba,
+        team_pa=team_pa,
+        cards=cards,
+        context=context,
+        pens=pens,
+        environments=environments,
+        projected=projected,
+        has_xera=bool(xera_board),
+    )
+    result = _pass(shared, args, SOFT_TIER)
+    elite = None if args.no_elite else _pass(shared, args, ELITE_TIER)
+    _write(result, elite, cfg, args)
+
+
+@dataclass(frozen=True)
+class _Shared:
+    """Everything both passes read and neither changes: the slate, measured once."""
+
+    cfg: Config
+    slate: Slate
+    day: Date
+    form: int
+    start: Date
+    end: Date
+    frame: pd.DataFrame
+    window: pd.DataFrame
+    season: pd.DataFrame
+    season_woba: dict[str, float]
+    season_all_woba: float
+    league_woba: dict[str, float]
+    league_xwoba: dict[str, float]
+    team_pa: float
+    cards: list[StarterCard]
+    context: dict[int, tuple[TeamGameInfo, TeamGameInfo, Game]]
+    pens: dict[str, BullpenCard]
+    environments: dict[int, _Environment]
+    projected: bool
+    has_xera: bool
+
+
+def _pass(shared: _Shared, args: argparse.Namespace, tier: str) -> ScreenResult:
+    """Stages 0-8 for one tier of arm: soft (SIERA above the floor) or elite (below it).
+
+    The two passes share every measurement and differ in the gate, in how many
+    arms they keep, and in one cut: the elite pass drops a hitter whose late-half
+    wRC+ is under the floor, because against a good arm he is being kept for the
+    whole game. Each arm's stage-1 cards are re-scored within its own pass, since
+    the points are places in a pool and the pools differ.
+    """
+    elite = tier == ELITE_TIER
+    day, cfg = shared.day, shared.cfg
+    cards = [copy.copy(c) for c in shared.cards]
+    for card in cards:
+        card.scores = {}
+        card.points = 0
+        card.index = 0.0
+    if elite:
+        eligible, starter_cuts = gate_starters(
+            cards,
+            siera_floor=args.elite_siera_min,
+            min_bf=args.min_work_bf,
+            min_pitches=args.min_work_pitches,
+            siera_ceiling=args.siera_min,
+        )
+    else:
+        eligible, starter_cuts = gate_starters(
+            cards,
+            siera_floor=args.siera_min,
+            min_bf=args.min_work_bf,
+            min_pitches=args.min_work_pitches,
+        )
+    for cut in starter_cuts:
+        log.info("[%s] gated %s (%s: %s)", tier, cut.card.name, cut.stage, cut.reason)
+    log.info("[%s] %d of %d starters cleared stage 0", tier, len(eligible), len(cards))
+    score_starters(eligible)
+    scored = rank_starters(eligible, top_n=len(eligible))
+    if elite:
+        keep = args.elite_keep if args.elite_keep is not None else len(scored)
+        ranked = scored
+        targets = scored[:keep]
+        thinned: list[StarterCard] = []
+    else:
+        ranked = scored[: max(args.arms, args.keep)]
+        if not ranked:
+            log.warning(
+                "no starter on %s is both above %.2f SIERA and worked enough to read",
+                day, args.siera_min,
+            )
+        targets = keep_arms(ranked, keep=args.keep, gap=args.keep_gap)
+        thinned = [c for c in ranked[: args.keep] if c not in targets]
+        for card in thinned:
+            log.info(
+                "%s is not screened: %d points, %d behind %s",
+                card.name, card.points, ranked[0].points - card.points, ranked[0].name,
+            )
+    worst = {c.mlbam_id for c in scored[:WORST_ARMS]}
+
     sections: list[MatchupSection] = []
     cut_log: list[HitterLine] = []
+    late_cuts: list[tuple[HitterLine, float]] = []
     for card in targets:
-        lineup_team, pen_team = context[card.mlbam_id]
+        lineup_team, pen_team, game = shared.context[card.mlbam_id]
         section = _build_section(
             card=card,
             lineup_team=lineup_team,
-            pen=pens.get(pen_team.abbrev),
-            window=window,
-            frame=frame,
+            pen=shared.pens.get(pen_team.abbrev),
+            window=shared.window,
+            frame=shared.frame,
+            season=shared.season,
+            season_woba=shared.season_woba,
+            season_all_woba=shared.season_all_woba,
             as_of=day,
-            form=form,
-            league_woba=league_woba,
-            league_xwoba=league_xwoba,
-            team_pa=team_pa,
+            form=shared.form,
+            league_woba=shared.league_woba,
+            league_xwoba=shared.league_xwoba,
+            team_pa=shared.team_pa,
             min_pa=args.min_pa,
             min_wrc=args.min_wrc,
             keep_power=not args.no_power_exception,
-            projected=projected,
+            projected=shared.projected,
             cut_log=cut_log,
+            env=shared.environments.get(card.mlbam_id, _Environment()),
+            worst_arm=card.mlbam_id in worst,
+            late_wrc_floor=(
+                (args.min_wrc if args.min_wrc is not None else MIN_WRC) if elite else None
+            ),
+            late_cuts=late_cuts,
         )
-        if section is not None:
-            sections.append(section)
+        if section is None:
+            continue
+        if not args.no_sim:
+            _attach_sim(
+                section,
+                lineup_team=lineup_team,
+                is_home=lineup_team is game.home,
+                park=get_park(game.venue.venue_id) if game.venue else None,
+                frame=shared.frame,
+                as_of=day,
+                form=shared.form,
+                pen_days=cfg.windows.bullpen_days,
+                n_sims=args.sims,
+            )
+        sections.append(section)
+    final = _rank_everything(sections, shared.pens)
+    notes = [
+        f"{card.name} ranked in the worst {args.keep} arms on the slate and was not "
+        f"screened: {card.points} stage-1 points, {ranked[0].points - card.points} "
+        f"behind {ranked[0].name}, against a {args.keep_gap}-point bar."
+        for card in thinned
+    ]
 
-    result = ScreenResult(
+    return ScreenResult(
         as_of=day,
-        form_days=form,
-        window_start=start,
-        window_end=end,
-        league_woba=league_woba,
-        league_xwoba=league_xwoba,
+        form_days=shared.form,
+        window_start=shared.start,
+        window_end=shared.end,
+        league_woba=shared.league_woba,
+        league_xwoba=shared.league_xwoba,
         starters_ranked=ranked,
         sections=sections,
+        starters_scored=scored,
+        final=final,
         cut_log=cut_log,
-        has_run_value="delta_run_exp" in window.columns,
+        notes=notes,
+        has_run_value="delta_run_exp" in shared.window.columns,
+        siera_floor=args.elite_siera_min if elite else args.siera_min,
+        starter_cuts=starter_cuts,
+        has_xera=shared.has_xera,
+        arm_tier=tier,
+        siera_ceiling=args.siera_min if elite else None,
+        late_cuts=late_cuts,
     )
-    _write(result, cfg, args)
 
 
 def _fill_expected_lineups(
@@ -337,6 +641,103 @@ def _fill_expected_lineups(
     return True
 
 
+@dataclass(frozen=True)
+class _Environment:
+    """The venue's park factor and the forecast's home-run multiplier.
+
+    Both default to unavailable rather than to neutral, so a park the reference
+    table does not carry and a forecast that could not be fetched score zero
+    because the evidence is missing, which is not the same as a park that plays
+    neutral -- the term is the same either way, but the report can say which.
+    """
+
+    park: str = ""
+    park_factor: float = math.nan
+    weather_hr_mult: float = math.nan
+    weather_note: str = ""
+
+
+def _environments(slate: Slate, cfg: Config) -> dict[int, _Environment]:
+    """Park and forecast per probable starter, keyed by his MLBAM id.
+
+    Keyed on the pitcher rather than the game because that is what the sections
+    are keyed on, and both starters in a game share a venue.
+    """
+    weather = WeatherProvider(cache_dir=cfg.cache_dir)
+    out: dict[int, _Environment] = {}
+    for game in slate.games:
+        park = get_park(game.venue.venue_id)
+        if park is None:
+            env = _Environment(park=game.venue.name, weather_note="park unknown")
+        else:
+            effect = weather.fetch(park, game.game_datetime_utc)
+            env = _Environment(
+                park=park.name,
+                park_factor=park.park_factor,
+                weather_hr_mult=effect.hr_mult if effect.conditions else math.nan,
+                weather_note=effect.note,
+            )
+        for team in (game.home, game.away):
+            arm = team.probable_pitcher
+            if arm is not None and arm.mlbam_id:
+                out[int(arm.mlbam_id)] = env
+    return out
+
+
+def _rank_everything(
+    sections: list[MatchupSection], pens: dict[str, BullpenCard]
+) -> list[FinalScore]:
+    """Score the two halves and the arsenal fit across the slate, then rank.
+
+    The pools are slate-wide on purpose. A hitter's late points have to be earned
+    against the other hitters the screen kept, not against his own lineup: three
+    bats out of one lineup would otherwise all take a top-three bonus in a pool
+    of three.
+    """
+    ready = [
+        v for s in sections for v in s.hitters
+        if v.early and v.late and v.edge and v.context
+    ]
+    if not ready:
+        return []
+    early: list[HalfLine] = []
+    late: list[HalfLine] = []
+    edges: list[ArsenalEdge] = []
+    for view in ready:
+        if view.early and view.late and view.edge:
+            early.append(view.early)
+            late.append(view.late)
+            edges.append(view.edge)
+    score_halves(early)
+    score_halves(late)
+    score_edges(edges)
+    pen_rank = {c.team: c.rank for c in pens.values()}
+    scored_ids = {id(v) for v in ready}
+    scores: list[FinalScore] = []
+    for section in sections:
+        for view in section.hitters:
+            if id(view) not in scored_ids:
+                continue
+            if not (view.early and view.late and view.context and view.edge):
+                continue
+            scores.append(
+                FinalScore(
+                    name=view.line.name,
+                    team=view.line.team,
+                    versus=view.line.versus,
+                    slot=view.line.slot,
+                    early=view.early,
+                    late=view.late,
+                    context=view.context,
+                    edge=view.edge,
+                    pen_rank=(
+                        pen_rank.get(section.bullpen.team) if section.bullpen else None
+                    ),
+                )
+            )
+    return rank_final(scores)
+
+
 def _build_section(
     *,
     card: StarterCard,
@@ -344,6 +745,9 @@ def _build_section(
     pen: BullpenCard | None,
     window: pd.DataFrame,
     frame: pd.DataFrame,
+    season: pd.DataFrame,
+    season_woba: dict[str, float],
+    season_all_woba: float,
     as_of: Date,
     form: int,
     league_woba: dict[str, float],
@@ -354,60 +758,62 @@ def _build_section(
     keep_power: bool,
     projected: bool,
     cut_log: list[HitterLine],
+    env: _Environment,
+    worst_arm: bool,
+    late_wrc_floor: float | None = None,
+    late_cuts: list[tuple[HitterLine, float]] | None = None,
 ) -> MatchupSection | None:
-    """Stages 2-5 for one starter: score, cut, read the arsenal, scale by exposure."""
+    """Stages 2-5 for one starter: score, cut, read the arsenal, scale by exposure.
+
+    Only the PA floor removes a hitter here: the wRC+, expected-contact and
+    luck-gap cuts are written to his ``flags`` and he goes on to the run-value,
+    production and arm gates with the rest of the pool. With ``late_wrc_floor``
+    a survivor whose season wRC+ from the seventh inning on is under it (the
+    elite pass) is flagged the same way; ``late_cuts`` collects who, with the
+    number, for the note's own table.
+    """
     hand = card.throws
     lg_woba = league_woba.get(hand, league_woba.get("R", 0.315))
     lg_xwoba = league_xwoba.get(hand, league_xwoba.get("R", 0.305))
+    floor = min_pa if min_pa is not None else MIN_BATTER_PA
 
-    pool: list[HitterLine] = []
-    slots = getattr(lineup_team, "lineup", []) or []
-    for slot in slots:
-        player = slot.player
-        if not player.mlbam_id:
-            continue
-        rows = window[
-            (window["batter"] == player.mlbam_id) & (window["p_throws"] == hand)
-        ]
-        line = batter_window_line(rows)
-        if not line:
-            continue
-        pool.append(
-            HitterLine(
-                name=player.name,
-                mlbam_id=int(player.mlbam_id),
-                team=getattr(lineup_team, "abbrev", "UNK"),
+    slots = lineup_team.lineup or []
+    pool = hitter_pool(
+        window,
+        [
+            PoolBatter(
+                mlbam_id=int(slot.player.mlbam_id),
+                name=slot.player.name,
                 slot=slot.order,
-                bats=getattr(player.bats, "value", player.bats),
-                versus=card.name,
-                pa=int(line["pa"]),
-                wrc=wrc_plus(line["woba"], lg_woba),
-                woba=line["woba"],
-                obp=line["obp"],
-                slg=line["slg"],
-                ops=line["obp"] + line["slg"],
-                ba=line["ba"],
-                xba=line["xba"],
-                xslg=line["xslg"],
-                xwoba_pa=line["xwoba_pa"],
-                xwoba_con=line["xwoba_con"],
-                k=line["k"],
-                bb=line["bb"],
-                brl=line["brl"],
-                hh=line["hh"],
-                ev90=line["ev90"],
-                osw=line["osw"],
+                bats=getattr(slot.player.bats, "value", slot.player.bats),
             )
-        )
+            for slot in slots
+            if slot.player.mlbam_id
+        ],
+        hand=hand,
+        team=lineup_team.abbrev,
+        versus=card.name,
+        league_woba=lg_woba,
+        season=season,
+        season_league_woba=season_woba.get(hand, lg_woba),
+        min_pa=floor,
+    )
+    for h in pool:
+        if h.season_backed:
+            log.info(
+                "%s read off the season vs %sHP: %d PA in the window, %d on the year",
+                h.name, hand, h.window_pa, h.pa,
+            )
     if not pool:
         log.warning("no readable hitters vs %s", card.name)
         return None
     kept = apply_cuts(
         pool,
         lg_xwoba,
-        min_pa=min_pa if min_pa is not None else MIN_BATTER_PA,
+        min_pa=floor,
         min_wrc=min_wrc if min_wrc is not None else MIN_WRC,
         keep_power=keep_power,
+        hard_cuts=False,
     )
     cut_log.extend(h for h in pool if not h.kept and h.cut_reason)
 
@@ -434,9 +840,13 @@ def _build_section(
     )
     pmf = bf_pmf(bf_mean, bf_sd, bf_cap)
 
+    trend_start = as_of - timedelta(days=TREND_DAYS)
     views: list[HitterView] = []
     for h in kept:
-        rows = window[(window["batter"] == h.mlbam_id) & (window["p_throws"] == hand)]
+        # The arsenal is read over the same rows the rate line was: a hitter
+        # carried on his season split has no window to read the pitches off.
+        source = season if h.season_backed else window
+        rows = source[(source["batter"] == h.mlbam_id) & (source["p_throws"] == hand)]
         per_pitch = batter_arsenal(rows, families)
         overall = contact_line(rows)
         fit_w, fit_b, fallback = arsenal_fit(per_pitch, overall, usage)
@@ -448,6 +858,34 @@ def _build_section(
             fit_xba=fit_b,
             fallback_share=fallback,
         )
+        # Stages 6-8. The halves and the trends are read against every pitcher
+        # over the whole season: after the sixth he faces the bullpen, so a hand
+        # split of the late half describes a matchup that will not happen.
+        view.edge = arsenal_edge(per_pitch, overall, card.arsenal, usage)
+        own = season[season["batter"] == h.mlbam_id]
+        view.late_wrc = late_wrc_plus(own, season_all_woba)
+        if late_wrc_floor is not None and not view.late_wrc >= late_wrc_floor:
+            h.flags = (
+                *h.flags,
+                f"wRC+ {view.late_wrc:.0f} under {late_wrc_floor:.0f} from the 7th on"
+                if not math.isnan(view.late_wrc)
+                else "no season rows for the late half",
+            )
+            if late_cuts is not None:
+                late_cuts.append((h, view.late_wrc))
+        if not own.empty:
+            view.early, view.late = half_lines(own)
+            view.trends = trend_deltas(own[own["game_date"] >= trend_start], own)
+            szn = batter_window_line(own)
+            view.context = build_context(
+                woba=szn.get("woba", math.nan),
+                xwoba=szn.get("xwoba_pa", math.nan),
+                trends=view.trends,
+                park_factor=env.park_factor,
+                weather_hr_mult=env.weather_hr_mult,
+                worst_arm=worst_arm,
+                top_pitch_rv=view.edge.top_rv,
+            )
         if h.slot:
             view.exposure = exposure(
                 h.slot,
@@ -472,8 +910,55 @@ def _build_section(
     )
 
 
-def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board | None:
-    """The survivors' rows off the card's own run, if it has already priced today.
+def _attach_sim(
+    section: MatchupSection,
+    *,
+    lineup_team: TeamGameInfo,
+    is_home: bool,
+    park: Park | None,
+    frame: pd.DataFrame,
+    as_of: Date,
+    form: int,
+    pen_days: int,
+    n_sims: int,
+) -> None:
+    """Give each survivor the simulated distribution of his night.
+
+    The whole order goes to the simulator, not only the survivors: a four-hole
+    hitter's runs and RBI depend on the three men who bat in front of him. A
+    simulator failure costs the note its probabilities and nothing else, so it is
+    logged rather than raised -- the screen's own analysis stands without it.
+    """
+    lineup = [
+        (slot.order, int(slot.player.mlbam_id))
+        for slot in lineup_team.lineup
+        if slot.player.mlbam_id and slot.order
+    ]
+    if not lineup:
+        return
+    try:
+        sims = power_sim.simulate_section(
+            section,
+            lineup=lineup,
+            frame=frame,
+            as_of=as_of,
+            form_days=form,
+            pen_days=pen_days,
+            park=park,
+            is_home=is_home,
+            n_sims=n_sims,
+        )
+    except Exception as exc:  # pragma: no cover - the note must survive a sim failure
+        log.warning("simulation unavailable vs %s (%s)", section.starter.name, exc)
+        return
+    for view in section.hitters:
+        view.sim = sims.get(view.line.mlbam_id)
+
+
+def _priced(
+    result: ScreenResult, cfg: Config, args: argparse.Namespace
+) -> tuple[list[Recommendation], str] | None:
+    """The card's own priced slate for the day, if it has already run.
 
     Missing is the normal case in the morning -- the screen exists to run before
     the engine can price anything -- so a missing or unreadable file is a note,
@@ -490,16 +975,38 @@ def _board(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> Board
         log.info("no priced board at %s; the note will carry no prices", path)
         return None
     try:
-        recs = load_json(path)
+        return load_json(path), path.name
     except Exception as exc:  # pragma: no cover - a malformed ledger must not kill the note
         log.warning("could not read %s (%s); the note will carry no prices", path, exc)
         return None
-    board = power_board.build(result, recs, source=path.name)
+
+
+def _board(
+    result: ScreenResult, recs: list[Recommendation], source: str
+) -> Board:
+    """The survivors' rows off the card's own run, on the side the gates hold."""
+    board = power_board.build(
+        result,
+        recs,
+        source=source,
+        sides=power_report.sides(result),
+        exclude=power_report.dropped(result),
+    )
     log.info(
-        "board: %d priced rows on %d of %d survivors",
+        "board: %d priced rows on %d of %d survivors (%d dropped on production, "
+        "%d rows on the side not held)",
         len(board.rows),
         len(board.priced),
         len(board.priced) + len(board.unpriced),
+        len(board.excluded),
+        board.off_side,
+    )
+    log.info(
+        "arm board: %d positions on %d of %d arms, %d bought",
+        len(board.arm_rows),
+        len(board.arms_priced),
+        len(board.arms_priced) + len(board.arms_unpriced),
+        sum(1 for r in board.arm_rows if r.is_buy),
     )
     return board
 
@@ -508,25 +1015,58 @@ def _ledger_path(cfg: Config) -> Path:
     return cfg.audit_dir / power_ledger.LEDGER_NAME
 
 
+def _run_id() -> str:
+    """This run's identifier: when the note was written, to the minute, in UTC.
+
+    A wall-clock stamp rather than a random id so the ledger's runs sort into the
+    order they were captured, which is what makes "the day's last board" a
+    meaningful default and a morning capture distinguishable from the re-run once
+    lineups post.
+    """
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%MZ")
+
+
 def _record(
-    result: ScreenResult, board: Board | None, cfg: Config, args: argparse.Namespace
+    passes: list[tuple[ScreenResult | None, Board | None]],
+    cfg: Config,
+    args: argparse.Namespace,
 ) -> None:
     """Write today's priced rows to the ledger so tomorrow's note can grade them.
 
     Only priced rows are recorded. A rating with no number beside it is not a
-    position, and grading one would have to invent the price it never had.
+    position, and grading one would have to invent the price it never had. Both
+    passes go in as one run, each row tagged with the tier of arm it faced.
     """
-    if args.no_grade or board is None or not board.rows:
+    if args.no_grade:
         return
-    positions = power_ledger.positions_from_board(
-        board, result.as_of, power_report.ratings(result)
-    )
+    run_id = _run_id()
+    positions: list[power_ledger.Position] = []
+    as_of: Date | None = None
+    for result, board in passes:
+        if result is None or board is None or not board.positions:
+            continue
+        as_of = result.as_of
+        positions.extend(
+            power_ledger.positions_from_board(
+                board,
+                result.as_of,
+                power_report.ratings(result),
+                {**power_report.deliveries(result), **power_report.arm_deliveries(result)},
+                power_report.composites(result),
+                run_id,
+                arm_tier=result.arm_tier,
+            )
+        )
+    if not positions or as_of is None:
+        return
     try:
-        power_ledger.record(_ledger_path(cfg), positions, result.as_of)
+        power_ledger.record(_ledger_path(cfg), positions, as_of, run_id)
     except OSError as exc:  # pragma: no cover - a ledger write must not cost the note
         log.warning("could not record %d positions: %s", len(positions), exc)
         return
-    log.info("recorded %d positions to %s", len(positions), _ledger_path(cfg))
+    log.info(
+        "recorded %d positions as run %s to %s", len(positions), run_id, _ledger_path(cfg)
+    )
 
 
 def _review(
@@ -540,10 +1080,19 @@ def _review(
     if args.no_grade:
         return None
     graded_day = args.grade_date or (day - timedelta(days=1))
-    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day)
+    positions = power_ledger.positions_for(_ledger_path(cfg), graded_day, args.grade_run)
     if not positions:
         log.info("no recorded board for %s; the note carries no scorecard", graded_day)
         return None
+    runs = power_ledger.runs_for(_ledger_path(cfg), graded_day)
+    if len(runs) > 1:
+        log.info(
+            "%s holds %d runs (%s); grading %s",
+            graded_day,
+            len(runs),
+            ", ".join(runs),
+            positions[0].run_id or "the unidentified run",
+        )
     results: dict[int, GameResult] = {}
     for pk in {p.game_pk for p in positions if p.game_pk is not None}:
         try:
@@ -552,6 +1101,43 @@ def _review(
             log.warning("could not fetch the box score for %s: %s", pk, exc)
     graded, voided = power_ledger.grade_positions(positions, results)
     return power_ledger.scorecard(graded_day, graded, voided), graded
+
+
+def _grade_records(
+    cfg: Config, args: argparse.Namespace, day: Date
+) -> dict[str, power_ledger.Record] | None:
+    """Every matchup grade's record over the whole ledger, for the note to print.
+
+    Grades every recorded hitter row from before ``day`` off the box scores (each
+    fetched once and cached), so the label beside a bat is never shown without
+    what that label has been worth. Without a ledger, or with any box score
+    missing, the note prints no records: the record decides which bucket is the
+    Strong Buy, and a record with a game's rows dropped is not the record.
+    """
+    if args.no_grade:
+        return None
+    positions = [
+        p
+        for p in power_ledger.load(_ledger_path(cfg))
+        if p.rating and p.date and Date.fromisoformat(p.date) < day
+    ]
+    if not positions:
+        return None
+    results: dict[int, GameResult] = {}
+    for pk in sorted({p.game_pk for p in positions if p.game_pk is not None}):
+        try:
+            result = fetch_result(pk, cache_dir=cfg.cache_dir)
+        except Exception as exc:  # noqa: BLE001 - one missing box score fails the whole read
+            log.warning(
+                "could not fetch the box score for %s: %s; bucket records withheld", pk, exc
+            )
+            return None
+        if not result.final:
+            log.warning("game %s is not final; bucket records withheld", pk)
+            return None
+        results[pk] = result
+    graded, _voided = power_ledger.grade_positions(positions, results)
+    return power_ledger.records_by_rating(graded)
 
 
 def _print_review(card: power_ledger.Scorecard) -> None:
@@ -574,32 +1160,29 @@ def _print_review(card: power_ledger.Scorecard) -> None:
     print(line)
 
 
-def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
-    """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email."""
-    out_dir = cfg.output_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
-    board = _board(result, cfg, args)
-    # Grade before recording: an earlier day is never this one, but a --grade-date
-    # pointing at today should read what the ledger held when the note was asked.
-    review = _review(cfg, args, result.as_of)
-    _record(result, board, cfg, args)
-    html_path = out_dir / power_report.default_filename(result.as_of, "html")
-    pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
-    html_path.write_text(
-        power_report.render_html(
-            result, prepared_for=args.prepared_for, board=board, review=review
-        ),
-        encoding="utf-8",
+def _price_pass(
+    result: ScreenResult, priced: tuple[list[Recommendation], str] | None
+) -> Board | None:
+    if priced is None:
+        return None
+    recs, source = priced
+    board = _board(result, recs, source)
+    result.bets = power_bets.build(result, recs)
+    log.info(
+        "[%s] bets: %d priced sides, %d batter buys, %d pitcher buys",
+        result.arm_tier,
+        result.bets.priced_sides,
+        len(result.bets.batter_buys),
+        len(result.bets.pitcher_buys),
     )
-    pdf = power_report.render_pdf(
-        result, prepared_for=args.prepared_for, board=board, review=review
-    )
-    pdf_path.write_bytes(pdf)
+    return board
+
+
+def _print_pass(result: ScreenResult, board: Board | None) -> None:
     kept = sum(len(s.hitters) for s in result.sections)
-    print(f"{html_path}\n{pdf_path}")
     print(
-        f"{len(result.starters_ranked)} arms ranked, {len(result.sections)} screened, "
-        f"{kept} hitters kept, {len(result.cut_log)} cut"
+        f"[{result.arm_tier}] {len(result.starters_ranked)} arms ranked, "
+        f"{len(result.sections)} screened, {kept} hitters kept, {len(result.cut_log)} cut"
     )
     for section in result.sections:
         for view in section.hitters:
@@ -616,15 +1199,60 @@ def _write(result: ScreenResult, cfg: Config, args: argparse.Namespace) -> None:
                 f"  {view.line.name:<20} vs {section.starter.name:<18} "
                 f"wRC+ {view.line.wrc:>4.0f}  fit {view.fit_delta * 1000:+4.0f}{tail}"
             )
+
+
+def _write(
+    result: ScreenResult, elite: ScreenResult | None, cfg: Config, args: argparse.Namespace
+) -> None:
+    """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email.
+
+    One note carries both passes: the soft screen first, the elite-arm pass as a
+    second part of the same document, and one ledger run holding both boards'
+    rows, told apart by ``arm_tier``.
+    """
+    out_dir = cfg.output_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    priced = _priced(result, cfg, args)
+    board = _price_pass(result, priced)
+    elite_board = _price_pass(elite, priced) if elite is not None else None
+    # Grade before recording: an earlier day is never this one, but a --grade-date
+    # pointing at today should read what the ledger held when the note was asked.
+    review = _review(cfg, args, result.as_of)
+    grade_records = _grade_records(cfg, args, result.as_of)
+    _record([(result, board), (elite, elite_board)], cfg, args)
+    html_path = out_dir / power_report.default_filename(result.as_of, "html")
+    pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
+    html_doc = power_report.render_html(
+        result,
+        prepared_for=args.prepared_for,
+        board=board,
+        review=review,
+        elite=elite,
+        elite_board=elite_board,
+        grade_records=grade_records,
+    )
+    html_path.write_text(html_doc, encoding="utf-8")
+    pdf = power_report.render_pdf(
+        result,
+        prepared_for=args.prepared_for,
+        board=board,
+        review=review,
+        elite=elite,
+        elite_board=elite_board,
+        grade_records=grade_records,
+    )
+    pdf_path.write_bytes(pdf)
+    print(f"{html_path}\n{pdf_path}")
+    _print_pass(result, board)
+    if elite is not None:
+        _print_pass(elite, elite_board)
     if review is not None:
         _print_review(review[0])
     if args.email:
         to = send_card_email(
             cfg,
             subject=f"Power screen - {result.as_of:%a %-m/%d}",
-            html_body=power_report.render_html(
-                result, prepared_for=args.prepared_for, board=board, review=review
-            ),
+            html_body=html_doc,
             text_body=f"Power screen for {result.as_of.isoformat()} attached.",
             to=args.to,
             attachments=[(pdf_path.name, pdf)],

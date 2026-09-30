@@ -54,6 +54,20 @@ def grade_batter(
     return _ou(batter_actual(res, player_id, stat), line, side)
 
 
+def pitcher_actual(res: GameResult, player_id: int, stat: str) -> int:
+    """The starter's realized count in a prop's stat (K, BB, H, ER, outs)."""
+    return res.pitcher(player_id).get(stat, 0)
+
+
+def grade_pitcher(
+    res: GameResult, player_id: int, stat: str, line: float, side: str = "over"
+) -> str | None:
+    """Grade one pitcher prop, or ``None`` for an arm who never faced a batter."""
+    if not res.pitched(player_id):
+        return None
+    return _ou(pitcher_actual(res, player_id, stat), line, side)
+
+
 def _ou(actual: float, line: float, side: str) -> str:
     if actual == line:
         return PUSH
@@ -112,9 +126,6 @@ def grade(rec: Recommendation, res: GameResult) -> str | None:
         return grade_batter(res, rec.player_id, rec.stat, rec.line, rec.side or "over")
 
     if cat == "pitcher" and rec.player_id and rec.stat and rec.line is not None:
-        if not res.pitched(rec.player_id):
-            return None
-        actual = res.pitcher(rec.player_id).get(rec.stat, 0)
-        return _ou(actual, rec.line, rec.side or "over")
+        return grade_pitcher(res, rec.player_id, rec.stat, rec.line, rec.side or "over")
 
     return None

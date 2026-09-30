@@ -146,7 +146,16 @@ FAMILY_LABEL: dict[str, str] = {
 
 
 def market_label(market: str) -> str:
-    return MARKET_LABEL.get(market, market)
+    """Display name for a market key, prettified rather than raw when unknown.
+
+    A ledger outlives this table: it carries keys retired markets used and keys
+    a later version invented, and a row reading ``batter_hrrbi`` next to "Batter
+    hits" looks like a bug in the number rather than a gap in the mapping.
+    """
+    known = MARKET_LABEL.get(market)
+    if known is not None:
+        return known
+    return market.replace("_", " ").capitalize()
 
 
 def family_of(market: str) -> str:

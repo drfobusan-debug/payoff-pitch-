@@ -12,6 +12,12 @@ repo instead: the pregame predictions (the picks actually sent, at the prices
 they were sent at), the closing snapshots, the ledger and the scorecard. Pull
 before a run, push after.
 
+The same problem in the other direction applies to the files a person drops in
+by hand -- the priced BAT X export, the saved EV Analytics pages, the daily
+projection CSVs. They are downloaded on a laptop onto one box, and the card is
+priced on another, which is why those benchmark columns come out blank. So they
+travel on the branch too.
+
 Only data goes on that branch, never code, and it is deliberately shallow:
 predictions are the bulk and are pruned to the most recent few weeks.
 """
@@ -19,23 +25,30 @@ predictions are the bulk and are pruned to the most recent few weeks.
 from __future__ import annotations
 
 import csv
+import fcntl
 import gzip
 import json
 import logging
+import re
 import shutil
 import subprocess
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from mlb_engine.audit import power_ledger
 from mlb_engine.audit.clv import (
     load_closing,
     merge_board,
     merge_closing,
     save_closing,
 )
+from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
+from mlb_engine.calibration import read_stored
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
+from mlb_engine.output import daily_worksheet, totals_audit
 
 STATE_BRANCH = "engine-state"
 # Predictions dominate the branch's size (~5 MB a slate before gzip). A month
@@ -46,6 +59,22 @@ PREDICTION_KEEP_DAYS = 35
 # with an after-the-fact re-price, so what the card actually sent is kept
 # under a name nothing else writes.
 PREGAME_SUFFIX = ".pregame.json"
+# The outside inputs someone downloads and drops in: a directory under the data
+# dir, the files worth carrying out of it, and how many copies the branch keeps.
+# ``None`` keeps every name, which is right for the saved pages -- they are named
+# after the page and not the day, so each push replaces yesterday's and the set
+# cannot grow. The dated exports are pruned like the predictions.
+#
+# Nothing here is merged: an export is one immutable download, so its name is its
+# whole identity and the only question is which copies exist where.
+_INPUT_DIRS: tuple[tuple[str, tuple[str, ...], int | None], ...] = (
+    ("batx", ("*.csv",), 14),
+    ("projections", ("*.csv",), 14),
+    ("evanalytics", ("*.html", "*.htm"), None),
+)
+# The fitted calibration map. It lives beside the audit rather than in it, and
+# the machine that refit it is not usually the machine pricing the next slate.
+CALIBRATION_NAME = "calibration_live.json"
 log = logging.getLogger(__name__)
 # A nightly run grades yesterday, so restoring more slates than that only
 # spends time expanding megabytes nothing will read.
@@ -65,7 +94,7 @@ class SyncReport:
         if self.pulled:
             return f"pulled {len(self.pulled)} state file(s): {', '.join(self.pulled)}"
         if self.pushed:
-            extra = f", pruned {self.pruned} stale prediction file(s)" if self.pruned else ""
+            extra = f", pruned {self.pruned} stale file(s)" if self.pruned else ""
             return f"pushed {len(self.pushed)} state file(s): {', '.join(self.pushed)}{extra}"
         return "nothing to sync"
 
@@ -87,6 +116,41 @@ def _git(args: list[str], cwd: Path) -> str:
 def _git_ok(args: list[str], cwd: Path) -> bool:
     proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300)
     return proc.returncode == 0
+
+
+def _git_try(args: list[str], cwd: Path) -> str | None:
+    """``None`` when git succeeded, otherwise what it said."""
+    proc = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=300)
+    if proc.returncode == 0:
+        return None
+    return proc.stderr.strip() or proc.stdout.strip() or f"exit status {proc.returncode}"
+
+
+@contextmanager
+def _sync_lock(repo: Path, branch: str) -> Iterator[None]:
+    """One sync at a time per repo and branch.
+
+    Every process syncs through the same worktree, which it discards and
+    recreates on entry. A slate pass that prices for an hour pushes at about
+    the minute the close daemon starts, and the close's rebuild of that
+    directory pulls the pass's checkout out from under its commit and push --
+    three times, since the retry rebuilds into the same collision. The lock
+    makes the second process wait its turn instead.
+    """
+    lock_path = repo / ".git" / f"state-sync-{branch}.lock"
+    try:
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = lock_path.open("w")
+    except OSError as exc:
+        log.warning("state sync lock unavailable (%s); syncing unlocked", exc)
+        yield
+        return
+    with fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _commit(state: Path, message: str) -> None:
@@ -239,6 +303,19 @@ def merge_opta_files(remote: Path, local: Path) -> bool:
     return True
 
 
+def merge_lineup_files(remote: Path, local: Path) -> bool:
+    """Union two lineup captures, the earliest sighting of each lineup winning.
+
+    The slate passes run on whichever machine is awake, so the first view of a
+    lineup is as likely to be on the branch as on this disk.
+    """
+    if not remote.exists():
+        return False
+    merged = merge_lineups(load_lineups(local), list(load_lineups(remote).values()))
+    save_lineups(local, merged)
+    return True
+
+
 def merge_propick_files(remote: Path, local: Path) -> bool:
     """Union two captures of a day's VSiN model picks.
 
@@ -266,12 +343,28 @@ def _write_rows(path: Path, fields: list[str], rows: Iterable[dict[str, str]]) -
             writer.writerow({k: row.get(k, "") for k in fields})
 
 
-def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
+def merge_dated_csv(
+    remote: Path, local: Path, key: tuple[str, ...], by_date: bool | str = True
+) -> bool:
     """Union the ledger (or scorecard) by date, this machine's rows winning.
 
     A re-audit of a date is authoritative for that date -- it has the results
     and the closes -- so local rows replace the branch's for any date both
     hold, and the branch supplies every date this machine never graded.
+
+    ``by_date=False`` drops that rule and unions row by row instead, for a
+    record where a second file is not a better audit of the same day but a
+    different capture of it: the power screen writes what it showed, so two
+    machines' boards for one date are both true and replacing the date threw one
+    of them away.
+
+    ``by_date=GRADED`` unions row by row too, but a row that carries a result
+    beats one that does not: a receipt read on this machine before the machine
+    that wrote it graded it must not keep the day ungraded here forever.
+
+    When ``run_id`` is part of the key, a row with no run is the same selection
+    written before runs were stamped, so it yields to a stamped copy that matches
+    on every other key field rather than surviving as a second row.
     """
     if not remote.exists():
         return False
@@ -281,11 +374,29 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
         return True
     local_fields, local_rows = _rows(local)
     fields = local_fields if len(local_fields) >= len(fields) else fields
-    local_dates = {r.get("date", "") for r in local_rows}
-    kept = [r for r in remote_rows if r.get("date", "") not in local_dates]
-    merged = {tuple(r.get(k, "") for k in key): r for r in [*kept, *local_rows]}
+    kept = remote_rows
+    if by_date is True:
+        local_dates = {r.get("date", "") for r in local_rows}
+        kept = [r for r in remote_rows if r.get("date", "") not in local_dates]
+    merged: dict[tuple[str, ...], dict[str, str]] = {}
+    for r in [*kept, *local_rows]:
+        k = tuple(r.get(k_, "") for k_ in key)
+        held = merged.get(k)
+        if by_date == GRADED and held is not None and held.get("result") and not r.get("result"):
+            continue
+        merged[k] = r
+    if "run_id" in key:
+        merged = _drop_unstamped_twins(merged, key)
     _write_rows(local, fields, [merged[k] for k in sorted(merged)])
     return True
+
+
+def _drop_unstamped_twins(
+    merged: dict[tuple[str, ...], dict[str, str]], key: tuple[str, ...]
+) -> dict[tuple[str, ...], dict[str, str]]:
+    i = key.index("run_id")
+    stamped = {k[:i] + k[i + 1 :] for k in merged if k[i]}
+    return {k: r for k, r in merged.items() if k[i] or k[:i] + k[i + 1 :] not in stamped}
 
 
 # --- the state map -----------------------------------------------------------
@@ -294,10 +405,80 @@ def merge_dated_csv(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
 # The accumulating records, and the columns identifying one row of each. Both
 # directions merge on these: a machine only ever contributes the dates it
 # graded, and never speaks for the ones it did not.
-_MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
-    ("scorecard.csv", ("date", "tier")),
+GRADED = "graded"
+
+_MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
+    ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line"), True),
+    ("scorecard.csv", ("date", "tier"), True),
+    # The power screen's receipts. Left out, they never leave the machine that
+    # wrote the note, so the scorecard the next morning prints is that machine's
+    # record rather than the screen's -- and a screen run on the Mac reads as
+    # having no history at all anywhere else. The game keys the row too: a
+    # doubleheader can show the same bat, stat, line and side twice in a day.
+    # Unioned row by row rather than by date: a screen is a capture and not an
+    # audit, so this machine's board for a date does not supersede another's, and
+    # replacing the date is how the two copies came to disagree on who was even
+    # screened on 8/26. The run identifies the capture, so re-recording a run
+    # still overwrites itself. The bat is keyed by id, not name: the two copies
+    # spelt Suárez with and without the accent and held him twice for 8/31.
+    (
+        power_ledger.LEDGER_NAME,
+        ("date", "run_id", "player_id", "game_pk", "stat", "line", "side"),
+        False,
+    ),
+    # The hand totals sheet's receipt. The Mac writes and grades it; without
+    # this line its record never left that machine and could not be audited
+    # anywhere else. One row per game; the copy that has the final wins, so a
+    # box that only read the sheet cannot hold the day ungraded.
+    (totals_audit.LEDGER_NAME, ("date", "game", "game_pk"), GRADED),
+    # The daily worksheet's receipt: each game's weighted gap and the prices it
+    # was written at, graded the next morning. Same rule -- the graded copy wins.
+    (daily_worksheet.LEDGER_NAME, ("date", "game_pk"), GRADED),
 )
+
+
+def merge_calibration_files(remote: Path, local: Path) -> bool:
+    """Keep whichever of two fitted maps was trained on more of the ledger.
+
+    Nothing can be unioned here. The ledger is a growing record, so a merge
+    takes the dates each machine has; a map is one fit of that whole record, so
+    two copies are rival fits of it and one has to win. The ledger itself syncs,
+    which makes the row count the comparison worth making: the map fitted on
+    more rows was fitted on strictly more evidence, and once both machines have
+    pulled they fit the same rows and agree. Ties go to the map correcting more
+    markets on the current basis, then to the copy already here, so a pull that
+    learns nothing leaves the file alone.
+
+    Absent this, whichever machine last ran ``calibrate`` is the only one
+    pricing calibrated, and the other silently ships raw probability.
+    """
+    if not remote.exists():
+        return False
+    if not local.exists():
+        local.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(remote, local)
+        return True
+    try:
+        theirs, ours = read_stored(remote), read_stored(local)
+    except (OSError, ValueError, KeyError):
+        log.warning("unreadable calibration map in %s or %s; keeping ours", remote, local)
+        return False
+    better = (theirs.rows, theirs.current_markets()) > (ours.rows, ours.current_markets())
+    if better:
+        shutil.copyfile(remote, local)
+    return better
+
+
+def _gzip_to(src: Path, dest: Path) -> None:
+    """Compress reproducibly: the same bytes in give the same bytes out.
+
+    gzip stamps the wall clock into its header, so a file re-staged on every
+    push reads as changed to git each time and every sync commits binary
+    noise. Pinning the stamp makes an unchanged export an unchanged blob.
+    """
+    with src.open("rb") as fin, dest.open("wb") as raw:
+        with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=6, mtime=0) as fout:
+            shutil.copyfileobj(fin, fout)
 
 
 def _audit_dir(data_dir: Path) -> Path:
@@ -328,14 +509,85 @@ def _pull_predictions(state: Path, data_dir: Path, dates: tuple[str, ...] | None
         if not src.exists():
             continue
         # A copy pulled this morning is the morning's card. If the branch has
-        # since taken a later one, that is now the slate's record.
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
-            shutil.copyfileobj(fin, fout)
+        # since taken a later one, its later games join the slate's record.
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
         moved.append(dest.name)
     return moved
+
+
+def _pull_inputs(state: Path, data_dir: Path) -> list[str]:
+    """Restore the hand-dropped exports, without overwriting a fresher drop.
+
+    Fill-in only, and that asymmetry is the point: a file sitting in the data dir
+    was put there by someone who had just downloaded it, and the branch is the
+    older side by construction. A saved page keeps its name from one day to the
+    next, so a pull that overwrote would hand today's card yesterday's board.
+    """
+    restored: list[str] = []
+    for name, _patterns, _keep in _INPUT_DIRS:
+        src_dir = state / "mlb" / "inputs" / name
+        if not src_dir.is_dir():
+            continue
+        for src in sorted(src_dir.glob("*.gz")):
+            dest = data_dir / name / src.name[: -len(".gz")]
+            if dest.exists():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with gzip.open(src, "rb") as fin, dest.open("wb") as fout:
+                shutil.copyfileobj(fin, fout)
+            restored.append(dest.name)
+    return restored
+
+
+def _by_family(paths: Iterable[Path]) -> dict[str, list[Path]]:
+    """Group dated exports by what they are, oldest first within each group.
+
+    The date is in the name, and the names are not one convention: a slate's
+    priced BAT X export is ``2026-08-20.csv`` while the projections are
+    ``fg_atc_ros_2026-08-19.csv`` beside ``fg_batx_2026-08-19.csv``. Pruning a
+    flat sorted list would therefore drop a feed's newest file to keep another
+    feed's oldest, so each feed is kept to its own depth.
+    """
+    out: dict[str, list[Path]] = {}
+    for path in paths:
+        family = re.sub(r"\d+", "#", path.name)
+        out.setdefault(family, []).append(path)
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def _stage_inputs(state: Path, data_dir: Path) -> tuple[list[str], int]:
+    """Publish this machine's exports, gzipped, and prune the dated backlog.
+
+    Compressed because a saved prop board is ~900 KB of HTML and every push
+    writes a new blob: the branch has to stay clonable by a scheduled run.
+    """
+    staged: list[str] = []
+    pruned = 0
+    for name, patterns, keep in _INPUT_DIRS:
+        local = data_dir / name
+        out = state / "mlb" / "inputs" / name
+        found = sorted({p for pattern in patterns for p in local.glob(pattern)})
+        if not found:
+            continue
+        out.mkdir(parents=True, exist_ok=True)
+        for src in found:
+            _gzip_to(src, out / f"{src.name}.gz")
+            staged.append(src.name)
+        if keep is None:
+            continue
+        for family in _by_family(out.glob("*.gz")).values():
+            for path in family[:-keep]:
+                path.unlink()
+                pruned += 1
+    return staged, pruned
 
 
 def pull_state(
@@ -346,6 +598,13 @@ def pull_state(
 ) -> SyncReport:
     """Bring the branch's memory onto this machine, merging rather than replacing."""
     repo = repo or repo_root()
+    with _sync_lock(repo, branch):
+        return _pull_state_locked(data_dir, repo, branch, dates)
+
+
+def _pull_state_locked(
+    data_dir: Path, repo: Path, branch: str, dates: tuple[str, ...] | None
+) -> SyncReport:
     state = _worktree(repo, branch)
     audit = _audit_dir(data_dir)
     audit.mkdir(parents=True, exist_ok=True)
@@ -363,10 +622,16 @@ def pull_state(
     for src in sorted((state / "mlb" / "propicks").glob("propicks_*.json")):
         if merge_propick_files(src, audit / src.name):
             pulled.append(src.name)
-    for name, key in _MERGED_CSVS:
-        if merge_dated_csv(state / "mlb" / name, audit / name, key):
+    for src in sorted((state / "mlb" / "lineups").glob("lineups_*.json")):
+        if merge_lineup_files(src, audit / src.name):
+            pulled.append(src.name)
+    for name, key, by_date in _MERGED_CSVS:
+        if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
             pulled.append(name)
+    if merge_calibration_files(state / "mlb" / CALIBRATION_NAME, data_dir / CALIBRATION_NAME):
+        pulled.append(CALIBRATION_NAME)
     pulled.extend(_pull_predictions(state, data_dir, dates))
+    pulled.extend(_pull_inputs(state, data_dir))
     return SyncReport(pulled=tuple(pulled))
 
 
@@ -413,6 +678,95 @@ def card_supersedes(candidate: Path, published: Path) -> bool:
     return prior is not None and lead < prior
 
 
+CardRow = dict[str, object]
+
+
+def _read_card(path: Path) -> list[CardRow] | None:
+    try:
+        if path.suffix == ".gz":
+            with gzip.open(path, "rt") as fz:
+                rows = json.load(fz)
+        else:
+            with path.open() as fp:
+                rows = json.load(fp)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _by_game(rows: list[CardRow]) -> dict[object, list[CardRow]]:
+    games: dict[object, list[CardRow]] = {}
+    for row in rows:
+        games.setdefault(row.get("game_pk"), []).append(row)
+    return games
+
+
+def _game_lead(rows: list[CardRow]) -> float | None:
+    leads = [
+        float(lead)
+        for lead in (row.get("hours_to_first_pitch") for row in rows)
+        if isinstance(lead, (int, float))
+    ]
+    return min(leads) if leads else None
+
+
+def merge_cards(candidate: list[CardRow], published: list[CardRow]) -> tuple[list[CardRow], int]:
+    """Fold a later card into the slate's record one game at a time.
+
+    A game the candidate priced while it was still ahead, and closer to first
+    pitch than the record has it, takes the candidate's rows; every other game
+    on the record stays as it was, whether the candidate re-priced it after it
+    began or never saw it at all. The slate's passes price in clock windows --
+    a 14:55 pass sees the 15:00-18:00 games and nothing else -- so a card that
+    could only replace the record whole either threw the morning's other
+    eleven games away (the window pass won) or was refused once any of them
+    had started (the evening pass lost). On 2026-09-16 that left four of
+    fifteen games in the ledger. Returns the merged rows and how many games
+    the candidate re-priced.
+    """
+    have = _by_game(published)
+    merged: dict[object, list[CardRow]] = dict(have)
+    taken = 0
+    for pk, rows in _by_game(candidate).items():
+        lead = _game_lead(rows)
+        if lead is None or lead <= 0:
+            continue
+        prior = have.get(pk)
+        if prior is not None:
+            prior_lead = _game_lead(prior)
+            if prior_lead is None or lead >= prior_lead:
+                continue
+        merged[pk] = rows
+        taken += 1
+    out: list[CardRow] = []
+    for rows in merged.values():
+        out.extend(rows)
+    return out, taken
+
+
+def merged_card(candidate: Path, published: Path) -> list[CardRow] | None:
+    """The record ``published`` becomes once ``candidate`` is folded in, or
+    ``None`` when the candidate adds no game to it."""
+    new = _read_card(candidate)
+    if new is None:
+        return None
+    rows, taken = merge_cards(new, _read_card(published) or [])
+    return rows if taken else None
+
+
+def write_card(rows: list[CardRow], dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(rows, indent=2).encode()
+    if dest.suffix == ".gz":
+        with dest.open("wb") as raw:
+            with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=6, mtime=0) as fout:
+                fout.write(payload)
+    else:
+        dest.write_bytes(payload)
+
+
 def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
     """Publish the last card priced before the slate began.
 
@@ -430,10 +784,13 @@ def _stage_predictions(state: Path, data_dir: Path) -> tuple[list[str], int]:
         if src.name.endswith(PREGAME_SUFFIX):
             continue
         dest = out / f"{src.name}.gz"
-        if dest.exists() and not card_supersedes(src, dest):
-            continue
-        with src.open("rb") as fin, gzip.open(dest, "wb", compresslevel=6) as fout:
-            shutil.copyfileobj(fin, fout)
+        if dest.exists():
+            rows = merged_card(src, dest)
+            if rows is None:
+                continue
+            write_card(rows, dest)
+        else:
+            _gzip_to(src, dest)
         staged.append(dest.name)
     keep = sorted(p.name for p in out.glob("predictions_*.json.gz"))[-PREDICTION_KEEP_DAYS:]
     pruned = 0
@@ -452,6 +809,11 @@ def push_state(
 ) -> SyncReport:
     """Publish this machine's state, re-merging if the branch moved underneath."""
     repo = repo or repo_root()
+    with _sync_lock(repo, branch):
+        return _push_state_locked(data_dir, message, repo, branch)
+
+
+def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) -> SyncReport:
     audit = _audit_dir(data_dir)
     last_error = ""
     for attempt in range(_PUSH_ATTEMPTS):
@@ -459,7 +821,7 @@ def push_state(
         if attempt:
             # Someone else pushed between our read and our write: fold their
             # rows into ours and try again rather than overwrite them.
-            pull_state(data_dir, repo=repo, branch=branch)
+            _pull_state_locked(data_dir, repo, branch, None)
         pushed: list[str] = []
         for src in sorted(audit.glob("closing_*.json")):
             dest = state / "mlb" / "closing" / src.name
@@ -485,7 +847,13 @@ def push_state(
             merge_propick_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
-        for name, key in _MERGED_CSVS:
+        for src in sorted(audit.glob("lineups_*.json")):
+            dest = state / "mlb" / "lineups" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_lineup_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for name, key, by_date in _MERGED_CSVS:
             src = audit / name
             if src.exists():
                 dest = state / "mlb" / name
@@ -497,11 +865,23 @@ def push_state(
                 # pulled before last night's audit landed will happily publish
                 # a ledger missing that slate, and the ledger is a growing
                 # record, not this machine's opinion.
-                merge_dated_csv(dest, src, key)
+                merge_dated_csv(dest, src, key, by_date)
                 shutil.copyfile(src, dest)
                 pushed.append(name)
+        cal = data_dir / CALIBRATION_NAME
+        if cal.exists():
+            dest = state / "mlb" / CALIBRATION_NAME
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            # Adopt the branch's map first if it is the better-evidenced one, so
+            # a machine that refit on fewer rows cannot publish over it.
+            merge_calibration_files(dest, cal)
+            shutil.copyfile(cal, dest)
+            pushed.append(CALIBRATION_NAME)
         staged, pruned = _stage_predictions(state, data_dir)
         pushed.extend(staged)
+        staged_inputs, pruned_inputs = _stage_inputs(state, data_dir)
+        pushed.extend(staged_inputs)
+        pruned += pruned_inputs
         if not pushed:
             return SyncReport()
 
@@ -509,9 +889,11 @@ def push_state(
         if not _git(["status", "--porcelain"], state):
             return SyncReport(pushed=tuple(pushed), pruned=pruned)
         _commit(state, message)
-        if _git_ok(["push", "origin", f"HEAD:{branch}"], state):
+        error = _git_try(["push", "origin", f"HEAD:{branch}"], state)
+        if error is None:
             return SyncReport(pushed=tuple(pushed), pruned=pruned)
-        last_error = f"push to {branch} rejected"
+        last_error = f"push to {branch} rejected: {error}"
+        log.warning("state push attempt %d/%d: %s", attempt + 1, _PUSH_ATTEMPTS, last_error)
     raise RuntimeError(f"{last_error} after {_PUSH_ATTEMPTS} attempts")
 
 
@@ -547,6 +929,7 @@ __all__ = [
     "SyncReport",
     "merge_board_files",
     "merge_closing_files",
+    "merge_lineup_files",
     "merge_opta_files",
     "merge_propick_files",
     "merge_dated_csv",

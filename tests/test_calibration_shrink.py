@@ -142,13 +142,18 @@ def test_revalidate_keeps_the_stale_markets_that_still_beat_the_raw_probability(
     assert _revalidate_map(path, graded, "2026-08-01", 200) == 0
 
     written = json.loads(path.read_text())["markets"]
-    assert set(written) == {"pitcher_h"}
     assert written["pitcher_h"]["basis"] == FEATURE_BASIS
-    assert Calibrator.from_json(path).apply("pitcher_h", 0.7) < 0.4
+    # batter_tb stays retired, and its stamp is how the file says so: deleting the
+    # curve would instead drop the market onto the pooled one, a correction
+    # nothing measured for it, and put it beyond the next revalidation's reach.
+    assert written["batter_tb"]["basis"] != FEATURE_BASIS
+    cal = Calibrator.from_json(path)
+    assert cal.apply("pitcher_h", 0.7) < 0.4
+    assert cal.apply("batter_tb", 0.7) == 0.7
 
     # Nothing to keep -> the file is left alone and the caller sees a failure.
     assert _revalidate_map(path, rows("pitcher_h", 0.35, 105, 300), "2026-08-01", 200) == 1
-    assert set(json.loads(path.read_text())["markets"]) == {"pitcher_h"}
+    assert json.loads(path.read_text())["markets"]["pitcher_h"]["basis"] == FEATURE_BASIS
 
 
 def test_a_basis_bump_retires_only_the_markets_it_moved(tmp_path):

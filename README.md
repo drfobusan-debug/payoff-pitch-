@@ -502,6 +502,19 @@ this machine's rows for any date it graded, since that box is the one holding
 the results. A push that loses a race re-pulls and re-applies rather than
 overwriting the other run.
 
+**The hand-dropped exports travel too**, for the same reason and in the same
+place: the priced BAT X CSVs (`batx/`), the saved EV Analytics pages
+(`evanalytics/`) and the daily projection exports (`projections/`) are
+downloaded on a laptop onto one box, and the card is priced on another, so
+without this the BAT X and EVA columns are blank whatever you copy locally.
+Drop the files, then `mlb-engine state push`, and the next scheduled card reads
+them. They are stored gzipped, keeping the newest 14 of each dated feed.
+
+An export is one immutable download, so nothing here is merged: a pull only
+fills in files this machine does not have. That asymmetry is deliberate — a
+saved page is named after the page rather than the day, so a pull that
+overwrote would hand today's card yesterday's board.
+
 The pregame predictions matter as much as the closes. An audit that re-prices
 the slate at 2:30am grades a different set of picks, at prices that no longer
 exist, and the "bet price" the CLV is measured against becomes a post-game
@@ -957,6 +970,32 @@ break-even -- four fifths of the vig recovered, and still not through it. So it
 ships **off**: `CFBE_RETURNING_PTS=2.5` enables it, capped by
 `CFBE_RETURNING_MAX_PTS` (3.0). CLV, not outcomes, should decide whether it ever
 ships on.
+
+### Asking the money to agree with the moneyline
+
+The moneyline is the one market where this family of engines has evidence against
+its *own* number: in the MLB ledger, graded `game_ml` buys were won less often the
+higher the model's EV said they should be (EV AUC 0.33, p=0.004, n=102), while
+handle% minus tickets% on the side bet graded AUC 0.80 (p=0.027) -- winners
+averaged +19.7 points of divergence, losers -2.6.
+
+So `cfb_engine/data/vsin_splits.py` reads VSiN's public splits (Circa first, then
+DraftKings, keyed to date *and* team because the page lists the whole season) and
+`market/mlsharp.py` requires a moneyline buy's side to be taking at least as large
+a share of the handle as of the tickets. Three limits are deliberate: only the
+moneyline consults it, since that is the only market the inversion was measured
+on; a side VSiN posts no split for is unaffected, so a data hole cannot become a
+veto; and MLB's *upgrade* path (passes with divergence >= +5 won 62% of 32) is not
+ported, because promoting a row the EV screen rejected is a new bet justified by
+another sport's sample.
+
+Nothing here is measured on college football -- there are no graded CFB rows yet
+-- so the default is the weakest form of the finding (divergence >= 0) rather than
+MLB's +19.7. Refusals are stamped `ml_no_sharp_money` and graded as a live screen
+in the probation table, the stricter +5 bar accrues beside them as a candidate,
+and every side's divergence lands in the ledger and on the card whatever market it
+belongs to. `CFBE_ML_SHARP_GATE=0` turns the gate back into a measurement,
+`CFBE_ML_MIN_DIVERGENCE` moves the bar, `CFBE_VSIN_SPLITS=0` stops the fetch.
 
 ### College-football shortcuts and daily schedule
 

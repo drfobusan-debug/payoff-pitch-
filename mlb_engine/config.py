@@ -20,6 +20,7 @@ from mlb_engine.features.regression import (
     SINGLES_LD_SLOPE,
 )
 from mlb_engine.features.rolling import HR_PRIOR_WEIGHT
+from mlb_engine.models.run_env import RunEnvTilt
 
 logger = logging.getLogger(__name__)
 
@@ -60,12 +61,56 @@ class RollingWindows:
     # held-out target (next-start xwOBA R^2 0.087 vs 0.075, IP 0.067 vs 0.055).
     # Replaying 54 slates moves favoured PPV .5831 -> .5867, date-clustered 95%
     # CI [+0.04, +0.64] pp, and +1.54 pp on pitcher strikeouts.
+    # Now the "lately" window only: the trend read, the batters-faced cap and the
+    # pitch-efficiency read, where a six-week look-back is the point.
     pitcher_form_days: int = field(default_factory=lambda: _env_int("MLBE_PITCHER_FORM_DAYS", 42))
+    # The starter's own rate profile, split off from the form window for the same
+    # reason the hitter's baseline was: graded walk-forward on four cutoffs
+    # (~650 pitcher-cutoff pairs, read before, scored on the next 21 days, league
+    # prior so nothing leaks), longer keeps winning past six weeks. Out-of-time
+    # correlation K .42 / .45 / .45 / .46 at 21 / 42 / 60 / 90 days, OUT .20 /
+    # .25 / .23 / .26, 1B .05 -> .10; holdout RMSE x1000 falls monotonically
+    # (K 63.8 / 62.0 / 61.5 / 61.1 at 21 / 42 / 90 / 180, OUT 72.8 / 71.3 /
+    # 70.3 / 70.0). Decisive test: regress the next 21 days on the 42- and
+    # 90-day reads together and the six-week read collapses -- K +0.15 vs
+    # +0.49, OUT +0.04 vs +0.38, xwOBA-on-contact +0.09 vs +0.29, with 1B and
+    # HR taking the wrong sign. 90 rather than 180 because the slate already
+    # fetches 90 days, so the better read costs no extra pull.
+    pitcher_baseline_days: int = field(
+        default_factory=lambda: _env_int("MLBE_PITCHER_BASELINE_DAYS", 90)
+    )
+    # The hitter's own baseline, which every split then regresses toward. It used
+    # to be whatever the longest split window happened to be (21 days, ~56 PA).
+    # Walk-forward against the next three weeks -- read before the cutoff, scored
+    # after, league prior so nothing leaks -- longer wins on every outcome at
+    # every prior strength, and the ordering is monotone (RMSE x1000, K: 68.1 at
+    # 21d, 64.3 at 42, 61.8 at 90, 61.4 at 180; OUT 81.7 / 80.9 / 77.9 / 78.2;
+    # BB, 1B and HR move under a point). Out-of-time correlation says the same
+    # thing (K 0.51 -> 0.62, OUT 0.38 -> 0.50). And the 21-day read carries
+    # nothing the long one does not: regressing the next 21 days on both gives
+    # the 90-day read 0.76 against 0.04 for the last three weeks on K, 0.66 vs
+    # 0.02 on OUT. Recent form, at a hitter's sample size, is noise. 90 rather
+    # than 180 because that is the window the slate already fetches for the team
+    # splits, so the better read costs nothing.
+    batter_overall_days: int = field(
+        default_factory=lambda: _env_int("MLBE_BATTER_OVERALL_DAYS", 90)
+    )
+    # The home/away split is the one read that never earned its place: alongside
+    # the 90-day overall it takes 0.11 on walks and either nothing or the wrong
+    # sign on everything else, at every window from 21 to 180 days. Left short
+    # deliberately -- at ~28 PA it is mostly the hitter's own baseline anyway,
+    # which is where the evidence says it belongs.
     batter_home_away_days: int = field(
         default_factory=lambda: _env_int("MLBE_BATTER_HOME_AWAY_DAYS", 21)
     )
-    batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 21))
-    batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 42))
+    # The platoon split does carry signal, but not over three weeks. Against the
+    # next 21 days of PA versus right-handers, the vs-RHP read scores 0.46 on K
+    # at 21 days and 0.56 at 90; next to the overall read the three-week split
+    # takes 0.08 and the 90-day split 0.11 on K, 0.10 vs 0.28 on BB, 0.05 vs
+    # 0.18 on HR. Same window for both hands: the case for six weeks vs
+    # left-handers was thinner samples, and 90 days fixes that more directly.
+    batter_vs_rhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_RHP_DAYS", 90))
+    batter_vs_lhp_days: int = field(default_factory=lambda: _env_int("MLBE_BATTER_VS_LHP_DAYS", 90))
     biomech_days: int = field(default_factory=lambda: _env_int("MLBE_BIOMECH_DAYS", 28))
     # Team-level platoon and venue splits for the preview, which need a far
     # longer look-back than an individual hitter does -- not because a club
@@ -74,16 +119,27 @@ class RollingWindows:
     # exactly 1 of 30 clubs clears the floor vs LHP; at 60 days, 21; at 90, all
     # 30. Shorter than this and the platoon line simply stops printing.
     team_split_days: int = field(default_factory=lambda: _env_int("MLBE_TEAM_SPLIT_DAYS", 90))
-    # Bullpen: relievers' last ~3 weeks and batters' late-inning last ~3 weeks.
-    bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 21))
+    # Relief rates and batters' late-inning rates. Three weeks was the worst
+    # window of the six tested: walk-forward on 30 clubs x 4 cutoffs against the
+    # next 21 days, BB .24 at 21 days against .34 at 42 and .35 at 60, OUT .09
+    # vs .22 and .27, 1B .05 vs .16, K .37 vs .40; holdout RMSE x1000 on OUT
+    # 45.5 / 42.2 / 40.8 / 39.5 at 21 / 42 / 60 / 90. Jointly the three-week
+    # read carries negative weight next to a 60-day one (OUT -0.19, 1B -0.02),
+    # so it is not adding recency, it is adding noise. 60 rather than 90 keeps
+    # some responsiveness to a pen that has been rebuilt at the deadline; on 120
+    # club-cutoff pairs the two are within noise of each other. HR/BF is
+    # unpredictable at every window (|r| < .02) and should not drive anything.
+    bullpen_days: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_DAYS", 60))
     bullpen_min_inning: int = field(default_factory=lambda: _env_int("MLBE_BULLPEN_MIN_INNING", 6))
     # A separate, longer window for the bullpen's stuff and command signals.
     # Split-half reliability of a 3-week relief read (30 pens, ~270 batters faced
     # each): K% 0.66, whiff 0.58, velocity 0.67, but xwOBA 0.37, BB% 0.19,
     # hard-hit 0.13, HR/BF 0.06. Out of sample against the next three weeks, K%
     # scores 0.73 on 42 days vs 0.66 on 21, and in a joint regression the 42-day
-    # read takes +0.68 against +0.14 for the last three weeks. 0 keeps the single
-    # 21-day window for everything.
+    # read takes +0.68 against +0.14 for the last three weeks. Moot at the
+    # 60-day default above, which already covers the skill signals; 0 keeps the
+    # single ``bullpen_days`` window for everything, and it only applies when
+    # set longer than that window.
     bullpen_skill_days: int = field(
         default_factory=lambda: _env_int("MLBE_BULLPEN_SKILL_DAYS", 0)
     )
@@ -132,6 +188,27 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def power_bonus_half_pool() -> bool:
+    """Whether the power screen's top-N bonus is capped at half the pool.
+
+    Read on every call rather than frozen at import so a replay can score a
+    slate both ways in one process. ``MLBE_POWER_BONUS_HALF=0`` restores the
+    flat cutoff the screen shipped with.
+    """
+    return _env_bool("MLBE_POWER_BONUS_HALF", True)
+
+
+def power_keep_gap() -> int:
+    """How far behind the worst arm a starter may be and still be screened.
+
+    Zero -- the default -- keeps the fixed headcount the screen shipped with, so
+    the ledger's history stays comparable while the rule accrues slates.
+    ``MLBE_POWER_KEEP_GAP=25`` turns it on: on 8/30 the fourth arm held 46 points
+    against the leader's 94 and a lineup was screened against Max Scherzer.
+    """
+    return _env_int("MLBE_POWER_KEEP_GAP", 0)
+
+
 def _env_set(name: str, default: tuple[str, ...]) -> frozenset[str]:
     """A comma-separated override, where an empty value means the empty set."""
     raw = os.getenv(name)
@@ -168,13 +245,23 @@ _OVERBET_EDGE_FLOORS: dict[str, float] = {
 # is what the passed rows do anyway. They are screened by price rather than
 # listed here -- see ``doubles_max_buy_odds``.
 #
-# Home runs, singles and RBI lost money too and are deliberately *not* here:
-# each already has a price band or probability floor fitted to its own graded
-# rows (``hr_min_buy_odds``, ``singles_min_buy_odds``, ``rbi_min_buy_prob``),
-# which is the sharper instrument. Disqualification is for the markets with no
-# surviving profitable pocket to screen for.
+# Home runs were screened by price band rather than disqualified, on the
+# argument that a fitted pocket beats a blanket refusal. The band has now been
+# graded and there is no pocket: 113 buys at -38.5% (-43.5u, 14% of the whole
+# book's loss in one market), an 8.8% win rate against a 13.9% breakeven, and
+# both fitted screens under water on their own rows (``hr_price_band`` -47.5%
+# on 28, ``hr_barrel_gate`` -100% on 24). A market missing its breakeven by a
+# third of its own probability is not mispriced in a pocket, so it joins the
+# list -- quoted and graded, never bought, which is where the power board
+# already holds it (``DISPLAY_ONLY``).
+#
+# Singles and RBI lost money too and are deliberately *not* here: each has a
+# price floor or probability floor fitted to its own graded rows
+# (``singles_min_buy_odds``, ``rbi_min_buy_prob``) that is still the sharper
+# instrument. Disqualification is for the markets with no surviving profitable
+# pocket to screen for.
 _NO_BUY_MARKETS: frozenset[str] = frozenset(
-    {"batter_h", "batter_hrr", "batter_r", "batter_tb"}
+    {"batter_h", "batter_hr", "batter_hrr", "batter_r", "batter_tb"}
 )
 
 # Longest price a buy may be taken at, per market, overriding the global
@@ -185,27 +272,126 @@ _NO_BUY_MARKETS: frozenset[str] = frozenset(
 # specifically. Run lines are what is left uncovered, and they split cleanly:
 # +11.8% at -110 or shorter against -21.2% at plus money, where taking +1.5
 # means paying a premium to need the fewest runs.
+#
+# That split was measured on the buys the ceiling kept; the rows it refused have
+# since been graded on their own, and they are the better half. Refused
+# ``game_rl`` went 41.3% for +2.8% (n=155, +4.4u) and refused ``f5_rl`` -0.3%
+# (n=77) -- flat, with the halves disagreeing (+8.0% then -1.6%), so no pocket
+# either way -- while the run-line buys the ceiling *admitted* returned -11.2%
+# (n=380, -42.6u). A screen whose refusals beat its admissions by fourteen
+# points has the sign backwards, so it is lifted to +200: the whole graded
+# sample sits between +110 and +200 (game_rl +4.2% then +1.4% across the two
+# bands), nothing past +200 has ever been refused, and the ceiling stays in
+# place there rather than being removed on evidence that does not reach it.
+#
+# This buys volume, not profit -- flat rows in a market that is negative
+# overall. What it stops is the engine holding its worst run lines and passing
+# its least bad ones; where the run-line damage actually lives is a separate
+# question for ``_NO_BUY_MARKETS``, and is not settled here.
+#
+# And on today's thresholds it buys no volume either, which is worth stating
+# plainly: replayed over the 09-01 board, all 19 rows this ceiling refused are
+# still refused, every one of them by ``EVThresholds.min_prob``. A plus-money
+# side is one the market makes an underdog, an underdog anchored 30% toward its
+# price cannot reach 0.58, and so the floor implies a price bar near +115 on
+# its own (see ``max_ev``). Lifting the fitted ceiling removes a screen whose
+# refusals beat its admissions; it does not open the band, because the floor
+# was standing behind it the whole time.
 _MAX_BUY_ODDS_BY_MARKET: dict[str, float] = {
-    "game_rl": 109.0,
-    "f5_rl": 109.0,
+    "game_rl": 200.0,
+    "f5_rl": 200.0,
 }
 
 # Weight given to the devigged market price per market, overriding the global
-# ``Config.market_anchor``. Scoring both probability sources on the 10,497
-# real-priced graded rows, the market is the better forecaster everywhere the
-# engine bets (Brier: batter props .2180 vs .2210, F5 .2425 vs .2674, moneyline
-# .2470 vs .2597, pitcher props .2461 vs .2769, run lines .2414 vs .2567) --
-# except totals, where the model wins (.2446 vs .2480) and is also the only
-# profitable buy bucket (+16 units on n=93).
+# ``Config.market_anchor``. Each is ``1 - alpha`` from
+# ``scripts/market_shrink_study.py`` (``alphas_for`` on the whole ledger) over
+# the 79,984 graded two-sided rows through 2026-09-09, 35 slates: alpha is the
+# share of the model's disagreement with the price that survives, fitted on log
+# loss and shrunk toward the pooled alpha (0.05) by sample. Out of time the
+# pooled alpha is 0.00-0.10 across 21 walk-forward refits, and on the 33,685-row
+# holdout the price alone beats the model on every batter market (Brier .2422
+# vs .2461 singles, .2445 vs .2558 total bases, .2091 vs .2144 RBI), on every
+# game and F5 market, and on strikeouts, earned runs and outs. Wherever the
+# model claimed 5-14 points over the price, outcomes landed within one point of
+# the price.
 #
-# Totals are therefore pinned at zero rather than left to inherit the global
-# weight: anchoring scales the measured edge by ``1 - w``, so raising the global
-# toll to make the engine defer where it is beaten would silently double the
-# edge required in the one market it is not.
+# So a weight near 1.0 is not a switch, it is the measurement: on that market
+# the model's departure from the price carries nothing, and the bet probability
+# is the devigged price to within a point -- which the EV screen cannot buy,
+# since no quote pays above its own fair probability. A market where the model
+# was measurably *worse* than the book (moneylines, F5 sides, runs, strikeouts)
+# fits to the same weight rather than to a negative alpha, so the shut-off is
+# the fit, not a list.
+#
+# The markets keeping a coefficient are the ones whose shrunk number beat the
+# price out of sample: pitcher hits and walks (+4 points realized over the
+# price where the model disagreed by 3+, n=522 / 370) and game totals, the one
+# market the model out-forecasts alone. Doubles and batter walks keep one on
+# calibration grounds only; their buy records are losing.
+#
+# Home runs are absent on purpose: 175 two-sided rows fit alpha at the top of
+# the grid, and the 113 graded buys returned -38.5%, so the market inherits the
+# global weight rather than a coefficient a sample that size cannot own.
+#
+# Pitcher walks carry the lightest toll on the card. On 593 graded o1.5/o2.5
+# rows (Aug 18 - Sep 14, best price, one per prop) the over won 54.1% against a
+# 49.1% fair, and the model's direction sorted it: overs the model rated at or
+# above the price went 59.4% (+11.0% on 308) while the ones it rated below went
+# 48.4% (-6.1% on 285). The 0.90 toll had let 22 of those 308 through (18-4)
+# and refused the rest on the EV floor, so the weight is set where the model's
+# half of the read is kept.
+#
+# A fitted ``market_anchor_file`` (``--write-anchors``) overrides these per
+# market; delete it to return here. Totals used to be pinned at 0.0 off a
+# 10,497-row read; the sample eight times larger says the model wins totals by
+# a coefficient, not outright.
 _MARKET_ANCHOR_BY_MARKET: dict[str, float] = {
-    "game_total": 0.0,
-    "f5_total": 0.0,
+    "batter_1b": 1.0,
+    "batter_2b": 0.61,
+    "batter_bb": 0.90,
+    "batter_h": 0.95,
+    "batter_hrr": 1.0,
+    "batter_r": 1.0,
+    "batter_rbi": 1.0,
+    "batter_tb": 1.0,
+    "pitcher_bb": 0.50,
+    "pitcher_er": 0.99,
+    "pitcher_h": 0.81,
+    "pitcher_k": 1.0,
+    "pitcher_outs": 0.99,
+    "game_ml": 0.99,
+    "game_rl": 0.99,
+    "game_total": 0.78,
+    "f5_ml": 0.99,
+    "f5_rl": 0.99,
+    "f5_total": 0.99,
 }
+
+# Ceiling on any anchor weight that was not set by hand. At 1.0 the bet
+# probability *is* the price, the edge is exactly zero on every row, and the
+# card cannot even order the market's rows by the model's lean -- 64% of the
+# two-sided board sat at edge 0.000 on 2026-09-14 and the engine bought nothing
+# for four days. The cap keeps a tenth of the model's disagreement alive so the
+# lean is visible and rankable; it does not reopen the shut markets, because
+# the edge floor still stands: ``edge = (1 - w) * (model - fair)``, so at 0.90
+# a row needs a 20-point raw disagreement to reach ``min_edge`` 0.02.
+#
+# Graded by replaying today's screens over the 98,838 two-sided graded rows
+# since 2026-07-01 with every weight capped:
+#
+#     cap 0.95   adds   0 buys
+#     cap 0.90   adds  15 buys  (0.3/day)  10-5   +12.1%  1se 21%
+#     cap 0.85   adds 107 buys  (3.3/day)  60.7%   -1.8%  1se  8%
+#     cap 0.80   adds 384 buys  (10/day)   58.1%   -5.7%  1se  4%
+#
+# Below 0.85 the volume comes back and so does the loss, from the same prop
+# families the fit shut. 0.90 is the loosest cap the evidence does not object
+# to; what it adds is too few bets to be a record either way, and what it buys
+# is the model's largest departures from the price, which the fit says are the
+# least trustworthy -- so this is a voice on the card, not a reopening.
+# ``MLBE_MARKET_ANCHOR_CAP=1.0`` removes it; an explicit
+# ``MLBE_MARKET_ANCHOR_<MARKET>`` is the operator's number and is not capped.
+MARKET_ANCHOR_CAP = 0.90
 
 # Parsed ``market_anchor_file`` contents, keyed by path. Read once per process:
 # ``anchor_for`` is called per candidate row, and the file only changes when the
@@ -229,6 +415,79 @@ _MAX_EDGE_BY_MARKET: dict[str, float] = {
     "pitcher_k": 0.30,
 }
 
+# Conviction floor per market, overriding the global ``EVThresholds.min_prob``.
+# The floor reads the *anchored* probability the EV screen bets on, so a market
+# pinned to a zero anchor is being screened on the model's own number and needs
+# its own value if that changes.
+#
+# The global floor moved 0.58 -> 0.55 (see ``EVThresholds.min_prob``), and this
+# is where the exceptions live: the categories whose rows in the band being
+# opened are not flat but losing.
+#
+# Grading the floor's own refusals over the markets the engine would still buy
+# -- excluding the no-buy list and the probation SHUT markets, and excluding the
+# batter unders the conviction ceiling refuses anyway, because a row a second
+# live screen removes is not a row this floor is costing us -- the band from
+# 0.55 to 0.58 reads:
+#
+#     all             n=263  ROI  -4.0%  1se  5.8%  halves -4.6 / -3.4
+#     batter          n=131  ROI  -1.2%  1se  8.2%  halves +3.2 / -5.5
+#     game and F5     n= 60  ROI  +6.1%  1se 12.1%  halves +5.7 / +6.6
+#     pitcher         n= 72  ROI -17.6%  1se 11.3%  halves -27.0 / -8.2
+#
+# Three of those are inside a standard error of zero, which is the bar this
+# engine uses to lift a screen rather than to keep one. Pitcher props are not:
+# they lose by more than 1se with both halves agreeing, which is the same test
+# ``probation`` applies before it shuts a market. So the floor drops everywhere
+# except on the arm, where it holds at 0.58 and is movable per market by
+# ``MLBE_MIN_PROB_PITCHER_K`` and friends. Pitcher walks are the one arm market
+# left on the board floor: the o1.5 rows the model rated at or above the price
+# were positive at plus money as well as short (52.2%, +9.8% on 184 rows above
+# -130), so the band this floor refuses is not losing there.
+#
+# What this does not claim is that the 0.55-0.58 band is profitable. It is not
+# measurably anything, and the honest reading of the whole refused set (-4.4%
+# from 0.50 up, n=584) is that the model runs ~12pp hot in exactly this band and
+# the floor was standing in for a calibration that is not finished. The floor is
+# the crude instrument: it is loosened to where the evidence stops objecting and
+# no further, and 0.50-0.55 stays refused because there the evidence does object
+# (-8.1% at 0.54, halves agreeing).
+#
+# These are per-market *defaults*, not raises: a caller or operator who names a
+# floor -- ``EVThresholds(min_prob=...)`` or ``MLBE_MIN_PROB`` -- has said what
+# they want on every market, and the table stands aside (see ``for_market``).
+DEFAULT_MIN_PROB = 0.55
+
+#
+# Game totals go the other way, to 0.50. A total is quoted -110 both ways, so
+# the engine's side has a fair probability near 0.50 and, anchored 78% toward
+# it, cannot reach 0.55 without a 23-point raw disagreement: the floor, not the
+# edge floor, is what refused every small totals lean (lowering ``min_edge`` on
+# totals to 0.015 or 0.01 with the floor at 0.55 adds zero buys). Replayed over
+# the graded two-sided totals since 2026-07-01, edge >= 0.02 throughout:
+#
+#     prob >= 0.55   n= 17  52.9%  need 54.0%   -2.3%  1se 23%
+#     prob >= 0.52   n= 68  52.9%  need 52.7%   +0.4%  1se 12%
+#     prob >= 0.50   n=119  57.1%  need 51.4%  +11.2%  1se  9%   5 of 7 weeks positive
+#
+# and under the 08-24 rules alone 21 buys at +21%. Dropping the edge floor as
+# well dilutes it (0.015: n=162, +7.9%; 0.01: n=177, +5.4%), so the edge floor
+# stays at 0.02 and the 0.02-0.03 band (n=75, +14%) is where the record lives.
+# One standard error from zero and 119 bets: a lean the ledger supports, not a
+# proven edge. The 0.5 floor means a total the market calls a coin flip may be
+# bought on the engine's side; that is the only market where its side has a
+# graded record above the price (54.3% on 429 rows).
+_MIN_PROB_BY_MARKET: dict[str, float] = {
+    "game_total": 0.50,
+    "pitcher_k": 0.58,
+    "pitcher_outs": 0.58,
+    "pitcher_er": 0.58,
+    "pitcher_h": 0.58,
+}
+
+# EV ceiling per market, overriding the global ``EVThresholds.max_ev``.
+_MAX_EV_BY_MARKET: dict[str, float] = {}
+
 
 @dataclass(frozen=True)
 class EVThresholds:
@@ -251,11 +510,71 @@ class EVThresholds:
     strong_edge_gap: float = field(
         default_factory=lambda: _env_float("MLBE_EDGE_STRONG_GAP", 0.02)
     )
+    # Devigged market probability at which a buy is Strong instead of Moderate,
+    # which is now what separates the two tiers -- ``strong_edge_gap`` only still
+    # applies to a row whose vig could not be removed. Edge ranked them
+    # backwards: over 2,354 deduped graded buys its Strong tier went 47.7% for
+    # -9.9% ROI (n=1,435) against Moderate's 51.1% for -2.6% (n=919), because a
+    # bigger disagreement with the market is evidence against the model, not for
+    # the bet. Sorting the same buys by the market's own price is monotone the
+    # right way: 33.1% below .45, 46.8% at .45-.50, 51.4% at .50-.55, 56.5% at
+    # .55-.60, 62.8% at .60-.65, 65.9% at .65-.75.
+    #
+    # 0.58 for the same reason ``min_prob`` sits there -- it is where per-unit
+    # return crosses over, and the two now agree on where conviction starts: the
+    # anchored probability has to reach 0.58 to buy at all, and the market has to
+    # reach it independently to call the buy Strong. This re-sorts the two buy
+    # tiers; it does not add or remove buys, and every ROI cell in that ladder is
+    # still negative. ``MLBE_STRONG_FAIR_PROB=1`` restores the edge gap.
+    strong_fair_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_STRONG_FAIR_PROB", 0.58)
+    )
     # Disagreement with the devigged market beyond which the edge is treated as a
     # model error rather than a bet. Realized win rate falls as the model departs
     # from the price: over the real-priced rows, buys inside 8 points went 51.0%
     # and buys past it 39.0% (-18.6% ROI). 1.0 disables the cap.
     max_edge: float = field(default_factory=lambda: _env_float("MLBE_MAX_EDGE", 0.08))
+    # Conviction floor: the probability the screen bets on -- anchored, so the
+    # blend of model and devigged market rather than the model alone -- has to
+    # reach this before the price is considered. Measured on the 1,619 real-priced
+    # graded buys that carry a devigged fair price (07-29..08-19), where the
+    # anchored ladder is monotone in realized win rate at every step: 45.5% with
+    # no floor, 53.3% at 0.50, 56.8% at 0.55, 60.8% at 0.58, 65.9% at 0.62, 70.3%
+    # at 0.65. 0.58 is where per-unit return crosses zero (-2.9% at 0.55, +0.6%
+    # at 0.58) and is chosen there rather than higher because 0.65 keeps 145 bets
+    # of 1,619 and its interval is wide. Read this floor together with the anchor:
+    # on the model's own probability the same floor is only -3.2%, and the anchor
+    # alone is -7.8%. It is the pair that stops the bleeding, and it works by
+    # asking whether a selection is still above the bar *after* being pulled 30%
+    # toward the price -- i.e. whether the market likes it too.
+    #
+    # Lowered 0.58 -> 0.55 once the floor's own refusals had a sample. The
+    # crossing above was read off *admitted* buys; graded on what it refuses, the
+    # 0.55-0.58 band is -4.0% +/- 5.8 over 263 rows, inside a standard error of
+    # zero. The cost of holding it was not in that number: 0.58 against
+    # ``max_edge`` 0.08 requires the market's own fair price to reach 0.50, so
+    # every market quoted near even money had a window one point wide and the
+    # engine bought no totals, moneylines or run lines at all. At 0.55 the
+    # required fair probability is 0.47 and the window reopens. Pitcher props
+    # keep 0.58; their refused rows lose in both halves (see
+    # ``_MIN_PROB_BY_MARKET``).
+    min_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_MIN_PROB", DEFAULT_MIN_PROB)
+    )
+    # EV ceiling, and the weakest-evidenced of the selection screens. ``max_edge``
+    # caps disagreement in probability points, but a long price turns a capped
+    # edge into an uncapped EV, and on unanchored EV realized return fell at every
+    # step (-5.7% under 5%, -11.4% at 5-10%, -13.1% at 10-20%, -18.9% at 20-40%).
+    # Anchored, that monotonicity breaks: the 0.20-0.40 band is +5.7% on 95 bets.
+    # What the ceiling actually does on top of the floor is refuse 10 of 497
+    # surviving buys, which went 40.0% for -16.6%, and lift the rule from +0.6% to
+    # +1.0% per unit. Ten bets is not a finding, so this ships as a guard on a
+    # tail too thin to price rather than as a screen with a record. 1.0 disables
+    # it. Note that the floor implies a price ceiling of its own (EV = p x
+    # decimal - 1): near +115 while it stood at 0.58, which is where the fitted
+    # run-line ceiling of +109 sat until its own refusals were graded, and near
+    # +130 at 0.55 (see ``_MAX_BUY_ODDS_BY_MARKET``).
+    max_ev: float = field(default_factory=lambda: _env_float("MLBE_MAX_EV", 0.25))
     # Strict selection: when set, downgrade every Moderate buy to Pass so only
     # Strong buys fire.
     strong_only: bool = field(default_factory=lambda: _env_bool("MLBE_STRONG_ONLY", False))
@@ -268,6 +587,14 @@ class EVThresholds:
     # Never buy this market's over, whatever the price (see
     # ``_NO_BUY_MARKETS``); the fade keeps its own screens.
     no_buy: bool = False
+    # Refuse a buy whose price could not be devigged: no book hung the other
+    # side, so the edge was measured against a number still carrying the hold.
+    # Graded 07-19..09-07, the 1,443 one-way buys returned -14.4% (-207u)
+    # against -5.8% on the 2,125 two-sided ones -- over 60% of the ledger's loss
+    # on 40% of its bets. ``MLBE_TWO_SIDED_ONLY=0`` restores them.
+    two_sided: bool = field(
+        default_factory=lambda: _env_bool("MLBE_TWO_SIDED_ONLY", True)
+    )
 
     def for_market(self, market: str) -> EVThresholds:
         """Per-market thresholds, overridable via ``MLBE_MIN_EDGE_<MARKET>`` etc.
@@ -293,12 +620,27 @@ class EVThresholds:
                 f"MLBE_MAX_EDGE_{suffix}",
                 _MAX_EDGE_BY_MARKET.get(market, self.max_edge),
             ),
+            # The per-market table is only a default: an explicitly chosen floor
+            # (a caller's, or ``MLBE_MIN_PROB``) means every market, or a run
+            # that turns the floor off would find it still on wherever the table
+            # names a value.
+            min_prob=_env_float(
+                f"MLBE_MIN_PROB_{suffix}",
+                _MIN_PROB_BY_MARKET.get(market, self.min_prob)
+                if self.min_prob == DEFAULT_MIN_PROB
+                else self.min_prob,
+            ),
+            max_ev=_env_float(
+                f"MLBE_MAX_EV_{suffix}",
+                _MAX_EV_BY_MARKET.get(market, self.max_ev),
+            ),
             strong_only=_env_bool(f"MLBE_STRONG_ONLY_{suffix}", self.strong_only),
             max_buy_odds=_env_float(
                 f"MLBE_MAX_BUY_ODDS_{suffix}",
                 _MAX_BUY_ODDS_BY_MARKET.get(market, self.max_buy_odds),
             ),
             no_buy=_env_bool(f"MLBE_NO_BUY_{suffix}", market in _NO_BUY_MARKETS),
+            two_sided=_env_bool(f"MLBE_TWO_SIDED_ONLY_{suffix}", self.two_sided),
         )
 
 
@@ -356,6 +698,10 @@ class Credentials:
     rotowire_pass: str | None = field(default_factory=lambda: os.getenv("ROTOWIRE_PASS"))
     vsin_user: str | None = field(default_factory=lambda: os.getenv("VSIN_USER"))
     vsin_pass: str | None = field(default_factory=lambda: os.getenv("VSIN_PASS"))
+    # VSIN's subscriber cookie (``__utp``, the Piano ID user token). The login
+    # itself sits behind a Cloudflare challenge, so the engine carries the
+    # cookie a browser earned rather than signing in; it lives about a year.
+    vsin_token: str | None = field(default_factory=lambda: os.getenv("VSIN_UTP"))
     # TeamRankings subscriber login. Their free grid only publishes a slate once
     # it has been played, so tonight's picks need the account.
     teamrankings_user: str | None = field(
@@ -620,6 +966,14 @@ class Config:
         default_factory=lambda: _env_float("MLBE_PITCHER_K_MAX_LINE", 5.5)
     )
 
+    # Walks-allowed overs are bought at the 1.5 line only. The o1.5 rows the
+    # model rated at or above the price went 61.1% (+12.7% on 285); the o2.5 rows
+    # on the same read went 9-14 (-6.4%), and the 2.5 line is where a walk prior
+    # a fraction high turns into a long price the model cannot own.
+    pitcher_bb_max_buy_line: float = field(
+        default_factory=lambda: _env_float("MLBE_PITCHER_BB_MAX_LINE", 1.5)
+    )
+
     # Walks-allowed unders are vetoed while the model's walk level is unvalidated.
     #
     # Pricing both sides of every prop opened this side up, and pitcher_bb is the
@@ -809,6 +1163,36 @@ class Config:
         default_factory=lambda: _env_float("MLBE_BATTER_MAX_BUY_PROB", 0.62)
     )
 
+    # The fade half of the same ceiling, held back at 40 rows and graded as a
+    # candidate screen since. It now has a sample, and it is the same sign:
+    #
+    #   basis            n    ROI    first half   second half   verdict
+    #   all graded     544  -6.3%        -0.6%        -11.9%    SHIP
+    #   since 08-18    445  -7.3%        +0.4%        -14.9%    halves disagree
+    #
+    # -7.3% at 3.6 se on the live basis, negative in both halves of the longer
+    # one, and the half that disagrees is +0.4% -- flat, not a pocket. It is a
+    # separate knob from the over ceiling because the fade earned its own record
+    # and should be retirable on it: ``MLBE_BATTER_UNDER_MAX_BUY_PROB=1``
+    # disables the fade side while leaving the over side screened.
+    #
+    # It has since been the largest single closer of a zero-buy slate (112 of
+    # the 239 rows that cleared the price screen on 09-01), because it composes
+    # with ``EVThresholds.min_prob``: the floor only admits high-probability
+    # sides, on props those are almost all fades, and this ceiling then refuses
+    # the fades from 0.62 up -- leaving a four-point buy window. Composed, the
+    # pair is close to a null set, and the obvious relief is to read this
+    # ceiling on the model's own probability while the floor reads the anchored
+    # one. Its live rows say no: the ceiling's own refusals went 63.3% for
+    # -2.1% (n=98), i.e. it is still deleting rows that lose slowly, and
+    # widening the window would restore volume in ``batter_rbi``/``batter_tb``/
+    # ``batter_hrr``, the three markets probation currently has SHUT. Left as
+    # it stands, and the composition is now reported rather than inferred (see
+    # ``audit.funnel``).
+    batter_under_max_buy_prob: float = field(
+        default_factory=lambda: _env_float("MLBE_BATTER_UNDER_MAX_BUY_PROB", 0.62)
+    )
+
     # The road moneyline underdog is the only sides cell the graded card
     # condemns twice. Split four ways by venue and role:
     #
@@ -832,6 +1216,27 @@ class Config:
     # and lost 11.9% in August.
     away_ml_refuse_odds: float = field(
         default_factory=lambda: _env_float("MLBE_AWAY_ML_REFUSE_ODDS", 100.0)
+    )
+
+    # Where the engine and the book back different sides, bet the book's side
+    # (see ``recommendations.fade_disagreements``). A buy whose devigged market
+    # probability is under this is faded: its row becomes a Pass under
+    # ``book_fade`` and the other side of the market takes its tier. 0 turns the
+    # rule off; 1.0 fades every buy. ``MLBE_BOOK_FADE_MARKETS`` is a comma list
+    # of engine markets to confine it to; it defaults to the three the fade
+    # paid on when graded to 2026-09-08 (doubles -26.3% -> -0.2%, H+R+RBI
+    # -33.4% -> +18.0%, run lines -15.0% -> +4.9%). Everywhere else the vig
+    # was paid on both sides of the disagreement: applied to every market it
+    # went -7.8%, and its first week live (2026-09-09..16) bought game ML and
+    # totals it had never been graded on, 1-4 while the engine's sides went
+    # 4-1. Setting the variable empty applies it to every market.
+    book_fade_max_fair: float = field(
+        default_factory=lambda: _env_float("MLBE_BOOK_FADE_MAX_FAIR", 0.5)
+    )
+    book_fade_markets: frozenset[str] = field(
+        default_factory=lambda: _env_set(
+            "MLBE_BOOK_FADE_MARKETS", ("batter_2b", "batter_hrr", "game_rl")
+        )
     )
 
     # Pitcher-outs is a cumulative false-NEGATIVE pocket: over the graded window
@@ -983,14 +1388,79 @@ class Config:
     # shrinks a loss rather than earning a profit; judge a weight on closing
     # line value, which resolves in far fewer bets than ROI.
     #
-    # Still off, despite 27 graded slates putting the market ahead of the model
-    # on Brier and log loss in every market the engine bets except totals, and
-    # for a mechanical reason rather than a lack of evidence: every edge floor,
-    # price band and probability floor on the card was fitted against unanchored
-    # probabilities, and a global weight rescales all of them at once
-    # (edge -> edge x (1 - w)). Raise it per market with
-    # ``MLBE_MARKET_ANCHOR_<MARKET>`` and re-grade that market's floors with it.
-    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 0.0))
+    # On at 0.3, having been off for the mechanical reason that a global weight
+    # rescales every edge floor fitted against unanchored probabilities at once
+    # (edge -> edge x (1 - w)). What settles it is that the market beat the model
+    # at every band on the graded ledger -- inside a claimed 0.45-0.52 the buys
+    # won 36.3% where the devigged price said 43.5% -- and that the rescaling is
+    # the smaller effect. Over the 1,619 real-priced graded buys with a devigged
+    # price, the anchor plus the ``EVThresholds.min_prob`` floor and ``max_ev``
+    # ceiling it ships with move the book from -7.2% per unit on all 1,619 to
+    # +1.0% on the 487 that survive, positive in both halves of the window
+    # (+4.9% on 64 bets, +0.4% on 423).
+    #
+    # Two honest caveats. Neither piece does this alone -- the anchor by itself is
+    # -7.8% and the floor on the model's own number -3.2% -- so this is a pair,
+    # not a weight. And the surviving edge is thin: the larger half of the window
+    # is +0.4%, so treat 0.3 as the weight that stops a loss rather than one that
+    # earns a living, and re-fit it per market on closing line value.
+    #
+    # Why the two work together: the anchor moves probabilities toward the price,
+    # so it *lowers* most of them and by itself only re-sizes the edge toll, while
+    # the floor is a level test the anchor makes meaningful -- a selection still
+    # above 0.58 after being pulled 30% toward the market is one the market also
+    # likes, and those are the buys that won.
+    #
+    # That was the read on 1,619 buys. On 79,984 graded rows the 0.3 did not
+    # hold: the two-sided buy record since it shipped is -5.6% (2,149 bets) and
+    # -9.0% on the 165 since every other gate went live, mean CLV +0.003, and
+    # the model's disagreement with the price fits to a weight of 0.00-0.10 on
+    # every market it bets (see ``_MARKET_ANCHOR_BY_MARKET``, which now names
+    # every market). This global is therefore only the weight for a market the
+    # study has never fitted, and it is 1.0: a market with no measured residual
+    # bets the price, and the price cannot be bought. A departure from the
+    # market has to be earned with a coefficient, per market, on graded rows.
+    market_anchor: float = field(default_factory=lambda: _env_float("MLBE_MARKET_ANCHOR", 1.0))
+
+    # Batter-prop over correction, in logit units (see models.run_env for the
+    # graded walk-forward). ``prop_over_tilt`` is the constant the simulator's
+    # batter overs run hot by; ``prop_env_slope`` is charged per run that the
+    # simulator's own game-total mean sits above the league's, so a game it
+    # prices at 10.5 gets four times the mark-down of one it prices at 9.4.
+    # Fitted values ranged 0.08-0.15 and 0.03-0.05 across the four weekly refits;
+    # these are the conservative end of each, because the study's proxy for the
+    # simulator's mean was reconstructed from calibrated total prices rather than
+    # read off the simulator as the engine now does.
+    prop_over_tilt: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_OVER_TILT", 0.08)
+    )
+    prop_env_slope: float = field(
+        default_factory=lambda: _env_float("MLBE_PROP_ENV_SLOPE", 0.03)
+    )
+
+    # Correct the total markets for the league the simulator is actually pricing:
+    # two league-average teams score 9.27 runs in it against a league playing 8.58
+    # over the trailing month, and that gap lifts every over in the book at once.
+    # Applied after calibration, as the log odds the non-out scale is worth to that
+    # market's over (models.run_env.TOTALS) -- applied to the simulator's rates
+    # instead it is a wash, because the isotonic map is monotone and gives the
+    # correction back. Graded walk-forward on 4,996 graded total rows it improves
+    # Brier 0.2431 -> 0.2401 and log loss 0.6820 -> 0.6754, on all four game-total
+    # lines and both first-five lines, and it is the batter tilt's counterpart:
+    # each covers the markets the other leaves alone.
+    #
+    # ``run_env_target_days`` is the trailing window the league total is read over.
+    # A month is the middle of a monotone sweep -- against the uncorrected number
+    # 14 days grades better (-0.0042 Brier), 30 days -0.0030 and 60 days -0.0015 --
+    # so this is deliberately not the best cell:
+    # a shorter read tracks a cooling league faster but is a noisier measurement of
+    # it, and the correction should be a league number rather than a fitted one.
+    run_env_totals: bool = field(
+        default_factory=lambda: _env_bool("MLBE_RUN_ENV_TOTALS", True)
+    )
+    run_env_target_days: int = field(
+        default_factory=lambda: _env_int("MLBE_RUN_ENV_TARGET_DAYS", 30)
+    )
 
     # Run-line luck-gap tier nudge (season actual RD vs xwOBA-based xRD). Reads the
     # daily-built team-form cache; OFF by default until the graded-data backtest
@@ -1071,6 +1541,11 @@ class Config:
         return self.data_dir / "projections"
 
     @property
+    def run_env_tilt(self) -> RunEnvTilt:
+        """The batter-prop over correction these settings describe."""
+        return RunEnvTilt(self.prop_over_tilt, self.prop_env_slope)
+
+    @property
     def batx_dir(self) -> Path:
         """Priced THE BAT X exports, one CSV per slate (scripts/batx_study.py)."""
         return self.data_dir / "batx"
@@ -1127,12 +1602,17 @@ class Config:
         packaged default for the markets it names, and is itself overridden by an
         explicit env var, so a measurement can be adopted per market without
         editing code and still be argued with from the command line.
+
+        Fitted and packaged weights are capped at ``MARKET_ANCHOR_CAP`` so no
+        market is priced with the model's voice at exactly zero; the env var,
+        being the operator's own number, is not.
         """
+        default = self._fitted_anchors().get(
+            market, _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor)
+        )
+        cap = _env_float("MLBE_MARKET_ANCHOR_CAP", MARKET_ANCHOR_CAP)
         return _env_float(
-            f"MLBE_MARKET_ANCHOR_{market.upper()}",
-            self._fitted_anchors().get(
-                market, _MARKET_ANCHOR_BY_MARKET.get(market, self.market_anchor)
-            ),
+            f"MLBE_MARKET_ANCHOR_{market.upper()}", min(default, cap)
         )
 
     def ensure_dirs(self) -> None:

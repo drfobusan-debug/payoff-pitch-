@@ -18,6 +18,10 @@ import numpy as np
 import pandas as pd
 
 from mlb_engine.audit.ledger import prop_subject
+from mlb_engine.features.arm import ArmProfile, build_arm_profile
+from mlb_engine.features.arm import stage_two as arm_stage_two
+from mlb_engine.features.arm import velo_trend as arm_velo_trend
+from mlb_engine.features.power_change import PowerChange, build_power_change
 from mlb_engine.features.regression import (
     BL_BABIP,
     BatterRegression,
@@ -25,6 +29,8 @@ from mlb_engine.features.regression import (
     build_pitcher_regression,
 )
 from mlb_engine.features.siera import pitcher_siera
+from mlb_engine.features.swing import SwingProfile, build_swing_profile, stage_two
+from mlb_engine.market.ranking import price_rank
 
 FB = ("FF", "SI")
 RECENT_DAYS = 21  # "3-week" window for vFA + trend split
@@ -71,6 +77,8 @@ def _starter_games(previews: list[dict]) -> dict[str, dict]:
 
 
 def _vfa(slice_df: pd.DataFrame) -> float:
+    if "release_speed" not in slice_df:
+        return float("nan")
     fb = slice_df[slice_df["pitch_type"].isin(FB)]
     return _fmean(fb["release_speed"]) if len(fb) else float("nan")
 
@@ -94,24 +102,49 @@ def _fmean(s: pd.Series) -> float:
     return float(np.nanmean(a)) if np.isfinite(a).any() else float("nan")
 
 
-def _fstd(s: pd.Series) -> float:
-    a = _arr(s)
-    return float(np.nanstd(a)) if np.isfinite(a).any() else float("nan")
-
-
 def _biomech(slice_df: pd.DataFrame) -> dict[str, float]:
-    fb = slice_df[slice_df["pitch_type"].isin(FB)]
-    ext = _fmean(slice_df["release_extension"])
-    ivb = _fmean(fb["pfx_z"]) * 12 if len(fb) else float("nan")
-    spin = _fmean(fb["release_spin_rate"]) if len(fb) else float("nan")
-    # release scatter: how tightly the release point repeats (lower = more repeatable).
-    scatter = float(np.hypot(_fstd(slice_df["release_pos_x"]), _fstd(slice_df["release_pos_z"])) * 12)
-    return {"ext": ext, "ivb": ivb, "spin": spin, "scatter": scatter}
+    """The release biomechanics the stat cards print, off the shared arm model.
+
+    Read on the arm's last ``arm.WINDOW`` fastballs rather than over the whole
+    slice, so a level is the sample the measure was validated on and a thin arm
+    reads as unmeasured instead of averaging two starts with twenty.
+    """
+    prof = build_arm_profile(slice_df)
+    return {"ext": prof.ext, "ivb": prof.ivb, "spin": prof.spin, "scatter": prof.scatter}
+
+
+def _arm_fields(prof: ArmProfile, dxwoba: float) -> dict[str, float | int | str]:
+    """The second stage of the starter read: the delivery, and whether it agrees.
+
+    ``dxwoba`` is xwOBA-allowed minus wOBA-allowed, which is the luck term stage
+    two is crossed against directly. The verdict is a level; the trend rides
+    along beside it because it earns something on the fade side of the flag and
+    nothing on the other, so it qualifies a fade rather than voting on one.
+    """
+    return {
+        "arm_pitches": prof.pitches,
+        "arm_velo": prof.velo,
+        "arm_pvelo": prof.pvelo,
+        "arm_ext": prof.ext,
+        "arm_rel_x": prof.rel_x,
+        "arm_rel_z": prof.rel_z,
+        "arm_spin": prof.spin,
+        "arm_ivb": prof.ivb,
+        "arm_hb": prof.hb,
+        "arm_scatter": prof.scatter,
+        "stuff_z": prof.stuff_z,
+        "ride_z": prof.ride_z,
+        "arm_d_pvelo": prof.d_pvelo,
+        "trend_z": prof.trend_z,
+        "arm_stage2": arm_stage_two(dxwoba, prof),
+        "arm_trend": arm_velo_trend(prof),
+    }
 
 
 def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["pitcher"] == pid]
     reg = build_pitcher_regression(sl)
+    prof = build_arm_profile(sl)
     sr = pitcher_siera(sl)
     recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
     prior = sl[pd.to_datetime(sl["game_date"]).dt.date <= cutoff]
@@ -134,7 +167,13 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "fb": reg.fb_allowed,
         "gb": reg.gb_allowed,
         "vfa": _vfa(sl),
-        "biomech": _biomech(sl),
+        "biomech": {
+            "ext": prof.ext,
+            "ivb": prof.ivb,
+            "spin": prof.spin,
+            "scatter": prof.scatter,
+        },
+        **_arm_fields(prof, reg.dxwoba),
         "unlucky_babip": unlucky_babip,
         "unlucky_xwoba": unlucky_xwoba,
         # recent-vs-prior trends (recent minus prior)
@@ -144,14 +183,29 @@ def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     }
 
 
+def _rank_of(row: dict) -> float:
+    """Rank a persisted prediction row the way the card ranks a live one.
+
+    A stored row's ``fair_prob`` is absent or blank on a market nothing could be
+    devigged, which :func:`price_rank` reads as "raw price only" rather than as
+    a probability of zero.
+    """
+
+    def num(key: str) -> float | None:
+        v = row.get(key)
+        return float(v) if isinstance(v, int | float) else None
+
+    return price_rank(num("market_american"), num("fair_prob"), num("ev"))
+
+
 def _bets_for(pid: int, preds: list[dict]) -> list[dict]:
     out = []
     for r in preds:
         if r.get("player_id") == pid and r["market"].startswith("pitcher_"):
             out.append(r)
-    # buys first, then by EV
+    # buys first, then by the devigged price on them
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
+    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return out
 
 
@@ -251,6 +305,53 @@ def _fb_rate(reg: BatterRegression) -> float:
     return max(0.0, 1.0 - gb - ld)
 
 
+def _swing_fields(prof: SwingProfile, dxwoba: float) -> dict[str, float | int | str]:
+    """The second stage of the hitter read: the swing, and whether it agrees.
+
+    ``dxwoba`` is xwOBA minus wOBA, so the luck gap stage two is crossed against
+    is its negative. Levels only -- the recent-versus-prior move in these same
+    measures adds nothing out of time (bat speed t +1.4, blast t -0.3 on 3,175
+    batter-windows), the same verdict PR #109 reached on the barrel trend, so no
+    swing trend is computed for the article to print.
+    """
+    return {
+        "swings": prof.swings,
+        "bat_speed": prof.bat_speed,
+        "fast": prof.fast,
+        "squared_up": prof.squared_up,
+        "blast": prof.blast,
+        "swing_length": prof.swing_length,
+        "attack_angle": prof.attack_angle,
+        "power_z": prof.power_z,
+        "contact_z": prof.contact_z,
+        "lift_z": prof.lift_z,
+        "stage2": stage_two(-dxwoba, prof),
+    }
+
+
+def _power_fields(pc: PowerChange) -> dict[str, float | int | bool]:
+    """Peak exit velocity and the fastball whiff, each over its own window.
+
+    Both levels forecast (t +8 to +16 on a held-out block); neither *move* does,
+    so the move is carried alongside the band a hitter who did not change would
+    still produce, and the article prints it as a diagnostic rather than reading
+    a direction off it. See :mod:`mlb_engine.features.power_change`.
+    """
+    return {
+        "max_ev": pc.max_ev,
+        "max_ev_pa": pc.max_ev_pa,
+        "d_max_ev": pc.d_max_ev,
+        "max_ev_moved": pc.moved("max_ev"),
+        "fb_whiff": pc.fb_whiff,
+        "fb_whiff_pa": pc.fb_whiff_pa,
+        "fb_swings": pc.fb_swings,
+        "d_fb_whiff": pc.d_fb_whiff,
+        "fb_whiff_moved": pc.moved("fb_whiff"),
+        "power_block_pa": pc.block_pa,
+        "power_pa": pc.pa,
+    }
+
+
 def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
     sl = df[df["batter"] == pid]
     reg = build_batter_regression(sl)
@@ -270,21 +371,17 @@ def analyze_batter(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
         "iffb": reg.iffb_pct,
         "woba6": reg.woba,
         "woba3": _woba(recent),
+        **_swing_fields(build_swing_profile(sl), reg.dxwoba),
+        **_power_fields(build_power_change(sl)),
     }
 
 
 def _best_batter_bet(pid: int, preds: list[dict]) -> dict | None:
-    cands = [
-        r for r in preds
-        if r.get("player_id") == pid and r["market"].startswith("batter_")
-    ]
+    cands = [r for r in preds if r.get("player_id") == pid and r["market"].startswith("batter_")]
     if not cands:
         return None
     tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
-    return cands[0]
-
-
+    cands.sort(key=lambda r: (tier_rank.get(r["tier"], 3), _rank_of(r)))
     return cands[0]
 
 
