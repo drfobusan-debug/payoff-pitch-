@@ -10,6 +10,7 @@ Commands mirror the MLB engine:
     cfb-engine calibrate refit the probability calibration from the ledger
     cfb-engine backtest  A/B the score engines (normal vs markov) on a season
     cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
+    cfb-engine probation grade markets, live screens and candidate screens
 """
 
 from __future__ import annotations
@@ -18,14 +19,17 @@ import argparse
 import logging
 import sys
 from datetime import date as Date
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit import snapshot
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
+    ClosingQuote,
+    bet_clv_summary,
     closing_quotes,
-    clv_summary,
     compute_clv,
+    drop_in_play,
     load_closing,
     merge_closing,
     save_closing,
@@ -33,6 +37,7 @@ from cfb_engine.audit.clv import (
 from cfb_engine.audit.grade import build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
+    OverallMetrics,
     daily_rollup,
     engine_metrics,
     entries_from_graded,
@@ -42,15 +47,25 @@ from cfb_engine.audit.ledger import (
     price_bucket_metrics,
     update_ledger,
 )
+from cfb_engine.audit.priced import (
+    PricedStat,
+    contradictions,
+    engine_priced_stat,
+    priced_findings,
+    priced_stats,
+)
+from cfb_engine.audit.probation import Probation, probation_rows
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
+from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
 from cfb_engine.output.excel import write_ledger_workbook, write_workbook
 from cfb_engine.pipeline import Pipeline
 from cfb_engine.recommendations import Recommendation, load_json, save_json
+from cfb_engine.state import auto_pull, auto_push
 
 _EASTERN = ZoneInfo("America/New_York")
 
@@ -65,6 +80,17 @@ def _day(args: argparse.Namespace) -> Date:
     return _today()
 
 
+def _audit_day(args: argparse.Namespace) -> Date:
+    """The slate an audit grades: yesterday's, since the audit runs after midnight.
+
+    The scheduled audit fires at 03:00 with no ``--date``; today's slate has
+    no predictions yet, so defaulting to today grades nothing, every night.
+    """
+    if args.date:
+        return Date.fromisoformat(args.date)
+    return _today() - timedelta(days=1)
+
+
 def _season(cfg: Config, day: Date) -> int:
     if cfg.season:
         return cfg.season
@@ -74,8 +100,29 @@ def _season(cfg: Config, day: Date) -> int:
 # --------------------------------------------------------------------------- #
 # commands
 # --------------------------------------------------------------------------- #
+def _state_pull(cfg: Config, day: Date | None = None) -> None:
+    """Recover state written by an earlier run, possibly on another machine."""
+    if not cfg.state_sync:
+        return
+    dates = (day.isoformat(),) if day is not None else None
+    report = auto_pull(cfg.data_dir, branch=cfg.state_branch, dates=dates)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
+def _state_push(cfg: Config, message: str) -> None:
+    if not cfg.state_sync:
+        return
+    report = auto_push(cfg.data_dir, message, branch=cfg.state_branch)
+    if report is not None:
+        print(f"State: {report.describe()}")
+
+
 def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
+    # The first-seen board may already be on the branch from another machine's
+    # earlier capture; drift is measured from it, so it has to be here first.
+    _state_pull(cfg, day)
     pipe = Pipeline(cfg)
     recs = pipe.run(day)
     if not recs:
@@ -83,6 +130,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     save_json(recs, cfg.predictions_file(day))
+    _state_push(cfg, f"cfb run {day.isoformat()}: {len(recs)} markets priced")
     xlsx = write_workbook(recs, cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx", day)
     print(f"Wrote {len(recs)} recommendations -> {xlsx}")
 
@@ -96,6 +144,8 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
 def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
     path = cfg.predictions_file(day)
+    if not path.exists():
+        _state_pull(cfg, day)
     if not path.exists():
         print(f"No saved predictions for {day} ({path}); run `cfb-engine run` first.")
         return 1
@@ -117,15 +167,23 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     if not slate.games:
         print(f"No NCAAF games to snapshot for {day}.")
         return 0
+    _state_pull(cfg, day)
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
+    # Also seed the first-seen board, in case a capture beats the day's run to
+    # the market: it is written once and never overwritten, so whichever command
+    # sees the board first sets the baseline and the other is a no-op.
+    board_path = cfg.board_file(day)
+    baseline = snapshot.merge_first_wins(snapshot.load(board_path), fresh)
+    snapshot.save(baseline, board_path)
     kept = len(quotes) - len(fresh)
     detail = f", {kept} carried over from an earlier capture" if kept > 0 else ""
     print(
         f"Captured {len(fresh)} closing quotes; {len(quotes)} total{detail} "
         f"-> {cfg.closing_file(day)}"
     )
+    _state_push(cfg, f"cfb close {day.isoformat()}: {len(quotes)} prices")
     return 0
 
 
@@ -145,7 +203,8 @@ def _grade_slate(cfg: Config, day: Date) -> list[tuple[Recommendation, str]]:
 
 
 def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
-    day = _day(args)
+    day = _audit_day(args)
+    _state_pull(cfg, day)
     if not cfg.predictions_file(day).exists():
         print(f"No saved predictions for {day}; nothing to grade.")
         return 1
@@ -155,12 +214,31 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     entries = entries_from_graded(graded, day)
-    closing = load_closing(cfg.closing_file(day))
+    closing, in_play = drop_in_play(
+        load_closing(cfg.closing_file(day)), snapshot.load(cfg.board_file(day))
+    )
+    if in_play:
+        print(
+            f"Close ignored for {len(in_play)} game(s) quoted in play: {', '.join(sorted(in_play))}"
+        )
     if closing:
-        for e in entries:
-            e.close_odds, e.close_prob, e.clv, e.clv_ev = compute_clv(
-                e.market, e.selection, e.odds, e.fair_prob, closing
+        # entries_from_graded emits one entry per graded rec, in order, so the
+        # rec's side (cover/over/under) travels with its ledger row.
+        for e, (rec, _) in zip(entries, graded, strict=True):
+            res = compute_clv(
+                e.matchup,
+                e.market,
+                e.selection,
+                e.odds,
+                e.fair_prob,
+                closing,
+                bet_line=e.line,
+                side=rec.side,
+                margin_sd=cfg.model.margin_sd,
+                total_sd=cfg.model.total_sd,
             )
+            e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+            e.clv_pts = res.clv_pts
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -174,10 +252,12 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
         )
 
     _emit_ledger(cfg, merged, day, n_graded=len(entries), email=not args.no_email, to=args.to)
+    _state_push(cfg, f"cfb audit {day.isoformat()}: {len(entries)} graded")
     return 0
 
 
 def cmd_report(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
     if not entries:
         print("Ledger is empty; run `cfb-engine audit` first.")
@@ -252,6 +332,7 @@ def cmd_latency(cfg: Config, args: argparse.Namespace) -> int:
 
 
 def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
+    _state_pull(cfg)
     if not cfg.scorecard_file.exists():
         print("No scorecard yet; run `cfb-engine audit` on graded slates first.")
         return 1
@@ -259,9 +340,151 @@ def cmd_scorecard(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_probation(cfg: Config, args: argparse.Namespace) -> int:
+    """Read the verdicts without grading a slate or sending anything."""
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    if not entries:
+        print("Ledger is empty; run `cfb-engine audit` on graded slates first.")
+        return 1
+    money = [
+        engine_priced_stat(entries),
+        *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
+    ]
+    _print_money(money, market_metrics(entries))
+    _print_probation(probation_rows(entries, args.since))
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 # helpers
 # --------------------------------------------------------------------------- #
+_MARKET_LABEL = {
+    "game_ml": "Moneyline",
+    "game_ats": "Spread (ATS)",
+    "game_total": "Totals",
+}
+
+
+def _print_money(money: list[PricedStat], markets: list[OverallMetrics]) -> None:
+    """The money record beside the PPV record, and the contradictions between them."""
+    printable = [s for s in money if s.n]
+    if not printable:
+        return
+    print("\nWhat the prices did (Needs = win rate the price demands):")
+    for s in printable:
+        print(
+            f"  {s.label:<14} n={s.n:<4} win%={s.win_rate * 100:5.1f} "
+            f"needs={s.breakeven * 100:5.1f} gap={s.shortfall * 100:+5.1f}pts "
+            f"ROI={s.roi * 100:+6.1f}% units={s.units:+.2f}"
+        )
+    for finding in priced_findings(money):
+        print(f"  - {finding}")
+    # PPV lift per market, keyed the way the money table is, so the two tables
+    # can be compared row for row.
+    label_to_key = {v: k for k, v in _MARKET_LABEL.items()}
+    lift = {
+        label_to_key[m.tier]: m.win_pct - m.required_win_pct
+        for m in markets
+        if m.tier in label_to_key and m.n
+    }
+    for s, gap in contradictions(money, lift):
+        print(
+            f"  - {s.label}: picked well and still lost "
+            f"({gap * 100:+.1f}pts of win-rate lift, {s.roi * 100:+.1f}% ROI) "
+            "-- the side is right and the price already knows"
+        )
+
+
+def _print_probation(verdicts: list[Probation]) -> None:
+    if not verdicts:
+        return
+    print(
+        "\nProbation: markets on their own buys, screens on what they refused, "
+        "candidates on what they would refuse"
+    )
+    print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
+    for p in verdicts:
+        flag = "->" if p.actionable else "  "
+        print(
+            f"  {flag} {p.status:<9} {p.name:<28} n={p.n:<5} "
+            f"ROI={p.roi * 100:+6.1f}% se={p.se * 100:4.1f} "
+            f"halves {p.first_half * 100:+6.1f}% / {p.second_half * 100:+6.1f}%"
+        )
+    for p in verdicts:
+        if p.actionable:
+            print(f"  - {p.finding}")
+
+
+_BUY_TIERS = {Tier.STRONG.value, Tier.MODERATE.value}
+
+
+def _favors_fair(e: LedgerEntry) -> bool:
+    return e.fair_prob is not None and e.model_prob > e.fair_prob
+
+
+def _side_of(market: str, selection: str) -> str | None:
+    if market != "game_total":
+        return None
+    head = selection.split(" ", 1)[0].lower()
+    return head if head in ("over", "under") else None
+
+
+def _restamp_clv(cfg: Config, entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> None:
+    for e in entries:
+        res = compute_clv(
+            e.matchup,
+            e.market,
+            e.selection,
+            e.odds,
+            e.fair_prob,
+            closing,
+            bet_line=e.line,
+            side=_side_of(e.market, e.selection),
+            margin_sd=cfg.model.margin_sd,
+            total_sd=cfg.model.total_sd,
+        )
+        e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
+        e.clv_pts = res.clv_pts
+
+
+def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
+    """Purge in-play quotes from every saved close and re-stamp the ledger's CLV.
+
+    Closes captured before ``close`` learned to skip games in play hold live
+    prices for whichever games were on the field at capture time. Nothing
+    recorded when each quote was taken, so the quote is judged against the
+    first-seen board (:func:`cfb_engine.audit.clv.in_play_games`); a rejected
+    game's CLV goes blank rather than wrong. Ledger rows are re-stamped from the
+    cleaned files, results and prices untouched.
+    """
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    dates = sorted({e.date for e in entries})
+    dropped_total = 0
+    for iso in dates:
+        day = Date.fromisoformat(iso)
+        closing = load_closing(cfg.closing_file(day))
+        if not closing:
+            continue
+        kept, bad = drop_in_play(closing, snapshot.load(cfg.board_file(day)))
+        if bad:
+            save_closing(kept, cfg.closing_file(day))
+            dropped_total += len(bad)
+            print(f"{iso}: dropped in-play close for {len(bad)} game(s): {', '.join(sorted(bad))}")
+        day_rows = [e for e in entries if e.date == iso]
+        _restamp_clv(cfg, day_rows, kept)
+        update_ledger(cfg.ledger_file, day_rows, day)
+    merged = load_ledger(cfg.ledger_file)
+    stamped = sum(1 for e in merged if e.clv is not None)
+    print(
+        f"Ledger {len(merged)} rows; {stamped} carry a pregame close, {dropped_total} game closes purged."
+    )
+    if dropped_total:
+        _state_push(cfg, f"cfb repair-closes: {dropped_total} in-play closes purged")
+    return 0
+
+
 def _emit_ledger(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -274,8 +497,19 @@ def _emit_ledger(
     overall = [engine_metrics(entries), *overall_metrics(entries)]
     daily = daily_rollup(entries)
     markets = market_metrics(entries)
-    clv_rows = clv_summary([(e.category, e.clv, e.clv_ev) for e in entries])
+    clv_rows = bet_clv_summary(
+        [(e.category, e.tier in _BUY_TIERS, _favors_fair(e), e.clv, e.clv_ev) for e in entries]
+    )
     price_rows = price_bucket_metrics(entries)
+    money = [
+        engine_priced_stat(entries),
+        *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
+    ]
+    verdicts = probation_rows(entries)
+    slate_buy = None
+    if n_graded:
+        today = [e for e in entries if e.date == day.isoformat()]
+        slate_buy = next((m for m in overall_metrics(today) if m.tier == "Buy (S+M)"), None)
     xlsx = write_ledger_workbook(
         entries,
         overall,
@@ -284,8 +518,12 @@ def _emit_ledger(
         market_rows=markets,
         clv_rows=clv_rows,
         price_rows=price_rows,
+        money_rows=money,
+        probation_rows=verdicts,
     )
     print(f"Wrote ledger workbook -> {xlsx}")
+    _print_money(money, markets)
+    _print_probation(verdicts)
     extra = [(xlsx.name, xlsx.read_bytes())]
     generate_audit_report(
         day,
@@ -297,6 +535,9 @@ def _emit_ledger(
         to=to,
         extra_attachments=extra,
         price_rows=price_rows,
+        money_rows=money,
+        probation=[p.finding for p in verdicts if p.actionable],
+        slate_buy=slate_buy,
     )
 
 
@@ -309,21 +550,33 @@ def _build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
 
     def add_common(sp: argparse.ArgumentParser, *, email: bool = False) -> None:
-        sp.add_argument("--date", help="slate date YYYY-MM-DD (default: today, US/Eastern)")
+        sp.add_argument(
+            "--date",
+            help="slate date YYYY-MM-DD (default: today, US/Eastern; audit: yesterday)",
+        )
         if email:
             sp.add_argument("--no-email", action="store_true", help="write files but do not email")
             sp.add_argument("--to", help="override the email recipient")
 
     add_common(sub.add_parser("run", help="price today's slate"), email=True)
-    add_common(sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True)
+    add_common(
+        sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True
+    )
     add_common(sub.add_parser("close", help="snapshot the closing market"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
+    sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(sub.add_parser("calibrate", help="refit probability calibration"))
     bt = sub.add_parser("backtest", help="A/B the score engines (normal vs markov)")
     bt.add_argument("--season", type=int, help="season year (default: inferred)")
     bt.add_argument("--date", help="slate date used to infer the season")
     add_common(sub.add_parser("scorecard", help="print the PPV/NPV-by-market scorecard"))
+    pb = sub.add_parser("probation", help="grade markets, screens and candidate screens")
+    pb.add_argument(
+        "--since",
+        help="ISO date to start the window at (default: all history); pass the date "
+        "a screen was last changed so its old regime cannot vouch for the new one",
+    )
     sub.add_parser("latency", help="how early the injury feed reaches us, vs the line")
     return p
 
@@ -333,10 +586,12 @@ _DISPATCH = {
     "card": cmd_card,
     "close": cmd_close,
     "audit": cmd_audit,
+    "repair-closes": cmd_repair_closes,
     "report": cmd_report,
     "calibrate": cmd_calibrate,
     "backtest": cmd_backtest,
     "scorecard": cmd_scorecard,
+    "probation": cmd_probation,
     "latency": cmd_latency,
 }
 

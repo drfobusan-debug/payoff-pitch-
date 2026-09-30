@@ -46,7 +46,15 @@ class TierMetrics:
     npv_lift: float
     sensitivity: float
     specificity: float
+    #: ROI over every graded pick in the tier, paying the ones with no captured
+    #: price at an assumed -110.
     roi: float
+    #: The same return over the picks that carried a real price, and how many
+    #: there were. The assumed rows win more often than the priced ones -- a prop
+    #: the board never posted a beatable number on is one the model finds easy --
+    #: so the blended figure reads high and only this one is a return.
+    priced_n: int = 0
+    priced_roi: float = 0.0
 
 
 def _safe(n: float, d: float) -> float:
@@ -66,6 +74,12 @@ def _roi(recs_grades: list[tuple[Recommendation, str]]) -> float:
             dec = 1.91  # assume -110 if no price captured
         profit += (dec - 1.0) if g == WIN else -1.0
     return _safe(profit, stake)
+
+
+def _priced(recs_grades: list[tuple[Recommendation, str]]) -> tuple[int, float]:
+    """(picks that carried a real price, their ROI)."""
+    priced = [(r, g) for r, g in recs_grades if r.market_american is not None]
+    return len([1 for _, g in priced if g in (WIN, LOSS)]), _roi(priced)
 
 
 def _tier_metrics(
@@ -92,6 +106,7 @@ def _tier_metrics(
         if pred_pos:
             subset.append((rec, g))
     graded_n = tp + fp + fn + tn
+    priced_n, priced_roi = _priced(subset)
     base_win = _safe(tp + fn, graded_n)
     base_loss = _safe(fp + tn, graded_n)
     return TierMetrics(
@@ -109,6 +124,8 @@ def _tier_metrics(
         sensitivity=_safe(tp, tp + fn),
         specificity=_safe(tn, tn + fp),
         roi=_roi(subset),
+        priced_n=priced_n,
+        priced_roi=priced_roi,
     )
 
 
@@ -137,6 +154,8 @@ FIELDS = [
     "sensitivity",
     "specificity",
     "roi",
+    "priced_n",
+    "priced_roi",
 ]
 
 

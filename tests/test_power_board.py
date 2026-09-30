@@ -1,0 +1,481 @@
+"""The priced board bolted to the power screen.
+
+The join is the whole feature, so the tests pin what it must never do: invent a
+price, cross-price two hitters on a shared surname, silently drop a survivor the
+engine never priced, or let a number leak into a matchup rating.
+"""
+
+from __future__ import annotations
+
+from datetime import date as Date
+
+from mlb_engine.audit import power_ledger
+from mlb_engine.market.tiers import Tier
+from mlb_engine.output import power_board, power_report
+from mlb_engine.recommendations import Recommendation, save_json
+from tests.test_power_screen import _result
+
+
+def _rec(
+    name: str,
+    stat: str,
+    line: float,
+    side: str = "over",
+    *,
+    player_id: int | None = None,
+    american: float | None = -115.0,
+    opposite: float | None = -105.0,
+    model: float = 0.55,
+    bet: float | None = None,
+    fair: float | None = 0.50,
+    ev: float | None = 0.04,
+    edge: float | None = 0.05,
+    tier: Tier = Tier.MODERATE,
+) -> Recommendation:
+    return Recommendation(
+        game_date=Date(2026, 8, 17),
+        game_pk=1,
+        matchup="ATL @ MIN",
+        category="batter",
+        market=f"batter_{stat.lower()}",
+        selection=f"{name} {stat} {'o' if side == 'over' else 'u'}{line}",
+        model_prob=model,
+        line=line,
+        book="DraftKings",
+        market_american=american,
+        opposite_american=opposite,
+        ev=ev,
+        edge=edge,
+        fair_prob=fair,
+        tier=tier,
+        player_id=player_id,
+        stat=stat,
+        side=side,
+        bet_prob=bet,
+    )
+
+
+def _pid(result) -> int:
+    return result.sections[0].hitters[0].line.mlbam_id
+
+
+# --- the join -------------------------------------------------------------
+
+
+def test_a_survivor_keeps_his_own_rows_best_expected_value_first() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, ev=0.02),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.09),
+        ],
+    )
+    assert [r.label for r in board.rows] == ["TB o1.5", "HR o0.5"]
+    assert board.unpriced == []
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
+def test_a_buy_tier_on_a_homer_is_not_a_position_the_card_holds() -> None:
+    """The pricer tiers the row without knowing the note only watches that market,
+    so the count the board reports has to match the card the reader can act on."""
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, tier=Tier.STRONG),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, tier=Tier.MODERATE),
+        ],
+    )
+    assert [r.label for r in board.buys] == ["TB o1.5"]
+    assert [r.is_buy for r in board.rows if r.stat == "HR"] == [False]
+
+
+def test_the_homer_never_wins_the_price_quoted_beside_a_rating() -> None:
+    """EV on a one-way longshot is measured against a price nobody devigged.
+
+    Left alone it wins this column on most of the board -- +480 against a modelled
+    21% prints an enormous expected value -- and the note would then quote the
+    screen's worst market as its recommendation.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=480.0, opposite=None, ev=0.40),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.04),
+        ],
+    )
+    assert [r.label for r in board.rows] == ["HR o0.5", "TB o1.5"]
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
+def test_the_market_picks_the_best_row_where_our_expected_value_would_not() -> None:
+    """A buy is quoted at the price the market believes, not the edge we claim.
+
+    Graded buys carrying a devigged price run 33.1% below .45 fair and 62.8% at
+    .60-.65, while return falls as the claimed edge widens -- so the row with
+    three times the EV is not the one to print beside the rating.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.03, fair=0.62),
+            _rec("Matt Olson", "H", 0.5, player_id=pid, ev=0.12, fair=0.41),
+        ],
+    )
+    assert board.best_for_batter("Matt Olson").label == "TB o1.5"
+
+
+def test_another_players_row_is_not_priced_onto_this_one() -> None:
+    """An id mismatch is a different hitter, whatever the book spells."""
+    result = _result()
+    board = power_board.build(
+        result, [_rec("Matt Olson", "HR", 0.5, player_id=_pid(result) + 1)]
+    )
+    assert board.rows == []
+    assert board.unpriced == ["Matt Olson"]
+
+
+def test_an_id_less_row_falls_back_to_the_name() -> None:
+    result = _result()
+    board = power_board.build(result, [_rec("Matt Olson", "H", 1.5, player_id=None)])
+    assert len(board.rows) == 1
+
+
+def test_a_market_with_no_quote_is_not_a_bet() -> None:
+    result = _result()
+    board = power_board.build(
+        result,
+        [_rec("Matt Olson", "HR", 0.5, player_id=_pid(result), american=None, ev=None)],
+    )
+    assert board.rows == []
+    assert board.unpriced == ["Matt Olson"]
+
+
+def test_a_pitcher_row_never_reaches_the_batter_board() -> None:
+    result = _result()
+    rec = _rec("Matt Olson", "K", 5.5, player_id=_pid(result))
+    rec.category = "pitcher"
+    assert power_board.build(result, [rec]).rows == []
+
+
+def test_only_the_best_rows_per_hitter_are_printed_and_the_rest_are_counted() -> None:
+    result = _result()
+    pid = _pid(result)
+    recs = [
+        _rec("Matt Olson", "TB", 0.5 + i, player_id=pid, ev=0.01 * i) for i in range(7)
+    ]
+    board = power_board.build(result, recs, rows_per_batter=2)
+    assert len(board.rows) == 2
+    assert board.dropped == 5
+
+
+def test_the_same_bet_at_two_books_is_one_row_at_the_better_price() -> None:
+    """Two prices on one bet is a line-shopping question, not a board row."""
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=280.0, ev=0.30),
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=255.0, ev=0.22),
+        ],
+    )
+    assert [r.american for r in board.rows] == [280.0]
+    assert board.dropped == 0  # a second quote on one bet is not a row the note withheld
+
+
+def test_the_homer_and_the_hits_runs_rbis_are_both_printed_for_every_hitter() -> None:
+    """The two markets the note is read for cannot be sorted off the page.
+
+    A long HR price inflates EV by construction, so ranking on EV alone drops
+    H+R+RBI on nearly every hitter -- which is the comparison the reader wants.
+    """
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HR", 0.5, player_id=pid, american=280.0, ev=0.96),
+            _rec("Matt Olson", "RBI", 0.5, player_id=pid, ev=0.48),
+            _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.35),
+            _rec("Matt Olson", "R", 0.5, player_id=pid, ev=0.26),
+            _rec("Matt Olson", "HRR", 1.5, player_id=pid, ev=0.13),
+        ],
+        rows_per_batter=3,
+    )
+    labels = [r.label for r in board.rows]
+    assert labels == ["HR o0.5", "RBI o0.5", "H+R+RBI o1.5"]  # HRR kept over the better TB and R
+    assert board.dropped == 2
+
+
+def test_the_better_of_two_hits_runs_rbis_lines_is_the_one_anchored() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [
+            _rec("Matt Olson", "HRR", 1.5, player_id=pid, ev=0.02),
+            _rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.28),
+        ],
+        rows_per_batter=1,
+    )
+    assert [r.label for r in board.rows] == ["H+R+RBI o2.5"]
+
+
+def test_a_hitter_the_book_never_hung_a_homer_on_still_shows_his_other_markets() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.28)], rows_per_batter=2
+    )
+    assert [r.label for r in board.rows] == ["H+R+RBI o2.5"]
+    assert board.dropped == 0
+
+
+def test_a_one_sided_quote_is_flagged_as_undevigged() -> None:
+    result = _result()
+    board = power_board.build(
+        result,
+        [_rec("Matt Olson", "HR", 0.5, player_id=_pid(result), opposite=None, fair=None)],
+    )
+    assert board.rows[0].devigged is False
+    html = power_report.render_html(result, board=board)
+    assert "one-way" in html
+    assert "could not be stripped" in html
+
+
+def test_an_empty_ledger_leaves_every_survivor_unpriced() -> None:
+    result = _result()
+    board = power_board.build(result, [])
+    assert board.rows == []
+    assert board.unpriced == ["Matt Olson"]
+    assert board.buys == []
+
+
+# --- the note -------------------------------------------------------------
+
+
+def test_the_note_prints_the_board_and_still_refuses_to_price_the_rating() -> None:
+    result = _result()
+    board = power_board.build(
+        result,
+        [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))],
+        source="predictions_2026-08-17.json",
+    )
+    html = power_report.render_html(result, board=board)
+    assert "The board" in html
+    assert "DraftKings" in html
+    assert "-115" in html
+    assert "Moderate buy" in html
+    assert "predictions_2026-08-17.json" in html  # provenance
+    assert "TB o1.5" in html
+    # the rating is still scored on the matchup alone
+    assert "contains no price" in html
+    assert html.index("The board") < html.index("Recommendations")
+
+
+def test_a_note_with_no_board_is_the_note_it_was_before() -> None:
+    result = _result()
+    plain = power_report.render_html(result)
+    assert "The board" not in plain
+    assert "This note reads no market" in plain
+
+
+def test_an_unpriced_survivor_is_named_rather_than_dropped() -> None:
+    result = _result()
+    board = power_board.build(result, [])
+    html = power_report.render_html(result, board=board)
+    assert "Priced by nobody: Matt Olson" in html
+    assert "not priced" in html  # in the recommendation table's price column
+
+
+def test_the_market_disagreeing_with_the_screen_is_called_out() -> None:
+    result = _result()
+    board = power_board.build(
+        result,
+        [
+            _rec(
+                "Matt Olson", "H", 1.5, player_id=_pid(result),
+                model=0.38, fair=0.50, edge=-0.12, ev=-0.10, tier=Tier.PASS,
+            )
+        ],
+    )
+    html = power_report.render_html(result, board=board)
+    assert "The market disagrees hardest on Matt Olson" in html
+
+
+# --- the file on disk -----------------------------------------------------
+
+
+def test_the_board_round_trips_through_the_predictions_file(tmp_path) -> None:
+    result = _result()
+    path = power_board.default_predictions_path(tmp_path, result.as_of)
+    assert path.name == "predictions_2026-08-17.json"
+    save_json([_rec("Matt Olson", "TB", 1.5, player_id=_pid(result))], path)
+    from mlb_engine.recommendations import load_json
+
+    board = power_board.build(result, load_json(path), source=path.name)
+    assert [r.label for r in board.rows] == ["TB o1.5"]
+    assert board.rows[0].is_buy
+
+
+# --- the number the note prints -------------------------------------------
+
+
+def test_the_board_shows_the_probability_the_card_bet() -> None:
+    """The board's edge and EV come from the anchored probability, so the column
+    beside them has to be that same number rather than the raw model."""
+    result = _result()
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result), model=0.62, bet=0.55)]
+    )
+
+    assert board.rows[0].model_prob == 0.62
+    assert board.rows[0].shown_prob == 0.55
+
+    html = power_report.render_html(result, board=board)
+    assert "55.0%" in html
+    assert "62.0%" not in html
+
+
+def test_a_row_the_card_never_anchored_shows_its_model() -> None:
+    result = _result()
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=_pid(result), model=0.62, bet=None)]
+    )
+
+    assert board.rows[0].shown_prob == 0.62
+
+
+# --- the arms' board -------------------------------------------------------
+
+
+def _arm_rec(stat: str, line: float, side: str = "over", **kw) -> Recommendation:
+    rec = _rec("Bailey Ober", stat, line, side, player_id=641927, **kw)
+    rec.category = "pitcher"
+    rec.market = f"pitcher_{stat.lower()}"
+    return rec
+
+
+def test_every_kept_arm_holds_one_side_per_stat_the_card_gave_the_best_ev() -> None:
+    result = _result()
+    recs = [
+        _arm_rec("K", 5.5, "over", ev=-0.02, tier=Tier.PASS),
+        _arm_rec("K", 5.5, "under", ev=0.03, tier=Tier.PASS),
+        _arm_rec("BB", 1.5, "over", ev=0.045, tier=Tier.MODERATE),
+        _arm_rec("outs", 15.5, "over", ev=0.12, tier=Tier.PASS),
+    ]
+    recs[3].pass_gate = "prob_floor"
+    board = power_board.build(result, recs)
+
+    assert [(r.stat, r.side) for r in board.arm_rows] == [
+        ("K", "under"),
+        ("BB", "over"),
+        ("outs", "over"),
+    ]
+    assert all(r.category == "pitcher" for r in board.arm_rows)
+    assert board.arms_priced == ["Bailey Ober"]
+    assert board.arms_unpriced == []
+    # the card's own verdict travels with the row, and so does the gate that refused it
+    assert [r.is_buy for r in board.arm_rows] == [False, True, False]
+    assert [r.gate for r in board.arm_rows] == ["", "", "prob_floor"]
+    assert board.arm_rows[2].label == "SP outs o15.5"
+    # the arm's buy is the board's buy; the hitter board is untouched
+    assert [r.stat for r in board.buys] == ["BB"]
+    assert board.rows == []
+
+
+def test_an_arm_the_card_never_priced_is_named_not_dropped() -> None:
+    board = power_board.build(_result(), [])
+    assert board.arm_rows == []
+    assert board.arms_unpriced == ["Bailey Ober"]
+
+
+def test_another_arms_row_is_not_priced_onto_this_one() -> None:
+    rec = _arm_rec("K", 5.5)
+    rec.player_id = 1
+    board = power_board.build(_result(), [rec])
+    assert board.arm_rows == []
+    assert board.arms_unpriced == ["Bailey Ober"]
+
+
+def test_the_note_prints_the_arms_board_with_the_gate_that_refused_each_row() -> None:
+    result = _result()
+    refused = _arm_rec("outs", 15.5, ev=0.12, tier=Tier.PASS)
+    refused.pass_gate = "prob_floor"
+    board = power_board.build(result, [_arm_rec("BB", 1.5, tier=Tier.MODERATE), refused])
+    html = power_report.render_html(result, board=board)
+    assert "The arms' board" in html
+    assert "BB o1.5" in html
+    assert "outs o15.5" in html
+    assert "probability floor" in html
+    assert "<strong>bought</strong>" in html
+    assert "2 positions on 1 of 1 arms" in html
+
+
+# --- the gates' side --------------------------------------------------------
+
+
+def test_a_held_side_keeps_only_that_sides_rows() -> None:
+    result = _result()
+    pid = _pid(result)
+    recs = [
+        _rec("Matt Olson", "TB", 1.5, player_id=pid, ev=0.09),
+        _rec("Matt Olson", "TB", 1.5, "under", player_id=pid, ev=0.01),
+        _rec("Matt Olson", "HRR", 2.5, player_id=pid, ev=0.05),
+    ]
+    board = power_board.build(result, recs, sides={"Matt Olson": "under"})
+    assert [r.label for r in board.rows] == ["TB u1.5"]
+    assert board.off_side == 2
+    assert board.unpriced == []
+    # A watch (no side) still shows both sides, as the board always did.
+    both = power_board.build(result, recs, sides={"Matt Olson": None})
+    assert len(both.rows) == 3 and both.off_side == 0
+
+
+def test_a_hitter_priced_only_on_the_other_side_is_not_called_unpriced() -> None:
+    """He was priced; it is the side that is missing, and the note says which."""
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=pid)], sides={"Matt Olson": "under"}
+    )
+    assert board.rows == [] and board.off_side == 1
+    assert board.off_side_only == ["Matt Olson"] and board.unpriced == []
+    doc = power_report.render_html(result, board=board)
+    assert "Priced only on the side not held: Matt Olson" in doc
+    assert "Priced by nobody" not in doc
+
+
+def test_a_dropped_hitter_gets_no_row_and_no_ledger_position() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result, [_rec("Matt Olson", "TB", 1.5, player_id=pid)], exclude=["Matt Olson"]
+    )
+    assert board.rows == [] and board.excluded == ["Matt Olson"] and board.unpriced == []
+    assert power_ledger.positions_from_board(board, Date(2026, 8, 17), {"Matt Olson": "PROD DROP"}) == []
+
+
+def test_the_ledger_row_carries_the_gate_bucket_and_the_side() -> None:
+    result = _result()
+    pid = _pid(result)
+    board = power_board.build(
+        result,
+        [_rec("Matt Olson", "TB", 1.5, "under", player_id=pid, ev=0.02)],
+        sides={"Matt Olson": "under"},
+    )
+    positions = power_ledger.positions_from_board(
+        board, Date(2026, 8, 17), {"Matt Olson": "RV NEG UNDER"}, arm_tier="soft"
+    )
+    assert [(p.rating, p.side, p.stat, p.arm_tier) for p in positions] == [
+        ("RV NEG UNDER", "under", "TB", "soft")
+    ]
+    assert power_ledger.bucket(positions[0]) == "RV NEG UNDER"

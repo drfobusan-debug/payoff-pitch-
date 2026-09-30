@@ -17,133 +17,43 @@ negative-regression (most -> least likely to *decline*), where the luck index is
 z(BABIP above .290) + z(wOBA above xwOBA). Renders a house-style PDF + MP3.
 
 This is a model preview, not betting advice.
+
+Run it from the repository root::
+
+    python -m scripts.pitcher_slate_analysis [--date YYYY-MM-DD] [--statcast FRAME]
+
+Both default off the state directory: the most recent slate it holds, and the
+widest cached Statcast window ending on or before that slate.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import math
 from datetime import date as Date
 
-import numpy as np
 import pandas as pd
 
 from mlb_engine.config import load_config
-from mlb_engine.features.regression import BL_BABIP, build_pitcher_regression
-from mlb_engine.features.siera import pitcher_siera
 from mlb_engine.output.audit_insight import to_mp3, to_pdf
 
-FB = ("FF", "SI")
-RECENT_DAYS = 21  # "3-week" window for vFA + trend split
-
-
-def _pitcher_id_map(preds: list[dict]) -> dict[str, int]:
-    out: dict[str, int] = {}
-    for r in preds:
-        if r["market"].startswith("pitcher_") and r.get("player_id"):
-            nm = (
-                r["selection"]
-                .split(" Ks")[0]
-                .split(" Outs")[0]
-                .split(" Hits")[0]
-                .split(" Walks")[0]
-                .split(" ER")[0]
-            )
-            out[nm] = r["player_id"]
-    return out
-
-
-def _starter_games(previews: list[dict]) -> dict[str, dict]:
-    """Map each starter -> game context (opponent lineup, park, weather, matchup)."""
-    ctx: dict[str, dict] = {}
-    for g in previews:
-        for side, opp in (("home", "away"), ("away", "home")):
-            st = g[f"{side}_starter"]["name"]
-            ctx[st] = {
-                "matchup": g["matchup"],
-                "team": g[side],
-                "opp": g[opp],
-                "home_away": "home" if side == "home" else "away",
-                "opp_lineup_xwoba": g[f"{opp}_lineup"]["xwoba"],
-                "park_name": g.get("park_name"),
-                "park_factor": g.get("park_factor"),
-                "wx_summary": g.get("wx_summary"),
-                "wx_hr_mult": g.get("wx_hr_mult"),
-                "total_mean": g["total_mean"],
-                "fav_team": g.get("fav_team"),
-            }
-    return ctx
-
-
-def _vfa(slice_df: pd.DataFrame) -> float:
-    fb = slice_df[slice_df["pitch_type"].isin(FB)]
-    return _fmean(fb["release_speed"]) if len(fb) else float("nan")
-
-
-def _stuff_xk(slice_df: pd.DataFrame) -> float:
-    if slice_df.empty:
-        return float("nan")
-    return float(build_pitcher_regression(slice_df).expected_k_pct())
-
-
-def _siera_val(slice_df: pd.DataFrame) -> float:
-    return float(pitcher_siera(slice_df).siera)
-
-
-def _arr(s: pd.Series) -> np.ndarray:
-    return pd.to_numeric(s, errors="coerce").to_numpy(dtype="float64", na_value=np.nan)
-
-
-def _fmean(s: pd.Series) -> float:
-    a = _arr(s)
-    return float(np.nanmean(a)) if np.isfinite(a).any() else float("nan")
-
-
-def _fstd(s: pd.Series) -> float:
-    a = _arr(s)
-    return float(np.nanstd(a)) if np.isfinite(a).any() else float("nan")
-
-
-def _biomech(slice_df: pd.DataFrame) -> dict[str, float]:
-    fb = slice_df[slice_df["pitch_type"].isin(FB)]
-    ext = _fmean(slice_df["release_extension"])
-    ivb = _fmean(fb["pfx_z"]) * 12 if len(fb) else float("nan")
-    spin = _fmean(fb["release_spin_rate"]) if len(fb) else float("nan")
-    # release scatter: how tightly the release point repeats (lower = more repeatable).
-    scatter = float(np.hypot(_fstd(slice_df["release_pos_x"]), _fstd(slice_df["release_pos_z"])) * 12)
-    return {"ext": ext, "ivb": ivb, "spin": spin, "scatter": scatter}
-
-
-def analyze(name: str, pid: int, df: pd.DataFrame, cutoff: Date) -> dict:
-    sl = df[df["pitcher"] == pid]
-    reg = build_pitcher_regression(sl)
-    sr = pitcher_siera(sl)
-    recent = sl[pd.to_datetime(sl["game_date"]).dt.date > cutoff]
-    prior = sl[pd.to_datetime(sl["game_date"]).dt.date <= cutoff]
-    unlucky_babip = reg.babip_allowed - BL_BABIP  # + => unlucky => positive regression
-    unlucky_xwoba = -reg.dxwoba  # dxwoba<0 (woba>xwoba) => unlucky => positive
-    return {
-        "name": name,
-        "pitches": int(len(sl)),
-        "siera": sr.siera,
-        "siera_pa": sr.pa,
-        "babip": reg.babip_allowed,
-        "dxwoba": reg.dxwoba,
-        "xwoba": reg.xwoba_allowed,
-        "woba": reg.woba_allowed,
-        "csw": reg.csw,
-        "xk": reg.expected_k_pct(),
-        "k_pct": reg.k_pct,
-        "bb_pct": reg.bb_pct,
-        "barrel": reg.barrel_allowed,
-        "vfa": _vfa(sl),
-        "biomech": _biomech(sl),
-        "unlucky_babip": unlucky_babip,
-        "unlucky_xwoba": unlucky_xwoba,
-        # recent-vs-prior trends (recent minus prior)
-        "d_siera": _siera_val(recent) - _siera_val(prior),
-        "d_xk": _stuff_xk(recent) - _stuff_xk(prior),
-        "d_vfa": _vfa(recent) - _vfa(prior),
-    }
+# The profiles this report ranks are the engine's own, so the card and the
+# article ``mlb-engine run`` emails read one implementation.
+from mlb_engine.output.regression_profiles import (  # noqa: F401 (re-exported)
+    FB,
+    RECENT_DAYS,
+    _bets_for,
+    _biomech,
+    _pitcher_id_map,
+    _siera_val,
+    _starter_games,
+    _stuff_xk,
+    _vfa,
+    analyze,
+    build_profiles,
+)
+from scripts.slate_inputs import predictions_path, resolve_day, statcast_frame
 
 
 # --- rendering -------------------------------------------------------------
@@ -157,16 +67,6 @@ def _arrow(delta: float, good_up: bool) -> str:
     cls = "pos" if good else "neg"
     return f"<span class='{cls}'>{glyph}</span>"
 
-
-def _bets_for(pid: int, preds: list[dict]) -> list[dict]:
-    out = []
-    for r in preds:
-        if r.get("player_id") == pid and r["market"].startswith("pitcher_"):
-            out.append(r)
-    # buys first, then by EV
-    tier_rank = {"Strong buy": 0, "Moderate buy": 1, "Pass": 2}
-    out.sort(key=lambda r: (tier_rank.get(r["tier"], 3), -(r.get("ev") or -9)))
-    return out
 
 
 def _bet_line(r: dict) -> str:
@@ -234,12 +134,17 @@ def _expect_today(p: dict, ctx: dict | None) -> str:
     )
 
 
+def _g(value: float, digits: int = 1) -> str:
+    """A measurement that was not readable prints as a dash, never as ``nan``."""
+    return "&mdash;" if value is None or math.isnan(value) else f"{value:.{digits}f}"
+
+
 def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
     bm = p["biomech"]
     trends = (
         f"<span class='metric'>SIERA <b>{p['siera']:.2f}</b> {_arrow(p['d_siera'], good_up=False)}</span>"
         f"<span class='metric'>Stuff xK% <b>{p['xk'] * 100:.0f}</b> {_arrow(p['d_xk'], good_up=True)}</span>"
-        f"<span class='metric'>vFA <b>{p['vfa']:.1f}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
+        f"<span class='metric'>vFA <b>{_g(p['vfa'])}</b> {_arrow(p['d_vfa'], good_up=True)}</span>"
     )
     luck = (
         f"BABIP-against <b>.{int(round(p['babip'] * 1000)):03d}</b> "
@@ -247,8 +152,8 @@ def _card(p: dict, ctx: dict | None, bets: list[dict], positive: bool) -> str:
         f"barrel% {p['barrel'] * 100:.0f} · K% {p['k_pct'] * 100:.0f} / BB% {p['bb_pct'] * 100:.0f}"
     )
     biomech = (
-        f"Extension <b>{bm['ext']:.1f} ft</b> · IVB <b>{bm['ivb']:.1f} in</b> · "
-        f"FB spin <b>{bm['spin']:.0f} rpm</b> · release scatter {bm['scatter']:.1f} in"
+        f"Extension <b>{_g(bm['ext'])} ft</b> · IVB <b>{_g(bm['ivb'])} in</b> · "
+        f"FB spin <b>{_g(bm['spin'], 0)} rpm</b> · release scatter {_g(bm['scatter'])} in"
     )
     bet_html = (
         "<ul class='bets'>" + "".join(_bet_line(b) for b in bets[:4]) + "</ul>"
@@ -374,46 +279,24 @@ def build_narration(day: Date, pos: list, neg: list, ctxs: dict, preds: list[dic
     return "".join(parts)
 
 
-def build_profiles(previews: list[dict], preds: list[dict], df: pd.DataFrame):
-    """Return (pos, neg, ctxs) starter regression profiles for the slate."""
-    idmap = _pitcher_id_map(preds)
-    ctxs = _starter_games(previews)
-    maxd = pd.to_datetime(df["game_date"]).dt.date.max()
-    cutoff = maxd - pd.Timedelta(days=RECENT_DAYS)
-    cutoff = cutoff if isinstance(cutoff, Date) else cutoff.date()
 
-    profiles = []
-    for name in sorted(ctxs):
-        pid = idmap.get(name)
-        if pid is None:
-            continue
-        p = analyze(name, pid, df, cutoff)
-        if p["pitches"] < 150:  # too thin to trust the luck read
-            continue
-        profiles.append(p)
-
-    # z-score the two luck components across the slate, then combine.
-    for key in ("unlucky_babip", "unlucky_xwoba"):
-        vals = np.array([p[key] for p in profiles])
-        mu, sd = vals.mean(), vals.std() or 1.0
-        for p in profiles:
-            p[f"z_{key}"] = (p[key] - mu) / sd
-    for p in profiles:
-        p["reg_index"] = p["z_unlucky_babip"] + p["z_unlucky_xwoba"]
-
-    profiles.sort(key=lambda p: -p["reg_index"])
-    pos = [p for p in profiles if p["reg_index"] > 0]
-    neg = [p for p in profiles if p["reg_index"] <= 0]
-    neg.sort(key=lambda p: p["reg_index"])  # most negative first
-    return pos, neg, ctxs
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="slate to write up; default the latest one in state")
+    p.add_argument("--statcast", help="cached frame to read form off; default the widest")
+    return p.parse_args(argv)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
     cfg = load_config()
-    day = Date(2026, 7, 31)
+    day = resolve_day(cfg.audit_dir, args.date)
+    preds_path = predictions_path(cfg.audit_dir, day)
+    frame = statcast_frame(cfg.cache_dir, day, args.statcast)
     previews = json.load(open(cfg.audit_dir / f"previews_{day.isoformat()}.json"))
-    preds = json.load(open(cfg.audit_dir / f"predictions_{day.isoformat()}.json"))
-    df = pd.read_pickle(cfg.cache_dir / "statcast_2026-06-19_2026-07-30.pkl")
+    preds = json.loads(preds_path.read_text())
+    df = pd.read_pickle(frame)
+    print(f"slate {day.isoformat()}  predictions {preds_path.name}  frame {frame.name}")
     pos, neg, ctxs = build_profiles(previews, preds, df)
 
     html = build_html(day, pos, neg, ctxs, preds)

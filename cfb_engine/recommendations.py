@@ -7,8 +7,9 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.market.odds import prob_to_american
+from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
+from cfb_engine.output.brief import GameBrief
 
 
 @dataclass
@@ -36,22 +37,55 @@ class Recommendation:
     bet_prob: float | None = None
     tier: Tier = Tier.PASS
     reasons: list[str] = field(default_factory=list)
+    # No-vig probability points the market has moved *toward* this side since the
+    # first board the engine saw for the slate (negative: it walked away). The
+    # pre-kickoff half of closing-line value; see ``cfb_engine.market.drift``.
+    drift: float | None = None
+    # The number and price on this side in that first board, so the card can
+    # print where the line opened next to where it sits now.
+    open_line: float | None = None
+    open_american: float | None = None
+    # The screen that demoted this row to Pass, if one did. Attribution is what
+    # lets the audit grade a screen on the bets it refused rather than only on
+    # the ones it let through.
+    pass_gate: str | None = None
+    # Handle% minus tickets% on this side in VSiN's public splits: the share of
+    # the money the side took less the share of the bets. Recorded on every side
+    # that has one, whatever the market, so the signal can be graded on college
+    # football; only the moneyline acts on it (``cfb_engine.market.mlsharp``).
+    sharp_div: float | None = None
     # --- structured grading metadata (used by the nightly audit) ---
     team_side: str | None = None  # "home" | "away"
     side: str | None = None  # "win" | "cover" | "over" | "under"
     # --- game context (same for every rec in a game; for the card/preview) ---
     home_abbrev: str | None = None
     away_abbrev: str | None = None
+    kickoff_utc: str | None = None  # ISO8601; orders the card early-to-late
     # Expected point differential (home perspective) = mean simulated margin,
     # and the total the sim expects, with their spreads.
     exp_margin: float | None = None
     exp_margin_sd: float | None = None
     exp_total: float | None = None
     exp_total_sd: float | None = None
+    # Reader's context for the card (records, ranks, leaders, venue, weather,
+    # storyline); the same object on every rec of a game. Never priced.
+    brief: GameBrief | None = None
 
     @property
     def model_american(self) -> float:
         return prob_to_american(self.model_prob)
+
+    @property
+    def kelly(self) -> float | None:
+        """Growth-optimal stake fraction at the price on the card.
+
+        The one conviction number that is neither price-blind like ``edge`` nor
+        price-flattered like ``ev``; see :mod:`cfb_engine.market.ordering`.
+        """
+        if self.market_american is None or self.ev is None:
+            return None
+        payout = american_to_decimal(self.market_american) - 1.0
+        return self.ev / payout if payout > 0 else None
 
     @property
     def display_category(self) -> str:
@@ -78,6 +112,8 @@ class Recommendation:
             "Book Odds": round(self.market_american) if self.market_american is not None else "",
             "EV": round(self.ev, 3) if self.ev is not None else "",
             "Edge": round(self.edge, 3) if self.edge is not None else "",
+            "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
+            "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
             "Notes": "; ".join(self.reasons),
         }
@@ -90,6 +126,7 @@ def save_json(recs: list[Recommendation], path: Path) -> None:
         d = asdict(r)
         d["game_date"] = r.game_date.isoformat()
         d["tier"] = r.tier.value
+        d["brief"] = None if r.brief is None else r.brief.to_dict()
         payload.append(d)
     path.write_text(json.dumps(payload, indent=2))
 
@@ -101,5 +138,7 @@ def load_json(path: Path) -> list[Recommendation]:
         d = dict(d)
         d["game_date"] = Date.fromisoformat(d["game_date"])
         d["tier"] = Tier(d["tier"])
+        brief = d.get("brief")
+        d["brief"] = GameBrief.from_dict(brief) if isinstance(brief, dict) else None
         out.append(Recommendation(**d))
     return out

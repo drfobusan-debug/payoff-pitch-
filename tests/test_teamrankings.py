@@ -10,6 +10,7 @@ The HTML is a row captured verbatim from their grid.
 
 from __future__ import annotations
 
+import argparse
 from datetime import date as Date
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN
@@ -29,10 +30,13 @@ from mlb_engine.audit.outside import (
     head_to_head,
     star_tier,
 )
+from mlb_engine.config import Credentials
 from mlb_engine.data.results import GameResult
 from mlb_engine.data.teamrankings import (
+    TeamRankingsClient,
     TeamRating,
     TRPick,
+    annotate,
     load_picks,
     load_ratings,
     merge_picks,
@@ -42,6 +46,8 @@ from mlb_engine.data.teamrankings import (
     save_picks,
     save_ratings,
 )
+from mlb_engine.market.tiers import Tier
+from mlb_engine.recommendations import Recommendation
 
 _MATCHUP_URL = "https://www.teamrankings.com/mlb/matchup/diamondbacks-braves-2026-08-14"
 
@@ -337,6 +343,86 @@ def test_a_missing_capture_is_not_an_error(tmp_path) -> None:
     assert load_picks(tmp_path / "junk.json") == []
 
 
+# --- the join onto our own bets --------------------------------------------
+
+
+def _rec(**kw) -> Recommendation:
+    base = dict(
+        game_date=Date(2026, 8, 14),
+        game_pk=1,
+        matchup="AZ @ ATL",
+        category="game",
+        market="game_total",
+        selection="Under 8.5",
+        model_prob=0.55,
+        line=8.5,
+        side="under",
+        tier=Tier.MODERATE,
+    )
+    base.update(kw)
+    return Recommendation(**base)
+
+
+def test_each_of_their_four_columns_lands_on_the_bet_it_is_about() -> None:
+    """Four columns are four statements; folding them into one loses three."""
+    picks = list(_picks().values())
+    total = _rec()
+    runline = _rec(market="game_rl", selection="ATL -1.5", line=-1.5, side="")
+    money = _rec(market="game_ml", selection="ATL ML", line=None, side="")
+    assert annotate([total, runline, money], picks) == 3
+    assert total.tr_pick.startswith("Under 8.0")
+    assert runline.tr_pick.startswith("ATL -1.5")
+    assert money.tr_pick.startswith("ATL ML")
+    # The projected winner is a projection, not a bet, so it rides along on
+    # every game market rather than being mistaken for their money-line pick --
+    # on this game the two disagree: the model likes Arizona, the price makes
+    # Atlanta the value.
+    assert all(r.tr_winner == "AZ ML 61% 2\u2605" for r in (total, runline, money))
+    assert money.tr_pick.startswith("ATL ML")
+
+
+def test_laying_off_the_price_is_not_a_pick_on_the_winner() -> None:
+    """Their winner column always names a side; their value columns may decline."""
+    money = _rec(market="game_ml", selection="ATL ML", line=None, side="")
+    assert annotate([money], parse_picks(LAY_OFF_ROW)) == 0
+    assert money.tr_pick is None and money.tr_agrees is None
+    # ... and the projection is still shown, in its own column, so declining to
+    # bet the price is never printed as a pick they did not make.
+    assert money.tr_winner.startswith("AZ ML")
+
+
+def test_the_mark_says_whose_side_they_are_on() -> None:
+    picks = list(_picks().values())
+    with_them = _rec(selection="Under 8.5")
+    against = _rec(selection="Over 8.5", side="over")
+    annotate([with_them, against], picks)
+    assert with_them.tr_agrees is True and with_them.tr_mark == "\u2605"
+    assert against.tr_agrees is False and against.tr_mark == "\u2717"
+    # Their two stars belong to their side, so a cross never shows our row two
+    # stars for a bet they took against us.
+    assert against.tr_stars == 1  # the total's own rating, not the money line's
+
+
+def test_a_prop_is_left_alone_because_they_do_not_price_props() -> None:
+    prop = _rec(market="batter_hits", selection="Corbin Carroll H o0.5", side="over")
+    assert annotate([prop], list(_picks().values())) == 0
+    assert prop.tr_pick is None and prop.tr_winner is None
+
+
+def test_their_numbers_are_printed_in_their_own_units() -> None:
+    picks = _picks()
+    # A win probability where they publish one, the edge they see where they do
+    # not -- the money-line column is about the price, not about who wins.
+    assert picks["game_total"].summary == "Under 8.0 50% 1\u2605"
+    assert picks["game_ml"].summary == "ATL ML +3.2% val 2\u2605"
+
+
+def test_a_slate_without_the_login_captures_nothing_rather_than_yesterday() -> None:
+    """Signed out their grid serves the last *played* slate, results included."""
+    client = TeamRankingsClient(Credentials(teamrankings_user=None, teamrankings_pass=None))
+    assert client._signed_in() is None
+
+
 # A luck-rating table row, captured verbatim: the team cell carries the record,
 # and the columns after the rating are their splits, which we do not store.
 RATING_ROW = """
@@ -425,3 +511,103 @@ def test_a_ratings_failure_never_reaches_the_caller(monkeypatch, tmp_path) -> No
     monkeypatch.setattr(cli.TeamRankingsClient, "fetch_ratings", boom)
     assert cli._capture_tr_ratings(cfg) == 0
     assert not list(tmp_path.rglob("tr_ratings_*.json"))
+
+
+def test_an_anonymous_session_cookie_is_not_a_login(monkeypatch) -> None:
+    """``tr_session`` is handed out before any login, so it proved nothing.
+
+    Checking for it accepted every rejected password: the client returned a
+    signed-out session, the capture filed the free grid -- the last slate
+    already played -- and the run reported success. Only ``tru`` means
+    subscriber.
+    """
+    import requests
+
+    from mlb_engine.data import teamrankings as tr
+
+    class FakeResponse:
+        status_code = 200
+        text = ""
+
+        def raise_for_status(self) -> None:
+            return None
+
+    class FakeSession:
+        def __init__(self, names: tuple[str, ...]) -> None:
+            self.cookies = requests.cookies.RequestsCookieJar()
+            for name in names:
+                self.cookies.set(name, "x")
+
+        def get(self, *a, **k) -> FakeResponse:
+            return FakeResponse()
+
+        def post(self, *a, **k) -> FakeResponse:
+            return FakeResponse()
+
+    creds = Credentials(teamrankings_user="a@b.c", teamrankings_pass="pw")
+
+    monkeypatch.setattr(requests, "Session", lambda: FakeSession(("tr_session", "trv3")))
+    assert TeamRankingsClient(creds)._signed_in() is None
+
+    monkeypatch.setattr(requests, "Session", lambda: FakeSession(("tr_session", "tru")))
+    assert TeamRankingsClient(creds)._signed_in() is not None
+    assert tr.SUBSCRIBER_COOKIE == "tru"
+
+
+def test_capturing_a_slate_already_played_says_so(monkeypatch, tmp_path, capsys) -> None:
+    """Signed out the newest grid date is in the past, which read as a success."""
+    from mlb_engine import cli
+
+    monkeypatch.setenv("MLBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("MLBE_STATE_SYNC", "0")
+    stale = "2020-05-05"
+    picks = [
+        TRPick(
+            date=stale, matchup="AAA @ BBB", market="game_ml", selection="AAA ML",
+            line=None, side="", team="AAA", team_side="away", american=-120, stars=2,
+        )
+    ]
+    monkeypatch.setattr(cli.TeamRankingsClient, "fetch", lambda self, date=None: picks)
+    monkeypatch.setattr(cli, "_capture_tr_ratings", lambda cfg: 0)
+
+    args = argparse.Namespace(date=None)
+    assert cli.cmd_teamrankings(args) == 0
+    out = capsys.readouterr().out
+    assert stale in out
+    assert "TEAMRANKINGS_EMAIL" in out
+
+    # Asked for that date explicitly, it is a backfill and not a warning.
+    args = argparse.Namespace(date=stale)
+    assert cli.cmd_teamrankings(args) == 0
+    assert "TEAMRANKINGS_EMAIL" not in capsys.readouterr().out
+
+
+def test_a_grid_on_another_slate_is_not_a_broken_scrape(caplog) -> None:
+    """Signed out their grid serves the slate already played, and a filter that
+    empties logs the same "0 picks" a dead parse does -- so name the date it is
+    showing."""
+    import logging
+
+    from mlb_engine.data.teamrankings import TeamRankingsClient
+
+    client = TeamRankingsClient()
+    client._get = lambda url: ROW  # type: ignore[method-assign]
+    with caplog.at_level(logging.INFO):
+        assert client.fetch(date="2026-08-15") == []
+
+    text = caplog.text
+    assert "showing 2026-08-14" in text and "2026-08-15" in text
+
+
+def test_the_slate_on_the_grid_is_still_returned(caplog) -> None:
+    import logging
+
+    from mlb_engine.data.teamrankings import TeamRankingsClient
+
+    client = TeamRankingsClient()
+    client._get = lambda url: ROW  # type: ignore[method-assign]
+    with caplog.at_level(logging.INFO):
+        picks = client.fetch(date="2026-08-14")
+
+    assert len(picks) == 4
+    assert "showing" not in caplog.text
