@@ -20,6 +20,8 @@ Phase 2 commands (priced card, ledger, grading):
 * ``card`` -- price the archived board from one joint sim per game; writes
   the write-once ledger (``--tag initial``) plus txt/md/xlsx outputs.
 * ``starter`` -- record a confirmed/probable goalie for a team on a date.
+* ``lineups`` -- pull RotoWire's expected/confirmed goalies and injury list
+  for today (or tomorrow) into the starter overrides and availability log.
 * ``audit`` -- grade a date's ledger against official finals (CLV, dual-rule
   flag) and print the running scorecard.
 * ``calibrate`` -- refit per-market isotonic maps from every graded ledger.
@@ -40,13 +42,13 @@ from nhl_engine import email, outputs, pipeline, state
 from nhl_engine.audit import ledger, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
-from nhl_engine.data import capture, preseason
+from nhl_engine.data import capture, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
 from nhl_engine.data.oddsapi import OddsAPIClient
 from nhl_engine.data.teamnames import CODES, canonical
-from nhl_engine.features import starters, strength
+from nhl_engine.features import lineup_feed, starters, strength
 from nhl_engine.schemas import GameResult
 
 log = logging.getLogger("nhl_engine")
@@ -325,6 +327,34 @@ def cmd_starter(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_lineups(args: argparse.Namespace) -> int:
+    root = data_dir()
+    today = _today()
+    slate = _parse_date(args.date)
+    season = args.season or season_of(slate)
+    try:
+        roto = rotowire.fetch(slate, today=today, data_dir=root)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    except Exception as exc:  # network / HTTP: the card still runs on projected goalies
+        print(f"rotowire unavailable: {exc}", file=sys.stderr)
+        return 1
+    if not roto.games:
+        print(f"rotowire: no NHL games parsed for {slate} (raw: {roto.raw_path})")
+        return 0
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    summary = lineup_feed.apply_slate(
+        roto, mp=mp, data_dir=root, season=season, quotes=capture.read_day(root, slate)
+    )
+    print(f"rotowire {slate}: {len(roto.games)} game(s) parsed -> {roto.raw_path}")
+    for line in summary.lines():
+        print(line)
+    if load_config().state_sync and not args.no_sync:
+        state.auto_push(root, f"nhl lineups {slate}")
+    return 0
+
+
 def _results_for(day: Date) -> dict[str, GameResult]:
     client = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
     out: dict[str, GameResult] = {}
@@ -430,6 +460,12 @@ def build_parser() -> argparse.ArgumentParser:
     sr.add_argument("--source", default="manual")
     sr.add_argument("--date")
     sr.set_defaults(func=cmd_starter)
+
+    lu = sub.add_parser("lineups", help="RotoWire goalies + injuries -> overrides/availability")
+    lu.add_argument("--date", help="today (default) or tomorrow")
+    lu.add_argument("--season", type=int)
+    lu.add_argument("--no-sync", action="store_true")
+    lu.set_defaults(func=cmd_lineups)
 
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")
