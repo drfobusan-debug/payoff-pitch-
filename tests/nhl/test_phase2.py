@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
@@ -14,7 +15,7 @@ from engine_common.odds import american_to_prob, prob_to_american
 from nhl_engine.audit import grade, scorecard
 from nhl_engine.audit.ledger import LedgerRow, grade_rows, load_rows, row_from, write_once
 from nhl_engine.calibration import Calibrator, ConfidenceShrink
-from nhl_engine.config import Config, GateParams, SimParams
+from nhl_engine.config import Config, Credentials, Delivery, GateParams, SimParams
 from nhl_engine.data.book_rules import BookRule, BookRules
 from nhl_engine.data.capture import QuoteRow
 from nhl_engine.features.starters import Starter
@@ -635,7 +636,7 @@ def _inputs(code: str, rates: dict[str, float], status: str) -> TeamInputs:
 
 
 def test_price_game_and_outputs(tmp_path: Path):
-    from nhl_engine import outputs
+    from nhl_engine import email, outputs
     from nhl_engine.pipeline import SlateCard
 
     rows = [
@@ -694,3 +695,24 @@ def test_price_game_and_outputs(tmp_path: Path):
     wb = load_workbook(paths["xlsx"])
     assert wb.sheetnames == ["Buys", "All", "Games"]
     assert wb["All"].max_row == len(card.rows) + 1
+
+    # email: not configured -> raises (caller keeps the files); configured -> one
+    # SMTP_SSL send with the three outputs attached and the text card as body.
+    with pytest.raises(email.EmailNotConfigured):
+        email.send_card(Config(creds=Credentials(gmail_app_password=None)), slate, paths)
+    cfg_mail = Config(
+        creds=Credentials(gmail_user="me@gmail.com", gmail_app_password="abcd efgh"),
+        delivery=Delivery(email_to="franz@example.com"),
+    )
+    smtp = MagicMock()
+    smtp.__enter__.return_value = smtp
+    with patch("smtplib.SMTP_SSL", return_value=smtp) as ctor:
+        to = email.send_card(cfg_mail, slate, paths)
+    assert to == "franz@example.com"
+    assert ctor.call_args.args[:2] == ("smtp.gmail.com", 465)
+    smtp.login.assert_called_once_with("me@gmail.com", "abcdefgh")
+    msg = smtp.send_message.call_args.args[0]
+    assert msg["To"] == "franz@example.com" and msg["Subject"].startswith("NHL card 2026-10-01")
+    names = sorted(p.get_filename() for p in msg.iter_attachments())
+    assert names == sorted(p.name for p in paths.values())
+    assert "BUYS" in msg.get_body(preferencelist=("plain",)).get_content()

@@ -10,7 +10,7 @@ set -uo pipefail
 TAG="${1:-initial}"
 nhl-engine capture
 echo
-nhl-engine card --tag "$TAG"
+nhl-engine card --tag "$TAG" --email
 echo
 echo "Buys are the pass_gate rows with a Strong/Moderate tier. Period markets are"
 echo "priced for the ledger only until they clear probation (nhl-engine audit)."

@@ -48,8 +48,34 @@ class Credentials:
         default_factory=lambda: os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY")
     )
 
+    # Same Gmail App Password the MLB/NFL/CFB senders use: one engine.env serves all.
+    gmail_user: str | None = field(
+        default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
+    )
+    gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
+
     def has_odds_api(self) -> bool:
         return bool(self.odds_api_key)
+
+    def has_email(self) -> bool:
+        return bool(self.gmail_app_password)
+
+
+@dataclass(frozen=True)
+class Delivery:
+    """Where the card goes; shares the MLB SMTP variables with ``NHLE_`` overrides."""
+
+    email_to: str | None = field(
+        default_factory=lambda: os.getenv("NHLE_EMAIL_TO") or os.getenv("MLBE_EMAIL_TO")
+    )
+    smtp_host: str = field(
+        default_factory=lambda: (
+            os.getenv("NHLE_SMTP_HOST") or os.getenv("SMTP_HOST") or "smtp.gmail.com"
+        )
+    )
+    smtp_port: int = field(
+        default_factory=lambda: _env_int("NHLE_SMTP_PORT", _env_int("SMTP_PORT", 465))
+    )
 
 
 @dataclass(frozen=True)
@@ -311,6 +337,7 @@ class GateParams:
 @dataclass(frozen=True)
 class Config:
     creds: Credentials = field(default_factory=Credentials)
+    delivery: Delivery = field(default_factory=Delivery)
     capture: CaptureParams = field(default_factory=CaptureParams)
     shrink: ShrinkParams = field(default_factory=ShrinkParams)
     prior: PriorParams = field(default_factory=PriorParams)
