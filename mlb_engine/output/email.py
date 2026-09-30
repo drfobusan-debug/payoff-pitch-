@@ -17,6 +17,20 @@ mimetypes.add_type(
 mimetypes.add_type("text/markdown", ".md")
 
 
+# Gmail refuses a message over 25 MB as sent, i.e. after base64 has grown every
+# attachment by a third; 20 MB leaves the headers and bodies their room.
+MAX_EMAIL_BYTES = 20_000_000
+
+
+def attachment_budget(message_bytes: int = MAX_EMAIL_BYTES) -> int:
+    """Largest raw attachment that fits a ``message_bytes`` message once encoded.
+
+    base64 writes 4 characters per 3 bytes and breaks lines at 76 characters
+    with a CRLF, so a file on disk takes ~1.37x its size in the message.
+    """
+    return message_bytes * 3 * 76 // (4 * 78)
+
+
 class EmailNotConfigured(RuntimeError):
     """Raised when an email send is requested without the required credentials."""
 
