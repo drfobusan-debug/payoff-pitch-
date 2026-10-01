@@ -59,6 +59,7 @@ from mlb_engine.features.market_gates import (
     prob_ceiling_allows,
     prob_floor_allows,
 )
+from mlb_engine.features.market_length import StarterLength, market_outs_lines, starter_length
 from mlb_engine.features.ml_gate import MLPenGate, MLSharpGate
 from mlb_engine.features.pitch_mix import (
     ArsenalProfile,
@@ -1315,6 +1316,24 @@ class Pipeline:
         away_eff = build_pitcher_efficiency(
             away_pit_rows, slate_date, w.pitcher_form_days, DEFAULT_PITCH_CAP,
         )
+        home_pitch_cap, away_pitch_cap = home_eff.pitch_cap, away_eff.pitch_cap
+        home_bf_sd = away_bf_sd = 0.0
+        if self.cfg.market_outs_length:
+            for side, rows, pitcher in (
+                ("home", home_pit_rows, game.home.probable_pitcher),
+                ("away", away_pit_rows, game.away.probable_pitcher),
+            ):
+                length = self._starter_length(game.matchup(), pitcher.name, rows, slate_date, quotes)
+                if length is None:
+                    continue
+                if side == "home":
+                    home_cap, home_pitch_cap, home_bf_sd = (
+                        length.bf_cap, length.pitch_cap, length.bf_sd,
+                    )
+                else:
+                    away_cap, away_pitch_cap, away_bf_sd = (
+                        length.bf_cap, length.pitch_cap, length.bf_sd,
+                    )
         # Opponent lineup discipline (pitches-seen-per-PA): each starter's pitch
         # budget is burned faster by the patient lineup he actually faces.
         home_ids = [s.player.mlbam_id for s in game.home.lineup]
@@ -1339,7 +1358,8 @@ class Pipeline:
             bat_vs_pen_close=home_pen_close,
             bat_vs_pen_bridge=home_pen_bridge if self.cfg.pen_bridge else None,
             starter_bf_cap=home_cap,
-            starter_pitch_cap=home_eff.pitch_cap,
+            starter_pitch_cap=home_pitch_cap,
+            starter_bf_sd=home_bf_sd,
             pitch_eff=min(1.35, home_eff.efficiency_scaler() * home_disc),
             gb_dp_rate=home_eff.gb_dp_rate(),
             bat_hands=home_hands,
@@ -1352,7 +1372,8 @@ class Pipeline:
             bat_vs_pen_close=away_pen_close,
             bat_vs_pen_bridge=away_pen_bridge if self.cfg.pen_bridge else None,
             starter_bf_cap=away_cap,
-            starter_pitch_cap=away_eff.pitch_cap,
+            starter_pitch_cap=away_pitch_cap,
+            starter_bf_sd=away_bf_sd,
             pitch_eff=min(1.35, away_eff.efficiency_scaler() * away_disc),
             gb_dp_rate=away_eff.gb_dp_rate(),
             bat_hands=away_hands,
@@ -1951,7 +1972,32 @@ class Pipeline:
             opp.barrel_allowed, opp.hard_hit_allowed, opp.bbe
         )
 
+    def _starter_length(
+        self, matchup: str, pitcher: str, pit_rows, slate_date, quotes
+    ) -> StarterLength | None:
+        """The starter's hook from the book's outs line and his pitch count."""
+        lines = market_outs_lines(quotes or {}, matchup, pitcher)
+        length = starter_length(
+            pit_rows,
+            slate_date,
+            lines,
+            weight=self.cfg.market_outs_weight,
+            bf_buffer=self.cfg.market_outs_bf_buffer,
+            bf_sd=self.cfg.market_outs_bf_sd,
+            pitch_buffer=self.cfg.market_outs_pitch_buffer,
+            max_bf=self.cfg.market_outs_max_bf,
+        )
+        if length is not None:
+            log.info(
+                "starter length %s: %s, %d BF (sd %.1f), %d pitches%s",
+                pitcher, length.source, length.bf_cap, length.bf_sd, length.pitch_cap,
+                f", book {length.market_outs:.1f} outs" if length.market_outs is not None else "",
+            )
+        return length
+
     def _apply_outs_bias(self, prob: float) -> float:
+        if self.cfg.market_outs_length:
+            return prob
         return apply_outs_bias(
             prob,
             self.cfg.pitcher_outs_prob_bias,
