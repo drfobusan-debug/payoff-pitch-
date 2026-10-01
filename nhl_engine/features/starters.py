@@ -12,7 +12,8 @@ Status ladder, from the source that named him:
 
 Overrides live in ``~/.nhl_engine/starters/<date>.json`` as
 ``{"BOS": {"player_id": 8471695, "status": "confirmed", "source": "..."}}`` and
-are written by hand or by the pre-drop roster pass. The boxscore starter is
+are written by hand (``nhl-engine starter``), by the RotoWire feed
+(``nhl-engine lineups``) or by the pre-drop roster pass. The boxscore starter is
 the roster of record for grading (``GameResult.home_starter``), never this file.
 """
 
@@ -81,9 +82,14 @@ def load_overrides(path: Path) -> dict[str, dict[str, object]]:
     return {canonical(k): v for k, v in raw.items()} if isinstance(raw, dict) else {}
 
 
-def save_override(path: Path, team: str, player_id: int, status: str, source: str) -> None:
+def save_override(
+    path: Path, team: str, player_id: int, status: str, source: str, *, name: str = ""
+) -> None:
     current = load_overrides(path)
-    current[canonical(team)] = {"player_id": int(player_id), "status": status, "source": source}
+    entry: dict[str, object] = {"player_id": int(player_id), "status": status, "source": source}
+    if name:
+        entry["name"] = name
+    current[canonical(team)] = entry
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(current, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

@@ -14,9 +14,10 @@ Sources this block:
   pre-drop pass stamps ``minutes_to_drop`` so the audit knows how much lead
   time it had. The boxscore, not this log, is the roster of record.
 * ``manual`` -- ``nhl availability add`` from the CLI.
-
-Projected-lines feeds (RotoWire/DailyFaceoff) plug in as further sources with
-the same record; none is scraped yet.
+* ``rotowire`` -- the injury list on RotoWire's NHL lineups page
+  (``features/lineup_feed.py``); IR/OUT map to ``out``, DTD to ``questionable``.
+  A name that does not resolve to an NHL id is logged with ``player_id`` 0 and
+  keyed by name, so it still appears on the card but is never scored.
 
 No record here changes a price. The lineup rebuild reads ``out`` players from
 this log and sizes them by fitted isolated impact; a player without a fitted
@@ -60,8 +61,9 @@ class Availability:
     note: str = ""
 
     @property
-    def key(self) -> tuple[str, int, str]:
-        return (self.team, self.player_id, self.status)
+    def key(self) -> tuple[str, int | str, str]:
+        who: int | str = self.player_id if self.player_id else self.name
+        return (self.team, who, self.status)
 
 
 def availability_dir(data_dir: Path) -> Path:
