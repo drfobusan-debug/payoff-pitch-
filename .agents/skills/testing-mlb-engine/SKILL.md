@@ -400,6 +400,72 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
   agree and a naive before/after control is a null result. The poison + negative control pair is
   what makes the verdict robust.
 
+## Auditing the priced ("money") section of the Audit Desk report
+The money section (`mlb_engine/audit/priced.py` + `output/audit_insight.py`) is the only part of the
+report that claims betting P/L; everything else (PPV/NPV, discriminants) is classification. Test them
+separately, and never let a good PPV number stand in as evidence the money math is right.
+- It is driven by `history=all_entries` (the **cumulative** ledger) passed from `cli.py:cmd_audit`,
+  not by the graded slate, so a single-day ledger produces an almost empty money table while the PPV
+  tables look full. Seed the scratch data dir with a **multi-slate** `audit/ledger.csv` or the section
+  is untested.
+- The filter is `source == engine` **and** `tier in {"Strong buy", "Moderate buy"}` **and**
+  `odds is not None` **and** `result != "push"`. The tier strings come from `market/tiers.py:Tier` and
+  are `"Strong buy"`/`"Moderate buy"` — filtering on `"Strong"`/`"Moderate"` silently yields **zero**
+  rows and a false pass. Check the enum values before writing any independent recomputation.
+- Recompute independently straight off the CSV: `n`, wins, `mean(1/american_to_decimal(odds))` for the
+  price-implied breakeven, `sum(pnl)` for units, one-way count (`under_odds` empty), and CLV /
+  beat-close counts. Compare at the rendered precision (0.1 pt / 0.1u); the HTML is the easiest
+  source to diff (`output/audit_insight_<date>.html`) and the PDF is the same content.
+- Cheapest contamination proof, no fixtures needed: load the real ledger, `dataclasses.replace` one
+  priced buy into four poison rows (`tier="Pass"`, `odds=None`, `result="push"`,
+  `source="teamrankings"`) each with an absurd `pnl`, append them, and assert
+  `engine_priced_stat(...)` returns an identical `n` and `units`. That catches an accidental widening
+  of the filter far more directly than comparing pool sums.
+- Beware two rounding traps when cross-checking probabilities: `ledger.csv` stores 4 dp and the Excel
+  `Model %` column 3 dp, so exact equality fails on a few rows legitimately. Use a tolerance of half
+  the last digit and, better, assert the value is **nearer the raw model prob than the shrunk one** —
+  that is the assertion that actually distinguishes the two.
+- Degenerate case to always run: a scratch data dir with **no** `ledger.csv` and a
+  `predictions_<date>.json` whose `market_american`/`opposite_american` are all `null`. The section
+  must print the "no graded row … carries both a buy tier and a real price" callout, exit 0 and emit
+  no `nan`. When grepping the rendered text for `nan`, anchor the pattern — `correlations` contains
+  `nan` and produces a false failure.
+
+## Fitted market anchors (`Config.market_anchor_file`, `MLBE_MARKET_ANCHOR_*`)
+- Precedence is env `MLBE_MARKET_ANCHOR_<MARKET>` > fitted JSON file > packaged
+  `_MARKET_ANCHOR_BY_MARKET` (only `game_total`/`f5_total` are pinned) > global `market_anchor`.
+  Test one **subprocess per case** — `Config` reads env at construction. A corrupt file must log
+  `ignoring <path>: ...` at WARNING and fall back, never raise.
+- The file default is `<data_dir>/market_anchor_live.json`, i.e. the real `~/.mlb_engine` in a default
+  session. Always point `MLBE_MARKET_ANCHOR_FILE` at a temp path before running anything with
+  `--write-anchors`, and assert the real one still does not exist afterwards.
+- The anchor is applied in `pipeline.py` as `bet_prob = anchor_to_market(model_prob, fair_prob,
+  anchor)`; `rec.model_prob` is deliberately left as the **raw** model number. So the correct
+  assertions are: `model_prob` bit-identical across variants, `bet_prob` equal to
+  `fair + (1-anchor)*(model - fair)`, and no non-target market moving at all. Anchoring `game_ml`
+  moved `bet_prob`/`ev`/`edge` on all 30 game_ml rows, `pass_gate` on 10 and `tier` on 2, and nothing
+  else, on a 15-game slate.
+- Always include the env-override-to-0.0 variant: its diff against baseline must be **empty**, which
+  is simultaneously the noise floor of the harness and proof the feature is inert when disabled.
+- Replays of a cached slate cost 0 credits — verify with `x-requests-remaining` before and after
+  rather than trusting the log line, which prints an estimate (`~240 credits`) even on a pure cache
+  hit and looks alarming.
+
+## `scripts/market_shrink_study.py`
+- Its `frame()` filter (engine, win/loss, two-sided, `fair_prob` present) is much narrower than the
+  raw ledger: a 109k-row / 31-slate CSV reduced to 20,853 rows / **21** slates / 12 markets. Expect
+  the slate count in the output to be lower than the ledger's date count; that is the filter, not a
+  bug.
+- To prove there is no lookahead, import the script as a module and wrap `fit_alpha`, `alphas_for`
+  and `apply_alphas`, recording `max(train.date)` against the day being graded; assert strict `<` on
+  every call, and that the number of refits equals `len(dates) - max(5, int(0.4*len(dates)))` minus
+  days with <20 rows. When importing by path, register the module in `sys.modules` **before**
+  `exec_module` or its `@dataclass` definitions fail with `'NoneType' object has no attribute
+  '__dict__'`.
+- `--write-anchors` writes `1 - alpha`; cross-check each entry against the alphas printed in the
+  single-split table (alpha 0.23 → 0.767, alpha 0 → 1.0). Pass `--no-walk-forward` to keep the run
+  to about a minute.
+
 ## The power screen (`scripts/power_screen.py`) and its own ledger
 - The screen **prices off an existing `~/.mlb_engine/audit/predictions_<date>.json`** (`_priced`), so a
   screen run costs **zero Odds API credits** as long as that day's card exists. Check for the file
@@ -426,6 +492,116 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
   the whole file with the current `FIELDS`, so a record cycle **migrates** an old ledger in place.
   When testing that, keep a copy of the pre-migration file and assert historical rows are preserved,
   unshifted and blank in the new column.
+
+## Testing a calibration-map change (`calibration.py`, `calibrate`)
+
+The calibration map changes the probability *every* market prices off, so treat it as higher risk
+than a single-market model swap. What makes these changes testable cheaply:
+
+1. **The map is selected purely by the data dir.** `cfg.calibration_file` is
+   `<MLBE_DATA_DIR>/calibration_live.json` and `Pipeline.__init__` loads it via
+   `load_calibrator(...)` when `cfg.calibrate` (`MLBE_CALIBRATE=1`, the default). So a variant is
+   just "scratch data dir + the map file you copy into it" — never edit `~/.mlb_engine`, copy out.
+2. **`raw_prob` and `model_prob` are both on every prediction row**, and pricing is
+   `calibrated = calibrator.apply(market, raw)` then `ConfidenceShrink`
+   (`pipeline.py`, ~line 1875). So you can prove a market took **no** calibration from a *single*
+   run by recomputing `ConfidenceShrink(pivot=cfg.shrink_pivot, slope=cfg.shrink_slope)` on
+   `raw_prob` and asserting `model_prob == shrink(raw_prob)`. Two gotchas: rows with
+   `side == "under"` store the complement (`1 - shrink(1 - raw_prob)`), and **`pitcher_outs`
+   (`_apply_outs_bias`) and `batter_hrr` (`_hrr_adjust`) get a further adjustment after the
+   shrink**, so equality will not hold for those two even with no calibration — compare them
+   across runs instead.
+3. **An unstamped map is indistinguishable from no map.** `IsotonicMap([], []).apply(p)` returns
+   `p` and `Calibrator.identity()` is an empty default, so "whole file refused" and "every market
+   retired" are the same function. That makes "this change is inert on an old map" testable as
+   **byte-identical predictions JSON** between the base commit and the branch — a very strong,
+   very cheap assertion. Use a frozen clock and a per-variant copy of the audit dir or it won't hold.
+4. **A per-market retirement/fallback claim needs a map whose pooled `default` is NOT empty.**
+   A map written by `calibrate --revalidate` has `default: {x: [], y: []}`, so "retired market took
+   no correction" is vacuous on it — the fallback would be a no-op anyway. Hand-build a map with the
+   pooled `basis` current, a *real* 40-point `default`, one market stamped garbage, one market
+   stamped current but with `x`/`y` emptied, and one market **deleted** from `markets`. Then:
+   the deleted one must move (proving the pooled curve is live in that very file), the garbage-stamped
+   one must not move at all, and the empty-`x`/`y` one must be a silent no-op that does not crash the
+   slate. Note that a market whose `basis` key is *missing* inherits the pooled basis
+   (`v.get("basis", pooled)`), so "missing" is not the same as "garbage".
+5. **Watch `comeback` rows.** They are informational, derived from the calibrated game-level
+   probabilities, so calibrating `game_ml`/`game_total` moves `comeback` too. That is not an
+   isolation violation — exclude/label it rather than reporting it as leakage.
+6. **`calibrate --revalidate` is deterministic** (`random.Random(11)`, 2000 draws), so an
+   independent run on the same map + ledger reproduces the operator's file **byte-for-byte** — the
+   best possible check of "honest". It needs `<data dir>/audit/ledger.csv`, which the audit snapshot
+   dirs do *not* contain; copy the real ledger in. Each pass takes ~4-6 min on 30k rows.
+   Verify the printed table against the keep rule (`gain > 0 and lo > -_HARM_TOLERANCE`, 0.005) and
+   check that the "nothing qualifies" paths (a `--revalidate` date past the last graded slate, or an
+   absurd `--min-holdout`) exit **1** and leave the map md5 unchanged.
+7. Plain `calibrate` (no `--revalidate`) refuses with the `FEATURE_BASIS_SINCE` message whenever the
+   ledger has no graded rows on/after that date; run it on both commits and diff the stdout to show
+   the old path is untouched. The packaged `mlb_engine/data/calibration_2024.json` is itself
+   unstamped, so it loads as fully retired — worth re-checking if a future change makes the old
+   merge path (`cmd_calibrate`, ~cli.py:1266) reachable, since it writes everything stamped current.
+
+## Testing a report-only artifact wired into `run` (e.g. the regression article)
+When a change adds a new PDF/HTML deliverable to `cmd_run` (`mlb_engine/output/regression_article.py`
++ `_build_regression_article` in `cli.py`), the useful shape of the test is "the artifact appears, and
+nothing else moves":
+1. **`--card` is mandatory.** The article/radar block in `cmd_run` is guarded by
+   `if args.card or args.email:`, so a bare `mlb-engine run --date X` writes **no** article and a
+   missing file proves nothing. Some pieces are *only* reachable under `--email` (the radar PDF and
+   the article's attachment), so one `--card --email` run covers the most ground.
+2. **Never pass `--email` unguarded** — `GMAIL_USER`/`GMAIL_APP_PASSWORD` are usually live on the box
+   and it really sends. Instead, in a wrapper script that calls `cli.main([...])` in-process,
+   overwrite the symbol the sender resolves at call time:
+   `import mlb_engine.output.email as m; m.send_card_email = fake` (it is late-imported inside
+   `daily_preview.py`, so patching the module attribute is enough). Have `fake` record
+   `[name for name, _ in attachments]` and return a bogus recipient — that capture list *is* the
+   evidence for "the PDF is attached" and for "it is absent but the workbook still ships".
+3. **Prose assertions must be made against the PDF's own text, not the HTML**, or a rendering
+   regression hides. Use `pypdf` (`pdftotext` is not installed). Critical gotcha: raw
+   `extract_text()` inserts line breaks mid-sentence, so phrase counts come out *lower* than the
+   HTML's (e.g. 23 vs 29 for `fastball at`). Always normalise first —
+   `re.sub(r'\s+', ' ', text)` — and compare against the HTML stripped of tags and unescaped the
+   same way; the counts then match exactly. Do not report a raw-count gap as a rendering bug.
+4. **Prose is data-dependent.** Thresholds live in `regression_article.py` against
+   `BL_FB_ALLOWED = 0.360` (`features/regression.py`) and `BL_VFA = 93.8`: "fly-ball arm" needs
+   `fb >= 0.41`, "keeps the ball down" `fb <= 0.31`, "shape is airborne" `fb >= 0.41`, pop-up clause
+   `iffb > 0.25`, hitters need `MIN_BBE = 25`. Before calling a missing phrase a bug, build the
+   article offline from the production `audit/previews_<date>.json` + `predictions_<date>.json` and a
+   cached statcast pickle to get a per-phrase baseline; a thin cached board (fewer games than
+   production) legitimately yields fewer phrases.
+5. **Drift check:** the same board + frozen clock on base main vs the branch should make
+   `audit/predictions_<date>.json` **byte-identical** (md5) — that is the strongest "report-only"
+   proof. The **workbook md5 will differ every run** (xlsx embeds timestamps), so compare it
+   structurally instead: sheet-name list, `All` header list (the benchmark columns), the set of
+   `Market` values, per-market row counts and tier counts. Also assert the base commit produces **no**
+   `PayoffPitch_Regression_*`, otherwise the wiring is not what is under test.
+6. **Adversarial legs that matter:** corrupt `previews_<date>.json` right after the run saves it, and
+   separately patch `mlb_engine.output.regression_article.to_pdf` to raise. Both must exit **0**,
+   log `Regression article unavailable`, write no article files, and still produce workbook + card +
+   slate preview (+ radar, and an attachment list without the article). Note `_build_regression_article`
+   logs with `exc_info=True`, so a *traceback body appears in the log by design* — grade on the exit
+   code and on the absence of an escaping exception, not on `grep -c Traceback`.
+7. A `pipe.statcast is None` short-circuit and a missing previews file are both cheap to probe
+   in-process: call `cli._build_regression_article(StubPipe(frame_or_None), day, cfg)` with
+   `cfg = load_config()` (note: `Config.load()` does not exist) after pointing `MLBE_DATA_DIR` at a
+   temp dir, and assert `None` + the warning + an untouched output dir.
+8. The scripts path must keep working through the re-export shim:
+   `python -m scripts.regen_regression <date> <statcast pkl>` emits the article, Mound and Batter
+   PDFs plus an MP3. Good shim evidence is that this article PDF's phrase counts are *identical* to
+   the engine run's. Mound/Batter are table documents and contain none of the prose — expected.
+   The MP3 needs network TTS (edge-tts, gTTS fallback); report it untested-environment if offline.
+9. **Free-endpoint caveat when claiming "zero credits":** a cached replay still writes one small
+   (~3 KB) `cache/oddsapi/*.json` whose entries have `"bookmakers": []`. That is the *events*
+   endpoint, which the Odds API bills at 0. Don't call it a leak, but do confirm with the counter:
+   `curl -sD- -o/dev/null "https://api.the-odds-api.com/v4/sports/?apiKey=$THE_ODDS_API_KEY"` and
+   check `x-requests-used` is unchanged from a **pre-test** reading (take one first).
+10. **Symlink hygiene:** the usual scratch setup symlinks `cache/weather` (and `batx`, `fangraphs`,
+   `projections`, …) straight at `~/.mlb_engine`, so a scratch run *does* append new weather-cache
+   files into production. Harmless (append-only cache) but it breaks a blanket "nothing under
+   `~/.mlb_engine` was written" claim — either copy those dirs instead of symlinking, or scope the
+   claim to maps/audit/state and verify those by md5. Likewise, any offline article build must have
+   `MLBE_DATA_DIR` exported, or `load_config()` defaults to `~/.mlb_engine/output` and drops the PDF
+   into the production output dir.
 
 ## Devin Secrets Needed
 - `ODDS_API_KEY` or `THE_ODDS_API_KEY` — required for real market prices.

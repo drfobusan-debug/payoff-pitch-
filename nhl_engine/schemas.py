@@ -37,6 +37,25 @@ class PeriodScore:
 
 
 @dataclass(frozen=True)
+class PlayerLine:
+    """One player's boxscore line; what a prop settles on."""
+
+    player_id: int
+    team: str
+    name: str
+    position: str
+    toi: float
+    sog: int = 0
+    goals: int = 0
+    assists: int = 0
+    points: int = 0
+    blocks: int = 0
+    saves: int = 0
+    shots_against: int = 0
+    starter: bool = False
+
+
+@dataclass(frozen=True)
 class GameResult:
     """Official final as the NHL API reports it, with what settlement needs.
 
@@ -54,6 +73,7 @@ class GameResult:
     decided: str = ""
     away_starter: str = ""
     home_starter: str = ""
+    players: tuple[PlayerLine, ...] = ()
 
     @property
     def is_final(self) -> bool:

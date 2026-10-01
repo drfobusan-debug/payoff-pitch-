@@ -83,7 +83,7 @@ def code_for(name: str) -> str | None:
 
 def canonical(code: str) -> str:
     """One spelling per franchise code."""
-    up = code.strip().upper()
+    up = code.strip().upper().replace(".", "")
     return _ALIASES.get(up, up)
 
 
