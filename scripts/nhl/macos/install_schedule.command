@@ -4,6 +4,9 @@
 #     board only (ML / puck line / total), 3 credits a pass.
 #   * com.payoffpitch.nhl.capture -> at NHL_EVENT_HOURS (default 12 17 19):
 #     the full per-event pass (periods, team totals, props), ~25 credits a game.
+#   * com.payoffpitch.nhl.card    -> at NHL_CARD_HOUR:NHL_CARD_MINUTE (default
+#     17:00 local): the full predictions run (capture, RotoWire goalies, priced
+#     card, write-once ledger) with the card emailed.
 # Three full passes on a 15-game slate is ~1,100 credits a day; every-30-minute
 # full passes would be ~10,000 and drain a 100k key in ten days.
 # Idempotent: each agent is unloaded before being reloaded.
@@ -12,6 +15,7 @@ set -e
 cd "$(dirname "$0")/../../.." || exit 1
 REPO="$(pwd)"
 CAPTURE="$REPO/scripts/nhl/macos/nhl_capture.command"
+PREDICT="$REPO/scripts/nhl/macos/run_predictions.command"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 LOG_DIR="$HOME/.nhl_engine"
 
@@ -19,18 +23,20 @@ LOG_DIR="$HOME/.nhl_engine"
 . "$REPO/scripts/macos/protected_dir.sh"
 refuse_protected_dir "$REPO" || exit 1
 
-chmod +x "$CAPTURE" "$REPO/scripts/nhl/macos/_env.sh"
+chmod +x "$CAPTURE" "$PREDICT" "$REPO/scripts/nhl/macos/_env.sh"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
 bash "$REPO/scripts/nhl/ensure_env.sh"
 
 FIRST_HOUR="${NHL_CAPTURE_FIRST_HOUR:-10}"
 LAST_HOUR="${NHL_CAPTURE_LAST_HOUR:-23}"
 EVENT_HOURS="${NHL_EVENT_HOURS:-12 17 19}"
+CARD_HOUR="${NHL_CARD_HOUR:-17}"
+CARD_MINUTE="${NHL_CARD_MINUTE:-0}"
 
 install_agent() {
-    # $1 label  $2 calendar-interval-XML  $3.. nhl_capture.command args
-    local label="$1" calendar="$2"
-    shift 2
+    # $1 label  $2 program  $3 calendar-interval-XML  $4.. program args
+    local label="$1" program="$2" calendar="$3"
+    shift 3
     local plist="$LAUNCH_AGENTS/$label.plist"
     local args=""
     for a in "$@"; do
@@ -46,7 +52,7 @@ install_agent() {
     <string>$label</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$CAPTURE</string>
+        <string>$program</string>
 $args    </array>
 $calendar
     <key>WorkingDirectory</key>
@@ -83,11 +89,16 @@ for h in $EVENT_HOURS; do
 done
 EVENT_CAL="$EVENT_CAL    </array>"
 
-install_agent "com.payoffpitch.nhl.board" "$BOARD_CAL" --board-only
-install_agent "com.payoffpitch.nhl.capture" "$EVENT_CAL"
+CARD_CAL="    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>$CARD_HOUR</integer><key>Minute</key><integer>$CARD_MINUTE</integer></dict>"
+
+install_agent "com.payoffpitch.nhl.board" "$CAPTURE" "$BOARD_CAL" --board-only
+install_agent "com.payoffpitch.nhl.capture" "$CAPTURE" "$EVENT_CAL"
+install_agent "com.payoffpitch.nhl.card" "$PREDICT" "$CARD_CAL" initial
 
 echo
 echo "Board every 30 min $FIRST_HOUR:00-$LAST_HOUR:30; full per-event pass at $EVENT_HOURS:05."
+printf 'Priced card emailed daily at %02d:%02d local (com.payoffpitch.nhl.card).\n' "$CARD_HOUR" "$CARD_MINUTE"
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env."
 echo "Test now: launchctl kickstart -k gui/\$(id -u)/com.payoffpitch.nhl.capture"

@@ -301,6 +301,67 @@ def test_grade_week_waits_for_the_box_score(
     assert props_grade.pending_weeks(2026, root=tmp_path) == [2]
 
 
+def _box(*players: tuple[str, str, float]) -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "player_display_name": name,
+                "team": team,
+                "season": 2026,
+                "week": 2,
+                "season_type": "REG",
+                "receptions": value,
+            }
+            for name, team, value in players
+        ]
+    )
+
+
+def test_a_week_graded_before_a_game_was_played_is_graded_again(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _research(tmp_path, props.BASIS)
+    late = [
+        quote(matchup="DAL @ NYG", player="CeeDee Lamb", book="fanduel"),
+        quote(matchup="DAL @ NYG", player="CeeDee Lamb", book="fanduel", side="under"),
+    ]
+    priced = props.price_props(late, {}, basis=props.BASIS)
+    assert props.write_research(priced, season=2026, week=2, root=tmp_path) is not None
+
+    # Thursday's game has stats, Sunday's does not yet.
+    monkeypatch.setattr(nflverse, "player_week", lambda season: _box(("Puka Nacua", "LA", 7.0)))
+    first = props_grade.grade_week(2026, 2, root=tmp_path)
+    lamb = [g for g in first if g.player == "CeeDee Lamb"]
+    assert lamb and all(g.reason == props_grade.NO_BOX_SCORE for g in lamb)
+    assert props_grade.pending_weeks(2026, root=tmp_path) == [2]
+
+    monkeypatch.setattr(
+        nflverse,
+        "player_week",
+        lambda season: _box(("Puka Nacua", "LA", 7.0), ("CeeDee Lamb", "DAL", 9.0)),
+    )
+    props_grade.grade_week(2026, 2, root=tmp_path)
+    back = props_grade.read_graded(2026, root=tmp_path)
+    assert {g.result for g in back if g.player == "CeeDee Lamb"} == {
+        props_grade.WIN,
+        props_grade.LOSS,
+    }
+    assert props_grade.pending_weeks(2026, root=tmp_path) == []
+
+
+def test_a_player_who_sat_out_a_played_game_does_not_hold_the_week_open(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _research(tmp_path, props.BASIS)
+    other = [quote(player="Davante Adams", book="fanduel")]
+    priced = props.price_props(other, {}, basis=props.BASIS)
+    assert props.write_research(priced, season=2026, week=2, root=tmp_path) is not None
+    monkeypatch.setattr(nflverse, "player_week", lambda season: _box(("Puka Nacua", "LA", 7.0)))
+    graded = props_grade.grade_week(2026, 2, root=tmp_path)
+    assert any(g.player == "Davante Adams" and g.reason == props_grade.NO_BOX_SCORE for g in graded)
+    assert props_grade.pending_weeks(2026, root=tmp_path) == []
+
+
 def test_read_research_collapses_a_rerun_of_the_same_snapshot(tmp_path: Path) -> None:
     first = _research(tmp_path, props.BASIS)
     _research(tmp_path, props.BASIS)
