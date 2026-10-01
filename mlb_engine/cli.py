@@ -109,8 +109,8 @@ from mlb_engine.market.tiers import Tier
 from mlb_engine.output.audit_insight import generate_audit_insight
 from mlb_engine.output.card import build_cards, render_html, render_markdown, render_pdf
 from mlb_engine.output.daily_preview import generate_daily_preview
-from mlb_engine.output.email import EmailNotConfigured, send_card_email
-from mlb_engine.output.excel import write_ledger_workbook, write_workbook
+from mlb_engine.output.email import EmailNotConfigured, attachment_budget, send_card_email
+from mlb_engine.output.excel import write_ledger_parts, write_ledger_workbook, write_workbook
 from mlb_engine.output.regression_article import build_article_pdf
 from mlb_engine.output.regression_radar import generate_radar_pdf
 from mlb_engine.output.regression_radar import render_html as render_radar_html
@@ -1205,10 +1205,11 @@ def cmd_audit(args: argparse.Namespace) -> int:
     gates = gate_metrics(measured)
     insights = prop_insights(measured)
     ledger_xlsx = cfg.output_dir / "ledger.xlsx"
+    daily = daily_rollup(measured)
     write_ledger_workbook(
         all_entries,
         overall,
-        daily_rollup(measured),
+        daily,
         ledger_xlsx,
         daily_engine=daily_engine,
         prop_rows=props,
@@ -1335,8 +1336,23 @@ def cmd_audit(args: argparse.Namespace) -> int:
             history=all_entries,
         )
         try:
-            ledger_bytes = ledger_xlsx.read_bytes() if ledger_xlsx.exists() else None
-            extra = [(ledger_xlsx.name, ledger_bytes)] if ledger_bytes else None
+            parts = (
+                write_ledger_parts(
+                    all_entries,
+                    overall,
+                    daily,
+                    ledger_xlsx,
+                    max_bytes=attachment_budget(),
+                    daily_engine=daily_engine,
+                    prop_rows=props,
+                    insights=insights,
+                    runline_rows=runlines,
+                    clv_rows=clv_summary,
+                )
+                if getattr(args, "email", False) and ledger_xlsx.exists()
+                else []
+            )
+            extra = [(p.name, p.read_bytes()) for p in parts] or None
             generate_audit_insight(
                 graded,
                 audit_date,

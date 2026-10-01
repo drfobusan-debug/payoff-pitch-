@@ -18,6 +18,7 @@ fades. The most intense (neon) end marks the highest-conviction plays; a
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
@@ -713,3 +714,73 @@ def write_ledger_workbook(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
     return out_path
+
+
+def ledger_date_chunks(entries: list[LedgerEntry], n: int) -> list[list[LedgerEntry]]:
+    """Split the ledger into at most ``n`` runs of whole dates, of about equal rows."""
+    by_date: dict[str, list[LedgerEntry]] = {}
+    for e in entries:
+        by_date.setdefault(e.date, []).append(e)
+    target = len(entries) / max(n, 1)
+    chunks: list[list[LedgerEntry]] = [[] for _ in range(max(n, 1))]
+    seen = 0
+    for d in sorted(by_date):
+        rows = by_date[d]
+        k = min(len(chunks) - 1, int((seen + len(rows) / 2) / target)) if target else 0
+        chunks[k].extend(rows)
+        seen += len(rows)
+    return [c for c in chunks if c]
+
+
+def write_ledger_parts(
+    entries: list[LedgerEntry],
+    overall: list[OverallMetrics],
+    daily: list[OverallMetrics],
+    full_path: Path,
+    *,
+    max_bytes: int,
+    daily_engine: list[OverallMetrics] | None = None,
+    prop_rows: list[OverallMetrics] | None = None,
+    insights: list[PropInsight] | None = None,
+    runline_rows: list[OverallMetrics] | None = None,
+    clv_rows: list[ClvSummary] | None = None,
+) -> list[Path]:
+    """The ledger as workbooks of at most ``max_bytes`` each, for email.
+
+    ``full_path`` (already written by :func:`write_ledger_workbook`) is returned
+    alone when it fits. Otherwise the Bets sheet is split into runs of whole
+    dates, each part carrying every summary tab, written beside it as
+    ``<stem>_part<i>of<n>_<first>_<last>.xlsx``; parts from an earlier run are
+    removed first so a shrinking count leaves nothing stale behind.
+    """
+    for stale in full_path.parent.glob(f"{full_path.stem}_part*.xlsx"):
+        stale.unlink()
+    size = full_path.stat().st_size
+    if size <= max_bytes:
+        return [full_path]
+    n = math.ceil(size / (0.9 * max_bytes))
+    while True:
+        chunks = ledger_date_chunks(entries, n)
+        paths: list[Path] = []
+        for i, chunk in enumerate(chunks, start=1):
+            path = full_path.with_name(
+                f"{full_path.stem}_part{i}of{len(chunks)}_{chunk[0].date}_{chunk[-1].date}.xlsx"
+            )
+            write_ledger_workbook(
+                chunk,
+                overall,
+                daily,
+                path,
+                daily_engine=daily_engine,
+                prop_rows=prop_rows,
+                insights=insights,
+                runline_rows=runline_rows,
+                clv_rows=clv_rows,
+            )
+            paths.append(path)
+        # A single date bigger than the budget cannot be split further.
+        if len(chunks) < n or all(p.stat().st_size <= max_bytes for p in paths):
+            return paths
+        for p in paths:
+            p.unlink()
+        n += 1

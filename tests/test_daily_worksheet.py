@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from datetime import date as Date
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,7 @@ from mlb_engine.output.daily_worksheet import (
     TeamLine,
     band_of,
     build_rows,
+    clean_ledger,
     decile_points,
     grade,
     implied,
@@ -479,3 +481,41 @@ def test_summary_text_lists_today_by_gap_with_incomplete_starred() -> None:
     ledger = [_row(1, 3.0), _row(2, -30.5, fav="COL", complete=False)]
     text = dw.summary_text(ledger, None, Date(2026, 9, 14))
     assert text == "Worksheet 2026-09-14 by weighted gap: SD @ COL COL 30.5*; SD @ COL SD 3.0  (* starter missing)"
+
+
+def test_vsin_splits_are_skipped_when_the_sheet_is_not_for_today(monkeypatch: pytest.MonkeyPatch) -> None:
+    slate, *_ = _fixture()
+    board = {("SD @ COL", "game_ml", "SD ML"): [MarketQuote("dk", -170)]}
+    _patch_feeds(monkeypatch, _Board(board), _VSIN(_STALE_VSIN))
+    other_day = slate.slate_date - timedelta(days=2)
+    book = dw.fetch_prices(Config(), slate, today=other_day)
+    assert book.prices[(1, "SD")].ml == -170
+    assert book.prices[(1, "SD")].dk_ml_handle is None
+    book = dw.fetch_prices(Config(), slate, today=slate.slate_date)
+    assert book.prices[(1, "SD")].dk_ml_handle == 62
+
+
+def test_merge_drops_the_same_game_pk_filed_under_an_older_date() -> None:
+    moved = _row(7, 4.0, result="fav", day="2026-09-22")
+    out = merge([moved], [_row(7, 6.0, day="2026-09-23")])
+    assert [(r.date, r.gap) for r in out] == [("2026-09-23", 6.0)]
+
+
+def test_clean_ledger_dedupes_pk_blanks_doubleheader_splits_and_ungrades_incomplete() -> None:
+    dup_old = _row(1, 2.0, result="fav", day="2026-09-22")
+    dup_new = _row(1, 2.0, result="fav", day="2026-09-23")
+    dh1 = _row(2, 3.0, day="2026-09-25")
+    dh2 = _row(3, -1.0, day="2026-09-25")
+    dh1.dk_ml_handle_away = dh2.dk_ml_handle_away = 58.0
+    dh1.circa_rl_bets_home = dh2.circa_rl_bets_home = 67.0
+    inc = _row(4, 1.0, result="dog", complete=False, day="2026-09-20")
+    inc.away_runs, inc.home_runs, inc.rl_result = 4, 8, "home"
+    lone = _row(5, 9.0, day="2026-09-26")
+    lone.dk_ml_handle_away = 40.0
+    out = clean_ledger([dup_old, dup_new, dh1, dh2, inc, lone])
+    by = {r.game_pk: r for r in out}
+    assert len(out) == 5 and by[1].date == "2026-09-23" and by[1].result == "fav"
+    assert by[2].dk_ml_handle_away is None and by[3].circa_rl_bets_home is None
+    assert by[5].dk_ml_handle_away == 40.0
+    assert by[4].result == "" and by[4].rl_result == "" and by[4].away_runs is None
+    assert tally(out)[-1].n == 1

@@ -43,7 +43,16 @@ class Tier(str, Enum):
     PASS = "Pass"
 
 
+PROP_PREFIXES = ("sk_", "g_", "ags", "fgs", "lgs")
+
+
+def is_prop(market: str) -> bool:
+    return market.startswith(PROP_PREFIXES)
+
+
 def family(market: str) -> str:
+    if is_prop(market):
+        return "prop"
     if market.startswith("p"):
         return "period"
     if "total" in market:
@@ -123,6 +132,10 @@ def stamp(
     if sel.market in GOALIE_MARKETS or (sel.market.startswith("p") and "total" not in sel.market):
         if not goalie_confirmed:
             gates.append("goalie_unconfirmed")
+    if is_prop(sel.market):
+        gates.append("research_only")
+        if sel.market == "g_saves" and not goalie_confirmed:
+            gates.append("goalie_unconfirmed")
     if sel.market not in thr.live_markets:
         gates.append("probation")
 
@@ -137,4 +150,13 @@ def stamp(
     return Priced(sel, ot_rule, model, edge, ev, tier, gates, reasons)
 
 
-__all__ = ["GOALIE_MARKETS", "Priced", "Tier", "ev_per_unit", "family", "stamp"]
+__all__ = [
+    "GOALIE_MARKETS",
+    "PROP_PREFIXES",
+    "Priced",
+    "Tier",
+    "ev_per_unit",
+    "family",
+    "is_prop",
+    "stamp",
+]

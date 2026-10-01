@@ -451,6 +451,36 @@ def test_vsin_sends_the_subscriber_cookie_and_names_a_teaser_board(monkeypatch, 
     assert len(rows) == 4 and caplog.text == ""
 
 
+def test_vsin_page_dated_for_another_slate_is_skipped(monkeypatch, caplog):
+    import logging
+    from datetime import date
+    from types import SimpleNamespace
+
+    from mlb_engine.config import Credentials
+    from mlb_engine.data import vsin
+    from mlb_engine.data.vsin import VSINClient, page_date
+
+    html = "<h2>MLB - Wednesday, Sep 30</h2>" + _splits_table(
+        "Philadelphia Phillies", "Atlanta Braves", "Athletics", "Tampa Bay Rays"
+    )
+    monkeypatch.setattr(
+        vsin.http, "get", lambda url, **kw: SimpleNamespace(text=html, raise_for_status=lambda: None)
+    )
+    client = VSINClient(Credentials(vsin_token="tok"))
+
+    assert page_date(html, date(2026, 10, 1)) == date(2026, 9, 30)
+    assert page_date("<h2>MLB - Thursday, Jan 1</h2>", date(2026, 12, 31)) == date(2027, 1, 1)
+    assert page_date("no heading", date(2026, 10, 1)) is None
+
+    # Page still shows yesterday: nothing is filed under today's games.
+    with caplog.at_level(logging.WARNING, logger="mlb_engine.data.vsin"):
+        assert client._fetch_book("circa", date(2026, 10, 1)) == []
+    assert "shows 2026-09-30" in caplog.text
+    # Same day, or no date asked for: the board is read as before.
+    assert len(client._fetch_book("circa", date(2026, 9, 30))) == 4
+    assert len(client._fetch_book("circa")) == 4
+
+
 def test_vsin_fetch_quotes_maps_to_slate():
     import datetime
 
@@ -473,7 +503,7 @@ def test_vsin_fetch_quotes_maps_to_slate():
 
     from mlb_engine.data.vsin import _RawRow
 
-    def fake_fetch_book(src):
+    def fake_fetch_book(src, slate_date=None):
         # away row (Twins) carries the Over; home row (Guardians) the Under.
         return [
             _RawRow("Minnesota Twins", -1.5, 96.0, 42.0, 7.5, 13.0, 61.0, -131.0, 84.0, 62.0),
