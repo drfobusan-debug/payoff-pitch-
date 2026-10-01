@@ -187,6 +187,43 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_open(cfg: Config, args: argparse.Namespace) -> int:
+    """Seed the first-seen board for the days ahead, so drift has somewhere to start.
+
+    The 09:00 run writes the first-seen board *and* bets off it in the same
+    breath, so every card reads ``drift: 0.0`` and the drift gate has nothing to
+    refuse. Books post Saturday's numbers on Sunday; capturing them nightly means
+    the run measures how far the market moved in the days before it bet -- the
+    half of closing-line value that is knowable pre-bet. Write-once per side, so
+    re-running only adds games the books posted since.
+    """
+    first = _day(args)
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
+    )
+    days = [first + timedelta(days=i) for i in range(args.days)]
+    _state_pull(cfg)
+    added = 0
+    for day in days:
+        slate, board = odds.fetch_board(day)
+        if not slate.games:
+            continue
+        fresh = snapshot.board_quotes(slate, board)
+        path = cfg.board_file(day)
+        existing = snapshot.load(path)
+        merged = snapshot.merge_first_wins(existing, fresh)
+        new = len(merged) - len(existing)
+        if new > 0:
+            snapshot.save(merged, path)
+            added += new
+        print(f"{day}: {len(slate.games)} games, {new} new sides ({len(merged)} baselined)")
+    if added:
+        _state_push(cfg, f"cfb open {first.isoformat()}+{args.days}d: {added} sides baselined")
+    else:
+        print("No new sides to baseline.")
+    return 0
+
+
 def _grade_slate(cfg: Config, day: Date) -> list[tuple[Recommendation, str]]:
     recs = load_json(cfg.predictions_file(day))
     cfbd = CFBDClient(cfg.creds.cfbd_api_key)
@@ -563,6 +600,11 @@ def _build_parser() -> argparse.ArgumentParser:
         sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True
     )
     add_common(sub.add_parser("close", help="snapshot the closing market"))
+    op = sub.add_parser("open", help="baseline the opening board for the days ahead")
+    add_common(op)
+    op.add_argument(
+        "--days", type=int, default=7, help="how many days from --date to baseline (default 7)"
+    )
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
@@ -585,6 +627,7 @@ _DISPATCH = {
     "run": cmd_run,
     "card": cmd_card,
     "close": cmd_close,
+    "open": cmd_open,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "report": cmd_report,
