@@ -17,6 +17,7 @@ from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
 from nhl_engine.audit.ledger import LedgerRow
+from nhl_engine.market.pricing import is_prop
 from nhl_engine.pipeline import GameCard, SlateCard
 
 _ORDER = [
@@ -88,7 +89,7 @@ def render_card(card: SlateCard) -> str:
     for g in card.games:
         lines.extend(_game_header(g))
         game_rows = sorted(
-            [r for r in g.rows if not r.market.startswith("p")],
+            [r for r in g.rows if not r.market.startswith("p") and not is_prop(r.market)],
             key=lambda r: (
                 _ORDER.index(r.market) if r.market in _ORDER else 99,
                 r.line or 0,
@@ -106,6 +107,14 @@ def render_card(card: SlateCard) -> str:
                     for r in sorted(period, key=lambda r: -abs(r.edge))[:6]
                 )
             )
+        prop_rows = [r for r in g.rows if is_prop(r.market)]
+        if prop_rows:
+            lines.append(f"    Props read ({len(prop_rows)} rows, research_only -- not bettable):")
+            for r in sorted(prop_rows, key=lambda r: -abs(r.edge))[:8]:
+                lines.append(
+                    f"      {r.market:<8s} {_sel(r):<30s} {_american(r.american):>6s} {r.book:<12s}"
+                    f" model {r.model_prob:.3f} mkt {r.consensus:.3f} edge {r.edge:+.3f}"
+                )
         lines.append("")
     if card.unpriced:
         lines.append("UNPRICED: " + "; ".join(card.unpriced))

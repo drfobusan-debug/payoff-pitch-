@@ -37,7 +37,7 @@ import requests
 
 from mlb_engine.data import http
 from nhl_engine.data.teamnames import canonical
-from nhl_engine.schemas import Game, GameResult, PeriodScore
+from nhl_engine.schemas import Game, GameResult, PeriodScore, PlayerLine
 
 log = logging.getLogger(__name__)
 
@@ -191,7 +191,46 @@ def parse_result(box: dict, rail: dict, game: Game) -> GameResult:
         decided=decided,
         away_starter=_starter(box, "awayTeam"),
         home_starter=_starter(box, "homeTeam"),
+        players=tuple(parse_player_lines(box, game)),
     )
+
+
+def _as_int(x: object) -> int:
+    try:
+        return int(str(x))
+    except ValueError:
+        return 0
+
+
+def parse_player_lines(box: dict, game: Game) -> list[PlayerLine]:
+    out: list[PlayerLine] = []
+    stats = box.get("playerByGameStats", {})
+    for side, team in (("awayTeam", game.away), ("homeTeam", game.home)):
+        groups = stats.get(side, {}) if isinstance(stats, dict) else {}
+        for group in ("forwards", "defense", "goalies"):
+            for p in groups.get(group, []):
+                if not isinstance(p, dict):
+                    continue
+                name = p.get("name", {})
+                clock = _clock(p.get("toi")) or 0
+                out.append(
+                    PlayerLine(
+                        player_id=_as_int(p.get("playerId")),
+                        team=team,
+                        name=str(name.get("default", "")) if isinstance(name, dict) else str(name),
+                        position=str(p.get("position", "")),
+                        toi=float(clock),
+                        sog=_as_int(p.get("sog", 0)),
+                        goals=_as_int(p.get("goals", 0)),
+                        assists=_as_int(p.get("assists", 0)),
+                        points=_as_int(p.get("points", 0)),
+                        blocks=_as_int(p.get("blockedShots", 0)),
+                        saves=_as_int(p.get("saves", 0)),
+                        shots_against=_as_int(p.get("shotsAgainst", 0)),
+                        starter=bool(p.get("starter", False)),
+                    )
+                )
+    return out
 
 
 def _starter(box: dict, side: str) -> str:
