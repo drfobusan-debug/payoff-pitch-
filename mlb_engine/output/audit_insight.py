@@ -30,6 +30,7 @@ from __future__ import annotations
 import base64
 import io
 import logging
+import smtplib
 from dataclasses import dataclass, field
 from datetime import date as Date
 from pathlib import Path
@@ -46,6 +47,7 @@ from mlb_engine.audit.priced import (
     priced_findings,
     priced_stats,
 )
+from mlb_engine.output.email import EmailNotConfigured, send_card_email
 from mlb_engine.recommendations import Recommendation
 
 logger = logging.getLogger(__name__)
@@ -1092,6 +1094,79 @@ def to_mp3(text: str, path: Path) -> bytes:
     return path.read_bytes()
 
 
+# --- delivery ----------------------------------------------------------------
+def send_audit_emails(
+    cfg,
+    audit_date: Date,
+    article: list[tuple[str, bytes]],
+    ledger: list[tuple[str, bytes]],
+    *,
+    to: str | None,
+) -> int:
+    """Email the article (PDF + MP3), then each ledger workbook on its own.
+
+    The full ledger outgrew Gmail's message cap with the article riding along,
+    so it goes separately, one part per message. A failed send is logged and
+    the rest still go. Returns the number of emails sent.
+    """
+    iso = audit_date.isoformat()
+    n = len(ledger)
+    ledger_note = (
+        f"follows in {n} separate email{'s' if n > 1 else ''}"
+        + (", split by date; every part carries the summary tabs" if n > 1 else "")
+        if n
+        else "was not written"
+    )
+    body_html = (
+        "<div style='font-family:Georgia,serif;color:#1a1a1a;max-width:640px'>"
+        "<h2 style='color:#16324f'>Payoff Pitch — Audit Desk</h2>"
+        f"<p>Your nightly audit for <b>{audit_date.strftime('%A, %B %-d, %Y')}</b> is attached:</p>"
+        "<ul><li><b>Audit article (PDF)</b> — slate &amp; all-time PPV/NPV, by family and prop, what the "
+        "priced buys actually returned against the win rate their prices demanded, plus the "
+        "metric-level diagnosis of the failing props.</li>"
+        "<li><b>Audio narration (MP3)</b> — the same read, sportscaster style.</li>"
+        f"<li><b>Excel ledger</b> — every graded pick, PPV/NPV, and CLV; {ledger_note}.</li></ul>"
+        "<p style='color:#6b7280;font-size:13px'>Model self-audit, not investment advice.</p></div>"
+    )
+    messages: list[tuple[str, str, str, list[tuple[str, bytes]]]] = []
+    if article:
+        messages.append((
+            f"Payoff Pitch — Nightly Audit ({iso})",
+            body_html,
+            f"Your Payoff Pitch nightly audit (PDF + audio) is attached; the Excel ledger {ledger_note}.",
+            article,
+        ))
+    for i, (name, data) in enumerate(ledger, start=1):
+        part = f" — part {i} of {n}" if n > 1 else ""
+        text = f"Payoff Pitch ledger for the {iso} audit{part}: {name}."
+        messages.append((
+            f"Payoff Pitch — Nightly Audit Ledger ({iso}){part}",
+            f"<p style='font-family:Georgia,serif'>{text}</p>",
+            text,
+            [(name, data)],
+        ))
+    sent = 0
+    for subject, html_body, text_body, attachments in messages:
+        try:
+            recipient = send_card_email(
+                cfg,
+                subject=subject,
+                html_body=html_body,
+                text_body=text_body,
+                to=to,
+                attachments=attachments,
+            )
+        except EmailNotConfigured as exc:
+            print(f"Audit email not sent: {exc}")
+            return sent
+        except (smtplib.SMTPException, OSError) as exc:
+            logger.warning("audit email %r not sent: %s", subject, exc)
+            continue
+        sent += 1
+        print(f"Emailed {subject!r} ({len(attachments)} attachments) to {recipient}")
+    return sent
+
+
 # --- top-level entry point -------------------------------------------------
 def generate_audit_insight(
     graded: list[tuple[Recommendation, str]],
@@ -1105,8 +1180,8 @@ def generate_audit_insight(
 ) -> dict[str, Path | None]:
     """Build the insight PDF + MP3, and (optionally) email them with the ledger.
 
-    ``extra_attachments`` (e.g. the Excel ledger) are attached alongside the
-    PDF and MP3 so a single email carries all three deliverables.
+    ``extra_attachments`` (the Excel ledger, possibly in parts) are sent after
+    the PDF and MP3, one email each; see :func:`send_audit_emails`.
 
     ``history`` is the cumulative graded ledger. The metric store this report is
     built from holds probabilities but no stake: it cannot say what a pick cost,
@@ -1135,14 +1210,14 @@ def generate_audit_insight(
     html_path.write_text(html)
     out["html"] = html_path
 
-    attachments: list[tuple[str, bytes]] = list(extra_attachments or [])
+    article: list[tuple[str, bytes]] = []
     pdf_bytes: bytes | None = None
     try:
         pdf_bytes = to_pdf(html)
         pdf_path = cfg.output_dir / f"PayoffPitch_Audit_{iso}.pdf"
         pdf_path.write_bytes(pdf_bytes)
         out["pdf"] = pdf_path
-        attachments.insert(0, (pdf_path.name, pdf_bytes))
+        article.append((pdf_path.name, pdf_bytes))
     except Exception as exc:  # noqa: BLE001
         logger.warning("audit insight PDF not written: %s", exc)
 
@@ -1150,7 +1225,7 @@ def generate_audit_insight(
         mp3_path = cfg.output_dir / f"PayoffPitch_Audit_{iso}.mp3"
         mp3_bytes = to_mp3(narr, mp3_path)
         out["mp3"] = mp3_path
-        attachments.append((mp3_path.name, mp3_bytes))
+        article.append((mp3_path.name, mp3_bytes))
     except Exception as exc:  # noqa: BLE001
         logger.warning("audit insight MP3 not written: %s", exc)
 
@@ -1159,30 +1234,6 @@ def generate_audit_insight(
         + ", ".join(str(p) for p in (out["pdf"], out["mp3"]) if p)
     )
 
-    if email and attachments:
-        from mlb_engine.output.email import EmailNotConfigured, send_card_email
-
-        body_html = (
-            "<div style='font-family:Georgia,serif;color:#1a1a1a;max-width:640px'>"
-            "<h2 style='color:#16324f'>Payoff Pitch — Audit Desk</h2>"
-            f"<p>Your nightly audit for <b>{audit_date.strftime('%A, %B %-d, %Y')}</b> is attached:</p>"
-            "<ul><li><b>Excel ledger</b> — every graded pick, PPV/NPV, and CLV.</li>"
-            "<li><b>Audit article (PDF)</b> — slate &amp; all-time PPV/NPV, by family and prop, what the "
-            "priced buys actually returned against the win rate their prices demanded, plus the "
-            "metric-level diagnosis of the failing props.</li>"
-            "<li><b>Audio narration (MP3)</b> — the same read, sportscaster style.</li></ul>"
-            "<p style='color:#6b7280;font-size:13px'>Model self-audit, not investment advice.</p></div>"
-        )
-        try:
-            recipient = send_card_email(
-                cfg,
-                subject=f"Payoff Pitch — Nightly Audit ({iso})",
-                html_body=body_html,
-                text_body="Your Payoff Pitch nightly audit (Excel + PDF + audio) is attached.",
-                to=to,
-                attachments=attachments,
-            )
-            print(f"Emailed audit ({len(attachments)} attachments) to {recipient}")
-        except EmailNotConfigured as exc:
-            print(f"Audit email not sent: {exc}")
+    if email:
+        send_audit_emails(cfg, audit_date, article, list(extra_attachments or []), to=to)
     return out

@@ -12,7 +12,10 @@ One call per card pass. For every game on the archived board:
 4. one seeded joint draw (``models.periods``) read by every market
    (``models.markets``); ``team_total`` rows resolve their ``ot_rule`` per book
    through ``BookRules`` and stamp ``settlement_unverified`` when unknown;
-5. calibration, EV/tier/gates (``market.pricing``) -> ``LedgerRow``.
+5. calibration, EV/tier/gates (``market.pricing``) -> ``LedgerRow``;
+6. props (``models.props``) off the same draws when a ``PropContext`` holds a
+   projection for the quoted player -- every prop row is stamped
+   ``research_only`` (master plan §6 Phase 3).
 """
 
 from __future__ import annotations
@@ -31,14 +34,19 @@ from nhl_engine.config import Config
 from nhl_engine.data.book_rules import BookRules
 from nhl_engine.data.capture import MARKET_MAP, QuoteRow
 from nhl_engine.data.moneypuck import MoneyPuckClient, as_of
+from nhl_engine.data.nhlapi import NHLAPIClient, RosterSpot
 from nhl_engine.data.preseason import PreseasonPrior
+from nhl_engine.data.rotowire import norm_name
+from nhl_engine.data.skaters import NameIndex, PlayerLogClient, SkaterGame
 from nhl_engine.data.teamnames import CODES
+from nhl_engine.features import props as propf
 from nhl_engine.features import strength
 from nhl_engine.features.starters import Starter, load_overrides, overrides_path, starter_for
 from nhl_engine.market.board import Selection, matchups, selections
-from nhl_engine.market.pricing import stamp
+from nhl_engine.market.pricing import is_prop, stamp
 from nhl_engine.models import markets
-from nhl_engine.models.goals import GameRates, game_rates
+from nhl_engine.models import props as propm
+from nhl_engine.models.goals import GameRates, game_rates, goalie_factor
 from nhl_engine.models.periods import SimResult, simulate
 
 log = logging.getLogger("nhl_engine")
@@ -87,6 +95,29 @@ class TeamInputs:
     games: int
     lineup_source: str
     starter: Starter
+    # Team SOG for / against per 60 (all situations) for SOG opponent factors and saves.
+    sf60: float = float("nan")
+    sa60: float = float("nan")
+
+
+@dataclass
+class PropContext:
+    """Who the book's player names resolve to and what they project to tonight.
+
+    ``skaters``/``goalies`` are keyed by ``(team, normalised name)`` as the book
+    spells it; a quoted player with no projection is left unpriced, not guessed.
+    """
+
+    skaters: dict[tuple[str, str], propf.SkaterProjection] = field(default_factory=dict)
+    goalies: dict[tuple[str, str], propf.GoalieProjection] = field(default_factory=dict)
+    league_sf60: float = 29.5
+    league_sa60: float = 29.5
+
+    def skater(self, team: str, name: str) -> propf.SkaterProjection | None:
+        return self.skaters.get((team, norm_name(name)))
+
+    def goalie(self, team: str, name: str) -> propf.GoalieProjection | None:
+        return self.goalies.get((team, norm_name(name)))
 
 
 @dataclass
@@ -125,9 +156,14 @@ class SlateCard:
 def _apply_thin_fallback(
     rates: dict[str, float], rel: dict[str, float], league: dict[str, float], floor: float
 ) -> dict[str, float]:
-    """Special-teams sub-states below the reliability floor ship at the league rate."""
+    """Shorthanded sub-states below the reliability floor ship at the league rate.
+
+    Only the two thin SH-scoring states (§5.3) are floored. PP xGF and PK xGA
+    keep their EB posterior at any reliability: at 0 GP that posterior *is* the
+    preseason prior, which is exactly what the sim should run on.
+    """
     out = dict(rates)
-    for key in ("pp_xgf60", "pp_xga60", "pk_xga60", "sh_xgf60"):
+    for key in ("pp_xga60", "sh_xgf60"):
         if rel.get(key, 0.0) < floor and key in league:
             out[key] = league[key]
     return out
@@ -164,7 +200,110 @@ def team_inputs(
     else:
         source = TEAM_RATE
     starter = starter_for(mp, code, slate, season=season, cfg=cfg, overrides=overrides)
-    return TeamInputs(code, rates, rel, games, source, starter)
+    sf60, sa60 = team_shot_rates(mp, code, slate, season=season)
+    return TeamInputs(code, rates, rel, games, source, starter, sf60, sa60)
+
+
+LEAGUE_SHOTS60 = 29.5
+SHOT_RATE_K_GAMES = 10.0
+
+
+def team_shot_rates(
+    mp: MoneyPuckClient, code: str, slate: Date, *, season: int
+) -> tuple[float, float]:
+    """All-situation SOG for / against per 60, shrunk over 10 games to last season's rate.
+
+    Last season's rate is itself shrunk to the league constant, so a team with
+    no games yet carries its own shot profile rather than the league's.
+    """
+    games = mp.team_games(code)
+
+    def _sums(df) -> tuple[float, float, float]:
+        if "situation" in df.columns:
+            df = df[df["situation"] == "all"]
+        if "iceTime" not in df.columns or not len(df):
+            return 0.0, 0.0, 0.0
+        return (
+            float(df["iceTime"].sum()),
+            float(df["shotsOnGoalFor"].sum()),
+            float(df["shotsOnGoalAgainst"].sum()),
+        )
+
+    k = SHOT_RATE_K_GAMES * 3600.0
+
+    def _shrunk(secs: float, events: float, prior60: float) -> float:
+        return (events + k * prior60 / 3600.0) / (secs + k) * 3600.0
+
+    p_secs, p_sf, p_sa = _sums(as_of(games, slate, season=season - 1))
+    prior_sf = _shrunk(p_secs, p_sf, LEAGUE_SHOTS60)
+    prior_sa = _shrunk(p_secs, p_sa, LEAGUE_SHOTS60)
+    secs, sf, sa = _sums(as_of(games, slate, season=season))
+    return _shrunk(secs, sf, prior_sf), _shrunk(secs, sa, prior_sa)
+
+
+def build_prop_context(
+    quotes: list[QuoteRow],
+    games: dict[str, tuple[str, str, str]],
+    *,
+    slate: Date,
+    season: int,
+    logs: PlayerLogClient,
+    shrink: propf.PropShrink = propf.DEFAULT_SHRINK,
+) -> PropContext:
+    """Projections for every player a prop quote names, from rosters + game logs.
+
+    Only quoted players are fetched (two seasons of game log each, cached); the
+    league positional means are pooled from that same set once it is large
+    enough, otherwise the constants in ``features.props`` stand in.
+    """
+    ctx = PropContext()
+    teams = sorted({t for away, home, _ in games.values() for t in (away, home)})
+    index = NameIndex([s for t in teams for s in logs.current_roster(t)])
+    wanted: dict[tuple[str, str], str] = {}
+    for q in quotes:
+        if not is_prop(q.market) or not q.entity or q.matchup not in games:
+            continue
+        away, home, _ = games[q.matchup]
+        for t in (away, home):
+            wanted.setdefault((t, norm_name(q.entity)), q.entity)
+    resolved: dict[tuple[str, str], tuple[str, RosterSpot, list[SkaterGame], list[SkaterGame]]] = {}
+    pool: list[tuple[str, list[SkaterGame]]] = []
+    for (team, key), raw in wanted.items():
+        spot = index.find(team, raw)
+        if spot is None:
+            continue
+        if spot.position == "G":
+            cur = logs.goalie_log(spot.player_id, season)
+            prev = logs.goalie_log(spot.player_id, season - 1, final=True)
+            ctx.goalies[(team, key)] = propf.project_goalie(
+                player_id=spot.player_id,
+                name=spot.name,
+                team=team,
+                current=cur,
+                previous=prev,
+                slate=slate,
+                shrink=shrink,
+            )
+            continue
+        cur_s = logs.skater_log(spot.player_id, season)
+        prev_s = logs.skater_log(spot.player_id, season - 1, final=True)
+        pos = "D" if spot.position == "D" else "F"
+        pool.append((pos, prev_s))
+        resolved[(team, key)] = (pos, spot, cur_s, prev_s)
+    league = propf.league_means(pool)
+    for (team, key), (pos, spot, cur_s, prev_s) in resolved.items():
+        ctx.skaters[(team, key)] = propf.project_skater(
+            player_id=spot.player_id,
+            name=spot.name,
+            team=team,
+            position=pos,
+            current=cur_s,
+            previous=prev_s,
+            slate=slate,
+            league=league[pos],
+            shrink=shrink,
+        )
+    return ctx
 
 
 def league_for(
@@ -193,6 +332,7 @@ def price_game(
     priced_at: str,
     tag: str,
     seed: int,
+    props: PropContext | None = None,
 ) -> GameCard:
     home, away = home_in.code, away_in.code
     matchup = f"{away} @ {home}"
@@ -209,6 +349,36 @@ def price_game(
     both_confirmed = home_in.starter.confirmed and away_in.starter.confirmed
     for sel in _per_book_rules(s for s in board if s.matchup == matchup):
         ot_rule = DEFAULT_OT_RULE.get(sel.market, "reg_only")
+        if is_prop(sel.market):
+            if props is None:
+                continue
+            model_p = price_prop(sel, sim, home_in=home_in, away_in=away_in, props=props)
+            if model_p is None:
+                continue
+            priced = stamp(
+                sel,
+                model_p,
+                ot_rule=ot_rule,
+                thr=cfg.gates,
+                quote_age_minutes=sel.age_minutes(now),
+                goalie_confirmed=both_confirmed,
+                settlement_gate=None,
+            )
+            card.rows.append(
+                row_from(
+                    priced,
+                    slate_date=slate,
+                    home=home,
+                    away=away,
+                    home_goalie=home_in.starter.name,
+                    away_goalie=away_in.starter.name,
+                    goalie_status=card.goalie_status,
+                    lineup_source=f"{away_in.lineup_source} | {home_in.lineup_source}",
+                    priced_at=priced_at,
+                    card_tag=tag,
+                )
+            )
+            continue
         settlement_gate: str | None = None
         if ot_rule == "book_rule":
             ot_rule = rules.resolve(sel.best_book, sel.market, slate)
@@ -256,6 +426,72 @@ def price_game(
     return card
 
 
+def _side_of(
+    sel: Selection, home_in: TeamInputs, away_in: TeamInputs, props: PropContext
+) -> tuple[TeamInputs, TeamInputs, propf.SkaterProjection] | None:
+    """``(team_inputs, opp_inputs, projection)`` for the quoted player, or None."""
+    for own, opp in ((home_in, away_in), (away_in, home_in)):
+        sk = props.skater(own.code, sel.entity)
+        if sk is not None:
+            return own, opp, sk
+    return None
+
+
+def price_prop(
+    sel: Selection,
+    sim: propm.SimResult,
+    *,
+    home_in: TeamInputs,
+    away_in: TeamInputs,
+    props: PropContext,
+) -> markets.Prob | None:
+    mk = sel.market
+    if mk == "g_saves":
+        for own, opp in ((home_in, away_in), (away_in, home_in)):
+            g = props.goalie(own.code, sel.entity)
+            if g is None or sel.line is None:
+                continue
+            if norm_name(own.starter.name) != norm_name(g.name):
+                return None  # quoted goalie is not the projected starter
+            sf = opp.sf60 if opp.sf60 == opp.sf60 else props.league_sf60
+            sa = own.sa60 if own.sa60 == own.sa60 else props.league_sa60
+            shots = sf * sa / props.league_sa60 * 60.6 / 60.0
+            mean = propm.saves_mean(shots, propm.exp_goals_against(sim, home=own is home_in))
+            return propm.over_under(
+                propm.negbin_pmf(mean, propm.SAVES_VAR_SLOPE), sel.line, sel.side
+            )
+        return None
+    hit = _side_of(sel, home_in, away_in, props)
+    if hit is None:
+        return None
+    own, opp, sk = hit
+    is_home = own is home_in
+    if mk == "sk_sog":
+        if sel.line is None:
+            return None
+        sa = opp.sa60 if opp.sa60 == opp.sa60 else props.league_sa60
+        mean = propm.sog_mean(
+            sk.sog60,
+            sk.toi,
+            shot_factor=propm.score_state(sim, home=is_home).shot_factor,
+            opp_sa_factor=sa / props.league_sa60,
+        )
+        return propm.over_under(propm.negbin_pmf(mean), sel.line, sel.side)
+    if mk in ("sk_g", "ags"):
+        # Goals scale with the opposing goalie exactly as the sim's goal rates do.
+        mean = sk.mean("g") * goalie_factor(opp.starter.gsax60)
+        pmf = propm.poisson_pmf(mean)
+        if mk == "ags":
+            return propm.anytime(pmf, sel.side)
+        return propm.over_under(pmf, sel.line, sel.side) if sel.line is not None else None
+    if mk in ("sk_a", "sk_pts", "sk_ppp"):
+        if sel.line is None:
+            return None
+        stat = {"sk_a": "a", "sk_pts": "pts", "sk_ppp": "ppp"}[mk]
+        return propm.over_under(propm.poisson_pmf(sk.mean(stat)), sel.line, sel.side)
+    return None
+
+
 def _per_book_rules(board: Iterable[Selection]) -> Iterator[Selection]:
     """Split book-rule markets (team totals) into one selection per book.
 
@@ -284,11 +520,19 @@ def run_slate(
     tag: str,
     now: datetime | None = None,
     seed: int | None = None,
+    logs: PlayerLogClient | None = None,
 ) -> SlateCard:
     now = now or datetime.now(timezone.utc)
     priced_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     board = selections(quotes)
     games = matchups(quotes)
+    props: PropContext | None = None
+    if logs is None:
+        logs = PlayerLogClient(NHLAPIClient(cache_dir=data_dir / "cache" / "nhlapi"))
+    try:
+        props = build_prop_context(quotes, games, slate=slate, season=season, logs=logs)
+    except Exception:  # props are research rows; never sink the card
+        log.exception("prop projections failed; props unpriced")
     league = league_for(mp, slate, season, prior)
     lineups = load_lineups(lineups_path(data_dir, slate))
     overrides = load_overrides(overrides_path(data_dir, slate))
@@ -329,6 +573,7 @@ def run_slate(
                 priced_at=priced_at,
                 tag=tag,
                 seed=base_seed * 100 + i,
+                props=props,
             )
         except Exception as exc:  # one bad game must not sink the slate
             log.exception("pricing %s failed", matchup)

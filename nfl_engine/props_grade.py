@@ -213,15 +213,39 @@ def grade_week(
     return graded
 
 
+def _has_unplayed_game(path: Path) -> bool:
+    """A graded file with a matchup where nothing settled: graded before that game had stats."""
+    settled: dict[str, bool] = {}
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle):
+                matchup = row.get("matchup", "")
+                settled[matchup] = settled.get(matchup, False) or row.get("result") in (
+                    WIN,
+                    LOSS,
+                    PUSH,
+                )
+    except (OSError, csv.Error):
+        return False
+    return not all(settled.values())
+
+
 def pending_weeks(season: int, *, root: Path | None = None) -> list[int]:
-    """Weeks with a research file and no graded file, oldest first."""
+    """Weeks with research rows still to grade, oldest first.
+
+    A week is pending until it has a graded file in which every matchup settled
+    at least one row. A week graded mid-weekend voids its later games as
+    ``no_box_score``; it is graded again once they have stats. A player who sat
+    out is a void inside a played game and does not hold the week open.
+    """
     folder = (root or data_dir()) / "props"
     if not folder.exists():
         return []
     weeks = []
     for path in sorted(folder.glob(f"research_{season}_wk*.csv")):
         week = int(path.stem.rsplit("wk", 1)[1])
-        if not graded_path(season, week, root=root).exists():
+        graded = graded_path(season, week, root=root)
+        if not graded.exists() or _has_unplayed_game(graded):
             weeks.append(week)
     return weeks
 

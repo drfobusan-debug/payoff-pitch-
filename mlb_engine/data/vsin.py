@@ -26,6 +26,7 @@ import io
 import logging
 import re
 from dataclasses import dataclass
+from datetime import date as Date
 from pathlib import Path
 from typing import NamedTuple
 
@@ -48,6 +49,27 @@ _BOOKS = {"DK": "draftkings", "circa": "circa"}
 SUBSCRIBER_COOKIE = "__utp"
 # Two rows a game: a board this short is the signed-out teaser, not a slate.
 _TEASER_ROWS = 2
+# The page heading names the slate it shows ("MLB - Wednesday, Sep 30"); the
+# URL takes no date, so this is the only way to know which day the rows are.
+_PAGE_DATE = re.compile(r"MLB\s*-\s*[A-Za-z]+day,\s*([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2})")
+_MONTHS = {m: i for i, m in enumerate(
+    ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1
+)}
+
+
+def page_date(html: str, near: Date) -> Date | None:
+    """Slate date named in a VSIN splits page, resolved to the year nearest ``near``."""
+    m = _PAGE_DATE.search(html)
+    if m is None or m.group(1).lower() not in _MONTHS:
+        return None
+    month, day = _MONTHS[m.group(1).lower()], int(m.group(2))
+    candidates = []
+    for year in (near.year - 1, near.year, near.year + 1):
+        try:
+            candidates.append(Date(year, month, day))
+        except ValueError:
+            continue
+    return min(candidates, key=lambda d: abs((d - near).days), default=None)
 
 
 class _MoneyLine(NamedTuple):
@@ -259,14 +281,20 @@ class VSINClient:
     SideSplits = dict[tuple[str, str, str], SideSplit]
 
     def fetch_side_splits(self, slate: Slate) -> SideSplits:
-        """{(matchup, abbrev, book): SideSplit} -- each team's ML and run-line split, per book."""
+        """{(matchup, abbrev, book): SideSplit} -- each team's ML and run-line split, per book.
+
+        A book whose page names a different slate date than ``slate`` is
+        skipped: the page is always VSIN's current day, so after a late run or
+        before their rollover it still shows yesterday, and matching its rows
+        by team name would file yesterday's splits under today's game.
+        """
         name_to_team: dict[str, tuple[str, str]] = {}
         for g in slate.games:
             for tm in (g.home, g.away):
                 name_to_team[_norm_name(tm.name)] = (g.matchup(), tm.abbrev)
         out: VSINClient.SideSplits = {}
         for src, book in _BOOKS.items():
-            for row in self._fetch_book(src):
+            for row in self._fetch_book(src, slate.slate_date):
                 match = name_to_team.get(_norm_name(row.name))
                 if match is None:
                     continue
@@ -283,7 +311,7 @@ class VSINClient:
         """Backwards-compatible accessor for just the priced moneyline quotes."""
         return self.fetch(slate)[0]
 
-    def _fetch_book(self, src: str) -> list[_RawRow]:
+    def _fetch_book(self, src: str, slate_date: Date | None = None) -> list[_RawRow]:
         url = SPLITS_URL.format(book=src)
         try:
             resp = http.get(
@@ -294,6 +322,11 @@ class VSINClient:
         except (requests.RequestException, ValueError) as exc:
             log.warning("VSIN splits fetch failed for %s: %s", src, exc)
             return []
+        if slate_date is not None:
+            shown = page_date(resp.text, slate_date)
+            if shown is not None and shown != slate_date:
+                log.warning("VSIN %s page shows %s, sheet is %s: splits skipped", src, shown, slate_date)
+                return []
         if not tables:
             return []
         rows = self._rows(tables[0])
