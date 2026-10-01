@@ -608,12 +608,17 @@ class PriceBook:
         return " ".join(parts)
 
 
-def fetch_prices(cfg: Config, slate: Slate) -> PriceBook:
+def fetch_prices(cfg: Config, slate: Slate, today: Date | None = None) -> PriceBook:
     """Board from the Odds API (one credit), handle/bets splits from VSIN.
 
     Board and splits are keyed by matchup, so a doubleheader's two games are
     indistinguishable on either feed: those matchups are left blank rather than
     game 2 inheriting game 1's line and splits.
+
+    VSIN's page has no date parameter -- it is always today's slate -- so the
+    splits are only read when the sheet is being written for ``today``; a
+    re-run for another day would otherwise paste today's numbers onto any team
+    on that sheet by name.
     """
     by_matchup: dict[str, list[Game]] = {}
     for g in slate.games:
@@ -650,11 +655,14 @@ def fetch_prices(cfg: Config, slate: Slate) -> PriceBook:
             except ValueError:
                 continue
             p.rl, p.rl_book = q.american, q.book
-    try:
-        sides = VSINClient(cfg.creds).fetch_side_splits(slate)
-    except Exception as exc:  # noqa: BLE001
-        log.warning("worksheet: VSIN splits unavailable: %s", exc)
-        sides = {}
+    sides: VSINClient.SideSplits = {}
+    if today is not None and slate.slate_date != today:
+        log.warning("worksheet: VSIN splits skipped -- page is today's slate, sheet is %s", slate.slate_date)
+    else:
+        try:
+            sides = VSINClient(cfg.creds).fetch_side_splits(slate)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("worksheet: VSIN splits unavailable: %s", exc)
     for (matchup, abbrev, book), s in sides.items():
         p = target(matchup, abbrev)
         if p is None:
@@ -849,14 +857,53 @@ def save_ledger(path: Path, rows: list[LedgerRow]) -> None:
     tmp.replace(path)
 
 
+_SPLIT_FIELDS = tuple(
+    f"{book}_{mkt}_{kind}_{side}"
+    for side in ("away", "home") for book in ("dk", "circa") for mkt in ("ml", "rl") for kind in ("handle", "bets")
+)
+
+
 def merge(ledger: list[LedgerRow], fresh: list[LedgerRow]) -> list[LedgerRow]:
-    """A day's rows are re-written by a re-run until graded; a graded row is never touched."""
+    """A day's rows are re-written by a re-run until graded; a graded row is never touched.
+
+    A game_pk is one game: if a fresh row carries a pk the ledger holds under
+    another date (the schedule moved it), the old row goes rather than the game
+    being counted twice.
+    """
     kept = {(r.date, r.game_pk): r for r in ledger}
     for r in fresh:
+        for key in [k for k in kept if k[1] == r.game_pk and k[0] != r.date]:
+            del kept[key]
         old = kept.get((r.date, r.game_pk))
         if old is None or not old.graded:
             kept[(r.date, r.game_pk)] = r
     return sorted(kept.values(), key=lambda r: (r.date, r.game))
+
+
+def clean_ledger(rows: list[LedgerRow]) -> list[LedgerRow]:
+    """Repair rows written before the current guards existed.
+
+    - one row per game_pk (the latest date wins);
+    - a doubleheader's two rows carried the same matchup-keyed splits, which
+      belong to neither game, so both are blanked;
+    - a row with a missing starter is never graded, so a grade it was given
+      by an older version is cleared.
+    """
+    by_pk: dict[int, LedgerRow] = {}
+    for r in sorted(rows, key=lambda r: r.date):
+        by_pk[r.game_pk] = r
+    out = sorted(by_pk.values(), key=lambda r: (r.date, r.game))
+    per_day: dict[tuple[str, str], int] = {}
+    for r in out:
+        per_day[(r.date, r.game)] = per_day.get((r.date, r.game), 0) + 1
+    for r in out:
+        if per_day[(r.date, r.game)] > 1:
+            for f in _SPLIT_FIELDS:
+                setattr(r, f, None)
+        if not r.complete and r.graded:
+            r.away_runs = r.home_runs = None
+            r.result = r.rl_result = ""
+    return out
 
 
 def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
@@ -1325,11 +1372,11 @@ def run_worksheet(cfg: Config, day: Date, slate: Slate) -> tuple[Path, str]:
     pens = bullpen_ranking(as_of)
     bats = offense_rankings(df, as_of)
     sps = starter_table(df, as_of)
-    book = fetch_prices(cfg, slate)
+    book = fetch_prices(cfg, slate, Date.today())
     rows = build_rows(slate, bats, pens, sps, book.prices)
 
     path = ledger_path(cfg)
-    ledger = merge(load_ledger(path), [r for _, _, _, r in rows])
+    ledger = merge(clean_ledger(load_ledger(path)), [r for _, _, _, r in rows])
     graded = grade_pending(ledger, day)
     save_ledger(path, ledger)
     prev = day - timedelta(days=1)
