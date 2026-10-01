@@ -275,8 +275,6 @@ throwaway origin instead; the state code only ever talks to `origin` of the chec
   When testing that, keep a copy of the pre-migration file and assert historical rows are preserved,
   unshifted and blank in the new column.
 
-||||||| parent of 94da052b (Add a recipe for testing report-only artifacts wired into the daily run)
-
 ## Testing a calibration-map change (`calibration.py`, `calibrate`)
 
 The calibration map changes the probability *every* market prices off, so treat it as higher risk
