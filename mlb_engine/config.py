@@ -1253,6 +1253,29 @@ class Config:
     pitcher_outs_bias_max_prob: float = field(
         default_factory=lambda: _env_float("MLBE_PITCHER_OUTS_BIAS_MAX_PROB", 0.62)
     )
+    # Starter length from the book's two-sided pitcher-outs line, blended with
+    # his recent batters faced, and from his median pitch count when no line is
+    # posted (features.market_length). Off by default: research, pending a
+    # replay graded against the close. When on, the outs bias above is not
+    # applied -- it corrected the workload cap this replaces.
+    market_outs_length: bool = field(
+        default_factory=lambda: _env_bool("MLBE_MARKET_OUTS_LENGTH", False)
+    )
+    market_outs_weight: float = field(
+        default_factory=lambda: _env_float("MLBE_MARKET_OUTS_WEIGHT", 0.95)
+    )
+    market_outs_bf_buffer: float = field(
+        default_factory=lambda: _env_float("MLBE_MARKET_OUTS_BF_BUFFER", 0.75)
+    )
+    market_outs_bf_sd: float = field(
+        default_factory=lambda: _env_float("MLBE_MARKET_OUTS_BF_SD", 5.0)
+    )
+    market_outs_pitch_buffer: int = field(
+        default_factory=lambda: _env_int("MLBE_MARKET_OUTS_PITCH_BUFFER", 8)
+    )
+    market_outs_max_bf: int = field(
+        default_factory=lambda: _env_int("MLBE_MARKET_OUTS_MAX_BF", 30)
+    )
 
     # Barrel rate is a negative for singles: power hitters take the same number
     # of hits but convert them to extra bases. The slope prices the half of that

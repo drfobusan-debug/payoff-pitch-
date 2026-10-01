@@ -85,6 +85,10 @@ class TeamSimConfig:
     # Pitching: this team's starter caps before the bullpen takes over.
     starter_bf_cap: int = 24
     starter_pitch_cap: int = 95
+    # Spread of the batters-faced hook across simulations. Zero keeps one fixed
+    # hook (and the random stream untouched); above zero each simulation draws
+    # its own hook around ``starter_bf_cap``, as a real manager's varies.
+    starter_bf_sd: float = 0.0
     # Per-PA pitch-cost scaler (>1 = inefficient / deep counts, <1 = efficient).
     pitch_eff: float = 1.0
     # Probability a ground-ball out turns into a double play (runner on first).
@@ -206,7 +210,14 @@ class MonteCarlo:
         sp_hand = {"home": home.starter_hand, "away": away.starter_hand}
         pen_lhp = {"home": home.pen_lhp_share, "away": away.pen_lhp_share}
 
+        bf_sd = {"home": home.starter_bf_sd, "away": away.starter_bf_sd}
         for s in range(n):
+            caps = pitch_caps
+            if bf_sd["home"] > 0 or bf_sd["away"] > 0:
+                caps = {
+                    t: max(1, int(round(c + self.rng.normal(0.0, bf_sd[t])))) if bf_sd[t] > 0 else c
+                    for t, c in pitch_caps.items()
+                }
             self._sim_one(
                 s,
                 home_cdf_start,
@@ -217,7 +228,7 @@ class MonteCarlo:
                 away_cdf_pen_close,
                 home_cdf_pen_bridge,
                 away_cdf_pen_bridge,
-                pitch_caps,
+                caps,
                 pitch_count_caps,
                 pitch_eff,
                 gb_dp,
