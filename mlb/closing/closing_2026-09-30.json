@@ -4425,6 +4425,34 @@
   },
   {
     "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Kevin Gausman K o4.5",
+    "american": 100.0,
+    "no_vig_prob": 0.460803
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Kevin Gausman K u4.5",
+    "american": -141.0,
+    "no_vig_prob": 0.539197
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Nick Pivetta K o4.5",
+    "american": -136.0,
+    "no_vig_prob": 0.528285
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "batter_k",
+    "selection": "Nick Pivetta K u4.5",
+    "american": -106.0,
+    "no_vig_prob": 0.471715
+  },
+  {
+    "matchup": "CHC @ SD",
     "market": "batter_rbi",
     "selection": "Alex Bregman RBI o0.5",
     "american": 236.0,
@@ -5434,9 +5462,23 @@
   {
     "matchup": "CHC @ SD",
     "market": "game_rl",
+    "selection": "CHC +1.0",
+    "american": -129.0,
+    "no_vig_prob": 0.535921
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
     "selection": "CHC +1.5",
     "american": -175.0,
     "no_vig_prob": 0.61968
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "game_rl",
+    "selection": "SD -1.0",
+    "american": 105.0,
+    "no_vig_prob": 0.464079
   },
   {
     "matchup": "CHC @ SD",
@@ -5532,9 +5574,23 @@
   {
     "matchup": "CHC @ SD",
     "market": "pitcher_h",
+    "selection": "Kevin Gausman Hits o3.5",
+    "american": -170.0,
+    "no_vig_prob": 0.591523
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "pitcher_h",
     "selection": "Kevin Gausman Hits o4.5",
     "american": 104.0,
     "no_vig_prob": 0.466703
+  },
+  {
+    "matchup": "CHC @ SD",
+    "market": "pitcher_h",
+    "selection": "Kevin Gausman Hits u3.5",
+    "american": 130.0,
+    "no_vig_prob": 0.408477
   },
   {
     "matchup": "CHC @ SD",
