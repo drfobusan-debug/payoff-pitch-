@@ -75,7 +75,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-01T22:40:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 607208,
+      "name": "Trea Turner",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 656941,
+      "name": "Kyle Schwarber",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 547180,
+      "name": "Bryce Harper",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664761,
+      "name": "Alec Bohm",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 681082,
+      "name": "Bryson Stott",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 650559,
+      "name": "Bryan De La Cruz",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 624641,
+      "name": "Edmundo Sosa",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 592663,
+      "name": "J.T. Realmuto",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 702222,
+      "name": "Justin Crawford",
+      "bats": "L",
+      "position": "CF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849844,
@@ -153,6 +222,75 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-01T22:40:17+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 686948,
+      "name": "Drake Baldwin",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 660670,
+      "name": "Ronald Acu\u00f1a Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 621566,
+      "name": "Matt Olson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 671739,
+      "name": "Michael Harris II",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 643289,
+      "name": "Mauricio Dub\u00f3n",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 573262,
+      "name": "Mike Yastrzemski",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 663586,
+      "name": "Austin Riley",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 645277,
+      "name": "Ozzie Albies",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 642086,
+      "name": "Dominic Smith",
+      "bats": "L",
+      "position": "DH"
+     }
+    ]
+   }
+  ]
  }
 ]
