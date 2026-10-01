@@ -147,6 +147,7 @@ class SlateCard:
     prior_version: str
     games: list[GameCard] = field(default_factory=list)
     unpriced: list[str] = field(default_factory=list)
+    props: PropContext | None = None
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -537,7 +538,7 @@ def run_slate(
     lineups = load_lineups(lineups_path(data_dir, slate))
     overrides = load_overrides(overrides_path(data_dir, slate))
     base_seed = seed if seed is not None else int(slate.strftime("%Y%m%d"))
-    out = SlateCard(slate, season, priced_at, tag, prior.version)
+    out = SlateCard(slate, season, priced_at, tag, prior.version, props=props)
     cache: dict[str, TeamInputs] = {}
 
     def inputs(code: str) -> TeamInputs:
@@ -584,12 +585,45 @@ def run_slate(
     return out
 
 
+def league_inputs(
+    mp: MoneyPuckClient,
+    slate: Date,
+    *,
+    season: int,
+    cfg: Config,
+    prior: PreseasonPrior,
+    known: dict[str, TeamInputs] | None = None,
+) -> dict[str, dict[str, float]]:
+    """``team -> rates`` for all 32 teams (for league ranks on the PDF card)."""
+    league = league_for(mp, slate, season, prior)
+    out: dict[str, dict[str, float]] = {}
+    for code in sorted(CODES):
+        if known and code in known:
+            out[code] = dict(known[code].rates)
+            continue
+        out[code] = dict(
+            team_inputs(
+                mp,
+                code,
+                slate,
+                season=season,
+                cfg=cfg,
+                prior=prior,
+                league=league,
+                lineups={},
+                overrides={},
+            ).rates
+        )
+    return out
+
+
 __all__ = [
     "GameCard",
     "LineupRates",
     "SlateCard",
     "TeamInputs",
     "league_for",
+    "league_inputs",
     "lineups_path",
     "load_lineups",
     "price_game",

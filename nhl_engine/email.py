@@ -1,7 +1,7 @@
 """SMTP delivery of the priced card (Gmail App Password by default).
 
 Same shape and credentials as the MLB/NFL/CFB senders: one ``engine.env`` on the
-machine serves every engine. The text card is the body; the txt/md/xlsx files
+machine serves every engine. The text card is the body; the pdf/txt/md/xlsx files
 the card run already wrote are attached as-is.
 """
 
