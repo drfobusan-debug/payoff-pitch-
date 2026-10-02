@@ -1,0 +1,92 @@
+{
+  "Liberty @ Delaware|game_ats|Delaware": {
+    "american": -112.0,
+    "line": 7.0,
+    "no_vig_prob": 0.5140674189178965
+  },
+  "Liberty @ Delaware|game_ats|Liberty": {
+    "american": 100.0,
+    "line": -7.0,
+    "no_vig_prob": 0.4859325810821035
+  },
+  "Liberty @ Delaware|game_ml|Delaware": {
+    "american": 220.0,
+    "line": null,
+    "no_vig_prob": 0.30482294174146723
+  },
+  "Liberty @ Delaware|game_ml|Liberty": {
+    "american": -260.0,
+    "line": null,
+    "no_vig_prob": 0.6951770582585328
+  },
+  "Liberty @ Delaware|game_total|Over": {
+    "american": -106.0,
+    "line": 50.0,
+    "no_vig_prob": 0.49776931863039825
+  },
+  "Liberty @ Delaware|game_total|Under": {
+    "american": -110.0,
+    "line": 50.0,
+    "no_vig_prob": 0.5022306813696017
+  },
+  "Penn State Nit @ Northwestern|game_ats|Northwestern": {
+    "american": 109.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4769317470901967
+  },
+  "Penn State Nit @ Northwestern|game_ats|Penn State Nit": {
+    "american": -115.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5230682529098032
+  },
+  "Penn State Nit @ Northwestern|game_ml|Northwestern": {
+    "american": 125.0,
+    "line": null,
+    "no_vig_prob": 0.4340526556951304
+  },
+  "Penn State Nit @ Northwestern|game_ml|Penn State Nit": {
+    "american": -140.0,
+    "line": null,
+    "no_vig_prob": 0.5659473443048697
+  },
+  "Penn State Nit @ Northwestern|game_total|Over": {
+    "american": -110.0,
+    "line": 45.5,
+    "no_vig_prob": 0.5006087607291477
+  },
+  "Penn State Nit @ Northwestern|game_total|Under": {
+    "american": -108.0,
+    "line": 45.5,
+    "no_vig_prob": 0.49939123927085227
+  },
+  "Pittsburgh @ Virginia Tech|game_ats|Pittsburgh": {
+    "american": -105.0,
+    "line": 2.5,
+    "no_vig_prob": 0.49823034251891357
+  },
+  "Pittsburgh @ Virginia Tech|game_ats|Virginia Tech": {
+    "american": -102.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5017696574810865
+  },
+  "Pittsburgh @ Virginia Tech|game_ml|Pittsburgh": {
+    "american": 120.0,
+    "line": null,
+    "no_vig_prob": 0.44418579262680935
+  },
+  "Pittsburgh @ Virginia Tech|game_ml|Virginia Tech": {
+    "american": -133.0,
+    "line": null,
+    "no_vig_prob": 0.5558142073731908
+  },
+  "Pittsburgh @ Virginia Tech|game_total|Over": {
+    "american": -108.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5030165297867059
+  },
+  "Pittsburgh @ Virginia Tech|game_total|Under": {
+    "american": -104.0,
+    "line": 54.5,
+    "no_vig_prob": 0.4969834702132942
+  }
+}
