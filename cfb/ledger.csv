@@ -1379,3 +1379,15 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-09-26,Wake Forest @ Louisville,Spread (ATS),game_ats,Wake Forest +12.5,12.5,bovada,-105.0,-115.0,Strong buy,0.5382,0.0507,win,0.9524,0.5382,0.4971,0.5382,-107.0,0.5259,0.0288,0.0268,1.0,0.022,,
 2026-09-26,Wake Forest @ Louisville,Totals,game_total,Over 57.5,57.5,williamhill_us,-106.0,-114.0,Pass,0.3727,-0.2757,loss,-1.0,0.3727,0.4966,0.3727,-106.0,0.4996,0.003,-0.0291,0.0,-0.0149,,
 2026-09-26,Wake Forest @ Louisville,Totals,game_total,Under 57.5,57.5,fanduel,-110.0,-110.0,Pass,0.624,0.1913,win,0.9091,0.6273,0.5034,0.624,-105.0,0.5004,-0.003,-0.0447,0.0,0.0149,,
+2026-10-01,North Texas @ Tulsa,Moneyline,game_ml,North Texas ML,,draftkings,-112.0,-108.0,Pass,0.4637,-0.1224,win,0.8929,0.4637,0.511,0.4637,-116.0,0.5441,0.0331,0.0299,,0.0,,
+2026-10-01,North Texas @ Tulsa,Moneyline,game_ml,Tulsa ML,,bovada,100.0,-120.0,Strong buy,0.5363,0.0727,loss,-1.0,0.5363,0.489,0.5363,115.0,0.4559,-0.0331,-0.0882,,0.0,,
+2026-10-01,North Texas @ Tulsa,Spread (ATS),game_ats,North Texas -1.0,-1.0,lowvig,-107.0,-105.0,Pass,0.4475,-0.1344,push,0.0,0.4475,0.5007,0.4475,-108.0,0.5377,0.037,0.0402,1.5,0.0,,
+2026-10-01,North Texas @ Tulsa,Spread (ATS),game_ats,Tulsa +1.0,1.0,lowvig,-105.0,-107.0,Strong buy,0.5525,0.0788,push,0.0,0.5525,0.4993,0.5525,-105.0,0.4623,-0.037,-0.0974,-1.5,0.0,,
+2026-10-01,North Texas @ Tulsa,Totals,game_total,Over 56.5,56.5,lowvig,-108.0,-108.0,Pass,0.5116,-0.0146,win,0.9259,0.5116,0.5053,0.5116,-105.0,0.5018,-0.0035,-0.0336,0.0,0.0,,
+2026-10-01,North Texas @ Tulsa,Totals,game_total,Under 56.5,56.5,williamhill_us,-104.0,-117.0,Pass,0.4884,-0.042,loss,-1.0,0.4884,0.4947,0.4884,-104.0,0.4982,0.0035,-0.0228,0.0,0.0,,
+2026-10-01,Western Kentuc @ New Mexico Sta,Moneyline,game_ml,New Mexico Sta ML,,fanduel,-126.0,105.0,Pass,0.5017,-0.1002,win,0.7937,0.5017,0.5496,0.5017,-126.0,0.5442,-0.0054,-0.0239,,0.0,,25.0
+2026-10-01,Western Kentuc @ New Mexico Sta,Moneyline,game_ml,Western Kentuc ML,,fanatics,115.0,-140.0,Strong buy,0.4983,0.0714,loss,-1.0,0.4983,0.4504,0.4983,114.0,0.4558,0.0054,-0.02,,0.0,,
+2026-10-01,Western Kentuc @ New Mexico Sta,Spread (ATS),game_ats,New Mexico Sta -2.5,-2.5,fanduel,-106.0,-114.0,Pass,0.4405,-0.1438,win,0.9434,0.4405,0.501,0.4405,-101.0,0.4923,-0.0087,-0.0433,0.0,0.0,,7.0
+2026-10-01,Western Kentuc @ New Mexico Sta,Spread (ATS),game_ats,Western Kentuc +2.5,2.5,lowvig,-102.0,-110.0,Strong buy,0.5595,0.1079,loss,-1.0,0.5595,0.499,0.5595,-110.0,0.5077,0.0087,0.0054,0.0,0.0,,
+2026-10-01,Western Kentuc @ New Mexico Sta,Totals,game_total,Over 57.0,57.0,lowvig,-103.0,-114.0,Pass,0.4283,-0.1559,loss,-1.0,0.4283,0.4945,0.4283,-103.0,0.4646,-0.0299,-0.0843,-1.0,0.0,,
+2026-10-01,Western Kentuc @ New Mexico Sta,Totals,game_total,Under 57.0,57.0,fanatics,-110.0,-110.0,Strong buy,0.5717,0.0914,win,0.9091,0.5717,0.5055,0.5717,-105.0,0.5354,0.0299,0.0221,1.0,0.0,,2.0
