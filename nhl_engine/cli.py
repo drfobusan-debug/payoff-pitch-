@@ -38,7 +38,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from nhl_engine import email, outputs, pipeline, state
+from nhl_engine import email, outputs, pipeline, report, state
 from nhl_engine.audit import ledger, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
@@ -299,6 +299,18 @@ def cmd_card(args: argparse.Namespace) -> int:
         seed=args.seed,
     )
     paths = outputs.write_all(card, output_dir())
+    if not args.no_pdf:
+        try:
+            known = {t.code: t for g in card.games for t in (g.away_in, g.home_in)}
+            rates = pipeline.league_inputs(
+                mp, slate, season=season, cfg=cfg, prior=prior, known=known
+            )
+            ctx = report.build_context(card, mp=mp, data_dir=root, all_rates=rates)
+            paths["pdf"] = report.write_pdf(
+                card, ctx, report.pdf_path(output_dir(), slate, args.tag)
+            )
+        except Exception:  # the PDF is a view of the card; never lose the card over it
+            log.exception("pdf card failed")
     ledger.save_rows(card.rows, ledger.card_path(root, slate, args.tag))
     written = ""
     if args.tag == "initial" or args.ledger:
@@ -449,7 +461,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cd.add_argument("--seed", type=int, help="sim seed (default derived from the date)")
     cd.add_argument("--no-sync", action="store_true")
-    cd.add_argument("--email", action="store_true", help="send the card (txt/md/xlsx attached)")
+    cd.add_argument("--no-pdf", action="store_true", help="skip the PDF card")
+    cd.add_argument("--email", action="store_true", help="send the card (pdf/txt/md/xlsx attached)")
     cd.add_argument("--to", help="recipient (default NHLE_EMAIL_TO / MLBE_EMAIL_TO)")
     cd.set_defaults(func=cmd_card)
 
