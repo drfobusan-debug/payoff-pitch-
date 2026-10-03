@@ -8234,6 +8234,20 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_1b",
+    "selection": "Luis Campusano 1B o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.364221
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_1b",
+    "selection": "Luis Campusano 1B u0.5",
+    "american": -217.0,
+    "no_vig_prob": 0.635779
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_1b",
     "selection": "Luis Lara 1B o0.5",
     "american": 120.0,
     "no_vig_prob": 0.433919
@@ -8500,6 +8514,20 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_2b",
+    "selection": "Luis Campusano 2B o0.5",
+    "american": 670.0,
+    "no_vig_prob": 0.123626
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_2b",
+    "selection": "Luis Campusano 2B u0.5",
+    "american": -1160.0,
+    "no_vig_prob": 0.876374
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_2b",
     "selection": "Luis Lara 2B o0.5",
     "american": 498.0,
     "no_vig_prob": 0.164597
@@ -8748,6 +8776,20 @@
     "selection": "Jackson Merrill BB u0.5",
     "american": -424.0,
     "no_vig_prob": 0.757954
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_bb",
+    "selection": "Jake Bauers BB o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.450967
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_bb",
+    "selection": "Jake Bauers BB u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.549033
   },
   {
     "matchup": "SD @ MIL",
@@ -9060,6 +9102,20 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI o1.5",
+    "american": 115.0,
+    "no_vig_prob": 0.443448
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI u1.5",
+    "american": -141.0,
+    "no_vig_prob": 0.556552
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hrr",
     "selection": "Jake Cronenworth H+R+RBI o0.5",
     "american": -105.0,
     "no_vig_prob": 0.495436
@@ -9249,6 +9305,13 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_hr",
+    "selection": "Ethan Salas HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hr",
     "selection": "Fernando Tatis Jr. HR o0.5",
     "american": 480.0,
     "no_vig_prob": 0.173413
@@ -9361,9 +9424,30 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_hr",
+    "selection": "Luis Campusano HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.081169
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hr",
+    "selection": "Luis Campusano HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hr",
     "selection": "Luis Lara HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_hr",
+    "selection": "Luis Lara HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
   },
   {
     "matchup": "SD @ MIL",
@@ -9634,6 +9718,20 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_h",
+    "selection": "Luis Campusano H o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469622
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_h",
+    "selection": "Luis Campusano H u0.5",
+    "american": -128.0,
+    "no_vig_prob": 0.530378
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_h",
     "selection": "Luis Lara H o0.5",
     "american": -120.0,
     "no_vig_prob": 0.543847
@@ -9896,6 +9994,20 @@
     "selection": "Joey Ortiz RBI u0.5",
     "american": -295.0,
     "no_vig_prob": 0.708533
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_rbi",
+    "selection": "Luis Campusano RBI o0.5",
+    "american": 396.0,
+    "no_vig_prob": 0.190063
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_rbi",
+    "selection": "Luis Campusano RBI u0.5",
+    "american": -610.0,
+    "no_vig_prob": 0.809937
   },
   {
     "matchup": "SD @ MIL",
@@ -10166,6 +10278,20 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_r",
+    "selection": "Luis Campusano R o0.5",
+    "american": 264.0,
+    "no_vig_prob": 0.257001
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_r",
+    "selection": "Luis Campusano R u0.5",
+    "american": -386.0,
+    "no_vig_prob": 0.742999
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_r",
     "selection": "Luis Lara R o0.5",
     "american": 195.0,
     "no_vig_prob": 0.335443
@@ -10243,9 +10369,23 @@
   {
     "matchup": "SD @ MIL",
     "market": "batter_tb",
+    "selection": "Andrew Vaughn TB o1.5",
+    "american": 171.0,
+    "no_vig_prob": 0.353152
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_tb",
     "selection": "Andrew Vaughn TB u0.5",
     "american": 130.0,
     "no_vig_prob": 0.412408
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_tb",
+    "selection": "Andrew Vaughn TB u1.5",
+    "american": -224.0,
+    "no_vig_prob": 0.646848
   },
   {
     "matchup": "SD @ MIL",
@@ -10456,6 +10596,20 @@
     "selection": "Joey Ortiz TB u0.5",
     "american": 118.0,
     "no_vig_prob": 0.43366
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_tb",
+    "selection": "Luis Campusano TB o0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.475333
+  },
+  {
+    "matchup": "SD @ MIL",
+    "market": "batter_tb",
+    "selection": "Luis Campusano TB u0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.524667
   },
   {
     "matchup": "SD @ MIL",
