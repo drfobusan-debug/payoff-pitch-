@@ -12,7 +12,8 @@ One call per card pass. For every game on the archived board:
 4. one seeded joint draw (``models.periods``) read by every market
    (``models.markets``); ``team_total`` rows resolve their ``ot_rule`` per book
    through ``BookRules`` and stamp ``settlement_unverified`` when unknown;
-5. calibration, EV/tier/gates (``market.pricing``) -> ``LedgerRow``;
+5. calibration, the market anchor on game markets, EV/tier/gates
+   (``market.pricing``) -> ``LedgerRow``;
 6. props (``models.props``) off the same draws when a ``PropContext`` holds a
    projection for the quoted player -- every prop row is stamped
    ``research_only`` (master plan §6 Phase 3).
@@ -43,7 +44,7 @@ from nhl_engine.features import props as propf
 from nhl_engine.features import strength
 from nhl_engine.features.starters import Starter, load_overrides, overrides_path, starter_for
 from nhl_engine.market.board import Selection, matchups, selections
-from nhl_engine.market.pricing import is_prop, stamp
+from nhl_engine.market.pricing import anchor, is_prop, stamp
 from nhl_engine.models import markets
 from nhl_engine.models import props as propm
 from nhl_engine.models.goals import GameRates, game_rates, goalie_factor
@@ -306,16 +307,38 @@ def build_prop_context(
     return ctx
 
 
-def league_for(
-    mp: MoneyPuckClient, slate: Date, season: int, prior: PreseasonPrior
+def shrink_league(
+    live: dict[str, float], prior: dict[str, float], n: float, k_games: dict[str, float]
 ) -> dict[str, float]:
-    """League rate per metric as of the slate; the prior's league mean where no games yet."""
-    tables = {c: strength.game_table(as_of(mp.team_games(c), slate, season=season)) for c in CODES}
-    live = strength.league_rates(tables)
+    """``w x live + (1 - w) x prior``, ``w = n / (n + k)``; a missing side is the other."""
     out: dict[str, float] = {}
-    for k, v in live.items():
-        out[k] = v if v == v else prior.league.get(k, float("nan"))
+    for key in live.keys() | prior.keys():
+        v, base = live.get(key, float("nan")), prior.get(key, float("nan"))
+        if v != v or n <= 0:
+            out[key] = base
+        elif base != base:
+            out[key] = v
+        else:
+            w = n / (n + k_games.get(key, 0.0))
+            out[key] = w * v + (1.0 - w) * base
     return out
+
+
+def league_for(
+    mp: MoneyPuckClient,
+    slate: Date,
+    season: int,
+    prior: PreseasonPrior,
+    k_games: dict[str, float] | None = None,
+) -> dict[str, float]:
+    """League rate per metric as of the slate, shrunk toward last season's league.
+
+    ``k`` per metric (team-games) from ``ShrinkParams.league_k_games``.
+    """
+    tables = {c: strength.game_table(as_of(mp.team_games(c), slate, season=season)) for c in CODES}
+    n = float(sum(len(t) for t in tables.values()))
+    ks = k_games if k_games is not None else Config().shrink.league_k_games
+    return shrink_league(strength.league_rates(tables), prior.league, n, ks)
 
 
 def price_game(
@@ -399,6 +422,15 @@ def price_game(
         except markets.UnpricedMarket:
             continue
         model, cal_reasons = calib.apply(sel.market, raw)
+        sim_prob: float | None = None
+        if sel.market in cfg.gates.anchored_markets:
+            sim_prob = model.win
+            model = anchor(model, sel.consensus, cfg.gates.market_anchor)
+            cal_reasons = [
+                *cal_reasons,
+                f"anchored {cfg.gates.market_anchor:.2f} to market: sim {sim_prob:.3f}"
+                f" -> bet {model.win:.3f}",
+            ]
         priced = stamp(
             sel,
             model,
@@ -407,6 +439,7 @@ def price_game(
             quote_age_minutes=sel.age_minutes(now),
             goalie_confirmed=both_confirmed,
             settlement_gate=settlement_gate,
+            sim_prob=sim_prob,
         )
         priced.reasons.extend(cal_reasons)
         card.rows.append(
@@ -533,7 +566,7 @@ def run_slate(
         props = build_prop_context(quotes, games, slate=slate, season=season, logs=logs)
     except Exception:  # props are research rows; never sink the card
         log.exception("prop projections failed; props unpriced")
-    league = league_for(mp, slate, season, prior)
+    league = league_for(mp, slate, season, prior, cfg.shrink.league_k_games)
     lineups = load_lineups(lineups_path(data_dir, slate))
     overrides = load_overrides(overrides_path(data_dir, slate))
     base_seed = seed if seed is not None else int(slate.strftime("%Y%m%d"))
@@ -594,5 +627,6 @@ __all__ = [
     "load_lineups",
     "price_game",
     "run_slate",
+    "shrink_league",
     "team_inputs",
 ]
