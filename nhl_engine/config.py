@@ -18,6 +18,11 @@ def _env_int(name: str, default: int) -> int:
     return int(raw) if raw not in (None, "") else default
 
 
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    return float(raw) if raw not in (None, "") else default
+
+
 def _env_bool(name: str, default: bool) -> bool:
     raw = os.getenv(name)
     if raw in (None, ""):
@@ -183,11 +188,45 @@ _R_YY: dict[str, float] = {
 }
 
 
+# scripts/nhl/league_level_study.py 2026-10-03, seasons 2016-2025: the league
+# rate every team is divided by, as ``w x season-to-date + (1 - w) x last
+# season``, ``w = n / (n + k)`` with ``n`` team-games played, against the rest of
+# the season (SSE over checkpoints 16..512 team-games, 9 seasons). xG rates
+# settle in ~100 team-games, goals/finishing/PP-PK in 400-800; penalty rates and
+# PP/PK time shares never beat last season's league rate within a season (k=inf).
+# Read raw, two days of October finishing (+0.35 goals/60 on 10-02) took ~0.6
+# goals off every game the sim priced.
+LEAGUE_STUDY = "scripts/nhl/league_level_study.py 2026-10-03, seasons 2016-2025"
+
+_LEAGUE_K_GAMES: dict[str, float] = {
+    "xgf60_5v5": 100.0,
+    "xga60_5v5": 100.0,
+    "cf60_5v5": 25.0,
+    "ca60_5v5": 50.0,
+    "hdxgf60_5v5": 100.0,
+    "hdxga60_5v5": 100.0,
+    "gf60_5v5": 400.0,
+    "ga60_5v5": 800.0,
+    "fin60_5v5": 400.0,
+    "tsv60_5v5": 800.0,
+    "pp_xgf60": 400.0,
+    "pp_xga60": 1600.0,
+    "pk_xga60": 400.0,
+    "sh_xgf60": 800.0,
+    "pp_share": float("inf"),
+    "pk_share": float("inf"),
+    "pen_drawn60": float("inf"),
+    "pen_taken60": float("inf"),
+}
+
+
 @dataclass(frozen=True)
 class ShrinkParams:
     """EB ``k`` per team metric (exposure seconds) and the goalie GSAx ``k``."""
 
     team_k: dict[str, float] = field(default_factory=lambda: dict(_K_SEC))
+    # League rate: k in team-games toward last season's league (LEAGUE_STUDY).
+    league_k_games: dict[str, float] = field(default_factory=lambda: dict(_LEAGUE_K_GAMES))
     goalie_k_season: float = 349639.0
     # Same k for the discounted career sum: exposures add, the prior does not change.
     goalie_k_career: float = 349639.0
@@ -307,6 +346,10 @@ class SimParams:
     en_goals60_for: float = 6.8  # 6v5 attacking side, per pulled 60
     en_goals60_against: float = 19.3  # into the empty net, per pulled 60
     p_ot_goal: float = 0.693
+    # Multiplier on the xG-derived goal rates (5v5, PP, SH). At league-average
+    # teams and goalies the sim scored 1.031/1.038/1.022/1.047 x too few reg+OT
+    # goals in 2022-2025 (LEAGUE_STUDY); pooled 1.035.
+    goal_level: float = 1.035
     ot_home_intercept: float = 0.181
     ot_strength_slope: float = 3.37
     so_home: float = 0.5
@@ -332,6 +375,20 @@ class GateParams:
     # Period markets and team totals are archived and priced but not yet buys
     # (probation, master plan §6 Phase 2); ML/PL/totals are the live markets.
     live_markets: tuple[str, ...] = ("game_ml", "game_pl", "game_total")
+    # Game markets price off ``p_bet = (1 - w) x p_sim + w x consensus``; edge,
+    # EV, tier and every gate read p_bet, the ledger keeps p_sim as model_prob.
+    # Not fitted on NHL (21 graded games); the MLB engine's fitted cap (0.90)
+    # until the NHL ledger can refit it. At 0.90 a buy needs the sim 20 points
+    # off the market to clear min_edge.
+    market_anchor: float = field(default_factory=lambda: _env_float("NHLE_MARKET_ANCHOR", 0.90))
+    anchored_markets: tuple[str, ...] = (
+        "game_ml",
+        "game_ml3",
+        "game_pl",
+        "game_pl_alt",
+        "game_total",
+        "game_total_alt",
+    )
 
 
 @dataclass(frozen=True)

@@ -380,6 +380,9 @@ def _results_for(day: Date) -> dict[str, GameResult]:
 def cmd_audit(args: argparse.Namespace) -> int:
     root = data_dir()
     day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
+    sync = load_config().state_sync and not args.no_sync
+    if sync:
+        state.auto_pull(root)
     rows = ledger.load_rows(ledger.predictions_path(root, day))
     if rows:
         graded = ledger.grade_rows(
@@ -388,6 +391,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
         ledger.save_rows(graded, ledger.graded_path(root, day))
         done = sum(1 for r in graded if r.outcome is not None)
         print(f"{day}: graded {done}/{len(graded)} rows -> {ledger.graded_path(root, day)}")
+        if sync:
+            state.auto_push(root, f"nhl audit {day}: {done} graded")
     else:
         print(f"{day}: no ledger to grade")
     all_rows = [
@@ -482,6 +487,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")
+    au.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
     au.set_defaults(func=cmd_audit)
 
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")

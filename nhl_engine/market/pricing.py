@@ -11,6 +11,10 @@ probability ``p`` (conditional on no push)::
 
     EV = (1 - q) x (p x (d - 1) - (1 - p))
 
+Game markets (``GateParams.anchored_markets``) are priced off the sim blended
+toward the devigged consensus (``anchor``); ``Priced.sim_prob`` keeps the sim's
+own number for grading.
+
 Tiers follow the CFB engine: a buy must clear the EV floor *at the best price*
 and is then ranked on edge, with a ceiling -- past ``max_edge`` a disagreement
 with the market reads as a model error, not a bigger bet.
@@ -62,6 +66,12 @@ def family(market: str) -> str:
     return "ml"
 
 
+def anchor(model: Prob, consensus: float, weight: float) -> Prob:
+    """``(1 - w) x model + w x consensus`` on the no-push win probability."""
+    w = min(max(weight, 0.0), 1.0)
+    return Prob((1.0 - w) * model.win + w * consensus, model.push)
+
+
 def ev_per_unit(p: Prob, american: float) -> float:
     dec = 1.0 / american_to_prob(american)
     return (1.0 - p.push) * (p.win * (dec - 1.0) - (1.0 - p.win))
@@ -77,6 +87,8 @@ class Priced:
     tier: Tier
     gates: list[str] = field(default_factory=list)
     reasons: list[str] = field(default_factory=list)
+    # The sim's own probability when ``model`` is market-anchored.
+    sim_prob: float | None = None
 
     @property
     def pass_gate(self) -> bool:
@@ -106,6 +118,7 @@ def stamp(
     quote_age_minutes: float,
     goalie_confirmed: bool,
     settlement_gate: str | None,
+    sim_prob: float | None = None,
 ) -> Priced:
     edge = model.win - sel.consensus
     ev = ev_per_unit(model, sel.best_american)
@@ -147,7 +160,7 @@ def stamp(
         tier = Tier.MODERATE
     if gates:
         reasons.append("gates: " + ",".join(gates))
-    return Priced(sel, ot_rule, model, edge, ev, tier, gates, reasons)
+    return Priced(sel, ot_rule, model, edge, ev, tier, gates, reasons, sim_prob)
 
 
 __all__ = [
@@ -155,6 +168,7 @@ __all__ = [
     "PROP_PREFIXES",
     "Priced",
     "Tier",
+    "anchor",
     "ev_per_unit",
     "family",
     "is_prop",

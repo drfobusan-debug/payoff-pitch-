@@ -65,11 +65,17 @@ def _game_header(g: GameCard) -> list[str]:
     ]
 
 
+def _bet(r: LedgerRow) -> str:
+    if r.bet_prob is None or abs(r.bet_prob - r.model_prob) < 5e-4:
+        return ""
+    return f" bet {r.bet_prob:.3f}"
+
+
 def _row_line(r: LedgerRow) -> str:
     gates = "pass_gate" if r.pass_gate else ",".join(r.gates)
     return (
         f"    {r.market:<15s} {_sel(r):<22s} {_american(r.american):>6s} {r.book:<14s}"
-        f" model {r.model_prob:.3f} mkt {r.consensus:.3f} edge {r.edge:+.3f} EV {r.ev:+.3f}"
+        f" model {r.model_prob:.3f}{_bet(r)} mkt {r.consensus:.3f} edge {r.edge:+.3f} EV {r.ev:+.3f}"
         f"  {r.tier:<12s} {gates}"
     )
 
@@ -131,12 +137,15 @@ def render_brief(card: SlateCard) -> str:
     )
     out.append("")
     if buys:
-        out.append("| game | market | selection | price | book | model | market | edge | tier |")
-        out.append("|---|---|---|---|---|---|---|---|---|")
+        out.append(
+            "| game | market | selection | price | book | model | bet | market | edge | tier |"
+        )
+        out.append("|---|---|---|---|---|---|---|---|---|---|")
         for r in sorted(buys, key=lambda r: -r.edge):
             out.append(
                 f"| {r.matchup} | {r.market} | {_sel(r)} | {_american(r.american)} | {r.book} |"
-                f" {r.model_prob:.3f} | {r.consensus:.3f} | {r.edge:+.3f} | {r.tier} |"
+                f" {r.model_prob:.3f} | {r.bet_prob if r.bet_prob is not None else r.model_prob:.3f} |"
+                f" {r.consensus:.3f} | {r.edge:+.3f} | {r.tier} |"
             )
         out.append("")
     out.append("## Games")
@@ -168,6 +177,7 @@ _COLS = [
     "books",
     "consensus",
     "model_prob",
+    "bet_prob",
     "push_prob",
     "edge",
     "ev",
@@ -248,6 +258,7 @@ def _cells(r: LedgerRow) -> list[object]:
         r.books,
         round(r.consensus, 4),
         round(r.model_prob, 4),
+        round(r.bet_prob if r.bet_prob is not None else r.model_prob, 4),
         round(r.push_prob, 4),
         round(r.edge, 4),
         round(r.ev, 4),
