@@ -1391,3 +1391,21 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-01,Western Kentuc @ New Mexico Sta,Spread (ATS),game_ats,Western Kentuc +2.5,2.5,lowvig,-102.0,-110.0,Strong buy,0.5595,0.1079,loss,-1.0,0.5595,0.499,0.5595,-110.0,0.5077,0.0087,0.0054,0.0,0.0,,
 2026-10-01,Western Kentuc @ New Mexico Sta,Totals,game_total,Over 57.0,57.0,lowvig,-103.0,-114.0,Pass,0.4283,-0.1559,loss,-1.0,0.4283,0.4945,0.4283,-103.0,0.4646,-0.0299,-0.0843,-1.0,0.0,,
 2026-10-01,Western Kentuc @ New Mexico Sta,Totals,game_total,Under 57.0,57.0,fanatics,-110.0,-110.0,Strong buy,0.5717,0.0914,win,0.9091,0.5717,0.5055,0.5717,-105.0,0.5354,0.0299,0.0221,1.0,0.0,,2.0
+2026-10-02,Liberty @ Delaware,Moneyline,game_ml,Delaware ML,,draftkings,220.0,-270.0,Pass,0.2991,-0.0428,loss,-1.0,0.2991,0.3048,0.2991,225.0,0.2983,-0.0065,-0.0454,,0.0,,
+2026-10-02,Liberty @ Delaware,Moneyline,game_ml,Liberty ML,,fanduel,-260.0,210.0,Pass,0.7009,-0.0296,win,0.3846,0.7009,0.6952,0.7009,-260.0,0.7017,0.0065,-0.0284,,0.0,,
+2026-10-02,Liberty @ Delaware,Spread (ATS),game_ats,Delaware +7.0,7.0,betmgm,-112.0,-105.0,Pass,0.5016,-0.0505,loss,-1.0,0.5016,0.5141,0.5016,-110.0,0.5051,-0.009,-0.0439,0.0,0.0,,
+2026-10-02,Liberty @ Delaware,Spread (ATS),game_ats,Liberty -7.0,-7.0,mybookieag,100.0,-120.0,Pass,0.4984,-0.0032,win,1.0,0.4984,0.4859,0.4984,-101.0,0.4949,0.009,-0.0102,0.0,0.0,,
+2026-10-02,Liberty @ Delaware,Totals,game_total,Over 50.0,50.0,lowvig,-106.0,-110.0,Pass,0.4989,-0.0305,loss,-1.0,0.4989,0.4978,0.4989,-105.0,0.5435,0.0457,0.0562,1.5,0.0,,
+2026-10-02,Liberty @ Delaware,Totals,game_total,Under 50.0,50.0,lowvig,-110.0,-106.0,Pass,0.5011,-0.0433,win,0.9091,0.5011,0.5022,0.5011,-110.0,0.4565,-0.0457,-0.1285,-1.5,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Moneyline,game_ml,Northwestern ML,,betus,125.0,-145.0,Pass,0.4245,-0.0449,win,1.25,0.4245,0.4341,0.4245,120.0,0.4446,0.0105,0.0003,,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Moneyline,game_ml,Penn State Nit ML,,bovada,-140.0,120.0,Pass,0.5755,-0.0134,loss,-1.0,0.5755,0.5659,0.5755,-135.0,0.5554,-0.0105,-0.0479,,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Spread (ATS),game_ats,Northwestern +2.5,2.5,lowvig,109.0,-122.0,Moderate buy,0.5013,0.0478,win,1.09,0.5013,0.4769,0.5013,-102.0,0.4903,0.0134,0.0247,0.0,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Spread (ATS),game_ats,Penn State Nit -2.5,-2.5,mybookieag,-115.0,-105.0,Pass,0.4987,-0.0677,loss,-1.0,0.4987,0.5231,0.4987,-109.0,0.5097,-0.0134,-0.0471,0.0,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Totals,game_total,Over 45.5,45.5,fanduel,-110.0,-110.0,Pass,0.5012,-0.0431,win,0.9091,0.5012,0.5006,0.5012,101.0,0.5314,0.0308,0.0145,1.0,0.0,,
+2026-10-02,Penn State Nit @ Northwestern,Totals,game_total,Under 45.5,45.5,draftkings,-108.0,-112.0,Pass,0.4988,-0.0394,loss,-1.0,0.4988,0.4994,0.4988,-105.0,0.4686,-0.0308,-0.0975,-1.0,0.0,,
+2026-10-02,Pittsburgh @ Virginia Tech,Moneyline,game_ml,Pittsburgh ML,,bovada,120.0,-140.0,Strong buy,0.4933,0.0853,win,1.2,0.4933,0.4442,0.4933,112.0,0.4668,0.0226,0.027,,0.0,,22.0
+2026-10-02,Pittsburgh @ Virginia Tech,Moneyline,game_ml,Virginia Tech ML,,betonlineag,-133.0,113.0,Pass,0.5067,-0.1123,loss,-1.0,0.5067,0.5558,0.5067,-118.0,0.5332,-0.0226,-0.0659,,0.0,,-22.0
+2026-10-02,Pittsburgh @ Virginia Tech,Spread (ATS),game_ats,Pittsburgh +2.5,2.5,draftkings,-105.0,-115.0,Strong buy,0.5576,0.0886,win,0.9524,0.5576,0.4982,0.5576,-105.0,0.5236,0.0254,0.0223,1.0,0.0,,33.0
+2026-10-02,Pittsburgh @ Virginia Tech,Spread (ATS),game_ats,Virginia Tech -2.5,-2.5,lowvig,-102.0,-110.0,Pass,0.4424,-0.1239,loss,-1.0,0.4424,0.5018,0.4424,-104.0,0.4764,-0.0254,-0.0565,-1.0,0.0,,-33.0
+2026-10-02,Pittsburgh @ Virginia Tech,Totals,game_total,Over 54.5,54.5,lowvig,-108.0,-108.0,Pass,0.3469,-0.3318,win,0.9259,0.3469,0.503,0.3469,-108.0,0.4564,-0.0466,-0.121,-1.5,0.0,,41.0
+2026-10-02,Pittsburgh @ Virginia Tech,Totals,game_total,Under 54.5,54.5,williamhill_us,-104.0,-117.0,Pass,0.6382,0.2518,loss,-1.0,0.6531,0.497,0.6382,-105.0,0.5436,0.0466,0.0663,1.5,0.0,,-41.0
