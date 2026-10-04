@@ -1255,3 +1255,26 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-09-30,Munetaka Murakami,808959,849846,H,0.5,under,draftkings,-106.0,0.5324,0.511,0.5086,0.0024,-0.007,Pass,RV NEG UNDER,True,confirmed,20260930T1538Z,9,13,5,-2.15,batter,ev_floor,elite
 2026-09-30,Munetaka Murakami,808959,849846,HRR,1.5,under,draftkings,-164.0,0.5966,0.5836,0.5821,0.0014,-0.0606,Pass,RV NEG UNDER,True,confirmed,20260930T1538Z,9,13,5,-2.15,batter,ev_floor,elite
 2026-09-30,Munetaka Murakami,808959,849846,RBI,0.5,under,betmgm,-275.0,0.6543,0.6842,0.6875,-0.0033,-0.067,Pass,RV NEG UNDER,True,confirmed,20260930T1538Z,9,13,5,-2.15,batter,ev_floor,elite
+2026-10-04,Michael King,650633,849825,BB,2.5,over,bovada,150.0,0.419,0.3984,0.3779,0.0206,-0.0039,Pass,,True,confirmed,20261004T1533Z,,,,,pitcher,ev_floor,elite
+2026-10-04,Michael King,650633,849825,H,4.5,over,bovada,125.0,0.577,0.4545,0.4257,0.0287,0.0226,Pass,,True,confirmed,20261004T1533Z,,,,,pitcher,prob_floor,elite
+2026-10-04,Michael King,650633,849825,K,5.5,over,fanatics,120.0,0.5835,0.4502,0.4354,0.0148,-0.0095,Pass,,True,confirmed,20261004T1533Z,,,,,pitcher,ev_floor,elite
+2026-10-04,Michael King,650633,849825,outs,15.5,over,fanatics,125.0,0.6547,0.4379,0.4139,0.0241,-0.0146,Pass,,True,confirmed,20261004T1533Z,,,,,pitcher,ev_floor,elite
+2026-10-04,William Contreras,661388,849825,H,0.5,under,betmgm,150.0,0.4584,0.3878,0.3799,0.0078,-0.0306,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,4,27,13,4.44,batter,ev_floor,elite
+2026-10-04,William Contreras,661388,849825,HRR,1.5,under,betmgm,-118.0,0.5524,0.5247,0.5216,0.0031,-0.0306,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,4,27,13,4.44,batter,ev_floor,elite
+2026-10-04,William Contreras,661388,849825,RBI,0.5,under,betmgm,-220.0,0.7021,0.6677,0.6639,0.0038,-0.0288,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,4,27,13,4.44,batter,ev_floor,elite
+2026-10-04,William Contreras,661388,849825,TB,1.5,under,betmgm,-190.0,0.6977,0.6361,0.6292,0.0068,-0.0291,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,4,27,13,4.44,batter,ev_floor,elite
+2026-10-04,Brice Turang,668930,849825,1B,0.5,under,betmgm,-135.0,0.5504,0.5403,0.5391,0.0011,-0.0595,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,2,35,11,5.81,batter,ev_floor,elite
+2026-10-04,Brice Turang,668930,849825,H,0.5,under,betonlineag,141.0,0.4049,0.3986,0.3979,0.0007,-0.0394,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,2,35,11,5.81,batter,ev_floor,elite
+2026-10-04,Brice Turang,668930,849825,HRR,1.5,under,williamhill_us,-137.0,0.5302,0.5443,0.5459,-0.0016,-0.0584,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,2,35,11,5.81,batter,ev_floor,elite
+2026-10-04,Brice Turang,668930,849825,RBI,0.5,under,betmgm,-300.0,0.7374,0.708,0.7048,0.0033,-0.056,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,2,35,11,5.81,batter,ev_floor,elite
+2026-10-04,Garrett Mitchell,669003,849825,1B,0.5,under,draftkings,-148.0,0.4789,0.5515,0.5596,-0.0081,-0.0758,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,3,28,11,1.31,batter,ev_floor,elite
+2026-10-04,Garrett Mitchell,669003,849825,H,0.5,under,fanatics,135.0,0.3829,0.4018,0.4039,-0.0021,-0.0558,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,3,28,11,1.31,batter,ev_floor,elite
+2026-10-04,Garrett Mitchell,669003,849825,HRR,1.5,under,betmgm,-135.0,0.5293,0.5444,0.5461,-0.0017,-0.0524,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,3,28,11,1.31,batter,ev_floor,elite
+2026-10-04,Garrett Mitchell,669003,849825,RBI,0.5,under,betmgm,-325.0,0.7579,0.7279,0.7246,0.0033,-0.0481,Pass,ELITE UNDER,True,confirmed,20261004T1533Z,3,28,11,1.31,batter,ev_floor,elite
+2026-10-04,Jackson Chourio,694192,849825,H,0.5,under,draftkings,166.0,0.3863,0.3641,0.3616,0.0025,-0.0316,Pass,RV NEG UNDER,True,confirmed,20261004T1533Z,6,18,7,-2.57,batter,ev_floor,elite
+2026-10-04,Jackson Chourio,694192,849825,HRR,1.5,under,betmgm,-110.0,0.511,0.5013,0.5002,0.0011,-0.0431,Pass,RV NEG UNDER,True,confirmed,20261004T1533Z,6,18,7,-2.57,batter,ev_floor,elite
+2026-10-04,Jackson Chourio,694192,849825,RBI,0.5,under,betmgm,-225.0,0.7114,0.6758,0.6719,0.004,-0.0238,Pass,RV NEG UNDER,True,confirmed,20261004T1533Z,6,18,7,-2.57,batter,ev_floor,elite
+2026-10-04,Jackson Chourio,694192,849825,TB,1.5,under,draftkings,-176.0,0.6781,0.6081,0.6004,0.0078,-0.0463,Pass,RV NEG UNDER,True,confirmed,20261004T1533Z,6,18,7,-2.57,batter,ev_floor,elite
+2026-10-04,Cooper Pratt,806198,849825,BB,0.5,over,fanatics,250.0,0.2543,0.2861,0.2897,-0.0035,0.0015,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,thin_edge,elite
+2026-10-04,Cooper Pratt,806198,849825,H,0.5,under,draftkings,117.0,0.4674,0.4478,0.4456,0.0022,-0.0282,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,ev_floor,elite
+2026-10-04,Cooper Pratt,806198,849825,HRR,1.5,under,betmgm,-165.0,0.6164,0.5948,0.5924,0.0024,-0.0448,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,ev_floor,elite
