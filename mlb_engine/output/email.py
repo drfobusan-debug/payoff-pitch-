@@ -20,6 +20,7 @@ mimetypes.add_type("text/markdown", ".md")
 # Gmail refuses a message over 25 MB as sent, i.e. after base64 has grown every
 # attachment by a third; 20 MB leaves the headers and bodies their room.
 MAX_EMAIL_BYTES = 20_000_000
+SMTP_TIMEOUT_S = 120.0
 
 
 def attachment_budget(message_bytes: int = MAX_EMAIL_BYTES) -> int:
@@ -77,7 +78,9 @@ def send_card_email(
     # Gmail App Passwords are shown grouped in 4s; strip any spaces the user kept.
     password = creds.gmail_app_password.replace(" ", "")
     context = ssl.create_default_context(cafile=certifi.where())
-    with smtplib.SMTP_SSL(cfg.smtp_host, cfg.smtp_port, context=context) as server:
+    with smtplib.SMTP_SSL(
+        cfg.smtp_host, cfg.smtp_port, context=context, timeout=SMTP_TIMEOUT_S
+    ) as server:
         server.login(sender, password)
         server.send_message(msg)
     return recipient
