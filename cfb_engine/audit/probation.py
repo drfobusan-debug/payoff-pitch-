@@ -88,6 +88,7 @@ CLEAR = "CLEAR"  # judged, and not condemned
 SHUT = "SHUT"  # market losing on all three tests
 LIFT = "LIFT"  # screen refusing winners on all three tests
 SHIP = "SHIP"  # proposed screen refusing losers on all three tests
+PROMOTE = "PROMOTE"  # proposed upgrade whose buys win on all three tests
 
 _BUY = frozenset({Tier.STRONG.value, Tier.MODERATE.value})
 
@@ -109,7 +110,7 @@ class Probation:
     """One market's or one screen's verdict."""
 
     name: str
-    kind: str  # "market" | "screen" | "candidate"
+    kind: str  # "market" | "screen" | "candidate" | "upgrade"
     n: int
     roi: float  # mean per-unit return
     se: float  # standard error of that mean
@@ -120,7 +121,7 @@ class Probation:
 
     @property
     def actionable(self) -> bool:
-        return self.status in (SHUT, LIFT, SHIP)
+        return self.status in (SHUT, LIFT, SHIP, PROMOTE)
 
 
 def _decided(entries: list[LedgerEntry]) -> list[LedgerEntry]:
@@ -186,7 +187,11 @@ def _judge(
     older, newer = _halves(entries)
     h1, h2 = _mean(older), _mean(newer)
     sign = -1.0 if losing_is_bad else 1.0
-    label = {"market": "buys", "screen": "refusals"}.get(kind, "buys it would refuse")
+    label = {
+        "market": "buys",
+        "screen": "refusals",
+        "upgrade": "buys it would upgrade",
+    }.get(kind, "buys it would refuse")
 
     if n < min_n:
         return Probation(
@@ -206,16 +211,18 @@ def _judge(
     # Condition 3: both halves agree.
     consistent = sign * h1 > 0 and sign * h2 > 0
     if beyond_se and consistent:
-        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP}[kind]
+        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP, "upgrade": PROMOTE}[kind]
         verb = {
             "market": f"losing {abs(roi) * 100:.1f}% of stake",
             "screen": f"refusing winners at {roi * 100:+.1f}%",
             "candidate": f"losing {abs(roi) * 100:.1f}% of stake",
+            "upgrade": f"winning {roi * 100:+.1f}% of stake",
         }[kind]
         act = {
             "market": f"shut {name} until the refit",
             "screen": f"lift {name}; it is deleting money",
             "candidate": f"ship {name}",
+            "upgrade": f"promote {name}",
         }[kind]
         return Probation(
             name,
@@ -303,6 +310,15 @@ def _drift_worse_than(floor: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
+def _open_drift_worse_than(floor: float) -> Callable[[LedgerEntry], bool]:
+    """:func:`_drift_worse_than`, measured from the opener capture instead."""
+
+    def refuses(e: LedgerEntry) -> bool:
+        return e.open_drift is not None and e.open_drift <= -abs(floor)
+
+    return refuses
+
+
 def _run_up_over(ceiling: float) -> Callable[[LedgerEntry], bool]:
     """Refuse a buy the market had already run up toward before we took it.
 
@@ -364,6 +380,13 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         _drift_worse_than(0.02),
         "the number moved against us before we bet it",
     ),
+    # The same veto from the opener capture: the move the day's first board
+    # cannot see, because the card is priced hours after it.
+    CandidateScreen(
+        "open_drift_refuse_adverse_2pct",
+        _open_drift_worse_than(0.02),
+        "the number moved against us between the opener and the bet",
+    ),
     CandidateScreen(
         "drift_refuse_run_up_2pct",
         _run_up_over(0.02),
@@ -387,6 +410,70 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         "the money is on this side, but no harder than the ticket count is",
     ),
 )
+
+
+@dataclass(frozen=True)
+class CandidateUpgrade:
+    """A proposed promotion to Strong, expressed as "would this buy be upgraded?".
+
+    The mirror of :class:`CandidateScreen`: graded on the buys it picks out, and
+    promoted only if those buys *win* on the same three tests. Tiers do not change
+    stakes here, so the claim being tested is that these buys are profitable in
+    their own right, not merely better than the rest.
+    """
+
+    name: str
+    promotes: Callable[[LedgerEntry], bool]
+    rationale: str
+
+
+def _drift_at_least(floor: float, *, opener: bool) -> Callable[[LedgerEntry], bool]:
+    """Pick out a buy the market had already moved toward by ``floor`` or more."""
+
+    def promotes(e: LedgerEntry) -> bool:
+        d = e.open_drift if opener else e.drift
+        return d is not None and d >= abs(floor)
+
+    return promotes
+
+
+# Line movement agreeing with the buy, known before the bet. On the 2026 ledger
+# the model's sides the line had already come to won 56.2% against a 48.9% price
+# (n=105, four Saturdays), but the markets disagreed with each other, so it
+# accrues here rather than in the tier.
+CANDIDATE_UPGRADES: tuple[CandidateUpgrade, ...] = (
+    CandidateUpgrade(
+        "drift_upgrade_agrees_2pct",
+        _drift_at_least(0.02, opener=False),
+        "the line had come to our side since the day's first board",
+    ),
+    CandidateUpgrade(
+        "open_drift_upgrade_agrees_2pct",
+        _drift_at_least(0.02, opener=True),
+        "the line had come to our side since the opener",
+    ),
+)
+
+
+def upgrade_probation(
+    entries: list[LedgerEntry],
+    upgrades: tuple[CandidateUpgrade, ...] = CANDIDATE_UPGRADES,
+    since: str | None = None,
+    min_n: int | None = None,
+) -> list[Probation]:
+    """Verdict per proposed upgrade, over the graded buys it would promote."""
+    bar = _min_n() if min_n is None else min_n
+    floor = ALL_HISTORY if since is None else since
+    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    out: list[Probation] = []
+    for u in upgrades:
+        verdict = _judge(
+            u.name, "upgrade", [e for e in rows if u.promotes(e)], bar, losing_is_bad=False
+        )
+        if verdict.status == PROMOTE:
+            verdict.finding = f"{verdict.finding} ({u.rationale})"
+        out.append(verdict)
+    return sorted(out, key=lambda p: (p.status != PROMOTE, -p.roi))
 
 
 def candidate_probation(
@@ -425,6 +512,7 @@ def probation_rows(entries: list[LedgerEntry], since: str | None = None) -> list
         *market_probation(entries, since),
         *screen_probation(entries, since),
         *candidate_probation(entries, since=since),
+        *upgrade_probation(entries, since=since),
     ]
 
 

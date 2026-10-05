@@ -432,6 +432,9 @@ class Config:
     state_branch: str = field(
         default_factory=lambda: os.getenv("CFBE_STATE_BRANCH", "engine-state")
     )
+    # How many days ahead ``cfb-engine opener`` captures the board. A Saturday's
+    # lines post the Sunday before, so a week catches them near the open.
+    opener_days: int = field(default_factory=lambda: _env_int("CFBE_OPENER_DAYS", 7))
 
     # Directories.
     data_dir: Path = field(
@@ -502,6 +505,13 @@ class Config:
         cannot be reconstructed after the fact -- if it is missing for a slate,
         that slate's pre-bet drift is simply unavailable."""
         return self.audit_dir / f"board_{day.isoformat()}.json"
+
+    def opener_file(self, day: Date) -> Path:
+        """Earliest board ``cfb-engine opener`` captured for one slate, days before
+        it is priced. Write-once like :meth:`board_file`, but kept apart from it:
+        the live drift gate was fitted on movement since the day's first board,
+        and an opener baseline would change what it refuses. Graded only."""
+        return self.audit_dir / f"opener_{day.isoformat()}.json"
 
     @property
     def availability_file(self) -> Path:

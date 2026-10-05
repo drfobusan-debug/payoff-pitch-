@@ -149,6 +149,7 @@ _VERDICT_FILL = {
     "SHUT": PatternFill("solid", fgColor="FFC7CE"),
     "LIFT": PatternFill("solid", fgColor="FFC7CE"),
     "SHIP": PatternFill("solid", fgColor="FFEB9C"),
+    "PROMOTE": PatternFill("solid", fgColor="C6EFCE"),
 }
 
 

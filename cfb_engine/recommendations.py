@@ -45,6 +45,9 @@ class Recommendation:
     # print where the line opened next to where it sits now.
     open_line: float | None = None
     open_american: float | None = None
+    # The same movement measured from the opener capture (``cfb-engine opener``),
+    # days before the card. Graded as a candidate only; no screen reads it.
+    open_drift: float | None = None
     # The screen that demoted this row to Pass, if one did. Attribution is what
     # lets the audit grade a screen on the bets it refused rather than only on
     # the ones it let through.

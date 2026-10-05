@@ -130,6 +130,9 @@ def pull_state(
     for src in sorted((root / "board").glob("board_*.json")):
         if merge_board_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((root / "opener").glob("opener_*.json")):
+        if merge_board_files(src, audit / src.name):
+            pulled.append(src.name)
     for src in sorted((root / "closing").glob("closing_*.json")):
         if merge_closing_files(src, audit / src.name):
             pulled.append(src.name)
@@ -177,6 +180,7 @@ def push_state(
         pushed: list[str] = []
         for pattern, sub, merge in (
             ("board_*.json", "board", merge_board_files),
+            ("opener_*.json", "opener", merge_board_files),
             ("closing_*.json", "closing", merge_closing_files),
         ):
             for src in sorted(audit.glob(pattern)):

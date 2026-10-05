@@ -4,6 +4,7 @@
 #   * 09:00              price + email today's card   (cfb-engine run)
 #   * 11/15/19/23:00     CLV closing-line snapshots   (cfb-engine close)
 #   * 03:00              grade yesterday + email recap (cfb-engine audit)
+#   * 07:00              capture the coming week's boards (cfb-engine opener)
 #
 # Times are local to the machine's crontab. Override with CFB_RUN_HOUR /
 # CFB_AUDIT_HOUR before running. Re-running is idempotent: the previous CFB
@@ -17,6 +18,7 @@ MARKER="# payoff-pitch-cfb-schedule"
 
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
+OPENER_HOUR="${CFB_OPENER_HOUR:-7}"
 
 chmod +x "$AUTORUN"
 mkdir -p "$HOME/.cfb_engine"
@@ -32,9 +34,10 @@ existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
     echo "0 $RUN_HOUR * * * $AUTORUN run >> $LOG 2>&1 $MARKER"
     echo "0 11,15,19,23 * * * $AUTORUN close >> $LOG 2>&1 $MARKER"
     echo "0 $AUDIT_HOUR * * * $AUTORUN audit >> $LOG 2>&1 $MARKER"
+    echo "0 $OPENER_HOUR * * * $AUTORUN opener >> $LOG 2>&1 $MARKER"
 } | crontab -
 
-echo "Done. Installed the daily CFB cron jobs (run/close/audit)."
+echo "Done. Installed the daily CFB cron jobs (run/close/audit/opener)."
 echo "Verify with: crontab -l | grep cfb"
 echo "Logs: $LOG"
 echo "Credentials must live in /etc/engine.env or $HOME/.cfb_engine/engine.env"

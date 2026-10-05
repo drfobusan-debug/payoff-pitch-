@@ -117,6 +117,50 @@ class OddsAPIClient:
         games.sort(key=lambda g: g.commence_time_utc or "")
         return Slate(slate_date=slate_date, games=games), board
 
+    def fetch_boards(self, first: Date, days: int) -> dict[Date, tuple[Slate, Board]]:
+        """Every slate from ``first`` through ``days`` days ahead, in one request.
+
+        Slates are keyed by the Eastern date each game kicks, as in
+        :meth:`fetch_board`. Empty if there is no key or the request fails.
+        """
+        if not self.available() or days < 1:
+            return {}
+        start = datetime.combine(first, Time(0, 0), tzinfo=_SLATE_TZ).astimezone(timezone.utc)
+        end = start + timedelta(days=days)
+        data = self._get_json(
+            f"{BASE}/odds",
+            markets=",".join(_GAME_MARKETS),
+            commenceTimeFrom=_iso(start),
+            commenceTimeTo=_iso(end),
+        )
+        if not isinstance(data, list):
+            return {}
+        out: dict[Date, tuple[Slate, Board]] = {}
+        for raw in data:
+            ev = self._to_event(raw)
+            kick = raw.get("commence_time")
+            if ev is None or not kick:
+                continue
+            day = (
+                datetime.fromisoformat(str(kick).replace("Z", "+00:00"))
+                .astimezone(_SLATE_TZ)
+                .date()
+            )
+            slate, board = out.setdefault(day, (Slate(slate_date=day), {}))
+            slate.games.append(
+                Game(
+                    game_id=ev.event_id,
+                    game_date=day,
+                    commence_time_utc=kick,
+                    home=TeamGameInfo(name=raw["home_team"], abbrev=ev.home_ab, is_home=True),
+                    away=TeamGameInfo(name=raw["away_team"], abbrev=ev.away_ab, is_home=False),
+                )
+            )
+            board[ev.matchup] = self._parse_game(raw, ev)
+        for slate, _ in out.values():
+            slate.games.sort(key=lambda g: g.commence_time_utc or "")
+        return out
+
     # -- parsing ----------------------------------------------------------
     def _parse_game(self, raw: dict, ev: _Event) -> GameOdds:
         odds = GameOdds(matchup=ev.matchup)

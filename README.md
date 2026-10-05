@@ -585,6 +585,19 @@ half and -53.3% over the newer, and the first-five rows it would have deleted we
 Keeping them here rather than in a chat message is the point: another month of
 slates may say something the first 27 did not.
 
+### The opener capture (CFB)
+
+`cfb-engine opener` (scheduled daily at 07:00) captures the next `CFBE_OPENER_DAYS`
+(default 7) days of NCAAF boards in one Odds API request and writes each slate's
+earliest quote per side to `opener_<date>.json`, synced under `cfb/opener/`. The
+card's day-of `board_<date>.json` is untouched, so the live drift gate keeps the
+baseline it was fitted on. Each priced side carries `open_drift` (no-vig points the
+market moved toward it since the opener) into the ledger, where it is graded only:
+`open_drift_refuse_adverse_2pct` as a candidate screen, and
+`drift_upgrade_agrees_2pct` / `open_drift_upgrade_agrees_2pct` as candidate
+upgrades, which read `PROMOTE` only if the buys the line had already come to win
+past one standard error, in both halves, on 100+ buys.
+
 ### Selection guards
 
 Twenty-seven graded slates put the model's *ranking* ahead of its *buying*: inside

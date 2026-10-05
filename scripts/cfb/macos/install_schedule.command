@@ -4,6 +4,7 @@
 #   * com.payoffpitch.cfb.predictions -> 09:00  price + email today's card
 #   * com.payoffpitch.cfb.close       -> 11:00/15:00/19:00/23:00  CLV snapshots
 #   * com.payoffpitch.cfb.audit       -> 03:00  grade yesterday + email recap
+#   * com.payoffpitch.cfb.opener      -> 07:00  capture the coming week's boards
 #
 # Times are local. Override the hours with CFB_RUN_HOUR / CFB_AUDIT_HOUR before
 # running (minute is fixed at :00 for run/audit, close uses a fixed spread).
@@ -21,6 +22,7 @@ refuse_protected_dir "$REPO" || exit 1
 
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
+OPENER_HOUR="${CFB_OPENER_HOUR:-7}"
 
 chmod +x "$AUTORUN"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
@@ -70,6 +72,7 @@ single_time() {
 
 install_agent "com.payoffpitch.cfb.predictions" "$(single_time "$RUN_HOUR")" run
 install_agent "com.payoffpitch.cfb.audit" "$(single_time "$AUDIT_HOUR")" audit
+install_agent "com.payoffpitch.cfb.opener" "$(single_time "$OPENER_HOUR")" opener
 
 # Closing-line snapshots throughout the game day (repeat-safe since PR #69).
 CLOSE_CAL='    <key>StartCalendarInterval</key>

@@ -5,6 +5,7 @@ Commands mirror the MLB engine:
     cfb-engine run       price today's slate -> Excel + article/PDF + MP3 (+email)
     cfb-engine card      rebuild the article/PDF/MP3 from saved predictions
     cfb-engine close     snapshot the closing market for closing-line value
+    cfb-engine opener    capture the coming week's boards near the open (graded only)
     cfb-engine audit     grade a past slate, update the ledger, email the recap
     cfb-engine report    rebuild the ledger workbook from history (no grading)
     cfb-engine calibrate refit the probability calibration from the ledger
@@ -184,6 +185,36 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
         f"-> {cfg.closing_file(day)}"
     )
     _state_push(cfg, f"cfb close {day.isoformat()}: {len(quotes)} prices")
+    return 0
+
+
+def cmd_opener(cfg: Config, args: argparse.Namespace) -> int:
+    """Seed each coming slate's opener board, the earliest quote per side winning.
+
+    The day's first board is captured hours before the card, so on most slates
+    the pre-bet movement it measures is zero. One request a day for the coming
+    week moves that baseline back toward the open, without touching the board
+    the live drift gate reads.
+    """
+    first = _day(args)
+    odds = OddsAPIClient(
+        cfg.creds.odds_api_key, regions=cfg.odds_regions, cache_dir=cfg.odds_cache_dir, cache_ttl=0
+    )
+    boards = odds.fetch_boards(first, cfg.opener_days)
+    if not boards:
+        print(f"No NCAAF boards posted in the {cfg.opener_days} days from {first}.")
+        return 0
+    _state_pull(cfg)
+    for day, (slate, board) in sorted(boards.items()):
+        path = cfg.opener_file(day)
+        existing = snapshot.load(path)
+        merged = snapshot.merge_first_wins(existing, snapshot.board_quotes(slate, board))
+        snapshot.save(merged, path)
+        print(
+            f"{day}: {len(slate.games)} games, {len(merged) - len(existing)} new opener "
+            f"quotes ({len(merged)} total) -> {path}"
+        )
+    _state_push(cfg, f"cfb opener {first.isoformat()}: {len(boards)} slates")
     return 0
 
 
@@ -401,7 +432,7 @@ def _print_probation(verdicts: list[Probation]) -> None:
         return
     print(
         "\nProbation: markets on their own buys, screens on what they refused, "
-        "candidates on what they would refuse"
+        "candidates on what they would refuse or upgrade"
     )
     print("  (acts only on volume + size + both halves agreeing; see audit/probation.py)")
     for p in verdicts:
@@ -563,6 +594,7 @@ def _build_parser() -> argparse.ArgumentParser:
         sub.add_parser("card", help="rebuild article/PDF/MP3 from saved predictions"), email=True
     )
     add_common(sub.add_parser("close", help="snapshot the closing market"))
+    add_common(sub.add_parser("opener", help="capture the coming week's boards near the open"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
@@ -585,6 +617,7 @@ _DISPATCH = {
     "run": cmd_run,
     "card": cmd_card,
     "close": cmd_close,
+    "opener": cmd_opener,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "report": cmd_report,
