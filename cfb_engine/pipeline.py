@@ -113,6 +113,7 @@ class Pipeline:
         self.espn = ESPNColor(cfg.cache_dir / "espn")
         self.briefs: dict[str, GameBrief] = {}
         self._first_board: dict[str, snapshot.SideQuote] = {}
+        self._opener: dict[str, snapshot.SideQuote] = {}
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -625,6 +626,9 @@ class Pipeline:
             drift=drift,
             open_line=None if opened is None else opened.line,
             open_american=None if opened is None else opened.american,
+            open_drift=self._drift(
+                ctx.matchup, market, selection, side, line, result.fair_prob, self._opener
+            ),
             pass_gate=pass_gate,
             sharp_div=None if split is None else split.divergence,
             team_side=team_side,
@@ -662,6 +666,7 @@ class Pipeline:
             except OSError as exc:
                 logger.warning("could not write first-seen board (%s)", exc)
         self._first_board = merged
+        self._opener = snapshot.load(self.cfg.opener_file(slate_date))
         return merged
 
     def _drift(
@@ -672,14 +677,17 @@ class Pipeline:
         side: str | None,
         line: float | None,
         fair_prob: float,
+        baseline: dict[str, snapshot.SideQuote] | None = None,
     ) -> float | None:
-        """No-vig probability points the market has moved toward this side.
+        """No-vig probability points the market has moved toward this side since
+        ``baseline`` (default: the slate's first-seen board).
 
         On a spread or total most of the movement is in the number rather than
         the price, so the handicap difference is converted to probability at the
         distribution's local slope and the price difference added on top.
         """
-        base = self._first_board.get(snapshot.key(matchup, market, selection))
+        board = self._first_board if baseline is None else baseline
+        base = board.get(snapshot.key(matchup, market, selection))
         if base is None:
             return None
         pts = drift_probability(

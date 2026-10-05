@@ -4,6 +4,7 @@
 #   autorun.sh run     -> price today's slate and email the card
 #   autorun.sh close   -> snapshot the closing market for CLV
 #   autorun.sh audit   -> grade yesterday, update the ledger, email recap
+#   autorun.sh opener  -> capture the coming week's boards near the open
 #
 # Unlike the double-click shortcuts this never opens a workbook, so it is safe
 # to run from cron where there is no display.
@@ -24,7 +25,7 @@ for _envf in /etc/engine.env "$HOME/.cfb_engine/engine.env"; do
 done
 
 if [ "$#" -eq 0 ]; then
-    echo "usage: autorun.sh <run|close|audit> [args...]" >&2
+    echo "usage: autorun.sh <run|close|audit|opener> [args...]" >&2
     exit 2
 fi
 
