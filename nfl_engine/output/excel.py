@@ -19,7 +19,10 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 
 from nfl_engine.audit.ledger import ENGINE, LedgerEntry, Metrics, scrub
-from nfl_engine.output.card import PAPER_NOTE, WeekCard
+from nfl_engine.output.card import AGREE_NOTE, PAPER_NOTE, WeekCard, line_agrees
+
+BOLD = Font(bold=True)
+AGREE_LEGEND = f"Bold: {AGREE_NOTE}"
 
 SELECTION_HEADER = (
     "Season",
@@ -108,6 +111,11 @@ def _append(sheet, values: list[object]) -> None:
     sheet.append([scrub(value) for value in values])
 
 
+def _bold_row(sheet) -> None:
+    for cell in sheet[sheet.max_row]:
+        cell.font = BOLD
+
+
 def _header(sheet, names: tuple[str, ...]) -> None:
     sheet.append(list(names))
     for index, name in enumerate(names, start=1):
@@ -169,7 +177,28 @@ def _plays_sheet(book: Workbook, card: WeekCard) -> None:
                     bench.mark() if bench else "",
                 ],
             )
+    for game in card.games:
+        for play in game.agrees:
+            _append(
+                sheet,
+                [
+                    game.matchup,
+                    game.kickoff,
+                    play.label(),
+                    play.odds,
+                    play.book,
+                    play.model_prob,
+                    play.fair_prob,
+                    play.ev_fair,
+                    play.tier,
+                    play.drift,
+                    play.clv,
+                    play.result,
+                ],
+            )
+            _bold_row(sheet)
     sheet.append([])
+    _append(sheet, [AGREE_LEGEND])
     _append(sheet, [PAPER_NOTE])
 
 
@@ -217,6 +246,8 @@ def _selections_sheet(
                 entry.mode,
             ],
         )
+        if line_agrees(entry):
+            _bold_row(sheet)
 
 
 def _record_sheet(book: Workbook, record: list[Metrics], *, calibration: str = "") -> None:

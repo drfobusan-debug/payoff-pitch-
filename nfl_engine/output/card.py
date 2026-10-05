@@ -20,6 +20,8 @@ from nfl_engine.audit.availability import Observation
 from nfl_engine.audit.availability import note as absence_note
 from nfl_engine.audit.ledger import (
     ENGINE,
+    SPREAD,
+    TOTAL,
     LedgerEntry,
     Metrics,
     market_metrics,
@@ -40,6 +42,22 @@ PROPS_NOTE = (
     "Brier: lower is closer; the model must beat the de-vigged book, not the base rate. "
     "Shadow is a flat unit on the rows only the research stamp stopped."
 )
+# Probability points the line must have moved toward the model's side since the
+# week's open for the side to be marked. Display only: no screen or tier reads it.
+AGREE_DRIFT = 0.02
+AGREE_LABEL = "Line agrees"
+AGREE_NOTE = (
+    "the model leans this spread/total side and the line has moved 2+ pts toward it"
+    " since the open -- tracked, not a bet."
+)
+
+
+def line_agrees(entry: LedgerEntry) -> bool:
+    """A spread or total side the model leans to that the market has since come to."""
+    if entry.source != ENGINE or entry.market not in (SPREAD, TOTAL) or entry.drift is None:
+        return False
+    market_prob = entry.fair_prob if entry.fair_prob is not None else 0.5
+    return entry.model_prob > market_prob and entry.drift >= AGREE_DRIFT
 
 
 @dataclass
@@ -162,6 +180,8 @@ class GameSection:
     # has seen it, and the timing evidence that would justify pricing it is still
     # being collected.
     absences: str = ""
+    # Leans the line has come to, one per market side (see ``line_agrees``).
+    agrees: list[Play] = field(default_factory=list)
 
     def benchmark_note(self) -> str:
         if self.benchmark is None or not self.benchmark.theirs:
@@ -232,30 +252,16 @@ def build_card(
                 absences=absence_note(absences or [], entry.matchup),
             ),
         )
+        if line_agrees(entry) and not any(
+            (p.market, p.side) == (entry.market, entry.side) for p in section.agrees
+        ):
+            section.agrees.append(_play(entry))
         if entry.screens:
             for name in entry.screens.split(";"):
                 if name:
                     section.vetoes[name] = section.vetoes.get(name, 0) + 1
             continue
-        section.plays.append(
-            Play(
-                matchup=entry.matchup,
-                market=entry.market,
-                side=entry.side,
-                line=entry.line,
-                book=entry.book,
-                odds=entry.odds,
-                model_prob=entry.model_prob,
-                fair_prob=entry.fair_prob,
-                ev_fair=entry.ev_fair,
-                tier=entry.tier,
-                clv=entry.clv,
-                result=entry.result,
-                open_line=entry.open_line,
-                open_odds=entry.open_odds,
-                drift=entry.drift,
-            )
-        )
+        section.plays.append(_play(entry))
     games = sorted(sections.values(), key=lambda s: (not s.plays, s.kickoff, s.matchup))
     return WeekCard(
         season=season,
@@ -266,6 +272,26 @@ def build_card(
         calibration=calibration,
         contested=sum(1 for h in outside.values() if h.contested),
         props=list(props or []),
+    )
+
+
+def _play(entry: LedgerEntry) -> Play:
+    return Play(
+        matchup=entry.matchup,
+        market=entry.market,
+        side=entry.side,
+        line=entry.line,
+        book=entry.book,
+        odds=entry.odds,
+        model_prob=entry.model_prob,
+        fair_prob=entry.fair_prob,
+        ev_fair=entry.ev_fair,
+        tier=entry.tier,
+        clv=entry.clv,
+        result=entry.result,
+        open_line=entry.open_line,
+        open_odds=entry.open_odds,
+        drift=entry.drift,
     )
 
 
@@ -361,10 +387,12 @@ def _record(entries: list[LedgerEntry]) -> list[Metrics]:
     if not graded:
         return []
     bench = benchmark_metrics(graded)
+    engine = [e for e in graded if e.source == ENGINE]
     return [
         *tier_metrics(graded),
         *market_metrics(graded),
-        metrics([e for e in graded if e.source == ENGINE], lambda e: True, "ALL"),
+        metrics(engine, line_agrees, AGREE_LABEL),
+        metrics(engine, lambda e: True, "ALL"),
         # The benchmark's own hit rate, on its own row, last. Its units are 0 by
         # construction: it publishes no price and stakes nothing.
         *([bench] if bench is not None else []),
@@ -372,7 +400,7 @@ def _record(entries: list[LedgerEntry]) -> list[Metrics]:
 
 
 def render_markdown(card: WeekCard) -> str:
-    lines = [f"# {card.title()}", "", f"_{PAPER_NOTE}_", ""]
+    lines = [f"# {card.title()}", "", f"_{PAPER_NOTE}_", "", f"***Bold italic***: {AGREE_NOTE}", ""]
     if card.calibration:
         lines.extend([f"_{card.calibration}_", ""])
     bought = card.plays()
@@ -427,6 +455,9 @@ def render_markdown(card: WeekCard) -> str:
                 )
         else:
             lines.append("No play: every price on this game was vetoed.")
+        if game.agrees:
+            lines.append("")
+            lines.append(f"***{_agrees_text(game)}***")
         if game.vetoes:
             named = ", ".join(f"{name} x{count}" for name, count in sorted(game.vetoes.items()))
             lines.append("")
@@ -501,6 +532,8 @@ p.bets{margin:10px 0 2px;font-size:11pt;color:#16324f;}
 ul.bets{margin:2px 0 4px 0;font-size:10pt;}
 ul.bets b{color:#111;}
 .veto{color:#6b7280;font-size:8.8pt;margin:2px 0 6px;font-family:'DejaVu Sans',sans-serif;}
+.agree{color:#16324f;font-size:9pt;margin:2px 0 4px;}
+.legend{color:#16324f;font-size:8.6pt;margin:0 0 4px;}
 .slatebets{page-break-inside:avoid;background:#0f2438;color:#f4f6f8;border-radius:6px;padding:12px 16px;margin:22px 0 8px;}
 .slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
@@ -825,6 +858,21 @@ def _game_best_block(game: GameSection) -> str:
     return f"<p class='bets'><b>Best bets</b></p><ul class='bets'>{items}</ul>"
 
 
+def _agrees_text(game: GameSection) -> str:
+    items = "; ".join(
+        f"{p.label()} ({p.price()}, {p.book}), model {p.model_prob * 100:.0f}%"
+        f" vs fair {_pct(p.fair_prob)}, line moved {(p.drift or 0.0) * 100:+.1f}%"
+        for p in game.agrees
+    )
+    return f"{AGREE_LABEL}: {items}"
+
+
+def _agrees_line(game: GameSection) -> str:
+    if not game.agrees:
+        return ""
+    return f"<p class='agree'><b><i>{html.escape(_agrees_text(game))}</i></b></p>"
+
+
 def _veto_line(game: GameSection) -> str:
     if not game.vetoes:
         return ""
@@ -860,7 +908,7 @@ def _game_section(game: GameSection) -> str:
         f"{_market_line(game)}{_moves_line(game)}"
         f"{_shape(game)}"
         f"{context}{bench_html}"
-        f"{_game_best_block(game)}{_veto_line(game)}</div>"
+        f"{_game_best_block(game)}{_agrees_line(game)}{_veto_line(game)}</div>"
     )
 
 
@@ -935,7 +983,10 @@ def render_html(card: WeekCard) -> str:
         "under each game and gathered at the bottom. Records, ratings, injuries, venue and "
         "the week's storylines are context for the reader; none of it moves a price."
     )
-    notes = [f"<p class='muted'>{html.escape(PAPER_NOTE)}</p>"]
+    notes = [
+        f"<p class='muted'>{html.escape(PAPER_NOTE)}</p>",
+        f"<p class='legend'><b><i>Bold italic</i></b>: {html.escape(AGREE_NOTE)}</p>",
+    ]
     if card.calibration:
         notes.append(f"<p class='muted'>{html.escape(card.calibration)}</p>")
     if card.contested:
