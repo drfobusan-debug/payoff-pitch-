@@ -80,6 +80,35 @@ def test_grade_rows_consensus_and_exec_books_skip_pushes():
     assert {(g.book, g.hit) for g in graded} == {("consensus", 1), ("draftkings", 1)}
 
 
+def test_a_rematch_on_another_day_is_its_own_game():
+    second = GameResult(**{**game(pts=20).__dict__, "game_date": date(2026, 1, 5)})
+    finals = boxes.by_matchup([game(pts=30), second])
+    later = [
+        QuoteRow(
+            "2026-01-06T00:55:00Z",
+            "2026-01-05",
+            M,
+            "ev2",
+            "pl_pts",
+            "over",
+            "Luka Doncic",
+            28.5,
+            "draftkings",
+            -110,
+            -110,
+        )
+    ]
+    rows = [q("pl_pts", "over", 28.5, "draftkings", -110, -110, "Luka Doncic"), *later]
+    assert len(selections(rows)) == 2
+    graded = overbias.grade(rows, finals)
+    assert sorted((g.game[0], g.book, g.hit) for g in graded) == [
+        ("2025-12-10", "consensus", 1),
+        ("2025-12-10", "draftkings", 1),
+        ("2026-01-05", "consensus", 0),
+        ("2026-01-05", "draftkings", 0),
+    ]
+
+
 def test_fit_applies_a_gap_only_when_its_interval_excludes_zero():
     graded = [
         overbias.Graded((DAY, f"G{i}"), "pl_pts", "consensus", 0.5, int(i % 4 == 0))

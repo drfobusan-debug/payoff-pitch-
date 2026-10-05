@@ -23,8 +23,8 @@ from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass
 
 from nba_engine.data.boxes import norm_name
-from nba_engine.data.capture import QuoteRow, last_quotes
-from nba_engine.market.board import EXEC_BOOKS, Selection, novig, selections
+from nba_engine.data.capture import QuoteRow
+from nba_engine.market.board import EXEC_BOOKS, Selection, latest, novig, selections
 from nba_engine.schemas import GameResult
 
 NAME = "over_bias"
@@ -108,7 +108,7 @@ def grade(
         hit = _hit(outcome(sel.market, sel.entity, game), sel.line)
         if hit is not None:
             out.append(Graded((sel.game_date, sel.matchup), sel.market, CONSENSUS, sel.fair, hit))
-    for r in last_quotes(rows).values():
+    for r in latest(rows):
         if r.side != "over" or r.book not in books or r.opposite_american is None:
             continue
         game = finals.get((r.game_date, r.matchup))

@@ -23,13 +23,25 @@ from dataclasses import dataclass, field
 from statistics import median
 
 from engine_common.odds import american_to_prob
-from nba_engine.data.capture import QuoteRow, last_quotes
+from nba_engine.data.capture import QuoteRow
 from nfl_engine.market.fair import devig
 
 EXEC_BOOKS: tuple[str, ...] = ("draftkings", "betmgm")
 DEVIG_METHOD = "power"
 
 SelKey = tuple[str, str, str, str, float | None]
+
+
+def latest(rows: Iterable[QuoteRow]) -> list[QuoteRow]:
+    """Latest quote per book on each selection of each game.
+
+    Keyed on the event as well as the matchup: two teams meet three or four
+    times a season, and a multi-day archive must not collapse those games.
+    """
+    out: dict[tuple[str, str, str, str, str, str, float | None, str], QuoteRow] = {}
+    for r in sorted(rows, key=lambda r: r.captured_at):
+        out[(r.game_date, r.event_id, *r.key)] = r
+    return list(out.values())
 
 
 @dataclass(frozen=True)
@@ -73,11 +85,11 @@ def selections(
     exec_books: tuple[str, ...] = EXEC_BOOKS,
     method: str = DEVIG_METHOD,
 ) -> list[Selection]:
-    groups: dict[SelKey, list[QuoteRow]] = defaultdict(list)
-    for r in last_quotes(list(rows)).values():
-        groups[(r.matchup, r.market, r.side, r.entity, r.line)].append(r)
+    groups: dict[tuple[str, str, SelKey], list[QuoteRow]] = defaultdict(list)
+    for r in latest(rows):
+        groups[(r.game_date, r.event_id, (r.matchup, r.market, r.side, r.entity, r.line))].append(r)
     out: list[Selection] = []
-    for (matchup, market, side, entity, line), quotes in groups.items():
+    for (_, _, (matchup, market, side, entity, line)), quotes in groups.items():
         fair = [
             novig(q.american, q.opposite_american, method)
             for q in quotes
@@ -103,7 +115,7 @@ def selections(
                 exec_prices={b: q.american for b, q in ex.items()},
             )
         )
-    out.sort(key=lambda s: (s.matchup, s.market, s.entity, s.line or 0.0, s.side))
+    out.sort(key=lambda s: (s.game_date, s.matchup, s.market, s.entity, s.line or 0.0, s.side))
     return out
 
 
@@ -113,4 +125,12 @@ def ev_per_unit(p: float, american: float) -> float:
     return p * (dec - 1.0) - (1.0 - p)
 
 
-__all__ = ["DEVIG_METHOD", "EXEC_BOOKS", "Selection", "ev_per_unit", "novig", "selections"]
+__all__ = [
+    "DEVIG_METHOD",
+    "EXEC_BOOKS",
+    "Selection",
+    "ev_per_unit",
+    "latest",
+    "novig",
+    "selections",
+]
