@@ -377,6 +377,9 @@ def cmd_fit_over_bias(args: argparse.Namespace) -> int:
             missing += 1
             continue
         graded.extend(overbias.grade(day_rows, boxes.by_matchup(games)))
+    if not graded:
+        print("nothing graded (no archived closes with finals); params left unchanged")
+        return 1
     gaps = overbias.fit(graded, draws=args.draws)
     n_games = len({g.game for g in graded})
     print(f"graded {len(graded)} Overs over {n_games} games; {missing} day(s) with no results")

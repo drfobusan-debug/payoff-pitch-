@@ -28,7 +28,7 @@ def results_path(data_dir: Path, day: Date) -> Path:
 def norm_name(name: str) -> str:
     """Book and ESPN spellings of one player to one key (accents, suffixes, punctuation)."""
     s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
-    s = _SUFFIX.sub("", re.sub(r"[^a-z ]", "", s))
+    s = _SUFFIX.sub("", re.sub(r"[^a-z ]", "", s.replace("-", " ")))
     return " ".join(s.split())
 
 
@@ -77,12 +77,16 @@ def write_results(data_dir: Path, day: Date, games: list[GameResult]) -> Path:
 
 
 def ensure_results(data_dir: Path, day: Date, client: ESPNClient | None = None) -> list[GameResult]:
-    """The day's results, fetched once and kept only when every game on it is final."""
+    """The day's results, fetched once and kept only when every game on it is final.
+
+    A final whose box summary failed comes back with no player lines; the day
+    is then returned but not archived, so the next run fetches it again.
+    """
     held = read_results(data_dir, day)
     if held is not None:
         return held
     games = (client or ESPNClient()).results(day)
-    if games and all(g.is_final for g in games):
+    if games and all(g.is_final and g.players for g in games):
         write_results(data_dir, day, games)
     return games
 

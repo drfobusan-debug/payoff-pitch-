@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 
+from nba_engine import cli
 from nba_engine.data import boxes
 from nba_engine.data.capture import QuoteRow
 from nba_engine.market import overbias, params
@@ -144,6 +145,47 @@ def test_results_archive_round_trips(tmp_path):
     assert back == game()
     assert boxes.read_results(tmp_path, date(2025, 12, 11)) is None
     assert boxes.norm_name("Luka Dončić Jr.") == "luka doncic"
+    assert boxes.norm_name("Karl-Anthony Towns") == boxes.norm_name("Karl Anthony Towns")
+
+
+def test_a_line_missing_from_the_newest_capture_is_withdrawn():
+    early, late = "2025-12-11T01:00:00Z", "2025-12-11T02:55:00Z"
+    rows = [
+        q("pl_pts", "over", 28.5, "betmgm", +105, -125, "Luka Doncic", at=early),
+        q("pl_pts", "over", 28.5, "draftkings", -110, -110, "Luka Doncic", at=early),
+        q("pl_pts", "over", 28.5, "draftkings", -115, -105, "Luka Doncic", at=late),
+        q("game_ml", "away", None, "betmgm", +150, -175, "SAS", at=early),
+    ]
+    by_market = {s.market: s for s in selections(rows)}
+    assert by_market["pl_pts"].exec_prices == {"draftkings": -115}
+    assert by_market["game_ml"].exec_prices == {"betmgm": 150}
+
+
+class _NoBoxClient:
+    def results(self, day):
+        return [GameResult(**{**game().__dict__, "players": ()})]
+
+
+def test_a_final_without_its_box_is_not_archived(tmp_path):
+    day = date(2025, 12, 10)
+    assert len(boxes.ensure_results(tmp_path, day, _NoBoxClient())) == 1
+    assert boxes.read_results(tmp_path, day) is None
+
+
+def test_an_empty_fit_writes_no_params_version(tmp_path, monkeypatch):
+    monkeypatch.setenv("NBAE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("NBAE_STATE_SYNC", "0")
+    argv = [
+        "fit-over-bias",
+        "--season",
+        "2025-26",
+        "--since",
+        "2025-12-10",
+        "--until",
+        "2025-12-11",
+    ]
+    assert cli.main(argv) == 1
+    assert params.latest(tmp_path, overbias.NAME) is None
 
 
 def test_ev_per_unit_at_even_money():
