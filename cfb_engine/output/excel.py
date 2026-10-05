@@ -52,6 +52,15 @@ CENTER_COLS = {
 LINE_AGREES_TAB = "Line Agrees (graded only)"
 _LINE_AGREES_HEADER = "1F4E79"
 
+# Probability points the line must have come toward the model's spread/total side
+# since the slate's first board for the row to be bolded. Display only.
+AGREE_DRIFT = 0.02
+AGREE_LEGEND = (
+    "Bold: the model leans this spread/total side and the line has moved 2+ pts toward it"
+    " since the first board -- tracked, not a bet."
+)
+_LINE_MARKETS = frozenset({"game_ats", "game_total"})
+
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 _MARKET_TABS = [("Moneyline", "game_ml"), ("ATS", "game_ats"), ("Totals", "game_total")]
 
@@ -66,6 +75,17 @@ _SCHEME = {
 def _interp(light: tuple[int, int, int], neon: tuple[int, int, int], t: float) -> str:
     rgb = tuple(int(light[i] + (neon[i] - light[i]) * t) for i in range(3))
     return f"{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+
+
+def line_agrees(rec: Recommendation) -> bool:
+    """A spread or total side the model leans to that the market has since come to."""
+    return (
+        rec.market in _LINE_MARKETS
+        and rec.drift is not None
+        and rec.fair_prob is not None
+        and rec.model_prob > rec.fair_prob
+        and rec.drift >= AGREE_DRIFT
+    )
 
 
 def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None = None) -> None:
@@ -90,9 +110,12 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         t = 0.5 if hi == lo else (_conviction(rec) - lo) / (hi - lo)
         fill = PatternFill("solid", fgColor=_interp(light, neon, 0.15 + 0.7 * t))
         row = rec.as_row()
+        bold = line_agrees(rec)
         for c, name in enumerate(COLUMNS, start=1):
             cell = ws.cell(row=row_idx, column=c, value=row[name])
             cell.fill = fill
+            if bold:
+                cell.font = Font(bold=True)
             if name in CENTER_COLS:
                 cell.alignment = CENTER
 
@@ -100,6 +123,7 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         ws.column_dimensions[get_column_letter(i)].width = w
     if ordered:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(ordered) + 1}"
+    ws.cell(row=len(ordered) + 3, column=1, value=AGREE_LEGEND)
     ws.freeze_panes = "A2"
 
 
