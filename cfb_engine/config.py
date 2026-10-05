@@ -79,6 +79,22 @@ class ModelParams:
     # priors so a thin/absent rating never manufactures a phantom edge; the
     # model still departs from the market by ``1 - blend`` of its own view.
     market_blend: float = field(default_factory=lambda: _env_float("CFBE_MARKET_BLEND", 0.35))
+    # Early-season total blend for a game with a top-ranked SP+ defense on either
+    # side, in place of ``market_blend`` (the margin keeps ``market_blend``). On
+    # 2026 weeks 1-5 (179 rated games, 74 team-games against a top-25 defense)
+    # teams scored +3.9 pts (~2.5 SE) more than rated against those defenses,
+    # and the market put ~2.5 more points on them than the model did; defenses
+    # ranked 26-100 sat within noise of their rating. The misses were mostly
+    # preseason ratings SP+ later cut, so the pull is limited to the first
+    # ``top_def_max_week`` weeks and starts with the 2027 season.
+    top_def_total_blend: float = field(
+        default_factory=lambda: _env_float("CFBE_TOPDEF_TOTAL_BLEND", 0.55)
+    )
+    top_def_rank: int = field(default_factory=lambda: _env_int("CFBE_TOPDEF_RANK", 25))
+    top_def_max_week: int = field(default_factory=lambda: _env_int("CFBE_TOPDEF_MAX_WEEK", 5))
+    top_def_from_season: int = field(
+        default_factory=lambda: _env_int("CFBE_TOPDEF_FROM_SEASON", 2027)
+    )
     # Moneyline win probability read off a normal whose SD is the one the market
     # itself uses to turn a spread into a price, rather than the 16-pt margin SD.
     # College margins are not normal: on 159 boards (2026 wk 1-3) the no-vig ML
