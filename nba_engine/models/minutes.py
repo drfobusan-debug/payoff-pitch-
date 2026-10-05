@@ -198,6 +198,12 @@ def team_box(g: GameResult, team: str) -> dict[str, PlayerLine]:
     return {line.espn_id: line for line in g.players if line.team == team and line.espn_id}
 
 
+def outs(book: MinutesBook, team: str, season: int, box: dict[str, PlayerLine]) -> set[str]:
+    """Rostered players the box shows out before tip."""
+    roster = book.roster(team, season)
+    return {k for k in roster | box.keys() if is_out(box.get(k))} & roster
+
+
 def replay(
     games: Iterable[GameResult], params: MinutesParams | None = None
 ) -> tuple[list[Projection], MinutesBook]:
@@ -210,8 +216,7 @@ def replay(
             box = team_box(g, team)
             if not box:
                 continue
-            roster = book.roster(team, season)
-            out = {k for k in roster | box.keys() if is_out(box.get(k))} & roster
+            out = outs(book, team, season, box)
             available = {k for k, line in box.items() if not is_out(line)}
             proj = book.project(available, out)
             fresh = bool(book.fresh(out))
