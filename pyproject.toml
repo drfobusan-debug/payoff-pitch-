@@ -23,6 +23,8 @@ dependencies = [
     # pandas.read_html needs a parser; without lxml the TeamRankings ratings
     # parse silently returns nothing instead of failing.
     "lxml>=5.0",
+    # The NBA engine reads the league's official injury report PDFs.
+    "pypdf>=4.0",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +39,7 @@ mlb-engine = "mlb_engine.cli:main"
 cfb-engine = "cfb_engine.cli:main"
 nfl-engine = "nfl_engine.cli:main"
 nhl-engine = "nhl_engine.cli:main"
+nba-engine = "nba_engine.cli:main"
 lineshop = "lineshop.cli:main"
 cardscout = "cardscout.cli:main"
 live-edge = "live_edge.cli:main"
@@ -46,7 +49,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["engine_common*", "mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "lineshop*", "cardscout*", "live_edge*"]
+include = ["engine_common*", "mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "nba_engine*", "lineshop*", "cardscout*", "live_edge*"]
 
 [tool.setuptools.package-data]
 lineshop = ["data/*.json"]

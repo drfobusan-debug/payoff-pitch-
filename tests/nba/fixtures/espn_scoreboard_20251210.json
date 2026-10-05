@@ -1,0 +1,114 @@
+{
+ "events": [
+  {
+   "id": "401809835",
+   "date": "2025-12-11T00:30Z",
+   "status": {
+    "type": {
+     "name": "STATUS_FINAL"
+    }
+   },
+   "competitions": [
+    {
+     "competitors": [
+      {
+       "homeAway": "home",
+       "team": {
+        "abbreviation": "OKC"
+       },
+       "linescores": [
+        {
+         "value": 38.0
+        },
+        {
+         "value": 36.0
+        },
+        {
+         "value": 36.0
+        },
+        {
+         "value": 28.0
+        }
+       ]
+      },
+      {
+       "homeAway": "away",
+       "team": {
+        "abbreviation": "PHX"
+       },
+       "linescores": [
+        {
+         "value": 23.0
+        },
+        {
+         "value": 25.0
+        },
+        {
+         "value": 24.0
+        },
+        {
+         "value": 17.0
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401809836",
+   "date": "2025-12-11T03:00Z",
+   "status": {
+    "type": {
+     "name": "STATUS_FINAL"
+    }
+   },
+   "competitions": [
+    {
+     "competitors": [
+      {
+       "homeAway": "home",
+       "team": {
+        "abbreviation": "LAL"
+       },
+       "linescores": [
+        {
+         "value": 30.0
+        },
+        {
+         "value": 28.0
+        },
+        {
+         "value": 29.0
+        },
+        {
+         "value": 32.0
+        }
+       ]
+      },
+      {
+       "homeAway": "away",
+       "team": {
+        "abbreviation": "SA"
+       },
+       "linescores": [
+        {
+         "value": 39.0
+        },
+        {
+         "value": 31.0
+        },
+        {
+         "value": 34.0
+        },
+        {
+         "value": 28.0
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
