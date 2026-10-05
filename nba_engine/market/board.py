@@ -33,14 +33,23 @@ SelKey = tuple[str, str, str, str, float | None]
 
 
 def latest(rows: Iterable[QuoteRow]) -> list[QuoteRow]:
-    """Latest quote per book on each selection of each game.
+    """Each game's market as its most recent capture of that market saw it.
 
-    Keyed on the event as well as the matchup: two teams meet three or four
-    times a season, and a multi-day archive must not collapse those games.
+    A capture call stamps every row it returns with one ``captured_at``, so a
+    quote absent from the newest capture of its ``(event, market)`` was
+    withdrawn by its book and is dropped rather than carried forward. Keyed on
+    the event as well as the date: two teams meet three or four times a
+    season, and a multi-day archive must not collapse those games.
     """
+    rows = list(rows)
+    newest: dict[tuple[str, str, str], str] = {}
+    for r in rows:
+        k = (r.game_date, r.event_id, r.market)
+        newest[k] = max(newest.get(k, ""), r.captured_at)
     out: dict[tuple[str, str, str, str, str, str, float | None, str], QuoteRow] = {}
-    for r in sorted(rows, key=lambda r: r.captured_at):
-        out[(r.game_date, r.event_id, *r.key)] = r
+    for r in rows:
+        if r.captured_at == newest[(r.game_date, r.event_id, r.market)]:
+            out[(r.game_date, r.event_id, *r.key)] = r
     return list(out.values())
 
 

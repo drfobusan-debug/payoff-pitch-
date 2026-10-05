@@ -51,7 +51,7 @@ def read_raw_summary(data_dir: Path, day: Date, espn_id: str) -> dict | None:
 def norm_name(name: str) -> str:
     """Book and ESPN spellings of one player to one key (accents, suffixes, punctuation)."""
     s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().lower()
-    s = _SUFFIX.sub("", re.sub(r"[^a-z ]", "", s))
+    s = _SUFFIX.sub("", re.sub(r"[^a-z ]", "", s.replace("-", " ")))
     return " ".join(s.split())
 
 
