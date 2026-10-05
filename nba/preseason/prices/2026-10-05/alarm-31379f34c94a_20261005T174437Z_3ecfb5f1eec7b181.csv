@@ -1,0 +1,7 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_ml,LAL,,,draftkings,-175,145,oddsapi
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_ml,SAC,,,draftkings,145,-175,oddsapi
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_ats,LAL,,-3.5,draftkings,-108,-112,oddsapi
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_ats,SAC,,3.5,draftkings,-112,-108,oddsapi
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_total,over,,117.5,draftkings,-112,-108,oddsapi
+2026-10-05T17:44:37Z,2026-10-05,LAL @ SAC,31379f34c94a9796f13110df92cb5cc7,h1_total,under,,117.5,draftkings,-108,-112,oddsapi
