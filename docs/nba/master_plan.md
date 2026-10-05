@@ -1,4 +1,4 @@
-# NBA Payoff Engine — Master Plan v3.3
+# NBA Payoff Engine — Master Plan v3.6
 
 Fifth engine in `payoff-pitch-` (`nba_engine/`, beside `mlb_engine`, `cfb_engine`, `nfl_engine`,
 `nhl_engine`). **Paper-only** until each market passes probation (§11). Studies live in
@@ -17,7 +17,15 @@ taken at T-1 instead of T-5 (§1, §10), an Over-bias term on props (§4.7), and
 questionable player as a probability instead of banning the game (§5b). v3.3 routes minutes
 lost to foul trouble down the same next-man-up chain (§4.4), groups players by fitted playstyle
 family instead of position (§4.5a), tests the Over bias after late news (§4.7), maps injury
-reasons to fixed categories (§5b), and adds a teams + tip-time fallback match for event IDs (§1). Every number quoted as
+reasons to fixed categories (§5b), and adds a teams + tip-time fallback match for event IDs (§1). v3.4 tags every off-floor stint by
+why the player sat and keeps foul-trouble and blowout stints out of the baseline profiles
+(§4.2a), takes ceilings from role-expanded games (§4.5a), measures the 1H/2H scoring gap (§4.4),
+alerts on new injury wording (§5b), flags NBA Cup games (§1), drops pulled props from CLV (§10)
+and keeps fitted values in a versioned params file instead of `config.py` (§13). v3.5 fits the
+edge floor separately for one-book and two-book rows (§10), makes ceilings per-minute and
+family-specific (§4.5a), splits the 1H/2H gap into pace and efficiency (§4.4), and keeps pulled
+props in the record with their own pre-pull CLV (§10). v3.6 adds a rule-change register (§3a):
+the 2025-26 heave rule, the 2026-27 push-off emphasis and the 2026-27 Cup venues. Every number quoted as
 an example below is a starting hypothesis; the shipped value is fitted.
 
 ---
@@ -53,7 +61,14 @@ key reports 5,000,000 credits [VERIFIED]), so the first backtest runs before ope
 | — | BallDontLie, TeamRankings, BetIQ | — | Not used (key-gated / current season only / aggregates) | — |
 
 Every pulled row carries `source`, `captured_at`, `season`, and stable IDs (Odds API `event_id`
-+ NBA `game_id` + NBA `player_id`). Names are display only. If an event ID is missing at a
++ NBA `game_id` + NBA `player_id`). Names are display only. Each game carries `cup_stage`
+(none / group / quarterfinal / semifinal / final). Home court comes from the game's own venue
+and ESPN's neutral-site flag, never from the stage: from 2026-27 the semifinals are at the
+higher seed's arena (quarterfinals already were), and the 2026 final is at Hinkle Fieldhouse,
+Indianapolis, not Las Vegas. Travel and time zones are computed to that venue. Stars played +0.8 min over their own average in the 2023–25
+Cup knockouts (126 appearances, 95% −0.6 to +2.0) [MEASURED], and there are only 3 finals. So
+the flag is recorded and graded, and the pull curves get no Cup term until one passes a
+holdout. The market anchor carries what the model can't fit. If an event ID is missing at a
 capture, the game is matched once by both teams' codes and commence time within 15 min, and the
 match is logged. NBA Cup knockout games, 2023–25 (21 games) [MEASURED]: every one matched to
 ESPN by teams + date and carried all 11 markets. The Cup final does not count in the
@@ -124,6 +139,19 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
 
 ---
 
+### 3a. Rule-change register
+
+Every rule or officiating change gets a dated entry. Any rate fitted across that date carries a
+pre/post term or is refit on post-change games only, and the walk-forward holdout reports
+pre- and post-change games separately.
+
+| Change (source) | From | What it touches | In the engine |
+|---|---|---|---|
+| **Heave rule:** a shot from 36+ ft on a backcourt play in the last 3 s of Q1–Q3 is a team attempt; a make still counts for the player (NBA.com, 2025-09-10) | 2025-26 | Player 3PA and 3P%; 3PM gets a few extra makes | Player 3PA and 3P% are rebuilt from PBP **excluding heaves in every season**, so pre- and post-rule rates mean the same thing. Heaves are a separate term per player: heave attempts per quarter-end × the measured make rate, ~4% (SportRadar via AP). Their makes add to 3PM and points. No typed deflator and no hand-widened 3PM variance |
+| **Push-off emphasis:** "Four F's" off-arm test, plus screen shoves and off-ball holding (ESPN, 2026-09-29) | 2026-27 | Offensive fouls → turnovers; personal fouls → foul-trouble minutes; defensive holding → FTA | Season break: prior seasons get less weight in the foul, turnover and FTA rates, so the nightly update moves to the new level quickly. A player's past offensive-foul rate per touch (PBP) goes into the family clustering and the foul-trouble term. The change in fouls and turnovers is measured by family as 2026-27 games come in, not set at +15–20%. The audit charts league offensive fouls, turnovers and FTA per 100 against 2023–26 weekly, to see whether the spike fades |
+| **Cup venues:** semifinals at the higher seed (NBA.com, 2025-09-10) | 2026-27 | Home court and travel in Cup semis | `cup_stage` split (§1); home court from the venue |
+| **Replay Center rules on proximate fouls in out-of-bounds challenges** (2025-26) | 2025-26 | Stoppage length only | Nothing to change. The engine never priced replay time as rest, and possessions are unchanged |
+
 ## 4. Model pipeline
 
 1. **Season prior** — last season regressed at fitted year-to-year r + roster carry-over (impact ×
@@ -142,6 +170,13 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    (tested on the archive before it prices). Minutes come from the rotation model fitted on
    games where S actually sat, not from the backup's season average.
 
+   *Why he sat.* Every off-floor stint is tagged by why the player was off: normal rotation
+   rest, foul trouble (≥2 fouls in Q1 / ≥3 by half / ≥5), injury exit, ejection, blowout (§4.4a),
+   or a whole-game absence. Star-off profiles come from whole-game absences plus normal rotation
+   stints. Foul-trouble and blowout stints feed only their own tables (§4.4, §4.4a) and never
+   the baseline posteriors, because those minutes are played in a different game. Pooling any
+   two tags needs the holdout to show they don't differ.
+
    *Opponent quality.* Star-off minutes are disproportionately logged against opposing bench
    units, so raw star-off rates overstate what a backup does as a starter against a starting
    five. Every stint carries the opponent lineup's quality (its RAPM sum, D7), and the
@@ -155,7 +190,17 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    and correlation **fitted to the market's own ML↔spread↔total relation** (CFB #382 lesson);
    1H from **first-half minutes**, not a flat half-share: each player's 1H minutes come from
    his own rotation pattern in the stints (D7), with a fitted foul-trouble term (first-half
-   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout). Minutes a
+   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout; carries the
+2026-27 push-off break, §3a).
+   *Halves differ [MEASURED].* 2023–26 regular season, ESPN period scores: per team, 1H
+   57.1 vs regulation 2H 56.4 (+0.77, 95% +0.49 to +1.04, clustered by game). In games decided by
+   under 10 it is still +0.45 (+0.06 to +0.96), so the gap isn't only garbage time. The 1H
+   distribution carries it through 1H minutes and two separate fitted terms: a **pace shift**
+   (possessions per minute, 1H vs 2H) and an **efficiency shift** (points per possession). The
+   ESPN period scores can't separate them, so both come from the PBP possessions (D7). Pace
+   moves every counting prop (rebound and assist chances scale with possessions). Efficiency moves
+   only points and makes. The 1H distribution is checked against the 1H total closes before 1H
+   prices. Minutes a
    starter loses to fouls go to the players who replaced him in his foul-trouble stints, through
    the same next-man-up table and ceilings (§4.5a), not to the whole bench by share. OT from the regulation-tie probability. Every line (main, alt,
    1H) is read off the same distribution; both sides sum to 1.
@@ -164,7 +209,8 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    margin path through the second half sets each player's minutes. Once the margin passes a
    fitted threshold late enough, starters' remaining minutes are pulled and handed to the bench
    at the bench's own rates, and pace and efficiency move to their measured garbage-time
-   values. Garbage-time **assist rate per teammate make and usage dispersion** are fitted
+   values, conditioned on **both** benches' quality (a young bench chasing minutes plays a
+   different garbage time from veterans running the clock). Garbage-time **assist rate per teammate make and usage dispersion** are fitted
    the same way (bench units may pass less and shoot more on their own); the multipliers come
    from blowout stints, not typed constants like 0.30 / 1.45. The minute curves (starter share of remaining minutes by |margin| × time left), the
    threshold and the pace/efficiency shift are **fitted from real 2019–26 blowouts** in the
@@ -205,7 +251,14 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    always terminates: each pass freezes at least one player.
 
    *Ceilings.* Each share is water-filled under a per-player ceiling (usage, FGA, 3PA, AST
-   chances) taken from the player's archetype's fitted historical maximum. A player at his
+   chances) taken from the player's archetype's fitted historical maximum, **measured in
+   role-expanded games** (a top-usage teammate out). Green-light nights, when a coach turns a
+   role player loose, sit inside the ceiling instead of being cut off at his usual role's p99.
+   Ceilings are **per-minute rates** (usage %, FGA/36, 3PA/36, AST chances/36), never totals,
+   so a defensive center who plays 38 minutes on an injury night at his usual low usage doesn't
+   raise his own ceiling. The role-expanded widening is fitted **per playstyle family**: how
+   much a family's p99 usage actually rises when a top-usage teammate sits. A family whose
+   usage doesn't rise gets no widening, and nothing is assigned by hand. A player at his
    ceiling is frozen and the rest keeps flowing down the hierarchy, then to the others by share.
    Only the part the stints show **vanishing** reaches team turnovers and lower possession
    efficiency: the drop in team FGA and efficiency when that player sits, measured, not a
@@ -321,6 +374,12 @@ categories: injury by body region, illness, rest, G League, personal / not with 
 suspension, reconditioning, concussion protocol, trade. That covers 173 distinct official
 prefixes across 2023–26. RotoWire and ESPN notes go through the same table, and an unmapped
 string is logged and counted rather than guessed.
+The categories enter `P(plays)` as separate indicators, not as a 1–10 "severity" number: a
+rest tag and a fracture tag are not points on one scale. An unmapped string raises a
+high-priority alert (alarm log + a banner on the next card). That player's `P(plays)` falls back
+to the status-and-hour model (never 50/50), and his game can't be a buy until the string is
+mapped. When the official PDF and the ESPN feed disagree, the PDF governs. The conflict is
+logged and re-checked at the next report.
 The study has to answer first whether our re-price beats the market's own move after a status
 change, on the hourly snapshots (D1/D2, Phase 1b). If it doesn't, Questionable games stay
 priced but un-bet until that bar is met.
@@ -441,6 +500,40 @@ until that study lands:
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
 | T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip **and** the quote is stamped before the scheduled tip (clock lock; ESPN's status can lag the jump ball). T-5 is the fallback (~110 credits per game per capture). Recommendations for a game stop at its last scheduled pass, well before tip | — |
 
+A prop the book pulls before the T-1 capture keeps its row. It is graded on the outcome (ROI,
+PPV/NPV and calibration include it) with `close = pulled`. Its CLV goes in a separate **pre-pull
+CLV** column, measured against the last quote we captured (last scheduled pass or alarm
+re-capture). It never shares a column with true CLV, because the two snapshots are taken at
+different times. The audit also compares the pull rate of our buys with the board's.
+*Do pulls carry information? [MEASURED, 100-game T-1 sample]* Of 56,054 archived-close prop quotes,
+860 (48 games) were pulled by T-1. Their Overs hit 49.0% against a 49.4% no-vig price
+(−0.4 pts, the same as kept quotes at −0.8). So in this sample the books weren't pulling
+lines that turned out wrong. The 1,056 whose **line moved** were different: Overs at the old line hit 46.5% vs
+49.9% (−3.4 pts), so a line move carries news. Sample is small, so it gets re-measured on live
+T-1 capture.
+Bets are straight wagers only. No same-game parlays; same-game props are one exposure (§6).
+Every book is captured and archived, and the consensus is built from all of them. **Buys are
+priced only at DraftKings and BetMGM** (`EXEC_BOOKS = ("draftkings", "betmgm")`), at the
+better of the two. The ledger records which book priced each row, and CLV is graded at that book's
+close. Archive coverage, 2023–26 closes [MEASURED]: DraftKings has the game in 100% of games,
+PTS props in 99% and 1H ML in 98%. BetMGM has the game in 99%, PTS props in 96% and 1H ML in only 72%.
+Hold: DraftKings ML 4.3% / PTS 6.4%, BetMGM ML 4.6% / PTS 7.1%. A market neither book posts is
+priced and graded but can't be a buy. Every fitted gate (price band, edge floor, Over bias) is
+checked at these two books before it ships.
+*One book vs two [MEASURED, archived close, EV vs all-book consensus fair].* Taking the better
+of the two is real value: on PTS props the better side averaged −4.97% EV, against −6.03% at
+DraftKings and −6.56% at BetMGM; on 1H ML −2.77% vs −4.03 / −4.05. A row posted at only one
+book doesn't get that gain (DK-only 1H ML −4.31%). The 1H ML is DK-only in 2,176 of 7,784
+sides. So the **edge floor is fitted separately for one-book and two-book rows** on the
+walk-forward. It is not raised by a typed amount. Because "better of two" also selects the noisier quote, the
+two-book floor is fitted on the price actually taken, not on either book alone. The audit
+reports buys by book and by one-/two-book so a drift toward DK-only rows is visible.
+**Over bias at the two books [MEASURED, archived close, proportional de-vig].** DraftKings
+−1.56 pts (95% −1.83 to −1.29; PTS −1.3, 3PM −1.7, REB −2.0, AST −1.3, PRA −1.3) across 224K
+quotes. BetMGM −1.27 (−1.51 to −1.01; PTS −1.0, 3PM −1.5, REB −2.0, AST −0.6, PRA −1.3) across 247K.
+Overs returned −9.1% at both, Unders −3.2% (DraftKings) and −4.3% (BetMGM). The bias is fitted
+per market × book for these two, shrunk toward the all-book value.
+
 **T-1 vs the archived close [MEASURED, 100 random 2023–26 games, 10,970 credits].** The T-1
 request returned a snapshot 4.4 min before tip, against 9.4 for the archive (98 of 100 newer).
 In those five minutes the consensus no-vig ML moved 0.2 pts on average, and 2% of games moved ≥1 pt.
@@ -550,6 +643,15 @@ the first live card.
 1. Kaggle API token as a secret, or a one-time download of the Wyatt Walsh SQLite on the Mac.
 2. OK for a Mac daemon running nba_api (stats.nba.com blocks the VM).
 3. Confirm the Mac's `/etc/engine.env` key also shows the 5M balance (0-credit check block).
+4. ~~Which sportsbooks you bet at~~: DraftKings and BetMGM (§10).
+
+**Config vs fitted values.** `nba_engine/config.py` holds paths, defaults and gates. Every
+fitted value (Over bias, `P(plays)` model, `k`, `w`, floors, alarm thresholds, ceilings) lives
+in a versioned `nba/params/*.json` on engine-state with its fit date, n, CI and holdout
+score. A refit writes a new version, and the ledger stamps the version that priced each row.
+Measured base rates (74% Questionable, −1.5 PTS Over gap) are priors for those fits, not
+constants. The Over bias is re-measured with power de-vig at T-1 before it prices. The
+Kaggle SQLite is a read-only input at `NBAE_KAGGLE_DB`. Engine state stays CSV / gzipped JSON.
 
 ---
 
@@ -573,6 +675,11 @@ the first live card.
 | NFL | De-vig study | proportional de-vig creates favourite–longshot slope; **power** within 1pp in 4/5 buckets [MEASURED] | Use power de-vig by default; re-measure on props where hold is 6–8%. |
 | NBA | Prop Over bias, 2023–26 close | Over hit 48.0% vs 49.5% no-vig, 1.99M quotes / 3,651 games, every season and market negative [MEASURED] | Price the Over below the de-vigged close by a fitted amount (§4.7). |
 | NBA | ML hold with a questionable star, 2023–26 close | −0.01 pts vs no Q star (95% −0.03 to +0.01) [MEASURED] | No ML volatility cap (§4.7). |
+| NBA | 1H vs regulation 2H points, 2023–26 | +0.77 per team (95% +0.49 to +1.04); +0.45 in games under 10 [MEASURED] | Fitted 1H distribution, not a half-share (§4.4). |
+| NBA | Star minutes, Cup knockouts 2023–25 | +0.8 (95% −0.6 to +2.0), 3 finals [MEASURED] | `cup_stage` flag only (§1). |
+| NBA | 2025-27 rule changes | heave rule, push-off emphasis, Cup semis at home, OOB replay [VERIFIED NBA.com / ESPN] | Register §3a. |
+| NBA | Pulled vs moved props, T-1 sample | pulled −0.4 pts (n=860), line moved −3.4 pts (n=1,056) [MEASURED] | Pulled rows kept; pre-pull CLV column (§10). |
+| NBA | Best of DK/MGM vs one book | PTS −4.97% vs −6.03 / −6.56% EV; 1H ML −2.77% vs −4.03 / −4.05% [MEASURED] | Floor fitted per one-/two-book (§10). |
 | NBA | Prop Over bias after a late star scratch | −1.8 pts (95% −3.6 to −0.2) vs −1.5 baseline [MEASURED] | No dial-back after news (§4.7). |
 | NBA | NBA Cup knockout IDs, 2023–25 | 21 of 21 matched, all markets [MEASURED] | Teams + tip-time fallback only (§1). |
 | NBA | Star minutes on B2B, 2022–26 | Absence +5.3 pts, minutes −0.1 (95% −0.4 to +0.2) [MEASURED] | B2B enters `P(plays)`; no minutes cut (§5b). |
