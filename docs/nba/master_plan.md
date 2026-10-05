@@ -443,7 +443,8 @@ shows the order holds (MLB #150). Probation markets print as "Lean (probation)",
 
 1. Grade yesterday from ESPN finals (game, 1H from period scores, props from box; DNP → void).
 2. Stamp closes (last pre-tip snapshot, `pre` status only; anything later is dropped and counted).
-3. Write graded rows to `nba/ledger.csv` on engine-state (pushed by the Mac).
+3. Write graded rows once to `nba/ledger/<date>/graded.csv.gz` on engine-state (pushed by the Mac);
+   each priced pass is its own immutable `priced_<stamp>_<tag>.csv.gz` beside it.
 4. Audit PDF + MP3 + ledger workbook, emailed once:
    - **Lead**: the slate's buys W-L-P and units, then ledger to date (CFB #391/#392).
    - Per market: model vs close vs open Brier; buys vs model-favoured vs baselines; CLV (prob

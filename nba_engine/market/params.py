@@ -41,4 +41,14 @@ def latest(data_dir: Path, name: str) -> dict | None:
     return None
 
 
-__all__ = ["latest", "params_dir", "write"]
+def read(data_dir: Path, name: str, version: str) -> dict | None:
+    """One named version, as a ledger row recorded it; ``None`` if this machine lacks it."""
+    path = params_dir(data_dir, name) / f"{version}.json"
+    try:
+        payload = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+__all__ = ["latest", "params_dir", "read", "write"]

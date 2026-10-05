@@ -106,9 +106,10 @@ def write_results(data_dir: Path, day: Date, games: list[GameResult]) -> Path:
 
 
 def ensure_results(data_dir: Path, day: Date, client: ESPNClient | None = None) -> list[GameResult]:
-    """The day's results, fetched once and kept only when every game on it is final.
+    """The day's results, fetched once and kept only when every game on it is settled.
 
-    A final whose box summary failed comes back with no player lines or team
+    Settled means final with its box, or postponed/cancelled (it will not be
+    played on this date, so it must not hold the day open forever). A final whose box summary failed comes back with no player lines or team
     totals; the day is then returned but not archived, so the next run fetches
     it again. Each summary that did arrive is kept whole under ``espn_raw/``
     (it carries the play-by-play), whether or not the day is complete.
@@ -119,7 +120,9 @@ def ensure_results(data_dir: Path, day: Date, client: ESPNClient | None = None) 
     games = (client or ESPNClient()).results(
         day, on_summary=lambda espn_id, summary: write_raw_summary(data_dir, day, espn_id, summary)
     )
-    if games and all(g.is_final and g.players and g.home_box and g.away_box for g in games):
+    if games and all(
+        g.not_played or (g.is_final and g.players and g.home_box and g.away_box) for g in games
+    ):
         write_results(data_dir, day, games)
     return games
 

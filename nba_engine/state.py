@@ -2,7 +2,8 @@
 
 Under ``nba/``: ``prices/`` (live snapshots), ``injuries/`` (official reports
 and ESPN feed states), ``alerts/`` (the news alarm), ``history/`` (the
-historical pull) and ``params/`` (versioned fitted values). Every file is immutable and
+historical pull), ``params/`` (versioned fitted values) and ``ledger/`` (priced passes
+and graded days). Every file is immutable and
 content-addressed or keyed by (event, anchor), so a merge is a set union of
 paths: pull copies what the branch has and this machine lacks, push the
 reverse. The git plumbing is the MLB module's.
@@ -26,8 +27,9 @@ TREES: dict[str, tuple[str, ...]] = {
     "history": ("events/*.json.gz", "raw/*/*.json.gz"),
     "alerts": ("*/*.csv",),
     "params": ("*/*.json",),
+    "ledger": ("*/*.csv.gz",),
 }
-LIVE: tuple[str, ...] = ("prices", "injuries", "alerts")
+LIVE: tuple[str, ...] = ("prices", "injuries", "alerts", "ledger")
 _PUSH_ATTEMPTS = 3
 log = logging.getLogger(__name__)
 

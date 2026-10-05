@@ -19,9 +19,15 @@
   closes and finals; writes a new ``params/over_bias`` version.
 * ``board`` -- the day's selections: consensus fair (Over bias removed), the
   better DraftKings/BetMGM price, one- or two-book, price vs fair.
+* ``capture --record TAG`` -- after capturing, write the day's untipped
+  selections to the ledger as one immutable priced pass.
+* ``grade`` -- settle a slate's ledger on the ESPN finals and stamp each row's
+  pre-tip close at its book; written once, when every game is settled.
+* ``audit`` -- the graded ledger's tables: buys, tiers, markets, gates (false
+  negatives), book, one/two-book, the board's base rates, CLV and integrity.
 
-Nothing here prices a game: the model, card, ledger and audit come later
-(docs/nba/master_plan.md §13).
+Nothing here prices a game yet: without a model every row is refused
+(``no_model``) and recorded as the board's base rate (docs/nba/master_plan.md §13).
 """
 
 from __future__ import annotations
@@ -37,6 +43,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from nba_engine import alarm, state
+from nba_engine.audit import ledger, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
@@ -138,12 +145,157 @@ def cmd_capture(args: argparse.Namespace) -> int:
             path = capture.write_snapshot(ev, root, slate_date, label="events", captured_at=taken)
             if path is not None:
                 written.append(path.name)
+        if args.record:
+            tips = {g.event_id: g.start_utc for g in games}
+            path = _record_pass(root, slate_date, tips, args.record, taken)
+            if path is not None:
+                written.append(path.name)
     print(
         f"{slate_date}: wrote {len(written)} snapshot(s) {written}; "
         f"credits remaining {client.credits_remaining}"
     )
     if sync and written:
         state.auto_push(root, f"nba capture {slate_date} {taken}")
+    return 0
+
+
+def _versions(root: Path) -> tuple[str, dict]:
+    """The params versions pricing would use now, and the Over-bias payload."""
+    bias = params.latest(root, overbias.NAME)
+    rated = params.latest(root, ratings.NAME)
+    stamp = ";".join(
+        f"{name}={held['version']}"
+        for name, held in ((overbias.NAME, bias), (ratings.NAME, rated))
+        if held
+    )
+    return stamp, bias or {}
+
+
+def _record_pass(root: Path, day: Date, tips: dict[str, str], tag: str, taken: str) -> Path | None:
+    """Price every selection on a game that has not tipped, from pre-tip quotes only."""
+    now = parse_utc(taken)
+    live = {
+        e: t
+        for e, t in tips.items()
+        if (tip := parse_utc(t)) is not None and now is not None and tip > now
+    }
+    rows = ledger.pregame(capture.read_day(root, day), live)
+    versions, bias = _versions(root)
+    priced = ledger.price(
+        selections(rows),
+        ledger.quote_index(rows),
+        tips=live,
+        shift=overbias.shifts(bias),
+        versions=versions,
+        pass_tag=tag,
+    )
+    print(f"{day}: priced {len(priced)} row(s) for the ledger ({tag})")
+    return ledger.write_once(priced, ledger.pass_path(root, day, taken, tag))
+
+
+def _bias_version(row: ledger.LedgerRow) -> str:
+    for part in row.versions.split(";"):
+        name, _, version = part.partition("=")
+        if name == overbias.NAME:
+            return version
+    return ""
+
+
+def cmd_grade(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    root = data_dir()
+    day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
+    sync = cfg.state_sync and not args.no_sync
+    if sync:
+        state.auto_pull(root, trees=("prices", "ledger", "params"))
+    out = ledger.graded_path(root, day)
+    if out.exists():
+        print(f"{day}: already graded ({out.name})")
+        return 0
+    rows = ledger.of_record(ledger.passes(root, day))
+    if not rows:
+        print(f"{day}: no priced passes in the ledger")
+        return 1
+    games = boxes.ensure_results(root, day)
+    finals = {f"{g.away} @ {g.home}": g for g in games}
+    quotes = capture.read_day(root, day)
+    graded: list[ledger.LedgerRow] = []
+    for version in sorted({_bias_version(r) for r in rows}):
+        held = params.read(root, overbias.NAME, version) if version else None
+        if version and held is None:
+            print(f"{day}: over_bias {version} not on this machine; not graded", file=sys.stderr)
+            return 1
+        group = [r for r in rows if _bias_version(r) == version]
+        graded += ledger.grade(
+            group, finals, quotes, shift=overbias.shifts(held), graded_at=capture.now_utc()
+        )
+    settled = {f"{g.away} @ {g.home}" for g in games if g.not_played or g.is_final}
+    waiting = sorted({r.matchup for r in graded} - settled)
+    counts = scorecard.integrity(graded).by_outcome
+    print(f"{day}: {len(graded)} row(s) of record; {counts}")
+    if waiting:
+        print(f"{day}: not written, waiting on {waiting}")
+        return 1
+    path = ledger.write_once(graded, out)
+    print(f"wrote {out}" if path else f"{day}: nothing written")
+    if sync and path is not None:
+        state.auto_push(root, f"nba grade {day}", trees=("ledger",))
+    return 0
+
+
+def _ledger_days(root: Path, since: str | None, until: str | None) -> list[Date]:
+    base = root / "ledger"
+    days = (
+        sorted(Date.fromisoformat(p.name) for p in base.iterdir() if p.is_dir())
+        if base.is_dir()
+        else []
+    )
+    if since:
+        days = [d for d in days if d >= Date.fromisoformat(since)]
+    if until:
+        days = [d for d in days if d <= Date.fromisoformat(until)]
+    return days
+
+
+def _pct(x: float) -> str:
+    return f"{100 * x:+.1f}%"
+
+
+def cmd_audit(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    root = data_dir()
+    if cfg.state_sync and not args.no_sync:
+        state.auto_pull(root, trees=("ledger",))
+    days = _ledger_days(root, args.since, args.until)
+    rows = ledger.graded_rows(root, days)
+    if not rows:
+        print("no graded ledger rows in range")
+        return 1
+    print(f"{len(rows)} graded row(s) over {len(days)} slate(s), {days[0]} .. {days[-1]}")
+    print(f"integrity {asdict(scorecard.integrity(rows))}")
+    print(f"absent from the box (games): {scorecard.absent_names(rows)}")
+    head = (
+        f"{'cut':26} {'n':>6} {'W-L-P':>14} {'win':>6} {'need':>6} {'base':>6} {'PPV':>6} "
+        f"{'NPV':>6} {'ROI':>7} {'ROI 95%':>17} {'CLV':>7} {'beat':>5} {'CLV EV':>7} "
+        f"{'pulled':>6} {'prepull':>7}"
+    )
+    for name, table in scorecard.tables(rows, draws=args.draws).items():
+        table = [m for m in table if m.n or name == "buys"]
+        if not table:
+            continue
+        print(f"\n[{name}]\n{head}")
+        for m in table:
+            print(
+                f"{m.label[:26]:26} {m.n:6} {f'{m.wins}-{m.losses}-{m.pushes}':>14} "
+                f"{100 * m.win_pct:5.1f}% {100 * m.required_win_pct:5.1f}% "
+                f"{100 * m.base_rate:5.1f}% {100 * m.ppv:5.1f}% {100 * m.npv:5.1f}% "
+                f"{_pct(m.roi):>7} ({_pct(m.roi_lo):>7},{_pct(m.roi_hi):>7}) "
+                f"{100 * m.mean_clv:+6.2f} {100 * m.clv_beat_pct:4.0f}% {_pct(m.mean_clv_ev):>7} "
+                f"{m.pulled + m.moved:6} {100 * m.mean_pre_pull_clv:+7.2f}"
+            )
+    print("\n[calibration: consensus fair]")
+    for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
+        print(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
     return 0
 
 
@@ -516,6 +668,7 @@ def build_parser() -> argparse.ArgumentParser:
     cap.add_argument("--max-events", type=int, default=16)
     cap.add_argument("--cache-ttl", type=int, default=0, help="seconds; 0 = always fetch fresh")
     cap.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
+    cap.add_argument("--record", default="", metavar="TAG", help="write a priced ledger pass")
     cap.set_defaults(func=cmd_capture)
 
     wa = sub.add_parser("watch", help="one news-alarm tick: board, injury feeds, closes")
@@ -590,6 +743,18 @@ def build_parser() -> argparse.ArgumentParser:
     bd.add_argument("--date")
     bd.add_argument("--market", default="", help="e.g. game_ml, pl_pts")
     bd.set_defaults(func=cmd_board)
+
+    gr = sub.add_parser("grade", help="settle a slate's ledger and stamp its pre-tip closes")
+    gr.add_argument("--date", help="slate date (ET), default yesterday")
+    gr.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
+    gr.set_defaults(func=cmd_grade)
+
+    au = sub.add_parser("audit", help="the graded ledger's tables")
+    au.add_argument("--since")
+    au.add_argument("--until")
+    au.add_argument("--draws", type=int, default=400)
+    au.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    au.set_defaults(func=cmd_audit)
     return parser
 
 
