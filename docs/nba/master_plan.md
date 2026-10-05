@@ -473,8 +473,19 @@ until that study lands:
 A prop the book pulls before the T-1 capture has **no close**. Its last quote isn't used as
 one: the row is kept with `close = pulled`, left out of CLV and counted in the integrity report.
 Bets are straight wagers only. No same-game parlays; same-game props are one exposure (§6).
-Every book is captured and archived. The consensus is built from all of them, and buys are
-priced only at the books Franz can bet (§14).
+Every book is captured and archived, and the consensus is built from all of them. **Buys are
+priced only at DraftKings and BetMGM** (`EXEC_BOOKS = ("draftkings", "betmgm")`), at the
+better of the two. The ledger records which book priced each row, and CLV is graded at that book's
+close. Archive coverage, 2023–26 closes [MEASURED]: DraftKings has the game in 100% of games,
+PTS props in 99% and 1H ML in 98%. BetMGM has the game in 99%, PTS props in 96% and 1H ML in only 72%.
+Hold: DraftKings ML 4.3% / PTS 6.4%, BetMGM ML 4.6% / PTS 7.1%. A market neither book posts is
+priced and graded but can't be a buy. Every fitted gate (price band, edge floor, Over bias) is
+checked at these two books before it ships.
+**Over bias at the two books [MEASURED, archived close, proportional de-vig].** DraftKings
+−1.56 pts (95% −1.83 to −1.29; PTS −1.3, 3PM −1.7, REB −2.0, AST −1.3, PRA −1.3) across 224K
+quotes. BetMGM −1.27 (−1.51 to −1.01; PTS −1.0, 3PM −1.5, REB −2.0, AST −0.6, PRA −1.3) across 247K.
+Overs returned −9.1% at both, Unders −3.2% (DraftKings) and −4.3% (BetMGM). The bias is fitted
+per market × book for these two, shrunk toward the all-book value.
 
 **T-1 vs the archived close [MEASURED, 100 random 2023–26 games, 10,970 credits].** The T-1
 request returned a snapshot 4.4 min before tip, against 9.4 for the archive (98 of 100 newer).
@@ -585,8 +596,7 @@ the first live card.
 1. Kaggle API token as a secret, or a one-time download of the Wyatt Walsh SQLite on the Mac.
 2. OK for a Mac daemon running nba_api (stats.nba.com blocks the VM).
 3. Confirm the Mac's `/etc/engine.env` key also shows the 5M balance (0-credit check block).
-4. Which sportsbooks you can actually bet at. Buys are priced only there; everything else
-   is captured for the consensus and the archive.
+4. ~~Which sportsbooks you bet at~~: DraftKings and BetMGM (§10).
 
 **Config vs fitted values.** `nba_engine/config.py` holds paths, defaults and gates. Every
 fitted value (Over bias, `P(plays)` model, `k`, `w`, floors, alarm thresholds, ceilings) lives
