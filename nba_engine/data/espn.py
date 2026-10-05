@@ -8,6 +8,7 @@ with no minutes -- is a DNP, which voids his props rather than losing them.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from datetime import date as Date
 
 import requests
@@ -15,7 +16,7 @@ import requests
 from mlb_engine.data import http
 from nba_engine.data import teamnames
 from nba_engine.data.oddsapi import slate_date_of
-from nba_engine.schemas import GameResult, PlayerLine
+from nba_engine.schemas import GameResult, PlayerLine, TeamBox
 
 log = logging.getLogger(__name__)
 
@@ -40,14 +41,22 @@ class ESPNClient:
         payload = self._get(f"{SITE}/scoreboard", dates=day.strftime("%Y%m%d"))
         return parse_scoreboard(payload or {}, day)
 
-    def results(self, day: Date) -> list[GameResult]:
-        """The day's games, with box lines attached for every final."""
+    def results(
+        self, day: Date, on_summary: Callable[[str, dict], object] | None = None
+    ) -> list[GameResult]:
+        """The day's games, with box lines, team totals and venue attached for every final.
+
+        ``on_summary`` receives each raw summary (it carries the play-by-play),
+        so a caller can keep it without a second request.
+        """
         out: list[GameResult] = []
         for game in self.scoreboard(day):
             if game.is_final:
                 summary = self._get(f"{SITE}/summary", event=game.espn_id)
                 if summary is not None:
-                    game = GameResult(**{**game.__dict__, "players": parse_box(summary)})
+                    game = with_summary(game, summary)
+                    if on_summary is not None:
+                        on_summary(game.espn_id, summary)
             out.append(game)
         return out
 
@@ -122,4 +131,62 @@ def parse_box(summary: dict) -> tuple[PlayerLine, ...]:
     return tuple(out)
 
 
-__all__ = ["ESPNClient", "parse_box", "parse_scoreboard"]
+def _made_att(raw: str) -> tuple[int, int]:
+    made, _, att = str(raw).partition("-")
+    return _int(made), _int(att)
+
+
+def parse_team_boxes(summary: dict) -> dict[str, TeamBox]:
+    """Team code -> box totals; a team missing any shooting line is left out."""
+    out: dict[str, TeamBox] = {}
+    for team in summary.get("boxscore", {}).get("teams", []):
+        code = _code(team.get("team", {}))
+        stats = {s.get("name"): s.get("displayValue", "") for s in team.get("statistics", [])}
+        need = (
+            "fieldGoalsMade-fieldGoalsAttempted",
+            "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+            "freeThrowsMade-freeThrowsAttempted",
+            "offensiveRebounds",
+        )
+        if not code or any(k not in stats for k in need):
+            continue
+        fgm, fga = _made_att(stats[need[0]])
+        fg3m, fg3a = _made_att(stats[need[1]])
+        ftm, fta = _made_att(stats[need[2]])
+        out[code] = TeamBox(
+            team=code,
+            fgm=fgm,
+            fga=fga,
+            fg3m=fg3m,
+            fg3a=fg3a,
+            ftm=ftm,
+            fta=fta,
+            oreb=_int(stats["offensiveRebounds"]),
+            dreb=_int(stats.get("defensiveRebounds", "0")),
+            tov=_int(stats.get("totalTurnovers", stats.get("turnovers", "0"))),
+            fouls=_int(stats.get("fouls", "0")),
+        )
+    return out
+
+
+def with_summary(game: GameResult, summary: dict) -> GameResult:
+    """The scoreboard final with the summary's box lines, team totals and venue."""
+    teams = parse_team_boxes(summary)
+    header = summary.get("header", {})
+    comp = (header.get("competitions") or [{}])[0]
+    venue = summary.get("gameInfo", {}).get("venue", {})
+    return GameResult(
+        **{
+            **game.__dict__,
+            "players": parse_box(summary),
+            "away_box": teams.get(game.away),
+            "home_box": teams.get(game.home),
+            "neutral": bool(comp.get("neutralSite")),
+            "venue": str(venue.get("fullName", "")),
+            "city": str(venue.get("address", {}).get("city", "")),
+            "season_type": _int(header.get("season", {}).get("type", 0)),
+        }
+    )
+
+
+__all__ = ["ESPNClient", "parse_box", "parse_scoreboard", "parse_team_boxes", "with_summary"]

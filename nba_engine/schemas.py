@@ -49,6 +49,28 @@ class PlayerLine:
 
 
 @dataclass(frozen=True)
+class TeamBox:
+    """One team's box totals: what possessions and per-100 rates are built from."""
+
+    team: str
+    fgm: int
+    fga: int
+    fg3m: int
+    fg3a: int
+    ftm: int
+    fta: int
+    oreb: int
+    dreb: int
+    tov: int  # total turnovers, team turnovers included
+    fouls: int
+
+    @property
+    def possessions(self) -> float:
+        """The standard box estimate: FGA - OREB + TOV + 0.44 * FTA."""
+        return self.fga - self.oreb + self.tov + 0.44 * self.fta
+
+
+@dataclass(frozen=True)
 class GameResult:
     """Final as ESPN reports it, per quarter, with the box lines props settle on.
 
@@ -64,6 +86,19 @@ class GameResult:
     away_q: tuple[int, ...] = ()
     home_q: tuple[int, ...] = ()
     players: tuple[PlayerLine, ...] = ()
+    away_box: TeamBox | None = None
+    home_box: TeamBox | None = None
+    neutral: bool = False  # ESPN's neutral-site flag
+    venue: str = ""
+    city: str = ""
+    season_type: int = 0  # ESPN: 1 preseason, 2 regular, 3 playoffs, 5 play-in
+
+    @property
+    def possessions(self) -> float | None:
+        """Game possessions per team: the mean of both teams' box estimates."""
+        if self.away_box is None or self.home_box is None:
+            return None
+        return (self.away_box.possessions + self.home_box.possessions) / 2.0
 
     @property
     def is_final(self) -> bool:
