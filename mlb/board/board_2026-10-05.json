@@ -989,9 +989,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.408685
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "Nathaniel Lowe H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.40744
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI u1.5",
+    "american": -169.0,
+    "no_vig_prob": 0.591315
   },
   {
     "matchup": "CWS @ CLE",
@@ -1045,9 +1059,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "Travis Bazzana H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.411818
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
   },
   {
     "matchup": "CWS @ CLE",
@@ -2130,9 +2158,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_tb",
+    "selection": "Chase DeLauter TB o0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.628743
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
     "selection": "Chase DeLauter TB o1.5",
     "american": 155.0,
     "no_vig_prob": 0.372411
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB u0.5",
+    "american": 150.0,
+    "no_vig_prob": 0.371257
   },
   {
     "matchup": "CWS @ CLE",
