@@ -45,5 +45,6 @@ def test_zero_weight_and_zero_ceiling_get_nothing():
 def test_bad_inputs_are_refused():
     with pytest.raises(ValueError):
         allocate(-1.0, REB)
-    with pytest.raises(ValueError):
-        allocate(1.0, {"a": -0.1})
+    for bad in (-0.1, math.inf, math.nan):
+        with pytest.raises(ValueError):
+            allocate(1.0, {"a": bad, "b": 1.0})

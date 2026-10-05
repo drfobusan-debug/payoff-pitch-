@@ -44,8 +44,8 @@ def allocate(
     """
     if total < 0 or not math.isfinite(total):
         raise ValueError(f"total must be finite and non-negative, got {total}")
-    if any(w < 0 for w in weights.values()):
-        raise ValueError("weights must be non-negative")
+    if any(not math.isfinite(w) or w < 0 for w in weights.values()):
+        raise ValueError("weights must be finite and non-negative")
     caps = dict(ceilings or {})
     amounts = {p: 0.0 for p in weights}
     open_ = {p for p, w in weights.items() if w > 0 and caps.get(p, math.inf) > 0}

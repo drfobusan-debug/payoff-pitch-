@@ -225,17 +225,24 @@ def cmd_watch(args: argparse.Namespace) -> int:
             return alarm.consensus(got)
 
         done = alarm.settle(waiting, first, poll, cfg.alarm, _sleep)
-        calm = alarm.settled_alerts(done, by_id, capture.now_utc())
+        stamp = capture.now_utc()
+        news = max(a.detected_at for a in prior + live if a.event_id in done) if done else ""
+        if stamp <= news and (heard := parse_utc(news)) is not None:
+            stamp = (heard + timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        calm = alarm.settled_alerts(done, by_id, stamp)
         if calm:
             path = alarm.write_alerts(calm, root, day, calm[0].detected_at)
             if path is not None:
                 written.append(path.name)
         live += calm
-        for eid in sorted(waiting - set(done)):
-            print(f"PENDING {by_id[eid].matchup:10} line still moving")
+        still = sorted(waiting - set(done))
+    else:
+        still = []
 
     for a in live:
         print(f"ALERT {a.matchup:10} {a.kind:16} {a.detail}")
+    for eid in still:
+        print(f"PENDING {by_id[eid].matchup:10} line still moving")
     print(
         f"{day}: {len(live)} alert(s), {len(written)} file(s) written; "
         f"credits remaining {client.credits_remaining}"
