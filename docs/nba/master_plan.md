@@ -146,14 +146,18 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    absence moves the number **only** through this rebuild (no double-count).
 4. **Game distribution** — possessions × efficiencies → bivariate (home, away) points, dispersion
    and correlation **fitted to the market's own ML↔spread↔total relation** (CFB #382 lesson);
-   1H from the fitted half-share; OT from the regulation-tie probability. Every line (main, alt,
+   1H from **first-half minutes**, not a flat half-share: each player's 1H minutes come from
+   his own rotation pattern in the stints (D7), with a fitted foul-trouble term (first-half
+   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout); OT from the regulation-tie probability. Every line (main, alt,
    1H) is read off the same distribution; both sides sum to 1.
 
    **4a. Blowout dimmer.** The game is simulated, not just summarised: per simulated game the
    margin path through the second half sets each player's minutes. Once the margin passes a
    fitted threshold late enough, starters' remaining minutes are pulled and handed to the bench
    at the bench's own rates, and pace and efficiency move to their measured garbage-time
-   values. The minute curves (starter share of remaining minutes by |margin| × time left), the
+   values. Garbage-time **assist rate per teammate make and usage dispersion** are fitted
+   the same way (bench units may pass less and shoot more on their own); the multipliers come
+   from blowout stints, not typed constants like 0.30 / 1.45. The minute curves (starter share of remaining minutes by |margin| × time left), the
    threshold and the pace/efficiency shift are **fitted from real 2019–26 blowouts** in the
    play-by-play stints (D7); none is typed in. The pull is **probabilistic, not a cut-off**:
    at each simulated margin × time-left state the starters are pulled with a fitted
@@ -181,6 +185,11 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    in that order, each at his star-off share (§4.2a). A team with a backup point guard gives
    the vacated assists to him, not to every player by usage. Each player's vacancy table is
    EB-shrunk toward his position group's table by the star-off minutes behind it.
+   *Several out at once.* The vacancy table for an absence set falls back in order: that exact
+   set's stints → the single-absence tables combined → the position group's table → plain
+   shares, each EB-weighted by the minutes behind it. Every step then goes through the same
+   ceilings (archetype p99). It never routes everything to one ball-handler. `allocate()`
+   always terminates: each pass freezes at least one player.
 
    *Ceilings.* Each share is water-filled under a per-player ceiling (usage, FGA, 3PA, AST
    chances) taken from the player's archetype's fitted historical maximum. A player at his
@@ -193,6 +202,12 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
 6. **Calibration** — isotonic per market on a holdout (`engine_common.isotonic`).
 7. **Market anchor** — `p_final = w·p_model + (1−w)·p_fair_close_now`, `w` and an edge cap
    **fitted per market**; power de-vig (NFL study), re-measured on NBA props.
+   *Hold with a questionable star [MEASURED].* At the 2023–26 close, books' hold with a ≥30-mpg
+   star Questionable on the last report ≥1 h pre-tip (508 of 2,670 games) vs without: ML
+   4.17% vs 4.18% (−0.01 pts, 95% −0.03 to +0.01); spread 4.63 vs 4.63; total 4.68 vs 4.68;
+   1H spread/total +0.07 pts. The ML does not widen, and its hold is the lowest of the six,
+   so there is no ML volatility cap and no ATS preference. The EV gate already charges each
+   market its own hold.
 
    **Over bias (props).** The no-vig close **overstates the Over** on all five props. Over all
    books, 2023-26 at the archived close (1,986,631 paired quotes, 3,651 games), Overs hit 48.0%
@@ -400,7 +415,7 @@ until that study lands:
 | 11:15 | morning board + props capture, injury report 11 AM | **Preview** PDF (no buys) |
 | **17:15** | after the 5 PM report; main card for 7:00–8:30 tips | **Card**: PDF + Excel + MP3 |
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
-| T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip; T-5 is the fallback (~110 credits per game per capture) | — |
+| T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip **and** the quote is stamped before the scheduled tip (clock lock; ESPN's status can lag the jump ball). T-5 is the fallback (~110 credits per game per capture). Recommendations for a game stop at its last scheduled pass, well before tip | — |
 
 **T-1 vs the archived close [MEASURED, 100 random 2023–26 games, 10,970 credits].** The T-1
 request returned a snapshot 4.4 min before tip, against 9.4 for the archive (98 of 100 newer).
@@ -533,6 +548,7 @@ the first live card.
 | NFL | Ridge rating vs close | MAE 10.282 vs 9.905; disagreement explains none of the line's error (t=+0.25, n=3,450) [MEASURED] | Opponent-adjusted team ratings are a prior and a game script, not a bet. |
 | NFL | De-vig study | proportional de-vig creates favourite–longshot slope; **power** within 1pp in 4/5 buckets [MEASURED] | Use power de-vig by default; re-measure on props where hold is 6–8%. |
 | NBA | Prop Over bias, 2023–26 close | Over hit 48.0% vs 49.5% no-vig, 1.99M quotes / 3,651 games, every season and market negative [MEASURED] | Price the Over below the de-vigged close by a fitted amount (§4.7). |
+| NBA | ML hold with a questionable star, 2023–26 close | −0.01 pts vs no Q star (95% −0.03 to +0.01) [MEASURED] | No ML volatility cap (§4.7). |
 | NBA | Star minutes on B2B, 2022–26 | Absence +5.3 pts, minutes −0.1 (95% −0.4 to +0.2) [MEASURED] | B2B enters `P(plays)`; no minutes cut (§5b). |
 | NBA | Close timing, 2023–26 archive | Historical snapshots sit on a 5-min grid ~30 s past each 5 min; the T-5 request returned a snapshot 9.4 min before tip (median, 3,607 games) [MEASURED] | Request at T-1 (≈4.4 min); live close at T-1 with a pre-tip check (§10). The 100-game T-1 sample barely moved, so there is no re-pull. |
 | NBA | Official status → played, 2023–26 | Questionable 74.0% played (n=1,328); Q→Available 87.1% [MEASURED] | Price Questionable as a mixture, do not ban the game (§5b). |
