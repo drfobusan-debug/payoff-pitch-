@@ -45,6 +45,7 @@ class PlayerLine:
     threes: int
     starter: bool = False
     dnp: bool = False
+    dnp_reason: str = ""  # ESPN's note on a DNP: "COACH'S DECISION", an injury, "REST", ...
 
     @property
     def pra(self) -> int:

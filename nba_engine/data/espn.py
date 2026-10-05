@@ -126,6 +126,7 @@ def parse_box(summary: dict) -> tuple[PlayerLine, ...]:
                         threes=_int(threes.split("-")[0]),
                         starter=bool(ath.get("starter")),
                         dnp=bool(ath.get("didNotPlay")) or not stats or minutes == 0,
+                        dnp_reason=str(ath.get("reason") or "") if ath.get("didNotPlay") else "",
                     )
                 )
     return tuple(out)

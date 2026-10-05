@@ -47,11 +47,11 @@ from nba_engine.audit import ledger, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
-from nba_engine.data.espn import ESPNClient
+from nba_engine.data.espn import ESPNClient, parse_box
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
-from nba_engine.models import rating_fit, ratings
+from nba_engine.models import minutes, minutes_fit, rating_fit, ratings
 from nba_engine.models.schedule import schedule
 from nba_engine.schemas import GameResult
 
@@ -615,6 +615,63 @@ def cmd_fit_ratings(args: argparse.Namespace) -> int:
     return 0
 
 
+def _with_reasons(root: Path, games: list[GameResult]) -> list[GameResult]:
+    """Re-read each final's box from its raw summary, which carries the DNP reasons."""
+    out: list[GameResult] = []
+    for g in games:
+        raw = boxes.read_raw_summary(root, g.game_date, g.espn_id)
+        out.append(replace(g, players=parse_box(raw)) if raw else g)
+    return out
+
+
+def cmd_fit_minutes(args: argparse.Namespace) -> int:
+    root = data_dir()
+    games = _with_reasons(root, _held_finals(root, _days(args)))
+    if not games:
+        print("no archived finals; params left unchanged")
+        return 1
+    train, holdout = set(args.train), set(args.holdout or [])
+    fitted, err = minutes_fit.fit(games, train)
+    rows, _ = minutes.replay(games, fitted)
+    print(f"{len(games)} finals; train {sorted(train)} minutes MAE {err:.3f}")
+    print(" ".join(f"{k}={v}" for k, v in minutes.params_payload(fitted).items()))
+    grades: dict[str, list[dict]] = {}
+    for label, seasons in (("train", train), ("holdout", holdout)):
+        if not seasons:
+            continue
+        grades[label] = []
+        for gr in minutes_fit.grade(rows, seasons, draws=args.draws):
+            grades[label].append(asdict(gr))
+            print(
+                f"{label:7} {gr.group:9} n={gr.n:6} MAE model {gr.model_mae:.3f} "
+                f"last-{minutes_fit.RECENT} {gr.recent_mae:.3f} gain {gr.gain:+.3f} "
+                f"({gr.lo:+.3f},{gr.hi:+.3f})"
+            )
+    band = minutes_fit.spread(rows, holdout or train)
+    for b in band:
+        print(
+            f"projected {b['lo']:>2.0f}-{b['hi']:<2.0f} n={b['n']:6.0f} "
+            f"miss mean {b['mean']:+.2f} sd {b['sd']:.2f}"
+        )
+    path = params.write(
+        root,
+        minutes.NAME,
+        {
+            "params": minutes.params_payload(fitted),
+            "train": sorted(train),
+            "holdout": sorted(holdout),
+            "games": len(games),
+            "train_mae": err,
+            "vs_recent": grades,
+            "spread": band,
+        },
+    )
+    print(f"wrote {path}")
+    if args.push:
+        state.auto_push(root, f"nba params {path.stem}", trees=("params",))
+    return 0
+
+
 def cmd_ratings(args: argparse.Namespace) -> int:
     root = data_dir()
     as_of = _parse_date(args.date)
@@ -731,6 +788,16 @@ def build_parser() -> argparse.ArgumentParser:
     fr.add_argument("--draws", type=int, default=1000, help="slate-date bootstrap draws")
     fr.add_argument("--push", action="store_true", help="push params/ to engine-state")
     fr.set_defaults(func=cmd_fit_ratings)
+
+    fm = sub.add_parser("fit-minutes", help="fit the minutes book on a replay; grade vs recent avg")
+    fm.add_argument("--season", action="append", required=True, help="finals to load")
+    fm.add_argument("--since")
+    fm.add_argument("--until")
+    fm.add_argument("--train", type=int, action="append", required=True, help="start year")
+    fm.add_argument("--holdout", type=int, action="append", help="start year, never fitted")
+    fm.add_argument("--draws", type=int, default=1000, help="slate-date bootstrap draws")
+    fm.add_argument("--push", action="store_true", help="push params/ to engine-state")
+    fm.set_defaults(func=cmd_fit_minutes)
 
     rt = sub.add_parser("ratings", help="team ratings going into a date")
     rt.add_argument("--season", action="append", required=True)
