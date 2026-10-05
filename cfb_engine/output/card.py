@@ -50,6 +50,11 @@ def _kick_label(recs: list[Recommendation]) -> str:
     return dt.strftime("%-I:%M %p ET")
 
 
+def _kick_prefix(r: Recommendation) -> str:
+    label = _kick_label([r])
+    return f"{label} · " if label else ""
+
+
 def _slate_order(groups: dict[str, list[Recommendation]]) -> list[list[Recommendation]]:
     """Games early to late; a game with no kickoff stamp sorts after the rest."""
 
@@ -522,22 +527,32 @@ def _game_section(recs: list[Recommendation]) -> str:
     )
 
 
+def _by_kickoff(buys: list[Recommendation]) -> list[Recommendation]:
+    """Early to late, strongest first within a game; no kickoff stamp sorts last."""
+
+    def order(rb: tuple[int, Recommendation]) -> tuple[bool, float, int]:
+        dt = _kickoff([rb[1]])
+        return dt is None, dt.timestamp() if dt else 0.0, rb[0]
+
+    return [b for _, b in sorted(enumerate(buys), key=order)]
+
+
 def _slate_best_block(recs: list[Recommendation]) -> str:
-    buys = _best_bets(recs)
+    buys = _by_kickoff(_best_bets(recs))
     if not buys:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
             "<p>The model passes the entire board today.</p></div>"
         )
     items = "".join(
-        f"<li><b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
+        f"<li>{_kick_prefix(b)}<b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
         f"({b.matchup}), model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% "
         f"· <i>{b.tier.value}</i></li>"
         for b in buys
     )
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
-        f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, strongest first:</p>"
+        f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
         f"<ul class='bets big'>{items}</ul></div>"
     )
 
