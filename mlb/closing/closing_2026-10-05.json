@@ -3691,6 +3691,13 @@
   {
     "matchup": "NYY @ TB",
     "market": "batter_hr",
+    "selection": "Jonny Deluca HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "batter_hr",
     "selection": "Junior Caminero HR o0.5",
     "american": 340.0,
     "no_vig_prob": 0.227273
@@ -4762,9 +4769,23 @@
   {
     "matchup": "NYY @ TB",
     "market": "batter_tb",
+    "selection": "Junior Caminero TB o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "batter_tb",
     "selection": "Junior Caminero TB o1.5",
     "american": 141.0,
     "no_vig_prob": 0.392036
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "batter_tb",
+    "selection": "Junior Caminero TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
   },
   {
     "matchup": "NYY @ TB",
@@ -5112,9 +5133,23 @@
   {
     "matchup": "NYY @ TB",
     "market": "pitcher_k",
+    "selection": "Freddy Peralta Ks o4.5",
+    "american": -145.0,
+    "no_vig_prob": 0.564571
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "pitcher_k",
     "selection": "Freddy Peralta Ks o5.5",
     "american": 126.0,
     "no_vig_prob": 0.422698
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "pitcher_k",
+    "selection": "Freddy Peralta Ks u4.5",
+    "american": 124.0,
+    "no_vig_prob": 0.435429
   },
   {
     "matchup": "NYY @ TB",
