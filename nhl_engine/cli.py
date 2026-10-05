@@ -285,6 +285,11 @@ def cmd_card(args: argparse.Namespace) -> int:
         return 2
     mp = MoneyPuckClient(cache_dir=cache_dir())
     prior = _prior_for(season, mp, slate)
+    try:
+        starts = {g.matchup: g.start_utc for g in _nhlapi().schedule(slate)}
+    except Exception as exc:  # no schedule: price every game rather than none
+        print(f"NHL schedule unavailable, started games not skipped: {exc}", file=sys.stderr)
+        starts = {}
     card = pipeline.run_slate(
         quotes,
         slate=slate,
@@ -297,6 +302,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         data_dir=root,
         tag=args.tag,
         seed=args.seed,
+        starts=starts,
     )
     paths = outputs.write_all(card, output_dir())
     if not args.no_pdf:
@@ -367,14 +373,21 @@ def cmd_lineups(args: argparse.Namespace) -> int:
     return 0
 
 
-def _results_for(day: Date) -> dict[str, GameResult]:
-    client = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+def _nhlapi() -> NHLAPIClient:
+    return NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+
+
+def _results_for(day: Date) -> tuple[dict[str, GameResult], dict[str, str]]:
+    """Finals and puck-drop times (UTC) by matchup."""
+    client = _nhlapi()
     out: dict[str, GameResult] = {}
+    starts: dict[str, str] = {}
     for game in client.schedule(day):
+        starts[game.matchup] = game.start_utc
         res = client.result(game)
         if res is not None:
             out[game.matchup] = res
-    return out
+    return out, starts
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
@@ -382,8 +395,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
     rows = ledger.load_rows(ledger.predictions_path(root, day))
     if rows:
+        results, starts = _results_for(day)
         graded = ledger.grade_rows(
-            rows, _results_for(day), capture.read_day(root, day), graded_at=capture.now_utc()
+            rows,
+            results,
+            capture.read_day(root, day),
+            graded_at=capture.now_utc(),
+            starts=starts,
         )
         ledger.save_rows(graded, ledger.graded_path(root, day))
         done = sum(1 for r in graded if r.outcome is not None)
