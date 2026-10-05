@@ -63,7 +63,7 @@ def test_the_opener_move_is_read_first_and_the_days_board_backs_it_up() -> None:
 def test_the_recommendation_labels_its_cell_with_the_move() -> None:
     rec = _rec("over", model=0.57, fair=0.50, open_drift=0.023)
     assert rec.line_agrees
-    assert rec.as_row()[lineagree.LABEL] == "YES (+2.3 pts)"
+    assert rec.as_row()[lineagree.LABEL] == "YES (+2.3 pp)"
     assert _rec("under", model=0.43, fair=0.50, open_drift=0.023).as_row()[lineagree.LABEL] == ""
 
 
@@ -117,9 +117,9 @@ def test_the_workbook_shows_the_rule_on_its_own_labelled_tab(tmp_path: Path) -> 
     assert lineagree.LABEL in header
     col = header.index(lineagree.LABEL)
     rows = list(ws.iter_rows(min_row=2, values_only=True))
-    assert len(rows) == 1 and rows[0][col] == "YES (+2.0 pts)"
+    assert len(rows) == 1 and rows[0][col] == "YES (+2.0 pp)"
     all_rows = list(wb["All"].iter_rows(min_row=2, values_only=True))
-    assert sorted(r[col] or "" for r in all_rows) == ["", "YES (+2.0 pts)"]
+    assert sorted(r[col] or "" for r in all_rows) == ["", "YES (+2.0 pp)"]
 
 
 def test_the_card_lists_the_rule_apart_from_the_best_bets_with_its_record() -> None:
@@ -128,7 +128,7 @@ def test_the_card_lists_the_rule_apart_from_the_best_bets_with_its_record() -> N
     html, _ = build_article(DAY, [agree], record)
     assert lineagree.LABEL in html
     block = html[html.index("class='lineagree'") :]
-    assert "Over 52.5" in block and "+2.0 pts our way" in block
+    assert "Over 52.5" in block and "market moved +2.0 pp our way" in block
     assert "Graded so far: 10 games" in block and "WATCHING" in block
     bare, _ = build_article(DAY, [_rec("over", model=0.57, fair=0.50, open_drift=0.0)])
     assert "No total has moved toward the model's side yet today." in bare

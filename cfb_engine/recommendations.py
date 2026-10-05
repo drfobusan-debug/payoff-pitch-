@@ -117,7 +117,7 @@ class Recommendation:
     def _line_agrees_cell(self) -> str:
         if not self.line_agrees or self.pre_bet_move is None:
             return ""
-        return f"YES (+{self.pre_bet_move * 100:.1f} pts)"
+        return f"YES (+{self.pre_bet_move * 100:.1f} pp)"
 
     def as_row(self) -> dict[str, object]:
         return {

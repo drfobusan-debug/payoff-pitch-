@@ -556,9 +556,9 @@ def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> 
     if picks:
         items = "".join(
             f"<li><b>{escape(r.selection)} ({_odds(r.market_american)})</b> &mdash; "
-            f"{escape(r.matchup)}, model {r.model_prob * 100:.0f}% vs market "
-            f"{(r.fair_prob or 0.0) * 100:.0f}%, line moved "
-            f"{(r.pre_bet_move or 0.0) * 100:+.1f} pts our way</li>"
+            f"{escape(r.matchup)}, model {r.model_prob * 100:.1f}% vs market "
+            f"{(r.fair_prob or 0.0) * 100:.1f}%, {_opened(r)}market moved "
+            f"{(r.pre_bet_move or 0.0) * 100:+.1f} pp our way</li>"
             for r in picks
         )
         body = f"<ul class='bets'>{items}</ul>"
@@ -566,10 +566,17 @@ def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> 
         body = "<p>No total has moved toward the model's side yet today.</p>"
     return (
         f"<div class='lineagree'><h2>{lineagree.LABEL}</h2>"
-        "<p class='sbnote'>Totals where the line has moved at least a point of no-vig "
-        "probability toward the model's side since the opener. Tracked to test the rule; "
+        "<p class='sbnote'>Totals where the market has moved at least 1 pp (one point of "
+        "no-vig probability, number and price together) toward the model's side since the "
+        "opener. Tracked to test the rule; "
         f"these are not bets and carry no stake.</p>{body}<p class='sbnote'>{tally}</p></div>"
     )
+
+
+def _opened(r: Recommendation) -> str:
+    if r.open_line is None or r.line is None or r.open_line == r.line:
+        return ""
+    return f"opened {r.open_line:g}, "
 
 
 def _line_agrees_order(r: Recommendation) -> tuple[str, float]:
