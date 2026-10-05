@@ -42,7 +42,7 @@ class ESPNClient:
         return parse_scoreboard(payload or {}, day)
 
     def results(
-        self, day: Date, on_summary: Callable[[str, dict], None] | None = None
+        self, day: Date, on_summary: Callable[[str, dict], object] | None = None
     ) -> list[GameResult]:
         """The day's games, with box lines, team totals and venue attached for every final.
 

@@ -46,7 +46,9 @@ ROUNDS = 2
 Lines = dict[tuple[str, str], tuple[float | None, float | None]]
 
 
-def score_sse(preds: Sequence[Prediction], finals: dict[str, GameResult], seasons: set[int]) -> float:
+def score_sse(
+    preds: Sequence[Prediction], finals: dict[str, GameResult], seasons: set[int]
+) -> float:
     """Mean squared error per team score over the graded seasons."""
     err, n = 0.0, 0
     for p in preds:
@@ -80,6 +82,69 @@ def fit(
                 if err < best_err - 1e-9:
                     best, best_err = trial, err
     return best, best_err
+
+
+@dataclass(frozen=True)
+class B2BFit:
+    """Home margin the rating misses per unit of (away on a b2b) - (home on a b2b)."""
+
+    n: int
+    cost: float
+    lo: float
+    hi: float
+
+    @property
+    def applied(self) -> float:
+        """The cost, or 0 when its interval includes zero."""
+        return self.cost if self.lo > 0.0 or self.hi < 0.0 else 0.0
+
+
+def fit_b2b(
+    preds: Sequence[Prediction],
+    finals: dict[str, GameResult],
+    sched: dict[tuple[str, str], TeamSchedule],
+    seasons: set[int],
+    draws: int = 1000,
+    seed: int = 11,
+) -> B2BFit:
+    """Regress the rating's margin miss on the back-to-back difference (date bootstrap).
+
+    ``preds`` must come from a book with ``b2b_margin = 0``, so the miss is
+    measured against the rating alone.
+    """
+    by_day: dict[str, list[tuple[float, float]]] = defaultdict(list)
+    for p in preds:
+        g = finals[p.espn_id]
+        if season_of(g.game_date) not in seasons:
+            continue
+        hs, as_ = sched.get((g.espn_id, g.home)), sched.get((g.espn_id, g.away))
+        if hs is None or as_ is None:
+            continue
+        x = float(as_.b2b) - float(hs.b2b)
+        by_day[p.game_date].append((x, (g.final_home - g.final_away) - p.margin))
+
+    def ols(pairs: Sequence[tuple[float, float]]) -> float:
+        n = len(pairs)
+        mx = sum(x for x, _ in pairs) / n
+        my = sum(y for _, y in pairs) / n
+        sxx = sum((x - mx) ** 2 for x, _ in pairs)
+        return sum((x - mx) * (y - my) for x, y in pairs) / sxx if sxx > 0 else 0.0
+
+    pairs = [pair for v in by_day.values() for pair in v]
+    if not pairs:
+        return B2BFit(0, 0.0, 0.0, 0.0)
+    rng = random.Random(seed)
+    days = list(by_day)
+    boot = sorted(
+        ols([pair for _ in days for pair in by_day[days[rng.randrange(len(days))]]])
+        for _ in range(draws)
+    )
+    return B2BFit(
+        n=len(pairs),
+        cost=ols(pairs),
+        lo=boot[int(0.025 * draws)],
+        hi=boot[int(0.975 * draws) - 1],
+    )
 
 
 def closing_lines(data_dir: Path, days: Iterable[Date]) -> Lines:
@@ -170,4 +235,13 @@ def vs_close(
     return out
 
 
-__all__ = ["GRID", "CloseGrade", "closing_lines", "fit", "score_sse", "vs_close"]
+__all__ = [
+    "GRID",
+    "B2BFit",
+    "CloseGrade",
+    "fit_b2b",
+    "closing_lines",
+    "fit",
+    "score_sse",
+    "vs_close",
+]

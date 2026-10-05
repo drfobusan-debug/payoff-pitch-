@@ -31,7 +31,7 @@ import json
 import logging
 import sys
 import time
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -44,6 +44,9 @@ from nba_engine.data.espn import ESPNClient
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
+from nba_engine.models import rating_fit, ratings
+from nba_engine.models.schedule import schedule
+from nba_engine.schemas import GameResult
 
 log = logging.getLogger("nba_engine")
 
@@ -402,6 +405,81 @@ def cmd_fit_over_bias(args: argparse.Namespace) -> int:
     return 0
 
 
+def _held_finals(root: Path, days: list[Date]) -> list[GameResult]:
+    games: list[GameResult] = []
+    for day in days:
+        games.extend(g for g in boxes.read_results(root, day) or [] if ratings.rateable(g))
+    return games
+
+
+def cmd_fit_ratings(args: argparse.Namespace) -> int:
+    root = data_dir()
+    days = _days(args)
+    games = _held_finals(root, days)
+    if not games:
+        print("no archived finals with team boxes; params left unchanged")
+        return 1
+    train, holdout = set(args.train), set(args.holdout or [])
+    sched = schedule(games)
+    finals = {g.espn_id: g for g in games}
+    fitted, sse = rating_fit.fit(games, train, sched)
+    b2b = rating_fit.fit_b2b(ratings.replay(games, fitted, sched)[0], finals, sched, train)
+    fitted = replace(fitted, b2b_margin=b2b.applied)
+    preds, book = ratings.replay(games, fitted, sched)
+    lines = rating_fit.closing_lines(root, sorted({g.game_date for g in games}))
+    print(f"{len(games)} finals; train {sorted(train)} score MSE {sse:.2f}")
+    print(
+        f"b2b cost {b2b.cost:+.2f} pts ({b2b.lo:+.2f},{b2b.hi:+.2f}) n={b2b.n} applied {b2b.applied:+.2f}"
+    )
+    grades: dict[str, list[dict]] = {}
+    for label, seasons in (("train", train), ("holdout", holdout)):
+        if not seasons:
+            continue
+        grades[label] = []
+        for gr in rating_fit.vs_close(preds, finals, lines, seasons, draws=args.draws):
+            grades[label].append(asdict(gr))
+            print(
+                f"{label:7} {gr.market:6} n={gr.n:5} MAE model {gr.model_mae:6.3f} "
+                f"close {gr.close_mae:6.3f}  slope {gr.slope:+.3f} ({gr.lo:+.3f},{gr.hi:+.3f})"
+                f"{'  adds information' if gr.adds_information else ''}"
+            )
+    path = params.write(
+        root,
+        ratings.NAME,
+        {
+            "params": ratings.params_payload(fitted),
+            "train": sorted(train),
+            "holdout": sorted(holdout),
+            "games": len(games),
+            "score_mse": sse,
+            "b2b": asdict(b2b),
+            "vs_close": grades,
+            "league": {"ppp": book.league_ppp, "pace": book.league_pace, "hca": book.hca},
+        },
+    )
+    print(f"wrote {path}")
+    if args.push:
+        state.auto_push(root, f"nba params {path.stem}", trees=("params",))
+    return 0
+
+
+def cmd_ratings(args: argparse.Namespace) -> int:
+    root = data_dir()
+    as_of = _parse_date(args.date)
+    held = params.latest(root, ratings.NAME)
+    fitted = ratings.RatingParams.from_dict(held["params"]) if held else ratings.RatingParams()
+    print(f"params {held['version'] if held else 'unfitted defaults'}; games before {as_of}")
+    games = [g for g in _held_finals(root, _days(args)) if g.game_date < as_of]
+    _, book = ratings.replay(games, fitted)
+    print(f"{'team':4} {'off':>7} {'def':>7} {'net':>6} {'pace':>6} {'gp':>3}")
+    for r in book.table():
+        print(
+            f"{r['team']:4} {r['off']:7.2f} {r['def']:7.2f} {r['net']:+6.2f} "
+            f"{r['pace']:6.2f} {r['games']:3}"
+        )
+    return 0
+
+
 def cmd_board(args: argparse.Namespace) -> int:
     root = data_dir()
     day = _parse_date(args.date)
@@ -490,6 +568,23 @@ def build_parser() -> argparse.ArgumentParser:
     ob.add_argument("--draws", type=int, default=400, help="game bootstrap draws")
     ob.add_argument("--push", action="store_true", help="push params/ to engine-state")
     ob.set_defaults(func=cmd_fit_over_bias)
+
+    fr = sub.add_parser("fit-ratings", help="fit team-rating speeds on a replay; grade vs close")
+    fr.add_argument("--season", action="append", required=True, help="finals to load")
+    fr.add_argument("--since")
+    fr.add_argument("--until")
+    fr.add_argument("--train", type=int, action="append", required=True, help="start year")
+    fr.add_argument("--holdout", type=int, action="append", help="start year, never fitted")
+    fr.add_argument("--draws", type=int, default=1000, help="slate-date bootstrap draws")
+    fr.add_argument("--push", action="store_true", help="push params/ to engine-state")
+    fr.set_defaults(func=cmd_fit_ratings)
+
+    rt = sub.add_parser("ratings", help="team ratings going into a date")
+    rt.add_argument("--season", action="append", required=True)
+    rt.add_argument("--since")
+    rt.add_argument("--until")
+    rt.add_argument("--date", help="ratings before this slate date (default today)")
+    rt.set_defaults(func=cmd_ratings)
 
     bd = sub.add_parser("board", help="consensus fair vs the DraftKings/BetMGM price")
     bd.add_argument("--date")

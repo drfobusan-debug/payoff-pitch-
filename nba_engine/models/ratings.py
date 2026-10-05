@@ -56,6 +56,7 @@ class RatingParams:
     pace_season_sd: float = 1.0
     league_gain: float = 0.01
     hca_gain: float = 0.01
+    b2b_margin: float = 0.0  # points a back-to-back costs, beyond what the rating sees
 
     @classmethod
     def from_dict(cls, raw: dict) -> RatingParams:
@@ -134,19 +135,22 @@ class RatingBook:
             st.season, st.games = season, 0
         return st
 
-    def predict(self, g: GameResult) -> Prediction:
+    def predict(self, g: GameResult, home_b2b: bool = False, away_b2b: bool = False) -> Prediction:
+        """Tonight's expectation from the book as it stands; it does not update it."""
         season = season_of(g.game_date)
         h, a = self._team(g.home, season), self._team(g.away, season)
         edge = 0.0 if g.neutral else self.hca / 2.0
         pace48 = self.league_pace + h.pace.mean + a.pace.mean
+        poss = pace48 * (REG_MIN + self.ot_minutes) / REG_MIN
+        tired = self.params.b2b_margin * (int(away_b2b) - int(home_b2b)) * 100.0 / poss / 2.0
         return Prediction(
             espn_id=g.espn_id,
             game_date=g.game_date.isoformat(),
             away=g.away,
             home=g.home,
-            home_ppp=self.league_ppp + edge + h.off.mean + a.dfn.mean,
-            away_ppp=self.league_ppp - edge + a.off.mean + h.dfn.mean,
-            poss=pace48 * (REG_MIN + self.ot_minutes) / REG_MIN,
+            home_ppp=self.league_ppp + edge + h.off.mean + a.dfn.mean + tired,
+            away_ppp=self.league_ppp - edge + a.off.mean + h.dfn.mean - tired,
+            poss=poss,
             home_games=h.games,
             away_games=a.games,
         )
@@ -225,11 +229,11 @@ def replay(
     book = RatingBook(params=params or RatingParams())
     out: list[Prediction] = []
     for g in ordered:
-        out.append(book.predict(g))
-        tired = any(
-            (s := sched.get((g.espn_id, t))) is not None and s.b2b for t in (g.away, g.home)
+        home_b2b, away_b2b = (
+            (s := sched.get((g.espn_id, t))) is not None and s.b2b for t in (g.home, g.away)
         )
-        book.update(g, tired=tired)
+        out.append(book.predict(g, home_b2b=home_b2b, away_b2b=away_b2b))
+        book.update(g, tired=home_b2b or away_b2b)
     return out, book
 
 
