@@ -1,4 +1,4 @@
-# NBA Payoff Engine — Master Plan v3.4
+# NBA Payoff Engine — Master Plan v3.5
 
 Fifth engine in `payoff-pitch-` (`nba_engine/`, beside `mlb_engine`, `cfb_engine`, `nfl_engine`,
 `nhl_engine`). **Paper-only** until each market passes probation (§11). Studies live in
@@ -21,7 +21,10 @@ reasons to fixed categories (§5b), and adds a teams + tip-time fallback match f
 why the player sat and keeps foul-trouble and blowout stints out of the baseline profiles
 (§4.2a), takes ceilings from role-expanded games (§4.5a), measures the 1H/2H scoring gap (§4.4),
 alerts on new injury wording (§5b), flags NBA Cup games (§1), drops pulled props from CLV (§10)
-and keeps fitted values in a versioned params file instead of `config.py` (§13). Every number quoted as
+and keeps fitted values in a versioned params file instead of `config.py` (§13). v3.5 fits the
+edge floor separately for one-book and two-book rows (§10), makes ceilings per-minute and
+family-specific (§4.5a), splits the 1H/2H gap into pace and efficiency (§4.4), and keeps pulled
+props in the record with their own pre-pull CLV (§10). Every number quoted as
 an example below is a starting hypothesis; the shipped value is fitted.
 
 ---
@@ -174,8 +177,12 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    *Halves differ [MEASURED].* 2023–26 regular season, ESPN period scores: per team, 1H
    57.1 vs regulation 2H 56.4 (+0.77, 95% +0.49 to +1.04, clustered by game). In games decided by
    under 10 it is still +0.45 (+0.06 to +0.96), so the gap isn't only garbage time. The 1H
-   distribution carries it through 1H minutes and fitted 1H pace/efficiency, and is checked
-   against the 1H total closes before 1H prices. Minutes a
+   distribution carries it through 1H minutes and two separate fitted terms: a **pace shift**
+   (possessions per minute, 1H vs 2H) and an **efficiency shift** (points per possession). The
+   ESPN period scores can't separate them, so both come from the PBP possessions (D7). Pace
+   moves every counting prop (rebound and assist chances scale with possessions). Efficiency moves
+   only points and makes. The 1H distribution is checked against the 1H total closes before 1H
+   prices. Minutes a
    starter loses to fouls go to the players who replaced him in his foul-trouble stints, through
    the same next-man-up table and ceilings (§4.5a), not to the whole bench by share. OT from the regulation-tie probability. Every line (main, alt,
    1H) is read off the same distribution; both sides sum to 1.
@@ -228,7 +235,12 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    *Ceilings.* Each share is water-filled under a per-player ceiling (usage, FGA, 3PA, AST
    chances) taken from the player's archetype's fitted historical maximum, **measured in
    role-expanded games** (a top-usage teammate out). Green-light nights, when a coach turns a
-   role player loose, sit inside the ceiling instead of being cut off at his usual role's p99. A player at his
+   role player loose, sit inside the ceiling instead of being cut off at his usual role's p99.
+   Ceilings are **per-minute rates** (usage %, FGA/36, 3PA/36, AST chances/36), never totals,
+   so a defensive center who plays 38 minutes on an injury night at his usual low usage doesn't
+   raise his own ceiling. The role-expanded widening is fitted **per playstyle family**: how
+   much a family's p99 usage actually rises when a top-usage teammate sits. A family whose
+   usage doesn't rise gets no widening, and nothing is assigned by hand. A player at his
    ceiling is frozen and the rest keeps flowing down the hierarchy, then to the others by share.
    Only the part the stints show **vanishing** reaches team turnovers and lower possession
    efficiency: the drop in team FGA and efficiency when that player sits, measured, not a
@@ -470,8 +482,17 @@ until that study lands:
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
 | T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip **and** the quote is stamped before the scheduled tip (clock lock; ESPN's status can lag the jump ball). T-5 is the fallback (~110 credits per game per capture). Recommendations for a game stop at its last scheduled pass, well before tip | — |
 
-A prop the book pulls before the T-1 capture has **no close**. Its last quote isn't used as
-one: the row is kept with `close = pulled`, left out of CLV and counted in the integrity report.
+A prop the book pulls before the T-1 capture keeps its row. It is graded on the outcome (ROI,
+PPV/NPV and calibration include it) with `close = pulled`. Its CLV goes in a separate **pre-pull
+CLV** column, measured against the last quote we captured (last scheduled pass or alarm
+re-capture). It never shares a column with true CLV, because the two snapshots are taken at
+different times. The audit also compares the pull rate of our buys with the board's.
+*Do pulls carry information? [MEASURED, 100-game T-1 sample]* Of 56,054 archived-close prop quotes,
+860 (48 games) were pulled by T-1. Their Overs hit 49.0% against a 49.4% no-vig price
+(−0.4 pts, the same as kept quotes at −0.8). So in this sample the books weren't pulling
+lines that turned out wrong. The 1,056 whose **line moved** were different: Overs at the old line hit 46.5% vs
+49.9% (−3.4 pts), so a line move carries news. Sample is small, so it gets re-measured on live
+T-1 capture.
 Bets are straight wagers only. No same-game parlays; same-game props are one exposure (§6).
 Every book is captured and archived, and the consensus is built from all of them. **Buys are
 priced only at DraftKings and BetMGM** (`EXEC_BOOKS = ("draftkings", "betmgm")`), at the
@@ -481,6 +502,14 @@ PTS props in 99% and 1H ML in 98%. BetMGM has the game in 99%, PTS props in 96% 
 Hold: DraftKings ML 4.3% / PTS 6.4%, BetMGM ML 4.6% / PTS 7.1%. A market neither book posts is
 priced and graded but can't be a buy. Every fitted gate (price band, edge floor, Over bias) is
 checked at these two books before it ships.
+*One book vs two [MEASURED, archived close, EV vs all-book consensus fair].* Taking the better
+of the two is real value: on PTS props the better side averaged −4.97% EV, against −6.03% at
+DraftKings and −6.56% at BetMGM; on 1H ML −2.77% vs −4.03 / −4.05. A row posted at only one
+book doesn't get that gain (DK-only 1H ML −4.31%). The 1H ML is DK-only in 2,176 of 7,784
+sides. So the **edge floor is fitted separately for one-book and two-book rows** on the
+walk-forward. It is not raised by a typed amount. Because "better of two" also selects the noisier quote, the
+two-book floor is fitted on the price actually taken, not on either book alone. The audit
+reports buys by book and by one-/two-book so a drift toward DK-only rows is visible.
 **Over bias at the two books [MEASURED, archived close, proportional de-vig].** DraftKings
 −1.56 pts (95% −1.83 to −1.29; PTS −1.3, 3PM −1.7, REB −2.0, AST −1.3, PRA −1.3) across 224K
 quotes. BetMGM −1.27 (−1.51 to −1.01; PTS −1.0, 3PM −1.5, REB −2.0, AST −0.6, PRA −1.3) across 247K.
@@ -630,6 +659,8 @@ Kaggle SQLite is a read-only input at `NBAE_KAGGLE_DB`. Engine state stays CSV /
 | NBA | ML hold with a questionable star, 2023–26 close | −0.01 pts vs no Q star (95% −0.03 to +0.01) [MEASURED] | No ML volatility cap (§4.7). |
 | NBA | 1H vs regulation 2H points, 2023–26 | +0.77 per team (95% +0.49 to +1.04); +0.45 in games under 10 [MEASURED] | Fitted 1H distribution, not a half-share (§4.4). |
 | NBA | Star minutes, Cup knockouts 2023–25 | +0.8 (95% −0.6 to +2.0), 3 finals [MEASURED] | `cup_stage` flag only (§1). |
+| NBA | Pulled vs moved props, T-1 sample | pulled −0.4 pts (n=860), line moved −3.4 pts (n=1,056) [MEASURED] | Pulled rows kept; pre-pull CLV column (§10). |
+| NBA | Best of DK/MGM vs one book | PTS −4.97% vs −6.03 / −6.56% EV; 1H ML −2.77% vs −4.03 / −4.05% [MEASURED] | Floor fitted per one-/two-book (§10). |
 | NBA | Prop Over bias after a late star scratch | −1.8 pts (95% −3.6 to −0.2) vs −1.5 baseline [MEASURED] | No dial-back after news (§4.7). |
 | NBA | NBA Cup knockout IDs, 2023–25 | 21 of 21 matched, all markets [MEASURED] | Teams + tip-time fallback only (§1). |
 | NBA | Star minutes on B2B, 2022–26 | Absence +5.3 pts, minutes −0.1 (95% −0.4 to +0.2) [MEASURED] | B2B enters `P(plays)`; no minutes cut (§5b). |
