@@ -1,4 +1,4 @@
-# NBA Payoff Engine — Master Plan v3.2
+# NBA Payoff Engine — Master Plan v3.3
 
 Fifth engine in `payoff-pitch-` (`nba_engine/`, beside `mlb_engine`, `cfb_engine`, `nfl_engine`,
 `nhl_engine`). **Paper-only** until each market passes probation (§11). Studies live in
@@ -14,7 +14,10 @@ v3.1 hardens each: a settle gate on the alarm, an opponent-quality correction on
 rates, usage/shot ceilings on the split, probabilistic blowout pulls, and fatigue-weighted
 nightly updates. v3.2 adds four: a next-man-up hierarchy for vacated usage (§4.5a), the close
 taken at T-1 instead of T-5 (§1, §10), an Over-bias term on props (§4.7), and pricing a
-questionable player as a probability instead of banning the game (§5b). Every number quoted as
+questionable player as a probability instead of banning the game (§5b). v3.3 routes minutes
+lost to foul trouble down the same next-man-up chain (§4.4), groups players by fitted playstyle
+family instead of position (§4.5a), tests the Over bias after late news (§4.7), maps injury
+reasons to fixed categories (§5b), and adds a teams + tip-time fallback match for event IDs (§1). Every number quoted as
 an example below is a starting hypothesis; the shipped value is fitted.
 
 ---
@@ -50,7 +53,11 @@ key reports 5,000,000 credits [VERIFIED]), so the first backtest runs before ope
 | — | BallDontLie, TeamRankings, BetIQ | — | Not used (key-gated / current season only / aggregates) | — |
 
 Every pulled row carries `source`, `captured_at`, `season`, and stable IDs (Odds API `event_id`
-+ NBA `game_id` + NBA `player_id`). Names are display only.
++ NBA `game_id` + NBA `player_id`). Names are display only. If an event ID is missing at a
+capture, the game is matched once by both teams' codes and commence time within 15 min, and the
+match is logged. NBA Cup knockout games, 2023–25 (21 games) [MEASURED]: every one matched to
+ESPN by teams + date and carried all 11 markets. The Cup final does not count in the
+standings; it stays in ratings and is flagged in records.
 
 ---
 
@@ -148,7 +155,9 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    and correlation **fitted to the market's own ML↔spread↔total relation** (CFB #382 lesson);
    1H from **first-half minutes**, not a flat half-share: each player's 1H minutes come from
    his own rotation pattern in the stints (D7), with a fitted foul-trouble term (first-half
-   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout); OT from the regulation-tie probability. Every line (main, alt,
+   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout). Minutes a
+   starter loses to fouls go to the players who replaced him in his foul-trouble stints, through
+   the same next-man-up table and ceilings (§4.5a), not to the whole bench by share. OT from the regulation-tie probability. Every line (main, alt,
    1H) is read off the same distribution; both sides sum to 1.
 
    **4a. Blowout dimmer.** The game is simulated, not just summarised: per simulated game the
@@ -184,9 +193,13 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    first to the **specific teammates who took them** in that player's off-floor stints (D7),
    in that order, each at his star-off share (§4.2a). A team with a backup point guard gives
    the vacated assists to him, not to every player by usage. Each player's vacancy table is
-   EB-shrunk toward his position group's table by the star-off minutes behind it.
+   EB-shrunk toward his playstyle family's table by the star-off minutes behind it.
+   *Playstyle families, not positions.* Families are clusters fitted on how players play
+   (usage, AST%, 3PA rate, rim/mid/three shot shares, REB%, on-ball time), refit each season.
+   A playmaking forward and a defensive wing are in different families even though both are
+   listed F. The family stands in wherever the plan says archetype or group.
    *Several out at once.* The vacancy table for an absence set falls back in order: that exact
-   set's stints → the single-absence tables combined → the position group's table → plain
+   set's stints → the single-absence tables combined → the playstyle family's table → plain
    shares, each EB-weighted by the minutes behind it. Every step then goes through the same
    ceilings (archetype p99). It never routes everything to one ball-handler. `allocate()`
    always terminates: each pass freezes at least one player.
@@ -222,6 +235,12 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    Over has to clear that much more model edge to buy, and Unders get the same amount back.
    It is fitted, not a fixed "Overs are always X% rich". Game totals get the same test before
    any term is used.
+   *After late news [MEASURED].* Teammates of a ≥30-mpg star ruled out inside 3 h of tip
+   (241 games, 56,470 quotes): Over gap −1.8 pts (95% −3.6 to −0.2), against −1.5 with no such
+   news. The book does not over-correct in a way that erases the bias, so there is no
+   dial-back after news. The refit may condition the bias on a news flag if the holdout supports
+   it; until then the pooled value applies. The archive has no T-30 snapshots, so a "line moved
+   in the last 30 min" condition is tested once live capture has recorded it.
 8. **Nightly team ratings.** Two update speeds. Team offensive/defensive ratings, pace and the
    player posteriors (§3) update **every morning** from last night's games: each game moves the
    rating by the Kalman/EB weight its possessions earn, so a team that played last night is
@@ -297,6 +316,11 @@ and the gap is the bet. When the status changes (ESPN feed or a new official rep
 alarm (§5d) re-prices that game at the new `P(plays)`. It is released once the line settles and
 a pricing run newer than that has seen it, about two minutes, not at the next scheduled card.
 There is no warm-up feed; the status change is our proxy for "he went through warm-ups".
+Statuses are already the official five-level scale. Reasons are mapped by a fixed table to
+categories: injury by body region, illness, rest, G League, personal / not with team,
+suspension, reconditioning, concussion protocol, trade. That covers 173 distinct official
+prefixes across 2023–26. RotoWire and ESPN notes go through the same table, and an unmapped
+string is logged and counted rather than guessed.
 The study has to answer first whether our re-price beats the market's own move after a status
 change, on the hourly snapshots (D1/D2, Phase 1b). If it doesn't, Questionable games stay
 priced but un-bet until that bar is met.
@@ -549,6 +573,8 @@ the first live card.
 | NFL | De-vig study | proportional de-vig creates favourite–longshot slope; **power** within 1pp in 4/5 buckets [MEASURED] | Use power de-vig by default; re-measure on props where hold is 6–8%. |
 | NBA | Prop Over bias, 2023–26 close | Over hit 48.0% vs 49.5% no-vig, 1.99M quotes / 3,651 games, every season and market negative [MEASURED] | Price the Over below the de-vigged close by a fitted amount (§4.7). |
 | NBA | ML hold with a questionable star, 2023–26 close | −0.01 pts vs no Q star (95% −0.03 to +0.01) [MEASURED] | No ML volatility cap (§4.7). |
+| NBA | Prop Over bias after a late star scratch | −1.8 pts (95% −3.6 to −0.2) vs −1.5 baseline [MEASURED] | No dial-back after news (§4.7). |
+| NBA | NBA Cup knockout IDs, 2023–25 | 21 of 21 matched, all markets [MEASURED] | Teams + tip-time fallback only (§1). |
 | NBA | Star minutes on B2B, 2022–26 | Absence +5.3 pts, minutes −0.1 (95% −0.4 to +0.2) [MEASURED] | B2B enters `P(plays)`; no minutes cut (§5b). |
 | NBA | Close timing, 2023–26 archive | Historical snapshots sit on a 5-min grid ~30 s past each 5 min; the T-5 request returned a snapshot 9.4 min before tip (median, 3,607 games) [MEASURED] | Request at T-1 (≈4.4 min); live close at T-1 with a pre-tip check (§10). The 100-game T-1 sample barely moved, so there is no re-pull. |
 | NBA | Official status → played, 2023–26 | Questionable 74.0% played (n=1,328); Q→Available 87.1% [MEASURED] | Price Questionable as a mixture, do not ban the game (§5b). |
