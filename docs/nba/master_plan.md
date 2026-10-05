@@ -1,4 +1,4 @@
-# NBA Payoff Engine — Master Plan v3
+# NBA Payoff Engine — Master Plan v3.2
 
 Fifth engine in `payoff-pitch-` (`nba_engine/`, beside `mlb_engine`, `cfb_engine`, `nfl_engine`,
 `nhl_engine`). **Paper-only** until each market passes probation (§11). Studies live in
@@ -12,8 +12,10 @@ v3 adds five NBA-specific adjustments: a news alarm (§5d), on/off backup profil
 team-constrained props (§4.5a), a blowout dimmer (§4.4a) and nightly team ratings (§4.8).
 v3.1 hardens each: a settle gate on the alarm, an opponent-quality correction on star-off
 rates, usage/shot ceilings on the split, probabilistic blowout pulls, and fatigue-weighted
-nightly updates. Every number quoted as an example below is a starting hypothesis; the
-shipped value is fitted.
+nightly updates. v3.2 adds four: a next-man-up hierarchy for vacated usage (§4.5a), the close
+taken at T-1 instead of T-5 (§1, §10), an Over-bias term on props (§4.7), and pricing a
+questionable player as a probability instead of banning the game (§5b). Every number quoted as
+an example below is a starting hypothesis; the shipped value is fitted.
 
 ---
 
@@ -32,7 +34,7 @@ key reports 5,000,000 credits [VERIFIED]), so the first backtest runs before ope
 
 | # | Database | Seasons | Feeds | Status |
 |---|---|---|---|---|
-| D1 | **The Odds API historical featured odds** | 2020-21 → 2025-26 (5-min snapshots since Sep 2022) | Game ML / spread / total: open, every 5 min, **close at T-5 min**; line-movement filter history | [VERIFIED] paid plan |
+| D1 | **The Odds API historical featured odds** | 2020-21 → 2025-26 (5-min snapshots since Sep 2022) | Game ML / spread / total: open, every 5 min, **close = last pre-tip snapshot, requested at T-1** (the T-5 request returned a snapshot 9.4 min before tip [MEASURED]); line-movement filter history | [VERIFIED] paid plan |
 | D2 | **The Odds API historical event odds** | since 2023-05-03 | **1H ML / spread / total**, props **PTS, 3PM, REB, AST, PRA** — open → close | [VERIFIED] docs |
 | D3 | The Odds API live (`basketball_nba`) | from Phase 0 | Every pass's prices, closes, line movement; the forward ledger | key live |
 | D4 | SportsbookReviewsOnline | 2007-08 → 2022-23 | Long-run schedule/rest/travel studies vs the close; 1H lines | [VERIFIED] |
@@ -174,16 +176,37 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    higher automatically takes from his teammates; PRA, and two props on the same team, inherit
    the real correlation, which the exposure gate (§6) uses to treat them as one bet.
 
+   *Next man up.* An absent player's usage, shots, potential assists and rebound chances go
+   first to the **specific teammates who took them** in that player's off-floor stints (D7),
+   in that order, each at his star-off share (§4.2a). A team with a backup point guard gives
+   the vacated assists to him, not to every player by usage. Each player's vacancy table is
+   EB-shrunk toward his position group's table by the star-off minutes behind it.
+
    *Ceilings.* Each share is water-filled under a per-player ceiling (usage, FGA, 3PA, AST
-   chances) taken from the player's archetype's fitted historical maximum: a player at his
-   ceiling is frozen and the rest keeps flowing to the others by share. When two high-usage
-   players are out and the survivors cannot absorb the vacancy, the remainder is **not**
-   forced onto a low-usage defender's shot count: it becomes extra team turnovers and lower
-   possession efficiency, at the fitted rates teams actually show in such games
+   chances) taken from the player's archetype's fitted historical maximum. A player at his
+   ceiling is frozen and the rest keeps flowing down the hierarchy, then to the others by share.
+   Only the part the stints show **vanishing** reaches team turnovers and lower possession
+   efficiency: the drop in team FGA and efficiency when that player sits, measured, not a
+   catch-all. When two high-usage players are out and the backups are at their ceilings, the
+   remainder is still not forced onto a low-usage defender's shot count
    (`nba_engine.models.allocation`, built and tested on mock numbers in Phase 0).
 6. **Calibration** — isotonic per market on a holdout (`engine_common.isotonic`).
 7. **Market anchor** — `p_final = w·p_model + (1−w)·p_fair_close_now`, `w` and an edge cap
    **fitted per market**; power de-vig (NFL study), re-measured on NBA props.
+
+   **Over bias (props).** The no-vig close **overstates the Over** on all five props. Over all
+   books, 2023-26 at the archived close (1,986,631 paired quotes, 3,651 games), Overs hit 48.0%
+   against 49.5% implied: −1.6 pts (95% −1.9 to −1.3, bootstrap clustered by game) [MEASURED].
+   | | PTS | 3PM | REB | AST | PRA |
+   |---|---|---|---|---|---|
+   | Over hit − no-vig P(over) | −1.5 | −1.8 | −1.9 | −1.0 | −1.6 |
+
+   It is negative in every season (−2.3 / −1.0 / −1.3) and flat across price levels. At the
+   quoted price, Overs returned −9.6% and Unders −3.6%. So `p_fair_close` for a prop Over is
+   the de-vigged price **minus a fitted bias per market and line band**, refit monthly. An
+   Over has to clear that much more model edge to buy, and Unders get the same amount back.
+   It is fitted, not a fixed "Overs are always X% rich". Game totals get the same test before
+   any term is used.
 8. **Nightly team ratings.** Two update speeds. Team offensive/defensive ratings, pace and the
    player posteriors (§3) update **every morning** from last night's games: each game moves the
    rating by the Kalman/EB weight its possessions earn, so a team that played last night is
@@ -231,8 +254,29 @@ only where the study shows the **close does not already price** the regression (
 
 Use: injuries enter the **model** through the lineup rebuild (§4.3); schedule terms are each
 measured against the **closing line** on 2007–2026 and enter the model at the fitted value or 0.
-As a **gate**: refuse any bet where a player whose absence moves the price > fitted threshold is
-`questionable` or worse and the next injury report lands before tip ("wait for news").
+
+**Questionable is a probability, not a ban.** A questionable player is priced as a mixture:
+`p = P(plays)·p_with + (1−P(plays))·p_without`, with both lineups rebuilt. `P(plays)` is fitted
+from the official reports and the box scores, by status, report hour vs tip, path through the
+day and reason. Base rates, from the last report at least an hour before tip, on every other
+2023-26 date [MEASURED]:
+| Status | n | Played |
+|---|---|---|
+| Probable | 648 | 91.7% |
+| Questionable | 1,328 | 74.0% |
+| Doubtful | 65 | 13.8% |
+| Out | 16,739 | 0.3% |
+| Questionable at the first report → Available later | 1,085 | 87.1% |
+| Questionable at the first report → still Questionable | 1,319 | 74.1% |
+
+The market's own view comes from the line: the mixture price is compared with the no-vig line,
+and the gap is the bet. When the status changes (ESPN feed or a new official report), the news
+alarm (§5d) re-prices that game at the new `P(plays)`. It is released once the line settles and
+a pricing run newer than that has seen it, about two minutes, not at the next scheduled card.
+There is no warm-up feed; the status change is our proxy for "he went through warm-ups".
+The study has to answer first whether our re-price beats the market's own move after a status
+change, on the hourly snapshots (D1/D2, Phase 1b). If it doesn't, Questionable games stay
+priced but un-bet until that bar is met.
 "Already priced in" tag when the line moved by ≥ our rebuild delta before the pass.
 
 ### 5c. Line-movement filter (ML, ATS, totals; 1H and props too)
@@ -344,11 +388,11 @@ until that study lands:
 
 | Time (ET) | Job | Email |
 |---|---|---|
-| every 5 min 11:00–23:55 | **news alarm** (`watch`): board + ESPN feed + official report; re-capture moved games; T-5 closes | — (alerts archived) |
+| every 5 min 11:00–23:55 | **news alarm** (`watch`): board + ESPN feed + official report; re-capture moved games | — (alerts archived) |
 | 11:15 | morning board + props capture, injury report 11 AM | **Preview** PDF (no buys) |
 | **17:15** | after the 5 PM report; main card for 7:00–8:30 tips | **Card**: PDF + Excel + MP3 |
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
-| T-5 min per game | close capture (`pre` only), taken by the 5-min `watch` tick | — |
+| T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip; T-5 is the fallback (~110 credits per game per capture) | — |
 | 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 Mac: `scripts/nba/macos/` launchd plists + `.command` shortcuts (run_predictions, run_audit,
@@ -379,11 +423,13 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
                 ▼                                             ▼
 ┌──────── STABILIZED METRICS (§3) ────────┐      ┌──── MARKET LAYER ─────────────┐
 │ split-half r → k per metric             │      │ pair both sides, power de-vig │
+│                                         │      │ prop Over bias (fitted, §4.7) │
 │ EB posterior rate = (k·prior+n·obs)/(k+n)│      │ consensus fair, open/now/close│
 └───────────────┬─────────────────────────┘      └──────────────┬────────────────┘
                 ▼                                               │
 ┌──────── PLAYER & TEAM (§4.1-4.3) ───────┐                     │
 │ minutes model ← availability (D11/D12)  │
+│ questionable = P(plays)·with + (1−P)·w/o│                     │
 │ on/off backup profiles (4.2a)           │                     │
 │ lineup rebuild = Σ min × impact + resid │                     │
 │ schedule terms (fitted or 0)            │                     │
@@ -391,7 +437,8 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
                 ▼                                               │
 ┌──────── DISTRIBUTION (§4.4-4.5) ────────┐                     │
 │ poss × eff → (home, away) pts, OT, 1H   │                     │
-│ props: split team totals by share (5a)  │
+│ props: split team totals: next man up → │                     │
+│   ceilings → measured TOV/eff rest (5a) │                     │
 │ blowout dimmer on simulated minutes (4a)│                     │
 │ isotonic calibration                    │                     │
 └───────────────┬─────────────────────────┘                     │
@@ -413,7 +460,7 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
 │ Excel workbook          │   │ every row incl. refused, flags, gates,      │
 │ Slate PDF + MP3         │   │ price taken, prior version, pass id         │
 │ Email 11:15/17:15/20:15 │   └──────────────┬──────────────────────────────┘
-└─────────────────────────┘                  ▼ T-5 close  ·  03:00 grade
+└─────────────────────────┘                  ▼ T-1 close  ·  03:00 grade
                                ┌── AUDIT (§7) ───────────────────────────────┐
                                │ model vs close vs open · selection vs       │
                                │ baselines · CLV · ROI · calibration ·       │
@@ -433,8 +480,9 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
 | Phase | Work | Sessions |
 |---|---|---|
 | **0 — now** | `nba_engine/` scaffold, config, IDs, Odds API live capture (game, 1H, 5 props), official injury PDF + ESPN injury feed, ESPN schedule/box, news alarm (`watch`), Mac daemons + engine-state `nba/` | 1 |
-| **1a — now** | Historical pull D1/D2 2023–26 (game, 1H, 5 props; open + T-5 close + hourly path) into a local archive; SBR/Covers loaders | in parallel with 0 |
-| 1b | Stint pull (D7) → on/off profiles and blowout minute curves; reliability study → `k` table (§3); rating step-size study; schedule/travel study vs close; regression-filter study; line-movement study; de-vig study; send-time study (§10) | 2 |
+| **1a — now** | Historical pull D1/D2 2023–26 (game, 1H, 5 props; open + close + hourly path) into a local archive; SBR/Covers loaders. Closes re-requested at T-1 (≈4.4 min pre-tip vs 9.4 now; ≈400K credits, sample of 100 games first ≈11K) | in parallel with 0 |
+| **0b** | Live close at T-1 (1-min `close` job, ESPN pre-tip check, T-5 fallback) before opening night | with 1a |
+| 1b | Stint pull (D7) → on/off profiles, next-man-up vacancy tables; `P(plays)` model and status-change re-price study; Over-bias fit and blowout minute curves; reliability study → `k` table (§3); rating step-size study; schedule/travel study vs close; regression-filter study; line-movement study; de-vig study; send-time study (§10) | 2 |
 | 2 | Priors, minutes, lineup rebuild, distribution fit to market, props model, calibration, market blend; walk-forward backtest 2023–26 vs real closes | 2 |
 | 3 | Gates + filters, ledger, audit, Excel, PDF/MP3, email, launchd schedule | 1–2 |
 | 4 | Paper season; monthly probation reviews | ongoing |
@@ -447,6 +495,7 @@ the first live card.
 1. Kaggle API token as a secret, or a one-time download of the Wyatt Walsh SQLite on the Mac.
 2. OK for a Mac daemon running nba_api (stats.nba.com blocks the VM).
 3. Confirm the Mac's `/etc/engine.env` key also shows the 5M balance (0-credit check block).
+4. OK to re-pull the 2023–26 closes at T-1: about 11K credits for a 100-game sample, then about 400K for all of them if the sample shows the last five minutes move the line.
 
 ---
 
@@ -468,6 +517,9 @@ the first live card.
 | CFB | In-play closes (#377) | 66 games' closes were in-play [MEASURED] | Close capture strictly pre-tip, per game, timestamped. |
 | NFL | Ridge rating vs close | MAE 10.282 vs 9.905; disagreement explains none of the line's error (t=+0.25, n=3,450) [MEASURED] | Opponent-adjusted team ratings are a prior and a game script, not a bet. |
 | NFL | De-vig study | proportional de-vig creates favourite–longshot slope; **power** within 1pp in 4/5 buckets [MEASURED] | Use power de-vig by default; re-measure on props where hold is 6–8%. |
+| NBA | Prop Over bias, 2023–26 close | Over hit 48.0% vs 49.5% no-vig, 1.99M quotes / 3,651 games, every season and market negative [MEASURED] | Price the Over below the de-vigged close by a fitted amount (§4.7). |
+| NBA | Close timing, 2023–26 archive | Historical snapshots sit on a 5-min grid ~30 s past each 5 min; the T-5 request returned a snapshot 9.4 min before tip (median, 3,607 games) [MEASURED] | Request at T-1 (≈4.4 min); live close at T-1 with a pre-tip check (§10). |
+| NBA | Official status → played, 2023–26 | Questionable 74.0% played (n=1,328); Q→Available 87.1% [MEASURED] | Price Questionable as a mixture, do not ban the game (§5b). |
 | NFL | Props | 13,650 graded quotes, all `research_only` [MEASURED] | Archive first, price later — exactly the NBA props path. |
 | NHL | Phase 0 | odds/period/prop capture to engine-state since 9/29 [MEASURED] | Copy the capture-first build order. |
 
