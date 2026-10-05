@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
+from cfb_engine.market import lineagree
 from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief
@@ -79,6 +80,18 @@ class Recommendation:
         return prob_to_american(self.model_prob)
 
     @property
+    def line_agrees(self) -> bool:
+        """Picked by the graded-only totals rule in :mod:`cfb_engine.market.lineagree`."""
+        return lineagree.line_agrees(
+            self.market, self.model_prob, self.fair_prob, self.open_drift, self.drift
+        )
+
+    @property
+    def pre_bet_move(self) -> float | None:
+        """No-vig points the market moved toward this side since the opener."""
+        return lineagree.movement(self.open_drift, self.drift)
+
+    @property
     def kelly(self) -> float | None:
         """Growth-optimal stake fraction at the price on the card.
 
@@ -101,6 +114,11 @@ class Recommendation:
             return "Totals"
         return m
 
+    def _line_agrees_cell(self) -> str:
+        if not self.line_agrees or self.pre_bet_move is None:
+            return ""
+        return f"YES (+{self.pre_bet_move * 100:.1f} pp)"
+
     def as_row(self) -> dict[str, object]:
         return {
             "Date": self.game_date.isoformat(),
@@ -118,6 +136,7 @@ class Recommendation:
             "Kelly": round(self.kelly, 3) if self.kelly is not None else "",
             "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
+            lineagree.LABEL: self._line_agrees_cell(),
             "Notes": "; ".join(self.reasons),
         }
 

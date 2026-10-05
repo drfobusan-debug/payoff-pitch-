@@ -4,7 +4,8 @@ Built entirely from the persisted :class:`~cfb_engine.recommendations.Recommenda
 list -- it never re-runs the simulation. For each game it tells the projection
 story (expected margin and total, the favorite, the market's number vs the
 model's) and lists the buys in bold; a slate-wide "best bets" block gathers
-every Strong/Moderate play strongest-first.
+every Strong/Moderate play strongest-first, and a separate block lists the
+graded-only "line agrees" totals (:mod:`cfb_engine.market.lineagree`).
 
 This is a model preview, not betting advice.
 """
@@ -18,6 +19,8 @@ from html import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit.probation import Probation
+from cfb_engine.market import lineagree
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
@@ -539,6 +542,47 @@ def _slate_best_block(recs: list[Recommendation]) -> str:
     )
 
 
+def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> str:
+    picks = sorted((r for r in recs if r.line_agrees), key=_line_agrees_order)
+    if record is None:
+        tally = "No graded record yet."
+    else:
+        tally = (
+            f"Graded so far: {record.n} games, {record.roi * 100:+.1f}% ROI "
+            f"(se {record.se * 100:.1f}), {record.status} &mdash; it needs 100 games, "
+            "more than one standard error above zero and both halves positive before it "
+            "can become a bet."
+        )
+    if picks:
+        items = "".join(
+            f"<li><b>{escape(r.selection)} ({_odds(r.market_american)})</b> &mdash; "
+            f"{escape(r.matchup)}, model {r.model_prob * 100:.1f}% vs market "
+            f"{(r.fair_prob or 0.0) * 100:.1f}%, {_opened(r)}market moved "
+            f"{(r.pre_bet_move or 0.0) * 100:+.1f} pp our way</li>"
+            for r in picks
+        )
+        body = f"<ul class='bets'>{items}</ul>"
+    else:
+        body = "<p>No total has moved toward the model's side yet today.</p>"
+    return (
+        f"<div class='lineagree'><h2>{lineagree.LABEL}</h2>"
+        "<p class='sbnote'>Totals where the market has moved at least 1 pp (one point of "
+        "no-vig probability, number and price together) toward the model's side since the "
+        "opener. Tracked to test the rule; "
+        f"these are not bets and carry no stake.</p>{body}<p class='sbnote'>{tally}</p></div>"
+    )
+
+
+def _opened(r: Recommendation) -> str:
+    if r.open_line is None or r.line is None or r.open_line == r.line:
+        return ""
+    return f"opened {r.open_line:g}, "
+
+
+def _line_agrees_order(r: Recommendation) -> tuple[str, float]:
+    return (r.kickoff_utc or "", -(r.pre_bet_move or 0.0))
+
+
 CSS = """
 @page { size: A4; margin: 1.4cm 1.5cm 1.6cm; }
 * { box-sizing: border-box; }
@@ -575,11 +619,16 @@ ul.bets b{color:#111;}
 .slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
+.lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
+.lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
+.lineagree .sbnote{color:#4b5563;font-style:italic;font-size:9pt;margin:2px 0 4px;}
 .fine{font-size:7.6pt;color:#9aa0a8;font-family:'DejaVu Sans',sans-serif;border-top:1px solid #e6e8ec;margin-top:16px;padding-top:6px;line-height:1.35;}
 """
 
 
-def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
+def build_article(
+    day: Date, recs: list[Recommendation], line_agrees_record: Probation | None = None
+) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
     ordered_games = _slate_order(groups)
@@ -601,6 +650,7 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
     )
     body = "".join(_game_section(g) for g in ordered_games)
     body += _slate_best_block(recs)
+    body += _line_agrees_block(recs, line_agrees_record)
     fine = (
         "<p class='fine'>Methodology: expected margin and total come from CFBD SP+ (and PFF, "
         "when supplied) adjusted offense/defense, blended toward the market and run through a "
@@ -740,6 +790,7 @@ def generate_daily_card(
     email: bool,
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
+    line_agrees_record: Probation | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -747,7 +798,7 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs)
+    html, narr = build_article(slate_date, recs, line_agrees_record)
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"

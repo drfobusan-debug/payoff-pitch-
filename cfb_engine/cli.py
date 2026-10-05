@@ -55,7 +55,7 @@ from cfb_engine.audit.priced import (
     priced_findings,
     priced_stats,
 )
-from cfb_engine.audit.probation import Probation, probation_rows
+from cfb_engine.audit.probation import Probation, probation_rows, rule_probation
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
@@ -119,6 +119,15 @@ def _state_push(cfg: Config, message: str) -> None:
         print(f"State: {report.describe()}")
 
 
+def _line_agrees_record(cfg: Config) -> Probation | None:
+    """The graded-only totals rule's record so far, for the card."""
+    entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
+    if not entries:
+        return None
+    (verdict,) = rule_probation(entries)
+    return verdict
+
+
 def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
     # The first-seen board may already be on the branch from another machine's
@@ -137,7 +146,13 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
 
     extra = [(xlsx.name, xlsx.read_bytes())]
     generate_daily_card(
-        recs, day, cfg, email=not args.no_email, to=args.to, extra_attachments=extra
+        recs,
+        day,
+        cfg,
+        email=not args.no_email,
+        to=args.to,
+        extra_attachments=extra,
+        line_agrees_record=_line_agrees_record(cfg),
     )
     return 0
 
@@ -154,7 +169,13 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
     xlsx = cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx"
     extra = [(xlsx.name, xlsx.read_bytes())] if xlsx.exists() else None
     generate_daily_card(
-        recs, day, cfg, email=not args.no_email, to=args.to, extra_attachments=extra
+        recs,
+        day,
+        cfg,
+        email=not args.no_email,
+        to=args.to,
+        extra_attachments=extra,
+        line_agrees_record=_line_agrees_record(cfg),
     )
     return 0
 

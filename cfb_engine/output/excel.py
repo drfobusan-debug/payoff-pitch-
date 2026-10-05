@@ -6,6 +6,8 @@ Sheets:
     which painted the longest prices brightest).
   * Fades                       : the sides the model is against.
   * Moneyline / ATS / Totals    : one tab per market family, every priced side.
+  * Line Agrees (graded only)   : totals sides the line had moved toward before
+    the card (``cfb_engine.market.lineagree``); graded on probation, not bets.
   * All                         : every priced market.
 
 One color language across sheets: green for Strong, yellow for Moderate, red
@@ -26,6 +28,7 @@ from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from cfb_engine.audit.priced import PricedStat
 from cfb_engine.audit.probation import Probation
+from cfb_engine.market import lineagree
 from cfb_engine.market.ordering import conviction as _conviction
 from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.tiers import Tier
@@ -38,13 +41,16 @@ CENTER = Alignment(horizontal="center")
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
     "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
-    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", "Notes",
+    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", lineagree.LABEL, "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 46]
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 22, 46]
 CENTER_COLS = {
     "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly",
-    "Handle-Tickets", "Tier",
+    "Handle-Tickets", "Tier", lineagree.LABEL,
 }
+# The graded-only totals rule gets its own tab, named so it cannot be read as a buy list.
+LINE_AGREES_TAB = "Line Agrees (graded only)"
+_LINE_AGREES_HEADER = "1F4E79"
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 _MARKET_TABS = [("Moneyline", "game_ml"), ("ATS", "game_ats"), ("Totals", "game_total")]
@@ -110,6 +116,11 @@ def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date)
     _write_sheet(wb.create_sheet("Fades"), fades, header=_SCHEME[Tier.PASS][2])
     for title, market in _MARKET_TABS:
         _write_sheet(wb.create_sheet(title), [r for r in recs if r.market == market])
+    _write_sheet(
+        wb.create_sheet(LINE_AGREES_TAB),
+        [r for r in recs if r.line_agrees],
+        header=_LINE_AGREES_HEADER,
+    )
     _write_sheet(wb.create_sheet("All"), recs)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
