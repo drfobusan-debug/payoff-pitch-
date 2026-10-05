@@ -25,6 +25,7 @@ import io
 import logging
 import re
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, fields
 from datetime import date as Date
 from datetime import datetime, timezone
@@ -241,6 +242,24 @@ def read_day(data_dir: Path, game_date: Date) -> list[QuoteRow]:
     out: list[QuoteRow] = []
     for path in snapshot_paths(data_dir, game_date):
         out.extend(read_snapshot(path))
+    return out
+
+
+def parse_utc(stamp: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def pregame(rows: list[QuoteRow], starts: Mapping[str, str]) -> list[QuoteRow]:
+    """Quotes captured before their game's puck drop; games with no known start are kept."""
+    out: list[QuoteRow] = []
+    for row in rows:
+        start = parse_utc(starts.get(row.matchup, ""))
+        seen = parse_utc(row.captured_at)
+        if start is None or (seen is not None and seen < start):
+            out.append(row)
     return out
 
 
