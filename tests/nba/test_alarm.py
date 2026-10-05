@@ -81,15 +81,71 @@ def test_official_report_alerts_map_full_team_names():
     assert [(a.kind, a.event_id) for a in out] == [("injury_official", "ev1")]
 
 
-def test_pending_until_priced_after_the_latest_alert(tmp_path):
-    a1 = alarm.Alert("2025-12-10T22:00:00Z", "2025-12-10", "ev1", "SAS @ LAL", "injury", "", "", "")
-    a2 = alarm.Alert(
-        "2025-12-10T23:00:00Z", "2025-12-10", "ev1", "SAS @ LAL", "ml_move", "", "", ""
-    )
+def _alert(at: str, kind: str = "ml_move") -> alarm.Alert:
+    return alarm.Alert(at, "2025-12-10", "ev1", "SAS @ LAL", kind, "", "", "")
+
+
+def test_alerts_round_trip_through_the_archive(tmp_path):
+    a1, a2 = _alert("2025-12-10T22:00:00Z", "injury"), _alert("2025-12-10T23:00:00Z")
     alarm.write_alerts([a1], tmp_path, date(2025, 12, 10), a1.detected_at)
     alarm.write_alerts([a2], tmp_path, date(2025, 12, 10), a2.detected_at)
-    held = alarm.read_alerts(tmp_path, date(2025, 12, 10))
-    assert held == [a1, a2]
-    assert alarm.pending(held, {}) == {"ev1"}
-    assert alarm.pending(held, {"ev1": "2025-12-10T22:30:00Z"}) == {"ev1"}
-    assert alarm.pending(held, {"ev1": "2025-12-10T23:05:00Z"}) == set()
+    assert alarm.read_alerts(tmp_path, date(2025, 12, 10)) == [a1, a2]
+
+
+def test_pending_until_settled_and_then_priced_after_the_settle():
+    news = [_alert("2025-12-10T22:00:00Z", "injury"), _alert("2025-12-10T23:00:00Z")]
+    assert alarm.pending(news, {}) == {"ev1"}
+    assert alarm.pending(news, {"ev1": "2025-12-10T23:05:00Z"}) == {"ev1"}  # never settled
+    assert alarm.unsettled(news) == {"ev1"}
+    calm = [*news, _alert("2025-12-10T23:04:00Z", alarm.SETTLED)]
+    assert alarm.unsettled(calm) == set()
+    assert alarm.pending(calm, {"ev1": "2025-12-10T23:02:00Z"}) == {"ev1"}  # priced pre-settle
+    assert alarm.pending(calm, {"ev1": "2025-12-10T23:04:00Z"}) == {"ev1"}  # not strictly newer
+    assert alarm.pending(calm, {"ev1": "2025-12-10T23:05:00Z"}) == set()
+    again = [*calm, _alert("2025-12-10T23:10:00Z", "injury")]
+    assert alarm.pending(again, {"ev1": "2025-12-10T23:05:00Z"}) == {"ev1"}
+    assert alarm.unsettled(again) == {"ev1"}
+
+
+def test_reference_lets_a_slow_creep_add_up():
+    boards = [_board(-200, -6.5, 230.5), _board(-200, -6.5, 231.0), _board(-200, -6.5, 231.5)]
+    for i, rows in enumerate(boards):
+        boards[i] = [r.__class__(**{**r.__dict__, "captured_at": f"t{i}"}) for r in rows]
+    now = alarm.consensus(_board(-200, -6.5, 232.0))
+    tick = alarm.board_alerts(boards[-1], _board(-200, -6.5, 232.0), GAMES, PARAMS, "t3")
+    assert tick == []  # each look moved only 0.5
+    crept = alarm.move_alerts(alarm.reference(boards, []), now, GAMES, PARAMS, "t3")
+    assert [a.kind for a in crept] == ["total_move"]
+    anchored = alarm.reference(boards, [_alert("t1", "injury")])
+    assert anchored["ev1"]["total"] == 231.0
+    assert alarm.move_alerts(anchored, now, GAMES, PARAMS, "t3") == []
+
+
+def _cons(spread: float, total: float, ml: float = 0.66) -> dict[str, float]:
+    return {"ml": ml, "spread": spread, "total": total}
+
+
+def _poller(path: list[dict[str, float]]):
+    looks = iter(path)
+    return lambda events: {"ev1": next(looks)}
+
+
+def test_settle_waits_for_two_quiet_polls():
+    start = {"ev1": _cons(-6.5, 230.5)}
+    slept: list[float] = []
+    stepping = [_cons(-3.0, 228.5), _cons(-3.5, 228.5), _cons(-3.5, 228.0), _cons(-4.0, 228.0)]
+    assert alarm.settle({"ev1"}, start, _poller(stepping), PARAMS, slept.append) == {}
+    assert slept == [PARAMS.settle_interval_s] * PARAMS.settle_polls
+    steady = [_cons(-3.0, 228.5), _cons(-3.25, 228.5), _cons(-3.25, 228.5)]
+    done = alarm.settle({"ev1"}, start, _poller(steady), PARAMS, lambda s: None)
+    assert list(done) == ["ev1"] and len(done["ev1"]) == 4
+    calm = alarm.settled_alerts(done, GAMES, "2025-12-10T23:04:00Z")
+    assert [(a.kind, a.event_id) for a in calm] == [(alarm.SETTLED, "ev1")]
+
+
+def test_settle_keeps_a_vanished_market_pending():
+    vanished = {"ev1": {"ml": 0.66}}
+    gone = alarm.settle(
+        {"ev1"}, {"ev1": _cons(-6.5, 230.5)}, lambda ev: vanished, PARAMS, lambda s: None
+    )
+    assert gone == {}

@@ -6,7 +6,8 @@
   close the ledger will grade CLV against.
 * ``watch`` -- one tick of the news alarm (``alarm.py``): compare the board and
   both injury feeds with the last look, re-capture any game that moved, record
-  the alert, and take any close now due. Scheduled every five minutes.
+  the alert, take any close now due, then fast-poll every alerted game until
+  its line settles. Scheduled every five minutes.
 * ``history`` -- pull genuine historical quotes for whole seasons at chosen
   anchors before tip, within a credit budget, resumably.
 * ``coverage`` -- what the historical archive holds per season and anchor.
@@ -24,6 +25,7 @@ import argparse
 import json
 import logging
 import sys
+import time
 from dataclasses import asdict
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -32,7 +34,7 @@ from pathlib import Path
 from nba_engine import alarm, state
 from nba_engine.config import cache_dir, data_dir, load_config
 from nba_engine.data import capture, espn_injuries, history, injuries
-from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS
+from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 
@@ -45,6 +47,9 @@ def _today() -> Date:
 
 def _parse_date(raw: str | None) -> Date:
     return Date.fromisoformat(raw) if raw else _today()
+
+
+_sleep = time.sleep
 
 
 def _client(cache_ttl: int = 0) -> OddsAPIClient | None:
@@ -143,8 +148,8 @@ def cmd_watch(args: argparse.Namespace) -> int:
     taken = capture.now_utc()
     written: list[str] = []
 
-    prev_board = capture.latest_snapshot(root, day, label="board")
-    before = capture.read_snapshot(prev_board) if prev_board is not None else []
+    boards = [capture.read_snapshot(p) for p in capture.snapshot_paths(root, day, label="board")]
+    prior = alarm.read_alerts(root, day)
     slate, rows = client.fetch_board(
         slate_date=day, horizon_hours=cfg.capture.horizon_hours, captured_at=taken
     )
@@ -155,7 +160,9 @@ def cmd_watch(args: argparse.Namespace) -> int:
     path = capture.write_snapshot(board, root, day, label="board", captured_at=taken)
     if path is not None:
         written.append(path.name)
-        found += alarm.board_alerts(before, board, by_id, cfg.alarm, taken)
+        found += alarm.move_alerts(
+            alarm.reference(boards, prior), alarm.consensus(board), by_id, cfg.alarm, taken
+        )
 
     feed = espn_injuries.fetch_feed()
     if feed is not None:
@@ -194,6 +201,38 @@ def cmd_watch(args: argparse.Namespace) -> int:
     if path is not None:
         written.append(path.name)
     written += _capture_closes(client, root, day, taken)
+
+    future = {
+        eid
+        for eid, g in by_id.items()
+        if (tip := parse_utc(g.start_utc)) is not None and tip > datetime.now(timezone.utc)
+    }
+    waiting = alarm.unsettled(prior + live) & future
+    if waiting:
+        first = {e: c for e, c in alarm.consensus(board).items() if e in waiting}
+
+        def poll(events: set[str]) -> dict[str, dict[str, float]]:
+            at = capture.now_utc()
+            got = client.fetch_event_markets(
+                [by_id[e] for e in sorted(events)],
+                markets=GAME_MARKETS,
+                captured_at=at,
+                max_events=len(events),
+            )
+            snap = capture.write_snapshot(got, root, day, label="settle", captured_at=at)
+            if snap is not None:
+                written.append(snap.name)
+            return alarm.consensus(got)
+
+        done = alarm.settle(waiting, first, poll, cfg.alarm, _sleep)
+        calm = alarm.settled_alerts(done, by_id, capture.now_utc())
+        if calm:
+            path = alarm.write_alerts(calm, root, day, calm[0].detected_at)
+            if path is not None:
+                written.append(path.name)
+        live += calm
+        for eid in sorted(waiting - set(done)):
+            print(f"PENDING {by_id[eid].matchup:10} line still moving")
 
     for a in live:
         print(f"ALERT {a.matchup:10} {a.kind:16} {a.detail}")

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from nba_engine.data import injuries
@@ -38,6 +38,24 @@ def test_archive_is_content_addressed(tmp_path):
     assert injuries.archive(tmp_path, day, 17, PDF) is not None
     assert injuries.archive(tmp_path, day, 18, PDF) is None
     assert len(injuries.read_latest(tmp_path, day)) == 32
+
+
+def test_a_report_republished_in_the_same_hour_is_the_newest(tmp_path):
+    day = date(2025, 12, 10)
+    first = injuries.archive(
+        tmp_path, day, 18, PDF, captured=datetime(2025, 12, 10, 23, 31, tzinfo=timezone.utc)
+    )
+    second = injuries.archive(
+        tmp_path,
+        day,
+        18,
+        PDF + b"\n%republished\n",
+        captured=datetime(2025, 12, 10, 23, 36, tzinfo=timezone.utc),
+    )
+    assert first is not None and second is not None
+    held = injuries.report_csvs(tmp_path, day)
+    assert [p.stem.split("_")[1] for p in held] == ["20251210T233100Z", "20251210T233600Z"]
+    assert held[-1].stem == second.stem
 
 
 class _Client(injuries.InjuryClient):

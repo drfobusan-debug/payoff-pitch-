@@ -93,6 +93,16 @@ class AlarmParams:
     ml_prob: float = field(default_factory=lambda: _env_float("NBAE_ALARM_ML_PROB", 0.03))
     spread_pts: float = field(default_factory=lambda: _env_float("NBAE_ALARM_SPREAD_PTS", 1.0))
     total_pts: float = field(default_factory=lambda: _env_float("NBAE_ALARM_TOTAL_PTS", 1.5))
+    # Settle gate: an alerted game stays pending until two consecutive polls of
+    # its consensus each move less than this (points for spread/total, no-vig
+    # probability for ML), polled every ``settle_interval_s`` up to
+    # ``settle_polls`` times per tick.
+    settle_pts: float = field(default_factory=lambda: _env_float("NBAE_SETTLE_PTS", 0.5))
+    settle_ml: float = field(default_factory=lambda: _env_float("NBAE_SETTLE_ML", 0.01))
+    settle_interval_s: float = field(
+        default_factory=lambda: _env_float("NBAE_SETTLE_INTERVAL_S", 60.0)
+    )
+    settle_polls: int = field(default_factory=lambda: int(_env_float("NBAE_SETTLE_POLLS", 4)))
 
 
 @dataclass(frozen=True)

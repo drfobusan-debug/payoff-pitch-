@@ -10,6 +10,10 @@ must be studied before it prices · **[DEFAULT]** provisional, refit before ship
 
 v3 adds five NBA-specific adjustments: a news alarm (§5d), on/off backup profiles (§4.2a),
 team-constrained props (§4.5a), a blowout dimmer (§4.4a) and nightly team ratings (§4.8).
+v3.1 hardens each: a settle gate on the alarm, an opponent-quality correction on star-off
+rates, usage/shot ceilings on the split, probabilistic blowout pulls, and fatigue-weighted
+nightly updates. Every number quoted as an example below is a starting hypothesis; the
+shipped value is fitted.
 
 ---
 
@@ -128,6 +132,14 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    out uses the both-off stints where they exist, else the product of the single-off shifts
    (tested on the archive before it prices). Minutes come from the rotation model fitted on
    games where S actually sat, not from the backup's season average.
+
+   *Opponent quality.* Star-off minutes are disproportionately logged against opposing bench
+   units, so raw star-off rates overstate what a backup does as a starter against a starting
+   five. Every stint carries the opponent lineup's quality (its RAPM sum, D7), and the
+   star-off rates are re-expressed at the opponent quality he will actually face: the
+   correction is a fitted slope of the player's per-minute efficiency on opponent lineup
+   quality, pooled by archetype and shrunk, not a flat haircut (a 5–8% cut against a top-10
+   defence is the hypothesis to test).
 3. **Team strength for the game** = Σ(projected minutes × impact) + shrunk team residual. An
    absence moves the number **only** through this rebuild (no double-count).
 4. **Game distribution** — possessions × efficiencies → bivariate (home, away) points, dispersion
@@ -141,7 +153,12 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    at the bench's own rates, and pace and efficiency move to their measured garbage-time
    values. The minute curves (starter share of remaining minutes by |margin| × time left), the
    threshold and the pace/efficiency shift are **fitted from real 2019–26 blowouts** in the
-   play-by-play stints (D7); none is typed in. Every prop and the 2H part of the total are read
+   play-by-play stints (D7); none is typed in. The pull is **probabilistic, not a cut-off**:
+   at each simulated margin × time-left state the starters are pulled with a fitted
+   probability that depends on the coach's own history (some close out games with starters)
+   and the schedule (second night of a back-to-back pulls earlier), so some simulated blowouts
+   keep the stars in and the upper tail of their props survives. A hard threshold would
+   truncate that tail and bias the engine toward Unders. Every prop and the 2H part of the total are read
    off these simulated minutes, so a star's Over carries its blowout risk and a big favourite's
    bench props carry their upside.
 5. **Props** — minutes distribution × per-minute rate × pace × opponent factor × teammate-absence
@@ -156,6 +173,14 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    assists never exceed teammates' makes, and points sum to the team score. A player projected
    higher automatically takes from his teammates; PRA, and two props on the same team, inherit
    the real correlation, which the exposure gate (§6) uses to treat them as one bet.
+
+   *Ceilings.* Each share is water-filled under a per-player ceiling (usage, FGA, 3PA, AST
+   chances) taken from the player's archetype's fitted historical maximum: a player at his
+   ceiling is frozen and the rest keeps flowing to the others by share. When two high-usage
+   players are out and the survivors cannot absorb the vacancy, the remainder is **not**
+   forced onto a low-usage defender's shot count: it becomes extra team turnovers and lower
+   possession efficiency, at the fitted rates teams actually show in such games
+   (`nba_engine.models.allocation`, built and tested on mock numbers in Phase 0).
 6. **Calibration** — isotonic per market on a holdout (`engine_common.isotonic`).
 7. **Market anchor** — `p_final = w·p_model + (1−w)·p_fair_close_now`, `w` and an edge cap
    **fitted per market**; power de-vig (NFL study), re-measured on NBA props.
@@ -165,7 +190,11 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    current for tonight. The *formulas* — the `k` table, rating step size, the market blend `w`,
    filter thresholds, minute curves — refit **monthly**, walk-forward only, so one hot week
    cannot rewrite the method. The step size is itself fitted (how fast ratings must move to
-   predict next game best on 2019–26), not set to "daily = fast".
+   predict next game best on 2019–26), not set to "daily = fast". A game played under a scheduling extreme
+   (second night of a back-to-back, 3-in-4, altitude, long road trip) moves the rating **less**:
+   the step is multiplied by a fitted fatigue weight per schedule state, since the schedule
+   filter (§5b) already prices that game's fatigue and the rating should carry only the
+   repeatable part (30% of a normal step on a back-to-back is the hypothesis to test).
 
 ---
 
@@ -231,8 +260,17 @@ moves the line at once, and a stale card reads the move as value on the short-ha
 | ESPN injury feed (free, timestamped per change) | any status change for a player on a team playing today | same |
 | Official report (D11, new hourly file) | any status change vs the previous file | same |
 
-A **pending** game cannot be recommended until a pricing run newer than its last alert has
-re-priced it (`alarm.pending`); the re-price runs for that game only, not the slate. Every
+**Settle gate.** After news, a line rarely moves once: it steps for several minutes. So an
+alerted game is fast-polled (game markets for that event, every 60 s, up to 4 polls per tick)
+and stays **pending** until two consecutive polls each move less than 0.5 points on spread and
+total and 1 point of no-vig probability on ML [DEFAULT → FIT] (`alarm.settle`, recorded as a
+`settled` alert). A game still moving at the end of the tick stays pending into the next one.
+Moves are measured from the board seen at the game's last alert (or the day's first board),
+not just the previous tick, so a slow creep under the threshold still adds up.
+
+A **pending** game cannot be recommended until its line has settled **and** a pricing run
+strictly newer than the settle has re-priced it (`alarm.pending`); the re-price runs for that
+game only, not the slate. Every
 alert is archived with its timestamp, so the audit grades what the alarm caught (buys it
 blocked vs what they would have done) and what it missed (moves with no alert). Thresholds are
 fitted on the 2023–26 archive: the move size that best separates moves that followed a real

@@ -20,7 +20,7 @@ import logging
 import re
 from dataclasses import asdict, dataclass, fields
 from datetime import date as Date
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -219,14 +219,21 @@ def _fp(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()[:10]
 
 
-def archive(data_dir: Path, day: Date, hour: int, data: bytes) -> Path | None:
-    """Store one report (and its parsed rows) unless an identical one is held."""
+def archive(
+    data_dir: Path, day: Date, hour: int, data: bytes, captured: datetime | None = None
+) -> Path | None:
+    """Store one report (and its parsed rows) unless an identical one is held.
+
+    Files are named ``HH00_<captured UTC>_<fp>`` so a report re-published within
+    the same hour still sorts after the one it replaced.
+    """
     directory = injuries_dir(data_dir, day)
     fp = _fp(data)
     if directory.is_dir() and any(directory.glob(f"*_{fp}.pdf")):
         return None
     directory.mkdir(parents=True, exist_ok=True)
-    stem = f"{hour:02d}00_{fp}"
+    stamp = (captured or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    stem = f"{hour:02d}00_{stamp:%Y%m%dT%H%M%SZ}_{fp}"
     pdf = directory / f"{stem}.pdf"
     pdf.write_bytes(data)
     try:

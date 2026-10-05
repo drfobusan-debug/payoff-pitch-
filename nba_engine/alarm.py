@@ -9,10 +9,14 @@ watch tick (minutes apart, not hours) compares the latest two looks at:
 * ESPN's injury feed -- every status change, as teams announce it;
 * the official league report -- each new hourly file;
 
-and raises an ``Alert`` per affected game. An alerted game is re-captured at
-once (first half and props too) and is *pending* until a pricing run newer
-than its last alert has seen it: the card may not recommend a pending game
-(``pending``). Alerts are archived, immutably, under
+and raises an ``Alert`` per affected game. Moves are measured from the board
+seen at the game's last alert (``reference``), so a slow creep adds up. An
+alerted game is re-captured at once (first half and props too) and stays
+*pending* until (1) its line has settled -- two consecutive fast polls each
+moving less than the settle tolerance (``settle``), recorded as a ``settled``
+alert -- and (2) a pricing run newer than that has seen it. The card may not
+recommend a pending game (``pending``): a line still moving after news is a
+falling knife. Alerts are archived, immutably, under
 ``<data>/alerts/<YYYY-MM-DD>/<stamp>_<fp>.csv``, so the audit can grade what the
 alarm caught and what it missed.
 """
@@ -21,8 +25,9 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import statistics
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, fields
 from datetime import date as Date
 from pathlib import Path
@@ -43,7 +48,7 @@ class Alert:
     game_date: str
     event_id: str
     matchup: str
-    kind: str  # ml_move | spread_move | total_move | injury | injury_official
+    kind: str  # ml_move | spread_move | total_move | injury | injury_official | settled
     detail: str
     before: str
     after: str
@@ -93,7 +98,42 @@ def board_alerts(
     detected_at: str,
 ) -> list[Alert]:
     """Consensus moves at or past the alarm thresholds between two boards."""
-    prev, cur = consensus(before), consensus(after)
+    return move_alerts(consensus(before), consensus(after), games, params, detected_at)
+
+
+def reference(
+    boards: Sequence[Sequence[QuoteRow]], alerts: Iterable[Alert]
+) -> dict[str, dict[str, float]]:
+    """Per event, the consensus the next move is measured from.
+
+    That is the board seen at the game's latest alert, or the day's first board
+    if it has none -- not merely the previous look, so a line that creeps a
+    little each tick still trips the alarm once the creep adds up. ``boards``
+    are the day's snapshots, oldest first.
+    """
+    anchor: dict[str, str] = {}
+    for a in alerts:
+        if a.event_id and a.detected_at > anchor.get(a.event_id, ""):
+            anchor[a.event_id] = a.detected_at
+    out: dict[str, dict[str, float]] = {}
+    for rows in boards:
+        if not rows:
+            continue
+        taken = rows[0].captured_at
+        for eid, cons in consensus(rows).items():
+            if eid not in out or taken <= anchor.get(eid, ""):
+                out[eid] = cons
+    return out
+
+
+def move_alerts(
+    prev: Mapping[str, Mapping[str, float]],
+    cur: Mapping[str, Mapping[str, float]],
+    games: Mapping[str, Game],
+    params: AlarmParams,
+    detected_at: str,
+) -> list[Alert]:
+    """Consensus moves at or past the alarm thresholds, ``prev`` -> ``cur``."""
     limits = {"ml": params.ml_prob, "spread": params.spread_pts, "total": params.total_pts}
     out: list[Alert] = []
     for eid, now in sorted(cur.items()):
@@ -215,28 +255,135 @@ def read_alerts(data_dir: Path, day: Date) -> list[Alert]:
     return out
 
 
-def pending(alerts: Iterable[Alert], priced_at: Mapping[str, str]) -> set[str]:
-    """Events whose newest alert is newer than their newest pricing.
+SETTLED = "settled"
 
-    ``priced_at`` maps event id -> ISO UTC time of the last pricing run that saw
-    the game; a game never priced is pending once alerted.
-    """
-    latest: dict[str, str] = {}
+
+def _latest(alerts: Iterable[Alert]) -> tuple[dict[str, str], dict[str, str]]:
+    news: dict[str, str] = {}
+    calm: dict[str, str] = {}
     for a in alerts:
-        if a.event_id and a.detected_at > latest.get(a.event_id, ""):
-            latest[a.event_id] = a.detected_at
-    return {eid for eid, at in latest.items() if at > priced_at.get(eid, "")}
+        if not a.event_id:
+            continue
+        table = calm if a.kind == SETTLED else news
+        if a.detected_at > table.get(a.event_id, ""):
+            table[a.event_id] = a.detected_at
+    return news, calm
+
+
+def unsettled(alerts: Iterable[Alert]) -> set[str]:
+    """Events whose latest news has not yet been followed by a settled line."""
+    news, calm = _latest(alerts)
+    return {eid for eid, at in news.items() if calm.get(eid, "") <= at}
+
+
+def pending(alerts: Iterable[Alert], priced_at: Mapping[str, str]) -> set[str]:
+    """Events that may not be recommended.
+
+    An alerted game is pending until its line has settled after the latest news
+    *and* a pricing run strictly newer than the settle has seen it.
+    ``priced_at`` maps event id -> ISO UTC time of the last pricing run that saw
+    the game.
+    """
+    news, calm = _latest(alerts)
+    out: set[str] = set()
+    for eid, at in news.items():
+        released = calm.get(eid, "")
+        if released <= at or priced_at.get(eid, "") <= released:
+            out.add(eid)
+    return out
+
+
+def _quiet(a: Mapping[str, float], b: Mapping[str, float], params: AlarmParams) -> bool:
+    if not a or set(a) != set(b):
+        return False
+    for key, value in a.items():
+        tol = params.settle_ml if key == "ml" else params.settle_pts
+        if abs(b[key] - value) >= tol:
+            return False
+    return True
+
+
+def settle(
+    events: Iterable[str],
+    first: Mapping[str, Mapping[str, float]],
+    poll: Callable[[set[str]], Mapping[str, Mapping[str, float]]],
+    params: AlarmParams,
+    sleep: Callable[[float], None],
+) -> dict[str, list[Mapping[str, float]]]:
+    """Fast-poll alerted games until each line holds still; return the settled ones.
+
+    ``first`` is each game's consensus at the alert; every round sleeps
+    ``settle_interval_s`` then polls the games not yet settled. A game settles
+    when its last two moves are both inside the tolerance (three looks) on every
+    market it had at the alert; a game whose market was pulled or keeps moving
+    stays unsettled for the next tick.
+    Returns event id -> the consensus path that settled it.
+    """
+    seen: dict[str, list[Mapping[str, float]]] = {
+        eid: [first[eid]] if eid in first else [] for eid in events
+    }
+    needed = {eid: set(first.get(eid, {})) for eid in seen}
+    done: dict[str, list[Mapping[str, float]]] = {}
+    for _ in range(params.settle_polls):
+        open_ = set(seen) - set(done)
+        if not open_:
+            break
+        sleep(params.settle_interval_s)
+        now = poll(open_)
+        for eid in open_:
+            if eid in now:
+                seen[eid].append(now[eid])
+            path = seen[eid]
+            if (
+                len(path) >= 3
+                and needed[eid] <= set(path[-1])
+                and _quiet(path[-3], path[-2], params)
+                and _quiet(path[-2], path[-1], params)
+            ):
+                done[eid] = path
+    return done
+
+
+def settled_alerts(
+    done: Mapping[str, Sequence[Mapping[str, float]]],
+    games: Mapping[str, Game],
+    detected_at: str,
+) -> list[Alert]:
+    out: list[Alert] = []
+    for eid, path in sorted(done.items()):
+        game = games.get(eid)
+        if game is None or not path:
+            continue
+        out.append(
+            Alert(
+                detected_at=detected_at,
+                game_date=game.game_date.isoformat(),
+                event_id=eid,
+                matchup=game.matchup,
+                kind=SETTLED,
+                detail=f"line steady over the last {len(path) - 1} poll(s)",
+                before=json.dumps(dict(path[0]), sort_keys=True),
+                after=json.dumps(dict(path[-1]), sort_keys=True),
+            )
+        )
+    return out
 
 
 __all__ = [
     "FIELDS",
+    "SETTLED",
     "Alert",
     "alerts_dir",
     "board_alerts",
     "consensus",
     "feed_alerts",
+    "move_alerts",
     "official_alerts",
     "pending",
     "read_alerts",
+    "reference",
+    "settle",
+    "settled_alerts",
+    "unsettled",
     "write_alerts",
 ]
