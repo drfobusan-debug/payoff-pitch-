@@ -6,7 +6,14 @@ import dataclasses
 from datetime import date
 from pathlib import Path
 
-from cfb_engine.output.card import _movement_line, _slate_order, _spoken_movement, build_article
+from cfb_engine.output.card import (
+    _best_bets,
+    _movement_line,
+    _slate_best_block,
+    _slate_order,
+    _spoken_movement,
+    build_article,
+)
 from cfb_engine.recommendations import Recommendation, Tier, load_json, save_json
 
 DAY = date(2026, 9, 19)
@@ -121,3 +128,18 @@ def test_new_fields_round_trip_json(tmp_path: Path):
     back = load_json(tmp_path / "p.json")
     assert (back[0].open_american, back[0].kickoff_utc) == (-150, "2026-09-19T16:00:00Z")
     assert back[2].open_line == 52.5
+
+
+def test_slate_best_bets_list_by_kickoff_strongest_first_within_a_game():
+    late = [dataclasses.replace(r, tier=Tier.STRONG) for r in _game("1", "2026-09-20T00:00:00Z")]
+    early = [dataclasses.replace(r, tier=Tier.MODERATE) for r in _game("2", "2026-09-19T16:00:00Z")]
+    unstamped = [dataclasses.replace(r, tier=Tier.STRONG) for r in _game("3", None)]
+    recs = late + early + unstamped
+    block = _slate_best_block(recs)
+    items = block.split("<li>")[1:]
+    games = [item.split("(AWAY")[1].split(" @")[0] for item in items]
+    assert games == ["2"] * 3 + ["1"] * 3 + ["3"] * 3
+    by_game = [b for b in _best_bets(recs) if b.game_id == "1"]
+    assert [i.split("<b>")[1].split(" (")[0] for i in items[3:6]] == [b.selection for b in by_game]
+    assert items[0].startswith("12:00 PM ET · ") and items[6].startswith("<b>")
+    assert "by kickoff" in block
