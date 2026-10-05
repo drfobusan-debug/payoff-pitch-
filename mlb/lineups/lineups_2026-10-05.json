@@ -447,6 +447,75 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-05T21:55:19+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 650490,
+      "name": "Yandy D\u00edaz",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 666018,
+      "name": "Jonathan Aranda",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 691406,
+      "name": "Junior Caminero",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 689414,
+      "name": "Liam Hicks",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 802415,
+      "name": "Chandler Simpson",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 683748,
+      "name": "Victor Mesa Jr.",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 676356,
+      "name": "Jonny DeLuca",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 680700,
+      "name": "Richie Palacios",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 670764,
+      "name": "Taylor Walls",
+      "bats": "S",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  }
 ]
