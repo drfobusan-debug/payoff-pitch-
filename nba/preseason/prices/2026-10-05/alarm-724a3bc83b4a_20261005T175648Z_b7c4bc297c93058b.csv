@@ -1,0 +1,7 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_ml,NYK,,,draftkings,-142,120,oddsapi
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_ml,PHI,,,draftkings,120,-142,oddsapi
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_ats,NYK,,-1.5,draftkings,-115,-105,oddsapi
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_ats,PHI,,1.5,draftkings,-105,-115,oddsapi
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_total,over,,114.5,draftkings,-115,-105,oddsapi
+2026-10-05T17:56:48Z,2026-10-05,NYK @ PHI,724a3bc83b4a203429225bde5ab85520,h1_total,under,,114.5,draftkings,-105,-115,oddsapi
