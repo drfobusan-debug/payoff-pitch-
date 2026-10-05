@@ -1,4 +1,4 @@
-# NBA Payoff Engine — Master Plan v3.5
+# NBA Payoff Engine — Master Plan v3.6
 
 Fifth engine in `payoff-pitch-` (`nba_engine/`, beside `mlb_engine`, `cfb_engine`, `nfl_engine`,
 `nhl_engine`). **Paper-only** until each market passes probation (§11). Studies live in
@@ -24,7 +24,8 @@ alerts on new injury wording (§5b), flags NBA Cup games (§1), drops pulled pro
 and keeps fitted values in a versioned params file instead of `config.py` (§13). v3.5 fits the
 edge floor separately for one-book and two-book rows (§10), makes ceilings per-minute and
 family-specific (§4.5a), splits the 1H/2H gap into pace and efficiency (§4.4), and keeps pulled
-props in the record with their own pre-pull CLV (§10). Every number quoted as
+props in the record with their own pre-pull CLV (§10). v3.6 adds a rule-change register (§3a):
+the 2025-26 heave rule, the 2026-27 push-off emphasis and the 2026-27 Cup venues. Every number quoted as
 an example below is a starting hypothesis; the shipped value is fitted.
 
 ---
@@ -61,7 +62,10 @@ key reports 5,000,000 credits [VERIFIED]), so the first backtest runs before ope
 
 Every pulled row carries `source`, `captured_at`, `season`, and stable IDs (Odds API `event_id`
 + NBA `game_id` + NBA `player_id`). Names are display only. Each game carries `cup_stage`
-(none / group / knockout / final). Stars played +0.8 min over their own average in the 2023–25
+(none / group / quarterfinal / semifinal / final). Home court comes from the game's own venue
+and ESPN's neutral-site flag, never from the stage: from 2026-27 the semifinals are at the
+higher seed's arena (quarterfinals already were), and the 2026 final is at Hinkle Fieldhouse,
+Indianapolis, not Las Vegas. Travel and time zones are computed to that venue. Stars played +0.8 min over their own average in the 2023–25
 Cup knockouts (126 appearances, 95% −0.6 to +2.0) [MEASURED], and there are only 3 finals. So
 the flag is recorded and graded, and the pull curves get no Cup term until one passes a
 holdout. The market anchor carries what the model can't fit. If an event ID is missing at a
@@ -135,6 +139,19 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
 
 ---
 
+### 3a. Rule-change register
+
+Every rule or officiating change gets a dated entry. Any rate fitted across that date carries a
+pre/post term or is refit on post-change games only, and the walk-forward holdout reports
+pre- and post-change games separately.
+
+| Change (source) | From | What it touches | In the engine |
+|---|---|---|---|
+| **Heave rule:** a shot from 36+ ft on a backcourt play in the last 3 s of Q1–Q3 is a team attempt; a make still counts for the player (NBA.com, 2025-09-10) | 2025-26 | Player 3PA and 3P%; 3PM gets a few extra makes | Player 3PA and 3P% are rebuilt from PBP **excluding heaves in every season**, so pre- and post-rule rates mean the same thing. Heaves are a separate term per player: heave attempts per quarter-end × the measured make rate, ~4% (SportRadar via AP). Their makes add to 3PM and points. No typed deflator and no hand-widened 3PM variance |
+| **Push-off emphasis:** "Four F's" off-arm test, plus screen shoves and off-ball holding (ESPN, 2026-09-29) | 2026-27 | Offensive fouls → turnovers; personal fouls → foul-trouble minutes; defensive holding → FTA | Season break: prior seasons get less weight in the foul, turnover and FTA rates, so the nightly update moves to the new level quickly. A player's past offensive-foul rate per touch (PBP) goes into the family clustering and the foul-trouble term. The change in fouls and turnovers is measured by family as 2026-27 games come in, not set at +15–20%. The audit charts league offensive fouls, turnovers and FTA per 100 against 2023–26 weekly, to see whether the spike fades |
+| **Cup venues:** semifinals at the higher seed (NBA.com, 2025-09-10) | 2026-27 | Home court and travel in Cup semis | `cup_stage` split (§1); home court from the venue |
+| **Replay Center rules on proximate fouls in out-of-bounds challenges** (2025-26) | 2025-26 | Stoppage length only | Nothing to change. The engine never priced replay time as rest, and possessions are unchanged |
+
 ## 4. Model pipeline
 
 1. **Season prior** — last season regressed at fitted year-to-year r + roster carry-over (impact ×
@@ -173,7 +190,8 @@ Phase 1 deliverable and is quoted in `nba_engine/config.py` docstrings — the N
    and correlation **fitted to the market's own ML↔spread↔total relation** (CFB #382 lesson);
    1H from **first-half minutes**, not a flat half-share: each player's 1H minutes come from
    his own rotation pattern in the stints (D7), with a fitted foul-trouble term (first-half
-   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout).
+   minutes vs personal-foul rate per minute; 0 if it does not survive the holdout; carries the
+2026-27 push-off break, §3a).
    *Halves differ [MEASURED].* 2023–26 regular season, ESPN period scores: per team, 1H
    57.1 vs regulation 2H 56.4 (+0.77, 95% +0.49 to +1.04, clustered by game). In games decided by
    under 10 it is still +0.45 (+0.06 to +0.96), so the gap isn't only garbage time. The 1H
@@ -659,6 +677,7 @@ Kaggle SQLite is a read-only input at `NBAE_KAGGLE_DB`. Engine state stays CSV /
 | NBA | ML hold with a questionable star, 2023–26 close | −0.01 pts vs no Q star (95% −0.03 to +0.01) [MEASURED] | No ML volatility cap (§4.7). |
 | NBA | 1H vs regulation 2H points, 2023–26 | +0.77 per team (95% +0.49 to +1.04); +0.45 in games under 10 [MEASURED] | Fitted 1H distribution, not a half-share (§4.4). |
 | NBA | Star minutes, Cup knockouts 2023–25 | +0.8 (95% −0.6 to +2.0), 3 finals [MEASURED] | `cup_stage` flag only (§1). |
+| NBA | 2025-27 rule changes | heave rule, push-off emphasis, Cup semis at home, OOB replay [VERIFIED NBA.com / ESPN] | Register §3a. |
 | NBA | Pulled vs moved props, T-1 sample | pulled −0.4 pts (n=860), line moved −3.4 pts (n=1,056) [MEASURED] | Pulled rows kept; pre-pull CLV column (§10). |
 | NBA | Best of DK/MGM vs one book | PTS −4.97% vs −6.03 / −6.56% EV; 1H ML −2.77% vs −4.03 / −4.05% [MEASURED] | Floor fitted per one-/two-book (§10). |
 | NBA | Prop Over bias after a late star scratch | −1.8 pts (95% −3.6 to −0.2) vs −1.5 baseline [MEASURED] | No dial-back after news (§4.7). |
