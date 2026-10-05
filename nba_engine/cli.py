@@ -55,7 +55,10 @@ _sleep = time.sleep
 def _client(cache_ttl: int = 0) -> OddsAPIClient | None:
     cfg = load_config()
     client = OddsAPIClient(
-        cfg.creds.odds_api_key, cache_dir=cache_dir() / "oddsapi", cache_ttl=cache_ttl
+        cfg.creds.odds_api_key,
+        cache_dir=cache_dir() / "oddsapi",
+        cache_ttl=cache_ttl,
+        sport_key=cfg.sport_key,
     )
     if not client.available():
         print("no Odds API key (THE_ODDS_API_KEY / ODDS_API_KEY)", file=sys.stderr)
