@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date as Date
 
+# ESPN states for a game that will not be played on its slate date.
+NOT_PLAYED = frozenset({"STATUS_POSTPONED", "STATUS_CANCELED", "STATUS_CANCELLED"})
+
 
 @dataclass(frozen=True)
 class Game:
@@ -103,6 +106,10 @@ class GameResult:
     @property
     def is_final(self) -> bool:
         return self.state == "STATUS_FINAL"
+
+    @property
+    def not_played(self) -> bool:
+        return self.state in NOT_PLAYED
 
     @property
     def final_away(self) -> int:
