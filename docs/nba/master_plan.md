@@ -482,6 +482,22 @@ players with projected minutes; injuries with report timestamp; rest/travel line
 1H); the game's rows table with gates; storylines. Front page: slate summary, buys, top props.
 Plus MP3 sportscaster audio (NHL/MLB pattern) and the regression report.
 
+- **Order:** games run in tip-off order, early tips first. The buys list and top props at the
+  back follow the same order, and each line opens with its ET tip time.
+- **Rows table:** each row shows market, side and line, model p, the fair price (de-vigged,
+  Over bias applied), edge, EV, tier, and the gate that refused it if any.
+- **Book:** each row names the book (DraftKings or BetMGM) and its price. It also says if
+  only one of the two posted it.
+- **Injury changes:** a box per game lists every status change since the last email, with
+  the official report time. Games the news alarm has PENDING are shown that way, with no
+  buys.
+- **Cup:** NBA Cup games carry their stage. Neutral-site games are labelled, and their home
+  court and travel line are based on the actual arena.
+- **No weather section.** The rest/travel line replaces it.
+
+The PDF, MP3 and Excel go out by email from the Mac launchd schedule in §10, every day there's
+a slate, with no manual step. Days with no games send nothing.
+
 ---
 
 ## 10. Automation — when the email goes out
@@ -499,6 +515,7 @@ until that study lands:
 | **17:15** | after the 5 PM report; main card for 7:00–8:30 tips | **Card**: PDF + Excel + MP3 |
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
 | T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip **and** the quote is stamped before the scheduled tip (clock lock; ESPN's status can lag the jump ball). T-5 is the fallback (~110 credits per game per capture). Recommendations for a game stop at its last scheduled pass, well before tip | — |
+| 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 A prop the book pulls before the T-1 capture keeps its row. It is graded on the outcome (ROI,
 PPV/NPV and calibration include it) with `close = pulled`. Its CLV goes in a separate **pre-pull
@@ -541,7 +558,6 @@ The spread moved in 16% of games (1% by ≥1 pt) and the total in 24% (2% by ≥
 prop quotes, 3.4% changed line or were pulled, and the rest moved 0.2 pts no-vig. The Over gap
 was identical at both times. Live capture uses T-1, since it costs the same as T-5. The 2023–26
 archive stays at its 9.4-min close for grading and is not re-pulled.
-| 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 Mac: `scripts/nba/macos/` launchd plists + `.command` shortcuts (run_predictions, run_audit,
 nba_capture, open_ledger, install_schedule), `~/.nba_engine`, `NBAE_` env prefix,
