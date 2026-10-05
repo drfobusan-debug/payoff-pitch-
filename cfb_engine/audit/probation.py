@@ -65,6 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
+from cfb_engine.market import lineagree
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -88,7 +89,7 @@ CLEAR = "CLEAR"  # judged, and not condemned
 SHUT = "SHUT"  # market losing on all three tests
 LIFT = "LIFT"  # screen refusing winners on all three tests
 SHIP = "SHIP"  # proposed screen refusing losers on all three tests
-PROMOTE = "PROMOTE"  # proposed upgrade whose buys win on all three tests
+PROMOTE = "PROMOTE"  # proposed upgrade or rule whose picks win on all three tests
 
 _BUY = frozenset({Tier.STRONG.value, Tier.MODERATE.value})
 
@@ -110,7 +111,7 @@ class Probation:
     """One market's or one screen's verdict."""
 
     name: str
-    kind: str  # "market" | "screen" | "candidate" | "upgrade"
+    kind: str  # "market" | "screen" | "candidate" | "upgrade" | "rule"
     n: int
     roi: float  # mean per-unit return
     se: float  # standard error of that mean
@@ -191,6 +192,7 @@ def _judge(
         "market": "buys",
         "screen": "refusals",
         "upgrade": "buys it would upgrade",
+        "rule": "games it would bet",
     }.get(kind, "buys it would refuse")
 
     if n < min_n:
@@ -211,18 +213,20 @@ def _judge(
     # Condition 3: both halves agree.
     consistent = sign * h1 > 0 and sign * h2 > 0
     if beyond_se and consistent:
-        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP, "upgrade": PROMOTE}[kind]
+        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP, "upgrade": PROMOTE, "rule": PROMOTE}[kind]
         verb = {
             "market": f"losing {abs(roi) * 100:.1f}% of stake",
             "screen": f"refusing winners at {roi * 100:+.1f}%",
             "candidate": f"losing {abs(roi) * 100:.1f}% of stake",
             "upgrade": f"winning {roi * 100:+.1f}% of stake",
+            "rule": f"winning {roi * 100:+.1f}% of stake",
         }[kind]
         act = {
             "market": f"shut {name} until the refit",
             "screen": f"lift {name}; it is deleting money",
             "candidate": f"ship {name}",
             "upgrade": f"promote {name}",
+            "rule": f"promote {name}",
         }[kind]
         return Probation(
             name,
@@ -476,6 +480,51 @@ def upgrade_probation(
     return sorted(out, key=lambda p: (p.status != PROMOTE, -p.roi))
 
 
+@dataclass(frozen=True)
+class CandidateRule:
+    """A proposed bet of its own, graded on every priced row it picks, buy or not.
+
+    Unlike an upgrade it does not ride on the engine's buy tiers, so its sample
+    grows with the board rather than with the buys.
+    """
+
+    name: str
+    picks: Callable[[LedgerEntry], bool]
+    rationale: str
+
+
+def _totals_line_agrees(e: LedgerEntry) -> bool:
+    return lineagree.line_agrees(e.market, e.model_prob, e.fair_prob, e.open_drift, e.drift)
+
+
+CANDIDATE_RULES: tuple[CandidateRule, ...] = (
+    CandidateRule(
+        lineagree.RULE_NAME,
+        _totals_line_agrees,
+        "the total had moved toward the model's side before the bet",
+    ),
+)
+
+
+def rule_probation(
+    entries: list[LedgerEntry],
+    rules: tuple[CandidateRule, ...] = CANDIDATE_RULES,
+    since: str | None = None,
+    min_n: int | None = None,
+) -> list[Probation]:
+    """Verdict per proposed rule, over every graded row it picks."""
+    bar = _min_n() if min_n is None else min_n
+    floor = ALL_HISTORY if since is None else since
+    rows = [e for e in _decided(entries) if e.date >= floor]
+    out: list[Probation] = []
+    for r in rules:
+        verdict = _judge(r.name, "rule", [e for e in rows if r.picks(e)], bar, losing_is_bad=False)
+        if verdict.status == PROMOTE:
+            verdict.finding = f"{verdict.finding} ({r.rationale})"
+        out.append(verdict)
+    return sorted(out, key=lambda p: (p.status != PROMOTE, -p.roi))
+
+
 def candidate_probation(
     entries: list[LedgerEntry],
     candidates: tuple[CandidateScreen, ...] = CANDIDATE_SCREENS,
@@ -507,12 +556,13 @@ def candidate_probation(
 
 
 def probation_rows(entries: list[LedgerEntry], since: str | None = None) -> list[Probation]:
-    """Every verdict, markets first, then live screens, then candidates."""
+    """Every verdict, markets first, then live screens, then candidates and rules."""
     return [
         *market_probation(entries, since),
         *screen_probation(entries, since),
         *candidate_probation(entries, since=since),
         *upgrade_probation(entries, since=since),
+        *rule_probation(entries, since=since),
     ]
 
 
