@@ -14,6 +14,11 @@
 * ``injuries`` -- archive (and parse) the day's official injury reports.
 * ``results`` -- ESPN finals by quarter with player box lines.
 * ``archive`` -- summarise captured live prices for a date.
+* ``boxes`` -- archive ESPN finals and box lines for whole seasons (free).
+* ``fit-over-bias`` -- fit the Over bias per market and book on the archived
+  closes and finals; writes a new ``params/over_bias`` version.
+* ``board`` -- the day's selections: consensus fair (Over bias removed), the
+  better DraftKings/BetMGM price, one- or two-book, price vs fair.
 
 Nothing here prices a game: the model, card, ledger and audit come later
 (docs/nba/master_plan.md §13).
@@ -33,10 +38,12 @@ from pathlib import Path
 
 from nba_engine import alarm, state
 from nba_engine.config import cache_dir, data_dir, load_config
-from nba_engine.data import capture, espn_injuries, history, injuries
+from nba_engine.data import boxes, capture, espn_injuries, history, injuries
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
+from nba_engine.market import overbias, params
+from nba_engine.market.board import ev_per_unit, selections
 
 log = logging.getLogger("nba_engine")
 
@@ -343,6 +350,79 @@ def cmd_archive(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_boxes(args: argparse.Namespace) -> int:
+    root, client, held, fetched = data_dir(), ESPNClient(), 0, 0
+    for day in _days(args):
+        if day >= _today():
+            break
+        if boxes.read_results(root, day) is not None:
+            held += 1
+            continue
+        boxes.ensure_results(root, day, client)
+        fetched += 1
+    print(f"results: {held} day(s) already held, {fetched} fetched")
+    return 0
+
+
+def cmd_fit_over_bias(args: argparse.Namespace) -> int:
+    root = data_dir()
+    graded: list[overbias.Graded] = []
+    missing = 0
+    for day in _days(args):
+        day_rows = history.history_rows(root, day)
+        if not day_rows:
+            continue
+        games = boxes.read_results(root, day)
+        if games is None:
+            missing += 1
+            continue
+        graded.extend(overbias.grade(day_rows, boxes.by_matchup(games)))
+    gaps = overbias.fit(graded, draws=args.draws)
+    n_games = len({g.game for g in graded})
+    print(f"graded {len(graded)} Overs over {n_games} games; {missing} day(s) with no results")
+    print(f"{'market':11} {'book':11} {'n':>7} {'games':>5} {'gap pts':>8} {'95% CI':>16} applied")
+    for g in gaps:
+        print(
+            f"{g.market:11} {g.book:11} {g.n:7} {g.games:5} {100 * g.gap:+8.2f} "
+            f"({100 * g.lo:+6.2f},{100 * g.hi:+6.2f}) {100 * g.applied:+.2f}"
+        )
+    path = params.write(
+        root,
+        overbias.NAME,
+        overbias.to_payload(
+            gaps, seasons=args.season, anchor="close", n=len(graded), games=n_games
+        ),
+    )
+    print(f"wrote {path}")
+    if args.push:
+        state.auto_push(root, f"nba params {path.stem}", trees=("params",))
+    return 0
+
+
+def cmd_board(args: argparse.Namespace) -> int:
+    root = data_dir()
+    day = _parse_date(args.date)
+    fitted = params.latest(root, overbias.NAME)
+    shift = overbias.shifts(fitted)
+    sels = [s for s in selections(capture.read_day(root, day)) if args.market in ("", s.market)]
+    print(
+        f"{day}: {len(sels)} selection(s); over_bias {fitted['version'] if fitted else 'unfitted'}"
+    )
+    for s in sels:
+        fair = overbias.adjusted_fair(s, shift)
+        if fair is None or s.exec_american is None:
+            continue
+        line = (
+            "" if s.line is None else f"{s.line:+g}" if s.market.endswith("ats") else f"{s.line:g}"
+        )
+        print(
+            f"{s.matchup:10} {s.market:10} {s.entity[:20]:20} {s.side:6} {line:>6} "
+            f"fair {fair:.3f} ({s.paired_books} bk)  {s.exec_book} {s.exec_american:+.0f} "
+            f"{s.exec_books}-book  vs fair {100 * ev_per_unit(fair, s.exec_american):+.1f}%"
+        )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nba-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -393,6 +473,25 @@ def build_parser() -> argparse.ArgumentParser:
     arc = sub.add_parser("archive", help="summarise captured prices for a date")
     arc.add_argument("--date")
     arc.set_defaults(func=cmd_archive)
+
+    bx = sub.add_parser("boxes", help="archive ESPN finals and box lines (free)")
+    bx.add_argument("--season", action="append", required=True)
+    bx.add_argument("--since")
+    bx.add_argument("--until")
+    bx.set_defaults(func=cmd_boxes)
+
+    ob = sub.add_parser("fit-over-bias", help="fit the Over bias on archived closes + finals")
+    ob.add_argument("--season", action="append", required=True)
+    ob.add_argument("--since")
+    ob.add_argument("--until")
+    ob.add_argument("--draws", type=int, default=400, help="game bootstrap draws")
+    ob.add_argument("--push", action="store_true", help="push params/ to engine-state")
+    ob.set_defaults(func=cmd_fit_over_bias)
+
+    bd = sub.add_parser("board", help="consensus fair vs the DraftKings/BetMGM price")
+    bd.add_argument("--date")
+    bd.add_argument("--market", default="", help="e.g. game_ml, pl_pts")
+    bd.set_defaults(func=cmd_board)
     return parser
 
 

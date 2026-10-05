@@ -1,8 +1,8 @@
 """Carry the NBA archives between machines on the shared ``engine-state`` branch.
 
 Under ``nba/``: ``prices/`` (live snapshots), ``injuries/`` (official reports
-and ESPN feed states), ``alerts/`` (the news alarm) and ``history/`` (the
-historical pull). Every file is immutable and
+and ESPN feed states), ``alerts/`` (the news alarm), ``history/`` (the
+historical pull) and ``params/`` (versioned fitted values). Every file is immutable and
 content-addressed or keyed by (event, anchor), so a merge is a set union of
 paths: pull copies what the branch has and this machine lacks, push the
 reverse. The git plumbing is the MLB module's.
@@ -25,6 +25,7 @@ TREES: dict[str, tuple[str, ...]] = {
     "injuries": ("*/*.pdf", "*/*.csv"),
     "history": ("events/*.json.gz", "raw/*/*.json.gz"),
     "alerts": ("*/*.csv",),
+    "params": ("*/*.json",),
 }
 LIVE: tuple[str, ...] = ("prices", "injuries", "alerts")
 _PUSH_ATTEMPTS = 3
