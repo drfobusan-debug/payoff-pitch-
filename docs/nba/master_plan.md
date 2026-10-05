@@ -252,6 +252,14 @@ only where the study shows the **close does not already price** the regression (
 | Rest differential | schedule |
 | Star rest risk (2nd night of B2B, national TV, load management history) | D6 + D11 |
 
+**Back-to-backs move availability, not minutes [MEASURED].** Stars (≥30 mpg, ≥40 games), regular
+season, ESPN boxes. On the second night of a B2B they missed **18.3% vs 13.0%** of games, 2023–26
+(+5.3 pts, 95% +4.0 to +6.8, clustered by game; 2022-23, before the participation policy: +7.4).
+When they played, minutes were unchanged: **33.2 vs 33.3** (−0.1, 95% −0.4 to +0.2). So the B2B
+term goes into `P(plays)` (§5b), and the minutes model gets no B2B cut. A flat 10–15% cut would be
+3–5 minutes the data does not show. Rest and fatigue curves fit on 2023-24 onward; 2022-23 is the
+pre-policy check.
+
 Use: injuries enter the **model** through the lineup rebuild (§4.3); schedule terms are each
 measured against the **closing line** on 2007–2026 and enter the model at the fitted value or 0.
 
@@ -393,6 +401,14 @@ until that study lands:
 | **17:15** | after the 5 PM report; main card for 7:00–8:30 tips | **Card**: PDF + Excel + MP3 |
 | 20:15 | after the 8 PM report; card for 9:00+ tips | Late card (only if late games) |
 | T-5 and **T-1** per game | close capture, 1-min `close` job; the T-1 quote is the graded close. Kept only if ESPN still shows the game pre-tip; T-5 is the fallback (~110 credits per game per capture) | — |
+
+**T-1 vs the archived close [MEASURED, 100 random 2023–26 games, 10,970 credits].** The T-1
+request returned a snapshot 4.4 min before tip, against 9.4 for the archive (98 of 100 newer).
+In those five minutes the consensus no-vig ML moved 0.2 pts on average, and 2% of games moved ≥1 pt.
+The spread moved in 16% of games (1% by ≥1 pt) and the total in 24% (2% by ≥1 pt). Among 57,041
+prop quotes, 3.4% changed line or were pulled, and the rest moved 0.2 pts no-vig. The Over gap
+was identical at both times. Live capture uses T-1, since it costs the same as T-5. The 2023–26
+archive stays at its 9.4-min close for grading and is not re-pulled.
 | 03:00 | grade, audit, push `nba/` to engine-state | **Audit** PDF + MP3 + ledger |
 
 Mac: `scripts/nba/macos/` launchd plists + `.command` shortcuts (run_predictions, run_audit,
@@ -480,7 +496,7 @@ Small samples are labelled exploratory/underpowered; date- and game-clustered bo
 | Phase | Work | Sessions |
 |---|---|---|
 | **0 — now** | `nba_engine/` scaffold, config, IDs, Odds API live capture (game, 1H, 5 props), official injury PDF + ESPN injury feed, ESPN schedule/box, news alarm (`watch`), Mac daemons + engine-state `nba/` | 1 |
-| **1a — now** | Historical pull D1/D2 2023–26 (game, 1H, 5 props; open + close + hourly path) into a local archive; SBR/Covers loaders. Closes re-requested at T-1 (≈4.4 min pre-tip vs 9.4 now; ≈400K credits, sample of 100 games first ≈11K) | in parallel with 0 |
+| **1a — now** | Historical pull D1/D2 2023–26 (game, 1H, 5 props; open + close + hourly path) into a local archive; SBR/Covers loaders. T-1 re-pull **declined**: the 100-game sample (10,970 credits) moved too little to pay ≈400K for (§10) | in parallel with 0 |
 | **0b** | Live close at T-1 (1-min `close` job, ESPN pre-tip check, T-5 fallback) before opening night | with 1a |
 | 1b | Stint pull (D7) → on/off profiles, next-man-up vacancy tables; `P(plays)` model and status-change re-price study; Over-bias fit and blowout minute curves; reliability study → `k` table (§3); rating step-size study; schedule/travel study vs close; regression-filter study; line-movement study; de-vig study; send-time study (§10) | 2 |
 | 2 | Priors, minutes, lineup rebuild, distribution fit to market, props model, calibration, market blend; walk-forward backtest 2023–26 vs real closes | 2 |
@@ -495,7 +511,6 @@ the first live card.
 1. Kaggle API token as a secret, or a one-time download of the Wyatt Walsh SQLite on the Mac.
 2. OK for a Mac daemon running nba_api (stats.nba.com blocks the VM).
 3. Confirm the Mac's `/etc/engine.env` key also shows the 5M balance (0-credit check block).
-4. OK to re-pull the 2023–26 closes at T-1: about 11K credits for a 100-game sample, then about 400K for all of them if the sample shows the last five minutes move the line.
 
 ---
 
@@ -518,7 +533,8 @@ the first live card.
 | NFL | Ridge rating vs close | MAE 10.282 vs 9.905; disagreement explains none of the line's error (t=+0.25, n=3,450) [MEASURED] | Opponent-adjusted team ratings are a prior and a game script, not a bet. |
 | NFL | De-vig study | proportional de-vig creates favourite–longshot slope; **power** within 1pp in 4/5 buckets [MEASURED] | Use power de-vig by default; re-measure on props where hold is 6–8%. |
 | NBA | Prop Over bias, 2023–26 close | Over hit 48.0% vs 49.5% no-vig, 1.99M quotes / 3,651 games, every season and market negative [MEASURED] | Price the Over below the de-vigged close by a fitted amount (§4.7). |
-| NBA | Close timing, 2023–26 archive | Historical snapshots sit on a 5-min grid ~30 s past each 5 min; the T-5 request returned a snapshot 9.4 min before tip (median, 3,607 games) [MEASURED] | Request at T-1 (≈4.4 min); live close at T-1 with a pre-tip check (§10). |
+| NBA | Star minutes on B2B, 2022–26 | Absence +5.3 pts, minutes −0.1 (95% −0.4 to +0.2) [MEASURED] | B2B enters `P(plays)`; no minutes cut (§5b). |
+| NBA | Close timing, 2023–26 archive | Historical snapshots sit on a 5-min grid ~30 s past each 5 min; the T-5 request returned a snapshot 9.4 min before tip (median, 3,607 games) [MEASURED] | Request at T-1 (≈4.4 min); live close at T-1 with a pre-tip check (§10). The 100-game T-1 sample barely moved, so there is no re-pull. |
 | NBA | Official status → played, 2023–26 | Questionable 74.0% played (n=1,328); Q→Available 87.1% [MEASURED] | Price Questionable as a mixture, do not ban the game (§5b). |
 | NFL | Props | 13,650 graded quotes, all `research_only` [MEASURED] | Archive first, price later — exactly the NBA props path. |
 | NHL | Phase 0 | odds/period/prop capture to engine-state since 9/29 [MEASURED] | Copy the capture-first build order. |
