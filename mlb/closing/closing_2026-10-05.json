@@ -3684,6 +3684,13 @@
   {
     "matchup": "NYY @ TB",
     "market": "batter_hr",
+    "selection": "Jonny Deluca HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "NYY @ TB",
+    "market": "batter_hr",
     "selection": "Junior Caminero HR o0.5",
     "american": 340.0,
     "no_vig_prob": 0.227273
