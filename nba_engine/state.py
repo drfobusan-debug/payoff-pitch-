@@ -15,8 +15,10 @@ import shutil
 from pathlib import Path
 
 from mlb_engine.state import STATE_BRANCH, SyncReport, _commit, _git, _git_ok, _worktree, repo_root
+from nba_engine.config import preseason
 
 PREFIX = "nba"
+PRESEASON_PREFIX = "nba/preseason"
 # Subtree -> glob of the immutable files it holds.
 TREES: dict[str, tuple[str, ...]] = {
     "prices": ("*/*.csv",),
@@ -47,6 +49,11 @@ def _copy_missing(src_root: Path, dest_root: Path, trees: tuple[str, ...]) -> li
     return copied
 
 
+def prefix() -> str:
+    """Preseason archives sync under their own subtree, never beside the season's."""
+    return PRESEASON_PREFIX if preseason() else PREFIX
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -54,7 +61,7 @@ def pull_state(
     trees: tuple[str, ...] = LIVE,
 ) -> SyncReport:
     state = _worktree(repo or repo_root(), branch)
-    return SyncReport(pulled=tuple(_copy_missing(state / PREFIX, data_dir, trees)))
+    return SyncReport(pulled=tuple(_copy_missing(state / prefix(), data_dir, trees)))
 
 
 def push_state(
@@ -69,10 +76,10 @@ def push_state(
         state = _worktree(repo, branch)
         if attempt:
             pull_state(data_dir, repo=repo, branch=branch, trees=trees)
-        pushed = _copy_missing(data_dir, state / PREFIX, trees)
+        pushed = _copy_missing(data_dir, state / prefix(), trees)
         if not pushed:
             return SyncReport()
-        _git(["add", "-A", PREFIX], state)
+        _git(["add", "-A", prefix()], state)
         if not _git(["status", "--porcelain"], state):
             return SyncReport(pushed=tuple(pushed))
         _commit(state, message)
@@ -108,11 +115,13 @@ def auto_push(
 __all__ = [
     "LIVE",
     "PREFIX",
+    "PRESEASON_PREFIX",
     "STATE_BRANCH",
     "TREES",
     "SyncReport",
     "auto_pull",
     "auto_push",
+    "prefix",
     "pull_state",
     "push_state",
 ]

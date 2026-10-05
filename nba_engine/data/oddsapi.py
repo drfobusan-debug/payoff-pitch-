@@ -61,8 +61,12 @@ class OddsAPIClient:
         regions: str = "us",
         cache_dir: Path | None = None,
         cache_ttl: int = 900,
+        sport_key: str = SPORT_KEY,
     ) -> None:
         self.api_key = api_key
+        self.sport_key = sport_key
+        self.base = f"{API}/sports/{sport_key}"
+        self.hist_base = f"{API}/historical/sports/{sport_key}"
         self.timeout = timeout
         self.regions = regions
         self.cache_dir = cache_dir
@@ -83,7 +87,7 @@ class OddsAPIClient:
             return slate
         start, end = _window(slate_date, horizon_hours)
         data = self._get_json(
-            f"{BASE}/events", commenceTimeFrom=_iso(start), commenceTimeTo=_iso(end)
+            f"{self.base}/events", commenceTimeFrom=_iso(start), commenceTimeTo=_iso(end)
         )
         slate.games = games_from(data, slate_date) if isinstance(data, list) else []
         return slate
@@ -97,7 +101,7 @@ class OddsAPIClient:
             return slate, []
         start, end = _window(slate_date, horizon_hours)
         data = self._get_json(
-            f"{BASE}/odds",
+            f"{self.base}/odds",
             markets=",".join(GAME_MARKETS),
             commenceTimeFrom=_iso(start),
             commenceTimeTo=_iso(end),
@@ -133,7 +137,9 @@ class OddsAPIClient:
         for game in games[:max_events]:
             if not game.event_id:
                 continue
-            data = self._get_json(f"{BASE}/events/{game.event_id}/odds", markets=",".join(markets))
+            data = self._get_json(
+                f"{self.base}/events/{game.event_id}/odds", markets=",".join(markets)
+            )
             if isinstance(data, dict):
                 out.extend(event_rows(data, game, taken))
         return out
@@ -141,21 +147,21 @@ class OddsAPIClient:
     # -- historical -------------------------------------------------------
     def historical_events(self, at: datetime) -> Snapshot | None:
         """Events posted at ``at`` (1 credit)."""
-        return self._snapshot(f"{HIST_BASE}/events", date=_iso(at))
+        return self._snapshot(f"{self.hist_base}/events", date=_iso(at))
 
     def historical_event_odds(
         self, event_id: str, at: datetime, markets: tuple[str, ...]
     ) -> Snapshot | None:
         """One event's markets at the last snapshot at or before ``at``."""
         return self._snapshot(
-            f"{HIST_BASE}/events/{event_id}/odds", date=_iso(at), markets=",".join(markets)
+            f"{self.hist_base}/events/{event_id}/odds", date=_iso(at), markets=",".join(markets)
         )
 
     def historical_board(
         self, at: datetime, markets: tuple[str, ...] = GAME_MARKETS
     ) -> Snapshot | None:
         """Featured markets for every posted game at ``at`` (10 credits per market)."""
-        return self._snapshot(f"{HIST_BASE}/odds", date=_iso(at), markets=",".join(markets))
+        return self._snapshot(f"{self.hist_base}/odds", date=_iso(at), markets=",".join(markets))
 
     def _snapshot(self, url: str, **params: str) -> Snapshot | None:
         payload = self._get_json(url, use_cache=False, **params)

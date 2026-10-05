@@ -30,10 +30,20 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw not in ("0", "false", "False")
 
 
+def preseason() -> bool:
+    """``NBAE_PRESEASON=1`` points every command at the exhibition feed, kept apart."""
+    return _env_bool("NBAE_PRESEASON", False)
+
+
 def data_dir() -> Path:
-    """Where the archive, history, cache and (later) the ledger live."""
+    """Where the archive, history, cache and (later) the ledger live.
+
+    Preseason games go under ``preseason/`` so nothing fitted on the regular
+    season ever reads them.
+    """
     raw = os.getenv("NBAE_DATA_DIR")
-    return Path(raw).expanduser() if raw else Path.home() / ".nba_engine"
+    root = Path(raw).expanduser() if raw else Path.home() / ".nba_engine"
+    return root / "preseason" if preseason() else root
 
 
 def cache_dir() -> Path:
@@ -112,6 +122,11 @@ class Config:
     history: HistoryParams = field(default_factory=HistoryParams)
     alarm: AlarmParams = field(default_factory=AlarmParams)
     state_sync: bool = field(default_factory=lambda: _env_bool("NBAE_STATE_SYNC", True))
+    preseason: bool = field(default_factory=preseason)
+
+    @property
+    def sport_key(self) -> str:
+        return "basketball_nba_preseason" if self.preseason else "basketball_nba"
 
 
 def load_config() -> Config:
@@ -127,4 +142,5 @@ __all__ = [
     "cache_dir",
     "data_dir",
     "load_config",
+    "preseason",
 ]
