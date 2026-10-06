@@ -25,6 +25,8 @@ from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief, TeamBrief
+from cfb_engine.output.podcast import CSS as POD_CSS
+from cfb_engine.output.podcast import PodcastView, game_block, records_block
 from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
@@ -506,7 +508,7 @@ def _ordinal(n: int) -> str:
     return f"{n}{suffix}"
 
 
-def _game_section(recs: list[Recommendation]) -> str:
+def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None) -> str:
     matchup, headline, desc = _game_shape(recs)
     when = _kick_label(recs)
     kick = f" <span class='kick'>{when}</span>" if when else ""
@@ -522,6 +524,7 @@ def _game_section(recs: list[Recommendation]) -> str:
         f"{_market_line(recs)}{_movement_line(recs)}"
         f"<div class='shape'><span class='tag'>{headline}</span> {desc}</div>"
         f"{context}"
+        f"{game_block(podcast, matchup)}"
         f"{_ml_line(recs)}"
         f"{_game_best_block(recs)}</div>"
     )
@@ -642,7 +645,10 @@ ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd7
 
 
 def build_article(
-    day: Date, recs: list[Recommendation], line_agrees_record: Probation | None = None
+    day: Date,
+    recs: list[Recommendation],
+    line_agrees_record: Probation | None = None,
+    podcast: PodcastView | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
@@ -663,9 +669,10 @@ def build_article(
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
     )
-    body = "".join(_game_section(g) for g in ordered_games)
+    body = "".join(_game_section(g, podcast) for g in ordered_games)
     body += _slate_best_block(recs)
     body += _line_agrees_block(recs, line_agrees_record)
+    body += records_block(podcast, ordered_games)
     fine = (
         "<p class='fine'>Methodology: expected margin and total come from CFBD SP+ (and PFF, "
         "when supplied) adjusted offense/defense, blended toward the market and run through a "
@@ -673,7 +680,7 @@ def build_article(
         "best posted price; edge is model minus market. Model preview, not investment advice.</p>"
     )
     html = (
-        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
+        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}{POD_CSS}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{body}{fine}</body></html>"
     )
     return html, _narration(day, ordered_games, recs)
@@ -806,6 +813,7 @@ def generate_daily_card(
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
     line_agrees_record: Probation | None = None,
+    podcast: PodcastView | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -813,7 +821,7 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs, line_agrees_record)
+    html, narr = build_article(slate_date, recs, line_agrees_record, podcast)
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"

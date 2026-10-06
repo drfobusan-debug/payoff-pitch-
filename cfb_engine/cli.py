@@ -18,9 +18,10 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from datetime import date as Date
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit import snapshot
@@ -35,7 +36,7 @@ from cfb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
-from cfb_engine.audit.grade import build_result_index, grade, result_for
+from cfb_engine.audit.grade import ResultIndex, build_result_index, grade, result_for
 from cfb_engine.audit.ledger import (
     LedgerEntry,
     OverallMetrics,
@@ -64,6 +65,7 @@ from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
 from cfb_engine.output.excel import write_ledger_workbook, write_workbook
+from cfb_engine.output.podcast import PodcastView, podcast_view
 from cfb_engine.pipeline import Pipeline
 from cfb_engine.recommendations import Recommendation, load_json, save_json
 from cfb_engine.state import auto_pull, auto_push
@@ -119,6 +121,15 @@ def _state_push(cfg: Config, message: str) -> None:
         print(f"State: {report.describe()}")
 
 
+def _podcast_view(cfg: Config, recs: list[Recommendation], day: Date) -> PodcastView | None:
+    """The slate's podcast picks for the PDF; a failure here never stops the card."""
+    try:
+        return podcast_view(cfg.audit_dir, cfg.podcast_ledger_file, recs, day)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("podcast picks left off the card: %s", exc)
+        return None
+
+
 def _line_agrees_record(cfg: Config) -> Probation | None:
     """The graded-only totals rule's record so far, for the card."""
     entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
@@ -153,6 +164,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         to=args.to,
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
+        podcast=_podcast_view(cfg, recs, day),
     )
     return 0
 
@@ -176,6 +188,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         to=args.to,
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
+        podcast=_podcast_view(cfg, recs, day),
     )
     return 0
 
@@ -239,10 +252,16 @@ def cmd_opener(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
-def _grade_slate(cfg: Config, day: Date) -> list[tuple[Recommendation, str]]:
-    recs = load_json(cfg.predictions_file(day))
+def _result_index(cfg: Config, day: Date) -> ResultIndex:
     cfbd = CFBDClient(cfg.creds.cfbd_api_key)
-    index = build_result_index(cfbd.fetch_results(_season(cfg, day), day))
+    return build_result_index(cfbd.fetch_results(_season(cfg, day), day))
+
+
+def _grade_slate(
+    cfg: Config, day: Date, index: ResultIndex | None = None
+) -> list[tuple[Recommendation, str]]:
+    recs = load_json(cfg.predictions_file(day))
+    index = index if index is not None else _result_index(cfg, day)
     graded: list[tuple[Recommendation, str]] = []
     for rec in recs:
         res = result_for(rec, index)
@@ -260,7 +279,9 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
     if not cfg.predictions_file(day).exists():
         print(f"No saved predictions for {day}; nothing to grade.")
         return 1
-    graded = _grade_slate(cfg, day)
+    index = _result_index(cfg, day)
+    graded = _grade_slate(cfg, day, index)
+    _grade_podcasts(cfg, day, index)
     if not graded:
         print(f"No graded markets for {day} yet (results may not be final).")
         return 0
@@ -305,6 +326,114 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
 
     _emit_ledger(cfg, merged, day, n_graded=len(entries), email=not args.no_email, to=args.to)
     _state_push(cfg, f"cfb audit {day.isoformat()}: {len(entries)} graded")
+    return 0
+
+
+def _grade_podcasts(cfg: Config, day: Date, index: ResultIndex) -> int:
+    """Grade the podcast picks on ``day``'s games into their own ledger.
+
+    Kept apart from the engine's ledger and fail-soft: a problem here is printed
+    and the engine's audit carries on untouched.
+    """
+    from cfb_engine.audit.clv import drop_in_play, load_closing
+    from cfb_engine.podcast.extract import load_extractions
+    from cfb_engine.podcast.picks import grade_row, slate_picks
+    from cfb_engine.podcast.picks import update_ledger as update_podcast_ledger
+
+    try:
+        if not (cfg.audit_dir / "podcast_picks").exists():
+            return 0
+        recs = load_json(cfg.predictions_file(day))
+        slate = slate_picks(load_extractions(cfg.audit_dir), recs, day)
+        if not slate.placed:
+            return 0
+        board = snapshot.load(cfg.board_file(day))
+        closing, _ = drop_in_play(load_closing(cfg.closing_file(day)), board)
+        rows = [grade_row(pl, index, board, closing) for pl in slate.placed]
+        graded = [r for r in rows if r["result"]]
+        update_podcast_ledger(cfg.podcast_ledger_file, rows, day)
+        print(
+            f"Podcast picks {day}: {len(graded)} graded of {len(rows)} on the card "
+            f"-> {cfg.podcast_ledger_file}"
+        )
+        return len(graded)
+    except Exception as exc:  # noqa: BLE001
+        logging.getLogger(__name__).warning("podcast grading skipped for %s: %s", day, exc)
+        return 0
+
+
+def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
+    """Read the shows' new episodes, pull their CFB picks, and grade past slates.
+
+    Never prices anything: ``--card`` rebuilds the PDF from the saved card, with
+    no email, so a pick that lands after the 09:00 run still reaches the PDF.
+    """
+    from cfb_engine.podcast.episodes import ensure_transcript, fetch_episodes
+    from cfb_engine.podcast.extract import extract
+    from cfb_engine.podcast.shows import BY_KEY, SHOWS
+    from engine_common.podcasts.transcript import read_transcript
+
+    _state_pull(cfg)
+    now = datetime.now(timezone.utc)
+    since = (
+        datetime.combine(Date.fromisoformat(args.since), datetime.min.time(), timezone.utc)
+        if args.since
+        else now - timedelta(days=9)
+    )
+    shows = [BY_KEY[k] for k in args.shows.split(",")] if args.shows else list(SHOWS)
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("OPENAI_API_KEY not set: transcribing only, no picks extracted.")
+    n_eps = n_text = n_picks = 0
+    missing: list[str] = []
+    for show in shows:
+        try:
+            eps = fetch_episodes(show, since, now)
+        except Exception as exc:  # noqa: BLE001
+            print(f"{show.name}: feed unavailable ({exc})")
+            continue
+        for ep in eps:
+            n_eps += 1
+            path = ensure_transcript(ep, cfg.data_dir, transcribe_missing=not args.no_transcribe)
+            if path is None:
+                missing.append(f"{show.name}: {ep.item.title}")
+                continue
+            n_text += 1
+            if not api_key:
+                continue
+            try:
+                got = extract(ep, read_transcript(path), cfg.audit_dir, api_key=api_key)
+            except Exception as exc:  # noqa: BLE001
+                print(f"{show.name} {ep.item.title!r}: extraction failed ({exc})")
+                continue
+            n_picks += len(got.picks)
+    print(
+        f"Podcasts since {since.date()}: {n_eps} episodes, {n_text} transcribed, "
+        f"{n_picks} CFB picks kept."
+    )
+    for m in missing[:20]:
+        print(f"  no transcript: {m}")
+
+    today = _today()
+    for path in sorted(cfg.audit_dir.glob("predictions_*.json")):
+        day = Date.fromisoformat(path.stem.removeprefix("predictions_"))
+        if since.date() <= day < today:
+            _grade_podcasts(cfg, day, _result_index(cfg, day))
+
+    if args.card:
+        day = _day(args)
+        if cfg.predictions_file(day).exists():
+            recs = load_json(cfg.predictions_file(day))
+            generate_daily_card(
+                recs,
+                day,
+                cfg,
+                email=False,
+                to=None,
+                line_agrees_record=_line_agrees_record(cfg),
+                podcast=_podcast_view(cfg, recs, day),
+            )
+    _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
     return 0
 
 
@@ -631,6 +760,12 @@ def _build_parser() -> argparse.ArgumentParser:
         "a screen was last changed so its old regime cannot vouch for the new one",
     )
     sub.add_parser("latency", help="how early the injury feed reaches us, vs the line")
+    pc = sub.add_parser("podcast", help="read the shows' CFB picks and grade past slates")
+    add_common(pc)
+    pc.add_argument("--since", help="ISO date to read episodes from (default: 9 days ago)")
+    pc.add_argument("--shows", help="comma-separated show keys (default: all)")
+    pc.add_argument("--no-transcribe", action="store_true", help="only use saved transcripts")
+    pc.add_argument("--card", action="store_true", help="rebuild --date's PDF, no email")
     return p
 
 
@@ -647,6 +782,7 @@ _DISPATCH = {
     "scorecard": cmd_scorecard,
     "probation": cmd_probation,
     "latency": cmd_latency,
+    "podcast": cmd_podcast,
 }
 
 

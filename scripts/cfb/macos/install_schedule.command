@@ -5,6 +5,8 @@
 #   * com.payoffpitch.cfb.close       -> 11:00/15:00/19:00/23:00  CLV snapshots
 #   * com.payoffpitch.cfb.audit       -> 03:00  grade yesterday + email recap
 #   * com.payoffpitch.cfb.opener      -> 07:00  capture the coming week's boards
+#   * com.payoffpitch.cfb.podcast     -> 05:00/20:00  read the shows' picks
+#     (the 20:00 pass also rebuilds that day's PDF, without emailing it)
 #
 # Times are local. Override the hours with CFB_RUN_HOUR / CFB_AUDIT_HOUR before
 # running (minute is fixed at :00 for run/audit, close uses a fixed spread).
@@ -73,6 +75,14 @@ single_time() {
 install_agent "com.payoffpitch.cfb.predictions" "$(single_time "$RUN_HOUR")" run
 install_agent "com.payoffpitch.cfb.audit" "$(single_time "$AUDIT_HOUR")" audit
 install_agent "com.payoffpitch.cfb.opener" "$(single_time "$OPENER_HOUR")" opener
+
+# Podcast picks: before the card is priced, and again in the evening so a
+# Friday/Saturday episode reaches the PDF. Never reprices; never emails.
+install_agent "com.payoffpitch.cfb.podcast" '    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>5</integer><key>Minute</key><integer>0</integer></dict>
+    </array>' podcast
+install_agent "com.payoffpitch.cfb.podcast-card" "$(single_time 20)" podcast --card
 
 # Closing-line snapshots throughout the game day (repeat-safe since PR #69).
 CLOSE_CAL='    <key>StartCalendarInterval</key>
