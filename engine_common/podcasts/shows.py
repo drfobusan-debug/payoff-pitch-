@@ -141,6 +141,58 @@ SHOWS: tuple[Show, ...] = (
         ),
         skip=r"futures watch|touchdown show",
     ),
+    # ---- MLB
+    Show(
+        "action_mlb",
+        "Payoff Pitch (Action Network)",
+        "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/"
+        "125660fe-ff74-4a0e-8b0e-b3ec011d3ff3/a354ddb2-8b6c-4926-a060-b3ec011d3ffa/podcast.rss",
+        ("Sean Zerillo", "Collin Whitchurch", "Derek Carty", "Tanner McGrath", "Anthony Dabbundo"),
+        leagues=(MLB,),
+        dedicated=True,
+    ),
+    Show(
+        "daily_diamond",
+        "The VSiN Daily Diamond",
+        "https://feeds.simplecast.com/KVyLqaaF",
+        ("Jensen Lewis", "Dave Ross"),
+        leagues=(MLB,),
+        dedicated=True,
+    ),
+    # ---- NBA
+    Show(
+        "hardwood",
+        "Hardwood Handicappers (VSiN)",
+        "https://feeds.simplecast.com/2GlVqHyg",
+        ("Zachary Cohen", "Jonathan Von Tobel", "Kelley Bydlon"),
+        leagues=(NBA, CBB),
+        dedicated=True,
+    ),
+    Show(
+        "buckets",
+        "BUCKETS (Action Network)",
+        "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/"
+        "8abd9bed-7526-4d83-8dbf-b3ec011d3fb0/083413d6-9987-45fa-9a36-b3ec011d3fb9/podcast.rss",
+        ("Matt Moore", "Brandon Anderson", "Joe Dellera", "Brandon Kravitz", "Kyle Murray"),
+        leagues=(NBA,),
+        dedicated=True,
+    ),
+    Show(
+        "nba_gambling",
+        "NBA Gambling Podcast (SGPN)",
+        "https://feeds.simplecast.com/uxdOBkrq",
+        ("Lonte Smith", "Scott Reichel", "Terrell Furman Jr"),
+        leagues=(NBA,),
+        dedicated=True,
+    ),
+    Show(
+        "duncd_on",
+        "Dunc'd On Basketball",
+        "https://feeds.simplecast.com/JGGpY1xu",
+        ("Nate Duncan", "Danny Leroux"),
+        leagues=(NBA,),
+        dedicated=True,
+    ),
     # ---- multi-sport
     Show(
         "wisekracks",
@@ -202,6 +254,15 @@ SHOWS: tuple[Show, ...] = (
         "https://feeds.simplecast.com/yHrCf9a8",
         ("Gill Alexander", "Kelley Bydlon"),
         leagues=(NFL, CFB),
+    ),
+    Show(
+        "bet_the_board",
+        "Bet The Board (Action Network)",
+        "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/"
+        "f976ef47-3c13-49dc-bb19-b4c100fc71b8/68381fd1-b072-4d63-9a06-b4c100fc75eb/podcast.rss",
+        ("Todd Fuhrman", "Billy"),
+        leagues=(NFL, CFB, NBA, CBB),
+        dedicated=True,
     ),
 )
 
