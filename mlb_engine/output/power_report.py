@@ -433,7 +433,9 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
 #    no-vig price) in every arm tier and at every level of every other metric --
 #    high contact quality made it worse (xwOBAcon top tercile 5-28), high
 #    production did not rescue it (top tercile on 3 of 4 rate stats 2-8) -- while
-#    his under went 34-14 (+29%). So a negative read is the position: the under.
+#    his under went 34-14 (+29%). Held out of sample from 9/22 that under went
+#    90-97 (-22%), no better than the RV>=0 bats beside it (46-48), so a negative
+#    read takes no side: he is a watch, kept out of the production pool.
 #    The size of a positive read carried nothing (>+2 vs +1..2 vs 0..1 all within
 #    a standard error of the price), so the gate is the sign alone.
 # 2. Production, inside the pool that cleared gate 1: wRC+, BA and OPS scored the
@@ -475,16 +477,19 @@ PRODUCTION_MIN_POOL = 4
 # Watch -- a matchup opinion the ledger has not paid for. Every bucket starts
 # at Watch: the records above were read in-sample and the ledger has to repeat
 # them out of it before a word is printed.
-RV_UNDER = "RV NEG UNDER"
+RV_WATCH = "RV NEG WATCH"
 SOFT_OVER = "SOFT OVER"
 ELITE_UNDER = "ELITE UNDER"
 PROD_WATCH = "PROD WATCH"
 PROD_DROP = "PROD DROP"
 
 # Retired keys, kept so rows recorded under them still print a name in the
-# scorecard: the composite's top two and the xwOBA-on-contact terciles.
+# scorecard: the gate-1 under, the composite's top two and the xwOBA-on-contact
+# terciles.
+RV_UNDER = "RV NEG UNDER"
 STRONG_BUY = "STRONG BUY"
 RATING_DISPLAY = {
+    RV_WATCH: "RV<0: watch",
     RV_UNDER: "RV<0: under",
     SOFT_OVER: "soft arm: over",
     ELITE_UNDER: "good arm: under",
@@ -495,7 +500,7 @@ RATING_DISPLAY = {
     "HOLD": "contact B",
     "AVOID": "contact C",
 }
-RATING_ORDER = {SOFT_OVER: 0, RV_UNDER: 1, ELITE_UNDER: 2, PROD_WATCH: 3, PROD_DROP: 4}
+RATING_ORDER = {SOFT_OVER: 0, RV_WATCH: 1, ELITE_UNDER: 2, PROD_WATCH: 3, PROD_DROP: 4}
 LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
 LABEL_WATCH = "WATCH"
@@ -641,7 +646,7 @@ def gate_views(views: list[HitterView], arm_tier: str) -> dict[str, Verdict]:
     for v in views:
         rv = _top_rv(v)
         if v.line.mlbam_id in negative:
-            out[v.line.name] = Verdict(RV_UNDER, "under", rv, None)
+            out[v.line.name] = Verdict(RV_WATCH, None, rv, None)
             continue
         if not scorable:
             out[v.line.name] = Verdict(PROD_WATCH, None, rv, None)
@@ -1986,8 +1991,9 @@ def _recommendations(
         f"It leads the table because {basis}; {verdict}.</p>"
         f"<p class='sub'><strong>The buckets are three gates read in order.</strong> First "
         f"the bat's run value per 100 pitches on the starter's {TOP_PITCHES} most-thrown "
-        f"pitches: below zero the position is his under, whatever else he shows, because on "
-        f"the ledger that hitter's over lost to the price in every tier and his under beat it. "
+        f"pitches: below zero he is a watch with no side, whatever else he shows, because on "
+        f"the ledger that hitter's over lost to the price and, out of sample, so did his "
+        f"under. "
         f"Second, inside the pool that cleared zero, production &mdash; wRC+, BA and OPS, a point "
         f"above the pool median on each and one more for a top-{PRODUCTION_TOP_N} finish, "
         f"0-6: at most {PRODUCTION_DROP} and he is dropped, {PRODUCTION_DROP + 1}-"
@@ -2049,8 +2055,8 @@ def _form_insights(
 
     Two reads off the ledger, neither strong enough to move a side: a cleared bat's
     over against a fading arm has been the one place the average-to-elite over was
-    positive, and a cold bat's under against a fading arm has been the one place the
-    RV-negative under was not.
+    positive, and a cold bat's under against a fading arm was the one place the
+    retired RV-negative under lost in-sample.
     """
     fading = [t for t in rated if _state(t[3]) == arm_model.FADING]
     sharp = [t for t in rated if _state(t[3]) == arm_model.SHARPENING]
@@ -2064,7 +2070,7 @@ def _form_insights(
     ]
     if fading:
         cleared = [t for t in fading if t[0] in (SOFT_OVER, ELITE_UNDER)]
-        unders = [t for t in fading if t[0] == RV_UNDER]
+        cold = [t for t in fading if t[0] == RV_WATCH]
         if cleared:
             lines.append(
                 "<strong>Cleared bats against a fading arm:</strong> "
@@ -2076,15 +2082,16 @@ def _form_insights(
                 "average-to-elite band whose under the gate otherwise holds &mdash; the one "
                 "cell where that band's over has been positive. "
             )
-        if unders:
+        if cold:
             lines.append(
-                "<strong>RV-negative unders against a fading arm:</strong> "
+                "<strong>RV-negative bats against a fading arm:</strong> "
                 + ", ".join(
                     f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
-                    for t in unders
+                    for t in cold
                 )
-                + ". That under went 4-7 (&minus;36%) against 27-5 when the arm was not "
-                "fading: the one place the RV gate's under has lost. Eleven rows. "
+                + ". When the gate still held their under it went 4-7 (&minus;36%) here "
+                "against 27-5 when the arm was not fading, in-sample; out of sample the "
+                "under lost everywhere (90-97), so they are watches. "
             )
     else:
         lines.append("No rated bat faces a fading arm today. ")
