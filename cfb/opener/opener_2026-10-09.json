@@ -1,0 +1,152 @@
+{
+  "Florida State @ Louisville|game_ats|Florida State": {
+    "american": -105.0,
+    "line": 3.5,
+    "no_vig_prob": 0.4976735355840008
+  },
+  "Florida State @ Louisville|game_ats|Louisville": {
+    "american": -106.0,
+    "line": -3.5,
+    "no_vig_prob": 0.5023264644159992
+  },
+  "Florida State @ Louisville|game_ml|Florida State": {
+    "american": 154.0,
+    "line": null,
+    "no_vig_prob": 0.38511093059472934
+  },
+  "Florida State @ Louisville|game_ml|Louisville": {
+    "american": -170.0,
+    "line": null,
+    "no_vig_prob": 0.6148890694052708
+  },
+  "Florida State @ Louisville|game_total|Over": {
+    "american": -108.0,
+    "line": 59.0,
+    "no_vig_prob": 0.5001626566383427
+  },
+  "Florida State @ Louisville|game_total|Under": {
+    "american": -108.0,
+    "line": 59.0,
+    "no_vig_prob": 0.49983734336165725
+  },
+  "Iowa @ Washington|game_ats|Iowa": {
+    "american": -101.0,
+    "line": 3.0,
+    "no_vig_prob": 0.4917975906780081
+  },
+  "Iowa @ Washington|game_ats|Washington": {
+    "american": -110.0,
+    "line": -3.0,
+    "no_vig_prob": 0.508202409321992
+  },
+  "Iowa @ Washington|game_ml|Iowa": {
+    "american": 141.0,
+    "line": null,
+    "no_vig_prob": 0.407994210913389
+  },
+  "Iowa @ Washington|game_ml|Washington": {
+    "american": -146.0,
+    "line": null,
+    "no_vig_prob": 0.5920057890866111
+  },
+  "Iowa @ Washington|game_total|Over": {
+    "american": -105.0,
+    "line": 41.5,
+    "no_vig_prob": 0.49149306937404985
+  },
+  "Iowa @ Washington|game_total|Under": {
+    "american": -112.0,
+    "line": 41.5,
+    "no_vig_prob": 0.5085069306259501
+  },
+  "Iowa State @ BYU|game_ats|BYU": {
+    "american": 100.0,
+    "line": -10.5,
+    "no_vig_prob": 0.4915367532672968
+  },
+  "Iowa State @ BYU|game_ats|Iowa State": {
+    "american": -110.0,
+    "line": 10.5,
+    "no_vig_prob": 0.5084632467327032
+  },
+  "Iowa State @ BYU|game_ml|BYU": {
+    "american": -365.0,
+    "line": null,
+    "no_vig_prob": 0.7741319989518428
+  },
+  "Iowa State @ BYU|game_ml|Iowa State": {
+    "american": 340.0,
+    "line": null,
+    "no_vig_prob": 0.22586800104815724
+  },
+  "Iowa State @ BYU|game_total|Over": {
+    "american": -108.0,
+    "line": 47.0,
+    "no_vig_prob": 0.5
+  },
+  "Iowa State @ BYU|game_total|Under": {
+    "american": -108.0,
+    "line": 47.0,
+    "no_vig_prob": 0.5
+  },
+  "Washington Sta @ Utah State|game_ats|Utah State": {
+    "american": -108.0,
+    "line": -5.5,
+    "no_vig_prob": 0.500591426444976
+  },
+  "Washington Sta @ Utah State|game_ats|Washington Sta": {
+    "american": -108.0,
+    "line": 5.5,
+    "no_vig_prob": 0.49940857355502394
+  },
+  "Washington Sta @ Utah State|game_ml|Utah State": {
+    "american": -195.0,
+    "line": null,
+    "no_vig_prob": 0.6443489273683203
+  },
+  "Washington Sta @ Utah State|game_ml|Washington Sta": {
+    "american": 178.0,
+    "line": null,
+    "no_vig_prob": 0.35565107263167983
+  },
+  "Washington Sta @ Utah State|game_total|Over": {
+    "american": -108.0,
+    "line": 43.0,
+    "no_vig_prob": 0.5
+  },
+  "Washington Sta @ Utah State|game_total|Under": {
+    "american": -108.0,
+    "line": 43.0,
+    "no_vig_prob": 0.5
+  },
+  "Wyoming @ San Jose State|game_ats|San Jose State": {
+    "american": -101.0,
+    "line": -6.5,
+    "no_vig_prob": 0.49380403881677915
+  },
+  "Wyoming @ San Jose State|game_ats|Wyoming": {
+    "american": -106.0,
+    "line": 6.5,
+    "no_vig_prob": 0.506195961183221
+  },
+  "Wyoming @ San Jose State|game_ml|San Jose State": {
+    "american": -225.0,
+    "line": null,
+    "no_vig_prob": 0.6740447095067362
+  },
+  "Wyoming @ San Jose State|game_ml|Wyoming": {
+    "american": 208.0,
+    "line": null,
+    "no_vig_prob": 0.3259552904932639
+  },
+  "Wyoming @ San Jose State|game_total|Over": {
+    "american": -105.0,
+    "line": 43.5,
+    "no_vig_prob": 0.49473286570336106
+  },
+  "Wyoming @ San Jose State|game_total|Under": {
+    "american": -110.0,
+    "line": 43.5,
+    "no_vig_prob": 0.5052671342966389
+  }
+}
