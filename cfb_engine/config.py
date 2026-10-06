@@ -506,6 +506,14 @@ class Config:
             return Path(override)
         return self.audit_dir / "ledger.csv"
 
+    @property
+    def podcast_ledger_file(self) -> Path:
+        """Graded podcast picks (CSV), kept apart from the engine's own ledger."""
+        override = os.getenv("CFBE_PODCAST_LEDGER_FILE")
+        if override:
+            return Path(override)
+        return self.audit_dir / "podcast_ledger.csv"
+
     def predictions_file(self, day: Date) -> Path:
         """Persisted recommendations for one slate (grading input)."""
         return self.audit_dir / f"predictions_{day.isoformat()}.json"

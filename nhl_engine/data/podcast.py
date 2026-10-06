@@ -14,17 +14,24 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import xml.etree.ElementTree as ET
 from dataclasses import asdict, dataclass
 from datetime import date as Date
 from datetime import datetime
-from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import requests
 
+from engine_common.podcasts.feed import download, parse_items
+from engine_common.podcasts.transcript import (
+    WHISPER_MODEL,
+    Line,
+    PodcastUnavailable,
+    read_transcript,
+    transcribe,
+    write_transcript,
+)
+
 FEED_URL = "https://feeds.simplecast.com/caDpJU1D"
-WHISPER_MODEL = "small.en"
 # A title date is for this episode's slate: at most this far from publish time.
 MAX_LEAD_DAYS = 10
 
@@ -53,10 +60,6 @@ _MONTH_DAY = re.compile(
     r"\b(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})\b", re.I
 )
 _NUMERIC = re.compile(r"\b(\d{1,2})/(\d{1,2})\b")
-
-
-class PodcastUnavailable(RuntimeError):
-    """Audio could not be fetched or transcribed; nothing is invented."""
 
 
 @dataclass(frozen=True)
@@ -106,32 +109,17 @@ def slate_dates_from_title(title: str, published: datetime) -> tuple[str, ...]:
 
 
 def parse_feed(xml: str) -> list[Episode]:
-    root = ET.fromstring(xml)
-    out: list[Episode] = []
-    for item in root.iter("item"):
-        title = (item.findtext("title") or "").strip()
-        enc = item.find("enclosure")
-        url = enc.get("url") if enc is not None else None
-        if not title or not url:
-            continue
-        raw_pub = item.findtext("pubDate") or ""
-        try:
-            pub = parsedate_to_datetime(raw_pub)
-        except (TypeError, ValueError):
-            continue
-        guid = (item.findtext("guid") or url).strip()
-        dur = (item.findtext("{http://www.itunes.com/dtds/podcast-1.0.dtd}duration") or "").strip()
-        out.append(
-            Episode(
-                guid=guid,
-                title=title,
-                published=pub.astimezone(None).isoformat(),
-                audio_url=url,
-                duration=dur,
-                slate_dates=slate_dates_from_title(title, pub),
-            )
+    return [
+        Episode(
+            guid=it.guid,
+            title=it.title,
+            published=it.published,
+            audio_url=it.audio_url,
+            duration=it.duration,
+            slate_dates=slate_dates_from_title(it.title, datetime.fromisoformat(it.published)),
         )
-    return out
+        for it in parse_items(xml)
+    ]
 
 
 def fetch_feed(url: str = FEED_URL, *, session: requests.Session | None = None) -> list[Episode]:
@@ -175,64 +163,7 @@ def save_meta(data_dir: Path, ep: Episode) -> Path:
 
 
 def download_audio(ep: Episode, data_dir: Path, *, session: requests.Session | None = None) -> Path:
-    dest = audio_path(data_dir, ep)
-    if dest.exists() and dest.stat().st_size > 0:
-        return dest
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    sess = session or requests.Session()
-    try:
-        with sess.get(ep.audio_url, stream=True, timeout=120) as resp:
-            resp.raise_for_status()
-            tmp = dest.with_suffix(".part")
-            with tmp.open("wb") as fh:
-                for chunk in resp.iter_content(1 << 16):
-                    fh.write(chunk)
-            tmp.replace(dest)
-    except requests.RequestException as exc:
-        raise PodcastUnavailable(f"audio download failed: {exc}") from exc
-    return dest
-
-
-@dataclass(frozen=True)
-class Line:
-    seconds: int
-    text: str
-
-    @property
-    def stamp(self) -> str:
-        return f"{self.seconds // 60:02d}:{self.seconds % 60:02d}"
-
-
-_LINE = re.compile(r"^\[(\d+):(\d{2})\]\s*(.*)$")
-
-
-def read_transcript(path: Path) -> list[Line]:
-    out: list[Line] = []
-    for raw in path.read_text().splitlines():
-        m = _LINE.match(raw.strip())
-        if m and m.group(3):
-            out.append(Line(int(m.group(1)) * 60 + int(m.group(2)), m.group(3).strip()))
-    return out
-
-
-def write_transcript(path: Path, lines: list[Line]) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("".join(f"[{ln.stamp}] {ln.text}\n" for ln in lines))
-    return path
-
-
-def transcribe(audio: Path, dest: Path, *, model: str = WHISPER_MODEL, threads: int = 4) -> Path:
-    """Local Whisper pass; ``faster-whisper`` is an optional extra (``pip install -e .[podcast]``)."""
-    try:
-        from faster_whisper import WhisperModel
-    except ImportError as exc:
-        raise PodcastUnavailable(
-            "faster-whisper not installed (pip install -e '.[podcast]')"
-        ) from exc
-    wm = WhisperModel(model, device="cpu", compute_type="int8", cpu_threads=threads)
-    segments, _ = wm.transcribe(str(audio), beam_size=1, vad_filter=True)
-    lines = [Line(int(s.start), s.text.strip()) for s in segments if s.text.strip()]
-    return write_transcript(dest, lines)
+    return download(ep.audio_url, audio_path(data_dir, ep), session=session)
 
 
 def ensure_transcript(
