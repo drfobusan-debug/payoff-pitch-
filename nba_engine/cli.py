@@ -25,6 +25,9 @@
   pre-tip close at its book; written once, when every game is settled.
 * ``audit`` -- the graded ledger's tables: buys, tiers, markets, gates (false
   negatives), book, one/two-book, the board's base rates, CLV and integrity.
+* ``card`` -- the daily package from the day's recorded ledger passes: slate
+  PDF, betting workbook and (``--email``) the email carrying both. No Odds API
+  call; context is read off disk (plus free ESPN finals) and prices nothing.
 
 Nothing here prices a game yet: without a model every row is refused
 (``no_model``) and recorded as the board's base rate (docs/nba/master_plan.md §13).
@@ -44,7 +47,7 @@ from pathlib import Path
 
 from nba_engine import alarm, state
 from nba_engine.audit import ledger, scorecard
-from nba_engine.config import cache_dir, data_dir, load_config
+from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient, parse_box
@@ -53,6 +56,10 @@ from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
 from nba_engine.models import minutes, minutes_fit, rating_fit, ratings
 from nba_engine.models.schedule import schedule
+from nba_engine.output import context
+from nba_engine.output.card import build_card, render_html, render_pdf, render_text
+from nba_engine.output.email import EmailNotConfigured, send_package
+from nba_engine.output.excel import build_workbook
 from nba_engine.schemas import GameResult
 
 log = logging.getLogger("nba_engine")
@@ -296,6 +303,100 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print("\n[calibration: consensus fair]")
     for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
         print(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
+    return 0
+
+
+def _write(path: Path, data: bytes) -> bool:
+    try:
+        path.write_bytes(data)
+    except OSError as exc:
+        print(f"  {path.name} not written ({exc})")
+        return False
+    return True
+
+
+def cmd_card(args: argparse.Namespace) -> int:
+    """Write the day's package -- workbook, card HTML, PDF -- and optionally email it.
+
+    Built from the ledger passes already recorded (``capture --record``), so it
+    spends no Odds API credit and re-renders any priced day. Each artifact is
+    guarded on its own: the workbook is written first, a missing WeasyPrint
+    costs the PDF only (the HTML is attached instead), and a machine without
+    SMTP credentials keeps everything on disk and still exits 0.
+    """
+    cfg = load_config()
+    root = data_dir()
+    day = _parse_date(args.date)
+    for noisy in ("weasyprint", "fontTools"):
+        logging.getLogger(noisy).setLevel(logging.WARNING)
+    if cfg.state_sync and not args.no_sync:
+        state.auto_pull(root, trees=("prices", "injuries", "alerts", "ledger"))
+    rows = ledger.of_record(ledger.passes(root, day))
+    if not rows:
+        print(f"{day}: no priced ledger pass to card; record one with `capture --record TAG`")
+        return 1
+    try:
+        fetch = None if args.offline else context.espn_fetch(root)
+        ctx = context.gather(root, day, rows, fetch=fetch)
+    except Exception as exc:  # noqa: BLE001 - context is colour; the prices go out regardless
+        print(f"  context not read ({exc}); card shows prices only")
+        ctx = {}
+    before = (day - timedelta(days=1)).isoformat()
+    graded = ledger.graded_rows(root, _ledger_days(root, None, before))
+    card = build_card(rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason)
+    page, text = render_html(card), render_text(card)
+    out = output_dir()
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        print(f"card not written ({exc}); {out} is not a writable directory")
+        return 1
+    stem = card.stem()
+    attachments: list[tuple[str, bytes]] = []
+    try:
+        workbook = build_workbook(card)
+    except Exception as exc:  # noqa: BLE001 - report the failure, keep the card
+        print(f"  workbook not built ({exc})")
+    else:
+        if _write(out / f"{stem}.xlsx", workbook):
+            attachments.append((f"{stem}.xlsx", workbook))
+    html_ok = _write(out / f"{stem}.html", page.encode("utf-8"))
+    try:
+        pdf = render_pdf(page)
+    except Exception as exc:  # noqa: BLE001 - the PDF is the optional artifact
+        print(f"  card PDF not rendered ({exc}); HTML attached instead")
+        if html_ok:
+            attachments.insert(0, (f"{stem}.html", page.encode("utf-8")))
+    else:
+        if _write(out / f"{stem}.pdf", pdf):
+            attachments.insert(0, (f"{stem}.pdf", pdf))
+    if not attachments:
+        print(f"card: nothing could be written to {out}")
+        return 1
+    buys = len(card.buys())
+    print(
+        f"card: {len(card.games)} games, {len(card.rows)} rows, {buys} buys"
+        f" -> {out / stem}.* ({', '.join(name for name, _ in attachments)})"
+    )
+    if not args.email:
+        return 0
+    try:
+        sent = send_package(
+            cfg,
+            subject=f"{card.title()} -- {buys} buy{'s' if buys != 1 else ''} [paper]",
+            html_body=page,
+            text_body=text,
+            to=args.to,
+            attachments=attachments,
+        )
+    except EmailNotConfigured as exc:
+        print(f"  email not sent ({exc}); artifacts are in {out}")
+        return 0
+    except Exception as exc:  # noqa: BLE001 - SMTP down: the files are already on disk
+        print(f"  email failed ({type(exc).__name__}: {exc}); artifacts are in {out}")
+        return 1
+    left = f"; too large, left on disk: {', '.join(sent.left_out)}" if sent.left_out else ""
+    print(f"  emailed {', '.join(sent.attached)} to {sent.recipient} ({sent.size:,} bytes){left}")
     return 0
 
 
@@ -822,6 +923,16 @@ def build_parser() -> argparse.ArgumentParser:
     au.add_argument("--draws", type=int, default=400)
     au.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
     au.set_defaults(func=cmd_audit)
+
+    cd = sub.add_parser("card", help="slate PDF + workbook (+ email) from the day's ledger")
+    cd.add_argument("--date", help="slate date (ET), default today")
+    cd.add_argument("--email", action="store_true", help="email the PDF and workbook")
+    cd.add_argument("--to", help="recipient (default NBAE_EMAIL_TO / GMAIL_USER)")
+    cd.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
+    cd.add_argument(
+        "--offline", action="store_true", help="context from disk only (no ESPN finals fetch)"
+    )
+    cd.set_defaults(func=cmd_card)
     return parser
 
 
