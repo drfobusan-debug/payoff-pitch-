@@ -60,7 +60,7 @@ if [ "${1:-}" = "--check" ]; then
     echo "odds key:    $([ -n "${ODDS_API_KEY:-}${THE_ODDS_API_KEY:-}" ] && echo present || echo MISSING)"
     echo "email to:    ${NFLE_EMAIL_TO:-${MLBE_EMAIL_TO:-unset}}"
     echo "gmail creds: $([ -n "${GMAIL_APP_PASSWORD:-}" ] && echo present || echo MISSING)"
-    echo "would run:   nfl-engine job --props --card --email"
+    echo "would run:   nfl-engine podcast; nfl-engine job --props --card --email"
     echo "(--check spends no credits and sends no mail)"
     exit 0
 fi
@@ -70,6 +70,10 @@ fi
 # pricing appends only new positions and keeps the price of record. --props
 # archives the prop board, prices it as research under every basis and grades
 # the weeks that have played; it opens no bet.
+# The shows' new episodes first, so the card prints their picks. Display only,
+# and best-effort: a feed or transcription failure never stops the week.
+nfl-engine podcast || echo "podcast read failed; the card prints without new picks" >&2
+
 nfl-engine job --props --card --email
 
 xlsx=$(ls -t "$OUT"/NFL_*.xlsx 2>/dev/null | head -1)
