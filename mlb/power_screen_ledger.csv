@@ -1278,3 +1278,31 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-04,Cooper Pratt,806198,849825,BB,0.5,over,fanatics,250.0,0.2543,0.2861,0.2897,-0.0035,0.0015,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,thin_edge,elite
 2026-10-04,Cooper Pratt,806198,849825,H,0.5,under,draftkings,117.0,0.4674,0.4478,0.4456,0.0022,-0.0282,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,ev_floor,elite
 2026-10-04,Cooper Pratt,806198,849825,HRR,1.5,under,betmgm,-165.0,0.6164,0.5948,0.5924,0.0024,-0.0448,Pass,PROD WATCH,True,confirmed,20261004T1533Z,5,25,7,0.64,batter,ev_floor,elite
+2026-10-06,Matt Olson,621566,849819,H,0.5,over,betrivers,-148.0,0.5171,0.579,0.5859,-0.0069,-0.0298,Pass,RV NEG WATCH,False,confirmed,20261006T2158Z,3,19,7,-1.18,batter,one_way_quote,elite
+2026-10-06,Matt Olson,621566,849819,H,0.5,under,draftkings,131.0,0.4829,0.421,0.4141,0.0069,-0.0275,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,3,19,7,-1.18,batter,ev_floor,elite
+2026-10-06,Matt Olson,621566,849819,HRR,1.5,over,betmgm,125.0,0.4151,0.4274,0.4288,-0.0014,-0.0383,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,3,19,7,-1.18,batter,ev_floor,elite
+2026-10-06,Mauricio Dubón,643289,849819,HRR,1.5,under,betonlineag,-160.0,0.6745,0.6051,0.5974,0.0077,-0.0168,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,9,12,5,-3.26,batter,ev_floor,elite
+2026-10-06,Mauricio Dubón,643289,849819,RBI,0.5,over,draftkings,340.0,0.1941,0.2326,0.2369,-0.0043,0.0236,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,9,12,5,-3.26,batter,thin_edge,elite
+2026-10-06,Mauricio Dubón,643289,849819,RBI,0.5,under,betmgm,-375.0,0.8059,0.7674,0.7631,0.0043,-0.028,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,9,12,5,-3.26,batter,ev_floor,elite
+2026-10-06,Ozzie Albies,645277,849819,H,0.5,under,draftkings,118.0,0.6041,0.4566,0.4402,0.0164,-0.0047,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,16,6,5,-2.15,batter,ev_floor,elite
+2026-10-06,Ozzie Albies,645277,849819,HRR,1.5,under,bovada,-170.0,0.7471,0.6156,0.601,0.0146,-0.0223,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,16,6,5,-2.15,batter,ev_floor,elite
+2026-10-06,Ozzie Albies,645277,849819,RBI,0.5,over,betrivers,265.0,0.1941,0.2729,0.2817,-0.0088,-0.0039,Pass,RV NEG WATCH,False,confirmed,20261006T2158Z,16,6,5,-2.15,batter,one_way_quote,elite
+2026-10-06,Lane Thomas,657041,849819,1B,0.5,under,draftkings,-211.0,0.8091,0.6479,0.63,0.0179,-0.045,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,11,11,5,-0.1,batter,ev_floor,elite
+2026-10-06,Lane Thomas,657041,849819,H,0.5,over,betrivers,-109.0,0.3745,0.493,0.5061,-0.0132,-0.0547,Pass,RV NEG WATCH,False,confirmed,20261006T2158Z,11,11,5,-0.1,batter,one_way_quote,elite
+2026-10-06,Lane Thomas,657041,849819,H,0.5,under,betonlineag,-109.0,0.6255,0.507,0.4939,0.0132,-0.0278,Pass,RV NEG WATCH,True,confirmed,20261006T2158Z,11,11,5,-0.1,batter,ev_floor,elite
+2026-10-06,Ronald Acuña Jr.,660670,849819,1B,0.5,under,betmgm,-125.0,0.6196,0.541,0.5323,0.0087,-0.0261,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,8,13,5,3.43,batter,ev_floor,elite
+2026-10-06,Ronald Acuña Jr.,660670,849819,H,0.5,under,betmgm,150.0,0.4445,0.3868,0.3803,0.0064,-0.0331,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,8,13,5,3.43,batter,ev_floor,elite
+2026-10-06,Ronald Acuña Jr.,660670,849819,HRR,1.5,under,draftkings,-142.0,0.5749,0.5562,0.5541,0.0021,-0.0522,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,8,13,5,3.43,batter,ev_floor,elite
+2026-10-06,Ronald Acuña Jr.,660670,849819,RBI,0.5,under,betmgm,-295.0,0.7713,0.7222,0.7168,0.0055,-0.033,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,8,13,5,3.43,batter,ev_floor,elite
+2026-10-06,Michael Harris II,671739,849819,1B,0.5,under,betmgm,-125.0,0.5909,0.537,0.531,0.006,-0.0334,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,13,9,5,0.22,batter,ev_floor,elite
+2026-10-06,Michael Harris II,671739,849819,H,0.5,under,betonlineag,147.0,0.4131,0.387,0.3841,0.0029,-0.0441,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,13,9,5,0.22,batter,ev_floor,elite
+2026-10-06,Michael Harris II,671739,849819,HRR,1.5,under,betmgm,-150.0,0.5901,0.5707,0.5686,0.0021,-0.0488,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,13,9,5,0.22,batter,ev_floor,elite
+2026-10-06,Michael Harris II,671739,849819,RBI,0.5,under,betmgm,-300.0,0.8059,0.723,0.7138,0.0092,-0.036,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,13,9,5,0.22,batter,ev_floor,elite
+2026-10-06,Drake Baldwin,686948,849819,H,0.5,under,draftkings,154.0,0.3804,0.3734,0.3726,0.0008,-0.0517,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,7,13,5,1.74,batter,ev_floor,elite
+2026-10-06,Drake Baldwin,686948,849819,HRR,1.5,under,bovada,-135.0,0.5187,0.5425,0.5451,-0.0026,-0.0557,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,7,13,5,1.74,batter,ev_floor,elite
+2026-10-06,Drake Baldwin,686948,849819,RBI,0.5,under,betmgm,-325.0,0.8059,0.7366,0.7289,0.0077,-0.0368,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,7,13,5,1.74,batter,ev_floor,elite
+2026-10-06,Drake Baldwin,686948,849819,TB,1.5,under,bovada,-190.0,0.6624,0.6269,0.6229,0.0039,-0.0432,Pass,ELITE UNDER,True,confirmed,20261006T2158Z,7,13,5,1.74,batter,ev_floor,elite
+2026-10-06,Yoshinobu Yamamoto,808967,849819,BB,1.5,under,draftkings,-164.0,0.6,0.5911,0.5821,0.0089,-0.0485,Pass,,True,confirmed,20261006T2158Z,,,,,pitcher,ev_floor,elite
+2026-10-06,Yoshinobu Yamamoto,808967,849819,H,4.5,under,betmgm,-105.0,0.6488,0.5167,0.4857,0.031,0.0088,Pass,,True,confirmed,20261006T2158Z,,,,,pitcher,prob_floor,elite
+2026-10-06,Yoshinobu Yamamoto,808967,849819,K,6.5,over,fanatics,115.0,0.4375,0.4519,0.4535,-0.0016,-0.0283,Pass,,True,confirmed,20261006T2158Z,,,,,pitcher,ev_floor,elite
+2026-10-06,Yoshinobu Yamamoto,808967,849819,outs,17.5,over,betrivers,-195.0,0.6859,0.6544,0.6509,0.0035,-0.01,Pass,,False,confirmed,20261006T2158Z,,,,,pitcher,one_way_quote,elite
