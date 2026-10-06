@@ -12,6 +12,10 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.picks import ledger_path
+from engine_common.podcasts.shows import CFB
+
 
 def _env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
@@ -508,11 +512,11 @@ class Config:
 
     @property
     def podcast_ledger_file(self) -> Path:
-        """Graded podcast picks (CSV), kept apart from the engine's own ledger."""
+        """Graded CFB podcast picks (CSV), in the shared podcast store, apart from the engine's."""
         override = os.getenv("CFBE_PODCAST_LEDGER_FILE")
         if override:
             return Path(override)
-        return self.audit_dir / "podcast_ledger.csv"
+        return ledger_path(store_dir(), CFB)
 
     def predictions_file(self, day: Date) -> Path:
         """Persisted recommendations for one slate (grading input)."""

@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import argparse
 import logging
-import os
 import sys
 from datetime import date as Date
 from datetime import datetime, timedelta, timezone
@@ -69,6 +68,9 @@ from cfb_engine.output.podcast import PodcastView, podcast_view
 from cfb_engine.pipeline import Pipeline
 from cfb_engine.recommendations import Recommendation, load_json, save_json
 from cfb_engine.state import auto_pull, auto_push
+from engine_common.podcasts import state as podcast_state
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.shows import CFB
 
 _EASTERN = ZoneInfo("America/New_York")
 
@@ -111,6 +113,7 @@ def _state_pull(cfg: Config, day: Date | None = None) -> None:
     report = auto_pull(cfg.data_dir, branch=cfg.state_branch, dates=dates)
     if report is not None:
         print(f"State: {report.describe()}")
+    podcast_state.auto_pull(store_dir(), branch=cfg.state_branch)
 
 
 def _state_push(cfg: Config, message: str) -> None:
@@ -119,12 +122,13 @@ def _state_push(cfg: Config, message: str) -> None:
     report = auto_push(cfg.data_dir, message, branch=cfg.state_branch)
     if report is not None:
         print(f"State: {report.describe()}")
+    podcast_state.auto_push(store_dir(), message, branch=cfg.state_branch)
 
 
 def _podcast_view(cfg: Config, recs: list[Recommendation], day: Date) -> PodcastView | None:
     """The slate's podcast picks for the PDF; a failure here never stops the card."""
     try:
-        return podcast_view(cfg.audit_dir, cfg.podcast_ledger_file, recs, day)
+        return podcast_view(store_dir(), cfg.podcast_ledger_file, recs, day)
     except Exception as exc:  # noqa: BLE001
         logging.getLogger(__name__).warning("podcast picks left off the card: %s", exc)
         return None
@@ -339,12 +343,14 @@ def _grade_podcasts(cfg: Config, day: Date, index: ResultIndex) -> int:
     from cfb_engine.podcast.extract import load_extractions
     from cfb_engine.podcast.picks import grade_row, slate_picks
     from cfb_engine.podcast.picks import update_ledger as update_podcast_ledger
+    from engine_common.podcasts.extract import PICKS_DIR
 
     try:
-        if not (cfg.audit_dir / "podcast_picks").exists():
+        store = store_dir()
+        if not (store / PICKS_DIR).exists():
             return 0
         recs = load_json(cfg.predictions_file(day))
-        slate = slate_picks(load_extractions(cfg.audit_dir), recs, day)
+        slate = slate_picks(load_extractions(store), recs, day)
         if not slate.placed:
             return 0
         board = snapshot.load(cfg.board_file(day))
@@ -363,15 +369,17 @@ def _grade_podcasts(cfg: Config, day: Date, index: ResultIndex) -> int:
 
 
 def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
-    """Read the shows' new episodes, pull their CFB picks, and grade past slates.
+    """Read the shows' new episodes, then grade CFB's podcast picks on past slates.
 
-    Never prices anything: ``--card`` rebuilds the PDF from the saved card, with
-    no email, so a pick that lands after the 09:00 run still reaches the PDF.
+    The read is the shared one (:func:`engine_common.podcasts.run.read_feeds`):
+    every show in the registry, each episode transcribed and extracted once for
+    every league it covers, so the NFL card finds its picks already read.
+    ``--shows`` narrows it. Never prices anything: ``--card`` rebuilds the PDF
+    from the saved card, with no email, so a pick that lands after the 09:00 run
+    still reaches the PDF.
     """
-    from cfb_engine.podcast.episodes import ensure_transcript, fetch_episodes
-    from cfb_engine.podcast.extract import extract
-    from cfb_engine.podcast.shows import BY_KEY, SHOWS
-    from engine_common.podcasts.transcript import read_transcript
+    from engine_common.podcasts.run import read_feeds
+    from engine_common.podcasts.shows import BY_KEY, SHOWS
 
     _state_pull(cfg)
     now = datetime.now(timezone.utc)
@@ -381,38 +389,15 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
         else now - timedelta(days=9)
     )
     shows = [BY_KEY[k] for k in args.shows.split(",")] if args.shows else list(SHOWS)
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("OPENAI_API_KEY not set: transcribing only, no picks extracted.")
-    n_eps = n_text = n_picks = 0
-    missing: list[str] = []
-    for show in shows:
-        try:
-            eps = fetch_episodes(show, since, now)
-        except Exception as exc:  # noqa: BLE001
-            print(f"{show.name}: feed unavailable ({exc})")
-            continue
-        for ep in eps:
-            n_eps += 1
-            path = ensure_transcript(ep, cfg.data_dir, transcribe_missing=not args.no_transcribe)
-            if path is None:
-                missing.append(f"{show.name}: {ep.item.title}")
-                continue
-            n_text += 1
-            if not api_key:
-                continue
-            try:
-                got = extract(ep, read_transcript(path), cfg.audit_dir, api_key=api_key)
-            except Exception as exc:  # noqa: BLE001
-                print(f"{show.name} {ep.item.title!r}: extraction failed ({exc})")
-                continue
-            n_picks += len(got.picks)
-    print(
-        f"Podcasts since {since.date()}: {n_eps} episodes, {n_text} transcribed, "
-        f"{n_picks} CFB picks kept."
+    rep = read_feeds(
+        store_dir(),
+        since,
+        now,
+        shows=shows,
+        transcribe_missing=not args.no_transcribe,
+        legacy=[cfg.data_dir],
     )
-    for m in missing[:20]:
-        print(f"  no transcript: {m}")
+    n_picks = rep.by_league.get(CFB, 0)
 
     today = _today()
     for path in sorted(cfg.audit_dir.glob("predictions_*.json")):

@@ -39,10 +39,7 @@ _PUSH_ATTEMPTS = 3
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line")),
     ("scorecard.csv", ("date", "market", "tier")),
-    ("podcast_ledger.csv", ("date", "pick_id")),
 )
-# One file per podcast episode's checked picks; written once per prompt version.
-PODCAST_PICKS = "podcast_picks"
 AVAILABILITY_NAME = "availability.jsonl"
 log = logging.getLogger(__name__)
 
@@ -151,9 +148,6 @@ def pull_state(
     for name, key in _MERGED_CSVS:
         if merge_dated_csv(root / name, audit / name, key):
             pulled.append(name)
-    for src in sorted((root / PODCAST_PICKS).glob("*.json")):
-        if fill_in_file(src, audit / PODCAST_PICKS / src.name):
-            pulled.append(src.name)
     if merge_jsonl_files(root / AVAILABILITY_NAME, audit / AVAILABILITY_NAME):
         pulled.append(AVAILABILITY_NAME)
     pulled.extend(_pull_predictions(state, audit, dates))
@@ -197,7 +191,6 @@ def push_state(
             ("board_*.json", "board", merge_board_files),
             ("opener_*.json", "opener", merge_board_files),
             ("closing_*.json", "closing", merge_closing_files),
-            (f"{PODCAST_PICKS}/*.json", PODCAST_PICKS, fill_in_file),
         ):
             for src in sorted(audit.glob(pattern)):
                 dest = root / sub / src.name

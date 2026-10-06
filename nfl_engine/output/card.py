@@ -16,6 +16,10 @@ import html
 import re
 from dataclasses import dataclass, field
 
+from engine_common.podcasts import render as podcast_render
+from engine_common.podcasts.render import CSS as PODCAST_CSS
+from engine_common.podcasts.render import game_block as podcast_game_block
+from engine_common.podcasts.render import records_block as podcast_records_block
 from nfl_engine.audit.availability import Observation
 from nfl_engine.audit.availability import note as absence_note
 from nfl_engine.audit.ledger import (
@@ -36,6 +40,8 @@ from nfl_engine.output.brief import GameBrief, TeamBrief, team_name
 from nfl_engine.props_grade import PropTally
 
 BUY_TIERS = (Tier.STRONG.value, Tier.MODERATE.value)
+PodcastView = podcast_render.PodcastView[list[LedgerEntry]]
+
 PAPER_NOTE = "Paper only: no stake is placed and no bankroll exists in this engine."
 PROPS_NOTE = (
     "Prop rows are priced as research and every one is stopped before it can be a play. "
@@ -886,7 +892,7 @@ def _kickoff(game: GameSection) -> str:
     return html.escape(game.kickoff)
 
 
-def _game_section(game: GameSection) -> str:
+def _game_section(game: GameSection, podcast: PodcastView | None = None) -> str:
     b = game.brief
     title = game.matchup
     if b is not None:
@@ -908,7 +914,8 @@ def _game_section(game: GameSection) -> str:
         f"{_market_line(game)}{_moves_line(game)}"
         f"{_shape(game)}"
         f"{context}{bench_html}"
-        f"{_game_best_block(game)}{_agrees_line(game)}{_veto_line(game)}</div>"
+        f"{_game_best_block(game)}{_agrees_line(game)}{_veto_line(game)}"
+        f"{podcast_game_block(podcast, game.matchup)}</div>"
     )
 
 
@@ -963,7 +970,13 @@ def _props_table(card: WeekCard) -> str:
     )
 
 
-def render_html(card: WeekCard) -> str:
+def _by_kickoff(card: WeekCard) -> list[GameSection]:
+    return sorted(card.games, key=lambda g: (g.kickoff, g.matchup))
+
+
+def render_html(card: WeekCard, podcast: PodcastView | None = None) -> str:
+    """The card as HTML. ``podcast`` adds the shows' picks under each game and their
+    records at the back; it is read from its own ledger and touches no play."""
     n_games = len(card.games)
     n_plays = len(card.plays())
     with_plays = sum(1 for g in card.games if g.plays)
@@ -994,7 +1007,7 @@ def render_html(card: WeekCard) -> str:
             f"<p class='muted'>FPI backs the other side on {card.contested} of our plays."
             " Shown, not acted on.</p>"
         )
-    body = "".join(_game_section(g) for g in card.games)
+    body = "".join(_game_section(g, podcast) for g in card.games)
     fine = (
         "<p class='fine'>Methodology: the consensus line is de-vigged across paired books and "
         "priced through a drive-level score distribution; every rung and price on the ladder is "
@@ -1005,9 +1018,12 @@ def render_html(card: WeekCard) -> str:
         f"{html.escape(PAPER_NOTE)}</p>"
     )
     return (
-        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_STYLE}</style></head>"
+        f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
+        f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
-        f"{_slate_best_block(card)}{_record_table(card)}{_props_table(card)}{fine}</body></html>"
+        f"{_slate_best_block(card)}{_record_table(card)}{_props_table(card)}"
+        f"{podcast_records_block(podcast, [g.matchup for g in _by_kickoff(card)])}"
+        f"{fine}</body></html>"
     )
 
 
