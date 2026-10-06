@@ -2344,18 +2344,6 @@ class Pipeline:
                     gate = "clv_drift"
                 if drift_reason:
                     reasons.append(drift_reason)
-                # And the other end of the same move: a side the market has
-                # already come to is one whose price we are paying after the
-                # money that made it.
-                if tier != Tier.PASS:
-                    keep, mom_reason = self._drift_gate.momentum_allows(
-                        open_prob, evres.fair_prob
-                    )
-                    if not keep:
-                        tier = Tier.PASS
-                        gate = "momentum_run_up"
-                    if mom_reason:
-                        reasons.append(mom_reason)
             rec.tier = tier
             rec.reasons = reasons
             # A Pass with no named screen was demoted by a tier adjustment
