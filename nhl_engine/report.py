@@ -21,6 +21,7 @@ from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.data.availability import current_out, read_log
 from nhl_engine.data.moneypuck import MoneyPuckClient, as_of
 from nhl_engine.data.teamnames import CODES
+from nhl_engine.features.podcast_read import PodcastRead
 from nhl_engine.features.props import GoalieProjection, SkaterProjection
 from nhl_engine.market.pricing import is_prop
 from nhl_engine.pipeline import GameCard, PropContext, SlateCard
@@ -127,6 +128,7 @@ class ReportContext:
     skaters: dict[str, list[SkaterProjection]] = field(default_factory=dict)
     goalies: dict[str, GoalieProjection | None] = field(default_factory=dict)
     n_ranked: int = 0
+    podcast: PodcastRead | None = None  # external read; never feeds a price or gate
 
 
 def _key_skaters(props: PropContext | None, team: str) -> list[SkaterProjection]:
@@ -214,6 +216,10 @@ table.rows td.num{text-align:right;font-variant-numeric:tabular-nums;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
 .slatebets table{color:#f4f6f8;}
 .slatebets td,.slatebets th{border-color:#2b4460 !important;}
+.pod{border:1px solid #d7dbe0;border-left:4px solid #b8860b;background:#fbf8ef;padding:6px 10px;margin:8px 0;font-size:9pt;page-break-inside:avoid;}
+.pod .ptag{display:inline-block;background:#b8860b;color:#fff;padding:1px 8px;border-radius:10px;font-size:8pt;font-family:'DejaVu Sans',sans-serif;margin-right:6px;}
+.pod ul{margin:3px 0 3px 16px;padding:0;}.pod li{margin:1px 0;}
+.pod .q{color:#4b5563;font-size:8.3pt;}.pod .q .ts{font-family:'DejaVu Sans',sans-serif;color:#9aa0a8;font-size:7.4pt;margin-right:4px;}
 .fine{font-size:7.6pt;color:#9aa0a8;font-family:'DejaVu Sans',sans-serif;border-top:1px solid #e6e8ec;margin-top:16px;padding-top:6px;line-height:1.35;}
 """
 
@@ -314,6 +320,61 @@ def _shape(g: GameCard) -> str:
     )
 
 
+def _pod_block(g: GameCard, ctx: ReportContext) -> str:
+    pod = ctx.podcast
+    if pod is None or pod.status != "ok":
+        return ""
+    read = pod.games.get(g.matchup)
+    if read is None:
+        return (
+            "<div class='pod'><span class='ptag'>Pod read</span>"
+            "<span class='muted'>game not discussed on the episode</span></div>"
+        )
+    quoted = " · ".join(
+        [f"{escape(t)} {p:+d}" for t, p in read.quoted_ml.items()]
+        + ([f"total {read.quoted_total:g}"] if read.quoted_total else [])
+    )
+    parts = [
+        "<div class='pod'><span class='ptag'>Pod read</span>",
+        f"<span class='muted'>from {escape(read.anchor)}"
+        + (f"; lines quoted on air: {quoted}" if quoted else "")
+        + "</span>",
+    ]
+    if read.summary:
+        parts.append(
+            "<ul>" + "".join(f"<li>{escape(ln)}</li>" for ln in read.summary) + "</ul>"
+            f"<span class='muted'>summary {escape(read.summary_source)} of the transcript segment</span>"
+        )
+    if read.mentions:
+        label = "Transcript bet mentions" if not read.summary else "Verbatim"
+        parts.append(
+            f"<div class='q'><b>{label}</b> <span class='muted'>(Whisper, unedited)</span><br>"
+            + "<br>".join(
+                f"<span class='ts'>{escape(m.stamp)}</span>{escape(m.text)}" for m in read.mentions
+            )
+            + "</div>"
+        )
+    elif not read.summary:
+        parts.append(
+            "<span class='muted'>no stake, price or side mention found in the segment</span>"
+        )
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def _pod_header(ctx: ReportContext) -> str:
+    pod = ctx.podcast
+    if pod is None:
+        return ""
+    if pod.status == "ok":
+        return (
+            f"<p class='muted'>Hockey Gambling Podcast (SGPN): {escape(pod.episode_title)}, "
+            f"published {escape(pod.published[:16])} — their read is boxed under each game; "
+            "it is not an input to the model.</p>"
+        )
+    return f"<p class='muted'>Hockey Gambling Podcast: {escape(pod.detail or pod.status)}.</p>"
+
+
 def _gates(r: LedgerRow, keep: int = 3) -> str:
     g = [x for x in r.gates if x != "stale_quote"] or list(r.gates)
     return ", ".join(g[:keep]) + (f" +{len(g) - keep}" if len(g) > keep else "")
@@ -349,6 +410,7 @@ def _game_block(g: GameCard, ctx: ReportContext) -> str:
         _team_table(g, ctx),
         _out_line(g, ctx),
         _players_line(g, ctx),
+        _pod_block(g, ctx),
     ]
     if buys:
         parts.append("<p class='ctx'><b>Buys</b></p>" + _rows_table(buys, limit=len(buys)))
@@ -387,7 +449,7 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
             "<div class='slatebets'><h2>No buys tonight</h2>"
             "<p class='sbnote'>every positive-edge row is held by a gate; the reads below are for the ledger.</p></div>"
         )
-    games = "<h2>Games</h2>" + "".join(_game_block(g, ctx) for g in card.games)
+    games = "<h2>Games</h2>" + _pod_header(ctx) + "".join(_game_block(g, ctx) for g in card.games)
     unpriced = (
         f"<p class='muted'>Unpriced: {escape('; '.join(card.unpriced))}</p>"
         if card.unpriced
