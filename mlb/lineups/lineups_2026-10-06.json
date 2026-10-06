@@ -75,7 +75,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-06T18:55:23+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 605141,
+      "name": "Mookie Betts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 518692,
+      "name": "Freddie Freeman",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 606192,
+      "name": "Teoscar Hern\u00e1ndez",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 669257,
+      "name": "Will Smith",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 660271,
+      "name": "Shohei Ohtani",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 500743,
+      "name": "Miguel Rojas",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 681624,
+      "name": "Andy Pages",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 663656,
+      "name": "Kyle Tucker",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 571771,
+      "name": "Enrique Hern\u00e1ndez",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849819,
@@ -153,7 +222,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-06T18:55:23+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 686948,
+      "name": "Drake Baldwin",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 660670,
+      "name": "Ronald Acu\u00f1a Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 621566,
+      "name": "Matt Olson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 645277,
+      "name": "Ozzie Albies",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 671739,
+      "name": "Michael Harris II",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 643289,
+      "name": "Mauricio Dub\u00f3n",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 669221,
+      "name": "Sean Murphy",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 663586,
+      "name": "Austin Riley",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 673490,
+      "name": "Ha-Seong Kim",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849826,
