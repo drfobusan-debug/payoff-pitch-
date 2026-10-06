@@ -4916,9 +4916,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Manny Machado TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Manny Machado TB o1.5",
     "american": 140.0,
     "no_vig_prob": 0.402246
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Manny Machado TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "MIL @ SD",
