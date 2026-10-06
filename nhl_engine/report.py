@@ -18,6 +18,7 @@ from pathlib import Path
 import pandas as pd
 
 from nhl_engine.audit.ledger import LedgerRow
+from nhl_engine.audit.podcast_picks import UNATTRIBUTED, Pick, StatedRecord, Tally, tally
 from nhl_engine.data.availability import current_out, read_log
 from nhl_engine.data.moneypuck import MoneyPuckClient, as_of
 from nhl_engine.data.teamnames import CODES
@@ -129,6 +130,9 @@ class ReportContext:
     goalies: dict[str, GoalieProjection | None] = field(default_factory=dict)
     n_ranked: int = 0
     podcast: PodcastRead | None = None  # external read; never feeds a price or gate
+    pod_picks: list[Pick] = field(default_factory=list)  # tonight's logged picks
+    pod_history: list[Pick] = field(default_factory=list)  # every logged pick, graded or not
+    pod_stated: list[StatedRecord] = field(default_factory=list)  # records read on air
 
 
 def _key_skaters(props: PropContext | None, team: str) -> list[SkaterProjection]:
@@ -358,8 +362,59 @@ def _pod_block(g: GameCard, ctx: ReportContext) -> str:
         parts.append(
             "<span class='muted'>no stake, price or side mention found in the segment</span>"
         )
+    picks = [p for p in ctx.pod_picks if p.matchup == g.matchup]
+    if picks:
+        parts.append(
+            "<div class='q'><b>Picks logged</b> <span class='muted'>(graded tomorrow; name only when heard)</span><br>"
+            + "<br>".join(_pick_line(p, ctx) for p in picks)
+            + "</div>"
+        )
     parts.append("</div>")
     return "".join(parts)
+
+
+def _pick_sel(p: Pick) -> str:
+    if p.market == "game_total":
+        return f"{p.side} {p.line:g}" if p.line else p.side
+    if p.market == "game_pl":
+        return f"{p.side} {p.line:+g}"
+    return f"{p.side} ML"
+
+
+def _pick_line(p: Pick, ctx: ReportContext) -> str:
+    bits = [escape(_pick_sel(p))]
+    if p.american is not None:
+        bits.append(f"{p.american:+d}")
+    if p.stake:
+        bits.append(f"{p.stake:g} pb")
+    who = p.host if p.host != UNATTRIBUTED else "unattributed"
+    rec = tally(ctx.pod_history, "host").get(p.host)
+    tail = f" — {escape(who)}" + (f" ({escape(rec.record())} graded)" if rec else "")
+    return f"<span class='ts'>{escape(p.stamp)}</span>{' '.join(bits)}{tail}"
+
+
+def _pod_records(ctx: ReportContext) -> str:
+    ours = tally(ctx.pod_history, "host")
+    stated = {r.host: r for r in ctx.pod_stated}
+    if not ours and not stated:
+        return ""
+    total = Tally()
+    for p in ctx.pod_history:
+        total.add(p)
+    cells = []
+    for host in sorted(set(ours) | set(stated), key=lambda h: (h == UNATTRIBUTED, h)):
+        t, r = ours.get(host), stated.get(host)
+        bits = [f"<b>{escape(host)}</b>"]
+        if t:
+            bits.append(f"our grade {escape(t.line())}")
+        if r:
+            bits.append(f"self-reported {r.wins}-{r.losses} {r.units:+g} pb")
+        cells.append(bits[0] + (": " + "; ".join(bits[1:]) if len(bits) > 1 else ""))
+    return (
+        f"<p class='muted'>Podcast picks, graded by us against official finals: {escape(total.line())}. "
+        + " · ".join(cells)
+        + ". Names only where the transcript hands off to a host; self-reported = the puck-bucks record they read on air.</p>"
+    )
 
 
 def _pod_header(ctx: ReportContext) -> str:
@@ -370,7 +425,7 @@ def _pod_header(ctx: ReportContext) -> str:
         return (
             f"<p class='muted'>Hockey Gambling Podcast (SGPN): {escape(pod.episode_title)}, "
             f"published {escape(pod.published[:16])} — their read is boxed under each game; "
-            "it is not an input to the model.</p>"
+            "it is not an input to the model.</p>" + _pod_records(ctx)
         )
     return f"<p class='muted'>Hockey Gambling Podcast: {escape(pod.detail or pod.status)}.</p>"
 

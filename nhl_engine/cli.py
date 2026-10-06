@@ -41,7 +41,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from nhl_engine import email, outputs, pipeline, report, state
-from nhl_engine.audit import ledger, scorecard
+from nhl_engine.audit import ledger, podcast_picks, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import capture, podcast, preseason, rotowire
@@ -316,6 +316,9 @@ def cmd_card(args: argparse.Namespace) -> int:
             )
             ctx = report.build_context(card, mp=mp, data_dir=root, all_rates=rates)
             ctx.podcast = podcast_read.load_read(root, slate)
+            ctx.pod_picks = podcast_picks.load_picks(podcast_picks.picks_path(root, slate))
+            ctx.pod_history = podcast_picks.load_all_picks(root)
+            ctx.pod_stated = podcast_picks.load_records(podcast_picks.records_path(root, slate))
             paths["pdf"] = report.write_pdf(
                 card, ctx, report.pdf_path(output_dir(), slate, args.tag)
             )
@@ -435,9 +438,14 @@ def cmd_podcast(args: argparse.Namespace) -> int:
     if not pairs:
         print(f"no archived prices for {slate}; run `nhl-engine capture` first", file=sys.stderr)
         return 2
-    read = podcast_read.build_read(ep, podcast.read_transcript(tpath), slate, pairs)
+    lines = podcast.read_transcript(tpath)
+    read = podcast_read.build_read(ep, lines, slate, pairs)
     calls = podcast_read.add_summaries(read, root, api_key=cfg.creds.openai_api_key)
     path = podcast_read.save_read(read, root)
+    picks = podcast_picks.extract_picks(read)
+    podcast_picks.save_picks(picks, podcast_picks.picks_path(root, slate))
+    stated = podcast_picks.stated_records([(ln.stamp, ln.text) for ln in lines])
+    podcast_picks.save_records(stated, podcast_picks.records_path(root, slate))
     mode = (
         f"openai summaries ({calls} new)"
         if cfg.creds.openai_api_key
@@ -451,6 +459,7 @@ def cmd_podcast(args: argparse.Namespace) -> int:
         print(
             f"  {g.matchup} @ {g.anchor}: ML {g.quoted_ml} total {g.quoted_total} ({len(g.mentions)} mentions)"
         )
+    print(f"  {len(picks)} picks logged for grading; {len(stated)} self-reported records heard")
     return 0
 
 
@@ -472,11 +481,25 @@ def cmd_audit(args: argparse.Namespace) -> int:
         print(f"{day}: graded {done}/{len(graded)} rows -> {ledger.graded_path(root, day)}")
     else:
         print(f"{day}: no ledger to grade")
+    pod_path = podcast_picks.picks_path(root, day)
+    picks = podcast_picks.load_picks(pod_path)
+    if picks:
+        if not rows:
+            results, starts = _results_for(day)
+        podcast_picks.grade_picks(
+            picks, results, capture.read_day(root, day), graded_at=capture.now_utc(), starts=starts
+        )
+        podcast_picks.save_picks(picks, pod_path)
+        print(f"{day}: graded {sum(1 for p in picks if p.outcome)}/{len(picks)} podcast picks")
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
     print()
     print(scorecard.scorecard(all_rows).render(), end="")
+    pod_all = podcast_picks.load_all_picks(root)
+    if pod_all:
+        print()
+        print(podcast_picks.render(pod_all), end="")
     return 0
 
 
