@@ -290,6 +290,74 @@
       "position": "SS"
      }
     ]
+   },
+   {
+    "captured_at": "2026-10-06T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 686948,
+      "name": "Drake Baldwin",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 660670,
+      "name": "Ronald Acu\u00f1a Jr.",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 621566,
+      "name": "Matt Olson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 645277,
+      "name": "Ozzie Albies",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 671739,
+      "name": "Michael Harris II",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 643289,
+      "name": "Mauricio Dub\u00f3n",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 657041,
+      "name": "Lane Thomas",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 663586,
+      "name": "Austin Riley",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 673490,
+      "name": "Ha-Seong Kim",
+      "bats": "R",
+      "position": "SS"
+     }
+    ]
    }
   ]
  },
@@ -447,6 +515,75 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-06T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665487,
+      "name": "Fernando Tatis Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 701538,
+      "name": "Jackson Merrill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 592518,
+      "name": "Manny Machado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664034,
+      "name": "Ty France",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 806956,
+      "name": "Ethan Salas",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 657757,
+      "name": "Gavin Sheets",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 593428,
+      "name": "Xander Bogaerts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 687957,
+      "name": "Dustin Harris",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 630105,
+      "name": "Jake Cronenworth",
+      "bats": "L",
+      "position": "2B"
+     }
+    ]
+   }
+  ]
  }
 ]
