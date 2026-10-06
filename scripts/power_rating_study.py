@@ -81,7 +81,7 @@ log = logging.getLogger("power_rating_study")
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
 MARKETS = ("H", "TB", "XBH", "HR", "R", "RBI", "HRR")
-RATINGS = ("SOFT OVER", "RV NEG UNDER", "PROD WATCH", "PROD DROP")
+RATINGS = ("SOFT OVER", "RV NEG WATCH", "PROD WATCH", "PROD DROP")
 
 
 @dataclass

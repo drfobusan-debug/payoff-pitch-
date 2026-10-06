@@ -1107,17 +1107,17 @@ def _gated(names_rv_prod: list[tuple[str, float, float]], arm_tier: str = SOFT_T
     return result
 
 
-def test_a_negative_run_value_is_an_under_before_anything_else_is_read() -> None:
-    """Gate 1: RV<0 on the arm's top pitches is faded, however good the bat looks."""
+def test_a_negative_run_value_is_a_watch_before_anything_else_is_read() -> None:
+    """Gate 1: RV<0 on the arm's top pitches takes no side, however good the bat looks."""
     result = _gated([("Fade Me", -0.5, 9), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
     said = power_report.verdicts(result)
-    assert said["Fade Me"].bucket == power_report.RV_UNDER
-    assert said["Fade Me"].side == "under"
+    assert said["Fade Me"].bucket == power_report.RV_WATCH
+    assert said["Fade Me"].side is None
     assert said["Fade Me"].points is None
     assert said["Fade Me"].held
     # He is not in the production pool either: the pool median is read without him.
     assert "Fade Me" not in power_report.dropped(result)
-    assert power_report.sides(result)["Fade Me"] == "under"
+    assert power_report.sides(result)["Fade Me"] is None
 
 
 def test_production_points_are_scored_inside_the_positive_pool() -> None:
@@ -1202,7 +1202,7 @@ def test_the_note_prints_the_gates_and_names_the_dropped() -> None:
     )
     html = power_report.render_html(result)
     assert "(soft arm: over)" in html
-    assert "(RV&lt;0: under)" in html or "(RV<0: under)" in html
+    assert "(RV&lt;0: watch)" in html or "(RV<0: watch)" in html
     assert "Bottom" in html and "Dropped on production" in html
     # Every bucket starts at Watch; the ledger has to pay for a word.
     assert "<span class='watch'>WATCH</span> <span class='sub'>(soft arm: over)</span>" in html
@@ -1215,7 +1215,7 @@ def test_the_note_prints_the_gates_and_names_the_dropped() -> None:
 
 def test_the_verdict_survives_an_accent_on_the_name() -> None:
     result = _gated([("Ronald Acuña Jr.", -1.0, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
-    assert power_report.ratings(result)["Ronald Acuña Jr."] == power_report.RV_UNDER
+    assert power_report.ratings(result)["Ronald Acuña Jr."] == power_report.RV_WATCH
 
 
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
@@ -1881,7 +1881,7 @@ def test_a_fading_arm_is_printed_beside_the_gates_and_moves_no_side() -> None:
     assert "<b>fading</b> (whiff -6.0pp, velo -1.3)" in doc
     assert "starts are fading" in doc
     assert "Cleared bats against a fading arm:" in doc and "Hot vs" in doc
-    assert "RV-negative unders against a fading arm:" in doc and "Cold vs" in doc
+    assert "RV-negative bats against a fading arm:" in doc and "Cold vs" in doc
 
     result.sections[0].starter.form = ArmForm(starts=3)
     doc = power_report.render_html(result)
