@@ -50,12 +50,42 @@ def cache_dir() -> Path:
     return data_dir() / "cache"
 
 
+def output_dir() -> Path:
+    """Where the daily package is written (slate PDF, workbook, HTML)."""
+    raw = os.getenv("NBAE_OUTPUT_DIR")
+    return Path(raw).expanduser() if raw else data_dir() / "output"
+
+
 @dataclass(frozen=True)
 class Credentials:
-    """Credentials for data sources (never logged)."""
+    """Credentials for data sources and SMTP (never logged)."""
 
     odds_api_key: str | None = field(
         default_factory=lambda: os.getenv("THE_ODDS_API_KEY") or os.getenv("ODDS_API_KEY")
+    )
+    # Gmail App Password, the same variables the MLB and NFL senders read.
+    gmail_user: str | None = field(
+        default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
+    )
+    gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
+
+
+@dataclass(frozen=True)
+class Delivery:
+    """Where the daily package goes: the other engines' SMTP variables, with
+    ``NBAE_``-prefixed overrides, so one ``engine.env`` serves them all.
+    """
+
+    email_to: str | None = field(
+        default_factory=lambda: os.getenv("NBAE_EMAIL_TO") or os.getenv("MLBE_EMAIL_TO")
+    )
+    smtp_host: str = field(
+        default_factory=lambda: (
+            os.getenv("NBAE_SMTP_HOST") or os.getenv("SMTP_HOST") or "smtp.gmail.com"
+        )
+    )
+    smtp_port: int = field(
+        default_factory=lambda: _env_int("NBAE_SMTP_PORT", _env_int("SMTP_PORT", 465))
     )
 
 
@@ -121,6 +151,7 @@ class Config:
     capture: CaptureParams = field(default_factory=CaptureParams)
     history: HistoryParams = field(default_factory=HistoryParams)
     alarm: AlarmParams = field(default_factory=AlarmParams)
+    delivery: Delivery = field(default_factory=Delivery)
     state_sync: bool = field(default_factory=lambda: _env_bool("NBAE_STATE_SYNC", True))
     preseason: bool = field(default_factory=preseason)
 
@@ -138,9 +169,11 @@ __all__ = [
     "CaptureParams",
     "Config",
     "Credentials",
+    "Delivery",
     "HistoryParams",
     "cache_dir",
     "data_dir",
     "load_config",
+    "output_dir",
     "preseason",
 ]

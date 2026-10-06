@@ -1041,6 +1041,32 @@ go to `~/.cfb_engine/schedule.log`.
 Remove the schedule with `launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist`
 (macOS) or `crontab -l | grep -vF '# payoff-pitch-cfb-schedule' | crontab -` (Linux).
 
+### Podcast picks (CFB)
+
+`cfb-engine podcast` reads the registered shows' RSS feeds
+(`cfb_engine/podcast/shows.py`), transcribes each CFB episode locally with
+faster-whisper (`pip install -e ".[podcast]"`), and has an OpenAI model
+(`OPENAI_API_KEY`, `CFBE_PODCAST_MODEL`, default `gpt-4o-mini`) list every CFB bet
+and lean with its timestamp and a verbatim quote. A pick whose quote is not in the
+transcript near its timestamp is refused, and a line or price the host never said
+is cleared. Extractions are cached per transcript under `audit/podcast_picks/`.
+
+Picks are placed on the slate's games (both schools, or one school only when
+unambiguous; futures and other markets stay unmatched), printed under each game in
+the slate PDF, and graded by the nightly `audit` into `audit/podcast_ledger.csv`,
+which is separate from the engine's ledger. Official bets and leans are recorded
+apart. Units, ROI and CLV are computed only against a price the host stated or the
+board quote at that same number, never an assumed -110. Records are marked
+underpowered until they clear break-even by 2 SE. None of it reaches a price,
+probability, gate or tier.
+
+    cfb-engine podcast                       # last 9 days, all shows
+    cfb-engine podcast --since 2026-08-20    # backfill from the feed archives
+    cfb-engine podcast --shows vsin_cfb,cfe --no-transcribe
+    cfb-engine podcast --date 2026-10-10 --card   # rebuild that PDF, no email
+
+The schedule installers run it at 05:00, and again at 20:00 with `--card`.
+
 ## Notes / limitations
 
 - xSLG is derived from launch-based expected stats (no clean per-pitch column);

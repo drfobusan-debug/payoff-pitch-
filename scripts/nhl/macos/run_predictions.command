@@ -5,6 +5,8 @@
 # projected goalie and keeps the goalie_unconfirmed gate. The first run of the
 # day writes the write-once ledger (--tag initial); later runs in the day
 # re-price as a goalie/pre-drop pass and keep the morning ledger untouched.
+# The podcast step transcribes the Hockey Gambling Podcast episode for the
+# slate (if one exists) so the PDF can show its read under each game.
 set -uo pipefail
 # shellcheck disable=SC1091
 . "$(dirname "$0")/_env.sh"
@@ -13,6 +15,8 @@ TAG="${1:-initial}"
 nhl-engine capture
 echo
 nhl-engine lineups || echo "(rotowire skipped)"
+echo
+nhl-engine podcast || echo "(podcast skipped)"
 echo
 nhl-engine card --tag "$TAG" --email
 echo
