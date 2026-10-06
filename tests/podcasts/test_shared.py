@@ -15,7 +15,7 @@ from engine_common.podcasts import extract as ex
 from engine_common.podcasts.episodes import Episode
 from engine_common.podcasts.feed import FeedItem
 from engine_common.podcasts.picks import LEDGER_FIELDS, ledger_path
-from engine_common.podcasts.shows import BY_KEY, CFB, NFL, SHOWS, for_league
+from engine_common.podcasts.shows import BY_KEY, CBB, CFB, MLB, NBA, NFL, SHOWS, for_league
 from engine_common.podcasts.state import fill_in_file
 from engine_common.podcasts.transcript import Line, write_transcript
 
@@ -57,6 +57,14 @@ def test_every_supplied_nfl_show_is_registered_once() -> None:
     nfl = {s.key for s in for_league(NFL)}
     assert {"wisekracks", "schwartz", "btp", "action_nfl", "numbers_game"} <= nfl
     assert all(s.leagues == (NFL,) for s in for_league(NFL))
+
+
+def test_the_mlb_and_nba_shows_are_read_for_their_leagues() -> None:
+    assert {"action_mlb", "daily_diamond"} <= {s.key for s in for_league(MLB)}
+    nba = {s.key for s in for_league(NBA)}
+    assert {"hardwood", "buckets", "nba_gambling", "duncd_on", "bet_the_board"} <= nba
+    assert set(BY_KEY["bet_the_board"].leagues) == {NFL, CFB, NBA, CBB}
+    assert BY_KEY["bet_the_board"].wants("Bet The Board: NFL Week 4 Picks", "")
 
 
 def test_check_keeps_the_league_edge_and_only_spoken_numbers() -> None:
