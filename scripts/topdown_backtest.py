@@ -412,9 +412,21 @@ class Scan:
         return hit[1]
 
 
-def scan(paths: list[Path], min_threshold: float) -> Scan:
+def _index(games: list[Game]) -> dict[tuple[str, str], list[Game]]:
+    index: dict[tuple[str, str], list[Game]] = defaultdict(list)
+    for g in games:
+        index[(g.home, g.away)].append(g)
+    return index
+
+
+def scan(paths: list[Path], min_threshold: float, games: list[Game] | None = None) -> Scan:
     """Every soft-book side that cleared ``min_threshold`` EV against Pinnacle,
-    plus Pinnacle's last pre-game fair price for every line."""
+    plus Pinnacle's last pre-game fair price for every line.
+
+    With ``games``, an event is only read from its own slate day's snapshots: an
+    evening snapshot also carries tomorrow's board, and that day's grid (not
+    today's) is what reaches its first pitch, so only it gives a real close."""
+    index = _index(games) if games is not None else None
     obs: dict[tuple[GameKey, LineKey, str, str], list[Obs]] = defaultdict(list)
     close: dict[tuple[GameKey, LineKey], tuple[datetime, dict[str, float]]] = {}
     last_seen: dict[tuple[GameKey, str], datetime] = {}
@@ -422,11 +434,16 @@ def scan(paths: list[Path], min_threshold: float) -> Scan:
     seen: set[datetime] = set()
     for p in sorted(paths):
         with gzip.open(p, "rt") as fh:
-            ts, games = parse_snapshot(json.load(fh))
+            ts, events = parse_snapshot(json.load(fh))
         if ts is None or ts in seen:  # two requests can resolve to one snapshot
             continue
         seen.add(ts)
-        for gk, books in games.items():
+        day = Date.fromisoformat(p.parent.name)
+        for gk, books in events.items():
+            if index is not None:
+                g = match_game(gk, index)
+                if g is None or g.day != day:
+                    continue
             for lk, sides in books.get(SHARP, {}).items():
                 if len(sides) != 2:
                     continue
@@ -492,9 +509,7 @@ def _persist_minutes(hits: list[Obs], interval_min: int) -> float:
 
 
 def bets(sc: Scan, games: list[Game], threshold: float, interval_min: int) -> pd.DataFrame:
-    index: dict[tuple[str, str], list[Game]] = defaultdict(list)
-    for g in games:
-        index[(g.home, g.away)].append(g)
+    index = _index(games)
     picks: dict[tuple[GameKey, LineKey, str], list[tuple[str, list[Obs]]]] = defaultdict(list)
     for (gk, lk, side, book), series in sc.obs.items():
         hits = sorted((o for o in series if o.ev >= threshold), key=lambda o: o.ts)
@@ -583,6 +598,9 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
                 "clv_ci": f"[{100 * clo:+.2f}, {100 * chi:+.2f}]",
                 "close_cov%": round(100 * len(clv) / len(d), 1),
                 "beat_close%": round(100 * (clv["clv_pts"] > 0).mean(), 1)
+                if len(clv)
+                else math.nan,
+                "lost_close%": round(100 * (clv["clv_pts"] < 0).mean(), 1)
                 if len(clv)
                 else math.nan,
                 "roi%": round(100 * graded["pnl"].mean(), 2) if len(graded) else math.nan,
@@ -685,7 +703,7 @@ def main(argv: list[str] | None = None) -> int:
     if not paths:
         print("no cached snapshots; run pull first", file=sys.stderr)
         return 1
-    sc = scan(paths, min(args.thresholds))
+    sc = scan(paths, min(args.thresholds), games)
     print(f"snapshots={len(paths)} soft-book quotes compared: {dict(sc.compared)}")
     args.out.mkdir(parents=True, exist_ok=True)
     by_thr: dict[float, pd.DataFrame] = {}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import gzip
 import json
 import math
@@ -251,3 +252,18 @@ def test_more_than_ten_books_is_refused_before_any_call() -> None:
 def test_snapshot_paths_keep_late_utc_games_on_their_slate_day() -> None:
     p = td.snap_path(Path("/c"), DAY, datetime(2025, 7, 23, 2, 10, tzinfo=timezone.utc))
     assert p == Path("/c/2025-07-22/20250723T0210Z.json.gz")
+
+
+def test_tomorrows_game_in_an_evening_snapshot_is_left_to_its_own_day(tmp_path: Path) -> None:
+    nxt = dataclasses.replace(
+        _game(), pk=2, day=Date(2025, 7, 23), commence=_utc("2025-07-23T23:10:00Z")
+    )
+    _write(
+        tmp_path,
+        "2025-07-22T22:00:00Z",
+        [_bk("pinnacle", h2h=(-110, -110)), _bk("draftkings", h2h=(105, -125))],
+        commence="2025-07-23T23:10:00Z",
+    )
+    games = [_game(), nxt]
+    assert td.bets(td.scan(_paths(tmp_path), 0.005, games), games, 0.01, 10).empty
+    assert len(td.bets(td.scan(_paths(tmp_path), 0.005), games, 0.01, 10)) == 1
