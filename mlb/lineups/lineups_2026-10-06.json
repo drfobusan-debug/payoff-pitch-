@@ -437,7 +437,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-06T22:40:05+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 694192,
+      "name": "Jackson Chourio",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 641343,
+      "name": "Jake Bauers",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 661388,
+      "name": "William Contreras",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 668930,
+      "name": "Brice Turang",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 592885,
+      "name": "Christian Yelich",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 669003,
+      "name": "Garrett Mitchell",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 806198,
+      "name": "Cooper Pratt",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 686217,
+      "name": "Sal Frelick",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 687401,
+      "name": "Joey Ortiz",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849826,
