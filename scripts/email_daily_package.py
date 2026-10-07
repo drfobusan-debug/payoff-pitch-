@@ -17,6 +17,7 @@ sends them in one email (same Gmail App Password credentials the engine's
                                         then the batting / bullpen / starter tables in the PDF)
     * totals_audit_<day>.xlsx          (yesterday's sheet graded + running ledger, if present;
                                         its .txt summary is printed in the body)
+    * season_audit_<day>.pdf           (season-to-date totals sheet + worksheet audit, if present)
 
 Usage:
     python -m scripts.email_daily_package 2026-08-02   # explicit slate date
@@ -100,6 +101,7 @@ def collect_attachments(
             f"regression_radar_{iso}.pdf",
             f"power_screen_{iso}.pdf",
             f"totals_audit_{iso}.xlsx",
+            f"season_audit_{iso}.pdf",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:

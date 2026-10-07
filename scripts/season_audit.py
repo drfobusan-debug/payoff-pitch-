@@ -20,6 +20,7 @@ Usage:
     python -m scripts.season_audit                       # this season, local audit dir
     python -m scripts.season_audit --engine-state        # read origin/engine-state
     python -m scripts.season_audit --season 2026 --no-grade
+    python -m scripts.season_audit --daily 2026-10-07    # season_audit_<day>.pdf for the morning email
 """
 
 from __future__ import annotations
@@ -36,7 +37,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from mlb_engine.config import load_config  # noqa: E402
+import markdown  # noqa: E402
+
+from mlb_engine.config import Config, load_config  # noqa: E402
 from mlb_engine.output import daily_worksheet as ws  # noqa: E402
 from mlb_engine.output import totals_audit as ta  # noqa: E402
 
@@ -46,6 +49,14 @@ REPO = Path(__file__).resolve().parents[1]
 STATE_PREFIX = "mlb"
 Z = 1.96
 POWER_Z = 0.84  # 80% power
+PDF_STYLE = (
+    "@page{size:letter;margin:0.5in}"
+    "body{font-family:Helvetica,Arial,sans-serif;font-size:8.5pt}"
+    "h1{font-size:14pt}h2{font-size:11.5pt;margin-top:14px}"
+    "table{border-collapse:collapse;margin:4px 0 8px}"
+    "th,td{border:1px solid #bbb;padding:2px 6px;text-align:left}th{background:#eee}"
+    "code{font-size:8pt}"
+)
 
 
 # --- shared arithmetic --------------------------------------------------------------
@@ -269,14 +280,21 @@ def grade_totals(rows: list[ta.LedgerRow], today: Date) -> int:
     return n
 
 
-def report(season: int, totals: list[ta.LedgerRow], sheet: list[ws.LedgerRow], source: str) -> str:
+def report(
+    season: int, totals: list[ta.LedgerRow], sheet: list[ws.LedgerRow], source: str, filed: bool = True
+) -> str:
     days = [r.date for r in totals] + [r.date for r in sheet]
     through = max(days) if days else "-"
+    header = f"Through {through}, from {source}."
+    if filed:
+        header += (
+            f" Regenerate with `python -m scripts.season_audit --season {season} --engine-state`;"
+            " the graded ledgers beside this file are the rows it counted."
+        )
     lines = [
         f"# MLB {season}: totals sheet and daily worksheet audit",
         "",
-        f"Through {through}, from {source}. Regenerate with `python -m scripts.season_audit --season {season}"
-        " --engine-state`; the graded ledgers beside this file are the rows it counted.",
+        header,
         "",
         *totals_section(totals),
         "",
@@ -286,21 +304,44 @@ def report(season: int, totals: list[ta.LedgerRow], sheet: list[ws.LedgerRow], s
     return "\n".join(lines)
 
 
-def run(
-    season: int, ledger_dir: Path, out_dir: Path, source: str, grade: bool = True, today: Date | None = None
-) -> Path:
+def season_rows(
+    season: int, ledger_dir: Path, grade: bool = True, today: Date | None = None
+) -> tuple[list[ta.LedgerRow], list[ws.LedgerRow]]:
     today = today or Date.today()
     prefix = f"{season}-"
     totals = [r for r in ta.read_ledger(ledger_dir / ta.LEDGER_NAME) if r.date.startswith(prefix)]
     sheet = [r for r in ws.clean_ledger(ws.load_ledger(ledger_dir / ws.LEDGER_NAME)) if r.date.startswith(prefix)]
     if grade:
         log.info("graded %d totals and %d worksheet rows off the finals", grade_totals(totals, today), ws.grade_pending(sheet, today))
+    return totals, sheet
+
+
+def run(
+    season: int, ledger_dir: Path, out_dir: Path, source: str, grade: bool = True, today: Date | None = None
+) -> Path:
+    totals, sheet = season_rows(season, ledger_dir, grade, today)
     out_dir.mkdir(parents=True, exist_ok=True)
     ta.write_ledger(out_dir / ta.LEDGER_NAME, totals)
     ws.save_ledger(out_dir / ws.LEDGER_NAME, sheet)
     path = out_dir / "totals_worksheet_audit.md"
     path.write_text(report(season, totals, sheet, source))
     return path
+
+
+def pdf_html(text: str) -> str:
+    body = markdown.markdown(text, extensions=["tables"])
+    return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{PDF_STYLE}</style></head><body>{body}</body></html>"
+
+
+def run_daily(cfg: Config, day: Date, grade: bool = True) -> Path:
+    """Write ``season_audit_<day>.pdf`` beside the day's package from the local ledgers."""
+    from weasyprint import HTML  # type: ignore[import-untyped]
+
+    totals, sheet = season_rows(day.year, cfg.audit_dir, grade, day)
+    out = cfg.output_dir / f"season_audit_{day.isoformat()}.pdf"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    HTML(string=pdf_html(report(day.year, totals, sheet, "the local audit ledgers", filed=False))).write_pdf(str(out))
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -310,8 +351,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--engine-state", action="store_true", help="read the ledgers off origin/engine-state")
     ap.add_argument("--out", type=Path, default=None, help="default: docs/mlb_audits/<season>")
     ap.add_argument("--no-grade", action="store_true", help="do not fill pending rows from the finals")
+    ap.add_argument(
+        "--daily", type=Date.fromisoformat, default=None, metavar="DAY",
+        help="write season_audit_<DAY>.pdf to the output dir for the morning email instead",
+    )
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    if args.daily:
+        print(run_daily(load_config(), args.daily, grade=not args.no_grade))
+        return 0
     out = args.out or REPO / "docs" / "mlb_audits" / str(args.season)
     with tempfile.TemporaryDirectory() as tmp:
         if args.engine_state:

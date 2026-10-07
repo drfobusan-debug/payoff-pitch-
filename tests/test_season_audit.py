@@ -91,3 +91,39 @@ def test_market_test_judges_wins_against_the_prices_given() -> None:
         strong.add(won, 0.55, None)
     assert strong.verdict() == "beats market"
     assert strong.staked == 0
+
+
+def test_the_daily_run_files_a_pdf_beside_the_package(tmp_path: Path) -> None:
+    pytest.importorskip("weasyprint")
+    audit_dir = _write(tmp_path, [_total("2026-09-01", 1, 6, (5, 5))], [_sheet("2026-09-25", 10, "fav")])
+
+    class Cfg:
+        output_dir = tmp_path / "out"
+
+    Cfg.audit_dir = audit_dir  # type: ignore[attr-defined]
+    before = {p.name: p.read_bytes() for p in audit_dir.iterdir()}
+
+    path = audit.run_daily(Cfg(), Date(2026, 10, 7), grade=False)  # type: ignore[arg-type]
+
+    assert path == tmp_path / "out" / "season_audit_2026-10-07.pdf"
+    assert path.read_bytes().startswith(b"%PDF")
+    assert [p.name for p in (tmp_path / "out").iterdir()] == [path.name]
+    assert {p.name: p.read_bytes() for p in audit_dir.iterdir()} == before
+
+
+def test_the_pdf_keeps_the_tables() -> None:
+    html = audit.pdf_html("| Slice | Record |\n|---|---|\n| \\|SUM\\| 1..4 | 2-1 |\n")
+    assert "<table>" in html and "|SUM| 1..4" in html
+
+
+def test_the_morning_job_call_reaches_the_daily_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    calls: list[tuple[Date, bool]] = []
+    monkeypatch.setattr(audit, "load_config", lambda: None)
+
+    def run_daily(cfg: object, day: Date, grade: bool) -> Path:
+        calls.append((day, grade))
+        return tmp_path
+
+    monkeypatch.setattr(audit, "run_daily", run_daily)
+    assert audit.main(["--daily", "2026-09-09"]) == 0
+    assert calls == [(Date(2026, 9, 9), True)]
