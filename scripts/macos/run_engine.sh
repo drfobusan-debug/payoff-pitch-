@@ -271,6 +271,12 @@ elif [[ "$MODE" == slate-* ]]; then
           && WITH_DAILY="--with-daily" \
           || echo "[$(date)] daily worksheet failed" >&2
       fi
+      # Season-to-date totals sheet + worksheet audit, after both ledgers are graded.
+      if [[ ! -f "$OUT/season_audit_$day.pdf" ]]; then
+        python -m scripts.season_audit --daily "$day" \
+          && WITH_DAILY="--with-daily" \
+          || echo "[$(date)] season audit failed" >&2
+      fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
       if python -m scripts.email_daily_package "$day" --block "$BLOCK" $WITH_DAILY; then
         if [[ -n "$WITH_DAILY" ]]; then touch "$DAILY_STAMP"; fi

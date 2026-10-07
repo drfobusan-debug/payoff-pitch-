@@ -36,8 +36,13 @@ def test_the_totals_audit_and_its_summary_ride_only_with_the_daily_package(tmp_p
     (tmp_path / "mlb_recommendations_2026-08-17.xlsx").write_bytes(b"x")
     (tmp_path / "totals_audit_2026-08-17.xlsx").write_bytes(b"x")
     (tmp_path / "totals_audit_2026-08-17.txt").write_text("Totals sheet 2026-08-16: 12 graded\n")
+    (tmp_path / "season_audit_2026-08-17.pdf").write_bytes(b"x")
     daily = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=True)]
     assert "totals_audit_2026-08-17.xlsx" in daily
+    assert "season_audit_2026-08-17.pdf" in daily
+    assert "season_audit_2026-08-17.pdf" not in [
+        n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)
+    ]
     assert "totals_audit_2026-08-17.xlsx" not in [
         n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)
     ]
