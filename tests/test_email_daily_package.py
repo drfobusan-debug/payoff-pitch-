@@ -21,14 +21,14 @@ def test_the_power_screen_rides_in_the_package(tmp_path: Path) -> None:
     ]
 
 
-def test_the_totals_sheet_rides_once_a_day_with_the_daily_package(tmp_path: Path) -> None:
+def test_the_totals_sheet_and_worksheet_ride_with_every_slate_email(tmp_path: Path) -> None:
     day = Date(2026, 8, 17)
-    for name in ("mlb_recommendations_2026-08-17.xlsx", "totals_sheet_2026-08-17.xlsx"):
+    sheets = ["totals_sheet_2026-08-17.xlsx", "worksheet_2026-08-17.xlsx", "worksheet_2026-08-17.pdf"]
+    for name in ["mlb_recommendations_2026-08-17.xlsx", "PayoffPitch_Slate_2026-08-17_late.pdf", *sheets]:
         (tmp_path / name).write_bytes(b"x")
-    daily = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=True)]
-    assert "totals_sheet_2026-08-17.xlsx" in daily
-    block = [n for n, _ in collect_attachments(tmp_path, day, "evening", with_daily=False)]
-    assert "totals_sheet_2026-08-17.xlsx" not in block
+    for with_daily in (True, False):
+        names = [n for n, _ in collect_attachments(tmp_path, day, "late", with_daily=with_daily)]
+        assert names == ["mlb_recommendations_2026-08-17.xlsx", "PayoffPitch_Slate_2026-08-17_late.pdf", *sheets]
 
 
 def test_the_totals_audit_and_its_summary_ride_only_with_the_daily_package(tmp_path: Path) -> None:

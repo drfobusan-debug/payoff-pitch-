@@ -273,7 +273,7 @@ elif [[ "$MODE" == slate-* ]]; then
       fi
       # shellcheck disable=SC2086  # WITH_DAILY is one flag or nothing
       if python -m scripts.email_daily_package "$day" --block "$BLOCK" $WITH_DAILY; then
-        [[ -n "$WITH_DAILY" ]] && touch "$DAILY_STAMP"
+        if [[ -n "$WITH_DAILY" ]]; then touch "$DAILY_STAMP"; fi
       else
         echo "[$(date)] $BLOCK package email failed" >&2
       fi
