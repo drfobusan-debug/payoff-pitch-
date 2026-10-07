@@ -6,7 +6,9 @@
 # day writes the write-once ledger (--tag initial); later runs in the day
 # re-price as a goalie/pre-drop pass and keep the morning ledger untouched.
 # The podcast step transcribes the Hockey Gambling Podcast episode for the
-# slate (if one exists) so the PDF can show its read under each game.
+# slate (if one exists) so the PDF can show its read under each game. The audit
+# step grades yesterday and rebuilds the ledger audit report, which the card
+# email attaches alongside the PDF.
 set -uo pipefail
 # shellcheck disable=SC1091
 . "$(dirname "$0")/_env.sh"
@@ -17,6 +19,8 @@ echo
 nhl-engine lineups || echo "(rotowire skipped)"
 echo
 nhl-engine podcast || echo "(podcast skipped)"
+echo
+nhl-engine audit || echo "(audit skipped)"
 echo
 nhl-engine card --tag "$TAG" --email
 echo
