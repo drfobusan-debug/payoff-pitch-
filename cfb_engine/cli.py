@@ -12,6 +12,7 @@ Commands mirror the MLB engine:
     cfb-engine backtest  A/B the score engines (normal vs markov) on a season
     cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
     cfb-engine probation grade markets, live screens and candidate screens
+    cfb-engine weekly    write (and email) the weekly audit: the week + the ledger
 """
 
 from __future__ import annotations
@@ -57,6 +58,7 @@ from cfb_engine.audit.priced import (
 )
 from cfb_engine.audit.probation import Probation, probation_rows, rule_probation
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
+from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
@@ -65,6 +67,7 @@ from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
 from cfb_engine.output.excel import write_ledger_workbook, write_workbook
 from cfb_engine.output.podcast import PodcastView, podcast_view
+from cfb_engine.output.weekly_report import generate_weekly_report
 from cfb_engine.pipeline import Pipeline
 from cfb_engine.recommendations import Recommendation, load_json, save_json
 from cfb_engine.state import auto_pull, auto_push
@@ -433,6 +436,21 @@ def cmd_report(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_weekly(cfg: Config, args: argparse.Namespace) -> int:
+    """Article of the seven slates ending ``--date`` (default yesterday) and the ledger."""
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    if not entries:
+        print("Ledger is empty; run `cfb-engine audit` first.")
+        return 1
+    report = weekly_audit(entries, _audit_day(args))
+    out = generate_weekly_report(report, cfg, email=not args.no_email, to=args.to)
+    for line in report.week.findings + report.ledger.findings:
+        print(f"- {line}")
+    print(f"Wrote weekly audit -> {out['pdf'] or out['html']}")
+    return 0
+
+
 def cmd_calibrate(cfg: Config, args: argparse.Namespace) -> int:
     from cfb_engine.audit.grade import PUSH
     from cfb_engine.calibration import Calibrator
@@ -733,6 +751,10 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
+    add_common(
+        sub.add_parser("weekly", help="weekly audit article: the week + the ledger to date"),
+        email=True,
+    )
     add_common(sub.add_parser("calibrate", help="refit probability calibration"))
     bt = sub.add_parser("backtest", help="A/B the score engines (normal vs markov)")
     bt.add_argument("--season", type=int, help="season year (default: inferred)")
@@ -762,6 +784,7 @@ _DISPATCH = {
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "report": cmd_report,
+    "weekly": cmd_weekly,
     "calibrate": cmd_calibrate,
     "backtest": cmd_backtest,
     "scorecard": cmd_scorecard,

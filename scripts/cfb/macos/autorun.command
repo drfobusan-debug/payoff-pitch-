@@ -4,6 +4,7 @@
 #   autorun.command run     -> price today's slate and email the card
 #   autorun.command close   -> snapshot the closing market for CLV
 #   autorun.command audit   -> grade yesterday, update the ledger, email recap
+#   autorun.command weekly  -> weekly audit article (week + ledger), email it
 #
 # Unlike the double-click shortcuts this never opens a workbook, so it is safe
 # to run from launchd where there is no foreground GUI session.
