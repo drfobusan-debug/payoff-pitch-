@@ -1,0 +1,39 @@
+date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,projected,bucket,side,status,reason,siera
+2026-10-07,20261007T1858Z,soft,arm,Nick Martinez,607259,TB,849838,Nick Martinez,607259,,False,,,screened,,4.45
+2026-10-07,20261007T1858Z,soft,arm,Walker Buehler,621111,SD,849827,Walker Buehler,621111,,False,,,screened,,4.68
+2026-10-07,20261007T1858Z,soft,arm,Sean Newcomb,656794,CWS,849833,Sean Newcomb,656794,,False,,,screened,,4.43
+2026-10-07,20261007T1858Z,soft,arm,Daniel Espino,682982,CLE,849833,Daniel Espino,682982,,False,,,gated,work: 45 BF and 184 pitches in 90d (needs 120 and 400),
+2026-10-07,20261007T1858Z,soft,arm,Robert Gasser,688107,MIL,849827,Robert Gasser,688107,,False,,,gated,siera: SIERA 3.93 ≤ 4.40,3.93
+2026-10-07,20261007T1858Z,soft,arm,Tyler Mahle,641816,ATL,849822,Tyler Mahle,641816,,False,,,gated,siera: SIERA 3.71 ≤ 4.40,3.71
+2026-10-07,20261007T1858Z,soft,arm,Max Fried,608331,NYY,849838,Max Fried,608331,,False,,,gated,siera: SIERA 3.23 ≤ 4.40,3.23
+2026-10-07,20261007T1858Z,soft,arm,Tyler Glasnow,607192,LAD,849822,Tyler Glasnow,607192,,False,,,gated,siera: SIERA 2.52 ≤ 4.40,2.52
+2026-10-07,20261007T1858Z,soft,bat,Trent Grisham,663757,NYY,849838,Nick Martinez,607259,7,True,RV NEG WATCH,,held,,
+2026-10-07,20261007T1858Z,soft,bat,Jazz Chisholm,665862,NYY,849838,Nick Martinez,607259,6,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,soft,bat,Ben Rice,700250,NYY,849838,Nick Martinez,607259,1,True,SOFT OVER,over,held,,
+2026-10-07,20261007T1858Z,soft,bat,Austin Wells,669224,NYY,849838,Nick Martinez,607259,8,True,RV NEG WATCH,,held,,
+2026-10-07,20261007T1858Z,soft,bat,Spencer Jones,682987,NYY,849838,Nick Martinez,607259,4,True,RV NEG WATCH,,held,,
+2026-10-07,20261007T1858Z,soft,bat,George Lombard,806146,NYY,849838,Nick Martinez,607259,5,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,soft,bat,Luis Garcia,671277,NYY,849838,Nick Martinez,607259,3,True,RV NEG WATCH,,held,,
+2026-10-07,20261007T1858Z,soft,bat,Cody Bellinger,641355,NYY,849838,Nick Martinez,607259,2,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,soft,bat,Garrett Mitchell,669003,MIL,849827,Walker Buehler,621111,5,True,SOFT OVER,over,held,,
+2026-10-07,20261007T1858Z,soft,bat,Jackson Chourio,694192,MIL,849827,Walker Buehler,621111,1,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,soft,bat,Brice Turang,668930,MIL,849827,Walker Buehler,621111,2,True,SOFT OVER,over,held,,
+2026-10-07,20261007T1858Z,soft,bat,Christian Yelich,592885,MIL,849827,Walker Buehler,621111,6,True,SOFT OVER,over,held,,
+2026-10-07,20261007T1858Z,soft,bat,William Contreras,661388,MIL,849827,Walker Buehler,621111,4,True,SOFT OVER,over,held,,
+2026-10-07,20261007T1858Z,soft,bat,Jake Bauers,641343,MIL,849827,Walker Buehler,621111,3,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,soft,bat,Cooper Pratt,806198,MIL,849827,Walker Buehler,621111,7,True,PROD WATCH,,held,,
+2026-10-07,20261007T1858Z,elite,arm,Tyler Mahle,641816,ATL,849822,Tyler Mahle,641816,,False,,,screened,,3.71
+2026-10-07,20261007T1858Z,elite,arm,Robert Gasser,688107,MIL,849827,Robert Gasser,688107,,False,,,screened,,3.93
+2026-10-07,20261007T1858Z,elite,arm,Daniel Espino,682982,CLE,849833,Daniel Espino,682982,,False,,,gated,work: 45 BF and 184 pitches in 90d (needs 120 and 400),
+2026-10-07,20261007T1858Z,elite,arm,Walker Buehler,621111,SD,849827,Walker Buehler,621111,,False,,,gated,siera: SIERA 4.68 > 4.40,4.68
+2026-10-07,20261007T1858Z,elite,arm,Nick Martinez,607259,TB,849838,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.45 > 4.40,4.45
+2026-10-07,20261007T1858Z,elite,arm,Sean Newcomb,656794,CWS,849833,Sean Newcomb,656794,,False,,,gated,siera: SIERA 4.43 > 4.40,4.43
+2026-10-07,20261007T1858Z,elite,arm,Max Fried,608331,NYY,849838,Max Fried,608331,,False,,,gated,siera: SIERA 3.23 ≤ 3.25,3.23
+2026-10-07,20261007T1858Z,elite,arm,Tyler Glasnow,607192,LAD,849822,Tyler Glasnow,607192,,False,,,gated,siera: SIERA 2.52 ≤ 3.25,2.52
+2026-10-07,20261007T1858Z,elite,bat,Shohei Ohtani,660271,LAD,849822,Tyler Mahle,641816,4,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,elite,bat,Andy Pages,681624,LAD,849822,Tyler Mahle,641816,9,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,elite,bat,Teoscar Hernández,606192,LAD,849822,Tyler Mahle,641816,5,True,RV NEG WATCH,,held,,
+2026-10-07,20261007T1858Z,elite,bat,Max Muncy,571970,LAD,849822,Tyler Mahle,641816,6,True,PROD DROP,,dropped,,
+2026-10-07,20261007T1858Z,elite,bat,Mookie Betts,605141,LAD,849822,Tyler Mahle,641816,1,True,ELITE UNDER,under,held,,
+2026-10-07,20261007T1858Z,elite,bat,Kyle Tucker,663656,LAD,849822,Tyler Mahle,641816,8,True,ELITE UNDER,under,held,,
+2026-10-07,20261007T1858Z,elite,bat,Freddie Freeman,518692,LAD,849822,Tyler Mahle,641816,2,True,RV NEG WATCH,,held,,
