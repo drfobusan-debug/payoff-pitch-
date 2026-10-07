@@ -30,33 +30,33 @@
     "no_vig_prob": 0.5027848322118083
   },
   "New Mexico Sta @ Florida Intern|game_ats|Florida Intern": {
-    "american": -104.0,
-    "line": -6.5,
-    "no_vig_prob": 0.4982206456418225
+    "american": 100.0,
+    "line": -7.0,
+    "no_vig_prob": 0.489333743106313
   },
   "New Mexico Sta @ Florida Intern|game_ats|New Mexico Sta": {
-    "american": -106.0,
-    "line": 6.5,
-    "no_vig_prob": 0.5017793543581774
+    "american": -110.0,
+    "line": 7.0,
+    "no_vig_prob": 0.5106662568936869
   },
   "New Mexico Sta @ Florida Intern|game_ml|Florida Intern": {
-    "american": -235.0,
+    "american": -245.0,
     "line": null,
-    "no_vig_prob": 0.6799543672113003
+    "no_vig_prob": 0.6938998843524935
   },
   "New Mexico Sta @ Florida Intern|game_ml|New Mexico Sta": {
-    "american": 215.0,
+    "american": 223.0,
     "line": null,
-    "no_vig_prob": 0.32004563278869974
+    "no_vig_prob": 0.30610011564750655
   },
   "New Mexico Sta @ Florida Intern|game_total|Over": {
     "american": -108.0,
-    "line": 46.0,
-    "no_vig_prob": 0.49983734336165725
+    "line": 46.5,
+    "no_vig_prob": 0.4990481923299079
   },
   "New Mexico Sta @ Florida Intern|game_total|Under": {
-    "american": -108.0,
-    "line": 46.0,
-    "no_vig_prob": 0.5001626566383427
+    "american": -110.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5009518076700921
   }
 }
