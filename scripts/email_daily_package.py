@@ -26,8 +26,9 @@ Usage:
     python -m scripts.email_daily_package 2026-08-02 --block matinee --with-daily
 
 ``--block <name>`` (a ``mlb_engine.slate_blocks`` name) is a slate pass's
-delivery: the bet card plus that block's slate article
-(``PayoffPitch_Slate_<day>_<block>.pdf/.mp3``) and nothing else. It sends
+delivery: the bet card, that block's slate article
+(``PayoffPitch_Slate_<day>_<block>.pdf/.mp3``), and the day's totals sheet and
+worksheet once they are written, so the latest email always has them. It sends
 nothing when the block's article is not on disk -- the pass priced no games.
 ``--with-daily`` adds the once-a-day pieces (regression articles, radar, power
 screen); the runner passes it on the first pass of the day that has games.
@@ -76,8 +77,9 @@ def collect_attachments(
 ) -> list[tuple[str, bytes]]:
     """Return (filename, bytes) for every artifact that exists for ``day``.
 
-    A block package is the card and that block's slate article; the once-a-day
-    pieces ride only when ``with_daily`` is set.
+    A block package is the card, that block's slate article, and the day's
+    totals sheet and worksheet once written; the other once-a-day pieces ride
+    only when ``with_daily`` is set.
     """
     iso = day.isoformat()
     slate = f"PayoffPitch_Slate_{iso}_{block}" if block else f"PayoffPitch_Slate_{iso}"
@@ -85,6 +87,9 @@ def collect_attachments(
         f"mlb_recommendations_{iso}.xlsx",
         f"{slate}.pdf",
         f"{slate}.mp3",
+        f"totals_sheet_{iso}.xlsx",
+        f"worksheet_{iso}.xlsx",
+        f"worksheet_{iso}.pdf",
     ]
     if with_daily:
         candidates += [
@@ -94,10 +99,7 @@ def collect_attachments(
             f"PayoffPitch_Regression_{iso}.mp3",
             f"regression_radar_{iso}.pdf",
             f"power_screen_{iso}.pdf",
-            f"totals_sheet_{iso}.xlsx",
             f"totals_audit_{iso}.xlsx",
-            f"worksheet_{iso}.xlsx",
-            f"worksheet_{iso}.pdf",
         ]
     attachments: list[tuple[str, bytes]] = []
     for name in candidates:
