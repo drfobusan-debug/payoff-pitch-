@@ -45,6 +45,24 @@ def send_card(
     Raises :class:`EmailNotConfigured` rather than exiting, so the caller keeps
     the artifacts already on disk.
     """
+    sender, recipient = _addresses(cfg, to)
+    return _send(cfg, sender, recipient, subject_for(card), render_card(card), paths)
+
+
+def send_files(
+    cfg: Config,
+    *,
+    subject: str,
+    body: str,
+    paths: dict[str, Path],
+    to: str | None = None,
+) -> str:
+    """Email a plain-text body with files attached (the ledger audit report)."""
+    sender, recipient = _addresses(cfg, to)
+    return _send(cfg, sender, recipient, subject, body, paths)
+
+
+def _addresses(cfg: Config, to: str | None) -> tuple[str, str]:
     creds, delivery = cfg.creds, cfg.delivery
     if not creds.gmail_app_password:
         raise EmailNotConfigured("GMAIL_APP_PASSWORD is not set")
@@ -54,10 +72,14 @@ def send_card(
         raise EmailNotConfigured("no recipient set (pass --to or NHLE_EMAIL_TO)")
     if not sender:
         raise EmailNotConfigured("no sender set (GMAIL_USER/EMAIL_ADDRESS)")
+    return sender, recipient
 
-    text = render_card(card)
+
+def _send(
+    cfg: Config, sender: str, recipient: str, subject: str, text: str, paths: dict[str, Path]
+) -> str:
     msg = EmailMessage()
-    msg["Subject"] = subject_for(card)
+    msg["Subject"] = subject
     msg["From"] = sender
     msg["To"] = recipient
     msg.set_content(text)
@@ -71,10 +93,11 @@ def send_card(
         msg.add_attachment(
             path.read_bytes(), maintype=maintype, subtype=subtype, filename=path.name
         )
-
-    password = creds.gmail_app_password.replace(" ", "")
+    password = (cfg.creds.gmail_app_password or "").replace(" ", "")
     context = ssl.create_default_context(cafile=certifi.where())
-    with smtplib.SMTP_SSL(delivery.smtp_host, delivery.smtp_port, context=context) as server:
+    with smtplib.SMTP_SSL(
+        cfg.delivery.smtp_host, cfg.delivery.smtp_port, context=context
+    ) as server:
         server.login(sender, password)
         server.send_message(msg)
     return recipient

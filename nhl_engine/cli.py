@@ -41,7 +41,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from nhl_engine import email, outputs, pipeline, report, state
-from nhl_engine.audit import ledger, podcast_picks, scorecard
+from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import capture, podcast, preseason, rotowire
@@ -334,6 +334,7 @@ def cmd_card(args: argparse.Namespace) -> int:
     print(outputs.render_card(card), end="")
     print("outputs: " + ", ".join(str(p) for p in paths.values()) + written)
     if args.email:
+        paths.update(ledger_report.latest(output_dir()))
         try:
             to = email.send_card(cfg, card, paths, to=args.to)
             print(f"emailed {len(paths)} attachment(s) for {slate} -> {to}")
@@ -500,7 +501,44 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if pod_all:
         print()
         print(podcast_picks.render(pod_all), end="")
+    if not args.no_report:
+        as_of = capture.now_utc()
+        audit = ledger_report.build(all_rows, _starters_for(all_rows))
+        try:
+            paths = ledger_report.write(audit, output_dir(), day, as_of=as_of)
+        except Exception:  # the PDF is a view of the md; keep the md
+            log.exception("audit pdf failed")
+            paths = ledger_report.write(audit, output_dir(), day, as_of=as_of, pdf=False)
+        print()
+        print("\n".join(audit.findings or ["no findings yet"]))
+        print("audit report: " + ", ".join(str(p) for p in paths.values()))
+        if args.email:
+            try:
+                to = email.send_files(
+                    load_config(),
+                    subject=f"NHL ledger audit {day} -- {audit.buys.record} buys",
+                    body=ledger_report.render_md(audit, as_of=as_of),
+                    paths=paths,
+                    to=args.to,
+                )
+                print(f"emailed audit -> {to}")
+            except email.EmailNotConfigured as exc:
+                print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+def _starters_for(rows: list[ledger.LedgerRow]) -> dict[str, tuple[str, str]]:
+    """Actual starters for every graded night (NHL API cache), for the goalie read."""
+    out: dict[str, tuple[str, str]] = {}
+    for night in sorted({r.slate_date for r in rows}):
+        try:
+            results, _ = _results_for(Date.fromisoformat(night))
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("starters for %s unavailable: %s", night, exc)
+            continue
+        for m, res in results.items():
+            out[f"{night}|{m}"] = (res.away_starter, res.home_starter)
+    return out
 
 
 def cmd_calibrate(args: argparse.Namespace) -> int:
@@ -594,6 +632,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")
+    au.add_argument("--no-report", action="store_true", help="skip the ledger audit md/pdf")
+    au.add_argument("--email", action="store_true", help="email the ledger audit report")
+    au.add_argument("--to", help="override recipient")
     au.set_defaults(func=cmd_audit)
 
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
