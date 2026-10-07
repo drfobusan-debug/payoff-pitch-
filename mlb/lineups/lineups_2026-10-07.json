@@ -222,7 +222,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-07T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 671739,
+      "name": "Michael Harris II",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 660670,
+      "name": "Ronald Acu\u00f1a Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 621566,
+      "name": "Matt Olson",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 645277,
+      "name": "Ozzie Albies",
+      "bats": "S",
+      "position": "2B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 686948,
+      "name": "Drake Baldwin",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 573262,
+      "name": "Mike Yastrzemski",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 643289,
+      "name": "Mauricio Dub\u00f3n",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 663586,
+      "name": "Austin Riley",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 669221,
+      "name": "Sean Murphy",
+      "bats": "R",
+      "position": "C"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849827,
@@ -378,7 +447,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-07T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 665487,
+      "name": "Fernando Tatis Jr.",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 701538,
+      "name": "Jackson Merrill",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 592518,
+      "name": "Manny Machado",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 664034,
+      "name": "Ty France",
+      "bats": "R",
+      "position": "1B"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 669720,
+      "name": "Austin Hays",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 593428,
+      "name": "Xander Bogaerts",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 669134,
+      "name": "Luis Campusano",
+      "bats": "R",
+      "position": "C"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 630105,
+      "name": "Jake Cronenworth",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 669392,
+      "name": "Samad Taylor",
+      "bats": "R",
+      "position": "LF"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849833,
@@ -681,7 +819,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-07T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 650490,
+      "name": "Yandy D\u00edaz",
+      "bats": "R",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 666018,
+      "name": "Jonathan Aranda",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 691406,
+      "name": "Junior Caminero",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 683748,
+      "name": "Victor Mesa Jr.",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 668723,
+      "name": "Ryan Vilade",
+      "bats": "R",
+      "position": "RF"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 689414,
+      "name": "Liam Hicks",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 676356,
+      "name": "Jonny DeLuca",
+      "bats": "R",
+      "position": "CF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 680700,
+      "name": "Richie Palacios",
+      "bats": "L",
+      "position": "2B"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 670764,
+      "name": "Taylor Walls",
+      "bats": "S",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849838,
@@ -759,6 +966,75 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-07T21:55:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 663757,
+      "name": "Trent Grisham",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 700250,
+      "name": "Ben Rice",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 671277,
+      "name": "Luis Garc\u00eda Jr.",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 641355,
+      "name": "Cody Bellinger",
+      "bats": "L",
+      "position": "LF"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 806146,
+      "name": "George Lombard Jr.",
+      "bats": "R",
+      "position": "SS"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 669224,
+      "name": "Austin Wells",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 683011,
+      "name": "Anthony Volpe",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 682987,
+      "name": "Spencer Jones",
+      "bats": "L",
+      "position": "RF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 676609,
+      "name": "Jos\u00e9 Caballero",
+      "bats": "R",
+      "position": "3B"
+     }
+    ]
+   }
+  ]
  }
 ]
