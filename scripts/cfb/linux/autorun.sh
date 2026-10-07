@@ -4,6 +4,7 @@
 #   autorun.sh run     -> price today's slate and email the card
 #   autorun.sh close   -> snapshot the closing market for CLV
 #   autorun.sh audit   -> grade yesterday, update the ledger, email recap
+#   autorun.sh weekly  -> weekly audit article (week + ledger), email it
 #   autorun.sh opener  -> capture the coming week's boards near the open
 #
 # Unlike the double-click shortcuts this never opens a workbook, so it is safe

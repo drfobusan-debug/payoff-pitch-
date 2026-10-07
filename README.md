@@ -1027,8 +1027,12 @@ snapshots, and audit run by themselves:
 - **Linux** (cron): `scripts/cfb/linux/install_schedule.sh`
 
 Default local times: `run` 09:00, `close` 11:00/15:00/19:00/23:00 (repeat-safe
-CLV snapshots across the game day), `audit` 03:00. Override the card/audit hours
-with `CFB_RUN_HOUR` / `CFB_AUDIT_HOUR`. Both installers are idempotent (re-running
+CLV snapshots across the game day), `audit` 03:00, and `weekly` Sundays 08:00
+(`cfb-engine weekly`: an article of the past seven slates and the whole ledger,
+each with record, ROI and its 95% range, the win rate the prices demanded,
+closing-line value, model-vs-market Brier, and how many bets each ROI needs
+before it is proven). Override the hours with `CFB_RUN_HOUR` / `CFB_AUDIT_HOUR`
+/ `CFB_WEEKLY_HOUR`. Both installers are idempotent (re-running
 replaces the previous jobs) and shells out through `autorun.{command,sh}`, which
 loads credentials from `/etc/engine.env` or `~/.cfb_engine/engine.env` -- neither
 launchd nor cron reads your shell profile, so API keys and the Gmail app password

@@ -5,6 +5,7 @@
 #   * com.payoffpitch.cfb.close       -> 11:00/15:00/19:00/23:00  CLV snapshots
 #   * com.payoffpitch.cfb.audit       -> 03:00  grade yesterday + email recap
 #   * com.payoffpitch.cfb.opener      -> 07:00  capture the coming week's boards
+#   * com.payoffpitch.cfb.weekly      -> Sunday 08:00  weekly audit article + email
 #   * com.payoffpitch.cfb.podcast     -> 05:00/20:00  read the shows' picks
 #     (the 20:00 pass also rebuilds that day's PDF, without emailing it)
 #
@@ -25,6 +26,7 @@ refuse_protected_dir "$REPO" || exit 1
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
 OPENER_HOUR="${CFB_OPENER_HOUR:-7}"
+WEEKLY_HOUR="${CFB_WEEKLY_HOUR:-8}"
 
 chmod +x "$AUTORUN"
 mkdir -p "$LAUNCH_AGENTS" "$LOG_DIR"
@@ -75,6 +77,14 @@ single_time() {
 install_agent "com.payoffpitch.cfb.predictions" "$(single_time "$RUN_HOUR")" run
 install_agent "com.payoffpitch.cfb.audit" "$(single_time "$AUDIT_HOUR")" audit
 install_agent "com.payoffpitch.cfb.opener" "$(single_time "$OPENER_HOUR")" opener
+
+# Weekly audit: Sunday morning, after Saturday's slate has been graded at 03:00.
+install_agent "com.payoffpitch.cfb.weekly" "    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Weekday</key><integer>0</integer>
+        <key>Hour</key><integer>$WEEKLY_HOUR</integer>
+        <key>Minute</key><integer>0</integer>
+    </dict>" weekly
 
 # Podcast picks: before the card is priced, and again in the evening so a
 # Friday/Saturday episode reaches the PDF. Never reprices; never emails.

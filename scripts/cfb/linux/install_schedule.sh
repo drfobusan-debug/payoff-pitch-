@@ -5,6 +5,7 @@
 #   * 11/15/19/23:00     CLV closing-line snapshots   (cfb-engine close)
 #   * 03:00              grade yesterday + email recap (cfb-engine audit)
 #   * 07:00              capture the coming week's boards (cfb-engine opener)
+#   * Sunday 08:00       weekly audit article + email (cfb-engine weekly)
 #   * 05:00 / 20:00      read the shows' picks (cfb-engine podcast; 20:00 --card)
 #
 # Times are local to the machine's crontab. Override with CFB_RUN_HOUR /
@@ -20,6 +21,7 @@ MARKER="# payoff-pitch-cfb-schedule"
 RUN_HOUR="${CFB_RUN_HOUR:-9}"
 AUDIT_HOUR="${CFB_AUDIT_HOUR:-3}"
 OPENER_HOUR="${CFB_OPENER_HOUR:-7}"
+WEEKLY_HOUR="${CFB_WEEKLY_HOUR:-8}"
 
 chmod +x "$AUTORUN"
 mkdir -p "$HOME/.cfb_engine"
@@ -36,11 +38,12 @@ existing="$(crontab -l 2>/dev/null | grep -vF "$MARKER" || true)"
     echo "0 11,15,19,23 * * * $AUTORUN close >> $LOG 2>&1 $MARKER"
     echo "0 $AUDIT_HOUR * * * $AUTORUN audit >> $LOG 2>&1 $MARKER"
     echo "0 $OPENER_HOUR * * * $AUTORUN opener >> $LOG 2>&1 $MARKER"
+    echo "0 $WEEKLY_HOUR * * 0 $AUTORUN weekly >> $LOG 2>&1 $MARKER"
     echo "0 5 * * * $AUTORUN podcast >> $LOG 2>&1 $MARKER"
     echo "0 20 * * * $AUTORUN podcast --card >> $LOG 2>&1 $MARKER"
 } | crontab -
 
-echo "Done. Installed the daily CFB cron jobs (run/close/audit/opener/podcast)."
+echo "Done. Installed the daily CFB cron jobs (run/close/audit/opener/podcast/weekly)."
 echo "Verify with: crontab -l | grep cfb"
 echo "Logs: $LOG"
 echo "Credentials must live in /etc/engine.env or $HOME/.cfb_engine/engine.env"
