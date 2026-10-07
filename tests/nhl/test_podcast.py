@@ -246,14 +246,14 @@ def test_pdf_block_per_game_and_no_episode(tmp_path: Path):
     )
     html = report.render_html(card, ctx)
     assert "Pod read" in html and "A +105 · H -125 · total 6.5" in html
-    assert "Transcript bet mentions" in html and "20 puck bucks on &lt;them&gt;" in html
+    assert "Transcript bet mentions" not in html and "20 puck bucks on" not in html
     assert "not an input to the model" in html
 
     ctx.podcast.games["A @ H"].summary = ["H ML -125 — 20 — home opener"]
     ctx.podcast.games["A @ H"].summary_source = "openai:gpt-4o-mini"
     html = report.render_html(card, ctx)
-    assert "<li>H ML -125 — 20 — home opener</li>" in html and "Verbatim" in html
-    assert "summary openai:gpt-4o-mini" in html
+    assert "home opener" not in html and "Verbatim" not in html
+    assert "summary openai:gpt-4o-mini" not in html
 
     after = [(r.model_prob, r.edge, r.ev, r.is_buy, tuple(r.gates)) for r in card.rows]
     assert before == after

@@ -21,6 +21,10 @@ from dataclasses import dataclass, field
 from datetime import date as Date
 
 from engine_common.odds import american_to_prob
+from engine_common.podcasts import render as podcast_render
+from engine_common.podcasts.render import CSS as PODCAST_CSS
+from engine_common.podcasts.render import game_block as podcast_game_block
+from engine_common.podcasts.render import records_block as podcast_records_block
 from nba_engine.audit import scorecard
 from nba_engine.audit.ledger import LedgerRow
 from nba_engine.data import teamnames
@@ -28,6 +32,7 @@ from nba_engine.data.capture import MARKET_MAP
 from nba_engine.market.board import EXEC_BOOKS
 from nba_engine.output.context import ESPN, OFFICIAL, GameContext, Injury, et_clock
 
+PodcastView = podcast_render.PodcastView[list[LedgerRow]]
 MAIN_MARKETS = ("game_ml", "game_ats", "game_total")
 MARKET_ORDER = tuple(key for key, _ in MARKET_MAP.values())
 MARKET_LABEL = {
@@ -465,11 +470,11 @@ def _game_bets(game: GameCard) -> str:
     )
 
 
-def _game_section(game: GameCard) -> str:
+def _game_section(game: GameCard, podcast: PodcastView | None = None) -> str:
     return (
         f"<div class='game'><h2>{_e(game.title)}<span class='kick'>{_e(game.tip_et)}</span></h2>"
         f"{_market_line(game)}{_board_table(game)}{_context(game)}{_others_line(game)}"
-        f"{_game_bets(game)}</div>"
+        f"{_game_bets(game)}{podcast_game_block(podcast, game.matchup)}</div>"
     )
 
 
@@ -547,7 +552,9 @@ def _record_table(card: SlateCard) -> str:
     )
 
 
-def render_html(card: SlateCard) -> str:
+def render_html(card: SlateCard, podcast: PodcastView | None = None) -> str:
+    """The card as HTML. ``podcast`` adds the shows' bets under each game and their
+    records at the back; it never changes a row."""
     n_games, n_buys = len(card.games), len(card.buys())
     season = "preseason · " if card.preseason else ""
     masthead = (
@@ -574,7 +581,7 @@ def render_html(card: SlateCard) -> str:
             " (no_model). Market numbers and EV against the consensus fair are shown as"
             " recorded.</p>"
         )
-    body = "".join(_game_section(g) for g in card.games)
+    body = "".join(_game_section(g, podcast) for g in card.games)
     passes = ", ".join(card.passes) or "none"
     fine = (
         "<p class='fine'>Methodology: the consensus fair is the median no-vig probability across"
@@ -587,9 +594,11 @@ def render_html(card: SlateCard) -> str:
         f" {_e(PAPER_NOTE)}</p>"
     )
     return (
-        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{_STYLE}</style></head>"
+        "<!DOCTYPE html><html><head><meta charset='utf-8'>"
+        f"<style>{_STYLE}{PODCAST_CSS if podcast else ''}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{''.join(notes)}{body}"
-        f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}{fine}</body></html>"
+        f"{_slate_bets(card)}{_summary_table(card)}{_record_table(card)}"
+        f"{podcast_records_block(podcast, [g.matchup for g in card.games])}{fine}</body></html>"
     )
 
 

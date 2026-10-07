@@ -425,7 +425,10 @@ def test_pdf_prints_picks_under_the_game_and_records_at_the_back(tmp_path: Path)
     recs = _game("Iowa", "Ohio State")
     view = _view(tmp_path, recs)
     block = game_block(view, "Ohio State @ Iowa")
-    assert "Iowa +14.5" in block and "Tim Murray" in block and "[02:16]" in block
+    assert (
+        "<b>Tim Murray · VSiN College Football Betting Podcast</b> (no graded picks yet)." in block
+    )
+    assert "<b>Iowa +14.5</b>" in block and "[02:16]" not in block
     assert game_block(view, "Troy @ Georgia State") == ""
     back = records_block(view, [recs])
     assert "Podcast records" in back and "Consensus" in back

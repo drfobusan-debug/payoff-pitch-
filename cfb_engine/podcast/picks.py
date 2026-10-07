@@ -40,6 +40,7 @@ from engine_common.podcasts.picks import (
     record,
     records,
 )
+from engine_common.podcasts.render import EngineEdge, nearest_edge
 from engine_common.podcasts.shows import CFB
 
 Rows = list[Recommendation]
@@ -113,6 +114,19 @@ def engine_view(pl: Placed) -> str:
         )
         return "engine agrees" if mine else "engine disagrees"
     return ""
+
+
+def engine_edge(pl: Placed) -> EngineEdge | None:
+    """The engine's edge on this side, at the host's number or the nearest it priced."""
+    p = pl.pick
+    mine = [
+        (r.line, r.edge)
+        for r in _rows(pl)
+        if r.market == p.market
+        and r.edge is not None
+        and (r.side == p.side if p.market == "game_total" else r.team_side == pl.team_side)
+    ]
+    return nearest_edge(pl.line, mine)
 
 
 LEAGUE: League[Rows] = League(CFB, same_school, engine_view, legacy=True)
@@ -220,6 +234,7 @@ __all__ = [
     "SlatePicks",
     "by_game",
     "counted",
+    "engine_edge",
     "engine_view",
     "grade_row",
     "load_ledger",
