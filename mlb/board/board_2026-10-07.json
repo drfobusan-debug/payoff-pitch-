@@ -198,6 +198,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_1b",
+    "selection": "Randal Grichuk 1B o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.341401
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_1b",
+    "selection": "Randal Grichuk 1B u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.658599
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_1b",
     "selection": "Sam Antonacci 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.482184
@@ -446,6 +460,20 @@
     "selection": "Patrick Bailey 2B u0.5",
     "american": -740.0,
     "no_vig_prob": 0.843859
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_2b",
+    "selection": "Randal Grichuk 2B o0.5",
+    "american": 425.0,
+    "no_vig_prob": 0.178771
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_2b",
+    "selection": "Randal Grichuk 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.821229
   },
   {
     "matchup": "CLE @ CWS",
@@ -947,9 +975,37 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Patrick Bailey H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400807
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Patrick Bailey H+R+RBI u0.5",
     "american": 130.0,
     "no_vig_prob": 0.409961
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Patrick Bailey H+R+RBI u1.5",
+    "american": -176.0,
+    "no_vig_prob": 0.599193
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Randal Grichuk H+R+RBI o1.5",
+    "american": 116.0,
+    "no_vig_prob": 0.434828
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Randal Grichuk H+R+RBI u1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.565172
   },
   {
     "matchup": "CLE @ CWS",
@@ -1087,6 +1143,13 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hr",
+    "selection": "Colson Montgomery HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.009719
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hr",
     "selection": "Jo Adell HR o0.5",
     "american": 550.0,
     "no_vig_prob": 0.157949
@@ -1206,6 +1269,13 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hr",
+    "selection": "Sam Antonacci HR o1.5",
+    "american": 13000.0,
+    "no_vig_prob": 0.007634
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hr",
     "selection": "Steven Kwan HR o0.5",
     "american": 1900.0,
     "no_vig_prob": 0.05625
@@ -1230,6 +1300,13 @@
     "selection": "Travis Bazzana HR o1.5",
     "american": 18000.0,
     "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hr",
+    "selection": "Tristan Peters HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
   },
   {
     "matchup": "CLE @ CWS",
@@ -1724,6 +1801,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_rbi",
+    "selection": "Randal Grichuk RBI o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.301642
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_rbi",
+    "selection": "Randal Grichuk RBI u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.698358
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_rbi",
     "selection": "Sam Antonacci RBI o0.5",
     "american": 275.0,
     "no_vig_prob": 0.253815
@@ -1972,6 +2063,20 @@
     "selection": "Patrick Bailey R u0.5",
     "american": -250.0,
     "no_vig_prob": 0.66677
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_r",
+    "selection": "Randal Grichuk R o0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.316122
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_r",
+    "selection": "Randal Grichuk R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.683878
   },
   {
     "matchup": "CLE @ CWS",
@@ -2270,9 +2375,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_tb",
+    "selection": "Randal Grichuk TB o0.5",
+    "american": -143.0,
+    "no_vig_prob": 0.565003
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_tb",
     "selection": "Randal Grichuk TB o1.5",
     "american": 141.0,
     "no_vig_prob": 0.394502
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_tb",
+    "selection": "Randal Grichuk TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.434997
   },
   {
     "matchup": "CLE @ CWS",
@@ -2518,6 +2637,34 @@
     "selection": "Sean Newcomb Hits u1.5",
     "american": -230.0,
     "no_vig_prob": 0.644397
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "pitcher_k",
+    "selection": "Daniel Espino Ks o1.5",
+    "american": -105.0,
+    "no_vig_prob": 0.481972
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "pitcher_k",
+    "selection": "Daniel Espino Ks u1.5",
+    "american": -123.0,
+    "no_vig_prob": 0.518028
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "pitcher_k",
+    "selection": "Sean Newcomb Ks o1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.381901
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "pitcher_k",
+    "selection": "Sean Newcomb Ks u1.5",
+    "american": -196.0,
+    "no_vig_prob": 0.618099
   },
   {
     "matchup": "LAD @ ATL",
