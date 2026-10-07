@@ -3467,6 +3467,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_1b",
+    "selection": "Samad Taylor 1B o0.5",
+    "american": 127.0,
+    "no_vig_prob": 0.408574
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_1b",
+    "selection": "Samad Taylor 1B u0.5",
+    "american": -176.0,
+    "no_vig_prob": 0.591426
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_1b",
     "selection": "Ty France 1B o0.5",
     "american": -116.0,
     "no_vig_prob": 0.503593
@@ -3719,6 +3733,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_2b",
+    "selection": "Samad Taylor 2B o0.5",
+    "american": 594.0,
+    "no_vig_prob": 0.136816
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_2b",
+    "selection": "Samad Taylor 2B u0.5",
+    "american": -1000.0,
+    "no_vig_prob": 0.863184
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_2b",
     "selection": "Ty France 2B o0.5",
     "american": 390.0,
     "no_vig_prob": 0.197956
@@ -3929,6 +3957,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_bb",
+    "selection": "Joey Ortiz BB o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.25337
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
+    "selection": "Joey Ortiz BB u0.5",
+    "american": -390.0,
+    "no_vig_prob": 0.74663
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
     "selection": "Luis Campusano BB o0.5",
     "american": 200.0,
     "no_vig_prob": 0.307692
@@ -3967,6 +4009,20 @@
     "selection": "Sal Frelick BB u0.5",
     "american": -362.0,
     "no_vig_prob": 0.742223
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
+    "selection": "Samad Taylor BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.229837
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
+    "selection": "Samad Taylor BB u0.5",
+    "american": -427.0,
+    "no_vig_prob": 0.770163
   },
   {
     "matchup": "MIL @ SD",
@@ -4237,6 +4293,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hrr",
+    "selection": "Joey Ortiz H+R+RBI o0.5",
+    "american": -173.0,
+    "no_vig_prob": 0.600513
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Joey Ortiz H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.399487
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
     "selection": "Luis Campusano H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.390947
@@ -4289,6 +4359,20 @@
     "selection": "Sal Frelick H+R+RBI u1.5",
     "american": -150.0,
     "no_vig_prob": 0.565172
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Samad Taylor H+R+RBI o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.550681
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Samad Taylor H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.449319
   },
   {
     "matchup": "MIL @ SD",
@@ -4412,6 +4496,13 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hr",
+    "selection": "Ethan Salas HR o1.5",
+    "american": 20000.0,
+    "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
     "selection": "Fernando Tatis Jr. HR o0.5",
     "american": 450.0,
     "no_vig_prob": 0.18759
@@ -4503,6 +4594,13 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hr",
+    "selection": "Joey Ortiz HR o1.5",
+    "american": 30000.0,
+    "no_vig_prob": 0.003322
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
     "selection": "Luis Campusano HR o0.5",
     "american": 650.0,
     "no_vig_prob": 0.135632
@@ -4541,6 +4639,20 @@
     "selection": "Sal Frelick HR o1.5",
     "american": 27500.0,
     "no_vig_prob": 0.003623
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
+    "selection": "Samad Taylor HR o0.5",
+    "american": 1400.0,
+    "no_vig_prob": 0.069048
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
+    "selection": "Samad Taylor HR o1.5",
+    "american": 47500.0,
+    "no_vig_prob": 0.002101
   },
   {
     "matchup": "MIL @ SD",
@@ -4825,6 +4937,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_h",
+    "selection": "Samad Taylor H o0.5",
+    "american": -111.0,
+    "no_vig_prob": 0.49742
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
+    "selection": "Samad Taylor H u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.50258
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
     "selection": "Ty France H o0.5",
     "american": -215.0,
     "no_vig_prob": 0.646497
@@ -5084,6 +5210,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_rbi",
+    "selection": "Samad Taylor RBI o0.5",
+    "american": 355.0,
+    "no_vig_prob": 0.206699
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_rbi",
+    "selection": "Samad Taylor RBI u0.5",
+    "american": -539.0,
+    "no_vig_prob": 0.793301
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_rbi",
     "selection": "Ty France RBI o0.5",
     "american": 200.0,
     "no_vig_prob": 0.314
@@ -5332,6 +5472,20 @@
     "selection": "Sal Frelick R u0.5",
     "american": -272.0,
     "no_vig_prob": 0.690137
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_r",
+    "selection": "Samad Taylor R o0.5",
+    "american": 217.0,
+    "no_vig_prob": 0.294229
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_r",
+    "selection": "Samad Taylor R u0.5",
+    "american": -311.0,
+    "no_vig_prob": 0.705771
   },
   {
     "matchup": "MIL @ SD",
@@ -5602,6 +5756,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Samad Taylor TB o0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.487473
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Samad Taylor TB u0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.512527
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Ty France TB o1.5",
     "american": 152.0,
     "no_vig_prob": 0.385363
@@ -5756,9 +5924,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_bb",
+    "selection": "Nick Pivetta Walks o0.5",
+    "american": -242.0,
+    "no_vig_prob": 0.664446
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
     "selection": "Nick Pivetta Walks o1.5",
     "american": 190.0,
     "no_vig_prob": 0.323224
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Nick Pivetta Walks u0.5",
+    "american": 179.0,
+    "no_vig_prob": 0.335554
   },
   {
     "matchup": "MIL @ SD",
@@ -5833,9 +6015,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_h",
+    "selection": "Nick Pivetta Hits o3.5",
+    "american": 135.0,
+    "no_vig_prob": 0.404631
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
     "selection": "Nick Pivetta Hits u2.5",
     "american": 135.0,
     "no_vig_prob": 0.402142
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
+    "selection": "Nick Pivetta Hits u3.5",
+    "american": -168.0,
+    "no_vig_prob": 0.595369
   },
   {
     "matchup": "MIL @ SD",
