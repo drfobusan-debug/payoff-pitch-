@@ -33,7 +33,7 @@ from nhl_engine.audit.ledger import LedgerRow, row_from
 from nhl_engine.calibration import Calibrator
 from nhl_engine.config import Config
 from nhl_engine.data.book_rules import BookRules
-from nhl_engine.data.capture import MARKET_MAP, QuoteRow
+from nhl_engine.data.capture import MARKET_MAP, QuoteRow, parse_utc
 from nhl_engine.data.moneypuck import MoneyPuckClient, as_of
 from nhl_engine.data.nhlapi import NHLAPIClient, RosterSpot
 from nhl_engine.data.preseason import PreseasonPrior
@@ -148,6 +148,7 @@ class SlateCard:
     prior_version: str
     games: list[GameCard] = field(default_factory=list)
     unpriced: list[str] = field(default_factory=list)
+    props: PropContext | None = None
 
     @property
     def rows(self) -> list[LedgerRow]:
@@ -539,6 +540,31 @@ def _per_book_rules(board: Iterable[Selection]) -> Iterator[Selection]:
             yield replace(sel, best_american=american, best_book=book)
 
 
+def has_started(start_utc: str, now: datetime) -> bool:
+    start = parse_utc(start_utc)
+    return start is not None and start <= now
+
+
+def one_buy_per_side(rows: list[LedgerRow]) -> list[LedgerRow]:
+    """Keep one buy per (market, side, entity) in a game: the highest Kelly.
+
+    Two lines on the same side (Under 6.0 and Under 6.5) are one opinion; the
+    rest keep their tier but are gated ``duplicate_side``.
+    """
+    best: dict[tuple[str, str, str, str], LedgerRow] = {}
+    for r in rows:
+        if not r.is_buy:
+            continue
+        k = (r.matchup, r.market, r.side, r.entity)
+        if k not in best or (r.kelly, r.ev) > (best[k].kelly, best[k].ev):
+            best[k] = r
+    for r in rows:
+        if r.is_buy and best[(r.matchup, r.market, r.side, r.entity)] is not r:
+            r.gates.append("duplicate_side")
+            r.pass_gate = False
+    return rows
+
+
 def run_slate(
     quotes: list[QuoteRow],
     *,
@@ -554,6 +580,7 @@ def run_slate(
     now: datetime | None = None,
     seed: int | None = None,
     logs: PlayerLogClient | None = None,
+    starts: dict[str, str] | None = None,
 ) -> SlateCard:
     now = now or datetime.now(timezone.utc)
     priced_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -570,7 +597,7 @@ def run_slate(
     lineups = load_lineups(lineups_path(data_dir, slate))
     overrides = load_overrides(overrides_path(data_dir, slate))
     base_seed = seed if seed is not None else int(slate.strftime("%Y%m%d"))
-    out = SlateCard(slate, season, priced_at, tag, prior.version)
+    out = SlateCard(slate, season, priced_at, tag, prior.version, props=props)
     cache: dict[str, TeamInputs] = {}
 
     def inputs(code: str) -> TeamInputs:
@@ -591,6 +618,10 @@ def run_slate(
     for i, (matchup, (away, home, event_id)) in enumerate(sorted(games.items())):
         if home not in CODES or away not in CODES:
             out.unpriced.append(f"{matchup}: unknown team code")
+            continue
+        start = (starts or {}).get(matchup, "")
+        if has_started(start, now):
+            out.unpriced.append(f"{matchup}: started {start}, not priced")
             continue
         try:
             card = price_game(
@@ -613,7 +644,40 @@ def run_slate(
             out.unpriced.append(f"{matchup}: {exc}")
             continue
         card.event_id = event_id
+        one_buy_per_side(card.rows)
         out.games.append(card)
+    return out
+
+
+def league_inputs(
+    mp: MoneyPuckClient,
+    slate: Date,
+    *,
+    season: int,
+    cfg: Config,
+    prior: PreseasonPrior,
+    known: dict[str, TeamInputs] | None = None,
+) -> dict[str, dict[str, float]]:
+    """``team -> rates`` for all 32 teams (for league ranks on the PDF card)."""
+    league = league_for(mp, slate, season, prior)
+    out: dict[str, dict[str, float]] = {}
+    for code in sorted(CODES):
+        if known and code in known:
+            out[code] = dict(known[code].rates)
+            continue
+        out[code] = dict(
+            team_inputs(
+                mp,
+                code,
+                slate,
+                season=season,
+                cfg=cfg,
+                prior=prior,
+                league=league,
+                lineups={},
+                overrides={},
+            ).rates
+        )
     return out
 
 
@@ -623,6 +687,7 @@ __all__ = [
     "SlateCard",
     "TeamInputs",
     "league_for",
+    "league_inputs",
     "lineups_path",
     "load_lineups",
     "price_game",

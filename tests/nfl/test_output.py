@@ -374,3 +374,39 @@ def test_the_card_reads_the_graded_prop_files_off_disk(
     text = (out / f"NFL_{SEASON}_Week{WEEK:02d}.md").read_text()
     assert "## Prop research to date" in text
     assert "| usage | player_pass_yds | 2 | 1-1 |" in text
+
+
+def test_a_lean_the_line_has_come_to_is_marked_on_the_workbook_and_the_card(
+    entries: list[LedgerEntry],
+) -> None:
+    agrees = row("NYJ @ MIA", "spread", "MIA", ev_fair=-0.01, line=-3.0, screens="no_edge")
+    agrees.tier, agrees.drift = "Pass", 0.03
+    against = row("NYJ @ MIA", "total", "under", ev_fair=-0.01, line=44.5, screens="no_edge")
+    against.tier, against.drift = "Pass", -0.03
+    rows = [*entries, agrees, against]
+    card = build_card(rows, season=SEASON, week=WEEK)
+    mia = next(game for game in card.games if game.matchup == "NYJ @ MIA")
+    assert [(p.market, p.side) for p in mia.agrees] == [("spread", "MIA")]
+    assert mia.plays == []
+
+    page = render_html(card)
+    assert "<b><i>Line agrees: MIA -3" in page
+    assert "<b><i>Bold italic</i></b>: the model leans" in page
+    assert "***Line agrees: MIA -3" in render_markdown(card)
+
+    book = load_workbook(BytesIO(build_workbook(card, rows)))
+    sel = book["Selections"]
+    assert sel.max_row == 1 + len(rows)
+    bold = {(r[5].value, r[6].value) for r in sel.iter_rows(min_row=2) if r[0].font.bold}
+    assert bold == {("spread", "MIA")}
+    plays = [[c.value for c in r] for r in book["Plays"].iter_rows(min_row=2)]
+    assert any(r[2] == "MIA -3" for r in plays)
+    assert any(str(r[0]).startswith("Bold: the model leans") for r in plays)
+
+
+def test_the_record_tallies_the_leans_the_line_came_to(entries: list[LedgerEntry]) -> None:
+    won = row("CHI @ GB", "spread", "GB", ev_fair=-0.01, line=-3.0, result="win", screens="x")
+    won.drift, won.pnl = 0.04, 0.909
+    card = build_card([*entries, won], season=SEASON, week=WEEK)
+    tally = next(m for m in card.record if m.label == "Line agrees")
+    assert (tally.n, tally.wins) == (1, 1)

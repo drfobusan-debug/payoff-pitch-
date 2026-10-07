@@ -113,6 +113,8 @@ class Pipeline:
         self.espn = ESPNColor(cfg.cache_dir / "espn")
         self.briefs: dict[str, GameBrief] = {}
         self._first_board: dict[str, snapshot.SideQuote] = {}
+        self._opener: dict[str, snapshot.SideQuote] = {}
+        self._top_defenses: frozenset[str] = frozenset()
 
     def _load_calibrator(self) -> Calibrator:
         if self.cfg.calibrate and self.cfg.calibration_file.exists():
@@ -139,6 +141,26 @@ class Pipeline:
         ]
         return min(weeks) if weeks else 99
 
+    def _early_top_defenses(
+        self, sp: RatingBook | None, season: int, slate_date: Date
+    ) -> frozenset[str]:
+        """School keys of the top-ranked SP+ defenses, on the weeks their totals get the pull."""
+        m = self.cfg.model
+        if sp is None or m.top_def_rank <= 0 or season < m.top_def_from_season:
+            return frozenset()
+        if self._slate_week(season, slate_date) > m.top_def_max_week:
+            return frozenset()
+        ranked = sorted(sp.ratings.items(), key=lambda kv: kv[1].defense)
+        return frozenset(key for key, _ in ranked[: m.top_def_rank])
+
+    def _top_defense_side(self, game: Game) -> list[str]:
+        """Abbreviations of the sides fielding a top-ranked defense this slate."""
+        return [
+            team.abbrev
+            for team in (game.home, game.away)
+            if school_key(team.name) in self._top_defenses
+        ]
+
     def _season(self, slate_date: Date) -> int:
         if self.cfg.season:
             return self.cfg.season
@@ -155,11 +177,9 @@ class Pipeline:
             return []
 
         season = self._season(slate_date)
-        ratings = build_rating_book(
-            self.cfbd.fetch_ratings(season),
-            self.cfg.pff_dir,
-            self.cfg.ratings_file,
-        )
+        sp = self.cfbd.fetch_ratings(season)
+        self._top_defenses = self._early_top_defenses(sp, season, slate_date)
+        ratings = build_rating_book(sp, self.cfg.pff_dir, self.cfg.ratings_file)
         models: list[ModelRatings] = []
         if self.cfg.ensemble:
             models = self.ensemble.collect(season)
@@ -277,7 +297,9 @@ class Pipeline:
         season: int = 0,
     ) -> list[Recommendation]:
         home_hfa = hfa_for(game.home.name, self.cfg.model.home_field_pts, enabled=self.cfg.vsin_hfa)
-        means = self._means(game, odds, ratings, home_hfa)
+        top_def = self._top_defense_side(game)
+        total_blend = self.cfg.model.top_def_total_blend if top_def else None
+        means = self._means(game, odds, ratings, home_hfa, total_blend=total_blend)
         if means is None:
             return []
         adj = compute_adjustment(
@@ -300,6 +322,11 @@ class Pipeline:
                 adj.reasons.append(f"{side} returns more production ({delta:+.1f})")
         if means.source == "ratings":
             self._apply_roster(adj, game, season)
+        if top_def and means.source == "ratings+market":
+            adj.reasons.append(
+                f"Top-{self.cfg.model.top_def_rank} defense ({'/'.join(top_def)}): "
+                f"total {self.cfg.model.top_def_total_blend:.0%} to market"
+            )
         if portal:
             note = portal_note(portal, game.home.name, game.away.name)
             if note is not None:
@@ -347,7 +374,13 @@ class Pipeline:
         return mc.simulate(exp)
 
     def _means(
-        self, game: Game, odds: GameOdds, ratings: RatingBook | None, home_hfa: float
+        self,
+        game: Game,
+        odds: GameOdds,
+        ratings: RatingBook | None,
+        home_hfa: float,
+        *,
+        total_blend: float | None = None,
     ) -> _Means | None:
         mkt_spread = odds.consensus_home_spread()
         mkt_total = odds.consensus_total()
@@ -377,10 +410,11 @@ class Pipeline:
 
         if rating_margin is not None and market_margin is not None:
             w = self.cfg.model.market_blend
+            wt = w if total_blend is None else total_blend
             return _Means(
                 exp_margin=(1 - w) * rating_margin + w * market_margin,
-                exp_total=(1 - w) * (rating_total or market_total or 0.0)
-                + w * (market_total or rating_total or 0.0),
+                exp_total=(1 - wt) * (rating_total or market_total or 0.0)
+                + wt * (market_total or rating_total or 0.0),
                 source="ratings+market",
             )
         if rating_margin is not None:
@@ -625,6 +659,9 @@ class Pipeline:
             drift=drift,
             open_line=None if opened is None else opened.line,
             open_american=None if opened is None else opened.american,
+            open_drift=self._drift(
+                ctx.matchup, market, selection, side, line, result.fair_prob, self._opener
+            ),
             pass_gate=pass_gate,
             sharp_div=None if split is None else split.divergence,
             team_side=team_side,
@@ -662,6 +699,7 @@ class Pipeline:
             except OSError as exc:
                 logger.warning("could not write first-seen board (%s)", exc)
         self._first_board = merged
+        self._opener = snapshot.load(self.cfg.opener_file(slate_date))
         return merged
 
     def _drift(
@@ -672,14 +710,17 @@ class Pipeline:
         side: str | None,
         line: float | None,
         fair_prob: float,
+        baseline: dict[str, snapshot.SideQuote] | None = None,
     ) -> float | None:
-        """No-vig probability points the market has moved toward this side.
+        """No-vig probability points the market has moved toward this side since
+        ``baseline`` (default: the slate's first-seen board).
 
         On a spread or total most of the movement is in the number rather than
         the price, so the handicap difference is converted to probability at the
         distribution's local slope and the price difference added on top.
         """
-        base = self._first_board.get(snapshot.key(matchup, market, selection))
+        board = self._first_board if baseline is None else baseline
+        base = board.get(snapshot.key(matchup, market, selection))
         if base is None:
             return None
         pts = drift_probability(

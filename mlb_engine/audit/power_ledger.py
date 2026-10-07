@@ -518,8 +518,9 @@ def bucket(position: Position) -> str:
     """The stable bucket a recorded rating string belongs to.
 
     Current keys are the gate buckets in :mod:`mlb_engine.output.power_report`
-    (``RV NEG UNDER``, ``SOFT OVER``, ``ELITE UNDER``, ``PROD WATCH``). The
-    retired keys stay what they were: ``STRONG BUY`` = composite rank 1-2,
+    (``RV NEG WATCH``, ``SOFT OVER``, ``ELITE UNDER``, ``PROD WATCH``). The
+    retired keys stay what they were: ``RV NEG UNDER`` = the gate-1 under,
+    ``STRONG BUY`` = composite rank 1-2,
     ``BUY`` = low-contact tercile, ``HOLD`` = middle, ``AVOID`` = high-contact
     tercile, and a row written before :data:`CONTACT_LABEL_FLIP` had BUY and
     AVOID the other way round. Their records are read but no new row lands in them.

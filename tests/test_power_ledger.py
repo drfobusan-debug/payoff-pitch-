@@ -400,7 +400,7 @@ def test_the_labels_follow_the_money() -> None:
     # s.e. from zero: it earns no buy word, and neither does a losing bucket.
     assert power_report.strong_bucket(records) == "ELITE UNDER"
     assert power_report.labels(records) == {
-        "SOFT OVER": "WATCH", "RV NEG UNDER": "WATCH", "ELITE UNDER": "WATCH",
+        "SOFT OVER": "WATCH", "RV NEG WATCH": "WATCH", "ELITE UNDER": "WATCH",
         "PROD WATCH": "WATCH", "PROD DROP": "WATCH",
     }
 

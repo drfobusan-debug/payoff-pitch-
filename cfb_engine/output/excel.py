@@ -6,6 +6,8 @@ Sheets:
     which painted the longest prices brightest).
   * Fades                       : the sides the model is against.
   * Moneyline / ATS / Totals    : one tab per market family, every priced side.
+  * Line Agrees (graded only)   : totals sides the line had moved toward before
+    the card (``cfb_engine.market.lineagree``); graded on probation, not bets.
   * All                         : every priced market.
 
 One color language across sheets: green for Strong, yellow for Moderate, red
@@ -26,6 +28,7 @@ from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from cfb_engine.audit.priced import PricedStat
 from cfb_engine.audit.probation import Probation
+from cfb_engine.market import lineagree
 from cfb_engine.market.ordering import conviction as _conviction
 from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.tiers import Tier
@@ -38,13 +41,25 @@ CENTER = Alignment(horizontal="center")
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
     "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
-    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", "Notes",
+    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", lineagree.LABEL, "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 46]
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 22, 46]
 CENTER_COLS = {
     "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly",
-    "Handle-Tickets", "Tier",
+    "Handle-Tickets", "Tier", lineagree.LABEL,
 }
+# The graded-only totals rule gets its own tab, named so it cannot be read as a buy list.
+LINE_AGREES_TAB = "Line Agrees (graded only)"
+_LINE_AGREES_HEADER = "1F4E79"
+
+# Probability points the line must have come toward the model's spread/total side
+# since the slate's first board for the row to be bolded. Display only.
+AGREE_DRIFT = 0.02
+AGREE_LEGEND = (
+    "Bold: the model leans this spread/total side and the line has moved 2+ pts toward it"
+    " since the first board -- tracked, not a bet."
+)
+_LINE_MARKETS = frozenset({"game_ats", "game_total"})
 
 TIER_ORDER = {Tier.STRONG.value: 0, Tier.MODERATE.value: 1, Tier.PASS.value: 2}
 _MARKET_TABS = [("Moneyline", "game_ml"), ("ATS", "game_ats"), ("Totals", "game_total")]
@@ -60,6 +75,17 @@ _SCHEME = {
 def _interp(light: tuple[int, int, int], neon: tuple[int, int, int], t: float) -> str:
     rgb = tuple(int(light[i] + (neon[i] - light[i]) * t) for i in range(3))
     return f"{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+
+
+def line_agrees(rec: Recommendation) -> bool:
+    """A spread or total side the model leans to that the market has since come to."""
+    return (
+        rec.market in _LINE_MARKETS
+        and rec.drift is not None
+        and rec.fair_prob is not None
+        and rec.model_prob > rec.fair_prob
+        and rec.drift >= AGREE_DRIFT
+    )
 
 
 def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None = None) -> None:
@@ -84,9 +110,12 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         t = 0.5 if hi == lo else (_conviction(rec) - lo) / (hi - lo)
         fill = PatternFill("solid", fgColor=_interp(light, neon, 0.15 + 0.7 * t))
         row = rec.as_row()
+        bold = line_agrees(rec)
         for c, name in enumerate(COLUMNS, start=1):
             cell = ws.cell(row=row_idx, column=c, value=row[name])
             cell.fill = fill
+            if bold:
+                cell.font = Font(bold=True)
             if name in CENTER_COLS:
                 cell.alignment = CENTER
 
@@ -94,6 +123,7 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         ws.column_dimensions[get_column_letter(i)].width = w
     if ordered:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(ordered) + 1}"
+    ws.cell(row=len(ordered) + 3, column=1, value=AGREE_LEGEND)
     ws.freeze_panes = "A2"
 
 
@@ -110,6 +140,11 @@ def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date)
     _write_sheet(wb.create_sheet("Fades"), fades, header=_SCHEME[Tier.PASS][2])
     for title, market in _MARKET_TABS:
         _write_sheet(wb.create_sheet(title), [r for r in recs if r.market == market])
+    _write_sheet(
+        wb.create_sheet(LINE_AGREES_TAB),
+        [r for r in recs if r.line_agrees],
+        header=_LINE_AGREES_HEADER,
+    )
     _write_sheet(wb.create_sheet("All"), recs)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -149,6 +184,7 @@ _VERDICT_FILL = {
     "SHUT": PatternFill("solid", fgColor="FFC7CE"),
     "LIFT": PatternFill("solid", fgColor="FFC7CE"),
     "SHIP": PatternFill("solid", fgColor="FFEB9C"),
+    "PROMOTE": PatternFill("solid", fgColor="C6EFCE"),
 }
 
 

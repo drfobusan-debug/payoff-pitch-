@@ -4,7 +4,8 @@ Built entirely from the persisted :class:`~cfb_engine.recommendations.Recommenda
 list -- it never re-runs the simulation. For each game it tells the projection
 story (expected margin and total, the favorite, the market's number vs the
 model's) and lists the buys in bold; a slate-wide "best bets" block gathers
-every Strong/Moderate play strongest-first.
+every Strong/Moderate play strongest-first, and a separate block lists the
+graded-only "line agrees" totals (:mod:`cfb_engine.market.lineagree`).
 
 This is a model preview, not betting advice.
 """
@@ -18,10 +19,14 @@ from html import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from cfb_engine.audit.probation import Probation
+from cfb_engine.market import lineagree
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief, TeamBrief
+from cfb_engine.output.podcast import CSS as POD_CSS
+from cfb_engine.output.podcast import PodcastView, game_block, records_block
 from cfb_engine.output.render import to_mp3, to_pdf
 from cfb_engine.recommendations import Recommendation
 
@@ -45,6 +50,11 @@ def _kick_label(recs: list[Recommendation]) -> str:
     if dt is None:
         return ""
     return dt.strftime("%-I:%M %p ET")
+
+
+def _kick_prefix(r: Recommendation) -> str:
+    label = _kick_label([r])
+    return f"{label} · " if label else ""
 
 
 def _slate_order(groups: dict[str, list[Recommendation]]) -> list[list[Recommendation]]:
@@ -498,7 +508,7 @@ def _ordinal(n: int) -> str:
     return f"{n}{suffix}"
 
 
-def _game_section(recs: list[Recommendation]) -> str:
+def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None) -> str:
     matchup, headline, desc = _game_shape(recs)
     when = _kick_label(recs)
     kick = f" <span class='kick'>{when}</span>" if when else ""
@@ -514,29 +524,81 @@ def _game_section(recs: list[Recommendation]) -> str:
         f"{_market_line(recs)}{_movement_line(recs)}"
         f"<div class='shape'><span class='tag'>{headline}</span> {desc}</div>"
         f"{context}"
+        f"{game_block(podcast, matchup)}"
         f"{_ml_line(recs)}"
         f"{_game_best_block(recs)}</div>"
     )
 
 
+def _by_kickoff(buys: list[Recommendation]) -> list[Recommendation]:
+    """Early to late, strongest first within a game; no kickoff stamp sorts last."""
+
+    def order(rb: tuple[int, Recommendation]) -> tuple[bool, float, int]:
+        dt = _kickoff([rb[1]])
+        return dt is None, dt.timestamp() if dt else 0.0, rb[0]
+
+    return [b for _, b in sorted(enumerate(buys), key=order)]
+
+
 def _slate_best_block(recs: list[Recommendation]) -> str:
-    buys = _best_bets(recs)
+    buys = _by_kickoff(_best_bets(recs))
     if not buys:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
             "<p>The model passes the entire board today.</p></div>"
         )
     items = "".join(
-        f"<li><b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
+        f"<li>{_kick_prefix(b)}<b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
         f"({b.matchup}), model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% "
         f"· <i>{b.tier.value}</i></li>"
         for b in buys
     )
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
-        f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, strongest first:</p>"
+        f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
         f"<ul class='bets big'>{items}</ul></div>"
     )
+
+
+def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> str:
+    picks = sorted((r for r in recs if r.line_agrees), key=_line_agrees_order)
+    if record is None:
+        tally = "No graded record yet."
+    else:
+        tally = (
+            f"Graded so far: {record.n} games, {record.roi * 100:+.1f}% ROI "
+            f"(se {record.se * 100:.1f}), {record.status} &mdash; it needs 100 games, "
+            "more than one standard error above zero and both halves positive before it "
+            "can become a bet."
+        )
+    if picks:
+        items = "".join(
+            f"<li><b>{escape(r.selection)} ({_odds(r.market_american)})</b> &mdash; "
+            f"{escape(r.matchup)}, model {r.model_prob * 100:.1f}% vs market "
+            f"{(r.fair_prob or 0.0) * 100:.1f}%, {_opened(r)}market moved "
+            f"{(r.pre_bet_move or 0.0) * 100:+.1f} pp our way</li>"
+            for r in picks
+        )
+        body = f"<ul class='bets'>{items}</ul>"
+    else:
+        body = "<p>No total has moved toward the model's side yet today.</p>"
+    return (
+        f"<div class='lineagree'><h2>{lineagree.LABEL}</h2>"
+        "<p class='sbnote'>Totals where the market has moved at least 1 pp (one point of "
+        "no-vig probability, number and price together) toward the model's side since the "
+        "opener. Tracked to test the rule; "
+        f"these are not bets and carry no stake.</p>{body}<p class='sbnote'>{tally}</p></div>"
+    )
+
+
+def _opened(r: Recommendation) -> str:
+    if r.open_line is None or r.line is None or r.open_line == r.line:
+        return ""
+    return f"opened {r.open_line:g}, "
+
+
+def _line_agrees_order(r: Recommendation) -> tuple[str, float]:
+    return (r.kickoff_utc or "", -(r.pre_bet_move or 0.0))
 
 
 CSS = """
@@ -575,11 +637,19 @@ ul.bets b{color:#111;}
 .slatebets h2{color:#ffd76a;border:none;margin:0 0 4px;}
 .slatebets .sbnote{color:#c6ccd4;font-style:italic;font-size:9.4pt;margin:0 0 6px;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
+.lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
+.lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
+.lineagree .sbnote{color:#4b5563;font-style:italic;font-size:9pt;margin:2px 0 4px;}
 .fine{font-size:7.6pt;color:#9aa0a8;font-family:'DejaVu Sans',sans-serif;border-top:1px solid #e6e8ec;margin-top:16px;padding-top:6px;line-height:1.35;}
 """
 
 
-def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
+def build_article(
+    day: Date,
+    recs: list[Recommendation],
+    line_agrees_record: Probation | None = None,
+    podcast: PodcastView | None = None,
+) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
     ordered_games = _slate_order(groups)
@@ -599,8 +669,10 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
     )
-    body = "".join(_game_section(g) for g in ordered_games)
+    body = "".join(_game_section(g, podcast) for g in ordered_games)
     body += _slate_best_block(recs)
+    body += _line_agrees_block(recs, line_agrees_record)
+    body += records_block(podcast, ordered_games)
     fine = (
         "<p class='fine'>Methodology: expected margin and total come from CFBD SP+ (and PFF, "
         "when supplied) adjusted offense/defense, blended toward the market and run through a "
@@ -608,7 +680,7 @@ def build_article(day: Date, recs: list[Recommendation]) -> tuple[str, str]:
         "best posted price; edge is model minus market. Model preview, not investment advice.</p>"
     )
     html = (
-        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
+        f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}{POD_CSS}</style></head>"
         f"<body>{masthead}<p class='lead'>{lead}</p>{body}{fine}</body></html>"
     )
     return html, _narration(day, ordered_games, recs)
@@ -740,6 +812,8 @@ def generate_daily_card(
     email: bool,
     to: str | None,
     extra_attachments: list[tuple[str, bytes]] | None = None,
+    line_agrees_record: Probation | None = None,
+    podcast: PodcastView | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -747,7 +821,7 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs)
+    html, narr = build_article(slate_date, recs, line_agrees_record, podcast)
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"

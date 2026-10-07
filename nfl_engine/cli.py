@@ -33,10 +33,15 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date as Date
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from nfl_engine import calibration, props, props_grade, state
+from engine_common.podcasts import audit as podcast_audit
+from engine_common.podcasts import state as podcast_state
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.shows import NFL
+from nfl_engine import calibration, podcast, props, props_grade, state
 from nfl_engine import replay as replay_mod
 from nfl_engine.audit import availability, outside
 from nfl_engine.audit.ledger import (
@@ -700,6 +705,69 @@ def _state_push(message: str) -> None:
         print(f"  state: {report.describe()}")
 
 
+def _podcast_pull() -> None:
+    if load_config().state_sync:
+        podcast_state.auto_pull(store_dir())
+
+
+def _podcast_push(message: str) -> None:
+    if load_config().state_sync:
+        podcast_state.auto_push(store_dir(), message)
+
+
+def _grade_podcasts(season: int, weeks: list[int]) -> int:
+    """Grade the shows' NFL picks for ``weeks`` into the podcast ledger. Never raises."""
+    try:
+        entries = load_ledger(ledger_path())
+        frame = nflverse.graded_games(first_season=season)
+        n = sum(
+            len(podcast.grade_week(store_dir(), entries, season=season, week=w, frame=frame))
+            for w in weeks
+        )
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  podcast picks not graded ({exc})")
+        return 0
+    return n
+
+
+def cmd_podcast(args: argparse.Namespace) -> int:
+    """Read the shows' new episodes and grade their NFL picks. Prices nothing.
+
+    The read is the shared one: every show is transcribed and extracted once for
+    every league it covers. ``--no-read`` only grades what has already been read.
+    """
+    _podcast_pull()
+    if not args.no_read:
+        now = datetime.now(timezone.utc)
+        rep = read_feeds(
+            store_dir(),
+            now - timedelta(days=args.days),
+            now,
+            transcribe_missing=not args.no_transcribe,
+        )
+        print(f"  {rep.by_league.get(NFL, 0)} NFL picks read")
+    season, week = args.season, args.week
+    if season is None or week is None:
+        current_season, current, _ = current_week()
+        season, week = season or current_season, week or current
+    n = _grade_podcasts(season, list(range(1, week + 1)))
+    print(f"  {n} NFL podcast picks graded for {season} through week {week}")
+    _podcast_push(f"nfl podcasts: {season} week {week}")
+    return 0
+
+
+def _podcast_step(args: argparse.Namespace) -> int:
+    """The job's podcast leg: grade picks already read. The feeds are read by `podcast`."""
+    season, week = args.season, args.week
+    if season is None or week is None:
+        current_season, current, _ = current_week()
+        season, week = season or current_season, week or current
+    _podcast_pull()
+    print(f"  {_grade_podcasts(season, list(range(1, week + 1)))} NFL podcast picks graded")
+    _podcast_push(f"nfl podcasts: graded {season} week {week}")
+    return 0
+
+
 def _props_step(args: argparse.Namespace) -> int:
     """The job's prop leg: price the archived board, then grade what has played."""
     if not args.props:
@@ -785,6 +853,7 @@ def cmd_job(args: argparse.Namespace) -> int:
         ("close", cmd_close),
         ("grade", cmd_grade),
         ("props", _props_step),
+        ("podcasts", _podcast_step),
         ("report", cmd_report),
     ]
     if args.card or args.email:
@@ -884,7 +953,12 @@ def cmd_card(args: argparse.Namespace) -> int:
     if not card.games:
         print(f"no priced rows for {season} week {week}")
         return 0
-    text, page = render_markdown(card), render_html(card)
+    try:
+        shows = podcast.view(store_dir(), entries, season=season, week=week)
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  podcast picks not shown ({exc})")
+        shows = None
+    text, page = render_markdown(card), render_html(card, shows)
     out = output_dir()
     try:
         out.mkdir(parents=True, exist_ok=True)
@@ -904,6 +978,15 @@ def cmd_card(args: argparse.Namespace) -> int:
     else:
         if _write(out / f"{stem}.xlsx", workbook):
             attachments.append((f"{stem}.xlsx", workbook))
+
+    try:
+        ledgers = podcast_audit.all_ledgers(store_dir())
+        handicappers = podcast_audit.workbook(ledgers) if ledgers else None
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  handicapper audit not built ({exc})")
+        handicappers = None
+    if handicappers is not None and _write(out / "Handicapper_audit.xlsx", handicappers):
+        attachments.append(("Handicapper_audit.xlsx", handicappers))
 
     if _write(out / f"{stem}.md", text.encode("utf-8")):
         attachments.insert(0, (f"{stem}.md", text.encode("utf-8")))
@@ -1064,6 +1147,14 @@ def main(argv: list[str] | None = None) -> int:
     replay_cmd.add_argument("--no-write", dest="write", action="store_false")
     replay_cmd.add_argument("--no-ratings", dest="ratings", action="store_false", default=True)
     replay_cmd.set_defaults(func=cmd_replay)
+
+    pod = sub.add_parser("podcast", help="read the shows' feeds and grade their NFL picks")
+    pod.add_argument("--days", type=int, default=9, help="read episodes this many days back")
+    pod.add_argument("--season", type=int, default=None)
+    pod.add_argument("--week", type=int, default=None)
+    pod.add_argument("--no-read", action="store_true", help="grade only; read no feed")
+    pod.add_argument("--no-transcribe", action="store_true", help="use transcripts on disk only")
+    pod.set_defaults(func=cmd_podcast)
 
     job = sub.add_parser("job", help="capture, price, close, grade and report in order")
     job.add_argument("--days", type=int, default=8)

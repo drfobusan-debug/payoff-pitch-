@@ -16,12 +16,14 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from pathlib import Path
 
 from engine_common.odds import american_to_prob
 from nhl_engine.audit.grade import dual_rule, pnl, settle
+from nhl_engine.data.capture import QuoteRow, pregame
 from nhl_engine.market.board import Selection, selections
 from nhl_engine.market.pricing import Priced
 from nhl_engine.schemas import GameResult
@@ -181,11 +183,18 @@ def close_consensus(
 def grade_rows(
     rows: list[LedgerRow],
     results: dict[str, GameResult],
-    day_quotes: list,
+    day_quotes: list[QuoteRow],
     *,
     graded_at: str,
+    starts: Mapping[str, str] | None = None,
 ) -> list[LedgerRow]:
-    """Settle every row with a final result; rows without one are left ungraded."""
+    """Settle every row with a final result; rows without one are left ungraded.
+
+    With ``starts`` (matchup -> puck drop UTC) the close is the last quote before
+    puck drop, so in-play boards never stand in for the closing line.
+    """
+    if starts is not None:
+        day_quotes = pregame(day_quotes, starts)
     close = close_consensus(selections(day_quotes)) if day_quotes else {}
     out: list[LedgerRow] = []
     for r in rows:

@@ -58,6 +58,9 @@ class Credentials:
         default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
     )
     gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
+    # Optional: turns the podcast transcript segment into a bet/reasoning summary
+    # on the PDF. Without it the card shows the deterministic read only.
+    openai_api_key: str | None = field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
 
     def has_odds_api(self) -> bool:
         return bool(self.odds_api_key)

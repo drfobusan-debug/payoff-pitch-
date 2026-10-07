@@ -1072,8 +1072,16 @@ def to_pdf(html: str) -> bytes:
     return bytes(HTML(string=html).write_pdf())
 
 
+TTS_TIMEOUT_S = 300.0
+GTTS_REQUEST_TIMEOUT_S = 60.0
+
+
 def to_mp3(text: str, path: Path) -> bytes:
-    """Neural sportscaster voice via edge-tts, gTTS fallback."""
+    """Neural sportscaster voice via edge-tts, gTTS fallback.
+
+    Both voices are network calls, and a scheduled pass waits on this one, so
+    each is bounded: a stalled connection raises instead of holding the pass.
+    """
     try:
         import asyncio
 
@@ -1083,14 +1091,15 @@ def to_mp3(text: str, path: Path) -> bytes:
             comm = edge_tts.Communicate(
                 text, voice="en-US-ChristopherNeural", rate="+12%", pitch="+2Hz"
             )
-            await comm.save(str(path))
+            await asyncio.wait_for(comm.save(str(path)), timeout=TTS_TIMEOUT_S)
 
         asyncio.run(_go())
     except Exception as exc:  # noqa: BLE001
         logger.warning("edge-tts failed (%s); falling back to gTTS", exc)
         from gtts import gTTS
 
-        gTTS(text=text, lang="en", tld="com", slow=False).save(str(path))
+        voice = gTTS(text=text, lang="en", tld="com", slow=False, timeout=GTTS_REQUEST_TIMEOUT_S)
+        voice.save(str(path))
     return path.read_bytes()
 
 

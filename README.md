@@ -585,6 +585,19 @@ half and -53.3% over the newer, and the first-five rows it would have deleted we
 Keeping them here rather than in a chat message is the point: another month of
 slates may say something the first 27 did not.
 
+### The opener capture (CFB)
+
+`cfb-engine opener` (scheduled daily at 07:00) captures the next `CFBE_OPENER_DAYS`
+(default 7) days of NCAAF boards in one Odds API request and writes each slate's
+earliest quote per side to `opener_<date>.json`, synced under `cfb/opener/`. The
+card's day-of `board_<date>.json` is untouched, so the live drift gate keeps the
+baseline it was fitted on. Each priced side carries `open_drift` (no-vig points the
+market moved toward it since the opener) into the ledger, where it is graded only:
+`open_drift_refuse_adverse_2pct` as a candidate screen, and
+`drift_upgrade_agrees_2pct` / `open_drift_upgrade_agrees_2pct` as candidate
+upgrades, which read `PROMOTE` only if the buys the line had already come to win
+past one standard error, in both halves, on 100+ buys.
+
 ### Selection guards
 
 Twenty-seven graded slates put the model's *ranking* ahead of its *buying*: inside
@@ -1027,6 +1040,32 @@ go to `~/.cfb_engine/schedule.log`.
 
 Remove the schedule with `launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cfb.*.plist`
 (macOS) or `crontab -l | grep -vF '# payoff-pitch-cfb-schedule' | crontab -` (Linux).
+
+### Podcast picks (CFB)
+
+`cfb-engine podcast` reads the registered shows' RSS feeds
+(`cfb_engine/podcast/shows.py`), transcribes each CFB episode locally with
+faster-whisper (`pip install -e ".[podcast]"`), and has an OpenAI model
+(`OPENAI_API_KEY`, `CFBE_PODCAST_MODEL`, default `gpt-4o-mini`) list every CFB bet
+and lean with its timestamp and a verbatim quote. A pick whose quote is not in the
+transcript near its timestamp is refused, and a line or price the host never said
+is cleared. Extractions are cached per transcript under `audit/podcast_picks/`.
+
+Picks are placed on the slate's games (both schools, or one school only when
+unambiguous; futures and other markets stay unmatched), printed under each game in
+the slate PDF, and graded by the nightly `audit` into `audit/podcast_ledger.csv`,
+which is separate from the engine's ledger. Official bets and leans are recorded
+apart. Units, ROI and CLV are computed only against a price the host stated or the
+board quote at that same number, never an assumed -110. Records are marked
+underpowered until they clear break-even by 2 SE. None of it reaches a price,
+probability, gate or tier.
+
+    cfb-engine podcast                       # last 9 days, all shows
+    cfb-engine podcast --since 2026-08-20    # backfill from the feed archives
+    cfb-engine podcast --shows vsin_cfb,cfe --no-transcribe
+    cfb-engine podcast --date 2026-10-10 --card   # rebuild that PDF, no email
+
+The schedule installers run it at 05:00, and again at 20:00 with `--card`.
 
 ## Notes / limitations
 

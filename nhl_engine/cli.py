@@ -22,6 +22,8 @@ Phase 2 commands (priced card, ledger, grading):
 * ``starter`` -- record a confirmed/probable goalie for a team on a date.
 * ``lineups`` -- pull RotoWire's expected/confirmed goalies and injury list
   for today (or tomorrow) into the starter overrides and availability log.
+* ``podcast`` -- find the Hockey Gambling Podcast episode for the slate,
+  transcribe it locally and write the per-game read the PDF shows.
 * ``audit`` -- grade a date's ledger against official finals (CLV, dual-rule
   flag) and print the running scorecard.
 * ``calibrate`` -- refit per-market isotonic maps from every graded ledger.
@@ -38,17 +40,18 @@ from datetime import date as Date
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from nhl_engine import email, outputs, pipeline, state
-from nhl_engine.audit import ledger, scorecard
+from nhl_engine import email, outputs, pipeline, report, state
+from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
-from nhl_engine.data import capture, preseason, rotowire
+from nhl_engine.data import capture, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
 from nhl_engine.data.oddsapi import OddsAPIClient
 from nhl_engine.data.teamnames import CODES, canonical
-from nhl_engine.features import lineup_feed, starters, strength
+from nhl_engine.features import lineup_feed, podcast_read, starters, strength
+from nhl_engine.market import board
 from nhl_engine.schemas import GameResult
 
 log = logging.getLogger("nhl_engine")
@@ -285,6 +288,11 @@ def cmd_card(args: argparse.Namespace) -> int:
         return 2
     mp = MoneyPuckClient(cache_dir=cache_dir())
     prior = _prior_for(season, mp, slate)
+    try:
+        starts = {g.matchup: g.start_utc for g in _nhlapi().schedule(slate)}
+    except Exception as exc:  # no schedule: price every game rather than none
+        print(f"NHL schedule unavailable, started games not skipped: {exc}", file=sys.stderr)
+        starts = {}
     card = pipeline.run_slate(
         quotes,
         slate=slate,
@@ -297,8 +305,25 @@ def cmd_card(args: argparse.Namespace) -> int:
         data_dir=root,
         tag=args.tag,
         seed=args.seed,
+        starts=starts,
     )
     paths = outputs.write_all(card, output_dir())
+    if not args.no_pdf:
+        try:
+            known = {t.code: t for g in card.games for t in (g.away_in, g.home_in)}
+            rates = pipeline.league_inputs(
+                mp, slate, season=season, cfg=cfg, prior=prior, known=known
+            )
+            ctx = report.build_context(card, mp=mp, data_dir=root, all_rates=rates)
+            ctx.podcast = podcast_read.load_read(root, slate)
+            ctx.pod_picks = podcast_picks.load_picks(podcast_picks.picks_path(root, slate))
+            ctx.pod_history = podcast_picks.load_all_picks(root)
+            ctx.pod_stated = podcast_picks.load_records(podcast_picks.records_path(root, slate))
+            paths["pdf"] = report.write_pdf(
+                card, ctx, report.pdf_path(output_dir(), slate, args.tag)
+            )
+        except Exception:  # the PDF is a view of the card; never lose the card over it
+            log.exception("pdf card failed")
     ledger.save_rows(card.rows, ledger.card_path(root, slate, args.tag))
     written = ""
     if args.tag == "initial" or args.ledger:
@@ -309,6 +334,7 @@ def cmd_card(args: argparse.Namespace) -> int:
     print(outputs.render_card(card), end="")
     print("outputs: " + ", ".join(str(p) for p in paths.values()) + written)
     if args.email:
+        paths.update(ledger_report.latest(output_dir()))
         try:
             to = email.send_card(cfg, card, paths, to=args.to)
             print(f"emailed {len(paths)} attachment(s) for {slate} -> {to}")
@@ -355,14 +381,87 @@ def cmd_lineups(args: argparse.Namespace) -> int:
     return 0
 
 
-def _results_for(day: Date) -> dict[str, GameResult]:
-    client = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+def _nhlapi() -> NHLAPIClient:
+    return NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+
+
+def _results_for(day: Date) -> tuple[dict[str, GameResult], dict[str, str]]:
+    """Finals and puck-drop times (UTC) by matchup."""
+    client = _nhlapi()
     out: dict[str, GameResult] = {}
+    starts: dict[str, str] = {}
     for game in client.schedule(day):
+        starts[game.matchup] = game.start_utc
         res = client.result(game)
         if res is not None:
             out[game.matchup] = res
-    return out
+    return out, starts
+
+
+def cmd_podcast(args: argparse.Namespace) -> int:
+    """Episode for the slate -> cached transcript -> per-game read JSON."""
+    cfg = load_config()
+    root = data_dir()
+    slate = _parse_date(args.date)
+    quotes = capture.read_day(root, slate)
+    pairs = sorted((a, h) for a, h, _ in board.matchups(quotes).values())
+    try:
+        eps = podcast.episodes_for(podcast.fetch_feed(args.feed), slate)
+    except Exception as exc:  # noqa: BLE001 - the feed is a convenience, not the card
+        eps = []
+        print(f"podcast feed unavailable: {exc}", file=sys.stderr)
+    if not eps:
+        read = podcast_read.PodcastRead(
+            slate.isoformat(), "no_episode", detail="no episode titled for this slate in the feed"
+        )
+        print(f"podcast: no episode for {slate}; wrote {podcast_read.save_read(read, root)}")
+        return 0
+    ep = eps[0]
+    try:
+        tpath = podcast.ensure_transcript(
+            ep, root, model=args.model, transcribe_missing=not args.no_transcribe
+        )
+    except podcast.PodcastUnavailable as exc:
+        tpath = None
+        print(f"podcast: {exc}", file=sys.stderr)
+    if tpath is None:
+        read = podcast_read.PodcastRead(
+            slate.isoformat(),
+            "no_transcript",
+            detail="episode found, no transcript",
+            episode_title=ep.title,
+            published=ep.published,
+        )
+        print(
+            f"podcast: {ep.title!r} found but not transcribed; wrote {podcast_read.save_read(read, root)}"
+        )
+        return 1
+    if not pairs:
+        print(f"no archived prices for {slate}; run `nhl-engine capture` first", file=sys.stderr)
+        return 2
+    lines = podcast.read_transcript(tpath)
+    read = podcast_read.build_read(ep, lines, slate, pairs)
+    calls = podcast_read.add_summaries(read, root, api_key=cfg.creds.openai_api_key)
+    path = podcast_read.save_read(read, root)
+    picks = podcast_picks.extract_picks(read)
+    podcast_picks.save_picks(picks, podcast_picks.picks_path(root, slate))
+    stated = podcast_picks.stated_records([(ln.stamp, ln.text) for ln in lines])
+    podcast_picks.save_records(stated, podcast_picks.records_path(root, slate))
+    mode = (
+        f"openai summaries ({calls} new)"
+        if cfg.creds.openai_api_key
+        else "deterministic only (no OPENAI_API_KEY)"
+    )
+    print(
+        f"podcast: {ep.title!r} -> {len(read.games)}/{len(pairs)} slate games found, "
+        f"{len(read.not_on_slate)} other intros; {mode}; wrote {path}"
+    )
+    for g in read.games.values():
+        print(
+            f"  {g.matchup} @ {g.anchor}: ML {g.quoted_ml} total {g.quoted_total} ({len(g.mentions)} mentions)"
+        )
+    print(f"  {len(picks)} picks logged for grading; {len(stated)} self-reported records heard")
+    return 0
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
@@ -373,8 +472,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
         state.auto_pull(root)
     rows = ledger.load_rows(ledger.predictions_path(root, day))
     if rows:
+        results, starts = _results_for(day)
         graded = ledger.grade_rows(
-            rows, _results_for(day), capture.read_day(root, day), graded_at=capture.now_utc()
+            rows,
+            results,
+            capture.read_day(root, day),
+            graded_at=capture.now_utc(),
+            starts=starts,
         )
         ledger.save_rows(graded, ledger.graded_path(root, day))
         done = sum(1 for r in graded if r.outcome is not None)
@@ -383,12 +487,63 @@ def cmd_audit(args: argparse.Namespace) -> int:
             state.auto_push(root, f"nhl audit {day}: {done} graded")
     else:
         print(f"{day}: no ledger to grade")
+    pod_path = podcast_picks.picks_path(root, day)
+    picks = podcast_picks.load_picks(pod_path)
+    if picks:
+        if not rows:
+            results, starts = _results_for(day)
+        podcast_picks.grade_picks(
+            picks, results, capture.read_day(root, day), graded_at=capture.now_utc(), starts=starts
+        )
+        podcast_picks.save_picks(picks, pod_path)
+        print(f"{day}: graded {sum(1 for p in picks if p.outcome)}/{len(picks)} podcast picks")
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
     print()
     print(scorecard.scorecard(all_rows).render(), end="")
+    pod_all = podcast_picks.load_all_picks(root)
+    if pod_all:
+        print()
+        print(podcast_picks.render(pod_all), end="")
+    if not args.no_report:
+        as_of = capture.now_utc()
+        audit = ledger_report.build(all_rows, _starters_for(all_rows))
+        try:
+            paths = ledger_report.write(audit, output_dir(), day, as_of=as_of)
+        except Exception:  # the PDF is a view of the md; keep the md
+            log.exception("audit pdf failed")
+            paths = ledger_report.write(audit, output_dir(), day, as_of=as_of, pdf=False)
+        print()
+        print("\n".join(audit.findings or ["no findings yet"]))
+        print("audit report: " + ", ".join(str(p) for p in paths.values()))
+        if args.email:
+            try:
+                to = email.send_files(
+                    load_config(),
+                    subject=f"NHL ledger audit {day} -- {audit.buys.record} buys",
+                    body=ledger_report.render_md(audit, as_of=as_of),
+                    paths=paths,
+                    to=args.to,
+                )
+                print(f"emailed audit -> {to}")
+            except email.EmailNotConfigured as exc:
+                print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+def _starters_for(rows: list[ledger.LedgerRow]) -> dict[str, tuple[str, str]]:
+    """Actual starters for every graded night (NHL API cache), for the goalie read."""
+    out: dict[str, tuple[str, str]] = {}
+    for night in sorted({r.slate_date for r in rows}):
+        try:
+            results, _ = _results_for(Date.fromisoformat(night))
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("starters for %s unavailable: %s", night, exc)
+            continue
+        for m, res in results.items():
+            out[f"{night}|{m}"] = (res.away_starter, res.home_starter)
+    return out
 
 
 def cmd_calibrate(args: argparse.Namespace) -> int:
@@ -454,7 +609,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cd.add_argument("--seed", type=int, help="sim seed (default derived from the date)")
     cd.add_argument("--no-sync", action="store_true")
-    cd.add_argument("--email", action="store_true", help="send the card (txt/md/xlsx attached)")
+    cd.add_argument("--no-pdf", action="store_true", help="skip the PDF card")
+    cd.add_argument("--email", action="store_true", help="send the card (pdf/txt/md/xlsx attached)")
     cd.add_argument("--to", help="recipient (default NHLE_EMAIL_TO / MLBE_EMAIL_TO)")
     cd.set_defaults(func=cmd_card)
 
@@ -472,9 +628,19 @@ def build_parser() -> argparse.ArgumentParser:
     lu.add_argument("--no-sync", action="store_true")
     lu.set_defaults(func=cmd_lineups)
 
+    pc = sub.add_parser("podcast", help="Hockey Gambling Podcast read for the slate -> PDF")
+    pc.add_argument("--date")
+    pc.add_argument("--feed", default=podcast.FEED_URL)
+    pc.add_argument("--model", default=podcast.WHISPER_MODEL, help="faster-whisper model")
+    pc.add_argument("--no-transcribe", action="store_true", help="use a cached transcript only")
+    pc.set_defaults(func=cmd_podcast)
+
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")
     au.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
+    au.add_argument("--no-report", action="store_true", help="skip the ledger audit md/pdf")
+    au.add_argument("--email", action="store_true", help="email the ledger audit report")
+    au.add_argument("--to", help="override recipient")
     au.set_defaults(func=cmd_audit)
 
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")

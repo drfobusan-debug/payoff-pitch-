@@ -168,3 +168,18 @@ def test_the_scheduled_audit_grades_yesterday_not_today(monkeypatch):
     assert cli._day(args) == date(2026, 9, 12)
     explicit = _build_parser().parse_args(["audit", "--date", "2026-09-04"])
     assert cli._audit_day(explicit) == date(2026, 9, 4)
+
+
+def test_a_lean_the_line_has_come_to_is_bold_with_a_legend(tmp_path):
+    agrees = _rec(Tier.PASS, "game_ats")
+    agrees.drift = 0.03
+    flat = _rec(Tier.PASS, "game_total")
+    flat.drift = 0.0
+    out = write_workbook([agrees, flat], tmp_path / "cfb.xlsx", DAY)
+    ws = load_workbook(out)["All"]
+    market = [c.value for c in ws[1]].index("Market")
+    bold = [
+        ws.cell(row=r, column=market + 1).value for r in (2, 3) if ws.cell(row=r, column=1).font.bold
+    ]
+    assert bold == [agrees.display_category]
+    assert str(ws.cell(row=5, column=1).value).startswith("Bold: the model leans")
