@@ -1,16 +1,14 @@
 """Podcast picks in a slate PDF: under each game, and their records at the back.
 
 League-free HTML. Context only: nothing here reads a model probability into a
-decision. Each pick prints as a bet, ``Name (record). SELECTION PRICE (edge)``:
-the host's stated edge and the engine's on that side, so agreement can be seen,
-not used.
+decision. Each pick prints as a bet, ``Name (record). SELECTION PRICE (edge)``,
+the edge being the host's own reason for the bet.
 """
 
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from html import escape
 from typing import Generic, TypeVar
 
@@ -36,44 +34,9 @@ CSS = """
 """
 
 
-@dataclass(frozen=True)
-class EngineEdge:
-    """The engine's edge on a pick's side; ``line`` is the engine's number when it differs."""
-
-    edge: float
-    line: float | None = None
-
-
-def nearest_edge(
-    pick_line: float | None, priced: Iterable[tuple[float | None, float]]
-) -> EngineEdge | None:
-    """The engine's edge at the pick's number, else at the closest number it priced.
-
-    ``priced`` is ``(line, edge)`` for every engine row on the pick's market and side.
-    """
-    rows = list(priced)
-    if not rows:
-        return None
-    if pick_line is None:
-        return EngineEdge(rows[0][1])
-    line, edge = min(
-        rows, key=lambda le: abs(le[0] - pick_line) if le[0] is not None else float("inf")
-    )
-    if line is None:
-        return None
-    return EngineEdge(edge, None if line == pick_line else line)
-
-
-def edge_text(e: EngineEdge | None, market: str, stated: str = "") -> str:
-    """The host's own stated edge, if they gave one, then the engine's on that side."""
-    if e is None:
-        engine = "no engine edge"
-    else:
-        at = ""
-        if e.line is not None:
-            at = f" at {e.line:+g}" if market in ("game_ats", "game_pl") else f" at {e.line:g}"
-        engine = f"engine {e.edge * 100:+.1f}%{at}"
-    return f"{stated}; {engine}" if stated else engine
+def reason(p: Pick) -> str:
+    """The host's own reason for the bet, as extracted; never one of ours."""
+    return p.edge or p.reason or "no reason given"
 
 
 def bet_line(
@@ -88,15 +51,10 @@ def bet_line(
     )
 
 
-def _no_edge(_: Placed[R]) -> EngineEdge | None:
-    return None
-
-
 @dataclass
 class PodcastView(Generic[R]):
     slate: SlatePicks[R]
     records: Records
-    engine_edge: Callable[[Placed[R]], EngineEdge | None] = field(default=_no_edge)
 
 
 def _wlp_units(r: Record) -> str:
@@ -123,9 +81,7 @@ def _item(pl: Placed[R], view: PodcastView[R]) -> str:
     )
     name = f"{p.host} · {p.show_name}" if p.host else p.show_name
     record = _wlp_units(rec) if rec else "no graded picks yet"
-    stated = p.edge or (f"their number {p.fair_line:g}" if p.fair_line is not None else "")
-    edge = edge_text(view.engine_edge(pl), p.market, stated)
-    return bet_line(name, record, pl.label, p.price, edge, lean=p.kind != "official")
+    return bet_line(name, record, pl.label, p.price, reason(p), lean=p.kind != "official")
 
 
 def game_block(view: PodcastView[R] | None, matchup: str) -> str:
@@ -230,8 +186,7 @@ def records_block(view: PodcastView[R] | None, ordered: list[str]) -> str:
         "<p class='sbnote'>Graded at the number the host said. Units only where a price is "
         "known: the host's own, or the board's at the host's number. A stake is 1u "
         "unless the host named one. CLV is points of line value against the close (spreads "
-        "and totals). A bet's edge is the host's own stated edge, then the engine's model "
-        "minus the market on that side, at the host's number or the nearest it priced. "
+        "and totals). A bet's edge is the host's own reason for it, as they gave it. "
         "Underpowered: within 2 SE of the 52.4% needed at -110.</p>"
     )
     return (
@@ -248,11 +203,9 @@ def records_block(view: PodcastView[R] | None, ordered: list[str]) -> str:
 
 __all__ = [
     "CSS",
-    "EngineEdge",
     "PodcastView",
     "bet_line",
-    "edge_text",
     "game_block",
-    "nearest_edge",
+    "reason",
     "records_block",
 ]

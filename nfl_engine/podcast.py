@@ -134,20 +134,6 @@ def engine_view(pl: Placed) -> str:
     return "engine agrees" if any(_same_side(e, pl) for e in plays) else "engine disagrees"
 
 
-def engine_edge(pl: Placed) -> render.EngineEdge | None:
-    """The engine's model-minus-fair on this side, at the host's number or the nearest."""
-    market = MARKET.get(pl.pick.market)
-    mine = [
-        (e.line, e.model_prob - e.fair_prob)
-        for e in pl.game.rows or []
-        if e.market == market
-        and _same_side(e, pl)
-        and e.model_prob is not None
-        and e.fair_prob is not None
-    ]
-    return render.nearest_edge(pl.line, mine)
-
-
 LEAGUE: League[Rows] = League(NFL, same_team, engine_view, horizon=HORIZON)
 
 
@@ -265,7 +251,6 @@ def view(
     return render.PodcastView(
         slate_picks(extractions, entries, season=season, week=week),
         core.records(core.load_ledger(ledger or ledger_path(store, NFL))),
-        engine_edge,
     )
 
 
@@ -274,7 +259,6 @@ __all__ = [
     "MARKET",
     "PodcastView",
     "board_price",
-    "engine_edge",
     "engine_view",
     "finals",
     "grade_row",

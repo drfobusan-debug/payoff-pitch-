@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.podcast.picks import Rows, engine_edge, load_ledger, records, slate_picks
+from cfb_engine.podcast.picks import Rows, load_ledger, records, slate_picks
 from cfb_engine.recommendations import Recommendation
 from engine_common.podcasts import render
 from engine_common.podcasts.extract import PICKS_DIR, load_extractions
@@ -26,7 +26,7 @@ def podcast_view(
     if not extractions:
         return None
     return render.PodcastView(
-        slate_picks(extractions, recs, day), records(load_ledger(ledger_file)), engine_edge
+        slate_picks(extractions, recs, day), records(load_ledger(ledger_file))
     )
 
 
