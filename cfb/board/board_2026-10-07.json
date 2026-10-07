@@ -1,0 +1,62 @@
+{
+  "Jacksonville S @ Kennesaw State|game_ats|Jacksonville S": {
+    "american": -101.0,
+    "line": -3.0,
+    "no_vig_prob": 0.49105959011518835
+  },
+  "Jacksonville S @ Kennesaw State|game_ats|Kennesaw State": {
+    "american": -110.0,
+    "line": 3.0,
+    "no_vig_prob": 0.5089404098848117
+  },
+  "Jacksonville S @ Kennesaw State|game_ml|Jacksonville S": {
+    "american": -140.0,
+    "line": null,
+    "no_vig_prob": 0.5664961870478928
+  },
+  "Jacksonville S @ Kennesaw State|game_ml|Kennesaw State": {
+    "american": 126.0,
+    "line": null,
+    "no_vig_prob": 0.4335038129521071
+  },
+  "Jacksonville S @ Kennesaw State|game_total|Over": {
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.49969719292061276
+  },
+  "Jacksonville S @ Kennesaw State|game_total|Under": {
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.5003028070793873
+  },
+  "New Mexico Sta @ Florida Intern|game_ats|Florida Intern": {
+    "american": -109.0,
+    "line": -6.5,
+    "no_vig_prob": 0.5057614337178189
+  },
+  "New Mexico Sta @ Florida Intern|game_ats|New Mexico Sta": {
+    "american": -102.0,
+    "line": 6.5,
+    "no_vig_prob": 0.49423856628218105
+  },
+  "New Mexico Sta @ Florida Intern|game_ml|Florida Intern": {
+    "american": -235.0,
+    "line": null,
+    "no_vig_prob": 0.6808260705920236
+  },
+  "New Mexico Sta @ Florida Intern|game_ml|New Mexico Sta": {
+    "american": 210.0,
+    "line": null,
+    "no_vig_prob": 0.31917392940797645
+  },
+  "New Mexico Sta @ Florida Intern|game_total|Over": {
+    "american": -110.0,
+    "line": 46.5,
+    "no_vig_prob": 0.508094116236609
+  },
+  "New Mexico Sta @ Florida Intern|game_total|Under": {
+    "american": -103.0,
+    "line": 46.5,
+    "no_vig_prob": 0.49190588376339095
+  }
+}
