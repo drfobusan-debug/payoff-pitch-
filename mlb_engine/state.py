@@ -37,7 +37,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from mlb_engine.audit import power_ledger
+from mlb_engine.audit import power_ledger, power_roster
 from mlb_engine.audit.clv import (
     load_closing,
     merge_board,
@@ -424,6 +424,14 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     (
         power_ledger.LEDGER_NAME,
         ("date", "run_id", "player_id", "game_pk", "stat", "line", "side"),
+        False,
+    ),
+    # Who the screen kept and which arms it rated, priced or not: the audit's
+    # only record of a survivor no book had quoted yet. Same capture rule as
+    # the ledger -- a run is the unit and two machines' runs both stand.
+    (
+        power_roster.ROSTER_NAME,
+        ("date", "run_id", "arm_tier", "kind", "player_id", "versus_id"),
         False,
     ),
     # The hand totals sheet's receipt. The Mac writes and grades it; without
