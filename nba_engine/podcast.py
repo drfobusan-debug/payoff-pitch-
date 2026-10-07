@@ -156,14 +156,6 @@ def engine_view(pl: Placed) -> str:
     return "engine agrees" if any(_same_side(r, pl) for r in buys) else "engine disagrees"
 
 
-def engine_edge(pl: Placed) -> render.EngineEdge | None:
-    """The engine's model-minus-fair on this side, at the host's number or the nearest."""
-    mine = [
-        (r.line, r.edge) for r in pl.game.rows or [] if _same_side(r, pl) and r.edge is not None
-    ]
-    return render.nearest_edge(pl.line, mine)
-
-
 LEAGUE: League[Rows] = League(NBA, same_team, engine_view, horizon=HORIZON)
 
 
@@ -245,7 +237,6 @@ def view(store: Path, card: SlateCard, *, ledger: Path | None = None) -> Podcast
     return render.PodcastView(
         slate_picks(extractions, card),
         core.records(core.load_ledger(ledger or ledger_path(store, NBA))),
-        engine_edge,
     )
 
 
@@ -253,7 +244,6 @@ __all__ = [
     "LEAGUE",
     "PodcastView",
     "board_price",
-    "engine_edge",
     "engine_view",
     "grade_day",
     "grade_row",

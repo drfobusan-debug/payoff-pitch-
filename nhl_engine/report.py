@@ -10,6 +10,7 @@ price -- the PDF reads the same ``SlateCard`` the txt/md/xlsx do.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date as Date
 from html import escape
@@ -17,13 +18,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from engine_common.podcasts.render import EngineEdge, bet_line, edge_text, nearest_edge
+from engine_common.podcasts.render import bet_line
 from nhl_engine.audit.ledger import LedgerRow
-from nhl_engine.audit.podcast_picks import UNATTRIBUTED, Pick, StatedRecord, Tally, tally
+from nhl_engine.audit.podcast_picks import HOSTS, UNATTRIBUTED, Pick, StatedRecord, Tally, tally
 from nhl_engine.data.availability import current_out, read_log
 from nhl_engine.data.moneypuck import MoneyPuckClient, as_of
 from nhl_engine.data.teamnames import CODES
-from nhl_engine.features.podcast_read import PodcastRead
+from nhl_engine.features.podcast_read import PodcastRead, teams_in
 from nhl_engine.features.props import GoalieProjection, SkaterProjection
 from nhl_engine.market.pricing import is_prop
 from nhl_engine.pipeline import GameCard, PropContext, SlateCard
@@ -367,29 +368,44 @@ def _pick_sel(p: Pick) -> str:
 
 
 def _pick_record(host: str, ctx: ReportContext) -> str:
-    """Our graded record for the host, else the one they read on air, else none yet."""
+    """Our audited record for the host; what they claim on air stays in the records block."""
     rec = tally(ctx.pod_history, "host").get(host)
     if rec is not None and rec.n:
         return f"{rec.record()} graded"
-    said = next((r for r in ctx.pod_stated if r.host == host), None)
-    if said is not None:
-        return f"{said.wins}-{said.losses}, {said.units:+g} pb self-reported"
     return "no graded picks yet"
 
 
-def _pick_edge(p: Pick, g: GameCard) -> EngineEdge | None:
-    mine = [
-        (r.line, r.edge)
-        for r in g.rows
-        if r.market == p.market and r.side == p.side and not r.entity
-    ]
-    return nearest_edge(p.line, mine)
+_WHO_OR_STAKE = re.compile(
+    r"(?:(?:[\d.]+|puck bucks?|units?|pb|"
+    + "|".join(sorted({a for names in HOSTS.values() for a in names} | {h.lower() for h in HOSTS}))
+    + r")(?:[\s,/&]+|$))+",
+    re.I,
+)
+
+
+def _pick_reason(p: Pick, g: GameCard, ctx: ReportContext) -> str:
+    """The host's reason for this bet, off the episode summary's "BET — who — reason" lines."""
+    read = ctx.podcast.games.get(g.matchup) if ctx.podcast else None
+    for line in read.summary if read else []:
+        parts = [x.strip() for x in re.split(r"\s+[—–·-]\s+", line) if x.strip()]
+        if len(parts) < 2:
+            continue
+        bet = parts[0].lower()
+        if p.market == "game_total":
+            if p.side not in bet:
+                continue
+        elif not (p.side.lower() in bet.split() or teams_in(parts[0], {p.side})):
+            continue
+        why = parts[-1]
+        if not _WHO_OR_STAKE.fullmatch(why):
+            return why
+    return "no reason given"
 
 
 def _pick_line(p: Pick, g: GameCard, ctx: ReportContext) -> str:
     name = p.host if p.host != UNATTRIBUTED else "Unattributed"
-    edge = edge_text(_pick_edge(p, g), p.market)
-    return bet_line(name, _pick_record(p.host, ctx), _pick_sel(p), p.american, edge)
+    reason = _pick_reason(p, g, ctx)
+    return bet_line(name, _pick_record(p.host, ctx), _pick_sel(p), p.american, reason)
 
 
 def _pod_records(ctx: ReportContext) -> str:

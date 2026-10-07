@@ -1,19 +1,49 @@
-from engine_common.podcasts.render import EngineEdge, bet_line, edge_text, nearest_edge
+from dataclasses import replace
+
+from engine_common.podcasts.extract import Pick
+from engine_common.podcasts.render import bet_line, reason
 
 
 def test_bet_line_reads_name_record_selection_price_edge() -> None:
-    line = bet_line("Joel Meyer", "12-9 graded", "MTL ML", 120, "engine +3.1%")
-    assert line == "<li><b>Joel Meyer</b> (12-9 graded). <b>MTL ML +120</b> (engine +3.1%)</li>"
-    assert "-111</b>" in bet_line("A", "1-0", "MIN ML", -111, "no engine edge")
-    assert "MIN ML</b>" in bet_line("A", "1-0", "MIN ML", None, "no engine edge")
+    line = bet_line("Joel Meyer", "12-9 graded", "MTL ML", 120, "the price")
+    assert line == "<li><b>Joel Meyer</b> (12-9 graded). <b>MTL ML +120</b> (the price)</li>"
+    assert "-111</b>" in bet_line("A", "1-0", "MIN ML", -111, "the weather")
+    assert "MIN ML</b>" in bet_line("A", "1-0", "MIN ML", None, "the weather")
 
 
-def test_edge_is_at_the_hosts_number_or_names_the_nearest() -> None:
-    priced = [(-1.5, 0.02), (1.5, -0.01)]
-    assert nearest_edge(-1.5, priced) == EngineEdge(0.02)
-    assert nearest_edge(-2.0, priced) == EngineEdge(0.02, -1.5)
-    assert nearest_edge(None, [(None, 0.04)]) == EngineEdge(0.04)
-    assert nearest_edge(5.5, []) is None
-    assert edge_text(EngineEdge(0.02, -1.5), "game_pl") == "engine +2.0% at -1.5"
-    assert edge_text(EngineEdge(-0.013, 6.0), "game_total") == "engine -1.3% at 6"
-    assert edge_text(None, "game_ml", "my number is -140") == "my number is -140; no engine edge"
+BASE = Pick(
+    pick_id="p",
+    show="s",
+    show_name="Show",
+    host=None,
+    episode_guid="g",
+    episode_title="t",
+    published="2026-10-01T09:00:00+00:00",
+    kind="official",
+    market="game_total",
+    team=None,
+    opponent=None,
+    side="under",
+    line=220.5,
+    price=None,
+    units=None,
+    seconds=60,
+    quote="",
+    reason="",
+    description="",
+)
+
+
+def test_the_edge_is_the_hosts_reason_never_the_engines() -> None:
+    assert reason(replace(BASE, edge="run defense won't let them score", reason="pace")) == (
+        "run defense won't let them score"
+    )
+    assert reason(replace(BASE, reason="the weather")) == "the weather"
+    assert (
+        reason(
+            replace(
+                BASE,
+            )
+        )
+        == "no reason given"
+    )

@@ -131,6 +131,16 @@ def test_pdf_shows_picks_and_records_without_touching_rows(tmp_path: Path):
     html = report.render_html(card, ctx)
     assert "Picks logged" in html and "MTL ML +105" in html and "under 5.5 +140" not in html
     assert "self-reported 21-22 -39 pb" in html and "graded by us" in html
+    assert "(no reason given)" in html and "pb self-reported)" not in html
+    habs = next(p for p in picks if p.side == "MTL")
+    assert habs.text not in html
+
+    ctx.podcast.games["CAR @ MTL"].summary = [
+        "MTL ML +105 — Joel, 20 puck bucks — home opener, Carolina on a back-to-back",
+        "Over 6.5 — 20",
+    ]
+    html = report.render_html(card, ctx)
+    assert "MTL ML +105</b> (home opener, Carolina on a back-to-back)" in html
     assert [(r.model_prob, r.american, r.is_buy, tuple(r.gates)) for r in card.rows] == before
 
 

@@ -58,9 +58,7 @@ def test_spoken_teams_map_to_one_code() -> None:
 
 
 def test_card_prints_the_bet_under_its_game_without_the_quote(tmp_path: Path) -> None:
-    rows = [
-        replace(r, edge=0.031) if (r.matchup, r.side) == (LATE, "under") else r for r in priced()
-    ]
+    rows = priced()
     total = _pick(
         pick_id="p2",
         market="game_total",
@@ -78,10 +76,9 @@ def test_card_prints_the_bet_under_its_game_without_the_quote(tmp_path: Path) ->
     game = page.index("Boston Celtics at New York Knicks")
     block = page.index("Podcast picks", game)
     assert "<b>Matt Moore · BUCKETS (Action Network)</b> (no graded picks yet)." in page[block:]
-    assert "<b>NYK ML -150</b>" in page and "<b>Under 220.5</b> (my number is 216; " in page
-    assert "back-to-back" not in page and "minus one fifty" not in page
-    assert "(my number is 216; engine +3.1% at 221.5)" in page
-    assert "<b>NYK ML -150</b> (no engine edge)" in page
+    assert "<b>NYK ML -150</b> (Boston on a back-to-back)" in page
+    assert "<b>Under 220.5</b> (my number is 216)" in page
+    assert "minus one fifty" not in page and "engine" not in page[block : block + 2000]
     assert "Podcast records" in page
     assert [(r.model_prob, r.edge, r.tier, r.gates) for r in card.rows] == before
     assert "Podcast picks" not in render_html(card)
