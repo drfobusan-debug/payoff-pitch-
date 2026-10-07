@@ -1887,3 +1887,20 @@ def test_a_fading_arm_is_printed_beside_the_gates_and_moves_no_side() -> None:
     doc = power_report.render_html(result)
     assert "fading" not in doc.split("Recommendations")[1].split("Insights")[0]
     assert "No rated bat faces a fading arm today" in doc
+
+
+def test_the_roster_keeps_every_arm_and_bat_the_pass_looked_at() -> None:
+    """A bat with no price and a gated arm are evidence the next day's audit grades."""
+    from mlb_engine.audit import power_roster
+
+    ps = pytest.importorskip("scripts.power_screen")
+    rows = ps.roster_rows(_result(), "run1")
+    arms = {r.name: r.status for r in rows if not r.is_bat}
+    bats = {r.name: r for r in rows if r.is_bat}
+    assert arms["Bailey Ober"] == power_roster.SCREENED
+    assert arms["Arm Two"] == power_roster.NOT_SCREENED
+    assert arms["Ace"] == power_roster.GATED
+    olson = bats["Matt Olson"]
+    assert olson.versus == "Bailey Ober" and olson.projected
+    assert olson.status in (power_roster.HELD, power_roster.DROPPED)
+    assert {r.run_id for r in rows} == {"run1"}

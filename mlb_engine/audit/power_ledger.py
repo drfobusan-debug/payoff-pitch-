@@ -384,6 +384,18 @@ def record(
 
 
 
+def last_runs(positions: list[Position]) -> list[Position]:
+    """One capture per day: the last run recorded for it.
+
+    Two runs of one day are two boards and not a duplicated one, so pooling them
+    counts the hitters they share twice and weights a re-run day double.
+    """
+    keep: dict[str, str] = {}
+    for p in positions:
+        keep[p.date] = max(keep.get(p.date, ""), p.run_id)
+    return [p for p in positions if p.run_id == keep[p.date]]
+
+
 def runs_for(path: Path, day: Date) -> list[str]:
     """Every run of the screen recorded for that day, earliest identifier first."""
     return sorted({p.run_id for p in load(path) if p.date == day.isoformat()})
@@ -493,6 +505,11 @@ class Record:
         mean = self.units / self.n
         var = max(self.units_sq / self.n - mean * mean, 0.0)
         return (var / self.n) ** 0.5
+
+
+def summarize(label: str, graded: list[GradedPosition]) -> Record:
+    """The record of any subset of graded rows."""
+    return _record(label, graded)
 
 
 def _record(label: str, graded: list[GradedPosition]) -> Record:

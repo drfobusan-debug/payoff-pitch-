@@ -24,6 +24,11 @@ A day can hold more than one recorded run of the screen -- a morning capture and
 the re-run once lineups post are two boards, both true -- so by default only the
 day's last run is graded and ``--all-runs`` grades every capture.
 
+``--article`` writes the audit article instead (:mod:`mlb_engine.audit.power_audit`):
+the day graded -- arms, every kept bat against the starter and over the game,
+the positions against their prices -- then the whole ledger, then commentary.
+``--email`` sends it. The morning job runs it for yesterday.
+
 Nothing here writes a price, a probability or a rating. It reads the receipt.
 """
 
@@ -38,18 +43,25 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from mlb_engine.audit import power_audit, power_roster  # noqa: E402
 from mlb_engine.audit.grade import LOSS, PUSH, WIN  # noqa: E402
 from mlb_engine.audit.power_ledger import (  # noqa: E402
     GradedPosition,
     Position,
     bucket,
     grade_positions,
+    last_runs,
     load,
 )
-from mlb_engine.config import load_config  # noqa: E402
+from mlb_engine.config import Config, load_config  # noqa: E402
+from mlb_engine.data import http  # noqa: E402
+from mlb_engine.data.plays import PlateAppearance, fetch_plays  # noqa: E402
 from mlb_engine.data.results import GameResult, fetch_result  # noqa: E402
+from mlb_engine.output.card import render_pdf  # noqa: E402
+from mlb_engine.output.email import EmailNotConfigured, send_card_email  # noqa: E402
 from mlb_engine.output.power_board import DISPLAY_ONLY  # noqa: E402
 from mlb_engine.output.power_report import RATING_DISPLAY  # noqa: E402
+from mlb_engine.state import auto_pull  # noqa: E402
 
 log = logging.getLogger("power_screen_audit")
 
@@ -69,6 +81,16 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="grade every recorded run of each day, not only the day's last one",
     )
+    p.add_argument(
+        "--article",
+        action="store_true",
+        help="write the audit article for --date (default: the last ledger day before today)",
+    )
+    p.add_argument("--run", default=None, help="with --article: grade this run of the day")
+    p.add_argument("--roster", default=None, help="override the roster path")
+    p.add_argument("--email", action="store_true", help="with --article: email it")
+    p.add_argument("--to", default=None, help="with --email: recipient override")
+    p.add_argument("--no-pdf", action="store_true", help="with --article: HTML only")
     p.add_argument("-v", "--verbose", action="store_true")
     return p.parse_args()
 
@@ -155,15 +177,7 @@ def _print_probabilities(graded: list[GradedPosition]) -> None:
 
 
 def _last_run(positions: list[Position]) -> list[Position]:
-    """One capture per day: the last run recorded for it.
-
-    Two runs of one day are two boards and not a duplicated one, so pooling them
-    counts the hitters they share twice and weights a re-run day double.
-    """
-    keep: dict[str, str] = {}
-    for p in positions:
-        keep[p.date] = max(keep.get(p.date, ""), p.run_id)
-    return [p for p in positions if p.run_id == keep[p.date]]
+    return last_runs(positions)
 
 
 def _print_ranking(graded: list[GradedPosition]) -> None:
@@ -273,6 +287,81 @@ def _grouped(graded: list[GradedPosition], key: str) -> list[tuple[str, list[Gra
     return sorted(buckets.items(), key=lambda kv: -len(kv[1]))
 
 
+def _article_day(positions: list[Position], asked: Date | None) -> str | None:
+    if asked is not None:
+        return asked.isoformat()
+    today = Date.today().isoformat()
+    days = sorted({p.date for p in positions if p.date < today})
+    return days[-1] if days else None
+
+
+def write_article(args: argparse.Namespace, cfg: Config, ledger: Path) -> int:
+    """Grade the day and the ledger, write the article, and send it if asked."""
+    if cfg.state_sync and not args.ledger:
+        auto_pull(cfg.data_dir, branch=cfg.state_branch)
+    positions = [p for p in load(ledger) if p.stat not in DISPLAY_ONLY]
+    day = _article_day(positions, args.date)
+    if day is None:
+        print(f"no recorded positions in {ledger}")
+        return 0
+    roster_path = (
+        Path(args.roster) if args.roster else cfg.audit_dir / power_roster.ROSTER_NAME
+    )
+    roster = power_roster.load(roster_path)
+    session = http.session()
+
+    def result(pk: int) -> GameResult | None:
+        try:
+            return fetch_result(pk, session=session, cache_dir=cfg.cache_dir)
+        except Exception as exc:  # noqa: BLE001 - one missing box score is a void, not a crash
+            log.warning("no box score for %s: %s", pk, exc)
+            return None
+
+    def plays(pk: int, final: bool) -> list[PlateAppearance]:
+        try:
+            return fetch_plays(pk, session=session, cache_dir=cfg.cache_dir, final=final)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("no play-by-play for %s: %s", pk, exc)
+            return []
+
+    day_audit, total = power_audit.build(day, positions, roster, result, plays, args.run)
+    notes = power_audit.commentary(day_audit, total)
+    body = power_audit.render_html(day_audit, total, notes)
+    cfg.output_dir.mkdir(parents=True, exist_ok=True)
+    stem = cfg.output_dir / f"power_screen_audit_{day}"
+    html_path = stem.with_suffix(".html")
+    html_path.write_text(body, encoding="utf-8")
+    print(html_path)
+    attachments: list[tuple[str, bytes]] = []
+    if not args.no_pdf:
+        try:
+            pdf = render_pdf(body)
+        except Exception as exc:  # noqa: BLE001 - the HTML is the article; the PDF is a copy
+            log.warning("could not render the audit PDF: %s", exc)
+        else:
+            pdf_path = stem.with_suffix(".pdf")
+            pdf_path.write_bytes(pdf)
+            print(pdf_path)
+            attachments.append((pdf_path.name, pdf))
+    if not attachments:
+        attachments.append((html_path.name, body.encode("utf-8")))
+    if args.email:
+        try:
+            to = send_card_email(
+                cfg,
+                subject=f"Power screen audit {day}",
+                html_body=body,
+                text_body=power_audit.render_text(day_audit, total, notes),
+                to=args.to,
+                attachments=attachments,
+            )
+        except EmailNotConfigured as exc:
+            log.error("audit article not emailed: %s", exc)
+            return 1
+        print(f"Emailed power screen audit {day} -> {to}")
+    return 0
+
+
 def main() -> None:
     args = _parse_args()
     logging.basicConfig(
@@ -281,6 +370,10 @@ def main() -> None:
     )
     cfg = load_config()
     path = Path(args.ledger) if args.ledger else cfg.audit_dir / LEDGER_NAME
+    if args.article:
+        for noisy in ("weasyprint", "fontTools"):
+            logging.getLogger(noisy).setLevel(logging.WARNING)
+        sys.exit(write_article(args, cfg, path))
     start = args.date or args.start
     end = args.date or args.end
     recorded = [p for p in load(path) if _in_range(p, start, end)]

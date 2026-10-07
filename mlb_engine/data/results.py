@@ -20,6 +20,17 @@ log = logging.getLogger(__name__)
 class PlayerLine:
     batting: dict[str, int] = field(default_factory=dict)  # H,2B,3B,HR,RBI,R,...
     pitching: dict[str, int] = field(default_factory=dict)  # K,outs,H,BB,ER,...
+    #: The box score's ``battingOrder``: slot times 100, plus one per substitute
+    #: into that slot (``400`` started fourth, ``401`` came in for him).
+    order: int | None = None
+
+    @property
+    def started(self) -> bool:
+        return self.order is not None and self.order % 100 == 0
+
+    @property
+    def slot(self) -> int | None:
+        return None if self.order is None else self.order // 100
 
 
 @dataclass
@@ -142,6 +153,9 @@ def fetch_result(
             bat = stats.get("batting", {}) or {}
             pit = stats.get("pitching", {}) or {}
             line = PlayerLine()
+            order = str(pdata.get("battingOrder", "") or "")
+            if order.isdigit():
+                line.order = int(order)
             if bat:
                 hits = int(bat.get("hits", 0) or 0)
                 doubles = int(bat.get("doubles", 0) or 0)

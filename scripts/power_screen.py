@@ -61,7 +61,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mlb_engine.audit import power_ledger
+from mlb_engine.audit import power_ledger, power_roster
 from mlb_engine.config import Config, RollingWindows, load_config, power_keep_gap
 from mlb_engine.data.managers import DEFAULT_BF_CAP
 from mlb_engine.data.mlb_statsapi import MLBStatsClient
@@ -447,7 +447,7 @@ def main() -> None:
     )
     result = _pass(shared, args, SOFT_TIER)
     elite = None if args.no_elite else _pass(shared, args, ELITE_TIER)
-    _write(result, elite, cfg, args)
+    _write(result, elite, cfg, args, shared.slate)
 
 
 @dataclass(frozen=True)
@@ -1030,6 +1030,7 @@ def _record(
     passes: list[tuple[ScreenResult | None, Board | None]],
     cfg: Config,
     args: argparse.Namespace,
+    slate: Slate | None = None,
 ) -> None:
     """Write today's priced rows to the ledger so tomorrow's note can grade them.
 
@@ -1040,6 +1041,7 @@ def _record(
     if args.no_grade:
         return
     run_id = _run_id()
+    _record_roster(passes, cfg, run_id, slate)
     positions: list[power_ledger.Position] = []
     as_of: Date | None = None
     for result, board in passes:
@@ -1067,6 +1069,133 @@ def _record(
     log.info(
         "recorded %d positions as run %s to %s", len(positions), run_id, _ledger_path(cfg)
     )
+
+
+def _game_pks(slate: Slate | None) -> dict[tuple[str, int | None], int]:
+    """(team, its probable starter's id) -> game, and (team, None) for its first game."""
+    out: dict[tuple[str, int | None], int] = {}
+    for game in slate.games if slate is not None else []:
+        for team in (game.home, game.away):
+            sp = team.probable_pitcher
+            if sp is not None and sp.mlbam_id:
+                out.setdefault((team.abbrev, int(sp.mlbam_id)), game.game_pk)
+            out.setdefault((team.abbrev, None), game.game_pk)
+    return out
+
+
+def roster_rows(
+    result: ScreenResult, run_id: str, slate: Slate | None = None
+) -> list[power_roster.RosterRow]:
+    """Every bat and arm one pass looked at, priced or not, for the next day's audit."""
+    games = _game_pks(slate)
+    day = result.as_of.isoformat()
+    tier = result.arm_tier
+
+    def game_of(pitcher_team: str, pitcher_id: int) -> int | None:
+        return games.get((pitcher_team, pitcher_id), games.get((pitcher_team, None)))
+
+    rows: list[power_roster.RosterRow] = []
+    screened = {s.starter.mlbam_id for s in result.sections}
+    arms: dict[int, StarterCard] = {}
+    for card in [
+        *result.starters_scored,
+        *result.starters_ranked,
+        *(s.starter for s in result.sections),
+    ]:
+        arms.setdefault(card.mlbam_id, card)
+    for card in arms.values():
+        rows.append(
+            power_roster.RosterRow(
+                date=day, run_id=run_id, arm_tier=tier, kind=power_roster.ARM,
+                name=card.name, player_id=card.mlbam_id, team=card.team,
+                game_pk=game_of(card.team, card.mlbam_id),
+                versus=card.name, versus_id=card.mlbam_id,
+                status=(
+                    power_roster.SCREENED
+                    if card.mlbam_id in screened
+                    else power_roster.NOT_SCREENED
+                ),
+                siera=None if card.siera is None else round(card.siera, 2),
+            )
+        )
+    for cut in result.starter_cuts:
+        card = cut.card
+        rows.append(
+            power_roster.RosterRow(
+                date=day, run_id=run_id, arm_tier=tier, kind=power_roster.ARM,
+                name=card.name, player_id=card.mlbam_id, team=card.team,
+                game_pk=game_of(card.team, card.mlbam_id),
+                versus=card.name, versus_id=card.mlbam_id,
+                status=power_roster.GATED, reason=f"{cut.stage}: {cut.reason}",
+                siera=None if card.siera is None else round(card.siera, 2),
+            )
+        )
+    verdicts = power_report.verdicts(result)
+    seen: set[int] = set()
+    for section in result.sections:
+        sp = section.starter
+        for view in section.hitters:
+            h = view.line
+            if h.mlbam_id in seen:
+                continue
+            seen.add(h.mlbam_id)
+            v = verdicts.get(h.name)
+            rows.append(
+                power_roster.RosterRow(
+                    date=day, run_id=run_id, arm_tier=tier, kind=power_roster.BAT,
+                    name=h.name, player_id=h.mlbam_id, team=h.team,
+                    game_pk=game_of(sp.team, sp.mlbam_id),
+                    versus=sp.name, versus_id=sp.mlbam_id,
+                    slot=h.slot, projected=section.lineup_projected,
+                    bucket="" if v is None else v.bucket,
+                    side="" if v is None or v.side is None else v.side,
+                    status=(
+                        power_roster.HELD if v is None or v.held else power_roster.DROPPED
+                    ),
+                )
+            )
+    by_name = {s.starter.name: s.starter for s in result.sections}
+    for h, late in result.late_cuts:
+        if h.mlbam_id in seen:
+            continue
+        seen.add(h.mlbam_id)
+        sp_card = by_name.get(h.versus)
+        rows.append(
+            power_roster.RosterRow(
+                date=day, run_id=run_id, arm_tier=tier, kind=power_roster.BAT,
+                name=h.name, player_id=h.mlbam_id, team=h.team,
+                game_pk=None if sp_card is None else game_of(sp_card.team, sp_card.mlbam_id),
+                versus=h.versus,
+                versus_id=None if sp_card is None else sp_card.mlbam_id,
+                slot=h.slot, status=power_roster.LATE_CUT,
+                reason=f"late-half wRC+ {late:.0f}",
+            )
+        )
+    return rows
+
+
+def _record_roster(
+    passes: list[tuple[ScreenResult | None, Board | None]],
+    cfg: Config,
+    run_id: str,
+    slate: Slate | None,
+) -> None:
+    rows: list[power_roster.RosterRow] = []
+    day = ""
+    for result, _board in passes:
+        if result is None:
+            continue
+        day = result.as_of.isoformat()
+        rows.extend(roster_rows(result, run_id, slate))
+    if not rows:
+        return
+    path = cfg.audit_dir / power_roster.ROSTER_NAME
+    try:
+        power_roster.record(path, rows, day, run_id)
+    except OSError as exc:  # pragma: no cover - a roster write must not cost the note
+        log.warning("could not record the screen's roster: %s", exc)
+        return
+    log.info("recorded %d roster rows as run %s to %s", len(rows), run_id, path)
 
 
 def _review(
@@ -1202,7 +1331,11 @@ def _print_pass(result: ScreenResult, board: Board | None) -> None:
 
 
 def _write(
-    result: ScreenResult, elite: ScreenResult | None, cfg: Config, args: argparse.Namespace
+    result: ScreenResult,
+    elite: ScreenResult | None,
+    cfg: Config,
+    args: argparse.Namespace,
+    slate: Slate | None = None,
 ) -> None:
     """Write the HTML and PDF, print the one-line-per-survivor summary, maybe email.
 
@@ -1219,7 +1352,7 @@ def _write(
     # pointing at today should read what the ledger held when the note was asked.
     review = _review(cfg, args, result.as_of)
     grade_records = _grade_records(cfg, args, result.as_of)
-    _record([(result, board), (elite, elite_board)], cfg, args)
+    _record([(result, board), (elite, elite_board)], cfg, args, slate)
     html_path = out_dir / power_report.default_filename(result.as_of, "html")
     pdf_path = out_dir / power_report.default_filename(result.as_of, "pdf")
     html_doc = power_report.render_html(
