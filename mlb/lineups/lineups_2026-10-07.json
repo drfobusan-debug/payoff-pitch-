@@ -465,7 +465,76 @@
     "position": null
    }
   ],
-  "revisions": []
+  "revisions": [
+   {
+    "captured_at": "2026-10-07T16:50:07+00:00",
+    "players": [
+     {
+      "order": 1,
+      "mlbam_id": 803011,
+      "name": "Sam Antonacci",
+      "bats": "L",
+      "position": "DH"
+     },
+     {
+      "order": 2,
+      "mlbam_id": 678246,
+      "name": "Miguel Vargas",
+      "bats": "R",
+      "position": "3B"
+     },
+     {
+      "order": 3,
+      "mlbam_id": 808959,
+      "name": "Munetaka Murakami",
+      "bats": "L",
+      "position": "1B"
+     },
+     {
+      "order": 4,
+      "mlbam_id": 691019,
+      "name": "Kyle Teel",
+      "bats": "L",
+      "position": "C"
+     },
+     {
+      "order": 5,
+      "mlbam_id": 805367,
+      "name": "Chase Meidroth",
+      "bats": "R",
+      "position": "2B"
+     },
+     {
+      "order": 6,
+      "mlbam_id": 671976,
+      "name": "Tristan Peters",
+      "bats": "L",
+      "position": "CF"
+     },
+     {
+      "order": 7,
+      "mlbam_id": 695731,
+      "name": "Braden Montgomery",
+      "bats": "S",
+      "position": "RF"
+     },
+     {
+      "order": 8,
+      "mlbam_id": 545341,
+      "name": "Randal Grichuk",
+      "bats": "R",
+      "position": "LF"
+     },
+     {
+      "order": 9,
+      "mlbam_id": 695657,
+      "name": "Colson Montgomery",
+      "bats": "L",
+      "position": "SS"
+     }
+    ]
+   }
+  ]
  },
  {
   "game_pk": 849838,
