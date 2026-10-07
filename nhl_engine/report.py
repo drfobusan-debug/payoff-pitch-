@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from engine_common.podcasts.render import EngineEdge, bet_line, edge_text, nearest_edge
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.podcast_picks import UNATTRIBUTED, Pick, StatedRecord, Tally, tally
 from nhl_engine.data.availability import current_out, read_log
@@ -344,53 +345,51 @@ def _pod_block(g: GameCard, ctx: ReportContext) -> str:
         + (f"; lines quoted on air: {quoted}" if quoted else "")
         + "</span>",
     ]
-    if read.summary:
-        parts.append(
-            "<ul>" + "".join(f"<li>{escape(ln)}</li>" for ln in read.summary) + "</ul>"
-            f"<span class='muted'>summary {escape(read.summary_source)} of the transcript segment</span>"
-        )
-    if read.mentions:
-        label = "Transcript bet mentions" if not read.summary else "Verbatim"
-        parts.append(
-            f"<div class='q'><b>{label}</b> <span class='muted'>(Whisper, unedited)</span><br>"
-            + "<br>".join(
-                f"<span class='ts'>{escape(m.stamp)}</span>{escape(m.text)}" for m in read.mentions
-            )
-            + "</div>"
-        )
-    elif not read.summary:
-        parts.append(
-            "<span class='muted'>no stake, price or side mention found in the segment</span>"
-        )
     picks = [p for p in ctx.pod_picks if p.matchup == g.matchup]
     if picks:
         parts.append(
-            "<div class='q'><b>Picks logged</b> <span class='muted'>(graded tomorrow; name only when heard)</span><br>"
-            + "<br>".join(_pick_line(p, ctx) for p in picks)
-            + "</div>"
+            "<div class='q'><b>Picks logged</b> "
+            "<span class='muted'>(graded tomorrow; name only when heard)</span></div>"
+            "<ul>" + "".join(_pick_line(p, g, ctx) for p in picks) + "</ul>"
         )
+    else:
+        parts.append("<br><span class='muted'>no bet made on air</span>")
     parts.append("</div>")
     return "".join(parts)
 
 
 def _pick_sel(p: Pick) -> str:
     if p.market == "game_total":
-        return f"{p.side} {p.line:g}" if p.line else p.side
+        return f"{p.side.capitalize()} {p.line:g}" if p.line else p.side.capitalize()
     if p.market == "game_pl":
         return f"{p.side} {p.line:+g}"
     return f"{p.side} ML"
 
 
-def _pick_line(p: Pick, ctx: ReportContext) -> str:
-    bits = [escape(_pick_sel(p))]
-    if p.american is not None:
-        bits.append(f"{p.american:+d}")
-    if p.stake:
-        bits.append(f"{p.stake:g} pb")
-    who = p.host if p.host != UNATTRIBUTED else "unattributed"
-    rec = tally(ctx.pod_history, "host").get(p.host)
-    tail = f" — {escape(who)}" + (f" ({escape(rec.record())} graded)" if rec else "")
-    return f"<span class='ts'>{escape(p.stamp)}</span>{' '.join(bits)}{tail}"
+def _pick_record(host: str, ctx: ReportContext) -> str:
+    """Our graded record for the host, else the one they read on air, else none yet."""
+    rec = tally(ctx.pod_history, "host").get(host)
+    if rec is not None and rec.n:
+        return f"{rec.record()} graded"
+    said = next((r for r in ctx.pod_stated if r.host == host), None)
+    if said is not None:
+        return f"{said.wins}-{said.losses}, {said.units:+g} pb self-reported"
+    return "no graded picks yet"
+
+
+def _pick_edge(p: Pick, g: GameCard) -> EngineEdge | None:
+    mine = [
+        (r.line, r.edge)
+        for r in g.rows
+        if r.market == p.market and r.side == p.side and not r.entity
+    ]
+    return nearest_edge(p.line, mine)
+
+
+def _pick_line(p: Pick, g: GameCard, ctx: ReportContext) -> str:
+    name = p.host if p.host != UNATTRIBUTED else "Unattributed"
+    edge = edge_text(_pick_edge(p, g), p.market)
+    return bet_line(name, _pick_record(p.host, ctx), _pick_sel(p), p.american, edge)
 
 
 def _pod_records(ctx: ReportContext) -> str:
@@ -424,7 +423,7 @@ def _pod_header(ctx: ReportContext) -> str:
     if pod.status == "ok":
         return (
             f"<p class='muted'>Hockey Gambling Podcast (SGPN): {escape(pod.episode_title)}, "
-            f"published {escape(pod.published[:16])} — their read is boxed under each game; "
+            f"published {escape(pod.published[:16])} — their bets are listed under each game; "
             "it is not an input to the model.</p>" + _pod_records(ctx)
         )
     return f"<p class='muted'>Hockey Gambling Podcast: {escape(pod.detail or pod.status)}.</p>"

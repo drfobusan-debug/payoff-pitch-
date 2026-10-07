@@ -1,7 +1,7 @@
 #!/bin/bash
 # One-click NBA daily package: record a board-only pricing pass (featured board,
-# 3 Odds API credits), grade yesterday if not yet graded (free ESPN finals), then
-# render the slate PDF + betting workbook and email both.
+# 3 Odds API credits), grade yesterday if not yet graded (free ESPN finals), read
+# the shows' NBA picks, then render the slate PDF + betting workbook and email both.
 #   --no-price   skip the pricing pass: re-render from the passes already
 #                recorded today (0 credits). Implied by --date.
 # Every other argument goes to `nba-engine card` (e.g. --to ADDR, --date D).
@@ -33,6 +33,7 @@ if [ "$PRICE" = 1 ]; then
         || echo "pricing pass failed; carding from the passes already recorded"
 fi
 nba-engine grade || true
+nba-engine podcast || echo "podcast read failed; the card prints without new picks" >&2
 nba-engine card --email ${ARGS[@]+"${ARGS[@]}"}
 echo
 echo "Package: ${NBAE_OUTPUT_DIR:-${NBAE_DATA_DIR:-$HOME/.nba_engine}/output}"

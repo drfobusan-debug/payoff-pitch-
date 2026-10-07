@@ -1,14 +1,15 @@
 """Podcast picks in a slate PDF: under each game, and their records at the back.
 
 League-free HTML. Context only: nothing here reads a model probability into a
-decision; the engine's own view is printed beside a pick so agreement can be
-seen, not used.
+decision. Each pick prints as a bet, ``Name (record). SELECTION PRICE (edge)``:
+the host's stated edge and the engine's on that side, so agreement can be seen,
+not used.
 """
 
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from html import escape
 from typing import Generic, TypeVar
@@ -35,15 +36,67 @@ CSS = """
 """
 
 
-def _no_view(_: Placed[R]) -> str:
-    return ""
+@dataclass(frozen=True)
+class EngineEdge:
+    """The engine's edge on a pick's side; ``line`` is the engine's number when it differs."""
+
+    edge: float
+    line: float | None = None
+
+
+def nearest_edge(
+    pick_line: float | None, priced: Iterable[tuple[float | None, float]]
+) -> EngineEdge | None:
+    """The engine's edge at the pick's number, else at the closest number it priced.
+
+    ``priced`` is ``(line, edge)`` for every engine row on the pick's market and side.
+    """
+    rows = list(priced)
+    if not rows:
+        return None
+    if pick_line is None:
+        return EngineEdge(rows[0][1])
+    line, edge = min(
+        rows, key=lambda le: abs(le[0] - pick_line) if le[0] is not None else float("inf")
+    )
+    if line is None:
+        return None
+    return EngineEdge(edge, None if line == pick_line else line)
+
+
+def edge_text(e: EngineEdge | None, market: str, stated: str = "") -> str:
+    """The host's own stated edge, if they gave one, then the engine's on that side."""
+    if e is None:
+        engine = "no engine edge"
+    else:
+        at = ""
+        if e.line is not None:
+            at = f" at {e.line:+g}" if market in ("game_ats", "game_pl") else f" at {e.line:g}"
+        engine = f"engine {e.edge * 100:+.1f}%{at}"
+    return f"{stated}; {engine}" if stated else engine
+
+
+def bet_line(
+    name: str, record: str, selection: str, price: float | None, edge: str, *, lean: bool = False
+) -> str:
+    """One pick as a bet: ``Name (record). SELECTION PRICE (edge)``; the price only if said."""
+    px = f" {price:+.0f}" if price is not None else ""
+    tag = "<span class='k lean'>Lean</span>" if lean else ""
+    return (
+        f"<li>{tag}<b>{escape(name)}</b> ({escape(record)}). "
+        f"<b>{escape(selection)}{px}</b> ({escape(edge)})</li>"
+    )
+
+
+def _no_edge(_: Placed[R]) -> EngineEdge | None:
+    return None
 
 
 @dataclass
 class PodcastView(Generic[R]):
     slate: SlatePicks[R]
     records: Records
-    engine_view: Callable[[Placed[R]], str] = field(default=_no_view)
+    engine_edge: Callable[[Placed[R]], EngineEdge | None] = field(default=_no_edge)
 
 
 def _wlp_units(r: Record) -> str:
@@ -63,34 +116,16 @@ def _price(p: Pick) -> str:
     return f" ({p.price:+.0f})" if p.price is not None else ""
 
 
-def _why(p: Pick) -> str:
-    """The handicapper's own edge when they gave one, else the one-line reason."""
-    fair = f" (their number {p.fair_line:g})" if p.fair_line is not None else ""
-    if p.edge:
-        return f" — <i>Edge:</i> {escape(p.edge)}{fair}"
-    if p.reason:
-        return f" — {escape(p.reason)}{fair}"
-    return fair
-
-
 def _item(pl: Placed[R], view: PodcastView[R]) -> str:
     p = pl.pick
-    kind = (
-        "<span class='k off'>Bet</span>"
-        if p.kind == "official"
-        else "<span class='k lean'>Lean</span>"
-    )
-    units = f", {p.units:g}u" if p.units is not None else ""
     rec = view.records.official_for(p.show_name, p.host) or view.records.official_for(
         p.show_name, None
     )
-    record = f" <span class='rec'>· record {_wlp_units(rec)}</span>" if rec else ""
-    eng = view.engine_view(pl)
-    eng_txt = f" <span class='rec'>· {eng}</span>" if eng else ""
-    return (
-        f"<li>{kind}<b>{escape(pl.label)}</b>{_price(p)}{units} · {_who(p)} "
-        f"<span class='rec'>[{p.stamp}]</span>{_why(p)}{record}{eng_txt}</li>"
-    )
+    name = f"{p.host} · {p.show_name}" if p.host else p.show_name
+    record = _wlp_units(rec) if rec else "no graded picks yet"
+    stated = p.edge or (f"their number {p.fair_line:g}" if p.fair_line is not None else "")
+    edge = edge_text(view.engine_edge(pl), p.market, stated)
+    return bet_line(name, record, pl.label, p.price, edge, lean=p.kind != "official")
 
 
 def game_block(view: PodcastView[R] | None, matchup: str) -> str:
@@ -195,7 +230,8 @@ def records_block(view: PodcastView[R] | None, ordered: list[str]) -> str:
         "<p class='sbnote'>Graded at the number the host said. Units only where a price is "
         "known: the host's own, or the board's at the host's number. A stake is 1u "
         "unless the host named one. CLV is points of line value against the close (spreads "
-        "and totals). Edge is the handicapper's own stated reason or number. "
+        "and totals). A bet's edge is the host's own stated edge, then the engine's model "
+        "minus the market on that side, at the host's number or the nearest it priced. "
         "Underpowered: within 2 SE of the 52.4% needed at -110.</p>"
     )
     return (
@@ -210,4 +246,13 @@ def records_block(view: PodcastView[R] | None, ordered: list[str]) -> str:
     )
 
 
-__all__ = ["CSS", "PodcastView", "game_block", "records_block"]
+__all__ = [
+    "CSS",
+    "EngineEdge",
+    "PodcastView",
+    "bet_line",
+    "edge_text",
+    "game_block",
+    "nearest_edge",
+    "records_block",
+]

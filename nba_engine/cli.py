@@ -45,7 +45,11 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from nba_engine import alarm, state
+from engine_common.podcasts import state as podcast_state
+from engine_common.podcasts.episodes import store_dir
+from engine_common.podcasts.run import read_feeds
+from engine_common.podcasts.shows import NBA
+from nba_engine import alarm, podcast, state
 from nba_engine.audit import ledger, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries
@@ -57,7 +61,7 @@ from nba_engine.market.board import ev_per_unit, selections
 from nba_engine.models import minutes, minutes_fit, rating_fit, ratings
 from nba_engine.models.schedule import schedule
 from nba_engine.output import context
-from nba_engine.output.card import build_card, render_html, render_pdf, render_text
+from nba_engine.output.card import SlateCard, build_card, render_html, render_pdf, render_text
 from nba_engine.output.email import EmailNotConfigured, send_package
 from nba_engine.output.excel import build_workbook
 from nba_engine.schemas import GameResult
@@ -315,6 +319,56 @@ def _write(path: Path, data: bytes) -> bool:
     return True
 
 
+def _podcast_view(card: SlateCard) -> podcast.PodcastView | None:
+    """The slate's podcast bets for the PDF; a failure here never stops the card."""
+    try:
+        return podcast.view(store_dir(), card)
+    except Exception as exc:  # noqa: BLE001 - podcasts are display only
+        print(f"  podcast bets left off the card ({exc})")
+        return None
+
+
+def _grade_podcasts(root: Path, days: list[Date]) -> int:
+    """Grade the shows' NBA picks on ``days`` into the podcast ledger. Never raises."""
+    n = 0
+    for d in days:
+        try:
+            n += len(podcast.grade_day(store_dir(), d, ledger.graded_rows(root, [d])))
+        except Exception as exc:  # noqa: BLE001 - podcasts are display only
+            print(f"  {d}: podcast picks not graded ({exc})")
+    return n
+
+
+def cmd_podcast(args: argparse.Namespace) -> int:
+    """Read the shows' new NBA episodes and grade their picks. Prices nothing.
+
+    ``--no-read`` only grades what has already been read.
+    """
+    cfg = load_config()
+    root = data_dir()
+    sync = cfg.state_sync and not args.no_sync
+    if sync:
+        podcast_state.auto_pull(store_dir())
+        state.auto_pull(root, trees=("ledger",))
+    if not args.no_read:
+        now = datetime.now(timezone.utc)
+        rep = read_feeds(
+            store_dir(),
+            now - timedelta(days=args.days),
+            now,
+            league=NBA,
+            transcribe_missing=not args.no_transcribe,
+        )
+        print(f"  {rep.by_league.get(NBA, 0)} NBA picks read")
+    today = _today()
+    days = [today - timedelta(days=k) for k in range(args.days, 0, -1)]
+    n = _grade_podcasts(root, days)
+    print(f"  {n} NBA podcast picks graded over the last {args.days} day(s)")
+    if sync:
+        podcast_state.auto_push(store_dir(), f"nba podcasts: through {today - timedelta(days=1)}")
+    return 0
+
+
 def cmd_card(args: argparse.Namespace) -> int:
     """Write the day's package -- workbook, card HTML, PDF -- and optionally email it.
 
@@ -344,7 +398,9 @@ def cmd_card(args: argparse.Namespace) -> int:
     before = (day - timedelta(days=1)).isoformat()
     graded = ledger.graded_rows(root, _ledger_days(root, None, before))
     card = build_card(rows, day=day, context=ctx, graded=graded, preseason=cfg.preseason)
-    page, text = render_html(card), render_text(card)
+    if cfg.state_sync and not args.no_sync:
+        podcast_state.auto_pull(store_dir())
+    page, text = render_html(card, _podcast_view(card)), render_text(card)
     out = output_dir()
     try:
         out.mkdir(parents=True, exist_ok=True)
@@ -933,6 +989,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--offline", action="store_true", help="context from disk only (no ESPN finals fetch)"
     )
     cd.set_defaults(func=cmd_card)
+
+    pod = sub.add_parser(
+        "podcast", help="read the shows' NBA picks and grade them (prices nothing)"
+    )
+    pod.add_argument("--days", type=int, default=3, help="episodes and slates this far back")
+    pod.add_argument("--no-read", action="store_true", help="only grade picks already read")
+    pod.add_argument("--no-transcribe", action="store_true", help="skip episodes not transcribed")
+    pod.add_argument("--no-sync", action="store_true", help="skip the engine-state pull/push")
+    pod.set_defaults(func=cmd_podcast)
     return parser
 
 
