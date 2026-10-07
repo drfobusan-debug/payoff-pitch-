@@ -5609,6 +5609,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_bb",
+    "selection": "Jackson Merrill BB o0.5",
+    "american": 231.0,
+    "no_vig_prob": 0.282042
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
+    "selection": "Jackson Merrill BB u0.5",
+    "american": -333.0,
+    "no_vig_prob": 0.717958
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
     "selection": "Jake Bauers BB o0.5",
     "american": 110.0,
     "no_vig_prob": 0.444942
@@ -5819,9 +5833,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI o0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.588419
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
     "selection": "Garrett Mitchell H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.423509
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411581
   },
   {
     "matchup": "MIL @ SD",
@@ -5861,9 +5889,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.588829
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
     "selection": "Jake Bauers H+R+RBI o1.5",
     "american": 113.0,
     "no_vig_prob": 0.445032
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Jake Bauers H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.411171
   },
   {
     "matchup": "MIL @ SD",
@@ -6228,6 +6270,13 @@
     "selection": "Sal Frelick HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
+    "selection": "Sal Frelick HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
   },
   {
     "matchup": "MIL @ SD",
@@ -7149,9 +7198,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Christian Yelich TB o1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.373301
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Christian Yelich TB u0.5",
     "american": 125.0,
     "no_vig_prob": 0.421055
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Christian Yelich TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.626699
   },
   {
     "matchup": "MIL @ SD",
@@ -7233,9 +7296,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Jackson Merrill TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.391858
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Jackson Merrill TB u0.5",
     "american": 142.0,
     "no_vig_prob": 0.391759
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Jackson Merrill TB u1.5",
+    "american": -182.0,
+    "no_vig_prob": 0.608142
   },
   {
     "matchup": "MIL @ SD",
@@ -7296,9 +7373,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Manny Machado TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Manny Machado TB o1.5",
     "american": 141.0,
     "no_vig_prob": 0.396189
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Manny Machado TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "MIL @ SD",
@@ -7463,6 +7554,48 @@
   },
   {
     "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks o0.5",
+    "american": -131.0,
+    "no_vig_prob": 0.529429
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks u0.5",
+    "american": -101.0,
+    "no_vig_prob": 0.470571
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Walker Buehler Walks o0.5",
+    "american": -229.0,
+    "no_vig_prob": 0.652168
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Walker Buehler Walks u0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.347832
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
+    "selection": "Robert Gasser ER o0.5",
+    "american": -149.0,
+    "no_vig_prob": 0.569192
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
+    "selection": "Robert Gasser ER u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.430808
+  },
+  {
+    "matchup": "MIL @ SD",
     "market": "pitcher_er",
     "selection": "Walker Buehler ER o1.5",
     "american": 120.0,
@@ -7474,6 +7607,20 @@
     "selection": "Walker Buehler ER u1.5",
     "american": -165.0,
     "no_vig_prob": 0.579385
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits o2.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469512
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits u2.5",
+    "american": -130.0,
+    "no_vig_prob": 0.530488
   },
   {
     "matchup": "MIL @ SD",
@@ -7506,6 +7653,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_k",
+    "selection": "Robert Gasser Ks o2.5",
+    "american": 102.0,
+    "no_vig_prob": 0.47948
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
+    "selection": "Robert Gasser Ks u2.5",
+    "american": -120.0,
+    "no_vig_prob": 0.52052
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
     "selection": "Walker Buehler Ks o2.5",
     "american": -158.0,
     "no_vig_prob": 0.578376
@@ -7530,6 +7691,20 @@
     "selection": "Walker Buehler Ks u3.5",
     "american": -154.0,
     "no_vig_prob": 0.570796
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs o8.5",
+    "american": -144.0,
+    "no_vig_prob": 0.565196
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs u8.5",
+    "american": 122.0,
+    "no_vig_prob": 0.434804
   },
   {
     "matchup": "MIL @ SD",
@@ -7702,6 +7877,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_1b",
+    "selection": "Jose Caballero 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.394353
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_1b",
+    "selection": "Jose Caballero 1B u0.5",
+    "american": -183.0,
+    "no_vig_prob": 0.605647
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_1b",
     "selection": "Junior Caminero 1B o0.5",
     "american": 101.0,
     "no_vig_prob": 0.475089
@@ -7754,6 +7943,20 @@
     "selection": "Nick Fortes 1B u0.5",
     "american": -155.0,
     "no_vig_prob": 0.566511
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_1b",
+    "selection": "Richie Palacios 1B o0.5",
+    "american": 124.0,
+    "no_vig_prob": 0.413311
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_1b",
+    "selection": "Richie Palacios 1B u0.5",
+    "american": -173.0,
+    "no_vig_prob": 0.586689
   },
   {
     "matchup": "TB @ NYY",
@@ -7982,6 +8185,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_2b",
+    "selection": "Jose Caballero 2B o0.5",
+    "american": 571.0,
+    "no_vig_prob": 0.14308
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_2b",
+    "selection": "Jose Caballero 2B u0.5",
+    "american": -950.0,
+    "no_vig_prob": 0.85692
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_2b",
     "selection": "Junior Caminero 2B o0.5",
     "american": 475.0,
     "no_vig_prob": 0.167844
@@ -8034,6 +8251,20 @@
     "selection": "Nick Fortes 2B u0.5",
     "american": -1100.0,
     "no_vig_prob": 0.865169
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_2b",
+    "selection": "Richie Palacios 2B o0.5",
+    "american": 544.0,
+    "no_vig_prob": 0.147286
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_2b",
+    "selection": "Richie Palacios 2B u0.5",
+    "american": -890.0,
+    "no_vig_prob": 0.852714
   },
   {
     "matchup": "TB @ NYY",
@@ -8248,6 +8479,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_bb",
+    "selection": "Jose Caballero BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.225807
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_bb",
+    "selection": "Jose Caballero BB u0.5",
+    "american": -462.0,
+    "no_vig_prob": 0.774193
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_bb",
     "selection": "Junior Caminero BB o0.5",
     "american": 170.0,
     "no_vig_prob": 0.352424
@@ -8272,6 +8517,20 @@
     "selection": "Liam Hicks BB u0.5",
     "american": -275.0,
     "no_vig_prob": 0.684128
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_bb",
+    "selection": "Richie Palacios BB o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.254258
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_bb",
+    "selection": "Richie Palacios BB u0.5",
+    "american": -388.0,
+    "no_vig_prob": 0.745742
   },
   {
     "matchup": "TB @ NYY",
@@ -8514,6 +8773,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_hrr",
+    "selection": "Jose Caballero H+R+RBI o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.567179
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
+    "selection": "Jose Caballero H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.432821
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
     "selection": "Junior Caminero H+R+RBI o1.5",
     "american": 105.0,
     "no_vig_prob": 0.462162
@@ -8566,6 +8839,20 @@
     "selection": "Luis Garcia Jr. H+R+RBI u1.5",
     "american": -113.0,
     "no_vig_prob": 0.51041
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
+    "selection": "Richie Palacios H+R+RBI o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.562735
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hrr",
+    "selection": "Richie Palacios H+R+RBI u0.5",
+    "american": 117.0,
+    "no_vig_prob": 0.437265
   },
   {
     "matchup": "TB @ NYY",
@@ -8689,6 +8976,13 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_hr",
+    "selection": "Anthony Volpe HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
     "selection": "Austin Wells HR o0.5",
     "american": 550.0,
     "no_vig_prob": 0.162393
@@ -8801,6 +9095,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_hr",
+    "selection": "Jose Caballero HR o0.5",
+    "american": 1150.0,
+    "no_vig_prob": 0.087619
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
+    "selection": "Jose Caballero HR o1.5",
+    "american": 32500.0,
+    "no_vig_prob": 0.003067
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
     "selection": "Junior Caminero HR o0.5",
     "american": 475.0,
     "no_vig_prob": 0.184955
@@ -8843,6 +9151,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_hr",
+    "selection": "Richie Palacios HR o0.5",
+    "american": 1400.0,
+    "no_vig_prob": 0.075
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
+    "selection": "Richie Palacios HR o1.5",
+    "american": 50000.0,
+    "no_vig_prob": 0.001996
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
     "selection": "Ryan McMahon HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.121597
@@ -8860,6 +9182,13 @@
     "selection": "Ryan Vilade HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.117647
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_hr",
+    "selection": "Ryan Vilade HR o1.5",
+    "american": 25000.0,
+    "no_vig_prob": 0.003984
   },
   {
     "matchup": "TB @ NYY",
@@ -9060,6 +9389,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_h",
+    "selection": "Jose Caballero H o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.516605
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_h",
+    "selection": "Jose Caballero H u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.483395
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_h",
     "selection": "Junior Caminero H o0.5",
     "american": -201.0,
     "no_vig_prob": 0.639913
@@ -9112,6 +9455,20 @@
     "selection": "Nick Fortes H u0.5",
     "american": -105.0,
     "no_vig_prob": 0.475394
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_h",
+    "selection": "Richie Palacios H o0.5",
+    "american": -118.0,
+    "no_vig_prob": 0.525504
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_h",
+    "selection": "Richie Palacios H u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.474496
   },
   {
     "matchup": "TB @ NYY",
@@ -9354,6 +9711,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_rbi",
+    "selection": "Jose Caballero RBI o0.5",
+    "american": 317.0,
+    "no_vig_prob": 0.231829
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_rbi",
+    "selection": "Jose Caballero RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.768171
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_rbi",
     "selection": "Junior Caminero RBI o0.5",
     "american": 207.0,
     "no_vig_prob": 0.328147
@@ -9406,6 +9777,20 @@
     "selection": "Nick Fortes RBI u0.5",
     "american": -450.0,
     "no_vig_prob": 0.761388
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_rbi",
+    "selection": "Richie Palacios RBI o0.5",
+    "american": 344.0,
+    "no_vig_prob": 0.211743
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_rbi",
+    "selection": "Richie Palacios RBI u0.5",
+    "american": -519.0,
+    "no_vig_prob": 0.788257
   },
   {
     "matchup": "TB @ NYY",
@@ -9634,6 +10019,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_r",
+    "selection": "Jose Caballero R o0.5",
+    "american": 195.0,
+    "no_vig_prob": 0.319598
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_r",
+    "selection": "Jose Caballero R u0.5",
+    "american": -267.0,
+    "no_vig_prob": 0.680402
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_r",
     "selection": "Junior Caminero R o0.5",
     "american": 145.0,
     "no_vig_prob": 0.387278
@@ -9686,6 +10085,20 @@
     "selection": "Nick Fortes R u0.5",
     "american": -350.0,
     "no_vig_prob": 0.731343
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_r",
+    "selection": "Richie Palacios R o0.5",
+    "american": 236.0,
+    "no_vig_prob": 0.277792
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_r",
+    "selection": "Richie Palacios R u0.5",
+    "american": -342.0,
+    "no_vig_prob": 0.722208
   },
   {
     "matchup": "TB @ NYY",
@@ -9928,6 +10341,20 @@
   {
     "matchup": "TB @ NYY",
     "market": "batter_tb",
+    "selection": "Jose Caballero TB o0.5",
+    "american": -116.0,
+    "no_vig_prob": 0.507809
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
+    "selection": "Jose Caballero TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.492191
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
     "selection": "Junior Caminero TB o1.5",
     "american": 140.0,
     "no_vig_prob": 0.405435
@@ -9980,6 +10407,20 @@
     "selection": "Nick Fortes TB u0.5",
     "american": -105.0,
     "no_vig_prob": 0.475394
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
+    "selection": "Richie Palacios TB o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.538271
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "batter_tb",
+    "selection": "Richie Palacios TB u0.5",
+    "american": 104.0,
+    "no_vig_prob": 0.461729
   },
   {
     "matchup": "TB @ NYY",
@@ -10215,9 +10656,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "pitcher_bb",
+    "selection": "Nick Martinez Walks o1.5",
+    "american": 182.0,
+    "no_vig_prob": 0.333833
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_bb",
     "selection": "Nick Martinez Walks u0.5",
     "american": 150.0,
     "no_vig_prob": 0.374613
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_bb",
+    "selection": "Nick Martinez Walks u1.5",
+    "american": -246.0,
+    "no_vig_prob": 0.666167
   },
   {
     "matchup": "TB @ NYY",
@@ -10250,9 +10705,23 @@
   {
     "matchup": "TB @ NYY",
     "market": "pitcher_h",
+    "selection": "Max Fried Hits o3.5",
+    "american": -160.0,
+    "no_vig_prob": 0.575163
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_h",
     "selection": "Max Fried Hits o4.5",
     "american": 130.0,
     "no_vig_prob": 0.417703
+  },
+  {
+    "matchup": "TB @ NYY",
+    "market": "pitcher_h",
+    "selection": "Max Fried Hits u3.5",
+    "american": 120.0,
+    "no_vig_prob": 0.424837
   },
   {
     "matchup": "TB @ NYY",
