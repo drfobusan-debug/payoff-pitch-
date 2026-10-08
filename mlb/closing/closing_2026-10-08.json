@@ -16,6 +16,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_1b",
+    "selection": "Austin Hedges 1B o0.5",
+    "american": 232.0,
+    "no_vig_prob": 0.281153
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_1b",
+    "selection": "Austin Hedges 1B u0.5",
+    "american": -335.0,
+    "no_vig_prob": 0.718847
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_1b",
     "selection": "Braden Montgomery 1B o0.5",
     "american": 140.0,
     "no_vig_prob": 0.392416
@@ -264,6 +278,20 @@
     "selection": "Angel Martinez 2B u0.5",
     "american": -650.0,
     "no_vig_prob": 0.816314
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_2b",
+    "selection": "Austin Hedges 2B o0.5",
+    "american": 820.0,
+    "no_vig_prob": 0.103896
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_2b",
+    "selection": "Austin Hedges 2B u0.5",
+    "american": -1500.0,
+    "no_vig_prob": 0.896104
   },
   {
     "matchup": "CLE @ CWS",
@@ -520,6 +548,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_bb",
+    "selection": "Austin Hedges BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.260173
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_bb",
+    "selection": "Austin Hedges BB u0.5",
+    "american": -370.0,
+    "no_vig_prob": 0.739827
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_bb",
     "selection": "Braden Montgomery BB o0.5",
     "american": 280.0,
     "no_vig_prob": 0.265614
@@ -758,6 +800,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Austin Hedges H+R+RBI o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.462535
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Austin Hedges H+R+RBI u0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.537465
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Braden Montgomery H+R+RBI o0.5",
     "american": -150.0,
     "no_vig_prob": 0.572717
@@ -772,9 +828,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.605544
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Brayan Rocchio H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.40372
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.394456
   },
   {
     "matchup": "CLE @ CWS",
@@ -912,9 +982,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Nathaniel Lowe H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.415728
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
   },
   {
     "matchup": "CLE @ CWS",
@@ -947,9 +1031,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Randal Grichuk H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.402685
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Randal Grichuk H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.408172
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Randal Grichuk H+R+RBI u1.5",
+    "american": -173.0,
+    "no_vig_prob": 0.597315
   },
   {
     "matchup": "CLE @ CWS",
@@ -982,9 +1080,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.593936
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Travis Bazzana H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.400258
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.406064
   },
   {
     "matchup": "CLE @ CWS",
@@ -1004,6 +1116,20 @@
     "matchup": "CLE @ CWS",
     "market": "batter_hr",
     "selection": "Angel Martinez HR o1.5",
+    "american": 16000.0,
+    "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hr",
+    "selection": "Austin Hedges HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.089286
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hr",
+    "selection": "Austin Hedges HR o1.5",
     "american": 16000.0,
     "no_vig_prob": 0.006211
   },
@@ -1262,6 +1388,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_h",
+    "selection": "Austin Hedges H o0.5",
+    "american": 139.0,
+    "no_vig_prob": 0.404276
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_h",
+    "selection": "Austin Hedges H u0.5",
+    "american": -164.0,
+    "no_vig_prob": 0.595724
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_h",
     "selection": "Braden Montgomery H o0.5",
     "american": -125.0,
     "no_vig_prob": 0.531453
@@ -1510,6 +1650,20 @@
     "selection": "Angel Martinez RBI u0.5",
     "american": -295.0,
     "no_vig_prob": 0.720678
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_rbi",
+    "selection": "Austin Hedges RBI o0.5",
+    "american": 443.0,
+    "no_vig_prob": 0.173875
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_rbi",
+    "selection": "Austin Hedges RBI u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.826125
   },
   {
     "matchup": "CLE @ CWS",
@@ -1766,6 +1920,20 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_r",
+    "selection": "Austin Hedges R o0.5",
+    "american": 268.0,
+    "no_vig_prob": 0.254126
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_r",
+    "selection": "Austin Hedges R u0.5",
+    "american": -394.0,
+    "no_vig_prob": 0.745874
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_r",
     "selection": "Braden Montgomery R o0.5",
     "american": 227.0,
     "no_vig_prob": 0.309353
@@ -2014,6 +2182,20 @@
     "selection": "Angel Martinez TB u0.5",
     "american": 130.0,
     "no_vig_prob": 0.41476
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_tb",
+    "selection": "Austin Hedges TB o0.5",
+    "american": 144.0,
+    "no_vig_prob": 0.38972
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_tb",
+    "selection": "Austin Hedges TB u0.5",
+    "american": -189.0,
+    "no_vig_prob": 0.61028
   },
   {
     "matchup": "CLE @ CWS",
