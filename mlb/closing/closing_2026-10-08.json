@@ -968,9 +968,23 @@
   {
     "matchup": "CLE @ CWS",
     "market": "batter_hrr",
+    "selection": "Munetaka Murakami H+R+RBI o0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.59256
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
     "selection": "Munetaka Murakami H+R+RBI o1.5",
     "american": 131.0,
     "no_vig_prob": 0.406825
+  },
+  {
+    "matchup": "CLE @ CWS",
+    "market": "batter_hrr",
+    "selection": "Munetaka Murakami H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.40744
   },
   {
     "matchup": "CLE @ CWS",
