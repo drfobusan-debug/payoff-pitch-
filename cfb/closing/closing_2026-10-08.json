@@ -1,122 +1,122 @@
 {
   "Missouri State @ Western Kentuc|game_ats|Missouri State": {
-    "american": -106.0,
+    "american": -110.0,
     "line": -1.5,
-    "no_vig_prob": 0.50028524637598
+    "no_vig_prob": 0.5034151619489089
   },
   "Missouri State @ Western Kentuc|game_ats|Western Kentuc": {
-    "american": -106.0,
+    "american": -104.0,
     "line": 1.5,
-    "no_vig_prob": 0.49971475362401996
+    "no_vig_prob": 0.4965848380510912
   },
   "Missouri State @ Western Kentuc|game_ml|Missouri State": {
-    "american": -112.0,
+    "american": -121.0,
     "line": null,
-    "no_vig_prob": 0.5169343353093266
+    "no_vig_prob": 0.5317451207421136
   },
   "Missouri State @ Western Kentuc|game_ml|Western Kentuc": {
-    "american": 104.0,
+    "american": 110.0,
     "line": null,
-    "no_vig_prob": 0.4830656646906734
+    "no_vig_prob": 0.46825487925788656
   },
   "Missouri State @ Western Kentuc|game_total|Over": {
-    "american": -108.0,
-    "line": 56.0,
-    "no_vig_prob": 0.49985846760040303
+    "american": -105.0,
+    "line": 56.5,
+    "no_vig_prob": 0.49686690696275976
   },
   "Missouri State @ Western Kentuc|game_total|Under": {
-    "american": -108.0,
-    "line": 56.0,
-    "no_vig_prob": 0.5001415323995969
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5031330930372403
   },
   "Sam Houston St @ Liberty|game_ats|Liberty": {
-    "american": -109.0,
+    "american": -110.0,
     "line": -13.5,
-    "no_vig_prob": 0.5055415867485687
+    "no_vig_prob": 0.502122057306658
   },
   "Sam Houston St @ Liberty|game_ats|Sam Houston St": {
-    "american": -103.0,
+    "american": -106.0,
     "line": 13.5,
-    "no_vig_prob": 0.4944584132514313
+    "no_vig_prob": 0.49787794269334207
   },
   "Sam Houston St @ Liberty|game_ml|Liberty": {
     "american": -550.0,
     "line": null,
-    "no_vig_prob": 0.8160115460214666
+    "no_vig_prob": 0.815411801409788
   },
   "Sam Houston St @ Liberty|game_ml|Sam Houston St": {
     "american": 435.0,
     "line": null,
-    "no_vig_prob": 0.1839884539785334
+    "no_vig_prob": 0.18458819859021205
   },
   "Sam Houston St @ Liberty|game_total|Over": {
-    "american": -108.0,
+    "american": -105.0,
     "line": 52.5,
-    "no_vig_prob": 0.5014392009556294
+    "no_vig_prob": 0.5014395462710037
   },
   "Sam Houston St @ Liberty|game_total|Under": {
-    "american": -108.0,
+    "american": -105.0,
     "line": 52.5,
-    "no_vig_prob": 0.4985607990443706
+    "no_vig_prob": 0.4985604537289963
   },
   "South Alabama @ Arkansas State|game_ats|Arkansas State": {
-    "american": -103.0,
+    "american": -107.0,
     "line": -3.0,
-    "no_vig_prob": 0.4955823401085727
+    "no_vig_prob": 0.5079193707728452
   },
   "South Alabama @ Arkansas State|game_ats|South Alabama": {
-    "american": -105.0,
+    "american": -101.0,
     "line": 3.0,
-    "no_vig_prob": 0.5044176598914274
+    "no_vig_prob": 0.49208062922715473
   },
   "South Alabama @ Arkansas State|game_ml|Arkansas State": {
-    "american": -145.0,
+    "american": -155.0,
     "line": null,
-    "no_vig_prob": 0.5724688003133154
+    "no_vig_prob": 0.5926252387948512
   },
   "South Alabama @ Arkansas State|game_ml|South Alabama": {
-    "american": 130.0,
+    "american": 142.0,
     "line": null,
-    "no_vig_prob": 0.4275311996866847
+    "no_vig_prob": 0.4073747612051488
   },
   "South Alabama @ Arkansas State|game_total|Over": {
     "american": -108.0,
     "line": 59.5,
-    "no_vig_prob": 0.4996930180102086
+    "no_vig_prob": 0.5013723384509569
   },
   "South Alabama @ Arkansas State|game_total|Under": {
-    "american": -108.0,
+    "american": -105.0,
     "line": 59.5,
-    "no_vig_prob": 0.5003069819897914
+    "no_vig_prob": 0.49862766154904314
   },
   "South Florida @ UTSA|game_ats|South Florida": {
-    "american": -105.0,
-    "line": 6.5,
-    "no_vig_prob": 0.49991842920237856
+    "american": -102.0,
+    "line": 5.5,
+    "no_vig_prob": 0.4940645892430055
   },
   "South Florida @ UTSA|game_ats|UTSA": {
-    "american": -104.0,
-    "line": -6.5,
-    "no_vig_prob": 0.5000815707976214
+    "american": -110.0,
+    "line": -5.5,
+    "no_vig_prob": 0.5059354107569946
   },
   "South Florida @ UTSA|game_ml|South Florida": {
-    "american": 205.0,
+    "american": 190.0,
     "line": null,
-    "no_vig_prob": 0.31963668835490183
+    "no_vig_prob": 0.33781223674243244
   },
   "South Florida @ UTSA|game_ml|UTSA": {
-    "american": -230.0,
+    "american": -195.0,
     "line": null,
-    "no_vig_prob": 0.6803633116450981
+    "no_vig_prob": 0.6621877632575677
   },
   "South Florida @ UTSA|game_total|Over": {
-    "american": -103.0,
-    "line": 50.5,
-    "no_vig_prob": 0.4905864709228562
+    "american": -108.0,
+    "line": 49.5,
+    "no_vig_prob": 0.5019445726416709
   },
   "South Florida @ UTSA|game_total|Under": {
-    "american": -112.0,
-    "line": 50.5,
-    "no_vig_prob": 0.5094135290771439
+    "american": -105.0,
+    "line": 49.5,
+    "no_vig_prob": 0.4980554273583292
   }
 }
