@@ -24,6 +24,7 @@ from mlb_engine.output.daily_worksheet import (
     band_of,
     build_rows,
     clean_ledger,
+    day_incomplete,
     decile_points,
     grade,
     implied,
@@ -519,3 +520,10 @@ def test_clean_ledger_dedupes_pk_blanks_doubleheader_splits_and_ungrades_incompl
     assert by[5].dk_ml_handle_away == 40.0
     assert by[4].result == "" and by[4].rl_result == "" and by[4].away_runs is None
     assert tally(out)[-1].n == 1
+
+
+def test_a_day_is_incomplete_while_an_ungraded_game_lacks_a_starter() -> None:
+    day = Date(2026, 9, 14)
+    assert not day_incomplete([_row(1, 5.0)], day)
+    assert day_incomplete([_row(1, 5.0), _row(2, 3.0, complete=False)], day)
+    assert not day_incomplete([_row(2, 3.0, complete=False, day="2026-09-13")], day)

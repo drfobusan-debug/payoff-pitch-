@@ -906,6 +906,11 @@ def clean_ledger(rows: list[LedgerRow]) -> list[LedgerRow]:
     return out
 
 
+def day_incomplete(rows: list[LedgerRow], day: Date) -> bool:
+    """True when a game the day's sheet wrote is still missing a starter score."""
+    return any(r.date == day.isoformat() and not r.complete and not r.graded for r in rows)
+
+
 def grade(rows: list[LedgerRow], results: dict[int, Final]) -> int:
     n = 0
     for r in rows:
