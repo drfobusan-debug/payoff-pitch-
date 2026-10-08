@@ -1725,3 +1725,15 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-06,Southern Missi @ Troy,Spread (ATS),game_ats,Troy -10.5,-10.5,lowvig,-104.0,-108.0,Pass,0.4672,-0.0835,win,0.9615,0.4672,0.4954,0.4672,-105.0,0.4865,-0.0089,-0.0457,-0.5,0.0,,69.0,0.0082
 2026-10-06,Southern Missi @ Troy,Totals,game_total,Over 50.0,50.0,mybookieag,-110.0,-110.0,Pass,0.442,-0.1562,win,0.9091,0.442,0.5015,0.442,-108.0,0.5464,0.0449,0.0431,1.5,0.0,,-8.0,-0.0077
 2026-10-06,Southern Missi @ Troy,Totals,game_total,Under 50.0,50.0,lowvig,-106.0,-110.0,Strong buy,0.558,0.0845,loss,-1.0,0.558,0.4985,0.558,-108.0,0.4536,-0.0449,-0.1185,-1.5,0.0,,8.0,0.0077
+2026-10-07,Jacksonville S @ Kennesaw State,Moneyline,game_ml,Jacksonville S ML,,bovada,-140.0,120.0,Moderate buy,0.6035,0.0346,win,0.7143,0.6035,0.5665,0.6035,-150.0,0.5787,0.0122,-0.0079,,0.0,,10.0,-0.0064
+2026-10-07,Jacksonville S @ Kennesaw State,Moneyline,game_ml,Kennesaw State ML,,williamhill_us,126.0,-150.0,Pass,0.3965,-0.104,loss,-1.0,0.3965,0.4335,0.3965,130.0,0.4213,-0.0122,-0.0479,,0.0,,-10.0,0.0064
+2026-10-07,Jacksonville S @ Kennesaw State,Spread (ATS),game_ats,Jacksonville S -3.0,-3.0,lowvig,-101.0,-111.0,Pass,0.511,0.0169,loss,-1.0,0.511,0.4911,0.511,-106.0,0.4987,0.0076,-0.0075,0.0,0.0,,-46.0,-0.0064
+2026-10-07,Jacksonville S @ Kennesaw State,Spread (ATS),game_ats,Kennesaw State +3.0,3.0,mybookieag,-110.0,-110.0,Pass,0.489,-0.0664,win,0.9091,0.489,0.5089,0.489,-106.0,0.5013,-0.0076,-0.043,0.0,0.0,,46.0,0.0064
+2026-10-07,Jacksonville S @ Kennesaw State,Totals,game_total,Over 49.5,49.5,betmgm,-108.0,-110.0,Pass,0.5489,0.0572,win,0.9259,0.5489,0.4997,0.5489,-105.0,0.4665,-0.0332,-0.1016,-1.0,0.0,,10.0,-0.0329
+2026-10-07,Jacksonville S @ Kennesaw State,Totals,game_total,Under 49.5,49.5,lowvig,-108.0,-108.0,Pass,0.4511,-0.1313,loss,-1.0,0.4511,0.5003,0.4511,-110.0,0.5335,0.0332,0.0275,1.0,0.0,,-10.0,0.0329
+2026-10-07,New Mexico Sta @ Florida Intern,Moneyline,game_ml,Florida Intern ML,,betmgm,-235.0,200.0,Pass,0.7249,0.0333,win,0.4255,0.7249,0.6808,0.7249,-245.0,0.6939,0.0131,-0.0108,,0.0,,,0.0118
+2026-10-07,New Mexico Sta @ Florida Intern,Moneyline,game_ml,New Mexico Sta ML,,betus,210.0,-250.0,Pass,0.2751,-0.1471,loss,-1.0,0.2751,0.3192,0.2751,223.0,0.3061,-0.0131,-0.0511,,0.0,,,-0.0118
+2026-10-07,New Mexico Sta @ Florida Intern,Spread (ATS),game_ats,Florida Intern -6.5,-6.5,betrivers,-109.0,-114.0,Pass,0.5339,0.0237,win,0.9174,0.5339,0.5058,0.5339,100.0,0.5018,-0.004,-0.0378,0.5,0.0,,,0.0072
+2026-10-07,New Mexico Sta @ Florida Intern,Spread (ATS),game_ats,New Mexico Sta +6.5,6.5,lowvig,-102.0,-110.0,Pass,0.4661,-0.0769,loss,-1.0,0.4661,0.4942,0.4661,-110.0,0.4982,0.004,-0.0134,-0.5,0.0,,,-0.0072
+2026-10-07,New Mexico Sta @ Florida Intern,Totals,game_total,Over 46.5,46.5,mybookieag,-110.0,-110.0,Pass,0.3894,-0.2566,loss,-1.0,0.3894,0.5081,0.3894,-108.0,0.499,-0.0091,-0.0474,0.0,0.0,,,0.0067
+2026-10-07,New Mexico Sta @ Florida Intern,Totals,game_total,Under 46.5,46.5,lowvig,-103.0,-114.0,Pass,0.6106,0.2034,win,0.9709,0.6106,0.4919,0.6106,-110.0,0.501,0.0091,-0.0126,0.0,0.0,,,-0.0067
