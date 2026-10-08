@@ -5509,6 +5509,118 @@
     "no_vig_prob": 0.484759
   },
   {
+    "matchup": "LAD @ MIL",
+    "market": "f5_ml",
+    "selection": "LAD F5 ML",
+    "american": -104.0,
+    "no_vig_prob": 0.483108
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_ml",
+    "selection": "MIL F5 ML",
+    "american": -120.0,
+    "no_vig_prob": 0.516892
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_rl",
+    "selection": "LAD F5 +0.5",
+    "american": -168.0,
+    "no_vig_prob": 0.588351
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_rl",
+    "selection": "MIL F5 -0.5",
+    "american": 128.0,
+    "no_vig_prob": 0.411649
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_total",
+    "selection": "F5 Over 3.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417062
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_total",
+    "selection": "F5 Under 3.5",
+    "american": -164.0,
+    "no_vig_prob": 0.582938
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_ml",
+    "selection": "LAD ML",
+    "american": -106.0,
+    "no_vig_prob": 0.497456
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_ml",
+    "selection": "MIL ML",
+    "american": -108.0,
+    "no_vig_prob": 0.502544
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_rl",
+    "selection": "LAD +1.5",
+    "american": -228.0,
+    "no_vig_prob": 0.664553
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_rl",
+    "selection": "LAD -1.5",
+    "american": 172.0,
+    "no_vig_prob": 0.352635
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_rl",
+    "selection": "MIL +1.5",
+    "american": -210.0,
+    "no_vig_prob": 0.647365
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_rl",
+    "selection": "MIL -1.5",
+    "american": 185.0,
+    "no_vig_prob": 0.335447
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_total",
+    "selection": "Over 6.0",
+    "american": -105.0,
+    "no_vig_prob": 0.489166
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_total",
+    "selection": "Over 6.5",
+    "american": 110.0,
+    "no_vig_prob": 0.471591
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_total",
+    "selection": "Under 6.0",
+    "american": -115.0,
+    "no_vig_prob": 0.510834
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "game_total",
+    "selection": "Under 6.5",
+    "american": -115.0,
+    "no_vig_prob": 0.528409
+  },
+  {
     "matchup": "MIL @ SD",
     "market": "batter_1b",
     "selection": "Austin Hays 1B o0.5",
