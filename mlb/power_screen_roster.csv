@@ -37,3 +37,9 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-07,20261007T1858Z,soft,bat,Ben Rice,700250,NYY,849838,Nick Martinez,607259,1,True,SOFT OVER,over,held,,
 2026-10-07,20261007T1858Z,soft,bat,George Lombard,806146,NYY,849838,Nick Martinez,607259,5,True,PROD DROP,,dropped,,
 2026-10-07,20261007T1858Z,soft,bat,Cooper Pratt,806198,MIL,849827,Walker Buehler,621111,7,True,PROD WATCH,,held,,
+2026-10-08,20261008T2158Z,elite,arm,Hagen Smith,696146,CWS,849832,Hagen Smith,696146,,False,,,screened,,3.37
+2026-10-08,20261008T2158Z,elite,arm,Parker Messick,800048,CLE,849832,Parker Messick,800048,,False,,,gated,siera: SIERA 3.24 ≤ 3.25,3.24
+2026-10-08,20261008T2158Z,elite,bat,Austin Hedges,595978,CLE,849832,Hagen Smith,696146,8,False,PROD WATCH,,held,,
+2026-10-08,20261008T2158Z,elite,bat,Steven Kwan,680757,CLE,849832,Hagen Smith,696146,1,False,PROD WATCH,,held,,
+2026-10-08,20261008T2158Z,soft,arm,Hagen Smith,696146,CWS,849832,Hagen Smith,696146,,False,,,gated,siera: SIERA 3.37 ≤ 4.40,3.37
+2026-10-08,20261008T2158Z,soft,arm,Parker Messick,800048,CLE,849832,Parker Messick,800048,,False,,,gated,siera: SIERA 3.24 ≤ 4.40,3.24
