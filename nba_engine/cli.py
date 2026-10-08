@@ -52,13 +52,13 @@ from engine_common.podcasts.shows import NBA
 from nba_engine import alarm, podcast, state
 from nba_engine.audit import ledger, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
-from nba_engine.data import boxes, capture, espn_injuries, history, injuries
+from nba_engine.data import boxes, capture, espn_injuries, history, injuries, pbp
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
 from nba_engine.data.espn import ESPNClient, parse_box
 from nba_engine.data.oddsapi import SLATE_TZ, OddsAPIClient, parse_utc
 from nba_engine.market import overbias, params
 from nba_engine.market.board import ev_per_unit, selections
-from nba_engine.models import minutes, minutes_fit, rating_fit, ratings
+from nba_engine.models import game_sim, minutes, minutes_fit, rating_fit, ratings, sim_fit
 from nba_engine.models.schedule import schedule
 from nba_engine.output import context
 from nba_engine.output.card import SlateCard, build_card, render_html, render_pdf, render_text
@@ -829,6 +829,86 @@ def cmd_fit_minutes(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_fit_sim(args: argparse.Namespace) -> int:
+    root = data_dir()
+    games: list[GameResult] = []
+    halves: dict[str, list[pbp.HalfLine]] = {}
+    for g in _held_finals(root, _days(args)):
+        raw = boxes.read_raw_summary(root, g.game_date, g.espn_id)
+        if raw:
+            g = replace(g, players=parse_box(raw))
+            halves[g.espn_id] = pbp.halves(raw)
+        games.append(g)
+    if not games:
+        print("no archived finals; params left unchanged")
+        return 1
+    train, holdout = set(args.train), set(args.holdout or [])
+    rated, mins = params.latest(root, ratings.NAME), params.latest(root, minutes.NAME)
+    sims = game_sim.replay(
+        games,
+        ratings.RatingParams.from_dict(rated["params"]) if rated else None,
+        minutes.MinutesParams.from_dict(mins["params"]) if mins else None,
+    )
+    finals = {g.espn_id: g for g in games}
+    lost_m, lost_t = sim_fit.fit_lost(sims, finals, train, draws=args.draws)
+    fitted = game_sim.SimParams(lost_margin=lost_m.applied, lost_total=lost_t.applied)
+    fitted = sim_fit.fit_shape(sims, finals, train, fitted)
+    half = sim_fit.fit_halves(halves, finals, train, draws=args.draws)
+    fitted = replace(fitted, pace_shift=half.pace_shift, eff_shift=half.eff_shift)
+    print(f"{len(games)} finals, {len(halves)} with play-by-play; train {sorted(train)}")
+    for f in (lost_m, lost_t):
+        print(
+            f"{f.name:11} n={f.n} {f.value:+.4f} ({f.lo:+.4f},{f.hi:+.4f}) applied {f.applied:+.4f}"
+        )
+    print(
+        f"halves n={half.n}: possessions {half.h1_poss:.2f} -> {half.h2_poss:.2f} "
+        f"pace {100 * half.pace_shift:+.2f}% ({100 * half.pace_lo:+.2f},{100 * half.pace_hi:+.2f}); "
+        f"per 100 {half.h1_ppp:.2f} -> {half.h2_ppp:.2f} efficiency {100 * half.eff_shift:+.2f}% "
+        f"({100 * half.eff_lo:+.2f},{100 * half.eff_hi:+.2f})"
+    )
+    print(
+        f"sd margin {fitted.sd_margin:.2f} total {fitted.sd_total:.2f}; 1H share margin "
+        f"{fitted.h1_margin_share:.3f} total {fitted.h1_total_share:.4f}; 1H sd margin "
+        f"{fitted.sd_h1_margin:.2f} total {fitted.sd_h1_total:.2f}"
+    )
+    by_matchup = {(g.game_date.isoformat(), f"{g.away} @ {g.home}"): g for g in games}
+    points = sim_fit.close_points(
+        root,
+        sorted({g.game_date for g in games}),
+        game_sim.by_matchup(sims, fitted),
+        by_matchup,
+    )
+    blends = sim_fit.fit_blend(points, train, holdout, draws=args.blend_draws)
+    for b in blends:
+        print(
+            f"{b.market:10} n={b.n:5}/{b.holdout_n:5} w {b.weight:.3f} ({b.lo:.3f},{b.hi:.3f}) "
+            f"applied {b.applied:.3f}  holdout log loss close {b.ll_fair:.5f} "
+            f"blend {b.ll_blend:.5f} model {b.ll_model:.5f}"
+        )
+    fitted = replace(fitted, blend={b.market: b.applied for b in blends if b.applied > 0.0})
+    path = params.write(
+        root,
+        game_sim.NAME,
+        {
+            "params": game_sim.params_payload(fitted),
+            "train": sorted(train),
+            "holdout": sorted(holdout),
+            "games": len(games),
+            "inputs": {
+                ratings.NAME: rated["version"] if rated else "",
+                minutes.NAME: mins["version"] if mins else "",
+            },
+            "lost": [asdict(lost_m), asdict(lost_t)],
+            "halves": asdict(half),
+            "blend": [asdict(b) for b in blends],
+        },
+    )
+    print(f"wrote {path}")
+    if args.push:
+        state.auto_push(root, f"nba params {path.stem}", trees=("params",))
+    return 0
+
+
 def cmd_ratings(args: argparse.Namespace) -> int:
     root = data_dir()
     as_of = _parse_date(args.date)
@@ -955,6 +1035,17 @@ def build_parser() -> argparse.ArgumentParser:
     fm.add_argument("--draws", type=int, default=1000, help="slate-date bootstrap draws")
     fm.add_argument("--push", action="store_true", help="push params/ to engine-state")
     fm.set_defaults(func=cmd_fit_minutes)
+
+    fs = sub.add_parser("fit-sim", help="fit the game/1H simulation and its blend with the close")
+    fs.add_argument("--season", action="append", required=True, help="finals to load")
+    fs.add_argument("--since")
+    fs.add_argument("--until")
+    fs.add_argument("--train", type=int, action="append", required=True, help="start year")
+    fs.add_argument("--holdout", type=int, action="append", help="start year, never fitted")
+    fs.add_argument("--draws", type=int, default=1000, help="slate-date bootstrap draws")
+    fs.add_argument("--blend-draws", type=int, default=200, help="bootstrap draws per blend weight")
+    fs.add_argument("--push", action="store_true", help="push params/ to engine-state")
+    fs.set_defaults(func=cmd_fit_sim)
 
     rt = sub.add_parser("ratings", help="team ratings going into a date")
     rt.add_argument("--season", action="append", required=True)
