@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.market import lineagree
+from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief
@@ -87,6 +87,11 @@ class Recommendation:
         )
 
     @property
+    def low_total_under(self) -> bool:
+        """A buy the candidate screen in :mod:`cfb_engine.market.lowtotal` would refuse."""
+        return self.tier != Tier.PASS and lowtotal.refuses(self.market, self.selection, self.line)
+
+    @property
     def pre_bet_move(self) -> float | None:
         """No-vig points the market moved toward this side since the opener."""
         return lineagree.movement(self.open_drift, self.drift)
@@ -137,6 +142,7 @@ class Recommendation:
             "Handle-Tickets": self.sharp_div if self.sharp_div is not None else "",
             "Tier": self.tier.value,
             lineagree.LABEL: self._line_agrees_cell(),
+            lowtotal.LABEL: "WOULD SKIP" if self.low_total_under else "",
             "Notes": "; ".join(self.reasons),
         }
 

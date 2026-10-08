@@ -20,7 +20,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit.probation import Probation
-from cfb_engine.market import lineagree
+from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
 from cfb_engine.market.tiers import Tier
@@ -591,6 +591,34 @@ def _line_agrees_block(recs: list[Recommendation], record: Probation | None) -> 
     )
 
 
+def _low_total_block(recs: list[Recommendation], record: Probation | None) -> str:
+    picks = [r for r in recs if r.low_total_under]
+    if record is None:
+        tally = "No graded record yet."
+    else:
+        tally = (
+            f"Buys it would have skipped so far: {record.n}, {record.roi * 100:+.1f}% ROI "
+            f"(se {record.se * 100:.1f}), {record.status} &mdash; it needs 100 graded buys, "
+            "losing by more than a standard error in both halves, before it can refuse one."
+        )
+    if picks:
+        items = "".join(
+            f"<li><b>{escape(r.selection)} ({_odds(r.market_american)})</b> &mdash; "
+            f"{escape(r.matchup)}, {r.tier.value}, model {r.model_prob * 100:.1f}% vs market "
+            f"{(r.fair_prob or 0.0) * 100:.1f}%</li>"
+            for r in sorted(picks, key=lambda r: r.kickoff_utc or "")
+        )
+        body = f"<ul class='bets'>{items}</ul>"
+    else:
+        body = "<p>No Under buy on a total below 50 today.</p>"
+    return (
+        f"<div class='lineagree'><h2>{lowtotal.LABEL}</h2>"
+        f"<p class='sbnote'>Under buys on a total below {lowtotal.LINE_FLOOR:g} that this candidate "
+        "screen would skip. The buys stand as priced; the screen is graded on them to see "
+        f"whether skipping would have saved money.</p>{body}<p class='sbnote'>{tally}</p></div>"
+    )
+
+
 def _opened(r: Recommendation) -> str:
     if r.open_line is None or r.line is None or r.open_line == r.line:
         return ""
@@ -649,6 +677,7 @@ def build_article(
     recs: list[Recommendation],
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
+    low_total_record: Probation | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
@@ -672,6 +701,7 @@ def build_article(
     body = "".join(_game_section(g, podcast) for g in ordered_games)
     body += _slate_best_block(recs)
     body += _line_agrees_block(recs, line_agrees_record)
+    body += _low_total_block(recs, low_total_record)
     body += records_block(podcast, ordered_games)
     fine = (
         "<p class='fine'>Methodology: expected margin and total come from CFBD SP+ (and PFF, "
@@ -814,6 +844,7 @@ def generate_daily_card(
     extra_attachments: list[tuple[str, bytes]] | None = None,
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
+    low_total_record: Probation | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -821,7 +852,7 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs, line_agrees_record, podcast)
+    html, narr = build_article(slate_date, recs, line_agrees_record, podcast, low_total_record)
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"

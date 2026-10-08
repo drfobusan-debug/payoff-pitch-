@@ -28,7 +28,7 @@ from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from cfb_engine.audit.priced import PricedStat
 from cfb_engine.audit.probation import Probation
-from cfb_engine.market import lineagree
+from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.ordering import conviction as _conviction
 from cfb_engine.market.ordering import order_recs
 from cfb_engine.market.tiers import Tier
@@ -41,12 +41,12 @@ CENTER = Alignment(horizontal="center")
 COLUMNS = [
     "Date", "Matchup", "Market", "Selection", "Line",
     "Model %", "Market %", "Fair Odds", "Book", "Book Odds",
-    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", lineagree.LABEL, "Notes",
+    "EV", "Edge", "Kelly", "Handle-Tickets", "Tier", lineagree.LABEL, lowtotal.LABEL, "Notes",
 ]
-WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 22, 46]
+WIDTHS = [11, 22, 13, 22, 7, 8, 8, 9, 12, 10, 8, 8, 8, 14, 12, 22, 22, 46]
 CENTER_COLS = {
     "Line", "Model %", "Market %", "Fair Odds", "Book Odds", "EV", "Edge", "Kelly",
-    "Handle-Tickets", "Tier", lineagree.LABEL,
+    "Handle-Tickets", "Tier", lineagree.LABEL, lowtotal.LABEL,
 }
 # The graded-only totals rule gets its own tab, named so it cannot be read as a buy list.
 LINE_AGREES_TAB = "Line Agrees (graded only)"
