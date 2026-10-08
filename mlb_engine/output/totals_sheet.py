@@ -24,7 +24,7 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date as Date
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
@@ -88,6 +88,10 @@ LEVERAGE_ARMS = 3
 # columns describe those arms instead of the whole staff.
 SHORT_START_OUTS = 18
 SHORT_START_IP_PER_GS = 6.0
+# A starter's SIERA / xERA / CSW / K-BB are scored only past this many innings, the
+# worksheet's own floor; below it the line is an opener's or a call-up's handful of
+# batters and he scores 0, as a TBD starter does.
+SP_MIN_IP = 20.0
 PEN_PITCHES_TIRED = 120
 UMP_MIN_GAMES = 10
 UMP_BAND_RUNS = 1.0
@@ -623,6 +627,11 @@ def _arm(row: dict | None) -> tuple[int, int]:
     return pts, kbb_pts(kbb * 100) if kbb is not None else 0
 
 
+def starter_arm(row: dict | None) -> tuple[int, int]:
+    """:func:`_arm` for a starter with :data:`SP_MIN_IP` innings; 0, 0 for a thinner one."""
+    return _arm(row) if row and (row.get("IP") or 0) >= SP_MIN_IP else (0, 0)
+
+
 OutsUnder = dict[int, float]
 """Starter MLBAM id -> the market's devigged probability he records fewer than 18 outs."""
 
@@ -760,7 +769,7 @@ def _side(
     key = _fg_team(team.abbrev)
     pp = team.probable_pitcher
     sp_row = fg.pit.get(pp.mlbam_id) if pp else None
-    sp, kbb_sp = _arm(sp_row)
+    sp, kbb_sp = starter_arm(sp_row)
     mid = fg.mid.get(key)
     short = short_start(pp, sp_row, p_under)
     if short and mid:
@@ -873,7 +882,7 @@ _LEGEND = [
     ("wRC+", ">130 3 | 116-130 2 | 106-115 1 | 95-105 0 | 85-94 -1 | 70-84 -2 | <70 -3"),
     ("wOBA", ">.355 3 | .341-.355 2 | .326-.340 1 | .305-.325 0 | .290-.304 -1 | .275-.289 -2 | <.275 -3"),
     ("Barrel%", ">10 2 | 8.6-10 1 | 6.5-8.5 0 | 5-6.4 -1 | <5 -2"),
-    ("SP / RP pts", "Starter and bullpen: SIERA pts + xERA pts + CSW% pts. Softer arm = positive, league-average arm = 0. TBD starter = 0."),
+    ("SP / RP pts", "Starter and bullpen: SIERA pts + xERA pts + CSW% pts. Softer arm = positive, league-average arm = 0. TBD starter, or one under 20 IP this season, = 0."),
     ("SIERA", "<2.75 -3 | 2.75-3.24 -2 | 3.25-3.74 -1 | 3.75-4.35 0 | 4.36-4.75 1 | 4.76-5.25 2 | >5.25 3"),
     ("xERA", "<3.20 -2 | 3.20-3.69 -1 | 3.70-4.50 0 | 4.51-5.10 1 | >5.10 2"),
     ("CSW%", ">31 -2 | 29-31 -1 | 25-29 0 | 23-25 1 | <23 2"),
@@ -1007,6 +1016,30 @@ def sheet_has_lines(path: Path) -> bool:
     return all(first_line(str(r[ti] or "")) is not None for r in it if r[gi] is not None)
 
 
+def sheet_has_gaps(path: Path) -> bool:
+    """True when a game on the sheet has a TBD starter or no engine total yet."""
+    wb = load_workbook(path, read_only=True)
+    ws = wb[next(n for n in wb.sheetnames if n.startswith("Totals "))]
+    it = ws.iter_rows(values_only=True)
+    header = [str(c) for c in next(it)]
+    gi, ai, hi, ei = (header.index(c) for c in ("Game", "SP A", "SP H", "Engine"))
+    return any(
+        r[ai] == "TBD" or r[hi] == "TBD" or r[ei] is None
+        for r in it if r[gi] is not None
+    )
+
+
+def slate_started(slate: Slate, now: datetime | None = None) -> bool:
+    """True once any game on the slate is past its first pitch (or has no time)."""
+    now = now or datetime.now(timezone.utc)
+    for g in slate.games:
+        if not g.game_datetime_utc:
+            return True
+        if datetime.fromisoformat(g.game_datetime_utc.replace("Z", "+00:00")) <= now:
+            return True
+    return False
+
+
 def sheet_is_current(path: Path) -> bool:
     """True when a sheet on disk was scored by these bands, carries the columns and
     Legend rules this code writes, and had lines to score against.
@@ -1035,7 +1068,8 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     so a job can call this every pass and only rewrite when the bands moved on.
     """
     out = output_path(cfg, day)
-    if if_stale and sheet_is_current(out):
+    current = if_stale and sheet_is_current(out)
+    if current and not sheet_has_gaps(out):
         log.info("totals sheet: %s already on bands %s", out.name, BANDS)
         return out
     stats = MLBStatsClient()
@@ -1043,6 +1077,9 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     if not slate.games:
         log.info("totals sheet: no games on %s", day)
         return None
+    if current and slate_started(slate):
+        log.info("totals sheet: %s has a TBD starter or blank engine, but the slate has started; kept", out.name)
+        return out
     season = day.year
     fg = fetch_fangraphs(season)
     gp = games_played(season)

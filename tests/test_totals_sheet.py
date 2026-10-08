@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date as Date
 from pathlib import Path
 from types import SimpleNamespace
@@ -449,3 +450,61 @@ def test_a_day_with_no_local_card_is_pulled_off_the_state_branch(
     cfg.state_sync = False
     totals_sheet.pull_day_state(cfg, Date(2026, 9, 19))  # type: ignore[arg-type]
     assert len(pulled) == 1
+
+
+def test_a_starter_under_the_innings_floor_scores_zero() -> None:
+    """An opener's 15 IP of elite rates is not a starter's line; 20 IP is."""
+    elite = {"SIERA": 2.9, "xERA": 3.0, "C+SwStr%": 0.31, "K-BB%": 0.22}
+    assert totals_sheet.starter_arm({**elite, "IP": 15.1}) == (0, 0)
+    sp, kbb = totals_sheet.starter_arm({**elite, "IP": totals_sheet.SP_MIN_IP})
+    assert sp < 0 and kbb < 0
+    assert totals_sheet.starter_arm(None) == (0, 0)
+
+
+def _slate(*times: str | None) -> SimpleNamespace:
+    return SimpleNamespace(games=[SimpleNamespace(game_datetime_utc=t) for t in times])
+
+
+def test_a_slate_has_started_once_any_first_pitch_has_passed() -> None:
+    from datetime import datetime, timezone
+
+    now = datetime(2026, 10, 7, 19, 0, tzinfo=timezone.utc)
+    assert not totals_sheet.slate_started(_slate("2026-10-07T20:00:00Z", "2026-10-08T00:00:00Z"), now)  # type: ignore[arg-type]
+    assert totals_sheet.slate_started(_slate("2026-10-07T18:00:00Z", "2026-10-08T00:00:00Z"), now)  # type: ignore[arg-type]
+    assert totals_sheet.slate_started(_slate(None), now)  # type: ignore[arg-type]
+
+
+def test_a_current_sheet_with_a_tbd_starter_is_rebuilt_only_before_first_pitch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    day = Date(2026, 10, 7)
+    out = tmp_path / f"totals_sheet_{day.isoformat()}.xlsx"
+    monkeypatch.setattr(totals_sheet, "output_path", lambda cfg, d: out)
+    side = TeamSide("MIL", "TBD", 0, 0, 0, 0, 0, None, 0, "")
+    home = TeamSide("SD", "Nick Pivetta (R)", 0, 0, 0, 0, 0, None, 0, "")
+    row = SheetRow("MIL @ SD", "2026-10-08T02:00:00Z", "7.5", side, home, 0, 0, 0, "", 0, "", 0, 0, "", "", "",
+                   engine_total=8.5, engine_p_over=0.55, game_pk=849827)
+    write_workbook([row], day, out)
+    assert sheet_is_current(out) and totals_sheet.sheet_has_gaps(out)
+
+    class Stats:
+        def get_slate(self, d: Date) -> SimpleNamespace:
+            return _slate(started)
+
+    class Rebuilt(Exception):
+        pass
+
+    def fetch(season: int) -> None:
+        raise Rebuilt
+
+    monkeypatch.setattr(totals_sheet, "MLBStatsClient", Stats)
+    monkeypatch.setattr(totals_sheet, "fetch_fangraphs", fetch)
+    started = "2000-01-01T00:00:00Z"
+    assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]
+    started = "2999-01-01T00:00:00Z"
+    with pytest.raises(Rebuilt):
+        totals_sheet.build_totals_sheet(None, day, if_stale=True)  # type: ignore[arg-type]
+
+    write_workbook([SheetRow(**{**row.__dict__, "away": replace(side, starter="Robert Gasser (L)")})], day, out)
+    assert not totals_sheet.sheet_has_gaps(out)
+    assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]

@@ -441,7 +441,9 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     (totals_audit.LEDGER_NAME, ("date", "game", "game_pk"), GRADED),
     # The daily worksheet's receipt: each game's weighted gap and the prices it
     # was written at, graded the next morning. Same rule -- the graded copy wins.
-    (daily_worksheet.LEDGER_NAME, ("date", "game_pk"), GRADED),
+    # Keyed by the game alone, as the worksheet's own ledger is: a game postponed
+    # and filed again under its new date is one game, not one per date.
+    (daily_worksheet.LEDGER_NAME, ("game_pk",), GRADED),
 )
 
 

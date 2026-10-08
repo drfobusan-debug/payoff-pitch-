@@ -1079,3 +1079,24 @@ def test_the_totals_sheets_receipt_crosses_machines(
         ("2026-09-11", "over", 8.75),
         ("2026-09-12", "", None),
     ]
+
+
+def test_a_postponed_worksheet_game_is_one_row_on_the_branch(tmp_path: Path) -> None:
+    """The branch held TOR @ BAL under both the date it was postponed off and the
+    date it was played; the worksheet itself keeps one row per game_pk."""
+    from mlb_engine.output import daily_worksheet
+
+    key = next(k for name, k, _ in engine_state._MERGED_CSVS if name == daily_worksheet.LEDGER_NAME)
+    fields = ["date", "game", "game_pk", "result"]
+    remote, local = tmp_path / "remote.csv", tmp_path / "local.csv"
+    for path, rows in (
+        (remote, [["2026-09-22", "TOR @ BAL", "824785", "fav"], ["2026-09-23", "TOR @ BAL", "824785", "fav"]]),
+        (local, [["2026-09-23", "TOR @ BAL", "824785", "fav"]]),
+    ):
+        with path.open("w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(fields)
+            w.writerows(rows)
+    assert merge_dated_csv(remote, local, key, engine_state.GRADED)
+    with local.open(newline="") as f:
+        assert [(r["date"], r["game_pk"]) for r in csv.DictReader(f)] == [("2026-09-23", "824785")]

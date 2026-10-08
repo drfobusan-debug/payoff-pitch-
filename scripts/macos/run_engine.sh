@@ -251,26 +251,27 @@ elif [[ "$MODE" == slate-* ]]; then
           && WITH_DAILY="--with-daily" \
           || echo "[$(date)] power screen failed" >&2
       fi
-      # --if-stale: a sheet written by an older band version is rescored, one
-      # already on the current bands is kept. Checked on the first pass only;
-      # later passes fill in a missing sheet.
-      if [[ -n "$WITH_DAILY" || ! -f "$OUT/totals_sheet_$day.xlsx" ]]; then
-        python -m scripts.totals_sheet "$day" --if-stale \
-          && { [[ ! -f "$OUT/totals_sheet_$day.xlsx" ]] || WITH_DAILY="--with-daily"; } \
-          || echo "[$(date)] totals sheet failed" >&2
-      fi
+      # --if-stale: a sheet on an older band version is rescored, and one with a
+      # TBD starter or a blank Engine column is rebuilt until the first pitch;
+      # otherwise it is kept. Checked every pass; a rewrite re-sends the package.
+      sheet_mark="$(mktemp -t totals_mark)"
+      python -m scripts.totals_sheet "$day" --if-stale \
+        && { [[ ! "$OUT/totals_sheet_$day.xlsx" -nt "$sheet_mark" ]] || WITH_DAILY="--with-daily"; } \
+        || echo "[$(date)] totals sheet failed" >&2
+      rm -f "$sheet_mark"
       if [[ ! -f "$OUT/totals_audit_$day.xlsx" ]]; then
         python -m scripts.totals_audit "$day" \
           && WITH_DAILY="--with-daily" \
           || echo "[$(date)] totals audit failed" >&2
       fi
       # The daily worksheet: matchup gaps + the prices they were written at,
-      # yesterday's rows graded. Once a day; a re-run re-writes only ungraded rows.
-      if [[ ! -f "$OUT/worksheet_$day.xlsx" ]]; then
-        python -m scripts.daily_worksheet "$day" \
-          && WITH_DAILY="--with-daily" \
-          || echo "[$(date)] daily worksheet failed" >&2
-      fi
+      # yesterday's rows graded. Once a day, plus a rewrite before first pitch
+      # while a game still lacks a starter score; a re-run re-writes only ungraded rows.
+      ws_mark="$(mktemp -t worksheet_mark)"
+      python -m scripts.daily_worksheet "$day" --if-incomplete \
+        && { [[ ! "$OUT/worksheet_$day.xlsx" -nt "$ws_mark" ]] || WITH_DAILY="--with-daily"; } \
+        || echo "[$(date)] daily worksheet failed" >&2
+      rm -f "$ws_mark"
       # Season-to-date totals sheet + worksheet audit, after both ledgers are graded.
       if [[ ! -f "$OUT/season_audit_$day.pdf" ]]; then
         python -m scripts.season_audit --daily "$day" \
