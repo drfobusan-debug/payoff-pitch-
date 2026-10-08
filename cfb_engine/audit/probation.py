@@ -65,7 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import lineagree
+from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -372,6 +372,10 @@ def _divergence_under(floor: float) -> Callable[[LedgerEntry], bool]:
     return refuses
 
 
+def _low_total_under(e: LedgerEntry) -> bool:
+    return lowtotal.refuses(e.market, e.selection, e.line)
+
+
 # The candidates asked of every audit, rather than settled once in a chat
 # message. Each is a screen someone has a good story for; the point of keeping
 # them here is that the three tests, not the story, decide whether it ships.
@@ -412,6 +416,11 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         "ml_refuse_divergence_under_+5",
         _divergence_under(5.0),
         "the money is on this side, but no harder than the ticket count is",
+    ),
+    CandidateScreen(
+        lowtotal.RULE_NAME,
+        _low_total_under,
+        "an Under on a low total fights the Over lean low totals carry",
     ),
 )
 

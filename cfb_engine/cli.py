@@ -56,12 +56,19 @@ from cfb_engine.audit.priced import (
     priced_findings,
     priced_stats,
 )
-from cfb_engine.audit.probation import Probation, probation_rows, rule_probation
+from cfb_engine.audit.probation import (
+    CANDIDATE_SCREENS,
+    Probation,
+    candidate_probation,
+    probation_rows,
+    rule_probation,
+)
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
+from cfb_engine.market import lowtotal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
@@ -146,6 +153,16 @@ def _line_agrees_record(cfg: Config) -> Probation | None:
     return verdict
 
 
+def _low_total_record(cfg: Config) -> Probation | None:
+    """The low-total Under candidate screen's record so far, for the card."""
+    entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
+    if not entries:
+        return None
+    screen = tuple(c for c in CANDIDATE_SCREENS if c.name == lowtotal.RULE_NAME)
+    (verdict,) = candidate_probation(entries, screen)
+    return verdict
+
+
 def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     day = _day(args)
     # The first-seen board may already be on the branch from another machine's
@@ -171,6 +188,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         to=args.to,
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
+        low_total_record=_low_total_record(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -195,6 +213,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         to=args.to,
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
+        low_total_record=_low_total_record(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -419,6 +438,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
                 email=False,
                 to=None,
                 line_agrees_record=_line_agrees_record(cfg),
+                low_total_record=_low_total_record(cfg),
                 podcast=_podcast_view(cfg, recs, day),
             )
     _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
