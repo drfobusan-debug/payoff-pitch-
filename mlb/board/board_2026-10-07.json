@@ -6099,6 +6099,20 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_bb",
+    "selection": "Jackson Merrill BB o0.5",
+    "american": 222.0,
+    "no_vig_prob": 0.289575
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
+    "selection": "Jackson Merrill BB u0.5",
+    "american": -320.0,
+    "no_vig_prob": 0.710425
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_bb",
     "selection": "Jake Bauers BB o0.5",
     "american": 105.0,
     "no_vig_prob": 0.44843
@@ -6323,9 +6337,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI o0.5",
+    "american": -164.0,
+    "no_vig_prob": 0.585361
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
     "selection": "Garrett Mitchell H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.424461
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hrr",
+    "selection": "Garrett Mitchell H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.414639
   },
   {
     "matchup": "MIL @ SD",
@@ -6736,6 +6764,13 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_hr",
+    "selection": "Sal Frelick HR o1.5",
+    "american": 45000.0,
+    "no_vig_prob": 0.002217
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_hr",
     "selection": "Samad Taylor HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
@@ -6883,9 +6918,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_h",
+    "selection": "Fernando Tatis Jr. H o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.318743
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
     "selection": "Fernando Tatis Jr. H u0.5",
     "american": 196.0,
     "no_vig_prob": 0.323854
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
+    "selection": "Fernando Tatis Jr. H u1.5",
+    "american": -263.0,
+    "no_vig_prob": 0.681257
   },
   {
     "matchup": "MIL @ SD",
@@ -7828,9 +7877,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_tb",
+    "selection": "Manny Machado TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
     "selection": "Manny Machado TB o1.5",
     "american": 141.0,
     "no_vig_prob": 0.396189
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_tb",
+    "selection": "Manny Machado TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
   },
   {
     "matchup": "MIL @ SD",
@@ -7926,9 +7989,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "f5_total",
+    "selection": "F5 Over 4.0",
+    "american": -130.0,
+    "no_vig_prob": 0.534656
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "f5_total",
     "selection": "F5 Over 4.5",
     "american": 105.0,
     "no_vig_prob": 0.473233
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "f5_total",
+    "selection": "F5 Under 4.0",
+    "american": 110.0,
+    "no_vig_prob": 0.465344
   },
   {
     "matchup": "MIL @ SD",
@@ -7996,9 +8073,37 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.574868
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.425132
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Walker Buehler Walks o0.5",
+    "american": -247.0,
+    "no_vig_prob": 0.666297
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
     "selection": "Walker Buehler Walks o1.5",
     "american": 140.0,
     "no_vig_prob": 0.394291
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_bb",
+    "selection": "Walker Buehler Walks u0.5",
+    "american": 182.0,
+    "no_vig_prob": 0.333703
   },
   {
     "matchup": "MIL @ SD",
@@ -8010,6 +8115,27 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_er",
+    "selection": "Robert Gasser ER o0.5",
+    "american": -149.0,
+    "no_vig_prob": 0.568612
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
+    "selection": "Robert Gasser ER u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.431388
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
+    "selection": "Walker Buehler ER o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61323
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
     "selection": "Walker Buehler ER o1.5",
     "american": 125.0,
     "no_vig_prob": 0.433551
@@ -8017,9 +8143,30 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_er",
+    "selection": "Walker Buehler ER u0.5",
+    "american": 142.0,
+    "no_vig_prob": 0.38677
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
     "selection": "Walker Buehler ER u1.5",
     "american": -134.0,
     "no_vig_prob": 0.566449
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits o2.5",
+    "american": 103.0,
+    "no_vig_prob": 0.462583
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits u2.5",
+    "american": -135.0,
+    "no_vig_prob": 0.537417
   },
   {
     "matchup": "MIL @ SD",
@@ -8052,9 +8199,37 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_k",
+    "selection": "Robert Gasser Ks o2.5",
+    "american": -104.0,
+    "no_vig_prob": 0.486415
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
+    "selection": "Robert Gasser Ks u2.5",
+    "american": -119.0,
+    "no_vig_prob": 0.513585
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
+    "selection": "Walker Buehler Ks o2.5",
+    "american": -129.0,
+    "no_vig_prob": 0.54934
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
     "selection": "Walker Buehler Ks o3.5",
     "american": 131.0,
     "no_vig_prob": 0.430399
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_k",
+    "selection": "Walker Buehler Ks u2.5",
+    "american": 118.0,
+    "no_vig_prob": 0.45066
   },
   {
     "matchup": "MIL @ SD",
@@ -8066,9 +8241,30 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs o8.5",
+    "american": -145.0,
+    "no_vig_prob": 0.563874
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs u8.5",
+    "american": 122.0,
+    "no_vig_prob": 0.436126
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
     "selection": "Walker Buehler Outs o11.5",
     "american": 130.0,
     "no_vig_prob": 0.410004
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
+    "selection": "Walker Buehler Outs o8.5",
+    "american": -122.0,
+    "no_vig_prob": 0.512865
   },
   {
     "matchup": "MIL @ SD",
@@ -8083,6 +8279,13 @@
     "selection": "Walker Buehler Outs u11.5",
     "american": -160.0,
     "no_vig_prob": 0.589996
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_outs",
+    "selection": "Walker Buehler Outs u8.5",
+    "american": -107.0,
+    "no_vig_prob": 0.487135
   },
   {
     "matchup": "MIL @ SD",
