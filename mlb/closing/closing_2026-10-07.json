@@ -6428,9 +6428,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "batter_h",
+    "selection": "Fernando Tatis Jr. H o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.318743
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
     "selection": "Fernando Tatis Jr. H u0.5",
     "american": 196.0,
     "no_vig_prob": 0.323854
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_h",
+    "selection": "Fernando Tatis Jr. H u1.5",
+    "american": -263.0,
+    "no_vig_prob": 0.681257
   },
   {
     "matchup": "MIL @ SD",
@@ -6641,6 +6655,34 @@
     "selection": "Xander Bogaerts H u0.5",
     "american": 124.0,
     "no_vig_prob": 0.422665
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_k",
+    "selection": "Robert Gasser K o2.5",
+    "american": 102.0,
+    "no_vig_prob": 0.453415
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_k",
+    "selection": "Robert Gasser K u2.5",
+    "american": -148.0,
+    "no_vig_prob": 0.546585
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_k",
+    "selection": "Walker Buehler K o3.5",
+    "american": 120.0,
+    "no_vig_prob": 0.416667
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "batter_k",
+    "selection": "Walker Buehler K u3.5",
+    "american": -175.0,
+    "no_vig_prob": 0.583333
   },
   {
     "matchup": "MIL @ SD",
@@ -7485,9 +7527,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "f5_total",
+    "selection": "F5 Over 4.0",
+    "american": -120.0,
+    "no_vig_prob": 0.519616
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "f5_total",
     "selection": "F5 Over 4.5",
     "american": 105.0,
     "no_vig_prob": 0.472516
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "f5_total",
+    "selection": "F5 Under 4.0",
+    "american": 100.0,
+    "no_vig_prob": 0.480384
   },
   {
     "matchup": "MIL @ SD",
@@ -7520,9 +7576,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "game_rl",
+    "selection": "MIL -1.0",
+    "american": 123.0,
+    "no_vig_prob": 0.426425
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_rl",
     "selection": "MIL -1.5",
     "american": 170.0,
     "no_vig_prob": 0.364909
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "game_rl",
+    "selection": "SD +1.0",
+    "american": -152.0,
+    "no_vig_prob": 0.573575
   },
   {
     "matchup": "MIL @ SD",
@@ -7597,9 +7667,23 @@
   {
     "matchup": "MIL @ SD",
     "market": "pitcher_er",
+    "selection": "Walker Buehler ER o0.5",
+    "american": -183.0,
+    "no_vig_prob": 0.60514
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
     "selection": "Walker Buehler ER o1.5",
     "american": 120.0,
     "no_vig_prob": 0.420615
+  },
+  {
+    "matchup": "MIL @ SD",
+    "market": "pitcher_er",
+    "selection": "Walker Buehler ER u0.5",
+    "american": 137.0,
+    "no_vig_prob": 0.39486
   },
   {
     "matchup": "MIL @ SD",
