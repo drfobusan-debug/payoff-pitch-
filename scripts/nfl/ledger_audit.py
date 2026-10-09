@@ -1,4 +1,4 @@
-"""Season audit of the NFL game ledger: buys, one model lean per game-market, screens, CLV.
+"""Season audit of the NFL game ledger: buys, one model lean per game-market, screens, CLV, underdogs.
 
 Read-only. Rows the ledger has not graded yet are settled in memory against nflverse
 finals, so the audit is current even when ``nfl-engine grade`` lags the workbook;
@@ -156,6 +156,32 @@ def screen_lines(leans: list[LedgerEntry]) -> list[str]:
     return out
 
 
+def is_underdog(entry: LedgerEntry) -> bool:
+    if entry.market == "spread":
+        return entry.line is not None and entry.line > 0
+    return entry.market == "moneyline" and _fair(entry) < 0.5
+
+
+def underdog_lines(leans: list[LedgerEntry]) -> list[str]:
+    out = []
+    for market in ("moneyline", "spread"):
+        rows = [e for e in leans if e.market == market]
+        dogs = [e for e in rows if is_underdog(e)]
+        out.append(record_line(f"{market} underdog leans", dogs))
+        out.append(record_line(f"{market} favourite leans", [e for e in rows if e not in dogs]))
+    out.append("  underdog leans that won money:")
+    winners = [e for e in leans if is_underdog(e) and e.pnl > 0]
+    for e in sorted(winners, key=lambda e: (e.season, e.week, e.market, e.matchup)):
+        rung = "" if e.line is None else f" {e.line:+g}"
+        price = "" if e.odds is None else f" {e.odds:+.0f}"
+        out.append(
+            f"    wk{e.week} {e.matchup:<11} {e.market:<9} {e.side}{rung}{price} {e.book}"
+            f"  model {e.model_prob:.3f} fair {_fair(e):.3f}  {e.pnl:+.2f}u"
+            f"  screens {e.screens}"
+        )
+    return out
+
+
 def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     graded = [e for e in entries if e.result in (WIN, LOSS, PUSH)]
     buys = [e for e in graded if e.tier != Tier.PASS.value]
@@ -191,6 +217,8 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     ]
     out += ["", "4) CLV / drift on the leans", record_line("all leans", leans)]
     out += [record_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
+    out += ["", "5) Underdog vs favourite leans (ML: fair < .5; spread: getting points)"]
+    out += underdog_lines(leans)
     return out
 
 
