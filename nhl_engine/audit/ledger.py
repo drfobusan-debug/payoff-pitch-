@@ -8,8 +8,9 @@ beside it rather than overwriting.
 
 Grading joins each row to the official ``GameResult``, settles it under its
 own ``ot_rule``, records the dual-rule flag for totals, and computes CLV as
-the change in devigged consensus between our price and the last archived
-quote of the day (positive = we beat the close).
+the change in devigged consensus between pricing and the last archived
+quote of the day (positive = the close moved our way). The price paid is not
+in it, so the hold does not read as the market moving against us.
 """
 
 from __future__ import annotations
@@ -21,7 +22,6 @@ from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from pathlib import Path
 
-from engine_common.odds import american_to_prob
 from nhl_engine.audit.grade import dual_rule, pnl, settle
 from nhl_engine.data.capture import QuoteRow, pregame
 from nhl_engine.market.board import Selection, selections
@@ -211,7 +211,7 @@ def grade_rows(
         if c is not None:
             r.close_american = c.best_american
             r.close_consensus = c.consensus
-            r.clv = c.consensus - american_to_prob(r.american)
+            r.clv = c.consensus - r.consensus
         r.graded_at = graded_at
         out.append(r)
     return out

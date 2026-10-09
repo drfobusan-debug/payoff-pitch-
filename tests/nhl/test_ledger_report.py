@@ -181,3 +181,13 @@ def test_cli_audit_writes_report_and_card_attaches_it(tmp_path: Path, monkeypatc
     got = ledger_report.latest(tmp_path / "out")
     assert got["audit_md"].name == "ledger_audit_2026-10-02.md"
     assert "1-1-0" in got["audit_md"].read_text()
+
+
+def test_clv_sign_test_ignores_flat_closes():
+    rows = [_row(matchup=f"T{i} @ H", clv=0.0) for i in range(30)]
+    rows += [_row(matchup="U @ H", clv=-0.02), _row(matchup="V @ H", clv=0.01)]
+    a = ledger_report.build(rows)
+    assert (a.buys.clv_neg, a.buys.clv_pos, a.buys.clv_flat) == (1, 1, 30)
+    assert a.clv_p == 1.0
+    text = " ".join(a.findings)
+    assert "against 1, toward 1, flat 30" in text and "no CLV verdict yet" in text
