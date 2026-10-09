@@ -1737,3 +1737,27 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-07,New Mexico Sta @ Florida Intern,Spread (ATS),game_ats,New Mexico Sta +6.5,6.5,lowvig,-102.0,-110.0,Pass,0.4661,-0.0769,loss,-1.0,0.4661,0.4942,0.4661,-110.0,0.4982,0.004,-0.0134,-0.5,0.0,,,-0.0072
 2026-10-07,New Mexico Sta @ Florida Intern,Totals,game_total,Over 46.5,46.5,mybookieag,-110.0,-110.0,Pass,0.3894,-0.2566,loss,-1.0,0.3894,0.5081,0.3894,-108.0,0.499,-0.0091,-0.0474,0.0,0.0,,,0.0067
 2026-10-07,New Mexico Sta @ Florida Intern,Totals,game_total,Under 46.5,46.5,lowvig,-103.0,-114.0,Pass,0.6106,0.2034,win,0.9709,0.6106,0.4919,0.6106,-110.0,0.501,0.0091,-0.0126,0.0,0.0,,,-0.0067
+2026-10-08,Missouri State @ Western Kentuc,Moneyline,game_ml,Missouri State ML,,betus,105.0,-125.0,Pass,0.3439,-0.2951,loss,-1.0,0.3439,0.4786,0.3439,-121.0,0.5317,0.0531,0.09,,0.0,,-9.0,0.0348
+2026-10-08,Missouri State @ Western Kentuc,Moneyline,game_ml,Western Kentuc ML,,betmgm,-115.0,-102.0,Pass,0.6561,0.2267,win,0.8696,0.6561,0.5214,0.6561,110.0,0.4683,-0.0531,-0.1245,,0.0,,,-0.0348
+2026-10-08,Missouri State @ Western Kentuc,Spread (ATS),game_ats,Missouri State +1.5,1.5,williamhill_us,-104.0,-117.0,Pass,0.4065,-0.2025,loss,-1.0,0.4065,0.4977,0.4065,-110.0,0.5782,0.0805,0.1342,3.0,0.0,,11.0,0.0359
+2026-10-08,Missouri State @ Western Kentuc,Spread (ATS),game_ats,Western Kentuc -1.5,-1.5,fanduel,-110.0,-110.0,Pass,0.5935,0.133,win,0.9091,0.5935,0.5023,0.5935,-104.0,0.4218,-0.0805,-0.1947,-3.0,0.0,,,-0.0359
+2026-10-08,Missouri State @ Western Kentuc,Totals,game_total,Over 56.5,56.5,betrivers,-108.0,-115.0,Pass,0.4611,-0.112,loss,-1.0,0.4611,0.4999,0.4611,-105.0,0.4969,-0.003,-0.043,0.0,0.0,,14.0,-0.0008
+2026-10-08,Missouri State @ Western Kentuc,Totals,game_total,Under 56.5,56.5,fanduel,-106.0,-114.0,Moderate buy,0.5389,0.0473,win,0.9434,0.5389,0.5001,0.5389,-110.0,0.5031,0.003,-0.0223,0.0,0.0,,,0.0008
+2026-10-08,Sam Houston St @ Liberty,Moneyline,game_ml,Liberty ML,,draftkings,-550.0,410.0,Pass,0.8269,-0.0228,win,0.1818,0.8269,0.8159,0.8269,-550.0,0.8154,-0.0005,-0.0363,,0.0,,,-0.0063
+2026-10-08,Sam Houston St @ Liberty,Moneyline,game_ml,Sam Houston St ML,,betmgm,450.0,-600.0,Pass,0.1731,-0.0477,loss,-1.0,0.1731,0.1841,0.1731,435.0,0.1846,0.0005,0.0153,,0.0,,,0.0063
+2026-10-08,Sam Houston St @ Liberty,Spread (ATS),game_ats,Liberty -13.5,-13.5,lowvig,-109.0,-103.0,Pass,0.5016,-0.0382,win,0.9174,0.5016,0.5025,0.5016,-110.0,0.5021,-0.0004,-0.0373,0.0,0.0,,,-0.0071
+2026-10-08,Sam Houston St @ Liberty,Spread (ATS),game_ats,Sam Houston St +13.5,13.5,lowvig,-103.0,-109.0,Pass,0.4984,-0.0177,loss,-1.0,0.4984,0.4975,0.4984,-106.0,0.4979,0.0004,-0.0187,0.0,0.0,,,0.0071
+2026-10-08,Sam Houston St @ Liberty,Totals,game_total,Over 52.5,52.5,lowvig,-108.0,-108.0,Pass,0.4989,-0.0393,loss,-1.0,0.4989,0.4995,0.4989,-105.0,0.5014,0.0019,-0.0343,0.0,0.0,,,-0.0
+2026-10-08,Sam Houston St @ Liberty,Totals,game_total,Under 52.5,52.5,lowvig,-108.0,-108.0,Pass,0.5011,-0.0348,win,0.9259,0.5011,0.5005,0.5011,-105.0,0.4986,-0.0019,-0.0397,0.0,0.0,,,0.0
+2026-10-08,South Alabama @ Arkansas State,Moneyline,game_ml,Arkansas State ML,,bovada,-135.0,115.0,Moderate buy,0.5889,0.0251,loss,-1.0,0.5889,0.5646,0.5889,-155.0,0.5926,0.028,0.0316,,0.0,,,0.0505
+2026-10-08,South Alabama @ Arkansas State,Moneyline,game_ml,South Alabama ML,,lowvig,125.0,-145.0,Pass,0.4111,-0.075,win,1.25,0.4111,0.4354,0.4111,142.0,0.4074,-0.028,-0.0834,,0.0,,,-0.0505
+2026-10-08,South Alabama @ Arkansas State,Spread (ATS),game_ats,Arkansas State -3.0,-3.0,lowvig,100.0,-112.0,Pass,0.5013,0.0027,loss,-1.0,0.5013,0.4879,0.5013,-107.0,0.5079,0.02,0.0158,0.0,0.0,,,0.0363
+2026-10-08,South Alabama @ Arkansas State,Spread (ATS),game_ats,South Alabama +3.0,3.0,mybookieag,-110.0,-110.0,Pass,0.4987,-0.048,win,0.9091,0.4987,0.5121,0.4987,-101.0,0.4921,-0.02,-0.0605,0.0,0.0,,,-0.0363
+2026-10-08,South Alabama @ Arkansas State,Totals,game_total,Over 60.5,60.5,draftkings,-105.0,-115.0,Pass,0.5012,-0.0214,win,0.9524,0.5012,0.4968,0.5012,-108.0,0.4707,-0.0261,-0.081,-1.0,0.0,,,0.0877
+2026-10-08,South Alabama @ Arkansas State,Totals,game_total,Under 60.5,60.5,lowvig,-108.0,-108.0,Pass,0.4988,-0.0394,loss,-1.0,0.4988,0.5032,0.4988,-105.0,0.5293,0.0261,0.0194,1.0,0.0,,,-0.0877
+2026-10-08,South Florida @ UTSA,Moneyline,game_ml,South Florida ML,,betus,223.0,-265.0,Pass,0.2963,-0.043,loss,-1.0,0.2963,0.3039,0.2963,190.0,0.3378,0.0339,0.0911,,0.0,,,0.0131
+2026-10-08,South Florida @ UTSA,Moneyline,game_ml,UTSA ML,,fanduel,-260.0,210.0,Pass,0.7037,-0.0256,win,0.3846,0.7037,0.6961,0.7037,-195.0,0.6622,-0.0339,-0.0831,,0.0,,,-0.0131
+2026-10-08,South Florida @ UTSA,Spread (ATS),game_ats,South Florida +7.0,7.0,mybookieag,-110.0,-110.0,Pass,0.4958,-0.0535,push,0.0,0.4958,0.509,0.4958,-102.0,0.5315,0.0225,0.0147,1.5,0.0,,,0.0132
+2026-10-08,South Florida @ UTSA,Spread (ATS),game_ats,UTSA -7.0,-7.0,lowvig,100.0,-112.0,Pass,0.5042,0.0085,push,0.0,0.5042,0.491,0.5042,-110.0,0.4685,-0.0225,-0.063,-1.5,0.0,,,-0.0132
+2026-10-08,South Florida @ UTSA,Totals,game_total,Over 50.0,50.0,lowvig,-108.0,-108.0,Pass,0.5009,-0.0354,win,0.9259,0.5009,0.5001,0.5009,-108.0,0.4866,-0.0135,-0.0628,-0.5,0.0,,,-0.0004
+2026-10-08,South Florida @ UTSA,Totals,game_total,Under 50.0,50.0,lowvig,-108.0,-108.0,Pass,0.4991,-0.0387,loss,-1.0,0.4991,0.4999,0.4991,-105.0,0.5134,0.0135,-0.0112,0.5,0.0,,,0.0004
