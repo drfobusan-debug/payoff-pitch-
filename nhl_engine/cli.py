@@ -467,6 +467,9 @@ def cmd_podcast(args: argparse.Namespace) -> int:
 def cmd_audit(args: argparse.Namespace) -> int:
     root = data_dir()
     day = _parse_date(args.date) if args.date else _today() - timedelta(days=1)
+    sync = load_config().state_sync and not args.no_sync
+    if sync:
+        state.auto_pull(root)
     rows = ledger.load_rows(ledger.predictions_path(root, day))
     if rows:
         results, starts = _results_for(day)
@@ -480,6 +483,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
         ledger.save_rows(graded, ledger.graded_path(root, day))
         done = sum(1 for r in graded if r.outcome is not None)
         print(f"{day}: graded {done}/{len(graded)} rows -> {ledger.graded_path(root, day)}")
+        if sync:
+            state.auto_push(root, f"nhl audit {day}: {done} graded")
     else:
         print(f"{day}: no ledger to grade")
     pod_path = podcast_picks.picks_path(root, day)
@@ -641,6 +646,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     au = sub.add_parser("audit", help="grade a date's ledger and print the scorecard")
     au.add_argument("--date", help="default yesterday")
+    au.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")
     au.add_argument("--no-report", action="store_true", help="skip the ledger audit md/pdf")
     au.add_argument("--email", action="store_true", help="email the ledger audit report")
     au.add_argument("--to", help="override recipient")

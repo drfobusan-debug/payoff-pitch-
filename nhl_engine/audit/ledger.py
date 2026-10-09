@@ -69,6 +69,8 @@ class LedgerRow:
     clv: float | None = None
     dual_rule_differs: bool | None = None
     graded_at: str = ""
+    # Probability edge/EV were read from (market-anchored); None = model_prob.
+    bet_prob: float | None = None
 
     @property
     def is_buy(self) -> bool:
@@ -106,7 +108,7 @@ def row_from(
         american=p.sel.best_american,
         books=p.sel.books,
         consensus=p.sel.consensus,
-        model_prob=p.model.win,
+        model_prob=p.sim_prob if p.sim_prob is not None else p.model.win,
         push_prob=p.model.push,
         edge=p.edge,
         ev=p.ev,
@@ -121,6 +123,7 @@ def row_from(
         priced_at=priced_at,
         card_tag=card_tag,
         reasons=list(p.reasons),
+        bet_prob=p.model.win,
     )
 
 

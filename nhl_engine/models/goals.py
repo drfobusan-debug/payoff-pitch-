@@ -5,9 +5,9 @@ Pure arithmetic on already-shrunk inputs; nothing here re-weights evidence.
 Each side gets goal rates *per second* for every manpower block the simulation
 visits, already netted against the opponent and the opponent's goalie::
 
-    5v5  lam = L5 x (own xGF/60 / L5) x (opp xGA/60 / L5) x home-ice x finishing x goalie
-    PP   lam = own PP xGF/60 x opp PK xGA/60 / league PK xGA/60 x finishing x goalie
-    SH   lam = own SH xGF/60 x opp PP xGA/60 / league PP xGA/60 x goalie
+    5v5  lam = L5 x (own xGF/60 / L5) x (opp xGA/60 / L5) x home-ice x finishing x goalie x level
+    PP   lam = own PP xGF/60 x opp PK xGA/60 / league PK xGA/60 x finishing x goalie x level
+    SH   lam = own SH xGF/60 x opp PP xGA/60 / league PP xGA/60 x goalie x level
     EN   attacking side: league 6v5 goals/60 scaled by the side's 5v5 strength;
          into the empty net: league rate scaled by the shooter's 5v5 strength
 
@@ -18,7 +18,8 @@ posterior, additive. The goalie enters once, multiplicatively, as
 ``1 - GSAx/60 / league xG faced per 60``: a +0.3 GSAx/60 goalie takes ~10% off
 every goal rate against him (raw Sv% never appears, §5.2). Penalty rates are
 the league effective-minor rate scaled by the taker's ``pen_taken60`` and the
-drawer's ``pen_drawn60``.
+drawer's ``pen_drawn60``. ``level`` (``SimParams.goal_level``) is the measured
+gap between a league-average sim game and the league's actual scoring.
 """
 
 from __future__ import annotations
@@ -87,16 +88,17 @@ def side_rates(
     g_opp = goalie_factor(opp_goalie_gsax60)
     fin = own.get("fin60_5v5", 0.0) - league.get("fin60_5v5", 0.0)
 
+    lvl = params.goal_level
     xg5 = l5 * _ratio(own["xgf60_5v5"], l5) * _ratio(opp["xga60_5v5"], l5) * venue
-    g5_60 = max(0.05, xg5 * params.goals_per_xg + fin) * g_opp
+    g5_60 = max(0.05, xg5 * params.goals_per_xg + fin) * g_opp * lvl
 
     pp_xg = own["pp_xgf60"] * _ratio(opp["pk_xga60"], league["pk_xga60"])
-    pp_60 = max(0.05, pp_xg * params.goals_per_xg + fin) * g_opp
+    pp_60 = max(0.05, pp_xg * params.goals_per_xg + fin) * g_opp * lvl
 
     sh_xg = own["sh_xgf60"] * _ratio(opp["pp_xga60"], league["pp_xga60"])
-    sh_60 = max(0.02, sh_xg * params.goals_per_xg) * g_opp
+    sh_60 = max(0.02, sh_xg * params.goals_per_xg) * g_opp * lvl
 
-    strength = _ratio(g5_60, l5 * params.goals_per_xg)
+    strength = _ratio(g5_60, l5 * params.goals_per_xg * lvl)
     en_for_60 = params.en_goals60_for * strength
     opp_strength = _ratio(opp["xgf60_5v5"], l5)
     en_against_60 = params.en_goals60_against * opp_strength
