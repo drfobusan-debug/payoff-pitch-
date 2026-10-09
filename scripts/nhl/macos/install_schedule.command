@@ -7,6 +7,11 @@
 #   * com.payoffpitch.nhl.card    -> at NHL_CARD_HOUR:NHL_CARD_MINUTE (default
 #     17:00 local): the full predictions run (capture, RotoWire goalies, priced
 #     card, write-once ledger) with the card emailed.
+#   * com.payoffpitch.nhl.predrop -> at NHL_PREDROP_HOUR:NHL_PREDROP_MINUTE
+#     (default 18:15 local): board-only capture, RotoWire, and a `goalie` card
+#     re-priced on the goalies confirmed by then, emailed. The 17:00 ledger
+#     stays write-once; this pass is kept under cards/ for the audit to grade.
+#     Games already started (afternoon starts) are skipped by the card.
 #   * com.payoffpitch.nhl.audit   -> at NHL_AUDIT_HOUR:NHL_AUDIT_MINUTE (default
 #     09:30 local): grade yesterday's ledger against the finals, print the
 #     scorecard, and push the ledger to engine-state.
@@ -36,6 +41,8 @@ LAST_HOUR="${NHL_CAPTURE_LAST_HOUR:-23}"
 EVENT_HOURS="${NHL_EVENT_HOURS:-12 17 19}"
 CARD_HOUR="${NHL_CARD_HOUR:-17}"
 CARD_MINUTE="${NHL_CARD_MINUTE:-0}"
+PREDROP_HOUR="${NHL_PREDROP_HOUR:-18}"
+PREDROP_MINUTE="${NHL_PREDROP_MINUTE:-15}"
 AUDIT_HOUR="${NHL_AUDIT_HOUR:-9}"
 AUDIT_MINUTE="${NHL_AUDIT_MINUTE:-30}"
 
@@ -98,17 +105,22 @@ EVENT_CAL="$EVENT_CAL    </array>"
 CARD_CAL="    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>$CARD_HOUR</integer><key>Minute</key><integer>$CARD_MINUTE</integer></dict>"
 
+PREDROP_CAL="    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>$PREDROP_HOUR</integer><key>Minute</key><integer>$PREDROP_MINUTE</integer></dict>"
+
 AUDIT_CAL="    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>$AUDIT_HOUR</integer><key>Minute</key><integer>$AUDIT_MINUTE</integer></dict>"
 
 install_agent "com.payoffpitch.nhl.board" "$CAPTURE" "$BOARD_CAL" --board-only
 install_agent "com.payoffpitch.nhl.capture" "$CAPTURE" "$EVENT_CAL"
 install_agent "com.payoffpitch.nhl.card" "$PREDICT" "$CARD_CAL" initial
+install_agent "com.payoffpitch.nhl.predrop" "$PREDICT" "$PREDROP_CAL" goalie
 install_agent "com.payoffpitch.nhl.audit" "$AUDIT" "$AUDIT_CAL"
 
 echo
 echo "Board every 30 min $FIRST_HOUR:00-$LAST_HOUR:30; full per-event pass at $EVENT_HOURS:05."
 printf 'Priced card emailed daily at %02d:%02d local (com.payoffpitch.nhl.card).\n' "$CARD_HOUR" "$CARD_MINUTE"
+printf 'Pre-drop goalie card emailed daily at %02d:%02d local (com.payoffpitch.nhl.predrop).\n' "$PREDROP_HOUR" "$PREDROP_MINUTE"
 printf "Yesterday's ledger graded and synced daily at %02d:%02d local (com.payoffpitch.nhl.audit).\n" "$AUDIT_HOUR" "$AUDIT_MINUTE"
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env."

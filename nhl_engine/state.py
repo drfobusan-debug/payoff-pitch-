@@ -9,7 +9,10 @@ equally true histories.
 
 The ledger (``predictions_<date>.json`` write-once, ``graded_<date>.json``
 rewritten on every audit) is pushed when missing *or changed* -- the machine
-that grades is the authority -- and pulled only where missing locally.
+that grades is the authority -- and pulled only where missing locally. The news
+logs the audit studies read (``availability/<date>.jsonl``, ``starters/`` goalie
+reads and their timestamped history, ``cards/`` every priced pass) sync the same
+way: pushed when changed, pulled only where missing.
 
 Only data goes on the branch, never code. The git plumbing is the MLB module's.
 """
@@ -35,6 +38,11 @@ PREFIX = "nhl"
 PRICES_DIR = "prices"
 LEDGER_DIR = "ledger"
 LEDGER_GLOBS = ("predictions_*.json", "graded_*.json")
+NEWS_DIRS: dict[str, tuple[str, ...]] = {
+    "availability": ("*.jsonl",),
+    "starters": ("*.json", "*.jsonl"),
+    "cards": ("card_*.json",),
+}
 _PUSH_ATTEMPTS = 3
 log = logging.getLogger(__name__)
 
@@ -54,18 +62,31 @@ def _copy_missing(src_root: Path, dest_root: Path) -> list[str]:
     return copied
 
 
-def _copy_ledger(src_root: Path, dest_root: Path, *, overwrite: bool) -> list[str]:
+def _copy_flat(
+    src_root: Path, dest_root: Path, label: str, globs: tuple[str, ...], *, overwrite: bool
+) -> list[str]:
     copied: list[str] = []
     if not src_root.is_dir():
         return copied
-    for pattern in LEDGER_GLOBS:
+    for pattern in globs:
         for src in sorted(src_root.glob(pattern)):
             dest = dest_root / src.name
             if dest.exists() and (not overwrite or dest.read_bytes() == src.read_bytes()):
                 continue
             dest_root.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(src, dest)
-            copied.append(f"{LEDGER_DIR}/{src.name}")
+            copied.append(f"{label}/{src.name}")
+    return copied
+
+
+def _copy_ledger(src_root: Path, dest_root: Path, *, overwrite: bool) -> list[str]:
+    return _copy_flat(src_root, dest_root, LEDGER_DIR, LEDGER_GLOBS, overwrite=overwrite)
+
+
+def _copy_news(src_base: Path, dest_base: Path, *, overwrite: bool) -> list[str]:
+    copied: list[str] = []
+    for name, globs in NEWS_DIRS.items():
+        copied += _copy_flat(src_base / name, dest_base / name, name, globs, overwrite=overwrite)
     return copied
 
 
@@ -74,6 +95,7 @@ def pull_state(data_dir: Path, repo: Path | None = None, branch: str = STATE_BRA
     state = _worktree(repo, branch)
     pulled = _copy_missing(state / PREFIX / PRICES_DIR, prices_dir(data_dir))
     pulled += _copy_ledger(state / PREFIX / LEDGER_DIR, data_dir / LEDGER_DIR, overwrite=False)
+    pulled += _copy_news(state / PREFIX, data_dir, overwrite=False)
     return SyncReport(pulled=tuple(pulled))
 
 
@@ -87,6 +109,7 @@ def push_state(
             pull_state(data_dir, repo=repo, branch=branch)
         pushed = _copy_missing(prices_dir(data_dir), state / PREFIX / PRICES_DIR)
         pushed += _copy_ledger(data_dir / LEDGER_DIR, state / PREFIX / LEDGER_DIR, overwrite=True)
+        pushed += _copy_news(data_dir, state / PREFIX, overwrite=True)
         if not pushed:
             return SyncReport()
         _git(["add", "-A", PREFIX], state)
@@ -117,6 +140,7 @@ def auto_push(data_dir: Path, message: str, branch: str = STATE_BRANCH) -> SyncR
 
 __all__ = [
     "LEDGER_DIR",
+    "NEWS_DIRS",
     "PREFIX",
     "STATE_BRANCH",
     "SyncReport",
