@@ -1,0 +1,152 @@
+{
+  "Florida State @ Louisville|game_ats|Florida State": {
+    "american": -106.0,
+    "line": 4.0,
+    "no_vig_prob": 0.49996218190546543
+  },
+  "Florida State @ Louisville|game_ats|Louisville": {
+    "american": -106.0,
+    "line": -4.0,
+    "no_vig_prob": 0.5000378180945346
+  },
+  "Florida State @ Louisville|game_ml|Florida State": {
+    "american": 165.0,
+    "line": null,
+    "no_vig_prob": 0.3734868528408313
+  },
+  "Florida State @ Louisville|game_ml|Louisville": {
+    "american": -183.0,
+    "line": null,
+    "no_vig_prob": 0.6265131471591687
+  },
+  "Florida State @ Louisville|game_total|Over": {
+    "american": -110.0,
+    "line": 60.5,
+    "no_vig_prob": 0.5077706575814558
+  },
+  "Florida State @ Louisville|game_total|Under": {
+    "american": 100.0,
+    "line": 60.5,
+    "no_vig_prob": 0.49222934241854416
+  },
+  "Iowa @ Washington|game_ats|Iowa": {
+    "american": -110.0,
+    "line": 3.0,
+    "no_vig_prob": 0.51613247273154
+  },
+  "Iowa @ Washington|game_ats|Washington": {
+    "american": 104.0,
+    "line": -3.0,
+    "no_vig_prob": 0.4838675272684601
+  },
+  "Iowa @ Washington|game_ml|Iowa": {
+    "american": 130.0,
+    "line": null,
+    "no_vig_prob": 0.42216247001213036
+  },
+  "Iowa @ Washington|game_ml|Washington": {
+    "american": -150.0,
+    "line": null,
+    "no_vig_prob": 0.5778375299878697
+  },
+  "Iowa @ Washington|game_total|Over": {
+    "american": -110.0,
+    "line": 41.0,
+    "no_vig_prob": 0.5063156749264134
+  },
+  "Iowa @ Washington|game_total|Under": {
+    "american": -101.0,
+    "line": 41.0,
+    "no_vig_prob": 0.49368432507358656
+  },
+  "Iowa State @ BYU|game_ats|BYU": {
+    "american": -105.0,
+    "line": -11.5,
+    "no_vig_prob": 0.49819570141880926
+  },
+  "Iowa State @ BYU|game_ats|Iowa State": {
+    "american": -105.0,
+    "line": 11.5,
+    "no_vig_prob": 0.5018042985811907
+  },
+  "Iowa State @ BYU|game_ml|BYU": {
+    "american": -450.0,
+    "line": null,
+    "no_vig_prob": 0.7907538704415583
+  },
+  "Iowa State @ BYU|game_ml|Iowa State": {
+    "american": 375.0,
+    "line": null,
+    "no_vig_prob": 0.2092461295584417
+  },
+  "Iowa State @ BYU|game_total|Over": {
+    "american": -107.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5043884294400863
+  },
+  "Iowa State @ BYU|game_total|Under": {
+    "american": -102.0,
+    "line": 46.5,
+    "no_vig_prob": 0.4956115705599138
+  },
+  "Washington Sta @ Utah State|game_ats|Utah State": {
+    "american": -106.0,
+    "line": -4.0,
+    "no_vig_prob": 0.49950232711839443
+  },
+  "Washington Sta @ Utah State|game_ats|Washington Sta": {
+    "american": -106.0,
+    "line": 4.0,
+    "no_vig_prob": 0.5004976728816056
+  },
+  "Washington Sta @ Utah State|game_ml|Utah State": {
+    "american": -175.0,
+    "line": null,
+    "no_vig_prob": 0.6203311037995637
+  },
+  "Washington Sta @ Utah State|game_ml|Washington Sta": {
+    "american": 158.0,
+    "line": null,
+    "no_vig_prob": 0.37966889620043637
+  },
+  "Washington Sta @ Utah State|game_total|Over": {
+    "american": -105.0,
+    "line": 43.5,
+    "no_vig_prob": 0.5020114390711599
+  },
+  "Washington Sta @ Utah State|game_total|Under": {
+    "american": -105.0,
+    "line": 43.5,
+    "no_vig_prob": 0.4979885609288402
+  },
+  "Wyoming @ San Jose State|game_ats|San Jose State": {
+    "american": -106.0,
+    "line": -4.0,
+    "no_vig_prob": 0.5001415323995969
+  },
+  "Wyoming @ San Jose State|game_ats|Wyoming": {
+    "american": -106.0,
+    "line": 4.0,
+    "no_vig_prob": 0.49985846760040303
+  },
+  "Wyoming @ San Jose State|game_ml|San Jose State": {
+    "american": -178.0,
+    "line": null,
+    "no_vig_prob": 0.6224552368396522
+  },
+  "Wyoming @ San Jose State|game_ml|Wyoming": {
+    "american": 160.0,
+    "line": null,
+    "no_vig_prob": 0.37754476316034785
+  },
+  "Wyoming @ San Jose State|game_total|Over": {
+    "american": -108.0,
+    "line": 43.0,
+    "no_vig_prob": 0.49985846760040303
+  },
+  "Wyoming @ San Jose State|game_total|Under": {
+    "american": -108.0,
+    "line": 43.0,
+    "no_vig_prob": 0.5001415323995969
+  }
+}
