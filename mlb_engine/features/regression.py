@@ -23,6 +23,7 @@ import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
 from mlb_engine.features import stuff
+from mlb_engine.features.central import central
 from mlb_engine.features.xtb import NON_AB_EVENTS, TB_VALUE, LeagueXTB
 
 
@@ -490,7 +491,7 @@ def build_batter_regression(
     gb_pct = float((la < 10).mean()) if len(la) else float("nan")
     pull_air = _pull_air_rate(batted)
     bs = bdf["bat_speed"].dropna() if "bat_speed" in bdf else pd.Series(dtype=float)
-    bat_speed = float(bs.mean()) if len(bs) else BL_BAT_SPEED
+    bat_speed = central(bs) if len(bs) else BL_BAT_SPEED
     max_ev = _safe_float(batted["launch_speed"].max(), BL_MAX_EV) if n_bbe else BL_MAX_EV
     n_sw = int(len(swings))
     whiff = float(whiffs.sum() / n_sw) if n_sw else BL_WHIFF
@@ -503,18 +504,18 @@ def build_batter_regression(
         float((zc_swings & zc_contact).sum() / n_zsw) if n_zsw else BL_ZONE_CONTACT
     )
     xba = (
-        _safe_float(batted["estimated_ba_using_speedangle"].dropna().mean(), BL_XBA)
+        _safe_float(central(batted["estimated_ba_using_speedangle"]), BL_XBA)
         if n_bbe and "estimated_ba_using_speedangle" in batted
         else BL_XBA
     )
     xwoba = (
-        _safe_float(batted["estimated_woba_using_speedangle"].dropna().mean(), float("nan"))
+        _safe_float(central(batted["estimated_woba_using_speedangle"]), float("nan"))
         if n_bbe and "estimated_woba_using_speedangle" in batted
         else float("nan")
     )
     # actual wOBA over the same batted balls (contact-only comparison for dxwOBA)
     woba = (
-        _safe_float(batted["woba_value"].dropna().mean(), float("nan"))
+        _safe_float(central(batted["woba_value"]), float("nan"))
         if n_bbe and "woba_value" in batted
         else float("nan")
     )
@@ -626,7 +627,7 @@ def _air_contact(batted: pd.DataFrame) -> tuple[float, float, float]:
     if speed.empty:
         return nan, nan, nan
     return (
-        float(speed.mean()),
+        central(speed),
         float(speed.max()),
         float((speed >= 95.0).mean()),
     )
@@ -1358,13 +1359,13 @@ def _four_seam_velocity(pdf: pd.DataFrame) -> tuple[float, float]:
     fb = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)].dropna(subset=["release_speed"])
     if len(fb) < MIN_VFA_PITCHES:
         return float("nan"), float("nan")
-    level = float(fb["release_speed"].mean())
+    level = central(fb["release_speed"])
     if "game_date" not in fb:
         return level, float("nan")
     last = fb[fb["game_date"] == fb["game_date"].max()]["release_speed"]
     if len(last) < MIN_VFA_START:
         return level, float("nan")
-    return level, float(last.mean()) - level
+    return level, central(last) - level
 
 
 def build_pitcher_regression(
@@ -1386,12 +1387,12 @@ def build_pitcher_regression(
         else BL_BARREL_ALLOWED
     )
     xwoba = (
-        float(batted["estimated_woba_using_speedangle"].dropna().mean())
+        central(batted["estimated_woba_using_speedangle"])
         if n_bbe and "estimated_woba_using_speedangle" in batted
         else BL_XBA
     )
     woba = (
-        float(batted["woba_value"].dropna().mean())
+        central(batted["woba_value"])
         if n_bbe and "woba_value" in batted
         else xwoba
     )
@@ -1473,7 +1474,7 @@ def build_pitcher_regression(
     if "pfx_z" in pdf and "pitch_type" in pdf:
         four_seam = pdf[pdf["pitch_type"].isin(FOUR_SEAM_TYPES)]["pfx_z"].dropna()
         if len(four_seam) >= 20:
-            ivb = float(four_seam.mean() * 12.0)
+            ivb = central(four_seam) * 12.0
 
     vfa, vfa_dev = _four_seam_velocity(pdf)
     grade = stuff.shape_plus(pdf)
@@ -1489,9 +1490,9 @@ def build_pitcher_regression(
         _col("release_pos_z"),
         _col("release_spin_rate"),
     )
-    ext = float(ext_vals.mean()) if len(ext_vals) else float("nan")
+    ext = central(ext_vals) if len(ext_vals) else float("nan")
     rel_var = float(np.sqrt(rx.var() + rz.var())) if len(rx) > 1 and len(rz) > 1 else float("nan")
-    spin = float(spin_vals.mean()) if len(spin_vals) else float("nan")
+    spin = central(spin_vals) if len(spin_vals) else float("nan")
 
     # Contact quality is the least reliable thing a six-week starter sample
     # measures, and it drives the hit/HR multipliers, so it is the one group

@@ -38,6 +38,7 @@ from datetime import timedelta
 import pandas as pd
 
 from mlb_engine.data.statcast import batted_balls
+from mlb_engine.features.central import central_list
 from mlb_engine.features.rolling import HIT_EVENTS, WALK_EVENTS
 from mlb_engine.models.baserunning import dp_rate_from_gb
 
@@ -231,7 +232,7 @@ def build_pitcher_efficiency(
 
     starts = _pitches_per_start(pit_rows, as_of, form_days)
     if len(starts) >= MIN_STARTS:
-        avg = sum(starts) / len(starts)
+        avg = central_list(starts)
         pitch_cap = int(min(manager_pitch_cap, round(avg) + PITCH_BUFFER))
     else:
         pitch_cap = manager_pitch_cap

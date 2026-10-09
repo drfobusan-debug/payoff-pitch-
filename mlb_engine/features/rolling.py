@@ -12,6 +12,7 @@ Carlo game simulator directly.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
@@ -19,6 +20,8 @@ from datetime import timedelta
 from pathlib import Path
 
 import pandas as pd
+
+from mlb_engine.features.central import central
 
 # Event -> outcome bucket.
 HIT_EVENTS = {"single": "1B", "double": "2B", "triple": "3B", "home_run": "HR"}
@@ -948,7 +951,7 @@ def build_bullpen_profile(
     if len(relief) and "estimated_woba_using_speedangle" in relief:
         xw = relief["estimated_woba_using_speedangle"].dropna()
         if len(xw) >= MIN_BBE_FOR_XWOBA:
-            xwoba_raw = float(xw.mean())
+            xwoba_raw = central(xw)
             xwoba_allowed = shrink_pen_xwoba(xwoba_raw, xwoba_shrink)
 
     recent_load = 0.0
@@ -1005,6 +1008,19 @@ def build_pitcher_profile(
     days = baseline_days if baseline_days is not None else form_days
     pdf = _pa_rows(df[df["pitcher"] == pitcher_id])
     window = _slice_dates(pdf, as_of, days)
+    if os.environ.get("MLBE_STARTER_OUTCOME_PRIOR", "0") == "1":
+        # Per-outcome prior strengths toward the starter's own season-to-date
+        # rates (themselves shrunk to league), mirroring the hitter path.
+        season = pdf[pdf["game_date"] < as_of] if "game_date" in pdf else pdf
+        own = rates_from_events(season["events"])
+        prior = {
+            "1B": own.p_1b, "2B": own.p_2b, "3B": own.p_3b, "HR": own.p_hr,
+            "BB": own.p_bb, "K": own.p_k, "OUT": own.p_out,
+        }
+        return PitcherProfile(
+            mlbam_id=pitcher_id,
+            allowed=rates_from_events(window["events"], prior, OUTCOME_PRIOR_STRENGTH),
+        )
     return PitcherProfile(
         mlbam_id=pitcher_id,
         allowed=rates_from_events(window["events"]),
