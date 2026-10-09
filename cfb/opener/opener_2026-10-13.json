@@ -1,0 +1,62 @@
+{
+  "Delaware @ Middle Tenness|game_ats|Delaware": {
+    "american": -110.0,
+    "line": 1.5,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Middle Tenness|game_ats|Middle Tenness": {
+    "american": -110.0,
+    "line": -1.5,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Middle Tenness|game_ml|Delaware": {
+    "american": -102.0,
+    "line": null,
+    "no_vig_prob": 0.4816778343141014
+  },
+  "Delaware @ Middle Tenness|game_ml|Middle Tenness": {
+    "american": -118.0,
+    "line": null,
+    "no_vig_prob": 0.5183221656858985
+  },
+  "Delaware @ Middle Tenness|game_total|Over": {
+    "american": -110.0,
+    "line": 47.0,
+    "no_vig_prob": 0.5
+  },
+  "Delaware @ Middle Tenness|game_total|Under": {
+    "american": -110.0,
+    "line": 47.0,
+    "no_vig_prob": 0.5
+  },
+  "Florida Intern @ Jacksonville S|game_ats|Florida Intern": {
+    "american": -108.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4978351229650156
+  },
+  "Florida Intern @ Jacksonville S|game_ats|Jacksonville S": {
+    "american": -110.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5021648770349845
+  },
+  "Florida Intern @ Jacksonville S|game_ml|Florida Intern": {
+    "american": 114.0,
+    "line": null,
+    "no_vig_prob": 0.44721843785882276
+  },
+  "Florida Intern @ Jacksonville S|game_ml|Jacksonville S": {
+    "american": -137.0,
+    "line": null,
+    "no_vig_prob": 0.5527815621411771
+  },
+  "Florida Intern @ Jacksonville S|game_total|Over": {
+    "american": -110.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5
+  },
+  "Florida Intern @ Jacksonville S|game_total|Under": {
+    "american": -110.0,
+    "line": 46.5,
+    "no_vig_prob": 0.5
+  }
+}

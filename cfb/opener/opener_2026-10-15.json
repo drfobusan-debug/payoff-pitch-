@@ -1,0 +1,32 @@
+{
+  "Colorado State @ Texas State|game_ats|Colorado State": {
+    "american": -114.0,
+    "line": 11.5,
+    "no_vig_prob": 0.5086640097036909
+  },
+  "Colorado State @ Texas State|game_ats|Texas State": {
+    "american": -106.0,
+    "line": -11.5,
+    "no_vig_prob": 0.49133599029630914
+  },
+  "Colorado State @ Texas State|game_ml|Colorado State": {
+    "american": 350.0,
+    "line": null,
+    "no_vig_prob": 0.2145051586390378
+  },
+  "Colorado State @ Texas State|game_ml|Texas State": {
+    "american": -450.0,
+    "line": null,
+    "no_vig_prob": 0.7854948413609621
+  },
+  "Colorado State @ Texas State|game_total|Over": {
+    "american": -110.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5021648770349845
+  },
+  "Colorado State @ Texas State|game_total|Under": {
+    "american": -108.0,
+    "line": 65.5,
+    "no_vig_prob": 0.4978351229650156
+  }
+}
