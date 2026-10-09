@@ -7,7 +7,8 @@ nothing is written back.
 The ledger holds both sides of every quote at every book, so raw Pass W-L is the
 vig. The model is judged on one lean per game-market: the side it rates above the
 de-vigged fair, at the quote with the most paired books (for spreads and totals, the
-rung nearest a coin flip), scored by record and Brier against fair.
+rung nearest a coin flip), scored by record and Brier against fair. A game priced on
+two weekly cards (a Thursday game on both) counts once, off its latest capture.
 
 Usage::
 
@@ -76,13 +77,15 @@ def _quote_rank(entry: LedgerEntry) -> tuple[int, float]:
 
 
 def model_leans(graded: list[LedgerEntry]) -> list[LedgerEntry]:
-    groups: dict[tuple[int, int, str, str], list[LedgerEntry]] = defaultdict(list)
+    groups: dict[tuple[int, str, str, str], list[LedgerEntry]] = defaultdict(list)
     for e in graded:
         if e.fair_prob is not None and e.result != PUSH:
-            groups[(e.season, e.week, e.matchup, e.market)].append(e)
+            groups[(e.season, e.matchup, e.date, e.market)].append(e)
     leans = []
     for rows in groups.values():
-        positive = [e for e in rows if e.fair_prob is not None and e.model_prob > e.fair_prob]
+        latest = max((e.week, e.captured_at) for e in rows)
+        card = [e for e in rows if (e.week, e.captured_at) == latest]
+        positive = [e for e in card if e.fair_prob is not None and e.model_prob > e.fair_prob]
         if positive:
             leans.append(max(positive, key=_quote_rank))
     return leans
