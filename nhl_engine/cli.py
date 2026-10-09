@@ -495,6 +495,13 @@ def cmd_audit(args: argparse.Namespace) -> int:
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
+    stale = ledger.unregradable(root)
+    stale_note = (
+        f"Not regradable (graded file but no predictions file): {', '.join(map(str, stale))}; "
+        "their grades and CLV stay as first written."
+    )
+    if stale:
+        print(stale_note, file=sys.stderr)
     print()
     print(scorecard.scorecard(all_rows).render(), end="")
     pod_all = podcast_picks.load_all_picks(root)
@@ -504,6 +511,8 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if not args.no_report:
         as_of = capture.now_utc()
         audit = ledger_report.build(all_rows, _starters_for(all_rows))
+        if stale:
+            audit.findings.append(stale_note)
         try:
             paths = ledger_report.write(audit, output_dir(), day, as_of=as_of)
         except Exception:  # the PDF is a view of the md; keep the md

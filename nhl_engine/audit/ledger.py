@@ -155,6 +155,15 @@ def graded_path(data_dir: Path, slate: Date) -> Path:
     return data_dir / "ledger" / f"graded_{slate.isoformat()}.json"
 
 
+def unregradable(data_dir: Path) -> list[Date]:
+    """Nights with a graded file but no predictions file, so no audit can regrade them."""
+    nights = (
+        Date.fromisoformat(p.stem.removeprefix("graded_"))
+        for p in sorted((data_dir / "ledger").glob("graded_*.json"))
+    )
+    return [d for d in nights if not predictions_path(data_dir, d).exists()]
+
+
 def card_path(data_dir: Path, slate: Date, tag: str) -> Path:
     return data_dir / "cards" / f"card_{slate.isoformat()}_{tag}.json"
 
@@ -225,6 +234,7 @@ __all__ = [
     "load_rows",
     "predictions_path",
     "row_from",
+    "unregradable",
     "save_rows",
     "write_once",
 ]

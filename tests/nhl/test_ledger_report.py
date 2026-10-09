@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from nhl_engine.audit import ledger_report
+from nhl_engine.audit import ledger, ledger_report
 from nhl_engine.audit.ledger import LedgerRow
 
 
@@ -191,3 +191,20 @@ def test_clv_sign_test_ignores_flat_closes():
     assert a.clv_p == 1.0
     text = " ".join(a.findings)
     assert "against 1, toward 1, flat 30" in text and "no CLV verdict yet" in text
+
+
+def test_a_night_without_closes_leaves_its_clv_blank():
+    rows = [_row(slate="2026-10-01"), _row(slate="2026-10-02", matchup="B @ H", clv=None)]
+    md = ledger_report.render_md(ledger_report.build(rows), as_of="t")
+    assert "| 2026-10-01 | 1-0-0 | +90.0% | +0.90u | -1.0 |" in md
+    assert "| 2026-10-02 | 1-0-0 | +90.0% | +0.90u |  |" in md
+    assert "- - " not in ledger_report.render_md(ledger_report.build([]), as_of="t")
+
+
+def test_unregradable_lists_graded_nights_without_predictions(tmp_path: Path):
+    d = tmp_path / "ledger"
+    d.mkdir()
+    for name in ("graded_2026-10-01.json", "predictions_2026-10-01.json", "graded_2026-10-02.json"):
+        (d / name).write_text("[]")
+    assert ledger.unregradable(tmp_path) == [Date(2026, 10, 2)]
+    assert ledger.unregradable(tmp_path / "missing") == []
