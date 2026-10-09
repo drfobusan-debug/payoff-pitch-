@@ -272,7 +272,10 @@ def _pct(x: float) -> str:
 
 
 def _tally_rows(d: Mapping[str, Tally]) -> list[tuple[str, ...]]:
-    return [(k, t.record, f"{t.roi:+.1%}", f"{t.pnl:+.2f}u", _pct(t.clv)) for k, t in d.items()]
+    return [
+        (k, t.record, f"{t.roi:+.1%}", f"{t.pnl:+.2f}u", _pct(t.clv) if t.clv_n else "")
+        for k, t in d.items()
+    ]
 
 
 def render_md(a: LedgerAudit, *, as_of: str) -> str:
@@ -286,7 +289,7 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
         "",
         "## Findings",
         "",
-        *(f"- {f}" for f in a.findings or ["- nothing graded yet"]),
+        *(f"- {f}" for f in a.findings or ["nothing graded yet"]),
         "",
         "## Buys",
         "",
