@@ -618,6 +618,12 @@ def test_write_once_and_grade_rows_with_clv(tmp_path: Path):
     sc = scorecard.scorecard(graded)
     d = sc.by_market["game_ml"].as_dict()
     assert d["n"] == 1 and d["wins"] == 1 and sc.probation()["game_ml"]["needed"] == 99
+    flat = [
+        _q("game_ml", "H", -112, -108, at="2026-10-01T23:00:00Z"),
+        _q("game_ml", "A", -108, -112, at="2026-10-01T23:00:00Z"),
+    ]
+    held = grade_rows(load_rows(path), res, flat, graded_at="g")[0]
+    assert held.clv == pytest.approx(held.close_consensus - 0.52)  # the -110 hold is not CLV
     assert "game_ml" in sc.render()
 
 

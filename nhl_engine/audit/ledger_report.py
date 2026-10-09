@@ -25,6 +25,7 @@ from nhl_engine.audit.scorecard import scorecard
 BOOTSTRAP_N = 4000
 SIGN_TEST_P = 0.01
 SIGN_TEST_MIN = 20
+CLV_FLAT = 1e-6  # consensus unchanged: neither side of the sign test
 SIDE_MARKETS: dict[str, tuple[str, Callable[[LedgerRow], bool]]] = {
     "home ML": ("game_ml", lambda r: r.side == r.home),
     "Over": ("game_total", lambda r: r.side == "over"),
@@ -43,6 +44,7 @@ class Tally:
     clv_sum: float = 0.0
     clv_n: int = 0
     clv_neg: int = 0
+    clv_pos: int = 0
 
     def add(self, r: LedgerRow) -> None:
         if r.outcome is None:
@@ -55,7 +57,16 @@ class Tally:
         if r.clv is not None:
             self.clv_sum += r.clv
             self.clv_n += 1
-            self.clv_neg += r.clv < 0
+            self.clv_neg += r.clv < -CLV_FLAT
+            self.clv_pos += r.clv > CLV_FLAT
+
+    @property
+    def clv_flat(self) -> int:
+        return self.clv_n - self.clv_neg - self.clv_pos
+
+    @property
+    def clv_moves(self) -> str:
+        return f"against {self.clv_neg}, toward {self.clv_pos}, flat {self.clv_flat}"
 
     @property
     def roi(self) -> float:
@@ -112,7 +123,7 @@ class LedgerAudit:
 
     @property
     def clv_p(self) -> float:
-        return sign_test_p(self.buys.clv_neg, self.buys.clv_n)
+        return sign_test_p(self.buys.clv_neg, self.buys.clv_neg + self.buys.clv_pos)
 
 
 def sign_test_p(k: int, n: int) -> float:
@@ -207,14 +218,14 @@ def _findings(a: LedgerAudit) -> list[str]:
     if b.clv_n:
         verdict = (
             "the market moves against our buys after we price."
-            if a.clv_p < SIGN_TEST_P and b.clv_neg > b.clv_n / 2
+            if a.clv_p < SIGN_TEST_P and b.clv_neg > b.clv_pos
             else "no CLV verdict yet."
             if a.clv_p >= SIGN_TEST_P
             else "the market moves our way after we price."
         )
         out.append(
-            f"CLV negative on {b.clv_neg}/{b.clv_n} buys (avg {b.clv * 100:+.1f} pts, "
-            f"sign test p={a.clv_p:.3g}): {verdict}"
+            f"Close vs our pricing on {b.clv_n} buys: {b.clv_moves} (avg {b.clv * 100:+.1f} pts, "
+            f"sign test on the moved p={a.clv_p:.3g}): {verdict}"
         )
     for s in a.sides:
         if s.n >= SIGN_TEST_MIN and s.lean_p < SIGN_TEST_P:
@@ -280,7 +291,7 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
         "## Buys",
         "",
         f"**{b.record}, {b.pnl:+.2f}u, ROI {b.roi:+.1%}**, 95% CI {a.roi_ci[0]:+.0%}..{a.roi_ci[1]:+.0%} (n={b.n}). "
-        f"CLV avg {_pct(b.clv)} pts, negative on {b.clv_neg}/{b.clv_n} (sign test p={a.clv_p:.3g}).",
+        f"CLV avg {_pct(b.clv)} pts; close {b.clv_moves} (sign test p={a.clv_p:.3g}).",
         "",
         "| | W-L-P | ROI | P&L | CLV pts |",
         "|---|---|---|---|---|",
@@ -340,7 +351,7 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
         + "</ul></div>",
         "<h2>Buys</h2>",
         f"<p><b>{b.record}, {b.pnl:+.2f}u, ROI {b.roi:+.1%}</b>, 95% CI {a.roi_ci[0]:+.0%}..{a.roi_ci[1]:+.0%} "
-        f"(n={b.n}). CLV avg {_pct(b.clv)} pts, negative on {b.clv_neg}/{b.clv_n} (p={a.clv_p:.3g}).</p>",
+        f"(n={b.n}). CLV avg {_pct(b.clv)} pts; close {b.clv_moves} (p={a.clv_p:.3g}).</p>",
     ]
     for title, d in (
         ("by market", a.buys_by_market),
