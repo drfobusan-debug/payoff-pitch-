@@ -22,5 +22,29 @@
   "league": "mlb",
   "edge": "",
   "fair_line": null
+ },
+ {
+  "pick_id": "2d568c7efe2e",
+  "show": "vsin_bets",
+  "show_name": "VSiN Best Bets",
+  "host": "Adam Burke",
+  "episode_guid": "vsin-93181",
+  "episode_title": "Dodgers vs. Brewers Game 1 NLCS Prediction and Preview",
+  "published": "2026-10-10T19:14:26+00:00",
+  "kind": "official",
+  "market": "game_ml",
+  "team": "Dodgers",
+  "opponent": "Brewers",
+  "side": null,
+  "line": null,
+  "price": -107.0,
+  "units": null,
+  "seconds": 0,
+  "quote": "Dodgers -107",
+  "reason": "https://vsin.com/mlb/dodgers-vs-brewers-game-1-nlcs-prediction-and-preview/",
+  "description": "Dodgers -107",
+  "league": "mlb",
+  "edge": "",
+  "fair_line": null
  }
 ]

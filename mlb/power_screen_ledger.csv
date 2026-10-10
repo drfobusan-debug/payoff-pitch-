@@ -1312,3 +1312,21 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-08,Steven Kwan,680757,849832,HRR,1.5,over,betmgm,-105.0,0.4929,0.4937,0.4938,-0.0001,-0.036,Pass,PROD WATCH,True,contradicted,20261008T2158Z,1,33,7,1.1,batter,ev_floor,elite
 2026-10-08,Steven Kwan,680757,849832,RBI,0.5,over,betrivers,310.0,0.1916,0.245,0.2509,-0.0059,0.0045,Pass,PROD WATCH,False,contradicted,20261008T2158Z,1,33,7,1.1,batter,one_way_quote,elite
 2026-10-08,Steven Kwan,680757,849832,TB,1.5,under,betmgm,-185.0,0.728,0.6326,0.622,0.0106,-0.0254,Pass,PROD WATCH,True,contradicted,20261008T2158Z,1,33,7,1.1,batter,ev_floor,elite
+2026-10-10,Jo Adell,666176,849831,1B,0.5,under,betmgm,-165.0,0.6693,0.5954,0.5872,0.0082,-0.0438,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,6,19,5,-0.79,batter,ev_floor,elite
+2026-10-10,Jo Adell,666176,849831,H,0.5,under,draftkings,135.0,0.4618,0.4158,0.4107,0.0051,-0.0228,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,6,19,5,-0.79,batter,ev_floor,elite
+2026-10-10,Jo Adell,666176,849831,HRR,1.5,under,bovada,-130.0,0.556,0.5321,0.5294,0.0027,-0.0586,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,6,19,5,-0.79,batter,ev_floor,elite
+2026-10-10,Sean Burke,680732,849831,BB,1.5,over,draftkings,115.0,0.5955,0.515,0.4344,0.0805,0.1072,Pass,,True,contradicted,20261010T2201Z,,,,,pitcher,edge_ceiling,elite
+2026-10-10,Steven Kwan,680757,849831,HRR,1.5,over,bovada,-105.0,0.5798,0.4971,0.4879,0.0092,-0.0295,Pass,PROD WATCH,True,contradicted,20261010T2201Z,2,36,9,1.65,batter,ev_floor,elite
+2026-10-10,Steven Kwan,680757,849831,RBI,0.5,over,draftkings,319.0,0.186,0.2403,0.2463,-0.006,0.0069,Pass,PROD WATCH,True,contradicted,20261010T2201Z,2,36,9,1.65,batter,thin_edge,elite
+2026-10-10,Steven Kwan,680757,849831,TB,1.5,over,betonlineag,161.0,0.4417,0.3817,0.375,0.0067,-0.0038,Pass,PROD WATCH,True,contradicted,20261010T2201Z,2,36,9,1.65,batter,ev_floor,elite
+2026-10-10,Travis Bazzana,683953,849831,1B,0.5,under,betmgm,-165.0,0.605,0.5868,0.5848,0.002,-0.0575,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,5,22,13,3.02,batter,ev_floor,elite
+2026-10-10,Travis Bazzana,683953,849831,H,0.5,under,betonlineag,112.0,0.4124,0.4441,0.4476,-0.0035,-0.0586,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,5,22,13,3.02,batter,ev_floor,elite
+2026-10-10,Travis Bazzana,683953,849831,HRR,1.5,under,betmgm,-165.0,0.5369,0.5865,0.592,-0.0055,-0.058,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,5,22,13,3.02,batter,ev_floor,elite
+2026-10-10,Travis Bazzana,683953,849831,RBI,0.5,under,betmgm,-325.0,0.7035,0.7288,0.7316,-0.0028,-0.0469,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,5,22,13,3.02,batter,ev_floor,elite
+2026-10-10,Petey Halpin,690984,849831,2B,0.5,over,draftkings,572.0,0.1313,0.1464,0.156,-0.0097,-0.0162,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,7,10,5,-0.19,batter,ev_floor,elite
+2026-10-10,Petey Halpin,690984,849831,RBI,0.5,over,draftkings,305.0,0.1874,0.24,0.2459,-0.0058,-0.0279,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,7,10,5,-0.19,batter,ev_floor,elite
+2026-10-10,Petey Halpin,690984,849831,RBI,0.5,under,betmgm,-375.0,0.8126,0.76,0.7541,0.0058,-0.0374,Pass,RV NEG WATCH,True,contradicted,20261010T2201Z,7,10,5,-0.19,batter,ev_floor,elite
+2026-10-10,Chase DeLauter,800050,849831,1B,0.5,under,draftkings,-109.0,0.5199,0.499,0.4967,0.0023,-0.0431,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,1,50,15,2.08,batter,ev_floor,elite
+2026-10-10,Chase DeLauter,800050,849831,H,0.5,under,draftkings,175.0,0.3274,0.3553,0.3584,-0.0031,-0.0229,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,1,50,15,2.08,batter,ev_floor,elite
+2026-10-10,Chase DeLauter,800050,849831,HRR,1.5,under,betmgm,-105.0,0.4221,0.4857,0.4928,-0.0071,-0.0517,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,1,50,15,2.08,batter,ev_floor,elite
+2026-10-10,Chase DeLauter,800050,849831,RBI,0.5,under,betmgm,-220.0,0.6776,0.6579,0.6557,0.0022,-0.043,Pass,ELITE UNDER,True,contradicted,20261010T2201Z,1,50,15,2.08,batter,ev_floor,elite

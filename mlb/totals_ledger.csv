@@ -249,4 +249,5 @@ date,game,game_pk,line,sum_pts,away_runs,home_runs,result,bands,engine_total,eng
 2026-10-07,LAD @ ATL,849822,7.5,-8,4,1,under,centred-2026.09,,0.4612,0.504
 2026-10-07,MIL @ SD,849827,7.5,1,3,1,under,centred-2026.09,8.49,0.5799,0.5077
 2026-10-07,TB @ NYY,849838,7.0,-3,4,3,push,centred-2026.09,7.74,,
-2026-10-08,CLE @ CWS,849832,7.0,-14,,,,centred-2026.09,,,
+2026-10-08,CLE @ CWS,849832,7.0,-14,9,5,over,centred-2026.09,,,
+2026-10-10,CWS @ CLE,849831,7.0,-10,,,,centred-2026.09,,,

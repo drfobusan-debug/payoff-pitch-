@@ -43,3 +43,14 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-08,20261008T2158Z,elite,bat,Steven Kwan,680757,CLE,849832,Hagen Smith,696146,1,False,PROD WATCH,,held,,
 2026-10-08,20261008T2158Z,soft,arm,Hagen Smith,696146,CWS,849832,Hagen Smith,696146,,False,,,gated,siera: SIERA 3.37 ≤ 4.40,3.37
 2026-10-08,20261008T2158Z,soft,arm,Parker Messick,800048,CLE,849832,Parker Messick,800048,,False,,,gated,siera: SIERA 3.24 ≤ 4.40,3.24
+2026-10-10,20261010T2201Z,elite,arm,Gavin Williams,668909,CLE,849831,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.94 ≤ 3.25,1.94
+2026-10-10,20261010T2201Z,elite,arm,Sean Burke,680732,CWS,849831,Sean Burke,680732,,False,,,screened,,3.68
+2026-10-10,20261010T2201Z,elite,bat,José Ramírez,608070,CLE,849831,Sean Burke,680732,2,False,PROD DROP,,dropped,,
+2026-10-10,20261010T2201Z,elite,bat,Nathaniel Lowe,663993,CLE,849831,Sean Burke,680732,5,False,PROD DROP,,dropped,,
+2026-10-10,20261010T2201Z,elite,bat,Jo Adell,666176,CLE,849831,Sean Burke,680732,4,False,RV NEG WATCH,,held,,
+2026-10-10,20261010T2201Z,elite,bat,Steven Kwan,680757,CLE,849831,Sean Burke,680732,1,False,PROD WATCH,,held,,
+2026-10-10,20261010T2201Z,elite,bat,Travis Bazzana,683953,CLE,849831,Sean Burke,680732,6,False,ELITE UNDER,under,held,,
+2026-10-10,20261010T2201Z,elite,bat,Petey Halpin,690984,CLE,849831,Sean Burke,680732,8,False,RV NEG WATCH,,held,,
+2026-10-10,20261010T2201Z,elite,bat,Chase DeLauter,800050,CLE,849831,Sean Burke,680732,3,False,ELITE UNDER,under,held,,
+2026-10-10,20261010T2201Z,soft,arm,Gavin Williams,668909,CLE,849831,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.94 ≤ 4.40,1.94
+2026-10-10,20261010T2201Z,soft,arm,Sean Burke,680732,CWS,849831,Sean Burke,680732,,False,,,gated,siera: SIERA 3.68 ≤ 4.40,3.68
