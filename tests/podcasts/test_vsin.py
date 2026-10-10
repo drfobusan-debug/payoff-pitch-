@@ -14,7 +14,7 @@ from engine_common.podcasts.render import PodcastView, game_block
 from engine_common.podcasts.shows import CFB, MLB, NHL
 from mlb_engine.data import vsin_bets
 from mlb_engine.data.results import GameResult
-from mlb_engine.output.card import render_html
+from mlb_engine.output.card import GameCard, render_html
 from mlb_engine.schemas import Game, Slate, TeamGameInfo, Venue
 from nhl_engine.audit import vsin_picks
 
@@ -227,15 +227,28 @@ def test_mlb_unfinished_game_is_left_ungraded() -> None:
     assert vsin_bets.grade(date(2026, 10, 10), picks, slate, results.get)[0]["result"] == ""
 
 
-def test_mlb_card_prints_the_section_apart_from_the_plays(tmp_path: Path) -> None:
+def test_mlb_card_prints_the_bet_inside_its_game_apart_from_the_plays() -> None:
     slate, _ = _slate()
     picks = vsin.picks_in(_post(MLB_HTML, MLB, published="2026-10-10T05:27:05+00:00"))
-    block = vsin_bets.html_block(date(2026, 10, 10), picks, slate, [])
-    assert "VSiN best bets" in block and "CWS @ CLE" in block and "White Sox +114" in block
-    assert "Not a model input" in block
-    page = render_html([], date(2026, 10, 10), vsin=block)
-    assert block in page
-    assert "VSiN best bets" not in render_html([], date(2026, 10, 10))
+    games, rest = vsin_bets.html_sections(date(2026, 10, 10), picks, slate, [], ["CWS @ CLE"])
+    assert rest == ""
+    assert "White Sox +114" in games["CWS @ CLE"] and "not a model input" in games["CWS @ CLE"]
+    card = GameCard(matchup="CWS @ CLE", plays=[])
+    other = GameCard(matchup="NYY @ BOS", plays=[])
+    page = render_html([card, other], date(2026, 10, 10), vsin_games=games)
+    at = page.index("<h2>CWS @ CLE</h2>")
+    assert at < page.index("White Sox +114") < page.index("<h2>NYY @ BOS</h2>")
+    assert "VSiN best bets" not in render_html([card], date(2026, 10, 10))
+
+
+def test_mlb_bet_off_the_card_prints_in_the_closing_section() -> None:
+    slate, _ = _slate()
+    picks = vsin.picks_in(_post(MLB_HTML, MLB, published="2026-10-10T05:27:05+00:00"))
+    games, rest = vsin_bets.html_sections(date(2026, 10, 10), picks, slate, [])
+    assert games == {}
+    assert "CWS @ CLE: <b>White Sox +114</b>" in rest and "100+ graded bets" in rest
+    page = render_html([], date(2026, 10, 10), vsin=rest)
+    assert rest in page
 
 
 def test_mlb_capture_files_merge_by_pick(tmp_path: Path) -> None:

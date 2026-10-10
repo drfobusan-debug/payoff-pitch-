@@ -15,6 +15,7 @@ both driven off the same :class:`GameCard` structures.
 from __future__ import annotations
 
 import html
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import date as Date
 
@@ -480,6 +481,7 @@ def render_html(
     funnel: Funnel | None = None,
     thr: EVThresholds | None = None,
     vsin: str = "",
+    vsin_games: Mapping[str, str] | None = None,
 ) -> str:
     blocks = [
         "<h1>PayoffPitch — Betting Card for "
@@ -496,6 +498,8 @@ def render_html(
             blocks.append(f"<p class='warn'><em>{html.escape(c.lineup_note)}</em></p>")
         items = "".join(_play_line_html(p) for p in c.plays)
         blocks.append(f"<p><strong>🔒 PLAYS</strong></p><ul>{items}</ul>")
+        if vsin_games and c.matchup in vsin_games:
+            blocks.append(vsin_games[c.matchup])
     blocks.append(
         "<hr><p><em>EV = expected value per $1 staked; edge = model minus the "
         "book's implied probability. 🎯 darts are high-variance longshots — bet "
@@ -515,6 +519,8 @@ def render_html(
         "strong{color:#0a5}"
         ".warn{background:#fff6e0;border-left:4px solid #e8a400;padding:8px 12px;"
         "border-radius:4px}.warn em{color:#8a5a00}"
+        ".vsin{background:#f3f6fb;border-left:4px solid #5577aa;padding:4px 12px;"
+        "border-radius:4px}.vsin strong{color:#335}"
         "table{border-collapse:collapse;font-size:12px;width:100%}"
         "th,td{border-bottom:1px solid #ddd;padding:4px 6px;text-align:right}"
         "th:first-child,td:first-child,th:last-child,td:last-child{text-align:left}"

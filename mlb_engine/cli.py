@@ -178,8 +178,9 @@ def _generate_card(
     cards = build_cards(recs)
     screen = funnel_report.build(recs, cfg.ev)
     md = render_markdown(cards, slate_date, funnel=screen, thr=cfg.ev)
+    vsin_games, vsin_rest = _vsin_sections(cfg, slate_date, [c.matchup for c in cards])
     html_body = render_html(
-        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=_vsin_section(cfg, slate_date)
+        cards, slate_date, funnel=screen, thr=cfg.ev, vsin=vsin_rest, vsin_games=vsin_games
     )
     md_path = cfg.output_dir / f"card_{slate_date.isoformat()}.md"
     html_path = cfg.output_dir / f"card_{slate_date.isoformat()}.html"
@@ -1120,16 +1121,18 @@ def _outside_entries(
     return entries_from_picks(picks, graded, game_pks, audit_date)
 
 
-def _vsin_section(cfg: Config, slate_date: Date) -> str:
+def _vsin_sections(
+    cfg: Config, slate_date: Date, on_card: list[str]
+) -> tuple[dict[str, str], str]:
     """VSiN's written best bets for the card; a view, so a failure only loses the section."""
     try:
         picks = vsin_bets.capture(cfg.audit_dir, slate_date)
         slate = MLBStatsClient().get_slate(slate_date)
         ledger = load_podcast_ledger(cfg.audit_dir / vsin_bets.LEDGER)
-        return vsin_bets.html_block(slate_date, picks, slate, ledger)
+        return vsin_bets.html_sections(slate_date, picks, slate, ledger, on_card)
     except Exception as exc:  # noqa: BLE001 - never lose the card over an article
         logging.warning("VSiN best bets unavailable: %s", exc)
-        return ""
+        return {}, ""
 
 
 def _grade_vsin(cfg: Config, day: Date, results: dict[int, GameResult]) -> None:

@@ -167,12 +167,21 @@ def render_text(ledger: list[dict[str, str]]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def html_block(
-    day: Date, day_picks: list[Pick], slate: Slate | None, ledger: list[dict[str, str]]
-) -> str:
-    """The card's VSiN section: each bet with its writer's graded record."""
-    if not day_picks:
-        return ""
+_NOTE = (
+    "As written in VSiN's articles, with each writer's record graded by us at the writer's "
+    "own number. Not a model input and not a PayoffPitch play; a record says nothing about "
+    "an edge until 100+ graded bets."
+)
+
+
+def html_sections(
+    day: Date,
+    day_picks: list[Pick],
+    slate: Slate | None,
+    ledger: list[dict[str, str]],
+    on_card: Iterable[str] = (),
+) -> tuple[dict[str, str], str]:
+    """The card's VSiN bets: a block per matchup on the card, and one for the rest."""
     recs = {r.label: r for r in writer_records(ledger)}
     placed = {pl.pick.pick_id: pl for pl in place_all(day_picks, slate)} if slate else {}
     since, _ = window(day)
@@ -180,27 +189,39 @@ def html_block(
     shown = [
         p for p in day_picks if p.pick_id in placed or datetime.fromisoformat(p.published) >= today
     ]
-    if not shown:
-        return ""
-    items = []
+    cards = set(on_card)
+    by_game: dict[str, list[str]] = {}
+    rest: list[str] = []
     for p in shown:
         writer = p.host or vsin.SHOW_NAME
         rec = recs.get(writer)
         pl = placed.get(p.pick_id)
-        where = f"{pl.matchup}: " if pl is not None else ""
-        note = "" if pl is not None or p.market == "other" else " (no game on today's slate)"
-        items.append(
-            f"<li><b>{html.escape(writer)}</b> "
+        head = (
+            f"<b>{html.escape(writer)}</b> "
             f"({html.escape(_record_text(rec) if rec else 'no graded picks yet')}). "
-            f"{html.escape(where)}<b>{html.escape(p.description)}</b>"
-            f"{' (not graded)' if p.market == 'other' else html.escape(note)}</li>"
         )
-    return (
-        "<h2>VSiN best bets</h2><p><em>As written in VSiN's articles, with each writer's record "
-        "graded by us at the writer's own number. Not a model input and not a PayoffPitch "
-        "play; a record says nothing about an edge until 100+ graded bets.</em></p>"
-        f"<ul>{''.join(items)}</ul>"
+        bet = f"<b>{html.escape(p.description)}</b>"
+        if pl is not None and pl.matchup in cards:
+            by_game.setdefault(pl.matchup, []).append(f"<li>{head}{bet}</li>")
+            continue
+        where = f"{html.escape(pl.matchup)}: " if pl is not None else ""
+        note = (
+            " (not graded)"
+            if p.market == "other"
+            else ""
+            if pl is not None
+            else " (no game on today's slate)"
+        )
+        rest.append(f"<li>{head}{where}{bet}{note}</li>")
+    games = {
+        m: "<div class='vsin'><p><strong>VSiN best bets</strong> <em>(as written; graded "
+        "by us, not a model input)</em></p><ul>" + "".join(items) + "</ul></div>"
+        for m, items in by_game.items()
+    }
+    other = (
+        f"<h2>VSiN best bets</h2><p><em>{_NOTE}</em></p><ul>{''.join(rest)}</ul>" if rest else ""
     )
+    return games, other
 
 
 __all__ = [
@@ -208,7 +229,7 @@ __all__ = [
     "LEDGER",
     "capture",
     "grade",
-    "html_block",
+    "html_sections",
     "load",
     "merge_files",
     "picks_path",
