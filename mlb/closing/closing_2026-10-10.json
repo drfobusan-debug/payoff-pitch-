@@ -58,6 +58,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_1b",
+    "selection": "Brenton Doyle 1B o0.5",
+    "american": 179.0,
+    "no_vig_prob": 0.342954
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_1b",
+    "selection": "Brenton Doyle 1B u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.657046
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_1b",
     "selection": "Chase DeLauter 1B o0.5",
     "american": -110.0,
     "no_vig_prob": 0.503278
@@ -198,6 +212,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_1b",
+    "selection": "Petey Halpin 1B o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.387188
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_1b",
+    "selection": "Petey Halpin 1B u0.5",
+    "american": -188.0,
+    "no_vig_prob": 0.612812
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_1b",
     "selection": "Sam Antonacci 1B o0.5",
     "american": 100.0,
     "no_vig_prob": 0.474879
@@ -306,6 +334,20 @@
     "selection": "Brayan Rocchio 2B u0.5",
     "american": -750.0,
     "no_vig_prob": 0.833286
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_2b",
+    "selection": "Brenton Doyle 2B o0.5",
+    "american": 620.0,
+    "no_vig_prob": 0.133385
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_2b",
+    "selection": "Brenton Doyle 2B u0.5",
+    "american": -1060.0,
+    "no_vig_prob": 0.866615
   },
   {
     "matchup": "CWS @ CLE",
@@ -450,6 +492,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_2b",
+    "selection": "Petey Halpin 2B o0.5",
+    "american": 553.0,
+    "no_vig_prob": 0.158065
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_2b",
+    "selection": "Petey Halpin 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.841935
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_2b",
     "selection": "Sam Antonacci 2B o0.5",
     "american": 383.0,
     "no_vig_prob": 0.208596
@@ -558,6 +614,20 @@
     "selection": "Brayan Rocchio BB u0.5",
     "american": -326.0,
     "no_vig_prob": 0.724987
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_bb",
+    "selection": "Brenton Doyle BB o0.5",
+    "american": 388.0,
+    "no_vig_prob": 0.208993
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_bb",
+    "selection": "Brenton Doyle BB u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.791007
   },
   {
     "matchup": "CWS @ CLE",
@@ -702,6 +772,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_bb",
+    "selection": "Petey Halpin BB o0.5",
+    "american": 295.0,
+    "no_vig_prob": 0.239499
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_bb",
+    "selection": "Petey Halpin BB u0.5",
+    "american": -437.0,
+    "no_vig_prob": 0.760501
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_bb",
     "selection": "Sam Antonacci BB o0.5",
     "american": 159.0,
     "no_vig_prob": 0.365171
@@ -807,9 +891,37 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.40014
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "Brayan Rocchio H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.404107
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI u1.5",
+    "american": -178.0,
+    "no_vig_prob": 0.59986
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Brenton Doyle H+R+RBI o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.508793
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Brenton Doyle H+R+RBI u0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.491207
   },
   {
     "matchup": "CWS @ CLE",
@@ -1010,6 +1122,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI o0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.55915
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.44085
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "Sam Antonacci H+R+RBI o1.5",
     "american": 115.0,
     "no_vig_prob": 0.447607
@@ -1045,9 +1171,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI o1.5",
+    "american": 131.0,
+    "no_vig_prob": 0.409326
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
     "selection": "Travis Bazzana H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.400828
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.590674
   },
   {
     "matchup": "CWS @ CLE",
@@ -1118,6 +1258,20 @@
     "selection": "Brayan Rocchio HR o1.5",
     "american": 20000.0,
     "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hr",
+    "selection": "Brenton Doyle HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.10049
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hr",
+    "selection": "Brenton Doyle HR o1.5",
+    "american": 25000.0,
+    "no_vig_prob": 0.003984
   },
   {
     "matchup": "CWS @ CLE",
@@ -1262,6 +1416,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_hr",
+    "selection": "Petey Halpin HR o0.5",
+    "american": 1000.0,
+    "no_vig_prob": 0.098086
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hr",
+    "selection": "Petey Halpin HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_hr",
     "selection": "Sam Antonacci HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.089286
@@ -1370,6 +1538,20 @@
     "selection": "Brayan Rocchio H u0.5",
     "american": 108.0,
     "no_vig_prob": 0.452675
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_h",
+    "selection": "Brenton Doyle H o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.469844
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_h",
+    "selection": "Brenton Doyle H u0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.530156
   },
   {
     "matchup": "CWS @ CLE",
@@ -1514,6 +1696,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_h",
+    "selection": "Petey Halpin H o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.511468
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_h",
+    "selection": "Petey Halpin H u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.488532
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_h",
     "selection": "Sam Antonacci H o0.5",
     "american": -185.0,
     "no_vig_prob": 0.613374
@@ -1622,6 +1818,20 @@
     "selection": "Brayan Rocchio RBI u0.5",
     "american": -375.0,
     "no_vig_prob": 0.746355
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_rbi",
+    "selection": "Brenton Doyle RBI o0.5",
+    "american": 372.0,
+    "no_vig_prob": 0.206185
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_rbi",
+    "selection": "Brenton Doyle RBI u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.793815
   },
   {
     "matchup": "CWS @ CLE",
@@ -1766,6 +1976,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_rbi",
+    "selection": "Petey Halpin RBI o0.5",
+    "american": 316.0,
+    "no_vig_prob": 0.237765
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_rbi",
+    "selection": "Petey Halpin RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.762235
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_rbi",
     "selection": "Sam Antonacci RBI o0.5",
     "american": 332.0,
     "no_vig_prob": 0.22803
@@ -1874,6 +2098,20 @@
     "selection": "Brayan Rocchio R u0.5",
     "american": -250.0,
     "no_vig_prob": 0.669251
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_r",
+    "selection": "Brenton Doyle R o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.271295
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_r",
+    "selection": "Brenton Doyle R u0.5",
+    "american": -349.0,
+    "no_vig_prob": 0.728705
   },
   {
     "matchup": "CWS @ CLE",
@@ -2018,6 +2256,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_r",
+    "selection": "Petey Halpin R o0.5",
+    "american": 202.0,
+    "no_vig_prob": 0.309389
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_r",
+    "selection": "Petey Halpin R u0.5",
+    "american": -285.0,
+    "no_vig_prob": 0.690611
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_r",
     "selection": "Sam Antonacci R o0.5",
     "american": 151.0,
     "no_vig_prob": 0.401729
@@ -2130,9 +2382,37 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_tb",
+    "selection": "Brenton Doyle TB o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.466544
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Brenton Doyle TB u0.5",
+    "american": -132.0,
+    "no_vig_prob": 0.533456
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
     "selection": "Chase DeLauter TB o1.5",
     "american": 145.0,
     "no_vig_prob": 0.390798
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "CWS @ CLE",
@@ -2179,9 +2459,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_tb",
+    "selection": "Jo Adell TB o1.5",
+    "american": 152.0,
+    "no_vig_prob": 0.378091
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
     "selection": "Jo Adell TB u0.5",
     "american": 128.0,
     "no_vig_prob": 0.41887
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Jo Adell TB u1.5",
+    "american": -199.0,
+    "no_vig_prob": 0.621909
   },
   {
     "matchup": "CWS @ CLE",
@@ -2284,6 +2578,20 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_tb",
+    "selection": "Petey Halpin TB o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.510592
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Petey Halpin TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.489408
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
     "selection": "Sam Antonacci TB o0.5",
     "american": -179.0,
     "no_vig_prob": 0.605581
@@ -2291,9 +2599,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "batter_tb",
+    "selection": "Sam Antonacci TB o1.5",
+    "american": 167.0,
+    "no_vig_prob": 0.358073
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
     "selection": "Sam Antonacci TB u0.5",
     "american": 140.0,
     "no_vig_prob": 0.394419
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "batter_tb",
+    "selection": "Sam Antonacci TB u1.5",
+    "american": -220.0,
+    "no_vig_prob": 0.641927
   },
   {
     "matchup": "CWS @ CLE",
@@ -2585,9 +2907,23 @@
   {
     "matchup": "CWS @ CLE",
     "market": "pitcher_outs",
+    "selection": "Sean Burke Outs o11.5",
+    "american": -140.0,
+    "no_vig_prob": 0.538462
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "pitcher_outs",
     "selection": "Sean Burke Outs o12.5",
     "american": 106.0,
     "no_vig_prob": 0.468068
+  },
+  {
+    "matchup": "CWS @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Sean Burke Outs u11.5",
+    "american": 100.0,
+    "no_vig_prob": 0.461538
   },
   {
     "matchup": "CWS @ CLE",
