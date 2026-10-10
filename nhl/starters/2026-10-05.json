@@ -1,0 +1,50 @@
+{
+  "BOS": {
+    "name": "Jeremy Swayman",
+    "player_id": 8480280,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "DAL": {
+    "name": "Jake Oettinger",
+    "player_id": 8479979,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "OTT": {
+    "name": "Linus Ullmark",
+    "player_id": 8476999,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PHI": {
+    "name": "Dan Vladar",
+    "player_id": 8478435,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PIT": {
+    "name": "Sergei Murashov",
+    "player_id": 8483703,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "SJS": {
+    "name": "Yaroslav Askarov",
+    "player_id": 8482137,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "TBL": {
+    "name": "Andrei Vasilevskiy",
+    "player_id": 8476883,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WPG": {
+    "name": "Clay Stevenson",
+    "player_id": 8483532,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}

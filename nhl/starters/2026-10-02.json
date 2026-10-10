@@ -1,0 +1,62 @@
+{
+  "ANA": {
+    "name": "Lukas Dostal",
+    "player_id": 8480843,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "BOS": {
+    "name": "Jeremy Swayman",
+    "player_id": 8480280,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "CAR": {
+    "name": "Brandon Bussi",
+    "player_id": 8483548,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "DAL": {
+    "name": "Jake Oettinger",
+    "player_id": 8479979,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "DET": {
+    "name": "John Gibson",
+    "player_id": 8476434,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYR": {
+    "name": "Dylan Garand",
+    "player_id": 8482193,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "STL": {
+    "name": "Joel Hofer",
+    "player_id": 8480981,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "VGK": {
+    "name": "Carter Hart",
+    "player_id": 8479394,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WPG": {
+    "name": "Stuart Skinner",
+    "player_id": 8479973,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}

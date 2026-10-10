@@ -1,0 +1,50 @@
+{
+  "ANA": {
+    "name": "Lukas Dostal",
+    "player_id": 8480843,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CBJ": {
+    "name": "Cam Talbot",
+    "player_id": 8475660,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "DET": {
+    "name": "John Gibson",
+    "player_id": 8476434,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "NYR": {
+    "name": "Igor Shesterkin",
+    "player_id": 8478048,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PIT": {
+    "name": "Sergei Murashov",
+    "player_id": 8483703,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "SEA": {
+    "name": "Joey Daccord",
+    "player_id": 8478916,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WPG": {
+    "name": "Clay Stevenson",
+    "player_id": 8483532,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}

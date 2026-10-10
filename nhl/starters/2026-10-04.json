@@ -1,0 +1,62 @@
+{
+  "ANA": {
+    "name": "Lukas Dostal",
+    "player_id": 8480843,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CGY": {
+    "name": "Dustin Wolf",
+    "player_id": 8481692,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "DET": {
+    "name": "John Gibson",
+    "player_id": 8476434,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "FLA": {
+    "name": "Jacob Markstrom",
+    "player_id": 8474593,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYR": {
+    "name": "Igor Shesterkin",
+    "player_id": 8478048,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "SEA": {
+    "name": "Joey Daccord",
+    "player_id": 8478916,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "UTA": {
+    "name": "Karel Vejmelka",
+    "player_id": 8478872,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VAN": {
+    "name": "Kevin Lankinen",
+    "player_id": 8480947,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VGK": {
+    "name": "Carter Hart",
+    "player_id": 8479394,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WPG": {
+    "name": "Stuart Skinner",
+    "player_id": 8479973,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "ANA": {
+    "name": "Lukas Dostal",
+    "player_id": 8480843,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "COL": {
+    "name": "Mackenzie Blackwood",
+    "player_id": 8478406,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "EDM": {
+    "name": "Devon Levi",
+    "player_id": 8482221,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PIT": {
+    "name": "Arturs Silovs",
+    "player_id": 8481668,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WPG": {
+    "name": "Stuart Skinner",
+    "player_id": 8479973,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}
