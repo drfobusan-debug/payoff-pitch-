@@ -18,6 +18,7 @@ from engine_common.podcasts.episodes import Episode, ensure_transcript, fetch_ep
 from engine_common.podcasts.extract import extract
 from engine_common.podcasts.shows import SHOWS, Show
 from engine_common.podcasts.transcript import read_transcript
+from engine_common.podcasts.vsin import read_articles
 
 
 @dataclass
@@ -62,6 +63,14 @@ def read_feeds(
         print("OPENAI_API_KEY not set: transcribing only, no picks extracted.")
     rep = ReadReport()
     for show in shows:
+        if show.articles:
+            try:
+                wanted = show.for_league(league) if league else show
+                for got in read_articles(root, since, until, wanted.leagues):
+                    rep.by_league.update(p.league for p in got.picks)
+            except Exception as exc:  # noqa: BLE001 - one source down never stops the others
+                rep.failed.append(f"{show.name}: articles unavailable ({exc})")
+            continue
         try:
             wanted = show.for_league(league) if league else show
             eps = [Episode(show, e.item) for e in fetch_episodes(wanted, since, until)]

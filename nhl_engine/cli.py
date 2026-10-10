@@ -42,7 +42,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from nhl_engine import email, outputs, pipeline, report, state
-from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens
+from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens, vsin_picks
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import availability, capture, podcast, preseason, rotowire
@@ -320,6 +320,12 @@ def cmd_card(args: argparse.Namespace) -> int:
             ctx.pod_picks = podcast_picks.load_picks(podcast_picks.picks_path(root, slate))
             ctx.pod_history = podcast_picks.load_all_picks(root)
             ctx.pod_stated = podcast_picks.load_records(podcast_picks.records_path(root, slate))
+            try:
+                games = {g.matchup: (g.away, g.home) for g in card.games}
+                ctx.vsin_picks, ctx.vsin_other = vsin_picks.read_day(root, slate, games)
+            except Exception:  # noqa: BLE001 - VSiN's bets are a view; never lose the PDF
+                log.warning("VSiN best bets unavailable", exc_info=True)
+            ctx.vsin_history = vsin_picks.load_all(root)
             paths["pdf"] = report.write_pdf(
                 card, ctx, report.pdf_path(output_dir(), slate, args.tag)
             )
@@ -498,6 +504,16 @@ def cmd_audit(args: argparse.Namespace) -> int:
         )
         podcast_picks.save_picks(picks, pod_path)
         print(f"{day}: graded {sum(1 for p in picks if p.outcome)}/{len(picks)} podcast picks")
+    vsin_path = vsin_picks.picks_path(root, day)
+    vpicks = podcast_picks.load_picks(vsin_path)
+    if vpicks:
+        if not rows and not picks:
+            results, starts = _results_for(day)
+        podcast_picks.grade_picks(
+            vpicks, results, capture.read_day(root, day), graded_at=capture.now_utc(), starts=starts
+        )
+        podcast_picks.save_picks(vpicks, vsin_path)
+        print(f"{day}: graded {sum(1 for p in vpicks if p.outcome)}/{len(vpicks)} VSiN best bets")
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
@@ -514,6 +530,10 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if pod_all:
         print()
         print(podcast_picks.render(pod_all), end="")
+    vsin_all = vsin_picks.load_all(root)
+    if vsin_all:
+        print()
+        print(vsin_picks.render(vsin_all), end="")
     if not args.no_report:
         as_of = capture.now_utc()
         audit = ledger_report.build(

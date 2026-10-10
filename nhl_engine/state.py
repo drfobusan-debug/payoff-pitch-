@@ -42,6 +42,7 @@ NEWS_DIRS: dict[str, tuple[str, ...]] = {
     "availability": ("*.jsonl",),
     "starters": ("*.json", "*.jsonl"),
     "cards": ("card_*.json",),
+    "vsin": ("picks_*.json",),
 }
 _PUSH_ATTEMPTS = 3
 log = logging.getLogger(__name__)
