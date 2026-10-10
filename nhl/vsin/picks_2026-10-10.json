@@ -1,0 +1,38 @@
+[
+ {
+  "slate_date": "2026-10-10",
+  "matchup": "TOR @ COL",
+  "market": "game_total",
+  "side": "over",
+  "line": 6.5,
+  "american": -120,
+  "stake": 3.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-10-10T17:39:14+00:00",
+  "text": "Over 6.5 (-120) - 3 units",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ },
+ {
+  "slate_date": "2026-10-10",
+  "matchup": "UTA @ BUF",
+  "market": "game_ml",
+  "side": "UTA",
+  "line": null,
+  "american": -115,
+  "stake": 1.0,
+  "host": "Jonathan Davis",
+  "stamp": "2026-10-10T17:39:14+00:00",
+  "text": "Utah Mammoth ML (-115) - 1 unit",
+  "outcome": null,
+  "pnl_flat": null,
+  "pnl_stake": null,
+  "close_consensus": null,
+  "clv": null,
+  "graded_at": ""
+ }
+]
