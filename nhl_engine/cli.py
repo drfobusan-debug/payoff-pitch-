@@ -38,13 +38,14 @@ import sys
 from dataclasses import asdict
 from datetime import date as Date
 from datetime import datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from nhl_engine import email, outputs, pipeline, report, state
-from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard
+from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
-from nhl_engine.data import capture, podcast, preseason, rotowire
+from nhl_engine.data import availability, capture, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
@@ -515,7 +516,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
         print(podcast_picks.render(pod_all), end="")
     if not args.no_report:
         as_of = capture.now_utc()
-        audit = ledger_report.build(all_rows, _starters_for(all_rows))
+        audit = ledger_report.build(
+            all_rows, _starters_for(all_rows), _screen_context(root, all_rows)
+        )
         if stale:
             audit.findings.append(stale_note)
         try:
@@ -539,6 +542,25 @@ def cmd_audit(args: argparse.Namespace) -> int:
             except email.EmailNotConfigured as exc:
                 print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+def _screen_context(root: Path, rows: list[ledger.LedgerRow]) -> screens.Context:
+    """Back-to-backs off the NHL schedule and late skater news off the availability log."""
+    nights = sorted({r.slate_date for r in rows})
+    client = _nhlapi()
+
+    def played(day: Date) -> set[str]:
+        try:
+            return {t for g in client.schedule(day) for t in (g.home, g.away)}
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("schedule for %s unavailable: %s", day, exc)
+            return set()
+
+    records = [a for n in nights for a in availability.read_log(root, Date.fromisoformat(n))]
+    return screens.Context(
+        b2b=screens.b2b_teams(nights, played),
+        late_news=screens.late_news_teams(rows, records),
+    )
 
 
 def _starters_for(rows: list[ledger.LedgerRow]) -> dict[str, tuple[str, str]]:

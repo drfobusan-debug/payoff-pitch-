@@ -19,6 +19,7 @@ from datetime import date as Date
 from html import escape
 from pathlib import Path
 
+from nhl_engine.audit import screens as scr
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.scorecard import scorecard
 
@@ -120,6 +121,7 @@ class LedgerAudit:
     goalies: list[GoalieRead]
     scorecard_text: str
     findings: list[str] = field(default_factory=list)
+    screens: list[scr.ScreenRead] = field(default_factory=list)
 
     @property
     def clv_p(self) -> float:
@@ -245,7 +247,11 @@ def _findings(a: LedgerAudit) -> list[str]:
     return out
 
 
-def build(rows: list[LedgerRow], starters: Starters | None = None) -> LedgerAudit:
+def build(
+    rows: list[LedgerRow],
+    starters: Starters | None = None,
+    context: scr.Context | None = None,
+) -> LedgerAudit:
     graded = [r for r in rows if r.outcome is not None]
     buys = [r for r in graded if r.is_buy]
     audit = LedgerAudit(
@@ -259,6 +265,7 @@ def build(rows: list[LedgerRow], starters: Starters | None = None) -> LedgerAudi
         sides=[s for s in (one_side(graded, k) for k in SIDE_MARKETS) if s is not None],
         goalies=goalie_reads(rows, starters or {}),
         scorecard_text=scorecard(rows).render(),
+        screens=scr.read_screens(rows, context or scr.Context()),
     )
     audit.findings = _findings(audit)
     return audit
@@ -275,6 +282,22 @@ def _tally_rows(d: Mapping[str, Tally]) -> list[tuple[str, ...]]:
     return [
         (k, t.record, f"{t.roi:+.1%}", f"{t.pnl:+.2f}u", _pct(t.clv) if t.clv_n else "")
         for k, t in d.items()
+    ]
+
+
+def _screen_rows(reads: list[scr.ScreenRead]) -> list[tuple[str, ...]]:
+    return [
+        (
+            s.name,
+            s.rule,
+            str(s.n),
+            s.record,
+            f"{s.saved:+.2f}",
+            f"{s.se:.2f}" if len(s.games) >= 2 else "",
+            f"{s.halves[0]:+.2f} / {s.halves[1]:+.2f}",
+            s.verdict,
+        )
+        for s in reads
     ]
 
 
@@ -322,6 +345,10 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
         lines += [f"| {g.status} | {g.n} | {g.wrong} |" for g in a.goalies]
     else:
         lines.append("no starter results available")
+    lines += ["", f"## Graded-only screens (refuse nothing; promote at {scr.MIN_N}+ buys)", ""]
+    lines += ["| screen | rule | buys hit | W-L | saved u | SE (by game) | halves | verdict |"]
+    lines += ["|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(r)} |" for r in _screen_rows(a.screens)]
     lines += ["", "## Scorecard (all rows)", "", "```", a.scorecard_text.rstrip(), "```", ""]
     return "\n".join(lines)
 
@@ -397,6 +424,13 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
         )
         if a.goalies
         else "<p>no starter results available</p>"
+    )
+    parts.append(f"<h2>Graded-only screens (refuse nothing; promote at {scr.MIN_N}+ buys)</h2>")
+    parts.append(
+        _table(
+            ["screen", "rule", "buys hit", "W-L", "saved u", "SE (by game)", "halves", "verdict"],
+            _screen_rows(a.screens),
+        )
     )
     parts.append(f"<h2>Scorecard (all rows)</h2><pre>{escape(a.scorecard_text)}</pre>")
     return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{''.join(parts)}</body></html>"
