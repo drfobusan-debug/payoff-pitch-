@@ -62,6 +62,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from statistics import fmean, stdev
+from typing import Protocol
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
@@ -425,6 +426,16 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
 )
 
 
+class Moved(Protocol):
+    """Anything carrying the pre-bet line movement: a ledger row or a card's rec."""
+
+    @property
+    def drift(self) -> float | None: ...
+
+    @property
+    def open_drift(self) -> float | None: ...
+
+
 @dataclass(frozen=True)
 class CandidateUpgrade:
     """A proposed promotion to Strong, expressed as "would this buy be upgraded?".
@@ -436,14 +447,14 @@ class CandidateUpgrade:
     """
 
     name: str
-    promotes: Callable[[LedgerEntry], bool]
+    promotes: Callable[[Moved], bool]
     rationale: str
 
 
-def _drift_at_least(floor: float, *, opener: bool) -> Callable[[LedgerEntry], bool]:
+def _drift_at_least(floor: float, *, opener: bool) -> Callable[[Moved], bool]:
     """Pick out a buy the market had already moved toward by ``floor`` or more."""
 
-    def promotes(e: LedgerEntry) -> bool:
+    def promotes(e: Moved) -> bool:
         d = e.open_drift if opener else e.drift
         return d is not None and d >= abs(floor)
 
