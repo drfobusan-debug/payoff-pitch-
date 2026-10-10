@@ -46,6 +46,7 @@ from mlb_engine.audit.clv import (
 )
 from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
 from mlb_engine.calibration import read_stored
+from mlb_engine.data import vsin_bets
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
 from mlb_engine.output import daily_worksheet, totals_audit
@@ -409,6 +410,7 @@ GRADED = "graded"
 
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line"), True),
+    (vsin_bets.LEDGER, ("date", "pick_id"), True),
     ("scorecard.csv", ("date", "tier"), True),
     # The power screen's receipts. Left out, they never leave the machine that
     # wrote the note, so the scorecard the next morning prints is that machine's
@@ -634,6 +636,9 @@ def _pull_state_locked(
             pulled.append(src.name)
     for src in sorted((state / "mlb" / "lineups").glob("lineups_*.json")):
         if merge_lineup_files(src, audit / src.name):
+            pulled.append(src.name)
+    for src in sorted((state / "mlb" / "vsin").glob("vsin_bets_*.json")):
+        if vsin_bets.merge_files(src, audit / src.name):
             pulled.append(src.name)
     for name, key, by_date in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
@@ -861,6 +866,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             dest = state / "mlb" / "lineups" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_lineup_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("vsin_bets_*.json")):
+            dest = state / "mlb" / "vsin" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            vsin_bets.merge_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for name, key, by_date in _MERGED_CSVS:

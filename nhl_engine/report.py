@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from engine_common.podcasts.extract import Pick as ArticlePick
 from engine_common.podcasts.render import bet_line
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.podcast_picks import HOSTS, UNATTRIBUTED, Pick, StatedRecord, Tally, tally
@@ -135,6 +136,9 @@ class ReportContext:
     pod_picks: list[Pick] = field(default_factory=list)  # tonight's logged picks
     pod_history: list[Pick] = field(default_factory=list)  # every logged pick, graded or not
     pod_stated: list[StatedRecord] = field(default_factory=list)  # records read on air
+    vsin_picks: list[Pick] = field(default_factory=list)  # tonight's VSiN game bets
+    vsin_other: list[ArticlePick] = field(default_factory=list)  # tonight's VSiN props, as written
+    vsin_history: list[Pick] = field(default_factory=list)  # every VSiN game bet, graded or not
 
 
 def _key_skaters(props: PropContext | None, team: str) -> list[SkaterProjection]:
@@ -408,6 +412,53 @@ def _pick_line(p: Pick, g: GameCard, ctx: ReportContext) -> str:
     return bet_line(name, _pick_record(p.host, ctx), _pick_sel(p), p.american, reason)
 
 
+def _vsin_block(g: GameCard, ctx: ReportContext) -> str:
+    picks = [p for p in ctx.vsin_picks if p.matchup == g.matchup]
+    if not picks:
+        return ""
+    ours = tally(ctx.vsin_history, "host")
+    lines = "".join(
+        bet_line(
+            p.host,
+            f"{ours[p.host].record()} graded" if p.host in ours else "no graded picks yet",
+            _pick_sel(p),
+            p.american,
+            p.text,
+        )
+        for p in picks
+    )
+    return (
+        "<div class='pod'><span class='ptag'>VSiN best bets</span>"
+        "<span class='muted'>(as written in VSiN's articles; graded tomorrow, not a model input)</span>"
+        f"<ul>{lines}</ul></div>"
+    )
+
+
+def _vsin_header(ctx: ReportContext) -> str:
+    if not ctx.vsin_picks and not ctx.vsin_other and not ctx.vsin_history:
+        return ""
+    total = Tally()
+    for p in ctx.vsin_history:
+        total.add(p)
+    cells = " · ".join(
+        f"<b>{escape(host)}</b> {escape(t.line())}"
+        for host, t in sorted(tally(ctx.vsin_history, "host").items(), key=lambda kv: -kv[1].n)
+    )
+    other = ""
+    if ctx.vsin_other:
+        other = (
+            "<p class='muted'>VSiN props and parlays tonight (listed as written, not graded): "
+            + "; ".join(escape(f"{a.host or 'VSiN'}: {a.description}") for a in ctx.vsin_other[:20])
+            + "</p>"
+        )
+    return (
+        "<p class='muted'>VSiN best bets, graded by us against official finals (incl. OT/SO): "
+        f"{escape(total.line())}" + (f". {cells}" if cells else "") + ". A record is not "
+        "evidence of an edge until 100+ graded bets; they never feed a price, gate or stake.</p>"
+        + other
+    )
+
+
 def _pod_records(ctx: ReportContext) -> str:
     ours = tally(ctx.pod_history, "host")
     stated = {r.host: r for r in ctx.pod_stated}
@@ -481,6 +532,7 @@ def _game_block(g: GameCard, ctx: ReportContext) -> str:
         _out_line(g, ctx),
         _players_line(g, ctx),
         _pod_block(g, ctx),
+        _vsin_block(g, ctx),
     ]
     if buys:
         parts.append("<p class='ctx'><b>Buys</b></p>" + _rows_table(buys, limit=len(buys)))
@@ -519,7 +571,12 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
             "<div class='slatebets'><h2>No buys tonight</h2>"
             "<p class='sbnote'>every positive-edge row is held by a gate; the reads below are for the ledger.</p></div>"
         )
-    games = "<h2>Games</h2>" + _pod_header(ctx) + "".join(_game_block(g, ctx) for g in card.games)
+    games = (
+        "<h2>Games</h2>"
+        + _pod_header(ctx)
+        + _vsin_header(ctx)
+        + "".join(_game_block(g, ctx) for g in card.games)
+    )
     unpriced = (
         f"<p class='muted'>Unpriced: {escape('; '.join(card.unpriced))}</p>"
         if card.unpriced

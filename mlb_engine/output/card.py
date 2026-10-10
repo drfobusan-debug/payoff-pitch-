@@ -479,6 +479,7 @@ def render_html(
     *,
     funnel: Funnel | None = None,
     thr: EVThresholds | None = None,
+    vsin: str = "",
 ) -> str:
     blocks = [
         "<h1>PayoffPitch — Betting Card for "
@@ -501,6 +502,8 @@ def render_html(
         "small. " + html.escape(_vsin_legend(cards))
         + "Prices move; shop the number.</em></p>"
     )
+    if vsin:
+        blocks.append(vsin)
     if funnel is not None:
         blocks.append(_funnel_html(funnel, thr))
     style = (
