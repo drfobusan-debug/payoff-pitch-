@@ -20,6 +20,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit.probation import Probation
+from cfb_engine.audit.proven import LEGEND as PROVEN_LEGEND
+from cfb_engine.audit.proven import Proven
 from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
@@ -161,12 +163,13 @@ def _best_bets(recs: list[Recommendation]) -> list[Recommendation]:
     return order_buys(recs)
 
 
-def _game_best_block(recs: list[Recommendation]) -> str:
+def _game_best_block(recs: list[Recommendation], proven: Proven | None = None) -> str:
     buys = _best_bets(recs)
+    mark = proven or Proven()
     if not buys:
         return "<p class='bets'><b>Best bets:</b> none clear the buy threshold — model passes.</p>"
     items = "".join(
-        f"<li><b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category}, "
+        f"<li><b>{mark.mark(b)}{b.selection} ({_odds(b.market_american)})</b> — {b.display_category}, "
         f"model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% · <i>{b.tier.value}</i></li>"
         for b in buys
     )
@@ -508,7 +511,11 @@ def _ordinal(n: int) -> str:
     return f"{n}{suffix}"
 
 
-def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None) -> str:
+def _game_section(
+    recs: list[Recommendation],
+    podcast: PodcastView | None = None,
+    proven: Proven | None = None,
+) -> str:
     matchup, headline, desc = _game_shape(recs)
     when = _kick_label(recs)
     kick = f" <span class='kick'>{when}</span>" if when else ""
@@ -526,7 +533,7 @@ def _game_section(recs: list[Recommendation], podcast: PodcastView | None = None
         f"{context}"
         f"{game_block(podcast, matchup)}"
         f"{_ml_line(recs)}"
-        f"{_game_best_block(recs)}</div>"
+        f"{_game_best_block(recs, proven)}</div>"
     )
 
 
@@ -540,23 +547,25 @@ def _by_kickoff(buys: list[Recommendation]) -> list[Recommendation]:
     return [b for _, b in sorted(enumerate(buys), key=order)]
 
 
-def _slate_best_block(recs: list[Recommendation]) -> str:
+def _slate_best_block(recs: list[Recommendation], proven: Proven | None = None) -> str:
     buys = _by_kickoff(_best_bets(recs))
+    mark = proven or Proven()
     if not buys:
         return (
             "<div class='slatebets'><h2>Slate best bets</h2>"
             "<p>The model passes the entire board today.</p></div>"
         )
     items = "".join(
-        f"<li>{_kick_prefix(b)}<b>{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
+        f"<li>{_kick_prefix(b)}<b>{mark.mark(b)}{b.selection} ({_odds(b.market_american)})</b> — {b.display_category} "
         f"({b.matchup}), model {b.model_prob * 100:.0f}%, edge {(b.edge or 0.0) * 100:+.1f}% "
         f"· <i>{b.tier.value}</i></li>"
         for b in buys
     )
+    legend = f"<p class='sbnote'>{PROVEN_LEGEND}</p>" if mark.any_starred(buys) else ""
     return (
         "<div class='slatebets'><h2>Slate best bets</h2>"
         f"<p class='sbnote'>{len(buys)} plays clear the buy threshold, by kickoff:</p>"
-        f"<ul class='bets big'>{items}</ul></div>"
+        f"<ul class='bets big'>{items}</ul>{legend}</div>"
     )
 
 
@@ -678,6 +687,7 @@ def build_article(
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
+    proven: Proven | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
@@ -698,8 +708,8 @@ def build_article(
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
     )
-    body = "".join(_game_section(g, podcast) for g in ordered_games)
-    body += _slate_best_block(recs)
+    body = "".join(_game_section(g, podcast, proven) for g in ordered_games)
+    body += _slate_best_block(recs, proven)
     body += _line_agrees_block(recs, line_agrees_record)
     body += _low_total_block(recs, low_total_record)
     body += records_block(podcast, ordered_games)
@@ -845,6 +855,7 @@ def generate_daily_card(
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
+    proven: Proven | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -852,7 +863,9 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs, line_agrees_record, podcast, low_total_record)
+    html, narr = build_article(
+        slate_date, recs, line_agrees_record, podcast, low_total_record, proven
+    )
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"
