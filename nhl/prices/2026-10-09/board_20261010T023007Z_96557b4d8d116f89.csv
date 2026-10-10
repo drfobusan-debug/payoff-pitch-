@@ -1,0 +1,25 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,ANA,,-3.5,draftkings,-215,165,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,WPG,,3.5,draftkings,165,-215,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,over,,6.5,draftkings,300,-425,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,under,,6.5,draftkings,-425,300,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,ANA,,-3.5,fanatics,210,-300,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,WPG,,3.5,fanatics,-300,210,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,over,,5.5,fanatics,-115,-115,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,under,,5.5,fanatics,-115,-115,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_ml,ANA,,,williamhill_us,-10000,1400,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_ml,WPG,,,williamhill_us,1400,-10000,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,over,,6.5,williamhill_us,305,-440,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,under,,6.5,williamhill_us,-440,305,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,over,,5.5,bovada,-115,-115,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,under,,5.5,bovada,-115,-115,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,ANA,,-3.5,fanduel,-140,106,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,WPG,,3.5,fanduel,106,-140,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_ml,ANA,,,betmgm,-10000,3300,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_ml,WPG,,,betmgm,3300,-10000,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,ANA,,-3.5,betmgm,125,-165,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,WPG,,3.5,betmgm,-165,125,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,over,,5.5,betmgm,-175,130,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_total,under,,5.5,betmgm,130,-175,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,ANA,,-3.5,mybookieag,180,-250,oddsapi
+2026-10-10T02:30:07Z,2026-10-09,ANA @ WPG,48ce8ebb422982764994cd25c5f253c7,game_pl,WPG,,3.5,mybookieag,-250,180,oddsapi
