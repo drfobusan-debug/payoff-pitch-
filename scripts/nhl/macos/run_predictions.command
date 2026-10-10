@@ -5,6 +5,9 @@
 # projected goalie and keeps the goalie_unconfirmed gate. The first run of the
 # day writes the write-once ledger (--tag initial); later runs in the day
 # re-price as a goalie/pre-drop pass and keep the morning ledger untouched.
+# A later pass (e.g. the scheduled pre-drop `goalie` run) captures the featured
+# board only: ML/PL/totals are what it prices, and a full pass costs ~25 credits
+# a game.
 # The podcast step transcribes the Hockey Gambling Podcast episode for the
 # slate (if one exists) so the PDF can show its read under each game. The audit
 # step grades yesterday and rebuilds the ledger audit report, which the card
@@ -14,7 +17,11 @@ set -uo pipefail
 . "$(dirname "$0")/_env.sh"
 
 TAG="${1:-initial}"
-nhl-engine capture
+if [ "$TAG" = "initial" ]; then
+    nhl-engine capture
+else
+    nhl-engine capture --board-only
+fi
 echo
 nhl-engine lineups || echo "(rotowire skipped)"
 echo

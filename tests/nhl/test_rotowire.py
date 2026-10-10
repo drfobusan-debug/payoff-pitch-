@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date as Date
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -146,3 +147,14 @@ def test_thin_fallback_keeps_pp_pk_prior_touches_only_sh_states():
     out = _apply_thin_fallback(rates, rel, league, 0.2)
     assert out["pp_xgf60"] == 8.5 and out["pk_xga60"] == 6.5
     assert out["pp_xga60"] == 0.6 and out["sh_xgf60"] == 0.6
+
+
+def test_apply_slate_appends_every_goalie_read_to_history(tmp_path):
+    lineup_feed.apply_slate(_slate(), mp=_mp(), data_dir=tmp_path, season=2026, seen_at="t1")
+    lineup_feed.apply_slate(_slate(), mp=_mp(), data_dir=tmp_path, season=2026, seen_at="t2")
+    lines = starters.history_path(tmp_path, SLATE).read_text().splitlines()
+    reads = [json.loads(x) for x in lines]
+    assert [r["seen_at"] for r in reads if r["team"] == "PIT"] == ["t1", "t2"]
+    assert all(r["player_id"] == 8481668 and r["status"] == "probable" for r in reads)
+    assert not any(r["team"] in ("PHI", "LAK") for r in reads)  # unresolved / no status
+    assert starters.load_overrides(starters.overrides_path(tmp_path, SLATE))["PIT"]

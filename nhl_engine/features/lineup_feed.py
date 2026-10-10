@@ -146,6 +146,7 @@ def apply_slate(
     ov_path = starters.overrides_path(data_dir, slate)
     current = starters.load_overrides(ov_path)
     records: list[avail.Availability] = []
+    reads: list[dict[str, object]] = []
     now = seen_at or roto.fetched_at or avail.now_utc()
 
     for game in roto.games:
@@ -158,6 +159,19 @@ def apply_slate(
                     summary.goalies_unresolved.append(f"{team} {side.goalie}")
                 else:
                     pid, name = hit
+                    reads.append(
+                        {
+                            "seen_at": now,
+                            "team": team,
+                            "player_id": pid,
+                            "name": name,
+                            "status": side.goalie_status,
+                            "source": SOURCE,
+                            "matchup": game.matchup,
+                            "market_home_ml": market[0],
+                            "market_book": market[1],
+                        }
+                    )
                     have = current.get(team) or {}
                     have_rank = RANK.get(str(have.get("status", "")), -1) if have else -1
                     new_rank = RANK[side.goalie_status]
@@ -198,6 +212,7 @@ def apply_slate(
                         note=p.status,
                     )
                 )
+    starters.append_history(starters.history_path(data_dir, slate), reads)
     written = avail.append(data_dir, records)
     summary.injuries_logged = len(written)
     return summary
