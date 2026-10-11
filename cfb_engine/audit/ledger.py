@@ -22,6 +22,7 @@ from datetime import date as Date
 from pathlib import Path
 
 from cfb_engine.audit.grade import LOSS, PUSH, WIN
+from cfb_engine.market import atscontext
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
@@ -66,6 +67,10 @@ class LedgerEntry:
     # Handle% minus tickets% on the side bet (VSiN public splits), so the signal
     # MLB measured at AUC 0.80 on moneylines can be graded on college football.
     sharp_div: float | None = None
+    # Who played: both sides' P4/G5/FCS tiers from the CFBD final ("G5-P4"), and
+    # whether either was AP-ranked on the card (``cfb_engine.market.atscontext``).
+    conf_tier: str | None = None
+    top25: bool | None = None
 
 
 LEDGER_FIELDS = [
@@ -73,7 +78,7 @@ LEDGER_FIELDS = [
     "odds", "under_odds", "tier", "model_prob", "ev", "result", "pnl",
     "raw_prob", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts",
-    "drift", "pass_gate", "sharp_div", "open_drift",
+    "drift", "pass_gate", "sharp_div", "open_drift", "conf_tier", "top25",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
@@ -119,9 +124,14 @@ def entries_from_graded(
                 open_drift=rec.open_drift,
                 pass_gate=rec.pass_gate,
                 sharp_div=rec.sharp_div,
+                top25=atscontext.top25_game(rec.brief),
             )
         )
     return entries
+
+
+def _to_bool(v: str) -> bool | None:
+    return None if v == "" else v == "1"
 
 
 def _to_float(v: str) -> float | None:
@@ -167,6 +177,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     pass_gate=row.get("pass_gate", "") or None,
                     sharp_div=_to_float(row.get("sharp_div", "")),
                     open_drift=_to_float(row.get("open_drift", "") or ""),
+                    conf_tier=row.get("conf_tier", "") or None,
+                    top25=_to_bool(row.get("top25", "") or ""),
                 )
             )
     return out
@@ -187,6 +199,8 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
             for name in _OPTIONAL_FLOAT_FIELDS:
                 if row[name] is None:
                     row[name] = ""
+            row["conf_tier"] = e.conf_tier or ""
+            row["top25"] = "" if e.top25 is None else str(int(e.top25))
             w.writerow(row)
     return merged
 
