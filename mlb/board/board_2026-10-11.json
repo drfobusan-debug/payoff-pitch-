@@ -2,6 +2,20 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_1b",
+    "selection": "Andrew Vaughn 1B o0.5",
+    "american": 122.0,
+    "no_vig_prob": 0.417585
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_1b",
+    "selection": "Andrew Vaughn 1B u0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.582415
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_1b",
     "selection": "Andy Pages 1B o0.5",
     "american": 142.0,
     "no_vig_prob": 0.386094
@@ -250,6 +264,20 @@
     "selection": "William Contreras 1B u0.5",
     "american": -140.0,
     "no_vig_prob": 0.556768
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_2b",
+    "selection": "Andrew Vaughn 2B o0.5",
+    "american": 690.0,
+    "no_vig_prob": 0.120594
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_2b",
+    "selection": "Andrew Vaughn 2B u0.5",
+    "american": -1200.0,
+    "no_vig_prob": 0.879406
   },
   {
     "matchup": "LAD @ MIL",
@@ -506,6 +534,20 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_bb",
+    "selection": "Andrew Vaughn BB o0.5",
+    "american": 215.0,
+    "no_vig_prob": 0.29778
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_bb",
+    "selection": "Andrew Vaughn BB u0.5",
+    "american": -296.0,
+    "no_vig_prob": 0.70222
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_bb",
     "selection": "Andy Pages BB o0.5",
     "american": 210.0,
     "no_vig_prob": 0.308501
@@ -758,6 +800,34 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_hrr",
+    "selection": "Andrew Vaughn H+R+RBI o0.5",
+    "american": -157.0,
+    "no_vig_prob": 0.577503
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
+    "selection": "Andrew Vaughn H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
+    "selection": "Andrew Vaughn H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.422497
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
+    "selection": "Andrew Vaughn H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
     "selection": "Andy Pages H+R+RBI o0.5",
     "american": -143.0,
     "no_vig_prob": 0.559299
@@ -1003,9 +1073,23 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_hrr",
+    "selection": "Teoscar Hernandez H+R+RBI o1.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
     "selection": "Teoscar Hernandez H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.417292
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hrr",
+    "selection": "Teoscar Hernandez H+R+RBI u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
   },
   {
     "matchup": "LAD @ MIL",
@@ -1034,6 +1118,20 @@
     "selection": "William Contreras H+R+RBI u1.5",
     "american": -160.0,
     "no_vig_prob": 0.582601
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hr",
+    "selection": "Andrew Vaughn HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.089286
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hr",
+    "selection": "Andrew Vaughn HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
   },
   {
     "matchup": "LAD @ MIL",
@@ -1199,6 +1297,13 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_hr",
+    "selection": "Luis Lara HR o1.5",
+    "american": 47500.0,
+    "no_vig_prob": 0.002101
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_hr",
     "selection": "Max Muncy HR o0.5",
     "american": 575.0,
     "no_vig_prob": 0.148148
@@ -1279,6 +1384,20 @@
     "selection": "William Contreras HR o1.5",
     "american": 12000.0,
     "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_h",
+    "selection": "Andrew Vaughn H o0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.526956
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_h",
+    "selection": "Andrew Vaughn H u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.473044
   },
   {
     "matchup": "LAD @ MIL",
@@ -1535,6 +1654,20 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_rbi",
+    "selection": "Andrew Vaughn RBI o0.5",
+    "american": 317.0,
+    "no_vig_prob": 0.224983
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_rbi",
+    "selection": "Andrew Vaughn RBI u0.5",
+    "american": -475.0,
+    "no_vig_prob": 0.775017
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_rbi",
     "selection": "Andy Pages RBI o0.5",
     "american": 346.0,
     "no_vig_prob": 0.230368
@@ -1787,6 +1920,20 @@
   {
     "matchup": "LAD @ MIL",
     "market": "batter_r",
+    "selection": "Andrew Vaughn R o0.5",
+    "american": 226.0,
+    "no_vig_prob": 0.286292
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_r",
+    "selection": "Andrew Vaughn R u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.713708
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_r",
     "selection": "Andy Pages R o0.5",
     "american": 214.0,
     "no_vig_prob": 0.306495
@@ -2035,6 +2182,20 @@
     "selection": "William Contreras R u0.5",
     "american": -210.0,
     "no_vig_prob": 0.641925
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_tb",
+    "selection": "Andrew Vaughn TB o0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.524533
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "batter_tb",
+    "selection": "Andrew Vaughn TB u0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.475467
   },
   {
     "matchup": "LAD @ MIL",
@@ -2326,9 +2487,30 @@
   {
     "matchup": "LAD @ MIL",
     "market": "f5_rl",
+    "selection": "LAD F5 -0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.395966
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_rl",
+    "selection": "MIL F5 +0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.604034
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_rl",
     "selection": "MIL F5 -0.5",
     "american": 140.0,
     "no_vig_prob": 0.41872
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_total",
+    "selection": "F5 Over 2.5",
+    "american": -135.0,
+    "no_vig_prob": 0.556275
   },
   {
     "matchup": "LAD @ MIL",
@@ -2343,6 +2525,13 @@
     "selection": "F5 Over 3.5",
     "american": 122.0,
     "no_vig_prob": 0.422627
+  },
+  {
+    "matchup": "LAD @ MIL",
+    "market": "f5_total",
+    "selection": "F5 Under 2.5",
+    "american": 122.0,
+    "no_vig_prob": 0.443725
   },
   {
     "matchup": "LAD @ MIL",
