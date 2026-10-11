@@ -1,0 +1,104 @@
+"""Graded-only market bands: main-line rows, favourite/underdog, back-to-backs, verdicts."""
+
+from __future__ import annotations
+
+from nhl_engine.audit import bands, ledger_report
+from nhl_engine.audit.ledger import LedgerRow
+from nhl_engine.audit.screens import Context
+
+
+def _row(
+    market="game_ml",
+    side="H",
+    consensus=0.6,
+    pnl=0.5,
+    line=None,
+    slate="2026-10-10",
+    matchup="A @ H",
+) -> LedgerRow:
+    return LedgerRow(
+        slate_date=slate,
+        matchup=matchup,
+        home="H",
+        away="A",
+        market=market,
+        side=side,
+        entity="",
+        line=line,
+        ot_rule="incl_ot_so",
+        book="b",
+        american=-150.0,
+        books=3,
+        consensus=consensus,
+        model_prob=consensus,
+        push_prob=0.0,
+        edge=0.0,
+        ev=0.0,
+        tier="Pass",
+        outcome="win" if pnl > 0 else "loss",
+        pnl=pnl,
+    )
+
+
+def _reads(rows, ctx=None):
+    return {b.name: b for b in bands.read_bands(rows, ctx or Context())}
+
+
+def test_sides_split_by_home_away_and_favourite():
+    r = _reads([_row(side="H", consensus=0.6, pnl=0.67), _row(side="A", consensus=0.4, pnl=-1)])
+    assert r["ML home favourite"].n == 1 and r["ML home favourite"].units == 0.67
+    assert r["ML away underdog"].record == "0-1"
+    assert r["ML home underdog"].n == 0 and r["ML away favourite"].n == 0
+
+
+def test_main_total_line_and_puck_line_only():
+    rows = [
+        _row("game_total", "Over", 0.62, -1, line=5.5),
+        _row("game_total", "Over", 0.49, 0.9, line=6.5),
+        _row("game_total", "Under", 0.51, -1, line=6.5),
+        _row("game_pl", "H", 0.4, 1.2, line=-1.5),
+        _row("game_pl", "H", 0.2, 3.0, line=-2.5),
+    ]
+    r = _reads(rows)
+    assert r["Total Over"].units == 0.9 and r["Total Under"].n == 1
+    assert r["Puck line home underdog"].units == 1.2
+
+
+def test_back_to_back_bands_read_the_context():
+    ctx = Context(b2b=frozenset({"2026-10-10|A"}))
+    rows = [
+        _row(side="A", consensus=0.45, pnl=-1),
+        _row(side="H", consensus=0.55, pnl=0.8),
+        _row("game_total", "Over", 0.5, -1, line=6.0),
+        _row("game_total", "Under", 0.5, 0.9, line=6.0),
+    ]
+    r = _reads(rows, ctx)
+    assert r["ML road team on a back-to-back"].n == 1
+    assert r["ML rested team vs a back-to-back"].units == 0.8
+    assert r["Total Under, a team on a back-to-back"].n == 1
+
+
+def test_sixty_minute_favourite_underdog_draw():
+    rows = [
+        _row("game_ml3", "H", 0.45, 1.2),
+        _row("game_ml3", "A", 0.33, -1),
+        _row("game_ml3", "Draw", 0.22, -1),
+    ]
+    r = _reads(rows)
+    assert r["60-min favourite"].units == 1.2 and r["60-min home favourite"].n == 1
+    assert r["60-min underdog"].n == 1 and r["60-min draw"].n == 1
+
+
+def test_verdict_needs_the_sample_and_both_halves():
+    win = bands.BandRead("x", [1.0, -1.0, 1.0] * 40)
+    assert win.verdict == "wins: clears the bar"
+    lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 40)
+    assert lose.verdict == "loses: refusal candidate"
+    assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100)"
+
+
+def test_audit_report_renders_the_bands():
+    audit = ledger_report.build([_row()])
+    md = ledger_report.render_md(audit, as_of="t")
+    assert "Graded-only bands" in md and "| ML home favourite | 1 |" in md
+    assert "ML home favourite" in ledger_report.render_html(audit, as_of="t")
