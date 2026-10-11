@@ -14,6 +14,7 @@ from pathlib import Path
 from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import OverallMetrics
 from cfb_engine.audit.priced import PricedStat, priced_findings
+from cfb_engine.audit.probation import Probation
 from cfb_engine.config import Config
 from cfb_engine.output.render import to_mp3, to_pdf
 
@@ -106,6 +107,24 @@ def _probation_list(findings: list[str]) -> str:
     return f"<ul>{body}</ul>"
 
 
+def _tracked_table(rows: list[Probation]) -> str:
+    """Each graded-only rule's record to date, verdict or not."""
+    if not rows:
+        return ""
+    head = (
+        "<tr><th>Graded-only rule (not a bet)</th><th>Status</th><th>N</th>"
+        "<th>ROI</th><th>Older half</th><th>Newer half</th></tr>"
+    )
+    body = "".join(
+        f"<tr><td>{p.name}</td><td>{p.status}</td><td>{p.n}</td>"
+        f"<td class='{_cls(p.roi)}'>{p.roi * 100:+.1f}%</td>"
+        f"<td class='{_cls(p.first_half)}'>{p.first_half * 100:+.1f}%</td>"
+        f"<td class='{_cls(p.second_half)}'>{p.second_half * 100:+.1f}%</td></tr>"
+        for p in rows
+    )
+    return f"<table>{head}{body}</table>"
+
+
 def _clv_table(rows: list[ClvSummary]) -> str:
     if not rows:
         return "<p>No closing snapshot captured for this slate.</p>"
@@ -136,6 +155,7 @@ def build_audit_article(
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
+    tracked: list[Probation] | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the graded slate.
 
@@ -171,7 +191,7 @@ def build_audit_article(
         f"<h2>What the prices did</h2>{_money_table(money_rows or [])}"
         f"<h2>By price length</h2>{_price_table(price_rows or [])}"
         f"<h2>Closing line value &mdash; bets</h2>{_clv_table(clv_rows)}"
-        f"<h2>Probation</h2>{_probation_list(probation or [])}"
+        f"<h2>Probation</h2>{_probation_list(probation or [])}{_tracked_table(tracked or [])}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
     )
@@ -235,11 +255,20 @@ def generate_audit_report(
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
+    tracked: list[Probation] | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
     html, narr = build_audit_article(
-        audit_date, overall, clv_rows, n_graded, price_rows, money_rows, probation, slate_buy
+        audit_date,
+        overall,
+        clv_rows,
+        n_graded,
+        price_rows,
+        money_rows,
+        probation,
+        slate_buy,
+        tracked,
     )
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
