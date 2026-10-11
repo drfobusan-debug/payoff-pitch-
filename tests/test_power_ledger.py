@@ -915,3 +915,16 @@ def test_a_missing_box_score_withholds_the_bucket_records(tmp_path, monkeypatch)
     # same short record: withheld, not graded on the games that did finish.
     monkeypatch.setattr(ps, "fetch_result", lambda pk, cache_dir: _game(players, final=False))
     assert ps._grade_records(cfg, args, Date(2026, 9, 1)) is None
+
+
+def test_a_prop_recorded_on_both_sides_stays_out_of_the_bucket_record() -> None:
+    """Over and under on one prop can only lose the vig; it is not the bucket's money."""
+    graded = _graded(
+        _position("RBI", 0.5, rating="RV NEG WATCH", side="over", odds=305.0),
+        _position("RBI", 0.5, rating="RV NEG WATCH", side="under", odds=-375.0),
+        _position("TB", 1.5, rating="RV NEG WATCH", side="over", odds=150.0),
+        players={7: _line(H=1, **{"2B": 1})},
+    )
+    assert len(power_ledger.two_sided(g.position for g in graded)) == 1
+    rec = power_ledger.records_by_rating(graded)["RV NEG WATCH"]
+    assert (rec.wins, rec.losses) == (1, 0) and rec.units == pytest.approx(1.5)
