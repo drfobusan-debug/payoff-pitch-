@@ -28,6 +28,8 @@ from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import LedgerEntry, OverallMetrics
 from cfb_engine.audit.priced import PricedStat
 from cfb_engine.audit.probation import Probation
+from cfb_engine.audit.proven import LEGEND as PROVEN_LEGEND
+from cfb_engine.audit.proven import Proven
 from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.ordering import conviction as _conviction
 from cfb_engine.market.ordering import order_recs
@@ -88,7 +90,12 @@ def line_agrees(rec: Recommendation) -> bool:
     )
 
 
-def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None = None) -> None:
+def _write_sheet(
+    ws: Worksheet,
+    recs: list[Recommendation],
+    header: str | None = None,
+    proven: Proven | None = None,
+) -> None:
     header_fill = PatternFill("solid", fgColor=header) if header else HEADER_FILL
     for c, name in enumerate(COLUMNS, start=1):
         cell = ws.cell(row=1, column=c, value=name)
@@ -111,10 +118,13 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
         fill = PatternFill("solid", fgColor=_interp(light, neon, 0.15 + 0.7 * t))
         row = rec.as_row()
         bold = line_agrees(rec)
+        star = proven is not None and proven.starred(rec)
+        if star and proven is not None:
+            row["Selection"] = f"{proven.mark(rec)}{row['Selection']}"
         for c, name in enumerate(COLUMNS, start=1):
             cell = ws.cell(row=row_idx, column=c, value=row[name])
             cell.fill = fill
-            if bold:
+            if bold or (star and name == "Selection"):
                 cell.font = Font(bold=True)
             if name in CENTER_COLS:
                 cell.alignment = CENTER
@@ -124,10 +134,17 @@ def _write_sheet(ws: Worksheet, recs: list[Recommendation], header: str | None =
     if ordered:
         ws.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{len(ordered) + 1}"
     ws.cell(row=len(ordered) + 3, column=1, value=AGREE_LEGEND)
+    if proven is not None:
+        ws.cell(row=len(ordered) + 4, column=1, value=PROVEN_LEGEND)
     ws.freeze_panes = "A2"
 
 
-def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date) -> Path:
+def write_workbook(
+    recs: list[Recommendation],
+    out_path: Path,
+    slate_date: Date,
+    proven: Proven | None = None,
+) -> Path:
     wb = Workbook()
     strong = [r for r in recs if r.tier == Tier.STRONG]
     moderate = [r for r in recs if r.tier == Tier.MODERATE]
@@ -135,17 +152,22 @@ def write_workbook(recs: list[Recommendation], out_path: Path, slate_date: Date)
 
     ws = wb.active
     ws.title = "Strong Buys"
-    _write_sheet(ws, strong, header=_SCHEME[Tier.STRONG][2])
-    _write_sheet(wb.create_sheet("Moderate Buys"), moderate, header=_SCHEME[Tier.MODERATE][2])
-    _write_sheet(wb.create_sheet("Fades"), fades, header=_SCHEME[Tier.PASS][2])
+    _write_sheet(ws, strong, header=_SCHEME[Tier.STRONG][2], proven=proven)
+    _write_sheet(
+        wb.create_sheet("Moderate Buys"), moderate, header=_SCHEME[Tier.MODERATE][2], proven=proven
+    )
+    _write_sheet(wb.create_sheet("Fades"), fades, header=_SCHEME[Tier.PASS][2], proven=proven)
     for title, market in _MARKET_TABS:
-        _write_sheet(wb.create_sheet(title), [r for r in recs if r.market == market])
+        _write_sheet(
+            wb.create_sheet(title), [r for r in recs if r.market == market], proven=proven
+        )
     _write_sheet(
         wb.create_sheet(LINE_AGREES_TAB),
         [r for r in recs if r.line_agrees],
         header=_LINE_AGREES_HEADER,
+        proven=proven,
     )
-    _write_sheet(wb.create_sheet("All"), recs)
+    _write_sheet(wb.create_sheet("All"), recs, proven=proven)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
