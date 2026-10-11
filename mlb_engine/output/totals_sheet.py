@@ -21,6 +21,7 @@ import logging
 import math
 import re
 from collections import Counter
+from collections.abc import Collection
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import date as Date
@@ -1016,17 +1017,34 @@ def sheet_has_lines(path: Path) -> bool:
     return all(first_line(str(r[ti] or "")) is not None for r in it if r[gi] is not None)
 
 
-def sheet_has_gaps(path: Path) -> bool:
-    """True when a game on the sheet has a TBD starter or no engine total yet."""
+def sheet_has_gaps(path: Path, priced: Collection[str] = ()) -> bool:
+    """True when a game on the sheet has a TBD starter or a blank engine a rebuild could fill.
+
+    A blank Engine is final for a matchup in ``priced`` (the engine has its curve
+    and the median is off the posted lines) and for a doubleheader (the curve is
+    keyed by matchup, so neither game can be given one).
+    """
     wb = load_workbook(path, read_only=True)
     ws = wb[next(n for n in wb.sheetnames if n.startswith("Totals "))]
     it = ws.iter_rows(values_only=True)
     header = [str(c) for c in next(it)]
     gi, ai, hi, ei = (header.index(c) for c in ("Game", "SP A", "SP H", "Engine"))
+    rows = [r for r in it if r[gi] is not None]
+    games = Counter(r[gi] for r in rows)
     return any(
-        r[ai] == "TBD" or r[hi] == "TBD" or r[ei] is None
-        for r in it if r[gi] is not None
+        r[ai] == "TBD" or r[hi] == "TBD"
+        or (r[ei] is None and games[r[gi]] == 1 and r[gi] not in priced)
+        for r in rows
     )
+
+
+def priced_matchups(cfg: Config, day: Date) -> set[str]:
+    """Matchups the engine ledger already holds game totals for on ``day``."""
+    try:
+        return set(over_curves(load_ledger(engine_ledger_path(cfg)), day))
+    except Exception as exc:
+        log.warning("totals sheet: engine ledger unreadable: %s", exc)
+        return set()
 
 
 def slate_started(slate: Slate, now: datetime | None = None) -> bool:
@@ -1069,7 +1087,7 @@ def build_totals_sheet(cfg: Config, day: Date, *, if_stale: bool = False) -> Pat
     """
     out = output_path(cfg, day)
     current = if_stale and sheet_is_current(out)
-    if current and not sheet_has_gaps(out):
+    if current and not sheet_has_gaps(out, priced_matchups(cfg, day)):
         log.info("totals sheet: %s already on bands %s", out.name, BANDS)
         return out
     stats = MLBStatsClient()

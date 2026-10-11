@@ -33,8 +33,9 @@ from mlb_engine.audit.power_ledger import (
     Record,
     bucket,
     grade_positions,
-    name_key,
     summarize,
+    two_sided,
+    without_pairs,
 )
 from mlb_engine.audit.power_roster import ARM, BAT, DROPPED, GATED, HELD, SCREENED, RosterRow
 from mlb_engine.data.plays import PlateAppearance, Tally, starters, tally
@@ -170,24 +171,6 @@ def display_bucket(position: Position) -> str:
         return "(no rating)"
     b = bucket(position)
     return RATING_DISPLAY.get(b, b)
-
-
-def _prop_key(p: Position) -> tuple[str, str, str, str, float | None]:
-    who = str(p.player_id) if p.player_id is not None else name_key(p.batter)
-    return (p.date, p.run_id, who, p.stat, p.line)
-
-
-def two_sided(positions: Iterable[Position]) -> set[tuple[str, str, str, str, float | None]]:
-    """Props recorded on both sides in one run: a pair that can only lose the vig."""
-    sides: dict[tuple[str, str, str, str, float | None], set[str]] = defaultdict(set)
-    for p in positions:
-        sides[_prop_key(p)].add(p.side)
-    return {k for k, v in sides.items() if {"over", "under"} <= v}
-
-
-def without_pairs(graded: list[GradedPosition]) -> list[GradedPosition]:
-    pairs = two_sided(g.position for g in graded)
-    return [g for g in graded if _prop_key(g.position) not in pairs]
 
 
 def group(graded: list[GradedPosition], key: str) -> list[Record]:
@@ -539,7 +522,7 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             extra = f"; without both-sided pairs {_rec(clean[key])}"
         c.insights.append(
             f"Bucket '{name}': {_rec(rec)}{extra}. {_signal(rec).capitalize()}; "
-            f"word earned: {earned_label(rec)}."
+            f"word earned: {earned_label(clean.get(key, rec))}."
         )
     for rec in group(total.graded, "arm tier"):
         c.insights.append(f"Against {rec.label}: {_rec(rec)}. {_signal(rec).capitalize()}.")
@@ -884,7 +867,7 @@ def _total_section(total: TotalAudit) -> str:
                 + [
                     _rec(clean[k]) if k in clean else "-",
                     _e(_signal(r)),
-                    _e(earned_label(r)),
+                    _e(earned_label(clean.get(k, r))),
                 ]
                 for k, r in sorted(recs.items(), key=lambda kv: -kv[1].n)
             ],

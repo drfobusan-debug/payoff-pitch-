@@ -29,6 +29,8 @@ from __future__ import annotations
 import csv
 import logging
 import unicodedata
+from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date as Date
 from pathlib import Path
@@ -548,15 +550,35 @@ def bucket(position: Position) -> str:
     return r
 
 
+def prop_key(p: Position) -> tuple[str, str, str, str, float | None]:
+    """One prop in one run, whichever side of it was recorded."""
+    return (p.date, p.run_id, p.key, p.stat, p.line)
+
+
+def two_sided(positions: Iterable[Position]) -> set[tuple[str, str, str, str, float | None]]:
+    """Props recorded on both sides in one run: a pair that can only lose the vig."""
+    sides: dict[tuple[str, str, str, str, float | None], set[str]] = defaultdict(set)
+    for p in positions:
+        sides[prop_key(p)].add(p.side)
+    return {k for k, v in sides.items() if {"over", "under"} <= v}
+
+
+def without_pairs(graded: list[GradedPosition]) -> list[GradedPosition]:
+    """``graded`` less both rows of every prop :func:`two_sided` finds."""
+    pairs = two_sided(g.position for g in graded)
+    return [g for g in graded if prop_key(g.position) not in pairs]
+
+
 def records_by_rating(graded: list[GradedPosition]) -> dict[str, Record]:
     """Each matchup bucket's whole record, for the note to print beside the word.
 
     A grade is a word about the matchup; the ledger is what the word has been
     worth. Hitter rows only -- a starter's rows carry no grade -- keyed by the
     bucket the row was in (:func:`bucket`), not the string as recorded, so the
-    9/09 swap of the contact words does not blend opposite terciles.
+    9/09 swap of the contact words does not blend opposite terciles. A prop
+    recorded on both sides in one run is left out (:func:`without_pairs`).
     """
-    rated = [(bucket(g.position), g) for g in graded if g.position.rating]
+    rated = [(bucket(g.position), g) for g in without_pairs(graded) if g.position.rating]
     return {
         b: _record(b, [g for bb, g in rated if bb == b])
         for b in sorted({bb for bb, _g in rated})

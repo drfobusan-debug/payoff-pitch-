@@ -508,3 +508,19 @@ def test_a_current_sheet_with_a_tbd_starter_is_rebuilt_only_before_first_pitch(
     write_workbook([SheetRow(**{**row.__dict__, "away": replace(side, starter="Robert Gasser (L)")})], day, out)
     assert not totals_sheet.sheet_has_gaps(out)
     assert totals_sheet.build_totals_sheet(None, day, if_stale=True) == out  # type: ignore[arg-type]
+
+
+def test_a_blank_engine_is_a_gap_only_while_a_rebuild_could_fill_it(tmp_path: Path) -> None:
+    day = Date(2026, 10, 10)
+    out = tmp_path / f"totals_sheet_{day.isoformat()}.xlsx"
+    away = TeamSide("CWS", "Sean Burke (R)", 0, 0, 0, 0, 0, None, 0, "")
+    home = TeamSide("CLE", "Gavin Williams (R)", 0, 0, 0, 0, 0, None, 0, "")
+    row = SheetRow("CWS @ CLE", "2026-10-11T00:08:00Z", "7", away, home, 0, 0, 0, "", 0, "", 0, 0, "", "", "",
+                   game_pk=849831)
+    write_workbook([row], day, out)
+    assert totals_sheet.sheet_has_gaps(out)
+    # the engine priced the game, but its median sits below the lowest posted line
+    assert not totals_sheet.sheet_has_gaps(out, {"CWS @ CLE"})
+    # a doubleheader's matchup-keyed curve can never reach either game
+    write_workbook([row, replace(row, game_pk=849832)], day, out)
+    assert not totals_sheet.sheet_has_gaps(out)
