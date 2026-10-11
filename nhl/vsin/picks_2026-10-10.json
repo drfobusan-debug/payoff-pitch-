@@ -10,12 +10,12 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-10T17:39:14+00:00",
   "text": "Over 6.5 (-120) - 3 units",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.8333333333333334,
+  "pnl_stake": 2.5,
+  "close_consensus": 0.5338567222767419,
+  "clv": -0.011597823177803557,
+  "graded_at": "2026-10-11T16:11:13Z"
  },
  {
   "slate_date": "2026-10-10",
@@ -28,11 +28,11 @@
   "host": "Jonathan Davis",
   "stamp": "2026-10-10T17:39:14+00:00",
   "text": "Utah Mammoth ML (-115) - 1 unit",
-  "outcome": null,
-  "pnl_flat": null,
-  "pnl_stake": null,
-  "close_consensus": null,
-  "clv": null,
-  "graded_at": ""
+  "outcome": "win",
+  "pnl_flat": 0.8695652173913043,
+  "pnl_stake": 0.8695652173913043,
+  "close_consensus": 0.5022575401842152,
+  "clv": -0.03262618074601731,
+  "graded_at": "2026-10-11T16:11:13Z"
  }
 ]
