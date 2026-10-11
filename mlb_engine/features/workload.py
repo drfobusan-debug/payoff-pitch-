@@ -16,6 +16,7 @@ from datetime import timedelta
 import pandas as pd
 
 from mlb_engine.data.managers import DEFAULT_BF_CAP
+from mlb_engine.features.central import central_list
 
 OPENER_BF = 12  # median BF/start at or below this reads as an opener / bullpen game
 MIN_STARTS = 2  # need at least this many recent starts before trusting the data
@@ -53,5 +54,5 @@ def expected_bf_cap(
     median = bf_sorted[len(bf_sorted) // 2]
     if median <= OPENER_BF:
         return min(manager_cap, OPENER_BF)
-    avg = sum(bf) / len(bf)
+    avg = central_list(bf)
     return int(min(manager_cap, round(avg) + BF_BUFFER))
