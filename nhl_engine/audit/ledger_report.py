@@ -19,6 +19,7 @@ from datetime import date as Date
 from html import escape
 from pathlib import Path
 
+from nhl_engine.audit import bands as bnd
 from nhl_engine.audit import screens as scr
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.scorecard import scorecard
@@ -122,6 +123,7 @@ class LedgerAudit:
     scorecard_text: str
     findings: list[str] = field(default_factory=list)
     screens: list[scr.ScreenRead] = field(default_factory=list)
+    bands: list[bnd.BandRead] = field(default_factory=list)
 
     @property
     def clv_p(self) -> float:
@@ -266,6 +268,7 @@ def build(
         goalies=goalie_reads(rows, starters or {}),
         scorecard_text=scorecard(rows).render(),
         screens=scr.read_screens(rows, context or scr.Context()),
+        bands=bnd.read_bands(rows, context or scr.Context()),
     )
     audit.findings = _findings(audit)
     return audit
@@ -298,6 +301,39 @@ def _screen_rows(reads: list[scr.ScreenRead]) -> list[tuple[str, ...]]:
             s.verdict,
         )
         for s in reads
+    ]
+
+
+BAND_HEAD = ["band", "games", "W-L", "units", "ROI", "SE (u)", "halves", "verdict"]
+
+
+def _band_title(a: LedgerAudit) -> str:
+    return (
+        f"Graded-only bands (flat 1u on every game at the card's price; call at {bnd.MIN_N}+ games)"
+    )
+
+
+def _band_note(a: LedgerAudit) -> str:
+    k = len(a.bands)
+    return (
+        f"{k} bands are read at once, so about {k / 20:.0f} will sit past 2 SE by chance. "
+        "Mirror bands (home favourite / away underdog) are the same games."
+    )
+
+
+def _band_rows(reads: list[bnd.BandRead]) -> list[tuple[str, ...]]:
+    return [
+        (
+            b.name,
+            str(b.n),
+            b.record,
+            f"{b.units:+.2f}",
+            f"{b.roi:+.1%}" if b.n else "",
+            f"{b.se:.2f}" if b.n >= 2 else "",
+            f"{b.halves[0]:+.2f} / {b.halves[1]:+.2f}",
+            b.verdict,
+        )
+        for b in reads
     ]
 
 
@@ -349,6 +385,9 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     lines += ["| screen | rule | buys hit | W-L | saved u | SE (by game) | halves | verdict |"]
     lines += ["|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _screen_rows(a.screens)]
+    lines += ["", f"## {_band_title(a)}", "", _band_note(a), ""]
+    lines += [f"| {' | '.join(BAND_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(r)} |" for r in _band_rows(a.bands)]
     lines += ["", "## Scorecard (all rows)", "", "```", a.scorecard_text.rstrip(), "```", ""]
     return "\n".join(lines)
 
@@ -432,6 +471,8 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
             _screen_rows(a.screens),
         )
     )
+    parts.append(f"<h2>{escape(_band_title(a))}</h2><p class='sub'>{escape(_band_note(a))}</p>")
+    parts.append(_table(BAND_HEAD, _band_rows(a.bands)))
     parts.append(f"<h2>Scorecard (all rows)</h2><pre>{escape(a.scorecard_text)}</pre>")
     return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{''.join(parts)}</body></html>"
 
