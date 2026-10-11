@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 
 from cfb_engine.audit.ledger import daily_rollup, entries_from_graded, overall_metrics
 from cfb_engine.audit.priced import engine_priced_stat
-from cfb_engine.audit.probation import market_probation
+from cfb_engine.audit.probation import WATCHING, Probation, market_probation
 from cfb_engine.cli import _build_parser, main
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import build_audit_article
@@ -183,3 +183,16 @@ def test_a_lean_the_line_has_come_to_is_bold_with_a_legend(tmp_path):
     ]
     assert bold == [agrees.display_category]
     assert str(ws.cell(row=5, column=1).value).startswith("Bold: the model leans")
+
+
+def test_the_audit_article_lists_each_graded_only_rule_before_its_verdict():
+    """A WATCHING rule still prints its record, so the PDF shows what is being tracked."""
+    rule = Probation(
+        "ats_upgrade_top25_game", "upgrade", 38, 0.432, 0.141, 0.629, 0.235, WATCHING, ""
+    )
+    html, _ = build_audit_article(DAY, [], [], 0, tracked=[rule])
+    assert "Nothing has crossed the volume" in html
+    assert "ats_upgrade_top25_game</td><td>WATCHING</td><td>38</td>" in html
+    assert "+43.2%" in html and "+62.9%" in html and "+23.5%" in html
+    bare, _ = build_audit_article(DAY, [], [], 0)
+    assert "Graded-only rule" not in bare

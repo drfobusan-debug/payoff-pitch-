@@ -603,6 +603,9 @@ def _print_money(money: list[PricedStat], markets: list[OverallMetrics]) -> None
         )
 
 
+_GRADED_ONLY_KINDS = ("candidate", "upgrade", "rule")
+
+
 def _print_probation(verdicts: list[Probation]) -> None:
     if not verdicts:
         return
@@ -745,6 +748,7 @@ def _emit_ledger(
         money_rows=money,
         probation=[p.finding for p in verdicts if p.actionable],
         slate_buy=slate_buy,
+        tracked=[p for p in verdicts if p.kind in _GRADED_ONLY_KINDS],
     )
 
 
