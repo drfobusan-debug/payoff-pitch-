@@ -4,6 +4,10 @@
 #     board only (ML / puck line / total), 3 credits a pass.
 #   * com.payoffpitch.nhl.capture -> at NHL_EVENT_HOURS (default 12 17 19):
 #     the full per-event pass (periods, team totals, props), ~25 credits a game.
+#   * com.payoffpitch.nhl.early   -> at NHL_EARLY_HOUR:NHL_EARLY_MINUTE (default
+#     11:40 local): an `early` card for the games starting before 17:30 ET
+#     (weekend and holiday matinees), emailed and written to the ledger. On a
+#     night-only slate it exits without a card.
 #   * com.payoffpitch.nhl.card    -> at NHL_CARD_HOUR:NHL_CARD_MINUTE (default
 #     17:00 local): the full predictions run (capture, RotoWire goalies, priced
 #     card, write-once ledger) with the card emailed.
@@ -39,6 +43,8 @@ bash "$REPO/scripts/nhl/ensure_env.sh"
 FIRST_HOUR="${NHL_CAPTURE_FIRST_HOUR:-10}"
 LAST_HOUR="${NHL_CAPTURE_LAST_HOUR:-23}"
 EVENT_HOURS="${NHL_EVENT_HOURS:-12 17 19}"
+EARLY_HOUR="${NHL_EARLY_HOUR:-11}"
+EARLY_MINUTE="${NHL_EARLY_MINUTE:-40}"
 CARD_HOUR="${NHL_CARD_HOUR:-17}"
 CARD_MINUTE="${NHL_CARD_MINUTE:-0}"
 PREDROP_HOUR="${NHL_PREDROP_HOUR:-18}"
@@ -102,6 +108,9 @@ for h in $EVENT_HOURS; do
 done
 EVENT_CAL="$EVENT_CAL    </array>"
 
+EARLY_CAL="    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>$EARLY_HOUR</integer><key>Minute</key><integer>$EARLY_MINUTE</integer></dict>"
+
 CARD_CAL="    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>$CARD_HOUR</integer><key>Minute</key><integer>$CARD_MINUTE</integer></dict>"
 
@@ -113,12 +122,14 @@ AUDIT_CAL="    <key>StartCalendarInterval</key>
 
 install_agent "com.payoffpitch.nhl.board" "$CAPTURE" "$BOARD_CAL" --board-only
 install_agent "com.payoffpitch.nhl.capture" "$CAPTURE" "$EVENT_CAL"
+install_agent "com.payoffpitch.nhl.early" "$PREDICT" "$EARLY_CAL" early
 install_agent "com.payoffpitch.nhl.card" "$PREDICT" "$CARD_CAL" initial
 install_agent "com.payoffpitch.nhl.predrop" "$PREDICT" "$PREDROP_CAL" goalie
 install_agent "com.payoffpitch.nhl.audit" "$AUDIT" "$AUDIT_CAL"
 
 echo
 echo "Board every 30 min $FIRST_HOUR:00-$LAST_HOUR:30; full per-event pass at $EVENT_HOURS:05."
+printf 'Early card (games before 17:30 ET) emailed at %02d:%02d local when there are any (com.payoffpitch.nhl.early).\n' "$EARLY_HOUR" "$EARLY_MINUTE"
 printf 'Priced card emailed daily at %02d:%02d local (com.payoffpitch.nhl.card).\n' "$CARD_HOUR" "$CARD_MINUTE"
 printf 'Pre-drop goalie card emailed daily at %02d:%02d local (com.payoffpitch.nhl.predrop).\n' "$PREDROP_HOUR" "$PREDROP_MINUTE"
 printf "Yesterday's ledger graded and synced daily at %02d:%02d local (com.payoffpitch.nhl.audit).\n" "$AUDIT_HOUR" "$AUDIT_MINUTE"

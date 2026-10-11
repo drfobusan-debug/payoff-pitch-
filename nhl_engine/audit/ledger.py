@@ -172,11 +172,19 @@ def card_path(data_dir: Path, slate: Date, tag: str) -> Path:
 
 
 def write_once(rows: list[LedgerRow], path: Path, *, force: bool = False) -> tuple[Path, bool]:
-    """Write the ledger unless it exists. ``force`` writes ``<stem>.v<N>.json`` instead."""
+    """Write each game's rows once: an existing ledger keeps its games and gains new ones.
+
+    ``force`` writes the whole card to ``<stem>.v<N>.json`` instead.
+    """
     if not path.exists():
         return save_rows(rows, path), True
     if not force:
-        return path, False
+        kept = load_rows(path)
+        have = {r.matchup for r in kept}
+        new = [r for r in rows if r.matchup not in have]
+        if not new:
+            return path, False
+        return save_rows(kept + new, path), True
     n = 2
     while (alt := path.with_name(f"{path.stem}.v{n}{path.suffix}")).exists():
         n += 1
