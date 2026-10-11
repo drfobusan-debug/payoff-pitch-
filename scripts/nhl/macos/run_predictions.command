@@ -5,6 +5,10 @@
 # projected goalie and keeps the goalie_unconfirmed gate. The first run of the
 # day writes the write-once ledger (--tag initial); later runs in the day
 # re-price as a goalie/pre-drop pass and keep the morning ledger untouched.
+# The `early` run (scheduled late morning) prices only the games that start
+# before NHL_EARLY_BEFORE (default 17:30 ET), i.e. the afternoon games the 17:00
+# card would miss, and writes them into the ledger; on a night-only slate it
+# exits without a card. The 17:00 card then adds the remaining games.
 # A later pass (e.g. the scheduled pre-drop `goalie` run) captures the featured
 # board only: ML/PL/totals are what it prices, and a full pass costs ~25 credits
 # a game.
@@ -29,7 +33,11 @@ nhl-engine podcast || echo "(podcast skipped)"
 echo
 nhl-engine audit || echo "(audit skipped)"
 echo
-nhl-engine card --tag "$TAG" --email
+if [ "$TAG" = "early" ]; then
+    nhl-engine card --tag early --before "${NHL_EARLY_BEFORE:-17:30}" --email
+else
+    nhl-engine card --tag "$TAG" --email
+fi
 echo
 echo "Buys are the pass_gate rows with a Strong/Moderate tier. Period markets are"
 echo "priced for the ledger only until they clear probation (nhl-engine audit)."

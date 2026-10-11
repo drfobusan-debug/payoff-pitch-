@@ -18,7 +18,8 @@ Phase 1 commands (features, no prices):
 Phase 2 commands (priced card, ledger, grading):
 
 * ``card`` -- price the archived board from one joint sim per game; writes
-  the write-once ledger (``--tag initial``) plus txt/md/xlsx outputs.
+  the write-once ledger (``--tag initial``, and ``--tag early --before HH:MM``
+  for afternoon games) plus txt/md/xlsx outputs.
 * ``starter`` -- record a confirmed/probable goalie for a team on a date.
 * ``lineups`` -- pull RotoWire's expected/confirmed goalies and injury list
   for today (or tomorrow) into the starter overrides and availability log.
@@ -57,6 +58,9 @@ from nhl_engine.schemas import GameResult
 
 log = logging.getLogger("nhl_engine")
 SLATE_TZ = ZoneInfo("America/New_York")
+# Cards whose games go into the write-once ledger: the early card for games that
+# start before the 17:00 card, and the 17:00 card for the rest.
+LEDGER_TAGS = frozenset({"early", "initial"})
 
 
 def _today() -> Date:
@@ -278,6 +282,12 @@ def cmd_strength(args: argparse.Namespace) -> int:
     return 0
 
 
+def _local_cutoff(slate: Date, hhmm: str) -> datetime:
+    """``HH:MM`` Eastern on the slate date."""
+    hour, minute = (int(x) for x in hhmm.split(":"))
+    return datetime(slate.year, slate.month, slate.day, hour, minute, tzinfo=SLATE_TZ)
+
+
 def cmd_card(args: argparse.Namespace) -> int:
     cfg = load_config()
     slate = _parse_date(args.date)
@@ -294,6 +304,13 @@ def cmd_card(args: argparse.Namespace) -> int:
     except Exception as exc:  # no schedule: price every game rather than none
         print(f"NHL schedule unavailable, started games not skipped: {exc}", file=sys.stderr)
         starts = {}
+    only: set[str] | None = None
+    if args.before:
+        cutoff = _local_cutoff(slate, args.before)
+        only = pipeline.starting_before(starts, cutoff, datetime.now(SLATE_TZ))
+        if not only:
+            print(f"no {slate} games start before {args.before} ET; no {args.tag} card")
+            return 0
     card = pipeline.run_slate(
         quotes,
         slate=slate,
@@ -307,6 +324,7 @@ def cmd_card(args: argparse.Namespace) -> int:
         tag=args.tag,
         seed=args.seed,
         starts=starts,
+        only=only,
     )
     paths = outputs.write_all(card, output_dir())
     if not args.no_pdf:
@@ -333,7 +351,7 @@ def cmd_card(args: argparse.Namespace) -> int:
             log.exception("pdf card failed")
     ledger.save_rows(card.rows, ledger.card_path(root, slate, args.tag))
     written = ""
-    if args.tag == "initial" or args.ledger:
+    if args.tag in LEDGER_TAGS or args.ledger:
         path, wrote = ledger.write_once(
             card.rows, ledger.predictions_path(root, slate), force=args.force
         )
@@ -653,7 +671,12 @@ def build_parser() -> argparse.ArgumentParser:
     cd = sub.add_parser("card", help="price the archived board (joint sim) and write the card")
     cd.add_argument("--date", help="slate date, default today")
     cd.add_argument("--season", type=int)
-    cd.add_argument("--tag", default="initial", help="initial | goalie | predrop | close")
+    cd.add_argument("--tag", default="initial", help="early | initial | goalie | predrop | close")
+    cd.add_argument(
+        "--before",
+        metavar="HH:MM",
+        help="price only games starting before this time (ET); no card if there are none",
+    )
     cd.add_argument("--ledger", action="store_true", help="also write the write-once ledger")
     cd.add_argument(
         "--force", action="store_true", help="write a versioned ledger beside an existing one"
