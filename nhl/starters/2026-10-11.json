@@ -1,0 +1,38 @@
+{
+  "CAR": {
+    "name": "Pyotr Kochetkov",
+    "player_id": 8481611,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYR": {
+    "name": "Dylan Garand",
+    "player_id": 8482193,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "PHI": {
+    "name": "Joseph Woll",
+    "player_id": 8479361,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "SEA": {
+    "name": "Joey Daccord",
+    "player_id": 8478916,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VAN": {
+    "name": "Kevin Lankinen",
+    "player_id": 8480947,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
