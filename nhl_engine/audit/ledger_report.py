@@ -304,12 +304,12 @@ def _screen_rows(reads: list[scr.ScreenRead]) -> list[tuple[str, ...]]:
     ]
 
 
-BAND_HEAD = ["band", "games", "W-L", "units", "ROI", "SE (u)", "halves", "verdict"]
+BAND_HEAD = ["band", "bets", "W-L", "units", "ROI", "SE (u, by game)", "halves", "verdict"]
 
 
 def _band_title(a: LedgerAudit) -> str:
     return (
-        f"Graded-only bands (flat 1u on every game at the card's price; call at {bnd.MIN_N}+ games)"
+        f"Graded-only bands (flat 1u on every bet at the card's price; call at {bnd.MIN_N}+ games)"
     )
 
 
