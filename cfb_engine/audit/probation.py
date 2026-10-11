@@ -65,7 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import lineagree, lowtotal
+from cfb_engine.market import atscontext, lineagree, lowtotal
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -376,6 +376,14 @@ def _low_total_under(e: LedgerEntry) -> bool:
     return lowtotal.refuses(e.market, e.selection, e.line)
 
 
+def _g5_only_spread(e: LedgerEntry) -> bool:
+    return atscontext.g5_only(e.market, e.conf_tier)
+
+
+def _top25_spread(e: LedgerEntry) -> bool:
+    return atscontext.ranked_game(e.market, e.top25)
+
+
 # The candidates asked of every audit, rather than settled once in a chat
 # message. Each is a screen someone has a good story for; the point of keeping
 # them here is that the three tests, not the story, decide whether it ships.
@@ -422,6 +430,11 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         _low_total_under,
         "an Under on a low total fights the Over lean low totals carry",
     ),
+    CandidateScreen(
+        atscontext.G5_ONLY_RULE,
+        _g5_only_spread,
+        "the ratings rest on thinner schedules when neither side is Power 4",
+    ),
 )
 
 
@@ -464,6 +477,11 @@ CANDIDATE_UPGRADES: tuple[CandidateUpgrade, ...] = (
         "open_drift_upgrade_agrees_2pct",
         _drift_at_least(0.02, opener=True),
         "the line had come to our side since the opener",
+    ),
+    CandidateUpgrade(
+        atscontext.TOP25_RULE,
+        _top25_spread,
+        "the spread is on a game with an AP Top 25 team in it",
     ),
 )
 

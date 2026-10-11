@@ -68,7 +68,7 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
-from cfb_engine.market import lowtotal
+from cfb_engine.market import atscontext, lowtotal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
@@ -313,6 +313,9 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
         return 0
 
     entries = entries_from_graded(graded, day)
+    for e, (rec, _) in zip(entries, graded, strict=True):
+        final = result_for(rec, index)
+        e.conf_tier = atscontext.result_tier(final) if final is not None else None
     closing, in_play = drop_in_play(
         load_closing(cfg.closing_file(day)), snapshot.load(cfg.board_file(day))
     )
