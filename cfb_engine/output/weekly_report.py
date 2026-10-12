@@ -1,7 +1,9 @@
 """Weekly audit article (HTML/PDF): the past week, then the ledger to date.
 
 Both halves carry the same tables and the same plain-language summary, so a
-week can always be read against the whole history it belongs to.
+week can always be read against the whole history it belongs to. Each opens
+on the price (EV at the close against the juice) and the per-market Briers;
+the record sits in the tables under them.
 """
 
 from __future__ import annotations
@@ -10,7 +12,7 @@ import logging
 from html import escape
 from pathlib import Path
 
-from cfb_engine.audit.weekly import Accuracy, ScopeAudit, Segment, WeeklyAudit
+from cfb_engine.audit.weekly import GameBrier, ScopeAudit, Segment, WeeklyAudit
 from cfb_engine.config import Config
 from cfb_engine.output.audit_report import _CSS
 from cfb_engine.output.render import to_pdf
@@ -56,33 +58,43 @@ def _seg_table(rows: list[Segment], *, clv: bool = True) -> str:
 def _clv_table(b: Segment) -> str:
     if not b.clv_n:
         return "<p>No closing prices captured for these buys.</p>"
+    moved = b.close_ev - b.bet_ev
+    pts = f"{b.clv_pts:+.2f} ({b.clv_pts_n})" if b.clv_pts_n else "-"
     return (
-        "<table><tr><th>Buys with a close</th><th>Beat close</th><th>Mean CLV (prob pts)</th>"
-        "<th>EV at the closing price</th></tr>"
-        f"<tr><td>{b.clv_n}</td><td>{b.beat_close:.0%}</td>"
+        "<table><tr><th>Buys with a close</th><th>EV at the close</th>"
+        "<th>Juice at bet time</th><th>Close moved</th><th>Beat close</th>"
+        "<th>CLV (prob pts)</th><th>CLV (line pts, n)</th></tr>"
+        f"<tr><td>{b.clv_n}</td>"
+        f"<td class='{_cls(b.close_ev)}'><b>{b.close_ev * 100:+.1f}&cent;</b></td>"
+        f"<td>{b.bet_ev * 100:+.1f}&cent;</td>"
+        f"<td class='{_cls(moved)}'>{moved * 100:+.1f}&cent;</td>"
+        f"<td>{b.beat_close:.0%}</td>"
         f"<td class='{_cls(b.clv_mean)}'>{b.clv_mean * 100:+.2f}</td>"
-        f"<td class='{_cls(b.close_ev)}'>{b.close_ev * 100:+.1f}%</td></tr></table>"
+        f"<td>{pts}</td></tr></table>"
     )
 
 
-def _accuracy_table(a: Accuracy) -> str:
-    if not a.n and not a.n_close:
-        return "<p>No graded rows with market probabilities.</p>"
-    rows = ""
-    if a.n:
-        rows += (
-            f"<tr><td>Model</td><td>{a.n}</td><td>{a.model:.4f}</td></tr>"
-            f"<tr><td>Market at bet time (no-vig)</td><td>{a.n}</td><td>{a.market:.4f}</td></tr>"
+def _brier_table(briers: list[GameBrier]) -> str:
+    rows = [g for g in briers if g.n]
+    if not rows:
+        return "<p>No graded games with market probabilities.</p>"
+    body = ""
+    for g in rows:
+        close = (
+            f"<td>{g.n_close}</td><td>{g.model_at_close:.3f}</td><td>{g.close:.3f}</td>"
+            if g.n_close
+            else "<td>0</td><td>-</td><td>-</td>"
         )
-    if a.n_close:
-        rows += (
-            f"<tr><td>Model, rows with a close</td><td>{a.n_close}</td>"
-            f"<td>{a.model_at_close:.4f}</td></tr>"
-            f"<tr><td>Closing line (no-vig)</td><td>{a.n_close}</td><td>{a.close:.4f}</td></tr>"
+        better = "market" if g.market < g.model else "model"
+        body += (
+            f"<tr><td>{escape(g.label)}</td><td>{g.n}</td><td>{g.model:.3f}</td>"
+            f"<td>{g.market:.3f}</td><td>{better}</td>{close}</tr>"
         )
     return (
-        "<table><tr><th>Probability</th><th>Graded rows</th><th>Brier (lower is better)</th></tr>"
-        f"{rows}</table>"
+        "<table><tr><th>Market, once per game</th><th>Games</th><th>Model</th>"
+        "<th>Market at bet</th><th>Better</th><th>Games with close</th>"
+        "<th>Model (same games)</th><th>Close</th></tr>"
+        f"{body}</table>"
     )
 
 
@@ -93,13 +105,13 @@ def _scope_html(scope: ScopeAudit, period_title: str) -> str:
         f"<h2>{escape(scope.title)}</h2>"
         f"<p class='lead'>{slates} graded.</p>"
         f"<h3>Summary</h3><ul class='find'>{finds}</ul>"
+        f"<h3>Price at the close</h3>{_clv_table(scope.buys)}"
+        f"{_seg_table(scope.clv_split, clv=False)}"
+        f"<h3>Forecast accuracy (Brier)</h3>{_brier_table(scope.briers)}"
         f"<h3>Buys</h3>{_seg_table([scope.buys, *scope.by_tier])}"
         f"<h3>By market</h3>{_seg_table(scope.by_market)}"
         f"<h3>Sides, spreads and prices</h3>{_seg_table(scope.splits)}"
         f"<h3>By model edge (EV)</h3>{_seg_table(scope.ev_bands)}"
-        f"<h3>Closing line value</h3>{_clv_table(scope.buys)}"
-        f"{_seg_table(scope.clv_split, clv=False)}"
-        f"<h3>Accuracy: model vs market</h3>{_accuracy_table(scope.accuracy)}"
         f"<h3>{period_title}</h3>{_seg_table(scope.periods)}"
         f"<h3>Pass rows (graded, not bet)</h3>{_seg_table([scope.passes], clv=False)}"
     )
@@ -107,16 +119,32 @@ def _scope_html(scope: ScopeAudit, period_title: str) -> str:
 
 def _lead(report: WeeklyAudit) -> str:
     w, t = report.week.buys, report.ledger.buys
+    price = (
+        f"Ledger to date, the average buy was worth "
+        f"<b class='{_cls(t.close_ev)}'>{t.close_ev * 100:+.1f}&cent;</b> per dollar at the close "
+        f"(juice at bet time {t.bet_ev * 100:+.1f}&cent;, {t.clv_n} buys with a close). "
+        if t.clv_n
+        else ""
+    )
+    scored = [g for g in report.ledger.briers if g.n]
+    briers = (
+        "Brier, model vs market: "
+        + "; ".join(
+            f"{g.label.split(' ')[0].lower()} {g.model:.3f} vs {g.market:.3f}" for g in scored
+        )
+        + ". "
+        if scored
+        else ""
+    )
     week = (
-        f"This week's buys went <b>{w.record}</b> "
-        f"(<span class='{_cls(w.units)}'>{w.units:+.1f}u</span>)"
+        f"This week's buys went {w.record} ({w.units:+.1f}u)"
         if w.n or w.pushes
         else "No buys were graded this week"
     )
     return (
-        f"<p class='lead'>{week}. Ledger to date: <b>{t.record}</b>, "
-        f"<span class='{_cls(t.units)}'>{t.units:+.1f}u</span>, "
-        f"ROI <span class='{_cls(t.roi)}'>{t.roi * 100:+.1f}%</span> on {t.n + t.pushes} buys.</p>"
+        f"<p class='lead'>{price}{briers}</p>"
+        f"<p>Record: {week}; ledger to date {t.record}, {t.units:+.1f}u, "
+        f"ROI {t.roi * 100:+.1f}% on {t.n + t.pushes} buys.</p>"
     )
 
 
@@ -133,9 +161,11 @@ def build_weekly_article(report: WeeklyAudit) -> str:
         "<p class='fine'>Break-even = the win rate the prices taken demanded. 95% range = "
         "ROI plus or minus 1.96 standard errors (never narrower than a coin flip at those "
         "prices), and nothing under 30 bets is called beyond noise; 'needs ~N' is how many bets this ROI would "
-        "need for that range to exclude zero. Brier scores use every graded side, bet or "
-        "not. EV at the closing price judges the price taken against the closing no-vig "
-        "probability. Model audit, not investment advice.</p>"
+        "need for that range to exclude zero. EV at the close judges the price taken against "
+        "the closing no-vig probability; juice at bet time is the same prices against the "
+        "bet-time no-vig, so the gap between them is what the close move was worth. Brier "
+        "scores every graded game once, on the favorite or the over, bet or not. Model "
+        "audit, not investment advice.</p>"
         "</body></html>"
     )
 
