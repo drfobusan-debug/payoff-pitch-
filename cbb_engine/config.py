@@ -68,8 +68,25 @@ class Credentials:
 
 
 @dataclass(frozen=True)
+class Delivery:
+    gmail_user: str | None = field(default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS"))
+    gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
+    email_to: str | None = field(default_factory=lambda: os.getenv("CBBE_EMAIL_TO") or os.getenv("MLBE_EMAIL_TO"))
+    smtp_host: str = field(default_factory=lambda: os.getenv("CBBE_SMTP_HOST") or os.getenv("SMTP_HOST") or "smtp.gmail.com")
+    smtp_port: int = field(default_factory=lambda: _env_int("CBBE_SMTP_PORT", _env_int("SMTP_PORT", 465)))
+
+
+@dataclass(frozen=True)
+class Exposure:
+    max_live_buys: int = field(default_factory=lambda: _env_int("CBBE_MAX_LIVE_BUYS", 8))
+    max_per_book: int = field(default_factory=lambda: _env_int("CBBE_MAX_PER_BOOK", 6))
+
+
+@dataclass(frozen=True)
 class Config:
     creds: Credentials = field(default_factory=Credentials)
+    delivery: Delivery = field(default_factory=Delivery)
+    exposure: Exposure = field(default_factory=Exposure)
     cadence: Cadence = field(default_factory=Cadence)
     regions: str = field(default_factory=lambda: os.getenv("CBBE_REGIONS", "us"))
     # Per-event markets are the dominant spend; off until the written budget allows them.

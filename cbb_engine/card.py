@@ -66,6 +66,8 @@ def price(
     width: dist.Width | None = None,
     thr: Thresholds | None = None,
     previous: list[consensus.Anchor] | None = None,
+    max_live_buys: int = 8,
+    max_per_book: int = 6,
 ) -> Priced | None:
     shard = latest_pricing_shard(root, day)
     if shard is None:
@@ -127,7 +129,22 @@ def price(
                     gates=gates,
                 )
             )
+    apply_exposure(out, max_live_buys=max_live_buys, max_per_book=max_per_book)
     return Priced(out, anchors, sid)
+
+
+def apply_exposure(rows: list[ledger.Row], *, max_live_buys: int, max_per_book: int) -> None:
+    """Cap live buys per day and per book; the lowest-edge extras get the `exposure_cap` gate (graded like any gate)."""
+    buys = sorted((r for r in rows if r.is_buy and r.status == "live"), key=lambda r: -(r.edge or 0.0))
+    kept_total = 0
+    kept_book: dict[str, int] = {}
+    for r in buys:
+        if kept_total >= max_live_buys or kept_book.get(r.book, 0) >= max_per_book:
+            r.gates.append("exposure_cap")
+            r.tier = "Pass"
+            continue
+        kept_total += 1
+        kept_book[r.book] = kept_book.get(r.book, 0) + 1
 
 
 def _devigged_total(a: consensus.Anchor, sd: float) -> float:
@@ -164,4 +181,4 @@ def render(rows: list[ledger.Row]) -> str:
     return "\n".join(lines)
 
 
-__all__ = ["MODEL_VERSION", "PREREG", "Priced", "latest_pricing_shard", "params_hash", "prereg_scalar", "price", "render"]
+__all__ = ["MODEL_VERSION", "PREREG", "Priced", "apply_exposure", "latest_pricing_shard", "params_hash", "prereg_scalar", "price", "render"]

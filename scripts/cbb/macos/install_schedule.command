@@ -5,6 +5,8 @@
 #     featured every 10 min inside T-3h, close passes T-60..T-5 per game).
 #   * com.payoffpitch.cbb.watch   -> every 5 min 11:00-23:55: ESPN + RotoWire, no credits.
 #   * com.payoffpitch.cbb.daily   -> 06:00: Torvik archive + yesterday's finals.
+#   * com.payoffpitch.cbb.card    -> 11:30 and 16:30: `cbb-engine price --email` (bet of record).
+#   * com.payoffpitch.cbb.audit   -> 03:00: `cbb-engine audit --email` on yesterday's rows.
 # Idempotent. Remove with: launchctl unload ~/Library/LaunchAgents/com.payoffpitch.cbb.*.plist
 set -e
 cd "$(dirname "$0")/../../.." || exit 1
@@ -57,4 +59,11 @@ install_agent "com.payoffpitch.cbb.capture" "$REPO/scripts/cbb/macos/cbb_capture
 install_agent "com.payoffpitch.cbb.watch" "$REPO/scripts/cbb/macos/cbb_watch.command" "$(every5 "${CBB_WATCH_FIRST_HOUR:-11}" "${CBB_WATCH_LAST_HOUR:-23}")"
 install_agent "com.payoffpitch.cbb.daily" "$REPO/scripts/cbb/macos/cbb_daily.command" "    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>${CBB_DAILY_HOUR:-6}</integer><key>Minute</key><integer>0</integer></dict>"
+install_agent "com.payoffpitch.cbb.card" "$REPO/scripts/cbb/macos/cbb_card.command" "    <key>StartCalendarInterval</key>
+    <array>
+        <dict><key>Hour</key><integer>11</integer><key>Minute</key><integer>30</integer></dict>
+        <dict><key>Hour</key><integer>16</integer><key>Minute</key><integer>30</integer></dict>
+    </array>"
+install_agent "com.payoffpitch.cbb.audit" "$REPO/scripts/cbb/macos/cbb_audit.command" "    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>0</integer></dict>"
 echo "Logs: $LOG_DIR/schedule.log. Credit ledger: ~/.engine_runtime/credits/ (observe-only until enforce: true)."
