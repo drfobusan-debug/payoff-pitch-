@@ -9,13 +9,14 @@ with later phases; nothing here writes a ledger row.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import sys
 from datetime import date as Date
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cbb_engine import audit, cadence, card, checklist, email, history, study
+from cbb_engine import audit, cadence, card, checklist, email, history, pilot, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -317,6 +318,8 @@ def cmd_history(args: argparse.Namespace) -> int:
     root, ddir = runtime_root(), data_dir()
     start, end = Date.fromisoformat(args.start), Date.fromisoformat(args.end)
     days = history.days_between(start, end)
+    if args.action == "pilot":
+        return cmd_pilot(args, root, days)
     if args.action == "export":
         rows: list[dict[str, object]] = []
         for d in days:
@@ -353,6 +356,31 @@ def cmd_history(args: argparse.Namespace) -> int:
             totals[k] += c[k]
         print(f"{d}: {c} remaining={client.credits_remaining}")
     print(json.dumps({**totals, "spent": client.spent}, indent=2))
+    return 0
+
+
+def cmd_pilot(args: argparse.Namespace, root: Path, days: list[str]) -> int:
+    """§4.e pilot over the dense slates already on disk; --write fills the TODO-PILOT slots."""
+    rows: list[dict[str, object]] = []
+    deltas: list[float] = []
+    for d in days:
+        shards = quotes.read_day(root, SPORT, d)
+        if not any(q.pass_kind == "featured" and q.pass_id.startswith(history.HIST_PREFIX) for q in shards):
+            continue
+        rows += pilot.clv_rows(shards)
+        deltas += pilot.featured_deltas(shards)
+    width = dist.load_width()
+    scores: list[float] = []
+    if width is not None and args.closes:
+        with open(args.closes, newline="") as fh:
+            scores = pilot.log_scores(csv.DictReader(fh), width.sd_by_bucket["all"], start=args.start)
+    rep = pilot.summarize(rows, deltas, scores, cluster_inflation=card.prereg_scalar("cluster_inflation", 1.4))
+    print(json.dumps(rep, indent=2))
+    if args.write:
+        prereg = rep["prereg"]
+        assert isinstance(prereg, dict)
+        done = pilot.write_prereg(card.PREREG, prereg, note=f"{Date.today().isoformat()}, {len(rows)} quotes on {len(rep['days'])} dense slates")  # type: ignore[arg-type]
+        print(f"wrote {done} to {card.PREREG}")
     return 0
 
 
@@ -401,12 +429,14 @@ def build_parser() -> argparse.ArgumentParser:
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
     hi = sub.add_parser("history", help="§4.e: buy 2024-25 closes from the historical endpoint; export fit_width CSV")
-    hi.add_argument("action", choices=["plan", "pull", "export"])
+    hi.add_argument("action", choices=["plan", "pull", "export", "pilot"])
     hi.add_argument("--start", default="2024-11-04")
     hi.add_argument("--end", default="2025-04-07")
     hi.add_argument("--dense", nargs="*", help="slate dates that also get the 10-min featured grid from T-3h")
     hi.add_argument("--yes", action="store_true", help="actually spend credits (pull)")
     hi.add_argument("--out", default="closes_2024_25.csv")
+    hi.add_argument("--closes", help="pilot: fit_width CSV for the week-5 log-score sample")
+    hi.add_argument("--write", action="store_true", help="pilot: fill TODO-PILOT slots in preregistered.yaml")
     hi.set_defaults(func=cmd_history)
     ga = sub.add_parser("gaps", help="capture gaps per pass_kind + shard integrity")
     ga.add_argument("--date")
