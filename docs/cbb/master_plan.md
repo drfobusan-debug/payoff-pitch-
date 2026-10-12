@@ -154,10 +154,40 @@ outcomes**, not assumed:
    closes** — the market's prior, which L1 says is the best single number. Opening `w` for
    the market in November is expected to be *higher* than in February and is fitted per month.
 
-Variance opens wide and the Kalman update speed (`drift`) is **fitted per month**: a team's own
-games should overtake the prior after ~10–12 games if the published literature holds
-[HYPOTHESIS, fit]. The audit prints prior-vs-market Brier by game-number-in-season so the
-hand-off is visible.
+The six inputs are combined by `features/prior.py` into two numbers per team — an opening
+**mean** and an opening **variance** — and nothing else touches the Kalman state:
+
+* **Roster Continuity Index** (returning % of minutes, possessions used, and defensive
+  production — box plus-minus / block / steal rates — from Torvik player pages). High continuity
+  → last season's rating carries at the fitted r and the opening variance is small; low
+  continuity → the mean leans on inputs 3–6 and the variance opens.
+* **Transfer carry-over by level jump**: an incoming player's prior-level production is mapped
+  with a **fitted coefficient per (from-tier → to-tier)** — the hypothesis to test is ~65% for
+  mid-major → high-major and >100% for the reverse [HYPOTHESIS]; fitted on 2018–2025 portal
+  movers' before/after Torvik player ratings, never set by hand.
+* **NIL as a market proxy**: dollar figures are opaque and unverified, so NIL talent aggregation
+  enters only through **preseason futures** (devigged win totals, title odds, D2b) and the
+  **opening-night closes**, which already price it. This is the "market-implied" input and it is
+  expected to carry the largest November weight.
+* **Coaching change = variance, not mean**: a new coach does not predict better or worse, it
+  predicts *schematic change*. The engine (a) multiplies the opening variance by a fitted
+  `coach_change_var_mult` so early games update that team faster, and (b) **overrides the pace
+  prior with the coach's career pace at previous schools** (Torvik has every coach-season), so
+  a slow→fast change does not poison early totals. Both effects fitted on 2010–2025 coach
+  changes.
+* Recruiting and last-season regression as above; one source per quantity, so an absence,
+  transfer or coach cannot be counted twice.
+
+**Hand-off protocol.** The prior must not linger into winter. Hypothesis to fit: games 1–5 the
+prior carries ~75% of the team rating, games 6–10 it inverts, **from ~game 12 it is retired
+(prior weight → 0)** and the opponent-adjusted efficiency stands alone. In the Kalman spine this
+is the opening variance plus a per-month `drift`, so the schedule is an *output* of the fit on
+2010–2025, not a constant — if the fit says game 9 or game 15, that is what ships, and the
+number is printed in the docstring. The automated audit tracks the **hand-off decay curve** every
+week in November–December (prior-only vs rating-only vs market Brier by game number, §4.4) and
+flags a prior that is still winning past the fitted retirement point, or losing before it. The
+market anchor `w` (§3.7) is a separate, later blend and is *not* the prior: retiring the prior
+does not retire the market.
 
 ### 3.3 Player layer, regression, minutes
 
