@@ -1,10 +1,10 @@
 # MLB engine recode — master plan
 
-The live card stays the live card until an explicit cutover. This plan adds a
-shadow price beside it. The Monte Carlo keeps generating the distribution. The
-devigged market becomes the probability at the main line. A bet exists only
-where the shape around that line beats the market's own alternate on closing
-expected value, on a forward sample the fit has not seen.
+The live card stays the live card. This plan measures a shadow price beside it.
+The Monte Carlo keeps generating the distribution. An exponential tilt moves
+that distribution until the main line matches the devigged market. Phases 1–3
+buy nothing. The board this engine fetches has one line per selection, so there
+is no alternate for a gate to test, and the 200-row rule cannot clear in 2026.
 
 Labels: **[MEASURED]** the `engine-state` ledgers and the studies already in
 this tree · **[DEFAULT]** a starting rule, changed only by the review in §8 ·
@@ -41,11 +41,16 @@ the mean. It pins the main line and keeps the paths.
 
 ```
 shadow probability at the main line  =  devigged market probability
-shadow probability at an alternate   =  the sim distribution, shifted until
-                                         the main line matches, then read at
-                                         the alternate
+shadow read at a second line         =  the sim distribution, exponentially
+                                         tilted until the main line matches,
+                                         then read at that second line
 unshifted sim probability            =  a report column, weight 0
 ```
+
+A second line, in this plan, is another book's main line for the same
+selection. It is the cross-book check in §3. It is not an alternate rung, and
+it is not a bet. True alternates are separate Odds API market keys the client
+does not request (§5).
 
 `MARKET_ANCHOR_CAP` (0.90) does the reverse of this. It pulls a fitted weight of
 1.0 or 0.99 back to 0.90 so a 20-point disagreement can still buy
@@ -87,37 +92,72 @@ not tuned.
 
 ## 3. The pin
 
-For one market with a two-sided main line:
+The tilt is the model. A location shift and a mean rescale are different prices
+on a count that starts at 0, so the plan picks one and does not leave it as
+"shift along the support."
 
-1. The sim produces the empirical distribution of the statistic (runs, margin,
-   strikeouts, hits, walks, outs).
-2. The board produces one devigged probability at the main line, from the
-   two-sided quotes already in memory. A one-sided quote is not a pin. The row
-   is marked `unpinned` and cannot be a buy. One-way buys were the worse half
-   of the old book.
-3. The distribution is shifted along its own support until its probability on
-   the main-line side equals that devigged probability. Variance and skew move
-   only as the shift forces them to. The shift is recorded (`pin_shift`).
-4. Every other posted line in that market is read off the shifted distribution.
-   The difference between that read and the devigged price of the alternate is
-   the shape residual.
-5. The unshifted probability is stored as `model_prob`. Its weight is 0. It
-   does not enter expected value.
+The adjustment is an exponential tilt of the simulated histogram. For a
+one-constraint prop with count `k` and sim probability `p(k)`:
 
-A game total pinned at 8.5 has no bet at 8.5. The shadow bet, if one exists, is
-at 7.5 or 9.5 or whatever alternate the book posted, and only after §8. A
-moneyline pin leaves the run line as the shape: `P(margin = 1)` and
-`P(margin > 1.5)` given the pinned side and the pinned total. That residual is
-how the run line is priced. It starts at weight 0. Historical run-line `clv_ev`
-was about −1.4 cents [MEASURED].
+```
+p_λ(k)  ∝  p(k) · exp(λ · k)
+```
 
-A prop is pinned on its own line, not by shifting the final score and hoping the
-count follows. Strikeouts move onto the strikeout line. Walks move onto the walk
-line. The joint with the game total is kept from the same paths, so an alternate
-is still conditional on the game the totals pin just set.
+`λ` is solved so the tilted over probability at the main line equals the
+devigged market probability. The solve is one-dimensional and monotone. `λ` is
+what gets stored as `pin_shift`. The tilt stays on the sim's support, so a walk
+or a strikeout cannot go negative, and it stays on the integer lattice.
 
-The first five are the first five innings of those same paths, then pinned to
-the first-five market. There is one generator.
+A location shift is rejected because a count bounded at 0 either gains negative
+mass or, once that mass is cut off, no longer hits the market probability. A
+mean rescale is rejected because multiplying an integer count leaves the
+lattice unless a second rounding rule is invented. Those two are not shadowed.
+
+The moneyline and the total are two constraints on one joint, solved together.
+Phase 1 stores the home-run × away-run histogram (§9). The tilt is
+
+```
+p(h, a)  ∝  p_sim(h, a) · exp(λ_h · h + λ_a · a)
+```
+
+`λ_h` and `λ_a` are solved as a pair so the tilted total-over probability and
+the tilted home-win probability match the two devigged main lines at once.
+Equivalently, one parameter tilts the sum and the other tilts the margin. The
+sim's dependence between the two teams is the base measure. Independent
+one-dimensional shifts of home runs and away runs are not used, because they
+throw that dependence away and the run line is the dependence.
+
+A full-game moneyline is two-way, so the win constraint is
+`P(home > away) / (P(home > away) + P(away > home))`. Tie mass in the histogram
+stays in the histogram. The first five, which the books price with a tie, use
+the three-way probabilities the same pair of tilts produces. If no pair can hit
+both targets, the game is `unpinned`.
+
+For a prop, the stored joint is that prop's count × the full-game total. The
+prop's own `λ` is solved on the count. The total axis keeps the total-tilt
+already solved on the home × away histogram, so the prop read is conditional on
+the pinned game rather than on a second, conflicting total. A prop whose main
+line cannot be hit on its support is `unpinned`.
+
+What the tilted distribution is read against, in this plan, is the other line
+already on the board: a second book's main number for the same selection. Pin
+to the consensus line, read the tilted probability at the other book's line,
+and store the gap against that book's own devigged price as `cross_book_gap`.
+That is the test of the tilt, and it runs before any forward block. A second
+book's main line is the soft-book difference the summer props already lost. It
+is a measurement column. It is not an alternate, and it does not enter a bet.
+
+The run line is read off the tilted home × away joint:
+`P(margin > 1.5)` against the posted run line. That residual is a column.
+Historical run-line `clv_ev` was about −1.4 cents [MEASURED]. It is not a buy
+in this plan.
+
+The unshifted probability is stored as `model_prob`. Its weight is 0. A
+one-sided quote is not a pin. The row is `unpinned`.
+
+The first five are the first five innings of the same paths, stored as their
+own home × away histogram, then tilted to the first-five moneyline and total.
+There is one generator.
 
 ---
 
@@ -162,15 +202,40 @@ backfilled. The shadow sample starts the day the tape starts.
 
 ## 5. Markets
 
-| Market | Shadow price | Buy |
+The client requests `_GAME_MARKETS` (`h2h`, `spreads`, `totals`), `_F5_MARKETS`
+(the three first-five keys), and `DEFAULT_PROP_MARKETS`
+(`mlb_engine/data/oddsapi.py`). One region, `us`. The vendor bills market keys
+times regions, and a market that returns no book is not billed. The stored
+board keeps one line per selection. On a live slate the game total, moneyline,
+run line, walks, earned runs, outs, and pitcher hits each have a single line.
+A second number, when one appears, is another book's main line — a 6.5 at one
+book beside a 7.5 everywhere else — not a ladder.
+
+The vendor does publish alternate keys. They are not requested, and this plan
+does not add them:
+
+| Key | What it would add | Where it is billed |
 |---|---|---|
-| Game total, F5 total | Pin the main line. Alts from the shifted run distribution. | Main line never. An alt only after §8. |
-| Moneyline, F5 moneyline | Pin. No alternate exists. | No buy. The pin is the price. |
-| Run line, F5 run line | Conditional margin from the pinned moneyline and total. | Weight 0 until §8. |
-| Pitcher K, outs, hits, walks, ER | Pin each prop's own main line. Alts from that prop's shifted counts. | Main line never. Alts after §8. |
+| `alternate_spreads`, `alternate_totals` | Full-game run-line and total ladders | The bulk odds request, two extra keys |
+| `alternate_spreads_1st_5_innings`, `alternate_totals_1st_5_innings` | First-five ladders | Per event |
+| `pitcher_strikeouts_alternate`, `pitcher_outs_alternate`, `pitcher_hits_allowed_alternate`, `pitcher_walks_alternate`, `pitcher_earned_runs_alternate` | Pitcher ladders | Per event, one credit per key per game at `regions=us` |
+| `batter_hits_alternate`, `batter_total_bases_alternate`, `batter_home_runs_alternate`, `batter_hits_runs_rbis_alternate`, and the rest of the `*_alternate` batter keys | Batter ladders | Per event, same billing |
+
+A 15-game slate that added one pitcher-alternate key would spend about 15
+credits a pass on top of the props it already buys. Adding the batter set
+multiplies that by the number of keys. That spend is a later decision, with
+its own plan, after the tilt has been scored on the cross-book gaps that
+already exist. It is not part of Phases 1–3.
+
+| Market | What the shadow records | Buy in this plan |
+|---|---|---|
+| Game total, F5 total | Tilt the joint onto the main line. | None. No alternate total is fetched. |
+| Moneyline, F5 moneyline | The same joint tilt, second constraint. | None. The pin is the price. |
+| Run line, F5 run line | `P(margin)` off that joint, against the one posted line. | None. One line is not a rung. |
+| Pitcher K, outs, hits, walks, ER | One-parameter tilt on the count, total axis held from the game tilt. | None. |
 | Batter hits, HR, HRR, runs, total bases | Graded, not bought. | No-buy list, already live. |
-| Singles, RBI | Graded, not bought, at cutover. | Floors left no pocket [MEASURED]. Live list unchanged until Phase 4. |
-| Doubles, batter walks | Pinned and graded. | The 0.61 and 0.90 coefficients do not carry. |
+| Singles, RBI | Graded. | No-buy at a future cutover. Floors left no pocket: singles −8.9% on 424, RBI −11.0% on 403 [MEASURED]. The live list is unchanged. |
+| Doubles, batter walks | Tilted and graded. | The 0.61 and 0.90 coefficients do not carry. |
 
 The old anchors are recorded as named hypotheses (`game_total` 0.78,
 `pitcher_bb` 0.50, `pitcher_h` 0.81, `batter_2b` 0.61). Each is a shadow column:
@@ -178,11 +243,12 @@ the unshifted sim, shrunk by that alpha, scored on `clv_ev` against the pin.
 None of them is the price. Refitting them on the ledger they were fit on is
 forbidden. The shrink study already did that through 2026-09-09.
 
-A shape bet has to clear the same screens the card uses today for a real quote:
-two-sided line, price ceiling, and the edge measured against the **alternate's**
-devigged price, not against the main line the pin already matched. `min_edge`
-stays 0.02 [DEFAULT]. Lowering it to refill the card is the change the cap
-replay already rejected: at a 0.80 cap the added buys came back with the loss.
+There is no shape bet in this plan, so `min_edge` is not applied to one.
+`min_edge` stays 0.02 on the live card [DEFAULT]. Lowering it to refill that
+card is the change the cap replay already rejected: at a 0.80 cap the added
+buys came back with the loss. If a later plan fetches the alternate keys
+above, a rung would be screened against that rung's own devigged price, not
+against the main line the tilt already matched.
 
 Strong and Moderate stay a rank of fair probability for display. They do not
 change stake. The ledger's Strong-versus-Moderate gap is mostly the old edge
@@ -224,18 +290,19 @@ the tape fills it forward. The historical blanks are not invented.
 
 The morning report opens on three lines:
 
-1. `clv_ev` in cents, with the date-clustered 95% interval, and the count.
-2. ROI on decided shadow bets, with the same clustered interval. Empty when
-   nothing was bought, which is the expected state.
-3. The pin health: mean `pin_shift` by market, and the share of sim medians that
-   sat above the posted total. A shift that stays near +1 run on totals is the
-   sim staying hot, which is a reason to keep the weight at 0.
+1. `clv_ev` on the live card, in cents, with the date-clustered 95% interval
+   and the count. The quarantine count sits on this line.
+2. `cross_book_gap`: the tilted probability at the other book's line, minus
+   that book's devigged price. This is the tilt's test. It is empty of bets.
+3. Pin health: mean `λ` by market, and the share of sim medians that sat above
+   the posted total. A totals tilt that stays near a run hot is the sim staying
+   hot, which keeps the weight at 0.
 
-Under those, in this order: shape-residual mean at the alternates, worksheet gap
-versus the implied probability, totals SUM versus the line, and the unshifted
-sim's Brier against the market's Brier. The 57% "beat the close" rate is a
-footnote under the CLV definition, not the headline. PPV and NPV stay in the
-workbook and leave the first screen.
+Under those: the run-line residual off the tilted joint, worksheet gap versus
+the implied probability, totals SUM versus the line, and the unshifted sim's
+Brier against the market's Brier. The 57% "beat the close" rate is a footnote
+under the CLV definition, not the headline. PPV and NPV stay in the workbook
+and leave the first screen.
 
 A quarantined close is counted in the tape and omitted from every CLV line. The
 report prints the quarantine count.
@@ -244,10 +311,15 @@ report prints the quarantine count.
 
 ## 8. When a weight may leave zero
 
+Nothing in this plan leaves zero. The gate is written down so a later plan
+cannot invent a softer one, and so it is obvious that 2026 cannot reach it.
+
 A market, or one alternate rung inside a market, leaves weight 0 only when all
 of these hold on rows the hypothesis did not see:
 
-- At least **200** decided forward rows [DEFAULT].
+- The alternate keys in §5 are actually on the tape. A cross-book main line
+  does not count as a rung.
+- At least **200** decided forward rows of that rung [DEFAULT].
 - The date-clustered 95% interval for `clv_ev` lies entirely above 0.
 - The same interval computed on the main-line pin alone does not. A rung that
   wins because the main line moved is a level bet in disguise, and the level
@@ -255,61 +327,78 @@ of these hold on rows the hypothesis did not see:
 - The review is a person reading that block. The script prints the interval and
   does not write a new weight by itself.
 
-Until then the shipped weight is 0, the bet probability at the main line is the
-market, and the card buys nothing in that market. That is the October card, on
-purpose.
-
-The block is four weeks or 200 rows, whichever comes later. A single slate
-cannot clear it. The old ledger cannot clear it either.
+The 2026 postseason is a handful of games. The regular season that produced
+the summer book is over, and October has zero buys. Even if the alternate keys
+were turned on tomorrow, one rung a slate does not reach 200 decided rows in
+a market this year. The gate is a 2027 rule. The old ledger cannot clear it
+either. Until a later plan fetches the alternates and that block exists, the
+shipped weight is 0 and the card buys nothing new.
 
 ---
 
 ## 9. Phases
 
-Each phase is a separate change. Phases 1–3 do not change a tier, a stake, or a
-cell on the card.
+Each phase is a separate change. Phases 1–3 are measurement. They do not change
+a tier, a stake, or a cell on the card, and they do not open a buy.
 
-### Phase 1 — Write what the run already has
+### Phase 1 — Tape and close quarantine
 
-One write-only hook after the simulation and after the board is in memory.
-It appends the quote tape (§4) and the sim histograms (counts by market, not the
-20,000 paths). Pricing does not read either file. No new Odds API request. No
-change to `model_prob`, `bet_prob`, or tier.
+Its own change, and worth shipping whatever happens to the tilt. One write-only
+hook after the board is in memory appends the quote tape (§4) and quarantines
+a close under the 15-point rule. No new Odds API request. No histogram yet. No
+change to `model_prob`, `bet_prob`, or tier. The live card does not read the
+tape.
 
-The histograms are enough to rebuild the pin without a second simulation, so
-the shadow and the card are looking at the same paths.
+### Phase 2 — Joint histograms and the tilt
 
-### Phase 2 — `mlb-engine shadow`
+A second write-only hook, after the simulation, stores histograms rather than
+the 20,000 paths. Per-market one-dimensional counts are not enough: the run
+line needs the home × away joint, and a prop conditional on the total needs
+count × total. Stored once per game: the full-game home × away histogram, the
+first-five home × away histogram, and each priced prop's count × the full-game
+total.
+`mlb-engine shadow` reads the tape and those histograms, applies the tilt in
+§3, and writes `shadow_ledger.csv`. It does not call `classify` and it does
+not send a card. Columns include `model_prob`, `fair_prob`, `pin_shift` (the
+solved `λ`, or the pair `λ_h`, `λ_a`), `cross_book_gap`, `worksheet_gap`,
+`totals_sum`, and the quarantine flag. The live card does not read the
+histograms.
 
-A command that reads the tape and the histograms and writes
-`shadow_ledger.csv`. It applies §3. It does not call `classify`. It does not
-send a card. Columns include `model_prob`, `fair_prob`, `pin_shift`,
-`shape_residual` at each posted alternate, `worksheet_gap`, `totals_sum`, and
-the quarantine flag.
+The cross-book gap is scored in this phase, before any talk of a forward
+block. That is the test that the tilt prices a second line the way the books
+already space their main numbers.
 
 ### Phase 3 — Grade the shadow
 
 The morning audit gains the §7 block, fed by the shadow ledger and the tape.
 The existing PPV report is left in place so the live card's receipt does not
-move. Shadow rows that were not bought are still graded, because the thing
-being measured is the residual, not a ticket.
+move. Every shadow row is graded, and none of them is a ticket. The report
+says the gate is shut.
 
-### Phase 4 — Cutover, only when asked
+### Alternates — a later plan, not a phase of this one
 
-After a market clears §8, that market's bet probability becomes the shifted
-distribution at the alternate that cleared, and the main line stays the market.
-Markets that have not cleared stay pinned and unbought. Singles and RBI join
-the no-buy list in this same change. The Markov chain leaves the first-five
-price. `anchor_to_market` leaves the bet path.
+A buy waits on the keys in §5 being requested, priced, and stored as ladders
+rather than as a second book's main line. That decision names the credit cost
+and comes after the cross-book test has been read. This plan does not make it.
 
-Phase 4 is not implied by shipping Phases 1–3. It waits for an explicit ask
-and for a market whose interval has cleared. If none clears, the live card
-remains the live card and the shadow remains the record.
+### Phase 4 — Cutover, only when asked, and not in 2026
+
+After the alternate keys are on the tape and a rung clears §8, that rung's
+price can become a bet, and the main line stays the market. Singles and RBI
+join the no-buy list in that same change. The Markov chain leaves the
+first-five price. `anchor_to_market` leaves the bet path.
+
+Phase 4 is not implied by shipping Phases 1–3. It waits for an explicit ask,
+for the alternate fetch, and for a 200-row forward block. That block is a
+2027 event. If none of it happens, the live card remains the live card and
+the shadow remains the record.
 
 ---
 
 ## 10. What this plan will not do
 
+- It will not add `alternate_spreads`, `alternate_totals`, or any `*_alternate`
+  prop key. A second book's main line is not treated as a rung.
 - It will not spend Odds API credits to reprice the summer.
 - It will not build a plate-appearance warehouse. The missing store is the
   quote tape.
@@ -327,8 +416,8 @@ remains the live card and the shadow remains the record.
 
 ## 11. Workflow
 
-The chart is the pricing path. The grey band at the bottom is the live card,
-which does not read the shadow until Phase 4.
+The chart is the measurement path. The gate is shut. The grey band at the
+bottom is the live card, which does not read the shadow.
 
 ![MLB recode workflow](recode_workflow.png)
 
@@ -337,32 +426,35 @@ The editable chart is [`recode_workflow.svg`](recode_workflow.svg).
 ```mermaid
 flowchart TD
   rates["Frozen rate stack<br/>Statcast, pen, park, weather, lineup"]
-  board["Board already fetched<br/>both sides, every book"]
+  board["Board already fetched<br/>one line per selection"]
   sheets["Worksheet gap<br/>Totals SUM"]
 
   rates --> log5["log5 plate-appearance rates"]
   log5 --> mc["Monte Carlo paths<br/>game, first five, props"]
-  mc --> hist["Histograms written<br/>pricing does not read them"]
+  mc --> hist["2D histograms<br/>home x away, prop x total<br/>the live card does not read them"]
   chain["Markov chain"] --> check["Half-inning check<br/>not a price"]
 
-  board --> tape["Quote tape<br/>no extra API call"]
+  board --> tape["Quote tape and close quarantine<br/>no extra API call"]
   tape --> devig["Devig the main line<br/>both sides required"]
-  hist --> pin["Pin<br/>shifted sim matches the main line"]
+  hist --> pin["Exponential tilt<br/>one lambda for a prop<br/>lambda home and lambda away together"]
   devig --> pin
 
-  pin --> shape["Shape at the alternates<br/>width, one-run margin, prop rungs"]
+  pin --> shape["Cross-book read<br/>score the other book's main line<br/>not a bet"]
   pin --> raw["Unshifted sim probability<br/>weight 0"]
+  pin --> coef["Old coefficients<br/>0.78 total, 0.50 walks<br/>scored, not shipped"]
   sheets --> report["Report columns<br/>weight 0"]
   raw --> report
+  coef --> report
 
-  shape --> gate{"Forward clv_ev interval<br/>entirely above 0<br/>on 200 rows the fit has not seen"}
-  gate -->|no| nobuy["No buy<br/>main line stays the market"]
-  gate -->|that rung only| buy["Buy the alternate"]
-  nobuy --> audit["Morning audit<br/>clv_ev, clustered ROI, pin shift"]
-  buy --> audit
+  shape --> gate{"Gate shut<br/>no alternate keys on the board<br/>200 forward rows is a 2027 rule"}
+  gate --> measure["Measurement only<br/>Phases 1 to 3 buy nothing"]
+  measure --> audit["Morning audit<br/>clv_ev, cross-book gap, pin shift"]
   report --> audit
   audit --> grade["Grade close and result"]
-  grade --> gate
+  grade --> pin
 
-  live["Live card until an explicit cutover<br/>sim, isotonic map, 0.90 cap, EV screen"]
+  later["A buy waits on a later plan<br/>alternate_totals, alternate_spreads,<br/>and the _alternate prop keys"]
+  gate -.-> later
+
+  live["Live card does not read the shadow<br/>sim, isotonic map, 0.90 cap, EV screen"]
 ```
