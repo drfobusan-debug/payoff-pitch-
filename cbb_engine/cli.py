@@ -14,8 +14,8 @@ import sys
 from datetime import date as Date
 from datetime import datetime, timezone
 
-from cbb_engine import audit, cadence, card, email
-from cbb_engine.config import SPORT, SPORT_KEY, data_dir, load_config, runtime_root
+from cbb_engine import audit, cadence, card, email, study
+from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
 from cbb_engine.models import distribution as dist
@@ -222,6 +222,9 @@ def cmd_price(args: argparse.Namespace) -> int:
     if priced is None:
         print(f"{day}: no board shard to price")
         return 1
+    if dry_run():
+        args.dry_run = True
+        print("CBBE_DRY_RUN=1: no ledger rows, no email")
     if not args.dry_run:
         ledger.write_once(root, SPORT, day.isoformat(), ps.pass_id, priced.rows)
     text = card.render(priced.rows)
@@ -248,7 +251,12 @@ def cmd_audit(args: argparse.Namespace) -> int:
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
     rungs = ["v0_shape", "foul_redistribution", "half_correlation", "blend_shift", "availability_residual"]
-    text = audit.render(audit.report(rows, rungs, quotes.read_day(root, SPORT, day.isoformat())))
+    shards = quotes.read_day(root, SPORT, day.isoformat())
+    rep = audit.report(rows, rungs, shards)
+    if args.time_travel:
+        stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
+        rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
+    text = audit.render(rep)
     out = data_dir() / "audit" / f"{day.isoformat()}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
@@ -284,6 +292,18 @@ def cmd_gaps(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_study(args: argparse.Namespace) -> int:
+    """Tape-only studies: `funnel` (gate survival by market x bucket) and `featured` (cut 10)."""
+    day = _parse_date(args.date)
+    root = runtime_root()
+    rows = list(ledger.record(root, SPORT, day.isoformat()).values())
+    if args.which == "funnel":
+        print(json.dumps(study.funnel(rows), indent=2))
+    else:
+        print(json.dumps(study.featured_value(rows, quotes.read_day(root, SPORT, day.isoformat())), indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="cbb-engine", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -313,9 +333,14 @@ def build_parser() -> argparse.ArgumentParser:
     au = sub.add_parser("audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views")
     au.add_argument("--date")
     au.add_argument("--offline", action="store_true", help="no ESPN call; CLV only")
+    au.add_argument("--time-travel", action="store_true", help="§4.y: flag any input stamped after the slate day")
     au.add_argument("--email", action="store_true")
     au.add_argument("--to")
     au.set_defaults(func=cmd_audit)
+    st = sub.add_parser("study", help="gate funnel / featured-pass value (cut 10) from the tape")
+    st.add_argument("which", choices=["funnel", "featured"])
+    st.add_argument("--date")
+    st.set_defaults(func=cmd_study)
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
