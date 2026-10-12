@@ -14,7 +14,7 @@ import sys
 from datetime import date as Date
 from datetime import datetime, timezone
 
-from cbb_engine import audit, cadence, card, email, study
+from cbb_engine import audit, cadence, card, checklist, email, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -256,7 +256,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if args.time_travel:
         stamps = [("quote", q.captured_at) for q in shards] + [("row", r.tip_utc) for r in rows]
         rep["time_travel_violations"] = study.time_travel(day.isoformat(), stamps)
-    text = audit.render(rep)
+    text = checklist.render(checklist.run(load_config(), root, day.isoformat())) + "\n\n" + audit.render(rep)
     out = data_dir() / "audit" / f"{day.isoformat()}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
@@ -304,6 +304,13 @@ def cmd_study(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_checklist(args: argparse.Namespace) -> int:
+    day = _parse_date(args.date)
+    items = checklist.run(load_config(), runtime_root(), day.isoformat(), daily_credits=args.daily_credits)
+    print(checklist.render(items))
+    return 0 if all(i.ok for i in items) else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="cbb-engine", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -341,6 +348,10 @@ def build_parser() -> argparse.ArgumentParser:
     st.add_argument("which", choices=["funnel", "featured"])
     st.add_argument("--date")
     st.set_defaults(func=cmd_study)
+    ck = sub.add_parser("checklist", help="Phase 0b go/no-go items, pass/fail; exit 1 on any fail")
+    ck.add_argument("--date")
+    ck.add_argument("--daily-credits", type=int, help="credit limit the budget must fit under")
+    ck.set_defaults(func=cmd_checklist)
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
