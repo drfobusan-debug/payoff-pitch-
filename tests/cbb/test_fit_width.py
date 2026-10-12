@@ -17,4 +17,5 @@ def test_key_mass_fires_on_spike_only():
     base = [round(rng.gauss(145, 16)) for _ in range(3000)]
     assert fit_width.fit(_rows(base))["key_mass"] == {}
     spiked = base + [145] * 150
-    assert "145" in fit_width.fit(_rows(spiked))["key_mass"]
+    km = fit_width.fit(_rows(spiked))["key_mass"]
+    assert isinstance(km, dict) and "145" in km
