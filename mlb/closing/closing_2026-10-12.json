@@ -16,6 +16,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_1b",
+    "selection": "Ben Williamson 1B o0.5",
+    "american": 107.0,
+    "no_vig_prob": 0.45602
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
+    "selection": "Ben Williamson 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.54398
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
     "selection": "Brayan Rocchio 1B o0.5",
     "american": 135.0,
     "no_vig_prob": 0.403056
@@ -156,6 +170,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_1b",
+    "selection": "Nick Fortes 1B o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
+    "selection": "Nick Fortes 1B u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
     "selection": "Patrick Bailey 1B o0.5",
     "american": 168.0,
     "no_vig_prob": 0.360825
@@ -166,6 +194,20 @@
     "selection": "Patrick Bailey 1B u0.5",
     "american": -200.0,
     "no_vig_prob": 0.639175
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
+    "selection": "Petey Halpin 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.396063
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
+    "selection": "Petey Halpin 1B u0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.603937
   },
   {
     "matchup": "CLE @ TB",
@@ -278,6 +320,20 @@
     "selection": "Angel Martinez 2B u0.5",
     "american": -750.0,
     "no_vig_prob": 0.84148
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Ben Williamson 2B o0.5",
+    "american": 680.0,
+    "no_vig_prob": 0.146473
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Ben Williamson 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.853527
   },
   {
     "matchup": "CLE @ TB",
@@ -422,6 +478,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_2b",
+    "selection": "Nick Fortes 2B o0.5",
+    "american": 550.0,
+    "no_vig_prob": 0.144737
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Nick Fortes 2B u0.5",
+    "american": -1000.0,
+    "no_vig_prob": 0.855263
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
     "selection": "Patrick Bailey 2B o0.5",
     "american": 600.0,
     "no_vig_prob": 0.136134
@@ -432,6 +502,20 @@
     "selection": "Patrick Bailey 2B u0.5",
     "american": -990.0,
     "no_vig_prob": 0.863866
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Petey Halpin 2B o0.5",
+    "american": 670.0,
+    "no_vig_prob": 0.14724
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Petey Halpin 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.85276
   },
   {
     "matchup": "CLE @ TB",
@@ -544,6 +628,20 @@
     "selection": "Angel Martinez BB u0.5",
     "american": -680.0,
     "no_vig_prob": 0.822904
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Ben Williamson BB o0.5",
+    "american": 334.0,
+    "no_vig_prob": 0.229065
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Ben Williamson BB u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.770935
   },
   {
     "matchup": "CLE @ TB",
@@ -688,6 +786,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_bb",
+    "selection": "Petey Halpin BB o0.5",
+    "american": 408.0,
+    "no_vig_prob": 0.185408
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Petey Halpin BB u0.5",
+    "american": -640.0,
+    "no_vig_prob": 0.814592
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
     "selection": "Richie Palacios BB o0.5",
     "american": 300.0,
     "no_vig_prob": 0.23834
@@ -796,6 +908,34 @@
     "selection": "Angel Martinez H+R+RBI u0.5",
     "american": 125.0,
     "no_vig_prob": 0.427025
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.582956
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.410123
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417044
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.589877
   },
   {
     "matchup": "CLE @ TB",
@@ -926,6 +1066,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI o0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.583426
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Nick Fortes H+R+RBI u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416574
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
     "selection": "Patrick Bailey H+R+RBI o0.5",
     "american": -120.0,
     "no_vig_prob": 0.522196
@@ -936,6 +1090,20 @@
     "selection": "Patrick Bailey H+R+RBI u0.5",
     "american": 100.0,
     "no_vig_prob": 0.477804
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.522406
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI u0.5",
+    "american": -103.0,
+    "no_vig_prob": 0.477594
   },
   {
     "matchup": "CLE @ TB",
@@ -1055,6 +1223,20 @@
     "selection": "Angel Martinez HR o0.5",
     "american": 850.0,
     "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Ben Williamson HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Ben Williamson HR o1.5",
+    "american": 35000.0,
+    "no_vig_prob": 0.002849
   },
   {
     "matchup": "CLE @ TB",
@@ -1192,6 +1374,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Nick Fortes HR o0.5",
+    "american": 1300.0,
+    "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Nick Fortes HR o1.5",
+    "american": 50000.0,
+    "no_vig_prob": 0.001996
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Patrick Bailey HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.100251
@@ -1202,6 +1398,13 @@
     "selection": "Patrick Bailey HR o1.5",
     "american": 16000.0,
     "no_vig_prob": 0.006211
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Petey Halpin HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
   },
   {
     "matchup": "CLE @ TB",
@@ -1314,6 +1517,20 @@
     "selection": "Angel Martinez H u0.5",
     "american": 104.0,
     "no_vig_prob": 0.470133
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Ben Williamson H o0.5",
+    "american": -136.0,
+    "no_vig_prob": 0.555692
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Ben Williamson H u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.444308
   },
   {
     "matchup": "CLE @ TB",
@@ -1458,6 +1675,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_h",
+    "selection": "Nick Fortes H o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.511329
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Nick Fortes H u0.5",
+    "american": -103.0,
+    "no_vig_prob": 0.488671
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
     "selection": "Patrick Bailey H o0.5",
     "american": -101.0,
     "no_vig_prob": 0.478786
@@ -1468,6 +1699,20 @@
     "selection": "Patrick Bailey H u0.5",
     "american": -120.0,
     "no_vig_prob": 0.521214
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Petey Halpin H o0.5",
+    "american": -109.0,
+    "no_vig_prob": 0.505452
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Petey Halpin H u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.494548
   },
   {
     "matchup": "CLE @ TB",
@@ -1570,6 +1815,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_h",
+    "selection": "Yandy Diaz H u0.5",
+    "american": 203.0,
+    "no_vig_prob": 0.310159
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
     "selection": "Yandy Diaz H u1.5",
     "american": -263.0,
     "no_vig_prob": 0.681365
@@ -1587,6 +1839,20 @@
     "selection": "Angel Martinez RBI u0.5",
     "american": -375.0,
     "no_vig_prob": 0.75809
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Ben Williamson RBI o0.5",
+    "american": 361.0,
+    "no_vig_prob": 0.227048
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Ben Williamson RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.772952
   },
   {
     "matchup": "CLE @ TB",
@@ -1731,6 +1997,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_rbi",
+    "selection": "Nick Fortes RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.234043
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Nick Fortes RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.765957
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
     "selection": "Patrick Bailey RBI o0.5",
     "american": 352.0,
     "no_vig_prob": 0.215125
@@ -1741,6 +2021,20 @@
     "selection": "Patrick Bailey RBI u0.5",
     "american": -500.0,
     "no_vig_prob": 0.784875
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Petey Halpin RBI o0.5",
+    "american": 363.0,
+    "no_vig_prob": 0.218627
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Petey Halpin RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.781373
   },
   {
     "matchup": "CLE @ TB",
@@ -1853,6 +2147,20 @@
     "selection": "Angel Martinez R u0.5",
     "american": -325.0,
     "no_vig_prob": 0.722312
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Ben Williamson R o0.5",
+    "american": 234.0,
+    "no_vig_prob": 0.290518
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Ben Williamson R u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.709482
   },
   {
     "matchup": "CLE @ TB",
@@ -1997,6 +2305,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_r",
+    "selection": "Nick Fortes R o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.300752
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Nick Fortes R u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.699248
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
     "selection": "Patrick Bailey R o0.5",
     "american": 250.0,
     "no_vig_prob": 0.270463
@@ -2007,6 +2329,20 @@
     "selection": "Patrick Bailey R u0.5",
     "american": -350.0,
     "no_vig_prob": 0.729537
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Petey Halpin R o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.271773
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Petey Halpin R u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.728227
   },
   {
     "matchup": "CLE @ TB",
@@ -2123,6 +2459,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_tb",
+    "selection": "Ben Williamson TB o0.5",
+    "american": -138.0,
+    "no_vig_prob": 0.561245
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Ben Williamson TB u0.5",
+    "american": 118.0,
+    "no_vig_prob": 0.438755
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
     "selection": "Brayan Rocchio TB o0.5",
     "american": -114.0,
     "no_vig_prob": 0.505296
@@ -2179,9 +2529,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_tb",
+    "selection": "Jonathan Aranda TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.620253
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
     "selection": "Jonathan Aranda TB o1.5",
     "american": 146.0,
     "no_vig_prob": 0.38584
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Jonathan Aranda TB u0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.379747
   },
   {
     "matchup": "CLE @ TB",
@@ -2263,6 +2627,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_tb",
+    "selection": "Nick Fortes TB o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.505018
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Nick Fortes TB u0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.494982
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
     "selection": "Patrick Bailey TB o0.5",
     "american": -104.0,
     "no_vig_prob": 0.480904
@@ -2273,6 +2651,20 @@
     "selection": "Patrick Bailey TB u0.5",
     "american": -122.0,
     "no_vig_prob": 0.519096
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Petey Halpin TB o0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.509574
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Petey Halpin TB u0.5",
+    "american": -105.0,
+    "no_vig_prob": 0.490426
   },
   {
     "matchup": "CLE @ TB",
@@ -2466,9 +2858,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": 102.0,
+    "no_vig_prob": 0.471204
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
     "selection": "Under 6.5",
     "american": 102.0,
     "no_vig_prob": 0.479785
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": -125.0,
+    "no_vig_prob": 0.528796
   },
   {
     "matchup": "CLE @ TB",
