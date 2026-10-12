@@ -363,17 +363,21 @@ def cmd_pilot(args: argparse.Namespace, root: Path, days: list[str]) -> int:
     """§4.e pilot over the dense slates already on disk; --write fills the TODO-PILOT slots."""
     rows: list[dict[str, object]] = []
     deltas: list[float] = []
+    width = dist.load_width()
+    if width is None:
+        print("width.json not fitted; run scripts.cbb.fit_width first")
+        return 2
+    sd = width.sd_by_bucket["all"]
     for d in days:
         shards = quotes.read_day(root, SPORT, d)
         if not any(q.pass_kind == "featured" and q.pass_id.startswith(history.HIST_PREFIX) for q in shards):
             continue
-        rows += pilot.clv_rows(shards)
-        deltas += pilot.featured_deltas(shards)
-    width = dist.load_width()
+        rows += pilot.clv_rows(shards, sd)
+        deltas += pilot.featured_deltas(shards, sd)
     scores: list[float] = []
-    if width is not None and args.closes:
+    if args.closes:
         with open(args.closes, newline="") as fh:
-            scores = pilot.log_scores(csv.DictReader(fh), width.sd_by_bucket["all"], start=args.start)
+            scores = pilot.log_scores(csv.DictReader(fh), sd, start=args.start)
     rep = pilot.summarize(rows, deltas, scores, cluster_inflation=card.prereg_scalar("cluster_inflation", 1.4))
     print(json.dumps(rep, indent=2))
     if args.write:

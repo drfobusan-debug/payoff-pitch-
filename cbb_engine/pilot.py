@@ -16,7 +16,7 @@ from collections.abc import Iterable, Sequence
 from datetime import date as Date
 from datetime import timedelta
 from pathlib import Path
-from statistics import mean, pstdev
+from statistics import NormalDist, mean, pstdev
 
 from cbb_engine import study
 from cbb_engine.history import HIST_PREFIX, _parse
@@ -40,29 +40,59 @@ def cents(row: dict[str, object]) -> float:
     return float(v)
 
 
-def clv_rows(shards: Sequence[Quote]) -> list[dict[str, object]]:
+def close_mus(shards: Sequence[Quote], sd: float) -> dict[str, float]:
+    """Fair close total per event: the paired close anchor nearest the consensus line, shifted by its
+    devigged Over lean under N(·, sd)."""
+    by_event: dict[str, list[Quote]] = defaultdict(list)
+    for q in shards:
+        if q.pass_kind != "close" or not q.pass_id.startswith(HIST_PREFIX) or q.market != LIVE_MARKET:
+            continue
+        tip, cap = _parse(q.tip_utc), _parse(q.captured_at)
+        if tip is not None and cap is not None and cap < tip:
+            by_event[q.event_id].append(q)
+    mus: dict[str, float] = {}
+    for eid, qs in by_event.items():
+        last = max(q.pass_id for q in qs)
+        anchors = consensus.build([q for q in qs if q.pass_id == last])
+        line = consensus.consensus_line(anchors, eid, LIVE_MARKET)
+        if line is None:
+            continue
+        priced = [a for a in anchors if a.line is not None and a.paired_books and "over" in a.p_fair]
+        if not priced:
+            continue
+        a = min(priced, key=lambda a: (abs((a.line or 0.0) - line), -a.paired_books))
+        p_over = min(max(a.p_fair["over"], 1e-6), 1 - 1e-6)
+        mus[eid] = (a.line or 0.0) + sd * NormalDist().inv_cdf(p_over)
+    return mus
+
+
+def p_close(mu: float, sd: float, side: str, line: float) -> float:
+    """P(side wins | no push) at `line` under N(mu, sd) on integer totals."""
+    nd = NormalDist(mu, sd)
+    if line == int(line):
+        over, under = 1 - nd.cdf(line + 0.5), nd.cdf(line - 0.5)
+    else:
+        over, under = 1 - nd.cdf(line), nd.cdf(line)
+    return (over if side == "over" else under) / max(over + under, 1e-12)
+
+
+def clv(mu: float, sd: float, side: str, line: float, american: float) -> float:
+    return (p_close(mu, sd, side, line) - _implied(american)) * 100
+
+
+def clv_rows(shards: Sequence[Quote], sd: float) -> list[dict[str, object]]:
     """One row per execution quote on a hist featured pass: its consensus CLV vs the game's close.
 
-    CLV is `(p_fair_close(side, same line) - implied(bet price)) * 100` cents; a quote whose
-    line is not on the close pass is skipped rather than priced across lines. `stale` is the
-    §3.7 flag against the previous featured pass; `held_next` says the same (line, price) was
+    CLV is `(p_close(side, bet line) - implied(bet price)) * 100` cents, where `p_close` is the
+    fair close total (`close_mus`) read at the bet's own line through the fitted width — so a
+    line move counts, not only a price move. Games with no pre-tip close are skipped. `stale` is
+    the §3.7 flag against the previous featured pass; `held_next` says the same (line, price) was
     still posted by that book on the next featured pass.
     """
     feat = [q for q in shards if q.pass_kind == "featured" and q.pass_id.startswith(HIST_PREFIX)]
-    close = [q for q in shards if q.pass_kind == "close" and q.pass_id.startswith(HIST_PREFIX)]
-    if not feat or not close:
+    mus = close_mus(shards, sd)
+    if not feat or not mus:
         return []
-    close_by_event: dict[str, list[Quote]] = defaultdict(list)
-    for q in close:
-        tip, cap = _parse(q.tip_utc), _parse(q.captured_at)
-        if tip is not None and cap is not None and cap < tip:
-            close_by_event[q.event_id].append(q)
-    close_fair: dict[tuple[str, float | None, str], float] = {}
-    for eid, qs in close_by_event.items():
-        last = max(q.pass_id for q in qs)
-        for a in consensus.build([q for q in qs if q.pass_id == last and q.market == LIVE_MARKET]):
-            for side, p in a.p_fair.items():
-                close_fair[(eid, a.line, side)] = p
     by_pass: dict[str, list[Quote]] = defaultdict(list)
     for q in feat:
         if q.market == LIVE_MARKET:
@@ -78,31 +108,33 @@ def clv_rows(shards: Sequence[Quote]) -> list[dict[str, object]]:
         consensus.flag_stale(anchors, prev)
         nxt = posted[i + 1] if i + 1 < len(posted) else None
         for a in anchors:
+            mu = mus.get(a.event_id)
+            if mu is None or a.line is None:
+                continue
             for e in a.exec_quotes:
-                p_close = close_fair.get((a.event_id, a.line, e.side))
-                if p_close is None:
-                    continue
                 out.append({
                     "game_date": a.game_date, "pass_id": pid, "event_id": a.event_id, "book": e.book,
                     "side": e.side, "line": a.line, "american": e.american,
-                    "clv_cents": (p_close - _implied(e.american)) * 100, "stale": e.stale,
+                    "clv_cents": clv(mu, sd, e.side, a.line, e.american), "stale": e.stale,
                     "held_next": None if nxt is None else (a.event_id, a.line, e.book, e.side, e.american) in nxt,
                 })
         prev = anchors
     return out
 
 
-def featured_deltas(shards: Sequence[Quote]) -> list[float]:
-    """Cut 10 on the tape: implied-probability cents between each execution quote on a
-    10-minute featured pass and the same quote at the last pass a 15-minute clock kept."""
+def featured_deltas(shards: Sequence[Quote], sd: float) -> list[float]:
+    """Cut 10 on the tape: CLV cents gained by buying an execution quote on a 10-minute featured
+    pass instead of that book's quote (any line) at the last pass a 15-minute clock kept."""
     feat = [q for q in shards if q.pass_kind == "featured" and q.pass_id.startswith(HIST_PREFIX) and q.market == LIVE_MARKET]
+    mus = close_mus(shards, sd)
     keep = study.subset_15(feat)
     by_pass: dict[str, list[Quote]] = defaultdict(list)
     for q in feat:
         by_pass[q.pass_id].append(q)
     times = sorted((qs[0].captured_at, pid) for pid, qs in by_pass.items())
-    kept_prices: dict[str, dict[tuple[str, float | None, str, str], float]] = {
-        pid: {(q.event_id, q.line, q.book, q.side): q.american for q in by_pass[pid]} for pid in keep
+    kept: dict[str, dict[tuple[str, str, str], tuple[float, float]]] = {
+        pid: {(q.event_id, q.book, q.side): (q.line, q.american) for q in by_pass[pid] if q.line is not None}
+        for pid in keep
     }
     deltas: list[float] = []
     for ts, pid in times:
@@ -111,13 +143,14 @@ def featured_deltas(shards: Sequence[Quote]) -> list[float]:
         prior = [p for t, p in times if t <= ts and p in keep]
         if not prior:
             continue
-        ref = kept_prices[prior[-1]]
+        ref = kept[prior[-1]]
         for q in by_pass[pid]:
-            if q.book not in consensus.EXECUTION_BOOKS:
+            mu = mus.get(q.event_id)
+            if q.book not in consensus.EXECUTION_BOOKS or mu is None or q.line is None:
                 continue
-            cf = ref.get((q.event_id, q.line, q.book, q.side))
+            cf = ref.get((q.event_id, q.book, q.side))
             if cf is not None:
-                deltas.append((_implied(cf) - _implied(q.american)) * 100)
+                deltas.append(clv(mu, sd, q.side, q.line, q.american) - clv(mu, sd, q.side, cf[0], cf[1]))
     return deltas
 
 
@@ -229,4 +262,4 @@ def write_prereg(path: Path, prereg: dict[str, object], *, note: str) -> list[st
     return written
 
 
-__all__ = ["cents", "clv_rows", "featured_deltas", "log_scores", "summarize", "write_prereg"]
+__all__ = ["cents", "close_mus", "clv", "clv_rows", "p_close", "featured_deltas", "log_scores", "summarize", "write_prereg"]
