@@ -1,0 +1,13 @@
+# Copy to $ENGINE_RUNTIME_DIR/credit_budget.yaml (default ~/.engine_runtime/).
+# enforce: false = observe-only; every paid call is logged, none denied.
+enforce: false
+key_total: 20000
+reserve:
+  cbb_featured: 2400   # 10-min featured passes inside T-3h, from the CBB cadence table
+sports:
+  mlb: 3000
+  cfb: 2500
+  nfl: 1500
+  nhl: 2500
+  nba: 2500
+  cbb: 6000
