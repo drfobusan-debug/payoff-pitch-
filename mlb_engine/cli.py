@@ -14,7 +14,7 @@ from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import reaction, tape
+from mlb_engine.audit import histograms, reaction, tape
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -545,6 +545,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     # below can each fail, and a card the audit will grade locally but the
     # branch never saw is exactly the gap that hides a slate from every other
     # machine.
+    _write_histograms(cfg, pipe, recs, slate_date)
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
@@ -587,6 +588,27 @@ def cmd_run(args: argparse.Namespace) -> int:
     # Anything the delivery steps added since the card was published.
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced, delivered")
     return 0
+
+
+def _write_histograms(
+    cfg: Config, pipe: Pipeline, recs: list[Recommendation], slate_date: Date
+) -> None:
+    """Persist the games this run simulated, after the card and predictions are on disk.
+
+    Called only once ``write_workbook`` and ``save_json`` have both returned, so a
+    failed card never leaves histograms behind for it. Best-effort: a failure
+    here is logged and the run goes on.
+    """
+    if pipe.slate is None:
+        return
+    try:
+        n = histograms.save_histograms(
+            cfg.audit_dir, slate_date, pipe.histograms, recs, pipe.slate.games, pipe.event_ids
+        )
+        if n:
+            print(f"Histograms: {n} games -> {histograms.hist_path(cfg.audit_dir, slate_date)}")
+    except Exception as exc:  # noqa: BLE001 - a receipt must not cost the run
+        logging.getLogger(__name__).warning("histograms for %s not written (%s)", slate_date, exc)
 
 
 def late_previews_path(cfg: Config, slate_date: Date) -> Path:

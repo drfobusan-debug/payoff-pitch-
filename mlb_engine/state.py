@@ -44,6 +44,7 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.audit.histograms import merge_hist_files
 from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
 from mlb_engine.audit.tape import merge_tape_files
 from mlb_engine.calibration import read_stored
@@ -634,6 +635,9 @@ def _pull_state_locked(
     for src in sorted((state / "mlb" / "tape").glob("tape_*.jsonl.gz")):
         if merge_tape_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "hist").glob("hist_*.json.gz")):
+        if merge_hist_files(src, audit / src.name):
+            pulled.append(src.name)
     for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
         if merge_opta_files(src, audit / src.name):
             pulled.append(src.name)
@@ -860,6 +864,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             dest = state / "mlb" / "tape" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_tape_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("hist_*.json.gz")):
+            dest = state / "mlb" / "hist" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_hist_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for src in sorted(audit.glob("opta_*.json")):
