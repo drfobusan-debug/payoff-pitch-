@@ -70,3 +70,15 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-12,20261012T1534Z,soft,arm,Drew Rasmussen,656876,TB,849820,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.02 ≤ 4.40,3.02
 2026-10-12,20261012T1534Z,soft,arm,Logan Henderson,701656,MIL,849812,Logan Henderson,701656,,False,,,gated,siera: SIERA 2.95 ≤ 4.40,2.95
 2026-10-12,20261012T1534Z,soft,arm,Yoshinobu Yamamoto,808967,LAD,849812,Yoshinobu Yamamoto,808967,,False,,,gated,siera: SIERA 3.08 ≤ 4.40,3.08
+2026-10-12,20261012T1858Z,elite,arm,Foster Griffin,656492,CLE,849820,Foster Griffin,656492,,False,,,screened,,4.14
+2026-10-12,20261012T1858Z,elite,arm,Drew Rasmussen,656876,TB,849820,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.02 ≤ 3.25,3.02
+2026-10-12,20261012T1858Z,elite,arm,Logan Henderson,701656,MIL,849812,Logan Henderson,701656,,False,,,gated,siera: SIERA 2.95 ≤ 3.25,2.95
+2026-10-12,20261012T1858Z,elite,arm,Yoshinobu Yamamoto,808967,LAD,849812,Yoshinobu Yamamoto,808967,,False,,,gated,siera: SIERA 3.08 ≤ 3.25,3.08
+2026-10-12,20261012T1858Z,elite,bat,Jorge Mateo,622761,TB,849820,Foster Griffin,656492,8,True,RV NEG WATCH,,held,,
+2026-10-12,20261012T1858Z,elite,bat,Nick Fortes,663743,TB,849820,Foster Griffin,656492,7,True,RV NEG WATCH,,held,,
+2026-10-12,20261012T1858Z,elite,bat,Ryan Vilade,668723,TB,849820,Foster Griffin,656492,4,True,PROD WATCH,,held,,
+2026-10-12,20261012T1858Z,elite,bat,Taylor Walls,670764,TB,849820,Foster Griffin,656492,9,True,PROD WATCH,,held,,
+2026-10-12,20261012T1858Z,soft,arm,Foster Griffin,656492,CLE,849820,Foster Griffin,656492,,False,,,gated,siera: SIERA 4.14 ≤ 4.40,4.14
+2026-10-12,20261012T1858Z,soft,arm,Drew Rasmussen,656876,TB,849820,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.02 ≤ 4.40,3.02
+2026-10-12,20261012T1858Z,soft,arm,Logan Henderson,701656,MIL,849812,Logan Henderson,701656,,False,,,gated,siera: SIERA 2.95 ≤ 4.40,2.95
+2026-10-12,20261012T1858Z,soft,arm,Yoshinobu Yamamoto,808967,LAD,849812,Yoshinobu Yamamoto,808967,,False,,,gated,siera: SIERA 3.08 ≤ 4.40,3.08
