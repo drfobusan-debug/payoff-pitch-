@@ -19,3 +19,10 @@ def test_key_mass_fires_on_spike_only():
     spiked = base + [145] * 150
     km = fit_width.fit(_rows(spiked))["key_mass"]
     assert isinstance(km, dict) and "145" in km
+
+
+def test_key_mass_ignores_sparse_tail():
+    rng = random.Random(1)
+    base = [round(rng.gauss(145, 16)) for _ in range(3000)]
+    tail = base + [235, 238, 212, 212]
+    assert fit_width.fit(_rows(tail))["key_mass"] == {}
