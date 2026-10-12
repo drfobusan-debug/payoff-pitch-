@@ -2,11 +2,18 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from cbb_engine import checklist
 from cbb_engine.config import Config, Delivery
+from cbb_engine.models import distribution as dist
 
 
-def test_checklist_fails_closed_without_data(tmp_path: Path) -> None:
+def test_checklist_fails_closed_without_data(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Real params (width.json, a filled yaml) live in the package; the test stands in a repo without them."""
+    monkeypatch.setattr(dist, "load_width", lambda: None)
+    (tmp_path / "p.yaml").write_text("mde: TODO-PILOT\n")
+    monkeypatch.setattr(checklist, "PREREG", tmp_path / "p.yaml")
     items = checklist.run(Config(delivery=Delivery(gmail_user=None, gmail_app_password=None, email_to=None)), tmp_path, "2026-11-10")
     by = {i.name: i for i in items}
     assert not by["width_fitted"].ok and not by["preregistered_mdes"].ok and not by["emails_configured"].ok
