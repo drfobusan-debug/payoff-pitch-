@@ -4,6 +4,8 @@
 # the shows' NBA picks, then render the slate PDF + betting workbook and email both.
 #   --no-price   skip the pricing pass: re-render from the passes already
 #                recorded today (0 credits). Implied by --date.
+#   --late       the evening resend after the 20:05 pass: same package, sent
+#                only while a game on the slate has not tipped.
 # Every other argument goes to `nba-engine card` (e.g. --to ADDR, --date D).
 # Runs as a Desktop symlink; the link is resolved so the checkout is found.
 set -uo pipefail
@@ -19,17 +21,19 @@ done
 . "$(dirname "$_src")/_env.sh"
 
 PRICE=1
+TAG="card"
 ARGS=()
 for a in "$@"; do
     case $a in
         --no-price) PRICE=0 ;;
+        --late) TAG="card-late"; ARGS+=("$a") ;;
         --date|--date=*) PRICE=0; ARGS+=("$a") ;;
         *) ARGS+=("$a") ;;
     esac
 done
 
 if [ "$PRICE" = 1 ]; then
-    nba-engine capture --board-only --record "card-$(date +%H%M)" \
+    nba-engine capture --board-only --record "$TAG-$(date +%H%M)" \
         || echo "pricing pass failed; carding from the passes already recorded"
 fi
 nba-engine grade || true
