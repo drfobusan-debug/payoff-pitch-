@@ -131,3 +131,28 @@ def test_stale_histogram_is_skipped(tmp_path: Path, no_network: None) -> None:
 def tilt_pinned() -> str:
     from mlb_engine.audit import tilt
     return tilt.PINNED
+
+
+def _result(home: int, away: int, hits: int) -> object:
+    from mlb_engine.data.results import GameResult, PlayerLine
+    pl = PlayerLine()
+    pl.batting.update({"H": hits, "PA": 4})
+    return GameResult(1, True, home, away, 0, 0, {103: pl})
+
+
+def test_grading_uses_the_read_line_and_the_canonical_name(tmp_path: Path, no_network: None) -> None:
+    from mlb_engine.audit import shadow_grade as sg
+    _setup(tmp_path)
+    shadow.run_shadow(tmp_path, D)
+    sg.grade_shadow(tmp_path, D, {1: _result(5, 3, 1)}, _recs())  # type: ignore[dict-item]
+    rows = {r["market"]: r for r in _rows(tmp_path / shadow.SHADOW_LEDGER)}
+    assert rows["game_total"]["result"] == sg.NO  # 8 runs under 8.5
+    assert rows["game_ml"]["result"] == sg.YES
+    assert rows["game_rl"]["result"] == sg.YES  # home by 2 covers -1.5
+    assert rows["batter_h"]["result"] == sg.YES  # 1 hit over the 0.5 pin
+    cross = _rows(tmp_path / shadow.CROSSBOOK_LEDGER)
+    assert cross[0]["result"] == sg.NO  # the same hit is under the 1.5 read line
+    block = sg.morning_block(tmp_path)
+    assert block[-1] == "Gate shut: no alternate keys on the tape. 200-row rule is a 2027 rule."
+    assert any("sign violations: 0" in ln for ln in block)
+    assert not any("ml_holdout_gap" in ln for ln in block)

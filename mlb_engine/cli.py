@@ -611,6 +611,22 @@ def _write_histograms(
         logging.getLogger(__name__).warning("histograms for %s not written (%s)", slate_date, exc)
 
 
+def _grade_shadow(
+    cfg: Config, audit_date: Date, results: dict, recs: list[Recommendation]
+) -> None:
+    """Grade the shadow ledgers and print their block. Best-effort; never stops the audit."""
+    from mlb_engine.audit.shadow import SHADOW_LEDGER
+    from mlb_engine.audit.shadow_grade import grade_shadow, morning_block
+
+    if not (cfg.audit_dir / SHADOW_LEDGER).exists():
+        return
+    try:
+        grade_shadow(cfg.audit_dir, audit_date, results, recs)
+        print("\n" + "\n".join(morning_block(cfg.audit_dir)))
+    except Exception as exc:  # noqa: BLE001 - a measurement must not cost the audit
+        logging.getLogger(__name__).warning("shadow grading skipped (%s)", exc)
+
+
 def cmd_shadow(args: argparse.Namespace) -> int:
     """Measurement only: reads the tape, histograms and predictions already on disk."""
     from mlb_engine.audit.shadow import run_shadow
@@ -1317,6 +1333,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if outside:
         _print_head_to_head(entries, outside)
     _grade_vsin(cfg, audit_date, results)
+    _grade_shadow(cfg, audit_date, results, recs)
 
     print(f"Graded {len(graded)} markets for {audit_date}")
     for row in rows:
