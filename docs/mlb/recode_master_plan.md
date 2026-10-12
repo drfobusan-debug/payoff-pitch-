@@ -152,6 +152,17 @@ The run line is read off the tilted home × away joint:
 Historical run-line `clv_ev` was about −1.4 cents [MEASURED]. It is not a buy
 in this plan.
 
+The same two knobs can pin either other pair and hold one market out. That
+rotation is a check, not a second test, and it does not replace this pin.
+Holding out the moneyline, with the total and the run line pinned, asks the
+same one-run question from the other side. The two gaps should agree in sign.
+A disagreement means the solver or the histogram is wrong, so that holdout is
+stored under the run-line line. Holding out the total spends both knobs on the
+margin. A gap there means the pin had to distort scoring to make the two side
+prices true together. It is counted and left off the first screen. The
+flattering rotation does not become the pin, and none of the three reads is a
+ticket.
+
 The unshifted probability is stored as `model_prob`. Its weight is 0. A
 one-sided quote is not a pin. The row is `unpinned`.
 
@@ -298,11 +309,14 @@ The morning report opens on three lines:
    the posted total. A totals tilt that stays near a run hot is the sim staying
    hot, which keeps the weight at 0.
 
-Under those: the run-line residual off the tilted joint, worksheet gap versus
-the implied probability, totals SUM versus the line, and the unshifted sim's
-Brier against the market's Brier. The 57% "beat the close" rate is a footnote
-under the CLV definition, not the headline. PPV and NPV stay in the workbook
-and leave the first screen.
+Under those: the run-line residual off the joint with the total and the
+moneyline pinned, and directly under it the moneyline holdout as a sign check
+(total and run line pinned). The two should agree in sign. The total holdout
+(moneyline and run line pinned) is counted and left off this screen. Then
+worksheet gap versus the implied probability, totals SUM versus the line, and
+the unshifted sim's Brier against the market's Brier. The 57% "beat the close"
+rate is a footnote under the CLV definition, not the headline. PPV and NPV stay
+in the workbook and leave the first screen.
 
 A quarantined close is counted in the tape and omitted from every CLV line. The
 report prints the quarantine count.
@@ -360,9 +374,10 @@ total.
 `mlb-engine shadow` reads the tape and those histograms, applies the tilt in
 §3, and writes `shadow_ledger.csv`. It does not call `classify` and it does
 not send a card. Columns include `model_prob`, `fair_prob`, `pin_shift` (the
-solved `λ`, or the pair `λ_h`, `λ_a`), `cross_book_gap`, `worksheet_gap`,
-`totals_sum`, and the quarantine flag. The live card does not read the
-histograms.
+solved `λ`, or the pair `λ_h`, `λ_a`), `cross_book_gap`, the run-line residual,
+the moneyline holdout under it, `worksheet_gap`, `totals_sum`, and the
+quarantine flag. The total holdout is stored and left off the morning screen.
+The live card does not read the histograms.
 
 The cross-book gap is scored in this phase, before any talk of a forward
 block. That is the test that the tilt prices a second line the way the books
