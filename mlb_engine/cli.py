@@ -611,6 +611,17 @@ def _write_histograms(
         logging.getLogger(__name__).warning("histograms for %s not written (%s)", slate_date, exc)
 
 
+def cmd_shadow(args: argparse.Namespace) -> int:
+    """Measurement only: reads the tape, histograms and predictions already on disk."""
+    from mlb_engine.audit.shadow import run_shadow
+
+    cfg = load_config()
+    slate_date = _parse_date(args.date, Date.today())
+    n_shadow, n_cross = run_shadow(cfg.audit_dir, slate_date)
+    print(f"Shadow {slate_date}: {n_shadow} rows, {n_cross} cross-book rows (no bets, no card)")
+    return 0
+
+
 def late_previews_path(cfg: Config, slate_date: Date) -> Path:
     """Where a late pass leaves the previews of the games it priced."""
     return cfg.audit_dir / f"previews_{slate_date.isoformat()}_late.json"
@@ -1863,6 +1874,13 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    sh = sub.add_parser(
+        "shadow",
+        help="pin the raw sim to the taped market and write the shadow ledgers (no network, no bets)",
+    )
+    sh.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    sh.set_defaults(func=cmd_shadow)
 
     lu = sub.add_parser(
         "lineups", help="record today's posted lineups with the time they were first seen"
