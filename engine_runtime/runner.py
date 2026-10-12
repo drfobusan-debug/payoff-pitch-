@@ -117,12 +117,14 @@ def start(
     *,
     repo: Path | None = None,
     lock: Path | None = None,
+    started_at: str = "",
 ) -> Pass:
     return Pass(
         sport,
         slate_date,
         pass_kind,
         root,
+        started_at=started_at,
         code_sha=code_sha(repo),
         env_lock_hash=env_lock_hash(lock),
     )
