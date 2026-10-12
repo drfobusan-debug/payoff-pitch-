@@ -35,13 +35,43 @@ from mlb_engine.data.fences import (
     wall_distance,
 )
 from mlb_engine.data.parks import get_park
+from mlb_engine.data.statcast import batted_balls
 
 # Home plate in Statcast's hit-coordinate frame.
 HOME_X, HOME_Y = 125.42, 198.27
 
-# Spread (feet) of the logistic around the wall. Absorbs projection error, wind,
-# and the fact that the modelled wall is a five-point approximation of a curve.
-CARRY_SIGMA = 14.0
+# Where the logistic sits and how wide it is, fitted to whether the ball was
+# actually a home run rather than assumed (``scripts.xhr_wall_fit``). Both were
+# hand-set -- a 14-foot spread centred on the wall itself -- and that curve gave
+# a ball projected to land *20 to 40 feet short* an 11% chance of leaving the
+# park, where the measured rate is 0.0%. Summed over a hitter's window it
+# over-counted expected home runs by 42% out of sample (Brier .0438 -> .0264).
+#
+# The offset is physical: ``hit_distance_sc`` projects where the ball lands, and
+# a ball has to clear the wall's *height* on the way, which the fit prices at
+# roughly nine feet of extra carry.
+WALL_OFFSET = 8.6
+CARRY_SIGMA = 5.2
+
+# The same curve, widened, for the *counterfactual* wall in the park re-score.
+# Scoring the ball against the wall it was actually hit toward is a measured
+# question, and the fit says it is nearly a step function. Asking what the same
+# ball would have been worth in another park is not: it would have been hit in
+# different air, off a different pitcher, into a different wind, none of which
+# the projection carries. The counterfactual keeps the pre-fit 14-foot spread so
+# a park ratio stays a tilt rather than becoming a step, which is also what stops
+# a hitter whose distances differ from the league grid earning a park term he has
+# not earned.
+PARK_CARRY_SIGMA = 14.0
+
+# A window is only worth reading if Statcast measured most of the contact in it.
+# Distance and hit coordinates go missing in bulk -- whole date ranges of the
+# cache carry no ``hit_distance_sc`` at all -- and the expected-HR sum is over
+# the balls that *were* measured while the denominator is every plate
+# appearance, so a hitter whose window is half-reported has his prior halved and
+# the blend then crushes his home-run rate toward zero. Below this share of his
+# batted balls the profile reports no data instead of a diluted number.
+MIN_MEASURED_SHARE = 0.35
 
 # A batted ball outside this launch-angle band cannot be a home run however far
 # it is projected: too low and it is a line drive off the wall, too high and it
@@ -76,6 +106,10 @@ class XHRProfile:
     hr: int
     xhr: float
     has_data: bool
+    # Share of his batted balls Statcast measured well enough to score. The xHR
+    # sum is scaled up by its inverse, so this records how much of the number
+    # is measured and how much is imputed from the balls that were.
+    measured_share: float = 1.0
 
     @property
     def xhr_per_pa(self) -> float:
@@ -108,9 +142,13 @@ def spray_angle(hc_x: pd.Series, hc_y: pd.Series) -> pd.Series:
     )
 
 
-def hr_probability(distance: float, wall: float) -> float:
-    """Probability a ball projected ``distance`` clears a wall at ``wall``."""
-    return 1.0 / (1.0 + math.exp(-(distance - wall) / CARRY_SIGMA))
+def hr_probability(distance: float, wall: float, sigma: float = CARRY_SIGMA) -> float:
+    """Probability a ball projected ``distance`` clears a wall at ``wall``.
+
+    Half a home run is a ball projected ``WALL_OFFSET`` feet *past* the wall,
+    not one landing on it: the wall has height, and the fit prices it.
+    """
+    return 1.0 / (1.0 + math.exp(-(distance - wall - WALL_OFFSET) / sigma))
 
 
 def _fence_lookup(teams: pd.Series) -> dict[str, Fence]:
@@ -137,13 +175,26 @@ def batter_xhr(bdf: pd.DataFrame) -> XHRProfile:
     if n_batted == 0:
         return XHRProfile(pa=n_pa, batted=0, hr=n_hr, xhr=0.0, has_data=False)
 
+    # What share of his contact this rests on. The balls Statcast failed to
+    # measure were still swings that could have left the park, so the measured
+    # ones stand in for them -- but only while most of the contact is measured.
+    share = _measured_share(bdf, n_batted)
+    if share < MIN_MEASURED_SHARE:
+        return XHRProfile(
+            pa=n_pa, batted=n_batted, hr=n_hr, xhr=0.0,
+            has_data=False, measured_share=share,
+        )
+
     angle = balls["launch_angle"].astype(float)
     distance = balls["hit_distance_sc"].astype(float)
     live = balls[
         angle.between(MIN_HR_ANGLE, MAX_HR_ANGLE) & (distance >= MIN_HR_DISTANCE)
     ]
     if live.empty:
-        return XHRProfile(pa=n_pa, batted=n_batted, hr=n_hr, xhr=0.0, has_data=True)
+        return XHRProfile(
+            pa=n_pa, batted=n_batted, hr=n_hr, xhr=0.0,
+            has_data=True, measured_share=share,
+        )
 
     teams = (
         live["home_team"]
@@ -166,7 +217,25 @@ def batter_xhr(bdf: pd.DataFrame) -> XHRProfile:
         fence = fences.get(str(team), fence_for_team(None))
         xhr += hr_probability(float(dist), wall_distance(fence, float(spray)))
 
-    return XHRProfile(pa=n_pa, batted=n_batted, hr=n_hr, xhr=xhr, has_data=True)
+    return XHRProfile(
+        pa=n_pa, batted=n_batted, hr=n_hr, xhr=xhr / share,
+        has_data=True, measured_share=share,
+    )
+
+
+def _measured_share(bdf: pd.DataFrame, n_measured: int) -> float:
+    """Share of the slice's balls in play that carry distance and coordinates.
+
+    Balls in play are counted the way the rest of the engine counts them, so a
+    foul with an exit velocity is not mistaken for contact that could have left
+    the park. With no way to count them, the measured balls are all there is and
+    the share is 1.0 -- the previous behaviour.
+    """
+    bip = batted_balls(bdf)
+    n_bip = int(len(bip))
+    if n_bip <= 0:
+        return 1.0
+    return min(max(n_measured / n_bip, 0.0), 1.0)
 
 
 def _live_balls(bdf: pd.DataFrame) -> pd.DataFrame | None:
@@ -184,7 +253,9 @@ def _live_balls(bdf: pd.DataFrame) -> pd.DataFrame | None:
     ]
 
 
-def xhr_at_fence(bdf: pd.DataFrame, fence: Fence) -> float:
+def xhr_at_fence(
+    bdf: pd.DataFrame, fence: Fence, sigma: float = PARK_CARRY_SIGMA
+) -> float:
     """Expected home runs if every one of these batted balls were hit here."""
     live = _live_balls(bdf)
     if live is None:
@@ -193,7 +264,7 @@ def xhr_at_fence(bdf: pd.DataFrame, fence: Fence) -> float:
         return 0.0
     sprays = spray_angle(live["hc_x"], live["hc_y"])
     return sum(
-        hr_probability(float(d), wall_distance(fence, float(spray)))
+        hr_probability(float(d), wall_distance(fence, float(spray)), sigma)
         for d, spray in zip(
             live["hit_distance_sc"].astype(float).to_numpy(),
             sprays.to_numpy(),
@@ -224,11 +295,11 @@ LEAGUE_SPRAY = _league_spray()
 def park_shape_baseline(venue_id: int | None) -> float:
     """What an *average* hitter gains or loses from this park's geometry alone."""
     here = sum(
-        w * hr_probability(d, wall_distance(get_fence(venue_id), s))
+        w * hr_probability(d, wall_distance(get_fence(venue_id), s), PARK_CARRY_SIGMA)
         for s, d, w in LEAGUE_SPRAY
     )
     neutral = sum(
-        w * hr_probability(d, wall_distance(LEAGUE_FENCE, s))
+        w * hr_probability(d, wall_distance(LEAGUE_FENCE, s), PARK_CARRY_SIGMA)
         for s, d, w in LEAGUE_SPRAY
     )
     return here / neutral if neutral > 0 else 1.0
