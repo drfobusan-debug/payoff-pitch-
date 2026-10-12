@@ -19,6 +19,8 @@ from engine_runtime import credits
 
 log = logging.getLogger(__name__)
 BASE = "https://api.the-odds-api.com/v4/sports"
+HIST_BASE = "https://api.the-odds-api.com/v4/historical/sports"
+HIST_MULT = 10  # historical snapshots bill 10x per market per region
 
 
 class OddsClient:
@@ -84,6 +86,38 @@ class OddsClient:
             params={"markets": ",".join(markets), **params},
         )
         return data if isinstance(data, dict) else None
+
+    def historical_events(self, at: str) -> tuple[str, list[dict[str, object]]]:
+        """Events posted at ``at`` (ISO UTC); 1 credit. Returns (snapshot timestamp, events)."""
+        data = self._get(
+            f"{HIST_BASE}/{self.sport_key}/events",
+            cost=1,
+            endpoint="hist_events",
+            params={"date": at},
+        )
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
+            return "", []
+        return str(data.get("timestamp", "")), list(data["data"])
+
+    def historical_board(
+        self, markets: tuple[str, ...], *, at: str, pass_id: str = "", **params: str
+    ) -> tuple[str, list[dict[str, object]]]:
+        """Featured markets for every posted game at the last snapshot at or before ``at``.
+
+        Cost = HIST_MULT x markets x regions. Returns (snapshot timestamp, events);
+        the timestamp, not ``at``, is the quotes' ``captured_at``.
+        """
+        cost = HIST_MULT * len(markets) * len(self.regions.split(","))
+        data = self._get(
+            f"{HIST_BASE}/{self.sport_key}/odds",
+            cost=cost,
+            endpoint="hist_odds",
+            pass_id=pass_id,
+            params={"markets": ",".join(markets), "date": at, **params},
+        )
+        if not isinstance(data, dict) or not isinstance(data.get("data"), list):
+            return "", []
+        return str(data.get("timestamp", "")), list(data["data"])
 
     def _cache_path(self, url: str, query: dict[str, str]) -> Path | None:
         if self.cache_dir is None:
@@ -154,4 +188,4 @@ class OddsClient:
         return payload
 
 
-__all__ = ["BASE", "OddsClient"]
+__all__ = ["BASE", "HIST_BASE", "HIST_MULT", "OddsClient"]

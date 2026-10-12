@@ -13,8 +13,9 @@ import json
 import sys
 from datetime import date as Date
 from datetime import datetime, timezone
+from pathlib import Path
 
-from cbb_engine import audit, cadence, card, checklist, email, study
+from cbb_engine import audit, cadence, card, checklist, email, history, study
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, dry_run, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -311,6 +312,50 @@ def cmd_checklist(args: argparse.Namespace) -> int:
     return 0 if all(i.ok for i in items) else 1
 
 
+def cmd_history(args: argparse.Namespace) -> int:
+    """§4.e buy: plan (free, ESPN) → print cost → pull only with --yes; `export` is offline."""
+    root, ddir = runtime_root(), data_dir()
+    start, end = Date.fromisoformat(args.start), Date.fromisoformat(args.end)
+    days = history.days_between(start, end)
+    if args.action == "export":
+        rows: list[dict[str, object]] = []
+        for d in days:
+            rows += history.export_day(root, ddir, d)
+        n = history.write_csv(rows, Path(args.out))
+        graded = sum(1 for r in rows if r["final_total"] != "")
+        print(f"{n} games with a close, {graded} with an ESPN final -> {args.out}")
+        return 0
+    esp = espn.ESPNClient()
+    tips_by_day: dict[str, list[str]] = {}
+    for d in days:
+        games = history.latest_scoreboard(ddir, d)
+        if not games:
+            games = esp.scoreboard(Date.fromisoformat(d), archive=ddir)
+        tips = history.tips_from_games(games, d)
+        if tips:
+            tips_by_day[d] = tips
+    cfg = load_config()
+    dense = tuple(args.dense or ())
+    pl = history.plan(tips_by_day, dense_days=dense, regions=len(cfg.regions.split(",")))
+    print(json.dumps({k: v for k, v in pl.items() if k != "days"}, indent=2))
+    print(f"days with games: {len(tips_by_day)}; dense slates: {list(dense)}")
+    if args.action == "plan" or not args.yes:
+        if args.action == "pull":
+            print("nothing bought: re-run with --yes to spend the credits above", file=sys.stderr)
+        return 0
+    client = _client(cache_ttl=0)
+    if client is None:
+        return 1
+    totals = {"snapshots": 0, "skipped": 0, "rows": 0, "events": 0}
+    for d, tips in sorted(tips_by_day.items()):
+        c = history.pull_day(client, root, d, tips, dense=d in dense)
+        for k in totals:
+            totals[k] += c[k]
+        print(f"{d}: {c} remaining={client.credits_remaining}")
+    print(json.dumps({**totals, "spent": client.spent}, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="cbb-engine", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -355,6 +400,14 @@ def build_parser() -> argparse.ArgumentParser:
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
+    hi = sub.add_parser("history", help="§4.e: buy 2024-25 closes from the historical endpoint; export fit_width CSV")
+    hi.add_argument("action", choices=["plan", "pull", "export"])
+    hi.add_argument("--start", default="2024-11-04")
+    hi.add_argument("--end", default="2025-04-07")
+    hi.add_argument("--dense", nargs="*", help="slate dates that also get the 10-min featured grid from T-3h")
+    hi.add_argument("--yes", action="store_true", help="actually spend credits (pull)")
+    hi.add_argument("--out", default="closes_2024_25.csv")
+    hi.set_defaults(func=cmd_history)
     ga = sub.add_parser("gaps", help="capture gaps per pass_kind + shard integrity")
     ga.add_argument("--date")
     ga.set_defaults(func=cmd_gaps)
