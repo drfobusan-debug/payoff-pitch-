@@ -126,3 +126,22 @@ def test_cli_plan_and_pull_without_yes_spend_nothing(tmp_path: Path, monkeypatch
     out = capsys.readouterr()
     assert '"credits"' in out.out and "re-run with --yes" in out.err
     assert not (tmp_path / "rt").exists()
+
+
+def test_match_final_folds_odds_api_abbreviations() -> None:
+    from cbb_engine.data import espn
+
+    def game(eid: str, away: str, home: str, final: tuple[int, int]) -> espn.Game:
+        return espn.Game(
+            espn_id=eid, start_utc="", away=away, home=home, state="STATUS_FINAL", neutral=False,
+            conference_game=False, away_halves=(final[0],), home_halves=(final[1],),
+        )
+
+    games = [
+        game("1", "Colorado State Rams", "Michigan State Spartans", (70, 71)),
+        game("2", "Saint Mary's Gaels", "North Carolina Tar Heels", (60, 80)),
+    ]
+    assert history.match_final("Michigan St Spartans", "Colorado St Rams", games) == (70, 71)
+    assert history.match_final("N Carolina Tar Heels", "St Mary's Gaels", games) == (60, 80)
+    assert history.match_final("Michigan St Spartans", "St Mary's Gaels", games) is None
+    assert history.match_final("Duke Blue Devils", "Kansas Jayhawks", games) is None

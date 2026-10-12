@@ -20,6 +20,8 @@ from statistics import pstdev
 
 from cbb_engine.models.distribution import PARAMS, _normal_pmf, quality_bucket
 
+KEY_Z = 3.0
+
 
 def fit(rows: list[dict[str, str]], *, min_n: int = 200) -> dict[str, object]:
     resid: dict[str, list[float]] = defaultdict(list)
@@ -52,10 +54,13 @@ def fit(rows: list[dict[str, str]], *, min_n: int = 200) -> dict[str, object]:
             continue
         for k, v in _normal_pmf(c, sd_all, int(c - 4 * sd_all), int(c + 4 * sd_all)).items():
             expected[k] += v
+    # z-test per total against the binomial SE of its expected share; z > 3 because ~150 totals are tested
     key_mass = {}
     for k, cnt in finals.items():
-        excess = cnt / n - expected[k] / n
-        if abs(excess) * math.sqrt(n) > 2 and excess > 0:
+        p_exp = expected[k] / n
+        excess = cnt / n - p_exp
+        se = math.sqrt(max(p_exp * (1 - p_exp), 1e-12) / n)
+        if excess > 0 and excess / se > KEY_Z:
             key_mass[str(k)] = round(excess, 5)
     odd = sum(cnt for k, cnt in finals.items() if k % 2) / n
     return {"sd_by_bucket": sd_by, "key_mass": key_mass, "parity_shift": round(odd - 0.5, 5), "n": n, "fitted_on": date.today().isoformat()}
