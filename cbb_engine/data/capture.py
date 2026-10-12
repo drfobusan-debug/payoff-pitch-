@@ -38,6 +38,11 @@ def _side_key(market_key: str, outcome: dict[str, object], home: str, away: str)
     return name.lower(), name
 
 
+def teams(events: Iterable[dict[str, object]]) -> dict[str, list[str]]:
+    """``event_id -> [home, away]`` for the shard manifest; the audit matches ESPN finals on these."""
+    return {str(ev.get("id", "")): [str(ev.get("home_team", "")), str(ev.get("away_team", ""))] for ev in events}
+
+
 def rows_from_events(
     events: Iterable[dict[str, object]], *, captured_at: str, pass_id: str, pass_kind: str
 ) -> list[Quote]:

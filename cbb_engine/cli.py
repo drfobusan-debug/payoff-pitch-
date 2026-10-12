@@ -1,4 +1,4 @@
-"""``cbb-engine``: Phase 0 commands — capture | watch | budget | results | torvik.
+"""``cbb-engine``: commands — capture | watch | price | audit | results | torvik | budget | gaps.
 
 ``capture`` is one tick of the §5 cadence: it decides from the slate's tips which
 of board / featured / close passes are due, pulls only those, and writes each as
@@ -14,11 +14,12 @@ import sys
 from datetime import date as Date
 from datetime import datetime, timezone
 
-from cbb_engine import cadence
+from cbb_engine import audit, cadence, card
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
-from engine_runtime import quotes, runner
+from cbb_engine.models import distribution as dist
+from engine_runtime import ledger, quotes, runner
 from engine_runtime.odds_client import OddsClient
 
 
@@ -101,6 +102,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
                     evs, captured_at=p.started_at, pass_id=p.pass_id, pass_kind="board"
                 ),
                 p.pass_id,
+                teams=capture.teams(evs),
                 interval_min=interval,
             )
             if cfg.event_markets_on:
@@ -138,6 +140,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
                     evs, captured_at=p.started_at, pass_id=p.pass_id, pass_kind="featured"
                 ),
                 p.pass_id,
+                teams=capture.teams(evs),
                 pulled_forward=pulled,
             )
 
@@ -202,6 +205,51 @@ def cmd_torvik(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_price(args: argparse.Namespace) -> int:
+    """Write the card pass (bet of record) from the latest board/featured shard."""
+    day = _parse_date(args.date)
+    root = runtime_root()
+    ps = runner.start(SPORT, day.isoformat(), "featured", root)
+    hits_path = data_dir() / "watch" / day.isoformat() / "hits.jsonl"
+    pending = set()
+    if hits_path.exists():
+        for line in hits_path.read_text().splitlines():
+            h = json.loads(line)
+            if "espn_id" in h:
+                pending.add(str(h["espn_id"]))
+    priced = card.price(root, day.isoformat(), pass_id=ps.pass_id, pass_kind="featured", code_sha=ps.code_sha, env_lock_hash=ps.env_lock_hash, pending_events=pending, width=dist.load_width())
+    if priced is None:
+        print(f"{day}: no board shard to price")
+        return 1
+    if not args.dry_run:
+        ledger.write_once(root, SPORT, day.isoformat(), ps.pass_id, priced.rows)
+    text = card.render(priced.rows)
+    out = data_dir() / "cards" / f"{day.isoformat()}_{ps.pass_id}.txt"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text)
+    print(text)
+    return 0
+
+
+def cmd_audit(args: argparse.Namespace) -> int:
+    """Grade yesterday's bet-of-record rows against close shards + ESPN finals; print the views."""
+    day = _parse_date(args.date)
+    root = runtime_root()
+    games = espn.ESPNClient().scoreboard(day, archive=data_dir()) if not args.offline else []
+    teams: dict[str, tuple[str, str]] = {}
+    for m in quotes.read_manifest(root, SPORT, day.isoformat()):
+        extra = m.get("extra")
+        if isinstance(extra, dict) and isinstance(extra.get("teams"), dict):
+            teams.update({str(k): (str(v[0]), str(v[1])) for k, v in extra["teams"].items()})
+    ps = runner.start(SPORT, day.isoformat(), "board", root)
+    written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
+    rows = list(ledger.record(root, SPORT, day.isoformat()).values())
+    rungs = ["v0_shape", "foul_redistribution", "half_correlation", "blend_shift", "availability_residual"]
+    print(audit.render(audit.report(rows, rungs)))
+    print(f"graded {len(written)} row(s)")
+    return 0
+
+
 def cmd_budget(args: argparse.Namespace) -> int:
     cfg = load_config()
     out = cadence.daily_budget(
@@ -247,6 +295,14 @@ def build_parser() -> argparse.ArgumentParser:
     tv.add_argument("--date")
     tv.add_argument("files", nargs="*", default=list(torvik.FILES))
     tv.set_defaults(func=cmd_torvik)
+    pr = sub.add_parser("price", help="price the slate from the latest shard and write the card pass")
+    pr.add_argument("--date")
+    pr.add_argument("--dry-run", action="store_true", help="print the card, write no ledger rows")
+    pr.set_defaults(func=cmd_price)
+    au = sub.add_parser("audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views")
+    au.add_argument("--date")
+    au.add_argument("--offline", action="store_true", help="no ESPN call; CLV only")
+    au.set_defaults(func=cmd_audit)
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)
     bu.set_defaults(func=cmd_budget)
