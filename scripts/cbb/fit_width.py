@@ -21,6 +21,7 @@ from statistics import pstdev
 from cbb_engine.models.distribution import PARAMS, _normal_pmf, quality_bucket
 
 KEY_Z = 3.0
+KEY_MIN_EXPECTED = 5.0
 
 
 def fit(rows: list[dict[str, str]], *, min_n: int = 200) -> dict[str, object]:
@@ -57,6 +58,8 @@ def fit(rows: list[dict[str, str]], *, min_n: int = 200) -> dict[str, object]:
     # z-test per total against the binomial SE of its expected share; z > 3 because ~150 totals are tested
     key_mass = {}
     for k, cnt in finals.items():
+        if expected[k] < KEY_MIN_EXPECTED:
+            continue
         p_exp = expected[k] / n
         excess = cnt / n - p_exp
         se = math.sqrt(max(p_exp * (1 - p_exp), 1e-12) / n)
