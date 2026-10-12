@@ -114,15 +114,17 @@ mean rescale is rejected because multiplying an integer count leaves the
 lattice unless a second rounding rule is invented. Those two are not shadowed.
 
 The moneyline and the total are two constraints on one joint, solved together.
-Phase 1 stores the home-run × away-run histogram (§9). The tilt is
+Phase 1 stores the home-run × away-run histogram (§9). The stored parameters
+are `α` on the sum and `β` on the margin:
 
 ```
-p(h, a)  ∝  p_sim(h, a) · exp(λ_h · h + λ_a · a)
+p(h, a)  ∝  p_sim(h, a) · exp(α · (h + a) + β · (h − a))
 ```
 
-`λ_h` and `λ_a` are solved as a pair so the tilted total-over probability and
-the tilted home-win probability match the two devigged main lines at once.
-Equivalently, one parameter tilts the sum and the other tilts the margin. The
+`α = (λ_h + λ_a) / 2` and `β = (λ_h − λ_a) / 2`. Code and columns use `α` and
+`β`. The home and away pair is that translation and is not a second name for
+the pin. The two are solved so the tilted total-over probability and the
+tilted home-win probability match the two devigged main lines at once. The
 sim's dependence between the two teams is the base measure. Independent
 one-dimensional shifts of home runs and away runs are not used, because they
 throw that dependence away and the run line is the dependence.
@@ -152,16 +154,27 @@ The run line is read off the tilted home × away joint:
 Historical run-line `clv_ev` was about −1.4 cents [MEASURED]. It is not a buy
 in this plan.
 
-The same two knobs can pin either other pair and hold one market out. That
-rotation is a check, not a second test, and it does not replace this pin.
-Holding out the moneyline, with the total and the run line pinned, asks the
-same one-run question from the other side. The two gaps should agree in sign.
-A disagreement means the solver or the histogram is wrong, so that holdout is
-stored under the run-line line. Holding out the total spends both knobs on the
-margin. A gap there means the pin had to distort scoring to make the two side
-prices true together. It is counted and left off the first screen. The
-flattering rotation does not become the pin, and none of the three reads is a
+Two other rotations are stored. Neither replaces this pin, and neither is a
 ticket.
+
+The moneyline holdout pins the total and the run line, then reads the
+moneyline. Measured as model minus market, that gap has the opposite sign of
+the run-line gap: with the total pinned, the home-win chance and the chance of
+winning by 2 or more rise together as `β` turns. The moneyline gap's size is
+the run-line gap rescaled, so it adds nothing the run-line gap does not
+already say. The relationship is a unit test, not a morning finding. On a
+correct solve the signs oppose every time. The report prints only the count of
+violations, and that count is 0. A violation means the solver failed, which
+the stored residuals already show, or the −1.5 and +1.5 sides were swapped.
+The histogram's shape cannot cause one.
+
+The total holdout pins the moneyline and the run line, then reads the total.
+This is the informative rotation. It asks whether the sim's spread of margins
+fits its scoring level, which the total-and-moneyline pin cannot see. Both
+knobs are on the margin, so a real share of these rows will be `unpinned`.
+Posted markets agree with each other more than random targets do, and the
+unpinned share is part of what gets counted. The gap stays off the first
+screen. It does not become the pin.
 
 The unshifted probability is stored as `model_prob`. Its weight is 0. A
 one-sided quote is not a pin. The row is `unpinned`.
@@ -303,20 +316,22 @@ The morning report opens on three lines:
 
 1. `clv_ev` on the live card, in cents, with the date-clustered 95% interval
    and the count. The quarantine count sits on this line.
-2. `cross_book_gap`: the tilted probability at the other book's line, minus
-   that book's devigged price. This is the tilt's test. It is empty of bets.
-3. Pin health: mean `λ` by market, and the share of sim medians that sat above
-   the posted total. A totals tilt that stays near a run hot is the sim staying
-   hot, which keeps the weight at 0.
+2. `cross_book_gap`: the tilted probability at a **different** line, minus
+   that book's devigged price at that line. At the same line the gap is
+   consensus minus that book, and it is not written. This is the tilt's test.
+   It is empty of bets.
+3. Pin health: mean `λ` for a prop and mean `α`, `β` for a game, and the share
+   of sim medians that sat above the posted total. A totals tilt that stays
+   near a run hot is the sim staying hot, which keeps the weight at 0.
 
 Under those: the run-line residual off the joint with the total and the
-moneyline pinned, and directly under it the moneyline holdout as a sign check
-(total and run line pinned). The two should agree in sign. The total holdout
-(moneyline and run line pinned) is counted and left off this screen. Then
-worksheet gap versus the implied probability, totals SUM versus the line, and
-the unshifted sim's Brier against the market's Brier. The 57% "beat the close"
-rate is a footnote under the CLV definition, not the headline. PPV and NPV stay
-in the workbook and leave the first screen.
+moneyline pinned, and the count of moneyline-holdout sign violations, which is
+0 on a correct solve. The total holdout, including its `unpinned` share, is
+counted and left off this screen. Then worksheet gap versus the implied
+probability, totals SUM versus the line, and the unshifted sim's Brier against
+the market's Brier. The 57% "beat the close" rate is a footnote under the CLV
+definition, not the headline. PPV and NPV stay in the workbook and leave the
+first screen.
 
 A quarantined close is counted in the tape and omitted from every CLV line. The
 report prints the quarantine count.
@@ -374,9 +389,10 @@ total.
 `mlb-engine shadow` reads the tape and those histograms, applies the tilt in
 §3, and writes `shadow_ledger.csv`. It does not call `classify` and it does
 not send a card. Columns include `model_prob`, `fair_prob`, `pin_shift` (the
-solved `λ`, or the pair `λ_h`, `λ_a`), `cross_book_gap`, the run-line residual,
-the moneyline holdout under it, `worksheet_gap`, `totals_sum`, and the
-quarantine flag. The total holdout is stored and left off the morning screen.
+solved `λ` for a prop, or `α` and `β` for a game), `cross_book_gap` on a
+different line only, the run-line residual, the moneyline-holdout violation
+count, `worksheet_gap`, `totals_sum`, and the quarantine flag. The total
+holdout and its `unpinned` share are stored and left off the morning screen.
 The live card does not read the histograms.
 
 The cross-book gap is scored in this phase, before any talk of a forward
@@ -432,7 +448,9 @@ the shadow remains the record.
 ## 11. Workflow
 
 The chart is the measurement path. The gate is shut. The grey band at the
-bottom is the live card, which does not read the shadow.
+bottom is the live card, which does not read the shadow. The chart draws the
+price pin only. The moneyline holdout is a unit test and a violation count.
+The total holdout is an audit column off the first screen. Neither is a path.
 
 ![MLB recode workflow](recode_workflow.png)
 
@@ -451,7 +469,7 @@ flowchart TD
 
   board --> tape["Quote tape and close quarantine<br/>no extra API call"]
   tape --> devig["Devig the main line<br/>both sides required"]
-  hist --> pin["Exponential tilt<br/>one lambda for a prop<br/>lambda home and lambda away together"]
+  hist --> pin["Exponential tilt<br/>one lambda for a prop<br/>alpha on the sum, beta on the margin"]
   devig --> pin
 
   pin --> shape["Cross-book read<br/>score the other book's main line<br/>not a bet"]
