@@ -104,6 +104,11 @@ class LedgerEntry:
     # or calibration would make the engine's own record unreadable, which is the
     # same failure the fade side caused before it was counted once.
     source: str = ENGINE
+    # Was this row's close judged, and what did the judgment say? A reason code
+    # (see ``clv.QUARANTINE_ORDER``) when the close was refused, ``clean`` when
+    # it was judged and kept, and "" when it was never judged -- every row
+    # written before the quarantine existed. Blank is not clean.
+    clv_quarantine: str = ""
 
 
 LEDGER_FIELDS = [
@@ -135,6 +140,7 @@ LEDGER_FIELDS = [
     "hours_to_first_pitch",
     "batx_prob",
     "source",
+    "clv_quarantine",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line",
@@ -259,6 +265,7 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     batx_prob=_to_float(row.get("batx_prob", "")),
                     # Every row written before outside picks existed is ours.
                     source=row.get("source", "") or ENGINE,
+                    clv_quarantine=row.get("clv_quarantine", "") or "",
                 )
             )
     return out

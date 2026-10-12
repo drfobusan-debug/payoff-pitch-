@@ -12,6 +12,7 @@ from typing import TypeVar
 
 import pandas as pd
 
+from mlb_engine.audit import histograms, tape
 from mlb_engine.audit.clv import (
     board_path,
     closing_quotes,
@@ -405,6 +406,10 @@ class Pipeline:
     _run_env_scale: float = 1.0
 
     def __init__(self, cfg: Config, deps: PipelineDeps) -> None:
+        # Raw simulator histograms of the games this run priced, and each game's
+        # vendor event id: written beside the card by the CLI, never read by it.
+        self.histograms: dict[int, dict] = {}
+        self.event_ids: dict[int, str] = {}
         self.cfg = cfg
         self.deps = deps
         self._team_defense: dict[str, TeamDefense] = {}
@@ -489,6 +494,8 @@ class Pipeline:
             )
             slate = slate.model_copy(update={"games": keep})
         self.slate = slate
+        self.histograms = {}
+        self.event_ids = {}
         self._projected_lineups = set()
         self._pen_avail = {}
         if self.deps.rotowire is not None:
@@ -551,6 +558,7 @@ class Pipeline:
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
         self._quote_aliases = keys.canonical_index(quotes)
 
+        self._record_tape(slate, slate_date, quotes)
         self._open_board = self._record_board(slate_date, quotes)
 
         self._luck_gaps = (
@@ -627,6 +635,30 @@ class Pipeline:
         return self._previews
 
     # ------------------------------------------------------------------
+    def _record_tape(
+        self,
+        slate: Slate,
+        slate_date: Date,
+        quotes: dict[tuple[str, str, str], list[MarketQuote]],
+    ) -> None:
+        """Append every book's quote this run holds to the slate's tape.
+
+        Written from the client's per-event captures, never read back, and
+        best-effort like the board: an unwritable tape never stops a card.
+        """
+        client = self.deps.oddsapi
+        captured = list(client.last_captures) if client is not None else []
+        supplied = {(c.matchup, c.market, c.selection) for c in captured}
+        rows = captured + tape.vsin_captures(quotes, supplied, slate.games)
+        pks = tape.match_game_pks(captured, slate.games)
+        self.event_ids = {pk: eid for eid, pk in pks.items() if pk is not None}
+        try:
+            tape.append_tape(
+                self.cfg.audit_dir, slate_date, rows, tape.RUN, game_pks=pks,
+            )
+        except OSError as exc:
+            log.warning("quote tape for %s unavailable (%s); card unaffected", slate_date, exc)
+
     def _record_board(
         self,
         slate_date: Date,
@@ -1381,6 +1413,10 @@ class Pipeline:
             removal_hazard=hazard,
         )
         res = mc.simulate(home_cfg, away_cfg)
+        try:
+            self.histograms[game.game_pk] = histograms.build_game_hists(res, game)
+        except Exception as exc:  # noqa: BLE001 - a receipt must not cost the card
+            log.warning("histograms for %s skipped (%s)", game.matchup(), exc)
 
         # F5: the simulator's own first five, or the non-stationary per-lineup-slot
         # Markov (TTO-aware) it replaces.

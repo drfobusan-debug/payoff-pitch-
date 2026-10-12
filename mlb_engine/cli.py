@@ -14,7 +14,7 @@ from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import reaction
+from mlb_engine.audit import histograms, reaction, tape
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -25,8 +25,10 @@ from mlb_engine.audit.clv import (
     attach_clv,
     closing_quotes,
     clv_rows,
+    judged_line,
     load_closing,
     merge_closing,
+    overround_by_market,
     save_closing,
     summarize,
 )
@@ -543,6 +545,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     # below can each fail, and a card the audit will grade locally but the
     # branch never saw is exactly the gap that hides a slate from every other
     # machine.
+    _write_histograms(cfg, pipe, recs, slate_date)
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced")
 
     # Emit a blank VSIN quotes template so odds/handle can be filled and re-run.
@@ -584,6 +587,54 @@ def cmd_run(args: argparse.Namespace) -> int:
         )
     # Anything the delivery steps added since the card was published.
     _state_push(cfg, f"run {slate_date.isoformat()}: {len(recs)} markets priced, delivered")
+    return 0
+
+
+def _write_histograms(
+    cfg: Config, pipe: Pipeline, recs: list[Recommendation], slate_date: Date
+) -> None:
+    """Persist the games this run simulated, after the card and predictions are on disk.
+
+    Called only once ``write_workbook`` and ``save_json`` have both returned, so a
+    failed card never leaves histograms behind for it. Best-effort: a failure
+    here is logged and the run goes on.
+    """
+    if pipe.slate is None:
+        return
+    try:
+        n = histograms.save_histograms(
+            cfg.audit_dir, slate_date, pipe.histograms, recs, pipe.slate.games, pipe.event_ids
+        )
+        if n:
+            print(f"Histograms: {n} games -> {histograms.hist_path(cfg.audit_dir, slate_date)}")
+    except Exception as exc:  # noqa: BLE001 - a receipt must not cost the run
+        logging.getLogger(__name__).warning("histograms for %s not written (%s)", slate_date, exc)
+
+
+def _grade_shadow(
+    cfg: Config, audit_date: Date, results: dict, recs: list[Recommendation]
+) -> None:
+    """Grade the shadow ledgers and print their block. Best-effort; never stops the audit."""
+    from mlb_engine.audit.shadow import SHADOW_LEDGER
+    from mlb_engine.audit.shadow_grade import grade_shadow, morning_block
+
+    if not (cfg.audit_dir / SHADOW_LEDGER).exists():
+        return
+    try:
+        grade_shadow(cfg.audit_dir, audit_date, results, recs)
+        print("\n" + "\n".join(morning_block(cfg.audit_dir)))
+    except Exception as exc:  # noqa: BLE001 - a measurement must not cost the audit
+        logging.getLogger(__name__).warning("shadow grading skipped (%s)", exc)
+
+
+def cmd_shadow(args: argparse.Namespace) -> int:
+    """Measurement only: reads the tape, histograms and predictions already on disk."""
+    from mlb_engine.audit.shadow import run_shadow
+
+    cfg = load_config()
+    slate_date = _parse_date(args.date, Date.today())
+    n_shadow, n_cross = run_shadow(cfg.audit_dir, slate_date)
+    print(f"Shadow {slate_date}: {n_shadow} rows, {n_cross} cross-book rows (no bets, no card)")
     return 0
 
 
@@ -796,6 +847,13 @@ def cmd_close(args: argparse.Namespace) -> int:
             "or the board is empty. Nothing captured -- an in-play price is not a close."
         )
         return 1
+    try:
+        tape.append_tape(
+            cfg.audit_dir, slate_date, client.last_captures, tape.CLOSE,
+            game_pks=tape.match_game_pks(client.last_captures, slate.games),
+        )
+    except OSError as exc:
+        logging.getLogger(__name__).warning("quote tape for %s unavailable (%s); close unaffected", slate_date, exc)
     path = _closing_path(cfg, slate_date)
     already = load_closing(path)
     fresh = closing_quotes(quotes)
@@ -1224,7 +1282,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     entries = entries_from_graded(graded, audit_date, results)
     closing = load_closing(_closing_path(cfg, audit_date))
-    n_clv = attach_clv(entries, closing)
+    day_tape = tape.load_tape(tape.tape_path(cfg.audit_dir, audit_date))
+    n_clv = attach_clv(entries, closing, day_tape)
+    print(judged_line(entries))
+    if day_tape:
+        size = tape.tape_path(cfg.audit_dir, audit_date).stat().st_size
+        print(f"Tape: {len(day_tape)} rows, {size / 1024:.0f} KB gzipped")
+        for market, holds in sorted(overround_by_market(day_tape).items()):
+            hs = sorted(holds)
+            print(
+                f"  overround {market}: n={len(hs)} min={hs[0]:.3f} "
+                f"median={hs[len(hs) // 2]:.3f} max={hs[-1]:.3f} (logged, band unset)"
+            )
     # The outside model's picks are graded off the same box scores and written
     # beside ours, on their own rows, in the same `update_ledger` call: a second
     # write for the same date would be treated as a re-audit and drop them.
@@ -1264,6 +1333,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if outside:
         _print_head_to_head(entries, outside)
     _grade_vsin(cfg, audit_date, results)
+    _grade_shadow(cfg, audit_date, results, recs)
 
     print(f"Graded {len(graded)} markets for {audit_date}")
     for row in rows:
@@ -1821,6 +1891,13 @@ def main(argv: list[str] | None = None) -> int:
         help="skip per-event F5/prop markets: 3 credits for the whole slate",
     )
     cl.set_defaults(func=cmd_close)
+
+    sh = sub.add_parser(
+        "shadow",
+        help="pin the raw sim to the taped market and write the shadow ledgers (no network, no bets)",
+    )
+    sh.add_argument("--date", help="slate date YYYY-MM-DD (default: today)")
+    sh.set_defaults(func=cmd_shadow)
 
     lu = sub.add_parser(
         "lineups", help="record today's posted lineups with the time they were first seen"
