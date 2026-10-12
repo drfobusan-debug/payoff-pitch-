@@ -23,7 +23,7 @@ def run(cfg: Config, root: Path, day: str, *, saturday_games: int = 80, daily_cr
     budget = cadence.daily_budget(saturday_games, cfg.cadence, event_cost=0, regions=len(cfg.regions.split(",")))
     credits = int(budget.get("credits", budget.get("total", 0)))
     prereg = PREREG.read_text()
-    todo = prereg.count("TODO-PILOT")
+    todo = sum(line.split("#", 1)[0].count("TODO-PILOT") for line in prereg.splitlines())
     man = quotes.read_manifest(root, "cbb", day)
     kinds = {str(m.get("pass_kind")) for m in man}
     rows = list(ledger.record(root, "cbb", day).values())
