@@ -30,6 +30,7 @@ from datetime import date as Date
 from pathlib import Path
 
 from mlb_engine.audit.ledger import LedgerEntry
+from mlb_engine.audit.tape import CLOSE, RUN, TapeRow
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote, evaluate
 from mlb_engine.market.odds import american_to_decimal
@@ -196,12 +197,124 @@ def clv_ev(bet_american: float, close_prob: float) -> float:
     return round(close_prob * (dec - 1.0) - (1.0 - close_prob), 6)
 
 
-def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> int:
+# Quarantine reason codes, in precedence order: the first that holds wins.
+IMPLAUSIBLE = "implausible"
+NO_PREGAME = "no_pregame"
+NO_PAIR = "no_pair"
+EVENT_MISMATCH = "event_mismatch"
+OVERROUND = "overround"
+MOVE_GT_15PP = "move_gt_15pp"
+QUARANTINE_ORDER = (IMPLAUSIBLE, NO_PREGAME, NO_PAIR, EVENT_MISMATCH, OVERROUND, MOVE_GT_15PP)
+CLEAN = "clean"
+
+# A no-vig move this large between bet and close is a bad join far more often
+# than a market: on the summer book it caught the Turner H o1.5 +183 -> -185 row.
+MOVE_LIMIT = 0.15
+# Unset until the first week of tape prints the overround spread by market: a
+# -110 game line and a +2600 home-run book are not one number. While unset the
+# overround is logged and never blanks a close.
+OVERROUND_BAND: tuple[float, float] | None = None
+
+
+def pair_overround(american: float, opposite: float) -> float:
+    """The hold on one book's two-sided pair."""
+    return 1.0 / american_to_decimal(american) + 1.0 / american_to_decimal(opposite) - 1.0
+
+
+@dataclass(frozen=True)
+class TapeClose:
+    """A close read off the tape: one capture, every book, or the reason there is none."""
+
+    quote: ClosingQuote | None
+    reason: str | None
+    captured_at: str = ""
+    overrounds: tuple[float, ...] = ()
+
+
+def close_from_tape(
+    rows: list[TapeRow], band: tuple[float, float] | None = OVERROUND_BAND
+) -> TapeClose:
+    """The close for one selection: every book at the last pregame capture, devigged.
+
+    The latest ``close`` capture still before first pitch, else the latest
+    pregame ``run`` capture, devigged with the card's own ``evaluate`` consensus.
+    All rows in play is ``no_pregame``; no book with both sides at that capture is
+    ``no_pair``. Once a band is frozen, a pair outside it is dropped from the
+    consensus and the selection is quarantined only when no pair remains.
+    """
+    if not rows:
+        return TapeClose(None, None)
+    pregame = [r for r in rows if r.hours_to_first_pitch is not None and r.hours_to_first_pitch > 0]
+    if not pregame:
+        return TapeClose(None, NO_PREGAME)
+    chosen: list[TapeRow] = []
+    for source in (CLOSE, RUN):
+        src = [r for r in pregame if r.source == source]
+        if src:
+            last = max(r.captured_at for r in src)
+            chosen = [r for r in src if r.captured_at == last]
+            break
+    captured = chosen[0].captured_at if chosen else ""
+    paired = [r for r in chosen if r.opposite_american is not None]
+    if not paired:
+        return TapeClose(None, NO_PAIR, captured)
+    holds = tuple(pair_overround(r.american, r.opposite_american or 0.0) for r in paired)
+    if band is not None:
+        lo, hi = band
+        paired = [r for r, h in zip(paired, holds, strict=True) if lo <= h <= hi]
+        if not paired:
+            return TapeClose(None, OVERROUND, captured, holds)
+    first = paired[0]
+    res = evaluate(0.5, [r.quote() for r in paired])
+    quote = ClosingQuote(
+        matchup=first.matchup,
+        market=first.market,
+        selection=first.selection,
+        american=res.best_quote.american,
+        no_vig_prob=round(res.fair_prob, 6),
+    )
+    return TapeClose(quote, None, captured, holds)
+
+
+def _tape_index(
+    tape: list[TapeRow],
+) -> tuple[dict[tuple[str, str, str], list[TapeRow]], dict[tuple[str, str, str], list[TapeRow]],
+           dict[str, set[str]]]:
+    exact: dict[tuple[str, str, str], list[TapeRow]] = {}
+    canon: dict[tuple[str, str, str], list[TapeRow]] = {}
+    events: dict[str, set[str]] = {}
+    for r in tape:
+        exact.setdefault((r.matchup, r.market, r.selection), []).append(r)
+        canon.setdefault((r.matchup, r.market, r.canonical), []).append(r)
+        if r.event_id:
+            events.setdefault(r.matchup, set()).add(r.event_id)
+    # A canonical spelling claimed by two selections is ambiguous, as in
+    # ``keys.canonical_index``: dropped rather than guessed at.
+    canon = {
+        k: v for k, v in canon.items() if len({r.selection for r in v}) == 1
+    }
+    return exact, canon, events
+
+
+def attach_clv(
+    entries: list[LedgerEntry],
+    closing: dict[str, ClosingQuote],
+    tape: list[TapeRow] | None = None,
+    *,
+    move_limit: float = MOVE_LIMIT,
+    band: tuple[float, float] | None = OVERROUND_BAND,
+) -> int:
     """Fill the CLV columns on every entry we have both a bet price and a close for.
 
     Returns the number of entries priced. Rows without a captured close, or that
     were never priced at bet time, are left as None rather than defaulted -- a
     missing close is missing information, not zero closing line value.
+
+    Every row whose close is looked at is *judged*: ``clv_quarantine`` reads
+    ``clean`` when the close is kept, or the first failing reason code in
+    ``QUARANTINE_ORDER``. A quarantined row's close columns stay blank. On a
+    date with a tape, the close is :func:`close_from_tape`; a key the tape never
+    saw keeps the closing JSON, as does every date without a tape.
     """
     # The close is keyed on the book's spelling of a name and the ledger on the
     # lineup feed's, so props need the same accent/suffix-insensitive fallback
@@ -209,25 +322,50 @@ def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> 
     aliases = keys.canonical_index(
         {(c.matchup, c.market, c.selection): c for c in closing.values()}
     )
+    exact, canon, events = _tape_index(tape or [])
     n = 0
     for e in entries:
         if e.odds is None:
             continue
-        close = closing.get(_KEY_SEP.join((e.matchup, e.market, e.selection)))
-        if close is None:
-            close = aliases.get((e.matchup, e.market, keys.canonical(e.selection)))
-        if close is None:
+        rows = exact.get((e.matchup, e.market, e.selection)) or canon.get(
+            (e.matchup, e.market, keys.canonical(e.selection))
+        )
+        reasons: list[str] = []
+        close: ClosingQuote | None = None
+        if rows:
+            tc = close_from_tape(rows, band)
+            close = tc.quote
+            if tc.reason:
+                reasons.append(tc.reason)
+            # A ledger row carries no event id: one event for the matchup joins
+            # on its text, two or more is a doubleheader that is not guessed at.
+            if len(events.get(e.matchup, set())) > 1:
+                reasons.append(EVENT_MISMATCH)
+        else:
+            close = closing.get(_KEY_SEP.join((e.matchup, e.market, e.selection)))
+            if close is None:
+                close = aliases.get((e.matchup, e.market, keys.canonical(e.selection)))
+            if close is None:
+                continue
+        if close is not None:
+            if not is_plausible_close(close.american, e.market):
+                log.warning(
+                    "CLV: refusing %s %s %s -- a close of %+.0f is an in-play price and "
+                    "not a close; the row stays unpriced",
+                    e.matchup,
+                    e.market,
+                    e.selection,
+                    close.american,
+                )
+                reasons.append(IMPLAUSIBLE)
+            if abs(close.no_vig_prob - _no_vig_at_bet(e)) > move_limit:
+                reasons.append(MOVE_GT_15PP)
+        if reasons:
+            e.clv_quarantine = next(c for c in QUARANTINE_ORDER if c in reasons)
+            e.close_odds = e.close_prob = e.clv = e.clv_ev = None
             continue
-        if not is_plausible_close(close.american, e.market):
-            log.warning(
-                "CLV: refusing %s %s %s -- a close of %+.0f is an in-play price and "
-                "not a close; the row stays unpriced",
-                e.matchup,
-                e.market,
-                e.selection,
-                close.american,
-            )
-            continue
+        assert close is not None
+        e.clv_quarantine = CLEAN
         e.close_odds = close.american
         e.close_prob = close.no_vig_prob
         # Measured against the price we bet, not the probability we predicted:
@@ -236,6 +374,28 @@ def attach_clv(entries: list[LedgerEntry], closing: dict[str, ClosingQuote]) -> 
         e.clv_ev = clv_ev(e.odds, close.no_vig_prob)
         n += 1
     return n
+
+
+def judged_line(entries: list[LedgerEntry]) -> str:
+    """``CLV: n priced, j judged, k quarantined (by reason), u never judged``."""
+    priced = [e for e in entries if e.odds is not None]
+    judged = [e for e in priced if e.clv_quarantine]
+    bad = [e for e in judged if e.clv_quarantine != CLEAN]
+    by = {c: sum(1 for e in bad if e.clv_quarantine == c) for c in QUARANTINE_ORDER}
+    detail = ", ".join(f"{c} {k}" for c, k in by.items() if k) or "none"
+    return (
+        f"CLV: {len(priced)} priced, {len(judged)} judged, {len(bad)} quarantined "
+        f"({detail}), {len(priced) - len(judged)} never judged"
+    )
+
+
+def overround_by_market(tape: list[TapeRow]) -> dict[str, list[float]]:
+    """Every two-sided pair's hold on the tape, by market -- logged until a band is frozen."""
+    out: dict[str, list[float]] = {}
+    for r in tape:
+        if r.opposite_american is not None:
+            out.setdefault(r.market, []).append(pair_overround(r.american, r.opposite_american))
+    return out
 
 
 def _no_vig_at_bet(e: LedgerEntry) -> float:

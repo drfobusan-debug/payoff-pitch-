@@ -45,6 +45,7 @@ from mlb_engine.audit.clv import (
     save_closing,
 )
 from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
+from mlb_engine.audit.tape import merge_tape_files
 from mlb_engine.calibration import read_stored
 from mlb_engine.data import vsin_bets
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
@@ -374,7 +375,9 @@ def merge_dated_csv(
         _write_rows(local, fields, remote_rows)
         return True
     local_fields, local_rows = _rows(local)
-    fields = local_fields if len(local_fields) >= len(fields) else fields
+    # Union, local order first: keeping the longer list dropped a column
+    # whenever two machines had each added a different one at the same width.
+    fields = [*local_fields, *(f for f in fields if f not in local_fields)]
     kept = remote_rows
     if by_date is True:
         local_dates = {r.get("date", "") for r in local_rows}
@@ -628,6 +631,9 @@ def _pull_state_locked(
     for src in sorted((state / "mlb" / "board").glob("board_*.json")):
         if merge_board_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "tape").glob("tape_*.jsonl.gz")):
+        if merge_tape_files(src, audit / src.name):
+            pulled.append(src.name)
     for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
         if merge_opta_files(src, audit / src.name):
             pulled.append(src.name)
@@ -848,6 +854,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             dest = state / "mlb" / "board" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_board_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("tape_*.jsonl.gz")):
+            dest = state / "mlb" / "tape" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_tape_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for src in sorted(audit.glob("opta_*.json")):

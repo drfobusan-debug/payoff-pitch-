@@ -12,6 +12,7 @@ from typing import TypeVar
 
 import pandas as pd
 
+from mlb_engine.audit import tape
 from mlb_engine.audit.clv import (
     board_path,
     closing_quotes,
@@ -551,6 +552,7 @@ class Pipeline:
             log.info("Merged Odds API prices: %d market keys now priced", len(quotes))
         self._quote_aliases = keys.canonical_index(quotes)
 
+        self._record_tape(slate, slate_date, quotes)
         self._open_board = self._record_board(slate_date, quotes)
 
         self._luck_gaps = (
@@ -627,6 +629,29 @@ class Pipeline:
         return self._previews
 
     # ------------------------------------------------------------------
+    def _record_tape(
+        self,
+        slate: Slate,
+        slate_date: Date,
+        quotes: dict[tuple[str, str, str], list[MarketQuote]],
+    ) -> None:
+        """Append every book's quote this run holds to the slate's tape.
+
+        Written from the client's per-event captures, never read back, and
+        best-effort like the board: an unwritable tape never stops a card.
+        """
+        client = self.deps.oddsapi
+        captured = list(client.last_captures) if client is not None else []
+        supplied = {(c.matchup, c.market, c.selection) for c in captured}
+        rows = captured + tape.vsin_captures(quotes, supplied, slate.games)
+        try:
+            tape.append_tape(
+                self.cfg.audit_dir, slate_date, rows, tape.RUN,
+                game_pks=tape.match_game_pks(captured, slate.games),
+            )
+        except OSError as exc:
+            log.warning("quote tape for %s unavailable (%s); card unaffected", slate_date, exc)
+
     def _record_board(
         self,
         slate_date: Date,

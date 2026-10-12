@@ -14,7 +14,7 @@ from pathlib import Path
 
 from engine_common.podcasts.picks import load_ledger as load_podcast_ledger
 from mlb_engine.audit import funnel as funnel_report
-from mlb_engine.audit import reaction
+from mlb_engine.audit import reaction, tape
 from mlb_engine.audit.analysis import (
     dog_vs_favorite,
     price_bucket_findings,
@@ -25,8 +25,10 @@ from mlb_engine.audit.clv import (
     attach_clv,
     closing_quotes,
     clv_rows,
+    judged_line,
     load_closing,
     merge_closing,
+    overround_by_market,
     save_closing,
     summarize,
 )
@@ -796,6 +798,13 @@ def cmd_close(args: argparse.Namespace) -> int:
             "or the board is empty. Nothing captured -- an in-play price is not a close."
         )
         return 1
+    try:
+        tape.append_tape(
+            cfg.audit_dir, slate_date, client.last_captures, tape.CLOSE,
+            game_pks=tape.match_game_pks(client.last_captures, slate.games),
+        )
+    except OSError as exc:
+        logging.getLogger(__name__).warning("quote tape for %s unavailable (%s); close unaffected", slate_date, exc)
     path = _closing_path(cfg, slate_date)
     already = load_closing(path)
     fresh = closing_quotes(quotes)
@@ -1224,7 +1233,18 @@ def cmd_audit(args: argparse.Namespace) -> int:
 
     entries = entries_from_graded(graded, audit_date, results)
     closing = load_closing(_closing_path(cfg, audit_date))
-    n_clv = attach_clv(entries, closing)
+    day_tape = tape.load_tape(tape.tape_path(cfg.audit_dir, audit_date))
+    n_clv = attach_clv(entries, closing, day_tape)
+    print(judged_line(entries))
+    if day_tape:
+        size = tape.tape_path(cfg.audit_dir, audit_date).stat().st_size
+        print(f"Tape: {len(day_tape)} rows, {size / 1024:.0f} KB gzipped")
+        for market, holds in sorted(overround_by_market(day_tape).items()):
+            hs = sorted(holds)
+            print(
+                f"  overround {market}: n={len(hs)} min={hs[0]:.3f} "
+                f"median={hs[len(hs) // 2]:.3f} max={hs[-1]:.3f} (logged, band unset)"
+            )
     # The outside model's picks are graded off the same box scores and written
     # beside ours, on their own rows, in the same `update_ledger` call: a second
     # write for the same date would be treated as a re-audit and drop them.
