@@ -204,7 +204,13 @@ NO_PAIR = "no_pair"
 EVENT_MISMATCH = "event_mismatch"
 OVERROUND = "overround"
 MOVE_GT_15PP = "move_gt_15pp"
-QUARANTINE_ORDER = (IMPLAUSIBLE, NO_PREGAME, NO_PAIR, EVENT_MISMATCH, OVERROUND, MOVE_GT_15PP)
+# A home-run prop that trips the move limit: on the summer book these were a
+# broken price at bet time (e.g. +575 over / +450 under), not a bad close. Kept
+# out of the CLV means under its own code until that pair is investigated.
+HR_PROP = "hr_prop"
+QUARANTINE_ORDER = (
+    IMPLAUSIBLE, NO_PREGAME, NO_PAIR, EVENT_MISMATCH, OVERROUND, HR_PROP, MOVE_GT_15PP
+)
 CLEAN = "clean"
 
 # A no-vig move this large between bet and close is a bad join far more often
@@ -359,7 +365,7 @@ def attach_clv(
                 )
                 reasons.append(IMPLAUSIBLE)
             if abs(close.no_vig_prob - _no_vig_at_bet(e)) > move_limit:
-                reasons.append(MOVE_GT_15PP)
+                reasons.append(HR_PROP if e.market == "batter_hr" else MOVE_GT_15PP)
         if reasons:
             e.clv_quarantine = next(c for c in QUARANTINE_ORDER if c in reasons)
             e.close_odds = e.close_prob = e.clv = e.clv_ev = None

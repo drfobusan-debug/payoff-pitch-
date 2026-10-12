@@ -249,3 +249,12 @@ def test_tape_hook_swallows_oserror(tmp_path: Path, monkeypatch) -> None:
 
     slate = type("S", (), {"games": []})()
     pipeline.Pipeline._record_tape(_P(), slate, D, {})  # type: ignore[arg-type]
+
+
+def test_hr_prop_move_gets_its_own_code() -> None:
+    hr = _entry("Spencer Horwitz HR o0.5", "batter_hr", 575.0, 0.3854)
+    clv.attach_clv([hr], _closing("Spencer Horwitz HR o0.5", 625, 0.14, "batter_hr"))
+    assert hr.clv_quarantine == clv.HR_PROP and hr.clv is None and hr.close_prob is None
+    small = _entry("Spencer Horwitz HR o0.5", "batter_hr", 575.0, 0.15)
+    clv.attach_clv([small], _closing("Spencer Horwitz HR o0.5", 625, 0.14, "batter_hr"))
+    assert small.clv_quarantine == clv.CLEAN

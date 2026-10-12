@@ -156,3 +156,23 @@ def test_grading_uses_the_read_line_and_the_canonical_name(tmp_path: Path, no_ne
     assert block[-1] == "Gate shut: no alternate keys on the tape. 200-row rule is a 2027 rule."
     assert any("sign violations: 0" in ln for ln in block)
     assert not any("ml_holdout_gap" in ln for ln in block)
+
+
+def test_audit_email_carries_the_shadow_block(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from mlb_engine.output import audit_insight
+    _setup(tmp_path)
+    shadow.run_shadow(tmp_path, D)
+    sent: list[tuple[str, str]] = []
+    def fake_send(cfg: object, *, subject: str, html_body: str, text_body: str, **_: object) -> str:
+        sent.append((html_body, text_body))
+        return "me@example.com"
+    monkeypatch.setattr(audit_insight, "send_card_email", fake_send)
+    cfg = SimpleNamespace(audit_dir=tmp_path)
+    audit_insight.send_audit_emails(cfg, D, [("a.pdf", b"%PDF")], [], to=None)
+    html_body, text_body = sent[0]
+    gate = "Gate shut: no alternate keys on the tape. 200-row rule is a 2027 rule."
+    assert gate in html_body and text_body.rstrip().endswith(gate)
+    empty = SimpleNamespace(audit_dir=tmp_path / "none")
+    sent.clear()
+    audit_insight.send_audit_emails(empty, D, [("a.pdf", b"%PDF")], [], to=None)
+    assert "Gate shut" not in sent[0][0]

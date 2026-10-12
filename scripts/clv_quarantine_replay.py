@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
         if not clv.is_plausible_close(e.close_odds or 0.0, e.market):
             code = clv.IMPLAUSIBLE
         elif e.close_prob is not None and abs(e.close_prob - clv._no_vig_at_bet(e)) > args.move_limit:
-            code = clv.MOVE_GT_15PP
+            code = clv.HR_PROP if e.market == "batter_hr" else clv.MOVE_GT_15PP
         if code:
             reasons[code] += 1
             print(f"  {code}: {e.date} {e.matchup} {e.selection} {e.odds:+.0f} -> {e.close_odds:+.0f}")
