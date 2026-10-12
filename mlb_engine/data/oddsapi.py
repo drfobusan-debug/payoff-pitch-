@@ -37,6 +37,7 @@ from pathlib import Path
 
 import requests
 
+from engine_runtime import credits
 from mlb_engine.data import http
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
@@ -535,6 +536,9 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
+        if not credits.debit_for("mlb", url, q, remaining=self.credits_remaining):
+            log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
+            return None
         try:
             resp = http.get(url, params={"apiKey": self.api_key or "", **q},
                             timeout=self.timeout)

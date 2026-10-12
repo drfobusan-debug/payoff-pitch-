@@ -25,6 +25,8 @@ dependencies = [
     "lxml>=5.0",
     # The NBA engine reads the league's official injury report PDFs.
     "pypdf>=4.0",
+    # The runtime queries its Parquet quote shards in place.
+    "duckdb>=1.0",
 ]
 
 [project.optional-dependencies]
@@ -52,7 +54,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["engine_common*", "mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "nba_engine*", "lineshop*", "cardscout*", "live_edge*"]
+include = ["engine_common*", "engine_runtime*", "mlb_engine*", "cfb_engine*", "nfl_engine*", "nhl_engine*", "nba_engine*", "lineshop*", "cardscout*", "live_edge*"]
 
 [tool.setuptools.package-data]
 lineshop = ["data/*.json"]
