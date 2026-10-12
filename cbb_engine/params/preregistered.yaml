@@ -1,0 +1,74 @@
+# Pre-registration for the CBB engine (docs/cbb/master_plan.md §3.6, §3.7, §4).
+# Committed before the first slate; the commit hash is printed in every audit header.
+# Numbers marked TODO-PILOT are filled from the §4.e historical-slate study, never by hand.
+version: 1
+season: 2026-27
+
+# Fixed ordered rung list. edge_by_rung[i] = change from rung i-1. A rung not listed
+# cannot be attributed later.
+rungs:
+  - v0_shape          # residual width + fitted key-number masses on the consensus median
+  - foul_redistribution
+  - half_correlation
+  - blend_shift       # w_m, w_t (prior 0)
+  - availability_residual
+
+simulation:
+  anchor_tolerance_pts: 0.1    # |simulated median - target median| > this => refusal anchor_miss
+  max_paths: 20000             # path cap; SE above the cap at max_paths => refusal se_cap
+  k_sampling_spread: 1.0       # edge must exceed k x its sampling spread before tiering
+
+blend:
+  w_m_prior: 0.0
+  w_t_prior: 0.0
+  torvik_stale_days: 1         # staler => model channel OFF; capture/card/market-only continue
+
+prior_candidates:              # five shadow priors, scored on v_prior; all-zero may win
+  - {name: all_zero, futures_weight: 0.0}
+  - {name: low, futures_weight: 0.15}
+  - {name: mid, futures_weight: 0.30}
+  - {name: high, futures_weight: 0.45}
+  - {name: mid_halved_for_brand, futures_weight: 0.30, brand_weight: 0.15}
+prior_decision:
+  week: 5
+  score: residual_log_score_vs_close
+  null_wins_unless_beaten_by_mde: true
+  mde: TODO-PILOT
+
+gates:
+  - starter_unknown
+  - one_way_quote
+  - settlement_unverified
+  - ml_sharp
+  - drift
+  - pending
+  - thin_market
+  - stale_quote
+  - anchor_miss
+  - se_cap
+  - halves_sum
+  - team_totals_sum
+  - monotone_alt
+  - win_vs_cover
+
+stale_flag:                    # market-only channel; never enters p_model
+  consensus_move_pts: 0.5
+  consensus_move_cents: 5
+
+hypotheses:
+  live:                        # all on fill-verified consensus CLV of live game totals
+    - {id: H1, text: market-only channel beats 0 CLV, min_n: 100}
+    - {id: H2, text: end-game component removes the Under lean, min_n: 100}
+    - {id: H3, text: starter_unknown refusals have worse CLV than admitted rows, min_n: 100}
+    - {id: H4, text: 10-min featured passes beat the 15-min subset (cut 10), min_n: TODO-PILOT}
+  research:                    # scored on v_prior / research rows, never on live probation
+    - {id: R1, text: prior beats all-zero through game k}
+    - {id: R2, text: mid-major ATS beats power-conference ATS}
+    - {id: R3, text: line direction predicts result beyond the close (expected to fail)}
+futility:
+  min_worthwhile_clv_cents: 0.5
+  min_n: TODO-PILOT
+mde:
+  per_bet_clv_sd_cents: TODO-PILOT
+  cluster_inflation: 1.4
+review_dates: []               # every 4th Monday; filled before the first slate
