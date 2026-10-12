@@ -14,7 +14,7 @@ import sys
 from datetime import date as Date
 from datetime import datetime, timezone
 
-from cbb_engine import audit, cadence, card
+from cbb_engine import audit, cadence, card, email
 from cbb_engine.config import SPORT, SPORT_KEY, data_dir, load_config, runtime_root
 from cbb_engine.data import capture, espn, torvik, watch
 from cbb_engine.markets import EVENT_MARKETS, FEATURED
@@ -217,7 +217,8 @@ def cmd_price(args: argparse.Namespace) -> int:
             h = json.loads(line)
             if "espn_id" in h:
                 pending.add(str(h["espn_id"]))
-    priced = card.price(root, day.isoformat(), pass_id=ps.pass_id, pass_kind="featured", code_sha=ps.code_sha, env_lock_hash=ps.env_lock_hash, pending_events=pending, width=dist.load_width())
+    cfg = load_config()
+    priced = card.price(root, day.isoformat(), pass_id=ps.pass_id, pass_kind="featured", code_sha=ps.code_sha, env_lock_hash=ps.env_lock_hash, pending_events=pending, width=dist.load_width(), max_live_buys=cfg.exposure.max_live_buys, max_per_book=cfg.exposure.max_per_book)
     if priced is None:
         print(f"{day}: no board shard to price")
         return 1
@@ -228,6 +229,8 @@ def cmd_price(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text)
     print(text)
+    if args.email and not args.dry_run:
+        print(f"emailed {email.send(cfg, subject=f'CBB card {day} ({ps.pass_id})', text=text, paths={'card': out}, to=args.to)}")
     return 0
 
 
@@ -245,8 +248,14 @@ def cmd_audit(args: argparse.Namespace) -> int:
     written = audit.grade(root, day.isoformat(), games, teams, pass_id=ps.pass_id)
     rows = list(ledger.record(root, SPORT, day.isoformat()).values())
     rungs = ["v0_shape", "foul_redistribution", "half_correlation", "blend_shift", "availability_residual"]
-    print(audit.render(audit.report(rows, rungs)))
+    text = audit.render(audit.report(rows, rungs, quotes.read_day(root, SPORT, day.isoformat())))
+    out = data_dir() / "audit" / f"{day.isoformat()}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text)
+    print(text)
     print(f"graded {len(written)} row(s)")
+    if args.email:
+        print(f"emailed {email.send(load_config(), subject=f'CBB audit {day}', text=text, paths={'audit': out}, to=args.to)}")
     return 0
 
 
@@ -297,11 +306,15 @@ def build_parser() -> argparse.ArgumentParser:
     tv.set_defaults(func=cmd_torvik)
     pr = sub.add_parser("price", help="price the slate from the latest shard and write the card pass")
     pr.add_argument("--date")
-    pr.add_argument("--dry-run", action="store_true", help="print the card, write no ledger rows")
+    pr.add_argument("--dry-run", action="store_true", help="print the card, write no ledger rows, send nothing")
+    pr.add_argument("--email", action="store_true")
+    pr.add_argument("--to")
     pr.set_defaults(func=cmd_price)
     au = sub.add_parser("audit", help="grade bet-of-record rows (close shards + ESPN finals), print the views")
     au.add_argument("--date")
     au.add_argument("--offline", action="store_true", help="no ESPN call; CLV only")
+    au.add_argument("--email", action="store_true")
+    au.add_argument("--to")
     au.set_defaults(func=cmd_audit)
     bu = sub.add_parser("budget", help="credits one slate day costs under the cadence table")
     bu.add_argument("--games", type=int, default=60)

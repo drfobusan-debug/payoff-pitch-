@@ -14,6 +14,7 @@ the original is never rewritten.
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import replace
 from pathlib import Path
@@ -96,7 +97,53 @@ def grade(
     return out
 
 
-def report(rows: list[ledger.Row], rungs: list[str]) -> dict[str, object]:
+def v_persist(rows: list[ledger.Row], shards: list[quotes.Quote]) -> list[dict[str, object]]:
+    """Stale-flagged quotes still on the board at the next featured pass and at the next card, by book x market.
+
+    "Still available" = same (event, market, side, line, book) at the same or better American
+    price in the first featured shard captured after the row's shard; "next card" = the same test
+    against the next bet-of-record pass on the day.
+    """
+    by_pass: dict[str, list[quotes.Quote]] = defaultdict(list)
+    for q in shards:
+        by_pass[q.pass_id].append(q)
+    featured = sorted({(q.captured_at, q.pass_id) for q in shards if q.pass_kind == "featured"})
+    card_rows: dict[str, list[ledger.Row]] = defaultdict(list)
+    for r in rows:
+        if r.bet_of_record:
+            card_rows[r.pass_id].append(r)
+    shard_time = {pid: qs[0].captured_at for pid, qs in by_pass.items()}
+    acc: dict[tuple[str, str], list[tuple[bool | None, bool | None]]] = defaultdict(list)
+    for r in rows:
+        if not r.stale_flag or not r.bet_of_record:
+            continue
+        t0 = shard_time.get(r.quote_shard, "")
+        nxt = next((pid for ts, pid in featured if ts > t0), None)
+        still_feat: bool | None = None
+        if nxt is not None:
+            still_feat = any(_same(q, r) for q in by_pass[nxt])
+        later_cards = [pid for pid in card_rows if pid != r.pass_id and pid > r.pass_id]
+        still_card: bool | None = None
+        if later_cards:
+            still_card = any(_same_row(x, r) for x in card_rows[min(later_cards)])
+        acc[(r.book, r.market)].append((still_feat, still_card))
+    out = []
+    for (book, market), xs in sorted(acc.items()):
+        f = [a for a, _ in xs if a is not None]
+        c = [b for _, b in xs if b is not None]
+        out.append({"book": book, "market": market, "n": len(xs), "next_featured": round(sum(f) / len(f), 3) if f else None, "next_card": round(sum(c) / len(c), 3) if c else None})
+    return out
+
+
+def _same(q: quotes.Quote, r: ledger.Row) -> bool:
+    return (q.event_id, q.market, q.side, q.line, q.book) == (r.event_id, r.market, r.side, r.line, r.book) and r.american is not None and q.american >= r.american
+
+
+def _same_row(x: ledger.Row, r: ledger.Row) -> bool:
+    return (x.event_id, x.market, x.side, x.line, x.book) == (r.event_id, r.market, r.side, r.line, r.book) and r.american is not None and x.american is not None and x.american >= r.american
+
+
+def report(rows: list[ledger.Row], rungs: list[str], shards: list[quotes.Quote] | None = None) -> dict[str, object]:
     """Page one first: CLV, shape, rung, gate, prior; W-L/ROI underneath."""
     graded = [r for r in rows if r.outcome and r.is_buy and r.status == "live"]
     units = sum(r.pnl or 0.0 for r in graded)
@@ -106,6 +153,7 @@ def report(rows: list[ledger.Row], rungs: list[str]) -> dict[str, object]:
         "v_rung": views.v_rung(rows, rungs),
         "v_gate": views.v_gate(rows),
         "v_prior": views.v_prior(rows),
+        "v_persist": v_persist(rows, shards or []),
         "record": {
             "n": len(graded),
             "w": sum(1 for r in graded if r.outcome == "win"),
@@ -121,4 +169,4 @@ def render(rep: dict[str, object]) -> str:
     return json.dumps(rep, indent=2, default=str)
 
 
-__all__ = ["grade", "match_final", "outcome_total", "pnl", "render", "report"]
+__all__ = ["grade", "match_final", "outcome_total", "pnl", "render", "report", "v_persist"]
