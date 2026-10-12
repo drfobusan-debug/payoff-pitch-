@@ -33,7 +33,7 @@ prior_decision:
   week: 5
   score: residual_log_score_vs_close
   null_wins_unless_beaten_by_mde: true
-  mde: TODO-PILOT
+  mde: 0.06
 
 gates:
   - starter_unknown
@@ -60,15 +60,16 @@ hypotheses:
     - {id: H1, text: market-only channel beats 0 CLV, min_n: 100}
     - {id: H2, text: end-game component removes the Under lean, min_n: 100}
     - {id: H3, text: starter_unknown refusals have worse CLV than admitted rows, min_n: 100}
-    - {id: H4, text: 10-min featured passes beat the 15-min subset (cut 10), min_n: TODO-PILOT}
+    - {id: H4, text: 10-min featured passes beat the 15-min subset (cut 10), min_n: 9}
   research:                    # scored on v_prior / research rows, never on live probation
     - {id: R1, text: prior beats all-zero through game k}
     - {id: R2, text: mid-major ATS beats power-conference ATS}
     - {id: R3, text: line direction predicts result beyond the close (expected to fail)}
 futility:
   min_worthwhile_clv_cents: 0.5
-  min_n: TODO-PILOT
+  min_n: 93
 mde:
-  per_bet_clv_sd_cents: TODO-PILOT
+  per_bet_clv_sd_cents: 1.75
   cluster_inflation: 1.4
 review_dates: []               # every 4th Monday; filled before the first slate
+# pilot (2026-10-12, 89738 quotes on 10 dense slates): H4.min_n=9, prior_decision.mde=0.06, futility.min_n=93, mde.per_bet_clv_sd_cents=1.75
