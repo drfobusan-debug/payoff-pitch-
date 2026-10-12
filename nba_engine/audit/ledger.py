@@ -29,7 +29,7 @@ import csv
 import gzip
 import io
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Iterable, Mapping
 from dataclasses import asdict, dataclass, fields, replace
 from datetime import date as Date
 from pathlib import Path
@@ -45,6 +45,7 @@ from nba_engine.schemas import GameResult
 PAPER = "paper"
 PASS = "Pass"
 NO_MODEL = "no_model"
+NEWS_PENDING = "news_pending"
 NO_EXEC_BOOK = "no_exec_book"
 NO_FAIR = "no_fair"
 CLOSE, MOVED, PULLED = "close", "moved", "pulled"
@@ -135,11 +136,14 @@ def price(
     pass_tag: str,
     model: Mapping[PosKey, float] | None = None,
     espn_ids: Mapping[str, str] | None = None,
+    pending: Collection[str] = (),
 ) -> list[LedgerRow]:
     """One ledger row per selection on games that have not tipped.
 
     ``model`` maps a position to the model's probability. Without one the row is
     refused (``no_model``) but still recorded: it is the board's base rate.
+    ``pending`` holds the event ids the news alarm has not released (line still
+    moving after news); their rows are refused ``news_pending``.
     """
     out: list[LedgerRow] = []
     for s in sels:
@@ -152,6 +156,7 @@ def price(
             g
             for g, refused in (
                 (NO_MODEL, p_model is None),
+                (NEWS_PENDING, s.event_id in pending),
                 (NO_FAIR, fair is None),
                 (NO_EXEC_BOOK, s.exec_american is None),
             )
