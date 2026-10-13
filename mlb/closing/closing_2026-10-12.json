@@ -5612,5 +5612,1265 @@
     "selection": "Yoshinobu Yamamoto Outs u17.5",
     "american": 145.0,
     "no_vig_prob": 0.395337
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Andy Pages 1B o0.5",
+    "american": 112.0,
+    "no_vig_prob": 0.437569
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Andy Pages 1B u0.5",
+    "american": -154.0,
+    "no_vig_prob": 0.562431
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Enrique Hernandez 1B o0.5",
+    "american": 167.0,
+    "no_vig_prob": 0.347783
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Enrique Hernandez 1B u0.5",
+    "american": -236.0,
+    "no_vig_prob": 0.652217
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Freddie Freeman 1B o0.5",
+    "american": -108.0,
+    "no_vig_prob": 0.480487
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Freddie Freeman 1B u0.5",
+    "american": -128.0,
+    "no_vig_prob": 0.519513
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Kyle Tucker 1B o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.425155
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Kyle Tucker 1B u0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.574845
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Mookie Betts 1B o0.5",
+    "american": -118.0,
+    "no_vig_prob": 0.500978
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Mookie Betts 1B u0.5",
+    "american": -117.0,
+    "no_vig_prob": 0.499022
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Shohei Ohtani 1B o0.5",
+    "american": 124.0,
+    "no_vig_prob": 0.413827
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Shohei Ohtani 1B u0.5",
+    "american": -172.0,
+    "no_vig_prob": 0.586173
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Teoscar Hernandez 1B o0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.461043
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Teoscar Hernandez 1B u0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.538957
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Will Smith 1B o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.441176
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Will Smith 1B u0.5",
+    "american": -152.0,
+    "no_vig_prob": 0.558824
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Andy Pages 2B o0.5",
+    "american": 423.0,
+    "no_vig_prob": 0.180445
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Andy Pages 2B u0.5",
+    "american": -660.0,
+    "no_vig_prob": 0.819555
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Cooper Pratt 2B o0.5",
+    "american": 475.0,
+    "no_vig_prob": 0.173913
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Enrique Hernandez 2B o0.5",
+    "american": 572.0,
+    "no_vig_prob": 0.141243
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Enrique Hernandez 2B u0.5",
+    "american": -950.0,
+    "no_vig_prob": 0.858757
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Freddie Freeman 2B o0.5",
+    "american": 381.0,
+    "no_vig_prob": 0.195818
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Freddie Freeman 2B u0.5",
+    "american": -584.0,
+    "no_vig_prob": 0.804182
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Kyle Tucker 2B o0.5",
+    "american": 438.0,
+    "no_vig_prob": 0.17547
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Kyle Tucker 2B u0.5",
+    "american": -690.0,
+    "no_vig_prob": 0.82453
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Mookie Betts 2B o0.5",
+    "american": 363.0,
+    "no_vig_prob": 0.203212
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Mookie Betts 2B u0.5",
+    "american": -553.0,
+    "no_vig_prob": 0.796788
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Shohei Ohtani 2B o0.5",
+    "american": 392.0,
+    "no_vig_prob": 0.191313
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Shohei Ohtani 2B u0.5",
+    "american": -610.0,
+    "no_vig_prob": 0.808687
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Teoscar Hernandez 2B o0.5",
+    "american": 404.0,
+    "no_vig_prob": 0.18693
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Teoscar Hernandez 2B u0.5",
+    "american": -630.0,
+    "no_vig_prob": 0.81307
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Will Smith 2B o0.5",
+    "american": 425.0,
+    "no_vig_prob": 0.179592
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Will Smith 2B u0.5",
+    "american": -670.0,
+    "no_vig_prob": 0.820408
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Andrew Vaughn BB o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.361613
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Andrew Vaughn BB u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.638387
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Andy Pages BB o0.5",
+    "american": 214.0,
+    "no_vig_prob": 0.30783
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Andy Pages BB u0.5",
+    "american": -280.0,
+    "no_vig_prob": 0.69217
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Brice Turang BB o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.44843
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Brice Turang BB u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.55157
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Cooper Pratt BB o0.5",
+    "american": 225.0,
+    "no_vig_prob": 0.28479
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Cooper Pratt BB u0.5",
+    "american": -340.0,
+    "no_vig_prob": 0.71521
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Enrique Hernandez BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.235155
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Enrique Hernandez BB u0.5",
+    "american": -419.0,
+    "no_vig_prob": 0.764845
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Freddie Freeman BB o0.5",
+    "american": 198.0,
+    "no_vig_prob": 0.318508
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Freddie Freeman BB u0.5",
+    "american": -270.0,
+    "no_vig_prob": 0.681492
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Garrett Mitchell BB o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.384615
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Garrett Mitchell BB u0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.615385
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Jackson Chourio BB o0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.342772
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Jackson Chourio BB u0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.657228
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Jake Bauers BB o0.5",
+    "american": -110.0,
+    "no_vig_prob": 0.480989
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Jake Bauers BB u0.5",
+    "american": -130.0,
+    "no_vig_prob": 0.519011
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Joey Ortiz BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.265734
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Joey Ortiz BB u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.734266
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Kyle Tucker BB o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.333862
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Kyle Tucker BB u0.5",
+    "american": -241.0,
+    "no_vig_prob": 0.666138
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Luis Lara BB o0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.342772
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Luis Lara BB u0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.657228
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Max Muncy BB o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.307692
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Max Muncy BB u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.692308
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Mookie Betts BB o0.5",
+    "american": 182.0,
+    "no_vig_prob": 0.333059
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Mookie Betts BB u0.5",
+    "american": -255.0,
+    "no_vig_prob": 0.666941
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Shohei Ohtani BB o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.368765
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Shohei Ohtani BB u0.5",
+    "american": -205.0,
+    "no_vig_prob": 0.631235
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Teoscar Hernandez BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.281301
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Teoscar Hernandez BB u0.5",
+    "american": -307.0,
+    "no_vig_prob": 0.718699
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Will Smith BB o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.370099
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Will Smith BB u0.5",
+    "american": -203.0,
+    "no_vig_prob": 0.629901
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "William Contreras BB o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.419255
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "William Contreras BB u0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.580745
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Andy Pages H+R+RBI o1.5",
+    "american": 102.0,
+    "no_vig_prob": 0.467774
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Andy Pages H+R+RBI u1.5",
+    "american": -130.0,
+    "no_vig_prob": 0.532226
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Enrique Hernandez H+R+RBI o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.539963
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Enrique Hernandez H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.460037
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Freddie Freeman H+R+RBI o1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.472103
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Freddie Freeman H+R+RBI u1.5",
+    "american": -127.0,
+    "no_vig_prob": 0.527897
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Kyle Tucker H+R+RBI o1.5",
+    "american": 116.0,
+    "no_vig_prob": 0.434382
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Kyle Tucker H+R+RBI u1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.565618
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Mookie Betts H+R+RBI o1.5",
+    "american": -120.0,
+    "no_vig_prob": 0.513132
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Mookie Betts H+R+RBI u1.5",
+    "american": -107.0,
+    "no_vig_prob": 0.486868
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Shohei Ohtani H+R+RBI o1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.476704
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Shohei Ohtani H+R+RBI u1.5",
+    "american": -125.0,
+    "no_vig_prob": 0.523296
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Teoscar Hernandez H+R+RBI o1.5",
+    "american": 100.0,
+    "no_vig_prob": 0.472779
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Teoscar Hernandez H+R+RBI u1.5",
+    "american": -129.0,
+    "no_vig_prob": 0.527221
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Will Smith H+R+RBI o1.5",
+    "american": 101.0,
+    "no_vig_prob": 0.467341
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Will Smith H+R+RBI u1.5",
+    "american": -130.0,
+    "no_vig_prob": 0.532659
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Andy Pages HR o0.5",
+    "american": 500.0,
+    "no_vig_prob": 0.166667
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Andy Pages HR o1.5",
+    "american": 6000.0,
+    "no_vig_prob": 0.016393
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Enrique Hernandez HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Freddie Freeman HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Kyle Tucker HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Mookie Betts HR o0.5",
+    "american": 425.0,
+    "no_vig_prob": 0.190476
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Mookie Betts HR o1.5",
+    "american": 4500.0,
+    "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Shohei Ohtani HR o0.5",
+    "american": 475.0,
+    "no_vig_prob": 0.173913
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Shohei Ohtani HR o1.5",
+    "american": 5500.0,
+    "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Teoscar Hernandez HR o0.5",
+    "american": 425.0,
+    "no_vig_prob": 0.190476
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Teoscar Hernandez HR o1.5",
+    "american": 4500.0,
+    "no_vig_prob": 0.021739
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Will Smith HR o0.5",
+    "american": 475.0,
+    "no_vig_prob": 0.173913
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Will Smith HR o1.5",
+    "american": 5500.0,
+    "no_vig_prob": 0.017857
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Andy Pages H o0.5",
+    "american": -184.0,
+    "no_vig_prob": 0.605599
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Andy Pages H u0.5",
+    "american": 137.0,
+    "no_vig_prob": 0.394401
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Enrique Hernandez H o0.5",
+    "american": -109.0,
+    "no_vig_prob": 0.48692
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Enrique Hernandez H u0.5",
+    "american": -122.0,
+    "no_vig_prob": 0.51308
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Freddie Freeman H o0.5",
+    "american": -206.0,
+    "no_vig_prob": 0.635288
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Freddie Freeman H u0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.364712
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Kyle Tucker H o0.5",
+    "american": -161.0,
+    "no_vig_prob": 0.576855
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Kyle Tucker H u0.5",
+    "american": 121.0,
+    "no_vig_prob": 0.423145
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Mookie Betts H o0.5",
+    "american": -245.0,
+    "no_vig_prob": 0.666167
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Mookie Betts H u0.5",
+    "american": 181.0,
+    "no_vig_prob": 0.333833
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Shohei Ohtani H o0.5",
+    "american": -181.0,
+    "no_vig_prob": 0.60218
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Shohei Ohtani H u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.39782
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Teoscar Hernandez H o0.5",
+    "american": -211.0,
+    "no_vig_prob": 0.63552
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Teoscar Hernandez H u0.5",
+    "american": 157.0,
+    "no_vig_prob": 0.36448
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Will Smith H o0.5",
+    "american": -184.0,
+    "no_vig_prob": 0.606605
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Will Smith H u0.5",
+    "american": 138.0,
+    "no_vig_prob": 0.393395
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Andy Pages RBI o0.5",
+    "american": 193.0,
+    "no_vig_prob": 0.317595
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Andy Pages RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.682405
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Cooper Pratt RBI o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.257732
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Cooper Pratt RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.742268
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Enrique Hernandez RBI o0.5",
+    "american": 279.0,
+    "no_vig_prob": 0.247016
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Enrique Hernandez RBI u0.5",
+    "american": -411.0,
+    "no_vig_prob": 0.752984
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Freddie Freeman RBI o0.5",
+    "american": 243.0,
+    "no_vig_prob": 0.27227
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Freddie Freeman RBI u0.5",
+    "american": -353.0,
+    "no_vig_prob": 0.72773
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Kyle Tucker RBI o0.5",
+    "american": 237.0,
+    "no_vig_prob": 0.277196
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Kyle Tucker RBI u0.5",
+    "american": -342.0,
+    "no_vig_prob": 0.722804
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Mookie Betts RBI o0.5",
+    "american": 191.0,
+    "no_vig_prob": 0.319719
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Mookie Betts RBI u0.5",
+    "american": -272.0,
+    "no_vig_prob": 0.680281
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Shohei Ohtani RBI o0.5",
+    "american": 192.0,
+    "no_vig_prob": 0.318547
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Shohei Ohtani RBI u0.5",
+    "american": -274.0,
+    "no_vig_prob": 0.681453
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Teoscar Hernandez RBI o0.5",
+    "american": 197.0,
+    "no_vig_prob": 0.313635
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Teoscar Hernandez RBI u0.5",
+    "american": -280.0,
+    "no_vig_prob": 0.686365
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Will Smith RBI o0.5",
+    "american": 197.0,
+    "no_vig_prob": 0.313635
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Will Smith RBI u0.5",
+    "american": -280.0,
+    "no_vig_prob": 0.686365
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Andy Pages R o0.5",
+    "american": 136.0,
+    "no_vig_prob": 0.393176
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Andy Pages R u0.5",
+    "american": -189.0,
+    "no_vig_prob": 0.606824
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Enrique Hernandez R o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.310289
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Enrique Hernandez R u0.5",
+    "american": -286.0,
+    "no_vig_prob": 0.689711
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Freddie Freeman R o0.5",
+    "american": 129.0,
+    "no_vig_prob": 0.404988
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Freddie Freeman R u0.5",
+    "american": -179.0,
+    "no_vig_prob": 0.595012
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Kyle Tucker R o0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.364221
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Kyle Tucker R u0.5",
+    "american": -217.0,
+    "no_vig_prob": 0.635779
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Mookie Betts R o0.5",
+    "american": 109.0,
+    "no_vig_prob": 0.443001
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Mookie Betts R u0.5",
+    "american": -151.0,
+    "no_vig_prob": 0.556999
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Shohei Ohtani R o0.5",
+    "american": 118.0,
+    "no_vig_prob": 0.424765
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Shohei Ohtani R u0.5",
+    "american": -164.0,
+    "no_vig_prob": 0.575235
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Teoscar Hernandez R o0.5",
+    "american": 132.0,
+    "no_vig_prob": 0.399505
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Teoscar Hernandez R u0.5",
+    "american": -184.0,
+    "no_vig_prob": 0.600495
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Will Smith R o0.5",
+    "american": 121.0,
+    "no_vig_prob": 0.419222
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Will Smith R u0.5",
+    "american": -168.0,
+    "no_vig_prob": 0.580778
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Freddie Freeman TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.385311
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Freddie Freeman TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.614689
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Mookie Betts TB o1.5",
+    "american": 120.0,
+    "no_vig_prob": 0.426178
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Mookie Betts TB u1.5",
+    "american": -157.0,
+    "no_vig_prob": 0.573822
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB o1.5",
+    "american": 136.0,
+    "no_vig_prob": 0.398644
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB u1.5",
+    "american": -178.0,
+    "no_vig_prob": 0.601356
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Will Smith TB o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601707
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Will Smith TB u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398293
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_ml",
+    "selection": "LAD F5 ML",
+    "american": -182.0,
+    "no_vig_prob": 0.614802
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_ml",
+    "selection": "MIL F5 ML",
+    "american": 148.0,
+    "no_vig_prob": 0.385198
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_rl",
+    "selection": "LAD F5 -0.5",
+    "american": -121.0,
+    "no_vig_prob": 0.51948
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_rl",
+    "selection": "MIL F5 +0.5",
+    "american": -104.0,
+    "no_vig_prob": 0.48052
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_total",
+    "selection": "F5 Over 4.5",
+    "american": 105.0,
+    "no_vig_prob": 0.467339
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "f5_total",
+    "selection": "F5 Under 4.5",
+    "american": -130.0,
+    "no_vig_prob": 0.532661
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_ml",
+    "selection": "LAD ML",
+    "american": -166.0,
+    "no_vig_prob": 0.609241
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_ml",
+    "selection": "MIL ML",
+    "american": 154.0,
+    "no_vig_prob": 0.390759
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_rl",
+    "selection": "LAD -1.5",
+    "american": 137.0,
+    "no_vig_prob": 0.41343
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_rl",
+    "selection": "MIL +1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.58657
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_total",
+    "selection": "Over 7.5",
+    "american": 100.0,
+    "no_vig_prob": 0.493803
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_total",
+    "selection": "Under 7.5",
+    "american": -107.0,
+    "no_vig_prob": 0.506197
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks o0.5",
+    "american": -214.0,
+    "no_vig_prob": 0.637567
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_bb",
+    "selection": "Robert Gasser Walks u0.5",
+    "american": 159.0,
+    "no_vig_prob": 0.362433
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
+    "selection": "Robert Gasser ER o1.5",
+    "american": -124.0,
+    "no_vig_prob": 0.522889
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
+    "selection": "Robert Gasser ER u1.5",
+    "american": -105.0,
+    "no_vig_prob": 0.477111
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits o3.5",
+    "american": -120.0,
+    "no_vig_prob": 0.506175
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_h",
+    "selection": "Robert Gasser Hits u3.5",
+    "american": -111.0,
+    "no_vig_prob": 0.493825
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Blake Snell Ks o6.5",
+    "american": 126.0,
+    "no_vig_prob": 0.41681
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Blake Snell Ks u6.5",
+    "american": -162.0,
+    "no_vig_prob": 0.58319
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Robert Gasser Ks o3.5",
+    "american": -107.0,
+    "no_vig_prob": 0.508938
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Robert Gasser Ks u3.5",
+    "american": -104.0,
+    "no_vig_prob": 0.491062
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs o11.5",
+    "american": -142.0,
+    "no_vig_prob": 0.557585
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
+    "selection": "Robert Gasser Outs u11.5",
+    "american": 120.0,
+    "no_vig_prob": 0.442415
   }
 ]
