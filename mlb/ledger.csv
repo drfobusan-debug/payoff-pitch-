@@ -380123,6 +380123,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-12,CLE @ TB,Totals,game_total,Under 7.5,7.5,,,,Pass,0.5218,,loss,-1.0,,,unpriced,0.4744,,,,,,,posted,2.08,,engine,
 2026-10-12,CLE @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.5639,,loss,-1.0,,,unpriced,0.5619,,,,,,,posted,2.08,,engine,
 2026-10-12,CLE @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6576,,loss,-1.0,,,unpriced,0.6653,,,,,,,posted,2.08,,engine,
+2026-10-12,CLE @ TB,game,game_total,Over 6.5,6.5,teamrankings,,,1 star,0.5031,,win,0.91,,,,,,,,,,,,,,teamrankings,
+2026-10-12,CLE @ TB,game,game_winner,TB ML,,teamrankings,,,2 stars,0.6071,,loss,0.0,,,,,,,,,,,,,,teamrankings,
 2026-10-12,LAD @ MIL,Batter Props,batter_1b,Andy Pages 1B o0.5,0.5,betmgm,125.0,-165.0,Pass,0.4032,-0.0598,loss,-1.0,,,ev_floor,0.391,0.4195,0.4179,125.0,0.417044,-0.002456,-0.061651,posted,2.08,,engine,clean
 2026-10-12,LAD @ MIL,Batter Props,batter_1b,Andy Pages 1B u0.5,0.5,betmgm,-165.0,125.0,Pass,0.5968,-0.0651,win,0.6061,,,ev_floor,0.609,0.5805,0.5821,-165.0,0.582956,0.002456,-0.063737,posted,2.08,,engine,clean
 2026-10-12,LAD @ MIL,Batter Props,batter_1b,Brice Turang 1B o0.5,0.5,betmgm,105.0,-145.0,Pass,0.403,-0.0565,win,1.05,,,ev_floor,0.388,0.4666,0.4602,115.0,0.443612,-0.022988,-0.090595,posted,2.08,,engine,clean
@@ -380640,3 +380642,7 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-12,LAD @ MIL,Totals,game_total,Under 7.5,7.5,fanduel,-148.0,120.0,Pass,0.5956,-0.0385,loss,-1.0,,,ev_floor,0.5735,0.5676,0.5738,-148.0,0.567643,4.3e-05,-0.048814,posted,2.08,,engine,clean
 2026-10-12,LAD @ MIL,Totals,game_total,Under 8.5,8.5,,,,Pass,0.6512,,loss,-1.0,,,unpriced,0.6542,,,,,,,posted,2.08,,engine,
 2026-10-12,LAD @ MIL,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7035,,loss,-1.0,,,unpriced,0.7492,,,,,,,posted,2.08,,engine,
+2026-10-12,LAD @ MIL,game,game_ml,MIL ML,,teamrankings,117.0,,1 star,0.0,0.024900000000000002,win,1.17,,,,,,,,,,,,,,teamrankings,
+2026-10-12,LAD @ MIL,game,game_rl,MIL +1.5,1.5,teamrankings,-161.0,,1 star,0.0,0.024900000000000002,win,0.6211,3.0,,,,,,,,,,,,,teamrankings,
+2026-10-12,LAD @ MIL,game,game_total,Under 7.0,7.0,teamrankings,,,1 star,0.515,,loss,-1.0,,,,,,,,,,,,,,teamrankings,
+2026-10-12,LAD @ MIL,game,game_winner,LAD ML,,teamrankings,,,1 star,0.5142,,loss,0.0,,,,,,,,,,,,,,teamrankings,
