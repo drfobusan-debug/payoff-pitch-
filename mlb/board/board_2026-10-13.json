@@ -30,6 +30,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_1b",
+    "selection": "Chandler Simpson 1B o0.5",
+    "american": -162.0,
+    "no_vig_prob": 0.578234
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
+    "selection": "Chandler Simpson 1B u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.421766
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_1b",
     "selection": "Chase DeLauter 1B o0.5",
     "american": -105.0,
     "no_vig_prob": 0.479903
@@ -296,6 +310,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_2b",
+    "selection": "Chandler Simpson 2B o0.5",
+    "american": 500.0,
+    "no_vig_prob": 0.164283
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
+    "selection": "Chandler Simpson 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.835717
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_2b",
     "selection": "Chase DeLauter 2B o0.5",
     "american": 425.0,
     "no_vig_prob": 0.183952
@@ -534,6 +562,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_bb",
+    "selection": "Austin Hedges BB o0.5",
+    "american": 325.0,
+    "no_vig_prob": 0.218818
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Austin Hedges BB u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.781182
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
     "selection": "Ben Williamson BB o0.5",
     "american": 351.0,
     "no_vig_prob": 0.223892
@@ -558,6 +600,20 @@
     "selection": "Brayan Rocchio BB u0.5",
     "american": -420.0,
     "no_vig_prob": 0.754736
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB o0.5",
+    "american": 291.0,
+    "no_vig_prob": 0.239598
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB u0.5",
+    "american": -431.0,
+    "no_vig_prob": 0.760402
   },
   {
     "matchup": "CLE @ TB",
@@ -800,6 +856,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hrr",
+    "selection": "Austin Hedges H+R+RBI o0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.417114
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Austin Hedges H+R+RBI u0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.582886
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
     "selection": "Ben Williamson H+R+RBI o0.5",
     "american": -169.0,
     "no_vig_prob": 0.589675
@@ -838,6 +908,20 @@
     "selection": "Brayan Rocchio H+R+RBI u0.5",
     "american": 120.0,
     "no_vig_prob": 0.431012
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Chandler Simpson H+R+RBI o1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.466473
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Chandler Simpson H+R+RBI u1.5",
+    "american": -125.0,
+    "no_vig_prob": 0.533527
   },
   {
     "matchup": "CLE @ TB",
@@ -926,9 +1010,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o0.5",
+    "american": -158.0,
+    "no_vig_prob": 0.584832
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
     "selection": "Liam Hicks H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.415168
   },
   {
     "matchup": "CLE @ TB",
@@ -1108,9 +1206,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Austin Hedges HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Ben Williamson HR o0.5",
     "american": 1300.0,
     "no_vig_prob": 0.071429
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Ben Williamson HR o1.5",
+    "american": 45000.0,
+    "no_vig_prob": 0.002217
   },
   {
     "matchup": "CLE @ TB",
@@ -1125,6 +1237,13 @@
     "selection": "Brayan Rocchio HR o1.5",
     "american": 30000.0,
     "no_vig_prob": 0.003322
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Chandler Simpson HR o0.5",
+    "american": 4000.0,
+    "no_vig_prob": 0.02439
   },
   {
     "matchup": "CLE @ TB",
@@ -1220,6 +1339,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Liam Hicks HR o1.5",
+    "american": 60000.0,
+    "no_vig_prob": 0.001664
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Nathaniel Lowe HR o0.5",
     "american": 700.0,
     "no_vig_prob": 0.125
@@ -1265,6 +1391,13 @@
     "selection": "Petey Halpin HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Petey Halpin HR o1.5",
+    "american": 20000.0,
+    "no_vig_prob": 0.004975
   },
   {
     "matchup": "CLE @ TB",
@@ -1332,6 +1465,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 14000.0,
+    "no_vig_prob": 0.009719
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Yandy Diaz HR o0.5",
     "american": 500.0,
     "no_vig_prob": 0.171498
@@ -1349,6 +1489,20 @@
     "selection": "Angel Martinez H o0.5",
     "american": -134.0,
     "no_vig_prob": 0.57265
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Austin Hedges H o0.5",
+    "american": 145.0,
+    "no_vig_prob": 0.383001
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Austin Hedges H u0.5",
+    "american": -192.0,
+    "no_vig_prob": 0.616999
   },
   {
     "matchup": "CLE @ TB",
@@ -1377,6 +1531,20 @@
     "selection": "Brayan Rocchio H u0.5",
     "american": -104.0,
     "no_vig_prob": 0.482716
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H o0.5",
+    "american": -215.0,
+    "no_vig_prob": 0.651712
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u0.5",
+    "american": 173.0,
+    "no_vig_prob": 0.348288
   },
   {
     "matchup": "CLE @ TB",
@@ -1612,9 +1780,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_h",
+    "selection": "Yandy Diaz H o1.5",
+    "american": 199.0,
+    "no_vig_prob": 0.315695
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
     "selection": "Yandy Diaz H u0.5",
     "american": 195.0,
     "no_vig_prob": 0.319091
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_h",
+    "selection": "Yandy Diaz H u1.5",
+    "american": -267.0,
+    "no_vig_prob": 0.684305
   },
   {
     "matchup": "CLE @ TB",
@@ -1650,6 +1832,20 @@
     "selection": "Brayan Rocchio RBI u0.5",
     "american": -400.0,
     "no_vig_prob": 0.767032
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Chandler Simpson RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.241156
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_rbi",
+    "selection": "Chandler Simpson RBI u0.5",
+    "american": -408.0,
+    "no_vig_prob": 0.758844
   },
   {
     "matchup": "CLE @ TB",
@@ -1920,6 +2116,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_r",
+    "selection": "Chandler Simpson R o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.304077
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
+    "selection": "Chandler Simpson R u0.5",
+    "american": -291.0,
+    "no_vig_prob": 0.695923
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_r",
     "selection": "Chase DeLauter R o0.5",
     "american": 160.0,
     "no_vig_prob": 0.362908
@@ -2158,6 +2368,20 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_tb",
+    "selection": "Austin Hedges TB o0.5",
+    "american": 152.0,
+    "no_vig_prob": 0.378091
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Austin Hedges TB u0.5",
+    "american": -199.0,
+    "no_vig_prob": 0.621909
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
     "selection": "Ben Williamson TB o0.5",
     "american": -128.0,
     "no_vig_prob": 0.536062
@@ -2182,6 +2406,20 @@
     "selection": "Brayan Rocchio TB u0.5",
     "american": -109.0,
     "no_vig_prob": 0.490476
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Chandler Simpson TB o1.5",
+    "american": 174.0,
+    "no_vig_prob": 0.350097
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Chandler Simpson TB u1.5",
+    "american": -225.0,
+    "no_vig_prob": 0.649903
   },
   {
     "matchup": "CLE @ TB",
@@ -2431,9 +2669,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.384299
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
     "selection": "Victor Mesa Jr. TB u0.5",
     "american": 128.0,
     "no_vig_prob": 0.421633
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.615701
   },
   {
     "matchup": "CLE @ TB",
@@ -2469,6 +2721,20 @@
     "selection": "CLE F5 +0.5",
     "american": -130.0,
     "no_vig_prob": 0.554769
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "f5_rl",
+    "selection": "CLE F5 -0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.390947
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "f5_rl",
+    "selection": "TB F5 +0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.609053
   },
   {
     "matchup": "CLE @ TB",
@@ -2683,9 +2949,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "pitcher_outs",
+    "selection": "Freddy Peralta Outs o14.5",
+    "american": -105.0,
+    "no_vig_prob": 0.471347
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "pitcher_outs",
     "selection": "Freddy Peralta Outs u13.5",
     "american": 107.0,
     "no_vig_prob": 0.469301
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "pitcher_outs",
+    "selection": "Freddy Peralta Outs u14.5",
+    "american": -135.0,
+    "no_vig_prob": 0.528653
   },
   {
     "matchup": "CLE @ TB",
