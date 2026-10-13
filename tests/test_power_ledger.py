@@ -16,6 +16,7 @@ from datetime import date as Date
 import pytest
 
 from mlb_engine.audit import power_ledger
+from mlb_engine.audit.clv import ClosingQuote
 from mlb_engine.data.results import GameResult, PlayerLine
 from mlb_engine.features import arm
 from mlb_engine.features.arm import ArmProfile
@@ -928,3 +929,64 @@ def test_a_prop_recorded_on_both_sides_stays_out_of_the_bucket_record() -> None:
     assert len(power_ledger.two_sided(g.position for g in graded)) == 1
     rec = power_ledger.records_by_rating(graded)["RV NEG WATCH"]
     assert (rec.wins, rec.losses) == (1, 0) and rec.units == pytest.approx(1.5)
+
+
+def _board_row(side: str, ev: float | None, *, stat: str = "HRR") -> power_board.BoardRow:
+    return power_board.BoardRow(
+        batter="Matt Olson", stat=stat, line=1.5, side=side, model_prob=0.5, book="dk",
+        american=-110.0, fair_prob=0.5, edge=0.0, ev=ev, tier="Pass", devigged=True,
+        player_id=7, game_pk=1,
+    )
+
+
+def test_a_watch_showing_both_sides_records_the_side_the_card_valued_more() -> None:
+    over, under, tb = _board_row("over", -0.02), _board_row("under", 0.01), _board_row(
+        "over", -0.05, stat="TB"
+    )
+    assert power_ledger.one_side_per_prop([over, under, tb]) == [under, tb]
+
+
+def test_slate_clustered_error_widens_when_a_day_moves_together() -> None:
+    def graded(day: str, result: str) -> power_ledger.GradedPosition:
+        units = 1.0 if result == "win" else -1.0
+        return power_ledger.GradedPosition(
+            _position(date=day, odds=100.0, fair=0.48), result, 0, units
+        )
+
+    rows = [graded(f"2026-08-{d:02d}", r) for d in range(1, 11) for r in [
+        "win" if d % 2 else "loss"] * 5]
+    rec = power_ledger.summarize("all", rows)
+    assert rec.roi_se is not None and rec.slate_se > rec.roi_se
+    assert rec.range_se == rec.slate_se
+    assert rec.fair_pct == pytest.approx(0.48)
+    assert rec.juice == pytest.approx(0.48 * 2.0 - 1.0)
+
+
+def test_a_prop_row_finds_its_close_by_selection_and_scores_the_price_taken() -> None:
+    hit = _position("HRR", 1.5, side="over", odds=100.0, fair=0.48)
+    arm = replace(_position("K", 5.5, side="under", odds=-120.0, fair=0.52), category="pitcher")
+    assert power_ledger.close_selection(hit) == ("batter_hrr", "Matt Olson H+R+RBI o1.5")
+    assert power_ledger.close_selection(arm) == ("pitcher_k", "Matt Olson Ks u5.5")
+    quotes = {
+        q.key: q
+        for q in (
+            ClosingQuote("ATL @ NYM", "batter_hrr", "Matt Olson H+R+RBI o1.5", -105.0, 0.50),
+            ClosingQuote("ATL @ NYM", "pitcher_k", "Matt Olson Ks u5.5", -2500.0, 0.95),
+        )
+    }
+    index = power_ledger.close_index(quotes)
+    assert list(index) == [("batter_hrr", "matt olson h+r+rbi o1.5")]
+    graded = [
+        power_ledger.GradedPosition(hit, "win", 2, 1.0),
+        power_ledger.GradedPosition(arm, "win", 4, 0.83),
+    ]
+    (c,) = power_ledger.closed(graded, {hit.date: index})
+    assert c.clv == pytest.approx(0.02)
+    assert c.close_ev == pytest.approx(0.0)
+    assert c.bet_ev == pytest.approx(-0.04)
+
+
+def test_a_selection_two_quotes_share_is_not_guessed_at() -> None:
+    a = ClosingQuote("A @ B", "batter_h", "Luis Garcia Jr. H o0.5", -150.0, 0.58)
+    b = ClosingQuote("C @ D", "batter_h", "Luis Garcia H o0.5", -130.0, 0.55)
+    assert power_ledger.close_index({a.key: a, b.key: b}) == {}
