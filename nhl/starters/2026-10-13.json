@@ -30,8 +30,8 @@
     "status": "confirmed"
   },
   "CGY": {
-    "name": "Devin Cooley",
-    "player_id": 8482445,
+    "name": "Dustin Wolf",
+    "player_id": 8481692,
     "source": "rotowire",
     "status": "probable"
   },
@@ -75,7 +75,7 @@
     "name": "Darcy Kuemper",
     "player_id": 8475311,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "MIN": {
     "name": "Calvin Pickard",
@@ -126,10 +126,10 @@
     "status": "confirmed"
   },
   "PIT": {
-    "name": "Arturs Silovs",
-    "player_id": 8481668,
+    "name": "Sergei Murashov",
+    "player_id": 8483703,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   },
   "SEA": {
     "name": "Philipp Grubauer",
@@ -189,6 +189,6 @@
     "name": "Logan Thompson",
     "player_id": 8480313,
     "source": "rotowire",
-    "status": "probable"
+    "status": "confirmed"
   }
 }
