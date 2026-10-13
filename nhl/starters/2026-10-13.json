@@ -1,0 +1,194 @@
+{
+  "ANA": {
+    "name": "Lukas Dostal",
+    "player_id": 8480843,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "BOS": {
+    "name": "Jeremy Swayman",
+    "player_id": 8480280,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "BUF": {
+    "name": "Ukko-Pekka Luukkonen",
+    "player_id": 8480045,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CAR": {
+    "name": "Brandon Bussi",
+    "player_id": 8483548,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CBJ": {
+    "name": "Cam Talbot",
+    "player_id": 8475660,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CGY": {
+    "name": "Devin Cooley",
+    "player_id": 8482445,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CHI": {
+    "name": "Spencer Knight",
+    "player_id": 8481519,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "COL": {
+    "name": "Mackenzie Blackwood",
+    "player_id": 8478406,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "DAL": {
+    "name": "Jake Oettinger",
+    "player_id": 8479979,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "DET": {
+    "name": "John Gibson",
+    "player_id": 8476434,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "EDM": {
+    "name": "Devon Levi",
+    "player_id": 8482221,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "FLA": {
+    "name": "Akira Schmid",
+    "player_id": 8481033,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "LAK": {
+    "name": "Darcy Kuemper",
+    "player_id": 8475311,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "MIN": {
+    "name": "Calvin Pickard",
+    "player_id": 8475717,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "MTL": {
+    "name": "Jakub Dobes",
+    "player_id": 8482487,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NJD": {
+    "name": "Jake Allen",
+    "player_id": 8474596,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "NSH": {
+    "name": "Juuse Saros",
+    "player_id": 8477424,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYI": {
+    "name": "Ilya Sorokin",
+    "player_id": 8478009,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "NYR": {
+    "name": "Dylan Garand",
+    "player_id": 8482193,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "OTT": {
+    "name": "Samuel Ersson",
+    "player_id": 8481035,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "PHI": {
+    "name": "Dan Vladar",
+    "player_id": 8478435,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "PIT": {
+    "name": "Arturs Silovs",
+    "player_id": 8481668,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "SEA": {
+    "name": "Joey Daccord",
+    "player_id": 8478916,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "SJS": {
+    "name": "Yaroslav Askarov",
+    "player_id": 8482137,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "STL": {
+    "name": "Joel Hofer",
+    "player_id": 8480981,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "TBL": {
+    "name": "Andrei Vasilevskiy",
+    "player_id": 8476883,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "TOR": {
+    "name": "Sergei Bobrovsky",
+    "player_id": 8475683,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "UTA": {
+    "name": "Karel Vejmelka",
+    "player_id": 8478872,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VAN": {
+    "name": "Kevin Lankinen",
+    "player_id": 8480947,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "VGK": {
+    "name": "Adin Hill",
+    "player_id": 8478499,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WPG": {
+    "name": "Stuart Skinner",
+    "player_id": 8479973,
+    "source": "rotowire",
+    "status": "confirmed"
+  },
+  "WSH": {
+    "name": "Logan Thompson",
+    "player_id": 8480313,
+    "source": "rotowire",
+    "status": "probable"
+  }
+}
