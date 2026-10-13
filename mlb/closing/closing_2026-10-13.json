@@ -1290,6 +1290,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Yandy Diaz HR o0.5",
     "american": 500.0,
     "no_vig_prob": 0.171498
