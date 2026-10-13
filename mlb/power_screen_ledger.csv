@@ -1338,3 +1338,20 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-12,Taylor Walls,670764,849820,2B,0.5,over,draftkings,508.0,0.1496,0.158,0.1633,-0.0053,-0.0395,Pass,PROD WATCH,True,confirmed,20261012T1534Z,4,20,5,0.78,batter,ev_floor,elite
 2026-10-12,Taylor Walls,670764,849820,BB,0.5,over,draftkings,255.0,0.2106,0.2719,0.2788,-0.0068,-0.0346,Pass,PROD WATCH,True,confirmed,20261012T1534Z,4,20,5,0.78,batter,ev_floor,elite
 2026-10-12,Taylor Walls,670764,849820,R,0.5,over,betmgm,200.0,0.3243,0.315,0.314,0.001,-0.0549,Pass,PROD WATCH,True,confirmed,20261012T1534Z,4,20,5,0.78,batter,ev_floor,elite
+2026-10-13,Jose Ramirez,608070,849813,1B,0.5,over,betmgm,120.0,0.5401,0.4587,0.4497,0.009,0.0092,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,4,23,5,-0.71,batter,thin_edge,elite
+2026-10-13,Jose Ramirez,608070,849813,2B,0.5,over,draftkings,482.0,0.156,0.1728,0.1835,-0.0107,0.0054,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,4,23,5,-0.71,batter,thin_edge,elite
+2026-10-13,Jose Ramirez,608070,849813,HRR,1.5,over,betmgm,105.0,0.4791,0.4619,0.46,0.0019,-0.0531,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,4,23,5,-0.71,batter,ev_floor,elite
+2026-10-13,Freddy Peralta,642547,849813,BB,1.5,over,draftkings,-129.0,0.549,0.5382,0.5274,0.0108,-0.0446,Pass,,True,contradicted,20261013T1534Z,,,,,pitcher,ev_floor,elite
+2026-10-13,Jo Adell,666176,849813,2B,0.5,over,draftkings,518.0,0.1791,0.1687,0.1621,0.0066,0.0427,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,6,17,5,-1.98,batter,thin_edge,elite
+2026-10-13,Jo Adell,666176,849813,HRR,1.5,under,williamhill_us,-145.0,0.5457,0.5673,0.5697,-0.0024,-0.0415,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,6,17,5,-1.98,batter,ev_floor,elite
+2026-10-13,Jo Adell,666176,849813,R,0.5,over,betmgm,175.0,0.3674,0.3512,0.3494,0.0018,-0.0341,Pass,RV NEG WATCH,True,contradicted,20261013T1534Z,6,17,5,-1.98,batter,ev_floor,elite
+2026-10-13,Steven Kwan,680757,849813,HRR,1.5,over,betmgm,110.0,0.5768,0.4609,0.448,0.0129,-0.0321,Pass,PROD WATCH,True,contradicted,20261013T1534Z,2,32,7,1.73,batter,ev_floor,elite
+2026-10-13,Steven Kwan,680757,849813,RBI,0.5,over,draftkings,374.0,0.2299,0.2197,0.2186,0.0011,0.0415,Pass,PROD WATCH,True,contradicted,20261013T1534Z,2,32,7,1.73,batter,thin_edge,elite
+2026-10-13,Steven Kwan,680757,849813,TB,1.5,over,betonlineag,171.0,0.4516,0.3663,0.3569,0.0095,-0.0072,Pass,PROD WATCH,True,contradicted,20261013T1534Z,2,32,7,1.73,batter,ev_floor,elite
+2026-10-13,Travis Bazzana,683953,849813,1B,0.5,under,betmgm,-165.0,0.5822,0.5947,0.5961,-0.0014,-0.0449,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,3,25,15,4.97,batter,ev_floor,elite
+2026-10-13,Travis Bazzana,683953,849813,H,0.5,under,betmgm,110.0,0.4119,0.4476,0.4515,-0.004,-0.0601,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,3,25,15,4.97,batter,ev_floor,elite
+2026-10-13,Travis Bazzana,683953,849813,RBI,0.5,under,betmgm,-375.0,0.7224,0.7456,0.7482,-0.0026,-0.0556,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,3,25,15,4.97,batter,ev_floor,elite
+2026-10-13,Chase DeLauter,800050,849813,1B,0.5,under,draftkings,-126.0,0.4176,0.5098,0.5201,-0.0103,-0.0855,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,1,51,15,5.52,batter,ev_floor,elite
+2026-10-13,Chase DeLauter,800050,849813,H,0.5,under,draftkings,149.0,0.3295,0.3757,0.3809,-0.0051,-0.0644,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,1,51,15,5.52,batter,ev_floor,elite
+2026-10-13,Chase DeLauter,800050,849813,HRR,1.5,under,betmgm,-130.0,0.424,0.5315,0.5435,-0.0119,-0.0596,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,1,51,15,5.52,batter,ev_floor,elite
+2026-10-13,Chase DeLauter,800050,849813,RBI,0.5,under,betmgm,-250.0,0.6005,0.6781,0.6867,-0.0086,-0.0507,Pass,ELITE UNDER,True,contradicted,20261013T1534Z,1,51,15,5.52,batter,ev_floor,elite

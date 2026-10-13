@@ -82,3 +82,14 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-12,20261012T1858Z,soft,arm,Drew Rasmussen,656876,TB,849820,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 3.02 ≤ 4.40,3.02
 2026-10-12,20261012T1858Z,soft,arm,Logan Henderson,701656,MIL,849812,Logan Henderson,701656,,False,,,gated,siera: SIERA 2.95 ≤ 4.40,2.95
 2026-10-12,20261012T1858Z,soft,arm,Yoshinobu Yamamoto,808967,LAD,849812,Yoshinobu Yamamoto,808967,,False,,,gated,siera: SIERA 3.08 ≤ 4.40,3.08
+2026-10-13,20261013T1534Z,elite,arm,Freddy Peralta,642547,TB,849813,Freddy Peralta,642547,,False,,,screened,,4.35
+2026-10-13,20261013T1534Z,elite,arm,Parker Messick,800048,CLE,849813,Parker Messick,800048,,False,,,gated,siera: SIERA 3.04 ≤ 3.25,3.04
+2026-10-13,20261013T1534Z,elite,bat,Jose Ramirez,608070,CLE,849813,Freddy Peralta,642547,2,True,RV NEG WATCH,,held,,
+2026-10-13,20261013T1534Z,elite,bat,Nathaniel Lowe,663993,CLE,849813,Freddy Peralta,642547,5,True,PROD DROP,,dropped,,
+2026-10-13,20261013T1534Z,elite,bat,Jo Adell,666176,CLE,849813,Freddy Peralta,642547,4,True,RV NEG WATCH,,held,,
+2026-10-13,20261013T1534Z,elite,bat,Brayan Rocchio,677587,CLE,849813,Freddy Peralta,642547,9,True,PROD DROP,,dropped,,
+2026-10-13,20261013T1534Z,elite,bat,Steven Kwan,680757,CLE,849813,Freddy Peralta,642547,1,True,PROD WATCH,,held,,
+2026-10-13,20261013T1534Z,elite,bat,Travis Bazzana,683953,CLE,849813,Freddy Peralta,642547,7,True,ELITE UNDER,under,held,,
+2026-10-13,20261013T1534Z,elite,bat,Chase DeLauter,800050,CLE,849813,Freddy Peralta,642547,3,True,ELITE UNDER,under,held,,
+2026-10-13,20261013T1534Z,soft,arm,Freddy Peralta,642547,TB,849813,Freddy Peralta,642547,,False,,,gated,siera: SIERA 4.35 ≤ 4.40,4.35
+2026-10-13,20261013T1534Z,soft,arm,Parker Messick,800048,CLE,849813,Parker Messick,800048,,False,,,gated,siera: SIERA 3.04 ≤ 4.40,3.04
