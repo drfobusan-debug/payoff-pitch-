@@ -65,7 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import atscontext, lineagree, lowtotal
+from cfb_engine.market import atscontext, lineagree, lowtotal, unitranks
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -524,12 +524,31 @@ def _totals_line_agrees(e: LedgerEntry) -> bool:
     return lineagree.line_agrees(e.market, e.model_prob, e.fair_prob, e.open_drift, e.drift)
 
 
+def _unit_top25(unit: str, market: str) -> Callable[[LedgerEntry], bool]:
+    def picks(e: LedgerEntry) -> bool:
+        return unitranks.picks(unit, market, e.market, e.unit_ranks, e.opp_unit_ranks)
+
+    return picks
+
+
 CANDIDATE_RULES: tuple[CandidateRule, ...] = (
     CandidateRule(
         lineagree.RULE_NAME,
         _totals_line_agrees,
         "the total had moved toward the model's side before the bet",
     ),
+)
+
+# Top-25 units, ranked on games before the slate (``cfb_engine.market.unitranks``).
+UNIT_RULES: tuple[CandidateRule, ...] = tuple(
+    CandidateRule(
+        unitranks.rule_name(unit, market),
+        _unit_top25(unit, market),
+        f"the side has a top-{unitranks.TOP_N} {unitranks.LABELS[unit]}"
+        " and the opponent does not",
+    )
+    for unit in unitranks.UNITS
+    for market in unitranks.MARKETS
 )
 
 
@@ -590,6 +609,7 @@ def probation_rows(entries: list[LedgerEntry], since: str | None = None) -> list
         *candidate_probation(entries, since=since),
         *upgrade_probation(entries, since=since),
         *rule_probation(entries, since=since),
+        *rule_probation(entries, UNIT_RULES, since=since),
     ]
 
 
