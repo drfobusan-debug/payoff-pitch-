@@ -758,6 +758,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_bb",
+    "selection": "Tommy Edman BB o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.268456
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
+    "selection": "Tommy Edman BB u0.5",
+    "american": -310.0,
+    "no_vig_prob": 0.731544
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_bb",
     "selection": "Will Smith BB o0.5",
     "american": 150.0,
     "no_vig_prob": 0.382883
@@ -982,6 +996,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hrr",
+    "selection": "Miguel Rojas H+R+RBI o0.5",
+    "american": -137.0,
+    "no_vig_prob": 0.540398
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Miguel Rojas H+R+RBI u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.459602
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
     "selection": "Mookie Betts H+R+RBI o1.5",
     "american": -120.0,
     "no_vig_prob": 0.523452
@@ -1024,6 +1052,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hrr",
+    "selection": "Tommy Edman H+R+RBI o1.5",
+    "american": 130.0,
+    "no_vig_prob": 0.415778
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Tommy Edman H+R+RBI u1.5",
+    "american": -162.0,
+    "no_vig_prob": 0.584222
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
     "selection": "Will Smith H+R+RBI o1.5",
     "american": 105.0,
     "no_vig_prob": 0.477614
@@ -1055,6 +1097,13 @@
     "selection": "Andrew Vaughn HR o0.5",
     "american": 950.0,
     "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Andrew Vaughn HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
   },
   {
     "matchup": "MIL @ LAD",
@@ -1251,6 +1300,13 @@
     "selection": "Teoscar Hernandez HR o1.5",
     "american": 6000.0,
     "no_vig_prob": 0.017125
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Tommy Edman HR o0.5",
+    "american": 750.0,
+    "no_vig_prob": 0.117647
   },
   {
     "matchup": "MIL @ LAD",
@@ -2102,9 +2158,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_tb",
+    "selection": "Andy Pages TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.386926
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
     "selection": "Andy Pages TB u0.5",
     "american": 143.0,
     "no_vig_prob": 0.391991
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Andy Pages TB u1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.613074
   },
   {
     "matchup": "MIL @ LAD",
@@ -2487,9 +2557,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": -117.0,
+    "no_vig_prob": 0.512829
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_total",
     "selection": "Over 7.5",
     "american": 100.0,
     "no_vig_prob": 0.487248
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": -105.0,
+    "no_vig_prob": 0.487171
   },
   {
     "matchup": "MIL @ LAD",
@@ -2585,9 +2669,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_k",
+    "selection": "Blake Snell Ks o5.5",
+    "american": -165.0,
+    "no_vig_prob": 0.583497
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
     "selection": "Blake Snell Ks o6.5",
     "american": 115.0,
     "no_vig_prob": 0.448989
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Blake Snell Ks u5.5",
+    "american": 125.0,
+    "no_vig_prob": 0.416503
   },
   {
     "matchup": "MIL @ LAD",
@@ -2620,9 +2718,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_outs",
+    "selection": "Blake Snell Outs o15.5",
+    "american": 130.0,
+    "no_vig_prob": 0.401126
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
     "selection": "Blake Snell Outs u14.5",
     "american": 135.0,
     "no_vig_prob": 0.407598
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
+    "selection": "Blake Snell Outs u15.5",
+    "american": -185.0,
+    "no_vig_prob": 0.598874
   },
   {
     "matchup": "MIL @ LAD",
