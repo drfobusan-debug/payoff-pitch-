@@ -209,6 +209,26 @@
     "line": 44.5,
     "no_vig_prob": 0.4930675527707285
   },
+  "Charleston Sou @ Clemson|game_ats|Charleston Sou": {
+    "american": -115.0,
+    "line": 42.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "Charleston Sou @ Clemson|game_ats|Clemson": {
+    "american": -105.0,
+    "line": -42.5,
+    "no_vig_prob": 0.4891657638136511
+  },
+  "Charleston Sou @ Clemson|game_total|Over": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5
+  },
+  "Charleston Sou @ Clemson|game_total|Under": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5
+  },
   "Charlotte @ Temple|game_ats|Charlotte": {
     "american": 101.0,
     "line": 21.0,
@@ -268,6 +288,56 @@
     "american": -105.0,
     "line": 62.5,
     "no_vig_prob": 0.49858525594781644
+  },
+  "Citadel @ Texas A&M|game_ats|Citadel": {
+    "american": -105.0,
+    "line": 45.5,
+    "no_vig_prob": 0.49299255111802154
+  },
+  "Citadel @ Texas A&M|game_ats|Texas A&M": {
+    "american": -113.0,
+    "line": -45.5,
+    "no_vig_prob": 0.5070074488819785
+  },
+  "Citadel @ Texas A&M|game_total|Over": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5026510010179843
+  },
+  "Citadel @ Texas A&M|game_total|Under": {
+    "american": -109.0,
+    "line": 56.5,
+    "no_vig_prob": 0.4973489989820156
+  },
+  "Elon @ Stanford|game_ats|Elon": {
+    "american": -110.0,
+    "line": 35.5,
+    "no_vig_prob": 0.5
+  },
+  "Elon @ Stanford|game_ats|Stanford": {
+    "american": -110.0,
+    "line": -35.5,
+    "no_vig_prob": 0.5
+  },
+  "Elon @ Stanford|game_ml|Elon": {
+    "american": 3000.0,
+    "line": null,
+    "no_vig_prob": 0.03155263980006248
+  },
+  "Elon @ Stanford|game_ml|Stanford": {
+    "american": -10000.0,
+    "line": null,
+    "no_vig_prob": 0.9684473601999376
+  },
+  "Elon @ Stanford|game_total|Over": {
+    "american": -110.0,
+    "line": 55.5,
+    "no_vig_prob": 0.5
+  },
+  "Elon @ Stanford|game_total|Under": {
+    "american": -110.0,
+    "line": 55.5,
+    "no_vig_prob": 0.5
   },
   "Florida @ Texas|game_ats|Florida": {
     "american": -101.0,
