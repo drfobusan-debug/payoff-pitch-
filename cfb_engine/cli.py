@@ -83,6 +83,7 @@ from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.shows import CFB
 
 _EASTERN = ZoneInfo("America/New_York")
+_AUDIT_CATCH_UP_DAYS = 14
 
 
 def _today() -> Date:
@@ -299,18 +300,29 @@ def _grade_slate(
     return graded
 
 
-def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
-    day = _audit_day(args)
-    _state_pull(cfg, day)
-    if not cfg.predictions_file(day).exists():
-        print(f"No saved predictions for {day}; nothing to grade.")
-        return 1
+def _missed_slates(cfg: Config, before: Date) -> list[Date]:
+    """Recent slates with saved predictions that never reached the ledger."""
+    graded = {e.date for e in load_ledger(cfg.ledger_file)}
+    earliest = before - timedelta(days=_AUDIT_CATCH_UP_DAYS)
+    out: list[Date] = []
+    for path in cfg.audit_dir.glob("predictions_*.json"):
+        try:
+            day = Date.fromisoformat(path.stem.removeprefix("predictions_"))
+        except ValueError:
+            continue
+        if earliest <= day < before and day.isoformat() not in graded:
+            out.append(day)
+    return sorted(out)
+
+
+def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None:
+    """Grade one slate into the ledger; the merged ledger and rows graded, or None."""
     index = _result_index(cfg, day)
     graded = _grade_slate(cfg, day, index)
     _grade_podcasts(cfg, day, index)
     if not graded:
         print(f"No graded markets for {day} yet (results may not be final).")
-        return 0
+        return None
 
     entries = entries_from_graded(graded, day)
     for e, (rec, _) in zip(entries, graded, strict=True):
@@ -353,8 +365,40 @@ def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
             f"(edge {buy.edge_vs_be:+.1%}); ROI {buy.roi:+.1%} on {buy.n} bets."
         )
 
-    _emit_ledger(cfg, merged, day, n_graded=len(entries), email=not args.no_email, to=args.to)
-    _state_push(cfg, f"cfb audit {day.isoformat()}: {len(entries)} graded")
+    return merged, len(entries)
+
+
+def cmd_audit(cfg: Config, args: argparse.Namespace) -> int:
+    day = _audit_day(args)
+    if args.date:
+        _state_pull(cfg, day)
+        days = [day]
+    else:
+        _state_pull(cfg)
+        days = [*_missed_slates(cfg, day), day]
+    if not any(cfg.predictions_file(d).exists() for d in days):
+        print(f"No saved predictions for {day}; nothing to grade.")
+        return 1
+
+    done: list[tuple[Date, int]] = []
+    merged: list[LedgerEntry] = []
+    for d in days:
+        if not cfg.predictions_file(d).exists():
+            print(f"No saved predictions for {d}; nothing to grade.")
+            continue
+        if d != day:
+            print(f"Catching up {d}: predictions saved but never graded.")
+        result = _audit_slate(cfg, d)
+        if result is not None:
+            merged, n = result
+            done.append((d, n))
+    if not done:
+        return 0
+
+    last, n_last = done[-1]
+    _emit_ledger(cfg, merged, last, n_graded=n_last, email=not args.no_email, to=args.to)
+    graded = ", ".join(f"{d.isoformat()}: {n} graded" for d, n in done)
+    _state_push(cfg, f"cfb audit {graded}")
     return 0
 
 
