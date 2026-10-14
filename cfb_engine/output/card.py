@@ -214,7 +214,16 @@ def _rating(x: float | None, rank: int | None) -> str:
     return f"{x:+.1f} <span class='rk'>{_rank(rank)}</span>"
 
 
-def _team_row(t: TeamBrief, *, ats: bool) -> str:
+# (column header, advanced.UNITS key): national rank by PPA/play, garbage time out
+_UNIT_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("Rush O", "rush_off"),
+    ("Pass O", "pass_off"),
+    ("Rush D", "run_def"),
+    ("Pass D", "pass_def"),
+)
+
+
+def _team_row(t: TeamBrief, *, ats: bool, units: bool = False) -> str:
     name = escape(t.name)
     if t.poll_rank is not None:
         name = f"<span class='ap'>No. {t.poll_rank}</span> {name}"
@@ -236,19 +245,26 @@ def _team_row(t: TeamBrief, *, ats: bool) -> str:
     if t.rated and t.sp_rating is not None:
         sp += f" <span class='rk'>({t.sp_rating:+.1f})</span>"
     ats_cell = f"<td>{escape(t.ats or '—')}</td>" if ats else ""
+    unit_cells = (
+        "".join(f"<td>{_rank(t.units.get(key))}</td>" for _, key in _UNIT_COLUMNS) if units else ""
+    )
     return (
         f"<tr><td class='tn'>{name}</td><td>{form}</td><td>{sp}</td>"
         f"<td>{_rating(t.off_rating, t.off_rank)}</td><td>{_rating(t.def_rating, t.def_rank)}</td>"
-        f"<td>{other}</td>{ats_cell}</tr>"
+        f"{unit_cells}<td>{other}</td>{ats_cell}</tr>"
     )
 
 
 def _team_table(b: GameBrief) -> str:
     ats = bool(b.away.ats or b.home.ats)
+    units = any(t.units.get(key) is not None for t in (b.away, b.home) for _, key in _UNIT_COLUMNS)
+    unit_heads = "".join(f"<th class='u'>{head}</th>" for head, _ in _UNIT_COLUMNS) if units else ""
     return (
         "<table class='teams'><thead><tr><th></th><th>Record</th><th>SP+</th>"
-        f"<th>Offense</th><th>Defense</th><th>Other ranks</th>{'<th>ATS</th>' if ats else ''}</tr></thead><tbody>"
-        f"{_team_row(b.away, ats=ats)}{_team_row(b.home, ats=ats)}</tbody></table>"
+        f"<th>Offense</th><th>Defense</th>{unit_heads}<th>Other ranks</th>"
+        f"{'<th>ATS</th>' if ats else ''}</tr></thead><tbody>"
+        f"{_team_row(b.away, ats=ats, units=units)}{_team_row(b.home, ats=ats, units=units)}"
+        "</tbody></table>"
     )
 
 
@@ -650,6 +666,7 @@ p{margin:6px 0;}
 .kick{float:right;font-family:'DejaVu Sans',sans-serif;font-size:9pt;color:#6b7280;font-weight:normal;padding-top:4px;}
 table.teams{width:100%;border-collapse:collapse;font-size:8.9pt;font-family:'DejaVu Sans',sans-serif;margin:6px 0 4px;}
 table.teams th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:2px 6px;font-size:7.8pt;text-transform:uppercase;letter-spacing:.5px;}
+table.teams th.u{white-space:nowrap;}
 table.teams td{padding:3px 6px;border-bottom:1px solid #eceef1;vertical-align:top;}
 table.teams td.tn{font-weight:bold;color:#16324f;}
 .rk{color:#6b7280;font-size:7.8pt;}.ap{color:#c8102e;font-weight:bold;}.streak{color:#16324f;font-weight:bold;}.muted{color:#6b7280;font-style:italic;font-size:8.6pt;}
