@@ -1378,3 +1378,8 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-13,Chase DeLauter,800050,849813,H,0.5,under,betonlineag,149.0,0.3329,0.3819,0.3874,-0.0054,-0.049,Pass,ELITE UNDER,True,contradicted,20261013T2159Z,1,49,15,5.52,batter,ev_floor,elite
 2026-10-13,Chase DeLauter,800050,849813,HRR,1.5,under,betmgm,-130.0,0.427,0.5261,0.5371,-0.011,-0.0692,Pass,ELITE UNDER,True,contradicted,20261013T2159Z,1,49,15,5.52,batter,ev_floor,elite
 2026-10-13,Chase DeLauter,800050,849813,RBI,0.5,under,betmgm,-250.0,0.6808,0.6729,0.672,0.0009,-0.0579,Pass,ELITE UNDER,True,contradicted,20261013T2159Z,1,49,15,5.52,batter,ev_floor,elite
+2026-10-14,Shohei Ohtani,660271,849811,BB,0.5,over,fanatics,160.0,0.307,0.3753,0.3829,-0.0076,-0.0242,Pass,PROD WATCH,True,confirmed,20261014T2158Z,2,29,9,1.47,batter,ev_floor,elite
+2026-10-14,Shohei Ohtani,660271,849811,H,0.5,under,draftkings,135.0,0.4707,0.4179,0.412,0.0059,-0.0179,Pass,PROD WATCH,True,confirmed,20261014T2158Z,2,29,9,1.47,batter,ev_floor,elite
+2026-10-14,Shohei Ohtani,660271,849811,HRR,1.5,under,draftkings,-129.0,0.5844,0.5437,0.5392,0.0045,-0.0348,Pass,PROD WATCH,True,confirmed,20261014T2158Z,2,29,9,1.47,batter,ev_floor,elite
+2026-10-14,Andy Pages,681624,849811,HRR,1.5,under,betmgm,-115.0,0.4933,0.5106,0.5125,-0.0019,-0.0454,Pass,PROD WATCH,True,confirmed,20261014T2158Z,1,31,11,6.41,batter,ev_floor,elite
+2026-10-14,Andy Pages,681624,849811,RBI,0.5,under,betmgm,-235.0,0.6931,0.6721,0.6698,0.0023,-0.0418,Pass,PROD WATCH,True,confirmed,20261014T2158Z,1,31,11,6.41,batter,ev_floor,elite

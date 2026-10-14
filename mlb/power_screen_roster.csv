@@ -106,3 +106,9 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-13,20261013T2159Z,elite,bat,Chase DeLauter,800050,CLE,849813,Freddy Peralta,642547,3,False,ELITE UNDER,under,held,,
 2026-10-13,20261013T2159Z,soft,arm,Freddy Peralta,642547,TB,849813,Freddy Peralta,642547,,False,,,gated,siera: SIERA 4.35 ≤ 4.40,4.35
 2026-10-13,20261013T2159Z,soft,arm,Parker Messick,800048,CLE,849813,Parker Messick,800048,,False,,,gated,siera: SIERA 3.04 ≤ 4.40,3.04
+2026-10-14,20261014T2158Z,elite,arm,Blake Snell,605483,LAD,849811,Blake Snell,605483,,False,,,gated,siera: SIERA 3.22 ≤ 3.25,3.22
+2026-10-14,20261014T2158Z,elite,arm,Robert Gasser,688107,MIL,849811,Robert Gasser,688107,,False,,,screened,,3.96
+2026-10-14,20261014T2158Z,elite,bat,Shohei Ohtani,660271,LAD,849811,Robert Gasser,688107,6,False,PROD WATCH,,held,,
+2026-10-14,20261014T2158Z,elite,bat,Andy Pages,681624,LAD,849811,Robert Gasser,688107,5,False,PROD WATCH,,held,,
+2026-10-14,20261014T2158Z,soft,arm,Blake Snell,605483,LAD,849811,Blake Snell,605483,,False,,,gated,siera: SIERA 3.22 ≤ 4.40,3.22
+2026-10-14,20261014T2158Z,soft,arm,Robert Gasser,688107,MIL,849811,Robert Gasser,688107,,False,,,gated,siera: SIERA 3.96 ≤ 4.40,3.96
