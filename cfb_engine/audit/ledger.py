@@ -71,6 +71,10 @@ class LedgerEntry:
     # whether either was AP-ranked on the card (``cfb_engine.market.atscontext``).
     conf_tier: str | None = None
     top25: bool | None = None
+    # The side's and its opponent's top units, ranked on games before the slate
+    # (``cfb_engine.market.unitranks``), e.g. ``off:4 def:31 pass_off:2``.
+    unit_ranks: str | None = None
+    opp_unit_ranks: str | None = None
 
 
 LEDGER_FIELDS = [
@@ -79,6 +83,7 @@ LEDGER_FIELDS = [
     "raw_prob", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts",
     "drift", "pass_gate", "sharp_div", "open_drift", "conf_tier", "top25",
+    "unit_ranks", "opp_unit_ranks",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
@@ -179,6 +184,8 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     open_drift=_to_float(row.get("open_drift", "") or ""),
                     conf_tier=row.get("conf_tier", "") or None,
                     top25=_to_bool(row.get("top25", "") or ""),
+                    unit_ranks=row.get("unit_ranks"),
+                    opp_unit_ranks=row.get("opp_unit_ranks"),
                 )
             )
     return out
@@ -201,6 +208,8 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
                     row[name] = ""
             row["conf_tier"] = e.conf_tier or ""
             row["top25"] = "" if e.top25 is None else str(int(e.top25))
+            row["unit_ranks"] = e.unit_ranks if e.unit_ranks is not None else ""
+            row["opp_unit_ranks"] = e.opp_unit_ranks if e.opp_unit_ranks is not None else ""
             w.writerow(row)
     return merged
 

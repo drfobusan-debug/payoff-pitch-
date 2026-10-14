@@ -68,7 +68,7 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
-from cfb_engine.market import atscontext, lowtotal
+from cfb_engine.market import atscontext, lowtotal, unitranks
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
@@ -315,6 +315,24 @@ def _missed_slates(cfg: Config, before: Date) -> list[Date]:
     return sorted(out)
 
 
+def _unit_ranks(cfg: Config, day: Date) -> unitranks.UnitRanks:
+    """Unit ranks on the games played before ``day``'s slate (empty if CFBD has none)."""
+    cfbd = CFBDClient(cfg.creds.cfbd_api_key)
+    season = _season(cfg, day)
+    end = unitranks.prior_week(cfbd.fetch_schedule(season), day)
+    return unitranks.rank_teams(cfbd.fetch_unit_stats(season, end))
+
+
+def _stamp_units(entries: list[LedgerEntry], ranks: unitranks.UnitRanks) -> int:
+    n = 0
+    for e in entries:
+        stamped = unitranks.stamp(e.market, e.selection, e.matchup, ranks)
+        if stamped is not None:
+            e.unit_ranks, e.opp_unit_ranks = stamped
+            n += 1
+    return n
+
+
 def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None:
     """Grade one slate into the ledger; the merged ledger and rows graded, or None."""
     index = _result_index(cfg, day)
@@ -353,6 +371,7 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
             )
             e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
             e.clv_pts = res.clv_pts
+    _stamp_units(entries, _unit_ranks(cfg, day))
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -739,6 +758,28 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
+    """Stamp point-in-time unit ranks on graded ATS/ML rows that have none yet."""
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    todo = sorted(
+        {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
+    )
+    total = 0
+    for iso in todo:
+        day = Date.fromisoformat(iso)
+        day_rows = [e for e in entries if e.date == iso]
+        n = _stamp_units(day_rows, _unit_ranks(cfg, day))
+        if n:
+            update_ledger(cfg.ledger_file, day_rows, day)
+            total += n
+        print(f"{iso}: stamped {n} row(s).")
+    print(f"Stamped unit ranks on {total} ledger row(s) across {len(todo)} slate(s).")
+    if total:
+        _state_push(cfg, f"cfb stamp-units: {total} rows")
+    return 0
+
+
 def _emit_ledger(
     cfg: Config,
     entries: list[LedgerEntry],
@@ -821,6 +862,9 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("opener", help="capture the coming week's boards near the open"))
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
+    sub.add_parser(
+        "stamp-units", help="stamp pre-slate top-25 unit ranks on graded ATS/ML ledger rows"
+    )
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(
         sub.add_parser("weekly", help="weekly audit article: the week + the ledger to date"),
@@ -854,6 +898,7 @@ _DISPATCH = {
     "opener": cmd_opener,
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
+    "stamp-units": cmd_stamp_units,
     "report": cmd_report,
     "weekly": cmd_weekly,
     "calibrate": cmd_calibrate,
