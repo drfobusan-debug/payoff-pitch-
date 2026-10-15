@@ -5070,9 +5070,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "f5_total",
+    "selection": "F5 Over 3.0",
+    "american": -130.0,
+    "no_vig_prob": 0.530612
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_total",
     "selection": "F5 Over 3.5",
     "american": 110.0,
     "no_vig_prob": 0.465296
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_total",
+    "selection": "F5 Under 3.0",
+    "american": 100.0,
+    "no_vig_prob": 0.469388
   },
   {
     "matchup": "TB @ CLE",
