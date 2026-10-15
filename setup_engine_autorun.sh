@@ -26,6 +26,11 @@
 #                           Sunday's re-stamps the close before the early games
 #                           and grades Thursday night. The Wed/Sat night wakes
 #                           arm these.
+#   * NFL kickoff windows (Thu 20:05, Sun 09:20/12:50/16:00/20:10, Mon
+#                           19:05/20:05, Sat 12:50/16:20/20:05): nfl-close
+#                           re-stamps the closing number ten minutes before the
+#                           games start, so CLV is read against the price at
+#                           kickoff. Fetches only if a game starts within 45 min.
 #   * Tue 08:05 + Wed/Sat/Sun 20:05: nfl-open (archive the board only: the
 #                           week's opening number, then the night-before number
 #                           ahead of each game day, so the card can state how far
@@ -146,6 +151,13 @@ NFL_OPEN_WEEKDAYS="2"                  # launchd: Tuesday
 NFL_EVE_WAKE_HHMM="20:00"; NFL_EVE_RUN_HOUR=20; NFL_EVE_RUN_MIN=5
 NFL_EVE_WEEKDAYS="3 6 0"               # launchd: Wednesday, Saturday, Sunday
 
+# NFL closing numbers: ten minutes before each usual kickoff window, as
+# "weekday=HH:MM" (launchd weekday, 0=Sunday). `nfl-engine close --within` fetches
+# the board only when an open row kicks off inside NFL_CLOSE_WITHIN_MIN, so the
+# London slot and the Saturday slots cost nothing in a week without those games.
+NFL_CLOSE_RUNS="4=20:05 0=09:20 0=12:50 0=16:00 0=20:10 1=19:05 1=20:05 6=12:50 6=16:20 6=20:05"
+NFL_CLOSE_WITHIN_MIN=45
+
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
 
@@ -172,6 +184,15 @@ for wd in $NFL_OPEN_WEEKDAYS $NFL_EVE_WEEKDAYS; do
   NFL_OPEN_LABELS+=("$label")
   NFL_OPEN_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
 done
+NFL_CLOSE_LABELS=(); NFL_CLOSE_PLISTS=(); NFL_CLOSE_WAKES=""
+for spec in $NFL_CLOSE_RUNS; do
+  hm="${spec##*=}"
+  label="com.franz.engine.nflclose${spec%%=*}-${hm/:/}"
+  NFL_CLOSE_LABELS+=("$label")
+  NFL_CLOSE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+  # Wake five minutes ahead of the run so launchd finds the Mac up.
+  NFL_CLOSE_WAKES="$NFL_CLOSE_WAKES ${spec%%=*}=$(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
+done
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
@@ -190,7 +211,7 @@ for spec in $SLATE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${SLATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -253,6 +274,7 @@ export DAY_CLOSE_WAKE_HHMM="$DAY_CLOSE_WAKE_HHMM" CFB_WAKE_HHMM="$CFB_WAKE_HHMM"
 export NFL_WAKE_HHMM="$NFL_WAKE_HHMM" SLATE_WINDOW_HOURS="$SLATE_WINDOW_HOURS"
 export NFL_OPEN_WAKE_HHMM="$NFL_OPEN_WAKE_HHMM" NFL_EVE_WAKE_HHMM="$NFL_EVE_WAKE_HHMM"
 export SLATE_WAKES="$SLATE_WAKES"
+export NFL_CLOSE_WAKES="$NFL_CLOSE_WAKES" NFL_CLOSE_WITHIN_MIN="$NFL_CLOSE_WITHIN_MIN"
 SRC="$REPO_DIR/scripts/macos/run_engine.sh"
 [[ -f "\$SRC" ]] || { echo "[\$(date)] runner missing: \$SRC (pull main)" >&2; exit 1; }
 TMP="\$(mktemp -t run_engine)"
@@ -304,6 +326,13 @@ for wd in $NFL_EVE_WEEKDAYS; do
   i=$((i + 1))
 done
 i=0
+for spec in $NFL_CLOSE_RUNS; do
+  hm="${spec##*=}"
+  write_plist "${NFL_CLOSE_PLISTS[$i]}" "${NFL_CLOSE_LABELS[$i]}" \
+    "$((10#${hm%%:*}))" "$((10#${hm##*:}))" nfl-close "${spec%%=*}"
+  i=$((i + 1))
+done
+i=0
 for spec in $SLATE_RUNS; do
   hm="${spec##*=}"
   write_plist "${SLATE_PLISTS[$i]}" "${SLATE_LABELS[$i]}" \
@@ -348,6 +377,8 @@ echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the wee
 echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
 echo "Test NFL open:     sudo launchctl start ${NFL_OPEN_LABELS[0]}   (archives the board only;"
 echo "                   Tue 08:05 = the week's open, Wed/Sat/Sun 20:05 = night before)"
+echo "Test NFL close:    sudo launchctl start ${NFL_CLOSE_LABELS[0]}   (re-stamps the close;"
+echo "                   fetches only if a game kicks off within ${NFL_CLOSE_WITHIN_MIN} min)"
 echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"
 echo "                   inside ${SLATE_WINDOW_HOURS}h, spends Odds API credits and emails that"
 echo "                   block's slate PDF + card; the others: ${SLATE_LABELS[*]:1})"

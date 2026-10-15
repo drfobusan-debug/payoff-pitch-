@@ -229,3 +229,59 @@ def test_the_ledger_carries_kickoff_and_the_stamp_time_through_csv(tmp_path) -> 
     assert loaded.kickoff_utc == KICKOFF
     assert loaded.close_captured_at == "2026-09-13T16:55:00Z"
     assert not close_is_final(loaded, now=datetime(2026, 9, 13, 12, 0, tzinfo=timezone.utc))
+
+
+def _scheduled_close(
+    monkeypatch: pytest.MonkeyPatch, tmp_path, entries: list[LedgerEntry], *, now: datetime
+) -> tuple[list[LedgerEntry], list[int]]:
+    """`nfl-engine close --within 45` on a frozen clock, counting board fetches."""
+    path = tmp_path / "nfl_ledger.csv"
+    save_ledger(path, entries)
+    fetches: list[int] = []
+
+    def fetch(days, kind=None):
+        fetches.append(days)
+        return cli.Fetched(
+            season=2026, week=1, captured_at="2026-09-13T16:50:00Z", games=[], board=board()
+        )
+
+    class _Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):  # noqa: ARG003 - the point is to ignore the wall clock
+            return now
+
+    monkeypatch.setattr(cli, "ledger_path", lambda root=None: path)
+    monkeypatch.setattr(cli, "_fetch", fetch)
+    monkeypatch.setattr(cli, "datetime", _Clock)
+    assert cli.cmd_close(argparse.Namespace(days=8, within=45, write=True)) == 0
+    return load_ledger(path), fetches
+
+
+def test_a_scheduled_close_with_no_kickoff_near_spends_nothing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    morning = datetime(2026, 9, 13, 12, 0, tzinfo=timezone.utc)
+    loaded, fetches = _scheduled_close(monkeypatch, tmp_path, [row()], now=morning)
+    assert fetches == []
+    assert loaded[0].close_odds is None
+
+
+def test_a_scheduled_close_restamps_the_game_about_to_start(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    early = row(close_odds=-120.0, close_captured_at="2026-09-13T12:00:00Z")
+    just_before = datetime(2026, 9, 13, 16, 50, tzinfo=timezone.utc)
+    loaded, fetches = _scheduled_close(monkeypatch, tmp_path, [early], now=just_before)
+    assert fetches == [8]
+    assert loaded[0].close_odds == -140.0
+    assert loaded[0].close_captured_at == "2026-09-13T16:50:00Z"
+
+
+def test_started_or_graded_games_do_not_trigger_a_scheduled_close(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    graded = row(result="win", kickoff_utc="2026-09-13T17:30:00Z")
+    started = row(side=AWAY, kickoff_utc="2026-09-13T16:30:00Z")
+    just_before = datetime(2026, 9, 13, 16, 50, tzinfo=timezone.utc)
+    _, fetches = _scheduled_close(monkeypatch, tmp_path, [graded, started], now=just_before)
+    assert fetches == []

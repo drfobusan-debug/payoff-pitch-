@@ -24,6 +24,10 @@ MORNING_WAKE_HHMM="${MORNING_WAKE_HHMM:-10:00}"
 CLOSE_WAKE_HHMM="${CLOSE_WAKE_HHMM:-18:35}"
 DAY_CLOSE_WAKE_HHMM="${DAY_CLOSE_WAKE_HHMM:-12:45}"
 CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
+# NFL pre-kickoff closes: "weekday=HH:MM" wakes (launchd weekday, 0=Sun), five
+# minutes ahead of each nfl-close run. Must match setup_engine_autorun.sh.
+NFL_CLOSE_WAKES="${NFL_CLOSE_WAKES:-4=20:00 0=09:15 0=12:45 0=15:55 0=20:05 1=19:00 1=20:00 6=12:45 6=16:15 6=20:00}"
+NFL_CLOSE_WITHIN_MIN="${NFL_CLOSE_WITHIN_MIN:-45}"
 NFL_WAKE_HHMM="${NFL_WAKE_HHMM:-08:00}"
 NFL_OPEN_WAKE_HHMM="${NFL_OPEN_WAKE_HHMM:-08:00}"
 NFL_EVE_WAKE_HHMM="${NFL_EVE_WAKE_HHMM:-20:00}"
@@ -115,12 +119,30 @@ arm_next_slate() {
   done
 }
 
+# Arm the next NFL pre-kickoff close wake on launchd weekday $1 (0=Sun) later
+# than $2 (HH:MM), on date $3 (mm/dd/YYYY). Each close run arms the next one,
+# and the night job arms the first of tomorrow's.
+arm_next_nfl_close() {
+  local wd="$1" after="$2" day="$3" best="" spec hm
+  for spec in ${NFL_CLOSE_WAKES}; do
+    [[ "${spec%%=*}" == "$wd" ]] || continue
+    hm="${spec##*=}"
+    if [[ "$after" < "$hm" ]] && { [[ -z "$best" ]] || [[ "$hm" < "$best" ]]; }; then
+      best="$hm"
+    fi
+  done
+  [[ -n "$best" ]] || return 0
+  pmset_ schedule wake "$day $best:00" || echo "[$(date)] could not arm the $best NFL close wake" >&2
+  echo "[$(date)] armed NFL close wake for $day $best:00"
+}
+
 if [[ "$MODE" == "night" ]]; then
   # Keep-awake only: re-arm a one-shot wake for the NEXT morning at
   # ${MORNING_WAKE_HHMM} so the machine wakes after the 03:00 sleep. No engine work.
   NEXT=$(date -v+1d +"%m/%d/%Y")
   pmset_ schedule wake "$NEXT ${MORNING_WAKE_HHMM}:00" || echo "[$(date)] could not arm morning wake" >&2
   echo "[$(date)] armed morning wake for $NEXT ${MORNING_WAKE_HHMM}:00"
+  arm_next_nfl_close "$(date -v+1d +%w)" "00:00" "$NEXT"
   # Friday night also arms the Saturday college football pass, which runs
   # before the MLB morning job.
   if [[ "$(date -v+1d +%u)" == "6" ]]; then
@@ -182,8 +204,18 @@ elif [[ "$MODE" == "nfl" ]]; then
   # daemon must archive them. Off-season the board is empty (--days 8), so
   # nothing is priced and the job exits 0.
   /usr/bin/caffeinate -i -w $$ &
+  arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
   pull_latest
   nfl-engine job --props --card --email || echo "[$(date)] 'nfl-engine job' exited non-zero" >&2
+elif [[ "$MODE" == "nfl-close" ]]; then
+  # Ten minutes before each kickoff window: re-stamp the closing number on the
+  # rows whose game is about to start, so CLV is read against the price at
+  # kickoff and not the 08:05 job's morning number (or Thursday's, on a Sunday
+  # the Mac slept through). Fetches only if a game starts inside
+  # ${NFL_CLOSE_WITHIN_MIN} min (~3 Odds API credits); otherwise free.
+  arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
+  pull_latest
+  nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
 elif [[ "$MODE" == "nfl-open" ]]; then
   # Tue 08:05 (the week's open) and Wed/Sat/Sun 20:05 (the night before a game
   # day): archive the game board, price nothing, email nothing. Thursday's card
