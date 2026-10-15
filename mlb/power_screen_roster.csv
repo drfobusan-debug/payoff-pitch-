@@ -127,3 +127,18 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-15,20261015T1534Z,soft,arm,Griffin Jax,643377,TB,849818,Griffin Jax,643377,,False,,,gated,siera: SIERA 3.19 ≤ 4.40,3.19
 2026-10-15,20261015T1534Z,soft,arm,Gavin Williams,668909,CLE,849818,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.85 ≤ 4.40,1.85
 2026-10-15,20261015T1534Z,soft,arm,Dustin May,669160,MIL,849810,Dustin May,669160,,False,,,gated,siera: SIERA 4.06 ≤ 4.40,4.06
+2026-10-15,20261015T1558Z,elite,arm,Tyler Glasnow,607192,LAD,849810,Tyler Glasnow,607192,,False,,,gated,siera: SIERA 2.90 ≤ 3.25,2.9
+2026-10-15,20261015T1558Z,elite,arm,Griffin Jax,643377,TB,849818,Griffin Jax,643377,,False,,,gated,siera: SIERA 3.19 ≤ 3.25,3.19
+2026-10-15,20261015T1558Z,elite,arm,Gavin Williams,668909,CLE,849818,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.85 ≤ 3.25,1.85
+2026-10-15,20261015T1558Z,elite,arm,Dustin May,669160,MIL,849810,Dustin May,669160,,False,,,screened,,4.06
+2026-10-15,20261015T1558Z,elite,bat,Freddie Freeman,518692,LAD,849810,Dustin May,669160,2,True,RV NEG WATCH,,held,,
+2026-10-15,20261015T1558Z,elite,bat,Max Muncy,571970,LAD,849810,Dustin May,669160,6,True,PROD WATCH,,held,,
+2026-10-15,20261015T1558Z,elite,bat,Mookie Betts,605141,LAD,849810,Dustin May,669160,1,True,ELITE UNDER,under,held,,
+2026-10-15,20261015T1558Z,elite,bat,Teoscar Hernandez,606192,LAD,849810,Dustin May,669160,5,True,ELITE UNDER,under,held,,
+2026-10-15,20261015T1558Z,elite,bat,Shohei Ohtani,660271,LAD,849810,Dustin May,669160,4,True,PROD DROP,,dropped,,
+2026-10-15,20261015T1558Z,elite,bat,Kyle Tucker,663656,LAD,849810,Dustin May,669160,8,True,ELITE UNDER,under,held,,
+2026-10-15,20261015T1558Z,elite,bat,Andy Pages,681624,LAD,849810,Dustin May,669160,7,True,PROD DROP,,dropped,,
+2026-10-15,20261015T1558Z,soft,arm,Tyler Glasnow,607192,LAD,849810,Tyler Glasnow,607192,,False,,,gated,siera: SIERA 2.90 ≤ 4.40,2.9
+2026-10-15,20261015T1558Z,soft,arm,Griffin Jax,643377,TB,849818,Griffin Jax,643377,,False,,,gated,siera: SIERA 3.19 ≤ 4.40,3.19
+2026-10-15,20261015T1558Z,soft,arm,Gavin Williams,668909,CLE,849818,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.85 ≤ 4.40,1.85
+2026-10-15,20261015T1558Z,soft,arm,Dustin May,669160,MIL,849810,Dustin May,669160,,False,,,gated,siera: SIERA 4.06 ≤ 4.40,4.06
