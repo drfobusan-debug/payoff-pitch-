@@ -1,0 +1,15 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,draftkings,-120,-110,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,draftkings,-110,-120,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,fanatics,265,-375,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,fanatics,-375,265,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,fanduel,400,-620,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,fanduel,-620,400,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,betmgm,-115,-110,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,betmgm,-110,-115,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,williamhill_us,-128,107,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,williamhill_us,107,-128,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_total,over,,5.5,williamhill_us,750,-1700,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_total,under,,5.5,williamhill_us,-1700,750,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,COL,,,mybookieag,-125,-105,oddsapi
+2026-10-15T03:30:06Z,2026-10-14,DAL @ COL,9604eeafec33b8980e6565c617f04fc6,game_ml,DAL,,,mybookieag,-105,-125,oddsapi
