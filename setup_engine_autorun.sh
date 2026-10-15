@@ -31,6 +31,10 @@
 #                           re-stamps the closing number ten minutes before the
 #                           games start, so CLV is read against the price at
 #                           kickoff. Fetches only if a game starts within 45 min.
+#   * Sun 23:59: nfl-audit (email the NFL ledger audit: the report table plus
+#                           scripts.nfl.ledger_audit, ledger CSV attached). The
+#                           23:00 night wake has the Mac up; times are the Mac's
+#                           clock, so keep it on Eastern.
 #   * Tue 08:05 + Wed/Sat/Sun 20:05: nfl-open (archive the board only: the
 #                           week's opening number, then the night-before number
 #                           ahead of each game day, so the card can state how far
@@ -157,6 +161,9 @@ NFL_EVE_WEEKDAYS="3 6 0"               # launchd: Wednesday, Saturday, Sunday
 # London slot and the Saturday slots cost nothing in a week without those games.
 NFL_CLOSE_RUNS="4=20:05 0=09:20 0=12:50 0=16:00 0=20:10 1=19:05 1=20:05 6=12:50 6=16:20 6=20:05"
 NFL_CLOSE_WITHIN_MIN=45
+# Weekly NFL ledger audit email: Sunday night, after the late games.
+NFL_AUDIT_RUN_HOUR=23; NFL_AUDIT_RUN_MIN=59
+NFL_AUDIT_WEEKDAY=0   # launchd: Sunday
 
 WAKE_DAYS="MTWRFSU"   # M T W R F S U = Mon..Sun
 # ==================================================================
@@ -172,6 +179,7 @@ CLOSE_LABEL="com.franz.engine.close"
 DAY_CLOSE_LABEL="com.franz.engine.dayclose"
 REACT_LABEL="com.franz.engine.react"
 CFB_LABEL="com.franz.engine.cfb"
+NFL_AUDIT_LABEL="com.franz.engine.nflaudit"
 NFL_LABELS=(); NFL_PLISTS=()
 for wd in $NFL_WEEKDAYS; do
   label="com.franz.engine.nfl${wd}"
@@ -199,6 +207,7 @@ CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
 DAY_CLOSE_PLIST="/Library/LaunchDaemons/${DAY_CLOSE_LABEL}.plist"
 REACT_PLIST="/Library/LaunchDaemons/${REACT_LABEL}.plist"
 CFB_PLIST="/Library/LaunchDaemons/${CFB_LABEL}.plist"
+NFL_AUDIT_PLIST="/Library/LaunchDaemons/${NFL_AUDIT_LABEL}.plist"
 
 # One daemon per slate pass, labelled by its block so a single pass can be
 # started, read in the log or removed on its own.
@@ -211,7 +220,7 @@ for spec in $SLATE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "$NFL_AUDIT_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -311,6 +320,7 @@ write_plist "$CLOSE_PLIST"   "$CLOSE_LABEL"   "$CLOSE_RUN_HOUR"   "$CLOSE_RUN_MI
 write_plist "$DAY_CLOSE_PLIST" "$DAY_CLOSE_LABEL" "$DAY_CLOSE_RUN_HOUR" "$DAY_CLOSE_RUN_MIN" close
 write_plist "$REACT_PLIST" "$REACT_LABEL" "$REACT_RUN_HOUR" "$REACT_RUN_MIN" react
 write_plist "$CFB_PLIST" "$CFB_LABEL" "$CFB_RUN_HOUR" "$CFB_RUN_MIN" cfb "$CFB_WEEKDAY"
+write_plist "$NFL_AUDIT_PLIST" "$NFL_AUDIT_LABEL" "$NFL_AUDIT_RUN_HOUR" "$NFL_AUDIT_RUN_MIN" nfl-audit "$NFL_AUDIT_WEEKDAY"
 i=0
 for wd in $NFL_WEEKDAYS; do
   write_plist "${NFL_PLISTS[$i]}" "${NFL_LABELS[$i]}" "$NFL_RUN_HOUR" "$NFL_RUN_MIN" nfl "$wd"
@@ -377,6 +387,8 @@ echo "Test NFL pass:     sudo launchctl start ${NFL_LABELS[0]}   (prices the wee
 echo "                   spends Odds API credits and emails the card; Sunday's is ${NFL_LABELS[1]})"
 echo "Test NFL open:     sudo launchctl start ${NFL_OPEN_LABELS[0]}   (archives the board only;"
 echo "                   Tue 08:05 = the week's open, Wed/Sat/Sun 20:05 = night before)"
+echo "Test NFL audit:    sudo launchctl start ${NFL_AUDIT_LABEL}   (emails the NFL ledger audit;"
+echo "                   read-only, no Odds API credits)"
 echo "Test NFL close:    sudo launchctl start ${NFL_CLOSE_LABELS[0]}   (re-stamps the close;"
 echo "                   fetches only if a game kicks off within ${NFL_CLOSE_WITHIN_MIN} min)"
 echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"

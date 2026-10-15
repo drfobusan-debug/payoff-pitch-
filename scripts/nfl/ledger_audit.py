@@ -10,21 +10,28 @@ de-vigged fair, at the quote with the most paired books (for spreads and totals,
 rung nearest a coin flip), scored by record and Brier against fair. A game priced on
 two weekly cards (a Thursday game on both) counts once, off its latest capture.
 
+``--email`` sends the built-in ``nfl-engine report`` table and this audit as one
+message, with the text and the ledger CSV attached (the Sunday-night daemon).
+Without ``--season`` it audits the current season and sends nothing when that
+season has no rows.
+
 Usage::
 
-    python -m scripts.nfl.ledger_audit [--season 2026]
+    python -m scripts.nfl.ledger_audit [--season 2026] [--email [--to ADDRESS]]
 """
 
 from __future__ import annotations
 
 import argparse
+import html
 import math
 import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
 from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade, load_ledger
-from nfl_engine.cli import _final_scores, ledger_path
+from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
+from nfl_engine.config import load_config
 from nfl_engine.market.screens import Tier
 
 MARKETS = ("moneyline", "spread", "total")
@@ -225,20 +232,59 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     return out
 
 
-def main() -> None:
+def email_audit(text: str, *, season: int | None, ledger_csv: bytes, to: str | None) -> str:
+    """Send the audit text as the body, with it and the ledger CSV attached."""
+    from nfl_engine.output.email import send_package
+
+    label = "all seasons" if season is None else str(season)
+    return send_package(
+        load_config(),
+        subject=f"NFL ledger audit -- {label} [paper]",
+        html_body=f'<pre style="font-family:monospace">{html.escape(text)}</pre>',
+        text_body=text,
+        to=to,
+        attachments=[
+            (f"nfl_audit_{label.replace(' ', '_')}.txt", text.encode("utf-8")),
+            ("nfl_ledger.csv", ledger_csv),
+        ],
+    )
+
+
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--season", type=int, default=None)
-    args = parser.parse_args()
+    parser.add_argument("--email", action="store_true", help="email the report and the audit")
+    parser.add_argument("--to", default=None, help="override the recipient")
+    args = parser.parse_args(argv)
+    season = args.season
+    if season is None and args.email:
+        season = current_week()[0]
     path = ledger_path()
     entries = [
         e
         for e in load_ledger(path)
-        if e.source == ENGINE and (args.season is None or e.season == args.season)
+        if e.source == ENGINE and (season is None or e.season == season)
     ]
-    filled = settle_missing(entries, args.season)
-    print(f"ledger {path}")
-    for line in report(entries, filled):
-        print(line)
+    filled = settle_missing(entries, season)
+    lines = [f"ledger {path}"]
+    if args.email:
+        lines += ["", "nfl-engine report --all", *report_lines(entries), ""]
+    lines += report(entries, filled)
+    text = "\n".join(lines)
+    print(text)
+    if not args.email:
+        return
+    if not entries:
+        print(f"no {season} rows; nothing emailed")
+        return
+    from nfl_engine.output.email import EmailNotConfigured
+
+    try:
+        recipient = email_audit(text, season=season, ledger_csv=path.read_bytes(), to=args.to)
+    except EmailNotConfigured as exc:
+        print(f"audit not emailed ({exc})")
+        return
+    print(f"audit emailed to {recipient}")
 
 
 if __name__ == "__main__":
