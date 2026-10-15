@@ -184,6 +184,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_1b",
+    "selection": "Miguel Rojas 1B o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.333333
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
+    "selection": "Miguel Rojas 1B u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.666667
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_1b",
     "selection": "Mookie Betts 1B o0.5",
     "american": -113.0,
     "no_vig_prob": 0.495594
@@ -460,6 +474,20 @@
     "selection": "Max Muncy 2B u0.5",
     "american": -670.0,
     "no_vig_prob": 0.838115
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Miguel Rojas 2B o0.5",
+    "american": 475.0,
+    "no_vig_prob": 0.163636
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_2b",
+    "selection": "Miguel Rojas 2B u0.5",
+    "american": -800.0,
+    "no_vig_prob": 0.836364
   },
   {
     "matchup": "MIL @ LAD",
@@ -856,9 +884,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hrr",
+    "selection": "Christian Yelich H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601196
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
     "selection": "Christian Yelich H+R+RBI o1.5",
     "american": 130.0,
     "no_vig_prob": 0.414351
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Christian Yelich H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398804
   },
   {
     "matchup": "MIL @ LAD",
@@ -870,9 +912,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI o0.5",
+    "american": -176.0,
+    "no_vig_prob": 0.599193
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
     "selection": "Cooper Pratt H+R+RBI o1.5",
     "american": 135.0,
     "no_vig_prob": 0.399419
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hrr",
+    "selection": "Cooper Pratt H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400807
   },
   {
     "matchup": "MIL @ LAD",
@@ -1185,6 +1241,13 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hr",
+    "selection": "David Hamilton HR o1.5",
+    "american": 42500.0,
+    "no_vig_prob": 0.002347
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
     "selection": "Enrique Hernandez HR o0.5",
     "american": 900.0,
     "no_vig_prob": 0.102632
@@ -1283,6 +1346,13 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_hr",
+    "selection": "Miguel Rojas HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.095238
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
     "selection": "Mookie Betts HR o0.5",
     "american": 575.0,
     "no_vig_prob": 0.150047
@@ -1300,6 +1370,13 @@
     "selection": "Sal Frelick HR o0.5",
     "american": 1500.0,
     "no_vig_prob": 0.0625
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_hr",
+    "selection": "Sal Frelick HR o1.5",
+    "american": 32500.0,
+    "no_vig_prob": 0.003067
   },
   {
     "matchup": "MIL @ LAD",
@@ -1538,6 +1615,20 @@
     "selection": "Max Muncy H u0.5",
     "american": 121.0,
     "no_vig_prob": 0.452905
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Miguel Rojas H o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.425739
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_h",
+    "selection": "Miguel Rojas H u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.574261
   },
   {
     "matchup": "MIL @ LAD",
@@ -1822,6 +1913,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_rbi",
+    "selection": "Miguel Rojas RBI o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.260274
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
+    "selection": "Miguel Rojas RBI u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.739726
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_rbi",
     "selection": "Mookie Betts RBI o0.5",
     "american": 216.0,
     "no_vig_prob": 0.305586
@@ -2102,6 +2207,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_r",
+    "selection": "Miguel Rojas R o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.3125
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
+    "selection": "Miguel Rojas R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.6875
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_r",
     "selection": "Mookie Betts R o0.5",
     "american": 102.0,
     "no_vig_prob": 0.466863
@@ -2361,9 +2480,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_tb",
+    "selection": "Kyle Tucker TB o1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.378002
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
     "selection": "Kyle Tucker TB u0.5",
     "american": 115.0,
     "no_vig_prob": 0.436824
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Kyle Tucker TB u1.5",
+    "american": -197.0,
+    "no_vig_prob": 0.621998
   },
   {
     "matchup": "MIL @ LAD",
@@ -2378,6 +2511,20 @@
     "selection": "Max Muncy TB u0.5",
     "american": -104.0,
     "no_vig_prob": 0.479676
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Miguel Rojas TB o0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.414477
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Miguel Rojas TB u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.585523
   },
   {
     "matchup": "MIL @ LAD",
@@ -2424,9 +2571,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
     "selection": "Teoscar Hernandez TB o1.5",
     "american": 150.0,
     "no_vig_prob": 0.382031
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "batter_tb",
+    "selection": "Teoscar Hernandez TB u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
   },
   {
     "matchup": "MIL @ LAD",
@@ -2592,6 +2753,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_bb",
+    "selection": "Shane Drohan Walks o0.5",
+    "american": -203.0,
+    "no_vig_prob": 0.631934
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_bb",
+    "selection": "Shane Drohan Walks u0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.368066
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_bb",
     "selection": "Tyler Glasnow Walks o2.5",
     "american": 145.0,
     "no_vig_prob": 0.38391
@@ -2602,6 +2777,20 @@
     "selection": "Tyler Glasnow Walks u2.5",
     "american": -190.0,
     "no_vig_prob": 0.61609
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
+    "selection": "Shane Drohan ER o0.5",
+    "american": -144.0,
+    "no_vig_prob": 0.590233
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
+    "selection": "Shane Drohan ER u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.409767
   },
   {
     "matchup": "MIL @ LAD",
@@ -2620,6 +2809,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_h",
+    "selection": "Shane Drohan Hits o2.5",
+    "american": 129.0,
+    "no_vig_prob": 0.416659
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_h",
+    "selection": "Shane Drohan Hits u2.5",
+    "american": -160.0,
+    "no_vig_prob": 0.583341
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_h",
     "selection": "Tyler Glasnow Hits o3.5",
     "american": -110.0,
     "no_vig_prob": 0.507011
@@ -2630,6 +2833,20 @@
     "selection": "Tyler Glasnow Hits u3.5",
     "american": -106.0,
     "no_vig_prob": 0.492989
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Shane Drohan Ks o2.5",
+    "american": 111.0,
+    "no_vig_prob": 0.45635
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_k",
+    "selection": "Shane Drohan Ks u2.5",
+    "american": -135.0,
+    "no_vig_prob": 0.54365
   },
   {
     "matchup": "MIL @ LAD",
@@ -2662,6 +2879,20 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_outs",
+    "selection": "Shane Drohan Outs o7.5",
+    "american": -122.0,
+    "no_vig_prob": 0.525771
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
+    "selection": "Shane Drohan Outs u7.5",
+    "american": 100.0,
+    "no_vig_prob": 0.474229
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
     "selection": "Tyler Glasnow Outs o14.5",
     "american": -122.0,
     "no_vig_prob": 0.536442
@@ -2669,9 +2900,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_outs",
+    "selection": "Tyler Glasnow Outs o15.5",
+    "american": 115.0,
+    "no_vig_prob": 0.436383
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
     "selection": "Tyler Glasnow Outs u14.5",
     "american": 107.0,
     "no_vig_prob": 0.463558
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_outs",
+    "selection": "Tyler Glasnow Outs u15.5",
+    "american": -155.0,
+    "no_vig_prob": 0.563617
   },
   {
     "matchup": "TB @ CLE",
