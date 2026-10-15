@@ -526,6 +526,8 @@ class Metrics:
     units: float
     mean_clv: float
     clv_beat_pct: float
+    negatives: int = 0
+    clv_n: int = 0
 
 
 def _safe(numerator: float, denominator: float) -> float:
@@ -590,6 +592,8 @@ def metrics(
         units=round(units, 3),
         mean_clv=round(sum(clvs) / len(clvs), 5) if clvs else 0.0,
         clv_beat_pct=_safe(sum(1 for c in clvs if c > 0), len(clvs)),
+        negatives=tn + fn,
+        clv_n=len(clvs),
     )
 
 
