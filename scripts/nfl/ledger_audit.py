@@ -29,6 +29,7 @@ import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
+from nfl_engine.audit.graduation import MIN_N, graduation_lines
 from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade, load_ledger
 from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
 from nfl_engine.config import load_config
@@ -229,6 +230,8 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
     out += [record_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
     out += ["", "5) Underdog vs favourite leans (ML: fair < .5; spread: getting points)"]
     out += underdog_lines(leans)
+    out += ["", f"6) Graduation bar (all four: {MIN_N}+ buys, ROI and CLV > 1 se, both halves up)"]
+    out += graduation_lines(entries)
     return out
 
 
