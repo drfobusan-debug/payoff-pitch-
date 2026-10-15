@@ -13,7 +13,9 @@ are keyed by week and union row by row: a research file is appended on every
 pricing pass, so two machines' copies are two captures and both are true; a
 graded file is rewritten whole from the research it was cut from, so a row that
 one machine graded and another did not is kept, and the same row graded twice
-is the same row.
+is the same row. A settled grade beats a ``void`` one whichever machine holds it:
+a copy graded before the box scores posted must not void the week again on the
+branch every time that machine pushes.
 """
 
 from __future__ import annotations
@@ -28,11 +30,14 @@ from mlb_engine.state import (
     _commit,
     _git,
     _git_ok,
+    _rows,
     _worktree,
+    _write_rows,
     merge_dated_csv,
     repo_root,
 )
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
+from nfl_engine.props_grade import LOSS, PUSH, WIN
 
 PREFIX = "nfl"
 PROPS_DIR = "props"
@@ -62,9 +67,32 @@ _PROP_FILES: tuple[tuple[str, tuple[str, ...]], ...] = (
 log = logging.getLogger(__name__)
 
 
+_SETTLED = frozenset({WIN, LOSS, PUSH})
+
+
 def merge_prop_files(remote: Path, local: Path, key: tuple[str, ...]) -> bool:
-    """Union two copies of one week's prop file, row by row, this machine's winning."""
-    return merge_dated_csv(remote, local, key, by_date=False)
+    """Union two copies of one week's prop file, row by row, this machine's winning,
+    except that a graded row settled on either machine beats an unsettled one."""
+    if key != PROP_KEY:
+        return merge_dated_csv(remote, local, key, by_date=False)
+    if not remote.exists():
+        return False
+    fields, remote_rows = _rows(remote)
+    if not local.exists():
+        _write_rows(local, fields, remote_rows)
+        return True
+    local_fields, local_rows = _rows(local)
+    fields = [*local_fields, *(f for f in fields if f not in local_fields)]
+    merged: dict[tuple[str, ...], dict[str, str]] = {}
+    for row in [*remote_rows, *local_rows]:
+        k = tuple(row.get(field, "") for field in key)
+        held = merged.get(k)
+        if held is not None and held.get("result") in _SETTLED:
+            if row.get("result") not in _SETTLED:
+                continue
+        merged[k] = row
+    _write_rows(local, fields, [merged[k] for k in sorted(merged)])
+    return True
 
 
 def _props_dir(data_dir: Path) -> Path:
