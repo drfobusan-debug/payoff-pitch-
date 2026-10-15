@@ -894,25 +894,30 @@ def cmd_report(args: argparse.Namespace) -> int:
     # measured, and counting them here would report an outside forecaster's record
     # as the engine's -- in the ALL line, and as the negative class of every screen.
     entries = [e for e in held if e.source == ENGINE]
+    for line in report_lines(entries, include_all=args.all):
+        print(line)
+    return 0
+
+
+def report_lines(entries: list[LedgerEntry], *, include_all: bool = True) -> list[str]:
+    """The tier, market and screen table `nfl-engine report` prints."""
     rows = [
         *tier_metrics(entries),
         *market_metrics(entries),
         *screen_metrics(entries),
     ]
-    if args.all:
+    if include_all:
         rows.append(metrics(entries, lambda e: True, "ALL"))
     header = (
         f"{'':26s} {'n':>5s} {'win%':>7s} {'need':>7s} {'PPV+':>7s} {'NPV+':>7s}"
         f" {'ROI':>7s} {'units':>8s} {'CLV':>8s}"
     )
-    print(header)
-    for row in rows:
-        print(
-            f"{row.label:26s} {row.n:5d} {row.win_pct:7.4f} {row.required_win_pct:7.4f}"
-            f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
-            f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
-        )
-    return 0
+    return [header] + [
+        f"{row.label:26s} {row.n:5d} {row.win_pct:7.4f} {row.required_win_pct:7.4f}"
+        f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
+        f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
+        for row in rows
+    ]
 
 
 def _write(path: Path, data: bytes) -> bool:

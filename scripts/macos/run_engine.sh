@@ -216,6 +216,14 @@ elif [[ "$MODE" == "nfl-close" ]]; then
   arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
   pull_latest
   nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
+elif [[ "$MODE" == "nfl-audit" ]]; then
+  # Sunday 23:59: the season audit of the NFL game ledger, emailed -- the
+  # `nfl-engine report --all` table plus scripts.nfl.ledger_audit (buys, one lean
+  # per game-market, screens, CLV, underdogs), with the text and the ledger CSV
+  # attached. Read-only; games nflverse has not posted a final for stay ungraded.
+  # The 23:00 night wake already has the Mac up. No Odds API credits.
+  pull_latest
+  python -m scripts.nfl.ledger_audit --email || echo "[$(date)] NFL ledger audit exited non-zero" >&2
 elif [[ "$MODE" == "nfl-open" ]]; then
   # Tue 08:05 (the week's open) and Wed/Sat/Sun 20:05 (the night before a game
   # day): archive the game board, price nothing, email nothing. Thursday's card
