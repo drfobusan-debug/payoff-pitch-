@@ -2788,9 +2788,23 @@
   {
     "matchup": "MIL @ LAD",
     "market": "pitcher_er",
+    "selection": "Shane Drohan ER o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
     "selection": "Shane Drohan ER u0.5",
     "american": 140.0,
     "no_vig_prob": 0.409767
+  },
+  {
+    "matchup": "MIL @ LAD",
+    "market": "pitcher_er",
+    "selection": "Shane Drohan ER u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
   },
   {
     "matchup": "MIL @ LAD",
