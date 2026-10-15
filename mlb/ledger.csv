@@ -381674,3 +381674,5 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-14,MIL @ LAD,Totals,game_total,Under 7.5,7.5,fanduel,-120.0,-102.0,Pass,0.5841,-0.0128,loss,-1.0,,,ev_floor,0.5333,0.5256,0.5385,-120.0,0.52922,0.00362,-0.029763,posted,2.08,,engine,clean
 2026-10-14,MIL @ LAD,Totals,game_total,Under 8.5,8.5,,,,Pass,0.664,,win,0.91,,,unpriced,0.6151,,,,,,,posted,2.08,,engine,
 2026-10-14,MIL @ LAD,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7043,,win,0.91,,,unpriced,0.7114,,,,,,,posted,2.08,,engine,
+2026-10-14,MIL @ LAD,game,game_total,Over 7.0,7.0,teamrankings,,,1 star,0.5099,,win,0.91,,,,,,,,,,,,,,teamrankings,
+2026-10-14,MIL @ LAD,game,game_winner,LAD ML,,teamrankings,,,2 stars,0.6169,,loss,0.0,,,,,,,,,,,,,,teamrankings,
