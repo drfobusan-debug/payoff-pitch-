@@ -1383,3 +1383,21 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-14,Shohei Ohtani,660271,849811,HRR,1.5,under,draftkings,-129.0,0.5844,0.5437,0.5392,0.0045,-0.0348,Pass,PROD WATCH,True,confirmed,20261014T2158Z,2,29,9,1.47,batter,ev_floor,elite
 2026-10-14,Andy Pages,681624,849811,HRR,1.5,under,betmgm,-115.0,0.4933,0.5106,0.5125,-0.0019,-0.0454,Pass,PROD WATCH,True,confirmed,20261014T2158Z,1,31,11,6.41,batter,ev_floor,elite
 2026-10-14,Andy Pages,681624,849811,RBI,0.5,under,betmgm,-235.0,0.6931,0.6721,0.6698,0.0023,-0.0418,Pass,PROD WATCH,True,confirmed,20261014T2158Z,1,31,11,6.41,batter,ev_floor,elite
+2026-10-15,Freddie Freeman,518692,849810,BB,0.5,over,fanatics,175.0,0.3132,0.3609,0.3662,-0.0053,-0.0075,Pass,RV NEG WATCH,True,contradicted,20261015T1534Z,6,18,7,-1.66,batter,ev_floor,elite
+2026-10-15,Freddie Freeman,518692,849810,HRR,1.5,over,betmgm,-110.0,0.5422,0.495,0.4897,0.0052,-0.0551,Pass,RV NEG WATCH,True,contradicted,20261015T1534Z,6,18,7,-1.66,batter,ev_floor,elite
+2026-10-15,Freddie Freeman,518692,849810,RBI,0.5,over,draftkings,229.0,0.2431,0.3001,0.3065,-0.0063,-0.0125,Pass,RV NEG WATCH,True,contradicted,20261015T1534Z,6,18,7,-1.66,batter,ev_floor,elite
+2026-10-15,Max Muncy,571970,849810,2B,0.5,over,betmgm,575.0,0.1358,0.1481,0.156,-0.0079,-0.0004,Pass,PROD WATCH,True,contradicted,20261015T1534Z,1,36,13,7.85,batter,ev_floor,elite
+2026-10-15,Max Muncy,571970,849810,H,0.5,over,betmgm,-120.0,0.5649,0.5426,0.5401,0.0025,-0.0053,Pass,PROD WATCH,True,contradicted,20261015T1534Z,1,36,13,7.85,batter,ev_floor,elite
+2026-10-15,Max Muncy,571970,849810,HRR,1.5,over,williamhill_us,118.0,0.4674,0.4385,0.4353,0.0032,-0.0441,Pass,PROD WATCH,True,contradicted,20261015T1534Z,1,36,13,7.85,batter,ev_floor,elite
+2026-10-15,Mookie Betts,605141,849810,H,0.5,under,betmgm,175.0,0.3769,0.35,0.347,0.003,-0.0375,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,4,29,7,0.32,batter,ev_floor,elite
+2026-10-15,Mookie Betts,605141,849810,HRR,1.5,under,betmgm,100.0,0.4663,0.4888,0.4913,-0.0025,-0.0225,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,4,29,7,0.32,batter,ev_floor,elite
+2026-10-15,Mookie Betts,605141,849810,RBI,0.5,under,betmgm,-275.0,0.6926,0.6971,0.6976,-0.0005,-0.0494,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,4,29,7,0.32,batter,ev_floor,elite
+2026-10-15,Mookie Betts,605141,849810,TB,1.5,under,betmgm,-155.0,0.592,0.5883,0.5879,0.0004,-0.0322,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,4,29,7,0.32,batter,ev_floor,elite
+2026-10-15,Teoscar Hernandez,606192,849810,H,0.5,under,betmgm,150.0,0.4023,0.3862,0.3844,0.0018,-0.0344,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,5,19,9,1.91,batter,ev_floor,elite
+2026-10-15,Teoscar Hernandez,606192,849810,HRR,1.5,under,betmgm,-125.0,0.518,0.526,0.5269,-0.0009,-0.0531,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,5,19,9,1.91,batter,ev_floor,elite
+2026-10-15,Teoscar Hernandez,606192,849810,RBI,0.5,under,betmgm,-235.0,0.681,0.6752,0.6745,0.0006,-0.0375,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,5,19,9,1.91,batter,ev_floor,elite
+2026-10-15,Teoscar Hernandez,606192,849810,TB,1.5,under,betmgm,-185.0,0.6557,0.6185,0.6143,0.0041,-0.0472,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,5,19,9,1.91,batter,ev_floor,elite
+2026-10-15,Kyle Tucker,663656,849810,1B,0.5,under,draftkings,-170.0,0.7162,0.6013,0.5885,0.0128,-0.045,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
+2026-10-15,Kyle Tucker,663656,849810,H,0.5,under,betonlineag,121.0,0.5346,0.4411,0.4307,0.0104,-0.0253,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
+2026-10-15,Kyle Tucker,663656,849810,HRR,1.5,under,betmgm,-135.0,0.6139,0.5644,0.5589,0.0055,-0.0176,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
+2026-10-15,Kyle Tucker,663656,849810,RBI,0.5,under,betmgm,-275.0,0.7354,0.7082,0.7052,0.003,-0.0342,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
