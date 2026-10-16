@@ -1,0 +1,92 @@
+{
+  "Appalachian St @ Coastal Caroli|game_ats|Appalachian St": {
+    "american": -105.0,
+    "line": -1.0,
+    "no_vig_prob": 0.4971970204472086
+  },
+  "Appalachian St @ Coastal Caroli|game_ats|Coastal Caroli": {
+    "american": -110.0,
+    "line": 1.0,
+    "no_vig_prob": 0.5028029795527914
+  },
+  "Appalachian St @ Coastal Caroli|game_ml|Appalachian St": {
+    "american": -110.0,
+    "line": null,
+    "no_vig_prob": 0.5102536248229671
+  },
+  "Appalachian St @ Coastal Caroli|game_ml|Coastal Caroli": {
+    "american": 100.0,
+    "line": null,
+    "no_vig_prob": 0.48974637517703284
+  },
+  "Appalachian St @ Coastal Caroli|game_total|Over": {
+    "american": -108.0,
+    "line": 48.5,
+    "no_vig_prob": 0.5007883897646633
+  },
+  "Appalachian St @ Coastal Caroli|game_total|Under": {
+    "american": -105.0,
+    "line": 48.5,
+    "no_vig_prob": 0.4992116102353366
+  },
+  "Memphis @ Tulane|game_ats|Memphis": {
+    "american": 100.0,
+    "line": -7.0,
+    "no_vig_prob": 0.4911044092495056
+  },
+  "Memphis @ Tulane|game_ats|Tulane": {
+    "american": -109.0,
+    "line": 7.0,
+    "no_vig_prob": 0.5088955907504945
+  },
+  "Memphis @ Tulane|game_ml|Memphis": {
+    "american": -260.0,
+    "line": null,
+    "no_vig_prob": 0.7000359054398514
+  },
+  "Memphis @ Tulane|game_ml|Tulane": {
+    "american": 226.0,
+    "line": null,
+    "no_vig_prob": 0.2999640945601486
+  },
+  "Memphis @ Tulane|game_total|Over": {
+    "american": -110.0,
+    "line": 54.5,
+    "no_vig_prob": 0.5040275906080769
+  },
+  "Memphis @ Tulane|game_total|Under": {
+    "american": -105.0,
+    "line": 54.5,
+    "no_vig_prob": 0.4959724093919231
+  },
+  "Washington @ Purdue|game_ats|Purdue": {
+    "american": -110.0,
+    "line": -3.0,
+    "no_vig_prob": 0.5101608429513514
+  },
+  "Washington @ Purdue|game_ats|Washington": {
+    "american": -101.0,
+    "line": 3.0,
+    "no_vig_prob": 0.4898391570486486
+  },
+  "Washington @ Purdue|game_ml|Purdue": {
+    "american": -159.0,
+    "line": null,
+    "no_vig_prob": 0.5948739619821218
+  },
+  "Washington @ Purdue|game_ml|Washington": {
+    "american": 140.0,
+    "line": null,
+    "no_vig_prob": 0.4051260380178783
+  },
+  "Washington @ Purdue|game_total|Over": {
+    "american": -105.0,
+    "line": 50.5,
+    "no_vig_prob": 0.4991953499865597
+  },
+  "Washington @ Purdue|game_total|Under": {
+    "american": -106.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5008046500134404
+  }
+}
