@@ -74,18 +74,29 @@ class Scorecard:
     buys_by_market: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
     by_tier: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
     by_gate: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
+    # Rows the unanchored sim alone would have bought (graded-only shadow).
+    sim_buys_by_market: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
 
     def add(self, r: LedgerRow) -> None:
         self.by_market[r.market].add(r)
         if r.is_buy:
             self.buys_by_market[r.market].add(r)
             self.by_tier[r.tier].add(r)
+        if r.sim_buy:
+            self.sim_buys_by_market[r.market].add(r)
         for g in r.gates or ["pass_gate"]:
             self.by_gate[g].add(r)
 
     def probation(self) -> dict[str, dict[str, object]]:
+        return self._probation(self.buys_by_market)
+
+    def sim_probation(self) -> dict[str, dict[str, object]]:
+        return self._probation(self.sim_buys_by_market)
+
+    @staticmethod
+    def _probation(buckets: dict[str, Bucket]) -> dict[str, dict[str, object]]:
         out: dict[str, dict[str, object]] = {}
-        for mk, b in sorted(self.buys_by_market.items()):
+        for mk, b in sorted(buckets.items()):
             d = b.as_dict()
             cleared = (
                 b.n >= PROBATION_N
@@ -112,6 +123,11 @@ class Scorecard:
         lines.append("")
         lines.append("probation (buys per market; needs 100, roi>0, brier<=market)")
         for mk, p in self.probation().items():
+            status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
+            lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
+        lines.append("")
+        lines.append("sim would-be buys (unanchored sim, graded-only; same bar)")
+        for mk, p in self.sim_probation().items():
             status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
             lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
         return "\n".join(lines) + "\n"
