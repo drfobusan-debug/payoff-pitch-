@@ -828,9 +828,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601196
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
     "selection": "Jonny Deluca H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.400825
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398804
   },
   {
     "matchup": "TB @ CLE",
@@ -1188,6 +1202,13 @@
     "selection": "Petey Halpin HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Petey Halpin HR o1.5",
+    "american": 32500.0,
+    "no_vig_prob": 0.003067
   },
   {
     "matchup": "TB @ CLE",
