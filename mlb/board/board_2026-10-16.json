@@ -828,9 +828,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI o0.5",
+    "american": -180.0,
+    "no_vig_prob": 0.601196
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
     "selection": "Jonny Deluca H+R+RBI o1.5",
     "american": 140.0,
     "no_vig_prob": 0.399492
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.398804
   },
   {
     "matchup": "TB @ CLE",
@@ -1192,6 +1206,13 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_hr",
+    "selection": "Petey Halpin HR o1.5",
+    "american": 32500.0,
+    "no_vig_prob": 0.003067
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
     "selection": "Richie Palacios HR o0.5",
     "american": 1100.0,
     "no_vig_prob": 0.083333
@@ -1297,9 +1318,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_h",
+    "selection": "Chandler Simpson H o1.5",
+    "american": 195.0,
+    "no_vig_prob": 0.321816
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
     "selection": "Chandler Simpson H u0.5",
     "american": 201.0,
     "no_vig_prob": 0.314866
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u1.5",
+    "american": -254.0,
+    "no_vig_prob": 0.678184
   },
   {
     "matchup": "TB @ CLE",
@@ -2060,9 +2095,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_tb",
+    "selection": "Chase DeLauter TB o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.623116
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
     "selection": "Chase DeLauter TB o1.5",
     "american": 155.0,
     "no_vig_prob": 0.375918
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB u0.5",
+    "american": 148.0,
+    "no_vig_prob": 0.376884
   },
   {
     "matchup": "TB @ CLE",
