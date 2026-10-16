@@ -1,0 +1,32 @@
+{
+  "New Mexico Sta @ Sam Houston St|game_ats|New Mexico Sta": {
+    "american": -110.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5118025751072961
+  },
+  "New Mexico Sta @ Sam Houston St|game_ats|Sam Houston St": {
+    "american": 100.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4881974248927038
+  },
+  "New Mexico Sta @ Sam Houston St|game_ml|New Mexico Sta": {
+    "american": -142.0,
+    "line": null,
+    "no_vig_prob": 0.5613870424754988
+  },
+  "New Mexico Sta @ Sam Houston St|game_ml|Sam Houston St": {
+    "american": 118.0,
+    "line": null,
+    "no_vig_prob": 0.43861295752450125
+  },
+  "New Mexico Sta @ Sam Houston St|game_total|Over": {
+    "american": -115.0,
+    "line": 47.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "New Mexico Sta @ Sam Houston St|game_total|Under": {
+    "american": -105.0,
+    "line": 47.5,
+    "no_vig_prob": 0.4891657638136511
+  }
+}

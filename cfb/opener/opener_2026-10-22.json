@@ -1,0 +1,32 @@
+{
+  "Liberty @ Kennesaw State|game_ats|Kennesaw State": {
+    "american": -110.0,
+    "line": 8.5,
+    "no_vig_prob": 0.5
+  },
+  "Liberty @ Kennesaw State|game_ats|Liberty": {
+    "american": -110.0,
+    "line": -8.5,
+    "no_vig_prob": 0.5
+  },
+  "Liberty @ Kennesaw State|game_ml|Kennesaw State": {
+    "american": 270.0,
+    "line": null,
+    "no_vig_prob": 0.25759596334177004
+  },
+  "Liberty @ Kennesaw State|game_ml|Liberty": {
+    "american": -345.0,
+    "line": null,
+    "no_vig_prob": 0.7424040366582298
+  },
+  "Liberty @ Kennesaw State|game_total|Over": {
+    "american": -112.0,
+    "line": 47.5,
+    "no_vig_prob": 0.5043297540699688
+  },
+  "Liberty @ Kennesaw State|game_total|Under": {
+    "american": -108.0,
+    "line": 47.5,
+    "no_vig_prob": 0.4956702459300312
+  }
+}

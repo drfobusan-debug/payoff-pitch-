@@ -1,4 +1,34 @@
 {
+  "Middle Tenness @ Florida Intern|game_ats|Florida Intern": {
+    "american": -114.0,
+    "line": -10.5,
+    "no_vig_prob": 0.5086640097036909
+  },
+  "Middle Tenness @ Florida Intern|game_ats|Middle Tenness": {
+    "american": -106.0,
+    "line": 10.5,
+    "no_vig_prob": 0.49133599029630914
+  },
+  "Middle Tenness @ Florida Intern|game_ml|Florida Intern": {
+    "american": -450.0,
+    "line": null,
+    "no_vig_prob": 0.7832362782370875
+  },
+  "Middle Tenness @ Florida Intern|game_ml|Middle Tenness": {
+    "american": 340.0,
+    "line": null,
+    "no_vig_prob": 0.2167637217629125
+  },
+  "Middle Tenness @ Florida Intern|game_total|Over": {
+    "american": -110.0,
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
+  "Middle Tenness @ Florida Intern|game_total|Under": {
+    "american": -110.0,
+    "line": 45.5,
+    "no_vig_prob": 0.5
+  },
   "South Alabama @ Marshall|game_ats|Marshall": {
     "american": -110.0,
     "line": 2.5,
