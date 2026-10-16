@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN
 from mlb_engine.audit.power_ledger import (
+    ONE_SIDE_FROM,
     Closed,
     CloseIndex,
     GradedPosition,
@@ -466,10 +467,18 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             if day_pairs
             else ""
         )
+        since = [k for k in all_pairs if k[0] >= ONE_SIDE_FROM]
+        when = (
+            f" {len(since)} of them are dated on or after {ONE_SIDE_FROM}, when the ledger "
+            "began recording one side per prop, so the guard was bypassed."
+            if since
+            else f" All are dated before {ONE_SIDE_FROM}, when the ledger began recording "
+            "one side per prop."
+        )
         c.problems.append(
             f"{len(all_pairs)} props in the ledger are recorded on both sides in the same run."
-            f"{today} A pair settles one win and one loss and pays the vig, so it puts a "
-            "guaranteed loss into its bucket's record. The bucket tables below also show "
+            f"{today}{when} A pair settles one win and one loss and pays the vig, so it puts "
+            "a guaranteed loss into its bucket's record. The bucket tables below also show "
             "each record with the pairs removed."
         )
     if day.roster_recorded:
@@ -628,11 +637,11 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             )
 
     # ---- recommendations
-    if all_pairs:
+    if any(k[0] >= ONE_SIDE_FROM for k in all_pairs):
         c.recommendations.append(
-            "Record one side per prop for the buckets that hold no side (RV<0 watch, "
-            "production watch), or record them as display-only. Until then, read those "
-            "buckets with the pairs removed."
+            "A prop was recorded on both sides after the one-side-per-prop guard: check "
+            "the machine that wrote it runs current main, then read the affected buckets "
+            "with the pairs removed."
         )
     if any("lineup the screen read" in p for p in c.problems):
         c.recommendations.append(
