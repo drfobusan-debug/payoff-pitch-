@@ -424,8 +424,10 @@ def price_game(
             continue
         model, cal_reasons = calib.apply(sel.market, raw)
         sim_prob: float | None = None
+        sim_model: markets.Prob | None = None
         if sel.market in cfg.gates.anchored_markets:
             sim_prob = model.win
+            sim_model = model
             model = anchor(model, sel.consensus, cfg.gates.market_anchor)
             cal_reasons = [
                 *cal_reasons,
@@ -441,6 +443,7 @@ def price_game(
             goalie_confirmed=both_confirmed,
             settlement_gate=settlement_gate,
             sim_prob=sim_prob,
+            sim_model=sim_model,
         )
         priced.reasons.extend(cal_reasons)
         card.rows.append(

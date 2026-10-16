@@ -79,6 +79,10 @@ class LedgerRow:
     bet_prob: float | None = None
     puck_drop: str = ""  # UTC, from the NHL schedule at grading
     close_at: str = ""  # capture time of the quote the close was read from
+    # The unanchored sim's own stamp on anchored markets (graded-only).
+    sim_tier: str = ""
+    sim_edge: float | None = None
+    sim_buy: bool = False
 
     @property
     def is_buy(self) -> bool:
@@ -151,6 +155,9 @@ def row_from(
         card_tag=card_tag,
         reasons=list(p.reasons),
         bet_prob=p.model.win,
+        sim_tier=p.sim_tier,
+        sim_edge=p.sim_edge,
+        sim_buy=p.sim_buy,
     )
 
 

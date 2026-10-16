@@ -170,3 +170,64 @@ def test_ledger_sync_pushes_changed_pulls_missing(tmp_path: Path):
     pulled = state._copy_ledger(branch, other, overwrite=False)
     assert pulled == ["ledger/predictions_2026-10-02.json"]
     assert (other / "graded_2026-10-02.json").read_text() == "stale-local"
+
+
+def test_sim_model_stamps_shadow_tier_without_touching_live_price():
+    sel = _sel(consensus=0.50, american=-105)
+    sim = Prob(win=0.60)
+    live = anchor(sim, sel.consensus, 0.90)
+    p = stamp(
+        sel,
+        live,
+        ot_rule="incl_ot_so",
+        thr=GateParams(),
+        quote_age_minutes=5,
+        goalie_confirmed=True,
+        settlement_gate=None,
+        sim_prob=sim.win,
+        sim_model=sim,
+    )
+    # live path unchanged: anchored edge 0.01 fails min_edge, no buy
+    assert p.model.win == pytest.approx(0.51) and not p.is_buy and p.tier == Tier.PASS
+    assert "min_edge" in p.gates
+    # the shadow: unanchored sim edge 0.10 > max edge 0.06 -> refused there too
+    assert p.sim_edge == pytest.approx(0.10) and p.sim_buy is False
+    sim2 = Prob(win=0.55)
+    p2 = stamp(
+        sel,
+        anchor(sim2, sel.consensus, 0.90),
+        ot_rule="incl_ot_so",
+        thr=GateParams(),
+        quote_age_minutes=5,
+        goalie_confirmed=True,
+        settlement_gate=None,
+        sim_prob=sim2.win,
+        sim_model=sim2,
+    )
+    assert not p2.is_buy and p2.sim_buy and p2.sim_tier == Tier.STRONG.value
+    assert p2.sim_edge == pytest.approx(0.05)
+    row = row_from(
+        p2,
+        slate_date=Date(2026, 10, 2),
+        home="H",
+        away="A",
+        home_goalie="g",
+        away_goalie="g",
+        goalie_status="confirmed",
+        lineup_source="t",
+        priced_at="t",
+        card_tag="initial",
+    )
+    assert row.sim_buy and row.sim_tier == Tier.STRONG.value and not row.is_buy
+    assert row.tier == Tier.PASS.value and row.bet_prob == pytest.approx(0.505)
+    # no sim_model (props / unanchored markets) -> empty shadow
+    p3 = stamp(
+        sel,
+        sim2,
+        ot_rule="incl_ot_so",
+        thr=GateParams(),
+        quote_age_minutes=5,
+        goalie_confirmed=True,
+        settlement_gate=None,
+    )
+    assert p3.sim_tier == "" and p3.sim_edge is None and not p3.sim_buy

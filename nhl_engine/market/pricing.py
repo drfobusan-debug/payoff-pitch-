@@ -89,6 +89,11 @@ class Priced:
     reasons: list[str] = field(default_factory=list)
     # The sim's own probability when ``model`` is market-anchored.
     sim_prob: float | None = None
+    # What the unanchored sim alone would have done (stamped with the same
+    # gates); graded-only, so probation can read the sim's own picks.
+    sim_tier: str = ""
+    sim_edge: float | None = None
+    sim_buy: bool = False
 
     @property
     def pass_gate(self) -> bool:
@@ -119,6 +124,7 @@ def stamp(
     goalie_confirmed: bool,
     settlement_gate: str | None,
     sim_prob: float | None = None,
+    sim_model: Prob | None = None,
 ) -> Priced:
     edge = model.win - sel.consensus
     ev = ev_per_unit(model, sel.best_american)
@@ -160,7 +166,31 @@ def stamp(
         tier = Tier.MODERATE
     if gates:
         reasons.append("gates: " + ",".join(gates))
-    return Priced(sel, ot_rule, model, edge, ev, tier, gates, reasons, sim_prob)
+    if sim_model is None:
+        return Priced(sel, ot_rule, model, edge, ev, tier, gates, reasons, sim_prob)
+    shadow = stamp(
+        sel,
+        sim_model,
+        ot_rule=ot_rule,
+        thr=thr,
+        quote_age_minutes=quote_age_minutes,
+        goalie_confirmed=goalie_confirmed,
+        settlement_gate=settlement_gate,
+    )
+    return Priced(
+        sel,
+        ot_rule,
+        model,
+        edge,
+        ev,
+        tier,
+        gates,
+        reasons,
+        sim_prob,
+        sim_tier=shadow.tier.value,
+        sim_edge=shadow.edge,
+        sim_buy=shadow.is_buy,
+    )
 
 
 __all__ = [

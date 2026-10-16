@@ -139,6 +139,11 @@ class LedgerAudit:
     buys_by_tier: dict[str, Tally]
     buys_by_night: dict[str, Tally]
     roi_ci: tuple[float, float]
+    # What the unanchored sim alone would have bought (graded-only shadow).
+    sim_buys: Tally
+    sim_buys_by_market: dict[str, Tally]
+    sim_buys_by_tier: dict[str, Tally]
+    sim_roi_ci: tuple[float, float]
     sides: list[SideRead]
     goalies: list[GoalieRead]
     scorecard_text: str
@@ -153,6 +158,13 @@ class LedgerAudit:
     @property
     def clv_p(self) -> float:
         return sign_test_p(self.buys.clv_neg, self.buys.clv_neg + self.buys.clv_pos)
+
+
+SIM_NOTE = (
+    "Rows the sim alone (no market anchor) would have bought under the same gates. "
+    "Nothing here was staked; it exists so probation can grade the sim's own picks "
+    "while the anchor holds. Call at 100+ per market."
+)
 
 
 def sign_test_p(k: int, n: int) -> float:
@@ -336,6 +348,7 @@ def build(
     rows = [r for r in rows if not r.priced_late]
     graded = [r for r in rows if r.outcome is not None]
     buys = [r for r in graded if r.is_buy]
+    sim_buys = [r for r in graded if r.sim_buy]
     audit = LedgerAudit(
         nights=sorted({r.slate_date for r in rows}),
         rows=total,
@@ -344,6 +357,10 @@ def build(
         buys_by_tier=_group(buys, lambda r: r.tier),
         buys_by_night=_group(buys, lambda r: r.slate_date),
         roi_ci=bootstrap_roi([r.pnl or 0.0 for r in buys]),
+        sim_buys=_tally(sim_buys),
+        sim_buys_by_market=_group(sim_buys, lambda r: r.market),
+        sim_buys_by_tier=_group(sim_buys, lambda r: r.sim_tier),
+        sim_roi_ci=bootstrap_roi([r.pnl or 0.0 for r in sim_buys]),
         sides=[s for s in (one_side(graded, k) for k in SIDE_MARKETS) if s is not None],
         goalies=goalie_reads(rows, starters or {}),
         scorecard_text=scorecard(rows).render(),
@@ -489,6 +506,20 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     ]
     for section in (a.buys_by_market, a.buys_by_tier, a.buys_by_night):
         lines += [f"| {' | '.join(r)} |" for r in _tally_rows(section)]
+    sb = a.sim_buys
+    lines += [
+        "",
+        "## Sim would-be buys (unanchored sim at the card's price; graded-only)",
+        "",
+        SIM_NOTE,
+        "",
+        f"**{sb.record}, {sb.pnl:+.2f}u, ROI {sb.roi:+.1%}**, 95% CI {a.sim_roi_ci[0]:+.0%}..{a.sim_roi_ci[1]:+.0%} (n={sb.n}).",
+        "",
+        "| | W-L-P | ROI | P&L | CLV pts |",
+        "|---|---|---|---|---|",
+    ]
+    for section in (a.sim_buys_by_market, a.sim_buys_by_tier):
+        lines += [f"| {' | '.join(r)} |" for r in _tally_rows(section)]
     lines += [
         "",
         "## Model vs market (one side per game; Brier, lower is better)",
@@ -559,6 +590,15 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
         ("by tier", a.buys_by_tier),
         ("by night", a.buys_by_night),
     ):
+        parts.append(_table([title, "W-L-P", "ROI", "P&L", "CLV pts"], _tally_rows(d)))
+    sb = a.sim_buys
+    parts.append("<h2>Sim would-be buys (unanchored sim at the card's price; graded-only)</h2>")
+    parts.append(f"<p class='sub'>{escape(SIM_NOTE)}</p>")
+    parts.append(
+        f"<p><b>{sb.record}, {sb.pnl:+.2f}u, ROI {sb.roi:+.1%}</b>, 95% CI {a.sim_roi_ci[0]:+.0%}..{a.sim_roi_ci[1]:+.0%} "
+        f"(n={sb.n}).</p>"
+    )
+    for title, d in (("by market", a.sim_buys_by_market), ("by tier", a.sim_buys_by_tier)):
         parts.append(_table([title, "W-L-P", "ROI", "P&L", "CLV pts"], _tally_rows(d)))
     parts.append("<h2>Model vs market (one side per game; Brier, lower is better)</h2>")
     parts.append(
