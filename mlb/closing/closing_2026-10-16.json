@@ -1,0 +1,2508 @@
+[
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Brayan Rocchio 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.395105
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Brayan Rocchio 1B u0.5",
+    "american": -182.0,
+    "no_vig_prob": 0.604895
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Chandler Simpson 1B o0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.596097
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Chandler Simpson 1B u0.5",
+    "american": 137.0,
+    "no_vig_prob": 0.403903
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Chase DeLauter 1B o0.5",
+    "american": -113.0,
+    "no_vig_prob": 0.495594
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Chase DeLauter 1B u0.5",
+    "american": -115.0,
+    "no_vig_prob": 0.504406
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jo Adell 1B o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.426788
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jo Adell 1B u0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.573212
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jonathan Aranda 1B o0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.465189
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jonathan Aranda 1B u0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.534811
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jonny Deluca 1B o0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.433213
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jonny Deluca 1B u0.5",
+    "american": -146.0,
+    "no_vig_prob": 0.566787
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jose Ramirez 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.457052
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Jose Ramirez 1B u0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.542948
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Junior Caminero 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.467136
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Junior Caminero 1B u0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.532864
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Liam Hicks 1B o0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.46893
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Liam Hicks 1B u0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.53107
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Nathaniel Lowe 1B o0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.429588
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Nathaniel Lowe 1B u0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.570412
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Patrick Bailey 1B o0.5",
+    "american": 132.0,
+    "no_vig_prob": 0.402935
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Patrick Bailey 1B u0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.597065
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Petey Halpin 1B o0.5",
+    "american": 133.0,
+    "no_vig_prob": 0.401734
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Petey Halpin 1B u0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.598266
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Richie Palacios 1B o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.407885
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Richie Palacios 1B u0.5",
+    "american": -162.0,
+    "no_vig_prob": 0.592115
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Steven Kwan 1B o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.538397
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Steven Kwan 1B u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.461603
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Taylor Walls 1B o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.33804
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Taylor Walls 1B u0.5",
+    "american": -242.0,
+    "no_vig_prob": 0.66196
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Travis Bazzana 1B o0.5",
+    "american": 123.0,
+    "no_vig_prob": 0.424462
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Travis Bazzana 1B u0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.575538
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Victor Mesa Jr. 1B o0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.412563
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Victor Mesa Jr. 1B u0.5",
+    "american": -168.0,
+    "no_vig_prob": 0.587437
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Yandy Diaz 1B o0.5",
+    "american": -135.0,
+    "no_vig_prob": 0.539137
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_1b",
+    "selection": "Yandy Diaz 1B u0.5",
+    "american": 103.0,
+    "no_vig_prob": 0.460863
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Brayan Rocchio 2B o0.5",
+    "american": 464.0,
+    "no_vig_prob": 0.169199
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Brayan Rocchio 2B u0.5",
+    "american": -740.0,
+    "no_vig_prob": 0.830801
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Chandler Simpson 2B o0.5",
+    "american": 443.0,
+    "no_vig_prob": 0.185529
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Chandler Simpson 2B u0.5",
+    "american": -600.0,
+    "no_vig_prob": 0.814471
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Chase DeLauter 2B o0.5",
+    "american": 414.0,
+    "no_vig_prob": 0.190256
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Chase DeLauter 2B u0.5",
+    "american": -600.0,
+    "no_vig_prob": 0.809744
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jo Adell 2B o0.5",
+    "american": 391.0,
+    "no_vig_prob": 0.191705
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jo Adell 2B u0.5",
+    "american": -600.0,
+    "no_vig_prob": 0.808295
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jonathan Aranda 2B o0.5",
+    "american": 470.0,
+    "no_vig_prob": 0.172312
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jonathan Aranda 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.827688
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jonny Deluca 2B o0.5",
+    "american": 520.0,
+    "no_vig_prob": 0.170117
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jonny Deluca 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.829883
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jose Ramirez 2B o0.5",
+    "american": 387.0,
+    "no_vig_prob": 0.206817
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Jose Ramirez 2B u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.793183
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Junior Caminero 2B o0.5",
+    "american": 458.0,
+    "no_vig_prob": 0.182401
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Junior Caminero 2B u0.5",
+    "american": -600.0,
+    "no_vig_prob": 0.817599
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Liam Hicks 2B o0.5",
+    "american": 464.0,
+    "no_vig_prob": 0.173158
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Liam Hicks 2B u0.5",
+    "american": -700.0,
+    "no_vig_prob": 0.826842
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Nathaniel Lowe 2B o0.5",
+    "american": 416.0,
+    "no_vig_prob": 0.185124
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Nathaniel Lowe 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.814876
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Patrick Bailey 2B o0.5",
+    "american": 476.0,
+    "no_vig_prob": 0.163917
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Patrick Bailey 2B u0.5",
+    "american": -760.0,
+    "no_vig_prob": 0.836083
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Petey Halpin 2B o0.5",
+    "american": 542.0,
+    "no_vig_prob": 0.167589
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Petey Halpin 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.832411
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Richie Palacios 2B o0.5",
+    "american": 650.0,
+    "no_vig_prob": 0.15716
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Richie Palacios 2B u0.5",
+    "american": -650.0,
+    "no_vig_prob": 0.84284
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Steven Kwan 2B o0.5",
+    "american": 351.0,
+    "no_vig_prob": 0.210694
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Steven Kwan 2B u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.789306
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Taylor Walls 2B o0.5",
+    "american": 660.0,
+    "no_vig_prob": 0.148028
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Taylor Walls 2B u0.5",
+    "american": -750.0,
+    "no_vig_prob": 0.851972
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Travis Bazzana 2B o0.5",
+    "american": 443.0,
+    "no_vig_prob": 0.181093
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Travis Bazzana 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.818907
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Victor Mesa Jr. 2B o0.5",
+    "american": 456.0,
+    "no_vig_prob": 0.180715
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Victor Mesa Jr. 2B u0.5",
+    "american": -625.0,
+    "no_vig_prob": 0.819285
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Yandy Diaz 2B o0.5",
+    "american": 403.0,
+    "no_vig_prob": 0.20009
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_2b",
+    "selection": "Yandy Diaz 2B u0.5",
+    "american": -525.0,
+    "no_vig_prob": 0.79991
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Brayan Rocchio BB o0.5",
+    "american": 350.0,
+    "no_vig_prob": 0.208906
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Brayan Rocchio BB u0.5",
+    "american": -531.0,
+    "no_vig_prob": 0.791094
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB o0.5",
+    "american": 350.0,
+    "no_vig_prob": 0.225849
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Chandler Simpson BB u0.5",
+    "american": -427.0,
+    "no_vig_prob": 0.774151
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Chase DeLauter BB o0.5",
+    "american": 186.0,
+    "no_vig_prob": 0.327499
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Chase DeLauter BB u0.5",
+    "american": -264.0,
+    "no_vig_prob": 0.672501
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jo Adell BB o0.5",
+    "american": 275.0,
+    "no_vig_prob": 0.256383
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jo Adell BB u0.5",
+    "american": -373.0,
+    "no_vig_prob": 0.743617
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jonathan Aranda BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.386328
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jonathan Aranda BB u0.5",
+    "american": -170.0,
+    "no_vig_prob": 0.613672
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jonny Deluca BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.26456
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jonny Deluca BB u0.5",
+    "american": -345.0,
+    "no_vig_prob": 0.73544
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jose Ramirez BB o0.5",
+    "american": 203.0,
+    "no_vig_prob": 0.30947
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Jose Ramirez BB u0.5",
+    "american": -289.0,
+    "no_vig_prob": 0.69053
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Junior Caminero BB o0.5",
+    "american": 160.0,
+    "no_vig_prob": 0.388511
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Junior Caminero BB u0.5",
+    "american": -166.0,
+    "no_vig_prob": 0.611489
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Liam Hicks BB o0.5",
+    "american": 190.0,
+    "no_vig_prob": 0.321293
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Liam Hicks BB u0.5",
+    "american": -265.0,
+    "no_vig_prob": 0.678707
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Nathaniel Lowe BB o0.5",
+    "american": 240.0,
+    "no_vig_prob": 0.277671
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Nathaniel Lowe BB u0.5",
+    "american": -345.0,
+    "no_vig_prob": 0.722329
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Patrick Bailey BB o0.5",
+    "american": 328.0,
+    "no_vig_prob": 0.219441
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Patrick Bailey BB u0.5",
+    "american": -492.0,
+    "no_vig_prob": 0.780559
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Petey Halpin BB o0.5",
+    "american": 397.0,
+    "no_vig_prob": 0.189404
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Petey Halpin BB u0.5",
+    "american": -620.0,
+    "no_vig_prob": 0.810596
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Richie Palacios BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.28376
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Richie Palacios BB u0.5",
+    "american": -298.0,
+    "no_vig_prob": 0.71624
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Steven Kwan BB o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.311219
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Steven Kwan BB u0.5",
+    "american": -277.0,
+    "no_vig_prob": 0.688781
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Taylor Walls BB o0.5",
+    "american": 185.0,
+    "no_vig_prob": 0.340416
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Taylor Walls BB u0.5",
+    "american": -235.0,
+    "no_vig_prob": 0.659584
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Travis Bazzana BB o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.260915
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Travis Bazzana BB u0.5",
+    "american": -365.0,
+    "no_vig_prob": 0.739085
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Victor Mesa Jr. BB o0.5",
+    "american": 250.0,
+    "no_vig_prob": 0.28603
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Victor Mesa Jr. BB u0.5",
+    "american": -292.0,
+    "no_vig_prob": 0.71397
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Yandy Diaz BB o0.5",
+    "american": 170.0,
+    "no_vig_prob": 0.370168
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Yandy Diaz BB u0.5",
+    "american": -186.0,
+    "no_vig_prob": 0.629832
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI o0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.565172
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Brayan Rocchio H+R+RBI u0.5",
+    "american": 116.0,
+    "no_vig_prob": 0.434828
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Chandler Simpson H+R+RBI o1.5",
+    "american": -110.0,
+    "no_vig_prob": 0.496745
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Chandler Simpson H+R+RBI u1.5",
+    "american": -113.0,
+    "no_vig_prob": 0.503255
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Chase DeLauter H+R+RBI o1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.457679
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Chase DeLauter H+R+RBI u1.5",
+    "american": -135.0,
+    "no_vig_prob": 0.542321
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jo Adell H+R+RBI o1.5",
+    "american": 115.0,
+    "no_vig_prob": 0.442141
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jo Adell H+R+RBI u1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.557859
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonathan Aranda H+R+RBI o1.5",
+    "american": 117.0,
+    "no_vig_prob": 0.438333
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonathan Aranda H+R+RBI u1.5",
+    "american": -145.0,
+    "no_vig_prob": 0.561667
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.400825
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI u1.5",
+    "american": -165.0,
+    "no_vig_prob": 0.599175
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jose Ramirez H+R+RBI o1.5",
+    "american": 105.0,
+    "no_vig_prob": 0.458323
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Jose Ramirez H+R+RBI u1.5",
+    "american": -135.0,
+    "no_vig_prob": 0.541677
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Junior Caminero H+R+RBI o1.5",
+    "american": 110.0,
+    "no_vig_prob": 0.460223
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Junior Caminero H+R+RBI u1.5",
+    "american": -130.0,
+    "no_vig_prob": 0.539777
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.599271
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o1.5",
+    "american": 121.0,
+    "no_vig_prob": 0.423516
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.400729
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u1.5",
+    "american": -160.0,
+    "no_vig_prob": 0.576484
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI o0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.604029
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI o1.5",
+    "american": 133.0,
+    "no_vig_prob": 0.404717
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.395971
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Nathaniel Lowe H+R+RBI u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.595283
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Patrick Bailey H+R+RBI o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.574398
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Patrick Bailey H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.425602
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.540183
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Petey Halpin H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.459817
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Richie Palacios H+R+RBI o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.56862
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Richie Palacios H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.43138
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Steven Kwan H+R+RBI o1.5",
+    "american": 115.0,
+    "no_vig_prob": 0.454568
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Steven Kwan H+R+RBI u1.5",
+    "american": -130.0,
+    "no_vig_prob": 0.545432
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Taylor Walls H+R+RBI o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.529244
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Taylor Walls H+R+RBI u0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.470756
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI o0.5",
+    "american": -169.0,
+    "no_vig_prob": 0.590182
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Travis Bazzana H+R+RBI u0.5",
+    "american": 130.0,
+    "no_vig_prob": 0.409818
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI o1.5",
+    "american": 116.0,
+    "no_vig_prob": 0.435878
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Victor Mesa Jr. H+R+RBI u1.5",
+    "american": -150.0,
+    "no_vig_prob": 0.564122
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Yandy Diaz H+R+RBI o1.5",
+    "american": -109.0,
+    "no_vig_prob": 0.494486
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Yandy Diaz H+R+RBI u1.5",
+    "american": -110.0,
+    "no_vig_prob": 0.505514
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Brayan Rocchio HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Brayan Rocchio HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Chandler Simpson HR o0.5",
+    "american": 4000.0,
+    "no_vig_prob": 0.02439
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Chase DeLauter HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.111455
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Chase DeLauter HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jo Adell HR o0.5",
+    "american": 575.0,
+    "no_vig_prob": 0.150047
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jo Adell HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jonathan Aranda HR o0.5",
+    "american": 700.0,
+    "no_vig_prob": 0.125
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jonathan Aranda HR o1.5",
+    "american": 12000.0,
+    "no_vig_prob": 0.008264
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jonny Deluca HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.085145
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jonny Deluca HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jose Ramirez HR o0.5",
+    "american": 625.0,
+    "no_vig_prob": 0.140394
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Jose Ramirez HR o1.5",
+    "american": 9000.0,
+    "no_vig_prob": 0.010989
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Junior Caminero HR o0.5",
+    "american": 525.0,
+    "no_vig_prob": 0.164138
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Junior Caminero HR o1.5",
+    "american": 7000.0,
+    "no_vig_prob": 0.016846
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Liam Hicks HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.085145
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Liam Hicks HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Nathaniel Lowe HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Nathaniel Lowe HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Patrick Bailey HR o0.5",
+    "american": 900.0,
+    "no_vig_prob": 0.102632
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Patrick Bailey HR o1.5",
+    "american": 22500.0,
+    "no_vig_prob": 0.004425
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Petey Halpin HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.083333
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Richie Palacios HR o0.5",
+    "american": 1100.0,
+    "no_vig_prob": 0.085145
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Richie Palacios HR o1.5",
+    "american": 27500.0,
+    "no_vig_prob": 0.003623
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Steven Kwan HR o0.5",
+    "american": 2000.0,
+    "no_vig_prob": 0.047619
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Steven Kwan HR o1.5",
+    "american": 80000.0,
+    "no_vig_prob": 0.001248
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Taylor Walls HR o0.5",
+    "american": 1600.0,
+    "no_vig_prob": 0.060662
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Taylor Walls HR o1.5",
+    "american": 50000.0,
+    "no_vig_prob": 0.001996
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Travis Bazzana HR o0.5",
+    "american": 1150.0,
+    "no_vig_prob": 0.087619
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Travis Bazzana HR o1.5",
+    "american": 25000.0,
+    "no_vig_prob": 0.003984
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o0.5",
+    "american": 575.0,
+    "no_vig_prob": 0.148148
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 8000.0,
+    "no_vig_prob": 0.012346
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Yandy Diaz HR o0.5",
+    "american": 950.0,
+    "no_vig_prob": 0.097619
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Yandy Diaz HR o1.5",
+    "american": 18000.0,
+    "no_vig_prob": 0.005525
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Brayan Rocchio H o0.5",
+    "american": -120.0,
+    "no_vig_prob": 0.522944
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Brayan Rocchio H u0.5",
+    "american": -101.0,
+    "no_vig_prob": 0.477056
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H o0.5",
+    "american": -230.0,
+    "no_vig_prob": 0.6875
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H o1.5",
+    "american": 204.0,
+    "no_vig_prob": 0.311555
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.3125
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chandler Simpson H u1.5",
+    "american": -271.0,
+    "no_vig_prob": 0.688445
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chase DeLauter H o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.63097
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Chase DeLauter H u0.5",
+    "american": 155.0,
+    "no_vig_prob": 0.36903
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jo Adell H o0.5",
+    "american": -160.0,
+    "no_vig_prob": 0.590355
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jo Adell H u0.5",
+    "american": 134.0,
+    "no_vig_prob": 0.409645
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jonathan Aranda H o0.5",
+    "american": -161.0,
+    "no_vig_prob": 0.584861
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jonathan Aranda H u0.5",
+    "american": 129.0,
+    "no_vig_prob": 0.415139
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jonny Deluca H o0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.55144
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jonny Deluca H u0.5",
+    "american": 114.0,
+    "no_vig_prob": 0.44856
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jose Ramirez H o0.5",
+    "american": -195.0,
+    "no_vig_prob": 0.620328
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Jose Ramirez H u0.5",
+    "american": 148.0,
+    "no_vig_prob": 0.379672
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Junior Caminero H o0.5",
+    "american": -200.0,
+    "no_vig_prob": 0.6265
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Junior Caminero H u0.5",
+    "american": 153.0,
+    "no_vig_prob": 0.3735
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Liam Hicks H o0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.577971
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Liam Hicks H u0.5",
+    "american": 131.0,
+    "no_vig_prob": 0.422029
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Nathaniel Lowe H o0.5",
+    "american": -156.0,
+    "no_vig_prob": 0.573782
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Nathaniel Lowe H u0.5",
+    "american": 122.0,
+    "no_vig_prob": 0.426218
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Patrick Bailey H o0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.541097
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Patrick Bailey H u0.5",
+    "american": 105.0,
+    "no_vig_prob": 0.458903
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Petey Halpin H o0.5",
+    "american": -121.0,
+    "no_vig_prob": 0.525806
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Petey Halpin H u0.5",
+    "american": 100.0,
+    "no_vig_prob": 0.474194
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Richie Palacios H o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.523706
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Richie Palacios H u0.5",
+    "american": -102.0,
+    "no_vig_prob": 0.476294
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Steven Kwan H o0.5",
+    "american": -222.0,
+    "no_vig_prob": 0.648806
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Steven Kwan H u0.5",
+    "american": 171.0,
+    "no_vig_prob": 0.351194
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Taylor Walls H o0.5",
+    "american": 128.0,
+    "no_vig_prob": 0.434531
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Taylor Walls H u0.5",
+    "american": -144.0,
+    "no_vig_prob": 0.565469
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Travis Bazzana H o0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.557434
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Travis Bazzana H u0.5",
+    "american": 115.0,
+    "no_vig_prob": 0.442566
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Victor Mesa Jr. H o0.5",
+    "american": -150.0,
+    "no_vig_prob": 0.568262
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Victor Mesa Jr. H u0.5",
+    "american": 121.0,
+    "no_vig_prob": 0.431738
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Yandy Diaz H o0.5",
+    "american": -231.0,
+    "no_vig_prob": 0.65499
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_h",
+    "selection": "Yandy Diaz H u0.5",
+    "american": 173.0,
+    "no_vig_prob": 0.34501
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Brayan Rocchio RBI o0.5",
+    "american": 349.0,
+    "no_vig_prob": 0.223992
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Brayan Rocchio RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.776008
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Chandler Simpson RBI o0.5",
+    "american": 245.0,
+    "no_vig_prob": 0.277279
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Chandler Simpson RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.722721
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Chase DeLauter RBI o0.5",
+    "american": 232.0,
+    "no_vig_prob": 0.287566
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Chase DeLauter RBI u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.712434
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jo Adell RBI o0.5",
+    "american": 203.0,
+    "no_vig_prob": 0.320462
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jo Adell RBI u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.679538
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jonathan Aranda RBI o0.5",
+    "american": 265.0,
+    "no_vig_prob": 0.258275
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jonathan Aranda RBI u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.741725
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jonny Deluca RBI o0.5",
+    "american": 284.0,
+    "no_vig_prob": 0.259143
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jonny Deluca RBI u0.5",
+    "american": -350.0,
+    "no_vig_prob": 0.740857
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jose Ramirez RBI o0.5",
+    "american": 236.0,
+    "no_vig_prob": 0.280866
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Jose Ramirez RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.719134
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Junior Caminero RBI o0.5",
+    "american": 210.0,
+    "no_vig_prob": 0.30835
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Junior Caminero RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.69165
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Liam Hicks RBI o0.5",
+    "american": 254.0,
+    "no_vig_prob": 0.27394
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Liam Hicks RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.72606
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Nathaniel Lowe RBI o0.5",
+    "american": 260.0,
+    "no_vig_prob": 0.271773
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Nathaniel Lowe RBI u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.728227
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Patrick Bailey RBI o0.5",
+    "american": 300.0,
+    "no_vig_prob": 0.247304
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Patrick Bailey RBI u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.752696
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Petey Halpin RBI o0.5",
+    "american": 329.0,
+    "no_vig_prob": 0.23661
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Petey Halpin RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.76339
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Richie Palacios RBI o0.5",
+    "american": 292.0,
+    "no_vig_prob": 0.24579
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Richie Palacios RBI u0.5",
+    "american": -400.0,
+    "no_vig_prob": 0.75421
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Steven Kwan RBI o0.5",
+    "american": 360.0,
+    "no_vig_prob": 0.22153
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Steven Kwan RBI u0.5",
+    "american": -450.0,
+    "no_vig_prob": 0.77847
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Taylor Walls RBI o0.5",
+    "american": 404.0,
+    "no_vig_prob": 0.203557
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Taylor Walls RBI u0.5",
+    "american": -500.0,
+    "no_vig_prob": 0.796443
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Travis Bazzana RBI o0.5",
+    "american": 302.0,
+    "no_vig_prob": 0.246748
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Travis Bazzana RBI u0.5",
+    "american": -375.0,
+    "no_vig_prob": 0.753252
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Victor Mesa Jr. RBI o0.5",
+    "american": 204.0,
+    "no_vig_prob": 0.309413
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Victor Mesa Jr. RBI u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.690587
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Yandy Diaz RBI o0.5",
+    "american": 268.0,
+    "no_vig_prob": 0.277488
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_rbi",
+    "selection": "Yandy Diaz RBI u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.722512
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Brayan Rocchio R o0.5",
+    "american": 230.0,
+    "no_vig_prob": 0.284133
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Brayan Rocchio R u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.715867
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Chandler Simpson R o0.5",
+    "american": 180.0,
+    "no_vig_prob": 0.339992
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Chandler Simpson R u0.5",
+    "american": -237.0,
+    "no_vig_prob": 0.660008
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Chase DeLauter R o0.5",
+    "american": 164.0,
+    "no_vig_prob": 0.35938
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Chase DeLauter R u0.5",
+    "american": -210.0,
+    "no_vig_prob": 0.64062
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jo Adell R o0.5",
+    "american": 175.0,
+    "no_vig_prob": 0.349272
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jo Adell R u0.5",
+    "american": -225.0,
+    "no_vig_prob": 0.650728
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jonathan Aranda R o0.5",
+    "american": 139.0,
+    "no_vig_prob": 0.39697
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jonathan Aranda R u0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.60303
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jonny Deluca R o0.5",
+    "american": 214.0,
+    "no_vig_prob": 0.299255
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jonny Deluca R u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.700745
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jose Ramirez R o0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.391301
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Jose Ramirez R u0.5",
+    "american": -185.0,
+    "no_vig_prob": 0.608699
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Junior Caminero R o0.5",
+    "american": 138.0,
+    "no_vig_prob": 0.403188
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Junior Caminero R u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.596812
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Liam Hicks R o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.313067
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Liam Hicks R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.686933
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Nathaniel Lowe R o0.5",
+    "american": 188.0,
+    "no_vig_prob": 0.328093
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Nathaniel Lowe R u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.671907
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Patrick Bailey R o0.5",
+    "american": 216.0,
+    "no_vig_prob": 0.297982
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Patrick Bailey R u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.702018
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Petey Halpin R o0.5",
+    "american": 245.0,
+    "no_vig_prob": 0.278836
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Petey Halpin R u0.5",
+    "american": -325.0,
+    "no_vig_prob": 0.721164
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Richie Palacios R o0.5",
+    "american": 217.0,
+    "no_vig_prob": 0.303284
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Richie Palacios R u0.5",
+    "american": -275.0,
+    "no_vig_prob": 0.696716
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Steven Kwan R o0.5",
+    "american": 148.0,
+    "no_vig_prob": 0.381483
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Steven Kwan R u0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.618517
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Taylor Walls R o0.5",
+    "american": 242.0,
+    "no_vig_prob": 0.286925
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Taylor Walls R u0.5",
+    "american": -300.0,
+    "no_vig_prob": 0.713075
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Travis Bazzana R o0.5",
+    "american": 207.0,
+    "no_vig_prob": 0.318423
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Travis Bazzana R u0.5",
+    "american": -250.0,
+    "no_vig_prob": 0.681577
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Victor Mesa Jr. R o0.5",
+    "american": 165.0,
+    "no_vig_prob": 0.356327
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Victor Mesa Jr. R u0.5",
+    "american": -222.0,
+    "no_vig_prob": 0.643673
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Yandy Diaz R o0.5",
+    "american": 126.0,
+    "no_vig_prob": 0.413322
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_r",
+    "selection": "Yandy Diaz R u0.5",
+    "american": -165.0,
+    "no_vig_prob": 0.586678
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Brayan Rocchio TB o0.5",
+    "american": -119.0,
+    "no_vig_prob": 0.51007
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Brayan Rocchio TB u0.5",
+    "american": -109.0,
+    "no_vig_prob": 0.48993
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chandler Simpson TB o1.5",
+    "american": 155.0,
+    "no_vig_prob": 0.380946
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chandler Simpson TB u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.619054
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB o0.5",
+    "american": -193.0,
+    "no_vig_prob": 0.615481
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB o1.5",
+    "american": 155.0,
+    "no_vig_prob": 0.375918
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB u0.5",
+    "american": 143.0,
+    "no_vig_prob": 0.384519
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Chase DeLauter TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.624082
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jo Adell TB o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.577119
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jo Adell TB u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.422881
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jonathan Aranda TB o1.5",
+    "american": 178.0,
+    "no_vig_prob": 0.348869
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jonathan Aranda TB u1.5",
+    "american": -225.0,
+    "no_vig_prob": 0.651131
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jonny Deluca TB o0.5",
+    "american": -139.0,
+    "no_vig_prob": 0.545721
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jonny Deluca TB u0.5",
+    "american": 108.0,
+    "no_vig_prob": 0.454279
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jose Ramirez TB o0.5",
+    "american": -190.0,
+    "no_vig_prob": 0.61126
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jose Ramirez TB o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.387116
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jose Ramirez TB u0.5",
+    "american": 140.0,
+    "no_vig_prob": 0.38874
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Jose Ramirez TB u1.5",
+    "american": -189.0,
+    "no_vig_prob": 0.612884
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Junior Caminero TB o1.5",
+    "american": 150.0,
+    "no_vig_prob": 0.395829
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Junior Caminero TB u1.5",
+    "american": -170.0,
+    "no_vig_prob": 0.604171
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Liam Hicks TB o0.5",
+    "american": -155.0,
+    "no_vig_prob": 0.573992
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Liam Hicks TB u0.5",
+    "american": 123.0,
+    "no_vig_prob": 0.426008
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Nathaniel Lowe TB o0.5",
+    "american": -159.0,
+    "no_vig_prob": 0.577119
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Nathaniel Lowe TB u0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.422881
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Patrick Bailey TB o0.5",
+    "american": -125.0,
+    "no_vig_prob": 0.526626
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Patrick Bailey TB u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.473374
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Petey Halpin TB o0.5",
+    "american": -127.0,
+    "no_vig_prob": 0.528643
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Petey Halpin TB u0.5",
+    "american": 101.0,
+    "no_vig_prob": 0.471357
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Richie Palacios TB o0.5",
+    "american": -123.0,
+    "no_vig_prob": 0.518659
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Richie Palacios TB u0.5",
+    "american": -104.0,
+    "no_vig_prob": 0.481341
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Steven Kwan TB o1.5",
+    "american": 160.0,
+    "no_vig_prob": 0.37196
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Steven Kwan TB u1.5",
+    "american": -200.0,
+    "no_vig_prob": 0.62804
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Taylor Walls TB o0.5",
+    "american": 110.0,
+    "no_vig_prob": 0.45068
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Taylor Walls TB u0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.54932
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Travis Bazzana TB o0.5",
+    "american": -152.0,
+    "no_vig_prob": 0.565448
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Travis Bazzana TB u0.5",
+    "american": 118.0,
+    "no_vig_prob": 0.434552
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.556001
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Victor Mesa Jr. TB u0.5",
+    "american": 112.0,
+    "no_vig_prob": 0.443999
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Yandy Diaz TB o1.5",
+    "american": 146.0,
+    "no_vig_prob": 0.388396
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_tb",
+    "selection": "Yandy Diaz TB u1.5",
+    "american": -185.0,
+    "no_vig_prob": 0.611604
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_ml",
+    "selection": "CLE F5 ML",
+    "american": 100.0,
+    "no_vig_prob": 0.477271
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_ml",
+    "selection": "TB F5 ML",
+    "american": -120.0,
+    "no_vig_prob": 0.522729
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_rl",
+    "selection": "CLE F5 +0.5",
+    "american": -140.0,
+    "no_vig_prob": 0.568664
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_rl",
+    "selection": "TB F5 -0.5",
+    "american": 125.0,
+    "no_vig_prob": 0.431336
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_total",
+    "selection": "F5 Over 3.5",
+    "american": -107.0,
+    "no_vig_prob": 0.497419
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "f5_total",
+    "selection": "F5 Under 3.5",
+    "american": -110.0,
+    "no_vig_prob": 0.502581
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_ml",
+    "selection": "CLE ML",
+    "american": 100.0,
+    "no_vig_prob": 0.492883
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_ml",
+    "selection": "TB ML",
+    "american": -108.0,
+    "no_vig_prob": 0.507117
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_rl",
+    "selection": "CLE +1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.636489
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_rl",
+    "selection": "TB -1.5",
+    "american": 170.0,
+    "no_vig_prob": 0.363511
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_total",
+    "selection": "Over 6.5",
+    "american": -112.0,
+    "no_vig_prob": 0.509098
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "game_total",
+    "selection": "Under 6.5",
+    "american": -102.0,
+    "no_vig_prob": 0.490902
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_bb",
+    "selection": "Nick Martinez Walks o0.5",
+    "american": -175.0,
+    "no_vig_prob": 0.597976
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_bb",
+    "selection": "Nick Martinez Walks u0.5",
+    "american": 135.0,
+    "no_vig_prob": 0.402024
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_er",
+    "selection": "Nick Martinez ER o1.5",
+    "american": 142.0,
+    "no_vig_prob": 0.421826
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_er",
+    "selection": "Nick Martinez ER u1.5",
+    "american": -155.0,
+    "no_vig_prob": 0.578174
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_er",
+    "selection": "Shawn Armstrong ER o0.5",
+    "american": 200.0,
+    "no_vig_prob": 0.308594
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_er",
+    "selection": "Shawn Armstrong ER u0.5",
+    "american": -295.0,
+    "no_vig_prob": 0.691406
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_h",
+    "selection": "Nick Martinez Hits o3.5",
+    "american": 115.0,
+    "no_vig_prob": 0.456026
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_h",
+    "selection": "Nick Martinez Hits u3.5",
+    "american": -125.0,
+    "no_vig_prob": 0.543974
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_k",
+    "selection": "Nick Martinez Ks o2.5",
+    "american": 110.0,
+    "no_vig_prob": 0.457653
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_k",
+    "selection": "Nick Martinez Ks u2.5",
+    "american": -130.0,
+    "no_vig_prob": 0.542347
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs o11.5",
+    "american": -132.0,
+    "no_vig_prob": 0.537595
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs o12.5",
+    "american": 130.0,
+    "no_vig_prob": 0.405904
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs u11.5",
+    "american": 105.0,
+    "no_vig_prob": 0.462405
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs u12.5",
+    "american": -175.0,
+    "no_vig_prob": 0.594096
+  }
+]
