@@ -25,7 +25,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import shop, snapshot
+from cfb_engine.audit import shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -155,6 +155,12 @@ def _line_agrees_record(cfg: Config) -> Probation | None:
     return verdict
 
 
+def _watchlist(cfg: Config) -> watchlist.Watchlist | None:
+    """Every graded-only rule's record so far, for the top of the slate."""
+    entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
+    return watchlist.build(entries) if entries else None
+
+
 def _low_total_record(cfg: Config) -> Probation | None:
     """The low-total Under candidate screen's record so far, for the card."""
     entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
@@ -191,6 +197,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
         low_total_record=_low_total_record(cfg),
+        watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -216,6 +223,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
         low_total_record=_low_total_record(cfg),
+        watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -546,6 +554,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
                 to=None,
                 line_agrees_record=_line_agrees_record(cfg),
                 low_total_record=_low_total_record(cfg),
+                watching=_watchlist(cfg),
                 podcast=_podcast_view(cfg, recs, day),
             )
     _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
