@@ -98,3 +98,23 @@ def test_without_email_the_report_table_is_not_added(ledger, capsys) -> None:
     out = capsys.readouterr().out
     assert "1) Every buy the engine made" in out
     assert "nfl-engine report --all" not in out
+
+
+def test_report_prints_na_where_a_rate_has_nothing_under_it() -> None:
+    from nfl_engine.cli import report_lines
+
+    buy = row(tier="Strong buy", clv=None)
+    graded_pass = row(matchup="NYJ @ NE", side="NE", clv=0.01, result="loss", pnl=-1.0)
+    by_label = {line[:26].strip(): line.split() for line in report_lines([buy, graded_pass])}
+
+    strong, moderate, pass_row, total = (
+        by_label["Strong buy"],
+        by_label["Moderate buy"],
+        by_label["Pass"],
+        by_label["ALL"],
+    )
+    assert strong[-1] == "n/a"  # a buy with no close has no CLV, not +0.0000
+    assert moderate[3:6] == ["n/a"] * 3  # an empty tier has no win% / need / PPV+
+    assert pass_row[5] == "n/a"  # the Pass row's "rejections" are the buys
+    assert total[5] == "n/a"  # ALL has no negative class
+    assert pass_row[-1] == "+0.0100"
