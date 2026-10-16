@@ -12,8 +12,18 @@ PPA), success rate, and defensive havoc. Weights come from the empirical PPV of
 each metric's "battle winner" (puntandrally, 2016-2025, ~7k games): net PPA
 covers ~66.6%, havoc ~64.1%, success rate ~60.0%. Finishing-drives / red-zone
 rate are deliberately *excluded* -- they barely autocorrelate, so they are noise
-until proven. Totals lean on the combined-PPA scoring environment (~69% Over
-above average vs ~26% below).
+until proven. The totals environment was priced off descriptive Over rates
+(~69% above an average combined PPA, ~26% below). Against the closing total
+those rates do not hold: on 4,126 FBS games (2019, 2021-25) a shootout
+environment closed near 58 and the Under hit 52.9% (Holm p=.052, and that
+Under lost in 3 of 6 seasons), while a low-scoring environment went 50.5%
+Over. Both vetoes stay on. That test is the environment against the close,
+not a replay of this engine's buys, and a pooled edge that misses Holm and
+changes sign across seasons is the case probation exists for. Each refusal
+is stamped (``totals_shootout``, ``totals_low_scoring``) so
+``screen_probation`` grades the bets the engine actually dropped.
+``CFBE_VETO_SHOOTOUT=0`` lifts the Under half alone; ``CFBE_VETO_TOTALS_ENV=0``
+lifts both.
 
 Those cover rates are descriptive, and the distinction turns out to decide the
 layer. Against the *closing spread's residual* -- the only quantity a bet can
@@ -30,12 +40,12 @@ already-opponent-adjusted SP+/ensemble rating that sets the number.
 
 Veto gates encode negative-predictive-value findings: an extreme turnover margin
 is a *regression/fade* signal precisely because it does not repeat (the recovery
-half is a coin flip), a low/high-scoring environment sinks the wrong side of a
-total, and an efficiency blowout makes a points-laying cover structurally
-unlikely. They stay on because they only ever *remove* a bet, but the last two
-read the same efficiency metrics as the null above and should be the first thing
-the graded season settles; only the turnover gate has a mechanism independent of
-them (fumble recovery does not repeat).
+half is a coin flip), and an efficiency blowout makes a points-laying cover
+structurally unlikely. The totals-environment vetoes drop one side of a high-
+or low-scoring matchup and stay on so the graded refusals decide whether
+either comes off. Only the turnover gate has a mechanism independent of the
+efficiency metrics that tested null against the closing spread (fumble
+recovery does not repeat).
 """
 
 from __future__ import annotations
@@ -79,10 +89,39 @@ class MatchupSignal:
         return self.ppa_edge is not None
 
 
+# Stable pass_gate names. screen_probation grades each half on its own.
+SHOOTOUT_GATE = "totals_shootout"
+LOW_SCORING_GATE = "totals_low_scoring"
+SHOOTOUT_REASON = "shootout environment (PPA & explosiveness above avg)"
+LOW_SCORING_REASON = "low-scoring environment (PPA & pace below avg)"
+_REASON_GATES = (
+    (SHOOTOUT_REASON, SHOOTOUT_GATE),
+    (LOW_SCORING_REASON, LOW_SCORING_GATE),
+)
+
+
 @dataclass(frozen=True)
 class Veto:
     dropped: bool
     gate: str | None = None
+    # Ledger attribution. Empty on a veto that predates per-screen grading.
+    name: str | None = None
+
+
+def attributed_gate(pass_gate: str | None, reasons: list[str]) -> str | None:
+    """The screen that refused this row.
+
+    Cards saved before the totals vetoes carried a gate name still wrote the
+    reason. Re-grading those cards has to recover the name, or the refusals
+    already on disk never reach probation.
+    """
+    if pass_gate:
+        return pass_gate
+    for reason in reasons:
+        for text, name in _REASON_GATES:
+            if reason.startswith(f"veto: {text}"):
+                return name
+    return None
 
 
 def build_signal(book: AdvancedBook, home_name: str, away_name: str) -> MatchupSignal:
@@ -213,11 +252,23 @@ def market_veto(
         env = sig.combined_ppa_env
         pace = sig.pace_env
         expl = sig.combined_explosive_env
-        if side == "over" and env is not None and pace is not None:
-            if env < 0 and pace < 0:
-                return Veto(True, "low-scoring environment (PPA & pace below avg)")
-        if side == "under" and env is not None and expl is not None:
-            if env > 0 and expl > 0:
-                return Veto(True, "shootout environment (PPA & explosiveness above avg)")
+        if (
+            params.veto_low_scoring
+            and side == "over"
+            and env is not None
+            and pace is not None
+            and env < 0
+            and pace < 0
+        ):
+            return Veto(True, LOW_SCORING_REASON, LOW_SCORING_GATE)
+        if (
+            params.veto_shootout
+            and side == "under"
+            and env is not None
+            and expl is not None
+            and env > 0
+            and expl > 0
+        ):
+            return Veto(True, SHOOTOUT_REASON, SHOOTOUT_GATE)
 
     return Veto(False)

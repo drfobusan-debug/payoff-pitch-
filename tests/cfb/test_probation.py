@@ -115,6 +115,14 @@ def test_a_market_inside_one_standard_error_is_left_alone() -> None:
     assert "inside one standard error of zero" in verdict.finding
 
 
+def test_a_shootout_refusal_is_its_own_screen() -> None:
+    """The totals veto used to pass a row with no gate, so probation never saw it."""
+    rows = _run("w" * 30 + "l" * 5 + "w" * 30 + "l" * 5, pass_gate="totals_shootout")
+    (verdict,) = screen_probation(rows, min_n=50)
+    assert verdict.name == "totals_shootout"
+    assert verdict.status == LIFT
+
+
 def test_a_screen_refusing_winners_is_lifted() -> None:
     """A screen deleting money is as expensive as a market losing it, and it
     shows up nowhere in a scorecard that only counts the bets we made."""

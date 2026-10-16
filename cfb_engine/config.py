@@ -266,7 +266,7 @@ class MarkingParams:
     carry documented PPV (net PPA, success rate, havoc, finishing drives) agree
     or disagree with it, and NPV gates drop a bet outright when the matchup is
     structurally hostile to it (a turnover-luck regression candidate, a
-    low/high-scoring totals environment, an efficiency blowout laying points).
+    low- or high-scoring totals environment, an efficiency blowout laying points).
     Every threshold degrades to a no-op when its input stat is missing.
     """
 
@@ -288,7 +288,14 @@ class MarkingParams:
     ppa_deadband: float = field(default_factory=lambda: _env_float("CFBE_MARK_PPA_DEAD", 0.03))
     # NPV gates (each individually switchable).
     veto_turnover: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TURNOVER", True))
+    # Totals environment. The master switch plus one flag per side: on 4,126
+    # FBS games the shootout Under hit 52.9% (Holm .052, lost in 3 of 6 seasons)
+    # and the low-scoring Over hit 50.5%, so the two are not one decision.
+    # Both stay on. Refusals are stamped totals_shootout / totals_low_scoring.
+    # CFBE_VETO_SHOOTOUT=0 lifts only the Under half.
     veto_totals_env: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TOTALS_ENV", True))
+    veto_shootout: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_SHOOTOUT", True))
+    veto_low_scoring: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_LOW_SCORING", True))
     veto_ats_blowout: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_ATS_BLOWOUT", True))
     # A per-game turnover margin at/above which a team is a regression (fade)
     # candidate (~ +9 turnovers over a 12-game season).

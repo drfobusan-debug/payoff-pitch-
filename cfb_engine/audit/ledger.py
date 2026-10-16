@@ -23,6 +23,7 @@ from pathlib import Path
 
 from cfb_engine.audit.grade import LOSS, PUSH, WIN
 from cfb_engine.market import atscontext
+from cfb_engine.market.confidence import attributed_gate
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
@@ -130,7 +131,7 @@ def entries_from_graded(
                 bet_prob=round(rec.bet_prob, 4) if rec.bet_prob is not None else None,
                 drift=rec.drift,
                 open_drift=rec.open_drift,
-                pass_gate=rec.pass_gate,
+                pass_gate=attributed_gate(rec.pass_gate, rec.reasons),
                 sharp_div=rec.sharp_div,
                 top25=atscontext.top25_game(rec.brief),
             )
