@@ -207,6 +207,19 @@ def test_total_over_under():
     assert grade(under, _result()) == "loss"
 
 
+def test_a_veto_saved_as_a_reason_is_attributed_when_the_ledger_is_built():
+    """Cards written before the gate name existed still carry the veto text."""
+    rec = _ml("home", "Under 58.5")
+    rec.market = "game_total"
+    rec.side = "under"
+    rec.line = 58.5
+    rec.tier = Tier.PASS
+    rec.pass_gate = None
+    rec.reasons = ["veto: shootout environment (PPA & explosiveness above avg)"]
+    (entry,) = entries_from_graded([(rec, "win")], DAY)
+    assert entry.pass_gate == "totals_shootout"
+
+
 def test_ledger_is_idempotent(tmp_path):
     path = tmp_path / "ledger.csv"
     graded = [(_ml("home", "Georgia ML"), "win")]

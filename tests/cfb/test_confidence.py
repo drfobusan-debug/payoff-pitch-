@@ -7,7 +7,10 @@ from dataclasses import replace
 from cfb_engine.config import MarkingParams
 from cfb_engine.data.advanced import AdvancedBook, TeamAdvanced, parse_advanced
 from cfb_engine.market.confidence import (
+    LOW_SCORING_GATE,
+    SHOOTOUT_GATE,
     MatchupSignal,
+    attributed_gate,
     build_signal,
     confidence_adjustment,
     market_veto,
@@ -103,6 +106,37 @@ def test_low_scoring_environment_vetoes_the_over():
     sig = build_signal(book, "home", "away")
     assert market_veto("game_total", None, "over", 62.0, sig, PARAMS).dropped is True
     assert market_veto("game_total", None, "under", 62.0, sig, PARAMS).dropped is False
+
+
+def test_each_totals_environment_names_its_own_gate() -> None:
+    shootout = MatchupSignal(
+        ppa_edge=0.1, combined_ppa_env=0.2, combined_explosive_env=0.4
+    )
+    low = MatchupSignal(ppa_edge=0.1, combined_ppa_env=-0.2, pace_env=-4.0)
+    under = market_veto("game_total", None, "under", 58.0, shootout, PARAMS)
+    over = market_veto("game_total", None, "over", 48.0, low, PARAMS)
+    assert (under.dropped, under.name) == (True, SHOOTOUT_GATE)
+    assert (over.dropped, over.name) == (True, LOW_SCORING_GATE)
+    assert market_veto("game_total", None, "over", 58.0, shootout, PARAMS).dropped is False
+    assert market_veto("game_total", None, "under", 48.0, low, PARAMS).dropped is False
+
+
+def test_the_shootout_half_switches_off_on_its_own() -> None:
+    """The two environments graded differently, so one flag has to lift one."""
+    shootout = MatchupSignal(
+        ppa_edge=0.1, combined_ppa_env=0.2, combined_explosive_env=0.4
+    )
+    low = MatchupSignal(ppa_edge=0.1, combined_ppa_env=-0.2, pace_env=-4.0)
+    params = replace(PARAMS, veto_shootout=False)
+    assert market_veto("game_total", None, "under", 58.0, shootout, params).dropped is False
+    assert market_veto("game_total", None, "over", 48.0, low, params).name == LOW_SCORING_GATE
+
+
+def test_a_saved_veto_reason_recovers_the_gate_name() -> None:
+    reason = "veto: shootout environment (PPA & explosiveness above avg)"
+    assert attributed_gate(None, [reason]) == SHOOTOUT_GATE
+    assert attributed_gate("clv_drift", [reason]) == "clv_drift"
+    assert attributed_gate(None, ["metrics back it"]) is None
 
 
 def test_missing_game_count_leaves_pace_unknown_not_inflated():

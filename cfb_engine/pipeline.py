@@ -610,13 +610,15 @@ class Pipeline:
         tier, reasons = classify(result, thr)
         # Surface the situational nudges alongside the EV reasoning.
         reasons = [*reasons, *ctx.adj.reasons]
-        tier, mark_reasons = self._mark(ctx.signal, market, team_side, side, line, tier)
+        tier, mark_reasons, mark_gate = self._mark(
+            ctx.signal, market, team_side, side, line, tier
+        )
         reasons = [*reasons, *mark_reasons]
 
         opened = self._first_board.get(snapshot.key(ctx.matchup, market, selection))
         drift = self._drift(ctx.matchup, market, selection, side, line, result.fair_prob)
         split = lookup(self.splits, ctx.matchup, market, selection)
-        pass_gate: str | None = None
+        pass_gate: str | None = mark_gate
         if tier != Tier.PASS:
             keep, drift_reason, gate = self.drift_gate.verdict(drift)
             if drift_reason:
@@ -743,23 +745,24 @@ class Pipeline:
         side: str | None,
         line: float | None,
         tier: Tier,
-    ) -> tuple[Tier, list[str]]:
+    ) -> tuple[Tier, list[str], str | None]:
         """Apply the metric marking layer: NPV veto first, then confidence bump.
 
         With bumps off (the default) the support score comes back with zero steps
         and is kept as a reason, so the ledger records what the layer would have
-        done and a graded season can settle whether it should.
+        done and a graded season can settle whether it should. A veto also
+        returns its gate name, which is what lets probation grade the refusal.
         """
         if not self.cfg.marking.enabled or not signal.has_efficiency or tier == Tier.PASS:
-            return tier, []
+            return tier, [], None
         params = self.cfg.marking
         veto = market_veto(market, team_side, side, line, signal, params)
         if veto.dropped:
-            return Tier.PASS, [f"veto: {veto.gate}"]
+            return Tier.PASS, [f"veto: {veto.gate}"], veto.name
         steps, reasons = confidence_adjustment(market, team_side, side, signal, params)
         if steps == 0:
-            return tier, reasons
-        return bump_tier(tier, steps), reasons
+            return tier, reasons, None
+        return bump_tier(tier, steps), reasons, None
 
 
 class _GameCtx:
