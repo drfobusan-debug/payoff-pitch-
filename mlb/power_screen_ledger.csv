@@ -1401,3 +1401,27 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-15,Kyle Tucker,663656,849810,H,0.5,under,betonlineag,121.0,0.5346,0.4411,0.4307,0.0104,-0.0253,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
 2026-10-15,Kyle Tucker,663656,849810,HRR,1.5,under,betmgm,-135.0,0.6139,0.5644,0.5589,0.0055,-0.0176,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
 2026-10-15,Kyle Tucker,663656,849810,RBI,0.5,under,betmgm,-275.0,0.7354,0.7082,0.7052,0.003,-0.0342,Pass,ELITE UNDER,True,contradicted,20261015T1534Z,2,31,9,5.57,batter,ev_floor,elite
+2026-10-16,José Ramírez,608070,849817,1B,0.5,over,betmgm,110.0,0.5125,0.463,0.4575,0.0055,-0.0277,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,4,19,5,-1.1,batter,ev_floor,elite
+2026-10-16,José Ramírez,608070,849817,HRR,1.5,over,betmgm,105.0,0.4829,0.4654,0.4634,0.0019,-0.046,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,4,19,5,-1.1,batter,ev_floor,elite
+2026-10-16,José Ramírez,608070,849817,RBI,0.5,under,betmgm,-325.0,0.8091,0.7334,0.725,0.0084,-0.0409,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,4,19,5,-1.1,batter,ev_floor,elite
+2026-10-16,Nathaniel Lowe,663993,849817,H,0.5,over,draftkings,-149.0,0.6387,0.5782,0.5715,0.0067,-0.0337,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,6,16,9,-5.47,batter,ev_floor,elite
+2026-10-16,Nathaniel Lowe,663993,849817,HRR,1.5,over,draftkings,135.0,0.5211,0.4133,0.4014,0.012,-0.0287,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,6,16,9,-5.47,batter,ev_floor,elite
+2026-10-16,Nathaniel Lowe,663993,849817,RBI,0.5,over,draftkings,269.0,0.3154,0.2734,0.2687,0.0047,0.0088,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,6,16,9,-5.47,batter,thin_edge,elite
+2026-10-16,Jo Adell,666176,849817,H,0.5,under,draftkings,140.0,0.4124,0.4076,0.4071,0.0005,-0.0217,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,7,14,5,-0.59,batter,ev_floor,elite
+2026-10-16,Jo Adell,666176,849817,HRR,1.5,over,betmgm,110.0,0.4576,0.4498,0.4489,0.0009,-0.0554,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,7,14,5,-0.59,batter,ev_floor,elite
+2026-10-16,Patrick Bailey,672275,849817,1B,0.5,under,betmgm,-175.0,0.5299,0.5951,0.6023,-0.0072,-0.0649,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,5,17,9,1.64,batter,ev_floor,elite
+2026-10-16,Patrick Bailey,672275,849817,H,0.5,under,betmgm,105.0,0.3717,0.4532,0.4623,-0.0091,-0.0709,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,5,17,9,1.64,batter,ev_floor,elite
+2026-10-16,Patrick Bailey,672275,849817,RBI,0.5,under,betmgm,-400.0,0.6976,0.7496,0.7554,-0.0058,-0.063,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,5,17,9,1.64,batter,ev_floor,elite
+2026-10-16,Steven Kwan,680757,849817,H,0.5,under,betonlineag,176.0,0.2889,0.3408,0.3466,-0.0058,-0.0593,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,2,35,9,2.74,batter,ev_floor,elite
+2026-10-16,Steven Kwan,680757,849817,HRR,1.5,under,draftkings,-129.0,0.4078,0.5216,0.5343,-0.0126,-0.074,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,2,35,9,2.74,batter,ev_floor,elite
+2026-10-16,Steven Kwan,680757,849817,RBI,0.5,under,betmgm,-450.0,0.8091,0.7816,0.7785,0.0031,-0.0448,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,2,35,9,2.74,batter,ev_floor,elite
+2026-10-16,Steven Kwan,680757,849817,TB,1.5,under,draftkings,-196.0,0.5209,0.615,0.6255,-0.0105,-0.0712,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,2,35,9,2.74,batter,ev_floor,elite
+2026-10-16,Travis Bazzana,683953,849817,1B,0.5,under,betmgm,-155.0,0.5603,0.5733,0.5747,-0.0014,-0.0569,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,3,20,15,2.43,batter,ev_floor,elite
+2026-10-16,Travis Bazzana,683953,849817,H,0.5,under,betmgm,115.0,0.3956,0.4388,0.4436,-0.0048,-0.0566,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,3,20,15,2.43,batter,ev_floor,elite
+2026-10-16,Travis Bazzana,683953,849817,RBI,0.5,under,betmgm,-375.0,0.7712,0.7578,0.7563,0.0015,-0.0402,Pass,ELITE UNDER,True,confirmed,20261016T2158Z,3,20,15,2.43,batter,ev_floor,elite
+2026-10-16,Petey Halpin,690984,849817,H,0.5,over,draftkings,-125.0,0.6047,0.534,0.5262,0.0078,-0.0388,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,9,7,5,-2.11,batter,ev_floor,elite
+2026-10-16,Petey Halpin,690984,849817,R,0.5,over,draftkings,249.0,0.2974,0.278,0.2758,0.0022,-0.03,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,9,7,5,-2.11,batter,ev_floor,elite
+2026-10-16,Petey Halpin,690984,849817,RBI,0.5,over,draftkings,343.0,0.1909,0.2343,0.2391,-0.0048,0.038,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,9,7,5,-2.11,batter,thin_edge,elite
+2026-10-16,Chase DeLauter,800050,849817,HRR,1.5,over,draftkings,110.0,0.57,0.4635,0.4516,0.0118,-0.0267,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite
+2026-10-16,Chase DeLauter,800050,849817,RBI,0.5,over,draftkings,240.0,0.3264,0.2886,0.2844,0.0042,-0.0186,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite
+2026-10-16,Chase DeLauter,800050,849817,TB,1.5,over,betonlineag,161.0,0.4393,0.3759,0.3689,0.007,-0.0188,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite

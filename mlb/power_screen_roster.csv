@@ -142,3 +142,16 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-15,20261015T1558Z,soft,arm,Griffin Jax,643377,TB,849818,Griffin Jax,643377,,False,,,gated,siera: SIERA 3.19 ≤ 4.40,3.19
 2026-10-15,20261015T1558Z,soft,arm,Gavin Williams,668909,CLE,849818,Gavin Williams,668909,,False,,,gated,siera: SIERA 1.85 ≤ 4.40,1.85
 2026-10-15,20261015T1558Z,soft,arm,Dustin May,669160,MIL,849810,Dustin May,669160,,False,,,gated,siera: SIERA 4.06 ≤ 4.40,4.06
+2026-10-16,20261016T2158Z,elite,arm,Shawn Armstrong,542888,CLE,849817,Shawn Armstrong,542888,,False,,,gated,work: 42 BF and 160 pitches in 90d (needs 120 and 400),
+2026-10-16,20261016T2158Z,elite,arm,Nick Martinez,607259,TB,849817,Nick Martinez,607259,,False,,,screened,,4.33
+2026-10-16,20261016T2158Z,elite,bat,José Ramírez,608070,CLE,849817,Nick Martinez,607259,2,False,RV NEG WATCH,,held,,
+2026-10-16,20261016T2158Z,elite,bat,Nathaniel Lowe,663993,CLE,849817,Nick Martinez,607259,5,False,RV NEG WATCH,,held,,
+2026-10-16,20261016T2158Z,elite,bat,Jo Adell,666176,CLE,849817,Nick Martinez,607259,4,False,RV NEG WATCH,,held,,
+2026-10-16,20261016T2158Z,elite,bat,Patrick Bailey,672275,CLE,849817,Nick Martinez,607259,7,False,ELITE UNDER,under,held,,
+2026-10-16,20261016T2158Z,elite,bat,Brayan Rocchio,677587,CLE,849817,Nick Martinez,607259,9,False,PROD DROP,,dropped,,
+2026-10-16,20261016T2158Z,elite,bat,Steven Kwan,680757,CLE,849817,Nick Martinez,607259,1,False,ELITE UNDER,under,held,,
+2026-10-16,20261016T2158Z,elite,bat,Travis Bazzana,683953,CLE,849817,Nick Martinez,607259,6,False,ELITE UNDER,under,held,,
+2026-10-16,20261016T2158Z,elite,bat,Petey Halpin,690984,CLE,849817,Nick Martinez,607259,8,False,RV NEG WATCH,,held,,
+2026-10-16,20261016T2158Z,elite,bat,Chase DeLauter,800050,CLE,849817,Nick Martinez,607259,3,False,RV NEG WATCH,,held,,
+2026-10-16,20261016T2158Z,soft,arm,Shawn Armstrong,542888,CLE,849817,Shawn Armstrong,542888,,False,,,gated,work: 42 BF and 160 pitches in 90d (needs 120 and 400),
+2026-10-16,20261016T2158Z,soft,arm,Nick Martinez,607259,TB,849817,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.33 ≤ 4.40,4.33
