@@ -105,6 +105,23 @@ def test_low_scoring_environment_vetoes_the_over():
     assert market_veto("game_total", None, "under", 62.0, sig, PARAMS).dropped is False
 
 
+def test_shootout_veto_is_off_unless_armed():
+    home = _team("home", off_ppa=0.45, off_explosive=1.6)
+    away = _team("away", off_ppa=0.40, off_explosive=1.5)
+    book = AdvancedBook(
+        teams={"home": home, "away": away},
+        mean_off_ppa=0.20,
+        mean_off_explosive=1.2,
+        mean_off_finishing=4.3,
+        mean_plays_per_game=68.0,
+    )
+    sig = build_signal(book, "home", "away")
+    assert market_veto("game_total", None, "under", 62.0, sig, PARAMS).dropped is False
+    armed = replace(PARAMS, veto_shootout=True)
+    assert market_veto("game_total", None, "under", 62.0, sig, armed).dropped is True
+    assert market_veto("game_total", None, "over", 62.0, sig, armed).dropped is False
+
+
 def test_missing_game_count_leaves_pace_unknown_not_inflated():
     # No /stats/season row and no `games` in the advanced row -> pace unknown (0.0),
     # not season totals divided by 1.

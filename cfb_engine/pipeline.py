@@ -53,6 +53,7 @@ from cfb_engine.market.confidence import (
 )
 from cfb_engine.market.drift import DriftGate
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
+from cfb_engine.market.gradedonly import GradedOnly
 from cfb_engine.market.linevalue import drift_probability
 from cfb_engine.market.mlsharp import SharpGate
 from cfb_engine.market.ordering import order_recs
@@ -108,6 +109,7 @@ class Pipeline:
         self.drift_gate = DriftGate.from_env()
         self.price_band = PriceBand.from_env()
         self.sharp_gate = SharpGate.from_env()
+        self.graded_only = GradedOnly.from_env()
         self.splits_provider = SplitsProvider(cfg.cache_dir)
         self.splits: SplitBook = {}
         self.espn = ESPNColor(cfg.cache_dir / "espn")
@@ -638,6 +640,11 @@ class Pipeline:
                 reasons = [*reasons, sharp_reason]
             if not keep:
                 tier, pass_gate = Tier.PASS, sharp_gate
+        if tier != Tier.PASS:
+            keep, graded_reason, graded_gate = self.graded_only.verdict(market, tier.value)
+            if not keep:
+                reasons = [*reasons, graded_reason]
+                tier, pass_gate = Tier.PASS, graded_gate
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
