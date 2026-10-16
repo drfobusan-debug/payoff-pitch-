@@ -4,6 +4,9 @@ A market leaves probation when its *buy* rows (``pass_gate`` and a buy tier)
 number at least ``PROBATION_N`` with positive return and a Brier no worse than
 the devigged consensus. The scorecard reports those three numbers per market
 so the decision is read off the ledger, never argued from a slate.
+
+Rows priced at or after puck drop are left out, and CLV counts only closes
+taken within ``STALE_CLOSE_MIN`` of puck drop.
 """
 
 from __future__ import annotations
@@ -40,7 +43,7 @@ class Bucket:
             self.brier_model += (r.model_prob - won) ** 2
             self.brier_market += (r.consensus - won) ** 2
         self.pnl += r.pnl or 0.0
-        if r.clv is not None:
+        if r.clv is not None and r.close_fresh:
             self.clv_sum += r.clv
             self.clv_n += 1
         if r.dual_rule_differs:
@@ -117,7 +120,8 @@ class Scorecard:
 def scorecard(rows: list[LedgerRow]) -> Scorecard:
     sc = Scorecard()
     for r in rows:
-        sc.add(r)
+        if not r.priced_late:
+            sc.add(r)
     return sc
 
 

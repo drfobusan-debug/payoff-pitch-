@@ -535,6 +535,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
+    _backfill_timing(root, all_rows)
     stale = ledger.unregradable(root)
     stale_note = (
         f"Not regradable (graded file but no predictions file): {', '.join(map(str, stale))}; "
@@ -580,6 +581,22 @@ def cmd_audit(args: argparse.Namespace) -> int:
             except email.EmailNotConfigured as exc:
                 print(f"email skipped: {exc}", file=sys.stderr)
     return 0
+
+
+def _backfill_timing(root: Path, rows: list[ledger.LedgerRow]) -> None:
+    """Puck drop and close time for rows graded before the ledger carried them (in memory only)."""
+    nights: dict[str, list[ledger.LedgerRow]] = {}
+    for r in rows:
+        if r.outcome is not None and (not r.puck_drop or (r.clv is not None and not r.close_at)):
+            nights.setdefault(r.slate_date, []).append(r)
+    for night, missing in sorted(nights.items()):
+        day = Date.fromisoformat(night)
+        try:
+            _, starts = _results_for(day)
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("puck drops for %s unavailable: %s", night, exc)
+            continue
+        ledger.stamp_timing(missing, starts, capture.read_day(root, day))
 
 
 def _screen_context(root: Path, rows: list[ledger.LedgerRow]) -> screens.Context:
