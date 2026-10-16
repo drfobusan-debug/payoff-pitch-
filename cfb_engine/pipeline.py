@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date as Date
 
-from cfb_engine.audit import snapshot
+from cfb_engine.audit import shop, snapshot
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
@@ -30,6 +30,7 @@ from cfb_engine.data.injuries import (
     log_availability,
     unavailable_for,
 )
+from cfb_engine.data.kalshi import KalshiClient
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
 from cfb_engine.data.portal import PortalBook, portal_note
 from cfb_engine.data.preseason import stability_factor
@@ -88,8 +89,10 @@ class Pipeline:
         odds: OddsAPIClient | None = None,
         cfbd: CFBDClient | None = None,
         calibrator: Calibrator | None = None,
+        kalshi: KalshiClient | None = None,
     ) -> None:
         self.cfg = cfg
+        self.kalshi = kalshi or KalshiClient()
         self.odds = odds or OddsAPIClient(
             cfg.creds.odds_api_key,
             regions=cfg.odds_regions,
@@ -172,6 +175,7 @@ class Pipeline:
     def run(
         self, slate_date: Date, *, slate: Slate | None = None, board: Board | None = None
     ) -> list[Recommendation]:
+        fetched = slate is None or board is None
         if slate is None or board is None:
             slate, board = self.odds.fetch_board(slate_date)
         if not slate.games:
@@ -235,6 +239,8 @@ class Pipeline:
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
+        if fetched:
+            self._capture_books(slate_date, slate, board)
         try:
             self.briefs = build_briefs(
                 self.cfbd,
@@ -708,6 +714,17 @@ class Pipeline:
         self._first_board = merged
         self._opener = snapshot.load(self.cfg.opener_file(slate_date))
         return merged
+
+    def _capture_books(self, slate_date: Date, slate: Slate, board: Board) -> None:
+        """Append every book's pregame total (and Kalshi's ladder) for the audit."""
+        ladders = self.kalshi.totals() if self.cfg.kalshi else None
+        try:
+            shop.append(
+                shop.capture_rows(slate, board, shop.CARD, ladders=ladders),
+                self.cfg.books_file(slate_date),
+            )
+        except OSError as exc:
+            logger.warning("could not write per-book totals (%s)", exc)
 
     def _drift(
         self,

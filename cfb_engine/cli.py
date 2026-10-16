@@ -13,6 +13,7 @@ Commands mirror the MLB engine:
     cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
     cfb-engine probation grade markets, live screens and candidate screens
     cfb-engine weekly    write (and email) the weekly audit: the week + the ledger
+    cfb-engine shop      totals at the card's number vs the best number vs Kalshi
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import snapshot
+from cfb_engine.audit import shop, snapshot
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -233,6 +234,7 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
+    shop.append(shop.capture_rows(slate, board, shop.CLOSE), cfg.books_file(day))
     # Also seed the first-seen board, in case a capture beats the day's run to
     # the market: it is written once and never overwritten, so whichever command
     # sees the board first sets the baseline and the other is a no-op.
@@ -271,6 +273,7 @@ def cmd_opener(cfg: Config, args: argparse.Namespace) -> int:
         existing = snapshot.load(path)
         merged = snapshot.merge_first_wins(existing, snapshot.board_quotes(slate, board))
         snapshot.save(merged, path)
+        shop.append(shop.capture_rows(slate, board, shop.OPENER), cfg.books_file(day))
         print(
             f"{day}: {len(slate.games)} games, {len(merged) - len(existing)} new opener "
             f"quotes ({len(merged)} total) -> {path}"
@@ -351,6 +354,24 @@ def _stamp_units(entries: list[LedgerEntry], ranks: unitranks.UnitRanks) -> int:
     return n
 
 
+def _stamp_shop(
+    cfg: Config,
+    day: Date,
+    entries: list[LedgerEntry],
+    graded: list[tuple[Recommendation, str]],
+    index: ResultIndex,
+) -> int:
+    rows = shop.load(cfg.books_file(day))
+    if not rows:
+        return 0
+    n = 0
+    for e, (rec, _) in zip(entries, graded, strict=True):
+        final = result_for(rec, index)
+        total = final.home_points + final.away_points if final is not None else None
+        n += shop.stamp(e, rec.side, total, rows, cfg.shop_books, cfg.model.total_sd)
+    return n
+
+
 def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None:
     """Grade one slate into the ledger; the merged ledger and rows graded, or None."""
     index = _result_index(cfg, day)
@@ -391,6 +412,7 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
             e.clv_pts = res.clv_pts
     _stamp_units(entries, _unit_ranks(cfg, day))
     _stamp_ypp(entries, _ypp_book(cfg, day))
+    _stamp_shop(cfg, day, entries, graded, index)
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -777,6 +799,21 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
+    """Totals graded at the card's number vs the best allowed number vs Kalshi."""
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    books = ", ".join(cfg.shop_books) if cfg.shop_books else "every book"
+    for graded_only, title in ((True, "Graded-only totals"), (False, "All priced totals")):
+        print(f"{title} (best number among {books}):")
+        for r in shop.records(entries, graded_only=graded_only):
+            print(
+                f"  {r.label:<28} n={r.n:<4} {r.wins}-{r.losses}-{r.pushes}  "
+                f"{r.units:+.2f}u  ROI {r.roi:+.1%}"
+            )
+    return 0
+
+
 def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
     """Stamp point-in-time unit ranks (ATS/ML) and YPP tags (totals) on graded rows lacking them."""
     _state_pull(cfg)
@@ -885,6 +922,9 @@ def _build_parser() -> argparse.ArgumentParser:
         "stamp-units",
         help="stamp pre-slate unit ranks (ATS/ML) and YPP tags (totals) on graded ledger rows",
     )
+    sub.add_parser(
+        "shop", help="totals graded at the card's number vs the best allowed number vs Kalshi"
+    )
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(
         sub.add_parser("weekly", help="weekly audit article: the week + the ledger to date"),
@@ -919,6 +959,7 @@ _DISPATCH = {
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "stamp-units": cmd_stamp_units,
+    "shop": cmd_shop,
     "report": cmd_report,
     "weekly": cmd_weekly,
     "calibrate": cmd_calibrate,

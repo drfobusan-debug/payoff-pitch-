@@ -41,6 +41,8 @@ _MERGED_CSVS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("scorecard.csv", ("date", "market", "tier")),
 )
 AVAILABILITY_NAME = "availability.jsonl"
+# Every book's total per pull (``cfb_engine.audit.shop``), gzipped on the branch.
+BOOKS_DIR = "books"
 log = logging.getLogger(__name__)
 
 
@@ -89,6 +91,21 @@ def merge_jsonl_files(remote: Path, local: Path) -> bool:
     local.parent.mkdir(parents=True, exist_ok=True)
     local.write_text("".join(f"{line}\n" for line in seen))
     return True
+
+
+def _jsonl_lines(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    raw = gzip.decompress(path.read_bytes()) if path.suffix == ".gz" else path.read_bytes()
+    return [line for line in raw.decode().splitlines() if line.strip()]
+
+
+def merge_books(a: Path, b: Path, dest: Path) -> None:
+    """Union two per-book totals logs (either gzipped) into ``dest``, first appearance order."""
+    lines = list(dict.fromkeys([*_jsonl_lines(a), *_jsonl_lines(b)]))
+    body = "".join(f"{line}\n" for line in lines).encode()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(gzip.compress(body, mtime=0) if dest.suffix == ".gz" else body)
 
 
 # --- the state map -----------------------------------------------------------
@@ -150,6 +167,10 @@ def pull_state(
             pulled.append(name)
     if merge_jsonl_files(root / AVAILABILITY_NAME, audit / AVAILABILITY_NAME):
         pulled.append(AVAILABILITY_NAME)
+    for src in sorted((root / BOOKS_DIR).glob("totals_books_*.jsonl.gz")):
+        local = audit / src.name[: -len(".gz")]
+        merge_books(src, local, local)
+        pulled.append(local.name)
     pulled.extend(_pull_predictions(state, audit, dates))
     return SyncReport(pulled=tuple(pulled))
 
@@ -214,6 +235,10 @@ def push_state(
             merge_jsonl_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(AVAILABILITY_NAME)
+        for src in sorted(audit.glob("totals_books_*.jsonl")):
+            dest = root / BOOKS_DIR / f"{src.name}.gz"
+            merge_books(dest, src, dest)
+            pushed.append(dest.name)
         staged, pruned = _stage_predictions(state, audit)
         pushed.extend(staged)
         if not pushed:

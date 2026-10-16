@@ -435,6 +435,11 @@ class Config:
 
     # Odds API budget/behaviour.
     odds_regions: str = field(default_factory=lambda: os.getenv("CFBE_ODDS_REGIONS", "us"))
+    # Books a total may be shopped at when the audit grades the best number
+    # (``cfb_engine.audit.shop``); unset means every book on the feed.
+    shop_books: tuple[str, ...] | None = field(default_factory=lambda: _env_csv("CFBE_SHOP_BOOKS"))
+    # Record Kalshi's total ladder with each card pull (public API, no credits).
+    kalshi: bool = field(default_factory=lambda: _env_bool("CFBE_KALSHI", True))
     odds_cache_ttl: int = field(default_factory=lambda: _env_int("CFBE_ODDS_CACHE_TTL", 1800))
 
     # Default recipient for the daily card / nightly audit email.
@@ -541,6 +546,11 @@ class Config:
         cannot be reconstructed after the fact -- if it is missing for a slate,
         that slate's pre-bet drift is simply unavailable."""
         return self.audit_dir / f"board_{day.isoformat()}.json"
+
+    def books_file(self, day: Date) -> Path:
+        """Every book's total (and Kalshi's ladder) per pregame pull, one line per
+        game per pull; append-only, so a slate's number shopping can be measured."""
+        return self.audit_dir / f"totals_books_{day.isoformat()}.jsonl"
 
     def opener_file(self, day: Date) -> Path:
         """Earliest board ``cfb-engine opener`` captured for one slate, days before
