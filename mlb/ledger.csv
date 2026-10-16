@@ -382166,6 +382166,8 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-15,MIL @ LAD,Totals,game_total,Under 7.5,7.5,williamhill_us,105.0,-125.0,Pass,0.4565,-0.0314,loss,-1.0,,,ev_floor,0.3696,0.477,0.4725,107.0,0.471623,-0.005377,-0.033173,posted,2.08,,engine,clean
 2026-10-15,MIL @ LAD,Totals,game_total,Under 8.5,8.5,,,,Pass,0.5381,,loss,-1.0,,,unpriced,0.4486,,,,,,,posted,2.08,,engine,
 2026-10-15,MIL @ LAD,Totals,game_total,Under 9.5,9.5,,,,Pass,0.5943,,loss,-1.0,,,unpriced,0.5529,,,,,,,posted,2.08,,engine,
+2026-10-15,MIL @ LAD,game,game_total,Under 8.0,8.0,teamrankings,,,1 star,0.5062,,loss,-1.0,,,,,,,,,,,,,,teamrankings,
+2026-10-15,MIL @ LAD,game,game_winner,LAD ML,,teamrankings,,,1 star,0.5859000000000001,,loss,0.0,,,,,,,,,,,,,,teamrankings,
 2026-10-15,TB @ CLE,Batter Props,batter_1b,Brayan Rocchio 1B o0.5,0.5,draftkings,140.0,-196.0,Pass,0.4052,-0.0658,win,1.4,,,ev_floor,0.4402,0.3875,0.3892,140.0,0.388476,0.000976,-0.067658,posted,1.08,,engine,clean
 2026-10-15,TB @ CLE,Batter Props,batter_1b,Brayan Rocchio 1B u0.5,0.5,betmgm,-190.0,140.0,Pass,0.5948,-0.0678,loss,-1.0,,,ev_floor,0.5598,0.6125,0.6108,-190.0,0.611524,-0.000976,-0.066621,posted,1.08,,engine,clean
 2026-10-15,TB @ CLE,Batter Props,batter_1b,Chandler Simpson 1B o0.5,0.5,betmgm,-155.0,115.0,Pass,0.5054,-0.0623,loss,-1.0,,,ev_floor,0.6524,0.5771,0.57,-155.0,0.57714,4e-05,-0.050512,posted,1.08,,engine,clean
@@ -382683,3 +382685,7 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-15,TB @ CLE,Totals,game_total,Under 7.5,7.5,,,,Pass,0.5488,,win,0.91,,,unpriced,0.4728,,,,,,,posted,1.08,,engine,
 2026-10-15,TB @ CLE,Totals,game_total,Under 8.5,8.5,,,,Pass,0.5923,,win,0.91,,,unpriced,0.557,,,,,,,posted,1.08,,engine,
 2026-10-15,TB @ CLE,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6841,,win,0.91,,,unpriced,0.6634,,,,,,,posted,1.08,,engine,
+2026-10-15,TB @ CLE,game,game_ml,CLE ML,,teamrankings,-126.0,,1 star,0.0,0.0245,win,0.7937,,,,,,,,,,,,,,teamrankings,
+2026-10-15,TB @ CLE,game,game_rl,CLE -1.5,-1.5,teamrankings,179.0,,1 star,0.0,0.0245,loss,-1.0,1.0,,,,,,,,,,,,,teamrankings,
+2026-10-15,TB @ CLE,game,game_total,Over 6.5,6.5,teamrankings,,,1 star,0.5071,,loss,-1.0,,,,,,,,,,,,,,teamrankings,
+2026-10-15,TB @ CLE,game,game_winner,CLE ML,,teamrankings,,,1 star,0.5820000000000001,,win,0.0,,,,,,,,,,,,,,teamrankings,
