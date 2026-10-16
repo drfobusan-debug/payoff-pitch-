@@ -42,7 +42,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from nhl_engine import email, outputs, pipeline, report, state
+from engine_runtime.odds_client import OddsClient
+from nhl_engine import email, history, outputs, pipeline, report, state
 from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens, vsin_picks
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
@@ -50,7 +51,7 @@ from nhl_engine.data import availability, capture, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
-from nhl_engine.data.oddsapi import OddsAPIClient
+from nhl_engine.data.oddsapi import SPORT_KEY, OddsAPIClient
 from nhl_engine.data.teamnames import CODES, canonical
 from nhl_engine.features import lineup_feed, podcast_read, starters, strength
 from nhl_engine.market import board
@@ -643,6 +644,81 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _history_schedule(client: NHLAPIClient, start: Date, end: Date) -> dict[Date, list]:
+    """Regular-season games per day from the (free, cached) NHL API schedule."""
+    out: dict[Date, list] = {}
+    for day in history.days_between(start, end):
+        games = [g for g in client.schedule(day) if g.start_utc]
+        if games:
+            out[day] = games
+    return out
+
+
+def cmd_history(args: argparse.Namespace) -> int:
+    """plan (free, NHL API) → print credits → pull only with --yes; `export` is offline."""
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    sched = _history_schedule(nhl, start, end)
+    markets = tuple(args.markets.split(","))
+    if args.action == "export":
+        out = Path(args.out) if args.out else output_dir() / f"history_closes_{start}_{end}.csv"
+        rows: list[dict[str, object]] = []
+        missing_close = missing_final = 0
+        for day, games in sorted(sched.items()):
+            starts = {g.matchup: g.start_utc for g in games}
+            results: dict[str, GameResult] = {}
+            for g in games:
+                res = nhl.result(g)
+                if res is not None and res.decided:
+                    results[g.matchup] = res
+            day_rows = history.export_day(root, day, starts, results)
+            missing_close += len(games) - len(day_rows)
+            missing_final += sum(1 for r in day_rows if r["final_home"] == "")
+            rows.extend(day_rows)
+        n = history.write_csv(rows, out)
+        print(f"{n} games with a close -> {out}")
+        print(
+            f"games without a close: {missing_close}; closes without an official final: {missing_final}"
+        )
+        return 0
+    regions = len(args.regions.split(","))
+    p = history.plan(
+        {d.isoformat(): [g.start_utc for g in gs] for d, gs in sched.items()},
+        markets=markets,
+        regions=regions,
+    )
+    print(
+        f"{start}..{end}: {p['games']} games on {len(sched)} days, "
+        f"{p['snapshots']} snapshots x {p['credits_per_snapshot']} = {p['credits']} credits "
+        f"(markets {','.join(markets)}, regions {args.regions})"
+    )
+    if args.action == "plan" or not args.yes:
+        if args.action == "pull":
+            print("nothing bought: re-run with --yes to spend the credits above", file=sys.stderr)
+        return 0
+    if not cfg.creds.has_odds_api():
+        print("no Odds API key (THE_ODDS_API_KEY / ODDS_API_KEY)", file=sys.stderr)
+        return 2
+    client = OddsClient(
+        "nhl",
+        SPORT_KEY,
+        cfg.creds.odds_api_key,
+        regions=args.regions,
+        cache_dir=cache_dir() / "oddsapi_hist",
+        runtime_root=Path(args.runtime_root).expanduser() if args.runtime_root else None,
+    )
+    tot = {"snapshots": 0, "skipped": 0, "rows": 0, "games": 0}
+    for day, games in sorted(sched.items()):
+        c = history.pull_day(client, root, day, [g.start_utc for g in games], markets=markets)
+        for k in tot:
+            tot[k] += c[k]
+        print(f"{day}: {c}")
+    print(f"total: {tot}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nhl-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -737,6 +813,20 @@ def build_parser() -> argparse.ArgumentParser:
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
     ca.add_argument("--min-samples", type=int, default=200)
     ca.set_defaults(func=cmd_calibrate)
+
+    hi = sub.add_parser(
+        "history",
+        help="historical closes for the close test: plan (free) / pull (--yes spends) / export",
+    )
+    hi.add_argument("action", choices=["plan", "pull", "export"])
+    hi.add_argument("--start", required=True, help="first game date (YYYY-MM-DD)")
+    hi.add_argument("--end", required=True, help="last game date (YYYY-MM-DD)")
+    hi.add_argument("--markets", default=",".join(history.CLOSE_MARKETS))
+    hi.add_argument("--regions", default="us")
+    hi.add_argument("--yes", action="store_true", help="pull: actually spend the credits printed")
+    hi.add_argument("--runtime-root", help="engine_runtime dir for the shared credit ledger")
+    hi.add_argument("--out", help="export: CSV path")
+    hi.set_defaults(func=cmd_history)
     return parser
 
 
