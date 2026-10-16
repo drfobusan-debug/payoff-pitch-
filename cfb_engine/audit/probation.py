@@ -65,7 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import atscontext, lineagree, lowtotal, unitranks, yppmatch
+from cfb_engine.market import atscontext, gradedonly, lineagree, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -123,6 +123,11 @@ class Probation:
     @property
     def actionable(self) -> bool:
         return self.status in (SHUT, LIFT, SHIP, PROMOTE)
+
+
+def _would_buy(e: LedgerEntry) -> bool:
+    """A buy, or one a graded-only market refused only for being graded only."""
+    return e.tier in _BUY or gradedonly.is_gate(e.pass_gate)
 
 
 def _decided(entries: list[LedgerEntry]) -> list[LedgerEntry]:
@@ -492,10 +497,13 @@ def upgrade_probation(
     since: str | None = None,
     min_n: int | None = None,
 ) -> list[Probation]:
-    """Verdict per proposed upgrade, over the graded buys it would promote."""
+    """Verdict per proposed upgrade, over the graded buys it would promote.
+
+    A graded-only market's would-be buys count, so its candidates keep grading.
+    """
     bar = _min_n() if min_n is None else min_n
     floor = ALL_HISTORY if since is None else since
-    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    rows = [e for e in _decided(entries) if _would_buy(e) and e.date >= floor]
     out: list[Probation] = []
     for u in upgrades:
         verdict = _judge(
@@ -594,6 +602,8 @@ def candidate_probation(
 ) -> list[Probation]:
     """Verdict per proposed screen, over the graded buys it would have refused.
 
+    A graded-only market's would-be buys count, so its candidates keep grading.
+
     Same three tests as a live market, because a candidate is the same claim: the
     rows in here lose. ``SHIP`` means they lose by more than a standard error in
     both halves of the window; anything else means the floor is a fit to where
@@ -602,7 +612,7 @@ def candidate_probation(
     """
     bar = _min_n() if min_n is None else min_n
     floor = ALL_HISTORY if since is None else since
-    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    rows = [e for e in _decided(entries) if _would_buy(e) and e.date >= floor]
     out: list[Probation] = []
     for c in candidates:
         verdict = _judge(

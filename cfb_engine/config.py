@@ -69,8 +69,11 @@ class ModelParams:
     avg_team_points: float = field(default_factory=lambda: _env_float("CFBE_AVG_TEAM_PTS", 27.5))
     # Standard deviation of the game margin around its mean.
     margin_sd: float = field(default_factory=lambda: _env_float("CFBE_MARGIN_SD", 16.0))
-    # Standard deviation of the total around its mean.
-    total_sd: float = field(default_factory=lambda: _env_float("CFBE_TOTAL_SD", 13.0))
+    # Standard deviation of the total around its mean. The closing total misses
+    # the final by SD 15.8 over 4,126 FBS games (2019, 2021-25; 15.1-16.3 every
+    # season), and the 2026 model total missed by 15.4, so a model narrower than
+    # the market's own miss over-states every totals edge.
+    total_sd: float = field(default_factory=lambda: _env_float("CFBE_TOTAL_SD", 15.5))
     # Correlation between margin and total draws (mild: blowouts trend slightly
     # higher-scoring). Kept small; the two are close to independent.
     margin_total_corr: float = field(
@@ -289,6 +292,11 @@ class MarkingParams:
     # NPV gates (each individually switchable).
     veto_turnover: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TURNOVER", True))
     veto_totals_env: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_TOTALS_ENV", True))
+    # The Under half of the totals-environment veto. Off: on 4,126 FBS games
+    # (2019, 2021-25) the 1,279 it would flag went 52.9% Under and finished 1.44
+    # points further below the closing total than the rest -- it refuses the side
+    # those games lean to. ``veto_totals_env`` still gates the low-scoring Over.
+    veto_shootout: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_SHOOTOUT", False))
     veto_ats_blowout: bool = field(default_factory=lambda: _env_bool("CFBE_VETO_ATS_BLOWOUT", True))
     # A per-game turnover margin at/above which a team is a regression (fade)
     # candidate (~ +9 turnovers over a 12-game season).
