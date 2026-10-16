@@ -68,7 +68,7 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
-from cfb_engine.market import atscontext, lowtotal, unitranks
+from cfb_engine.market import atscontext, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
@@ -323,6 +323,24 @@ def _unit_ranks(cfg: Config, day: Date) -> unitranks.UnitRanks:
     return unitranks.rank_teams(cfbd.fetch_unit_stats(season, end))
 
 
+def _ypp_book(cfg: Config, day: Date) -> yppmatch.TeamYPP:
+    """Team YPP on the games played before ``day``'s slate (empty if CFBD has none)."""
+    cfbd = CFBDClient(cfg.creds.cfbd_api_key)
+    season = _season(cfg, day)
+    end = unitranks.prior_week(cfbd.fetch_schedule(season), day)
+    return yppmatch.team_ypp(cfbd.fetch_team_stats(season, end))
+
+
+def _stamp_ypp(entries: list[LedgerEntry], book: yppmatch.TeamYPP) -> int:
+    n = 0
+    for e in entries:
+        stamped = yppmatch.stamp(e.market, e.matchup, book)
+        if stamped is not None:
+            e.ypp_tags = stamped
+            n += 1
+    return n
+
+
 def _stamp_units(entries: list[LedgerEntry], ranks: unitranks.UnitRanks) -> int:
     n = 0
     for e in entries:
@@ -372,6 +390,7 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
             e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
             e.clv_pts = res.clv_pts
     _stamp_units(entries, _unit_ranks(cfg, day))
+    _stamp_ypp(entries, _ypp_book(cfg, day))
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -759,22 +778,22 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
 
 
 def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
-    """Stamp point-in-time unit ranks on graded ATS/ML rows that have none yet."""
+    """Stamp point-in-time unit ranks (ATS/ML) and YPP tags (totals) on graded rows lacking them."""
     _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
-    todo = sorted(
-        {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
-    )
+    units_todo = {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
+    ypp_todo = {e.date for e in entries if e.market == "game_total" and e.ypp_tags is None}
     total = 0
-    for iso in todo:
+    for iso in sorted(units_todo | ypp_todo):
         day = Date.fromisoformat(iso)
         day_rows = [e for e in entries if e.date == iso]
-        n = _stamp_units(day_rows, _unit_ranks(cfg, day))
+        n = _stamp_units(day_rows, _unit_ranks(cfg, day)) if iso in units_todo else 0
+        n += _stamp_ypp(day_rows, _ypp_book(cfg, day)) if iso in ypp_todo else 0
         if n:
             update_ledger(cfg.ledger_file, day_rows, day)
             total += n
         print(f"{iso}: stamped {n} row(s).")
-    print(f"Stamped unit ranks on {total} ledger row(s) across {len(todo)} slate(s).")
+    print(f"Stamped {total} ledger row(s) across {len(units_todo | ypp_todo)} slate(s).")
     if total:
         _state_push(cfg, f"cfb stamp-units: {total} rows")
     return 0
@@ -863,7 +882,8 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
-        "stamp-units", help="stamp pre-slate top-25 unit ranks on graded ATS/ML ledger rows"
+        "stamp-units",
+        help="stamp pre-slate unit ranks (ATS/ML) and YPP tags (totals) on graded ledger rows",
     )
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(

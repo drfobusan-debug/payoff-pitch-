@@ -542,6 +542,13 @@ class CFBDClient:
         )
         return [r for r in data if isinstance(r, dict)] if isinstance(data, list) else []
 
+    def fetch_team_stats(self, season: int, end_week: int) -> list[dict[str, object]]:
+        """Basic team season stats (yards, plays) through ``end_week``, one row per stat."""
+        if not self.available() or end_week < 1:
+            return []
+        data = self._get("/stats/season", year=season, endWeek=end_week)
+        return [r for r in data if isinstance(r, dict)] if isinstance(data, list) else []
+
     def fetch_schedule(self, season: int) -> list[GameMeta]:
         """Every game's schedule metadata (venue, neutral flag, kickoff)."""
         out: list[GameMeta] = []

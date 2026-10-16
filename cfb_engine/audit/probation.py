@@ -65,7 +65,7 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import atscontext, lineagree, lowtotal, unitranks
+from cfb_engine.market import atscontext, lineagree, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -524,6 +524,13 @@ def _totals_line_agrees(e: LedgerEntry) -> bool:
     return lineagree.line_agrees(e.market, e.model_prob, e.fair_prob, e.open_drift, e.drift)
 
 
+def _ypp_tag(tag: str) -> Callable[[LedgerEntry], bool]:
+    def picks(e: LedgerEntry) -> bool:
+        return yppmatch.picks(tag, e.market, e.selection, e.ypp_tags)
+
+    return picks
+
+
 def _unit_top25(unit: str, market: str) -> Callable[[LedgerEntry], bool]:
     def picks(e: LedgerEntry) -> bool:
         return unitranks.picks(unit, market, e.market, e.unit_ranks, e.opp_unit_ranks)
@@ -549,6 +556,14 @@ UNIT_RULES: tuple[CandidateRule, ...] = tuple(
     )
     for unit in unitranks.UNITS
     for market in unitranks.MARKETS
+)
+
+
+# Totals Unders in high-YPP games, tagged on stats before the slate
+# (``cfb_engine.market.yppmatch``).
+YPP_RULES: tuple[CandidateRule, ...] = tuple(
+    CandidateRule(yppmatch.RULE_NAMES[tag], _ypp_tag(tag), yppmatch.RATIONALES[tag])
+    for tag in yppmatch.TAGS
 )
 
 
@@ -610,6 +625,7 @@ def probation_rows(entries: list[LedgerEntry], since: str | None = None) -> list
         *upgrade_probation(entries, since=since),
         *rule_probation(entries, since=since),
         *rule_probation(entries, UNIT_RULES, since=since),
+        *rule_probation(entries, YPP_RULES, since=since),
     ]
 
 
