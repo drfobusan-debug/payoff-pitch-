@@ -369,8 +369,10 @@ def test_bet_clv_summary_ignores_the_cancelling_pass_side():
         ("Spread", False, False, -0.02, -0.01),
         ("Spread", False, False, None, None),
     ]
-    out = {s.label: s for s in bet_clv_summary(rows)}
-    assert set(out) == {"Buys · Total", "Buys · ALL", "Model-favoured (p > fair)"}
+    summary = bet_clv_summary(rows)
+    labels = [s.label for s in summary]
+    assert sorted(labels) == sorted(["Buys · Total", "Buys · ALL", "Model-favoured (p > fair)"])
+    out = {s.label: s for s in summary}
     assert out["Buys · ALL"].n == 1 and out["Buys · ALL"].mean_clv == pytest.approx(0.04)
     lean = out["Model-favoured (p > fair)"]
     assert lean.n == 2 and lean.mean_clv == pytest.approx(0.03)

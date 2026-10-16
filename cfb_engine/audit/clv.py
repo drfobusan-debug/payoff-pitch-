@@ -257,7 +257,7 @@ def bet_clv_summary(
         ClvSummary(f"Buys · {s.label}", s.n, s.mean_clv, s.beat_close_pct, s.mean_clv_ev)
         for s in clv_summary(buys)
     ]
-    leans = [("ALL", clv, ev) for _, _, fav, clv, ev in rows if fav]
+    leans = [("lean", clv, ev) for _, _, fav, clv, ev in rows if fav]
     out += [
         ClvSummary("Model-favoured (p > fair)", s.n, s.mean_clv, s.beat_close_pct, s.mean_clv_ev)
         for s in clv_summary(leans)
