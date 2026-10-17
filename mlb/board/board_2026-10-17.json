@@ -660,6 +660,20 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_bb",
+    "selection": "Petey Halpin BB o0.5",
+    "american": 410.0,
+    "no_vig_prob": 0.184815
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Petey Halpin BB u0.5",
+    "american": -640.0,
+    "no_vig_prob": 0.815185
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
     "selection": "Richie Palacios BB o0.5",
     "american": 250.0,
     "no_vig_prob": 0.279089
