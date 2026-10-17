@@ -1425,3 +1425,21 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-16,Chase DeLauter,800050,849817,HRR,1.5,over,draftkings,110.0,0.57,0.4635,0.4516,0.0118,-0.0267,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite
 2026-10-16,Chase DeLauter,800050,849817,RBI,0.5,over,draftkings,240.0,0.3264,0.2886,0.2844,0.0042,-0.0186,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite
 2026-10-16,Chase DeLauter,800050,849817,TB,1.5,over,betonlineag,161.0,0.4393,0.3759,0.3689,0.007,-0.0188,Pass,RV NEG WATCH,True,confirmed,20261016T2158Z,1,40,11,-1.81,batter,ev_floor,elite
+2026-10-17,José Ramírez,608070,849816,1B,0.5,over,betmgm,110.0,0.5089,0.4542,0.4481,0.0061,-0.0462,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,2,34,9,-0.78,batter,ev_floor,elite
+2026-10-17,José Ramírez,608070,849816,HRR,1.5,over,draftkings,106.0,0.482,0.4672,0.4656,0.0016,-0.0376,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,2,34,9,-0.78,batter,ev_floor,elite
+2026-10-17,José Ramírez,608070,849816,RBI,0.5,under,betmgm,-325.0,0.8113,0.7307,0.7217,0.009,-0.0445,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,2,34,9,-0.78,batter,ev_floor,elite
+2026-10-17,Nathaniel Lowe,663993,849816,BB,0.5,over,draftkings,242.0,0.2586,0.278,0.2802,-0.0022,-0.0491,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,3,30,11,-11.04,batter,ev_floor,elite
+2026-10-17,Nathaniel Lowe,663993,849816,HRR,1.5,over,betmgm,140.0,0.5073,0.4162,0.406,0.0101,-0.0012,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,3,30,11,-11.04,batter,ev_floor,elite
+2026-10-17,Nathaniel Lowe,663993,849816,RBI,0.5,over,draftkings,251.0,0.3105,0.2785,0.275,0.0035,-0.0223,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,3,30,11,-11.04,batter,ev_floor,elite
+2026-10-17,Jo Adell,666176,849816,1B,0.5,over,betmgm,130.0,0.4052,0.4204,0.4221,-0.0017,-0.0331,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,5,22,11,-0.6,batter,ev_floor,elite
+2026-10-17,Jo Adell,666176,849816,HRR,1.5,over,draftkings,114.0,0.465,0.4516,0.4501,0.0015,-0.0336,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,5,22,11,-0.6,batter,ev_floor,elite
+2026-10-17,Jo Adell,666176,849816,RBI,0.5,over,draftkings,217.0,0.3233,0.3147,0.3138,0.001,-0.0023,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,5,22,11,-0.6,batter,ev_floor,elite
+2026-10-17,Steven Kwan,680757,849816,2B,0.5,over,bovada,525.0,0.1312,0.1786,0.209,-0.0303,0.1165,Pass,PROD WATCH,False,confirmed,20261017T2157Z,1,35,9,2.89,batter,one_way_quote,elite
+2026-10-17,Steven Kwan,680757,849816,HRR,1.5,over,bovada,105.0,0.5878,0.4813,0.4695,0.0118,-0.0133,Pass,PROD WATCH,True,confirmed,20261017T2157Z,1,35,9,2.89,batter,ev_floor,elite
+2026-10-17,Steven Kwan,680757,849816,TB,1.5,over,bovada,175.0,0.4584,0.3757,0.3666,0.0092,0.0333,Pass,PROD WATCH,True,confirmed,20261017T2157Z,1,35,9,2.89,batter,thin_edge,elite
+2026-10-17,Travis Bazzana,683953,849816,HRR,1.5,over,bovada,130.0,0.4631,0.4139,0.4085,0.0055,-0.048,Pass,PROD WATCH,True,confirmed,20261017T2157Z,4,29,15,1.44,batter,ev_floor,elite
+2026-10-17,Travis Bazzana,683953,849816,R,0.5,over,draftkings,214.0,0.3215,0.3157,0.315,0.0007,-0.0088,Pass,PROD WATCH,True,confirmed,20261017T2157Z,4,29,15,1.44,batter,ev_floor,elite
+2026-10-17,Travis Bazzana,683953,849816,RBI,0.5,over,draftkings,310.0,0.2489,0.245,0.2445,0.0004,0.0044,Pass,PROD WATCH,True,confirmed,20261017T2157Z,4,29,15,1.44,batter,thin_edge,elite
+2026-10-17,Petey Halpin,690984,849816,2B,0.5,over,bovada,575.0,0.1241,0.149,0.1648,-0.0159,0.0054,Pass,RV NEG WATCH,False,confirmed,20261017T2157Z,6,8,5,-2.1,batter,one_way_quote,elite
+2026-10-17,Petey Halpin,690984,849816,R,0.5,over,draftkings,246.0,0.3035,0.2872,0.2854,0.0018,-0.0062,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,6,8,5,-2.1,batter,ev_floor,elite
+2026-10-17,Petey Halpin,690984,849816,RBI,0.5,over,draftkings,349.0,0.1902,0.2257,0.2297,-0.004,0.0136,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,6,8,5,-2.1,batter,thin_edge,elite

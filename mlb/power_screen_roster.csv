@@ -155,3 +155,13 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-16,20261016T2158Z,elite,bat,Chase DeLauter,800050,CLE,849817,Nick Martinez,607259,3,False,RV NEG WATCH,,held,,
 2026-10-16,20261016T2158Z,soft,arm,Shawn Armstrong,542888,CLE,849817,Shawn Armstrong,542888,,False,,,gated,work: 42 BF and 160 pitches in 90d (needs 120 and 400),
 2026-10-16,20261016T2158Z,soft,arm,Nick Martinez,607259,TB,849817,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.33 ≤ 4.40,4.33
+2026-10-17,20261017T2157Z,elite,arm,Shawn Armstrong,542888,CLE,849816,Shawn Armstrong,542888,,False,,,gated,work: 39 BF and 150 pitches in 90d (needs 120 and 400),
+2026-10-17,20261017T2157Z,elite,arm,Nick Martinez,607259,TB,849816,Nick Martinez,607259,,False,,,screened,,4.33
+2026-10-17,20261017T2157Z,elite,bat,José Ramírez,608070,CLE,849816,Nick Martinez,607259,2,False,RV NEG WATCH,,held,,
+2026-10-17,20261017T2157Z,elite,bat,Nathaniel Lowe,663993,CLE,849816,Nick Martinez,607259,5,False,RV NEG WATCH,,held,,
+2026-10-17,20261017T2157Z,elite,bat,Jo Adell,666176,CLE,849816,Nick Martinez,607259,4,False,RV NEG WATCH,,held,,
+2026-10-17,20261017T2157Z,elite,bat,Steven Kwan,680757,CLE,849816,Nick Martinez,607259,1,False,PROD WATCH,,held,,
+2026-10-17,20261017T2157Z,elite,bat,Travis Bazzana,683953,CLE,849816,Nick Martinez,607259,6,False,PROD WATCH,,held,,
+2026-10-17,20261017T2157Z,elite,bat,Petey Halpin,690984,CLE,849816,Nick Martinez,607259,8,False,RV NEG WATCH,,held,,
+2026-10-17,20261017T2157Z,soft,arm,Shawn Armstrong,542888,CLE,849816,Shawn Armstrong,542888,,False,,,gated,work: 39 BF and 150 pitches in 90d (needs 120 and 400),
+2026-10-17,20261017T2157Z,soft,arm,Nick Martinez,607259,TB,849816,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.33 ≤ 4.40,4.33
