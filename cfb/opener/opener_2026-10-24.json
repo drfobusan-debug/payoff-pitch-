@@ -1,0 +1,32 @@
+{
+  "Iowa @ Minnesota|game_ats|Iowa": {
+    "american": -112.0,
+    "line": -3.5,
+    "no_vig_prob": 0.5043297540699688
+  },
+  "Iowa @ Minnesota|game_ats|Minnesota": {
+    "american": -108.0,
+    "line": 3.5,
+    "no_vig_prob": 0.4956702459300312
+  },
+  "Iowa @ Minnesota|game_ml|Iowa": {
+    "american": -182.0,
+    "line": null,
+    "no_vig_prob": 0.6199171293905597
+  },
+  "Iowa @ Minnesota|game_ml|Minnesota": {
+    "american": 154.0,
+    "line": null,
+    "no_vig_prob": 0.38008287060944035
+  },
+  "Iowa @ Minnesota|game_total|Over": {
+    "american": -105.0,
+    "line": 42.5,
+    "no_vig_prob": 0.49458288190682553
+  },
+  "Iowa @ Minnesota|game_total|Under": {
+    "american": -110.0,
+    "line": 42.5,
+    "no_vig_prob": 0.5054171180931744
+  }
+}
