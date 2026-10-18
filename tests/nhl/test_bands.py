@@ -15,6 +15,9 @@ def _row(
     line=None,
     slate="2026-10-10",
     matchup="A @ H",
+    entity="",
+    tier="Pass",
+    model=None,
 ) -> LedgerRow:
     return LedgerRow(
         slate_date=slate,
@@ -23,18 +26,18 @@ def _row(
         away="A",
         market=market,
         side=side,
-        entity="",
+        entity=entity,
         line=line,
         ot_rule="incl_ot_so",
         book="b",
         american=-150.0,
         books=3,
         consensus=consensus,
-        model_prob=consensus,
+        model_prob=consensus if model is None else model,
         push_prob=0.0,
         edge=0.0,
         ev=0.0,
-        tier="Pass",
+        tier=tier,
         outcome="win" if pnl > 0 else "loss",
         pnl=pnl,
     )
@@ -94,7 +97,7 @@ def test_verdict_needs_the_sample_and_both_halves():
     assert win.verdict == "wins: clears the bar"
     lose = bands.BandRead("x", [-1.0, -1.0, 1.0] * 40)
     assert lose.verdict == "loses: refusal candidate"
-    assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100)"
+    assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100 games)"
 
 
 def test_audit_report_renders_the_bands():
@@ -102,3 +105,21 @@ def test_audit_report_renders_the_bands():
     md = ledger_report.render_md(audit, as_of="t")
     assert "Graded-only bands" in md and "| ML home favourite | 1 |" in md
     assert "ML home favourite" in ledger_report.render_html(audit, as_of="t")
+
+
+def test_prop_bands_read_unders_per_player_and_se_by_game():
+    rows = [
+        _row("g_saves", "under", 0.5, 0.9, line=24.5, entity="G1", model=0.65),
+        _row("g_saves", "under", 0.5, -1, line=25.5, entity="G2", model=0.55),
+        _row("g_saves", "over", 0.5, 0.9, line=24.5, entity="G1"),
+        _row("sk_g", "under", 0.7, 0.4, line=0.5, entity="S1", tier="Strong buy"),
+        _row("sk_g", "under", 0.7, -1, line=0.5, entity="S2"),
+        _row("sk_g", "under", 0.9, 0.1, line=1.5, entity="S1"),
+        _row("sk_g", "under", 0.7, 0.4, line=0.5, entity="S3", matchup="B @ C"),
+    ]
+    r = _reads(rows)
+    assert r["Goalie saves Under"].n == 2 and r["Goalie saves Under"].record == "1-1"
+    assert r["Goalie saves Under, sim 10+ pts above the market"].n == 1
+    no_goal = r["Player no goal (goals Under 0.5)"]
+    assert no_goal.n == 3 and len(no_goal.games) == 2
+    assert r["Player no goal, sim rates it a buy"].units == 0.4
