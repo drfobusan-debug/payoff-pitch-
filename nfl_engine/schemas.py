@@ -50,6 +50,10 @@ class Game(BaseModel):
     # nothing rather than assuming the incumbent is upright.
     home_qb_id: str | None = None
     away_qb_id: str | None = None
+    # The named starter's name when the official injury report has him Out or
+    # Doubtful: the schedule can still name a man who has been ruled out.
+    home_qb_out: str | None = None
+    away_qb_out: str | None = None
     # Same-division meeting. ``None`` is unknown, which is not the same as False:
     # an unknown flag must leave the total alone rather than push it up the way
     # "non-divisional" legitimately does.

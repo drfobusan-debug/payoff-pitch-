@@ -25,7 +25,7 @@ from pathlib import Path
 import pandas as pd
 
 from nfl_engine.audit.ledger import ENGINE, LedgerEntry
-from nfl_engine.data import nflverse, weather
+from nfl_engine.data import injuries, nflverse, weather
 from nfl_engine.data.color import ColorBook, ESPNColor, GameColor, TeamColor
 from nfl_engine.data.teamnames import BY_NAME, canonical, franchise
 from nfl_engine.features import books as books_mod
@@ -61,6 +61,9 @@ class TeamBrief:
     leaders: list[str] = field(default_factory=list)
     out: list[str] = field(default_factory=list)
     questionable: list[str] = field(default_factory=list)
+    # League ranks (1 = best of 32) by play type, season to date: pass_off,
+    # rush_off, pass_def, rush_def, pass_rush. Empty before a team has played.
+    units: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -219,6 +222,66 @@ def _apply_color(brief: TeamBrief, color: TeamColor) -> None:
     brief.questionable = list(color.questionable)
 
 
+# Win probability band a play must start inside to count toward a unit rank:
+# outside it the trailing side throws into soft coverage and the leader runs out
+# the clock, which measures the score rather than the unit.
+UNIT_WP_BAND = (0.10, 0.90)
+
+
+def unit_ranks(pbp: pd.DataFrame, season: int, week: int) -> dict[str, dict[str, int]]:
+    """Each team's pass/rush offense and defense rank by EPA per play, plus pass rush.
+
+    Regular-season plays from weeks before ``week`` only, garbage time excluded
+    (``UNIT_WP_BAND``). Offense ranks highest EPA per play first, defense lowest
+    EPA allowed first, pass rush highest sack rate per dropback first. Display
+    only: nothing priced reads it.
+    """
+    need = {"week", "posteam", "defteam", "pass", "rush", "epa", "wp", "sack", "qb_dropback"}
+    if pbp.empty or not need <= set(pbp.columns):
+        return {}
+    plays = pbp[(pbp["week"] < week) & pbp["epa"].notna() & pbp["posteam"].notna()]
+    if "season_type" in plays.columns:
+        plays = plays[plays["season_type"] == "REG"]
+    if "season" in plays.columns:
+        plays = plays[plays["season"] == season]
+    lo, hi = UNIT_WP_BAND
+    plays = plays[plays["wp"].between(lo, hi)]
+    if plays.empty:
+        return {}
+    passes, rushes = plays[plays["pass"] == 1], plays[plays["rush"] == 1]
+    metrics = {
+        "pass_off": (passes.groupby("posteam")["epa"].mean(), False),
+        "rush_off": (rushes.groupby("posteam")["epa"].mean(), False),
+        "pass_def": (passes.groupby("defteam")["epa"].mean(), True),
+        "rush_def": (rushes.groupby("defteam")["epa"].mean(), True),
+    }
+    dropbacks = plays[plays["qb_dropback"] == 1].groupby("defteam")
+    metrics["pass_rush"] = (dropbacks["sack"].sum() / dropbacks["sack"].size(), False)
+    out: dict[str, dict[str, int]] = {}
+    for key, (series, low_is_good) in metrics.items():
+        ranked = series.rank(ascending=low_is_good, method="min")
+        for team, rank in ranked.items():
+            out.setdefault(canonical(str(team)), {})[key] = int(rank)
+    return out
+
+
+def _apply_report(brief: TeamBrief, rows: list[injuries.ReportRow]) -> None:
+    """Lead the Out list with the official report; keep ESPN's extras after it.
+
+    ESPN's game page carries only a handful of names per team, and on game day
+    those are the inactives -- a starter ruled out on Friday drops off it. The
+    league's report is the record of who was ruled out during the week.
+    """
+    if not rows:
+        return
+    listed = [row.label() for row in rows]
+    names = [row.player for row in rows]
+    extras = [entry for entry in brief.out if not any(name in entry for name in names)]
+    brief.out = listed + extras
+    if brief.qb and brief.qb in names:
+        brief.qb = f"{brief.qb} (out)"
+
+
 def _game_color(brief: GameBrief, color: GameColor) -> None:
     if color.venue is not None:
         brief.venue = color.venue
@@ -297,6 +360,8 @@ def build_briefs(
     schedule: pd.DataFrame | None = None,
     ratings: RatingBook | None = None,
     color: ColorBook | None = None,
+    report: list[injuries.ReportRow] | None = None,
+    units: dict[str, dict[str, int]] | None = None,
     forecast: bool = False,
 ) -> dict[str, GameBrief]:
     """A brief per matchup priced in ``season`` week ``week``.
@@ -342,6 +407,13 @@ def build_briefs(
             _apply_rating(brief.away, ratings, ranks)
         if color is not None and matchup in color:
             _game_color(brief, color[matchup])
+        if units:
+            for team in (brief.home, brief.away):
+                team.units = dict(units.get(team.code, {}))
+        if report:
+            by_team = injuries.report_by_team(report)
+            for team in (brief.home, brief.away):
+                _apply_report(team, by_team.get(team.code, []))
         _lines_from_ledger(brief, rows)
         out[matchup] = brief
     if forecast:
@@ -403,6 +475,12 @@ def gather(
         color = ESPNColor(cache_dir).fetch(season, week, matchups)
     except Exception as exc:  # noqa: BLE001 - colour is optional
         log.warning("brief: espn unavailable (%s)", exc)
+    report = injuries.official_report(season, week)
+    units: dict[str, dict[str, int]] | None = None
+    try:
+        units = unit_ranks(nflverse.play_by_play(season), season, week)
+    except Exception as exc:  # noqa: BLE001 - colour is optional
+        log.warning("brief: unit ranks unavailable (%s)", exc)
     return build_briefs(
         entries,
         season=season,
@@ -410,5 +488,7 @@ def gather(
         schedule=schedule,
         ratings=ratings,
         color=color,
+        report=report,
+        units=units,
         forecast=True,
     )

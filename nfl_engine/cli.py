@@ -269,6 +269,11 @@ def cmd_price(args: argparse.Namespace) -> int:
     book = _books(fetched.season, fetched.week, ratings=args.ratings)
     named = books_mod.attach_qbs(fetched.games, fetched.season, fetched.week)
     print(f"  {named} of {2 * len(fetched.games)} starting quarterbacks named")
+    for game in fetched.games:
+        sides = ((game.away.abbrev, game.away_qb_out), (game.home.abbrev, game.home_qb_out))
+        for team, out in sides:
+            if out:
+                print(f"  {team}: {out} out on the official report; priced as a fill-in")
     maps = calibration.load()
     print(f"  {maps.stamp()}")
     pricings = price_slate(
