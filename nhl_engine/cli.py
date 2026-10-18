@@ -38,13 +38,21 @@ import logging
 import sys
 from dataclasses import asdict
 from datetime import date as Date
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from engine_runtime.odds_client import OddsClient
 from nhl_engine import closetest, email, history, outputs, pipeline, report, state
-from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens, vsin_picks
+from nhl_engine.audit import (
+    grade,
+    ledger,
+    ledger_report,
+    podcast_picks,
+    scorecard,
+    screens,
+    vsin_picks,
+)
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
 from nhl_engine.data import availability, capture, podcast, preseason, rotowire
@@ -52,6 +60,7 @@ from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
 from nhl_engine.data.oddsapi import SPORT_KEY, OddsAPIClient
+from nhl_engine.data.skaters import PlayerLogClient
 from nhl_engine.data.teamnames import CODES, canonical
 from nhl_engine.features import lineup_feed, podcast_read, starters, strength
 from nhl_engine.market import board
@@ -86,6 +95,19 @@ def cmd_capture(args: argparse.Namespace) -> int:
             "no Odds API key (THE_ODDS_API_KEY / ODDS_API_KEY); nothing captured", file=sys.stderr
         )
         return 2
+    if args.if_drop_within:
+        soon = _minutes_to_next_drop(slate_date)
+        if soon is None or soon > args.if_drop_within:
+            print(
+                json.dumps(
+                    {
+                        "slate_date": slate_date.isoformat(),
+                        "skipped": f"no puck drop within {args.if_drop_within} min",
+                        "next_drop_min": soon,
+                    }
+                )
+            )
+            return 0
     taken = capture.now_utc()
     slate, rows = client.fetch_board(
         slate_date=slate_date, horizon_hours=cfg.capture.horizon_hours, captured_at=taken
@@ -411,6 +433,44 @@ def _nhlapi() -> NHLAPIClient:
     return NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
 
 
+def _minutes_to_next_drop(day: Date, now: datetime | None = None) -> float | None:
+    """Minutes until the next puck drop still ahead on the slate (NHL API, free)."""
+    now = now or datetime.now(timezone.utc)
+    ahead: list[float] = []
+    for g in _nhlapi().schedule(day):
+        start = history._parse(g.start_utc) if g.start_utc else None
+        if start is not None and start > now:
+            ahead.append((start - now).total_seconds() / 60)
+    return min(ahead, default=None)
+
+
+def _ppp_lookup(logs: PlayerLogClient, season: int) -> grade.PPPLookup:
+    """Power-play points per (player, game) off the skater game log, fetched once a player."""
+    cache: dict[int, dict[int, int]] = {}
+
+    def ppp_of(player_id: int, game_id: int) -> int | None:
+        if player_id not in cache:
+            try:
+                cache[player_id] = {g.game_id: g.ppp for g in logs.skater_log(player_id, season)}
+            except Exception:  # noqa: BLE001 - one missing log must not stop the grade
+                log.exception("skater log %s", player_id)
+                cache[player_id] = {}
+        return cache[player_id].get(game_id)
+
+    return ppp_of
+
+
+def _scheduled_for(nights: list[str]) -> dict[str, list[str]]:
+    """Matchups the NHL schedule lists per night (cached; nothing paid)."""
+    out: dict[str, list[str]] = {}
+    for night in nights:
+        try:
+            out[night] = [g.matchup for g in _nhlapi().schedule(Date.fromisoformat(night))]
+        except Exception:  # noqa: BLE001 - a missing schedule just leaves the column blank
+            log.exception("schedule %s", night)
+    return out
+
+
 def _results_for(day: Date) -> tuple[dict[str, GameResult], dict[str, str]]:
     """Finals and puck-drop times (UTC) by matchup."""
     client = _nhlapi()
@@ -505,6 +565,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
             capture.read_day(root, day),
             graded_at=capture.now_utc(),
             starts=starts,
+            ppp_of=_ppp_lookup(PlayerLogClient(_nhlapi()), season_of(day)),
         )
         ledger.save_rows(graded, ledger.graded_path(root, day))
         done = sum(1 for r in graded if r.outcome is not None)
@@ -557,7 +618,10 @@ def cmd_audit(args: argparse.Namespace) -> int:
     if not args.no_report:
         as_of = capture.now_utc()
         audit = ledger_report.build(
-            all_rows, _starters_for(all_rows), _screen_context(root, all_rows)
+            all_rows,
+            _starters_for(all_rows),
+            _screen_context(root, all_rows),
+            scheduled=_scheduled_for(sorted({r.slate_date for r in all_rows})),
         )
         if stale:
             audit.findings.append(stale_note)
@@ -776,6 +840,13 @@ def build_parser() -> argparse.ArgumentParser:
     cap = sub.add_parser("capture", help="archive the current NHL board")
     cap.add_argument("--date", help="slate date (ET), default today")
     cap.add_argument("--board-only", action="store_true", help="skip per-event markets")
+    cap.add_argument(
+        "--if-drop-within",
+        type=float,
+        default=0,
+        metavar="MIN",
+        help="capture only when a puck drop is within MIN minutes (close pass); else exit free",
+    )
     cap.add_argument("--max-events", type=int, default=64)
     cap.add_argument("--cache-ttl", type=int, default=0, help="seconds; 0 = always fetch fresh")
     cap.add_argument("--no-sync", action="store_true", help="do not pull/push engine-state")

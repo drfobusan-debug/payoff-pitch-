@@ -26,7 +26,7 @@ from dataclasses import asdict, dataclass, field, fields
 from datetime import date as Date
 from pathlib import Path
 
-from nhl_engine.audit.grade import dual_rule, pnl, settle
+from nhl_engine.audit.grade import PPPLookup, dual_rule, pnl, settle, settle_ppp
 from nhl_engine.data.capture import QuoteRow, parse_utc, pregame
 from nhl_engine.market.board import Selection, selections
 from nhl_engine.market.pricing import Priced
@@ -253,8 +253,11 @@ def grade_rows(
     *,
     graded_at: str,
     starts: Mapping[str, str] | None = None,
+    ppp_of: PPPLookup | None = None,
 ) -> list[LedgerRow]:
     """Settle every row with a final result; rows without one are left ungraded.
+
+    ``ppp_of`` (player_id, nhl_game_id -> PPP) settles ``sk_ppp`` off the game log.
 
     With ``starts`` (matchup -> puck drop UTC) the close is the last quote before
     puck drop, so in-play boards never stand in for the closing line.
@@ -271,6 +274,8 @@ def grade_rows(
         outcome = settle(
             market=r.market, side=r.side, entity=r.entity, line=r.line, ot_rule=r.ot_rule, res=res
         )
+        if outcome is None and r.market == "sk_ppp" and ppp_of is not None:
+            outcome = settle_ppp(side=r.side, entity=r.entity, line=r.line, res=res, ppp_of=ppp_of)
         r.outcome = outcome
         r.pnl = pnl(outcome, r.american)
         r.dual_rule_differs = dual_rule(
