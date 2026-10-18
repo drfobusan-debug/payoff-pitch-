@@ -1,0 +1,158 @@
+[
+ {
+  "game_pk": 849817,
+  "side": "away",
+  "team": "TB",
+  "opponent": "CLE",
+  "first_pitch_utc": "2026-10-18T21:08:00Z",
+  "captured_at": "2026-10-18T15:34:10+00:00",
+  "lead_hours": 5.56,
+  "starter": "Parker Messick",
+  "starter_id": 800048,
+  "starter_throws": "L",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 650490,
+    "name": "Yandy Diaz",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 666018,
+    "name": "Jonathan Aranda",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 691406,
+    "name": "Junior Caminero",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 668723,
+    "name": "Ryan Vilade",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 676356,
+    "name": "Jonny DeLuca",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 802415,
+    "name": "Chandler Simpson",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 663743,
+    "name": "Nick Fortes",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 622761,
+    "name": "Jorge Mateo",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 670764,
+    "name": "Taylor Walls",
+    "bats": "S",
+    "position": null
+   }
+  ],
+  "revisions": []
+ },
+ {
+  "game_pk": 849817,
+  "side": "home",
+  "team": "CLE",
+  "opponent": "TB",
+  "first_pitch_utc": "2026-10-18T21:08:00Z",
+  "captured_at": "2026-10-18T15:34:10+00:00",
+  "lead_hours": 5.56,
+  "starter": "Drew Rasmussen",
+  "starter_id": 656876,
+  "starter_throws": "R",
+  "players": [
+   {
+    "order": 1,
+    "mlbam_id": 680757,
+    "name": "Steven Kwan",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 2,
+    "mlbam_id": 608070,
+    "name": "Jose Ramirez",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 3,
+    "mlbam_id": 800050,
+    "name": "Chase DeLauter",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 4,
+    "mlbam_id": 666176,
+    "name": "Jo Adell",
+    "bats": "R",
+    "position": null
+   },
+   {
+    "order": 5,
+    "mlbam_id": 663993,
+    "name": "Nathaniel Lowe",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 6,
+    "mlbam_id": 683953,
+    "name": "Travis Bazzana",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 7,
+    "mlbam_id": 672275,
+    "name": "Patrick Bailey",
+    "bats": "S",
+    "position": null
+   },
+   {
+    "order": 8,
+    "mlbam_id": 690984,
+    "name": "Petey Halpin",
+    "bats": "L",
+    "position": null
+   },
+   {
+    "order": 9,
+    "mlbam_id": 677587,
+    "name": "Brayan Rocchio",
+    "bats": "S",
+    "position": null
+   }
+  ],
+  "revisions": []
+ }
+]
