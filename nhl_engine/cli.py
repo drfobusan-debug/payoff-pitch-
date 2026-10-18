@@ -43,7 +43,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from engine_runtime.odds_client import OddsClient
-from nhl_engine import email, history, outputs, pipeline, report, state
+from nhl_engine import closetest, email, history, outputs, pipeline, report, state
 from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens, vsin_picks
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
@@ -719,6 +719,55 @@ def cmd_history(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_closetest(args: argparse.Namespace) -> int:
+    """Rebuild the sim on the hist closes (offline, no credits) and print the fixed rule."""
+    out = Path(args.out) if args.out else output_dir() / f"closetest_{args.start}_{args.end}.csv"
+    if args.action == "report":
+        print(closetest.report(closetest.read_csv(out)))
+        return 0
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    priors: dict[int, preseason.PreseasonPrior] = {}
+    obs: list[closetest.Obs] = []
+    done = (
+        {o.game_date for o in closetest.read_csv(out)}
+        if out.is_file() and not args.fresh
+        else set()
+    )
+    if done:
+        obs = closetest.read_csv(out)
+    for day, games in sorted(_history_schedule(nhl, start, end).items()):
+        if day.isoformat() in done or not history.hist_rows(root, day):
+            continue
+        season = season_of(day)
+        if season not in priors:
+            priors[season] = preseason.build(
+                mp, season, r_yy=cfg.prior.r_yy, today=Date(season, 10, 1)
+            )
+        results = {g.matchup: r for g in games if (r := nhl.result(g)) is not None and r.decided}
+        card = closetest.rebuild_day(
+            root=root,
+            day=day,
+            season=season,
+            cfg=cfg,
+            mp=mp,
+            prior=priors[season],
+            rules=BookRules.load(rules_path(root)),
+            games=games,
+            results=results,
+        )
+        day_obs = closetest.observe(card, results)
+        obs.extend(day_obs)
+        closetest.write_csv(obs, out)
+        print(f"{day}: {len(card.games)} priced, {len(day_obs)} obs, unpriced {len(card.unpriced)}")
+    print(f"{len(obs)} obs -> {out}")
+    print(closetest.report(obs))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nhl-engine")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -827,6 +876,14 @@ def build_parser() -> argparse.ArgumentParser:
     hi.add_argument("--runtime-root", help="engine_runtime dir for the shared credit ledger")
     hi.add_argument("--out", help="export: CSV path")
     hi.set_defaults(func=cmd_history)
+
+    ct = sub.add_parser("closetest", help="preregistered close test on the hist closes (offline)")
+    ct.add_argument("action", choices=["run", "report"])
+    ct.add_argument("--start", required=True)
+    ct.add_argument("--end", required=True)
+    ct.add_argument("--out", help="observations CSV (resumes per day unless --fresh)")
+    ct.add_argument("--fresh", action="store_true")
+    ct.set_defaults(func=cmd_closetest)
     return parser
 
 
