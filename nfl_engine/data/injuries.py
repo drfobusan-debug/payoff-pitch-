@@ -39,6 +39,7 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 from mlb_engine.data import http
+from nfl_engine.data import nflverse
 from nfl_engine.data.teamnames import canonical, is_team
 
 log = logging.getLogger(__name__)
@@ -321,3 +322,74 @@ def watched_for(book: InjuryBook, team: str) -> list[InjuryRow]:
     order = {QB: 0, SKILL: 1, LINE: 2}
     rows = [row for row in book.get(canonical(team), []) if row.watched]
     return sorted(rows, key=lambda r: (order[r.group], r.player))
+
+
+# The game designations on the league's own report that mean he will not play.
+OFFICIAL_OUT = frozenset({"out", "doubtful"})
+
+
+@dataclass(frozen=True)
+class ReportRow:
+    """One Out/Doubtful designation from the official weekly injury report."""
+
+    team: str
+    gsis_id: str
+    player: str
+    position: str
+    status: str
+    injury: str
+
+    @property
+    def group(self) -> str:
+        return group_of(self.position)
+
+    def label(self) -> str:
+        injury = f", {self.injury.lower()}" if self.injury else ""
+        return f"{self.position} {self.player} ({self.status.lower()}{injury})"
+
+
+def official_report(season: int, week: int) -> list[ReportRow]:
+    """Out/Doubtful players on the week's official report, from nflverse.
+
+    Keyed on the same ``gsis_id`` the schedule names starters with, so a ruled-out
+    quarterback is matched exactly rather than by name. Fails soft to an empty
+    list: no report means no one is marked out, never that the week stops.
+    """
+    try:
+        frame = nflverse.injuries(season)
+    except Exception as exc:  # noqa: BLE001 - the report is optional
+        log.warning("official injury report unavailable: %s", exc)
+        return []
+    need = {"week", "team", "gsis_id", "full_name", "position", "report_status"}
+    if frame.empty or not need <= set(frame.columns):
+        return []
+    week_rows = frame[frame["week"] == week]
+    out: list[ReportRow] = []
+    for raw in week_rows.to_dict("records"):
+        status = str(raw.get("report_status") or "").strip()
+        if status.lower() not in OFFICIAL_OUT:
+            continue
+        injury = raw.get("report_primary_injury")
+        out.append(
+            ReportRow(
+                team=canonical(str(raw.get("team") or "")),
+                gsis_id=str(raw.get("gsis_id") or ""),
+                player=str(raw.get("full_name") or "").strip(),
+                position=str(raw.get("position") or "").strip(),
+                status=status,
+                injury=str(injury).strip() if isinstance(injury, str) else "",
+            )
+        )
+    return out
+
+
+def report_by_team(rows: list[ReportRow]) -> dict[str, list[ReportRow]]:
+    """Each team's report rows, quarterbacks first, then skill, line, the rest."""
+    order = {QB: 0, SKILL: 1, LINE: 2, OTHER: 3}
+    by_team: dict[str, list[ReportRow]] = {}
+    for row in rows:
+        by_team.setdefault(row.team, []).append(row)
+    return {
+        team: sorted(group, key=lambda r: (order.get(r.group, 3), r.player))
+        for team, group in by_team.items()
+    }

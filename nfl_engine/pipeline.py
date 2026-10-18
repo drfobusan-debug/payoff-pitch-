@@ -118,6 +118,8 @@ def price_slate(
                 away=game.away.abbrev,
                 home_qb=game.home_qb_id,
                 away_qb=game.away_qb_id,
+                home_qb_out=game.home_qb_out,
+                away_qb_out=game.away_qb_out,
             )
         shot = forecast(
             ratings,

@@ -647,9 +647,68 @@ def _players_line(b: GameBrief) -> str:
     return f"<p class='ctx'><b>Who matters</b> <span class='muted'>(ESPN season leaders)</span> — {' · '.join(parts)}</p>"
 
 
+_UNIT_GAP = 10  # rank gap (of 32) before a unit matchup is called an edge
+
+
+def _grade(rank: int) -> str:
+    if rank <= 5:
+        return "elite"
+    if rank <= 12:
+        return "good"
+    if rank <= 22:
+        return "middling"
+    return "poor"
+
+
+def _poss(name: str) -> str:
+    return name + ("'" if name.endswith("s") else "'s")
+
+
+def _an(word: str) -> str:
+    return ("an " if word[0] in "aeiou" else "a ") + word
+
+
+def _unit_sentences(b: GameBrief) -> list[str]:
+    """Each offense's pass and run game against the other side's defense, then the pass rush."""
+    out: list[str] = []
+    for off, dfn in ((b.away, b.home), (b.home, b.away)):
+        for label, o_key, d_key in (
+            ("pass", "pass_off", "pass_def"),
+            ("run", "rush_off", "rush_def"),
+        ):
+            o, d = off.units.get(o_key), dfn.units.get(d_key)
+            if o is None or d is None:
+                continue
+            gap = d - o
+            if gap >= _UNIT_GAP:
+                verdict = f"edge {off.name}"
+            elif gap <= -_UNIT_GAP:
+                verdict = f"edge {dfn.name}"
+            else:
+                verdict = "even"
+            out.append(
+                f"{_poss(off.name)} {_grade(o)} {label} offense (#{o}) meets {_an(_grade(d))} "
+                f"{dfn.name} {label} defense (#{d}) — {verdict}"
+            )
+    rush = [f"{t.name} #{t.units['pass_rush']}" for t in (b.away, b.home) if "pass_rush" in t.units]
+    if rush:
+        out.append("Pass rush (sacks per dropback): " + ", ".join(rush))
+    return out
+
+
+def _units_line(b: GameBrief) -> str:
+    sentences = _unit_sentences(b)
+    if not sentences:
+        return ""
+    return (
+        "<p class='ctx'><b>Unit matchups</b> <span class='muted'>(EPA/play by play type, NFL rank"
+        f" of 32, season to date, garbage time excluded)</span> — {html.escape('. '.join(sentences))}.</p>"
+    )
+
+
 def _out_line(b: GameBrief, absences: str) -> str:
     parts = [
-        f"<b>{html.escape(t.name)}</b>: {html.escape(', '.join(t.out[:6]))}"
+        f"<b>{html.escape(t.name)}</b>: {html.escape(', '.join(t.out[:8]))}"
         for t in (b.away, b.home)
         if t.out
     ]
@@ -661,7 +720,7 @@ def _out_line(b: GameBrief, absences: str) -> str:
     lines: list[str] = []
     if parts:
         lines.append(
-            f"<p class='ctx'><b>Out</b> <span class='muted'>(ESPN report; reported, not priced)</span>"
+            f"<p class='ctx'><b>Out</b> <span class='muted'>(official report + ESPN; QB out priced, rest reported only)</span>"
             f" — {' · '.join(parts)}</p>"
         )
     elif absences:
@@ -900,7 +959,8 @@ def _game_section(game: GameSection, podcast: PodcastView | None = None) -> str:
     context = ""
     if b is not None:
         context = (
-            f"{_team_table(b)}{_take(game)}{_stakes_line(game)}{_story_line(b)}{_players_line(b)}"
+            f"{_team_table(b)}{_units_line(b)}{_take(game)}{_stakes_line(game)}{_story_line(b)}"
+            f"{_players_line(b)}"
             f"{_out_line(b, game.absences)}{_venue_line(b)}"
         )
     elif game.absences:

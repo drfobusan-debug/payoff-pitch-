@@ -36,7 +36,7 @@ from functools import lru_cache
 
 import pandas as pd
 
-from nfl_engine.data import nflverse
+from nfl_engine.data import injuries, nflverse
 from nfl_engine.features import panel as panel_mod
 from nfl_engine.features import quarterback as qb_mod
 from nfl_engine.features import ratings as ratings_mod
@@ -116,7 +116,27 @@ def attach_qbs(games: list[Game], season: int, week: int) -> int:
         game.home_qb_id = game.home_qb_id or home_qb
         game.away_qb_id = game.away_qb_id or away_qb
         filled += bool(game.home_qb_id) + bool(game.away_qb_id)
+    _mark_ruled_out(games, season, week)
     return filled
+
+
+def _mark_ruled_out(games: list[Game], season: int, week: int) -> None:
+    """Flag a named starter the official report has Out or Doubtful.
+
+    The schedule's ``*_qb_id`` can lag the injury report by days -- it still named
+    Lamar Jackson after Baltimore ruled him out -- and a starter who is not
+    playing is exactly the displaced incumbent the fill-in charge exists for.
+    """
+    if not any(game.home_qb_id or game.away_qb_id for game in games):
+        return
+    out = {row.gsis_id: row.player for row in injuries.official_report(season, week)}
+    if not out:
+        return
+    for game in games:
+        if game.home_qb_id in out:
+            game.home_qb_out = out[game.home_qb_id]
+        if game.away_qb_id in out:
+            game.away_qb_out = out[game.away_qb_id]
 
 
 def _text(value: object) -> str | None:

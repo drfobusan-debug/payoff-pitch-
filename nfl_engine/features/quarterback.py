@@ -97,12 +97,16 @@ class StarterBook:
     prior: dict[tuple[int, str], str] = field(default_factory=dict)
     incumbent: dict[tuple[int, int, str], str] = field(default_factory=dict)
 
-    def status(self, season: int, week: int, team: str, qb: str | None) -> str:
+    def status(
+        self, season: int, week: int, team: str, qb: str | None, *, ruled_out: bool = False
+    ) -> str:
         """``INCUMBENT``, ``FILL_IN`` or ``UNKNOWN`` for one side of one game.
 
         ``UNKNOWN`` when the starter is not named, or when the team has neither a
         prior-season starter nor a start this season -- an expansion team or the
         first week of the earliest season in the book. Unknown charges nothing.
+        ``ruled_out`` is the official report saying the named man will not play:
+        whoever takes the snaps instead is a fill-in.
         """
         if not qb:
             return UNKNOWN
@@ -110,12 +114,16 @@ class StarterBook:
         held = self.incumbent.get((season, week, team))
         if last is None and held is None:
             return UNKNOWN
+        if ruled_out:
+            return FILL_IN
         if qb in (last, held):
             return INCUMBENT
         return FILL_IN
 
-    def is_fill_in(self, season: int, week: int, team: str, qb: str | None) -> bool:
-        return self.status(season, week, team, qb) == FILL_IN
+    def is_fill_in(
+        self, season: int, week: int, team: str, qb: str | None, *, ruled_out: bool = False
+    ) -> bool:
+        return self.status(season, week, team, qb, ruled_out=ruled_out) == FILL_IN
 
 
 def build(games: pd.DataFrame) -> StarterBook:
@@ -162,6 +170,8 @@ def margin_delta(
     away: str,
     home_qb: str | None,
     away_qb: str | None,
+    home_qb_out: str | None = None,
+    away_qb_out: str | None = None,
     points: float = FILL_IN_MARGIN_POINTS,
     min_week: int = FILL_IN_MIN_WEEK,
 ) -> tuple[float, tuple[str, ...]]:
@@ -176,10 +186,14 @@ def margin_delta(
         return 0.0, ()
     delta = 0.0
     notes: list[str] = []
-    if book.is_fill_in(season, week, home, home_qb):
+    if book.is_fill_in(season, week, home, home_qb, ruled_out=bool(home_qb_out)):
         delta += points
-        notes.append(f"{home} starting a fill-in QB {points:+.1f} margin")
-    if book.is_fill_in(season, week, away, away_qb):
+        notes.append(f"{home} starting a fill-in QB{_why(home_qb_out)} {points:+.1f} margin")
+    if book.is_fill_in(season, week, away, away_qb, ruled_out=bool(away_qb_out)):
         delta -= points
-        notes.append(f"{away} starting a fill-in QB {-points:+.1f} margin")
+        notes.append(f"{away} starting a fill-in QB{_why(away_qb_out)} {-points:+.1f} margin")
     return delta, tuple(notes)
+
+
+def _why(ruled_out: str | None) -> str:
+    return f" ({ruled_out} out on the official report)" if ruled_out else ""
