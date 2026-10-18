@@ -1,0 +1,152 @@
+{
+  "Air Force @ Wyoming|game_ats|Air Force": {
+    "american": -105.0,
+    "line": -7.5,
+    "no_vig_prob": 0.49458288190682553
+  },
+  "Air Force @ Wyoming|game_ats|Wyoming": {
+    "american": -110.0,
+    "line": 7.5,
+    "no_vig_prob": 0.5054171180931744
+  },
+  "Air Force @ Wyoming|game_ml|Air Force": {
+    "american": -278.0,
+    "line": null,
+    "no_vig_prob": 0.7129605267815036
+  },
+  "Air Force @ Wyoming|game_ml|Wyoming": {
+    "american": 245.0,
+    "line": null,
+    "no_vig_prob": 0.2870394732184963
+  },
+  "Air Force @ Wyoming|game_total|Over": {
+    "american": -112.0,
+    "line": 44.5,
+    "no_vig_prob": 0.5054171180931744
+  },
+  "Air Force @ Wyoming|game_total|Under": {
+    "american": -105.0,
+    "line": 44.5,
+    "no_vig_prob": 0.49458288190682553
+  },
+  "Army @ Tulsa|game_ats|Army": {
+    "american": -122.0,
+    "line": 1.5,
+    "no_vig_prob": 0.524845867738156
+  },
+  "Army @ Tulsa|game_ats|Tulsa": {
+    "american": 102.0,
+    "line": -1.5,
+    "no_vig_prob": 0.4751541322618439
+  },
+  "Army @ Tulsa|game_ml|Army": {
+    "american": -115.0,
+    "line": null,
+    "no_vig_prob": 0.5221615123258141
+  },
+  "Army @ Tulsa|game_ml|Tulsa": {
+    "american": 105.0,
+    "line": null,
+    "no_vig_prob": 0.4778384876741859
+  },
+  "Army @ Tulsa|game_total|Over": {
+    "american": -110.0,
+    "line": 52.5,
+    "no_vig_prob": 0.500795165394402
+  },
+  "Army @ Tulsa|game_total|Under": {
+    "american": -110.0,
+    "line": 52.5,
+    "no_vig_prob": 0.49920483460559795
+  },
+  "Duke @ Virginia|game_ats|Duke": {
+    "american": -110.0,
+    "line": 2.5,
+    "no_vig_prob": 0.5040340595555795
+  },
+  "Duke @ Virginia|game_ats|Virginia": {
+    "american": -105.0,
+    "line": -2.5,
+    "no_vig_prob": 0.4959659404444206
+  },
+  "Duke @ Virginia|game_ml|Duke": {
+    "american": 110.0,
+    "line": null,
+    "no_vig_prob": 0.45952217526631756
+  },
+  "Duke @ Virginia|game_ml|Virginia": {
+    "american": -125.0,
+    "line": null,
+    "no_vig_prob": 0.5404778247336824
+  },
+  "Duke @ Virginia|game_total|Over": {
+    "american": -105.0,
+    "line": 48.5,
+    "no_vig_prob": 0.4959659404444206
+  },
+  "Duke @ Virginia|game_total|Under": {
+    "american": -110.0,
+    "line": 48.5,
+    "no_vig_prob": 0.5040340595555795
+  },
+  "NC State @ Stanford|game_ats|NC State": {
+    "american": -105.0,
+    "line": -7.5,
+    "no_vig_prob": 0.5007436135564443
+  },
+  "NC State @ Stanford|game_ats|Stanford": {
+    "american": 100.0,
+    "line": 7.5,
+    "no_vig_prob": 0.4992563864435557
+  },
+  "NC State @ Stanford|game_ml|NC State": {
+    "american": -278.0,
+    "line": null,
+    "no_vig_prob": 0.724360583042749
+  },
+  "NC State @ Stanford|game_ml|Stanford": {
+    "american": 270.0,
+    "line": null,
+    "no_vig_prob": 0.27563941695725097
+  },
+  "NC State @ Stanford|game_total|Over": {
+    "american": -110.0,
+    "line": 55.5,
+    "no_vig_prob": 0.5063269782351949
+  },
+  "NC State @ Stanford|game_total|Under": {
+    "american": -106.0,
+    "line": 55.5,
+    "no_vig_prob": 0.49367302176480515
+  },
+  "UMass @ UConn|game_ats|UConn": {
+    "american": -105.0,
+    "line": -16.5,
+    "no_vig_prob": 0.4924403641774507
+  },
+  "UMass @ UConn|game_ats|UMass": {
+    "american": -113.0,
+    "line": 16.5,
+    "no_vig_prob": 0.5075596358225493
+  },
+  "UMass @ UConn|game_ml|UConn": {
+    "american": -800.0,
+    "line": null,
+    "no_vig_prob": 0.8519064780474871
+  },
+  "UMass @ UConn|game_ml|UMass": {
+    "american": 550.0,
+    "line": null,
+    "no_vig_prob": 0.148093521952513
+  },
+  "UMass @ UConn|game_total|Over": {
+    "american": -115.0,
+    "line": 47.5,
+    "no_vig_prob": 0.5108342361863488
+  },
+  "UMass @ UConn|game_total|Under": {
+    "american": -105.0,
+    "line": 47.5,
+    "no_vig_prob": 0.4891657638136511
+  }
+}
