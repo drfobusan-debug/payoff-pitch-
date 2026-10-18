@@ -758,6 +758,20 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_bb",
+    "selection": "Ryan Vilade BB o0.5",
+    "american": 310.0,
+    "no_vig_prob": 0.256799
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
+    "selection": "Ryan Vilade BB u0.5",
+    "american": -340.0,
+    "no_vig_prob": 0.743201
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_bb",
     "selection": "Steven Kwan BB o0.5",
     "american": 243.0,
     "no_vig_prob": 0.281338
@@ -828,9 +842,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI o0.5",
+    "american": -145.0,
+    "no_vig_prob": 0.575259
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
     "selection": "Ben Williamson H+R+RBI o1.5",
     "american": 131.0,
     "no_vig_prob": 0.405361
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Ben Williamson H+R+RBI u0.5",
+    "american": 129.0,
+    "no_vig_prob": 0.424741
   },
   {
     "matchup": "TB @ CLE",
@@ -961,9 +989,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI o1.5",
+    "american": 140.0,
+    "no_vig_prob": 0.399614
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
     "selection": "Liam Hicks H+R+RBI u0.5",
     "american": 135.0,
     "no_vig_prob": 0.399478
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Liam Hicks H+R+RBI u1.5",
+    "american": -175.0,
+    "no_vig_prob": 0.600386
   },
   {
     "matchup": "TB @ CLE",
@@ -1020,6 +1062,20 @@
     "selection": "Petey Halpin H+R+RBI u0.5",
     "american": -105.0,
     "no_vig_prob": 0.483383
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Ryan Vilade H+R+RBI o0.5",
+    "american": -122.0,
+    "no_vig_prob": 0.554439
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hrr",
+    "selection": "Ryan Vilade H+R+RBI u0.5",
+    "american": 120.0,
+    "no_vig_prob": 0.445561
   },
   {
     "matchup": "TB @ CLE",
@@ -1279,6 +1335,13 @@
     "selection": "Petey Halpin HR o1.5",
     "american": 55000.0,
     "no_vig_prob": 0.001815
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "batter_hr",
+    "selection": "Ryan Vilade HR o0.5",
+    "american": 850.0,
+    "no_vig_prob": 0.105263
   },
   {
     "matchup": "TB @ CLE",
@@ -2732,9 +2795,23 @@
   {
     "matchup": "TB @ CLE",
     "market": "pitcher_outs",
+    "selection": "Parker Messick Outs o14.5",
+    "american": -120.0,
+    "no_vig_prob": 0.541749
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
     "selection": "Parker Messick Outs o15.5",
     "american": 130.0,
     "no_vig_prob": 0.416636
+  },
+  {
+    "matchup": "TB @ CLE",
+    "market": "pitcher_outs",
+    "selection": "Parker Messick Outs u14.5",
+    "american": 125.0,
+    "no_vig_prob": 0.458251
   },
   {
     "matchup": "TB @ CLE",
