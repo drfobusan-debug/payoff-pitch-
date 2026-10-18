@@ -353,3 +353,21 @@ def test_line_move_open_to_now_from_archived_boards(scratch):
     ml = next(m for m in moves if m.key == "ml")
     assert ml.now > ml.open
     assert opened < now
+
+
+def test_late_card_is_skipped_once_every_game_has_tipped(scratch, capsys):
+    root, _ = scratch
+    assert run_card("--late") == 0
+    assert "no late tip left" in capsys.readouterr().out
+    assert not (root / "out").exists()
+
+
+def test_late_card_sends_while_a_game_is_untipped(scratch, capsys, monkeypatch):
+    class Frozen(cli.datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return cli.datetime(2025, 12, 10, 12, 0, tzinfo=tz)
+
+    monkeypatch.setattr(cli, "datetime", Frozen)
+    assert run_card("--late") == 0
+    assert "sending the late package" in capsys.readouterr().out

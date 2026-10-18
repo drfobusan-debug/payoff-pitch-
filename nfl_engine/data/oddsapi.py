@@ -31,6 +31,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+from engine_runtime import credits
 from mlb_engine.data import http
 from nfl_engine.data import capture, teamnames
 from nfl_engine.data.capture import QuoteRow
@@ -261,6 +262,9 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
+        if not credits.debit_for("nfl", url, query, remaining=self.credits_remaining):
+            log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
+            return None
         try:
             resp = http.get(url, params={"apiKey": self.api_key or "", **query}, timeout=self.timeout)
             remaining = resp.headers.get("x-requests-remaining")

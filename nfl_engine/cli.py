@@ -53,6 +53,7 @@ from nfl_engine.audit.ledger import (
     close_is_final,
     entry_from_bet,
     grade,
+    kickoff_moment,
     load_ledger,
     market_metrics,
     merge_ledger,
@@ -283,14 +284,22 @@ def cmd_close(args: argparse.Namespace) -> int:
     price. At kickoff the number in the ledger becomes the close and this command
     stops touching the row -- an in-play price is not a closing price, and neither
     is the Wednesday price that `job` used to freeze on its first run of the week.
+
+    ``--within`` is for the scheduled runs just ahead of each kickoff window: the
+    board is fetched only when an open row's game starts inside that many minutes,
+    so a run with nothing about to kick off spends no Odds API credit.
     """
     path = ledger_path()
     entries = load_ledger(path)
     if not entries:
         print("empty ledger")
         return 0
-    fetched = _fetch(args.days, kind=capture.CLOSE_KIND)
     now = datetime.now(tz=timezone.utc)
+    within = getattr(args, "within", None)
+    if within is not None and not _kicks_off_within(entries, now, within):
+        print(f"no game kicks off in the next {within} min; nothing fetched")
+        return 0
+    fetched = _fetch(args.days, kind=capture.CLOSE_KIND)
     stamped = restamped = frozen = missing = 0
     for entry in entries:
         if entry.result:
@@ -317,6 +326,18 @@ def cmd_close(args: argparse.Namespace) -> int:
     if missing:
         print(f"  {missing} started rows never got a closing price: CLV unscorable")
     return 0
+
+
+def _kicks_off_within(entries: list[LedgerEntry], now: datetime, minutes: int) -> bool:
+    """Does an ungraded, unstarted row's game kick off inside the next ``minutes``?"""
+    horizon = now + timedelta(minutes=minutes)
+    for entry in entries:
+        if entry.result or close_is_final(entry, now=now):
+            continue
+        kickoff = kickoff_moment(entry)
+        if kickoff is not None and kickoff <= horizon:
+            return True
+    return False
 
 
 def _stamp_open(
@@ -873,25 +894,30 @@ def cmd_report(args: argparse.Namespace) -> int:
     # measured, and counting them here would report an outside forecaster's record
     # as the engine's -- in the ALL line, and as the negative class of every screen.
     entries = [e for e in held if e.source == ENGINE]
+    for line in report_lines(entries, include_all=args.all):
+        print(line)
+    return 0
+
+
+def report_lines(entries: list[LedgerEntry], *, include_all: bool = True) -> list[str]:
+    """The tier, market and screen table `nfl-engine report` prints."""
     rows = [
         *tier_metrics(entries),
         *market_metrics(entries),
         *screen_metrics(entries),
     ]
-    if args.all:
+    if include_all:
         rows.append(metrics(entries, lambda e: True, "ALL"))
     header = (
         f"{'':26s} {'n':>5s} {'win%':>7s} {'need':>7s} {'PPV+':>7s} {'NPV+':>7s}"
         f" {'ROI':>7s} {'units':>8s} {'CLV':>8s}"
     )
-    print(header)
-    for row in rows:
-        print(
-            f"{row.label:26s} {row.n:5d} {row.win_pct:7.4f} {row.required_win_pct:7.4f}"
-            f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
-            f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
-        )
-    return 0
+    return [header] + [
+        f"{row.label:26s} {row.n:5d} {row.win_pct:7.4f} {row.required_win_pct:7.4f}"
+        f" {row.ppv_lift:+7.4f} {row.npv_lift:+7.4f} {row.roi:+7.4f}"
+        f" {row.units:+8.2f} {row.mean_clv:+8.4f}"
+        for row in rows
+    ]
 
 
 def _write(path: Path, data: bytes) -> bool:
@@ -1047,7 +1073,13 @@ def main(argv: list[str] | None = None) -> int:
     open_cmd.set_defaults(func=cmd_open)
 
     close = sub.add_parser("close", help="stamp the closing number for CLV")
-    close.add_argument("--days", type=int, default=2)
+    close.add_argument("--days", type=int, default=8)
+    close.add_argument(
+        "--within",
+        type=int,
+        default=None,
+        help="fetch only if a game kicks off inside this many minutes",
+    )
     close.add_argument("--write", action="store_true", default=True)
     close.add_argument("--no-write", dest="write", action="store_false")
     close.set_defaults(func=cmd_close)

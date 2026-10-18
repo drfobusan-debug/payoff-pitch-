@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import date
+
 from cfb_engine.audit.ledger import LedgerEntry
 from cfb_engine.audit.priced import (
     CONTRADICTION_ROI,
+    MIN_PRICED,
     contradictions,
     engine_priced_stat,
     priced_buys,
@@ -13,6 +16,7 @@ from cfb_engine.audit.priced import (
 )
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
+from cfb_engine.output.audit_report import build_audit_article
 
 
 def _entry(
@@ -153,3 +157,12 @@ def test_positive_ppv_lift_with_a_negative_return_is_named() -> None:
     assert stats[0].roi <= CONTRADICTION_ROI
     # No lift reported for the market means nothing to contradict.
     assert contradictions(stats, {}, min_n=10) == []
+
+
+def test_the_audit_pdf_prints_the_findings_bold_not_as_markdown() -> None:
+    rows = [_entry(result="loss") for _ in range(MIN_PRICED + 5)]
+    html, _ = build_audit_article(
+        date(2025, 9, 6), [], [], 0, money_rows=[engine_priced_stat(rows), *priced_stats(rows)]
+    )
+    assert "<b>game_ml buys returned -100.0%</b>" in html
+    assert "**" not in html

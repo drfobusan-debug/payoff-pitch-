@@ -75,8 +75,12 @@ def test_grade_rows_closes_on_last_pre_drop_quote():
         row = _row(market="game_ml", side="H", line=None)
         return grade_rows([row], res, quotes, graded_at="g", starts=starts)[0]
 
-    assert graded({"A @ H": "2026-10-01T23:00:00Z"}).close_american == -140
-    assert graded(None).close_american == -400
+    timed = graded({"A @ H": "2026-10-01T23:00:00Z"})
+    assert timed.close_american == -140
+    assert timed.puck_drop == "2026-10-01T23:00:00Z" and timed.close_at == "2026-10-01T22:30:00Z"
+    assert timed.close_lead_min == 30 and timed.close_fresh
+    untimed = graded(None)
+    assert untimed.close_american == -400 and not untimed.close_fresh
 
 
 def test_has_started():

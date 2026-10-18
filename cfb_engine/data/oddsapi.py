@@ -29,6 +29,7 @@ import requests
 from cfb_engine.market.board import GameOdds
 from cfb_engine.market.ev import MarketQuote
 from cfb_engine.schemas import Game, Slate, TeamGameInfo
+from engine_runtime import credits
 from mlb_engine.data import http
 
 log = logging.getLogger(__name__)
@@ -227,6 +228,9 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
+        if not credits.debit_for("cfb", url, q, remaining=self.credits_remaining):
+            log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
+            return None
         try:
             resp = http.get(
                 url, params={"apiKey": self.api_key or "", **q}, timeout=self.timeout

@@ -1,0 +1,79 @@
+{
+ "events": [
+  {
+   "id": "401",
+   "date": "2026-11-10T17:00Z",
+   "status": {
+    "type": {
+     "name": "STATUS_FINAL"
+    }
+   },
+   "competitions": [
+    {
+     "neutralSite": true,
+     "conferenceCompetition": false,
+     "competitors": [
+      {
+       "homeAway": "away",
+       "team": {
+        "displayName": "Duke Blue Devils"
+       },
+       "linescores": [
+        {
+         "value": 33
+        },
+        {
+         "value": 38
+        }
+       ]
+      },
+      {
+       "homeAway": "home",
+       "team": {
+        "displayName": "Kansas Jayhawks"
+       },
+       "linescores": [
+        {
+         "value": 30
+        },
+        {
+         "value": 38
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "402",
+   "date": "2026-11-11T00:00Z",
+   "status": {
+    "type": {
+     "name": "STATUS_SCHEDULED"
+    }
+   },
+   "competitions": [
+    {
+     "neutralSite": false,
+     "competitors": [
+      {
+       "homeAway": "away",
+       "team": {
+        "displayName": "A"
+       },
+       "linescores": []
+      },
+      {
+       "homeAway": "home",
+       "team": {
+        "displayName": "B"
+       },
+       "linescores": []
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

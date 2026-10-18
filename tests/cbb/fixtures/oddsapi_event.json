@@ -1,0 +1,71 @@
+{
+ "id": "ev1",
+ "sport_key": "basketball_ncaab",
+ "commence_time": "2026-11-11T00:00:00Z",
+ "home_team": "Kansas Jayhawks",
+ "away_team": "Duke Blue Devils",
+ "bookmakers": [
+  {
+   "key": "draftkings",
+   "markets": [
+    {
+     "key": "totals",
+     "outcomes": [
+      {
+       "name": "Over",
+       "price": -108,
+       "point": 145.5
+      },
+      {
+       "name": "Under",
+       "price": -112,
+       "point": 145.5
+      }
+     ]
+    },
+    {
+     "key": "spreads",
+     "outcomes": [
+      {
+       "name": "Kansas Jayhawks",
+       "price": -110,
+       "point": -3.5
+      },
+      {
+       "name": "Duke Blue Devils",
+       "price": -110,
+       "point": 3.5
+      }
+     ]
+    },
+    {
+     "key": "outrights",
+     "outcomes": [
+      {
+       "name": "Kansas Jayhawks",
+       "price": 500
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "fanduel",
+   "markets": [
+    {
+     "key": "h2h",
+     "outcomes": [
+      {
+       "name": "Kansas Jayhawks",
+       "price": -165
+      },
+      {
+       "name": "Duke Blue Devils",
+       "price": 140
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

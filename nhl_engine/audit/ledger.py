@@ -11,6 +11,10 @@ own ``ot_rule``, records the dual-rule flag for totals, and computes CLV as
 the change in devigged consensus between pricing and the last archived
 quote of the day (positive = the close moved our way). The price paid is not
 in it, so the hold does not read as the market moving against us.
+
+Each graded row also carries its ``puck_drop`` and the ``close_at`` capture
+time, so the audit can drop rows priced after puck drop and count CLV only
+where the close was taken within ``STALE_CLOSE_MIN`` of puck drop.
 """
 
 from __future__ import annotations
@@ -23,12 +27,14 @@ from datetime import date as Date
 from pathlib import Path
 
 from nhl_engine.audit.grade import dual_rule, pnl, settle
-from nhl_engine.data.capture import QuoteRow, pregame
+from nhl_engine.data.capture import QuoteRow, parse_utc, pregame
 from nhl_engine.market.board import Selection, selections
 from nhl_engine.market.pricing import Priced
 from nhl_engine.schemas import GameResult
 
 log = logging.getLogger("nhl_engine")
+
+STALE_CLOSE_MIN = 45.0  # a close older than this before puck drop is not a close
 
 
 @dataclass
@@ -71,10 +77,35 @@ class LedgerRow:
     graded_at: str = ""
     # Probability edge/EV were read from (market-anchored); None = model_prob.
     bet_prob: float | None = None
+    puck_drop: str = ""  # UTC, from the NHL schedule at grading
+    close_at: str = ""  # capture time of the quote the close was read from
+    # The unanchored sim's own stamp on anchored markets (graded-only).
+    sim_tier: str = ""
+    sim_edge: float | None = None
+    sim_buy: bool = False
 
     @property
     def is_buy(self) -> bool:
         return self.pass_gate and self.tier != "Pass"
+
+    @property
+    def priced_late(self) -> bool:
+        """Priced at or after puck drop: an in-play quote, not a prediction."""
+        drop, priced = parse_utc(self.puck_drop), parse_utc(self.priced_at)
+        return drop is not None and priced is not None and priced >= drop
+
+    @property
+    def close_lead_min(self) -> float | None:
+        """Minutes from the close quote to puck drop; None when either is unknown."""
+        drop, seen = parse_utc(self.puck_drop), parse_utc(self.close_at)
+        if drop is None or seen is None:
+            return None
+        return (drop - seen).total_seconds() / 60.0
+
+    @property
+    def close_fresh(self) -> bool:
+        lead = self.close_lead_min
+        return lead is not None and 0 <= lead <= STALE_CLOSE_MIN
 
     @property
     def key(self) -> tuple[str, str, str, str, float | None]:
@@ -124,6 +155,9 @@ def row_from(
         card_tag=card_tag,
         reasons=list(p.reasons),
         bet_prob=p.model.win,
+        sim_tier=p.sim_tier,
+        sim_edge=p.sim_edge,
+        sim_buy=p.sim_buy,
     )
 
 
@@ -197,6 +231,21 @@ def close_consensus(
     return {s.key: s for s in board}
 
 
+def stamp_timing(
+    rows: list[LedgerRow], starts: Mapping[str, str], day_quotes: list[QuoteRow]
+) -> None:
+    """Set ``puck_drop`` and ``close_at`` (last pre-drop capture of the row's selection)."""
+    seen: dict[tuple[str, str, str, str, float | None], str] = {}
+    for q in pregame(day_quotes, starts):
+        k = (q.matchup, q.market, q.side, q.entity, q.line)
+        if q.captured_at > seen.get(k, ""):
+            seen[k] = q.captured_at
+    for r in rows:
+        r.puck_drop = starts.get(r.matchup, r.puck_drop)
+        if r.clv is not None:
+            r.close_at = seen.get(r.key, r.close_at)
+
+
 def grade_rows(
     rows: list[LedgerRow],
     results: dict[str, GameResult],
@@ -234,10 +283,13 @@ def grade_rows(
             r.clv = c.consensus - r.consensus
         r.graded_at = graded_at
         out.append(r)
+    if starts is not None:
+        stamp_timing(out, starts, day_quotes)
     return out
 
 
 __all__ = [
+    "STALE_CLOSE_MIN",
     "LedgerRow",
     "card_path",
     "grade_rows",
@@ -247,5 +299,6 @@ __all__ = [
     "row_from",
     "unregradable",
     "save_rows",
+    "stamp_timing",
     "write_once",
 ]

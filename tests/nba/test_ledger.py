@@ -403,3 +403,20 @@ def test_grade_waits_for_unfinished_games(root, monkeypatch):
     )
     assert cli.main(["grade", "--date", "2025-12-10", "--no-sync"]) == 1
     assert not ledger.graded_path(root, day).exists()
+
+
+def test_news_pending_games_are_refused_but_recorded():
+    pre = ledger.pregame(board(), TIPS)
+    rows = ledger.price(
+        selections(pre),
+        ledger.quote_index(pre),
+        tips=TIPS,
+        shift={},
+        versions="over_bias=v1",
+        pass_tag="t1",
+        model={("ev1", "game_ml", "SAS", "", None): 0.47},
+        pending={"ev1"},
+    )
+    sas = by(rows, "game_ml", "SAS")
+    assert sas.gates == "news_pending" and not sas.is_buy
+    assert len(rows) == 6

@@ -4,8 +4,8 @@ Three ranking tables are rebuilt every morning, each metric read on the window
 where it is most reliable:
 
 * **Bullpens** (FanGraphs team relievers): xERA, xFIP, SIERA, K%, CSW%, HardHit%,
-  K-BB%, Stuff+, squared-up contact%, O-Swing%, FB%. Per metric the best three
-  teams score +2, the worst three -2, everyone else +1.
+  K-BB%, Stuff+, squared-up contact%, O-Swing%, FB%. Per metric each team scores
+  its z-score among the 30 (signed so higher is better), clipped to +-3.
 * **Offenses** (Statcast pitch level, so the split can be cut): ISO, Barrel%,
   EV90, Z-Contact%, Whiff%, O-Swing%, squared-up%, wRC, xwOBA, HardHit%, blast%
   -- overall, vs LHP and vs RHP. Per metric each team scores its decile among
@@ -13,12 +13,11 @@ where it is most reliable:
   +2/-2/+1 range (``rescale_batting``) so the weighted total keeps its bands.
 * **Starters** (Statcast pitch level, FanGraphs' starter list and Stuff+): xERA,
   xFIP, SIERA, K%, K-BB%, CSW%, HardHit%, Stuff+, FB%, O-Swing%, Barrel%. Same
-  +2/-2/+1 rule as the pens; with ~170 arms the ends are the best and worst
-  10%, not three.
+  clipped z-score as the pens, against the ~170 qualified starters.
 
 Each game then gets a row per team -- the offense vs the opposing starter's hand,
 the pen and the starter -- and a weighted total that gives the starter the share
-of a game he actually pitches: bat x1 + pen x1.5 + starter x3. The
+of a game he actually pitches: bat x1 + pen x1.5 + starter x1. The
 away-minus-home row is the disparity; the right-hand block ranks the slate by
 it, biggest mismatch first.
 
@@ -66,7 +65,7 @@ log = logging.getLogger(__name__)
 
 LEDGER_NAME = "worksheet_ledger.csv"
 TOP, BOT, MID, K_TEAMS = 2, -2, 1, 3
-Z_CLIP = 3.0  # starter points are per-metric standard scores clipped to +-3
+Z_CLIP = 3.0  # starter and pen points are per-metric standard scores clipped to +-3
 SP_SKILL_DAYS = 42
 SP_MIN_PITCHES = 150
 SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
@@ -74,7 +73,7 @@ SP_MIN_IP, SP_MIN_PITCHES_SEASON = 20.0, 300
 # ~20%, and the lineup is the other side of both. Batting is counted once, on
 # the split vs the opposing starter's hand.
 WEIGHTS = {"bat vs hand": 1.0, "bp": 1.5, "sp": 1.0}
-WEIGHTS_VERSION = "w1-1.5-1-dec-spz"
+WEIGHTS_VERSION = "w1-1.5-1-dec-spz-bpz"
 N_DECILES = 10
 # Batting rescale: an 11-metric decile sum runs 11..110 with mean 60.5; the
 # +2/-2/+1 sum it replaces had mean 11 * (3*2 + 3*-2 + 24*1) / 30 = 8.8 and a
@@ -297,8 +296,8 @@ def bullpen_ranking(as_of: Date) -> Ranking:
         v = tables[win_of[label]].get(t, {}).get(key_of[label])
         return math.nan if v is None else float(v)
 
-    return score(teams, [(c[0], c[2], c[3], c[4]) for c in BP_COLS], value, K_TEAMS,
-                 lambda t: tables[None][t]["SIERA"])
+    return score_z(teams, [(c[0], c[2], c[3], c[4]) for c in BP_COLS], value,
+                   lambda t: tables[None][t]["SIERA"])
 
 
 # --- Statcast frame ------------------------------------------------------------------
@@ -1210,7 +1209,9 @@ def write_workbook(
 
     # Ranking tabs.
     _ranking_sheet(wb.create_sheet("Bullpens"), pens, [c[0] for c in BP_COLS], notes=(
-        f"Per metric best {K_TEAMS} +{TOP}, worst {K_TEAMS} {BOT}, others +{MID}. Windows: K%, CSW%, K-BB%, O-Swing% 60d; "
+        f"Per metric points = z-score of the value vs the 30 pens (signed so higher is better), clipped to "
+        f"+-{Z_CLIP:.0f}; missing = table worst. PTS = sum over the {len(BP_COLS)} metrics. "
+        "Windows: K%, CSW%, K-BB%, O-Swing% 60d; "
         "Stuff+ 30d; xERA, xFIP, SIERA, HardHit%, SqUp Con%, FB% season. Lower is better on xERA, xFIP, SIERA, "
         "HardHit%, SqUp Con%, FB%. Source: FanGraphs team relievers.",
     ))

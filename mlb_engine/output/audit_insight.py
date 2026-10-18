@@ -33,6 +33,7 @@ import logging
 import smtplib
 from dataclasses import dataclass, field
 from datetime import date as Date
+from html import escape as _escape
 from pathlib import Path
 
 import numpy as np
@@ -1104,6 +1105,33 @@ def to_mp3(text: str, path: Path) -> bytes:
 
 
 # --- delivery ----------------------------------------------------------------
+def _shadow_lines(cfg) -> list[str]:
+    """The shadow's morning block, or nothing when there is no shadow ledger yet."""
+    from mlb_engine.audit.shadow import SHADOW_LEDGER
+    from mlb_engine.audit.shadow_grade import morning_block
+
+    try:
+        if not (cfg.audit_dir / SHADOW_LEDGER).exists():
+            return []
+        return morning_block(cfg.audit_dir)
+    except Exception as exc:  # noqa: BLE001 - a measurement must not cost the email
+        logger.warning("shadow block left out of the audit email (%s)", exc)
+        return []
+
+
+def _shadow_html(cfg) -> str:
+    lines = _shadow_lines(cfg)
+    if not lines:
+        return ""
+    body = "\n".join(_escape(ln) for ln in lines)
+    return f"<pre style='font-size:12px;background:#f6f7f9;padding:8px'>{body}</pre>"
+
+
+def _shadow_text(cfg) -> str:
+    lines = _shadow_lines(cfg)
+    return ("\n\n" + "\n".join(lines)) if lines else ""
+
+
 def send_audit_emails(
     cfg,
     audit_date: Date,
@@ -1135,14 +1163,16 @@ def send_audit_emails(
         "metric-level diagnosis of the failing props.</li>"
         "<li><b>Audio narration (MP3)</b> — the same read, sportscaster style.</li>"
         f"<li><b>Excel ledger</b> — every graded pick, PPV/NPV, and CLV; {ledger_note}.</li></ul>"
-        "<p style='color:#6b7280;font-size:13px'>Model self-audit, not investment advice.</p></div>"
+        + _shadow_html(cfg)
+        + "<p style='color:#6b7280;font-size:13px'>Model self-audit, not investment advice.</p></div>"
     )
     messages: list[tuple[str, str, str, list[tuple[str, bytes]]]] = []
     if article:
         messages.append((
             f"Payoff Pitch — Nightly Audit ({iso})",
             body_html,
-            f"Your Payoff Pitch nightly audit (PDF + audio) is attached; the Excel ledger {ledger_note}.",
+            f"Your Payoff Pitch nightly audit (PDF + audio) is attached; the Excel ledger {ledger_note}."
+            + _shadow_text(cfg),
             article,
         ))
     for i, (name, data) in enumerate(ledger, start=1):

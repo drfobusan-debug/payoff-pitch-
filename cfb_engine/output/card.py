@@ -20,6 +20,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from cfb_engine.audit.probation import Probation
+from cfb_engine.audit.watchlist import Watchlist
 from cfb_engine.market import lineagree, lowtotal
 from cfb_engine.market.keys import side_of
 from cfb_engine.market.ordering import order_buys, order_recs
@@ -619,6 +620,54 @@ def _low_total_block(recs: list[Recommendation], record: Probation | None) -> st
     )
 
 
+def _signed_pct(x: float) -> str:
+    cls = "pos" if x > 0 else "neg" if x < 0 else ""
+    return f"<span class='{cls}'>{x * 100:+.1f}%</span>"
+
+
+def _watching_block(watch: Watchlist | None) -> str:
+    """Snapshot of every graded-only rule: its record so far and what it still needs."""
+    if watch is None or not watch.rules:
+        return ""
+    head = (
+        "<tr><th>Rule (graded only, not a bet)</th><th>N</th><th>ROI</th>"
+        "<th>Older / newer</th><th>Status</th></tr>"
+    )
+    rows = ""
+    group = ""
+    for w in watch.rules:
+        if w.kind != group:
+            group = w.kind
+            rows += f"<tr><td colspan='5' class='grp'>{escape(group)}s &mdash; want {escape(w.wants)}</td></tr>"
+        rows += (
+            f"<tr><td><b>{escape(w.what)}</b> <span class='rk'>{escape(w.name)}</span></td>"
+            f"<td>{w.n}</td><td>{_signed_pct(w.roi)}</td>"
+            f"<td>{_signed_pct(w.first_half)} / {_signed_pct(w.second_half)}</td>"
+            f"<td>{escape(w.status)} <span class='rk'>{escape(w.needs)}</span></td></tr>"
+        )
+    shopped = [r for r in watch.shopping if r.n]
+    if shopped:
+        shop_html = (
+            "<p class='sbnote'>Totals at other prices: "
+            + "; ".join(
+                f"{escape(r.label)} {r.wins}-{r.losses}-{r.pushes}, {r.roi * 100:+.1f}% (n={r.n})"
+                for r in shopped
+            )
+            + ".</p>"
+        )
+    else:
+        shop_html = (
+            "<p class='sbnote'>Number shopping and Kalshi: no graded totals with a per-book "
+            "capture yet.</p>"
+        )
+    return (
+        "<div class='watch'><h2>What we're watching</h2>"
+        "<p class='sbnote'>Graded on the ledger, never staked. Each needs 100 graded rows, more "
+        "than one standard error past zero and both halves agreeing before it can change the "
+        f"card.</p><table class='watch'>{head}{rows}</table>{shop_html}</div>"
+    )
+
+
 def _opened(r: Recommendation) -> str:
     if r.open_line is None or r.line is None or r.open_line == r.line:
         return ""
@@ -667,6 +716,13 @@ ul.bets b{color:#111;}
 ul.bets.big{font-size:10.5pt;}ul.bets.big b{color:#fff;}.slatebets i{color:#ffd76a;}
 .lineagree{page-break-inside:avoid;border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:10px 14px;margin:14px 0 8px;}
 .lineagree h2{border:none;margin:0 0 4px;color:#1f4e79;font-size:13pt;}
+.watch{border:1px solid #9fb3c8;border-left:4px solid #1f4e79;background:#f3f7fb;border-radius:6px;padding:8px 12px;margin:12px 0 8px;}
+.watch h2{border:none;margin:0 0 2px;color:#1f4e79;font-size:12pt;}
+.watch .sbnote{color:#4b5563;font-style:italic;font-size:8.4pt;margin:2px 0 4px;}
+table.watch{width:100%;border-collapse:collapse;font-size:7.6pt;font-family:'DejaVu Sans',sans-serif;}
+table.watch th{text-align:left;font-weight:normal;color:#6b7280;border-bottom:1px solid #d7dbe0;padding:1px 4px;font-size:7pt;text-transform:uppercase;}
+table.watch td{padding:1px 4px;border-bottom:1px solid #e6eaf0;vertical-align:top;}
+table.watch td.grp{color:#1f4e79;font-weight:bold;padding-top:4px;}
 .lineagree .sbnote{color:#4b5563;font-style:italic;font-size:9pt;margin:2px 0 4px;}
 .fine{font-size:7.6pt;color:#9aa0a8;font-family:'DejaVu Sans',sans-serif;border-top:1px solid #e6e8ec;margin-top:16px;padding-top:6px;line-height:1.35;}
 """
@@ -678,6 +734,7 @@ def build_article(
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
+    watching: Watchlist | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the slate."""
     groups = _by_game(recs)
@@ -698,7 +755,8 @@ def build_article(
         f"edge across moneyline, spread, and total. The engine flagged <b>{n_bets}</b> best "
         "bets — in bold under each game and gathered at the bottom. Model preview, not betting advice."
     )
-    body = "".join(_game_section(g, podcast) for g in ordered_games)
+    body = _watching_block(watching)
+    body += "".join(_game_section(g, podcast) for g in ordered_games)
     body += _slate_best_block(recs)
     body += _line_agrees_block(recs, line_agrees_record)
     body += _low_total_block(recs, low_total_record)
@@ -845,6 +903,7 @@ def generate_daily_card(
     line_agrees_record: Probation | None = None,
     podcast: PodcastView | None = None,
     low_total_record: Probation | None = None,
+    watching: Watchlist | None = None,
 ) -> dict[str, Path | None]:
     """Build the article PDF + MP3 and optionally email them with any extras."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -852,7 +911,9 @@ def generate_daily_card(
         logger.warning("no recommendations for %s; skipping card", slate_date)
         return out
 
-    html, narr = build_article(slate_date, recs, line_agrees_record, podcast, low_total_record)
+    html, narr = build_article(
+        slate_date, recs, line_agrees_record, podcast, low_total_record, watching
+    )
     iso = slate_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)
     html_path = cfg.output_dir / f"cfb_slate_{iso}.html"

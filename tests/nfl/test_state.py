@@ -77,6 +77,32 @@ def test_graded_merge_keeps_this_machines_grade_for_the_same_quote(tmp_path: Pat
     assert by_player == {"Allen": "win", "Mahomes": "win"}
 
 
+def test_a_settled_grade_beats_this_machines_void_for_the_same_quote(tmp_path: Path):
+    # A machine that graded before the box scores posted pushes its voids: the
+    # branch's settled rows must survive, and the reverse must hold on a pull.
+    remote, local = tmp_path / "r.csv", tmp_path / "l.csv"
+    _write(remote, GRADED_FIELDS, [_graded_row("Allen", "win"), _graded_row("Mahomes", "void")])
+    _write(local, GRADED_FIELDS, [_graded_row("Allen", "void"), _graded_row("Mahomes", "loss")])
+
+    assert merge_prop_files(remote, local, PROP_KEY)
+    by_player = {r["player"]: r["result"] for r in _read(local)}
+    assert by_player == {"Allen": "win", "Mahomes": "loss"}
+
+
+def test_a_stale_machines_push_does_not_void_the_branch(tmp_path: Path):
+    repo = _repo_pair(tmp_path)
+    graded = "graded_2026_wk02.csv"
+    mac, stale = tmp_path / "mac", tmp_path / "stale"
+    _write(mac / "props" / graded, GRADED_FIELDS, [_graded_row("Allen", "win")])
+    push_state(mac, "mac grades", repo=repo, branch="engine-state")
+    _write(stale / "props" / graded, GRADED_FIELDS, [_graded_row("Allen", "void")])
+    push_state(stale, "stale push", repo=repo, branch="engine-state")
+
+    origin = str(tmp_path / "origin.git")
+    branch = _git(["--git-dir", origin, "show", f"engine-state:{PREFIX}/props/{graded}"], tmp_path)
+    assert ",win," in branch and ",void," not in branch
+
+
 def test_merge_with_nothing_on_the_branch_changes_nothing(tmp_path: Path):
     local = tmp_path / "l.csv"
     _write(local, GRADED_FIELDS, [_graded_row("Allen", "win")])

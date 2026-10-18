@@ -5,7 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from mlb_engine.audit import power_audit, power_roster
-from mlb_engine.audit.power_ledger import Position
+from mlb_engine.audit.clv import ClosingQuote
+from mlb_engine.audit.power_ledger import Position, close_index
 from mlb_engine.audit.power_roster import ARM, BAT, DROPPED, GATED, HELD, SCREENED, RosterRow
 from mlb_engine.data import plays as plays_mod
 from mlb_engine.data.plays import PlateAppearance
@@ -155,8 +156,28 @@ def test_both_sided_pairs_are_flagged_and_removable() -> None:
     assert len(power_audit.two_sided(g.position for g in total.graded)) == 1
     assert len(power_audit.without_pairs(total.graded)) == 1
     notes = power_audit.commentary(day, total)
-    assert any("both sides" in p for p in notes.problems)
-    assert any("one side per prop" in r for r in notes.recommendations)
+    assert any("both sides" in p and "All are dated before" in p for p in notes.problems)
+    assert not any("both sides" in r for r in notes.recommendations)
+
+
+def test_a_pair_after_the_guard_is_flagged_as_a_bypass() -> None:
+    late = "2026-10-14"
+    positions = [
+        _pos(BAT_A, side="over", odds=250.0, model=0.3, fair=0.28, day=late),
+        _pos(BAT_A, side="under", odds=-300.0, model=0.7, fair=0.72, day=late),
+        _pos(BAT_B, side="under", day=late),
+    ]
+    day, total = power_audit.build(
+        late,
+        positions,
+        [],
+        fetch_result=lambda pk: _result() if pk == GAME else None,
+        fetch_plays=lambda pk, final: _plays(),
+    )
+    assert len(power_audit.two_sided(g.position for g in total.graded)) == 1
+    notes = power_audit.commentary(day, total)
+    assert any("guard was bypassed" in p for p in notes.problems)
+    assert any("both sides after the one-side-per-prop guard" in r for r in notes.recommendations)
 
 
 def test_commentary_names_lineup_misses_unpriced_bats_and_dropped_positions() -> None:
@@ -214,3 +235,28 @@ def test_roster_round_trips_and_a_rerun_replaces_only_its_own_rows(tmp_path: Pat
     assert {(r.run_id, r.player_id) for r in rows} == {("r2", BAT_B), ("r1", BAT_C)}
     assert power_roster.for_day(path, DAY)[0].player_id == BAT_B
     assert rows[0].projected is True and rows[0].versus_id == HOME_SP
+
+
+def test_the_audit_leads_with_the_close_against_the_juice() -> None:
+    q = ClosingQuote("X @ Y", "batter_h", f"Bat {BAT_A} H u0.5", -400.0, 0.78)
+    day, total = power_audit.build(
+        DAY,
+        [_pos(BAT_A)],
+        [],
+        fetch_result=lambda pk: _result() if pk == GAME else None,
+        fetch_plays=lambda pk, final: _plays(),
+        fetch_closing=lambda d: close_index({q.key: q}),
+    )
+    assert len(total.closed) == 1 and total.close_days == [DAY]
+    cv = power_audit.close_value(total.closed)
+    assert cv is not None and cv.clv > 0 and cv.moved > 0
+    notes = power_audit.commentary(day, total)
+    assert notes.insights[0].startswith("At the close (n=1 rows on 1 days)")
+    assert "The price at the close" in power_audit.render_html(day, total, notes)
+
+
+def test_no_close_captured_is_said_rather_than_scored() -> None:
+    day, total = _build([_pos(BAT_A)], [])
+    assert total.closed == []
+    notes = power_audit.commentary(day, total)
+    assert any("closing value is unmeasured" in r for r in notes.recommendations)

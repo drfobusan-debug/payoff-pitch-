@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.market import lineagree, lowtotal
+from cfb_engine.market import gradedonly, lineagree, lowtotal
 from cfb_engine.market.odds import american_to_decimal, prob_to_american
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.brief import GameBrief
@@ -89,7 +89,8 @@ class Recommendation:
     @property
     def low_total_under(self) -> bool:
         """A buy the candidate screen in :mod:`cfb_engine.market.lowtotal` would refuse."""
-        return self.tier != Tier.PASS and lowtotal.refuses(self.market, self.selection, self.line)
+        would_buy = self.tier != Tier.PASS or gradedonly.is_gate(self.pass_gate)
+        return would_buy and lowtotal.refuses(self.market, self.selection, self.line)
 
     @property
     def pre_bet_move(self) -> float | None:
