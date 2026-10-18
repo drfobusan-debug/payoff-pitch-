@@ -472,7 +472,9 @@ def position_key(entry: LedgerEntry) -> tuple[str, ...]:
     )
 
 
-def merge_ledger(path: Path, new_entries: list[LedgerEntry]) -> list[LedgerEntry]:
+def merge_ledger(
+    path: Path, new_entries: list[LedgerEntry], *, over_pass: bool = False
+) -> list[LedgerEntry]:
     """Add positions that are new; leave every existing row exactly as it stands.
 
     This is what makes a repeated capture safe, and it encodes a betting decision
@@ -482,9 +484,17 @@ def merge_ledger(path: Path, new_entries: list[LedgerEntry]) -> list[LedgerEntry
     CLV measurement, which is the only honest read available before hundreds of
     graded bets exist. Grading and closing rewrite rows through
     :func:`update_ledger`; pricing only ever appends.
+
+    ``over_pass`` is for the pre-kickoff pass: a Pass row is a refusal, not a
+    position, so a later buy at the same book and rung is added beside it (the
+    Pass row stays). A held buy still blocks: its first price stays the price.
     """
     existing = load_ledger(path)
-    seen = {position_key(entry) for entry in existing}
+    seen = {
+        position_key(entry)
+        for entry in existing
+        if not over_pass or entry.tier in (Tier.STRONG.value, Tier.MODERATE.value)
+    }
     fresh = [entry for entry in new_entries if position_key(entry) not in seen]
     if fresh:
         save_ledger(path, existing + fresh)

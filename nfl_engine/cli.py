@@ -68,7 +68,7 @@ from nfl_engine.data.oddsapi import Board, OddsAPIClient
 from nfl_engine.features import books as books_mod
 from nfl_engine.features import context, usage
 from nfl_engine.market.board import GameOdds
-from nfl_engine.market.screens import tier_of
+from nfl_engine.market.screens import Tier, tier_of
 from nfl_engine.models.drives import DriveSim
 from nfl_engine.models.player import Projection
 from nfl_engine.output.brief import gather as gather_briefs
@@ -225,8 +225,45 @@ def _print_rating_notes(pricings: list) -> None:
             )
 
 
+def _parse_utc(stamp: str | None) -> datetime | None:
+    if not stamp:
+        return None
+    try:
+        return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(timezone.utc)
+    except ValueError:
+        return None
+
+
+def _starting_within(games: list[Game], now: datetime, minutes: int) -> list[Game]:
+    """Games not yet started that kick off inside the next ``minutes``."""
+    horizon = now + timedelta(minutes=minutes)
+    out = []
+    for game in games:
+        kickoff = _parse_utc(game.kickoff_utc)
+        if kickoff is not None and now < kickoff <= horizon:
+            out.append(game)
+    return out
+
+
 def cmd_price(args: argparse.Namespace) -> int:
+    """Price the board and append new positions.
+
+    ``--within`` is the pre-kickoff pass (Sun 11:30 and the same lead before every
+    other window): a second look at the board once the inactives are out, when a
+    book is likeliest to be left behind. It fetches only if a held row's game
+    kicks off inside that many minutes, prices only those games, and writes only
+    buys -- the morning card already holds the Pass rows. With ``--email`` it
+    re-sends the week's card, and only when it added a buy.
+    """
+    within = getattr(args, "within", None)
+    now = datetime.now(tz=timezone.utc)
+    if within is not None and not _kicks_off_within(load_ledger(ledger_path()), now, within):
+        print(f"no game kicks off in the next {within} min; nothing fetched")
+        return 0
     fetched = _fetch(args.days)
+    if within is not None:
+        fetched.games = _starting_within(fetched.games, now, within)
+        print(f"  pre-kickoff pass: {len(fetched.games)} games kick off within {within} min")
     if not fetched.games:
         return 0
     book = _books(fetched.season, fetched.week, ratings=args.ratings)
@@ -243,8 +280,10 @@ def cmd_price(args: argparse.Namespace) -> int:
         calibrator=maps,
     )
     entries = _ledger_rows(pricings, fetched.captured_at)
+    if within is not None:
+        entries = [e for e in entries if e.tier != Tier.PASS.value]
     opened = _stamp_open(entries, fetched.season, fetched.week, fetched.board)
-    added = merge_ledger(ledger_path(), entries) if args.write else []
+    added = merge_ledger(ledger_path(), entries, over_pass=within is not None) if args.write else []
     _print_rating_notes(pricings)
     buys = slate_buys(pricings)
     print(f"{len(entries)} selections, {len(buys)} survive the screens [{PAPER_BANNER}]")
@@ -257,6 +296,13 @@ def cmd_price(args: argparse.Namespace) -> int:
             f"  {bet.matchup:12s} {bet.label():14s} {bet.american:+6.0f} {bet.book:14s}"
             f" model {bet.model_prob:.3f} fair {bet.fair_prob or 0.0:.3f}"
             f" exec EV {fair_ev:+.3f} [{tier_of(bet).value}]"
+        )
+    if within is not None and added and getattr(args, "email", False):
+        print(f"  {len(added)} new buys: re-sending the week's card")
+        cmd_card(
+            argparse.Namespace(
+                season=fetched.season, week=fetched.week, email=True, to=None, no_context=False
+            )
         )
     return 0
 
@@ -1066,6 +1112,14 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="price on the market alone, without reading the play-by-play panel",
     )
+    price.add_argument(
+        "--within",
+        type=int,
+        default=None,
+        help="pre-kickoff pass: fetch only if a game kicks off inside this many minutes,"
+        " price only those games and write only buys",
+    )
+    price.add_argument("--email", action="store_true", help="with --within: email on a new buy")
     price.set_defaults(func=cmd_price)
 
     open_cmd = sub.add_parser("open", help="archive the opening / night-before board")
