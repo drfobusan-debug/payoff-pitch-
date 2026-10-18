@@ -31,6 +31,12 @@
 #                           re-stamps the closing number ten minutes before the
 #                           games start, so CLV is read against the price at
 #                           kickoff. Fetches only if a game starts within 45 min.
+#   * NFL pre-kickoff passes (Thu 18:45, Sun 11:30/14:35/18:50, Mon 17:45/18:45,
+#                           Sat 11:30/15:00/18:45): nfl-pre prices the games
+#                           kicking off within 2 h -- ~90 min ahead, once the
+#                           inactives are out -- writes only buys, and re-emails
+#                           the card when it adds one. Fetches only if a game is
+#                           that close.
 #   * Sun 23:59: nfl-audit (email the NFL ledger audit: the report table plus
 #                           scripts.nfl.ledger_audit, ledger CSV attached). The
 #                           23:00 night wake has the Mac up; times are the Mac's
@@ -161,6 +167,12 @@ NFL_EVE_WEEKDAYS="3 6 0"               # launchd: Wednesday, Saturday, Sunday
 # London slot and the Saturday slots cost nothing in a week without those games.
 NFL_CLOSE_RUNS="4=20:05 0=09:20 0=12:50 0=16:00 0=20:10 1=19:05 1=20:05 6=12:50 6=16:20 6=20:05"
 NFL_CLOSE_WITHIN_MIN=45
+# NFL pre-kickoff pricing passes, same "weekday=HH:MM" form: 90 min before each
+# usual window (Sun 11:30 for the 1 pm games), when the inactives are posted.
+# `nfl-engine price --within` prices only games inside NFL_PRE_WITHIN_MIN and
+# writes only buys; the Thursday/Sunday 08:05 card keeps the Pass rows.
+NFL_PRE_RUNS="4=18:45 0=11:30 0=14:35 0=18:50 1=17:45 1=18:45 6=11:30 6=15:00 6=18:45"
+NFL_PRE_WITHIN_MIN=120
 # Weekly NFL ledger audit email: Sunday night, after the late games.
 NFL_AUDIT_RUN_HOUR=23; NFL_AUDIT_RUN_MIN=59
 NFL_AUDIT_WEEKDAY=0   # launchd: Sunday
@@ -201,6 +213,15 @@ for spec in $NFL_CLOSE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   NFL_CLOSE_WAKES="$NFL_CLOSE_WAKES ${spec%%=*}=$(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
+NFL_PRE_LABELS=(); NFL_PRE_PLISTS=(); NFL_PRE_WAKES=""
+for spec in $NFL_PRE_RUNS; do
+  hm="${spec##*=}"
+  label="com.franz.engine.nflpre${spec%%=*}-${hm/:/}"
+  NFL_PRE_LABELS+=("$label")
+  NFL_PRE_PLISTS+=("/Library/LaunchDaemons/${label}.plist")
+  m=$((10#${hm%%:*} * 60 + 10#${hm##*:} - 5))  # 15:00 wakes 14:55, not 15:-5
+  NFL_PRE_WAKES="$NFL_PRE_WAKES ${spec%%=*}=$(printf '%02d:%02d' "$((m / 60))" "$((m % 60))")"
+done
 NIGHT_PLIST="/Library/LaunchDaemons/${NIGHT_LABEL}.plist"
 MORNING_PLIST="/Library/LaunchDaemons/${MORNING_LABEL}.plist"
 CLOSE_PLIST="/Library/LaunchDaemons/${CLOSE_LABEL}.plist"
@@ -220,7 +241,7 @@ for spec in $SLATE_RUNS; do
   # Wake five minutes ahead of the run so launchd finds the Mac up.
   SLATE_WAKES="$SLATE_WAKES $(printf '%02d:%02d' "$((10#${hm%%:*}))" "$((10#${hm##*:} - 5))")"
 done
-ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "$NFL_AUDIT_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
+ALL_PLISTS=("$NIGHT_PLIST" "$MORNING_PLIST" "$CLOSE_PLIST" "$DAY_CLOSE_PLIST" "$REACT_PLIST" "$CFB_PLIST" "$NFL_AUDIT_PLIST" "${NFL_PLISTS[@]}" "${NFL_OPEN_PLISTS[@]}" "${NFL_CLOSE_PLISTS[@]}" "${NFL_PRE_PLISTS[@]}" "${SLATE_PLISTS[@]}")
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   echo "Uninstalling..."
@@ -284,6 +305,7 @@ export NFL_WAKE_HHMM="$NFL_WAKE_HHMM" SLATE_WINDOW_HOURS="$SLATE_WINDOW_HOURS"
 export NFL_OPEN_WAKE_HHMM="$NFL_OPEN_WAKE_HHMM" NFL_EVE_WAKE_HHMM="$NFL_EVE_WAKE_HHMM"
 export SLATE_WAKES="$SLATE_WAKES"
 export NFL_CLOSE_WAKES="$NFL_CLOSE_WAKES" NFL_CLOSE_WITHIN_MIN="$NFL_CLOSE_WITHIN_MIN"
+export NFL_PRE_WAKES="$NFL_PRE_WAKES" NFL_PRE_WITHIN_MIN="$NFL_PRE_WITHIN_MIN"
 SRC="$REPO_DIR/scripts/macos/run_engine.sh"
 [[ -f "\$SRC" ]] || { echo "[\$(date)] runner missing: \$SRC (pull main)" >&2; exit 1; }
 TMP="\$(mktemp -t run_engine)"
@@ -343,6 +365,13 @@ for spec in $NFL_CLOSE_RUNS; do
   i=$((i + 1))
 done
 i=0
+for spec in $NFL_PRE_RUNS; do
+  hm="${spec##*=}"
+  write_plist "${NFL_PRE_PLISTS[$i]}" "${NFL_PRE_LABELS[$i]}" \
+    "$((10#${hm%%:*}))" "$((10#${hm##*:}))" nfl-pre "${spec%%=*}"
+  i=$((i + 1))
+done
+i=0
 for spec in $SLATE_RUNS; do
   hm="${spec##*=}"
   write_plist "${SLATE_PLISTS[$i]}" "${SLATE_LABELS[$i]}" \
@@ -391,6 +420,8 @@ echo "Test NFL audit:    sudo launchctl start ${NFL_AUDIT_LABEL}   (emails the N
 echo "                   read-only, no Odds API credits)"
 echo "Test NFL close:    sudo launchctl start ${NFL_CLOSE_LABELS[0]}   (re-stamps the close;"
 echo "                   fetches only if a game kicks off within ${NFL_CLOSE_WITHIN_MIN} min)"
+echo "Test NFL pre-kick: sudo launchctl start ${NFL_PRE_LABELS[1]}   (prices games kicking off"
+echo "                   within ${NFL_PRE_WITHIN_MIN} min, buys only; fetches only if one is that close)"
 echo "Test a slate pass: sudo launchctl start ${SLATE_LABELS[0]}   (prices the games"
 echo "                   inside ${SLATE_WINDOW_HOURS}h, spends Odds API credits and emails that"
 echo "                   block's slate PDF + card; the others: ${SLATE_LABELS[*]:1})"
