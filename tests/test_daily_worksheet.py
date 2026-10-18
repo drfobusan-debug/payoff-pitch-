@@ -424,6 +424,8 @@ def test_workbook_layout_and_ranked_block(tmp_path: Path) -> None:
     assert bo["B2"].value == "SD" and bo["C2"].value == 17.65 and bo["D2"].value == 90
     notes = " ".join(str(c.value) for row in bo.iter_rows() for c in row if isinstance(c.value, str))
     assert "decile among the 30" in notes and "d10 = best" in notes and "best 3 +2" not in notes
+    bp_notes = " ".join(str(c.value) for row in wb["Bullpens"].iter_rows() for c in row if isinstance(c.value, str))
+    assert "z-score of the value vs the 30 pens" in bp_notes and "best 3 +2" not in bp_notes
     assert ws["B8"].value == "away - home *"  # MIN's starter missing
     # Ranked block: biggest |gap| first.
     c0 = hdr.index("rank") + 1
@@ -527,3 +529,21 @@ def test_a_day_is_incomplete_while_an_ungraded_game_lacks_a_starter() -> None:
     assert not day_incomplete([_row(1, 5.0)], day)
     assert day_incomplete([_row(1, 5.0), _row(2, 3.0, complete=False)], day)
     assert not day_incomplete([_row(2, 3.0, complete=False, day="2026-09-13")], day)
+
+
+def test_bullpen_ranking_scores_z(monkeypatch: pytest.MonkeyPatch) -> None:
+    teams = ["SD", "COL", "NYY", "MIN"]
+    siera = {"SD": 3.2, "COL": 4.9, "NYY": 3.8, "MIN": 4.1}
+
+    def fake_fg(stats: str, season: int, window: int | None, as_of: Date, team: str = "") -> list[dict]:
+        return [{"TeamName": dw._FG_ABBR.get(t, t), **{c[1]: siera[t] / 10 if c[3] else siera[t]
+                                                    for c in dw.BP_COLS}} for t in teams]
+
+    monkeypatch.setattr(dw, "_fg", fake_fg)
+    rk = dw.bullpen_ranking(Date(2026, 9, 14))
+    assert rk.k == 0 and not rk.deciles
+    pts = {t: rk.pts[t]["SIERA"] for t in teams}
+    assert pts["SD"] > pts["NYY"] > pts["MIN"] > pts["COL"]  # lower SIERA is better
+    assert all(isinstance(p, float) and -dw.Z_CLIP <= p <= dw.Z_CLIP for p in pts.values())
+    assert sum(pts.values()) == pytest.approx(0, abs=0.2)
+    assert rk.ranked[0] == "SD" and rk.ranked[-1] == "COL"

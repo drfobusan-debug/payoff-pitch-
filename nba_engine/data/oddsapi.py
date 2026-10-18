@@ -28,6 +28,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+from engine_runtime import credits
 from mlb_engine.data import http
 from nba_engine.data import capture, teamnames
 from nba_engine.data.capture import EVENT_MARKETS, GAME_MARKETS, MARKET_MAP, QuoteRow
@@ -185,6 +186,9 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
+        if not credits.debit_for("nba", url, query, remaining=self.credits_remaining):
+            log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
+            return None
         try:
             resp = self._session.get(url, params={"apiKey": self.api_key or "", **query})
             self.last_status = resp.status_code

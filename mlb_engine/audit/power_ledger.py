@@ -29,10 +29,13 @@ from __future__ import annotations
 import csv
 import logging
 import unicodedata
+from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field, replace
 from datetime import date as Date
 from pathlib import Path
 
+from mlb_engine.audit.clv import ClosingQuote, clv_ev, is_plausible_close
 from mlb_engine.audit.grade import (
     LOSS,
     PUSH,
@@ -44,6 +47,8 @@ from mlb_engine.audit.grade import (
 )
 from mlb_engine.audit.ledger import pnl_units
 from mlb_engine.data.results import GameResult
+from mlb_engine.market import keys
+from mlb_engine.market.odds import american_to_decimal
 from mlb_engine.output.power_board import DISPLAY_ONLY, Board, BoardRow, market_label
 
 log = logging.getLogger(__name__)
@@ -243,9 +248,38 @@ def positions_from_board(
             run_id,
             arm_tier,
         )
-        for row in board.positions
-        if row.stat not in DISPLAY_ONLY
+        for row in one_side_per_prop([r for r in board.positions if r.stat not in DISPLAY_ONLY])
     ]
+
+
+def one_side_per_prop(rows: list[BoardRow]) -> list[BoardRow]:
+    """One row per prop: where a watch shows both sides, the side the card valued more.
+
+    The two sides of one prop are complements, so holding both settles one win
+    and one loss and can only pay the vig. The note still shows both; the ledger
+    records the one a reader would take.
+    """
+    best: dict[tuple[str, str, str, float | None], BoardRow] = {}
+    for r in rows:
+        k = (
+            str(r.player_id) if r.player_id is not None else name_key(r.batter),
+            r.category,
+            r.stat,
+            r.line,
+        )
+        held = best.get(k)
+        if held is None or (r.ev if r.ev is not None else -1e9) > (
+            held.ev if held.ev is not None else -1e9
+        ):
+            best[k] = r
+    kept = {id(r) for r in best.values()}
+    return [r for r in rows if id(r) in kept]
+
+
+#: The first day ``positions_from_board`` kept one side per prop (ef38d257). A
+#: both-sided pair dated before it is history; one dated on or after it means the
+#: guard was bypassed.
+ONE_SIDE_FROM = "2026-10-13"
 
 
 def _position(
@@ -480,6 +514,16 @@ class Record:
     # built from. Left at 0 by callers that only know the totals, which reads
     # as "no error known" rather than "no error".
     units_sq: float = 0.0
+    #: Standard error of ``roi`` with each slate's rows resampled together. One
+    #: hitter carries several markets and a day's props share one board, so rows
+    #: of a day are not independent bets; 0 when fewer than two days are present.
+    slate_se: float = 0.0
+    #: Decided rows with a two-sided no-vig price, the no-vig probabilities summed
+    #: over them, and the EV of the price taken under that probability summed:
+    #: what a random bet at the recorded prices would have been expected to do.
+    fair_n: int = 0
+    fair_sum: float = 0.0
+    juice_sum: float = 0.0
 
     @property
     def n(self) -> int:
@@ -506,13 +550,58 @@ class Record:
         var = max(self.units_sq / self.n - mean * mean, 0.0)
         return (var / self.n) ** 0.5
 
+    @property
+    def range_se(self) -> float | None:
+        """The wider of the row-level and the slate-clustered standard error."""
+        se = self.roi_se
+        if se is None:
+            return None
+        return max(se, self.slate_se)
+
+    @property
+    def fair_pct(self) -> float | None:
+        """Mean no-vig probability on the rows that had one: the market's win%."""
+        return self.fair_sum / self.fair_n if self.fair_n else None
+
+    @property
+    def juice(self) -> float | None:
+        """Expected ROI of the recorded prices under the no-vig probability."""
+        return self.juice_sum / self.fair_n if self.fair_n else None
+
 
 def summarize(label: str, graded: list[GradedPosition]) -> Record:
     """The record of any subset of graded rows."""
     return _record(label, graded)
 
 
+def _slate_se(graded: list[GradedPosition]) -> float:
+    n = len(graded)
+    if n < 2:
+        return 0.0
+    mean = sum(g.units for g in graded) / n
+    by_day: dict[str, float] = defaultdict(float)
+    for g in graded:
+        by_day[g.position.date] += g.units - mean
+    k = len(by_day)
+    if k < 2:
+        return 0.0
+    var_sum = k / (k - 1) * sum(v * v for v in by_day.values())
+    return float(var_sum**0.5 / n)
+
+
+def _priced_fair(graded: list[GradedPosition]) -> list[tuple[float, float]]:
+    """(no-vig probability, EV of the price taken under it) on decided two-sided rows."""
+    out: list[tuple[float, float]] = []
+    for g in graded:
+        p = g.position
+        if g.result == PUSH or not p.devigged or p.fair_prob is None or p.odds is None:
+            continue
+        out.append((p.fair_prob, p.fair_prob * american_to_decimal(p.odds) - 1.0))
+    return out
+
+
 def _record(label: str, graded: list[GradedPosition]) -> Record:
+    fair = _priced_fair(graded)
     return Record(
         label=label,
         wins=sum(1 for g in graded if g.result == WIN),
@@ -520,7 +609,83 @@ def _record(label: str, graded: list[GradedPosition]) -> Record:
         pushes=sum(1 for g in graded if g.result == PUSH),
         units=round(sum(g.units for g in graded), 4),
         units_sq=round(sum(g.units * g.units for g in graded), 4),
+        slate_se=round(_slate_se(graded), 6),
+        fair_n=len(fair),
+        fair_sum=round(sum(f for f, _ in fair), 6),
+        juice_sum=round(sum(e for _, e in fair), 6),
     )
+
+
+CloseIndex = dict[tuple[str, str], ClosingQuote]
+
+
+def close_index(quotes: dict[str, ClosingQuote]) -> CloseIndex:
+    """A day's closing snapshot keyed on (market, canonical selection).
+
+    A ledger row knows its game by ``game_pk`` and the snapshot by matchup, so
+    the join is on the player's prop alone. A selection two quotes share (two
+    players who canonicalise alike, or a doubleheader) is dropped rather than
+    guessed at, and a price that cannot be a pre-game close is left out.
+    """
+    grouped: dict[tuple[str, str], list[ClosingQuote]] = defaultdict(list)
+    for q in quotes.values():
+        if is_plausible_close(q.american, q.market):
+            grouped[(q.market, keys.canonical(q.selection))].append(q)
+    return {k: v[0] for k, v in grouped.items() if len(v) == 1}
+
+
+def close_selection(p: Position) -> tuple[str, str] | None:
+    """The (market, selection) the closing snapshot stores this row's prop under."""
+    if p.line is None:
+        return None
+    if p.category == "pitcher":
+        label = keys.PITCHER_LABEL.get(p.stat)
+        if label is None:
+            return None
+        return f"pitcher_{p.stat.lower()}", keys.pitcher_prop(p.batter, label, p.line, p.side)
+    return f"batter_{p.stat.lower()}", keys.batter_prop(
+        p.batter, market_label(p.stat), p.line, p.side
+    )
+
+
+@dataclass(frozen=True)
+class Closed:
+    """One graded row against its own close."""
+
+    graded: GradedPosition
+    close_prob: float
+    #: Closing no-vig probability less the bet-time one, in probability points.
+    clv: float
+    #: EV of the recorded price under the closing no-vig probability.
+    close_ev: float
+    #: EV of the recorded price under the bet-time no-vig probability: the juice.
+    bet_ev: float
+
+
+def closed(graded: list[GradedPosition], index_for_day: dict[str, CloseIndex]) -> list[Closed]:
+    """Every decided two-sided row whose prop was captured at the close."""
+    out: list[Closed] = []
+    for g in graded:
+        p = g.position
+        if g.result == PUSH or not p.devigged or p.fair_prob is None or p.odds is None:
+            continue
+        sel = close_selection(p)
+        index = index_for_day.get(p.date)
+        if sel is None or not index:
+            continue
+        q = index.get((sel[0], keys.canonical(sel[1])))
+        if q is None:
+            continue
+        out.append(
+            Closed(
+                graded=g,
+                close_prob=q.no_vig_prob,
+                clv=q.no_vig_prob - p.fair_prob,
+                close_ev=clv_ev(p.odds, q.no_vig_prob),
+                bet_ev=p.fair_prob * american_to_decimal(p.odds) - 1.0,
+            )
+        )
+    return out
 
 
 # The day the contact terciles swapped words (#333): before it a recorded "BUY"
@@ -548,15 +713,35 @@ def bucket(position: Position) -> str:
     return r
 
 
+def prop_key(p: Position) -> tuple[str, str, str, str, float | None]:
+    """One prop in one run, whichever side of it was recorded."""
+    return (p.date, p.run_id, p.key, p.stat, p.line)
+
+
+def two_sided(positions: Iterable[Position]) -> set[tuple[str, str, str, str, float | None]]:
+    """Props recorded on both sides in one run: a pair that can only lose the vig."""
+    sides: dict[tuple[str, str, str, str, float | None], set[str]] = defaultdict(set)
+    for p in positions:
+        sides[prop_key(p)].add(p.side)
+    return {k for k, v in sides.items() if {"over", "under"} <= v}
+
+
+def without_pairs(graded: list[GradedPosition]) -> list[GradedPosition]:
+    """``graded`` less both rows of every prop :func:`two_sided` finds."""
+    pairs = two_sided(g.position for g in graded)
+    return [g for g in graded if prop_key(g.position) not in pairs]
+
+
 def records_by_rating(graded: list[GradedPosition]) -> dict[str, Record]:
     """Each matchup bucket's whole record, for the note to print beside the word.
 
     A grade is a word about the matchup; the ledger is what the word has been
     worth. Hitter rows only -- a starter's rows carry no grade -- keyed by the
     bucket the row was in (:func:`bucket`), not the string as recorded, so the
-    9/09 swap of the contact words does not blend opposite terciles.
+    9/09 swap of the contact words does not blend opposite terciles. A prop
+    recorded on both sides in one run is left out (:func:`without_pairs`).
     """
-    rated = [(bucket(g.position), g) for g in graded if g.position.rating]
+    rated = [(bucket(g.position), g) for g in without_pairs(graded) if g.position.rating]
     return {
         b: _record(b, [g for bb, g in rated if bb == b])
         for b in sorted({bb for bb, _g in rated})

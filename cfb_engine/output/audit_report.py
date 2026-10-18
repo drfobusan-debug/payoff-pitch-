@@ -8,17 +8,20 @@ so the audit package matches the prediction package.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date as Date
 from pathlib import Path
 
 from cfb_engine.audit.clv import ClvSummary
 from cfb_engine.audit.ledger import OverallMetrics
 from cfb_engine.audit.priced import PricedStat, priced_findings
+from cfb_engine.audit.probation import Probation
 from cfb_engine.config import Config
 from cfb_engine.output.render import to_mp3, to_pdf
 
 logger = logging.getLogger(__name__)
 
+_BOLD = re.compile(r"\*\*(.+?)\*\*")
 _CSS = """
 @page { size: A4; margin: 1.4cm 1.5cm; }
 body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.5;font-size:10.5pt;}
@@ -90,9 +93,14 @@ def _money_table(rows: list[PricedStat]) -> str:
             f"<td class='{_cls(s.roi)}'>{s.roi * 100:+.1f}%</td>"
             f"<td class='{_cls(s.units)}'>{s.units:+.1f}</td></tr>"
         )
-    findings = "".join(f"<li>{f}</li>" for f in priced_findings(rows))
+    findings = "".join(f"<li>{_bold(f)}</li>" for f in priced_findings(rows))
     tail = f"<ul>{findings}</ul>" if findings else ""
     return f"<table>{head}{body}</table>{tail}"
+
+
+def _bold(text: str) -> str:
+    """Render the findings' ``**bold**`` markdown as HTML."""
+    return _BOLD.sub(r"<b>\1</b>", text)
 
 
 def _probation_list(findings: list[str]) -> str:
@@ -104,6 +112,24 @@ def _probation_list(findings: list[str]) -> str:
         )
     body = "".join(f"<li>{f}</li>" for f in findings)
     return f"<ul>{body}</ul>"
+
+
+def _tracked_table(rows: list[Probation]) -> str:
+    """Each graded-only rule's record to date, verdict or not."""
+    if not rows:
+        return ""
+    head = (
+        "<tr><th>Graded-only rule (not a bet)</th><th>Status</th><th>N</th>"
+        "<th>ROI</th><th>Older half</th><th>Newer half</th></tr>"
+    )
+    body = "".join(
+        f"<tr><td>{p.name}</td><td>{p.status}</td><td>{p.n}</td>"
+        f"<td class='{_cls(p.roi)}'>{p.roi * 100:+.1f}%</td>"
+        f"<td class='{_cls(p.first_half)}'>{p.first_half * 100:+.1f}%</td>"
+        f"<td class='{_cls(p.second_half)}'>{p.second_half * 100:+.1f}%</td></tr>"
+        for p in rows
+    )
+    return f"<table>{head}{body}</table>"
 
 
 def _clv_table(rows: list[ClvSummary]) -> str:
@@ -136,6 +162,7 @@ def build_audit_article(
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
+    tracked: list[Probation] | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the graded slate.
 
@@ -171,7 +198,7 @@ def build_audit_article(
         f"<h2>What the prices did</h2>{_money_table(money_rows or [])}"
         f"<h2>By price length</h2>{_price_table(price_rows or [])}"
         f"<h2>Closing line value &mdash; bets</h2>{_clv_table(clv_rows)}"
-        f"<h2>Probation</h2>{_probation_list(probation or [])}"
+        f"<h2>Probation</h2>{_probation_list(probation or [])}{_tracked_table(tracked or [])}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
     )
@@ -235,11 +262,20 @@ def generate_audit_report(
     money_rows: list[PricedStat] | None = None,
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
+    tracked: list[Probation] | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
     html, narr = build_audit_article(
-        audit_date, overall, clv_rows, n_graded, price_rows, money_rows, probation, slate_buy
+        audit_date,
+        overall,
+        clv_rows,
+        n_graded,
+        price_rows,
+        money_rows,
+        probation,
+        slate_buy,
+        tracked,
     )
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

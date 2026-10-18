@@ -4,6 +4,9 @@ A market leaves probation when its *buy* rows (``pass_gate`` and a buy tier)
 number at least ``PROBATION_N`` with positive return and a Brier no worse than
 the devigged consensus. The scorecard reports those three numbers per market
 so the decision is read off the ledger, never argued from a slate.
+
+Rows priced at or after puck drop are left out, and CLV counts only closes
+taken within ``STALE_CLOSE_MIN`` of puck drop.
 """
 
 from __future__ import annotations
@@ -40,7 +43,7 @@ class Bucket:
             self.brier_model += (r.model_prob - won) ** 2
             self.brier_market += (r.consensus - won) ** 2
         self.pnl += r.pnl or 0.0
-        if r.clv is not None:
+        if r.clv is not None and r.close_fresh:
             self.clv_sum += r.clv
             self.clv_n += 1
         if r.dual_rule_differs:
@@ -71,18 +74,29 @@ class Scorecard:
     buys_by_market: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
     by_tier: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
     by_gate: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
+    # Rows the unanchored sim alone would have bought (graded-only shadow).
+    sim_buys_by_market: dict[str, Bucket] = field(default_factory=lambda: defaultdict(Bucket))
 
     def add(self, r: LedgerRow) -> None:
         self.by_market[r.market].add(r)
         if r.is_buy:
             self.buys_by_market[r.market].add(r)
             self.by_tier[r.tier].add(r)
+        if r.sim_buy:
+            self.sim_buys_by_market[r.market].add(r)
         for g in r.gates or ["pass_gate"]:
             self.by_gate[g].add(r)
 
     def probation(self) -> dict[str, dict[str, object]]:
+        return self._probation(self.buys_by_market)
+
+    def sim_probation(self) -> dict[str, dict[str, object]]:
+        return self._probation(self.sim_buys_by_market)
+
+    @staticmethod
+    def _probation(buckets: dict[str, Bucket]) -> dict[str, dict[str, object]]:
         out: dict[str, dict[str, object]] = {}
-        for mk, b in sorted(self.buys_by_market.items()):
+        for mk, b in sorted(buckets.items()):
             d = b.as_dict()
             cleared = (
                 b.n >= PROBATION_N
@@ -111,13 +125,19 @@ class Scorecard:
         for mk, p in self.probation().items():
             status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
             lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
+        lines.append("")
+        lines.append("sim would-be buys (unanchored sim, graded-only; same bar)")
+        for mk, p in self.sim_probation().items():
+            status = "CLEARED" if p["cleared"] else f"{p['needed']} to go"
+            lines.append(f"  {mk:<15s} {p['n']!s:>4s}  roi {p['roi']:+.3f}  {status}")
         return "\n".join(lines) + "\n"
 
 
 def scorecard(rows: list[LedgerRow]) -> Scorecard:
     sc = Scorecard()
     for r in rows:
-        sc.add(r)
+        if not r.priced_late:
+            sc.add(r)
     return sc
 
 

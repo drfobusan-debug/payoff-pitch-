@@ -12,6 +12,9 @@
 #     pricing pass (3 credits), yesterday's grade (free), then the slate PDF +
 #     workbook emailed. 17:15 is a DEFAULT, to be replaced by the fitted send
 #     time (docs/nba/master_plan.md §10) once the audit can fit it.
+#   * com.payoffpitch.nba.card_late -> at NBA_LATE_CARD_HOUR:NBA_LATE_CARD_MINUTE
+#     (default 20:15, after the 8 PM injury report and the 20:05 full pass): the
+#     same package again, sent only while a game on the slate has not tipped.
 # Also links "NBA CARD.command" on the Desktop to run the card by hand.
 # Idempotent: each agent is unloaded before being reloaded.
 # Remove with: launchctl unload ~/Library/LaunchAgents/com.payoffpitch.nba.*.plist
@@ -39,6 +42,8 @@ EVENT_MINUTE="${NBA_EVENT_MINUTE:-5}"
 # Default send time, not yet fitted (plan §10): replace with the fitted time.
 CARD_HOUR="${NBA_CARD_HOUR:-17}"
 CARD_MINUTE="${NBA_CARD_MINUTE:-15}"
+LATE_CARD_HOUR="${NBA_LATE_CARD_HOUR:-20}"
+LATE_CARD_MINUTE="${NBA_LATE_CARD_MINUTE:-15}"
 
 install_agent() {
     # $1 label  $2 program  $3 calendar-interval-XML  $4.. program args
@@ -103,6 +108,10 @@ CARD_CAL="    <key>StartCalendarInterval</key>
     <dict><key>Hour</key><integer>$CARD_HOUR</integer><key>Minute</key><integer>$CARD_MINUTE</integer></dict>"
 install_agent "com.payoffpitch.nba.card" "$CARD" "$CARD_CAL"
 
+LATE_CAL="    <key>StartCalendarInterval</key>
+    <dict><key>Hour</key><integer>$LATE_CARD_HOUR</integer><key>Minute</key><integer>$LATE_CARD_MINUTE</integer></dict>"
+install_agent "com.payoffpitch.nba.card_late" "$CARD" "$LATE_CAL" "--late"
+
 if [ -d "$HOME/Desktop" ]; then
     ln -sfn "$CARD" "$HOME/Desktop/NBA CARD.command"
     echo "Linked $HOME/Desktop/NBA CARD.command -> $CARD"
@@ -111,6 +120,7 @@ fi
 echo
 echo "News alarm every 5 min $FIRST_HOUR:00-$LAST_HOUR:55; full pass at $EVENT_HOURS (:$EVENT_MINUTE)."
 printf 'Daily card + email at %02d:%02d (default send time, to be fitted).\n' "$CARD_HOUR" "$CARD_MINUTE"
+printf 'Late-slate resend at %02d:%02d, only while a game has not tipped.\n' "$LATE_CARD_HOUR" "$LATE_CARD_MINUTE"
 echo "Logs: $LOG_DIR/schedule.log (errors: schedule_error.log)"
 echo "Credentials must live in /etc/engine.env or $LOG_DIR/engine.env."
 echo "Test now: launchctl kickstart -k gui/\$(id -u)/com.payoffpitch.nba.watch"

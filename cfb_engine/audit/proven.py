@@ -22,6 +22,7 @@ from cfb_engine.audit.probation import (
     market_probation,
     upgrade_probation,
 )
+from cfb_engine.market import atscontext
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
 
@@ -40,6 +41,22 @@ def passed(p: Probation) -> bool:
 
 
 @dataclass(frozen=True)
+class _CardBet:
+    """A card's rec seen the way the ledger row it becomes would read."""
+
+    market: str
+    line: float | None
+    top25: bool | None
+    drift: float | None
+    open_drift: float | None
+
+    @classmethod
+    def of(cls, rec: Recommendation) -> _CardBet:
+        top25 = atscontext.top25_game(rec.brief)
+        return cls(rec.market, rec.line, top25, rec.drift, rec.open_drift)
+
+
+@dataclass(frozen=True)
 class Proven:
     markets: frozenset[str] = frozenset()
     upgrades: tuple[CandidateUpgrade, ...] = ()
@@ -53,7 +70,10 @@ class Proven:
     def starred(self, rec: Recommendation) -> bool:
         if rec.tier == Tier.PASS:
             return False
-        return rec.market in self.markets or any(u.promotes(rec) for u in self.upgrades)
+        if rec.market in self.markets:
+            return True
+        bet = _CardBet.of(rec)
+        return any(u.promotes(bet) for u in self.upgrades)
 
     def mark(self, rec: Recommendation) -> str:
         return f"{STAR} " if self.starred(rec) else ""

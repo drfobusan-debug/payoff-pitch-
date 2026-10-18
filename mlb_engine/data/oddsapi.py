@@ -37,6 +37,8 @@ from pathlib import Path
 
 import requests
 
+from engine_runtime import credits
+from mlb_engine.audit.tape import QuoteCapture
 from mlb_engine.data import http
 from mlb_engine.market import keys
 from mlb_engine.market.ev import MarketQuote
@@ -239,6 +241,10 @@ class OddsAPIClient:
         # the next game of the same series. Kept so the no-events error can say
         # which failure it is.
         self.skipped_later = 0
+        # Every quote of the last ``fetch``, copied with its event while the
+        # event was in hand. The returned ``Quotes`` folds a doubleheader's two
+        # games into one key; this list keeps them apart for the tape.
+        self.last_captures: list[QuoteCapture] = []
 
     def available(self) -> bool:
         return bool(self.api_key)
@@ -275,6 +281,7 @@ class OddsAPIClient:
         index = _SlateIndex(slate)
 
         out: Quotes = {}
+        self.last_captures = []
         events = self._fetch_game_board(index, out, pregame_only=pregame_only)
         if not events:
             # The board failed or matched nothing. Event ids are free, so fall
@@ -381,7 +388,7 @@ class OddsAPIClient:
                 started += 1
                 continue
             events.append(ev)
-            self._parse_game(raw, ev, out, f5=False)
+            self._parse_game(raw, ev, out, f5=False, tape=self.last_captures)
         if started:
             log.info("Odds API: skipped %d game(s) already under way", started)
         if later:
@@ -418,12 +425,15 @@ class OddsAPIClient:
         if not isinstance(raw, dict):
             return False
         if self.include_f5:
-            self._parse_game(raw, ev, out, f5=True)
-        self._parse_props(raw, ev, out)
+            self._parse_game(raw, ev, out, f5=True, tape=self.last_captures)
+        self._parse_props(raw, ev, out, tape=self.last_captures)
         return bool(raw.get("bookmakers"))
 
     # -- parsing ----------------------------------------------------------
-    def _parse_game(self, raw: dict, ev: _Event, out: Quotes, *, f5: bool) -> None:
+    def _parse_game(
+        self, raw: dict, ev: _Event, out: Quotes, *, f5: bool,
+        tape: list[QuoteCapture] | None = None,
+    ) -> None:
         for bm in raw.get("bookmakers", []):
             book = bm.get("key", "")
             for mkt in bm.get("markets", []):
@@ -444,6 +454,8 @@ class OddsAPIClient:
                             opposite_american=opposite.get(id(oc)),
                         )
                     )
+                    _capture(tape, ev, market, selection, book, float(price),
+                             opposite.get(id(oc)))
 
     def _game_selection(
         self, mk: str, oc: dict, ev: _Event, f5: bool
@@ -471,7 +483,9 @@ class OddsAPIClient:
             )
         return None
 
-    def _parse_props(self, raw: dict, ev: _Event, out: Quotes) -> None:
+    def _parse_props(
+        self, raw: dict, ev: _Event, out: Quotes, tape: list[QuoteCapture] | None = None
+    ) -> None:
         for bm in raw.get("bookmakers", []):
             book = bm.get("key", "")
             for mkt in bm.get("markets", []):
@@ -504,6 +518,8 @@ class OddsAPIClient:
                             opposite_american=opposite.get(id(oc)),
                         )
                     )
+                    _capture(tape, ev, market, selection, book, float(price),
+                             opposite.get(id(oc)))
 
     # -- helpers ----------------------------------------------------------
     def _to_event(self, raw: dict, norm_to_ab: dict[str, str]) -> _Event | None:
@@ -535,6 +551,9 @@ class OddsAPIClient:
                     return json.loads(cache.read_text())
                 except ValueError:
                     pass
+        if not credits.debit_for("mlb", url, q, remaining=self.credits_remaining):
+            log.info("Odds API %s skipped: shared credit budget", url.rsplit("/", 1)[-1])
+            return None
         try:
             resp = http.get(url, params={"apiKey": self.api_key or "", **q},
                             timeout=self.timeout)
@@ -556,6 +575,20 @@ class OddsAPIClient:
                 _redact(str(exc), self.api_key),
             )
             return None
+
+
+def _capture(
+    tape: list[QuoteCapture] | None, ev: _Event, market: str, selection: str,
+    book: str, american: float, opposite: float | None,
+) -> None:
+    if tape is None:
+        return
+    tape.append(
+        QuoteCapture(
+            event_id=ev.event_id, commence=ev.commence, matchup=ev.matchup, market=market,
+            selection=selection, book=book, american=american, opposite_american=opposite,
+        )
+    )
 
 
 def _commence_time(raw: object) -> datetime | None:

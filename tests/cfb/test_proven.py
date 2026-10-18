@@ -97,3 +97,16 @@ def test_the_card_and_workbook_mark_the_star_and_explain_it(tmp_path) -> None:
     starred = next(c for c in ws["D"] if c.value == f"{STAR} Home -3.5")
     assert starred.font.bold
     assert LEGEND in [c.value for c in ws["A"]]
+
+
+def test_a_line_based_upgrade_reads_the_cards_rec_like_its_ledger_row():
+    from dataclasses import replace
+
+    from cfb_engine.audit.probation import CANDIDATE_UPGRADES
+    from cfb_engine.market import atsline
+
+    big_dog = next(u for u in CANDIDATE_UPGRADES if u.name == atsline.BIG_DOG_RULE)
+    proven = Proven(upgrades=(big_dog,))
+    assert proven.starred(replace(_rec(), line=17.5))
+    assert not proven.starred(_rec())
+    assert not proven.starred(replace(_rec(), line=17.5, tier=Tier.PASS))

@@ -44,8 +44,11 @@ from mlb_engine.audit.clv import (
     merge_closing,
     save_closing,
 )
+from mlb_engine.audit.histograms import merge_hist_files
 from mlb_engine.audit.lineups import load_lineups, merge_lineups, save_lineups
+from mlb_engine.audit.tape import merge_tape_files
 from mlb_engine.calibration import read_stored
+from mlb_engine.data import vsin_bets
 from mlb_engine.data.opta import load_rows, merge_rows, save_rows
 from mlb_engine.data.propicks import load_picks, merge_picks, save_picks
 from mlb_engine.output import daily_worksheet, totals_audit
@@ -373,7 +376,9 @@ def merge_dated_csv(
         _write_rows(local, fields, remote_rows)
         return True
     local_fields, local_rows = _rows(local)
-    fields = local_fields if len(local_fields) >= len(fields) else fields
+    # Union, local order first: keeping the longer list dropped a column
+    # whenever two machines had each added a different one at the same width.
+    fields = [*local_fields, *(f for f in fields if f not in local_fields)]
     kept = remote_rows
     if by_date is True:
         local_dates = {r.get("date", "") for r in local_rows}
@@ -409,6 +414,7 @@ GRADED = "graded"
 
 _MERGED_CSVS: tuple[tuple[str, tuple[str, ...], bool | str], ...] = (
     ("ledger.csv", ("date", "matchup", "category", "market", "selection", "line"), True),
+    (vsin_bets.LEDGER, ("date", "pick_id"), True),
     ("scorecard.csv", ("date", "tier"), True),
     # The power screen's receipts. Left out, they never leave the machine that
     # wrote the note, so the scorecard the next morning prints is that machine's
@@ -626,6 +632,12 @@ def _pull_state_locked(
     for src in sorted((state / "mlb" / "board").glob("board_*.json")):
         if merge_board_files(src, audit / src.name):
             pulled.append(src.name)
+    for src in sorted((state / "mlb" / "tape").glob("tape_*.jsonl.gz")):
+        if merge_tape_files(src, audit / src.name):
+            pulled.append(src.name)
+    for src in sorted((state / "mlb" / "hist").glob("hist_*.json.gz")):
+        if merge_hist_files(src, audit / src.name):
+            pulled.append(src.name)
     for src in sorted((state / "mlb" / "opta").glob("opta_*.json")):
         if merge_opta_files(src, audit / src.name):
             pulled.append(src.name)
@@ -634,6 +646,9 @@ def _pull_state_locked(
             pulled.append(src.name)
     for src in sorted((state / "mlb" / "lineups").glob("lineups_*.json")):
         if merge_lineup_files(src, audit / src.name):
+            pulled.append(src.name)
+    for src in sorted((state / "mlb" / "vsin").glob("vsin_bets_*.json")):
+        if vsin_bets.merge_files(src, audit / src.name):
             pulled.append(src.name)
     for name, key, by_date in _MERGED_CSVS:
         if merge_dated_csv(state / "mlb" / name, audit / name, key, by_date):
@@ -845,6 +860,18 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             merge_board_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
+        for src in sorted(audit.glob("tape_*.jsonl.gz")):
+            dest = state / "mlb" / "tape" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_tape_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("hist_*.json.gz")):
+            dest = state / "mlb" / "hist" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            merge_hist_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
         for src in sorted(audit.glob("opta_*.json")):
             dest = state / "mlb" / "opta" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -861,6 +888,12 @@ def _push_state_locked(data_dir: Path, message: str, repo: Path, branch: str) ->
             dest = state / "mlb" / "lineups" / src.name
             dest.parent.mkdir(parents=True, exist_ok=True)
             merge_lineup_files(dest, src)
+            shutil.copyfile(src, dest)
+            pushed.append(src.name)
+        for src in sorted(audit.glob("vsin_bets_*.json")):
+            dest = state / "mlb" / "vsin" / src.name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            vsin_bets.merge_files(dest, src)
             shutil.copyfile(src, dest)
             pushed.append(src.name)
         for name, key, by_date in _MERGED_CSVS:

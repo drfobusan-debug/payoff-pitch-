@@ -72,6 +72,20 @@ def overrides_path(data_dir: Path, slate: Date) -> Path:
     return data_dir / "starters" / f"{slate.isoformat()}.json"
 
 
+def history_path(data_dir: Path, slate: Date) -> Path:
+    """Every goalie read for the slate, one JSON line per team per read, oldest first."""
+    return data_dir / "starters" / f"history_{slate.isoformat()}.jsonl"
+
+
+def append_history(path: Path, reads: list[dict[str, object]]) -> None:
+    if not reads:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fh:
+        for r in reads:
+            fh.write(json.dumps(r, sort_keys=True) + "\n")
+
+
 def load_overrides(path: Path) -> dict[str, dict[str, object]]:
     if not path.exists():
         return {}
@@ -171,6 +185,8 @@ def starter_for(
 __all__ = [
     "GATE",
     "Starter",
+    "append_history",
+    "history_path",
     "load_overrides",
     "overrides_path",
     "save_override",

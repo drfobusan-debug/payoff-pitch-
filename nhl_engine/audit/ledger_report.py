@@ -3,6 +3,10 @@ by hand -- buys with ROI and a bootstrap CI, the CLV sign test, one side per
 game against the market by market, the totals lean, goalie-status accuracy and
 the probation table (master plan §7).
 
+Rows priced at or after puck drop are not predictions and are left out of
+every read (listed on their own). CLV counts only closes taken within
+``STALE_CLOSE_MIN`` of puck drop; older or unverified closes are counted apart.
+
 Nothing here is a model input. The report is rebuilt from ``graded_*.json``
 on every ``nhl-engine audit`` run and attached to the card email, so the
 verdict is always read off the whole ledger, never argued from one slate.
@@ -12,6 +16,7 @@ from __future__ import annotations
 
 import math
 import random
+import statistics
 from collections import defaultdict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -19,7 +24,9 @@ from datetime import date as Date
 from html import escape
 from pathlib import Path
 
-from nhl_engine.audit.ledger import LedgerRow
+from nhl_engine.audit import bands as bnd
+from nhl_engine.audit import screens as scr
+from nhl_engine.audit.ledger import STALE_CLOSE_MIN, LedgerRow
 from nhl_engine.audit.scorecard import scorecard
 
 BOOTSTRAP_N = 4000
@@ -45,6 +52,7 @@ class Tally:
     clv_n: int = 0
     clv_neg: int = 0
     clv_pos: int = 0
+    clv_stale: int = 0  # a close older than STALE_CLOSE_MIN, or no puck drop to check it
 
     def add(self, r: LedgerRow) -> None:
         if r.outcome is None:
@@ -54,7 +62,9 @@ class Tally:
         self.losses += r.outcome == "loss"
         self.pushes += r.outcome == "push"
         self.pnl += r.pnl or 0.0
-        if r.clv is not None:
+        if r.clv is not None and not r.close_fresh:
+            self.clv_stale += 1
+        elif r.clv is not None:
             self.clv_sum += r.clv
             self.clv_n += 1
             self.clv_neg += r.clv < -CLV_FLAT
@@ -101,6 +111,19 @@ class SideRead:
 
 
 @dataclass
+class NightTiming:
+    """Per night: how long before puck drop each game's close was taken."""
+
+    night: str
+    games: int
+    lead_median: float | None  # minutes, over games with a known close and puck drop
+    lead_max: float | None  # the stalest close
+    stale: list[str]  # games whose close is older than STALE_CLOSE_MIN
+    unknown: int  # games with no close or no puck drop
+    late_rows: int  # rows priced at or after puck drop
+
+
+@dataclass
 class GoalieRead:
     status: str
     n: int = 0
@@ -116,14 +139,32 @@ class LedgerAudit:
     buys_by_tier: dict[str, Tally]
     buys_by_night: dict[str, Tally]
     roi_ci: tuple[float, float]
+    # What the unanchored sim alone would have bought (graded-only shadow).
+    sim_buys: Tally
+    sim_buys_by_market: dict[str, Tally]
+    sim_buys_by_tier: dict[str, Tally]
+    sim_roi_ci: tuple[float, float]
     sides: list[SideRead]
     goalies: list[GoalieRead]
     scorecard_text: str
     findings: list[str] = field(default_factory=list)
+    screens: list[scr.ScreenRead] = field(default_factory=list)
+    bands: list[bnd.BandRead] = field(default_factory=list)
+    late: Tally = field(default_factory=Tally)  # every graded row priced after puck drop
+    late_buys: Tally = field(default_factory=Tally)
+    late_games: list[str] = field(default_factory=list)  # "night matchup"
+    timing: list[NightTiming] = field(default_factory=list)
 
     @property
     def clv_p(self) -> float:
         return sign_test_p(self.buys.clv_neg, self.buys.clv_neg + self.buys.clv_pos)
+
+
+SIM_NOTE = (
+    "Rows the sim alone (no market anchor) would have bought under the same gates. "
+    "Nothing here was staked; it exists so probation can grade the sim's own picks "
+    "while the anchor holds. Call at 100+ per market."
+)
 
 
 def sign_test_p(k: int, n: int) -> float:
@@ -183,6 +224,34 @@ def one_side(rows: list[LedgerRow], label: str) -> SideRead | None:
     )
 
 
+def night_timing(rows: list[LedgerRow]) -> list[NightTiming]:
+    by_game: dict[tuple[str, str], list[LedgerRow]] = defaultdict(list)
+    for r in rows:
+        by_game[(r.slate_date, r.matchup)].append(r)
+    nights: dict[str, list[tuple[str, float | None]]] = defaultdict(list)
+    late: dict[str, int] = defaultdict(int)
+    for (night, matchup), game in by_game.items():
+        closes = [r for r in game if r.close_at and r.puck_drop]
+        last = max(closes, key=lambda r: r.close_at) if closes else None
+        nights[night].append((matchup, last.close_lead_min if last else None))
+        late[night] += sum(r.priced_late for r in game)
+    out: list[NightTiming] = []
+    for night in sorted(nights):
+        leads = [x for _, x in nights[night] if x is not None]
+        out.append(
+            NightTiming(
+                night=night,
+                games=len(nights[night]),
+                lead_median=statistics.median(leads) if leads else None,
+                lead_max=max(leads) if leads else None,
+                stale=sorted(m for m, x in nights[night] if x is not None and x > STALE_CLOSE_MIN),
+                unknown=len(nights[night]) - len(leads),
+                late_rows=late[night],
+            )
+        )
+    return out
+
+
 def _surname(name: str) -> str:
     return name.replace(".", " ").split()[-1].lower() if name.strip() else ""
 
@@ -209,6 +278,17 @@ def goalie_reads(rows: list[LedgerRow], starters: Starters) -> list[GoalieRead]:
 def _findings(a: LedgerAudit) -> list[str]:
     out: list[str] = []
     b = a.buys
+    if a.late.n:
+        lb = a.late_buys
+        out.append(
+            f"{a.late.n} graded rows on {len(a.late_games)} game{'s' if len(a.late_games) != 1 else ''} were priced at or after puck drop "
+            f"({', '.join(a.late_games)}) and are left out of every read"
+            + (
+                f", including {lb.n} buy{'s' if lb.n != 1 else ''} ({lb.record}, {lb.pnl:+.2f}u)."
+                if lb.n
+                else "."
+            )
+        )
     if b.n:
         out.append(
             f"Buys {b.record}, {b.pnl:+.2f}u, ROI {b.roi:+.1%} "
@@ -226,6 +306,18 @@ def _findings(a: LedgerAudit) -> list[str]:
         out.append(
             f"Close vs our pricing on {b.clv_n} buys: {b.clv_moves} (avg {b.clv * 100:+.1f} pts, "
             f"sign test on the moved p={a.clv_p:.3g}): {verdict}"
+        )
+    if b.clv_stale:
+        out.append(
+            f"CLV leaves out {b.clv_stale} buys whose close was more than {STALE_CLOSE_MIN:.0f} min "
+            "before puck drop or could not be timed."
+        )
+    stale = [f"{t.night} ({len(t.stale)})" for t in a.timing if t.stale]
+    if stale:
+        out.append(
+            f"No archived quote in the last {STALE_CLOSE_MIN:.0f} min before puck drop for some games: "
+            + ", ".join(stale)
+            + " -- the board capture did not run near puck drop."
         )
     for s in a.sides:
         if s.n >= SIGN_TEST_MIN and s.lean_p < SIGN_TEST_P:
@@ -245,20 +337,39 @@ def _findings(a: LedgerAudit) -> list[str]:
     return out
 
 
-def build(rows: list[LedgerRow], starters: Starters | None = None) -> LedgerAudit:
+def build(
+    rows: list[LedgerRow],
+    starters: Starters | None = None,
+    context: scr.Context | None = None,
+) -> LedgerAudit:
+    total = len(rows)
+    late = [r for r in rows if r.priced_late and r.outcome is not None]
+    timing = night_timing(rows)
+    rows = [r for r in rows if not r.priced_late]
     graded = [r for r in rows if r.outcome is not None]
     buys = [r for r in graded if r.is_buy]
+    sim_buys = [r for r in graded if r.sim_buy]
     audit = LedgerAudit(
         nights=sorted({r.slate_date for r in rows}),
-        rows=len(rows),
+        rows=total,
         buys=_tally(buys),
         buys_by_market=_group(buys, lambda r: r.market),
         buys_by_tier=_group(buys, lambda r: r.tier),
         buys_by_night=_group(buys, lambda r: r.slate_date),
         roi_ci=bootstrap_roi([r.pnl or 0.0 for r in buys]),
+        sim_buys=_tally(sim_buys),
+        sim_buys_by_market=_group(sim_buys, lambda r: r.market),
+        sim_buys_by_tier=_group(sim_buys, lambda r: r.sim_tier),
+        sim_roi_ci=bootstrap_roi([r.pnl or 0.0 for r in sim_buys]),
         sides=[s for s in (one_side(graded, k) for k in SIDE_MARKETS) if s is not None],
         goalies=goalie_reads(rows, starters or {}),
         scorecard_text=scorecard(rows).render(),
+        screens=scr.read_screens(rows, context or scr.Context()),
+        bands=bnd.read_bands(rows, context or scr.Context()),
+        late=_tally(late),
+        late_buys=_tally([r for r in late if r.is_buy]),
+        late_games=sorted({f"{r.slate_date} {r.matchup}" for r in late}),
+        timing=timing,
     )
     audit.findings = _findings(audit)
     return audit
@@ -278,6 +389,100 @@ def _tally_rows(d: Mapping[str, Tally]) -> list[tuple[str, ...]]:
     ]
 
 
+def _screen_rows(reads: list[scr.ScreenRead]) -> list[tuple[str, ...]]:
+    return [
+        (
+            s.name,
+            s.rule,
+            str(s.n),
+            s.record,
+            f"{s.saved:+.2f}",
+            f"{s.se:.2f}" if len(s.games) >= 2 else "",
+            f"{s.halves[0]:+.2f} / {s.halves[1]:+.2f}",
+            s.verdict,
+        )
+        for s in reads
+    ]
+
+
+TIMING_HEAD = [
+    "night",
+    "games",
+    "close lead median (min)",
+    "stalest close (min)",
+    f"closes > {STALE_CLOSE_MIN:.0f} min",
+    "no close/drop",
+    "rows after drop",
+]
+
+
+def _min(x: float | None) -> str:
+    return f"{x:.0f}" if x is not None else "n/a"
+
+
+def _timing_rows(ts: list[NightTiming]) -> list[tuple[str, ...]]:
+    return [
+        (
+            t.night,
+            str(t.games),
+            _min(t.lead_median),
+            _min(t.lead_max),
+            ", ".join(t.stale) or "0",
+            str(t.unknown),
+            str(t.late_rows),
+        )
+        for t in ts
+    ]
+
+
+def _clv_line(a: LedgerAudit) -> str:
+    b = a.buys
+    left = f"; {b.clv_stale} stale or untimed closes left out" if b.clv_stale else ""
+    return (
+        f"CLV avg {_pct(b.clv)} pts on {b.clv_n} buys closed within {STALE_CLOSE_MIN:.0f} min of "
+        f"puck drop{left}; close {b.clv_moves} (sign test p={a.clv_p:.3g})."
+    )
+
+
+HEADER_NOTE = (
+    "Graded on NHL API finals; close = last archived quote before puck drop. "
+    "Rows priced at or after puck drop are left out."
+)
+
+
+BAND_HEAD = ["band", "bets", "W-L", "units", "ROI", "SE (u, by game)", "halves", "verdict"]
+
+
+def _band_title(a: LedgerAudit) -> str:
+    return (
+        f"Graded-only bands (flat 1u on every bet at the card's price; call at {bnd.MIN_N}+ games)"
+    )
+
+
+def _band_note(a: LedgerAudit) -> str:
+    k = len(a.bands)
+    return (
+        f"{k} bands are read at once, so about {k / 20:.0f} will sit past 2 SE by chance. "
+        "Mirror bands (home favourite / away underdog) are the same games."
+    )
+
+
+def _band_rows(reads: list[bnd.BandRead]) -> list[tuple[str, ...]]:
+    return [
+        (
+            b.name,
+            str(b.n),
+            b.record,
+            f"{b.units:+.2f}",
+            f"{b.roi:+.1%}" if b.n else "",
+            f"{b.se:.2f}" if b.n >= 2 else "",
+            f"{b.halves[0]:+.2f} / {b.halves[1]:+.2f}",
+            b.verdict,
+        )
+        for b in reads
+    ]
+
+
 def render_md(a: LedgerAudit, *, as_of: str) -> str:
     b = a.buys
     nights = ", ".join(a.nights) if a.nights else "none"
@@ -285,7 +490,7 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
         f"# NHL ledger audit (as of {as_of})",
         "",
         f"{len(a.nights)} graded night{'s' if len(a.nights) != 1 else ''} ({nights}); {a.rows} rows. "
-        "Graded on NHL API finals; close = last archived quote before puck drop.",
+        + HEADER_NOTE,
         "",
         "## Findings",
         "",
@@ -294,12 +499,26 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
         "## Buys",
         "",
         f"**{b.record}, {b.pnl:+.2f}u, ROI {b.roi:+.1%}**, 95% CI {a.roi_ci[0]:+.0%}..{a.roi_ci[1]:+.0%} (n={b.n}). "
-        f"CLV avg {_pct(b.clv)} pts; close {b.clv_moves} (sign test p={a.clv_p:.3g}).",
+        + _clv_line(a),
         "",
         "| | W-L-P | ROI | P&L | CLV pts |",
         "|---|---|---|---|---|",
     ]
     for section in (a.buys_by_market, a.buys_by_tier, a.buys_by_night):
+        lines += [f"| {' | '.join(r)} |" for r in _tally_rows(section)]
+    sb = a.sim_buys
+    lines += [
+        "",
+        "## Sim would-be buys (unanchored sim at the card's price; graded-only)",
+        "",
+        SIM_NOTE,
+        "",
+        f"**{sb.record}, {sb.pnl:+.2f}u, ROI {sb.roi:+.1%}**, 95% CI {a.sim_roi_ci[0]:+.0%}..{a.sim_roi_ci[1]:+.0%} (n={sb.n}).",
+        "",
+        "| | W-L-P | ROI | P&L | CLV pts |",
+        "|---|---|---|---|---|",
+    ]
+    for section in (a.sim_buys_by_market, a.sim_buys_by_tier):
         lines += [f"| {' | '.join(r)} |" for r in _tally_rows(section)]
     lines += [
         "",
@@ -316,12 +535,22 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     over = next((s for s in a.sides if s.label == "Over"), None)
     if over:
         lines.append(f"\nFull-game totals went Over {over.outcomes.record} (one line per game).")
+    lines += ["", "## Pricing time vs puck drop", ""]
+    lines += [f"| {' | '.join(TIMING_HEAD)} |", "|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(r)} |" for r in _timing_rows(a.timing)]
     lines += ["", "## Goalie accuracy (card's named starter vs actual)", ""]
     if a.goalies:
         lines += ["| status | games | wrong |", "|---|---|---|"]
         lines += [f"| {g.status} | {g.n} | {g.wrong} |" for g in a.goalies]
     else:
         lines.append("no starter results available")
+    lines += ["", f"## Graded-only screens (refuse nothing; promote at {scr.MIN_N}+ buys)", ""]
+    lines += ["| screen | rule | buys hit | W-L | saved u | SE (by game) | halves | verdict |"]
+    lines += ["|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(r)} |" for r in _screen_rows(a.screens)]
+    lines += ["", f"## {_band_title(a)}", "", _band_note(a), ""]
+    lines += [f"| {' | '.join(BAND_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(r)} |" for r in _band_rows(a.bands)]
     lines += ["", "## Scorecard (all rows)", "", "```", a.scorecard_text.rstrip(), "```", ""]
     return "\n".join(lines)
 
@@ -348,19 +577,28 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
     parts = [
         f"<h1>NHL ledger audit <span class='sub'>as of {escape(as_of)}</span></h1>",
         f"<p class='sub'>{len(a.nights)} graded nights ({escape(nights)}); {a.rows} rows. "
-        "Graded on NHL API finals; close = last archived quote before puck drop.</p>",
+        f"{escape(HEADER_NOTE)}</p>",
         "<div class='find'><b>Findings</b><ul>"
         + "".join(f"<li>{escape(f)}</li>" for f in a.findings or ["nothing graded yet"])
         + "</ul></div>",
         "<h2>Buys</h2>",
         f"<p><b>{b.record}, {b.pnl:+.2f}u, ROI {b.roi:+.1%}</b>, 95% CI {a.roi_ci[0]:+.0%}..{a.roi_ci[1]:+.0%} "
-        f"(n={b.n}). CLV avg {_pct(b.clv)} pts; close {b.clv_moves} (p={a.clv_p:.3g}).</p>",
+        f"(n={b.n}). {escape(_clv_line(a))}</p>",
     ]
     for title, d in (
         ("by market", a.buys_by_market),
         ("by tier", a.buys_by_tier),
         ("by night", a.buys_by_night),
     ):
+        parts.append(_table([title, "W-L-P", "ROI", "P&L", "CLV pts"], _tally_rows(d)))
+    sb = a.sim_buys
+    parts.append("<h2>Sim would-be buys (unanchored sim at the card's price; graded-only)</h2>")
+    parts.append(f"<p class='sub'>{escape(SIM_NOTE)}</p>")
+    parts.append(
+        f"<p><b>{sb.record}, {sb.pnl:+.2f}u, ROI {sb.roi:+.1%}</b>, 95% CI {a.sim_roi_ci[0]:+.0%}..{a.sim_roi_ci[1]:+.0%} "
+        f"(n={sb.n}).</p>"
+    )
+    for title, d in (("by market", a.sim_buys_by_market), ("by tier", a.sim_buys_by_tier)):
         parts.append(_table([title, "W-L-P", "ROI", "P&L", "CLV pts"], _tally_rows(d)))
     parts.append("<h2>Model vs market (one side per game; Brier, lower is better)</h2>")
     parts.append(
@@ -390,6 +628,8 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
             ],
         )
     )
+    parts.append("<h2>Pricing time vs puck drop</h2>")
+    parts.append(_table(TIMING_HEAD, _timing_rows(a.timing)))
     parts.append("<h2>Goalie accuracy (card's named starter vs actual)</h2>")
     parts.append(
         _table(
@@ -398,6 +638,15 @@ def render_html(a: LedgerAudit, *, as_of: str) -> str:
         if a.goalies
         else "<p>no starter results available</p>"
     )
+    parts.append(f"<h2>Graded-only screens (refuse nothing; promote at {scr.MIN_N}+ buys)</h2>")
+    parts.append(
+        _table(
+            ["screen", "rule", "buys hit", "W-L", "saved u", "SE (by game)", "halves", "verdict"],
+            _screen_rows(a.screens),
+        )
+    )
+    parts.append(f"<h2>{escape(_band_title(a))}</h2><p class='sub'>{escape(_band_note(a))}</p>")
+    parts.append(_table(BAND_HEAD, _band_rows(a.bands)))
     parts.append(f"<h2>Scorecard (all rows)</h2><pre>{escape(a.scorecard_text)}</pre>")
     return f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>{''.join(parts)}</body></html>"
 
@@ -437,12 +686,14 @@ def latest(out_dir: Path) -> dict[str, Path]:
 __all__ = [
     "GoalieRead",
     "LedgerAudit",
+    "NightTiming",
     "SideRead",
     "Tally",
     "bootstrap_roi",
     "build",
     "goalie_reads",
     "latest",
+    "night_timing",
     "one_side",
     "render_html",
     "render_md",

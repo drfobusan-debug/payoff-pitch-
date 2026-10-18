@@ -22,6 +22,7 @@ from datetime import date as Date
 from pathlib import Path
 
 from cfb_engine.audit.grade import LOSS, PUSH, WIN
+from cfb_engine.market import atscontext
 from cfb_engine.market.odds import american_to_decimal
 from cfb_engine.market.tiers import Tier
 from cfb_engine.recommendations import Recommendation
@@ -66,6 +67,31 @@ class LedgerEntry:
     # Handle% minus tickets% on the side bet (VSiN public splits), so the signal
     # MLB measured at AUC 0.80 on moneylines can be graded on college football.
     sharp_div: float | None = None
+    # Who played: both sides' P4/G5/FCS tiers from the CFBD final ("G5-P4"), and
+    # whether either was AP-ranked on the card (``cfb_engine.market.atscontext``).
+    conf_tier: str | None = None
+    top25: bool | None = None
+    # The side's and its opponent's top units, ranked on games before the slate
+    # (``cfb_engine.market.unitranks``), e.g. ``off:4 def:31 pass_off:2``.
+    unit_ranks: str | None = None
+    opp_unit_ranks: str | None = None
+    # Totals only: the YPP tags the game earned on stats before the slate
+    # (``cfb_engine.market.yppmatch``); "-" when it earned none.
+    ypp_tags: str | None = None
+    # Totals only (``cfb_engine.audit.shop``): the same side graded at the best
+    # number an allowed book offered on the card's pull, and at Kalshi's ask on
+    # the nearest rung. Graded only; nothing is bought at either.
+    shop_book: str | None = None
+    shop_line: float | None = None
+    shop_odds: float | None = None
+    shop_result: str | None = None
+    shop_pnl: float | None = None
+    kalshi_strike: float | None = None
+    kalshi_bid: float | None = None
+    kalshi_ask: float | None = None
+    kalshi_oi: float | None = None
+    kalshi_result: str | None = None
+    kalshi_pnl: float | None = None
 
 
 LEDGER_FIELDS = [
@@ -73,12 +99,17 @@ LEDGER_FIELDS = [
     "odds", "under_odds", "tier", "model_prob", "ev", "result", "pnl",
     "raw_prob", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts",
-    "drift", "pass_gate", "sharp_div", "open_drift",
+    "drift", "pass_gate", "sharp_div", "open_drift", "conf_tier", "top25",
+    "unit_ranks", "opp_unit_ranks", "ypp_tags",
+    "shop_book", "shop_line", "shop_odds", "shop_result", "shop_pnl",
+    "kalshi_strike", "kalshi_bid", "kalshi_ask", "kalshi_oi", "kalshi_result", "kalshi_pnl",
 ]
 _OPTIONAL_FLOAT_FIELDS = (
     "line", "odds", "under_odds", "ev", "fair_prob", "bet_prob",
     "close_odds", "close_prob", "clv", "clv_ev", "clv_pts", "drift",
     "sharp_div", "open_drift",
+    "shop_line", "shop_odds", "shop_pnl",
+    "kalshi_strike", "kalshi_bid", "kalshi_ask", "kalshi_oi", "kalshi_pnl",
 )
 
 
@@ -119,9 +150,14 @@ def entries_from_graded(
                 open_drift=rec.open_drift,
                 pass_gate=rec.pass_gate,
                 sharp_div=rec.sharp_div,
+                top25=atscontext.top25_game(rec.brief),
             )
         )
     return entries
+
+
+def _to_bool(v: str) -> bool | None:
+    return None if v == "" else v == "1"
 
 
 def _to_float(v: str) -> float | None:
@@ -167,6 +203,22 @@ def load_ledger(path: Path) -> list[LedgerEntry]:
                     pass_gate=row.get("pass_gate", "") or None,
                     sharp_div=_to_float(row.get("sharp_div", "")),
                     open_drift=_to_float(row.get("open_drift", "") or ""),
+                    conf_tier=row.get("conf_tier", "") or None,
+                    top25=_to_bool(row.get("top25", "") or ""),
+                    unit_ranks=row.get("unit_ranks"),
+                    opp_unit_ranks=row.get("opp_unit_ranks"),
+                    ypp_tags=row.get("ypp_tags") or None,
+                    shop_book=row.get("shop_book") or None,
+                    shop_line=_to_float(row.get("shop_line", "") or ""),
+                    shop_odds=_to_float(row.get("shop_odds", "") or ""),
+                    shop_result=row.get("shop_result") or None,
+                    shop_pnl=_to_float(row.get("shop_pnl", "") or ""),
+                    kalshi_strike=_to_float(row.get("kalshi_strike", "") or ""),
+                    kalshi_bid=_to_float(row.get("kalshi_bid", "") or ""),
+                    kalshi_ask=_to_float(row.get("kalshi_ask", "") or ""),
+                    kalshi_oi=_to_float(row.get("kalshi_oi", "") or ""),
+                    kalshi_result=row.get("kalshi_result") or None,
+                    kalshi_pnl=_to_float(row.get("kalshi_pnl", "") or ""),
                 )
             )
     return out
@@ -187,6 +239,13 @@ def update_ledger(path: Path, new_entries: list[LedgerEntry], date: Date) -> lis
             for name in _OPTIONAL_FLOAT_FIELDS:
                 if row[name] is None:
                     row[name] = ""
+            row["conf_tier"] = e.conf_tier or ""
+            row["top25"] = "" if e.top25 is None else str(int(e.top25))
+            row["unit_ranks"] = e.unit_ranks if e.unit_ranks is not None else ""
+            row["opp_unit_ranks"] = e.opp_unit_ranks if e.opp_unit_ranks is not None else ""
+            row["ypp_tags"] = e.ypp_tags if e.ypp_tags is not None else ""
+            for name in ("shop_book", "shop_result", "kalshi_result"):
+                row[name] = row[name] or ""
             w.writerow(row)
     return merged
 

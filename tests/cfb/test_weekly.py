@@ -8,7 +8,7 @@ import pytest
 
 from cfb_engine import cli
 from cfb_engine.audit.ledger import LedgerEntry, update_ledger
-from cfb_engine.audit.weekly import accuracy, segment, weekly_audit
+from cfb_engine.audit.weekly import game_briers, segment, weekly_audit
 from cfb_engine.output.weekly_report import build_weekly_article
 
 END = date(2026, 10, 3)
@@ -134,16 +134,73 @@ def test_splits_separate_sides_favorites_and_dogs():
     assert "ATS: favorite" not in splits
 
 
-def test_accuracy_compares_model_and_market_on_the_same_rows():
+def test_briers_score_each_game_once_on_the_favorite_or_the_over():
     rows = [
-        _e("2026-10-01", "win", model_prob=0.6, fair_prob=0.9, close_prob=0.8),
-        _e("2026-10-01", "loss", model_prob=0.6, fair_prob=0.1, close_prob=None),
+        # ML: favorite won; the dog row of the same game is ignored.
+        _e(
+            "2026-10-01",
+            "win",
+            market="game_ml",
+            selection="A ML",
+            line=None,
+            model_prob=0.6,
+            fair_prob=0.7,
+            close_prob=0.8,
+        ),
+        _e(
+            "2026-10-01",
+            "loss",
+            market="game_ml",
+            selection="B ML",
+            line=None,
+            model_prob=0.3,
+            fair_prob=0.3,
+            close_prob=0.2,
+        ),
+        # Spread: only the dog row exists, so the favorite is read off it, flipped.
+        _e("2026-10-01", "win", selection="B +3.5", line=3.5, model_prob=0.6, fair_prob=0.5),
+        # Total: the over lost.
+        _e(
+            "2026-10-01",
+            "loss",
+            market="game_total",
+            selection="Over 50.0",
+            line=50.0,
+            model_prob=0.4,
+            fair_prob=0.5,
+        ),
+        _e(
+            "2026-10-01",
+            "win",
+            market="game_total",
+            selection="Under 50.0",
+            line=50.0,
+            model_prob=0.6,
+            fair_prob=0.5,
+        ),
     ]
-    a = accuracy(rows)
-    assert a.n == 2 and a.model == pytest.approx((0.16 + 0.36) / 2)
-    assert a.market == pytest.approx(0.01)
-    assert a.n_close == 1 and a.model_at_close == pytest.approx(0.16)
-    assert a.close == pytest.approx(0.04)
+    ml, ats, tot = game_briers(rows)
+    assert ml.n == 1 and ml.model == pytest.approx(0.16) and ml.market == pytest.approx(0.09)
+    assert ml.n_close == 1 and ml.close == pytest.approx(0.04)
+    assert ats.n == 1 and ats.model == pytest.approx(0.16) and ats.market == pytest.approx(0.25)
+    assert ats.n_close == 0
+    assert tot.n == 1 and tot.model == pytest.approx(0.16) and tot.market == pytest.approx(0.25)
+
+
+def test_close_ev_is_read_against_the_juice_the_prices_carried_at_bet_time():
+    rows = [_e("2026-10-01", "win", fair_prob=0.5, clv=0.01, clv_ev=-0.02)] * 3
+    s = segment("x", rows)
+    assert s.bet_ev == pytest.approx(0.5 * (1 + 100 / 110) - 1)
+    assert s.close_ev == pytest.approx(-0.02)
+    assert s.close_ev - s.bet_ev > 0
+
+
+def test_slates_that_move_together_widen_the_range():
+    spread = [_e(d, r) for d in ("2026-09-01", "2026-09-02") for r in ("win", "loss")] * 5
+    lumped = [_e("2026-09-01", "win")] * 10 + [_e("2026-09-02", "loss")] * 10
+    a, b = segment("spread", spread), segment("lumped", lumped)
+    assert a.roi == pytest.approx(b.roi)
+    assert b.roi_hi - b.roi_lo > a.roi_hi - a.roi_lo
 
 
 def test_findings_say_when_the_market_is_better_and_the_profit_outruns_the_close():
@@ -162,14 +219,20 @@ def test_findings_say_when_the_market_is_better_and_the_profit_outruns_the_close
     assert "not proven" in text
     assert "bet-time market was more accurate than the model" in text
     assert "likely variance" in text
+    assert text.index("closing price") < text.index("Brier") < text.index("Buys are")
 
 
 def test_article_has_both_halves_with_the_same_sections():
     rows = [_e("2026-09-20", "win"), _e("2026-10-01", "loss")]
     html = build_weekly_article(weekly_audit(rows, END))
     assert "This week (Sep 27-Oct 3)" in html and "Ledger to date" in html
-    for section in ("Summary", "By market", "Closing line value", "Accuracy: model vs market"):
+    for section in ("Summary", "By market", "Price at the close", "Forecast accuracy (Brier)"):
         assert html.count(f"<h3>{section}</h3>") == 2
+    assert (
+        html.index("Price at the close")
+        < html.index("Forecast accuracy")
+        < html.index("<h3>Buys</h3>")
+    )
     assert "By slate" in html and "By week" in html
 
 

@@ -1,0 +1,14 @@
+{
+  "sd_by_bucket": {
+    "all": 16.277,
+    "mid_wide": 16.3,
+    "mid_blowout": 15.71,
+    "mid_close": 16.821,
+    "deep_wide": 15.427,
+    "deep_close": 16.253
+  },
+  "key_mass": {},
+  "parity_shift": 0.01307,
+  "n": 5508,
+  "fitted_on": "2026-10-12"
+}

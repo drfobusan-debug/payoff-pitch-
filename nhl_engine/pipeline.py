@@ -424,8 +424,10 @@ def price_game(
             continue
         model, cal_reasons = calib.apply(sel.market, raw)
         sim_prob: float | None = None
+        sim_model: markets.Prob | None = None
         if sel.market in cfg.gates.anchored_markets:
             sim_prob = model.win
+            sim_model = model
             model = anchor(model, sel.consensus, cfg.gates.market_anchor)
             cal_reasons = [
                 *cal_reasons,
@@ -441,6 +443,7 @@ def price_game(
             goalie_confirmed=both_confirmed,
             settlement_gate=settlement_gate,
             sim_prob=sim_prob,
+            sim_model=sim_model,
         )
         priced.reasons.extend(cal_reasons)
         card.rows.append(
@@ -545,6 +548,16 @@ def has_started(start_utc: str, now: datetime) -> bool:
     return start is not None and start <= now
 
 
+def starting_before(starts: dict[str, str], cutoff: datetime, now: datetime) -> set[str]:
+    """Matchups with a known start in ``[now, cutoff)``: the early card's games."""
+    out: set[str] = set()
+    for matchup, start_utc in starts.items():
+        start = parse_utc(start_utc)
+        if start is not None and now < start < cutoff:
+            out.add(matchup)
+    return out
+
+
 def one_buy_per_side(rows: list[LedgerRow]) -> list[LedgerRow]:
     """Keep one buy per (market, side, entity) in a game: the highest Kelly.
 
@@ -581,6 +594,8 @@ def run_slate(
     seed: int | None = None,
     logs: PlayerLogClient | None = None,
     starts: dict[str, str] | None = None,
+    only: set[str] | None = None,
+    overrides: dict[str, dict[str, object]] | None = None,
 ) -> SlateCard:
     now = now or datetime.now(timezone.utc)
     priced_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -595,7 +610,8 @@ def run_slate(
         log.exception("prop projections failed; props unpriced")
     league = league_for(mp, slate, season, prior, cfg.shrink.league_k_games)
     lineups = load_lineups(lineups_path(data_dir, slate))
-    overrides = load_overrides(overrides_path(data_dir, slate))
+    if overrides is None:
+        overrides = load_overrides(overrides_path(data_dir, slate))
     base_seed = seed if seed is not None else int(slate.strftime("%Y%m%d"))
     out = SlateCard(slate, season, priced_at, tag, prior.version, props=props)
     cache: dict[str, TeamInputs] = {}
@@ -622,6 +638,9 @@ def run_slate(
         start = (starts or {}).get(matchup, "")
         if has_started(start, now):
             out.unpriced.append(f"{matchup}: started {start}, not priced")
+            continue
+        if only is not None and matchup not in only:
+            out.unpriced.append(f"{matchup}: starts {start or 'unknown'}, on a later card")
             continue
         try:
             card = price_game(

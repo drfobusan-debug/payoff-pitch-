@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date as Date
 
-from cfb_engine.audit import snapshot
+from cfb_engine.audit import shop, snapshot
 from cfb_engine.calibration import Calibrator, ConfidenceShrink
 from cfb_engine.config import Config
 from cfb_engine.data.advanced import AdvancedBook, parse_advanced
@@ -30,6 +30,7 @@ from cfb_engine.data.injuries import (
     log_availability,
     unavailable_for,
 )
+from cfb_engine.data.kalshi import KalshiClient
 from cfb_engine.data.oddsapi import Board, OddsAPIClient
 from cfb_engine.data.portal import PortalBook, portal_note
 from cfb_engine.data.preseason import stability_factor
@@ -53,6 +54,7 @@ from cfb_engine.market.confidence import (
 )
 from cfb_engine.market.drift import DriftGate
 from cfb_engine.market.ev import EVResult, MarketQuote, anchor_to_market, evaluate
+from cfb_engine.market.gradedonly import GradedOnly
 from cfb_engine.market.linevalue import drift_probability
 from cfb_engine.market.mlsharp import SharpGate
 from cfb_engine.market.ordering import order_recs
@@ -87,8 +89,10 @@ class Pipeline:
         odds: OddsAPIClient | None = None,
         cfbd: CFBDClient | None = None,
         calibrator: Calibrator | None = None,
+        kalshi: KalshiClient | None = None,
     ) -> None:
         self.cfg = cfg
+        self.kalshi = kalshi or KalshiClient()
         self.odds = odds or OddsAPIClient(
             cfg.creds.odds_api_key,
             regions=cfg.odds_regions,
@@ -108,6 +112,7 @@ class Pipeline:
         self.drift_gate = DriftGate.from_env()
         self.price_band = PriceBand.from_env()
         self.sharp_gate = SharpGate.from_env()
+        self.graded_only = GradedOnly.from_env()
         self.splits_provider = SplitsProvider(cfg.cache_dir)
         self.splits: SplitBook = {}
         self.espn = ESPNColor(cfg.cache_dir / "espn")
@@ -170,6 +175,7 @@ class Pipeline:
     def run(
         self, slate_date: Date, *, slate: Slate | None = None, board: Board | None = None
     ) -> list[Recommendation]:
+        fetched = slate is None or board is None
         if slate is None or board is None:
             slate, board = self.odds.fetch_board(slate_date)
         if not slate.games:
@@ -233,6 +239,8 @@ class Pipeline:
         if self.cfg.vsin_splits:
             self.splits = self.splits_provider.fetch(slate)
         self._baseline_board(slate_date, slate, board)
+        if fetched:
+            self._capture_books(slate_date, slate, board)
         try:
             self.briefs = build_briefs(
                 self.cfbd,
@@ -638,6 +646,11 @@ class Pipeline:
                 reasons = [*reasons, sharp_reason]
             if not keep:
                 tier, pass_gate = Tier.PASS, sharp_gate
+        if tier != Tier.PASS:
+            keep, graded_reason, graded_gate = self.graded_only.verdict(market, tier.value)
+            if not keep:
+                reasons = [*reasons, graded_reason]
+                tier, pass_gate = Tier.PASS, graded_gate
         return Recommendation(
             game_date=ctx.game.game_date,
             game_id=ctx.game.game_id,
@@ -701,6 +714,17 @@ class Pipeline:
         self._first_board = merged
         self._opener = snapshot.load(self.cfg.opener_file(slate_date))
         return merged
+
+    def _capture_books(self, slate_date: Date, slate: Slate, board: Board) -> None:
+        """Append every book's pregame total (and Kalshi's ladder) for the audit."""
+        ladders = self.kalshi.totals() if self.cfg.kalshi else None
+        try:
+            shop.append(
+                shop.capture_rows(slate, board, shop.CARD, ladders=ladders),
+                self.cfg.books_file(slate_date),
+            )
+        except OSError as exc:
+            logger.warning("could not write per-book totals (%s)", exc)
 
     def _drift(
         self,

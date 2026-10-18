@@ -43,7 +43,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from mlb_engine.audit import power_audit, power_roster  # noqa: E402
+from mlb_engine.audit import power_audit, power_ledger, power_roster  # noqa: E402
+from mlb_engine.audit.clv import load_closing  # noqa: E402
 from mlb_engine.audit.grade import LOSS, PUSH, WIN  # noqa: E402
 from mlb_engine.audit.power_ledger import (  # noqa: E402
     GradedPosition,
@@ -324,7 +325,12 @@ def write_article(args: argparse.Namespace, cfg: Config, ledger: Path) -> int:
             log.warning("no play-by-play for %s: %s", pk, exc)
             return []
 
-    day_audit, total = power_audit.build(day, positions, roster, result, plays, args.run)
+    def closing(d: str) -> power_ledger.CloseIndex:
+        return power_ledger.close_index(load_closing(cfg.audit_dir / f"closing_{d}.json"))
+
+    day_audit, total = power_audit.build(
+        day, positions, roster, result, plays, args.run, fetch_closing=closing
+    )
     notes = power_audit.commentary(day_audit, total)
     body = power_audit.render_html(day_audit, total, notes)
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

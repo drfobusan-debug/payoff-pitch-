@@ -7,9 +7,10 @@ from datetime import date
 import pytest
 from openpyxl import load_workbook
 
+from cfb_engine.audit.grade import build_result_index
 from cfb_engine.audit.ledger import daily_rollup, entries_from_graded, overall_metrics
 from cfb_engine.audit.priced import engine_priced_stat
-from cfb_engine.audit.probation import market_probation
+from cfb_engine.audit.probation import WATCHING, Probation, market_probation
 from cfb_engine.cli import _build_parser, main
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import build_audit_article
@@ -183,3 +184,73 @@ def test_a_lean_the_line_has_come_to_is_bold_with_a_legend(tmp_path):
     ]
     assert bold == [agrees.display_category]
     assert str(ws.cell(row=5, column=1).value).startswith("Bold: the model leans")
+
+
+def test_the_audit_article_lists_each_graded_only_rule_before_its_verdict():
+    """A WATCHING rule still prints its record, so the PDF shows what is being tracked."""
+    rule = Probation(
+        "ats_upgrade_top25_game", "upgrade", 38, 0.432, 0.141, 0.629, 0.235, WATCHING, ""
+    )
+    html, _ = build_audit_article(DAY, [], [], 0, tracked=[rule])
+    assert "Nothing has crossed the volume" in html
+    assert "ats_upgrade_top25_game</td><td>WATCHING</td><td>38</td>" in html
+    assert "+43.2%" in html and "+62.9%" in html and "+23.5%" in html
+    bare, _ = build_audit_article(DAY, [], [], 0)
+    assert "Graded-only rule" not in bare
+
+
+def _audit_fixture(tmp_path, monkeypatch, slates):
+    """A data dir with saved predictions for ``slates`` and a ledger graded through Oct 9."""
+    from dataclasses import replace
+
+    from cfb_engine import cli
+    from cfb_engine.audit.ledger import update_ledger
+    from cfb_engine.config import load_config
+    from cfb_engine.data.cfbd import GameResult
+
+    monkeypatch.setenv("CFBE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("CFBE_STATE_SYNC", "0")
+    cfg = load_config()
+    cfg.audit_dir.mkdir(parents=True, exist_ok=True)
+    for d in slates:
+        save_json([replace(_rec(Tier.STRONG), game_date=d)], cfg.predictions_file(d))
+    oct9 = date(2026, 10, 9)
+    update_ledger(cfg.ledger_file, entries_from_graded([(_rec(Tier.STRONG), "win")], oct9), oct9)
+    final = GameResult(home="Georgia", away="Alabama", home_points=27, away_points=20)
+    monkeypatch.setattr(cli, "_today", lambda: date(2026, 10, 14))
+    monkeypatch.setattr(cli, "_result_index", lambda c, d: build_result_index([final]))
+    monkeypatch.setattr(cli, "_grade_podcasts", lambda c, d, i: 0)
+    emitted: list[date] = []
+    monkeypatch.setattr(cli, "_emit_ledger", lambda c, e, d, **kw: emitted.append(d))
+    return cfg, emitted
+
+
+def test_the_scheduled_audit_catches_up_a_slate_a_missed_night_left_ungraded(tmp_path, monkeypatch):
+    from cfb_engine.audit.ledger import load_ledger
+
+    oct10, oct13, stale = date(2026, 10, 10), date(2026, 10, 13), date(2026, 9, 1)
+    cfg, emitted = _audit_fixture(tmp_path, monkeypatch, [stale, oct10, oct13])
+    assert main(["audit", "--no-email"]) == 0
+    dates = sorted({e.date for e in load_ledger(cfg.ledger_file)})
+    assert dates == ["2026-10-09", "2026-10-10", "2026-10-13"]
+    assert emitted == [oct13]
+
+
+def test_an_audit_with_a_date_grades_only_that_slate(tmp_path, monkeypatch):
+    from cfb_engine.audit.ledger import load_ledger
+
+    oct10, oct13 = date(2026, 10, 10), date(2026, 10, 13)
+    cfg, emitted = _audit_fixture(tmp_path, monkeypatch, [oct10, oct13])
+    assert main(["audit", "--date", "2026-10-13", "--no-email"]) == 0
+    assert sorted({e.date for e in load_ledger(cfg.ledger_file)}) == ["2026-10-09", "2026-10-13"]
+    assert emitted == [oct13]
+
+
+def test_a_missed_slate_is_caught_up_even_when_yesterday_had_no_card(tmp_path, monkeypatch):
+    from cfb_engine.audit.ledger import load_ledger
+
+    oct10 = date(2026, 10, 10)
+    cfg, emitted = _audit_fixture(tmp_path, monkeypatch, [oct10])
+    assert main(["audit", "--no-email"]) == 0
+    assert "2026-10-10" in {e.date for e in load_ledger(cfg.ledger_file)}
+    assert emitted == [oct10]

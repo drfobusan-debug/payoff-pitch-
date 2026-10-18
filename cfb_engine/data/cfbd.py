@@ -156,6 +156,10 @@ class GameResult:
     home_points: int
     away_points: int
     start_date: str = ""  # CFBD kickoff stamp (UTC ISO); "" when the caller has none
+    home_conference: str = ""
+    away_conference: str = ""
+    home_division: str = ""  # CFBD classification: "fbs", "fcs", ...
+    away_division: str = ""
 
 
 @dataclass(frozen=True)
@@ -168,6 +172,21 @@ class SPLine:
     off_rank: int | None
     def_rating: float | None
     def_rank: int | None
+
+
+def _conferences(row: dict[str, object]) -> dict[str, str]:
+    """Each side's conference and classification off a ``/games`` row."""
+
+    def pick(camel: str, snake: str) -> str:
+        v = row.get(camel, row.get(snake))
+        return str(v) if v else ""
+
+    return {
+        "home_conference": pick("homeConference", "home_conference"),
+        "away_conference": pick("awayConference", "away_conference"),
+        "home_division": pick("homeClassification", "home_division"),
+        "away_division": pick("awayClassification", "away_division"),
+    }
 
 
 def _int_or_none(x: object) -> int | None:
@@ -416,7 +435,7 @@ class CFBDClient:
                 continue
             if not home or not away:
                 continue
-            out.append(GameResult(str(home), str(away), int(hp), int(ap)))
+            out.append(GameResult(str(home), str(away), int(hp), int(ap), **_conferences(row)))
         return out
 
     def fetch_all_results(self, season: int) -> list[GameResult]:
@@ -432,7 +451,9 @@ class CFBDClient:
             if not home or not away:
                 continue
             start = str(row.get("start_date") or row.get("startDate") or "")
-            out.append(GameResult(str(home), str(away), int(hp), int(ap), start))
+            out.append(
+                GameResult(str(home), str(away), int(hp), int(ap), start, **_conferences(row))
+            )
         return out
 
     def fetch_sp_table(self, season: int) -> dict[str, SPLine]:
@@ -511,6 +532,22 @@ class CFBDClient:
             ):
                 out.append((name, pos, team, float(total)))
         return out
+
+    def fetch_unit_stats(self, season: int, end_week: int) -> list[dict[str, object]]:
+        """Advanced team stats through ``end_week`` (garbage time out), for point-in-time ranks."""
+        if not self.available() or end_week < 1:
+            return []
+        data = self._get(
+            "/stats/season/advanced", year=season, endWeek=end_week, excludeGarbageTime="true"
+        )
+        return [r for r in data if isinstance(r, dict)] if isinstance(data, list) else []
+
+    def fetch_team_stats(self, season: int, end_week: int) -> list[dict[str, object]]:
+        """Basic team season stats (yards, plays) through ``end_week``, one row per stat."""
+        if not self.available() or end_week < 1:
+            return []
+        data = self._get("/stats/season", year=season, endWeek=end_week)
+        return [r for r in data if isinstance(r, dict)] if isinstance(data, list) else []
 
     def fetch_schedule(self, season: int) -> list[GameMeta]:
         """Every game's schedule metadata (venue, neutral flag, kickoff)."""

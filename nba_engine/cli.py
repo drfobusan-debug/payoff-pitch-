@@ -192,6 +192,7 @@ def _record_pass(root: Path, day: Date, tips: dict[str, str], tag: str, taken: s
     }
     rows = ledger.pregame(capture.read_day(root, day), live)
     versions, bias = _versions(root)
+    pending = alarm.pending(alarm.read_alerts(root, day), {e: taken for e in live})
     priced = ledger.price(
         selections(rows),
         ledger.quote_index(rows),
@@ -199,8 +200,10 @@ def _record_pass(root: Path, day: Date, tips: dict[str, str], tag: str, taken: s
         shift=overbias.shifts(bias),
         versions=versions,
         pass_tag=tag,
+        pending=pending,
     )
-    print(f"{day}: priced {len(priced)} row(s) for the ledger ({tag})")
+    held = f", {len(pending)} game(s) news_pending" if pending else ""
+    print(f"{day}: priced {len(priced)} row(s) for the ledger ({tag}){held}")
     return ledger.write_once(priced, ledger.pass_path(root, day, taken, tag))
 
 
@@ -389,6 +392,13 @@ def cmd_card(args: argparse.Namespace) -> int:
     if not rows:
         print(f"{day}: no priced ledger pass to card; record one with `capture --record TAG`")
         return 1
+    if args.late:
+        now = datetime.now(timezone.utc)
+        untipped = {r.event_id for r in rows if (t := parse_utc(r.tip_utc)) is not None and t > now}
+        if not untipped:
+            print(f"{day}: no late tip left on the slate; late package not sent")
+            return 0
+        print(f"{day}: {len(untipped)} game(s) still to tip; sending the late package")
     try:
         fetch = None if args.offline else context.espn_fetch(root)
         ctx = context.gather(root, day, rows, fetch=fetch)
@@ -439,7 +449,8 @@ def cmd_card(args: argparse.Namespace) -> int:
     try:
         sent = send_package(
             cfg,
-            subject=f"{card.title()} -- {buys} buy{'s' if buys != 1 else ''} [paper]",
+            subject=f"{card.title()}{' (late slate)' if args.late else ''}"
+            f" -- {buys} buy{'s' if buys != 1 else ''} [paper]",
             html_body=page,
             text_body=text,
             to=args.to,
@@ -984,6 +995,9 @@ def build_parser() -> argparse.ArgumentParser:
     cd.add_argument("--date", help="slate date (ET), default today")
     cd.add_argument("--email", action="store_true", help="email the PDF and workbook")
     cd.add_argument("--to", help="recipient (default NBAE_EMAIL_TO / GMAIL_USER)")
+    cd.add_argument(
+        "--late", action="store_true", help="only when a game has not tipped yet (evening resend)"
+    )
     cd.add_argument("--no-sync", action="store_true", help="do not pull engine-state")
     cd.add_argument(
         "--offline", action="store_true", help="context from disk only (no ESPN finals fetch)"

@@ -14,6 +14,7 @@ from typing import Generic, TypeVar
 
 from engine_common.podcasts.extract import Pick
 from engine_common.podcasts.picks import MARKET_LABEL, Placed, Record, Records, SlatePicks
+from engine_common.podcasts.shows import VSIN_NAME, VSIN_SHOW
 
 R = TypeVar("R")
 
@@ -92,10 +93,16 @@ def game_block(view: PodcastView[R] | None, matchup: str) -> str:
     if not picks:
         return ""
     picks.sort(key=lambda pl: (pl.pick.kind != "official", pl.pick.market, pl.pick.show_name))
-    return (
-        "<div class='pod'><h3>Podcast picks</h3><ul>"
-        + "".join(_item(pl, view) for pl in picks)
+    blocks = (
+        ("Podcast picks", [pl for pl in picks if pl.pick.show != VSIN_SHOW]),
+        ("VSiN best bets", [pl for pl in picks if pl.pick.show == VSIN_SHOW]),
+    )
+    return "".join(
+        f"<div class='pod'><h3>{title}</h3><ul>"
+        + "".join(_item(pl, view) for pl in mine)
         + "</ul></div>"
+        for title, mine in blocks
+        if mine
     )
 
 
@@ -190,7 +197,13 @@ def records_block(view: PodcastView[R] | None, ordered: list[str]) -> str:
         "Underpowered: within 2 SE of the 52.4% needed at -110.</p>"
     )
     return (
-        "<div class='podrec'><h2>Podcast records</h2>"
+        "<div class='podrec'><h2>"
+        + (
+            "Podcast & VSiN records"
+            if any(off.label == VSIN_NAME for off, _ in rec.shows)
+            else "Podcast records"
+        )
+        + "</h2>"
         + note
         + table
         + hosts

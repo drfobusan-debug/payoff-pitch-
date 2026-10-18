@@ -13,6 +13,8 @@ import re
 from dataclasses import dataclass, replace
 
 CFB, NFL, MLB, NBA, CBB, NHL = "cfb", "nfl", "mlb", "nba", "cbb", "nhl"
+VSIN_SHOW = "vsin_bets"  # VSiN's written best bets, read off its articles
+VSIN_NAME = "VSiN Best Bets"
 LEAGUES: tuple[str, ...] = (CFB, NFL, MLB, NBA, CBB, NHL)
 LEAGUE_NAME = {
     CFB: "college football",
@@ -53,6 +55,7 @@ class Show:
     dedicated: bool = False  # every episode is about its league(s): read in full
     read_all: bool = False  # multi-sport, but titles don't say which: read in full
     skip: str = ""  # title regex for episodes with no picks in them
+    articles: bool = False  # written picks (VSiN's best bets), read by engine_common.podcasts.vsin
 
     def wants(self, title: str, description: str) -> bool:
         if self.skip and re.search(self.skip, title, re.I):
@@ -264,6 +267,14 @@ SHOWS: tuple[Show, ...] = (
         leagues=(NFL, CFB, NBA, CBB),
         dedicated=True,
     ),
+    Show(
+        VSIN_SHOW,
+        VSIN_NAME,
+        "https://vsin.com/wp-json/wp/v2/posts",
+        (),
+        leagues=(CFB, NFL, MLB, NBA, CBB, NHL),
+        articles=True,
+    ),
 )
 
 BY_KEY = {s.key: s for s in SHOWS}
@@ -286,6 +297,8 @@ __all__ = [
     "NFL",
     "NHL",
     "SHOWS",
+    "VSIN_NAME",
+    "VSIN_SHOW",
     "Show",
     "for_league",
 ]

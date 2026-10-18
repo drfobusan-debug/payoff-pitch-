@@ -28,13 +28,18 @@ from dataclasses import dataclass, field
 
 from mlb_engine.audit.grade import LOSS, PUSH, WIN
 from mlb_engine.audit.power_ledger import (
+    ONE_SIDE_FROM,
+    Closed,
+    CloseIndex,
     GradedPosition,
     Position,
     Record,
     bucket,
+    closed,
     grade_positions,
-    name_key,
     summarize,
+    two_sided,
+    without_pairs,
 )
 from mlb_engine.audit.power_roster import ARM, BAT, DROPPED, GATED, HELD, SCREENED, RosterRow
 from mlb_engine.data.plays import PlateAppearance, Tally, starters, tally
@@ -104,18 +109,54 @@ class Comparison:
     #: mean(shown error - market error) and its standard error; negative favours us.
     diff: float
     diff_se: float | None
+    #: The same paired difference for the raw model, before the anchor pulls it
+    #: toward the price: the screen's own opinion, which the printed number hides.
+    model_diff: float = 0.0
+    model_diff_se: float | None = None
 
     @property
     def verdict(self) -> str:
+        return self._verdict(self.diff, self.diff_se)
+
+    @property
+    def model_verdict(self) -> str:
+        return self._verdict(self.model_diff, self.model_diff_se)
+
+    def _verdict(self, diff: float, se: float | None) -> str:
         if self.n < MIN_COMPARE:
             return "underpowered"
-        if self.diff_se is None or self.diff_se == 0:
+        if se is None or se == 0:
             return "no spread to judge"
-        if self.diff <= -Z * self.diff_se:
+        if diff <= -Z * se:
             return "the screen's number beat the price"
-        if self.diff >= Z * self.diff_se:
+        if diff >= Z * se:
             return "the price beat the screen's number"
         return "no difference from the price"
+
+
+@dataclass(frozen=True)
+class CloseValue:
+    """The recorded prices judged at the close, against the juice paid at bet time."""
+
+    n: int
+    clv: float
+    close_ev: float
+    bet_ev: float
+    toward: int
+    against: int
+
+    @property
+    def moved(self) -> float:
+        """What the close's movement was worth per unit: close-EV less the juice."""
+        return self.close_ev - self.bet_ev
+
+    @property
+    def verdict(self) -> str:
+        if self.close_ev > 0:
+            return "the close paid more than the juice"
+        if self.moved > 0:
+            return "the close moved toward the rows, but not enough to pay the juice"
+        return "the close did not move toward the rows"
 
 
 @dataclass(frozen=True)
@@ -139,6 +180,7 @@ class DayAudit:
     arms: list[ArmResult] = field(default_factory=list)
     #: Ledger rows on a bat the screen had dropped, which it should not hold.
     dropped_positions: list[str] = field(default_factory=list)
+    closed: list[Closed] = field(default_factory=list)
 
 
 @dataclass
@@ -151,6 +193,9 @@ class TotalAudit:
     #: Days with a recorded roster, and every bat on them.
     roster_days: list[str] = field(default_factory=list)
     bats: list[BatResult] = field(default_factory=list)
+    #: Graded rows matched to the day's closing snapshot, and the days that had one.
+    closed: list[Closed] = field(default_factory=list)
+    close_days: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -170,24 +215,6 @@ def display_bucket(position: Position) -> str:
         return "(no rating)"
     b = bucket(position)
     return RATING_DISPLAY.get(b, b)
-
-
-def _prop_key(p: Position) -> tuple[str, str, str, str, float | None]:
-    who = str(p.player_id) if p.player_id is not None else name_key(p.batter)
-    return (p.date, p.run_id, who, p.stat, p.line)
-
-
-def two_sided(positions: Iterable[Position]) -> set[tuple[str, str, str, str, float | None]]:
-    """Props recorded on both sides in one run: a pair that can only lose the vig."""
-    sides: dict[tuple[str, str, str, str, float | None], set[str]] = defaultdict(set)
-    for p in positions:
-        sides[_prop_key(p)].add(p.side)
-    return {k for k, v in sides.items() if {"over", "under"} <= v}
-
-
-def without_pairs(graded: list[GradedPosition]) -> list[GradedPosition]:
-    pairs = two_sided(g.position for g in graded)
-    return [g for g in graded if _prop_key(g.position) not in pairs]
 
 
 def group(graded: list[GradedPosition], key: str) -> list[Record]:
@@ -233,12 +260,33 @@ def compare(graded: list[GradedPosition]) -> Comparison | None:
     model = sum((p.model_prob - o) ** 2 for p, o in rows) / n
     shown = sum((p.shown_prob - o) ** 2 for p, o in rows) / n
     market = sum(((p.fair_prob or 0.0) - o) ** 2 for p, o in rows) / n
-    d = [(p.shown_prob - o) ** 2 - ((p.fair_prob or 0.0) - o) ** 2 for p, o in rows]
-    mean = sum(d) / n
-    se = (
-        math.sqrt(sum((x - mean) ** 2 for x in d) / (n - 1) / n) if n > 1 else None
+
+    def paired(prob: Callable[[Position], float]) -> tuple[float, float | None]:
+        d = [(prob(p) - o) ** 2 - ((p.fair_prob or 0.0) - o) ** 2 for p, o in rows]
+        mean = sum(d) / n
+        se = math.sqrt(sum((x - mean) ** 2 for x in d) / (n - 1) / n) if n > 1 else None
+        return mean, se
+
+    diff, se = paired(lambda p: p.shown_prob)
+    model_diff, model_se = paired(lambda p: p.model_prob)
+    return Comparison(
+        n, round(model, 4), round(shown, 4), round(market, 4), diff, se, model_diff, model_se
     )
-    return Comparison(n, round(model, 4), round(shown, 4), round(market, 4), mean, se)
+
+
+def close_value(rows: list[Closed]) -> CloseValue | None:
+    """Mean CLV, close-EV and bet-time juice over the rows that met their close."""
+    if not rows:
+        return None
+    n = len(rows)
+    return CloseValue(
+        n=n,
+        clv=sum(r.clv for r in rows) / n,
+        close_ev=sum(r.close_ev for r in rows) / n,
+        bet_ev=sum(r.bet_ev for r in rows) / n,
+        toward=sum(1 for r in rows if r.clv > 0),
+        against=sum(1 for r in rows if r.clv < 0),
+    )
 
 
 def decision(graded: list[GradedPosition]) -> Decision | None:
@@ -371,17 +419,19 @@ def dropped_positions(roster: list[RosterRow], positions: list[Position]) -> lis
 def _rec(r: Record) -> str:
     w = f"{r.wins}-{r.losses}" + (f"-{r.pushes}" if r.pushes else "")
     roi = "" if r.roi is None else f", {r.roi:+.1%} ROI"
-    se = "" if r.roi_se is None else f" (±{r.roi_se:.1%})"
-    return f"{w}, {r.units:+.2f}u{roi}{se} on n={r.n}"
+    se = "" if r.range_se is None else f" (±{Z * r.range_se:.1%})"
+    juice = "" if r.juice is None else f", juice {r.juice:+.1%}"
+    return f"{w}, {r.units:+.2f}u{roi}{se}{juice} on n={r.n}"
 
 
 def _signal(r: Record) -> str:
     """Does a record say anything? The same bar the screen's words are held to."""
-    if r.n < LABEL_EARN_ROWS or r.roi is None or r.roi_se is None or r.roi_se <= 0:
+    se = r.range_se
+    if r.n < LABEL_EARN_ROWS or r.roi is None or se is None or se <= 0:
         return "underpowered"
-    if r.roi >= Z * r.roi_se:
+    if r.roi >= Z * se:
         return "positive beyond 2 SE"
-    if r.roi <= -Z * r.roi_se:
+    if r.roi <= -Z * se:
         return "negative beyond 2 SE"
     return "within noise"
 
@@ -417,10 +467,18 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             if day_pairs
             else ""
         )
+        since = [k for k in all_pairs if k[0] >= ONE_SIDE_FROM]
+        when = (
+            f" {len(since)} of them are dated on or after {ONE_SIDE_FROM}, when the ledger "
+            "began recording one side per prop, so the guard was bypassed."
+            if since
+            else f" All are dated before {ONE_SIDE_FROM}, when the ledger began recording "
+            "one side per prop."
+        )
         c.problems.append(
             f"{len(all_pairs)} props in the ledger are recorded on both sides in the same run."
-            f"{today} A pair settles one win and one loss and pays the vig, so it puts a "
-            "guaranteed loss into its bucket's record. The bucket tables below also show "
+            f"{today}{when} A pair settles one win and one loss and pays the vig, so it puts "
+            "a guaranteed loss into its bucket's record. The bucket tables below also show "
             "each record with the pairs removed."
         )
     if day.roster_recorded:
@@ -490,6 +548,14 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
         )
 
     # ---- insights
+    cv = close_value(total.closed)
+    if cv is not None:
+        c.insights.append(
+            f"At the close (n={cv.n} rows on {len(total.close_days)} days): close-EV "
+            f"{cv.close_ev * 100:+.1f}¢ against {cv.bet_ev * 100:+.1f}¢ of juice at bet time, "
+            f"CLV {cv.clv * 100:+.2f} probability points ({cv.toward} toward, {cv.against} "
+            f"against): {cv.verdict}."
+        )
     if day.graded:
         r = summarize("day", day.graded)
         buys = [g for g in day.graded if g.position.is_buy]
@@ -523,12 +589,19 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             f"{cmp_.model:.4f}, no-vig price {cmp_.market:.4f}; paired difference "
             f"{cmp_.diff:+.4f}{se}: {cmp_.verdict}."
         )
+        if cmp_.model_verdict != cmp_.verdict:
+            mse = "" if cmp_.model_diff_se is None else f" ± {cmp_.model_diff_se:.4f}"
+            c.insights.append(
+                f"The raw model before the anchor, {label}: model minus price "
+                f"{cmp_.model_diff:+.4f}{mse}: {cmp_.model_verdict}."
+            )
     tot = summarize("all", total.graded)
     if total.graded:
         c.insights.append(
             f"Whole ledger, {len(total.days)} days ({total.days[0]} to {total.days[-1]}): "
             f"{_rec(tot)}. Rows are not independent bets: one hitter carries several "
-            "markets, and both sides of a prop can be recorded."
+            "markets and a day shares one board, so every ± here is 2 SE with each slate "
+            "resampled together where that is wider."
         )
     records = bucket_records(total.graded)
     clean = bucket_records(without_pairs(total.graded))
@@ -539,7 +612,7 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             extra = f"; without both-sided pairs {_rec(clean[key])}"
         c.insights.append(
             f"Bucket '{name}': {_rec(rec)}{extra}. {_signal(rec).capitalize()}; "
-            f"word earned: {earned_label(rec)}."
+            f"word earned: {earned_label(clean.get(key, rec))}."
         )
     for rec in group(total.graded, "arm tier"):
         c.insights.append(f"Against {rec.label}: {_rec(rec)}. {_signal(rec).capitalize()}.")
@@ -564,11 +637,11 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
             )
 
     # ---- recommendations
-    if all_pairs:
+    if any(k[0] >= ONE_SIDE_FROM for k in all_pairs):
         c.recommendations.append(
-            "Record one side per prop for the buckets that hold no side (RV<0 watch, "
-            "production watch), or record them as display-only. Until then, read those "
-            "buckets with the pairs removed."
+            "A prop was recorded on both sides after the one-side-per-prop guard: check "
+            "the machine that wrote it runs current main, then read the affected buckets "
+            "with the pairs removed."
         )
     if any("lineup the screen read" in p for p in c.problems):
         c.recommendations.append(
@@ -585,6 +658,11 @@ def commentary(day: DayAudit, total: TotalAudit) -> Commentary:
         c.recommendations.append(
             "Re-run the screen once the props post. A survivor with no price is a "
             "matchup opinion that cannot be scored against the market."
+        )
+    if cv is None:
+        c.recommendations.append(
+            "No graded row met a closing snapshot, so closing value is unmeasured. Run the "
+            "close capture with props before first pitch."
         )
     cmp_all = compare(total.graded)
     if cmp_all is None or cmp_all.verdict in ("underpowered", "no spread to judge"):
@@ -674,13 +752,15 @@ def _rec_cells(r: Record) -> list[str]:
         str(r.n),
         record,
         "-" if r.win_pct is None else f"{r.win_pct:.1%}",
+        "-" if r.fair_pct is None else f"{r.fair_pct:.1%}",
         f"{r.units:+.2f}",
         "-" if r.roi is None else f"{r.roi:+.1%}",
-        "-" if r.roi_se is None else f"±{r.roi_se:.1%}",
+        "-" if r.juice is None else f"{r.juice:+.1%}",
+        "-" if r.range_se is None else f"±{Z * r.range_se:.1%}",
     ]
 
 
-_REC_HEAD = ["", "n", "W-L", "win%", "units", "ROI", "1 SE"]
+_REC_HEAD = ["", "n", "W-L", "win%", "no-vig%", "units", "ROI", "juice", "±2 SE"]
 
 
 def _records_table(records: list[Record]) -> str:
@@ -745,6 +825,19 @@ def _positions_rows(graded: list[GradedPosition]) -> list[list[str]]:
             ]
         )
     return out
+
+
+def _close_block(cv: CloseValue | None, days: int) -> str:
+    if cv is None:
+        return "<p class='sub'>No graded row met a closing snapshot.</p>"
+    return _table(
+        ["rows at the close", "days", "close-EV", "juice at bet", "close moved", "CLV (pts)",
+         "toward-against", "verdict"],
+        [[str(cv.n), str(days), f"{cv.close_ev * 100:+.1f}¢", f"{cv.bet_ev * 100:+.1f}¢",
+          f"{cv.moved * 100:+.1f}¢", f"{cv.clv * 100:+.2f}", f"{cv.toward}-{cv.against}",
+          _e(cv.verdict)]],
+        numeric_from=0,
+    )
 
 
 def _compare_block(cmp_: Comparison | None) -> str:
@@ -850,8 +943,12 @@ def _total_section(total: TotalAudit) -> str:
         f"<p class='sub'>{len(total.days)} days, {total.days[0]} to {total.days[-1]}, last run "
         f"of each day: {total.recorded} recorded rows, {len(total.graded)} graded, "
         f"{total.voided} voided. Units are at the recorded price, one unit a row, pushes at "
-        "zero.</p>"
+        "zero. No-vig% is the market's win% on the two-sided rows and juice what those "
+        "prices were expected to return under it; ±2 SE resamples whole slates where that "
+        "is wider than the row-level error.</p>"
     )
+    parts.append("<h3>The price at the close</h3>")
+    parts.append(_close_block(close_value(total.closed), len(total.close_days)))
     g = total.graded
     parts.append(
         _records_table(
@@ -884,7 +981,7 @@ def _total_section(total: TotalAudit) -> str:
                 + [
                     _rec(clean[k]) if k in clean else "-",
                     _e(_signal(r)),
-                    _e(earned_label(r)),
+                    _e(earned_label(clean.get(k, r))),
                 ]
                 for k, r in sorted(recs.items(), key=lambda kv: -kv[1].n)
             ],
@@ -974,6 +1071,7 @@ def build(
     fetch_result: ResultFetcher,
     fetch_plays: PlaysFetcher,
     run_id: str | None = None,
+    fetch_closing: Callable[[str], CloseIndex] | None = None,
 ) -> tuple[DayAudit, TotalAudit]:
     """Grade ``day`` (its last run, or ``run_id``) and every ledger day up to it.
 
@@ -1018,6 +1116,8 @@ def build(
         graded_all.extend(g)
         voided_all += v
         by_day.append(summarize(d, g))
+    indexes = {d: fetch_closing(d) for d in days} if fetch_closing is not None else {}
+    closed_all = closed(graded_all, indexes)
     day_graded = [g for g in graded_all if g.position.date == day]
     day_voided = len(day_rows) - len(day_graded)
 
@@ -1040,6 +1140,7 @@ def build(
         bats=bat_results(day_roster, results, plays, priced(day)),
         arms=arm_results(day_roster, results, plays),
         dropped_positions=dropped_positions(day_roster, day_rows),
+        closed=[c for c in closed_all if c.graded.position.date == day],
     )
     total = TotalAudit(
         days=days,
@@ -1049,6 +1150,8 @@ def build(
         by_day=by_day,
         roster_days=roster_days,
         bats=[b for b in total_bats if b.row.status == HELD],
+        closed=closed_all,
+        close_days=sorted(d for d, ix in indexes.items() if ix),
     )
     return day_audit, total
 
