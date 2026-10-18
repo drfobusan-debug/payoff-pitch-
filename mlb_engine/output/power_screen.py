@@ -1836,6 +1836,16 @@ WEATHER_BAND = 0.02  # 2% on the forecast's home-run multiplier
 #: large enough edge on them to be worth more than a sign.
 TOP_PITCHES = 3
 BIG_RV = 2.0
+#: The run-value read on a family keeps only the hitter's pitches within this
+#: many mph of the starter's own average on it: a 97 mph four-seam is read off
+#: the 95-99 mph four-seams he has seen, not his 91s.
+VELO_BAND = 2.0
+#: Pitches inside the band before it moves the read at all.
+MIN_BAND_PITCHES = 50
+#: The band is shrunk toward his whole-family run value with this many pitches
+#: of weight: per-pitch run value has an SD near 22.6 per 100, so a 100-pitch
+#: band carries about +-2.3 of error on its own and earns half the read.
+RV_SHRINK_PITCHES = 100
 TREND_DAYS = 21  # the recent window the trends are read over
 MIN_TREND_SWINGS = 60
 MIN_TREND_BBE = 25
@@ -2027,9 +2037,10 @@ class ArsenalEdge:
     points: int = 0
     top_in: tuple[str, ...] = ()
     #: The starter's most-thrown families, and the hitter's run value per 100
-    #: pitches on them alone. Kept apart from the weighted marks above because it
-    #: is scored as a context point rather than ranked against the slate: what it
-    #: says about a hitter does not depend on who else is playing.
+    #: pitches on them alone, read at the starter's speed (:func:`top_pitch_rv`).
+    #: Kept apart from the weighted marks above because it is scored as a
+    #: context point rather than ranked against the slate: what it says about a
+    #: hitter does not depend on who else is playing.
     top_families: tuple[str, ...] = ()
     top_rv: float = math.nan
 
@@ -2112,27 +2123,62 @@ def arsenal_edge(
             edge.pair[metric.attr] = (h_val + a_val) / 2
         fallbacks += missing
     edge.fallback_share = fallbacks / len(FIT_SCORED)
-    edge.top_families, edge.top_rv = top_pitch_rv(hitter, usage)
     return edge
 
 
+def _mean_speed(rows: pd.DataFrame, family: str) -> float:
+    """The average release speed of one family in a set of pitches."""
+    if rows.empty or "pitch_type" not in rows or "release_speed" not in rows:
+        return math.nan
+    speed = rows.loc[rows["pitch_type"].map(pitch_family) == family, "release_speed"]
+    speed = pd.to_numeric(speed, errors="coerce").dropna()
+    return float(speed.mean()) if len(speed) else math.nan
+
+
 def top_pitch_rv(
-    hitter: dict[str, ContactLine],
+    hitter_rows: pd.DataFrame,
+    starter_rows: pd.DataFrame,
     usage: dict[str, float],
     *,
     top_n: int = TOP_PITCHES,
+    band: float = VELO_BAND,
+    min_band: int = MIN_BAND_PITCHES,
+    shrink: float = RV_SHRINK_PITCHES,
+    min_pitches: int = MIN_BATTER_PITCHES,
 ) -> tuple[tuple[str, ...], float]:
     """(the starter's ``top_n`` families, the hitter's run value per 100 on them).
 
-    Weighted by usage inside those families only, so the pitch he throws a third
-    of the time counts a third of the time. No fallback to the hitter's overall
-    line here: this term is about these pitches, and if he has not seen them the
-    honest answer is that it does not apply.
+    Each family is read at the starter's speed: only the hitter's pitches of it
+    within ``band`` mph of the starter's average on it, shrunk toward his run
+    value on the whole family by ``shrink`` pitches. A band under ``min_band``
+    pitches, or a starter with no speed on the family, leaves the whole-family
+    read. Weighted by usage inside the top families only, and with no fallback
+    to his overall line: a family he has seen fewer than ``min_pitches`` of does
+    not apply, and the rest are renormalized.
     """
     top = sorted(usage.items(), key=lambda kv: -kv[1])[:top_n]
     families = tuple(name for name, _ in top)
-    rv, _ = _weighted(hitter, dict(top), "rv100", math.nan)
-    return families, rv
+    total = sum(share for _, share in top)
+    if not total or hitter_rows.empty or "pitch_type" not in hitter_rows:
+        return families, math.nan
+    fam = hitter_rows["pitch_type"].map(pitch_family)
+    value = covered = 0.0
+    for name, share in top:
+        group = hitter_rows[fam == name]
+        if len(group) < min_pitches:
+            continue
+        rv = _rv_per_100(group)
+        if math.isnan(rv):
+            continue
+        speed = _mean_speed(starter_rows, name)
+        if not math.isnan(speed) and "release_speed" in group:
+            near = group[(pd.to_numeric(group["release_speed"], errors="coerce") - speed).abs() <= band]
+            banded = _rv_per_100(near)
+            if len(near) >= min_band and not math.isnan(banded):
+                rv = (len(near) * banded + shrink * rv) / (len(near) + shrink)
+        value += share / total * rv
+        covered += share / total
+    return families, value / covered if covered else math.nan
 
 
 def score_edges(pool: list[ArsenalEdge], *, top_n: int = STARTER_TOP_N) -> None:

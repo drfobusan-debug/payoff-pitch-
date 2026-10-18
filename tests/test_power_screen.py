@@ -1710,6 +1710,7 @@ def test_the_composite_is_handed_to_the_ledger_in_the_order_it_printed() -> None
         view.per_pitch, view.overall, result.sections[0].starter.arsenal,
         result.sections[0].starter.usage,
     )
+    view.edge.top_families, view.edge.top_rv = ("4-Seam",), 1.5
     score_halves([early])
     score_halves([late])
     score_edges([view.edge])
@@ -1737,12 +1738,23 @@ def test_the_composite_section_is_absent_when_the_season_rows_were_not_loaded() 
 # --- the run-value point on the pitches he will see most ------------------
 
 
+def _rv_rows(*spec: tuple[str, float, float, int]) -> pd.DataFrame:
+    """Pitches as ``(pitch_type, mph, run value each, count)``."""
+    rows = [
+        {"pitch_type": pt, "release_speed": mph, "delta_run_exp": rv}
+        for pt, mph, rv, n in spec
+        for _ in range(n)
+    ]
+    return pd.DataFrame(rows, columns=["pitch_type", "release_speed", "delta_run_exp"])
+
+
 def test_the_run_value_point_reads_the_starters_three_most_thrown_pitches() -> None:
     usage = {"4-Seam": 0.45, "Slider": 0.25, "Changeup": 0.20, "Curveball": 0.10}
-    hitter = _mix(usage, **{
-        "4-Seam_rv": 1.0, "Slider_rv": 1.0, "Changeup_rv": 1.0, "Curveball_rv": -50.0,
-    })
-    families, rv = top_pitch_rv(hitter, usage)
+    hitter = _rv_rows(
+        ("FF", 95, 0.01, 100), ("SL", 85, 0.01, 100),
+        ("CH", 86, 0.01, 100), ("CU", 78, -0.5, 100),
+    )
+    families, rv = top_pitch_rv(hitter, pd.DataFrame(), usage)
     assert families == ("4-Seam", "Slider", "Changeup")
     assert abs(rv - 1.0) < 1e-9  # the fourth pitch is not in the term
 
@@ -1750,20 +1762,45 @@ def test_the_run_value_point_reads_the_starters_three_most_thrown_pitches() -> N
 def test_the_run_value_point_is_weighted_inside_the_top_three() -> None:
     """The pitch thrown half the time counts half, not a third."""
     usage = {"4-Seam": 0.50, "Slider": 0.25, "Changeup": 0.25}
-    hitter = _mix(usage, **{"4-Seam_rv": 4.0, "Slider_rv": 0.0, "Changeup_rv": 0.0})
-    _, rv = top_pitch_rv(hitter, usage)
+    hitter = _rv_rows(("FF", 95, 0.04, 100), ("SL", 85, 0.0, 100), ("CH", 86, 0.0, 100))
+    _, rv = top_pitch_rv(hitter, pd.DataFrame(), usage)
     assert abs(rv - 2.0) < 1e-9
 
 
 def test_a_pitch_he_has_never_seen_does_not_borrow_his_overall_run_value() -> None:
     """This term is about these pitches; his line on other pitches is not a read."""
     usage = {"4-Seam": 0.60, "Splitter": 0.40}
-    seen = _mix({"4-Seam": 1.0}, **{"4-Seam_rv": 3.0})
-    _, rv = top_pitch_rv(seen, usage)
+    seen = _rv_rows(("FF", 95, 0.03, 100), ("FS", 87, -0.5, 10))
+    _, rv = top_pitch_rv(seen, pd.DataFrame(), usage)
     assert abs(rv - 3.0) < 1e-9  # renormalized over what is readable
-    _, none = top_pitch_rv({}, usage)
+    _, none = top_pitch_rv(pd.DataFrame(), pd.DataFrame(), usage)
     assert math.isnan(none)
     assert rv_term(none) == 0
+
+
+def test_the_run_value_is_read_at_the_starters_speed() -> None:
+    """Against a 97 mph four-seam, his 91s are out of the band and shrink only."""
+    usage = {"4-Seam": 1.0}
+    hitter = _rv_rows(("FF", 97, -0.02, 100), ("FF", 91, 0.06, 100))
+    starter = _rv_rows(("FF", 96.5, 0.0, 20), ("FF", 97.5, 0.0, 20))
+    _, rv = top_pitch_rv(hitter, starter, usage)
+    # band -2.0 on 100 pitches, family +2.0 on 200: (100*-2 + 100*2) / 200
+    assert abs(rv - 0.0) < 1e-9
+    slow = _rv_rows(("FF", 91, 0.0, 40))
+    _, rv_slow = top_pitch_rv(hitter, slow, usage)
+    assert abs(rv_slow - 4.0) < 1e-9  # (100*6 + 100*2) / 200
+    assert rv_slow > rv
+
+
+def test_a_thin_speed_band_leaves_the_whole_family_read() -> None:
+    usage = {"4-Seam": 1.0}
+    hitter = _rv_rows(("FF", 97, -0.10, 49), ("FF", 91, 0.05, 151))
+    starter = _rv_rows(("FF", 97, 0.0, 30))
+    _, rv = top_pitch_rv(hitter, starter, usage)
+    whole = (49 * -10 + 151 * 5) / 200
+    assert abs(rv - whole) < 1e-9
+    _, no_speed = top_pitch_rv(hitter, starter.drop(columns="release_speed"), usage)
+    assert abs(no_speed - whole) < 1e-9
 
 
 def test_the_run_value_point_signs_on_the_hitters_side_and_trebles_when_large() -> None:
@@ -1787,15 +1824,14 @@ def test_the_run_value_point_enters_the_total_without_becoming_regression() -> N
     assert (behind.top_rv, behind.total) == (-3, -3)
 
 
-def test_the_edge_carries_the_top_three_run_value_for_the_context_layer() -> None:
+def test_the_top_three_run_value_feeds_the_context_layer() -> None:
     usage = {"4-Seam": 0.50, "Slider": 0.30, "Changeup": 0.20}
-    overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
-    edge = arsenal_edge(_mix(usage, **{"4-Seam_rv": 3.0, "Slider_rv": 3.0,
-                                      "Changeup_rv": 3.0}), overall, _mix(usage), usage)
-    assert edge.top_families == ("4-Seam", "Slider", "Changeup")
-    assert abs(edge.top_rv - 3.0) < 1e-9
+    hitter = _rv_rows(("FF", 95, 0.03, 100), ("SL", 85, 0.03, 100), ("CH", 86, 0.03, 100))
+    families, rv = top_pitch_rv(hitter, pd.DataFrame(), usage)
+    assert families == ("4-Seam", "Slider", "Changeup")
+    assert abs(rv - 3.0) < 1e-9
     assert build_context(
-        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=edge.top_rv
+        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=rv
     ).top_rv == 3
 
 

@@ -125,6 +125,7 @@ from mlb_engine.output.power_screen import (
     score_starters,
     starter_damage,
     starter_lines,
+    top_pitch_rv,
     trend_deltas,
     with_tto,
 )
@@ -862,6 +863,12 @@ def _build_section(
         # over the whole season: after the sixth he faces the bullpen, so a hand
         # split of the late half describes a matchup that will not happen.
         view.edge = arsenal_edge(per_pitch, overall, card.arsenal, usage)
+        # The run-value term reads the season at the starter's speed: the band
+        # keeps a fraction of the window's pitches, too few to read off it.
+        speed_rows = season[(season["batter"] == h.mlbam_id) & (season["p_throws"] == hand)]
+        view.edge.top_families, view.edge.top_rv = top_pitch_rv(
+            speed_rows, pitcher_rows, usage
+        )
         own = season[season["batter"] == h.mlbam_id]
         view.late_wrc = late_wrc_plus(own, season_all_woba)
         if late_wrc_floor is not None and not view.late_wrc >= late_wrc_floor:

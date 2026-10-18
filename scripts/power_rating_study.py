@@ -322,7 +322,13 @@ def _study_day(
             per_pitch = batter_arsenal(batter_rows, families)
             overall = contact_line(batter_rows)
             fit_w, fit_b, fallback = arsenal_fit(per_pitch, overall, usage)
-            top_families, top_rv = top_pitch_rv(per_pitch, usage)
+            season_rows = frame[
+                (frame["game_date"] >= Date(day.year, 1, 1))
+                & (frame["game_date"] <= end)
+                & (frame["batter"] == h.mlbam_id)
+                & (frame["p_throws"] == hand)
+            ]
+            top_families, top_rv = top_pitch_rv(season_rows, pitcher_rows, usage)
             view = HitterView(
                 line=h,
                 per_pitch=per_pitch,
