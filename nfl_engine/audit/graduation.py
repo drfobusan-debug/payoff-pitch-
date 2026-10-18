@@ -109,7 +109,11 @@ def _beyond_one_se(mean: float, se: float) -> bool:
 
 
 def graduation(entries: list[LedgerEntry], *, min_n: int = MIN_N) -> Graduation:
-    buys = eligible_buys(entries)
+    return judge(eligible_buys(entries), min_n=min_n)
+
+
+def judge(buys: list[LedgerEntry], *, min_n: int = MIN_N) -> Graduation:
+    """The four tests on rows already filtered to honest evidence, in kickoff order."""
     roi, roi_se = _mean_se([e.pnl for e in buys])
     mid = len(buys) // 2
     h1 = fmean([e.pnl for e in buys[:mid]]) if mid else 0.0

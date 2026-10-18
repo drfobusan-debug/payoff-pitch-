@@ -98,3 +98,22 @@ def test_without_email_the_report_table_is_not_added(ledger, capsys) -> None:
     out = capsys.readouterr().out
     assert "1) Every buy the engine made" in out
     assert "nfl-engine report --all" not in out
+
+
+def test_the_audit_grades_the_tracked_rules_on_the_leans(ledger, capsys) -> None:
+    dog = row(
+        market="spread",
+        side="BUF",
+        line=3.5,
+        odds=-105.0,
+        opposite_odds=-115.0,
+        model_prob=0.53,
+        fair_prob=0.50,
+        screens="no_execution_edge",
+    )
+    save_ledger(ledger, [dog])
+    ledger_audit.main(["--season", "2026"])
+    out = capsys.readouterr().out
+    assert "7) Graded-only rules" in out
+    line = next(x for x in out.splitlines() if "spread_dog_gap_2_4" in x)
+    assert "WATCHING" in line and "1-0" in line
