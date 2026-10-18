@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93047",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "a835ec6429d6dc3fec5e0f25b44371e1d1f928dc",
+ "picks": [
+  {
+   "pick_id": "b38705bae810",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93047",
+   "episode_title": "NFL Survivor Pool Week 5 Picks",
+   "published": "2026-10-08T20:48:22+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Bengals",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-5-picks/",
+   "description": "Bengals",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

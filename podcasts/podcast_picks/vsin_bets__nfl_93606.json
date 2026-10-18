@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93606",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "e720ace4463354bc7373a71e1becdd16283dca46",
+ "picks": [
+  {
+   "pick_id": "7bcbe2a611b9",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Wes Reynolds",
+   "episode_guid": "vsin-93606",
+   "episode_title": "Wes Reynolds: NFL Week 6 Best Bets",
+   "published": "2026-10-18T02:35:26+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Las Vegas Raiders",
+   "opponent": "Buffalo Bills",
+   "side": null,
+   "line": 4.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Las Vegas Raiders +4.5 vs. Buffalo Bills",
+   "reason": "https://vsin.com/nfl/wes-reynolds-nfl-week-6-best-bets-and-predictions/",
+   "description": "Las Vegas Raiders +4.5 vs. Buffalo Bills",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "2bb827108638",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Wes Reynolds",
+   "episode_guid": "vsin-93606",
+   "episode_title": "Wes Reynolds: NFL Week 6 Best Bets",
+   "published": "2026-10-18T02:35:26+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Los Angeles Chargers",
+   "opponent": "Kansas City Chiefs",
+   "side": null,
+   "line": 8.0,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Los Angeles Chargers +8 at Kansas City Chiefs",
+   "reason": "https://vsin.com/nfl/wes-reynolds-nfl-week-6-best-bets-and-predictions/",
+   "description": "Los Angeles Chargers +8 at Kansas City Chiefs",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

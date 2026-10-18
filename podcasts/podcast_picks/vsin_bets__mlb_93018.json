@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93018",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "57d85e8d293f0e53e00419845b1b34944febf8fa",
+ "picks": [
+  {
+   "pick_id": "335d6d9795a6",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93018",
+   "episode_title": "MLB Playoff Picks Today: Adam Burke's Best Bets for Thursday, October 8",
+   "published": "2026-10-08T14:49:38+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 125.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Parker Messick (CLE) 7+ Strikeouts (+125)",
+   "reason": "https://vsin.com/mlb/mlb-playoff-picks-today-adam-burkes-best-bets-for-thursday-october-8/",
+   "description": "Parker Messick (CLE) 7+ Strikeouts (+125)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "c0fdd0398222",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93018",
+   "episode_title": "MLB Playoff Picks Today: Adam Burke's Best Bets for Thursday, October 8",
+   "published": "2026-10-08T14:49:38+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 113.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Miguel Vargas (CHW) 1+ Walks (+113)",
+   "reason": "https://vsin.com/mlb/mlb-playoff-picks-today-adam-burkes-best-bets-for-thursday-october-8/",
+   "description": "Miguel Vargas (CHW) 1+ Walks (+113)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

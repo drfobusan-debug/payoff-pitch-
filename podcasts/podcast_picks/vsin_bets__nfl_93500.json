@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93500",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f3a8a687b4b10efc6407628e824aceaff3008117",
+ "picks": [
+  {
+   "pick_id": "75e044aaee61",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93500",
+   "episode_title": "Cowboys at Packers Predictions: Week 6 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-15T22:13:54+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -112.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Lloyd Over 40.5 Rushing Yards (-112)",
+   "reason": "https://vsin.com/nfl/cowboys-at-packers-predictions-week-6-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Lloyd Over 40.5 Rushing Yards (-112)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "c1e07b3728b2",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93500",
+   "episode_title": "Cowboys at Packers Predictions: Week 6 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-15T22:13:54+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 194.0,
+   "units": 0.5,
+   "seconds": 1,
+   "quote": "Anytime TD Scorer (+194 - 0.5 units)",
+   "reason": "https://vsin.com/nfl/cowboys-at-packers-predictions-week-6-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Anytime TD Scorer (+194 - 0.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

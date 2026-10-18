@@ -1,0 +1,60 @@
+{
+ "episode_guid": "f235a651-867c-44ae-977b-48d66ea281b6",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "4228f882d753ed4617eb3be8a25c8822ab0bd9c7",
+ "picks": [
+  {
+   "pick_id": "4423358f11aa",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "f235a651-867c-44ae-977b-48d66ea281b6",
+   "episode_title": "The VSiN Daily Diamond | October 13, 2026",
+   "published": "2026-10-14T12:12:47-04:00",
+   "kind": "lean",
+   "market": "game_ml",
+   "team": "Rays",
+   "opponent": "Guardians",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 181,
+   "quote": "If you think that the Rays go on to win this series, then I would absolutely take some shares of them right now at a plus price",
+   "reason": "The Rays are in a must-win situation and could gain momentum if they win tonight.",
+   "description": "Rays to win the series at plus money.",
+   "league": "mlb",
+   "edge": "Tampa Bay needs to win to avoid going down 0-2 in the series, which historically is a tough spot to recover from.",
+   "fair_line": null
+  },
+  {
+   "pick_id": "099b96f4733a",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "f235a651-867c-44ae-977b-48d66ea281b6",
+   "episode_title": "The VSiN Daily Diamond | October 13, 2026",
+   "published": "2026-10-14T12:12:47-04:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Dodgers",
+   "opponent": "Brewers",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 432,
+   "quote": "Dodgers almost a dollar 70 betting favorite.",
+   "reason": "The Dodgers are favored to win at home despite being down 0-2 in the series.",
+   "description": "Dodgers to win Game 3 at -170.",
+   "league": "mlb",
+   "edge": "The Dodgers are at home and have a strong historical performance in elimination spots.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

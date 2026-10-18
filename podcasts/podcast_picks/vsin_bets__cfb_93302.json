@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93302",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "8697f578e160cf729ac243f2f0430c797862e122",
+ "picks": [
+  {
+   "pick_id": "90d66d69c5d5",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93302",
+   "episode_title": "College Football Week 7 Picks: Delaware vs. Middle Tennessee",
+   "published": "2026-10-13T03:13:22+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Delaware",
+   "opponent": "Middle Tennessee",
+   "side": null,
+   "line": -1.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Delaware -1",
+   "reason": "https://vsin.com/college-football/college-football-week-7-picks-delaware-vs-middle-tennessee/",
+   "description": "Delaware -1",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "3c914669c100",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93302",
+   "episode_title": "College Football Week 7 Picks: Delaware vs. Middle Tennessee",
+   "published": "2026-10-13T03:13:22+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "FIU",
+   "opponent": "Jacksonville State",
+   "side": "under",
+   "line": 43.5,
+   "price": null,
+   "units": null,
+   "seconds": 1,
+   "quote": "Under 43.5",
+   "reason": "https://vsin.com/college-football/college-football-week-7-picks-delaware-vs-middle-tennessee/",
+   "description": "Under 43.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

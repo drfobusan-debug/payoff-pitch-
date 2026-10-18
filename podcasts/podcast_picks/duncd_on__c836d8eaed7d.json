@@ -1,0 +1,50 @@
+{
+ "episode_guid": "110b5709-eb60-4726-8eb6-8f41ccc441b5",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "1a577bece88bef53b42af81f5f16d814d00cc430",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Kastya Medvedovsky",
+   "team": "Houston",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[15:01]",
+   "quote": "I think the team are probably highest on any relative to consensus is probably Houston.",
+   "edge": "Houston has a young roster that is expected to improve collectively as players age.",
+   "fair_line": null,
+   "reason": "Houston's young players are likely to perform better this season as they gain experience.",
+   "description": "Houston to outperform expectations this season.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Kastya Medvedovsky",
+   "team": "Boston",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[15:15]",
+   "quote": "I would have said Boston, but, uh, the Boston like line came out so high anyways.",
+   "edge": "Boston has consistently been built to perform well analytically since 2020.",
+   "fair_line": null,
+   "reason": "Boston's roster is designed to excel based on advanced metrics, but their high expectations may already be priced in.",
+   "description": "Boston to maintain strong performance this season.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nba"
+ ]
+}

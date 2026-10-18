@@ -1,0 +1,41 @@
+{
+ "episode_guid": "c7cffcd2-004a-48aa-b89e-20dd3c3c22db",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "4b9b1a01efb5181b06508b04a3ee81d3efbf0e4e",
+ "picks": [
+  {
+   "pick_id": "1a56e8510852",
+   "show": "vsin_morning",
+   "show_name": "VSiN Daily Morning Bets",
+   "host": "Dustin Swedelson",
+   "episode_guid": "c7cffcd2-004a-48aa-b89e-20dd3c3c22db",
+   "episode_title": "VSiN Daily Morning Bets | October 13, 2026",
+   "published": "2026-10-13T01:57:25-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Jacksonville State",
+   "opponent": "Florida International",
+   "side": null,
+   "line": 2.5,
+   "price": null,
+   "units": null,
+   "seconds": 458,
+   "quote": "I laid two and a half with Jacksonville State. I'd consider laying the three as well.",
+   "reason": "Jacksonville State has the best player and weapons on offense, which should give them an edge.",
+   "description": "Jacksonville State -2.5",
+   "league": "cfb",
+   "edge": "Jacksonville State's offense is expected to limit possessions and score effectively against FIU's defense.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

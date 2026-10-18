@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93248",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "920e13505b6615c2c268e560b169944a0c71fb48",
+ "picks": [
+  {
+   "pick_id": "834dd8675315",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93248",
+   "episode_title": "Bills vs. Rams Predictions: Week 5 Monday Night Football odds, picks, and player props",
+   "published": "2026-10-12T06:18:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Rams",
+   "opponent": "Bills",
+   "side": null,
+   "line": -3.5,
+   "price": 100.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Rams -3.5 (+100)",
+   "reason": "https://vsin.com/nfl/bills-vs-rams-predictions-week-5-monday-night-football-odds-picks-and-player-props/",
+   "description": "Rams -3.5 (+100)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

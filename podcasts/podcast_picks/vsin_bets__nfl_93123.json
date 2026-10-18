@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93123",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "0317f43af485eda008c46918cb789f460d92ab19",
+ "picks": [
+  {
+   "pick_id": "c3efa119e86a",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93123",
+   "episode_title": "Ravens vs. Falcons Predictions: Week 5 Sunday Night Football odds, picks, and player props",
+   "published": "2026-10-11T03:31:19+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Falcons",
+   "opponent": "Ravens",
+   "side": null,
+   "line": -3.0,
+   "price": -118.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Falcons -3 (-118)",
+   "reason": "https://vsin.com/nfl/ravens-vs-falcons-predictions-week-5-sunday-night-football-odds-picks-and-player-props/",
+   "description": "Falcons -3 (-118)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

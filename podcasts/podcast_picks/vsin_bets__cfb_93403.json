@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93403",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "192b40f07f69d6d061026764872bfc17cf382f3c",
+ "picks": [
+  {
+   "pick_id": "695260209a9c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93403",
+   "episode_title": "College Football Week 7 Picks: East Carolina vs. UAB",
+   "published": "2026-10-15T01:10:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "East Carolina",
+   "opponent": "UAB",
+   "side": null,
+   "line": -4.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "East Carolina -4.5",
+   "reason": "https://vsin.com/college-football/college-football-week-7-picks-east-carolina-vs-uab/",
+   "description": "East Carolina -4.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

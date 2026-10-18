@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93415",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "93f1003689e52c869e24b528b77cd09fdcc25f9f",
+ "picks": [
+  {
+   "pick_id": "27e114f07b40",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93415",
+   "episode_title": "College Football Week 7 Picks: Washington vs. Purdue",
+   "published": "2026-10-16T00:26:56+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Purdue",
+   "opponent": "Washington",
+   "side": null,
+   "line": -3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Purdue -3.5",
+   "reason": "https://vsin.com/college-football/college-football-week-7-picks-washington-vs-purdue/",
+   "description": "Purdue -3.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

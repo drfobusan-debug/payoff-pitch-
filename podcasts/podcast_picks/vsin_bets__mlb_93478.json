@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93478",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "75102a4112b3472b4d45ac5cac5e6a3fa7617ed7",
+ "picks": [
+  {
+   "pick_id": "77fba2ea3e87",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93478",
+   "episode_title": "Brewers vs. Dodgers Game 4 NLCS Prediction and Preview",
+   "published": "2026-10-15T14:45:30+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Brewers",
+   "opponent": "Dodgers NLCS",
+   "side": null,
+   "line": null,
+   "price": 130.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Brewers +130",
+   "reason": "https://vsin.com/mlb/brewers-vs-dodgers-game-4-nlcs-prediction-and-preview/",
+   "description": "Brewers +130",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

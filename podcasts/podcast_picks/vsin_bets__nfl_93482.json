@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93482",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "db01235d4be2d7abcfef29a2290ce48533182139",
+ "picks": [
+  {
+   "pick_id": "6ed5bf89f060",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93482",
+   "episode_title": "NFL Survivor Pool Week 6 Picks",
+   "published": "2026-10-15T16:33:48+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "49ers",
+   "reason": "https://vsin.com/nfl/nfl-survivor-pool-week-6-picks/",
+   "description": "49ers",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

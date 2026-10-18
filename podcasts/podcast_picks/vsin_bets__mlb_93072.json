@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93072",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "44d2ac75fee45ff25a1ff3ba7f38903cca4a8eba",
+ "picks": [
+  {
+   "pick_id": "64ec2ace3386",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93072",
+   "episode_title": "Dodgers vs. Brewers NLCS Prediction and Preview",
+   "published": "2026-10-11T21:14:33+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 120.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Dodgers -1.5 Games (+120)",
+   "reason": "https://vsin.com/mlb/dodgers-vs-brewers-nlcs-prediction-and-preview/",
+   "description": "Dodgers -1.5 Games (+120)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

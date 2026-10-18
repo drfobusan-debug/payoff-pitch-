@@ -1,0 +1,41 @@
+{
+ "episode_guid": "c6fa922e-82e5-4f2f-810a-b4719df9ddf3",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "fcfdeda268202c1ca24a751538b1c391a2a91c6e",
+ "picks": [
+  {
+   "pick_id": "c0247880890d",
+   "show": "numbers_game",
+   "show_name": "A Numbers Game (VSiN)",
+   "host": "Gill Alexander",
+   "episode_guid": "c6fa922e-82e5-4f2f-810a-b4719df9ddf3",
+   "episode_title": "A Numbers Game | October 15, 2026 | Hour 3",
+   "published": "2026-10-15T13:33:31-04:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Texans",
+   "opponent": "Cowboys",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 768,
+   "quote": "So give me the Texans and the Cowboys combo.",
+   "reason": "The Texans are favored due to their better performance compared to the Cowboys.",
+   "description": "Texans to win against the Cowboys.",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93354",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f8df1460b86e2fe1010934abac2df8da7dee7da5",
+ "picks": [
+  {
+   "pick_id": "b771a73d0874",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93354",
+   "episode_title": "Seahawks vs. Broncos Predictions: Week 6 Thursday Night Football odds, picks, and player props",
+   "published": "2026-10-15T01:11:39+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Broncos",
+   "opponent": "Seahawks",
+   "side": null,
+   "line": null,
+   "price": 130.0,
+   "units": 1.5,
+   "seconds": 0,
+   "quote": "Broncos ML (+130 - 1.5 units)",
+   "reason": "https://vsin.com/nfl/seahawks-vs-broncos-predictions-week-6-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Broncos ML (+130 - 1.5 units)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "0a0ba0273411",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93354",
+   "episode_title": "Seahawks vs. Broncos Predictions: Week 6 Thursday Night Football odds, picks, and player props",
+   "published": "2026-10-15T01:11:39+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -115.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Waddle Over 46.5 Receiving Yards (-115)",
+   "reason": "https://vsin.com/nfl/seahawks-vs-broncos-predictions-week-6-thursday-night-football-odds-picks-and-player-props/",
+   "description": "Waddle Over 46.5 Receiving Yards (-115)",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl"
+ ]
+}

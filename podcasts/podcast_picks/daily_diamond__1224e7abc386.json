@@ -1,0 +1,60 @@
+{
+ "episode_guid": "6b6e339f-0884-457f-99d2-69dcecf4bfa3",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "67eb912a4248dba74e8b11c6f295377660b37ed4",
+ "picks": [
+  {
+   "pick_id": "e9c7fea21470",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "6b6e339f-0884-457f-99d2-69dcecf4bfa3",
+   "episode_title": "The VSiN Daily Diamond | October 15, 2026",
+   "published": "2026-10-15T09:47:38-04:00",
+   "kind": "lean",
+   "market": "game_total",
+   "team": "Cleveland",
+   "opponent": "Tampa Bay",
+   "side": "under",
+   "line": 6.5,
+   "price": null,
+   "units": null,
+   "seconds": 134,
+   "quote": "I tend to agree that that number is probably right on it.",
+   "reason": "The total seems accurate given the teams' recent performances and day game conditions.",
+   "description": "Under 6.5 Cleveland-Tampa Bay",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "bbf109ff7130",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "6b6e339f-0884-457f-99d2-69dcecf4bfa3",
+   "episode_title": "The VSiN Daily Diamond | October 15, 2026",
+   "published": "2026-10-15T09:47:38-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Cleveland",
+   "opponent": "Tampa Bay",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 291,
+   "quote": "I might be playing those props instead of looking at his strikeout prop.",
+   "reason": "Jensen suggests focusing on player props rather than traditional bets due to matchup specifics.",
+   "description": "Gavin Williams props instead of strikeouts.",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

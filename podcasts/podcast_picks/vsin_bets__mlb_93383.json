@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93383",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "0b92f63e4a4285cd1c705315de889c20b8b89efd",
+ "picks": [
+  {
+   "pick_id": "5a299cb075eb",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93383",
+   "episode_title": "Brewers vs. Dodgers Game 3 NLCS Prediction and Preview",
+   "published": "2026-10-14T03:21:07+00:00",
+   "kind": "official",
+   "market": "game_total",
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "side": "over",
+   "line": 7.5,
+   "price": -106.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Over 7.5 (-106)",
+   "reason": "https://vsin.com/mlb/brewers-vs-dodgers-game-3-nlcs-prediction-and-preview/",
+   "description": "Over 7.5 (-106)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

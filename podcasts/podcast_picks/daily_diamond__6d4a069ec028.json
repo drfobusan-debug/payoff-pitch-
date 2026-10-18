@@ -1,0 +1,60 @@
+{
+ "episode_guid": "0c72e225-656a-4a8e-8593-5f1d60d61fe2",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "86866b63394b6b7cd5dfa9a4eeb18a9f62a838ae",
+ "picks": [
+  {
+   "pick_id": "cc965b89d2f3",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "0c72e225-656a-4a8e-8593-5f1d60d61fe2",
+   "episode_title": "The VSiN Daily Diamond | October 14, 2026",
+   "published": "2026-10-14T12:14:26-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "side": null,
+   "line": 1.5,
+   "price": null,
+   "units": 0.75,
+   "seconds": 406,
+   "quote": "Why not take three quarters of a unit on the brewers plus one and a half, put a quarter unit of the money line, sit back and enjoy yourself",
+   "reason": "The Brewers are in good form and the Dodgers are not hitting well, making the Brewers a solid bet.",
+   "description": "Brewers +1.5",
+   "league": "mlb",
+   "edge": "The Dodgers offense is struggling against left-handed pitching and hasn't homered in three consecutive postseason games.",
+   "fair_line": null
+  },
+  {
+   "pick_id": "4dcf606e61ba",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "0c72e225-656a-4a8e-8593-5f1d60d61fe2",
+   "episode_title": "The VSiN Daily Diamond | October 14, 2026",
+   "published": "2026-10-14T12:14:26-04:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": 0.25,
+   "seconds": 417,
+   "quote": "put a quarter unit of the money line",
+   "reason": "The Brewers are in good form and the Dodgers are not hitting well, making the Brewers a solid bet.",
+   "description": "Brewers moneyline",
+   "league": "mlb",
+   "edge": "The Dodgers offense is struggling against left-handed pitching and hasn't homered in three consecutive postseason games.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

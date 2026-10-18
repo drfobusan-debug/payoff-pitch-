@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93269",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "3dc04c902c864613c929d7129e160e067c7c962e",
+ "picks": [
+  {
+   "pick_id": "5e0c04ecb014",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93269",
+   "episode_title": "MLB Playoff Picks Today: Adam Burke's Best Bets for Monday, October 12",
+   "published": "2026-10-12T15:57:27+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": 140.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Logan Henderson (MIL) Over 1.5 Walks Allowed (+140)",
+   "reason": "https://vsin.com/mlb/mlb-playoff-picks-today-adam-burkes-best-bets-for-monday-october-12/",
+   "description": "Logan Henderson (MIL) Over 1.5 Walks Allowed (+140)",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

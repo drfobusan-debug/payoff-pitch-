@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93456",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "c662d3f8c2ef261115c29f35aee9346fff63c689",
+ "picks": [
+  {
+   "pick_id": "fe40e0a872ad",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93456",
+   "episode_title": "Rays vs. Guardians Game 3 ALCS Prediction and Preview",
+   "published": "2026-10-15T01:08:00+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Rays",
+   "opponent": "Guardians",
+   "side": null,
+   "line": null,
+   "price": 110.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Rays +110",
+   "reason": "https://vsin.com/mlb/rays-vs-guardians-game-3-alcs-prediction-and-preview/",
+   "description": "Rays +110",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

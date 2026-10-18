@@ -1,0 +1,61 @@
+{
+ "episode_guid": "https://api.spreaker.com/episode/75793159",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f4f505c6348db90d448ff60306d44658b7be2fbb",
+ "picks": [
+  {
+   "pick_id": "5149f169fdeb",
+   "show": "wagertalk",
+   "show_name": "WagerTalk",
+   "host": null,
+   "episode_guid": "https://api.spreaker.com/episode/75793159",
+   "episode_title": "TOTAL BASES | Wednesday MLB Postseason Picks, Predictions & Best Bets 10/14",
+   "published": "2026-10-14T15:25:36-04:00",
+   "kind": "lean",
+   "market": "game_ats",
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "side": null,
+   "line": 1.5,
+   "price": -130.0,
+   "units": null,
+   "seconds": 542,
+   "quote": "if you're looking for plus one and a half I guess right now you can get them in the 150 150 range",
+   "reason": "The Brewers have shown they can compete well against the Dodgers, making the plus one and a half a valuable option.",
+   "description": "Brewers +1.5",
+   "league": "mlb",
+   "edge": "Brewers have been the better team and have gained respect from early bettors.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": null,
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "market": "game_ats",
+   "side": null,
+   "line": 1.5,
+   "price": null,
+   "units": null,
+   "stamp": "[21:30]",
+   "quote": "I like the Brewers plus one and a half",
+   "edge": "Brewers are playing better baseball right now and have a rested bullpen.",
+   "fair_line": null,
+   "reason": "The Brewers are in better form and have a stronger bullpen advantage.",
+   "description": "Brewers +1.5",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

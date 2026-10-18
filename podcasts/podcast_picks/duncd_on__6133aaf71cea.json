@@ -1,0 +1,60 @@
+{
+ "episode_guid": "be870cee-3194-4505-8151-3de25e84b1b1",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "bf3c8c9e2da8d69abf55c8f910e43846862cf861",
+ "picks": [
+  {
+   "pick_id": "a4bac2907180",
+   "show": "duncd_on",
+   "show_name": "Dunc'd On Basketball",
+   "host": "Nate Duncan",
+   "episode_guid": "be870cee-3194-4505-8151-3de25e84b1b1",
+   "episode_title": "PHI Season Outlook 2026-27 with Derek Bodner",
+   "published": "2026-10-09T09:46:50-04:00",
+   "kind": "lean",
+   "market": "other",
+   "team": "Sixers",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 3243,
+   "quote": "I have them being tentatively a top 10 offense. I have them being kind of average on defense.",
+   "reason": "The team has a lot of talent but may struggle with continuity and defensive rebounding.",
+   "description": "Tentatively a top 10 offense, average on defense.",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "1d93add80a91",
+   "show": "duncd_on",
+   "show_name": "Dunc'd On Basketball",
+   "host": "Danny Leroux",
+   "episode_guid": "be870cee-3194-4505-8151-3de25e84b1b1",
+   "episode_title": "PHI Season Outlook 2026-27 with Derek Bodner",
+   "published": "2026-10-09T09:46:50-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Sixers",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 3412,
+   "quote": "I'll go with 52.",
+   "reason": "The talent on the team should help them find consistency in the second half of the season.",
+   "description": "52 wins for the Sixers.",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nba"
+ ]
+}

@@ -1,0 +1,41 @@
+{
+ "episode_guid": "39569278-d1e2-4c07-ab66-59873f89b2e5",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "f6d6935270e3016e83e3939e833e7af7253db58d",
+ "picks": [
+  {
+   "pick_id": "a2bdb8fbfc0b",
+   "show": "numbers_game",
+   "show_name": "A Numbers Game (VSiN)",
+   "host": "Gill Alexander",
+   "episode_guid": "39569278-d1e2-4c07-ab66-59873f89b2e5",
+   "episode_title": "A Numbers Game | October 8, 2026 | Hour 3",
+   "published": "2026-10-08T13:33:34-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Ben Johnson",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1451,
+   "quote": "I bet on Ben Johnson here because that's the best odds I could find",
+   "reason": "Gill believes Ben Johnson has the best odds for Coach of the Year.",
+   "description": "Ben Johnson for Coach of the Year at +750.",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}

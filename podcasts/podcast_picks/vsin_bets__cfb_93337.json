@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-93337",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "1649b8ba1eacd658274e4ce54d69d63c18d040c4",
+ "picks": [
+  {
+   "pick_id": "e91b4e54e3c8",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-93337",
+   "episode_title": "College Football Week 7 Picks: Western Kentucky vs. Sam Houston",
+   "published": "2026-10-14T03:19:00+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Sam Houston",
+   "opponent": "Western Kentucky",
+   "side": null,
+   "line": 0.0,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Sam Houston PK",
+   "reason": "https://vsin.com/college-football/college-football-week-7-picks-western-kentucky-vs-sam-houston/",
+   "description": "Sam Houston PK",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

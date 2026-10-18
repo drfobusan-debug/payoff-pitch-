@@ -1,0 +1,50 @@
+{
+ "episode_guid": "b77c093c-7a79-4663-bcc5-f9887c6ce8c3",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "1399393db6d18c1291a4878ba6f0c06b05c052dc",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Dave Ross",
+   "team": "Dodgers",
+   "opponent": "Brewers",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[04:30]",
+   "quote": "I kind of lean that way right now just because betting against Yamamoto, I mean, I'm not in the business of trying to burn money.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The speaker is hesitant to bet against Yamamoto's strong performance.",
+   "description": "Lean Dodgers to win against Brewers.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "Dave Ross",
+   "team": "Rays",
+   "opponent": "Guardians",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[08:22]",
+   "quote": "I think that's the right price. Rays should be a decided favorite in this series.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The speaker believes the Rays are correctly favored based on their performance and matchup.",
+   "description": "Bet on Rays to win against Guardians.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}

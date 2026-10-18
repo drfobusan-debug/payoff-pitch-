@@ -1,0 +1,36 @@
+{
+ "episode_guid": "vsin-92989",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "b9bcdf116560ddb9246d59208c0a62fa45fcb502",
+ "picks": [
+  {
+   "pick_id": "6f391596d7bc",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Adam Burke",
+   "episode_guid": "vsin-92989",
+   "episode_title": "College Football Week 6 Picks: Florida State vs. Louisville",
+   "published": "2026-10-09T04:01:43+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Florida State",
+   "opponent": "Louisville",
+   "side": null,
+   "line": 3.5,
+   "price": null,
+   "units": null,
+   "seconds": 0,
+   "quote": "Florida State +3.5",
+   "reason": "https://vsin.com/college-football/college-football-week-6-picks-florida-state-vs-louisville/",
+   "description": "Florida State +3.5",
+   "league": "cfb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "cfb"
+ ]
+}

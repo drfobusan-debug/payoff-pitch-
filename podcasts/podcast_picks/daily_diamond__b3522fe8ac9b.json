@@ -1,0 +1,31 @@
+{
+ "episode_guid": "bbddf815-1145-4159-8a1e-2cbcc78763d3",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "b292905670962daf72b71f1fe8923809bc66e88d",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Dave Ross",
+   "team": "Brewers",
+   "opponent": "Dodgers",
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[09:36]",
+   "quote": "I still think Milwaukee can finally slay the dragon. That series price is pretty enticing plus a dollar thirty for the number one overall seed.",
+   "edge": "This is a better overall club than what the Dodgers swept away last year.",
+   "fair_line": null,
+   "reason": "The Brewers have faced adversity and are a stronger team than last year's Dodgers.",
+   "description": "Brewers +130 to win series against Dodgers.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}
