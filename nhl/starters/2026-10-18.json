@@ -1,0 +1,26 @@
+{
+  "CAR": {
+    "name": "Brandon Bussi",
+    "player_id": 8483548,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CBJ": {
+    "name": "Cam Talbot",
+    "player_id": 8475660,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "CGY": {
+    "name": "Dustin Wolf",
+    "player_id": 8481692,
+    "source": "rotowire",
+    "status": "probable"
+  },
+  "MIN": {
+    "name": "Jesper Wallstedt",
+    "player_id": 8482661,
+    "source": "rotowire",
+    "status": "confirmed"
+  }
+}
