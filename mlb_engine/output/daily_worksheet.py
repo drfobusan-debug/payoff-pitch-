@@ -275,12 +275,22 @@ def score_z(
 
 
 def _fg(stats: str, season: int, window: int | None, as_of: Date, team: str = "0") -> list[dict]:
-    url = _FG_URL.format(stats=stats, season=season, month=0 if window is None else 1000, team=team)
-    if window is not None:
-        url += f"&startdate={(as_of - timedelta(days=window)).isoformat()}&enddate={as_of.isoformat()}"
-    # The window's dates are not in the key, so a stale copy of the same
-    # window stands in when FanGraphs is down.
-    return leaderboard(url, f"{stats}_{season}_w{window or 0}_t{team.replace('%2C', '-')}")
+    """A FanGraphs leaderboard as of ``as_of``.
+
+    Live (``as_of`` is yesterday or later) the season table is the plain season
+    leaderboard and the key carries no date, so a stale copy of the same window
+    stands in when FanGraphs is down. For an earlier ``as_of`` -- a re-score of
+    old ledger rows -- the season table is the date-range split from opening day
+    through ``as_of`` and the key carries the date, so each day is its own copy.
+    """
+    historical = as_of < Date.today() - timedelta(days=1)
+    key = f"{stats}_{season}_w{window or 0}_t{team.replace('%2C', '-')}"
+    if window is None and not historical:
+        return leaderboard(_FG_URL.format(stats=stats, season=season, month=0, team=team), key)
+    start = Date(season, 3, 1) if window is None else as_of - timedelta(days=window)
+    url = _FG_URL.format(stats=stats, season=season, month=1000, team=team)
+    url += f"&startdate={start.isoformat()}&enddate={as_of.isoformat()}"
+    return leaderboard(url, key + (f"_{as_of.isoformat()}" if historical else ""))
 
 
 def bullpen_ranking(as_of: Date) -> Ranking:
