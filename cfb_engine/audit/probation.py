@@ -62,6 +62,7 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from statistics import fmean, stdev
+from typing import Protocol
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
@@ -395,7 +396,7 @@ def _g5_only_spread(e: LedgerEntry) -> bool:
     return atscontext.g5_only(e.market, e.conf_tier)
 
 
-def _top25_spread(e: LedgerEntry) -> bool:
+def _top25_spread(e: Moved) -> bool:
     return atscontext.ranked_game(e.market, e.top25)
 
 
@@ -407,7 +408,7 @@ def _mid_favourite_spread(e: LedgerEntry) -> bool:
     return atsline.mid_favourite(e.market, e.line)
 
 
-def _big_dog_spread(e: LedgerEntry) -> bool:
+def _big_dog_spread(e: Moved) -> bool:
     return atsline.big_dog(e.market, e.line)
 
 
@@ -475,6 +476,25 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
 )
 
 
+class Moved(Protocol):
+    """What an upgrade reads off a bet: a ledger row, or a card's rec via its view."""
+
+    @property
+    def market(self) -> str: ...
+
+    @property
+    def line(self) -> float | None: ...
+
+    @property
+    def top25(self) -> bool | None: ...
+
+    @property
+    def drift(self) -> float | None: ...
+
+    @property
+    def open_drift(self) -> float | None: ...
+
+
 @dataclass(frozen=True)
 class CandidateUpgrade:
     """A proposed promotion to Strong, expressed as "would this buy be upgraded?".
@@ -486,14 +506,14 @@ class CandidateUpgrade:
     """
 
     name: str
-    promotes: Callable[[LedgerEntry], bool]
+    promotes: Callable[[Moved], bool]
     rationale: str
 
 
-def _drift_at_least(floor: float, *, opener: bool) -> Callable[[LedgerEntry], bool]:
+def _drift_at_least(floor: float, *, opener: bool) -> Callable[[Moved], bool]:
     """Pick out a buy the market had already moved toward by ``floor`` or more."""
 
-    def promotes(e: LedgerEntry) -> bool:
+    def promotes(e: Moved) -> bool:
         d = e.open_drift if opener else e.drift
         return d is not None and d >= abs(floor)
 

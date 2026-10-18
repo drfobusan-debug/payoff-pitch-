@@ -64,6 +64,7 @@ from cfb_engine.audit.probation import (
     probation_rows,
     rule_probation,
 )
+from cfb_engine.audit.proven import Proven
 from cfb_engine.audit.scorecard import append_scorecard, build_scorecard
 from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
@@ -155,6 +156,12 @@ def _line_agrees_record(cfg: Config) -> Probation | None:
     return verdict
 
 
+def _proven(cfg: Config) -> Proven:
+    """The kinds of bet the ledger has proven, for the card's star."""
+    entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
+    return Proven.from_ledger(entries)
+
+
 def _watchlist(cfg: Config) -> watchlist.Watchlist | None:
     """Every graded-only rule's record so far, for the top of the slate."""
     entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
@@ -184,7 +191,10 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
 
     save_json(recs, cfg.predictions_file(day))
     _state_push(cfg, f"cfb run {day.isoformat()}: {len(recs)} markets priced")
-    xlsx = write_workbook(recs, cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx", day)
+    proven = _proven(cfg)
+    xlsx = write_workbook(
+        recs, cfg.output_dir / f"PayoffPitch_CFB_{day.isoformat()}.xlsx", day, proven
+    )
     print(f"Wrote {len(recs)} recommendations -> {xlsx}")
 
     extra = [(xlsx.name, xlsx.read_bytes())]
@@ -199,6 +209,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         low_total_record=_low_total_record(cfg),
         watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
+        proven=proven,
     )
     return 0
 
@@ -225,6 +236,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         low_total_record=_low_total_record(cfg),
         watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
+        proven=_proven(cfg),
     )
     return 0
 
@@ -556,6 +568,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
                 low_total_record=_low_total_record(cfg),
                 watching=_watchlist(cfg),
                 podcast=_podcast_view(cfg, recs, day),
+                proven=_proven(cfg),
             )
     _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
     return 0
