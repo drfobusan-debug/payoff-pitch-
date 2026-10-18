@@ -14,7 +14,7 @@ from typing import Generic, TypeVar
 
 from engine_common.podcasts.extract import Pick
 from engine_common.podcasts.picks import MARKET_LABEL, Placed, Record, Records, SlatePicks
-from engine_common.podcasts.shows import VSIN_NAME, VSIN_SHOW
+from engine_common.podcasts.shows import CIRCA_NAME, CIRCA_SHOW, VSIN_NAME, VSIN_SHOWS
 
 R = TypeVar("R")
 
@@ -94,8 +94,12 @@ def game_block(view: PodcastView[R] | None, matchup: str) -> str:
         return ""
     picks.sort(key=lambda pl: (pl.pick.kind != "official", pl.pick.market, pl.pick.show_name))
     blocks = (
-        ("Podcast picks", [pl for pl in picks if pl.pick.show != VSIN_SHOW]),
-        ("VSiN best bets", [pl for pl in picks if pl.pick.show == VSIN_SHOW]),
+        (
+            "Podcast picks",
+            [pl for pl in picks if pl.pick.show not in VSIN_SHOWS and pl.pick.show != CIRCA_SHOW],
+        ),
+        ("VSiN best bets", [pl for pl in picks if pl.pick.show in VSIN_SHOWS]),
+        (CIRCA_NAME, [pl for pl in picks if pl.pick.show == CIRCA_SHOW]),
     )
     return "".join(
         f"<div class='pod'><h3>{title}</h3><ul>"

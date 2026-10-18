@@ -1,4 +1,4 @@
-"""Graded-only market bands: flat 1u on every game in a band, at the card's price.
+"""Graded-only market bands: flat 1u on every bet in a band, at the card's price.
 
 A band is a slice of the board (home favourites, road teams on a back-to-back,
 Unders when a team is on a back-to-back, ...). Every graded ledger row is
@@ -7,7 +7,10 @@ the card had. Nothing here touches a price, a gate or a tier.
 
 One row per game per band: the moneyline and 60-minute sides, the +-1.5 puck
 line, and the full-game total at the line whose no-vig Over is nearest 50%.
-Favourite/underdog comes from the row's no-vig ``consensus``.
+Favourite/underdog comes from the row's no-vig ``consensus``. Two prop families
+are read too, one row per player per line: goalie saves Unders and player
+no-goal (goals Under 0.5). Rows on one game move together, so the SE and the
+halves are taken over per-game sums.
 
 A band earns a call only at >= ``MIN_N`` games: "wins" needs units above one SE
 with both halves of the ledger (date order) positive; "loses" is the mirror,
@@ -26,6 +29,7 @@ from nhl_engine.audit.screens import Context
 
 MIN_N = 100
 SIDES = ("game_ml", "game_pl", "game_ml3")
+PROPS = ("g_saves", "sk_g")
 
 
 def _b2b(r: LedgerRow, team: str, ctx: Context) -> bool:
@@ -42,7 +46,13 @@ def main_rows(rows: Iterable[LedgerRow]) -> list[LedgerRow]:
     by_total: dict[tuple[str, str], list[LedgerRow]] = {}
     out: list[LedgerRow] = []
     for r in rows:
-        if r.outcome is None or r.entity:
+        if r.outcome is None:
+            continue
+        if r.entity:
+            pk = (r.slate_date, r.matchup, r.market, f"{r.side}|{r.entity}|{r.line}")
+            if r.market in PROPS and r.side.lower() == "under" and pk not in seen:
+                seen.add(pk)
+                out.append(r)
             continue
         k = (r.slate_date, r.matchup, r.market, r.side)
         if r.market == "game_total":
@@ -99,6 +109,16 @@ def _ml3(rank: int, f: Callable[[LedgerRow, Context], bool]) -> Hit:
     return lambda r, ctx, rk: r.market == "game_ml3" and rk == rank and f(r, ctx)
 
 
+def _prop(market: str, f: Callable[[LedgerRow], bool]) -> Hit:
+    return lambda r, _ctx, _rank: (
+        r.market == market and bool(r.entity) and r.side.lower() == "under" and f(r)
+    )
+
+
+def _no_goal(r: LedgerRow) -> bool:
+    return r.line == 0.5
+
+
 def _any_b2b(r: LedgerRow, ctx: Context) -> bool:
     return _b2b(r, r.home, ctx) or _b2b(r, r.away, ctx)
 
@@ -143,13 +163,28 @@ BANDS: list[tuple[str, Hit]] = [
     ("60-min away favourite", _ml3(0, lambda r, c: r.side == r.away)),
     ("60-min underdog", _ml3(1, lambda r, c: True)),
     ("60-min draw", _ml3(2, lambda r, c: True)),
+    ("Goalie saves Under", _prop("g_saves", lambda r: True)),
+    (
+        "Goalie saves Under, sim 10+ pts above the market",
+        _prop("g_saves", lambda r: r.model_prob - r.consensus >= 0.10),
+    ),
+    ("Player no goal (goals Under 0.5)", _prop("sk_g", _no_goal)),
+    (
+        "Player no goal, sim rates it a buy",
+        _prop("sk_g", lambda r: _no_goal(r) and r.tier != "Pass"),
+    ),
 ]
 
 
 @dataclass
 class BandRead:
     name: str
-    pnls: list[float] = field(default_factory=list)  # one per game, date order
+    pnls: list[float] = field(default_factory=list)  # one per bet, date order
+    games: list[float] = field(default_factory=list)  # P&L summed per game, date order
+
+    @property
+    def _by_game(self) -> list[float]:
+        return self.games or self.pnls
 
     @property
     def n(self) -> int:
@@ -165,17 +200,19 @@ class BandRead:
 
     @property
     def se(self) -> float:
-        """SE of the units total."""
-        n = self.n
+        """SE of the units total, over per-game sums."""
+        g = self._by_game
+        n = len(g)
         if n < 2:
             return float("nan")
-        m = self.units / n
-        return math.sqrt(sum((p - m) ** 2 for p in self.pnls) / (n - 1) * n)
+        m = sum(g) / n
+        return math.sqrt(sum((p - m) ** 2 for p in g) / (n - 1) * n)
 
     @property
     def halves(self) -> tuple[float, float]:
-        h = self.n // 2
-        return sum(self.pnls[:h]), sum(self.pnls[h:])
+        g = self._by_game
+        h = len(g) // 2
+        return sum(g[:h]), sum(g[h:])
 
     @property
     def record(self) -> str:
@@ -183,8 +220,9 @@ class BandRead:
 
     @property
     def verdict(self) -> str:
-        if self.n < MIN_N:
-            return f"probation ({self.n}/{MIN_N})"
+        games = len(self._by_game)
+        if games < MIN_N:
+            return f"probation ({games}/{MIN_N} games)"
         if self.units > self.se and min(self.halves) > 0:
             return "wins: clears the bar"
         if -self.units > self.se and max(self.halves) < 0:
@@ -198,7 +236,11 @@ def read_bands(rows: Iterable[LedgerRow], ctx: Context) -> list[BandRead]:
     out: list[BandRead] = []
     for name, hit in BANDS:
         rs = [r for r in main if hit(r, ctx, rank.get((r.slate_date, r.matchup, r.side), -1))]
-        out.append(BandRead(name, [r.pnl or 0.0 for r in rs]))
+        per_game: dict[tuple[str, str], float] = {}
+        for r in rs:
+            k = (r.slate_date, r.matchup)
+            per_game[k] = per_game.get(k, 0.0) + (r.pnl or 0.0)
+        out.append(BandRead(name, [r.pnl or 0.0 for r in rs], list(per_game.values())))
     return out
 
 

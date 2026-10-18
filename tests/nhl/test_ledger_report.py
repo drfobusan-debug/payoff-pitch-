@@ -26,6 +26,9 @@ def _row(
     pnl=0.9,
     clv=-0.01,
     goalie_status="confirmed/projected",
+    priced_at="2026-10-01T16:00:00Z",
+    puck_drop="2026-10-01T23:00:00Z",
+    close_at="2026-10-01T22:35:00Z",
 ) -> LedgerRow:
     return LedgerRow(
         slate_date=slate,
@@ -53,6 +56,9 @@ def _row(
         outcome=outcome,
         pnl=pnl,
         clv=clv,
+        priced_at=priced_at,
+        puck_drop=puck_drop,
+        close_at=close_at,
     )
 
 
@@ -208,3 +214,85 @@ def test_unregradable_lists_graded_nights_without_predictions(tmp_path: Path):
         (d / name).write_text("[]")
     assert ledger.unregradable(tmp_path) == [Date(2026, 10, 2)]
     assert ledger.unregradable(tmp_path / "missing") == []
+
+
+def test_rows_priced_after_puck_drop_are_left_out():
+    rows = [
+        _row(),
+        _row(matchup="L @ H", priced_at="2026-10-01T23:00:47Z", pnl=0.9),
+        _row(matchup="L @ H", tier="Pass", pass_gate=False, priced_at="2026-10-01T23:30:00Z"),
+    ]
+    a = ledger_report.build(rows)
+    assert a.rows == 3 and a.buys.n == 1 and a.buys.pnl == pytest.approx(0.9)
+    assert a.late.n == 2 and a.late_buys.n == 1 and a.late_games == ["2026-10-01 L @ H"]
+    assert "2 graded rows on 1 game were priced at or after puck drop" in a.findings[0]
+    assert "including 1 buy (1-0-0, +0.90u)" in a.findings[0]
+    from nhl_engine.audit import scorecard
+
+    assert scorecard.scorecard(rows).by_market["game_ml"].n == 1
+    md = ledger_report.render_md(a, as_of="t")
+    assert "| 2026-10-01 | 2 | 25 | 25 | 0 | 0 | 2 |" in md
+
+
+def test_clv_counts_only_closes_near_puck_drop():
+    rows = [
+        _row(clv=-0.02),
+        _row(matchup="S @ H", clv=0.05, close_at="2026-10-01T19:30:00Z"),  # 210 min early
+        _row(matchup="U @ H", clv=0.05, puck_drop=""),  # no puck drop to time it
+    ]
+    a = ledger_report.build(rows)
+    assert (a.buys.clv_n, a.buys.clv_stale) == (1, 2)
+    assert a.buys.clv == pytest.approx(-0.02)
+    assert a.timing[0].stale == ["S @ H"] and a.timing[0].unknown == 1
+    assert a.timing[0].lead_max == pytest.approx(210)
+    text = " ".join(a.findings)
+    assert "CLV leaves out 2 buys" in text and "2026-10-01 (1)" in text
+    md = ledger_report.render_md(a, as_of="t")
+    assert "on 1 buys closed within 45 min of puck drop; 2 stale or untimed closes left out" in md
+    from nhl_engine.audit import scorecard
+
+    assert scorecard.scorecard(rows).by_market["game_ml"].as_dict()["clv"] == pytest.approx(-0.02)
+
+
+def test_cli_audit_backfills_timing_for_old_graded_rows(tmp_path: Path, monkeypatch):
+    from nhl_engine import cli
+    from nhl_engine.data.capture import QuoteRow, write_snapshot
+
+    monkeypatch.setenv("NHLE_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("NHLE_OUTPUT_DIR", str(tmp_path / "out"))
+    old = _row(puck_drop="", close_at="", priced_at="2026-10-01T23:10:00Z")
+    ledger.save_rows([old], tmp_path / "ledger" / "graded_2026-10-01.json")
+    q = QuoteRow(
+        "2026-10-01T21:00:00Z",
+        "2026-10-01",
+        "A @ H",
+        "e",
+        "game_ml",
+        "H",
+        "",
+        None,
+        "dk",
+        -110,
+        -110,
+    )
+    write_snapshot([q], tmp_path, Date(2026, 10, 1), captured_at=q.captured_at)
+    monkeypatch.setattr(cli, "_results_for", lambda day: ({}, {"A @ H": "2026-10-01T23:00:00Z"}))
+    seen = {}
+    real_build = ledger_report.build
+
+    def spy(rows, *a, **k):
+        seen["rows"] = rows
+        return real_build(rows, *a, **k)
+
+    monkeypatch.setattr(ledger_report, "build", spy)
+    monkeypatch.setattr(
+        ledger_report,
+        "write",
+        lambda a, out, day, *, as_of, pdf=True: {},
+    )
+    assert cli.main(["audit", "--date", "2026-10-02", "--no-sync"]) == 0
+    r = seen["rows"][0]
+    assert r.puck_drop == "2026-10-01T23:00:00Z" and r.close_at == "2026-10-01T21:00:00Z"
+    assert r.priced_late and r.close_lead_min == pytest.approx(120)
+    saved = ledger.load_rows(tmp_path / "ledger" / "graded_2026-10-01.json")[0]
+    assert saved.puck_drop == ""  # the graded file is not rewritten

@@ -42,7 +42,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from nhl_engine import email, outputs, pipeline, report, state
+from engine_runtime.odds_client import OddsClient
+from nhl_engine import closetest, email, history, outputs, pipeline, report, state
 from nhl_engine.audit import ledger, ledger_report, podcast_picks, scorecard, screens, vsin_picks
 from nhl_engine.calibration import Calibrator, calibration_path
 from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, priors_dir
@@ -50,7 +51,7 @@ from nhl_engine.data import availability, capture, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
 from nhl_engine.data.nhlapi import NHLAPIClient
-from nhl_engine.data.oddsapi import OddsAPIClient
+from nhl_engine.data.oddsapi import SPORT_KEY, OddsAPIClient
 from nhl_engine.data.teamnames import CODES, canonical
 from nhl_engine.features import lineup_feed, podcast_read, starters, strength
 from nhl_engine.market import board
@@ -535,6 +536,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     all_rows = [
         r for p in sorted((root / "ledger").glob("graded_*.json")) for r in ledger.load_rows(p)
     ]
+    _backfill_timing(root, all_rows)
     stale = ledger.unregradable(root)
     stale_note = (
         f"Not regradable (graded file but no predictions file): {', '.join(map(str, stale))}; "
@@ -582,6 +584,22 @@ def cmd_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def _backfill_timing(root: Path, rows: list[ledger.LedgerRow]) -> None:
+    """Puck drop and close time for rows graded before the ledger carried them (in memory only)."""
+    nights: dict[str, list[ledger.LedgerRow]] = {}
+    for r in rows:
+        if r.outcome is not None and (not r.puck_drop or (r.clv is not None and not r.close_at)):
+            nights.setdefault(r.slate_date, []).append(r)
+    for night, missing in sorted(nights.items()):
+        day = Date.fromisoformat(night)
+        try:
+            _, starts = _results_for(day)
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the report
+            log.warning("puck drops for %s unavailable: %s", night, exc)
+            continue
+        ledger.stamp_timing(missing, starts, capture.read_day(root, day))
+
+
 def _screen_context(root: Path, rows: list[ledger.LedgerRow]) -> screens.Context:
     """Back-to-backs off the NHL schedule and late skater news off the availability log."""
     nights = sorted({r.slate_date for r in rows})
@@ -623,6 +641,130 @@ def cmd_calibrate(args: argparse.Namespace) -> int:
     cal = Calibrator.fit(all_rows, min_samples=args.min_samples)
     cal.save(calibration_path(root))
     print(json.dumps({"graded": cal.counts, "fitted": sorted(cal.maps)}, indent=2))
+    return 0
+
+
+def _history_schedule(client: NHLAPIClient, start: Date, end: Date) -> dict[Date, list]:
+    """Regular-season games per day from the (free, cached) NHL API schedule."""
+    out: dict[Date, list] = {}
+    for day in history.days_between(start, end):
+        games = [g for g in client.schedule(day) if g.start_utc]
+        if games:
+            out[day] = games
+    return out
+
+
+def cmd_history(args: argparse.Namespace) -> int:
+    """plan (free, NHL API) → print credits → pull only with --yes; `export` is offline."""
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    sched = _history_schedule(nhl, start, end)
+    markets = tuple(args.markets.split(","))
+    if args.action == "export":
+        out = Path(args.out) if args.out else output_dir() / f"history_closes_{start}_{end}.csv"
+        rows: list[dict[str, object]] = []
+        missing_close = missing_final = 0
+        for day, games in sorted(sched.items()):
+            starts = {g.matchup: g.start_utc for g in games}
+            results: dict[str, GameResult] = {}
+            for g in games:
+                res = nhl.result(g)
+                if res is not None and res.decided:
+                    results[g.matchup] = res
+            day_rows = history.export_day(root, day, starts, results)
+            missing_close += len(games) - len(day_rows)
+            missing_final += sum(1 for r in day_rows if r["final_home"] == "")
+            rows.extend(day_rows)
+        n = history.write_csv(rows, out)
+        print(f"{n} games with a close -> {out}")
+        print(
+            f"games without a close: {missing_close}; closes without an official final: {missing_final}"
+        )
+        return 0
+    regions = len(args.regions.split(","))
+    p = history.plan(
+        {d.isoformat(): [g.start_utc for g in gs] for d, gs in sched.items()},
+        markets=markets,
+        regions=regions,
+    )
+    print(
+        f"{start}..{end}: {p['games']} games on {len(sched)} days, "
+        f"{p['snapshots']} snapshots x {p['credits_per_snapshot']} = {p['credits']} credits "
+        f"(markets {','.join(markets)}, regions {args.regions})"
+    )
+    if args.action == "plan" or not args.yes:
+        if args.action == "pull":
+            print("nothing bought: re-run with --yes to spend the credits above", file=sys.stderr)
+        return 0
+    if not cfg.creds.has_odds_api():
+        print("no Odds API key (THE_ODDS_API_KEY / ODDS_API_KEY)", file=sys.stderr)
+        return 2
+    client = OddsClient(
+        "nhl",
+        SPORT_KEY,
+        cfg.creds.odds_api_key,
+        regions=args.regions,
+        cache_dir=cache_dir() / "oddsapi_hist",
+        runtime_root=Path(args.runtime_root).expanduser() if args.runtime_root else None,
+    )
+    tot = {"snapshots": 0, "skipped": 0, "rows": 0, "games": 0}
+    for day, games in sorted(sched.items()):
+        c = history.pull_day(client, root, day, [g.start_utc for g in games], markets=markets)
+        for k in tot:
+            tot[k] += c[k]
+        print(f"{day}: {c}")
+    print(f"total: {tot}")
+    return 0
+
+
+def cmd_closetest(args: argparse.Namespace) -> int:
+    """Rebuild the sim on the hist closes (offline, no credits) and print the fixed rule."""
+    out = Path(args.out) if args.out else output_dir() / f"closetest_{args.start}_{args.end}.csv"
+    if args.action == "report":
+        print(closetest.report(closetest.read_csv(out)))
+        return 0
+    cfg = load_config()
+    root = data_dir()
+    start, end = _parse_date(args.start), _parse_date(args.end)
+    nhl = NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+    mp = MoneyPuckClient(cache_dir=cache_dir())
+    priors: dict[int, preseason.PreseasonPrior] = {}
+    obs: list[closetest.Obs] = []
+    done = (
+        {o.game_date for o in closetest.read_csv(out)}
+        if out.is_file() and not args.fresh
+        else set()
+    )
+    if done:
+        obs = closetest.read_csv(out)
+    for day, games in sorted(_history_schedule(nhl, start, end).items()):
+        if day.isoformat() in done or not history.hist_rows(root, day):
+            continue
+        season = season_of(day)
+        if season not in priors:
+            priors[season] = preseason.build(
+                mp, season, r_yy=cfg.prior.r_yy, today=Date(season, 10, 1)
+            )
+        results = {g.matchup: r for g in games if (r := nhl.result(g)) is not None and r.decided}
+        card = closetest.rebuild_day(
+            root=root,
+            day=day,
+            season=season,
+            cfg=cfg,
+            mp=mp,
+            prior=priors[season],
+            rules=BookRules.load(rules_path(root)),
+            games=games,
+            results=results,
+        )
+        day_obs = closetest.observe(card, results)
+        obs.extend(day_obs)
+        closetest.write_csv(obs, out)
+        print(f"{day}: {len(card.games)} priced, {len(day_obs)} obs, unpriced {len(card.unpriced)}")
+    print(f"{len(obs)} obs -> {out}")
+    print(closetest.report(obs))
     return 0
 
 
@@ -720,6 +862,28 @@ def build_parser() -> argparse.ArgumentParser:
     ca = sub.add_parser("calibrate", help="refit isotonic maps from graded ledgers")
     ca.add_argument("--min-samples", type=int, default=200)
     ca.set_defaults(func=cmd_calibrate)
+
+    hi = sub.add_parser(
+        "history",
+        help="historical closes for the close test: plan (free) / pull (--yes spends) / export",
+    )
+    hi.add_argument("action", choices=["plan", "pull", "export"])
+    hi.add_argument("--start", required=True, help="first game date (YYYY-MM-DD)")
+    hi.add_argument("--end", required=True, help="last game date (YYYY-MM-DD)")
+    hi.add_argument("--markets", default=",".join(history.CLOSE_MARKETS))
+    hi.add_argument("--regions", default="us")
+    hi.add_argument("--yes", action="store_true", help="pull: actually spend the credits printed")
+    hi.add_argument("--runtime-root", help="engine_runtime dir for the shared credit ledger")
+    hi.add_argument("--out", help="export: CSV path")
+    hi.set_defaults(func=cmd_history)
+
+    ct = sub.add_parser("closetest", help="preregistered close test on the hist closes (offline)")
+    ct.add_argument("action", choices=["run", "report"])
+    ct.add_argument("--start", required=True)
+    ct.add_argument("--end", required=True)
+    ct.add_argument("--out", help="observations CSV (resumes per day unless --fresh)")
+    ct.add_argument("--fresh", action="store_true")
+    ct.set_defaults(func=cmd_closetest)
     return parser
 
 

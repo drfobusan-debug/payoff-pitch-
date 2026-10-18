@@ -8,6 +8,7 @@ so the audit package matches the prediction package.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date as Date
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from cfb_engine.output.render import to_mp3, to_pdf
 
 logger = logging.getLogger(__name__)
 
+_BOLD = re.compile(r"\*\*(.+?)\*\*")
 _CSS = """
 @page { size: A4; margin: 1.4cm 1.5cm; }
 body{font-family:Georgia,serif;color:#1a1a1a;line-height:1.5;font-size:10.5pt;}
@@ -91,9 +93,14 @@ def _money_table(rows: list[PricedStat]) -> str:
             f"<td class='{_cls(s.roi)}'>{s.roi * 100:+.1f}%</td>"
             f"<td class='{_cls(s.units)}'>{s.units:+.1f}</td></tr>"
         )
-    findings = "".join(f"<li>{f}</li>" for f in priced_findings(rows))
+    findings = "".join(f"<li>{_bold(f)}</li>" for f in priced_findings(rows))
     tail = f"<ul>{findings}</ul>" if findings else ""
     return f"<table>{head}{body}</table>{tail}"
+
+
+def _bold(text: str) -> str:
+    """Render the findings' ``**bold**`` markdown as HTML."""
+    return _BOLD.sub(r"<b>\1</b>", text)
 
 
 def _probation_list(findings: list[str]) -> str:

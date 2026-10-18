@@ -28,6 +28,11 @@ CFB_WAKE_HHMM="${CFB_WAKE_HHMM:-09:00}"
 # minutes ahead of each nfl-close run. Must match setup_engine_autorun.sh.
 NFL_CLOSE_WAKES="${NFL_CLOSE_WAKES:-4=20:00 0=09:15 0=12:45 0=15:55 0=20:05 1=19:00 1=20:00 6=12:45 6=16:15 6=20:00}"
 NFL_CLOSE_WITHIN_MIN="${NFL_CLOSE_WITHIN_MIN:-45}"
+# NFL pre-kickoff pricing passes (Sun 11:30 = 90 min before the 1 pm games, the
+# same lead before every other window): wakes five minutes ahead of each nfl-pre
+# run. Must match setup_engine_autorun.sh.
+NFL_PRE_WAKES="${NFL_PRE_WAKES:-4=18:40 0=11:25 0=14:30 0=18:45 1=17:40 1=18:40 6=11:25 6=14:55 6=18:40}"
+NFL_PRE_WITHIN_MIN="${NFL_PRE_WITHIN_MIN:-120}"
 NFL_WAKE_HHMM="${NFL_WAKE_HHMM:-08:00}"
 NFL_OPEN_WAKE_HHMM="${NFL_OPEN_WAKE_HHMM:-08:00}"
 NFL_EVE_WAKE_HHMM="${NFL_EVE_WAKE_HHMM:-20:00}"
@@ -119,12 +124,12 @@ arm_next_slate() {
   done
 }
 
-# Arm the next NFL pre-kickoff close wake on launchd weekday $1 (0=Sun) later
-# than $2 (HH:MM), on date $3 (mm/dd/YYYY). Each close run arms the next one,
-# and the night job arms the first of tomorrow's.
+# Arm the next NFL pre-kickoff wake (a pricing pass or a close) on launchd
+# weekday $1 (0=Sun) later than $2 (HH:MM), on date $3 (mm/dd/YYYY). Each such
+# run arms the next one, and the night job arms the first of tomorrow's.
 arm_next_nfl_close() {
   local wd="$1" after="$2" day="$3" best="" spec hm
-  for spec in ${NFL_CLOSE_WAKES}; do
+  for spec in ${NFL_CLOSE_WAKES} ${NFL_PRE_WAKES}; do
     [[ "${spec%%=*}" == "$wd" ]] || continue
     hm="${spec##*=}"
     if [[ "$after" < "$hm" ]] && { [[ -z "$best" ]] || [[ "$hm" < "$best" ]]; }; then
@@ -132,8 +137,8 @@ arm_next_nfl_close() {
     fi
   done
   [[ -n "$best" ]] || return 0
-  pmset_ schedule wake "$day $best:00" || echo "[$(date)] could not arm the $best NFL close wake" >&2
-  echo "[$(date)] armed NFL close wake for $day $best:00"
+  pmset_ schedule wake "$day $best:00" || echo "[$(date)] could not arm the $best NFL wake" >&2
+  echo "[$(date)] armed NFL pre-kickoff wake for $day $best:00"
 }
 
 if [[ "$MODE" == "night" ]]; then
@@ -216,6 +221,17 @@ elif [[ "$MODE" == "nfl-close" ]]; then
   arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
   pull_latest
   nfl-engine close --within "${NFL_CLOSE_WITHIN_MIN}" || echo "[$(date)] 'nfl-engine close' exited non-zero" >&2
+elif [[ "$MODE" == "nfl-pre" ]]; then
+  # Sun 11:30 and the same lead before every other kickoff window: a second
+  # look at the board once the inactives are out (~90 min before kickoff), when
+  # a book is likeliest to be left behind. Prices only the games kicking off
+  # inside ${NFL_PRE_WITHIN_MIN} min and writes only buys; emails the week's card
+  # only when it added one. Fetches only if such a game exists (~3 Odds API
+  # credits); otherwise free.
+  /usr/bin/caffeinate -i -w $$ &
+  arm_next_nfl_close "$(date +%w)" "$(date +%H:%M)" "$(date +%m/%d/%Y)"
+  pull_latest
+  nfl-engine price --within "${NFL_PRE_WITHIN_MIN}" --email || echo "[$(date)] 'nfl-engine price --within' exited non-zero" >&2
 elif [[ "$MODE" == "nfl-audit" ]]; then
   # Sunday 23:59: the season audit of the NFL game ledger, emailed -- the
   # `nfl-engine report --all` table plus scripts.nfl.ledger_audit (buys, one lean

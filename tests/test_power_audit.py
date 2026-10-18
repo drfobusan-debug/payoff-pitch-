@@ -156,8 +156,28 @@ def test_both_sided_pairs_are_flagged_and_removable() -> None:
     assert len(power_audit.two_sided(g.position for g in total.graded)) == 1
     assert len(power_audit.without_pairs(total.graded)) == 1
     notes = power_audit.commentary(day, total)
-    assert any("both sides" in p for p in notes.problems)
-    assert any("one side per prop" in r for r in notes.recommendations)
+    assert any("both sides" in p and "All are dated before" in p for p in notes.problems)
+    assert not any("both sides" in r for r in notes.recommendations)
+
+
+def test_a_pair_after_the_guard_is_flagged_as_a_bypass() -> None:
+    late = "2026-10-14"
+    positions = [
+        _pos(BAT_A, side="over", odds=250.0, model=0.3, fair=0.28, day=late),
+        _pos(BAT_A, side="under", odds=-300.0, model=0.7, fair=0.72, day=late),
+        _pos(BAT_B, side="under", day=late),
+    ]
+    day, total = power_audit.build(
+        late,
+        positions,
+        [],
+        fetch_result=lambda pk: _result() if pk == GAME else None,
+        fetch_plays=lambda pk, final: _plays(),
+    )
+    assert len(power_audit.two_sided(g.position for g in total.graded)) == 1
+    notes = power_audit.commentary(day, total)
+    assert any("guard was bypassed" in p for p in notes.problems)
+    assert any("both sides after the one-side-per-prop guard" in r for r in notes.recommendations)
 
 
 def test_commentary_names_lineup_misses_unpriced_bats_and_dropped_positions() -> None:

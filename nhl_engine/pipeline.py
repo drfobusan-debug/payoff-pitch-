@@ -424,8 +424,10 @@ def price_game(
             continue
         model, cal_reasons = calib.apply(sel.market, raw)
         sim_prob: float | None = None
+        sim_model: markets.Prob | None = None
         if sel.market in cfg.gates.anchored_markets:
             sim_prob = model.win
+            sim_model = model
             model = anchor(model, sel.consensus, cfg.gates.market_anchor)
             cal_reasons = [
                 *cal_reasons,
@@ -441,6 +443,7 @@ def price_game(
             goalie_confirmed=both_confirmed,
             settlement_gate=settlement_gate,
             sim_prob=sim_prob,
+            sim_model=sim_model,
         )
         priced.reasons.extend(cal_reasons)
         card.rows.append(
@@ -592,6 +595,7 @@ def run_slate(
     logs: PlayerLogClient | None = None,
     starts: dict[str, str] | None = None,
     only: set[str] | None = None,
+    overrides: dict[str, dict[str, object]] | None = None,
 ) -> SlateCard:
     now = now or datetime.now(timezone.utc)
     priced_at = now.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -606,7 +610,8 @@ def run_slate(
         log.exception("prop projections failed; props unpriced")
     league = league_for(mp, slate, season, prior, cfg.shrink.league_k_games)
     lineups = load_lineups(lineups_path(data_dir, slate))
-    overrides = load_overrides(overrides_path(data_dir, slate))
+    if overrides is None:
+        overrides = load_overrides(overrides_path(data_dir, slate))
     base_seed = seed if seed is not None else int(slate.strftime("%Y%m%d"))
     out = SlateCard(slate, season, priced_at, tag, prior.version, props=props)
     cache: dict[str, TeamInputs] = {}

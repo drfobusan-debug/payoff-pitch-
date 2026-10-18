@@ -276,6 +276,12 @@ def one_side_per_prop(rows: list[BoardRow]) -> list[BoardRow]:
     return [r for r in rows if id(r) in kept]
 
 
+#: The first day ``positions_from_board`` kept one side per prop (ef38d257). A
+#: both-sided pair dated before it is history; one dated on or after it means the
+#: guard was bypassed.
+ONE_SIDE_FROM = "2026-10-13"
+
+
 def _position(
     row: BoardRow,
     as_of: Date,

@@ -216,7 +216,7 @@ def market_veto(
         if side == "over" and env is not None and pace is not None:
             if env < 0 and pace < 0:
                 return Veto(True, "low-scoring environment (PPA & pace below avg)")
-        if side == "under" and env is not None and expl is not None:
+        if params.veto_shootout and side == "under" and env is not None and expl is not None:
             if env > 0 and expl > 0:
                 return Veto(True, "shootout environment (PPA & explosiveness above avg)")
 

@@ -15,6 +15,11 @@ from dataclasses import dataclass, replace
 CFB, NFL, MLB, NBA, CBB, NHL = "cfb", "nfl", "mlb", "nba", "cbb", "nhl"
 VSIN_SHOW = "vsin_bets"  # VSiN's written best bets, read off its articles
 VSIN_NAME = "VSiN Best Bets"
+VSIN_PRO_SHOW = "vsin_pro"  # VSiN Pro handicappers' picks, read off the "picks at a glance" email
+VSIN_PRO_NAME = "VSiN Pro Picks"
+CIRCA_SHOW = "circa_fi"  # Circa Football Invitational contestants, same email
+CIRCA_NAME = "Circa Football Invitational"
+VSIN_SHOWS = frozenset({VSIN_SHOW, VSIN_PRO_SHOW})
 LEAGUES: tuple[str, ...] = (CFB, NFL, MLB, NBA, CBB, NHL)
 LEAGUE_NAME = {
     CFB: "college football",
@@ -299,6 +304,11 @@ __all__ = [
     "SHOWS",
     "VSIN_NAME",
     "VSIN_SHOW",
+    "VSIN_PRO_SHOW",
+    "VSIN_PRO_NAME",
+    "VSIN_SHOWS",
+    "CIRCA_SHOW",
+    "CIRCA_NAME",
     "Show",
     "for_league",
 ]

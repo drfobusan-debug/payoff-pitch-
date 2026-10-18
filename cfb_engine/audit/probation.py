@@ -65,7 +65,15 @@ from statistics import fmean, stdev
 
 from cfb_engine.audit.grade import PUSH
 from cfb_engine.audit.ledger import LedgerEntry
-from cfb_engine.market import atscontext, lineagree, lowtotal, unitranks
+from cfb_engine.market import (
+    atscontext,
+    atsline,
+    gradedonly,
+    lineagree,
+    lowtotal,
+    unitranks,
+    yppmatch,
+)
 from cfb_engine.market.tiers import Tier
 
 # One Saturday contributes roughly 20-50 buys, so 100 is a few weeks rather than
@@ -123,6 +131,11 @@ class Probation:
     @property
     def actionable(self) -> bool:
         return self.status in (SHUT, LIFT, SHIP, PROMOTE)
+
+
+def _would_buy(e: LedgerEntry) -> bool:
+    """A buy, or one a graded-only market refused only for being graded only."""
+    return e.tier in _BUY or gradedonly.is_gate(e.pass_gate)
 
 
 def _decided(entries: list[LedgerEntry]) -> list[LedgerEntry]:
@@ -213,7 +226,13 @@ def _judge(
     # Condition 3: both halves agree.
     consistent = sign * h1 > 0 and sign * h2 > 0
     if beyond_se and consistent:
-        status = {"market": SHUT, "screen": LIFT, "candidate": SHIP, "upgrade": PROMOTE, "rule": PROMOTE}[kind]
+        status = {
+            "market": SHUT,
+            "screen": LIFT,
+            "candidate": SHIP,
+            "upgrade": PROMOTE,
+            "rule": PROMOTE,
+        }[kind]
         verb = {
             "market": f"losing {abs(roi) * 100:.1f}% of stake",
             "screen": f"refusing winners at {roi * 100:+.1f}%",
@@ -363,11 +382,7 @@ def _divergence_under(floor: float) -> Callable[[LedgerEntry], bool]:
     """
 
     def refuses(e: LedgerEntry) -> bool:
-        return (
-            e.market == "game_ml"
-            and e.sharp_div is not None
-            and e.sharp_div < floor
-        )
+        return e.market == "game_ml" and e.sharp_div is not None and e.sharp_div < floor
 
     return refuses
 
@@ -382,6 +397,18 @@ def _g5_only_spread(e: LedgerEntry) -> bool:
 
 def _top25_spread(e: LedgerEntry) -> bool:
     return atscontext.ranked_game(e.market, e.top25)
+
+
+def _mid_dog_spread(e: LedgerEntry) -> bool:
+    return atsline.mid_dog(e.market, e.line)
+
+
+def _mid_favourite_spread(e: LedgerEntry) -> bool:
+    return atsline.mid_favourite(e.market, e.line)
+
+
+def _big_dog_spread(e: LedgerEntry) -> bool:
+    return atsline.big_dog(e.market, e.line)
 
 
 # The candidates asked of every audit, rather than settled once in a chat
@@ -435,6 +462,16 @@ CANDIDATE_SCREENS: tuple[CandidateScreen, ...] = (
         _g5_only_spread,
         "the ratings rest on thinner schedules when neither side is Power 4",
     ),
+    CandidateScreen(
+        atsline.MID_DOG_RULE,
+        _mid_dog_spread,
+        "a dog getting 7.5 to 14 points lost money on the 2026 ledger",
+    ),
+    CandidateScreen(
+        atsline.MID_FAV_RULE,
+        _mid_favourite_spread,
+        "a favourite laying 3.5 to 7 points lost money on the 2026 ledger",
+    ),
 )
 
 
@@ -483,6 +520,11 @@ CANDIDATE_UPGRADES: tuple[CandidateUpgrade, ...] = (
         _top25_spread,
         "the spread is on a game with an AP Top 25 team in it",
     ),
+    CandidateUpgrade(
+        atsline.BIG_DOG_RULE,
+        _big_dog_spread,
+        "a dog getting 14.5 points or more, where the unbet dogs lose",
+    ),
 )
 
 
@@ -492,10 +534,13 @@ def upgrade_probation(
     since: str | None = None,
     min_n: int | None = None,
 ) -> list[Probation]:
-    """Verdict per proposed upgrade, over the graded buys it would promote."""
+    """Verdict per proposed upgrade, over the graded buys it would promote.
+
+    A graded-only market's would-be buys count, so its candidates keep grading.
+    """
     bar = _min_n() if min_n is None else min_n
     floor = ALL_HISTORY if since is None else since
-    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    rows = [e for e in _decided(entries) if _would_buy(e) and e.date >= floor]
     out: list[Probation] = []
     for u in upgrades:
         verdict = _judge(
@@ -524,6 +569,13 @@ def _totals_line_agrees(e: LedgerEntry) -> bool:
     return lineagree.line_agrees(e.market, e.model_prob, e.fair_prob, e.open_drift, e.drift)
 
 
+def _ypp_tag(tag: str) -> Callable[[LedgerEntry], bool]:
+    def picks(e: LedgerEntry) -> bool:
+        return yppmatch.picks(tag, e.market, e.selection, e.ypp_tags)
+
+    return picks
+
+
 def _unit_top25(unit: str, market: str) -> Callable[[LedgerEntry], bool]:
     def picks(e: LedgerEntry) -> bool:
         return unitranks.picks(unit, market, e.market, e.unit_ranks, e.opp_unit_ranks)
@@ -544,11 +596,18 @@ UNIT_RULES: tuple[CandidateRule, ...] = tuple(
     CandidateRule(
         unitranks.rule_name(unit, market),
         _unit_top25(unit, market),
-        f"the side has a top-{unitranks.TOP_N} {unitranks.LABELS[unit]}"
-        " and the opponent does not",
+        f"the side has a top-{unitranks.TOP_N} {unitranks.LABELS[unit]} and the opponent does not",
     )
     for unit in unitranks.UNITS
     for market in unitranks.MARKETS
+)
+
+
+# Totals Unders in high-YPP games, tagged on stats before the slate
+# (``cfb_engine.market.yppmatch``).
+YPP_RULES: tuple[CandidateRule, ...] = tuple(
+    CandidateRule(yppmatch.RULE_NAMES[tag], _ypp_tag(tag), yppmatch.RATIONALES[tag])
+    for tag in yppmatch.TAGS
 )
 
 
@@ -579,6 +638,8 @@ def candidate_probation(
 ) -> list[Probation]:
     """Verdict per proposed screen, over the graded buys it would have refused.
 
+    A graded-only market's would-be buys count, so its candidates keep grading.
+
     Same three tests as a live market, because a candidate is the same claim: the
     rows in here lose. ``SHIP`` means they lose by more than a standard error in
     both halves of the window; anything else means the floor is a fit to where
@@ -587,7 +648,7 @@ def candidate_probation(
     """
     bar = _min_n() if min_n is None else min_n
     floor = ALL_HISTORY if since is None else since
-    rows = [e for e in _decided(entries) if e.tier in _BUY and e.date >= floor]
+    rows = [e for e in _decided(entries) if _would_buy(e) and e.date >= floor]
     out: list[Probation] = []
     for c in candidates:
         verdict = _judge(
@@ -610,6 +671,7 @@ def probation_rows(entries: list[LedgerEntry], since: str | None = None) -> list
         *upgrade_probation(entries, since=since),
         *rule_probation(entries, since=since),
         *rule_probation(entries, UNIT_RULES, since=since),
+        *rule_probation(entries, YPP_RULES, since=since),
     ]
 
 

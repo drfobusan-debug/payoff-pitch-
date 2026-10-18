@@ -13,6 +13,7 @@ Commands mirror the MLB engine:
     cfb-engine scorecard print the rolling PPV/NPV-by-market scorecard
     cfb-engine probation grade markets, live screens and candidate screens
     cfb-engine weekly    write (and email) the weekly audit: the week + the ledger
+    cfb-engine shop      totals at the card's number vs the best number vs Kalshi
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from datetime import date as Date
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-from cfb_engine.audit import snapshot
+from cfb_engine.audit import shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
@@ -68,7 +69,7 @@ from cfb_engine.audit.weekly import weekly_audit
 from cfb_engine.config import Config, load_config
 from cfb_engine.data.cfbd import CFBDClient
 from cfb_engine.data.oddsapi import OddsAPIClient
-from cfb_engine.market import atscontext, lowtotal, unitranks
+from cfb_engine.market import atscontext, lowtotal, unitranks, yppmatch
 from cfb_engine.market.tiers import Tier
 from cfb_engine.output.audit_report import generate_audit_report
 from cfb_engine.output.card import generate_daily_card
@@ -154,6 +155,12 @@ def _line_agrees_record(cfg: Config) -> Probation | None:
     return verdict
 
 
+def _watchlist(cfg: Config) -> watchlist.Watchlist | None:
+    """Every graded-only rule's record so far, for the top of the slate."""
+    entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
+    return watchlist.build(entries) if entries else None
+
+
 def _low_total_record(cfg: Config) -> Probation | None:
     """The low-total Under candidate screen's record so far, for the card."""
     entries = load_ledger(cfg.ledger_file) if cfg.ledger_file.exists() else []
@@ -190,6 +197,7 @@ def cmd_run(cfg: Config, args: argparse.Namespace) -> int:
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
         low_total_record=_low_total_record(cfg),
+        watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -215,6 +223,7 @@ def cmd_card(cfg: Config, args: argparse.Namespace) -> int:
         extra_attachments=extra,
         line_agrees_record=_line_agrees_record(cfg),
         low_total_record=_low_total_record(cfg),
+        watching=_watchlist(cfg),
         podcast=_podcast_view(cfg, recs, day),
     )
     return 0
@@ -233,6 +242,7 @@ def cmd_close(cfg: Config, args: argparse.Namespace) -> int:
     fresh = closing_quotes(slate, board)
     quotes = merge_closing(load_closing(cfg.closing_file(day)), fresh)
     save_closing(quotes, cfg.closing_file(day))
+    shop.append(shop.capture_rows(slate, board, shop.CLOSE), cfg.books_file(day))
     # Also seed the first-seen board, in case a capture beats the day's run to
     # the market: it is written once and never overwritten, so whichever command
     # sees the board first sets the baseline and the other is a no-op.
@@ -271,6 +281,7 @@ def cmd_opener(cfg: Config, args: argparse.Namespace) -> int:
         existing = snapshot.load(path)
         merged = snapshot.merge_first_wins(existing, snapshot.board_quotes(slate, board))
         snapshot.save(merged, path)
+        shop.append(shop.capture_rows(slate, board, shop.OPENER), cfg.books_file(day))
         print(
             f"{day}: {len(slate.games)} games, {len(merged) - len(existing)} new opener "
             f"quotes ({len(merged)} total) -> {path}"
@@ -323,6 +334,24 @@ def _unit_ranks(cfg: Config, day: Date) -> unitranks.UnitRanks:
     return unitranks.rank_teams(cfbd.fetch_unit_stats(season, end))
 
 
+def _ypp_book(cfg: Config, day: Date) -> yppmatch.TeamYPP:
+    """Team YPP on the games played before ``day``'s slate (empty if CFBD has none)."""
+    cfbd = CFBDClient(cfg.creds.cfbd_api_key)
+    season = _season(cfg, day)
+    end = unitranks.prior_week(cfbd.fetch_schedule(season), day)
+    return yppmatch.team_ypp(cfbd.fetch_team_stats(season, end))
+
+
+def _stamp_ypp(entries: list[LedgerEntry], book: yppmatch.TeamYPP) -> int:
+    n = 0
+    for e in entries:
+        stamped = yppmatch.stamp(e.market, e.matchup, book)
+        if stamped is not None:
+            e.ypp_tags = stamped
+            n += 1
+    return n
+
+
 def _stamp_units(entries: list[LedgerEntry], ranks: unitranks.UnitRanks) -> int:
     n = 0
     for e in entries:
@@ -330,6 +359,24 @@ def _stamp_units(entries: list[LedgerEntry], ranks: unitranks.UnitRanks) -> int:
         if stamped is not None:
             e.unit_ranks, e.opp_unit_ranks = stamped
             n += 1
+    return n
+
+
+def _stamp_shop(
+    cfg: Config,
+    day: Date,
+    entries: list[LedgerEntry],
+    graded: list[tuple[Recommendation, str]],
+    index: ResultIndex,
+) -> int:
+    rows = shop.load(cfg.books_file(day))
+    if not rows:
+        return 0
+    n = 0
+    for e, (rec, _) in zip(entries, graded, strict=True):
+        final = result_for(rec, index)
+        total = final.home_points + final.away_points if final is not None else None
+        n += shop.stamp(e, rec.side, total, rows, cfg.shop_books, cfg.model.total_sd)
     return n
 
 
@@ -372,6 +419,8 @@ def _audit_slate(cfg: Config, day: Date) -> tuple[list[LedgerEntry], int] | None
             e.close_odds, e.close_prob, e.clv, e.clv_ev = res.as_tuple()
             e.clv_pts = res.clv_pts
     _stamp_units(entries, _unit_ranks(cfg, day))
+    _stamp_ypp(entries, _ypp_book(cfg, day))
+    _stamp_shop(cfg, day, entries, graded, index)
     merged = update_ledger(cfg.ledger_file, entries, day)
     print(f"Graded {len(entries)} markets; ledger now {len(merged)} rows.")
 
@@ -505,6 +554,7 @@ def cmd_podcast(cfg: Config, args: argparse.Namespace) -> int:
                 to=None,
                 line_agrees_record=_line_agrees_record(cfg),
                 low_total_record=_low_total_record(cfg),
+                watching=_watchlist(cfg),
                 podcast=_podcast_view(cfg, recs, day),
             )
     _state_push(cfg, f"cfb podcast {now.date().isoformat()}: {n_picks} picks")
@@ -758,23 +808,38 @@ def cmd_repair_closes(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
-    """Stamp point-in-time unit ranks on graded ATS/ML rows that have none yet."""
+def cmd_shop(cfg: Config, args: argparse.Namespace) -> int:
+    """Totals graded at the card's number vs the best allowed number vs Kalshi."""
     _state_pull(cfg)
     entries = load_ledger(cfg.ledger_file)
-    todo = sorted(
-        {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
-    )
+    books = ", ".join(cfg.shop_books) if cfg.shop_books else "every book"
+    for graded_only, title in ((True, "Graded-only totals"), (False, "All priced totals")):
+        print(f"{title} (best number among {books}):")
+        for r in shop.records(entries, graded_only=graded_only):
+            print(
+                f"  {r.label:<28} n={r.n:<4} {r.wins}-{r.losses}-{r.pushes}  "
+                f"{r.units:+.2f}u  ROI {r.roi:+.1%}"
+            )
+    return 0
+
+
+def cmd_stamp_units(cfg: Config, args: argparse.Namespace) -> int:
+    """Stamp point-in-time unit ranks (ATS/ML) and YPP tags (totals) on graded rows lacking them."""
+    _state_pull(cfg)
+    entries = load_ledger(cfg.ledger_file)
+    units_todo = {e.date for e in entries if e.market in unitranks.MARKETS and e.unit_ranks is None}
+    ypp_todo = {e.date for e in entries if e.market == "game_total" and e.ypp_tags is None}
     total = 0
-    for iso in todo:
+    for iso in sorted(units_todo | ypp_todo):
         day = Date.fromisoformat(iso)
         day_rows = [e for e in entries if e.date == iso]
-        n = _stamp_units(day_rows, _unit_ranks(cfg, day))
+        n = _stamp_units(day_rows, _unit_ranks(cfg, day)) if iso in units_todo else 0
+        n += _stamp_ypp(day_rows, _ypp_book(cfg, day)) if iso in ypp_todo else 0
         if n:
             update_ledger(cfg.ledger_file, day_rows, day)
             total += n
         print(f"{iso}: stamped {n} row(s).")
-    print(f"Stamped unit ranks on {total} ledger row(s) across {len(todo)} slate(s).")
+    print(f"Stamped {total} ledger row(s) across {len(units_todo | ypp_todo)} slate(s).")
     if total:
         _state_push(cfg, f"cfb stamp-units: {total} rows")
     return 0
@@ -863,7 +928,11 @@ def _build_parser() -> argparse.ArgumentParser:
     add_common(sub.add_parser("audit", help="grade a slate and update the ledger"), email=True)
     sub.add_parser("repair-closes", help="purge in-play quotes from saved closes and re-stamp CLV")
     sub.add_parser(
-        "stamp-units", help="stamp pre-slate top-25 unit ranks on graded ATS/ML ledger rows"
+        "stamp-units",
+        help="stamp pre-slate unit ranks (ATS/ML) and YPP tags (totals) on graded ledger rows",
+    )
+    sub.add_parser(
+        "shop", help="totals graded at the card's number vs the best allowed number vs Kalshi"
     )
     add_common(sub.add_parser("report", help="rebuild the ledger workbook/report"), email=True)
     add_common(
@@ -899,6 +968,7 @@ _DISPATCH = {
     "audit": cmd_audit,
     "repair-closes": cmd_repair_closes,
     "stamp-units": cmd_stamp_units,
+    "shop": cmd_shop,
     "report": cmd_report,
     "weekly": cmd_weekly,
     "calibrate": cmd_calibrate,
