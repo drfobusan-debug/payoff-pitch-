@@ -884,7 +884,6 @@ def _build_section(
                 park_factor=env.park_factor,
                 weather_hr_mult=env.weather_hr_mult,
                 worst_arm=worst_arm,
-                top_pitch_rv=view.edge.top_rv,
             )
         if h.slot:
             view.exposure = exposure(
@@ -984,22 +983,13 @@ def _priced(
 def _board(
     result: ScreenResult, recs: list[Recommendation], source: str
 ) -> Board:
-    """The survivors' rows off the card's own run, on the side the gates hold."""
-    board = power_board.build(
-        result,
-        recs,
-        source=source,
-        sides=power_report.sides(result),
-        exclude=power_report.dropped(result),
-    )
+    """The survivors' rows off the card's own run, both sides of each prop."""
+    board = power_board.build(result, recs, source=source)
     log.info(
-        "board: %d priced rows on %d of %d survivors (%d dropped on production, "
-        "%d rows on the side not held)",
+        "board: %d priced rows on %d of %d survivors",
         len(board.rows),
         len(board.priced),
         len(board.priced) + len(board.unpriced),
-        len(board.excluded),
-        board.off_side,
     )
     log.info(
         "arm board: %d positions on %d of %d arms, %d bought",
@@ -1148,10 +1138,8 @@ def roster_rows(
                     versus=sp.name, versus_id=sp.mlbam_id,
                     slot=h.slot, projected=section.lineup_projected,
                     bucket="" if v is None else v.bucket,
-                    side="" if v is None or v.side is None else v.side,
-                    status=(
-                        power_roster.HELD if v is None or v.held else power_roster.DROPPED
-                    ),
+                    side="",
+                    status=power_roster.HELD,
                 )
             )
     by_name = {s.starter.name: s.starter for s in result.sections}

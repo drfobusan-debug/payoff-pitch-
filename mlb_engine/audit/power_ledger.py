@@ -699,9 +699,10 @@ _PRE_FLIP_BUCKET = {"BUY": "AVOID", "AVOID": "BUY"}
 def bucket(position: Position) -> str:
     """The stable bucket a recorded rating string belongs to.
 
-    Current keys are the gate buckets in :mod:`mlb_engine.output.power_report`
-    (``RV NEG WATCH``, ``SOFT OVER``, ``ELITE UNDER``, ``PROD WATCH``). The
-    retired keys stay what they were: ``RV NEG UNDER`` = the gate-1 under,
+    The current key is ``SCREEN WATCH`` (:mod:`mlb_engine.output.power_report`):
+    every survivor, side-less, from 2026-10-18. The retired keys stay what they
+    were: ``RV NEG WATCH``, ``SOFT OVER``, ``ELITE UNDER``, ``PROD WATCH`` = the
+    three-gate buckets before then, ``RV NEG UNDER`` = the gate-1 under,
     ``STRONG BUY`` = composite rank 1-2,
     ``BUY`` = low-contact tercile, ``HOLD`` = middle, ``AVOID`` = high-contact
     tercile, and a row written before :data:`CONTACT_LABEL_FLIP` had BUY and

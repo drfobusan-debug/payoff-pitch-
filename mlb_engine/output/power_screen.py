@@ -1236,9 +1236,8 @@ def apply_cuts(
 
     With ``hard_cuts`` false only the PA floor removes a hitter; the other three
     cuts (and the top-K finish) are written to ``flags`` and he is kept, so the
-    run-value, production and arm gates decide him on the whole pool that has
-    the sample to be read. The luck gap in particular was signed the wrong way
-    on the ledger, and the wRC+ floor is what gate 2 already scores.
+    whole pool that has the sample to be read reaches the note. The luck gap in
+    particular was signed the wrong way on the ledger.
 
     Order matters: the PA floor comes first so the top-K bonuses are recomputed
     within a pool that no longer contains a two-week hot streak, and the
@@ -1830,12 +1829,9 @@ CHASE_BAND = 0.030  # 3 points of out-of-zone swing rate
 EV90_BAND = 1.0  # mph
 PARK_BAND = 1.5  # park-factor points either side of 100
 WEATHER_BAND = 0.02  # 2% on the forecast's home-run multiplier
-#: How many of the starter's families the run-value term reads, and the run value
-#: per 100 pitches at which it doubles. Three families is most of a start -- the
-#: fourth and fifth pitches are shown situationally -- and 2 runs per 100 is a
-#: large enough edge on them to be worth more than a sign.
+#: How many of the starter's families the printed run-value read covers. Three
+#: families is most of a start; the read scores nothing (see power_report).
 TOP_PITCHES = 3
-BIG_RV = 2.0
 TREND_DAYS = 21  # the recent window the trends are read over
 MIN_TREND_SWINGS = 60
 MIN_TREND_BBE = 25
@@ -1844,14 +1840,13 @@ MIN_TREND_OZ = 40
 
 @dataclass(frozen=True)
 class ContextTerms:
-    """Six signed points of context, the worst-arm point and the run-value point.
+    """Six signed points of context and the worst-arm point.
 
     Every term is ``+1`` when it favours the hitter, ``-1`` when it favours the
     pitcher and ``0`` when the evidence does not clear the metric's noise band or
     is missing altogether. Missing is neutral: a hitter whose bat speed was never
-    tracked has not slowed down. ``top_rv`` is the one term that can be worth
-    more than a point, because a hitter two runs per 100 to the good on the
-    pitches he will see most is not marginally better off.
+    tracked has not slowed down. The run value on the starter's top pitches is
+    not a term: it is printed off :class:`ArsenalEdge` and scores nothing.
     """
 
     luck: int = 0
@@ -1861,7 +1856,6 @@ class ContextTerms:
     park: int = 0
     weather: int = 0
     worst_arm: int = 0
-    top_rv: int = 0
 
     @property
     def regression(self) -> int:
@@ -1870,9 +1864,7 @@ class ContextTerms:
 
     @property
     def total(self) -> int:
-        return (
-            self.regression + self.park + self.weather + self.worst_arm + self.top_rv
-        )
+        return self.regression + self.park + self.weather + self.worst_arm
 
 
 @dataclass(frozen=True)
@@ -1885,20 +1877,6 @@ class TrendDeltas:
     swings: int = 0
     oz_pitches: int = 0
     bbe: int = 0
-
-
-def rv_term(rv100: float, *, big: float = BIG_RV) -> int:
-    """The run-value point on the starter's most-thrown pitches: ``+-1`` or ``+-3``.
-
-    A hitter who is above water on the three pitches he will see most gets the
-    sign, and a hitter who is a long way above water gets two more -- the size of
-    the edge is information the sign throws away. Exactly zero run value, and an
-    unmeasured one, are both no point.
-    """
-    if math.isnan(rv100) or rv100 == 0:
-        return 0
-    point = 1 if rv100 > 0 else -1
-    return point * 3 if abs(rv100) >= big else point
 
 
 def signed_term(delta: float, band: float, *, higher_helps_hitter: bool) -> int:
@@ -1961,9 +1939,8 @@ def build_context(
     park_factor: float = math.nan,
     weather_hr_mult: float = math.nan,
     worst_arm: bool = False,
-    top_pitch_rv: float = math.nan,
 ) -> ContextTerms:
-    """The eight context points for one hitter in one game.
+    """The seven context points for one hitter in one game.
 
     The luck term is signed on ``xwOBA - wOBA``: a hitter whose expected line is
     above his actual one has been unlucky and regresses up, which is the only
@@ -1980,7 +1957,6 @@ def build_context(
         park=signed_term(park_factor - 100.0, PARK_BAND, higher_helps_hitter=True),
         weather=signed_term(weather_hr_mult - 1.0, WEATHER_BAND, higher_helps_hitter=True),
         worst_arm=1 if worst_arm else 0,
-        top_rv=rv_term(top_pitch_rv),
     )
 
 
