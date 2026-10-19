@@ -173,3 +173,15 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-18,20261018T1859Z,elite,arm,Parker Messick,800048,CLE,849817,Parker Messick,800048,,False,,,gated,siera: SIERA 3.16 ≤ 3.25,3.16
 2026-10-18,20261018T1859Z,soft,arm,Drew Rasmussen,656876,TB,849817,Drew Rasmussen,656876,,False,,,gated,siera: SIERA 2.97 ≤ 4.40,2.97
 2026-10-18,20261018T1859Z,soft,arm,Parker Messick,800048,CLE,849817,Parker Messick,800048,,False,,,gated,siera: SIERA 3.16 ≤ 4.40,3.16
+2026-10-19,20261019T1534Z,elite,arm,Shawn Armstrong,542888,CLE,849815,Shawn Armstrong,542888,,False,,,gated,work: 42 BF and 157 pitches in 90d (needs 120 and 400),
+2026-10-19,20261019T1534Z,elite,arm,Freddy Peralta,642547,TB,849815,Freddy Peralta,642547,,False,,,gated,siera: SIERA 4.42 > 4.40,4.42
+2026-10-19,20261019T1534Z,soft,arm,Shawn Armstrong,542888,CLE,849815,Shawn Armstrong,542888,,False,,,gated,work: 42 BF and 157 pitches in 90d (needs 120 and 400),
+2026-10-19,20261019T1534Z,soft,arm,Freddy Peralta,642547,TB,849815,Freddy Peralta,642547,,False,,,screened,,4.42
+2026-10-19,20261019T1534Z,soft,bat,Jose Ramirez,608070,CLE,849815,Freddy Peralta,642547,2,True,PROD WATCH,,held,,
+2026-10-19,20261019T1534Z,soft,bat,Nathaniel Lowe,663993,CLE,849815,Freddy Peralta,642547,5,True,PROD DROP,,dropped,,
+2026-10-19,20261019T1534Z,soft,bat,Jo Adell,666176,CLE,849815,Freddy Peralta,642547,4,True,RV NEG WATCH,,held,,
+2026-10-19,20261019T1534Z,soft,bat,Patrick Bailey,672275,CLE,849815,Freddy Peralta,642547,7,True,RV NEG WATCH,,held,,
+2026-10-19,20261019T1534Z,soft,bat,Steven Kwan,680757,CLE,849815,Freddy Peralta,642547,1,True,SOFT OVER,over,held,,
+2026-10-19,20261019T1534Z,soft,bat,Travis Bazzana,683953,CLE,849815,Freddy Peralta,642547,6,True,SOFT OVER,over,held,,
+2026-10-19,20261019T1534Z,soft,bat,Petey Halpin,690984,CLE,849815,Freddy Peralta,642547,8,True,RV NEG WATCH,,held,,
+2026-10-19,20261019T1534Z,soft,bat,Chase DeLauter,800050,CLE,849815,Freddy Peralta,642547,3,True,PROD DROP,,dropped,,

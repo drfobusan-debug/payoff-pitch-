@@ -1443,3 +1443,23 @@ date,batter,player_id,game_pk,stat,line,side,book,odds,model_prob,bet_prob,fair_
 2026-10-17,Petey Halpin,690984,849816,2B,0.5,over,bovada,575.0,0.1241,0.149,0.1648,-0.0159,0.0054,Pass,RV NEG WATCH,False,confirmed,20261017T2157Z,6,8,5,-2.1,batter,one_way_quote,elite
 2026-10-17,Petey Halpin,690984,849816,R,0.5,over,draftkings,246.0,0.3035,0.2872,0.2854,0.0018,-0.0062,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,6,8,5,-2.1,batter,ev_floor,elite
 2026-10-17,Petey Halpin,690984,849816,RBI,0.5,over,draftkings,349.0,0.1902,0.2257,0.2297,-0.004,0.0136,Pass,RV NEG WATCH,True,confirmed,20261017T2157Z,6,8,5,-2.1,batter,thin_edge,elite
+2026-10-19,Jose Ramirez,608070,849815,1B,0.5,over,betmgm,120.0,0.5591,0.4487,0.4364,0.0123,-0.0129,Pass,PROD WATCH,True,contradicted,20261019T1534Z,3,25,7,0.86,batter,ev_floor,soft
+2026-10-19,Jose Ramirez,608070,849815,2B,0.5,over,draftkings,483.0,0.1401,0.1664,0.1833,-0.0168,-0.0298,Pass,PROD WATCH,True,contradicted,20261019T1534Z,3,25,7,0.86,batter,ev_floor,soft
+2026-10-19,Jose Ramirez,608070,849815,HRR,1.5,over,betonlineag,120.0,0.4768,0.4402,0.4361,0.0041,-0.0316,Pass,PROD WATCH,True,contradicted,20261019T1534Z,3,25,7,0.86,batter,ev_floor,soft
+2026-10-19,Freddy Peralta,642547,849815,BB,1.5,over,draftkings,-110.0,0.5215,0.5104,0.4992,0.0111,-0.0257,Pass,,True,contradicted,20261019T1534Z,,,,,pitcher,ev_floor,soft
+2026-10-19,Freddy Peralta,642547,849815,K,4.5,under,draftkings,-140.0,0.735,0.5896,0.5734,0.0162,0.0107,Pass,,True,contradicted,20261019T1534Z,,,,,pitcher,thin_edge,soft
+2026-10-19,Jo Adell,666176,849815,2B,0.5,over,draftkings,546.0,0.1653,0.1591,0.1552,0.0039,0.028,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,6,14,7,-2.04,batter,thin_edge,soft
+2026-10-19,Jo Adell,666176,849815,HRR,1.5,over,bovada,130.0,0.4361,0.4168,0.4147,0.0021,-0.0413,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,6,14,7,-2.04,batter,ev_floor,soft
+2026-10-19,Jo Adell,666176,849815,RBI,0.5,over,draftkings,247.0,0.3193,0.2937,0.2909,0.0028,0.0192,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,6,14,7,-2.04,batter,thin_edge,soft
+2026-10-19,Patrick Bailey,672275,849815,1B,0.5,over,draftkings,161.0,0.4689,0.382,0.3723,0.0097,-0.003,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,7,13,7,-0.85,batter,ev_floor,soft
+2026-10-19,Patrick Bailey,672275,849815,R,0.5,over,draftkings,262.0,0.4092,0.2863,0.2726,0.0137,0.0364,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,7,13,7,-0.85,batter,thin_edge,soft
+2026-10-19,Patrick Bailey,672275,849815,RBI,0.5,over,draftkings,340.0,0.3291,0.2404,0.2305,0.0099,0.0577,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,7,13,7,-0.85,batter,thin_edge,soft
+2026-10-19,Steven Kwan,680757,849815,1B,0.5,over,draftkings,-124.0,0.658,0.5371,0.5237,0.0134,-0.0297,Pass,SOFT OVER,True,contradicted,20261019T1534Z,2,32,7,0.59,batter,ev_floor,soft
+2026-10-19,Steven Kwan,680757,849815,HRR,1.5,over,betmgm,110.0,0.5792,0.4608,0.4476,0.0132,-0.0324,Pass,SOFT OVER,True,contradicted,20261019T1534Z,2,32,7,0.59,batter,ev_floor,soft
+2026-10-19,Steven Kwan,680757,849815,RBI,0.5,over,draftkings,359.0,0.2476,0.2223,0.2195,0.0028,0.0204,Pass,SOFT OVER,True,contradicted,20261019T1534Z,2,32,7,0.59,batter,thin_edge,soft
+2026-10-19,Travis Bazzana,683953,849815,1B,0.5,over,draftkings,144.0,0.4714,0.4055,0.3982,0.0073,-0.0105,Pass,SOFT OVER,True,contradicted,20261019T1534Z,5,19,11,1.82,batter,ev_floor,soft
+2026-10-19,Travis Bazzana,683953,849815,R,0.5,over,draftkings,208.0,0.4182,0.3279,0.3179,0.01,0.01,Pass,SOFT OVER,True,contradicted,20261019T1534Z,5,19,11,1.82,batter,thin_edge,soft
+2026-10-19,Travis Bazzana,683953,849815,RBI,0.5,over,draftkings,293.0,0.3109,0.2555,0.2493,0.0062,0.004,Pass,SOFT OVER,True,contradicted,20261019T1534Z,5,19,11,1.82,batter,thin_edge,soft
+2026-10-19,Petey Halpin,690984,849815,2B,0.5,over,draftkings,720.0,0.1052,0.1221,0.1329,-0.0108,0.0015,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,8,9,5,-0.44,batter,thin_edge,soft
+2026-10-19,Petey Halpin,690984,849815,R,0.5,over,draftkings,293.0,0.3286,0.261,0.2535,0.0075,0.0258,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,8,9,5,-0.44,batter,thin_edge,soft
+2026-10-19,Petey Halpin,690984,849815,RBI,0.5,over,draftkings,422.0,0.234,0.2038,0.2005,0.0034,0.0639,Pass,RV NEG WATCH,True,contradicted,20261019T1534Z,8,9,5,-0.44,batter,thin_edge,soft
