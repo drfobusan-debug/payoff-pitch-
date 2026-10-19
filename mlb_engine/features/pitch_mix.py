@@ -42,10 +42,24 @@ LEAGUE_XWOBA = {"FB": 0.350, "SNK": 0.330, "BRK": 0.280, "OFF": 0.300}
 
 _MIN_PITCHES = 20  # per-class stability floor
 _MIN_SWINGS = 12
-_K_GAIN = 0.5
-_HIT_GAIN = 0.5
-_K_CLIP = (0.85, 1.15)
-_HIT_CLIP = (0.90, 1.10)
+# Both gains are held out in scripts/arsenal_matchup_study.py: 17,525
+# batter-vs-starter matchups, features from the 42-day windows before each game,
+# outcomes from the plate appearances in it.
+#
+# The strikeout side survives at roughly a third of its old strength. It carried
+# real information -- holding the log5 vector still, realised/expected moves with
+# the term at slope +1.05 (t +5.71) -- but at gain 0.5 it overshot the tail it
+# cares about (top quintile priced .3047 where .2770 happened), and the holdout
+# preferred an exponent of 0.25-0.40 in both halves. 0.2 is 0.5 x 0.4.
+_K_GAIN = 0.2
+# The contact side does not survive at all. Per-class xwOBA-on-contact is the
+# same contact the batter's own rates are built from, so the term was multiplying
+# a vector that already knew: every dose above zero was worse out of sample on
+# singles, hits and home runs, in both halves, and holding the baseline still the
+# slope is indistinguishable from zero (hits t -0.78, HR t -0.31). Worse, it
+# manufactured false positives exactly where the engine buys -- matchups it
+# boosted most were priced at .2627 hits and realised .2232.
+_K_CLIP = (0.94, 1.06)
 
 _WHIFF_DESCS = {"swinging_strike", "swinging_strike_blocked", "foul_tip"}
 _SWING_DESCS = _WHIFF_DESCS | {"foul", "hit_into_play"}
@@ -129,13 +143,17 @@ def build_batter_pitch_profile(batter_rows: pd.DataFrame) -> BatterPitchProfile:
 def arsenal_matchup_multiplier(
     arsenal: ArsenalProfile, batter: BatterPitchProfile
 ) -> dict[str, float]:
-    """Usage-weighted K/hit/power multiplier for a batter vs. a pitcher's mix."""
+    """Usage-weighted strikeout multiplier for a batter vs. a pitcher's mix.
+
+    Whiffs only. The per-class xwOBA-on-contact that used to move singles,
+    doubles and home runs is still read (the reports use it) but no longer
+    priced: it failed its holdout in every window.
+    """
     total = sum(arsenal.usage.values())
     if total <= 0:
         return {}
 
     k_factor = 0.0
-    hit_factor = 0.0
     for cls, use in arsenal.usage.items():
         w = use / total
         sw = arsenal.swstr.get(cls)
@@ -143,17 +161,6 @@ def arsenal_matchup_multiplier(
         if sw is not None and bw is not None:
             k_rel = (sw / LEAGUE_SWSTR[cls]) * (bw / LEAGUE_WHIFF[cls]) - 1.0
             k_factor += w * k_rel
-        bx = batter.xwoba.get(cls)
-        if bx is not None:
-            hit_factor += w * (bx / LEAGUE_XWOBA[cls] - 1.0)
 
     k_mult = _clip(1.0 + _K_GAIN * k_factor, *_K_CLIP)
-    hit_mult = _clip(1.0 + _HIT_GAIN * hit_factor, *_HIT_CLIP)
-    out: dict[str, float] = {}
-    if k_mult != 1.0:
-        out["K"] = k_mult
-    if hit_mult != 1.0:
-        out["1B"] = hit_mult
-        out["2B"] = hit_mult
-        out["HR"] = hit_mult
-    return out
+    return {"K": k_mult} if k_mult != 1.0 else {}
