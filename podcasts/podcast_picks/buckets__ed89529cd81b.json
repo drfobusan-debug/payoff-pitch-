@@ -1,0 +1,80 @@
+{
+ "episode_guid": "bcb5cb68-9955-40e3-bea4-b4e8013139b7",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "8d7973abb0ba92fbebc5a5a2e55f701e8ecc7d7b",
+ "picks": [
+  {
+   "pick_id": "7a9f6846dff0",
+   "show": "buckets",
+   "show_name": "BUCKETS (Action Network)",
+   "host": "Fiddle",
+   "episode_guid": "bcb5cb68-9955-40e3-bea4-b4e8013139b7",
+   "episode_title": "How To Bet The NBA Nightly | 2026",
+   "published": "2026-10-19T15:59:33-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Mavericks",
+   "opponent": "Pelicans",
+   "side": null,
+   "line": 4.5,
+   "price": null,
+   "units": 3.0,
+   "seconds": 3072,
+   "quote": "I'm probably betting three more units on Mavericks minus four and a half.",
+   "reason": "The line moved in my favor, allowing for a positive middle opportunity.",
+   "description": "Mavericks -4.5",
+   "league": "nba",
+   "edge": "Two points of line movement in an NBA spread is enough for a positive middle.",
+   "fair_line": null
+  },
+  {
+   "pick_id": "9b856087a249",
+   "show": "buckets",
+   "show_name": "BUCKETS (Action Network)",
+   "host": "Fiddle",
+   "episode_guid": "bcb5cb68-9955-40e3-bea4-b4e8013139b7",
+   "episode_title": "How To Bet The NBA Nightly | 2026",
+   "published": "2026-10-19T15:59:33-04:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Pelicans",
+   "opponent": "Mavericks",
+   "side": null,
+   "line": 7.5,
+   "price": null,
+   "units": 1.5,
+   "seconds": 3078,
+   "quote": "...maybe one, one and a half units back on pelicans plus seven and a half.",
+   "reason": "Betting back on the Pelicans allows for a positive middle opportunity.",
+   "description": "Pelicans +7.5",
+   "league": "nba",
+   "edge": "Two points of line movement in an NBA spread is enough for a positive middle.",
+   "fair_line": null
+  }
+ ],
+ "rejected": [
+  {
+   "league": "nba",
+   "kind": "official",
+   "host": null,
+   "team": "Nix",
+   "opponent": null,
+   "market": "game_ml",
+   "side": null,
+   "line": -185,
+   "price": null,
+   "units": null,
+   "stamp": "[1:02:28]",
+   "quote": "Nix minus one eighty five on the money line.",
+   "edge": "I think and be playing drop coverage versus Jalen Brunson.",
+   "fair_line": -191,
+   "reason": "The Nix have a favorable matchup against the defending champions on banner night.",
+   "description": "Nix -185",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nba"
+ ]
+}

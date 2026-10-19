@@ -1,0 +1,69 @@
+{
+ "episode_guid": "7e3c6a8d-9c92-4f37-8a7d-fc43028d853d",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "5375764a30ce520f42ddac737dd7078aceead242",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Danny",
+   "team": "Minnesota",
+   "opponent": "Denver",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[2:11:25]",
+   "quote": "I would still lean towards Minnesota against Denver.",
+   "edge": "confidence that they have",
+   "fair_line": null,
+   "reason": "Danny believes Minnesota has a psychological edge against Denver.",
+   "description": "Lean Minnesota against Denver.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Danny",
+   "team": "Minnesota",
+   "opponent": "Houston",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[2:11:35]",
+   "quote": "I like them against Houston.",
+   "edge": "worry about Kevin Durant teams falling apart in high pressure situations",
+   "fair_line": null,
+   "reason": "Danny is concerned about Houston's ability to perform under pressure.",
+   "description": "Lean Minnesota against Houston.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nba",
+   "kind": "lean",
+   "host": "Danny",
+   "team": "Minnesota",
+   "opponent": "LA",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[2:11:58]",
+   "quote": "I like them against LA cause I don't think they have anybody to guard aunt.",
+   "edge": "lack of defensive matchups for LA",
+   "fair_line": null,
+   "reason": "Danny thinks LA lacks the defensive capability to handle Minnesota's star players.",
+   "description": "Lean Minnesota against LA.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nba"
+ ]
+}

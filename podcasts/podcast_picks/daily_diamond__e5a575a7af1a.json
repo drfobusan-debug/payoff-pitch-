@@ -1,0 +1,60 @@
+{
+ "episode_guid": "0f53f1c8-023a-4547-8efc-edab8a6f25e3",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "2d5159c6117a7745d45aa4e91dc24000a607f298",
+ "picks": [
+  {
+   "pick_id": "18335d6c92a0",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "0f53f1c8-023a-4547-8efc-edab8a6f25e3",
+   "episode_title": "The VSiN Daily Diamond | October 19, 2026",
+   "published": "2026-10-19T10:03:35-04:00",
+   "kind": "lean",
+   "market": "game_ml",
+   "team": "Guardians",
+   "opponent": "Rays",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 225,
+   "quote": "There's a group I'm betting on to get this done. It's our guys.",
+   "reason": "Jensen expresses confidence in the Guardians' ability to perform under pressure.",
+   "description": "Guardians to win.",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "25e8cc0237f2",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "0f53f1c8-023a-4547-8efc-edab8a6f25e3",
+   "episode_title": "The VSiN Daily Diamond | October 19, 2026",
+   "published": "2026-10-19T10:03:35-04:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Rays",
+   "opponent": "Guardians",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 562,
+   "quote": "I would play Aranda for two or more total bases with the same game parlay for him to have an RBI.",
+   "reason": "Jensen suggests a specific betting strategy involving Jonathan Aranda's performance.",
+   "description": "Jonathan Aranda over 2 total bases and an RBI.",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}

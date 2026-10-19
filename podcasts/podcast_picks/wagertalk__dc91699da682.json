@@ -1,0 +1,55 @@
+{
+ "episode_guid": "https://api.spreaker.com/episode/75863284",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "a081b97507504552cdb7c3bddfc308658b25ddf4",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Teddy Covers",
+   "team": "Commanders",
+   "opponent": "49ers",
+   "market": "game_ats",
+   "side": null,
+   "line": 7.5,
+   "price": null,
+   "units": null,
+   "stamp": "[17:11]",
+   "quote": "I think that the commanders are probably the better side. I think that 49ers are really banged up... I just feel like seven and a half is too much.",
+   "edge": "The 49ers are banged up and the Commanders may have a running advantage.",
+   "fair_line": null,
+   "reason": "The 49ers have injuries that could impact their performance, making the spread seem too high.",
+   "description": "Commanders +7.5",
+   "why": "bad stamp"
+  },
+  {
+   "league": "nfl",
+   "kind": "lean",
+   "host": "Teddy Covers",
+   "team": "Over",
+   "opponent": "49ers-Commanders",
+   "market": "game_total",
+   "side": "over",
+   "line": 50.5,
+   "price": null,
+   "units": null,
+   "stamp": "[18:04]",
+   "quote": "I like what you said about Washington being able to run here... it would lead you to believe this game gets over.",
+   "edge": "The 49ers score on anyone, and Washington can score against a banged-up defense.",
+   "fair_line": null,
+   "reason": "Both teams have the potential to score heavily, especially with the 49ers' offensive capabilities.",
+   "description": "Over 50.5 49ers-Commanders",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "cfb",
+  "nfl",
+  "mlb",
+  "nba",
+  "cbb",
+  "nhl"
+ ]
+}
