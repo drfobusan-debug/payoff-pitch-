@@ -1122,6 +1122,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Liam Hicks HR o1.5",
+    "american": 20000.0,
+    "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Nathaniel Lowe HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.121324
@@ -1171,6 +1178,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Richie Palacios HR o1.5",
+    "american": 35000.0,
+    "no_vig_prob": 0.002849
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Steven Kwan HR o0.5",
     "american": 2000.0,
     "no_vig_prob": 0.04881
@@ -1216,6 +1230,13 @@
     "selection": "Victor Mesa Jr. HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.010677
   },
   {
     "matchup": "CLE @ TB",
@@ -2529,9 +2550,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": 102.0,
+    "no_vig_prob": 0.479189
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
     "selection": "Under 6.5",
     "american": 105.0,
     "no_vig_prob": 0.47875
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": -118.0,
+    "no_vig_prob": 0.520811
   },
   {
     "matchup": "CLE @ TB",
