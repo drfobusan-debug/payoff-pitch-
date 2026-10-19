@@ -18,7 +18,7 @@ import math
 import random
 import statistics
 from collections import defaultdict
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import date as Date
 from html import escape
@@ -121,6 +121,7 @@ class NightTiming:
     stale: list[str]  # games whose close is older than STALE_CLOSE_MIN
     unknown: int  # games with no close or no puck drop
     late_rows: int  # rows priced at or after puck drop
+    unpriced: list[str] = field(default_factory=list)  # scheduled games no card priced
 
 
 @dataclass
@@ -224,7 +225,9 @@ def one_side(rows: list[LedgerRow], label: str) -> SideRead | None:
     )
 
 
-def night_timing(rows: list[LedgerRow]) -> list[NightTiming]:
+def night_timing(
+    rows: list[LedgerRow], scheduled: Mapping[str, Sequence[str]] | None = None
+) -> list[NightTiming]:
     by_game: dict[tuple[str, str], list[LedgerRow]] = defaultdict(list)
     for r in rows:
         by_game[(r.slate_date, r.matchup)].append(r)
@@ -247,6 +250,9 @@ def night_timing(rows: list[LedgerRow]) -> list[NightTiming]:
                 stale=sorted(m for m, x in nights[night] if x is not None and x > STALE_CLOSE_MIN),
                 unknown=len(nights[night]) - len(leads),
                 late_rows=late[night],
+                unpriced=sorted(
+                    set((scheduled or {}).get(night, ())) - {m for m, _ in nights[night]}
+                ),
             )
         )
     return out
@@ -312,6 +318,13 @@ def _findings(a: LedgerAudit) -> list[str]:
             f"CLV leaves out {b.clv_stale} buys whose close was more than {STALE_CLOSE_MIN:.0f} min "
             "before puck drop or could not be timed."
         )
+    unpriced = [f"{t.night} ({', '.join(t.unpriced)})" for t in a.timing if t.unpriced]
+    if unpriced:
+        out.append(
+            "Scheduled games that no card priced (early or 17:00 pass missed them): "
+            + "; ".join(unpriced)
+            + "."
+        )
     stale = [f"{t.night} ({len(t.stale)})" for t in a.timing if t.stale]
     if stale:
         out.append(
@@ -341,10 +354,11 @@ def build(
     rows: list[LedgerRow],
     starters: Starters | None = None,
     context: scr.Context | None = None,
+    scheduled: Mapping[str, Sequence[str]] | None = None,
 ) -> LedgerAudit:
     total = len(rows)
     late = [r for r in rows if r.priced_late and r.outcome is not None]
-    timing = night_timing(rows)
+    timing = night_timing(rows, scheduled)
     rows = [r for r in rows if not r.priced_late]
     graded = [r for r in rows if r.outcome is not None]
     buys = [r for r in graded if r.is_buy]
@@ -413,6 +427,7 @@ TIMING_HEAD = [
     f"closes > {STALE_CLOSE_MIN:.0f} min",
     "no close/drop",
     "rows after drop",
+    "never priced",
 ]
 
 
@@ -430,6 +445,7 @@ def _timing_rows(ts: list[NightTiming]) -> list[tuple[str, ...]]:
             ", ".join(t.stale) or "0",
             str(t.unknown),
             str(t.late_rows),
+            ", ".join(t.unpriced) or "0",
         )
         for t in ts
     ]
@@ -536,7 +552,7 @@ def render_md(a: LedgerAudit, *, as_of: str) -> str:
     if over:
         lines.append(f"\nFull-game totals went Over {over.outcomes.record} (one line per game).")
     lines += ["", "## Pricing time vs puck drop", ""]
-    lines += [f"| {' | '.join(TIMING_HEAD)} |", "|---|---|---|---|---|---|---|"]
+    lines += [f"| {' | '.join(TIMING_HEAD)} |", "|---|---|---|---|---|---|---|---|"]
     lines += [f"| {' | '.join(r)} |" for r in _timing_rows(a.timing)]
     lines += ["", "## Goalie accuracy (card's named starter vs actual)", ""]
     if a.goalies:

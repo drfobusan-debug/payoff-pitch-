@@ -14,10 +14,11 @@ every market key the engine prices can be graded from the record of truth:
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 
 from nhl_engine.data.rotowire import norm_name
 from nhl_engine.market.pricing import is_prop
-from nhl_engine.schemas import GameResult
+from nhl_engine.schemas import GameResult, PlayerLine
 
 _PERIOD = re.compile(r"^p([123])_(ml3|ml|pl|total|team_total)$")
 WIN, LOSS, PUSH = "win", "loss", "push"
@@ -137,15 +138,8 @@ _PROP_STAT = {
 }
 
 
-def _prop(market: str, side: str, entity: str, line: float | None, res: GameResult) -> str | None:
-    """Settle on the player's boxscore line; a player who did not dress is void (None).
-
-    ``sk_ppp`` is not in the boxscore and ``fgs``/``lgs`` need the goal order, so
-    they stay ungraded here.
-    """
-    stat = _PROP_STAT.get(market)
-    if stat is None:
-        return None
+def player_line(entity: str, res: GameResult) -> PlayerLine | None:
+    """The boxscore line for a book's player name; a unique surname is the fallback."""
     want = norm_name(entity)
     line_ = next((p for p in res.players if norm_name(p.name) == want), None)
     if line_ is None:
@@ -154,7 +148,20 @@ def _prop(market: str, side: str, entity: str, line: float | None, res: GameResu
         if len(cands) != 1:
             return None
         line_ = cands[0]
-    if line_.toi <= 0:
+    return line_ if line_.toi > 0 else None
+
+
+def _prop(market: str, side: str, entity: str, line: float | None, res: GameResult) -> str | None:
+    """Settle on the player's boxscore line; a player who did not dress is void (None).
+
+    ``sk_ppp`` is not in the boxscore (see ``settle_ppp``) and ``fgs``/``lgs`` need
+    the goal order, so they stay ungraded here.
+    """
+    stat = _PROP_STAT.get(market)
+    if stat is None:
+        return None
+    line_ = player_line(entity, res)
+    if line_ is None:
         return None
     value = int(getattr(line_, stat))
     if market == "ags":
@@ -163,6 +170,21 @@ def _prop(market: str, side: str, entity: str, line: float | None, res: GameResu
     if line is None or side not in ("over", "under"):
         return None
     return _ou(value, line, side)
+
+
+PPPLookup = Callable[[int, int], int | None]
+"""(player_id, nhl_game_id) -> power-play points in that game, None when unknown."""
+
+
+def settle_ppp(
+    *, side: str, entity: str, line: float | None, res: GameResult, ppp_of: PPPLookup
+) -> str | None:
+    """``sk_ppp`` settles on the player's game log (the boxscore has no PPP column)."""
+    line_ = player_line(entity, res)
+    if line_ is None or not line_.player_id or line is None or side not in ("over", "under"):
+        return None
+    value = ppp_of(line_.player_id, res.nhl_game_id)
+    return _ou(value, line, side) if value is not None else None
 
 
 def dual_rule(*, market: str, side: str, entity: str, line: float | None, res: GameResult) -> bool:

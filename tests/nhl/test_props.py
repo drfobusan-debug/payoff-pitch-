@@ -502,6 +502,34 @@ def test_prop_settlement_from_boxscore_lines():
     assert s("game_total", "over", "", 2.5) == "win"
 
 
+def test_ppp_settles_off_the_game_log():
+    from nhl_engine.audit.grade import settle_ppp
+
+    res = _res(
+        [
+            PlayerLine(1, "H", "Star Player", "C", 1200, points=2),
+            PlayerLine(2, "H", "Scratched Guy", "D", 0),
+        ]
+    )
+    seen: list[tuple[int, int]] = []
+
+    def ppp_of(pid: int, gid: int) -> int | None:
+        seen.append((pid, gid))
+        return {1: 1}.get(pid)
+
+    def s(side, entity, line):
+        return settle_ppp(side=side, entity=entity, line=line, res=res, ppp_of=ppp_of)
+
+    assert s("over", "Star Player", 0.5) == "win"
+    assert s("under", "Star Player", 0.5) == "loss"
+    assert s("over", "Star Player", 1.0) == "push"
+    assert seen[0] == (1, res.nhl_game_id)
+    assert s("over", "Scratched Guy", 0.5) is None  # did not dress -> void
+    assert s("over", "Nobody", 0.5) is None
+    res2 = _res([PlayerLine(9, "H", "No Log", "C", 900)])
+    assert settle_ppp(side="over", entity="No Log", line=0.5, res=res2, ppp_of=ppp_of) is None
+
+
 def test_parse_result_carries_player_lines():
     box = json.loads((FIX / "boxscore.json").read_text())
     rail = json.loads((FIX / "right_rail.json").read_text())

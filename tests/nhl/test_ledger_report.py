@@ -231,7 +231,17 @@ def test_rows_priced_after_puck_drop_are_left_out():
 
     assert scorecard.scorecard(rows).by_market["game_ml"].n == 1
     md = ledger_report.render_md(a, as_of="t")
-    assert "| 2026-10-01 | 2 | 25 | 25 | 0 | 0 | 2 |" in md
+    assert "| 2026-10-01 | 2 | 25 | 25 | 0 | 0 | 2 | 0 |" in md
+
+
+def test_scheduled_games_no_card_priced_are_flagged():
+    rows = [_row(), _row(matchup="L @ H")]
+    sched = {"2026-10-01": ["A @ H", "L @ H", "CAR @ WPG", "SEA @ FLA"], "2026-10-02": ["X @ Y"]}
+    a = ledger_report.build(rows, scheduled=sched)
+    assert a.timing[0].unpriced == ["CAR @ WPG", "SEA @ FLA"]
+    assert any("no card priced" in f and "CAR @ WPG, SEA @ FLA" in f for f in a.findings)
+    assert "| CAR @ WPG, SEA @ FLA |" in ledger_report.render_md(a, as_of="t")
+    assert not ledger_report.build(rows).timing[0].unpriced
 
 
 def test_clv_counts_only_closes_near_puck_drop():

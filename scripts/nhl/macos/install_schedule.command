@@ -16,6 +16,11 @@
 #     re-priced on the goalies confirmed by then, emailed. The 17:00 ledger
 #     stays write-once; this pass is kept under cards/ for the audit to grade.
 #     Games already started (afternoon starts) are skipped by the card.
+#   * com.payoffpitch.nhl.close   -> every 10 min, NHL_CLOSE_FIRST_HOUR:00 to
+#     23:50 local (default 18): board-only pass that exits for free unless a
+#     puck drop is within 40 min, so every game gets a close inside the 45-min
+#     window the audit needs even when the half-hour board pass lands wrong.
+#     (launchd does not run while the Mac sleeps; keep it awake on game nights.)
 #   * com.payoffpitch.nhl.audit   -> at NHL_AUDIT_HOUR:NHL_AUDIT_MINUTE (default
 #     09:30 local): grade yesterday's ledger against the finals, print the
 #     scorecard, and push the ledger to engine-state.
@@ -49,6 +54,7 @@ CARD_HOUR="${NHL_CARD_HOUR:-17}"
 CARD_MINUTE="${NHL_CARD_MINUTE:-0}"
 PREDROP_HOUR="${NHL_PREDROP_HOUR:-18}"
 PREDROP_MINUTE="${NHL_PREDROP_MINUTE:-15}"
+CLOSE_FIRST_HOUR="${NHL_CLOSE_FIRST_HOUR:-18}"
 AUDIT_HOUR="${NHL_AUDIT_HOUR:-9}"
 AUDIT_MINUTE="${NHL_AUDIT_MINUTE:-30}"
 
@@ -99,6 +105,17 @@ for h in $(seq "$FIRST_HOUR" "$LAST_HOUR"); do
 done
 BOARD_CAL="$BOARD_CAL    </array>"
 
+CLOSE_CAL='    <key>StartCalendarInterval</key>
+    <array>
+'
+for h in $(seq "$CLOSE_FIRST_HOUR" 23); do
+    for m in 0 10 20 30 40 50; do
+        CLOSE_CAL="$CLOSE_CAL        <dict><key>Hour</key><integer>$h</integer><key>Minute</key><integer>$m</integer></dict>
+"
+    done
+done
+CLOSE_CAL="$CLOSE_CAL    </array>"
+
 EVENT_CAL='    <key>StartCalendarInterval</key>
     <array>
 '
@@ -122,6 +139,7 @@ AUDIT_CAL="    <key>StartCalendarInterval</key>
 
 install_agent "com.payoffpitch.nhl.board" "$CAPTURE" "$BOARD_CAL" --board-only
 install_agent "com.payoffpitch.nhl.capture" "$CAPTURE" "$EVENT_CAL"
+install_agent "com.payoffpitch.nhl.close" "$CAPTURE" "$CLOSE_CAL" --board-only --if-drop-within 40
 install_agent "com.payoffpitch.nhl.early" "$PREDICT" "$EARLY_CAL" early
 install_agent "com.payoffpitch.nhl.card" "$PREDICT" "$CARD_CAL" initial
 install_agent "com.payoffpitch.nhl.predrop" "$PREDICT" "$PREDROP_CAL" goalie
@@ -129,6 +147,7 @@ install_agent "com.payoffpitch.nhl.audit" "$AUDIT" "$AUDIT_CAL"
 
 echo
 echo "Board every 30 min $FIRST_HOUR:00-$LAST_HOUR:30; full per-event pass at $EVENT_HOURS:05."
+echo "Close pass every 10 min from $CLOSE_FIRST_HOUR:00, board-only, only when a puck drop is within 40 min (com.payoffpitch.nhl.close)."
 printf 'Early card (games before 17:30 ET) emailed at %02d:%02d local when there are any (com.payoffpitch.nhl.early).\n' "$EARLY_HOUR" "$EARLY_MINUTE"
 printf 'Priced card emailed daily at %02d:%02d local (com.payoffpitch.nhl.card).\n' "$CARD_HOUR" "$CARD_MINUTE"
 printf 'Pre-drop goalie card emailed daily at %02d:%02d local (com.payoffpitch.nhl.predrop).\n' "$PREDROP_HOUR" "$PREDROP_MINUTE"
