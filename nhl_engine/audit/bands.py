@@ -12,10 +12,11 @@ are read too, one row per player per line: goalie saves Unders and player
 no-goal (goals Under 0.5). Rows on one game move together, so the SE and the
 halves are taken over per-game sums.
 
-A band earns a call only at >= ``MIN_N`` games: "wins" needs units above one SE
-with both halves of the ledger (date order) positive; "loses" is the mirror,
-a refusal candidate. Many bands are read at once, so about one in twenty will
-sit past 2 SE by chance; the report says how many were read.
+A band earns a call only at >= ``MIN_N`` games: "wins" needs units above
+``CALL_SE`` standard errors with both halves of the ledger (date order)
+positive; "loses" is the mirror, a refusal candidate. Many bands are read at
+once, so about one in twenty will sit past 2 SE by chance; the report says how
+many were read.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.screens import Context
 
 MIN_N = 100
+CALL_SE = 2.0
 SIDES = ("game_ml", "game_pl", "game_ml3")
 PROPS = ("g_saves", "sk_g")
 
@@ -223,9 +225,9 @@ class BandRead:
         games = len(self._by_game)
         if games < MIN_N:
             return f"probation ({games}/{MIN_N} games)"
-        if self.units > self.se and min(self.halves) > 0:
+        if self.units > CALL_SE * self.se and min(self.halves) > 0:
             return "wins: clears the bar"
-        if -self.units > self.se and max(self.halves) < 0:
+        if -self.units > CALL_SE * self.se and max(self.halves) < 0:
             return "loses: refusal candidate"
         return "no edge"
 

@@ -20,6 +20,7 @@ Only data goes on the branch, never code. The git plumbing is the MLB module's.
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 from pathlib import Path
 
@@ -46,6 +47,26 @@ NEWS_DIRS: dict[str, tuple[str, ...]] = {
 }
 _PUSH_ATTEMPTS = 3
 log = logging.getLogger(__name__)
+
+
+def production_data_dir() -> Path:
+    return Path.home() / ".nhl_engine"
+
+
+def push_refusal(data_dir: Path) -> str | None:
+    """Why this machine must not push: only the production data dir is the authority.
+
+    A scratch ``NHLE_DATA_DIR`` (tests, VM audits, replays) holds partial or
+    fixture ledgers; pushing them overwrites the Mac's graded nights on the
+    branch. ``NHLE_STATE_PUSH=1`` overrides for a deliberate migration.
+    """
+    if os.getenv("NHLE_STATE_SYNC", "1").lower() in ("0", "false", "no"):
+        return "NHLE_STATE_SYNC=0"
+    if os.getenv("NHLE_STATE_PUSH", "").lower() in ("1", "true", "yes"):
+        return None
+    if Path(data_dir).expanduser().resolve() != production_data_dir().resolve():
+        return f"{data_dir} is not the production data dir {production_data_dir()}"
+    return None
 
 
 def _copy_missing(src_root: Path, dest_root: Path) -> list[str]:
@@ -103,6 +124,9 @@ def pull_state(data_dir: Path, repo: Path | None = None, branch: str = STATE_BRA
 def push_state(
     data_dir: Path, message: str, repo: Path | None = None, branch: str = STATE_BRANCH
 ) -> SyncReport:
+    refusal = push_refusal(data_dir)
+    if refusal:
+        raise RuntimeError(f"state push refused: {refusal}")
     repo = repo or repo_root()
     for attempt in range(_PUSH_ATTEMPTS):
         state = _worktree(repo, branch)
@@ -147,6 +171,8 @@ __all__ = [
     "SyncReport",
     "auto_pull",
     "auto_push",
+    "production_data_dir",
     "pull_state",
+    "push_refusal",
     "push_state",
 ]
