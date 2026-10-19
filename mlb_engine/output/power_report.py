@@ -40,7 +40,6 @@ from mlb_engine.output.power_bets import (
 )
 from mlb_engine.output.power_board import DISPLAY_ONLY, ROWS_PER_BATTER, Board, BoardRow
 from mlb_engine.output.power_screen import (
-    BIG_RV,
     FIT_SCORED,
     HALF_FLOOR,
     HALF_SCORED,
@@ -48,7 +47,6 @@ from mlb_engine.output.power_screen import (
     MIN_STARTER_PITCHES,
     RESCUE_POWER_Z,
     SCORED,
-    SOFT_TIER,
     SPLIT_INNING,
     STARTER_TOP_N,
     TOP_K,
@@ -425,39 +423,28 @@ def _hitter_prose(view: HitterView, section: MatchupSection) -> str:
     return " ".join(bits)
 
 
-# The grade is three gates read in order, each fitted on the screen's own graded
-# ledger (436 priced hitter overs, 8/18-9/20) rather than on production:
+# The screen takes no side on a hitter. Its gates were fitted on its own graded
+# ledger (436 priced overs, 8/18-9/20) and did not hold out of sample: the RV<0
+# under went 34-14 in-sample and 90-97 after, and on the whole ledger through
+# 10/17 the bucket a bat landed in did not sort which props beat the price. A
+# replay of every slate from 4/12 to 10/17 2026 (13,591 screened bats, actual
+# lineups, data before each game only) then asked whether any of the reads carry
+# information about hits and total bases beyond the hitter's own season line:
 #
-# 1. The hitter's run value per 100 pitches on the starter's three most-thrown
-#    families. Below zero his over went 24-95 (-51% ROI, -19 points against the
-#    no-vig price) in every arm tier and at every level of every other metric --
-#    high contact quality made it worse (xwOBAcon top tercile 5-28), high
-#    production did not rescue it (top tercile on 3 of 4 rate stats 2-8) -- while
-#    his under went 34-14 (+29%). Held out of sample from 9/22 that under went
-#    90-97 (-22%), no better than the RV>=0 bats beside it (46-48), so a negative
-#    read takes no side: he is a watch, kept out of the production pool.
-#    The size of a positive read carried nothing (>+2 vs +1..2 vs 0..1 all within
-#    a standard error of the price), so the gate is the sign alone.
-# 2. Production, inside the pool that cleared gate 1: wRC+, BA and OPS scored the
-#    screen's way, a point above the pool median and one more for a top-five
-#    finish. 0-1 points lost 58% (5-21); 2-3 sat 20% under the price; 4 and up
-#    beat it (87-82, +20%, +9 points, 2.1 s.e.). xwOBAcon, Brl%, HH%, EV90 and
-#    O-Swing% added nothing once these three were read and are printed only.
-# 3. The arm. A cleared bat against a soft arm (SIERA above the floor) went
-#    38-21 on the over (+47%, +21 points, 3 s.e., and 10-6 since 9/09); against
-#    the average-to-elite band the same bat's over was exactly the price (+4%,
-#    beat 0.0) and his under a lean (33-20, +17%). So the arm picks the side.
+# - run value per 100 on the starter's top three families: r = -0.014 against
+#   total bases over expectation [-0.028, -0.000], slightly backwards, and the
+#   RV<0 bats did no worse than the rest (+7 vs +6 TB per 1,000 PA);
+# - the gate-2 production points (wRC+, BA, OPS against the pool): r = -0.033
+#   [-0.058, -0.009], backwards -- a hot window regresses;
+# - the composite's earned points: r = +0.012 [-0.004, +0.030], top quarter over
+#   bottom by 0.02 TB per PA, far inside a price's margin.
 #
-# The composite's rank, the ±3 run-value term and the contact terciles it used to
-# grade on are no longer buckets: rank 1-2 was 27-21 on 48 rows, the terciles
-# never cleared one standard error, and the ±3 term's >+2 cell was 22-26, flat.
+# So every survivor is one side-less watch, and the run value and the production
+# points are printed beside him as reads that decide nothing. The arm tier still
+# chooses which arms are screened; it no longer chooses a side.
 
-#: Gate-1 threshold on run value per 100 pitches on the starter's top families.
-RV_GATE = 0.0
-#: Gate-2 thresholds on the production points (0-6).
-PRODUCTION_DROP = 1  # at or below: dropped, no row printed or recorded
-PRODUCTION_HOLD = 4  # at or above: a position; between: a watch
-#: The three rate stats gate 2 reads, and how each is taken off a hitter's line.
+#: The three rate stats the printed production points read, and how each is taken
+#: off a hitter's line.
 PRODUCTION_METRICS: dict[str, Callable[[HitterLine], float]] = {
     "wRC+": lambda h: h.wrc,
     "BA": lambda h: h.ba,
@@ -466,8 +453,8 @@ PRODUCTION_METRICS: dict[str, Callable[[HitterLine], float]] = {
 #: Places in the pool that earn the second point on each metric.
 PRODUCTION_TOP_N = 5
 #: Fewest hitters a pool needs before a median and a top-five mean anything. A
-#: smaller pool is not scored: everyone in it is a watch, not a drop, because
-#: the gate would be reading the size of the slate and not the bat.
+#: smaller pool is not scored, because the points would be reading the size of
+#: the slate and not the bat.
 PRODUCTION_MIN_POOL = 4
 
 # The buckets, keyed by the strings the ledger records them under. Each keeps
@@ -475,20 +462,21 @@ PRODUCTION_MIN_POOL = 4
 # on at least LABEL_EARN_ROWS graded rows a bucket is a Strong Buy when its ROI
 # clears zero by two standard errors, a Buy when it clears one, and otherwise a
 # Watch -- a matchup opinion the ledger has not paid for. Every bucket starts
-# at Watch: the records above were read in-sample and the ledger has to repeat
-# them out of it before a word is printed.
+# at Watch, and the one current bucket is a watch by construction.
+SCREEN_WATCH = "SCREEN WATCH"
+
+# Retired keys, kept so rows recorded under them still print a name in the
+# scorecard: the three-gate buckets (to 2026-10-18), the gate-1 under, the
+# composite's top two and the xwOBA-on-contact terciles.
 RV_WATCH = "RV NEG WATCH"
 SOFT_OVER = "SOFT OVER"
 ELITE_UNDER = "ELITE UNDER"
 PROD_WATCH = "PROD WATCH"
 PROD_DROP = "PROD DROP"
-
-# Retired keys, kept so rows recorded under them still print a name in the
-# scorecard: the gate-1 under, the composite's top two and the xwOBA-on-contact
-# terciles.
 RV_UNDER = "RV NEG UNDER"
 STRONG_BUY = "STRONG BUY"
 RATING_DISPLAY = {
+    SCREEN_WATCH: "unvalidated: watch",
     RV_WATCH: "RV<0: watch",
     RV_UNDER: "RV<0: under",
     SOFT_OVER: "soft arm: over",
@@ -500,11 +488,11 @@ RATING_DISPLAY = {
     "HOLD": "contact B",
     "AVOID": "contact C",
 }
-RATING_ORDER = {SOFT_OVER: 0, RV_WATCH: 1, ELITE_UNDER: 2, PROD_WATCH: 3, PROD_DROP: 4}
+RATING_ORDER = {SCREEN_WATCH: 0}
 LABEL_STRONG = "STRONG BUY"
 LABEL_BUY = "BUY"
 LABEL_WATCH = "WATCH"
-DEFAULT_STRONG_BUCKET = SOFT_OVER
+DEFAULT_STRONG_BUCKET = SCREEN_WATCH
 # Fewer decided rows than this and a bucket's ROI is not allowed to pick the
 # best-record bucket (the one the table leads with).
 LABEL_MIN_ROWS = 30
@@ -573,22 +561,16 @@ def _ranks(result: ScreenResult) -> dict[str, int]:
 
 @dataclass(frozen=True)
 class Verdict:
-    """What the three gates said about one survivor.
+    """What the note prints about one survivor: his bucket and two reads.
 
-    ``side`` is the position the screen holds -- ``over`` or ``under`` -- or
-    ``None`` for a watch or a drop; ``held`` is whether any row is recorded at
-    all. ``rv`` is the gate-1 read and ``points`` the gate-2 score, both kept so
-    the note can print what the bucket was decided on.
+    ``rv`` is his run value per 100 on the starter's top pitches and ``points``
+    his production points in the pass's pool (``None`` when the pool is too
+    small to score). Both are printed and neither moves the bucket.
     """
 
     bucket: str
-    side: str | None
     rv: float
     points: int | None
-
-    @property
-    def held(self) -> bool:
-        return self.bucket != PROD_DROP
 
 
 def _top_rv(view: HitterView) -> float:
@@ -620,51 +602,34 @@ def production_points(
     return points
 
 
-def gate_views(views: list[HitterView], arm_tier: str) -> dict[str, Verdict]:
-    """The three gates over one pass's survivors, keyed by hitter name.
+def gate_views(views: list[HitterView]) -> dict[str, Verdict]:
+    """Every survivor of one pass as a side-less watch, keyed by hitter name.
 
-    Gate 1 is read per hitter; gate 2 is scored inside the pool that cleared it,
-    so a bat is above the median of the bats he is actually competing with for
-    the note's attention. Gate 3 is the pass's arm tier: the pass screened
-    either the soft arms or the band above them, and the side follows. An
-    unmeasured run value is read as zero -- not negative, so he is not faded on
-    nothing, and not a pass either, since he still has to clear production.
-    A hitter the pass kept twice (a doubleheader) is gated once, on the first
-    matchup the pass ranked: the note, the board and the ledger all know him by
-    name, so one verdict is what they can carry.
+    The production points are scored over the whole pool and printed with the
+    run value; neither picks a side or drops a bat (see the note above
+    :data:`PRODUCTION_METRICS`). A hitter the pass kept twice (a doubleheader)
+    is read once, on the first matchup the pass ranked: the note, the board and
+    the ledger all know him by name, so one verdict is what they can carry.
     """
     once: dict[int, HitterView] = {}
     for v in views:
         once.setdefault(v.line.mlbam_id, v)
     views = list(once.values())
-    negative = {v.line.mlbam_id for v in views if _top_rv(v) < RV_GATE}
-    pool = [v.line for v in views if v.line.mlbam_id not in negative]
-    scorable = len(pool) >= PRODUCTION_MIN_POOL
-    points = production_points(pool) if scorable else {}
-    over_side = SOFT_OVER if arm_tier == SOFT_TIER else ELITE_UNDER
-    out: dict[str, Verdict] = {}
-    for v in views:
-        rv = _top_rv(v)
-        if v.line.mlbam_id in negative:
-            out[v.line.name] = Verdict(RV_WATCH, None, rv, None)
-            continue
-        if not scorable:
-            out[v.line.name] = Verdict(PROD_WATCH, None, rv, None)
-            continue
-        pts = points.get(v.line.mlbam_id, 0)
-        if pts <= PRODUCTION_DROP:
-            out[v.line.name] = Verdict(PROD_DROP, None, rv, pts)
-        elif pts < PRODUCTION_HOLD:
-            out[v.line.name] = Verdict(PROD_WATCH, None, rv, pts)
-        else:
-            side = "over" if over_side == SOFT_OVER else "under"
-            out[v.line.name] = Verdict(over_side, side, rv, pts)
-    return out
+    pool = [v.line for v in views]
+    points = production_points(pool) if len(pool) >= PRODUCTION_MIN_POOL else None
+    return {
+        v.line.name: Verdict(
+            SCREEN_WATCH,
+            _top_rv(v),
+            None if points is None else points.get(v.line.mlbam_id, 0),
+        )
+        for v in views
+    }
 
 
 def verdicts(result: ScreenResult) -> dict[str, Verdict]:
-    """Each survivor's bucket, side and the reads that decided them, by name."""
-    return gate_views([v for s in result.sections for v in s.hitters], result.arm_tier)
+    """Each survivor's bucket and the two reads printed beside it, by name."""
+    return gate_views([v for s in result.sections for v in s.hitters])
 
 
 def _rating(view: HitterView, verdict: Verdict) -> tuple[str, str]:
@@ -735,8 +700,9 @@ def _thesis(result: ScreenResult) -> str:
         f"facing them on eleven contact and discipline metrics split by hand, cuts on plate "
         f"appearances alone, and tests each hitter with the sample against the arsenal he will "
         f"actually see and the number of turns he will actually get. The wRC+, expected-contact "
-        f"and luck-gap reads that used to cut are printed beside him as flags; the run-value, "
-        f"production and arm gates in the recommendations decide him.</p>"
+        f"and luck-gap reads that used to cut are printed beside him as flags, and the run "
+        f"value and production points in the recommendations are printed and decide nothing: "
+        f"the screen takes no side on a hitter.</p>"
     ]
     if lead is None:
         paras.append(
@@ -984,16 +950,6 @@ def _arm_board(board: Board, forms: Mapping[str, str]) -> str:
 def ratings(result: ScreenResult) -> dict[str, str]:
     """Each survivor's bucket key, for anything recording what the note said."""
     return {name: v.bucket for name, v in verdicts(result).items()}
-
-
-def sides(result: ScreenResult) -> dict[str, str | None]:
-    """The side the screen holds on each survivor, ``None`` where it holds none."""
-    return {name: v.side for name, v in verdicts(result).items()}
-
-
-def dropped(result: ScreenResult) -> list[str]:
-    """Survivors gate 2 removed: no row is printed or recorded for them."""
-    return [name for name, v in verdicts(result).items() if not v.held]
 
 
 def composites(result: ScreenResult) -> dict[str, Composite]:
@@ -1532,7 +1488,6 @@ def _composite(result: ScreenResult) -> str:
             f"{c.park:+d}",
             f"{c.weather:+d}",
             f"{c.worst_arm:+d}",
-            f"{c.top_rv:+d}",
             f"<b>{s.total}</b>",
             f"<b>{s.earned}</b>",
             str(s.pen_rank or "&mdash;"),
@@ -1540,7 +1495,7 @@ def _composite(result: ScreenResult) -> str:
         classes.append("top" if i < STARTER_TOP_N else "")
     table = _table(
         ["#", "batter", "team", "LP", "vs", "1-6", f"{SPLIT_INNING}+", "halves", "fit",
-         "regr", "park", "wx", "arm", f"RV{TOP_PITCHES}", "total", "earned", "pen"],
+         "regr", "park", "wx", "arm", "total", "earned", "pen"],
         rows, numeric_from=5, row_classes=classes,
     )
     fits = []
@@ -1557,11 +1512,10 @@ def _composite(result: ScreenResult) -> str:
             ", ".join(s.edge.top_in) or "&mdash;",
             html.escape(", ".join(s.edge.top_families)) or "&mdash;",
             _num(s.edge.top_rv, 2, signed=True),
-            f"{s.context.top_rv:+d}",
         ])
     fit_table = _table(
         ["batter", "RV/100", "xwOBA", "whiff%", "HH%", "Brl%", "unread", "pts", "top 3 in",
-         f"his top {TOP_PITCHES}", f"RV/100 on {TOP_PITCHES}", "pts"],
+         f"his top {TOP_PITCHES}", f"RV/100 on {TOP_PITCHES}"],
         fits, numeric_from=1,
     )
     return "".join([
@@ -1573,13 +1527,15 @@ def _composite(result: ScreenResult) -> str:
         "league, because what he does earlier in the game is the better null. The "
         "context columns are signed points: four regression reads (the xwOBA-wOBA luck "
         f"gap, and the {TREND_DAYS}-day direction of bat speed, chase and EV90), the "
-        "park, the forecast, one for facing a bottom-three arm, and the hitter's run "
-        f"value on the starter's {TOP_PITCHES} most-thrown pitches. Each is +1 toward "
+        "park, the forecast, and one for facing a bottom-three arm. Each is +1 toward "
         "the hitter, -1 toward the pitcher, and 0 inside the metric's own noise band, "
-        "so absent evidence costs nothing &mdash; except the run-value term, which is "
-        f"worth &plusmn;3 rather than &plusmn;1 past {BIG_RV:.0f} runs per 100, "
-        "because a hitter that far ahead on the pitches he will see most is not "
-        "marginally ahead.</p>",
+        "so absent evidence costs nothing.</p>",
+        "<p class='sub'><strong>Unvalidated: the composite is printed and decides "
+        "nothing.</strong> Replayed over every 2026 slate from 4/12 to 10/17 (13,591 "
+        "screened bats, actual lineups), its earned points ran r = +0.012 [-0.004, "
+        "+0.030] against total bases beyond each hitter's own season line, and its top "
+        "quarter beat its bottom quarter by 0.02 total bases a plate appearance &mdash; "
+        "inside the noise and far short of a price's margin.</p>",
         f"<p class='sub'><i>total</i> includes the {2 * HALF_FLOOR} points "
         "(one per metric per half) that every hitter in the pool collects for being "
         "measured at all, so a hitter cannot lose a point for a split too thin to "
@@ -1598,7 +1554,7 @@ def _composite(result: ScreenResult) -> str:
         "<i>unread</i> is the share of the usage where the hitter's own split was too "
         f"thin and his overall line stood in for it. The last columns are the {TOP_PITCHES} "
         "families the starter throws most, the hitter's run value per 100 pitches on "
-        "those alone, and the context point it earns &mdash; no fallback there, because "
+        "those alone, printed and scoring nothing &mdash; no fallback there, because "
         "a hitter who has not seen the pitch has no read on it.</p>",
         fit_table,
     ])
@@ -1910,7 +1866,7 @@ def _grade_record_cell(rec: Record | None) -> str:
 
 def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> str:
     """One paragraph putting every bucket's whole record in front of the reader."""
-    rated = [(g, records[g]) for g in RATING_ORDER if g in records and records[g].n]
+    rated = [(g, records[g]) for g in RATING_DISPLAY if g in records and records[g].n]
     if not rated:
         return ""
     parts = ", ".join(
@@ -1936,12 +1892,7 @@ def _recommendations(
         (v, s) for s in result.sections for v in s.hitters
     ]
     said = verdicts(result)
-    rated = [
-        (*_rating(v, said[v.line.name]), v, s)
-        for v, s in graded
-        if said[v.line.name].held
-    ]
-    gone = [(v, s) for v, s in graded if not said[v.line.name].held]
+    rated = [(*_rating(v, said[v.line.name]), v, s) for v, s in graded]
     records = grade_records or {}
     words = labels(grade_records)
     strong_key = strong_bucket(grade_records)
@@ -1952,7 +1903,6 @@ def _recommendations(
     for rating, reason, view, section in rated:
         row = [
             _label_cell(rating, words),
-            (said[view.line.name].side or "none"),
             html.escape(view.line.name),
             html.escape(section.starter.name),
             _form_cell(section.starter),
@@ -1989,33 +1939,16 @@ def _recommendations(
     lead = (
         f"<p><strong>Best-record bucket: {RATING_DISPLAY[strong_key]}{who}.</strong> "
         f"It leads the table because {basis}; {verdict}.</p>"
-        f"<p class='sub'><strong>The buckets are three gates read in order.</strong> First "
-        f"the bat's run value per 100 pitches on the starter's {TOP_PITCHES} most-thrown "
-        f"pitches: below zero he is a watch with no side, whatever else he shows, because on "
-        f"the ledger that hitter's over lost to the price and, out of sample, so did his "
-        f"under. "
-        f"Second, inside the pool that cleared zero, production &mdash; wRC+, BA and OPS, a point "
-        f"above the pool median on each and one more for a top-{PRODUCTION_TOP_N} finish, "
-        f"0-6: at most {PRODUCTION_DROP} and he is dropped, {PRODUCTION_DROP + 1}-"
-        f"{PRODUCTION_HOLD - 1} is a watch with no side, {PRODUCTION_HOLD}+ is a position. "
-        f"Third the arm: a soft arm makes it the over, an average-to-elite arm the under, "
-        f"where the same bat's over has been priced fairly. Contact quality, exposure, "
-        f"arsenal fit, the full-game opponent and strikeout risk are printed beside it and "
-        f"count for nothing in it. The words on the buckets follow the ledger's record and "
-        f"move when it does. It contains no price.</p>"
+        f"<p class='sub'><strong>The screen takes no side on a hitter.</strong> Every "
+        f"survivor is one watch. His run value per 100 on the starter's {TOP_PITCHES} "
+        f"most-thrown pitches and his production points (wRC+, BA and OPS, a point above the "
+        f"pool median on each and one more for a top-{PRODUCTION_TOP_N} finish, 0-6) are "
+        f"printed as the basis and decide nothing: replayed over 2026 neither predicted hits "
+        f"or total bases beyond his own season line, and both leaned the wrong way. Contact "
+        f"quality, exposure, arsenal fit, the full-game opponent and strikeout risk are "
+        f"printed beside them. The word on the bucket follows the ledger's record and moves "
+        f"when it does. It contains no price.</p>"
     )
-    if gone:
-        lead += (
-            f"<p class='sub'><strong>Dropped on production ({len(gone)}):</strong> "
-            + ", ".join(
-                f"{html.escape(v.line.name)} vs {html.escape(s.starter.name)} "
-                f"({said[v.line.name].points} pts)"
-                for v, s in gone
-            )
-            + ". Above water on the arm's pitches but at or below "
-            f"{PRODUCTION_DROP} of 6 production points, which on the ledger is the worst "
-            "thing the screen prices; no row is printed or recorded.</p>"
-        )
     lead += _form_insights(rated, said)
     if grade_records is not None:
         lead += _grade_ledger_lead(records, words)
@@ -2035,7 +1968,7 @@ def _recommendations(
         "<p><strong>Re-check before first pitch.</strong> Lineup slots here are projections; the "
         "plate-appearance split, and with it every rating, moves if the order does.</p>"
     )
-    headers = ["grade", "side", "batter", "vs", "arm's last 3"]
+    headers = ["grade", "batter", "vs", "arm's last 3"]
     if board is not None:
         headers.append("best price (EV)")
     if grade_records is not None:
@@ -2053,10 +1986,9 @@ def _form_insights(
 ) -> str:
     """What the arm's recent direction says about the positions held, beside the gates.
 
-    Two reads off the ledger, neither strong enough to move a side: a cleared bat's
-    over against a fading arm has been the one place the average-to-elite over was
-    positive, and a cold bat's under against a fading arm was the one place the
-    retired RV-negative under lost in-sample.
+    A read off the ledger, not strong enough to move anything: a cleared bat's over
+    against a fading arm was the one place the average-to-elite over was positive,
+    in-sample.
     """
     fading = [t for t in rated if _state(t[3]) == arm_model.FADING]
     sharp = [t for t in rated if _state(t[3]) == arm_model.SHARPENING]
@@ -2069,30 +2001,15 @@ def _form_insights(
         "is small (no cell over 40 rows) and in-sample, so it is printed and gates nothing. "
     ]
     if fading:
-        cleared = [t for t in fading if t[0] in (SOFT_OVER, ELITE_UNDER)]
-        cold = [t for t in fading if t[0] == RV_WATCH]
-        if cleared:
-            lines.append(
-                "<strong>Cleared bats against a fading arm:</strong> "
-                + ", ".join(
-                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
-                    for t in cleared
-                )
-                + ". That bat's over went 22-17 (+41%) on the ledger, 15-16 of it against the "
-                "average-to-elite band whose under the gate otherwise holds &mdash; the one "
-                "cell where that band's over has been positive. "
+        lines.append(
+            "<strong>Bats against a fading arm:</strong> "
+            + ", ".join(
+                f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
+                for t in fading
             )
-        if cold:
-            lines.append(
-                "<strong>RV-negative bats against a fading arm:</strong> "
-                + ", ".join(
-                    f"{html.escape(t[2].line.name)} vs {html.escape(t[3].starter.name)}"
-                    for t in cold
-                )
-                + ". When the gate still held their under it went 4-7 (&minus;36%) here "
-                "against 27-5 when the arm was not fading, in-sample; out of sample the "
-                "under lost everywhere (90-97), so they are watches. "
-            )
+            + ". When the old gates cleared that bat his over went 22-17 (+41%) on the "
+            "ledger, in-sample and under 40 rows, so it is printed and moves nothing. "
+        )
     else:
         lines.append("No rated bat faces a fading arm today. ")
     if sharp:

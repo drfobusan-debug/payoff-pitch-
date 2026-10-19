@@ -56,7 +56,6 @@ from mlb_engine.output.power_report import gate_views
 from mlb_engine.output.power_screen import (
     MIN_BATTER_PA,
     MIN_WRC,
-    SOFT_TIER,
     ArsenalEdge,
     BullpenCard,
     HitterView,
@@ -81,7 +80,7 @@ log = logging.getLogger("power_rating_study")
 FALLBACK_TEAM_PA = 38.6
 TEAM_PA_SD = 4.0
 MARKETS = ("H", "TB", "XBH", "HR", "R", "RBI", "HRR")
-RATINGS = ("SOFT OVER", "RV NEG WATCH", "PROD WATCH", "PROD DROP")
+RATINGS = ("SCREEN WATCH",)
 
 
 @dataclass
@@ -365,7 +364,7 @@ def _study_day(
             pending.append((view, row))
     # The gates are pooled over the day's survivors, so they are read once every
     # matchup on the slate has been assembled.
-    said = gate_views(views, SOFT_TIER)
+    said = gate_views(views)
     for view, row in pending:
         row.rating = said[view.line.name].bucket
         rows.append(row)

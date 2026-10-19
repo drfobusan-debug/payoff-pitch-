@@ -73,7 +73,6 @@ from mlb_engine.output.power_screen import (
     pitch_family,
     rank_final,
     rank_starters,
-    rv_term,
     score_edges,
     score_halves,
     score_starters,
@@ -1107,21 +1106,23 @@ def _gated(names_rv_prod: list[tuple[str, float, float]], arm_tier: str = SOFT_T
     return result
 
 
-def test_a_negative_run_value_is_a_watch_before_anything_else_is_read() -> None:
-    """Gate 1: RV<0 on the arm's top pitches takes no side, however good the bat looks."""
-    result = _gated([("Fade Me", -0.5, 9), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
+def test_a_negative_run_value_no_longer_gates_a_bat() -> None:
+    """RV<0 on the arm's top pitches is printed and moves nothing: he is in the pool."""
+    result = _gated([("Neg RV", -2.5, 9), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
     said = power_report.verdicts(result)
-    assert said["Fade Me"].bucket == power_report.RV_WATCH
-    assert said["Fade Me"].side is None
-    assert said["Fade Me"].points is None
-    assert said["Fade Me"].held
-    # He is not in the production pool either: the pool median is read without him.
-    assert "Fade Me" not in power_report.dropped(result)
-    assert power_report.sides(result)["Fade Me"] is None
+    assert said["Neg RV"].bucket == power_report.SCREEN_WATCH
+    assert said["Neg RV"].rv == -2.5
+    # He is scored inside the production pool like everyone else.
+    assert said["Neg RV"].points == 6
+    flipped = power_report.verdicts(
+        _gated([("Neg RV", 2.5, 9), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
+    )
+    assert {k: (v.bucket, v.points) for k, v in flipped.items()} == {
+        k: (v.bucket, v.points) for k, v in said.items()
+    }
 
 
-def test_production_points_are_scored_inside_the_positive_pool() -> None:
-    """Gate 2: 0-1 points drops, 2-3 watches, 4+ takes a side from the arm tier."""
+def test_production_points_are_printed_and_neither_drop_nor_pick_a_side() -> None:
     result = _gated(
         [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5)]
     )
@@ -1129,24 +1130,14 @@ def test_production_points_are_scored_inside_the_positive_pool() -> None:
     high = next(v.line for v in result.sections[0].hitters if v.line.name == "High")
     high.ba, high.ops = 0.100, 0.500
     said = power_report.verdicts(result)
-    # Pool of five, bonus places capped at half the pool (2): the median bat and
-    # everyone under him earn nothing and are dropped.
-    assert said["Bottom"].points == 0 and said["Bottom"].bucket == power_report.PROD_DROP
-    assert not said["Bottom"].held
-    assert said["Low"].points == 0
-    # Mid is second on BA and OPS once High fell under him: above median and in
-    # the bonus places on both, and 4 points is a position.
-    assert said["Mid"].points == 4 and said["Mid"].bucket == power_report.SOFT_OVER
-    assert said["High"].points == 2 and said["High"].bucket == power_report.PROD_WATCH
-    assert said["High"].side is None
-    assert said["Top"].points == 6 and said["Top"].bucket == power_report.SOFT_OVER
-    assert said["Top"].side == "over"
-    assert set(power_report.dropped(result)) == {"Bottom", "Low"}
+    assert {k: v.points for k, v in said.items()} == {
+        "Bottom": 0, "Low": 0, "Mid": 4, "High": 2, "Top": 6
+    }
+    assert {v.bucket for v in said.values()} == {power_report.SCREEN_WATCH}
 
 
-def test_a_doubleheader_bat_is_gated_once_on_his_first_matchup() -> None:
-    """Kept in both games, he is one hitter to the note and the ledger: one read,
-    one production entry, not two rows sharing one points total."""
+def test_a_doubleheader_bat_is_read_once_on_his_first_matchup() -> None:
+    """Kept in both games, he is one hitter to the note and the ledger."""
     slate = [("Twice", 1.0, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)]
     result = _gated(slate)
     first = result.sections[0].hitters[0]
@@ -1162,60 +1153,58 @@ def test_a_doubleheader_bat_is_gated_once_on_his_first_matchup() -> None:
     result.sections[0].hitters.append(again)
     said = power_report.verdicts(result)
     once = power_report.verdicts(_gated(slate))
-    assert said["Twice"] == once["Twice"]
-    assert said["Twice"].bucket == power_report.SOFT_OVER and said["Twice"].points == 6
-    assert {k: v.points for k, v in said.items()} == {k: v.points for k, v in once.items()}
+    assert said == once
+    assert said["Twice"].rv == 1.0 and said["Twice"].points == 6
 
 
-def test_the_arm_tier_decides_the_side_of_a_qualified_bat() -> None:
-    """Gate 3: the same 4+ point bat is an over against a soft arm, an under otherwise."""
+def test_the_arm_tier_no_longer_picks_a_side() -> None:
     rows = [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5)]
     soft = power_report.verdicts(_gated(rows, SOFT_TIER))
     elite = power_report.verdicts(_gated(rows, ELITE_TIER))
-    assert (soft["Top"].bucket, soft["Top"].side) == (power_report.SOFT_OVER, "over")
-    assert (elite["Top"].bucket, elite["Top"].side) == (power_report.ELITE_UNDER, "under")
-    # The RV gate does not care about the arm.
-    assert elite["Bottom"].bucket == soft["Bottom"].bucket == power_report.PROD_DROP
+    assert soft == elite
+    assert {v.bucket for v in soft.values()} == {power_report.SCREEN_WATCH}
 
 
-def test_an_unmeasured_run_value_is_neither_faded_nor_passed() -> None:
-    """No pitches on the arm's families reads as zero: he has to clear production."""
+def test_an_unmeasured_run_value_is_printed_as_unmeasured() -> None:
     result = _gated([("Unread", math.nan, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
     said = power_report.verdicts(result)
-    assert said["Unread"].bucket == power_report.SOFT_OVER
+    assert said["Unread"].bucket == power_report.SCREEN_WATCH
     assert math.isnan(said["Unread"].rv)
     result.sections[0].hitters[0].edge = None
-    assert power_report.verdicts(result)["Unread"].bucket == power_report.SOFT_OVER
+    assert math.isnan(power_report.verdicts(result)["Unread"].rv)
 
 
-def test_a_pool_too_small_to_rank_is_a_watch_not_a_drop() -> None:
+def test_a_pool_too_small_to_rank_prints_no_points() -> None:
     result = _gated([("Alone", 0.5, 1), ("Other", 0.5, 5)])
     said = power_report.verdicts(result)
-    assert {v.bucket for v in said.values()} == {power_report.PROD_WATCH}
+    assert {v.bucket for v in said.values()} == {power_report.SCREEN_WATCH}
     assert all(v.points is None for v in said.values())
-    assert power_report.dropped(result) == []
 
 
-def test_the_note_prints_the_gates_and_names_the_dropped() -> None:
+def test_the_note_prints_every_survivor_as_an_unvalidated_watch() -> None:
     result = _gated(
         [("Bottom", 0.0, 1), ("Low", 0.5, 2), ("Mid", 0.5, 3), ("High", 0.5, 4), ("Top", 0.5, 5), ("Fade", -1.0, 5)]
     )
     html = power_report.render_html(result)
-    assert "(soft arm: over)" in html
-    assert "(RV&lt;0: watch)" in html or "(RV<0: watch)" in html
-    assert "Bottom" in html and "Dropped on production" in html
-    # Every bucket starts at Watch; the ledger has to pay for a word.
-    assert "<span class='watch'>WATCH</span> <span class='sub'>(soft arm: over)</span>" in html
+    assert "<span class='watch'>WATCH</span> <span class='sub'>(unvalidated: watch)</span>" in html
+    assert "takes no side on a hitter" in html
+    assert "Dropped on production" not in html
+    assert "(soft arm: over)" not in html and "RV&lt;0: watch" not in html
+    for name in ("Bottom", "Low", "Fade"):
+        assert name in html
+    # The ledger still has to pay for a word, and retired buckets keep their record.
     records = {
-        power_report.SOFT_OVER: Record(power_report.SOFT_OVER, wins=60, losses=40, units=20.0, units_sq=100.0)
+        power_report.SCREEN_WATCH: Record(power_report.SCREEN_WATCH, wins=60, losses=40, units=20.0, units_sq=100.0),
+        power_report.SOFT_OVER: Record(power_report.SOFT_OVER, wins=30, losses=30, units=0.0, units_sq=60.0),
     }
     html = power_report.render_html(result, grade_records=records)
-    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(soft arm: over)</span>" in html
+    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(unvalidated: watch)</span>" in html
+    assert "(soft arm: over)</span> 30-30" in html or "(soft arm: over)" in html
 
 
 def test_the_verdict_survives_an_accent_on_the_name() -> None:
     result = _gated([("Ronald Acuña Jr.", -1.0, 5), ("A", 1.0, 1), ("B", 1.0, 2), ("C", 1.0, 3), ("D", 1.0, 4)])
-    assert power_report.ratings(result)["Ronald Acuña Jr."] == power_report.RV_WATCH
+    assert power_report.ratings(result)["Ronald Acuña Jr."] == power_report.SCREEN_WATCH
 
 
 def test_a_swing_rescue_is_disclosed_as_a_cut_being_overruled() -> None:
@@ -1690,7 +1679,8 @@ def test_the_composite_prints_both_halves_the_context_and_the_fit() -> None:
     html = power_report.render_html(result)
     assert "The composite" in html
     assert "The arsenal fit" in html
-    assert f"RV{TOP_PITCHES}" in html  # the run-value point has its own column
+    assert f"RV{TOP_PITCHES}<" not in html  # the run value has no points column
+    assert "Unvalidated: the composite is printed and decides nothing" in html
     assert f"RV/100 on {TOP_PITCHES}" in html
     assert "the bullpen&#x27;s half" in html or "bullpen&#39;s half" in html or (
         "bullpen's half" in html
@@ -1763,51 +1753,25 @@ def test_a_pitch_he_has_never_seen_does_not_borrow_his_overall_run_value() -> No
     assert abs(rv - 3.0) < 1e-9  # renormalized over what is readable
     _, none = top_pitch_rv({}, usage)
     assert math.isnan(none)
-    assert rv_term(none) == 0
 
 
-def test_the_run_value_point_signs_on_the_hitters_side_and_trebles_when_large() -> None:
-    assert rv_term(0.4) == 1
-    assert rv_term(-0.4) == -1
-    assert rv_term(2.0) == 3
-    assert rv_term(-2.5) == -3
-    assert rv_term(0.0) == 0
-    assert rv_term(math.nan) == 0
-
-
-def test_the_run_value_point_enters_the_total_without_becoming_regression() -> None:
-    """It is a matchup fact known before first pitch, not a form trend."""
-    ahead = build_context(
-        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=2.4
-    )
-    behind = build_context(
-        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=-2.4
-    )
-    assert (ahead.top_rv, ahead.total, ahead.regression) == (3, 3, 0)
-    assert (behind.top_rv, behind.total) == (-3, -3)
-
-
-def test_the_edge_carries_the_top_three_run_value_for_the_context_layer() -> None:
+def test_the_edge_carries_the_top_three_run_value_for_the_note() -> None:
     usage = {"4-Seam": 0.50, "Slider": 0.30, "Changeup": 0.20}
     overall = ContactLine(1000, 300, 0.5, 0.250, 0.310, 0.38, 0.07, 0.24)
     edge = arsenal_edge(_mix(usage, **{"4-Seam_rv": 3.0, "Slider_rv": 3.0,
                                       "Changeup_rv": 3.0}), overall, _mix(usage), usage)
     assert edge.top_families == ("4-Seam", "Slider", "Changeup")
     assert abs(edge.top_rv - 3.0) < 1e-9
-    assert build_context(
-        woba=0.330, xwoba=0.330, trends=TrendDeltas(), top_pitch_rv=edge.top_rv
-    ).top_rv == 3
 
 
-def test_the_run_value_point_reorders_the_composite() -> None:
-    """Two hitters level on skill are separated by the mix they are about to see."""
+def test_the_run_value_scores_nothing_in_the_composite() -> None:
+    """Two hitters level on everything else stay level whatever the mix says."""
     fits = _final("Fits The Mix", early=14, late=14)
-    fits.context = ContextTerms(top_rv=3)
+    fits.edge.top_rv = 3.5
     misfits = _final("Wrong Mix", early=14, late=14)
-    misfits.context = ContextTerms(top_rv=-3)
-    order = rank_final([misfits, fits])
-    assert [s.name for s in order] == ["Fits The Mix", "Wrong Mix"]
-    assert order[0].total - order[1].total == 6
+    misfits.edge.top_rv = -3.5
+    assert fits.total == misfits.total
+    assert fits.context.total == misfits.context.total == 0
 
 
 # --- the elite-arm pass -----------------------------------------------------
@@ -1880,8 +1844,7 @@ def test_a_fading_arm_is_printed_beside_the_gates_and_moves_no_side() -> None:
     assert "arm's last 3" in doc
     assert "<b>fading</b> (whiff -6.0pp, velo -1.3)" in doc
     assert "starts are fading" in doc
-    assert "Cleared bats against a fading arm:" in doc and "Hot vs" in doc
-    assert "RV-negative bats against a fading arm:" in doc and "Cold vs" in doc
+    assert "Bats against a fading arm:" in doc and "Hot vs" in doc and "Cold vs" in doc
 
     result.sections[0].starter.form = ArmForm(starts=3)
     doc = power_report.render_html(result)
