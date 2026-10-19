@@ -15,6 +15,8 @@ import unicodedata
 # (e.g. "Notre Dame Fighting Irish" -> "Notre Dame"). Single trailing mascot
 # words are dropped generically.
 _MULTIWORD_MASCOTS = (
+    "nittany lions",
+    "runnin bulldogs",
     "crimson tide",
     "fighting irish",
     "fighting illini",
@@ -105,6 +107,8 @@ _SCHOOL_ALIASES: dict[str, str] = {
     "st francis pa": "saint francis",
     "middle tennessee state": "middle tennessee",
     "ualbany": "albany",
+    "grambling state": "grambling",
+    "southern university": "southern",
     "liu": "long island university",
     "long island": "long island university",
 }
@@ -129,6 +133,16 @@ _MASCOTS = frozenset(
         "chippewas", "rockets", "zips", "bobcats", "cardinals",
         "minutemen", "midshipmen", "bison", "hornets",
     }
+)
+
+
+# Every word a card label can be carrying past the school name: a mascot the
+# strip missed, or a suffix CFBD's spelling drops ("Grambling State" vs
+# "Grambling").
+LABEL_SUFFIX_WORDS = frozenset(
+    {"state", "university", "college"}
+    | _MASCOTS
+    | {word for mascot in _MULTIWORD_MASCOTS for word in mascot.split()}
 )
 
 
