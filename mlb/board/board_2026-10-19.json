@@ -1122,6 +1122,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Liam Hicks HR o1.5",
+    "american": 20000.0,
+    "no_vig_prob": 0.004975
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Nathaniel Lowe HR o0.5",
     "american": 750.0,
     "no_vig_prob": 0.127789
@@ -1171,6 +1178,13 @@
   {
     "matchup": "CLE @ TB",
     "market": "batter_hr",
+    "selection": "Richie Palacios HR o1.5",
+    "american": 35000.0,
+    "no_vig_prob": 0.002849
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
     "selection": "Steven Kwan HR o0.5",
     "american": 2000.0,
     "no_vig_prob": 0.04881
@@ -1216,6 +1230,13 @@
     "selection": "Victor Mesa Jr. HR o0.5",
     "american": 625.0,
     "no_vig_prob": 0.137931
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "batter_hr",
+    "selection": "Victor Mesa Jr. HR o1.5",
+    "american": 11000.0,
+    "no_vig_prob": 0.010677
   },
   {
     "matchup": "CLE @ TB",
@@ -2515,9 +2536,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "game_total",
+    "selection": "Over 7.0",
+    "american": 105.0,
+    "no_vig_prob": 0.478183
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
     "selection": "Under 6.5",
     "american": 103.0,
     "no_vig_prob": 0.482278
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "game_total",
+    "selection": "Under 7.0",
+    "american": -118.0,
+    "no_vig_prob": 0.521817
   },
   {
     "matchup": "CLE @ TB",
@@ -2613,9 +2648,23 @@
   {
     "matchup": "CLE @ TB",
     "market": "pitcher_outs",
+    "selection": "Freddy Peralta Outs o14.5",
+    "american": -115.0,
+    "no_vig_prob": 0.518602
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "pitcher_outs",
     "selection": "Freddy Peralta Outs u13.5",
     "american": 120.0,
     "no_vig_prob": 0.450873
+  },
+  {
+    "matchup": "CLE @ TB",
+    "market": "pitcher_outs",
+    "selection": "Freddy Peralta Outs u14.5",
+    "american": 102.0,
+    "no_vig_prob": 0.481398
   },
   {
     "matchup": "CLE @ TB",
