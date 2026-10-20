@@ -363,7 +363,10 @@ def merge_dated_csv(
 
     ``by_date=GRADED`` unions row by row too, but a row that carries a result
     beats one that does not: a receipt read on this machine before the machine
-    that wrote it graded it must not keep the day ungraded here forever.
+    that wrote it graded it must not keep the day ungraded here forever. The
+    exception is a row re-scored onto a different ``weights`` tag: a re-score
+    that found the game incomplete cleared its grade on purpose, so the old
+    tag's graded copy must not come back.
 
     When ``run_id`` is part of the key, a row with no run is the same selection
     written before runs were stamped, so it yields to a stamped copy that matches
@@ -387,7 +390,8 @@ def merge_dated_csv(
     for r in [*kept, *local_rows]:
         k = tuple(r.get(k_, "") for k_ in key)
         held = merged.get(k)
-        if by_date == GRADED and held is not None and held.get("result") and not r.get("result"):
+        if (by_date == GRADED and held is not None and held.get("result") and not r.get("result")
+                and held.get("weights", "") == r.get("weights", "")):
             continue
         merged[k] = r
     if "run_id" in key:
