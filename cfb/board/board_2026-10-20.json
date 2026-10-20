@@ -1,0 +1,92 @@
+{
+  "Middle Tenness @ Florida Intern|game_ats|Florida Intern": {
+    "american": -109.0,
+    "line": -10.0,
+    "no_vig_prob": 0.5033453383174364
+  },
+  "Middle Tenness @ Florida Intern|game_ats|Middle Tenness": {
+    "american": -101.0,
+    "line": 10.0,
+    "no_vig_prob": 0.49665466168256367
+  },
+  "Middle Tenness @ Florida Intern|game_ml|Florida Intern": {
+    "american": -380.0,
+    "line": null,
+    "no_vig_prob": 0.7703216107223178
+  },
+  "Middle Tenness @ Florida Intern|game_ml|Middle Tenness": {
+    "american": 330.0,
+    "line": null,
+    "no_vig_prob": 0.2296783892776822
+  },
+  "Middle Tenness @ Florida Intern|game_total|Over": {
+    "american": -105.0,
+    "line": 45.5,
+    "no_vig_prob": 0.4990795810819989
+  },
+  "Middle Tenness @ Florida Intern|game_total|Under": {
+    "american": -108.0,
+    "line": 45.5,
+    "no_vig_prob": 0.5009204189180012
+  },
+  "Missouri State @ Delaware|game_ats|Delaware": {
+    "american": -115.0,
+    "line": -2.5,
+    "no_vig_prob": 0.5181131181640434
+  },
+  "Missouri State @ Delaware|game_ats|Missouri State": {
+    "american": 103.0,
+    "line": 2.5,
+    "no_vig_prob": 0.4818868818359566
+  },
+  "Missouri State @ Delaware|game_ml|Delaware": {
+    "american": -140.0,
+    "line": null,
+    "no_vig_prob": 0.5672776979934916
+  },
+  "Missouri State @ Delaware|game_ml|Missouri State": {
+    "american": 126.0,
+    "line": null,
+    "no_vig_prob": 0.43272230200650846
+  },
+  "Missouri State @ Delaware|game_total|Over": {
+    "american": -107.0,
+    "line": 52.5,
+    "no_vig_prob": 0.5004148451068849
+  },
+  "Missouri State @ Delaware|game_total|Under": {
+    "american": -105.0,
+    "line": 52.5,
+    "no_vig_prob": 0.49958515489311495
+  },
+  "South Alabama @ Marshall|game_ats|Marshall": {
+    "american": -106.0,
+    "line": 3.0,
+    "no_vig_prob": 0.502086304103206
+  },
+  "South Alabama @ Marshall|game_ats|South Alabama": {
+    "american": -105.0,
+    "line": -3.0,
+    "no_vig_prob": 0.49791369589679396
+  },
+  "South Alabama @ Marshall|game_ml|Marshall": {
+    "american": 136.0,
+    "line": null,
+    "no_vig_prob": 0.4135625643900365
+  },
+  "South Alabama @ Marshall|game_ml|South Alabama": {
+    "american": -152.0,
+    "line": null,
+    "no_vig_prob": 0.5864374356099635
+  },
+  "South Alabama @ Marshall|game_total|Over": {
+    "american": -106.0,
+    "line": 65.5,
+    "no_vig_prob": 0.4980781223485762
+  },
+  "South Alabama @ Marshall|game_total|Under": {
+    "american": -108.0,
+    "line": 65.5,
+    "no_vig_prob": 0.5019218776514239
+  }
+}
