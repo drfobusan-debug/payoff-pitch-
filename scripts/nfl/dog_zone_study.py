@@ -8,15 +8,15 @@ lean per game-market the weekly audit grades, with the de-vigged close as fair.
 The replayed board has one book, so these rows test the model's lean only, not an
 execution edge. Usage::
 
-    python -m scripts.nfl.dog_zone_study --first 2006 --last 2025 --cache rows.pkl
+    python -m scripts.nfl.dog_zone_study --first 2006 --last 2025 --cache rows.json
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import math
-import pickle
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 
 from nfl_engine import calibration
@@ -73,11 +73,24 @@ def summary(label: str, rows: list[LedgerEntry]) -> str:
     pnl = [e.pnl for e in decided]
     roi = sum(pnl) / n
     se = math.sqrt(sum((p - roi) ** 2 for p in pnl) / (n - 1) / n) if n > 1 else float("nan")
+    t = roi / se if se > 0 else float("nan")
     need = sum(e.fair_prob or 0.0 for e in decided) / n
     return (
         f"  {label:<44} n {n:>4}  {wins}-{n - wins}  win {wins / n:.1%} (fair {need:.1%})"
-        f"  units {sum(pnl):+.1f}  ROI {roi:+.1%} ± {se:.1%}  t {roi / se:+.2f}"
+        f"  units {sum(pnl):+.1f}  ROI {roi:+.1%} ± {se:.1%}  t {t:+.2f}"
     )
+
+
+def load_cache(path: Path, settings: dict[str, int | bool]) -> list[LedgerEntry] | None:
+    """The cached rows, or None when the file was written with other settings."""
+    payload = json.loads(path.read_text())
+    if payload.get("settings") != settings:
+        return None
+    return [LedgerEntry(**row) for row in payload["rows"]]
+
+
+def write_cache(path: Path, settings: dict[str, int | bool], rows: list[LedgerEntry]) -> None:
+    path.write_text(json.dumps({"settings": settings, "rows": [asdict(e) for e in rows]}))
 
 
 def main() -> None:
@@ -89,16 +102,25 @@ def main() -> None:
     parser.add_argument("--cache", type=Path, default=None, help="reuse or write the rows here")
     args = parser.parse_args()
 
-    if args.cache and args.cache.exists():
-        rows: list[LedgerEntry] = pickle.loads(args.cache.read_bytes())
+    settings: dict[str, int | bool] = {
+        "first": args.first,
+        "last": args.last,
+        "sims": args.sims,
+        "ratings": args.ratings,
+    }
+    cached = load_cache(args.cache, settings) if args.cache and args.cache.exists() else None
+    if cached is not None:
+        rows = cached
     else:
+        if args.cache and args.cache.exists():
+            print(f"{args.cache}: written with other settings, replaying", flush=True)
         rows = []
         for season in range(args.first, args.last + 1):
             got = season_rows(season, args.sims, args.ratings)
             print(f"{season}: {len(got)} rows", flush=True)
             rows += got
         if args.cache:
-            args.cache.write_bytes(pickle.dumps(rows))
+            write_cache(args.cache, settings, rows)
 
     # One book: the de-vigged close is the fair, exactly as the live audit uses consensus.
     closed = [replace(e, fair_prob=e.close_prob) for e in rows if e.close_prob is not None]
