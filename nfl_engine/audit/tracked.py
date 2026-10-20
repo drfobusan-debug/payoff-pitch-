@@ -11,6 +11,9 @@ both halves, CLV), and the screens stay exactly as they are until one clears it.
 History already argues against both (``scripts/nfl/dog_zone_study.py``, one model
 lean per game-market at the 2006-2025 closes): the spread zone went 671-679, -2.7%
 over 1,350 leans, and the long moneyline dogs 185-875, -10.0% over 1,060.
+
+The spread zone is also graded on the leans the engine refused (``Pass``) alone,
+which asks whether the screens cost winners rather than whether the zone wins.
 """
 
 from __future__ import annotations
@@ -27,9 +30,10 @@ from nfl_engine.audit.graduation import (
 )
 from nfl_engine.audit.ledger import LOSS, WIN, LedgerEntry
 from nfl_engine.market.ev import MONEYLINE, SPREAD
-from nfl_engine.market.screens import MAX_AMERICAN
+from nfl_engine.market.screens import MAX_AMERICAN, Tier
 
 SPREAD_DOG_GAP_RULE = "spread_dog_gap_2_4"
+SPREAD_DOG_REFUSED_RULE = "spread_dog_refused"
 ML_LONGSHOT_RULE = "ml_dog_over_300"
 GAP_LO, GAP_HI = 0.02, 0.04
 
@@ -50,6 +54,11 @@ def spread_dog_gap(entry: LedgerEntry) -> bool:
     )
 
 
+def spread_dog_refused(entry: LedgerEntry) -> bool:
+    """A spread-dog-zone lean the engine did not buy."""
+    return spread_dog_gap(entry) and entry.tier == Tier.PASS.value
+
+
 def ml_longshot(entry: LedgerEntry) -> bool:
     """A moneyline lean at a price the ``longshot`` screen refuses."""
     gap = model_gap(entry)
@@ -64,6 +73,7 @@ def ml_longshot(entry: LedgerEntry) -> bool:
 
 RULES: tuple[tuple[str, str, Callable[[LedgerEntry], bool]], ...] = (
     (SPREAD_DOG_GAP_RULE, "spread dog, model gap 2-4 pts", spread_dog_gap),
+    (SPREAD_DOG_REFUSED_RULE, "the same zone, refused leans only", spread_dog_refused),
     (ML_LONGSHOT_RULE, f"ML dog above +{MAX_AMERICAN:.0f}", ml_longshot),
 )
 

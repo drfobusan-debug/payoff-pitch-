@@ -7,8 +7,10 @@ from nfl_engine.audit.ledger import LedgerEntry
 from nfl_engine.audit.tracked import (
     ML_LONGSHOT_RULE,
     SPREAD_DOG_GAP_RULE,
+    SPREAD_DOG_REFUSED_RULE,
     ml_longshot,
     spread_dog_gap,
+    spread_dog_refused,
     tracked,
     tracked_lines,
 )
@@ -93,3 +95,12 @@ def test_lines_say_the_rules_change_no_selection() -> None:
     text = "\n".join(tracked_lines([lean(0)]))
     assert SPREAD_DOG_GAP_RULE in text and ML_LONGSHOT_RULE in text
     assert "no selection changes" in text
+
+
+def test_refused_twin_drops_the_zone_leans_the_engine_bought() -> None:
+    assert spread_dog_refused(lean())
+    assert not spread_dog_refused(lean(tier="Moderate buy"))
+    assert not spread_dog_refused(lean(model_prob=0.54))
+    rows = {t.name: t for t in tracked([lean(0), lean(1, tier="Moderate buy")], min_n=2)}
+    assert rows[SPREAD_DOG_GAP_RULE].wins == 2
+    assert rows[SPREAD_DOG_REFUSED_RULE].wins == 1

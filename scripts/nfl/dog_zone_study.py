@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from dataclasses import asdict, replace
 from pathlib import Path
 
@@ -82,15 +83,20 @@ def summary(label: str, rows: list[LedgerEntry]) -> str:
 
 
 def load_cache(path: Path, settings: dict[str, int | bool]) -> list[LedgerEntry] | None:
-    """The cached rows, or None when the file was written with other settings."""
-    payload = json.loads(path.read_text())
-    if payload.get("settings") != settings:
+    """The cached rows, or None when the file is unreadable or was written with other settings."""
+    try:
+        payload = json.loads(path.read_text())
+        if payload.get("settings") != settings:
+            return None
+        return [LedgerEntry(**row) for row in payload["rows"]]
+    except (UnicodeDecodeError, json.JSONDecodeError, AttributeError, KeyError, TypeError):
         return None
-    return [LedgerEntry(**row) for row in payload["rows"]]
 
 
 def write_cache(path: Path, settings: dict[str, int | bool], rows: list[LedgerEntry]) -> None:
-    path.write_text(json.dumps({"settings": settings, "rows": [asdict(e) for e in rows]}))
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps({"settings": settings, "rows": [asdict(e) for e in rows]}))
+    os.replace(tmp, path)
 
 
 def main() -> None:
@@ -113,7 +119,7 @@ def main() -> None:
         rows = cached
     else:
         if args.cache and args.cache.exists():
-            print(f"{args.cache}: written with other settings, replaying", flush=True)
+            print(f"{args.cache}: unreadable or written with other settings, replaying", flush=True)
         rows = []
         for season in range(args.first, args.last + 1):
             got = season_rows(season, args.sims, args.ratings)
