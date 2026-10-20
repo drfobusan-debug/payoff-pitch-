@@ -1864,13 +1864,14 @@ def _grade_record_cell(rec: Record | None) -> str:
     return f"{_wl(rec)}, {rec.units:+.2f}u{roi}{se}"
 
 
-def _grade_ledger_lead(records: dict[str, Record], words: Mapping[str, str]) -> str:
+def _grade_ledger_lead(records: dict[str, Record]) -> str:
     """One paragraph putting every bucket's whole record in front of the reader."""
     rated = [(g, records[g]) for g in RATING_DISPLAY if g in records and records[g].n]
     if not rated:
         return ""
     parts = ", ".join(
-        f"{_label_cell(g, words)} {_grade_record_cell(r)} on {r.n} rows" for g, r in rated
+        f"{_label_cell(g, {g: earned_label(r)})} {_grade_record_cell(r)} on {r.n} rows"
+        for g, r in rated
     )
     total = sum(r.n for _g, r in rated)
     return (
@@ -1951,7 +1952,7 @@ def _recommendations(
     )
     lead += _form_insights(rated, said)
     if grade_records is not None:
-        lead += _grade_ledger_lead(records, words)
+        lead += _grade_ledger_lead(records)
     if board is not None:
         agreed = [
             t for t in rated
