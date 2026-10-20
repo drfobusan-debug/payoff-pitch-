@@ -1,0 +1,1191 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,fanduel,-120,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,fanduel,102,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,fanduel,-112,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,fanduel,-108,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221.5,fanduel,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221.5,fanduel,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,fanduel,-122,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,fanduel,100,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,fanduel,-132,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,fanduel,104,-132,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,fanduel,-132,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,fanduel,104,-132,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,fanduel,-122,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,fanduel,-104,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,fanduel,120,-154,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,fanduel,-154,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,2.5,fanduel,-160,124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,2.5,fanduel,124,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,fanduel,130,-166,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,fanduel,-166,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,fanduel,100,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,fanduel,-128,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,fanduel,106,-136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,fanduel,-136,106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,23.5,fanduel,-128,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,23.5,fanduel,100,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,fanduel,-122,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,fanduel,-104,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,fanduel,102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,fanduel,-130,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,fanduel,102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,fanduel,-130,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,8.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,8.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,6.5,fanduel,102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,6.5,fanduel,-130,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,41.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,41.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,24.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,24.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,14.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,14.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,14.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,14.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,38.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,38.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,24.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,24.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,18.5,fanduel,-118,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,18.5,fanduel,-108,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,12.5,fanduel,-104,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,12.5,fanduel,-122,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,19.5,fanduel,-118,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,19.5,fanduel,-108,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,23.5,fanduel,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,23.5,fanduel,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,28.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,28.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,8.5,fanduel,124,-158,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,8.5,fanduel,-158,124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,3.5,fanduel,118,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,3.5,fanduel,-150,118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,9.5,fanduel,-138,108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,9.5,fanduel,108,-138,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,fanduel,124,-158,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,fanduel,-158,124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,5.5,fanduel,124,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,5.5,fanduel,-160,124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,fanduel,-140,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,fanduel,110,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,fanduel,-104,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,fanduel,-120,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,fanduel,102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,fanduel,-130,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jordan Walsh,3.5,fanduel,118,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jordan Walsh,3.5,fanduel,-150,118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,fanduel,132,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,fanduel,-170,132,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,fanduel,114,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,fanduel,-146,114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,2.5,fanduel,-162,126,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,2.5,fanduel,126,-162,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,fanduel,154,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,fanduel,-200,154,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,fanduel,-111,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,fanduel,-115,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,fanduel,-120,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,fanduel,-106,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,fanduel,-146,114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,fanduel,114,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,fanduel,-118,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,fanduel,-108,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,fanduel,-128,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,fanduel,100,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,fanduel,-114,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,fanduel,-106,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,114.5,fanduel,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,114.5,fanduel,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,betrivers,-125,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,betrivers,100,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,betrivers,-110,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,betrivers,-113,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221.5,betrivers,-115,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221.5,betrivers,-108,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,betrivers,-132,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,betrivers,100,-132,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,2.5,betrivers,-165,123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,2.5,betrivers,123,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,betrivers,-105,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,betrivers,-130,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,betrivers,120,-162,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,betrivers,-162,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,betrivers,120,-162,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,betrivers,-162,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,1.5,betrivers,-195,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,1.5,betrivers,140,-195,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,9.5,betrivers,100,-134,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,9.5,betrivers,-134,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,betrivers,-162,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,betrivers,120,-162,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,betrivers,-143,106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,betrivers,106,-143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,betrivers,-134,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,betrivers,-103,-134,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,9.5,betrivers,112,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,9.5,betrivers,-152,112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,25.5,betrivers,-104,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,25.5,betrivers,-130,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,betrivers,-110,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,betrivers,-124,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,betrivers,102,-139,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,betrivers,-139,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,27.5,betrivers,-108,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,27.5,betrivers,-127,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,6.5,betrivers,-112,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,6.5,betrivers,-122,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,betrivers,-118,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,betrivers,-115,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,betrivers,-110,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,betrivers,-124,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,betrivers,-134,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,betrivers,-103,-134,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,betrivers,-107,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,betrivers,-127,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,betrivers,-141,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,betrivers,104,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,betrivers,-117,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,betrivers,-117,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jordan Walsh,4.5,betrivers,-118,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jordan Walsh,4.5,betrivers,-114,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,10.5,betrivers,100,-136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,10.5,betrivers,-136,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,24.5,betrivers,-106,-129,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,24.5,betrivers,-129,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,23.5,betrivers,-120,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,23.5,betrivers,-113,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,39.5,betrivers,-121,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,39.5,betrivers,-113,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,12.5,betrivers,-115,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,12.5,betrivers,-118,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,20.5,betrivers,-108,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,20.5,betrivers,-127,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,29.5,betrivers,-136,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,29.5,betrivers,100,-136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,42.5,betrivers,-122,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,42.5,betrivers,-112,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,24.5,betrivers,-114,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,24.5,betrivers,-120,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,15.5,betrivers,100,-136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,15.5,betrivers,-136,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,5.5,betrivers,104,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,5.5,betrivers,-141,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,2.5,betrivers,112,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,2.5,betrivers,-152,112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,betrivers,105,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,betrivers,-141,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,betrivers,110,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,betrivers,-150,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,2.5,betrivers,-175,128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,2.5,betrivers,128,-175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,betrivers,-117,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,betrivers,-117,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jordan Walsh,3.5,betrivers,125,-175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jordan Walsh,3.5,betrivers,-175,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,9.5,betrivers,106,-143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,9.5,betrivers,-143,106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,betrivers,114,-157,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,betrivers,-157,114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,7.5,betrivers,133,-182,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,7.5,betrivers,-182,133,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,10.5,betrivers,-121,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,10.5,betrivers,-113,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,7.5,betrivers,-148,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,7.5,betrivers,107,-148,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,5.5,betrivers,117,-159,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,5.5,betrivers,-159,117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Daniss Jenkins,1.5,betrivers,-157,116,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Daniss Jenkins,1.5,betrivers,116,-157,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,betrivers,-127,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,betrivers,-107,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,betrivers,-122,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,betrivers,-112,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,betrivers,110,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,betrivers,-152,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Daniss Jenkins,0.5,betrivers,-190,138,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Daniss Jenkins,0.5,betrivers,138,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,0.5,betrivers,-220,155,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,0.5,betrivers,155,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,betrivers,-152,112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,betrivers,112,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,2.5,betrivers,-175,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,2.5,betrivers,125,-175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,betrivers,140,-195,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,betrivers,-195,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-4.5,betrivers,143,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,4.5,betrivers,-200,143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,115.5,betrivers,-108,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,115.5,betrivers,-127,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,betmgm,-115,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,betmgm,105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,betmgm,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,betmgm,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,220.5,betmgm,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,220.5,betmgm,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,betmgm,-118,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,betmgm,-102,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,betmgm,130,-175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,betmgm,-175,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,1.5,betmgm,-190,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,1.5,betmgm,140,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,betmgm,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,betmgm,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,betmgm,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,betmgm,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,betmgm,-135,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,betmgm,100,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,betmgm,-140,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,betmgm,105,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,3.5,betmgm,135,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,3.5,betmgm,-185,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,betmgm,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,betmgm,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,betmgm,115,-155,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,betmgm,-155,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,John Collins,1.5,betmgm,140,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,John Collins,1.5,betmgm,-190,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul Reed Jr,1.5,betmgm,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul Reed Jr,1.5,betmgm,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,11.5,betmgm,-135,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,11.5,betmgm,100,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,betmgm,-120,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,betmgm,-111,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,betmgm,-111,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,betmgm,-120,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,betmgm,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,betmgm,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,23.5,betmgm,-120,,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,betmgm,-111,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,betmgm,-118,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,9.5,betmgm,-110,,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,betmgm,-111,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,betmgm,-118,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,betmgm,100,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,betmgm,-135,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,betmgm,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,betmgm,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,5.5,betmgm,-150,,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,5.5,betmgm,-155,,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,betmgm,115,-155,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,betmgm,-155,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,10.5,betmgm,105,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,10.5,betmgm,-140,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,2.5,betmgm,105,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,2.5,betmgm,-140,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,7.5,betmgm,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,7.5,betmgm,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,betmgm,-105,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,betmgm,-130,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,betmgm,-120,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,betmgm,-111,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,4.5,betmgm,-150,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,4.5,betmgm,110,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,betmgm,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,betmgm,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,betmgm,105,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,betmgm,-145,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,7.5,betmgm,105,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,7.5,betmgm,-140,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,3.5,betmgm,130,-175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,3.5,betmgm,-175,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,betmgm,-150,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,betmgm,110,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,betmgm,-150,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,betmgm,110,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,3.5,betmgm,140,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,3.5,betmgm,-190,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,betmgm,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Daniss Jenkins,0.5,betmgm,-185,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Daniss Jenkins,0.5,betmgm,135,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,betmgm,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,betmgm,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,betmgm,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,betmgm,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,1.5,betmgm,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,1.5,betmgm,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,betmgm,145,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,betmgm,-200,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,betmgm,-155,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,betmgm,115,-155,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,betmgm,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,betmgm,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,betmgm,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,betmgm,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,113.5,betmgm,-118,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,113.5,betmgm,-102,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,draftkings,-125,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,draftkings,105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,draftkings,-112,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,draftkings,-108,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,220.5,draftkings,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,220.5,draftkings,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,draftkings,-118,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,draftkings,-102,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,draftkings,-130,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,draftkings,-101,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,6.5,draftkings,111,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,6.5,draftkings,-146,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,draftkings,-124,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,draftkings,-106,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,draftkings,111,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,draftkings,-146,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,draftkings,-102,-129,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,draftkings,-129,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,draftkings,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,draftkings,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,2.5,draftkings,-164,124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,2.5,draftkings,124,-164,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,2.5,draftkings,145,-193,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,2.5,draftkings,-193,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,draftkings,-151,114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,draftkings,114,-151,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul Reed Jr,1.5,draftkings,151,-201,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul Reed Jr,1.5,draftkings,-201,151,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,John Collins,1.5,draftkings,159,-213,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,John Collins,1.5,draftkings,-213,159,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,draftkings,-114,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,draftkings,-112,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,24.5,draftkings,-103,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,24.5,draftkings,-124,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,draftkings,-110,-116,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,draftkings,-116,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,draftkings,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,draftkings,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,draftkings,-102,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,draftkings,-125,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,draftkings,-109,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,draftkings,-117,-109,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,draftkings,-108,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,draftkings,-118,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,draftkings,-106,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,draftkings,-121,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,draftkings,-127,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,draftkings,100,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,8.5,draftkings,-103,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,8.5,draftkings,-124,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,draftkings,-130,102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,draftkings,102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,draftkings,-113,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,draftkings,-113,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,draftkings,-101,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,draftkings,-127,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,5.5,draftkings,-146,114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,5.5,draftkings,114,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,5.5,draftkings,-127,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,5.5,draftkings,100,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,41.5,draftkings,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,41.5,draftkings,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,38.5,draftkings,-108,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,38.5,draftkings,-122,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,28.5,draftkings,-118,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,28.5,draftkings,-112,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,24.5,draftkings,-118,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,24.5,draftkings,-111,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,23.5,draftkings,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,23.5,draftkings,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,23.5,draftkings,-119,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,23.5,draftkings,-110,-119,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,19.5,draftkings,-123,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,19.5,draftkings,-107,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,19.5,draftkings,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,19.5,draftkings,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,14.5,draftkings,-115,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,14.5,draftkings,-114,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,14.5,draftkings,-111,-119,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,14.5,draftkings,-119,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,12.5,draftkings,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,12.5,draftkings,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,9.5,draftkings,-132,101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,9.5,draftkings,101,-132,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,draftkings,-116,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,draftkings,-113,-116,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,7.5,draftkings,-127,-104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,7.5,draftkings,-104,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,6.5,draftkings,-133,101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,6.5,draftkings,101,-133,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,draftkings,107,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,draftkings,-141,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,draftkings,105,-138,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,draftkings,-138,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,4.5,draftkings,-146,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,4.5,draftkings,111,-146,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,draftkings,-140,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,draftkings,107,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,draftkings,121,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,draftkings,-160,121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,draftkings,-124,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,draftkings,-106,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,3.5,draftkings,115,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,3.5,draftkings,-152,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,2.5,draftkings,126,-167,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,2.5,draftkings,-167,126,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,3.5,draftkings,127,-168,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,3.5,draftkings,-168,127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,draftkings,-125,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,draftkings,-106,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,draftkings,-116,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,draftkings,-113,-116,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,draftkings,-108,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,draftkings,-122,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,draftkings,-101,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,draftkings,-130,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,draftkings,134,-178,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,draftkings,-178,134,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,draftkings,-122,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,draftkings,-108,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,draftkings,-118,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,draftkings,-111,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,0.5,draftkings,-234,175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,0.5,draftkings,175,-234,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Daniss Jenkins,0.5,draftkings,-180,136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Daniss Jenkins,0.5,draftkings,136,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,draftkings,-112,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,draftkings,-108,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,113.5,draftkings,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,113.5,draftkings,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,williamhill_us,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,williamhill_us,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,williamhill_us,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,williamhill_us,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221,williamhill_us,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221,williamhill_us,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,williamhill_us,-160,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,williamhill_us,111,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,williamhill_us,-136,101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,williamhill_us,101,-136,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,williamhill_us,-122,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,williamhill_us,-108,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,williamhill_us,118,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,williamhill_us,-160,118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,williamhill_us,117,-157,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,williamhill_us,-157,117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,williamhill_us,-113,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,williamhill_us,-118,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,williamhill_us,-105,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,williamhill_us,-128,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,6.5,williamhill_us,-105,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,6.5,williamhill_us,-127,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,8.5,williamhill_us,-105,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,8.5,williamhill_us,-127,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,williamhill_us,107,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,williamhill_us,-145,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,williamhill_us,-110,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,williamhill_us,-121,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,williamhill_us,-118,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,williamhill_us,-113,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,24.5,williamhill_us,-107,-124,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,24.5,williamhill_us,-124,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,williamhill_us,-122,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,williamhill_us,-110,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,5.5,williamhill_us,-130,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,5.5,williamhill_us,-102,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,williamhill_us,-112,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,williamhill_us,-120,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,williamhill_us,-113,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,williamhill_us,-118,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,williamhill_us,-106,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,williamhill_us,-127,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,williamhill_us,-111,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,williamhill_us,-121,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,williamhill_us,-127,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,williamhill_us,-108,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,williamhill_us,-121,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,williamhill_us,-110,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,williamhill_us,111,-148,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,williamhill_us,-148,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,7.5,williamhill_us,108,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,7.5,williamhill_us,-150,108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,williamhill_us,113,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,williamhill_us,-150,113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,williamhill_us,-141,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,williamhill_us,107,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,9.5,williamhill_us,-145,108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,9.5,williamhill_us,108,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,williamhill_us,-114,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,williamhill_us,-117,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,4.5,williamhill_us,-150,112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,4.5,williamhill_us,112,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,7.5,williamhill_us,-140,108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,7.5,williamhill_us,108,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,williamhill_us,-110,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,williamhill_us,-125,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,williamhill_us,103,-137,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,williamhill_us,-137,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,3.5,williamhill_us,115,-152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,3.5,williamhill_us,-152,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,3.5,williamhill_us,128,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,3.5,williamhill_us,-180,128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,williamhill_us,-128,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,williamhill_us,-102,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,williamhill_us,-127,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,williamhill_us,-105,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,williamhill_us,-108,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,williamhill_us,-122,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,williamhill_us,-137,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,williamhill_us,103,-137,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,williamhill_us,107,-140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,williamhill_us,-140,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,williamhill_us,-121,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,williamhill_us,-110,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,betonlineag,-121,101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,betonlineag,101,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,betonlineag,-111,-109,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,betonlineag,-109,-111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221.5,betonlineag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221.5,betonlineag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,betonlineag,-117,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,betonlineag,-103,-117,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,betonlineag,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,betonlineag,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,betonlineag,139,-182,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,betonlineag,-182,139,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,1.5,betonlineag,-189,143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,1.5,betonlineag,143,-189,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,betonlineag,-118,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,betonlineag,-110,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,betonlineag,120,-156,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,betonlineag,-156,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,betonlineag,-110,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,betonlineag,-118,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,betonlineag,-135,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,betonlineag,104,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,betonlineag,-145,111,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,betonlineag,111,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul Reed Jr,1.5,betonlineag,152,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul Reed Jr,1.5,betonlineag,-200,152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,John Collins,1.5,betonlineag,167,-222,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,John Collins,1.5,betonlineag,-222,167,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,2.5,betonlineag,-149,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,2.5,betonlineag,115,-149,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,betonlineag,-118,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,betonlineag,-110,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,24.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,24.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,betonlineag,-108,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,betonlineag,-120,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,betonlineag,-110,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,betonlineag,-118,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,15.5,betonlineag,-125,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,15.5,betonlineag,-103,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,betonlineag,-109,-119,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,betonlineag,-119,-109,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,betonlineag,-120,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,betonlineag,-108,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,betonlineag,103,-133,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,betonlineag,-133,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,betonlineag,-106,-122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,betonlineag,-122,-106,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,betonlineag,103,-133,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,betonlineag,-133,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,5.5,betonlineag,-141,108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,5.5,betonlineag,108,-141,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,betonlineag,-120,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,betonlineag,-108,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,8.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,8.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,5.5,betonlineag,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,5.5,betonlineag,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,23.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,23.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,24.5,betonlineag,-110,-118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,24.5,betonlineag,-118,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,19.5,betonlineag,-135,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,19.5,betonlineag,104,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,41.5,betonlineag,-115,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,41.5,betonlineag,-112,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,28.5,betonlineag,-101,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,28.5,betonlineag,-128,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,23.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,23.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,14.5,betonlineag,-128,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,14.5,betonlineag,-101,-128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,38.5,betonlineag,-115,-112,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,38.5,betonlineag,-112,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,18.5,betonlineag,-114,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,18.5,betonlineag,-114,-114,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,12.5,betonlineag,-103,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,12.5,betonlineag,-125,-103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,13.5,betonlineag,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,13.5,betonlineag,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,betonlineag,103,-133,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,betonlineag,-133,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,betonlineag,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,betonlineag,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,9.5,betonlineag,-135,104,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,9.5,betonlineag,104,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,betonlineag,107,-139,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,betonlineag,-139,107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,2.5,betonlineag,-169,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,2.5,betonlineag,130,-169,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,2.5,betonlineag,122,-159,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,2.5,betonlineag,-159,122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,8.5,betonlineag,128,-167,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,8.5,betonlineag,-167,128,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,7.5,betonlineag,110,-143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,7.5,betonlineag,-143,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,betonlineag,-143,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,betonlineag,110,-143,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,betonlineag,115,-149,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,betonlineag,-149,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,betonlineag,115,-149,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,betonlineag,-149,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,4.5,betonlineag,-154,118,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,4.5,betonlineag,118,-154,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Daniss Jenkins,1.5,betonlineag,-159,122,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Daniss Jenkins,1.5,betonlineag,122,-159,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,betonlineag,144,-189,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,betonlineag,-189,144,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,2.5,betonlineag,-156,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,2.5,betonlineag,120,-156,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,betonlineag,-108,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,betonlineag,-120,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,betonlineag,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,betonlineag,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,betonlineag,-120,-108,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,betonlineag,-108,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Daniss Jenkins,0.5,betonlineag,-156,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Daniss Jenkins,0.5,betonlineag,120,-156,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,0.5,betonlineag,-200,152,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,0.5,betonlineag,152,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,betonlineag,-127,-102,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,betonlineag,-102,-127,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,betonlineag,-123,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,betonlineag,-105,-123,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,betonlineag,-107,-113,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,betonlineag,-113,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,114,betonlineag,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,114,betonlineag,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,lowvig,-119,103,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,lowvig,103,-119,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,lowvig,-107,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,lowvig,-105,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221.5,lowvig,-107,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221.5,lowvig,-107,-107,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,bovada,-125,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,bovada,105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,bovada,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,bovada,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,220.5,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,220.5,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,2.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,2.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Ausar Thompson,3.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Ausar Thompson,3.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,7.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,7.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,8.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,8.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,9.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,9.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Cade Cunningham,10.5,bovada,200,-275,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Cade Cunningham,10.5,bovada,-275,200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,2.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,2.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Daniss Jenkins,3.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Daniss Jenkins,3.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,3.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,3.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Derrick White,4.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Derrick White,4.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,1.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,1.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Duncan Robinson,2.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Duncan Robinson,2.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,1.5,bovada,-190,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,1.5,bovada,145,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jalen Duren,2.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jalen Duren,2.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,6.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,6.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,John Collins,0.5,bovada,-280,205,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,John Collins,0.5,bovada,205,-280,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,John Collins,1.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,John Collins,1.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,2.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,2.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul George,3.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul George,3.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul Reed Jr,0.5,bovada,-290,210,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul Reed Jr,0.5,bovada,210,-290,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Paul Reed Jr,1.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Paul Reed Jr,1.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,3.5,bovada,-280,205,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,3.5,bovada,205,-280,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,4.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,4.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Payton Pritchard,5.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Payton Pritchard,5.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,7.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,7.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,8.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,8.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,9.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,9.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,10.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,10.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,11.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,11.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Ausar Thompson,12.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Ausar Thompson,12.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,20.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,20.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,21.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,21.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,22.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,22.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,23.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,23.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,24.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,24.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,25.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,25.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,26.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,26.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,27.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,27.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Cade Cunningham,28.5,bovada,200,-275,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Cade Cunningham,28.5,bovada,-275,200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,5.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,5.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,6.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,6.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,7.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,7.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,8.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,8.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Daniss Jenkins,9.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Daniss Jenkins,9.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,12.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,12.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,13.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,13.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,14.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,14.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,15.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,15.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,16.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,16.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,17.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,17.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Derrick White,18.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Derrick White,18.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,7.5,bovada,-300,215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,7.5,bovada,215,-300,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,8.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,8.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,9.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,9.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,10.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,10.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,11.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,11.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Duncan Robinson,12.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Duncan Robinson,12.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,5.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,5.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,6.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,6.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,7.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,7.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,8.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,8.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Isaiah Joe,9.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Isaiah Joe,9.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,13.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,13.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,14.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,14.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,15.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,15.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,16.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,16.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,17.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,17.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,18.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,18.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jalen Duren,19.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jalen Duren,19.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,22.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,22.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,23.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,23.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,24.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,24.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,25.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,25.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,27.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,27.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,28.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,28.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,29.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,29.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,30.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,30.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,9.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,9.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,10.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,10.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,11.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,11.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,12.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,12.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,13.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,13.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,John Collins,14.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,John Collins,14.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,4.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,4.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,5.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,5.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,6.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,6.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Mitchell Robinson,7.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Mitchell Robinson,7.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,6.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,6.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,7.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,7.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,8.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,8.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,9.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,9.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Neemias Queta,10.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Neemias Queta,10.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,13.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,13.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,14.5,bovada,-190,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,14.5,bovada,145,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,15.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,15.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,16.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,16.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,17.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,17.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,18.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,18.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,19.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,19.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul George,20.5,bovada,215,-300,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul George,20.5,bovada,-300,215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,5.5,bovada,-280,205,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,5.5,bovada,205,-280,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,6.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,6.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,7.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,7.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,8.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,8.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,9.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,9.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Paul Reed Jr,10.5,bovada,205,-280,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Paul Reed Jr,10.5,bovada,-280,205,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,13.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,13.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,14.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,14.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,15.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,15.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,16.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,16.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,17.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,17.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,18.5,bovada,145,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,18.5,bovada,-190,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Payton Pritchard,19.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Payton Pritchard,19.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,4.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,4.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,5.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,5.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,6.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,6.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Sam Hauser,7.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Sam Hauser,7.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,17.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,17.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,18.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,18.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,19.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,19.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,20.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,20.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Ausar Thompson,21.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Ausar Thompson,21.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,35.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,35.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,36.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,36.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,37.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,37.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,38.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,38.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Cade Cunningham,39.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Cade Cunningham,39.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,9.5,bovada,-250,185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,9.5,bovada,185,-250,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,10.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,10.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,11.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,11.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,12.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,12.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Daniss Jenkins,13.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Daniss Jenkins,13.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,21.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,21.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,22.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,22.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,23.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,23.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,24.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,24.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Derrick White,25.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Derrick White,25.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,12.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,12.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,13.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,13.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,14.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,14.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,15.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,15.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Duncan Robinson,16.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Duncan Robinson,16.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,25.5,bovada,-190,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,25.5,bovada,145,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,26.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,26.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,27.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,27.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,28.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,28.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jalen Duren,29.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jalen Duren,29.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,39.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,39.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,40.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,40.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,41.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,41.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,42.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,42.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Jayson Tatum,43.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Jayson Tatum,43.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,16.5,bovada,-215,160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,16.5,bovada,160,-215,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,17.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,17.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,18.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,18.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,19.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,19.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,John Collins,20.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,John Collins,20.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,21.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,21.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,22.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,22.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,23.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,23.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,24.5,bovada,100,-130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,24.5,bovada,-130,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul George,25.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul George,25.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,11.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,11.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,12.5,bovada,-190,145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,12.5,bovada,145,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,13.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,13.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,14.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,14.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Paul Reed Jr,15.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Paul Reed Jr,15.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,21.5,bovada,-210,155,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,21.5,bovada,155,-210,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,22.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,22.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,23.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,23.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,24.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,24.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,over,Payton Pritchard,25.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pra,under,Payton Pritchard,25.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,5.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,5.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,6.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,6.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Ausar Thompson,7.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Ausar Thompson,7.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,4.5,bovada,-145,110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,4.5,bovada,110,-145,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Cade Cunningham,5.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Cade Cunningham,5.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,3.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,3.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Derrick White,4.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Derrick White,4.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,1.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,1.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Duncan Robinson,2.5,bovada,125,-165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Duncan Robinson,2.5,bovada,-165,125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,8.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,8.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,9.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,9.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,10.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,10.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jalen Duren,11.5,bovada,180,-245,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jalen Duren,11.5,bovada,-245,180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,7.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,7.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,bovada,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,9.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,9.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,10.5,bovada,205,-280,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,10.5,bovada,-280,205,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,4.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,4.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,5.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,5.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,John Collins,6.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,John Collins,6.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,6.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,6.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,7.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,7.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,8.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,8.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Mitchell Robinson,9.5,bovada,200,-275,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Mitchell Robinson,9.5,bovada,-275,200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,5.5,bovada,-230,170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,5.5,bovada,170,-230,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,6.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,6.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,7.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,7.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Neemias Queta,8.5,bovada,210,-290,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Neemias Queta,8.5,bovada,-290,210,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,3.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,3.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul George,4.5,bovada,120,-160,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul George,4.5,bovada,-160,120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,3.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,3.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,4.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,4.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Paul Reed Jr,5.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Paul Reed Jr,5.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,2.5,bovada,-200,150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,2.5,bovada,150,-200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Payton Pritchard,3.5,bovada,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Payton Pritchard,3.5,bovada,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,1.5,bovada,-220,165,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,1.5,bovada,165,-220,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Cade Cunningham,2.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Cade Cunningham,2.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Daniss Jenkins,0.5,bovada,-170,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Daniss Jenkins,0.5,bovada,130,-170,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Derrick White,2.5,bovada,105,-135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Derrick White,2.5,bovada,-135,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Duncan Robinson,2.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Duncan Robinson,2.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Isaiah Joe,1.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Isaiah Joe,1.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,2.5,bovada,-180,135,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,2.5,bovada,135,-180,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,3.5,bovada,140,-185,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,3.5,bovada,-185,140,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,0.5,bovada,-240,175,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,0.5,bovada,175,-240,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,John Collins,1.5,bovada,190,-260,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,John Collins,1.5,bovada,-260,190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,2.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,2.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Paul George,3.5,bovada,200,-275,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Paul George,3.5,bovada,-275,200,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,2.5,bovada,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,2.5,bovada,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Payton Pritchard,3.5,bovada,210,-290,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Payton Pritchard,3.5,bovada,-290,210,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Sam Hauser,1.5,bovada,-125,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Sam Hauser,1.5,bovada,-105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,0.5,bovada,-120,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,-0.5,bovada,100,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,114,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,114,bovada,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,fanatics,-125,105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,fanatics,105,-125,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,fanatics,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,fanatics,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,220.5,fanatics,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,220.5,fanatics,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,fanatics,-120,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,fanatics,-110,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,over,Jayson Tatum,5.5,fanatics,-150,115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_ast,under,Jayson Tatum,5.5,fanatics,115,-150,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,over,Jayson Tatum,26.5,fanatics,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_pts,under,Jayson Tatum,26.5,fanatics,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,over,Jayson Tatum,8.5,fanatics,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_reb,under,Jayson Tatum,8.5,fanatics,-115,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,over,Jayson Tatum,3.5,fanatics,130,-190,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,pl_3pm,under,Jayson Tatum,3.5,fanatics,-190,130,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,mybookieag,-121,-101,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,mybookieag,-101,-121,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,mybookieag,-116,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,mybookieag,-105,-116,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,114.5,mybookieag,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,BOS,,,betus,-120,100,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ml,DET,,,betus,100,-120,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,BOS,,-1.5,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_ats,DET,,1.5,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,over,,221,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,game_total,under,,221,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,BOS,,,betus,-115,-105,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ml,DET,,,betus,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,BOS,,-0.5,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_ats,DET,,0.5,betus,-110,-110,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,over,,114,betus,-105,-115,oddsapi
+2026-10-20T19:00:07Z,2026-10-20,BOS @ DET,26b036ff107f3c658258eaf4a6f26228,h1_total,under,,114,betus,-115,-105,oddsapi
