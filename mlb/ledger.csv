@@ -383717,3 +383717,520 @@ date,matchup,category,market,selection,line,book,odds,under_odds,tier,model_prob
 2026-10-18,TB @ CLE,Totals,game_total,Under 7.5,7.5,,,,Pass,0.631,,win,0.91,,,unpriced,0.5789,,,,,,,posted,2.21,,engine,
 2026-10-18,TB @ CLE,Totals,game_total,Under 8.5,8.5,,,,Pass,0.6708,,win,0.91,,,unpriced,0.6551,,,,,,,posted,2.21,,engine,
 2026-10-18,TB @ CLE,Totals,game_total,Under 9.5,9.5,,,,Pass,0.7221,,win,0.91,,,unpriced,0.7504,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Brayan Rocchio 1B o0.5,0.5,betmgm,145.0,-200.0,Pass,0.4115,-0.0454,win,1.45,,,ev_floor,0.4455,0.3872,0.3896,145.0,0.387188,-1.2e-05,-0.051389,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Brayan Rocchio 1B u0.5,0.5,draftkings,-188.0,135.0,Pass,0.5885,-0.0649,loss,-1.0,,,ev_floor,0.5545,0.6128,0.6104,-188.0,0.612812,1.2e-05,-0.061224,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Chandler Simpson 1B o0.5,0.5,betmgm,-160.0,120.0,Pass,0.4814,-0.0741,win,0.625,,,ev_floor,0.5749,0.5796,0.5698,-160.0,0.579601,1e-06,-0.058148,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Chandler Simpson 1B u0.5,0.5,draftkings,123.0,-170.0,Pass,0.5186,-0.0406,loss,-1.0,,,ev_floor,0.4251,0.4204,0.4302,123.0,0.420399,-1e-06,-0.06251,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Chase DeLauter 1B o0.5,0.5,betmgm,100.0,-135.0,Pass,0.4947,-0.0541,win,1.0,,,ev_floor,0.6004,0.4705,0.4729,100.0,0.470531,3.1e-05,-0.058938,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Chase DeLauter 1B u0.5,0.5,draftkings,-131.0,-106.0,Pass,0.5053,-0.0706,loss,-1.0,,,ev_floor,0.3996,0.5295,0.5271,-131.0,0.529469,-3.1e-05,-0.066356,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jo Adell 1B o0.5,0.5,betmgm,120.0,-160.0,Pass,0.3961,-0.0537,loss,-1.0,,,ev_floor,0.388,0.4339,0.4301,120.0,0.433919,1.9e-05,-0.045378,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jo Adell 1B u0.5,0.5,draftkings,-151.0,109.0,Pass,0.6039,-0.0527,win,0.6623,,,ev_floor,0.612,0.5661,0.5699,-151.0,0.566081,-1.9e-05,-0.059031,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jonathan Aranda 1B o0.5,0.5,betmgm,100.0,-135.0,Pass,0.4376,-0.0769,loss,-1.0,,,ev_floor,0.4975,0.4642,0.4615,100.0,0.464191,-9e-06,-0.071618,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jonathan Aranda 1B u0.5,0.5,betmgm,-135.0,100.0,Pass,0.5624,-0.0627,win,0.7407,,,ev_floor,0.5025,0.5358,0.5385,-135.0,0.535809,9e-06,-0.067295,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jonny DeLuca 1B o0.5,0.5,betmgm,130.0,-175.0,Pass,0.3884,-0.0268,loss,-1.0,,,ev_floor,0.375,0.427,0.4231,130.0,0.426972,-2.8e-05,-0.017964,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Jonny DeLuca 1B u0.5,0.5,draftkings,-147.0,107.0,Pass,0.6116,-0.0307,win,0.6803,,,ev_floor,0.625,0.573,0.5769,-147.0,0.573028,2.8e-05,-0.037157,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,José Ramírez 1B o0.5,0.5,betmgm,125.0,-165.0,Pass,0.4814,-0.017,loss,-1.0,,,ev_floor,0.5697,0.4319,0.4369,125.0,0.425529,-0.006371,-0.04256,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,José Ramírez 1B u0.5,0.5,draftkings,-148.0,107.0,Pass,0.5186,-0.0564,win,0.6757,,,ev_floor,0.4303,0.5681,0.5631,-157.0,0.574471,0.006371,-0.037373,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Junior Caminero 1B o0.5,0.5,betmgm,115.0,-155.0,Pass,0.4024,-0.0434,win,1.15,,,ev_floor,0.4365,0.4496,0.4449,115.0,0.461358,0.011758,-0.00808,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Junior Caminero 1B u0.5,0.5,draftkings,-136.0,-101.0,Pass,0.5976,-0.0368,loss,-1.0,,,ev_floor,0.5635,0.5504,0.5551,-123.0,0.538642,-0.011758,-0.065298,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Liam Hicks 1B o0.5,0.5,betmgm,100.0,-135.0,Pass,0.5057,-0.0547,win,1.0,,,ev_floor,0.6196,0.469,0.4726,100.0,0.468963,-3.7e-05,-0.062074,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Liam Hicks 1B u0.5,0.5,draftkings,-132.0,-104.0,Pass,0.4943,-0.0731,loss,-1.0,,,ev_floor,0.3804,0.531,0.5274,-132.0,0.531037,3.7e-05,-0.066662,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Nathaniel Lowe 1B o0.5,0.5,draftkings,139.0,-193.0,Pass,0.4308,-0.0427,win,1.39,,,ev_floor,0.4828,0.3972,0.4005,139.0,0.39718,-2e-05,-0.05074,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Nathaniel Lowe 1B u0.5,0.5,betmgm,-175.0,130.0,Pass,0.5692,-0.058,loss,-1.0,,,ev_floor,0.5172,0.6028,0.5995,-175.0,0.60282,2e-05,-0.052711,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Patrick Bailey 1B o0.5,0.5,draftkings,155.0,-218.0,Pass,0.4308,-0.0368,loss,-1.0,,,ev_floor,0.4847,0.3718,0.3777,155.0,0.371816,1.6e-05,-0.051869,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Patrick Bailey 1B u0.5,0.5,betmgm,-200.0,145.0,Pass,0.5692,-0.0666,win,0.5,,,ev_floor,0.5153,0.6282,0.6223,-200.0,0.628184,-1.6e-05,-0.057724,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Petey Halpin 1B o0.5,0.5,draftkings,167.0,-236.0,Pass,0.4308,-0.0165,loss,-1.0,,,ev_floor,0.4729,0.3614,0.3683,167.0,0.361391,-9e-06,-0.035086,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Petey Halpin 1B u0.5,0.5,betmgm,-200.0,150.0,Pass,0.5692,-0.0525,win,0.5,,,ev_floor,0.5271,0.6386,0.6317,-200.0,0.638609,9e-06,-0.042087,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Richie Palacios 1B o0.5,0.5,betmgm,155.0,-210.0,Pass,0.3962,0.0172,win,1.55,,,thin_edge,0.3892,0.3992,0.3989,155.0,0.395709,-0.003491,0.009058,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Richie Palacios 1B u0.5,0.5,fanatics,-170.0,120.0,Pass,0.6038,-0.0453,loss,-1.0,,,ev_floor,0.6108,0.6008,0.6011,-174.0,0.604291,0.003491,-0.040244,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Steven Kwan 1B o0.5,0.5,draftkings,-128.0,-108.0,Pass,0.5676,-0.062,win,0.7812,,,ev_floor,0.7097,0.5221,0.5266,-128.0,0.52206,-4e-05,-0.070081,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Steven Kwan 1B u0.5,0.5,betmgm,-105.0,-130.0,Pass,0.4324,-0.0758,loss,-1.0,,,ev_floor,0.2903,0.4779,0.4734,-105.0,0.47794,4e-05,-0.066879,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Taylor Walls 1B o0.5,0.5,betmgm,170.0,-235.0,Pass,0.3399,-0.0559,loss,-1.0,,,ev_floor,0.3414,0.3507,0.3497,170.0,0.350744,4.4e-05,-0.052991,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Taylor Walls 1B u0.5,0.5,draftkings,-226.0,161.0,Pass,0.6601,-0.0619,win,0.4425,,,ev_floor,0.6585,0.6493,0.6503,-226.0,0.649256,-4.4e-05,-0.063463,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Travis Bazzana 1B o0.5,0.5,draftkings,143.0,-200.0,Pass,0.4308,-0.0341,loss,-1.0,,,ev_floor,0.4663,0.3938,0.3975,143.0,0.393792,-8e-06,-0.043085,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Travis Bazzana 1B u0.5,0.5,betmgm,-175.0,130.0,Pass,0.5692,-0.0532,win,0.5714,,,ev_floor,0.5337,0.6062,0.6025,-175.0,0.606208,8e-06,-0.047387,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Victor Mesa Jr. 1B o0.5,0.5,betmgm,145.0,-200.0,Pass,0.3831,-0.0253,loss,-1.0,,,ev_floor,0.3661,0.3995,0.3978,145.0,0.399484,-1.6e-05,-0.021264,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Victor Mesa Jr. 1B u0.5,0.5,draftkings,-168.0,121.0,Pass,0.6169,-0.0394,win,0.5952,,,ev_floor,0.6339,0.6005,0.6022,-168.0,0.600516,1.6e-05,-0.042034,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Yandy Díaz 1B o0.5,0.5,betmgm,-130.0,-105.0,Pass,0.5057,-0.0432,loss,-1.0,,,ev_floor,0.6139,0.5447,0.5408,-130.0,0.54472,2e-05,-0.036265,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_1b,Yandy Díaz 1B u0.5,0.5,draftkings,113.0,-156.0,Pass,0.4943,-0.0219,win,1.13,,,ev_floor,0.3861,0.4553,0.4592,113.0,0.45528,-2e-05,-0.030254,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Brayan Rocchio 2B o0.5,0.5,fanatics,525.0,,Pass,0.1319,-0.0876,loss,-1.0,,,one_way_quote,0.1299,0.155,0.146,516.0,0.154993,-7e-06,-0.031294,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Chandler Simpson 2B o0.5,0.5,draftkings,412.0,-640.0,Pass,0.1133,-0.1781,loss,-1.0,,,ev_floor,0.0747,0.1907,0.1605,425.0,0.188387,-0.002313,-0.035459,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Chase DeLauter 2B o0.5,0.5,draftkings,437.0,-690.0,Pass,0.1343,-0.1382,win,4.37,,,ev_floor,0.1666,0.1773,0.1605,437.0,0.177255,-4.5e-05,-0.048141,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Jo Adell 2B o0.5,0.5,draftkings,516.0,-840.0,Pass,0.1358,-0.0776,win,5.16,,,ev_floor,0.1696,0.1587,0.1497,516.0,0.158686,-1.4e-05,-0.022494,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Jonathan Aranda 2B o0.5,0.5,draftkings,392.0,-610.0,Pass,0.1319,-0.1403,loss,-1.0,,,ev_floor,0.134,0.2021,0.1747,392.0,0.20213,3e-05,-0.00552,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Jonny DeLuca 2B o0.5,0.5,draftkings,463.0,-740.0,Pass,0.1319,-0.1289,loss,-1.0,,,ev_floor,0.1403,0.1693,0.1547,463.0,0.169323,2.3e-05,-0.046712,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,José Ramírez 2B o0.5,0.5,draftkings,404.0,-630.0,Pass,0.1319,-0.1503,loss,-1.0,,,ev_floor,0.1451,0.1921,0.1686,404.0,0.192057,-4.3e-05,-0.032033,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Junior Caminero 2B o0.5,0.5,draftkings,477.0,-760.0,Pass,0.1319,-0.0847,loss,-1.0,,,ev_floor,0.1351,0.1757,0.1586,414.0,0.185415,0.009715,0.069845,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Liam Hicks 2B o0.5,0.5,draftkings,449.0,-710.0,Pass,0.1337,-0.1117,loss,-1.0,,,ev_floor,0.1654,0.1798,0.1618,449.0,0.179776,-2.4e-05,-0.01303,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Nathaniel Lowe 2B o0.5,0.5,betmgm,475.0,-800.0,Pass,0.1326,-0.1265,loss,-1.0,,,ev_floor,0.1631,0.1643,0.1519,475.0,0.164276,-2.4e-05,-0.055413,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Patrick Bailey 2B o0.5,0.5,draftkings,574.0,-950.0,Pass,0.1319,-0.0661,loss,-1.0,,,ev_floor,0.1157,0.1428,0.1386,550.0,0.145457,0.002657,-0.01962,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Petey Halpin 2B o0.5,0.5,bovada,700.0,,Pass,0.1319,0.0674,loss,-1.0,,,one_way_quote,0.1121,0.1344,0.1334,720.0,0.13293,-0.00147,0.06344,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Richie Palacios 2B o0.5,0.5,draftkings,518.0,-840.0,Pass,0.1319,-0.0711,win,5.18,,,ev_floor,0.1183,0.1621,0.1503,518.0,0.162084,-1.6e-05,0.001679,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Steven Kwan 2B o0.5,0.5,draftkings,394.0,-610.0,Pass,0.1319,-0.1702,loss,-1.0,,,ev_floor,0.1258,0.1911,0.168,394.0,0.191053,-4.7e-05,-0.056198,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Taylor Walls 2B o0.5,0.5,draftkings,610.0,-1040.0,Pass,0.1319,-0.0339,loss,-1.0,,,ev_floor,0.1338,0.1387,0.1361,630.0,0.136949,-0.001751,-0.027662,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Travis Bazzana 2B o0.5,0.5,draftkings,472.0,-750.0,Pass,0.1319,-0.1192,loss,-1.0,,,ev_floor,0.1404,0.1681,0.154,486.0,0.166149,-0.001951,-0.049628,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Victor Mesa Jr. 2B o0.5,0.5,betmgm,450.0,-750.0,Pass,0.1319,-0.1338,loss,-1.0,,,ev_floor,0.1267,0.1738,0.1575,450.0,0.173838,3.8e-05,-0.043891,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_2b,Yandy Díaz 2B o0.5,0.5,draftkings,446.0,-710.0,Pass,0.1279,-0.0995,loss,-1.0,,,ev_floor,0.1071,0.1886,0.1649,446.0,0.188618,1.8e-05,0.029854,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Brayan Rocchio BB o0.5,0.5,draftkings,272.0,-399.0,Pass,0.2309,-0.0659,loss,-1.0,,,ev_floor,0.2402,0.2534,0.2511,272.0,0.253353,-4.7e-05,-0.057527,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Brayan Rocchio BB o1.5,1.5,,,,Pass,0.0346,,loss,-1.0,,,unpriced,0.0263,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Chandler Simpson BB o0.5,0.5,draftkings,297.0,-441.0,Pass,0.2063,-0.0747,loss,-1.0,,,ev_floor,0.2155,0.2361,0.2331,297.0,0.236062,-3.8e-05,-0.062834,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Chandler Simpson BB o1.5,1.5,,,,Pass,0.0251,,loss,-1.0,,,unpriced,0.019,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Chase DeLauter BB o0.5,0.5,draftkings,131.0,-182.0,Pass,0.4599,-0.0319,loss,-1.0,,,ev_floor,0.4835,0.4145,0.4191,131.0,0.41453,3e-05,-0.042436,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Chase DeLauter BB o1.5,1.5,,,,Pass,0.1346,,loss,-1.0,,,unpriced,0.129,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jo Adell BB o0.5,0.5,fanatics,225.0,-340.0,Pass,0.2879,-0.0008,loss,-1.0,,,ev_floor,0.307,0.3096,0.3074,225.0,0.306152,-0.003448,-0.005006,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jo Adell BB o1.5,1.5,,,,Pass,0.0552,,loss,-1.0,,,unpriced,0.045,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jonathan Aranda BB o0.5,0.5,fanatics,165.0,-240.0,Pass,0.2812,-0.0666,loss,-1.0,,,ev_floor,0.2988,0.3601,0.3522,165.0,0.360107,7e-06,-0.045716,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jonathan Aranda BB o1.5,1.5,,,,Pass,0.054,,loss,-1.0,,,unpriced,0.0435,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jonny DeLuca BB o0.5,0.5,fanatics,260.0,-400.0,Pass,0.1926,-0.0514,loss,-1.0,,,ev_floor,0.1934,0.2714,0.2635,260.0,0.271382,-1.8e-05,-0.023025,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Jonny DeLuca BB o1.5,1.5,,,,Pass,0.0224,,loss,-1.0,,,unpriced,0.0169,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,José Ramírez BB o0.5,0.5,fanatics,175.0,-255.0,Pass,0.2987,-0.0677,win,1.75,,,ev_floor,0.317,0.3435,0.339,175.0,0.343514,1.4e-05,-0.055337,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,José Ramírez BB o1.5,1.5,,,,Pass,0.0584,,loss,-1.0,,,unpriced,0.0491,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Junior Caminero BB o0.5,0.5,fanatics,170.0,-245.0,Pass,0.2634,-0.0352,win,1.7,,,ev_floor,0.2769,0.3678,0.3573,170.0,0.363801,-0.003999,-0.017737,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Junior Caminero BB o1.5,1.5,,,,Pass,0.0491,,loss,-1.0,,,unpriced,0.0375,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Liam Hicks BB o0.5,0.5,fanatics,170.0,-245.0,Pass,0.3443,-0.0093,win,1.7,,,ev_floor,0.3589,0.3694,0.3669,170.0,0.369432,3.2e-05,-0.002534,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Liam Hicks BB o1.5,1.5,,,,Pass,0.0684,,loss,-1.0,,,unpriced,0.0617,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Nathaniel Lowe BB o0.5,0.5,draftkings,200.0,-285.0,Pass,0.3099,-0.0509,win,2.0,,,ev_floor,0.3251,0.3171,0.3164,193.0,0.319466,0.002366,-0.041602,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Nathaniel Lowe BB o1.5,1.5,,,,Pass,0.0595,,loss,-1.0,,,unpriced,0.0505,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Patrick Bailey BB o0.5,0.5,draftkings,270.0,-396.0,Pass,0.2841,-0.007,win,2.7,,,ev_floor,0.3023,0.2666,0.2684,270.0,0.26664,4e-05,-0.013432,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Patrick Bailey BB o1.5,1.5,,,,Pass,0.0549,,loss,-1.0,,,unpriced,0.0447,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Petey Halpin BB o0.5,0.5,draftkings,313.0,-467.0,Pass,0.2965,-0.0331,loss,-1.0,,,ev_floor,0.3154,0.2272,0.2341,313.0,0.22719,-1e-05,-0.061705,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Petey Halpin BB o1.5,1.5,,,,Pass,0.0574,,loss,-1.0,,,unpriced,0.0479,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Richie Palacios BB o0.5,0.5,fanatics,230.0,-350.0,Pass,0.2474,-0.0223,loss,-1.0,,,ev_floor,0.2578,0.3017,0.2963,230.0,0.301724,2.4e-05,-0.004311,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Richie Palacios BB o1.5,1.5,,,,Pass,0.0414,,loss,-1.0,,,unpriced,0.0316,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Steven Kwan BB o0.5,0.5,fanatics,155.0,-225.0,Pass,0.3761,-0.0438,win,1.55,,,ev_floor,0.3841,0.3749,0.375,150.0,0.377505,0.002605,-0.037362,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Steven Kwan BB o1.5,1.5,,,,Pass,0.0794,,loss,-1.0,,,unpriced,0.0741,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Taylor Walls BB o0.5,0.5,williamhill_us,174.0,-240.0,Pass,0.2259,-0.078,win,1.74,,,ev_floor,0.2351,0.3488,0.3365,174.0,0.348774,-2.6e-05,-0.044359,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Taylor Walls BB o1.5,1.5,,,,Pass,0.0344,,win,0.91,,,unpriced,0.0261,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Travis Bazzana BB o0.5,0.5,fanatics,210.0,-310.0,Pass,0.3422,-0.0325,win,2.1,,,ev_floor,0.3564,0.3087,0.3121,210.0,0.308744,4.4e-05,-0.042894,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Travis Bazzana BB o1.5,1.5,,,,Pass,0.0692,,loss,-1.0,,,unpriced,0.0626,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Victor Mesa Jr. BB o0.5,0.5,fanatics,250.0,-375.0,Pass,0.2561,-0.024,win,2.5,,,ev_floor,0.268,0.2814,0.2789,250.0,0.281385,-1.5e-05,-0.015153,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Victor Mesa Jr. BB o1.5,1.5,,,,Pass,0.0396,,loss,-1.0,,,unpriced,0.0301,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Yandy Díaz BB o0.5,0.5,fanatics,160.0,-230.0,Pass,0.2163,-0.0859,loss,-1.0,,,ev_floor,0.2255,0.3666,0.3516,160.0,0.366612,1.2e-05,-0.046809,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_bb,Yandy Díaz BB o1.5,1.5,,,,Pass,0.0282,,loss,-1.0,,,unpriced,0.0214,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Brayan Rocchio H o0.5,0.5,fanatics,-110.0,-120.0,Pass,0.5491,-0.0352,win,0.9091,,,ev_floor,0.5635,0.5005,0.5054,-115.0,0.503036,0.002536,-0.039659,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Brayan Rocchio H o1.5,1.5,,,,Pass,0.1716,,loss,-1.0,,,unpriced,0.18,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Brayan Rocchio H u0.5,0.5,draftkings,-111.0,-120.0,Pass,0.4509,-0.0597,loss,-1.0,,,ev_floor,0.4365,0.4995,0.4946,-111.0,0.496964,-0.002536,-0.055321,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Brayan Rocchio H u1.5,1.5,,,,Pass,0.8284,,win,0.91,,,unpriced,0.82,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chandler Simpson H o0.5,0.5,betmgm,-250.0,180.0,Pass,0.5994,-0.0727,win,0.4,,,ev_floor,0.6242,0.6694,0.6624,-241.0,0.665616,-0.003784,-0.068138,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chandler Simpson H o1.5,1.5,,,,Pass,0.2071,,loss,-1.0,,,unpriced,0.2168,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chandler Simpson H u0.5,0.5,draftkings,185.0,-251.0,Pass,0.4006,-0.0377,loss,-1.0,,,ev_floor,0.3758,0.3306,0.3376,183.0,0.334384,0.003784,-0.047006,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chandler Simpson H u1.5,1.5,,,,Pass,0.7929,,win,0.91,,,unpriced,0.7832,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chase DeLauter H o0.5,0.5,betonlineag,-179.0,136.0,Pass,0.6556,-0.0499,win,0.5587,,,ev_floor,0.7248,0.6044,0.6096,-179.0,0.604445,4.5e-05,-0.057876,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chase DeLauter H o1.5,1.5,,,,Pass,0.3214,,win,0.91,,,unpriced,0.3342,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chase DeLauter H u0.5,0.5,draftkings,138.0,-185.0,Pass,0.3444,-0.0708,loss,-1.0,,,ev_floor,0.2752,0.3956,0.3904,138.0,0.395555,-4.5e-05,-0.058579,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Chase DeLauter H u1.5,1.5,,,,Pass,0.6786,,loss,-1.0,,,unpriced,0.6658,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jo Adell H o0.5,0.5,betmgm,-130.0,-105.0,Pass,0.5616,-0.0226,win,0.7692,,,ev_floor,0.5759,0.5514,0.5524,-130.0,0.551398,-2e-06,-0.02445,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jo Adell H o1.5,1.5,,,,Pass,0.1795,,loss,-1.0,,,unpriced,0.1883,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jo Adell H u0.5,0.5,draftkings,121.0,-161.0,Pass,0.4384,-0.0108,loss,-1.0,,,ev_floor,0.4241,0.4486,0.4476,121.0,0.448602,2e-06,-0.00859,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jo Adell H u1.5,1.5,,,,Pass,0.8205,,win,0.91,,,unpriced,0.8117,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonathan Aranda H o0.5,0.5,betrivers,-190.0,,Pass,0.6098,-0.0429,loss,-1.0,,,one_way_quote,0.6428,0.629,0.6271,-195.0,0.626464,-0.002536,-0.043818,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonathan Aranda H o1.5,1.5,,,,Pass,0.2217,,loss,-1.0,,,unpriced,0.2319,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonathan Aranda H u0.5,0.5,betmgm,155.0,-210.0,Pass,0.3902,-0.049,win,1.55,,,ev_floor,0.3572,0.371,0.3729,155.0,0.373536,0.002536,-0.047483,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonathan Aranda H u1.5,1.5,,,,Pass,0.7783,,win,0.91,,,unpriced,0.7681,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonny DeLuca H o0.5,0.5,betrivers,-139.0,,Pass,0.4863,-0.051,loss,-1.0,,,one_way_quote,0.5009,0.5592,0.5519,-140.0,0.559208,8e-06,-0.038484,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonny DeLuca H o1.5,1.5,,,,Pass,0.1246,,loss,-1.0,,,unpriced,0.1311,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonny DeLuca H u0.5,0.5,draftkings,119.0,-158.0,Pass,0.5137,-0.0187,win,1.19,,,ev_floor,0.4991,0.4408,0.4481,119.0,0.440792,-8e-06,-0.034666,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Jonny DeLuca H u1.5,1.5,,,,Pass,0.8754,,win,0.91,,,unpriced,0.8689,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,José Ramírez H o0.5,0.5,betmgm,-155.0,115.0,Pass,0.6281,-0.0316,loss,-1.0,,,ev_floor,0.6757,0.5842,0.5886,-155.0,0.579391,-0.004809,-0.046808,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,José Ramírez H o1.5,1.5,,,,Pass,0.2671,,loss,-1.0,,,unpriced,0.2787,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,José Ramírez H u0.5,0.5,draftkings,136.0,-181.0,Pass,0.3719,-0.0291,win,1.36,,,ev_floor,0.3243,0.4158,0.4114,129.0,0.420609,0.004809,-0.007363,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,José Ramírez H u1.5,1.5,,,,Pass,0.7329,,win,0.91,,,unpriced,0.7213,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Junior Caminero H o0.5,0.5,betrivers,-186.0,,Pass,0.5866,-0.0394,win,0.5376,,,one_way_quote,0.6013,0.629,0.6247,-210.0,0.644598,0.015598,-0.008844,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Junior Caminero H o1.5,1.5,,,,Pass,0.1912,,win,0.91,,,unpriced,0.2004,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Junior Caminero H u0.5,0.5,betmgm,155.0,-210.0,Pass,0.4134,-0.0431,loss,-1.0,,,ev_floor,0.3987,0.371,0.3753,173.0,0.355402,-0.015598,-0.093725,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Junior Caminero H u1.5,1.5,,,,Pass,0.8088,,loss,-1.0,,,unpriced,0.7996,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Liam Hicks H o0.5,0.5,betonlineag,-169.0,129.0,Pass,0.647,-0.0457,win,0.5917,,,ev_floor,0.7095,0.5942,0.5995,-169.0,0.594245,4.5e-05,-0.054131,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Liam Hicks H o1.5,1.5,,,,Pass,0.2955,,loss,-1.0,,,unpriced,0.3078,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Liam Hicks H u0.5,0.5,draftkings,133.0,-178.0,Pass,0.353,-0.0669,loss,-1.0,,,ev_floor,0.2905,0.4058,0.4005,133.0,0.405755,-4.5e-05,-0.054591,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Liam Hicks H u1.5,1.5,,,,Pass,0.7045,,win,0.91,,,unpriced,0.6923,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Nathaniel Lowe H o0.5,0.5,draftkings,-136.0,103.0,Pass,0.6035,-0.0467,win,0.7353,,,ev_floor,0.6315,0.5433,0.5493,-136.0,0.543328,2.8e-05,-0.057166,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Nathaniel Lowe H o1.5,1.5,,,,Pass,0.2221,,win,0.91,,,unpriced,0.2323,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Nathaniel Lowe H u0.5,0.5,betonlineag,107.0,-139.0,Pass,0.3965,-0.0671,loss,-1.0,,,ev_floor,0.3685,0.4567,0.4507,107.0,0.456672,-2.8e-05,-0.054689,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Nathaniel Lowe H u1.5,1.5,,,,Pass,0.7779,,loss,-1.0,,,unpriced,0.7677,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Patrick Bailey H o0.5,0.5,betonlineag,-110.0,-118.0,Pass,0.6043,-0.0354,loss,-1.0,,,ev_floor,0.633,0.4942,0.5053,-110.0,0.49425,5e-05,-0.056432,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Patrick Bailey H o1.5,1.5,,,,Pass,0.2301,,loss,-1.0,,,unpriced,0.2406,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Patrick Bailey H u0.5,0.5,betmgm,-115.0,-115.0,Pass,0.3957,-0.075,win,0.8696,,,ev_floor,0.367,0.5058,0.4947,-115.0,0.50575,-5e-05,-0.054467,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Patrick Bailey H u1.5,1.5,,,,Pass,0.7699,,win,0.91,,,unpriced,0.7594,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Petey Halpin H o0.5,0.5,betonlineag,107.0,-139.0,Pass,0.5624,-0.03,loss,-1.0,,,ev_floor,0.5766,0.4582,0.4686,106.0,0.459069,0.000869,-0.049727,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Petey Halpin H o1.5,1.5,,,,Pass,0.1739,,loss,-1.0,,,unpriced,0.1825,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Petey Halpin H u0.5,0.5,betmgm,-135.0,100.0,Pass,0.4376,-0.0749,win,0.7407,,,ev_floor,0.4234,0.5418,0.5314,-135.0,0.540931,-0.000869,-0.058379,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Petey Halpin H u1.5,1.5,,,,Pass,0.8261,,win,0.91,,,unpriced,0.8175,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Richie Palacios H o0.5,0.5,betrivers,-112.0,,Pass,0.4934,-0.0289,win,0.8929,,,one_way_quote,0.508,0.5152,0.513,-118.0,0.51385,-0.00135,-0.027355,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Richie Palacios H o1.5,1.5,,,,Pass,0.1268,,win,0.91,,,unpriced,0.1334,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Richie Palacios H u0.5,0.5,draftkings,-104.0,-127.0,Pass,0.5066,-0.0448,loss,-1.0,,,ev_floor,0.492,0.4848,0.487,-104.0,0.48615,0.00135,-0.046398,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Richie Palacios H u1.5,1.5,,,,Pass,0.8732,,loss,-1.0,,,unpriced,0.8666,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Steven Kwan H o0.5,0.5,betmgm,-200.0,150.0,Pass,0.6797,-0.0489,win,0.5,,,ev_floor,0.7677,0.629,0.6341,-200.0,0.629018,1.8e-05,-0.056473,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Steven Kwan H o1.5,1.5,,,,Pass,0.3743,,loss,-1.0,,,unpriced,0.3881,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Steven Kwan H u0.5,0.5,draftkings,156.0,-210.0,Pass,0.3203,-0.0633,loss,-1.0,,,ev_floor,0.2323,0.371,0.3659,156.0,0.370982,-1.8e-05,-0.050286,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Steven Kwan H u1.5,1.5,,,,Pass,0.6257,,win,0.91,,,unpriced,0.6119,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Taylor Walls H o0.5,0.5,betonlineag,118.0,-154.0,Pass,0.4421,-0.0136,loss,-1.0,,,ev_floor,0.4566,0.4537,0.4525,118.0,0.453651,-4.9e-05,-0.011041,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Taylor Walls H o1.5,1.5,,,,Pass,0.1006,,loss,-1.0,,,unpriced,0.106,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Taylor Walls H u0.5,0.5,draftkings,-134.0,101.0,Pass,0.5579,-0.0439,win,0.7463,,,ev_floor,0.5434,0.5463,0.5475,-134.0,0.546349,4.9e-05,-0.045928,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Taylor Walls H u1.5,1.5,,,,Pass,0.8994,,win,0.91,,,unpriced,0.8941,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Travis Bazzana H o0.5,0.5,draftkings,-131.0,-101.0,Pass,0.6023,-0.0423,loss,-1.0,,,ev_floor,0.6294,0.5365,0.5431,-131.0,0.53651,1e-05,-0.05394,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Travis Bazzana H o1.5,1.5,,,,Pass,0.2257,,loss,-1.0,,,unpriced,0.2361,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Travis Bazzana H u0.5,0.5,betmgm,105.0,-140.0,Pass,0.3977,-0.0633,win,1.05,,,ev_floor,0.3706,0.4635,0.4569,105.0,0.46349,-1e-05,-0.049846,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Travis Bazzana H u1.5,1.5,,,,Pass,0.7743,,win,0.91,,,unpriced,0.764,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Victor Mesa Jr. H o0.5,0.5,betmgm,-140.0,105.0,Pass,0.5189,-0.036,loss,-1.0,,,ev_floor,0.5334,0.5671,0.5623,-140.0,0.567135,3.5e-05,-0.027769,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Victor Mesa Jr. H o1.5,1.5,,,,Pass,0.1455,,loss,-1.0,,,unpriced,0.1529,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Victor Mesa Jr. H u0.5,0.5,draftkings,125.0,-166.0,Pass,0.4811,-0.0152,win,1.25,,,ev_floor,0.4666,0.4329,0.4377,125.0,0.432865,-3.5e-05,-0.026054,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Victor Mesa Jr. H u1.5,1.5,,,,Pass,0.8545,,win,0.91,,,unpriced,0.8471,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Yandy Díaz H o0.5,0.5,betrivers,-235.0,,Pass,0.6462,-0.0457,win,0.4255,,,one_way_quote,0.708,0.6721,0.6695,-250.0,0.67579,0.00369,-0.03664,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Yandy Díaz H o1.5,1.5,,,,Pass,0.2952,,loss,-1.0,,,unpriced,0.3075,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_h,Yandy Díaz H u0.5,0.5,draftkings,190.0,-259.0,Pass,0.3538,-0.0415,loss,-1.0,,,ev_floor,0.292,0.3279,0.3305,197.0,0.32421,-0.00369,-0.059791,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_h,Yandy Díaz H u1.5,1.5,,,,Pass,0.7048,,win,0.91,,,unpriced,0.6925,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Brayan Rocchio HR o0.5,0.5,williamhill_us,1300.0,,Pass,0.0658,0.0267,loss,-1.0,,,one_way_quote,0.0653,0.0742,0.0733,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Chandler Simpson HR o0.5,0.5,williamhill_us,4000.0,,Pass,0.0389,0.0593,loss,-1.0,,,one_way_quote,0.0166,0.0244,0.0258,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Chase DeLauter HR o0.5,0.5,betrivers,900.0,,Pass,0.1133,0.1258,loss,-1.0,,,one_way_quote,0.1129,0.1125,0.1126,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Jo Adell HR o0.5,0.5,betrivers,700.0,,Pass,0.1089,0.1551,loss,-1.0,,,one_way_quote,0.1071,0.1483,0.1444,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Jonathan Aranda HR o0.5,0.5,betrivers,650.0,,Pass,0.1133,0.0517,loss,-1.0,,,one_way_quote,0.1353,0.1432,0.1402,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Jonny DeLuca HR o0.5,0.5,betrivers,950.0,,Pass,0.063,0.0135,loss,-1.0,,,one_way_quote,0.0447,0.1003,0.0965,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,José Ramírez HR o0.5,0.5,betrivers,650.0,,Pass,0.063,-0.0373,loss,-1.0,,,one_way_quote,0.0554,0.1356,0.1284,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Junior Caminero HR o0.5,0.5,betrivers,420.0,,Pass,0.1137,-0.0169,win,4.2,,,one_way_quote,0.138,0.1974,0.1891,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Liam Hicks HR o0.5,0.5,williamhill_us,950.0,,Pass,0.063,-0.0114,loss,-1.0,,,one_way_quote,0.0403,0.0976,0.0942,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Nathaniel Lowe HR o0.5,0.5,betrivers,750.0,,Pass,0.1111,0.0225,loss,-1.0,,,one_way_quote,0.1096,0.1213,0.1203,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Patrick Bailey HR o0.5,0.5,betrivers,950.0,,Pass,0.1284,0.0348,loss,-1.0,,,one_way_quote,0.1684,0.0952,0.0986,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Petey Halpin HR o0.5,0.5,betrivers,1200.0,,Pass,0.0675,0.0253,loss,-1.0,,,one_way_quote,0.0668,0.0801,0.0789,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Richie Palacios HR o0.5,0.5,betrivers,1300.0,,Pass,0.063,0.0632,loss,-1.0,,,one_way_quote,0.0594,0.0774,0.0759,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Steven Kwan HR o0.5,0.5,williamhill_us,2000.0,,Pass,0.0545,0.0369,loss,-1.0,,,one_way_quote,0.0319,0.0488,0.0494,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Taylor Walls HR o0.5,0.5,betrivers,1500.0,,Pass,0.0466,-0.0254,loss,-1.0,,,one_way_quote,0.0255,0.0625,0.0609,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Travis Bazzana HR o0.5,0.5,betrivers,850.0,,Pass,0.1133,0.0606,loss,-1.0,,,one_way_quote,0.1344,0.1115,0.1116,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Victor Mesa Jr. HR o0.5,0.5,betrivers,700.0,,Pass,0.1133,0.1018,loss,-1.0,,,one_way_quote,0.1153,0.1404,0.1377,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hr,Yandy Díaz HR o0.5,0.5,betrivers,750.0,,Pass,0.1133,0.0739,win,7.5,,,one_way_quote,0.1148,0.1278,0.1263,,,,,posted,2.21,,engine,no_pair
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Brayan Rocchio H+R+RBI o1.5,1.5,,,,Pass,0.4073,,loss,-1.0,,,unpriced,0.4119,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Brayan Rocchio H+R+RBI o2.5,2.5,,,,Pass,0.2361,,loss,-1.0,,,unpriced,0.2372,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Brayan Rocchio H+R+RBI u1.5,1.5,,,,Pass,0.5927,,win,0.91,,,unpriced,0.588,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Brayan Rocchio H+R+RBI u2.5,2.5,,,,Pass,0.7639,,win,0.91,,,unpriced,0.7628,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chandler Simpson H+R+RBI o1.5,1.5,bovada,-110.0,-120.0,Pass,0.3823,-0.0681,win,0.9091,,,ev_floor,0.4242,0.4999,0.4881,-110.0,0.501029,0.001129,-0.04349,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chandler Simpson H+R+RBI o2.5,2.5,,,,Pass,0.1845,,loss,-1.0,,,unpriced,0.2214,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chandler Simpson H+R+RBI u1.5,1.5,betmgm,-105.0,-120.0,Pass,0.6177,-0.0006,loss,-1.0,,,ev_floor,0.5758,0.5001,0.5119,-105.0,0.498971,-0.001129,-0.025819,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chandler Simpson H+R+RBI u2.5,2.5,,,,Pass,0.8155,,win,0.91,,,unpriced,0.7786,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chase DeLauter H+R+RBI o1.5,1.5,draftkings,116.0,-155.0,Pass,0.5469,-0.0281,win,1.16,,,ev_floor,0.5776,0.4392,0.4499,116.0,0.43916,-4e-05,-0.051414,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chase DeLauter H+R+RBI o2.5,2.5,,,,Pass,0.4008,,win,0.91,,,unpriced,0.3929,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chase DeLauter H+R+RBI u1.5,1.5,williamhill_us,-138.0,110.0,Pass,0.4531,-0.0513,loss,-1.0,,,ev_floor,0.4224,0.5608,0.5501,-138.0,0.56084,4e-05,-0.032754,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Chase DeLauter H+R+RBI u2.5,2.5,,,,Pass,0.5992,,loss,-1.0,,,unpriced,0.6071,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jo Adell H+R+RBI o1.5,1.5,betmgm,130.0,-165.0,Pass,0.4459,-0.0349,loss,-1.0,,,ev_floor,0.4577,0.4167,0.4196,130.0,0.416677,-2.3e-05,-0.041643,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jo Adell H+R+RBI o2.5,2.5,,,,Pass,0.2852,,loss,-1.0,,,unpriced,0.2922,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jo Adell H+R+RBI u1.5,1.5,draftkings,-163.0,123.0,Pass,0.5541,-0.0635,win,0.6135,,,ev_floor,0.5423,0.5833,0.5804,-163.0,0.583323,2.3e-05,-0.05881,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jo Adell H+R+RBI u2.5,2.5,,,,Pass,0.7148,,win,0.91,,,unpriced,0.7078,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonathan Aranda H+R+RBI o1.5,1.5,betmgm,100.0,-135.0,Pass,0.4826,-0.0481,loss,-1.0,,,ev_floor,0.4745,0.4752,0.476,100.0,0.475239,3.9e-05,-0.049522,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonathan Aranda H+R+RBI o2.5,2.5,,,,Pass,0.3145,,loss,-1.0,,,unpriced,0.2972,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonathan Aranda H+R+RBI u1.5,1.5,bovada,-125.0,-105.0,Pass,0.5174,-0.0568,win,0.8,,,ev_floor,0.5255,0.5248,0.524,-125.0,0.524761,-3.9e-05,-0.05543,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonathan Aranda H+R+RBI u2.5,2.5,,,,Pass,0.6855,,win,0.91,,,unpriced,0.7028,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonny DeLuca H+R+RBI o1.5,1.5,bovada,125.0,-165.0,Pass,0.2804,-0.0824,loss,-1.0,,,ev_floor,0.3223,0.422,0.4078,125.0,0.420581,-0.001419,-0.053693,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonny DeLuca H+R+RBI o2.5,2.5,,,,Pass,0.1286,,loss,-1.0,,,unpriced,0.1653,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonny DeLuca H+R+RBI u1.5,1.5,betmgm,-155.0,115.0,Pass,0.7196,-0.0258,win,0.6452,,,ev_floor,0.6777,0.578,0.5922,-155.0,0.579419,0.001419,-0.046762,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Jonny DeLuca H+R+RBI u2.5,2.5,,,,Pass,0.8714,,win,0.91,,,unpriced,0.8347,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,José Ramírez H+R+RBI o1.5,1.5,betonlineag,120.0,-160.0,Pass,0.4788,-0.022,loss,-1.0,,,ev_floor,0.5178,0.4407,0.4445,120.0,0.436707,-0.003993,-0.039245,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,José Ramírez H+R+RBI o2.5,2.5,,,,Pass,0.3035,,loss,-1.0,,,unpriced,0.3201,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,José Ramírez H+R+RBI u1.5,1.5,betmgm,-145.0,110.0,Pass,0.5212,-0.0615,win,0.6897,,,ev_floor,0.4822,0.5593,0.5555,-145.0,0.563293,0.003993,-0.048229,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,José Ramírez H+R+RBI u2.5,2.5,,,,Pass,0.6965,,win,0.91,,,unpriced,0.6799,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Junior Caminero H+R+RBI o1.5,1.5,betmgm,-105.0,-125.0,Pass,0.4354,-0.0612,win,0.9524,,,ev_floor,0.4467,0.4859,0.4808,-105.0,0.497007,0.011107,-0.029653,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Junior Caminero H+R+RBI o2.5,2.5,,,,Pass,0.2775,,win,0.91,,,unpriced,0.2863,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Junior Caminero H+R+RBI u1.5,1.5,draftkings,-119.0,-111.0,Pass,0.5646,-0.0445,loss,-1.0,,,ev_floor,0.5533,0.5141,0.5192,-105.0,0.502993,-0.011107,-0.074324,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Junior Caminero H+R+RBI u2.5,2.5,,,,Pass,0.7225,,loss,-1.0,,,unpriced,0.7137,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Liam Hicks H+R+RBI o1.5,1.5,bovada,115.0,-150.0,Pass,0.5121,-0.0418,win,1.15,,,ev_floor,0.5166,0.4383,0.4457,115.0,0.438296,-4e-06,-0.057664,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Liam Hicks H+R+RBI o2.5,2.5,,,,Pass,0.3204,,loss,-1.0,,,unpriced,0.3033,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Liam Hicks H+R+RBI u1.5,1.5,betmgm,-145.0,110.0,Pass,0.4879,-0.0634,loss,-1.0,,,ev_floor,0.4834,0.5617,0.5543,-145.0,0.561704,4e-06,-0.050914,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Liam Hicks H+R+RBI u2.5,2.5,,,,Pass,0.6796,,win,0.91,,,unpriced,0.6967,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Nathaniel Lowe H+R+RBI o1.5,1.5,,,,Pass,0.496,,win,0.91,,,unpriced,0.4938,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Nathaniel Lowe H+R+RBI o2.5,2.5,,,,Pass,0.3311,,win,0.91,,,unpriced,0.3141,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Nathaniel Lowe H+R+RBI u1.5,1.5,,,,Pass,0.504,,loss,-1.0,,,unpriced,0.5062,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Nathaniel Lowe H+R+RBI u2.5,2.5,,,,Pass,0.6689,,loss,-1.0,,,unpriced,0.6859,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Patrick Bailey H+R+RBI o1.5,1.5,,,,Pass,0.4892,,loss,-1.0,,,unpriced,0.484,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Patrick Bailey H+R+RBI o2.5,2.5,,,,Pass,0.3439,,loss,-1.0,,,unpriced,0.3271,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Patrick Bailey H+R+RBI u1.5,1.5,,,,Pass,0.5108,,win,0.91,,,unpriced,0.516,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Patrick Bailey H+R+RBI u2.5,2.5,,,,Pass,0.6561,,win,0.91,,,unpriced,0.6728,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Petey Halpin H+R+RBI o1.5,1.5,,,,Pass,0.4297,,loss,-1.0,,,unpriced,0.414,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Petey Halpin H+R+RBI o2.5,2.5,,,,Pass,0.2544,,loss,-1.0,,,unpriced,0.2356,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Petey Halpin H+R+RBI u1.5,1.5,,,,Pass,0.5703,,win,0.91,,,unpriced,0.586,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Petey Halpin H+R+RBI u2.5,2.5,,,,Pass,0.7456,,win,0.91,,,unpriced,0.7643,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Richie Palacios H+R+RBI o1.5,1.5,,,,Pass,0.3262,,win,0.91,,,unpriced,0.3406,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Richie Palacios H+R+RBI o2.5,2.5,,,,Pass,0.1689,,win,0.91,,,unpriced,0.1787,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Richie Palacios H+R+RBI u1.5,1.5,,,,Pass,0.6738,,loss,-1.0,,,unpriced,0.6594,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Richie Palacios H+R+RBI u2.5,2.5,,,,Pass,0.8311,,loss,-1.0,,,unpriced,0.8213,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Steven Kwan H+R+RBI o1.5,1.5,betmgm,115.0,-150.0,Pass,0.574,-0.0109,loss,-1.0,,,ev_floor,0.6082,0.4474,0.46,115.0,0.447369,-3.1e-05,-0.038157,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Steven Kwan H+R+RBI o2.5,2.5,,,,Pass,0.4026,,loss,-1.0,,,unpriced,0.3867,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Steven Kwan H+R+RBI u1.5,1.5,draftkings,-141.0,106.0,Pass,0.426,-0.0771,win,0.7092,,,ev_floor,0.3918,0.5526,0.54,-141.0,0.552631,3.1e-05,-0.055432,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Steven Kwan H+R+RBI u2.5,2.5,,,,Pass,0.5974,,win,0.91,,,unpriced,0.6133,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Taylor Walls H+R+RBI o1.5,1.5,,,,Pass,0.2587,,loss,-1.0,,,unpriced,0.3,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Taylor Walls H+R+RBI o2.5,2.5,,,,Pass,0.1049,,loss,-1.0,,,unpriced,0.1406,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Taylor Walls H+R+RBI u1.5,1.5,,,,Pass,0.7413,,win,0.91,,,unpriced,0.7,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Taylor Walls H+R+RBI u2.5,2.5,,,,Pass,0.8951,,win,0.91,,,unpriced,0.8595,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Travis Bazzana H+R+RBI o1.5,1.5,,,,Pass,0.4772,,loss,-1.0,,,unpriced,0.4934,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Travis Bazzana H+R+RBI o2.5,2.5,,,,Pass,0.3185,,loss,-1.0,,,unpriced,0.3199,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Travis Bazzana H+R+RBI u1.5,1.5,,,,Pass,0.5228,,win,0.91,,,unpriced,0.5067,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Travis Bazzana H+R+RBI u2.5,2.5,,,,Pass,0.6815,,win,0.91,,,unpriced,0.6801,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Victor Mesa Jr. H+R+RBI o1.5,1.5,bovada,120.0,-160.0,Pass,0.3842,-0.0546,loss,-1.0,,,ev_floor,0.38,0.4348,0.4297,120.0,0.434781,-1.9e-05,-0.043482,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Victor Mesa Jr. H+R+RBI o2.5,2.5,,,,Pass,0.2374,,loss,-1.0,,,unpriced,0.23,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Victor Mesa Jr. H+R+RBI u1.5,1.5,betmgm,-140.0,105.0,Pass,0.6158,-0.0224,win,0.7143,,,ev_floor,0.62,0.5652,0.5703,-140.0,0.565219,1.9e-05,-0.031053,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Victor Mesa Jr. H+R+RBI u2.5,2.5,,,,Pass,0.7626,,win,0.91,,,unpriced,0.77,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Yandy Díaz H+R+RBI o1.5,1.5,draftkings,-129.0,-103.0,Pass,0.5134,-0.0591,win,0.7752,,,ev_floor,0.5278,0.5319,0.53,-129.0,0.533431,0.001531,-0.053057,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Yandy Díaz H+R+RBI o2.5,2.5,,,,Pass,0.3448,,win,0.91,,,unpriced,0.3346,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Yandy Díaz H+R+RBI u1.5,1.5,betmgm,100.0,-135.0,Pass,0.4866,-0.0601,loss,-1.0,,,ev_floor,0.4722,0.4681,0.47,105.0,0.466569,-0.001531,-0.066862,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_hrr,Yandy Díaz H+R+RBI u2.5,2.5,,,,Pass,0.6552,,loss,-1.0,,,unpriced,0.6654,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Brayan Rocchio K o0.5,0.5,,,,Pass,0.4892,,win,0.91,,,unpriced,0.4723,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Brayan Rocchio K o1.5,1.5,,,,Pass,0.1137,,loss,-1.0,,,unpriced,0.1105,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Chandler Simpson K o0.5,0.5,,,,Pass,0.2958,,loss,-1.0,,,unpriced,0.3634,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Chandler Simpson K o1.5,1.5,,,,Pass,0.0439,,loss,-1.0,,,unpriced,0.0585,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Chase DeLauter K o0.5,0.5,,,,Pass,0.3688,,win,0.91,,,unpriced,0.4415,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Chase DeLauter K o1.5,1.5,,,,Pass,0.1091,,loss,-1.0,,,unpriced,0.0981,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jo Adell K o0.5,0.5,,,,Pass,0.6337,,loss,-1.0,,,unpriced,0.7447,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jo Adell K o1.5,1.5,,,,Pass,0.2958,,loss,-1.0,,,unpriced,0.3387,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jonathan Aranda K o0.5,0.5,,,,Pass,0.6109,,win,0.91,,,unpriced,0.6593,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jonathan Aranda K o1.5,1.5,,,,Pass,0.1956,,win,0.91,,,unpriced,0.2468,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jonny DeLuca K o0.5,0.5,,,,Pass,0.5685,,loss,-1.0,,,unpriced,0.563,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Jonny DeLuca K o1.5,1.5,,,,Pass,0.1628,,loss,-1.0,,,unpriced,0.167,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,José Ramírez K o0.5,0.5,,,,Pass,0.4892,,loss,-1.0,,,unpriced,0.4672,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,José Ramírez K o1.5,1.5,,,,Pass,0.1121,,loss,-1.0,,,unpriced,0.1061,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Junior Caminero K o0.5,0.5,,,,Pass,0.6109,,loss,-1.0,,,unpriced,0.6473,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Junior Caminero K o1.5,1.5,,,,Pass,0.1835,,loss,-1.0,,,unpriced,0.2404,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Liam Hicks K o0.5,0.5,,,,Pass,0.2958,,loss,-1.0,,,unpriced,0.3684,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Liam Hicks K o1.5,1.5,,,,Pass,0.0499,,loss,-1.0,,,unpriced,0.0637,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Nathaniel Lowe K o0.5,0.5,,,,Pass,0.5891,,win,0.91,,,unpriced,0.616,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Nathaniel Lowe K o1.5,1.5,,,,Pass,0.1738,,loss,-1.0,,,unpriced,0.2074,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Patrick Bailey K o0.5,0.5,,,,Pass,0.6315,,loss,-1.0,,,unpriced,0.73,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Patrick Bailey K o1.5,1.5,,,,Pass,0.2772,,loss,-1.0,,,unpriced,0.3145,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Petey Halpin K o0.5,0.5,,,,Pass,0.5862,,win,0.91,,,unpriced,0.5916,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Petey Halpin K o1.5,1.5,,,,Pass,0.1648,,loss,-1.0,,,unpriced,0.1844,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Richie Palacios K o0.5,0.5,,,,Pass,0.3191,,loss,-1.0,,,unpriced,0.399,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Richie Palacios K o1.5,1.5,,,,Pass,0.0771,,loss,-1.0,,,unpriced,0.0759,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Steven Kwan K o0.5,0.5,,,,Pass,0.2958,,loss,-1.0,,,unpriced,0.3812,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Steven Kwan K o1.5,1.5,,,,Pass,0.0654,,loss,-1.0,,,unpriced,0.0706,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Taylor Walls K o0.5,0.5,,,,Pass,0.5862,,loss,-1.0,,,unpriced,0.5958,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Taylor Walls K o1.5,1.5,,,,Pass,0.1664,,loss,-1.0,,,unpriced,0.19,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Travis Bazzana K o0.5,0.5,,,,Pass,0.5663,,loss,-1.0,,,unpriced,0.5612,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Travis Bazzana K o1.5,1.5,,,,Pass,0.1623,,loss,-1.0,,,unpriced,0.1623,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Victor Mesa Jr. K o0.5,0.5,,,,Pass,0.6038,,win,0.91,,,unpriced,0.6306,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Victor Mesa Jr. K o1.5,1.5,,,,Pass,0.1767,,loss,-1.0,,,unpriced,0.2187,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Yandy Díaz K o0.5,0.5,,,,Pass,0.5862,,loss,-1.0,,,unpriced,0.6022,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_k,Yandy Díaz K o1.5,1.5,,,,Pass,0.17,,loss,-1.0,,,unpriced,0.1984,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_r,Brayan Rocchio R o0.5,0.5,draftkings,238.0,-344.0,Pass,0.2932,-0.0489,loss,-1.0,,,ev_floor,0.3318,0.2801,0.2814,238.0,0.280073,-2.7e-05,-0.053353,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Chandler Simpson R o0.5,0.5,betmgm,180.0,-250.0,Pass,0.2868,-0.0629,win,1.8,,,ev_floor,0.2661,0.34,0.3347,180.0,0.339992,-8e-06,-0.048022,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Chase DeLauter R o0.5,0.5,betmgm,175.0,-235.0,Pass,0.3649,-0.0496,win,1.75,,,ev_floor,0.4528,0.3435,0.3456,175.0,0.343463,-3.7e-05,-0.055477,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Jo Adell R o0.5,0.5,betmgm,188.0,-275.0,Pass,0.3188,-0.0472,loss,-1.0,,,ev_floor,0.3705,0.3322,0.3308,188.0,0.332179,-2.1e-05,-0.043324,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Jonathan Aranda R o0.5,0.5,draftkings,123.0,-171.0,Pass,0.3188,-0.068,loss,-1.0,,,ev_floor,0.4088,0.429,0.4179,123.0,0.428956,-4.4e-05,-0.043428,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Jonny DeLuca R o0.5,0.5,betmgm,200.0,-275.0,Pass,0.2783,-0.0449,loss,-1.0,,,ev_floor,0.2379,0.3228,0.3184,200.0,0.319504,-0.003296,-0.041488,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,José Ramírez R o0.5,0.5,betmgm,155.0,-210.0,Pass,0.3188,-0.0548,loss,-1.0,,,ev_floor,0.4088,0.3764,0.3707,155.0,0.372137,-0.004263,-0.051051,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Junior Caminero R o0.5,0.5,draftkings,122.0,-169.0,Pass,0.2978,-0.0923,win,1.22,,,ev_floor,0.3403,0.4212,0.4089,120.0,0.429696,0.008496,-0.046075,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Liam Hicks R o0.5,0.5,betmgm,150.0,-200.0,Pass,0.3162,-0.0814,win,1.5,,,ev_floor,0.3596,0.3731,0.3674,150.0,0.373129,2.9e-05,-0.067178,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Nathaniel Lowe R o0.5,0.5,draftkings,196.0,-279.0,Pass,0.3188,-0.0656,win,1.96,,,ev_floor,0.3993,0.3153,0.3157,196.0,0.315343,4.3e-05,-0.066585,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Patrick Bailey R o0.5,0.5,draftkings,254.0,-370.0,Pass,0.3188,-0.0144,loss,-1.0,,,ev_floor,0.403,0.2739,0.2784,254.0,0.27394,4e-05,-0.030252,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Petey Halpin R o0.5,0.5,draftkings,276.0,-405.0,Pass,0.2974,-0.0122,loss,-1.0,,,ev_floor,0.3399,0.2588,0.2627,276.0,0.258848,4.8e-05,-0.026732,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Richie Palacios R o0.5,0.5,draftkings,202.0,-288.0,Pass,0.2868,-0.0595,loss,-1.0,,,ev_floor,0.271,0.3142,0.3114,202.0,0.314157,-4.3e-05,-0.051246,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Steven Kwan R o0.5,0.5,betmgm,160.0,-220.0,Pass,0.3766,-0.048,loss,-1.0,,,ev_floor,0.4797,0.365,0.3662,160.0,0.365001,1e-06,-0.050997,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Taylor Walls R o0.5,0.5,betmgm,210.0,-295.0,Pass,0.2868,-0.0627,win,2.1,,,ev_floor,0.2532,0.3041,0.3024,210.0,0.307176,0.003076,-0.047754,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Travis Bazzana R o0.5,0.5,draftkings,209.0,-299.0,Pass,0.3221,-0.0364,loss,-1.0,,,ev_floor,0.414,0.3107,0.3119,209.0,0.310719,1.9e-05,-0.039878,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Victor Mesa Jr. R o0.5,0.5,betmgm,175.0,-235.0,Pass,0.2869,-0.0581,win,1.75,,,ev_floor,0.3044,0.3487,0.3425,175.0,0.348675,-2.5e-05,-0.041144,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_r,Yandy Díaz R o0.5,0.5,draftkings,108.0,-149.0,Pass,0.3486,-0.0842,win,1.08,,,ev_floor,0.4285,0.4505,0.4403,108.0,0.450455,-4.5e-05,-0.063054,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Brayan Rocchio RBI o0.5,0.5,draftkings,381.0,-585.0,Pass,0.1868,0.0368,loss,-1.0,,,thin_edge,0.2472,0.2187,0.2155,381.0,0.218745,4.5e-05,0.052163,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Brayan Rocchio RBI u0.5,0.5,betmgm,-450.0,300.0,Pass,0.8132,-0.0412,win,0.2222,,,ev_floor,0.7528,0.7813,0.7845,-450.0,0.781255,-4.5e-05,-0.045133,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Chandler Simpson RBI o0.5,0.5,draftkings,240.0,-348.0,Pass,0.1868,-0.0663,loss,-1.0,,,ev_floor,0.2449,0.2844,0.2746,240.0,0.284381,-1.9e-05,-0.033105,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Chandler Simpson RBI u0.5,0.5,betmgm,-300.0,220.0,Pass,0.8132,-0.0328,win,0.3333,,,ev_floor,0.7551,0.7156,0.7254,-300.0,0.715619,1.9e-05,-0.045841,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Chase DeLauter RBI o0.5,0.5,draftkings,241.0,-350.0,Pass,0.3205,0.0145,loss,-1.0,,,thin_edge,0.3667,0.295,0.2975,241.0,0.294964,-3.6e-05,0.005827,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Chase DeLauter RBI u0.5,0.5,betmgm,-275.0,195.0,Pass,0.6795,-0.0421,win,0.3636,,,ev_floor,0.6333,0.705,0.7025,-275.0,0.705036,3.6e-05,-0.038587,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jo Adell RBI o0.5,0.5,draftkings,221.0,-318.0,Pass,0.3205,-0.0417,loss,-1.0,,,ev_floor,0.3447,0.2961,0.2985,221.0,0.296083,-1.7e-05,-0.049574,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jo Adell RBI u0.5,0.5,betmgm,-295.0,210.0,Pass,0.6795,-0.0607,win,0.339,,,ev_floor,0.6553,0.7039,0.7015,-295.0,0.703917,1.7e-05,-0.057467,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jonathan Aranda RBI o0.5,0.5,draftkings,220.0,-316.0,Pass,0.1963,-0.0674,loss,-1.0,,,ev_floor,0.2675,0.302,0.2914,220.0,0.30199,-1e-05,-0.033632,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jonathan Aranda RBI u0.5,0.5,betmgm,-275.0,200.0,Pass,0.8037,-0.0338,win,0.3636,,,ev_floor,0.7326,0.698,0.7086,-275.0,0.69801,1e-05,-0.048168,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jonny DeLuca RBI o0.5,0.5,draftkings,242.0,-350.0,Pass,0.1868,-0.0789,win,2.42,,,ev_floor,0.1974,0.2785,0.2693,242.0,0.278515,1.5e-05,-0.047479,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Jonny DeLuca RBI u0.5,0.5,betmgm,-325.0,230.0,Pass,0.8132,-0.0445,loss,-1.0,,,ev_floor,0.8026,0.7215,0.7307,-325.0,0.721485,-1.5e-05,-0.05652,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,José Ramírez RBI o0.5,0.5,betmgm,250.0,-350.0,Pass,0.2207,-0.0781,loss,-1.0,,,ev_floor,0.2792,0.2682,0.2634,257.0,0.265273,-0.002927,-0.071545,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,José Ramírez RBI u0.5,0.5,betmgm,-350.0,250.0,Pass,0.7793,-0.053,win,0.2857,,,ev_floor,0.7208,0.7318,0.7366,-350.0,0.734727,0.002927,-0.055351,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Junior Caminero RBI o0.5,0.5,draftkings,170.0,-240.0,Pass,0.3119,-0.0229,win,1.7,,,ev_floor,0.3277,0.3674,0.3619,155.0,0.377308,0.009908,0.018732,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Junior Caminero RBI u0.5,0.5,betmgm,-190.0,138.0,Pass,0.6881,-0.026,loss,-1.0,,,ev_floor,0.6723,0.6326,0.6381,-190.0,0.622692,-0.009908,-0.049575,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Liam Hicks RBI o0.5,0.5,draftkings,254.0,-370.0,Pass,0.1868,-0.0611,loss,-1.0,,,ev_floor,0.261,0.2739,0.2652,262.0,0.271085,-0.002815,-0.040359,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Liam Hicks RBI u0.5,0.5,betmgm,-325.0,230.0,Pass,0.8132,-0.0391,win,0.3077,,,ev_floor,0.739,0.7261,0.7348,-325.0,0.728915,0.002815,-0.046803,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Nathaniel Lowe RBI o0.5,0.5,draftkings,260.0,-379.0,Pass,0.3127,-0.0312,win,2.6,,,ev_floor,0.3284,0.2643,0.2691,260.0,0.264251,-4.9e-05,-0.048696,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Nathaniel Lowe RBI u0.5,0.5,betmgm,-350.0,250.0,Pass,0.6873,-0.0603,loss,-1.0,,,ev_floor,0.6716,0.7357,0.7309,-350.0,0.735749,4.9e-05,-0.054037,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Patrick Bailey RBI o0.5,0.5,draftkings,329.0,-495.0,Pass,0.3144,0.0092,win,3.29,,,thin_edge,0.3299,0.2265,0.2353,340.0,0.223808,-0.002692,-0.039864,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Patrick Bailey RBI u0.5,0.5,betmgm,-450.0,300.0,Pass,0.6856,-0.0653,loss,-1.0,,,ev_floor,0.6701,0.7735,0.7647,-450.0,0.776192,0.002692,-0.051321,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Petey Halpin RBI o0.5,0.5,draftkings,395.0,-610.0,Pass,0.1868,0.007,loss,-1.0,,,thin_edge,0.2434,0.2053,0.2034,395.0,0.205279,-2.1e-05,0.016131,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Petey Halpin RBI u0.5,0.5,betmgm,-500.0,325.0,Pass,0.8132,-0.0441,win,0.2,,,ev_floor,0.7566,0.7947,0.7966,-500.0,0.794721,2.1e-05,-0.046335,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Richie Palacios RBI o0.5,0.5,draftkings,285.0,-421.0,Pass,0.1868,-0.0557,win,2.85,,,ev_floor,0.205,0.2518,0.2453,285.0,0.251761,-3.9e-05,-0.03072,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Richie Palacios RBI u0.5,0.5,betmgm,-375.0,260.0,Pass,0.8132,-0.044,loss,-1.0,,,ev_floor,0.795,0.7482,0.7547,-375.0,0.748239,3.9e-05,-0.052231,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Steven Kwan RBI o0.5,0.5,draftkings,345.0,-522.0,Pass,0.1868,-0.0253,loss,-1.0,,,ev_floor,0.2544,0.2226,0.219,345.0,0.222628,2.8e-05,-0.009305,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Steven Kwan RBI u0.5,0.5,betmgm,-450.0,300.0,Pass,0.8132,-0.0455,win,0.2222,,,ev_floor,0.7456,0.7774,0.781,-450.0,0.777372,-2.8e-05,-0.049879,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Taylor Walls RBI o0.5,0.5,draftkings,338.0,-510.0,Pass,0.1868,-0.0614,loss,-1.0,,,ev_floor,0.1641,0.2173,0.2143,350.0,0.214545,-0.002755,-0.060293,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Taylor Walls RBI u0.5,0.5,betmgm,-500.0,325.0,Pass,0.8132,-0.0571,win,0.2,,,ev_floor,0.8358,0.7827,0.7857,-500.0,0.785455,0.002755,-0.057454,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Travis Bazzana RBI o0.5,0.5,draftkings,283.0,-417.0,Pass,0.311,-0.0285,loss,-1.0,,,ev_floor,0.3269,0.2473,0.2536,283.0,0.247274,-2.6e-05,-0.052941,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Travis Bazzana RBI u0.5,0.5,betmgm,-400.0,275.0,Pass,0.689,-0.0671,win,0.25,,,ev_floor,0.6731,0.7527,0.7464,-400.0,0.752726,2.6e-05,-0.059092,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Victor Mesa Jr. RBI o0.5,0.5,draftkings,208.0,-297.0,Pass,0.1988,-0.0862,loss,-1.0,,,ev_floor,0.2686,0.3076,0.2967,208.0,0.307573,-2.7e-05,-0.052675,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Victor Mesa Jr. RBI u0.5,0.5,betmgm,-275.0,200.0,Pass,0.8012,-0.0409,win,0.3636,,,ev_floor,0.7313,0.6924,0.7033,-275.0,0.692427,2.7e-05,-0.055781,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Yandy Díaz RBI o0.5,0.5,draftkings,221.0,-318.0,Pass,0.1868,-0.069,win,2.21,,,ev_floor,0.2588,0.3015,0.29,221.0,0.301512,1.2e-05,-0.032146,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_rbi,Yandy Díaz RBI u0.5,0.5,betmgm,-275.0,200.0,Pass,0.8132,-0.0319,loss,-1.0,,,ev_floor,0.7412,0.6985,0.71,-275.0,0.698488,-1.2e-05,-0.047516,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB o1.5,1.5,bovada,260.0,-370.0,Pass,0.2659,-0.0592,loss,-1.0,,,ev_floor,0.288,0.2608,0.2613,260.0,0.260821,2.1e-05,-0.061044,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB o2.5,2.5,,,,Pass,0.1354,,loss,-1.0,,,unpriced,0.1375,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB o3.5,3.5,,,,Pass,0.0825,,loss,-1.0,,,unpriced,0.0852,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB u1.5,1.5,bovada,-370.0,260.0,Pass,0.7341,-0.0617,win,0.2703,,,ev_floor,0.712,0.7392,0.7387,-370.0,0.739179,-2.1e-05,-0.061043,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB u2.5,2.5,,,,Pass,0.8646,,win,0.91,,,unpriced,0.8625,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Brayan Rocchio TB u3.5,3.5,,,,Pass,0.9175,,win,0.91,,,unpriced,0.9148,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB o1.5,1.5,draftkings,156.0,-209.0,Pass,0.2322,-0.0703,loss,-1.0,,,ev_floor,0.2636,0.3777,0.3632,156.0,0.376296,-0.001404,-0.036682,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB o2.5,2.5,,,,Pass,0.0884,,loss,-1.0,,,unpriced,0.0914,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB o3.5,3.5,,,,Pass,0.0493,,loss,-1.0,,,unpriced,0.0348,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB u1.5,1.5,williamhill_us,-193.0,142.0,Pass,0.7678,-0.0332,win,0.5181,,,ev_floor,0.7364,0.6223,0.6368,-193.0,0.623704,0.001404,-0.053133,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB u2.5,2.5,,,,Pass,0.9116,,win,0.91,,,unpriced,0.9086,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chandler Simpson TB u3.5,3.5,,,,Pass,0.9507,,win,0.91,,,unpriced,0.9651,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB o1.5,1.5,bovada,160.0,-215.0,Pass,0.4102,-0.05,win,1.6,,,ev_floor,0.4403,0.3604,0.3654,160.0,0.360412,1.2e-05,-0.062929,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB o2.5,2.5,,,,Pass,0.2253,,win,0.91,,,unpriced,0.2575,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB o3.5,3.5,,,,Pass,0.1377,,loss,-1.0,,,unpriced,0.1645,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB u1.5,1.5,bovada,-215.0,160.0,Pass,0.5898,-0.0702,loss,-1.0,,,ev_floor,0.5597,0.6396,0.6346,-215.0,0.639588,-1.2e-05,-0.062929,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB u2.5,2.5,,,,Pass,0.7747,,loss,-1.0,,,unpriced,0.7425,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Chase DeLauter TB u3.5,3.5,,,,Pass,0.8623,,win,0.91,,,unpriced,0.8356,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB o1.5,1.5,bovada,175.0,-240.0,Pass,0.2843,-0.0803,win,1.75,,,ev_floor,0.3466,0.34,0.3344,175.0,0.34,0.0,-0.065,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB o2.5,2.5,,,,Pass,0.1877,,loss,-1.0,,,unpriced,0.2069,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB o3.5,3.5,,,,Pass,0.1356,,loss,-1.0,,,unpriced,0.1452,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB u1.5,1.5,bovada,-240.0,175.0,Pass,0.7157,-0.0571,loss,-1.0,,,ev_floor,0.6534,0.66,0.6656,-240.0,0.66,0.0,-0.065,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB u2.5,2.5,,,,Pass,0.8123,,win,0.91,,,unpriced,0.7932,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jo Adell TB u3.5,3.5,,,,Pass,0.8644,,win,0.91,,,unpriced,0.8548,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB o1.5,1.5,betonlineag,146.0,-192.0,Pass,0.2843,-0.0662,loss,-1.0,,,ev_floor,0.3593,0.3902,0.3796,146.0,0.390197,-3e-06,-0.040115,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB o2.5,2.5,,,,Pass,0.1908,,loss,-1.0,,,unpriced,0.2096,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB o3.5,3.5,,,,Pass,0.1356,,loss,-1.0,,,unpriced,0.1555,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB u1.5,1.5,betmgm,-175.0,130.0,Pass,0.7157,-0.0251,win,0.5714,,,ev_floor,0.6407,0.6098,0.6204,-175.0,0.609803,3e-06,-0.041738,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB u2.5,2.5,,,,Pass,0.8092,,win,0.91,,,unpriced,0.7904,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonathan Aranda TB u3.5,3.5,,,,Pass,0.8644,,win,0.91,,,unpriced,0.8445,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB o1.5,1.5,bovada,190.0,-260.0,Pass,0.2127,-0.0949,loss,-1.0,,,ev_floor,0.2452,0.3232,0.3121,190.0,0.32316,-4e-05,-0.062836,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB o2.5,2.5,,,,Pass,0.1082,,loss,-1.0,,,unpriced,0.1045,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB o3.5,3.5,,,,Pass,0.0765,,loss,-1.0,,,unpriced,0.0612,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB u1.5,1.5,bovada,-260.0,190.0,Pass,0.7873,-0.0475,win,0.3846,,,ev_floor,0.7548,0.6768,0.6879,-260.0,0.67684,4e-05,-0.062837,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB u2.5,2.5,,,,Pass,0.8918,,win,0.91,,,unpriced,0.8955,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Jonny DeLuca TB u3.5,3.5,,,,Pass,0.9235,,win,0.91,,,unpriced,0.9387,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB o1.5,1.5,bovada,155.0,-210.0,Pass,0.318,-0.0775,loss,-1.0,,,ev_floor,0.3727,0.3666,0.3618,155.0,0.366647,4.7e-05,-0.06505,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB o2.5,2.5,,,,Pass,0.1707,,loss,-1.0,,,unpriced,0.1918,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB o3.5,3.5,,,,Pass,0.1098,,loss,-1.0,,,unpriced,0.1056,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB u1.5,1.5,bovada,-210.0,155.0,Pass,0.682,-0.0579,win,0.4762,,,ev_floor,0.6273,0.6334,0.6382,-210.0,0.633353,-4.7e-05,-0.06505,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB u2.5,2.5,,,,Pass,0.8293,,win,0.91,,,unpriced,0.8082,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,José Ramírez TB u3.5,3.5,,,,Pass,0.8902,,win,0.91,,,unpriced,0.8944,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB o1.5,1.5,draftkings,141.0,-189.0,Pass,0.2843,-0.0637,win,1.41,,,ev_floor,0.3416,0.4001,0.3885,140.0,0.407576,0.007476,-0.017742,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB o2.5,2.5,,,,Pass,0.1833,,win,0.91,,,unpriced,0.203,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB o3.5,3.5,,,,Pass,0.1356,,win,0.91,,,unpriced,0.1557,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB u1.5,1.5,betmgm,-165.0,125.0,Pass,0.7157,-0.0179,loss,-1.0,,,ev_floor,0.6584,0.5999,0.6115,-165.0,0.592424,-0.007476,-0.048531,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB u2.5,2.5,,,,Pass,0.8167,,loss,-1.0,,,unpriced,0.797,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Junior Caminero TB u3.5,3.5,,,,Pass,0.8644,,loss,-1.0,,,unpriced,0.8442,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB o1.5,1.5,bovada,220.0,-300.0,Pass,0.3635,-0.0366,loss,-1.0,,,ev_floor,0.3876,0.2941,0.3011,220.0,0.294118,1.8e-05,-0.058822,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB o2.5,2.5,,,,Pass,0.1529,,loss,-1.0,,,unpriced,0.1769,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB o3.5,3.5,,,,Pass,0.0821,,loss,-1.0,,,unpriced,0.0839,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB u1.5,1.5,bovada,-300.0,220.0,Pass,0.6365,-0.0681,win,0.3333,,,ev_floor,0.6123,0.7059,0.6989,-300.0,0.705882,-1.8e-05,-0.058824,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB u2.5,2.5,,,,Pass,0.8471,,win,0.91,,,unpriced,0.8231,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Liam Hicks TB u3.5,3.5,,,,Pass,0.9179,,win,0.91,,,unpriced,0.9161,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB o1.5,1.5,bovada,215.0,-295.0,Pass,0.2843,-0.0648,win,2.15,,,ev_floor,0.3619,0.2983,0.2969,215.0,0.298282,-1.8e-05,-0.060412,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB o2.5,2.5,,,,Pass,0.1815,,loss,-1.0,,,unpriced,0.2014,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB o3.5,3.5,,,,Pass,0.1356,,loss,-1.0,,,unpriced,0.1378,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB u1.5,1.5,bovada,-295.0,215.0,Pass,0.7157,-0.0585,loss,-1.0,,,ev_floor,0.6381,0.7017,0.7031,-295.0,0.701718,1.8e-05,-0.060411,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB u2.5,2.5,,,,Pass,0.8185,,win,0.91,,,unpriced,0.7986,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Nathaniel Lowe TB u3.5,3.5,,,,Pass,0.8644,,win,0.91,,,unpriced,0.8622,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB o1.5,1.5,bovada,240.0,-340.0,Pass,0.2974,-0.0553,loss,-1.0,,,ev_floor,0.3661,0.2757,0.2779,240.0,0.275689,-1.1e-05,-0.062657,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB o2.5,2.5,,,,Pass,0.2041,,loss,-1.0,,,unpriced,0.2364,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB o3.5,3.5,,,,Pass,0.1658,,loss,-1.0,,,unpriced,0.1875,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB u1.5,1.5,bovada,-340.0,240.0,Pass,0.7026,-0.0655,win,0.2941,,,ev_floor,0.6339,0.7243,0.7221,-340.0,0.724311,1.1e-05,-0.062656,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB u2.5,2.5,,,,Pass,0.7959,,win,0.91,,,unpriced,0.7636,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Patrick Bailey TB u3.5,3.5,,,,Pass,0.8342,,win,0.91,,,unpriced,0.8125,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB o1.5,1.5,bovada,300.0,-450.0,Pass,0.2518,-0.0567,loss,-1.0,,,ev_floor,0.2774,0.234,0.2358,300.0,0.234043,4.3e-05,-0.063828,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB o2.5,2.5,,,,Pass,0.1356,,loss,-1.0,,,unpriced,0.1383,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB o3.5,3.5,,,,Pass,0.0829,,loss,-1.0,,,unpriced,0.0867,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB u1.5,1.5,bovada,-450.0,300.0,Pass,0.7482,-0.066,win,0.2222,,,ev_floor,0.7226,0.766,0.7642,-450.0,0.765957,-4.3e-05,-0.06383,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB u2.5,2.5,,,,Pass,0.8644,,win,0.91,,,unpriced,0.8617,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Petey Halpin TB u3.5,3.5,,,,Pass,0.9171,,win,0.91,,,unpriced,0.9133,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB o1.5,1.5,bovada,260.0,-370.0,Pass,0.2086,-0.0798,win,2.6,,,ev_floor,0.2414,0.2608,0.2556,260.0,0.260821,2.1e-05,-0.061044,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB o2.5,2.5,,,,Pass,0.1217,,win,0.91,,,unpriced,0.1139,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB o3.5,3.5,,,,Pass,0.079,,loss,-1.0,,,unpriced,0.0727,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB u1.5,1.5,bovada,-370.0,260.0,Pass,0.7914,-0.0544,loss,-1.0,,,ev_floor,0.7587,0.7392,0.7444,-370.0,0.739179,-2.1e-05,-0.061043,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB u2.5,2.5,,,,Pass,0.8783,,loss,-1.0,,,unpriced,0.8861,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Richie Palacios TB u3.5,3.5,,,,Pass,0.921,,win,0.91,,,unpriced,0.9273,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB o1.5,1.5,bovada,185.0,-250.0,Pass,0.4119,-0.0377,loss,-1.0,,,ev_floor,0.4416,0.3294,0.3377,185.0,0.329412,1.2e-05,-0.061176,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB o2.5,2.5,,,,Pass,0.1863,,loss,-1.0,,,unpriced,0.2056,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB o3.5,3.5,,,,Pass,0.0873,,loss,-1.0,,,unpriced,0.0907,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB u1.5,1.5,bovada,-250.0,185.0,Pass,0.5881,-0.0727,win,0.4,,,ev_floor,0.5584,0.6706,0.6623,-250.0,0.670588,-1.2e-05,-0.061177,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB u2.5,2.5,,,,Pass,0.8137,,win,0.91,,,unpriced,0.7944,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Steven Kwan TB u3.5,3.5,,,,Pass,0.9127,,win,0.91,,,unpriced,0.9093,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB o1.5,1.5,bovada,330.0,-500.0,Pass,0.1931,-0.0726,loss,-1.0,,,ev_floor,0.2117,0.2182,0.2157,330.0,0.218182,-1.8e-05,-0.061817,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB o2.5,2.5,,,,Pass,0.0807,,loss,-1.0,,,unpriced,0.0789,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB o3.5,3.5,,,,Pass,0.0708,,loss,-1.0,,,unpriced,0.0403,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB u1.5,1.5,bovada,-500.0,330.0,Pass,0.8069,-0.0588,win,0.2,,,ev_floor,0.7883,0.7818,0.7843,-500.0,0.781818,1.8e-05,-0.061818,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB u2.5,2.5,,,,Pass,0.9193,,win,0.91,,,unpriced,0.9212,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Taylor Walls TB u3.5,3.5,,,,Pass,0.9292,,win,0.91,,,unpriced,0.9597,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB o1.5,1.5,bovada,210.0,-290.0,Pass,0.3145,-0.0584,loss,-1.0,,,ev_floor,0.3716,0.3026,0.3038,210.0,0.30256,-4e-05,-0.062064,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB o2.5,2.5,,,,Pass,0.203,,loss,-1.0,,,unpriced,0.2338,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB o3.5,3.5,,,,Pass,0.1473,,loss,-1.0,,,unpriced,0.1723,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB u1.5,1.5,bovada,-290.0,210.0,Pass,0.6855,-0.0637,win,0.3448,,,ev_floor,0.6284,0.6974,0.6962,-290.0,0.69744,4e-05,-0.062063,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB u2.5,2.5,,,,Pass,0.797,,win,0.91,,,unpriced,0.7662,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Travis Bazzana TB u3.5,3.5,,,,Pass,0.8527,,win,0.91,,,unpriced,0.8277,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB o1.5,1.5,bovada,135.0,-180.0,Pass,0.2659,-0.0951,loss,-1.0,,,ev_floor,0.299,0.3983,0.3851,135.0,0.398293,-7e-06,-0.064011,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB o2.5,2.5,,,,Pass,0.1534,,loss,-1.0,,,unpriced,0.1774,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB o3.5,3.5,,,,Pass,0.1329,,loss,-1.0,,,unpriced,0.1332,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB u1.5,1.5,bovada,-180.0,135.0,Pass,0.7341,-0.0434,win,0.5556,,,ev_floor,0.7009,0.6017,0.6149,-180.0,0.601707,7e-06,-0.064011,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB u2.5,2.5,,,,Pass,0.8466,,win,0.91,,,unpriced,0.8226,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Victor Mesa Jr. TB u3.5,3.5,,,,Pass,0.8671,,win,0.91,,,unpriced,0.8668,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB o1.5,1.5,betonlineag,134.0,-175.0,Pass,0.3638,-0.0488,win,1.34,,,ev_floor,0.3915,0.4112,0.4065,134.0,0.411218,1.8e-05,-0.03775,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB o2.5,2.5,,,,Pass,0.1924,,win,0.91,,,unpriced,0.211,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB o3.5,3.5,,,,Pass,0.1356,,win,0.91,,,unpriced,0.1419,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB u1.5,1.5,betmgm,-165.0,125.0,Pass,0.6362,-0.0468,loss,-1.0,,,ev_floor,0.6085,0.5888,0.5935,-165.0,0.588782,-1.8e-05,-0.05438,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB u2.5,2.5,,,,Pass,0.8076,,loss,-1.0,,,unpriced,0.789,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Batter Props,batter_tb,Yandy Díaz TB u3.5,3.5,,,,Pass,0.8644,,loss,-1.0,,,unpriced,0.8581,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,First-5 (F5),f5_ml,CLE F5 ML,,betrivers,128.0,-175.0,Pass,0.461,-0.0105,loss,-1.0,,,ev_floor,0.461,0.431,0.434,128.0,0.429389,-0.001611,-0.020993,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,First-5 (F5),f5_ml,F5 Tie,,,,,Pass,0.1779,,loss,-1.0,,,unpriced,0.1779,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,First-5 (F5),f5_ml,TB F5 ML,,betus,-140.0,120.0,Pass,0.3611,-0.0602,win,0.7143,,,ev_floor,0.3611,0.569,0.5482,-140.0,0.570611,0.001611,-0.02181,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,First-5 (F5),f5_rl,CLE F5 +0.5,0.5,betus,-120.0,100.0,Pass,0.6214,-0.0171,loss,-1.0,-3.0,,ev_floor,0.6389,0.5266,0.5361,-120.0,0.526017,-0.000583,-0.035635,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,First-5 (F5),f5_rl,TB F5 -0.5,-0.5,mybookieag,104.0,-124.0,Pass,0.3611,-0.0572,win,1.04,3.0,,ev_floor,0.3611,0.4734,0.4621,103.0,0.473983,0.000583,-0.033075,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,First-5 (F5),f5_total,F5 Over 4.5,4.5,,,,Pass,0.3373,,loss,-1.0,,,unpriced,0.3877,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,First-5 (F5),f5_total,F5 Over 5.5,5.5,,,,Pass,0.2315,,loss,-1.0,,,unpriced,0.2744,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,First-5 (F5),f5_total,F5 Under 4.5,4.5,,,,Pass,0.6627,,win,0.91,,,unpriced,0.6123,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,First-5 (F5),f5_total,F5 Under 5.5,5.5,,,,Pass,0.7685,,win,0.91,,,unpriced,0.7256,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Moneyline,game_ml,CLE ML,,circa,137.0,-147.0,Pass,0.5822,0.0245,loss,-1.0,,,thin_edge,0.5822,0.4156,0.4323,140.0,0.414075,-0.001525,-0.018642,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Moneyline,game_ml,TB ML,,circa,-147.0,137.0,Pass,0.4147,-0.0466,win,0.6803,,,ev_floor,0.4147,0.5844,0.5674,-150.0,0.585925,0.001525,-0.015487,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Freddy Peralta Walks o1.5,1.5,draftkings,-118.0,-113.0,Pass,0.5484,-0.016,win,0.8475,,,ev_floor,0.5302,0.5168,0.5326,-113.0,0.507483,-0.009317,-0.062447,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Freddy Peralta Walks o2.5,2.5,,,,Pass,0.29,,win,0.91,,,unpriced,0.246,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Freddy Peralta Walks u1.5,1.5,bovada,-105.0,-135.0,Pass,0.4516,-0.0875,loss,-1.0,,,ev_floor,0.4698,0.4832,0.4674,-110.0,0.492517,0.009317,-0.038419,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Freddy Peralta Walks u2.5,2.5,,,,Pass,0.71,,loss,-1.0,,,unpriced,0.754,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Shawn Armstrong Walks o1.5,1.5,,,,Pass,0.1527,,loss,-1.0,,,unpriced,0.1045,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Shawn Armstrong Walks o2.5,2.5,,,,Pass,0.0,,loss,-1.0,,,unpriced,0.0158,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Shawn Armstrong Walks u1.5,1.5,,,,Pass,0.8473,,win,0.91,,,unpriced,0.8955,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_bb,Shawn Armstrong Walks u2.5,2.5,,,,Pass,1.0,,win,0.91,,,unpriced,0.9842,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Freddy Peralta ER o2.5,2.5,,,,Pass,0.35,,loss,-1.0,,,unpriced,0.35,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Freddy Peralta ER o3.5,3.5,,,,Pass,0.1988,,loss,-1.0,,,unpriced,0.1988,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Freddy Peralta ER u2.5,2.5,,,,Pass,0.65,,win,0.91,,,unpriced,0.65,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Freddy Peralta ER u3.5,3.5,,,,Pass,0.8012,,win,0.91,,,unpriced,0.8012,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Shawn Armstrong ER o2.5,2.5,,,,Pass,0.1042,,loss,-1.0,,,unpriced,0.1042,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Shawn Armstrong ER o3.5,3.5,,,,Pass,0.0379,,loss,-1.0,,,unpriced,0.0379,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Shawn Armstrong ER u2.5,2.5,,,,Pass,0.8958,,win,0.91,,,unpriced,0.8958,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_er,Shawn Armstrong ER u3.5,3.5,,,,Pass,0.9621,,win,0.91,,,unpriced,0.9621,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Freddy Peralta Hits o4.5,4.5,,,,Pass,0.516,,win,0.91,,,unpriced,0.516,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Freddy Peralta Hits o5.5,5.5,,,,Pass,0.3179,,loss,-1.0,,,unpriced,0.3179,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Freddy Peralta Hits u4.5,4.5,,,,Pass,0.484,,loss,-1.0,,,unpriced,0.484,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Freddy Peralta Hits u5.5,5.5,,,,Pass,0.6822,,win,0.91,,,unpriced,0.6822,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Shawn Armstrong Hits o4.5,4.5,,,,Pass,0.1074,,loss,-1.0,,,unpriced,0.1074,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Shawn Armstrong Hits o5.5,5.5,,,,Pass,0.0334,,loss,-1.0,,,unpriced,0.0334,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Shawn Armstrong Hits u4.5,4.5,,,,Pass,0.8926,,win,0.91,,,unpriced,0.8926,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_h,Shawn Armstrong Hits u5.5,5.5,,,,Pass,0.9666,,win,0.91,,,unpriced,0.9666,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks o4.5,4.5,draftkings,129.0,-165.0,Pass,0.2981,-0.0707,loss,-1.0,,,ev_floor,0.2616,0.4178,0.4058,128.0,0.418753,0.000953,-0.041056,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks o5.5,5.5,,,,Pass,0.1882,,loss,-1.0,,,unpriced,0.1108,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks o6.5,6.5,,,,Pass,0.112,,loss,-1.0,,,unpriced,0.0365,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks u4.5,4.5,betonlineag,-161.0,124.0,Pass,0.7019,-0.0367,win,0.6211,,,ev_floor,0.7385,0.5822,0.5942,-160.0,0.581247,-0.000953,-0.05773,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks u5.5,5.5,,,,Pass,0.8118,,win,0.91,,,unpriced,0.8892,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Freddy Peralta Ks u6.5,6.5,,,,Pass,0.888,,win,0.91,,,unpriced,0.9635,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks o4.5,4.5,,,,Pass,0.0555,,loss,-1.0,,,unpriced,0.0172,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks o5.5,5.5,,,,Pass,0.0351,,loss,-1.0,,,unpriced,0.0027,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks o6.5,6.5,,,,Pass,0.0351,,loss,-1.0,,,unpriced,0.0004,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks u4.5,4.5,,,,Pass,0.9445,,win,0.91,,,unpriced,0.9828,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks u5.5,5.5,,,,Pass,0.9649,,win,0.91,,,unpriced,0.9972,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_k,Shawn Armstrong Ks u6.5,6.5,,,,Pass,0.9649,,win,0.91,,,unpriced,0.9996,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Freddy Peralta Outs o15.5,15.5,,,,Pass,0.529,,win,0.91,,,unpriced,0.4889,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Freddy Peralta Outs o17.5,17.5,,,,Pass,0.2164,,loss,-1.0,,,unpriced,0.1764,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Freddy Peralta Outs u15.5,15.5,,,,Pass,0.471,,loss,-1.0,,,unpriced,0.5111,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Freddy Peralta Outs u17.5,17.5,,,,Pass,0.7836,,win,0.91,,,unpriced,0.8236,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Shawn Armstrong Outs o15.5,15.5,,,,Pass,0.04,,loss,-1.0,,,unpriced,0.0,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Shawn Armstrong Outs o17.5,17.5,,,,Pass,0.04,,loss,-1.0,,,unpriced,0.0,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Shawn Armstrong Outs u15.5,15.5,,,,Pass,0.96,,win,0.91,,,unpriced,1.0,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Pitcher Props,pitcher_outs,Shawn Armstrong Outs u17.5,17.5,,,,Pass,0.96,,win,0.91,,,unpriced,1.0,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Run Lines,game_rl,CLE +1.5,1.5,mybookieag,-165.0,145.0,Pass,0.6812,-0.016,loss,-1.0,-4.0,,ev_floor,0.7477,0.605,0.6127,-160.0,0.603639,-0.001361,-0.030519,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Run Lines,game_rl,CLE -1.5,-1.5,,,,Pass,0.4481,,loss,-1.0,-4.0,,unpriced,0.4481,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Run Lines,game_rl,TB +1.5,1.5,,,,Pass,0.5519,,win,0.91,4.0,,unpriced,0.5519,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Run Lines,game_rl,TB -1.5,-1.5,fanduel,150.0,-182.0,Pass,0.2523,-0.0483,win,1.5,4.0,,ev_floor,0.2523,0.395,0.3807,150.0,0.396361,0.001361,-0.009097,posted,2.21,,engine,clean
+2026-10-19,CLE @ TB,Totals,game_total,Over 10.5,10.5,,,,Pass,0.2774,,loss,-1.0,,,unpriced,0.2696,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Over 7.5,7.5,,,,Pass,0.4424,,win,0.91,,,unpriced,0.5228,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Over 8.5,8.5,,,,Pass,0.404,,win,0.91,,,unpriced,0.4417,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Over 9.5,9.5,,,,Pass,0.3136,,win,0.91,,,unpriced,0.3391,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Under 10.5,10.5,,,,Pass,0.7226,,win,0.91,,,unpriced,0.7305,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Under 7.5,7.5,,,,Pass,0.5576,,loss,-1.0,,,unpriced,0.4772,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Under 8.5,8.5,,,,Pass,0.596,,loss,-1.0,,,unpriced,0.5583,,,,,,,posted,2.21,,engine,
+2026-10-19,CLE @ TB,Totals,game_total,Under 9.5,9.5,,,,Pass,0.6864,,loss,-1.0,,,unpriced,0.6609,,,,,,,posted,2.21,,engine,
