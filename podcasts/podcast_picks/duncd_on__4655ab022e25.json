@@ -1,0 +1,31 @@
+{
+ "episode_guid": "e6535d42-49ba-4b6d-8b01-cabe2599a2c6",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "3b30808c474d7b7391847b1145fcbfc2efa2a716",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "nba",
+   "kind": "official",
+   "host": "Nate Duncan",
+   "team": "Thunder",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[16:49]",
+   "quote": "The Thunder signing Kason Wallace to a five year one hundred thirty nine million dollar extension.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "The Thunder secured Kason Wallace with a significant long-term contract.",
+   "description": "Kason Wallace 5-year extension",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "nba"
+ ]
+}

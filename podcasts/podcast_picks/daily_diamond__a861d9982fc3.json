@@ -1,0 +1,50 @@
+{
+ "episode_guid": "a3278eeb-2f8a-4c61-bbb0-6347b0f1d78c",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "a141025888b871f1d3eb126cbf4cb5fe69b6c2f4",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Jensen Lewis",
+   "team": "Milwaukee",
+   "opponent": "Tampa Bay",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[09:14]",
+   "quote": "I told the prime time guys, I think Milwaukee wins in six.",
+   "edge": "Milwaukee is perceived as the more complete team and has home-field advantage.",
+   "fair_line": null,
+   "reason": "Jensen believes Milwaukee has the edge and will win the series in six games.",
+   "description": "Milwaukee to win the World Series in six games.",
+   "why": "bad stamp"
+  },
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "Jensen Lewis",
+   "team": null,
+   "opponent": null,
+   "market": "game_total",
+   "side": "over",
+   "line": 5.5,
+   "price": -180,
+   "units": null,
+   "stamp": "[09:19]",
+   "quote": "I wouldn't mind laying the dollar 80 for the over five and a half.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "Jensen expects a high-scoring series, suggesting the total will go over.",
+   "description": "Over 5.5 total games in the World Series.",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}

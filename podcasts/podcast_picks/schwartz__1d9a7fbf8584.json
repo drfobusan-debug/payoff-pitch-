@@ -1,0 +1,61 @@
+{
+ "episode_guid": "gX5YuuO9LnBMlDl04xm1Y89h3ymbuVmz",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "2b916f42554ddfe78cfc61bc921e0ef6a24f44a5",
+ "picks": [
+  {
+   "pick_id": "bf58faee80ca",
+   "show": "schwartz",
+   "show_name": "Schwartz Football Show",
+   "host": "Mitchell Schwartz",
+   "episode_guid": "gX5YuuO9LnBMlDl04xm1Y89h3ymbuVmz",
+   "episode_title": "Chiefs Undefeated, Rams Spiraling & Chris Ballard Fired In Indy",
+   "published": "2026-10-20T16:35:51-04:00",
+   "kind": "lean",
+   "market": "other",
+   "team": "Cowboys",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1600,
+   "quote": "I think I still have to pick the Cowboys to win the division even though.",
+   "reason": "Despite their struggles, Mitchell still believes the Cowboys can win the division.",
+   "description": "Cowboys to win the division",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "566801bf1eb3",
+   "show": "schwartz",
+   "show_name": "Schwartz Football Show",
+   "host": "Geoff Schwartz",
+   "episode_guid": "gX5YuuO9LnBMlDl04xm1Y89h3ymbuVmz",
+   "episode_title": "Chiefs Undefeated, Rams Spiraling & Chris Ballard Fired In Indy",
+   "published": "2026-10-20T16:35:51-04:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Chiefs",
+   "opponent": "Seahawks",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "seconds": 1789,
+   "quote": "Chiefs look like the real deal.",
+   "reason": "Geoff is confident in the Chiefs' performance and their potential against the Seahawks.",
+   "description": "Chiefs to win against Seahawks",
+   "league": "nfl",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nfl",
+  "cfb"
+ ]
+}
