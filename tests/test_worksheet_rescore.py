@@ -50,8 +50,9 @@ def test_rescore_row_recomputes_gap_flips_the_favourite_and_regrades_from_runs()
 
 def test_rescore_row_drops_the_grade_when_a_starter_no_longer_scores() -> None:
     bats, pens, sps, hands = _tables()
-    new = rs.rescore_row(_row(home_sp="Nobody"), bats, pens, sps, hands)
-    assert new.home_sp_pts is None and not new.complete and new.result == ""
+    new = rs.rescore_row(_row(home_sp="Nobody", rl_result="home"), bats, pens, sps, hands)
+    assert new.home_sp_pts is None and not new.complete and new.result == "" and new.rl_result == ""
+    assert (new.away_runs, new.home_runs) == (2, 5)
 
 
 def test_rescore_leaves_current_rows_alone_and_rebuilds_each_stale_day_once(

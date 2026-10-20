@@ -23,6 +23,7 @@ from mlb_engine.data.opta import OptaRow, load_rows, save_rows
 from mlb_engine.output import totals_audit
 from mlb_engine.state import (
     CALIBRATION_NAME,
+    GRADED,
     PREDICTION_KEEP_DAYS,
     PREGAME_SUFFIX,
     STATE_BRANCH,
@@ -82,6 +83,24 @@ def test_pulling_a_ledger_keeps_history_and_lets_a_reaudit_win(tmp_path: Path) -
         rows = list(csv.DictReader(f))
     assert [r["date"] for r in rows] == ["2026-08-01", "2026-08-04"]
     assert [r["pnl"] for r in rows] == ["0.91", "0.72"]
+
+
+def test_a_rescore_that_cleared_a_grade_beats_the_old_tag_s_graded_row(tmp_path: Path) -> None:
+    fields = ["date", "game_pk", "result", "weights"]
+    remote, local = tmp_path / "remote.csv", tmp_path / "local.csv"
+    for path, result, weights in ((remote, "fav", "w-old"), (local, "", "w-new")):
+        with path.open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=fields)
+            w.writeheader()
+            w.writerow({"date": "2026-09-27", "game_pk": "7", "result": result, "weights": weights})
+            w.writerow({"date": "2026-09-27", "game_pk": "8", "result": result, "weights": "w-old"})
+
+    assert merge_dated_csv(remote, local, ("game_pk",), by_date=GRADED)
+
+    with local.open(newline="") as f:
+        rows = {r["game_pk"]: r for r in csv.DictReader(f)}
+    assert (rows["7"]["result"], rows["7"]["weights"]) == ("", "w-new")
+    assert (rows["8"]["result"], rows["8"]["weights"]) == ("fav", "w-old")
 
 
 def test_pulling_a_ledger_onto_an_empty_machine_takes_the_branch(tmp_path: Path) -> None:

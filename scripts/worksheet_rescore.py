@@ -62,10 +62,10 @@ def rescore_row(
     fav = r.away if gap >= 0 else r.home
     fav_ml, dog_ml = (r.away_ml, r.home_ml) if fav == r.away else (r.home_ml, r.away_ml)
     complete = a.sp is not None and h.sp is not None
-    result = r.result
+    result, rl_result = r.result, r.rl_result
     if result in ("fav", "dog", "tie"):
         if not complete:
-            result = ""
+            result = rl_result = ""
         elif r.away_runs is not None and r.home_runs is not None:
             if r.away_runs == r.home_runs:
                 result = "tie"
@@ -76,7 +76,7 @@ def rescore_row(
         r, away_bat=a.bat_vs_hand, away_bp=a.bp, away_sp_pts=a.sp,
         home_bat=h.bat_vs_hand, home_bp=h.bp, home_sp_pts=h.sp,
         away_w=a.weighted(), home_w=h.weighted(), gap=gap, fav=fav, complete=complete,
-        fav_implied=ws.implied(fav_ml, dog_ml), weights=ws.WEIGHTS_VERSION, result=result,
+        fav_implied=ws.implied(fav_ml, dog_ml), weights=ws.WEIGHTS_VERSION, result=result, rl_result=rl_result,
     )
 
 
