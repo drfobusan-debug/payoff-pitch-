@@ -45,3 +45,12 @@ def test_the_cache_round_trips_and_refuses_other_settings(tmp_path: Path) -> Non
     assert load_cache(path, SETTINGS) == rows
     assert load_cache(path, {**SETTINGS, "sims": 200}) is None
     assert load_cache(path, {**SETTINGS, "ratings": False}) is None
+
+
+def test_an_unreadable_cache_is_replayed_not_fatal(tmp_path: Path) -> None:
+    pickled = tmp_path / "rows.pkl"
+    pickled.write_bytes(b"\x80\x05\x95\xff\x00")
+    truncated = tmp_path / "rows.json"
+    truncated.write_text('{"settings": {"first": 2006')
+    assert load_cache(pickled, SETTINGS) is None
+    assert load_cache(truncated, SETTINGS) is None
