@@ -102,7 +102,7 @@ def read_feeds(
             rep.failed.append(f"VSiN email: unavailable ({exc})")
     if os.getenv("DOCS_PICKS", "1").lower() not in ("0", "false", "no"):
         try:
-            for got in read_docs(root, until, [league] if league else None):
+            for got in read_docs(root, None, [league] if league else None):
                 rep.by_league.update(p.league for p in got.picks)
         except Exception as exc:  # noqa: BLE001 - Doc's site down never stops the feeds
             rep.failed.append(f"Doc's Sports: unavailable ({exc})")

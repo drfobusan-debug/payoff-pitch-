@@ -88,6 +88,14 @@ def test_total_with_price_and_league_from_the_head() -> None:
 def test_first_half_and_started_plays_are_dropped() -> None:
     (play,) = docs.plays_in(HALF, 36)
     assert docs.parse_play(play) is None
+    now = datetime.now(timezone.utc)
+    for head, pick in (
+        ("NHL: Rangers at Devils (1P)", "Over 1.5"),
+        ("NBA: Heat at Knicks 1st Quarter", "Over 54.5"),
+    ):
+        assert docs.parse_play(docs.Play(36, "x", head, pick, now, "")) is None
+    ml = docs.parse_play(docs.Play(36, "x", "MLB: Phillies at Mets", "Phillies +140", now, ""))
+    assert ml is not None and (ml.market, ml.line, ml.price) == ("game_ml", None, 140.0)
     (spread,) = docs.plays_in(SPREAD, 36)
     assert docs.pick_of(spread, datetime(2026, 10, 24, 20, 0, tzinfo=timezone.utc)) is None
 

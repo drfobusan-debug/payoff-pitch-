@@ -68,7 +68,9 @@ _GAME = re.compile(
     r"^(?:(?P<league>[A-Z]{3,5}):\s*)?(?P<away>.+?)\s+(?:at|@|vs\.?)\s+(?P<home>.+?)$", re.I
 )
 _PARTIAL = re.compile(
-    r"\b(1H|2H|1st half|first half|2nd half|second half|1Q|team total|parlay|teaser)\b", re.I
+    r"\b(?:[12]H|[1-4]Q|[1-3]P|F5|(?:1st|2nd|3rd|4th|first|second|third|fourth)\s+"
+    r"(?:half|quarter|period|inning|five|5)|team total|parlay|teaser|prop)\b",
+    re.I,
 )
 _TOTAL = re.compile(
     r"^(?P<side>over|under)\s+(?P<num>\d+(?:\.5)?)\s*(?:\(?(?P<price>[+-]\d{3,4})\)?)?$", re.I
@@ -194,6 +196,8 @@ def parse_play(play: Play) -> Parsed | None:
         tok = ats.group("num").upper()
         line = 0.0 if tok.startswith(("PK", "PICK")) else float(tok)
         price = float(ats.group("price")) if ats.group("price") else None
+        if abs(line) >= 100 and price is None:  # "Phillies +140" is a moneyline price, not a spread
+            return Parsed("game_ml", team, other(team), None, None, line, pick)
         return Parsed("game_ats", team, other(team), None, line, price, pick)
     return None
 
@@ -249,12 +253,17 @@ def extraction_path(root: Path, pick: Pick) -> Path:
 
 def read_docs(
     root: Path,
-    read_at: datetime,
+    read_at: datetime | None = None,
     leagues: Iterable[str] | None = None,
     *,
     pages: dict[int, str] | None = None,
 ) -> list[Extraction]:
-    """Store each capper's current free play; the same play read again is one file."""
+    """Store each capper's current free play; the same play read again is one file.
+
+    ``read_at`` is the moment the page was read (now); a play whose game has
+    started by then is not filed, whatever window the pass covers.
+    """
+    read_at = read_at or datetime.now(timezone.utc)
     wanted = set(leagues) if leagues is not None else None
     kept: list[Extraction] = []
     for cap_id in CAPPERS:
