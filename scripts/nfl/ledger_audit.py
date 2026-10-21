@@ -29,7 +29,7 @@ import statistics as st
 from collections import defaultdict
 from collections.abc import Callable
 
-from nfl_engine.audit.graduation import MIN_N, graduation_lines
+from nfl_engine.audit.graduation import CLOSE_WINDOW, MIN_N, graduation_lines, has_true_close
 from nfl_engine.audit.ledger import ENGINE, LOSS, PUSH, WIN, LedgerEntry, grade, load_ledger
 from nfl_engine.audit.tracked import tracked_lines
 from nfl_engine.cli import _final_scores, current_week, ledger_path, report_lines
@@ -56,7 +56,7 @@ def record_line(label: str, entries: list[LedgerEntry]) -> str:
     units = sum(e.pnl for e in entries)
     roi = units / n if n else 0.0
     se = st.pstdev([e.pnl for e in entries]) / math.sqrt(n) if n > 1 else float("nan")
-    clv = [e.clv for e in entries if e.clv is not None]
+    clv = [e.clv for e in entries if e.clv is not None and has_true_close(e)]
     drift = [e.drift for e in entries if e.drift is not None]
     return (
         f"  {label:<34} n {n:>5}  {wins}-{losses}-{pushes}  units {units:+7.2f}"
@@ -168,6 +168,21 @@ def screen_lines(leans: list[LedgerEntry]) -> list[str]:
     return out
 
 
+def close_coverage_lines(entries: list[LedgerEntry]) -> list[str]:
+    """How many graded rows carry a close seen within the window, per week."""
+    minutes = int(CLOSE_WINDOW.total_seconds() // 60)
+    out = [f"  CLV counts only closes captured within {minutes} min of kickoff; coverage by week:"]
+    for season, week in sorted({(e.season, e.week) for e in entries}):
+        rows = [e for e in entries if (e.season, e.week) == (season, week)]
+        timely = sum(has_true_close(e) for e in rows)
+        stamped = sum(e.clv is not None for e in rows)
+        out.append(
+            f"    {season} wk{week}: {timely} of {len(rows)} rows have a timely close"
+            f" ({stamped} stamped at any age)"
+        )
+    return out
+
+
 def is_underdog(entry: LedgerEntry) -> bool:
     if entry.market == "spread":
         return entry.line is not None and entry.line > 0
@@ -227,7 +242,8 @@ def report(entries: list[LedgerEntry], filled: int) -> list[str]:
         "3) What each screen refused, graded on the model leans it blocked",
         *screen_lines(leans),
     ]
-    out += ["", "4) CLV / drift on the leans", record_line("all leans", leans)]
+    out += ["", "4) CLV / drift on the leans", *close_coverage_lines(graded)]
+    out.append(record_line("all leans", leans))
     out += [record_line(f"leans {m}", [e for e in leans if e.market == m]) for m in MARKETS]
     out += ["", "5) Underdog vs favourite leans (ML: fair < .5; spread: getting points)"]
     out += underdog_lines(leans)

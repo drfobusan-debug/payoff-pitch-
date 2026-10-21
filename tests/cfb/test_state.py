@@ -7,6 +7,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from cfb_engine.audit import snapshot
 from cfb_engine.audit.snapshot import SideQuote
 from cfb_engine.state import (
@@ -17,6 +19,11 @@ from cfb_engine.state import (
     pull_state,
     push_state,
 )
+
+
+@pytest.fixture(autouse=True)
+def _scratch_dirs_may_push(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("CFBE_STATE_PUSH", "1")
 
 
 def _snap(path: Path, quotes: dict[str, tuple[float, float]]) -> None:

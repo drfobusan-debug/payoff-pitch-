@@ -29,6 +29,7 @@ import fcntl
 import gzip
 import json
 import logging
+import os
 import re
 import shutil
 import subprocess
@@ -167,6 +168,23 @@ def _commit(state: Path, message: str) -> None:
             "user.email=engine@payoffpitch.local",
         ]
     _git([*ident, "commit", "-m", message], state)
+
+
+def push_refusal(data_dir: Path, production: Path, env_prefix: str) -> str | None:
+    """Why this machine must not push: only the production data dir is the authority.
+
+    A scratch data dir (tests, VM audits, replays) holds partial or fixture
+    files; pushing them overwrites the Mac's record on the branch.
+    ``<PREFIX>_STATE_SYNC=0`` refuses; ``<PREFIX>_STATE_PUSH=1`` overrides for a
+    deliberate migration.
+    """
+    if os.getenv(f"{env_prefix}_STATE_SYNC", "1").lower() in ("0", "false", "no"):
+        return f"{env_prefix}_STATE_SYNC=0"
+    if os.getenv(f"{env_prefix}_STATE_PUSH", "").lower() in ("1", "true", "yes"):
+        return None
+    if Path(data_dir).expanduser().resolve() != Path(production).expanduser().resolve():
+        return f"{data_dir} is not the production data dir {production}"
+    return None
 
 
 def repo_root(start: Path | None = None) -> Path:
