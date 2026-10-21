@@ -34,6 +34,7 @@ from mlb_engine.state import (
     _worktree,
     _write_rows,
     merge_dated_csv,
+    push_refusal,
     repo_root,
 )
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
@@ -99,6 +100,10 @@ def _props_dir(data_dir: Path) -> Path:
     return data_dir / PROPS_DIR
 
 
+def production_data_dir() -> Path:
+    return Path.home() / ".nfl_engine"
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -124,6 +129,9 @@ def push_state(
     branch: str = STATE_BRANCH,
 ) -> SyncReport:
     """Publish this machine's prop files, re-merging if the branch moved underneath."""
+    refusal = push_refusal(data_dir, production_data_dir(), "NFLE")
+    if refusal:
+        raise RuntimeError(f"state push refused: {refusal}")
     repo = repo or repo_root()
     local = _props_dir(data_dir)
     for attempt in range(_PUSH_ATTEMPTS):
@@ -178,6 +186,7 @@ __all__ = [
     "auto_pull",
     "auto_push",
     "merge_prop_files",
+    "production_data_dir",
     "pull_state",
     "push_state",
 ]

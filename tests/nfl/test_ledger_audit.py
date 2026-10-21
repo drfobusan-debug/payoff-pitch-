@@ -117,3 +117,16 @@ def test_the_audit_grades_the_tracked_rules_on_the_leans(ledger, capsys) -> None
     assert "7) Graded-only rules" in out
     line = next(x for x in out.splitlines() if "spread_dog_gap_2_4" in x)
     assert "WATCHING" in line and "1-0" in line
+
+
+def test_clv_counts_only_closes_seen_near_kickoff(ledger, capsys) -> None:
+    stale = row(clv=0.05, close_captured_at="2026-09-10T12:00:00Z")
+    timely = row(
+        matchup="DAL @ PHI", side="PHI", clv=-0.02, close_captured_at="2026-09-13T16:30:00Z"
+    )
+    save_ledger(ledger, [stale, timely])
+    ledger_audit.main(["--season", "2026"])
+    text = capsys.readouterr().out
+    assert "2026 wk1: 1 of 2 rows have a timely close (2 stamped at any age)" in text
+    lean = next(line for line in text.splitlines() if line.strip().startswith("all leans"))
+    assert "CLV -0.0200 (n 1)" in lean

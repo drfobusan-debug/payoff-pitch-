@@ -1,6 +1,13 @@
 from pathlib import Path
 
+import pytest
+
 from nba_engine import state
+
+
+@pytest.fixture(autouse=True)
+def _scratch_dirs_may_push(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NBAE_STATE_PUSH", "1")
 
 
 def test_copy_missing_is_a_set_union(tmp_path):

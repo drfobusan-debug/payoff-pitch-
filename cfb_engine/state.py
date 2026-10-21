@@ -28,6 +28,7 @@ from mlb_engine.state import (
     _git_ok,
     _worktree,
     merge_dated_csv,
+    push_refusal,
     repo_root,
 )
 
@@ -140,6 +141,10 @@ def _pull_predictions(state: Path, audit: Path, dates: tuple[str, ...] | None) -
     return moved
 
 
+def production_data_dir() -> Path:
+    return Path.home() / ".cfb_engine"
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -200,6 +205,9 @@ def push_state(
     branch: str = STATE_BRANCH,
 ) -> SyncReport:
     """Publish this machine's state, re-merging if the branch moved underneath."""
+    refusal = push_refusal(data_dir, production_data_dir(), "CFBE")
+    if refusal:
+        raise RuntimeError(f"state push refused: {refusal}")
     repo = repo or repo_root()
     audit = _audit_dir(data_dir)
     for attempt in range(_PUSH_ATTEMPTS):
@@ -283,6 +291,7 @@ __all__ = [
     "merge_board_files",
     "merge_closing_files",
     "merge_jsonl_files",
+    "production_data_dir",
     "pull_state",
     "push_state",
 ]

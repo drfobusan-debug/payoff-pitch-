@@ -15,7 +15,16 @@ import logging
 import shutil
 from pathlib import Path
 
-from mlb_engine.state import STATE_BRANCH, SyncReport, _commit, _git, _git_ok, _worktree, repo_root
+from mlb_engine.state import (
+    STATE_BRANCH,
+    SyncReport,
+    _commit,
+    _git,
+    _git_ok,
+    _worktree,
+    push_refusal,
+    repo_root,
+)
 from nba_engine.config import preseason
 
 PREFIX = "nba"
@@ -57,6 +66,10 @@ def prefix() -> str:
     return PRESEASON_PREFIX if preseason() else PREFIX
 
 
+def production_data_dir() -> Path:
+    return Path.home() / ".nba_engine"
+
+
 def pull_state(
     data_dir: Path,
     repo: Path | None = None,
@@ -75,6 +88,9 @@ def push_state(
     trees: tuple[str, ...] = LIVE,
 ) -> SyncReport:
     repo = repo or repo_root()
+    refusal = push_refusal(data_dir, production_data_dir(), "NBAE")
+    if refusal:
+        raise RuntimeError(f"state push refused: {refusal}")
     for attempt in range(_PUSH_ATTEMPTS):
         state = _worktree(repo, branch)
         if attempt:
@@ -125,6 +141,7 @@ __all__ = [
     "auto_pull",
     "auto_push",
     "prefix",
+    "production_data_dir",
     "pull_state",
     "push_state",
 ]

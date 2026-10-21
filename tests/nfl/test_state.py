@@ -6,9 +6,16 @@ import csv
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from nfl_engine.props import FIELDS as RESEARCH_FIELDS
 from nfl_engine.props_grade import GRADED_FIELDS
 from nfl_engine.state import PREFIX, PROP_KEY, merge_prop_files, pull_state, push_state
+
+
+@pytest.fixture(autouse=True)
+def _scratch_dirs_may_push(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NFLE_STATE_PUSH", "1")
 
 
 def _research_row(player: str, captured_at: str = "2026-09-10T18:00:00Z") -> dict[str, str]:
@@ -166,3 +173,17 @@ def test_push_with_no_prop_files_is_a_no_op(tmp_path: Path):
     repo = _repo_pair(tmp_path)
     report = push_state(tmp_path / "empty", "nothing", repo=repo, branch="engine-state")
     assert report.pushed == ()
+
+
+def test_only_the_production_data_dir_may_push(tmp_path: Path, monkeypatch) -> None:
+    from nfl_engine import state
+
+    monkeypatch.delenv("NFLE_STATE_SYNC", raising=False)
+    monkeypatch.delenv("NFLE_STATE_PUSH", raising=False)
+    with pytest.raises(RuntimeError, match="refused"):
+        state.push_state(tmp_path, "nfl audit test")
+    assert state.auto_push(tmp_path, "nfl audit test") is None
+    monkeypatch.setattr(state, "production_data_dir", lambda: tmp_path)
+    monkeypatch.setenv("NFLE_STATE_SYNC", "0")
+    with pytest.raises(RuntimeError, match="NFLE_STATE_SYNC=0"):
+        state.push_state(tmp_path, "nfl audit test")
