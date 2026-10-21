@@ -1,0 +1,50 @@
+{
+ "episode_guid": "a4db537f-84b6-4301-b14d-fe7a3f6c762a",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "9cde5dc37cd6deb28788df0f6278e881afe82f14",
+ "picks": [],
+ "rejected": [
+  {
+   "league": "mlb",
+   "kind": "lean",
+   "host": "Dave Ross",
+   "team": "Rays",
+   "opponent": "Brewers",
+   "market": "game_ml",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[05:32]",
+   "quote": "I'm not telling everyone to blindly bet the raise on the money line in game one, but it is going to be something I will be very keyed on.",
+   "edge": "the Brewers have a long layoff and may need time to get back to game speed",
+   "fair_line": null,
+   "reason": "The Brewers' long layoff could impact their performance early in the series.",
+   "description": "Rays money line in Game 1",
+   "why": "bad stamp"
+  },
+  {
+   "league": "mlb",
+   "kind": "official",
+   "host": "Dave Ross",
+   "team": "Brewers",
+   "opponent": null,
+   "market": "other",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": null,
+   "stamp": "[05:56]",
+   "quote": "I played the Brewers before the postseason started at about plus seven eighty to win it all.",
+   "edge": "",
+   "fair_line": null,
+   "reason": "Dave has confidence in the Brewers based on their performance leading up to the World Series.",
+   "description": "Brewers to win the World Series at +780",
+   "why": "bad stamp"
+  }
+ ],
+ "leagues": [
+  "mlb"
+ ]
+}
