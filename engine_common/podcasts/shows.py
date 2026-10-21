@@ -19,6 +19,8 @@ VSIN_PRO_SHOW = "vsin_pro"  # VSiN Pro handicappers' picks, read off the "picks 
 VSIN_PRO_NAME = "VSiN Pro Picks"
 CIRCA_SHOW = "circa_fi"  # Circa Football Invitational contestants, same email
 CIRCA_NAME = "Circa Football Invitational"
+DOCS_SHOW = "docs_free"  # Doc's Sports handicappers' free plays, read off their capper pages
+DOCS_NAME = "Doc's Sports free plays"
 VSIN_SHOWS = frozenset({VSIN_SHOW, VSIN_PRO_SHOW})
 LEAGUES: tuple[str, ...] = (CFB, NFL, MLB, NBA, CBB, NHL)
 LEAGUE_NAME = {
@@ -309,6 +311,8 @@ __all__ = [
     "VSIN_SHOWS",
     "CIRCA_SHOW",
     "CIRCA_NAME",
+    "DOCS_NAME",
+    "DOCS_SHOW",
     "Show",
     "for_league",
 ]

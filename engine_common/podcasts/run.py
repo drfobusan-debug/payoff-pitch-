@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+from engine_common.podcasts.docs import read_docs
 from engine_common.podcasts.episodes import Episode, ensure_transcript, fetch_episodes
 from engine_common.podcasts.extract import extract
 from engine_common.podcasts.shows import SHOWS, Show
@@ -99,6 +100,12 @@ def read_feeds(
                 rep.by_league.update(p.league for p in got.picks)
         except Exception as exc:  # noqa: BLE001 - the mailbox down never stops the feeds
             rep.failed.append(f"VSiN email: unavailable ({exc})")
+    if os.getenv("DOCS_PICKS", "1").lower() not in ("0", "false", "no"):
+        try:
+            for got in read_docs(root, until, [league] if league else None):
+                rep.by_league.update(p.league for p in got.picks)
+        except Exception as exc:  # noqa: BLE001 - Doc's site down never stops the feeds
+            rep.failed.append(f"Doc's Sports: unavailable ({exc})")
     if log:
         print(rep.summary(since))
         for m in rep.missing[:20]:
