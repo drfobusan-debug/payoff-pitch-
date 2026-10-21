@@ -1,0 +1,1171 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,draftkings,230,-285,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,draftkings,-285,230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,draftkings,108,-142,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,draftkings,-142,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,4.5,draftkings,-155,117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,4.5,draftkings,117,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,draftkings,-148,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,draftkings,112,-148,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,draftkings,-146,111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,draftkings,111,-146,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,draftkings,-116,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,draftkings,-114,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,draftkings,-156,118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,draftkings,118,-156,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,draftkings,118,-156,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,draftkings,-156,118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Reed Sheppard,2.5,draftkings,124,-163,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Reed Sheppard,2.5,draftkings,-163,124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,1.5,draftkings,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,1.5,draftkings,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,1.5,draftkings,-152,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,1.5,draftkings,115,-152,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Jabari Smith Jr,1.5,draftkings,-117,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Jabari Smith Jr,1.5,draftkings,-112,-117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Zaccharie Risacher,1.5,draftkings,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Zaccharie Risacher,1.5,draftkings,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,draftkings,-123,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,draftkings,-103,-123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,draftkings,-124,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,21.5,draftkings,-103,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,draftkings,-120,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,draftkings,-107,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,draftkings,-110,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,draftkings,-116,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,draftkings,-114,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,draftkings,-112,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,13.5,draftkings,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,13.5,draftkings,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,13.5,draftkings,-106,-121,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,13.5,draftkings,-121,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,draftkings,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,draftkings,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,draftkings,-115,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,draftkings,-111,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,10.5,draftkings,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,10.5,draftkings,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,draftkings,-117,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,draftkings,-109,-117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,draftkings,-112,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,draftkings,-114,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,draftkings,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,draftkings,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,draftkings,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,draftkings,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,33.5,draftkings,-124,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,33.5,draftkings,-106,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,33.5,draftkings,-118,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,33.5,draftkings,-112,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,33.5,draftkings,-113,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,33.5,draftkings,-116,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,30.5,draftkings,-112,-117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,30.5,draftkings,-117,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,28.5,draftkings,-122,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,28.5,draftkings,-108,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,22.5,draftkings,-123,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,22.5,draftkings,-107,-123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,21.5,draftkings,-106,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,21.5,draftkings,-124,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,draftkings,-121,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,draftkings,-109,-121,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,18.5,draftkings,-123,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,18.5,draftkings,-107,-123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,15.5,draftkings,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,15.5,draftkings,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,14.5,draftkings,-109,-121,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,14.5,draftkings,-121,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,12.5,draftkings,-116,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,12.5,draftkings,-113,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,8.5,draftkings,-131,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,8.5,draftkings,100,-131,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,draftkings,-117,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,draftkings,-112,-117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,draftkings,-130,-101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,draftkings,-101,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,draftkings,-103,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,draftkings,-128,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,5.5,draftkings,-133,101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,5.5,draftkings,101,-133,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,draftkings,-130,-101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,draftkings,-101,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,draftkings,112,-148,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,draftkings,-148,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,4.5,draftkings,-152,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,4.5,draftkings,115,-152,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,draftkings,-135,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,draftkings,102,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,draftkings,-111,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,draftkings,-118,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,3.5,draftkings,111,-146,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,3.5,draftkings,-146,111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,2.5,draftkings,-162,123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,2.5,draftkings,123,-162,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,2.5,draftkings,-154,117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,2.5,draftkings,117,-154,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,draftkings,108,-142,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,draftkings,-142,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,draftkings,109,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,draftkings,-143,109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,draftkings,139,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,draftkings,-185,139,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,draftkings,-176,133,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,draftkings,133,-176,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,draftkings,-171,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,draftkings,130,-171,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Reed Sheppard,1.5,draftkings,-127,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Reed Sheppard,1.5,draftkings,-104,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,draftkings,121,-159,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,draftkings,-159,121,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,draftkings,158,-211,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,draftkings,-211,158,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,draftkings,168,-224,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,draftkings,-224,168,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,0.5,draftkings,-231,173,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,0.5,draftkings,173,-231,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Naji Marshall,0.5,draftkings,-150,114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Naji Marshall,0.5,draftkings,114,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,draftkings,-105,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,draftkings,-115,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,draftkings,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,draftkings,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,bovada,235,-285,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,bovada,-285,235,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,5.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,5.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,3.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,3.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,5.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,5.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,4.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,4.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,5.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,5.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,5.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,5.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Jabari Smith Jr,1.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Jabari Smith Jr,1.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,4.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,4.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,5.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,5.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,1.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,1.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,2.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,2.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,2.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,2.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,1.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,1.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,2.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,2.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Reed Sheppard,1.5,bovada,-220,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Reed Sheppard,1.5,bovada,165,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Reed Sheppard,2.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Reed Sheppard,2.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Zaccharie Risacher,1.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Zaccharie Risacher,1.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,16.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,16.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,17.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,17.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,18.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,18.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,20.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,20.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,21.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,21.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,22.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,22.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,23.5,bovada,210,-290,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,23.5,bovada,-290,210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,14.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,14.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,15.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,15.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,16.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,16.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,18.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,18.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,19.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,19.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,20.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,20.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,21.5,bovada,210,-290,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,21.5,bovada,-290,210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,18.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,18.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,19.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,19.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,20.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,20.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,21.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,22.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,22.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,23.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,23.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,24.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,24.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,25.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,25.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,7.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,7.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,8.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,8.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,10.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,10.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,11.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,11.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,12.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,12.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,10.5,bovada,-275,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,10.5,bovada,200,-275,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,11.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,11.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,12.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,12.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,13.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,13.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,14.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,14.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,15.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,15.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,16.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,16.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,10.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,10.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,11.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,11.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,12.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,12.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,13.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,13.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,14.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,14.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,15.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,15.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,16.5,bovada,200,-275,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,16.5,bovada,-275,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,20.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,20.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,21.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,21.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,22.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,22.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,24.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,24.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,25.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,25.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,26.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,26.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,27.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,27.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,28.5,bovada,210,-290,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,28.5,bovada,-290,210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,16.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,16.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,17.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,17.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,18.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,18.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,20.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,20.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,21.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,21.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,22.5,bovada,160,-215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,22.5,bovada,-215,160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,23.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,23.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,7.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,7.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,8.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,8.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,9.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,9.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,10.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,10.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,11.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,11.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,12.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,12.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,9.5,bovada,-220,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,9.5,bovada,165,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,10.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,10.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,12.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,12.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,13.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,13.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,14.5,bovada,185,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,14.5,bovada,-250,185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,10.5,bovada,-220,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,10.5,bovada,165,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,11.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,11.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,13.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,13.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,14.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,14.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,15.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,15.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,6.5,bovada,-215,160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,6.5,bovada,160,-215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,7.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,7.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,9.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,9.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,10.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,10.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,6.5,bovada,-300,215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,6.5,bovada,215,-300,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,7.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,7.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,8.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,8.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,10.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,10.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,11.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,11.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,7.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,7.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,8.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,8.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,10.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,10.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,11.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,11.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,12.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,12.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,31.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,31.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,32.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,32.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,33.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,33.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,34.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,34.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,35.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,35.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,27.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,27.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,28.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,28.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,29.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,29.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,30.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,30.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,31.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,31.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,31.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,31.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,32.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,32.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,33.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,33.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,34.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,34.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,35.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,35.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,20.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,20.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,21.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,21.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,22.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,22.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,23.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,23.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,24.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,24.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,18.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,18.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,19.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,19.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,20.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,20.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,21.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,21.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,22.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,22.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,31.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,31.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,32.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,32.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,33.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,33.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,34.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,34.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,35.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,35.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,26.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,26.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,27.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,27.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,28.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,28.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,29.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,29.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,30.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,30.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,12.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,12.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,13.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,13.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,14.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,14.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,15.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,15.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,16.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,16.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,16.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,16.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,17.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,17.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,18.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,18.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,19.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,19.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,20.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,20.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,18.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,18.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,19.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,19.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,21.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,21.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,22.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,22.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,10.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,10.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,11.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,11.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,12.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,12.5,bovada,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,13.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,13.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,14.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,14.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,11.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,11.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,12.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,12.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,13.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,13.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,14.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,14.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,15.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,15.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,7.5,bovada,-220,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,7.5,bovada,165,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,8.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,8.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,9.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,9.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,10.5,bovada,200,-275,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,10.5,bovada,-275,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,6.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,6.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,8.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,8.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,5.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,5.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,7.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,7.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,5.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,5.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,7.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,7.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,2.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,2.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,3.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,3.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,4.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,4.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,6.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,6.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,4.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,4.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,6.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,6.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,2.5,bovada,-275,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,2.5,bovada,200,-275,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,bovada,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,bovada,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,4.5,bovada,180,-245,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,4.5,bovada,-245,180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,2.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,2.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,3.5,bovada,145,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,3.5,bovada,-190,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,bovada,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,bovada,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,4.5,bovada,150,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,4.5,bovada,-200,150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,4.5,bovada,-260,190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,4.5,bovada,190,-260,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,5.5,bovada,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,5.5,bovada,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,6.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,6.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,4.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,4.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,5.5,bovada,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,5.5,bovada,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,2.5,bovada,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,2.5,bovada,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,3.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,3.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,0.5,bovada,-300,215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,0.5,bovada,215,-300,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,bovada,160,-215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,bovada,-215,160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,1.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,1.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,bovada,-180,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,bovada,135,-180,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,2.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,2.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,1.5,bovada,-220,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,1.5,bovada,165,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,bovada,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,bovada,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,1.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,1.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,bovada,110,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,bovada,-145,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,bovada,-170,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,bovada,130,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,2.5,bovada,175,-240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,2.5,bovada,-240,175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Naji Marshall,0.5,bovada,-150,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Naji Marshall,0.5,bovada,115,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,bovada,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,bovada,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Reed Sheppard,1.5,bovada,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Reed Sheppard,1.5,bovada,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,0.5,bovada,-275,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,0.5,bovada,200,-275,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,0.5,bovada,-230,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,0.5,bovada,170,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,1.5,bovada,205,-280,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,1.5,bovada,-280,205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,bovada,-105,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,bovada,-115,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118,bovada,-115,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118,bovada,-105,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,betmgm,200,-250,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,betmgm,-250,200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,betmgm,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,betmgm,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,4.5,betmgm,-155,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,4.5,betmgm,115,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,betmgm,-130,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,betmgm,-105,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,betmgm,-155,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,betmgm,115,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Jabari Smith Jr,1.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Jabari Smith Jr,1.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,1.5,betmgm,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,1.5,betmgm,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,1.5,betmgm,-135,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,1.5,betmgm,100,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,betmgm,115,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,betmgm,-155,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,betmgm,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,betmgm,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Tari Eason,0.5,betmgm,-165,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Tari Eason,0.5,betmgm,125,-165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Zaccharie Risacher,1.5,betmgm,135,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Zaccharie Risacher,1.5,betmgm,-185,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,12.5,betmgm,-135,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,12.5,betmgm,100,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,betmgm,-130,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,betmgm,-105,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,20.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,20.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,12.5,betmgm,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,12.5,betmgm,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,10.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,10.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,betmgm,-120,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,betmgm,-111,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,betmgm,-115,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,betmgm,-135,,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,12.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,12.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,betmgm,-120,,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,betmgm,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,betmgm,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,betmgm,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,betmgm,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,6.5,betmgm,140,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,6.5,betmgm,-190,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,3.5,betmgm,120,-160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,3.5,betmgm,-160,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,7.5,betmgm,135,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,7.5,betmgm,-185,135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,9.5,betmgm,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,9.5,betmgm,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,betmgm,-140,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,betmgm,105,-140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,5.5,betmgm,105,-140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,5.5,betmgm,-140,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,3.5,betmgm,115,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,3.5,betmgm,-155,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,betmgm,-190,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,betmgm,140,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,betmgm,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,betmgm,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,betmgm,105,-140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,betmgm,-140,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,betmgm,145,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,betmgm,-200,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,betmgm,130,-175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,betmgm,-175,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,2.5,betmgm,160,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,2.5,betmgm,-220,160,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,betmgm,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,betmgm,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Naji Marshall,0.5,betmgm,-140,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Naji Marshall,0.5,betmgm,105,-140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,betmgm,145,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,betmgm,-200,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,1.5,betmgm,155,-210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,1.5,betmgm,-210,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,betmgm,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,betmgm,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,betmgm,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,betmgm,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,williamhill_us,-145,109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,williamhill_us,109,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,williamhill_us,-143,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,williamhill_us,108,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,williamhill_us,122,-175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,williamhill_us,-175,122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,williamhill_us,-159,119,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,williamhill_us,119,-159,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,williamhill_us,110,-148,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,williamhill_us,-148,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,williamhill_us,-118,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,williamhill_us,-113,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,4.5,williamhill_us,-162,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,4.5,williamhill_us,120,-162,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,williamhill_us,-124,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,williamhill_us,-108,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,williamhill_us,-120,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,williamhill_us,-112,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,williamhill_us,-113,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,williamhill_us,-118,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,williamhill_us,-112,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,williamhill_us,-120,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,9.5,williamhill_us,-137,103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,9.5,williamhill_us,103,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,williamhill_us,-125,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,williamhill_us,-107,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,williamhill_us,-127,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,21.5,williamhill_us,-107,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,williamhill_us,-129,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,williamhill_us,-104,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,12.5,williamhill_us,-137,103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,12.5,williamhill_us,103,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,13.5,williamhill_us,-108,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,13.5,williamhill_us,-122,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,williamhill_us,-110,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,williamhill_us,-122,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,williamhill_us,-112,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,williamhill_us,-120,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,williamhill_us,-108,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,williamhill_us,-124,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,williamhill_us,-127,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,williamhill_us,-105,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,williamhill_us,-137,103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,williamhill_us,103,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,williamhill_us,-108,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,williamhill_us,-124,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,williamhill_us,-130,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,williamhill_us,-103,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,3.5,williamhill_us,116,-154,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,3.5,williamhill_us,-154,116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,5.5,williamhill_us,108,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,5.5,williamhill_us,-143,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,9.5,williamhill_us,101,-134,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,9.5,williamhill_us,-134,101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,williamhill_us,-129,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,williamhill_us,-105,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,williamhill_us,-106,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,williamhill_us,-127,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,5.5,williamhill_us,-129,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,5.5,williamhill_us,-104,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,williamhill_us,104,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,williamhill_us,-137,104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,williamhill_us,-130,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,williamhill_us,-104,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,williamhill_us,-173,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,williamhill_us,130,-173,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Reed Sheppard,1.5,williamhill_us,-120,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Reed Sheppard,1.5,williamhill_us,-112,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,williamhill_us,124,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,williamhill_us,-170,124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,williamhill_us,113,-152,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,williamhill_us,-152,113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,williamhill_us,109,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,williamhill_us,-145,109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,williamhill_us,-173,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,williamhill_us,130,-173,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,williamhill_us,165,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,williamhill_us,-230,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,williamhill_us,146,-197,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,williamhill_us,-197,146,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,williamhill_us,159,-218,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,williamhill_us,-218,159,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,betonlineag,222,-270,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,betonlineag,-270,222,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,betonlineag,-116,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,betonlineag,-111,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,betonlineag,-141,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,betonlineag,108,-141,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,betonlineag,-164,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,betonlineag,125,-164,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,5.5,betonlineag,124,-161,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,5.5,betonlineag,-161,124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,betonlineag,-141,109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,betonlineag,109,-141,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Reed Sheppard,2.5,betonlineag,140,-185,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Reed Sheppard,2.5,betonlineag,-185,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,betonlineag,128,-167,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,betonlineag,-167,128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,1.5,betonlineag,-143,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,1.5,betonlineag,110,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Zaccharie Risacher,1.5,betonlineag,147,-192,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Zaccharie Risacher,1.5,betonlineag,-192,147,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Jabari Smith Jr,1.5,betonlineag,-119,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Jabari Smith Jr,1.5,betonlineag,-109,-119,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,1.5,betonlineag,-164,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,1.5,betonlineag,125,-164,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,betonlineag,115,-149,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,betonlineag,-149,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,betonlineag,-115,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,betonlineag,-112,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,betonlineag,-120,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,21.5,betonlineag,-108,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,betonlineag,-118,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,betonlineag,-110,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,betonlineag,-122,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,betonlineag,-106,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,betonlineag,-115,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,betonlineag,-112,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,betonlineag,-108,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,betonlineag,-120,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,10.5,betonlineag,-103,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,10.5,betonlineag,-125,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,betonlineag,-116,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,betonlineag,-111,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,betonlineag,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,betonlineag,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,13.5,betonlineag,-108,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,13.5,betonlineag,-120,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,betonlineag,-118,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,betonlineag,-110,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,13.5,betonlineag,-103,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,13.5,betonlineag,-125,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,betonlineag,-111,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,betonlineag,-116,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,betonlineag,-105,-123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,betonlineag,-123,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,28.5,betonlineag,-112,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,28.5,betonlineag,-115,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,33.5,betonlineag,-109,-119,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,33.5,betonlineag,-119,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,33.5,betonlineag,-116,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,33.5,betonlineag,-111,-116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,33.5,betonlineag,-110,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,33.5,betonlineag,-118,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,29.5,betonlineag,-112,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,29.5,betonlineag,-115,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,22.5,betonlineag,-118,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,22.5,betonlineag,-110,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,betonlineag,-115,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,betonlineag,-112,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,19.5,betonlineag,-108,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,19.5,betonlineag,-120,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,15.5,betonlineag,-108,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,15.5,betonlineag,-120,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,20.5,betonlineag,-118,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,20.5,betonlineag,-110,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,14.5,betonlineag,-114,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,14.5,betonlineag,-114,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,12.5,betonlineag,-114,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,12.5,betonlineag,-114,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,9.5,betonlineag,106,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,9.5,betonlineag,-137,106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,betonlineag,-103,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,betonlineag,-125,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,betonlineag,107,-139,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,betonlineag,-139,107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,betonlineag,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,betonlineag,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,betonlineag,-125,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,betonlineag,-103,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,betonlineag,-130,101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,betonlineag,101,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,betonlineag,-130,101,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,betonlineag,101,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,3.5,betonlineag,128,-167,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,3.5,betonlineag,-167,128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,5.5,betonlineag,113,-147,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,5.5,betonlineag,-147,113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Reed Sheppard,1.5,betonlineag,-145,111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Reed Sheppard,1.5,betonlineag,111,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,betonlineag,-133,103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,betonlineag,103,-133,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Zaccharie Risacher,3.5,betonlineag,112,-145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Zaccharie Risacher,3.5,betonlineag,-145,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,5.5,betonlineag,-123,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,5.5,betonlineag,-105,-123,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,2.5,betonlineag,-135,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,2.5,betonlineag,105,-135,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,betonlineag,115,-149,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,betonlineag,-149,115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,betonlineag,144,-189,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,betonlineag,-189,144,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,betonlineag,155,-204,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,betonlineag,-204,155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Alperen Sengun,0.5,betonlineag,130,-169,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Alperen Sengun,0.5,betonlineag,-169,130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Amen Thompson,0.5,betonlineag,182,-244,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Amen Thompson,0.5,betonlineag,-244,182,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,betonlineag,113,-147,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,betonlineag,-147,113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,betonlineag,-172,133,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,betonlineag,133,-172,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,betonlineag,124,-161,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,betonlineag,-161,124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,betonlineag,-167,128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,betonlineag,128,-167,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Reed Sheppard,1.5,betonlineag,-119,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Reed Sheppard,1.5,betonlineag,-109,-119,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,betonlineag,164,-217,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,betonlineag,-217,164,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Naji Marshall,0.5,betonlineag,-143,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Naji Marshall,0.5,betonlineag,110,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,0.5,betonlineag,-238,179,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,0.5,betonlineag,179,-238,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,betonlineag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,betonlineag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,betonlineag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,betonlineag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,betrivers,240,-345,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,betrivers,-345,240,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,betrivers,-159,118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,betrivers,118,-159,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,betrivers,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,betrivers,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Reed Sheppard,2.5,betrivers,138,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Reed Sheppard,2.5,betrivers,-190,138,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,5.5,betrivers,-136,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,5.5,betrivers,100,-136,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,4.5,betrivers,-155,114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,4.5,betrivers,114,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Max Christie,1.5,betrivers,-167,120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Max Christie,1.5,betrivers,120,-167,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,P.J. Washington,1.5,betrivers,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,P.J. Washington,1.5,betrivers,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,betrivers,-157,114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,betrivers,114,-157,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,betrivers,-129,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,betrivers,-106,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,betrivers,-125,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,betrivers,-109,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,betrivers,-109,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,betrivers,-125,-109,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,17.5,betrivers,-122,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,17.5,betrivers,-112,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,betrivers,-118,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,betrivers,-115,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,12.5,betrivers,-124,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,12.5,betrivers,-110,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,betrivers,-110,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,betrivers,-124,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,13.5,betrivers,-103,-134,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,13.5,betrivers,-134,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,betrivers,-107,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,betrivers,-127,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,10.5,betrivers,-113,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,10.5,betrivers,-120,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,21.5,betrivers,-120,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,21.5,betrivers,-114,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,betrivers,-120,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,betrivers,-114,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,betrivers,-124,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,betrivers,-110,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,24.5,betrivers,-105,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,24.5,betrivers,-130,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,19.5,betrivers,102,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,19.5,betrivers,-137,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,betrivers,-108,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,betrivers,-125,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,19.5,betrivers,-105,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,19.5,betrivers,-129,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,27.5,betrivers,-121,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,27.5,betrivers,-113,-121,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,16.5,betrivers,106,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,16.5,betrivers,-143,106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,33.5,betrivers,-114,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,33.5,betrivers,-118,-114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,betrivers,-118,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,betrivers,-115,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,30.5,betrivers,-122,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,30.5,betrivers,-112,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,34.5,betrivers,110,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,34.5,betrivers,-150,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,22.5,betrivers,-112,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,22.5,betrivers,-122,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,33.5,betrivers,-115,-117,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,33.5,betrivers,-117,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,betrivers,-137,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,betrivers,100,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Naji Marshall,3.5,betrivers,-134,-103,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Naji Marshall,3.5,betrivers,-103,-134,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,betrivers,-110,-124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,betrivers,-124,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,betrivers,-115,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,betrivers,-118,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,betrivers,-106,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,betrivers,-129,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,3.5,betrivers,133,-182,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,3.5,betrivers,-182,133,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,8.5,betrivers,112,-152,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,8.5,betrivers,-152,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,3.5,betrivers,125,-175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,3.5,betrivers,-175,125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,betrivers,104,-141,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,betrivers,-141,104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,6.5,betrivers,110,-152,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,6.5,betrivers,-152,110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,8.5,betrivers,-139,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,8.5,betrivers,102,-139,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,betrivers,-175,128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,betrivers,128,-175,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,betrivers,170,-235,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,betrivers,-235,170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Alperen Sengun,0.5,betrivers,-105,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Alperen Sengun,0.5,betrivers,-130,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,betrivers,165,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,betrivers,-230,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Zaccharie Risacher,1.5,betrivers,165,-230,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Zaccharie Risacher,1.5,betrivers,-230,165,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Naji Marshall,0.5,betrivers,-155,114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Naji Marshall,0.5,betrivers,114,-155,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,betrivers,105,-143,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,betrivers,-143,105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,betrivers,-177,128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,betrivers,128,-177,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,betrivers,102,-137,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,betrivers,-137,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,betrivers,145,-200,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,betrivers,-200,145,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,betrivers,138,-190,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,betrivers,-190,138,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Reed Sheppard,1.5,betrivers,-127,-107,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Reed Sheppard,1.5,betrivers,-107,-127,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,6.5,betrivers,-122,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-6.5,betrivers,-112,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,119.5,betrivers,-106,-129,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,119.5,betrivers,-129,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,fanduel,210,-265,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,fanduel,-265,210,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Fred VanVleet,6.5,fanduel,112,-142,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Fred VanVleet,6.5,fanduel,-142,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Amen Thompson,4.5,fanduel,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Amen Thompson,4.5,fanduel,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kevin Durant,3.5,fanduel,-158,124,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kevin Durant,3.5,fanduel,124,-158,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,fanduel,-148,116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,fanduel,116,-148,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Alperen Sengun,4.5,fanduel,-146,114,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Alperen Sengun,4.5,fanduel,114,-146,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Cooper Flagg,5.5,fanduel,126,-162,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Cooper Flagg,5.5,fanduel,-162,126,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Naji Marshall,3.5,fanduel,126,-162,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Naji Marshall,3.5,fanduel,-162,126,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,fanduel,-132,104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,fanduel,104,-132,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Amen Thompson,16.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Amen Thompson,16.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Jabari Smith Jr,12.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Jabari Smith Jr,12.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Fred VanVleet,12.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Fred VanVleet,12.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Max Christie,9.5,fanduel,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Max Christie,9.5,fanduel,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kevin Durant,23.5,fanduel,-122,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kevin Durant,23.5,fanduel,-104,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Cooper Flagg,22.5,fanduel,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Cooper Flagg,22.5,fanduel,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Kyrie Irving,19.5,fanduel,-115,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Kyrie Irving,19.5,fanduel,-111,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Alperen Sengun,18.5,fanduel,-130,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Alperen Sengun,18.5,fanduel,102,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,P.J. Washington,12.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,P.J. Washington,12.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Zaccharie Risacher,9.5,fanduel,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Zaccharie Risacher,9.5,fanduel,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Reed Sheppard,8.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Reed Sheppard,8.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Tari Eason,9.5,fanduel,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Tari Eason,9.5,fanduel,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Naji Marshall,11.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Naji Marshall,11.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Amen Thompson,29.5,fanduel,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Amen Thompson,29.5,fanduel,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Fred VanVleet,22.5,fanduel,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Fred VanVleet,22.5,fanduel,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Reed Sheppard,12.5,fanduel,-122,-104,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Reed Sheppard,12.5,fanduel,-104,-122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kevin Durant,33.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kevin Durant,33.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Kyrie Irving,28.5,fanduel,-106,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Kyrie Irving,28.5,fanduel,-120,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Alperen Sengun,33.5,fanduel,-111,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Alperen Sengun,33.5,fanduel,-115,-111,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Cooper Flagg,34.5,fanduel,-106,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Cooper Flagg,34.5,fanduel,-120,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Naji Marshall,19.5,fanduel,-106,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Naji Marshall,19.5,fanduel,-120,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Zaccharie Risacher,14.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Zaccharie Risacher,14.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,fanduel,-108,-118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,fanduel,-118,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Jabari Smith Jr,20.5,fanduel,-120,-106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Jabari Smith Jr,20.5,fanduel,-106,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,Max Christie,14.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,Max Christie,14.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Amen Thompson,7.5,fanduel,-128,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Amen Thompson,7.5,fanduel,100,-128,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Fred VanVleet,3.5,fanduel,126,-162,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Fred VanVleet,3.5,fanduel,-162,126,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Jabari Smith Jr,5.5,fanduel,-138,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Jabari Smith Jr,5.5,fanduel,108,-138,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,fanduel,-138,108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,fanduel,108,-138,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kevin Durant,5.5,fanduel,102,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kevin Durant,5.5,fanduel,-130,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Alperen Sengun,9.5,fanduel,102,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Alperen Sengun,9.5,fanduel,-130,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Kyrie Irving,3.5,fanduel,102,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Kyrie Irving,3.5,fanduel,-130,102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Cooper Flagg,6.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Cooper Flagg,6.5,fanduel,-113,-113,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Max Christie,2.5,fanduel,-136,106,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Max Christie,2.5,fanduel,106,-136,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,P.J. Washington,5.5,fanduel,-125,-102,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,P.J. Washington,5.5,fanduel,-102,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Tari Eason,5.5,fanduel,112,-142,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Tari Eason,5.5,fanduel,-142,112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Fred VanVleet,2.5,fanduel,118,-150,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Fred VanVleet,2.5,fanduel,-150,118,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Jabari Smith Jr,1.5,fanduel,-170,132,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Jabari Smith Jr,1.5,fanduel,132,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,fanduel,168,-220,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,fanduel,-220,168,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kevin Durant,2.5,fanduel,158,-205,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kevin Durant,2.5,fanduel,-205,158,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Kyrie Irving,2.5,fanduel,116,-148,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Kyrie Irving,2.5,fanduel,-148,116,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Max Christie,1.5,fanduel,-156,122,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Max Christie,1.5,fanduel,122,-156,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,P.J. Washington,1.5,fanduel,132,-170,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,P.J. Washington,1.5,fanduel,-170,132,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Tari Eason,1.5,fanduel,164,-215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Tari Eason,1.5,fanduel,-215,164,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,fanduel,-108,-112,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,fanduel,-112,-108,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,fanduel,-115,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,fanduel,-105,-115,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,mybookieag,224,-285,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,mybookieag,-285,224,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,mybookieag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,mybookieag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,mybookieag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,mybookieag,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,fanatics,215,-300,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,fanatics,-300,215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,over,Kyrie Irving,4.5,fanatics,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_ast,under,Kyrie Irving,4.5,fanatics,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,over,Daniel Gafford,9.5,fanatics,-125,-105,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pts,under,Daniel Gafford,9.5,fanatics,-105,-125,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,over,P.J. Washington,20.5,fanatics,-110,-120,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_pra,under,P.J. Washington,20.5,fanatics,-120,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,over,Daniel Gafford,6.5,fanatics,-130,100,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_reb,under,Daniel Gafford,6.5,fanatics,100,-130,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,over,Cooper Flagg,1.5,fanatics,140,-225,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,pl_3pm,under,Cooper Flagg,1.5,fanatics,-225,140,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,DAL,,,betus,215,-270,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ml,HOU,,,betus,-270,215,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,DAL,,5.5,betus,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_ats,HOU,,-5.5,betus,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,over,,118.5,betus,-110,-110,oddsapi
+2026-10-21T23:25:08Z,2026-10-21,DAL @ HOU,af2f084075391e55ba2a596e7846bb40,h1_total,under,,118.5,betus,-110,-110,oddsapi
