@@ -50,7 +50,7 @@ from engine_common.podcasts.episodes import store_dir
 from engine_common.podcasts.run import read_feeds
 from engine_common.podcasts.shows import NBA
 from nba_engine import alarm, podcast, state
-from nba_engine.audit import ledger, scorecard
+from nba_engine.audit import ledger, schedule_bands, scorecard
 from nba_engine.config import cache_dir, data_dir, load_config, output_dir
 from nba_engine.data import boxes, capture, espn_injuries, history, injuries, pbp
 from nba_engine.data.capture import ALL_MARKETS, EVENT_MARKETS, GAME_MARKETS
@@ -310,6 +310,9 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print("\n[calibration: consensus fair]")
     for label, n, p, hit in scorecard.calibration(rows, lambda r: r.fair):
         print(f"{label:10} n={n:6} fair {100 * p:5.1f}% hit {100 * hit:5.1f}%")
+    print()
+    sched = schedule_bands.schedule_from(root, rows)
+    print("\n".join(schedule_bands.lines(schedule_bands.read_bands(rows, sched))))
     return 0
 
 
