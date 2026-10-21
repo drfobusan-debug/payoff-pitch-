@@ -12,8 +12,10 @@ gated or tiered by them.
   4 days -> Under the total (rebuilt 26-10).
 
 Rest is counted from the schedule the engine already archives (ESPN finals
-under ``results/``) plus the slate's own games, so a team's first game of the
-season has no rest figure and never qualifies.
+under ``results/``) plus the slates' own graded games, so a team's first game
+of the season has no rest figure and never qualifies. ``results/`` is written
+by grading on the production Mac and is not state-synced; on a machine without
+it, unknown rest keeps a game out of a band rather than guessing.
 """
 
 from __future__ import annotations
@@ -29,7 +31,7 @@ from engine_common.bands import CALL_SE, MIN_N, BandRead
 from nba_engine.audit.ledger import LedgerRow
 from nba_engine.data.boxes import read_results
 
-LOOKBACK = timedelta(days=10)  # the longest window any band asks about
+LOOKBACK = timedelta(days=30)  # covers any rest gap a band asks about, All-Star break included
 
 
 @dataclass
@@ -67,6 +69,8 @@ def schedule_from(data_dir: Path, rows: Iterable[LedgerRow]) -> Schedule:
                 sched.add(g.game_date, g.away, g.home)
         day += timedelta(days=1)
     for r in rows:
+        if not r.graded:  # a postponed or voided game was not played
+            continue
         away, _, home = r.matchup.partition(" @ ")
         sched.add(Date.fromisoformat(r.slate_date), away, home)
     return sched

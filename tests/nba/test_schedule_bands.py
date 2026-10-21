@@ -66,8 +66,10 @@ def test_rest_and_home_windows_from_archived_finals(tmp_path: Path) -> None:
         [_final(d - schedule_bands.timedelta(days=5), "MIA", "LAL")],
     )
     rows = [_row("2026-11-10", "BOS @ LAL", "game_ats", "LAL", -3.5, 0.5, "win")]
+    rows.append(_row("2026-11-10", "NYK @ CHI", "game_ats", "CHI", -2.5, 0.5, "void"))
     sched = schedule_bands.schedule_from(tmp_path, rows)
     assert sched.rest("BOS", d) == 1 and sched.rest("LAL", d) == 1
+    assert sched.rest("CHI", d) is None and d not in sched.home_days.get("CHI", set())
     assert sched.nth_home_in("LAL", d, 4) == 2  # 11-08 and today
     assert sched.rest("MIA", d) == 4 and sched.rest("NYK", d) is None
 
