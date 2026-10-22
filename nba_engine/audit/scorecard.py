@@ -4,8 +4,9 @@ Scope is every graded row priced at an execution book. PPV and NPV are scored
 against the base rate of that scope, not against zero (MLB #105): a 52% hit
 rate is no skill on a market whose two sides each win half the time. A gate's
 row reads its refusals as bets, so its win rate and ROI are the false negatives
-it cost. CLV uses only rows with a real pre-tip close at the book; pulled and
-moved rows report ``pre_pull_clv`` in its own columns. Intervals bootstrap
+it cost. CLV uses only rows with a real pre-tip close at the book taken within
+``STALE_CLOSE_MIN`` of tip (an older close is counted in ``clv_stale``); pulled
+and moved rows report ``pre_pull_clv`` in its own columns. Intervals bootstrap
 whole games, since one game's rows are not independent draws.
 """
 
@@ -17,7 +18,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
 from engine_common.odds import american_to_prob
-from nba_engine.audit.ledger import CLOSE, MOVED, PULLED, LedgerRow
+from nba_engine.audit.ledger import CLOSE, MOVED, PULLED, LedgerRow, timely_close
 from nba_engine.audit.settle import ABSENT, LOSS, PUSH, VOID, WIN
 from nba_engine.data.oddsapi import parse_utc
 
@@ -45,6 +46,7 @@ class Metrics:
     roi_lo: float
     roi_hi: float
     clv_n: int
+    clv_stale: int  # exact closes older than STALE_CLOSE_MIN, or untimed: left out of CLV
     mean_clv: float
     clv_beat_pct: float
     mean_clv_ev: float
@@ -115,7 +117,8 @@ def metrics(
     base = _safe(tp + fn, len(decided))
     ppv, npv = _safe(tp, tp + fp), _safe(tn, tn + fn)
     roi_lo, roi_hi = clustered_ci(staked, lambda r: r.pnl, draws=draws)
-    closed = [r for r in staked if r.close_status == CLOSE and r.clv is not None]
+    exact = [r for r in staked if r.close_status == CLOSE and r.clv is not None]
+    closed = [r for r in exact if timely_close(r)]
     with_ev = [r for r in closed if r.clv_ev is not None]
     ev_lo, ev_hi = clustered_ci(with_ev, lambda r: r.clv_ev, draws=draws)
     pre = [r.pre_pull_clv for r in staked if r.pre_pull_clv is not None]
@@ -142,6 +145,7 @@ def metrics(
         roi_lo=roi_lo,
         roi_hi=roi_hi,
         clv_n=len(closed),
+        clv_stale=len(exact) - len(closed),
         mean_clv=_mean([r.clv for r in closed if r.clv is not None]),
         clv_beat_pct=_safe(sum(1 for r in closed if (r.clv or 0.0) > 0), len(closed)),
         mean_clv_ev=_mean([r.clv_ev for r in with_ev if r.clv_ev is not None]),
@@ -247,6 +251,7 @@ class Integrity:
     voids_by_reason: dict[str, int]
     no_exec_book: int
     no_close: int
+    stale_close: int  # exact closes older than STALE_CLOSE_MIN before tip, or untimed
     pulled: int
     moved: int
     paper: int
@@ -281,6 +286,7 @@ def integrity(rows: Iterable[LedgerRow]) -> Integrity:
         voids_by_reason=dict(Counter(r.void_reason for r in rows if r.outcome == VOID)),
         no_exec_book=len(rows) - len(priced),
         no_close=sum(1 for r in priced if not r.close_status),
+        stale_close=sum(1 for r in priced if r.close_status == CLOSE and not timely_close(r)),
         pulled=sum(1 for r in rows if r.close_status == PULLED),
         moved=sum(1 for r in rows if r.close_status == MOVED),
         paper=sum(1 for r in rows if r.mode == "paper"),

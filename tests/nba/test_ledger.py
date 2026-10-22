@@ -1,5 +1,5 @@
 from dataclasses import asdict, replace
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 
@@ -21,7 +21,7 @@ from nba_engine.data import boxes, capture
 from nba_engine.data.capture import QuoteRow
 from nba_engine.market import overbias, params
 from nba_engine.market.board import novig, selections
-from nba_engine.schemas import GameResult, PlayerLine
+from nba_engine.schemas import Game, GameResult, PlayerLine, Slate
 
 DAY = "2025-12-10"
 M = "SAS @ LAL"
@@ -339,6 +339,7 @@ def test_tables_split_by_book_and_exec_books_and_clv_kinds():
             book="draftkings",
             n=1,
             close_status="close",
+            close_captured_at="2025-12-11T02:50:00Z",
             clv=0.02,
             clv_ev=0.01,
         ),
@@ -420,3 +421,91 @@ def test_news_pending_games_are_refused_but_recorded():
     sas = by(rows, "game_ml", "SAS")
     assert sas.gates == "news_pending" and not sas.is_buy
     assert len(rows) == 6
+
+
+def test_clv_counts_only_closes_within_45_min_of_tip():
+    timely = row(WIN, buy=True, event="a", close_status="close", clv=0.02)
+    timely.close_captured_at = "2025-12-11T02:20:00Z"  # 40 min before tip
+    stale = row(LOSS, buy=True, event="b", close_status="close", clv=-0.05)
+    stale.close_captured_at = "2025-12-11T01:30:00Z"  # 90 min before tip
+    untimed = row(LOSS, buy=True, event="c", close_status="close", clv=0.0)
+    m = scorecard.metrics([timely, stale, untimed], lambda r: r.is_buy, "buys", draws=20)
+    assert (m.clv_n, m.clv_stale, m.mean_clv) == (1, 2, 0.02)
+    assert scorecard.integrity([timely, stale, untimed]).stale_close == 2
+
+
+class FakeOdds:
+    def __init__(self, games):
+        self.games, self.calls = games, []
+
+    def fetch_events(self, *, slate_date, horizon_hours=30):
+        slate = Slate(slate_date=slate_date)
+        slate.games.extend(self.games)
+        return slate
+
+    def fetch_event_markets(self, games, *, markets, captured_at, max_events):
+        self.calls.append((games[0].event_id, captured_at))
+        return [r for r in board(at=captured_at) if r.event_id == games[0].event_id]
+
+
+def clock(*stamps):
+    it = iter(stamps)
+    last = [None]
+
+    def now():
+        last[0] = next(it, last[0])
+        return last[0]
+
+    return now
+
+
+def utc(raw):
+    return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+
+
+def test_close_fires_on_the_ledger_tip_when_the_board_moves_it_later(root):
+    day = date(2025, 12, 10)
+    capture.write_snapshot(board(), root, day, label="events", captured_at="2025-12-11T02:00:00Z")
+    cli._record_pass(root, day, TIPS, "main", "2025-12-11T02:00:00Z")  # priced at a 03:00 tip
+    moved = Game(day, "LAL", "SAS", "2025-12-11T03:20:00Z", "ev1")  # the board now says 03:20
+    odds = FakeOdds([moved])
+    at = utc("2025-12-11T02:51:00Z")
+    assert cli._capture_closes(odds, root, day, clock=clock(at, at)) != []
+    assert odds.calls == [("ev1", "2025-12-11T02:51:00Z")]
+    assert cli._capture_closes(odds, root, day, clock=clock(at, at)) == []  # once per game
+
+
+def test_close_that_comes_back_after_tip_is_not_written(root):
+    day = date(2025, 12, 10)
+    odds = FakeOdds([Game(day, "LAL", "SAS", TIP, "ev1")])
+    late = cli._capture_closes(
+        odds, root, day, clock=clock(utc("2025-12-11T02:59:50Z"), utc("2025-12-11T03:00:01Z"))
+    )
+    assert late == [] and capture.snapshot_paths(root, day) == []
+
+
+def test_afternoon_game_gets_its_own_pass_once_and_evening_games_wait(root):
+    day = date(2025, 12, 10)
+    afternoon = Game(day, "LAL", "SAS", "2025-12-10T20:00:00Z", "ev1")  # 15:00 ET
+    evening = Game(day, "BOS", "NYK", "2025-12-11T00:30:00Z", "ev2")  # 19:30 ET
+    odds = FakeOdds([afternoon, evening])
+    at = utc("2025-12-10T18:45:00Z")  # 75 min before the afternoon tip
+    written = cli._early_pass(odds, root, day, [afternoon, evening], clock=clock(at))
+    assert [c[0] for c in odds.calls] == ["ev1"]
+    assert any(n.startswith("early-ev1") for n in written)
+    rows = ledger.passes(root, day)
+    assert rows and {r.event_id for r in rows} == {"ev1"}
+    assert {r.pass_tag for r in rows} == {"early-1345"}
+    assert cli._early_pass(odds, root, day, [afternoon, evening], clock=clock(at)) == []
+    assert len(odds.calls) == 1
+
+
+def test_afternoon_pass_waits_until_inside_the_window(root):
+    day = date(2025, 12, 10)
+    afternoon = Game(day, "LAL", "SAS", "2025-12-10T20:00:00Z", "ev1")
+    odds = FakeOdds([afternoon])
+    assert (
+        cli._early_pass(odds, root, day, [afternoon], clock=clock(utc("2025-12-10T17:00:00Z")))
+        == []
+    )
+    assert odds.calls == []

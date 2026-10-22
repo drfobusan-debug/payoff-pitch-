@@ -49,6 +49,7 @@ NEWS_PENDING = "news_pending"
 NO_EXEC_BOOK = "no_exec_book"
 NO_FAIR = "no_fair"
 CLOSE, MOVED, PULLED = "close", "moved", "pulled"
+STALE_CLOSE_MIN = 45.0  # a close older than this before tip is not a close
 
 PosKey = tuple[str, str, str, str, float | None]  # (event_id, market, side, entity, line)
 QuoteKey = tuple[str, str, str, str, float | None, str]  # PosKey + book
@@ -317,6 +318,20 @@ def _stamp_close(
         g.pre_pull_clv = round(nv(last.american, last.opposite_american) - taken, 6)
 
 
+def close_lead_min(r: LedgerRow) -> float | None:
+    """Minutes from the close's capture to tip; None when either is unknown."""
+    tip, seen = parse_utc(r.tip_utc), parse_utc(r.close_captured_at)
+    if tip is None or seen is None:
+        return None
+    return (tip - seen).total_seconds() / 60.0
+
+
+def timely_close(r: LedgerRow) -> bool:
+    """An exact close taken within STALE_CLOSE_MIN of tip: the only kind CLV counts."""
+    lead = close_lead_min(r)
+    return r.close_status == CLOSE and lead is not None and lead <= STALE_CLOSE_MIN
+
+
 # -- persistence ------------------------------------------------------------
 def ledger_dir(data_dir: Path, day: Date) -> Path:
     return data_dir / "ledger" / day.isoformat()
@@ -444,7 +459,9 @@ __all__ = [
     "PAPER",
     "PASS",
     "PULLED",
+    "STALE_CLOSE_MIN",
     "LedgerRow",
+    "close_lead_min",
     "grade",
     "graded_path",
     "graded_rows",
@@ -458,5 +475,6 @@ __all__ = [
     "price",
     "quote_index",
     "save",
+    "timely_close",
     "write_once",
 ]

@@ -7,7 +7,8 @@
 * ``watch`` -- one tick of the news alarm (``alarm.py``): compare the board and
   both injury feeds with the last look, re-capture any game that moved, record
   the alert, take any close now due, then fast-poll every alerted game until
-  its line settles. Scheduled every five minutes.
+  its line settles. A game tipping before the first card pass (17:15 ET) gets
+  its own ledger pass ~90 min before tip. Scheduled every five minutes.
 * ``history`` -- pull genuine historical quotes for whole seasons at chosen
   anchors before tip, within a credit budget, resumably.
 * ``coverage`` -- what the historical archive holds per season and anchor.
@@ -64,7 +65,7 @@ from nba_engine.output import context
 from nba_engine.output.card import SlateCard, build_card, render_html, render_pdf, render_text
 from nba_engine.output.email import EmailNotConfigured, send_package
 from nba_engine.output.excel import build_workbook
-from nba_engine.schemas import GameResult
+from nba_engine.schemas import Game, GameResult
 
 log = logging.getLogger("nba_engine")
 
@@ -94,28 +95,110 @@ def _client(cache_ttl: int = 0) -> OddsAPIClient | None:
     return client
 
 
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _stamp(at: datetime) -> str:
+    return at.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _ledger_tips(root: Path, day: Date) -> dict[str, str]:
+    """The earliest tip each game was priced against: the tip the grader cuts closes at."""
+    out: dict[str, str] = {}
+    for r in ledger.passes(root, day):
+        if r.tip_utc and (r.event_id not in out or r.tip_utc < out[r.event_id]):
+            out[r.event_id] = r.tip_utc
+    return out
+
+
+def _earliest(*raw: str) -> datetime | None:
+    tips = [t for t in (parse_utc(x) for x in raw if x) if t is not None]
+    return min(tips) if tips else None
+
+
 def _close_label(event_id: str) -> str:
     return f"close-{event_id[:12]}"
 
 
-def _capture_closes(client: OddsAPIClient, root: Path, slate_date: Date, taken: str) -> list[str]:
-    """Every market for games tipping within the close window, once per game."""
+def _capture_closes(
+    client: OddsAPIClient, root: Path, slate_date: Date, *, clock=_utcnow
+) -> list[str]:
+    """Every market for games tipping within the close window, once per game.
+
+    The window runs to the earlier of the board's tip now and the tip the ledger
+    priced the game at (the Odds API moves tip times), and the snapshot carries
+    the time of its own fetch. A close that comes back at or after that tip is
+    not written: the grader would drop it.
+    """
     cfg = load_config()
     slate = client.fetch_events(slate_date=slate_date, horizon_hours=cfg.capture.horizon_hours)
-    now = datetime.now(timezone.utc)
     window = timedelta(minutes=cfg.capture.close_window_min)
     held = {p.name.split("_")[0] for p in capture.snapshot_paths(root, slate_date)}
+    priced = _ledger_tips(root, slate_date)
     written: list[str] = []
     for game in slate.games:
-        tip = parse_utc(game.start_utc)
+        tip = _earliest(game.start_utc, priced.get(game.event_id, ""))
+        now = clock()
         if tip is None or not now < tip <= now + window or _close_label(game.event_id) in held:
             continue
+        taken = _stamp(now)
         rows = client.fetch_event_markets(
             [game], markets=ALL_MARKETS, captured_at=taken, max_events=1
         )
+        if clock() >= tip:
+            print(f"{slate_date}: {game.matchup} close came back after tip; not written")
+            continue
         path = capture.write_snapshot(
             rows, root, slate_date, label=_close_label(game.event_id), captured_at=taken
         )
+        if path is not None:
+            written.append(path.name)
+    return written
+
+
+def _early_label(event_id: str) -> str:
+    return f"early-{event_id[:12]}"
+
+
+def _early_pass(
+    client: OddsAPIClient, root: Path, day: Date, games: list[Game], *, clock=_utcnow
+) -> list[str]:
+    """Price games tipping before the first card pass, once each, near tip.
+
+    The card pass prices only games that have not tipped, so an afternoon tip
+    would never reach the ledger. Each such game inside ``early_pass_min`` of
+    tip gets its first-half and prop markets re-captured and its own ledger pass.
+    """
+    cfg = load_config().capture
+    hour, minute = (int(x) for x in cfg.early_pass_before.split(":"))
+    now = clock()
+    window = timedelta(minutes=cfg.early_pass_min)
+    priced = _ledger_tips(root, day)
+    held = {p.name.split("_")[0] for p in capture.snapshot_paths(root, day)}
+    due: list[Game] = []
+    for g in games:
+        tip = parse_utc(g.start_utc)
+        if tip is None or g.event_id in priced or _early_label(g.event_id) in held:
+            continue
+        local = tip.astimezone(SLATE_TZ)
+        if (local.hour, local.minute) < (hour, minute) and now < tip <= now + window:
+            due.append(g)
+    written: list[str] = []
+    for g in due:
+        taken = _stamp(clock())
+        rows = client.fetch_event_markets(
+            [g], markets=EVENT_MARKETS, captured_at=taken, max_events=1
+        )
+        path = capture.write_snapshot(
+            rows, root, day, label=_early_label(g.event_id), captured_at=taken
+        )
+        if path is not None:
+            written.append(path.name)
+    if due:
+        at = clock()
+        tag = f"early-{at.astimezone(SLATE_TZ):%H%M}"
+        path = _record_pass(root, day, {g.event_id: g.start_utc for g in due}, tag, _stamp(at))
         if path is not None:
             written.append(path.name)
     return written
@@ -134,7 +217,7 @@ def cmd_capture(args: argparse.Namespace) -> int:
     taken = capture.now_utc()
     written: list[str] = []
     if args.close:
-        written.extend(_capture_closes(client, root, slate_date, taken))
+        written.extend(_capture_closes(client, root, slate_date))
         if not written:
             print(f"{slate_date}: no game tips in the close window without a close")
     else:
@@ -536,7 +619,8 @@ def cmd_watch(args: argparse.Namespace) -> int:
     path = alarm.write_alerts(live, root, day, taken)
     if path is not None:
         written.append(path.name)
-    written += _capture_closes(client, root, day, taken)
+    written += _capture_closes(client, root, day)
+    written += _early_pass(client, root, day, games)
 
     future = {
         eid
@@ -583,7 +667,7 @@ def cmd_watch(args: argparse.Namespace) -> int:
         f"{day}: {len(live)} alert(s), {len(written)} file(s) written; "
         f"credits remaining {client.credits_remaining}"
     )
-    if sync and (live or any(n.startswith("close-") for n in written)):
+    if sync and (live or any(n.startswith(("close-", "early-", "priced_")) for n in written)):
         state.auto_push(root, f"nba watch {day} {taken}")
     return 0
 

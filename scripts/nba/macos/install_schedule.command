@@ -3,7 +3,9 @@
 # Mac's local clock; the defaults assume Eastern time.
 #   * com.payoffpitch.nba.watch   -> every 5 min, 11:00-23:55: the news alarm
 #     (featured board 3 credits, ESPN injury feed and official report free;
-#     ~8 credits per re-captured game) and the T-5 close per game.
+#     ~8 credits per re-captured game), the T-10 close per game, and a ledger
+#     pass ~90 min before tip for any game tipping before the 17:15 card
+#     (~8 credits a game; NBAE_EARLY_PASS_BEFORE / NBAE_EARLY_PASS_MIN).
 #   * com.payoffpitch.nba.capture -> at NBA_EVENT_HOURS:NBA_EVENT_MINUTE (default
 #     11 17 20 at :05, just after the 11 AM, 5 PM and 8 PM injury reports): the
 #     full first-half and props pass, ~8 credits a game.
