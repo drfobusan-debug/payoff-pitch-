@@ -380,10 +380,13 @@ class GateParams:
     live_markets: tuple[str, ...] = ("game_ml", "game_pl", "game_total")
     # Game markets price off ``p_bet = (1 - w) x p_sim + w x consensus``; edge,
     # EV, tier and every gate read p_bet, the ledger keeps p_sim as model_prob.
-    # Not fitted on NHL (21 graded games); the MLB engine's fitted cap (0.90)
-    # until the NHL ledger can refit it. At 0.90 a buy needs the sim 20 points
-    # off the market to clear min_edge.
+    # ``market_anchor`` is the sides' weight: the preregistered close test
+    # (2023-25, 2,335 games) put the ML slope at -0.10 (se 0.18), so the sim
+    # earns no weight there and 0.90 stands. Totals came out at slope +0.40
+    # (se 0.22), so by the rule written before the pull their anchor is
+    # 1 - slope = 0.60, on probation: buys at it are graded as their own cut.
     market_anchor: float = field(default_factory=lambda: _env_float("NHLE_MARKET_ANCHOR", 0.90))
+    total_anchor: float = field(default_factory=lambda: _env_float("NHLE_TOTAL_ANCHOR", 0.60))
     anchored_markets: tuple[str, ...] = (
         "game_ml",
         "game_ml3",
@@ -392,6 +395,9 @@ class GateParams:
         "game_total",
         "game_total_alt",
     )
+
+    def anchor_for(self, market: str) -> float:
+        return self.total_anchor if market.startswith("game_total") else self.market_anchor
 
 
 @dataclass(frozen=True)

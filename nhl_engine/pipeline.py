@@ -428,11 +428,11 @@ def price_game(
         if sel.market in cfg.gates.anchored_markets:
             sim_prob = model.win
             sim_model = model
-            model = anchor(model, sel.consensus, cfg.gates.market_anchor)
+            weight = cfg.gates.anchor_for(sel.market)
+            model = anchor(model, sel.consensus, weight)
             cal_reasons = [
                 *cal_reasons,
-                f"anchored {cfg.gates.market_anchor:.2f} to market: sim {sim_prob:.3f}"
-                f" -> bet {model.win:.3f}",
+                f"anchored {weight:.2f} to market: sim {sim_prob:.3f} -> bet {model.win:.3f}",
             ]
         priced = stamp(
             sel,
