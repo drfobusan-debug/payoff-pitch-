@@ -1,0 +1,1304 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,draftkings,-135,114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,draftkings,114,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,draftkings,-146,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,draftkings,110,-146,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,5.5,draftkings,-138,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,5.5,draftkings,105,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,draftkings,-131,-101,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,draftkings,-101,-131,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,draftkings,-107,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,draftkings,-123,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,draftkings,113,-149,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,draftkings,-149,113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,draftkings,115,-152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,draftkings,-152,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,2.5,draftkings,-173,131,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,2.5,draftkings,131,-173,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Derik Queen,2.5,draftkings,-116,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Derik Queen,2.5,draftkings,-113,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,2.5,draftkings,114,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,2.5,draftkings,-150,114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,draftkings,124,-163,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,draftkings,-163,124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,draftkings,134,-178,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,draftkings,-178,134,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Bennedict Mathurin,1.5,draftkings,-128,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Bennedict Mathurin,1.5,draftkings,-103,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,draftkings,-121,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,draftkings,-105,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,draftkings,-109,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,draftkings,-117,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,draftkings,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,draftkings,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,19.5,draftkings,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,19.5,draftkings,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,draftkings,-121,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,draftkings,-106,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,draftkings,-105,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,draftkings,-121,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,14.5,draftkings,100,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,14.5,draftkings,-128,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,12.5,draftkings,-119,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,12.5,draftkings,-107,-119,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,draftkings,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,draftkings,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,draftkings,-110,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,draftkings,-116,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,draftkings,100,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,draftkings,-127,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,10.5,draftkings,-106,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,10.5,draftkings,-120,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,8.5,draftkings,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,8.5,draftkings,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,draftkings,-114,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,draftkings,-111,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,draftkings,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,draftkings,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,draftkings,-117,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,draftkings,-109,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,32.5,draftkings,-109,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,32.5,draftkings,-121,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,draftkings,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,draftkings,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,29.5,draftkings,-119,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,29.5,draftkings,-110,-119,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,29.5,draftkings,-108,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,29.5,draftkings,-122,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,28.5,draftkings,-118,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,28.5,draftkings,-111,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,26.5,draftkings,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,26.5,draftkings,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,23.5,draftkings,-105,-126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,23.5,draftkings,-126,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,19.5,draftkings,-104,-126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,19.5,draftkings,-126,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,17.5,draftkings,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,17.5,draftkings,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,16.5,draftkings,-127,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,16.5,draftkings,-104,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,15.5,draftkings,-122,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,15.5,draftkings,-108,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,15.5,draftkings,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,15.5,draftkings,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,12.5,draftkings,-116,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,12.5,draftkings,-114,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,draftkings,-107,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,draftkings,-122,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,draftkings,106,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,draftkings,-140,106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,6.5,draftkings,115,-152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,6.5,draftkings,-152,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,draftkings,-108,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,draftkings,-122,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,draftkings,-105,-126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,draftkings,-126,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,draftkings,100,-131,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,draftkings,-131,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,draftkings,107,-141,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,draftkings,-141,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,draftkings,-105,-126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,draftkings,-126,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,draftkings,120,-159,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,draftkings,-159,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,4.5,draftkings,121,-159,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,4.5,draftkings,-159,121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,draftkings,-129,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,draftkings,-102,-129,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,draftkings,-112,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,draftkings,-118,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Saddiq Bey,3.5,draftkings,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Saddiq Bey,3.5,draftkings,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,draftkings,-148,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,draftkings,112,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,draftkings,-147,111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,draftkings,111,-147,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,draftkings,102,-134,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,draftkings,-134,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,draftkings,-175,132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,draftkings,132,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,draftkings,-162,122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,draftkings,122,-162,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,draftkings,-111,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,draftkings,-118,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,draftkings,107,-142,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,draftkings,-142,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jarace Walker,1.5,draftkings,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jarace Walker,1.5,draftkings,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,draftkings,112,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,draftkings,-148,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,draftkings,129,-171,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,draftkings,-171,129,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,draftkings,132,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,draftkings,-175,132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,draftkings,132,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,draftkings,-175,132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Saddiq Bey,1.5,draftkings,138,-183,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Saddiq Bey,1.5,draftkings,-183,138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,draftkings,143,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,draftkings,-190,143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,0.5,draftkings,-223,167,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,0.5,draftkings,167,-223,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,draftkings,-108,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,draftkings,-112,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,115.5,draftkings,-118,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,115.5,draftkings,-102,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,bovada,-135,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,bovada,115,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,4.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,4.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,6.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,6.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Bennedict Mathurin,1.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Bennedict Mathurin,1.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,4.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,4.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,5.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,5.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,6.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,6.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Derik Queen,2.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Derik Queen,2.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,1.5,bovada,-240,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,1.5,bovada,175,-240,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,1.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,1.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,1.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,1.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,2.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,2.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,2.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,2.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,2.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,2.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,2.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,2.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,4.5,bovada,205,-280,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,4.5,bovada,-280,205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,7.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,7.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,9.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,9.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,10.5,bovada,185,-250,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,10.5,bovada,-250,185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,2.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,2.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,3.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,3.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,11.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,11.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,12.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,12.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,13.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,13.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,14.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,14.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,15.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,15.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,16.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,16.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,17.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,17.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,9.5,bovada,-280,205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,9.5,bovada,205,-280,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,10.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,10.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,11.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,11.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,13.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,13.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,14.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,14.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,15.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,15.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,12.5,bovada,-240,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,12.5,bovada,175,-240,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,13.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,13.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,14.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,14.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,16.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,16.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,17.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,17.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,18.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,18.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,6.5,bovada,-240,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,6.5,bovada,175,-240,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,7.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,7.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,9.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,9.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,10.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,10.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,5.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,5.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,6.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,6.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,8.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,8.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,9.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,9.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,12.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,12.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,13.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,13.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,14.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,14.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,16.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,16.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,17.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,17.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,18.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,18.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,6.5,bovada,-280,205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,6.5,bovada,205,-280,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,7.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,7.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,8.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,8.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,9.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,9.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,10.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,10.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,11.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,11.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,10.5,bovada,-240,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,10.5,bovada,175,-240,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,11.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,11.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,13.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,13.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,14.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,14.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,15.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,15.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,16.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,16.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,10.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,10.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,11.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,11.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,12.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,12.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,13.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,13.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,14.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,14.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,15.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,15.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,8.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,8.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,9.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,9.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,10.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,10.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,12.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,12.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,13.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,13.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,14.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,14.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,17.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,17.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,18.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,18.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,19.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,19.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,21.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,21.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,22.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,22.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,23.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,23.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,24.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,24.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,8.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,8.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,9.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,9.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,10.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,10.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,11.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,11.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,12.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,12.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,13.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,13.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,16.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,16.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,17.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,17.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,18.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,18.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,20.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,20.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,21.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,21.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,22.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,22.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,23.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,23.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,15.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,15.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,16.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,16.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,17.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,17.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,18.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,18.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,19.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,19.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,20.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,20.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,21.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,21.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,22.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,22.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,5.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,5.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,7.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,7.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,8.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,8.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,9.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,9.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,16.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,16.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,17.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,17.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,18.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,18.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,19.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,19.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,21.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,21.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,22.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,22.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,23.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,23.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,24.5,bovada,210,-290,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,24.5,bovada,-290,210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,20.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,20.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,21.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,21.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,22.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,22.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,23.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,23.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,24.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,24.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,15.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,15.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,16.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,16.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,17.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,17.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,18.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,18.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,19.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,19.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,24.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,24.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,25.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,25.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,26.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,26.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,27.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,27.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,28.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,28.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,14.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,14.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,15.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,15.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,16.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,16.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,17.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,17.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,18.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,18.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,10.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,10.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,11.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,11.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,12.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,12.5,bovada,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,13.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,13.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,14.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,14.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,27.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,27.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,28.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,28.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,29.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,29.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,30.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,30.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,31.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,31.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,13.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,13.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,14.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,14.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,15.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,15.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,16.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,16.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,17.5,bovada,135,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,17.5,bovada,-180,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,16.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,16.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,17.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,17.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,18.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,18.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,19.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,19.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,20.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,20.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,28.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,28.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,29.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,29.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,31.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,31.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,32.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,32.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,12.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,12.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,13.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,13.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,14.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,14.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,15.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,15.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,16.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,16.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,26.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,26.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,27.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,27.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,28.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,28.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,29.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,29.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,30.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,30.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,29.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,29.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,30.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,30.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,31.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,31.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,32.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,32.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,33.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,33.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,26.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,26.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,27.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,27.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,28.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,28.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,29.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,29.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,30.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,30.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,3.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,3.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,2.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,2.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,4.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,4.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,4.5,bovada,-215,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,4.5,bovada,160,-215,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,bovada,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,bovada,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,6.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,6.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,4.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,4.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,6.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,6.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,1.5,bovada,-280,205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,1.5,bovada,205,-280,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,9.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,9.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,10.5,bovada,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,10.5,bovada,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,12.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,12.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,3.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,3.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,4.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,4.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,3.5,bovada,150,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,3.5,bovada,-200,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,3.5,bovada,-220,165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,3.5,bovada,165,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,bovada,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,bovada,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,5.5,bovada,180,-245,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,5.5,bovada,-245,180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,3.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,3.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,5.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,5.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,6.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,6.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,7.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,7.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Saddiq Bey,2.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Saddiq Bey,2.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Saddiq Bey,3.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Saddiq Bey,3.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,4.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,4.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,6.5,bovada,175,-240,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,6.5,bovada,-240,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,4.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,4.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,5.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,5.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,6.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,6.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,8.5,bovada,200,-275,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,8.5,bovada,-275,200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,4.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,4.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,bovada,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,bovada,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,6.5,bovada,190,-260,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,6.5,bovada,-260,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,bovada,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,bovada,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,0.5,bovada,-230,170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,0.5,bovada,170,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,1.5,bovada,205,-280,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,1.5,bovada,-280,205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jarace Walker,1.5,bovada,110,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jarace Walker,1.5,bovada,-145,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,bovada,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,bovada,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Saddiq Bey,1.5,bovada,140,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Saddiq Bey,1.5,bovada,-185,140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,bovada,-170,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,bovada,130,-170,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,3.5,bovada,145,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,3.5,bovada,-190,145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,bovada,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,bovada,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,3.5,bovada,155,-210,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,3.5,bovada,-210,155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,bovada,-105,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,bovada,-115,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116,bovada,-115,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116,bovada,-105,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,betmgm,-130,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,betmgm,105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,betmgm,130,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,betmgm,-175,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,betmgm,-130,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,betmgm,-105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,betmgm,105,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,betmgm,-140,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,2.5,betmgm,-175,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,2.5,betmgm,130,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,betmgm,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,betmgm,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,6.5,betmgm,115,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,6.5,betmgm,-155,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,betmgm,-155,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,betmgm,115,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Bennedict Mathurin,1.5,betmgm,-135,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Bennedict Mathurin,1.5,betmgm,100,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Derik Queen,2.5,betmgm,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Derik Queen,2.5,betmgm,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,2.5,betmgm,115,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,2.5,betmgm,-155,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,2.5,betmgm,-185,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,2.5,betmgm,135,-185,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,betmgm,115,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,betmgm,-155,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,13.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,13.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,19.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,19.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,betmgm,-110,,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,betmgm,-105,,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,13.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,13.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,10.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,10.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,9.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,9.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,betmgm,-125,,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,13.5,betmgm,100,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,13.5,betmgm,-135,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,betmgm,-175,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,betmgm,130,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,betmgm,100,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,betmgm,-135,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,betmgm,-130,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,betmgm,-105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,betmgm,-135,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,betmgm,100,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,10.5,betmgm,-140,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,10.5,betmgm,105,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,5.5,betmgm,-135,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,5.5,betmgm,100,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,betmgm,105,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,betmgm,-140,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,betmgm,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,betmgm,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,3.5,betmgm,-155,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,3.5,betmgm,115,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,betmgm,105,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,betmgm,-140,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,betmgm,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,betmgm,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,betmgm,-165,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,betmgm,125,-165,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,betmgm,-175,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,betmgm,130,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,betmgm,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,betmgm,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,0.5,betmgm,-220,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,0.5,betmgm,160,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,betmgm,-105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,betmgm,-130,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Saddiq Bey,1.5,betmgm,160,-220,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Saddiq Bey,1.5,betmgm,-220,160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jarace Walker,1.5,betmgm,120,-160,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jarace Walker,1.5,betmgm,-160,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,betmgm,130,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,betmgm,-175,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,0.5,betmgm,-235,175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,0.5,betmgm,175,-235,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,betmgm,-105,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,betmgm,-115,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116.5,betmgm,-105,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116.5,betmgm,-115,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,williamhill_us,-136,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,williamhill_us,102,-136,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,5.5,williamhill_us,-138,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,5.5,williamhill_us,105,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,williamhill_us,-137,103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,williamhill_us,103,-137,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,williamhill_us,-103,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,williamhill_us,-130,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,williamhill_us,105,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,williamhill_us,-145,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,williamhill_us,116,-154,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,williamhill_us,-154,116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,williamhill_us,-114,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,williamhill_us,-117,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,williamhill_us,-115,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,williamhill_us,-117,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,williamhill_us,-122,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,williamhill_us,-111,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,williamhill_us,-130,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,williamhill_us,-102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,12.5,williamhill_us,-121,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,12.5,williamhill_us,-110,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,18.5,williamhill_us,-122,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,18.5,williamhill_us,-111,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,williamhill_us,-111,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,williamhill_us,-122,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,13.5,williamhill_us,-121,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,13.5,williamhill_us,-110,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,williamhill_us,-111,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,williamhill_us,-120,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,williamhill_us,-113,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,williamhill_us,-118,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,williamhill_us,-118,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,williamhill_us,-113,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,williamhill_us,-124,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,williamhill_us,-107,-124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,williamhill_us,-127,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,williamhill_us,-106,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,10.5,williamhill_us,-117,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,10.5,williamhill_us,-114,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,8.5,williamhill_us,-127,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,8.5,williamhill_us,-107,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,williamhill_us,-117,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,williamhill_us,-114,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,williamhill_us,-108,-124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,williamhill_us,-124,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,williamhill_us,-122,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,williamhill_us,-109,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,williamhill_us,-108,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,williamhill_us,-122,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,williamhill_us,-110,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,williamhill_us,-121,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,5.5,williamhill_us,-152,114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,5.5,williamhill_us,114,-152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,williamhill_us,-108,-124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,williamhill_us,-124,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,williamhill_us,107,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,williamhill_us,-145,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,williamhill_us,104,-137,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,williamhill_us,-137,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,3.5,williamhill_us,-138,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,3.5,williamhill_us,107,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,williamhill_us,-111,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,williamhill_us,-122,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Saddiq Bey,3.5,williamhill_us,105,-139,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Saddiq Bey,3.5,williamhill_us,-139,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,williamhill_us,114,-152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,williamhill_us,-152,114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,williamhill_us,-102,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,williamhill_us,-132,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,williamhill_us,108,-143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,williamhill_us,-143,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,williamhill_us,129,-173,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,williamhill_us,-173,129,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,williamhill_us,150,-205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,williamhill_us,-205,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,williamhill_us,143,-193,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,williamhill_us,-193,143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,williamhill_us,-108,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,williamhill_us,-125,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,williamhill_us,-154,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,williamhill_us,115,-154,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,williamhill_us,108,-143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,williamhill_us,-143,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jarace Walker,1.5,williamhill_us,112,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jarace Walker,1.5,williamhill_us,-150,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,williamhill_us,138,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,williamhill_us,-190,138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Saddiq Bey,1.5,williamhill_us,133,-179,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Saddiq Bey,1.5,williamhill_us,-179,133,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,williamhill_us,-162,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,williamhill_us,120,-162,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,betonlineag,-125,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,betonlineag,105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,betonlineag,-135,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,betonlineag,104,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,betonlineag,112,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,betonlineag,-145,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,betonlineag,128,-167,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,betonlineag,-167,128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,6.5,betonlineag,125,-164,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,6.5,betonlineag,-164,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,2.5,betonlineag,-164,126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,2.5,betonlineag,126,-164,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,betonlineag,128,-167,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,betonlineag,-167,128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Bennedict Mathurin,1.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Bennedict Mathurin,1.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,betonlineag,-156,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,betonlineag,120,-156,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,2.5,betonlineag,118,-154,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,2.5,betonlineag,-154,118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Kelly Oubre Jr.,1.5,betonlineag,112,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Kelly Oubre Jr.,1.5,betonlineag,-145,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Obi Toppin,1.5,betonlineag,-147,113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Obi Toppin,1.5,betonlineag,113,-147,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Saddiq Bey,1.5,betonlineag,103,-133,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Saddiq Bey,1.5,betonlineag,-133,103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Yves Missi,1.5,betonlineag,124,-161,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Yves Missi,1.5,betonlineag,-161,124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Derik Queen,2.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Derik Queen,2.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,betonlineag,113,-147,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,betonlineag,-147,113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,18.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,18.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,13.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,13.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,12.5,betonlineag,-122,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,12.5,betonlineag,-106,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Saddiq Bey,10.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Saddiq Bey,10.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,betonlineag,-115,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,betonlineag,-112,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,8.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,8.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,28.5,betonlineag,-112,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,28.5,betonlineag,-115,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,29.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,29.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,29.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,29.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,32.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,32.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,22.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,22.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Obi Toppin,17.5,betonlineag,-122,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Obi Toppin,17.5,betonlineag,-106,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,16.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,16.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Yves Missi,15.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Yves Missi,15.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Kelly Oubre Jr.,19.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Kelly Oubre Jr.,19.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,15.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,15.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,27.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,27.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Saddiq Bey,15.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Saddiq Bey,15.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,17.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,17.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,12.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,12.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,18.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,18.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,betonlineag,102,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,betonlineag,-132,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,5.5,betonlineag,-145,111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,5.5,betonlineag,111,-145,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,betonlineag,-106,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,betonlineag,-122,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,betonlineag,-101,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,betonlineag,-128,-101,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,betonlineag,-154,119,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,betonlineag,119,-154,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,betonlineag,107,-139,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,betonlineag,-139,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,betonlineag,-101,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,betonlineag,-128,-101,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,betonlineag,-109,-119,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,betonlineag,-119,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jarace Walker,4.5,betonlineag,126,-164,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jarace Walker,4.5,betonlineag,-164,126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,betonlineag,107,-139,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,betonlineag,-139,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,betonlineag,-135,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,betonlineag,105,-135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Saddiq Bey,3.5,betonlineag,103,-133,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Saddiq Bey,3.5,betonlineag,-133,103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,betonlineag,-156,121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,betonlineag,121,-156,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,betonlineag,132,-172,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,betonlineag,-172,132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,betonlineag,-161,123,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,betonlineag,123,-161,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,betonlineag,109,-141,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,betonlineag,-141,109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,betonlineag,152,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,betonlineag,-200,152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,betonlineag,120,-156,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,betonlineag,-156,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Saddiq Bey,1.5,betonlineag,139,-182,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Saddiq Bey,1.5,betonlineag,-182,139,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Derik Queen,0.5,betonlineag,250,-357,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Derik Queen,0.5,betonlineag,-357,250,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jarace Walker,1.5,betonlineag,117,-152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jarace Walker,1.5,betonlineag,-152,117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,betonlineag,124,-161,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,betonlineag,-161,124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,betonlineag,150,-196,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,betonlineag,-196,150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,0.5,betonlineag,-200,151,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,0.5,betonlineag,151,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,betonlineag,101,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,betonlineag,-121,101,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116,betonlineag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116,betonlineag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,betrivers,-137,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,betrivers,104,-137,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,betrivers,120,-167,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,betrivers,-167,120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,betrivers,133,-182,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,betrivers,-182,133,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,betrivers,112,-155,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,betrivers,-155,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Obi Toppin,2.5,betrivers,138,-190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Obi Toppin,2.5,betrivers,-190,138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Bennedict Mathurin,1.5,betrivers,-137,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Bennedict Mathurin,1.5,betrivers,100,-137,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,betrivers,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,betrivers,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,5.5,betrivers,-148,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,5.5,betrivers,108,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,3.5,betrivers,128,-177,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,3.5,betrivers,-177,128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,betrivers,-132,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,betrivers,-103,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,5.5,betrivers,-148,107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,5.5,betrivers,107,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,betrivers,130,-180,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,betrivers,-180,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,betrivers,-110,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,betrivers,-122,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,betrivers,-113,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,betrivers,-121,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,12.5,betrivers,-130,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,12.5,betrivers,-105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,betrivers,-108,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,betrivers,-127,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,betrivers,-105,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,betrivers,-130,-105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,18.5,betrivers,-127,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,18.5,betrivers,-108,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,betrivers,-113,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,betrivers,-120,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,betrivers,-120,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,betrivers,-113,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,13.5,betrivers,-103,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,13.5,betrivers,-132,-103,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,31.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,31.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,18.5,betrivers,-108,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,18.5,betrivers,-125,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,12.5,betrivers,-121,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,12.5,betrivers,-113,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,19.5,betrivers,-109,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,19.5,betrivers,-125,-109,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,29.5,betrivers,-106,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,29.5,betrivers,-127,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,27.5,betrivers,-121,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,27.5,betrivers,-112,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,28.5,betrivers,-121,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,28.5,betrivers,-112,-121,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Obi Toppin,18.5,betrivers,-106,-129,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Obi Toppin,18.5,betrivers,-129,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,29.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,29.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,22.5,betrivers,-107,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,22.5,betrivers,-127,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,betrivers,106,-143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,betrivers,-143,106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Obi Toppin,4.5,betrivers,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Obi Toppin,4.5,betrivers,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,betrivers,-124,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,betrivers,-110,-124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,betrivers,-148,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,betrivers,108,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,6.5,betrivers,105,-141,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,6.5,betrivers,-141,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,betrivers,-148,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,betrivers,108,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,betrivers,-117,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,betrivers,-117,-117,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,betrivers,100,-136,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,betrivers,-136,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,betrivers,-106,-127,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,betrivers,-127,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,betrivers,105,-141,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,betrivers,-141,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,betrivers,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,betrivers,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,betrivers,148,-205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,betrivers,-205,148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,3.5,betrivers,135,-186,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,3.5,betrivers,-186,135,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Jeremiah Fears,1.5,betrivers,143,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Jeremiah Fears,1.5,betrivers,-200,143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,1.5,betrivers,163,-230,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,1.5,betrivers,-230,163,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,betrivers,-175,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,betrivers,125,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,betrivers,143,-200,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,betrivers,-200,143,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,betrivers,-114,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,betrivers,-118,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,betrivers,110,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,betrivers,-150,110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,betrivers,125,-175,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,betrivers,-175,125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-0.5,betrivers,-129,-107,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,0.5,betrivers,-107,-129,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,117.5,betrivers,108,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,117.5,betrivers,-148,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,fanduel,-138,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,fanduel,112,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Trey Murphy III,3.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Trey Murphy III,3.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Dejounte Murray,6.5,fanduel,126,-162,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Dejounte Murray,6.5,fanduel,-162,126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Herb Jones,2.5,fanduel,136,-174,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Herb Jones,2.5,fanduel,-174,136,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,fanduel,-132,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,fanduel,104,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Pascal Siakam,3.5,fanduel,116,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Pascal Siakam,3.5,fanduel,-148,116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jeremiah Fears,3.5,fanduel,116,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jeremiah Fears,3.5,fanduel,-148,116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Zion Williamson,2.5,fanduel,-156,122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Zion Williamson,2.5,fanduel,122,-156,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Derik Queen,2.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Derik Queen,2.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Jarace Walker,2.5,fanduel,126,-162,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Jarace Walker,2.5,fanduel,-162,126,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Andrew Nembhard,6.5,fanduel,124,-158,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Andrew Nembhard,6.5,fanduel,-158,124,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Ivica Zubac,2.5,fanduel,130,-166,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Ivica Zubac,2.5,fanduel,-166,130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Trey Murphy III,19.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Trey Murphy III,19.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Andrew Nembhard,13.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Andrew Nembhard,13.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Kelly Oubre Jr.,12.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Kelly Oubre Jr.,12.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Herb Jones,7.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Herb Jones,7.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Yves Missi,6.5,fanduel,-128,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Yves Missi,6.5,fanduel,100,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Pascal Siakam,20.5,fanduel,-128,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Pascal Siakam,20.5,fanduel,100,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jeremiah Fears,12.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jeremiah Fears,12.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Dejounte Murray,15.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Dejounte Murray,15.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Jarace Walker,8.5,fanduel,-118,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Jarace Walker,8.5,fanduel,-108,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Derik Queen,8.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Derik Queen,8.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Tyrese Haliburton,18.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Tyrese Haliburton,18.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Bennedict Mathurin,12.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Bennedict Mathurin,12.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Obi Toppin,11.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Obi Toppin,11.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Zion Williamson,20.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Zion Williamson,20.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Trey Murphy III,28.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Trey Murphy III,28.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Andrew Nembhard,22.5,fanduel,-128,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Andrew Nembhard,22.5,fanduel,-102,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Herb Jones,12.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Herb Jones,12.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jeremiah Fears,18.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jeremiah Fears,18.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Dejounte Murray,27.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Dejounte Murray,27.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Tyrese Haliburton,31.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Tyrese Haliburton,31.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Bennedict Mathurin,17.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Bennedict Mathurin,17.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Zion Williamson,28.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Zion Williamson,28.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Derik Queen,16.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Derik Queen,16.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Jarace Walker,15.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Jarace Walker,15.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Ivica Zubac,29.5,fanduel,-108,-118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Ivica Zubac,29.5,fanduel,-118,-108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Trey Murphy III,5.5,fanduel,100,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Trey Murphy III,5.5,fanduel,-128,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Andrew Nembhard,2.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Andrew Nembhard,2.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Kelly Oubre Jr.,4.5,fanduel,100,-128,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Kelly Oubre Jr.,4.5,fanduel,-128,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Yves Missi,7.5,fanduel,104,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Yves Missi,7.5,fanduel,-132,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Herb Jones,2.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Herb Jones,2.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Jeremiah Fears,2.5,fanduel,-130,102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Jeremiah Fears,2.5,fanduel,102,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Dejounte Murray,5.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Dejounte Murray,5.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Pascal Siakam,6.5,fanduel,118,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Pascal Siakam,6.5,fanduel,-150,118,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Bennedict Mathurin,3.5,fanduel,108,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Bennedict Mathurin,3.5,fanduel,-138,108,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Tyrese Haliburton,3.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Tyrese Haliburton,3.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Zion Williamson,5.5,fanduel,112,-142,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Zion Williamson,5.5,fanduel,-142,112,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Derik Queen,5.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Derik Queen,5.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Trey Murphy III,2.5,fanduel,-156,122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Trey Murphy III,2.5,fanduel,122,-156,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Kelly Oubre Jr.,1.5,fanduel,104,-132,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Kelly Oubre Jr.,1.5,fanduel,-132,104,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Dejounte Murray,1.5,fanduel,106,-136,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Dejounte Murray,1.5,fanduel,-136,106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Andrew Nembhard,1.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Andrew Nembhard,1.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Herb Jones,1.5,fanduel,158,-205,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Herb Jones,1.5,fanduel,-205,158,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,fanduel,-148,116,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,fanduel,116,-148,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Pascal Siakam,1.5,fanduel,152,-196,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Pascal Siakam,1.5,fanduel,-196,152,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Bennedict Mathurin,1.5,fanduel,190,-250,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Bennedict Mathurin,1.5,fanduel,-250,190,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Obi Toppin,1.5,fanduel,142,-184,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Obi Toppin,1.5,fanduel,-184,142,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,fanduel,-106,-114,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,fanduel,-114,-106,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116.5,fanduel,100,-122,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116.5,fanduel,-122,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,mybookieag,-138,113,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,mybookieag,113,-138,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1,mybookieag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1,mybookieag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116,mybookieag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116,mybookieag,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,fanatics,-140,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,fanatics,105,-140,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,over,Tyrese Haliburton,8.5,fanatics,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_ast,under,Tyrese Haliburton,8.5,fanatics,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,over,Ivica Zubac,15.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pts,under,Ivica Zubac,15.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,over,Pascal Siakam,30.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_pra,under,Pascal Siakam,30.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,over,Ivica Zubac,11.5,fanatics,100,-130,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_reb,under,Ivica Zubac,11.5,fanatics,-130,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,over,Tyrese Haliburton,2.5,fanatics,-150,115,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,pl_3pm,under,Tyrese Haliburton,2.5,fanatics,115,-150,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,IND,,,betus,-125,105,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ml,NOP,,,betus,105,-125,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,IND,,-1.5,betus,100,-120,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_ats,NOP,,1.5,betus,-120,100,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,over,,116,betus,-110,-110,oddsapi
+2026-10-22T00:10:09Z,2026-10-21,IND @ NOP,fd33c09c84ab4c2fe6955d59f8dc5dd2,h1_total,under,,116,betus,-110,-110,oddsapi
