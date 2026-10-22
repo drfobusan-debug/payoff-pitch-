@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93930",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "f58caba4ab5d50a456fd71281843d718549cb92e",
+ "picks": [
+  {
+   "pick_id": "34b40035d565",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93930",
+   "episode_title": "NBA Primetime Picks & Props: Cavaliers-76ers, Nuggets-Thunder - October 22",
+   "published": "2026-10-22T16:14:38+00:00",
+   "kind": "official",
+   "market": "other",
+   "team": null,
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": -108.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Edgecombe Over 10.5 Points (-108)",
+   "reason": "https://vsin.com/nba/nba-primetime-picks-props-cavaliers-76ers-nuggets-thunder-october-22/",
+   "description": "Edgecombe Over 10.5 Points (-108)",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "39d4b4edf35c",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93930",
+   "episode_title": "NBA Primetime Picks & Props: Cavaliers-76ers, Nuggets-Thunder - October 22",
+   "published": "2026-10-22T16:14:38+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Nuggets",
+   "opponent": "Oklahoma City Thunder",
+   "side": null,
+   "line": 8.5,
+   "price": -102.0,
+   "units": 0.5,
+   "seconds": 1,
+   "quote": "Nuggets +8.5 (-102) Bet: Jokic Triple-Double (+118 - 0.5 units)",
+   "reason": "https://vsin.com/nba/nba-primetime-picks-props-cavaliers-76ers-nuggets-thunder-october-22/",
+   "description": "Nuggets +8.5 (-102) Bet: Jokic Triple-Double (+118 - 0.5 units)",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nba"
+ ]
+}

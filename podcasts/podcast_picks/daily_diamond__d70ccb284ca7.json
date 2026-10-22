@@ -1,0 +1,60 @@
+{
+ "episode_guid": "830a1ad4-4e61-4180-a030-7a59bf371c6a",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "36c06b10979929c792c6ecf8bb13c9bd7293bd47",
+ "picks": [
+  {
+   "pick_id": "5d9bde9f4391",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "830a1ad4-4e61-4180-a030-7a59bf371c6a",
+   "episode_title": "The VSiN Daily Diamond | October 22, 2026",
+   "published": "2026-10-22T10:49:40-04:00",
+   "kind": "lean",
+   "market": "game_total",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "side": "over",
+   "line": 5.5,
+   "price": null,
+   "units": null,
+   "seconds": 426,
+   "quote": "Yeah, over five and a half is probably where I'm going.",
+   "reason": "The total is low given the offensive potential of both teams.",
+   "description": "Over 5.5 runs in Brewers-Rays Game 1.",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "13224f092746",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Dave Ross",
+   "episode_guid": "830a1ad4-4e61-4180-a030-7a59bf371c6a",
+   "episode_title": "The VSiN Daily Diamond | October 22, 2026",
+   "published": "2026-10-22T10:49:40-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Brewers",
+   "opponent": "Rays",
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": 780.0,
+   "seconds": 449,
+   "quote": "I am currently sitting on at the beginning of this postseason brewers plus seven 80 to win the world series.",
+   "reason": "Dave has a futures bet on the Brewers to win the World Series at good odds.",
+   "description": "Brewers to win the World Series at +780.",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
