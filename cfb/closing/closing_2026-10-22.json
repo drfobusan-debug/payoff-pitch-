@@ -2,91 +2,91 @@
   "East Carolina @ Memphis|game_ats|East Carolina": {
     "american": -110.0,
     "line": 10.5,
-    "no_vig_prob": 0.5031329319905155
+    "no_vig_prob": 0.506166386208094
   },
   "East Carolina @ Memphis|game_ats|Memphis": {
-    "american": -105.0,
+    "american": -101.0,
     "line": -10.5,
-    "no_vig_prob": 0.49686706800948455
+    "no_vig_prob": 0.4938336137919061
   },
   "East Carolina @ Memphis|game_ml|East Carolina": {
     "american": 340.0,
     "line": null,
-    "no_vig_prob": 0.22515344872419443
+    "no_vig_prob": 0.2242684255966331
   },
   "East Carolina @ Memphis|game_ml|Memphis": {
-    "american": -400.0,
+    "american": -410.0,
     "line": null,
-    "no_vig_prob": 0.7748465512758056
+    "no_vig_prob": 0.7757315744033669
   },
   "East Carolina @ Memphis|game_total|Over": {
-    "american": -105.0,
-    "line": 53.5,
-    "no_vig_prob": 0.5006244413637237
+    "american": -110.0,
+    "line": 55.0,
+    "no_vig_prob": 0.5049033501919724
   },
   "East Carolina @ Memphis|game_total|Under": {
-    "american": -105.0,
-    "line": 53.5,
-    "no_vig_prob": 0.4993755586362762
+    "american": -103.0,
+    "line": 55.0,
+    "no_vig_prob": 0.49509664980802753
   },
   "James Madison @ Appalachian St|game_ats|Appalachian St": {
     "american": -106.0,
-    "line": 11.5,
-    "no_vig_prob": 0.5026596573896256
+    "line": 12.5,
+    "no_vig_prob": 0.5014065315650515
   },
   "James Madison @ Appalachian St|game_ats|James Madison": {
     "american": -106.0,
-    "line": -11.5,
-    "no_vig_prob": 0.4973403426103743
+    "line": -12.5,
+    "no_vig_prob": 0.49859346843494834
   },
   "James Madison @ Appalachian St|game_ml|Appalachian St": {
-    "american": 370.0,
+    "american": 380.0,
     "line": null,
-    "no_vig_prob": 0.2109993953036511
+    "no_vig_prob": 0.20634801853420015
   },
   "James Madison @ Appalachian St|game_ml|James Madison": {
-    "american": -440.0,
+    "american": -460.0,
     "line": null,
-    "no_vig_prob": 0.7890006046963489
+    "no_vig_prob": 0.7936519814658
   },
   "James Madison @ Appalachian St|game_total|Over": {
-    "american": -108.0,
+    "american": -105.0,
     "line": 56.5,
-    "no_vig_prob": 0.4976919402871745
+    "no_vig_prob": 0.5018600999001451
   },
   "James Madison @ Appalachian St|game_total|Under": {
-    "american": -110.0,
+    "american": -105.0,
     "line": 56.5,
-    "no_vig_prob": 0.5023080597128254
+    "no_vig_prob": 0.4981399000998548
   },
   "Liberty @ Kennesaw State|game_ats|Kennesaw State": {
-    "american": -106.0,
-    "line": 9.5,
-    "no_vig_prob": 0.49929088694848306
+    "american": -109.0,
+    "line": 8.5,
+    "no_vig_prob": 0.5007764089152777
   },
   "Liberty @ Kennesaw State|game_ats|Liberty": {
-    "american": -106.0,
-    "line": -9.5,
-    "no_vig_prob": 0.500709113051517
+    "american": -108.0,
+    "line": -8.5,
+    "no_vig_prob": 0.49922359108472225
   },
   "Liberty @ Kennesaw State|game_ml|Kennesaw State": {
-    "american": 310.0,
+    "american": 305.0,
     "line": null,
-    "no_vig_prob": 0.2398246454976952
+    "no_vig_prob": 0.24529813332195696
   },
   "Liberty @ Kennesaw State|game_ml|Liberty": {
-    "american": -365.0,
+    "american": -340.0,
     "line": null,
-    "no_vig_prob": 0.7601753545023048
+    "no_vig_prob": 0.7547018666780432
   },
   "Liberty @ Kennesaw State|game_total|Over": {
-    "american": -105.0,
-    "line": 50.5,
-    "no_vig_prob": 0.49782922466465324
-  },
-  "Liberty @ Kennesaw State|game_total|Under": {
     "american": -108.0,
     "line": 50.5,
-    "no_vig_prob": 0.5021707753353467
+    "no_vig_prob": 0.49864319800577384
+  },
+  "Liberty @ Kennesaw State|game_total|Under": {
+    "american": -110.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5013568019942262
   }
 }
