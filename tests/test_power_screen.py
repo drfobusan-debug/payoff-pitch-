@@ -1200,6 +1200,10 @@ def test_the_note_prints_every_survivor_as_an_unvalidated_watch() -> None:
     html = power_report.render_html(result, grade_records=records)
     assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(unvalidated: watch)</span>" in html
     assert "(soft arm: over)</span> 30-30" in html or "(soft arm: over)" in html
+    # A retired bucket's record still earns its own word in the ledger paragraph.
+    records[power_report.SOFT_OVER] = Record(power_report.SOFT_OVER, wins=60, losses=40, units=20.0, units_sq=100.0)
+    html = power_report.render_html(result, grade_records=records)
+    assert "<span class='strong-buy'>STRONG BUY</span> <span class='sub'>(soft arm: over)</span>" in html
 
 
 def test_the_verdict_survives_an_accent_on_the_name() -> None:
