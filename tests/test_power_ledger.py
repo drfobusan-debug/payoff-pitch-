@@ -218,6 +218,73 @@ def test_an_unfinished_game_is_voided() -> None:
     assert (graded, voided) == ([], 1)
 
 
+def test_a_rainout_made_up_on_another_day_is_voided_not_graded() -> None:
+    """ALCS G4 2026: priced on 10-16, rained out, played 10-18 under the same game_pk."""
+    res = replace(
+        _game({7: _line(H=3, R=2, RBI=2)}),
+        official_date="2026-08-19",
+        start_utc="2026-08-19T21:08:00Z",
+    )
+    graded, voided = power_ledger.grade_positions([_position()], {1: res})
+
+    assert (graded, voided) == ([], 1)
+    assert power_ledger.timing_voids([_position()], {1: res}) == {
+        power_ledger.PLAYED_ANOTHER_DAY: 1
+    }
+
+
+def test_a_row_priced_after_first_pitch_is_voided_and_one_before_it_grades() -> None:
+    res = replace(
+        _game({7: _line(H=3, R=2, RBI=2)}),
+        official_date=DAY.isoformat(),
+        start_utc="2026-08-17T19:13:00Z",
+    )
+    late = replace(_position(), run_id="20260817T1958Z")
+    early = replace(_position(), run_id="20260817T1700Z")
+    graded, voided = power_ledger.grade_positions([late, early], {1: res})
+
+    assert [g.position.run_id for g in graded] == ["20260817T1700Z"] and voided == 1
+    assert power_ledger.timing_voids([late, early], {1: res}) == {
+        power_ledger.PRICED_AFTER_START: 1
+    }
+
+
+def test_a_blank_schedule_stamp_voids_nothing() -> None:
+    graded, voided = power_ledger.grade_positions(
+        [replace(_position(), run_id="20260817T1958Z")], {1: _game({7: _line(H=3, R=2)})}
+    )
+    assert (len(graded), voided) == (1, 0)
+
+
+@pytest.mark.parametrize(
+    ("captured", "timely"),
+    [
+        ("2026-08-17T23:00:00Z", True),  # ten minutes out: the close
+        ("2026-08-17T22:25:00Z", True),  # 45 minutes out: still inside
+        ("2026-08-17T22:20:00Z", False),  # 50 minutes out: an early snapshot
+        ("2026-08-17T23:10:00Z", False),  # at first pitch: in play
+        ("", False),  # no stamp: cannot show when it was taken
+    ],
+)
+def test_only_a_close_inside_45_minutes_of_first_pitch_counts(captured: str, timely: bool) -> None:
+    q = ClosingQuote("ATL @ NYM", "batter_h", "Matt Olson H o0.5", -105.0, 0.5, captured)
+    assert power_ledger.timely_close(q, "2026-08-17T23:10:00Z") is timely
+
+
+def test_an_early_close_is_counted_apart_and_kept_out_of_clv() -> None:
+    hit = _position("HRR", 1.5, side="over", odds=100.0, fair=0.48)
+    q = ClosingQuote(
+        "ATL @ NYM", "batter_hrr", "Matt Olson H+R+RBI o1.5", -105.0, 0.50,
+        captured_at="2026-08-17T21:40:00Z",
+    )
+    index = {hit.date: power_ledger.close_index({q.key: q})}
+    graded = [power_ledger.GradedPosition(hit, "win", 2, 1.0)]
+    starts = {1: "2026-08-17T23:10:00Z"}
+
+    assert power_ledger.closed(graded, index, starts) == []
+    assert power_ledger.untimely_closes(graded, index, starts) == 1
+
+
 def test_a_position_with_no_box_score_is_voided() -> None:
     graded, voided = power_ledger.grade_positions([_position()], {})
 
@@ -946,7 +1013,10 @@ def test_a_prop_row_finds_its_close_by_selection_and_scores_the_price_taken() ->
     quotes = {
         q.key: q
         for q in (
-            ClosingQuote("ATL @ NYM", "batter_hrr", "Matt Olson H+R+RBI o1.5", -105.0, 0.50),
+            ClosingQuote(
+                "ATL @ NYM", "batter_hrr", "Matt Olson H+R+RBI o1.5", -105.0, 0.50,
+                captured_at="2026-08-17T23:00:00Z",
+            ),
             ClosingQuote("ATL @ NYM", "pitcher_k", "Matt Olson Ks u5.5", -2500.0, 0.95),
         )
     }
@@ -956,7 +1026,7 @@ def test_a_prop_row_finds_its_close_by_selection_and_scores_the_price_taken() ->
         power_ledger.GradedPosition(hit, "win", 2, 1.0),
         power_ledger.GradedPosition(arm, "win", 4, 0.83),
     ]
-    (c,) = power_ledger.closed(graded, {hit.date: index})
+    (c,) = power_ledger.closed(graded, {hit.date: index}, {1: "2026-08-17T23:10:00Z"})
     assert c.clv == pytest.approx(0.02)
     assert c.close_ev == pytest.approx(0.0)
     assert c.bet_ev == pytest.approx(-0.04)
