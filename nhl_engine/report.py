@@ -18,6 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from engine_common.bands import BandRead
 from engine_common.podcasts.extract import Pick as ArticlePick
 from engine_common.podcasts.render import bet_line
 from nhl_engine.audit.ledger import LedgerRow
@@ -139,6 +140,8 @@ class ReportContext:
     vsin_picks: list[Pick] = field(default_factory=list)  # tonight's VSiN game bets
     vsin_other: list[ArticlePick] = field(default_factory=list)  # tonight's VSiN props, as written
     vsin_history: list[Pick] = field(default_factory=list)  # every VSiN game bet, graded or not
+    leans: list[BandRead] = field(default_factory=list)  # graded-only study leans, to date
+    lean_tonight: dict[str, list[str]] = field(default_factory=dict)  # lean -> tonight's sides
 
 
 def _key_skaters(props: PropContext | None, team: str) -> list[SkaterProjection]:
@@ -549,6 +552,34 @@ def _game_block(g: GameCard, ctx: ReportContext) -> str:
     return "".join(parts)
 
 
+def _leans_block(ctx: ReportContext) -> str:
+    """The 2023-25 close-study leans: tonight's qualifying sides and the record so far."""
+    if not ctx.leans and not ctx.lean_tonight:
+        return ""
+    reads = {b.name: b for b in ctx.leans}
+    names = list(reads) + [n for n in ctx.lean_tonight if n not in reads]
+    body = []
+    for n in names:
+        b = reads.get(n)
+        tonight = escape("; ".join(ctx.lean_tonight.get(n, []))) or "&mdash;"
+        rec = (
+            f"{b.record}, {b.units:+.2f}u, ROI {b.roi * 100:+.1f}%, {escape(b.verdict)}"
+            if b is not None and b.n
+            else "no graded rows yet"
+        )
+        body.append(f"<tr><td>{escape(n)}</td><td>{tonight}</td><td>{rec}</td></tr>")
+    return (
+        "<div class='slatebets'><h2>Graded-only leans (not bets)</h2>"
+        "<p class='sbnote'>From the 2023-25 test against the no-vig close (2,416 games). None cleared "
+        "the bar set before the test (same sign both seasons, |z| &ge; 3, &ge; 2.3 pts), so each is "
+        "graded flat 1u at the card's price on every qualifying side and never gates or buys. A "
+        "'fade' lean is expected to lose; it is a refusal candidate.</p>"
+        "<table><tr><th>lean</th><th>tonight</th><th>record so far</th></tr>"
+        + "".join(body)
+        + "</table></div>"
+    )
+
+
 def render_html(card: SlateCard, ctx: ReportContext) -> str:
     buys = sorted((r for r in card.rows if r.is_buy), key=lambda r: -r.edge)
     n_props = sum(1 for r in card.rows if is_prop(r.market))
@@ -590,7 +621,7 @@ def render_html(card: SlateCard, ctx: ReportContext) -> str:
     )
     return (
         f"<!DOCTYPE html><html><head><meta charset='utf-8'><style>{CSS}</style></head>"
-        f"<body>{head}{slate}{games}{unpriced}{fine}</body></html>"
+        f"<body>{head}{slate}{_leans_block(ctx)}{games}{unpriced}{fine}</body></html>"
     )
 
 

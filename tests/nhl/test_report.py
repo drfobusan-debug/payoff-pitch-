@@ -223,3 +223,17 @@ def test_write_pdf_and_email_attaches_it(tmp_path: Path):
     msg = smtp.return_value.__enter__.return_value.send_message.call_args.args[0]
     atts = {a.get_filename(): a.get_content_type() for a in msg.iter_attachments()}
     assert atts == {"card.txt": "text/plain", "card_2026-10-10_pdf.pdf": "application/pdf"}
+
+
+def test_the_leans_block_prints_tonight_and_the_record(tmp_path: Path):
+    from engine_common.bands import BandRead
+
+    card, ctx = _card(tmp_path)
+    assert "Graded-only leans" not in report.render_html(card, ctx)
+    ctx.leans = [BandRead("ML lean: home favourite >= 65%", [0.5, -1.0], [0.5, -1.0])]
+    ctx.lean_tonight = {"ML lean: home team vs a road back-to-back": ["H ML (A @ H)"]}
+    html = report.render_html(card, ctx)
+    assert "Graded-only leans (not bets)" in html
+    assert "1-1, -0.50u" in html and "probation" in html
+    assert "H ML (A @ H)" in html and "no graded rows yet" in html
+    assert "&amp;mdash;" not in html

@@ -45,6 +45,7 @@ from zoneinfo import ZoneInfo
 from engine_runtime.odds_client import OddsClient
 from nhl_engine import closetest, email, history, outputs, pipeline, report, state
 from nhl_engine.audit import (
+    bands,
     grade,
     ledger,
     ledger_report,
@@ -367,6 +368,19 @@ def cmd_card(args: argparse.Namespace) -> int:
             except Exception:  # noqa: BLE001 - VSiN's bets are a view; never lose the PDF
                 log.warning("VSiN best bets unavailable", exc_info=True)
             ctx.vsin_history = vsin_picks.load_all(root)
+            try:
+                graded = [
+                    r
+                    for p in sorted((root / "ledger").glob("graded_*.json"))
+                    for r in ledger.load_rows(p)
+                    if not r.priced_late
+                ]
+                sctx = _screen_context(root, graded + card.rows)
+                reads = {b.name: b for b in bands.read_bands(graded, sctx)}
+                ctx.leans = [reads[n] for n in bands.LEANS if n in reads]
+                ctx.lean_tonight = bands.tonight(card.rows, sctx)
+            except Exception:  # noqa: BLE001 - the leans are a view; never lose the PDF
+                log.warning("graded-only leans unavailable", exc_info=True)
             paths["pdf"] = report.write_pdf(
                 card, ctx, report.pdf_path(output_dir(), slate, args.tag)
             )
