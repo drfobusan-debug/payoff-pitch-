@@ -1,0 +1,1054 @@
+captured_at,game_date,matchup,event_id,market,side,entity,line,book,american,opposite_american,source
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,draftkings,-125,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,draftkings,105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-1.5,draftkings,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,1.5,draftkings,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,240.5,draftkings,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,240.5,draftkings,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,draftkings,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,draftkings,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,draftkings,-138,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,draftkings,105,-138,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,draftkings,106,-140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,draftkings,-140,106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,3.5,draftkings,-155,117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,3.5,draftkings,117,-155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,draftkings,-116,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,draftkings,-114,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,draftkings,-115,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,draftkings,-114,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,draftkings,127,-168,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,draftkings,-168,127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Darryn Peterson,2.5,draftkings,-148,112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Darryn Peterson,2.5,draftkings,112,-148,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,2.5,draftkings,134,-178,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,2.5,draftkings,-178,134,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,draftkings,144,-191,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,draftkings,-191,144,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,draftkings,101,-133,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,draftkings,-133,101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,21.5,draftkings,-118,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,21.5,draftkings,-108,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,20.5,draftkings,-109,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,20.5,draftkings,-117,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,draftkings,-109,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,draftkings,-116,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,18.5,draftkings,-112,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,18.5,draftkings,-114,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,16.5,draftkings,-106,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,16.5,draftkings,-121,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,14.5,draftkings,-101,-126,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,14.5,draftkings,-126,-101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,draftkings,-121,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,draftkings,-105,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,draftkings,-127,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,draftkings,100,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,draftkings,-110,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,draftkings,-116,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,draftkings,-118,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,draftkings,-108,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,draftkings,-107,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,draftkings,-120,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,draftkings,-117,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,draftkings,-109,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,5.5,draftkings,-130,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,5.5,draftkings,102,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,31.5,draftkings,-107,-123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,31.5,draftkings,-123,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,30.5,draftkings,-123,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,30.5,draftkings,-107,-123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,29.5,draftkings,-117,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,29.5,draftkings,-112,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cameron Boozer,28.5,draftkings,-110,-119,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cameron Boozer,28.5,draftkings,-119,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,27.5,draftkings,-111,-119,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,27.5,draftkings,-119,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,23.5,draftkings,-104,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,23.5,draftkings,-127,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Darryn Peterson,21.5,draftkings,-118,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Darryn Peterson,21.5,draftkings,-112,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,17.5,draftkings,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,17.5,draftkings,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,12.5,draftkings,-128,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,12.5,draftkings,-102,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,12.5,draftkings,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,12.5,draftkings,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,9.5,draftkings,-140,106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,9.5,draftkings,106,-140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,draftkings,-134,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,draftkings,102,-134,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,draftkings,-118,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,draftkings,-111,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,6.5,draftkings,112,-147,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,6.5,draftkings,-147,112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,draftkings,-122,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,draftkings,-108,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,draftkings,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,draftkings,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,draftkings,114,-151,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,draftkings,-151,114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,draftkings,115,-152,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,draftkings,-152,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,draftkings,-114,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,draftkings,-115,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,draftkings,122,-162,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,draftkings,-162,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,2.5,draftkings,-146,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,2.5,draftkings,110,-146,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cam Spencer,2.5,draftkings,126,-166,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cam Spencer,2.5,draftkings,-166,126,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,draftkings,-130,-101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,draftkings,-101,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,draftkings,-108,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,draftkings,-121,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,draftkings,132,-174,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,draftkings,-174,132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,draftkings,-162,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,draftkings,122,-162,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,draftkings,-153,116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,draftkings,116,-153,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,draftkings,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,draftkings,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,draftkings,-130,-101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,draftkings,-101,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,draftkings,-104,-126,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,draftkings,-126,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,draftkings,135,-179,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,draftkings,-179,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,draftkings,147,-195,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,draftkings,-195,147,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,draftkings,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,draftkings,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,draftkings,-112,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,draftkings,-108,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,bovada,-135,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,bovada,115,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,bovada,-120,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,bovada,100,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,bovada,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,bovada,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,4.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,4.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,2.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,2.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,3.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,3.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,4.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,4.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,1.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,1.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,2.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,2.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,5.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,5.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,7.5,bovada,185,-250,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,7.5,bovada,-250,185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,1.5,bovada,-200,150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,1.5,bovada,150,-200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,5.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,5.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,7.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,7.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,8.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,8.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,9.5,bovada,-200,150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,9.5,bovada,150,-200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,10.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,10.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,12.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,12.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,13.5,bovada,155,-210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,13.5,bovada,-210,155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,14.5,bovada,200,-275,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,14.5,bovada,-275,200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,4.5,bovada,-280,205,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,4.5,bovada,205,-280,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,5.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,5.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,7.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,7.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,8.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,8.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,11.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,11.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,12.5,bovada,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,12.5,bovada,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,14.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,14.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,15.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,15.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,16.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,16.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,17.5,bovada,215,-300,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,17.5,bovada,-300,215,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,4.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,4.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,5.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,5.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,6.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,6.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,7.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,7.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,15.5,bovada,-245,180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,15.5,bovada,180,-245,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,16.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,16.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,17.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,17.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,18.5,bovada,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,18.5,bovada,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,20.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,20.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,21.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,21.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,22.5,bovada,205,-280,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,22.5,bovada,-280,205,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,5.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,5.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,6.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,6.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,8.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,8.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,9.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,9.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,8.5,bovada,-210,155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,8.5,bovada,155,-210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,9.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,9.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,11.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,11.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,12.5,bovada,160,-215,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,12.5,bovada,-215,160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,13.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,13.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,16.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,16.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,17.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,17.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,18.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,18.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,20.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,20.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,21.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,21.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,22.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,22.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,23.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,23.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,18.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,18.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,19.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,19.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,20.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,20.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,21.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,21.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,22.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,22.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,23.5,bovada,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,23.5,bovada,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,24.5,bovada,155,-210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,24.5,bovada,-210,155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,25.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,25.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,16.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,16.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,17.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,17.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,18.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,18.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,19.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,19.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,20.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,20.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,21.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,21.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,22.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,22.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,23.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,23.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,24.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,24.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,9.5,bovada,-250,185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,9.5,bovada,185,-250,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,10.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,10.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,12.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,12.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,13.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,13.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,14.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,14.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,14.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,14.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,15.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,15.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,16.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,16.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,17.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,17.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,18.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,18.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,10.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,10.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,11.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,11.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,12.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,12.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,13.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,13.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,14.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,14.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,20.5,bovada,-210,155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,20.5,bovada,155,-210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,21.5,bovada,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,21.5,bovada,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,22.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,22.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,23.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,23.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,24.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,24.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,9.5,bovada,-275,200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,9.5,bovada,200,-275,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,10.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,10.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,11.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,11.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,12.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,12.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,13.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,13.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,24.5,bovada,-200,150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,24.5,bovada,150,-200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,25.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,25.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,26.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,26.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,27.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,27.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,28.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,28.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,27.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,27.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,28.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,28.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,29.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,29.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,30.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,30.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,31.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,31.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,28.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,28.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,29.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,29.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,30.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,30.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,31.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,31.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,32.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,32.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,28.5,bovada,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,28.5,bovada,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,29.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,29.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,30.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,30.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,31.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,31.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,32.5,bovada,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,32.5,bovada,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,3.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,3.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cam Spencer,1.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cam Spencer,1.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cam Spencer,2.5,bovada,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cam Spencer,2.5,bovada,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,4.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,4.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,6.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,6.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,4.5,bovada,-300,215,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,4.5,bovada,215,-300,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,6.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,6.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,7.5,bovada,210,-290,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,7.5,bovada,-290,210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,4.5,bovada,-215,160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,4.5,bovada,160,-215,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,6.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,6.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,2.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,2.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,3.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,3.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,4.5,bovada,180,-245,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,4.5,bovada,-245,180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,5.5,bovada,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,5.5,bovada,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,7.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,7.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,2.5,bovada,-190,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,2.5,bovada,145,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,8.5,bovada,-230,170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,8.5,bovada,170,-230,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,9.5,bovada,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,9.5,bovada,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,10.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,10.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,11.5,bovada,180,-245,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,11.5,bovada,-245,180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,bovada,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,bovada,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,bovada,135,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,bovada,-180,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,bovada,-150,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,bovada,115,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,2.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,2.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,bovada,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,bovada,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,2.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,2.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,1.5,bovada,-240,175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,1.5,bovada,175,-240,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,bovada,130,-170,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,bovada,-170,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,bovada,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,bovada,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,bovada,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,bovada,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,3.5,bovada,190,-260,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,3.5,bovada,-260,190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,bovada,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,betmgm,-130,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,betmgm,105,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-1.5,betmgm,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,1.5,betmgm,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,betmgm,-118,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,betmgm,-102,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,betmgm,130,-175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,betmgm,-175,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Darryn Peterson,2.5,betmgm,-155,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Darryn Peterson,2.5,betmgm,115,-155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,betmgm,130,-175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,betmgm,-175,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,betmgm,-140,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,betmgm,105,-140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,2.5,betmgm,135,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,2.5,betmgm,-185,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,4.5,betmgm,105,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,4.5,betmgm,-145,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,betmgm,-155,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,betmgm,115,-155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,13.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,13.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,betmgm,100,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,betmgm,-135,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,14.5,betmgm,110,,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,12.5,betmgm,-105,,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,betmgm,-125,,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,betmgm,-130,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,betmgm,-105,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,20.5,betmgm,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,20.5,betmgm,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,22.5,betmgm,-111,,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,6.5,betmgm,100,,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,16.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,16.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,betmgm,-135,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,betmgm,100,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,betmgm,115,-155,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,betmgm,-155,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,betmgm,-130,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,betmgm,-105,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,10.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,10.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,betmgm,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,betmgm,120,-160,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,betmgm,-160,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,betmgm,-150,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,betmgm,110,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,betmgm,-150,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,betmgm,110,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,betmgm,-145,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,betmgm,105,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,3.5,betmgm,130,-175,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,3.5,betmgm,-175,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,betmgm,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,betmgm,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cam Spencer,1.5,betmgm,-225,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cam Spencer,1.5,betmgm,165,-225,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,betmgm,-150,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,betmgm,110,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,betmgm,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,betmgm,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,betmgm,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,betmgm,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,betmgm,-150,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,betmgm,110,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,betmgm,145,-200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,betmgm,-200,145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,betmgm,140,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,betmgm,-190,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,betmgm,-120,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,betmgm,-111,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,betmgm,125,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,betmgm,-165,125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,betmgm,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,williamhill_us,-125,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,williamhill_us,105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-1.5,williamhill_us,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,1.5,williamhill_us,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241,williamhill_us,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241,williamhill_us,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,williamhill_us,-130,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,williamhill_us,-104,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,williamhill_us,-125,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,williamhill_us,-107,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,williamhill_us,122,-162,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,williamhill_us,-162,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,3.5,williamhill_us,-154,116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,3.5,williamhill_us,116,-154,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,williamhill_us,103,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,williamhill_us,-137,103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,williamhill_us,-127,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,williamhill_us,-105,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,williamhill_us,-104,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,williamhill_us,-130,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,williamhill_us,-124,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,williamhill_us,-107,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,20.5,williamhill_us,-108,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,20.5,williamhill_us,-124,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,williamhill_us,-122,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,williamhill_us,-108,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,williamhill_us,-121,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,williamhill_us,-110,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,williamhill_us,-124,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,williamhill_us,-108,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,5.5,williamhill_us,-115,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,5.5,williamhill_us,-113,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,williamhill_us,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,williamhill_us,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,16.5,williamhill_us,-105,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,16.5,williamhill_us,-127,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,13.5,williamhill_us,-132,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,13.5,williamhill_us,-102,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,williamhill_us,-120,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,williamhill_us,-112,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,williamhill_us,-117,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,williamhill_us,-114,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,21.5,williamhill_us,-138,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,21.5,williamhill_us,102,-138,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,williamhill_us,-114,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,williamhill_us,-117,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,williamhill_us,-118,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,williamhill_us,-113,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,williamhill_us,123,-164,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,williamhill_us,-164,123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,williamhill_us,118,-159,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,williamhill_us,-159,118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,williamhill_us,-136,103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,williamhill_us,103,-136,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,williamhill_us,115,-152,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,williamhill_us,-152,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,9.5,williamhill_us,-127,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,9.5,williamhill_us,-107,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,williamhill_us,-130,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,williamhill_us,-104,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,williamhill_us,-124,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,williamhill_us,-108,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,williamhill_us,-127,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,williamhill_us,-105,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,williamhill_us,-139,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,williamhill_us,105,-139,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,williamhill_us,-145,109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,williamhill_us,109,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,williamhill_us,-148,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,williamhill_us,110,-148,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,williamhill_us,136,-182,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,williamhill_us,-182,136,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,williamhill_us,165,-220,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,williamhill_us,-220,165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,williamhill_us,-129,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,williamhill_us,-105,-129,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,williamhill_us,-110,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,williamhill_us,-121,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,williamhill_us,-157,117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,williamhill_us,117,-157,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,williamhill_us,134,-182,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,williamhill_us,-182,134,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,williamhill_us,-109,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,williamhill_us,-122,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,lowvig,-131,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,lowvig,115,-131,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,lowvig,-109,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,lowvig,-103,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,242,lowvig,-107,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,242,lowvig,-107,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,betonlineag,-133,113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,betonlineag,113,-133,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,betonlineag,-113,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,betonlineag,-107,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,242,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,242,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,betonlineag,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,betonlineag,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,betonlineag,110,-143,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,betonlineag,-143,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,betonlineag,140,-185,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,betonlineag,-185,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,betonlineag,-127,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,betonlineag,-102,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Darryn Peterson,2.5,betonlineag,-147,114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Darryn Peterson,2.5,betonlineag,114,-147,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,betonlineag,122,-159,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,betonlineag,-159,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,2.5,betonlineag,139,-182,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,2.5,betonlineag,-182,139,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,4.5,betonlineag,122,-159,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,4.5,betonlineag,-159,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,betonlineag,-130,101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,betonlineag,101,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,22.5,betonlineag,-102,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,22.5,betonlineag,-127,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,20.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,20.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,16.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,16.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,13.5,betonlineag,-127,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,13.5,betonlineag,-102,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,betonlineag,-119,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,betonlineag,-109,-119,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,betonlineag,102,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,betonlineag,-132,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,betonlineag,-122,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,betonlineag,-106,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,5.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,5.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,31.5,betonlineag,-106,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,31.5,betonlineag,-122,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,30.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,30.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cameron Boozer,28.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cameron Boozer,28.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,30.5,betonlineag,-105,-123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,30.5,betonlineag,-123,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,23.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,23.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Darryn Peterson,21.5,betonlineag,-111,-116,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Darryn Peterson,21.5,betonlineag,-116,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,27.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,27.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,12.5,betonlineag,-103,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,12.5,betonlineag,-125,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,17.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,17.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,13.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,13.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,betonlineag,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,betonlineag,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,betonlineag,-114,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,betonlineag,120,-156,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,betonlineag,-156,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,betonlineag,130,-169,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,betonlineag,-169,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,betonlineag,-130,101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,betonlineag,101,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,3.5,betonlineag,152,-200,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,3.5,betonlineag,-200,152,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,betonlineag,-135,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,betonlineag,105,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,10.5,betonlineag,110,-143,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,10.5,betonlineag,-143,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,betonlineag,-119,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,betonlineag,-109,-119,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cam Spencer,2.5,betonlineag,130,-169,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cam Spencer,2.5,betonlineag,-169,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,betonlineag,118,-154,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,betonlineag,-154,118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Isaiah Collier,1.5,betonlineag,-169,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Isaiah Collier,1.5,betonlineag,130,-169,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,betonlineag,-108,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,betonlineag,-120,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,betonlineag,136,-179,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,betonlineag,-179,136,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,betonlineag,-118,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,betonlineag,-110,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,betonlineag,-130,101,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,betonlineag,101,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,betonlineag,149,-196,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,betonlineag,-196,149,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,betonlineag,-145,112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,betonlineag,112,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,betonlineag,-159,122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,betonlineag,122,-159,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,betonlineag,-137,106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,betonlineag,106,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,betonlineag,-109,-119,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,betonlineag,-119,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,betonlineag,132,-172,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,betonlineag,-172,132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,betonlineag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,betrivers,-122,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,betrivers,102,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-1.5,betrivers,-107,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,1.5,betrivers,-114,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241.5,betrivers,-113,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241.5,betrivers,-108,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,betrivers,-121,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,betrivers,-110,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,betrivers,-141,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,betrivers,102,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,betrivers,-136,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,betrivers,-103,-136,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,1.5,betrivers,-190,138,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,1.5,betrivers,138,-190,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,betrivers,-113,-121,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,betrivers,-121,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,betrivers,-137,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,betrivers,102,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,betrivers,102,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,betrivers,-137,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Darryn Peterson,2.5,betrivers,-148,108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Darryn Peterson,2.5,betrivers,108,-148,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,betrivers,123,-167,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,betrivers,-167,123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,betrivers,-124,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,betrivers,-110,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,betrivers,-108,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,betrivers,-127,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,13.5,betrivers,-124,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,13.5,betrivers,-109,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,betrivers,-137,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,betrivers,100,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,betrivers,-108,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,betrivers,-127,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,19.5,betrivers,-132,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,19.5,betrivers,-104,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,betrivers,-122,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,betrivers,-112,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,betrivers,-115,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,betrivers,-117,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,16.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,16.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,21.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,21.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,5.5,betrivers,-182,133,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,5.5,betrivers,133,-182,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,betrivers,-137,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,betrivers,102,-137,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,22.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,22.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,17.5,betrivers,-107,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,17.5,betrivers,-127,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,30.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,30.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cameron Boozer,28.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cameron Boozer,28.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,30.5,betrivers,-117,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,30.5,betrivers,-117,-117,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,27.5,betrivers,-115,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,27.5,betrivers,-118,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Darryn Peterson,21.5,betrivers,-113,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Darryn Peterson,21.5,betrivers,-120,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,30.5,betrivers,-120,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,30.5,betrivers,-114,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,betrivers,-110,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,betrivers,-122,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,betrivers,-141,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,betrivers,105,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,betrivers,-107,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,betrivers,-127,-107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,9.5,betrivers,-148,108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,9.5,betrivers,108,-148,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,betrivers,-125,-109,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,betrivers,-109,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,betrivers,-118,-114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,betrivers,-114,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,3.5,betrivers,123,-167,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,3.5,betrivers,-167,123,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,2.5,betrivers,-186,135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,2.5,betrivers,135,-186,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,betrivers,105,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,betrivers,-141,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,3.5,betrivers,-148,107,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,3.5,betrivers,107,-148,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,5.5,betrivers,-141,104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,5.5,betrivers,104,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,betrivers,-132,-103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,betrivers,-103,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,betrivers,-132,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,betrivers,-104,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,betrivers,104,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,betrivers,-141,104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,betrivers,-165,118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,betrivers,118,-165,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,betrivers,-132,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,betrivers,-104,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,betrivers,150,-210,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,betrivers,-210,150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,betrivers,-141,105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,betrivers,105,-141,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,betrivers,-110,-124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,betrivers,-124,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,betrivers,128,-177,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,betrivers,-177,128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cam Spencer,1.5,betrivers,130,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cam Spencer,1.5,betrivers,-180,130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,0.5,betrivers,-132,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,-0.5,betrivers,-104,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,119.5,betrivers,110,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,119.5,betrivers,-150,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,fanduel,-134,114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,fanduel,114,-134,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-1.5,fanduel,-112,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,1.5,fanduel,-108,-112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241.5,fanduel,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241.5,fanduel,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,fanduel,-118,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,fanduel,-104,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Lauri Markkanen,2.5,fanduel,150,-194,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Lauri Markkanen,2.5,fanduel,-194,150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Darryn Peterson,2.5,fanduel,-158,124,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Darryn Peterson,2.5,fanduel,124,-158,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cam Spencer,3.5,fanduel,-132,104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cam Spencer,3.5,fanduel,104,-132,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cameron Boozer,3.5,fanduel,-128,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cameron Boozer,3.5,fanduel,100,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Isaiah Collier,4.5,fanduel,120,-154,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Isaiah Collier,4.5,fanduel,-154,120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ace Bailey,1.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ace Bailey,1.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Keyonte George,6.5,fanduel,108,-138,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Keyonte George,6.5,fanduel,-138,108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Cedric Coward,3.5,fanduel,112,-142,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Cedric Coward,3.5,fanduel,-142,112,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Jaren Jackson Jr,2.5,fanduel,140,-180,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Jaren Jackson Jr,2.5,fanduel,-180,140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ty Jerome,19.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ty Jerome,19.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Isaiah Collier,5.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Isaiah Collier,5.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Keyonte George,19.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Keyonte George,19.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cam Spencer,6.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cam Spencer,6.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Zach Edey,11.5,fanduel,-118,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Zach Edey,11.5,fanduel,-108,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Darryn Peterson,13.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Darryn Peterson,13.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaxson Hayes,7.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaxson Hayes,7.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Lauri Markkanen,21.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Lauri Markkanen,21.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaren Jackson Jr,19.5,fanduel,100,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaren Jackson Jr,19.5,fanduel,-128,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cameron Boozer,15.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cameron Boozer,15.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Ace Bailey,11.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Ace Bailey,11.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Cedric Coward,13.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Cedric Coward,13.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,10.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,10.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Darryn Peterson,21.5,fanduel,-108,-118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Darryn Peterson,21.5,fanduel,-118,-108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Lauri Markkanen,30.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Lauri Markkanen,30.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cam Spencer,13.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cam Spencer,13.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaren Jackson Jr,27.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaren Jackson Jr,27.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Keyonte George,30.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Keyonte George,30.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cameron Boozer,27.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cameron Boozer,27.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ace Bailey,17.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ace Bailey,17.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Isaiah Collier,12.5,fanduel,100,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Isaiah Collier,12.5,fanduel,-128,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Ty Jerome,29.5,fanduel,-122,-104,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Ty Jerome,29.5,fanduel,-104,-122,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Cedric Coward,22.5,fanduel,-120,-106,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Cedric Coward,22.5,fanduel,-106,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cedric Coward,5.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cedric Coward,5.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ace Bailey,4.5,fanduel,126,-162,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ace Bailey,4.5,fanduel,-162,126,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Zach Edey,10.5,fanduel,114,-146,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Zach Edey,10.5,fanduel,-146,114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Cameron Boozer,7.5,fanduel,-125,-102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Cameron Boozer,7.5,fanduel,-102,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Isaiah Collier,2.5,fanduel,158,-205,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Isaiah Collier,2.5,fanduel,-205,158,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Ty Jerome,2.5,fanduel,-174,136,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Ty Jerome,2.5,fanduel,136,-174,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaxson Hayes,6.5,fanduel,126,-162,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaxson Hayes,6.5,fanduel,-162,126,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Lauri Markkanen,6.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Lauri Markkanen,6.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Darryn Peterson,4.5,fanduel,128,-164,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Darryn Peterson,4.5,fanduel,-164,128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Keyonte George,3.5,fanduel,-128,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Keyonte George,3.5,fanduel,100,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,fanduel,-130,102,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,fanduel,102,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaylen Wells,2.5,fanduel,-150,118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaylen Wells,2.5,fanduel,118,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ace Bailey,1.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ace Bailey,1.5,fanduel,-113,-113,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Lauri Markkanen,2.5,fanduel,100,-128,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Lauri Markkanen,2.5,fanduel,-128,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Darryn Peterson,1.5,fanduel,-138,108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Darryn Peterson,1.5,fanduel,108,-138,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaren Jackson Jr,1.5,fanduel,-140,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaren Jackson Jr,1.5,fanduel,110,-140,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cameron Boozer,1.5,fanduel,164,-215,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cameron Boozer,1.5,fanduel,-215,164,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Keyonte George,2.5,fanduel,144,-186,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Keyonte George,2.5,fanduel,-186,144,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Cedric Coward,1.5,fanduel,-146,114,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Cedric Coward,1.5,fanduel,114,-146,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,fanduel,-115,-111,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,fanduel,-111,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Jaylen Wells,1.5,fanduel,-150,118,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Jaylen Wells,1.5,fanduel,118,-150,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,fanduel,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,fanduel,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,fanduel,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,fanduel,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,mybookieag,-133,108,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,mybookieag,108,-133,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,242,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,242,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,mybookieag,-127,103,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,mybookieag,103,-127,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,mybookieag,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,fanatics,-130,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,fanatics,110,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,fanatics,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,fanatics,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,241.5,fanatics,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,241.5,fanatics,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,fanatics,-125,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,fanatics,-105,-125,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,over,Ty Jerome,6.5,fanatics,-130,100,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_ast,under,Ty Jerome,6.5,fanatics,100,-130,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,over,Jaylen Wells,11.5,fanatics,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pts,under,Jaylen Wells,11.5,fanatics,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,over,Jaylen Wells,15.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_pra,under,Jaylen Wells,15.5,fanatics,-115,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,over,Jaren Jackson Jr,5.5,fanatics,-145,110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_reb,under,Jaren Jackson Jr,5.5,fanatics,110,-145,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,over,Ty Jerome,2.5,fanatics,-120,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,pl_3pm,under,Ty Jerome,2.5,fanatics,-110,-120,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,MEM,,,betus,-135,115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ml,UTA,,,betus,115,-135,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,MEM,,-2,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_ats,UTA,,2,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,over,,242,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,game_total,under,,242,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,MEM,,,betus,-115,-105,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ml,UTA,,,betus,-105,-115,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,MEM,,-0.5,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_ats,UTA,,0.5,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,over,,117.5,betus,-110,-110,oddsapi
+2026-10-22T00:00:05Z,2026-10-21,UTA @ MEM,e6769c813dd625b622df94c14a562ce2,h1_total,under,,117.5,betus,-110,-110,oddsapi
