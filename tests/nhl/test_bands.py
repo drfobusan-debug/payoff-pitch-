@@ -123,3 +123,48 @@ def test_prop_bands_read_unders_per_player_and_se_by_game():
     no_goal = r["Player no goal (goals Under 0.5)"]
     assert no_goal.n == 3 and len(no_goal.games) == 2
     assert r["Player no goal, sim rates it a buy"].units == 0.4
+
+
+def test_the_study_leans_are_graded_like_any_band():
+    ctx = Context(b2b=frozenset({"2026-10-10|A"}))
+    rows = [
+        _row(side="H", consensus=0.70, pnl=0.4),
+        _row(side="A", consensus=0.30, pnl=-1),
+        _row("game_pl", "H", 0.45, 1.1, line=-1.5),
+    ]
+    r = _reads(rows, ctx)
+    assert r["ML lean: home team vs a road back-to-back"].units == 0.4
+    assert r["Puck line lean: home team vs a road back-to-back"].units == 1.1
+    assert r["ML lean: home favourite >= 65%"].n == 1
+    assert set(bands.LEANS) >= {
+        "ML lean: home team vs a road back-to-back",
+        "ML lean: home favourite >= 65%",
+        f"ML lean (fade): starting goalie {bands.GSAX_GAP:.2f}+ GSAx/60 better",
+    }
+
+
+def test_the_goalie_lean_reads_the_priced_gsax_and_skips_rows_without_it():
+    hot = _row(side="H", pnl=-1)
+    hot.home_goalie_gsax60, hot.away_goalie_gsax60 = 0.30, 0.05
+    cold = _row(side="A", matchup="B @ H", pnl=0.9)
+    cold.home_goalie_gsax60, cold.away_goalie_gsax60 = 0.30, 0.05
+    old = _row(side="H", matchup="C @ H", pnl=0.5)  # recorded before the field existed
+    name = f"ML lean (fade): starting goalie {bands.GSAX_GAP:.2f}+ GSAx/60 better"
+    read = _reads([hot, cold, old])[name]
+    assert (read.n, read.units) == (1, -1)
+
+
+def test_tonight_lists_each_lean_on_an_ungraded_card():
+    ctx = Context(b2b=frozenset({"2026-10-10|A"}))
+    rows = [
+        _row(side="H", consensus=0.70),
+        _row(side="H", consensus=0.70),  # a second book on the same side
+        _row("game_pl", "H", 0.45, line=-1.5),
+        _row("game_pl", "H", 0.30, line=-2.5),  # alternate line: not read
+    ]
+    for r in rows:
+        r.outcome = r.pnl = None
+    got = bands.tonight(rows, ctx)
+    assert got["ML lean: home team vs a road back-to-back"] == ["H ML (A @ H)"]
+    assert got["Puck line lean: home team vs a road back-to-back"] == ["H -1.5 (A @ H)"]
+    assert got["ML lean: home favourite >= 65%"] == ["H ML (A @ H)"]

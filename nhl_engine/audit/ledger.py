@@ -83,6 +83,9 @@ class LedgerRow:
     sim_tier: str = ""
     sim_edge: float | None = None
     sim_buy: bool = False
+    # The starters' GSAx/60 as priced, for the graded-only goalie lean in the bands.
+    home_goalie_gsax60: float | None = None
+    away_goalie_gsax60: float | None = None
 
     @property
     def is_buy(self) -> bool:
@@ -124,6 +127,8 @@ def row_from(
     lineup_source: str,
     priced_at: str,
     card_tag: str,
+    home_goalie_gsax60: float | None = None,
+    away_goalie_gsax60: float | None = None,
 ) -> LedgerRow:
     return LedgerRow(
         slate_date=slate_date.isoformat(),
@@ -158,6 +163,8 @@ def row_from(
         sim_tier=p.sim_tier,
         sim_edge=p.sim_edge,
         sim_buy=p.sim_buy,
+        home_goalie_gsax60=home_goalie_gsax60,
+        away_goalie_gsax60=away_goalie_gsax60,
     )
 
 

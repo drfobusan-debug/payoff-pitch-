@@ -29,6 +29,9 @@ from nhl_engine.audit.screens import Context
 
 SIDES = ("game_ml", "game_pl", "game_ml3")
 PROPS = ("g_saves", "sk_g")
+#: Starting-goalie GSAx/60 gap for the goalie lean: about the top fifth of the
+#: home-minus-away gap in the 2023-25 close study (a default, not a fit).
+GSAX_GAP = 0.17
 
 
 def _b2b(r: LedgerRow, team: str, ctx: Context) -> bool:
@@ -118,6 +121,14 @@ def _no_goal(r: LedgerRow) -> bool:
     return r.line == 0.5
 
 
+def _goalie_edge(r: LedgerRow) -> float | None:
+    """The side's starter GSAx/60 minus the other starter's, as priced."""
+    h, a = r.home_goalie_gsax60, r.away_goalie_gsax60
+    if h is None or a is None:
+        return None
+    return h - a if r.side == r.home else a - h
+
+
 def _any_b2b(r: LedgerRow, ctx: Context) -> bool:
     return _b2b(r, r.home, ctx) or _b2b(r, r.away, ctx)
 
@@ -140,12 +151,21 @@ def _side_bands(market: str, label: str) -> list[tuple[str, Hit]]:
             lambda r, c: _b2b(r, _opp(r), c) and not _b2b(r, r.side, c),
         ),
         ("road team on a back-to-back", lambda r, c: not home(r) and _b2b(r, r.side, c)),
+        (
+            "lean: home team vs a road back-to-back",
+            lambda r, c: home(r) and _b2b(r, r.away, c) and not _b2b(r, r.home, c),
+        ),
+        (
+            f"lean (fade): starting goalie {GSAX_GAP:.2f}+ GSAx/60 better",
+            lambda r, c: (e := _goalie_edge(r)) is not None and e >= GSAX_GAP,
+        ),
     ]
     if market == "game_ml":
         bands += [
             ("favourite >= 65%", lambda r, c: r.consensus >= 0.65),
             ("near pick'em 45-55%", lambda r, c: 0.45 <= r.consensus < 0.55),
             ("underdog < 35%", lambda r, c: r.consensus < 0.35),
+            ("lean: home favourite >= 65%", lambda r, c: home(r) and r.consensus >= 0.65),
         ]
     return [(f"{label} {name}", _side(market, f)) for name, f in bands]
 
@@ -175,6 +195,38 @@ BANDS: list[tuple[str, Hit]] = [
 ]
 
 
+#: The 2023-25 close-study leans (none cleared |z| >= 3 in both seasons), graded
+#: here like any band and printed on the slate PDF; never a gate or a buy.
+LEANS: tuple[str, ...] = tuple(name for name, _ in BANDS if "lean" in name)
+_HITS = dict(BANDS)
+
+
+def tonight(rows: Iterable[LedgerRow], ctx: Context) -> dict[str, list[str]]:
+    """Each lean's qualifying sides on an ungraded card: ML and the +-1.5 puck line."""
+    seen: set[tuple[str, str, str]] = set()
+    main: list[LedgerRow] = []
+    for r in rows:
+        if r.entity or r.market not in ("game_ml", "game_pl") or r.side not in (r.home, r.away):
+            continue
+        if r.market == "game_pl" and r.line not in (-1.5, 1.5):
+            continue
+        k = (r.matchup, r.market, r.side)
+        if k not in seen:
+            seen.add(k)
+            main.append(r)
+    out: dict[str, list[str]] = {}
+    for name in LEANS:
+        hit = _HITS[name]
+        picks = [
+            f"{r.side} {'ML' if r.market == 'game_ml' else f'{r.line:+g}'} ({r.matchup})"
+            for r in main
+            if hit(r, ctx, -1)
+        ]
+        if picks:
+            out[name] = picks
+    return out
+
+
 def read_bands(rows: Iterable[LedgerRow], ctx: Context) -> list[BandRead]:
     main = main_rows(rows)
     rank = _ml3_rank(main)
@@ -189,4 +241,4 @@ def read_bands(rows: Iterable[LedgerRow], ctx: Context) -> list[BandRead]:
     return out
 
 
-__all__ = ["BANDS", "CALL_SE", "MIN_N", "BandRead", "main_rows", "read_bands"]
+__all__ = ["BANDS", "CALL_SE", "LEANS", "MIN_N", "BandRead", "main_rows", "read_bands", "tonight"]
