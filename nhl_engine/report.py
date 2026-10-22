@@ -142,6 +142,7 @@ class ReportContext:
     vsin_history: list[Pick] = field(default_factory=list)  # every VSiN game bet, graded or not
     leans: list[BandRead] = field(default_factory=list)  # graded-only study leans, to date
     lean_tonight: dict[str, list[str]] = field(default_factory=dict)  # lean -> tonight's sides
+    lean_note: str = ""  # why tonight's sides could not be read, when they could not
 
 
 def _key_skaters(props: PropContext | None, team: str) -> list[SkaterProjection]:
@@ -574,7 +575,8 @@ def _leans_block(ctx: ReportContext) -> str:
         "the bar set before the test (same sign both seasons, |z| &ge; 3, &ge; 2.3 pts), so each is "
         "graded flat 1u at the card's price on every qualifying side and never gates or buys. A "
         "'fade' lean is expected to lose; it is a refusal candidate.</p>"
-        "<table><tr><th>lean</th><th>tonight</th><th>record so far</th></tr>"
+        + (f"<p class='sbnote'><strong>{escape(ctx.lean_note)}</strong></p>" if ctx.lean_note else "")
+        + "<table><tr><th>lean</th><th>tonight</th><th>record so far</th></tr>"
         + "".join(body)
         + "</table></div>"
     )
