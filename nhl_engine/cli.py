@@ -379,13 +379,14 @@ def cmd_card(args: argparse.Namespace) -> int:
                 sctx = screens.Context(b2b=b2b)
                 reads = {b.name: b for b in bands.read_bands(graded, sctx)}
                 ctx.leans = [reads[n] for n in bands.LEANS if n in reads]
+                ctx.lean_tonight = bands.tonight(card.rows, sctx)
                 if unread:
+                    for name in [n for n in ctx.lean_tonight if "back-to-back" in n]:
+                        del ctx.lean_tonight[name]
                     ctx.lean_note = (
                         "Tonight's back-to-backs are unread (NHL schedule unavailable), "
                         "so the back-to-back leans list no sides tonight."
                     )
-                else:
-                    ctx.lean_tonight = bands.tonight(card.rows, sctx)
             except Exception:  # noqa: BLE001 - the leans are a view; never lose the PDF
                 log.warning("graded-only leans unavailable", exc_info=True)
             paths["pdf"] = report.write_pdf(
@@ -466,11 +467,14 @@ def _lean_b2b(nights: list[str], slate: Date) -> tuple[frozenset[str], bool]:
     def played(day: Date) -> set[str]:
         client = fresh if day >= slate - timedelta(days=1) else kept
         try:
-            return {t for g in client.schedule(day) for t in (g.home, g.away)}
+            games = client.schedule_or_none(day)
         except Exception as exc:  # noqa: BLE001 - one bad night must not sink the card
             log.warning("schedule for %s unavailable: %s", day, exc)
+            games = None
+        if games is None or (day == slate and not games):
             failed.add(day)
             return set()
+        return {t for g in games for t in (g.home, g.away)}
 
     b2b = screens.b2b_teams([*nights, slate.isoformat()], played)
     return b2b, bool(failed & {slate, slate - timedelta(days=1)})
