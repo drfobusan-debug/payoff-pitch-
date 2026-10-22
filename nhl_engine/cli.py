@@ -59,7 +59,7 @@ from nhl_engine.config import cache_dir, data_dir, load_config, output_dir, prio
 from nhl_engine.data import availability, capture, podcast, preseason, rotowire
 from nhl_engine.data.book_rules import BookRule, BookRules, rules_path
 from nhl_engine.data.moneypuck import MoneyPuckClient, season_of
-from nhl_engine.data.nhlapi import NHLAPIClient
+from nhl_engine.data.nhlapi import FOREVER, NHLAPIClient
 from nhl_engine.data.oddsapi import SPORT_KEY, OddsAPIClient
 from nhl_engine.data.skaters import PlayerLogClient
 from nhl_engine.data.teamnames import CODES, canonical
@@ -373,12 +373,19 @@ def cmd_card(args: argparse.Namespace) -> int:
                     r
                     for p in sorted((root / "ledger").glob("graded_*.json"))
                     for r in ledger.load_rows(p)
-                    if not r.priced_late
+                    if not r.priced_late and r.slate_date < slate.isoformat()
                 ]
-                sctx = _screen_context(root, graded + card.rows)
+                b2b, unread = _lean_b2b(sorted({r.slate_date for r in graded}), slate)
+                sctx = screens.Context(b2b=b2b)
                 reads = {b.name: b for b in bands.read_bands(graded, sctx)}
                 ctx.leans = [reads[n] for n in bands.LEANS if n in reads]
-                ctx.lean_tonight = bands.tonight(card.rows, sctx)
+                if unread:
+                    ctx.lean_note = (
+                        "Tonight's back-to-backs are unread (NHL schedule unavailable), "
+                        "so the back-to-back leans list no sides tonight."
+                    )
+                else:
+                    ctx.lean_tonight = bands.tonight(card.rows, sctx)
             except Exception:  # noqa: BLE001 - the leans are a view; never lose the PDF
                 log.warning("graded-only leans unavailable", exc_info=True)
             paths["pdf"] = report.write_pdf(
@@ -445,6 +452,28 @@ def cmd_lineups(args: argparse.Namespace) -> int:
 
 def _nhlapi() -> NHLAPIClient:
     return NHLAPIClient(cache_dir=cache_dir() / "nhlapi")
+
+
+def _lean_b2b(nights: list[str], slate: Date) -> tuple[frozenset[str], bool]:
+    """Back-to-backs for the graded nights and the slate; True when tonight's are unread.
+
+    A past night's schedule does not change, so it is cached for good rather than
+    re-fetched on every card; only the slate and the day before it are read fresh.
+    """
+    fresh, kept = _nhlapi(), NHLAPIClient(cache_dir=cache_dir() / "nhlapi", cache_ttl=FOREVER)
+    failed: set[Date] = set()
+
+    def played(day: Date) -> set[str]:
+        client = fresh if day >= slate - timedelta(days=1) else kept
+        try:
+            return {t for g in client.schedule(day) for t in (g.home, g.away)}
+        except Exception as exc:  # noqa: BLE001 - one bad night must not sink the card
+            log.warning("schedule for %s unavailable: %s", day, exc)
+            failed.add(day)
+            return set()
+
+    b2b = screens.b2b_teams([*nights, slate.isoformat()], played)
+    return b2b, bool(failed & {slate, slate - timedelta(days=1)})
 
 
 def _minutes_to_next_drop(day: Date, now: datetime | None = None) -> float | None:

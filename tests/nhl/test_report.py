@@ -237,3 +237,34 @@ def test_the_leans_block_prints_tonight_and_the_record(tmp_path: Path):
     assert "1-1, -0.50u" in html and "probation" in html
     assert "H ML (A @ H)" in html and "no graded rows yet" in html
     assert "&amp;mdash;" not in html
+
+
+def test_the_leans_block_says_when_tonight_is_unread(tmp_path: Path):
+    from engine_common.bands import BandRead
+
+    card, ctx = _card(tmp_path)
+    ctx.leans = [BandRead("ML lean: home favourite >= 65%", [0.5], [0.5])]
+    ctx.lean_note = "Tonight's back-to-backs are unread (NHL schedule unavailable)."
+    assert "back-to-backs are unread" in report.render_html(card, ctx)
+
+
+def test_lean_b2b_reads_past_nights_from_a_kept_cache_and_flags_tonight(monkeypatch):
+    from nhl_engine import cli
+
+    calls: list[tuple[int, Date]] = []
+
+    class Fake:
+        def __init__(self, *a, cache_ttl: int = 300, **k):
+            self.ttl = cache_ttl
+
+        def schedule(self, day: Date):
+            calls.append((self.ttl, day))
+            if day == Date(2026, 10, 20):
+                raise RuntimeError("down")
+            return []
+
+    monkeypatch.setattr(cli, "NHLAPIClient", Fake)
+    monkeypatch.setattr(cli, "_nhlapi", lambda: Fake())
+    _, unread = cli._lean_b2b(["2026-10-10"], Date(2026, 10, 21))
+    assert unread
+    assert {d for t, d in calls if t == cli.FOREVER} == {Date(2026, 10, 9), Date(2026, 10, 10)}
