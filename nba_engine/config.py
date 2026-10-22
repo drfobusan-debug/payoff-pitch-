@@ -105,6 +105,12 @@ class CaptureParams:
     horizon_hours: int = field(default_factory=lambda: _env_int("NBAE_CAPTURE_HORIZON_H", 30))
     # The close pass captures events tipping within this many minutes.
     close_window_min: int = field(default_factory=lambda: _env_int("NBAE_CLOSE_WINDOW_MIN", 10))
+    # Games tipping before the first card pass (ET, "HH:MM") get their own pass
+    # from the watch once they are this many minutes from tip.
+    early_pass_before: str = field(
+        default_factory=lambda: os.getenv("NBAE_EARLY_PASS_BEFORE") or "17:15"
+    )
+    early_pass_min: int = field(default_factory=lambda: _env_int("NBAE_EARLY_PASS_MIN", 90))
 
 
 @dataclass(frozen=True)
