@@ -1,0 +1,92 @@
+{
+  "East Carolina @ Memphis|game_ats|East Carolina": {
+    "american": -110.0,
+    "line": 10.5,
+    "no_vig_prob": 0.5024398032071875
+  },
+  "East Carolina @ Memphis|game_ats|Memphis": {
+    "american": -106.0,
+    "line": -10.5,
+    "no_vig_prob": 0.49756019679281244
+  },
+  "East Carolina @ Memphis|game_ml|East Carolina": {
+    "american": 340.0,
+    "line": null,
+    "no_vig_prob": 0.22608856258433882
+  },
+  "East Carolina @ Memphis|game_ml|Memphis": {
+    "american": -385.0,
+    "line": null,
+    "no_vig_prob": 0.7739114374156613
+  },
+  "East Carolina @ Memphis|game_total|Over": {
+    "american": -105.0,
+    "line": 53.5,
+    "no_vig_prob": 0.5003532509919809
+  },
+  "East Carolina @ Memphis|game_total|Under": {
+    "american": -105.0,
+    "line": 53.5,
+    "no_vig_prob": 0.49964674900801903
+  },
+  "James Madison @ Appalachian St|game_ats|Appalachian St": {
+    "american": -110.0,
+    "line": 11.5,
+    "no_vig_prob": 0.5062859984948597
+  },
+  "James Madison @ Appalachian St|game_ats|James Madison": {
+    "american": -102.0,
+    "line": -11.5,
+    "no_vig_prob": 0.49371400150514044
+  },
+  "James Madison @ Appalachian St|game_ml|Appalachian St": {
+    "american": 355.0,
+    "line": null,
+    "no_vig_prob": 0.21614262778954835
+  },
+  "James Madison @ Appalachian St|game_ml|James Madison": {
+    "american": -425.0,
+    "line": null,
+    "no_vig_prob": 0.7838573722104516
+  },
+  "James Madison @ Appalachian St|game_total|Over": {
+    "american": -105.0,
+    "line": 56.5,
+    "no_vig_prob": 0.49658900128461897
+  },
+  "James Madison @ Appalachian St|game_total|Under": {
+    "american": -110.0,
+    "line": 56.5,
+    "no_vig_prob": 0.5034109987153811
+  },
+  "Liberty @ Kennesaw State|game_ats|Kennesaw State": {
+    "american": -106.0,
+    "line": 9.5,
+    "no_vig_prob": 0.4984815871223206
+  },
+  "Liberty @ Kennesaw State|game_ats|Liberty": {
+    "american": -106.0,
+    "line": -9.5,
+    "no_vig_prob": 0.5015184128776795
+  },
+  "Liberty @ Kennesaw State|game_ml|Kennesaw State": {
+    "american": 310.0,
+    "line": null,
+    "no_vig_prob": 0.23916433183637556
+  },
+  "Liberty @ Kennesaw State|game_ml|Liberty": {
+    "american": -365.0,
+    "line": null,
+    "no_vig_prob": 0.7608356681636246
+  },
+  "Liberty @ Kennesaw State|game_total|Over": {
+    "american": -105.0,
+    "line": 50.5,
+    "no_vig_prob": 0.4965921520732336
+  },
+  "Liberty @ Kennesaw State|game_total|Under": {
+    "american": -110.0,
+    "line": 50.5,
+    "no_vig_prob": 0.5034078479267664
+  }
+}
