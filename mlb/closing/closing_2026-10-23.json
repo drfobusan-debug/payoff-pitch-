@@ -2746,6 +2746,13 @@
   {
     "matchup": "TB @ MIL",
     "market": "pitcher_outs",
+    "selection": "Nick Martinez Outs o12.5",
+    "american": -139.0,
+    "no_vig_prob": 0.58159
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "pitcher_outs",
     "selection": "Nick Martinez Outs o13.5",
     "american": 106.0,
     "no_vig_prob": 0.46229
