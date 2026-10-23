@@ -947,9 +947,23 @@
   {
     "matchup": "TB @ MIL",
     "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI o1.5",
+    "american": 145.0,
+    "no_vig_prob": 0.383852
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
     "selection": "Jonny Deluca H+R+RBI u0.5",
     "american": 140.0,
     "no_vig_prob": 0.419721
+  },
+  {
+    "matchup": "TB @ MIL",
+    "market": "batter_hrr",
+    "selection": "Jonny Deluca H+R+RBI u1.5",
+    "american": -190.0,
+    "no_vig_prob": 0.616148
   },
   {
     "matchup": "TB @ MIL",
