@@ -25,10 +25,22 @@ class BandRead:
     pnls: list[float] = field(default_factory=list)  # one per bet, date order
     games: list[float] = field(default_factory=list)  # P&L summed per game, date order
     expected: list[float] = field(default_factory=list)  # market-expected P&L per bet, if priced
+    expected_games: list[float] = field(
+        default_factory=list
+    )  # the same summed per game, aligned to ``games``
 
     @property
     def _by_game(self) -> list[float]:
         return self.games or self.pnls
+
+    @property
+    def _excess_by_game(self) -> list[float]:
+        """Per-game P&L less what the market expected of it; raw P&L when the band carries no prices."""
+        g = self._by_game
+        e = self.expected_games if self.games else self.expected
+        if len(e) != len(g):
+            return g
+        return [a - b for a, b in zip(g, e, strict=True)]
 
     @property
     def n(self) -> int:
@@ -44,8 +56,8 @@ class BandRead:
 
     @property
     def se(self) -> float:
-        """SE of the units total, over per-game sums."""
-        g = self._by_game
+        """SE of the excess over the market, over per-game sums."""
+        g = self._excess_by_game
         n = len(g)
         if n < 2:
             return float("nan")
@@ -63,7 +75,8 @@ class BandRead:
 
     @property
     def halves(self) -> tuple[float, float]:
-        g = self._by_game
+        """Excess over the market in each half of the ledger (date order)."""
+        g = self._excess_by_game
         h = len(g) // 2
         return sum(g[:h]), sum(g[h:])
 
@@ -76,26 +89,11 @@ class BandRead:
         games = len(self._by_game)
         if games < MIN_N:
             return f"probation ({games}/{MIN_N} games)"
-        h1, h2 = self.halves
-        e1, e2 = self._expected_halves
-        if self.excess > CALL_SE * self.se and min(h1 - e1, h2 - e2) > 0:
+        if self.excess > CALL_SE * self.se and min(self.halves) > 0:
             return "wins: clears the bar"
-        if -self.excess > CALL_SE * self.se and max(h1 - e1, h2 - e2) < 0:
+        if -self.excess > CALL_SE * self.se and max(self.halves) < 0:
             return "loses: refusal candidate"
         return "no edge"
-
-    @property
-    def _expected_halves(self) -> tuple[float, float]:
-        """Market-expected units in each half; zero when the band carries no prices."""
-        if not self.expected or len(self.expected) != len(self.pnls) or self.games:
-            if self.games and self.expected:
-                # Per-game halves: spread the expectation in bet order over the game split.
-                h = len(self.games) // 2
-                share = h / len(self.games) if self.games else 0.5
-                return self.market_units * share, self.market_units * (1 - share)
-            return 0.0, 0.0
-        h = len(self.expected) // 2
-        return sum(self.expected[:h]), sum(self.expected[h:])
 
 
 __all__ = ["CALL_SE", "MIN_N", "BandRead"]
