@@ -197,3 +197,12 @@ date,run_id,arm_tier,kind,name,player_id,team,game_pk,versus,versus_id,slot,proj
 2026-10-19,20261019T2159Z,soft,bat,Travis Bazzana,683953,CLE,849815,Freddy Peralta,642547,6,False,SOFT OVER,over,held,,
 2026-10-19,20261019T2159Z,soft,bat,Petey Halpin,690984,CLE,849815,Freddy Peralta,642547,8,False,RV NEG WATCH,,held,,
 2026-10-19,20261019T2159Z,soft,bat,Chase DeLauter,800050,CLE,849815,Freddy Peralta,642547,3,False,PROD DROP,,dropped,,
+2026-10-23,20261023T1534Z,elite,arm,Nick Martinez,607259,TB,849805,Nick Martinez,607259,,False,,,screened,,4.18
+2026-10-23,20261023T1534Z,elite,arm,Jacob Misiorowski,694819,MIL,849805,Jacob Misiorowski,694819,,False,,,gated,siera: SIERA 2.56 ≤ 3.25,2.56
+2026-10-23,20261023T1534Z,elite,bat,William Contreras,661388,MIL,849805,Nick Martinez,607259,4,True,SCREEN WATCH,,held,,
+2026-10-23,20261023T1534Z,elite,bat,Brice Turang,668930,MIL,849805,Nick Martinez,607259,2,True,SCREEN WATCH,,held,,
+2026-10-23,20261023T1534Z,elite,bat,Joey Ortiz,687401,MIL,849805,Nick Martinez,607259,9,True,SCREEN WATCH,,held,,
+2026-10-23,20261023T1534Z,elite,bat,Jackson Chourio,694192,MIL,849805,Nick Martinez,607259,1,True,SCREEN WATCH,,held,,
+2026-10-23,20261023T1534Z,elite,bat,Luis Lara,800325,MIL,849805,Nick Martinez,607259,8,True,SCREEN WATCH,,held,,
+2026-10-23,20261023T1534Z,soft,arm,Nick Martinez,607259,TB,849805,Nick Martinez,607259,,False,,,gated,siera: SIERA 4.18 ≤ 4.40,4.18
+2026-10-23,20261023T1534Z,soft,arm,Jacob Misiorowski,694819,MIL,849805,Jacob Misiorowski,694819,,False,,,gated,siera: SIERA 2.56 ≤ 4.40,2.56
