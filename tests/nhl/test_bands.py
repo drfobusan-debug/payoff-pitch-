@@ -189,3 +189,24 @@ def test_tonight_lists_each_lean_on_an_ungraded_card():
     assert got["ML lean: home team vs a road back-to-back"] == ["H ML (A @ H)"]
     assert got["Puck line lean: home team vs a road back-to-back"] == ["H -1.5 (A @ H)"]
     assert got["ML lean: home favourite >= 65%"] == ["H ML (A @ H)"]
+
+
+def test_halves_and_se_read_each_game_against_its_own_price():
+    # First half: coin-flip bets at -110 that went 50/50 (market expected -0.045 each).
+    # Second half: -400 favourites at 80% consensus, won at the market's rate.
+    flips = [100 / 110 if i % 2 == 0 else -1.0 for i in range(60)]
+    chalk = [0.25 if i % 5 < 4 else -1.0 for i in range(60)]
+    expected = [0.5 * 100 / 110 - 0.5] * 60 + [0.8 * 0.25 - 0.2] * 60
+    read = bands.BandRead("x", flips + chalk, expected=expected)
+    assert all(abs(h) < 1.0 for h in read.halves)
+    assert read.verdict == "no edge"
+    # Per-game form: the expectation travels with the game, not with bet order.
+    per_game = bands.BandRead("x", flips + chalk, flips + chalk, expected, expected)
+    assert per_game.halves == pytest.approx(read.halves)
+    assert per_game.se == pytest.approx(read.se)
+
+
+def test_pushed_rows_expect_nothing_from_the_market():
+    r = _row("game_total", "over", consensus=0.55, pnl=0.0, line=6.0)
+    r.outcome = "push"
+    assert bands.market_expected(r) == 0.0

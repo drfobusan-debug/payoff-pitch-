@@ -24,6 +24,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 
 from engine_common.bands import CALL_SE, MIN_N, BandRead
+from nhl_engine.audit.grade import PUSH
 from nhl_engine.audit.grade import pnl as payout
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.screens import Context
@@ -235,22 +236,30 @@ def read_bands(rows: Iterable[LedgerRow], ctx: Context) -> list[BandRead]:
     for name, hit in BANDS:
         rs = [r for r in main if hit(r, ctx, rank.get((r.slate_date, r.matchup, r.side), -1))]
         per_game: dict[tuple[str, str], float] = {}
+        exp_game: dict[tuple[str, str], float] = {}
         for r in rs:
             k = (r.slate_date, r.matchup)
             per_game[k] = per_game.get(k, 0.0) + (r.pnl or 0.0)
+            exp_game[k] = exp_game.get(k, 0.0) + market_expected(r)
         out.append(
             BandRead(
                 name,
                 [r.pnl or 0.0 for r in rs],
                 list(per_game.values()),
                 [market_expected(r) for r in rs],
+                list(exp_game.values()),
             )
         )
     return out
 
 
 def market_expected(r: LedgerRow) -> float:
-    """Flat 1u at the card's price, settled at the no-vig consensus: the vig a fair bet pays."""
+    """Flat 1u at the card's price, settled at the no-vig consensus: the vig a fair bet pays.
+
+    A push returns the stake, and the consensus is conditional on no push, so a
+    pushed row expects (and made) nothing."""
+    if r.outcome == PUSH:
+        return 0.0
     win = payout("win", r.american) or 0.0
     return r.consensus * win - (1.0 - r.consensus)
 
