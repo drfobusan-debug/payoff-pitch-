@@ -186,6 +186,7 @@ def test_build_context_and_render(tmp_path: Path):
 
     html = report.render_html(card, ctx)
     for needle in (
+        "Best bets",
         "Tonight's buys",
         "game_ml",
         "H G",
@@ -268,3 +269,13 @@ def test_lean_b2b_reads_past_nights_from_a_kept_cache_and_flags_tonight(monkeypa
     _, unread = cli._lean_b2b(["2026-10-10"], Date(2026, 10, 21))
     assert unread
     assert {d for t, d in calls if t == cli.FOREVER} == {Date(2026, 10, 9), Date(2026, 10, 10)}
+
+
+def test_best_bets_rank_tier_then_edge_one_per_game_market():
+    a = _row("game_ml", "H", 0.03, buy=True)
+    b = _row("game_ml", "A", 0.05, buy=True)
+    c = _row("game_total", "over", 0.04, buy=True)
+    d = _row("game_pl", "H", 0.09, buy=False)
+    a.tier, b.tier, c.tier = "Strong buy", "Moderate buy", "Moderate buy"
+    best = report.best_bets([d, c, b, a])
+    assert [(r.market, r.side) for r in best] == [("game_ml", "H"), ("game_total", "over")]
