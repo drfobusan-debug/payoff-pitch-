@@ -1,0 +1,60 @@
+{
+ "episode_guid": "vsin-93980",
+ "model": "rules",
+ "prompt_version": "vsin-rules-1",
+ "transcript_sha": "44f6a518cc37868babb03d56ce13d0f14188afd8",
+ "picks": [
+  {
+   "pick_id": "06f14321e906",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93980",
+   "episode_title": "NBA Primetime Previews: Knicks-Celtics, Rockets-Spurs, Plus Best Bets for October 23",
+   "published": "2026-10-23T14:52:35+00:00",
+   "kind": "official",
+   "market": "game_ml",
+   "team": "Celtics",
+   "opponent": "New York Knicks",
+   "side": null,
+   "line": null,
+   "price": -130.0,
+   "units": null,
+   "seconds": 0,
+   "quote": "Celtics ML (-130)",
+   "reason": "https://vsin.com/nba/nba-primetime-previews-knicks-celtics-rockets-spurs-plus-best-bets-for-october-23/",
+   "description": "Celtics ML (-130)",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  },
+  {
+   "pick_id": "c3791aa6899f",
+   "show": "vsin_bets",
+   "show_name": "VSiN Best Bets",
+   "host": "Zachary Cohen",
+   "episode_guid": "vsin-93980",
+   "episode_title": "NBA Primetime Previews: Knicks-Celtics, Rockets-Spurs, Plus Best Bets for October 23",
+   "published": "2026-10-23T14:52:35+00:00",
+   "kind": "official",
+   "market": "game_ats",
+   "team": "Rockets",
+   "opponent": "San Antonio Spurs",
+   "side": null,
+   "line": 5.5,
+   "price": -111.0,
+   "units": null,
+   "seconds": 1,
+   "quote": "Rockets +5.5 (-111)",
+   "reason": "https://vsin.com/nba/nba-primetime-previews-knicks-celtics-rockets-spurs-plus-best-bets-for-october-23/",
+   "description": "Rockets +5.5 (-111)",
+   "league": "nba",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "nba"
+ ]
+}

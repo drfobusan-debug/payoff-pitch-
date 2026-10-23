@@ -1,0 +1,36 @@
+{
+ "episode_guid": "87b6bab8-5778-489c-acb7-dd68274152e6",
+ "model": "gpt-4o-mini",
+ "prompt_version": "picks-v2",
+ "transcript_sha": "de90f099c180b59fc92a6208524e1e2aaf8832cc",
+ "picks": [
+  {
+   "pick_id": "900a59e61a25",
+   "show": "daily_diamond",
+   "show_name": "The VSiN Daily Diamond",
+   "host": "Jensen Lewis",
+   "episode_guid": "87b6bab8-5778-489c-acb7-dd68274152e6",
+   "episode_title": "The VSiN Daily Diamond | October 23, 2026",
+   "published": "2026-10-23T10:35:51-04:00",
+   "kind": "official",
+   "market": "other",
+   "team": "Brewers",
+   "opponent": null,
+   "side": null,
+   "line": null,
+   "price": null,
+   "units": 0.75,
+   "seconds": 196,
+   "quote": "I played three quarters of a unit on Jacob is a row ski eight or more strikeouts.",
+   "reason": "Jensen believes Jacob is a row ski will have a strong performance with at least eight strikeouts.",
+   "description": "Jacob is a row ski over 8 strikeouts",
+   "league": "mlb",
+   "edge": "",
+   "fair_line": null
+  }
+ ],
+ "rejected": [],
+ "leagues": [
+  "mlb"
+ ]
+}
