@@ -131,9 +131,7 @@ class FeatureParams:
     # -- home field -------------------------------------------------------
     # HFA to apply at a neutral site (bowls, kickoff games). The model's base
     # HFA (ModelParams.home_field_pts) is removed and this substituted.
-    neutral_site_hfa: float = field(
-        default_factory=lambda: _env_float("CFBE_NEUTRAL_HFA", 0.0)
-    )
+    neutral_site_hfa: float = field(default_factory=lambda: _env_float("CFBE_NEUTRAL_HFA", 0.0))
 
     # -- rest / fatigue ---------------------------------------------------
     # Points per net rest-day edge (home rest days - away rest days), capped.
@@ -176,7 +174,9 @@ class FeatureParams:
         default_factory=lambda: _env_float("CFBE_WIND_TOTAL_PER_MPH", 0.0)
     )
     wind_total_max: float = field(default_factory=lambda: _env_float("CFBE_WIND_TOTAL_MAX", 7.0))
-    precip_total_pts: float = field(default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 0.0))
+    precip_total_pts: float = field(
+        default_factory=lambda: _env_float("CFBE_PRECIP_TOTAL_PTS", 0.0)
+    )
     cold_threshold_f: float = field(default_factory=lambda: _env_float("CFBE_COLD_F", 32.0))
     cold_total_pts: float = field(default_factory=lambda: _env_float("CFBE_COLD_TOTAL_PTS", 0.0))
 
@@ -204,9 +204,7 @@ class EVThresholds:
     min_edge: float = field(default_factory=lambda: _env_float("CFBE_MIN_EDGE", 0.02))
     # Extra edge, in probability points over ``min_edge``, that promotes a buy to
     # Strong -- price-independent, unlike an EV cutoff.
-    strong_edge_gap: float = field(
-        default_factory=lambda: _env_float("CFBE_EDGE_STRONG_GAP", 0.02)
-    )
+    strong_edge_gap: float = field(default_factory=lambda: _env_float("CFBE_EDGE_STRONG_GAP", 0.02))
     # Disagreement with the devigged market beyond which the edge reads as model
     # error rather than a bet. The market is the better forecaster here by a wide
     # margin -- the closing spread carries r=+.647 against the final margin while
@@ -242,9 +240,7 @@ class Credentials:
     gmail_user: str | None = field(
         default_factory=lambda: os.getenv("GMAIL_USER") or os.getenv("EMAIL_ADDRESS")
     )
-    gmail_app_password: str | None = field(
-        default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD")
-    )
+    gmail_app_password: str | None = field(default_factory=lambda: os.getenv("GMAIL_APP_PASSWORD"))
     # Generic SMTP relay (optional alternative to Gmail).
     smtp_server: str | None = field(default_factory=lambda: os.getenv("SMTP_SERVER"))
     smtp_user: str | None = field(default_factory=lambda: os.getenv("SMTP_USER"))
@@ -341,9 +337,7 @@ class Config:
     # the consensus (0 = SP+ only); ``ensemble_target_sd`` fixes the common points
     # spread the standardized models are rescaled to (0 = auto from SP+).
     ensemble: bool = field(default_factory=lambda: _env_bool("CFBE_ENSEMBLE", True))
-    ensemble_blend: float = field(
-        default_factory=lambda: _env_float("CFBE_ENSEMBLE_BLEND", 0.35)
-    )
+    ensemble_blend: float = field(default_factory=lambda: _env_float("CFBE_ENSEMBLE_BLEND", 0.35))
     ensemble_target_sd: float = field(default_factory=lambda: _env_float("CFBE_ENSEMBLE_SD", 0.0))
 
     # Opponent-adjusted per-play efficiency (CFBD game PPA, ridge-fit on games
@@ -380,9 +374,7 @@ class Config:
     # by sweep. It never contests a market number: against the closing spread the
     # same term goes 51.11% ATS, so it is deliberately confined to the fallback.
     roster_pts: float = field(default_factory=lambda: _env_float("CFBE_ROSTER_PTS", 6.5))
-    roster_max_pts: float = field(
-        default_factory=lambda: _env_float("CFBE_ROSTER_MAX_PTS", 8.0)
-    )
+    roster_max_pts: float = field(default_factory=lambda: _env_float("CFBE_ROSTER_MAX_PTS", 8.0))
 
     # Use the VSiN guide's per-team home-field-advantage table (overrides the flat
     # ``model.home_field_pts`` for listed home teams). Off by default: the guide
@@ -438,6 +430,9 @@ class Config:
     # Books a total may be shopped at when the audit grades the best number
     # (``cfb_engine.audit.shop``); unset means every book on the feed.
     shop_books: tuple[str, ...] | None = field(default_factory=lambda: _env_csv("CFBE_SHOP_BOOKS"))
+    # Books the bettor actually holds an account at; the audit reports the buys
+    # at those books as their own line (unset: no such line).
+    held_books: tuple[str, ...] | None = field(default_factory=lambda: _env_csv("CFBE_HELD_BOOKS"))
     # Record Kalshi's total ladder with each card pull (public API, no credits).
     kalshi: bool = field(default_factory=lambda: _env_bool("CFBE_KALSHI", True))
     odds_cache_ttl: int = field(default_factory=lambda: _env_int("CFBE_ODDS_CACHE_TTL", 1800))
@@ -450,9 +445,9 @@ class Config:
         default_factory=lambda: os.getenv("CFBE_AUDIT_EMAIL", "drfobusan@gmail.com")
     )
     smtp_host: str = field(
-        default_factory=lambda: os.getenv("CFBE_SMTP_HOST")
-        or os.getenv("SMTP_HOST")
-        or "smtp.gmail.com"
+        default_factory=lambda: (
+            os.getenv("CFBE_SMTP_HOST") or os.getenv("SMTP_HOST") or "smtp.gmail.com"
+        )
     )
     smtp_port: int = field(
         default_factory=lambda: _env_int("CFBE_SMTP_PORT", _env_int("SMTP_PORT", 465))

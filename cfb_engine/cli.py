@@ -29,8 +29,10 @@ from cfb_engine.audit import shop, snapshot, watchlist
 from cfb_engine.audit.availability import read_log, summarize
 from cfb_engine.audit.clv import (
     ClosingQuote,
+    ClvSummary,
     bet_clv_summary,
     closing_quotes,
+    clv_gap,
     compute_clv,
     drop_in_play,
     load_closing,
@@ -860,11 +862,25 @@ def _emit_ledger(
     clv_rows = bet_clv_summary(
         [(e.category, e.tier in _BUY_TIERS, _favors_fair(e), e.clv, e.clv_ev) for e in entries]
     )
+    gap = clv_gap(
+        [(e.tier in _BUY_TIERS, e.model_prob, e.fair_prob, e.clv, e.clv_ev) for e in entries]
+    )
     price_rows = price_bucket_metrics(entries)
     money = [
         engine_priced_stat(entries),
         *priced_stats(entries, lambda k: _MARKET_LABEL.get(k, k)),
     ]
+    if cfg.held_books:
+        held = [e for e in entries if e.book in cfg.held_books]
+        label = f"Buys at books you hold ({', '.join(cfg.held_books)})"
+        money.append(engine_priced_stat(held, label))
+        clv_rows += [
+            ClvSummary(label, c.n, c.mean_clv, c.beat_close_pct, c.mean_clv_ev)
+            for c in bet_clv_summary(
+                [(e.category, e.tier in _BUY_TIERS, _favors_fair(e), e.clv, e.clv_ev) for e in held]
+            )
+            if c.label == "Buys · ALL"
+        ]
     verdicts = probation_rows(entries)
     slate_buy = None
     if n_graded:
@@ -899,6 +915,7 @@ def _emit_ledger(
         probation=[p.finding for p in verdicts if p.actionable],
         slate_buy=slate_buy,
         tracked=[p for p in verdicts if p.kind in _GRADED_ONLY_KINDS],
+        gap=gap,
     )
 
 

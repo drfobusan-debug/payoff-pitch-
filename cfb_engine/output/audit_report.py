@@ -12,7 +12,7 @@ import re
 from datetime import date as Date
 from pathlib import Path
 
-from cfb_engine.audit.clv import ClvSummary
+from cfb_engine.audit.clv import ClvGap, ClvSummary
 from cfb_engine.audit.ledger import OverallMetrics
 from cfb_engine.audit.priced import PricedStat, priced_findings
 from cfb_engine.audit.probation import Probation
@@ -43,10 +43,7 @@ def _cls(v: float) -> str:
 
 
 def _metric_table(rows: list[OverallMetrics]) -> str:
-    head = (
-        "<tr><th>Segment</th><th>N</th><th>Win%</th><th>ROI</th><th>Units</th>"
-        "<th>PPV</th></tr>"
-    )
+    head = "<tr><th>Segment</th><th>N</th><th>Win%</th><th>ROI</th><th>Units</th><th>PPV</th></tr>"
     body = "".join(
         f"<tr><td>{m.tier}</td><td>{m.n}</td><td>{m.win_pct * 100:.1f}%</td>"
         f"<td class='{_cls(m.roi)}'>{m.roi * 100:+.1f}%</td>"
@@ -61,8 +58,7 @@ def _price_table(rows: list[OverallMetrics]) -> str:
     if not rows:
         return "<p>No real-priced buys graded yet.</p>"
     head = (
-        "<tr><th>Price band</th><th>N</th><th>Win%</th><th>Needs</th><th>Gap</th>"
-        "<th>ROI</th></tr>"
+        "<tr><th>Price band</th><th>N</th><th>Win%</th><th>Needs</th><th>Gap</th><th>ROI</th></tr>"
     )
     body = ""
     for m in rows:
@@ -120,16 +116,31 @@ def _tracked_table(rows: list[Probation]) -> str:
         return ""
     head = (
         "<tr><th>Graded-only rule (not a bet)</th><th>Status</th><th>N</th>"
-        "<th>ROI</th><th>Older half</th><th>Newer half</th></tr>"
+        "<th>ROI</th><th>vs market</th><th>Older half</th><th>Newer half</th></tr>"
     )
     body = "".join(
         f"<tr><td>{p.name}</td><td>{p.status}</td><td>{p.n}</td>"
         f"<td class='{_cls(p.roi)}'>{p.roi * 100:+.1f}%</td>"
+        f"<td class='{_cls(p.excess)}'>{p.excess * 100:+.1f}%</td>"
         f"<td class='{_cls(p.first_half)}'>{p.first_half * 100:+.1f}%</td>"
         f"<td class='{_cls(p.second_half)}'>{p.second_half * 100:+.1f}%</td></tr>"
         for p in rows
     )
     return f"<table>{head}{body}</table>"
+
+
+def _gap_line(gap: ClvGap | None) -> str:
+    """The claimed edge beside the part of it the close confirmed."""
+    if gap is None or not gap.n:
+        return ""
+    return (
+        f"<p>On {gap.n} buys with a close the card claimed a mean edge of "
+        f"<b>{gap.claimed * 100:+.1f}</b> probability points over the fair price; the close "
+        f"moved <b class='{_cls(gap.moved)}'>{gap.moved * 100:+.2f}</b> points toward the bet "
+        f"({gap.confirmed_share:.0%} of the claim), and the price taken is "
+        f"<b class='{_cls(gap.close_ev)}'>{gap.close_ev * 100:+.1f}%</b> EV at the close. "
+        "The gap between those two numbers is the part of the record to treat as variance.</p>"
+    )
 
 
 def _clv_table(rows: list[ClvSummary]) -> str:
@@ -163,6 +174,7 @@ def build_audit_article(
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
     tracked: list[Probation] | None = None,
+    gap: ClvGap | None = None,
 ) -> tuple[str, str]:
     """Return ``(html, narration_text)`` for the graded slate.
 
@@ -197,7 +209,7 @@ def build_audit_article(
         f"<h2>By segment</h2>{_metric_table(overall)}"
         f"<h2>What the prices did</h2>{_money_table(money_rows or [])}"
         f"<h2>By price length</h2>{_price_table(price_rows or [])}"
-        f"<h2>Closing line value &mdash; bets</h2>{_clv_table(clv_rows)}"
+        f"<h2>Closing line value &mdash; bets</h2>{_clv_table(clv_rows)}{_gap_line(gap)}"
         f"<h2>Probation</h2>{_probation_list(probation or [])}{_tracked_table(tracked or [])}"
         "<p class='fine'>Cumulative through this slate. Model audit, not investment advice.</p>"
         "</body></html>"
@@ -263,6 +275,7 @@ def generate_audit_report(
     probation: list[str] | None = None,
     slate_buy: OverallMetrics | None = None,
     tracked: list[Probation] | None = None,
+    gap: ClvGap | None = None,
 ) -> dict[str, Path | None]:
     """Write the audit article PDF + MP3 and optionally email with the ledger."""
     out: dict[str, Path | None] = {"pdf": None, "mp3": None, "html": None}
@@ -276,6 +289,7 @@ def generate_audit_report(
         probation,
         slate_buy,
         tracked,
+        gap,
     )
     iso = audit_date.isoformat()
     cfg.output_dir.mkdir(parents=True, exist_ok=True)

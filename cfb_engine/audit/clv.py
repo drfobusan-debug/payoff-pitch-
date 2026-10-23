@@ -43,10 +43,12 @@ from cfb_engine.schemas import Slate
 
 __all__ = [
     "ClosingQuote",
+    "ClvGap",
     "ClvResult",
     "ClvSummary",
     "bet_clv_summary",
     "closing_quotes",
+    "clv_gap",
     "clv_summary",
     "compute_clv",
     "drop_in_play",
@@ -239,6 +241,40 @@ def clv_summary(rows: list[tuple[str, float | None, float | None]]) -> list[ClvS
     if allrows:
         out.append(summarize("ALL", allrows))
     return out
+
+
+@dataclass(frozen=True)
+class ClvGap:
+    """How much of the card's claimed edge the close confirmed, on the buys with a close."""
+
+    n: int
+    claimed: float  # mean model_prob - fair_prob at bet time, probability points
+    moved: float  # mean clv: how far the close moved toward the bet
+    close_ev: float  # mean EV of the price taken at the closing no-vig
+
+    @property
+    def confirmed_share(self) -> float:
+        return self.moved / self.claimed if self.claimed else float("nan")
+
+
+def clv_gap(
+    rows: list[tuple[bool, float, float | None, float | None, float | None]],
+) -> ClvGap | None:
+    """From ``(is_buy, model_prob, fair_prob, clv, clv_ev)`` rows; None without a priced buy."""
+    buys = [
+        (m - f, c, ev or 0.0)
+        for buy, m, f, c, ev in rows
+        if buy and f is not None and c is not None
+    ]
+    if not buys:
+        return None
+    n = len(buys)
+    return ClvGap(
+        n,
+        sum(g for g, _, _ in buys) / n,
+        sum(c for _, c, _ in buys) / n,
+        sum(ev for _, _, ev in buys) / n,
+    )
 
 
 def bet_clv_summary(
