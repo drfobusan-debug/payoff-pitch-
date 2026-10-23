@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from nhl_engine.audit import bands, ledger_report
 from nhl_engine.audit.ledger import LedgerRow
 from nhl_engine.audit.screens import Context
@@ -100,6 +102,25 @@ def test_verdict_needs_the_sample_and_both_halves():
     assert bands.BandRead("x", [1.0] * 50).verdict == "probation (50/100 games)"
 
 
+def test_heavy_favourite_band_cannot_lose_on_vig_alone():
+    # -320 Unders at a 70% consensus: each flat unit expects -0.081u; 120 of them, won at the
+    # market's own rate, lose ~9.8u yet are exactly what the price predicted.
+    pays = 100 / 320
+    pnls = [pays if i % 10 < 7 else -1.0 for i in range(120)]
+    expected = [0.70 * pays - 0.30] * 120
+    read = bands.BandRead("x", pnls, expected=expected)
+    assert read.units < -2 and abs(read.excess) < 1.0
+    assert read.verdict == "no edge"
+    zero = bands.BandRead("x", pnls)  # no prices: judged against zero as before
+    assert zero.verdict.startswith(("loses", "no edge"))
+
+
+def test_market_expected_is_the_vig_at_the_card_price():
+    r = _row("game_ml", "H", consensus=0.76)
+    r.american = -320.0
+    assert bands.market_expected(r) == pytest.approx(0.76 * 100 / 320 - 0.24)
+
+
 def test_audit_report_renders_the_bands():
     audit = ledger_report.build([_row()])
     md = ledger_report.render_md(audit, as_of="t")
@@ -168,3 +189,24 @@ def test_tonight_lists_each_lean_on_an_ungraded_card():
     assert got["ML lean: home team vs a road back-to-back"] == ["H ML (A @ H)"]
     assert got["Puck line lean: home team vs a road back-to-back"] == ["H -1.5 (A @ H)"]
     assert got["ML lean: home favourite >= 65%"] == ["H ML (A @ H)"]
+
+
+def test_halves_and_se_read_each_game_against_its_own_price():
+    # First half: coin-flip bets at -110 that went 50/50 (market expected -0.045 each).
+    # Second half: -400 favourites at 80% consensus, won at the market's rate.
+    flips = [100 / 110 if i % 2 == 0 else -1.0 for i in range(60)]
+    chalk = [0.25 if i % 5 < 4 else -1.0 for i in range(60)]
+    expected = [0.5 * 100 / 110 - 0.5] * 60 + [0.8 * 0.25 - 0.2] * 60
+    read = bands.BandRead("x", flips + chalk, expected=expected)
+    assert all(abs(h) < 1.0 for h in read.halves)
+    assert read.verdict == "no edge"
+    # Per-game form: the expectation travels with the game, not with bet order.
+    per_game = bands.BandRead("x", flips + chalk, flips + chalk, expected, expected)
+    assert per_game.halves == pytest.approx(read.halves)
+    assert per_game.se == pytest.approx(read.se)
+
+
+def test_pushed_rows_expect_nothing_from_the_market():
+    r = _row("game_total", "over", consensus=0.55, pnl=0.0, line=6.0)
+    r.outcome = "push"
+    assert bands.market_expected(r) == 0.0

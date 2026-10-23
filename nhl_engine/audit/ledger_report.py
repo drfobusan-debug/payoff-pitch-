@@ -466,7 +466,7 @@ HEADER_NOTE = (
 )
 
 
-BAND_HEAD = ["band", "bets", "W-L", "units", "ROI", "SE (u, by game)", "halves", "verdict"]
+BAND_HEAD = ["band", "bets", "W-L", "units", "vs market", "ROI", "SE (u, by game)", "halves", "verdict"]
 
 
 def _band_title(a: LedgerAudit) -> str:
@@ -490,6 +490,7 @@ def _band_rows(reads: list[bnd.BandRead]) -> list[tuple[str, ...]]:
             str(b.n),
             b.record,
             f"{b.units:+.2f}",
+            f"{b.excess:+.2f}" if b.expected else "",
             f"{b.roi:+.1%}" if b.n else "",
             f"{b.se:.2f}" if b.n >= 2 else "",
             f"{b.halves[0]:+.2f} / {b.halves[1]:+.2f}",
